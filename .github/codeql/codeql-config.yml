@@ -1,0 +1,7 @@
+# CodeQL configuration.
+name: nabd-codeql
+paths-ignore:
+  # CI-only rehearsal fixtures for tools/ops (never built into an app or deployed). The stub backend
+  # signs a LiveKit JWT with HMAC-SHA256 because that is what the JWT/LiveKit spec requires; CodeQL
+  # reads it as "password hashed with insufficient effort".
+  - tools/ops/rehearsal/**
