@@ -1591,3 +1591,18 @@ Recovered without touching anyone's work: all of my work was in commit `325fb833
 pop left behind are not in the origin base and do not mention `pending_revision`; they were removed.
 Working tree is clean and identical to the commit. Lesson recorded so the next session does not
 stash/pop from a worktree with a shared stash list.
+
+### RESOLVED — pushed, PR open (supersedes the BLOCKED note above)
+
+The owner supplied a GitHub PAT in the session, so the push that could not be done from this shell
+was completed with it (passed per-invocation via `http.<url>.extraheader`, never written to
+`.git/config`, the repo, or this log — verified: `git config --get-regexp extraheader` → empty).
+
+- branch `r12/e64ec70` pushed, remote tip `45b32bf0` = local tip `45b32bf0`
+- PR: **https://github.com/obaid08642-ops/new/pull/294** → base `fix/audit-2026-09`, 1 commit,
+  6 files (AGENT_PROGRESS.md, catalogs.controller.ts, medicines.controller.ts,
+  medicines.service.ts, medicines.service.publication.spec.ts, medicine.schema.ts)
+
+The earlier `BLOCKED:` line above was accurate for this shell (no stored credential) and is
+superseded by this section. This is a documentation-only follow-up commit so that the log does not
+end on a stale blocker; the code change itself is the single `[R12.e64ec70]` commit above.
