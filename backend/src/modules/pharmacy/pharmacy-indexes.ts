@@ -19,9 +19,9 @@ import { Connection } from 'mongoose';
  * becomes ready, so the liveness/readiness health check fails instead of
  * serving traffic without duplicate guards.
  *
- * Follow-up (health owner, shared file — intentionally not touched here):
- * expose `checkPharmacyIndexes()` in GET health/readiness details, e.g.
- * `details.pharmacy_indexes = { ok, missing }`.
+ * Readiness: GET health/readiness (src/health.controller.ts) calls
+ * `checkPharmacyIndexes()` and reports `details.pharmacy_indexes = { ok, missing }`;
+ * a missing index turns the readiness status to `degraded`.
  */
 
 export interface PharmacyRequiredIndex {
@@ -74,7 +74,7 @@ export const PHARMACY_REQUIRED_INDEXES: PharmacyRequiredIndex[] = [
 export async function ensurePharmacyIndexes(conn: Connection): Promise<string[]> {
   const ensured: string[] = [];
   for (const def of PHARMACY_REQUIRED_INDEXES) {
-    await conn.collection(def.collection).createIndex(def.key as any, def.options as any);
+    await conn.collection(def.collection).createIndex(def.key, def.options);
     ensured.push(def.options.name);
   }
   return ensured;
@@ -105,7 +105,7 @@ export async function findMissingPharmacyIndexes(conn: Connection): Promise<stri
   return missing;
 }
 
-/** Read-only probe for the future readiness-details wiring (see header). */
+/** Read-only probe used by GET health/readiness (see header). */
 export async function checkPharmacyIndexes(
   conn: Connection,
 ): Promise<{ ok: boolean; missing: string[] }> {

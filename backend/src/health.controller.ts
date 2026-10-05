@@ -4,6 +4,7 @@ import { Public } from './common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { RedisService } from './modules/redis/redis.service';
+import { checkPharmacyIndexes } from './modules/pharmacy/pharmacy-indexes';
 
 @SkipThrottle()
 @Controller()
@@ -45,7 +46,18 @@ export class HealthController {
       redisOk = pong === 'PONG';
     } catch {}
 
-    const status = mongoOk && redisOk ? 'ok' : 'degraded';
+    // Q29: the duplicate guards the pharmacy flows rely on (unique indexes).
+    // A missing one makes the instance not ready, and the names are reported.
+    let pharmacyIndexes: { ok: boolean; missing: string[] } = { ok: false, missing: [] };
+    if (mongoOk) {
+      try {
+        pharmacyIndexes = await checkPharmacyIndexes(this.connection);
+      } catch {
+        pharmacyIndexes = { ok: false, missing: [] };
+      }
+    }
+
+    const status = mongoOk && redisOk && pharmacyIndexes.ok ? 'ok' : 'degraded';
 
     return {
       status,
@@ -55,6 +67,7 @@ export class HealthController {
       details: {
         mongodb: mongoOk ? 'up' : 'down',
         redis: redisOk ? 'up' : 'down',
+        pharmacy_indexes: pharmacyIndexes,
       },
     };
   }
