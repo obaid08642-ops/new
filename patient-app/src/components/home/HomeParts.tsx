@@ -68,7 +68,7 @@ function EcgLine() {
 export function GreetingCard({ name }: { name: string | null }) {
   const { theme, c, tr } = useScreenUi();
   const hour = new Date().getHours();
-  const greeting = hour >= 5 && hour < 12 ? 'صباح الخير' : 'مساء الخير';
+  const greeting = hour >= 5 && hour < 12 ? 'home.greetingMorning' : 'home.greetingEvening';
   return (
     // the dark board's greeting is a blue wash of the surface, not the coral one
     <Card tint={theme === 'dark' ? undefined : SERVICE_ICONS.health.tone} padding="lg" theme={theme}>
@@ -83,7 +83,7 @@ export function GreetingCard({ name }: { name: string | null }) {
             <Txt accessibilityRole="header" weight="bold" size={24}>{greeting}</Txt>
           )}
         </View>
-        <NabdLogo size={36} variant="text" theme={theme} pulse label={tr('نبض بلس')} />
+        <NabdLogo size={36} variant="text" theme={theme} pulse label={tr('common.appName')} />
       </View>
       <EcgLine />
     </Card>
@@ -160,7 +160,7 @@ export function AiCard({ onPress }: { onPress: () => void }) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${tr('المساعد الطبي الذكي')}, ${tr('صف أعراضك، ونقترح لك التخصص المناسب')}`}
+      accessibilityLabel={`${tr('home.aiTitle')}, ${tr('home.aiSub')}`}
       onPress={onPress}
       style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.98 : 1 }] })}
     >
@@ -169,10 +169,10 @@ export function AiCard({ onPress }: { onPress: () => void }) {
           <FIcon icon="sparkle" tone="violet" chip="solid" size={56} theme={theme} />
           <View style={{ flex: 1, gap: 3 }}>
             <View style={{ alignSelf: 'flex-start', minHeight: 22, paddingHorizontal: 8, borderRadius: 11, backgroundColor: c.service.violet.bg, justifyContent: 'center' }}>
-              <Txt weight="medium" size={11} color={c.service.violet.fg}>مدعوم بالذكاء الاصطناعي</Txt>
+              <Txt weight="medium" size={11} color={c.service.violet.fg}>{'home.aiBadge'}</Txt>
             </View>
-            <Txt weight="bold" size={16.5}>المساعد الطبي الذكي</Txt>
-            <Txt size={12.5} color={c.text.secondary}>صف أعراضك، ونقترح لك التخصص المناسب</Txt>
+            <Txt weight="bold" size={16.5}>{'home.aiTitle'}</Txt>
+            <Txt size={12.5} color={c.text.secondary}>{'home.aiSub'}</Txt>
           </View>
           <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: withAlpha(c.service.violet.fg, 0.14), alignItems: 'center', justifyContent: 'center' }}>
             <Chevron color={c.service.violet.fg} width={2.2} />
@@ -235,7 +235,7 @@ export function AllServicesRow({ onPress }: { onPress: () => void }) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${tr('كل الخدمات')}, ${tr('الصحة النفسية، العائلة، التأمين، المجتمع، والمزيد')}`}
+      accessibilityLabel={`${tr('common.seeAllServices')}, ${tr('home.servicesSub')}`}
       onPress={onPress}
       style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.98 : 1 }] })}
     >
@@ -243,8 +243,8 @@ export function AllServicesRow({ onPress }: { onPress: () => void }) {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <FIcon icon="squares-four" tone={SERVICE_ICONS.nursing.tone} size={44} theme={theme} />
           <View style={{ flex: 1, gap: 2 }}>
-            <Txt weight="bold" size={15}>كل الخدمات</Txt>
-            <Txt size={12} color={c.text.secondary}>الصحة النفسية، العائلة، التأمين، المجتمع، والمزيد</Txt>
+            <Txt weight="bold" size={15}>{'common.seeAllServices'}</Txt>
+            <Txt size={12} color={c.text.secondary}>{'home.servicesSub'}</Txt>
           </View>
           <Chevron color={c.text.secondary} />
         </View>
@@ -343,13 +343,17 @@ const SERVICE_LEADING: Record<string, { icon: FillIconName; tone: ServiceTone }>
   maternity: { icon: 'baby', tone: 'pink' },
 };
 
-/** The points card: the star on a solid amber chip and what the points are worth. */
-export function PointsCard({ onPress }: { onPress: () => void }) {
-  const { theme, c, tr } = useScreenUi();
+/**
+ * The points card: the star on a solid amber chip and what the points are worth (the owner's product rule, up to 10%
+ * of an order). The balance is shown only when GET /loyalty/account returned one (`points` is null otherwise).
+ */
+export function PointsCard({ onPress, points }: { onPress: () => void; points: number | null }) {
+  const { theme, c, tr, lang } = useScreenUi();
+  const label = points === null ? tr('home.points') : tr('home.pointsBalance').replace('{n}', new Intl.NumberFormat(LOCALE[lang] || 'ar').format(points));
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${tr('نقاط نبض+')}, ${tr('تخصم حتى ١٠٪ من قيمة طلبك')}`}
+      accessibilityLabel={`${label}, ${tr('home.pointsRule')}`}
       onPress={onPress}
       style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.98 : 1 }] })}
     >
@@ -357,8 +361,8 @@ export function PointsCard({ onPress }: { onPress: () => void }) {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <FIcon icon="star" tone="amber" chip="solid" size={44} theme={theme} />
           <View style={{ flex: 1, gap: 1 }}>
-            <Txt size={12} color={c.text.secondary}>نقاط نبض+</Txt>
-            <Txt weight="bold" size={15}>تخصم حتى ١٠٪ من قيمة طلبك</Txt>
+            <Plain size={12} color={c.text.secondary}>{label}</Plain>
+            <Txt weight="bold" size={15}>{'home.pointsRule'}</Txt>
           </View>
           <Chevron color={c.text.secondary} />
         </View>

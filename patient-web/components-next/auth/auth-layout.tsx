@@ -21,11 +21,6 @@ import styles from "./auth.module.css";
  * The site header and footer are not drawn on these pages (globals.css), as on
  * the boards; language and theme stay reachable in the top row.
  */
-const HERO: Record<"ar" | "en", { title: [string, string]; points: [string, string, string] }> = {
-  ar: { title: ["صحتك كلها", "في مكان واحد"], points: ["أدوية من صيدليات قريبة بأسعار حقيقية", "أطباء بالفيديو أو في العيادة أو في البيت", "تحاليل وأشعة وتمريض منزلي بتأمينك"] },
-  en: { title: ["All your health", "in one place"], points: ["Medicines from nearby pharmacies at real prices", "Doctors by video, in clinic or at home", "Labs, radiology and home nursing with your insurance"] },
-};
-
 export async function AuthLayout({
   locale,
   backHref,
@@ -40,14 +35,15 @@ export async function AuthLayout({
   children: React.ReactNode;
 }) {
   const shared = await getTranslations({ locale, namespace: "Shared" });
-  const hero = HERO[locale === "ar" ? "ar" : "en"];
+  const frame = await getTranslations({ locale, namespace: "AuthFrame" });
+  const heroPoints = [frame("heroPoint1"), frame("heroPoint2"), frame("heroPoint3")];
   const rtl = getDirection(locale) === "rtl";
   return (
     <main className={`nabd-auth ${styles.page}`}>
       <div className={styles.column}>
         <div className={styles.top}>
           {backHref ? (
-            <Link href={backHref} className={styles.back} aria-label={locale === "ar" ? "رجوع" : "Back"}>
+            <Link href={backHref} className={styles.back} aria-label={frame("back")}>
               <Icon name={rtl ? "caret-right" : "caret-left"} size={20} tone="currentColor" />
             </Link>
           ) : (
@@ -56,7 +52,7 @@ export async function AuthLayout({
           {showMark ? <Link href={`/${locale}`} className={styles.brand} aria-label={shared("brand")}>
             <NabdMark size={34} variant="text" />
             <span className={styles.wordmark} aria-hidden="true">
-              {locale === "ar" ? "نبض" : "Nabd"}<span className={styles.plus}>+</span>
+              {shared("wordmark")}<span className={styles.plus}>+</span>
             </span>
           </Link> : <span />}
           <div className={styles.tools}>
@@ -70,9 +66,9 @@ export async function AuthLayout({
         <span className={`${styles.tile} ${styles.tileA}`}><FIcon icon={SERVICE_ICONS.pharmacy.icon} tone={SERVICE_ICONS.pharmacy.tone} chip="none" size={96} /></span>
         <span className={`${styles.tile} ${styles.tileB}`}><FIcon icon={SERVICE_ICONS.consult.icon} tone={SERVICE_ICONS.consult.tone} chip="none" size={110} /></span>
         <span className={`${styles.tile} ${styles.tileC}`}><FIcon icon={SERVICE_ICONS.lab.icon} tone={SERVICE_ICONS.lab.tone} chip="none" size={86} /></span>
-        <p className={styles.heroTitle}>{hero.title[0]}<br />{hero.title[1]}</p>
+        <p className={styles.heroTitle}>{frame("heroTitleA")}<br />{frame("heroTitleB")}</p>
         <ul className={styles.points}>
-          {hero.points.map((p) => (
+          {heroPoints.map((p) => (
             <li key={p}><span className={styles.check}><Icon name="check" size={16} tone="currentColor" /></span>{p}</li>
           ))}
         </ul>

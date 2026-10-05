@@ -7,6 +7,8 @@ import { apiFetch } from '../src/utils/api';
 import { isOffline } from '../src/utils/isOffline';
 import { buildFeed, isToday, mapNotification, relativeTime, type RawNotification } from '../src/utils/notificationsFeed';
 import { autoTranslate } from '../src/i18n';
+import { makeStore, withStore } from '../src/__tests__/utils/testStore';
+import { setUnreadCount } from '../src/store/slices/notificationsSlice';
 
 const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn(), canGoBack: jest.fn(() => true) };
 jest.mock('expo-router', () => ({
@@ -16,7 +18,8 @@ jest.mock('expo-router', () => ({
 }));
 jest.mock('../src/utils/api', () => ({ apiFetch: jest.fn() }));
 jest.mock('../src/utils/isOffline', () => ({ isOffline: jest.fn() }));
-jest.mock('../src/utils/dates', () => ({ dateLocale: () => 'ar-SA-u-ca-gregory' }));
+const LOCALES: Record<string, string> = { ar: 'ar-SA-u-ca-gregory', en: 'en-US-u-ca-gregory', ur: 'ur-PK-u-ca-gregory' };
+jest.mock('../src/utils/dates', () => ({ dateLocaleFor: (lang: string) => LOCALES[lang] ?? 'ar-SA-u-ca-gregory' }));
 jest.mock('../src/hooks/usePushNotifications', () => ({
   translateBackendRoute: (route: string) => (route === '/orders/o1/tracking' ? { pathname: '/pharmacy/order-tracking', params: { orderId: 'o1' } } : null),
 }));
@@ -26,10 +29,13 @@ jest.mock('../src/context/AppContext', () => ({
 }));
 
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 47, bottom: 34, left: 0, right: 0 } };
-const ui = (
+// the screen reports its unread count to the store the Home bell reads
+const store = makeStore();
+const ui = withStore(
   <SafeAreaProvider initialMetrics={metrics}>
     <NotificationsScreen />
-  </SafeAreaProvider>
+  </SafeAreaProvider>,
+  store,
 );
 
 const ago = (ms: number) => new Date(Date.now() - ms).toISOString();
@@ -49,6 +55,7 @@ describe('Notifications screen (board Notifications)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockLang = 'ar';
+    store.dispatch(setUnreadCount(null));
     (isOffline as jest.Mock).mockResolvedValue(false);
   });
 
@@ -149,6 +156,39 @@ describe('Notifications screen (board Notifications)', () => {
     await fireEvent.press(screen.getByLabelText('رجوع'));
     expect(mockRouter.back).toHaveBeenCalled();
   });
+
+  it('an item older than 30 days shows its date in the app language, not the Arabic locale', async () => {
+    mockLang = 'en';
+    (apiFetch as jest.Mock).mockResolvedValue(FEED);
+    await render(ui);
+    await waitFor(() => expect(screen.getByText('طلبك في الطريق')).toBeTruthy());
+    const old = new Date(FEED[4].createdAt!).toLocaleDateString(LOCALES.en);
+    expect(screen.getByLabelText('خصم على الفيتامينات. ' + old)).toBeTruthy();
+    expect(old).not.toBe(new Date(FEED[4].createdAt!).toLocaleDateString(LOCALES.ar));
+  });
+
+  it('reports the real unread count to the store the Home bell reads (null while unknown)', async () => {
+    (apiFetch as jest.Mock).mockResolvedValue(FEED);
+    await render(ui);
+    await waitFor(() => expect(store.getState().notifications.unreadCount).toBe(2));
+    await fireEvent.press(screen.getByLabelText('قراءة الكل'));
+    await waitFor(() => expect(store.getState().notifications.unreadCount).toBe(0));
+  });
+
+  it('a failed load leaves the count unknown, so the bell draws no dot', async () => {
+    (apiFetch as jest.Mock).mockRejectedValue(new Error('boom'));
+    await render(ui);
+    await waitFor(() => expect(screen.getByText('تعذر تحميل الإشعارات')).toBeTruthy());
+    expect(store.getState().notifications.unreadCount).toBeNull();
+  });
+
+  it('Back with nothing to go back to opens the tabs by their group name (not "/", which is also the splash)', async () => {
+    mockRouter.canGoBack.mockReturnValueOnce(false);
+    (apiFetch as jest.Mock).mockResolvedValue([]);
+    await render(ui);
+    await fireEvent.press(screen.getByLabelText('رجوع'));
+    expect(mockRouter.replace).toHaveBeenCalledWith('/(tabs)');
+  });
 });
 
 describe('notification feed rules', () => {
@@ -171,6 +211,7 @@ describe('notification feed rules', () => {
   it('relative time in every language uses the translated phrase with the number', () => {
     const now = Date.parse('2026-10-05T12:00:00Z');
     const at = (ms: number) => new Date(now - ms).toISOString();
+    const ar = (s: string) => autoTranslate(s, 'ar') as string;
     for (const lang of ['ar', 'en', 'ur', 'hi', 'bn', 'fil'] as const) {
       const tr = (s: string) => autoTranslate(s, lang) as string;
       expect(relativeTime(at(5 * MIN), tr, 'en-US', now)).toContain('5');
@@ -179,7 +220,9 @@ describe('notification feed rules', () => {
       expect(relativeTime(at(5 * MIN), tr, 'en-US', now)).not.toContain('{n}');
     }
     expect(relativeTime(undefined, (s) => s, 'en-US', now)).toBe('');
-    expect(relativeTime(at(10_000), (s) => s, 'en-US', now)).toBe('الآن');
-    expect(relativeTime(at(DAY + 60_000), (s) => s, 'en-US', now)).toBe('أمس');
+    // an item older than 30 days is a date in the locale it is given (the app's language, see the screen)
+    expect(relativeTime(at(40 * DAY), ar, 'en-US', now)).toBe(new Date(now - 40 * DAY).toLocaleDateString('en-US'));
+    expect(relativeTime(at(10_000), ar, 'en-US', now)).toBe('الآن');
+    expect(relativeTime(at(DAY + 60_000), ar, 'en-US', now)).toBe('أمس');
   });
 });

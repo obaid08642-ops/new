@@ -4,7 +4,9 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { authCookieNames } from "@/lib/auth/cookies";
 import { getPatientDashboardProfile, getPatientDashboardUpcomingAppointment } from "@/lib/api/dashboard-server";
 import { parseDashboardAppointment, parseDashboardProfile } from "@/lib/api/dashboard";
+import { isOutage } from "@/lib/api/outage";
 import { isLocale } from "@/lib/i18n";
+import { RetryErrorState } from "@/components-next/core/core-states";
 import { HomeShell } from "@/components-next/home/home-shell";
 import { AiCard, AllServices, AppointmentCard, HeroCard, ServiceGrid } from "@/components-next/home/home-parts";
 import styles from "@/components-next/home/home.module.css";
@@ -29,6 +31,18 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   ]);
   if ([profileResult, appointmentResult].some((result) => result.status === "fulfilled" && result.value.status === 401)) {
     redirect(`/${locale}/login`);
+  }
+  // A FAILURE of either call (no answer, or a 5xx) is an outage, not an account without data: the error state with a retry
+  // shows inside the shell. An empty 200 (no upcoming appointment) or a 4xx for an optional part still just hides.
+  const outage = [profileResult, appointmentResult].some((result) => result.status === "rejected" || isOutage(result.value));
+  if (outage) {
+    return (
+      <HomeShell locale={locale} signedIn surface="dashboard">
+        <div className={styles.page}>
+          <RetryErrorState title={t("unavailableTitle")} body={t("unavailableBody")} retryLabel={t("retry")} />
+        </div>
+      </HomeShell>
+    );
   }
   const profile = profileResult.status === "fulfilled" && profileResult.value.ok
     ? parseDashboardProfile(await profileResult.value.json().catch(() => null))

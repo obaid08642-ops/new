@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { extractSearchResults } from "./search";
+import { extractSearchResults, intentRedirect, MAX_QUERY_CHARS, truncateQuery } from "./search";
 
 describe("search results guard", () => {
   it("keeps a row whose price or rating the API sent as null, and drops rows without an id or name", () => {
@@ -30,5 +30,36 @@ describe("search results guard", () => {
   it("returns no rows for a payload that is not a list", () => {
     expect(extractSearchResults({ items: [] }, "ar")).toEqual([]);
     expect(extractSearchResults(undefined, "en")).toEqual([]);
+  });
+});
+
+describe("query length", () => {
+  it("cuts a long query to 120 whole characters, not 120 encoded characters", () => {
+    expect(truncateQuery("short")).toBe("short");
+    const arabic = "ب".repeat(300);
+    expect(Array.from(truncateQuery(arabic)).length).toBe(MAX_QUERY_CHARS);
+    const emoji = "😀".repeat(200);
+    const cut = truncateQuery(emoji);
+    expect(Array.from(cut).length).toBe(MAX_QUERY_CHARS);
+    expect(() => encodeURIComponent(cut)).not.toThrow();
+  });
+});
+
+describe("intentRedirect: a confident intent for a query that found nothing", () => {
+  const intent = (canonical_path: string, confidence: number) => ({ canonical_path, confidence, intent_type: "discovery" });
+  it("follows a confident internal page, under the page's locale", () => {
+    expect(intentRedirect(intent("/en/doctors/cardiology/riyadh", 0.9), "en")).toBe("/en/doctors/cardiology/riyadh");
+    expect(intentRedirect(intent("/doctors/cardiology/riyadh", 0.9), "ar")).toBe("/ar/doctors/cardiology/riyadh");
+    expect(intentRedirect(intent("/en/medicine-catalog", 0.85), "en")).toBe("/en/medicine-catalog");
+  });
+  it("ignores a guess, the search page itself, other schemes and malformed answers", () => {
+    expect(intentRedirect(intent("/en/search", 0.95), "en")).toBeNull();
+    expect(intentRedirect(intent("/en/doctors/cardiology/riyadh", 0.5), "en")).toBeNull();
+    expect(intentRedirect(intent("//evil.test/x", 0.99), "en")).toBeNull();
+    expect(intentRedirect(intent("https://evil.test/x", 0.99), "en")).toBeNull();
+    expect(intentRedirect(intent("/en/../admin", 0.99), "en")).toBeNull();
+    expect(intentRedirect({ canonical_path: "/en/doctors", confidence: "0.9" }, "en")).toBeNull();
+    expect(intentRedirect(null, "en")).toBeNull();
+    expect(intentRedirect([], "en")).toBeNull();
   });
 });

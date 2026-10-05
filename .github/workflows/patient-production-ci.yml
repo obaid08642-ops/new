@@ -137,6 +137,12 @@ jobs:
       # the public nursing catalogue. This compares every locale against en.
       - name: Every locale covers every key (i18n coverage)
         run: node ../../tools/design/i18n-coverage.mjs
+      # Owner rule 2026-10-06 (same strictness as colours): no user-visible text in code, every key in all six
+      # languages. Both are ratchets that only go down; a new key must be complete in ar, en, ur, hi, bn, fil/tl.
+      - name: Locale parity (6 languages, no English left in a non-English file)
+        run: node ../../tools/design/locale-parity.mjs --base origin/main
+      - name: No literal UI string in JSX/TSX (ratchet)
+        run: node ../../tools/design/no-literal-ui-string.mjs
       # A0 across the OTHER THREE clients. provider-app/src/theme/tokens.ts
       # claimed in its own comment to be a mirror of tokens.json and held the
       # pre-A2 palette while ten screens imported it: the token contrast check

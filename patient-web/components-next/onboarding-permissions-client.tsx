@@ -2,15 +2,17 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
+import { LinkButton } from "./link-button";
 import styles from "./auth/auth.module.css";
 
 type State = "unknown" | "granted" | "denied" | "unsupported";
 
 export function OnboardingPermissionsClient({ locale }: { locale: string }) {
-  const ar = locale === "ar";
+  const t = useTranslations("Onboarding");
   const [location, setLocation] = useState<State>("unknown");
   const [notif, setNotif] = useState<State>("unknown");
 
@@ -31,30 +33,30 @@ export function OnboardingPermissionsClient({ locale }: { locale: string }) {
     } catch { setNotif("denied"); }
   }
 
-  const label = (state: State, allow: string) =>
-    state === "granted" ? (ar ? "تم السماح" : "Allowed") : state === "denied" ? (ar ? "غير مسموح" : "Not allowed") : state === "unsupported" ? (ar ? "غير متاح في هذا المتصفح" : "Not available in this browser") : allow;
+  const label = (state: State) =>
+    state === "granted" ? t("allowed") : state === "denied" ? t("denied") : state === "unsupported" ? t("unsupported") : t("allow");
 
   return (
     <div className={styles.form}>
-      <section className={styles.perm} aria-label={ar ? "الموقع" : "Location"}>
+      <section className={styles.perm} aria-label={t("locationTitle")}>
         <FIcon icon={SERVICE_ICONS.map.icon} tone={SERVICE_ICONS.map.tone} size={44} />
         <div className={styles.permText}>
-          <h2 className={styles.permTitle}>{ar ? "الموقع" : "Location"}</h2>
-          <p className={styles.hint}>{ar ? "لنقترح أقرب الأطباء والصيدليات ونحسب التوصيل." : "To suggest nearby doctors and pharmacies and work out delivery."}</p>
+          <h2 className={styles.permTitle}>{t("locationTitle")}</h2>
+          <p className={styles.hint}>{t("locationBody")}</p>
         </div>
-        <Button variant="outline" size="sm" label={label(location, ar ? "السماح" : "Allow")} onClick={askLocation} disabled={location !== "unknown"} />
+        <Button variant="outline" size="sm" label={label(location)} onClick={askLocation} disabled={location !== "unknown"} />
       </section>
-      <section className={styles.perm} aria-label={ar ? "الإشعارات" : "Notifications"}>
+      <section className={styles.perm} aria-label={t("notificationsTitle")}>
         <FIcon icon={SERVICE_ICONS.points.icon} tone={SERVICE_ICONS.points.tone} size={44} />
         <div className={styles.permText}>
-          <h2 className={styles.permTitle}>{ar ? "الإشعارات" : "Notifications"}</h2>
-          <p className={styles.hint}>{ar ? "تنبيهات المواعيد والأدوية ونتائج التحاليل." : "Appointment, medication and lab-result alerts."}</p>
+          <h2 className={styles.permTitle}>{t("notificationsTitle")}</h2>
+          <p className={styles.hint}>{t("notificationsBody")}</p>
         </div>
-        <Button variant="outline" size="sm" label={label(notif, ar ? "السماح" : "Allow")} onClick={askNotif} disabled={notif !== "unknown"} />
+        <Button variant="outline" size="sm" label={label(notif)} onClick={askNotif} disabled={notif !== "unknown"} />
       </section>
       <div className={styles.actions}>
-        <Link href={`/${locale}/welcome`} className={styles.fullLink}><Button variant="primary" size="lg" fullWidth label={ar ? "ابدأ" : "Get started"} /></Link>
-        <p className={styles.foot}><Link className={styles.link} href={`/${locale}/welcome`}>{ar ? "تخطي" : "Skip"}</Link></p>
+        <LinkButton href={`/${locale}/welcome`} label={t("start")} />
+        <p className={styles.foot}><Link className={styles.link} href={`/${locale}/welcome`}>{t("skip")}</Link></p>
       </div>
     </div>
   );

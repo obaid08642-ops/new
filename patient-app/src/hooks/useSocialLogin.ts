@@ -1,16 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 import { router } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as SecureStore from 'expo-secure-store';
+import { useDispatch } from 'react-redux';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as AuthSession from 'expo-auth-session';
 
 import { apiFetch } from '../../utils/api';
-import { decodeJwt } from '../utils/jwt';
-import { STORAGE_KEYS } from '../constants';
+import { startSession } from '../utils/authSession';
 
 import type { SocialProvider } from '../components/auth/AuthKit';
 
@@ -19,8 +17,8 @@ WebBrowser.maybeCompleteAuthSession();
 export type { SocialProvider };
 
 /** Plain copy, Arabic source text: the components translate it through the i18n layer. */
-export const SOCIAL_UNAVAILABLE = 'هذه الطريقة غير متاحة الآن. استخدم البريد أو رقم الجوال.';
-export const SOCIAL_FAILED = 'تعذّر تسجيل الدخول الآن. حاول مرة أخرى.';
+export const SOCIAL_UNAVAILABLE = 'auth.social.unavailable';
+export const SOCIAL_FAILED = 'auth.social.failed';
 
 const X_DISCOVERY = {
   authorizationEndpoint: 'https://twitter.com/i/oauth2/authorize',
@@ -56,6 +54,7 @@ function googleClientId(): string {
  * nothing sensitive is logged.
  */
 export function useSocialLogin() {
+  const dispatch = useDispatch();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const redirectUri = useMemo(() => AuthSession.makeRedirectUri({ scheme: 'nabdplus' }), []);
@@ -66,23 +65,20 @@ export function useSocialLogin() {
       const body: Record<string, string> = { provider, token };
       if (extra?.email) body.email = extra.email;
       if (extra?.name) body.name = extra.name;
-      const res = await apiFetch('/auth/social-login', { method: 'POST', body: JSON.stringify(body) });
-      const jwtToken = typeof res?.token === 'string' ? res.token : res?.token?.accessToken || null;
-      if (!jwtToken) throw new Error('no_session');
-      try {
-        await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_TOKEN, jwtToken);
-      } catch (_err) {
-        await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, jwtToken);
-      }
-      const decoded = decodeJwt(jwtToken);
-      if (decoded?.role !== 'patient') router.replace('/(auth)/provider-info' as any);
+      // skipAuth: a refused provider token answers 401, which must not delete the guest session that is stored
+      const res = await apiFetch('/auth/social-login', { method: 'POST', body: JSON.stringify(body), skipAuth: true });
+      // both tokens go to secure storage only (never AsyncStorage) and the auth slice learns of the user: the same
+      // session start as the password login
+      const session = await startSession(res, dispatch);
+      if (!session.ok) throw new Error(session.reason);
+      if (session.role !== 'patient') router.replace('/(auth)/provider-info' as any);
       else router.replace('/(tabs)');
     } catch (_err) {
       setError(SOCIAL_FAILED);
     } finally {
       setBusy(false);
     }
-  }, []);
+  }, [dispatch]);
 
   // Google
   const [googleReq, googleRes, googlePrompt] = Google.useAuthRequest({

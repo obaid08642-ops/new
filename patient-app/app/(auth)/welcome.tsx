@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { router } from 'expo-router';
 import { useDispatch } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Button, FIcon, Icon, Screen, SERVICE_ICONS } from '../../../packages/ui-native/src';
 import { LANGUAGES, useApp, type LangCode, type ThemeMode } from '../../src/context/AppContext';
@@ -13,6 +14,7 @@ import { AUTH_COLUMN, FONT, SocialButtons, availableSocialProviders, useAuthUi, 
 import { useSocialLogin } from '../../src/hooks/useSocialLogin';
 import { createGuestSession } from '../../src/utils/guestSession';
 import { guestLogin } from '../../src/store/slices/authSlice';
+import { STORAGE_KEYS } from '../../src/constants';
 
 /**
  * Welcome — board Auth screen=welcome (canvas/Welcome.dc.html, WelcomeDark.dc.html).
@@ -28,9 +30,9 @@ const LANG_ORDER: LangCode[] = ['ar', 'en', 'ur', 'hi', 'fil', 'bn'];
 
 // The board's theme glyphs (24-grid strokes): auto, light, dark.
 const THEME_OPTIONS: { mode: ThemeMode; label: string; d: string }[] = [
-  { mode: 'system', label: 'تلقائي', d: 'M12 21a9 9 0 1 0 0-18v18z M12 3a9 9 0 0 1 0 18' },
-  { mode: 'light', label: 'فاتح', d: 'M12 16a4 4 0 1 0 0-8a4 4 0 0 0 0 8z M12 2v2 M12 20v2 M4.9 4.9l1.4 1.4 M17.7 17.7l1.4 1.4 M2 12h2 M20 12h2 M4.9 19.1l1.4-1.4 M17.7 6.3l1.4-1.4' },
-  { mode: 'dark', label: 'غامق', d: 'M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z' },
+  { mode: 'system', label: 'common.themeAuto', d: 'M12 21a9 9 0 1 0 0-18v18z M12 3a9 9 0 0 1 0 18' },
+  { mode: 'light', label: 'common.themeLight', d: 'M12 16a4 4 0 1 0 0-8a4 4 0 0 0 0 8z M12 2v2 M12 20v2 M4.9 4.9l1.4 1.4 M17.7 17.7l1.4 1.4 M2 12h2 M20 12h2 M4.9 19.1l1.4-1.4 M17.7 6.3l1.4-1.4' },
+  { mode: 'dark', label: 'common.themeDark', d: 'M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z' },
 ];
 const GLOBE = 'M12 21a9 9 0 1 0 0-18a9 9 0 0 0 0 18z M3 12h18 M12 3c3 3 3 15 0 18 M12 3c-3 3-3 15 0 18';
 const ECG = 'M0 7h58l6-6 7 12 6-10 4 4h79';
@@ -54,6 +56,10 @@ export default function Welcome() {
   };
   const [langModalVisible, setLangModalVisible] = useState(false);
   const dispatch = useDispatch();
+  // Welcome has been shown: from now on the splash opens Home (as a guest) instead of this screen (launch rule)
+  useEffect(() => {
+    AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING_DONE, 'true').catch(() => undefined);
+  }, []);
   const [guestBusy, setGuestBusy] = useState(false);
   const [guestError, setGuestError] = useState<string | null>(null);
 
@@ -69,7 +75,7 @@ export default function Welcome() {
       dispatch(guestLogin(session));
       router.replace('/(tabs)');
     } catch (e) {
-      setGuestError('تعذّرت المتابعة كضيف الآن. تحقّق من الاتصال وحاول مرة أخرى.');
+      setGuestError('auth.welcome.guestFailed');
     } finally {
       setGuestBusy(false);
     }
@@ -129,7 +135,7 @@ export default function Welcome() {
       <View style={{ ...AUTH_COLUMN, marginTop: 7, paddingHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={`${tr('اللغة')}: ${current?.native ?? ''}`}
+          accessibilityLabel={`${tr('common.language')}: ${current?.native ?? ''}`}
           accessibilityState={{ expanded: langModalVisible }}
           onPress={() => setLangModalVisible(true)}
           style={{ ...pill, paddingStart: 10, paddingEnd: 12, flexDirection: 'row', alignItems: 'center', gap: 8 }}
@@ -141,7 +147,7 @@ export default function Welcome() {
           <Icon name="caret-down" size={14} theme={theme} color={c.text.secondary} />
         </Pressable>
 
-        <View accessibilityRole="radiogroup" accessibilityLabel={tr('المظهر')} style={{ ...pill, padding: 3, flexDirection: 'row', gap: 2 }}>
+        <View accessibilityRole="radiogroup" accessibilityLabel={tr('common.theme')} style={{ ...pill, padding: 3, flexDirection: 'row', gap: 2 }}>
           {THEME_OPTIONS.map((o) => {
             const on = themeMode === o.mode;
             return (
@@ -172,7 +178,7 @@ export default function Welcome() {
       </View>
 
       <Modal visible={langModalVisible} transparent animationType="fade" onRequestClose={() => setLangModalVisible(false)}>
-        <Pressable accessibilityLabel={tr('إغلاق')} style={{ flex: 1 }} onPress={() => setLangModalVisible(false)}>
+        <Pressable accessibilityLabel={tr('common.close')} style={{ flex: 1 }} onPress={() => setLangModalVisible(false)}>
           <View
             accessibilityRole="menu"
             style={{
@@ -234,7 +240,7 @@ export default function Welcome() {
                 <FIcon icon={x.icon} tone={x.tone} chip="none" size={x.glyph} theme={theme} />
               </View>
             ))}
-            <NabdLogo size={150} variant="text" theme={theme} pulse label={tr('نبض بلس')} />
+            <NabdLogo size={150} variant="text" theme={theme} pulse label={tr('common.appName')} />
           </View>
         </View>
 
@@ -248,7 +254,7 @@ export default function Welcome() {
             <Path d={ECG} fill="none" stroke={c.brand.coral} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" />
           </Svg>
           <LocalizedText style={{ fontFamily: FONT.regular, fontSize: 16, lineHeight: 24, color: c.text.secondary, textAlign: 'center' }}>
-            رعايتك الصحية المتكاملة
+            {'common.tagline'}
           </LocalizedText>
         </View>
 
@@ -258,10 +264,10 @@ export default function Welcome() {
           <SocialButtons layout="labelled" providers={providers} onPress={onSocial} disabled={social.busy || guestBusy} />
           <View style={{ flexDirection: 'row', gap: 8, marginTop: providers.length ? 4 : 0 }}>
             <View style={{ flex: 1 }}>
-              <Button label={tr('إنشاء حساب')} variant="primary" size="lg" fullWidth theme={theme} onPress={() => go('s86')} testID="welcome-register" />
+              <Button label={tr('auth.createAccount')} variant="primary" size="lg" fullWidth theme={theme} onPress={() => go('s86')} testID="welcome-register" />
             </View>
             <View style={{ flex: 1 }}>
-              <Button label={tr('تسجيل الدخول')} variant="outline" size="lg" fullWidth theme={theme} onPress={() => go('s85')} testID="welcome-login" />
+              <Button label={tr('auth.login')} variant="outline" size="lg" fullWidth theme={theme} onPress={() => go('s85')} testID="welcome-login" />
             </View>
           </View>
           <Pressable
@@ -273,7 +279,7 @@ export default function Welcome() {
             style={{ height: 46, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: guestBusy ? 0.6 : 1 }}
           >
             <LocalizedText style={{ fontFamily: FONT.medium, fontSize: 15, color: c.text.primary }}>
-              {guestBusy ? 'لحظة…' : 'المتابعة كضيف'}
+              {guestBusy ? 'common.pleaseWait' : 'auth.welcome.guest'}
             </LocalizedText>
             <Icon name={isRTL ? 'caret-left' : 'caret-right'} size={16} theme={theme} color={c.text.primary} />
           </Pressable>

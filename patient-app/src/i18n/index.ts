@@ -323,6 +323,8 @@ export function useTranslation(lang: LangCode) {
 }
 
 // Dynamic autoTranslate helper
+/** A dotted lower-case id such as `auth.login.title`: the shape of a locale-file key. */
+const TRANSLATION_KEY = /^[a-z][a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]+)+$/;
 export function autoTranslate(text: any, lang: LangCode): any {
   if (text === null || text === undefined) return text;
   
@@ -330,6 +332,13 @@ export function autoTranslate(text: any, lang: LangCode): any {
     const trimmed = text.trim();
     if (!trimmed) return text;
     
+    // 0. A translation KEY (`login.title`): screens hold keys, not sentences (owner rule 2026-10-06). The locale
+    // files (src/i18n/locales/*.json) carry the text in all six languages; the parity gate keeps them complete.
+    if (TRANSLATION_KEY.test(trimmed)) {
+      const hit = translations[lang]?.[trimmed as keyof TranslationKeys] ?? translations.en?.[trimmed as keyof TranslationKeys] ?? translations.ar?.[trimmed as keyof TranslationKeys];
+      if (hit) return hit;
+    }
+
     // 1. Direct match in autoTranslations.
     // Fallback chain: requested lang → English → Arabic source.
     // English is complete, so ur/hi/bn/fil users see English instead of

@@ -8,6 +8,7 @@ import { router } from 'expo-router';
 
 import { FIcon, SectionHeader } from '../../../packages/ui-native/src';
 import { apiFetch } from '../utils/api';
+import { internalRoute } from '../utils/deepLinks';
 import { Plain, useScreenUi } from './home/homeKit';
 
 type Item = { id?: string; title_ar?: string; title_en?: string; image_url?: string; deep_link?: string };
@@ -51,12 +52,14 @@ export default function HomeSections() {
               contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
               renderItem={({ item }) => {
                 const label = pick(item.title_ar, item.title_en);
+                // the admin types the link: only a known internal path of the app opens; anything else is a card with no tap
+                const target = internalRoute(item.deep_link);
                 return (
                   <Pressable
-                    accessibilityRole={item.deep_link ? 'link' : undefined}
+                    accessibilityRole={target ? 'link' : undefined}
                     accessibilityLabel={label || undefined}
-                    disabled={!item.deep_link}
-                    onPress={() => { if (item.deep_link) router.push(item.deep_link as never); }}
+                    disabled={!target}
+                    onPress={() => { if (target) router.push(target as never); }}
                     style={({ pressed }) => ({
                       width: CARD_WIDTH,
                       borderRadius: 24,
