@@ -207,7 +207,174 @@ in place. No other agent's work was lost or committed. Lesson: never
 `git stash` in a shared worktree; use in-place edit/restore probes only
 (which is what all mutation proofs above used).
 
-## BLOCKED / DEFERRED lines
+## Fix round 2
+
+Branch `p15-backend`, on top of `2aac2c4`. Prior-round commits
+`ad7e2bb/d76b46a/c1ae9c1/be5e3cf/2aac2c4` verified present via
+`git log --oneline`; not redone. Work is mocked-repository only
+(`mongodb-memory-server` SIGABRTs here); `stash@{0}` left untouched;
+`auto-entity-seo-pipeline.spec.ts` Scenario 20 never touched (still red —
+verified at the end). `tsc --noEmit` clean after every commit.
+
+### F1 — booking buffer-overlap race (FIXED)
+
+- File: `backend/src/modules/care/appointments.service.ts`
+  (`paddedWindowKeys`, `claimPaddedWindow`, wired into `create()` +
+  `reschedule()`); new spec
+  `backend/src/modules/care/appointments-buffer-race.p15.spec.ts` (4 tests).
+- Why not a transaction: concurrent txns run under snapshot isolation with no
+  predicate lock — two txns both read "no overlap" and both commit. The repo's
+  own concurrent paths (payments `initiating` partial index, slot-locks exact
+  guard, 15.2 appointments exact-slot index) all resolve races the same way:
+  a UNIQUE index + 11000-loser-returns-409. F1 extends that pattern to ranges:
+  each booking atomically inserts ONE hold doc (`appointment_slot_holds`)
+  carrying every 1-minute bucket key `appt-hold:<doctor_id>:<epochMinute>` of
+  its padded window under a unique multikey index on `keys`. Single-doc
+  inserts are atomic, so overlapping requests serialize; the loser throws
+  `ConflictException('slot_already_booked_or_conflicts_with_buffer')`.
+  Minute buckets are exact for minute-aligned windows (overlap ⟺ shared
+  bucket). Holds are deleted after commit; `expires_at` + TTL (60 s) bounds
+  crash orphans. Legacy overlap `findOne` kept as defence in depth.
+- Real tails: new spec `Tests: 4 passed, 4 total`; neighbours
+  `appointments-concurrency + states + slot-hold + slot-buffer`
+  `Test Suites: 5 passed, 5 total / Tests: 29 passed, 29 total`; `tsc` clean.
+- Mutation proof (in-place edit, restored via editor — no stash/checkout):
+  with the `keys.push` line commented out, spec goes
+  `Tests: 3 failed, 1 passed, 4 total`; restored → 4/4 green,
+  `grep MUTATION-PROBE` clean.
+- Self-caused incident (remediated): I reverted the whole service file with
+  `git checkout -- <path>` while restoring the probe. Recovery: re-applied
+  all six F1 edits from history, `tsc` clean, all 5 care suites green (29/29).
+  Lesson (same as round 1): never `git checkout/stash` in a shared worktree;
+  use editor-only probes.
+
+### F4 — UTC-anchored list mirror (FIXED)
+- Files: `backend/src/modules/care/care.service.ts`
+  (`loadAvailabilityBatch` anchors on `riyadhParts`, `firstAvailableOnDay` /
+  `firstAvailableSlot` / `hasAvailableSlotOnDay` / `batchNextAvailable` /
+  `batchHasSlotsToday` take `durationMinutes = 30`, `AvailabilityBatch` +
+  `firstAvailableOnDay` exported for tests); new spec
+  `backend/src/modules/care/care-riyadh-mirror.p15.spec.ts` (3 tests).
+- Midnight case pinned at `Date.now() = 2026-06-01T21:30Z` (= 00:30 Riyadh
+  06-02): `dayStrs[0] === '2026-06-02'` and the appointments range opens at
+  `2026-06-02T00:00:00.000Z`. Duration case: 09:00–09:45 window, 60-min
+  appointment → null (09:00 fits a 30-min step but not a 60-min stay);
+  booked-09:00 in a 09:00–10:30 window → 09:30.
+- Real tails: new spec `Tests: 3 passed, 3 total`; neighbours
+  `schedule-ramadan + care-pagination-guard` 13/13,
+  `doctor-list-perf + public-discovery + slot-listing-buffer` 12/12
+  (doctor-list-perf green — run outside its known 22:45–24:00Z flake window);
+  `tsc` clean.
+- Mutation proofs (editor-only, restored): UTC-anchor revert →
+  `1 failed, 2 passed` (dayStrs[0] back to 06-01); hardcoded 30-min step →
+  `1 failed, 2 passed` (60-min returns 09:00); `grep MUTATION-PROBE` clean.
+
+### F8 — chat rapid-tap race (FIXED)
+
+- Files: `backend/src/modules/chat/chat.service.ts` (`sendMessage` keeps the
+  `findOne` fast path, wraps `create` in a 11000 catch that re-reads the
+  triple `(client_message_id, thread_id, sender_id)` and returns the winner);
+  new spec `backend/src/modules/chat/chat-dedup-race.p15.spec.ts` (2 tests).
+- Atomicity source: the schema's existing UNIQUE sparse index on
+  `client_message_id` (same protocol as the payments 11000-loser-shares-winner
+  path — deliberately NOT a findOneAndUpdate rewrite, so the
+  `chat.contract.spec.ts` create-payload assertions stay exactly as written).
+  Loser never reaches the thread-metadata update (pinned: `updateOne` ×1).
+- Real tails: new spec + `chat.contract + booking-thread + lj06`
+  `Test Suites: 4 passed, 4 total / Tests: 15 passed, 15 total`; `tsc` clean.
+- Mutation proof (editor-only, restored): winner re-read forced to miss →
+  `1 failed, 1 passed` (loser rejects raw E11000); restored → green,
+  `grep MUTATION-PROBE` clean.
+
+### F9 — 15.12 kill switches: absent-default + seeding + 6 wired consumers (FIXED)
+
+- Absent-default (`backend/src/modules/feature-flags/feature-flags.service.ts:
+  isEnabled` now returns `boolean | null`, null when the row is absent — was
+  `false`, which isKilled() misread as "explicitly disabled" so every switch
+  fired pre-seeding). `ensureSeeded()` creates ONLY missing flags as
+  `enabled:true` (never overwrites an admin choice), runs on `onModuleInit`
+  (boot-safe: catches store outage, consumers fail open meanwhile);
+  `KILL_SWITCH_FLAG_KEYS` = the 6 canonical keys. Also fixed
+  `repositories/featureflag.repository.ts` to type against the module-local
+  `{key, enabled}` schema (runtime model was already that; the import pointed
+  at the legacy `{flagName, isEnabled}` shape). Helper
+  (`common/killswitches/killswitches.helper.ts`) gains `connectionFlagSource`
+  (reads the same `featureflags` collection, absent/error → null) and its
+  stale fail-closed comments now state the corrected contract.
+- Wiring (each fail-open on absent/error, each with a killed unit test):
+  1. AI gateway (`modules/ai/ai-gateway.service.ts: generate()`): killed →
+     `ServiceUnavailableException('ai_disabled_by_kill_switch')` before any
+     provider call (no LLM, no billing).
+  2. Recommendations (`modules/product-ranking/product-ranking.service.ts:
+     getRankedDrugIds`): killed → deterministic `{drug_id: 1}` default list,
+     no ZSet reads, no degraded hydration (Mongo fallback extracted to
+     `mongoRanked`); R9 Redis-only path (`product-ranking-r9.service.ts`):
+     killed → `{ids: [], total: 0}` (no local default source; empty beats a
+     fabricated ranking).
+  3. Nudges (`modules/engagement/engagement.controller.ts`): `trackEvent`
+     still records the interest event but skips `queue.add`
+     (`nudges_killed: true`); `processNudge` drops already-queued jobs.
+  4. Live map (`modules/ops/ops.controller.ts: liveMap`): killed → static
+     `{points: [], total: 0, live_map_killed: true}`, zero collection scans.
+  5. Analytics ingestion (`modules/medicines/medicines.service.ts:
+     trackSearch`): killed → accept-and-drop the `search_queries` write;
+     search results unaffected, flag read stays off-path.
+  6. Search suggestions (`medicines.service.ts: didYouMean`): killed →
+     `{suggestion: null, alternatives: [], query}` with no pool reads.
+- Specs: `modules/feature-flags/feature-flags-killswitch.p15.spec.ts`
+  (5: keys, absent-null, isKilled×3 via the REAL service, seed-only-missing +
+  never-overwrite, boot-safe init) and `modules/killswitch-consumers.p15.spec.ts`
+  (12: killed + fail-open sides where cheap).
+- Real tails: flags spec 5/5 + helper spec (8/8 in the 13-test joint run);
+  consumers 12/12; neighbours — ai-gateway r21+purpose+fail-closed 8/8,
+  product-ranking+r9+boosts+ops-alerts+ops-metrics 15/15,
+  medicines×6 + ai.service×2 33/33; `tsc` clean.
+- Mutation proofs (editor-only, restored): isEnabled back to false-on-absent
+  → flags spec `2 failed, 3 passed`; gateway check neutered →
+  consumers `1 failed, 11 passed`; `grep MUTATION-PROBE` clean.
+- Live-toggle proof is another agent's journey (stated in the task): behaviour
+  here is correct and testable per toggle.
+
+### F10 — chaos drills get real failure switches (FIXED)
+
+New helper `backend/src/common/chaos-switches.ts` (`isChaosFail`), wired
+into `SmsService.sendOtp` (first line) and `LiveKitService.roomService()`;
+new spec `backend/src/common/chaos-switches.p15.spec.ts` (5 tests: exact-'1'
+semantics, SMS force-false + control, LiveKit null-gate + control).
+
+EXACT env-var contract for the gates agent (do not rename without updating
+both the helper and this section):
+- `CHAOS_FAIL_SMS` — honoured ONLY when the value is exactly the string
+  `1`. Effect: `SmsService.sendOtp()` returns `false` immediately, BEFORE
+  the `sms_enabled` check and before any Taqnyat/axios call (a `warn` is
+  logged). Forced fallback: the standard OTP email+push path that every
+  `sendOtp === false` already triggers. Unset / empty / `0` / `true` / any
+  other value → completely normal behavior. Never on by default; no
+  production code sets it.
+- `CHAOS_FAIL_LIVEKIT` — honoured ONLY when the value is exactly the string
+  `1`. Effect: `LiveKitService.roomService()` returns `null`, i.e. the
+  service behaves EXACTLY as if the LiveKit server were unconfigured, with
+  zero network contact: `getRoomParticipants()` → `[]`,
+  `muteParticipant()` → `{ success: false, reason:
+  'livekit_not_configured' }`, `removeParticipant()` → throws
+  `NotFoundException('livekit_not_configured')`. Explicitly NOT gated: local
+  token minting (`createToken`/`createBookingToken` — process-local crypto,
+  not a server dependency) and the verified-webhook path. Any other
+  value/unset → normal behavior. Never on by default; no production code
+  sets it.
+- Drill recipe: `CHAOS_FAIL_SMS=1 <server>` then run the OTP journey and
+  assert delivery via email/push with no SMS HTTP call;
+  `CHAOS_FAIL_LIVEKIT=1 <server>` then assert call flows degrade to the
+  answers above (never hang, never 500).
+- Real tails: new spec `Tests: 5 passed, 5 total`; neighbours
+  `sms.timeout + livekit.followup + chaos-switches` 21/21,
+  `resilience-chaos` 28/28 (switches unset there → paths unchanged);
+  `tsc` clean.
+- Mutation proof (editor-only, restored): `isChaosFail` compares to
+  `'never'` → `3 failed, 2 passed` (the 3 switch-on tests red, 2 controls
+  green); restored → green, `grep MUTATION-PROBE` clean.
+
+## BLOCKED / DEFERRED lines (round 1, unchanged)
 
 - `BLOCKED: live rapid-tap journey needs a running server
   (tools/live/run_gate.sh requires docker/Mongo/Redis, unavailable).`

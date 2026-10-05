@@ -636,7 +636,8 @@ export class RefundExecutor {
     // 1) Gateway refund (real money back to the card)
     if (paidPayment && paidPayment.moyasar_id && !String(paidPayment.moyasar_id).startsWith('sandbox_')) {
       const key = this.moyasarKey();
-      const resp = await fetch(`${moyasarBase()}/payments/${paidPayment.moyasar_id}/refund`, {
+      // F7: plural `/refunds` — same gateway contract as MoyasarService.
+      const resp = await fetch(`${moyasarBase()}/payments/${paidPayment.moyasar_id}/refunds`, {
         method: 'POST',
         headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: Math.round(amount * 100), reason: opts.reason?.slice(0, 255) || 'refund' }),

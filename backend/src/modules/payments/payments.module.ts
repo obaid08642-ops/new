@@ -203,7 +203,10 @@ export class MoyasarAdapter implements PaymentGateway {
   async refund(id: string, amount?: number) {
     const run = async (paymentId: string, amt?: number) => {
       const body = JSON.stringify(amt ? { amount: Math.round(amt * 100) } : {});
-      const r = await gatewayFetch(`${this.base}/payments/${paymentId}/refund`, { method: 'POST', headers: this.headers(), body });
+      // F7: Moyasar's refund endpoint is plural `/refunds` (same as the
+      // reviewed-correct MoyasarService path); the singular `/refund` here
+      // was identical on main/base but never matched the gateway contract.
+      const r = await gatewayFetch(`${this.base}/payments/${paymentId}/refunds`, { method: 'POST', headers: this.headers(), body });
       const j: any = await r.json();
       return { refunded: r.ok, raw: j };
     };

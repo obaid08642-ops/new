@@ -6,6 +6,7 @@ import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection, Types } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { APPT_STATES } from '../../schemas/appointment.schema';
+import { isChaosFail } from '../../common/chaos-switches';
 
 @Injectable()
 export class LiveKitService {
@@ -377,6 +378,11 @@ export class LiveKitService {
 
   /** LiveKit server RoomService — available when LIVEKIT_URL is configured. */
   private roomService(): any | null {
+    // F10 — TEST-ONLY chaos switch (honoured only when CHAOS_FAIL_LIVEKIT=1):
+    // behave exactly as if the server were unconfigured, so every server
+    // call below resolves its documented degraded answer without touching
+    // the network. Token minting is deliberately NOT gated (local crypto).
+    if (isChaosFail('livekit')) return null;
     if (!process.env.LIVEKIT_URL || !process.env.LIVEKIT_API_KEY || !process.env.LIVEKIT_API_SECRET) return null;
     try {
       const { RoomServiceClient } = require('livekit-server-sdk');

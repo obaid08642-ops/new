@@ -135,6 +135,28 @@ describe('CircuitBreakerService (Q81 per-call binding)', () => {
     expect(seen).toEqual([['pay_a', typed]]);
   });
 
+  it('fire() applies the caller-supplied options instead of discarding them', async () => {
+    // F5: fire() passed `{}` to create(), so a per-call timeout policy was
+    // silently discarded. A hanging call fired with `{ timeout: 20 }` must
+    // fail in milliseconds, not after the 3000 ms default.
+    const breakers = new CircuitBreakerService();
+    const hang = () => new Promise<never>(() => { /* never settles */ });
+
+    const started = Date.now();
+    await expect(
+      breakers.fire('fire-opts', hang, [], undefined, { timeout: 20, volumeThreshold: 100 }),
+    ).rejects.toThrow(/timed out/i);
+    expect(Date.now() - started).toBeLessThan(2000);
+
+    // And a later fire() with a different policy updates the shared breaker
+    // instead of keeping the first caller's (same applyOptions path as create).
+    const started2 = Date.now();
+    await expect(
+      breakers.fire('fire-opts', hang, [], undefined, { timeout: 150, volumeThreshold: 100 }),
+    ).rejects.toThrow(/timed out/i);
+    expect(Date.now() - started2).toBeGreaterThanOrEqual(100);
+  });
+
   it('fire() binds the per-call function instead of dropping it', async () => {    const breakers = new CircuitBreakerService();
     const urls: string[] = [];
 

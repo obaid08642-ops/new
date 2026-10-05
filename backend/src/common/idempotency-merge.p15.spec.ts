@@ -8,7 +8,9 @@
  * (IdempotencyKeyInterceptor; the global IdempotencyInterceptor subclasses
  * it), and these specs pin the merged contract:
  *   1. any mix of global + explicit wiring processes a request exactly once,
- *   2. pre-shape records (no request_hash) replay instead of re-executing,
+ *   2. pre-shape records (no request_hash) are a MISS (F2): the request
+ *      executes and the row is healed to the hashed shape — a reused key with
+ *      a different body can never replay a stale response,
  *   3. the same keyed write fired 10x concurrently creates exactly one
  *      record: one success, nine 409s, then a replay — never two executions.
  *
@@ -91,19 +93,47 @@ describe('15.2 merged idempotency (mocked Redis, no DB)', () => {
     expect(inner.handle).toHaveBeenCalledTimes(1);
   });
 
-  it('replays a pre-shape record (no request_hash) without re-executing the write', async () => {
+  it('treats a pre-shape record (no request_hash) as a MISS: executes and heals the row', async () => {
     const redis = createFakeRedis();
     redis.records.set(
       'idempotency:patient-a:POST:/orders:legacy-9',
       JSON.stringify({ response: { order_id: 'legacy-1' } }),
     );
     const interceptor = new IdempotencyInterceptor({ getClient: () => redis } as any, reflector);
-    const next = { handle: jest.fn(() => of({ order_id: 'SHOULD-NOT-RUN' })) };
+    const next = { handle: jest.fn(() => of({ order_id: 'fresh-9' })) };
 
+    // F2: same key + same body still EXECUTES (the legacy row carries no hash
+    // to compare), and the write persists the new hashed shape.
     await expect(
       lastValueFrom(await interceptor.intercept(ctxFor(keyedPost('legacy-9')), next)),
-    ).resolves.toEqual({ order_id: 'legacy-1', idempotent_replay: true });
-    expect(next.handle).not.toHaveBeenCalled();
+    ).resolves.toEqual({ order_id: 'fresh-9' });
+    expect(next.handle).toHaveBeenCalledTimes(1);
+    const healed = JSON.parse(redis.records.get('idempotency:patient-a:POST:/orders:legacy-9') as string);
+    expect(typeof healed.request_hash).toBe('string');
+
+    // The healed row now replays for the same body without re-executing.
+    const replayNext = { handle: jest.fn(() => of({ order_id: 'SHOULD-NOT-RUN' })) };
+    await expect(
+      lastValueFrom(await interceptor.intercept(ctxFor(keyedPost('legacy-9')), replayNext)),
+    ).resolves.toEqual({ order_id: 'fresh-9', idempotent_replay: true });
+    expect(replayNext.handle).not.toHaveBeenCalled();
+  });
+
+  it('same legacy key + DIFFERENT body executes instead of replaying stale data', async () => {
+    const redis = createFakeRedis();
+    redis.records.set(
+      'idempotency:patient-a:POST:/orders:legacy-diff',
+      JSON.stringify({ response: { order_id: 'stale-legacy' } }),
+    );
+    const interceptor = new IdempotencyInterceptor({ getClient: () => redis } as any, reflector);
+    const next = { handle: jest.fn(() => of({ order_id: 'fresh-diff' })) };
+
+    // Before the F2 fix this returned the stale legacy response without ever
+    // comparing the body. Now it must execute the new request.
+    await expect(
+      lastValueFrom(await interceptor.intercept(ctxFor(keyedPost('legacy-diff', { amount: 999 })), next)),
+    ).resolves.toEqual({ order_id: 'fresh-diff' });
+    expect(next.handle).toHaveBeenCalledTimes(1);
   });
 
   it('fires the same keyed write 10x concurrently and executes exactly once', async () => {
