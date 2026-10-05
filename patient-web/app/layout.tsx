@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
+// DEVICE_STANDARD §1 web shells (<AppShell>, <StickyFooter>), mirrored from packages/ui/shells.
+import "@/components-next/ui-generated/shells/shells.css";
 import { getDirection, isLocale } from "@/lib/i18n";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
