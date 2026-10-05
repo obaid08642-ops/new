@@ -3,12 +3,18 @@
  * create() pads the NEW appointment by 5 min and 409s with
  * slot_already_booked_or_conflicts_with_buffer when an existing booking starts
  * inside that padded window (e.g. booking 16:30 while 17:00–17:30 exists).
- * The listing path in this service applies the IDENTICAL rule, so a slot the
- * list marks available can actually be booked. Mocked models, no DB.
+ * The listing path (SlotService, via ./availability) applies the IDENTICAL rule,
+ * so a slot the list marks available can actually be booked. Mocked models, no DB.
  * Q36 (slot holds) is untouched — see appointments-slot-hold.spec.ts.
  */
 import { ConflictException } from '@nestjs/common';
 import { AppointmentsService } from '../appointments.service';
+import { appointmentRanges, bookingConflicts } from '../availability';
+
+// The listing side of the one rule (./availability), as SlotService applies it.
+const isSlotListAvailable = (start: Date, bookings: any[], dur: number) => !bookingConflicts(start.getTime(), dur, appointmentRanges(bookings, dur));
+const markSlotsAvailability = (cands: { start: Date }[], bookings: any[], dur: number) =>
+  cands.map((c) => ({ start: new Date(c.start).toISOString(), available: isSlotListAvailable(new Date(c.start), bookings, dur) }));
 
 const makeDoc = (obj: any) => {
   const doc: any = { state_history: [], symptoms: [], ...obj };
@@ -81,10 +87,9 @@ describe('AppointmentsService slot-listing buffer parity (Q37)', () => {
   const wireOverlapQuery = (bookings: any[], createdRef: { doc: any }) => {
     apptModel.findOne.mockImplementation(async (q: any) => {
       if (q?.status?.$in) {
-        const cond = q?.$or?.[0];
-        if (!cond) return null;
-        const lt = new Date(cond.slot_start.$lt).getTime();
-        const gt = new Date(cond.slot_end.$gt).getTime();
+        if (!q.slot_start?.$lt || !q.slot_end?.$gt) return null;
+        const lt = new Date(q.slot_start.$lt).getTime();
+        const gt = new Date(q.slot_end.$gt).getTime();
         return (
           bookings.find(
             (b) =>
@@ -111,8 +116,8 @@ describe('AppointmentsService slot-listing buffer parity (Q37)', () => {
 
   it('(1) 16:30 is listed UNAVAILABLE when a 17:00–17:30 booking follows (the reported 409)', () => {
     // Candidate 16:30–17:00 pads to 17:05; booking starts 17:00 < 17:05 → conflict.
-    expect(service.isSlotListAvailable(pmAt(16, 30), existingBookings(), 30)).toBe(false);
-    const marked = service.markSlotsAvailability(
+    expect(isSlotListAvailable(pmAt(16, 30), existingBookings(), 30)).toBe(false);
+    const marked = markSlotsAvailability(
       [{ start: pmAt(16, 30) }, { start: pmAt(15, 0) }],
       existingBookings(),
       30,
@@ -126,15 +131,15 @@ describe('AppointmentsService slot-listing buffer parity (Q37)', () => {
   it('(2) strict-inequality parity: a candidate padding to exactly the next booking start stays available', () => {
     // 16:30 + 25 min = 16:55, padded to exactly 17:00; booking starts 17:00 —
     // NOT < paddedEnd, so no conflict (mirrors create()'s `$lt` exactly).
-    expect(service.isSlotListAvailable(pmAt(16, 30), existingBookings(), 25)).toBe(true);
+    expect(isSlotListAvailable(pmAt(16, 30), existingBookings(), 25)).toBe(true);
     // ...while the standard 30-min slot pads past it and conflicts.
-    expect(service.isSlotListAvailable(pmAt(16, 30), existingBookings(), 30)).toBe(false);
+    expect(isSlotListAvailable(pmAt(16, 30), existingBookings(), 30)).toBe(false);
   });
 
   it('(3) a slot the list marks available can be booked (mocked create succeeds)', async () => {
     const bookings = existingBookings();
     const candidates = [{ start: pmAt(16, 30) }, { start: pmAt(15, 0) }];
-    const marked = service.markSlotsAvailability(candidates, bookings, 30);
+    const marked = markSlotsAvailability(candidates, bookings, 30);
     const free = marked.filter((s) => s.available);
     expect(free).toHaveLength(1);
 
@@ -147,7 +152,7 @@ describe('AppointmentsService slot-listing buffer parity (Q37)', () => {
 
   it('(4) a slot the list marks unavailable is refused by booking with the buffer conflict', async () => {
     const bookings = existingBookings();
-    expect(service.isSlotListAvailable(pmAt(16, 30), bookings, 30)).toBe(false);
+    expect(isSlotListAvailable(pmAt(16, 30), bookings, 30)).toBe(false);
 
     const createdRef: { doc: any } = { doc: null };
     wireOverlapQuery(bookings, createdRef);

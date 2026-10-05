@@ -1,3 +1,4 @@
+import { conflictingAppointmentFilter } from './availability';
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException, Logger, Inject, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { Model, Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -32,38 +33,6 @@ const PLATFORM_FEES = {
  * path — create()/reschedule()/assertNoForeignSlotHold() (Q36) below are
  * intentionally untouched.
  */
-export const APPOINTMENT_SLOT_BUFFER_MINUTES = 5;
-
-/** Blocking statuses mirrored from create()'s overlap query (Q37 parity). */
-export const APPOINTMENT_LISTING_BLOCKING_STATUSES = [
-  APPT_STATES.PENDING,
-  APPT_STATES.CONFIRMED,
-  APPT_STATES.CHECKED_IN,
-  APPT_STATES.IN_PROGRESS,
-] as const;
-
-/** paddedEnd for a candidate slot — identical to create()'s `paddedEnd`. */
-export function slotPaddedEnd(slotStart: Date, durationMinutes = 30): Date {
-  return new Date(slotStart.getTime() + durationMinutes * 60_000 + APPOINTMENT_SLOT_BUFFER_MINUTES * 60_000);
-}
-
-/**
- * Identical to create()'s overlap predicate: the candidate (plus its 5-min
- * buffer) conflicts with an existing booking iff the booking starts before the
- * candidate's padded end and ends after the candidate's start. Strict
- * inequalities match the booking query exactly (a booking starting exactly at
- * paddedEnd does NOT conflict).
- */
-export function slotCandidateConflictsWithBooking(
-  candidateStart: Date,
-  candidateEnd: Date,
-  bookingStart: Date,
-  bookingEnd: Date,
-): boolean {
-  const paddedEnd = new Date(candidateEnd.getTime() + APPOINTMENT_SLOT_BUFFER_MINUTES * 60_000);
-  return bookingStart.getTime() < paddedEnd.getTime() && bookingEnd.getTime() > candidateStart.getTime();
-}
-
 /**
  * Appointment lifecycle service.
  * - State machine: PENDING → CONFIRMED → CHECKED_IN → IN_PROGRESS → COMPLETED
@@ -139,40 +108,6 @@ export class AppointmentsService {
     if (blocking) throw new ConflictException('slot_held');
   }
 
-  /**
-   * Q37 — slot-listing path: `available` for one candidate slot under the
-   * IDENTICAL 5-min buffer rule create() enforces, so listed-available implies
-   * bookable. Pure read over caller-supplied blocking bookings (no DB); the
-   * caller must pass bookings in create()'s blocking statuses.
-   */
-  isSlotListAvailable(
-    candidateStart: Date | string,
-    bookings: { slot_start: Date | string; slot_end: Date | string }[],
-    durationMinutes = 30,
-  ): boolean {
-    const start = new Date(candidateStart);
-    const end = new Date(start.getTime() + durationMinutes * 60_000);
-    return !bookings.some((b) =>
-      slotCandidateConflictsWithBooking(start, end, new Date(b.slot_start), new Date(b.slot_end)),
-    );
-  }
-
-  /**
-   * Q37 — batch version of the listing path: builds the `available` flag for
-   * each candidate slot with the same buffer rule as booking.
-   */
-  markSlotsAvailability(
-    candidates: { start: Date | string; durationMinutes?: number }[],
-    bookings: { slot_start: Date | string; slot_end: Date | string }[],
-    defaultDurationMinutes = 30,
-  ): { start: string; available: boolean }[] {
-    return candidates.map((c) => {
-      const start = new Date(c.start);
-      const dur = c.durationMinutes ?? defaultDurationMinutes;
-      return { start: start.toISOString(), available: this.isSlotListAvailable(start, bookings, dur) };
-    });
-  }
-
   /** ===== Create ===== */
   async create(user: any, body: {
     doctor_id: string;
@@ -226,16 +161,10 @@ export class AppointmentsService {
 
     const duration = body.duration_minutes || 30;
     const slotEnd = new Date(slotStart.getTime() + duration * 60_000);
-    const paddedEnd = new Date(slotEnd.getTime() + 5 * 60_000); // 5-minute buffer between appointments
 
-    // Overlap Prevention Rule
-    const overlapping = await this.apptModel.findOne({
-      doctor_id: doctor.id,
-      status: { $in: [APPT_STATES.PENDING, APPT_STATES.CONFIRMED, APPT_STATES.CHECKED_IN, APPT_STATES.IN_PROGRESS] },
-      $or: [
-        { slot_start: { $lt: paddedEnd }, slot_end: { $gt: slotStart } }, // The slot + buffer overlaps with an existing appointment
-      ]
-    });
+    // The one availability rule (./availability): the slot plus its buffer must
+    // not meet a blocking appointment — the same rule the slot list shows.
+    const overlapping = await this.apptModel.findOne(conflictingAppointmentFilter(doctor.id, slotStart, duration));
     if (overlapping) {
       throw new ConflictException('slot_already_booked_or_conflicts_with_buffer');
     }
@@ -584,12 +513,7 @@ export class AppointmentsService {
     }
 
     const newEnd = new Date(newStart.getTime() + appt.duration_minutes * 60_000);
-    const paddedEnd = new Date(newEnd.getTime() + 5 * 60_000);
-    const overlapping = await this.apptModel.findOne({
-      doctor_id: appt.doctor_id,
-      status: { $in: [APPT_STATES.PENDING, APPT_STATES.CONFIRMED, APPT_STATES.CHECKED_IN, APPT_STATES.IN_PROGRESS] },
-      $or: [{ slot_start: { $lt: paddedEnd }, slot_end: { $gt: newStart } }],
-    });
+    const overlapping = await this.apptModel.findOne(conflictingAppointmentFilter(appt.doctor_id, newStart, appt.duration_minutes));
     if (overlapping) throw new ConflictException('slot_already_booked_or_conflicts_with_buffer');
     // Q36: the new slot must not be another patient's active hold either.
     await this.assertNoForeignSlotHold(appt.doctor_id, newStart, newEnd, user, appt.patient_id);

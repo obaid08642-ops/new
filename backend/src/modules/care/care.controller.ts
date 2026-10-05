@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { CareService } from './care.service';
-import { JwtAuthGuard, Public } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, Public } from '../../common/auth.guard';
 
 @Controller('care')
 @UseGuards(JwtAuthGuard)
@@ -68,8 +68,10 @@ export class CareController {
     @Param('id') id: string,
     @Query('date') date: string,
     @Query('service_type') service_type: 'clinic' | 'video' | 'home',
+    @CurrentUser() viewer?: { id?: string },
   ) {
-    return this.svc.doctorSlots(id, date, service_type);
+    // A signed-in patient's own slot hold does not hide that slot from them.
+    return this.svc.doctorSlots(id, date, service_type, viewer?.id ? [viewer.id] : []);
   }
 
   @Public()
