@@ -1,6 +1,6 @@
 .page {
   display: grid;
-  min-block-size: calc(100vh - 5.5rem);
+  min-block-size: calc(100dvh - 5.5rem);
   place-items: center;
   padding: clamp(2rem, 7vw, 5.5rem) 0;
 }
@@ -93,6 +93,6 @@
 }
 
 @media (max-width: 540px) {
-  .page { min-block-size: calc(100vh - 7.6rem); padding: 1rem 0 2rem; }
+  .page { min-block-size: calc(100dvh - 7.6rem); padding: 1rem 0 2rem; }
   .card { border-radius: var(--radius-xl); }
 }
