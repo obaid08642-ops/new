@@ -47,6 +47,7 @@ import { BadGatewayException, BadRequestException, Injectable, Logger, NotFoundE
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { isKilled, normalizeFlagRow } from '../../common/killswitches/killswitches.helper';
 
 export type AiProviderName =
   | 'gemini' | 'openai' | 'groq' | 'cerebras' | 'openrouter' | 'deepseek' | 'qwen' | 'replicate';
@@ -366,6 +367,10 @@ export class AiGatewayService {
   /** Unified generation with quota-aware routing, failover, PII strip + cache. */
   async generate(opts: AiGenerateOptions): Promise<AiGenerateResult> {
     const feature = String(opts?.feature || 'general').slice(0, 64);
+    // 14.18 kill switch: only an explicit `enabled: false` row stops AI calls.
+    if (await isKilled('ai', { getFlag: async (key) => normalizeFlagRow(await this.settings.findOne({ key })) })) {
+      throw new ServiceUnavailableException('ai_disabled');
+    }
     const { chain, degraded } = await this.attemptChain(feature);
     if (chain.length === 0) throw new ServiceUnavailableException('ai_provider_unavailable');
 
