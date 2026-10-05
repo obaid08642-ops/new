@@ -244,8 +244,14 @@ def drill_payment_gateway_500():
         v = pat.post(f"/payments/verify/{txn['id']}", {})
         step('retry pays exactly once (status paid)', v.ok and v.get('status') == 'paid', v)
         v2 = pat.post(f"/payments/verify/{txn['id']}", {})
+        # Both sides must carry a real id: the old check allowed None on either
+        # side of the membership test, so an id-less response passed as "the same
+        # transaction". Now the replayed id must equal the verified id, and both
+        # must be present.
+        v_id, v2_id = v.get('id') or v.get('txn_id'), v2.get('id') or v2.get('txn_id')
         step('re-verify returns the same transaction (no duplicate charge)',
-             v2.ok and v2.get('id', v2.get('txn_id', None)) in (txn.get('id'), v.get('id'), None) and v2.get('status') == 'paid', v2)
+             v2.ok and bool(v_id) and bool(v2_id) and v2_id == v_id and v2.get('status') == 'paid',
+             f'first={v_id} second={v2_id} (both must exist and match) {v2}')
 
 
 def drill_sms_down():
