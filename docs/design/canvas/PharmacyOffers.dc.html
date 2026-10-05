@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Pharmacy offers</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Readex Pro',sans-serif}
+a{color:#C8202F}
+@keyframes ndRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes ndDraw{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
+@keyframes ndPulse{0%{transform:scale(.6);opacity:.5}100%{transform:scale(1.8);opacity:0}}
+@keyframes ndBeat{0%,100%{transform:scale(1)}12%{transform:scale(1.3)}24%{transform:scale(1)}36%{transform:scale(1.15)}60%{transform:scale(1)}}
+@keyframes ndMove{0%{transform:translateX(0)}100%{transform:translateX(-60px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<div dir="rtl" style="width: 390px; height: 1180px; box-sizing: border-box; position: relative; overflow: hidden; background: #F5F5F7; color: #0B1B2B; font-family: 'Readex Pro', sans-serif">
+<div style="padding: 54px 16px 40px; display: flex; flex-direction: column; gap: 16px">
+
+<div style="display: flex; align-items: center; gap: 10px"><button aria-label="رجوع" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid rgba(11,27,43,0.08); background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0B1B2B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button><h1 style="margin: 0; flex-grow: 1; text-align: center; font-size: 19px; font-weight: 700">عروض الصيدليات</h1><div style="width: 44px; flex-shrink: 0"></div></div>
+<div style="border-radius: 28px; background: linear-gradient(160deg, #FFFFFF 0%, #FFF3F4 100%); border: 1px solid rgba(212,42,56,0.08); padding: 18px; display: flex; align-items: center; gap: 16px">
+<div style="width: 72px; height: 72px; position: relative; flex-shrink: 0; display: flex; align-items: center; justify-content: center">
+<span style="position: absolute; inset: 0; border-radius: 36px; background: rgba(255,75,85,0.25); animation: ndPulse 1.8s ease-out infinite"></span>
+<span style="position: absolute; inset: 0; border-radius: 36px; background: rgba(255,75,85,0.25); animation: ndPulse 1.8s ease-out 0.9s infinite"></span>
+<dc-import name="FIcon" icon="storefront" tone="coral" chip="solid" size="56" hint-size="56px,56px"></dc-import></div>
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 16px; font-weight: 700">نبحث في الصيدليات القريبة</span><span style="font-size: 12.5px; color: #6E6E73">نطاق [٣ / ٥ / ٨] كم · وصلت [N] عروض</span>
+<div style="display: flex; gap: 4px; margin-top: 4px"><span style="width: 34px; height: 5px; border-radius: 3px; background: #D42A38"></span><span style="width: 34px; height: 5px; border-radius: 3px; background: #D42A38"></span><span style="width: 34px; height: 5px; border-radius: 3px; background: #F0D4D7"></span></div></div>
+</div>
+<div role="radiogroup" style="display: flex; padding: 4px; border-radius: 16px; background: #EAEAEF">
+<sc-for list="{{sort}}" as="sg" hint-placeholder-count="3">
+<button role="radio" aria-checked="{{sg.on}}" onClick="{{sg.pick}}" style="flex-grow: 1; flex-basis: 0; height: 38px; padding: 0 14px; border-radius: 12px; border: 0; background: {{sg.bg}}; box-shadow: {{sg.shadow}}; color: #0B1B2B; font-family: inherit; font-size: 13.5px; font-weight: {{sg.w}}; white-space: nowrap; transition: background 200ms ease">{{sg.l}}</button>
+</sc-for>
+</div>
+<sc-for list="{{offers}}" as="o" hint-placeholder-count="3">
+<div style="border-radius: 24px; background: #FFFFFF; border: {{o.border}}; box-shadow: 0 6px 18px rgba(11,27,43,0.05); padding: 14px; display: flex; flex-direction: column; gap: 12px; animation: ndRise 420ms cubic-bezier(.22,1,.36,1) {{o.d}} both">
+<div style="display: flex; align-items: center; gap: 12px">
+<div style="width: 48px; height: 48px; border-radius: 16px; background: #F2F3F5; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #6E6E73; flex-shrink: 0">[شعار]</div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700">[اسم الصيدلية]</span><span style="font-size: 12px; color: #6E6E73">[المسافة] كم · يصل خلال [الوقت]</span></div>
+<sc-if value="{{o.best}}" hint-placeholder-val="{{false}}"><span style="height: 24px; padding: 0 9px; border-radius: 12px; background: #E1F6EE; color: #0F8A68; font-size: 11.5px; font-weight: 600; display: inline-flex; align-items: center; white-space: nowrap">الأقل سعرًا</span></sc-if>
+</div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap"><span style="height: 24px; padding: 0 9px; border-radius: 12px; background: #E1F6EE; color: #0F8A68; font-size: 11.5px; font-weight: 600; display: inline-flex; align-items: center; white-space: nowrap">كل الأصناف متوفرة</span><span style="height: 24px; padding: 0 9px; border-radius: 12px; background: #E7ECFF; color: #2D4FD6; font-size: 11.5px; font-weight: 600; display: inline-flex; align-items: center; white-space: nowrap">يقبل التأمين</span></div>
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex-grow: 1; display: flex; flex-direction: column"><span style="font-size: 11.5px; color: #6E6E73">الإجمالي شامل التوصيل</span><span style="font-size: 19px; font-weight: 700">[المبلغ] <span style="font-size: 12px; font-weight: 400">ر.س</span></span></div>
+<button onClick="{{o.pick}}" style="height: 46px; padding: 0 20px; border-radius: 16px; border: 0; background: {{o.btnBg}}; color: {{o.btnFg}}; font-family: inherit; font-size: 15px; font-weight: 700">{{o.btn}}</button>
+</div></div>
+</sc-for>
+<div style="font-size: 12.5px; color: #6E6E73; text-align: center; line-height: 1.7">لن نشارك عنوانك أو رقمك مع الصيدلية قبل قبول العرض.</div>
+
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1180}}'>
+class Component extends DCLogic {
+constructor(props) { super(props); this.state = { pick: -1 }; }
+renderVals() {
+const s = this.state;
+const mkSeg = (labels, key) => labels.map((l, k) => ({ l, on: (this.state[key] || 0) === k, bg: (this.state[key] || 0) === k ? '#FFFFFF' : 'transparent', shadow: (this.state[key] || 0) === k ? '0 2px 6px rgba(11,27,43,0.10)' : 'none', w: (this.state[key] || 0) === k ? 700 : 500, pick: () => this.setState({ [key]: k }) }));
+const sort = mkSeg(['الأقل سعرًا','الأسرع','الأقرب'], 'sort');
+const ok = (t) => '<span style="height: 24px; padding: 0 9px; border-radius: 12px; background: #E1F6EE; color: #0F8A68; font-size: 11.5px; font-weight: 600; display: inline-flex; align-items: center">' + t + '</span>';
+const offers = [0,1,2].map(k => ({ best: k === 0, d: (k * 80) + 'ms', avail: '', border: (s.pick === k) ? '2px solid #0B1B2B' : '1px solid rgba(11,27,43,0.06)', btn: s.pick === k ? 'تم الاختيار' : 'اختر', btnBg: s.pick === k ? '#1F9D6E' : '#0B1B2B', btnFg: '#FFFFFF', pick: () => this.setState({ pick: k }) }));
+return { sort, offers };
+}
+}
+</script>
+</body>
+</html>

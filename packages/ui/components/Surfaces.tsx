@@ -11,6 +11,7 @@ import type {
   NavBarProps,
   PriceTagProps,
   RatingProps,
+  SectionHeaderProps,
   ServiceTileProps,
   SidebarProps,
   TabItem,
@@ -18,6 +19,8 @@ import type {
   Tone,
 } from './contract';
 import { Icon, IllustratedIconView } from '../src/Icon';
+import { FIcon } from './FIcon';
+import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, SERVICE_ICONS } from '../icons/fill';
 
 /**
  * The layout and navigation surfaces — 12.A7, web.
@@ -48,50 +51,63 @@ const NO_UNDERLINE: React.CSSProperties = {
 
 /* ------------------------------------------------------------------- chips */
 
-export function Chip({
-  label,
-  tone = 'neutral',
-  variant = 'soft',
-  startIcon,
-  onDismissLabel,
-  selected = false,
-  disabled = false,
-  testID,
-}: ChipProps) {
-  const t = TONE_STYLE[tone];
-  const solid = variant === 'solid';
+export interface WebChipProps extends ChipProps {
+  onClick?: () => void;
+}
 
+/**
+ * The filter chip of canvas/Search: 38 tall (44 hit area), radius 19, 14px; a
+ * surface pill with a subtle border, or ink with a bold label when selected. A
+ * count rides after the label at 12px. It is a toggle button (`aria-pressed`).
+ */
+export function Chip({ label, count, startIcon, selected = false, loading = false, disabled = false, invalid = false, describedBy, testID, onClick }: WebChipProps) {
+  const inert = disabled || loading;
   return (
-    <span
+    <button
+      type="button"
+      aria-pressed={selected}
+      aria-describedby={describedBy}
+      aria-invalid={invalid || undefined}
+      disabled={inert}
+      onClick={inert ? undefined : onClick}
       data-testid={testID}
-      data-tone={tone}
       style={{
+        // 38 visual, 44 hit: the extra 3px each side is given back to the layout
+        height: 44,
+        marginBlock: -3,
+        padding: 0,
+        border: 0,
+        background: 'transparent',
+        fontFamily: 'inherit',
+        flexShrink: 0,
+        cursor: inert ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.5 : 1,
         display: 'inline-flex',
         alignItems: 'center',
-        gap: 'var(--nabd-space-3xs)',
-        minHeight: 'var(--nabd-a11y-minTouchTarget)',
-        paddingInline: 'var(--nabd-space-sm)',
-        borderRadius: 'var(--nabd-radius-pill)',
-        fontSize: 'var(--nabd-font-size-label)',
-        fontWeight: 600,
-        background: solid ? t.fg : selected ? 'var(--nabd-color-action-selected-bg)' : t.bg,
-        color: solid ? 'var(--nabd-color-action-secondary-fg)' : t.fg,
-        border: `1px solid ${variant === 'outline' ? t.fg : 'transparent'}`,
-        opacity: disabled ? 0.5 : 1,
       }}
     >
-      {startIcon ? <Icon name={startIcon} size={16} /> : null}
-      {label}
-      {onDismissLabel ? (
-        <button
-          type="button"
-          aria-label={onDismissLabel}
-          style={{ background: 'transparent', border: 0, cursor: 'pointer', color: 'inherit', display: 'grid', placeItems: 'center' }}
-        >
-          <Icon name="close" size={14} />
-        </button>
-      ) : null}
-    </span>
+      <span
+        style={{
+          height: 38,
+          boxSizing: 'border-box',
+          paddingInline: 14,
+          borderRadius: 19,
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          whiteSpace: 'nowrap',
+          fontSize: '14px',
+          fontWeight: selected ? 700 : 500,
+          background: selected ? 'var(--nabd-color-action-selected-bg)' : 'var(--nabd-color-bg-surface)',
+          color: selected ? 'var(--nabd-color-action-selected-fg)' : 'var(--nabd-color-text-primary)',
+          border: selected ? 0 : '1px solid var(--nabd-color-border-subtle)',
+        }}
+      >
+        {startIcon ? <Icon name={startIcon} size={16} tone="currentColor" /> : null}
+        {label}
+        {count !== undefined ? <span style={{ fontSize: '12px', opacity: 0.7 }}>{count}</span> : null}
+      </span>
+    </button>
   );
 }
 
@@ -136,44 +152,45 @@ export function Card({
   elevation = 'card',
   padding = 'md',
   footer,
+  tint,
+  children,
   testID,
 }: CardProps) {
-  const pad = {
-    none: 0,
-    sm: 'var(--nabd-space-2xs)',
-    md: 'var(--nabd-space-md)',
-    lg: 'var(--nabd-space-lg)',
-  }[padding];
+  // canvas/OrderTracking (16), Cart (14), CareHub (18)
+  const pad = { none: 0, sm: 14, md: 16, lg: 18 }[padding];
 
   return (
     <section
       data-testid={testID}
+      data-tint={tint}
       style={{
-        background: elevation === 'flat' ? 'var(--nabd-color-bg-sunken)' : 'var(--nabd-color-bg-surface)',
-        border: elevation === 'flat' ? '1px solid var(--nabd-color-border-default)' : '1px solid transparent',
-        borderRadius: 'var(--nabd-radius-lg)',
-        boxShadow: elevation === 'raised' ? 'var(--nabd-shadow-raised)' : elevation === 'card' ? 'var(--nabd-shadow-card)' : 'none',
+        background: tint
+          ? `linear-gradient(160deg, var(--nabd-color-bg-surface) 0%, var(--nabd-color-service-${tint}-bg) 100%)`
+          : 'var(--nabd-color-bg-surface)',
+        border: tint
+          ? `1px solid color-mix(in srgb, var(--nabd-color-service-${tint}-fg) 10%, transparent)`
+          : '1px solid var(--nabd-color-border-hairline)',
+        borderRadius: tint ? 28 : 24,
+        boxShadow: elevation === 'raised' ? 'var(--nabd-shadow-raised)' : elevation === 'card' && !tint ? 'var(--nabd-shadow-card)' : 'none',
         padding: pad,
-        display: 'grid',
-        gap: 'var(--nabd-space-2xs)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        color: 'var(--nabd-color-text-primary)',
       }}
     >
-      {title ? (
-        <h3 style={{ margin: 0, fontSize: 'var(--nabd-font-size-bodyStrong)', color: 'var(--nabd-color-text-primary)' }}>
-          {title}
-        </h3>
+      {title || subtitle ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {title ? <h3 style={{ margin: 0, fontSize: 'var(--nabd-font-size-body)', fontWeight: 700 }}>{title}</h3> : null}
+          {subtitle ? <p style={{ margin: 0, fontSize: 'var(--nabd-font-size-label)', color: 'var(--nabd-color-text-secondary)' }}>{subtitle}</p> : null}
+        </div>
       ) : null}
-      {subtitle ? (
-        <p style={{ margin: 0, fontSize: 'var(--nabd-font-size-body)', color: 'var(--nabd-color-text-secondary)' }}>
-          {subtitle}
-        </p>
-      ) : null}
+      {children}
       {footer ? (
         <div
           style={{
-            marginTop: 'var(--nabd-space-2xs)',
-            paddingTop: 'var(--nabd-space-2xs)',
-            borderTop: '1px solid var(--nabd-color-border-default)',
+            paddingTop: 12,
+            borderTop: '1px solid var(--nabd-color-border-subtle)',
             fontSize: 'var(--nabd-font-size-caption)',
             color: 'var(--nabd-color-text-secondary)',
           }}
@@ -196,6 +213,7 @@ export function ListItem({
   selected = false,
   disabled = false,
   loading = false,
+  leading,
   testID,
 }: ListItemProps) {
   return (
@@ -214,9 +232,9 @@ export function ListItem({
         borderRadius: 'var(--nabd-radius-md)',
       }}
     >
-      {startIcon ? <Icon name={startIcon} size={20} tone="secondary" /> : null}
+      {leading ? <FIcon icon={leading.icon} tone={leading.tone} size={40} /> : startIcon ? <Icon name={startIcon} size={20} tone="secondary" /> : null}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 'var(--nabd-font-size-body)', color: 'var(--nabd-color-text-primary)' }}>{title}</div>
+        <div style={{ fontSize: 'var(--nabd-font-size-body)', fontWeight: 600, color: 'var(--nabd-color-text-primary)', overflowWrap: 'anywhere' }}>{title}</div>
         {subtitle ? (
           <div style={{ fontSize: 'var(--nabd-font-size-caption)', color: 'var(--nabd-color-text-secondary)' }}>
             {subtitle}
@@ -241,12 +259,12 @@ export function ListItem({
 }
 
 /**
- * The home-screen service tile: illustrated artwork at the canvas 76px inside a
- * 128px tile, a real text label beneath it, and an optional badge. The label is
- * what names the tile; the artwork is `aria-hidden` by the icon wrapper, so the
- * tile is read once, as its name.
+ * The home-screen service tile (canvas/HomeApp.dc.html): a 108px surface card,
+ * radius 22, with the service's <FIcon> (soft chip, from the handoff service map)
+ * over a 13/600 label. The label is what names the tile; the icon is aria-hidden,
+ * so the tile is read once, as its name.
  */
-const TILE_BOX = { sm: 76, md: 96, lg: 128 } as const;
+const TILE_CHIP = { sm: 44, md: 50, lg: 56 } as const;
 
 export function ServiceTile({
   name,
@@ -256,53 +274,72 @@ export function ServiceTile({
   disabled = false,
   testID,
 }: ServiceTileProps) {
-  const box = TILE_BOX[size];
-  const art = Math.round(box * 0.6);
-
+  const { icon, tone } = SERVICE_ICONS[name];
   return (
     <div
       data-testid={testID}
+      data-service={name}
       style={{
-        display: 'grid',
-        justifyItems: 'center',
-        gap: 'var(--nabd-space-3xs)',
-        width: box + 24,
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10,
+        minBlockSize: 108,
+        paddingInline: 'var(--nabd-space-2xs)',
+        borderRadius: 22,
+        background: 'var(--nabd-color-bg-surface)',
+        border: '1px solid var(--nabd-color-border-hairline)',
+        boxShadow: 'var(--nabd-shadow-card)',
+        color: 'var(--nabd-color-text-primary)',
         opacity: disabled ? 0.5 : 1,
       }}
     >
-      <div
-        style={{
-          position: 'relative',
-          display: 'grid',
-          placeItems: 'center',
-          width: box,
-          height: box,
-          borderRadius: 'var(--nabd-radius-2xl)',
-          background: 'var(--nabd-color-bg-sunken)',
-          boxShadow: 'var(--nabd-shadow-tile)',
-        }}
-      >
-        <IllustratedIconView name={name as never} size={art} />
-        {badge ? (
-          <span style={{ position: 'absolute', top: 4, insetInlineEnd: 4 }}>
-            <Badge content={badge} />
-          </span>
-        ) : null}
-      </div>
-      <span style={{ fontSize: 'var(--nabd-font-size-label)', color: 'var(--nabd-color-text-primary)', textAlign: 'center' }}>
-        {label}
-      </span>
+      <FIcon icon={icon} tone={tone} size={TILE_CHIP[size]} />
+      <span style={{ fontSize: 'var(--nabd-font-size-caption)', fontWeight: 600, textAlign: 'center', overflowWrap: 'anywhere' }}>{label}</span>
+      {badge ? (
+        <span style={{ position: 'absolute', insetBlockStart: 8, insetInlineEnd: 8 }}>
+          <Badge content={badge} />
+        </span>
+      ) : null}
     </div>
   );
 }
 
-export function Avatar({ name, size = 'md', illustratedName, status = 'none', testID }: AvatarProps) {
+/**
+ * A section title with an optional trailing action (canvas/HomeApp.dc.html:
+ * 18/700 heading, 13/500 link in text.link). The action is rendered by the screen
+ * as a link or button through `action`; `actionLabel` alone renders its text.
+ */
+export function SectionHeader({ title, actionLabel, level = 2, testID, action }: SectionHeaderProps & { action?: React.ReactNode }) {
+  const H = level === 3 ? 'h3' : 'h2';
+  return (
+    <div data-testid={testID} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 'var(--nabd-space-xs)' }}>
+      <H style={{ margin: 0, fontSize: 'var(--nabd-font-size-h4)', fontWeight: 700, color: 'var(--nabd-color-text-primary)' }}>{title}</H>
+      {action ?? (actionLabel ? <span style={{ fontSize: 'var(--nabd-font-size-caption)', fontWeight: 500, color: 'var(--nabd-color-text-link)' }}>{actionLabel}</span> : null)}
+    </div>
+  );
+}
+SectionHeader.displayName = 'SectionHeader';
+
+export function Avatar({ name, size = 'md', src, status = 'none', testID }: AvatarProps) {
   const box = size === 'sm' ? 32 : size === 'md' ? 44 : 64;
   const initials = name
     .split(/\s+/)
     .slice(0, 2)
     .map((w) => w[0] ?? '')
     .join('');
+  // canvas/HomeApp.dc.html: tinted disc, 2px surface gap, 2px coral ring
+  const ring: React.CSSProperties = {
+    boxSizing: 'border-box',
+    width: box,
+    height: box,
+    borderRadius: 'var(--nabd-radius-pill)',
+    background: 'var(--nabd-color-avatar-bg)',
+    border: '2px solid var(--nabd-color-bg-surface)',
+    boxShadow: '0 0 0 2px var(--nabd-color-avatar-ring)',
+  };
 
   return (
     <span
@@ -311,25 +348,15 @@ export function Avatar({ name, size = 'md', illustratedName, status = 'none', te
       aria-label={name}
       style={{ position: 'relative', display: 'inline-grid', placeItems: 'center', width: box, height: box }}
     >
-      {illustratedName ? (
-        <IllustratedIconView name={illustratedName as never} size={Math.round(box * 0.86)} />
+      {src ? (
+        // a real photo; the name is already the accessible name of the wrapper
+        <img src={src} alt="" aria-hidden width={box} height={box} style={{ ...ring, objectFit: 'cover' }} />
       ) : (
         <span
           aria-hidden
-          style={{
-            display: 'grid',
-            placeItems: 'center',
-            width: box,
-            height: box,
-            borderRadius: 'var(--nabd-radius-pill)',
-            background: 'var(--nabd-color-bg-sunken)',
-            boxShadow: 'var(--nabd-shadow-avatar)',
-            fontSize: 'var(--nabd-font-size-label)',
-            fontWeight: 700,
-            color: 'var(--nabd-color-text-primary)',
-          }}
+          style={{ ...ring, display: 'grid', placeItems: 'center', fontSize: Math.round(box * 0.36), fontWeight: 700, color: 'var(--nabd-color-text-primary)' }}
         >
-          {initials}
+          {initials || <Icon name="user" size={Math.round(box * 0.5)} tone="secondary" />}
         </span>
       )}
       {status !== 'none' ? (
@@ -377,34 +404,29 @@ export function PriceTag({ amount, currency, was, note, testID }: PriceTagProps)
  * is what turns a row of glyphs into information. `formatLabel` is supplied by
  * the app so the sentence is localised there, not here.
  */
-export function Rating({ value, count, max = 5, size = 'sm', formatLabel, testID }: RatingProps) {
-  const px = size === 'sm' ? 14 : 18;
-
+/**
+ * DoctorCard board rating: one filled star, the value (14/700) and the count in
+ * brackets (12/400). Nothing at all when there are no real ratings.
+ */
+export function Rating({ value, count, max = 5, size = 'sm', surface = 'default', formatLabel, testID }: RatingProps) {
+  if (value == null || !(count > 0)) return null;
+  const px = size === 'sm' ? 16 : 20;
+  const shown = value.toFixed(1);
+  const onBrand = surface === 'onBrand';
   return (
     <span
       data-testid={testID}
       role="img"
-      aria-label={formatLabel ? formatLabel(value, count) : `${value} out of ${max}${count ? ` from ${count}` : ''}`}
-      style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--nabd-space-3xs)' }}
+      aria-label={formatLabel ? formatLabel(value, count) : `${shown} out of ${max}, ${count} ratings`}
+      style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: onBrand ? 'var(--nabd-color-action-primary-fg)' : 'var(--nabd-color-text-primary)' }}
     >
-      <span aria-hidden style={{ display: 'inline-flex', gap: 2 }}>
-        {Array.from({ length: max }).map((_, i) => (
-          <span
-            key={i}
-            style={{
-              color: i < Math.round(value) ? 'var(--nabd-color-icon-favorite)' : 'var(--nabd-color-border-strong)',
-              display: 'grid',
-            }}
-          >
-            <Icon name="star" size={px} />
-          </span>
-        ))}
+      <svg aria-hidden="true" width={px} height={px} viewBox="0 0 256 256">
+        <path d={FILL_ICON_PATHS.star} fill={onBrand ? 'var(--nabd-color-icon-ratingStarOnBrand)' : 'var(--nabd-color-icon-ratingStar)'} />
+      </svg>
+      <span aria-hidden style={{ fontSize: size === 'sm' ? 'var(--nabd-font-size-caption)' : 'var(--nabd-font-size-body)', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
+        {shown}
       </span>
-      {count !== undefined ? (
-        <span aria-hidden style={{ fontSize: 'var(--nabd-font-size-caption)', color: 'var(--nabd-color-text-secondary)' }}>
-          {count}
-        </span>
-      ) : null}
+      <span aria-hidden style={{ fontSize: 'var(--nabd-font-size-label)', fontWeight: 400, opacity: 0.85 }}>({count})</span>
     </span>
   );
 }
@@ -601,26 +623,111 @@ export function NavBar({ title, showBack = false, backLabel = 'Back', actions = 
   );
 }
 
-export function BottomTabBar({ items, value, onChange, testID }: BottomTabBarProps) {
+const TAB_BAR_H = 68;
+const TAB_ITEM = 52;
+const TAB_FAB = 66;
+
+/**
+ * canvas/HomeApp.dc.html nav: the floating glass pill, the active item an ink pill
+ * with icon and label, the raised coral centre. Geometry and colours as the
+ * native shell TabBar (packages/ui-native/src/shells/TabBar.tsx).
+ */
+export function BottomTabBar({ items, value, onChange, label = 'Main navigation', safeAreaInset = false, testID }: BottomTabBarProps) {
   return (
     <nav
-      aria-label="Primary"
+      aria-label={label}
       data-testid={testID}
       style={{
-        position: 'sticky',
-        bottom: 0,
-        zIndex: 'var(--nabd-z-appBar)',
+        height: TAB_BAR_H,
+        boxSizing: 'border-box',
+        borderRadius: TAB_BAR_H / 2,
+        background: 'var(--nabd-color-glass-bgStrong)',
+        WebkitBackdropFilter: 'blur(var(--nabd-color-glass-blur))',
+        backdropFilter: 'blur(var(--nabd-color-glass-blur))',
+        border: '1px solid var(--nabd-color-border-onGlass)',
+        boxShadow: 'var(--nabd-shadow-tabBar)',
         display: 'flex',
-        justifyContent: 'space-around',
-        paddingBlock: 'var(--nabd-space-2xs)',
-        paddingBottom: 'max(var(--nabd-space-2xs), env(safe-area-inset-bottom))',
-        background: 'var(--nabd-color-bg-surface)',
-        borderTop: '1px solid var(--nabd-color-border-default)',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingInline: 8,
+        marginBlockEnd: safeAreaInset ? 'env(safe-area-inset-bottom)' : undefined,
       }}
     >
-      {items.map((item) => (
-        <TabButton key={item.id} item={item} active={item.id === value} onSelect={onChange} layout="bar" />
-      ))}
+      {items.map((item) => {
+        const active = item.id === value;
+        const common = {
+          type: 'button' as const,
+          'aria-label': item.label,
+          'aria-current': active ? ('page' as const) : undefined,
+          disabled: item.disabled,
+          onClick: () => onChange?.(item.id),
+        };
+        if (item.raised) {
+          return (
+            <button
+              key={item.id}
+              {...common}
+              style={{ width: TAB_ITEM, height: TAB_ITEM, padding: 0, border: 0, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+            >
+              <span
+                style={{
+                  width: TAB_FAB,
+                  height: TAB_FAB,
+                  flexShrink: 0,
+                  marginTop: -34,
+                  boxSizing: 'border-box',
+                  borderRadius: TAB_FAB / 2,
+                  background: 'linear-gradient(180deg, var(--nabd-color-action-fab-from) 0%, var(--nabd-color-action-fab-to) 100%)',
+                  border: '5px solid var(--nabd-color-bg-canvas)',
+                  boxShadow: 'var(--nabd-shadow-fab)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <svg width={28} height={28} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true">
+                  <path d={FILL_ICON_PATHS[item.icon]} fill="var(--nabd-color-action-fab-fg)" />
+                </svg>
+              </span>
+            </button>
+          );
+        }
+        return (
+          <button
+            key={item.id}
+            {...common}
+            style={{
+              height: TAB_ITEM,
+              minWidth: TAB_ITEM,
+              boxSizing: 'border-box',
+              paddingInline: active ? 18 : 0,
+              borderRadius: TAB_ITEM / 2,
+              border: 0,
+              background: active ? 'var(--nabd-color-action-selected-bg)' : 'transparent',
+              color: active ? 'var(--nabd-color-action-selected-fg)' : 'var(--nabd-color-text-secondary)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              fontFamily: 'inherit',
+              fontSize: '13.5px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              position: 'relative',
+            }}
+          >
+            <svg width={24} height={24} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true">
+              <path d={FILL_ICON_PATHS[item.icon]} fill="currentColor" />
+            </svg>
+            {active ? <span aria-hidden>{item.label}</span> : null}
+            {item.badge !== undefined ? (
+              <span style={{ position: 'absolute', top: 4, insetInlineEnd: 4 }} aria-hidden>
+                <Badge content={item.badge} />
+              </span>
+            ) : null}
+          </button>
+        );
+      })}
     </nav>
   );
 }

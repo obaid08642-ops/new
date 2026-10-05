@@ -91,6 +91,8 @@ const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp
   { method: "POST", route: new RegExp("^/labs/bookings$") },
   { method: "POST", route: new RegExp(`^/labs/bookings/${orderId}/documents$`, "i") },
   { method: "PATCH", route: new RegExp(`^/labs/bookings/${orderId}/reschedule$`, "i") },
+  // Lab insurance approval: the patient pays cash for an item insurance rejected (labs.controller opt-in-cash).
+  { method: "PATCH", route: new RegExp(`^/labs/bookings/${orderId}/items/[^/]{1,128}/opt-in-cash$`, "i") },
   { method: "PATCH", route: new RegExp(`^/orders/${orderId}/items/[^/]{1,128}/opt-in-cash$`, "i") },
   { method: "POST", route: new RegExp("^/family/chat/messages$", "i") },
   { method: "POST", route: new RegExp("^/nutrition/profile$", "i") },
