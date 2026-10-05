@@ -1,5 +1,5 @@
 {
- "commit": "7c09ed2e",
+ "commit": "dc467ce1",
  "routes": [
   {
    "app": "patient-app",
@@ -143,7 +143,7 @@
     }
    ],
    "files": 19,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-app",
@@ -4061,7 +4061,7 @@
     }
    ],
    "files": 26,
-   "unresolved": 2
+   "unresolved": 0
   },
   {
    "app": "patient-app",
@@ -5384,7 +5384,7 @@
    "status": "done (#285)",
    "calls": [],
    "files": 26,
-   "unresolved": 3
+   "unresolved": 0
   },
   {
    "app": "patient-app",
@@ -5982,7 +5982,7 @@
     }
    ],
    "files": 19,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-app",
@@ -6698,7 +6698,7 @@
     }
    ],
    "files": 15,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-app",
@@ -7312,7 +7312,7 @@
     }
    ],
    "files": 28,
-   "unresolved": 2
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -7356,7 +7356,7 @@
     }
    ],
    "files": 28,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -7414,7 +7414,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -7468,7 +7468,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -7526,7 +7526,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -7628,7 +7628,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -7676,7 +7676,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -7750,7 +7750,7 @@
     }
    ],
    "files": 14,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -7774,7 +7774,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -7808,7 +7808,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -7832,7 +7832,7 @@
     }
    ],
    "files": 10,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -7856,7 +7856,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -7890,7 +7890,7 @@
     }
    ],
    "files": 8,
-   "unresolved": 2
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -7914,7 +7914,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -7998,7 +7998,7 @@
     }
    ],
    "files": 15,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8022,7 +8022,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8046,7 +8046,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8080,7 +8080,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8104,7 +8104,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8138,7 +8138,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8162,7 +8162,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8242,7 +8242,7 @@
     }
    ],
    "files": 12,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8266,7 +8266,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8290,7 +8290,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8334,7 +8334,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8368,7 +8368,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8402,7 +8402,7 @@
     }
    ],
    "files": 5,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8439,7 +8439,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8476,7 +8476,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8520,7 +8520,7 @@
     }
    ],
    "files": 10,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8544,7 +8544,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8568,7 +8568,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8663,7 +8663,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8687,7 +8687,7 @@
     }
    ],
    "files": 8,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8711,7 +8711,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8745,7 +8745,7 @@
     }
    ],
    "files": 8,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8792,7 +8792,7 @@
     }
    ],
    "files": 23,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8816,7 +8816,7 @@
     }
    ],
    "files": 8,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8880,7 +8880,7 @@
     }
    ],
    "files": 17,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8914,7 +8914,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8951,7 +8951,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -8975,7 +8975,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -9125,7 +9125,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -9149,7 +9149,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -9173,7 +9173,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -9217,7 +9217,7 @@
     }
    ],
    "files": 10,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -9241,7 +9241,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -9275,7 +9275,7 @@
     }
    ],
    "files": 11,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -9309,7 +9309,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -9343,7 +9343,7 @@
     }
    ],
    "files": 12,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -9377,7 +9377,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -9435,7 +9435,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -9483,7 +9483,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -9675,7 +9675,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -9781,7 +9781,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -9825,7 +9825,7 @@
     }
    ],
    "files": 13,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -9859,7 +9859,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -9883,7 +9883,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -9951,7 +9951,7 @@
     }
    ],
    "files": 8,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10033,7 +10033,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10077,7 +10077,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10138,7 +10138,7 @@
     }
    ],
    "files": 10,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10188,7 +10188,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10212,7 +10212,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10256,7 +10256,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10280,7 +10280,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10317,7 +10317,7 @@
     }
    ],
    "files": 8,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10351,7 +10351,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10375,7 +10375,7 @@
     }
    ],
    "files": 8,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10399,7 +10399,7 @@
     }
    ],
    "files": 8,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10423,7 +10423,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10460,7 +10460,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10484,7 +10484,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10508,7 +10508,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10569,7 +10569,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10593,7 +10593,7 @@
     }
    ],
    "files": 8,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10627,7 +10627,7 @@
     }
    ],
    "files": 10,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10651,7 +10651,7 @@
     }
    ],
    "files": 8,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10732,7 +10732,7 @@
     }
    ],
    "files": 10,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10766,7 +10766,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10834,7 +10834,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10857,7 +10857,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10891,7 +10891,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10915,7 +10915,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10949,7 +10949,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -10993,7 +10993,7 @@
     }
    ],
    "files": 8,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11017,7 +11017,7 @@
     }
    ],
    "files": 8,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11041,7 +11041,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11095,7 +11095,7 @@
     }
    ],
    "files": 10,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11153,7 +11153,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11285,7 +11285,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11319,7 +11319,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11343,7 +11343,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11377,7 +11377,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11421,7 +11421,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11469,7 +11469,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11556,7 +11556,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11593,7 +11593,7 @@
     }
    ],
    "files": 8,
-   "unresolved": 2
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11617,7 +11617,7 @@
     }
    ],
    "files": 12,
-   "unresolved": 2
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11641,7 +11641,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11665,7 +11665,7 @@
     }
    ],
    "files": 5,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11689,7 +11689,7 @@
     }
    ],
    "files": 4,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11713,7 +11713,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11737,7 +11737,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11761,7 +11761,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11785,7 +11785,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11809,7 +11809,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11859,7 +11859,7 @@
     }
    ],
    "files": 26,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11893,7 +11893,7 @@
     }
    ],
    "files": 28,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11953,7 +11953,7 @@
     }
    ],
    "files": 10,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -11987,7 +11987,7 @@
     }
    ],
    "files": 5,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -12031,7 +12031,7 @@
     }
    ],
    "files": 10,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -12068,7 +12068,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -12102,7 +12102,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -12136,7 +12136,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -12246,7 +12246,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -12319,7 +12319,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -12356,7 +12356,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -12390,7 +12390,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -12453,7 +12453,7 @@
     }
    ],
    "files": 8,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -12487,7 +12487,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -12501,12 +12501,45 @@
    "calls": [
     {
      "method": "POST",
+     "path": "/api/patient/patient/pharmacy/orders/:param/cod/register",
+     "target": "web-proxy",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/app/[locale]/orders/[orderId]/offers/post-selection-actions.tsx",
+     "via": "request builder",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:51",
+     "status": "OK"
+    },
+    {
+     "method": "POST",
+     "path": "/api/patient/patient/pharmacy/orders/:param/final-quote/accept",
+     "target": "web-proxy",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/app/[locale]/orders/[orderId]/offers/post-selection-actions.tsx",
+     "via": "request builder",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:47",
+     "status": "OK"
+    },
+    {
+     "method": "POST",
      "path": "/api/patient/patient/pharmacy/orders/:param/insurance/:param/accept",
      "target": "web-proxy",
      "query": "",
      "line": 32,
      "file": "patient-web/app/[locale]/orders/[orderId]/offers/insurance-decision-actions.tsx",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:55",
+     "status": "OK"
+    },
+    {
+     "method": "POST",
+     "path": "/api/patient/patient/pharmacy/orders/:param/offers/:param/select",
+     "target": "web-proxy",
+     "query": "",
+     "line": 21,
+     "file": "patient-web/app/[locale]/orders/[orderId]/offers/offer-selection.tsx",
+     "via": "request builder",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:43",
      "status": "OK"
     },
     {
@@ -12551,7 +12584,7 @@
     }
    ],
    "files": 16,
-   "unresolved": 3
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -12575,7 +12608,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -12609,7 +12642,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -12633,7 +12666,7 @@
     }
    ],
    "files": 8,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -12714,7 +12747,7 @@
     }
    ],
    "files": 11,
-   "unresolved": 2
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -12800,7 +12833,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -13059,7 +13092,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -13208,7 +13241,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -13364,7 +13397,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -13456,7 +13489,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -13526,7 +13559,7 @@
     }
    ],
    "files": 8,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -13600,7 +13633,7 @@
     }
    ],
    "files": 10,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -13634,7 +13667,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -13671,7 +13704,7 @@
     }
    ],
    "files": 5,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -13705,7 +13738,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -13755,7 +13788,7 @@
     }
    ],
    "files": 9,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -13822,6 +13855,17 @@
      "handler": "patient-web/app/api/health/reminders/[reminderId]/route.ts"
     },
     {
+     "method": "POST",
+     "path": "/api/health/reminders/:param/log",
+     "target": "web-bff",
+     "query": "",
+     "line": 17,
+     "file": "patient-web/app/[locale]/reminders/reminder-actions.tsx",
+     "via": "request builder",
+     "status": "OK",
+     "handler": "patient-web/app/api/health/reminders/[reminderId]/log/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/health/reminders",
      "target": "backend",
@@ -13833,7 +13877,7 @@
     }
    ],
    "files": 11,
-   "unresolved": 2
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -13891,7 +13935,7 @@
     }
    ],
    "files": 5,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -13915,7 +13959,7 @@
     }
    ],
    "files": 5,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -13962,7 +14006,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -13986,7 +14030,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -14010,7 +14054,7 @@
     }
    ],
    "files": 5,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -14034,7 +14078,7 @@
     }
    ],
    "files": 5,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -14082,7 +14126,7 @@
     }
    ],
    "files": 5,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -14106,7 +14150,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -14244,7 +14288,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -14281,7 +14325,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -14365,7 +14409,7 @@
     }
    ],
    "files": 8,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -14419,7 +14463,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -14443,7 +14487,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -14487,7 +14531,7 @@
     }
    ],
    "files": 7,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -14555,7 +14599,7 @@
     }
    ],
    "files": 6,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-web",
@@ -14629,7 +14673,7 @@
     }
    ],
    "files": 8,
-   "unresolved": 1
+   "unresolved": 0
   }
  ]
 }
