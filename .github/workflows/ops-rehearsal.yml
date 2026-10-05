@@ -90,6 +90,38 @@ jobs:
           test "$(sudo docker inspect -f '{{.Image}}' nabdah-backend)" = "$IMG" && echo "backend: same image" || exit 1
           sudo grep -q 'BEGIN PRIVATE KEY' $D/.env.production && echo "env: multi-line value intact" || exit 1
           test "$(curl -sk -o /dev/null -w '%{http_code}' -H 'Host: api.nabd.plus' https://127.0.0.1/api/v1/health/liveness)" = 200 && echo "api 200 (backend authenticates to LiveKit with the new key)"
+      - name: "Q107 block, scenario 1: forced failure at reload -> file restored"
+        env: { OPS_NGINX_CONF: /opt/nabdah/deploy/nginx/conf.d/api.conf }
+        run: |
+          set +e
+          before=$(sudo sha256sum $OPS_NGINX_CONF | cut -d' ' -f1)
+          REHEARSE_FAIL_AT=reload bash tools/ops/tasks/22-block-social-login.sh 2>&1 | tee out.txt; rc=${PIPESTATUS[0]}
+          grep -q 'reload (forced, rehearsal)' out.txt && echo 'reached the forced failure point' || exit 1
+          test $rc = 1 || exit 1
+          test "$(sudo sha256sum $OPS_NGINX_CONF | cut -d' ' -f1)" = "$before" && echo "conf restored byte for byte" || exit 1
+          test "$(curl -sk -o /dev/null -w '%{http_code}' -H 'Host: api.nabd.plus' https://127.0.0.1/api/v1/health/liveness)" = 200 && echo "api 200" || exit 1
+      - name: "Q107 block, scenario 2: block applied, idempotent"
+        env: { OPS_NGINX_CONF: /opt/nabdah/deploy/nginx/conf.d/api.conf }
+        run: |
+          set +e
+          bash tools/ops/tasks/22-block-social-login.sh 2>&1 | tee out.txt; rc=${PIPESTATUS[0]}
+          test $rc = 0 || exit 1
+          ! grep -qiE 'permission denied|No such file' out.txt || { echo "script printed errors"; exit 1; }
+          s=$(curl -sk -o /dev/null -w '%{http_code}' -X POST -H 'Host: api.nabd.plus' -H 'Content-Type: application/json' --data '{}' https://127.0.0.1/api/v1/auth/social-login)
+          test "$s" = 403 && echo "social-login 403" || exit 1
+          l=$(curl -sk -o /dev/null -w '%{http_code}' -X POST -H 'Host: api.nabd.plus' -H 'Content-Type: application/json' --data '{}' https://127.0.0.1/api/v1/auth/login)
+          test "$l" != 403 && echo "login reaches the backend ($l)" || exit 1
+          bash tools/ops/tasks/22-block-social-login.sh 2>&1 | grep -q 'rule already present' && echo "second run: no change" || exit 1
+          test "$(sudo grep -c 'Q107 hotfix' $OPS_NGINX_CONF)" = 1 || exit 1
+      - name: "Q107 block, scenario 3: revert"
+        env: { OPS_NGINX_CONF: /opt/nabdah/deploy/nginx/conf.d/api.conf }
+        run: |
+          set +e
+          REVERT=1 bash tools/ops/tasks/22-block-social-login.sh 2>&1 | tee out.txt; rc=${PIPESTATUS[0]}
+          test $rc = 0 || exit 1
+          test "$(sudo grep -c 'Q107 hotfix' $OPS_NGINX_CONF)" = 0 && echo "rule removed" || exit 1
+          s=$(curl -sk -o /dev/null -w '%{http_code}' -X POST -H 'Host: api.nabd.plus' -H 'Content-Type: application/json' --data '{}' https://127.0.0.1/api/v1/auth/social-login)
+          test "$s" != 403 && echo "social-login reaches the backend ($s)" || exit 1
       - name: Logs on failure
         if: failure()
         run: |
