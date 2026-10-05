@@ -29,27 +29,17 @@ import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, type FillIconName } from '../icons/
  *      everywhere and in both themes.
  */
 
-const CONTROL_HEIGHT = 'var(--nabd-a11y-minTouchTarget)';
+/*
+ * The geometry and paints are in css/Inputs.css (components/components.css says
+ * why they are classes): the field box (`nabd-field__control`, never below the
+ * 44px touch target) and its invalid paint, the SearchField's inline, page and
+ * focused boxes, the Stepper's 36 pill and the SlotPicker's pills.
+ */
 
-const fieldStyle: React.CSSProperties = {
-  width: '100%',
-  minHeight: CONTROL_HEIGHT,
-  paddingInline: 'var(--nabd-space-md)',
-  paddingBlock: 'var(--nabd-space-xs)',
-  fontSize: 'var(--nabd-font-size-body)',
-  fontFamily: 'var(--nabd-font-family-body)',
-  color: 'var(--nabd-color-text-primary)',
-  background: 'var(--nabd-color-bg-surface)',
-  border: '1px solid var(--nabd-color-border-default)',
-  borderRadius: 'var(--nabd-radius-md)',
-  appearance: 'none',
-};
-
-const invalidFieldStyle: React.CSSProperties = {
-  ...fieldStyle,
-  borderColor: 'var(--nabd-color-status-danger-fg)',
-  background: 'var(--nabd-color-status-danger-bg)',
-};
+/** The field box, with its invalid paint when `bad`. */
+function controlClass(bad: boolean) {
+  return clsx('nabd-field__control', bad && 'nabd-field__control--invalid');
+}
 
 function FieldMessages({
   id,
@@ -62,17 +52,14 @@ function FieldMessages({
 }) {
   if (!hint && !error) return null;
   return (
-    <div style={{ display: 'grid', gap: '2px', marginTop: 'var(--nabd-space-2xs)' }}>
+    <div className="nabd-field__messages">
       {hint ? (
-        <span id={`${id}-hint`} style={{ fontSize: 'var(--nabd-font-size-caption)', color: 'var(--nabd-color-text-secondary)' }}>
+        <span id={`${id}-hint`} className="nabd-field__hint">
           {hint}
         </span>
       ) : null}
       {error ? (
-        <span
-          id={`${id}-error`}
-          style={{ fontSize: 'var(--nabd-font-size-caption)', color: 'var(--nabd-color-status-danger-fg)' }}
-        >
+        <span id={`${id}-error`} className="nabd-field__error">
           {error}
         </span>
       ) : null}
@@ -107,7 +94,6 @@ export function Input({
 }: InputProps) {
   const id = React.useId();
   const bad = invalid || Boolean(error);
-  const style = bad ? invalidFieldStyle : fieldStyle;
 
   const shared = {
     id,
@@ -118,20 +104,19 @@ export function Input({
     'aria-invalid': bad || undefined,
     'aria-describedby': describedBy(id, hint, error),
     'data-testid': testID,
-    style,
   } as const;
 
   return (
-    <div className="nabd-field" style={{ display: 'grid', gap: 'var(--nabd-space-2xs)' }}>
+    <div className="nabd-field">
       {label ? (
-        <label htmlFor={id} style={{ fontSize: 'var(--nabd-font-size-label)', color: 'var(--nabd-color-text-secondary)' }}>
+        <label htmlFor={id} className="nabd-field__label">
           {label}
         </label>
       ) : null}
 
-      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+      <div className="nabd-input__row">
         {startIcon ? (
-          <span style={{ position: 'absolute', insetInlineStart: 'var(--nabd-space-sm)', display: 'grid', placeItems: 'center' }}>
+          <span className="nabd-input__start">
             <Icon name={startIcon} size={20} tone="secondary" />
           </span>
         ) : null}
@@ -141,7 +126,7 @@ export function Input({
             {...shared}
             onChange={(e) => onChange?.(e.target.value)}
             rows={rows}
-            style={{ ...style, paddingInlineStart: startIcon ? 'calc(var(--nabd-space-md) + 28px)' : undefined, resize: 'vertical' }}
+            className={clsx(controlClass(bad), 'nabd-input__textarea', startIcon && 'nabd-input__control--start-icon')}
           />
         ) : (
           <input
@@ -150,13 +135,14 @@ export function Input({
             type={keyboardType === 'phone' ? 'tel' : keyboardType}
             inputMode={keyboardType === 'number' || keyboardType === 'decimal' ? 'numeric' : undefined}
             autoComplete={autoComplete}
-            style={{ paddingInlineStart: startIcon ? 'calc(var(--nabd-space-md) + 28px)' : undefined }}
+            // css/Inputs.css: today this element takes the start-icon padding only
+            className={clsx('nabd-input__native', startIcon && 'nabd-input__control--start-icon')}
           />
         )}
 
-        {loading ? <span style={{ position: 'absolute', insetInlineEnd: 'var(--nabd-space-sm)' }}>…</span> : null}
+        {loading ? <span className="nabd-input__loading">…</span> : null}
         {endIcon && !loading ? (
-          <span style={{ position: 'absolute', insetInlineEnd: 'var(--nabd-space-sm)', display: 'grid', placeItems: 'center' }}>
+          <span className="nabd-input__end">
             <Icon name={endIcon} size={20} tone="secondary" />
           </span>
         ) : null}
@@ -184,13 +170,13 @@ export function Select({
   const bad = invalid || Boolean(error);
 
   return (
-    <div className="nabd-field" style={{ display: 'grid', gap: 'var(--nabd-space-2xs)' }}>
+    <div className="nabd-field">
       {label ? (
-        <label htmlFor={id} style={{ fontSize: 'var(--nabd-font-size-label)', color: 'var(--nabd-color-text-secondary)' }}>
+        <label htmlFor={id} className="nabd-field__label">
           {label}
         </label>
       ) : null}
-      <div style={{ position: 'relative' }}>
+      <div className="nabd-select">
         <select
           id={id}
           value={value ?? ''}
@@ -199,7 +185,7 @@ export function Select({
           aria-invalid={bad || undefined}
           aria-describedby={describedBy(id, hint, error)}
           data-testid={testID}
-          style={{ ...(bad ? invalidFieldStyle : fieldStyle), paddingInlineEnd: 'var(--nabd-space-xl)' }}
+          className={clsx(controlClass(bad), 'nabd-select__control')}
         >
           {placeholder ? (
             <option value="" disabled>
@@ -212,7 +198,7 @@ export function Select({
             </option>
           ))}
         </select>
-        <span style={{ position: 'absolute', insetInlineEnd: 'var(--nabd-space-sm)', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+        <span className="nabd-select__caret">
           <Icon name="caret-down" size={16} tone="secondary" />
         </span>
       </div>
@@ -240,13 +226,13 @@ export function Otp({ value = '', length, label, error, onChange, onComplete, di
   };
 
   return (
-    <div className="nabd-field" style={{ display: 'grid', gap: 'var(--nabd-space-2xs)' }}>
+    <div className="nabd-field">
       {label ? (
-        <label htmlFor={`${id}-0`} style={{ fontSize: 'var(--nabd-font-size-label)', color: 'var(--nabd-color-text-secondary)' }}>
+        <label htmlFor={`${id}-0`} className="nabd-field__label">
           {label}
         </label>
       ) : null}
-      <div style={{ display: 'flex', gap: 'var(--nabd-space-2xs)', direction: 'ltr' }} role="group">
+      <div className="nabd-otp" role="group">
         {Array.from({ length }).map((_, i) => (
           <input
             key={i}
@@ -274,13 +260,7 @@ export function Otp({ value = '', length, label, error, onChange, onComplete, di
             aria-label={`${label ?? 'Code'} ${i + 1}`}
             aria-invalid={Boolean(error) || undefined}
             data-testid={testID ? `${testID}-${i}` : undefined}
-            style={{
-              ...(error ? invalidFieldStyle : fieldStyle),
-              width: 'var(--nabd-a11y-minTouchTarget)',
-              minWidth: 'var(--nabd-a11y-minTouchTarget)',
-              textAlign: 'center',
-              fontFamily: 'var(--nabd-font-family-mono, monospace)',
-            }}
+            className={clsx(controlClass(Boolean(error)), 'nabd-otp__cell')}
           />
         ))}
       </div>
@@ -320,25 +300,16 @@ export function Search({
   const active = page || focused;
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <div className="nabd-search">
       <label
         htmlFor={id}
-        style={{
-          flex: 1,
-          minWidth: 0,
-          boxSizing: 'border-box',
-          height: page ? 50 : 52,
-          borderRadius: page ? 25 : 18,
-          background: 'var(--nabd-color-bg-surface)',
-          border: active ? '2px solid var(--nabd-color-text-primary)' : '1px solid var(--nabd-color-border-onGlass)',
-          boxShadow: active ? '0 0 0 4px var(--nabd-color-glass-scrim)' : 'none',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          // the 2px border takes 1px more than the hairline: keep the content still
-          paddingInline: active ? 13 : 14,
-          opacity: disabled ? 0.5 : 1,
-        }}
+        // the ink border while focused, and always on the page variant (css/Inputs.css)
+        className={clsx(
+          'nabd-search__field',
+          page && 'nabd-search__field--page',
+          active && 'nabd-search__field--active',
+          disabled && 'nabd-search__field--disabled',
+        )}
       >
         <Icon name="search" size={20} tone={active ? 'primary' : 'secondary'} />
         <input
@@ -355,29 +326,18 @@ export function Search({
           aria-invalid={invalid || undefined}
           aria-busy={loading || undefined}
           data-testid={testID}
-          style={{
-            flex: 1,
-            minWidth: 0,
-            height: '100%',
-            border: 0,
-            padding: 0,
-            background: 'transparent',
-            outline: 'none',
-            fontFamily: 'inherit',
-            fontSize: page ? '16px' : '15px',
-            color: 'var(--nabd-color-text-primary)',
-          }}
+          className={clsx('nabd-search__input', page && 'nabd-search__input--page')}
         />
         {onClear && value ? (
-          <button type="button" onClick={onClear} aria-label={clearLabel ?? 'Clear'} data-testid={testID ? `${testID}-clear` : undefined} style={innerButton}>
+          <button type="button" onClick={onClear} aria-label={clearLabel ?? 'Clear'} data-testid={testID ? `${testID}-clear` : undefined} className="nabd-search__inner">
             {/* canvas/Search: a 28px sunken disc with the cross, inside a 44 hit area */}
-            <span style={{ width: 28, height: 28, borderRadius: 14, background: 'var(--nabd-color-bg-sunken)', display: 'grid', placeItems: 'center' }}>
+            <span className="nabd-search__clear-disc">
               <Icon name="close" size={14} tone="secondary" />
             </span>
           </button>
         ) : null}
         {onScanPress ? (
-          <button type="button" onClick={onScanPress} aria-label={scanLabel ?? 'Scan'} data-testid={testID ? `${testID}-scan` : undefined} style={innerButton}>
+          <button type="button" onClick={onScanPress} aria-label={scanLabel ?? 'Scan'} data-testid={testID ? `${testID}-scan` : undefined} className="nabd-search__inner">
             <FillGlyph name="barcode" size={22} />
           </button>
         ) : null}
@@ -390,19 +350,7 @@ export function Search({
           // the same rule IconButton enforces through its types.
           aria-label={filterLabel ?? 'Filter'}
           data-testid={testID ? `${testID}-filter` : undefined}
-          style={{
-            width: 52,
-            height: 52,
-            flexShrink: 0,
-            borderRadius: 18,
-            border: 0,
-            padding: 0,
-            display: 'grid',
-            placeItems: 'center',
-            cursor: 'pointer',
-            background: 'var(--nabd-color-action-selected-bg)',
-            color: 'var(--nabd-color-action-selected-fg)',
-          }}
+          className="nabd-search__filter"
         >
           <Icon name="sliders" size={20} tone="currentColor" />
         </button>
@@ -410,21 +358,6 @@ export function Search({
     </div>
   );
 }
-
-/** A button inside the field: a 44 hit area that takes no more room than its glyph. */
-const innerButton: React.CSSProperties = {
-  width: 44,
-  height: 44,
-  // the board's inner buttons take 36 of the row (PharmacyHub barcode)
-  marginInline: -4,
-  padding: 0,
-  border: 0,
-  background: 'transparent',
-  display: 'grid',
-  placeItems: 'center',
-  cursor: 'pointer',
-  flexShrink: 0,
-};
 
 function FillGlyph({ name, size }: { name: FillIconName; size: number }) {
   return (
@@ -466,17 +399,7 @@ export function Stepper({
       aria-invalid={invalid || undefined}
       aria-busy={loading || undefined}
       data-testid={testID}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 4,
-        height: 36,
-        paddingInline: 3,
-        boxSizing: 'border-box',
-        borderRadius: 18,
-        background: 'var(--nabd-color-bg-canvas)',
-        opacity: disabled ? 0.5 : 1,
-      }}
+      className={clsx('nabd-stepper', disabled && 'nabd-stepper--disabled')}
     >
       <button
         type="button"
@@ -484,23 +407,13 @@ export function Stepper({
         disabled={inert || value <= min}
         aria-label={decrementLabel}
         data-testid={testID ? `${testID}-dec` : undefined}
-        style={stepButton}
+        className="nabd-stepper__button"
       >
-        <span style={stepDisc} aria-hidden>
+        <span className="nabd-stepper__disc" aria-hidden>
           −
         </span>
       </button>
-      <span
-        aria-live="polite"
-        style={{
-          minWidth: 20,
-          textAlign: 'center',
-          fontSize: '14px',
-          fontWeight: 700,
-          fontVariantNumeric: 'tabular-nums',
-          color: 'var(--nabd-color-text-primary)',
-        }}
-      >
+      <span aria-live="polite" className="nabd-stepper__value">
         {shown}
       </span>
       <button
@@ -509,41 +422,15 @@ export function Stepper({
         disabled={inert || value >= max}
         aria-label={incrementLabel}
         data-testid={testID ? `${testID}-inc` : undefined}
-        style={stepButton}
+        className="nabd-stepper__button"
       >
-        <span style={stepDisc} aria-hidden>
+        <span className="nabd-stepper__disc" aria-hidden>
           +
         </span>
       </button>
     </div>
   );
 }
-
-/** 44×44 target around a 30px disc; the 7px each side is given back to the layout. */
-const stepButton: React.CSSProperties = {
-  width: 44,
-  height: 44,
-  margin: -7,
-  padding: 0,
-  display: 'grid',
-  placeItems: 'center',
-  background: 'transparent',
-  border: 0,
-  cursor: 'pointer',
-  color: 'var(--nabd-color-text-primary)',
-};
-
-const stepDisc: React.CSSProperties = {
-  width: 30,
-  height: 30,
-  borderRadius: 15,
-  display: 'grid',
-  placeItems: 'center',
-  // canvas/Cart draws the signs as 16px text
-  fontSize: '16px',
-  lineHeight: 1,
-  background: 'var(--nabd-color-bg-elevated)',
-};
 
 export function SlotPicker({
   dayLabel,
@@ -555,26 +442,16 @@ export function SlotPicker({
   testID,
 }: SlotPickerProps) {
   return (
-    <div style={{ display: 'grid', gap: 'var(--nabd-space-2xs)' }} data-testid={testID}>
-      <span style={{ fontSize: 'var(--nabd-font-size-label)', color: 'var(--nabd-color-text-secondary)' }}>
-        {dayLabel}
-      </span>
+    <div className="nabd-slot-picker" data-testid={testID}>
+      <span className="nabd-slot-picker__day">{dayLabel}</span>
       {loading ? (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--nabd-space-2xs)' }} aria-busy>
+        <div className="nabd-slot-picker__row" aria-busy>
           {Array.from({ length: 6 }).map((_, i) => (
-            <span
-              key={i}
-              style={{
-                width: 72,
-                height: 'var(--nabd-a11y-minTouchTarget)',
-                borderRadius: 'var(--nabd-radius-pill)',
-                background: 'var(--nabd-color-bg-sunken)',
-              }}
-            />
+            <span key={i} className="nabd-slot-picker__skeleton" />
           ))}
         </div>
       ) : (
-        <div role="radiogroup" aria-label={dayLabel} style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--nabd-space-2xs)' }}>
+        <div role="radiogroup" aria-label={dayLabel} className="nabd-slot-picker__row">
           {slots.map((slot: Slot) => (
             <button
               key={slot.id}
@@ -586,24 +463,11 @@ export function SlotPicker({
               // make the day look emptier than it is.
               disabled={disabled || slot.available === false}
               data-testid={slot.id}
-              style={{
-                minHeight: 'var(--nabd-a11y-minTouchTarget)',
-                minWidth: 72,
-                paddingInline: 'var(--nabd-space-sm)',
-                fontSize: 'var(--nabd-font-size-body)',
-                fontVariantNumeric: 'tabular-nums',
-                borderRadius: 'var(--nabd-radius-pill)',
-                cursor: slot.available === false ? 'not-allowed' : 'pointer',
-                border: `1px solid ${
-                  value === slot.id ? 'var(--nabd-color-action-primary-bg)' : 'var(--nabd-color-border-default)'
-                }`,
-                background:
-                  value === slot.id ? 'var(--nabd-color-action-primary-bg)' : 'var(--nabd-color-bg-surface)',
-                color:
-                  value === slot.id ? 'var(--nabd-color-action-primary-fg)' : 'var(--nabd-color-text-primary)',
-                textDecoration: slot.available === false ? 'line-through' : 'none',
-                opacity: slot.available === false ? 0.5 : 1,
-              }}
+              className={clsx(
+                'nabd-slot-picker__slot',
+                value === slot.id && 'nabd-slot-picker__slot--selected',
+                slot.available === false && 'nabd-slot-picker__slot--unavailable',
+              )}
             >
               {slot.label}
             </button>

@@ -11,6 +11,7 @@
  *
  * Usage: node packages/ui/build-preview.mjs [--check]
  */
+import { loadCss } from './load-css.mjs';
 import { mkdirSync, writeFileSync, existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -85,6 +86,8 @@ const React = req('react');
 const { renderToStaticMarkup } = req('react-dom/server');
 
 const tokensCss = readFileSync(join(HERE, '..', 'design-tokens', 'dist', 'css', 'tokens.css'), 'utf8');
+// The components are styled by class (components/components.css explains why), so the gallery carries the sheet.
+const componentsCss = loadCss(join(HERE, 'components', 'components.css'));
 const fontsCss = readFileSync(join(HERE, '..', 'design-tokens', 'dist', 'css', 'fonts.css'), 'utf8');
 const tokens = JSON.parse(readFileSync(join(HERE, '..', 'design-tokens', 'tokens.json'), 'utf8'));
 
@@ -254,6 +257,7 @@ const html = `<!doctype html>
 <style>
 ${fontsCss}
 ${tokensCss}
+${componentsCss}
 *, *::before, *::after { box-sizing: border-box; }
 body {
   margin: 0;
@@ -493,8 +497,21 @@ function componentsGallery() {
   return `<section class="gallery"><h2>Components — the A7 roster, rendered</h2>${out.join('')}</section>`;
 }
 
+/**
+ * Every component in the gallery goes through here, so this is where the CSP rule
+ * (components/components.css) is enforced: a component that emits a `style`
+ * attribute or a `<style>` element renders unstyled on patient-web, whose
+ * style-src has no 'unsafe-inline'. The gallery's own frame may use inline
+ * styles (it is a static file); the components inside it may not.
+ */
 function render(el) {
-  return renderToStaticMarkup(el);
+  const markup = renderToStaticMarkup(el);
+  const inline = markup.match(/<[a-zA-Z][^>]*\sstyle="[^"]*"|<style[\s>]/);
+  if (inline) {
+    console.error(`preview: a component emitted an inline style, which the patient-web CSP refuses:\n  ${inline[0].slice(0, 200)}`);
+    process.exit(1);
+  }
+  return markup;
 }
 
 const summary =
