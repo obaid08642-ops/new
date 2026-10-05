@@ -286,6 +286,55 @@ verified at the end). `tsc --noEmit` clean after every commit.
   `1 failed, 1 passed` (loser rejects raw E11000); restored → green,
   `grep MUTATION-PROBE` clean.
 
+### F9 — 15.12 kill switches: absent-default + seeding + 6 wired consumers (FIXED)
+
+- Absent-default (`backend/src/modules/feature-flags/feature-flags.service.ts:
+  isEnabled` now returns `boolean | null`, null when the row is absent — was
+  `false`, which isKilled() misread as "explicitly disabled" so every switch
+  fired pre-seeding). `ensureSeeded()` creates ONLY missing flags as
+  `enabled:true` (never overwrites an admin choice), runs on `onModuleInit`
+  (boot-safe: catches store outage, consumers fail open meanwhile);
+  `KILL_SWITCH_FLAG_KEYS` = the 6 canonical keys. Also fixed
+  `repositories/featureflag.repository.ts` to type against the module-local
+  `{key, enabled}` schema (runtime model was already that; the import pointed
+  at the legacy `{flagName, isEnabled}` shape). Helper
+  (`common/killswitches/killswitches.helper.ts`) gains `connectionFlagSource`
+  (reads the same `featureflags` collection, absent/error → null) and its
+  stale fail-closed comments now state the corrected contract.
+- Wiring (each fail-open on absent/error, each with a killed unit test):
+  1. AI gateway (`modules/ai/ai-gateway.service.ts: generate()`): killed →
+     `ServiceUnavailableException('ai_disabled_by_kill_switch')` before any
+     provider call (no LLM, no billing).
+  2. Recommendations (`modules/product-ranking/product-ranking.service.ts:
+     getRankedDrugIds`): killed → deterministic `{drug_id: 1}` default list,
+     no ZSet reads, no degraded hydration (Mongo fallback extracted to
+     `mongoRanked`); R9 Redis-only path (`product-ranking-r9.service.ts`):
+     killed → `{ids: [], total: 0}` (no local default source; empty beats a
+     fabricated ranking).
+  3. Nudges (`modules/engagement/engagement.controller.ts`): `trackEvent`
+     still records the interest event but skips `queue.add`
+     (`nudges_killed: true`); `processNudge` drops already-queued jobs.
+  4. Live map (`modules/ops/ops.controller.ts: liveMap`): killed → static
+     `{points: [], total: 0, live_map_killed: true}`, zero collection scans.
+  5. Analytics ingestion (`modules/medicines/medicines.service.ts:
+     trackSearch`): killed → accept-and-drop the `search_queries` write;
+     search results unaffected, flag read stays off-path.
+  6. Search suggestions (`medicines.service.ts: didYouMean`): killed →
+     `{suggestion: null, alternatives: [], query}` with no pool reads.
+- Specs: `modules/feature-flags/feature-flags-killswitch.p15.spec.ts`
+  (5: keys, absent-null, isKilled×3 via the REAL service, seed-only-missing +
+  never-overwrite, boot-safe init) and `modules/killswitch-consumers.p15.spec.ts`
+  (12: killed + fail-open sides where cheap).
+- Real tails: flags spec 5/5 + helper spec (8/8 in the 13-test joint run);
+  consumers 12/12; neighbours — ai-gateway r21+purpose+fail-closed 8/8,
+  product-ranking+r9+boosts+ops-alerts+ops-metrics 15/15,
+  medicines×6 + ai.service×2 33/33; `tsc` clean.
+- Mutation proofs (editor-only, restored): isEnabled back to false-on-absent
+  → flags spec `2 failed, 3 passed`; gateway check neutered →
+  consumers `1 failed, 11 passed`; `grep MUTATION-PROBE` clean.
+- Live-toggle proof is another agent's journey (stated in the task): behaviour
+  here is correct and testable per toggle.
+
 ## BLOCKED / DEFERRED lines (round 1, unchanged)
 
 - `BLOCKED: live rapid-tap journey needs a running server

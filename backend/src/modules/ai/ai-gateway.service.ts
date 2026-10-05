@@ -48,6 +48,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { CircuitBreakerService } from '../../common/circuit-breaker.service';
+import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
 
 export type AiProviderName =
   | 'gemini' | 'openai' | 'groq' | 'cerebras' | 'openrouter' | 'deepseek' | 'qwen' | 'replicate';
@@ -408,6 +409,12 @@ export class AiGatewayService {
   /** Unified generation with quota-aware routing, failover, PII strip + cache. */
   async generate(opts: AiGenerateOptions): Promise<AiGenerateResult> {
     const feature = String(opts?.feature || 'general').slice(0, 64);
+    // F9 (15.12) — AI kill switch: when explicitly disabled, skip every
+    // provider call and return nothing billable. Absent flag / store outage
+    // fails open (feature stays on).
+    if (await isKilled('ai', connectionFlagSource(this.conn))) {
+      throw new ServiceUnavailableException('ai_disabled_by_kill_switch');
+    }
     const { chain, degraded } = await this.attemptChain(feature);
     if (chain.length === 0) throw new ServiceUnavailableException('ai_provider_unavailable');
 

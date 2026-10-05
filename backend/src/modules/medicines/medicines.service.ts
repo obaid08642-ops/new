@@ -14,6 +14,7 @@ import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, 
 import { ProductRankingService } from '../product-ranking/product-ranking.service';
 import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
 import { buildSlug, escapeRegex } from '../../common/slug.util';
+import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
 
 @Injectable()
 export class MedicinesService {
@@ -258,13 +259,28 @@ export class MedicinesService {
   private trackSearch(term: string | undefined, resultsCount: number, userId?: string) {
     const t = (term || '').trim();
     if (!t || t.length < 2) return;
-    this.conn.collection('search_queries').insertOne({
-      term: t,
-      term_lc: t.toLowerCase(),
-      user_id: userId || null,
-      results_count: resultsCount,
-      createdAt: new Date(),
-    }).catch(() => { /* analytics must never slow search */ });
+    // F9 (15.12) — analytics-ingestion kill switch: accept-and-drop. Search
+    // results are unaffected; only the search_queries write is skipped. The
+    // flag read stays async/off-path so search latency never depends on it.
+    this.analyticsIngestAllowed().then((ok) => {
+      if (!ok) return;
+      this.conn.collection('search_queries').insertOne({
+        term: t,
+        term_lc: t.toLowerCase(),
+        user_id: userId || null,
+        results_count: resultsCount,
+        createdAt: new Date(),
+      }).catch(() => { /* analytics must never slow search */ });
+    }).catch(() => { /* analytics must never break search */ });
+  }
+
+  /** False only when analytics ingestion is explicitly killed (fail-open). */
+  private async analyticsIngestAllowed(): Promise<boolean> {
+    try {
+      return !(await isKilled('analyticsIngestion', connectionFlagSource(this.conn)));
+    } catch {
+      return true;
+    }
   }
 
   /**
@@ -274,6 +290,11 @@ export class MedicinesService {
   async didYouMean(term: string) {
     const t = (term || '').trim().toLowerCase();
     if (t.length < 3) return { suggestion: null };
+    // F9 (15.12) — search-suggestions kill switch: direct matches only, no
+    // suggestion expansion and no suggester (pool) reads.
+    if (await isKilled('searchSuggestions', connectionFlagSource(this.conn))) {
+      return { suggestion: null, alternatives: [], query: term };
+    }
 
     const lev = (a: string, b: string): number => {
       const m = a.length, n = b.length;
