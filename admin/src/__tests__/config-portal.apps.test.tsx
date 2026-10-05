@@ -8,7 +8,7 @@
  * successful GET must show what clients will actually enforce.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
 const { fetchWithAdminGuard } = vi.hoisted(() => ({ fetchWithAdminGuard: vi.fn() }));
@@ -86,5 +86,40 @@ describe('15.12 — force-update tab: no blind save, honest enforcement view', (
     expect(screen.getByTestId('app-enforcement-patient').textContent).toContain('1.4.0');
     expect(screen.queryByTestId('app-version-warn-patient-min')).toBeNull();
     expect(screen.getByTestId('app-version-warn-patient-latest').textContent).toContain('X.Y.Z');
+  });
+
+  it('F1 — a second click while the PUT is in flight cannot dispatch again', async () => {
+    let putCalls = 0;
+    let resolvePut!: (value: { ok: boolean; status: number; json: () => Promise<unknown> }) => void;
+    const putGate = new Promise<{ ok: boolean; status: number; json: () => Promise<unknown> }>(
+      (resolve) => { resolvePut = resolve; },
+    );
+    vi.mocked(fetchWithAdminGuard).mockImplementation(async (url: string, init?: RequestInit) => {
+      if (url.includes('app-versions') && (init as RequestInit | undefined)?.method === 'PUT') {
+        putCalls += 1;
+        return putGate;
+      }
+      if (url.includes('app-versions')) return okJson({ apps: {} });
+      return okJson({});
+    });
+    await openAppsTab();
+    const save = screen.getByTestId('app-versions-save') as HTMLButtonElement;
+    expect(save.disabled).toBe(false);
+
+    // A same-tick double-click, before React can flush the disabled state:
+    // both clicks dispatch while the button still looks enabled, so only the
+    // synchronous in-handler guard can stop the second PUT.
+    act(() => {
+      fireEvent.click(save);
+      fireEvent.click(save);
+    });
+    expect(putCalls).toBe(1);
+    expect(save.disabled).toBe(true);
+
+    // The slow write resolves once; the button recovers and no duplicate left.
+    resolvePut(okJson({ apps: {} }));
+    await screen.findByText('تم حفظ إصدارات التطبيقات');
+    expect(putCalls).toBe(1);
+    expect((screen.getByTestId('app-versions-save') as HTMLButtonElement).disabled).toBe(false);
   });
 });
