@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { apiFetch, normalizeFetchInput } from "./client";
+import { apiFetch, combineSignals, normalizeFetchInput } from "./client";
 import { ApiError, isApiError } from "./errors";
 import {
   RETRY_DEFAULTS,
@@ -272,5 +272,98 @@ describe("P15.1 — cancellation, offline and the catalog", () => {
     const init = fetchImpl.mock.calls[0][1] as RequestInit & { next?: unknown };
     expect(init.cache).toBe("force-cache");
     expect(init.next).toEqual({ revalidate: 3600 });
+  });
+});
+
+describe("F2 — the Request's own signal is forwarded, never dropped", () => {
+  it("forwards input.signal when init carries no signal", async () => {
+    const controller = new AbortController();
+    const input = new Request("https://x.test/api/patient/cart", { signal: controller.signal });
+    const request = await normalizeFetchInput(input, {});
+    // Undici follows the given signal with a linked one, so identity is not
+    // the contract — cancellation linkage is.
+    expect(request.callerSignal).toBeDefined();
+    expect(request.callerSignal?.aborted).toBe(false);
+    controller.abort("input-closed");
+    expect(request.callerSignal?.aborted).toBe(true);
+  });
+
+  it("still honours init.signal for a plain string input", async () => {
+    const controller = new AbortController();
+    const request = await normalizeFetchInput("/api/patient/cart", { signal: controller.signal });
+    expect(request.callerSignal).toBe(controller.signal);
+  });
+
+  it("ends the attempt when EITHER signal aborts, keeping the abort reason", async () => {
+    const fromInput = new AbortController();
+    const fromInit = new AbortController();
+    const input = new Request("https://x.test/api/patient/cart", { signal: fromInput.signal });
+    const request = await normalizeFetchInput(input, { signal: fromInit.signal });
+    expect(request.callerSignal).toBeDefined();
+    expect(request.callerSignal?.aborted).toBe(false);
+
+    fromInit.abort("init-closed");
+    expect(request.callerSignal?.aborted).toBe(true);
+    const reason = (request.callerSignal as AbortSignal & { reason?: unknown }).reason;
+    expect(reason ?? (request.callerSignal ? "aborted" : null)).toBeDefined();
+  });
+
+  it("combines manually where AbortSignal.any is missing (iOS 16.4 floor)", async () => {
+    const holder = AbortSignal as unknown as { any?: unknown };
+    const original = holder.any;
+    try {
+      holder.any = undefined;
+      const fromInput = new AbortController();
+      const fromInit = new AbortController();
+      const combined = combineSignals(fromInput.signal, fromInit.signal);
+      expect(combined).toBeDefined();
+      expect(combined?.aborted).toBe(false);
+
+      fromInput.abort("input-closed");
+      expect(combined?.aborted).toBe(true);
+      expect((combined as AbortSignal & { reason?: unknown }).reason).toBe("input-closed");
+
+      const alreadyAborted = new AbortController();
+      alreadyAborted.abort("already");
+      expect(combineSignals(alreadyAborted.signal, new AbortController().signal)?.aborted).toBe(true);
+      expect(combineSignals(undefined, undefined)).toBeUndefined();
+      const solo = new AbortController().signal;
+      expect(combineSignals(solo, undefined)).toBe(solo);
+    } finally {
+      holder.any = original;
+    }
+  });
+
+  it("cancels the request when the Request's own signal aborts first", async () => {
+    const controller = new AbortController();
+    controller.abort("screen-closed");
+    const input = new Request("https://x.test/api/patient/cart", { signal: controller.signal });
+    const { fetchImpl } = recorder([json({})]);
+
+    const thrown = await apiFetch(input, {}, { fetchImpl, sleep: makeSleep() }).catch((e: unknown) => e);
+
+    // The caller's own reason comes back, and nothing hits the wire.
+    expect(thrown).toBe("screen-closed");
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("aborts mid-flight when the Request's signal fires during the attempt", async () => {
+    const controller = new AbortController();
+    const input = new Request("https://x.test/api/patient/cart", { signal: controller.signal });
+    const pending = apiFetch(input, {}, {
+      fetchImpl: (_url, init) => new Promise<Response>((_, reject) => {
+        init.signal?.addEventListener("abort", () => {
+          const error = new Error("aborted");
+          error.name = "AbortError";
+          reject(error);
+        });
+      }),
+      sleep: makeSleep(),
+      retries: 0,
+    });
+
+    controller.abort("screen-closed");
+    const thrown = await pending.catch((e: unknown) => e);
+    expect(thrown).toBe("screen-closed");
   });
 });

@@ -6,6 +6,7 @@ import {
   isPastSlot,
   isValidServerInstant,
   resolveUserTimeZone,
+  zonedDayTimeToMs,
 } from "./datetime";
 import {
   getServerTimeOffsetMs,
@@ -154,4 +155,39 @@ describe("P15.9 — the server-anchored clock", () => {
   it("treats non-finite slots as past (fail closed, as before)", () => {
     expect(isPastSlot(Number.NaN, T)).toBe(true);
   });
+});
+
+describe("F4 — slots are constructed in explicit zone terms", () => {
+  it("resolves a Riyadh wall time to the exact instant (09:00 AST = 06:00Z, no DST)", () => {
+    expect(zonedDayTimeToMs("2026-10-01", "09:00", "Asia/Riyadh")).toBe(Date.parse("2026-10-01T06:00:00.000Z"));
+  });
+
+  it("resolves a UTC wall time with no shift", () => {
+    expect(zonedDayTimeToMs("2026-10-01", "09:00", "UTC")).toBe(Date.parse("2026-10-01T09:00:00.000Z"));
+  });
+
+  it("follows DST where the zone observes it (New York summer EDT vs winter EST)", () => {
+    expect(zonedDayTimeToMs("2026-07-01", "09:00", "America/New_York")).toBe(Date.parse("2026-07-01T13:00:00.000Z"));
+    expect(zonedDayTimeToMs("2026-01-01", "09:00", "America/New_York")).toBe(Date.parse("2026-01-01T14:00:00.000Z"));
+  });
+
+  it("fails closed (null) on malformed input instead of an Invalid Date", () => {
+    expect(zonedDayTimeToMs("2026-13-01", "09:00", "Asia/Riyadh")).toBeNull();
+    expect(zonedDayTimeToMs("2026-02-30", "09:00", "Asia/Riyadh")).toBeNull();
+    expect(zonedDayTimeToMs("2026-10-01", "25:00", "Asia/Riyadh")).toBeNull();
+    expect(zonedDayTimeToMs("2026-10-01", "09:60", "Asia/Riyadh")).toBeNull();
+    expect(zonedDayTimeToMs("tomorrow", "09:00", "Asia/Riyadh")).toBeNull();
+    expect(zonedDayTimeToMs("2026-10-01", "morning", "Asia/Riyadh")).toBeNull();
+    expect(zonedDayTimeToMs("2026-10-01", "09:00", "Not/AZone")).toBeNull();
+    expect(zonedDayTimeToMs("", "", "UTC")).toBeNull();
+  });
+
+  for (const form of ["diagnostics-checkout-form", "nursing-booking-form"]) {
+    it(`${form} builds its slot in explicit zone terms, never device-local`, async () => {
+      const { readFile } = await import("node:fs/promises");
+      const source = await readFile(new URL(`../components-next/${form}.tsx`, import.meta.url), "utf8");
+      expect(source).toContain("zonedDayTimeToMs(day, time, resolveUserTimeZone())");
+      expect(source).not.toContain("new Date(`${day}T${time}:00`)");
+    });
+  }
 });

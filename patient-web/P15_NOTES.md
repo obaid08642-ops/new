@@ -559,3 +559,243 @@ both ways — frozen debt, untouched); tests 420 passed/1 failed → 579 passed/
 `translation-key-parity` failure is fixed (Errors.* filled for ur/hi/bn/fil),
 not skipped or weakened. Working tree clean; no file outside `patient-web/`
 touched; no `git push` performed.
+
+---
+
+## Fix round (independent-reviewer findings F1–F8)
+
+Branch `p15-web`, worktree `.../T/opencode/p15/web`. The worktree directory had
+been deleted (all `p15/*` worktrees listed as prunable); it was recreated with
+`git worktree add .../T/opencode/p15/web p15-web` and `node_modules` reinstalled
+(`pnpm install --no-frozen-lockfile`; the touched `pnpm-lock.yaml` was restored
+with `git checkout`, tree clean). Prior fix commits `41c4bca` (F1), `d31571c`
+(F2), `aa79148` (F3), `a6a0b2d` (F4) were already on the branch; each was
+re-verified below with a fresh break → red → restore proof. New commits:
+`047142d` (F8), `d1f1489` (F5), `990a6ae` (F6), `414eb0f` (F7). One fix = one
+commit, `[P15.fix] <area>: <what>`; never amended, never pushed. Targeted runs
+use `run <path>` without `--silent` (`--silent` with a path filter crashes this
+vitest version's CLI parser — CAC parse error, not a test result).
+
+Baseline before this round (HEAD `a6a0b2d`):
+
+```
+$ node node_modules/typescript/bin/tsc --noEmit; echo "tsc exit: $?"
+tsc exit: 0
+$ node node_modules/vitest/vitest.mjs run --silent --reporter=basic
+ Test Files  188 passed | 14 skipped (202)
+      Tests  594 passed | 23 skipped (617)
+```
+
+### F1 — fail-open optimistic default: FIXED (prior `41c4bca`, re-proved)
+
+`lib/api/optimistic.ts:44-47` (`pendingMode` denies by default: never-list
+first as defense in depth, then the `isSafeOptimistic(kind)` allowlist
+decides) and `:88` (`runOptimistic` applies locally ONLY for safe kinds).
+Test `lib/api/optimistic.test.ts:167` (`paymnt` typo kind: processing, no
+apply, outcome `committed/optimistic:false`).
+
+```
+$ # reverted pendingMode to fail-open: return isNeverOptimistic ? processing : optimistic
+ Test Files  1 failed (1)
+      Tests  2 failed | 33 passed (35)
+$ # restored (file backup, never git checkout)
+ Test Files  1 passed (1)
+      Tests  35 passed (35)
+```
+
+### F2 — `Request.signal` silently dropped: FIXED (prior `d31571c`, re-proved)
+
+`lib/api/net/client.ts:125-154` (`combineSignals`, `AbortSignal.any` where
+available, manual listener fallback for iOS 16.4) and `:186`
+(`callerSignal: combineSignals(input.signal, init?.signal)`).
+
+```
+$ # mutated :186 back to `callerSignal: init?.signal ?? undefined`
+ Test Files  1 failed (1)
+      Tests  3 failed | 19 passed (22)
+$ # restored
+ Test Files  1 passed (1)
+      Tests  22 passed (22)
+```
+
+### F3 — fetch wrapper changed the error type: FIXED (seam pinned `aa79148` + audit)
+
+Exhaustive grep over shipped code (`app/`, `components-next/`, `components/`,
+`lib/`, tests excluded):
+
+- `TypeError` literal: only `lib/api/net/errors.ts:163` (the wrapper's own
+  `networkError` classifier — the mapping itself, correct) and the
+  `install.ts:22` doc comment. No production `catch` mentions it.
+- `instanceof`: only `ApiError` (the new type), `Headers`, `FormData`,
+  `URLSearchParams`, `ArrayBuffer`, `Blob`, `ReadableStream`, `Request`, `URL`
+  — none a `TypeError` branch.
+- `.name ===`: only `errors.ts:97` (`AbortError`, abort path still rethrows the
+  caller reason — unaffected) plus data-field `name` checks (drug/product
+  names, unrelated).
+- `"fetch failed" / "Failed to fetch" / "NetworkError"`: zero shipped matches.
+
+So no call site branches on the old type and no call-site code change was
+needed — every shipped `catch` is either bare (`catch {` fallback copy, e.g.
+both payment clients) or `.ok`-based (wrapper forwards `Response` untouched).
+`TypeError` appears only in tests: `install.test.ts:78-107` (the F3 seam pin:
+`TypeError("fetch failed")` → `ApiError` reason `network`, action
+`check_connection`, code `SERVICE_UNAVAILABLE`, plus the localized copy),
+`catalog.test.ts:80` (unknown-error copy still resolves), `outbox.test.ts:67`,
+`upstream.test.ts:8`, `health-ssr.test.ts:38` (fake rejections).
+
+```
+$ node node_modules/vitest/vitest.mjs run lib/api/net/install.test.ts lib/api/net/catalog.test.ts tests/translation-key-parity.test.ts
+ Test Files  3 passed (3)
+      Tests  28 passed (28)
+```
+
+### F4 — tz-naive slot construction: FIXED (prior `a6a0b2d`, re-proved)
+
+`components-next/diagnostics-checkout-form.tsx:72` and
+`components-next/nursing-booking-form.tsx:65` use
+`zonedDayTimeToMs(day, time, resolveUserTimeZone())` + `isPastSlot()`
+(server-anchored); malformed/unknown-zone slots fail closed (`null` →
+rejected). `lib/datetime.test.ts:189` pins the exact call in both form
+sources.
+
+```
+$ # mutated nursing form back to Date.parse(day + "T" + time + ":00")
+ Test Files  1 failed (1)
+      Tests  1 failed | 16 passed (17)
+$ # restored
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+```
+
+### F5 — payment "processing" screen proof: FIXED (`d1f1489`)
+
+`components-next/pharmacy-payment-client.tsx:5` imports `pendingMode`;
+`:131-157` extracts the pure view `PharmacyPaymentMethods` whose container
+carries `data-pending-mode={paying ? pendingMode("payment") : undefined}` —
+in flight that is `"processing"`, with the tapped method showing the existing
+Redirecting copy and all buttons disabled. No new user-facing strings (the
+`role="status"` note was drafted, then removed for exactly that reason — the
+existing copy already expresses the state). No charge is performed by the
+test; `tests/optimistic-ui.test.tsx` gains 3 tests (contract pin + idle +
+in-flight UI state, 7 total in file).
+
+```
+$ # mutated `pendingMode("payment")` to hardcoded "optimistic"
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+$ # restored → 7 passed; tsc exit 0
+```
+
+### F6 — dead code `formatInProviderZone`: FIXED by wiring (`990a6ae`)
+
+`lib/datetime.ts:66-72` kept. `components-next/appointment-booking-form.tsx:8`
+imports it; `:20-24` adds the exported `slotDisplay(slot, locale)` (explicit
+server label wins; else the server instant formats in Asia/Riyadh; garbage
+falls back to raw, never blank), and `:162` renders it in the slot buttons —
+so the form no longer leaks raw ISO strings. New
+`tests/appointment-slots-provider-zone.test.tsx` (4 tests, incl. full-form
+static markup asserting `9:00` present and the raw `2026-10-01T06:00:00.000Z`
+absent). Dates are not message keys, so i18n parity is untouched.
+
+```
+$ # mutated slotDisplay to return slot.start
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+$ # restored → 4 passed; tsc exit 0
+```
+
+### F7 — per-segment error boundaries: FIXED (`414eb0f`)
+
+New `components-next/segment-error-fallback.tsx` (try-again + home +
+contact-support from existing `RouteState` keys only, digest `ref:`, reports
+via `reportSegmentError` with the section name). `error.tsx` added to all 65
+top-level sections under `app/[locale]/` (ai appointments articles c cart
+chat community condition consultations dashboard delivery diagnostics doctor
+doctors drug-scanner emergency facility family forgot-password health
+home-care home-nursing insurance labs login loyalty map maternity medicine
+medicine-catalog medicines mental-health notifications nursing nutrition
+offers onboarding orders otp p password-reset payments pharmacies pharmacy
+prescriptions privacy profile programs provider-info radiology register
+reminders reports returns reviews room s search services settings support
+terms voice welcome wishlist), each a 7-line wrapper naming its own segment.
+Existing `app/[locale]/error.tsx` + `app/global-error.tsx` untouched (pinned
+by `route-error.test.tsx`). Structural carve-outs: `app/api/**` are Route
+Handlers — `error.tsx` boundaries do not catch handler errors, so they keep
+try/catch (no file added, by design); root special files (sitemap, robots,
+manifest, llms.txt, icons) are not segments and stay under `global-error`.
+New `tests/segment-errors.test.tsx` (4 tests: coverage of every section dir,
+per-file segment-name wiring, fallback render, reporter wiring).
+
+```
+$ # removed app/[locale]/payments/error.tsx
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+$ # restored → 4 passed; tsc exit 0
+```
+
+### F8 — shared Sentry contract: FIXED (`047142d`)
+
+`lib/sentry-release.ts:15,31-39`: `PATIENT_WEB_SENTRY_APP_ID =
+"patient-web"`; `SENTRY_RELEASE` first, then legacy
+`NEXT_PUBLIC_SENTRY_RELEASE`, verbatim; else
+`patient-web@{NEXT_PUBLIC_APP_VERSION || dev}+{SENTRY_BUILD || GIT_SHA ||
+VERCEL_GIT_COMMIT_SHA || dev}` with `+dev` appended unless production (mirrors
+admin `a16388a`, only the appId and legacy env names differ). All four
+runtimes (client/server/edge configs + `instrumentation.ts` via the server
+and edge configs) already call `getSentryRelease()`, so they share the
+contract with no per-client edit. `lib/sentry-release.test.ts` rewritten to
+the contract (6 tests, incl. legacy-fallback and `+dev` cases);
+`.env.production.example` documents `SENTRY_RELEASE` / `SENTRY_BUILD` /
+`NEXT_PUBLIC_APP_VERSION`.
+
+```
+$ # stripped the +dev suffix: return base
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+$ # restored → 6 passed; tsc exit 0
+```
+
+### Final verification (after all 8)
+
+```
+$ node node_modules/typescript/bin/tsc --noEmit; echo "tsc exit: $?"
+tsc exit: 0
+$ node node_modules/vitest/vitest.mjs run --silent --reporter=basic
+ Test Files  190 passed | 14 skipped (204)
+      Tests  607 passed | 23 skipped (630)
+```
+
+Before → after this round: files 188 → 190 passed (14 skipped both ways);
+tests 594 → 607 passed (+13: sentry +2, optimistic-ui +3, slots +4,
+segment-errors +4), 23 skipped both ways — frozen debt untouched.
+`translation-key-parity` green (in-suite), module-boundary green (new imports
+are `@/lib/*` and local components only — no `@nabd/*`), tsc clean.
+
+### Final gap check (plan lines 635–660, patient-web slice only)
+
+- 15.1: timeouts/retries/`Retry-After`/abort/offline/catalog all unit-proven;
+  F2/F3 closed. Nothing unmet in-slice.
+- 15.3: forced-500 rollback + payment-processing proven; F1/F5 closed.
+  Cart/wishlist/mark-as-read/likes: no server mutation exists (documented —
+  nothing to wire).
+- 15.4: banner + last-updated + outbox (never payments) + image downgrade +
+  call fallback + same-key upload resubmission proven. True mid-byte resume
+  needs a backend chunk protocol — `DEFERRED-OUT-OF-SCOPE (backend/)`.
+- 15.5: per-segment `error.tsx` (65) + global + release-tagged reports done;
+  F7/F8 closed. `BLOCKED: Sentry DSN and SENTRY_AUTH_TOKEN are owner secrets`
+  — wiring/tests shipped, no event or source map can leave without them. The
+  ≥99.5% crash-free target needs production telemetry —
+  `BLOCKED: no production data in this worktree`.
+- 15.9: server-anchored guards + explicit-zone slots + ±1 day tests done; F4/F6
+  closed. Server-side enforcement (OTP expiry, slot holds) lives in backend/ —
+  `DEFERRED-OUT-OF-SCOPE`. Ramadan/holiday hours are provider-schedule data
+  owned by provider-app/backend — `DEFERRED-OUT-OF-SCOPE (patient-web renders
+  slots as given)`.
+- 15.10: minimums documented + old-device notice shipped. `BLOCKED: device
+  farm is a paid external service with no account configured — no report
+  attached, none fabricated`. Playwright WebKit/Firefox/Chromium CI lives in
+  `.github/` — `DEFERRED-OUT-OF-SCOPE (another agent owns .github/)`.
+- Out of slice (not patient-web work, listed so nothing is silently dropped):
+  15.2 rapid-tap live gate, 15.6 Schemathesis/empty-state snapshots, 15.7
+  chaos per dependency, 15.8 app-kill-during-payment live journey, 15.11/15.12
+  live gates and OTA/flags.

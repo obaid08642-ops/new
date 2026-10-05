@@ -34,9 +34,16 @@ export function isSafeOptimistic(kind: string): boolean {
   return (SAFE_OPTIMISTIC_KINDS as readonly string[]).includes(kind);
 }
 
-/** What the UI should show while the action is in flight. */
+/** What the UI should show while the action is in flight. Deny by default: a
+ * kind applies optimistically ONLY when it is on the safe allowlist. An
+ * unknown or typo'd kind (e.g. `"paymnt"`) renders "processing" and never
+ * touches local state — a misspelled payment must fail safe, not optimistic.
+ * The never-list stays as defense in depth (explicit documentation of the
+ * kinds that must never be optimistic even if the allowlist is ever widened).
+ */
 export function pendingMode(kind: string): "optimistic" | "processing" {
-  return isNeverOptimistic(kind) ? "processing" : "optimistic";
+  if (isNeverOptimistic(kind)) return "processing";
+  return isSafeOptimistic(kind) ? "optimistic" : "processing";
 }
 
 export type ToastSink = (toast: { kind: "error" | "success" | "info"; title: string; message: string; reference?: string }) => void;
@@ -76,7 +83,9 @@ export type OptimisticOutcome<T> =
  * a failure without pretending anything changed.
  */
 export async function runOptimistic<T>(run: OptimisticRun<T>): Promise<OptimisticOutcome<T>> {
-  const optimistic = !isNeverOptimistic(run.kind);
+  // F1 deny-by-default: the allowlist decides. The never-list is checked inside
+  // `pendingMode` as defense in depth, but `apply` runs ONLY for safe kinds.
+  const optimistic = isSafeOptimistic(run.kind);
 
   if (optimistic) {
     try {
