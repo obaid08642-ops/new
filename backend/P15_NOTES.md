@@ -207,7 +207,48 @@ in place. No other agent's work was lost or committed. Lesson: never
 `git stash` in a shared worktree; use in-place edit/restore probes only
 (which is what all mutation proofs above used).
 
-## BLOCKED / DEFERRED lines
+## Fix round 2
+
+Branch `p15-backend`, on top of `2aac2c4`. Prior-round commits
+`ad7e2bb/d76b46a/c1ae9c1/be5e3cf/2aac2c4` verified present via
+`git log --oneline`; not redone. Work is mocked-repository only
+(`mongodb-memory-server` SIGABRTs here); `stash@{0}` left untouched;
+`auto-entity-seo-pipeline.spec.ts` Scenario 20 never touched (still red —
+verified at the end). `tsc --noEmit` clean after every commit.
+
+### F1 — booking buffer-overlap race (FIXED)
+
+- File: `backend/src/modules/care/appointments.service.ts`
+  (`paddedWindowKeys`, `claimPaddedWindow`, wired into `create()` +
+  `reschedule()`); new spec
+  `backend/src/modules/care/appointments-buffer-race.p15.spec.ts` (4 tests).
+- Why not a transaction: concurrent txns run under snapshot isolation with no
+  predicate lock — two txns both read "no overlap" and both commit. The repo's
+  own concurrent paths (payments `initiating` partial index, slot-locks exact
+  guard, 15.2 appointments exact-slot index) all resolve races the same way:
+  a UNIQUE index + 11000-loser-returns-409. F1 extends that pattern to ranges:
+  each booking atomically inserts ONE hold doc (`appointment_slot_holds`)
+  carrying every 1-minute bucket key `appt-hold:<doctor_id>:<epochMinute>` of
+  its padded window under a unique multikey index on `keys`. Single-doc
+  inserts are atomic, so overlapping requests serialize; the loser throws
+  `ConflictException('slot_already_booked_or_conflicts_with_buffer')`.
+  Minute buckets are exact for minute-aligned windows (overlap ⟺ shared
+  bucket). Holds are deleted after commit; `expires_at` + TTL (60 s) bounds
+  crash orphans. Legacy overlap `findOne` kept as defence in depth.
+- Real tails: new spec `Tests: 4 passed, 4 total`; neighbours
+  `appointments-concurrency + states + slot-hold + slot-buffer`
+  `Test Suites: 5 passed, 5 total / Tests: 29 passed, 29 total`; `tsc` clean.
+- Mutation proof (in-place edit, restored via editor — no stash/checkout):
+  with the `keys.push` line commented out, spec goes
+  `Tests: 3 failed, 1 passed, 4 total`; restored → 4/4 green,
+  `grep MUTATION-PROBE` clean.
+- Self-caused incident (remediated): I reverted the whole service file with
+  `git checkout -- <path>` while restoring the probe. Recovery: re-applied
+  all six F1 edits from history, `tsc` clean, all 5 care suites green (29/29).
+  Lesson (same as round 1): never `git checkout/stash` in a shared worktree;
+  use editor-only probes.
+
+## BLOCKED / DEFERRED lines (round 1, unchanged)
 
 - `BLOCKED: live rapid-tap journey needs a running server
   (tools/live/run_gate.sh requires docker/Mongo/Redis, unavailable).`

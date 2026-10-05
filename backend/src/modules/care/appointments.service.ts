@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException, Logger, Inject, Optional } from '@nestjs/common';
 import { Model, Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
+import { randomUUID } from 'crypto';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Appointment, AppointmentDocument, APPT_STATES, APPT_TRANSITIONS, ApptState, ServiceType } from '../../schemas/appointment.schema';
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
@@ -65,6 +66,46 @@ export function slotCandidateConflictsWithBooking(
 }
 
 /**
+ * F1 — atomic padded-window hold (the ONLY overlap backstop that survives a race).
+ *
+ * The overlap `findOne` in create()/reschedule() is check-then-act: two
+ * concurrent requests with overlapping-but-different starts (10:00 vs 10:15
+ * inside the 5-min buffer window) both read "no overlap" and both persist —
+ * the unique index on exact `(doctor_id, slot_start)` cannot see the range
+ * overlap. Transactions don't fix this either (snapshot isolation has no
+ * predicate lock; two concurrent txns both read empty and both commit).
+ *
+ * So every create first inserts ONE hold document carrying every 1-minute
+ * bucket of its padded window `[slotStart, paddedEnd)`:
+ *   key = `appt-hold:<doctor_id>:<epochMinute>`
+ * under a UNIQUE multikey index on `keys`. Single-document inserts are
+ * atomic in MongoDB, so of two overlapping requests exactly one insert
+ * succeeds and the loser gets 11000 → 409. Minute buckets are EXACT for
+ * minute-aligned windows (all booking boundaries are whole minutes):
+ * overlapping windows always share ≥1 bucket, merely-touching windows share
+ * none — no false 409s, no misses.
+ *
+ * Lifecycle: the hold is deleted right after the appointment row commits, so
+ * steady state holds ~0 documents; `expires_at` (+TTL) bounds a crash orphan
+ * to APPOINTMENT_HOLD_TTL_MS. The legacy overlap `findOne` stays as defence
+ * in depth (catches rows committed before holds existed).
+ */
+export const APPOINTMENT_HOLD_BUCKET_MINUTES = 1;
+export const APPOINTMENT_HOLD_TTL_MS = 60_000;
+export const APPOINTMENT_HOLD_COLLECTION = 'appointment_slot_holds';
+
+/** Every 1-minute bucket key covered by the half-open padded window. */
+export function paddedWindowKeys(doctorId: string, slotStart: Date, paddedEnd: Date): string[] {
+  const keys: string[] = [];
+  const startMin = Math.floor(slotStart.getTime() / 60_000);
+  const endMin = Math.ceil(paddedEnd.getTime() / 60_000);
+  for (let m = startMin; m < endMin; m += APPOINTMENT_HOLD_BUCKET_MINUTES) {
+    keys.push(`appt-hold:${doctorId}:${m}`);
+  }
+  return keys;
+}
+
+/**
  * Appointment lifecycle service.
  * - State machine: PENDING → CONFIRMED → CHECKED_IN → IN_PROGRESS → COMPLETED
  * - Card payments: stay PENDING until payment.completed webhook confirms.
@@ -73,6 +114,8 @@ export function slotCandidateConflictsWithBooking(
 @Injectable()
 export class AppointmentsService {
   private readonly logger = new Logger(AppointmentsService.name);
+  /** Process-wide guard so the hold indexes are created at most once. */
+  private static holdIndexesEnsured = false;
 
   constructor(
     @Inject('AppointmentRepository') private apptModel: AppointmentRepository,
@@ -136,6 +179,53 @@ export class AppointmentsService {
       return;
     }
     if (blocking) throw new ConflictException('slot_held');
+  }
+
+  /**
+   * F1 — claim the padded window atomically. Returns a releaser, or null when
+   * the holds collection is unreachable (fail-open to the legacy overlap
+   * check, same precedent as assertNoForeignSlotHold above). A 11000 here
+   * means another request holds an overlapping padded window → 409.
+   */
+  private async claimPaddedWindow(
+    doctorId: string,
+    slotStart: Date,
+    paddedEnd: Date,
+  ): Promise<(() => Promise<void>) | null> {
+    try {
+      const raw = this.connection as any;
+      const col = typeof raw?.collection === 'function' ? raw.collection(APPOINTMENT_HOLD_COLLECTION) : null;
+      if (!col || typeof col.insertOne !== 'function') return null;
+      if (!AppointmentsService.holdIndexesEnsured && typeof col.createIndex === 'function') {
+        try {
+          await col.createIndex({ keys: 1 }, { unique: true, name: 'appt_hold_keys_unique' });
+          await col.createIndex({ expires_at: 1 }, { expireAfterSeconds: 0, name: 'appt_hold_ttl' });
+          AppointmentsService.holdIndexesEnsured = true;
+        } catch {
+          // Index-build races (two processes creating at once) are benign.
+        }
+      }
+      const keys = paddedWindowKeys(doctorId, slotStart, paddedEnd);
+      const owner = randomUUID();
+      await col.insertOne({
+        keys,
+        doctor_id: doctorId,
+        slot_start: slotStart,
+        padded_end: paddedEnd,
+        owner,
+        created_at: new Date(),
+        expires_at: new Date(Date.now() + APPOINTMENT_HOLD_TTL_MS),
+      });
+      return async () => {
+        try { await col.deleteOne({ owner }); } catch { /* best-effort */ }
+      };
+    } catch (e: any) {
+      if (e?.code === 11000) {
+        throw new ConflictException('slot_already_booked_or_conflicts_with_buffer');
+      }
+      this.logger.warn(`padded-window hold unavailable, falling back to overlap check: ${(e as any)?.message}`);
+      return null;
+    }
   }
 
   /**
@@ -227,6 +317,13 @@ export class AppointmentsService {
     const slotEnd = new Date(slotStart.getTime() + duration * 60_000);
     const paddedEnd = new Date(slotEnd.getTime() + 5 * 60_000); // 5-minute buffer between appointments
 
+    // F1 — atomic claim BEFORE the read check: concurrent overlapping
+    // requests serialize on the hold insert (11000 loser → 409) instead of
+    // both sailing through the findOne below. Released in `finally` on every
+    // exit; a null hold means the collection was unreachable and the legacy
+    // overlap check below is the backstop.
+    const releaseHold = await this.claimPaddedWindow(doctor.id, slotStart, paddedEnd);
+    try {
     // Overlap Prevention Rule
     const overlapping = await this.apptModel.findOne({
       doctor_id: doctor.id,
@@ -359,6 +456,9 @@ export class AppointmentsService {
         throw new ConflictException('slot_already_booked');
       }
       throw e;
+    }
+    } finally {
+      if (releaseHold) await releaseHold();
     }
   }
 
@@ -585,6 +685,10 @@ export class AppointmentsService {
 
     const newEnd = new Date(newStart.getTime() + appt.duration_minutes * 60_000);
     const paddedEnd = new Date(newEnd.getTime() + 5 * 60_000);
+    // F1 — same atomic claim as create(): two concurrent reschedules into
+    // overlapping windows serialize on the hold insert, not the findOne.
+    const releaseHold = await this.claimPaddedWindow(appt.doctor_id, newStart, paddedEnd);
+    try {
     const overlapping = await this.apptModel.findOne({
       doctor_id: appt.doctor_id,
       status: { $in: [APPT_STATES.PENDING, APPT_STATES.CONFIRMED, APPT_STATES.CHECKED_IN, APPT_STATES.IN_PROGRESS] },
@@ -620,7 +724,11 @@ export class AppointmentsService {
       await this.apptModel.deleteOne({ id: fresh.id }).catch(() => null);
       throw error;
     }
-    return fresh.toObject();
+    const out = fresh.toObject();
+    return out;
+    } finally {
+      if (releaseHold) await releaseHold();
+    }
   }
 
   // ===== Waitlist =====
