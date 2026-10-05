@@ -1,5 +1,5 @@
 {
- "commit": "5fab5997",
+ "commit": "62ba1253",
  "routes": [
   {
    "app": "patient-app",
@@ -5405,7 +5405,7 @@
    "template": "hub",
    "board": "PharmacyHub",
    "batch": 1,
-   "status": "—",
+   "status": "rebuilt on design/batch-1 (slice 1a, PR pending)",
    "calls": [
     {
      "method": "GET",
@@ -5630,7 +5630,7 @@
    "template": "list",
    "board": "PharmacyHub",
    "batch": 1,
-   "status": "—",
+   "status": "rebuilt on design/batch-1 (slice 1a, PR pending)",
    "calls": [
     {
      "method": "GET",
@@ -5755,7 +5755,7 @@
    "template": "list",
    "board": "PharmacyHub",
    "batch": 1,
-   "status": "—",
+   "status": "rebuilt on design/batch-1 (slice 1a, PR pending)",
    "calls": [
     {
      "method": "POST",
@@ -5939,7 +5939,7 @@
    "template": "detail",
    "board": "ProductFull",
    "batch": 1,
-   "status": "—",
+   "status": "rebuilt on design/batch-1 (slice 1a, PR pending)",
    "calls": [
     {
      "method": "GET",
@@ -6215,7 +6215,7 @@
    "template": "list",
    "board": "PharmacyHub",
    "batch": 1,
-   "status": "—",
+   "status": "rebuilt on design/batch-1 (slice 1a, PR pending)",
    "calls": [
     {
      "method": "GET",
