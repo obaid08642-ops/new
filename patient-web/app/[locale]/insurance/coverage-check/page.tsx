@@ -50,8 +50,8 @@ export default async function InsuranceCoverageCheckPage({ params, searchParams 
       </form>
       {serviceType ? (
         view ? (
-          <section role="status" style={{ border: "1px solid #E8EDEE", borderRadius: 20, padding: 16, background: view.covered ? "rgba(95,217,179,.16)" : "rgba(240,105,92,.12)", display: "grid", gap: 8 }}>
-            <h2 style={{ color: "#1E332E", margin: 0 }}>{view.title}</h2>
+          <section role="status" style={{ border: "1px solid var(--nabd-color-border-subtle)", borderRadius: 20, padding: 16, background: view.covered ? "var(--nabd-color-status-success-bg)" : "var(--nabd-color-status-danger-bg)", display: "grid", gap: 8 }}>
+            <h2 style={{ color: "var(--nabd-color-text-primary)", margin: 0 }}>{view.title}</h2>
             {view.company ? <p style={{ margin: 0 }}>{view.company}</p> : null}
             {view.reason ? <p style={{ margin: 0 }}>{view.reason}</p> : null}
             {view.covered && view.acceptingProviders != null ? (
