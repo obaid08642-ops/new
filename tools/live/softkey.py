@@ -100,3 +100,20 @@ def step_up_token(post, action):
         return None
     r = post('/auth/step-up/issue', {'action': action, 'response': assertion(opts.body.get('options', opts.body))})
     return r.body.get('token') if r.ok and isinstance(r.body, dict) else None
+
+
+def add_virtual_authenticator(context, page):
+    """Give a Playwright Chromium page a WebAuthn virtual authenticator holding
+    this synthetic credential, so the dashboard's own passkey login and step-up
+    prompts run in the browser exactly as with a real platform authenticator."""
+    from cryptography.hazmat.primitives import serialization
+    cdp = context.new_cdp_session(page)
+    cdp.send('WebAuthn.enable')
+    auth = cdp.send('WebAuthn.addVirtualAuthenticator', {'options': {
+        'protocol': 'ctap2', 'transport': 'internal', 'hasResidentKey': True,
+        'hasUserVerification': True, 'isUserVerified': True, 'automaticPresenceSimulation': True}})
+    pkcs8 = _KEY.private_bytes(serialization.Encoding.DER, serialization.PrivateFormat.PKCS8, serialization.NoEncryption())
+    cdp.send('WebAuthn.addCredential', {'authenticatorId': auth['authenticatorId'], 'credential': {
+        'credentialId': base64.b64encode(CRED_ID).decode(), 'isResidentCredential': False, 'rpId': RP_ID,
+        'privateKey': base64.b64encode(pkcs8).decode(), 'signCount': _next_counter()}})
+    return cdp

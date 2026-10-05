@@ -92,7 +92,9 @@ export class LabsService {
       // The lab registration stores the tests it runs (catalog service ids) in test_categories;
       // older profiles may hold category names. Either must cover every requested test.
       $or: [{ test_categories: { $all: ids } }, ...(categories.length ? [{ test_categories: { $all: categories } }] : [])],
-    }, { _id: 0, account_id: 1, id: 1, name_ar: 1, name_en: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1, logo: 1 }).limit(50).lean();
+    }, { _id: 0, account_id: 1, id: 1, name_ar: 1, name_en: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1, logo: 1 })
+      // Deterministic before the cap: rated first, then newest (natural order dropped labs at random).
+      .sort({ rating_avg: -1, rating_count: -1, createdAt: -1 }).limit(50).lean();
     return profiles.map((profile: any) => ({
       id: profile.account_id,
       facility_id: profile.id,

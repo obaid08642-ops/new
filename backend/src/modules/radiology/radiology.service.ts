@@ -416,7 +416,9 @@ export class RadiologyOpsService {
       type: { $in: ['radiology', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
       account_id: { $exists: true, $ne: null },
       $or: [{ equipment_list: { $all: ids } }, ...(modalities.length ? [{ equipment_list: { $all: modalities } }] : [])],
-    }, { _id: 0, account_id: 1, id: 1, name_ar: 1, name_en: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1, logo: 1 }).limit(50).lean();
+    }, { _id: 0, account_id: 1, id: 1, name_ar: 1, name_en: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1, logo: 1 })
+      // Deterministic before the cap: rated first, then newest (natural order dropped labs at random).
+      .sort({ rating_avg: -1, rating_count: -1, createdAt: -1 }).limit(50).lean();
     return (profiles as any[]).map((profile) => ({
       id: profile.account_id, facility_id: profile.id, name: profile.name_ar || profile.name_en,
       homeVisitAvailable: Boolean(profile.home_visit_supported),
