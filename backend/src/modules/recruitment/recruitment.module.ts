@@ -1,4 +1,4 @@
-import { Module, Controller, Get, Post, Put, Patch, Param, Query, Body, UseGuards, Injectable, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Module, Controller, Get, Post, Put, Patch, Delete, Param, Query, Body, UseGuards, Injectable, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -329,6 +329,15 @@ export class RecruitmentController {
   @Audited({ model: 'JobPosting', idParam: 'id', action: 'job_posting_update' })
   updateJob(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateJobDto) {
     return this.svc.updateJob(id, u.id, u.role, b);
+  }
+
+  // Q61: admin removes a job posting (spam / invalid guest submission). Soft
+  // delete (is_deleted = true) so the record and its applications stay for audit.
+  @Roles(UserRole.ADMIN)
+  @Delete('jobs/:id')
+  @Audited({ model: 'JobPosting', idParam: 'id', action: 'job_posting_delete' })
+  deleteJob(@CurrentUser() u: { id: string; role: string }, @Param('id') id: string) {
+    return this.svc.softDeleteJob(id, u.id, u.role);
   }
 
   // Public: visitors (no account) can browse open medical jobs from the landing screen

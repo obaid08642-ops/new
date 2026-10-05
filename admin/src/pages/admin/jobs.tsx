@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Head from 'next/head';
 import { adminFetch, adminMutation, apiErrorMessage, toQuery } from '@/lib/admin-client';
+import { JOB_ACTION_LABELS, jobActionRequest, jobActionsFor, type JobAction } from '@/lib/job-actions';
 
 // Q61: admin review-and-publish for guest job submissions.
 // Every action below maps to a real endpoint in
@@ -9,10 +10,10 @@ import { adminFetch, adminMutation, apiErrorMessage, toQuery } from '@/lib/admin
 //   detail  GET   /api/admin/recruitment/jobs/:id                 (getJob)
 //   publish PUT   /api/admin/recruitment/jobs/:id {status}        (updateJob; UpdateJobDto.status)
 //   close   PUT   /api/admin/recruitment/jobs/:id {status:'closed'} (same endpoint)
+//   delete  DELETE /api/admin/recruitment/jobs/:id                 (deleteJob; admin-only soft delete)
 //   apps    GET   /api/admin/recruitment/jobs/:id/applications    (listJobApplications, admin allowed)
 //   decide  PATCH /api/admin/recruitment/applications/:id/status  (updateApplicationStatus)
-// NOTE: there is no DELETE route on the controller (softDeleteJob is not exposed),
-// so this page deliberately offers no delete action.
+// The action → request mapping lives in src/lib/job-actions.ts.
 
 type JobRow = {
   id: string;
@@ -149,18 +150,26 @@ export default function JobsPage() {
     }
   }, []);
 
-  async function setJobStatus(job: JobRow, next: 'published' | 'closed') {
+  async function runJobAction(job: JobRow, action: JobAction) {
     const id = job?.id;
     if (!id) return;
-    const verb = next === 'published' ? 'نشر' : 'إغلاق';
-    if (!window.confirm(`تأكيد ${verb} الوظيفة «${job?.title ?? id}»؟`)) return;
+    const verb = JOB_ACTION_LABELS[action];
+    const warning = action === 'delete' ? ' ستُخفى الوظيفة من القوائم ويبقى سجلها للتدقيق.' : '';
+    if (!window.confirm(`تأكيد ${verb} الوظيفة «${job?.title ?? id}»؟${warning}`)) return;
     setSaving(true);
     try {
-      await adminMutation(`/api/admin/recruitment/jobs/${encodeURIComponent(id)}`, 'PUT', { status: next });
+      const request = jobActionRequest(id, action);
+      await adminMutation(request.path, request.method, request.body);
       await load();
       if (selectedId === id) {
-        const full = await adminFetch<JobRow>(`/api/admin/recruitment/jobs/${encodeURIComponent(id)}`).catch(() => null);
-        if (full) setDetail(full);
+        if (action === 'delete') {
+          setSelectedId(null);
+          setDetail(null);
+          setApps([]);
+        } else {
+          const full = await adminFetch<JobRow>(`/api/admin/recruitment/jobs/${encodeURIComponent(id)}`).catch(() => null);
+          if (full) setDetail(full);
+        }
       }
     } catch (cause) {
       setError(apiErrorMessage(cause, `تعذر ${verb} الوظيفة.`));
@@ -234,7 +243,7 @@ export default function JobsPage() {
           {loading ? (
             <div className="p-8 text-center text-slate-500">جاري التحميل...</div>
           ) : jobs.length === 0 ? (
-            <div className="p-8 text-center text-slate-400">لا توجد وظائف بهذه الحالة 🎉</div>
+            <div className="p-8 text-center text-slate-400">لا توجد وظائف بهذه الحالة.</div>
           ) : (
             <table className="min-w-full text-right text-sm">
               <thead className="bg-slate-50 text-xs text-slate-600">
@@ -271,24 +280,22 @@ export default function JobsPage() {
                         >
                           مراجعة
                         </button>
-                        {(job?.status === 'draft' || !job?.status) && (
+                        {jobActionsFor(job?.status).map((action) => (
                           <button
+                            key={action}
                             disabled={saving}
-                            onClick={() => void setJobStatus(job, 'published')}
-                            className="rounded bg-teal-700 px-3 py-1 text-xs font-bold text-white disabled:opacity-50"
+                            onClick={() => void runJobAction(job, action)}
+                            className={
+                              action === 'publish'
+                                ? 'rounded bg-teal-700 px-3 py-1 text-xs font-bold text-white disabled:opacity-50'
+                                : action === 'close'
+                                  ? 'rounded bg-amber-100 px-3 py-1 text-xs text-amber-800 disabled:opacity-50'
+                                  : 'rounded bg-rose-50 px-3 py-1 text-xs text-rose-700 disabled:opacity-50'
+                            }
                           >
-                            نشر
+                            {JOB_ACTION_LABELS[action]}
                           </button>
-                        )}
-                        {job?.status === 'published' && (
-                          <button
-                            disabled={saving}
-                            onClick={() => void setJobStatus(job, 'closed')}
-                            className="rounded bg-amber-100 px-3 py-1 text-xs text-amber-800 disabled:opacity-50"
-                          >
-                            إغلاق
-                          </button>
-                        )}
+                        ))}
                       </div>
                     </td>
                   </tr>
