@@ -1092,6 +1092,8 @@ C17–C27 above:
 
 Until each is wired, it must be off (not called, or behind a flag that is off by default) in the Phase A deploy, and it must not change behaviour.
 
+> **Updated 2026-10-05 (owner targets):** F82 now follows `docs/review/F82_PERFORMANCE_PLAN.md`: LCP < 1.2 s mobile and < 0.8 s desktop, TTFB < 200 ms, CLS < 0.05, INP < 150 ms, in-site navigation < 200 ms, repeat visit < 0.5 s, and app stale-while-revalidate. The work is split into F82-1 to F82-5 with real-user monitoring. The 2.5 s target below is only the first step of the ratchet.
+
 ### Design track (scheduled 2026-10-05; runs beside Phase A, on `main`)
 **F82: web LCP.** The design quality gates depend on this (`design/batch-0` tightens Lighthouse to LCP < 2.5 s).
 - **Measured** by the `lighthouse` check on #268 (`8f0e1ca`, 2026-10-05), against the 3000 ms budget in `patient-web/.github/lighthouse-budget.json`:
