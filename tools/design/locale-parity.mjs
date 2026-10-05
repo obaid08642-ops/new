@@ -178,6 +178,13 @@ for (const [c, locs] of Object.entries(current)) {
 // New keys must be complete in all six languages (checked against a base ref).
 const base = opt('base');
 if (base) {
+  try {
+    execFileSync('git', ['rev-parse', '--verify', '--quiet', `${base}^{commit}`], { cwd: REPO, stdio: 'ignore' });
+  } catch {
+    // Without the base every key would look new (a shallow CI checkout did exactly that).
+    console.error(`locale-parity: base ref ${base} not found (shallow checkout? use fetch-depth: 0)`);
+    process.exit(2);
+  }
   for (const [c, { dir, locales }] of Object.entries(CLIENTS)) {
     let before = {};
     try {

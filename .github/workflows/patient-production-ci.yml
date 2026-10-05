@@ -83,6 +83,9 @@ jobs:
         working-directory: packages/design-tokens
     steps:
       - uses: actions/checkout@v4
+        # locale-parity --base origin/main reads en.json from main: needs the full history, not depth 1.
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
