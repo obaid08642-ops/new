@@ -25,6 +25,7 @@ import { ToastProvider } from '../src/design-system';
 import AppGate from '../src/components/AppGate';
 import { initSentry } from '../src/utils/sentry';
 import { ErrorBoundary, ScreenErrorBoundary } from '../src/components/ErrorBoundary';
+import { DeviceGate } from '../src/deviceSupport/DeviceGate';
 import { SyncManager } from '../src/data/sync/SyncManager';
 import { BackgroundSynchronizer } from '../src/data/sync/BackgroundSynchronizer';
 import { DatabaseManager } from '../src/data/database/core/DatabaseManager';
@@ -92,6 +93,11 @@ function RootLayout() {
           <SocketProvider>
             <GestureHandlerRootView style={{ flex: 1 }}>
               <SafeAreaProvider>
+                {/* 15.10: below iOS 16.4 / Android 7 the device gets the
+                    website message instead of a broken launch. While the OS
+                    version resolves the gate shows neutral loading, never a
+                    false rejection. */}
+                <DeviceGate>
                 <CartProvider>
                   <DiagnosticsCartProvider>
                     <ConsultationsProvider>
@@ -114,6 +120,7 @@ function RootLayout() {
                     </ConsultationsProvider>
                   </DiagnosticsCartProvider>
                 </CartProvider>
+                </DeviceGate>
               </SafeAreaProvider>
             </GestureHandlerRootView>
           </SocketProvider>
