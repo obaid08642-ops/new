@@ -161,3 +161,31 @@
   .page *, .page *::before, .page *::after { animation: none !important; transition: none !important; }
 }
 @media (min-width: 1024px) { .column { min-block-size: calc(100dvh - 32px); } }
+
+/* ---- Onboarding (intro slides, language, permissions) ---- */
+.onboard { flex: 1; display: flex; flex-direction: column; }
+.onboardArt { display: grid; place-items: center; min-block-size: 260px; }
+.onboardTile {
+  display: grid; place-items: center; inline-size: 148px; block-size: 148px; border-radius: 44px;
+  background: var(--nabd-color-bg-surface); box-shadow: var(--nabd-shadow-feature);
+}
+.dots { display: flex; justify-content: center; gap: 4px; }
+.dot { inline-size: 44px; block-size: 44px; border: 0; background: transparent; padding: 0; position: relative; cursor: pointer; }
+.dot::after { content: ""; position: absolute; inset-block-start: 50%; inset-inline-start: 50%; inline-size: 8px; block-size: 8px; margin: -4px; border-radius: 4px; background: var(--nabd-color-border-strong); }
+.dotOn::after { inline-size: 22px; margin-inline-start: -11px; background: var(--nabd-color-text-primary); }
+.fullLink { display: block; text-decoration: none; }
+.rows { background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-subtle); border-radius: 18px; overflow: hidden; }
+.row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; min-block-size: 54px; padding-inline: 14px;
+  color: var(--nabd-color-text-primary); text-decoration: none; font-size: var(--nabd-font-size-row); border-block-end: 1px solid var(--nabd-color-border-subtle);
+}
+.row:last-child { border-block-end: 0; }
+.rowOn { font-weight: 700; }
+.ring { inline-size: 22px; block-size: 22px; border-radius: 11px; box-sizing: border-box; flex-shrink: 0; border: 2px solid var(--nabd-color-control-radioOff); }
+.ringOn { border: 7px solid var(--nabd-color-action-primary-bg); }
+.perm {
+  display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 18px;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-subtle);
+}
+.permText { flex: 1; min-inline-size: 0; }
+.permTitle { margin: 0 0 2px; font-size: var(--nabd-font-size-body); font-weight: 700; }
