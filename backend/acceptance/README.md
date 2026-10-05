@@ -24,3 +24,4 @@ behaviour exactly.
 | q89 | Q89 + R23: step-up + permission on every route in the Q66 list; single-use, session-bound ceremony; admin prompt and retry | `acceptance/q89` | — | admin: `admin/acceptance/q89` |
 | f2 | F2: coverage-check reads what add-policy and the provider save; benefits-summary per service as providers decided | `acceptance/f2` | — | `tools/live/j_insurance.py`; j_lab, j_radiology, j_consultation green |
 | q103 | Q103: no demo seed data in backend/src or its scripts | `acceptance/q103` | — | — |
+| 31b1a1e | 31b1a1e/Q37/Q36/Q41: one availability function (buffer, holds, grid, fixed length) for list, preview and booking | `acceptance/31b1a1e` | — | j_consultation green |
