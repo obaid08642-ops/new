@@ -1,7 +1,7 @@
 {
   "note": "Hard-coded colours that predate the design system. Recorded once with --init. 12.A11 rebuilds the screens on tokens and each rebuilt file drops out. --update only ever LOWERS a count; it cannot raise one.",
   "totals": {
-    "patient-web": 6191,
+    "patient-web": 5961,
     "patient-app": 2495,
     "provider-app": 320,
     "admin": 215
@@ -63,8 +63,6 @@
     "patient-web/app/[locale]/consultations/specialties/specialties.module.css": 34,
     "patient-web/app/[locale]/consultations/video-call/page.tsx": 8,
     "patient-web/app/[locale]/consultations/virtual-waiting-room/page.tsx": 9,
-    "patient-web/app/[locale]/dashboard/dashboard.module.css": 52,
-    "patient-web/app/[locale]/dashboard/page.tsx": 60,
     "patient-web/app/[locale]/delivery/address-select/address-select.module.css": 36,
     "patient-web/app/[locale]/delivery/address-select/page.tsx": 7,
     "patient-web/app/[locale]/diagnostics/[domain]/[bookingId]/diagnostic-detail.module.css": 14,
@@ -139,7 +137,6 @@
     "patient-web/app/[locale]/home-care/services/page.tsx": 26,
     "patient-web/app/[locale]/home-care/services/services.module.css": 49,
     "patient-web/app/[locale]/home-nursing/[citySlug]/page.tsx": 18,
-    "patient-web/app/[locale]/home.module.css": 99,
     "patient-web/app/[locale]/insurance/add-policy/page.tsx": 9,
     "patient-web/app/[locale]/insurance/approval-pending/page.tsx": 7,
     "patient-web/app/[locale]/insurance/benefits/page.tsx": 13,
@@ -191,7 +188,6 @@
     "patient-web/app/[locale]/orders/orders.module.css": 44,
     "patient-web/app/[locale]/p/[slug]/page.tsx": 16,
     "patient-web/app/[locale]/p/[slug]/product-page.module.css": 62,
-    "patient-web/app/[locale]/page.tsx": 19,
     "patient-web/app/[locale]/payments/result/payment-result.module.css": 17,
     "patient-web/app/[locale]/pharmacies/[citySlug]/page.tsx": 21,
     "patient-web/app/[locale]/pharmacy/[slug]/page.tsx": 50,

@@ -154,6 +154,12 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 - **Doctor fields:** the reviewer session will add `scfhs_license_no`, `years_experience` and `qualifications[]` to the backend. The doctor enters them at registration and the admin approves them. Until they exist and are filled, those rows stay hidden, with no default or invented value.
 - **Screens without a board** (chat, call, emergency, map): keep their current layout. Only apply the tokens, the font and the shared components until they get a design.
 
+## Batch 0 web: Home and Dashboard (in progress, branch `wip-web-home`, not pushed)
+
+- Built on the HomeWeb board (desktop) and HomeApp (phone): `AppShell` with the board's top bar and the phone tab bar, hero with search, nine service tiles, AI assistant card, curated sections and real doctors (public home), appointment card and every other page as ListItem rows (dashboard). Files: `components-next/home/*`, `app/[locale]/page.tsx`, `app/[locale]/dashboard/{page,loading}.tsx`, `HomeWeb` messages in all 6 locales.
+- Hidden because there is no data or endpoint: the health-reminder banner (no endpoint on the dashboard), the cart count badge, doctor photo and verified seal, the offer price (curated items carry none).
+- Screenshots: `docs/design/screenshots/batch0-web/home-before-after-board.png`, `dashboard-before-after-board.png`.
+
 ## Found while working (fix in the batch named)
 
 - **Batch 0, web `/login` in dark mode:** the card stays light while its text turns light, and the "continue as guest" button label is invisible. It is the same on main (see `docs/design/screenshots/font-web/before-ar-390-dark.png` on #260).

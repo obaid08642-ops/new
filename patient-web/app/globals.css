@@ -575,3 +575,12 @@ body { background: var(--nabd-color-bg-canvas); }
 .shell:has(> .nabd-auth) > .topbar,
 .shell:has(> .nabd-auth) > .site-footer { display: none; }
 .shell:has(> .nabd-auth) { padding-bottom: 0; }
+
+/* Home and Dashboard draw their own top bar and tab bar (components-next/home/home-shell.tsx, boards HomeWeb and
+   HomeApp), so the site header is not drawn twice; the Dashboard also drops the site footer (the public Home keeps
+   it for the legal links). Scoped to these routes: other pages are unaffected. */
+.shell:has(> .nabd-home-shell) > .topbar { display: none; }
+.shell:has(> .nabd-home-shell--dashboard) > .site-footer { display: none; }
+.shell:has(> .nabd-home-shell) { padding-bottom: 0; }
+.shell:has(> .nabd-home-shell) > .site-footer { margin-block-start: 0; }
+.shell:has(> .nabd-home-shell) .site-footer__links a { min-block-size: 44px; min-inline-size: 44px; display: inline-flex; align-items: center; justify-content: center; }
