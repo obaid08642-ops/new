@@ -36,10 +36,13 @@ describe('UnifiedBookingsService patient-web contract bridge', () => {
       doctor_id: 'doctor-1', slot_id: SLOT, type: 'clinic', notes: 'follow-up', payment_method_id: 'cash',
     })).resolves.toEqual({ booking_id: 'booking-1', status: 'confirmed', payment_status: null, insurance_request_id: null });
 
+    // WP-G N1: the booker's own hold must not hide the slot from them.
     expect(service.slots.slotsForDate).toHaveBeenCalledWith(
       { id: 'doctor-1' },
       '2030-01-02',
       'clinic',
+      30,
+      ['patient-1'],
     );
     expect(service.apptSvc.create).toHaveBeenCalledWith(USER, {
       doctor_id: 'doctor-1',

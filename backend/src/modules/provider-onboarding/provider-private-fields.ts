@@ -28,7 +28,7 @@ export const PROVIDER_PUBLIC_FIELDS = [
   'rating', 'reviews_count', 'rating_avg', 'rating_count', 'is_online', 'availability',
   'consultation_modes', 'price_clinic', 'price_online', 'price_home', 'consultation_fee', 'online_consultation_fee', 'home_visit_fee',
   'clinic_duration', 'video_duration', 'home_duration', 'schedule_clinic', 'schedule_video', 'schedule_home', 'working_hours',
-  'accepted_insurance', 'accepts_insurance', 'insurance_clinic', 'insurance_online', 'insurance_home', 'accepts_cash',
+  'accepted_insurance', 'accepts_insurance', 'insurance_plans', 'insurance_clinic', 'insurance_online', 'insurance_home', 'accepts_cash',
   'home_visit_supported', 'home_visit_radius_km', 'coverage_radius_km', 'target_genders',
   'has_own_delivery', 'delivery_radius_km', 'max_delivery_radius_km', 'estimated_delivery_time', 'delivery_fee', 'free_delivery_above',
   'min_order_sar', 'express_delivery', 'express_fee', 'express_minutes', 'rx_dispensing', 'otc_selling', 'enabled_categories',

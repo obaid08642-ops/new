@@ -1,3 +1,4 @@
+import { SlotService } from './slot.service';
 import { conflictingAppointmentFilter } from './availability';
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException, Logger, Inject, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { Model, Connection } from 'mongoose';
@@ -50,8 +51,29 @@ export class AppointmentsService {
     private events: EventEmitter2,
     private engine: WorkflowEngineService,
     private insurance: InsuranceFlowService,
+    private slots: SlotService,
     @Optional() private locks?: SlotLocksService,
   ) {}
+
+  /**
+   * Q37 (one availability rule): a booking is accepted only for a slot the
+   * shared rule lists, for this duration and this patient (their own hold does
+   * not block them): opening windows, approved leave, lead time, buffer and
+   * other patients' holds. Overnight windows are listed under the previous day.
+   */
+  private async assertOffered(doctor: any, start: Date, durationMinutes: number, mode: 'clinic' | 'video' | 'home', viewerIds: string[]) {
+    const iso = start.toISOString();
+    const viewers = [...new Set(viewerIds.filter(Boolean).map(String))];
+    for (const day of [iso.slice(0, 10), new Date(start.getTime() - 24 * 3600_000).toISOString().slice(0, 10)]) {
+      const listed: any = await this.slots.slotsForDate(doctor, day, mode, durationMinutes, viewers);
+      const slot = (listed?.slots || []).find((x: { start: string }) => x.start === iso);
+      if (slot) {
+        if (!slot.available) throw new ConflictException('slot_already_booked_or_conflicts_with_buffer');
+        return;
+      }
+    }
+    throw new BadRequestException('slot_not_offered');
+  }
 
   /**
    * Family on-behalf check: the booker must share a family group with the
@@ -161,6 +183,7 @@ export class AppointmentsService {
 
     const duration = body.duration_minutes || 30;
     const slotEnd = new Date(slotStart.getTime() + duration * 60_000);
+    await this.assertOffered(doctor, slotStart, duration, body.service_type, [user?.id, patientId]);
 
     // The one availability rule (./availability): the slot plus its buffer must
     // not meet a blocking appointment — the same rule the slot list shows.
@@ -513,6 +536,9 @@ export class AppointmentsService {
     }
 
     const newEnd = new Date(newStart.getTime() + appt.duration_minutes * 60_000);
+    const doctorProfile: any = await this.providerModel.findOne({ id: appt.doctor_id, type: ProviderType.DOCTOR });
+    if (!doctorProfile) throw new NotFoundException('doctor_not_found');
+    await this.assertOffered(doctorProfile, newStart, appt.duration_minutes || 30, appt.service_type, [user?.id, appt.patient_id]);
     const overlapping = await this.apptModel.findOne(conflictingAppointmentFilter(appt.doctor_id, newStart, appt.duration_minutes));
     if (overlapping) throw new ConflictException('slot_already_booked_or_conflicts_with_buffer');
     // Q36: the new slot must not be another patient's active hold either.

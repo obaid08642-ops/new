@@ -22,7 +22,7 @@ describe('public provider reads never expose private fields', () => {
     providers = conn.model('ProviderProfile', ProviderProfileSchema);
     service = new ProvidersService({} as never, providers as never, {} as never, {} as never, {} as never);
     await providers.collection.insertOne({
-      id: 'p1', name_ar: 'د', type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', accepted_insurance: ['bupa'],
+      id: 'p1', name_ar: 'د', type: 'doctor', insurance_plans: { bupa: ['gold'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved', accepted_insurance: ['bupa'],
       iban: 'SA0380000000608010167519', bank_account_name: 'Synthetic Acct', national_id: '1000000001', tax_number: '300000000000003',
       signature_url: 'https://r2/sig.png', commission_rate: 10, commission_cash_pct: 12, commission_insurance_pct: 8, license_documents: ['doc'],
       // Second check: everything else private that lives on provider_profiles.
@@ -44,7 +44,8 @@ describe('public provider reads never expose private fields', () => {
     }
     expect(JSON.stringify(row)).not.toContain('SA0380000000608010167519');
     // The public card still has what the screens show.
-    expect(row).toMatchObject({ name_ar: 'د', type: 'doctor', accepted_insurance: ['bupa'] });
+    // The public card still has what the screens show (consultations tab reads insurance_plans).
+    expect(row).toMatchObject({ name_ar: 'د', type: 'doctor', accepted_insurance: ['bupa'], insurance_plans: { bupa: ['gold'] } });
   };
 
   it('GET /providers (insurer filter) drops them', async () => {

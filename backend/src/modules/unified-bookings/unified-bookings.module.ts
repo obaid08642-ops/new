@@ -262,14 +262,16 @@ export class UnifiedBookingsService {
    * The currently published discovery API uses the canonical ISO start time as
    * its slot identifier; arbitrary timestamps are never forwarded to booking.
    */
-  private async resolveConsultationSlot(doctorId: string, type: 'clinic' | 'video' | 'home', slotId: string): Promise<string> {
+  private async resolveConsultationSlot(doctorId: string, type: 'clinic' | 'video' | 'home', slotId: string, viewerIds: string[] = []): Promise<string> {
     if (!doctorId || !slotId || !type) throw new BadRequestException('doctor_id_slot_id_and_type_required');
     const requested = new Date(slotId);
     if (Number.isNaN(requested.getTime())) throw new BadRequestException('invalid_slot_id');
 
     const doctor: any = await this.providers.findOne({ id: { $eq: doctorId } });
     if (!doctor) throw new NotFoundException('doctor_not_found');
-    const availability = await this.slots.slotsForDate(doctor, requested.toISOString().slice(0, 10), type);
+    // The booker's (or booked-for member's) own hold does not hide the slot from them.
+    const viewers = [...new Set(viewerIds.filter(Boolean).map(String))];
+    const availability = await this.slots.slotsForDate(doctor, requested.toISOString().slice(0, 10), type, 30, viewers);
     const slot = (availability?.slots || []).find((candidate: any) => candidate.start === slotId);
     if (!slot) throw new BadRequestException('slot_not_available');
     if (!slot.available) throw new ConflictException('slot_taken');
@@ -302,7 +304,7 @@ export class UnifiedBookingsService {
     if (!['cash', 'card', 'insurance'].includes(paymentMethod)) {
       throw new BadRequestException('payment_method_not_supported');
     }
-    const slotStart = await this.resolveConsultationSlot(body?.doctor_id || '', body?.type as any, body?.slot_id || '');
+    const slotStart = await this.resolveConsultationSlot(body?.doctor_id || '', body?.type as any, body?.slot_id || '', [user?.id, body?.for_member_id]);
     const booking: any = await this.apptSvc.create(user, {
       doctor_id: body!.doctor_id!,
       service_type: body!.type!,
@@ -333,7 +335,7 @@ export class UnifiedBookingsService {
   /** Owner-scoped root reschedule with the same server-side slot resolution. */
   async rescheduleConsultationContract(user: any, id: string, newSlotId?: string) {
     const current: any = await this.getOne(user, 'consultation', id);
-    const slotStart = await this.resolveConsultationSlot(current.doctor_id, current.service_type, newSlotId || '');
+    const slotStart = await this.resolveConsultationSlot(current.doctor_id, current.service_type, newSlotId || '', [user?.id, current.patient_id]);
     const booking: any = await this.apptSvc.reschedule(id, user, { slot_start: slotStart });
     return { booking_id: booking.id, status: String(booking.status || '').toLowerCase() };
   }
