@@ -17,3 +17,4 @@ behaviour exactly.
 | id | item | backend | provider-app | live |
 |----|------|---------|--------------|------|
 | q79 | Q79: registration sends typed KYC documents (7 types) | `acceptance/q79` | `provider-app/acceptance/q79` | `tools/live/j_onboarding.py` (no KYC upload by the journey) |
+| q86 | Q86 + Q104 + Q99: one Moyasar path and one webhook receiver, `secret_token` checked in every environment | `acceptance/q86` | — | `tools/live/j_payments.py` (webhook: wrong secret 401, shared secret settles) |
