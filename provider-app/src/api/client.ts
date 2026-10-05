@@ -8,6 +8,7 @@ import { API_BASE } from '../constants';
 import { buildHeaders, Tokens, Vault, SK, CryptoUtils } from '../security/Security';
 import { lookupCatalogError, normalizeCatalogCode, type CatalogCode, type ResolvedCatalogError } from './errorCatalog';
 import { isOnline, reportTransportOutcome, setOnline } from './online';
+import { noteServerDate } from '../time/serverTime';
 
 /**
  * P15.1 — the ONE provider-app HTTP client.
@@ -367,10 +368,19 @@ client.interceptors.response.use(
   (response) => {
     // Any HTTP response proves the server was reachable.
     reportTransportOutcome(true);
+    // P15.9 — refresh the server-time anchor from the response `Date` header.
+    // A missing/unparseable header keeps the previous offset (never poisons it).
+    noteServerDate(headerValue(response.headers, 'date'));
     return response;
   },
   async (error: AxiosError) => {
     const originalRequest = (error.config || {}) as AttemptState;
+
+    // P15.9 — a failed response still carries a server-stamped `Date` header,
+    // so it still anchors the clock.
+    if (error.response) {
+      noteServerDate(headerValue(error.response.headers, 'date'));
+    }
 
     // 3. Cancellation: a screen that unmounted aborts its signal. Never retry, never
     // report it as a server fault, and do not poison the shared reachability verdict

@@ -21,10 +21,33 @@ import * as Sentry from '@sentry/react-native';
 let release: string | null = null;
 
 /**
- * `app@version+build`. Read from the Expo runtime config so it always matches the
- * shipped artifact rather than a hardcoded string that drifts.
+ * Shared Sentry release contract (all four clients implement the same one):
+ * `{appId}@{version}+{build}`, dev builds append `+dev`.
+ *
+ * Resolution order:
+ *   1. env `SENTRY_RELEASE` (CI/EAS stamps the shipped release there) — verbatim;
+ *   2. the legacy Expo config value (version + iOS buildNumber / Android
+ *      versionCode) composed with the fixed app id below.
+ *
+ * Nothing here is hardcoded to a shipped value: the app id is the contract
+ * constant, and version/build always come from the running artifact's config,
+ * so the release can never drift from the build that produced the event.
  */
-export function resolveRelease(config?: Record<string, unknown>): string {
+export const SENTRY_APP_ID = 'provider-app' as const;
+
+export interface ReleaseSources {
+  /** Defaults to `process.env`. Injected by tests. */
+  env?: Record<string, string | undefined>;
+  /** Defaults to the `__DEV__` global. Injected by tests. */
+  dev?: boolean;
+}
+
+export function resolveRelease(config?: Record<string, unknown>, sources?: ReleaseSources): string {
+  const env = sources?.env ?? (typeof process !== 'undefined' ? process.env : {});
+  const fromEnv = typeof env?.SENTRY_RELEASE === 'string' ? env.SENTRY_RELEASE.trim() : '';
+  // An explicitly stamped release wins verbatim — even in dev, so a pinned
+  // release under test matches the artifact it names.
+  if (fromEnv) return fromEnv;
   const cfg: Record<string, unknown> = config ?? (() => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -34,12 +57,18 @@ export function resolveRelease(config?: Record<string, unknown>): string {
       return {} as Record<string, unknown>;
     }
   })();
-  const name = String(cfg?.name ?? 'nabd-provider');
-  const version = String(cfg?.version ?? '1.0.0');
+  // Unknown-version marker, never a shipped version: without a config there is
+  // no artifact to name, and inventing one would silently misattribute events.
+  const version = String(cfg?.version ?? '0.0.0');
   const ios = (cfg?.ios ?? {}) as Record<string, unknown>;
   const android = (cfg?.android ?? {}) as Record<string, unknown>;
   const build = ios.buildNumber ?? android.versionCode ?? cfg?.buildNumber;
-  return build ? `${name}@${version}+${build}` : `${name}@${version}`;
+  const base =
+    build !== undefined && build !== null && String(build).length > 0
+      ? `${SENTRY_APP_ID}@${version}+${build}`
+      : `${SENTRY_APP_ID}@${version}`;
+  const dev = sources?.dev ?? (typeof __DEV__ !== 'undefined' && __DEV__);
+  return dev ? `${base}+dev` : base;
 }
 
 /** The release currently reported to Sentry, or null before init. */
