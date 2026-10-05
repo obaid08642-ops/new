@@ -213,17 +213,41 @@ describe('15.5 · Sentry receives the error WITH the release', () => {
 });
 
 describe('15.5 · the release is derived from the shipped version and build', () => {
-  it('is app@version(build)', () => {
-    expect(resolveRelease({ version: '1.0.0', build: '7', explicit: null })).toBe('app@1.0.0(7)');
-    expect(resolveRelease({ version: '2.3.4', build: 42, explicit: null })).toBe('app@2.3.4(42)');
+  it('is patient-app@version+build (the shared cross-client contract)', () => {
+    expect(resolveRelease({ version: '1.0.0', build: '7', explicit: null, dev: false })).toBe('patient-app@1.0.0+7');
+    expect(resolveRelease({ version: '2.3.4', build: 42, explicit: null, dev: false })).toBe('patient-app@2.3.4+42');
   });
 
   it('falls back to `source` when the native build number is unavailable', () => {
-    expect(resolveRelease({ version: '1.0.0', build: null, explicit: null })).toBe('app@1.0.0(source)');
+    expect(resolveRelease({ version: '1.0.0', build: null, explicit: null, dev: false })).toBe('patient-app@1.0.0+source');
+  });
+
+  it('appends +dev for dev builds, never for production', () => {
+    expect(resolveRelease({ version: '1.0.0', build: '7', explicit: null, dev: true })).toBe('patient-app@1.0.0+7+dev');
+    expect(resolveRelease({ version: '1.0.0', build: '7', explicit: null, dev: false })).toBe('patient-app@1.0.0+7');
   });
 
   it('an explicit release (CI) wins over the derived one', () => {
-    expect(resolveRelease({ version: '1.0.0', build: '7', explicit: 'app@ci.42(9)' })).toBe('app@ci.42(9)');
+    expect(resolveRelease({ version: '1.0.0', build: '7', explicit: 'patient-app@ci.42+9', dev: false })).toBe(
+      'patient-app@ci.42+9',
+    );
+  });
+
+  it('reads SENTRY_RELEASE first, then the legacy EXPO_PUBLIC_SENTRY_RELEASE', () => {
+    const prevModern = process.env.SENTRY_RELEASE;
+    const prevLegacy = process.env.EXPO_PUBLIC_SENTRY_RELEASE;
+    try {
+      process.env.SENTRY_RELEASE = 'patient-app@9.9.9+1';
+      process.env.EXPO_PUBLIC_SENTRY_RELEASE = 'patient-app@8.8.8+2';
+      expect(resolveRelease({ version: '1.0.0', build: '7', explicit: null, dev: false })).toBe('patient-app@9.9.9+1');
+      delete process.env.SENTRY_RELEASE;
+      expect(resolveRelease({ version: '1.0.0', build: '7', explicit: null, dev: false })).toBe('patient-app@8.8.8+2');
+    } finally {
+      if (prevModern === undefined) delete process.env.SENTRY_RELEASE;
+      else process.env.SENTRY_RELEASE = prevModern;
+      if (prevLegacy === undefined) delete process.env.EXPO_PUBLIC_SENTRY_RELEASE;
+      else process.env.EXPO_PUBLIC_SENTRY_RELEASE = prevLegacy;
+    }
   });
 
   it('getRelease reports what init actually used', () => {

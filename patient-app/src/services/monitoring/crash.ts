@@ -27,22 +27,32 @@ export type CrashReporter = {
 };
 
 /**
- * `app@<version>(<build>)` — the shape Sentry expects for a React Native release.
- * The build number comes from the native binary, so two builds of the same JS
- * bundle are still distinguishable.
+ * The shared Sentry contract every client implements with its own appId:
+ * `{appId}@{version}+{build}`, with `+dev` appended for dev builds. The
+ * version comes from the shipped app constants and the build number from the
+ * native binary — never hardcoded. Resolution order: an explicit release
+ * (CI) wins, then env `SENTRY_RELEASE`, then the legacy
+ * `EXPO_PUBLIC_SENTRY_RELEASE` fallback. The build number keeps the bundle
+ * distinguishable across two native builds of the same JS.
  */
+export const SENTRY_APP_ID = 'patient-app' as const;
+
 export function resolveRelease(options?: {
   version?: string;
   build?: string | number | null;
   explicit?: string | null;
+  /** Defaults to the `__DEV__` global; pass explicitly in tests. */
+  dev?: boolean;
 }): string {
-  const explicit = options?.explicit ?? process.env.EXPO_PUBLIC_SENTRY_RELEASE;
+  const explicit =
+    options?.explicit ?? process.env.SENTRY_RELEASE ?? process.env.EXPO_PUBLIC_SENTRY_RELEASE;
   if (explicit && explicit.trim()) return explicit.trim();
 
   const version = options?.version ?? APP_VERSION;
   const build = options?.build ?? null;
   const buildSuffix = build == null || build === '' ? 'source' : String(build);
-  return `app@${version}(${buildSuffix})`;
+  const dev = options?.dev ?? (typeof __DEV__ !== 'undefined' && __DEV__);
+  return `${SENTRY_APP_ID}@${version}+${buildSuffix}${dev ? '+dev' : ''}`;
 }
 
 function readNativeBuildNumber(): string | null {
