@@ -5,6 +5,7 @@ import { ProcurementRequest } from '../schemas/procurement-request.schema';
 import { Roles } from '../../../../common/auth.guard';
 import { UserRole } from '../../../../common/enums';
 import { IssueWarehouseQuotationDto } from './admin-extended-operations.dto';
+import { findByAnyId } from '../../../../common/find-by-id';
 
 @Controller('admin/extended-operations')
 @Roles(UserRole.ADMIN)
@@ -31,8 +32,8 @@ export class AdminExtendedOperationsController {
     // Intercepts Admin entry sheet inputs to price pharmacy B2B shortages.
     // procurementId is always the procurement Mongo `_id` (same ID contract as
     // ProcurementService — the create endpoint returns `request._id`).
-    const updatedProcurement = await this.procurementModel.findByIdAndUpdate(
-      procurementId,
+    const updatedProcurement = await this.procurementModel.findOneAndUpdate(
+      findByAnyId(this.procurementModel, procurementId),
       {
         $set: {
           items: body.pricingItems,

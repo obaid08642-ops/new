@@ -109,6 +109,7 @@ export class ChatService {
       // fallback covers legacy callers holding a Mongo id (never throws).
       let doc: any = await m.findOne({ id: { $eq: bookingId } }).lean();
       if (!doc && /^[a-f0-9]{24}$/i.test(bookingId)) {
+        const { Types } = require('mongoose');
         doc = await m.findOne({ _id: { $eq: new Types.ObjectId(bookingId) } }).lean();
       }
       if (!doc) return {};

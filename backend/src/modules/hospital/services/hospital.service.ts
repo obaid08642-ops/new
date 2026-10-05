@@ -2,6 +2,7 @@ import { Injectable, BadRequestException, UnauthorizedException, NotFoundExcepti
 import { isEmail } from 'class-validator';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { findByAnyId } from '../../../common/find-by-id';
 import * as bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
 import { HospitalBranch } from '../schemas/hospital-branch.schema';
@@ -278,7 +279,7 @@ export class HospitalService {
     );
     // doctorObjId is an ObjectId resolved by objectIdForUser above (uuid `id`
     // mapped to `_id`, or a validated ObjectId string) — never raw user input.
-    await this.userModel.findByIdAndUpdate(doctorObjId, { $set: { verified: true, active: true } });
+    await this.userModel.findOneAndUpdate(findByAnyId(this.userModel, doctorObjId.toString()), { $set: { verified: true, active: true } });
     return doctorProfile;
   }
 

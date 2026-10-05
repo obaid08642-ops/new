@@ -2,7 +2,8 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException, Inject } from '@nestjs/common';
-import { Model, Document, Types } from 'mongoose';
+import { Model, Document } from 'mongoose';
+import { findByAnyId, findOneByAnyId } from '../../../common/find-by-id';
 import { ProcurementStatus } from '../enums/procurement-status.enum';
 import { ProcurementRequest } from '../schemas/procurement-request.schema';
 import { Quotation } from '../schemas/quotation.schema';
@@ -51,7 +52,7 @@ export class ProcurementService {
   async getPharmacyRequest(pharmacyId: string, requestId: string): Promise<any> {
     // requestId is always the Mongo `_id` (see ID CONTRACT above).
     const req = await this.procurementModel
-      .findOne({ _id: new Types.ObjectId(requestId), pharmacy_id: String(pharmacyId) })
+      .findOne({ ...findByAnyId(this.procurementModel, requestId), pharmacy_id: String(pharmacyId) })
       .lean() as any;
     if (!req) throw new NotFoundException('Procurement request not found');
     return req;
@@ -64,7 +65,7 @@ export class ProcurementService {
     dto: PharmacyQuotationFeedbackDto,
   ): Promise<any> {
     // requestId is always the Mongo `_id` (see ID CONTRACT above).
-    const req = await this.procurementModel.findOne({ _id: new Types.ObjectId(requestId), pharmacy_id: String(pharmacyId) });
+    const req = await this.procurementModel.findOne({ ...findByAnyId(this.procurementModel, requestId), pharmacy_id: String(pharmacyId) });
     if (!req) throw new NotFoundException('Procurement request not found');
 
     if (req.status !== ProcurementStatus.QUOTATION_ISSUED) {
@@ -103,7 +104,7 @@ export class ProcurementService {
   // ─── ADMIN: Get single request ────────────────────────────────────────────
   async adminGetRequest(requestId: string): Promise<any> {
     // requestId is always the Mongo `_id` (see ID CONTRACT above).
-    const req = await this.procurementModel.findById(requestId).lean() as any;
+    const req = await findOneByAnyId(this.procurementModel, requestId);
     if (!req) throw new NotFoundException('Procurement request not found');
     return req;
   }
@@ -138,7 +139,7 @@ export class ProcurementService {
   // ─── ADMIN: Move request to UNDER_ADMIN_REVIEW ───────────────────────────
   async adminStartReview(requestId: string): Promise<any> {
     // requestId is always the Mongo `_id` (see ID CONTRACT above).
-    const req = await this.procurementModel.findById(requestId);
+    const req = await findOneByAnyId(this.procurementModel, requestId);
     if (!req) throw new NotFoundException('Procurement request not found');
 
     if (req.status !== ProcurementStatus.PENDING_ADMIN_REVIEW) {
@@ -159,7 +160,7 @@ export class ProcurementService {
     dto: AdminCreateQuotationDto,
   ): Promise<any> {
     // requestId is always the Mongo `_id` (see ID CONTRACT above).
-    const req = await this.procurementModel.findById(requestId);
+    const req = await findOneByAnyId(this.procurementModel, requestId);
     if (!req) throw new NotFoundException('Procurement request not found');
 
     const validStatuses: ProcurementStatus[] = [
@@ -202,7 +203,7 @@ export class ProcurementService {
   // ─── ADMIN: Cancel a request ──────────────────────────────────────────────
   async adminCancelRequest(requestId: string): Promise<any> {
     // requestId is always the Mongo `_id` (see ID CONTRACT above).
-    const req = await this.procurementModel.findById(requestId);
+    const req = await findOneByAnyId(this.procurementModel, requestId);
     if (!req) throw new NotFoundException('Procurement request not found');
 
     const nonCancellable: ProcurementStatus[] = [
@@ -223,7 +224,7 @@ export class ProcurementService {
   // ─── ADMIN: Mark as COMPLETED (after delivery) ───────────────────────────
   async adminCompleteRequest(requestId: string): Promise<any> {
     // requestId is always the Mongo `_id` (see ID CONTRACT above).
-    const req = await this.procurementModel.findById(requestId);
+    const req = await findOneByAnyId(this.procurementModel, requestId);
     if (!req) throw new NotFoundException('Procurement request not found');
 
     if (req.status !== ProcurementStatus.APPROVED_BY_PHARMACY) {

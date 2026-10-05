@@ -81,6 +81,7 @@ class PatientForgotPasswordDto {
 class PatientResetPasswordDto {
   @IsString() reset_token: string;
   @IsString() @MinLength(8) new_password: string;
+  @IsOptional() @IsString() turnstileToken?: string;
 }
 class ConvertGuestDto {
   @IsString() full_name: string;
@@ -97,9 +98,9 @@ export class AuthController {
   private readonly log = new Logger(AuthController.name);
   constructor(
     private auth: AuthService,
-    @Optional() private presence?: PresenceService,
     private turnstile: TurnstileService,
     private smsFraud: SmsFraudProtectionService,
+    @Optional() private presence?: PresenceService,
   ) {}
 
   /** Patient-web bridge: opaque request response prevents account enumeration. */

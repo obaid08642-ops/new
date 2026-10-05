@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { RedisManagerService } from '../../common/redis/redis-manager.service';
+import { RedisService } from '../../modules/redis/redis.service';
 
 interface SmsRateLimitConfig {
   maxOtpsPerNumberPerHour: number;
@@ -12,13 +12,11 @@ interface SmsRateLimitConfig {
 @Injectable()
 export class SmsFraudProtectionService {
   private readonly config: SmsRateLimitConfig;
-  private readonly redis: RedisManagerService;
 
   constructor(
     private readonly configService: ConfigService,
-    redisManager: RedisManagerService,
+    private readonly redis: RedisService,
   ) {
-    this.redis = redisManager.getClient('queue');
     this.config = {
       maxOtpsPerNumberPerHour: parseInt(this.configService.get('SMS_MAX_OTPS_PER_NUMBER_PER_HOUR') || '5', 10),
       maxNumbersPerIpPerHour: parseInt(this.configService.get('SMS_MAX_NUMBERS_PER_IP_PER_HOUR') || '15', 10),

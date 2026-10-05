@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { AuditService } from '../modules/security/security.module';
+import { AuditService } from '../modules/security/audit.service';
 
 export const AUDITED_KEY = 'audited';
 

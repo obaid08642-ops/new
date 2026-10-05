@@ -126,9 +126,10 @@ export class LiveKitService {
     // only from live states; record history like the canonical transition.
     const appointmentFilter: any = { id: { $eq: appointmentId }, doctor_user_id: { $eq: providerId } };
     if (Types.ObjectId.isValid(appointmentId)) {
+      const { Types: T } = require('mongoose');
       appointmentFilter.$or = [
         { id: { $eq: appointmentId }, doctor_user_id: { $eq: providerId } },
-        { _id: { $eq: new Types.ObjectId(appointmentId) }, doctor_user_id: { $eq: providerId } },
+        { _id: { $eq: new T.ObjectId(appointmentId) }, doctor_user_id: { $eq: providerId } },
       ];
       delete appointmentFilter.id;
       delete appointmentFilter.doctor_user_id;
@@ -171,7 +172,10 @@ export class LiveKitService {
   async initiateCall(callerId: string, callerName: string, calleeId: string, callType: string, bookingId?: string) {
     if (!bookingId) throw new BadRequestException('appointmentId is required');
     const appointmentFilter: any = { id: { $eq: bookingId } };
-    if (Types.ObjectId.isValid(bookingId)) appointmentFilter.$or = [{ id: { $eq: bookingId } }, { _id: { $eq: new Types.ObjectId(bookingId) } }];
+    if (Types.ObjectId.isValid(bookingId)) {
+      const { Types: T } = require('mongoose');
+      appointmentFilter.$or = [{ id: { $eq: bookingId } }, { _id: { $eq: new T.ObjectId(bookingId) } }];
+    }
     const appt: any = await this.appointments.findOne(appointmentFilter).lean();
     if (!appt) throw new NotFoundException('Appointment not found');
     // Dead appointments can never start a call (P0-14): unify both video

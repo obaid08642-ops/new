@@ -9,6 +9,7 @@ import { StepUp } from '../../../../common/step-up.guard';
 import { Permission, RequirePermissions } from '../../../../common/permissions';
 import { UserRole } from '../../../../common/enums';
 import { RejectPayoutDto } from './finance.dto';
+import { findByAnyId, findOneByAnyId } from '../../../../common/find-by-id';
 
 /**
  * M5 fix: provider withdrawals written by provider-ops (`ProviderWithdrawal`,
@@ -83,7 +84,7 @@ export class FinanceController {
     // the provider's real balance and large-payout approval before paying.
     // Legacy withdrawals are keyed by Mongo `_id`; provider-ops withdrawals
     // fall back to the public uuid `id` below — both paths 404 when absent.
-    const legacyDoc: any = await this.withdrawalModel.findById(id).lean().catch(() => null);
+    const legacyDoc: any = await findOneByAnyId(this.withdrawalModel, id);
     const opsDoc: any = legacyDoc ? null : await this.providerWithdrawalModel.findOne({ id, state: 'PENDING_ADMIN_APPROVAL' }, { _id: 0, __v: 0 }).lean();
     if (!legacyDoc && !opsDoc) throw new NotFoundException('withdrawal not found or already decided');
 
@@ -117,7 +118,7 @@ export class FinanceController {
     // Execute: mark paid + append the payout ledger entry (idempotent by ref).
     // legacyDoc is only set from the legacy `_id` lookup above.
     if (legacyDoc) {
-      await this.withdrawalModel.findByIdAndUpdate(id, { status: 'completed', decided_at: new Date() });
+      await this.withdrawalModel.findOneAndUpdate(findByAnyId(this.withdrawalModel, id), { status: 'completed', decided_at: new Date() });
     } else {
       await this.providerWithdrawalModel.findOneAndUpdate(
         { id, state: 'PENDING_ADMIN_APPROVAL' },
@@ -144,7 +145,7 @@ export class FinanceController {
   async rejectPayout(@Param('id') id: string, @Body() body: RejectPayoutDto) {
     // Legacy withdrawals are keyed by Mongo `_id`; provider-ops withdrawals
     // fall back to the public uuid `id` below — both paths 404 when absent.
-    const legacy = await this.withdrawalModel.findByIdAndUpdate(id, { status: 'rejected' }, { new: true }).catch(() => null);
+    const legacy = await this.withdrawalModel.findOneAndUpdate(findByAnyId(this.withdrawalModel, id), { status: 'rejected' }, { new: true }).catch(() => null);
     if (legacy) {
       return { success: true, withdrawal: legacy, source: 'legacy' };
     }

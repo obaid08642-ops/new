@@ -327,7 +327,10 @@ export class ReturnsService {
     };
     const eligible: any[] = [];
     const ownerIds: any[] = [userId];
-    if (Types.ObjectId.isValid(userId)) ownerIds.push(new Types.ObjectId(userId));
+    if (Types.ObjectId.isValid(userId)) {
+      const { Types: T } = require('mongoose');
+      ownerIds.push(new T.ObjectId(userId));
+    }
     for (const source of sources[type] || []) {
       const bookings: any[] = await this.conn.collection(source.collection)
         .find({ patient_id: { $in: ownerIds } }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(50).toArray();

@@ -399,7 +399,10 @@ export class RadiologyOpsService {
     // public detail lookup must use `_id` (or human `short_code`) instead.
     const base = { is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' } as const;
     const or: Record<string, unknown>[] = [{ id: { $eq: id } }, { short_code: { $eq: id } }];
-    if (Types.ObjectId.isValid(id)) or.unshift({ _id: { $eq: new Types.ObjectId(id) } });
+    if (Types.ObjectId.isValid(id)) {
+      const { Types: T } = require('mongoose');
+      or.unshift({ _id: { $eq: new T.ObjectId(id) } });
+    }
     const svc = await this.svcModel.findOne({ ...base, $or: or }).lean();
     if (!svc) throw new NotFoundException();
     return svc;

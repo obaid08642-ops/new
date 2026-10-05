@@ -23,6 +23,17 @@ export interface StockCheckResult {
   pharmacyId: string;
 }
 
+export interface ReservationItem {
+  medicineId: string;
+  qty: number;
+}
+
+export interface ActiveReservation {
+  reservationId: string;
+  items: ReservationItem[];
+  ttl: number;
+}
+
 @Injectable()
 export class StockReservationService {
   private readonly logger = new Logger(StockReservationService.name);
@@ -315,17 +326,6 @@ export class StockReservationService {
     await this.redisService.expire(stockKey, 24 * 60 * 60);
     
     this.logger.log(`Initialized stock for pharmacy ${pharmacyId}: ${items.length} items`);
-  }
-
-  interface ReservationItem {
-    medicineId: string;
-    qty: number;
-  }
-
-  interface ActiveReservation {
-    reservationId: string;
-    items: ReservationItem[];
-    ttl: number;
   }
 
   /**
