@@ -11,6 +11,7 @@ import type {
   StepperProps,
 } from './contract';
 import { Icon } from '../src/Icon';
+import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, type FillIconName } from '../icons/fill';
 
 /**
  * The form controls — 12.A7, web.
@@ -288,67 +289,155 @@ export function Otp({ value = '', length, label, error, onChange, onComplete, di
   );
 }
 
+/**
+ * SearchField — canvas/PharmacyHub and Consult (`inline`: 52 tall, radius 18,
+ * hairline ring, 20px glyph, 15px text) and canvas/Search (`page`: a 50 tall pill
+ * with the 2px ink border and soft ring of a focused field). Either variant takes
+ * the ink border while focused. The clear and barcode buttons sit inside; the
+ * filter is the 52px ink square beside the field.
+ */
 export function Search({
   value = '',
   onChange,
   placeholder = '',
+  variant = 'inline',
   onFilterPress,
   filterLabel,
+  onClear,
+  clearLabel,
+  onScanPress,
+  scanLabel,
+  label,
   loading = false,
   disabled = false,
+  invalid = false,
+  describedBy,
   testID,
 }: SearchProps) {
   const id = React.useId();
+  const [focused, setFocused] = React.useState(false);
+  const page = variant === 'page';
+  const active = page || focused;
+
   return (
-    <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-      <span style={{ position: 'absolute', insetInlineStart: 'var(--nabd-space-sm)', display: 'grid', placeItems: 'center' }}>
-        <Icon name="search" size={20} tone="secondary" />
-      </span>
-      <input
-        id={id}
-        type="search"
-        value={value}
-        onChange={(e) => onChange?.(e.target.value)}
-        placeholder={placeholder}
-        disabled={disabled}
-        aria-label={placeholder || 'Search'}
-        data-testid={testID}
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <label
+        htmlFor={id}
         style={{
-          ...fieldStyle,
-          paddingInlineStart: 'calc(var(--nabd-space-md) + 28px)',
-          paddingInlineEnd: onFilterPress ? 'calc(var(--nabd-space-md) + 44px)' : undefined,
-          borderRadius: 'var(--nabd-radius-pill)',
+          flex: 1,
+          minWidth: 0,
+          boxSizing: 'border-box',
+          height: page ? 50 : 52,
+          borderRadius: page ? 25 : 18,
+          background: 'var(--nabd-color-bg-surface)',
+          border: active ? '2px solid var(--nabd-color-text-primary)' : '1px solid var(--nabd-color-border-onGlass)',
+          boxShadow: active ? '0 0 0 4px var(--nabd-color-glass-scrim)' : 'none',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          // the 2px border takes 1px more than the hairline: keep the content still
+          paddingInline: active ? 13 : 14,
+          opacity: disabled ? 0.5 : 1,
         }}
-      />
+      >
+        <Icon name="search" size={20} tone={active ? 'primary' : 'secondary'} />
+        <input
+          id={id}
+          type="search"
+          value={value}
+          onChange={(e) => onChange?.(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          placeholder={placeholder}
+          disabled={disabled}
+          aria-label={label ?? (placeholder || 'Search')}
+          aria-describedby={describedBy}
+          aria-invalid={invalid || undefined}
+          aria-busy={loading || undefined}
+          data-testid={testID}
+          style={{
+            flex: 1,
+            minWidth: 0,
+            height: '100%',
+            border: 0,
+            padding: 0,
+            background: 'transparent',
+            outline: 'none',
+            fontFamily: 'inherit',
+            fontSize: page ? '16px' : '15px',
+            color: 'var(--nabd-color-text-primary)',
+          }}
+        />
+        {onClear && value ? (
+          <button type="button" onClick={onClear} aria-label={clearLabel ?? 'Clear'} data-testid={testID ? `${testID}-clear` : undefined} style={innerButton}>
+            {/* canvas/Search: a 28px sunken disc with the cross, inside a 44 hit area */}
+            <span style={{ width: 28, height: 28, borderRadius: 14, background: 'var(--nabd-color-bg-sunken)', display: 'grid', placeItems: 'center' }}>
+              <Icon name="close" size={14} tone="secondary" />
+            </span>
+          </button>
+        ) : null}
+        {onScanPress ? (
+          <button type="button" onClick={onScanPress} aria-label={scanLabel ?? 'Scan'} data-testid={testID ? `${testID}-scan` : undefined} style={innerButton}>
+            <FillGlyph name="barcode" size={22} />
+          </button>
+        ) : null}
+      </label>
       {onFilterPress ? (
         <button
           type="button"
           onClick={onFilterPress}
           // The filter control is icon-only, so its name has to be explicit —
-          // this is the same rule IconButton enforces through its types.
+          // the same rule IconButton enforces through its types.
           aria-label={filterLabel ?? 'Filter'}
           data-testid={testID ? `${testID}-filter` : undefined}
           style={{
-            position: 'absolute',
-            insetInlineEnd: 'var(--nabd-space-3xs)',
-            minWidth: 'var(--nabd-a11y-minTouchTarget)',
-            minHeight: 'var(--nabd-a11y-minTouchTarget)',
+            width: 52,
+            height: 52,
+            flexShrink: 0,
+            borderRadius: 18,
+            border: 0,
+            padding: 0,
             display: 'grid',
             placeItems: 'center',
-            background: 'transparent',
-            border: 0,
-            borderRadius: 'var(--nabd-radius-pill)',
             cursor: 'pointer',
-            color: 'var(--nabd-color-icon-secondary)',
+            background: 'var(--nabd-color-action-selected-bg)',
+            color: 'var(--nabd-color-action-selected-fg)',
           }}
         >
-          <Icon name="filter" size={20} />
+          <Icon name="sliders" size={20} tone="currentColor" />
         </button>
       ) : null}
     </div>
   );
 }
 
+/** A button inside the field: a 44 hit area that takes no more room than its glyph. */
+const innerButton: React.CSSProperties = {
+  width: 44,
+  height: 44,
+  // the board's inner buttons take 36 of the row (PharmacyHub barcode)
+  marginInline: -4,
+  padding: 0,
+  border: 0,
+  background: 'transparent',
+  display: 'grid',
+  placeItems: 'center',
+  cursor: 'pointer',
+  flexShrink: 0,
+};
+
+function FillGlyph({ name, size }: { name: FillIconName; size: number }) {
+  return (
+    <svg width={size} height={size} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true">
+      <path d={FILL_ICON_PATHS[name]} fill="var(--nabd-color-icon-secondary)" />
+    </svg>
+  );
+}
+
+/**
+ * canvas/Cart: a 36 tall pill in the canvas colour, two 30px surface discs and
+ * the value at 14/700 between them. Each disc is a 44 hit area.
+ */
 export function Stepper({
   value,
   onChange,
@@ -359,40 +448,55 @@ export function Stepper({
   decrementLabel = 'Decrease',
   incrementLabel = 'Increase',
   format,
+  loading = false,
   disabled = false,
+  invalid = false,
+  describedBy,
   testID,
 }: StepperProps) {
   const clamp = (n: number) => Math.min(max, Math.max(min, n));
   const shown = format ? format(value) : String(value);
+  const inert = disabled || loading;
 
   return (
     <div
       role="group"
       aria-label={label}
+      aria-describedby={describedBy}
+      aria-invalid={invalid || undefined}
+      aria-busy={loading || undefined}
       data-testid={testID}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        border: '1px solid var(--nabd-color-border-default)',
-        borderRadius: 'var(--nabd-radius-pill)',
-        overflow: 'hidden',
+        gap: 4,
+        height: 36,
+        paddingInline: 3,
+        boxSizing: 'border-box',
+        borderRadius: 18,
+        background: 'var(--nabd-color-bg-canvas)',
+        opacity: disabled ? 0.5 : 1,
       }}
     >
       <button
         type="button"
         onClick={() => onChange?.(clamp(value - step))}
-        disabled={disabled || value <= min}
+        disabled={inert || value <= min}
         aria-label={decrementLabel}
+        data-testid={testID ? `${testID}-dec` : undefined}
         style={stepButton}
       >
-        <Icon name="minus" size={18} />
+        <span style={stepDisc} aria-hidden>
+          −
+        </span>
       </button>
       <span
         aria-live="polite"
         style={{
-          minWidth: 'var(--nabd-space-2xl)',
+          minWidth: 20,
           textAlign: 'center',
-          fontSize: 'var(--nabd-font-size-bodyStrong)',
+          fontSize: '14px',
+          fontWeight: 700,
           fontVariantNumeric: 'tabular-nums',
           color: 'var(--nabd-color-text-primary)',
         }}
@@ -402,25 +506,43 @@ export function Stepper({
       <button
         type="button"
         onClick={() => onChange?.(clamp(value + step))}
-        disabled={disabled || value >= max}
+        disabled={inert || value >= max}
         aria-label={incrementLabel}
+        data-testid={testID ? `${testID}-inc` : undefined}
         style={stepButton}
       >
-        <Icon name="plus" size={18} />
+        <span style={stepDisc} aria-hidden>
+          +
+        </span>
       </button>
     </div>
   );
 }
 
+/** 44×44 target around a 30px disc; the 7px each side is given back to the layout. */
 const stepButton: React.CSSProperties = {
-  minWidth: 'var(--nabd-a11y-minTouchTarget)',
-  minHeight: 'var(--nabd-a11y-minTouchTarget)',
+  width: 44,
+  height: 44,
+  margin: -7,
+  padding: 0,
   display: 'grid',
   placeItems: 'center',
   background: 'transparent',
   border: 0,
   cursor: 'pointer',
-  color: 'var(--nabd-color-icon-primary)',
+  color: 'var(--nabd-color-text-primary)',
+};
+
+const stepDisc: React.CSSProperties = {
+  width: 30,
+  height: 30,
+  borderRadius: 15,
+  display: 'grid',
+  placeItems: 'center',
+  // canvas/Cart draws the signs as 16px text
+  fontSize: '16px',
+  lineHeight: 1,
+  background: 'var(--nabd-color-bg-elevated)',
 };
 
 export function SlotPicker({

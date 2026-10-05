@@ -5,8 +5,9 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import {
-  Avatar, Badge, Button, Card, Chip, EmptyState, ErrorState, FIcon, IconButton, ListItem, Rating,
-  SectionHeader, Select, ServiceTile, SERVICE_ICONS, SERVICE_TONES, Stepper, Tabs,
+  Avatar, Badge, BottomTabBar, Button, Card, Chip, DoctorCard, EmptyState, OfflineState, OfferCard, ProductCard, ProgressRing, Timeline, ErrorState, FIcon, IconButton, ListItem, Radio, Rating,
+  Search, SectionHeader, Segmented, Select, ServiceTile, SERVICE_ICONS, SERVICE_TONES, StatusChip, Stepper, Tabs, Toggle,
+  FILL_ICON_PATHS,
 } from "@nabd/ui";
 import { CONTRACT_NAMES } from "@nabd/ui/components/contract";
 import { WEB_ONLY } from "@nabd/ui/components/contract";
@@ -30,17 +31,19 @@ import { SERVICE_TILES } from "@nabd/ui/components/fixtures";
 describe("12.A7 — the contract roster is honest", () => {
   it("lists every component exactly once", () => {
     expect(new Set(CONTRACT_NAMES).size).toBe(CONTRACT_NAMES.length);
-    expect(CONTRACT_NAMES.length).toBe(30); // 28 from §A7 + FIcon and SectionHeader (handoff §3)
+    // 28 from §A7 + FIcon, SectionHeader (handoff §3, components 1/4) + Segmented, Toggle, Radio, StatusChip (2/4)
+    // + DoctorCard, ProductCard, OfferCard, Timeline, ProgressRing (3/4) + OfflineState (4/4)
+    expect(CONTRACT_NAMES.length).toBe(40);
   });
 
   it("every component named in the docs roster is in the contract", () => {
-    // §A7's list, transcribed, plus the handoff §3 additions (FIcon, SectionHeader).
+    // §A7's list, transcribed, plus the handoff §3 additions (FIcon, SectionHeader; Segmented, Toggle, Radio, StatusChip).
     // If the contract grows a component, this is where it has to be added, which is the point.
     const fromTheSpec = [
-      "Button", "IconButton", "Input", "Select", "Otp", "Search", "Stepper",
-      "SlotPicker", "Chip", "Badge", "Card", "ListItem", "ServiceTile", "FIcon", "SectionHeader", "Avatar",
+      "Button", "IconButton", "Segmented", "Toggle", "Radio", "StatusChip", "Input", "Select", "Otp", "Search", "Stepper",
+      "SlotPicker", "Chip", "Badge", "Card", "DoctorCard", "ProductCard", "OfferCard", "Timeline", "ProgressRing", "ListItem", "ServiceTile", "FIcon", "SectionHeader", "Avatar",
       "PriceTag", "Rating", "Tabs", "NavBar", "BottomTabBar", "Sidebar",
-      "MapPinCard", "EmptyState", "ErrorState", "Toast", "Modal", "Skeleton",
+      "MapPinCard", "EmptyState", "ErrorState", "OfflineState", "Toast", "Modal", "Skeleton",
       "DataTable", "ChartCard",
     ];
     expect([...CONTRACT_NAMES].sort()).toEqual(fromTheSpec.sort());
@@ -258,10 +261,257 @@ describe("design review — ratings are real or absent, people are real or neutr
   });
 });
 
+describe("handoff §3 — controls (components 2/4) match the boards", () => {
+  it("PrimaryButton is the coral gradient with the button shadow; lg is the 56 / 18 page CTA", () => {
+    const html = markup(Button, { label: "متابعة", variant: "primary", size: "lg" });
+    expect(html).toContain("linear-gradient(180deg, var(--nabd-color-action-primary-gradient-from) 0%, var(--nabd-color-action-primary-gradient-to) 100%)");
+    expect(html).toContain("box-shadow:var(--nabd-shadow-button)");
+    expect(html).toContain("height:56px");
+    expect(html).toContain("border-radius:18px");
+  });
+
+  it("OutlineButton is 1.5px of ink on transparent; sm is 40 to look at and 44 to hit", () => {
+    const html = markup(Button, { label: "تعديل", variant: "outline", size: "sm" });
+    expect(html).toContain("border:1.5px solid var(--nabd-color-text-primary)");
+    expect(html).toContain("background:transparent");
+    expect(html).toContain("height:40px");
+    expect(html).toContain("calc((40px - var(--nabd-a11y-minTouchTarget)) / 2)");
+    // md and lg need no extender
+    expect(markup(Button, { label: "x", variant: "outline", size: "md" })).not.toContain("var(--nabd-a11y-minTouchTarget)) / 2");
+  });
+
+  it("a Button icon from the handoff fill set is drawn filled", () => {
+    const html = markup(Button, { label: "الصور", variant: "outline", startIcon: "image" });
+    expect(html).toContain(`d="${FILL_ICON_PATHS.image}"`);
+    expect(html).toContain('fill="currentColor"');
+  });
+
+  it("IconButton outlined is the board header button; lg square is the 52 / 18 filter", () => {
+    const back = markup(IconButton, { name: "caret-right", label: "رجوع", variant: "outlined" });
+    expect(back).toContain("background:var(--nabd-color-bg-surface)");
+    expect(back).toContain("border:1px solid var(--nabd-color-border-onGlass)");
+    expect(back).toContain("width:44px");
+    expect(back).toContain("min-height:var(--nabd-a11y-minTouchTarget)");
+    const filter = markup(IconButton, { name: "sliders", label: "تصفية", variant: "filled", shape: "square", size: "lg" });
+    expect(filter).toContain("width:52px");
+    expect(filter).toContain("border-radius:18px");
+    expect(filter).toContain("background:var(--nabd-color-action-selected-bg)");
+    expect(filter).toContain('data-icon="sliders"');
+  });
+
+  it("Segmented is a named radiogroup with one tab stop; the selected item is the raised surface pill", () => {
+    const html = markup(Segmented, {
+      label: "المظهر", value: "light",
+      options: [{ value: "auto", label: "تلقائي" }, { value: "light", label: "فاتح" }, { value: "dark", label: "غامق" }],
+    });
+    expect(html).toContain('role="radiogroup"');
+    expect(html).toContain('aria-label="المظهر"');
+    expect(html.match(/role="radio"/g)).toHaveLength(3);
+    expect(html.match(/aria-checked="true"/g)).toHaveLength(1);
+    expect(html.match(/tabindex="0"/g)).toHaveLength(1);
+    expect(html).toContain("background:var(--nabd-color-control-segmentedTrack)");
+    expect(html.match(/box-shadow:var\(--nabd-shadow-segmented\)/g)).toHaveLength(1);
+  });
+
+  it("a 38px segment still has a 44px target", () => {
+    const html = markup(Segmented, { label: "الطلبات", size: "sm", value: "a", options: [{ value: "a", label: "الحالية" }, { value: "b", label: "السابقة" }] });
+    expect(html).toContain("height:44px");
+    expect(html).toContain("margin-block:-3px");
+    expect(html).toContain("height:38px");
+  });
+
+  it("Toggle is a named switch: green when on, the strong border colour when off", () => {
+    const on = markup(Toggle, { label: "تذكير الأدوية", value: true });
+    expect(on).toContain('role="switch"');
+    expect(on).toContain('aria-checked="true"');
+    expect(on).toContain('aria-label="تذكير الأدوية"');
+    expect(on).toContain("background:var(--nabd-color-control-switchOn)");
+    const off = markup(Toggle, { label: "العروض", value: false });
+    expect(off).toContain('aria-checked="false"');
+    expect(off).toContain("background:var(--nabd-color-border-strong)");
+  });
+
+  it("Radio is a row with the 22px ring: 7px coral when chosen, 2px grey when not", () => {
+    const on = markup(Radio, { label: "العربية", meta: "Arabic", selected: true });
+    expect(on).toContain('role="radio"');
+    expect(on).toContain('aria-checked="true"');
+    expect(on).toContain("border:7px solid var(--nabd-color-action-primary-bg)");
+    expect(on).toContain(">Arabic<");
+    const off = markup(Radio, { label: "English", selected: false });
+    expect(off).toContain("border:2px solid var(--nabd-color-control-radioOff)");
+  });
+
+  it("StatusChip takes the tone's service colours; Chip is a pressed-state toggle with a real count", () => {
+    const status = markup(StatusChip, { label: "في الطريق", tone: "coral" });
+    expect(status).toContain("background:var(--nabd-color-service-coral-bg)");
+    expect(status).toContain("color:var(--nabd-color-service-coral-fg)");
+    const chip = markup(Chip, { label: "أدوية", count: 12, selected: true });
+    expect(chip).toContain('aria-pressed="true"');
+    expect(chip).toContain("background:var(--nabd-color-action-selected-bg)");
+    expect(chip).toContain(">12<");
+    expect(markup(Chip, { label: "أطباء" })).not.toContain("opacity:0.7");
+  });
+
+  it("SearchField: the page field is the focused pill; clear shows only with text; filter is the ink square", () => {
+    const page = markup(Search, { variant: "page", value: "باراسيتامول", label: "بحث", onClear: () => {}, clearLabel: "مسح" });
+    expect(page).toContain("border:2px solid var(--nabd-color-text-primary)");
+    expect(page).toContain("border-radius:25px");
+    expect(page).toContain('aria-label="مسح"');
+    expect(markup(Search, { variant: "page", value: "", label: "بحث", onClear: () => {}, clearLabel: "مسح" })).not.toContain('aria-label="مسح"');
+    const hub = markup(Search, { placeholder: "ابحث", onFilterPress: () => {}, filterLabel: "تصفية", onScanPress: () => {}, scanLabel: "مسح الباركود" });
+    expect(hub).toContain("border:1px solid var(--nabd-color-border-onGlass)");
+    expect(hub).toContain('aria-label="تصفية"');
+    expect(hub).toContain('aria-label="مسح الباركود"');
+    expect(hub).toContain(`d="${FILL_ICON_PATHS.barcode}"`);
+  });
+
+  it("Stepper is the Cart pill: named buttons, and the end of the range disables its button", () => {
+    const html = markup(Stepper, { value: 1, min: 1, max: 9, label: "الكمية", decrementLabel: "إنقاص", incrementLabel: "زيادة" });
+    expect(html).toContain('aria-label="الكمية"');
+    expect(html).toMatch(/<button[^>]*disabled=""[^>]*aria-label="إنقاص"/);
+    expect(html).not.toMatch(/<button[^>]*disabled=""[^>]*aria-label="زيادة"/);
+    expect(html).toContain("background:var(--nabd-color-bg-canvas)");
+    expect(html).toContain("width:30px");
+  });
+});
+
+describe("handoff §3 — cards (components 2/4 → 3/4) match the boards", () => {
+  const doctor = {
+    name: "د. أمينة", bookLabel: "احجز", verifiedLabel: "موثّق", availableLabel: "متاح الآن", grade: "استشاري", specialty: "غدد",
+    place: "عيادة العليا · ١٫٢ كم", modes: [{ mode: "clinic", label: "عيادة" }, { mode: "online", label: "أونلاين" }],
+    rating: { value: 4.8, count: 128 }, nextSlot: "اليوم ٧:٣٠ م", price: "180", currency: "ر.س",
+  };
+
+  it("DoctorCard: organic photo shape, feature shadow, coral footer with the rating, slot, price and book", () => {
+    const html = markup(DoctorCard, doctor);
+    expect(html).toContain("border-radius:52% 48% 46% 54% / 44% 46% 54% 56%");
+    expect(html).toContain("box-shadow:var(--nabd-shadow-feature)");
+    expect(html).toContain("linear-gradient(180deg, var(--nabd-color-action-primary-gradient-from) 0%, var(--nabd-color-action-primary-gradient-to) 100%)");
+    expect(html).toContain('aria-label="موثّق"');
+    expect(html).toContain('aria-label="متاح الآن"');
+    expect(html).toContain(">4.8<");
+    expect(html).toContain("اليوم ٧:٣٠ م");
+    expect(html).toContain(">احجز<");
+  });
+
+  it("DoctorCard hides what it was not given: no seal, dot, grade, rating, slot or price by default", () => {
+    const html = markup(DoctorCard, { name: "د. عمر", bookLabel: "احجز" });
+    expect(html).not.toContain("presence-online");
+    expect(html).not.toContain("ratingStar");
+    expect(html).not.toContain('d="M12 2l2.4'); // the board's verified seal
+    expect(html).not.toMatch(/aria-label=/);
+    // without a photo: the neutral user mark, never an illustrated person
+    expect(html).toContain(`d="${FILL_ICON_PATHS.user}"`);
+    expect(markup(DoctorCard, { name: "د. عمر", bookLabel: "احجز", photoSrc: "https://cdn.nabd.plus/d/1.jpg" })).toContain('src="https://cdn.nabd.plus/d/1.jpg"');
+  });
+
+  it("DoctorCard: with onBook and no href the book action is a real button; inside a link it is not nested", () => {
+    expect(markup(DoctorCard, { ...doctor, onBook: () => {} })).toMatch(/<button type="button"[^>]*>احجز/);
+    const linked = markup(DoctorCard, { ...doctor, href: "/ar/doctors/1", onBook: () => {} });
+    expect(linked.startsWith('<a href="/ar/doctors/1"')).toBe(true);
+    expect(linked).not.toContain("<button");
+  });
+
+  it("ProductCard: media colour, discount badge, rx note, and a named 40px ink add button with a 44 hit area", () => {
+    const html = markup(ProductCard, { name: "بنادول", price: "12.50", currency: "ر.س", discountLabel: "خصم ١٥٪", rxLabel: "يحتاج وصفة", addLabel: "أضف للسلة" });
+    expect(html).toContain("background:var(--nabd-color-bg-media)");
+    expect(html).toContain(">خصم ١٥٪<");
+    expect(html).toContain(">يحتاج وصفة<");
+    expect(html).toContain('aria-label="أضف للسلة"');
+    expect(html).toContain("calc((40px - var(--nabd-a11y-minTouchTarget)) / 2)");
+    const bare = markup(ProductCard, { name: "x", price: "1", addLabel: "أضف" });
+    expect(bare).not.toContain("خصم");
+    expect(bare).toContain(`d="${FILL_ICON_PATHS.pill}"`);
+  });
+
+  it("OfferCard: tinted head with the tone's icon and a tag, the price in the price colour and the old price struck", () => {
+    const html = markup(OfferCard, { title: "باقة", price: "199", was: "260", tag: "عرض", icon: "test-tube", tone: "mint" });
+    expect(html).toContain("background:var(--nabd-color-service-mint-bg)");
+    expect(html).toContain("color:var(--nabd-color-text-price)");
+    expect(html).toContain("text-decoration:line-through");
+    expect(html).toContain(">عرض<");
+  });
+
+  it("Timeline: an ordered list; done steps checked, the current one marked as the current step", () => {
+    const html = markup(Timeline, { label: "حالة الطلب", steps: [
+      { id: "a", label: "تم القبول", time: "٧:٠٢", state: "done" },
+      { id: "b", label: "في الطريق", time: "الآن", state: "current" },
+      { id: "c", label: "تم التوصيل", state: "upcoming" },
+    ] });
+    expect(html).toMatch(/^<ol aria-label="حالة الطلب"/);
+    expect(html.match(/<li/g)).toHaveLength(3);
+    expect(html.match(/aria-current="step"/g)).toHaveLength(1);
+    expect(html.split(FILL_ICON_PATHS["check-circle"]).length - 1).toBe(1);
+    expect(html).toContain("color-mix(in srgb, var(--nabd-color-action-primary-bg) 15%, transparent)");
+  });
+
+  it("ProgressRing: a named progressbar, the arc in the tone over its soft track, clamped to 0..100", () => {
+    const html = markup(ProgressRing, { value: 0.55, tone: "pink", label: "أسبوع ٢٢ من ٤٠", valueText: "٢٢", caption: "أسبوع" });
+    expect(html).toContain('role="progressbar"');
+    expect(html).toContain('aria-valuenow="55"');
+    expect(html).toContain('stroke="var(--nabd-color-service-pink-solid-to)"');
+    expect(html).toContain('stroke="var(--nabd-color-service-pink-bg)"');
+    expect(markup(ProgressRing, { value: 1.7, tone: "pink", label: "x" })).toContain('aria-valuenow="100"');
+  });
+
+  it("Card holds content; tint is the hero wash in the tone", () => {
+    const html = markup(Card, { title: "العنوان", tint: "pink", children: createElement("span", null, "داخل") });
+    expect(html).toContain(">داخل<");
+    expect(html).toContain("linear-gradient(160deg, var(--nabd-color-bg-surface) 0%, var(--nabd-color-service-pink-bg) 100%)");
+    expect(markup(Card, { title: "x" })).toContain("box-shadow:var(--nabd-shadow-card)");
+  });
+});
+
+describe("handoff §3 — states and the main tab bar (components 4/4) match the boards", () => {
+  it("EmptyState: the 112 FIcon in its tone, a 22/700 title, the full-width CTA and the text action", () => {
+    const html = markup(EmptyState, { icon: "package", tone: "coral", title: "السلة فاضية", body: "ابحث", actionLabel: "تصفح الصيدلية", secondaryActionLabel: "ارفع الروشتة" });
+    expect(html).toContain('data-icon="package"');
+    expect(html).toContain("var(--nabd-color-service-coral-bg)");
+    expect(html).toMatch(/<h2[^>]*>السلة فاضية<\/h2>/);
+    expect(html).toContain("width:100%"); // the lg CTA is full width
+    expect(html).toContain(">ارفع الروشتة<");
+    expect(html).not.toContain('role="alert"');
+  });
+
+  it("ErrorState is an alert, amber warning by default, the detail small and never the title", () => {
+    const html = markup(ErrorState, { title: "ما قدرنا نحمّل الصفحة", detail: "TypeError: fetch failed", retryLabel: "إعادة المحاولة" });
+    expect(html).toContain('role="alert"');
+    expect(html).toContain('data-icon="warning"');
+    expect(html).toContain("var(--nabd-color-service-amber-bg)");
+    expect(html).toMatch(/<code[^>]*>TypeError: fetch failed<\/code>/);
+  });
+
+  it("OfflineState is a polite status with wifi-slash in blue", () => {
+    const html = markup(OfflineState, { title: "لا يوجد اتصال", retryLabel: "إعادة المحاولة" });
+    expect(html).toContain('role="status"');
+    expect(html).toContain('data-icon="wifi-slash"');
+    expect(html).toContain("var(--nabd-color-service-blue-bg)");
+  });
+
+  it("BottomTabBar is HomeApp's bar: glass pill, ink active pill with its label, raised coral centre, every item named", () => {
+    const html = markup(BottomTabBar, { label: "التنقل الرئيسي", value: "home", items: [
+      { id: "home", label: "الرئيسية", icon: "house" },
+      { id: "consult", label: "الاستشارات", icon: "stethoscope", raised: true },
+      { id: "labs", label: "التحاليل", icon: "test-tube" },
+    ] });
+    expect(html).toMatch(/^<nav aria-label="التنقل الرئيسي"/);
+    expect(html).toContain("background:var(--nabd-color-glass-bgStrong)");
+    expect(html).toContain("box-shadow:var(--nabd-shadow-tabBar)");
+    expect(html.match(/aria-current="page"/g)).toHaveLength(1);
+    expect(html).toContain("background:var(--nabd-color-action-selected-bg)");
+    expect(html).toContain("linear-gradient(180deg, var(--nabd-color-action-fab-from) 0%, var(--nabd-color-action-fab-to) 100%)");
+    expect(html).toContain("margin-top:-34px");
+    for (const name of ["الرئيسية", "الاستشارات", "التحاليل"]) expect(html).toContain(`aria-label="${name}"`);
+    // the label is shown only on the active item
+    expect(html.match(/<span aria-hidden="true">/g)).toHaveLength(1);
+    expect(html).toContain(`d="${FILL_ICON_PATHS.stethoscope}"`);
+  });
+});
+
 describe("12.A7 — the gallery has every component", () => {
   it("build-preview renders a specimen for each contract component", () => {
     const src = readFileSync(resolve(process.cwd(), "../packages/ui/build-preview.mjs"), "utf8");
-    for (const name of ["Button", "IconButton", "Chip", "Badge", "Card", "ListItem", "ServiceTile", "FIcon", "SectionHeader", "Avatar", "PriceTag", "Rating", "Tabs", "NavBar", "BottomTabBar", "Sidebar", "MapPinCard", "EmptyState", "ErrorState", "Toast", "Modal", "Skeleton", "Input", "Select", "Otp", "Search", "Stepper", "SlotPicker"]) {
+    for (const name of ["Button", "IconButton", "Segmented", "Toggle", "Radio", "StatusChip", "DoctorCard", "ProductCard", "OfferCard", "Timeline", "ProgressRing", "Chip", "Badge", "Card", "ListItem", "ServiceTile", "FIcon", "SectionHeader", "Avatar", "PriceTag", "Rating", "Tabs", "NavBar", "BottomTabBar", "Sidebar", "MapPinCard", "EmptyState", "ErrorState", "OfflineState", "Toast", "Modal", "Skeleton", "Input", "Select", "Otp", "Search", "Stepper", "SlotPicker"]) {
       expect(src, `${name} has no specimen in the gallery`).toContain(name);
     }
   });

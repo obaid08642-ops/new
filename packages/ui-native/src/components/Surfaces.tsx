@@ -10,7 +10,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 import type {
   AvatarProps,
   BadgeProps,
@@ -31,8 +31,10 @@ import type {
 } from '../../../ui/components/contract';
 import { Icon, IllustratedIconView } from '../Icon';
 import { FIcon } from './FIcon';
-import { FILL_ICON_PATHS, SERVICE_ICONS } from '../../../ui/icons/fill';
+import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, SERVICE_ICONS } from '../../../ui/icons/fill';
+import { TabBar as ShellTabBar } from '../shells/TabBar';
 import { tokens } from '../../../design-tokens/dist/ts/tokens';
+import { withAlpha } from '../shells/shellTokens';
 
 /**
  * The layout and navigation surfaces — 12.A7, React Native.
@@ -72,51 +74,47 @@ function tones(dark: boolean): Record<Tone, TonePair> {
 
 /* ------------------------------------------------------------------- chips */
 
-export function Chip({
-  label,
-  tone = 'neutral',
-  variant = 'soft',
-  startIcon,
-  onDismissLabel,
-  selected = false,
-  disabled = false,
-  testID,
-  theme = 'light',
-}: ChipProps & { theme?: 'light' | 'dark' }) {
-  const t = tones(theme === 'dark')[tone];
-  const solid = variant === 'solid';
-  const fg = solid ? '#FFFFFF' : t.fg;
-  const bg = solid ? t.fg : selected ? '#0B1B2B' : t.bg;
+export interface NativeChipProps extends ChipProps {
+  onPress?: () => void;
+  theme?: 'light' | 'dark';
+}
 
+/**
+ * The filter chip of canvas/Search: 38 tall (44 with hitSlop), radius 19, 14pt;
+ * a surface pill with a subtle border, or ink with a bold label when selected.
+ * Same geometry as the web renderer.
+ */
+export function Chip({ label, count, startIcon, selected = false, loading = false, disabled = false, testID, onPress, theme = 'light' }: NativeChipProps) {
+  const c = tokens(theme).color;
+  const inert = disabled || loading;
+  const fg = selected ? c.action.selected.fg : c.text.primary;
   return (
-    <View
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected, disabled: inert }}
+      accessibilityLabel={count !== undefined ? `${label} ${count}` : label}
+      disabled={inert}
+      onPress={inert ? undefined : onPress}
+      hitSlop={{ top: 3, bottom: 3 }}
       testID={testID}
       style={{
+        height: 38,
+        paddingHorizontal: 14,
+        borderRadius: 19,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
-        minHeight: 44,
-        paddingHorizontal: 16,
-        borderRadius: 9999,
-        backgroundColor: bg,
-        borderWidth: variant === 'outline' ? 1 : 0,
-        borderColor: t.fg,
-        opacity: disabled ? 0.5 : 1,
+        gap: 6,
         alignSelf: 'flex-start',
+        backgroundColor: selected ? c.action.selected.bg : c.bg.surface,
+        borderWidth: selected ? 0 : 1,
+        borderColor: c.border.subtle,
+        opacity: disabled ? 0.5 : 1,
       }}
     >
-      {startIcon ? <Icon name={startIcon} size={16} theme={theme} tone="secondary" /> : null}
-      <Text style={{ fontSize: 12, fontWeight: '600', color: fg }}>{label}</Text>
-      {onDismissLabel ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={onDismissLabel}
-          style={{ width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}
-        >
-          <Icon name="close" size={14} theme={theme} />
-        </Pressable>
-      ) : null}
-    </View>
+      {startIcon ? <Icon name={startIcon} size={16} theme={theme} color={fg} /> : null}
+      <Text style={{ fontSize: 14, fontFamily: selected ? 'ReadexPro-700' : 'ReadexPro-500', color: fg }}>{label}</Text>
+      {count !== undefined ? <Text style={{ fontSize: 12, fontFamily: 'ReadexPro-400', color: fg, opacity: 0.7 }}>{count}</Text> : null}
+    </Pressable>
   );
 }
 
@@ -146,44 +144,68 @@ export function Badge({ content, tone = 'danger', max = 99, testID, theme = 'lig
 
 /* ------------------------------------------------------------------- cards */
 
+/**
+ * The board card (canvas/OrderTracking, Cart, CareHub): surface, radius 24, a
+ * hairline ring, the soft card shadow; `tint` is the hero card's wash from the
+ * surface into the tone's soft colour (radius 28). Same as the web renderer.
+ */
 export function Card({
   title,
   subtitle,
   elevation = 'card',
   padding = 'md',
   footer,
+  tint,
+  children,
   testID,
   theme = 'light',
 }: CardProps & { theme?: 'light' | 'dark' }) {
-  const dark = theme === 'dark';
-  const pad = { none: 0, sm: 8, md: 20, lg: 24 }[padding];
+  const t = tokens(theme);
+  const c = t.color;
+  const pad = { none: 0, sm: 14, md: 16, lg: 18 }[padding];
+  const gid = `nabd-card-${React.useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
 
   return (
     <View
       testID={testID}
       style={{
-        backgroundColor: elevation === 'flat' ? (dark ? '#12263A' : '#F4F6F8') : dark ? '#12263A' : '#FFFFFF',
-        borderRadius: 16,
-        borderWidth: elevation === 'flat' ? 1 : 0,
-        borderColor: dark ? '#6E8BFF' : '#D5DBE4',
+        backgroundColor: tint ? 'transparent' : c.bg.surface,
+        borderRadius: tint ? 28 : 24,
+        borderWidth: 1,
+        borderColor: tint ? withAlpha(c.service[tint].fg, 0.1) : c.border.hairline,
+        boxShadow: elevation === 'raised' ? t.shadow.raised : elevation === 'card' && !tint ? t.shadow.card : undefined,
+        overflow: tint ? 'hidden' : 'visible',
         padding: pad,
-        gap: 8,
-        // The canvas gives the raised card a soft shadow; on Android that is an
-        // elevation, on iOS a shadow — one prop, both platforms.
-        elevation: elevation === 'raised' ? 6 : elevation === 'card' ? 2 : 0,
-        shadowColor: '#0B1B2B',
-        shadowOpacity: elevation === 'raised' ? 0.16 : 0.08,
-        shadowRadius: elevation === 'raised' ? 16 : 8,
-        shadowOffset: { width: 0, height: 4 },
+        gap: 12,
       }}
     >
-      {title ? <Text style={{ fontSize: 15, fontWeight: '700', color: dark ? '#F5F5F7' : '#0B1B2B' }}>{title}</Text> : null}
-      {subtitle ? <Text style={{ fontSize: 15, color: dark ? '#C2CBD6' : '#5B6673' }}>{subtitle}</Text> : null}
-      {footer ? (
-        <View style={{ borderTopWidth: 1, borderTopColor: dark ? '#6E8BFF' : '#D5DBE4', paddingTop: 8 }}>
-          <Text style={{ fontSize: 11, color: dark ? '#C2CBD6' : '#5B6673' }}>{footer}</Text>
+      {tint ? (
+        <Svg style={{ position: 'absolute', top: 0, bottom: 0, start: 0, end: 0 }} width="100%" height="100%">
+          <Defs>
+            {/* 160° on the board: mostly top to bottom, a little across */}
+            <LinearGradient id={gid} x1="0.33" y1="0" x2="0.67" y2="1">
+              <Stop offset="0" stopColor={c.bg.surface} />
+              <Stop offset="1" stopColor={c.service[tint].bg} />
+            </LinearGradient>
+          </Defs>
+          <Rect x="0" y="0" width="100%" height="100%" fill={`url(#${gid})`} />
+        </Svg>
+      ) : null}
+      {/* above the wash: a positioned sibling paints over static content on web */}
+      <View style={{ gap: 12, zIndex: 1 }}>
+      {title || subtitle ? (
+        <View style={{ gap: 2 }}>
+          {title ? <Text accessibilityRole="header" style={{ fontSize: 15, fontFamily: 'ReadexPro-700', color: c.text.primary }}>{title}</Text> : null}
+          {subtitle ? <Text style={{ fontSize: 12.5, fontFamily: 'ReadexPro-400', color: c.text.secondary }}>{subtitle}</Text> : null}
         </View>
       ) : null}
+      {children}
+      {footer ? (
+        <View style={{ borderTopWidth: 1, borderTopColor: c.border.subtle, paddingTop: 12 }}>
+          <Text style={{ fontSize: 13, fontFamily: 'ReadexPro-400', color: c.text.secondary }}>{footer}</Text>
+        </View>
+      ) : null}
+      </View>
     </View>
   );
 }
@@ -604,27 +626,31 @@ export function NavBar({ title, showBack = false, backLabel = 'Back', actions = 
   );
 }
 
-export function BottomTabBar({ items, value, onChange, testID, theme = 'light' }: BottomTabBarProps & { theme?: 'light' | 'dark' }) {
-  const dark = theme === 'dark';
+/**
+ * The main tab bar: the DEVICE_STANDARD shell TabBar (packages/ui-native/src/shells),
+ * which is canvas/HomeApp's nav 1:1 (floating glass pill, ink active pill with its
+ * label, raised coral centre), fed the handoff fill glyphs. Render it inside a
+ * SafeAreaProvider; it floats above the bottom inset.
+ */
+export function BottomTabBar({ items, value, onChange, label = 'Main navigation', testID, theme = 'light' }: BottomTabBarProps & { theme?: 'light' | 'dark' }) {
   return (
-    <View
-      accessibilityRole="tablist"
-      accessibilityLabel="Primary"
+    <ShellTabBar
       testID={testID}
-      style={{
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        paddingTop: 8,
-        paddingBottom: 28,
-        backgroundColor: dark ? '#12263A' : '#FFFFFF',
-        borderTopWidth: 1,
-        borderTopColor: dark ? '#6E8BFF' : '#D5DBE4',
-      }}
-    >
-      {items.map((item) => (
-        <TabButton key={item.id} item={item} active={item.id === value} onSelect={onChange} layout="bar" dark={dark} />
-      ))}
-    </View>
+      label={label}
+      theme={theme}
+      value={value}
+      onChange={(key) => onChange?.(key)}
+      items={items.map((item) => ({
+        key: item.id,
+        label: item.label,
+        raised: item.raised,
+        icon: (color: string, size: number) => (
+          <Svg width={size} height={size} viewBox={FILL_ICON_VIEWBOX}>
+            <Path d={FILL_ICON_PATHS[item.icon]} fill={color} />
+          </Svg>
+        ),
+      }))}
+    />
   );
 }
 

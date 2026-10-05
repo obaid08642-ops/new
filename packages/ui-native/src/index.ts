@@ -9,6 +9,8 @@
 
 export { Icon, Illustration, Spinner, ILLUSTRATED_ICONS, ILLUSTRATION_NAMES, ILLUSTRATION_META, ILLUSTRATIONS, LINE_ICON_NAMES, ICON_TINT } from './Icon';
 export { Button, IconButton } from './components/Button';
+export { Segmented, Toggle, Radio, StatusChip } from './components/Controls';
+export { DoctorCard, ProductCard, OfferCard, Timeline, ProgressRing } from './components/Cards';
 export { Input, Select, Otp, Search, Stepper, SlotPicker } from './components/Inputs';
 export {
   Avatar, Badge, BottomTabBar, Card, Chip, ListItem, MapPinCard, NavBar, PriceTag,
@@ -17,7 +19,7 @@ export {
 export { FIcon } from './components/FIcon';
 export { FILL_ICON_NAMES, FILL_ICON_PATHS, SERVICE_ICONS, SERVICE_TONES } from '../../ui/icons/fill';
 export type { FillIconName, ServiceName, ServiceTone } from '../../ui/icons/fill';
-export { EmptyState, ErrorState, Modal, Skeleton, Toast } from './components/Feedback';
+export { EmptyState, ErrorState, OfflineState, Modal, Skeleton, Toast } from './components/Feedback';
 
 // Screen shells (DEVICE_STANDARD §1). Native-only layout, so not part of the cross-platform contract.
 export * from './shells';

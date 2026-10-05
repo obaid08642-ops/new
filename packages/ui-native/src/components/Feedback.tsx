@@ -12,10 +12,14 @@ import type {
   EmptyStateProps,
   ErrorStateProps,
   ModalProps,
+  OfflineStateProps,
   SkeletonProps,
   ToastProps,
 } from '../../../ui/components/contract';
-import { Icon, Illustration } from '../Icon';
+import { Icon } from '../Icon';
+import { FIcon } from './FIcon';
+import type { FillIconName, ServiceTone } from '../../../ui/icons/fill';
+import { tokens } from '../../../design-tokens/dist/ts/tokens';
 import { Button } from './Button';
 
 /**
@@ -66,28 +70,75 @@ export function Skeleton({ variant = 'text', lines = 1, width = 'full', testID, 
   );
 }
 
-export function EmptyState({ illustration, title, body, actionLabel, secondaryActionLabel, testID, theme = 'light' }: EmptyStateProps & { theme?: 'light' | 'dark' }) {
-  const dark = theme === 'dark';
+type Themed = { theme?: 'light' | 'dark' };
+
+/** canvas/States: the shared layout of the empty, error, offline and 404 screens (same as the web). */
+function StateLayout({
+  icon,
+  tone,
+  title,
+  body,
+  detail,
+  children,
+  testID,
+  role,
+  theme,
+}: {
+  icon: FillIconName;
+  tone: ServiceTone;
+  title: string;
+  body?: string;
+  detail?: string;
+  children?: React.ReactNode;
+  testID?: string;
+  role?: 'alert' | 'summary';
+  theme: 'light' | 'dark';
+}) {
+  const c = tokens(theme).color;
   return (
     <View
       testID={testID}
-      style={{ alignItems: 'center', gap: 16, paddingVertical: 32, paddingHorizontal: 24 }}
+      accessibilityRole={role}
+      accessibilityLiveRegion={role === 'alert' ? 'assertive' : role === 'summary' ? 'polite' : undefined}
+      style={{ alignItems: 'center', gap: 14, paddingHorizontal: 32, paddingVertical: 32 }}
     >
-      <Illustration name={illustration as never} size={128} />
-      <View style={{ gap: 4, alignItems: 'center' }}>
-        <Text style={{ fontSize: 17, fontWeight: '700', color: dark ? '#F5F5F7' : '#0B1B2B', textAlign: 'center' }}>{title}</Text>
-        {body ? (
-          <Text style={{ fontSize: 15, color: dark ? '#C2CBD6' : '#5B6673', textAlign: 'center', maxWidth: 320 }}>{body}</Text>
-        ) : null}
-      </View>
-      {actionLabel || secondaryActionLabel ? (
-        <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-          {secondaryActionLabel ? <Button label={secondaryActionLabel} variant="ghost" size="sm" theme={dark ? 'dark' : 'light'} /> : null}
-          {actionLabel ? <Button label={actionLabel} size="sm" theme={dark ? 'dark' : 'light'} /> : null}
-        </View>
-      ) : null}
+      <FIcon icon={icon} tone={tone} size={112} theme={theme} />
+      <Text accessibilityRole="header" style={{ fontSize: 22, fontFamily: 'ReadexPro-700', color: c.text.primary, textAlign: 'center' }}>
+        {title}
+      </Text>
+      {body ? <Text style={{ fontSize: 14.5, lineHeight: 24.65, fontFamily: 'ReadexPro-400', color: c.text.secondary, textAlign: 'center' }}>{body}</Text> : null}
+      {detail ? <Text style={{ fontSize: 11.5, fontFamily: 'ReadexPro-400', color: c.text.tertiary, textAlign: 'center' }}>{detail}</Text> : null}
+      {children ? <View style={{ alignSelf: 'stretch', marginTop: 10, gap: 4 }}>{children}</View> : null}
     </View>
   );
+}
+
+/** The quiet second action under the CTA: 48 tall, 15 ink. */
+function TextAction({ label, onPress, theme }: { label: string; onPress?: () => void; theme: 'light' | 'dark' }) {
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={{ height: 48, alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={{ fontSize: 15, fontFamily: 'ReadexPro-700', color: tokens(theme).color.text.primary }}>{label}</Text>
+    </Pressable>
+  );
+}
+
+export interface NativeEmptyStateProps extends EmptyStateProps, Themed {
+  onAction?: () => void;
+  onSecondaryAction?: () => void;
+}
+
+export function EmptyState({ icon, tone, title, body, actionLabel, secondaryActionLabel, onAction, onSecondaryAction, testID, theme = 'light' }: NativeEmptyStateProps) {
+  return (
+    <StateLayout icon={icon} tone={tone} title={title} body={body} testID={testID} theme={theme}>
+      {actionLabel ? <Button label={actionLabel} size="lg" fullWidth onPress={onAction} theme={theme} /> : null}
+      {secondaryActionLabel ? <TextAction label={secondaryActionLabel} onPress={onSecondaryAction} theme={theme} /> : null}
+    </StateLayout>
+  );
+}
+
+export interface NativeErrorStateProps extends ErrorStateProps, Themed {
+  onRetry?: () => void;
+  onAction?: () => void;
 }
 
 /**
@@ -96,47 +147,36 @@ export function EmptyState({ illustration, title, body, actionLabel, secondaryAc
  * act on "TypeError: fetch failed", they can act on "We could not reach Nabd+".
  */
 export function ErrorState({
-  illustration = 'errorServer',
+  icon = 'warning',
+  tone = 'amber',
   title,
   body,
   detail,
   actionLabel,
   retryLabel,
+  onRetry,
+  onAction,
   loading = false,
   testID,
   theme = 'light',
-}: ErrorStateProps & { theme?: 'light' | 'dark' }) {
-  const dark = theme === 'dark';
+}: NativeErrorStateProps) {
   return (
-    <View
-      testID={testID}
-      accessibilityRole="alert"
-      accessible
-      style={{
-        alignItems: 'center',
-        gap: 16,
-        padding: 24,
-        borderRadius: 16,
-        backgroundColor: dark ? '#33161A' : '#FDECEE',
-      }}
-    >
-      <Illustration name={illustration as never} size={128} />
-      <View style={{ gap: 4, alignItems: 'center' }}>
-        <Text style={{ fontSize: 17, fontWeight: '700', color: dark ? '#F5F5F7' : '#0B1B2B', textAlign: 'center' }}>{title}</Text>
-        {body ? (
-          <Text style={{ fontSize: 15, color: dark ? '#C2CBD6' : '#5B6673', textAlign: 'center', maxWidth: 340 }}>{body}</Text>
-        ) : null}
-        {detail ? <Text style={{ fontSize: 11, color: dark ? '#8A97A6' : '#8A94A0', textAlign: 'center' }}>{detail}</Text> : null}
-      </View>
-      {retryLabel || actionLabel ? (
-        <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-          {retryLabel ? (
-            <Button label={retryLabel} variant="secondary" size="sm" loading={loading} theme={dark ? 'dark' : 'light'} />
-          ) : null}
-          {actionLabel ? <Button label={actionLabel} size="sm" theme={dark ? 'dark' : 'light'} /> : null}
-        </View>
-      ) : null}
-    </View>
+    <StateLayout icon={icon} tone={tone} title={title} body={body} detail={detail} testID={testID} role="alert" theme={theme}>
+      {retryLabel ? <Button label={retryLabel} size="lg" fullWidth loading={loading} onPress={onRetry} theme={theme} /> : null}
+      {actionLabel ? <TextAction label={actionLabel} onPress={onAction} theme={theme} /> : null}
+    </StateLayout>
+  );
+}
+
+export interface NativeOfflineStateProps extends OfflineStateProps, Themed {
+  onRetry?: () => void;
+}
+
+export function OfflineState({ title, body, retryLabel, onRetry, loading = false, testID, theme = 'light' }: NativeOfflineStateProps) {
+  return (
+    <StateLayout icon="wifi-slash" tone="blue" title={title} body={body} testID={testID} role="summary" theme={theme}>
+      {retryLabel ? <Button label={retryLabel} size="lg" fullWidth loading={loading} onPress={onRetry} theme={theme} /> : null}
+    </StateLayout>
   );
 }
 
