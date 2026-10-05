@@ -1280,7 +1280,7 @@ function mockFindings(rows, closureFiles) {
 /* ------------------------------------------------- new report sections */
 
 const code = (s) => '`' + String(s).replace(/`/g, "'") + '`';
-const cell = (s) => String(s ?? '').replace(/\|/g, '\\|').replace(/\s*\n\s*/g, ' ');
+const cell = (s) => String(s ?? '').replace(/\\/g, '\\\\').replace(/\|/g, '\\|').replace(/\s*\n\s*/g, ' ');
 
 // 3b. how every call built from variables was resolved
 function renderCalls3b(rows, x) {
