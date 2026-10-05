@@ -1,3 +1,4 @@
+import { PublicCache } from '../../common/cache/public-cache.decorator';
 import { Permission } from '../../common/permissions';
 import { RequirePermissions } from '../../common/permissions';
 import { StepUp } from '../../common/step-up.guard';
@@ -166,11 +167,11 @@ export class LegalController {
   constructor(private readonly svc: LegalService) {}
 
   @Public()
-  @Get('legal/policies')
+  @PublicCache(3600, ['legal']) @Get('legal/policies')
   list(): Promise<any[]> { return this.svc.listPolicies(); }
 
   @Public()
-  @Get('legal/policy/:key')
+  @PublicCache(3600, ['legal']) @Get('legal/policy/:key')
   policy(@Param('key') key: string, @Query('lang') lang?: string) {
     return this.svc.getPolicy(key, lang || 'ar');
   }

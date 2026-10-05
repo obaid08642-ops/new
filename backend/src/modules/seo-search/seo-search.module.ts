@@ -1,4 +1,4 @@
-
+import { PublicCache } from '../../common/cache/public-cache.decorator';
 import { BackfillSlugsDto } from './seo-search.dto';
 /** Arabic/English search normalization: strip Arabic diacritics & tatweel, unify alef/hamza/yeh/teh-marbuta variants, NFKD + lowercase + collapse spaces. Pure, locale-safe. */
 export function normalizeSearchText(input: string): string {
@@ -924,7 +924,7 @@ export class SeoSearchController {
 
   /** Site-wide structured data (Organization + LocalBusiness + FAQ) for the future site shell. */
   @Public()
-  @Get('seo/site/organization')
+  @PublicCache(3600, ['seo']) @Get('seo/site/organization')
   organization(): any {
     return {
       '@context': 'https://schema.org', '@type': 'Organization', name: 'نبض', url: SITE,
@@ -935,7 +935,7 @@ export class SeoSearchController {
   }
 
   @Public()
-  @Get('seo/site/local-business')
+  @PublicCache(3600, ['seo']) @Get('seo/site/local-business')
   localBusiness(): any {
     return {
       '@context': 'https://schema.org', '@type': 'MedicalBusiness', name: 'صيدلية نبض', url: SITE,
@@ -949,7 +949,7 @@ export class SeoSearchController {
   }
 
   @Public()
-  @Get('seo/site/faq')
+  @PublicCache(3600, ['seo']) @Get('seo/site/faq')
   faqSchema(): any {
     return {
       '@context': 'https://schema.org', '@type': 'FAQPage',
@@ -963,7 +963,7 @@ export class SeoSearchController {
   }
 
   @Public()
-  @Get('seo/:type/:id')
+  @PublicCache(600, ['seo']) @Get('seo/:type/:id')
   seo(@Param('type') type: string, @Param('id') id: string) {
     return this.svc.metadata(type, id);
   }
@@ -971,7 +971,7 @@ export class SeoSearchController {
 
   /** hreflang alternates for the future web pages. */
   @Public()
-  @Get('seo/:type/:id/hreflang')
+  @PublicCache(3600, ['seo']) @Get('seo/:type/:id/hreflang')
   hreflang(@Param('type') type: string, @Param('id') id: string): any {
     const canonical = `${SITE}/s/${type}/${id}`;
     return {
@@ -1031,19 +1031,19 @@ export class SeoSearchController {
   }
 
   @Public()
-  @Get('search/global')
+  @PublicCache(60, ['catalog']) @Get('search/global')
   globalSearch(@Query('q') q: string, @Query('limit') limit?: string) {
     return this.svc.globalSearch(q || '', parseInt(limit || '5'));
   }
 
   @Public()
-  @Get('medicines/:id/recommendations')
+  @PublicCache(600, ['catalog']) @Get('medicines/:id/recommendations')
   medicineRecommendations(@Param('id') id: string, @Query('limit') limit?: string) {
     return this.svc.medicineRecommendations(id, parseInt(limit || '12'));
   }
 
   @Public()
-  @Get('doctors/:id/recommendations')
+  @PublicCache(600, ['doctors']) @Get('doctors/:id/recommendations')
   doctorRecommendations(@Param('id') id: string, @Query('limit') limit?: string) {
     return this.svc.doctorRecommendations(id, parseInt(limit || '10'));
   }
@@ -1052,7 +1052,7 @@ export class SeoSearchController {
 
   /** Strict per-locale product DTO by that locale's slug. Powers /{lang}/p/{slug}. */
   @Public()
-  @Get('public/product/:locale/:slug')
+  @PublicCache(600, ['catalog']) @Get('public/product/:locale/:slug')
   publicProduct(@Param('locale') locale: string, @Param('slug') slug: string) {
     if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
     return this.svc.publicProductBySlug(locale, slug);
@@ -1060,7 +1060,7 @@ export class SeoSearchController {
 
   /** AI-commerce: localized product search. */
   @Public()
-  @Get('public/products/search')
+  @PublicCache(120, ['catalog']) @Get('public/products/search')
   publicProductsSearch(
     @Query('q') q?: string,
     @Query('locale') locale?: string,
@@ -1073,7 +1073,7 @@ export class SeoSearchController {
 
   /** Legacy id-based lookup (redirects legacy /medicines/:id pages to /p/{slug}). */
   @Public()
-  @Get('public/product-by-id/:locale/:id')
+  @PublicCache(600, ['catalog']) @Get('public/product-by-id/:locale/:id')
   publicProductById(@Param('locale') locale: string, @Param('id') id: string) {
     if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
     return this.svc.publicProductById(locale, id);
@@ -1081,7 +1081,7 @@ export class SeoSearchController {
 
   /** AI-commerce: canonical SKU lookup. */
   @Public()
-  @Get('public/products/by-sku/:sku')
+  @PublicCache(600, ['catalog']) @Get('public/products/by-sku/:sku')
   publicProductSku(@Param('sku') sku: string, @Query('locale') locale?: string) {
     const loc = (PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale || '') ? locale! : 'ar';
     return this.svc.publicProductBySku(sku, loc);
@@ -1089,7 +1089,7 @@ export class SeoSearchController {
 
   /** Category cluster tree (per locale, live counts). */
   @Public()
-  @Get('public/categories/:locale')
+  @PublicCache(600, ['catalog']) @Get('public/categories/:locale')
   publicCategories(@Param('locale') locale: string) {
     if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
     return this.svc.publicCategories(locale);
@@ -1097,7 +1097,7 @@ export class SeoSearchController {
 
   /** Category cluster products. */
   @Public()
-  @Get('public/categories/:locale/items')
+  @PublicCache(300, ['catalog']) @Get('public/categories/:locale/items')
   publicCategoryProducts(
     @Param('locale') locale: string,
     @Query('category') category?: string,
@@ -1113,7 +1113,7 @@ export class SeoSearchController {
 
   /** Product sitemap page as JSON (the web app renders same-host XML). */
   @Public()
-  @Get('public/sitemaps/products/:locale/:page')
+  @PublicCache(3600, ['catalog']) @Get('public/sitemaps/products/:locale/:page')
   async publicProductSitemap(@Param('locale') locale: string, @Param('page') page: string) {
     if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
     const p = Math.max(parseInt(page || '1'), 1);
@@ -1123,7 +1123,7 @@ export class SeoSearchController {
 
   /** Lightweight page-count for the sitemap index (countDocuments only — no 5MB bodies). */
   @Public()
-  @Get('public/sitemaps/products-count')
+  @PublicCache(3600, ['catalog']) @Get('public/sitemaps/products-count')
   async publicProductSitemapCount() {
     const total = await this.svc.publicProductCount().catch(() => 0);
     return { total, per_page: 5000, pages: Math.max(Math.ceil(total / 5000), 1) };

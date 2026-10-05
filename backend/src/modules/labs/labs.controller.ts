@@ -222,12 +222,12 @@ export class LabsController {
     return this.svc.adminForceState(u, id, b.state, b.note);
   }
 
-  @Public() @Get('packages/:id')
+  @Public() @PublicCache(300, ['labs-catalog']) @Get('packages/:id')
   getPackageDetails(@Param('id') id: string) {
     return this.svc.getById(id);
   }
 
-  @Public() @Get('compatible-providers')
+  @Public() @PublicCache(300, ['labs-catalog']) @Get('compatible-providers')
   compatibleProviders(@Query('testIds') testIds?: string) {
     const ids = testIds ? testIds.split(',') : [];
     return this.svc.compatibleProviders(ids);

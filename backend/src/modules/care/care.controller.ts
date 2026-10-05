@@ -30,7 +30,7 @@ export class CareController {
   }
 
   @Public()
-  @Get('doctors')
+  @PublicCache(60, ['doctors']) @Get('doctors')
   doctors(
     @Query('specialty') specialty?: string,
     @Query('service_type') service_type?: 'clinic' | 'video' | 'home',
@@ -61,7 +61,7 @@ export class CareController {
   }
 
   @Public()
-  @Get('doctors/:id')
+  @PublicCache(300, ['doctors']) @Get('doctors/:id')
   doctor(@Param('id') id: string) {
     return this.svc.doctorById(id);
   }
@@ -79,14 +79,14 @@ export class CareController {
   }
 
   @Public()
-  @Get('search')
+  @PublicCache(60, ['doctors']) @Get('search')
   search(@Query('q') q: string) {
     return this.svc.smartSearch(q || '');
   }
 
   // Facilities
   @Public()
-  @Get('facilities')
+  @PublicCache(300, ['facilities']) @Get('facilities')
   facilities(
     @Query('city') city?: string,
     @Query('type') type?: string,
@@ -98,7 +98,7 @@ export class CareController {
   }
 
   @Public()
-  @Get('facilities/:id')
+  @PublicCache(300, ['facilities']) @Get('facilities/:id')
   facility(@Param('id') id: string) {
     return this.svc.facilityById(id);
   }

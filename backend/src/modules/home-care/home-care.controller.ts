@@ -1,3 +1,4 @@
+import { PublicCache } from '../../common/cache/public-cache.decorator';
 import { Controller, Get, Param, Post, Put, Delete, Query, UseGuards, UseInterceptors, Body, NotFoundException, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
@@ -100,7 +101,7 @@ export class NursingController {
   }
 
   // 1. SERVICES CATALOG (Pillar 2)
-  @Public() @Get('catalog')
+  @Public() @PublicCache(300, ['home-care-catalog']) @Get('catalog')
   async getCatalog() {
     return this.serviceModel.find({ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }).lean();
   }

@@ -46,6 +46,14 @@ export class SentryExceptionFilter extends BaseExceptionFilter {
       Sentry.captureException(exception);
     }
 
+    // 5d1528c: an error is never cacheable, including guard 401/403 and
+    // unmatched-route 404s that never reach the route-cache interceptor.
+    const response = ctx.getResponse();
+    if (response && typeof response.setHeader === 'function' && !response.headersSent) {
+      response.setHeader('Cache-Control', 'private, no-store');
+      response.setHeader('X-Cache-Hint', 'private');
+    }
+
     super.catch(exception, host);
   }
 }

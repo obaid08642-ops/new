@@ -34,7 +34,7 @@ export class RadiologyController {
     });
   }
 
-  @Public() @Get('compatible-providers')
+  @Public() @PublicCache(300, ['radiology-catalog']) @Get('compatible-providers')
   compatibleProviders(@Query('serviceIds') ids?: string) { return this.svc.compatibleProviders(ids ? ids.split(',') : []); }
 
   @Public() @PublicCache(300, ['radiology-catalog']) @Get('modalities')

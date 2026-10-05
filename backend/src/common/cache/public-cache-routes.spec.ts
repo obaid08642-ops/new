@@ -16,6 +16,9 @@ import { CareController, PublicSpecialtiesController } from '../../modules/care/
 import { LabsController } from '../../modules/labs/labs.controller';
 import { RadiologyController } from '../../modules/radiology/radiology.controller';
 import { ArticlesPublicController } from '../../modules/articles/articles.module';
+import { NursingController } from '../../modules/home-care/home-care.controller';
+import { LegalController } from '../../modules/legal/legal.module';
+import { SeoSearchController } from '../../modules/seo-search/seo-search.module';
 
 @Controller('probe')
 class ErrorProbeController {
@@ -55,6 +58,12 @@ describe('public catalogue reads are shared-cacheable (5d1528c)', () => {
     expect(res.headers['cache-control']).toBe('private, no-store');
   });
 
+  it('per-viewer reads are never shared-cached', () => {
+    // doctors/:id/slots hides the viewer's own hold; articles/:slug counts views.
+    expect(Reflect.getMetadata(PUBLIC_CACHE_KEY, CareController.prototype.slots)).toBeUndefined();
+    expect(Reflect.getMetadata(PUBLIC_CACHE_KEY, ArticlesPublicController.prototype.one)).toBeUndefined();
+  });
+
   it('every listed public catalogue read carries @PublicCache', () => {
     const routes: Array<[string, unknown]> = [
       ['locations regions', LocationController.prototype.getRegions],
@@ -74,6 +83,33 @@ describe('public catalogue reads are shared-cacheable (5d1528c)', () => {
       ['radiology services/:id', RadiologyController.prototype.one],
       ['articles list', ArticlesPublicController.prototype.list],
       ['articles categories', ArticlesPublicController.prototype.cats],
+      ['labs packages/:id', LabsController.prototype.getPackageDetails],
+      ['labs compatible-providers', LabsController.prototype.compatibleProviders],
+      ['radiology compatible-providers', RadiologyController.prototype.compatibleProviders],
+      ['care doctors', CareController.prototype.doctors],
+      ['care doctors/:id', CareController.prototype.doctor],
+      ['care search', CareController.prototype.search],
+      ['care facilities', CareController.prototype.facilities],
+      ['care facilities/:id', CareController.prototype.facility],
+      ['home-care catalog', NursingController.prototype.getCatalog],
+      ['legal policies', LegalController.prototype.list],
+      ['legal policy/:key', LegalController.prototype.policy],
+      ['seo organization', SeoSearchController.prototype.organization],
+      ['seo local-business', SeoSearchController.prototype.localBusiness],
+      ['seo faq', SeoSearchController.prototype.faqSchema],
+      ['seo :type/:id', SeoSearchController.prototype.seo],
+      ['seo hreflang', SeoSearchController.prototype.hreflang],
+      ['search/global', SeoSearchController.prototype.globalSearch],
+      ['medicine recommendations', SeoSearchController.prototype.medicineRecommendations],
+      ['doctor recommendations', SeoSearchController.prototype.doctorRecommendations],
+      ['public product', SeoSearchController.prototype.publicProduct],
+      ['public products search', SeoSearchController.prototype.publicProductsSearch],
+      ['public product-by-id', SeoSearchController.prototype.publicProductById],
+      ['public by-sku', SeoSearchController.prototype.publicProductSku],
+      ['public categories', SeoSearchController.prototype.publicCategories],
+      ['public category items', SeoSearchController.prototype.publicCategoryProducts],
+      ['public product sitemap', SeoSearchController.prototype.publicProductSitemap],
+      ['public sitemap count', SeoSearchController.prototype.publicProductSitemapCount],
     ];
     const missing = routes.filter(([, fn]) => !Reflect.getMetadata(PUBLIC_CACHE_KEY, fn as object)).map(([n]) => n);
     expect(missing).toEqual([]);
