@@ -9,7 +9,7 @@
  * network client, the OAuth/native sign-in modules and SecureStore.
  */
 import * as React from 'react';
-import { AppRegistry, View } from 'react-native';
+import { AppRegistry, Platform, View } from 'react-native';
 import { SafeAreaFrameContext, SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
@@ -19,6 +19,7 @@ import { AppProvider } from '@app/src/context/AppContext';
 import Screen from '@screen';
 
 const cfg = window.__SCREEN;
+if (cfg.platform && cfg.platform !== "web") Platform.OS = cfg.platform; // e.g. the iOS layout of the sign-in screens
 const store = configureStore({ reducer: { auth: authReducer } });
 const metrics = { frame: { x: 0, y: 0, width: cfg.width, height: cfg.height }, insets: cfg.insets };
 

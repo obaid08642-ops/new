@@ -4,16 +4,8 @@ import { router } from 'expo-router';
 
 import { Button, Screen, StickyFooter } from '../../../packages/ui-native/src';
 import { apiFetch } from '../../src/utils/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as SecureStore from 'expo-secure-store';
-import { STORAGE_KEYS } from '../../src/constants';
-import { decodeJwt } from '../../src/utils/jwt';
 import { createRegistrationTransaction } from '../../src/services/auth/RegistrationTransaction';
 
-import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
-import * as AppleAuthentication from 'expo-apple-authentication';
-import * as AuthSession from 'expo-auth-session';
 import { LocalizedText } from '../../src/components/LocalizedText';
 import {
   AuthAltLine,
@@ -28,8 +20,6 @@ import {
   useAuthUi,
 } from '../../src/components/auth/AuthKit';
 
-WebBrowser.maybeCompleteAuthSession();
-
 export default function RegisterScreen() {
   const { theme, tr, c } = useAuthUi();
 
@@ -37,92 +27,6 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || '',
-    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || '',
-    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || '',
-  });
-
-  React.useEffect(() => {
-    if (response?.type === 'success' && response.authentication?.accessToken) {
-      handleOAuthBackend('google', response.authentication.accessToken);
-    }
-  }, [response]);
-
-  const [reqX, resX, promptAsyncX] = AuthSession.useAuthRequest(
-    {
-      clientId: process.env.EXPO_PUBLIC_X_CLIENT_ID || '',
-      scopes: ['tweet.read', 'users.read', 'offline.access'],
-      redirectUri: AuthSession.makeRedirectUri({ scheme: 'nabdplus' }),
-    },
-    { authorizationEndpoint: 'https://twitter.com/i/oauth2/authorize', tokenEndpoint: 'https://api.twitter.com/2/oauth2/token' }
-  );
-
-  const [reqSnap, resSnap, promptAsyncSnap] = AuthSession.useAuthRequest(
-    {
-      clientId: process.env.EXPO_PUBLIC_SNAPCHAT_CLIENT_ID || '',
-      scopes: ['https://auth.snapchat.com/oauth2/api/user.display_name'],
-      redirectUri: AuthSession.makeRedirectUri({ scheme: 'nabdplus' }),
-    },
-    { authorizationEndpoint: 'https://accounts.snapchat.com/accounts/oauth2/auth', tokenEndpoint: 'https://accounts.snapchat.com/accounts/oauth2/token' }
-  );
-
-  React.useEffect(() => {
-    if (resX?.type === 'success' && resX.authentication?.accessToken) {
-      handleOAuthBackend('x', resX.authentication.accessToken);
-    }
-  }, [resX]);
-
-  React.useEffect(() => {
-    if (resSnap?.type === 'success' && resSnap.authentication?.accessToken) {
-      handleOAuthBackend('snapchat', resSnap.authentication.accessToken);
-    }
-  }, [resSnap]);
-
-  const handleOAuthBackend = async (provider: string, token: string) => {
-    try {
-      setLoading(true);
-      const res = await apiFetch('/auth/social-login', {
-        method: 'POST',
-        body: JSON.stringify({ provider, token }),
-      });
-      // M1: real session only — no dummy token fallback
-      const jwtToken = typeof res?.token === 'string' ? res.token : (res?.token?.accessToken || null);
-      if (!jwtToken) throw new Error('تعذّر تسجيل الدخول الآن. حاول مرة أخرى.');
-      try { await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_TOKEN, jwtToken); }
-      catch (_err) { await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, jwtToken); }
-      
-      const decoded = decodeJwt(jwtToken);
-      if (decoded?.role !== 'patient') {
-        router.replace('/(auth)/provider-info' as any);
-      } else {
-        router.replace('/(tabs)');
-      }
-    } catch (err: any) {
-      setErrorMessage(err.message || `فشل التسجيل بواسطة ${provider}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAppleLogin = async () => {
-    try {
-      const credential = await AppleAuthentication.signInAsync({
-        requestedScopes: [
-          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-          AppleAuthentication.AppleAuthenticationScope.EMAIL,
-        ],
-      });
-      if (credential.identityToken) {
-        handleOAuthBackend('apple', credential.identityToken);
-      }
-    } catch (e: any) {
-      if (e.code !== 'ERR_REQUEST_CANCELED') {
-        setErrorMessage('فشل التسجيل عبر آبل');
-      }
-    }
-  };
 
   const validate = () => {
     setErrorMessage(null);
@@ -164,21 +68,6 @@ export default function RegisterScreen() {
       setLoading(false);
     }
   };
-
-  const handleSocialLogin = async (provider: string) => {
-    if (provider === 'google') {
-      promptAsync();
-    } else if (provider === 'apple') {
-      handleAppleLogin();
-    } else if (provider === 'x' || provider === 'twitter') {
-      promptAsyncX();
-    } else if (provider === 'snapchat') {
-      promptAsyncSnap();
-    } else {
-      setErrorMessage('مزود تسجيل الدخول غير مدعوم حالياً.');
-    }
-  };
-
 
   return (
     <Screen
