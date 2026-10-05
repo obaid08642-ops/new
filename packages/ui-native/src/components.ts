@@ -20,6 +20,7 @@ import type {
   NativeSelectProps,
 } from './components/Inputs';
 import type { NativeRadioProps } from './components/Controls';
+import type { NativeEmptyStateProps, NativeErrorStateProps, NativeOfflineStateProps } from './components/Feedback';
 import type { NativeDoctorCardProps, NativeOfferCardProps, NativeProductCardProps } from './components/Cards';
 import type { NativeChipProps } from './components/Surfaces';
 import type * as C from '../../ui/components/contract';
@@ -60,8 +61,9 @@ export interface ComponentProps {
   Sidebar: C.SidebarProps;
   MapPinCard: C.MapPinCardProps;
 
-  EmptyState: C.EmptyStateProps;
-  ErrorState: C.ErrorStateProps;
+  EmptyState: NativeEmptyStateProps;
+  ErrorState: NativeErrorStateProps;
+  OfflineState: NativeOfflineStateProps;
   Toast: C.ToastProps;
   Modal: C.ModalProps;
   Skeleton: C.SkeletonProps;

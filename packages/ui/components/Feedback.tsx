@@ -8,11 +8,13 @@ import type {
   EmptyStateProps,
   ErrorStateProps,
   ModalProps,
+  OfflineStateProps,
   SkeletonProps,
   ToastProps,
 } from './contract';
 import { Icon } from '../src/Icon';
-import { Illustration } from '../src/Icon';
+import { FIcon } from './FIcon';
+import type { FillIconName, ServiceTone } from '../icons/fill';
 import { Button } from './Button';
 import { Spinner } from './Spinner';
 
@@ -89,36 +91,80 @@ export function Skeleton({ variant = 'text', lines = 1, width = 'full', testID }
   );
 }
 
-export function EmptyState({ illustration, title, body, actionLabel, secondaryActionLabel, testID }: EmptyStateProps) {
+export interface WebEmptyStateProps extends EmptyStateProps {
+  onAction?: () => void;
+  onSecondaryAction?: () => void;
+}
+
+/** canvas/States: the shared layout of the empty, error, offline and 404 screens. */
+function StateLayout({
+  icon,
+  tone,
+  title,
+  body,
+  children,
+  testID,
+  kind,
+  role,
+}: {
+  icon: FillIconName;
+  tone: ServiceTone;
+  title: string;
+  body?: React.ReactNode;
+  children?: React.ReactNode;
+  testID?: string;
+  kind: 'empty' | 'error' | 'offline';
+  role?: 'alert' | 'status';
+}) {
   return (
     <div
       data-testid={testID}
-      data-kind="empty"
+      data-kind={kind}
+      role={role}
       style={{
-        display: 'grid',
-        justifyItems: 'center',
-        gap: 'var(--nabd-space-sm)',
-        padding: 'var(--nabd-space-xl)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 14,
+        paddingInline: 32,
+        paddingBlock: 'var(--nabd-space-xl)',
         textAlign: 'center',
+        color: 'var(--nabd-color-text-primary)',
       }}
     >
-      <Illustration name={illustration as never} size={128} />
-      <div style={{ display: 'grid', gap: 'var(--nabd-space-3xs)' }}>
-        <h3 style={{ margin: 0, fontSize: 'var(--nabd-font-size-h4)', color: 'var(--nabd-color-text-primary)' }}>{title}</h3>
-        {body ? (
-          <p style={{ margin: 0, maxInlineSize: '32ch', fontSize: 'var(--nabd-font-size-body)', color: 'var(--nabd-color-text-secondary)' }}>
-            {body}
-          </p>
-        ) : null}
-      </div>
-      {actionLabel || secondaryActionLabel ? (
-        <div style={{ display: 'flex', gap: 'var(--nabd-space-2xs)', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {secondaryActionLabel ? <Button label={secondaryActionLabel} variant="ghost" size="sm" /> : null}
-          {actionLabel ? <Button label={actionLabel} size="sm" /> : null}
-        </div>
-      ) : null}
+      <FIcon icon={icon} tone={tone} size={112} />
+      <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 700 }}>{title}</h2>
+      {body ? <p style={{ margin: 0, fontSize: '14.5px', lineHeight: 1.7, color: 'var(--nabd-color-text-secondary)' }}>{body}</p> : null}
+      {children ? <div style={{ width: '100%', marginTop: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>{children}</div> : null}
     </div>
   );
+}
+
+/** The quiet second action under the CTA (canvas/States "ارفع الروشتة", "البحث"): 48 tall, 15/600 ink. */
+function TextAction({ label, onClick }: { label: string; onClick?: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{ height: 48, border: 0, background: 'transparent', fontFamily: 'inherit', fontSize: '15px', fontWeight: 600, color: 'var(--nabd-color-text-primary)', cursor: 'pointer' }}
+    >
+      {label}
+    </button>
+  );
+}
+
+export function EmptyState({ icon, tone, title, body, actionLabel, secondaryActionLabel, onAction, onSecondaryAction, testID }: WebEmptyStateProps) {
+  return (
+    <StateLayout icon={icon} tone={tone} title={title} body={body} testID={testID} kind="empty">
+      {actionLabel ? <Button label={actionLabel} size="lg" fullWidth onClick={onAction} /> : null}
+      {secondaryActionLabel ? <TextAction label={secondaryActionLabel} onClick={onSecondaryAction} /> : null}
+    </StateLayout>
+  );
+}
+
+export interface WebErrorStateProps extends ErrorStateProps {
+  onRetry?: () => void;
+  onAction?: () => void;
 }
 
 /**
@@ -128,51 +174,52 @@ export function EmptyState({ illustration, title, body, actionLabel, secondaryAc
  * "We could not reach Nabd+".
  */
 export function ErrorState({
-  illustration = 'errorServer',
+  icon = 'warning',
+  tone = 'amber',
   title,
   body,
   detail,
   actionLabel,
   retryLabel,
+  onRetry,
+  onAction,
   loading = false,
   testID,
-}: ErrorStateProps) {
+}: WebErrorStateProps) {
   return (
-    <div
-      data-testid={testID}
-      data-kind="error"
-      role="alert"
-      style={{
-        display: 'grid',
-        justifyItems: 'center',
-        gap: 'var(--nabd-space-sm)',
-        padding: 'var(--nabd-space-xl)',
-        textAlign: 'center',
-        background: 'var(--nabd-color-status-danger-bg)',
-        borderRadius: 'var(--nabd-radius-lg)',
-      }}
-    >
-      <Illustration name={illustration as never} size={128} />
-      <div style={{ display: 'grid', gap: 'var(--nabd-space-3xs)' }}>
-        <h3 style={{ margin: 0, fontSize: 'var(--nabd-font-size-h4)', color: 'var(--nabd-color-text-primary)' }}>{title}</h3>
-        {body ? (
-          <p style={{ margin: 0, maxInlineSize: '36ch', fontSize: 'var(--nabd-font-size-body)', color: 'var(--nabd-color-text-secondary)' }}>
+    <StateLayout
+      icon={icon}
+      tone={tone}
+      title={title}
+      body={
+        body || detail ? (
+          <>
             {body}
-          </p>
-        ) : null}
-        {detail ? (
-          <code style={{ fontSize: 'var(--nabd-font-size-micro)', color: 'var(--nabd-color-text-tertiary)' }}>{detail}</code>
-        ) : null}
-      </div>
-      {retryLabel || actionLabel ? (
-        <div style={{ display: 'flex', gap: 'var(--nabd-space-2xs)', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {retryLabel ? (
-            <Button label={retryLabel} variant="secondary" size="sm" loading={loading} startIcon="download" />
-          ) : null}
-          {actionLabel ? <Button label={actionLabel} size="sm" /> : null}
-        </div>
-      ) : null}
-    </div>
+            {detail ? (
+              <code style={{ display: 'block', marginTop: 4, fontSize: 'var(--nabd-font-size-micro)', color: 'var(--nabd-color-text-tertiary)' }}>{detail}</code>
+            ) : null}
+          </>
+        ) : undefined
+      }
+      testID={testID}
+      kind="error"
+      role="alert"
+    >
+      {retryLabel ? <Button label={retryLabel} size="lg" fullWidth loading={loading} onClick={onRetry} /> : null}
+      {actionLabel ? <TextAction label={actionLabel} onClick={onAction} /> : null}
+    </StateLayout>
+  );
+}
+
+export interface WebOfflineStateProps extends OfflineStateProps {
+  onRetry?: () => void;
+}
+
+export function OfflineState({ title, body, retryLabel, onRetry, loading = false, testID }: WebOfflineStateProps) {
+  return (
+    <StateLayout icon="wifi-slash" tone="blue" title={title} body={body} testID={testID} kind="offline" role="status">
+      {retryLabel ? <Button label={retryLabel} size="lg" fullWidth loading={loading} onClick={onRetry} /> : null}
+    </StateLayout>
   );
 }
 
