@@ -1,3 +1,4 @@
+import { StepUp } from '../../../common/step-up.guard';
 import { BadRequestException, Controller, Get, Post, Body, Param, Patch, Delete, Query, UseGuards, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -147,6 +148,7 @@ export class AdminScheduledReportsController {
     return docs.map(({ _id, ...r }: any) => r);
   }
 
+  @StepUp()
   @Post()
   @RequirePermissions(Permission.SCHEDULED_REPORTS_MANAGE)
   async create(@Body() b: CreateDto, @CurrentUser() me: any) {
@@ -175,6 +177,7 @@ export class AdminScheduledReportsController {
     return clean;
   }
 
+  @StepUp()
   @Patch(':id')
   @RequirePermissions(Permission.SCHEDULED_REPORTS_MANAGE)
   async update(@Param('id') id: string, @Body() b: UpdateDto, @CurrentUser() me: any) {
@@ -182,7 +185,13 @@ export class AdminScheduledReportsController {
     if (!before) throw new NotFoundException('report_not_found');
     const $set: any = {};
     if (b?.enabled !== undefined) $set.enabled = !!b.enabled;
-    if (b?.recipients !== undefined) $set.recipients = Array.isArray(b.recipients) ? b.recipients.map(String) : before.recipients;
+    if (b?.recipients !== undefined) {
+      // Same address check as create(): a report that emails revenue data
+      // never gets an invalid or empty recipient list.
+      const emails = Array.isArray(b.recipients) ? b.recipients.map(String).filter((e: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) : [];
+      if (!emails.length) throw new BadRequestException('valid_recipients_required');
+      $set.recipients = emails;
+    }
     if (b?.hour_utc !== undefined) $set.hour_utc = Math.min(23, Math.max(0, Number(b.hour_utc)));
     await this.conn.collection('scheduled_reports').updateOne({ id }, { $set });
     void me;
@@ -191,6 +200,7 @@ export class AdminScheduledReportsController {
   }
 
   /** Safe manual run — same code path as the cron (real compute + real email). */
+  @StepUp()
   @Post(':id/run')
   @RequirePermissions(Permission.OPS_CRONS_RUN)
   async runNow(@Param('id') id: string, @CurrentUser() me: any) {

@@ -84,6 +84,8 @@ export class NotificationsController {
     return this.svc.listTemplates();
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post('admin/templates')
   @Roles(UserRole.ADMIN)
   upsertTemplate(@CurrentUser() u: any, @Body() b: TemplateUpsertDto) {

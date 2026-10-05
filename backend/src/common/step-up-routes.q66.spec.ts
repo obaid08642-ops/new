@@ -35,6 +35,7 @@ import { BansController } from '../modules/bans/bans.controller';
 import { AdminFulfillmentPolicyController } from '../modules/pharmacy/pharmacy.controllers';
 import { AdminInsuranceClaimsController } from '../modules/insurance/insurance.module';
 import { NotificationsController } from '../modules/notifications/notifications.controller';
+import { AdminScheduledReportsController } from '../modules/admin/enterprise/admin-analytics.controller';
 import { AdminCouponsController } from '../modules/admin/enterprise/admin-coupons.controller';
 import { AdminCouponsController as CompatCouponsController, AdminPromotionsController, AdminBroadcastController } from '../modules/compat/admin-spa.module';
 
@@ -127,6 +128,13 @@ const ROUTES: Array<[string, any, string]> = [
   ['POST promotions (compat)', AdminPromotionsController, 'create'],
   ['PUT promotions/:id (compat)', AdminPromotionsController, 'update'],
   ['POST promotions/:id/toggle (compat)', AdminPromotionsController, 'toggle'],
+  // Fifth check: a template's text is what every later notification of that
+  // key says (indirect mass message); scheduled reports email revenue data to
+  // the addresses they hold.
+  ['POST notifications/admin/templates', NotificationsController, 'upsertTemplate'],
+  ['POST admin/scheduled-reports', AdminScheduledReportsController, 'create'],
+  ['PATCH admin/scheduled-reports/:id', AdminScheduledReportsController, 'update'],
+  ['POST admin/scheduled-reports/:id/run', AdminScheduledReportsController, 'runNow'],
 ];
 // Not listed: campaign cancel and notification-rule delete only stop sends;
 // coupon redeem only records a redemption (checkout bookkeeping);
