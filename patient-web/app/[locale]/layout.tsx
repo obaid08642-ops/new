@@ -15,6 +15,7 @@ import { WebMcpProvider } from "@/components-next/web-mcp-provider";
 import { ThemeToggle } from "@/components-next/theme-toggle";
 import { THEME_INIT_SCRIPT } from "@/app/theme";
 import { ServiceWorkerRegister } from "@/components-next/service-worker-register";
+import { CartProvider } from "@/lib/context/CartContext";
 
 type Props = Readonly<{ children: React.ReactNode; params: Promise<{ locale: string }> }>;
 
@@ -93,14 +94,16 @@ export default async function LocaleLayout({ children, params }: Props) {
           </div>
         </header>
         {hasAccessToken ? <PresenceBeacon /> : null}
-        {children}
+        {/* The cart (lib/context/CartContext) was written but never mounted: every "add to cart" on the product pages
+            was a no-op. It keeps its items in this browser only, so mounting it here costs no request. */}
+        <CartProvider>{children}</CartProvider>
         <footer className="site-footer">
           <nav aria-label={t("brand")} className="site-footer__links">
-            <Link href={`/${typedLocale}/terms`}>{typedLocale === "ar" ? "الشروط" : "Terms"}</Link>
-            <Link href={`/${typedLocale}/privacy`}>{typedLocale === "ar" ? "الخصوصية" : "Privacy"}</Link>
-            <Link href={`/${typedLocale}/support`}>{typedLocale === "ar" ? "الدعم" : "Support"}</Link>
-            <Link href={`/${typedLocale}/articles`}>{typedLocale === "ar" ? "المقالات" : "Articles"}</Link>
-            <Link href={`/${typedLocale}/map`}>{typedLocale === "ar" ? "الخريطة" : "Map"}</Link>
+            <Link href={`/${typedLocale}/terms`}>{t("footerTerms")}</Link>
+            <Link href={`/${typedLocale}/privacy`}>{t("footerPrivacy")}</Link>
+            <Link href={`/${typedLocale}/support`}>{t("footerSupport")}</Link>
+            <Link href={`/${typedLocale}/articles`}>{t("footerArticles")}</Link>
+            <Link href={`/${typedLocale}/map`}>{t("footerMap")}</Link>
           </nav>
         </footer>
       </div>
