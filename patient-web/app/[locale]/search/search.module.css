@@ -50,7 +50,7 @@ a.item:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nab
 .rxText { flex: 1; font-size: var(--nabd-font-size-small); color: var(--nabd-color-text-primary); }
 .rxAction {
   display: inline-flex; align-items: center; min-block-size: 44px; font-size: var(--nabd-font-size-small); font-weight: 700;
-  color: var(--nabd-color-text-link); text-decoration: none;
+  color: var(--nabd-color-action-primary-bg); text-decoration: none;
 }
 .rxAction:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-sm); }
 

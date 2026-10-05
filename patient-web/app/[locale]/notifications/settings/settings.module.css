@@ -7,4 +7,4 @@
 .switchRow + .switchRow { border-block-start: 1px solid var(--nabd-color-border-subtle); }
 .switchLabel { flex: 1; min-inline-size: 0; font-size: var(--nabd-font-size-row); font-weight: 500; overflow-wrap: anywhere; }
 .hint { margin: 0; font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-secondary); }
-.error { margin: 0; font-size: var(--nabd-font-size-control); font-weight: 600; color: var(--nabd-color-text-link); }
+.error { margin: 0; font-size: var(--nabd-font-size-control); font-weight: 600; color: var(--nabd-color-action-primary-bg); }
