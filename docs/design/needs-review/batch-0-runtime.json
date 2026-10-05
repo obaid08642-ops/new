@@ -15,9 +15,9 @@
     "screen": "/services",
     "element": "Redirect target /consultations/doctors: inline style attribute",
     "file": "patient-web/app/[locale]/consultations/doctors/page.tsx",
-    "line": 0,
-    "found": "Runtime check: /services redirects to /consultations/doctors (a Batch 3 screen), and loading it logs 'Refused to apply inline style (style-src-attr)' under the nonce CSP, twice. Source element not identified (document line 9).",
-    "suspect": "A style={{…}} in that page or one of its components, blocked in production (F68). Not in Batch 0's files; to be cleared in the batch that rebuilds it."
+    "line": 46,
+    "found": "Runtime check: /services redirects to /consultations/doctors (a Batch 3 screen). That page puts raw legacy colours (#FDFDFC, #E8EDEE, #1E332E) and layout in `style={{…}}` attributes (page.tsx:46-50 and following), so the nonce CSP refuses them (22 'style-src-attr' violations per load) and the page renders without that styling in production.",
+    "suspect": "Needs the same class-based rebuild as the Batch 0 pages (zero inline styles, token colours). Not in Batch 0's file list, so left for the batch that owns Consultations; reported here because /services lands on it."
   },
   {
     "batch": 0,

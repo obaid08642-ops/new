@@ -175,7 +175,8 @@ async function run() {
   return results;
 }
 
-const results = await run();
+// --render-only: rebuild the report from the JSON of the last run (no browser).
+const results = process.argv.includes('--render-only') ? JSON.parse(readFileSync(OUT.replace(/\.md$/, '.json'), 'utf8')) : await run();
 
 const bad = (r) => {
   const issues = [];
@@ -183,6 +184,8 @@ const bad = (r) => {
   if (r.overlay) issues.push('Next error overlay');
   if (r.pageErrors.length) issues.push(`${r.pageErrors.length} uncaught error(s)`);
   if (r.textLen < 10) issues.push('blank page');
+  // Console errors must be 0 with real or empty data; the error scenario's own injected 500s legitimately log.
+  if (r.scenario !== 'error' && r.consoleErrors.length) issues.push(`${[...new Set(r.consoleErrors)].length} distinct console error(s)`);
   if (r.scenario === 'normal') {
     for (const c of [...r.api, ...r.server]) if (c.status >= 400) issues.push(`${c.method} ${c.path} -> ${c.status}`);
   }
