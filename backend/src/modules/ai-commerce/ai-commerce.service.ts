@@ -36,6 +36,27 @@ export interface CreateCheckoutSessionDto {
   source_agent?: string;
 }
 
+/** Catalog medicine fields the AI checkout reads (6fa7fce: typed batch maps). */
+interface CheckoutMedicine {
+  id?: string;
+  slug?: string;
+  sku?: number | string | null;
+  price?: number | string;
+  name_ar?: string;
+  name_en?: string;
+  requires_prescription?: boolean;
+}
+
+/** Doctor profile fields the AI checkout reads. */
+interface CheckoutDoctor {
+  id?: string;
+  slug?: string;
+  price_clinic?: number | string;
+  name_ar?: string;
+  name_en?: string;
+  specialty?: string;
+}
+
 @Injectable()
 export class AiCommerceService {
   constructor(@InjectConnection() private readonly connection: Connection) {}
@@ -218,7 +239,7 @@ export class AiCommerceService {
     const [medDocs, docDocs] = await Promise.all([
       medIds.length
         ? medCol
-            .find({
+            .find<CheckoutMedicine>({
               $or: [
                 { id: { $in: medIds } },
                 { slug: { $in: medIds } },
@@ -230,10 +251,10 @@ export class AiCommerceService {
               medical_review_status: 'approved',
             })
             .toArray()
-        : Promise.resolve([]),
+        : Promise.resolve<CheckoutMedicine[]>([]),
       docIds.length
         ? docCol
-            .find({
+            .find<CheckoutDoctor>({
               $or: [{ id: { $in: docIds } }, { slug: { $in: docIds } }],
               // Q106: only active, reviewed, public doctors.
               type: 'doctor',
@@ -242,27 +263,27 @@ export class AiCommerceService {
               medical_review_status: 'approved',
             })
             .toArray()
-        : Promise.resolve([]),
+        : Promise.resolve<CheckoutDoctor[]>([]),
     ]);
 
-    const medById = new Map<string, any>();
-    const medBySlug = new Map<string, any>();
-    const medBySku = new Map<string, any>();
+    const medById = new Map<string, CheckoutMedicine>();
+    const medBySlug = new Map<string, CheckoutMedicine>();
+    const medBySku = new Map<string, CheckoutMedicine>();
     for (const med of medDocs) {
       if (med.id !== undefined && !medById.has(String(med.id))) medById.set(String(med.id), med);
       if (med.slug !== undefined && !medBySlug.has(String(med.slug))) medBySlug.set(String(med.slug), med);
       if (med.sku !== undefined && med.sku !== null && !medBySku.has(String(med.sku)))
         medBySku.set(String(med.sku), med);
     }
-    const docById = new Map<string, any>();
-    const docBySlug = new Map<string, any>();
+    const docById = new Map<string, CheckoutDoctor>();
+    const docBySlug = new Map<string, CheckoutDoctor>();
     for (const doc of docDocs) {
       if (doc.id !== undefined && !docById.has(String(doc.id))) docById.set(String(doc.id), doc);
       if (doc.slug !== undefined && !docBySlug.has(String(doc.slug))) docBySlug.set(String(doc.slug), doc);
     }
-    const resolveMed = (key: string) =>
+    const resolveMed = (key: string): CheckoutMedicine | null =>
       medById.get(key) ?? medBySlug.get(key) ?? medBySku.get(String(Number(key) || -1)) ?? null;
-    const resolveDoc = (key: string) => docById.get(key) ?? docBySlug.get(key) ?? null;
+    const resolveDoc = (key: string): CheckoutDoctor | null => docById.get(key) ?? docBySlug.get(key) ?? null;
 
     for (const item of dto.items) {
       if (item.type === 'medicine') {
