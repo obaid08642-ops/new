@@ -7,7 +7,7 @@
 >
 > Sources: `DESIGN_HANDOFF_FINAL.md`, `SPEC_PRODUCT_DOCTOR_DETAIL.md`, `DEVICE_STANDARD.md`, `canvas/`. How the folder works: `README.md`.
 
-_Last updated: 2026-10-05 (#263 and #264 merged; components 2/4, 3/4 and 4/4 are in review as #265, #267 and #268, so step 5 is complete pending review; next: the lint gates)._
+_Last updated: 2026-10-05 (components 2/4–4/4 in review as #265, #267, #268; lint gates in review as #269; next: Batch 0)._
 
 ## Snapshot
 
@@ -20,7 +20,7 @@ _Last updated: 2026-10-05 (#263 and #264 merged; components 2/4, 3/4 and 4/4 are
 | Foundation: native shells | **Merged** ([#261](https://github.com/obaid08642-ops/new/pull/261)) | `Screen`, `AppHeader`, `StickyFooter`, `TabBar` in `packages/ui-native` |
 | Foundation: web shells | **Merged** ([#263](https://github.com/obaid08642-ops/new/pull/263)) | `AppShell`, `StickyFooter` in `packages/ui`, mirrored into patient-web |
 | Foundation: shared components | **1/4 merged ([#264](https://github.com/obaid08642-ops/new/pull/264)); 2/4–4/4 in review ([#265](https://github.com/obaid08642-ops/new/pull/265), [#267](https://github.com/obaid08642-ops/new/pull/267), [#268](https://github.com/obaid08642-ops/new/pull/268))** | 40 contract components on web and native, each with board side-by-side images |
-| Foundation: lint gates | Not started | See `WIRING_REPORT.md` §1 for the measured gaps |
+| Foundation: lint gates | **In review** ([#269](https://github.com/obaid08642-ops/new/pull/269)) | `no-100vh` (strict), `no-rn-safeareaview` (strict, plus a `Dimensions.get` ratchet), `no-left-right` (ratchet, 548 recorded) |
 | Screen batches 0–13 | Not started | 410 screens to design (104 more routes only redirect) |
 
 ### Screens per batch (from `SCREEN_INVENTORY.md`; redirect-only routes excluded)
@@ -95,6 +95,16 @@ _Last updated: 2026-10-05 (#263 and #264 merged; components 2/4, 3/4 and 4/4 are
     - items carry fill glyphs;
     - native renders the shell TabBar from #261.
   - Roster 39 → 40.
+- **Lint gates, PR [#269](https://github.com/obaid08642-ops/new/pull/269)** (branch `design/lint-gates`, from main), waiting for review.
+  - `tools/design/no-100vh.ts`, strict: patient-web, admin, packages/ui.
+  - `tools/design/no-rn-safeareaview.ts`, strict for `SafeAreaView` from `react-native`. `Dimensions.get` is a ratchet with 41 recorded.
+  - `tools/design/no-left-right.ts`, a ratchet: 548 physical left/right recorded in 121 files, across all clients and both packages.
+  - All three ignore comments and test files, are wired into `npm test` and CI, and each was proven to catch a probe.
+  - **Fixes:**
+    - SafeAreaView now comes from safe-area-context in patient-app `room/[id]` and in provider-app `SuccessScreen` and `SignatureCanvasModal`.
+    - `100dvh` replaces `100vh` in the 4 patient-web files and admin's `AdminGuard`.
+  - `screen-inventory.mjs` matches code only for the 100vh and SafeAreaView rows.
+  - On a scratch merge with the component stack, the gates found one symmetric `hitSlop` in the native ProductCard. It is fixed on #267.
 
 ## Next (in this order)
 
@@ -103,11 +113,8 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 1. **Shared components** (handoff §3), in both packages, through the contract (`packages/ui/components/contract.ts`):
    - ~~1/4~~ (#264, merged), ~~2/4~~ (#265), ~~3/4~~ (#267), ~~4/4~~ (#268). All are built; three are in review.
    - Whenever tokens change, re-run `node packages/ui/build-preview.mjs`.
-2. **Lint gates (next, branch `design/lint-gates` from main)** still missing from `tools/design` (handoff §6, DEVICE_STANDARD §5): `no-left-right`, `no-100vh`, `no-rn-safeareaview`. They currently fail on:
-   - `patient-app/app/room/[id].tsx` (`SafeAreaView` imported from `react-native`);
-   - 4 web files that use `100vh` (listed in `WIRING_REPORT.md` §1).
-   - `WIRING_REPORT.md` also lists `shells.css`. That is a false positive: its comment says "100dvh, never 100vh", and the inventory uses a plain grep. The real `no-100vh` gate ignores comments, and the inventory will use it.
-3. **Batch 0**, then batches 1–13 in the order of `SCREEN_INVENTORY.md`. For each batch:
+2. ~~**Lint gates**~~: #269 is in review.
+3. **Batch 0 (next, branch `design/batch-0`, stacked on #268 and #269)**, then batches 1–13 in the order of `SCREEN_INVENTORY.md`. For each batch:
    - fix the `WIRING_REPORT.md` §4 rows that belong to it;
    - send the owner screenshots at 390, 768 and 1440, in light and dark;
    - wait for approval before starting the next batch (handoff §4).
@@ -145,6 +152,7 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 
 | Date | Branch | What happened | Tip |
 |---|---|---|---|
+| 2026-10-05 | `design/lint-gates` | Lint gates no-100vh, no-rn-safeareaview, no-left-right, with the SafeAreaView and 100dvh fixes. | PR [#269](https://github.com/obaid08642-ops/new/pull/269), tip `c2f4d95` |
 | 2026-10-05 | `design/components-cards`, `design/components-states` | Components 3/4 (cards) and 4/4 (states, main tab bar), with board images; main (#263, #264) merged into the 2/4–4/4 stack. | PR [#267](https://github.com/obaid08642-ops/new/pull/267) `664e27b`, PR [#268](https://github.com/obaid08642-ops/new/pull/268) `8a4c313` |
 | 2026-10-05 | `design/components-controls` | Components 2/4 (the controls) on web and native, with 19 web and 10 native board side-by-side images. CodeQL path fix on #263 and #264. | PR [#265](https://github.com/obaid08642-ops/new/pull/265), tip `27d336d` |
 | 2026-10-04 | `design/shells-native`, `design/shells-web` | Board side-by-side images for the shells, with fixes for the raised tab offset, the CTA canvas glass and the desktop top-bar inset. | PR [#261](https://github.com/obaid08642-ops/new/pull/261) `e5f9f7a`, PR [#263](https://github.com/obaid08642-ops/new/pull/263) `1962644` |
