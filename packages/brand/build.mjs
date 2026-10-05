@@ -42,10 +42,6 @@ for (const candidate of [
     /* try the next location */
   }
 }
-if (!sharp) {
-  console.error('brand: sharp is not available. Install it (admin or backend workspace) to build the brand assets.');
-  process.exit(1);
-}
 
 /* ------------------------------------------------- 1. the approved geometry */
 
@@ -94,6 +90,18 @@ for (const file of VARIANTS) {
 const adaptiveBg = readFileSync(join(SRC, 'icon-android-background.svg'), 'utf8');
 if (adaptiveBg.includes(BOWL_PATH)) {
   console.error('brand: icon-android-background.svg must be a flat field with no mark on it.');
+  process.exit(1);
+}
+
+// Without a rasteriser only the geometry above can be verified. `--check`
+// says so and passes (CI re-runs it after installing sharp for the raster
+// comparison); a build cannot produce anything and fails.
+if (!sharp) {
+  if (CHECK_ONLY) {
+    console.log('brand: mark geometry verified; raster comparison skipped (sharp is not installed).');
+    process.exit(0);
+  }
+  console.error('brand: sharp is not available. Install it (admin or backend workspace) to build the brand assets.');
   process.exit(1);
 }
 
