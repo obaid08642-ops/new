@@ -537,6 +537,8 @@ export class AdminInsuranceClaimsController {
 
   @Get() list(@Query('status') status?: string) { return this.svc.adminClaims(status); }
 
+  @StepUp()
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post(':id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() body: InsuranceDecideDto) {
     return this.svc.decideClaim(u, id, body?.approve === true, body?.note);
   }

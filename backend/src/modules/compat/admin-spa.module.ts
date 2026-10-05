@@ -719,6 +719,8 @@ export class AdminLoyaltyController extends AdminController {
     return this.adjust(String(body.user_id), pts, pts > 0 ? 'admin_credit' : 'admin_debit', body.reason || null, uid(user));
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.ORDER_COMPENSATE)
   @Post('redeem')
   async redeem(@CurrentUser() user: any, @Body() body: RedeemDto) {
     if (!body?.user_id || !(Number(body?.points) > 0)) throw new BadRequestException('user_id ونقاط موجبة مطلوبة');
@@ -733,13 +735,15 @@ export class AdminLoyaltyController extends AdminController {
 @Controller('delivery')
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
-class AdminDeliveryController extends AdminController {
+export class AdminDeliveryController extends AdminController {
   @Get('rules')
   async rules() {
     const rows = await this.conn.collection('delivery_rules').find({} as any).sort({ createdAt: -1 }).limit(100).toArray();
     return rows.map((r: any) => ({ ...r, id: r.id || String(r._id) }));
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.OPS_QUEUES_MANAGE)
   @Post('rules')
   async createRule(@CurrentUser() user: any, @Body() body: CreateRuleDto) {
     // An unnamed rule with defaults would be an active free-delivery rule for every order.
@@ -755,6 +759,8 @@ class AdminDeliveryController extends AdminController {
     return doc;
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.OPS_QUEUES_MANAGE)
   @Put('rules/:id')
   async updateRule(@Param('id') id: string, @CurrentUser() user: any, @Body() body: DeliveryRuleUpdateDto) {
     const allowed = ['name_ar', 'min_order_sar', 'service_type', 'city', 'user_segment', 'free', 'fee_sar', 'active'];
@@ -765,6 +771,8 @@ class AdminDeliveryController extends AdminController {
     return { ok: true };
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.OPS_QUEUES_MANAGE)
   @Post('rules/:id/toggle')
   async toggleRule(@Param('id') id: string) {
     const doc: any = await this.conn.collection('delivery_rules').findOne(byId(id) as any);
@@ -773,6 +781,8 @@ class AdminDeliveryController extends AdminController {
     return { ok: true, active: !doc.active };
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.OPS_QUEUES_MANAGE)
   @Delete('rules/:id')
   async deleteRule(@Param('id') id: string) {
     const res = await this.conn.collection('delivery_rules').deleteOne(byId(id) as any);
@@ -780,6 +790,8 @@ class AdminDeliveryController extends AdminController {
     return { ok: true };
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.OPS_QUEUES_MANAGE)
   @Put('base-fees')
   async baseFees(@CurrentUser() user: any, @Body(new FreeformConfigObjectPipe()) body: Record<string, unknown>) {
     await this.conn.collection('delivery_config').updateOne(
@@ -921,7 +933,7 @@ class PromotionsApplicableController extends AdminController {
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
-class AdminNotificationsController extends AdminController {
+export class AdminNotificationsController extends AdminController {
   @Get('history')
   async history() {
     const rows = await this.conn.collection('notifications').find({} as any).sort({ createdAt: -1 }).limit(100).toArray();
@@ -931,6 +943,8 @@ class AdminNotificationsController extends AdminController {
     }));
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post('send')
   async send(@CurrentUser() user: any, @Body() body: SendDto) {
     const text = String(body?.body || body?.message || '').trim();
@@ -1008,7 +1022,7 @@ class AdminNursingServicesController extends AdminController {
 @Controller('insurance')
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
-class AdminInsuranceClaimsController extends AdminController {
+export class AdminInsuranceClaimsController extends AdminController {
   private async decide(id: string, user: any, approve: boolean, body: any) {
     const req: any = await this.conn.collection('insuranceservicerequests').findOne(byId(id) as any);
     if (!req) throw new NotFoundException('المطالبة غير موجودة');
@@ -1039,11 +1053,15 @@ class AdminInsuranceClaimsController extends AdminController {
     return { ok: true, id: req.id || id, state: update.state, copay_amount: update.copay_amount };
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post('claims/:id/approve')
   approve(@Param('id') id: string, @CurrentUser() user: any, @Body() body: ClaimApprovalDto) {
     return this.decide(id, user, true, body);
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post('claims/:id/reject')
   reject(@Param('id') id: string, @CurrentUser() user: any, @Body() body: RejectDto) {
     return this.decide(id, user, false, body);

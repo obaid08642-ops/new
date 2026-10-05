@@ -23,6 +23,17 @@ import { ProvidersController } from '../modules/provider/providers.controller';
 import { AdminConfigController } from '../modules/admin/web-core/controllers/admin-config.controller';
 import { BusinessRulesController } from '../modules/business-rules/business-rules.module';
 import { AdminController } from '../modules/admin/admin.controller';
+import { AdminOrdersConsoleController } from '../modules/admin/enterprise/admin-orders.controller';
+import { AdminRefundsController, AdminOverrideController } from '../modules/patient-ux/patient-ux.module';
+import { CommissionsController } from '../modules/admin/governance/admin-governance.module';
+import { FinanceCoreController } from '../modules/insurance-engine/insurance-engine.module';
+import { AdminDeliveryController, AdminNotificationsController, AdminInsuranceClaimsController as CompatClaimsController } from '../modules/compat/admin-spa.module';
+import { AdminNotificationCenterController } from '../modules/admin/notification-center/admin-notification-center.module';
+import { AdminGdprController } from '../modules/admin/enterprise/admin-crm.controller';
+import { SystemConfigController } from '../modules/admin/governance/system-config.controller';
+import { BansController } from '../modules/bans/bans.controller';
+import { AdminFulfillmentPolicyController } from '../modules/pharmacy/pharmacy.controllers';
+import { AdminInsuranceClaimsController } from '../modules/insurance/insurance.module';
 
 const ROUTES: Array<[string, any, string]> = [
   ['PUT system/permissions', AdminSystemController, 'putPermissions'],
@@ -67,6 +78,33 @@ const ROUTES: Array<[string, any, string]> = [
   ['POST admin/users/:userId/ban', AdminController, 'banUser'],
   ['POST admin/users/:userId/unban', AdminController, 'unbanUser'],
   ['DELETE admin/users/:userId', AdminController, 'deleteUser'],
+  // Third independent check: money, payout destination, points, mass messages,
+  // admin accounts, personal data, bans and platform config.
+  ['POST admin/orders/:kind/:id/compensate', AdminOrdersConsoleController, 'compensate'],
+  ['POST admin/refunds/:id/decide', AdminRefundsController, 'decide'],
+  ['POST admin/override/payment', AdminOverrideController, 'markPayment'],
+  ['PUT commissions/:id', CommissionsController, 'update'],
+  ['POST admin/providers/:id/approve-bank', ProviderAdminController, 'approveBank'],
+  ['POST finance/ledger/accrue', FinanceCoreController, 'accrue'],
+  ['POST loyalty/redeem', AdminLoyaltyController, 'redeem'],
+  ['POST delivery/rules', AdminDeliveryController, 'createRule'],
+  ['PUT delivery/rules/:id', AdminDeliveryController, 'updateRule'],
+  ['POST delivery/rules/:id/toggle', AdminDeliveryController, 'toggleRule'],
+  ['DELETE delivery/rules/:id', AdminDeliveryController, 'deleteRule'],
+  ['PUT delivery/base-fees', AdminDeliveryController, 'baseFees'],
+  ['POST notifications/send', AdminNotificationsController, 'send'],
+  ['POST insurance/claims/:id/approve (compat)', CompatClaimsController, 'approve'],
+  ['POST insurance/claims/:id/reject (compat)', CompatClaimsController, 'reject'],
+  ['POST admin/insurance/claims/:id/decide', AdminInsuranceClaimsController, 'decide'],
+  ['POST admin/notification-center/broadcasts', AdminNotificationCenterController, 'broadcast'],
+  ['POST admin/notification-center/campaigns/:id/send', AdminNotificationCenterController, 'sendCampaign'],
+  ['POST admin/sub-admins', AdminController, 'createSubAdmin'],
+  ['POST admin/gdpr/:id/export/complete', AdminGdprController, 'completeExport'],
+  ['POST admin/gdpr/:id/delete/complete', AdminGdprController, 'completeDelete'],
+  ['PUT admin/governance/system-config', SystemConfigController, 'updateConfig'],
+  ['POST bans', BansController, 'ban'],
+  ['DELETE bans/:value', BansController, 'unban'],
+  ['PUT admin/pharmacy/fulfillment-policies/cod', AdminFulfillmentPolicyController, 'setCod'],
 ];
 // Not listed on purpose: POST admin/impersonation/:id/revoke ends a support
 // session; making the stop button wait for a passkey would only delay
