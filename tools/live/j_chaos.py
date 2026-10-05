@@ -330,7 +330,10 @@ def drill_sms_down():
         email = f'sms-fallback-{uniq("c")}@nabd.test'
         t0 = _t.time()
         r = anon.post('/auth/send-otp', {'email': email, 'purpose': 'register'})
-        step('send-otp answers while SMS is down', r.ok, r)
+        # Step name kept verbatim from the pre-switch version (never rename an
+        # existing step); "disabled" is now literally true: the switch forces
+        # SmsService.sendOtp() to return false.
+        step('send-otp answers while SMS is down/disabled', r.ok, r)
         marker = log_marker('CHAOS_FAIL_SMS=1')
         step('the server actually took the SMS failure path (runtime marker in the backend log)', marker,
              f'no "CHAOS_FAIL_SMS=1" marker in {BACKEND_LOG} — the switch was never read')
