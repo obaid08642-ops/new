@@ -192,9 +192,14 @@ export function DoctorCard({
 export interface NativeProductCardProps extends ProductCardProps, Themed {
   onPress?: () => void;
   onAdd?: () => void;
+  /**
+   * The picture, when the app draws it itself (patient-app: expo-image with a disk cache and a fixed size). It
+   * fills the 132 tall media box in place of `imageSrc`; the box, its colour and the discount badge stay the board's.
+   */
+  image?: React.ReactNode;
 }
 
-export function ProductCard({ name, meta, price, currency, imageSrc, discountLabel, rxLabel, addLabel, onPress, onAdd, loading = false, disabled = false, testID, theme = 'light' }: NativeProductCardProps) {
+export function ProductCard({ name, meta, price, currency, imageSrc, image, discountLabel, rxLabel, addLabel, onPress, onAdd, loading = false, disabled = false, testID, theme = 'light' }: NativeProductCardProps) {
   const t = tokens(theme);
   const c = t.color;
   const inert = disabled || loading;
@@ -202,11 +207,11 @@ export function ProductCard({ name, meta, price, currency, imageSrc, discountLab
     <View testID={testID} style={{ borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, boxShadow: t.shadow.card, padding: 10, gap: 8 }}>
       <Pressable accessibilityRole={onPress ? 'link' : undefined} onPress={onPress} style={{ gap: 8 }}>
         <View style={{ height: 132, borderRadius: 18, backgroundColor: c.bg.media, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-          {imageSrc ? (
+          {image ?? (imageSrc ? (
             <Image source={{ uri: imageSrc }} accessibilityIgnoresInvertColors style={{ width: '100%', height: '100%' }} resizeMode="contain" />
           ) : (
             <Glyph name="pill" size={40} color={c.icon.secondary} />
-          )}
+          ))}
           {discountLabel ? (
             <View style={{ position: 'absolute', top: 8, start: 8, height: 22, paddingHorizontal: 8, borderRadius: 11, backgroundColor: c.action.primary.bg, justifyContent: 'center' }}>
               <Text style={{ fontSize: 11, fontFamily: 'ReadexPro-700', color: c.action.primary.fg }}>{discountLabel}</Text>
@@ -217,11 +222,14 @@ export function ProductCard({ name, meta, price, currency, imageSrc, discountLab
         {meta ? <Text style={{ fontSize: 12, fontFamily: 'ReadexPro-400', color: c.text.secondary }}>{meta}</Text> : null}
       </Pressable>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <View>
-          <Text style={{ fontSize: 16, fontFamily: 'ReadexPro-700', color: c.text.primary }}>
-            {price}
-            {currency ? <Text style={{ fontSize: 11, fontFamily: 'ReadexPro-400' }}>{` ${currency}`}</Text> : null}
-          </Text>
+        <View style={{ flex: 1, minWidth: 0 }}>
+          {/* the price is drawn only when the API sent one (a made-up 0 is never shown) */}
+          {price ? (
+            <Text style={{ fontSize: 16, fontFamily: 'ReadexPro-700', color: c.text.primary }}>
+              {price}
+              {currency ? <Text style={{ fontSize: 11, fontFamily: 'ReadexPro-400' }}>{` ${currency}`}</Text> : null}
+            </Text>
+          ) : null}
           {rxLabel ? <Text style={{ fontSize: 11, fontFamily: 'ReadexPro-700', color: c.status.warning.fg }}>{rxLabel}</Text> : null}
         </View>
         <Pressable

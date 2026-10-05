@@ -27,5 +27,10 @@
   "patient-web /password-reset": "done (#285)",
   "patient-web /register": "done (#285)",
   "patient-web /search": "done (#285)",
-  "patient-web /welcome": "done (#285)"
+  "patient-web /welcome": "done (#285)",
+  "patient-app patient-app/app/(tabs)/pharmacy.tsx": "rebuilt on design/batch-1 (slice 1a, PR pending)",
+  "patient-app /pharmacy/product-detail": "rebuilt on design/batch-1 (slice 1a, PR pending)",
+  "patient-app /pharmacy/wishlist": "rebuilt on design/batch-1 (slice 1a, PR pending)",
+  "patient-app /pharmacy/filters": "rebuilt on design/batch-1 (slice 1a, PR pending)",
+  "patient-app /pharmacy/medicine-compare": "rebuilt on design/batch-1 (slice 1a, PR pending)"
 }

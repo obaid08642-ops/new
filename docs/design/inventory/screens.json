@@ -1,5 +1,5 @@
 {
- "commit": "14d7871f",
+ "commit": "e5ee2f27",
  "routes": [
   {
    "app": "patient-app",
@@ -5425,14 +5425,14 @@
    "template": "hub",
    "board": "PharmacyHub",
    "batch": 1,
-   "status": "—",
+   "status": "rebuilt on design/batch-1 (slice 1a, PR pending)",
    "calls": [
     {
      "method": "GET",
      "path": "/medicines",
      "target": "backend",
      "query": "?:param",
-     "line": 112,
+     "line": 147,
      "file": "patient-app/app/(tabs)/pharmacy.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medicines/medicines.controller.ts:15"
@@ -5442,13 +5442,23 @@
      "path": "/medicines/events",
      "target": "backend",
      "query": "",
-     "line": 435,
+     "line": 201,
      "file": "patient-app/app/(tabs)/pharmacy.tsx",
      "status": "OK",
      "backend": "backend/src/modules/product-ranking/product-ranking.controller.ts:58"
+    },
+    {
+     "method": "GET",
+     "path": "/patient/pharmacy/orders",
+     "target": "backend",
+     "query": "",
+     "line": 171,
+     "file": "patient-app/app/(tabs)/pharmacy.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:35"
     }
    ],
-   "files": 26,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -5640,20 +5650,20 @@
    "template": "list",
    "board": "PharmacyHub",
    "batch": 1,
-   "status": "—",
+   "status": "rebuilt on design/batch-1 (slice 1a, PR pending)",
    "calls": [
     {
      "method": "GET",
      "path": "/medicines/filters",
      "target": "backend",
      "query": "",
-     "line": 54,
+     "line": 62,
      "file": "patient-app/app/pharmacy/filters.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medicines/medicines.controller.ts:74"
     }
    ],
-   "files": 16,
+   "files": 30,
    "unresolved": 0
   },
   {
@@ -5765,20 +5775,20 @@
    "template": "list",
    "board": "PharmacyHub",
    "batch": 1,
-   "status": "—",
+   "status": "rebuilt on design/batch-1 (slice 1a, PR pending)",
    "calls": [
     {
      "method": "POST",
      "path": "/medicines/compare",
      "target": "backend",
      "query": "",
-     "line": 44,
+     "line": 73,
      "file": "patient-app/app/pharmacy/medicine-compare.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medicines/medicines.controller.ts:80"
     }
    ],
-   "files": 18,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -5949,14 +5959,14 @@
    "template": "detail",
    "board": "ProductFull",
    "batch": 1,
-   "status": "—",
+   "status": "rebuilt on design/batch-1 (slice 1a, PR pending)",
    "calls": [
     {
      "method": "GET",
      "path": "/medicines/:param/details",
      "target": "backend",
      "query": "?lang=:param",
-     "line": 149,
+     "line": 210,
      "file": "patient-app/app/pharmacy/product-detail.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medicines/medicines.controller.ts:394"
@@ -5966,17 +5976,27 @@
      "path": "/medicines/:param/suggest-change",
      "target": "backend",
      "query": "",
-     "line": 193,
+     "line": 269,
      "file": "patient-app/app/pharmacy/product-detail.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medicines/medicines.controller.ts:201"
     },
     {
      "method": "POST",
+     "path": "/medicines/compare",
+     "target": "backend",
+     "query": "",
+     "line": 244,
+     "file": "patient-app/app/pharmacy/product-detail.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:80"
+    },
+    {
+     "method": "POST",
      "path": "/medicines/events",
      "target": "backend",
      "query": "",
-     "line": 154,
+     "line": 215,
      "file": "patient-app/app/pharmacy/product-detail.tsx",
      "status": "OK",
      "backend": "backend/src/modules/product-ranking/product-ranking.controller.ts:58"
@@ -5996,7 +6016,7 @@
      "path": "/users/me/wishlist",
      "target": "backend",
      "query": "",
-     "line": 121,
+     "line": 179,
      "file": "patient-app/app/pharmacy/product-detail.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:44"
@@ -6006,13 +6026,13 @@
      "path": "/users/me/wishlist/:param",
      "target": "backend",
      "query": "",
-     "line": 134,
+     "line": 194,
      "file": "patient-app/app/pharmacy/product-detail.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:49"
     }
    ],
-   "files": 19,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -6215,14 +6235,14 @@
    "template": "list",
    "board": "PharmacyHub",
    "batch": 1,
-   "status": "—",
+   "status": "rebuilt on design/batch-1 (slice 1a, PR pending)",
    "calls": [
     {
      "method": "GET",
      "path": "/users/me/wishlist",
      "target": "backend",
      "query": "",
-     "line": 42,
+     "line": 81,
      "file": "patient-app/app/pharmacy/wishlist.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:44"
@@ -6232,13 +6252,13 @@
      "path": "/users/me/wishlist/:param",
      "target": "backend",
      "query": "",
-     "line": 57,
+     "line": 101,
      "file": "patient-app/app/pharmacy/wishlist.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:49"
     }
    ],
-   "files": 19,
+   "files": 36,
    "unresolved": 0
   },
   {

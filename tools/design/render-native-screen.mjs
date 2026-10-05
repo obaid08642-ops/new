@@ -63,6 +63,8 @@ const SCREEN_SPECS = arg('--screens', 'welcome,login,register,otp').split(',').m
 });
 const SCREENS = SCREEN_SPECS.map((x) => x.name);
 const API_MODE = arg('--api', 'empty');
+// --auth member renders as a signed-in patient (default: a visitor with no session)
+const AUTH = arg('--auth', 'visitor');
 const WAIT = Number(arg('--wait', 2600));
 // --lang en renders the left-to-right layout (the same AsyncStorage key the app reads); the default is Arabic
 const LANG = arg('--lang', 'ar');
@@ -86,6 +88,14 @@ const BOARD = {
   splash: { params: {} },
   notifications: { params: {} },
   search: { params: {} },
+  // Batch 1a (pharmacy hub and product screens). The hub and the product page have their own boards;
+  // the three list screens follow the PharmacyHub template and have none. product-detail is opened with
+  // the id the fixtures answer for; medicine-compare with two ids.
+  'pharmacy-hub': { component: 'PharmacyHub', size: [390, 1420], params: {} },
+  'product-detail': { component: 'ProductFull', size: [390, 3380], params: { id: 'test-med' } },
+  wishlist: { params: {} },
+  filters: { params: {} },
+  'medicine-compare': { params: { ids: 'test-med,test-alt' } },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },
@@ -152,7 +162,11 @@ const MOCKS = {
       if (mode === 'fixture' && key in fixtures) return fixtures[key];
       return key in EMPTY ? EMPTY[key] : {};
     }
-    export async function storeAuthSession() {}`,
+    export async function storeAuthSession() {}
+    // the constants other modules read from the client (image URLs resolve against them); no real host in a render
+    export const BASE_URL = 'https://api.example.test/api/v1';
+    export const FASTAPI_BASE_URL = 'https://ai.example.test';
+    export const R2_PUBLIC_URL = 'https://cdn.example.test';`,
   'expo-auth-session': `
     export const useAuthRequest = () => [null, null, async () => ({ type: 'dismiss' })];
     export const makeRedirectUri = () => 'nabdplus://redirect';`,
@@ -235,7 +249,7 @@ const server = createServer((rq, rs) => {
   const url = decodeURIComponent(rq.url.split('?')[0]);
   const m = url.match(/^\/__app-(.+)\.js$/);
   if (m && bundles.has(m[1])) return rs.writeHead(200, { 'content-type': MIME['.js'] }).end(bundles.get(m[1]));
-  const b = url.match(/^\/__board-(\w+)-(light|dark)\.html$/);
+  const b = url.match(/^\/__board-([\w-]+)-(light|dark)\.html$/);
   if (b) return rs.writeHead(200, { 'content-type': MIME['.html'] }).end(boardPage(b[1], b[2]));
   if (url === '/__blank') return rs.writeHead(200, { 'content-type': MIME['.html'] }).end('<!doctype html><title>x</title>');
   const root = url.startsWith('/__font/') ? FONTS : BOARDS;
@@ -273,7 +287,7 @@ for (const s of SCREENS) {
       localStorage.setItem('@nabdah_theme_mode', th);
       localStorage.setItem('@nabdah_language', lg);
     }, [theme, LANG]);
-    const cfg = { width: W, height: H, insets: INSETS, params: BOARD[s].params, platform: PLATFORM, dir: DIR, lang: LANG, pathname: PATHNAME, api: API_MODE, tabbar: Boolean(TABBAR), header: Boolean(HEADER) };
+    const cfg = { width: W, height: H, insets: INSETS, params: BOARD[s].params, platform: PLATFORM, dir: DIR, lang: LANG, pathname: PATHNAME, api: API_MODE, auth: AUTH, tabbar: Boolean(TABBAR), header: Boolean(HEADER) };
     await page.setContent(
       `<!doctype html><html dir="${DIR}" lang="${LANG}"><meta charset="utf-8"><style>${appFaces}html,body{margin:0}*{animation:none!important;transition:none!important}</style>` +
         `<div id="root"></div><script>window.__SCREEN=${JSON.stringify(cfg)}</script><script src="${BASE}/__app-${s}.js"></script></html>`,

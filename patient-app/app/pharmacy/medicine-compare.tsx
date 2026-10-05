@@ -1,154 +1,164 @@
-// @ts-nocheck
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, StatusBar } from 'react-native';
-import { router } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../../src/context/AppContext';
-import { Icon } from '../../src/components/Icon';
-import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 
+import { AppHeader, Button, EmptyState, ErrorState, OfflineState, Screen, StatusChip } from '../../../packages/ui-native/src';
+import ProductImage from '../../src/components/ProductImage';
+import { SECONDARY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
+import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
+import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
-import { useLocalSearchParams } from 'expo-router';
-import { pickLocalized } from '../../src/utils/localize';
-import { ScreenState } from '../../src/components/ScreenStates';
+import { medField, medGallery, medName, medPrice, needsRx, type Med } from '../../src/utils/pharmacyCatalog';
 
-const COMPARE_ROWS = [
-  { label: 'المادة الفعالة', key: 'ingredient', icon: 'science' },
-  { label: 'التركيز', key: 'strength', icon: 'run' },
-  { label: 'الشكل', key: 'form', icon: 'medication' },
-  { label: 'الكمية', key: 'qty', icon: 'shopping_cart', suffix: ' حبة' },
-  { label: 'السعر', key: 'price', icon: 'wallet', suffix: ' ريال' },
-  { label: 'التقييم', key: 'rating', icon: 'star' },
-  { label: 'يحتاج وصفة', key: 'requiresRx', icon: 'document', bool: true },
-  { label: 'الآثار الجانبية', key: 'sideEffects', icon: 'warning' },
+/**
+ * Medicine comparison — the PharmacyHub template (canvas/PharmacyHub.dc.html, "قارن البدائل"). The medicines are the ones
+ * POST /medicines/compare returns for the ids in the route; each row is a field the catalogue really holds, and a row
+ * no medicine has a value for is not drawn. The lowest real price is marked. "Add to cart" puts the medicine in the cart.
+ */
+
+const MISSING = '—';
+const text = (v: unknown): string => (typeof v === 'string' && v.trim() ? v.trim() : '');
+
+/** What a row needs to write a value in the language of the screen. */
+interface Ui {
+  k: (key: string, vars?: Record<string, string | number>) => string;
+  money: (n: number) => string;
+}
+
+interface Row {
+  key: string;
+  label: string;
+  value: (m: Med, ui: Ui) => string;
+}
+
+const ROWS: Row[] = [
+  { key: 'ingredient', label: 'pharmacy.compare.ingredient', value: (m) => text(medField(m, 'active_ingredient')) },
+  { key: 'strength', label: 'pharmacy.compare.strength', value: (m) => text(medField(m, 'strength')) },
+  { key: 'form', label: 'pharmacy.compare.form', value: (m) => text(medField(m, 'form')) },
+  { key: 'pack', label: 'pharmacy.compare.pack', value: (m) => text(m.package_size) },
+  { key: 'price', label: 'pharmacy.compare.price', value: (m, { k, money }) => (medPrice(m) ? k('pharmacy.price', { n: money(medPrice(m) as number) }) : '') },
+  { key: 'rx', label: 'pharmacy.compare.rx', value: (m, { k }) => (typeof m.requires_prescription === 'boolean' ? (needsRx(m) ? k('pharmacy.compare.yes') : k('pharmacy.compare.no')) : '') },
+  {
+    key: 'side',
+    label: 'pharmacy.compare.sideEffects',
+    value: (m, { k }) => {
+      const v = medField<unknown>(m, 'side_effects');
+      return Array.isArray(v) ? v.map(String).filter(Boolean).join(k('pharmacy.compare.listSeparator')) : text(v);
+    },
+  },
 ];
 
 export default function MedicineCompareScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
+  const { theme, t, c, dir, flow, k, money, lang } = useScreenUi();
   const params = useLocalSearchParams<{ ids?: string }>();
-  
-  const [medicines, setMedicines] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string|null>(null);
+  const { width } = useWindowDimensions();
+  const addToCart = useAddMedToCart();
 
-  const loadComparison = async () => {
+  const [medicines, setMedicines] = useState<Med[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
+
+  const load = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setFailed(null);
     try {
       const ids = params.ids ? params.ids.split(',').filter(Boolean) : [];
-      // nothing selected: show the empty state instead of comparing invented ids
-      if (!ids.length) { setMedicines([]); return; }
-      // POST /medicines/compare { ids } (the old call passed 'POST' as apiFetch's options, so it went out as GET → 404)
-      const data = await apiFetch('/medicines/compare', { method: 'POST', body: JSON.stringify({ ids }) });
-      if (data && Array.isArray(data)) setMedicines(data);
-    } catch (err) {
-      logError('pharmacy:medicine-compare', err);
-      setError('تعذر تحميل بيانات المقارنة');
+      // nothing selected: the empty state, never a comparison of invented ids
+      if (!ids.length) {
+        setMedicines([]);
+        return;
+      }
+      // POST /medicines/compare { ids }
+      const data = await apiFetch<Med[]>('/medicines/compare', { method: 'POST', body: JSON.stringify({ ids }) });
+      setMedicines(Array.isArray(data) ? data : []);
+    } catch (e) {
+      logError('pharmacy:medicine-compare', e);
+      setFailed((await isOffline()) ? 'offline' : 'error');
     } finally {
       setLoading(false);
     }
+  }, [params.ids]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const rows = useMemo(() => ROWS.filter((r) => medicines.some((m) => r.value(m, { k, money }))), [medicines, lang]); // eslint-disable-line react-hooks/exhaustive-deps
+  // the lowest real price, marked only when the prices differ
+  const prices = medicines.map(medPrice).filter((p): p is number => p !== null);
+  const lowest = prices.length > 1 && Math.min(...prices) < Math.max(...prices) ? Math.min(...prices) : null;
+
+  const columnWidth = Math.max(140, Math.floor((Math.min(width, 440) - 32) / Math.max(medicines.length, 1)));
+  const open = (m: Med) => router.push({ pathname: '/pharmacy/product-detail', params: { id: m.id, name: medName(m) } });
+  const back = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace('/(tabs)/pharmacy' as Href);
   };
 
-  React.useEffect(() => { loadComparison(); }, [params.ids]);
-
-  const getBetter = (key: string) => {
-    if (medicines.length < 2) return -1;
-    if (key === 'price') return (medicines[0].price || 0) < (medicines[1].price || 0) ? 0 : 1;
-    if (key === 'rating') return (medicines[0].rating || 0) > (medicines[1].rating || 0) ? 0 : 1;
-    return -1;
-  };
-
-  return (
-    <View style={[styles.container, { backgroundColor: colors.background } ]}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-      <View style={[styles.header, { paddingTop: insets.top + 8, backgroundColor: isDark ? colors.surface : colors.white } ]}>
-        <AppText variant="bodySM">مقارنة الأدوية</AppText>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Icon name="back" size={22} color={colors.textPrimary} />
-        </TouchableOpacity>
+  let body: React.ReactNode;
+  if (loading) {
+    body = (
+      <View accessibilityLabel={k('pharmacy.loading')} accessibilityState={{ busy: true }} style={{ ...COLUMN, paddingHorizontal: 16, gap: 12 }}>
+        <View style={{ height: 180, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} />
+        <View style={{ height: 120, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} />
       </View>
-
-      <ScreenState loading={loading} error={error} empty={!loading && !error && medicines.length === 0} emptyTitle="لا توجد أدوية للمقارنة" onRetry={loadComparison}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
-        {/* Product Headers */}
-        <View style={[styles.productHeaders, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-          <View style={styles.labelCol} />
-          {medicines.map((m, i) => (
-            <View key={m.id} style={styles.productCol}>
-              <View style={[styles.productEmoji, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary } ]}>
-                <AppText variant="bodySM">{m.emoji}</AppText>
+    );
+  } else if (failed === 'offline') {
+    body = <OfflineState title={k('pharmacy.offline.title')} body={k('pharmacy.offline.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void load()} theme={theme} />;
+  } else if (failed === 'error') {
+    body = <ErrorState title={k('pharmacy.compare.loadError')} body={k('pharmacy.error.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void load()} theme={theme} />;
+  } else if (!medicines.length) {
+    body = <EmptyState icon="arrows-left-right" tone={SECONDARY_TONE} title={k('pharmacy.compare.empty')} theme={theme} />;
+  } else {
+    body = (
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16 }}>
+        <View style={{ width: columnWidth * medicines.length, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, overflow: 'hidden' }}>
+          {/* the medicines */}
+          <View style={{ flexDirection: 'row' }}>
+            {medicines.map((m) => (
+              <Pressable key={String(m.id)} accessibilityRole="link" accessibilityLabel={medName(m)} onPress={() => open(m)} style={{ width: columnWidth, padding: 12, gap: 8, alignItems: 'center' }}>
+                <View style={{ width: 88, height: 88, borderRadius: 18, backgroundColor: c.bg.media, overflow: 'hidden' }}>
+                  <ProductImage uri={medGallery(m)[0]} style={{ width: '100%', height: '100%' }} iconSize={40} />
+                </View>
+                <Text numberOfLines={3} style={{ ...scale(t, 'small', 'medium'), lineHeight: 19, color: c.text.primary, textAlign: 'center' }}>{medName(m)}</Text>
+                {text(m.manufacturer) ? <Text numberOfLines={1} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{text(m.manufacturer)}</Text> : null}
+              </Pressable>
+            ))}
+          </View>
+          {/* one block per field: its name, then each medicine's value */}
+          {rows.map((r) => (
+            <View key={r.key} style={{ borderTopWidth: 1, borderTopColor: c.border.subtle, paddingVertical: 10 }}>
+              <Text style={{ ...scale(t, 'micro', 'regular'), color: c.text.secondary, paddingHorizontal: 12, paddingBottom: 4, ...flow }}>{k(r.label)}</Text>
+              <View style={{ flexDirection: 'row' }}>
+                {medicines.map((m) => {
+                  const best = r.key === 'price' && lowest !== null && medPrice(m) === lowest;
+                  return (
+                    <View key={String(m.id)} style={{ width: columnWidth, paddingHorizontal: 12, gap: 6, alignItems: 'flex-start' }}>
+                      <Text style={{ ...scale(t, 'control', best ? 'bold' : 'regular'), color: c.text.primary, ...flow }}>{r.value(m, { k, money }) || MISSING}</Text>
+                      {best ? <StatusChip label={k('pharmacy.compare.lowest')} tone="mint" theme={theme} /> : null}
+                    </View>
+                  );
+                })}
               </View>
-              <AppText variant="bodySM">{pickLocalized(m.name_ar, m.name)}</AppText>
-              <AppText variant="bodySM">{m.manufacturer || m.brand}</AppText>
             </View>
           ))}
-        </View>
-
-        {/* Compare Rows */}
-        {COMPARE_ROWS.map((row, rowIdx) => {
-          const betterIdx = getBetter(row.key);
-          return (
-            <View key={row.key} style={[styles.compareRow, { backgroundColor: rowIdx % 2 === 0 ? (isDark ? colors.surface : colors.white) : 'transparent' } ]}>
-              <View style={styles.labelCol}>
-                <AppText variant="bodySM">{row.icon}</AppText>
-                <AppText variant="bodySM">{row.label}</AppText>
+          {/* add to cart */}
+          <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: c.border.subtle, paddingVertical: 12 }}>
+            {medicines.map((m) => (
+              <View key={String(m.id)} style={{ width: columnWidth, paddingHorizontal: 12 }}>
+                <Button label={k('pharmacy.addToCart')} size="sm" variant="outline" fullWidth onPress={() => addToCart(m)} theme={theme} />
               </View>
-              {medicines.map((m, i) => {
-                const mappedKey = row.key === 'name' ? 'name_ar' : (row.key === 'ingredient' ? 'active_ingredient' : (row.key === 'brand' ? 'manufacturer' : row.key));
-                const val = m[mappedKey as keyof typeof m] || m[row.key as keyof typeof m] || 'غير متوفر';
-                const isBetter = betterIdx === i;
-                const display = row.bool
-                  ? (val ? ' نعم' : ' لا')
-                  : `${val}${row.suffix || ''}`;
-                return (
-                  <View key={m.id} style={[styles.productCol, isBetter && { backgroundColor: colors.secondarySurface + '80' } ]}>
-                    <AppText variant="bodySM">
-                      {display}
-                    </AppText>
-                    {isBetter && <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6}}><Icon name="sparkles" size={16} color={colors.primary} /><AppText variant="bodySM">أفضل</AppText></View>}
-                  </View>
-                );
-              })}
-            </View>
-          );
-        })}
-
-        {/* Add to Cart Row */}
-        <View style={[styles.compareRow, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-          <View style={styles.labelCol} />
-          {medicines.map((m) => (
-            <TouchableOpacity key={m.id} style={[styles.productCol, { paddingVertical: 12 }]}
-              onPress={() => { /* Requires backend API integration */ }}>
-              <View style={[styles.addBtn, { backgroundColor: colors.secondary } ]}>
-                <Icon name="shopping_cart" size={16} color="#fff" />
-                <AppText variant="bodySM">أضف للسلة</AppText>
-              </View>
-            </TouchableOpacity>
-          ))}
+            ))}
+          </View>
         </View>
       </ScrollView>
-      </ScreenState>
-    </View>
+    );
+  }
+
+  return (
+    <Screen theme={theme} direction={dir} header={<View style={COLUMN}><AppHeader title={k('pharmacy.compare.title')} onBack={back} backLabel={k('pharmacy.back')} theme={theme} direction={dir} /></View>} scroll testID="medicine-compare">
+      <View style={{ ...COLUMN, paddingTop: 8, paddingBottom: 40, alignSelf: 'center' }}>{body}</View>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 14 },
-  title: { fontSize: 18, fontWeight: '800' },
-  productHeaders: { flexDirection: 'row', paddingVertical: 16, paddingHorizontal: 8, marginBottom: 2 },
-  labelCol: { width: 90, justifyContent: 'center', alignItems: 'center' },
-  productCol: { flex: 1, alignItems: 'center', gap: 4, borderRadius: 12, paddingVertical: 8 },
-  productEmoji: { width: 60, height: 60, borderRadius: 18, justifyContent: 'center', alignItems: 'center' },
-  productName: { fontSize: 12, fontWeight: '800', textAlign: 'center' },
-  productBrand: { fontSize: 10, fontWeight: '400' },
-  compareRow: { flexDirection: 'row', paddingVertical: 12, paddingHorizontal: 8, alignItems: 'center' },
-  rowIcon: { fontSize: 14, marginBottom: 2 },
-  rowLabel: { fontSize: 10, fontWeight: '400', textAlign: 'center' },
-  rowVal: { fontSize: 12, textAlign: 'center' },
-  betterBadge: { fontSize: 9, color: '#00977D', fontWeight: '700' },
-  addBtn: { flexDirection: 'row-reverse', gap: 4, alignItems: 'center', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7 },
-  addBtnText: { color: '#fff', fontSize: 11, fontWeight: '800' },
-});

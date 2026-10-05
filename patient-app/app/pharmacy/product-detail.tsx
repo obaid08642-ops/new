@@ -1,137 +1,197 @@
-// @ts-nocheck
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  ActivityIndicator, Animated, Modal, Dimensions, Alert, TextInput, PanResponder
+  FlatList,
+  Modal,
+  PanResponder,
+  Pressable,
+  ScrollView,
+  Share,
+  Text,
+  View,
+  useWindowDimensions,
+  type ViewToken,
 } from 'react-native';
-import { router, useLocalSearchParams, Stack } from 'expo-router';
+import Svg, { Path } from 'react-native-svg';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../../src/context/AppContext';
-import { useCart } from '../../src/context/CartContext';
-import { lightColors, darkColors } from '../../src/theme/colors';
-import { apiFetch } from '../../src/utils/api';
+
+import {
+  AppHeader,
+  Button,
+  Card,
+  Chip,
+  EmptyState,
+  ErrorState,
+  FIcon,
+  Icon,
+  Input,
+  OfflineState,
+  Radio,
+  Screen,
+  SectionHeader,
+  Stepper,
+  StickyFooter,
+} from '../../../packages/ui-native/src';
 import ProductImage from '../../src/components/ProductImage';
-import { resolveGallery } from '../../src/utils/imageUrl';
-import { prefetchAlternatives, prefetchHotMedicines } from '../../src/utils/prefetch';
-import { useTranslation } from '../../src/i18n';
-import { pickLocalized, pickDbField } from '../../src/utils/localize';
-import { getVisibleProductIds } from '../../src/utils/productNav';
-import { LocalizedText } from '../../src/components/LocalizedText';
+import { CountBadge, Glyph, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
+import { DetailAccordion, FactsGrid, MiniProduct, Pill, SafetyCard, type AccordionSection } from '../../src/components/pharmacy/ProductSections';
+import { COLUMN, step as scale, tint, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { useCart } from '../../src/context/CartContext';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { apiFetch } from '../../src/utils/api';
+import { dateLocaleFor } from '../../src/utils/dates';
+import { isOffline } from '../../src/utils/isOffline';
+import { logError } from '../../src/utils/logger';
+import { currentDbLang } from '../../src/utils/localize';
+import { prefetchAlternatives, prefetchHotMedicines } from '../../src/utils/prefetch';
+import { getVisibleProductIds } from '../../src/utils/productNav';
+import { discountPercent, medField, medGallery, medMeta, medName, medPrice, needsRx, type Med } from '../../src/utils/pharmacyCatalog';
 
-const { width } = Dimensions.get('window');
+/**
+ * Product page — board ProductFull (canvas/ProductFull.dc.html), field mapping in SPEC_PRODUCT_DOCTOR_DETAIL §A.
+ *
+ * Gallery with dots and the discount / online-only badges, then the sheet: Rx, category and cold-chain chips, the
+ * name block, the price card with the quantity stepper and availability, the shortage note, the key facts, the
+ * alternatives, safety, the details accordion, related products, "ask a pharmacist" and the identifiers, with the
+ * glass footer (total, add to cart, buy now). Every field is hidden when the API does not send it; nothing is made up.
+ */
 
-// ── Accordion — renders nothing when the API has no data for it ────────────
-function DetailAccordion({ title, icon, content, colors, isRTL, defaultOpen = false, isWarning = false }: any) {
-  const [open, setOpen] = useState(defaultOpen);
-  if (!content || content === 'null' || (Array.isArray(content) && content.length === 0)) return null;
-  const themeColor = isWarning ? '#F0695C' : '#23B5CE';
-  const bg = isWarning ? '#FEEFED' : colors.s;
-  const border = isWarning ? '#F0695C44' : colors.bd;
+type Detail = Med & {
+  country_of_origin?: string | null;
+  cold_chain?: boolean;
+  controlled?: boolean;
+  online_exclusive?: boolean;
+  potentially_unavailable?: boolean;
+  discontinued?: boolean;
+  shortage_notes?: string | null;
+  pharmacies_count?: number;
+  stock_status?: { pharmacies_count?: number };
+  sku?: number | string | null;
+  barcode?: string | null;
+  medical_review_status?: string;
+  last_reviewed?: string | null;
+  alternatives?: Med[];
+  related_product_ids?: string[];
+  interactions?: string[];
+};
+
+/** A field as a list of lines: an array as it is, a text split at its line breaks, nothing when empty. */
+const linesOf = (v: unknown): string[] => {
+  if (Array.isArray(v)) return v.map((x) => String(x).trim()).filter(Boolean);
+  if (typeof v === 'string' && v.trim() && v !== 'null') return v.split('\n').map((x) => x.trim()).filter(Boolean);
+  return [];
+};
+const textOf = (v: unknown): string => (typeof v === 'string' && v.trim() && v !== 'null' ? v.trim() : '');
+
+/** A 44 round glass button over the gallery (board: white 72% with a hairline ring). */
+function GlassButton({ label, onPress, children }: { label: string; onPress: () => void; children: React.ReactNode }) {
+  const { c } = useScreenUi();
   return (
-    <View style={[styles.accordion, { backgroundColor: bg, borderColor: border }]}>
-      <TouchableOpacity style={[styles.accHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]} onPress={() => setOpen(!open)} activeOpacity={0.7}>
-        <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', flex: 1 }}>
-          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: themeColor, fontSize: 24, marginHorizontal: 8 }}>{icon}</LocalizedText>
-          <LocalizedText style={{ fontFamily: 'Cairo-Black', fontSize: 16, color: isWarning ? '#141A2A' : colors.n }}>{title}</LocalizedText>
-        </View>
-        <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.t3, fontSize: 24 }}>{open ? 'expand_less' : 'expand_more'}</LocalizedText>
-      </TouchableOpacity>
-      {open && (
-        <View style={[styles.accContent, { borderTopColor: border }]}>
-          <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 14, lineHeight: 24, color: isWarning ? '#4C5566' : colors.t2, textAlign: isRTL ? 'right' : 'left' }}>
-            {Array.isArray(content) ? content.map((c, i) => `• ${c}`).join('\n') : content}
-          </LocalizedText>
-        </View>
-      )}
-    </View>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={onPress}
+      style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 22, backgroundColor: c.glass.bgStrong, borderWidth: 1, borderColor: c.border.onGlass, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.8 : 1 })}
+    >
+      {children}
+    </Pressable>
   );
 }
 
-// ── Small labelled fact chip ───────────────────────────────────────────────
-function Fact({ icon, title, value, colors, isRTL }: any) {
-  if (!value) return null;
-  return (
-    <View style={[styles.fact, { backgroundColor: colors.s, borderColor: colors.bd, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-      <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 20, marginHorizontal: 8 }}>{icon}</LocalizedText>
-      <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
-        <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 11, color: colors.t3 }}>{title}</LocalizedText>
-        <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 13, color: colors.n }} numberOfLines={2}>{value}</LocalizedText>
-      </View>
-    </View>
-  );
-}
+const SUGGEST_TYPES = [
+  { id: 'field_edit', label: 'pharmacy.suggest.fieldEdit' },
+  { id: 'image_remove', label: 'pharmacy.suggest.imageRemove' },
+  { id: 'shortage_badge', label: 'pharmacy.suggest.shortage' },
+  { id: 'duplicate_remove', label: 'pharmacy.suggest.duplicate' },
+  { id: 'other', label: 'pharmacy.suggest.other' },
+] as const;
+const SUGGEST_FIELDS = [
+  { id: 'description_ar', label: 'pharmacy.suggest.fieldDescription' },
+  { id: 'active_ingredient', label: 'pharmacy.suggest.fieldIngredient' },
+  { id: 'usage_instructions_ar', label: 'pharmacy.suggest.fieldUsage' },
+  { id: 'dosage_ar', label: 'pharmacy.suggest.fieldDosage' },
+  { id: 'manufacturer', label: 'pharmacy.suggest.fieldMaker' },
+  { id: 'name_ar', label: 'pharmacy.suggest.fieldName' },
+] as const;
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { theme, t, c, dir, flow, k, num, money, lang } = useScreenUi();
   const insets = useSafeAreaInsets();
-  const { isDark, lang } = useApp() as any;
-  const colors = isDark ? darkColors : lightColors;
-  const isRTL = lang === 'ar' || lang === 'ur';
-  const t = useTranslation(lang as any);
-  const { addItem, updateQty, items } = useCart();
+  const { width } = useWindowDimensions();
+  const colWidth = Math.min(width, 440);
+  const { items, updateQty, itemCount } = useCart();
+  const addToCart = useAddMedToCart();
 
-  // ── Swipe between products — EDGE ONLY ──────────────────────────────────
-  // Previously the PanResponder sat on the root view and stole ANY horizontal
-  // drag (including scrolling the image gallery), jumping to another product.
-  // Now: the gesture must START within 28px of the screen edge AND travel
-  // ≥110px horizontally — gallery swipes and normal touches never trigger it.
+  // ── Swipe between products — from the screen edge only ──────────────────
+  // The gesture must start within 28 of the edge AND travel 110 sideways, so the gallery's own swipe and normal
+  // touches never trigger it.
+  const widthRef = useRef(width);
+  widthRef.current = width;
   const navIdsRef = useRef<string[]>([]);
   if (!navIdsRef.current.length) navIdsRef.current = getVisibleProductIds();
-  const goSibling = (dir: 1 | -1) => {
+  const goSibling = (step: 1 | -1) => {
     const ids = navIdsRef.current;
     const i = ids.indexOf(String(id));
-    const next = ids[i + dir];
+    const next = ids[i + step];
     if (i >= 0 && next) router.push({ pathname: '/pharmacy/product-detail', params: { id: next } });
   };
-  const swipeRef = useRef(
+  const goSiblingRef = useRef(goSibling);
+  goSiblingRef.current = goSibling;
+  const swipe = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (e, g) => {
-        const startX = e.nativeEvent.pageX - g.dx; // gesture origin
-        const fromEdge = startX <= 28 || startX >= width - 28;
+        const startX = e.nativeEvent.pageX - g.dx;
+        const fromEdge = startX <= 28 || startX >= widthRef.current - 28;
         return fromEdge && Math.abs(g.dx) > 70 && Math.abs(g.dy) < 30;
       },
       onPanResponderRelease: (_e, g) => {
-        if (g.dx <= -110) goSibling(1);   // edge swipe left  → next product
-        else if (g.dx >= 110) goSibling(-1); // edge swipe right → previous product
+        if (g.dx <= -110) goSiblingRef.current(1);
+        else if (g.dx >= 110) goSiblingRef.current(-1);
       },
-    })
+    }),
   ).current;
 
-  const [med, setMed] = useState<any>(null);
+  const [med, setMed] = useState<Detail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const [images, setImages] = useState<string[]>([]);
-  const [isZoomVisible, setIsZoomVisible] = useState(false);
-  const [suggestVisible, setSuggestVisible] = useState(false);
-  const [suggestType, setSuggestType] = useState('field_edit');
-  const [suggestField, setSuggestField] = useState('description_ar');
+  const [activeImage, setActiveImage] = useState(0);
+  const [zoom, setZoom] = useState(false);
+  const [qty, setQty] = useState(1);
+  const [related, setRelated] = useState<Med[]>([]);
+  const [inWishlist, setInWishlist] = useState(false);
+  const [wishlistBusy, setWishlistBusy] = useState(false);
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [suggestType, setSuggestType] = useState<string>('field_edit');
+  const [suggestField, setSuggestField] = useState<string>('description_ar');
   const [suggestValue, setSuggestValue] = useState('');
   const [suggestNote, setSuggestNote] = useState('');
   const [suggestSending, setSuggestSending] = useState(false);
-  const [activeImage, setActiveImage] = useState(0);
 
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const qty = items.find(i => i.id === id)?.qty || 0;
-  const inCart = qty > 0;
-  const [inWishlist, setInWishlist] = useState(false);
-  const [wishlistBusy, setWishlistBusy] = useState(false);
+  const line = items.find((i) => String(i.id) === String(id));
+  const inCartQty = line?.qty ?? 0;
+  const shownQty = inCartQty > 0 ? inCartQty : qty;
 
   useEffect(() => {
     let active = true;
-    apiFetch('/users/me/wishlist')
-      .then((rows: any) => {
+    apiFetch<Med[] | { data?: Med[] }>('/users/me/wishlist')
+      .then((rows) => {
         const list = Array.isArray(rows) ? rows : rows?.data || [];
-        if (active) setInWishlist(list.some((r: any) => String(r.id) === String(id)));
+        if (active) setInWishlist(list.some((r) => String(r.id) === String(id)));
       })
       .catch(() => null);
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [id]);
 
   const toggleWishlist = async () => {
     if (wishlistBusy) return;
     setWishlistBusy(true);
     try {
-      const res: any = await apiFetch(`/users/me/wishlist/${id}`, { method: 'POST' });
+      const res = await apiFetch<{ in_wishlist?: boolean }>(`/users/me/wishlist/${id}`, { method: 'POST' });
       setInWishlist(res?.in_wishlist ?? !inWishlist);
     } catch {
       // honest failure: leave the icon unchanged
@@ -140,54 +200,70 @@ export default function ProductDetailScreen() {
     }
   };
 
+  // GET /medicines/:id/details — the enriched row: every field, the gallery, the discount, alternatives and stock
   useEffect(() => {
+    let active = true;
     (async () => {
+      setLoading(true);
+      setFailed(null);
       try {
-        // Enriched endpoint: ALL fields + gallery + discount + alternatives + stock
-        // ?lang= lets the server localize structured fields (form/category/package size)
-        const { currentDbLang } = require('../../src/utils/localize');
-        const data = await apiFetch(`/medicines/${id}/details?lang=${currentDbLang()}`);
+        const data = await apiFetch<Detail>(`/medicines/${id}/details?lang=${currentDbLang()}`);
+        if (!active) return;
         if (data && data.id) {
           setMed(data);
-          setImages(resolveGallery(data));
-          // Emit dynamic product ranking event (product_viewed)
-          apiFetch('/medicines/events', {
-            method: 'POST',
-            body: JSON.stringify({ event_type: 'product_viewed', drug_id: id })
-          }).catch(() => {});
-          // Predictive: preload alternatives (user's next likely taps) + hot list
+          setImages(medGallery(data));
+          apiFetch('/medicines/events', { method: 'POST', body: JSON.stringify({ event_type: 'product_viewed', drug_id: id }) }).catch(() => {});
           prefetchAlternatives(data.alternatives || []);
           prefetchHotMedicines();
+        } else {
+          setMed(null);
         }
-      } catch {
-        setMed(null);
+      } catch (e) {
+        logError('pharmacy:product-detail', e);
+        if (active) {
+          setMed(null);
+          setFailed((await isOffline()) ? 'offline' : 'error');
+        }
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     })();
-  }, [id]);
+    return () => {
+      active = false;
+    };
+  }, [id, reloadKey]);
 
-  const rx = !!(med?.requires_prescription || med?.rx);
-  const onlineExclusive = !!med?.online_exclusive;
-  const potentiallyUnavailable = !!med?.potentially_unavailable;
-  const discount = med?.discount_percent || 0;
-  const oldPrice = med?.old_price || 0;
+  // related products: the row only holds ids, so the real rows come from the catalogue's batch lookup
+  useEffect(() => {
+    const ids = (med?.related_product_ids ?? []).slice(0, 8);
+    if (!ids.length) {
+      setRelated([]);
+      return;
+    }
+    let active = true;
+    apiFetch<Med[]>('/medicines/compare', { method: 'POST', body: JSON.stringify({ ids }) })
+      .then((rows) => {
+        if (active) setRelated(Array.isArray(rows) ? rows : []);
+      })
+      .catch(() => {
+        if (active) setRelated([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, [med]);
 
-  const SUGGEST_TYPES = [
-    { k: 'field_edit', ar: 'تعديل بيانات (وصف/مادة فعالة/استخدام)' },
-    { k: 'image_remove', ar: 'الصورة غير صحيحة — إزالتها' },
-    { k: 'shortage_badge', ar: 'الصنف ناقص في السوق' },
-    { k: 'duplicate_remove', ar: 'صنف مكرر — حذفه' },
-    { k: 'other', ar: 'ملاحظة أخرى' },
-  ];
-  const SUGGEST_FIELDS = [
-    { k: 'description_ar', ar: 'الوصف' }, { k: 'active_ingredient', ar: 'المادة الفعالة' },
-    { k: 'usage_instructions_ar', ar: 'إرشادات الاستخدام' }, { k: 'dosage_ar', ar: 'الجرعة' },
-    { k: 'manufacturer', ar: 'الشركة المصنعة' }, { k: 'name_ar', ar: 'الاسم' },
-  ];
+  const onViewable = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
+    const first = viewableItems[0];
+    if (first && typeof first.index === 'number') setActiveImage(first.index);
+  }).current;
+
   const submitSuggestion = async () => {
     if (suggestSending) return;
-    if (suggestType === 'field_edit' && !suggestValue.trim()) { showLocalizedAlert('', isRTL ? 'اكتب القيمة الصحيحة المقترحة' : 'Enter the suggested value'); return; }
+    if (suggestType === 'field_edit' && !suggestValue.trim()) {
+      showLocalizedAlert('', k('pharmacy.suggest.valueRequired'));
+      return;
+    }
     setSuggestSending(true);
     try {
       await apiFetch(`/medicines/${id}/suggest-change`, {
@@ -198,401 +274,526 @@ export default function ProductDetailScreen() {
           note: suggestNote.trim() || undefined,
         }),
       });
-      setSuggestVisible(false); setSuggestValue(''); setSuggestNote('');
-      showLocalizedAlert(isRTL ? 'تم الإرسال' : 'Sent', isRTL ? 'وصل اقتراحك للإدارة وسيُطبَّق بعد الاعتماد. شكراً لك.' : 'Your suggestion reached the admin and will go live after approval.');
-    } catch (e) {
-      showLocalizedAlert(isRTL ? 'تعذر الإرسال' : 'Failed', isRTL ? 'حاول مرة أخرى لاحقاً' : 'Please try again later');
-    } finally { setSuggestSending(false); }
+      setSuggestOpen(false);
+      setSuggestValue('');
+      setSuggestNote('');
+      showLocalizedAlert(k('pharmacy.suggest.sentTitle'), k('pharmacy.suggest.sentBody'));
+    } catch {
+      showLocalizedAlert(k('pharmacy.suggest.failTitle'), k('pharmacy.suggest.failBody'));
+    } finally {
+      setSuggestSending(false);
+    }
   };
 
-  const handleAdd = useCallback(() => {
-    Animated.sequence([
-      Animated.timing(scaleAnim, { toValue: 0.88, duration: 80, useNativeDriver: true }),
-      Animated.spring(scaleAnim, { toValue: 1, friction: 3, tension: 200, useNativeDriver: true }),
-    ]).start();
-    if (!med) return;
+  const back = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace('/(tabs)/pharmacy' as Href);
+  };
+  const go = (href: Href) => router.push(href);
 
-    if (rx) {
-      showLocalizedAlert(
-        t('pd.rx_alert_title'),
-        isRTL ? 'هذا الدواء يتطلب إرفاق روشتة طبية سارية — سيُطلب رفعها في السلة قبل إتمام الدفع.' : 'This medicine requires a valid prescription — you will upload it in the cart before checkout.',
-        [{ text: t('pd.ok') }]
-      );
-    }
-    // online_exclusive is only a badge — it must not restrict delivery or pickup.
+  // ── the product the page draws ──────────────────────────────────────────
+  const view = useMemo(() => {
+    if (!med) return null;
+    const name = medName(med);
+    const price = medPrice(med);
+    const pct = discountPercent(med);
+    const rx = needsRx(med);
+    const lastReviewed = med.last_reviewed ? new Date(med.last_reviewed) : null;
+    const stock = med.pharmacies_count ?? med.stock_status?.pharmacies_count ?? 0;
+    const storage = textOf(medField(med, 'storage_conditions'));
+    // `label` is a translation key; `value` is data, or a key when `valueIsKey`
+    const shortFacts: { key: string; icon: 'pill' | 'scales' | 'package' | 'thermometer' | 'globe' | 'file-text'; label: string; value: string; valueIsKey?: boolean }[] = [];
+    const add = (key: string, icon: (typeof shortFacts)[number]['icon'], label: string, value: string) => value && shortFacts.push({ key, icon, label, value });
+    add('form', 'pill', 'pharmacy.fact.form', textOf(medField(med, 'form')));
+    add('strength', 'scales', 'pharmacy.fact.strength', textOf(medField(med, 'strength')));
+    add('pack', 'package', 'pharmacy.fact.pack', textOf(med.package_size));
+    add('storage', 'thermometer', 'pharmacy.fact.storage', storage && storage.length <= 28 ? storage : '');
+    add('origin', 'globe', 'pharmacy.fact.origin', textOf(med.country_of_origin));
+    shortFacts.push({ key: 'rx', icon: 'file-text', label: 'pharmacy.fact.rx', value: rx ? 'pharmacy.fact.rxRequired' : 'pharmacy.fact.rxNotRequired', valueIsKey: true });
 
-    addItem({
-      id: med.id,
-      name: pickDbField(med, 'name') || med.name_en || med.name,
-      price: med.price || 0,
+    const pregnancy = textOf(medField(med, 'pregnancy_info'));
+    const breastfeeding = textOf(medField(med, 'breastfeeding_info'));
+    const sections: AccordionSection[] = [
+      { key: 'description', title: 'pharmacy.section.description', items: linesOf(medField(med, 'description')) },
+      { key: 'indications', title: 'pharmacy.section.indications', items: linesOf(medField(med, 'indications')) },
+      { key: 'dosage', title: 'pharmacy.section.dosage', items: linesOf(medField(med, 'dosage')) },
+      { key: 'usage', title: 'pharmacy.section.usage', items: linesOf(medField(med, 'usage_instructions')) },
+      { key: 'warnings', title: 'pharmacy.section.warnings', items: linesOf(medField(med, 'warnings')) },
+      { key: 'precautions', title: 'pharmacy.section.precautions', items: linesOf(medField(med, 'precautions')) },
+      { key: 'side', title: 'pharmacy.section.sideEffects', items: linesOf(medField(med, 'side_effects')) },
+      { key: 'contra', title: 'pharmacy.section.contra', items: linesOf(medField(med, 'contraindications')) },
+      { key: 'interactions', title: 'pharmacy.section.interactions', items: linesOf(med.interactions) },
+      { key: 'pregnancy', title: 'pharmacy.section.pregnancyBreastfeeding', items: [...linesOf(pregnancy), ...linesOf(breastfeeding)] },
+      { key: 'storage', title: 'pharmacy.section.storage', items: linesOf(storage) },
+      { key: 'more', title: 'pharmacy.section.more', items: linesOf(medField(med, 'more_info')) },
+    ].filter((s) => s.items.length > 0);
+
+    return {
+      name,
+      price,
+      pct,
       rx,
-      online_exclusive: onlineExclusive,
-      image: images[0] || med.image,
-      icon: med.icon || 'medication',
-      iconColor: med.iconColor || '#23B5CE',
-      iconBg: med.iconBg || '#DEF5F9',
-    });
-  }, [med, addItem, scaleAnim, isRTL, rx, onlineExclusive, images]);
+      enName: lang !== 'en' && med.name_en && med.name_en !== name ? med.name_en : '',
+      ingredient: textOf(medField(med, 'active_ingredient')),
+      generic: textOf(med.generic_name),
+      maker: textOf(med.manufacturer),
+      origin: textOf(med.country_of_origin),
+      category: textOf(medField(med, 'category')),
+      subCategory: textOf(medField(med, 'sub_category')),
+      categoryRaw: textOf(med.category),
+      facts: shortFacts,
+      stock,
+      limited: Boolean(med.potentially_unavailable),
+      discontinued: Boolean(med.discontinued),
+      pregnancy,
+      breastfeeding,
+      sections,
+      reviewed: med.medical_review_status === 'approved',
+      reviewedOn: lastReviewed && !Number.isNaN(lastReviewed.getTime()) ? lastReviewed.toLocaleDateString(dateLocaleFor(lang), { year: 'numeric', month: 'short', day: 'numeric' }) : '',
+      alternatives: Array.isArray(med.alternatives) ? med.alternatives : [],
+    };
+  }, [med, lang]);
 
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg }}>
-        <ActivityIndicator size="large" color="#23B5CE" />
+  const cartBadge = <CountBadge count={itemCount} />;
+
+  // ── loading, failure, not found ─────────────────────────────────────────
+  if (loading || !med || !view) {
+    const stateBody = loading ? (
+      <View accessibilityLabel={k('pharmacy.loading')} accessibilityState={{ busy: true }} style={{ ...COLUMN, gap: 12 }}>
+        <View style={{ height: 300, backgroundColor: c.bg.surface }} />
+        <View style={{ paddingHorizontal: 16, gap: 10 }}>
+          <View style={{ height: 28, width: '70%', borderRadius: 8, backgroundColor: c.bg.sunken }} />
+          <View style={{ height: 14, width: '40%', borderRadius: 7, backgroundColor: c.bg.sunken }} />
+          <View style={{ height: 110, borderRadius: 24, backgroundColor: c.bg.surface }} />
+        </View>
       </View>
+    ) : failed === 'offline' ? (
+      <OfflineState title={k('pharmacy.offline.title')} body={k('pharmacy.offline.body')} retryLabel={k('pharmacy.retry')} onRetry={() => setReloadKey((k) => k + 1)} theme={theme} />
+    ) : failed === 'error' ? (
+      <ErrorState title={k('pharmacy.product.loadError')} body={k('pharmacy.error.body')} retryLabel={k('pharmacy.retry')} onRetry={() => setReloadKey((k) => k + 1)} theme={theme} />
+    ) : (
+      <EmptyState icon="magnifying-glass" tone={PHARMACY_TONE} title={k('pharmacy.product.notFound')} actionLabel={k('pharmacy.title')} onAction={() => router.replace('/(tabs)/pharmacy' as Href)} theme={theme} />
+    );
+    return (
+      <Screen theme={theme} direction={dir} header={<View style={COLUMN}><AppHeader onBack={back} backLabel={k('pharmacy.back')} theme={theme} direction={dir} /></View>} scroll testID="product-detail">
+        {stateBody}
+      </Screen>
     );
   }
 
-  if (!med) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg }}>
-        <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 18, color: colors.t2 }}>
-          {t('pd.not_found')}
-        </LocalizedText>
-      </View>
-    );
-  }
+  const stockLine = view.stock > 0 ? (view.stock === 1 ? k('pharmacy.product.stockOne') : k('pharmacy.product.stockMany', { n: num(view.stock) })) : '';
+  const compareIds = [String(med.id), ...view.alternatives.map((a) => String(a.id))].slice(0, 4);
 
-  const name = pickDbField(med, 'name') || med.name_en || med.name;
-  const pick = (_ar: any, _en: any, base?: string) => base ? pickDbField(med, base) : pickLocalized(_ar, _en);
-  const alternatives = Array.isArray(med.alternatives) ? med.alternatives : [];
-  const seoTitle = `${name} | ${med.active_ingredient || ''} | صيدلية نبض`;
+  const safetyRows = [
+    view.pregnancy ? { key: 'pregnancy', icon: 'baby' as const, tone: 'amber' as const, title: k('pharmacy.safety.pregnancy'), text: view.pregnancy } : null,
+    view.breastfeeding ? { key: 'breastfeeding', icon: 'baby-carriage' as const, tone: 'violet' as const, title: k('pharmacy.safety.breastfeeding'), text: view.breastfeeding } : null,
+    med.cold_chain ? { key: 'cold', icon: 'thermometer' as const, tone: 'blue' as const, title: k('pharmacy.safety.cold'), text: k('pharmacy.safety.coldBody') } : null,
+    med.controlled ? { key: 'controlled', icon: 'warning' as const, tone: PHARMACY_TONE, title: k('pharmacy.safety.controlled'), text: k('pharmacy.safety.controlledBody') } : null,
+  ].filter((r): r is NonNullable<typeof r> => r !== null);
+
+  const alternativesBlock = view.alternatives.length ? (
+    <View style={{ gap: 10 }}>
+      <SectionHeader title={k('pharmacy.product.alternatives')} actionLabel={k('pharmacy.viewAll')} onActionPress={() => router.push({ pathname: '/pharmacy/medicine-compare', params: { ids: compareIds.join(',') } })} theme={theme} />
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingHorizontal: 16 }} style={{ marginHorizontal: -16 }}>
+        {view.alternatives.map((alt) => {
+          const p = medPrice(alt);
+          const badge = p && view.price ? (p < view.price ? { label: k('pharmacy.product.cheaper'), tone: 'success' as const } : p === view.price ? { label: k('pharmacy.product.samePrice'), tone: 'neutral' as const } : undefined) : undefined;
+          return (
+            <MiniProduct
+              key={String(alt.id)}
+              name={medName(alt)}
+              meta={medMeta(alt)}
+              price={p ? money(p) : undefined}
+              currency={p ? k('pharmacy.currency') : undefined}
+              uri={medGallery(alt)[0]}
+              badge={badge}
+              onPress={() => router.push({ pathname: '/pharmacy/product-detail', params: { id: alt.id } })}
+            />
+          );
+        })}
+      </ScrollView>
+    </View>
+  ) : null;
+
+  const share = async () => {
+    try {
+      const url = `https://app.nabdahplus.com/s/medicine/${med.slug || med.id}`;
+      await Share.share({ message: `${view.name}\n${url}`, url });
+    } catch (e) {
+      logError('pharmacy:product-detail:share', e);
+    }
+  };
+
+  const buyNow = () => {
+    if (inCartQty === 0) addToCart(med, qty);
+    go('/pharmacy/cart' as Href);
+  };
+  const addOrOpenCart = () => {
+    if (inCartQty > 0) go('/pharmacy/cart' as Href);
+    else addToCart(med, qty);
+  };
+
+  const footer = view.discontinued ? undefined : (
+    <StickyFooter theme={theme} direction={dir}>
+      <View style={{ ...COLUMN, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+        {view.price ? (
+          <View style={{ minWidth: 84 }}>
+            <Text style={{ ...scale(t, 'micro', 'regular'), color: c.text.secondary, ...flow }}>{k('pharmacy.product.total')}</Text>
+            <Text style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>
+              {money(view.price * shownQty)} <Text style={{ ...scale(t, 'meta', 'regular') }}>{k('pharmacy.currency')}</Text>
+            </Text>
+          </View>
+        ) : null}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={inCartQty > 0 ? k('pharmacy.viewCart') : k('pharmacy.addToCart')}
+          onPress={addOrOpenCart}
+          style={({ pressed }) => ({ width: 56, height: 56, borderRadius: 18, borderWidth: 1.5, borderColor: c.text.primary, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.8 : 1 })}
+        >
+          <Icon name="cart" size={24} theme={theme} />
+        </Pressable>
+        <View style={{ flex: 1 }}>
+          <Button label={k('pharmacy.product.buyNow')} size="lg" fullWidth onPress={buyNow} theme={theme} />
+        </View>
+      </View>
+    </StickyFooter>
+  );
+
+  const pageWidth = colWidth;
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.bg }]} {...swipeRef.panHandlers}>
-      <Stack.Screen options={{ title: seoTitle, headerShown: false }} />
-
-      {/* Header overlay */}
-      <View style={[styles.headerOverlay, { paddingTop: insets.top }]}>
-        <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
-          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#141A2A', fontSize: 26 }}>{isRTL ? 'arrow_forward' : 'arrow_back'}</LocalizedText>
-        </TouchableOpacity>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <TouchableOpacity style={styles.iconBtn} onPress={toggleWishlist} accessibilityLabel={inWishlist ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}>
-            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: inWishlist ? '#E11D48' : '#141A2A', fontSize: 26 }}>{inWishlist ? 'favorite' : 'favorite_border'}</LocalizedText>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('/pharmacy/cart')}>
-            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#141A2A', fontSize: 26 }}>shopping_cart</LocalizedText>
-            {items.length > 0 && (
-              <View style={styles.cartBadge}><LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 10 }}>{items.length}</LocalizedText></View>
+    <View style={{ flex: 1 }} {...swipe.panHandlers}>
+      <Screen theme={theme} direction={dir} scroll edges={[]} footer={footer} contentContainerStyle={{ paddingBottom: 24 }} testID="product-detail">
+        {/* gallery */}
+        <View style={{ height: 380, backgroundColor: c.bg.surface, alignItems: 'center' }}>
+          <View style={{ width: pageWidth, height: 380 }}>
+            {images.length ? (
+              <FlatList
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                data={images}
+                keyExtractor={(u, i) => `${i}-${u}`}
+                onViewableItemsChanged={onViewable}
+                viewabilityConfig={{ itemVisiblePercentThreshold: 60 }}
+                getItemLayout={(_d, index) => ({ length: pageWidth, offset: pageWidth * index, index })}
+                renderItem={({ item, index }) => (
+                  <Pressable
+                    accessibilityRole="imagebutton"
+                    accessibilityLabel={`${view.name} ${index + 1}/${images.length}`}
+                    onPress={() => {
+                      setActiveImage(index);
+                      setZoom(true);
+                    }}
+                    style={{ width: pageWidth, height: 380, alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    <ProductImage uri={item} style={{ width: 236, height: 236, borderRadius: 40 }} iconSize={120} />
+                  </Pressable>
+                )}
+              />
+            ) : (
+              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <FIcon icon="pill" tone={PHARMACY_TONE} chip="none" size={120} theme={theme} />
+              </View>
             )}
-          </TouchableOpacity>
+            <View pointerEvents="none" style={{ position: 'absolute', top: insets.top + 58, start: 16, gap: 6, alignItems: 'flex-start' }}>
+              {view.pct > 0 ? (
+                <View style={{ height: 28, paddingHorizontal: 10, borderRadius: 14, backgroundColor: c.action.primary.bg, justifyContent: 'center' }}>
+                  <Text style={{ ...scale(t, 'label', 'bold'), color: c.action.primary.fg }}>{k('pharmacy.discount', { n: num(view.pct) })}</Text>
+                </View>
+              ) : null}
+              {med.online_exclusive ? (
+                <View style={{ height: 28, paddingHorizontal: 10, borderRadius: 14, backgroundColor: c.action.selected.bg, justifyContent: 'center' }}>
+                  <Text style={{ ...scale(t, 'meta'), color: c.action.selected.fg }}>{k('pharmacy.product.exclusive')}</Text>
+                </View>
+              ) : null}
+            </View>
+            {images.length > 1 ? (
+              <View pointerEvents="none" style={{ position: 'absolute', bottom: 44, start: 0, end: 0, flexDirection: 'row', justifyContent: 'center', gap: 8 }}>
+                {images.map((_, k) => (
+                  <View key={k} style={{ width: activeImage === k ? 22 : 8, height: 8, borderRadius: 4, backgroundColor: activeImage === k ? c.text.primary : c.border.strong }} />
+                ))}
+              </View>
+            ) : null}
+          </View>
+        </View>
+
+        {/* the sheet */}
+        <View style={{ marginTop: -28, borderTopStartRadius: 28, borderTopEndRadius: 28, backgroundColor: c.bg.canvas, paddingTop: 22 }}>
+          <View style={{ ...COLUMN, paddingHorizontal: 16, gap: 14 }}>
+            {/* chips */}
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+              {view.rx ? <Pill tone="warning" glyph="prescription" label={k('pharmacy.needsRx')} /> : <Pill tone="success" glyph="check-circle" label={k('pharmacy.noRx')} />}
+              {view.category ? (
+                <Pill
+                  tone="plain"
+                  label={view.subCategory ? `${view.category} › ${view.subCategory}` : view.category}
+                  onPress={() => router.push({ pathname: '/(tabs)/pharmacy', params: { filter_category: view.categoryRaw || view.category } })}
+                />
+              ) : null}
+              {med.cold_chain ? <Pill tone="info" glyph="thermometer" label={k('pharmacy.product.cold')} /> : null}
+            </View>
+
+            {/* the name block */}
+            <View style={{ gap: 4 }}>
+              <Text accessibilityRole="header" style={{ ...scale(t, 'h2'), color: c.text.primary, ...flow }}>{view.name}</Text>
+              {view.enName ? <Text style={{ ...scale(t, 'control', 'regular'), color: c.text.secondary, writingDirection: 'ltr', textAlign: dir === 'rtl' ? 'right' : 'left' }}>{view.enName}</Text> : null}
+              {view.ingredient || view.generic ? (
+                <Text style={{ ...scale(t, 'control', 'regular'), color: c.text.tertiary, ...flow }}>
+                  {[view.ingredient ? k('pharmacy.product.ingredient', { v: view.ingredient }) : '', view.generic ? k('pharmacy.product.scientific', { v: view.generic }) : ''].filter(Boolean).join(' · ')}
+                </Text>
+              ) : null}
+              {view.maker || view.origin ? (
+                <Text style={{ ...scale(t, 'caption', 'regular'), color: c.text.secondary, ...flow }}>
+                  {[view.maker, view.origin ? k('pharmacy.product.madeIn', { v: view.origin }) : ''].filter(Boolean).join(' · ')}
+                </Text>
+              ) : null}
+            </View>
+
+            {/* price, quantity, availability */}
+            <Card padding="md" theme={theme}>
+              <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+                <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+                  {view.price ? (
+                    <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+                      <Text style={{ ...scale(t, 'authTitle', 'bold'), color: c.text.primary }}>{money(view.price)}</Text>
+                      <Text style={{ ...scale(t, 'control', 'regular'), color: c.text.primary }}>{k('pharmacy.currency')}</Text>
+                      {view.pct > 0 && Number(med.old_price) > 0 ? (
+                        <Text style={{ ...scale(t, 'control', 'regular'), color: c.text.secondary, textDecorationLine: 'line-through' }}>{money(Number(med.old_price))}</Text>
+                      ) : null}
+                    </View>
+                  ) : null}
+                  {view.price ? (
+                    <Text style={{ ...scale(t, 'label', 'regular'), color: c.text.secondary, ...flow }}>
+                      {[k('pharmacy.product.taxIncluded'), textOf(med.package_size)].filter(Boolean).join(' · ')}
+                    </Text>
+                  ) : null}
+                </View>
+                {!view.discontinued ? (
+                  <Stepper
+                    value={shownQty}
+                    min={1}
+                    max={10}
+                    label={k('pharmacy.product.quantity')}
+                    format={(v) => num(v)}
+                    decrementLabel={k('pharmacy.product.decrease')}
+                    incrementLabel={k('pharmacy.product.increase')}
+                    onChange={(v) => {
+                      if (inCartQty > 0) void updateQty(String(med.id), v - inCartQty);
+                      else setQty(v);
+                    }}
+                    theme={theme}
+                  />
+                ) : null}
+              </View>
+              {stockLine ? (
+                <View style={{ borderTopWidth: 1, borderTopColor: c.border.subtle, paddingTop: 12, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <View style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: c.status.success.bg, alignItems: 'center', justifyContent: 'center' }}>
+                    <Glyph name="storefront" size={20} color={c.status.success.fg} />
+                  </View>
+                  <Text style={{ flex: 1, ...scale(t, 'control'), color: c.text.primary, ...flow }}>{stockLine}</Text>
+                </View>
+              ) : null}
+            </Card>
+
+            {/* shortage / discontinued */}
+            {view.discontinued || view.limited ? (
+              <View accessibilityRole="alert" style={{ borderRadius: 20, backgroundColor: view.discontinued ? c.status.danger.bg : c.status.warning.bg, paddingVertical: 12, paddingHorizontal: 14, flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}>
+                <Glyph name="warning" size={20} color={view.discontinued ? c.status.danger.fg : c.status.warning.fg} />
+                <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                  <Text style={{ ...scale(t, 'small', 'bold'), color: view.discontinued ? c.status.danger.fg : c.status.warning.fg, ...flow }}>
+                    {view.discontinued ? k('pharmacy.product.discontinued') : k('pharmacy.product.limited')}
+                  </Text>
+                  {textOf(med.shortage_notes) ? <Text style={{ ...scale(t, 'label', 'regular'), color: view.discontinued ? c.status.danger.fg : c.status.warning.fg, ...flow }}>{textOf(med.shortage_notes)}</Text> : null}
+                </View>
+              </View>
+            ) : null}
+
+            {/* a prescription medicine: the upload sits above the buy buttons */}
+            {view.rx && !view.discontinued ? (
+              <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.uploadRx')} onPress={() => go('/pharmacy/scan-prescription' as Href)}>
+                <Card padding="sm" elevation="flat" theme={theme}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                    <FIcon icon="prescription" tone={PHARMACY_TONE} size={40} theme={theme} />
+                    <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                      <Text style={{ ...scale(t, 'control'), color: c.text.primary, ...flow }}>{k('pharmacy.uploadRx')}</Text>
+                      <Text style={{ ...scale(t, 'label', 'regular'), color: c.text.secondary, ...flow }}>{k('pharmacy.product.rxCard')}</Text>
+                    </View>
+                    <Icon name={dir === 'rtl' ? 'caret-left' : 'caret-right'} size={18} theme={theme} tone="secondary" />
+                  </View>
+                </Card>
+              </Pressable>
+            ) : null}
+
+            {/* a discontinued product shows its alternatives first */}
+            {view.discontinued ? alternativesBlock : null}
+
+            {view.facts.length >= 1 ? (
+              <View style={{ gap: 10 }}>
+                <SectionHeader title={k('pharmacy.product.facts')} theme={theme} />
+                <FactsGrid facts={view.facts.map((f) => ({ key: f.key, icon: f.icon, label: k(f.label), value: f.valueIsKey ? k(f.value) : f.value }))} />
+              </View>
+            ) : null}
+
+            {!view.discontinued ? alternativesBlock : null}
+
+            {safetyRows.length ? (
+              <View style={{ gap: 10 }}>
+                <SectionHeader title={k('pharmacy.product.safety')} theme={theme} />
+                <SafetyCard rows={safetyRows} />
+              </View>
+            ) : null}
+
+            {view.sections.length ? (
+              <View style={{ gap: 10 }}>
+                <SectionHeader title={k('pharmacy.product.details')} theme={theme} />
+                <DetailAccordion sections={view.sections.map((s) => ({ ...s, title: k(s.title) }))} />
+                {view.reviewed ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 4 }}>
+                    <Glyph name="shield-check" size={16} color={c.status.success.fg} />
+                    <Text style={{ flex: 1, ...scale(t, 'label', 'regular'), color: c.text.secondary, ...flow }}>
+                      {`${view.reviewedOn ? k('pharmacy.product.reviewedOn', { date: view.reviewedOn }) : k('pharmacy.product.reviewed')} · ${k('pharmacy.product.disclaimer')}`}
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
+            ) : null}
+
+            {related.length ? (
+              <View style={{ gap: 10 }}>
+                <SectionHeader title={k('pharmacy.product.related')} theme={theme} />
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingHorizontal: 16 }} style={{ marginHorizontal: -16 }}>
+                  {related.map((r) => {
+                    const p = medPrice(r);
+                    return (
+                      <MiniProduct
+                        key={String(r.id)}
+                        name={medName(r)}
+                        price={p ? money(p) : undefined}
+                        currency={p ? k('pharmacy.currency') : undefined}
+                        uri={medGallery(r)[0]}
+                        onPress={() => router.push({ pathname: '/pharmacy/product-detail', params: { id: r.id } })}
+                        onAdd={() => addToCart(r)}
+                        addLabel={k('pharmacy.addToCart')}
+                      />
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            ) : null}
+
+            {/* ask a pharmacist */}
+            <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.product.askPharmacist')} onPress={() => go('/pharmacy/pharmacist-chat' as Href)}>
+              <Card padding="md" theme={theme}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <FIcon icon="chat-circle-text" tone={PHARMACY_TONE} size={48} theme={theme} />
+                  <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                    <Text style={{ ...scale(t, 'bodyStrong'), lineHeight: 21, color: c.text.primary, ...flow }}>{k('pharmacy.product.askPharmacist')}</Text>
+                    <Text style={{ ...scale(t, 'label', 'regular'), color: c.text.secondary, ...flow }}>{k('pharmacy.product.askPharmacistBody')}</Text>
+                  </View>
+                  <Icon name={dir === 'rtl' ? 'caret-left' : 'caret-right'} size={18} theme={theme} tone="secondary" />
+                </View>
+              </Card>
+            </Pressable>
+
+            {/* suggest an edit (reaches the admin approval queue) */}
+            <Pressable accessibilityRole="button" accessibilityLabel={k('pharmacy.product.suggest')} onPress={() => setSuggestOpen(true)} style={{ minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.link }}>{k('pharmacy.product.suggest')}</Text>
+            </Pressable>
+
+            {textOf(med.sku) || textOf(med.barcode) ? (
+              <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+                {med.sku ? <Text style={{ ...scale(t, 'micro', 'regular'), color: c.text.secondary }}>{k('pharmacy.product.sku', { v: String(med.sku) })}</Text> : null}
+                {med.sku && med.barcode ? <Text style={{ ...scale(t, 'micro', 'regular'), color: c.text.secondary }}>·</Text> : null}
+                {med.barcode ? <Text style={{ ...scale(t, 'micro', 'regular'), color: c.text.secondary, writingDirection: 'ltr' }}>{med.barcode}</Text> : null}
+              </View>
+            ) : null}
+          </View>
+        </View>
+      </Screen>
+
+      {/* back, share, favourite, cart over the gallery */}
+      <View pointerEvents="box-none" style={{ position: 'absolute', top: 0, start: 0, end: 0, zIndex: 20, paddingTop: insets.top + 7, paddingHorizontal: 16 }}>
+        <View pointerEvents="box-none" style={{ ...COLUMN, paddingHorizontal: 0, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <GlassButton label={k('pharmacy.back')} onPress={back}>
+            <Icon name={dir === 'rtl' ? 'caret-right' : 'caret-left'} size={22} theme={theme} />
+          </GlassButton>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <GlassButton label={k('pharmacy.product.share')} onPress={share}>
+              <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+                <Path d="M12 15V3 M7 8l5-5 5 5 M5 13v7h14v-7" stroke={c.icon.primary} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+              </Svg>
+            </GlassButton>
+            <GlassButton label={inWishlist ? k('pharmacy.product.favRemove') : k('pharmacy.product.favAdd')} onPress={toggleWishlist}>
+              {inWishlist ? <Glyph name="heart" size={20} color={c.icon.favorite} /> : <Icon name="heart" size={20} theme={theme} color={c.icon.favorite} />}
+            </GlassButton>
+            <View>
+              <GlassButton label={k('pharmacy.cart')} onPress={() => go('/pharmacy/cart' as Href)}>
+                <Icon name="cart" size={21} theme={theme} />
+              </GlassButton>
+              {cartBadge}
+            </View>
+          </View>
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 170 }} showsVerticalScrollIndicator={false}>
-
-        {/* ── Gallery: swipe + pagination + tap-to-zoom ── */}
-        <View style={[styles.galleryContainer, { marginTop: insets.top }]}>
-          {images.length > 0 ? (
-            <ScrollView
-              horizontal pagingEnabled showsHorizontalScrollIndicator={false}
-              onMomentumScrollEnd={(e) => setActiveImage(Math.round(e.nativeEvent.contentOffset.x / width))}
-              style={{ width, height: width }}
-            >
-              {images.map((img, i) => (
-                <TouchableOpacity key={i} activeOpacity={0.9} onPress={() => { setActiveImage(i); setIsZoomVisible(true); }}>
-                  <ProductImage uri={img} style={{ width, height: width, backgroundColor: '#fff' }} iconSize={90} />
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          ) : (
-            <View style={[styles.placeholderHero, { backgroundColor: med.iconBg || '#DEF5F9', width, height: width }]}>
-              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 110, color: med.iconColor || '#23B5CE' }}>{med.icon || 'medication'}</LocalizedText>
-            </View>
-          )}
-          {images.length > 1 && (
-            <View style={styles.pagination}>
-              {images.map((_, i) => <View key={i} style={[styles.dot, { backgroundColor: i === activeImage ? '#23B5CE' : '#CBD5E1' }]} />)}
-            </View>
-          )}
-          {discount > 0 && (
-            <View style={styles.discountBadge}>
-              <LocalizedText style={{ fontFamily: 'Cairo-Black', color: '#fff', fontSize: 14 }}>-{discount}%</LocalizedText>
-            </View>
-          )}
-        </View>
-
-        <View style={styles.content}>
-          {/* ── Badges: RX / Online Exclusive / Potentially Unavailable ── */}
-          <View style={[styles.badgeRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-            {rx && (
-              <View style={[styles.badge, { backgroundColor: '#FEEFED', borderColor: '#F0695C44' }]}>
-                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#F0695C', fontSize: 14, marginRight: 4 }}>prescriptions</LocalizedText>
-                <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#F0695C', fontSize: 11 }}>{t('pd.rx_required')}</LocalizedText>
-              </View>
-            )}
-            {onlineExclusive && (
-              <View style={[styles.badge, { backgroundColor: '#EBE8FC', borderColor: '#7A6BEA44' }]}>
-                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#7A6BEA', fontSize: 14, marginRight: 4 }}>storefront</LocalizedText>
-                <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#7A6BEA', fontSize: 11 }}>{t('pd.online_exclusive')}</LocalizedText>
-              </View>
-            )}
-            {potentiallyUnavailable && (
-              <View style={[styles.badge, { backgroundColor: '#FEF4E0', borderColor: '#F0A52644' }]}>
-                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#F0A526', fontSize: 14, marginRight: 4 }}>error</LocalizedText>
-                <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#B87714', fontSize: 11 }}>{t('pd.potentially_unavailable')}</LocalizedText>
-              </View>
-            )}
+      {/* zoom */}
+      <Modal visible={zoom} transparent animationType="fade" onRequestClose={() => setZoom(false)}>
+        <View style={{ flex: 1, backgroundColor: c.bg.inverse, justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ position: 'absolute', top: Math.max(insets.top, 20), end: 20, zIndex: 10 }}>
+            <GlassButton label={k('pharmacy.product.close')} onPress={() => setZoom(false)}>
+              <Icon name="close" size={22} theme={theme} />
+            </GlassButton>
           </View>
-
-          {/* ── Shortage warning (product stays purchasable) ── */}
-          {potentiallyUnavailable && (
-            <View style={[styles.warnBox, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#B87714', fontSize: 20, marginHorizontal: 8 }}>info</LocalizedText>
-              <LocalizedText style={{ fontFamily: 'Cairo-Regular', color: '#7A5A10', fontSize: 12, flex: 1, textAlign: isRTL ? 'right' : 'left' }}>
-                {med.shortage_notes || (isRTL
-                  ? 'أفاد مزودون بأن هذا الصنف قد يكون غير متوفر حالياً لدى بعض الصيدليات — يمكنك إتمام الطلب وقد يتأخر التوفر.'
-                  : 'Providers reported this item may be unavailable at some pharmacies — you can still order; fulfillment may be delayed.')}
-              </LocalizedText>
+          <ScrollView maximumZoomScale={4} minimumZoomScale={1} contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', width, height: '100%' }} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
+            <ProductImage uri={images[activeImage]} style={{ width, height: width }} iconSize={90} />
+          </ScrollView>
+          {images.length > 1 ? (
+            <View style={{ position: 'absolute', bottom: Math.max(insets.bottom, 20) + 20, flexDirection: 'row', gap: 16, alignItems: 'center' }}>
+              <GlassButton label={k('pharmacy.product.prev')} onPress={() => setActiveImage((i) => Math.max(0, i - 1))}>
+                <Icon name={dir === 'rtl' ? 'caret-right' : 'caret-left'} size={22} theme={theme} />
+              </GlassButton>
+              <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.onInverse }}>{num(activeImage + 1)} / {num(images.length)}</Text>
+              <GlassButton label={k('pharmacy.product.next')} onPress={() => setActiveImage((i) => Math.min(images.length - 1, i + 1))}>
+                <Icon name={dir === 'rtl' ? 'caret-left' : 'caret-right'} size={22} theme={theme} />
+              </GlassButton>
             </View>
-          )}
-
-          {/* ── Name / manufacturer / price — elevated hero card ── */}
-          <View style={[styles.heroCard, { backgroundColor: colors.s, borderColor: colors.bd, alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
-            {med.manufacturer && (
-              <View style={[styles.brandChip, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 14, marginHorizontal: 4 }}>verified</LocalizedText>
-                <LocalizedText style={[styles.manufacturer, { color: '#23B5CE', marginBottom: 0 }]}>{med.manufacturer}</LocalizedText>
-              </View>
-            )}
-            <LocalizedText style={[styles.medName, { color: colors.n, textAlign: isRTL ? 'right' : 'left' }]}>{name}</LocalizedText>
-            {med.generic_name && <LocalizedText style={[styles.genericName, { color: colors.t3 }]}>{med.generic_name}</LocalizedText>}
-            <View style={[styles.priceRow, { flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', width: '100%' }]}>
-              <View style={[styles.pricePill, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-                <LocalizedText style={[styles.price, { color: '#F0695C' }]}>{(med.price || 0).toFixed(2)}</LocalizedText>
-                <LocalizedText style={[styles.currency, { color: '#F0695C' }]}>ر.س</LocalizedText>
-              </View>
-              {discount > 0 && oldPrice > 0 && (
-                <View style={{ alignItems: 'center' }}>
-                  <LocalizedText style={styles.oldPrice}>{oldPrice.toFixed(2)} ر.س</LocalizedText>
-                  <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 11, color: '#059669' }}>{isRTL ? `وفّر ${(oldPrice - (med.price || 0)).toFixed(2)} ر.س` : `Save ${(oldPrice - (med.price || 0)).toFixed(2)} SAR`}</LocalizedText>
-                </View>
-              )}
-            </View>
-          </View>
-
-          {/* ── Product details heading ── */}
-          <View style={[styles.sectionHead, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-            <View style={styles.sectionAccent} />
-            <LocalizedText style={[styles.sectionTitle, { color: colors.n, marginBottom: 0 }]}>{isRTL ? 'تفاصيل المنتج' : 'Product Details'}</LocalizedText>
-          </View>
-
-          {/* ── Fact grid: every structured field the API provides ── */}
-          <View style={[styles.factsGrid, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-            <Fact icon="pill" title={isRTL ? 'شكل الجرعة' : 'Dosage Form'} value={pickDbField(med, 'form') || med.form} colors={colors} isRTL={isRTL} />
-            <Fact icon="scale" title={isRTL ? 'التركيز' : 'Strength'} value={pickDbField(med, 'strength') || med.strength} colors={colors} isRTL={isRTL} />
-            <Fact icon="science" title={isRTL ? 'المادة الفعالة' : 'Active Ingredient'} value={pickDbField(med, 'active_ingredient') || med.active_ingredient} colors={colors} isRTL={isRTL} />
-            <Fact icon="package_2" title={isRTL ? 'حجم العبوة' : 'Package Size'} value={med.package_size} colors={colors} isRTL={isRTL} />
-            <Fact icon="barcode" title={isRTL ? 'الباركود' : 'Barcode'} value={med.barcode} colors={colors} isRTL={isRTL} />
-            <Fact icon="shapes" title={isRTL ? 'الفئة' : 'Category'} value={pickDbField(med, 'category') || med.category} colors={colors} isRTL={isRTL} />
-            <Fact icon="shape_line" title={isRTL ? 'الفئة الفرعية' : 'Sub Category'} value={pickDbField(med, 'sub_category') || med.sub_category} colors={colors} isRTL={isRTL} />
-            <Fact icon="snowflake" title={isRTL ? 'التخزين' : 'Storage'} value={pick(med.storage_conditions_ar, med.storage_conditions_en, 'storage_conditions')} colors={colors} isRTL={isRTL} />
-          </View>
-
-          {/* ── Alternatives (same active ingredient — backend API) ── */}
-          {alternatives.length > 0 && (
-            <View style={styles.altSection}>
-              <LocalizedText style={[styles.sectionTitle, { color: colors.n, textAlign: isRTL ? 'right' : 'left' }]}>{t('pd.alternatives')}</LocalizedText>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.altScroll, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-                {alternatives.map((alt: any) => {
-                  const altName = pickDbField(alt, 'name') || alt.name_en || alt.name;
-                  return (
-                    <TouchableOpacity key={alt.id} style={[styles.altCard, { backgroundColor: colors.s, borderColor: colors.bd }]} onPress={() => router.push({ pathname: '/pharmacy/product-detail', params: { id: alt.id } })}>
-                      <View style={styles.altImgWrap}>
-                        <ProductImage uri={(Array.isArray(alt.images) && alt.images[0]) || alt.image} style={{ width: 64, height: 64 }} iconSize={28} />
-                      </View>
-                      <LocalizedText style={[styles.altName, { color: colors.n }]} numberOfLines={1}>{altName}</LocalizedText>
-                      <LocalizedText style={[styles.altCompany, { color: colors.t3 }]} numberOfLines={1}>{alt.manufacturer || '---'}</LocalizedText>
-                      <LocalizedText style={[styles.altPrice, { color: '#23B5CE' }]}>{(alt.price || 0).toFixed(2)} ر.س</LocalizedText>
-                    </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
-            </View>
-          )}
-
-          {/* ── Similar products (no active ingredient → by use/category/name) ── */}
-          {Array.isArray(med.similar) && med.similar.length > 0 && (
-            <View style={styles.altSection}>
-              <LocalizedText style={[styles.sectionTitle, { color: colors.n, textAlign: isRTL ? 'right' : 'left' }]}>{isRTL ? 'أصناف مشابهة' : 'Similar Items'}</LocalizedText>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.altScroll, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-                {med.similar.map((alt: any) => {
-                  const altName = pickDbField(alt, 'name') || alt.name_en || alt.name;
-                  return (
-                    <TouchableOpacity key={alt.id} style={[styles.altCard, { backgroundColor: colors.s, borderColor: colors.bd }]} onPress={() => router.push({ pathname: '/pharmacy/product-detail', params: { id: alt.id } })}>
-                      <View style={styles.altImgWrap}>
-                        <ProductImage uri={(Array.isArray(alt.images) && alt.images[0]) || alt.image} style={{ width: 64, height: 64 }} iconSize={28} />
-                      </View>
-                      <LocalizedText style={[styles.altName, { color: colors.n }]} numberOfLines={1}>{altName}</LocalizedText>
-                      <LocalizedText style={[styles.altCompany, { color: colors.t3 }]} numberOfLines={1}>{alt.manufacturer || alt.sub_category || alt.category || '---'}</LocalizedText>
-                      <LocalizedText style={[styles.altPrice, { color: '#23B5CE' }]}>{(alt.price || 0).toFixed(2)} ر.س</LocalizedText>
-                    </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
-            </View>
-          )}
-
-          {/* ── Every informational section from the API ── */}
-          <View style={styles.detailsGroup}>
-            <DetailAccordion title={isRTL ? 'الوصف' : 'Description'} icon="info" content={pick(med.description_ar, med.description_en, 'description')} colors={colors} isRTL={isRTL} defaultOpen={true} />
-            <DetailAccordion title={isRTL ? 'دواعي الاستعمال' : 'Indications'} icon="healing" content={pick(med.indications_ar, med.indications_en, 'indications')} colors={colors} isRTL={isRTL} />
-            <DetailAccordion title={isRTL ? 'الجرعة وطريقة الاستخدام' : 'Dosage & Usage'} icon="medication" content={pick(med.dosage_ar, med.dosage_en, 'dosage') || pick(med.usage_instructions_ar, med.usage_instructions_en, 'usage_instructions')} colors={colors} isRTL={isRTL} />
-            <DetailAccordion title={isRTL ? 'إرشادات الاستخدام' : 'Usage Instructions'} icon="menu_book" content={pick(med.usage_instructions_ar, med.usage_instructions_en, 'usage_instructions')} colors={colors} isRTL={isRTL} />
-            <DetailAccordion title={isRTL ? 'تحذيرات' : 'Warnings'} icon="warning" content={pick(med.warnings_ar, med.warnings_en, 'warnings')} colors={colors} isRTL={isRTL} isWarning={true} />
-            <DetailAccordion title={isRTL ? 'احتياطات' : 'Precautions'} icon="shield" content={pick(med.precautions_ar, med.precautions_en, 'precautions')} colors={colors} isRTL={isRTL} isWarning={true} />
-            <DetailAccordion title={isRTL ? 'موانع الاستخدام' : 'Contraindications'} icon="block" content={pick(med.contraindications_ar, med.contraindications_en)} colors={colors} isRTL={isRTL} isWarning={true} />
-            <DetailAccordion title={isRTL ? 'الأعراض الجانبية' : 'Side Effects'} icon="sick" content={pick(med.side_effects_ar, med.side_effects_en, 'side_effects')} colors={colors} isRTL={isRTL} />
-            <DetailAccordion title={isRTL ? 'التفاعلات الدوائية' : 'Interactions'} icon="sync_alt" content={med.interactions} colors={colors} isRTL={isRTL} isWarning={true} />
-            <DetailAccordion title={isRTL ? 'الحمل' : 'Pregnancy'} icon="pregnancy" content={pick(med.pregnancy_info_ar, med.pregnancy_info_en)} colors={colors} isRTL={isRTL} />
-            <DetailAccordion title={isRTL ? 'الرضاعة' : 'Breastfeeding'} icon="child_care" content={pick(med.breastfeeding_info_ar, med.breastfeeding_info_en)} colors={colors} isRTL={isRTL} />
-            <DetailAccordion title={isRTL ? 'شروط التخزين' : 'Storage Conditions'} icon="ac_unit" content={pick(med.storage_conditions_ar, med.storage_conditions_en, 'storage_conditions')} colors={colors} isRTL={isRTL} />
-            <DetailAccordion title={isRTL ? 'معلومات إضافية' : 'More Information'} icon="more_horiz" content={pick(med.more_info_ar, med.more_info_en, 'more_info')} colors={colors} isRTL={isRTL} />
-          </View>
-        </View>
-      </ScrollView>
-
-      {/* ── Suggest an edit (اقتراح تعديل) — reaches admin approval queue ── */}
-      <TouchableOpacity
-        onPress={() => setSuggestVisible(true)}
-        style={{ marginHorizontal: 16, marginBottom: 10, paddingVertical: 10, borderRadius: 12, borderWidth: 1, borderColor: colors.bd, backgroundColor: colors.s, flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'center' }}
-        activeOpacity={0.8}
-      >
-        <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 20, marginHorizontal: 6 }}>rate_review</LocalizedText>
-        <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 13, color: colors.t2 }}>{isRTL ? 'اقتراح تعديل على هذا الصنف' : 'Suggest an edit'}</LocalizedText>
-      </TouchableOpacity>
-
-      <Modal visible={suggestVisible} transparent animationType="slide" onRequestClose={() => setSuggestVisible(false)}>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: colors.bg, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, paddingBottom: Math.max(insets.bottom, 16) }}>
-            <LocalizedText style={{ fontFamily: 'Cairo-Black', fontSize: 17, color: colors.n, textAlign: isRTL ? 'right' : 'left', marginBottom: 12 }}>{isRTL ? 'اقتراح تعديل' : 'Suggest an edit'}</LocalizedText>
-            {SUGGEST_TYPES.map((tp) => (
-              <TouchableOpacity key={tp.k} onPress={() => setSuggestType(tp.k)} style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', paddingVertical: 8 }}>
-                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 22, color: suggestType === tp.k ? '#23B5CE' : colors.t3, marginHorizontal: 6 }}>{suggestType === tp.k ? 'radio_button_checked' : 'radio_button_unchecked'}</LocalizedText>
-                <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 14, color: colors.n }}>{tp.ar}</LocalizedText>
-              </TouchableOpacity>
-            ))}
-            {suggestType === 'field_edit' && (
-              <>
-                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap', marginTop: 8 }}>
-                  {SUGGEST_FIELDS.map((f) => (
-                    <TouchableOpacity key={f.k} onPress={() => setSuggestField(f.k)} style={{ paddingHorizontal: 10, paddingVertical: 6, borderRadius: 16, margin: 3, borderWidth: 1, borderColor: suggestField === f.k ? '#23B5CE' : colors.bd, backgroundColor: suggestField === f.k ? '#23B5CE22' : colors.s }}>
-                      <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 12, color: suggestField === f.k ? '#23B5CE' : colors.t2 }}>{f.ar}</LocalizedText>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-                <TextInput value={suggestValue} onChangeText={setSuggestValue} placeholder={isRTL ? 'القيمة الصحيحة المقترحة' : 'Suggested correct value'} placeholderTextColor={colors.t3} style={{ borderWidth: 1, borderColor: colors.bd, borderRadius: 10, padding: 10, marginTop: 10, color: colors.n, fontFamily: 'Cairo-Regular', textAlign: isRTL ? 'right' : 'left' }} />
-              </>
-            )}
-            <TextInput value={suggestNote} onChangeText={setSuggestNote} placeholder={isRTL ? 'ملاحظة إضافية (اختياري)' : 'Extra note (optional)'} placeholderTextColor={colors.t3} style={{ borderWidth: 1, borderColor: colors.bd, borderRadius: 10, padding: 10, marginTop: 10, color: colors.n, fontFamily: 'Cairo-Regular', textAlign: isRTL ? 'right' : 'left' }} />
-            <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', marginTop: 14, gap: 10 }}>
-              <TouchableOpacity onPress={submitSuggestion} disabled={suggestSending} style={{ flex: 1, backgroundColor: '#23B5CE', borderRadius: 12, paddingVertical: 12, alignItems: 'center', opacity: suggestSending ? 0.6 : 1 }}>
-                <LocalizedText style={{ fontFamily: 'Cairo-Black', color: '#fff', fontSize: 15 }}>{suggestSending ? (isRTL ? 'جارٍ الإرسال…' : 'Sending…') : (isRTL ? 'إرسال الاقتراح' : 'Send suggestion')}</LocalizedText>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setSuggestVisible(false)} style={{ paddingVertical: 12, paddingHorizontal: 18, borderRadius: 12, borderWidth: 1, borderColor: colors.bd }}>
-                <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: colors.t2, fontSize: 14 }}>{isRTL ? 'إلغاء' : 'Cancel'}</LocalizedText>
-              </TouchableOpacity>
-            </View>
-          </View>
+          ) : null}
         </View>
       </Modal>
 
-      {/* ── Sticky bottom bar ── */}
-      <View style={[styles.bottomBar, { backgroundColor: colors.s, borderTopColor: colors.bd, paddingBottom: Math.max(insets.bottom, 12) + 12 }]}>
-        {inCart ? (
-          <View style={[styles.qtyControlFull, { backgroundColor: colors.bg, borderColor: colors.bd }]}>
-            <TouchableOpacity onPress={() => updateQty(med.id, 1)} style={[styles.qtyBtnFull, { backgroundColor: colors.s }]}>
-              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 28 }}>add</LocalizedText>
-            </TouchableOpacity>
-            <LocalizedText style={{ fontFamily: 'Cairo-Black', color: '#23B5CE', fontSize: 22, marginHorizontal: 20 }}>{qty}</LocalizedText>
-            <TouchableOpacity onPress={() => updateQty(med.id, -1)} style={[styles.qtyBtnFull, { backgroundColor: colors.s }]}>
-              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 28 }}>remove</LocalizedText>
-            </TouchableOpacity>
+      {/* suggest an edit */}
+      <Modal visible={suggestOpen} transparent animationType="slide" onRequestClose={() => setSuggestOpen(false)}>
+        <View style={{ flex: 1, backgroundColor: tint(c.bg.inverse, 0.55), justifyContent: 'flex-end' }}>
+          <View style={{ backgroundColor: c.bg.canvas, borderTopStartRadius: 28, borderTopEndRadius: 28, maxHeight: '90%', paddingBottom: Math.max(insets.bottom, 16) }}>
+            <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ ...COLUMN, padding: 20, gap: 12 }}>
+              <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('pharmacy.suggest.title')}</Text>
+              <View style={{ borderRadius: 22, backgroundColor: c.bg.surface, overflow: 'hidden' }}>
+                {SUGGEST_TYPES.map((tp, i) => (
+                  <Radio key={tp.id} label={k(tp.label)} selected={suggestType === tp.id} onChange={() => setSuggestType(tp.id)} divider={i < SUGGEST_TYPES.length - 1} direction={dir} theme={theme} />
+                ))}
+              </View>
+              {suggestType === 'field_edit' ? (
+                <>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                    {SUGGEST_FIELDS.map((f) => (
+                      <Chip key={f.id} label={k(f.label)} selected={suggestField === f.id} onPress={() => setSuggestField(f.id)} theme={theme} />
+                    ))}
+                  </View>
+                  <Input placeholder={k('pharmacy.suggest.valuePlaceholder')} value={suggestValue} onChange={setSuggestValue} theme={theme} />
+                </>
+              ) : null}
+              <Input placeholder={k('pharmacy.suggest.notePlaceholder')} value={suggestNote} onChange={setSuggestNote} theme={theme} />
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <View style={{ flex: 1 }}>
+                  <Button label={k('pharmacy.suggest.send')} size="lg" fullWidth loading={suggestSending} onPress={submitSuggestion} theme={theme} />
+                </View>
+                <Button label={k('pharmacy.cancel')} size="lg" variant="outline" onPress={() => setSuggestOpen(false)} theme={theme} />
+              </View>
+            </ScrollView>
           </View>
-        ) : (
-          <Animated.View style={[styles.addCartBtnWrap, { transform: [{ scale: scaleAnim }] }]}>
-            <TouchableOpacity style={[styles.addCartBtn, { backgroundColor: '#23B5CE' }]} onPress={handleAdd} activeOpacity={0.85}>
-              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 22, marginRight: 10 }}>add_shopping_cart</LocalizedText>
-              <LocalizedText style={{ fontFamily: 'Cairo-Black', color: '#fff', fontSize: 16 }}>{t('pd.add_to_cart')}</LocalizedText>
-            </TouchableOpacity>
-          </Animated.View>
-        )}
-      </View>
-
-      {/* ── Zoom modal (pinch via ScrollView zoom) ── */}
-      <Modal visible={isZoomVisible} transparent={true} animationType="fade">
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.95)', justifyContent: 'center', alignItems: 'center' }}>
-          <TouchableOpacity style={{ position: 'absolute', top: Math.max(insets.top, 20), right: 20, zIndex: 10, padding: 8, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20 }} onPress={() => setIsZoomVisible(false)}>
-            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 28 }}>close</LocalizedText>
-          </TouchableOpacity>
-          <ScrollView
-            maximumZoomScale={4} minimumZoomScale={1}
-            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', width, height: '100%' }}
-            showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}
-          >
-            <ProductImage uri={images[activeImage]} style={{ width, height: width }} iconSize={90} />
-          </ScrollView>
-          {images.length > 1 && (
-            <View style={{ position: 'absolute', bottom: 40, flexDirection: 'row', gap: 16 }}>
-              <TouchableOpacity disabled={activeImage === 0} onPress={() => setActiveImage(i => Math.max(0, i - 1))} style={[styles.zoomNav, { opacity: activeImage === 0 ? 0.3 : 1 }]}>
-                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 30 }}>chevron_left</LocalizedText>
-              </TouchableOpacity>
-              <LocalizedText style={{ color: '#fff', fontFamily: 'Cairo-Bold', alignSelf: 'center' }}>{activeImage + 1} / {images.length}</LocalizedText>
-              <TouchableOpacity disabled={activeImage === images.length - 1} onPress={() => setActiveImage(i => Math.min(images.length - 1, i + 1))} style={[styles.zoomNav, { opacity: activeImage === images.length - 1 ? 0.3 : 1 }]}>
-                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 30 }}>chevron_right</LocalizedText>
-              </TouchableOpacity>
-            </View>
-          )}
         </View>
       </Modal>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  headerOverlay: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 10 },
-  iconBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.85)', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
-  cartBadge: { position: 'absolute', top: -4, right: -4, width: 18, height: 18, borderRadius: 9, backgroundColor: '#F0695C', justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: '#fff' },
-  galleryContainer: { width, height: width, backgroundColor: '#fff', position: 'relative', borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
-  placeholderHero: { justifyContent: 'center', alignItems: 'center' },
-  pagination: { position: 'absolute', bottom: 16, width: '100%', flexDirection: 'row', justifyContent: 'center', gap: 6 },
-  dot: { height: 8, width: 8, borderRadius: 4 },
-  discountBadge: { position: 'absolute', top: 60, left: 16, backgroundColor: '#F0695C', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14 },
-  content: { paddingHorizontal: 20, paddingTop: 0, marginTop: -26 },
-  badgeRow: { flexWrap: 'wrap', gap: 8, marginBottom: 12, zIndex: 2 },
-  badge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12, borderWidth: 1 },
-  warnBox: { backgroundColor: '#FEF4E0', borderRadius: 14, padding: 12, marginBottom: 16, alignItems: 'center' },
-  medName: { fontFamily: 'Cairo-Black', fontSize: 24, lineHeight: 34 },
-  genericName: { fontFamily: 'Cairo-Regular', fontSize: 13, marginTop: 2 },
-  manufacturer: { fontFamily: 'Cairo-Bold', fontSize: 15, marginBottom: 4 },
-  priceRow: { alignItems: 'center', marginTop: 12 },
-  price: { fontFamily: 'Cairo-Black', fontSize: 32 },
-  currency: { fontFamily: 'Cairo-Bold', fontSize: 15, marginHorizontal: 4, marginTop: 10 },
-  oldPrice: { fontFamily: 'Cairo-Bold', fontSize: 15, color: '#94A3B8', textDecorationLine: 'line-through', marginLeft: 12, marginTop: 10 },
-  heroCard: { borderRadius: 22, borderWidth: 1, padding: 18, marginBottom: 18, shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.08, shadowRadius: 16, elevation: 5 },
-  brandChip: { alignItems: 'center', backgroundColor: '#23B5CE14', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, marginBottom: 8 },
-  pricePill: { alignItems: 'center', backgroundColor: '#FEEFED', paddingHorizontal: 14, paddingVertical: 6, borderRadius: 14 },
-  sectionHead: { alignItems: 'center', marginBottom: 14, gap: 8 },
-  sectionAccent: { width: 4, height: 20, borderRadius: 2, backgroundColor: '#23B5CE' },
-  factsGrid: { flexWrap: 'wrap', marginBottom: 20 },
-  fact: { width: '48%', borderRadius: 14, borderWidth: 1, padding: 10, marginBottom: 10, marginRight: '2%', alignItems: 'center' },
-  detailsGroup: { gap: 14, marginBottom: 24 },
-  accordion: { borderRadius: 16, borderWidth: 1, overflow: 'hidden' },
-  accHeader: { justifyContent: 'space-between', alignItems: 'center', padding: 14 },
-  accContent: { paddingHorizontal: 16, paddingBottom: 16, paddingTop: 8, borderTopWidth: 1 },
-  altSection: { marginBottom: 24, marginTop: 4 },
-  sectionTitle: { fontFamily: 'Cairo-Black', fontSize: 18, marginBottom: 14 },
-  altScroll: { paddingBottom: 8 },
-  altCard: { width: 140, padding: 14, borderRadius: 18, borderWidth: 1, marginRight: 12, alignItems: 'center' },
-  altImgWrap: { width: 72, height: 72, borderRadius: 14, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center', marginBottom: 10, overflow: 'hidden' },
-  altName: { fontFamily: 'Cairo-Bold', fontSize: 13, marginBottom: 4, textAlign: 'center' },
-  altCompany: { fontFamily: 'Cairo-Regular', fontSize: 11, marginBottom: 8, textAlign: 'center' },
-  altPrice: { fontFamily: 'Cairo-Black', fontSize: 15 },
-  bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, borderTopWidth: 1, paddingHorizontal: 20, paddingTop: 14, shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.05, shadowRadius: 12, elevation: 10 },
-  addCartBtnWrap: {},
-  addCartBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 18, borderRadius: 20, shadowColor: '#23B5CE', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
-  qtyControlFull: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 20, borderWidth: 1 },
-  qtyBtnFull: { width: 50, height: 50, borderRadius: 16, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
-  zoomNav: { backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 22, padding: 4 },
-});

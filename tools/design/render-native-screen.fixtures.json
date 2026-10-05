@@ -1,26 +1,66 @@
 {
-  "_comment": "TEST VALUES for `render-native-screen.mjs --api fixture`: invented, clearly marked as tests, never real patient data. They exist only to draw the data-bound blocks of Home (name, reminder, appointment, records, curated offers) in a design render. Shipped code never reads this file.",
-  "/users/me/display": { "display_name": "مستخدم تجريبي" },
-  "/notifications": [{ "id": "test-n1", "type": "info", "title": "إشعار تجريبي", "body": "", "read": false }],
-  "/loyalty/account": { "points": 1250, "tier": "silver" },
+  "_comment": "TEST VALUES for `render-native-screen.mjs --api fixture`: invented, clearly marked as tests, never real patient data. They exist only to draw the data-bound blocks of Home (name, reminder, appointment, records, curated offers) and the pharmacy hub and product screens (a catalogue of marked test products) in a design render. Shipped code never reads this file.",
+  "/users/me/display": {
+    "display_name": "مستخدم تجريبي"
+  },
+  "/notifications": [
+    {
+      "id": "test-n1",
+      "type": "info",
+      "title": "إشعار تجريبي",
+      "body": "",
+      "read": false
+    }
+  ],
+  "/loyalty/account": {
+    "points": 1250,
+    "tier": "silver"
+  },
   "/health/reminders": [
     {
       "id": "test-1",
       "medicine_name_ar": "دواء تجريبي",
       "dose": "حبة واحدة",
       "active": true,
-      "times": ["08:00", "20:00"],
+      "times": [
+        "08:00",
+        "20:00"
+      ],
       "today_doses": [
-        { "time_key": "08:00", "status": "taken" },
-        { "time_key": "20:00", "status": "pending" }
+        {
+          "time_key": "08:00",
+          "status": "taken"
+        },
+        {
+          "time_key": "20:00",
+          "status": "pending"
+        }
       ]
     }
   ],
-  "/nutrition/daily-summary": { "meals_count": 2, "water": { "consumed_ml": 600 } },
-  "/maternity/profile": { "profile_ready": true, "is_pregnant": true },
+  "/nutrition/daily-summary": {
+    "meals_count": 2,
+    "water": {
+      "consumed_ml": 600
+    }
+  },
+  "/maternity/profile": {
+    "profile_ready": true,
+    "is_pregnant": true
+  },
   "/mental-health/mood": [],
-  "/health/vitals/summary": [{ "type": "test" }],
-  "/home/upcoming-appointment": { "id": "test-appt", "date": "2026-10-26", "doctorName": "د. طبيب تجريبي", "type": "استشارة فيديو", "time": "04:30 م" },
+  "/health/vitals/summary": [
+    {
+      "type": "test"
+    }
+  ],
+  "/home/upcoming-appointment": {
+    "id": "test-appt",
+    "date": "2026-10-26",
+    "doctorName": "د. طبيب تجريبي",
+    "type": "استشارة فيديو",
+    "time": "04:30 م"
+  },
   "/content/home": {
     "sections": [
       {
@@ -29,10 +69,212 @@
         "title_en": "Offers and packages",
         "enabled": true,
         "items": [
-          { "id": "1", "title_ar": "عنصر تجريبي", "title_en": "Test item", "deep_link": "/offers" },
-          { "id": "2", "title_ar": "عنصر تجريبي ثانٍ", "title_en": "Second test item", "deep_link": "/offers" }
+          {
+            "id": "1",
+            "title_ar": "عنصر تجريبي",
+            "title_en": "Test item",
+            "deep_link": "/offers"
+          },
+          {
+            "id": "2",
+            "title_ar": "عنصر تجريبي ثانٍ",
+            "title_en": "Second test item",
+            "deep_link": "/offers"
+          }
         ]
       }
     ]
-  }
+  },
+  "/medicines": [
+    {
+      "id": "test-med",
+      "name_ar": "منتج تجريبي ١",
+      "name_en": "Test product 1",
+      "manufacturer": "شركة تجريبية",
+      "package_size": "٢٤ قرص",
+      "price": 18.5,
+      "old_price": 22,
+      "requires_prescription": false,
+      "category": "الأدوية والعلاج"
+    },
+    {
+      "id": "test-alt",
+      "name_ar": "منتج تجريبي ٢",
+      "name_en": "Test product 2",
+      "manufacturer": "شركة تجريبية",
+      "package_size": "٣٠ قرص",
+      "price": 24,
+      "requires_prescription": true,
+      "category": "الأدوية والعلاج"
+    },
+    {
+      "id": "test-3",
+      "name_ar": "منتج تجريبي ٣ باسم أطول قليلًا ليلتف على سطرين",
+      "name_en": "Test product 3",
+      "price": 9,
+      "requires_prescription": false,
+      "category": "العناية بالبشرة"
+    },
+    {
+      "id": "test-4",
+      "name_ar": "منتج تجريبي ٤",
+      "name_en": "Test product 4",
+      "manufacturer": "شركة تجريبية",
+      "requires_prescription": false,
+      "category": "الأم والطفل"
+    }
+  ],
+  "/patient/pharmacy/orders": [
+    {
+      "id": "test-order",
+      "createdAt": "2026-10-01T10:00:00Z",
+      "governed_state": "CONFIRMED",
+      "items": [
+        {
+          "raw_name": "منتج تجريبي ١",
+          "qty": 1
+        },
+        {
+          "raw_name": "منتج تجريبي ٢",
+          "qty": 2
+        }
+      ]
+    }
+  ],
+  "/users/me/wishlist": [
+    {
+      "id": "test-med",
+      "name_ar": "منتج تجريبي ١",
+      "name_en": "Test product 1",
+      "price": 18.5,
+      "requires_prescription": false,
+      "available": true
+    },
+    {
+      "id": "test-alt",
+      "name_ar": "منتج تجريبي ٢",
+      "name_en": "Test product 2",
+      "price": 24,
+      "requires_prescription": true,
+      "available": false
+    }
+  ],
+  "/medicines/filters": {
+    "categories": [
+      "medications",
+      "skincare",
+      "baby"
+    ],
+    "brands": [
+      "شركة تجريبية",
+      "شركة تجريبية ٢"
+    ],
+    "forms": [
+      "أقراص",
+      "شراب",
+      "كريم"
+    ],
+    "sortOptions": []
+  },
+  "/medicines/test-med/details": {
+    "id": "test-med",
+    "name_ar": "منتج تجريبي ١",
+    "name_en": "Test product 1",
+    "manufacturer": "شركة تجريبية",
+    "country_of_origin": "بلد تجريبي",
+    "package_size": "٢٤ قرص",
+    "form": "أقراص",
+    "strength": "٥٠٠ ملغ",
+    "active_ingredient": "مادة فعالة تجريبية",
+    "generic_name": "اسم علمي تجريبي",
+    "category": "الأدوية والعلاج",
+    "sub_category": "فئة فرعية تجريبية",
+    "price": 18.5,
+    "old_price": 22,
+    "discount_percent": 16,
+    "has_discount": true,
+    "requires_prescription": false,
+    "cold_chain": true,
+    "controlled": false,
+    "online_exclusive": true,
+    "pharmacies_count": 3,
+    "availability_status": "availability_may_be_limited",
+    "potentially_unavailable": true,
+    "shortage_notes": "ملاحظة نقص تجريبية",
+    "sku": 100200,
+    "barcode": "6290000000000",
+    "medical_review_status": "approved",
+    "last_reviewed": "2026-09-01T00:00:00Z",
+    "images": [],
+    "description_ar": "وصف تجريبي للمنتج.",
+    "indications_ar": [
+      "دواعي استعمال تجريبية ١",
+      "دواعي استعمال تجريبية ٢"
+    ],
+    "dosage_ar": "جرعة تجريبية",
+    "usage_instructions_ar": "إرشادات تجريبية",
+    "warnings_ar": [
+      "تحذير تجريبي"
+    ],
+    "side_effects_ar": [
+      "أثر جانبي تجريبي ١",
+      "أثر جانبي تجريبي ٢"
+    ],
+    "interactions": [
+      "مادة تتداخل تجريبية"
+    ],
+    "pregnancy_info_ar": "معلومات حمل تجريبية",
+    "breastfeeding_info_ar": "معلومات رضاعة تجريبية",
+    "storage_conditions_ar": "أقل من ٢٥°",
+    "alternatives": [
+      {
+        "id": "test-alt",
+        "name_ar": "منتج تجريبي ٢",
+        "price": 16,
+        "manufacturer": "شركة تجريبية"
+      },
+      {
+        "id": "test-3",
+        "name_ar": "منتج تجريبي ٣",
+        "price": 18.5,
+        "manufacturer": "شركة تجريبية ٢"
+      },
+      {
+        "id": "test-4",
+        "name_ar": "منتج تجريبي ٤",
+        "price": 30
+      }
+    ],
+    "related_product_ids": [
+      "test-3",
+      "test-4"
+    ]
+  },
+  "/medicines/compare": [
+    {
+      "id": "test-med",
+      "name_ar": "منتج تجريبي ١",
+      "manufacturer": "شركة تجريبية",
+      "active_ingredient": "مادة فعالة تجريبية",
+      "strength": "٥٠٠ ملغ",
+      "form": "أقراص",
+      "package_size": "٢٤ قرص",
+      "price": 18.5,
+      "requires_prescription": false,
+      "side_effects_ar": [
+        "أثر جانبي تجريبي"
+      ]
+    },
+    {
+      "id": "test-alt",
+      "name_ar": "منتج تجريبي ٢",
+      "manufacturer": "شركة تجريبية ٢",
+      "active_ingredient": "مادة فعالة تجريبية",
+      "strength": "٥٠٠ ملغ",
+      "form": "أقراص",
+      "package_size": "٣٠ قرص",
+      "price": 24,
+      "requires_prescription": true
+    }
+  ]
 }
