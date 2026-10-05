@@ -406,7 +406,8 @@ export class RadiologyOpsService {
   }
 
   /** Centers able to perform every requested scan (registration stores the scan ids in equipment_list). */
-  async compatibleProviders(serviceIds: string[]) {
+  /** Centres that can run every requested scan; `onlyAccountId` checks one chosen centre (booking) past the list cap. */
+  async compatibleProviders(serviceIds: string[], onlyAccountId?: string) {
     const ids = [...new Set((serviceIds || []).filter(Boolean))];
     if (!ids.length) return [];
     const services = await this.svcModel.find({ id: { $in: ids }, is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, modality: 1 }).lean();
@@ -414,7 +415,7 @@ export class RadiologyOpsService {
     const modalities = [...new Set((services as any[]).map((sv) => sv.modality).filter(Boolean))];
     const profiles = await this.profileModel.find({
       type: { $in: ['radiology', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
-      account_id: { $exists: true, $ne: null },
+      account_id: onlyAccountId ? { $eq: onlyAccountId } : { $exists: true, $ne: null },
       $or: [{ equipment_list: { $all: ids } }, ...(modalities.length ? [{ equipment_list: { $all: modalities } }] : [])],
     }, { _id: 0, account_id: 1, id: 1, name_ar: 1, name_en: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1, logo: 1 })
       // Deterministic before the cap: rated first, then newest (natural order dropped labs at random).
@@ -436,7 +437,7 @@ export class RadiologyOpsService {
     const providerId = typeof body?.provider_account_id === 'string' ? body.provider_account_id : '';
     if (!providerId && !isAdmin) throw new BadRequestException('provider_account_id_required');
     if (providerId && !isAdmin) {
-      const ok = (await this.compatibleProviders([svc.id])).some((p: any) => p.id === providerId);
+      const ok = (await this.compatibleProviders([svc.id], providerId)).some((p: any) => p.id === providerId);
       if (!ok) throw new BadRequestException('provider_cannot_perform_scan');
     }
     const when = new Date(String(body?.scheduled_at || ''));
