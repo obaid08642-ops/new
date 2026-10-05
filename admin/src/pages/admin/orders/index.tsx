@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { adminFetch, apiErrorMessage, toQuery } from '@/lib/admin-client';
+import { ordersFiltersFromQuery } from '@/lib/report-drilldown';
 
 type Order = { id: string; kind: string; status: string; patient?: { id?: string; name?: string; phone?: string }; provider?: { id?: string; name?: string }; amount?: number; currency?: string; created_at?: string; sla_due_at?: string; is_delayed?: boolean };
 type OrdersResponse = { data: Order[]; total: number; page: number; pages: number };
@@ -19,7 +21,14 @@ function delayText(order: Order): string {
 
 export default function OrdersConsolePage() {
   const [result, setResult] = useState<OrdersResponse>({ data: [], total: 0, page: 1, pages: 1 });
+  const router = useRouter();
   const [filters, setFilters] = useState({ kind: '', status: '', q: '', from: '', to: '', sort: 'newest' });
+  // B2: a report row links here with ?kind&status&from&to — start from that slice.
+  useEffect(() => {
+    if (!router.isReady) return;
+    const { kind, status, from, to } = router.query;
+    if (kind || status || from || to) { setFilters(ordersFiltersFromQuery(router.query)); setPage(1); }
+  }, [router.isReady, router.query]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Head from 'next/head';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { adminFetch, apiErrorMessage, toQuery } from '@/lib/admin-client';
+import { reportRowHref } from '@/lib/report-drilldown';
 
 const today = new Date().toISOString().slice(0, 10);
 const monthAgo = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
@@ -43,7 +44,7 @@ const GROUPS: Record<TabKey, string[]> = {
 };
 
 /** P6.x-1: operational reports over live aggregates + CSV export. */
-/** B2: every report tab links to the console where a row drills into its entity. */
+/** B2: the header button opens the tab's console; rows link to their own slice (report-drilldown.ts). */
 const CONSOLES: Partial<Record<TabKey, { href: string; label: string }>> = {
   orders: { href: '/admin/orders', label: 'فتح سجل الطلبات' },
   bookings: { href: '/admin/appointments-oversight', label: 'فتح المواعيد' },
@@ -85,6 +86,8 @@ export default function ReportsPage() {
 
   type Row = { bucket?: string; kind?: string; type?: string; count?: number; gross?: number; refunded?: number; net?: number; total?: number; copay?: number };
   const valueOf = (r: Row) => r.net ?? r.total ?? r.copay ?? r.gross ?? r.count ?? 0;
+  const effectiveGroup = GROUPS[tab].includes(groupBy) ? groupBy : GROUPS[tab][0];
+  const hasRowLinks = rows.some((r) => reportRowHref(tab, effectiveGroup, r) !== null);
   const csvHref = `/api/admin/admin/reports/${tab}${toQuery({ from, to, group_by: groupBy, format: 'csv' })}`;
   const xlsxHref = `/api/admin/admin/reports/${tab}${toQuery({ from, to, group_by: groupBy, format: 'xlsx' })}`;
 
@@ -144,10 +147,11 @@ export default function ReportsPage() {
                     {rows.some((r) => r.net !== undefined) && <th className="p-2">الصافي</th>}
                     {rows.some((r) => r.total !== undefined) && <th className="p-2">المجموع</th>}
                     {rows.some((r) => r.copay !== undefined) && <th className="p-2">كوباي</th>}
+                    {hasRowLinks && <th className="p-2">السجلات</th>}
                    </tr></thead>
                   <tbody>
                     {rows.map((r, i) => {
-                      const detailHref = CONSOLES[tab]?.href;
+                      const detailHref = reportRowHref(tab, effectiveGroup, r);
                       return (
                       <tr key={i} className="border-b">
                         {rows.some((x) => x.kind !== undefined || x.type !== undefined) && <td className="p-2">{r.kind || r.type || '—'}</td>}
@@ -158,7 +162,7 @@ export default function ReportsPage() {
                         {rows.some((x) => x.net !== undefined) && <td className="p-2">{r.net ?? '—'}</td>}
                         {rows.some((x) => x.total !== undefined) && <td className="p-2">{r.total ?? '—'}</td>}
                         {rows.some((x) => x.copay !== undefined) && <td className="p-2">{r.copay ?? '—'}</td>}
-                        {detailHref && <td className="p-2"><a href={detailHref} className="text-teal-700 underline">التفاصيل</a></td>}
+                        {hasRowLinks && <td className="p-2">{detailHref ? <a href={detailHref} className="text-teal-700 underline">عرض السجلات</a> : '—'}</td>}
                       </tr>
                       );
                     })}
