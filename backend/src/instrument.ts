@@ -1,7 +1,11 @@
 import * as Sentry from '@sentry/nestjs';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
+import { initTracing } from './instrumentation/opentelemetry';
 
 const isProd = process.env.NODE_ENV === 'production';
+
+// Initialize OpenTelemetry tracing
+initTracing();
 
 Sentry.init({
   // Backend project DSN via SENTRY_DSN (server env). Empty = disabled (dev-safe).

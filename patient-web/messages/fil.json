@@ -1438,5 +1438,89 @@
     "subtitle": "Ang iyong mga nursing visit at ang status ng bawat isa.",
     "empty": "Wala pang nursing visit.",
     "visit": "Nursing visit"
+  },
+  "AdminAnalytics": {
+    "title": "Admin Analytics",
+    "campaign_attribution": "Campaign Attribution",
+    "campaign_attribution_desc": "Track marketing campaign performance",
+    "filters": "Filters",
+    "date_from": "Date From",
+    "date_to": "Date To",
+    "source": "Source",
+    "medium": "Medium",
+    "campaign": "Campaign",
+    "all_sources": "All Sources",
+    "all_mediums": "All Mediums",
+    "apply": "Apply",
+    "export_csv": "Export CSV",
+    "total_orders": "Total Orders",
+    "total_revenue": "Total Revenue",
+    "conversion_rate": "Conversion Rate",
+    "campaigns": "Campaigns",
+    "by_source": "By Source",
+    "by_medium": "By Medium",
+    "no_data": "No Data",
+    "failed_to_load_report": "Failed to Load Report",
+    "export_success": "Export Successful",
+    "export_failed": "Export Failed",
+    "select_date": "Select Date"
+  },
+  "Errors": {
+    "AUTHENTICATION_REQUIRED": {
+      "message": "Kailangan mo mag-sign in para magpatuloy.",
+      "nextStep": "Mag-sign in at subukan muli."
+    },
+    "INSUFFICIENT_PERMISSION": {
+      "message": "Wala kang permission gawin ito.",
+      "nextStep": "Makipag-ugnayan sa support kung sa tingin mo ay mali ito."
+    },
+    "PRESCRIPTION_REQUIRED": {
+      "message": "Kailangan ng valid prescription ang item na ito.",
+      "nextStep": "I-upload mo ang prescription mo."
+    },
+    "NO_AVAILABILITY": {
+      "message": "Walang availability ngayon.",
+      "nextStep": "Subukan ibang oras o petsa."
+    },
+    "SERVICE_UNAVAILABLE": {
+      "message": "Pansamantalang unavailable ang serbisyong ito.",
+      "nextStep": "Pakisubukan muli pagkatapos ng kaunting oras."
+    },
+    "PROVIDER_NOT_AVAILABLE": {
+      "message": "Walang available na provider para sa request na ito.",
+      "nextStep": "Subukan muli mamaya o piliin ibang provider."
+    },
+    "PRODUCT_OUT_OF_STOCK": {
+      "message": "Out of stock ang product na ito.",
+      "nextStep": "Subukan alternative o check back later."
+    },
+    "PAYMENT_REQUIRED": {
+      "message": "Kailangan ang payment para tapusin ito.",
+      "nextStep": "Kumpletuhin ang payment."
+    },
+    "INSURANCE_NOT_SUPPORTED": {
+      "message": "Hindi cover ng insurance mo ito.",
+      "nextStep": "Magpatuloy sa self-payment o makipag-ugnayan sa insurer mo."
+    },
+    "LOCATION_NOT_SUPPORTED": {
+      "message": "Hindi pa namin serbisyuhan ang location na ito.",
+      "nextStep": "Subukan ibang address o piliin ang pickup."
+    },
+    "DUPLICATE_TRANSACTION": {
+      "message": "Na-submit na ito noon.",
+      "nextStep": "Check mo orders mo bago subukan muli."
+    },
+    "INVALID_INPUT": {
+      "message": "Mukhang mali ang ilang details.",
+      "nextStep": "Review highlighted fields at subukan muli."
+    },
+    "RATE_LIMITED": {
+      "message": "Sobrang daming attempts. Magslow down ka.",
+      "nextStep": "Maghintay sandali, tapos subukan muli."
+    },
+    "UNKNOWN_ERROR": {
+      "message": "Nagkaroon ng error. Pakisubukan muli.",
+      "nextStep": "Kung patuloy, makipag-ugnayan sa support."
+    }
   }
 }

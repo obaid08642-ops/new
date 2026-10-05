@@ -1438,5 +1438,89 @@
     "subtitle": "आपकी नर्सिंग विज़िट और हर विज़िट की स्थिति।",
     "empty": "अभी कोई नर्सिंग विज़िट नहीं।",
     "visit": "नर्सिंग विज़िट"
+  },
+  "AdminAnalytics": {
+    "title": "एडमिन एनालिटिक्स",
+    "campaign_attribution": "कैंपेन एट्रिब्यूशन",
+    "campaign_attribution_desc": "मार्केटिंग कैंपेन प्रदर्शन ट्रैक करें",
+    "filters": "फिल्टर",
+    "date_from": "तारीख से",
+    "date_to": "तारीख तक",
+    "source": "स्रोत",
+    "medium": "माध्यम",
+    "campaign": "अभियान",
+    "all_sources": "सभी स्रोत",
+    "all_mediums": "सभी माध्यम",
+    "apply": "लागू करें",
+    "export_csv": "CSV निर्यात करें",
+    "total_orders": "कुल ऑर्डर",
+    "total_revenue": "कुल राजस्व",
+    "conversion_rate": "रूपांतरण दर",
+    "campaigns": "अभियान",
+    "by_source": "स्रोत के अनुसार",
+    "by_medium": "माध्यम के अनुसार",
+    "no_data": "कोई डेटा नहीं",
+    "failed_to_load_report": "रिपोर्ट लोड करने में विफल",
+    "export_success": "निर्यात सफल",
+    "export_failed": "निर्यात विफल",
+    "select_date": "तारीख चुनें"
+  },
+  "Errors": {
+    "AUTHENTICATION_REQUIRED": {
+      "message": "जारी रखने के लिए साइन इन करें।",
+      "nextStep": "साइन इन करें और पुनः प्रयास करें।"
+    },
+    "INSUFFICIENT_PERMISSION": {
+      "message": "आपके पास ऐसा करने की अनुमति नहीं है।",
+      "nextStep": "यदि आपको लगता है कि यह गलती है तो सपोर्ट से संपर्क करें।"
+    },
+    "PRESCRIPTION_REQUIRED": {
+      "message": "इस आइटम को वैध प्रिस्क्रिप्शन चाहिए।",
+      "nextStep": "अपना प्रिस्क्रिप्शन अपलोड करें।"
+    },
+    "NO_AVAILABILITY": {
+      "message": "अभी कोई उपलब्धता नहीं है।",
+      "nextStep": "दूसरा समय या तारीख आजमाएं।"
+    },
+    "SERVICE_UNAVAILABLE": {
+      "message": "यह सेवा अस्थायी रूप से अनुपलब्ध है।",
+      "nextStep": "कृपया थोड़ी देर बाद पुनः प्रयास करें।"
+    },
+    "PROVIDER_NOT_AVAILABLE": {
+      "message": "इस अनुरोध के लिए कोई प्रदाता उपलब्ध नहीं।",
+      "nextStep": "बाद में पुनः प्रयास करें या दूसरा प्रदाता चुनें।"
+    },
+    "PRODUCT_OUT_OF_STOCK": {
+      "message": "यह उत्पाद स्टॉक में नहीं है।",
+      "nextStep": "वैकल्पिक आजमाएं या बाद में जांचें।"
+    },
+    "PAYMENT_REQUIRED": {
+      "message": "इसे पूरा करने के लिए भुगतान आवश्यक है।",
+      "nextStep": "भुगतान पूरा करें।"
+    },
+    "INSURANCE_NOT_SUPPORTED": {
+      "message": "आपका बीमा इसे कवर नहीं करता।",
+      "nextStep": "सेल्फ-पे से जारी रखें या अपने बीमाकर्ता से संपर्क करें।"
+    },
+    "LOCATION_NOT_SUPPORTED": {
+      "message": "हम अभी इस स्थान की सेवा नहीं देते।",
+      "nextStep": "दूसरा पता आजमाएं या पिकअप चुनें।"
+    },
+    "DUPLICATE_TRANSACTION": {
+      "message": "यह पहले ही सबमिट किया गया था।",
+      "nextStep": "पुनः प्रयास करने से पहले अपने ऑर्डर जांचें।"
+    },
+    "INVALID_INPUT": {
+      "message": "कुछ विवरण गलत लगते हैं।",
+      "nextStep": "हाइलाइट किए गए फ़ील्ड देखें और पुनः प्रयास करें।"
+    },
+    "RATE_LIMITED": {
+      "message": "बहुत प्रयास। कृपया धीमे करें।",
+      "nextStep": "एक पल रुकें, फिर पुनः प्रयास करें।"
+    },
+    "UNKNOWN_ERROR": {
+      "message": "कुछ गलत हो गया। कृपया पुनः प्रयास करें।",
+      "nextStep": "यदि यह जारी रहता है तो सपोर्ट से संपर्क करें।"
+    }
   }
 }
