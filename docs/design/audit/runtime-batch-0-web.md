@@ -6,25 +6,25 @@ Server-rendered fetches are not visible to the browser, so for the normal scenar
 
 | Route | Session | Normal | Empty | Error |
 |---|---|---|---|---|
-| `/` | signed-in | FAIL: document 0; Next error overlay; 1 uncaught error(s) | FAIL: document 0; Next error overlay; 1 uncaught error(s) | FAIL: document 0; Next error overlay; 1 uncaught error(s) |
-| `/dashboard` | signed-in | FAIL: document 0; Next error overlay; 1 uncaught error(s) | FAIL: document 0; Next error overlay; 1 uncaught error(s) | FAIL: document 0; Next error overlay; 1 uncaught error(s) |
-| `/forgot-password` | anonymous | FAIL: Next error overlay | FAIL: Next error overlay | FAIL: Next error overlay |
-| `/login` | anonymous | FAIL: Next error overlay | FAIL: Next error overlay | FAIL: Next error overlay |
-| `/notifications` | signed-in | FAIL: document 0; Next error overlay; 1 uncaught error(s) | FAIL: document 0; Next error overlay; 1 uncaught error(s) | FAIL: document 0; Next error overlay; 1 uncaught error(s) |
-| `/notifications/settings` | signed-in | FAIL: document 0; Next error overlay; 1 uncaught error(s) | FAIL: document 0; Next error overlay; 1 uncaught error(s) | FAIL: document 0; Next error overlay; 1 uncaught error(s) |
-| `/onboarding` | anonymous | FAIL: Next error overlay | FAIL: Next error overlay | FAIL: Next error overlay |
-| `/onboarding/language` | anonymous | FAIL: Next error overlay | FAIL: Next error overlay | FAIL: Next error overlay |
-| `/onboarding/permissions` | anonymous | FAIL: Next error overlay | FAIL: Next error overlay | FAIL: Next error overlay |
-| `/otp` | anonymous | FAIL: Next error overlay | FAIL: Next error overlay | FAIL: Next error overlay |
-| `/password-reset` | anonymous | FAIL: Next error overlay | FAIL: Next error overlay | FAIL: Next error overlay |
-| `/register` | anonymous | FAIL: Next error overlay; GET /api/auth/session -> 401; GET /api/auth/session -> 401 | FAIL: Next error overlay | FAIL: Next error overlay |
-| `/search` | signed-in | FAIL: document 0; Next error overlay; 1 uncaught error(s) | FAIL: document 0; Next error overlay; 1 uncaught error(s) | FAIL: document 0; Next error overlay; 1 uncaught error(s) |
-| `/services` | signed-in | FAIL: document 0; Next error overlay; 1 uncaught error(s) | FAIL: document 0; Next error overlay; 1 uncaught error(s) | FAIL: document 0; Next error overlay; 1 uncaught error(s) |
-| `/welcome` | anonymous | FAIL: Next error overlay | FAIL: Next error overlay | FAIL: Next error overlay |
+| `/` | signed-in | ok (200) | ok (200) | ok (200) |
+| `/dashboard` | signed-in | ok (200) | ok (200) | ok (200) |
+| `/forgot-password` | anonymous | ok (200) | ok (200) | ok (200) |
+| `/login` | anonymous | ok (200) | ok (200) | ok (200) |
+| `/notifications` | signed-in | ok (200) | ok (200) | ok (200) |
+| `/notifications/settings` | signed-in | ok (200) | ok (200) | ok (200) |
+| `/onboarding` | anonymous | ok (200) | ok (200) | ok (200) |
+| `/onboarding/language` | anonymous | ok (200) | ok (200) | ok (200) |
+| `/onboarding/permissions` | anonymous | ok (200) | ok (200) | ok (200) |
+| `/otp` | anonymous | ok (200) | ok (200) | ok (200) |
+| `/password-reset` | anonymous | ok (200) | ok (200) | ok (200) |
+| `/register` | anonymous | FAIL: GET /api/auth/session -> 401; GET /api/auth/session -> 401 | ok (200) | ok (200) |
+| `/search` | signed-in | ok (200) | ok (200) | ok (200) |
+| `/services` | signed-in | ok (200 → /ar/consultations/doctors) | ok (200 → /ar/consultations/doctors) | ok (200 → /ar/consultations/doctors) |
+| `/welcome` | anonymous | ok (200) | ok (200) | ok (200) |
 
 ## Requests per route (normal scenario)
 
-### `/` (signed-in) → 0 
+### `/` (signed-in) → 200 /ar
 
 Browser:
 - POST `/api/auth/heartbeat` → 200 · non-json
@@ -37,10 +37,7 @@ Server (backend log):
 - POST `/api/v1/auth/heartbeat` → 201
 - POST `/api/v1/auth/heartbeat` → 201
 
-Console errors:
-- Refused to apply inline style because it violates the following Content Security Policy directive: "style-src 'self' 'nonce-YTE1NjQwMzEtNDdhNy00MjJiLTljOTgtZGQ1MTdmNmU5NDA0' 'unsafe-inline'". Note tha
-
-### `/dashboard` (signed-in) → 0 
+### `/dashboard` (signed-in) → 200 /ar/dashboard
 
 Browser:
 - POST `/api/auth/heartbeat` → 200 · non-json
@@ -52,24 +49,15 @@ Server (backend log):
 - POST `/api/v1/auth/heartbeat` → 201
 - POST `/api/v1/auth/heartbeat` → 201
 
-Console errors:
-- Refused to apply inline style because it violates the following Content Security Policy directive: "style-src 'self' 'nonce-NTFlZWUxNDItYjA1Yi00OWI4LTgzYTUtYWRlZWU1YzJkYjc0' 'unsafe-inline'". Note tha
-
 ### `/forgot-password` (anonymous) → 200 /ar/forgot-password
 
 No API request: the screen is static (or redirected before fetching).
-
-Console errors:
-- Refused to apply inline style because it violates the following Content Security Policy directive: "style-src 'self' 'nonce-M2VmYjY2MzktYzVhMy00YTY0LTg2YjUtOGRhOGY5ZjZjZDY3' 'unsafe-inline'". Note tha
 
 ### `/login` (anonymous) → 200 /ar/login
 
 No API request: the screen is static (or redirected before fetching).
 
-Console errors:
-- Refused to apply inline style because it violates the following Content Security Policy directive: "style-src 'self' 'nonce-YWQyYWNiODctOWJjOS00NTA5LTliZDktNTdmNDgzMmUyMTc3' 'unsafe-inline'". Note tha
-
-### `/notifications` (signed-in) → 0 
+### `/notifications` (signed-in) → 200 /ar/notifications
 
 Browser:
 - POST `/api/auth/heartbeat` → 200 · non-json
@@ -80,10 +68,7 @@ Server (backend log):
 - POST `/api/v1/auth/heartbeat` → 201
 - POST `/api/v1/auth/heartbeat` → 201
 
-Console errors:
-- Refused to apply inline style because it violates the following Content Security Policy directive: "style-src 'self' 'nonce-ZDlmNWM3ZDMtZTc0ZS00OTUyLTkwODYtYjhmODQxNDMyODhh' 'unsafe-inline'". Note tha
-
-### `/notifications/settings` (signed-in) → 0 
+### `/notifications/settings` (signed-in) → 200 /ar/notifications/settings
 
 Browser:
 - POST `/api/auth/heartbeat` → 200 · non-json
@@ -94,43 +79,25 @@ Server (backend log):
 - POST `/api/v1/auth/heartbeat` → 201
 - POST `/api/v1/auth/heartbeat` → 201
 
-Console errors:
-- Refused to apply inline style because it violates the following Content Security Policy directive: "style-src 'self' 'nonce-ZjAzYWVjM2UtNjMyNS00MmQ5LWJlYjItMzljNGUzMzhiOGVh' 'unsafe-inline'". Note tha
-
 ### `/onboarding` (anonymous) → 200 /ar/onboarding
 
 No API request: the screen is static (or redirected before fetching).
-
-Console errors:
-- Refused to apply inline style because it violates the following Content Security Policy directive: "style-src 'self' 'nonce-MDM0MDc1NjMtMzI2OC00MzY4LWExOTMtZTQ4ZjkxOGU2MWY0' 'unsafe-inline'". Note tha
 
 ### `/onboarding/language` (anonymous) → 200 /ar/onboarding/language
 
 No API request: the screen is static (or redirected before fetching).
 
-Console errors:
-- Refused to apply inline style because it violates the following Content Security Policy directive: "style-src 'self' 'nonce-YzU1YzEwYmItMjIxZS00MmU0LThjN2MtNzFiYmJiZjY2MmVh' 'unsafe-inline'". Note tha
-
 ### `/onboarding/permissions` (anonymous) → 200 /ar/onboarding/permissions
 
 No API request: the screen is static (or redirected before fetching).
-
-Console errors:
-- Refused to apply inline style because it violates the following Content Security Policy directive: "style-src 'self' 'nonce-MjI5ZjJlYjEtYTMyYy00YWNkLWJkZGItNDQyNGJhN2ExZDNj' 'unsafe-inline'". Note tha
 
 ### `/otp` (anonymous) → 200 /ar/otp
 
 No API request: the screen is static (or redirected before fetching).
 
-Console errors:
-- Refused to apply inline style because it violates the following Content Security Policy directive: "style-src 'self' 'nonce-ZmViYWFiZTEtNmJkZS00NjJlLThiNmEtNGIxMDA2YjA5ODg1' 'unsafe-inline'". Note tha
-
 ### `/password-reset` (anonymous) → 200 /ar/password-reset
 
 No API request: the screen is static (or redirected before fetching).
-
-Console errors:
-- Refused to apply inline style because it violates the following Content Security Policy directive: "style-src 'self' 'nonce-NDA4YzMwYTctZDc1NC00OGY4LThlOTYtNWYwOWM5MzEzYmQ3' 'unsafe-inline'". Note tha
 
 ### `/register` (anonymous) → 200 /ar/register
 
@@ -139,10 +106,9 @@ Browser:
 - GET `/api/auth/session` → 401 · object{authenticated}
 
 Console errors:
-- Refused to apply inline style because it violates the following Content Security Policy directive: "style-src 'self' 'nonce-OGE1NTljOWQtOTQxYi00OWM5LTlkNWItNmU3YTQ4MGQxNjEw' 'unsafe-inline'". Note tha
 - Failed to load resource: the server responded with a status of 401 (Unauthorized)
 
-### `/search` (signed-in) → 0 
+### `/search` (signed-in) → 200 /ar/search
 
 Browser:
 - POST `/api/auth/heartbeat` → 200 · non-json
@@ -152,10 +118,7 @@ Server (backend log):
 - POST `/api/v1/auth/heartbeat` → 201
 - POST `/api/v1/auth/heartbeat` → 201
 
-Console errors:
-- Refused to apply inline style because it violates the following Content Security Policy directive: "style-src 'self' 'nonce-MmZkMTAwOTgtNjc1Zi00ZDRiLThkMmQtNjY4ZTU2NTc2OTRh' 'unsafe-inline'". Note tha
-
-### `/services` (signed-in) → 0 
+### `/services` (signed-in) → 200 /ar/consultations/doctors
 
 Browser:
 - POST `/api/auth/heartbeat` → 200 · non-json
@@ -171,8 +134,7 @@ Server (backend log):
 - POST `/api/v1/auth/heartbeat` → 201
 
 Console errors:
-- Refused to apply inline style because it violates the following Content Security Policy directive: "style-src 'self' 'nonce-YTU2OWU1MTEtMWNhOS00ZWViLThmYTktZDBmNjMwNjE4Zjkw' 'unsafe-inline'". Note tha
-- Refused to apply inline style because it violates the following Content Security Policy directive: "style-src 'self' 'nonce-NjA1YmI0YWEtMDYwYy00N2QxLWE5ZjAtYjdlZWE5NWY2OGEy' 'unsafe-inline'". Note tha
+- CSP: style-src-attr http://localhost:3100/ar/consultations/doctors:9
 
 Failed requests:
 - POST /api/auth/heartbeat net::ERR_ABORTED
@@ -181,53 +143,6 @@ Failed requests:
 
 No API request: the screen is static (or redirected before fetching).
 
-Console errors:
-- Refused to apply inline style because it violates the following Content Security Policy directive: "style-src 'self' 'nonce-NDExZTgzYjQtYTM3MC00YmRkLWI1NDUtMTc2YWE5OWM4MDMz' 'unsafe-inline'". Note tha
-
 ## Failures
 
-- `/` normal: document 0; Next error overlay; 1 uncaught error(s)
-- `/` empty: document 0; Next error overlay; 1 uncaught error(s)
-- `/` error: document 0; Next error overlay; 1 uncaught error(s)
-- `/dashboard` normal: document 0; Next error overlay; 1 uncaught error(s)
-- `/dashboard` empty: document 0; Next error overlay; 1 uncaught error(s)
-- `/dashboard` error: document 0; Next error overlay; 1 uncaught error(s)
-- `/forgot-password` normal: Next error overlay
-- `/forgot-password` empty: Next error overlay
-- `/forgot-password` error: Next error overlay
-- `/login` normal: Next error overlay
-- `/login` empty: Next error overlay
-- `/login` error: Next error overlay
-- `/notifications` normal: document 0; Next error overlay; 1 uncaught error(s)
-- `/notifications` empty: document 0; Next error overlay; 1 uncaught error(s)
-- `/notifications` error: document 0; Next error overlay; 1 uncaught error(s)
-- `/notifications/settings` normal: document 0; Next error overlay; 1 uncaught error(s)
-- `/notifications/settings` empty: document 0; Next error overlay; 1 uncaught error(s)
-- `/notifications/settings` error: document 0; Next error overlay; 1 uncaught error(s)
-- `/onboarding` normal: Next error overlay
-- `/onboarding` empty: Next error overlay
-- `/onboarding` error: Next error overlay
-- `/onboarding/language` normal: Next error overlay
-- `/onboarding/language` empty: Next error overlay
-- `/onboarding/language` error: Next error overlay
-- `/onboarding/permissions` normal: Next error overlay
-- `/onboarding/permissions` empty: Next error overlay
-- `/onboarding/permissions` error: Next error overlay
-- `/otp` normal: Next error overlay
-- `/otp` empty: Next error overlay
-- `/otp` error: Next error overlay
-- `/password-reset` normal: Next error overlay
-- `/password-reset` empty: Next error overlay
-- `/password-reset` error: Next error overlay
-- `/register` normal: Next error overlay; GET /api/auth/session -> 401; GET /api/auth/session -> 401
-- `/register` empty: Next error overlay
-- `/register` error: Next error overlay
-- `/search` normal: document 0; Next error overlay; 1 uncaught error(s)
-- `/search` empty: document 0; Next error overlay; 1 uncaught error(s)
-- `/search` error: document 0; Next error overlay; 1 uncaught error(s)
-- `/services` normal: document 0; Next error overlay; 1 uncaught error(s)
-- `/services` empty: document 0; Next error overlay; 1 uncaught error(s)
-- `/services` error: document 0; Next error overlay; 1 uncaught error(s)
-- `/welcome` normal: Next error overlay
-- `/welcome` empty: Next error overlay
-- `/welcome` error: Next error overlay
+- `/register` normal: GET /api/auth/session -> 401; GET /api/auth/session -> 401
