@@ -73,7 +73,8 @@ const patientReadRoutes = [
   new RegExp("^/chat/threads$"),
   new RegExp(`^/chat/threads/${threadId}$`, "i"),
   new RegExp(`^/chat/threads/${threadId}/messages\\?limit=50$`, "i"),
-  new RegExp("^/home/search\\?q=[^&]{1,120}$", "i"),
+  // The proxy tests the percent-encoded query: a 120-character query is at most 1440 encoded characters (12 per astral character).
+  new RegExp("^/home/search\\?q=[^&]{1,1440}$", "i"),
   new RegExp("^/support/faqs$", "i"),
   new RegExp("^/support/requests/mine$", "i"),
   new RegExp(`^/support/requests/${orderId}$`, "i"),
@@ -144,8 +145,15 @@ const addressMutationRoutes: Array<{ method: "POST" | "DELETE"; route: RegExp }>
   { method: "DELETE", route: new RegExp(`^/users/me/addresses/${orderId}$`, "i") },
 ];
 
+// The notifications list marks one notification, or all of them, as read (backend POST /notifications/:id/read and /read-all).
+const notificationMutationRoutes: Array<{ method: "POST"; route: RegExp }> = [
+  { method: "POST", route: new RegExp(`^/notifications/${orderId}/read$`, "i") },
+  { method: "POST", route: new RegExp("^/notifications/read-all$") },
+];
+
 export function isAllowedPatientApiRequest(path: string, method: string) {
   return (method === "GET" && isAllowedPatientApiPath(path))
+    || notificationMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || addressMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || diagnosticsMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || pharmacyMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path));

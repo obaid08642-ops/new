@@ -12,7 +12,8 @@ function text(value: unknown): string | null {
 export function parseDashboardProfile(payload: unknown): DashboardProfile {
   const root = record(payload);
   const data = record(root?.data) ?? root;
-  return { name: text(data?.name) ?? text(data?.full_name) ?? text(data?.fullName) };
+  // GET /users/me/display answers {display_name}; an account without a name shows the generic title (the caller hides the name).
+  return { name: text(data?.display_name) };
 }
 
 export function parseDashboardAppointment(payload: unknown): DashboardAppointment | null {

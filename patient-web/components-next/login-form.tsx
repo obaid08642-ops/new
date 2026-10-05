@@ -1,15 +1,31 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
+import { authErrorKind } from "@/lib/auth/auth-errors";
 import type { Locale } from "@/lib/i18n";
 import { SocialLoginButtons } from "./social-login-buttons";
 import styles from "./auth/auth.module.css";
 
-export function LoginForm({ locale }: { locale: Locale }) {
+type Translate = (key: string) => string;
+
+/** The message for a failed sign-in or code step, by what the HTTP status means (not every failure is "wrong details"). */
+export function loginErrorMessage(t: Translate, status: number, twoFactor: boolean): string {
+  switch (authErrorKind(status)) {
+    case "rateLimited": return t("rateLimited");
+    case "forbidden": return t("forbidden");
+    case "unavailable": return twoFactor ? t("twoFactorUnavailable") : t("unavailable");
+    case "server": return twoFactor ? t("twoFactorUnavailable") : t("serverError");
+    case "badRequest": return twoFactor ? t("twoFactorInvalid") : t("checkDetails");
+    default: return twoFactor ? t("twoFactorInvalid") : t("invalid");
+  }
+}
+
+export function LoginForm({ locale, guestBlocked = false }: { locale: Locale; guestBlocked?: boolean }) {
   const router = useRouter();
   const t = useTranslations("Login");
   const [identifier, setIdentifier] = useState("");
@@ -17,7 +33,7 @@ export function LoginForm({ locale }: { locale: Locale }) {
   const [code, setCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [twoFactor, setTwoFactor] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(guestBlocked ? t("guestBlocked") : null);
   const [submitting, setSubmitting] = useState(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -27,17 +43,15 @@ export function LoginForm({ locale }: { locale: Locale }) {
       const body = twoFactor ? { identifier, code } : { identifier, password };
       const response = await fetch(endpoint, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok) { setMessage(responseMessage(response.status, twoFactor ? t("twoFactorUnavailable") : t("unavailable"), twoFactor ? t("twoFactorInvalid") : t("invalid"))); return; }
+      if (!response.ok) { setMessage(loginErrorMessage(t, response.status, twoFactor)); return; }
       if (!twoFactor && payload.requires2fa) { setTwoFactor(true); setPassword(""); setMessage(null); return; }
       router.replace(`/${locale}/dashboard`); router.refresh();
     } catch { setMessage(twoFactor ? t("twoFactorUnavailable") : t("unavailable")); }
     finally { setSubmitting(false); }
   }
 
-  function responseMessage(status: number, unavailable: string, invalid: string) { return status === 503 || status === 504 ? unavailable : invalid; }
-
-  const ar = locale === "ar";
   const submitLabel = submitting ? (twoFactor ? t("twoFactorSubmitting") : t("submitting")) : (twoFactor ? t("twoFactorSubmit") : t("submit"));
+  const forgot = <button type="button" className={`${styles.link} ${styles.forgotTop}`} onClick={() => router.push(`/${locale}/forgot-password`)} disabled={submitting}>{t("forgotPassword")}</button>;
 
   return <>
     <div className={styles.heading}>
@@ -48,14 +62,14 @@ export function LoginForm({ locale }: { locale: Locale }) {
       <label className={styles.field}>
         <span className={styles.label}>{t("identifier")}</span>
         <span className={styles.control}>
-          <input required dir="ltr" autoComplete="username" inputMode="email" placeholder="name@example.com" value={identifier} disabled={twoFactor} onChange={(event) => setIdentifier(event.target.value)} />
+          <input required dir="ltr" autoComplete="username" autoCapitalize="none" spellCheck={false} value={identifier} disabled={twoFactor} onChange={(event) => setIdentifier(event.target.value)} />
         </span>
       </label>
       {!twoFactor ? <div className={styles.field}>
-        <div className={styles.labelRow}><label className={styles.label} htmlFor="login-password">{t("password")}</label><button type="button" className={`${styles.link} ${styles.forgotTop}`} onClick={() => router.push(`/${locale}/forgot-password`)} disabled={submitting}>{ar ? "نسيت كلمة المرور؟" : "Forgot password?"}</button></div>
+        <div className={styles.labelRow}><label className={styles.label} htmlFor="login-password">{t("password")}</label>{forgot}</div>
         <span className={styles.control}>
           <input id="login-password" required type={showPassword ? "text" : "password"} autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} />
-          <button type="button" className={styles.eye} onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? (ar ? "إخفاء كلمة المرور" : "Hide password") : (ar ? "إظهار كلمة المرور" : "Show password")}>
+          <button type="button" className={styles.eye} onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? t("hidePassword") : t("showPassword")}>
             <Icon name={showPassword ? "eye-slash" : "eye"} size={20} tone="currentColor" />
           </button>
         </span>
@@ -66,13 +80,16 @@ export function LoginForm({ locale }: { locale: Locale }) {
       </label> : null}
       {twoFactor ? <p className={styles.note}>{t("twoFactorTitle")}</p> : null}
       <div className={`${styles.links} ${styles.forgotBelow}`}>
-        <button type="button" className={styles.link} onClick={() => router.push(`/${locale}/forgot-password`)} disabled={submitting}>{ar ? "نسيت كلمة المرور؟" : "Forgot password?"}</button>
+        <button type="button" className={styles.link} onClick={() => router.push(`/${locale}/forgot-password`)} disabled={submitting}>{t("forgotPassword")}</button>
       </div>
       {message ? <p className={styles.error} role="alert">{message}</p> : null}
       <div className={styles.actions}>
         <Button type="submit" variant="primary" size="lg" fullWidth label={submitLabel} loading={submitting} />
-        <SocialLoginButtons locale={locale} labels={{ guest: t("guestContinue"), guestLoading: t("guestLoading"), error: t("unavailable"), divider: ar ? "أو تابع عبر" : "Or continue with", noAccount: ar ? "ليس لديك حساب؟" : "New to Nabd+?", register: ar ? "إنشاء حساب" : "Create an account" }} />
-        <p className={styles.legal}>{ar ? "بالمتابعة أنت توافق على " : "By continuing you agree to the "}<a href={`/${locale}/terms`}>{ar ? "الشروط" : "Terms"}</a>{ar ? " و" : " and "}<a href={`/${locale}/privacy`}>{ar ? "سياسة الخصوصية" : "Privacy Policy"}</a></p>
+        <SocialLoginButtons locale={locale} />
+        <p className={styles.legal}>{t.rich("legal", {
+          terms: (chunks) => <Link href={`/${locale}/terms`}>{chunks}</Link>,
+          privacy: (chunks) => <Link href={`/${locale}/privacy`}>{chunks}</Link>,
+        })}</p>
       </div>
     </form>
   </>;

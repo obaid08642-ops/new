@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { otpIdentifierCookie } from "@/lib/auth/cookies";
 import { callPatientApi } from "@/lib/api/upstream";
 
 const schema = z.object({
@@ -34,5 +35,9 @@ export async function POST(request: Request) {
   const hasTokenField = data && typeof data === "object" && !Array.isArray(data) && Object.keys(data as Record<string, unknown>).some((key) => /token|secret|password/i.test(key));
   const parsed = successSchema.safeParse(data);
   if (hasTokenField || !parsed.success) return NextResponse.json({ message: "unexpected_registration_response" }, { status: 502, headers: { "cache-control": "no-store" } });
-  return NextResponse.json(parsed.data, { status: upstream.status, headers: { "cache-control": "no-store" } });
+  const response = NextResponse.json(parsed.data, { status: upstream.status, headers: { "cache-control": "no-store" } });
+  // The /otp page names where the code went. It reads this short-lived server-set cookie, so the e-mail address or phone
+  // number never travels in a URL (history, server logs, Referer).
+  response.cookies.set(otpIdentifierCookie, body.identifier, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 15 * 60 });
+  return response;
 }

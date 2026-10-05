@@ -67,3 +67,28 @@ export function extractSearchResults(payload: unknown, locale: string): SearchRe
     }];
   });
 }
+
+/** The longest query the page sends, in characters (not encoded bytes: an Arabic letter is 6 characters once percent-encoded). */
+export const MAX_QUERY_CHARS = 120;
+
+/** The query cut to MAX_QUERY_CHARS whole characters (never in the middle of a surrogate pair). */
+export function truncateQuery(value: string): string {
+  const chars = Array.from(value);
+  return chars.length > MAX_QUERY_CHARS ? chars.slice(0, MAX_QUERY_CHARS).join("") : value;
+}
+
+/** The backend's intent parser answers an actionable intent with a confidence of 0.85 or more (a guess is 0.5). */
+export const INTENT_CONFIDENCE = 0.85;
+
+/**
+ * Where a typed query that found NOTHING should go instead (POST /search/intent): an internal page of the page's locale, only
+ * when the parser is confident and the page is not the search page itself. Anything else returns null and the empty state shows.
+ */
+export function intentRedirect(intent: unknown, locale: string): string | null {
+  if (!intent || typeof intent !== "object" || Array.isArray(intent)) return null;
+  const { canonical_path: path, confidence } = intent as { canonical_path?: unknown; confidence?: unknown };
+  if (typeof path !== "string" || typeof confidence !== "number" || confidence < INTENT_CONFIDENCE) return null;
+  if (!/^\/[A-Za-z0-9\-._~%/]*$/.test(path) || path.startsWith("//") || path.split("/").includes("..")) return null;
+  const target = path === `/${locale}` || path.startsWith(`/${locale}/`) ? path : `/${locale}${path}`;
+  return target === `/${locale}/search` ? null : target;
+}

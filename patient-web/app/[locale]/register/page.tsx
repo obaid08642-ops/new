@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AuthLayout } from "@/components-next/auth/auth-layout";
 import { RegisterForm } from "@/components-next/register-form";
 import { isLocale } from "@/lib/i18n";
@@ -10,7 +10,8 @@ type Props = { params: Promise<{ locale: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  return { title: locale === "ar" ? "إنشاء حساب | نبض بلس" : "Create account | Nabd Plus", robots: { index: false, follow: false } };
+  const t = await getTranslations({ locale, namespace: "Metadata" });
+  return { title: t("registerTitle"), robots: { index: false, follow: false } };
 }
 
 /** Board Register (phone) and AuthWeb (desktop). */
