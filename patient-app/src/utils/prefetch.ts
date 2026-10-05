@@ -55,7 +55,7 @@ export function prefetchHotMedicines(): void {
 /** Doctor opened → preload booking-adjacent data in idle time. */
 export function prefetchDoctorContext(doctorId: string): void {
   if (!doctorId) return;
-  prefetchApi(`/doctors/${doctorId}`, `doctor_${doctorId}`);
+  prefetchApi(`/care/doctors/${doctorId}`, `doctor_${doctorId}`);
   prefetchApi(`/care/appointments?doctor_id=${doctorId}`, `doctor_appts_${doctorId}`);
 }
 
