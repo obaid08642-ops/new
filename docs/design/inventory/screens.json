@@ -1,5 +1,5 @@
 {
- "commit": "e5ee2f27",
+ "commit": "1cf78721",
  "routes": [
   {
    "app": "patient-app",
@@ -7930,11 +7930,21 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/public/categories/:param",
      "target": "backend",
      "query": "",
-     "line": 148,
+     "line": 150,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/seo-search/seo-search.module.ts:1078"
@@ -7944,13 +7954,13 @@
      "path": "/public/categories/:param/items",
      "target": "backend",
      "query": "?:param",
-     "line": 173,
+     "line": 175,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/seo-search/seo-search.module.ts:1086"
     }
    ],
-   "files": 8,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -11678,17 +11688,37 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/public/product/:param/:param",
      "target": "backend",
      "query": "",
-     "line": 132,
+     "line": 134,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/seo-search/seo-search.module.ts:1041"
+    },
+    {
+     "method": "GET",
+     "path": "/public/products/search",
+     "target": "backend",
+     "query": "?:param",
+     "line": 200,
+     "file": "patient-web/lib/api/public-products-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1049"
     }
    ],
-   "files": 12,
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -11702,6 +11732,16 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/medicines",
      "target": "backend",
@@ -11712,7 +11752,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:15"
     }
    ],
-   "files": 6,
+   "files": 30,
    "unresolved": 0
   },
   {
@@ -11750,17 +11790,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "*",
      "path": "/medicines/:param",
      "target": "backend",
      "query": "?locale=:param",
-     "line": 33,
+     "line": 34,
      "file": "patient-web/app/[locale]/medicines/compare/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medicines/medicines.controller.ts:388"
     }
    ],
-   "files": 4,
+   "files": 25,
    "unresolved": 0
   },
   {
@@ -12838,17 +12888,37 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/public/product/:param/:param",
      "target": "backend",
      "query": "",
-     "line": 132,
+     "line": 134,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/seo-search/seo-search.module.ts:1041"
+    },
+    {
+     "method": "GET",
+     "path": "/public/products/search",
+     "target": "backend",
+     "query": "?:param",
+     "line": 200,
+     "file": "patient-web/lib/api/public-products-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1049"
     }
    ],
-   "files": 11,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -13011,11 +13081,21 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/entity-graph/related/pharmacy/:param",
      "target": "backend",
      "query": "",
-     "line": 18,
+     "line": 22,
      "file": "patient-web/app/[locale]/pharmacy/[slug]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/entity-graph/entity-graph.controller.ts:10"
@@ -13025,13 +13105,13 @@
      "path": "/seo/resolve/doctor/:param",
      "target": "backend",
      "query": "",
-     "line": 23,
+     "line": 27,
      "file": "patient-web/app/[locale]/pharmacy/[slug]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/articles/seo.controller.ts:16"
     }
    ],
-   "files": 6,
+   "files": 23,
    "unresolved": 0
   },
   {
@@ -13183,17 +13263,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/medicines/filters",
      "target": "backend",
      "query": "",
-     "line": 31,
+     "line": 29,
      "file": "patient-web/app/[locale]/pharmacy/filters/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medicines/medicines.controller.ts:74"
     }
    ],
-   "files": 7,
+   "files": 28,
    "unresolved": 0
   },
   {
@@ -13299,13 +13389,23 @@
      "path": "/api/ai/drug-interactions",
      "target": "web-bff",
      "query": "",
-     "line": 33,
+     "line": 51,
      "file": "patient-web/components-next/drug-interaction-checker.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/ai/drug-interactions/route.ts"
+    },
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
     }
    ],
-   "files": 6,
+   "files": 27,
    "unresolved": 0
   },
   {
@@ -14774,6 +14874,16 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/users/me/wishlist",
      "target": "backend",
@@ -14784,7 +14894,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:44"
     }
    ],
-   "files": 8,
+   "files": 31,
    "unresolved": 0
   }
  ]

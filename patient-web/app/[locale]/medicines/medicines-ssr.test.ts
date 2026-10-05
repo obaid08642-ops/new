@@ -8,9 +8,13 @@ const state = vi.hoisted(() => ({
   requirePatientAccess: vi.fn(),
 }));
 
-vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn() }));
+vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn(), useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
+vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+// the shell is a client frame (router, intl hooks, language and theme controls); this test is about the data boundary
+vi.mock("@/components-next/core/core-shell", () => ({ CoreShell: ({ children }: { children: unknown }) => children }));
+vi.mock("@/components-next/core/core-states", () => ({ RetryErrorState: () => null }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
-vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
+vi.mock("@/lib/i18n", () => ({ isLocale: () => true, getDirection: () => "ltr" }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatientAccess }));
 vi.mock("@/lib/api/medicines-server", () => ({ getPatientMedicines: state.getPatientMedicines }));
 vi.mock("@/lib/api/public-medicines-server", () => ({ getPublicMedicine: state.getPublicMedicine, getPublicMedicines: state.getPublicMedicines }));
@@ -37,7 +41,8 @@ describe("medicines SSR boundary", () => {
     expect(state.getPublicMedicines).toHaveBeenCalledWith({ q: "catalog", page: 1 });
     expect(state.requirePatientAccess).not.toHaveBeenCalled();
     expect(html).not.toContain(serverToken);
-    expect(html).not.toContain("99");
+    // no price in the list: checked on the text, not the markup (the card's icon is an SVG whose path data holds digits)
+    expect(html).not.toMatch(/>[^<]*\b99\b[^<]*</);
     expect(html).toContain(`/en/medicines/${medicineId}`);
   });
 

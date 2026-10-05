@@ -1,9 +1,8 @@
 {
   "$comment": "Recorded debt for tools/design/no-px-font-size.ts. Every entry is a hard-coded font size that predates the design system. 12.A11 removes entries as screens are rebuilt on the stamps. This file may only shrink.",
-  "total": 256,
+  "total": 221,
   "files": {
     "patient-web/app/[locale]/ai/triage.module.css": 10,
-    "patient-web/app/[locale]/c/[[...category]]/category-page.module.css": 26,
     "patient-web/app/[locale]/cart/cart.module.css": 10,
     "patient-web/app/[locale]/consultations/book/[doctorId]/book.module.css": 3,
     "patient-web/app/[locale]/consultations/call-history/call-history.module.css": 1,
@@ -18,7 +17,6 @@
     "patient-web/app/[locale]/emergency/emergency.module.css": 9,
     "patient-web/app/[locale]/home-care/services/services.module.css": 1,
     "patient-web/app/[locale]/medicine-catalog/medicine-catalog.module.css": 4,
-    "patient-web/app/[locale]/medicines/compare/compare.module.css": 4,
     "patient-web/app/[locale]/nursing/catalog/catalog.module.css": 10,
     "patient-web/app/[locale]/nursing/nurses/[nurseId]/nurse-detail.module.css": 13,
     "patient-web/app/[locale]/nursing/visits/visits.module.css": 5,
@@ -33,8 +31,6 @@
     "patient-web/components-next/checkout-flow.module.css": 26,
     "patient-web/components-next/header-cart-badge.module.css": 1,
     "patient-web/components-next/map-explorer.module.css": 10,
-    "patient-web/components-next/product-cart-actions.module.css": 3,
-    "patient-web/components-next/product-gallery-modal.module.css": 2,
     "patient-web/components-next/service-booking-modal.module.css": 18
   }
 }

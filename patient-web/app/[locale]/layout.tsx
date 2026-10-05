@@ -15,6 +15,7 @@ import { WebMcpProvider } from "@/components-next/web-mcp-provider";
 import { ThemeToggle } from "@/components-next/theme-toggle";
 import { THEME_INIT_SCRIPT } from "@/app/theme";
 import { ServiceWorkerRegister } from "@/components-next/service-worker-register";
+import { CartProvider } from "@/lib/context/CartContext";
 
 type Props = Readonly<{ children: React.ReactNode; params: Promise<{ locale: string }> }>;
 
@@ -93,7 +94,9 @@ export default async function LocaleLayout({ children, params }: Props) {
           </div>
         </header>
         {hasAccessToken ? <PresenceBeacon /> : null}
-        {children}
+        {/* The cart (lib/context/CartContext) was written but never mounted: every "add to cart" on the product pages
+            was a no-op. It keeps its items in this browser only, so mounting it here costs no request. */}
+        <CartProvider>{children}</CartProvider>
         <footer className="site-footer">
           <nav aria-label={t("brand")} className="site-footer__links">
             <Link href={`/${typedLocale}/terms`}>{t("footerTerms")}</Link>

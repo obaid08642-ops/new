@@ -2,35 +2,18 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { cdnImage, getPublicCategories, getPublicCategoryProducts, type PublicProductCard } from "@/lib/api/public-products-server";
+import { getPublicCategories, getPublicCategoryProducts } from "@/lib/api/public-products-server";
 import { JsonLd } from "@/components-next/json-ld";
-import { QuickAddCartBtn } from "@/components-next/quick-add-cart-btn";
-import { PremiumProductCard } from "@/components-next/premium-product-card";
-import { resolveProductGallery } from "@/lib/api/public-products-server";
 import { isLocale, locales, type Locale } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
-import {
-  ChevronLeft,
-  Sparkles,
-  Search,
-  ShieldCheck,
-  Truck,
-  RotateCcw,
-  Pill,
-} from "lucide-react";
-import {
-  VectorPharmacy,
-  VectorCatAll,
-  VectorCatHairCare,
-  VectorCatCosmetics,
-  VectorCatSkinCare,
-  VectorCatBabyCare,
-  VectorCatVitamins,
-  VectorCatPersonalCare,
-  VectorRadiology,
-  VectorEmergency,
-} from "@/components-next/vector-illustrations";
-import styles from "./category-page.module.css";
+import { CoreShell } from "@/components-next/core/core-shell";
+import { RetryErrorState } from "@/components-next/core/core-states";
+import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
+import { CatalogSearch } from "@/components-next/pharmacy/catalog-search";
+import { ChipLink } from "@/components-next/pharmacy/chip-link";
+import { ProductGrid } from "@/components-next/pharmacy/product-grid";
+import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
+import styles from "@/components-next/pharmacy/pharmacy.module.css";
 
 type Props = {
   params: Promise<{ locale: string; category?: string[] }>;
@@ -45,13 +28,15 @@ function parsePage(raw?: string) {
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { locale, category } = await params;
   if (!isLocale(locale)) return {};
+  const t = await getTranslations({ locale, namespace: "PharmacyBrowse" });
+  const brand = (await getTranslations({ locale, namespace: "Shared" }))("brand");
   const decoded = (category || []).map((c) => decodeURIComponent(c));
   const page = parsePage((await searchParams).page);
   const name = decoded[decoded.length - 1];
   const path = `/c${decoded.length ? `/${decoded.map(encodeURIComponent).join("/")}` : ""}`;
   const canonical = localizedUrl(locale, path);
-  const title = name ? name : "الأقسام والمنتجات";
-  const description = name ? `${name} — نبض بلس` : "تصفح أقسام الأدوية والمنتجات الصحية من نبض بلس";
+  const title = name ? name : t("allTitle");
+  const description = `${title} — ${brand}`;
   return {
     title,
     description,
@@ -72,58 +57,13 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   };
 }
 
-function renderProductMedia(item: PublicProductCard) {
-  // Deprecated: kept for fallback only — premium rendering uses PremiumProductCard.
-  const cdn = cdnImage(item.image);
-  if (cdn) {
-    return (
-      /* eslint-disable-next-line @next/next/no-img-element */
-      <img
-        src={cdn}
-        alt={item.name || ""}
-        width={140}
-        height={140}
-        loading="lazy"
-        decoding="async"
-        style={{ objectFit: "contain" }}
-      />
-    );
-  }
-  const n = ((item.name || "") + " " + (item.slug || "")).toLowerCase();
-  if (n.includes("شعر") || n.includes("hair") || n.includes("شامبو")) return <VectorCatHairCare size={48} />;
-  if (n.includes("مكياج") || n.includes("تجميل") || n.includes("cosmetic") || n.includes("روج")) return <VectorCatCosmetics size={48} />;
-  if (n.includes("بشرة") || n.includes("skin") || n.includes("سيروم") || n.includes("كريم")) return <VectorCatSkinCare size={48} />;
-  if (n.includes("طفل") || n.includes("baby") || n.includes("حليب") || n.includes("حفاض")) return <VectorCatBabyCare size={48} />;
-  if (n.includes("فيتامين") || n.includes("vitamin") || n.includes("أوميغا") || n.includes("زنك")) return <VectorCatVitamins size={48} />;
-  if (n.includes("معجون") || n.includes("نظافة") || n.includes("شخصية") || n.includes("غسول")) return <VectorCatPersonalCare size={48} />;
-  return <VectorPharmacy size={48} />;
-}
-
-function Card({ locale, item }: { locale: string; item: PublicProductCard }) {
-  const gallery = resolveProductGallery(item as any);
-  const img = cdnImage(item.image);
-  const images = gallery.length ? gallery : img ? [img] : [];
-  // Ultra-Premium V3: use shared PremiumProductCard with glass + Forest Ink + overflow-wrap + line-clamp 2 — 48px vectors, backend-bound
-  return (
-    <PremiumProductCard
-      id={item.id}
-      slug={item.slug}
-      name={item.name || ""}
-      price={item.price}
-      oldPrice={item.old_price ?? null}
-      image={images[0] ?? null}
-      images={images}
-      locale={locale}
-    />
-  );
-}
-
 export default async function CategoryPage({ params, searchParams }: Props) {
   const { locale, category } = await params;
   if (!isLocale(locale)) notFound();
   const typedLocale = locale as Locale;
   setRequestLocale(typedLocale);
-  const t = await getTranslations("PublicProduct");
+  const t = await getTranslations("PharmacyBrowse");
+  const routeState = await getTranslations("RouteState");
   const decoded = (category || []).map((c) => decodeURIComponent(c));
   if (decoded.length > 2) notFound();
   const sParams = await searchParams;
@@ -137,11 +77,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   ]);
 
   const isAll = !main || main === "all" || main === "الكل";
-  const heading = q
-    ? (locale === "ar" ? `نتائج البحث عن: "${q}"` : `Search results for: "${q}"`)
-    : isAll
-      ? (locale === "ar" ? "جميع الأدوية والمنتجات الصحية" : "All Medicines & Health Products")
-      : (sub || main);
+  const heading = q ? t("resultsFor", { query: q }) : isAll ? t("allTitle") : (sub || main);
   const totalProducts = data?.total ?? 0;
   const pages = Math.max(Math.ceil(totalProducts / (data?.limit || 24)), 1);
   const qParam = q ? `&q=${encodeURIComponent(q)}` : "";
@@ -149,36 +85,12 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     ? `/${locale}/c`
     : `/${locale}/c/${encodeURIComponent(main)}${sub ? `/${encodeURIComponent(sub)}` : ""}`;
 
-  const CANONICAL_CATEGORIES = [
-    { id: "all", name: locale === "ar" ? "الكل" : "All", dbName: "all", icon: <VectorCatAll size={48} />, matchKey: "all" },
-    { id: "medications", name: locale === "ar" ? "أدوية وعلاجات" : "Medicines", dbName: "الأدوية والعلاج", icon: <VectorPharmacy size={48} />, matchKey: "أدوية" },
-    { id: "hair-care", name: locale === "ar" ? "عناية بالشعر" : "Hair Care", dbName: "العناية بالشعر", icon: <VectorCatHairCare size={48} />, matchKey: "شعر" },
-    { id: "cosmetics", name: locale === "ar" ? "مكياج وإكسسوارات" : "Makeup & Beauty", dbName: "المكياج والإكسسوارات", icon: <VectorCatCosmetics size={48} />, matchKey: "مكياج" },
-    { id: "skincare", name: locale === "ar" ? "العناية بالبشرة" : "Skin Care", dbName: "العناية بالبشرة", icon: <VectorCatSkinCare size={48} />, matchKey: "بشرة" },
-    { id: "baby", name: locale === "ar" ? "الأم والطفل" : "Mother & Baby", dbName: "الأم والطفل", icon: <VectorCatBabyCare size={48} />, matchKey: "طفل" },
-    { id: "vitamins", name: locale === "ar" ? "فيتامينات ومكملات" : "Vitamins", dbName: "الفيتامينات والتغذية الصحية", icon: <VectorCatVitamins size={48} />, matchKey: "فيتامين" },
-    { id: "personal-care", name: locale === "ar" ? "عناية شخصية" : "Personal Care", dbName: "العناية الشخصية", icon: <VectorCatPersonalCare size={48} />, matchKey: "شخصية" },
-  ];
+  // The category rail is the API's own tree for this language (names and live counts), not a fixed list.
+  const categories = tree?.categories || [];
+  const activeCategory = isAll ? undefined : categories.find((c) => c.name === main);
+  const subs = activeCategory ? Object.entries(activeCategory.subs).sort((a, b) => b[1] - a[1]) : [];
 
-  const categoriesList = CANONICAL_CATEGORIES.map((c) => {
-    const isCatActive = Boolean(
-      c.id === "all"
-        ? isAll
-        : (main === c.dbName || main === c.id || (main && (main.includes(c.matchKey) || c.dbName.includes(main))))
-    );
-    const catCount = c.id === "all"
-      ? (tree?.categories.reduce((acc, tc) => acc + (tc.count || 0), 0) ?? totalProducts)
-      : (tree?.categories.find((tc) => tc.name === c.dbName || tc.name.includes(c.matchKey))?.count ?? 0);
-    return {
-      id: c.id,
-      name: c.name,
-      link: c.id === "all" ? `/${locale}/c` : `/${locale}/c/${encodeURIComponent(c.dbName)}`,
-      icon: c.icon,
-      isActive: isCatActive,
-      count: catCount,
-    };
-  });
-
+  const items = data?.items || [];
   const jsonLd = [
     {
       "@context": "https://schema.org",
@@ -189,7 +101,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       mainEntity: {
         "@type": "ItemList",
         numberOfItems: totalProducts,
-        itemListElement: (data?.items || []).slice(0, 24).map((it, i) => ({
+        itemListElement: items.slice(0, 24).map((it, i) => ({
           "@type": "ListItem",
           position: (page - 1) * (data?.limit || 24) + i + 1,
           url: localizedUrl(locale, `/p/${encodeURIComponent(it.slug)}`),
@@ -199,173 +111,91 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     },
   ];
 
-  return (
-    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
-      <JsonLd data={jsonLd} />
+  const backHref = sub ? `/${locale}/c/${encodeURIComponent(main)}` : isAll ? `/${locale}/pharmacy` : `/${locale}/c`;
 
-      {/* Top Search Bar */}
-      <section className={styles.searchBarWrap}>
-        <form action={`/${locale}/c`} method="GET" className={styles.searchBar}>
-          <Search size={20} className={styles.searchIcon} aria-hidden="true" />
-          <input
-            type="search"
-            name="q"
-            defaultValue={sParams.q || ""}
-            placeholder={
-              locale === "ar"
-                ? "ابحث عن دواء أو منتج صحي بالاسم أو المادة الفعالة..."
-                : "Search medicines or active ingredients..."
-            }
-            className={styles.searchInput}
-            aria-label="Search medicines"
-          />
-          <button type="submit" className={styles.searchButton}>
-            {locale === "ar" ? "بحث" : "Search"}
-          </button>
-        </form>
-      </section>
-
-      {/* Branded Luxury Pharmacy Hero Banner — Ultra-Premium V3: Forest Ink + Cream + glass blur 16px + radius 20 */}
-      <section className={styles.pharmacyHero} style={{ background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 16, display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
-        <div className={styles.heroContent} style={{ display: "grid", gap: 8, minWidth: 0 }}>
-          <div className={styles.heroBadge} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(95,217,179,0.14)", border: "1px solid #E8EDEE", borderRadius: 999, padding: "5px 12px" }}>
-            <Sparkles size={14} aria-hidden="true" color="#1E332E" />
-            <span style={{ color: "#1E332E", fontWeight: 800, fontSize: 12, letterSpacing: "0.06em", overflowWrap: "anywhere" } as any}>{locale === "ar" ? "صيدلية نبض المعتمدة" : "Nabd Verified Pharmacy"}</span>
-          </div>
-          <h1 className={styles.heroTitle} style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
-            {locale === "ar"
-              ? "صيدلية رقمية متكاملة برعاية طبية فائقة"
-              : "Integrated Digital Pharmacy with Clinical Care"}
-          </h1>
-          <p className={styles.heroSubtext} style={{ color: "#6B7C6E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
-            {locale === "ar"
-              ? "تسوق آلاف الأدوية والمستلزمات الطبية الأصلية 100% بأسعار رسمية معتمدة مع خدمة التوصيل الفوري واستشارات صيدلانية متخصصة على مدار الساعة."
-              : "Order 100% genuine licensed medications with instant delivery and 24/7 pharmacist guidance."}
-          </p>
-          <div className={styles.heroPills}>
-            <span className={styles.heroPill}>
-              <ShieldCheck size={14} color="#5FD9B3" aria-hidden="true" />
-              {locale === "ar" ? "أدوية مرخصة 100%" : "100% Genuine & Licensed"}
-            </span>
-            <span className={styles.heroPill}>
-              <Truck size={14} color="#5FD9B3" aria-hidden="true" />
-              {locale === "ar" ? "توصيل فوري مبرد" : "Cold-Chain Fast Delivery"}
-            </span>
-            <span className={styles.heroPill}>
-              <RotateCcw size={14} color="#5FD9B3" aria-hidden="true" />
-              {locale === "ar" ? "إرجاع واستبدال مرن" : "Flexible Returns"}
-            </span>
-          </div>
-        </div>
-          <div className={styles.heroVectorWrap} style={{ inlineSize: 48, blockSize: 48, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.9)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } as any}>
-          <VectorPharmacy size={48} aria-hidden="true" />
-        </div>
-      </section>
-
-      {/* Category Horizontal Rail (مربعات وسطية تتسحب يمين وشمال) */}
-      <section className={styles.railSection}>
-        <div className={styles.railHeader}>
-          <h2 className={styles.railTitle}>
-            {locale === "ar" ? "تصفح حسب الفئة" : "Browse by Category"}
-          </h2>
-          <span className={styles.railSubtitle}>
-            {locale === "ar" ? "اسحب لاكتشاف كافة الأقسام" : "Swipe to explore categories"}
-          </span>
-        </div>
-        <div className={styles.categoryRail} role="tablist">
-          {categoriesList.map((cat) => (
-            <Link
-              key={cat.id}
-              href={cat.link}
-              className={`${styles.categoryCard} ${cat.isActive ? styles.categoryCardActive : ""}`}
-              role="tab"
-              aria-selected={cat.isActive}
-            >
-              <div className={styles.catCardIcon}>{cat.icon}</div>
-              <strong className={styles.catCardTitle}>{cat.name}</strong>
-              <span className={styles.catCardCount}>
-                {cat.count > 0 ? `${cat.count} ${locale === "ar" ? "منتج" : "items"}` : ""}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Products Section DIRECTLY BELOW (مرصوص الأدوية على طول) */}
-      <section className={styles.productsSection}>
-        <div className={styles.productsSectionHeader}>
-          <div className={styles.sectionTitleGroup}>
-            <h2 className={styles.sectionTitle}>{heading}</h2>
-            <span className={styles.sectionBadge}>
-              {totalProducts} {locale === "ar" ? "منتج متاح" : "available"}
-            </span>
-          </div>
-          {sub ? (
-            <div className={styles.crumbs}>
-              <Link href={`/${locale}/c`}>{locale === "ar" ? "الكل" : "All"}</Link>
-              <span>/</span>
-              <Link href={`/${locale}/c/${encodeURIComponent(main)}`}>{main}</Link>
-              <span>/</span>
-              <span>{sub}</span>
-            </div>
-          ) : null}
-        </div>
-
-        {(() => {
-          const productsList = data?.items || [];
-          if (productsList.length === 0) {
-            return (
-              <div className={styles.empty}>
-                <Pill size={36} color="#64748B" style={{ margin: "0 auto 10px", display: "block" }} />
-                <p>
-                  {locale === "ar"
-                    ? "لا توجد أدوية متطابقة في هذه الفئة حالياً."
-                    : "No medicines found in this category."}
-                </p>
-                <Link
-                  href={`/${locale}/c`}
-                  className={styles.searchButton}
-                  style={{ display: "inline-block", marginTop: 16, textDecoration: "none" }}
-                >
-                  {locale === "ar" ? "استعراض جميع الأدوية" : "Browse All Medicines"}
-                </Link>
-              </div>
-            );
-          }
-          return (
-            <div className={styles.gridCards} style={{ marginTop: 16 }}>
-              {productsList.map((it, cardIndex) => (
-                <PremiumProductCard
-                  key={it.id}
-                  id={it.id}
-                  slug={it.slug}
-                  name={it.name || it.slug}
-                  price={it.price || 0}
-                  oldPrice={it.old_price}
-                  image={it.image}
-                  images={it.images as any}
-                  /* F82: the first card in the viewport is the LCP element. */
-                  priority={cardIndex < 2}
-                  locale={locale}
-                />
-              ))}
-            </div>
-          );
-        })()}
-
+  let content: React.ReactNode;
+  if (data === null) {
+    // the catalogue did not answer (as opposed to "answered, nothing here")
+    content = <div className={styles.state}><RetryErrorState title={t("errorTitle")} body={t("errorBody")} retryLabel={routeState("retry")} /></div>;
+  } else if (items.length === 0) {
+    content = (
+      <div className={styles.state}>
+        <EmptyState icon="pill" tone={PHARMACY_TONE} title={t("emptyTitle")} body={t("emptyBody")} />
+        {isAll && !q ? null : (
+          <Link href={`/${locale}/c`} className={`nabd-button nabd-button--primary nabd-button--lg nabd-button--full ${styles.linkButton}`}>
+            <span className="nabd-button__label">{t("browseAll")}</span>
+          </Link>
+        )}
+      </div>
+    );
+  } else {
+    content = (
+      <>
+        <ProductGrid
+          locale={locale}
+          priorityCount={2}
+          items={items.map((it) => ({
+            id: it.id,
+            slug: it.slug,
+            name: it.name || it.slug,
+            price: it.price || 0,
+            oldPrice: it.old_price,
+            image: it.image,
+            form: it.form,
+            strength: it.strength,
+            packageSize: it.package_size,
+            rx: it.is_rx,
+          }))}
+        />
         {pages > 1 ? (
-          <nav className={styles.pager} aria-label="pagination">
+          <nav className={styles.pager} aria-label={t("pagination")}>
             {page > 1 ? (
-              <Link href={`${basePath}?page=${page - 1}${qParam}`}>
-                <ChevronLeft size={15} aria-hidden="true" />
-                {t("backToCatalog")}
+              <Link rel="prev" href={`${basePath}?page=${page - 1}${qParam}`} className={`nabd-button nabd-button--outline nabd-button--md ${styles.linkButton}`}>
+                <span className="nabd-button__label">{t("previous")}</span>
               </Link>
             ) : null}
-            <span>{t("page").replace("{page}", `${page} / ${pages}`)}</span>
-            {page < pages ? <Link href={`${basePath}?page=${page + 1}${qParam}`}>{t("loadMore")}</Link> : null}
+            <span className={styles.pagerInfo}>{t("pageOf", { page, pages })}</span>
+            {page < pages ? (
+              <Link rel="next" href={`${basePath}?page=${page + 1}${qParam}`} className={`nabd-button nabd-button--outline nabd-button--md ${styles.linkButton}`}>
+                <span className="nabd-button__label">{t("next")}</span>
+              </Link>
+            ) : null}
           </nav>
         ) : null}
-      </section>
-    </main>
+      </>
+    );
+  }
+
+  return (
+    <CoreShell locale={typedLocale} title={heading} backHref={backHref}>
+      <JsonLd data={jsonLd} />
+      <div className={styles.page}>
+        <div className={styles.head}>
+          <h1 className={styles.title}>{heading}</h1>
+          {totalProducts > 0 ? <p className={styles.count}>{t("productsCount", { count: totalProducts })}</p> : null}
+        </div>
+        <div className={styles.searchWrap}>
+          <CatalogSearch locale={locale} initial={sParams.q || ""} />
+        </div>
+        {categories.length > 0 ? (
+          <nav aria-label={t("categories")} className={styles.chips}>
+            <ChipLink href={`/${locale}/c`} label={t("all")} selected={isAll && !q} />
+            {categories.map((c) => (
+              <ChipLink key={c.name} href={`/${locale}/c/${encodeURIComponent(c.name)}`} label={c.name} count={c.count} selected={!isAll && main === c.name && !sub} />
+            ))}
+          </nav>
+        ) : null}
+        {subs.length > 0 && activeCategory ? (
+          <nav aria-label={t("subcategories")} className={styles.chips}>
+            <ChipLink href={`/${locale}/c/${encodeURIComponent(activeCategory.name)}`} label={t("allIn", { category: activeCategory.name })} selected={!sub} />
+            {subs.map(([name, count]) => (
+              <ChipLink key={name} href={`/${locale}/c/${encodeURIComponent(activeCategory.name)}/${encodeURIComponent(name)}`} label={name} count={count} selected={sub === name} />
+            ))}
+          </nav>
+        ) : null}
+        {totalProducts > 0 ? <p className={styles.phoneCount}>{t("productsCount", { count: totalProducts })}</p> : null}
+        {content}
+      </div>
+    </CoreShell>
   );
 }
