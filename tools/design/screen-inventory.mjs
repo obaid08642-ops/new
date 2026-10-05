@@ -813,9 +813,14 @@ function batch(route) {
 function foundation() {
   const rows = [];
   const has = (p) => existsSync(join(REPO, p));
-  const grepRepo = (dirs, re, exts = /\.(tsx?|jsx?|css|json)$/) => {
+  // `code: true` matches code only, as the lint gates do: comments blanked, test files skipped
+  // (a comment may say "never 100vh", and a test asserts its absence).
+  const stripComments = (src) => src.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(^|[^:])\/\/.*$/gm, '$1');
+  const grepRepo = (dirs, re, exts = /\.(tsx?|jsx?|css|json)$/, { code = false } = {}) => {
     const hits = [];
-    for (const d of dirs) for (const f of walk(join(REPO, d), (p) => exts.test(p))) if (re.test(read(f))) hits.push(rel(f));
+    for (const d of dirs)
+      for (const f of walk(join(REPO, d), (p) => exts.test(p) && !(code && /\.(test|spec)\.[jt]sx?$/.test(p))))
+        if (re.test(code ? stripComments(read(f)) : read(f))) hits.push(rel(f));
     return hits;
   };
   const tokens = has('packages/design-tokens/tokens.json') ? read(join(REPO, 'packages/design-tokens/tokens.json')) : '';
@@ -859,9 +864,9 @@ function foundation() {
     return ['AppShell', 'StickyFooter'].filter((c) => new RegExp(`export\\s+(?:default\\s+)?(?:function|const)\\s+${c}\\b`).test(src));
   })();
   rows.push(['DEVICE_STANDARD §1 web shells (AppShell, StickyFooter)', webS.length === 2 ? 'DONE' : 'TODO', `present: ${webS.join(', ') || 'none'}`]);
-  const rnSafe = grepRepo(['patient-app/app', 'patient-app/src'], /import\s*\{[^}]*\bSafeAreaView\b[^}]*\}\s*from\s*['"]react-native['"]/);
+  const rnSafe = grepRepo(['patient-app/app', 'patient-app/src'], /import\s*\{[^}]*\bSafeAreaView\b[^}]*\}\s*from\s*['"]react-native['"]/, undefined, { code: true });
   rows.push(['No `SafeAreaView` from `react-native` (patient-app)', rnSafe.length ? 'FAIL' : 'PASS', rnSafe.length ? rnSafe.join(', ') : '0 files']);
-  const vh = grepRepo(['patient-web/app', 'patient-web/components-next'], /\b100vh\b/);
+  const vh = grepRepo(['patient-web/app', 'patient-web/components-next'], /\b100vh\b/, undefined, { code: true });
   rows.push(['No `100vh` (patient-web)', vh.length ? 'FAIL' : 'PASS', `${vh.length} files${vh.length ? ': ' + vh.slice(0, 5).join(', ') + (vh.length > 5 ? ', …' : '') : ''}`]);
   const vp = grepRepo(['patient-web/app'], /viewport-fit|viewportFit/);
   rows.push(['`viewport-fit=cover` on patient-web', vp.length ? 'PASS' : 'TODO', vp.length ? vp.join(', ') : 'not set']);
