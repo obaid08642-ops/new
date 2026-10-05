@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Param, Query, Patch, Put, Delete, UseGuard
 import { RadiologyOpsService } from './radiology.service';
 import { Public, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { PublicCache } from '../../common/cache/public-cache.decorator';
 import { ProviderPrivacyInterceptor } from '../../common/provider-privacy';
 import { BookDto, TransitionDto, UpdateInsDto, AssignTechDto, UploadReportDto, ForceStateDto, AbortScanDto, InsuranceApprovalDto, RescheduleDto, SubmitReportForReviewDto, RadiologyDocumentDto, CatalogDeltaRequestDto} from './radiology.dto';
 import { CreateRadiologyCatalogDto, UpdateRadiologyCatalogDto, ApproveCatalogDto, BulkApproveCatalogDto } from './radiology.dto';
@@ -11,7 +12,7 @@ import { CreateRadiologyCatalogDto, UpdateRadiologyCatalogDto, ApproveCatalogDto
 export class RadiologyController {
   constructor(private readonly svc: RadiologyOpsService) {}
 
-  @Public() @Get('services')
+  @Public() @PublicCache(300, ['radiology-catalog']) @Get('services')
   services(
     @Query('modality') m?: string,
     @Query('body_part') bp?: string,
@@ -36,10 +37,10 @@ export class RadiologyController {
   @Public() @Get('compatible-providers')
   compatibleProviders(@Query('serviceIds') ids?: string) { return this.svc.compatibleProviders(ids ? ids.split(',') : []); }
 
-  @Public() @Get('modalities')
+  @Public() @PublicCache(300, ['radiology-catalog']) @Get('modalities')
   modalities() { return this.svc.modalities(); }
 
-  @Public() @Get('services/:id')
+  @Public() @PublicCache(300, ['radiology-catalog']) @Get('services/:id')
   one(@Param('id') id: string) { return this.svc.getById(id); }
 
   @SelfService()

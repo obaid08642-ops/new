@@ -42,12 +42,12 @@ describe('RouteCachePolicyInterceptor (14.7)', () => {
     expect(h['X-Cache-Hint']).toBe('private');
   });
 
-  it('sends public/s-maxage/stale-while-revalidate + Cache-Tag on a @Public() @PublicCache read', async () => {
+  it('sends public/s-maxage/stale-while-revalidate/stale-if-error + Cache-Tag on a @Public() @PublicCache read', async () => {
     const h = await run(
       mockReflector(true, { ttlSeconds: 300, tags: ['geo', 'regions'] }) as never,
       makeReq(),
     );
-    expect(h['Cache-Control']).toBe('public, max-age=300, s-maxage=300, stale-while-revalidate=60');
+    expect(h['Cache-Control']).toBe('public, max-age=300, s-maxage=300, stale-while-revalidate=60, stale-if-error=86400');
     expect(h['Cache-Tag']).toBe('geo,regions');
     expect(h['X-Cache-Hint']).toBe('public');
   });

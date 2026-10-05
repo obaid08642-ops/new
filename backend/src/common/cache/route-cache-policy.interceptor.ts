@@ -1,7 +1,7 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { PUBLIC_CACHE_KEY } from './public-cache.decorator';
 import { PUBLIC_KEY } from '../auth.guard';
 import {
@@ -12,6 +12,7 @@ import {
 
 const TAG_RE = /^[a-z0-9][a-z0-9:_-]{0,63}$/i;
 const STALE_WHILE_REVALIDATE_SECONDS = 60;
+const STALE_IF_ERROR_SECONDS = 86400;
 const VARY_BASE = 'Accept-Encoding, Authorization, Cookie';
 
 /** Runtime re-validation: raw SetMetadata bypassing the decorator must fail closed. */
@@ -35,10 +36,9 @@ function cleanTags(tags: unknown): string[] | undefined {
  *   fails closed even if auth arrived via cookie-session/guard ordering).
  * - `Vary: Accept-Language` ONLY when the route opted in via
  *   `@PublicCache(ttl, tags, { varyLanguage: true })`.
+ * - Error responses are always `private, no-store`.
  *
- * NOT wired globally here (that needs app.module, owned by another agent).
- * The rollout wave swaps this in for X0 and adds `@PublicCache` to the
- * candidate public reads listed in `route-cache-table.spec.ts`.
+ * Registered globally as APP_INTERCEPTOR in app.module.ts.
  */
 @Injectable()
 export class RouteCachePolicyInterceptor implements NestInterceptor {
@@ -84,7 +84,7 @@ export class RouteCachePolicyInterceptor implements NestInterceptor {
         if (grant && typeof ttl === 'number') {
           res.setHeader?.(
             'Cache-Control',
-            `public, max-age=${ttl}, s-maxage=${ttl}, stale-while-revalidate=${STALE_WHILE_REVALIDATE_SECONDS}`,
+            `public, max-age=${ttl}, s-maxage=${ttl}, stale-while-revalidate=${STALE_WHILE_REVALIDATE_SECONDS}, stale-if-error=${STALE_IF_ERROR_SECONDS}`,
           );
           res.setHeader?.('Vary', varyLanguage ? `${VARY_BASE}, Accept-Language` : VARY_BASE);
           if (tags?.length) {
@@ -95,6 +95,11 @@ export class RouteCachePolicyInterceptor implements NestInterceptor {
           res.setHeader?.('Cache-Control', 'private, no-store');
           res.setHeader?.('X-Cache-Hint', 'private');
         }
+      }),
+      catchError((err: unknown) => {
+        res.setHeader?.('Cache-Control', 'private, no-store');
+        res.setHeader?.('X-Cache-Hint', 'private');
+        return throwError(() => err);
       }),
     );
   }

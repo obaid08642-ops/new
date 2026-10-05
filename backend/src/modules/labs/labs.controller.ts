@@ -2,6 +2,7 @@ import { Controller, Get, Post, Patch, Put, Delete, Body, Param, Query, UseGuard
 import { LabsService } from './labs.service';
 import { Public, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { PublicCache } from '../../common/cache/public-cache.decorator';
 import { ProviderPrivacyInterceptor } from '../../common/provider-privacy';
 import { BookDto, TransitionDto, UploadDocDto, UpdateInsDto, OptInCashDto, AssignTechDto, UploadReportDto, RescheduleDto, UpdateGpsDto, DeclareEmergencyDto, RegisterSampleDto, ForceStateDto, UpdateStageDto} from './labs.dto';
 import { CreateLabCatalogDto, UpdateLabCatalogDto, ApproveCatalogDto, BulkApproveCatalogDto } from './labs.dto';
@@ -11,7 +12,7 @@ import { CreateLabCatalogDto, UpdateLabCatalogDto, ApproveCatalogDto, BulkApprov
 export class LabsController {
   constructor(private readonly svc: LabsService) {}
 
-  @Public() @Get('services')
+  @Public() @PublicCache(300, ['labs-catalog']) @Get('services')
   services(
     @Query('category') cat?: string, 
     @Query('search') q?: string, 
@@ -31,13 +32,13 @@ export class LabsController {
     });
   }
 
-  @Public() @Get('packages')
+  @Public() @PublicCache(300, ['labs-catalog']) @Get('packages')
   packages() { return this.svc.list({ packages_only: true }); }
 
-  @Public() @Get('categories')
+  @Public() @PublicCache(300, ['labs-catalog']) @Get('categories')
   categories() { return this.svc.categoryCounts(); }
 
-  @Public() @Get('services/:id')
+  @Public() @PublicCache(300, ['labs-catalog']) @Get('services/:id')
   one(@Param('id') id: string) { return this.svc.getById(id); }
 
   @SelfService()

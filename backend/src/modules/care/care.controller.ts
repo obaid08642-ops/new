@@ -1,6 +1,7 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { CareService } from './care.service';
 import { CurrentUser, JwtAuthGuard, Public } from '../../common/auth.guard';
+import { PublicCache } from '../../common/cache/public-cache.decorator';
 
 @Controller('care')
 @UseGuards(JwtAuthGuard)
@@ -8,18 +9,21 @@ export class CareController {
   constructor(private svc: CareService) {}
 
   @Public()
+  @PublicCache(600, ['care-catalog'])
   @Get('specialties')
   specialties() {
     return this.svc.specialties();
   }
 
   @Public()
+  @PublicCache(600, ['care-catalog'])
   @Get('insurance')
   insuranceCompanies() {
     return this.svc.insuranceCompanies();
   }
 
   @Public()
+  @PublicCache(600, ['care-catalog'])
   @Get('degrees')
   degrees() {
     return this.svc.academicDegrees();
@@ -106,6 +110,7 @@ export class PublicSpecialtiesController {
   constructor(private svc: CareService) {}
 
   @Public()
+  @PublicCache(600, ['care-catalog'])
   @Get('specialties')
   specialties() {
     return this.svc.specialties();

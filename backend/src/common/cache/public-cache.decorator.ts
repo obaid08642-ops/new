@@ -5,17 +5,12 @@ import { SetMetadata } from '@nestjs/common';
 export const PUBLIC_CACHE_KEY = 'publicCache';
 
 /**
- * 14.7 — hardened successor of the X0 `@PublicCache` decorator.
- *
- * Uses the SAME metadata key (`publicCache`) as X0, so the existing
- * `CacheControlInterceptor` honors it and `RouteCachePolicyInterceptor`
- * (same directory) enforces the hardened policy. No controller changes here —
- * the rollout wave that wires this onto routes is tracked separately.
+ * 14.7 — `@PublicCache`, enforced by `RouteCachePolicyInterceptor`.
  *
  * Policy:
  * - default every response `private, no-store`;
  * - `@PublicCache(ttl, tags)` ONLY on `@Public()` GET reads sends
- *   `public, s-maxage, stale-while-revalidate` + `Cache-Tag` (+ `Vary:
+ *   `public, s-maxage, stale-while-revalidate, stale-if-error` + `Cache-Tag` (+ `Vary:
  *   Accept-Language` iff `varyLanguage` is true);
  * - anything else (non-GET, authed request, `req.user` present, bad ttl/tags)
  *   fails closed to `private, no-store` at runtime.

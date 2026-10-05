@@ -12,6 +12,7 @@ import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose'
 import { Connection, Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtAuthGuard, Public, Roles, CurrentUser, SelfService } from '../../common/auth.guard';
+import { PublicCache } from '../../common/cache/public-cache.decorator';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { UserRole } from '../../common/enums';
 import { Article, ArticleSchema } from '../../schemas/article.schema';
@@ -120,8 +121,8 @@ export class ArticlesService {
 export class ArticlesPublicController {
   constructor(private svc: ArticlesService) {}
 
-  @Public() @Get() list(@Query() q: any) { return this.svc.list(q); }
-  @Public() @Get('categories') cats() { return this.svc.categories(); }
+  @Public() @PublicCache(300, ['articles']) @Get() list(@Query() q: any) { return this.svc.list(q); }
+  @Public() @PublicCache(300, ['articles']) @Get('categories') cats() { return this.svc.categories(); }
   @Public() @Get(':slug') one(@Param('slug') slug: string) { return this.svc.bySlug(slug); }
 }
 
