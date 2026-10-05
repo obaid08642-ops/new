@@ -61,15 +61,6 @@ import { StorageModule } from './modules/storage/storage.module';
 import { ServiceCatalogModule } from './modules/service-catalog/service-catalog.module';
 import { CartModule } from './modules/cart/cart.module';
 
-function bullRedisConnection() {
-  const configuredUrl = process.env.REDIS_URL ? new URL(process.env.REDIS_URL) : undefined;
-  return {
-    host: configuredUrl?.hostname || process.env.REDIS_HOST || 'localhost',
-    port: Number(configuredUrl?.port || process.env.REDIS_PORT || '6379'),
-    password: configuredUrl?.password ? decodeURIComponent(configuredUrl.password) : (process.env.REDIS_PASSWORD || undefined),
-    ...(configuredUrl?.protocol === 'rediss:' ? { tls: {} } : {}),
-  };
-}
 import { ProviderOnboardingModule } from './modules/provider-onboarding/provider-onboarding.module';
 import { UnifiedBookingsModule } from './modules/unified-bookings/unified-bookings.module';
 import { WorkflowEngineModule } from './modules/workflow-engine/workflow-engine.module';
@@ -111,6 +102,7 @@ import { AuditLogInterceptor } from './common/audit-log.interceptor';
 import { IdempotencyInterceptor } from './common/idempotency.interceptor';
 import { AdaptiveConcurrencyInterceptor } from './common/adaptive-concurrency.interceptor';
 import { RouteCachePolicyInterceptor } from './common/cache/route-cache-policy.interceptor';
+import { bullConnectionFromEnv } from './common/redis-roles';
 
 import { MaternityModule } from './modules/maternity/maternity.module';
 import { NabdExtensionsModule } from './modules/nabd-extensions/nabd-extensions.module';
@@ -182,7 +174,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
       }),
     }),
     BullModule.forRoot({
-      connection: bullRedisConnection(),
+      connection: bullConnectionFromEnv(),
     }),
     EventEmitterModule.forRoot({ wildcard: true, maxListeners: 50 }),
     ScheduleModule.forRoot(),

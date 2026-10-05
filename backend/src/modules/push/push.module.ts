@@ -20,7 +20,7 @@ import { Queue, Worker, QueueEvents } from 'bullmq';
 import * as crypto from 'crypto';
 import * as http2 from 'http2';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { redisUrlFromEnv } from '../redis/redis.service';
+import { bullConnectionFromEnv } from '../../common/redis-roles';
 import { RegisterDto, TrackDto, UnregisterPushDto, WebSubscribeDto, WebUnsubscribeDto, SendCampaignDto } from './push.dto';
 import { NotificationTemplate, NotificationTemplateDocument, NotificationTemplateSchema } from '../../schemas/notification-template.schema';
 import { I18nService } from '../i18n/i18n.service';
@@ -332,13 +332,7 @@ export class PushService implements OnModuleInit {
 
   onModuleInit() {
     try {
-      const redisUrl = redisUrlFromEnv();
-      const parsedUrl = new URL(redisUrl);
-      const connection = {
-        host: parsedUrl.hostname,
-        port: parseInt(parsedUrl.port || '6379'),
-        password: parsedUrl.password || undefined,
-      };
+      const connection = bullConnectionFromEnv();
 
       this.queue = new Queue('push_notifications', { connection });
 

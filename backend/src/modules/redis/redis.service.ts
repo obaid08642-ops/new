@@ -1,13 +1,10 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import Redis from 'ioredis';
+import { resolveRedisRoles } from '../../common/redis-roles';
 
-/** Canonical Redis URL resolution shared by every Redis consumer in the app. */
+/** URL of the cache-role Redis (REDIS_CACHE_URL, else REDIS_URL, else REDIS_HOST/PORT). */
 export function redisUrlFromEnv(): string {
-  if (process.env.REDIS_URL) return process.env.REDIS_URL;
-  const host = process.env.REDIS_HOST || 'localhost';
-  const port = process.env.REDIS_PORT || '6379';
-  const password = process.env.REDIS_PASSWORD;
-  return password ? `redis://:${password}@${host}:${port}` : `redis://${host}:${port}`;
+  return resolveRedisRoles(process.env).cacheUrl;
 }
 
 type Entry = { v: any; exp?: number };
