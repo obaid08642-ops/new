@@ -28,7 +28,8 @@ const APP = join(__dirname, '..', 'app');
 
 /** '/(tabs)/pharmacy' -> app/(tabs)/pharmacy.tsx or app/(tabs)/pharmacy/index.tsx */
 function routeExists(route: string): boolean {
-  const base = join(APP, route === '/(tabs)' ? '(tabs)/index' : route);
+  const path = route.split('?')[0]; // a route may carry a query (/search?view=doctors&specialty=dentistry)
+  const base = join(APP, path === '/(tabs)' ? '(tabs)/index' : path);
   return [`${base}.tsx`, join(base, 'index.tsx')].some((file) => existsSync(file));
 }
 

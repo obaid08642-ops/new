@@ -51,6 +51,13 @@ async function saveToken(token: string): Promise<void> {
 
 const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
+/**
+ * The sign-in family. A 401 from one of these ("User not found", a wrong code) is the answer to that request, not a
+ * statement about the stored session, so it must not delete the guest or patient token that is already there.
+ */
+export const isPublicAuthEndpoint = (endpoint: string): boolean =>
+  /^\/auth\/(login|register|guest|social-login|send-otp|verify-otp|reset-password|refresh)(\/|\?|$)/.test(endpoint);
+
 export function newIdempotencyKey(): string {
   const uuid = (globalThis as any).crypto?.randomUUID?.();
   return `app-${uuid || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`}`;
@@ -92,7 +99,7 @@ export async function apiFetch<T = any>(endpoint: string, options: RequestInit =
     
     // Only an invalid/expired session (401) ends it. A 403 means "not allowed to do this":
     // signing the user out for it would log them out of the whole app on one forbidden action.
-    if (errorMsg.toLowerCase().includes('missing token') || response.status === 401) {
+    if (!isPublicAuthEndpoint(endpoint) && (errorMsg.toLowerCase().includes('missing token') || response.status === 401)) {
       console.warn(`[apiFetch] Auth error for endpoint: ${endpoint}`);
       try { await SecureStore.deleteItemAsync(STORAGE_KEYS.AUTH_TOKEN); } catch {}
       await clearLegacyTokenMirror();

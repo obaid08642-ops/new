@@ -3,22 +3,33 @@ import { View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Button, Icon, Screen, StickyFooter } from "../../../packages/ui-native/src";
 import { apiFetch } from "../../src/utils/api";
-import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { LocalizedText } from '../../src/components/LocalizedText';
-import { AuthBody, AuthField, AuthFooter, AuthTitle, AuthTopBar, FONT, useAuthUi } from '../../src/components/auth/AuthKit';
+import { AuthBody, AuthError, AuthField, AuthFooter, AuthTitle, AuthTopBar, FONT, useAuthUi } from '../../src/components/auth/AuthKit';
+import { serverMessage } from '../../src/utils/serverMessage';
+import { isValidEmail } from '../../src/utils/login-credentials';
 
 export default function ResetPasswordScreen() {
   const { theme, c, tr } = useAuthUi();
   const params = useLocalSearchParams();
-  const email = (params.email as string) || "";
+  // The email and the code come from the code screen. The backend verifies the code here, once (it consumes it),
+  // so the code arrives pre-filled and stays editable; opened without the email (a link, a restart) the screen asks for it.
+  const emailParam = ((params.email as string) || "").trim();
+  const [emailInput, setEmailInput] = useState("");
+  const email = (emailParam || emailInput).trim().toLowerCase();
   const [pw, setPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState(((params.code as string) || "").trim());
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleReset = async () => {
-    if (pw.length < 6 || pw !== confirmPw || !code.trim()) return;
+    // say what is wrong instead of doing nothing
+    if (!isValidEmail(email)) { setErrorMessage("auth.reset.errEmail"); return; }
+    if (!code.trim()) { setErrorMessage("errors.codeRequired"); return; }
+    if (pw.length < 6) { setErrorMessage("auth.err.passwordShort"); return; }
+    if (pw !== confirmPw) { setErrorMessage("auth.err.mismatch"); return; }
+    setErrorMessage(null);
     setLoading(true);
     try {
       await apiFetch("/auth/reset-password", {
@@ -32,7 +43,7 @@ export default function ResetPasswordScreen() {
       setLoading(false);
       setDone(true);
     } catch (err: any) {
-      showLocalizedAlert("خطأ", err.message || "فشل حفظ كلمة المرور الجديدة");
+      setErrorMessage(serverMessage(err, "auth.reset.saveFailed"));
       setLoading(false);
     }
   };
@@ -45,7 +56,7 @@ export default function ResetPasswordScreen() {
           <StickyFooter theme={theme}>
             <AuthFooter>
               <Button
-                label={tr('تسجيل الدخول')}
+                label={tr('auth.login')}
                 variant="primary"
                 size="lg"
                 fullWidth
@@ -64,10 +75,10 @@ export default function ResetPasswordScreen() {
               <Icon name="check" size={34} theme={theme} color={c.status.success.fg} />
             </View>
             <LocalizedText accessibilityRole="header" style={{ fontFamily: FONT.bold, fontSize: 24, lineHeight: 32, color: c.text.primary, textAlign: 'center' }}>
-              تم تغيير كلمة المرور
+              {'auth.reset.doneTitle'}
             </LocalizedText>
             <LocalizedText style={{ fontFamily: FONT.regular, fontSize: 15, lineHeight: 24, color: c.text.secondary, textAlign: 'center' }}>
-              يمكنك الآن تسجيل الدخول بكلمة مرورك الجديدة
+              {'auth.reset.doneBody'}
             </LocalizedText>
           </View>
         </AuthBody>
@@ -85,7 +96,7 @@ export default function ResetPasswordScreen() {
         <StickyFooter theme={theme}>
           <AuthFooter>
             <Button
-              label={tr(loading ? 'لحظة…' : 'حفظ كلمة المرور')}
+              label={tr(loading ? 'common.pleaseWait' : 'auth.reset.submit')}
               variant="primary"
               size="lg"
               fullWidth
@@ -100,11 +111,24 @@ export default function ResetPasswordScreen() {
     >
       <AuthBody>
       <AuthTopBar onBack={() => router.back()} />
-      <AuthTitle title="كلمة مرور جديدة" sub="أدخل الرمز الذي وصلك، ثم اختر كلمة مرور جديدة" />
+      <AuthTitle title="auth.reset.title" sub="auth.reset.sub" />
       <View style={{ marginTop: 22, gap: 12 }}>
+        {emailParam ? null : (
+          <AuthField
+            label="auth.email"
+            placeholder="name@example.com"
+            ltr
+            keyboardType="email-address"
+            autoComplete="email"
+            textContentType="emailAddress"
+            value={emailInput}
+            onChangeText={setEmailInput}
+            testID="reset-email"
+          />
+        )}
         <AuthField
-          label="رمز التحقق"
-          placeholder="٦ أرقام"
+          label="auth.code"
+          placeholder="auth.reset.codePlaceholder"
           ltr
           keyboardType="number-pad"
           autoComplete="one-time-code"
@@ -114,8 +138,8 @@ export default function ResetPasswordScreen() {
           testID="reset-code"
         />
         <AuthField
-          label="كلمة المرور الجديدة"
-          hint="٦ أحرف على الأقل"
+          label="auth.reset.newPassword"
+          hint="auth.passwordHint"
           secure
           autoComplete="new-password"
           textContentType="newPassword"
@@ -124,15 +148,16 @@ export default function ResetPasswordScreen() {
           testID="reset-password"
         />
         <AuthField
-          label="تأكيد كلمة المرور"
+          label="auth.confirmPassword"
           secure
           autoComplete="new-password"
           textContentType="newPassword"
           value={confirmPw}
           onChangeText={setConfirmPw}
-          error={mismatch ? "كلمتا المرور غير متطابقتين" : undefined}
+          error={mismatch ? "auth.err.mismatch" : undefined}
           testID="reset-confirm"
         />
+        <AuthError message={errorMessage} />
       </View>
       </AuthBody>
     </Screen>

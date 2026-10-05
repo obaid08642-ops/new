@@ -1,6 +1,8 @@
 {
   "_comment": "TEST VALUES for `render-native-screen.mjs --api fixture`: invented, clearly marked as tests, never real patient data. They exist only to draw the data-bound blocks of Home (name, reminder, appointment, records, curated offers) in a design render. Shipped code never reads this file.",
-  "/users/me/profile": { "full_name": "مستخدم تجريبي" },
+  "/users/me/display": { "display_name": "مستخدم تجريبي" },
+  "/notifications": [{ "id": "test-n1", "type": "info", "title": "إشعار تجريبي", "body": "", "read": false }],
+  "/loyalty/account": { "points": 1250, "tier": "silver" },
   "/health/reminders": [
     {
       "id": "test-1",

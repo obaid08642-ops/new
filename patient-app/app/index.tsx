@@ -11,6 +11,8 @@ import { NabdLogo } from "../src/components/NabdLogo";
 import { Txt, useScreenUi } from "../src/components/home/homeKit";
 import { ensureGuestSession } from "../src/utils/guestSession";
 import { guestLogin } from "../src/store/slices/authSlice";
+import { launchRoute, needsSilentGuest } from "../src/utils/launchRoute";
+import { restoreSession } from "../src/utils/authSession";
 
 /**
  * The splash that opens the app: the Noon Dot on the canvas, then Home (HomeApp board). Colours come from the
@@ -21,26 +23,39 @@ export default function Index() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // First launch with no session: the silent guest session is requested while the logo plays, so Home finds
-    // a session and loads without the error banner (owner decision B2). It never delays the splash.
-    const guest = ensureGuestSession();
-    const t = setTimeout(() => checkAppState(guest), 2600); // let logo animation play
+    // Decide while the logo plays (two quick local reads). A launch that goes to Home with no session opens the
+    // silent guest session right away (owner decision B2); the first launch goes to Welcome and opens none.
+    const plan = planLaunch();
+    plan.catch(() => undefined); // a failure is handled when the splash is done (it falls back to Welcome)
+    const t = setTimeout(() => checkAppState(plan), 2600); // let logo animation play
     return () => clearTimeout(t);
   }, []);
 
-  const checkAppState = async (guest: ReturnType<typeof ensureGuestSession>) => {
+  const planLaunch = async () => {
+    const [token, seen] = await Promise.all([
+      SecureStore.getItemAsync(STORAGE_KEYS.AUTH_TOKEN).catch(() => null),
+      AsyncStorage.getItem(STORAGE_KEYS.ONBOARDING_DONE).catch(() => null),
+    ]);
+    const state = { hasSession: Boolean(token), welcomeSeen: seen === "true" };
+    // the slice is not persisted: tell it about the session that is stored (guest or patient)
+    if (token) {
+      const refresh = await SecureStore.getItemAsync(STORAGE_KEYS.REFRESH_TOKEN).catch(() => null);
+      const restored = restoreSession(token, refresh);
+      if (restored) dispatch(restored);
+    }
+    return { route: launchRoute(state), guest: needsSilentGuest(state) ? ensureGuestSession() : null };
+  };
+
+  const checkAppState = async (plan: ReturnType<typeof planLaunch>) => {
     try {
-      const session = await Promise.race([guest, new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000))]);
-      if (session) dispatch(guestLogin(session));
-
-      // Preserve authenticated and guest sessions; the splash must never clear patient data.
-      await SecureStore.getItemAsync(STORAGE_KEYS.AUTH_TOKEN).catch(() => null);
-      await AsyncStorage.getItem(STORAGE_KEYS.GUEST_MODE ?? "@nabdah_guest");
-
-      // Public-first navigation: browsing must not require authentication; with no session a silent guest one was opened above.
-      // Checkout/service mutations enforce the session policy at the action boundary.
-      // Existing authenticated and device-bound guest sessions still land on tabs.
-      router.replace("/(tabs)");
+      // First launch: Welcome. Every later launch: Home (as a patient, or as the guest the device already has or
+      // just got). Checkout and booking enforce the session policy at the action boundary.
+      const { route, guest } = await plan;
+      if (guest) {
+        const session = await Promise.race([guest, new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000))]);
+        if (session) dispatch(guestLogin(session));
+      }
+      router.replace(route);
     } catch {
       router.replace("/(auth)/welcome");
     }
@@ -59,10 +74,10 @@ export default function Index() {
           style={{ alignItems: "center", gap: 4 }}
         >
           <Txt weight="bold" size={26} style={{ textAlign: "center" }}>
-            نبض بلس
+            {'common.appName'}
           </Txt>
           <Txt size={14} color={c.text.secondary} style={{ textAlign: "center" }}>
-            رعايتك الصحية المتكاملة
+            {"common.tagline"}
           </Txt>
         </Animated.View>
       </Animated.View>

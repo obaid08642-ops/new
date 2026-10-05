@@ -1,5 +1,5 @@
 {
- "commit": "a31751b0",
+ "commit": "5fab5997",
  "routes": [
   {
    "app": "patient-app",
@@ -29,7 +29,7 @@
      "path": "/content/home",
      "target": "backend",
      "query": "",
-     "line": 25,
+     "line": 26,
      "file": "patient-app/src/components/HomeSections.tsx",
      "status": "OK",
      "backend": "backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:262"
@@ -39,7 +39,7 @@
      "path": "/health/reminders",
      "target": "backend",
      "query": "",
-     "line": 68,
+     "line": 76,
      "file": "patient-app/app/(tabs)/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/health.controller.ts:58"
@@ -49,7 +49,7 @@
      "path": "/health/vitals/summary",
      "target": "backend",
      "query": "",
-     "line": 69,
+     "line": 77,
      "file": "patient-app/app/(tabs)/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/health.controller.ts:33"
@@ -59,17 +59,27 @@
      "path": "/home/upcoming-appointment",
      "target": "backend",
      "query": "",
-     "line": 69,
+     "line": 77,
      "file": "patient-app/app/(tabs)/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home/home.controller.ts:15"
     },
     {
      "method": "GET",
+     "path": "/loyalty/account",
+     "target": "backend",
+     "query": "",
+     "line": 78,
+     "file": "patient-app/app/(tabs)/index.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:22"
+    },
+    {
+     "method": "GET",
      "path": "/maternity/profile",
      "target": "backend",
      "query": "",
-     "line": 69,
+     "line": 77,
      "file": "patient-app/app/(tabs)/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/maternity/maternity.controller.ts:21"
@@ -79,33 +89,43 @@
      "path": "/mental-health/mood",
      "target": "backend",
      "query": "?days=1",
-     "line": 69,
+     "line": 77,
      "file": "patient-app/app/(tabs)/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/mental-health/mental-health.controller.ts:33"
     },
     {
      "method": "GET",
+     "path": "/notifications",
+     "target": "backend",
+     "query": "",
+     "line": 78,
+     "file": "patient-app/app/(tabs)/index.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/doctors/doctors.module.ts:293"
+    },
+    {
+     "method": "GET",
      "path": "/nutrition/daily-summary",
      "target": "backend",
      "query": "",
-     "line": 68,
+     "line": 76,
      "file": "patient-app/app/(tabs)/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/nutrition/nutrition.controller.ts:50"
     },
     {
      "method": "GET",
-     "path": "/users/me/profile",
+     "path": "/users/me/display",
      "target": "backend",
      "query": "",
-     "line": 68,
+     "line": 76,
      "file": "patient-app/app/(tabs)/index.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/users/users.controller.ts:34"
+     "backend": "backend/src/modules/users/users.controller.ts:18"
     }
    ],
-   "files": 31,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -129,7 +149,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:177"
     }
    ],
-   "files": 21,
+   "files": 23,
    "unresolved": 0
   },
   {
@@ -2715,7 +2735,7 @@
      "path": "/auth/send-otp",
      "target": "backend",
      "query": "",
-     "line": 19,
+     "line": 24,
      "file": "patient-app/app/(auth)/forgot-password.tsx",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:293"
@@ -4055,7 +4075,7 @@
      "path": "/auth/login",
      "target": "backend",
      "query": "",
-     "line": 62,
+     "line": 67,
      "file": "patient-app/app/(auth)/login.tsx",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:151"
@@ -4071,7 +4091,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:323"
     }
    ],
-   "files": 28,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -4561,7 +4581,7 @@
      "path": "/notifications",
      "target": "backend",
      "query": "",
-     "line": 114,
+     "line": 118,
      "file": "patient-app/app/notifications/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/doctors/doctors.module.ts:293"
@@ -4571,7 +4591,7 @@
      "path": "/notifications/:param/read",
      "target": "backend",
      "query": "",
-     "line": 148,
+     "line": 157,
      "file": "patient-app/app/notifications/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/notifications/notifications.controller.ts:39"
@@ -4581,13 +4601,13 @@
      "path": "/notifications/read-all",
      "target": "backend",
      "query": "",
-     "line": 139,
+     "line": 148,
      "file": "patient-app/app/notifications/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/notifications/notifications.controller.ts:45"
     }
    ],
-   "files": 28,
+   "files": 29,
    "unresolved": 0
   },
   {
@@ -5258,7 +5278,7 @@
      "path": "/auth/register",
      "target": "backend",
      "query": "",
-     "line": 119,
+     "line": 123,
      "file": "patient-app/app/(auth)/otp.tsx",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:133"
@@ -5268,7 +5288,7 @@
      "path": "/auth/send-otp",
      "target": "backend",
      "query": "",
-     "line": 64,
+     "line": 65,
      "file": "patient-app/app/(auth)/otp.tsx",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:293"
@@ -5278,13 +5298,13 @@
      "path": "/auth/verify-otp",
      "target": "backend",
      "query": "",
-     "line": 94,
+     "line": 101,
      "file": "patient-app/app/(auth)/otp.tsx",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:303"
     }
    ],
-   "files": 29,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -6419,13 +6439,13 @@
      "path": "/auth/send-otp",
      "target": "backend",
      "query": "",
-     "line": 46,
+     "line": 47,
      "file": "patient-app/app/(auth)/register.tsx",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:293"
     }
    ],
-   "files": 24,
+   "files": 25,
    "unresolved": 0
   },
   {
@@ -6562,7 +6582,7 @@
      "path": "/auth/reset-password",
      "target": "backend",
      "query": "",
-     "line": 24,
+     "line": 35,
      "file": "patient-app/app/(auth)/reset-password.tsx",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:313"
@@ -6750,7 +6770,7 @@
      "path": "/care/doctors",
      "target": "backend",
      "query": "?:param",
-     "line": 44,
+     "line": 48,
      "file": "patient-app/src/components/views/DoctorSearchView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:29"
@@ -6766,7 +6786,7 @@
      "backend": "backend/src/modules/home/home.controller.ts:20"
     }
    ],
-   "files": 37,
+   "files": 39,
    "unresolved": 0
   },
   {
@@ -7322,7 +7342,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:323"
     }
    ],
-   "files": 31,
+   "files": 32,
    "unresolved": 0
   },
   {
