@@ -122,3 +122,16 @@ describe('UnifiedBookingsService patient-web contract bridge', () => {
     expect(Reflect.getMetadata(REQUIRE_IDEMPOTENCY, UnifiedBookingsController.prototype.rescheduleRoot)).toBe(true);
   });
 });
+
+describe('unified booking finds overnight slots listed under the previous day', () => {
+  it('a 00:30 UTC slot of a window that opened the evening before resolves', async () => {
+    const service = serviceFor();
+    const overnight = '2030-01-03T00:30:00.000Z';
+    service.slots.slotsForDate = jest.fn(async (_d: unknown, day: string) => ({
+      slots: day === '2030-01-02' ? [{ start: overnight, available: true }] : [],
+    }));
+    await expect(service.createConsultationContract(USER, {
+      doctor_id: 'doctor-1', slot_id: overnight, type: 'clinic', payment_method_id: 'cash',
+    })).resolves.toMatchObject({ booking_id: 'booking-1' });
+  });
+});
