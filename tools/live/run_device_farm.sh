@@ -39,6 +39,15 @@ for d in (m.get('android') or {}).get('models', []):
 EOF
 )
 [[ "$models" != *"pyyaml-missing"* ]] || { echo "BLOCKED: python3-yaml needed to read $MATRIX" >&2; exit 1; }
+# Fail closed on an empty matrix: with no rows both the validation loop and the
+# Robo loop below are skipped, `results` stays empty, fails=0 and the run exits 0
+# having covered ZERO devices — a report that reads like a pass.
+stripped="$(printf '%s' "$models" | tr -d '[:space:]')"
+if [[ -z "$stripped" ]]; then
+  echo "BLOCKED: $MATRIX parsed to an EMPTY device matrix — 0 devices would run and the report would read as a pass" >&2
+  exit 1
+fi
+echo "matrix rows to run: $(grep -c . <<<"$models")"
 for row in $models; do
   id="${row%%,*}"
   grep -qx "$id" <<<"$catalog" || { echo "BLOCKED: FTL model '$id' not in the live catalog — update device_farm.yml" >&2; exit 1; }
