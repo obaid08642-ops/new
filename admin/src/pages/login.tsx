@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { startAuthentication } from '@simplewebauthn/browser';
 import { apiErrorMessage } from '@/lib/admin-client';
 
-type LoginStep = 'credentials' | 'otp' | 'passkey' | 'reset-request' | 'reset-confirm';
+type LoginStep = 'credentials' | 'otp' | 'passkey' | 'reset-request' | 'reset-confirm' | 'recovery-start' | 'recovery-redeem';
 
 async function publicAuth(action: 'send-otp' | 'reset-password', body: Record<string, string>) {
   const response = await fetch(`/api/admin/auth/public/${action}`, {
@@ -24,6 +24,7 @@ export default function AdminLogin() {
   const [otp, setOtp] = useState('');
   const [resetCode, setResetCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [recoveryCode, setRecoveryCode] = useState('');
   const [passkeyOptions, setPasskeyOptions] = useState<any>(null);
   const [step, setStep] = useState<LoginStep>('credentials');
   const [loading, setLoading] = useState(false);
@@ -107,6 +108,48 @@ export default function AdminLogin() {
     }
   }
 
+  // C6 break-glass: lost passkey devices. A recovery code from the printed set
+  // plus a fresh email code open one session that may enroll a new passkey.
+  async function recovery(body: Record<string, string>) {
+    const response = await fetch('/api/admin/auth/recovery', {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+    });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) throw new Error(apiErrorMessage({ status: response.status, payload }, 'تعذر إتمام الاسترجاع.'));
+    return payload;
+  }
+
+  async function startRecovery(event: React.FormEvent) {
+    event.preventDefault();
+    setLoading(true); setError(''); setNotice('');
+    try {
+      await recovery({ action: 'start', email: identifier.trim() });
+      setNotice('إذا كان البريد لحساب إدارة، أُرسل إليه رمز تحقق.');
+      setStep('recovery-redeem');
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'تعذر إرسال رمز التحقق.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function redeemRecovery(event: React.FormEvent) {
+    event.preventDefault();
+    setLoading(true); setError(''); setNotice('');
+    try {
+      const payload = await recovery({ action: 'redeem', email: identifier.trim(), email_code: otp.trim(), recovery_code: recoveryCode.trim() });
+      setRecoveryCode('');
+      // A recovery session lands on the security page to enroll a new passkey.
+      const role = payload?.user?.role;
+      if (role !== 'admin' && role !== 'super_admin') { setError('بيانات الدخول غير صحيحة.'); return; }
+      router.replace('/admin/security');
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'تعذر إتمام الاسترجاع.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function requestReset(event: React.FormEvent) {
     event.preventDefault();
     setLoading(true); setError(''); setNotice('');
@@ -152,6 +195,7 @@ export default function AdminLogin() {
             <label className="block text-sm text-slate-300">كلمة المرور<input className={`${inputClass} mt-2`} type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" /></label>
             <button className={buttonClass} type="submit" disabled={loading}>{loading ? 'جارٍ التحقق…' : 'تسجيل الدخول'}</button>
             <button className="w-full text-sm text-slate-400 underline hover:text-white" type="button" onClick={() => setStep('reset-request')}>نسيت كلمة المرور؟</button>
+            <button className="w-full text-sm text-slate-400 underline hover:text-white" type="button" onClick={() => { setError(''); setStep('recovery-start'); }}>فقدت مفتاح الأمان؟ استرجاع طوارئ</button>
           </form> : null}
 
           {step === 'otp' ? <form onSubmit={submitOtp} className="space-y-4">
@@ -162,6 +206,10 @@ export default function AdminLogin() {
           </form> : null}
 
           {step === 'passkey' ? <div className="space-y-4 text-center"><p className="text-sm text-slate-300">أكّد الهوية بمفتاح الأمان المسجّل.</p><button className={buttonClass} type="button" onClick={submitPasskey} disabled={loading}>{loading ? 'بانتظار المفتاح…' : 'تأكيد بمفتاح الأمان'}</button><button className="w-full text-sm text-slate-400 underline" onClick={() => setStep('credentials')}>رجوع</button></div> : null}
+
+          {step === 'recovery-start' ? <form onSubmit={startRecovery} className="space-y-4"><p className="text-sm text-slate-300">استرجاع الطوارئ يحتاج رمزاً من رموز الاسترجاع المطبوعة ورمزاً يصل إلى بريد الإدارة.</p><input className={inputClass} dir="ltr" type="email" placeholder="بريد الإدارة" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required /><button className={buttonClass} disabled={loading}>{loading ? 'جارٍ الإرسال…' : 'إرسال رمز البريد'}</button><button className="w-full text-sm text-slate-400 underline" type="button" onClick={() => setStep('credentials')}>رجوع</button></form> : null}
+
+          {step === 'recovery-redeem' ? <form onSubmit={redeemRecovery} className="space-y-4"><input className={inputClass} dir="ltr" inputMode="numeric" maxLength={6} placeholder="رمز البريد" value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))} required /><input className={inputClass} dir="ltr" placeholder="رمز الاسترجاع" autoComplete="off" value={recoveryCode} onChange={(e) => setRecoveryCode(e.target.value)} required /><button className={buttonClass} disabled={loading || otp.length !== 6 || !recoveryCode.trim()}>{loading ? 'جارٍ التحقق…' : 'استرجاع الدخول'}</button><button className="w-full text-sm text-slate-400 underline" type="button" onClick={() => setStep('credentials')}>رجوع</button></form> : null}
 
           {step === 'reset-request' ? <form onSubmit={requestReset} className="space-y-4"><p className="text-sm text-slate-300">أدخل بريدك أو رقمك المسجل لإرسال رمز الاستعادة.</p><input className={inputClass} dir="ltr" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required /><button className={buttonClass} disabled={loading}>{loading ? 'جارٍ الإرسال…' : 'إرسال الرمز'}</button><button className="w-full text-sm text-slate-400 underline" type="button" onClick={() => setStep('credentials')}>رجوع</button></form> : null}
 

@@ -68,6 +68,24 @@ export default function AdminSecurity() {
 
   useEffect(() => { load(); }, []);
 
+  // C6: printed break-glass codes. Generating a new set (step-up) replaces the old one.
+  const [recoveryCodes, setRecoveryCodes] = useState<string[] | null>(null);
+  const generateRecoveryCodes = async () => {
+    if (!window.confirm('توليد رموز جديدة يلغي الرموز السابقة. متابعة؟')) return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      const r = await apiFetch('/auth/admin-recovery/generate', { method: 'POST' }) as { codes?: unknown };
+      const codes = Array.isArray(r?.codes) ? r.codes.filter((c): c is string => typeof c === 'string') : [];
+      if (!codes.length) throw new Error('no_codes');
+      setRecoveryCodes(codes);
+    } catch {
+      setMessage({ type: 'err', text: 'تعذر توليد رموز الاسترجاع' });
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const enroll = async () => {
     setBusy(true);
     setMessage(null);
@@ -236,6 +254,23 @@ export default function AdminSecurity() {
             </div>
           )}
         </div>
+
+        <section className="mt-6 rounded-2xl border border-slate-700 p-5" aria-label="رموز الاسترجاع">
+          <h2 className="mb-2 text-base font-extrabold">رموز استرجاع الطوارئ</h2>
+          <p className="mb-3 text-sm leading-7 text-slate-400">
+            عشرة رموز يستخدم كل منها مرة واحدة مع رمز يصل إلى بريد الإدارة، عند فقد أجهزة مفتاح الأمان.
+            اطبعها واحفظها بعيداً عن الأجهزة. تظهر مرة واحدة فقط.
+          </p>
+          {recoveryCodes ? (
+            <ol dir="ltr" className="mb-3 grid grid-cols-2 gap-2 font-mono text-sm" data-testid="recovery-codes">
+              {recoveryCodes.map((code) => <li key={code}>{code}</li>)}
+            </ol>
+          ) : null}
+          <button type="button" onClick={() => void generateRecoveryCodes()} disabled={busy}
+            className="rounded-lg border border-current px-4 py-2 text-sm font-bold text-teal-300 disabled:opacity-50">
+            توليد رموز جديدة
+          </button>
+        </section>
         </>
         )}
       </div>
