@@ -86,6 +86,7 @@ const LINE: Record<SharedLineIconName, React.ComponentType<Record<string, unknow
   plus: phosphor.Plus,
   minus: phosphor.Minus,
   filter: phosphor.Funnel,
+  sliders: phosphor.SlidersHorizontal,
   settings: phosphor.Gear,
   list: phosphor.List,
   download: phosphor.DownloadSimple,

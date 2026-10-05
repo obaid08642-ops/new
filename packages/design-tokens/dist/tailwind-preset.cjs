@@ -36,6 +36,11 @@ const colors = {
     "dark": "#0E1F31",
     "DEFAULT": "#E8E8ED"
   },
+  "bg-media": {
+    "light": "#F2F3F5",
+    "dark": "#1A3148",
+    "DEFAULT": "#F2F3F5"
+  },
   "bg-inverse": {
     "light": "#0B1B2B",
     "dark": "#12263A",
@@ -88,6 +93,11 @@ const colors = {
     "dark": "#D7FF00",
     "DEFAULT": "#C8202F"
   },
+  "text-price": {
+    "light": "#C8202F",
+    "dark": "#FF8A91",
+    "DEFAULT": "#C8202F"
+  },
   "text-onAccent": "#0B1B2B",
   "icon-primary": {
     "light": "#0B1B2B",
@@ -111,7 +121,11 @@ const colors = {
     "dark": "#FFD166",
     "DEFAULT": "#A65A00"
   },
-  "icon-ratingStarOnBrand": "#FFD166",
+  "icon-ratingStarOnBrand": {
+    "light": "#FFD166",
+    "dark": "#0B1B2B",
+    "DEFAULT": "#FFD166"
+  },
   "action-primary-bg": {
     "light": "#D42A38",
     "dark": "#FF6B73",
@@ -489,6 +503,19 @@ const colors = {
     "dark": "#FFC56E",
     "DEFAULT": "#A65A00"
   },
+  "presence-online": "#1F9D6E",
+  "control-segmentedTrack": {
+    "light": "#EAEAEF",
+    "dark": "#1A3148",
+    "DEFAULT": "#EAEAEF"
+  },
+  "control-switchOn": "#1F9D6E",
+  "control-switchKnob": "#FFFFFF",
+  "control-radioOff": {
+    "light": "#C7C7CC",
+    "dark": "rgba(255,255,255,0.28)",
+    "DEFAULT": "#C7C7CC"
+  },
   "avatar-bg": {
     "light": "#FFE3E5",
     "dark": "#1A3148",
@@ -567,7 +594,10 @@ const boxShadow = {
   "glass": "0 8px 32px rgba(11,27,43,0.10)",
   "tabBar": "0 18px 40px rgba(11,27,43,0.14)",
   "fab": "0 12px 26px rgba(212,42,56,0.38)",
-  "button": "0 10px 22px rgba(212,42,56,0.28)"
+  "button": "0 10px 22px rgba(212,42,56,0.28), inset 0 1px 0 rgba(255,255,255,0.25)",
+  "segmented": "0 2px 6px rgba(11,27,43,0.10)",
+  "knob": "0 2px 6px rgba(0,0,0,0.18)",
+  "feature": "0 10px 28px rgba(11,27,43,0.07)"
 };
 
 const fontFamily = {
