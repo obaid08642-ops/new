@@ -30,6 +30,39 @@ export class ReturnsService {
     @Optional() private readonly media?: MediaService,
   ) {}
 
+  /** F23: Returns timeline from order.state_history */
+  async getReturnTimeline(userId: string, orderId: string): Promise<any> {
+    const order = await this.conn.collection('orders').findOne({ id: orderId } as any);
+    if (!order) throw new NotFoundException('order_not_found');
+    if (order.patient_id !== userId) throw new ForbiddenException('not_your_order');
+
+    const history = (order.state_history || []).map((h: any) => ({
+      state: h.to,
+      from_state: h.from,
+      reason: h.reason,
+      by_user_id: h.by_user_id,
+      by_role: h.by_role,
+      at: h.at,
+    }));
+
+    const returnRequests = await this.returnModel.find({ order_id: orderId, patient_id: userId }).sort({ createdAt: 1 }).lean();
+    const returnHistory = returnRequests.map((r: any) => ({
+      id: r.id,
+      status: r.status,
+      reason: r.reason,
+      created_at: r.createdAt,
+      decided_at: r.resolved_at,
+      admin_note: r.admin_note,
+    }));
+
+    return {
+      order_id: orderId,
+      current_state: order.state,
+      state_history: history,
+      returns_history: returnHistory,
+    };
+  }
+
   /**
    * R7-2: photo evidence is stored as `media:<assetId>` (owned by the patient), never as a
    * presigned URL, which expires after 15 minutes. Readers get a fresh signed URL.
