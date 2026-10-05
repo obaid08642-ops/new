@@ -6,6 +6,7 @@
 import { Injectable, ForbiddenException, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
+import * as crypto from 'crypto';
 import { PharmacyChatThread, PharmacyChatMessage, PharmacyOrder, PharmacyOrderState, PharmacyAllocation, AllocationItemAction } from '../schemas/pharmacy.schema';
 import { EventBusService } from '../../events/event-bus.service';
 import { PharmacyChatThreadRepository } from "./repositories/pharmacychatthread.repository";
@@ -26,6 +27,19 @@ function screen(text: string): { ok: boolean; reason?: string } {
   const t = String(text);
   for (const p of BLOCK_PATTERNS) if (p.re.test(t)) return { ok: false, reason: p.name };
   return { ok: true };
+}
+
+interface SubstituteTotals { subtotal: number; delivery_fee: number; total: number; currency: string }
+
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
+/** Allocation totals from its lines: available + substitute items, price x offered qty. */
+function allocationTotals(alloc: PharmacyAllocation): SubstituteTotals {
+  const subtotal = round2(alloc.items
+    .filter(i => i.action === AllocationItemAction.AVAILABLE || i.action === AllocationItemAction.SUBSTITUTE)
+    .reduce((sum, i) => sum + (Number(i.unit_price) || 0) * (Number(i.qty_offered) || 0), 0));
+  const deliveryFee = Number(alloc.totals?.delivery_fee) || 0;
+  return { subtotal, delivery_fee: deliveryFee, total: round2(subtotal + deliveryFee), currency: alloc.totals?.currency || 'SAR' };
 }
 
 @Injectable()
@@ -100,7 +114,14 @@ export class PharmacyChatService {
     return m.toObject();
   }
 
-  /** Patient: accept a substitute offered in a chat thread. Updates allocation item. */
+  /**
+   * Patient: accept a substitute the pharmacy offered in a chat thread. The
+   * allocation item becomes the substitute and the totals are recomputed from
+   * the allocation lines (same rule as a pharmacy-side item edit). When this
+   * allocation is the order's selected one, the order totals and the quote
+   * snapshot the payment is bound to follow, so the patient pays the new total.
+   * Once a payment for the current quote is confirmed the price cannot move.
+   */
   async acceptSubstitute(user: any, thread_id: string, message_id: string): Promise<any> {
     const t = await this.threads.findOne({ id: thread_id });
     if (!t) throw new NotFoundException();
@@ -108,20 +129,56 @@ export class PharmacyChatService {
     if (t.status !== 'open') throw new BadRequestException('thread_closed');
     const msg = await this.messages.findOne({ id: message_id, thread_id }).lean();
     if (!msg || !msg.substitute_offer) throw new BadRequestException('no_substitute_offer');
+    // Only the pharmacy of this thread can propose a substitute.
+    if (msg.sender_role !== 'pharmacy' || msg.sender_account_id !== t.pharmacy_account_id) {
+      throw new BadRequestException('substitute_not_from_pharmacy');
+    }
+    const offeredPrice = Number(msg.substitute_offer.price);
     // Find the pharmacy's allocation for this order and update the matching item
     const alloc = await this.allocs.findOne({ order_id: t.order_id, pharmacy_account_id: t.pharmacy_account_id });
+    let totals: SubstituteTotals | undefined;
     if (alloc) {
       const item = alloc.items.find(i => i.order_item_id === t.order_item_id);
       if (item) {
+        const order = await this.orders.findOne({ id: t.order_id }).lean();
+        const selected = Boolean(order && order.selected_allocation_id === alloc.id);
+        if (selected && order.pricing_snapshot?.hash) {
+          const paid = await this.orders.db.collection('pharmacy_payment_evidence').findOne({
+            order_id: t.order_id, status: 'confirmed', quote_snapshot_hash: order.pricing_snapshot.hash,
+          });
+          if (paid) throw new BadRequestException('substitute_after_payment_requires_new_quote');
+        }
         item.action = AllocationItemAction.SUBSTITUTE;
         item.substitute_for_sku = item.sku;
         item.sku = msg.substitute_offer.sku || item.sku;
         item.name = msg.substitute_offer.name || item.name;
         item.substitute_reason = msg.substitute_offer.notes || 'patient_accepted_in_chat';
-        item.unit_price = msg.substitute_offer.price || item.unit_price;
+        if (Number.isFinite(offeredPrice) && offeredPrice >= 0) item.unit_price = offeredPrice;
         item.updated_at = new Date();
+        totals = allocationTotals(alloc);
+        alloc.totals = { ...alloc.totals, ...totals };
+        alloc.timeline.push({ ts: new Date(), event: 'substitute_accepted', by: user.id, meta: { order_item_id: t.order_item_id, message_id: msg.id, total: totals.total } });
         alloc.markModified('items');
+        alloc.markModified('totals');
         await alloc.save();
+        if (selected) {
+          const snapshot = order.pricing_snapshot;
+          const set: Record<string, unknown> = { totals };
+          if (snapshot?.offer_id) {
+            set.pricing_snapshot = {
+              ...snapshot,
+              totals,
+              hash: crypto.createHash('sha256')
+                .update(JSON.stringify({ offer_id: snapshot.offer_id, offer_version: snapshot.offer_version, totals }))
+                .digest('hex'),
+              captured_at: new Date(),
+            };
+          }
+          await this.orders.updateOne({ id: order.id }, {
+            $set: set,
+            $push: { timeline: { ts: new Date(), event: 'substitute_accepted_totals_updated', by: user.id, meta: { allocation_id: alloc.id, order_item_id: t.order_item_id, total: totals.total } } },
+          });
+        }
       }
     }
     t.status = 'closed';
@@ -129,7 +186,7 @@ export class PharmacyChatService {
     await t.save();
     await this.messages.create({ id: uuidv4(), thread_id, sender_account_id: 'system', sender_role: 'system', text: `البديل مقبول من المريض.` });
     await this.bus.emit({ type: 'substitute.accepted', entity_type: 'chat', entity_id: t.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: t.patient_account_id, pharmacy_account_id: t.pharmacy_account_id, meta: { order_id: t.order_id, order_item_id: t.order_item_id, message_id: msg.id } });
-    return { ok: true };
+    return { ok: true, ...(totals ? { totals } : {}) };
   }
 
   async rejectOrRemove(user: any, thread_id: string, action: 'rejected' | 'removed'): Promise<any> {
