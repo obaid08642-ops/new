@@ -126,6 +126,13 @@ def run():
             rs = at_once([lambda: pat.post(f'/chat/threads/{tid}/messages',
                                            {'body': 'تم — تأكيد سريع', 'type': 'text', 'client_message_id': cmid},
                                            headers={'Idempotency-Key': str(uuid.uuid4())}) for _ in range(10)])
+            # The backend's atomic dedup is verified present (p15-backend
+            # chat.service.ts: a 11000 loser re-reads the winner and returns it,
+            # never a 500), so every racer must answer 2xx with the SAME id.
+            ids = {s.get('id') for s in rs if s.ok and s.get('id')}
+            step('every racer answers 2xx with the same message id (the 11000 loser returns the winner)',
+                 len(rs) == 10 and len(ids) == 1,
+                 [f'{s.status}:{str(s.get("id"))[:12]}' for s in rs])
             msgs = pat.get(f'/chat/threads/{tid}/messages')
             items = msgs.body if isinstance(msgs.body, list) else msgs.items()
             n = str(items).count(cmid)
