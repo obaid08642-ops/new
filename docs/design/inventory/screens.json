@@ -1,5 +1,5 @@
 {
- "commit": "7f957f64",
+ "commit": "2cfd6a9f",
  "routes": [
   {
    "app": "patient-app",
@@ -9,9 +9,9 @@
    "template": "flow step",
    "board": "Welcome",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [],
-   "files": 9,
+   "files": 22,
    "unresolved": 0
   },
   {
@@ -22,14 +22,14 @@
    "template": "hub",
    "board": "HomeApp",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
     {
      "method": "GET",
      "path": "/content/home",
      "target": "backend",
      "query": "",
-     "line": 19,
+     "line": 25,
      "file": "patient-app/src/components/HomeSections.tsx",
      "status": "OK",
      "backend": "backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:262"
@@ -39,7 +39,7 @@
      "path": "/health/reminders",
      "target": "backend",
      "query": "",
-     "line": 43,
+     "line": 68,
      "file": "patient-app/app/(tabs)/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/health.controller.ts:58"
@@ -49,7 +49,7 @@
      "path": "/health/vitals/summary",
      "target": "backend",
      "query": "",
-     "line": 44,
+     "line": 69,
      "file": "patient-app/app/(tabs)/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/health.controller.ts:33"
@@ -59,7 +59,7 @@
      "path": "/home/upcoming-appointment",
      "target": "backend",
      "query": "",
-     "line": 44,
+     "line": 69,
      "file": "patient-app/app/(tabs)/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home/home.controller.ts:15"
@@ -69,7 +69,7 @@
      "path": "/maternity/profile",
      "target": "backend",
      "query": "",
-     "line": 44,
+     "line": 69,
      "file": "patient-app/app/(tabs)/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/maternity/maternity.controller.ts:21"
@@ -79,7 +79,7 @@
      "path": "/mental-health/mood",
      "target": "backend",
      "query": "?days=1",
-     "line": 44,
+     "line": 69,
      "file": "patient-app/app/(tabs)/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/mental-health/mental-health.controller.ts:33"
@@ -89,7 +89,7 @@
      "path": "/nutrition/daily-summary",
      "target": "backend",
      "query": "",
-     "line": 43,
+     "line": 68,
      "file": "patient-app/app/(tabs)/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/nutrition/nutrition.controller.ts:50"
@@ -99,13 +99,13 @@
      "path": "/users/me/profile",
      "target": "backend",
      "query": "",
-     "line": 43,
+     "line": 68,
      "file": "patient-app/app/(tabs)/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:34"
     }
    ],
-   "files": 15,
+   "files": 31,
    "unresolved": 0
   },
   {
@@ -116,9 +116,9 @@
    "template": "hub",
    "board": "HomeApp",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [],
-   "files": 8,
+   "files": 13,
    "unresolved": 0
   },
   {
@@ -2697,20 +2697,20 @@
    "template": "form",
    "board": "Login",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
     {
      "method": "POST",
      "path": "/auth/send-otp",
      "target": "backend",
      "query": "",
-     "line": 34,
+     "line": 19,
      "file": "patient-app/app/(auth)/forgot-password.tsx",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:293"
     }
    ],
-   "files": 15,
+   "files": 25,
    "unresolved": 0
   },
   {
@@ -4024,9 +4024,9 @@
    "template": "settings",
    "board": "Welcome",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [],
-   "files": 10,
+   "files": 21,
    "unresolved": 0
   },
   {
@@ -4037,14 +4037,14 @@
    "template": "form",
    "board": "Login",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
     {
      "method": "POST",
      "path": "/auth/login",
      "target": "backend",
      "query": "",
-     "line": 154,
+     "line": 62,
      "file": "patient-app/app/(auth)/login.tsx",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:151"
@@ -4054,13 +4054,13 @@
      "path": "/auth/social-login",
      "target": "backend",
      "query": "",
-     "line": 95,
-     "file": "patient-app/app/(auth)/login.tsx",
+     "line": 69,
+     "file": "patient-app/src/hooks/useSocialLogin.ts",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:323"
     }
    ],
-   "files": 13,
+   "files": 26,
    "unresolved": 2
   },
   {
@@ -4543,14 +4543,14 @@
    "template": "list",
    "board": "Notifications",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
     {
      "method": "GET",
      "path": "/notifications",
      "target": "backend",
      "query": "",
-     "line": 90,
+     "line": 114,
      "file": "patient-app/app/notifications/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/doctors/doctors.module.ts:293"
@@ -4560,7 +4560,7 @@
      "path": "/notifications/:param/read",
      "target": "backend",
      "query": "",
-     "line": 114,
+     "line": 148,
      "file": "patient-app/app/notifications/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/notifications/notifications.controller.ts:39"
@@ -4570,13 +4570,13 @@
      "path": "/notifications/read-all",
      "target": "backend",
      "query": "",
-     "line": 107,
+     "line": 139,
      "file": "patient-app/app/notifications/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/notifications/notifications.controller.ts:45"
     }
    ],
-   "files": 14,
+   "files": 28,
    "unresolved": 0
   },
   {
@@ -5240,14 +5240,14 @@
    "template": "form",
    "board": "Otp",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
     {
      "method": "POST",
      "path": "/auth/register",
      "target": "backend",
      "query": "",
-     "line": 124,
+     "line": 119,
      "file": "patient-app/app/(auth)/otp.tsx",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:133"
@@ -5257,7 +5257,7 @@
      "path": "/auth/send-otp",
      "target": "backend",
      "query": "",
-     "line": 69,
+     "line": 64,
      "file": "patient-app/app/(auth)/otp.tsx",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:293"
@@ -5267,13 +5267,13 @@
      "path": "/auth/verify-otp",
      "target": "backend",
      "query": "",
-     "line": 99,
+     "line": 94,
      "file": "patient-app/app/(auth)/otp.tsx",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:303"
     }
    ],
-   "files": 17,
+   "files": 29,
    "unresolved": 0
   },
   {
@@ -5381,10 +5381,10 @@
    "template": "settings",
    "board": "Welcome",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [],
-   "files": 9,
-   "unresolved": 0
+   "files": 26,
+   "unresolved": 3
   },
   {
    "app": "patient-app",
@@ -6401,30 +6401,20 @@
    "template": "form",
    "board": "Register",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
     {
      "method": "POST",
      "path": "/auth/send-otp",
      "target": "backend",
      "query": "",
-     "line": 170,
+     "line": 46,
      "file": "patient-app/app/(auth)/register.tsx",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:293"
-    },
-    {
-     "method": "POST",
-     "path": "/auth/social-login",
-     "target": "backend",
-     "query": "",
-     "line": 114,
-     "file": "patient-app/app/(auth)/register.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/auth/auth.controller.ts:323"
     }
    ],
-   "files": 13,
+   "files": 24,
    "unresolved": 0
   },
   {
@@ -6554,20 +6544,20 @@
    "template": "form",
    "board": "Login",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
     {
      "method": "POST",
      "path": "/auth/reset-password",
      "target": "backend",
      "query": "",
-     "line": 36,
+     "line": 24,
      "file": "patient-app/app/(auth)/reset-password.tsx",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:313"
     }
    ],
-   "files": 14,
+   "files": 25,
    "unresolved": 0
   },
   {
@@ -6701,7 +6691,7 @@
      "path": "/calls/:param/join",
      "target": "backend",
      "query": "",
-     "line": 162,
+     "line": 164,
      "file": "patient-app/app/room/[id].tsx",
      "status": "OK",
      "backend": "backend/src/modules/livekit/livekit.controller.ts:50"
@@ -6742,7 +6732,7 @@
    "template": "list",
    "board": "Search",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
     {
      "method": "GET",
@@ -6759,13 +6749,13 @@
      "path": "/home/search",
      "target": "backend",
      "query": "?q=:param",
-     "line": 64,
+     "line": 327,
      "file": "patient-app/app/search/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home/home.controller.ts:20"
     }
    ],
-   "files": 19,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -6776,9 +6766,9 @@
    "template": "hub",
    "board": "ServiceHub",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [],
-   "files": 8,
+   "files": 21,
    "unresolved": 0
   },
   {
@@ -6789,9 +6779,9 @@
    "template": "hub",
    "board": "ServiceHub",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [],
-   "files": 8,
+   "files": 20,
    "unresolved": 0
   },
   {
@@ -7298,20 +7288,30 @@
    "template": "flow step",
    "board": "Welcome",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
     {
      "method": "POST",
      "path": "/auth/guest",
      "target": "backend",
      "query": "",
-     "line": 46,
+     "line": 71,
      "file": "patient-app/app/(auth)/welcome.tsx",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:177"
+    },
+    {
+     "method": "POST",
+     "path": "/auth/social-login",
+     "target": "backend",
+     "query": "",
+     "line": 69,
+     "file": "patient-app/src/hooks/useSocialLogin.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/auth/auth.controller.ts:323"
     }
    ],
-   "files": 15,
+   "files": 28,
    "unresolved": 2
   },
   {
@@ -7322,7 +7322,7 @@
    "template": "hub",
    "board": "HomeWeb",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
     {
      "method": "GET",
@@ -7355,7 +7355,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:262"
     }
    ],
-   "files": 11,
+   "files": 28,
    "unresolved": 1
   },
   {
@@ -7955,16 +7955,6 @@
      "file": "patient-web/app/[locale]/cart/checkout/pharmacy-broadcast-submit.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/patient/pharmacy/orders/route.ts"
-    },
-    {
-     "method": "POST",
-     "path": "/api/patient/pharmacy/orders/:param/submit",
-     "target": "web-proxy",
-     "query": "",
-     "line": 18,
-     "file": "patient-web/app/[locale]/cart/checkout/pharmacy-broadcast-submit.tsx",
-     "status": "PROXY_BLOCKED?",
-     "note": "blocked for every sample param value (UUID, slug, literals of the file); no backend route either"
     },
     {
      "method": "GET",
@@ -8778,7 +8768,7 @@
    "template": "hub",
    "board": "HomeWeb",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
     {
      "method": "GET",
@@ -8801,7 +8791,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:34"
     }
    ],
-   "files": 8,
+   "files": 23,
    "unresolved": 1
   },
   {
@@ -9083,8 +9073,7 @@
      "line": 79,
      "file": "patient-web/components-next/diagnostics-insurance-approval-client.tsx",
      "backend": "backend/src/modules/labs/labs.controller.ts:74",
-     "status": "PROXY_BLOCKED?",
-     "note": "blocked for every sample param value (UUID, slug, literals of the file)"
+     "status": "OK"
     }
    ],
    "files": 6,
@@ -10111,7 +10100,7 @@
    "template": "form",
    "board": "AuthWeb",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
     {
      "method": "POST",
@@ -10124,7 +10113,7 @@
      "handler": "patient-web/app/api/auth/password/forgot/route.ts"
     }
    ],
-   "files": 3,
+   "files": 16,
    "unresolved": 0
   },
   {
@@ -11198,14 +11187,14 @@
    "template": "form",
    "board": "AuthWeb",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
     {
      "method": "POST",
      "path": "/api/auth/guest",
      "target": "web-bff",
      "query": "",
-     "line": 68,
+     "line": 72,
      "file": "patient-web/components-next/social-login-buttons.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/guest/route.ts"
@@ -11215,47 +11204,17 @@
      "path": "/api/auth/login",
      "target": "web-bff",
      "query": "",
-     "line": 45,
+     "line": 27,
      "file": "patient-web/components-next/login-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/login/route.ts"
     },
     {
      "method": "POST",
-     "path": "/api/auth/otp/request",
-     "target": "web-bff",
-     "query": "",
-     "line": 33,
-     "file": "patient-web/components-next/login-form.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/otp/request/route.ts"
-    },
-    {
-     "method": "POST",
-     "path": "/api/auth/otp/verify",
-     "target": "web-bff",
-     "query": "",
-     "line": 37,
-     "file": "patient-web/components-next/login-form.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/otp/verify/route.ts"
-    },
-    {
-     "method": "POST",
-     "path": "/api/auth/session/exchange",
-     "target": "web-bff",
-     "query": "",
-     "line": 39,
-     "file": "patient-web/components-next/login-form.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/session/exchange/route.ts"
-    },
-    {
-     "method": "POST",
      "path": "/api/auth/social-login",
      "target": "web-bff",
      "query": "",
-     "line": 49,
+     "line": 53,
      "file": "patient-web/components-next/social-login-buttons.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/social-login/route.ts"
@@ -11265,13 +11224,13 @@
      "path": "/api/auth/verify-2fa",
      "target": "web-bff",
      "query": "",
-     "line": 45,
+     "line": 27,
      "file": "patient-web/components-next/login-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/verify-2fa/route.ts"
     }
    ],
-   "files": 4,
+   "files": 17,
    "unresolved": 0
   },
   {
@@ -11886,7 +11845,7 @@
    "template": "list",
    "board": "Notifications",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
     {
      "method": "GET",
@@ -11899,7 +11858,7 @@
      "backend": "backend/src/modules/doctors/doctors.module.ts:293"
     }
    ],
-   "files": 8,
+   "files": 26,
    "unresolved": 1
   },
   {
@@ -11910,8 +11869,18 @@
    "template": "settings",
    "board": "Settings",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
+    {
+     "method": "PATCH",
+     "path": "/api/patient/users/me/notification-settings",
+     "target": "web-proxy",
+     "query": "",
+     "line": 67,
+     "file": "patient-web/app/[locale]/notifications/settings/notification-settings-client.tsx",
+     "backend": "backend/src/modules/users/users.controller.ts:60",
+     "status": "OK"
+    },
     {
      "method": "GET",
      "path": "/users/me/notification-settings",
@@ -11923,7 +11892,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:55"
     }
    ],
-   "files": 8,
+   "files": 28,
    "unresolved": 1
   },
   {
@@ -12431,9 +12400,9 @@
    "template": "flow step",
    "board": "AuthWeb",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [],
-   "files": 3,
+   "files": 16,
    "unresolved": 0
   },
   {
@@ -12444,9 +12413,9 @@
    "template": "settings",
    "board": "AuthWeb",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [],
-   "files": 3,
+   "files": 15,
    "unresolved": 0
   },
   {
@@ -12457,9 +12426,9 @@
    "template": "settings",
    "board": "AuthWeb",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [],
-   "files": 3,
+   "files": 16,
    "unresolved": 0
   },
   {
@@ -12674,7 +12643,7 @@
    "template": "form",
    "board": "AuthWeb",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
     {
      "method": "POST",
@@ -12707,7 +12676,7 @@
      "handler": "patient-web/app/api/auth/session/exchange/route.ts"
     }
    ],
-   "files": 3,
+   "files": 16,
    "unresolved": 0
   },
   {
@@ -12755,7 +12724,7 @@
    "template": "form",
    "board": "AuthWeb",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
     {
      "method": "POST",
@@ -12768,7 +12737,7 @@
      "handler": "patient-web/app/api/auth/password/reset/route.ts"
     }
    ],
-   "files": 3,
+   "files": 16,
    "unresolved": 0
   },
   {
@@ -13796,7 +13765,7 @@
    "template": "form",
    "board": "AuthWeb",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
     {
      "method": "POST",
@@ -13829,7 +13798,7 @@
      "handler": "patient-web/app/api/auth/session/route.ts"
     }
    ],
-   "files": 3,
+   "files": 16,
    "unresolved": 0
   },
   {
@@ -14160,14 +14129,14 @@
    "template": "list",
    "board": "SearchWeb",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
     {
      "method": "GET",
      "path": "/api/patient/home/search",
      "target": "web-proxy",
      "query": "?q=:param",
-     "line": 37,
+     "line": 117,
      "file": "patient-web/app/[locale]/search/search-client.tsx",
      "backend": "backend/src/modules/home/home.controller.ts:20",
      "status": "OK"
@@ -14177,13 +14146,13 @@
      "path": "/api/search/intent",
      "target": "web-bff",
      "query": "",
-     "line": 24,
+     "line": 104,
      "file": "patient-web/app/[locale]/search/search-client.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/search/intent/route.ts"
     }
    ],
-   "files": 6,
+   "files": 26,
    "unresolved": 0
   },
   {
@@ -14622,7 +14591,7 @@
    "template": "flow step",
    "board": "AuthWeb",
    "batch": 0,
-   "status": "—",
+   "status": "done (#285)",
    "calls": [
     {
      "method": "POST",
@@ -14635,7 +14604,7 @@
      "handler": "patient-web/app/api/auth/guest/route.ts"
     }
    ],
-   "files": 3,
+   "files": 16,
    "unresolved": 0
   },
   {
