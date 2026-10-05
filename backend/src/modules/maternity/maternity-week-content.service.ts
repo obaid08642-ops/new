@@ -9,7 +9,8 @@ import { Connection } from 'mongoose';
  * published in `maternity_week_content`. Nothing is generated or filled in here; a week with
  * no published row returns `available: false` so the app shows its empty state.
  *
- * Images live on R2 under `maternity/fetus/week-<NN>@<1|2|3>x.webp` and are linked only when
+ * Images live on R2 under `maternity/fetus/week_<n>.webp`, `week_<n>@2x.webp`, `week_<n>@3x.webp` (the
+ * names the design session exported to cdn-source/maternity/fetus/) and are linked only when
  * the row says the image was uploaded (`has_image: true`) and a public base URL is configured.
  */
 export const MATERNITY_WEEK_COLLECTION = 'maternity_week_content';
@@ -68,7 +69,7 @@ export function parseWeek(raw: string): number {
 export function fetusImageUrls(week: number, publicBase: string | undefined): { '1x': string; '2x': string; '3x': string } | null {
   const base = str(publicBase)?.replace(/\/+$/, '');
   if (!base || !/^https:\/\//i.test(base)) return null;
-  const key = (scale: number) => `${base}/${FETUS_IMAGE_PREFIX}/week-${String(week).padStart(2, '0')}@${scale}x.webp`;
+  const key = (scale: number) => `${base}/${FETUS_IMAGE_PREFIX}/week_${week}${scale === 1 ? '' : `@${scale}x`}.webp`;
   return { '1x': key(1), '2x': key(2), '3x': key(3) };
 }
 

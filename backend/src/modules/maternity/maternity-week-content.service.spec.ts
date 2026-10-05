@@ -57,9 +57,9 @@ describe('Maternity weekly content (read-only, reviewed rows only)', () => {
       weight_g: 300,
       text: published.text,
       image: {
-        '1x': 'https://assets.example.test/maternity/fetus/week-20@1x.webp',
-        '2x': 'https://assets.example.test/maternity/fetus/week-20@2x.webp',
-        '3x': 'https://assets.example.test/maternity/fetus/week-20@3x.webp',
+        '1x': 'https://assets.example.test/maternity/fetus/week_20.webp',
+        '2x': 'https://assets.example.test/maternity/fetus/week_20@2x.webp',
+        '3x': 'https://assets.example.test/maternity/fetus/week_20@3x.webp',
       },
       reviewed_at: '2026-09-01T00:00:00.000Z',
       updated_at: '2026-09-02T00:00:00.000Z',
@@ -86,6 +86,6 @@ describe('Maternity weekly content (read-only, reviewed rows only)', () => {
 
   it('builds URLs only over https', () => {
     expect(fetusImageUrls(3, 'http://insecure.test')).toBeNull();
-    expect(fetusImageUrls(3, 'https://a.test')?.['2x']).toBe('https://a.test/maternity/fetus/week-03@2x.webp');
+    expect(fetusImageUrls(3, 'https://a.test')?.['2x']).toBe('https://a.test/maternity/fetus/week_3@2x.webp');
   });
 });
