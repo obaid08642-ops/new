@@ -27,6 +27,11 @@ RP_ID = 'localhost'
 _SEED = hashlib.sha256(b'nabd-live-gate-synthetic-passkey-v1').digest()
 _KEY = ec.derive_private_key(int.from_bytes(_SEED, 'big') % (2**256 - 2**224 - 1) or 1, ec.SECP256R1())
 CRED_ID = hashlib.sha256(_SEED + b'cred').digest()[:16]
+# A second synthetic key for the browser's virtual authenticator (j_admin_clicks):
+# CDP sign counters are int32, so it cannot share the time-based counter above.
+_SEED_BROWSER = hashlib.sha256(b'nabd-live-gate-synthetic-passkey-browser-v1').digest()
+_KEY_BROWSER = ec.derive_private_key(int.from_bytes(_SEED_BROWSER, 'big') % (2**256 - 2**224 - 1) or 1, ec.SECP256R1())
+CRED_ID_BROWSER = hashlib.sha256(_SEED_BROWSER + b'cred').digest()[:16]
 
 
 def b64u(b):
@@ -59,9 +64,10 @@ def _client_data(kind, challenge):
     return json.dumps({'type': kind, 'challenge': challenge, 'origin': ORIGIN, 'crossOrigin': False}, separators=(',', ':')).encode()
 
 
-def registration(options):
+def registration(options, key=None, cred_id=None):
     """RegistrationResponseJSON for POST /auth/passkey/enroll/verify."""
-    nums = _KEY.public_key().public_numbers()
+    key, CRED_ID = key or _KEY, cred_id or globals()['CRED_ID']
+    nums = key.public_key().public_numbers()
     cose = _cbor({1: 2, 3: -7, -1: 1, -2: nums.x.to_bytes(32, 'big'), -3: nums.y.to_bytes(32, 'big')})
     auth = hashlib.sha256(RP_ID.encode()).digest() + bytes([0x45]) + struct.pack('>I', 0) + b'\x00' * 16 + struct.pack('>H', len(CRED_ID)) + CRED_ID + cose
     cd = _client_data('webauthn.create', options['challenge'])
@@ -80,16 +86,18 @@ def assertion(options):
             'response': {'clientDataJSON': b64u(cd), 'authenticatorData': b64u(auth), 'signature': b64u(sig), 'userHandle': None}}
 
 
-def ensure_enrolled(post, get):
-    """Enroll the synthetic key for the signed-in admin once (idempotent across runs)."""
+def ensure_enrolled(post, get, browser=False):
+    """Enroll the synthetic key (or the browser's) for the signed-in admin once (idempotent across runs)."""
+    key, cred = (_KEY_BROWSER, CRED_ID_BROWSER) if browser else (_KEY, CRED_ID)
     devices = get('/auth/passkey/devices')
     rows = devices.body if isinstance(devices.body, list) else (devices.body or {}).get('data', []) if isinstance(devices.body, dict) else []
-    if any(str(d.get('credential_id')) == b64u(CRED_ID) for d in rows if isinstance(d, dict)):
+    if any(str(d.get('credential_id')) == b64u(cred) for d in rows if isinstance(d, dict)):
         return True
     opts = post('/auth/passkey/enroll/options', {})
     if not opts.ok:
         return False
-    r = post('/auth/passkey/enroll/verify', {'response': registration(opts.body), 'device_name': 'live-gate software key'})
+    r = post('/auth/passkey/enroll/verify', {'response': registration(opts.body, key, cred),
+                                             'device_name': 'live-gate browser key' if browser else 'live-gate software key'})
     return r.ok
 
 
@@ -104,7 +112,7 @@ def step_up_token(post, action):
 
 def add_virtual_authenticator(context, page):
     """Give a Playwright Chromium page a WebAuthn virtual authenticator holding
-    this synthetic credential, so the dashboard's own passkey login and step-up
+    the browser's synthetic credential (enroll it first: ensure_enrolled(..., browser=True)), so the dashboard's own passkey login and step-up
     prompts run in the browser exactly as with a real platform authenticator."""
     from cryptography.hazmat.primitives import serialization
     cdp = context.new_cdp_session(page)
@@ -112,8 +120,9 @@ def add_virtual_authenticator(context, page):
     auth = cdp.send('WebAuthn.addVirtualAuthenticator', {'options': {
         'protocol': 'ctap2', 'transport': 'internal', 'hasResidentKey': True,
         'hasUserVerification': True, 'isUserVerified': True, 'automaticPresenceSimulation': True}})
-    pkcs8 = _KEY.private_bytes(serialization.Encoding.DER, serialization.PrivateFormat.PKCS8, serialization.NoEncryption())
+    pkcs8 = _KEY_BROWSER.private_bytes(serialization.Encoding.DER, serialization.PrivateFormat.PKCS8, serialization.NoEncryption())
+    # int32 counter that still rises across runs: deciseconds since 2026-01-01.
     cdp.send('WebAuthn.addCredential', {'authenticatorId': auth['authenticatorId'], 'credential': {
-        'credentialId': base64.b64encode(CRED_ID).decode(), 'isResidentCredential': False, 'rpId': RP_ID,
-        'privateKey': base64.b64encode(pkcs8).decode(), 'signCount': _next_counter()}})
+        'credentialId': base64.b64encode(CRED_ID_BROWSER).decode(), 'isResidentCredential': False, 'rpId': RP_ID,
+        'privateKey': base64.b64encode(pkcs8).decode(), 'signCount': int((time.time() - 1767225600) * 10)}})
     return cdp

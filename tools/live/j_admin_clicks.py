@@ -50,6 +50,10 @@ def main():
     ctx = browser.new_context(locale='ar-SA')
     page = ctx.new_page()
     import softkey
+    # The browser has its own synthetic passkey; enroll it through the API session first.
+    api_admin, _ = j_admin.login()
+    step('browser passkey enrolled', softkey.ensure_enrolled(lambda p, b: api_admin.req('POST', '/api/admin' + p, b),
+                                                            lambda p: api_admin.req('GET', '/api/admin' + p), browser=True), 'enroll failed')
     softkey.add_virtual_authenticator(ctx, page)  # passkey login + step-up prompts (R23)
     try:
         page.goto(f'{ADMIN_WEB}/login', wait_until='load', timeout=45000)
