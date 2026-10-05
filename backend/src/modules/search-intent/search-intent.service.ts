@@ -312,11 +312,19 @@ export class SearchIntentService {
       }
     }
 
-    // 8b. 13.R7: category scoping — a caller-supplied category hint scopes
-    // an otherwise-undetected query (default entity 'service'); a confident
-    // detection always wins. Ranking signals above are untouched.
+    // 8b. 13.R7 / fd19e21: category scoping — a category the caller selected
+    // is a hard scope: "a selected category keeps results inside that
+    // category". A detection for another category (e.g. "بنادول" while the
+    // user picked doctors) does not override it, and its specialty / service /
+    // mode, which belong to that other category, are dropped. Ranking and
+    // location signals above are untouched.
     const requestedCategory = resolveSearchCategory(scopeOpts?.category);
-    if (requestedCategory && entityType === 'service' && confidence <= 0.6) {
+    if (requestedCategory && requestedCategory !== entityType) {
+      if (entityType !== 'service') {
+        detectedSpecialty = undefined;
+        detectedService = undefined;
+        detectedMode = undefined;
+      }
       entityType = requestedCategory;
       confidence = 0.6;
       if (requestedCategory === 'medicine' && !detectedMode) {

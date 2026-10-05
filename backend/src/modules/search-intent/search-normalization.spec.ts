@@ -86,14 +86,27 @@ describe('13.R7 search normalization + aliases + intent', () => {
       expect(intent.category_scope).toMatchObject({ category: 'lab' });
       expect(intent.canonical_path).toBe('/ar/diagnostics/labs');
     });
-    it('confident detection wins over a conflicting category hint', async () => {
+    it("the caller's explicit category wins over a conflicting detection (fd19e21)", async () => {
       const intent = await svc.extractIntent('skin doctor riyadh', 'en', 'web', {
         category: 'lab',
         scope: 'home',
       });
+      expect(intent.entity_type).toBe('lab');
+      expect(intent.specialty).toBeUndefined();
+      expect(intent.canonical_path).toBe('/en/diagnostics/labs');
+      expect(intent.category_scope).toMatchObject({ category: 'lab', scope: 'home' });
+    });
+    it('a medicine word searched inside the doctor category stays a doctor search (live repro)', async () => {
+      const intent = await svc.extractIntent('بنادول', 'ar', 'web', { category: 'doctor' });
+      expect(intent.entity_type).toBe('doctor');
+      expect(intent.service_mode).toBeUndefined();
+      expect(intent.canonical_path).not.toBe('/ar/medicine-catalog');
+    });
+    it('a detection that matches the selected category keeps its specialty', async () => {
+      const intent = await svc.extractIntent('skin doctor riyadh', 'en', 'web', { category: 'doctor' });
       expect(intent.entity_type).toBe('doctor');
       expect(intent.specialty).toBe('dermatology');
-      expect(intent.category_scope).toMatchObject({ category: 'lab', scope: 'home' });
+      expect(intent.confidence).toBe(0.9);
     });
     it('resolves arabic category labels', () => {
       expect(resolveSearchCategory('صيدلية')).toBe('pharmacy');
