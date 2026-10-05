@@ -40,6 +40,10 @@ export MOYASAR_WEBHOOK_SECRET="${MOYASAR_WEBHOOK_SECRET:-live-webhook-secret}"
 # signs for this origin and RP ID. Only the live admin may enroll (production: the owner).
 export WEBAUTHN_ORIGIN="${WEBAUTHN_ORIGIN:-http://localhost:3001}" WEBAUTHN_RP_ID="${WEBAUTHN_RP_ID:-localhost}"
 export ADMIN_PASSKEY_EMAIL="${ADMIN_PASSKEY_EMAIL:-${LIVE_ADMIN_EMAIL:-admin@nabd.test}}"
+# X4 (owner decision 2026-10-05): the live gate runs with passkey enforcement ON.
+# Production turns it on only after the owner enrols a passkey on both devices
+# and rehearses break-glass recovery (deploy/README.md, "Admin passkey enforcement").
+export ADMIN_PASSKEY_ENFORCED="${ADMIN_PASSKEY_ENFORCED:-true}"
 # 7C-C3: the backend network-gate check requires this header on /api/v1/admin/*.
 # The harness sends it (NABD_ADMIN_GATE_TOKEN, same default); keep both in sync.
 export ADMIN_GATE_TOKEN="${ADMIN_GATE_TOKEN:-live-gate-token}"
