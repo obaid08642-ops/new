@@ -9,7 +9,7 @@ import localFont from "next/font/local";
  * Font License, see the OFL-*.txt next to them), converted to woff2 with the width
  * axes pinned to their defaults (Readex Pro HEXP=0, Noto wdth=100), so one file covers
  * every weight. Readex Pro is further subset (F82-1) to Latin + Arabic, the two scripts it
- * draws (78.6 KB to 51.4 KB; every character in the six message catalogues is still covered).
+ * draws (78.6 KB to 51.3 KB; every character in the six message catalogues is still covered).
  * next/font serves them from this origin (the CSP allows only font-src 'self') with a
  * metric-matched fallback, so text does not jump on swap.
  *
