@@ -10,7 +10,7 @@ describe('OrdersService pharmacy legacy containment', () => {
   function setup(order = pharmacyOrder) {
     const orderModel: any = { findOne: jest.fn().mockResolvedValue(order), create: jest.fn(), updateOne: jest.fn() };
     const delModel: any = { findOne: jest.fn(), findOneAndUpdate: jest.fn(), create: jest.fn() };
-    const service = new OrdersService(orderModel, {} as any, delModel, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any);
+    const service = new OrdersService(orderModel, {} as any, delModel, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any);
     return { service, orderModel, delModel };
   }
   it('rejects transition, insurance, assignment, and delivery update for a saved pharmacy order', async () => {

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
@@ -10,6 +10,7 @@ import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-p
 import { PharmacyInventory, PharmacyInventorySchema } from '../../schemas/inventory.schema';
 import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 import { FinanceEngineModule } from '../finance-engine/finance-engine.module';
+import { PharmacyModule } from '../pharmacy/pharmacy.module';
 import { DeliveryRepository } from "./repositories/delivery.repository";
 import { MedicineRepository } from "./repositories/medicine.repository";
 import { OrderRepository } from "./repositories/order.repository";
@@ -21,6 +22,8 @@ import { ProviderProfileRepository } from "./repositories/providerprofile.reposi
   imports: [
     WorkflowEngineModule,
     FinanceEngineModule,
+    // Q16: governed reorders are created through PharmacyOrderService.create.
+    forwardRef(() => PharmacyModule),
     MongooseModule.forFeature([
       { name: Order.name, schema: OrderSchema },
       { name: Medicine.name, schema: MedicineSchema },

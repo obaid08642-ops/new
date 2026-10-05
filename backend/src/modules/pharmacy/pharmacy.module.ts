@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AiModule } from '../ai/ai.module';
 import {
@@ -81,7 +81,7 @@ import { PharmacyIndexesService } from './pharmacy-indexes';
     RealtimeModule,
     AiModule,
     // P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)
-    OrdersModule,
+    forwardRef(() => OrdersModule),
     MongooseModule.forFeature([
       { name: 'PharmacyOrder', schema: PharmacyOrderSchema },
       { name: 'PharmacyAllocation', schema: PharmacyAllocationSchema },

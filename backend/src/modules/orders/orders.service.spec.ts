@@ -9,6 +9,7 @@ import { BadRequestException, NotFoundException, ForbiddenException } from '@nes
 import { Order, PharmacyBid } from '../../schemas/order.schema';
 import { Medicine } from '../../schemas/medicine.schema';
 import { Delivery } from '../../schemas/delivery.schema';
+import { PharmacyOrderService } from '../pharmacy/services/pharmacy-order.service';
 
 describe('OrdersService', () => {
   let service: OrdersService;
@@ -36,6 +37,7 @@ describe('OrdersService', () => {
       providers: [
         OrdersService,
         { provide: 'OrderRepository', useValue: mockModel },
+        { provide: PharmacyOrderService, useValue: { create: jest.fn() } },
         { provide: 'MedicineRepository', useValue: mockModel },
         { provide: 'DeliveryRepository', useValue: mockModel },
         { provide: 'PharmacyBidRepository', useValue: mockModel },

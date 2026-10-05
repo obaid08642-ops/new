@@ -1,7 +1,7 @@
 import axios from 'axios';
 // Use the CommonJS runtime export directly; namespace imports can be non-constructable in production bundles.
 const PDFDocument = require('pdfkit');
-import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject, ServiceUnavailableException, Optional } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject, ServiceUnavailableException, Optional, forwardRef } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -19,6 +19,26 @@ import { DeliveryRepository } from "./repositories/delivery.repository";
 import { PharmacyBidRepository } from "./repositories/pharmacybid.repository";
 import { CouponService, LoyaltyRedeemService, RefundExecutor, CancellationPolicy } from '../finance-engine/finance-engine.module';
 import { ProductRankingEventService } from '../product-ranking/product-ranking-event.service';
+import { PharmacyOrderService } from '../pharmacy/services/pharmacy-order.service';
+
+/** The fields of a previous `pharmacy_orders` document a reorder reads. */
+interface GovernedReorderItem {
+  raw_name?: string; name?: string; name_ar?: string; name_en?: string;
+  generic_name?: string; dosage?: string; form?: string; frequency?: string; duration?: string;
+  qty?: number; matched_sku?: string; sku?: string; medicine_id?: string; notes?: string;
+}
+interface GovernedReorderSource {
+  id: string;
+  patient_account_id: string;
+  items?: GovernedReorderItem[];
+  delivery_address?: Record<string, unknown>;
+  patient_notes?: string;
+  payment_method?: string;
+  fulfillment?: string;
+  payment_mode?: string;
+  insurance_policy_id?: string;
+  delivery_address_id?: string;
+}
 
 const round2 = (n: number) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
 
@@ -37,6 +57,7 @@ export class OrdersService {
     private readonly loyaltyRedeem: LoyaltyRedeemService,
     private readonly refundExec: RefundExecutor,
     private readonly cancelPolicy: CancellationPolicy,
+    @Inject(forwardRef(() => PharmacyOrderService)) private readonly pharmacyOrders: PharmacyOrderService,
     @Optional() private readonly rankingEvents?: ProductRankingEventService,
   ) {}
 
@@ -617,55 +638,48 @@ export class OrdersService {
     }
     // Q16: current governed orders live in `pharmacy_orders` — reorder them by
     // opening a fresh patient draft with the previous order's items.
-    const governed: any = await this.conn.collection('pharmacy_orders').findOne({ id: orderId, patient_account_id: patient.id } as any);
+    const governed = await this.conn.collection<GovernedReorderSource>('pharmacy_orders').findOne({ id: orderId, patient_account_id: patient.id });
     if (!governed) throw new NotFoundException();
-    return this.createGovernedDraftFromPrevious(governed);
+    return this.createGovernedDraftFromPrevious(patient, governed);
   }
 
   /**
-   * Q16: build a new `pharmacy_orders` draft in the exact shape the patient
-   * draft flow (PharmacyOrderService.create) persists: fresh ids, `draft`
-   * status, zeroed totals, and a `created` timeline entry. The draft stays
-   * inert until the patient submits it — same as an app-created draft.
+   * Q16: a governed reorder is a new patient draft created through the one
+   * pharmacy draft path (PharmacyOrderService.create), so it gets the same
+   * timestamps, lifecycle announcement and validation as an app-created
+   * draft. Only what the patient asked for is carried over: item identity,
+   * quantity and instructions. Prices, the old prescription and attachments
+   * are not copied; the pharmacies quote the new draft afresh.
    */
-  private async createGovernedDraftFromPrevious(source: any, override?: { items?: any[]; delivery_address?: any; patient_notes?: string }) {
-    const { v4: uuidv4 } = require('uuid');
-    const srcItems = (override?.items && override.items.length ? override.items : source.items) || [];
-    const items = srcItems.map((it: any) => ({
-      id: uuidv4(),
-      raw_name: String(it.raw_name || it.name || it.name_ar || it.name_en || 'unknown').replace(/[<>]/g, '').trim() || 'unknown',
-      ...(it.name_ar ? { name_ar: it.name_ar } : {}),
-      ...(it.name_en ? { name_en: it.name_en } : {}),
-      ...(it.generic_name ? { generic_name: it.generic_name } : {}),
-      ...(it.dosage ? { dosage: it.dosage } : {}),
-      ...(it.form ? { form: it.form } : {}),
-      ...(it.frequency ? { frequency: it.frequency } : {}),
-      ...(it.duration ? { duration: it.duration } : {}),
-      qty: Math.max(1, Number(it.qty) || 1),
-      match_status: 'manual',
-      ...(it.matched_sku || it.sku || it.medicine_id ? { matched_sku: it.matched_sku || it.sku || it.medicine_id } : {}),
-      ...(it.unit_price !== undefined ? { unit_price: it.unit_price } : {}),
-      intake_source: 'manual',
-      ...(it.notes ? { notes: it.notes } : {}),
+  private async createGovernedDraftFromPrevious(
+    patient: { id: string; role: string },
+    source: GovernedReorderSource,
+    override?: { items?: GovernedReorderItem[]; delivery_address?: Record<string, unknown>; patient_notes?: string },
+  ) {
+    const srcItems: GovernedReorderItem[] = (override?.items && override.items.length ? override.items : source.items) || [];
+    const items = srcItems.map((it) => ({
+      raw_name: it.raw_name || it.name || it.name_ar || it.name_en,
+      name_ar: it.name_ar,
+      name_en: it.name_en,
+      generic_name: it.generic_name,
+      dosage: it.dosage,
+      form: it.form,
+      frequency: it.frequency,
+      duration: it.duration,
+      qty: it.qty,
+      matched_sku: it.matched_sku || it.sku || it.medicine_id,
+      notes: it.notes,
     }));
-    const draft: any = {
-      id: uuidv4(),
-      patient_account_id: source.patient_account_id,
-      status: 'draft',
+    return this.pharmacyOrders.create(patient, {
       items,
       delivery_address: override?.delivery_address || source.delivery_address || {},
-      ...(override?.patient_notes ?? source.patient_notes ? { patient_notes: override?.patient_notes ?? source.patient_notes } : {}),
-      ...(source.prescription_id ? { prescription_id: source.prescription_id } : {}),
-      payment_method: typeof source.payment_method === 'string' ? source.payment_method : 'cash',
-      fulfillment: source.fulfillment === 'pickup' ? 'pickup' : 'delivery',
-      payment_mode: source.payment_mode === 'insurance' ? 'insurance' : 'cash',
-      ...(source.insurance_policy_id ? { insurance_policy_id: source.insurance_policy_id } : {}),
-      ...(source.delivery_address_id ? { delivery_address_id: source.delivery_address_id } : {}),
-      totals: { subtotal: 0, delivery_fee: 0, total: 0, currency: 'SAR' },
-      timeline: [{ ts: new Date(), event: 'created' }],
-    };
-    await this.conn.collection('pharmacy_orders').insertOne(draft as any);
-    return draft;
+      patient_notes: override?.patient_notes ?? source.patient_notes,
+      payment_method: source.payment_method,
+      fulfillment: source.fulfillment,
+      payment_mode: source.payment_mode,
+      insurance_policy_id: source.insurance_policy_id,
+      delivery_address_id: source.delivery_address_id,
+    });
   }
 
   /**
@@ -693,10 +707,10 @@ export class OrdersService {
       });
     }
     // Q16: governed order — same custom-items flow, persisted as a fresh draft.
-    const governed: any = await this.conn.collection('pharmacy_orders').findOne({ id: orderId, patient_account_id: patient.id } as any);
+    const governed = await this.conn.collection<GovernedReorderSource>('pharmacy_orders').findOne({ id: orderId, patient_account_id: patient.id });
     if (!governed) throw new NotFoundException();
     if (!Array.isArray(body.items) || body.items.length === 0) throw new BadRequestException('items_required');
-    return this.createGovernedDraftFromPrevious(governed, {
+    return this.createGovernedDraftFromPrevious(patient, governed, {
       items: body.items.map((it: any) => ({
         raw_name: it.raw_name || it.name || it.name_ar || it.name_en,
         name_ar: it.name_ar,
@@ -709,7 +723,6 @@ export class OrdersService {
         qty: Math.max(1, parseInt(it.qty, 10) || 1),
         sku: it.sku,
         matched_sku: it.matched_sku || it.sku || it.medicine_id,
-        unit_price: it.unit_price ?? it.price,
         notes: it.notes,
       })),
       delivery_address: body.delivery_address || governed.delivery_address,

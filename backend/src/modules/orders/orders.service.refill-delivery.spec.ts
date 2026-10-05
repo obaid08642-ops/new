@@ -23,6 +23,7 @@ describe('OrdersService chronic refill completion', () => {
       {} as any,
       {} as any,
       {} as any,
+      {} as any,
     );
 
     await expect(service.transition('refill-order-1', OrderState.DELIVERED, { id: 'admin-1', role: 'admin' }))

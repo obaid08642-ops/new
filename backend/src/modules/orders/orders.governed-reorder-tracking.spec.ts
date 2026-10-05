@@ -16,6 +16,13 @@ describe('OrdersService governed pharmacy_orders (Q30 tracking / Q16 reorder)', 
     profile?: any;
   }) {
     const inserted: any[] = [];
+    const created: Array<{ user: { id: string }; body: Record<string, any> }> = [];
+    const pharmacyOrders = {
+      create: jest.fn(async (user: { id: string }, body: Record<string, any>) => {
+        created.push({ user, body });
+        return { id: 'new-draft-1', patient_account_id: user.id, status: 'draft', items: body.items };
+      }),
+    };
     const orderModel: any = {
       findOne: jest.fn().mockImplementation(async (filter: any) => {
         if (opts.legacyOrder && filter?.id === opts.legacyOrder.id) {
@@ -63,8 +70,9 @@ describe('OrdersService governed pharmacy_orders (Q30 tracking / Q16 reorder)', 
       {} as any,
       {} as any,
       {} as any,
+      pharmacyOrders as any,
     );
-    return { service, orderModel, delModel, conn, collections, inserted };
+    return { service, orderModel, delModel, conn, collections, inserted, created, pharmacyOrders };
   }
 
   const governedOrder = {
@@ -118,22 +126,43 @@ describe('OrdersService governed pharmacy_orders (Q30 tracking / Q16 reorder)', 
   });
 
   describe('reorder (Q16)', () => {
-    it('creates a draft from a pharmacy_orders id carrying the same items', async () => {
-      const { service, inserted } = setup({ governedOrder });
+    const governedWithPrices = {
+      ...governedOrder,
+      prescription_id: 'rx-old',
+      items: [
+        { ...governedOrder.items[0], matched_sku: 'sku-panadol', unit_price: 12.5 },
+        governedOrder.items[1],
+      ],
+    };
+
+    it('creates the draft through PharmacyOrderService.create (the one create path)', async () => {
+      const { service, inserted, created, pharmacyOrders } = setup({ governedOrder: governedWithPrices });
 
       const draft: any = await service.reorder('gov-order-1', patient);
 
-      expect(inserted).toHaveLength(1);
+      // No hand-built second copy of the create path.
+      expect(inserted).toHaveLength(0);
+      expect(pharmacyOrders.create).toHaveBeenCalledTimes(1);
+      expect(created[0].user).toBe(patient);
+      const body = created[0].body;
+      expect(body.items.map((i: any) => i.raw_name)).toEqual(['Panadol Extra', 'Augmentin 1g']);
+      expect(body.items.map((i: any) => i.qty)).toEqual([2, 1]);
+      expect(body.items[0].matched_sku).toBe('sku-panadol');
+      // Stale prices and the old prescription are not carried into the new draft.
+      expect(body.items.some((i: any) => 'unit_price' in i)).toBe(false);
+      expect(body).not.toHaveProperty('prescription_id');
+      expect(body.delivery_address).toEqual({ city: 'Riyadh' });
+      expect(body.fulfillment).toBe('delivery');
+      expect(body.payment_mode).toBe('cash');
+      expect(draft.id).toBe('new-draft-1');
       expect(draft.status).toBe('draft');
-      expect(draft.patient_account_id).toBe('patient-1');
-      expect(draft.items).toHaveLength(2);
-      expect(draft.items.map((i: any) => i.raw_name)).toEqual(['Panadol Extra', 'Augmentin 1g']);
-      expect(draft.items.map((i: any) => i.qty)).toEqual([2, 1]);
-      // Fresh item ids — the draft is a new document, not a copy of the source.
-      expect(draft.items.map((i: any) => i.id)).not.toEqual(['item-a', 'item-b']);
-      expect(draft.id).not.toBe('gov-order-1');
-      expect(draft.totals).toEqual({ subtotal: 0, delivery_fee: 0, total: 0, currency: 'SAR' });
-      expect(draft.timeline).toEqual([{ ts: expect.any(Date), event: 'created' }]);
+    });
+
+    it("404s when another patient reorders someone else's governed order", async () => {
+      const { service, pharmacyOrders } = setup({ governedOrder });
+      await expect(service.reorder('gov-order-1', { id: 'patient-2', role: 'patient' }))
+        .rejects.toBeInstanceOf(NotFoundException);
+      expect(pharmacyOrders.create).not.toHaveBeenCalled();
     });
 
     it('404s on an unknown id', async () => {
@@ -142,17 +171,25 @@ describe('OrdersService governed pharmacy_orders (Q30 tracking / Q16 reorder)', 
       expect(conn.collection).toHaveBeenCalledWith('pharmacy_orders');
     });
 
-    it('reorder-partial on a pharmacy_orders id drafts the custom item list', async () => {
-      const { service, inserted } = setup({ governedOrder });
-      const draft: any = await service.reorderPartial('gov-order-1', patient, {
-        items: [{ raw_name: 'Vitamin D', qty: 3 }],
+    it('reorder-partial on a pharmacy_orders id drafts the custom item list through the create path', async () => {
+      const { service, inserted, created } = setup({ governedOrder });
+      await service.reorderPartial('gov-order-1', patient, {
+        items: [{ raw_name: 'Vitamin D', qty: 3, price: 40 }],
       } as any);
 
-      expect(inserted).toHaveLength(1);
-      expect(draft.status).toBe('draft');
-      expect(draft.items).toHaveLength(1);
-      expect(draft.items[0].raw_name).toBe('Vitamin D');
-      expect(draft.items[0].qty).toBe(3);
+      expect(inserted).toHaveLength(0);
+      expect(created).toHaveLength(1);
+      expect(created[0].body.items).toHaveLength(1);
+      expect(created[0].body.items[0].raw_name).toBe('Vitamin D');
+      expect(created[0].body.items[0].qty).toBe(3);
+      expect('unit_price' in created[0].body.items[0]).toBe(false);
+    });
+
+    it("reorder-partial 404s when another patient targets someone else's governed order", async () => {
+      const { service, pharmacyOrders } = setup({ governedOrder });
+      await expect(service.reorderPartial('gov-order-1', { id: 'patient-2', role: 'patient' }, { items: [{ raw_name: 'X', qty: 1 }] } as any))
+        .rejects.toBeInstanceOf(NotFoundException);
+      expect(pharmacyOrders.create).not.toHaveBeenCalled();
     });
 
     it('reorder-partial 404s on an unknown id', async () => {

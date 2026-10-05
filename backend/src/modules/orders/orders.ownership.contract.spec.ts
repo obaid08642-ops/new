@@ -5,6 +5,7 @@ describe('OrdersService ownership contract', () => {
   const service = new OrdersService(
     {} as any, {} as any, {} as any, {} as any, {} as any, {} as any,
     {} as any, {} as any, {} as any, {} as any, {} as any, {} as any,
+    {} as any,
   );
 
   it('permits the patient owner and returns 404 to an unrelated patient', () => {
