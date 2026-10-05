@@ -64,8 +64,8 @@ describe('CareService.listDoctors batched availability (Q41)', () => {
     // No N+1: the per-doctor probes are never called by the list path.
     expect(slots.nextAvailable).not.toHaveBeenCalled();
     expect(slots.hasSlotsToday).not.toHaveBeenCalled();
-    // Bounded reads: exactly the three batched collections.
-    expect(collectionCalls.sort()).toEqual(['appointments', 'leaverequests', 'provider_schedule_slots']);
+    // Bounded reads: exactly the four batched collections (Q36: holds too).
+    expect(collectionCalls.sort()).toEqual(['appointments', 'leaverequests', 'provider_schedule_slots', 'slotlocks']);
     // Projection: heavy/private blobs stay out of the list read.
     expect(findCalls[0].projection).toMatchObject({
       license_documents: 0,

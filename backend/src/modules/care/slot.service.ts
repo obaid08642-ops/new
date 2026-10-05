@@ -5,6 +5,10 @@ import { Appointment, AppointmentDocument } from '../../schemas/appointment.sche
 import { LeaveRequest, LeaveRequestDocument } from '../../schemas/leave-request.schema';
 import { ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { AppointmentRepository } from "./repositories/appointment.repository";
+import {
+  ApprovedSlot, BLOCKING_APPOINTMENT_STATUSES, DoctorScheduleSource, Range, appointmentRanges, candidateSlots, candidateSpan,
+  dayStartOf, markAvailability, onLeave, windowsFor,
+} from './availability';
 
 /**
  * Slot generation engine.
@@ -13,7 +17,6 @@ import { AppointmentRepository } from "./repositories/appointment.repository";
  *  open/close = 'HH:MM'
  * We chunk each day into 30-minute slots, exclude already-booked slots and slots in the past.
  */
-const FULL_DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
 @Injectable()
 export class SlotService {
@@ -22,137 +25,67 @@ export class SlotService {
     @InjectModel(LeaveRequest.name) private leaves: Model<LeaveRequestDocument>,
   ) {}
 
-  // Day-of-week mapping used in seed data
-  private readonly DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-
   /**
-   * Returns slots for a given doctor on a given date (ISO YYYY-MM-DD).
+   * Returns slots for a given doctor on a given date (ISO YYYY-MM-DD), under
+   * the one availability rule in ./availability (shared with create(),
+   * reschedule() and the doctor-list preview). `viewerIds` are the caller's
+   * own ids, whose holds do not block them.
    */
-  async slotsForDate(doctor: ProviderProfileDocument, dateStr: string, service_type: 'clinic' | 'video' | 'home', duration_minutes = 30) {
-    // 1. Service type must be enabled for this doctor.
+  async slotsForDate(doctor: ProviderProfileDocument, dateStr: string, service_type: 'clinic' | 'video' | 'home', duration_minutes = 30, viewerIds: string[] = []) {
     if (!doctor.consultation_modes?.includes(service_type)) {
       return { date: dateStr, service_type, slots: [], reason: 'service_not_supported' };
     }
+    const dayStart = dayStartOf(dateStr);
+    if (!dayStart) return { date: dateStr, service_type, slots: [], reason: 'invalid_date' };
+    const dow = dayStart.getUTCDay();
+    const windows = windowsFor(doctor as unknown as DoctorScheduleSource, await this.approvedSlots(doctor, dow, service_type), dow, service_type);
+    if (!windows.length) return { date: dateStr, service_type, slots: [], reason: 'closed' };
 
-    // 2. Opening windows for that day (see hoursFor).
-    const date = new Date(dateStr + 'T00:00:00Z');
-    if (isNaN(date.getTime())) return { date: dateStr, service_type, slots: [], reason: 'invalid_date' };
-    const windows = await this.hoursFor(doctor, date.getUTCDay(), service_type);
-    if (!windows.length) {
-      return { date: dateStr, service_type, slots: [], reason: 'closed' };
-    }
-
-    // 2b. R12: approved leave blocks the whole day (account link, user fallback).
-    const dayStart = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-    const dayEnd = new Date(dayStart.getTime() + 24 * 3600_000);
-    const ids = [doctor.account_id, doctor.user_id].filter(Boolean);
-    if (ids.length > 0) {
-      const leave = await this.leaves.findOne({
-        provider_account_id: { $in: ids },
+    // R12: approved leave blocks the whole day (account link, user fallback).
+    const linkIds = [doctor.account_id, doctor.user_id].filter((v): v is string => !!v);
+    if (linkIds.length) {
+      const leaves = await this.leaves.find({
+        provider_account_id: { $in: linkIds },
         status: 'approved',
-        start_date: { $lt: dayEnd },
+        start_date: { $lt: new Date(dayStart.getTime() + 24 * 3600_000) },
         end_date: { $gte: dayStart },
-      }).select({ _id: 0, id: 1 }).lean().catch(() => null);
-      if (leave) return { date: dateStr, service_type, slots: [], reason: 'on_leave' };
+      }).select({ _id: 0, provider_account_id: 1, start_date: 1, end_date: 1 }).lean().catch(() => []);
+      if (onLeave(leaves as never[], linkIds, dayStart)) return { date: dateStr, service_type, slots: [], reason: 'on_leave' };
     }
 
-    // 3. Generate raw slot starts every {duration} minutes inside each window.
-    const baseDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-    const slots: { id: string; start: string; end: string; label: string; available: boolean }[] = [];
-    const seen = new Set<string>();
-    const now = Date.now();
-    for (const w of windows) {
-      const [oh, om] = w.open.split(':').map(Number);
-      const [ch, cm] = w.close.split(':').map(Number);
-      const openTs = new Date(baseDate.getTime() + oh * 3600_000 + om * 60_000);
-      let closeTs = new Date(baseDate.getTime() + ch * 3600_000 + cm * 60_000);
-      if (closeTs.getTime() <= openTs.getTime()) closeTs = new Date(closeTs.getTime() + 24 * 3600_000); // overnight
-      for (let t = openTs.getTime(); t + duration_minutes * 60_000 <= closeTs.getTime(); t += duration_minutes * 60_000) {
-        const start = new Date(t);
-        const end = new Date(t + duration_minutes * 60_000);
-        if (start.getTime() < now + 15 * 60_000) continue; // ≥15 min lead time
-        const slotId = start.toISOString();
-        if (seen.has(slotId)) continue;
-        seen.add(slotId);
-        slots.push({
-          // The canonical server-generated start timestamp is the published slot id.
-          // Keeping it equal to `start` prevents accepting an opaque client-made id.
-          id: slotId,
-          start: slotId,
-          end: end.toISOString(),
-          label: slotId.substring(11, 16),
-          available: true,
-        });
-      }
-    }
-    slots.sort((x, y) => x.start.localeCompare(y.start));
-    if (slots.length === 0) return { date: dateStr, service_type, slots: [], reason: 'no_slots' };
+    const candidates = candidateSlots(dayStart, windows, duration_minutes, Date.now());
+    const span = candidateSpan(candidates);
+    if (!span) return { date: dateStr, service_type, slots: [], reason: 'no_slots' };
 
-    // 4. Mark booked slots as unavailable.
-    const startOfDay = new Date(baseDate.getTime());
-    const endOfDay = new Date(baseDate.getTime() + 24 * 3600_000);
     const booked = await this.apptModel.find({
       doctor_id: doctor.id,
-      slot_start: { $gte: startOfDay, $lt: endOfDay },
-      status: { $in: ['PENDING', 'CONFIRMED', 'RESCHEDULED', 'CHECKED_IN', 'IN_PROGRESS'] },
+      status: { $in: [...BLOCKING_APPOINTMENT_STATUSES] },
+      slot_start: { $lt: span.to },
+      slot_end: { $gt: span.from },
     }).select({ slot_start: 1, slot_end: 1, duration_minutes: 1 }).lean();
-    const bookedSet = new Set(booked.map((b: any) => new Date(b.slot_start).toISOString()));
-    // Q37 — apply create()'s 5-min buffer HERE, not just exact-start matches.
-    // Canon: appointments.service.ts APPOINTMENT_SLOT_BUFFER_MINUTES +
-    // "existing.slot_start < paddedEnd && existing.slot_end > slotStart".
-    // Mirrored inline (not imported) because appointments.service.ts already
-    // depends on this SlotService — importing back would be circular.
-    const BUFFER_MS = 5 * 60_000;
-    const ranges = (booked as any[]).map((b: any) => {
-      const s = new Date(b.slot_start).getTime();
-      const e = b.slot_end ? new Date(b.slot_end).getTime()
-        : s + (Number(b.duration_minutes) || duration_minutes) * 60_000;
-      return { s, e };
-    });
-    for (const s of slots) {
-      if (bookedSet.has(s.start)) {
-        s.available = false;
-        continue;
-      }
-      const startMs = new Date(s.start).getTime();
-      const paddedEnd = startMs + duration_minutes * 60_000 + BUFFER_MS;
-      for (const r of ranges) {
-        if (r.s < paddedEnd && r.e > startMs) {
-          s.available = false;
-          break;
-        }
-      }
-    }
+    const holds = await this.activeHolds(doctor.id, span, viewerIds);
+    const slots = markAvailability(candidates, duration_minutes, appointmentRanges(booked as never[], duration_minutes), holds);
     return { date: dateStr, service_type, slots };
   }
 
-  /**
-   * Opening windows ('HH:MM' open/close) for a weekday (0=Sunday) and consultation mode, from the first source
-   * the doctor has:
-   *  1. weekly slots approved by admin (provider_schedule_slots, DoctorDashboard "schedule" screen),
-   *  2. the per-mode schedule entered at registration (schedule_clinic / schedule_video / schedule_home),
-   *  3. legacy working_hours.
-   * Day keys are accepted as 'sun', 'sunday', a 0-6 number or 'all'.
-   */
-  private async hoursFor(doctor: any, dow: number, mode: 'clinic' | 'video' | 'home'): Promise<{ open: string; close: string }[]> {
-    const HHMM = /^\d{2}:\d{2}$/;
-    const slotsCol = (this.leaves as any).db?.collection('provider_schedule_slots');
-    const approved = doctor.account_id && slotsCol ? await slotsCol.find({
-      provider_account_id: doctor.account_id, day_of_week: dow, active: { $ne: false }, service_type: { $in: [mode, 'all'] },
-    }).toArray().catch(() => []) : [];
-    const fromApproved = (approved as any[]).filter((x) => HHMM.test(x.start_time) && HHMM.test(x.end_time)).map((x) => ({ open: x.start_time, close: x.end_time }));
-    if (fromApproved.length) return fromApproved;
-    const dayMatches = (d: any) => {
-      const v = String(d ?? '').toLowerCase();
-      return v === 'all' || v === String(dow) || v === this.DAY_KEYS[dow] || v === FULL_DAYS[dow];
-    };
-    const fromEntries = (rows: any[]) => (rows || []).filter((w) => w && !w.closed && dayMatches(w.day)).flatMap((w) => [
-      ...(HHMM.test(w.open || '') && HHMM.test(w.close || '') ? [{ open: w.open, close: w.close }] : []),
-      ...(HHMM.test(w.open_evening || '') && HHMM.test(w.close_evening || '') ? [{ open: w.open_evening, close: w.close_evening }] : []),
-    ]);
-    const perMode = fromEntries(doctor[`schedule_${mode}`]);
-    if (perMode.length) return perMode;
-    return fromEntries(doctor.working_hours);
+  /** Admin-approved weekly schedule slots for the day (provider_schedule_slots). */
+  private async approvedSlots(doctor: { account_id?: string }, dow: number, mode: string): Promise<ApprovedSlot[]> {
+    const col = (this.leaves as unknown as { db?: { collection(n: string): any } }).db?.collection('provider_schedule_slots');
+    if (!doctor.account_id || !col) return [];
+    return col.find({ provider_account_id: doctor.account_id, day_of_week: dow, active: { $ne: false }, service_type: { $in: [mode, 'all'] } })
+      .toArray().catch(() => []);
+  }
+
+  /** Other patients' active holds (Q36) overlapping the span, as ranges. */
+  private async activeHolds(doctorId: string, span: { from: Date; to: Date }, viewerIds: string[]): Promise<Range[]> {
+    const col = (this.leaves as unknown as { db?: { collection(n: string): any } }).db?.collection('slotlocks');
+    if (!col) return [];
+    const rows: Array<{ slot_start: Date; slot_end: Date }> = await col.find({
+      provider_id: doctorId, status: 'held', expires_at: { $gt: new Date() },
+      slot_start: { $lt: span.to }, slot_end: { $gt: span.from },
+      ...(viewerIds.length ? { patient_id: { $nin: viewerIds } } : {}),
+    }, { projection: { _id: 0, slot_start: 1, slot_end: 1 } }).toArray().catch(() => []);
+    return rows.map((h) => ({ s: new Date(h.slot_start).getTime(), e: new Date(h.slot_end).getTime() }));
   }
 
   /**
