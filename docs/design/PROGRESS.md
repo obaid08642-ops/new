@@ -160,6 +160,12 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 - Hidden because there is no data or endpoint: the health-reminder banner (no endpoint on the dashboard), the cart count badge, doctor photo and verified seal, the offer price (curated items carry none).
 - Screenshots: `docs/design/screenshots/batch0-web/home-before-after-board.png`, `dashboard-before-after-board.png`.
 
+## Batch 0 app: Home, tab bar and Services (in progress, branch `wip-app-home`, not pushed)
+
+- Built on HomeApp / HomeAppDark (Home, `app/index.tsx` splash, the main tab bar) and ServiceHub (`(tabs)/services.tsx`, `services/index.tsx`). The tab bar is the shared `BottomTabBar` / `TabBar` (floating glass pill, ink active pill, raised coral Consultations button); `(tabs)/_layout.tsx` uses it and turns the layout header off for Home and Services only.
+- Hidden because there is no data or endpoint: the points balance (no endpoint on Home), the notification dot unless the store has unread items, the avatar photo (`/users/me/profile` has none), price and provider on the curated offer cards (`/content/home` carries neither), the appointment section without an appointment, the reminder card without active reminders.
+- Screenshots: `docs/design/screenshots/batch0-app/{before,after,compare}/` (`home-*`, `services-*`, `tabbar-*`; `home-data-*` use marked test values, `home-768-*`, `home-en-*` (left to right), `all-services-*`, `splash-*`).
+
 ## Found while working (fix in the batch named)
 
 - **Batch 0, web `/login` in dark mode:** the card stays light while its text turns light, and the "continue as guest" button label is invisible. It is the same on main (see `docs/design/screenshots/font-web/before-ar-390-dark.png` on #260).

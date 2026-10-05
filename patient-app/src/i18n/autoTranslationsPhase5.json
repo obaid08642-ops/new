@@ -1,7 +1,7 @@
 {
   "_meta": {
     "purpose": "Phase 5 six-language UI localization additions",
-    "source_count": 2799,
+    "source_count": 2813,
     "languages": [
       "ar",
       "en",
@@ -22391,6 +22391,118 @@
       "hi": "यह तरीका अभी उपलब्ध नहीं है। ईमेल या मोबाइल नंबर इस्तेमाल करें।",
       "bn": "এই পদ্ধতিটি এখন পাওয়া যাচ্ছে না। ইমেইল বা মোবাইল নম্বর ব্যবহার করুন।",
       "fil": "Hindi available ang paraang ito ngayon. Gamitin ang email o numero ng telepono."
+    },
+    "ابحث عن خدمة أو طبيب أو دواء": {
+      "ar": "ابحث عن خدمة أو طبيب أو دواء",
+      "en": "Search for a service, doctor or medicine",
+      "ur": "خدمت، ڈاکٹر یا دوا تلاش کریں",
+      "hi": "सेवा, डॉक्टर या दवा खोजें",
+      "bn": "সেবা, ডাক্তার বা ওষুধ খুঁজুন",
+      "fil": "Maghanap ng serbisyo, doktor o gamot"
+    },
+    "الاستشارات": {
+      "ar": "الاستشارات",
+      "en": "Consultations",
+      "ur": "مشورے",
+      "hi": "परामर्श",
+      "bn": "পরামর্শ",
+      "fil": "Mga Konsultasyon"
+    },
+    "التحاليل": {
+      "ar": "التحاليل",
+      "en": "Lab tests",
+      "ur": "ٹیسٹ",
+      "hi": "जांच",
+      "bn": "পরীক্ষা",
+      "fil": "Mga Lab Test"
+    },
+    "التمريض": {
+      "ar": "التمريض",
+      "en": "Nursing",
+      "ur": "نرسنگ",
+      "hi": "नर्सिंग",
+      "bn": "নার্সিং",
+      "fil": "Nursing"
+    },
+    "التنقل الرئيسي": {
+      "ar": "التنقل الرئيسي",
+      "en": "Main navigation",
+      "ur": "مرکزی نیویگیشن",
+      "hi": "मुख्य नेविगेशन",
+      "bn": "প্রধান নেভিগেশন",
+      "fil": "Pangunahing nabigasyon"
+    },
+    "الخدمات": {
+      "ar": "الخدمات",
+      "en": "Services",
+      "ur": "خدمات",
+      "hi": "सेवाएं",
+      "bn": "সেবা",
+      "fil": "Mga Serbisyo"
+    },
+    "الصحة النفسية، العائلة، التأمين، المجتمع، والمزيد": {
+      "ar": "الصحة النفسية، العائلة، التأمين، المجتمع، والمزيد",
+      "en": "Mental health, family, insurance, community and more",
+      "ur": "ذہنی صحت، خاندان، انشورنس، کمیونٹی اور مزید",
+      "hi": "मानसिक स्वास्थ्य, परिवार, बीमा, समुदाय और बहुत कुछ",
+      "bn": "মানসিক স্বাস্থ্য, পরিবার, বিমা, কমিউনিটি এবং আরও",
+      "fil": "Mental health, pamilya, insurance, komunidad at marami pa"
+    },
+    "الوضع الغامق": {
+      "ar": "الوضع الغامق",
+      "en": "Dark mode",
+      "ur": "ڈارک موڈ",
+      "hi": "डार्क मोड",
+      "bn": "ডার্ক মোড",
+      "fil": "Dark mode"
+    },
+    "تخصم حتى ١٠٪ من قيمة طلبك": {
+      "ar": "تخصم حتى ١٠٪ من قيمة طلبك",
+      "en": "Take up to 10% off your order",
+      "ur": "آپ کے آرڈر کی قیمت سے 10٪ تک کم کریں",
+      "hi": "अपने ऑर्डर की कीमत में 10% तक की छूट पाएं",
+      "bn": "আপনার অর্ডারের মূল্য থেকে ১০% পর্যন্ত কমান",
+      "fil": "Ibawas hanggang 10% sa halaga ng iyong order"
+    },
+    "صباح الخير": {
+      "ar": "صباح الخير",
+      "en": "Good morning",
+      "ur": "صبح بخیر",
+      "hi": "सुप्रभात",
+      "bn": "শুভ সকাল",
+      "fil": "Magandang umaga"
+    },
+    "مساء الخير": {
+      "ar": "مساء الخير",
+      "en": "Good evening",
+      "ur": "شام بخیر",
+      "hi": "शुभ संध्या",
+      "bn": "শুভ সন্ধ্যা",
+      "fil": "Magandang gabi"
+    },
+    "صف أعراضك، ونقترح لك التخصص المناسب": {
+      "ar": "صف أعراضك، ونقترح لك التخصص المناسب",
+      "en": "Describe your symptoms and we will suggest the right specialty",
+      "ur": "اپنی علامات بیان کریں، ہم مناسب شعبہ تجویز کریں گے",
+      "hi": "अपने लक्षण बताएं, हम सही विशेषज्ञता सुझाएंगे",
+      "bn": "আপনার লক্ষণ বলুন, আমরা সঠিক বিশেষত্ব প্রস্তাব করব",
+      "fil": "Ilarawan ang iyong mga sintomas at imumungkahi namin ang tamang espesyalidad"
+    },
+    "طبيب افتراضي": {
+      "ar": "طبيب افتراضي",
+      "en": "Virtual doctor",
+      "ur": "ورچوئل ڈاکٹر",
+      "hi": "वर्चुअल डॉक्टर",
+      "bn": "ভার্চুয়াল ডাক্তার",
+      "fil": "Virtual na doktor"
+    },
+    "نقاط نبض+": {
+      "ar": "نقاط نبض+",
+      "en": "Nabd Plus points",
+      "ur": "نبض پلس پوائنٹس",
+      "hi": "नब्ज़ प्लस पॉइंट",
+      "bn": "নবদ প্লাস পয়েন্ট",
+      "fil": "Mga puntos ng Nabd Plus"
     }
   }
 }
