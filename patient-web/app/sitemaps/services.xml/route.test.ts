@@ -6,10 +6,11 @@ import { GET } from "./route";
 const CITIES = [{ code: "sa-riyadh", name_ar: "الرياض", name_en: "Riyadh" }];
 const FEED = {
   items: [
-    { id: "8f15f372-0000-4000-8000-000000000001", slug: "dr-sara-cardiology", url: "https://nabd.plus/ar/doctor/dr-sara-cardiology" },
+    { id: "8f15f372-0000-4000-8000-000000000001", slug: "dr-sara-cardiology", name: "د. سارة", url: "https://nabd.plus/ar/doctor/dr-sara-cardiology" },
     { id: "72a9eeab-0000-4000-8000-000000000002", url: "https://nabd.plus/ar/facility/72a9eeab-0000-4000-8000-000000000002" },
-    { id: "fac-3", slug: "kfsh-riyadh" },
-    { id: "dup", slug: "kfsh-riyadh" },
+    { id: "fac-3", slug: "kfsh-riyadh", name: "مستشفى" },
+    { id: "dup", slug: "kfsh-riyadh", name: "مستشفى" },
+    { id: "nameless", slug: "no-name-row" },
   ],
 };
 
@@ -34,6 +35,7 @@ describe("services sitemap (Q33)", () => {
     expect(xml).not.toContain("8f15f372-0000-4000-8000-000000000001");
     expect(xml).not.toContain("72a9eeab");
     expect(xml).not.toContain("/services/fac-3/");
+    expect(xml).not.toContain("no-name-row");
     const perLocale = locs.filter((u) => u.includes("/services/kfsh-riyadh/riyadh"));
     expect(new Set(perLocale).size).toBe(perLocale.length);
   });

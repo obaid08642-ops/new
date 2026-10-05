@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 import { assertSameOrigin } from "./lib/api/csrf";
+import { findNamedService, matchServiceCityPath } from "./lib/seo/service-city";
 
 const handleI18nRouting = createMiddleware(routing);
 const noIndexHeader = "noindex, nofollow, noarchive";
@@ -74,6 +75,28 @@ async function productSlugRedirect(request: NextRequest): Promise<NextResponse |
   }
 }
 
+const SERVICE_API_BASE = (process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus").replace(/\/$/, "");
+
+/**
+ * Q33: /{lang}/services/{service}/{city} streams under [locale]/loading.tsx, so
+ * a notFound() in the page can only answer 200. Resolve the pair here first and
+ * answer a real 404 when the named service is not offered in that city. A
+ * backend outage is not a 404: the request continues to the page.
+ */
+async function serviceCityNotFound(request: NextRequest): Promise<NextResponse | null> {
+  const match = matchServiceCityPath(request.nextUrl.pathname);
+  if (!match) return null;
+  try {
+    const found = await findNamedService(SERVICE_API_BASE, match.serviceSlug, match.citySlug, match.locale, (url) => fetch(url, { headers: { Accept: "application/json" } }));
+    if (found) return null;
+  } catch {
+    return null; // ServiceCatalogUnavailable: let the page render its own error state
+  }
+  const ar = match.locale === "ar";
+  const html = `<!doctype html><html lang="${match.locale}" dir="${ar ? "rtl" : "ltr"}"><head><meta charset="utf-8"><meta name="robots" content="noindex"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${ar ? "الصفحة غير موجودة | نبض بلس" : "Page not found | Nabd Plus"}</title></head><body><main><h1>${ar ? "هذه الخدمة غير متاحة في هذه المدينة" : "This service is not available in this city"}</h1><p><a href="/${match.locale}/services">${ar ? "تصفح الخدمات" : "Browse services"}</a></p></main></body></html>`;
+  return new NextResponse(html, { status: 404, headers: { "content-type": "text/html; charset=utf-8", "X-Robots-Tag": noIndexHeader } });
+}
+
 function isMarkdownEligible(pathname: string) {
   return routing.locales.some((loc) => pathname === `/${loc}` || pathname === `/${loc}/articles` || pathname === `/${loc}/medicine-catalog` || pathname.startsWith(`/${loc}/p/`)) || pathname === "/";
 }
@@ -109,6 +132,9 @@ export async function proxy(request: NextRequest) {
   // R12: old product slugs 301 before i18n routing renders the page.
   const slugRedirect = await productSlugRedirect(request);
   if (slugRedirect) return slugRedirect;
+
+  const missingServiceCity = await serviceCityNotFound(request);
+  if (missingServiceCity) return missingServiceCity;
 
   if (request.headers.get("accept")?.toLowerCase().includes("text/markdown") && isMarkdownEligible(pathname)) {
     const markdownUrl = request.nextUrl.clone();

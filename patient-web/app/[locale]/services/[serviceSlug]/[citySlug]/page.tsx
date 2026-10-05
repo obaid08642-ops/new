@@ -7,100 +7,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { MapPin, ShieldCheck } from "lucide-react";
+import { findNamedService, type ServiceFeedItem } from "@/lib/seo/service-city";
 
 type Props = { params: Promise<{ locale: string; serviceSlug: string; citySlug: string }> };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
 
-type FeedItem = {
-  id?: string;
-  slug?: string;
-  service_id?: string;
-  name?: string;
-  specialty?: string;
-  serviceType?: string;
-  facilityType?: string;
-  city?: string;
-  acceptedInsurance?: string[];
-  url?: string;
-  deepLink?: string;
-};
+// Q33: the shared resolver (also used by proxy.ts for the real 404 and by the
+// services sitemap): the named service must be listed, by slug, in that city.
+const cachedFetch = (url: string) => fetch(url, { next: { revalidate: 3600 } });
 
-type ResolvedCity = { latin: string; arabic: string; english: string };
-
-async function resolveCity(citySlug: string): Promise<ResolvedCity | null> {
-  const decoded = decodeURIComponent(citySlug).trim();
-  if (!decoded) return null;
-  try {
-    const res = await fetch(`${API_BASE}/api/v1/locations/cities`, {
-      next: { revalidate: 21600 },
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const list: any[] = Array.isArray(data) ? data : data?.data || [];
-    const lowered = decoded.toLowerCase();
-    const found = list.find((c: any) => {
-      const latin = String(c.code || "").replace(/^sa-/, "").toLowerCase();
-      return (
-        latin === lowered ||
-        String(c.name_en || "").toLowerCase() === lowered ||
-        String(c.name_ar || "") === decoded
-      );
-    });
-    if (!found || !found.name_ar) return null;
-    return {
-      latin: String(found.code || "").replace(/^sa-/, "").toLowerCase() || lowered,
-      arabic: String(found.name_ar),
-      english: String(found.name_en || found.name_ar),
-    };
-  } catch {
-    return null;
-  }
-}
-
-function itemKey(item: FeedItem): string[] {
-  // Identifiers the sitemap emits for this row (feed rows carry `id`;
-  // slug/service_id are accepted for forward-compatibility).
-  const keys: string[] = [];
-  for (const raw of [item.id, item.slug, item.service_id]) {
-    if (raw) keys.push(String(raw).toLowerCase());
-  }
-  // The feed also advertises each row's canonical page (/doctor/<slug>,
-  // /facility/<slug>); accept that trailing segment too.
-  for (const raw of [item.url, item.deepLink]) {
-    if (raw) {
-      const seg = String(raw).split("?")[0].split("/").filter(Boolean).pop();
-      if (seg) keys.push(seg.toLowerCase());
-    }
-  }
-  return keys;
-}
-
-async function fetchNamedProvider(
-  serviceSlug: string,
-  city: ResolvedCity,
-  locale: string,
-): Promise<{ item: FeedItem; city: ResolvedCity } | null> {
-  try {
-    const res = await fetch(
-      `${API_BASE}/api/v1/public/ai-catalog/services?city=${encodeURIComponent(city.arabic)}&locale=${encodeURIComponent(locale)}`,
-      { next: { revalidate: 3600 } },
-    );
-    if (!res.ok) return null;
-    const json = await res.json();
-    const items: FeedItem[] = json.items || [];
-    // Q33: never fall back to the full list. A URL renders if and only if
-    // the feed for THIS city contains the NAMED provider.
-    const slug = decodeURIComponent(serviceSlug).toLowerCase();
-    const matched = items.find((item) => itemKey(item).includes(slug));
-    if (!matched) return null;
-    return { item: matched, city };
-  } catch {
-    return null;
-  }
-}
-
-function providerPath(item: FeedItem, locale: string): string {
+function providerPath(item: ServiceFeedItem, locale: string): string {
   // Link the CTA to the provider's own page, never a generic list.
   for (const raw of [item.url, item.deepLink]) {
     if (!raw) continue;
@@ -117,18 +34,13 @@ function providerPath(item: FeedItem, locale: string): string {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, serviceSlug, citySlug } = await params;
   if (!isLocale(locale)) return {};
-  const city = await resolveCity(citySlug);
-  if (!city) {
-    return { robots: { index: false, follow: false } };
-  }
-  const found = await fetchNamedProvider(serviceSlug, city, locale);
-
+  const found = await findNamedService(API_BASE, serviceSlug, citySlug, locale, cachedFetch).catch(() => null);
   if (!found) {
     return { robots: { index: false, follow: false } };
   }
 
-  const name = found.item.name || decodeURIComponent(serviceSlug);
-  const cityName = locale === "ar" ? city.arabic : city.english;
+  const name = String(found.item.name);
+  const cityName = found.cityName;
 
   const canonical = localizedUrl(
     locale as Locale,
@@ -167,20 +79,17 @@ export default async function ServiceCityPage({ params }: Props) {
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
 
-  const city = await resolveCity(citySlug);
-  if (!city) {
-    notFound();
-  }
-  const found = await fetchNamedProvider(serviceSlug, city, locale);
+  // An unreadable catalog throws (error page), a missing pair is a 404.
+  const found = await findNamedService(API_BASE, serviceSlug, citySlug, locale, cachedFetch);
   if (!found) {
     notFound();
   }
 
   const svc = found.item;
-  const name = svc.name || decodeURIComponent(serviceSlug);
-  const cityName = locale === "ar" ? city.arabic : city.english;
+  const name = String(svc.name);
+  const cityName = found.cityName;
   const kind = svc.specialty || svc.serviceType || svc.facilityType;
-  const pageTitle = locale === "ar" ? `${name} في ${cityName}` : `${name} in ${cityName}`;
+  const pageTitle = found.title;
 
   return (
     <main className="main" style={{ maxWidth: "960px", margin: "0 auto", padding: "2rem 1rem" }}>

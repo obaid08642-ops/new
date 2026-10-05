@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
+import { cityServices, listCities } from "@/lib/seo/service-city";
 
 export const revalidate = 21600;
 
@@ -8,24 +9,21 @@ function esc(s: string) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-type GeoCity = { code?: string; name_ar?: string; name_en?: string };
-
-async function fetchJson(url: string, timeoutMs: number): Promise<any | null> {
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
-  try {
-    const res = await fetch(url, {
-      next: { revalidate: 21600 },
-      headers: { "User-Agent": "NabdPlus-Sitemap-Renderer/1.0" },
-      signal: ctrl.signal,
-    });
-    if (!res.ok) return null;
-    return await res.json().catch(() => null);
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timer);
-  }
+/** fetch with a timeout; the shared resolver treats a failure as "unavailable". */
+function timedFetch(timeoutMs: number) {
+  return async (url: string): Promise<Response> => {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+    try {
+      return await fetch(url, {
+        next: { revalidate: 21600 },
+        headers: { "User-Agent": "NabdPlus-Sitemap-Renderer/1.0" },
+        signal: ctrl.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+  };
 }
 
 /**
@@ -39,36 +37,22 @@ async function fetchJson(url: string, timeoutMs: number): Promise<any | null> {
 export async function GET() {
   const backendUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
 
-  const geoData = await fetchJson(`${backendUrl}/api/v1/locations/cities`, 10000);
-  const geoList: GeoCity[] = Array.isArray(geoData) ? geoData : geoData?.data || [];
-  // latin slug -> Arabic city name (the catalog filters on stored Arabic names).
-  const cities = geoList
-    .map((c) => ({
-      latin: String(c.code || "").replace(/^sa-/, "").toLowerCase(),
-      arabic: String(c.name_ar || ""),
-    }))
-    .filter((c) => c.latin && c.arabic && !c.latin.includes("-"))
-    .slice(0, 150);
+  const fetcher = timedFetch(10000);
+  // Same resolver as the page and the proxy 404 (lib/seo/service-city.ts), so
+  // every emitted URL is a pair the page renders: a slugged, named service
+  // listed in that city's own catalog feed.
+  const cities = (await listCities(backendUrl, fetcher).catch(() => [])).slice(0, 150);
 
   const pairs: Array<{ sid: string; city: string }> = [];
   const CONCURRENCY = 10;
   for (let i = 0; i < cities.length; i += CONCURRENCY) {
     const batch = cities.slice(i, i + CONCURRENCY);
     const results = await Promise.all(
-      batch.map(async ({ latin, arabic }) => {
-        const feed = await fetchJson(
-          `${backendUrl}/api/v1/public/ai-catalog/services?city=${encodeURIComponent(arabic)}`,
-          10000,
-        );
-        const items: unknown[] = Array.isArray(feed?.items) ? feed.items : [];
-        const sids = new Set<string>();
-        for (const item of items) {
-          // Q33: URLs carry the record's real slug (the feed's `slug`; the page
-          // resolves it). A row without a slug is skipped: no raw ids in URLs.
-          const slug = item && typeof item === "object" ? (item as { slug?: unknown }).slug : undefined;
-          if (typeof slug === "string" && slug.trim()) sids.add(slug.trim());
-        }
-        return { latin, sids: [...sids] };
+      batch.map(async (city) => {
+        // A city whose feed cannot be read contributes zero URLs (never a guess).
+        const items = await cityServices(backendUrl, city, "ar", fetcher).catch(() => []);
+        const sids = new Set(items.map((item) => String(item.slug).trim()));
+        return { latin: city.latin, sids: [...sids] };
       }),
     );
     for (const { latin, sids } of results) {
