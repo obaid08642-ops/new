@@ -106,6 +106,7 @@ export class LegalEnterpriseController {
   licenseRun() { return this.svc.licenseMonitorRun(); }
 
   // ── Provider insurance matrix ──────────────────────────────────────────
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Get('provider/insurance-matrix')
   @UseGuards(JwtAuthGuard)
   getMatrix(@CurrentUser() user: any) { return this.svc.getProviderInsurance(user.id); }

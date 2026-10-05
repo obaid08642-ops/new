@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException, Res } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, Res, ServiceUnavailableException } from '@nestjs/common';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -210,7 +210,7 @@ export class AdminPharmacySeedController {
   constructor(private seedSvc: PharmacySeedService) {}
   private assertTestSeedAllowed() {
     if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
-      throw new ServiceUnavailableException('test_seed_disabled');
+      throw new NotFoundException();
     }
   }
 

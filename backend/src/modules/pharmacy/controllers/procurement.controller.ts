@@ -28,7 +28,6 @@ export class ProcurementController {
   ) {}
 
   private toObjectId(id: string) {
-    const { Types } = require('mongoose');
     return Types.ObjectId.isValid(id) ? new Types.ObjectId(id) : null;
   }
 

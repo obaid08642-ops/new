@@ -4,6 +4,12 @@ import {
   BadRequestException, Inject } from '@nestjs/common';
 import { Model, Document } from 'mongoose';
 import { findByAnyId, findOneByAnyId } from '../../../common/find-by-id';
+import { Types } from 'mongoose';
+
+function findByIdAndUpdateByAnyId(model: any, id: string, update: any, options: any = { new: true }): any {
+  const filter = Types.ObjectId.isValid(id) ? { _id: new Types.ObjectId(id) } : { id };
+  return model.findOneAndUpdate(filter, update, options).exec();
+}
 import { ProcurementStatus } from '../enums/procurement-status.enum';
 import { ProcurementRequest } from '../schemas/procurement-request.schema';
 import { Quotation } from '../schemas/quotation.schema';
@@ -87,7 +93,7 @@ export class ProcurementService {
     }
 
     // Use the model directly for updating
-    await this.model.findByIdAndUpdate(requestId, {
+    await findByIdAndUpdateByAnyId(this.model, requestId, {
       status: dto.status,
       pharmacyFeedback: dto.pharmacyFeedback,
     });
@@ -223,7 +229,7 @@ export class ProcurementService {
       );
     }
 
-    await this.model.findByIdAndUpdate(requestId, { status: ProcurementStatus.CANCELLED });
+    await findByIdAndUpdateByAnyId(this.model, requestId, { status: ProcurementStatus.CANCELLED });
     return { success: true };
   }
 
@@ -239,7 +245,7 @@ export class ProcurementService {
       );
     }
 
-    await this.model.findByIdAndUpdate(requestId, { status: ProcurementStatus.COMPLETED });
+    await findByIdAndUpdateByAnyId(this.model, requestId, { status: ProcurementStatus.COMPLETED });
     return { success: true };
   }
 }

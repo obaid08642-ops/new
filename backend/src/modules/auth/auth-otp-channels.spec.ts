@@ -7,6 +7,8 @@ import { RedisService } from '../redis/redis.service';
 import { SmsService } from '../sms/sms.service';
 import { MailService } from '../mail/mail.module';
 import { PushService } from '../push/push.module';
+import { PasswordSecurityService } from './password-security.service';
+import { HttpService } from '@nestjs/axios';
 import * as bcrypt from 'bcryptjs';
 
 describe('AuthService OTP channels + register gate (F34/F63)', () => {
@@ -16,6 +18,8 @@ describe('AuthService OTP channels + register gate (F34/F63)', () => {
   let mail: any;
   let push: any;
   let sms: any;
+  let passwordSecurity: any;
+  let httpService: any;
 
   const user = (over: any = {}) => ({
     id: 'u1', phone: '+966500000001', email: undefined, active: true, role: 'patient', ...over,
@@ -33,6 +37,16 @@ describe('AuthService OTP channels + register gate (F34/F63)', () => {
     mail = { sendOtp: jest.fn(async () => ({ ok: true, provider: 'resend', fallback_used: false })) };
     push = { sendToUser: jest.fn(async () => ({ sent: 0, failed: 0 })) };
     sms = { sendOtp: jest.fn(async () => true) };
+    passwordSecurity = {
+      validatePasswordStrength: jest.fn().mockResolvedValue({ valid: true, errors: [] }),
+      hashPassword: jest.fn(async (p: string) => 'hashed_' + p),
+      recordFailedAttempt: jest.fn().mockResolvedValue({ attempts: 1, locked: false, lockoutExpiresAt: null }),
+      clearFailedAttempts: jest.fn().mockResolvedValue(undefined),
+      isLocked: jest.fn().mockResolvedValue({ locked: false }),
+      calculateProgressiveDelay: jest.fn().mockReturnValue(0),
+      getLockoutConfig: jest.fn().mockReturnValue({ maxAttempts: 5 }),
+    };
+    httpService = { get: jest.fn(), post: jest.fn(), put: jest.fn(), delete: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -45,6 +59,8 @@ describe('AuthService OTP channels + register gate (F34/F63)', () => {
         { provide: SmsService, useValue: sms },
         { provide: MailService, useValue: mail },
         { provide: PushService, useValue: push },
+        { provide: PasswordSecurityService, useValue: passwordSecurity },
+        { provide: HttpService, useValue: httpService },
       ],
     }).compile();
     service = module.get<AuthService>(AuthService);

@@ -2,7 +2,7 @@
  * Internal Health Dashboard — single endpoint powering the admin health page.
  * Reports live status of every infrastructure dependency + runtime metrics.
  */
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards, InternalServerErrorException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, Roles } from '../../common/auth.guard';
@@ -38,7 +38,7 @@ export class HealthDashboardController {
       this.probe(() => this.conn.db.admin().ping()),
       this.probe(async () => {
         const c = (this.redis as any).getClient?.();
-        if (!c) throw new Error('no client');
+        if (!c) throw new InternalServerErrorException('no client');
         const r = await c.ping();
         if (r !== 'PONG') throw new Error(r);
       }),

@@ -13,6 +13,7 @@ import { ProviderProfileRepository } from "./repositories/providerprofile.reposi
 import { InjectModel } from '@nestjs/mongoose';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 import { escapeRegex } from '../../common/slug.util';
+import { findOneByAnyId } from '../../common/find-by-id';
 
 /**
  * Fields a provider may edit on their own profile (and, via the
@@ -71,7 +72,7 @@ export class ProvidersService {
 
     // ProviderBranch._id is a UUID string (see provider-branch.schema), so
     // findById matches the branch uuid directly — never a client ObjectId.
-    const branch = await this.branchModel.findById(branchId);
+    const branch = await findOneByAnyId(this.branchModel, branchId);
     if (!branch) throw new NotFoundException('الفرع المحدد غير موجود بالمنظومة.');
 
     // Create Sub-Account User

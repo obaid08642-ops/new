@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, ConflictException, ForbiddenException, NotFoundException, UnauthorizedException, Logger, Inject, Optional } from '@nestjs/common';
+import { Injectable, BadRequestException, ConflictException, ForbiddenException, NotFoundException, UnauthorizedException, InternalServerErrorException, Logger, Inject, Optional } from '@nestjs/common';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 import { isEmail } from 'class-validator';
@@ -70,7 +70,7 @@ export class ProviderAuthService {
 
   private db() {
     const db = (this.accounts as any).model?.db;
-    if (!db) throw new Error('provider_accounts_db_unavailable');
+    if (!db) throw new InternalServerErrorException('provider_accounts_db_unavailable');
     return db;
   }
 

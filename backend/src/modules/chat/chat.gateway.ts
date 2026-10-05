@@ -8,7 +8,7 @@ import {
   MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Logger, ForbiddenException } from '@nestjs/common';
+import { Logger, UnauthorizedException } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { OnEvent } from '@nestjs/event-emitter';
 import { getWebSocketCorsOptions } from '../../config/websocket-cors';
@@ -43,7 +43,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const payload: any = jwt.verify(token, secret);
         userId = payload?.sub || payload?.id || payload?.user_id || null;
         if (payload?.purpose === 'chat_rt') {
-          if (payload?.aud !== 'chat-rt' || !payload?.thread_id || !userId) throw new Error('invalid_chat_rt_token');
+          if (payload?.aud !== 'chat-rt' || !payload?.thread_id || !userId) throw new UnauthorizedException('invalid_chat_rt_token');
           this.restrictedThreads.set(socket.id, payload.thread_id);
         }
       } catch {

@@ -29,8 +29,9 @@ export class DoctorReferralsController {
     throw new ForbiddenException('Cannot access another doctor\'s referrals');
   }
 
-  private toObjectId(id: string) {
-    return Types.ObjectId.isValid(id) ? new Types.ObjectId(id) : null;
+  /** Convert validated ObjectId string to ObjectId for queries targeting _id fields */
+  private toObjectId(id: string): any {
+    return new Types.ObjectId(id);
   }
 
   /** Doctor's issued referrals + returned diagnostic results (inbound reports inbox) */

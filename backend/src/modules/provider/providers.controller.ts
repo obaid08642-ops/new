@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { ProvidersService } from './providers.service';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { ProviderType, ProviderStatus, UserRole } from '../../common/enums';
@@ -104,10 +104,17 @@ export class ProvidersController {
 export class ProvidersSeedController {
   constructor(private svc: ProvidersService) {}
 
+  private assertTestSeedAllowed() {
+    if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
+      throw new NotFoundException();
+    }
+  }
+
   /** Admin: seed sample lab/radiology/home_care/hospital providers (idempotent — skips existing). */
   @Post('admin/seed-demo')
   @Roles(UserRole.ADMIN)
   seedDemo() {
+    this.assertTestSeedAllowed();
     return this.svc.seedDemoProviders();
   }
 }

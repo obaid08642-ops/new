@@ -1,4 +1,4 @@
-import { Module, Global } from '@nestjs/common';
+import { Module, Global, InternalServerErrorException } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { HttpModule } from '@nestjs/axios';
 import type { StringValue } from 'ms';
@@ -36,8 +36,8 @@ import { SmsFraudProtectionService } from './sms-fraud-protection.service';
       global: true,
       useFactory: () => {
         const secret = process.env.JWT_SECRET;
-        if (!secret) throw new Error('FATAL: JWT_SECRET must be configured');
-        if (process.env.NODE_ENV === 'production' && secret.length < 32) throw new Error('FATAL: JWT_SECRET must be at least 32 characters in production');
+        if (!secret) throw new InternalServerErrorException('FATAL: JWT_SECRET must be configured');
+        if (process.env.NODE_ENV === 'production' && secret.length < 32) throw new InternalServerErrorException('FATAL: JWT_SECRET must be at least 32 characters in production');
         return {
           secret,
           signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN || '1h') as StringValue },

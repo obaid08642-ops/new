@@ -4,6 +4,7 @@ import { Model, Types } from 'mongoose';
 import { EventBusService } from '../events/event-bus.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ChatThread, ChatThreadDocument, ChatMessage, ChatMessageDocument } from './chat.schemas';
+import { findByAnyId } from '../../common/find-by-id';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const jwt = require('jsonwebtoken');
 
@@ -109,8 +110,7 @@ export class ChatService {
       // fallback covers legacy callers holding a Mongo id (never throws).
       let doc: any = await m.findOne({ id: { $eq: bookingId } }).lean();
       if (!doc && /^[a-f0-9]{24}$/i.test(bookingId)) {
-        const { Types } = require('mongoose');
-        doc = await m.findOne({ _id: { $eq: new Types.ObjectId(bookingId) } }).lean();
+        doc = await m.findOne(findByAnyId(m, bookingId)).lean();
       }
       if (!doc) return {};
       const patientId = doc.patient_id || doc.user_id || doc.patient_user_id || undefined;
