@@ -164,7 +164,7 @@ export function VerifiedProviderBadge({ provider, locale, path }: VerifiedProvid
         overflowWrap: "anywhere",
       }}
     >
-      <Icon name="check-circle" size={16} tone="var(--nabd-color-status-success-fg)" />
+      <Icon name="check-circle" size={16} tone="mint" />
       <span>{label}</span>
     </Link>
   );
