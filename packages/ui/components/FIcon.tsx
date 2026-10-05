@@ -25,7 +25,6 @@ export function FIcon({ icon, tone, size = 52, chip = 'soft', label, testID }: F
   const gradientId = `nabd-ficon-${tone}-${size}-${React.useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const glyph = chip === 'none' ? size : Math.round(size * 0.52);
   const radius = Math.round(size * 0.32);
-  const offset = Math.round((size - glyph) / 2);
   // CSS `linear-gradient(160deg, …)` on a size×size box: the gradient line runs
   // through the centre at 160deg and is |w·sin a| + |h·cos a| long.
   const a = (160 * Math.PI) / 180;
@@ -46,22 +45,24 @@ export function FIcon({ icon, tone, size = 52, chip = 'soft', label, testID }: F
       aria-hidden={label ? undefined : true}
       className={`nabd-ficon nabd-ficon--${chip} nabd-tone--${tone}`}
     >
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true" focusable="false">
-        {chip === 'solid' ? (
-          <defs>
-            <linearGradient id={gradientId} gradientUnits="userSpaceOnUse" x1={size / 2 - dx} y1={size / 2 - dy} x2={size / 2 + dx} y2={size / 2 + dy}>
-              <stop offset="0" className="nabd-ficon__from" />
-              <stop offset="1" className="nabd-ficon__to" />
-            </linearGradient>
-          </defs>
-        ) : null}
-        {chip === 'none' ? null : (
-          <rect className="nabd-ficon__chip" width={size} height={size} rx={radius} fill={chip === 'solid' ? `url(#${gradientId})` : undefined} />
-        )}
-        <svg x={offset} y={offset} width={glyph} height={glyph} viewBox={FILL_ICON_VIEWBOX}>
-          <path className="nabd-ficon__glyph" d={FILL_ICON_PATHS[icon]} />
-        </svg>
+      {/* The glyph is the first grid item, centred by the grid: it gives the tile the
+          baseline and the pixel position it always had. The chip is stacked behind it. */}
+      <svg className="nabd-ficon__glyphbox" width={glyph} height={glyph} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true" focusable="false">
+        <path className="nabd-ficon__glyph" d={FILL_ICON_PATHS[icon]} />
       </svg>
+      {chip === 'none' ? null : (
+        <svg className="nabd-ficon__chipbox" width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true" focusable="false">
+          {chip === 'solid' ? (
+            <defs>
+              <linearGradient id={gradientId} gradientUnits="userSpaceOnUse" x1={size / 2 - dx} y1={size / 2 - dy} x2={size / 2 + dx} y2={size / 2 + dy}>
+                <stop offset="0" className="nabd-ficon__from" />
+                <stop offset="1" className="nabd-ficon__to" />
+              </linearGradient>
+            </defs>
+          ) : null}
+          <rect className="nabd-ficon__chip" width={size} height={size} rx={radius} fill={chip === 'solid' ? `url(#${gradientId})` : undefined} />
+        </svg>
+      )}
     </span>
   );
 }
