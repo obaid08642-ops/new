@@ -1,27 +1,9 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
+import { Request } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
- * Phase 20 foundation — request-id propagation (ADDITIVE ONLY, not wired).
- *
- * Reads/generates `x-request-id`, attaches it to the request object and
- * echoes it on the response header so clients can correlate logs.
- *
- * NOTE: this codebase has no AsyncLocalStorage / CLS context (verified
- * 2026-09), so the id lives on the request object. If an async context is
- * introduced later, store the id there inside `use()` — `getRequestId()`
- * stays the single read path for loggers.
- *
- * WIRING (owned by a sibling — DO NOT wire here):
- *   // Option A — module-level (preferred):
- *   //   consumer.apply(RequestIdMiddleware).forRoutes('*');
- *   // Option B — global (in main.ts, sibling-owned file — do not touch):
- *   //   app.use(requestIdFunction);
- *
- * Kept distinct from CorrelationMiddleware (`x-correlation-id`): that
- * middleware owns cross-service correlation; this one owns per-request
- * identity used by the structured logger (`structured-logger.ts`).
+ * Request-id resolution used by CorrelationMiddleware (the middleware wired
+ * for every route in app.module.ts). The id lives on the request object.
  */
 
 export const REQUEST_ID_HEADER = 'x-request-id';
@@ -40,35 +22,10 @@ function normalizeIncoming(raw: unknown): string | undefined {
   return trimmed;
 }
 
+export const LEGACY_CORRELATION_HEADER = 'x-correlation-id';
+
 export function resolveRequestId(req: Request): string {
-  return normalizeIncoming(req.headers[REQUEST_ID_HEADER]) ?? uuidv4();
-}
-
-/**
- * Single read path for the request id. Prefers the id set by this
- * middleware, falls back to the legacy `correlationId` so logs stay
- * joinable on routes where only CorrelationMiddleware ran.
- */
-export function getRequestId(req: Request | Record<string, unknown> | undefined): string | undefined {
-  const bag = req as unknown as Record<string, unknown> | undefined;
-  const direct = bag?.['requestId'];
-  if (typeof direct === 'string' && direct) return direct;
-  const legacy = bag?.['correlationId'];
-  if (typeof legacy === 'string' && legacy) return legacy;
-  return undefined;
-}
-
-/** Plain Express-style function for `app.use(...)` wiring (sibling-owned). */
-export function requestIdFunction(req: Request, res: Response, next: NextFunction): void {
-  const requestId = resolveRequestId(req);
-  (req as unknown as Record<string, unknown>)['requestId'] = requestId;
-  res.setHeader('X-Request-Id', requestId);
-  next();
-}
-
-@Injectable()
-export class RequestIdMiddleware implements NestMiddleware {
-  use(req: Request, res: Response, next: NextFunction): void {
-    requestIdFunction(req, res, next);
-  }
+  return normalizeIncoming(req.headers[REQUEST_ID_HEADER])
+    ?? normalizeIncoming(req.headers[LEGACY_CORRELATION_HEADER])
+    ?? uuidv4();
 }

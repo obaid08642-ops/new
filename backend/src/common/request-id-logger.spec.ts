@@ -1,10 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import {
-  RequestIdMiddleware,
-  getRequestId,
-  resolveRequestId,
-  REQUEST_ID_HEADER,
-} from './request-id.middleware';
+import { resolveRequestId, REQUEST_ID_HEADER } from './request-id.middleware';
+import { CorrelationMiddleware } from './correlation.middleware';
 import { buildLogRecord, logStructured, redactForLog } from './structured-logger';
 
 function mockRes() {
@@ -14,18 +10,19 @@ function mockRes() {
       headers[k.toLowerCase()] = v;
     }),
     getHeader: (k: string) => headers[k.toLowerCase()],
+    on: jest.fn(),
   } as unknown as Response;
   return { res, headers };
 }
 
 function mockReq(headers: Record<string, unknown> = {}) {
-  return { headers } as unknown as Request;
+  return { headers, get: () => undefined } as unknown as Request;
 }
 
 describe('Phase 20 foundation: request-id + structured logger', () => {
   describe('request-id propagation (mocked, no server)', () => {
     it('propagates an incoming x-request-id onto req + response header', () => {
-      const mw = new RequestIdMiddleware();
+      const mw = new CorrelationMiddleware();
       const req = mockReq({ [REQUEST_ID_HEADER]: 'req-123' });
       const { res, headers } = mockRes();
       const next: NextFunction = jest.fn() as unknown as NextFunction;
@@ -34,7 +31,7 @@ describe('Phase 20 foundation: request-id + structured logger', () => {
 
       expect((req as unknown as Record<string, unknown>)['requestId']).toBe('req-123');
       expect(headers['x-request-id']).toBe('req-123');
-      expect(getRequestId(req)).toBe('req-123');
+      expect(headers['x-correlation-id']).toBe('req-123');
       expect(next).toHaveBeenCalled();
     });
 
@@ -90,7 +87,7 @@ describe('Phase 20 foundation: request-id + structured logger', () => {
     });
 
     it('end-to-end: middleware id flows into the log record', () => {
-      const mw = new RequestIdMiddleware();
+      const mw = new CorrelationMiddleware();
       const req = mockReq({ [REQUEST_ID_HEADER]: 'req-e2e-1' });
       const { res } = mockRes();
       mw.use(req, res, (jest.fn() as unknown) as NextFunction);
@@ -98,7 +95,7 @@ describe('Phase 20 foundation: request-id + structured logger', () => {
       const writeSpy = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
       try {
         const record = logStructured('info', 'orders', 'order created', {
-          requestId: getRequestId(req),
+          requestId: (req as unknown as Record<string, string>)['requestId'],
           data: { orderId: 'ord-9', email: 'p@example.com' },
         });
         expect(record.requestId).toBe('req-e2e-1');

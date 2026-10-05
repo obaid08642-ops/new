@@ -1,16 +1,12 @@
 /**
- * Phase 20 foundation — structured JSON logger helper (ADDITIVE ONLY).
+ * Structured JSON logger (20.3).
  *
  * Emits single-line JSON records: `{ ts, level, module, requestId, msg, data }`.
  * `data` is deep-redacted by key-name pattern (secrets / tokens / PII) so
  * request bodies and user objects can be attached to logs safely.
  *
- * WIRING (owned by a sibling — DO NOT wire here):
- *   // Option A — use directly in any service:
- *   //   import { logStructured, getModuleLogger } from './common/structured-logger';
- *   // Option B — pair with RequestIdMiddleware (`request-id.middleware.ts`):
- *   //   logStructured('info', 'orders', 'order created',
- *   //     { requestId: getRequestId(req), data: { orderId } });
+ * Used by CorrelationMiddleware for the access log; any service may call
+ * `logStructured` / `getModuleLogger`.
  *
  * Deliberately framework-free (no Nest/Winston dependency) so it stays
  * usable in scripts, workers, and unit tests.
