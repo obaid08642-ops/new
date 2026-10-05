@@ -27,11 +27,14 @@ const HERO: Record<"ar" | "en", { title: [string, string]; points: [string, stri
 export async function AuthLayout({
   locale,
   backHref,
+  showMark = true,
   children,
 }: {
   locale: Locale;
   /** Where the back button goes; no button when absent (the first screen of the flow). */
   backHref?: string;
+  /** Welcome draws the large Noon Dot in its body, so its top row has no small one. */
+  showMark?: boolean;
   children: React.ReactNode;
 }) {
   const shared = await getTranslations({ locale, namespace: "Shared" });
@@ -48,12 +51,12 @@ export async function AuthLayout({
           ) : (
             <span className={styles.backSpacer} aria-hidden="true" />
           )}
-          <Link href={`/${locale}`} className={styles.brand} aria-label={shared("brand")}>
+          {showMark ? <Link href={`/${locale}`} className={styles.brand} aria-label={shared("brand")}>
             <NabdMark size={34} variant="text" />
             <span className={styles.wordmark} aria-hidden="true">
               {locale === "ar" ? "نبض" : "Nabd"}<span className={styles.plus}>+</span>
             </span>
-          </Link>
+          </Link> : <span />}
           <div className={styles.tools}>
             <LocaleSelector current={locale} label={shared("language")} />
             <ThemeToggle label={shared("theme")} />

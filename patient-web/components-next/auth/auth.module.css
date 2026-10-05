@@ -130,3 +130,32 @@
 .cell:focus { border: 2px solid var(--nabd-color-text-primary); box-shadow: 0 0 0 4px var(--nabd-color-border-subtle); }
 .resendRow { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-block-size: 44px; }
 .timer { font-size: 13px; font-weight: 700; }
+
+/* ---- Welcome (board Welcome / Auth screen=welcome) ---- */
+.welcome { flex: 1; display: flex; flex-direction: column; }
+.stage { position: relative; block-size: 300px; display: grid; place-items: center; }
+.orbit {
+  position: absolute; display: grid; place-items: center; border-radius: 22px;
+  background: var(--nabd-color-bg-surface); box-shadow: var(--nabd-shadow-feature);
+}
+.o1 { inset-block-start: 18px; inset-inline-start: 46px; inline-size: 68px; block-size: 68px; }
+.o2 { inset-block-start: 74px; inset-inline-end: 34px; inline-size: 62px; block-size: 62px; border-radius: 20px; }
+.o3 { inset-block-end: 30px; inset-inline-start: 60px; inline-size: 58px; block-size: 58px; border-radius: 19px; }
+.o4 { inset-block-end: 8px; inset-inline-end: 70px; inline-size: 64px; block-size: 64px; border-radius: 21px; }
+.identity { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+.welcomeWord { margin: 0; font-size: 40px; line-height: 1.1; font-weight: 700; }
+.ecg path { fill: none; stroke: var(--nabd-color-brand-coral); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.tagline { margin: 0; font-size: 16px; color: var(--nabd-color-text-secondary); }
+.cta { margin-block-start: auto; display: flex; flex-direction: column; gap: 10px; padding-block-start: 24px; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.guestLink {
+  block-size: 46px; border: 0; background: transparent; font: inherit; font-size: 15px; font-weight: 500;
+  color: var(--nabd-color-text-primary); display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;
+}
+.guestLink:disabled { opacity: .5; cursor: not-allowed; }
+@media (min-width: 1024px) { .welcome { justify-content: center; } .cta { margin-block-start: 32px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .page *, .page *::before, .page *::after { animation: none !important; transition: none !important; }
+}
+@media (min-width: 1024px) { .column { min-block-size: calc(100dvh - 32px); } }
