@@ -1061,6 +1061,21 @@ The owner split the remaining work into two phases. **Phase A blocks the next pr
 
 Phase A closes when the gate, CI, the live gate and the native strict run are green on the tip, and every Phase A row is PASS. Then `fix/audit-2026-09` merges into `main` and the reviewer runs the rehearsed deploy.
 
+**Production hotfix to undo during that deploy (Q107, 2026-10-05):**
+- **The problem:** production ran the pre-Q107 social login. With no provider in the body, it trusted the email in the body, and it had no role check. So any account, admin included, could be opened with just its email.
+- **The hotfix:** server-ops run #18 added an Nginx rule in `nabd.plus.conf`: `location = /api/v1/auth/social-login { return 403 … }`, marked `# Q107 hotfix`.
+  - Backup: `/opt/nabdah/backups/nabd.plus.conf.pre-q107.20261005T150609Z`.
+  - Checked from outside after the run: social-login 403, login 400 (reaches the backend), liveness 200.
+- **The check (runs #16 and #17):**
+  - The Nginx access log has no POST to social-login.
+  - There are 0 accounts with invented addresses.
+  - The access log covers a limited window, so earlier use cannot be ruled out. Admin passwords should be rotated.
+- **Deploy steps:**
+  1. Set `GOOGLE_OAUTH_CLIENT_IDS` and `APPLE_SIGNIN_CLIENT_IDS` in `.env.production`. Without them, the new code answers `social_login_not_configured`.
+  2. After the new backend is healthy, run `REVERT=1 22-block-social-login` (rehearsed).
+  3. Verify that `POST /auth/social-login {"provider":"x"}` returns 400 `social_provider_not_supported` and that `{}` no longer logs anyone in.
+  4. If the deploy replaces `nabd.plus.conf` from `deploy/`, the rule goes with it. Still run step 3.
+
 ### Phase B (after the deploy)
 C17–C27 above:
 - 14.4/14.18 outbox and kill switches;
@@ -1076,3 +1091,31 @@ C17–C27 above:
 - the other unwired Phase 13 code.
 
 Until each is wired, it must be off (not called, or behind a flag that is off by default) in the Phase A deploy, and it must not change behaviour.
+
+> **Updated 2026-10-05 (owner targets):** F82 now follows `docs/review/F82_PERFORMANCE_PLAN.md`: LCP < 1.2 s mobile and < 0.8 s desktop, TTFB < 200 ms, CLS < 0.05, INP < 150 ms, in-site navigation < 200 ms, repeat visit < 0.5 s, and app stale-while-revalidate. The work is split into F82-1 to F82-5 with real-user monitoring. The 2.5 s target below is only the first step of the ratchet.
+
+### Design track (scheduled 2026-10-05; runs beside Phase A, on `main`)
+**F82: web LCP.** The design quality gates depend on this (`design/batch-0` tightens Lighthouse to LCP < 2.5 s).
+- **Measured** by the `lighthouse` check on #268 (`8f0e1ca`, 2026-10-05), against the 3000 ms budget in `patient-web/.github/lighthouse-budget.json`:
+
+  | route | LCP |
+  |---|---|
+  | `/ar` | 3246 ms |
+  | `/ar/pharmacy` (the log names it `/ar/c…`, its redirect target) | 4877 ms |
+  | `/ar/consultations/doctors` | 3009 ms |
+
+- **Owner of the fix:** the reviewer session (Option A), on a `perf/f82-lcp` branch from `main`, with a PR to `main`.
+- **Done when:**
+  - The `lighthouse` workflow is green on that PR, on the three routes, with the thresholds `design/batch-0` sets (LCP < 2.5 s, CLS < 0.1, TBT ≤ 200 ms).
+  - The LCP of each route is pasted into the PR from the job log.
+- **Not allowed:**
+  - Raising a budget.
+  - Removing a route from the audit.
+  - Hiding or deferring the main content to lower the number.
+  - Any change to the Lighthouse workflow other than one the reviewer approves.
+- **Investigate first, from the Lighthouse report's LCP breakdown:**
+  - TTFB: the CI build server-renders against `https://api.nabd.plus`, so slow SSR data fetches show up as TTFB.
+  - Resource load delay: is the LCP image or font discovered late?
+  - Render delay: client-only rendering, hydration.
+- **Fix the cause the breakdown shows.** Typical cases: preload or prioritise the LCP image, stream or cache the server data, avoid waiting on client JS for the first content.
+- **Until this lands:** `lighthouse` is the only check allowed to be red on design PRs (`mergewhen.sh` KNOWN list). Every other check must be green.
