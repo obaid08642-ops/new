@@ -236,7 +236,7 @@ export class StorageService {
       backend: adapterRes.backend,
       mime: input.mime,
       original_name: input.original_name || 'file',
-      size_bytes: approxBytes,
+      size_bytes: Buffer.byteLength(input.data_base64, 'base64'),
       checksum_sha256: checksum,
       data_base64: adapterRes.data_base64,
       external_url: adapterRes.external_url,
@@ -312,17 +312,18 @@ export class StorageService {
     return !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
   }
 
-  /**
-   * Upload provider/user media to Cloudinary with the full production pipeline:
-   * validate → (virus-scan hook point) → auto WebP/AVIF (f_auto) → auto quality
-   * (q_auto) → responsive thumbnail → store FULL metadata (never bare URL).
-   */
+  /** 14.20: an image is re-encoded without its EXIF/GPS metadata before it is stored. */
   private async withoutImageMetadata(input: { mime: string; data_base64: string; original_name?: string }): Promise<string> {
     if (!String(input.mime).startsWith('image/')) return input.data_base64;
     const cleaned = await stripImageMetadata(Buffer.from(input.data_base64, 'base64'), input.mime, input.original_name || '');
     return cleaned.toString('base64');
   }
 
+  /**
+   * Upload provider/user media to Cloudinary with the full production pipeline:
+   * validate → (virus-scan hook point) → auto WebP/AVIF (f_auto) → auto quality
+   * (q_auto) → responsive thumbnail → store FULL metadata (never bare URL).
+   */
   async uploadCloudinary(input: { owner_account_id: string; owner_kind?: string; mime: string; data_base64: string; original_name?: string; visibility?: 'private' | 'public_read'; customKey?: string }) {
     if (!ALLOWED_MIME.has(input.mime)) throw new BadRequestException('unsupported mime: ' + input.mime);
     const approxBytes = Math.floor((input.data_base64?.length || 0) * 0.75);
@@ -367,7 +368,7 @@ export class StorageService {
       backend: 'cloudinary' as any,
       mime: input.mime,
       original_name: input.original_name || 'file',
-      size_bytes: approxBytes,
+      size_bytes: Buffer.byteLength(input.data_base64, 'base64'),
       checksum_sha256: crypto.createHash('sha256').update(input.data_base64).digest('hex'),
       external_url: meta.secureUrl,
       external_key: meta.publicId,

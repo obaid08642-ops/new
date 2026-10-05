@@ -32,6 +32,9 @@ describe('StorageService.upload strips image metadata (GPS)', () => {
     expect(meta.exif).toBeUndefined();
     expect(meta.format).toBe('jpeg');
     expect(created[0].checksum_sha256).toBeDefined();
+    // The recorded size is the stored (stripped) image, not the upload.
+    expect(created[0].size_bytes).toBe(stored.length);
+    expect(stored.length).toBeLessThan(raw.length);
     const pdf = Buffer.from('%PDF-1.4 synthetic').toString('base64');
     await svc.upload({ owner_account_id: 'u1', mime: 'application/pdf', data_base64: pdf, original_name: 'a.pdf' });
     expect(puts[1].data_base64).toBe(pdf);
