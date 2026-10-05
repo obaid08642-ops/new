@@ -13,10 +13,17 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/pharmacy net::ERR_ABORTED",
    "GET /ar/pharmacy net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -84,11 +91,21 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/public/product-by-id/ar/compare",
+    "status": 404
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/medicines net::ERR_ABORTED",
    "GET /ar/medicines net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -135,7 +152,6 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/medicines net::ERR_ABORTED",
    "GET /ar/medicines net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -155,7 +171,18 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/medicines/filters",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
@@ -182,7 +209,6 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/medicines net::ERR_ABORTED",
    "GET /ar/medicines net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -206,22 +232,10 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED"
+   "GET /ar/medicines net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 167
+  "textLen": 78
  },
  {
   "route": "/pharmacy/interactions",
@@ -237,7 +251,13 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
@@ -289,7 +309,6 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/pharmacy net::ERR_ABORTED",
    "GET /ar/pharmacy net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -309,7 +328,18 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/users/me/wishlist",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
@@ -339,10 +369,10 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/pharmacy net::ERR_ABORTED",
    "GET /ar/medicine-catalog net::ERR_ABORTED",
    "GET /ar/pharmacy net::ERR_ABORTED",
-   "GET /ar/medicine-catalog net::ERR_ABORTED"
+   "GET /ar/medicine-catalog net::ERR_ABORTED",
+   "GET /ar/pharmacy net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 47
@@ -365,7 +395,6 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/pharmacy net::ERR_ABORTED",
    "GET /ar/pharmacy net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -385,7 +414,13 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
@@ -456,10 +491,25 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/public/categories/ar/items",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/c net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -525,27 +575,37 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/public/product/ar/test-missing",
+    "status": 404
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED"
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 167
+  "textLen": 166
  },
  {
   "route": "/p/test-missing",
@@ -565,12 +625,13 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/pharmacy/chat net::ERR_ABORTED",
    "GET /ar/c net::ERR_ABORTED",
    "GET /ar/pharmacy/chat net::ERR_ABORTED",
    "GET /ar/c net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 371
+  "textLen": 375
  },
  {
   "route": "/p/test-missing",
@@ -591,12 +652,11 @@
   "pageErrors": [],
   "failed": [
    "GET /ar/c net::ERR_ABORTED",
-   "GET /ar/pharmacy/chat net::ERR_ABORTED",
    "GET /ar/c net::ERR_ABORTED",
    "GET /ar/pharmacy/chat net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 371
+  "textLen": 375
  },
  {
   "route": "/pharmacy/test-missing",
@@ -612,26 +672,33 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED"
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 167
+  "textLen": 166
  },
  {
   "route": "/pharmacy/test-missing",
@@ -652,22 +719,21 @@
   "pageErrors": [],
   "failed": [
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED"
+   "GET /ar/map net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 167
+  "textLen": 166
  },
  {
   "route": "/pharmacy/test-missing",
@@ -687,19 +753,21 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED"
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 167
+  "textLen": 166
  }
 ]

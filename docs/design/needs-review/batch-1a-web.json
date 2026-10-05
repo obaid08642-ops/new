@@ -98,5 +98,25 @@
     "line": 0,
     "found": "The component was rebuilt for this page: inline styles, raw colours, hard-coded Arabic/English strings and the BibTeX block and button are gone (BibTeX is technical wording for a patient screen; the same fields are in the JSON-LD). The articles page uses the same component and now shows the plain citation with one copy button.",
     "suspect": "Articles (Batch 10) should confirm that the BibTeX export is not wanted there."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/p/[slug]",
+    "element": "Missing product: status and robots",
+    "file": "patient-web/app/[locale]/p/[slug]/page.tsx",
+    "line": 75,
+    "found": "Production build against the seeded backend: GET /ar/p/test-missing answers HTTP 200 with <meta name=\"robots\" content=\"index, follow\"> although the page calls notFound() (the upstream answers 404). Same code as main (notFound at the same place), so this is not new in this batch.",
+    "suspect": "A soft 404 that crawlers may index: the not-found response should be 404 or noindex. Probably the streamed response (headers sent before notFound) plus the root layout robots. To check on the F82-1 rendering change (static/ISR for public pages), which touches this route."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/medicines/compare",
+    "element": "Extra upstream call on every render",
+    "file": "patient-web/app/[locale]/medicines/[medicineId]/page.tsx",
+    "line": 13,
+    "found": "Production build: a plain GET /ar/medicines/compare makes the server call GET /api/v1/public/product-by-id/ar/compare (404), i.e. the legacy [medicineId] route's metadata resolver runs with medicineId=\"compare\". The compare page itself renders (200, real empty state). The call is visible in the backend log twice per request.",
+    "suspect": "The dynamic sibling route is evaluated for the static path; harmless to users but a wasted upstream call and log noise. Not found on the agent's dev run; needs a look at how Next 16 matches [medicineId] next to compare (parseMedicineId may accept the word compare)."
   }
 ]
