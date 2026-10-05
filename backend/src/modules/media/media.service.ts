@@ -1,9 +1,9 @@
+import { stripImageMetadata } from '../../common/strip-image-metadata';
 import { Injectable, Logger, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { canonicalMimeFor } from './media-types';
 import { v4 as uuid } from 'uuid';
-import sharp from 'sharp';
 
 @Injectable()
 export class MediaService {
@@ -60,22 +60,11 @@ export class MediaService {
    * Fail-closed: an in-scope image sharp cannot parse is rejected, never stored raw.
    */
   private async stripExif(buffer: Buffer, mimeType: string, originalName: string): Promise<Buffer> {
-    const ext = (originalName.split('.').pop() || '').toLowerCase();
-    const mime = (mimeType || '').toLowerCase();
-    const pipeline =
-      mime === 'image/jpeg' || ext === 'jpg' || ext === 'jpeg'
-        ? sharp(buffer).rotate().jpeg({ quality: 92, mozjpeg: true })
-        : mime === 'image/png' || ext === 'png'
-          ? sharp(buffer).rotate().png({ compressionLevel: 6 })
-          : mime === 'image/webp' || ext === 'webp'
-            ? sharp(buffer).rotate().webp({ quality: 90 })
-            : null;
-    if (!pipeline) return buffer;
     try {
-      return await pipeline.toBuffer();
-    } catch (error: any) {
-      this.logger.warn(`Rejected image upload that failed EXIF-strip parse: ${error?.message || error}`);
-      throw new BadRequestException('media_upload_failed');
+      return await stripImageMetadata(buffer, mimeType, originalName);
+    } catch (error: unknown) {
+      this.logger.warn(`Rejected image upload that failed EXIF-strip parse: ${error instanceof Error ? error.message : String(error)}`);
+      throw error;
     }
   }
 

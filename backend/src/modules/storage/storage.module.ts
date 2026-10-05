@@ -1,3 +1,4 @@
+import { stripImageMetadata } from '../../common/strip-image-metadata';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -214,6 +215,8 @@ export class StorageService {
     if (!ALLOWED_MIME.has(input.mime)) throw new BadRequestException('unsupported mime: ' + input.mime);
     const approxBytes = Math.floor((input.data_base64?.length || 0) * 0.75);
     if (approxBytes > MAX_BYTES) throw new BadRequestException('file exceeds 8MB limit');
+    // 14.20: no stored image keeps its EXIF (GPS) metadata, whatever the backend.
+    input = { ...input, data_base64: await this.withoutImageMetadata(input) };
     if (input.target === 'cloudinary') {
       if (!this.cloudinaryConfigured()) throw new BadRequestException('CLOUDINARY_NOT_CONFIGURED');
       return this.uploadCloudinary(input);
@@ -314,6 +317,12 @@ export class StorageService {
    * validate → (virus-scan hook point) → auto WebP/AVIF (f_auto) → auto quality
    * (q_auto) → responsive thumbnail → store FULL metadata (never bare URL).
    */
+  private async withoutImageMetadata(input: { mime: string; data_base64: string; original_name?: string }): Promise<string> {
+    if (!String(input.mime).startsWith('image/')) return input.data_base64;
+    const cleaned = await stripImageMetadata(Buffer.from(input.data_base64, 'base64'), input.mime, input.original_name || '');
+    return cleaned.toString('base64');
+  }
+
   async uploadCloudinary(input: { owner_account_id: string; owner_kind?: string; mime: string; data_base64: string; original_name?: string; visibility?: 'private' | 'public_read'; customKey?: string }) {
     if (!ALLOWED_MIME.has(input.mime)) throw new BadRequestException('unsupported mime: ' + input.mime);
     const approxBytes = Math.floor((input.data_base64?.length || 0) * 0.75);
