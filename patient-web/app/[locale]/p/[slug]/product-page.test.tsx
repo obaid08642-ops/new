@@ -1,7 +1,12 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const state = vi.hoisted(() => ({ getPublicProduct: vi.fn() }));
+const state = vi.hoisted(() => ({ getPublicProduct: vi.fn(), getPublicAlternatives: vi.fn() }));
+
+// The shell and the client controls are not under test here (the page's data and structured data are).
+vi.mock("next/navigation", () => ({ notFound: vi.fn(), useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
+vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("@/components-next/core/core-shell", () => ({ CoreShell: ({ children }: { children: unknown }) => children }));
 
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
 vi.mock("@/lib/i18n", () => ({
@@ -10,6 +15,7 @@ vi.mock("@/lib/i18n", () => ({
 }));
 vi.mock("@/lib/api/public-products-server", () => ({
   getPublicProduct: state.getPublicProduct,
+  getPublicAlternatives: state.getPublicAlternatives,
   cdnImage: (u?: string | null) => (u ? (u.startsWith("http") ? u : `https://cdn.nabd.plus/${u}`) : null),
 }));
 
@@ -34,13 +40,18 @@ const product = {
 const params = Promise.resolve({ locale: "en", slug: "abilify-aripiprazole-15-mg-28-tablets" });
 
 describe("public product page (catalog v14)", () => {
-  beforeEach(() => state.getPublicProduct.mockReset());
+  beforeEach(() => {
+    state.getPublicProduct.mockReset();
+    state.getPublicAlternatives.mockReset().mockResolvedValue([]);
+  });
 
   it("renders the localized product with buy-ready price and structured data", async () => {
     state.getPublicProduct.mockResolvedValue(product);
     const html = renderToStaticMarkup(await PublicProductPage({ params }));
     expect(html).toContain("Abilify, Aripiprazole 15 Mg - 28 Tablets");
-    expect(html).toContain("419.60 SAR");
+    // the price goes through the locale's currency formatter (was a hand-built "419.60 SAR")
+    expect(html).toMatch(/>419\.60<\/strong><span[^>]*>SAR</);
+    expect(html).not.toContain("style=");
     expect(html).toContain('"@type":"Product"');
     expect(html).toContain('"@type":"MedicalDrug"');
     expect(html).toContain('"@type":"FAQPage"');

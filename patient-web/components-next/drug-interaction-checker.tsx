@@ -1,19 +1,37 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import { Input } from "@/components-next/ui-generated/components/Inputs";
+import { StatusChip } from "@/components-next/ui-generated/components/Controls";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
+import type { ServiceTone } from "@/components-next/ui-generated/icons/fill";
+import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
+import styles from "@/components-next/pharmacy/pharmacy.module.css";
 
 type Hit = { severity?: string; note_ar?: string; note?: string };
+type Result = { checked?: number; safe?: boolean; interactions?: Hit[] };
+
+/** The three levels the checker states; any other word from the API is not shown as a label. */
+function severityOf(value?: string): { key: "ixSeverityHigh" | "ixSeverityMedium" | "ixSeverityLow"; tone: ServiceTone } | null {
+  const v = (value || "").toLowerCase();
+  if (["high", "severe", "major", "critical", "contraindicated"].includes(v)) return { key: "ixSeverityHigh", tone: PHARMACY_TONE };
+  if (["moderate", "medium"].includes(v)) return { key: "ixSeverityMedium", tone: "amber" };
+  if (["low", "minor", "mild"].includes(v)) return { key: "ixSeverityLow", tone: "mint" };
+  return null;
+}
 
 export function DrugInteractionChecker({ locale }: { locale: string }) {
+  const t = useTranslations("PharmacyBrowse");
   const [input, setInput] = useState("");
   const [drugs, setDrugs] = useState<string[]>([]);
-  const [result, setResult] = useState<{ checked?: number; safe?: boolean; interactions?: Hit[] } | null>(null);
+  const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
-  const ar = locale === "ar";
 
   function addDrug() {
-    const name = input.trim();
+    const name = input.trim().slice(0, 200);
     if (name.length < 2 || drugs.length >= 20) return;
     if (!drugs.some((d) => d.toLowerCase() === name.toLowerCase())) {
       setDrugs([...drugs, name]);
@@ -25,7 +43,7 @@ export function DrugInteractionChecker({ locale }: { locale: string }) {
     setError(null);
     setResult(null);
     if (!drugs.length) {
-      setError(ar ? "أضف دواءً واحداً على الأقل" : "Add at least one drug");
+      setError(t("ixNeedOne"));
       return;
     }
     setChecking(true);
@@ -37,54 +55,54 @@ export function DrugInteractionChecker({ locale }: { locale: string }) {
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
-        setError((data as { message?: string })?.message || (ar ? "تعذر الفحص" : "Check failed"));
+        setError(t("ixFailed"));
         return;
       }
-      setResult(data as { checked?: number; safe?: boolean; interactions?: Hit[] });
+      setResult(data as Result);
     } catch {
-      setError(ar ? "تعذر الفحص" : "Check failed");
+      setError(t("ixFailed"));
     } finally {
       setChecking(false);
     }
   }
 
   return (
-    <div style={{ display: "grid", gap: 12 }}>
-      <div style={{ display: "flex", gap: 8 }}>
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addDrug(); } }}
-          placeholder={ar ? "اسم الدواء" : "Drug name"}
-          maxLength={200}
-        />
-        <button type="button" onClick={addDrug}>{ar ? "إضافة" : "Add"}</button>
-      </div>
+    <div className={styles.checker}>
+      <p className={styles.intro}>{t("ixIntro")}</p>
+      <form className={styles.addRow} onSubmit={(event) => { event.preventDefault(); addDrug(); }}>
+        <Input value={input} onChange={setInput} label={t("ixDrug")} placeholder={t("ixDrug")} />
+        <Button label={t("ixAdd")} variant="secondary" size="lg" type="submit" />
+      </form>
       {drugs.length > 0 ? (
-        <ul style={{ display: "flex", flexWrap: "wrap", gap: 8, listStyle: "none", padding: 0 }}>
+        <ul className={styles.drugs} aria-label={t("ixList")}>
           {drugs.map((d) => (
-            <li key={d}>
-              {d}{" "}
-              <button type="button" onClick={() => setDrugs(drugs.filter((x) => x !== d))} aria-label={ar ? `إزالة ${d}` : `Remove ${d}`}>
-                ×
+            <li key={d} className={styles.drug}>
+              <span>{d}</span>
+              <button type="button" className={styles.drugRemove} onClick={() => setDrugs(drugs.filter((x) => x !== d))} aria-label={t("ixRemove", { name: d })}>
+                <Icon name="close" size={16} tone="currentColor" />
               </button>
             </li>
           ))}
         </ul>
       ) : null}
-      <button type="button" onClick={check} disabled={checking || !drugs.length}>
-        {checking ? (ar ? "جارٍ الفحص..." : "Checking...") : (ar ? "فحص التفاعلات" : "Check interactions")}
-      </button>
-      {error ? <p role="alert">{error}</p> : null}
+      <Button label={checking ? t("ixChecking") : t("ixCheck")} size="lg" fullWidth loading={checking} disabled={!drugs.length} onClick={check} />
+      {error ? <p role="alert" className={styles.formError}>{error}</p> : null}
       {result ? (
-        <section aria-live="polite">
-          <p><strong>{result.safe ? (ar ? "لا توجد تفاعلات عالية الخطورة" : "No high-severity interactions") : (ar ? "توجد تفاعلات تحتاج انتباه" : "Interactions need attention")}</strong></p>
-          {(result.interactions || []).map((h, i) => (
-            <p key={i}>[{h.severity || "?"}] {h.note_ar || h.note || ""}</p>
-          ))}
+        <section aria-live="polite" className={styles.result}>
+          <p className={styles.verdict}>{result.safe ? t("ixSafe") : t("ixAttention")}</p>
+          {(result.interactions || []).map((h, i) => {
+            const level = severityOf(h.severity);
+            const note = locale === "ar" ? h.note_ar || h.note : h.note || h.note_ar;
+            return (
+              <div key={i} className={styles.hit}>
+                {level ? <StatusChip label={t(level.key)} tone={level.tone} /> : null}
+                {note ? <p>{note}</p> : null}
+              </div>
+            );
+          })}
         </section>
       ) : null}
-      <p><small>{ar ? "نتيجة استرشادية لا تغني عن استشارة الصيدلي." : "Advisory result; consult your pharmacist."}</small></p>
+      <p className={styles.note}>{t("ixAdvisory")}</p>
     </div>
   );
 }
