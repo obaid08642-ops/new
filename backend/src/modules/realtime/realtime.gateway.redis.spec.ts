@@ -72,6 +72,8 @@ const makeGateway = (deps: { jwt?: any; realtime?: any; appointments?: any; redi
     {} as any,
     {} as any,
     deps.redis,
+    // The REST guard decides who connects (here it accepts the test patient).
+    { canActivate: async (ctx: any) => { ctx.switchToHttp().getRequest().user = { id: 'patient-1', role: 'patient' }; return true; } } as any,
   );
   (g as any).server = makeServer();
   return g;

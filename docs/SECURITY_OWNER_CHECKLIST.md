@@ -72,3 +72,16 @@ Gate P7C requires your confirmation on a real MacBook + iPhone.
 - [ ] Hosting provider support number saved in your phone.
 - [ ] Database provider support saved.
 - [ ] Registrar support saved.
+
+## 11. Social sign-in (Q107)
+- [ ] `GOOGLE_OAUTH_CLIENT_IDS` is set in backend production env to every
+      Google client id that signs patients in, comma-separated: the web id
+      (patient-web `NEXT_PUBLIC_GOOGLE_CLIENT_ID`) and the app ids
+      (`EXPO_PUBLIC_GOOGLE_CLIENT_ID`, `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`,
+      `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID`). A missing id means sign-in from
+      that client is refused; unset means Google sign-in returns 503.
+- [ ] `APPLE_SIGNIN_CLIENT_IDS` is set only if Sign in with Apple is offered:
+      the iOS bundle id (patient app) and the Services ID (web), comma-separated.
+      Unset means Apple sign-in returns 503.
+- [ ] Social sign-in works for patient accounts only; staff and providers use
+      password + 2FA.

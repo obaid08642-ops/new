@@ -636,9 +636,14 @@ class AdminCouponsController extends AdminController {
 @Controller('loyalty')
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
-class AdminLoyaltyController extends AdminController {
+export class AdminLoyaltyController extends AdminController {
   @Put('config')
   async putConfig(@CurrentUser() user: any, @Body(new FreeformConfigObjectPipe()) body: Record<string, unknown>) {
+    // PRODUCT.md: loyalty points are capped at 10% of the order.
+    if (body?.max_redeem_percent !== undefined) {
+      const value = Number(body.max_redeem_percent);
+      if (!Number.isFinite(value) || value < 0 || value > 10) throw new BadRequestException('max_redeem_percent must be 0-10');
+    }
     await this.conn.collection('loyalty_config').updateOne(
       { key: 'global' } as any,
       { $set: { key: 'global', value: body || {}, updated_by: uid(user), updatedAt: now() } },

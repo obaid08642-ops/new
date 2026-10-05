@@ -1,7 +1,9 @@
 import { Injectable, BadRequestException, UnauthorizedException, ConflictException, GoneException, ForbiddenException, Inject, HttpException, HttpStatus, ServiceUnavailableException } from '@nestjs/common';
+import { escapeHtml } from '../../common/html-escape';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
+import { createPublicKey, KeyObject } from 'crypto';
 import * as nodemailer from 'nodemailer';
 import { Optional } from '@nestjs/common';
 import { PushService } from '../push/push.module';
@@ -639,6 +641,8 @@ export class AuthService {
     const query = isEmail ? { email: identifier.trim().toLowerCase() } : { phone: identifier };
     const u = await this.userModel.findOne(query);
     if (!u) throw new UnauthorizedException('User not found');
+    // A banned or deactivated account never gets a token (as in password login).
+    if (u.active === false) throw new UnauthorizedException('Account disabled');
 
     // Verify using the same identifier that received the OTP during login.
     // Login may be initiated with email while the OTP is sent to the user's phone
@@ -731,9 +735,9 @@ export class AuthService {
           <h2 style="color:#0E8FA3">تنبيه أمني — لوحة تحكم نبض</h2>
           <p>تم تسجيل الدخول إلى حساب الأدمن واعتماد جهاز جديد:</p>
           <ul>
-            <li><b>الجهاز:</b> ${device?.name || 'غير معروف'}</li>
-            <li><b>المتصفح/النظام:</b> ${device?.user_agent || '-'}</li>
-            <li><b>عنوان IP:</b> ${ip || '-'}</li>
+            <li><b>الجهاز:</b> ${escapeHtml(device?.name || 'غير معروف')}</li>
+            <li><b>المتصفح/النظام:</b> ${escapeHtml(device?.user_agent || '-')}</li>
+            <li><b>عنوان IP:</b> ${escapeHtml(ip || '-')}</li>
             <li><b>الوقت:</b> ${when}</li>
           </ul>
           <p>إذا لم يكن هذا أنت، ادخل فورًا إلى <b>الأمان ومفاتيح الدخول</b> واحذف الجهاز وغيّر كلمة المرور.</p>
@@ -759,9 +763,9 @@ export class AuthService {
       const html = `<div dir="rtl" style="font-family:Tahoma,Arial,sans-serif;line-height:1.9">
           <h2 style="color:#0E8FA3">${ok ? 'تسجيل دخول — لوحة تحكم نبض' : 'محاولة دخول فاشلة — لوحة تحكم نبض'}</h2>
           <ul>
-            <li><b>الحساب:</b> ${u.email || '-'}</li>
-            <li><b>الجهاز:</b> ${ctx?.deviceName || 'غير معروف'}</li>
-            <li><b>عنوان IP:</b> ${ctx?.ip || '-'}</li>
+            <li><b>الحساب:</b> ${escapeHtml(u.email || '-')}</li>
+            <li><b>الجهاز:</b> ${escapeHtml(ctx?.deviceName || 'غير معروف')}</li>
+            <li><b>عنوان IP:</b> ${escapeHtml(ctx?.ip || '-')}</li>
             <li><b>الوقت:</b> ${when}</li>
           </ul>
           ${ok ? '' : '<p>إذا لم يكن هذا أنت، غيّر كلمة المرور فورًا.</p>'}
@@ -1066,36 +1070,27 @@ export class AuthService {
   }
 
   async socialLogin(dto: { provider: 'google' | 'apple' | 'x' | 'snapchat'; token: string; email?: string; name?: string }) {
-    let email = dto.email;
-    let name = dto.name || 'Social User';
-
-    if (dto.provider === 'google') {
-      const googleInfo = await this.verifyGoogleToken(dto.token);
-      if (!googleInfo) throw new UnauthorizedException('Invalid Google token');
-      email = googleInfo.email;
-      name = googleInfo.full_name || name;
-    } else if (dto.provider === 'apple') {
-      const appleInfo = await this.verifyAppleToken(dto.token);
-      if (!appleInfo) throw new UnauthorizedException('Invalid Apple token');
-      email = appleInfo.email;
-      name = appleInfo.full_name || name;
-    } else if (dto.provider === 'x') {
-      const xInfo = await this.verifyXToken(dto.token);
-      if (!xInfo) throw new UnauthorizedException('Invalid X token');
-      email = xInfo.email;
-      name = xInfo.full_name || name;
-    } else if (dto.provider === 'snapchat') {
-      const snapchatInfo = await this.verifySnapchatToken(dto.token);
-      if (!snapchatInfo) throw new UnauthorizedException('Invalid Snapchat token');
-      email = snapchatInfo.email;
-      name = snapchatInfo.full_name || name;
-    }
+    // Q107: the email comes only from a provider token whose signature and
+    // audience were verified, never from the body. X and Snapchat had no
+    // verification at all (unsigned JWT decode, or a made-up address).
+    let verified: { email: string; full_name: string } | null;
+    if (dto.provider === 'google') verified = await this.verifyGoogleToken(dto.token);
+    else if (dto.provider === 'apple') verified = await this.verifyAppleToken(dto.token);
+    else throw new BadRequestException('social_provider_not_supported');
+    if (!verified) throw new UnauthorizedException('invalid_social_token');
+    const email = verified.email;
+    const name = verified.full_name || dto.name || 'Social User';
 
     if (!email) {
       throw new BadRequestException('Email not provided by social provider');
     }
 
     let u = await this.userModel.findOne({ email });
+    // Q107: social sign-in is a patient feature; staff and provider accounts
+    // keep their password, 2FA and device checks.
+    if (u && u.role !== UserRole.PATIENT) throw new ForbiddenException('password_login_required');
+    // A banned or deactivated account never gets a token this way either.
+    if (u && u.active === false) throw new ForbiddenException('account_disabled');
     if (!u) {
       u = await this.userModel.create({
         full_name: name,
@@ -1116,69 +1111,75 @@ export class AuthService {
     return { user: this.publicUser(u), token: this.signToken(u) };
   }
 
-  private async verifyGoogleToken(token: string): Promise<any> {
+  /** Q107: allowed OAuth client ids for a provider; none configured means the provider is off. */
+  private static clientIds(name: string): string[] {
+    const ids = String(process.env[name] || '').split(',').map((v) => v.trim()).filter(Boolean);
+    if (!ids.length) throw new ServiceUnavailableException('social_login_not_configured');
+    return ids;
+  }
+
+  private static emailVerified(value: unknown): boolean {
+    return value === true || value === 'true';
+  }
+
+  /** Google OAuth access token: tokeninfo must name one of our client ids and a verified email. */
+  private async verifyGoogleToken(token: string): Promise<{ email: string; full_name: string } | null> {
+    const allowed = AuthService.clientIds('GOOGLE_OAUTH_CLIENT_IDS');
     try {
-      const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-        headers: { Authorization: `Bearer ${token}` }
+      const info = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(token)}`);
+      if (!info.ok) return null;
+      const p: any = await info.json();
+      if (!allowed.includes(String(p.aud || '')) && !allowed.includes(String(p.azp || ''))) return null;
+      if (!AuthService.emailVerified(p.email_verified) || typeof p.email !== 'string' || !p.email) return null;
+      if (p.expires_in !== undefined && !(Number(p.expires_in) > 0)) return null;
+      let fullName = '';
+      const profile = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: `Bearer ${token}` } }).catch(() => null);
+      if (profile?.ok) {
+        const u: any = await profile.json().catch(() => ({}));
+        fullName = u.name || `${u.given_name || ''} ${u.family_name || ''}`.trim();
+      }
+      return { email: p.email.toLowerCase(), full_name: fullName };
+    } catch {
+      return null;
+    }
+  }
+
+  private static appleKeys: { at: number; keys: Map<string, KeyObject> } | null = null;
+
+  /** Apple's signing keys (JWKS), cached for an hour. */
+  private static async appleKey(kid: string): Promise<KeyObject | null> {
+    const fresh = AuthService.appleKeys && Date.now() - AuthService.appleKeys.at < 3600_000;
+    if (!fresh || !AuthService.appleKeys!.keys.has(kid)) {
+      const r = await fetch('https://appleid.apple.com/auth/keys');
+      if (!r.ok) return null;
+      const body: any = await r.json();
+      const keys = new Map<string, KeyObject>();
+      for (const jwk of Array.isArray(body?.keys) ? body.keys : []) {
+        if (jwk?.kid && jwk.kty === 'RSA') keys.set(String(jwk.kid), createPublicKey({ key: jwk, format: 'jwk' }));
+      }
+      AuthService.appleKeys = { at: Date.now(), keys };
+    }
+    return AuthService.appleKeys!.keys.get(kid) || null;
+  }
+
+  /** Apple identity token: RS256 signature from Apple's keys, issuer, audience, expiry, verified email. */
+  private async verifyAppleToken(token: string): Promise<{ email: string; full_name: string } | null> {
+    const allowed = AuthService.clientIds('APPLE_SIGNIN_CLIENT_IDS');
+    try {
+      const verifier = new JwtService();
+      const decoded: any = verifier.decode(token, { complete: true });
+      const kid = decoded?.header?.kid;
+      if (!kid || decoded?.header?.alg !== 'RS256') return null;
+      const key = await AuthService.appleKey(String(kid));
+      if (!key) return null;
+      const p: any = verifier.verify(token, {
+        publicKey: key.export({ type: 'spki', format: 'pem' }).toString(),
+        algorithms: ['RS256'], issuer: 'https://appleid.apple.com', audience: allowed as [string, ...string[]],
       });
-      if (response.ok) {
-        const payload: any = await response.json();
-        return {
-          email: payload.email,
-          full_name: payload.name || `${payload.given_name || ''} ${payload.family_name || ''}`.trim(),
-        };
-      }
+      if (!AuthService.emailVerified(p.email_verified) || typeof p.email !== 'string' || !p.email) return null;
+      return { email: p.email.toLowerCase(), full_name: '' };
+    } catch {
       return null;
-    } catch (err) {
-      return null;
-    }
-  }
-
-  private async verifyAppleToken(token: string): Promise<any> {
-    try {
-      const parts = token.split('.');
-      if (parts.length === 3) {
-        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
-        return {
-          email: payload.email,
-          full_name: payload.name ? `${payload.name.firstName || ''} ${payload.name.lastName || ''}`.trim() : 'Apple User',
-        };
-      }
-      return null;
-    } catch (err) {
-      return null;
-    }
-  }
-
-  private async verifyXToken(token: string): Promise<any> {
-    try {
-      const parts = token.split('.');
-      if (parts.length === 3) {
-        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
-        return {
-          email: payload.email || `${payload.username || 'x_user'}@twitter.com`,
-          full_name: payload.name || 'X User',
-        };
-      }
-      return { email: `x_user_${Date.now().toString().slice(-4)}@nabd.app`, full_name: 'X User' };
-    } catch (e) {
-      return { email: `x_user_${Date.now().toString().slice(-4)}@nabd.app`, full_name: 'X User' };
-    }
-  }
-
-  private async verifySnapchatToken(token: string): Promise<any> {
-    try {
-      const parts = token.split('.');
-      if (parts.length === 3) {
-        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
-        return {
-          email: payload.email || `${payload.username || 'snap_user'}@snapchat.com`,
-          full_name: payload.name || 'Snapchat User',
-        };
-      }
-      return { email: `snapchat_user_${Date.now().toString().slice(-4)}@nabd.app`, full_name: 'Snapchat User' };
-    } catch (e) {
-      return { email: `snapchat_user_${Date.now().toString().slice(-4)}@nabd.app`, full_name: 'Snapchat User' };
     }
   }
 }
