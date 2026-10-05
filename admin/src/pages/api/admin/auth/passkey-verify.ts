@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { staffRoleOf } from '../../../../lib/admin-session';
-import { enrollLoginDevice } from '../../../../lib/admin-login-device';
+import { deviceCookie, loginDeviceId } from '../../../../lib/admin-login-device';
 import { randomBytes } from 'node:crypto';
 
 function backendBase() {
@@ -22,10 +22,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!identifier || !response) return res.status(400).json({ code: 'identifier_and_passkey_response_required' });
 
   try {
+    // X4: the backend enrolls this browser bound to the credential that signed.
+    const deviceId = loginDeviceId(req.cookies?.['admin_device']);
     const upstream = await fetch(`${backendBase()}/api/v1/auth/passkey/login/verify`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', accept: 'application/json' },
-      body: JSON.stringify({ identifier: String(identifier), response }),
+      body: JSON.stringify({ identifier: String(identifier), response, device_id: deviceId, device_name: 'admin-browser' }),
     });
     const payload = await upstream.json().catch(() => ({}));
     if (!upstream.ok) return res.status(upstream.status).json(payload);
@@ -36,8 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // R11 §5: only staff accounts get an admin session.
     if (!staffRoleOf(token)) return res.status(403).json({ code: 'admin_role_required' });
     const csrf = randomBytes(32).toString('base64url');
-    const deviceCookie = await enrollLoginDevice(backendBase(), token, req.cookies?.['admin_device']);
-    const cookies = [cookie('admin_access', token), cookie('admin_csrf', csrf, false), deviceCookie];
+    const cookies = [cookie('admin_access', token), cookie('admin_csrf', csrf, false), deviceCookie(deviceId)];
     if (refresh) cookies.push(cookie('admin_refresh', refresh));
     res.setHeader('set-cookie', cookies);
     return res.status(200).json({ user: (payload as any).user || null });

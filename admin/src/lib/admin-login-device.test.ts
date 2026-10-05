@@ -4,6 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import passkeyVerify from '../pages/api/admin/auth/passkey-verify';
 import verify2fa from '../pages/api/admin/auth/verify-2fa';
+import recovery from '../pages/api/admin/auth/recovery';
 
 const b64 = (o: object) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const STAFF_TOKEN = `${b64({ alg: 'none' })}.${b64({ sub: 'adm-1', role: 'admin' })}.sig`;
@@ -32,9 +33,25 @@ async function login(handler: (req: any, res: any) => Promise<unknown>, body: ob
   return { out, calls };
 }
 
+// X4: a passkey login does not call the generic enroll (the backend refuses it
+// once a passkey exists); it sends this browser's device id with the assertion
+// and the backend enrolls the device bound to that credential.
+test('passkey login sends the device id with the assertion and sets the same admin_device cookie', async () => {
+  const { out, calls } = await login(passkeyVerify, { identifier: 'admin@nabd.test', response: { id: 'c1' } });
+  assert.equal(out.status, 200);
+  assert.equal(calls.some((c) => c.url.endsWith('/admin/devices/enroll')), false);
+  const verify = calls.find((c) => c.url === 'http://backend.test/api/v1/auth/passkey/login/verify');
+  const deviceId = verify!.body.device_id;
+  assert.ok(typeof deviceId === 'string' && deviceId.length >= 16);
+  const cookies: string[] = out.headers['set-cookie'];
+  assert.ok(cookies.some((c) => c.startsWith(`admin_device=${deviceId};`) && c.includes('HttpOnly')));
+  const again = await login(passkeyVerify, { identifier: 'admin@nabd.test', response: { id: 'c1' } }, { admin_device: 'a'.repeat(64) });
+  assert.equal(again.calls[0].body.device_id, 'a'.repeat(64));
+});
+
 for (const [name, handler, body] of [
-  ['passkey login', passkeyVerify, { identifier: 'admin@nabd.test', response: { id: 'c1' } }],
-  ['email 2FA login', verify2fa, { identifier: 'admin@nabd.test', code: '123456' }],
+  ['email 2FA (bootstrap) login', verify2fa, { identifier: 'admin@nabd.test', code: '123456' }],
+  ['break-glass recovery', recovery, { action: 'redeem', email: 'admin@nabd.test', email_code: '123456', recovery_code: 'ABCD-EFGH' }],
 ] as const) {
   test(`${name} enrolls a new browser's device and sets the admin_device cookie`, async () => {
     const { out, calls } = await login(handler, body);
@@ -63,4 +80,18 @@ test('a rejected passkey or 2FA code never enrolls a device or sets cookies', as
     assert.equal(calls.some((c) => c.url.endsWith('/admin/devices/enroll')), false);
     assert.equal(out.headers['set-cookie'], undefined);
   }
+});
+
+test('recovery: start only asks the backend to email a code; redeem needs both codes', async () => {
+  const start = await login(recovery, { action: 'start', email: 'admin@nabd.test' });
+  assert.equal(start.calls.length, 1);
+  assert.equal(start.calls[0].url, 'http://backend.test/api/v1/auth/admin-recovery/start');
+  assert.equal(start.out.headers['set-cookie'], undefined);
+  const missing = await login(recovery, { action: 'redeem', email: 'admin@nabd.test', email_code: '123456' });
+  assert.equal(missing.out.status, 400);
+  assert.equal(missing.calls.length, 0);
+  const rejected = await login(recovery, { action: 'redeem', email: 'admin@nabd.test', email_code: '123456', recovery_code: 'WRONG' }, {}, 403);
+  assert.equal(rejected.out.status, 403);
+  assert.equal(rejected.calls.some((c) => c.url.endsWith('/admin/devices/enroll')), false);
+  assert.equal(rejected.out.headers['set-cookie'], undefined);
 });
