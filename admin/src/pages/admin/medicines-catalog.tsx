@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
 import { dateLocale } from '../../utils/dates';
+import { mergeLocaleNames, TranslationsMap } from '../../lib/medicine-translations';
 
 /**
  * Unified medicines catalog manager:
@@ -17,7 +18,26 @@ import { dateLocale } from '../../utils/dates';
  *          /medicines/admin/reports
  */
 
-const EMPTY_FORM: any = {
+/** Text inputs of the create/edit form (every key of EMPTY_FORM except price / requires_prescription). */
+type FormTextKey =
+  | 'name_ar' | 'name_en' | 'name_ur' | 'name_hi' | 'name_bn' | 'name_fil'
+  | 'active_ingredient' | 'generic_name' | 'manufacturer' | 'brand' | 'category' | 'sub_category'
+  | 'form' | 'strength' | 'package_size' | 'barcode' | 'images' | 'image'
+  | 'description_ar' | 'description_en' | 'usage_instructions_ar' | 'usage_instructions_en'
+  | 'indications_ar' | 'indications_en' | 'contraindications_ar' | 'contraindications_en'
+  | 'warnings_ar' | 'warnings_en' | 'side_effects_ar' | 'side_effects_en'
+  | 'precautions_ar' | 'precautions_en' | 'reason';
+/** Inputs rendered by F() that are not part of the saved payload keys. */
+type FormExtraKey = 'dosage_ar' | 'dosage_en' | 'interactions' | 'storage_conditions';
+
+type MedicineForm = Record<FormTextKey, string> & Partial<Record<FormExtraKey, string>> & {
+  price: string | number;
+  requires_prescription: boolean;
+  /** Stored translations map of the item being edited (loaded by openEdit). */
+  translations?: TranslationsMap;
+};
+
+const EMPTY_FORM: MedicineForm = {
   name_ar: '', name_en: '',
   // R10: all 6 locales editable (ur/hi/bn/fil map to translations.{locale}.name on save)
   name_ur: '', name_hi: '', name_bn: '', name_fil: '',
@@ -73,7 +93,7 @@ export default function MedicinesCatalogPage() {
 
   // form (create / edit)
   const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>('closed');
-  const [form, setForm] = useState<any>(EMPTY_FORM);
+  const [form, setForm] = useState<MedicineForm>(EMPTY_FORM);
   const [editId, setEditId] = useState<string | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [imgBusy, setImgBusy] = useState(false);
@@ -152,45 +172,19 @@ export default function MedicinesCatalogPage() {
   const saveForm = async () => {
     // Only the form's own editable fields: openEdit() loads the whole stored document into the form, and sending
     // it back (_id, id, deleted_at, verified, …) made every edit fail with 400 (forbidNonWhitelisted).
-    const payload: any = Object.fromEntries(Object.keys(EMPTY_FORM).filter((k) => k !== 'reason').map((k) => [k, form[k]]));
+    const payloadKeys = (Object.keys(EMPTY_FORM) as Array<keyof MedicineForm>).filter((k) => k !== 'reason');
+    const payload: Record<string, unknown> = Object.fromEntries(payloadKeys.map((k) => [k, form[k]]));
     // R19: merge locale names into the EXISTING item's translations map.
     // Edit path MUST PATCH /medicines/admin/catalog/:id only — never POST a
     // sibling record per locale (that forks one medicine into ar/en/ur/... rows).
-    // Null-safe: existing map + per-locale objects may be null/undefined.
-    const existingTranslations: any = (form as any)?.translations ?? {};
-    const mergeLocaleName = (prev: any, raw: any) => {
-      const base = (prev && typeof prev === 'object' ? prev : {});
-      const name = typeof raw === 'string' ? raw.trim() : '';
-      if (name) return { ...base, name };
-      return base;
-    };
-    const mergedTranslations: any = { ...(existingTranslations && typeof existingTranslations === 'object' ? existingTranslations : {}) };
-    // Normalize legacy `tl` alias into canonical `fil` so we never fork fil vs tl.
-    const legacyTl = (existingTranslations as any)?.tl;
-    if (legacyTl && typeof legacyTl === 'object' && !(mergedTranslations as any)?.fil) {
-      mergedTranslations.fil = { ...legacyTl };
-    }
-    mergedTranslations.ur = mergeLocaleName((existingTranslations as any)?.ur, (form as any)?.name_ur);
-    mergedTranslations.hi = mergeLocaleName((existingTranslations as any)?.hi, (form as any)?.name_hi);
-    mergedTranslations.bn = mergeLocaleName((existingTranslations as any)?.bn, (form as any)?.name_bn);
-    mergedTranslations.fil = mergeLocaleName((mergedTranslations as any)?.fil ?? (existingTranslations as any)?.tl, (form as any)?.name_fil);
-    // Prune empty locale objects so PATCH never wipes stored translations with `{}`.
-    for (const loc of ['ur', 'hi', 'bn', 'fil']) {
-      if (mergedTranslations[loc] && typeof mergedTranslations[loc] === 'object' && Object.keys(mergedTranslations[loc]).length === 0) {
-        if ((existingTranslations as any)?.[loc] == null && loc !== 'fil') delete mergedTranslations[loc];
-        else if (loc === 'fil' && (existingTranslations as any)?.fil == null && (existingTranslations as any)?.tl == null) delete mergedTranslations[loc];
-      }
-    }
-    // Drop legacy alias from the outgoing map; backend canonical key is `fil`.
-    if (mergedTranslations.tl !== undefined && (form as any)?.name_fil?.trim?.()) delete mergedTranslations.tl;
-    payload.translations = mergedTranslations;
+    payload.translations = mergeLocaleNames(form.translations, form);
     delete payload.name_ur; delete payload.name_hi; delete payload.name_bn; delete payload.name_fil;
-    for (const f of ['indications_ar','indications_en','contraindications_ar','contraindications_en','warnings_ar','warnings_en','side_effects_ar','side_effects_en','precautions_ar','precautions_en']) {
+    for (const f of ['indications_ar','indications_en','contraindications_ar','contraindications_en','warnings_ar','warnings_en','side_effects_ar','side_effects_en','precautions_ar','precautions_en'] as const) {
       payload[f] = toArr(form[f]);
     }
     payload.images = imageUrls;
     payload.image = imageUrls[0] || '';
-    payload.price = parseFloat(form.price) || 0;
+    payload.price = parseFloat(String(form.price)) || 0;
     // Backend requires `reason` (>=5 chars) when price changes on PATCH; for POST it logs price history.
     if (form.reason && String(form.reason).trim()) payload.reason = String(form.reason).trim();
     else if (formMode === 'create') payload.reason = 'إنشاء صنف جديد عبر واجهة الإدارة';
@@ -271,7 +265,7 @@ export default function MedicinesCatalogPage() {
     } catch (e: any) { alert(`فشل الإجراء: ${e?.message || ''}`); } finally { setBusy(null); }
   };
 
-  const F = (key: string, label: string, opts: { dir?: string; area?: boolean; ltr?: boolean } = {}) => (
+  const F = (key: FormTextKey | FormExtraKey | 'price', label: string, opts: { dir?: string; area?: boolean; ltr?: boolean } = {}) => (
     <div className={opts.area ? 'col-span-2' : ''}>
       <label className="block text-xs text-slate-500 mb-1">{label}</label>
       {opts.area ? (
