@@ -87,21 +87,11 @@ export class SeoIndexingListener {
 
   /**
    * 13.R6: reactivation restores the provider to search/sitemap/cache/MCP.
-   * NOTE (emit gap, forbidden-file follow-up): nothing emits these events yet —
-   * ProviderAdminService.reactivate
-   * (backend/src/modules/provider/services/provider-admin.service.ts:315-333)
-   * restores DB flags without EventEmitter2/EventBus/seoPipeline calls, and
-   * ProvidersService has no reactivate path at all. Handlers below are wired
-   * and spec-proven; the one-line emit belongs to the provider-module owner.
+   * Emitted by ProviderAdminService.reactivate once per restored profile.
    */
   @OnEvent('provider.reactivated')
   async onReactivated(p: { provider_id?: string }) {
     await this.propagate(p, 'provider.reactivated');
-  }
-
-  @OnEvent('admin.provider_reactivated')
-  async onAdminReactivated(p: { provider_id?: string }) {
-    await this.propagate(p, 'admin.provider_reactivated');
   }
 
   @OnEvent('admin.provider_approved')

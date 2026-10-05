@@ -328,11 +328,23 @@ export class ProviderAdminService {
     if (loginId) {
       await usersCol.updateOne({ id: loginId }, { $set: { active: true, suspended: false }, $inc: { token_version: 1 } });
     }
-    await this.accounts.model.db.collection('provider_profiles').updateMany(
+    const profilesCol = this.accounts.model.db.collection('provider_profiles');
+    await profilesCol.updateMany(
       { account_id: id, user_id: { $exists: true } },
       { $set: { status: 'active', public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved' } },
     );
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_reactivated', after: { reason: body?.reason } });
+    // 13.R6 (0a3366b): tell search / sitemap / cache / MCP the provider is back
+    // (SeoIndexingListener.onReactivated). provider_id is the profile id, the
+    // same id provider.approved / provider.suspended carry.
+    const restored = await profilesCol
+      .find({ account_id: id, user_id: { $exists: true } }, { projection: { _id: 0, id: 1, type: 1 } })
+      .toArray();
+    for (const prof of restored) {
+      if (typeof prof.id === 'string' && prof.id) {
+        this.events.emit('provider.reactivated', { provider_id: prof.id, account_id: id, type: typeof prof.type === 'string' ? prof.type : undefined });
+      }
+    }
     return a.toObject();
   }
 

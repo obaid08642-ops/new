@@ -1,9 +1,15 @@
 // Provider reactivation (suspended -> approved) on a real MongoDB with the real
 // repositories. R1 (9d331ed): reactivation is an approval path, so the typed
-// required-document rule applies with no bypass.
+// required-document rule applies with no bypass. 13.R6 (0a3366b): it emits
+// provider.reactivated, and the real SeoIndexingListener (bound by
+// EventEmitterModule through @OnEvent) propagates it to search/sitemap/cache/MCP.
 import mongoose, { Connection } from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Test, TestingModule } from '@nestjs/testing';
+import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
+import { SeoIndexingListener } from '../../seo-search/seo-indexing.listener';
+import { SeoService } from '../../seo-search/seo.service';
+import { AutoEntitySeoPipelineService } from '../../events/auto-entity-seo-pipeline.service';
 import { ProviderAdminService } from './provider-admin.service';
 import {
   ProviderAccount, ProviderAccountSchema, ProviderAuditLog, ProviderAuditLogSchema,
@@ -20,27 +26,44 @@ describe('ProviderAdminService.reactivate (real MongoDB)', () => {
   let mongo: MongoMemoryServer;
   let conn: Connection;
   let svc: ProviderAdminService;
-  let events: EventEmitter2;
+  let moduleRef: TestingModule;
   const admin = { id: 'admin-1', role: 'admin' };
+  const seo = { pingIndexNow: jest.fn().mockResolvedValue({ ok: true }) };
+  const pipeline = { invalidateCaches: jest.fn().mockResolvedValue(undefined) };
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
     conn = await mongoose.createConnection(mongo.getUri(), { dbName: 'reactivate' }).asPromise();
-    events = new EventEmitter2();
-    svc = new ProviderAdminService(
-      new ProviderAccountRepository(conn.model(ProviderAccount.name, ProviderAccountSchema)),
-      {} as never,
-      new ProviderDocumentRepository(conn.model(ProviderDocument.name, ProviderDocumentSchema)),
-      {} as never,
-      new ProviderAuditLogRepository(conn.model(ProviderAuditLog.name, ProviderAuditLogSchema)),
-      { processEntity: jest.fn().mockResolvedValue(undefined) } as never,
-      events,
-      { verify: jest.fn().mockResolvedValue(false) } as never,
-    );
+    moduleRef = await Test.createTestingModule({
+      imports: [EventEmitterModule.forRoot({ wildcard: true })],
+      providers: [
+        SeoIndexingListener,
+        { provide: SeoService, useValue: seo },
+        { provide: AutoEntitySeoPipelineService, useValue: pipeline },
+        {
+          provide: ProviderAdminService,
+          inject: [EventEmitter2],
+          useFactory: (events: EventEmitter2) => new ProviderAdminService(
+            new ProviderAccountRepository(conn.model(ProviderAccount.name, ProviderAccountSchema)),
+            {} as never,
+            new ProviderDocumentRepository(conn.model(ProviderDocument.name, ProviderDocumentSchema)),
+            {} as never,
+            new ProviderAuditLogRepository(conn.model(ProviderAuditLog.name, ProviderAuditLogSchema)),
+            { processEntity: jest.fn().mockResolvedValue(undefined) } as never,
+            events,
+            { verify: jest.fn().mockResolvedValue(false) } as never,
+          ),
+        },
+      ],
+    }).compile();
+    await moduleRef.init();
+    svc = moduleRef.get(ProviderAdminService);
   });
-  afterAll(async () => { await conn.close(); await mongo.stop(); });
+  afterAll(async () => { await moduleRef.close(); await conn.close(); await mongo.stop(); });
 
   beforeEach(async () => {
+    seo.pingIndexNow.mockClear();
+    pipeline.invalidateCaches.mockClear();
     const db = conn.db!;
     for (const c of ['provider_accounts', 'provider_documents', 'provider_audit_logs', 'provider_profiles', 'users']) await db.collection(c).deleteMany({});
     await db.collection('provider_accounts').insertOne({
@@ -77,5 +100,22 @@ describe('ProviderAdminService.reactivate (real MongoDB)', () => {
     expect(acc?.status).toBe(ProviderAccountStatus.APPROVED);
     const prof = await conn.db!.collection('provider_profiles').findOne({ id: 'prof-1' });
     expect(prof).toMatchObject({ status: 'active', public_eligibility: true });
+  });
+
+  it('emits provider.reactivated and the SEO listener restores discovery for the profile (13.R6)', async () => {
+    await seedDocs();
+    await svc.reactivate(admin, 'acc-1', { reason: 'appeal accepted' });
+    // The listener runs asynchronously after the emit; wait for its fan-out.
+    for (let i = 0; i < 50 && pipeline.invalidateCaches.mock.calls.length < 7; i++) await new Promise((r) => setTimeout(r, 10));
+    expect(seo.pingIndexNow).toHaveBeenCalledWith('doctor', 'prof-1');
+    expect(seo.pingIndexNow).toHaveBeenCalledWith('facility', 'prof-1');
+    expect(pipeline.invalidateCaches).toHaveBeenCalledWith('pharmacy', 'prof-1');
+  });
+
+  it('does not announce a reactivation that R1 refused', async () => {
+    await expect(svc.reactivate(admin, 'acc-1', {})).rejects.toThrow('required_documents_missing');
+    await new Promise((r) => setTimeout(r, 50));
+    expect(seo.pingIndexNow).not.toHaveBeenCalled();
+    expect(pipeline.invalidateCaches).not.toHaveBeenCalled();
   });
 });

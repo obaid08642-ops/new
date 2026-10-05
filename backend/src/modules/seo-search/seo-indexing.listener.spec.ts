@@ -52,7 +52,6 @@ describe('SeoIndexingListener 13.R6 provider lifecycle propagation (mocked, no D
   it('reactivate restores discovery via the same four propagations', async () => {
     const { l, seo, pipeline } = setup();
     await l.onReactivated({ provider_id: 'prov-2' });
-    await l.onAdminReactivated({ provider_id: 'prov-2' });
     expect(seo.pingIndexNow).toHaveBeenCalledWith('doctor', 'prov-2');
     expect(seo.pingIndexNow).toHaveBeenCalledWith('facility', 'prov-2');
     expect(pipeline.invalidateCaches).toHaveBeenCalledWith(expect.anything(), 'prov-2');
