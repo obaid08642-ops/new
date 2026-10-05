@@ -396,19 +396,19 @@ export function ServiceBookingModal({
                     </div>
 
                     {INSURANCE_LOADING && (
-                      <div style={{ marginTop: "8px", fontSize: "0.82rem", color: "#64748B" }}>{isAr ? "جاري تحميل شركات التأمين…" : "Loading insurers…"}</div>
+                      <div style={{ marginTop: "8px", fontSize: "0.82rem", color: "var(--nabd-color-text-secondary)" }}>{isAr ? "جاري تحميل شركات التأمين…" : "Loading insurers…"}</div>
                     )}
                     {INSURANCE_ERROR && (
-                      <div style={{ marginTop: "8px", fontSize: "0.82rem", color: "#B91C1C" }}>
+                      <div style={{ marginTop: "8px", fontSize: "0.82rem", color: "var(--nabd-color-status-danger-fg)" }}>
                         {isAr ? "تعذّر تحميل شركات التأمين. " : "Could not load insurers. "}
                         <button type="button" onClick={INSURANCE_RELOAD} style={{ textDecoration: "underline" }}>{isAr ? "إعادة المحاولة" : "Retry"}</button>
                       </div>
                     )}
                     {!INSURANCE_LOADING && !INSURANCE_ERROR && !INSURANCE_CATALOG.length && (
-                      <div style={{ marginTop: "8px", fontSize: "0.82rem", color: "#B45309" }}>{isAr ? "لا توجد شركات تأمين متاحة حاليًا." : "No insurers available right now."}</div>
+                      <div style={{ marginTop: "8px", fontSize: "0.82rem", color: "var(--nabd-color-status-warning-fg)" }}>{isAr ? "لا توجد شركات تأمين متاحة حاليًا." : "No insurers available right now."}</div>
                     )}
                     {!INSURANCE_LOADING && !INSURANCE_ERROR && selectedInsCompany && (
-                      <div style={{ marginTop: "8px", fontSize: "0.82rem", color: "#00876F" }}>{isAr ? "يُحتسب مبلغ التغطية والتحمل عند تأكيد الحجز حسب وثيقتك." : "Coverage and co-pay are confirmed at booking per your policy."}</div>
+                      <div style={{ marginTop: "8px", fontSize: "0.82rem", color: "var(--nabd-color-status-success-fg)" }}>{isAr ? "يُحتسب مبلغ التغطية والتحمل عند تأكيد الحجز حسب وثيقتك." : "Coverage and co-pay are confirmed at booking per your policy."}</div>
                     )}
                   </div>
                 )}

@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Readable } from 'node:stream';
+import { staffRoleOf } from '../../../lib/admin-session';
 
 const ACCESS_COOKIE = 'admin_access';
 const REFRESH_COOKIE = 'admin_refresh';
@@ -64,7 +65,7 @@ async function tryRefresh(req: NextApiRequest): Promise<{ accessToken: string; c
     const payload: any = await r.json().catch(() => null);
     const accessToken = payload?.token?.accessToken || payload?.access_token || payload?.token;
     const refresh = payload?.token?.refreshToken || payload?.refresh_token;
-    if (!accessToken) return null;
+    if (!accessToken || !staffRoleOf(accessToken)) return null;
     const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
     const cookies = [`${ACCESS_COOKIE}=${encodeURIComponent(accessToken)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60}${secure}`];
     if (refresh) cookies.push(`${REFRESH_COOKIE}=${encodeURIComponent(refresh)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60 * 24 * 14}${secure}`);
@@ -92,6 +93,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const accessToken = cookieValue(req, ACCESS_COOKIE);
   if (!accessToken) return res.status(401).json({ code: 'admin_session_required' });
+  // R11 §5: never forward a non-staff token (with the gate token) upstream.
+  if (!staffRoleOf(accessToken)) {
+    res.setHeader('set-cookie', [
+      `${ACCESS_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`,
+      `${REFRESH_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`,
+    ]);
+    return res.status(401).json({ code: 'admin_session_required' });
+  }
 
   try {
     const headers = new Headers();
@@ -114,7 +123,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let setDeviceCookie: string | null = null;
     if (!deviceId || deviceId.length < 16) {
       deviceId = [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, '0')).join('');
-      setDeviceCookie = `admin_device=${deviceId}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60 * 24 * 365}`;
+      setDeviceCookie = `admin_device=${deviceId}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60 * 24 * 365}${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`;
     }
     headers.set('x-admin-device', deviceId);
 
