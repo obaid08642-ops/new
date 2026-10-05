@@ -22,8 +22,8 @@ export default async function LocaleNotFound(props: Props) {
         title: locale === "ar" ? "الصفحة غير متاحة" : "Page unavailable",
         body:
           locale === "ar"
-            ? "لا يمكن فتح هذا المسار أو أنك لا تملك صلاحية الوصول إليه."
-            : "This route cannot be opened or you do not have permission to access it.",
+            ? "لا يمكن فتح هذه الصفحة أو أنك لا تملك صلاحية الوصول إليها."
+            : "This page can't be opened, or you don't have access to it.",
         returnHome: locale === "ar" ? "العودة إلى البداية" : "Return home",
       };
       return fallback[key] || key;

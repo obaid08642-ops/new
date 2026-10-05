@@ -130,7 +130,7 @@ const ERROR_CONFIG: Record<
   network:    { icon: 'wifi_off', defaultTitle: 'لا يوجد اتصال', defaultDesc: 'تحقق من اتصالك بالإنترنت وأعد المحاولة' },
   not_found:  { icon: 'search_off', defaultTitle: 'لم يتم العثور على المحتوى', defaultDesc: 'الصفحة التي تبحث عنها غير موجودة' },
   permission: { icon: 'lock', defaultTitle: 'غير مصرح لك', defaultDesc: 'ليس لديك صلاحية الوصول لهذا المحتوى' },
-  server:     { icon: 'dns', defaultTitle: 'خطأ في الخادم', defaultDesc: 'نعتذر، يرجى المحاولة بعد قليل' },
+  server:     { icon: 'dns', defaultTitle: 'حدث خلل مؤقت', defaultDesc: 'نعتذر، يرجى المحاولة بعد قليل' },
 };
 
 export function DSErrorState({
