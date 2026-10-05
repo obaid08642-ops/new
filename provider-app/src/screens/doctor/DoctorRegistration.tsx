@@ -29,6 +29,7 @@ import { ProviderApi, sanitizeWizardData } from '../../api/provider';
 import { KycDocButton } from '../../components/KycDocButton';
 import { typedDocuments } from '../../utils/onboardingDocuments';
 import { useInsuranceCatalog, useSpecialtiesCatalog } from '../../api/catalogs';
+import { doctorClinicFields } from '../../utils/doctorClinic';
 
 const { width: W } = Dimensions.get('window');
 
@@ -1051,7 +1052,8 @@ function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
         })),
         home_transport_fee: !!data.homeTransportFee,
         home_transport_price: parseFloat(data.homeTransportPrice) || 0,
-        clinic_name: data.clinicName || undefined,
+        // R83: clinic name + clinic street address (Step3Dto clinic_name / clinic_address).
+        ...doctorClinicFields(data),
         vacation_date: data.vacationDate || undefined,
         national_id: data.nationalId || undefined,
         gender: data.gender || undefined,
