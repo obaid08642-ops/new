@@ -84,6 +84,8 @@ const BOARD = {
   // screens without a board of their own render at a phone's size and are not compared
   'all-services': { params: {} },
   splash: { params: {} },
+  notifications: { params: {} },
+  search: { params: {} },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },
