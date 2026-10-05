@@ -36,10 +36,20 @@ export interface Tokens {
       readonly secondary: string;
       readonly onBrand: string;
       readonly favorite: string;
+      readonly onSolid: string;
     };
     readonly action: {
       readonly primary: {
         readonly bg: string;
+        readonly fg: string;
+        readonly gradient: {
+          readonly from: string;
+          readonly to: string;
+        };
+      };
+      readonly fab: {
+        readonly from: string;
+        readonly to: string;
         readonly fg: string;
       };
       readonly secondary: {
@@ -88,6 +98,86 @@ export interface Tokens {
       };
     };
     readonly service: {
+      readonly coral: {
+        readonly fg: string;
+        readonly bg: string;
+        readonly solid: {
+          readonly from: string;
+          readonly to: string;
+        };
+      };
+      readonly blue: {
+        readonly fg: string;
+        readonly bg: string;
+        readonly solid: {
+          readonly from: string;
+          readonly to: string;
+        };
+      };
+      readonly mint: {
+        readonly fg: string;
+        readonly bg: string;
+        readonly solid: {
+          readonly from: string;
+          readonly to: string;
+        };
+      };
+      readonly violet: {
+        readonly fg: string;
+        readonly bg: string;
+        readonly solid: {
+          readonly from: string;
+          readonly to: string;
+        };
+      };
+      readonly amber: {
+        readonly fg: string;
+        readonly bg: string;
+        readonly solid: {
+          readonly from: string;
+          readonly to: string;
+        };
+      };
+      readonly pink: {
+        readonly fg: string;
+        readonly bg: string;
+        readonly solid: {
+          readonly from: string;
+          readonly to: string;
+        };
+      };
+      readonly lime: {
+        readonly fg: string;
+        readonly bg: string;
+        readonly solid: {
+          readonly from: string;
+          readonly to: string;
+        };
+      };
+      readonly peach: {
+        readonly fg: string;
+        readonly bg: string;
+        readonly solid: {
+          readonly from: string;
+          readonly to: string;
+        };
+      };
+      readonly teal: {
+        readonly fg: string;
+        readonly bg: string;
+        readonly solid: {
+          readonly from: string;
+          readonly to: string;
+        };
+      };
+      readonly ink: {
+        readonly fg: string;
+        readonly bg: string;
+        readonly solid: {
+          readonly from: string;
+          readonly to: string;
+        };
+      };
       readonly pharmacy: {
         readonly bg: string;
         readonly glyph: string;
@@ -117,6 +207,30 @@ export interface Tokens {
         readonly glyph: string;
       };
       readonly family: {
+        readonly bg: string;
+        readonly glyph: string;
+      };
+      readonly maternity: {
+        readonly bg: string;
+        readonly glyph: string;
+      };
+      readonly map: {
+        readonly bg: string;
+        readonly glyph: string;
+      };
+      readonly health: {
+        readonly bg: string;
+        readonly glyph: string;
+      };
+      readonly emergency: {
+        readonly bg: string;
+        readonly glyph: string;
+      };
+      readonly insurance: {
+        readonly bg: string;
+        readonly glyph: string;
+      };
+      readonly points: {
         readonly bg: string;
         readonly glyph: string;
       };
@@ -280,6 +394,9 @@ export interface Tokens {
     readonly avatar: string;
     readonly pin: string;
     readonly glass: string;
+    readonly tabBar: string;
+    readonly fab: string;
+    readonly button: string;
   };
   readonly motion: {
     readonly duration: {
@@ -380,10 +497,20 @@ const lightTree: Tokens = {
       "secondary": "#6E6E73",
       "onBrand": "#FFFFFF",
       "favorite": "#D42A38",
+      "onSolid": "#FFFFFF",
     },
     "action": {
       "primary": {
         "bg": "#D42A38",
+        "fg": "#FFFFFF",
+        "gradient": {
+          "from": "#E62337",
+          "to": "#D42A38",
+        },
+      },
+      "fab": {
+        "from": "#FF5A63",
+        "to": "#D42A38",
         "fg": "#FFFFFF",
       },
       "secondary": {
@@ -432,37 +559,141 @@ const lightTree: Tokens = {
       },
     },
     "service": {
+      "coral": {
+        "fg": "#CE2936",
+        "bg": "#FFE8EA",
+        "solid": {
+          "from": "#FF5C65",
+          "to": "#E8384A",
+        },
+      },
+      "blue": {
+        "fg": "#2D4FD6",
+        "bg": "#E7ECFF",
+        "solid": {
+          "from": "#5B7CFF",
+          "to": "#3A56D4",
+        },
+      },
+      "mint": {
+        "fg": "#0E7C5E",
+        "bg": "#E1F6EE",
+        "solid": {
+          "from": "#27A67F",
+          "to": "#16956F",
+        },
+      },
+      "violet": {
+        "fg": "#6A3FD1",
+        "bg": "#EFEAFF",
+        "solid": {
+          "from": "#9C7DFF",
+          "to": "#7A52E0",
+        },
+      },
+      "amber": {
+        "fg": "#A65A00",
+        "bg": "#FFF1DB",
+        "solid": {
+          "from": "#D68000",
+          "to": "#D38200",
+        },
+      },
+      "pink": {
+        "fg": "#C2296E",
+        "bg": "#FFE7F1",
+        "solid": {
+          "from": "#F4609A",
+          "to": "#D63B80",
+        },
+      },
+      "lime": {
+        "fg": "#4A7A00",
+        "bg": "#EDF8D6",
+        "solid": {
+          "from": "#71A230",
+          "to": "#5E9A00",
+        },
+      },
+      "peach": {
+        "fg": "#B74B1C",
+        "bg": "#FFEDE3",
+        "solid": {
+          "from": "#FF6021",
+          "to": "#E0632C",
+        },
+      },
+      "teal": {
+        "fg": "#0A778C",
+        "bg": "#E0F5F8",
+        "solid": {
+          "from": "#1FA2B8",
+          "to": "#0E97AE",
+        },
+      },
+      "ink": {
+        "fg": "#0B1B2B",
+        "bg": "#EDEFF2",
+        "solid": {
+          "from": "#0B1B2B",
+          "to": "#1A3148",
+        },
+      },
       "pharmacy": {
-        "bg": "#FFE3E5",
-        "glyph": "#B81E2B",
+        "bg": "#FFE8EA",
+        "glyph": "#CE2936",
       },
       "consult": {
-        "bg": "#E3E9FF",
-        "glyph": "#3A56D4",
+        "bg": "#E7ECFF",
+        "glyph": "#2D4FD6",
       },
       "lab": {
-        "bg": "#DDF4EC",
-        "glyph": "#1F7A5C",
+        "bg": "#E1F6EE",
+        "glyph": "#0E7C5E",
       },
       "radiology": {
-        "bg": "#F0E8FF",
-        "glyph": "#5A31A8",
+        "bg": "#EFEAFF",
+        "glyph": "#6A3FD1",
       },
       "nursing": {
-        "bg": "#FFF1CC",
-        "glyph": "#8A5A00",
+        "bg": "#E0F5F8",
+        "glyph": "#0A778C",
       },
       "mind": {
-        "bg": "#FCE7F3",
-        "glyph": "#9B2C6B",
+        "bg": "#EFEAFF",
+        "glyph": "#6A3FD1",
       },
       "nutrition": {
-        "bg": "#EDF7DC",
-        "glyph": "#3F6B12",
+        "bg": "#EDF8D6",
+        "glyph": "#4A7A00",
       },
       "family": {
-        "bg": "#FFE9DE",
-        "glyph": "#A6501E",
+        "bg": "#FFEDE3",
+        "glyph": "#B74B1C",
+      },
+      "maternity": {
+        "bg": "#FFE7F1",
+        "glyph": "#C2296E",
+      },
+      "map": {
+        "bg": "#FFF1DB",
+        "glyph": "#A65A00",
+      },
+      "health": {
+        "bg": "#FFE8EA",
+        "glyph": "#CE2936",
+      },
+      "emergency": {
+        "bg": "#FFEDE3",
+        "glyph": "#B74B1C",
+      },
+      "insurance": {
+        "bg": "#E7ECFF",
+        "glyph": "#2D4FD6",
+      },
+      "points": {
+        "bg": "#FFF1DB",
+        "glyph": "#A65A00",
       },
     },
     "glass": {
@@ -624,6 +855,9 @@ const lightTree: Tokens = {
     "avatar": "0 8px 20px rgba(11,27,43,0.10)",
     "pin": "0 6px 12px rgba(212,42,56,0.35)",
     "glass": "0 8px 32px rgba(11,27,43,0.10)",
+    "tabBar": "0 18px 40px rgba(11,27,43,0.14)",
+    "fab": "0 12px 26px rgba(212,42,56,0.38)",
+    "button": "0 10px 22px rgba(212,42,56,0.28)",
   },
   "motion": {
     "duration": {
@@ -724,11 +958,21 @@ const darkTree: Tokens = {
       "secondary": "#9AA4B2",
       "onBrand": "#0B1B2B",
       "favorite": "#D42A38",
+      "onSolid": "#FFFFFF",
     },
     "action": {
       "primary": {
         "bg": "#FF6B73",
         "fg": "#0B1B2B",
+        "gradient": {
+          "from": "#FF6B73",
+          "to": "#FF6B73",
+        },
+      },
+      "fab": {
+        "from": "#FF5A63",
+        "to": "#D42A38",
+        "fg": "#FFFFFF",
       },
       "secondary": {
         "bg": "#1A3148",
@@ -776,8 +1020,88 @@ const darkTree: Tokens = {
       },
     },
     "service": {
+      "coral": {
+        "fg": "#FF8A91",
+        "bg": "rgba(255,107,115,0.16)",
+        "solid": {
+          "from": "#FF5C65",
+          "to": "#E8384A",
+        },
+      },
+      "blue": {
+        "fg": "#9DB0FF",
+        "bg": "rgba(110,139,255,0.16)",
+        "solid": {
+          "from": "#5B7CFF",
+          "to": "#3A56D4",
+        },
+      },
+      "mint": {
+        "fg": "#6FE0BC",
+        "bg": "rgba(79,210,168,0.15)",
+        "solid": {
+          "from": "#27A67F",
+          "to": "#16956F",
+        },
+      },
+      "violet": {
+        "fg": "#C2AEFF",
+        "bg": "rgba(156,125,255,0.16)",
+        "solid": {
+          "from": "#9C7DFF",
+          "to": "#7A52E0",
+        },
+      },
+      "amber": {
+        "fg": "#FFC56E",
+        "bg": "rgba(255,181,71,0.15)",
+        "solid": {
+          "from": "#D68000",
+          "to": "#D38200",
+        },
+      },
+      "pink": {
+        "fg": "#FF9CC6",
+        "bg": "rgba(255,128,180,0.15)",
+        "solid": {
+          "from": "#F4609A",
+          "to": "#D63B80",
+        },
+      },
+      "lime": {
+        "fg": "#C2EA6B",
+        "bg": "rgba(168,217,74,0.15)",
+        "solid": {
+          "from": "#71A230",
+          "to": "#5E9A00",
+        },
+      },
+      "peach": {
+        "fg": "#FFAE8A",
+        "bg": "rgba(255,156,114,0.15)",
+        "solid": {
+          "from": "#FF6021",
+          "to": "#E0632C",
+        },
+      },
+      "teal": {
+        "fg": "#6FD6E8",
+        "bg": "rgba(35,181,206,0.15)",
+        "solid": {
+          "from": "#1FA2B8",
+          "to": "#0E97AE",
+        },
+      },
+      "ink": {
+        "fg": "#F5F5F7",
+        "bg": "rgba(255,255,255,0.10)",
+        "solid": {
+          "from": "#0B1B2B",
+          "to": "#1A3148",
+        },
+      },
       "pharmacy": {
-        "bg": "rgba(255,107,115,0.14)",
+        "bg": "rgba(255,107,115,0.16)",
         "glyph": "#FF8A91",
       },
       "consult": {
@@ -785,28 +1109,52 @@ const darkTree: Tokens = {
         "glyph": "#9DB0FF",
       },
       "lab": {
-        "bg": "rgba(111,224,184,0.14)",
-        "glyph": "#6FE0B8",
+        "bg": "rgba(79,210,168,0.15)",
+        "glyph": "#6FE0BC",
       },
       "radiology": {
-        "bg": "rgba(195,168,255,0.16)",
-        "glyph": "#C3A8FF",
+        "bg": "rgba(156,125,255,0.16)",
+        "glyph": "#C2AEFF",
       },
       "nursing": {
-        "bg": "rgba(255,209,102,0.14)",
-        "glyph": "#FFD166",
+        "bg": "rgba(35,181,206,0.15)",
+        "glyph": "#6FD6E8",
       },
       "mind": {
-        "bg": "rgba(244,184,228,0.16)",
-        "glyph": "#F4B8E4",
+        "bg": "rgba(156,125,255,0.16)",
+        "glyph": "#C2AEFF",
       },
       "nutrition": {
-        "bg": "rgba(142,220,94,0.16)",
-        "glyph": "#8EDC5E",
+        "bg": "rgba(168,217,74,0.15)",
+        "glyph": "#C2EA6B",
       },
       "family": {
-        "bg": "rgba(255,179,138,0.16)",
-        "glyph": "#FFB38A",
+        "bg": "rgba(255,156,114,0.15)",
+        "glyph": "#FFAE8A",
+      },
+      "maternity": {
+        "bg": "rgba(255,128,180,0.15)",
+        "glyph": "#FF9CC6",
+      },
+      "map": {
+        "bg": "rgba(255,181,71,0.15)",
+        "glyph": "#FFC56E",
+      },
+      "health": {
+        "bg": "rgba(255,107,115,0.16)",
+        "glyph": "#FF8A91",
+      },
+      "emergency": {
+        "bg": "rgba(255,156,114,0.15)",
+        "glyph": "#FFAE8A",
+      },
+      "insurance": {
+        "bg": "rgba(110,139,255,0.16)",
+        "glyph": "#9DB0FF",
+      },
+      "points": {
+        "bg": "rgba(255,181,71,0.15)",
+        "glyph": "#FFC56E",
       },
     },
     "glass": {
@@ -968,6 +1316,9 @@ const darkTree: Tokens = {
     "avatar": "0 8px 20px rgba(0,0,0,0.40)",
     "pin": "0 6px 12px rgba(212,42,56,0.35)",
     "glass": "0 8px 32px rgba(0,0,0,0.30)",
+    "tabBar": "0 18px 40px rgba(11,27,43,0.14)",
+    "fab": "0 12px 26px rgba(212,42,56,0.38)",
+    "button": "0 10px 22px rgba(212,42,56,0.28)",
   },
   "motion": {
     "duration": {
@@ -1054,6 +1405,8 @@ const themedPaths: Readonly<Record<string, true>> = Object.freeze({
   "color.icon.onBrand": true,
   "color.action.primary.bg": true,
   "color.action.primary.fg": true,
+  "color.action.primary.gradient.from": true,
+  "color.action.primary.gradient.to": true,
   "color.action.secondary.bg": true,
   "color.action.secondary.fg": true,
   "color.action.selected.bg": true,
@@ -1072,6 +1425,26 @@ const themedPaths: Readonly<Record<string, true>> = Object.freeze({
   "color.status.info.fill": true,
   "color.status.neutral.fg": true,
   "color.status.neutral.bg": true,
+  "color.service.coral.fg": true,
+  "color.service.coral.bg": true,
+  "color.service.blue.fg": true,
+  "color.service.blue.bg": true,
+  "color.service.mint.fg": true,
+  "color.service.mint.bg": true,
+  "color.service.violet.fg": true,
+  "color.service.violet.bg": true,
+  "color.service.amber.fg": true,
+  "color.service.amber.bg": true,
+  "color.service.pink.fg": true,
+  "color.service.pink.bg": true,
+  "color.service.lime.fg": true,
+  "color.service.lime.bg": true,
+  "color.service.peach.fg": true,
+  "color.service.peach.bg": true,
+  "color.service.teal.fg": true,
+  "color.service.teal.bg": true,
+  "color.service.ink.fg": true,
+  "color.service.ink.bg": true,
   "color.service.pharmacy.bg": true,
   "color.service.pharmacy.glyph": true,
   "color.service.consult.bg": true,
@@ -1088,6 +1461,18 @@ const themedPaths: Readonly<Record<string, true>> = Object.freeze({
   "color.service.nutrition.glyph": true,
   "color.service.family.bg": true,
   "color.service.family.glyph": true,
+  "color.service.maternity.bg": true,
+  "color.service.maternity.glyph": true,
+  "color.service.map.bg": true,
+  "color.service.map.glyph": true,
+  "color.service.health.bg": true,
+  "color.service.health.glyph": true,
+  "color.service.emergency.bg": true,
+  "color.service.emergency.glyph": true,
+  "color.service.insurance.bg": true,
+  "color.service.insurance.glyph": true,
+  "color.service.points.bg": true,
+  "color.service.points.glyph": true,
   "color.glass.bg": true,
   "color.glass.bgStrong": true,
   "color.glass.scrim": true,
@@ -1134,8 +1519,14 @@ export const light: Readonly<Record<string, string | number>> = Object.freeze({
   "color.icon.secondary": "#6E6E73",
   "color.icon.onBrand": "#FFFFFF",
   "color.icon.favorite": "#D42A38",
+  "color.icon.onSolid": "#FFFFFF",
   "color.action.primary.bg": "#D42A38",
   "color.action.primary.fg": "#FFFFFF",
+  "color.action.primary.gradient.from": "#E62337",
+  "color.action.primary.gradient.to": "#D42A38",
+  "color.action.fab.from": "#FF5A63",
+  "color.action.fab.to": "#D42A38",
+  "color.action.fab.fg": "#FFFFFF",
   "color.action.secondary.bg": "#FFFFFF",
   "color.action.secondary.fg": "#0B1B2B",
   "color.action.selected.bg": "#0B1B2B",
@@ -1158,22 +1549,74 @@ export const light: Readonly<Record<string, string | number>> = Object.freeze({
   "color.status.info.fill": "#3A56D4",
   "color.status.neutral.fg": "#6E6E73",
   "color.status.neutral.bg": "#F5F5F7",
-  "color.service.pharmacy.bg": "#FFE3E5",
-  "color.service.pharmacy.glyph": "#B81E2B",
-  "color.service.consult.bg": "#E3E9FF",
-  "color.service.consult.glyph": "#3A56D4",
-  "color.service.lab.bg": "#DDF4EC",
-  "color.service.lab.glyph": "#1F7A5C",
-  "color.service.radiology.bg": "#F0E8FF",
-  "color.service.radiology.glyph": "#5A31A8",
-  "color.service.nursing.bg": "#FFF1CC",
-  "color.service.nursing.glyph": "#8A5A00",
-  "color.service.mind.bg": "#FCE7F3",
-  "color.service.mind.glyph": "#9B2C6B",
-  "color.service.nutrition.bg": "#EDF7DC",
-  "color.service.nutrition.glyph": "#3F6B12",
-  "color.service.family.bg": "#FFE9DE",
-  "color.service.family.glyph": "#A6501E",
+  "color.service.coral.fg": "#CE2936",
+  "color.service.coral.bg": "#FFE8EA",
+  "color.service.coral.solid.from": "#FF5C65",
+  "color.service.coral.solid.to": "#E8384A",
+  "color.service.blue.fg": "#2D4FD6",
+  "color.service.blue.bg": "#E7ECFF",
+  "color.service.blue.solid.from": "#5B7CFF",
+  "color.service.blue.solid.to": "#3A56D4",
+  "color.service.mint.fg": "#0E7C5E",
+  "color.service.mint.bg": "#E1F6EE",
+  "color.service.mint.solid.from": "#27A67F",
+  "color.service.mint.solid.to": "#16956F",
+  "color.service.violet.fg": "#6A3FD1",
+  "color.service.violet.bg": "#EFEAFF",
+  "color.service.violet.solid.from": "#9C7DFF",
+  "color.service.violet.solid.to": "#7A52E0",
+  "color.service.amber.fg": "#A65A00",
+  "color.service.amber.bg": "#FFF1DB",
+  "color.service.amber.solid.from": "#D68000",
+  "color.service.amber.solid.to": "#D38200",
+  "color.service.pink.fg": "#C2296E",
+  "color.service.pink.bg": "#FFE7F1",
+  "color.service.pink.solid.from": "#F4609A",
+  "color.service.pink.solid.to": "#D63B80",
+  "color.service.lime.fg": "#4A7A00",
+  "color.service.lime.bg": "#EDF8D6",
+  "color.service.lime.solid.from": "#71A230",
+  "color.service.lime.solid.to": "#5E9A00",
+  "color.service.peach.fg": "#B74B1C",
+  "color.service.peach.bg": "#FFEDE3",
+  "color.service.peach.solid.from": "#FF6021",
+  "color.service.peach.solid.to": "#E0632C",
+  "color.service.teal.fg": "#0A778C",
+  "color.service.teal.bg": "#E0F5F8",
+  "color.service.teal.solid.from": "#1FA2B8",
+  "color.service.teal.solid.to": "#0E97AE",
+  "color.service.ink.fg": "#0B1B2B",
+  "color.service.ink.bg": "#EDEFF2",
+  "color.service.ink.solid.from": "#0B1B2B",
+  "color.service.ink.solid.to": "#1A3148",
+  "color.service.pharmacy.bg": "#FFE8EA",
+  "color.service.pharmacy.glyph": "#CE2936",
+  "color.service.consult.bg": "#E7ECFF",
+  "color.service.consult.glyph": "#2D4FD6",
+  "color.service.lab.bg": "#E1F6EE",
+  "color.service.lab.glyph": "#0E7C5E",
+  "color.service.radiology.bg": "#EFEAFF",
+  "color.service.radiology.glyph": "#6A3FD1",
+  "color.service.nursing.bg": "#E0F5F8",
+  "color.service.nursing.glyph": "#0A778C",
+  "color.service.mind.bg": "#EFEAFF",
+  "color.service.mind.glyph": "#6A3FD1",
+  "color.service.nutrition.bg": "#EDF8D6",
+  "color.service.nutrition.glyph": "#4A7A00",
+  "color.service.family.bg": "#FFEDE3",
+  "color.service.family.glyph": "#B74B1C",
+  "color.service.maternity.bg": "#FFE7F1",
+  "color.service.maternity.glyph": "#C2296E",
+  "color.service.map.bg": "#FFF1DB",
+  "color.service.map.glyph": "#A65A00",
+  "color.service.health.bg": "#FFE8EA",
+  "color.service.health.glyph": "#CE2936",
+  "color.service.emergency.bg": "#FFEDE3",
+  "color.service.emergency.glyph": "#B74B1C",
+  "color.service.insurance.bg": "#E7ECFF",
+  "color.service.insurance.glyph": "#2D4FD6",
+  "color.service.points.bg": "#FFF1DB",
+  "color.service.points.glyph": "#A65A00",
   "color.glass.bg": "rgba(255,255,255,0.78)",
   "color.glass.bgStrong": "rgba(255,255,255,0.90)",
   "color.glass.scrim": "rgba(11,27,43,0.06)",
@@ -1263,6 +1706,9 @@ export const light: Readonly<Record<string, string | number>> = Object.freeze({
   "shadow.avatar": "0 8px 20px rgba(11,27,43,0.10)",
   "shadow.pin": "0 6px 12px rgba(212,42,56,0.35)",
   "shadow.glass": "0 8px 32px rgba(11,27,43,0.10)",
+  "shadow.tabBar": "0 18px 40px rgba(11,27,43,0.14)",
+  "shadow.fab": "0 12px 26px rgba(212,42,56,0.38)",
+  "shadow.button": "0 10px 22px rgba(212,42,56,0.28)",
   "motion.duration.enter": "200ms",
   "motion.duration.enterMax": "240ms",
   "motion.duration.press": "120ms",
@@ -1329,8 +1775,14 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "color.icon.secondary": "#9AA4B2",
   "color.icon.onBrand": "#0B1B2B",
   "color.icon.favorite": "#D42A38",
+  "color.icon.onSolid": "#FFFFFF",
   "color.action.primary.bg": "#FF6B73",
   "color.action.primary.fg": "#0B1B2B",
+  "color.action.primary.gradient.from": "#FF6B73",
+  "color.action.primary.gradient.to": "#FF6B73",
+  "color.action.fab.from": "#FF5A63",
+  "color.action.fab.to": "#D42A38",
+  "color.action.fab.fg": "#FFFFFF",
   "color.action.secondary.bg": "#1A3148",
   "color.action.secondary.fg": "#F5F5F7",
   "color.action.selected.bg": "#F5F5F7",
@@ -1353,22 +1805,74 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "color.status.info.fill": "#6E8BFF",
   "color.status.neutral.fg": "#9AA4B2",
   "color.status.neutral.bg": "#12263A",
-  "color.service.pharmacy.bg": "rgba(255,107,115,0.14)",
+  "color.service.coral.fg": "#FF8A91",
+  "color.service.coral.bg": "rgba(255,107,115,0.16)",
+  "color.service.coral.solid.from": "#FF5C65",
+  "color.service.coral.solid.to": "#E8384A",
+  "color.service.blue.fg": "#9DB0FF",
+  "color.service.blue.bg": "rgba(110,139,255,0.16)",
+  "color.service.blue.solid.from": "#5B7CFF",
+  "color.service.blue.solid.to": "#3A56D4",
+  "color.service.mint.fg": "#6FE0BC",
+  "color.service.mint.bg": "rgba(79,210,168,0.15)",
+  "color.service.mint.solid.from": "#27A67F",
+  "color.service.mint.solid.to": "#16956F",
+  "color.service.violet.fg": "#C2AEFF",
+  "color.service.violet.bg": "rgba(156,125,255,0.16)",
+  "color.service.violet.solid.from": "#9C7DFF",
+  "color.service.violet.solid.to": "#7A52E0",
+  "color.service.amber.fg": "#FFC56E",
+  "color.service.amber.bg": "rgba(255,181,71,0.15)",
+  "color.service.amber.solid.from": "#D68000",
+  "color.service.amber.solid.to": "#D38200",
+  "color.service.pink.fg": "#FF9CC6",
+  "color.service.pink.bg": "rgba(255,128,180,0.15)",
+  "color.service.pink.solid.from": "#F4609A",
+  "color.service.pink.solid.to": "#D63B80",
+  "color.service.lime.fg": "#C2EA6B",
+  "color.service.lime.bg": "rgba(168,217,74,0.15)",
+  "color.service.lime.solid.from": "#71A230",
+  "color.service.lime.solid.to": "#5E9A00",
+  "color.service.peach.fg": "#FFAE8A",
+  "color.service.peach.bg": "rgba(255,156,114,0.15)",
+  "color.service.peach.solid.from": "#FF6021",
+  "color.service.peach.solid.to": "#E0632C",
+  "color.service.teal.fg": "#6FD6E8",
+  "color.service.teal.bg": "rgba(35,181,206,0.15)",
+  "color.service.teal.solid.from": "#1FA2B8",
+  "color.service.teal.solid.to": "#0E97AE",
+  "color.service.ink.fg": "#F5F5F7",
+  "color.service.ink.bg": "rgba(255,255,255,0.10)",
+  "color.service.ink.solid.from": "#0B1B2B",
+  "color.service.ink.solid.to": "#1A3148",
+  "color.service.pharmacy.bg": "rgba(255,107,115,0.16)",
   "color.service.pharmacy.glyph": "#FF8A91",
   "color.service.consult.bg": "rgba(110,139,255,0.16)",
   "color.service.consult.glyph": "#9DB0FF",
-  "color.service.lab.bg": "rgba(111,224,184,0.14)",
-  "color.service.lab.glyph": "#6FE0B8",
-  "color.service.radiology.bg": "rgba(195,168,255,0.16)",
-  "color.service.radiology.glyph": "#C3A8FF",
-  "color.service.nursing.bg": "rgba(255,209,102,0.14)",
-  "color.service.nursing.glyph": "#FFD166",
-  "color.service.mind.bg": "rgba(244,184,228,0.16)",
-  "color.service.mind.glyph": "#F4B8E4",
-  "color.service.nutrition.bg": "rgba(142,220,94,0.16)",
-  "color.service.nutrition.glyph": "#8EDC5E",
-  "color.service.family.bg": "rgba(255,179,138,0.16)",
-  "color.service.family.glyph": "#FFB38A",
+  "color.service.lab.bg": "rgba(79,210,168,0.15)",
+  "color.service.lab.glyph": "#6FE0BC",
+  "color.service.radiology.bg": "rgba(156,125,255,0.16)",
+  "color.service.radiology.glyph": "#C2AEFF",
+  "color.service.nursing.bg": "rgba(35,181,206,0.15)",
+  "color.service.nursing.glyph": "#6FD6E8",
+  "color.service.mind.bg": "rgba(156,125,255,0.16)",
+  "color.service.mind.glyph": "#C2AEFF",
+  "color.service.nutrition.bg": "rgba(168,217,74,0.15)",
+  "color.service.nutrition.glyph": "#C2EA6B",
+  "color.service.family.bg": "rgba(255,156,114,0.15)",
+  "color.service.family.glyph": "#FFAE8A",
+  "color.service.maternity.bg": "rgba(255,128,180,0.15)",
+  "color.service.maternity.glyph": "#FF9CC6",
+  "color.service.map.bg": "rgba(255,181,71,0.15)",
+  "color.service.map.glyph": "#FFC56E",
+  "color.service.health.bg": "rgba(255,107,115,0.16)",
+  "color.service.health.glyph": "#FF8A91",
+  "color.service.emergency.bg": "rgba(255,156,114,0.15)",
+  "color.service.emergency.glyph": "#FFAE8A",
+  "color.service.insurance.bg": "rgba(110,139,255,0.16)",
+  "color.service.insurance.glyph": "#9DB0FF",
+  "color.service.points.bg": "rgba(255,181,71,0.15)",
+  "color.service.points.glyph": "#FFC56E",
   "color.glass.bg": "rgba(18,38,58,0.72)",
   "color.glass.bgStrong": "rgba(18,38,58,0.90)",
   "color.glass.scrim": "rgba(255,255,255,0.08)",
@@ -1458,6 +1962,9 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "shadow.avatar": "0 8px 20px rgba(0,0,0,0.40)",
   "shadow.pin": "0 6px 12px rgba(212,42,56,0.35)",
   "shadow.glass": "0 8px 32px rgba(0,0,0,0.30)",
+  "shadow.tabBar": "0 18px 40px rgba(11,27,43,0.14)",
+  "shadow.fab": "0 12px 26px rgba(212,42,56,0.38)",
+  "shadow.button": "0 10px 22px rgba(212,42,56,0.28)",
   "motion.duration.enter": "200ms",
   "motion.duration.enterMax": "240ms",
   "motion.duration.press": "120ms",
