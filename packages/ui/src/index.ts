@@ -10,7 +10,10 @@
  * and out of both themes, and the palette guard cannot see it any more.
  */
 
-export { Icon, IllustratedIconView, Illustration, LINE_ICON_NAMES, ILLUSTRATED_ICONS, ILLUSTRATION_NAMES, ILLUSTRATION_META, ILLUSTRATIONS, ICON_TINT } from './Icon';
+export { Icon, LINE_ICON_NAMES } from './Icon';
+// The illustrated artwork is its own module (loaded on demand by <Icon>); importing it here registers it, so the
+// barrel keeps illustrated icons synchronous for the gallery and the tests.
+export { IllustratedIconView, Illustration, ILLUSTRATED_ICONS, ILLUSTRATION_NAMES, ILLUSTRATION_META, ILLUSTRATIONS, ICON_TINT } from './Illustrated';
 export { Button, IconButton } from '../components/Button';
 export { Spinner } from '../components/Spinner';
 export { Segmented, Toggle, Radio, StatusChip } from '../components/Controls';

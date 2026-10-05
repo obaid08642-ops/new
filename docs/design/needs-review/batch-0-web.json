@@ -1,0 +1,422 @@
+[
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/login",
+    "element": "Language menu items (LocaleSelector); same component on every Batch 0 screen",
+    "file": "patient-web/components-next/locale-selector.tsx",
+    "line": 48,
+    "found": "Each of the 6 language links has href `/${locale}` (that locale's home page). The component only receives `current`; it does not use the current path or query.",
+    "suspect": "Switching language on /login, /register, /otp?identifier=…, /search, /notifications/settings or /dashboard drops the page and lands on the other language's home page. It should keep the current path (swap the locale segment)."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/login",
+    "element": "Continue as guest button (and the Google callback)",
+    "file": "patient-web/components-next/social-login-buttons.tsx",
+    "line": 72,
+    "found": "Sends header x-nabd-device-id = crypto.randomUUID() on every click (Google callback does the same at line 55). app/api/auth/guest/route.ts:18 forwards it as x-device-id and backend AuthService.guest binds/reuses one guest per device id (backend auth.service.ts:812-845). /welcome instead keeps a stable id in localStorage `nabd_device_id` (auth-welcome.tsx:28-34).",
+    "suspect": "Every press on /login creates a new guest user and patient profile and never reuses the device's guest, although the BFF comment says 'creates (or reuses, per device)'. It should reuse the stable id like /welcome. The two guest buttons also land on different pages (/login → /dashboard, /welcome → /)."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/login",
+    "element": "Two-factor code step and which accounts can sign in",
+    "file": "patient-web/components-next/login-form.tsx",
+    "line": 30,
+    "found": "The form shows the 2FA code field when the BFF answers requires2fa. Backend AuthService.login returns requires_2fa only for admin/super_admin (auth.service.ts:574-627) and requires_passkey (+passkey_options) for admins with a passkey; patients and providers get a token directly. BFF app/api/auth/login/route.ts:15-17 handles only requires_2fa, so requires_passkey becomes 502 → shown as 'details don't match'. /auth/login has no role check, so any role (admin, provider…) receives nabd_access cookies on the patient web.",
+    "suspect": "The 2FA UI is dead for patients and reachable only by staff accounts; admins with a passkey get a misleading error. Unsure whether staff roles should be able to open a patient web session — needs an owner decision."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/login",
+    "element": "Error message under the form",
+    "file": "patient-web/components-next/login-form.tsx",
+    "line": 36,
+    "found": "responseMessage() returns the 'unavailable' text only for status 503/504; every other non-2xx (400, 401, 403, 429 from the 10/min throttle, 502) shows Login.invalid ('Those details don't match').",
+    "suspect": "A throttled or temporarily failing request tells the user their credentials are wrong. 429/502 should map to a 'try again later' message."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/login",
+    "element": "Google button (rendered only when NEXT_PUBLIC_GOOGLE_CLIENT_ID is set)",
+    "file": "patient-web/components-next/social-login-buttons.tsx",
+    "line": 82,
+    "found": "onClick sets busy='google' and calls tokenClient.current?.requestAccessToken(); busy is cleared only inside the token callback. No error_callback is configured, and tokenClient.current is undefined until the Google script has loaded. While busy !== null both the Google and the guest buttons are disabled. The app also sends Cross-Origin-Opener-Policy: same-origin (next.config.ts headers, csp.ts) and its CSP lists no accounts.google.com in connect-src/frame-src.",
+    "suspect": "A closed/blocked popup, or COOP breaking Google's popup postMessage, leaves Google and guest sign-in disabled until reload; Google Identity Services popup flow normally needs same-origin-allow-popups. Unsure: not exercised here (needs a client id)."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/login",
+    "element": "Hard-coded copy and the identifier input",
+    "file": "patient-web/components-next/login-form.tsx",
+    "line": 54,
+    "found": "'Forgot password?', show/hide-password labels (line 57), the second 'Forgot password?' (68), 'Or continue with', 'New to Nabd+?', 'Create an account' (73, social-login-buttons.tsx:81,86) and the legal sentence + links (74) are `ar ? … : …` literals, not messages keys. The identifier input (line 50) has inputMode=\"email\" and a fixed placeholder name@example.com while the label says 'Email or mobile number'.",
+    "suspect": "ur/hi/bn/fil users see English for these strings. The email keyboard hides digits for phone sign-in. Move the strings to the Login namespace and drop the email hint."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/login",
+    "element": "Identifier matching for phone numbers (backend)",
+    "file": "backend/src/modules/auth/auth.service.ts",
+    "line": 560,
+    "found": "login() looks a phone up as {phone: identifier} (raw) and an email lower-cased; register/OTP/forgot use normalizeOtpIdentifier = trim + lower-case only (auth.service.ts:176-178, 442). Nothing maps '05…', '+9665…', '009665…' to one form.",
+    "suspect": "The same person typing the number in another format cannot sign in/reset, or can create a duplicate account. Backend gap: no E.164 normalisation and no uniqueness on a normalised phone."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/register",
+    "element": "Consent policy ids and versions sent on registration",
+    "file": "patient-web/components-next/register-form.tsx",
+    "line": 18,
+    "found": "policy_id/version come from NEXT_PUBLIC_TERMS_POLICY_ID/_VERSION and NEXT_PUBLIC_PRIVACY_POLICY_ID/_VERSION with defaults 'terms'/'v1' and 'privacy'/'v1' (lines 18-23, 45-48). The BFF getRequiredConsents() (app/api/auth/register/route.ts:16-29) reads NABD_* env with the same defaults and only checks they are non-empty (always true); the backend only asserts strings (backend auth.service.ts:445-458).",
+    "suspect": "Consent ids/versions are not taken from real policy documents, so the stored acceptance cannot track a policy change and is whatever the client sends. Needs a current-policies source (endpoint or server-side version) and a BFF/backend comparison."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/register",
+    "element": "Guest → account conversion (submit with a phone number)",
+    "file": "backend/src/modules/auth/auth.service.ts",
+    "line": 876,
+    "found": "For a guest with a phone-like identifier the form posts {full_name, phone, password} to /api/auth/convert-guest (strict schema, no consents; register-form.tsx:60-64). convertGuest sets full_name/phone/password and is_guest=false without any OTP proof of the phone and without recording legal consent, and does not update the patient profile full_name. The form still requires the terms checkbox.",
+    "suspect": "A guest can claim any unregistered phone number without verification; the terms acceptance is neither sent nor stored. After success the form shows the 'converted' text in the red error style and goes to /."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/register",
+    "element": "Submit error messages (account may already exist)",
+    "file": "patient-web/components-next/register-form.tsx",
+    "line": 78,
+    "found": "Backend registerPatientContract creates the user and patient profile and then calls requestPatientOtp (backend auth.service.ts:473-481), which can throw 503 otp_channel_unavailable (e.g. phone identifier with SMS disabled and no e-mail, deliverOtp:199-224) or 429. The BFF passes the status; the form shows ≥500 as 'Registration is unavailable. No account was created.' and every 4xx (including the 409 identifier_already_registered that a retry gets) as 'Review the fields…'.",
+    "suspect": "The user is told no account was created when it was, and the retry is told to review the fields. Needs 409 mapped to 'already registered — sign in' and the OTP-send failure not reported as a registration failure (backend: return registered:true with otp_sent:false, or make create+send atomic)."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/register",
+    "element": "Copy kept outside messages/*.json (register, otp, forgot-password, password-reset, welcome)",
+    "file": "patient-web/components-next/register-form.tsx",
+    "line": 9,
+    "found": "The copy of these five screens lives in component-local maps (register-form.tsx:9-16, otp-screen.tsx:9-16, forgot-password-form.tsx:9-16, password-reset-form.tsx:7, auth-welcome.tsx:10-17), not in messages/*.json. /register and /otp titles are ar/en ternaries (register/page.tsx:13, otp/page.tsx:11); /forgot-password, /password-reset and /welcome use the literal 'Nabd Plus' (page.tsx:9). auth-welcome copy keys brand, body, social, blocked, language are never rendered.",
+    "suspect": "Translation tooling and key-parity checks cannot see these strings; the titles are not localised for ur/hi/bn/fil and not screen-specific."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/otp",
+    "element": "Resend code button",
+    "file": "patient-web/app/api/auth/otp/request/route.ts",
+    "line": 6,
+    "found": "The BFF successSchema requires {ok:true, expires_in<=600}. Backend POST /auth/otp/request returns {otp_sent:true, channel:'email', expires_in:300} (backend auth.service.ts:255-261) — no `ok`. The BFF unit test mocks {ok:true,…} (app/api/auth/otp/otp-routes.test.ts:15).",
+    "suspect": "Every successful resend ends as 502 unexpected_otp_response and the screen says 'The code could not be verified'. Either the BFF schema or the backend response is wrong."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/otp",
+    "element": "Verify code button (second step: session exchange)",
+    "file": "patient-web/app/api/auth/session/exchange/route.ts",
+    "line": 12,
+    "found": "otp/verify stores the backend's exchange_token in cookie nabd_otp_exchange; the exchange BFF then calls POST /auth/session/exchange with only a `cookie` header and no body. The backend needs `exchange_token` in the JSON body (PatientSessionExchangeDto, backend auth.controller.ts:68-70,109-116) and the global ValidationPipe (forbidNonWhitelisted) rejects the empty body; nothing in the backend reads a nabd_otp_exchange cookie (grep: only patient-web mentions it).",
+    "suspect": "Step 2 of OTP sign-in returns 400, so 'Verify code' can never finish. The BFF should send {exchange_token} read from its cookie."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/otp",
+    "element": "Verify code button (session cookies after a successful exchange)",
+    "file": "patient-web/app/api/auth/session/exchange/route.ts",
+    "line": 18,
+    "found": "On success the backend sets cookies nabd_patient_access / nabd_patient_refresh and returns {authenticated:true} (backend auth.controller.ts:7-9,111-115); the BFF forwards Set-Cookie with Path rewritten to '/' and never calls setSessionCookies. The web reads only nabd_access / nabd_refresh / nabd_device (lib/auth/cookies.ts:3; dashboard/page.tsx:21).",
+    "suspect": "Even if the exchange call worked the browser would hold cookies the web ignores, so /dashboard would redirect to /login. The BFF must set nabd_access/nabd_refresh itself (the backend currently returns the tokens only as cookies)."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/otp",
+    "element": "Identifier shown in the subtitle (URL query)",
+    "file": "patient-web/components-next/register-form.tsx",
+    "line": 83,
+    "found": "After registration the e-mail/phone is passed as /otp?identifier=… and rendered from useSearchParams (otp-screen.tsx:19,29).",
+    "suspect": "Personal identifier in the URL (browser history, server logs, Referer). Prefer server/session state. Low severity."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/forgot-password",
+    "element": "Submit → success message",
+    "file": "patient-web/components-next/forgot-password-form.tsx",
+    "line": 17,
+    "found": "After a 2xx the form shows 'Recovery requested…' only. Backend forgotPatientPassword (backend auth.service.ts:376-398) e-mails 'Your Nabdah Plus password-reset token is <43-char token>. It expires in 60 seconds.' (a plain token, no link). No page, button or redirect links to /password-reset (grep: only robots.ts names it). A phone-only account without an e-mail gets nothing while the UI says success.",
+    "suspect": "The reset flow is a dead end: the user must open /password-reset by hand and paste a token within 60 s. Needs an e-mailed link to /{locale}/password-reset?token=… (with the page reading it) or an on-screen next step, and a longer lifetime."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/password-reset",
+    "element": "Code field (reset token)",
+    "file": "patient-web/components-next/password-reset-form.tsx",
+    "line": 8,
+    "found": "The token input has inputMode=\"numeric\" and the label 'Code'; the backend token is crypto.randomBytes(32).toString('base64url') (backend auth.service.ts:385) and lives PATIENT_EXCHANGE_TTL_SECONDS = 60 s (auth.service.ts:32,386). The page never reads a ?token= query.",
+    "suspect": "A numeric keypad cannot type the token; 60 s is too short to copy it from an e-mail."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/welcome",
+    "element": "Continue as guest button",
+    "file": "patient-web/components-next/auth-welcome.tsx",
+    "line": 38,
+    "found": "On success pushes /{locale} (public home); on failure pushes /{locale}/login?guest=blocked. LoginForm never reads searchParams, so the parameter does nothing, and /login's own guest button goes to /dashboard.",
+    "suspect": "A failed guest start is silent (the user lands on /login with no message) and the two guest buttons route differently. Needs the login form to show a message for guest=blocked and one agreed destination."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/onboarding",
+    "element": "Whole screen (entry and outcome)",
+    "file": "patient-web/app/[locale]/onboarding/page.tsx",
+    "line": 11,
+    "found": "No link in the web points to /onboarding (grep over app, components-next, lib); /welcome is reached only from the login back button and the onboarding screens; finishing onboarding stores nothing (no flag, no API call).",
+    "suspect": "Onboarding / language / permissions are unreachable in normal navigation and their outcome is unused. Confirm the intended entry (e.g. first visit) before spending design effort on them."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/onboarding",
+    "element": "Slides, buttons and labels",
+    "file": "patient-web/app/[locale]/onboarding/page.tsx",
+    "line": 17,
+    "found": "Slide titles/bodies are ar/en literals (lines 17-27) as are the carousel labels and buttons Next/Continue/Skip (onboarding-carousel.tsx:18-37), the language step (onboarding/language/page.tsx:20-32), the permissions step (onboarding-permissions-client.tsx:33-55) and the back label and hero text of the frame (auth-layout.tsx:22-25,48). Slide 2 ('Book in minutes') uses the lab icon and slide 3 ('Track your health') the pharmacy icon.",
+    "suspect": "ur/hi/bn/fil users get English. Move to messages. The icon/text pairing of slides 2-3 should be checked against the board."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/onboarding/language",
+    "element": "Continue button (also onboarding-carousel.tsx:33 and onboarding-permissions-client.tsx:54)",
+    "file": "patient-web/app/[locale]/onboarding/language/page.tsx",
+    "line": 32,
+    "found": "A <Link> wraps <Button>, which renders a <button> (ui-generated/components/Button.tsx).",
+    "suspect": "Interactive element nested in an anchor (axe nested-interactive, two tab stops, the button's own click does not navigate). The a11y gate is ≥95."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/onboarding/permissions",
+    "element": "Allow buttons (Location, Notifications)",
+    "file": "patient-web/components-next/onboarding-permissions-client.tsx",
+    "line": 15,
+    "found": "Location only calls getCurrentPosition and discards the result; Notifications calls Notification.requestPermission() and stops. ServiceWorkerRegister (which would subscribe) is imported in layout.tsx:17 but never rendered, and patient-web has no /api/push/web/subscribe route (the backend has POST /push/web/subscribe, backend push.module.ts:785).",
+    "suspect": "Allowing notifications creates no push subscription, so the permission has no effect; the location result is unused. The buttons look functional but nothing is stored or sent."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/",
+    "element": "Hero search form (also on /dashboard) and the JSON-LD SearchAction",
+    "file": "patient-web/components-next/home/home-parts.tsx",
+    "line": 44,
+    "found": "<form action='/{locale}/search' method='get'> sends ?q=…, but the search page (search/page.tsx:9-15, search-client.tsx:86 `useState(\"\")`) never reads searchParams and the route requires a session (requirePatientAccess). The SearchAction target in page.tsx:86-90 is the same URL.",
+    "suspect": "The home search box cannot run the search the user typed, and on the public home a signed-out visitor is sent to /login with the text lost. The search page should read q (and be public or carry the query through login)."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/",
+    "element": "Language button label (aria-label of the LocaleSelector)",
+    "file": "patient-web/components-next/home/home-shell.tsx",
+    "line": 71,
+    "found": "label={shared('language')} = messages Shared.language, which is 'English' in ar.json and 'العربية' in en.json (the old switch label); it is the aria-label of the button and of the menu <nav> (locale-selector.tsx:31,40). Same in auth-layout.tsx:61 and layout.tsx:88.",
+    "suspect": "Screen readers announce a language name instead of 'Language' for the 6-language menu. Use CoreShell.language or a corrected key."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/login",
+    "element": "Theme toggle buttons (all auth screens and CoreShell screens)",
+    "file": "patient-web/components-next/theme-toggle.tsx",
+    "line": 106,
+    "found": "The three buttons' only accessible text is <span class='sr-only'>{option}</span> = the raw words light / system / dark; an extra aria-live span (lines 110-112) renders an empty string.",
+    "suspect": "Untranslated, non-localised accessible names. NotificationSettings.appearanceLight/Dark/Auto already exist."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/",
+    "element": "Featured-doctor cards: price, currency, place, next slot",
+    "file": "patient-web/lib/api/doctors.ts",
+    "line": 10,
+    "found": "DoctorRow reads consultation_fee/price (line 10), facility_name/clinic_name and next_available_slot (line 11). Backend toPublicDoctor (backend care/care.service.ts:259-290) sends price_clinic / price_online / price_home, hospital / facility_id and next_available_at.",
+    "suspect": "On the home cards price, currency, place and next slot are never shown although the data exists; the same extractDoctors feeds /consultations/doctors. Field names must be mapped (price_clinic or price_online; hospital; next_available_at) or the backend renamed."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/",
+    "element": "Featured-doctor cards: name and specialty",
+    "file": "patient-web/components-next/home/home-parts.tsx",
+    "line": 249,
+    "found": "name = name_ar ?? name_en whatever the locale (doctors.ts:15); specialty = the raw API specialty, which profiles store as a slug such as general_practice / internal_medicine (backend care.service.ts:52-55, common/enums.ts:211-225).",
+    "suspect": "English and other locales show the Arabic name; patients see slugs like 'general_practice' as the specialty. Needs a locale-aware name and a slug → name lookup (/care/specialties) or a display name from the backend."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/",
+    "element": "Error state of every Batch 0 route (error.tsx)",
+    "file": "patient-web/app/[locale]/error.tsx",
+    "line": 9,
+    "found": "Inline style attributes with raw colours (#FDFDFC, #E8EDEE, #FF4D5A, #1E332E, #6B7C6E, #5FD9B3, rgba values) and backdrop blur on <main>, the card, the icon, the title and both buttons.",
+    "suspect": "Breaks the identity rule (colours not from tokens) and QUALITY_STANDARDS §0/§4 (no style attributes). proxy.ts:40-53 sets style-src 'self' 'nonce-…' in production, so the inline styles are probably refused and the error card renders unstyled. Needs the same token-based treatment as the new screens."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/dashboard",
+    "element": "Sign-out (missing on all home-shell and core-shell screens)",
+    "file": "patient-web/app/[locale]/layout.tsx",
+    "line": 90,
+    "found": "The only sign-out (SessionActions → POST /api/auth/logout, session-actions.tsx:12-18) sits in the layout .topbar, which globals.css:575,582,590 hides on the auth, home and core shells. HomeShell/CoreShell draw no sign-out; the avatar goes to /profile. Backend POST /auth/logout (backend auth.controller.ts:277-286) only clears an admin cookie and does not revoke the refresh session.",
+    "suspect": "A signed-in user has no sign-out on /, /dashboard, /search, /notifications, /notifications/settings. Confirm /profile offers one (not audited here) or add it; the backend logout should also revoke the refresh session."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/",
+    "element": "Curated home items: link target",
+    "file": "patient-web/components-next/home/home-parts.tsx",
+    "line": 215,
+    "found": "<Link href={item.deep_link || `/${locale}`}>. The admin stores deep_link as a free string ≤160 chars labelled 'path' (backend admin-governance-controls.controller.ts:51-54; admin home-curation.tsx), and the app uses it as an expo-router route (patient-app/src/components/HomeSections.tsx:59).",
+    "suspect": "An app route such as /pharmacy/… is used unchanged on web: no locale prefix, no check that the route exists on web, and any scheme (https://…, javascript:) is accepted. Needs a web mapping and validation."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/",
+    "element": "Curated home items: image",
+    "file": "patient-web/components-next/home/home-parts.tsx",
+    "line": 218,
+    "found": "<Image src={item.image_url} fill>; next.config.ts:9-12 allows only cdn.nabd.plus and res.cloudinary.com. The admin save accepts any string ≤800 chars (backend admin-governance-controls.controller.ts:50).",
+    "suspect": "next/image throws for a host not in remotePatterns, so one banner with another host would make the whole public home render the error boundary. Needs host validation on save or a safe fallback."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/search",
+    "element": "Section links of the frame (CoreShell) vs HomeShell",
+    "file": "patient-web/components-next/core/core-shell.tsx",
+    "line": 49,
+    "found": "Same five sections, different targets and labels. HomeShell: Pharmacy→/c, Consultations→/consultations/doctors, Labs & radiology→/diagnostics, Nursing→/nursing/catalog, Home→/dashboard or /. CoreShell: Pharmacy→/pharmacy (a redirect to /c), Doctors→/consultations/doctors, Diagnostics→/diagnostics/labs, Nursing→/home-care, Home→/ (lines 49-63 vs home-shell.tsx:40-45).",
+    "suspect": "Nursing resolves to two different pages (/nursing/catalog vs /home-care) and Labs to two (/diagnostics vs /diagnostics/labs) depending on the screen; the canonical targets need confirming."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/",
+    "element": "Maintenance state and footer copy",
+    "file": "patient-web/app/[locale]/page.tsx",
+    "line": 67,
+    "found": "The title and fallback message are ar/en literals; the message shown is app_versions.apps.web.message_en first, then message_ar, whatever the locale (public-config-server.ts:10-14). Only `/` honours the flag (login, dashboard, search do not). The layout footer links (layout.tsx:99-103) are ar/en literals too.",
+    "suspect": "Arabic visitors see the English admin message when both are set; ur/hi/bn/fil get English/Arabic only; maintenance does not block the rest of the web app."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/dashboard",
+    "element": "Hero title (patient name)",
+    "file": "patient-web/lib/api/dashboard-server.ts",
+    "line": 5,
+    "found": "The name comes from GET /users/me/profile, which returns the whole patient profile document (allergies, chronic diseases, national id…), read as name|full_name|fullName (dashboard.ts:15). Only registerPatientContract writes full_name on the patient profile (backend auth.service.ts:473-478); the other creation paths create it with user_id only (auth.service.ts:549, 837, 1108), and getPatientProfile creates an empty profile when missing (backend users.service.ts:95-101). The authoritative name is users.full_name, served as display_name by GET /users/me/display (users.service.ts:123-133).",
+    "suspect": "Guest, social-login and legacy-register users see the generic title instead of their name, and the dashboard fetches the full medical profile only for a display name. It should use /users/me/display (minimal DTO)."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/dashboard",
+    "element": "Next-appointment card: time and status",
+    "file": "backend/src/modules/home/home.service.ts",
+    "line": 76,
+    "found": "getUpcomingAppointment returns {id, date:'YYYY-MM-DD', doctorName, type, time} where time is toLocaleTimeString('ar-EG') in the server's time zone (home.service.ts:55-83). The web parser (lib/api/dashboard.ts:24-29) takes `date` as the timestamp, so new Date('2026-10-06') is UTC midnight and home-parts.tsx:63-68 prints a time from it; `status` is read from a field the endpoint never returns; `time` and `type` are ignored.",
+    "suspect": "The card shows an invented time (midnight in some zone) and the day can shift with the time zone. The endpoint should return the ISO slot_start (plus status and service_type) and the web should format it in the page locale / Asia/Riyadh."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/search",
+    "element": "Intent call before the results list",
+    "file": "patient-web/app/[locale]/search/search-client.tsx",
+    "line": 103,
+    "found": "Before every results call the page POSTs /api/search/intent and, whenever canonical_path is not /{locale}/search, does window.location.assign(path) — there is no confidence check although the comment says 'confident actionable intent'. Backend extractIntent (backend search-intent/search-intent.service.ts:113-216) returns /doctors/<specialty>/<city> (city defaults to riyadh), /medicine-catalog for any medicine word (e.g. 'panadol'), /diagnostics/labs, /diagnostics/radiology, /home-nursing/<city>, with confidence 0.85-0.95.",
+    "suspect": "Searching a drug, specialty, lab or radiology word never shows the results list (the Medicines/Doctors/Tests sections are unreachable for those queries) and the typed text is lost; every query also costs two requests. Needs a threshold or showing results first."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/search",
+    "element": "Results call: query length cap",
+    "file": "patient-web/lib/api/patient-allowlist.ts",
+    "line": 76,
+    "found": "GET /home/search is allowed only if path+search matches ^/home/search\\?q=[^&]{1,120}$; the proxy tests request.nextUrl.search (the percent-encoded query: an Arabic letter is 6 characters, a space 3) (app/api/patient/[...path]/route.ts:13). The search input has no maxLength (search-client.tsx:203).",
+    "suspect": "An Arabic query longer than about 20 letters gets the proxy's 404 and the page shows 'Search is unavailable'. Raise the cap or cap the input."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/search",
+    "element": "Doctor result sub-line (specialty)",
+    "file": "patient-web/app/[locale]/search/search-client.tsx",
+    "line": 62,
+    "found": "sub is hidden when it matches ^[a-z][a-z0-9]*(_[a-z0-9]+)*$ (the 'code' filter). For doctors the API's sub/subEn is d.specialty (backend home/home.service.ts:172-177), a snake_case slug.",
+    "suspect": "Every doctor result is shown without its specialty (the filter hides the slug) — the useful field is lost. The backend should send the specialty display name in sub/subEn."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/notifications",
+    "element": "Notification rows and unread dot",
+    "file": "patient-web/app/[locale]/notifications/page.tsx",
+    "line": 93,
+    "found": "Rows are <li> with no link, and there is no mark-read or mark-all control; the backend has POST /notifications/:id/read and /read-all (backend notifications.controller.ts:38-48) and each notification carries `action.route`. The unread dot (read === false) can therefore never clear from the web. Notifications.notice ('This list is view-only…') exists in all 6 locales but is not rendered.",
+    "suspect": "Unread state is permanent on web and nothing is tappable. Confirm whether view-only is intended (then say so or hide the dot) or wire read/read-all through the proxy (needs allow-list entries) and open action.route."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/notifications",
+    "element": "Notification title and body language (backend)",
+    "file": "backend/src/modules/notifications/notifications.service.ts",
+    "line": 407,
+    "found": "listForUser resolves title/body with `user.lang`; `user` is the decoded JWT, which carries no lang (backend auth.service.ts:52, common/auth.guard.ts:118), so the language is always 'ar'. The web sends no locale.",
+    "suspect": "Notification texts are Arabic in all six web locales. The backend should use the stored preferred_lang or a locale parameter."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/notifications",
+    "element": "GET /notifications is registered twice (backend)",
+    "file": "backend/src/modules/doctors/doctors.module.ts",
+    "line": 288,
+    "found": "NotificationsModule (notifications.controller.ts:8-16; collection notifications; returns the whole document incl. user_id, role, params, read_by) and DoctorsModule (doctors.module.ts:288-297; collection NotificationItem by recipient_account_id; also PATCH :id/read and POST mark-all-read) both register GET /notifications. app.module.ts imports NotificationsModule (line 197) before DoctorsModule (203).",
+    "suspect": "Which handler answers depends on registration order (probably the first); the other is shadowed dead code — confirm with a request. Also listForUser returns raw fields such as read_by (ids of other users for role/'all' broadcasts); the web drops them but other clients receive them."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/notifications/settings",
+    "element": "The 9 switches (6 categories, 3 channels)",
+    "file": "backend/src/modules/users/users.service.ts",
+    "line": 269,
+    "found": "Toggles PATCH {categories|channels:{key:bool}} and are stored on the patient profile document (notification_settings). Delivery reads notification_settings from the users collection (backend notifications.service.ts:129-130: quiet_hours only; engagement.controller.ts:105-112: categories.suggestions and quiet_hours) and never consults channels.push/email/sms or the six categories; SMS is retired (notifications.service.ts:162,361) yet shown with default true.",
+    "suspect": "None of the switches changes what the patient receives; the screen saves preferences nothing reads. Delivery must read patient_profiles.notification_settings and skip disabled categories/channels; the SMS switch should be hidden."
+  }
+]

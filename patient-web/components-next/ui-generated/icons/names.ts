@@ -1,17 +1,4 @@
 /**
-// GENERATED FILE — DO NOT EDIT.
-//
-// Mirrored from packages/ui/icons/names.ts by tools/design/sync-ui-components.mjs.
-//
-// patient-web cannot import from packages/: Turbopack refuses to resolve outside
-// the app root, and the type checker does not, so the failure only appears at
-// `next build`. This file is a copy, not a port — the renderer a screen uses and
-// the renderer the conformance gallery exercises are the same code, so the
-// artwork cannot drift between them. Run the script after changing the package;
-// `--check` in CI fails if this drifts.
-//
-// tests/module-boundary.test.ts enforces the boundary this mirror exists to work
-// around.
  * The icon NAMES — 12.A7.
  *
  * The name union lives here rather than in either renderer, because a name is
@@ -30,8 +17,21 @@
  * A component that needs a twenty-first line icon adds it here and to both
  * renderers' maps, and the conformance check makes sure the second half happens.
  */
+// GENERATED FILE — DO NOT EDIT.
+//
+// Mirrored from packages/ui/icons/names.ts by tools/design/sync-ui-components.mjs.
+//
+// patient-web cannot import from packages/: Turbopack refuses to resolve outside
+// the app root, and the type checker does not, so the failure only appears at
+// `next build`. This file is a copy, not a port — the renderer a screen uses and
+// the renderer the conformance gallery exercises are the same code, so the
+// artwork cannot drift between them. Run the script after changing the package;
+// `--check` in CI fails if this drifts.
+//
+// tests/module-boundary.test.ts enforces the boundary this mirror exists to work
+// around.
 
-import { ILLUSTRATED_ICONS, type IllustratedIcon } from './illustrated';
+import { ILLUSTRATED_ICONS, type IllustratedIcon } from './illustrated-names';
 
 /** The Phosphor component each line name maps to. One weight: `regular`. */
 export const LINE_ICON_COMPONENTS = {
@@ -55,6 +55,8 @@ export const LINE_ICON_COMPONENTS = {
   minus: 'Minus',
   filter: 'Funnel',
   sliders: 'SlidersHorizontal',
+  eye: 'Eye',
+  'eye-slash': 'EyeSlash',
   settings: 'Gear',
   list: 'List',
   download: 'DownloadSimple',

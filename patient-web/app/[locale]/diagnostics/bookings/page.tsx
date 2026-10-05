@@ -28,7 +28,7 @@ export default async function DiagnosticsBookingsPage({ params }: Props) {
         <div className={styles.introText}>
           <p className={styles.eyebrow} style={{ color: "#1E332E" } as any}>{t("eyebrow")}</p>
           <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{locale === "ar" ? "حجوزاتي التشخيصية" : "My diagnostic bookings"}</h1>
-          <p style={{ overflowWrap: "anywhere" }}>{locale === "ar" ? "حجوزات المختبر والأشعة — بيانات حية من الخادم فقط." : "Lab & radiology bookings — live server data only."}</p>
+          <p style={{ overflowWrap: "anywhere" }}>{locale === "ar" ? "حجوزات المختبر والأشعة الخاصة بك." : "Your lab and radiology bookings."}</p>
         </div>
         <span className={styles.introIcon} aria-hidden="true"><VectorLabs size={48} aria-hidden="true" /></span>
       </section>

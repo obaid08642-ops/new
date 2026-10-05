@@ -23,8 +23,14 @@
  *     template literal starting with "/" (or `${base}/...`). Template holes become `:param`.
  *   - Method: from the callee (`http.post`) or the `method:` property of the options object.
  *     A call whose options are not an object literal is reported with method `*`.
- * Limits (stated in the report): calls built from variables only (`fetch(url)`) are not resolvable
- * and are counted as "unresolved"; layout files (_layout.tsx / layout.tsx) are not attributed.
+ * Calls built from variables are resolved three ways, or counted as "unresolved":
+ *   - generic wrappers (a function that forwards its own parameter to fetch) are not unresolved: the path is
+ *     attributed at each caller, and the report counts those callers;
+ *   - request builders (`buildX(...)` returning `{ path, body }` or `[url, init]`) are followed to the returned path;
+ *   - docs/design/inventory/manual-calls.json maps "file:line" to {method, path, note}; a stale entry fails the run.
+ * Other inputs merged into WIRING_REPORT.md: docs/design/needs-review/*.json (Needs review),
+ * docs/design/inventory/static-screens.json (web screens with no API call), tools/design/mock-scan.mjs (mock scan).
+ * Limits (stated in the report): layout files (_layout.tsx / layout.tsx) are not attributed to routes.
  *
  * TypeScript is loaded from backend/, patient-web/ or patient-app/ node_modules, else from NODE_PATH.
  */
@@ -35,6 +41,7 @@ import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
+import { scanMock, CATEGORIES as MOCK_CATEGORIES, isScanned } from './mock-scan.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(HERE, '..', '..');
@@ -179,6 +186,8 @@ function isCallerCallee(callee, sf) {
   if (ts.isIdentifier(callee)) return CALLER_FUNCS.has(callee.text);
   if (ts.isPropertyAccessExpression(callee)) {
     const obj = callee.expression.getText(sf).replace(/^this\./, '');
+    // `request` is also a permission/dialog verb (`permissions.request(key)`): only an HTTP-client object counts
+    if (callee.name.text === 'request') return CALLER_OBJECTS.test(obj);
     return (VERBS.has(callee.name.text) && CALLER_OBJECTS.test(obj)) || CALLER_FUNCS.has(callee.name.text);
   }
   return false;
@@ -193,20 +202,27 @@ function isCallerCallee(callee, sf) {
 const WRAPPERS = new Map();
 // Query builders: functions that return an API path, e.g. doctorQuery(input) -> `/care/doctors?...`
 const BUILDERS = new Map();
+// Request builders: functions that return the request itself, as `{ path, body }` (offer-selection) or
+// `[url, init]` (reminderLogRequest). Callers do `fetch(request.path, ...)` / `fetch(...builder(...))`.
+// name -> [{ path, head, method? }]
+const REQ_BUILDERS = new Map();
+const PARSED = []; // every parsed source file (collectWrappers), reused by the wrapper-caller census
+// index of the function parameter a URL expression is made of (`path`, `patientApiUrl(path)`, `path as string`), or -1
+function paramOf(arg, params) {
+  for (let a = arg, i = 0; a && i < 4; i++) {
+    if (ts.isIdentifier(a)) return params.indexOf(a.text);
+    if (ts.isCallExpression(a) && a.arguments.length) a = a.arguments[0];
+    else if (ts.isAsExpression(a) || ts.isParenthesizedExpression(a)) a = a.expression;
+    else return -1;
+  }
+  return -1;
+}
 const SOURCE_DIRS = ['patient-app/app', 'patient-app/src', 'patient-app/utils', 'patient-web/app', 'patient-web/components-next', 'patient-web/lib'];
 
 function collectWrappers() {
   const files = SOURCE_DIRS.flatMap((d) => walk(join(REPO, d), (p) => /\.(tsx?|jsx?)$/.test(p) && !/\.(test|spec|d)\.tsx?$/.test(p)));
   const parsed = files.map((f) => ts.createSourceFile(f, read(f), ts.ScriptTarget.Latest, true, f.endsWith('x') ? ts.ScriptKind.TSX : ts.ScriptKind.TS));
-  const paramOf = (arg, params) => {
-    for (let a = arg, i = 0; a && i < 4; i++) {
-      if (ts.isIdentifier(a)) return params.indexOf(a.text);
-      if (ts.isCallExpression(a) && a.arguments.length) a = a.arguments[0];
-      else if (ts.isAsExpression(a) || ts.isParenthesizedExpression(a)) a = a.expression;
-      else return -1;
-    }
-    return -1;
-  };
+  PARSED.push(...parsed);
   for (const sf of parsed) {
     const visitB = (name, fn) => {
       if (!name || !fn.body) return;
@@ -224,9 +240,51 @@ function collectWrappers() {
       const paths = rets.flatMap((r) => literalPaths(r, sf)).filter((x) => !x.head && /^\/[a-z]/.test(x.path) && !x.path.startsWith('/api/'));
       if (paths.length && paths.length === rets.length) BUILDERS.set(name, paths);
     };
+    const visitR = (name, fn) => {
+      if (!name || !fn.body) return;
+      const rets = [];
+      if (!ts.isBlock(fn.body)) rets.push(fn.body);
+      else {
+        const v = (n) => {
+          if (ts.isFunctionLike(n) && n !== fn) return;
+          if (ts.isReturnStatement(n) && n.expression) rets.push(n.expression);
+          ts.forEachChild(n, v);
+        };
+        ts.forEachChild(fn.body, v);
+      }
+      const flat = [];
+      const spread = (r) => {
+        if (ts.isParenthesizedExpression(r) || ts.isAsExpression(r) || ts.isNonNullExpression(r)) return spread(r.expression);
+        if (ts.isConditionalExpression(r)) return (spread(r.whenTrue), spread(r.whenFalse));
+        flat.push(r);
+      };
+      rets.forEach(spread);
+      const out = [];
+      for (const r of flat) {
+        if (r.kind === ts.SyntaxKind.NullKeyword || (ts.isIdentifier(r) && r.text === 'undefined')) continue;
+        let url = null;
+        let opts = null;
+        if (ts.isObjectLiteralExpression(r)) {
+          const p = r.properties.find((x) => ts.isPropertyAssignment(x) && x.name.getText(sf) === 'path');
+          url = p ? p.initializer : null;
+        } else if (ts.isArrayLiteralExpression(r) && r.elements.length >= 1) {
+          url = r.elements[0];
+          opts = r.elements[1];
+        }
+        const lps = url ? literalPaths(url, sf).filter((x) => !x.head && /^\/[a-z]/.test(x.path)) : [];
+        if (!lps.length) return; // some return is not a request: not a builder
+        let method;
+        if (opts && ts.isObjectLiteralExpression(opts)) {
+          const m = opts.properties.find((x) => ts.isPropertyAssignment(x) && x.name.getText(sf) === 'method');
+          if (m && ts.isStringLiteral(m.initializer)) method = m.initializer.text.toUpperCase();
+        }
+        for (const lp of lps) out.push({ ...lp, method });
+      }
+      if (out.length) REQ_BUILDERS.set(name, out);
+    };
     const top = (n) => {
-      if (ts.isFunctionDeclaration(n) && n.name) visitB(n.name.text, n);
-      else if (ts.isVariableDeclaration(n) && ts.isIdentifier(n.name) && n.initializer && (ts.isArrowFunction(n.initializer) || ts.isFunctionExpression(n.initializer))) visitB(n.name.text, n.initializer);
+      if (ts.isFunctionDeclaration(n) && n.name) (visitB(n.name.text, n), visitR(n.name.text, n));
+      else if (ts.isVariableDeclaration(n) && ts.isIdentifier(n.name) && n.initializer && (ts.isArrowFunction(n.initializer) || ts.isFunctionExpression(n.initializer))) (visitB(n.name.text, n.initializer), visitR(n.name.text, n.initializer));
       ts.forEachChild(n, top);
     };
     top(sf);
@@ -304,6 +362,14 @@ function literalPaths(node, sf, depth = 0) {
   if (ts.isConditionalExpression(node)) return [...literalPaths(node.whenTrue, sf, depth + 1), ...literalPaths(node.whenFalse, sf, depth + 1)];
   if (ts.isAsExpression(node) || ts.isParenthesizedExpression(node) || ts.isNonNullExpression(node)) return literalPaths(node.expression, sf, depth + 1);
   if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && BUILDERS.has(node.expression.text)) return BUILDERS.get(node.expression.text);
+  // `fetch(...reminderLogRequest(id))`: spread of a request builder that returns `[url, init]`
+  if (ts.isSpreadElement(node)) return literalPaths(node.expression, sf, depth + 1);
+  if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && REQ_BUILDERS.has(node.expression.text)) return REQ_BUILDERS.get(node.expression.text).map((x) => ({ ...x, fromBuilder: true }));
+  // `fetch(request.path, ...)` where `const request = buildXRequest(...)` (or a ternary of builders)
+  if (ts.isPropertyAccessExpression(node) && node.name.text === 'path' && ts.isIdentifier(node.expression)) {
+    const init = constInit(node.expression);
+    return init ? literalPaths(init, sf, depth + 1).filter((x) => x.fromBuilder) : [];
+  }
   if (ts.isCallExpression(node) && node.arguments.length && ts.isIdentifier(node.expression) && !/^(encodeURI|encodeURIComponent|String)$/.test(node.expression.text)) {
     return literalPaths(node.arguments[0], sf, depth + 1);
   }
@@ -370,6 +436,11 @@ function normalisePath(p, head) {
 }
 
 const fileCache = new Map();
+// generic wrappers (call sites that forward a parameter), unresolved sites, and hand-written resolutions
+const WRAPPER_SITES = new Map();
+const UNRESOLVED_SITES = new Map();
+const MANUAL = new Map(); // "file:line" -> { method, path, note }  (docs/design/inventory/manual-calls.json)
+const MANUAL_USED = new Set();
 
 function analyseFile(file) {
   if (fileCache.has(file)) return fileCache.get(file);
@@ -448,20 +519,51 @@ function analyseFile(file) {
         const args = n.arguments || [];
         const isCaller = isCallerCallee(callee, sf);
         const wrapper = !isCaller && ts.isIdentifier(callee) ? WRAPPERS.get(callee.text) : null;
-        const urlArg = wrapper ? args[wrapper.arg] : args[0];
+        let urlArg = wrapper ? args[wrapper.arg] : args[0];
+        // `HttpClient.request({ url, method, ... })`: the URL is the `url` property of an options object
+        let optsArg = wrapper ? args[wrapper.arg + 1] : args[1];
+        if (isCaller && urlArg && ts.isObjectLiteralExpression(urlArg)) {
+          optsArg = urlArg;
+          const u = urlArg.properties.find((x) => ts.isPropertyAssignment(x) && x.name.getText(sf) === 'url');
+          urlArg = u ? u.initializer : null;
+        }
         if ((isCaller || wrapper) && urlArg) {
           const method = wrapper
             ? wrapper.method !== '*' ? wrapper.method : args[wrapper.arg + 1] && ts.isObjectLiteralExpression(args[wrapper.arg + 1]) ? methodOf(callee, [urlArg, args[wrapper.arg + 1]]) : 'GET'
-            : methodOf(callee, args);
+            : methodOf(callee, [urlArg, optsArg]);
           const lps = literalPaths(urlArg, sf);
           const line = sf.getLineAndCharacterOfPosition(n.getStart(sf)).line + 1;
           if (!lps.length) {
-            unresolved++;
-            if (process.env.DEBUG_UNRESOLVED) console.error('UNRESOLVED', rel(file) + ':' + line, n.getText(sf).slice(0, 90).replace(/\s+/g, ' '));
+            // A generic wrapper (`function callPatientApi(path) { return fetch(patientApiUrl(path)) }`) forwards its own
+            // parameter: the paths are attributed at its callers, so this is not an unresolved call.
+            const fnParams = [];
+            for (let a = n.parent; a; a = a.parent) {
+              if (ts.isFunctionLike(a)) fnParams.push({ fn: a, params: a.parameters.map((x) => (ts.isIdentifier(x.name) ? x.name.text : '')) });
+            }
+            const owner = fnParams.find((f) => paramOf(urlArg, f.params) >= 0);
+            // `HttpClient(config)` inside an axios interceptor re-sends the request that just failed: that request is
+            // already counted at its own call site, so the replay adds no endpoint.
+            const replay = ts.isIdentifier(callee) && callee.text === 'HttpClient' && ts.isIdentifier(urlArg);
+            const manual = MANUAL.get(rel(file) + ':' + line);
+            if (replay) {
+              WRAPPER_SITES.set(rel(file) + ':' + line, { file: rel(file), line, fn: '(axios interceptor)', call: n.getText(sf).slice(0, 60), replay: true });
+            } else if (owner) {
+              const fnName = owner.fn.name?.text || (ts.isVariableDeclaration(owner.fn.parent) ? owner.fn.parent.name.getText(sf) : '(anonymous)');
+              WRAPPER_SITES.set(rel(file) + ':' + line, { file: rel(file), line, fn: fnName, call: n.getText(sf).slice(0, 60).replace(/\s+/g, ' ') });
+            } else if (manual) {
+              MANUAL_USED.add(rel(file) + ':' + line);
+              const np = normalisePath(manual.path, '');
+              if (np) calls.push({ method: manual.method, ...np, line, file: rel(file), via: 'manual-calls.json', note: manual.note });
+            } else {
+              unresolved++;
+              UNRESOLVED_SITES.set(rel(file) + ':' + line, { file: rel(file), line, call: n.getText(sf).slice(0, 90).replace(/\s+/g, ' ') });
+              if (process.env.DEBUG_UNRESOLVED) console.error('UNRESOLVED', rel(file) + ':' + line, n.getText(sf).slice(0, 90).replace(/\s+/g, ' '));
+            }
           }
           for (const lp of lps) {
             const np = normalisePath(lp.path, lp.head);
-            if (np) calls.push({ method, ...np, line, file: rel(file) });
+            // `fetch(...builder())` takes its method from the builder's `init`
+            if (np) calls.push({ method: ts.isSpreadElement(urlArg) && lp.method ? lp.method : method, ...np, line, file: rel(file), ...(lp.fromBuilder ? { via: 'request builder' } : {}) });
           }
         }
       }
@@ -578,7 +680,56 @@ function closure(appKey, entryFile) {
     const k = `${c.method} ${c.target} ${c.path}`;
     if (!uniq.has(k)) uniq.set(k, c);
   }
-  return { calls: [...uniq.values()], files: files.size, unresolved };
+  return { calls: [...uniq.values()], files: files.size, unresolved, fileSet: files };
+}
+
+/* ------------------------------------------- wrapper callers and resolved sites */
+
+// For every generic wrapper (a function that forwards its own parameter to fetch), count the call sites
+// of that function: each must resolve to a path itself (or be another forwarding wrapper), otherwise it
+// is listed. This is the proof that "wrapper, not unresolved" does not hide a call.
+function wrapperCensus() {
+  const sites = [...WRAPPER_SITES.values()].filter((x) => !x.replay);
+  const fns = new Map(); // "file#fn" -> { file, fn, line, arg }
+  for (const x of sites) fns.set(x.file + '#' + x.fn, { ...x, arg: WRAPPERS.get(x.fn)?.arg ?? 0 });
+  const out = [];
+  for (const w of fns.values()) {
+    const appKey = w.file.startsWith('patient-web') ? 'patient-web' : 'patient-app';
+    let callers = 0;
+    let resolved = 0;
+    let forwarding = 0;
+    const other = [];
+    for (const sf of PARSED) {
+      const f = rel(sf.fileName);
+      if (f.startsWith('patient-web') !== (appKey === 'patient-web')) continue;
+      // does this file see the wrapper? same file, or an import of that name
+      let sees = f === w.file;
+      if (!sees) for (const v of analyseFile(sf.fileName).imports.values()) if (v.name === w.fn) sees = true;
+      if (!sees) continue;
+      const v = (n) => {
+        if (ts.isCallExpression(n)) {
+          const c = n.expression;
+          const name = ts.isIdentifier(c) ? c.text : ts.isPropertyAccessExpression(c) ? c.name.text : '';
+          const a = n.arguments[w.arg];
+          const line = sf.getLineAndCharacterOfPosition(n.getStart(sf)).line + 1;
+          if (name === w.fn && a && !(f === w.file && line === w.line)) {
+            callers++;
+            if (literalPaths(a, sf).length) resolved++;
+            else {
+              const owners = [];
+              for (let p = n.parent; p; p = p.parent) if (ts.isFunctionLike(p)) owners.push(p.parameters.map((x) => (ts.isIdentifier(x.name) ? x.name.text : '')));
+              if (owners.some((ps) => paramOf(a, ps) >= 0)) forwarding++;
+              else other.push(`${f}:${line}`);
+            }
+          }
+        }
+        ts.forEachChild(n, v);
+      };
+      v(sf);
+    }
+    out.push({ file: w.file, line: w.line, fn: w.fn, callers, resolved, forwarding, other: other.sort() });
+  }
+  return out.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line);
 }
 
 /* ------------------------------------------------------ backend matching */
@@ -961,12 +1112,18 @@ function renderInventory(rows, meta) {
   return L.join('\n');
 }
 
-function renderWiring(rows, meta, found, gaps) {
+function renderWiring(rows, meta, found, gaps, x) {
   const L = [];
   L.push('# Wiring report — screens ↔ API, and design foundation');
   L.push('');
   L.push(`> Generated by \`node tools/design/screen-inventory.mjs\` at commit \`${meta.commit}\`. Do not edit by hand.`);
   L.push('> Read at the start of every design session together with `PROGRESS.md` and `SCREEN_INVENTORY.md`. A screen is rebuilt on real API data only (handoff §1, §6): any row below that is not `OK` must be fixed or the UI element hidden — never faked.');
+  L.push('');
+  const unres = (app) => rows.filter((r) => r.app === app).reduce((s, r) => s + r.unresolved, 0);
+  L.push(`- **Unresolved calls (built from variables):** patient-app ${unres('patient-app')}, patient-web ${unres('patient-web')} (section 3b)`);
+  L.push(`- **Needs review:** ${x.needs.length} open item${x.needs.length === 1 ? '' : 's'} (section 7)`);
+  L.push(`- **Mock / placeholder hits (heuristic):** ${x.mock.found.length}, of which Batch 0: ${x.mock.found.filter((h) => h.batch0).length} (section 6)`);
+  L.push('- **Per-screen element audits:** [`docs/design/audit/`](audit/) (`batch-0-web.md`, `batch-0-app.md`: every element of a screen against its board and its data source)');
   L.push('');
   L.push('## 1. Design foundation (handoff §1, §3, §6; DEVICE_STANDARD §1, §5)');
   L.push('');
@@ -1009,6 +1166,7 @@ function renderWiring(rows, meta, found, gaps) {
   L.push('');
   L.push(`Totals: ${all.length} pairs, ${count('OK')} OK, ${count('PARTIAL')} partial (not checkable), ${all.length - count('OK') - count('EXTERNAL') - count('PARTIAL')} need attention.`);
   L.push('');
+  L.push(...renderCalls3b(rows, x));
   L.push('## 4. Endpoints that are not wired (fix in the batch that rebuilds the screen)');
   L.push('');
   const bad = new Map();
@@ -1040,7 +1198,237 @@ function renderWiring(rows, meta, found, gaps) {
     L.push(`- **${app}** (${rs.length}): ${rs.join(', ')}`);
   }
   L.push('');
+  L.push(...renderStatic5b(rows, x.statics, x.needs));
+  L.push(...renderMock(x.mock));
+  L.push(...renderNeeds(x.needs));
   return L.join('\n');
+}
+
+/* ------------------------------------- Needs review, static screens, mock scan */
+
+const NEEDS_REVIEW_KEYS = ['batch', 'app', 'screen', 'element', 'file', 'line', 'found', 'suspect'];
+
+// docs/design/needs-review/*.json: each a JSON array of { batch, app, screen, element, file, line, found, suspect }.
+// Written by several agents in parallel, merged here; a malformed file stops the run with its name.
+function loadNeedsReview() {
+  const dir = join(REPO, 'docs/design/needs-review');
+  if (!existsSync(dir)) return [];
+  const out = [];
+  const fail = (msg) => {
+    console.error(`docs/design/needs-review/${msg}`);
+    process.exit(2);
+  };
+  for (const f of readdirSync(dir).filter((x) => x.endsWith('.json')).sort()) {
+    let arr;
+    try {
+      arr = JSON.parse(read(join(dir, f)));
+    } catch (e) {
+      fail(`${f}: invalid JSON (${e.message})`);
+    }
+    if (!Array.isArray(arr)) fail(`${f}: must be a JSON array`);
+    arr.forEach((o, i) => {
+      if (!o || typeof o !== 'object') fail(`${f}[${i}]: must be an object`);
+      for (const k of NEEDS_REVIEW_KEYS) if (!(k in o)) fail(`${f}[${i}]: missing "${k}"`);
+      out.push({ ...o, src: f });
+    });
+  }
+  const bn = (x) => (Number.isFinite(Number(x.batch)) ? Number(x.batch) : 99);
+  const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
+  return out.sort((a, b) => bn(a) - bn(b) || cmp(String(a.app), String(b.app)) || cmp(String(a.screen), String(b.screen)) || cmp(String(a.file), String(b.file)) || cmp(Number(a.line) || 0, Number(b.line) || 0) || cmp(String(a.element), String(b.element)) || cmp(a.src, b.src));
+}
+
+// docs/design/inventory/static-screens.json: { "<route>": { file, verdict, reason } } for the web screens that call no API.
+const VERDICTS = { static: 'STATIC (by design)', thin: 'STATIC (pointer page)', suspicious: 'SUSPICIOUS', untraced: 'UNTRACED' };
+function loadStaticScreens() {
+  const f = join(REPO, 'docs/design/inventory/static-screens.json');
+  return existsSync(f) ? JSON.parse(read(f)) : {};
+}
+
+// Files whose hard-coded data and dead controls are scanned: every file a route reaches (symbol closure, own app only),
+// every file in the route trees (layouts, co-located components), and the Batch 0 component folders.
+const BATCH0_DIRS = ['patient-web/components-next/auth/', 'patient-web/components-next/home/', 'patient-web/components-next/core/', 'patient-app/src/components/auth/', 'patient-app/src/components/home/', 'patient-app/src/components/navigation/', 'patient-app/src/components/screen/'];
+
+function mockFindings(rows, closureFiles) {
+  const scope = new Set();
+  const add = (abs) => {
+    const r = typeof abs === 'string' && abs.startsWith(REPO) ? rel(abs) : abs;
+    if ((r.startsWith('patient-app/') || r.startsWith('patient-web/')) && !r.startsWith('patient-web/app/api/') && isScanned(r) && isFile(join(REPO, r))) scope.add(r);
+  };
+  for (const set of closureFiles) for (const f of set) add(f);
+  for (const app of Object.values(APPS)) for (const f of walk(app.routesDir, (p) => /\.(tsx?|jsx?)$/.test(p))) add(f);
+  for (const d of BATCH0_DIRS) for (const f of walk(join(REPO, d), (p) => /\.(tsx?|jsx?)$/.test(p))) add(f);
+  // Batch 0 = its route files, the files beside a non-root web route file, and the Batch 0 component folders
+  const b0 = new Set();
+  for (const r of rows.filter((x) => x.batch === 0)) {
+    b0.add(r.file);
+    const dir = dirname(r.file);
+    if (r.app === 'patient-web' && dir !== rel(APPS['patient-web'].routesDir)) for (const f of scope) if (dirname(f) === dir) b0.add(f);
+  }
+  const isB0 = (f) => b0.has(f) || BATCH0_DIRS.some((d) => f.startsWith(d));
+  const files = [...scope].sort().map((r) => ({ rel: r, app: r.startsWith('patient-web/') ? 'patient-web' : 'patient-app', src: read(join(REPO, r)) }));
+  // identical fallbacks repeated in one file (14 insurers each with `defaultCoPay: 0.2`) count and print once
+  const groups = new Map();
+  for (const x of scanMock(ts, files)) {
+    const k = x.group ? `${x.app}|${x.category}|${x.file}|${x.group}` : `${x.app}|${x.category}|${x.file}|${x.line}|${x.snippet}|${x.sub || ''}`;
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(x);
+  }
+  const found = [...groups.values()].map((g) => ({ ...g[0], batch0: isB0(g[0].file), more: g.length - 1, lines: g.map((y) => y.line) }));
+  return { found, scanned: files.length, scannedBatch0: files.filter((f) => isB0(f.rel)).length };
+}
+
+/* ------------------------------------------------- new report sections */
+
+const code = (s) => '`' + String(s).replace(/`/g, "'") + '`';
+const cell = (s) => String(s ?? '').replace(/\\/g, '\\\\').replace(/\|/g, '\\|').replace(/\s*\n\s*/g, ' ');
+
+// 3b. how every call built from variables was resolved
+function renderCalls3b(rows, x) {
+  const L = [];
+  const count = (app) => rows.filter((r) => r.app === app).reduce((s, r) => s + r.unresolved, 0);
+  L.push('## 3b. Calls built from variables: how each was resolved');
+  L.push('');
+  L.push(`Unresolved calls now: **patient-app ${count('patient-app')}, patient-web ${count('patient-web')}**. The tool used to count the same few call sites once for every route that imports them. Every site is now one of the kinds below (`+ '`DEBUG_UNRESOLVED=1 node tools/design/screen-inventory.mjs` lists any that remain).');
+  L.push('');
+  L.push('### Generic wrappers: the path is attributed at each caller');
+  L.push('');
+  L.push('A wrapper forwards its own parameter to `fetch` (`fetch(patientApiUrl(path))`), so the call cannot name a path where it is written; each caller of the wrapper is scanned and carries its own path. The table counts those callers, so a caller that hides its path would show up in the last column.');
+  L.push('');
+  L.push('| Wrapper | Forwards at | Callers | Path resolved at caller | Forwards again | Not resolvable |');
+  L.push('|---|---|---|---|---|---|');
+  for (const c of x.census) L.push(`| ${code(c.fn)} | ${code(c.file + ':' + c.line)} | ${c.callers} | ${c.resolved} | ${c.forwarding} | ${c.other.length ? c.other.map(code).join(', ') : '0'} |`);
+  L.push('');
+  const replays = x.wrapperSites.filter((w) => w.replay);
+  if (replays.length) {
+    L.push('Not a wrapper but not a new call either: ' + replays.map((w) => `${code(w.file + ':' + w.line)} (${code(w.call)}) re-sends the request an axios interceptor just saw fail; that request is counted at its own call site`).join('; ') + '.');
+    L.push('');
+  }
+  L.push('### Request builders: resolved by following the builder\'s returned path');
+  L.push('');
+  const seen = new Map();
+  for (const r of rows) for (const c of r.calls) if (c.via === 'request builder') seen.set(`${c.file}:${c.line}|${c.method} ${c.path}`, c);
+  const built = [...seen.values()].sort((a, b) => (a.file + String(a.line).padStart(6, '0') < b.file + String(b.line).padStart(6, '0') ? -1 : 1));
+  if (!built.length) L.push('None.');
+  else {
+    L.push('| Call site | Resolved to | Status | Served by |');
+    L.push('|---|---|---|---|');
+    for (const c of built) L.push(`| ${code(c.file + ':' + c.line)} | ${code(c.method + ' ' + c.path)} | ${c.status} | ${c.backend || c.handler ? code(c.backend || c.handler) : '—'} |`);
+    const notOk = built.filter((c) => c.status !== 'OK');
+    L.push('');
+    L.push(notOk.length ? `Not OK: ${notOk.map((c) => `${code(c.method + ' ' + c.path)} (${c.status})`).join(', ')}.` : 'All of them match a real route (`OK`).');
+  }
+  L.push('');
+  const manual = [];
+  for (const r of rows) for (const c of r.calls) if (c.via === 'manual-calls.json') manual.push(c);
+  L.push('### Hand-written entries (`inventory/manual-calls.json`)');
+  L.push('');
+  L.push('`{"file:line": {"method", "path", "note"}}`, merged by the tool. `--check` fails when an entry no longer points at an unresolved call site.');
+  L.push('');
+  const man = [...new Map(manual.map((c) => [`${c.file}:${c.line}`, c])).values()];
+  L.push(man.length ? man.map((c) => `- ${code(c.file + ':' + c.line)} → ${code(c.method + ' ' + c.path)} (${c.status}): ${c.note}`).join('\n') : 'None needed.');
+  L.push('');
+  const un = [...x.unresolvedSites.values()];
+  L.push('### Still unresolved');
+  L.push('');
+  L.push(un.length ? un.map((u) => `- ${code(u.file + ':' + u.line)} ${code(u.call)}`).join('\n') : 'None.');
+  L.push('');
+  return L;
+}
+
+// 5b. web screens with no API call
+function renderStatic5b(rows, statics, needs) {
+  const L = [];
+  const none = rows.filter((r) => r.app === 'patient-web' && !r.calls.length && !r.redirect).sort((a, b) => a.route.localeCompare(b.route));
+  L.push('## 5b. Web screens with no API calls');
+  L.push('');
+  L.push(`Each of the ${none.length} was classified by reading its page and the components it imports (verdicts live in \`inventory/static-screens.json\`). SUSPICIOUS and UNTRACED verdicts are always listed in section 7 (Needs review); a pointer page whose copy claims more than it shows can be there too.`);
+  L.push('');
+  L.push('| Route | File | Verdict | Reason |');
+  L.push('|---|---|---|---|');
+  const inReview = new Set(needs.filter((n) => n.app === 'patient-web').map((n) => n.screen));
+  for (const r of none) {
+    const s = statics[r.route];
+    const verdict = s ? VERDICTS[s.verdict] || `?${s.verdict}` : 'UNCLASSIFIED';
+    const flag = s && (s.verdict === 'suspicious' || s.verdict === 'untraced') ? (inReview.has(r.route) ? ' (in Needs review)' : ' (NOT in Needs review: add it)') : '';
+    L.push(`| ${code(r.route)} | ${code(r.file)} | ${verdict}${flag} | ${cell(s ? s.reason : 'not classified yet: add it to inventory/static-screens.json')} |`);
+  }
+  const stale = Object.keys(statics).filter((k) => !none.some((r) => r.route === k));
+  if (stale.length) L.push('', `Stale entries in static-screens.json (the screen now calls an API or is gone): ${stale.map(code).join(', ')}.`);
+  L.push('');
+  return L;
+}
+
+// 8. mock / placeholder scan
+function renderMock(m) {
+  const L = [];
+  const apps = ['patient-app', 'patient-web'];
+  const total = (f) => m.found.filter(f).length;
+  L.push('## 6. Mock / placeholder found (heuristic)');
+  L.push('');
+  L.push(`**Heuristic scan, not a proof.** \`tools/design/mock-scan.mjs\` reads the TypeScript AST of ${m.scanned} source files (the files each route reaches, the route trees and their layouts, and the Batch 0 component folders; ${m.scannedBatch0} of them are Batch 0) and lists code that looks like fake data or a dead control. A hit is a lead to check, a miss is not a guarantee. Each pattern was sampled on real hits and tightened until false positives were rare; when a pattern finds nothing it says so.`);
+  L.push('');
+  L.push('Ignored: tests and fixtures, `node_modules`, the generated mirror `patient-web/components-next/ui-generated`, i18n dictionaries, `placeholder=` attributes and props (input hints), `console.*` arguments and error messages. **B0** = Batch 0: its route files, the files beside a web Batch 0 route, `patient-web/components-next/{auth,home,core}` and `patient-app/src/components/{auth,home,navigation,screen}`.');
+  L.push('');
+  L.push('| Category | app B0 | app rest | web B0 | web rest | Total |');
+  L.push('|---|---|---|---|---|---|');
+  for (const [id, label] of MOCK_CATEGORIES) {
+    const c = (app, b0) => total((x) => x.category === id && x.app === app && x.batch0 === b0);
+    L.push(`| ${label} | ${c('patient-app', true)} | ${c('patient-app', false)} | ${c('patient-web', true)} | ${c('patient-web', false)} | ${total((x) => x.category === id)} |`);
+  }
+  L.push(`| **All** | ${total((x) => x.app === 'patient-app' && x.batch0)} | ${total((x) => x.app === 'patient-app' && !x.batch0)} | ${total((x) => x.app === 'patient-web' && x.batch0)} | ${total((x) => x.app === 'patient-web' && !x.batch0)} | ${m.found.length} |`);
+  L.push('');
+  for (const app of apps) {
+    const mine = m.found.filter((x) => x.app === app);
+    L.push(`### ${app} (${mine.length})`);
+    L.push('');
+    for (const [id, label] of MOCK_CATEGORIES) {
+      const hits = mine.filter((x) => x.category === id);
+      const items = hits;
+      L.push(`#### ${label}: ${hits.length}${hits.some((h) => h.batch0) ? ` (Batch 0: ${hits.filter((h) => h.batch0).length})` : ''}`);
+      L.push('');
+      if (!items.length) {
+        L.push('None found.');
+        L.push('');
+        continue;
+      }
+      const line = (h) => `- ${h.batch0 ? '**B0** ' : ''}${code(h.file + ':' + h.line)}${h.sub ? ' [' + h.sub + ']' : ''} ${code(h.snippet)}${h.more ? ` (same in ${h.more} more place${h.more === 1 ? '' : 's'}: line${h.more === 1 ? '' : 's'} ${h.lines.slice(1).join(', ')})` : ''}`;
+      const b0 = items.filter((h) => h.batch0);
+      const rest = items.filter((h) => !h.batch0);
+      for (const h of b0) L.push(line(h));
+      if (rest.length > 12) {
+        L.push('', `<details><summary>${rest.length} outside Batch 0</summary>`, '');
+        for (const h of rest) L.push(line(h));
+        L.push('', '</details>');
+      } else for (const h of rest) L.push(line(h));
+      L.push('');
+    }
+  }
+  return L;
+}
+
+// 9. Needs review (rendered from docs/design/needs-review/*.json)
+function renderNeeds(needs) {
+  const L = [];
+  L.push('## 7. Needs review');
+  L.push('');
+  L.push(`${needs.length} open item${needs.length === 1 ? '' : 's'}, merged from \`docs/design/needs-review/*.json\` (format in that folder's README). These are things an agent found while rebuilding or auditing a screen and could not settle from the client code. **The reviewer session verifies each one and fixes backend gaps; a design session only reports.** Per-screen element audits are in [\`docs/design/audit/\`](audit/).`);
+  L.push('');
+  if (!needs.length) {
+    L.push('None.');
+    L.push('');
+    return L;
+  }
+  let head = '';
+  for (const n of needs) {
+    const h = `Batch ${n.batch} — ${n.app}`;
+    if (h !== head) {
+      head = h;
+      L.push('', `### ${h}`, '', '| Screen | Element | file:line | What was found | What is suspected |', '|---|---|---|---|---|');
+    }
+    L.push(`| ${code(n.screen)} | ${cell(n.element)} | ${code(n.file + (n.line ? ':' + n.line : ''))} | ${cell(n.found)} | ${cell(n.suspect)} |`);
+  }
+  L.push('');
+  return L;
 }
 
 /* --------------------------------------------------------------- main */
@@ -1048,6 +1436,8 @@ function renderWiring(rows, meta, found, gaps) {
 async function main() {
   const commit = spawnSync('git', ['rev-parse', '--short', 'HEAD'], { cwd: REPO, encoding: 'utf8' }).stdout.trim();
   collectWrappers();
+  const manualFile = join(REPO, 'docs/design/inventory/manual-calls.json');
+  if (existsSync(manualFile)) for (const [k, v] of Object.entries(JSON.parse(read(manualFile)))) MANUAL.set(k, v);
   if (process.env.DEBUG_WRAPPERS) console.error([...WRAPPERS].map(([k, v]) => `${k}:${v.arg}:${v.method}`).join(" "), '\nBUILDERS', [...BUILDERS].map(([k, v]) => `${k}=${v.map((x) => x.path).join('|')}`).join(' '));
   const routes = [...patientAppRoutes(), ...patientWebRoutes()];
   const be = backendRoutes();
@@ -1057,8 +1447,10 @@ async function main() {
   const statusFile = join(REPO, 'docs/design/screen-status.json');
   const status = existsSync(statusFile) ? JSON.parse(read(statusFile)) : {};
 
+  const closureFiles = [];
   const rows = routes.map((r) => {
     const cl = closure(r.app, r.file);
+    closureFiles.push(cl.fileSet);
     const calls = cl.calls.map((c) => {
       const out = { ...c };
       if (c.partial) out.status = 'PARTIAL';
@@ -1122,10 +1514,27 @@ async function main() {
   });
   rows.sort((a, b) => a.app.localeCompare(b.app) || a.route.localeCompare(b.route));
 
+  // every manual-calls.json entry must still sit on an unresolved call site
+  const staleManual = [...MANUAL.keys()].filter((k) => !MANUAL_USED.has(k));
+  if (staleManual.length) {
+    console.error(`docs/design/inventory/manual-calls.json: no unresolved call site at ${staleManual.join(', ')} (the line moved, or the call is now resolved: update or delete the entry)`);
+    process.exit(1);
+  }
+  const unresolvedSites = new Map(UNRESOLVED_SITES);
+  const wrapperSites = [...WRAPPER_SITES.values()];
+  const extra = {
+    census: wrapperCensus(),
+    wrapperSites,
+    unresolvedSites,
+    statics: loadStaticScreens(),
+    needs: loadNeedsReview(),
+    mock: mockFindings(rows, closureFiles),
+  };
+
   const meta = { commit };
   const outputs = {
     'docs/design/SCREEN_INVENTORY.md': renderInventory(rows, meta) + '\n',
-    'docs/design/WIRING_REPORT.md': renderWiring(rows, meta, foundation(), fieldGaps()) + '\n',
+    'docs/design/WIRING_REPORT.md': renderWiring(rows, meta, foundation(), fieldGaps(), extra) + '\n',
     'docs/design/inventory/screens.json': JSON.stringify({ commit, routes: rows }, null, 1) + '\n',
   };
 
