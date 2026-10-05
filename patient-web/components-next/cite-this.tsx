@@ -1,32 +1,26 @@
 "use client";
 
 import { useState } from "react";
+import { buildCitation } from "@/lib/citation";
 
 /**
  * "Cite this information" block — organic citation engine.
  * Generates BibTeX + plain-text citations from REAL page data
  * (title, canonical URI, author, publish date). No fabricated facts.
  */
-export function CiteThis({ title, uri, author, authorTitle, publishedAt, locale }: {
+export function CiteThis({ title, uri, author, publishedAt, locale, accessedAt }: {
   title: string;
   uri: string;
   author?: string | null;
   authorTitle?: string | null;
   publishedAt?: string | null;
   locale: string;
+  /** YYYY-MM-DD computed by the server page: no clock read here, so SSR and hydration match. */
+  accessedAt: string;
 }) {
   const [copied, setCopied] = useState("");
   const isAr = locale === "ar";
-  const now = new Date();
-  const year = publishedAt ? new Date(publishedAt).getFullYear() : now.getFullYear();
-  const accessedIso = now.toISOString().slice(0, 10);
-  const accessed = now.toLocaleDateString(isAr ? "ar-SA" : "en-US");
-  const key = `nabd-${year}-${title.slice(0, 12).replace(/\s+/g, "")}`;
-  // Decode for human display — don't show %8B%9A
-  let displayUri = uri;
-  try { displayUri = decodeURIComponent(uri); } catch {}
-  const bibtex = `@misc{${key},\n  title = {${title}},\n  author = {${author || "Nabd Plus"}},\n  year = {${year}},\n  url = {${uri}},\n  urldate = {${accessedIso}},\n  note = {${isAr ? "منصة نبض بلس الصحية" : "Nabd Plus healthcare platform"}}\n}`;
-  const plain = `${author ? `${author}. ` : ""}"${title}." Nabd Plus${publishedAt ? `, ${new Date(publishedAt).toLocaleDateString(isAr ? "ar-SA" : "en-US")}` : ""}. ${displayUri}. ${isAr ? `تاريخ الوصول ${accessed}.` : `Accessed ${accessed}.`}`;
+  const { plain, bibtex } = buildCitation({ title, uri, author, publishedAt, locale, accessedAt });
   const copy = async (text: string, which: string) => {
     try {
       await navigator.clipboard.writeText(text);

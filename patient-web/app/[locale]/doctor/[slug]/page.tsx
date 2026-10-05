@@ -86,6 +86,7 @@ export default async function DoctorCanonicalPage({ params }: Props) {
             locale: locale as Locale,
             specialty: doctor.specialty || null,
             city: cityName,
+            clinicAddress: doctor.clinic_address || null,
             ratingValue: doctor.rating_avg ?? doctor.rating ?? null,
             reviewCount: doctor.reviews_count ?? null,
           }),

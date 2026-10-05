@@ -11,6 +11,7 @@ import { getPublicArticle } from "@/lib/api/articles-server";
 import { articleSlug, parseArticle } from "@/lib/api/articles";
 import { RetryButton } from "@/components-next/retry-button";
 import { CiteThis } from "@/components-next/cite-this";
+import { citationAccessDate } from "@/lib/citation";
 import styles from "../articles.module.css";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -119,6 +120,7 @@ export default async function ArticlePage({ params }: Props) {
         authorTitle={authorTitle}
         publishedAt={publishedAt}
         locale={locale}
+        accessedAt={citationAccessDate()}
       />
       <section className={styles.notice}>
         <FileText size={48} aria-hidden="true" style={{ width: 20, height: 20, flexShrink: 0, color: "#1E332E" }} />

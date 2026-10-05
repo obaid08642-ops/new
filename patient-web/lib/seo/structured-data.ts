@@ -28,16 +28,23 @@ export function breadcrumbList(items: Array<{ name: string; locale: Locale; path
   };
 }
 
-export function physician(input: { name: string; path: string; locale: Locale; specialty?: string | null; image?: string | null; city?: string | null; ratingValue?: number | null; reviewCount?: number | null }): Record<string, unknown> {
+/** R16 provider pages: a doctor is a Physician and a MedicalBusiness (the practice patients book). */
+export function physician(input: { name: string; path: string; locale: Locale; specialty?: string | null; image?: string | null; city?: string | null; clinicAddress?: string | null; ratingValue?: number | null; reviewCount?: number | null }): Record<string, unknown> {
   const rating = Number(input.ratingValue);
   const count = Number(input.reviewCount);
+  const hasAddress = Boolean(input.city || input.clinicAddress);
   return {
-    "@context": "https://schema.org", "@type": "Physician",
+    "@context": "https://schema.org", "@type": ["Physician", "MedicalBusiness"],
     name: input.name,
     url: `${siteOrigin()}/${input.locale}${input.path}`,
     ...(input.specialty ? { medicalSpecialty: input.specialty } : {}),
     ...(input.image ? { image: input.image } : {}),
-    ...(input.city ? { address: { "@type": "PostalAddress", addressLocality: input.city, addressCountry: "SA" } } : {}),
+    ...(hasAddress ? { address: {
+      "@type": "PostalAddress",
+      ...(input.clinicAddress ? { streetAddress: input.clinicAddress } : {}),
+      ...(input.city ? { addressLocality: input.city } : {}),
+      addressCountry: "SA",
+    } } : {}),
     // AggregateRating ONLY from live approved-review aggregates; omitted when count is 0.
     ...(rating > 0 && count > 0 ? { aggregateRating: { "@type": "AggregateRating", ratingValue: Math.min(5, Math.max(1, Math.round(rating * 10) / 10)), reviewCount: Math.floor(count) } } : {}),
   };
@@ -118,7 +125,6 @@ export function radiologyService(input: {
     name: input.name,
     url: `${siteOrigin()}/${input.locale}${input.path}`,
     inLanguage: input.locale,
-    procedureType: "Diagnostic",
     ...(input.description ? { description: input.description } : {}),
   };
 }
@@ -131,7 +137,6 @@ export function nursingService(input: {
     name: input.name,
     url: `${siteOrigin()}/${input.locale}${input.path}`,
     inLanguage: input.locale,
-    procedureType: "Nursing",
     ...(input.description ? { description: input.description } : {}),
   };
 }

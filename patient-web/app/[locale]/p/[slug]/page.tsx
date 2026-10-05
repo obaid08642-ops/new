@@ -10,6 +10,7 @@ import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl, siteOrigin } from "@/lib/seo";
 import { howToJsonLd, speakable } from "@/lib/seo/json-ld";
 import { CiteThis } from "@/components-next/cite-this";
+import { citationAccessDate } from "@/lib/citation";
 import { ChevronLeft, ShieldCheck, FileText, AlertCircle, Info, Sparkles, Pill, Factory, Package, Beaker, Layers, Barcode, Tag } from "lucide-react";
 import styles from "./product-page.module.css";
 
@@ -118,10 +119,14 @@ export default async function PublicProductPage({ params }: Props) {
   const priceUnavailable = locale === "ar" ? "السعر غير متوفر" : "Price unavailable";
 
   const howTo = howToJsonLd(product);
+  // R16: a medicine is ONE node typed Product + Drug (schema.org Drug is also a
+  // Product), carrying the Drug properties that exist in schema.org; a
+  // non-medicine product stays a plain Product.
+  const isMedicine = product.is_rx === true || Boolean(product.active_ingredient);
   const jsonLd: Array<Record<string, unknown>> = [
     {
       "@context": "https://schema.org",
-      "@type": "Product",
+      "@type": isMedicine ? ["Product", "Drug"] : "Product",
       name,
       alternateName: product.official_name !== name ? product.official_name : undefined,
       description: product.description || name,
@@ -140,6 +145,14 @@ export default async function PublicProductPage({ params }: Props) {
         product.strength ? { "@type": "PropertyValue", name: "strength", value: product.strength } : null,
         product.form ? { "@type": "PropertyValue", name: "form", value: product.form } : null,
       ].filter(Boolean) as any,
+      ...(isMedicine
+        ? {
+            activeIngredient: product.active_ingredient || undefined,
+            dosageForm: product.form || undefined,
+            prescriptionStatus: product.is_rx ? "https://schema.org/PrescriptionOnly" : "https://schema.org/OTC",
+            warning: product.warnings?.join(" ") || undefined,
+          }
+        : {}),
       inLanguage: locale,
       speakable: speakable,
       // R16: offers carries ONLY page-backed data (finite price, displayed
@@ -157,24 +170,6 @@ export default async function PublicProductPage({ params }: Props) {
           url: "https://nabd.plus",
         },
       },
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "MedicalDrug",
-      name,
-      alternateName: product.official_name !== name ? product.official_name : undefined,
-      activeIngredient: product.active_ingredient || undefined,
-      dosageForm: product.form || undefined,
-      strength: product.strength || undefined,
-      prescriptionStatus: product.is_rx ? "https://schema.org/PrescriptionOnly" : "https://schema.org/OTC",
-      contraindication: product.warnings?.join(" ") || undefined,
-      adverseOutcome: product.side_effects?.join(" ") || undefined,
-      indication: product.indications?.join(" ") || undefined,
-      dosageInstructions: product.dosage_instructions || undefined,
-      storageConditions: product.storage_conditions || undefined,
-      url: canonical,
-      image: images[0],
-      speakable: speakable,
     },
     {
       "@context": "https://schema.org",
@@ -357,6 +352,7 @@ export default async function PublicProductPage({ params }: Props) {
         authorTitle={null}
         publishedAt={null}
         locale={locale}
+        accessedAt={citationAccessDate()}
       />
 
       <Link className={styles.back} href={categoryPath || `/${locale}/c`}>

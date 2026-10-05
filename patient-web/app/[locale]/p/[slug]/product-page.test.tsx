@@ -14,6 +14,7 @@ vi.mock("@/lib/api/public-products-server", () => ({
 }));
 
 import PublicProductPage, { generateMetadata } from "./page";
+import { extractJsonLd, validateJsonLd } from "@/lib/seo/schema-validate";
 
 const product = {
   id: "med_v14_100002", sku: 697836, locale: "en",
@@ -51,14 +52,36 @@ describe("public product page (catalog v14)", () => {
     const html = renderToStaticMarkup(await PublicProductPage({ params }));
     expect(html).toContain("Abilify, Aripiprazole 15 Mg - 28 Tablets");
     expect(html).toContain("419.60 SAR");
-    expect(html).toContain('"@type":"Product"');
-    expect(html).toContain('"@type":"MedicalDrug"');
+    // R16: the medicine is one node typed Product + Drug (MedicalDrug is not a schema.org type).
+    expect(html).toContain('"@type":["Product","Drug"]');
+    expect(html).not.toContain("MedicalDrug");
     expect(html).toContain('"@type":"FAQPage"');
     expect(html).toContain('"@type":"BreadcrumbList"');
     expect(html).toContain('"sku":"697836"');
     expect(html).toContain('https://cdn.nabd.plus/100002_img_1.webp');
     expect(html).toContain('fetchPriority="high"');
     expect(html).toContain('href="/en/c/Medicine%20%26%20Treatment/Prescribed%20Treatments"');
+  });
+
+  it("R16: every JSON-LD node of a medicine page passes the schema.org validator", async () => {
+    state.getPublicProduct.mockResolvedValue(product);
+    const html = renderToStaticMarkup(await PublicProductPage({ params }));
+    const nodes = extractJsonLd(html) as Array<Record<string, unknown>>;
+    expect(nodes.map((n) => n["@type"])).toEqual([["Product", "Drug"], "BreadcrumbList", "FAQPage", "HowTo"]);
+    expect(validateJsonLd(nodes)).toEqual([]);
+    expect(nodes[0]).toMatchObject({
+      activeIngredient: "Aripiprazole", dosageForm: "Tablets",
+      prescriptionStatus: "https://schema.org/PrescriptionOnly", warning: "Consult your doctor",
+    });
+  });
+
+  it("R16: a non-medicine product stays a plain Product and still validates", async () => {
+    state.getPublicProduct.mockResolvedValue({ ...product, is_rx: false, active_ingredient: null, form: null });
+    const html = renderToStaticMarkup(await PublicProductPage({ params }));
+    const nodes = extractJsonLd(html) as Array<Record<string, unknown>>;
+    expect(nodes[0]["@type"]).toBe("Product");
+    expect(nodes[0]).not.toHaveProperty("prescriptionStatus");
+    expect(validateJsonLd(nodes)).toEqual([]);
   });
 
   it("emits indexable metadata with per-locale hreflang slugs", async () => {
