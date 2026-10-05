@@ -137,6 +137,10 @@ PR bodies end with the Claude Code line and the session link.
 - **Server access**: the reviewer needs HTTPS access to staging (API, admin, website) through a Cloudflare Access service token, not an SSH shell. Outbound traffic from the cloud container goes through an HTTPS proxy, so SSH is not the right channel. Deploys stay with the owner.
 - **Maps (Q69)**: recommendation given, owner to confirm: keep Google Maps for display (the key comes from the build environment, never the repo), make every map screen survive a missing key, and keep paid calls (Places, Geocoding, Directions) to a minimum with caching. OpenStreetMap/MapLibre is free but weaker for Arabic addresses in Saudi Arabia and is a larger rework.
 
+- **Calls (owner, 2026-10-04):** there is no separate voice consultation. A call is one LiveKit call; the doctor and the patient can each turn their camera on or off. One price (the consultation fee). `voice_consultation_fee` is removed from the design, and no separate voice/video product or price may be built.
+- **Design rebuild branches:** design work goes on `design/<batch>` branches from `main` with a PR to `main` (one batch per PR, screenshots before/after, reviewed before merge). Never on `fix/audit-2026-09`.
+- **Doctor profile fields** for the design (`scfhs_license_no`, `years_experience`, `qualifications[]`): added by the reviewer session in the backend, entered by the doctor at registration and approved by the admin. They stay hidden in the UI until filled, with no default or invented values.
+
 ## 6. Waiting on the owner
 
 1. Rotate the LiveKit key (Q53).
