@@ -18,7 +18,7 @@
  * renderers' maps, and the conformance check makes sure the second half happens.
  */
 
-import { ILLUSTRATED_ICONS, type IllustratedIcon } from './illustrated';
+import { ILLUSTRATED_ICONS, type IllustratedIcon } from './illustrated-names';
 
 /** The Phosphor component each line name maps to. One weight: `regular`. */
 export const LINE_ICON_COMPONENTS = {

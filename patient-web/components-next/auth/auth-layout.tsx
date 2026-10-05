@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { FIcon, Icon, SERVICE_ICONS } from "@/components-next/ui-generated";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { NabdMark } from "@/components-next/nabd-mark";
 import { LocaleSelector } from "@/components-next/locale-selector";
 import { ThemeToggle } from "@/components-next/theme-toggle";

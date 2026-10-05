@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { AuthLayout } from "@/components-next/auth/auth-layout";
 import { OnboardingCarousel, type OnboardingSlide } from "@/components-next/onboarding-carousel";
-import { SERVICE_ICONS } from "@/components-next/ui-generated";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { isLocale } from "@/lib/i18n";
 
 type Props = { params: Promise<{ locale: string }> };

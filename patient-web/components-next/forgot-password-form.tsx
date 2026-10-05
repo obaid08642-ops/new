@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components-next/ui-generated";
+import { Button } from "@/components-next/ui-generated/components/Button";
 import type { Locale } from "@/lib/i18n";
 import styles from "./auth/auth.module.css";
 

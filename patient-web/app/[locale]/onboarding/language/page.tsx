@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { AuthLayout } from "@/components-next/auth/auth-layout";
-import { Button } from "@/components-next/ui-generated";
+import { Button } from "@/components-next/ui-generated/components/Button";
 import { isLocale, localeLabels, locales } from "@/lib/i18n";
 import styles from "@/components-next/auth/auth.module.css";
 
