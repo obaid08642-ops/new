@@ -39,15 +39,39 @@ export interface ErrorTransport {
 const buffer: ReportedError[] = [];
 
 /**
- * Release string. `SENTRY_RELEASE` wins (CI sets it from the git SHA); otherwise
- * a version-only release is derived so a local build is still distinguishable
- * from production rather than showing up as "no release".
+ * Sentry application id for this client. It is part of every release name so
+ * crashes from the four clients never collide in one project; it is a routing
+ * label, never a secret. (All four clients share the `{appId}@{version}+{build}`
+ * contract; only the appId differs per client.)
+ */
+export const ADMIN_SENTRY_APP_ID = 'admin';
+
+/**
+ * Release string, shared contract across all four clients:
+ * `{appId}@{version}+{build}` with this client's appId; dev builds append
+ * `+dev`. `SENTRY_RELEASE` wins when CI sets it (it already carries the full
+ * contracted name); otherwise the name is derived from the environment —
+ * never hard-coded — keeping the legacy `ADMIN_APP_VERSION` this client
+ * already supported as the version fallback.
  */
 export function resolveRelease(env: Record<string, string | undefined> = process.env): string {
   const explicit = (env.SENTRY_RELEASE || '').trim();
   if (explicit) return explicit;
-  const version = (env.ADMIN_APP_VERSION || '').trim();
-  return version ? `web-admin@${version}` : 'web-admin@dev';
+  const version =
+    (env.ADMIN_APP_VERSION || env.NEXT_PUBLIC_ADMIN_APP_VERSION || '').trim() || 'dev';
+  const build =
+    (
+      env.SENTRY_BUILD ||
+      env.ADMIN_BUILD ||
+      env.GIT_SHA ||
+      env.VERCEL_GIT_COMMIT_SHA ||
+      env.NEXT_PUBLIC_ADMIN_BUILD ||
+      ''
+    ).trim() || 'dev';
+  const base = `${ADMIN_SENTRY_APP_ID}@${version}+${build}`;
+  const isDev = (env.NODE_ENV || 'development') !== 'production';
+  if (isDev && !base.endsWith('+dev')) return `${base}+dev`;
+  return base;
 }
 
 export function resolveEnvironment(env: Record<string, string | undefined> = process.env): string {
