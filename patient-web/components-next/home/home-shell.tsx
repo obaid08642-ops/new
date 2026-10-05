@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NavLink } from "@/components-next/nav/nav-link";
 import { getTranslations } from "next-intl/server";
 import { AppShell } from "@/components-next/ui-generated/shells";
 import { Avatar } from "@/components-next/ui-generated/components/Surfaces";
@@ -66,7 +67,7 @@ export async function HomeShell({
       <nav className={styles.nav} aria-label={t("mainNav")}>
         <Link href={home} className={`${styles.navLink} ${styles.navLinkActive}`} aria-current="page">{t("navHome")}</Link>
         {sections.map((s) => (
-          <Link key={s.id} href={s.href} className={styles.navLink}>{s.label}</Link>
+          <NavLink key={s.id} href={s.href} className={styles.navLink} prefetch="viewport" signedIn={signedIn}>{s.label}</NavLink>
         ))}
       </nav>
       <div className={styles.tools}>
@@ -95,7 +96,7 @@ export async function HomeShell({
     <AppShell
       className={`nabd-home-shell ${surface === "dashboard" ? "nabd-home-shell--dashboard" : ""} ${styles.shell}`}
       topBar={topBar}
-      tabBar={<HomeTabBar items={tabs} hrefs={hrefs} value="home" label={t("mainNav")} />}
+      tabBar={<HomeTabBar items={tabs} hrefs={hrefs} value="home" label={t("mainNav")} signedIn={signedIn} />}
       tabBarLabel={t("mainNav")}
     >
       {children}

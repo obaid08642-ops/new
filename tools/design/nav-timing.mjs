@@ -21,13 +21,13 @@
  *
  * CONDITIONS per link, each in a fresh page load (nothing carried over, no HTTP cache, no router cache):
  *   cold      click as soon as React has hydrated the link (its `__reactProps$` key exists), nothing else waited for
- *   viewport  wait until the network has been quiet for 1.5 s and at least 4 s have passed since `load` (the prefetches
+ *   viewport  wait until the network has been quiet for 1.5 s and at least 10 s have passed since `load` (the prefetches
  *             of the links in the viewport, including the ones the page starts when idle, are done), then click. Phone viewports use a real tap (touchstart, then click); desktop uses the mouse
  *   hover     (desktop only) as `viewport`, then move the mouse onto the link, wait 250 ms (a typical dwell), click
  * The median of `--runs` (default 5) is reported, with min and max.
  *
- * `--prefetch-cost` instead loads `/ar` per viewport and reports what the page fetches AFTER `load` until the network is
- * quiet: the RSC prefetch requests (count, bytes) and everything else, so the owner sees what prefetching costs.
+ * `--prefetch-cost` instead loads `/ar` per viewport and reports what the page fetches AFTER `load` (12 s, then until the network is
+ * quiet): the RSC prefetch requests (count, bytes) and everything else, so the owner sees what prefetching costs.
  *
  * What this cannot say: a real phone's CPU and radio, edge TTFB, INP, repeat visits, signed-in pages (the run is
  * anonymous), and anything for pages whose data the seeded backend does not have (see the audit's "not measured").
@@ -44,7 +44,7 @@ const NETS = {
   slow4g: { latency: 150, downloadThroughput: (1.6 * 1000 * 1000) / 8, uploadThroughput: (750 * 1000) / 8, label: 'Slow 4G (Lighthouse mobile): 1.6 Mbps down, 750 Kbps up, 150 ms RTT' },
   none: null,
 };
-const CPU = 4;
+const CPU = Number(arg('cpu', '4'));
 
 /** The tab bar order of the shell (home, pharmacy, consult (raised), labs, nursing). */
 const tab = (i) => `nav.nabd-bottom-tab-bar > button:nth-of-type(${i})`;
@@ -133,9 +133,10 @@ async function oneRun(browser, spec, cond, netKey, base) {
       await page.waitForTimeout(50);
     }
     if (cond !== 'cold') {
-      // Quiet network, and at least 4 s after `load`: the page's own idle-time prefetch (up to 3 s after load) has then started and finished.
+      // Quiet network, and at least 10 s after `load`: the page's own idle-time prefetch (it starts 4 s after load, then
+      // needs a few seconds on this network) has then started and finished.
       await idle();
-      await page.waitForTimeout(Math.max(0, 4000 - (Date.now() - loadedAt)));
+      await page.waitForTimeout(Math.max(0, 10000 - (Date.now() - loadedAt)));
       await idle();
     }
     if (cond === 'hover') { await target.hover(); await page.waitForTimeout(250); }
@@ -171,6 +172,7 @@ async function prefetchCost(browser, netKey, base, runs) {
         });
       });
       await page.goto(base + '/ar', { waitUntil: 'load', timeout: 60000 });
+      await page.waitForTimeout(12000); // the page starts its own prefetch 4 s after load
       await idle(2500, 40000);
       const rscReqs = reqs.filter((q) => q.rsc);
       samples.push({
@@ -178,6 +180,7 @@ async function prefetchCost(browser, netKey, base, runs) {
         rscBytes: rscReqs.reduce((a, q) => a + q.bytes, 0),
         otherCount: reqs.length - rscReqs.length,
         otherBytes: reqs.filter((q) => !q.rsc).reduce((a, q) => a + q.bytes, 0),
+        other: reqs.filter((q) => !q.rsc).map((q) => `${q.type} ${new URL(q.url).pathname.split('/').pop()} ${q.bytes}`),
         urls: rscReqs.map((q) => new URL(q.url).pathname),
       });
       await ctx.close();
@@ -231,6 +234,7 @@ if (flag('prefetch-cost')) {
     const m = (k) => median(d.runs.map((r) => r[k]));
     console.log(`${d.device}: after load until quiet, /ar: RSC prefetch requests ${m('rscCount')}, ${(m('rscBytes') / 1024).toFixed(1)} KB (headers+compressed body); other requests ${m('otherCount')}, ${(m('otherBytes') / 1024).toFixed(1)} KB`);
     console.log('  RSC urls (run 1): ' + d.runs[0].urls.join(' '));
+    console.log('  other requests (run 1): ' + d.runs[0].other.join(' | '));
   }
   writeFileSync(OUT, JSON.stringify({ tag: TAG, header, prefetchCost: res }, null, 1));
   await browser.close();

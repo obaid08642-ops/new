@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Clock, ShieldCheck } from "lucide-react";
 import { extractNursingCatalog } from "@/lib/api/nursing-catalog";
@@ -70,6 +71,7 @@ export default async function NursingCatalogPage({ params }: Props) {
 
   return (
     <main className={`main ${styles.page}`} dir={rtl ? "rtl" : "ltr"} style={{ background: "#FDFDFC" }}>
+      <StaleWhileRevalidate />
       <section className={styles.hero}>
         <div>
           <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>

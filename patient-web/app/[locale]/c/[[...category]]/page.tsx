@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { NavLink } from "@/components-next/nav/nav-link";
+import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -201,6 +203,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
   return (
     <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
+      <StaleWhileRevalidate />
       <JsonLd data={jsonLd} />
 
       {/* Top Search Bar */}
@@ -274,7 +277,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         </div>
         <div className={styles.categoryRail} role="tablist">
           {categoriesList.map((cat) => (
-            <Link
+            <NavLink
               key={cat.id}
               href={cat.link}
               className={`${styles.categoryCard} ${cat.isActive ? styles.categoryCardActive : ""}`}
@@ -286,7 +289,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
               <span className={styles.catCardCount}>
                 {cat.count > 0 ? `${cat.count} ${locale === "ar" ? "منتج" : "items"}` : ""}
               </span>
-            </Link>
+            </NavLink>
           ))}
         </div>
       </section>

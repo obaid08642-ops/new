@@ -53,7 +53,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
             </div>
           ) : null}
         </div>
-        <ServiceGrid locale={locale} t={t} />
+        <ServiceGrid locale={locale} t={t} signedIn />
         <AiCard locale={locale} t={t} />
         <AllServices locale={locale} t={t} labels={dashboard} />
       </div>

@@ -109,7 +109,7 @@ export default async function LandingPage({ params }: Props) {
         <div className={styles.heroGrid} data-aside="false">
           <HeroCard locale={locale} t={t} eyebrow={home("heroBadge")} title={home("heroTitle")} headingId="home-title" />
         </div>
-        <ServiceGrid locale={locale} t={t} />
+        <ServiceGrid locale={locale} t={t} signedIn={signedIn} />
         <AiCard locale={locale} t={t} />
         <CuratedSections sections={homeSections} locale={locale} t={t} />
         <DoctorsSection doctors={doctors} locale={locale} t={t} />

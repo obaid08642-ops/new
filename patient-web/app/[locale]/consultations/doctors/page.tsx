@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { NavLink } from "@/components-next/nav/nav-link";
+import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -44,6 +46,7 @@ export default async function DoctorsPage({ params, searchParams }: Props) {
   const rtl = locale === "ar" || locale === "ur"; const Arrow = rtl ? ArrowLeft : ArrowRight;
   return (
     <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
+      <StaleWhileRevalidate />
       <section className={styles.hero} style={{ gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
         <div style={{ display: "grid", gap: 8, minWidth: 0, flex: 1 } as any}>
           <p className={styles.eyebrow} style={{ color: "#1E332E", gap: 8, overflowWrap: "anywhere" } as any}><BadgeCheck size={14} aria-hidden="true" />{t("eyebrow")}</p>
@@ -84,7 +87,7 @@ export default async function DoctorsPage({ params, searchParams }: Props) {
       ) : (
         <section className={styles.grid} aria-label={t("title")} style={{ gap: 16 } as any}>
           {doctors.map((doctor) => (
-            <Link key={doctor.id} href={`/${locale}/consultations/doctors/${doctor.id}`} className={styles.card} style={{ borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", gap: 16, padding: 16 } as any}>
+            <NavLink key={doctor.id} href={`/${locale}/consultations/doctors/${doctor.id}`} className={styles.card} style={{ borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", gap: 16, padding: 16 } as any}>
               <div className={styles.cardTop} style={{ gap: 16 } as any}>
                 <span className={styles.avatar} style={{ width: 48, height: 48, borderRadius: 16, overflow: "hidden", border: "1px solid #E8EDEE", flexShrink: 0, display: "grid", placeItems: "center", position: "relative", background: "rgba(95,217,179,.12)" }}>
                   <Image src={(doctor as any).image || `/images/doctors/${doctor.id}.jpg`} alt={doctor.name || ""} fill sizes="48px" style={{ objectFit: "cover" }} />
@@ -121,7 +124,7 @@ export default async function DoctorsPage({ params, searchParams }: Props) {
                   <Arrow size={14} aria-hidden="true" />
                 </span>
               </div>
-            </Link>
+            </NavLink>
           ))}
         </section>
       )}
