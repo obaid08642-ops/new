@@ -57,6 +57,42 @@
       "nextStep": "Kung paulit-ulit itong nangyayari, makipag-ugnayan sa support."
     }
   },
+  "Network": {
+    "dismiss": "Isara",
+    "offline": "Mukhang offline ka.",
+    "oldBrowser": {
+      "title": "Luma na ang iyong browser",
+      "body": "Kailangan ng Nabd Plus ang Safari 16.4+, Chrome 109+, Samsung Internet 20+, Firefox 109+, o iOS 16.4+ / Android 7+. Mangyaring mag-update upang magpatuloy."
+    },
+    "queuedTitle": "Nai-save sa device",
+    "timeout": "Masyadong tumagal ang server na sumagot.",
+    "serverError": "Pansamantalaang hindi available ang serbisyo.",
+    "banner": {
+      "offline": "Offline ka. Ipinapakita ang pinakahuling datos na na-load sa device na ito.",
+      "reconnecting": "Bumalik ang koneksyon. Ina-update."
+    },
+    "lastUpdated": "Huling update",
+    "nextStep": {
+      "retry": "Subukan muli.",
+      "check_connection": "Suriin ang iyong koneksyon sa internet at subukan muli.",
+      "contact_support": "Makipag-ugnayan sa suporta at ibahagi ang reference sa ibaba.",
+      "sign_in": "Mag-sign in at subukan muli.",
+      "wait": "Maghintay nang kaunti, pagkatapos ay subukan muli."
+    },
+    "queued": "Nai-save sa device na ito. Ise-send kapag bumalik ang koneksyon.",
+    "replayed": "Naipadala na ang iyong nai-save na mga pagbabago.",
+    "outboxFailed": "Hindi mailipadala ang ilang nai-save na pagbabago. Buksan ang screen na ito muli upang subukan.",
+    "rollback": {
+      "title": "Hindi nai-save ang pagbabago",
+      "message": "Hindi na-save ang pagbabago iyon, kaya ibinabalik namin ito."
+    },
+    "processing": "Pinoproseso. Mangyaring manatili sa pahinang ito hanggang matapos.",
+    "unsupportedDevice": {
+      "title": "Hindi suportado ang device na ito",
+      "body": "Kailangan ng Nabd Plus ang iOS 16.4 o mas bago, o Android 7 o mas bago. Gumagana ang website sa kahit anong modern na browser.",
+      "cta": "Magpatuloy sa website"
+    }
+  },
   "Shared": {
     "brand": "Nabd Plus",
     "patientSignIn": "Mag-sign in ang pasyente",
@@ -242,6 +278,7 @@
     "returnHome": "Bumalik sa home"
   },
   "RouteState": {
+    "contactSupport": "Makipag-ugnayan sa suporta",
     "loadingCode": "Nilo-load",
     "loadingTitle": "Inihahanda ang pahina",
     "loadingBody": "Sandali lang habang nilo-load ang pahina.",

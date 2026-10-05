@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { GetServerSideProps } from 'next';
 import EmptyIcon from '../../../components/EmptyIcon';
 import { dateLocale } from '../../../utils/dates';
+import { httpRequest } from '@/lib/http/client';
 import { jsonLdHtml } from '../../../lib/json-ld';
 
 /**
@@ -245,7 +246,9 @@ export const getServerSideProps: GetServerSideProps = async ({ params, res }) =>
   const slug = String(params?.slug || '');
   if (!TYPE_AR[type]) return { notFound: true };
   try {
-    const r = await fetch(`${API_BASE}/api/v1/seo/meta/${type}/${encodeURIComponent(slug)}`, {
+    // 15.1: same origin-independent SEO read, now with the shared timeout /
+    // safe-retry policy. This is a public page, not the admin BFF.
+    const r = await httpRequest(`${API_BASE}/api/v1/seo/meta/${type}/${encodeURIComponent(slug)}`, {
       headers: { Accept: 'application/json' },
     });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);

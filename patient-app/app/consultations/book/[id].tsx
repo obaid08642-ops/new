@@ -15,6 +15,7 @@ import { apiFetch } from '../../../src/utils/api';
 import { resolveEffectiveAddress, formatAddressLine } from '../../../src/utils/selectedAddress';
 import { pickLocalized } from '../../../src/utils/localize';
 import { dateLocale } from '@/utils/dates';
+import { dayStripBaseMs, formatSlotTime, serverNowMs } from '../../../src/services/time/serverTime';
 import { showLocalizedAlert } from '../../../src/components/LocalizedAlert';
 
 const VT_META: Record<string, { label: string; icon: IconName; desc: string }> = {
@@ -48,11 +49,13 @@ export default function BookAppointmentScreen() {
   const [notes, setNotes] = useState('');
   const [homeAddress, setHomeAddress] = useState<any>(null);
 
-  // Next 7 days (real dates)
+  // Next 7 days (real dates). 15.9: anchored to the SERVER clock, not the
+  // device clock — with a device date a day off, this strip (and the ?date=
+  // the slots query sends) would shift by a day and book the wrong schedule.
   const days = useMemo(() => {
     const arr: { label: string; dateNum: number; month: string; iso: string }[] = [];
     for (let i = 0; i < 7; i++) {
-      const d = new Date();
+      const d = new Date(dayStripBaseMs(serverNowMs()));
       d.setDate(d.getDate() + i);
       const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       arr.push({
@@ -306,7 +309,7 @@ export default function BookAppointmentScreen() {
                     }]}
                   >
                     <AppText variant="labelSM" color={active ? '#fff' : colors.textPrimary}>
-                      {new Date(s.start).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' })}
+                      {formatSlotTime(s.start, dateLocale()) ?? ''}
                     </AppText>
                   </TouchableOpacity>
                 );

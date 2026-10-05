@@ -17,11 +17,27 @@ import {
 } from '../../components/ui';
 import { I } from '../../components/icons';
 import { Biometric, Validate, RateLimiter, buildHeaders, Vault, SK, Tokens } from '../../security/Security';
+import client, { backendDetail } from '../../api/client';
 import { SP, R, FS, FW, PROVIDER_TYPES, LIMITS, API_BASE } from '../../constants';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tokens } from '../../theme/tokens';
 
 const { width: W, height: H } = Dimensions.get('window');
+
+/**
+ * P15.1: the client rejects with a catalog-mapped error whose `message` is already
+ * localized. Fall back to the caller's own copy only for non-network failures
+ * (e.g. local validation) that never reached the client.
+ */
+function catalogText(err: unknown, ar: boolean, localFallback?: string): string {
+  const e = err as { code?: unknown; nextStep?: unknown; message?: unknown } | null;
+  if (e && typeof e.code === 'string' && typeof e.nextStep === 'string' && typeof e.message === 'string') {
+    return `${e.message} ${e.nextStep}`;
+  }
+  const msg = (err as { message?: unknown } | null)?.message;
+  if (typeof msg === 'string' && msg) return msg;
+  return localFallback ?? (ar ? 'حدث خطأ ما' : 'Something went wrong');
+}
 
 // ══════════════════════════════════════════════════════════
 // SPLASH SCREEN
@@ -596,73 +612,57 @@ export function ForgotPasswordScreen({
  ]).start();
  };
 
- const sendOtp = async () => {
- const v = target.trim();
- if (!v) { setErr(AR ? 'مطلوب' : 'Required'); return; }
- if (!Validate.email(v)) { setErr(AR ? 'بريد إلكتروني غير صحيح' : 'Invalid email address'); return; }
- setErr(''); setLoading(true);
- try {
- const headers = await buildHeaders(false);
- const res = await fetch(`${API_BASE}/provider/auth/forgot-password`, {
- method: 'POST',
- headers,
- body: JSON.stringify({ email: v })
- });
- const data = await res.json();
- if (!res.ok) throw new Error(data.message || (AR ? 'فشل إرسال الرمز' : 'Failed to send OTP'));
- 
- animNext(); setStep(2);
- show(AR ? 'تم إرسال رمز التحقق إلى بريدك' : 'OTP sent to your email', 'success');
- } catch (e: any) {
- setErr(e.message || (AR ? 'حدث خطأ ما' : 'Something went wrong'));
- } finally {
- setLoading(false);
- }
- };
+const sendOtp = async () => {
+  const v = target.trim();
+  if (!v) { setErr(AR ? 'مطلوب' : 'Required'); return; }
+  if (!Validate.email(v)) { setErr(AR ? 'بريد إلكتروني غير صحيح' : 'Invalid email address'); return; }
+  setErr(''); setLoading(true);
+  try {
+  // P15.1: through the single client (timeout + catalog error) instead of raw fetch.
+  await client.post('/provider/auth/forgot-password', { email: v });
+  animNext(); setStep(2);
+  show(AR ? 'تم إرسال رمز التحقق إلى بريدك' : 'OTP sent to your email', 'success');
+  } catch (e: any) {
+  setErr(catalogText(e, AR, AR ? 'فشل إرسال الرمز' : 'Failed to send OTP'));
+  } finally {
+  setLoading(false);
+  }
+  };
 
- const verifyOtp = async () => {
- if (otp.join('').length < 6) return;
- setErr(''); setLoading(true);
- try {
- const headers = await buildHeaders(false);
- const res = await fetch(`${API_BASE}/provider/auth/verify-reset-code`, {
- method: 'POST',
- headers,
- body: JSON.stringify({ email: target.trim(), code: otp.join('') })
- });
- const data = await res.json();
- if (!res.ok) throw new Error(data.message || (AR ? 'رمز غير صحيح' : 'Incorrect code'));
- animNext(); setStep(3);
- } catch (e: any) {
- setErr(e.message || (AR ? 'رمز غير صحيح' : 'Incorrect code'));
- } finally {
- setLoading(false);
- }
- };
+  const verifyOtp = async () => {
+  if (otp.join('').length < 6) return;
+  setErr(''); setLoading(true);
+  try {
+  await client.post('/provider/auth/verify-reset-code', { email: target.trim(), code: otp.join('') });
+  animNext(); setStep(3);
+  } catch (e: any) {
+  setErr(catalogText(e, AR, AR ? 'رمز غير صحيح' : 'Incorrect code'));
+  } finally {
+  setLoading(false);
+  }
+  };
 
- const resetPass = async () => {
- if (newPass !== confPass) { setErr(AR ? 'كلمتا المرور غير متطابقتين' : 'Passwords do not match'); return; }
- const str = Validate.password(newPass);
- if (!str.valid) { setErr(AR ? str.msgAr : str.msgEn); return; }
- setErr(''); setLoading(true);
- try {
- const headers = await buildHeaders(false);
- const res = await fetch(`${API_BASE}/provider/auth/reset-password`, {
- method: 'POST',
- headers,
- body: JSON.stringify({
- email: target.trim(),
- code: otp.join(''),
- new_password: newPass
- })
- });
- const data = await res.json();
- if (!res.ok) {
-   const msg = data.message || (AR ? 'فشل استعادة كلمة المرور' : 'Failed to reset password');
-   // Code problems (wrong/expired/attempts) → send user back to the OTP step
-   if (/code|رمز|expired|attempts/i.test(String(msg))) { setErr(String(msg)); setStep(2); animNext(); return; }
-   throw new Error(msg);
- }
+  const resetPass = async () => {
+  if (newPass !== confPass) { setErr(AR ? 'كلمتا المرور غير متطابقتين' : 'Passwords do not match'); return; }
+  const str = Validate.password(newPass);
+  if (!str.valid) { setErr(AR ? str.msgAr : str.msgEn); return; }
+  setErr(''); setLoading(true);
+  try {
+  try {
+  await client.post('/provider/auth/reset-password', {
+    email: target.trim(),
+    code: otp.join(''),
+    new_password: newPass
+  });
+  } catch (resetErr: any) {
+  // Code problems (wrong/expired/attempts) → send the user back to the OTP step.
+  // The catalog has no OTP-specific code, so the backend detail decides the flow
+  // while `resetErr.message` still renders the localized catalog text.
+  const detail = backendDetail(resetErr);
+  const signal = String(detail?.message || '');
+  if (/code|رمز|expired|attempts/i.test(signal)) { setErr(catalogText(resetErr, AR)); setStep(2); animNext(); return; }
+  throw resetErr;
+  }
 
  // Auto-login with the new password so the user lands directly in the app —
  // no manual re-login, no credential-mismatch window.

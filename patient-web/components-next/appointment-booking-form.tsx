@@ -5,10 +5,23 @@ import { useRouter } from "next/navigation";
 import { CalendarCheck, CheckCircle2, LoaderCircle, ShieldCheck } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
 import { useTranslations } from "next-intl";
+import { formatInProviderZone, isValidServerInstant } from "@/lib/datetime";
 import styles from "./appointment-booking-form.module.css";
 
 type Slot = { start: string; label?: string; available: boolean };
 type PaymentMethod = "cash" | "card" | "insurance";
+
+/**
+ * F6 — doctor slots are provider-attributed instants, so they render in the
+ * pinned provider zone (Asia/Riyadh) instead of leaking a raw ISO string or
+ * the device zone. An explicit server label wins when present; anything
+ * unparseable falls back to the raw value rather than rendering nothing.
+ */
+export function slotDisplay(slot: Slot, locale: string): string {
+  if (slot.label) return slot.label;
+  if (isValidServerInstant(slot.start)) return formatInProviderZone(slot.start, locale) ?? slot.start;
+  return slot.start;
+}
 
 export function AppointmentBookingForm({
   locale,
@@ -146,7 +159,7 @@ export function AppointmentBookingForm({
             onClick={() => choose(slot.start)}
             disabled={submitting}
           >
-            {slot.label || slot.start}
+            {slotDisplay(slot, locale)}
           </button>
         ))}
       </div>

@@ -8,6 +8,7 @@ import { Icon } from '../../src/components/Icon';
 import { AppText } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
 import { dateLocale } from '@/utils/dates';
+import { dayKeysForRange, formatSlotTime, serverNowMs } from '../../src/services/time/serverTime';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 const CANCEL_REASONS = [
@@ -18,8 +19,6 @@ const CANCEL_REASONS = [
   'مشكلة في الدفع',
   'سبب آخر',
 ];
-
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 export default function CancelRescheduleScreen() {
   const insets = useSafeAreaInsets();
@@ -65,8 +64,9 @@ export default function CancelRescheduleScreen() {
       setSlotsLoading(true);
       const out: Record<string, any[]> = {};
       const serviceType = appointment.consultation_type === 'home' ? 'home' : appointment.consultation_type === 'video' ? 'video' : 'clinic';
-      const days: string[] = [];
-      for (let i = 1; i <= 7; i++) days.push(new Date(Date.now() + i * DAY_MS).toISOString().slice(0, 10));
+      // 15.9: the strip is built off the SERVER clock — a device date a day off
+      // would shift every ?date= below and book against the wrong schedule.
+      const days: string[] = dayKeysForRange(7);
       const results = await Promise.all(days.map(async (d) => {
         try {
           const res = await apiFetch<any>(`/care/doctors/${appointment.doctor_id}/slots?date=${d}&service_type=${serviceType}`);
@@ -83,7 +83,9 @@ export default function CancelRescheduleScreen() {
 
   const price = Number(appointment?.price ?? appointment?.amount_total ?? 0);
   const scheduledAt = appointment?.scheduled_at ? new Date(appointment.scheduled_at) : null;
-  const hoursUntil = scheduledAt ? (scheduledAt.getTime() - Date.now()) / 3600000 : null;
+  // 15.9: the refund-window countdown runs off the server-anchored clock, so a
+  // device set ±1 day cannot flip the 100/50/0% tier the user is shown.
+  const hoursUntil = scheduledAt ? (scheduledAt.getTime() - serverNowMs()) / 3600000 : null;
   const refundPct = hoursUntil == null ? null : hoursUntil >= 24 ? 100 : hoursUntil >= 12 ? 50 : 0;
 
   const formattedDate = scheduledAt
@@ -274,7 +276,7 @@ export default function CancelRescheduleScreen() {
             <View style={styles.timesGrid}>
               {(slotsByDay[activeDay] || []).map((s: any, i: number) => {
                 const start = s.start || s.slot_start || s.time;
-                const label = new Date(start).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' });
+                const label = formatSlotTime(start, dateLocale()) ?? '';
                 const selected = selectedSlot === s;
                 return (
                   <TouchableOpacity key={`${start}-${i}`} onPress={() => setSelectedSlot(s)}

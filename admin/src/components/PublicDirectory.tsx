@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { httpRequest } from '@/lib/http/client';
 
 /** M6-SEO1: shared public directory renderer (SSR lists + search + internal links). */
 
@@ -119,7 +120,7 @@ export function PublicDirectory({ config, items }: { config: DirectoryConfig; it
 
 export async function fetchDirectory(endpoint: string): Promise<any[]> {
   try {
-    const r = await fetch(endpoint, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+    const r = await httpRequest(endpoint, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
     if (!r.ok) return [];
     const data = await r.json();
     return Array.isArray(data) ? data : data?.data || data?.items || [];

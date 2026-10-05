@@ -260,6 +260,18 @@ export class ProviderProfile {
   @Prop({ type: [Object], default: [] }) schedule_video?: any[];
   @Prop({ type: [Object], default: [] }) schedule_clinic?: Array<{ day: string; open?: string; close?: string; open_evening?: string; close_evening?: string; closed?: boolean }>;
   @Prop({ type: [Object], default: [] }) schedule_home?: any[];
+  /**
+   * 15.9 — Ramadan weekly hours (same entry shape as working_hours). Honored
+   * by the slot engine while the date falls in Ramadan (Umm al-Qura,
+   * Asia/Riyadh); ignored otherwise. Empty/missing = normal hours.
+   */
+  @Prop({ type: [Object], default: [] }) ramadan_hours?: Array<{ day: string; open?: string; close?: string; open_evening?: string; close_evening?: string; closed?: boolean }>;
+  /**
+   * 15.9 — Per-date special hours (public holidays, Eid closures, catch-up
+   * days). Exact YYYY-MM-DD match wins over every weekly source; a `closed`
+   * entry closes the day. Malformed entries are ignored (normal hours apply).
+   */
+  @Prop({ type: [Object], default: [] }) special_hours?: Array<{ date: string; open?: string; close?: string; closed?: boolean; reason?: string }>;
   /** Raw wizard snapshots per step (step2/step3/submit/full_data) — the admin
    * review must show EVERY typed field, mapped or not. */
   @Prop({ type: Object, default: {} }) registration_steps?: Record<string, any[]>;

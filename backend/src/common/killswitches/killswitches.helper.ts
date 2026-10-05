@@ -9,7 +9,9 @@
  *     DIFFERENT shape ({ key, enabled }). This helper duck-types both.
  *   Canonical reader: `FeatureFlagsService.isEnabled(key)`
  *     (`backend/src/modules/feature-flags/feature-flags.service.ts`) —
- *     fail-closed (absent flag => false).
+ *     fail-OPEN on absent (absent flag => null, so isKilled falls back to the
+ *     caller default = not killed). An absent row must NEVER read as
+ *     "explicitly disabled", or every kill switch would fire before seeding.
  *   Public surface: `GET /config` (`ConfigService.getClientConfig()` merges
  *     env baseline + `feature_flags` rows incl. `rollout_percentage`) and
  *     public `GET /feature-flags`. Admin toggle: `POST admin/feature-flags/:key`.
@@ -95,8 +97,9 @@ export type MaintenanceApp = (typeof MAINTENANCE_APPS)[number];
 /**
  * Apply a caller default when the flag store yields absent/undefined.
  * Mirrors the existing convention: `ConfigService` fails OPEN (absent =>
- * no enforcement) while `FeatureFlagsService.isEnabled` fails CLOSED
- * (absent => false) — the caller picks via `def`.
+ * no enforcement) and `FeatureFlagsService.isEnabled` yields null when the
+ * row is absent (so isKilled below fails open to "not killed") — the caller
+ * picks via `def`.
  */
 export function withFlagDefault<T>(value: T | null | undefined, def: T): T {
   return value === null || value === undefined ? def : value;
@@ -132,6 +135,30 @@ export async function readFlag(
   } catch {
     return null; // Flag-store outage must not break the request path (fail-open here).
   }
+}
+
+/**
+ * Duck-typed flag source over a raw mongoose Connection. Reads the SAME
+ * `featureflags` collection (`{ key, enabled }` rows) that
+ * FeatureFlagsService owns, normalizing both row shapes via
+ * normalizeFlagRow. Absent row / missing collection / store error => null
+ * (fail-open upstream). For services that already hold a Connection and
+ * should not take a module dependency on FeatureFlagsModule.
+ */
+export function connectionFlagSource(
+  conn: { collection?: (name: string) => any } | null | undefined,
+): KillSwitchSource {
+  return {
+    isEnabled: async (key: string) => {
+      try {
+        const col = conn?.collection?.('featureflags');
+        if (!col || typeof col.findOne !== 'function') return null;
+        return normalizeFlagRow(await col.findOne({ key: { $eq: key } }));
+      } catch {
+        return null;
+      }
+    },
+  };
 }
 
 /**

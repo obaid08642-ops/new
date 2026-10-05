@@ -1,3 +1,6 @@
+import { AdminApiError, httpRequest, isAdminApiError } from '@/lib/http/client';
+import { catalogCodeFromPayload, type SupportedLocale } from '@/lib/http/error-catalog';
+
 const WRITE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
 function csrfToken(): string | null {
@@ -25,27 +28,43 @@ function toBffUrl(url: string) {
   return url;
 }
 
+/** The admin UI is Arabic-first; `NEXT_PUBLIC_ADMIN_LOCALE=en` switches it. */
+function locale(): SupportedLocale {
+  return process.env.NEXT_PUBLIC_ADMIN_LOCALE === 'en' ? 'en' : 'ar';
+}
+
+export interface GuardedFetchOptions extends RequestInit {
+  locale?: SupportedLocale;
+  /** Override the upload/AI/default timeout budget instead of auto-detecting. */
+  kind?: 'default' | 'upload' | 'ai';
+}
+
 /**
- * Compatibility helper for pre-existing pages. It deliberately does not read,
- * persist, or append browser-held bearer tokens: the BFF uses HttpOnly cookies.
+ * 15.1 — the compatibility helper for pre-existing pages. It deliberately does
+ * not read, persist, or append browser-held bearer tokens: the BFF uses HttpOnly
+ * cookies. Timeout, safe retry, abort and offline detection come from
+ * `@/lib/http/client`, so all ~220 call sites inherit them unchanged.
  */
-export const fetchWithAdminGuard = async (url: string, options: RequestInit = {}) => {
-  const method = (options.method || 'GET').toUpperCase();
-  const headers = new Headers(options.headers);
+export const fetchWithAdminGuard = async (url: string, options: GuardedFetchOptions = {}) => {
+  const { locale: localeOverride, kind, ...init } = options;
+  const method = (init.method || 'GET').toUpperCase();
+  const headers = new Headers(init.headers);
   // R6-6: FormData (CSV upload) carries its own multipart boundary — never override it.
-  if (!headers.has('Content-Type') && options.body && typeof FormData !== 'undefined' && !(options.body instanceof FormData)) {
+  if (!headers.has('Content-Type') && init.body && typeof FormData !== 'undefined' && !(init.body instanceof FormData)) {
     headers.set('Content-Type', 'application/json');
   }
   if (WRITE_METHODS.has(method)) {
     const csrf = csrfToken();
-    if (!csrf) throw new Error('csrf_validation_failed');
+    if (!csrf) throw new AdminApiError({ status: 403, payload: { code: 'csrf_validation_failed' }, code: 'INSUFFICIENT_PERMISSION', locale: localeOverride ?? locale() });
     headers.set('x-admin-csrf', csrf);
   }
 
-  const response = await fetch(toBffUrl(url), {
-    ...options,
+  const response = await httpRequest(toBffUrl(url), {
+    ...init,
     method,
     headers,
+    kind,
+    locale: localeOverride ?? locale(),
     credentials: 'same-origin',
     // R7-1: admin lists must never render a cached GET after a mutation.
     cache: 'no-store',
@@ -58,11 +77,33 @@ export const fetchWithAdminGuard = async (url: string, options: RequestInit = {}
   return response;
 };
 
-export const apiFetch = async <T = any>(endpoint: string, options: RequestInit = {}): Promise<T> => {
+export const apiFetch = async <T = any>(endpoint: string, options: GuardedFetchOptions = {}): Promise<T> => {
+  // Goes through `fetchWithAdminGuard` so the 401 → /login redirect, the CSRF
+  // header, the BFF path mapping and the 15.1 request policy all still apply.
   const response = await fetchWithAdminGuard(endpoint, options);
+  const contentType = response.headers.get('content-type') || '';
+  const payload: unknown = contentType.includes('application/json')
+    ? await response.json().catch(() => null)
+    : await response.text().catch(() => '');
+
   if (!response.ok) {
-    const payload = await response.json().catch(() => null);
-    throw new Error(typeof payload?.message === 'string' ? payload.message : `HTTP ${response.status}`);
+    const activeLocale = options.locale ?? locale();
+    const body = payload as { message?: unknown } | null;
+    const serverMessage =
+      typeof body?.message === 'string' && body.message
+        ? body.message
+        : Array.isArray(body?.message)
+          ? body.message.filter((item): item is string => typeof item === 'string').join('، ') || undefined
+          : undefined;
+    throw new AdminApiError({
+      status: response.status,
+      payload,
+      locale: activeLocale,
+      code: catalogCodeFromPayload(payload, response.status),
+      serverMessage,
+    });
   }
-  return response.json() as Promise<T>;
+  return payload as T;
 };
+
+export { isAdminApiError };

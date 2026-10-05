@@ -17,6 +17,7 @@ import { I, IBg } from '../../../components/icons';
 import { SP, R, FS, FW, API_BASE } from '../../../constants';
 import { buildHeaders, Vault, SK } from '../../../security/Security';
 import client from '../../../api/client';
+import { findTodaySpecialHours, hasRamadanHours } from '../../../time/scheduleHours';
 import { useServicesCatalog, getInsuranceCatalog, useSpecialtiesCatalog } from '../../../api/catalogs';
 import { VideoCallRoom } from '../../shared/VideoCallRoom';
 import { InsuranceRequestsScreen } from '../../shared/InsuranceRequestsScreen';
@@ -43,15 +44,22 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
   const [saving, setSaving] = useState(false);
  const [loadingAvailability, setLoadingAvailability] = useState(true);
  const [vacationMode, setVacationMode] = useState(false);
- const [weeklySchedule, setWeeklySchedule] = useState<any[]>([]);
- const [exceptions, setExceptions] = useState<any[]>([]);
- useEffect(() => {
-   let active = true;
-   client.get('/provider/profile/availability').then(async (response) => {
-     if (!active || !response.data) return;
-     setVacationMode(Boolean(response.data.vacation_mode));
-     setWeeklySchedule(Array.isArray(response.data.weekly_schedule) ? response.data.weekly_schedule : []);
-     setExceptions(Array.isArray(response.data.availability_exceptions) ? response.data.availability_exceptions : []);
+  const [weeklySchedule, setWeeklySchedule] = useState<any[]>([]);
+  const [exceptions, setExceptions] = useState<any[]>([]);
+  // P15.9 — Ramadan / special-hours entries from the same profile source the
+  // slot engine honours (GET /provider/profile/availability merges them).
+  // Read-only here: they are managed by admin/onboarding.
+  const [ramadanHours, setRamadanHours] = useState<any[]>([]);
+  const [specialHours, setSpecialHours] = useState<any[]>([]);
+  useEffect(() => {
+    let active = true;
+    client.get('/provider/profile/availability').then(async (response) => {
+      if (!active || !response.data) return;
+      setVacationMode(Boolean(response.data.vacation_mode));
+      setWeeklySchedule(Array.isArray(response.data.weekly_schedule) ? response.data.weekly_schedule : []);
+      setExceptions(Array.isArray(response.data.availability_exceptions) ? response.data.availability_exceptions : []);
+      setRamadanHours(Array.isArray(response.data.ramadan_hours) ? response.data.ramadan_hours : []);
+      setSpecialHours(Array.isArray(response.data.special_hours) ? response.data.special_hours : []);
      try {
        const catalog = await getInsuranceCatalog();
        if (!active) return;
@@ -325,8 +333,66 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
     )
   )}
 
- <NBtn label={AR ? ' حفظ الجدول الأسبوعي' : ' Save Weekly Calendar'} disabled={vacationMode} loading={saving} onPress={handleSaveSchedule} style={{ marginVertical: SP.lg }} />
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: SP.xl, marginBottom: SP.lg }}>
+  <NBtn label={AR ? ' حفظ الجدول الأسبوعي' : ' Save Weekly Calendar'} disabled={vacationMode} loading={saving} onPress={handleSaveSchedule} style={{ marginVertical: SP.lg }} />
+
+  {/* P15.9 — Ramadan weekly hours (applied while the date falls in Ramadan,
+      Asia/Riyadh) and per-date special/holiday hours — the same profile
+      source the slot engine books against. Read-only: managed by
+      admin/onboarding. "Today" resolves on the server-anchored Riyadh day,
+      so a device clock off by ±1 day still highlights the right entry. */}
+  <View testID="ramadan-hours-section" style={{ marginTop: SP.xl }}>
+  <NSecHeader title={AR ? 'ساعات رمضان' : 'Ramadan hours'} />
+  {!hasRamadanHours(ramadanHours) ? (
+  <NCard><Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
+  {AR ? 'لا توجد ساعات رمضان مخصصة — تُطبق الساعات العادية.' : 'No Ramadan hours set — normal hours apply.'}
+  </Text></NCard>
+  ) : ramadanHours.map((r: any, i: number) => (
+  <NCard key={`ramadan-${i}`} style={{ marginBottom: SP.sm }}>
+  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{String(r?.day ?? '')}</Text>
+  <Text style={{ fontSize: FS.sm, color: r?.closed ? theme.danger : theme.textSub }}>
+  {r?.closed ? (AR ? 'مغلق' : 'Closed') : `${String(r?.open ?? '--:--')} - ${String(r?.close ?? '--:--')}`}
+  </Text>
+  </View>
+  </NCard>
+  ))}
+  </View>
+
+  <View testID="special-hours-section" style={{ marginTop: SP.xl }}>
+  <NSecHeader title={AR ? 'ساعات العطلات والمناسبات' : 'Holiday & special hours'} />
+  {(() => {
+    const today = findTodaySpecialHours(specialHours);
+    if (!today) return null;
+    return (
+    <View testID="special-hours-today-badge" style={{ backgroundColor: theme.primaryLight, borderRadius: R.md, padding: SP.md, marginBottom: SP.md }}>
+    <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.primary, textAlign: AR ? 'right' : 'left' }}>
+    {today.closed
+      ? (AR ? `مغلق اليوم${today.reason ? ` — ${today.reason}` : ''}` : `Closed today${today.reason ? ` — ${today.reason}` : ''}`)
+      : (AR ? `دوام اليوم: ${today.open} - ${today.close}${today.reason ? ` (${today.reason})` : ''}` : `Today's hours: ${today.open} - ${today.close}${today.reason ? ` (${today.reason})` : ''}`)}
+    </Text>
+    </View>
+    );
+  })()}
+  {specialHours.length === 0 ? (
+  <NCard><Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
+  {AR ? 'لا توجد ساعات خاصة — تُطبق الساعات الأسبوعية.' : 'No special hours — weekly hours apply.'}
+  </Text></NCard>
+  ) : specialHours.map((s: any, i: number) => (
+  <NCard key={`special-${i}`} style={{ marginBottom: SP.sm }}>
+  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{String(s?.date ?? '')}</Text>
+  <Text style={{ fontSize: FS.sm, color: s?.closed ? theme.danger : theme.textSub }}>
+  {s?.closed ? (AR ? 'مغلق' : 'Closed') : `${String(s?.open ?? '--:--')} - ${String(s?.close ?? '--:--')}`}
+  </Text>
+  </View>
+  {s?.reason ? (
+  <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>{String(s.reason)}</Text>
+  ) : null}
+  </NCard>
+  ))}
+  </View>
+
+  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: SP.xl, marginBottom: SP.lg }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
  {AR ? ' شركات التأمين المقبولة' : ' Accepted Insurance'}
  </Text>

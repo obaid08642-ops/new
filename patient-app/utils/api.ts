@@ -1,22 +1,20 @@
-import { HttpClient } from '../src/services/HttpClient';
-import { STORAGE_KEYS } from '../src/constants';
 import { secureDelete, secureGet, secureSet } from '../src/utils/security';
+import { apiFetch, BASE_URL, FASTAPI_BASE_URL, R2_PUBLIC_URL } from '../src/utils/api';
+import { STORAGE_KEYS } from '../src/constants';
 
 /**
- * M1-01 — REAL network client (replaces the former in-memory mock that returned
- * hardcoded data after a fake 800ms delay and never touched the network).
+ * 15.1 — DEPRECATED SHIM. Do not import from here.
  *
- * The exported signature is intentionally unchanged (`apiFetch(endpoint, options)`)
- * so all 157 screens that were wired to the mock become live against the real
- * backend without per-screen rewrites.
- *
- * Behavior:
- *  - Injects the JWT from secure storage as `Authorization: Bearer <token>`.
- *  - `options.body` may be a JSON string (screens already JSON.stringify) or an object.
- *  - Returns the parsed response body directly (screens read res.data / arrays / res.token).
- *  - On 401: clears the stored session so the app falls back to the auth flow.
- *  - Throws Error with the server's message when available — no silent fake fallbacks.
+ * This file used to hold a second, independent `apiFetch` (an axios wrapper
+ * around `HttpClient`). That duplication is gone: the one client now lives in
+ * `src/services/http`, and `src/utils/api.ts` is its only public face. The
+ * re-exports below exist so the three call sites that still point here
+ * (`app/(auth)/login.tsx`, `app/(auth)/welcome.tsx`, and
+ * `src/core/platform/auth/SessionManager.ts` for `BASE_URL`) keep resolving while
+ * they are migrated. No network behaviour is defined here.
  */
+
+export { apiFetch, BASE_URL, FASTAPI_BASE_URL, R2_PUBLIC_URL };
 
 const TOKEN_KEYS = [STORAGE_KEYS.AUTH_TOKEN, 'userToken'];
 
@@ -37,65 +35,6 @@ async function getStoredToken(): Promise<string | null> {
 async function clearStoredSession(): Promise<void> {
   for (const key of [...TOKEN_KEYS, STORAGE_KEYS.REFRESH_TOKEN, STORAGE_KEYS.USER_DATA]) {
     try { await secureDelete(key); } catch { /* best-effort logout cleanup */ }
-  }
-}
-
-export interface ApiFetchOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  body?: string | Record<string, any>;
-  headers?: Record<string, string>;
-  /** Skip attaching the Authorization header (public endpoints) */
-  skipAuth?: boolean;
-  timeout?: number;
-}
-
-function normalizeError(err: any): Error {
-  const serverMessage =
-    err?.response?.data?.message ||
-    err?.response?.data?.error ||
-    err?.data?.message;
-  if (serverMessage) {
-    return new Error(Array.isArray(serverMessage) ? serverMessage.join('، ') : String(serverMessage));
-  }
-  if (err?.response?.status === 404) return new Error('العنصر المطلوب غير موجود');
-  if (err?.response?.status === 429) return new Error('محاولات كثيرة — انتظر قليلًا ثم أعد المحاولة');
-  if (err?.response?.status >= 500) return new Error('خطأ في الخادم — حاول مرة أخرى لاحقًا');
-  if (!err?.response && err?.request) return new Error('لا يوجد اتصال بالإنترنت — تحقق من الشبكة');
-  return new Error(err?.message || 'حدث خطأ غير متوقع');
-}
-
-export async function apiFetch<T = any>(endpoint: string, options: ApiFetchOptions = {}): Promise<T> {
-  const method = (options.method || 'GET').toUpperCase();
-
-  let data: any = undefined;
-  if (options.body !== undefined && options.body !== null) {
-    data = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
-  }
-
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...(options.headers || {}),
-  };
-
-  if (!options.skipAuth) {
-    const token = await getStoredToken();
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  try {
-    const response = await HttpClient.request({
-      url: endpoint,
-      method: method as any,
-      data,
-      headers,
-      timeout: options.timeout,
-    });
-    return response.data as T;
-  } catch (err: any) {
-    if (err?.response?.status === 401 && !options.skipAuth) {
-      await clearStoredSession();
-    }
-    throw normalizeError(err);
   }
 }
 

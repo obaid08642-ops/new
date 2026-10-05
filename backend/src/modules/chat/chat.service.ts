@@ -287,9 +287,16 @@ export class ChatService {
     const mediaIds = await this.validateChatMediaIds(threadId, senderId, body?.media_ids);
     if (body?.attachment_url) throw new BadRequestException('attachment_url_not_supported_use_media_ids');
 
-    // Deduplication check
-    if (body.client_message_id) {
-      const existing = await this.msgs.findOne({ client_message_id: { $eq: body.client_message_id }, thread_id: { $eq: threadId }, sender_id: { $eq: senderId } });
+    // Deduplication check (fast path). The ATOMIC backstop is the unique
+    // index on client_message_id + the 11000 catch around create() below:
+    // under a barrier start both racers miss this read, exactly one insert
+    // wins, and the loser returns the winner instead of 500ing (same shape
+    // as the payments 11000-loser-shares-winner protocol).
+    const dedupFilter = body.client_message_id
+      ? { client_message_id: { $eq: body.client_message_id }, thread_id: { $eq: threadId }, sender_id: { $eq: senderId } }
+      : null;
+    if (dedupFilter) {
+      const existing = await this.msgs.findOne(dedupFilter);
       if (existing) {
         return existing.toObject();
       }
@@ -297,7 +304,9 @@ export class ChatService {
 
     if (!body?.body?.trim() && mediaIds.length === 0) throw new BadRequestException('empty_message');
 
-    const msg = await this.msgs.create({
+    let msg: any;
+    try {
+    msg = await this.msgs.create({
       thread_id: threadId,
       sender_id: senderId,
       sender_role: senderRole,
@@ -315,6 +324,15 @@ export class ChatService {
       read_by: [senderId],
       delivered_to: [senderId],
     });
+    } catch (e: any) {
+      // Rapid-tap loser: the winner's row is committed (unique index fired),
+      // so return it — never surface a 500 for a message that exists.
+      if (dedupFilter && (e?.code === 11000 || /duplicate key/i.test(String(e?.message || '')))) {
+        const winner = await this.msgs.findOne(dedupFilter);
+        if (winner) return winner.toObject();
+      }
+      throw e;
+    }
 
     // Update thread metadata
     const unread: Record<string, number> = {};

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { isPastSlot, resolveUserTimeZone, zonedDayTimeToMs } from "@/lib/datetime";
 
 const TIMES = ["09:00", "10:30", "12:00", "14:00", "15:30", "17:00"];
 
@@ -68,11 +69,15 @@ export function DiagnosticsCheckoutForm({
       setError(ar ? "أدخل شركة التأمين" : "Enter the insurance company");
       return;
     }
-    const scheduled = new Date(`${day}T${time}:00`);
-    if (Number.isNaN(scheduled.getTime()) || scheduled.getTime() < Date.now()) {
+    const slotMs = zonedDayTimeToMs(day, time, resolveUserTimeZone());
+    // F4: the slot is constructed in explicit zone terms (never the
+    // device-local `new Date("dayTtime")` lottery) and compared against the
+    // server-anchored clock. A null construction fails closed.
+    if (slotMs === null || isPastSlot(slotMs)) {
       setError(ar ? "الموعد في الماضي — اختر وقتاً لاحقاً" : "Time is in the past — choose a later time");
       return;
     }
+    const scheduled = new Date(slotMs);
     setSaving(true);
     try {
       // F74: create ONE parent diagnostics order containing lab+radiology lines.

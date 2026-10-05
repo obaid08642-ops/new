@@ -7,7 +7,9 @@ import { useApp } from '../../src/context/AppContext';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 import { Icon } from '../../src/components/Icon';
 import { apiFetch } from '../../src/utils/api';
+import { useOptimisticMutation } from '../../src/hooks/useOptimisticMutation';
 import { medicationT } from '../../src/i18n/medications';
+import { serverNowMs } from '../../src/services/time/serverTime';
 import { cancelMedicationNotifications, cancelMedicationSnoozes, getMedicationNotificationPreferences, medicationDisplayName, scheduleMedicationNotifications } from '../../src/utils/medication-notifications';
 
 type DoseStatus = 'pending' | 'taken' | 'skipped' | 'missed';
@@ -41,15 +43,33 @@ export default function MedicationReminderListScreen() {
 
   const logDose = async (reminder: Reminder, dose: Dose, status: 'taken' | 'skipped') => {
     setActionKey(`${reminder.id}-${dose.time_key}-${status}`); setError(null);
-    try { await apiFetch(`/health/reminders/${reminder.id}/log`, { method: 'POST', body: JSON.stringify({ status, time_key: dose.time_key, occurred_at: new Date().toISOString() }) }); if (status === 'taken') await cancelMedicationSnoozes(reminder.id, dose.time_key); await load(); }
+    // 15.9: occurred_at uses the SERVER-anchored clock — a device date a day
+    // off must not file a dose log against the wrong day.
+    try { await apiFetch(`/health/reminders/${reminder.id}/log`, { method: 'POST', body: JSON.stringify({ status, time_key: dose.time_key, occurred_at: new Date(serverNowMs()).toISOString() }) }); if (status === 'taken') await cancelMedicationSnoozes(reminder.id, dose.time_key); await load(); }
     catch { setError(t('logError')); }
     finally { setActionKey(null); }
   };
+  // 15.3: turning a reminder off is safe to apply immediately. If the server
+  // refuses, the reminder comes back and a toast explains why.
+  const stopMutation = useOptimisticMutation<Reminder[]>({
+    kind: 'reminder',
+    read: () => reminders,
+    write: setReminders,
+    apply: (current) => current.map(r => (r.id === stoppingIdRef.current ? { ...r, active: false } : r)),
+    locale: lang === 'en' ? 'en' : 'ar',
+  });
+  const stoppingIdRef = React.useRef<string | null>(null);
+
   const stopReminder = async (id: string) => {
     setActionKey(`stop-${id}`); setError(null);
-    try { await apiFetch(`/health/reminders/${id}`, { method: 'PATCH', body: JSON.stringify({ active: false }) }); await cancelMedicationNotifications(id); await load(); }
-    catch { setError(t('stopError')); }
-    finally { setActionKey(null); }
+    stoppingIdRef.current = id;
+    try {
+      await stopMutation.run(() =>
+        apiFetch(`/health/reminders/${id}`, { method: 'PATCH', body: JSON.stringify({ active: false }) }).then(() => undefined),
+      );
+      await cancelMedicationNotifications(id);
+      await load();
+    } finally { stoppingIdRef.current = null; setActionKey(null); }
   };
   const syncAlerts = async (reminder: Reminder) => {
     setActionKey(`sync-${reminder.id}`); setError(null);

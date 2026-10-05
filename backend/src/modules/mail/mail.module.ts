@@ -10,6 +10,7 @@
  * 'mail.sent' / 'mail.failed' event so admin analytics can watch it.
  */
 import { BadGatewayException, Global, Injectable, Logger, Module, Optional, ServiceUnavailableException } from '@nestjs/common';
+import { CircuitBreakerService } from '../../common/circuit-breaker.service';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -41,10 +42,34 @@ export class MailService {
   private readonly logger = new Logger('MailService');
   private resend: Resend | null = null;
 
-  constructor(private readonly events: EventEmitter2, @Optional() @InjectConnection() private conn?: Connection) {
+  constructor(
+    private readonly events: EventEmitter2,
+    @Optional() @InjectConnection() private conn?: Connection,
+    @Optional() private readonly breakers?: CircuitBreakerService,
+  ) {
     if (process.env.RESEND_API_KEY) {
       this.resend = new Resend(process.env.RESEND_API_KEY);
     }
+  }
+
+  /**
+   * One mail provider attempt behind a timeout + shared circuit breaker.
+   *
+   * The breaker is cached per provider, so `send` is args-driven and the whole
+   * message travels as an argument — a closure over the recipient would be the
+   * work function a later recipient's call executes (Q81). An open circuit
+   * fails this provider immediately so `sendWithAttachment` moves straight to
+   * the next provider instead of waiting for a timeout on every message.
+   */
+  private providerSend<T>(
+    provider: MailResult['provider'],
+    send: (...args: any[]) => Promise<T>,
+    args: any[],
+  ): Promise<T> {
+    if (!this.breakers) return send(...args);
+    return this.breakers
+      .create(`mail:${provider}:send`, send, { timeout: mailTimeoutMs() })
+      .fire(...args);
   }
 
   /** Persist send outcome for admin email-usage reports (best-effort). */
@@ -112,17 +137,17 @@ export class MailService {
     const attachment = opts.filename && opts.content
       ? { filename: opts.filename, content: opts.content }
       : null;
-    // 1) Primary: Resend
+    // 1) Primary: Resend (args-driven: the whole message is the argument)
     try {
       if (!this.resend) throw new ServiceUnavailableException('resend_not_configured');
-      const { error } = await withTimeout(this.resend.emails.send({
+      const { error } = await this.providerSend('resend', async (o: typeof opts) => withTimeout(this.resend!.emails.send({
         from: this.fromAddress,
-        to: opts.to,
-        subject: opts.subject,
-        html: opts.html,
-        ...(opts.text ? { text: opts.text } : {}),
+        to: o.to,
+        subject: o.subject,
+        html: o.html,
+        ...(o.text ? { text: o.text } : {}),
         ...(attachment ? { attachments: [{ filename: attachment.filename!, content: Buffer.from(attachment.content, 'utf-8').toString('base64') }] } : {}),
-      }), mailTimeoutMs());
+      }), mailTimeoutMs()), [opts]);
       if (error) throw new BadGatewayException(error.message || 'resend_error');
       this.events.emit('mail.sent', { to: opts.to, subject: opts.subject, provider: 'resend', fallback_used: false });
       await this.logMail(opts.to, opts.subject, true, 'resend', false);
@@ -136,7 +161,7 @@ export class MailService {
       }
       this.logger.warn(`Resend failed for ${opts.to}: ${e.message} — attempting SES fallback`);
     }
-    // 2) Automatic fallback: Amazon SES
+    // 2) Automatic fallback: Amazon SES (also behind a breaker)
     try {
       await this.sendViaSesWithAttachment(opts, attachment);
       this.logger.log(`SES fallback delivered mail to ${opts.to}`);
@@ -156,15 +181,20 @@ export class MailService {
     attachment: { filename: string; content: string } | null,
   ): Promise<void> {
     if (!this.sesConfigured()) throw new ServiceUnavailableException('ses_not_configured');
-    const transporter = this.sesTransport();
-    await withTimeout(transporter.sendMail({
-      from: process.env.SES_FROM || this.fromAddress,
-      to: opts.to,
-      subject: opts.subject,
-      html: opts.html,
-      ...(opts.text ? { text: opts.text } : {}),
-      ...(attachment ? { attachments: [{ filename: attachment.filename, content: Buffer.from(attachment.content, 'utf-8') }] } : {}),
-    }), mailTimeoutMs());
+    await this.providerSend('ses', async (
+      o: typeof opts,
+      att: typeof attachment,
+    ): Promise<void> => {
+      const transporter = this.sesTransport();
+      await withTimeout(transporter.sendMail({
+        from: process.env.SES_FROM || this.fromAddress,
+        to: o.to,
+        subject: o.subject,
+        html: o.html,
+        ...(o.text ? { text: o.text } : {}),
+        ...(att ? { attachments: [{ filename: att.filename, content: Buffer.from(att.content, 'utf-8') }] } : {}),
+      }), mailTimeoutMs());
+    }, [opts, attachment]);
   }
 
   /** Shared OTP template (Arabic, RTL) — used by auth + notifications. */

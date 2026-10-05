@@ -2,6 +2,7 @@ import { Injectable, Logger, Optional } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { CircuitBreakerService } from '../../common/circuit-breaker.service';
+import { isChaosFail } from '../../common/chaos-switches';
 import axios from 'axios';
 
 /** Per-call HTTP timeout for the SMS provider (ms). Env-overridable for tests. */
@@ -49,6 +50,13 @@ export class SmsService {
   }
 
   async sendOtp(phone: string, otp: string): Promise<boolean> {
+    // F10 — TEST-ONLY chaos switch (honoured only when CHAOS_FAIL_SMS=1):
+    // forces the documented fallback (false → OTP falls back to email+push)
+    // without touching the provider, so drills fail SMS deterministically.
+    if (isChaosFail('sms')) {
+      this.logger.warn('CHAOS_FAIL_SMS=1 — forcing SMS failure (drill).');
+      return false;
+    }
     if (!(await this.isEnabled())) {
       this.logger.log('SMS delivery is disabled; no SMS message was sent.');
       return false;

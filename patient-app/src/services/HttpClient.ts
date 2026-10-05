@@ -1,5 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { backendCodeToAppError, extractBackendErrorPayload } from './ErrorHandler';
+import { backendCodeToAppError, extractBackendErrorPayload } from './errors';
+import { singleClientAdapter } from './http/axiosAdapter';
 
 // M1-ENV: backend URL is now environment-driven (dev/staging/prod) instead of hardcoded.
 // Set EXPO_PUBLIC_API_URL in .env — e.g. http://192.168.1.10:8002 for a local backend.
@@ -8,36 +9,47 @@ export const RESOLVED_BASE_URL =
     ? `${process.env.EXPO_PUBLIC_API_URL.replace(/\/$/, '')}/api/v1`
     : 'https://api.nabd.plus/api/v1';
 
+/**
+ * 15.1 — this instance is an *adapter*, not a second client.
+ *
+ * `adapter: singleClientAdapter` routes every call through
+ * `./http/client.httpRequest`, the same entry point `apiFetch` uses, so timeouts,
+ * retries, `Retry-After`, cancellation and offline detection cannot drift between
+ * the axios call sites and the ~170 screens. The timeout below is the axios-level
+ * default only; the client applies the 15 s / 60 s / 45 s policy per request kind.
+ */
 export const HttpClient = axios.create({
   baseURL: RESOLVED_BASE_URL,
   timeout: 15000,
+  adapter: singleClientAdapter,
 });
 
 export class OfflineMutationPendingError extends Error {
   constructor() { super('offline_mutation_pending_contract'); }
 }
 
-// Retry only safe reads. A mutation is never replayed or transformed into success
-// until its server contract defines idempotency, TTL, and confirmation semantics.
+/**
+ * Retry used to live here. It is gone on purpose: 15.1 gives retry ownership to
+ * the single client, which retries safe requests and caller-keyed idempotent ones
+ * with backoff + jitter and honours `Retry-After`. What remains here is only the
+ * app-level contract that no interceptor can lose: a mutation that never reached
+ * the server is *not* replayed, queued, or reported as success — and the 13.R5
+ * catalogue envelope is surfaced as an `AppError` so the UI reads the catalogue
+ * message plus the next step.
+ */
 HttpClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const config = error.config as InternalAxiosRequestConfig & { _retryCount?: number };
+    const config = error.config as (InternalAxiosRequestConfig & { _retryCount?: number }) | undefined;
     if (!config) return Promise.reject(error);
 
-    config._retryCount = config._retryCount || 0;
     const method = String(config.method || 'get').toLowerCase();
-    const isSafeRead = method === 'get' || method === 'head';
-    const shouldRetry = isSafeRead && (!error.response || error.response.status >= 500);
+    const isSafeRead = method === 'get' || method === 'head' || method === 'options';
+    const hasIdempotencyKey = Object.keys(config.headers ?? {}).some(
+      (key) => key.toLowerCase() === 'idempotency-key',
+    );
 
-    if (shouldRetry && config._retryCount < 3) {
-      config._retryCount += 1;
-      const delay = Math.pow(2, config._retryCount) * 1000;
-      
-      await new Promise((resolve) => setTimeout(resolve, delay));
-      return HttpClient(config);
-    }
-    if (!error.response && error.request && !isSafeRead) {
+    if (!error.response && error.request && !isSafeRead && !hasIdempotencyKey) {
       return Promise.reject(new OfflineMutationPendingError());
     }
     // 13.R5: surface backend `{code,message,nextStep}` as AppError so UI reads
@@ -59,7 +71,6 @@ HttpClient.interceptors.response.use(
 // Legacy exports for compatibility
 export const http = HttpClient;
 export const httpRequest = HttpClient;
-export const apiFetch = HttpClient;
 export const fetchPaginated = HttpClient;
 export const enqueueOfflineRequest = async () => { throw new OfflineMutationPendingError(); };
 export const getOfflineQueue = async () => [];
@@ -81,3 +92,6 @@ export interface HttpInterceptor {
   onResponse?: (response: any) => any;
   onError?: (error: any) => any;
 }
+
+/** 15.1 — one client. The old alias is kept only so a stale import cannot crash. */
+export { apiFetch } from '../utils/api';

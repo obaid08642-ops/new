@@ -1,4 +1,4 @@
-import { patientApiUrl } from "@/lib/api/upstream";
+import { patientUpstreamFetch } from "@/lib/api/upstream";
 
 export type NurseDetail = {
   id: string;
@@ -26,7 +26,7 @@ export type NurseDetail = {
 export async function getPublicNurse(nurseId: string): Promise<Response | null> {
   if (!/^[A-Za-z0-9_-]{1,128}$/.test(nurseId)) throw new Error("invalid_nurse_id");
   try {
-    return await fetch(patientApiUrl(`/nursing/nurses/${encodeURIComponent(nurseId)}`), {
+    return await patientUpstreamFetch(`/nursing/nurses/${encodeURIComponent(nurseId)}`, {
       headers: { Accept: "application/json" },
       cache: "no-store",
     });

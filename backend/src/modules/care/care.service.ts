@@ -6,6 +6,7 @@ import { Facility, FacilityDocument } from '../../schemas/facility.schema';
 import { ProviderType, ProviderStatus } from '../../common/enums';
 import { SlotService } from './slot.service';
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
+import { isRamadan, riyadhParts } from '../../common/riyadh-clock';
 import { UserRepository } from "./repositories/user.repository";
 import { FacilityRepository } from "./repositories/facility.repository";
 
@@ -322,7 +323,7 @@ export class CareService {
    * the day; booked slots unavailable; >=15 min lead time) in memory.
    * Falls back to the per-doctor path if raw collections are unreachable.
    */
-  private async batchNextAvailable(docs: any[]): Promise<Map<string, string | null>> {
+  private async batchNextAvailable(docs: any[], durationMinutes = 30): Promise<Map<string, string | null>> {
     const plains = docs.map((d) => (d && d.toObject ? d.toObject() : d)).filter((d) => d && d.id);
     const result = new Map<string, string | null>(plains.map((p) => [p.id, null]));
     if (!plains.length) return result;
@@ -334,7 +335,7 @@ export class CareService {
       }
       return result;
     }
-    for (const p of plains) result.set(p.id, firstAvailableSlot(p, batch));
+    for (const p of plains) result.set(p.id, firstAvailableSlot(p, batch, durationMinutes));
     return result;
   }
 
@@ -342,7 +343,7 @@ export class CareService {
    * Q41: batched replacement for per-doctor `SlotService.hasSlotsToday()`.
    * Same three range reads, restricted to today, shared with the card scan.
    */
-  private async batchHasSlotsToday(docs: any[]): Promise<Map<string, boolean>> {
+  private async batchHasSlotsToday(docs: any[], durationMinutes = 30): Promise<Map<string, boolean>> {
     const plains = docs.map((d) => (d && d.toObject ? d.toObject() : d)).filter((d) => d && d.id);
     const result = new Map<string, boolean>(plains.map((p) => [p.id, false]));
     if (!plains.length) return result;
@@ -354,7 +355,7 @@ export class CareService {
       }
       return result;
     }
-    for (const p of plains) result.set(p.id, hasAvailableSlotOnDay(p, batch, batch.dayStrs[0]));
+    for (const p of plains) result.set(p.id, hasAvailableSlotOnDay(p, batch, batch.dayStrs[0], durationMinutes));
     return result;
   }
 
@@ -370,8 +371,12 @@ export class CareService {
       const db = (this.providerModel as any)?.db;
       if (!db || typeof db.collection !== 'function') return null;
       const now = Date.now();
-      const todayUtc = new Date(now);
-      const windowStart = new Date(Date.UTC(todayUtc.getUTCFullYear(), todayUtc.getUTCMonth(), todayUtc.getUTCDate()));
+      // F4 — anchor the mirror on the Riyadh calendar day, exactly like
+      // SlotService.nextAvailable: near Riyadh midnight the UTC date is still
+      // yesterday (e.g. 21:30Z = 00:30 Riyadh next day) and a UTC-anchored
+      // scan covers the wrong days.
+      const [ry, rm, rd] = riyadhParts(new Date(now)).ymd.split('-').map(Number);
+      const windowStart = new Date(Date.UTC(ry, rm - 1, rd));
       const windowEnd = new Date(windowStart.getTime() + days * 24 * 3600_000);
       const dayStrs: string[] = [];
       for (let i = 0; i < days; i++) {
@@ -500,7 +505,7 @@ function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number) {
  * Q41: in-memory replay of SlotService rules over one batched read, so the
  * doctor list needs 3 range queries per page instead of N+1 per-doctor scans.
  */
-interface AvailabilityBatch {
+export interface AvailabilityBatch {
   now: number;
   windowStart: Date;
   windowEnd: Date;
@@ -524,14 +529,27 @@ function batchEntries(rows: any[], dow: number) {
   ]);
 }
 
-/** Mirrors SlotService.hoursFor: approved schedule slots, then per-mode schedule, then legacy working_hours. */
-function batchWindowsFor(plain: any, batch: AvailabilityBatch, dow: number, mode: string): { open: string; close: string }[] {
+/** Mirrors SlotService.hoursFor (15.9 precedence): special date > approved slots > Ramadan > per-mode > legacy working_hours. */
+function batchWindowsFor(plain: any, batch: AvailabilityBatch, dow: number, mode: string, dateStr?: string): { open: string; close: string }[] {
+  if (dateStr && Array.isArray(plain.special_hours)) {
+    const sp = plain.special_hours.find((s: any) => s && s.date === dateStr);
+    if (sp) {
+      if (sp.closed) return [];
+      if (HHMM_RE.test(sp.open || '') && HHMM_RE.test(sp.close || '')) {
+        return [{ open: sp.open, close: sp.close }];
+      }
+    }
+  }
   if (plain.account_id) {
     const rows = batch.schedByAccount.get(plain.account_id) || [];
     const approved = rows
       .filter((x) => x.day_of_week === dow && (x.service_type === mode || x.service_type === 'all') && HHMM_RE.test(x.start_time || '') && HHMM_RE.test(x.end_time || ''))
       .map((x) => ({ open: x.start_time, close: x.end_time }));
     if (approved.length) return approved;
+  }
+  if (dateStr && isRamadan(new Date(dateStr + 'T12:00:00Z'))) {
+    const ramadan = batchEntries(plain.ramadan_hours, dow);
+    if (ramadan.length) return ramadan;
   }
   const perMode = batchEntries(plain[`schedule_${mode}`], dow);
   if (perMode.length) return perMode;
@@ -549,13 +567,18 @@ function batchOnLeave(plain: any, batch: AvailabilityBatch, dayStart: Date, dayE
   );
 }
 
-/** First available 30-min slot start (ISO) on one day, or null. Mirrors SlotService.slotsForDate. */
-function firstAvailableOnDay(plain: any, batch: AvailabilityBatch, dateStr: string): string | null {
+/** First available slot start (ISO) on one day, or null. Mirrors SlotService.slotsForDate. Exported for unit tests. */
+export function firstAvailableOnDay(
+  plain: any,
+  batch: AvailabilityBatch,
+  dateStr: string,
+  durationMinutes = 30,
+): string | null {
   const mode = plain.consultation_modes && plain.consultation_modes[0];
   if (!mode) return null;
   if (!plain.consultation_modes.includes(mode)) return null;
   const dow = new Date(dateStr + 'T00:00:00Z').getUTCDay();
-  const windows = batchWindowsFor(plain, batch, dow, mode);
+  const windows = batchWindowsFor(plain, batch, dow, mode, dateStr);
   if (!windows.length) return null;
   const baseDate = new Date(dateStr + 'T00:00:00Z');
   const dayStart = new Date(baseDate.getTime());
@@ -571,7 +594,7 @@ function firstAvailableOnDay(plain: any, batch: AvailabilityBatch, dateStr: stri
     const openTs = new Date(baseDate.getTime() + oh * 3600_000 + om * 60_000);
     let closeTs = new Date(baseDate.getTime() + ch * 3600_000 + cm * 60_000);
     if (closeTs.getTime() <= openTs.getTime()) closeTs = new Date(closeTs.getTime() + 24 * 3600_000); // overnight
-    for (let t = openTs.getTime(); t + 30 * 60_000 <= closeTs.getTime(); t += 30 * 60_000) {
+    for (let t = openTs.getTime(); t + durationMinutes * 60_000 <= closeTs.getTime(); t += durationMinutes * 60_000) {
       if (t < batch.now + 15 * 60_000) continue; // >=15 min lead time
       const iso = new Date(t).toISOString();
       if (seen.has(iso)) continue;
@@ -583,14 +606,19 @@ function firstAvailableOnDay(plain: any, batch: AvailabilityBatch, dateStr: stri
   return starts.find((s) => !booked.has(s)) || null;
 }
 
-function hasAvailableSlotOnDay(plain: any, batch: AvailabilityBatch, dateStr: string): boolean {
-  return firstAvailableOnDay(plain, batch, dateStr) !== null;
+function hasAvailableSlotOnDay(
+  plain: any,
+  batch: AvailabilityBatch,
+  dateStr: string,
+  durationMinutes = 30,
+): boolean {
+  return firstAvailableOnDay(plain, batch, dateStr, durationMinutes) !== null;
 }
 
 /** First available slot across the batch horizon (mirrors SlotService.nextAvailable). */
-function firstAvailableSlot(plain: any, batch: AvailabilityBatch): string | null {
+function firstAvailableSlot(plain: any, batch: AvailabilityBatch, durationMinutes = 30): string | null {
   for (const dateStr of batch.dayStrs) {
-    const slot = firstAvailableOnDay(plain, batch, dateStr);
+    const slot = firstAvailableOnDay(plain, batch, dateStr, durationMinutes);
     if (slot) return slot;
   }
   return null;

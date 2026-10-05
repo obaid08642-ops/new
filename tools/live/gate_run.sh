@@ -105,7 +105,7 @@ run_one() {
     grep -E '^\s+FAIL|Traceback|Error' <<<"$out" | head -20
   fi
 }
-JOURNEYS=(j_accounts j_onboarding j_pharmacy j_lab j_radiology j_nursing j_consultation j_ambulance j_facility j_support j_loyalty)
+JOURNEYS=(j_accounts j_onboarding j_pharmacy j_lab j_radiology j_nursing j_consultation j_ambulance j_facility j_support j_loyalty j_payments j_chaos j_rapid_tap j_app_killed_payment j_throttled_network j_killswitches)
 python3 gate_p1.py || gate=1
 for j in "${JOURNEYS[@]}"; do
   ensure_stack

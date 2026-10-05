@@ -1,6 +1,7 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { CareService } from './care.service';
 import { JwtAuthGuard, Public } from '../../common/auth.guard';
+import { queryInt } from '../../common/safe-query';
 
 @Controller('care')
 @UseGuards(JwtAuthGuard)
@@ -51,8 +52,8 @@ export class CareController {
       lat: lat ? parseFloat(lat) : undefined,
       lng: lng ? parseFloat(lng) : undefined,
       sort,
-      page: page ? parseInt(page, 10) : 1,
-      limit: limit ? parseInt(limit, 10) : 20,
+      page: queryInt(page, 1),
+      limit: queryInt(limit, 20),
     });
   }
 
@@ -88,7 +89,7 @@ export class CareController {
     @Query('q') q?: string,
     @Query('limit') limit?: string,
   ) {
-    return this.svc.listFacilities({ city, type, specialty, q, limit: limit ? parseInt(limit, 10) : 50 });
+    return this.svc.listFacilities({ city, type, specialty, q, limit: queryInt(limit, 50) });
   }
 
   @Public()

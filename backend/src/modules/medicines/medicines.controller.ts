@@ -3,6 +3,7 @@ import { MedicinesService } from './medicines.service';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { queryInt } from '../../common/safe-query';
 import { SuggestChangeDto, SuggestNewItemDto, AdminUpdateCatalogDto, AdminCreateDto, LookupBarcodeDto, CompareDto, ReportShortageDto, RejectShortageDto, SetAvailabilityDto, SuggestImageDto, RejectImageDto, RejectChangeDto, AdminDeleteDto, ImportJsonDto, ImportCsvDto, ManualEntryDto, ApproveChangeDto, AdminApproveCatalogDto, AdminBulkApproveCatalogDto} from './medicines.dto';
 
 @Controller('medicines')
@@ -27,13 +28,15 @@ export class MedicinesController {
     const term = search || q; // 'q' is a legacy alias used by older clients
     const userId = this.optionalUserId(auth);
     // Cursor mode (O(1) deep browsing) takes precedence when ?cursor= is present
+    // 15.6: parseInt('abc') is NaN — coerce to defaults here (services guard
+    // too) so malformed ?page=/ ?limit= can never become a driver 500.
     if (cursor !== undefined) {
-      return this.svc.cursorPage(term, category, cursor || undefined, parseInt(limit || '30'));
+      return this.svc.cursorPage(term, category, cursor || undefined, parseInt(limit || '30', 10) || 30);
     }
     if (page !== undefined) {
-      return this.svc.paginate(term, category, parseInt(page || '1'), parseInt(limit || '30'), false, sort || 'smart_ranking', pharmacyId); // R9a: public must filter unapproved
+      return this.svc.paginate(term, category, parseInt(page || '1', 10) || 1, parseInt(limit || '30', 10) || 30, false, sort || 'smart_ranking', pharmacyId); // R9a: public must filter unapproved
     }
-    return this.svc.list(term, category, false, limit ? parseInt(limit) : undefined, userId, sort || 'smart_ranking', pharmacyId);
+    return this.svc.list(term, category, false, limit ? parseInt(limit, 10) || 500 : undefined, userId, sort || 'smart_ranking', pharmacyId);
   }
 
   /** Decode (not verify) JWT for analytics attribution — never a security gate. */
@@ -103,14 +106,14 @@ export class MedicinesController {
   @Public()
   @Get('search/trending')
   trending(@Query('limit') limit?: string) {
-    return this.svc.trendingSearches(parseInt(limit || '10'));
+    return this.svc.trendingSearches(queryInt(limit, 10));
   }
 
   /** Recent searches of the authenticated user */
   @Get('search/recent')
   @Roles(UserRole.PATIENT) // Q78: the class default is ADMIN
   recent(@CurrentUser() user: any, @Query('limit') limit?: string) {
-    return this.svc.recentSearches(user?.id, parseInt(limit || '10'));
+    return this.svc.recentSearches(user?.id, queryInt(limit, 10));
   }
 
   /** Admin: manual hot-list regeneration */
@@ -132,7 +135,7 @@ export class MedicinesController {
   @Roles(UserRole.ADMIN)
   @RequirePermissions(Permission.CATALOG_READ)
   shortageReports(@Query('status') status?: string, @Query('page') page?: string, @Query('limit') limit?: string) {
-    return this.svc.listShortageReports(status || 'pending', parseInt(page || '1'), parseInt(limit || '20'));
+    return this.svc.listShortageReports(status || 'pending', queryInt(page, 1), queryInt(limit, 20));
   }
 
   /** Admin: approve → badge appears */
@@ -179,7 +182,7 @@ export class MedicinesController {
   @Get('admin/image-suggestions')
   @Roles(UserRole.ADMIN)
   imageSuggestions(@Query('status') status?: string, @Query('page') page?: string, @Query('limit') limit?: string) {
-    return this.svc.listImageSuggestions(status || 'pending', parseInt(page || '1'), parseInt(limit || '20'));
+    return this.svc.listImageSuggestions(status || 'pending', queryInt(page, 1), queryInt(limit, 20));
   }
 
   /** Admin: approve → image goes live, old R2 image deleted */
@@ -214,7 +217,7 @@ export class MedicinesController {
   @Get('admin/change-requests')
   @Roles(UserRole.ADMIN)
   changeRequests(@Query('status') status?: string, @Query('type') type?: string, @Query('page') page?: string, @Query('limit') limit?: string) {
-    return this.svc.listChangeRequests(status || 'pending', type, parseInt(page || '1'), parseInt(limit || '20'));
+    return this.svc.listChangeRequests(status || 'pending', type, queryInt(page, 1), queryInt(limit, 20));
   }
 
   /** Admin: approve → change applied to the live catalog immediately */
@@ -252,7 +255,7 @@ export class MedicinesController {
   ) {
     return this.svc.adminListCatalog({
       q, category,
-      page: parseInt(page || '1'), limit: parseInt(limit || '25'),
+      page: queryInt(page, 1), limit: queryInt(limit, 25),
       includeDeleted: includeDeleted === '1' || includeDeleted === 'true',
     });
   }
@@ -306,7 +309,7 @@ export class MedicinesController {
   @Roles(UserRole.ADMIN)
   @RequirePermissions(Permission.CATALOG_READ)
   priceHistory(@Param('id') id: string, @Query('page') page?: string, @Query('limit') limit?: string): Promise<{ data: any[]; total: number; page: number; pages: number }> {
-    return this.svc.getPriceHistory(id, parseInt(page || '1'), parseInt(limit || '50'));
+    return this.svc.getPriceHistory(id, queryInt(page, 1), queryInt(limit, 50));
   }
 
   /** Admin: sales & shortage analytics for the catalog screen. */
@@ -381,7 +384,7 @@ export class MedicinesController {
   @Get('me/recently-viewed')
   @Roles(UserRole.PATIENT) // Q78: the class default is ADMIN
   recentlyViewed(@CurrentUser() user: any, @Query('limit') limit?: string) {
-    return this.svc.recentlyViewed(user?.id, parseInt(limit || '20'));
+    return this.svc.recentlyViewed(user?.id, queryInt(limit, 20));
   }
 
   @Public()

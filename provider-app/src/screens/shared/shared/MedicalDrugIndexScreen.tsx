@@ -186,62 +186,51 @@ export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
    }
  };
 
- // Load dynamic categories from the real medicines catalog
- useEffect(() => {
-   (async () => {
-     try {
-       const headers = await buildHeaders(true);
-       const res = await fetch(`${API_BASE}/drugs/categories`, { headers });
-       if (res.ok) {
-         const data = await res.json();
-         setCategories([{ key: 'all', count: 0 }, ...(data.data || [])]);
-       }
-     } catch {}
-   })();
- }, []);
+// Load dynamic categories from the real medicines catalog
+  useEffect(() => {
+    // P15.1: cancel in flight when this screen closes.
+    const ac = new AbortController();
+    client.get('/drugs/categories', { signal: ac.signal })
+      .then((res: any) => setCategories([{ key: 'all', count: 0 }, ...((res.data && res.data.data) || [])]))
+      .catch(() => {});
+    return () => ac.abort();
+  }, []);
 
- // Server-side search + category filtering (debounced)
- useEffect(() => {
-   let cancelled = false;
-   const t = setTimeout(async () => {
-     setLoading(true);
-     try {
-       const q = new URLSearchParams();
-       if (search.trim()) q.append('search', search.trim());
-       if (selectedCat !== 'all') q.append('category', selectedCat);
-       q.append('limit', '100');
-       const headers = await buildHeaders(true);
-       const res = await fetch(`${API_BASE}/drugs?${q.toString()}`, { headers });
-       if (res.ok) {
-         const data = await res.json();
-         if (!cancelled) setDrugs(data.data || []);
-       }
-     } catch {
-     } finally {
-       if (!cancelled) setLoading(false);
-     }
-   }, 300);
-   return () => { cancelled = true; clearTimeout(t); };
- }, [search, selectedCat]);
+  // Server-side search + category filtering (debounced)
+  useEffect(() => {
+    const ac = new AbortController();
+    const t = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const q = new URLSearchParams();
+        if (search.trim()) q.append('search', search.trim());
+        if (selectedCat !== 'all') q.append('category', selectedCat);
+        q.append('limit', '100');
+        const res: any = await client.get(`/drugs?${q.toString()}`, { signal: ac.signal });
+        setDrugs((res.data && res.data.data) || []);
+      } catch {
+      } finally {
+        if (!ac.signal.aborted) setLoading(false);
+      }
+    }, 300);
+    // A new keystroke supersedes the previous request — abort it before re-issuing.
+    return () => { ac.abort(); clearTimeout(t); };
+  }, [search, selectedCat]);
 
- // Load the full product profile when a drug is opened
- useEffect(() => {
-   if (!selectedDrug) { setDrugDetail(null); return; }
-   setDetailLoading(true);
-   (async () => {
-     try {
-       const headers = await buildHeaders(true);
-       const res = await fetch(`${API_BASE}/drugs/${selectedDrug.id}`, { headers });
-       if (res.ok) {
-         const data = await res.json();
-         if (!data.error) setDrugDetail(data);
-       }
-     } catch {
-     } finally {
-       setDetailLoading(false);
-     }
-   })();
- }, [selectedDrug?.id]);
+  // Load the full product profile when a drug is opened
+  useEffect(() => {
+    if (!selectedDrug) { setDrugDetail(null); return; }
+    setDetailLoading(true);
+    const ac = new AbortController();
+    client.get(`/drugs/${selectedDrug.id}`, { signal: ac.signal })
+      .then((res: any) => {
+        const data = res.data;
+        if (data && !data.error) setDrugDetail(data);
+      })
+      .catch(() => {})
+      .finally(() => { if (!ac.signal.aborted) setDetailLoading(false); });
+    return () => ac.abort();
+  }, [selectedDrug?.id]);
 
  const headerHeight = scrollY.interpolate({
    inputRange: [0, 80],
