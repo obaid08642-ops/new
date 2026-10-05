@@ -17,7 +17,7 @@
 import { createServer } from 'node:http';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { dirname, extname, join, resolve } from 'node:path';
+import { dirname, extname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -68,8 +68,11 @@ const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.
 const server = createServer((rq, rs) => {
   const url = decodeURIComponent(rq.url.split('?')[0]);
   if (url === '/__app.js') return rs.writeHead(200, { 'content-type': MIME['.js'] }).end(appJs);
-  const file = url.startsWith('/__font/') ? join(FONTS, url.slice(8)) : join(BOARDS, url);
-  if (!file.startsWith(BOARDS) && !file.startsWith(FONTS)) return rs.writeHead(403).end();
+  // Resolve, then require the result to sit inside its root (prefix + separator, so a sibling
+  // such as canvas-other/ does not match and ../ cannot escape).
+  const root = url.startsWith('/__font/') ? FONTS : BOARDS;
+  const file = resolve(root, '.' + sep + (url.startsWith('/__font/') ? url.slice(8) : url));
+  if (!file.startsWith(root + sep)) return rs.writeHead(403).end();
   if (!existsSync(file)) return rs.writeHead(404).end();
   rs.writeHead(200, { 'content-type': MIME[extname(file)] || 'application/octet-stream' });
   rs.end(readFileSync(file));
