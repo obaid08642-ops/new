@@ -59,6 +59,7 @@ const STATUS_TO_CODE: Record<number, string> = {
   [HttpStatus.BAD_REQUEST]: ERROR_CODES.INVALID_INPUT,
   [HttpStatus.UNAUTHORIZED]: ERROR_CODES.AUTHENTICATION_REQUIRED,
   [HttpStatus.FORBIDDEN]: ERROR_CODES.INSUFFICIENT_PERMISSION,
+  [HttpStatus.NOT_FOUND]: ERROR_CODES.NOT_FOUND,
   [HttpStatus.CONFLICT]: ERROR_CODES.DUPLICATE_TRANSACTION,
   [HttpStatus.TOO_MANY_REQUESTS]: ERROR_CODES.RATE_LIMITED,
   [HttpStatus.BAD_GATEWAY]: ERROR_CODES.SERVICE_UNAVAILABLE,
@@ -74,12 +75,15 @@ const STATUS_TO_CODE: Record<number, string> = {
  *   the status to a catalog code and keeps the string as the message.
  * - object bodies: ValidationPipe `{message: string[]}` arrays are joined;
  *   legacy `{status, error}` shapes keep `error` as the message with a
- *   status-mapped code.
+ *   status-mapped code; any other field is kept under `details`.
  */
+/** Fields of an error body that the envelope itself carries (not details). */
+const ENVELOPE_KEYS = new Set(['code', 'error_code', 'message', 'error', 'statusCode', 'details']);
+
 export function normalizeHttpExceptionBody(
   status: number,
   response: unknown,
-): { code: string; message: string } | null {
+): { code: string; message: string; details?: Record<string, unknown> } | null {
   if (typeof response === 'string') {
     if (isErrorCode(response)) return { code: response, message: response };
     return { code: STATUS_TO_CODE[status] ?? 'UNKNOWN_ERROR', message: response };
@@ -94,10 +98,16 @@ export function normalizeHttpExceptionBody(
     const code =
       typeof body.code === 'string'
         ? body.code
+        : typeof body.error_code === 'string'
+          ? body.error_code
         : isErrorCode(message)
           ? message
           : (STATUS_TO_CODE[status] ?? 'UNKNOWN_ERROR');
-    return { code, message };
+    // Keep the throw site's extra fields (e.g. { kind, domain_state }) for clients.
+    const extra = Object.fromEntries(Object.entries(body).filter(([k]) => !ENVELOPE_KEYS.has(k)));
+    const given = body.details && typeof body.details === 'object' ? (body.details as Record<string, unknown>) : {};
+    const details = { ...given, ...extra };
+    return Object.keys(details).length ? { code, message, details } : { code, message };
   }
   return { code: STATUS_TO_CODE[status] ?? 'UNKNOWN_ERROR', message: 'Unknown error' };
 }
