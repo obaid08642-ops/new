@@ -96,10 +96,12 @@ export class IdempotencyKeyInterceptor implements NestInterceptor {
       return of(replayWithFlag(cached.response));
     }
 
-    // Pre-shape records (no request_hash) are replayed, never re-executed:
-    // they were scoped by the same user/method/path/key when written.
-    const legacy = await this.store.findLegacyResponse(recordKey);
-    if (legacy.found) return of(replayWithFlag(legacy.response));
+    // F2 (15.2 fix): hashless pre-shape records (`{ response }` with no
+    // `request_hash`) are a MISS, never a replay. Replaying them skipped the
+    // body-hash comparison, so a reused key with a DIFFERENT body returned a
+    // stale 200 instead of 400 `idempotency_key_reused_with_different_request`.
+    // Executing overwrites the record with the new `{ request_hash, response }`
+    // shape via saveResponse below, healing the legacy row in one pass.
 
     const locked = await this.store.acquireLock(recordKey);
     if (!locked) throw new ConflictException('idempotency_request_in_progress');

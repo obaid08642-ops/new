@@ -62,10 +62,10 @@ export class IdempotencyKeyStore {
 
   /**
    * Pre-shape records: `{ response }` persisted WITHOUT a `request_hash` by an
-   * older writer. They are scoped by the same user/method/path/key as current
-   * records, so replaying them is safe; treating them as a miss would
-   * re-execute the handler and double-apply the write. Returns undefined when
-   * there is no record or the record already carries a hash.
+   * older writer. F2: the interceptor treats these as a MISS (execute +
+   * overwrite with the hashed shape) so a reused key with a different body
+   * cannot replay a stale response. Kept for observability/migration tooling;
+   * the write path no longer replays them (see IdempotencyKeyInterceptor).
    */
   async findLegacyResponse(recordKey: string): Promise<{ found: boolean; response?: unknown }> {
     const raw = await this.redis.get(recordKey);
