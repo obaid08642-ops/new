@@ -10,7 +10,7 @@ function serviceFor(opts: { family?: boolean; booking?: boolean } = {}) {
     updateOne: jest.fn().mockResolvedValue({}),
   };
   service.checkIfFamily = jest.fn().mockResolvedValue(!!opts.family);
-  service.getModel = jest.fn().mockReturnValue({ countDocuments: jest.fn().mockResolvedValue(opts.booking ? 1 : 0) });
+  service.getModel = jest.fn().mockReturnValue({ exists: jest.fn().mockResolvedValue(opts.booking ? { _id: 'b1' } : null) });
   service.logger = { warn: jest.fn() };
   return { service, created };
 }

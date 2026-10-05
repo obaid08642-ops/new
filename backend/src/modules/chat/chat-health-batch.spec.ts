@@ -18,17 +18,17 @@ function chatServiceFor(opts: {
   service.getModel = jest.fn((name: string) => {
     if ((opts.missingModels || []).includes(name)) throw new Error(`not registered: ${name}`);
     return {
-      countDocuments: jest.fn((filter: any) => {
-        // Forward filter puts userA in the patient $or ($and[0]); reverse puts userB there.
-        const patientClause = JSON.stringify(filter?.$and?.[0] ?? filter);
-        const isFwd = patientClause.includes('userA');
-        opts.calls?.push(`${name}:${isFwd ? 'fwd' : 'rev'}`);
+      // One query per model; the filter is { $or: [forward, reverse] }.
+      exists: jest.fn((filter: any) => {
+        opts.calls?.push(name);
         if ((opts.failingModels || []).includes(name)) return Promise.reject(new Error('db down'));
         const [fwd, rev] = (opts.counts?.[name] as [number, number] | undefined) || [0, 0];
-        // Direction proxy: the forward filter embeds userA in the patient $or.
-        const n = isFwd ? fwd : rev;
-        if (opts.deferred) return new Promise<number>((res) => gates.push(() => res(n)));
-        return Promise.resolve(n);
+        const hasBothDirections = Array.isArray(filter?.$or) && filter.$or.length === 2
+          && JSON.stringify(filter.$or[0].$and[0]).includes('userA') && JSON.stringify(filter.$or[1].$and[0]).includes('userB');
+        const n = hasBothDirections ? fwd + rev : 0;
+        const v = n > 0 ? { _id: `${name}-1` } : null;
+        if (opts.deferred) return new Promise((res) => gates.push(() => res(v)));
+        return Promise.resolve(v);
       }),
     };
   });
@@ -39,18 +39,17 @@ function chatServiceFor(opts: {
   };
 }
 
-describe('hasDirectRelationship batching (perf rank 8)', () => {
-  it('fans out all 5 models x 2 directions without awaiting any result first', async () => {
+describe('hasDirectRelationship early exit', () => {
+  it('asks one model at a time and stops at the first match (a006d5a)', async () => {
     const calls: string[] = [];
-    const { service, flush } = chatServiceFor({ deferred: true, calls });
-    const pending = service.hasDirectRelationship('userA', 'userB');
-    await tick();
-    // Sequential version would have issued exactly 1 count here; batched issues all 10.
-    expect(service.getModel).toHaveBeenCalledTimes(5);
-    expect(calls).toHaveLength(10);
-    expect(new Set(calls).size).toBe(10);
-    flush();
-    await expect(pending).resolves.toBe(false);
+    const { service } = chatServiceFor({ counts: { LabBooking: [1, 0], Order: [1, 0] }, calls });
+    await expect(service.hasDirectRelationship('userA', 'userB')).resolves.toBe(true);
+    expect(calls).toEqual(['Appointment', 'LabBooking']);
+
+    const none: string[] = [];
+    const miss = chatServiceFor({ calls: none });
+    await expect(miss.service.hasDirectRelationship('userA', 'userB')).resolves.toBe(false);
+    expect(none).toEqual(['Appointment', 'LabBooking', 'RadiologyBooking', 'HomeCareBooking', 'Order']);
   });
 
   it('preserves exact return values: forward hit, reverse-only hit, miss', async () => {
