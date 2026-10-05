@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, Inject, BadRequestException, Logger, Optional } from '@nestjs/common';
+import { rethrowAsNotFoundIfInvalidId } from '../../common/id.utils';
 import { Cron } from '@nestjs/schedule';
 import { Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -1257,28 +1258,14 @@ export class MedicinesService {
 
   /** Admin: clear the badge when stock normalizes. */
   async clearShortageBadge(medicineId: string, adminId: string) {
-    let res: any = null;
-    try {
-      res = await this.model.updateOne(
-        { id: medicineId },
-        { $set: { availability_status: 'none', shortage_notes: null, updatedAt: new Date() } },
-      );
-    } catch {
-      const { NotFoundException } = await import('@nestjs/common');
-      throw new NotFoundException('medicine_not_found');
-    }
-    if (!res?.modifiedCount) {
-      let exists: any = null;
-      try {
-        exists = await this.model.findOne({ id: medicineId });
-      } catch {
-        exists = null;
-      }
-      if (!exists) {
-        const { NotFoundException } = await import('@nestjs/common');
-        throw new NotFoundException('medicine_not_found');
-      }
-    }
+    // MedicineRepository.updateOne is findOneAndUpdate: it resolves to the updated
+    // document, or null when no medicine has this id. Only a malformed id
+    // (CastError) is mapped to 404; real DB errors propagate.
+    const updated: MedicineDocument | null = await this.model.updateOne(
+      { id: { $eq: String(medicineId) } },
+      { $set: { availability_status: 'none', shortage_notes: null, updatedAt: new Date() } },
+    ).catch((e: unknown) => rethrowAsNotFoundIfInvalidId(e, 'medicine_not_found'));
+    if (!updated) throw new NotFoundException('medicine_not_found');
     this.audit('medicine.shortage_badge_cleared', medicineId, adminId, 'admin', {});
     await this.invalidateCache();
     return { ok: true };

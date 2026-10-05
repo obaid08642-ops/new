@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional } from '@nestjs/common';
+import { rethrowAsNotFoundIfInvalidId } from '../../common/id.utils';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { pick } from '../../common/sanitize';
@@ -39,12 +40,8 @@ export class RadiologyOpsService {
   // ──────────────────────────────────────────────
   /** Bookings may live in either collection (legacy or center) — unify lookup. */
   private async findBooking(id: string, user?: any): Promise<any> {
-    let b: any = null;
-    try {
-      b = await this.bkgModel.findOne({ id });
-    } catch {
-      throw new NotFoundException();
-    }
+    // Only a malformed id is a 404; real DB errors propagate (not disguised as 404).
+    const b = await this.bkgModel.findOne({ id }).catch((e: unknown) => rethrowAsNotFoundIfInvalidId(e));
     if (b) {
       if (user) {
         const isAdmin = user.role === 'admin' || user.role === 'super_admin';

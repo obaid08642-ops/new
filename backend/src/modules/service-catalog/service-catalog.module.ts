@@ -2,7 +2,7 @@ import { Module, Controller, Get, Post, Put, Patch, Delete, Body, Param, Query, 
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
-import { UserRole } from '../../common/enums';
+import { ProviderType, UserRole } from '../../common/enums';
 import { LabServiceSchema, LabService } from '../../schemas/lab.schema';
 import { RadiologyServiceSchema, RadiologyService } from '../../schemas/radiology.schema';
 import { EventBusService } from '../events/event-bus.service';
@@ -68,6 +68,15 @@ const DEFAULT_WEEKLY = {
 function dayKey(d: Date) { return ['sun','mon','tue','wed','thu','fri','sat'][d.getDay()]; }
 function fromHM(date: Date, hm: string) { const [h, m] = hm.split(':').map(Number); const r = new Date(date); r.setHours(h, m, 0, 0); return r; }
 function toHM(d: Date) { return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
+
+const SCHEDULE_ENTITY_TYPES: readonly string[] = Object.values(ProviderType);
+
+/** A provider schedule is keyed by a provider type (ProviderType enum), never free text. */
+export function assertScheduleEntityType(entity_type: string): void {
+  if (!SCHEDULE_ENTITY_TYPES.includes(entity_type)) {
+    throw new BadRequestException(`invalid entity_type: must be one of ${SCHEDULE_ENTITY_TYPES.join(', ')}`);
+  }
+}
 
 @Injectable()
 export class ServiceCatalogService {
@@ -201,6 +210,7 @@ export class ServiceCatalogService {
   // ===== PROVIDER SCHEDULE =====
   async getSchedule(user: any, entity_type: string) {
     this.assertProvider(user);
+    assertScheduleEntityType(entity_type);
     let s: any = await this.sched.findOne({ account_id: { $eq: user.id }, entity_type: { $eq: entity_type } }).lean();
     if (!s) {
       const created = await this.sched.create({ account_id: user.id, entity_type, weekly: DEFAULT_WEEKLY });
@@ -211,11 +221,7 @@ export class ServiceCatalogService {
 
   async upsertSchedule(user: any, entity_type: string, data: any) {
     this.assertProvider(user);
-    const validTypes = ['lab', 'radiology', 'nursing', 'pharmacy', 'doctor', 'clinic'];
-    if (!validTypes.includes(entity_type)) {
-      const { BadRequestException } = await import('@nestjs/common');
-      throw new BadRequestException(`invalid entity_type: must be one of ${validTypes.join(', ')}`);
-    }
+    assertScheduleEntityType(entity_type);
     const $set: any = {};
     for (const k of ['weekly', 'blocked_dates', 'slot_minutes', 'max_per_slot', 'coverage_radius_km', 'is_online']) if (data[k] !== undefined) $set[k] = data[k];
     const r = await this.sched.findOneAndUpdate({ account_id: { $eq: user.id }, entity_type: { $eq: entity_type } }, { $set }, { new: true, upsert: true });

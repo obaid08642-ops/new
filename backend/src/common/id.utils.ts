@@ -1,3 +1,4 @@
+import { NotFoundException } from '@nestjs/common';
 import { Types } from 'mongoose';
 
 /** True when `id` can be cast to a Mongo ObjectId. */
@@ -27,4 +28,16 @@ export async function findByAnyId<T>(
   extra?: Record<string, unknown>,
 ): Promise<T | null> {
   return model.findOne({ ...idFilter(id), ...(extra ?? {}) }).exec();
+}
+
+/**
+ * For `.catch()` on a DB call keyed by a caller-supplied id: a malformed id
+ * (Mongoose CastError / BSONError) means "no such resource" -> 404; every
+ * other error (timeouts, connection loss, server errors) is rethrown
+ * unchanged so it is not disguised as a 404.
+ */
+export function rethrowAsNotFoundIfInvalidId(error: unknown, message?: string): never {
+  const name = error && typeof error === 'object' ? (error as { name?: unknown }).name : undefined;
+  if (name === 'CastError' || name === 'BSONError') throw new NotFoundException(message);
+  throw error;
 }

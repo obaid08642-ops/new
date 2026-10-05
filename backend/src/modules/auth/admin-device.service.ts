@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Types } from 'mongoose';
 import { createHash, randomBytes } from 'crypto';
@@ -70,14 +70,12 @@ export class AdminDeviceService {
   async revoke(userId: string, deviceDbId: string) {
     // R11 §5: admin_devices is a raw collection — the string id must become an
     // ObjectId or it never matches (every revoke used to answer 404).
-    const { NotFoundException } = await import('@nestjs/common');
     if (!Types.ObjectId.isValid(String(deviceDbId))) throw new NotFoundException('device_not_found');
     const _id = new Types.ObjectId(String(deviceDbId));
-    const res: any = await this.devices.updateOne({ _id, user_id: userId }, { $set: { revoked: true } }).catch(() => null);
-    if (!res?.modifiedCount && !(await this.devices.findOne({ _id, user_id: userId }).catch(() => null))) {
-      const { NotFoundException } = await import('@nestjs/common');
-      throw new NotFoundException('device_not_found');
-    }
+    // DB errors propagate (no catch-all into 404); revoking an already-revoked
+    // device is an idempotent success (matchedCount).
+    const res = await this.devices.updateOne({ _id, user_id: userId }, { $set: { revoked: true } });
+    if (!res.matchedCount) throw new NotFoundException('device_not_found');
     return { ok: true };
   }
 
