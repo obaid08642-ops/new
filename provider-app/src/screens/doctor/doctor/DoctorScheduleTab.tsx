@@ -17,6 +17,7 @@ import { I, IBg } from '../../../components/icons';
 import { SP, R, FS, FW, API_BASE } from '../../../constants';
 import { buildHeaders, Vault, SK } from '../../../security/Security';
 import client from '../../../api/client';
+import { formatInProviderZone } from '../../../time/providerZone';
 import { useServicesCatalog, getInsuranceCatalog, useSpecialtiesCatalog } from '../../../api/catalogs';
 import { VideoCallRoom } from '../../shared/VideoCallRoom';
 import { InsuranceRequestsScreen } from '../../shared/InsuranceRequestsScreen';
@@ -72,10 +73,13 @@ export function DoctorScheduleTab({ onNavigate }: { onNavigate: (s: string, p?: 
  client.get('/provider/jobs/queue?status=active&kind=consultation')
  .then(res => {
  setLoadError(null);
- setApts((res.data || []).map((x: any) => ({
- id: x.id,
- patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabd+ Patient'),
- time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+  setApts((res.data || []).map((x: any) => ({
+  id: x.id,
+  patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabd+ Patient'),
+  // P15.9 — a server instant, always displayed in Asia/Riyadh: the old
+  // `new Date(...).toLocaleTimeString([], ...)` rendered in the *device* zone,
+  // so a wrong device zone moved every appointment on this screen.
+  time: formatInProviderZone(x.scheduled_at, AR ? 'ar-SA-u-ca-gregory' : 'en-GB', { dateStyle: undefined, timeStyle: 'short' }) ?? '',
  type: x.service_type || 'video',
  status: x.domain_state === 'IN_PROGRESS' || x.universal_state === AppointmentStatus.IN_PROGRESS ? AppointmentStatus.IN_PROGRESS : 'confirmed',
  price: x.total ?? x.price ?? 0,
