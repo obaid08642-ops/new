@@ -36,7 +36,7 @@ type MapView = RNMapView;
 
 const styles = StyleSheet.create({
   box: { alignItems: 'center', justifyContent: 'center', backgroundColor: lightColors.bg, minHeight: 160 },
-  text: { color: lightColors.t2, fontSize: 15, textAlign: 'center', padding: 16 },
+  text: { color: lightColors.t, fontSize: 15, textAlign: 'center', padding: 16 },
 });
 
 export default MapView;

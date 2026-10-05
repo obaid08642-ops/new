@@ -40,7 +40,7 @@ type MapView = RNMapView;
 
 const styles = StyleSheet.create({
   box: { alignItems: 'center', justifyContent: 'center', backgroundColor: tokens.surfaceSunken, minHeight: 160 },
-  text: { color: tokens.textSecondary, fontSize: 15, textAlign: 'center', padding: 16 },
+  text: { color: tokens.text, fontSize: 15, textAlign: 'center', padding: 16 },
 });
 
 export default MapView;
