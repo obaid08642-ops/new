@@ -1,3 +1,6 @@
+import { Permission } from '../../../common/permissions';
+import { RequirePermissions } from '../../../common/permissions';
+import { StepUp } from '../../../common/step-up.guard';
 import { Module, Controller, Get, Post, Put, Param, Query, Body, UseGuards, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -364,6 +367,8 @@ export class CommissionsController {
     return out;
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   @Put(':id')
   async update(@Param('id') id: string, @Body() body: UpdateDto) {
     const set: any = {};

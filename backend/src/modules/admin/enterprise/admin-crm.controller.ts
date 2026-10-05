@@ -1,3 +1,4 @@
+import { StepUp } from '../../../common/step-up.guard';
 import { BadRequestException, Body, Controller, ConflictException, ForbiddenException, Get, GoneException, NotFoundException, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -205,6 +206,7 @@ export class AdminGdprController {
    * Complete an export: materializes a REAL data package from every vertical
    * into gdpr_exports (the patient-facing endpoint streams it from there).
    */
+  @StepUp()
   @Post(':id/export/complete')
   @RequirePermissions(Permission.GDPR_MANAGE)
   async completeExport(@Param('id') id: string, @CurrentUser() me: any) {
@@ -240,6 +242,7 @@ export class AdminGdprController {
   }
 
   /** Delete = real anonymization in place (GDPR right to erasure). */
+  @StepUp()
   @Post(':id/delete/complete')
   @RequirePermissions(Permission.GDPR_MANAGE)
   async completeDelete(@Param('id') id: string, @CurrentUser() me: any) {

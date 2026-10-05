@@ -1,3 +1,6 @@
+import { Permission } from '../../../common/permissions';
+import { RequirePermissions } from '../../../common/permissions';
+import { StepUp } from '../../../common/step-up.guard';
 import { BadRequestException, Controller, Get, Put, Body, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard, Roles, Public } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
@@ -30,6 +33,8 @@ export class SystemConfigController {
     return { key: config.key, value: config.value };
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.OPS_QUEUES_MANAGE)
   @Put()
   async updateConfig(@Body() body: UpdateConfigDto) {
     const key = 'system_config';

@@ -1,3 +1,6 @@
+import { Permission } from '../../common/permissions';
+import { RequirePermissions } from '../../common/permissions';
+import { StepUp } from '../../common/step-up.guard';
 import { Controller, Get, Post, Body, UseGuards, Delete, Param } from '@nestjs/common';
 import { BansService } from './bans.service';
 import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
@@ -17,11 +20,15 @@ class CreateBanDto {
 export class BansController {
   constructor(private bansService: BansService) {}
 
+  @StepUp()
+  @RequirePermissions(Permission.USER_EDIT)
   @Post()
   ban(@CurrentUser('id') adminId: string, @Body() dto: CreateBanDto) {
     return this.bansService.ban(adminId, dto.type, dto.value, dto.reason, dto.expires_at);
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.USER_EDIT)
   @Delete(':value')
   unban(@Param('value') value: string) {
     return this.bansService.unban(value);

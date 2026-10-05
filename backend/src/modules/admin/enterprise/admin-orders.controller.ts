@@ -73,6 +73,7 @@ export class AdminOrdersConsoleController {
     return this.svc.refund(kind, id, b || {}, me);
   }
 
+  @StepUp()
   @Post(':kind/:id/compensate')
   @RequirePermissions(Permission.ORDER_COMPENSATE)
   compensate(@Param('kind') kind: string, @Param('id') id: string, @Body() b: CompensateDto, @CurrentUser() me: any) {

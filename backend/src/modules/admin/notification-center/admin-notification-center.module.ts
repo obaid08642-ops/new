@@ -1,3 +1,6 @@
+import { Permission } from '../../../common/permissions';
+import { RequirePermissions } from '../../../common/permissions';
+import { StepUp } from '../../../common/step-up.guard';
 /**
  * Admin Notification Center — full marketing/operations notification engine.
  *
@@ -417,6 +420,8 @@ export class AdminNotificationCenterController {
   statsOverview() { return this.svc.overviewStats(); }
 
   /** Immediate broadcast to a segment */
+  @StepUp()
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post('broadcasts')
   broadcast(@CurrentUser() admin: any, @Body() body: BroadcastDto) { return this.svc.broadcast(String(admin?.id), body); }
 
@@ -435,6 +440,8 @@ export class AdminNotificationCenterController {
   getCampaign(@Param('id') id: string) { return this.svc.getCampaign(id); }
 
   /** Send a draft/scheduled campaign immediately */
+  @StepUp()
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post('campaigns/:id/send')
   sendCampaign(@Param('id') id: string) { return this.svc.sendCampaign(id); }
 

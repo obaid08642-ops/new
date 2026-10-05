@@ -345,6 +345,8 @@ export class AdminController {
     }));
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.RBAC_MANAGE)
   @Post('sub-admins')
   async createSubAdmin(@CurrentUser() by: any, @Body() body: CreateSubAdminDto) {
     this.assertOwner(by, await this.resolveUser(by));

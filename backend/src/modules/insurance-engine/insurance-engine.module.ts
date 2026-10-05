@@ -1,3 +1,5 @@
+import { Permission } from '../../common/permissions';
+import { RequirePermissions } from '../../common/permissions';
 import { copayRefundable, findCopayTransaction, gatewayPaymentIdOf } from '../../common/copay-transaction';
 /**
  * M3 — Insurance Engine (BR-2) + Unified Booking Quote (BR-1) + Financial Core.
@@ -1010,6 +1012,8 @@ export class AdminInsuranceController {
 export class FinanceCoreController {
   constructor(private readonly finance: FinanceCoreService) {}
   /** Internal hook: record commission when an order/booking is paid. */
+  @StepUp()
+  @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   @Post('ledger/accrue') accrue(@Body() b: AccrueDto) { return this.finance.accrue(b); }
   @Get('ledger/provider/summary') providerSummary(@CurrentUser() u: any) { return this.finance.providerSummary(u.id); }
 }
