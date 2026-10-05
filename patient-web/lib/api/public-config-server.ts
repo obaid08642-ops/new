@@ -31,7 +31,10 @@ export type PublicRead = { data: any | null; failed: boolean };
  * cache keeps a successful answer for a minute instead of every render paying an API round trip (that round
  * trip was the TTFB of the home page). The cache lives in the app server and is keyed by URL; nothing
  * user-specific is ever stored in it. An admin change shows within a minute. A failed read (5xx or a network
- * error) is reported as `failed` and is never kept: see `readPublic`.
+ * error) is reported as `failed` and is never stored. Next serves the last good copy while it revalidates and
+ * keeps it when the revalidation fails, so during an outage a page that has a cached copy keeps showing it
+ * (stale-while-revalidate); the ErrorState shows when there is no cached copy (first request, or a cleared
+ * cache). Measured in the F82-1 PR.
  */
 const PUBLIC_REVALIDATE_SECONDS = 60;
 
