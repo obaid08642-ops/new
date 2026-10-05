@@ -514,13 +514,13 @@ export function CheckoutFlow({ locale }: Props) {
                     ))}
                   </select>
                   {INSURANCE_ERROR && (
-                    <div style={{ fontSize: "0.8rem", color: "#B91C1C" }}>
+                    <div style={{ fontSize: "0.8rem", color: "var(--nabd-color-status-danger-fg)" }}>
                       {isAr ? "تعذّر تحميل شركات التأمين. " : "Could not load insurers. "}
                       <button type="button" onClick={INSURANCE_RELOAD} style={{ textDecoration: "underline" }}>{isAr ? "إعادة المحاولة" : "Retry"}</button>
                     </div>
                   )}
                   {!INSURANCE_LOADING && !INSURANCE_ERROR && !INSURANCE_CATALOG.length && (
-                    <div style={{ fontSize: "0.8rem", color: "#B45309" }}>{isAr ? "لا توجد شركات تأمين متاحة حاليًا." : "No insurers available right now."}</div>
+                    <div style={{ fontSize: "0.8rem", color: "var(--nabd-color-status-warning-fg)" }}>{isAr ? "لا توجد شركات تأمين متاحة حاليًا." : "No insurers available right now."}</div>
                   )}
                 </div>
 
