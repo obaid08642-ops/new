@@ -70,8 +70,9 @@ def main():
         page.click('button[type="submit"]')
         # An admin with a passkey signs in with it (the virtual authenticator answers);
         # otherwise the emailed 2FA code is asked for.
-        passkey_btn = page.get_by_role('button', name='تأكيد بمفتاح الأمان')
-        page.wait_for_function("() => !!document.querySelector('input[inputmode=\"numeric\"]') || [...document.querySelectorAll('button')].some(b => b.textContent.includes('مفتاح الأمان'))", timeout=30000)
+        # Exact name: the credentials step also has "فقدت مفتاح الأمان؟ استرجاع طوارئ".
+        passkey_btn = page.get_by_role('button', name='تأكيد بمفتاح الأمان', exact=True)
+        page.wait_for_function("() => !!document.querySelector('input[inputmode=\"numeric\"]') || [...document.querySelectorAll('button')].some(b => b.textContent.trim() === 'تأكيد بمفتاح الأمان')", timeout=30000)
         if passkey_btn.count():
             passkey_btn.click()  # the virtual authenticator signs, like Touch ID would
             code = None
