@@ -1,0 +1,13 @@
+/* FIcon (components/FIcon.tsx). Size, radius and glyph box are SVG attributes. */
+.nabd-ficon { display: inline-grid; place-items: center; flex-shrink: 0; }
+.nabd-ficon > svg { display: block; }
+/* box-shadow, not filter: drop-shadow — a filter promotes a compositing layer and
+   changed the text anti-aliasing of unrelated components on the same page. The
+   32% radius only shapes the (24px-blurred) shadow; the tile's own corner is the
+   rect's exact rx. */
+.nabd-ficon--solid { box-shadow: var(--nabd-shadow-tile); border-radius: 32%; }
+.nabd-ficon--soft .nabd-ficon__chip { fill: var(--nabd-tone-bg); }
+.nabd-ficon__from { stop-color: var(--nabd-tone-solid-from); }
+.nabd-ficon__to { stop-color: var(--nabd-tone-solid-to); }
+.nabd-ficon__glyph { fill: var(--nabd-tone-fg); }
+.nabd-ficon--solid .nabd-ficon__glyph { fill: var(--nabd-color-icon-onSolid); }
