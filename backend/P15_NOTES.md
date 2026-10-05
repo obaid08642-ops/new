@@ -269,6 +269,23 @@ verified at the end). `tsc --noEmit` clean after every commit.
   `1 failed, 2 passed` (dayStrs[0] back to 06-01); hardcoded 30-min step →
   `1 failed, 2 passed` (60-min returns 09:00); `grep MUTATION-PROBE` clean.
 
+### F8 — chat rapid-tap race (FIXED)
+
+- Files: `backend/src/modules/chat/chat.service.ts` (`sendMessage` keeps the
+  `findOne` fast path, wraps `create` in a 11000 catch that re-reads the
+  triple `(client_message_id, thread_id, sender_id)` and returns the winner);
+  new spec `backend/src/modules/chat/chat-dedup-race.p15.spec.ts` (2 tests).
+- Atomicity source: the schema's existing UNIQUE sparse index on
+  `client_message_id` (same protocol as the payments 11000-loser-shares-winner
+  path — deliberately NOT a findOneAndUpdate rewrite, so the
+  `chat.contract.spec.ts` create-payload assertions stay exactly as written).
+  Loser never reaches the thread-metadata update (pinned: `updateOne` ×1).
+- Real tails: new spec + `chat.contract + booking-thread + lj06`
+  `Test Suites: 4 passed, 4 total / Tests: 15 passed, 15 total`; `tsc` clean.
+- Mutation proof (editor-only, restored): winner re-read forced to miss →
+  `1 failed, 1 passed` (loser rejects raw E11000); restored → green,
+  `grep MUTATION-PROBE` clean.
+
 ## BLOCKED / DEFERRED lines (round 1, unchanged)
 
 - `BLOCKED: live rapid-tap journey needs a running server
