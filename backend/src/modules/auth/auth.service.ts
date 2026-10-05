@@ -1086,6 +1086,8 @@ export class AuthService {
     // Q107: social sign-in is a patient feature; staff and provider accounts
     // keep their password, 2FA and device checks.
     if (u && u.role !== UserRole.PATIENT) throw new ForbiddenException('password_login_required');
+    // A banned or deactivated account never gets a token this way either.
+    if (u && u.active === false) throw new ForbiddenException('account_disabled');
     if (!u) {
       u = await this.userModel.create({
         full_name: name,
