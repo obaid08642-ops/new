@@ -13,6 +13,7 @@
 
 import type { WebButtonProps, WebIconButtonProps } from './components/Button';
 import type { WebRadioProps } from './components/Controls';
+import type { WebDoctorCardProps, WebOfferCardProps, WebProductCardProps } from './components/Cards';
 import type { WebChipProps } from './components/Surfaces';
 import type * as C from './components/contract';
 
@@ -34,6 +35,11 @@ export interface ComponentProps {
   Chip: WebChipProps;
   Badge: C.BadgeProps;
   Card: C.CardProps;
+  DoctorCard: WebDoctorCardProps;
+  ProductCard: WebProductCardProps;
+  OfferCard: WebOfferCardProps;
+  Timeline: C.TimelineProps;
+  ProgressRing: C.ProgressRingProps;
   ListItem: C.ListItemProps;
   ServiceTile: C.ServiceTileProps;
   FIcon: C.FIconProps;

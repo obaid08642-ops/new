@@ -5,7 +5,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import {
-  Avatar, Badge, Button, Card, Chip, EmptyState, ErrorState, FIcon, IconButton, ListItem, Radio, Rating,
+  Avatar, Badge, Button, Card, Chip, DoctorCard, EmptyState, OfferCard, ProductCard, ProgressRing, Timeline, ErrorState, FIcon, IconButton, ListItem, Radio, Rating,
   Search, SectionHeader, Segmented, Select, ServiceTile, SERVICE_ICONS, SERVICE_TONES, StatusChip, Stepper, Tabs, Toggle,
   FILL_ICON_PATHS,
 } from "@nabd/ui";
@@ -32,7 +32,8 @@ describe("12.A7 — the contract roster is honest", () => {
   it("lists every component exactly once", () => {
     expect(new Set(CONTRACT_NAMES).size).toBe(CONTRACT_NAMES.length);
     // 28 from §A7 + FIcon, SectionHeader (handoff §3, components 1/4) + Segmented, Toggle, Radio, StatusChip (2/4)
-    expect(CONTRACT_NAMES.length).toBe(34);
+    // + DoctorCard, ProductCard, OfferCard, Timeline, ProgressRing (3/4)
+    expect(CONTRACT_NAMES.length).toBe(39);
   });
 
   it("every component named in the docs roster is in the contract", () => {
@@ -40,7 +41,7 @@ describe("12.A7 — the contract roster is honest", () => {
     // If the contract grows a component, this is where it has to be added, which is the point.
     const fromTheSpec = [
       "Button", "IconButton", "Segmented", "Toggle", "Radio", "StatusChip", "Input", "Select", "Otp", "Search", "Stepper",
-      "SlotPicker", "Chip", "Badge", "Card", "ListItem", "ServiceTile", "FIcon", "SectionHeader", "Avatar",
+      "SlotPicker", "Chip", "Badge", "Card", "DoctorCard", "ProductCard", "OfferCard", "Timeline", "ProgressRing", "ListItem", "ServiceTile", "FIcon", "SectionHeader", "Avatar",
       "PriceTag", "Rating", "Tabs", "NavBar", "BottomTabBar", "Sidebar",
       "MapPinCard", "EmptyState", "ErrorState", "Toast", "Modal", "Skeleton",
       "DataTable", "ChartCard",
@@ -374,10 +375,97 @@ describe("handoff §3 — controls (components 2/4) match the boards", () => {
   });
 });
 
+describe("handoff §3 — cards (components 2/4 → 3/4) match the boards", () => {
+  const doctor = {
+    name: "د. أمينة", bookLabel: "احجز", verifiedLabel: "موثّق", availableLabel: "متاح الآن", grade: "استشاري", specialty: "غدد",
+    place: "عيادة العليا · ١٫٢ كم", modes: [{ mode: "clinic", label: "عيادة" }, { mode: "online", label: "أونلاين" }],
+    rating: { value: 4.8, count: 128 }, nextSlot: "اليوم ٧:٣٠ م", price: "180", currency: "ر.س",
+  };
+
+  it("DoctorCard: organic photo shape, feature shadow, coral footer with the rating, slot, price and book", () => {
+    const html = markup(DoctorCard, doctor);
+    expect(html).toContain("border-radius:52% 48% 46% 54% / 44% 46% 54% 56%");
+    expect(html).toContain("box-shadow:var(--nabd-shadow-feature)");
+    expect(html).toContain("linear-gradient(180deg, var(--nabd-color-action-primary-gradient-from) 0%, var(--nabd-color-action-primary-gradient-to) 100%)");
+    expect(html).toContain('aria-label="موثّق"');
+    expect(html).toContain('aria-label="متاح الآن"');
+    expect(html).toContain(">4.8<");
+    expect(html).toContain("اليوم ٧:٣٠ م");
+    expect(html).toContain(">احجز<");
+  });
+
+  it("DoctorCard hides what it was not given: no seal, dot, grade, rating, slot or price by default", () => {
+    const html = markup(DoctorCard, { name: "د. عمر", bookLabel: "احجز" });
+    expect(html).not.toContain("presence-online");
+    expect(html).not.toContain("ratingStar");
+    expect(html).not.toContain('d="M12 2l2.4'); // the board's verified seal
+    expect(html).not.toMatch(/aria-label=/);
+    // without a photo: the neutral user mark, never an illustrated person
+    expect(html).toContain(`d="${FILL_ICON_PATHS.user}"`);
+    expect(markup(DoctorCard, { name: "د. عمر", bookLabel: "احجز", photoSrc: "https://cdn.nabd.plus/d/1.jpg" })).toContain('src="https://cdn.nabd.plus/d/1.jpg"');
+  });
+
+  it("DoctorCard: with onBook and no href the book action is a real button; inside a link it is not nested", () => {
+    expect(markup(DoctorCard, { ...doctor, onBook: () => {} })).toMatch(/<button type="button"[^>]*>احجز/);
+    const linked = markup(DoctorCard, { ...doctor, href: "/ar/doctors/1", onBook: () => {} });
+    expect(linked.startsWith('<a href="/ar/doctors/1"')).toBe(true);
+    expect(linked).not.toContain("<button");
+  });
+
+  it("ProductCard: media colour, discount badge, rx note, and a named 40px ink add button with a 44 hit area", () => {
+    const html = markup(ProductCard, { name: "بنادول", price: "12.50", currency: "ر.س", discountLabel: "خصم ١٥٪", rxLabel: "يحتاج وصفة", addLabel: "أضف للسلة" });
+    expect(html).toContain("background:var(--nabd-color-bg-media)");
+    expect(html).toContain(">خصم ١٥٪<");
+    expect(html).toContain(">يحتاج وصفة<");
+    expect(html).toContain('aria-label="أضف للسلة"');
+    expect(html).toContain("calc((40px - var(--nabd-a11y-minTouchTarget)) / 2)");
+    const bare = markup(ProductCard, { name: "x", price: "1", addLabel: "أضف" });
+    expect(bare).not.toContain("خصم");
+    expect(bare).toContain(`d="${FILL_ICON_PATHS.pill}"`);
+  });
+
+  it("OfferCard: tinted head with the tone's icon and a tag, the price in the price colour and the old price struck", () => {
+    const html = markup(OfferCard, { title: "باقة", price: "199", was: "260", tag: "عرض", icon: "test-tube", tone: "mint" });
+    expect(html).toContain("background:var(--nabd-color-service-mint-bg)");
+    expect(html).toContain("color:var(--nabd-color-text-price)");
+    expect(html).toContain("text-decoration:line-through");
+    expect(html).toContain(">عرض<");
+  });
+
+  it("Timeline: an ordered list; done steps checked, the current one marked as the current step", () => {
+    const html = markup(Timeline, { label: "حالة الطلب", steps: [
+      { id: "a", label: "تم القبول", time: "٧:٠٢", state: "done" },
+      { id: "b", label: "في الطريق", time: "الآن", state: "current" },
+      { id: "c", label: "تم التوصيل", state: "upcoming" },
+    ] });
+    expect(html).toMatch(/^<ol aria-label="حالة الطلب"/);
+    expect(html.match(/<li/g)).toHaveLength(3);
+    expect(html.match(/aria-current="step"/g)).toHaveLength(1);
+    expect(html.split(FILL_ICON_PATHS["check-circle"]).length - 1).toBe(1);
+    expect(html).toContain("color-mix(in srgb, var(--nabd-color-action-primary-bg) 15%, transparent)");
+  });
+
+  it("ProgressRing: a named progressbar, the arc in the tone over its soft track, clamped to 0..100", () => {
+    const html = markup(ProgressRing, { value: 0.55, tone: "pink", label: "أسبوع ٢٢ من ٤٠", valueText: "٢٢", caption: "أسبوع" });
+    expect(html).toContain('role="progressbar"');
+    expect(html).toContain('aria-valuenow="55"');
+    expect(html).toContain('stroke="var(--nabd-color-service-pink-solid-to)"');
+    expect(html).toContain('stroke="var(--nabd-color-service-pink-bg)"');
+    expect(markup(ProgressRing, { value: 1.7, tone: "pink", label: "x" })).toContain('aria-valuenow="100"');
+  });
+
+  it("Card holds content; tint is the hero wash in the tone", () => {
+    const html = markup(Card, { title: "العنوان", tint: "pink", children: createElement("span", null, "داخل") });
+    expect(html).toContain(">داخل<");
+    expect(html).toContain("linear-gradient(160deg, var(--nabd-color-bg-surface) 0%, var(--nabd-color-service-pink-bg) 100%)");
+    expect(markup(Card, { title: "x" })).toContain("box-shadow:var(--nabd-shadow-card)");
+  });
+});
+
 describe("12.A7 — the gallery has every component", () => {
   it("build-preview renders a specimen for each contract component", () => {
     const src = readFileSync(resolve(process.cwd(), "../packages/ui/build-preview.mjs"), "utf8");
-    for (const name of ["Button", "IconButton", "Segmented", "Toggle", "Radio", "StatusChip", "Chip", "Badge", "Card", "ListItem", "ServiceTile", "FIcon", "SectionHeader", "Avatar", "PriceTag", "Rating", "Tabs", "NavBar", "BottomTabBar", "Sidebar", "MapPinCard", "EmptyState", "ErrorState", "Toast", "Modal", "Skeleton", "Input", "Select", "Otp", "Search", "Stepper", "SlotPicker"]) {
+    for (const name of ["Button", "IconButton", "Segmented", "Toggle", "Radio", "StatusChip", "DoctorCard", "ProductCard", "OfferCard", "Timeline", "ProgressRing", "Chip", "Badge", "Card", "ListItem", "ServiceTile", "FIcon", "SectionHeader", "Avatar", "PriceTag", "Rating", "Tabs", "NavBar", "BottomTabBar", "Sidebar", "MapPinCard", "EmptyState", "ErrorState", "Toast", "Modal", "Skeleton", "Input", "Select", "Otp", "Search", "Stepper", "SlotPicker"]) {
       expect(src, `${name} has no specimen in the gallery`).toContain(name);
     }
   });

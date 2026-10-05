@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import * as TestRenderer from 'react-test-renderer';
 import type { ReactTestRendererJSON } from 'react-test-renderer';
 
@@ -7,7 +7,12 @@ import {
   Avatar,
   Card,
   Chip,
+  DoctorCard,
   EmptyState,
+  OfferCard,
+  ProductCard,
+  ProgressRing,
+  Timeline,
   ErrorState,
   FIcon,
   IconButton,
@@ -99,6 +104,8 @@ describe('12.A7 — the native renderer keeps the contract semantics', () => {
       ['Segmented sm', <Segmented key="f" label="g" size="sm" value="a" options={[{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }]} />],
       ['Toggle', <Toggle key="g" label="t" value />],
       ['Radio', <Radio key="h" label="r" selected={false} />],
+      ['DoctorCard book', <DoctorCard key="i" name="d" bookLabel="احجز" />],
+      ['ProductCard add', <ProductCard key="j" name="p" price="1" addLabel="أضف" />],
     ];
     const interactive = (n: Node) => ['button', 'switch', 'radio'].includes(n.props?.accessibilityRole);
     const slop = (h: unknown, a: 'top' | 'bottom') => (typeof h === 'number' ? h : (h as Record<string, number> | undefined)?.[a] ?? 0);
@@ -326,3 +333,79 @@ describe('handoff §3 — native controls (components 2/4) keep the web semantic
     expect(json).toContain('"borderRadius":18');
   });
 });
+
+describe('handoff §3 — native cards (components 3/4) keep the web semantics', () => {
+  const light = tokens('light');
+
+  it('DoctorCard shows only what it is given, and its book action is a named button', () => {
+    const full = render(
+      <DoctorCard
+        name="د. أمينة"
+        bookLabel="احجز"
+        verifiedLabel="موثّق"
+        availableLabel="متاح الآن"
+        rating={{ value: 4.8, count: 128 }}
+        nextSlot="اليوم ٧:٣٠ م"
+        price="180"
+        currency="ر.س"
+      />,
+    );
+    const json = JSON.stringify(full);
+    expect(json).toContain('موثّق');
+    expect(json).toContain('متاح الآن');
+    expect(json).toContain('4.8');
+    expect(findAll(full, byRole('button')).map((b) => b.props.accessibilityLabel)).toContain('احجز');
+    const bare = JSON.stringify(render(<DoctorCard name="د. عمر" bookLabel="احجز" />));
+    expect(bare).not.toContain(light.color.presence.online);
+    expect(bare).not.toContain('accessibilityLabel":"موثّق');
+    expect(bare).not.toMatch(svgColour(light.color.icon.ratingStarOnBrand));
+  });
+
+  it('ProductCard: the add button is named and the discount and rx note appear only when given', () => {
+    const nodes = render(<ProductCard name="بنادول" price="12.50" addLabel="أضف للسلة" discountLabel="خصم ١٥٪" rxLabel="يحتاج وصفة" />);
+    expect(findAll(nodes, byRole('button'))[0].props.accessibilityLabel).toBe('أضف للسلة');
+    expect(JSON.stringify(nodes)).toContain('خصم ١٥٪');
+    expect(JSON.stringify(nodes)).toContain(light.color.bg.media);
+    const bare = JSON.stringify(render(<ProductCard name="x" price="1" addLabel="أضف" />));
+    expect(bare).not.toContain('خصم');
+  });
+
+  it('OfferCard paints the price in the price colour and strikes the old price', () => {
+    const json = JSON.stringify(render(<OfferCard title="باقة" price="199" was="260" icon="test-tube" tone="blue" />));
+    expect(json).toContain(light.color.text.price);
+    expect(json).toContain('"textDecorationLine":"line-through"');
+  });
+
+  it('Timeline is a named list; the current step is selected, done steps are coral', () => {
+    const nodes = render(
+      <Timeline
+        label="حالة الطلب"
+        steps={[
+          { id: 'a', label: 'تم القبول', time: '٧:٠٢', state: 'done' },
+          { id: 'b', label: 'في الطريق', state: 'current' },
+          { id: 'c', label: 'تم التوصيل', state: 'upcoming' },
+        ]}
+      />,
+    );
+    const [list] = findAll(nodes, byRole('list'));
+    expect(list.props.accessibilityLabel).toBe('حالة الطلب');
+    const steps = findAll(nodes, (n) => n.props?.accessible === true);
+    expect(steps.map((n) => n.props.accessibilityState.selected)).toEqual([false, true, false]);
+    expect(steps[0].props.accessibilityLabel).toBe('تم القبول, ٧:٠٢');
+  });
+
+  it('ProgressRing is a named progressbar with its value, clamped', () => {
+    const [ring] = findAll(render(<ProgressRing value={0.55} tone="pink" label="أسبوع ٢٢" />), byRole('progressbar'));
+    expect(ring.props.accessibilityLabel).toBe('أسبوع ٢٢');
+    expect(ring.props.accessibilityValue).toEqual({ min: 0, max: 100, now: 55 });
+    const [over] = findAll(render(<ProgressRing value={3} tone="pink" label="x" />), byRole('progressbar'));
+    expect(over.props.accessibilityValue.now).toBe(100);
+  });
+
+  it('Card holds children and tints with the tone', () => {
+    const json = JSON.stringify(render(<Card title="t" tint="pink"><Text>داخل</Text></Card>));
+    expect(json).toContain('داخل');
+    expect(json).toMatch(svgColour(light.color.service.pink.bg));
+  });
+});
+

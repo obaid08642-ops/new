@@ -152,44 +152,45 @@ export function Card({
   elevation = 'card',
   padding = 'md',
   footer,
+  tint,
+  children,
   testID,
 }: CardProps) {
-  const pad = {
-    none: 0,
-    sm: 'var(--nabd-space-2xs)',
-    md: 'var(--nabd-space-md)',
-    lg: 'var(--nabd-space-lg)',
-  }[padding];
+  // canvas/OrderTracking (16), Cart (14), CareHub (18)
+  const pad = { none: 0, sm: 14, md: 16, lg: 18 }[padding];
 
   return (
     <section
       data-testid={testID}
+      data-tint={tint}
       style={{
-        background: elevation === 'flat' ? 'var(--nabd-color-bg-sunken)' : 'var(--nabd-color-bg-surface)',
-        border: elevation === 'flat' ? '1px solid var(--nabd-color-border-default)' : '1px solid transparent',
-        borderRadius: 'var(--nabd-radius-lg)',
-        boxShadow: elevation === 'raised' ? 'var(--nabd-shadow-raised)' : elevation === 'card' ? 'var(--nabd-shadow-card)' : 'none',
+        background: tint
+          ? `linear-gradient(160deg, var(--nabd-color-bg-surface) 0%, var(--nabd-color-service-${tint}-bg) 100%)`
+          : 'var(--nabd-color-bg-surface)',
+        border: tint
+          ? `1px solid color-mix(in srgb, var(--nabd-color-service-${tint}-fg) 10%, transparent)`
+          : '1px solid var(--nabd-color-border-hairline)',
+        borderRadius: tint ? 28 : 24,
+        boxShadow: elevation === 'raised' ? 'var(--nabd-shadow-raised)' : elevation === 'card' && !tint ? 'var(--nabd-shadow-card)' : 'none',
         padding: pad,
-        display: 'grid',
-        gap: 'var(--nabd-space-2xs)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        color: 'var(--nabd-color-text-primary)',
       }}
     >
-      {title ? (
-        <h3 style={{ margin: 0, fontSize: 'var(--nabd-font-size-bodyStrong)', color: 'var(--nabd-color-text-primary)' }}>
-          {title}
-        </h3>
+      {title || subtitle ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {title ? <h3 style={{ margin: 0, fontSize: 'var(--nabd-font-size-body)', fontWeight: 700 }}>{title}</h3> : null}
+          {subtitle ? <p style={{ margin: 0, fontSize: 'var(--nabd-font-size-label)', color: 'var(--nabd-color-text-secondary)' }}>{subtitle}</p> : null}
+        </div>
       ) : null}
-      {subtitle ? (
-        <p style={{ margin: 0, fontSize: 'var(--nabd-font-size-body)', color: 'var(--nabd-color-text-secondary)' }}>
-          {subtitle}
-        </p>
-      ) : null}
+      {children}
       {footer ? (
         <div
           style={{
-            marginTop: 'var(--nabd-space-2xs)',
-            paddingTop: 'var(--nabd-space-2xs)',
-            borderTop: '1px solid var(--nabd-color-border-default)',
+            paddingTop: 12,
+            borderTop: '1px solid var(--nabd-color-border-subtle)',
             fontSize: 'var(--nabd-font-size-caption)',
             color: 'var(--nabd-color-text-secondary)',
           }}
