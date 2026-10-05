@@ -2404,7 +2404,7 @@
             {
               "scheme": "nabdplus"
             }
-            ],
+          ],
           "category": [
             "BROWSABLE",
             "DEFAULT"
@@ -2496,7 +2496,8 @@
         }
       ],
       "expo-status-bar",
-      "expo-asset"
+      "expo-asset",
+      "./plugins/with-callkeep-services"
     ],
     "experiments": {
       "typedRoutes": true
