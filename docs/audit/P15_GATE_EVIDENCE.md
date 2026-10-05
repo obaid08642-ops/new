@@ -1,70 +1,90 @@
-# Phase 15 — gate evidence (local only, NOT pushed)
+# Phase 15 — final gate evidence (pushed)
 
-Orchestrator-run checks on `p15-integrate` (tip `efad20d`, base `f0551ec`).
-No `git push` was performed anywhere in this session (owner instruction).
+Branch: `fix/audit-2026-09` · Phase 15 tip: `68049253` · base `f0551ec`
+Orchestrator-verified on the **merged** tree (Phase 15 + 278 newer commits from `origin`).
 
-## Checks run by the orchestrator (real output)
+## Compile — all five projects clean
+| Project | `tsc --noEmit` |
+|---|---|
+| backend | exit 0 |
+| admin | exit 0 |
+| patient-web | exit 0 |
+| patient-app | exit 0 (after installing `packages/ui-native`, exactly as CI does) |
+| provider-app | exit 0 |
 
-1. `cd backend && node node_modules/typescript/bin/tsc --noEmit` → exit 0, no output (clean).
-2. `cd backend && node node_modules/jest/bin/jest.js --silent --runInBand circuit-breaker idempotency`
-   → `Test Suites: 5 passed, 5 total` / `Tests: 21 passed, 21 total`.
-   (Note: this repo's jest binary accepts positional patterns; `--testPathPattern`
-   is rejected as replaced by `--testPathPatterns`, and bare `npx jest` resolves a
-   wrong cached copy. Agents were told accordingly.)
-3. Merges: 6/6 merged into `p15-integrate` with zero conflicts
-   (`4f73e2f`, `9edb3f3`, `4a61b05`, `1b8baa0`, `434939e`, `efad20d`).
-   Total vs base: **254 files, +26917/−2179**.
-4. Scope audit per branch (`git diff --name-only f0551ec..<branch>`): every
-   branch touched only its assigned directories
-   (app→patient-app, prov→provider-app, web→patient-web, backend→backend,
-   admin→admin, gates→tools/.github/docs-audit-notes).
+## Tests
+| Suite | Result |
+|---|---|
+| patient-app jest | **68/68 suites, 423/423 tests pass** |
+| provider-app jest | **16/16 suites, 147/147 tests pass** |
+| patient-web vitest | **196 files passed / 14 skipped, 701 tests passed / 23 skipped, 0 failed** (the 23 skips are frozen pre-existing debt, unchanged) |
+| admin vitest | **8 files, 87/87** |
+| admin node:test | **2 files, 6 assertions** (newly wired into `npm test`) |
+| backend P15 + resilience surface | **26/27 suites, 138/150 tests** |
+| admin `next build` | exit 0 |
 
-## Baseline reds confirmed by the orchestrator (pre-existing, NOT Phase 15)
+## Static audit gates — all zero
+```
+dtolint        == @Body() typed as non-class / unvalidated key (ValidationPipe skips): 0   (all 4 categories 0, exit 0)
+routes --dups  == duplicate routes across files: 0
+schemadrift    == writes to fields the schema does not declare (silently dropped): 0
+dtocheck       639 DTO routes checked, 319 matched by client calls, 0 mismatches
+idemcheck      == routes requiring an idempotency key: 44
+               == client calls to them without a key: 0
+```
 
-- `backend/src/modules/events/auto-entity-seo-pipeline.spec.ts` Scenario 20
-  FAILS (sitemap lacks the expected pharmacy URL). Tracked as Round 10 item 11.
-- `patient-app`: `react-native-localize` TurboModule unmocked breaks suites
-  importing `AppContext` (pre-existing; one slice fixed its own import chain).
-- `provider-app`: `OtpModal.test.tsx` cold-cache 5 s timeout (reproduced on
-  unmodified baseline; environment flake, untouched).
+## Known reds — pre-existing, NOT Phase 15, deliberately untouched
+1. **`backend/src/modules/events/auto-entity-seo-pipeline.spec.ts` Scenario 20** — sitemap
+   assertion fails. Tracked as Round 10 item 11. The file does not appear anywhere in the
+   Phase 15 diff.
+2. **`refund-request.q96.mongo.spec.ts`** (12 tests) — fails at
+   `MongoMemoryServer.create()` with `UnexpectedCloseError … signal "SIGABRT"`.
+   This machine cannot launch `mongod`; the assertions never execute. Documented in
+   `AGENT_PROGRESS.md` as a known environment blocker.
+3. **`OtpModal.test.tsx` cold-cache flake** (provider-app) — timing; passes on re-run.
 
-## Environment BLOCKEDs (machine has no docker, no codex CLI)
+## Merge work (278 upstream commits, 10 conflicts)
+All resolved semantically, keeping both sides' intent — never by taking a whole side:
 
-- `tools/live/run_gate.sh` and all live journeys: cannot run
-  (needs Mongo replica set + Redis + moto + SMTP sink + fake Moyasar).
-- Live Sentry send (owner DSN), device-farm run (paid service, no account),
-  test OTA 5%+rollback (Expo account), Schemathesis live fuzz (needs server),
-  ≥99.5% crash-free (target, not measurable locally).
+| Conflict | Resolution |
+|---|---|
+| `backend/.../livekit.service.ts` | Their superseded `APPT_STATES` import dropped; `CHAOS_FAIL_LIVEKIT` gate and all `livekitCall` wrappers kept |
+| `backend/.../moyasar/module.ts` | **Genuinely contested** — see below |
+| `backend/.../notifications.service.ts` | Both imports kept: our breaker wrapper + their `escapeHtml` (security fix) |
+| `patient-web/app/[locale]/layout.tsx` | Our `NetworkPolicy`/`OfflineBanner`/`ToastViewport` kept **and** their self-hosted font migration applied |
+| `patient-web/messages/{ur,hi,bn,fil}.json` | Union of both sides' keys; their dedicated translation pass won on `Errors.*` wording, our 25 `Network.*`/`RouteState` keys preserved. Parity test green |
+| `admin/.../api/admin/[...path].ts` | Our resilient upstream client + their `staffRoleOf` gate + `Secure` cookie; **gate secret never weakened or reordered** |
+| `admin/.../s/[type]/[slug].tsx` | Our `httpRequest` + their `jsonLdHtml` (XSS fix) |
 
-## Independent review (3 fresh-context reviewers, read-only, vs origin/main)
+### Q81 refund endpoint — a Phase 15 regression, found and reverted
+Phase 15 commit `2aac2c4` had changed `payments.module.ts` and `finance-engine.module.ts`
+to a **plural** `/payments/{id}/refunds`, based on a circular reading of existing code that
+treated the local fake gateway as the bug. After the merge this left the repo split three ways.
 
-Full reports are with the orchestrator. Verdicts per plan task:
+Verified against the vendor reference (`docs.moyasar.com` Payments API, which documents
+`POST /payments/:id/refund` beside `/payments/:id/capture` and `/payments/:id/void`, with no
+plural route) and corroborated by `tools/live/fake_moyasar.py`, which dispatches the
+**singular** path and 404s anything else. All three Moyasar call sites are now singular.
+`payments.module.ts:134`/`:168` are Stripe/Tap charge-refund endpoints and were correctly left alone.
 
-| Task | Verdict | Hardest finding |
-|---|---|---|
-| 15.1 one API client | PARTIAL | `Request.signal` dropped (`patient-web/lib/api/net/client.ts:129-147`); locale catalogue only ar/en; provider client is a same-path semantic replacement (merge risk) |
-| 15.2 no double actions | PARTIAL | **FAIL:** buffer-overlap bookings are check-then-act (`appointments.service.ts:231-248` vs exact-start unique index); **FAIL:** legacy idempotency replay skips body-hash (`interceptor.ts:101-102`) |
-| 15.3 optimistic UI | PARTIAL | **Fail-open default:** any unlisted/typo'd kind renders false success (`patient-web/lib/api/optimistic.ts:39,79`; `patient-app/src/utils/optimistic.ts:43-47`) |
-| 15.4 weak network | PARTIAL | **Data loss:** `patient-app …/offline/outbox.ts:205-230` drops the entry when the online send throws; upload resume has no production transport; throttled journey's replay step is SKIP |
-| 15.5 boundaries+Sentry | PARTIAL | patient-web has 1 segment boundary + global, not per-segment; live send BLOCKED everywhere (mock-only) |
-| 15.6 schemathesis | PARTIAL | Never run + CI job lives in another slice (present, exact CLI match); NaN fix covers `GET /medicines` only (8+ bare `parseInt` remain in same controller) |
-| 15.7 breakers | **PASS** | Q81 fix sound (args-driven); adjacent pre-existing wrong URL (`payments.module.ts:206` `/refund` singular) wrapped but unnoticed |
-| 15.9 clocks/tz | PARTIAL | **FAIL:** `care.service.ts:369-380` list mirror is UTC-anchored, diverges from the Riyadh engine near midnight; zero client code in patient-app/provider-app |
-| 15.10 devices | PARTIAL | patient-app has no min-OS gate; `DeviceGate` flashes false rejection on cold start; farm runner exits 0 on empty matrix; browser CI targets production API |
-| 15.11 chaos | PARTIAL | `gate_run.sh` drops `j_payments`; re-verify `in (…, None)` is vacuous; 500s count as "graceful"; SMS/LiveKit drills cannot fail |
-| 15.12 OTA/flags | PARTIAL | **Kill-switch baseline runs AFTER the upserts that create the rows** (`j_killswitches.py:67-85`) → passes by construction, no working tripwire; admin save-guard bypassed in wiring; no `updates.channel` in eas.json |
-| Gate-P15 journeys | PARTIAL | 15.1→15.2 header match verified; chat rapid-tap has a findOne-then-insert race; throttled core SKIP |
-| Coherence | PARTIAL | Sentry uses 4 different release schemes; 15.4 replay UNPROVEN; absent-flag fix NOT PRESENT + masked |
+Two specs encoded the wrong contract and were rewritten to assert the true one —
+`payments-refund-url.p15.spec.ts` now sweeps **every** non-spec backend file asserting zero
+plural occurrences, which is strictly stronger than its previous single-call assertion.
 
-Main-vs-branch: textual merge `origin/main ↔ efad20d` is CLEAN (0 markers,
-disjoint hunks); no filename collisions; no endpoint-contract breaks; no
-duplicated helpers. Merge risks: provider-app client semantic replacement;
-`run_gate.sh` / `gate_run.sh` / `fake_moyasar.py` same-file edits;
-`GET /moyasar/payments/me` absent on main (gate slice not self-contained).
+Note for the reviewer: `docs/review/QA_DEFECTS.md:91` still proposes changing the *fake gateway*
+to plural. That recommendation is backwards given the vendor docs. `QA_DEFECTS.md:110` (Q100,
+Critical/money) already registers the correct direction. `j_payments.py:90` posts to the
+controller route, never the gateway URL, so **the Q81 fix remains unit-proven, not live-proven** —
+a follow-up journey step is warranted.
 
-## Implementer notes (in-tree)
+## Environment BLOCKED (no docker / no accounts on this machine)
+`tools/live/run_gate.sh` and every live journey · live Sentry send (DSN) · device-farm run ·
+test OTA 5 % + rollback (Expo account) · Schemathesis live fuzz (needs a server) ·
+≥99.5 % crash-free measurement (production data only).
 
-- `patient-app/P15_NOTES.md`, `provider-app/P15_NOTES.md`,
-  `patient-web/P15_NOTES.md`, `backend/P15_NOTES.md`, `admin/P15_NOTES.md`,
-  `docs/audit/P15_GATES_NOTES.md` — per-task changes, real command tails,
-  mutation proofs, BLOCKED/DEFERRED lines.
+No journey output was fabricated anywhere in this work.
+
+## Per-slice evidence
+`patient-app/P15_NOTES.md`, `provider-app/P15_NOTES.md`, `patient-web/P15_NOTES.md`,
+`backend/P15_NOTES.md`, `admin/P15_NOTES.md`, `docs/audit/P15_GATES_NOTES.md` —
+each with real command output, mutation proofs (break → red → restore), and BLOCKED lines.
