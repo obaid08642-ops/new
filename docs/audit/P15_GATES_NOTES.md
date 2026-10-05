@@ -245,3 +245,239 @@ itself is not runnable here (no docker -> no backend under test).
   <base> HEAD -- tools/live/fake_moyasar.py tools/live/run_gate.sh
   tools/live/gate_run.sh` shows additions only.
 - Changed paths are confined to `tools/`, `.github/` and this file.
+
+## Fix round
+
+Independent-reviewer findings F1-F12, one commit each, on top of `1f8681f`.
+Nothing was pushed. Changed paths stay inside `tools/`, `.github/` and this
+file. **The live gate was NOT run: there is no `docker` on this machine, so
+Mongo/Redis/moto/smtp_sink/fake_moyasar and any backend under test cannot start
+here.** Nothing below is "green" — it is static analysis plus the explicit
+runtime probes recorded per item. No journey output is quoted because none was
+produced.
+
+### Backend contract, verified read-only before wiring (no backend file touched)
+
+`git -C /Users/ahmedobaid/nabd-plus show p15-backend:<path>`:
+
+- `backend/src/common/chaos-switches.ts`: `isChaosFail` compares
+  `process.env.CHAOS_FAIL_SMS === '1'` / `process.env.CHAOS_FAIL_LIVEKIT === '1'`.
+- `backend/src/modules/sms/sms.service.ts:53-59`: the switch is the FIRST thing
+  `sendOtp()` does — before the `isEnabled()` check and before any provider HTTP
+  call — returning `false`, which is the documented "fall back to email+push"
+  signal. MATCHES the contract.
+- `backend/src/modules/livekit/livekit.service.ts:380-386`: `roomService()`
+  returns `null` when the switch is on, i.e. exactly the unconfigured path
+  (`getRoomParticipants` -> `[]`, `muteParticipant` -> `{success:false,
+  reason:'livekit_not_configured'}`, `removeParticipant` ->
+  `NotFoundException('livekit_not_configured')`). All three are reachable over
+  HTTP via `livekit.controller.ts` (`GET /calls/admin/rooms/:room/participants`,
+  `POST /calls/admin/rooms/:room/mute/:pid`, `POST /calls/admin/rooms/:room/remove/:pid`).
+  MATCHES.
+- `backend/src/modules/chat/chat.service.ts:319-327`: the 11000 catch re-reads the
+  `(client_message_id, thread_id, sender_id)` winner and returns it. The atomic
+  path F11 depends on IS present.
+- `backend/src/modules/notifications/notifications.service.ts:850-866`
+  (`onLabBookingCreated`) and `:867-905` (`onLabBookingStateChanged`): the lab
+  booking id is written to `action.route` as `/labs/booking/view/<booking_id>`;
+  `payment.completed` (`:1167-1178`) carries no booking id at all.
+  `start-backend.sh:28,36` confirms the backend is wired to the SMTP sink (:2525)
+  and fake Moyasar (:9100).
+
+### Per finding
+
+- **F1 FIXED** (`tools/live/j_killswitches.py`): the "seeded by default" baseline
+  was read AFTER the toggle loop, and `POST /admin/feature-flags/:key` is an
+  upsert, so `missing` was always empty — a pass by construction. The snapshot is
+  now taken and asserted BEFORE the first write (step name and `not missing`
+  assertion unchanged), and a new post-loop step proves the toggles left no drift
+  and no vanished row. Stale docstring text about the absent-row default replaced
+  with the landed backend contract (`isEnabled` -> null, `ensureSeeded()`).
+- **F2 FIXED** (`tools/live/gate_run.sh`): `j_payments` added to `JOURNEYS`;
+  both runners are now byte-identical (verified, see checks).
+- **F3 FIXED** (`tools/live/j_chaos.py`): `... in (txn.id, v.id, None)` removed the
+  `None` escape hatch. Both ids must exist and be equal.
+- **F4 FIXED** (`tools/live/j_chaos.py`): Redis, Mongo and LiveKit degrade steps
+  now require `status < 500` in addition to their existing message/non-hang
+  assertions (LiveKit keeps its `>= 400` fail-fast bound).
+- **F5 FIXED** (`tools/live/chaos_ctrl.sh`, `tools/live/j_chaos.py`): new
+  `backend-chaos`/`backend-nochaos` verbs restart the backend with
+  `CHAOS_FAIL_SMS=1` / `CHAOS_FAIL_LIVEKIT=1` (allowlisted to those two names;
+  `env -u` for the off direction so the variable is genuinely removed) and print
+  what could be PROVED: `old_pids`, `new_pids`, `env_state`. Both drills require
+  a proven new process before asserting anything; the SMS drill additionally
+  requires the runtime marker `CHAOS_FAIL_SMS=1` in the backend log (platform
+  independent), and the LiveKit drill asserts the three documented degraded
+  answers over admin HTTP. Unprovable -> FAIL + explicit SKIP, never a pass.
+  Closes the earlier `DEFERRED-OUT-OF-SCOPE: (b) a fake SMS failure-injection
+  double` line for the SMS/LiveKit drills.
+- **F6 FIXED** (`tools/live/j_throttled_network.py`): (a) "last updated" now needs
+  an explicit `آخر تحديث`/`Last updated` label — the old pattern accepted a bare
+  `ago`/`منذ`/`updated`, i.e. any relative timestamp on any page; (b) `cdp()`
+  reports whether the browser accepted the profile and the 3G step requires that
+  AND `elapsed >= 2.0`, plus new steps for the offline and reconnect profiles;
+  (c) the queue-replay SKIP became a real server-side keyed-replay check mirroring
+  the client's own request (`patient-app/src/context/SocketContext.tsx`:
+  `Idempotency-Key: chat-offline-<id>` + `client_message_id`): one message id,
+  `idempotent_replay: true` on the second answer, exactly one copy in the thread.
+  It runs BEFORE the browser half, because `live-gate.yml` starts the backend but
+  not patient-web, so the browser half SKIPs in CI. The SKIP that remains is only
+  the device-side outbox, naming the verified reason
+  (`patient-app/src/utils/offlineQueue.ts` throws
+  `OfflineMessageQueueDisabledError`, `getOfflineMessages()` returns `[]`).
+- **F7 FIXED** (`.github/workflows/p15-web-browsers.yml`): `NABD_API_BASE_URL` is
+  one workflow-level env, defaulting to the repo's documented staging host
+  (`deploy/nginx/conf.d/staging.conf`: `server_name staging.nabd.plus`, which
+  proxies `/api/v1/` to the isolated staging backend) and overridable with the
+  `NABD_STAGING_API_BASE_URL` repository variable. A guard step FAILS the job if
+  the resolved host is any production host (`api.nabd.plus`, `nabd.plus`,
+  `www.`, `admin.`, `provider.`, `cdn.`), including behind userinfo or a port.
+  Precondition, stated in the file: staging must actually be deployed and
+  reachable — `docs/deploy/DEPLOY_BRIEF_FOR_AGENT.md:35` records that it is not
+  defined in the production compose file. Until then this job fails loudly
+  instead of silently passing. `lighthouse.yml` has the same production URL but is
+  not in this finding's scope and was left untouched.
+- **F8 FIXED** (`tools/live/run_device_farm.sh`): an empty parse now exits
+  non-zero with an explicit BLOCKED message before the catalog validation (with
+  no models, both loops were skipped and the run exited 0 having covered zero
+  devices).
+- **F9 FIXED** (`.github/workflows/schemathesis.yml`): `smtp_sink.py` (:2525) and
+  `fake_moyasar.py` (:9100) are started alongside moto, and both ports are probed
+  with a hard failure when a double is down; the job also triggers on pushes to
+  `main`, not only on pull requests.
+- **F10 FIXED** (`tools/live/ota/rollout-5-percent.sh`,
+  `tools/live/ota/rollback.sh`): the rollout probes `eas update --help` on the
+  INSTALLED cli (verified here: eas-cli 19.1.0 documents `--json`) and reads the
+  group id from the JSON payload, keeping the text parser only as a fallback for
+  builds without `--json`. An unrecognised shape exits non-zero with the eas
+  version, the `--json` state and the head of the output — it never guesses an id.
+  A failing publish or canary now stops the run. `rollback.sh` no longer claims a
+  success it did not get: eas's real exit code is captured before the `if` (an
+  `if` whose condition is false reports 0), a failed republish prints a loud
+  "AUTOMATED ROLLBACK FAILED (rc=…)" plus the manual runbook and exits 1, and the
+  runbook probes every verb it tells the operator to run before printing it.
+- **F11 FIXED** (`tools/live/j_rapid_tap.py`): the atomic dedup is verified
+  present (see above), so the send burst is now held to it: all 10 racers must
+  answer 2xx with one identical message id. The pre-existing thread-copy and
+  no-5xx steps are untouched.
+- **F12 FIXED**: `j_chaos.py` initialises `pat`/`acct` before the slow-API `try`
+  and `canary_intact` reports an explicit failure when no canary exists (no
+  NameError, no silent skip); `j_app_killed_payment.py` matches the booking id on
+  the `action.route` field with an exact suffix instead of `bid in str(n)`, and
+  prints the routes it saw when it finds nothing; `chaos_ctrl.sh`'s docker check
+  pipes into `head` (always exit 0), so the "no docker" branch was dead — it now
+  runs `docker ps` directly, and the redis drill falls through to the local
+  `redis-server` path as intended when docker is absent.
+
+### Every static check run here (verbatim results)
+
+```
+$ python3 -m py_compile tools/live/j_app_killed_payment.py tools/live/j_chaos.py \
+    tools/live/j_killswitches.py tools/live/j_rapid_tap.py tools/live/j_throttled_network.py
+PY_OK tools/live/j_app_killed_payment.py
+PY_OK tools/live/j_chaos.py
+PY_OK tools/live/j_killswitches.py
+PY_OK tools/live/j_rapid_tap.py
+PY_OK tools/live/j_throttled_network.py
+$ bash -n <each touched .sh>
+SH_OK tools/live/chaos_ctrl.sh
+SH_OK tools/live/gate_run.sh
+SH_OK tools/live/ota/rollback.sh
+SH_OK tools/live/ota/rollout-5-percent.sh
+SH_OK tools/live/run_device_farm.sh
+$ python3 -c "import yaml; yaml.safe_load(open(f))" <each touched .yml>
+YML_OK .github/workflows/p15-web-browsers.yml
+YML_OK .github/workflows/schemathesis.yml
+```
+
+No `.mjs` file was touched this round (`web_browsers_smoke.mjs` is unchanged and
+still `node --check` clean from the original commit).
+
+Behavioural probes that DID run here (no backend, no docker needed):
+
+- F2: `JOURNEYS` lists compared -> `JOURNEYS_IDENTICAL` (run_gate.sh ==
+  gate_run.sh).
+- F3: the old and new predicate evaluated on 4 inputs — "both ids match"
+  old=True/new=True, "second id differs" False/False, "both ids absent"
+  **old=True/new=False**, "second id absent" **old=True/new=False**.
+- F4/F3 static diff shows only added terms (`status < 500`, `bool(v_id)`).
+- F5 `chaos_ctrl.sh`:
+  - `backend-chaos EVIL_VAR=1` -> `BLOCKED: refusing to set 'EVIL_VAR=1' — only
+    CHAOS_FAIL_SMS CHAOS_FAIL_LIVEKIT are allowed`, rc=2.
+  - `backend-chaos` with no arg -> usage, rc=2.
+  - `backend-chaos CHAOS_FAIL_SMS` with no buildable backend -> `BLOCKED: backend
+    restart failed (see /tmp/chaos-backend-restart.log); the drill cannot prove
+    anything`, rc=1 (no silent pass; no stray `dist/main.js` process left).
+  - `status` on this macOS host -> `backend CHAOS_FAIL_SMS: UNKNOWN (no backend
+    process or no env introspection)` — i.e. `ps eww` is accepted by the kernel
+    but prints no environment, which the script reports as UNKNOWN instead of a
+    false "absent" (that distinction decides whether the LiveKit drill runs).
+  - the new field-parsing logic exercised against 4 synthetic
+    `chaos_ctrl` outputs: new pid set + `env_state=set` -> drill runs; new pid set
+    + `unknown` -> SMS drill runs (marker proves it), LiveKit drill SKIPs; same
+    pid set -> drill refused; non-zero exit -> refused.
+- F6 regex: `تم التحديث منذ 5 دقائق` old=True/**new=False**;
+  `Record updated 3 hours ago` old=True/**new=False**; `Chicago ago`
+  old=True/**new=False**; `آخر تحديث: 12:30` True/True;
+  `Last updated: 12:30` True/True; `آخر تحديثاً 12:30` True/True.
+- F7 guard logic executed against 5 candidate bases:
+  `staging.nabd.plus` allowed, `api.nabd.plus` REFUSED,
+  `user:pw@api.nabd.plus` REFUSED, `api.nabd.plus:443` REFUSED,
+  `127.0.0.1` allowed.
+- F8 guard: empty parse -> `GUARD_FIRES: BLOCKED: device matrix parsed to an EMPTY
+  device matrix`; the committed matrix -> `GUARD_SILENT: real matrix has 5 rows`
+  (redfin, bluejay, panther, gts8uwifi, dm1q).
+- F9: the extracted step body `bash -n` -> `SH_OK schemathesis doubles step`; its
+  readiness probe executed with both ports closed -> `DOUBLE NOT UP: smtp_sink on
+  :2525 ([Errno 61] Connection refused) — the backend would 5xx on every
+  mail/payment call`, rc=1.
+- F10: `--json` support probed on the installed cli — `eas update --help` shows
+  `--json  Enable JSON output, non-JSON messages will be printed to stderr`, and
+  `eas update:republish --help` plus `update:list`/`channel:edit`/`channel:view`
+  all exist (eas-cli/19.1.0). The group-id parser was extracted from the script
+  and run over 6 fixtures: `{"id":"<uuid>"}`, `{"data":{"updateGroup":{"groupId":…}}}`,
+  `{"updateGroups":[{"group":…}]}` -> uuid; `{"id":"not-a-uuid"}` and a payload
+  without an id -> rc=4; non-JSON text -> rc=3. The legacy text parser matched
+  `group <uuid>` and rejected an unrelated uuid. End-to-end runs against a stub
+  `eas` on PATH: json mode rc=0 (`via --json`), text mode rc=0 (`via text output`),
+  an unknown output shape rc=1 with `FORMAT MISMATCH: no update group id could be
+  read out of the 'eas update' output`, a failing publish rc=1 with `eas update
+  FAILED (rc=1)`. `rollback.sh` against the stub: success rc=0 `rolled
+  production-full back to group abc-123`; republish rc=3 -> rc=1 with
+  `!! AUTOMATED ROLLBACK FAILED (rc=3)` and no success line; no republish -> rc=1
+  with `!! MANUAL ROLLBACK REQUIRED` + runbook; no republish + a missing runbook
+  verb -> rc=1 with `!! The manual runbook cannot be executed as written: this
+  eas-cli is missing channel:view`.
+- F12 locator compared on 4 realistic notification rows: `bid in str(n)` matched 3
+  (including a row that only mentions the id in its body text); the exact
+  `action.route` match returns the 2 real lab rows.
+
+### No-weakening proof for this round
+
+- Every pre-existing `step(...)` name that existed at `1f8681f` still exists at
+  HEAD (checked mechanically per file: `j_killswitches` 8/8, `j_chaos` all,
+  `j_throttled_network` 12/12, `j_rapid_tap` 13/13, `j_app_killed_payment` 12/12).
+  One accidental cosmetic rename was caught by that check and reverted in
+  `e108ea81`.
+- Every changed condition is the old condition PLUS a term (`status < 500`,
+  `and g3_applied`, `and bool(v_id) and bool(v2_id) and v2_id == v_id`,
+  `and not vanished and not drifted`). No assertion was deleted, relaxed or
+  renamed to make a check pass.
+- The F1 baseline step was MOVED (not rewritten): same name, same `not missing`
+  assertion, now evaluated against a pre-write snapshot.
+
+### Still honest-failing / residual risk (not fixed here, by design)
+
+- The patient-web offline banner + `آخر تحديث`/`Last updated` steps still FAIL
+  until the 15.4 client work lands — and F6 made that failure sharper, since a
+  bare relative timestamp no longer counts as "last updated".
+- The LiveKit server-side drill requires the switch to be PROVABLE on the new
+  backend process. On a host with no environment introspection (macOS
+  `ps eww` prints nothing) it SKIPs with that exact reason; on Linux CI
+  (`/proc/<pid>/environ`) it runs.
+- The SMS/LiveKit drills restart the backend mid-journey. If the restart fails,
+  the drill FAILs loudly and the backend is left down — visible, never silent —
+  rather than asserting a fallback against a healthy server.
+- `.github/workflows/p15-web-browsers.yml` now depends on a reachable staging
+  host (see F7). Device farm, EAS OTA and the whole live gate remain unrunnable
+  here: no docker, no GCP project, no Expo account.

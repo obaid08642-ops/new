@@ -76,9 +76,17 @@ def run():
     r = pat.get('/notifications')
     items = r.body if isinstance(r.body, list) else r.items()
     step('notifications load', r.ok, r)
-    mine = [n for n in items if isinstance(n, dict) and bid in str(n)]
+    # Exact field match, not a substring scan of the whole row: the lab
+    # notification carries this booking id in `action.route`
+    # (notifications.service.ts onLabBookingCreated / onLabBookingStateChanged ->
+    # `/labs/booking/view/<booking_id>`), and nothing else in the payload is
+    # supposed to contain it. `bid in str(n)` matched any field at all.
+    def route_of(n):
+        act = n.get('action')
+        return str(act.get('route') or '') if isinstance(act, dict) else ''
+    mine = [n for n in items if isinstance(n, dict) and route_of(n).rstrip('/').endswith('/' + str(bid))]
     step('a payment notification for this booking exists (what the push carries)',
-         len(mine) >= 1, f'{len(mine)} matching / {len(items)} total')
+         len(mine) >= 1, f'{len(mine)} matching / {len(items)} total; routes={[route_of(n) for n in items][:5]}')
     _, rows = booking_payments(pat, bid)
     paid = [x for x in rows if isinstance(x, dict) and str(x.get('status') or '').lower() in ('paid', 'captured', 'success')]
     step('the server truth a late-opened push resolves to is paid (no stale snapshot)',

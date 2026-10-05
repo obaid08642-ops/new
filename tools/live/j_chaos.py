@@ -12,13 +12,21 @@ the harness actually runs each dependency):
                           no server-side latency switch exists — the backend
                           half is DEFERRED-OUT-OF-SCOPE, see notes)
   payment gateway 500 .... tools/live/fake_moyasar.py /__mode failure switch
-  SMS provider down ...... no fake SMS provider exists in the harness
-                          (DEFERRED-OUT-OF-SCOPE); the drill proves the
-                          fallback that does exist: SMS disabled by default,
-                          OTP still arrives via the smtp_sink email
-  LiveKit down ........... the live gate never starts LiveKit; the drill
-                          asserts the F37 contract (/config video_calls=false
-                          and a call attempt fails fast with a message)
+  SMS provider down ...... the backend's TEST-ONLY switch (p15-backend
+                          backend/src/common/chaos-switches.ts):
+                          CHAOS_FAIL_SMS=1 makes SmsService.sendOtp() return
+                          false before any provider call, so the standard OTP
+                          email+push fallback is forced. It is process env, so
+                          the drill restarts the backend with it set
+                          (chaos_ctrl.sh backend-chaos) and without it afterwards
+                          (backend-nochaos). The drill only trusts the fallback
+                          if the restart is PROVED (new backend pid) and the
+                          runtime marker is seen in the backend log.
+  LiveKit down .......... same mechanism: CHAOS_FAIL_LIVEKIT=1 makes
+                          LiveKitService.roomService() return null, so every
+                          server-side room call answers exactly as if LiveKit
+                          were unconfigured. The drill asserts the three
+                          documented degraded answers over admin HTTP.
 
   Stack: backend :8002, smtp_sink :2525, fake_moyasar :9100 (see start-backend.sh).
   Payloads are copied from the clients the same way the other journeys do
@@ -45,9 +53,9 @@ def skip(name, reason):
     return step(f'SKIP {name} ({reason})', True, 'skipped: no failure mechanism')
 
 
-def ctrl(*args):
+def ctrl(*args, timeout=60):
     try:
-        out = subprocess.check_output(['bash', CTRL] + list(args), stderr=subprocess.STDOUT, timeout=60)
+        out = subprocess.check_output(['bash', CTRL] + list(args), stderr=subprocess.STDOUT, timeout=timeout)
         return True, out.decode('utf8', 'replace').strip()
     except Exception as e:
         return False, str(e)[:300]
@@ -57,6 +65,44 @@ def has_docker():
     try:
         subprocess.check_output(['docker', 'info'], stderr=subprocess.STDOUT, timeout=15)
         return True
+    except Exception:
+        return False
+
+
+# The backend's TEST-ONLY chaos switches are process env on the server, so a drill
+# can only reach them by restarting the backend with the variable set. This helper
+# wraps chaos_ctrl.sh and turns its machine-readable line into fields the drill can
+# assert on. It FAILS LOUDLY: if the switch cannot be proven on the new process,
+# the drill must not go on to assert a fallback that would also hold in the default
+# configuration (that would be a vacuous pass).
+BACKEND_LOG = os.environ.get('NABD_BACKEND_LOG', '/tmp/nabd-backend.log')
+
+
+def chaos_backend(var, mode):
+    """mode 'on' -> restart with VAR=1, 'off' -> restart without it.
+
+    Returns (ok, fields, raw) where fields carries the proof chaos_ctrl.sh printed.
+    """
+    verb = 'backend-chaos' if mode == 'on' else 'backend-nochaos'
+    # A restart has to wait for start-backend.sh's own liveness loop, which can
+    # take a couple of minutes on a cold start — do not cut it off mid-flight.
+    ok, raw = ctrl(verb, var, timeout=420)
+    fields = {}
+    for tok in raw.split():
+        if '=' in tok:
+            k, v = tok.split('=', 1)
+            fields[k] = v
+    # A fresh process is the minimum proof that the env could have changed at all.
+    fields['new_process'] = bool(fields.get('new_pids')) and fields.get('new_pids') != fields.get('old_pids')
+    fields['env_verified'] = fields.get('env_state') in ('set', 'absent')
+    return ok, fields, raw
+
+
+def log_marker(marker):
+    """True when the running backend logged `marker` (proves the switch was read)."""
+    try:
+        with open(BACKEND_LOG, 'r', encoding='utf8', errors='replace') as fh:
+            return marker in fh.read()
     except Exception:
         return False
 
@@ -72,6 +118,11 @@ def fresh_patient(label):
 
 
 def canary_intact(pat, acct, label):
+    if pat is None or acct is None:
+        # The canary was never created (its setup raised). The invariant cannot be
+        # proven, and saying so beats crashing on a None client or skipping it.
+        return step(f'{label}: never loses data — canary patient intact after the drill', False,
+                    'no canary patient was created: the invariant cannot be proven')
     me = pat.get('/auth/me')
     body = json.dumps(me.body, ensure_ascii=False) if not isinstance(me.body, str) else me.body
     return step(f'{label}: never loses data — canary patient intact after the drill',
@@ -126,8 +177,10 @@ def drill_redis_down():
         me = pat.get('/auth/me')
         elapsed = time.time() - t0
         body = str(me.body)[:300]
+        # A 500 is never "graceful": the degrade/fail-fast drills allow a 2xx or a
+        # 4xx with a JSON message, never a server error with a body attached.
         step('reads degrade gracefully (2xx or a JSON error with a message — never a hang)',
-             (me.ok or (isinstance(me.body, dict) and bool(me.body))) and elapsed < 55,
+             me.status < 500 and (me.ok or (isinstance(me.body, dict) and bool(me.body))) and elapsed < 55,
              f'{me.status} in {elapsed:.1f}s {body[:150]}')
     finally:
         ok2, msg2 = ctrl('redis-resume')
@@ -155,7 +208,7 @@ def drill_mongo_stepdown():
     try:
         me = pat.get('/auth/me')
         elapsed = time.time() - t0
-        ok_read = me.ok or (isinstance(me.body, dict) and bool(str(me.body)))
+        ok_read = me.status < 500 and (me.ok or (isinstance(me.body, dict) and bool(str(me.body))))
         step('a read during step-down retries or fails with a message (never hangs)',
              ok_read and elapsed < 55, f'{me.status} in {elapsed:.1f}s {str(me.body)[:150]}')
     except Exception as e:
@@ -180,6 +233,10 @@ def drill_slow_api():
                       '--listen', '9101', '--target', 'http://127.0.0.1:8002',
                       '--delay', '2', '--slow-prefixes', '/api/v1'],
                      stdout=sp.DEVNULL, stderr=sp.DEVNULL)
+    # Initialised before the try: the canary check below runs after the proxy is
+    # torn down, and an unbound name there would raise NameError instead of
+    # reporting the real problem.
+    pat = acct = None
     try:
         time.sleep(1)
         real_base = libmod.BASE
@@ -244,29 +301,52 @@ def drill_payment_gateway_500():
         v = pat.post(f"/payments/verify/{txn['id']}", {})
         step('retry pays exactly once (status paid)', v.ok and v.get('status') == 'paid', v)
         v2 = pat.post(f"/payments/verify/{txn['id']}", {})
+        # Both sides must carry a real id: the old check allowed None on either
+        # side of the membership test, so an id-less response passed as "the same
+        # transaction". Now the replayed id must equal the verified id, and both
+        # must be present.
+        v_id, v2_id = v.get('id') or v.get('txn_id'), v2.get('id') or v2.get('txn_id')
         step('re-verify returns the same transaction (no duplicate charge)',
-             v2.ok and v2.get('id', v2.get('txn_id', None)) in (txn.get('id'), v.get('id'), None) and v2.get('status') == 'paid', v2)
+             v2.ok and bool(v_id) and bool(v2_id) and v2_id == v_id and v2.get('status') == 'paid',
+             f'first={v_id} second={v2_id} (both must exist and match) {v2}')
 
 
 def drill_sms_down():
     journey('chaos: SMS provider down — OTP falls back to email, nobody is locked out')
-    # There is no fake SMS provider in the harness, so there is no switch to
-    # flip (DEFERRED-OUT-OF-SCOPE: an SMS failure-injection double owned by the
-    # backend agent). What the gate CAN prove today is the fallback the code
-    # actually implements (SmsService: disabled by default -> senders fall back
-    # to email + push): a fresh register OTP still arrives by email.
-    import time as _t
-    from lib import mail_code, uniq, phone
-    anon = Client()
-    email = f'sms-fallback-{uniq("c")}@nabd.test'
-    t0 = _t.time()
-    r = anon.post('/auth/send-otp', {'email': email, 'purpose': 'register'})
-    step('send-otp answers while SMS is down/disabled', r.ok, r)
-    code = mail_code(email, t0)
-    step('the OTP is delivered by email (SMS -> email fallback works)', code, 'no mail with a 6-digit code')
-    if code:
-        r = anon.post('/auth/verify-otp', {'email': email, 'code': code})
-        step('the emailed OTP verifies (the user is not locked out)', r.ok, r)
+    # The switch is REAL now (p15-backend F10), so the drill takes SMS down for
+    # real instead of asserting the fallback that already holds when SMS is merely
+    # disabled by default. CHAOS_FAIL_SMS=1 -> SmsService.sendOtp() returns false
+    # before any provider call, forcing the documented email+push OTP fallback.
+    ok, sw, raw = chaos_backend('CHAOS_FAIL_SMS', 'on')
+    if not ok or not sw.get('new_process') or sw.get('env_state') == 'absent':
+        step('the backend restarted with CHAOS_FAIL_SMS=1 (SMS is really down)', False, raw[:300])
+        skip('SMS provider down', f'could not prove the switch on the backend: {raw[:160]}')
+        return
+    step('the backend restarted with CHAOS_FAIL_SMS=1 (SMS is really down)', True, raw)
+    try:
+        import time as _t
+        from lib import mail_code, uniq
+        anon = Client()
+        email = f'sms-fallback-{uniq("c")}@nabd.test'
+        t0 = _t.time()
+        r = anon.post('/auth/send-otp', {'email': email, 'purpose': 'register'})
+        # Step name kept verbatim from the pre-switch version (never rename an
+        # existing step); "disabled" is now literally true: the switch forces
+        # SmsService.sendOtp() to return false.
+        step('send-otp answers while SMS is down/disabled', r.ok, r)
+        marker = log_marker('CHAOS_FAIL_SMS=1')
+        step('the server actually took the SMS failure path (runtime marker in the backend log)', marker,
+             f'no "CHAOS_FAIL_SMS=1" marker in {BACKEND_LOG} — the switch was never read')
+        code = mail_code(email, t0)
+        step('the OTP is delivered by email (SMS -> email fallback works)', code, 'no mail with a 6-digit code')
+        if code:
+            r = anon.post('/auth/verify-otp', {'email': email, 'code': code})
+            step('the emailed OTP verifies (the user is not locked out)', r.ok, r)
+    finally:
+        ok2, sw2, raw2 = chaos_backend('CHAOS_FAIL_SMS', 'off')
+        step('the backend is back on a clean process with CHAOS_FAIL_SMS unset',
+             ok2 and sw2.get('new_process') and (not sw2.get('env_verified') or sw2.get('env_state') == 'absent'),
+             raw2)
 
 
 def drill_livekit_down():
@@ -285,10 +365,42 @@ def drill_livekit_down():
         r = pat.post('/calls/initiate', {'callee_id': 'nobody', 'call_type': 'video'})
         elapsed = time.time() - t0
         step('a call attempt fails fast with a JSON message (never hangs, never a phantom room)',
-             r.status >= 400 and isinstance(r.body, dict) and bool(str(r.body)) and elapsed < 20,
+             r.status >= 400 and r.status < 500 and isinstance(r.body, dict) and bool(str(r.body)) and elapsed < 20,
              f'{r.status} in {elapsed:.1f}s {str(r.body)[:150]}')
     except Exception as e:
         step('a call attempt fails fast with a JSON message (never hangs, never a phantom room)', False, str(e)[:200])
+
+    # Take LiveKit down for real and assert the three documented degraded answers.
+    # This gate env has no LIVEKIT_URL at all, so on its own every call would
+    # already look degraded — the only way the drill means anything is to run it
+    # against a backend started with CHAOS_FAIL_LIVEKIT=1 and to PROVE that.
+    ok, sw, raw = chaos_backend('CHAOS_FAIL_LIVEKIT', 'on')
+    if not ok or not sw.get('new_process') or not sw.get('env_verified') or sw.get('env_state') != 'set':
+        step('the backend restarted with CHAOS_FAIL_LIVEKIT=1 (LiveKit is really down)', False, raw[:300])
+        skip('livekit server-side degrade', f'could not prove the switch on the backend: {raw[:160]}')
+        return
+    step('the backend restarted with CHAOS_FAIL_LIVEKIT=1 (LiveKit is really down)', True, raw)
+    try:
+        import j_admin
+        admin, _ = j_admin.login()
+        room, who = 'room-chaos-drill', 'identity-chaos-drill'
+        parts = admin.get(f'/calls/admin/rooms/{room}/participants')
+        step('participants list degrades to an empty list, never an error or a hang',
+             parts.ok and parts.items() == [], f'{parts.status} {str(parts.body)[:150]}')
+        mute = admin.post(f'/calls/admin/rooms/{room}/mute/{who}', {'muted': True})
+        reason = mute.get('reason')
+        step('mute reports the documented livekit_not_configured reason (success=false)',
+             mute.ok and mute.get('success') is False and reason == 'livekit_not_configured',
+             f'{mute.status} {str(mute.body)[:150]}')
+        rem = admin.post(f'/calls/admin/rooms/{room}/remove/{who}', {})
+        step('remove a participant fails with a 4xx livekit_not_configured, never a 5xx',
+             400 <= rem.status < 500 and 'livekit_not_configured' in str(rem.body),
+             f'{rem.status} {str(rem.body)[:150]}')
+    finally:
+        ok2, sw2, raw2 = chaos_backend('CHAOS_FAIL_LIVEKIT', 'off')
+        step('the backend is back on a clean process with CHAOS_FAIL_LIVEKIT unset',
+             ok2 and sw2.get('new_process') and (not sw2.get('env_verified') or sw2.get('env_state') == 'absent'),
+             raw2)
 
 
 def run():

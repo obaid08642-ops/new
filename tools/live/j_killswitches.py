@@ -12,11 +12,15 @@ client-visible surface GET /api/v1/config (ConfigService merges flag rows into
 client-visible surface actually changes: set false -> /config shows false,
 set true -> /config shows true. Rows are restored to their pre-run values.
 
-Honest-fail part (no vacuous passes): the backend truth is that
-FeatureFlagsService.isEnabled() returns false for an ABSENT row (fail-closed,
-verified in feature-flags.service.ts:10-12) and nothing seeds the six rows —
-so `seeded by default` FAILS until the owning backend fix lands. The note in
-docs/audit/P15_GATES_NOTES.md says so explicitly.
+Honest-fail part (no vacuous passes): every toggle goes through
+POST /admin/feature-flags/:key, which is an UPSERT — so reading the rows AFTER
+the toggles can only ever find them, and a baseline check placed there passes by
+construction and can never trip. The baseline is therefore snapshotted and
+asserted BEFORE the first write (see run()). The backend contract that makes it
+satisfiable: FeatureFlagsService.isEnabled() returns null for an absent row and
+ensureSeeded() creates the six rows enabled:true on boot (p15-backend
+feature-flags.service.ts, F9 in backend/P15_NOTES.md); if seeding is ever absent
+or fails open-closed, this step FAILS and says which keys are missing.
 
 Force-update (R6-5): GET /api/v1/config carries app_versions (fail-open);
 admin GET+PUT /api/v1/admin/config/app-versions (verified in
@@ -62,8 +66,20 @@ def run():
         r2 = anon.get('/config')
         step('/config serves what the admin wrote', r2.ok and r2.get('app_versions') == (back.body if isinstance(back.body, dict) else back.get('value', back.body)), r2)
 
+    journey('kill switches (14.18): the fail-open baseline the backend fix must provide')
+    # Snapshot FIRST, assert against it. POST /admin/feature-flags/:key is an
+    # UPSERT, so any baseline read taken after the toggle loop finds the rows by
+    # construction and can never fail — the honest signal has to be taken before
+    # the journey writes anything.
+    snapshot = flag_rows(anon)
+    missing = [k for k in FLAGS if k not in snapshot]
+    step('the six kill-switch rows are seeded by default (absent must NOT mean disabled)',
+         not missing,
+         f'missing rows (absent row reads as disabled = fail-closed): {missing}' if missing else
+         f'all six present pre-run: {sorted(k for k in snapshot if k in FLAGS)}')
+
     journey('kill switches (14.18): each toggle changes client-visible behaviour')
-    before = flag_rows(anon)
+    before = dict(snapshot)
     for key in FLAGS:
         start = before.get(key)
         off = admin.post(f'/admin/feature-flags/{key}', {'enabled': False})
@@ -77,12 +93,15 @@ def run():
         restore = admin.post(f'/admin/feature-flags/{key}', {'enabled': start if start is not None else False})
         step(f'{key}: restored to the pre-run value', restore.ok, restore)
 
-    journey('kill switches (14.18): the fail-open baseline the backend fix must provide')
-    present = flag_rows(anon)
-    missing = [k for k in FLAGS if k not in present]
-    step('the six kill-switch rows are seeded by default (absent must NOT mean disabled)',
-         not missing,
-         f'missing rows (fail-closed today, backend fix pending): {missing}' if missing else 'all six present')
+    journey('kill switches (14.18): the toggles left nothing permanently changed')
+    after = flag_rows(anon)
+    vanished = [k for k in FLAGS if k in snapshot and k not in after]
+    drifted = [k for k in FLAGS if k in snapshot and k in after and bool(snapshot[k]) != bool(after[k])]
+    step('every kill-switch flag still matches the pre-run snapshot (the toggles were fully reverted)',
+         not vanished and not drifted,
+         f'vanished={vanished} drifted={drifted} '
+         f'before={{{", ".join(f"{k}:{snapshot[k]}" for k in FLAGS if k in snapshot)}}} '
+         f'after={{{", ".join(f"{k}:{after[k]}" for k in FLAGS if k in after)}}}')
 
 
 if __name__ == '__main__':

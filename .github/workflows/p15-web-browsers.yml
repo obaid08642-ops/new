@@ -11,6 +11,19 @@ name: P15 web browsers
 # Playwright is NOT assumed on the image: the job installs the pinned
 # build itself (same pin style as patient-production-ci.yml) with
 # --with-deps so the browsers exist too.
+#
+# API TARGET: never production. live-gate.yml's convention is a stack this repo
+# starts itself (backend :8002 via tools/live/start-backend.sh) — this job
+# deliberately starts no backend, so it must not borrow production either. It
+# targets the repo's documented staging host instead
+# (deploy/nginx/conf.d/staging.conf: `server_name staging.nabd.plus` proxies
+# /api/v1/ to the isolated staging backend), overridable with the
+# NABD_STAGING_API_BASE_URL repository variable. The guard step below FAILS the
+# job if anything ever points this workflow back at api.nabd.plus. Precondition:
+# that staging host has to be deployed and reachable (docs/deploy/
+# DEPLOY_BRIEF_FOR_AGENT.md records that it is not defined in the production
+# compose file yet) — when it is missing this job fails loudly instead of
+# passing silently.
 on:
   pull_request:
     paths:
@@ -25,6 +38,9 @@ permissions:
 concurrency:
   group: p15-browsers-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  NABD_API_BASE_URL: ${{ vars.NABD_STAGING_API_BASE_URL || 'https://staging.nabd.plus/api/v1' }}
 
 jobs:
   browsers:
@@ -49,17 +65,27 @@ jobs:
         run: corepack enable && pnpm install --frozen-lockfile
       - name: Install Playwright + browsers (self-contained, pinned)
         run: npx --yes playwright@1.63.0 install --with-deps chromium firefox webkit
+      - name: Guard — the API base must never be production
+        env:
+          API_BASE: ${{ env.NABD_API_BASE_URL }}
+        run: |
+          set -euo pipefail
+          host=$(printf '%s' "$API_BASE" | sed -E 's#^[a-zA-Z]+://##; s#^[^@]*@##; s#[:/?].*$##')
+          case "$host" in
+            api.nabd.plus|nabd.plus|www.nabd.plus|admin.nabd.plus|provider.nabd.plus|cdn.nabd.plus)
+              echo "REFUSING: NABD_API_BASE_URL points at PRODUCTION host '$host' ($API_BASE)" >&2
+              exit 1 ;;
+          esac
+          echo "API base for the build and the smoke run: $API_BASE (host '$host', non-production)"
       - name: Build
         working-directory: patient-web
         run: pnpm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
-          NABD_API_BASE_URL: https://api.nabd.plus/api/v1
           NEXT_PUBLIC_SITE_ORIGIN: http://localhost:3000
       - name: Start production server
         working-directory: patient-web
         env:
-          NABD_API_BASE_URL: https://api.nabd.plus/api/v1
           NEXT_PUBLIC_SITE_ORIGIN: http://localhost:3000
           PORT: 3000
           HOSTNAME: 127.0.0.1
