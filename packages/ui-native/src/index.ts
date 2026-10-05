@@ -16,6 +16,9 @@ export {
 } from './components/Surfaces';
 export { EmptyState, ErrorState, Modal, Skeleton, Toast } from './components/Feedback';
 
+// Screen shells (DEVICE_STANDARD §1). Native-only layout, so not part of the cross-platform contract.
+export * from './shells';
+
 export type { IconName, LineIconName } from '../../ui/icons/names';
 export type { IllustratedIcon } from '../../ui/icons/illustrated';
 export type { IllustrationName } from '../../ui/icons/illustrations';
