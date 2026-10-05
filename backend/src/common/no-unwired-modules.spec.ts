@@ -15,6 +15,7 @@ const MODULES: Array<[string, string]> = [
   ['cffbab5', 'common/shedding/shed-classifier'],
   ['b20ecd3', 'common/redis-roles'],
   ['b20ecd3', 'common/swr-cache'],
+  ['d576b7b', 'common/error-catalog'],
 ];
 
 function sourceFiles(dir: string, out: string[] = []): string[] {

@@ -2,6 +2,7 @@ import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from
 import { BaseExceptionFilter } from '@nestjs/core';
 import * as Sentry from '@sentry/nestjs';
 import { ERROR_CODES, isErrorCode } from './errors';
+import { buildPlatformError, isCatalogCode } from './error-catalog';
 
 @Catch()
 export class SentryExceptionFilter extends BaseExceptionFilter {
@@ -20,10 +21,9 @@ export class SentryExceptionFilter extends BaseExceptionFilter {
     // envelope so clients never see raw {status,error} shapes or bare strings.
     // Throw sites are untouched — normalization happens here, once.
     if (exception instanceof HttpException) {
-      const normalized = normalizeHttpExceptionBody(exception.getStatus(), exception.getResponse());
-      if (normalized) {
-        exception = new HttpException(normalized, exception.getStatus());
-      }
+      const raw = exception.getResponse();
+      const normalized = normalizeHttpExceptionBody(exception.getStatus(), raw) ?? (raw as Record<string, unknown>);
+      exception = new HttpException(withCatalogNextStep(normalized, requestLocale(request)), exception.getStatus());
     }
 
     // Attach active user context to Sentry event if authenticated
@@ -110,6 +110,25 @@ export function normalizeHttpExceptionBody(
     return Object.keys(details).length ? { code, message, details } : { code, message };
   }
   return { code: STATUS_TO_CODE[status] ?? 'UNKNOWN_ERROR', message: 'Unknown error' };
+}
+
+/** `ar` when the request prefers Arabic, else `en` (the catalog's two locales). */
+function requestLocale(request: { headers?: Record<string, unknown> } | undefined): 'ar' | 'en' {
+  const lang = request?.headers?.['accept-language'];
+  return typeof lang === 'string' && /^\s*ar\b/i.test(lang) ? 'ar' : 'en';
+}
+
+/**
+ * 13.R5: a body whose code is in the error catalog gets `error_code` and the
+ * catalog's localized `nextStep`; the throw site's message and any other
+ * field are kept. Codes outside the catalog (e.g. `slot_taken`) are unchanged.
+ */
+export function withCatalogNextStep(body: Record<string, unknown>, locale: 'ar' | 'en'): Record<string, unknown> {
+  const code = body.code;
+  if (typeof code !== 'string' || !isCatalogCode(code) || typeof body.nextStep === 'string') return body;
+  const details = body.details && typeof body.details === 'object' ? (body.details as Record<string, unknown>) : undefined;
+  const message = typeof body.message === 'string' ? body.message : undefined;
+  return { ...body, ...buildPlatformError(code, { locale, message, details }) };
 }
 
 /**

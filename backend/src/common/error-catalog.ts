@@ -5,8 +5,8 @@
  * user-facing messages. Backend, apps, web and MCP all surface these
  * codes; no invented per-client strings for covered cases.
  *
- * Scope: catalog lookup only. Throw sites, guards and filters are owned
- * by a later wave and must not be changed here.
+ * Used by the global SentryExceptionFilter (withCatalogNextStep), which
+ * adds the localized `nextStep` to every catalog-code error response.
  */
 import { ERROR_CODES, R5_ERROR_CODES, isErrorCode, platformError } from './errors';
 import MESSAGES from './errors.i18n.json';
