@@ -19,7 +19,9 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 import {
   CRITICAL_KINDS,
   OptimisticNotAllowedError,
+  SAFE_OPTIMISTIC_KINDS,
   assertOptimisticAllowed,
+  isSafeOptimistic,
   processingCopy,
   runCommitted,
   runOptimistic,
@@ -243,6 +245,33 @@ describe('15.3 · payment, booking, prescription and emergency are never optimis
         }),
       ).rejects.toBeInstanceOf(OptimisticNotAllowedError);
     }
+  });
+
+  it('F1 · deny-by-default: an unknown or typo\'d kind is refused, never applied', async () => {
+    expect([...SAFE_OPTIMISTIC_KINDS]).toEqual(['cart', 'wishlist', 'reminder', 'mark-read', 'like']);
+    for (const kind of ['order', 'paymnt', '', 'Payment', 'BOOKING', 'appointment']) {
+      expect(isSafeOptimistic(kind)).toBe(false);
+      expect(() => assertOptimisticAllowed(kind)).toThrow(OptimisticNotAllowedError);
+    }
+    for (const kind of ['cart', 'wishlist', 'reminder', 'mark-read', 'like']) {
+      expect(isSafeOptimistic(kind)).toBe(true);
+    }
+  });
+
+  it('F1 · runOptimistic applies nothing locally for an unknown kind', async () => {
+    let state = 'idle';
+    let writes = 0;
+    await expect(
+      runOptimistic<string, void>({
+        kind: 'order',
+        read: () => state,
+        write: (next) => { writes += 1; state = next; },
+        apply: () => 'confirmed',
+        commit: async () => undefined,
+      }),
+    ).rejects.toBeInstanceOf(OptimisticNotAllowedError);
+    expect(writes).toBe(0);
+    expect(state).toBe('idle');
   });
 
   it('has explicit Arabic and English processing copy', () => {
