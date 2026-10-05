@@ -24,7 +24,7 @@ def _reuse():
     tok = next((c.value for c in w.jar if c.name == 'admin_access'), None)
     admin = Client(tok, 'admin-api') if tok else None
     if admin:
-        enroll_admin_device(admin)  # 7C-C2, idempotent
+        enroll_admin_device(admin, EMAIL, PASSWORD)  # 7C-C2, idempotent
     return w, admin
 
 
@@ -63,7 +63,7 @@ def login():
     admin = Client(tok, 'admin-api') if tok else None
     # 7C-C2: every direct /api/v1/admin/* call needs an enrolled device.
     if admin:
-        enroll_admin_device(admin)
+        enroll_admin_device(admin, EMAIL, PASSWORD)
     return w, admin
 
 

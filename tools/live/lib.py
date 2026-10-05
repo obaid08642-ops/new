@@ -21,14 +21,40 @@ ADMIN_GATE_TOKEN = (os.environ.get('NABD_ADMIN_GATE_TOKEN')
                     or 'live-gate-token')
 
 
-def enroll_admin_device(admin):
-    """Enroll the gate run's device id for the admin user (C2). Idempotent."""
+def bind_admin_device_by_passkey(email, password):
+    """X4: once the admin has a passkey, a device is enrolled only by a passkey
+    login, bound to the credential that signed it (the dashboard sends device_id
+    the same way). Signs in with the synthetic key and binds the gate device."""
+    import softkey
+    anon = Client(None, 'anon')
+    r = anon.post('/auth/login', {'identifier': email, 'password': password})
+    opts = r.get('passkey_options') if r.ok else None
+    if not opts:
+        return False, r
+    v = anon.post('/auth/passkey/login/verify', {'identifier': email, 'response': softkey.assertion(opts),
+                                                 'device_id': ADMIN_DEVICE_ID, 'device_name': 'gate-run-owner-macbook'})
+    return v.ok, v
+
+
+def enroll_admin_device(admin, email=None, password=None):
+    """Enroll the gate run's device id for the admin user (C2). Idempotent.
+
+    A bootstrap admin (no passkey yet) may enroll it directly; once a passkey
+    exists the backend refuses that (X4) and the device is bound by a passkey login."""
     r = admin.post('/admin/devices/enroll', {'device_id': ADMIN_DEVICE_ID, 'name': 'gate-run-owner-macbook'})
-    step('admin device enrolled for the gate run (C2)', r.ok, r)
+    refused = r.status == 403 and 'passkey_assertion_required' in repr(r)
+    step('admin device enrolled (bootstrap) or refused because a passkey exists (X4)', r.ok or refused, r)
+    if refused and email:
+        ok, v = bind_admin_device_by_passkey(email, password)
+        step('gate device bound by a passkey login (X4)', ok, v)
     # R23: sensitive actions need a fresh passkey assertion; enroll the synthetic key once.
     import softkey
     step('synthetic passkey enrolled for step-up (R23)', softkey.ensure_enrolled(admin.post, admin.get), 'enroll failed')
-    return r.ok
+    if r.ok and email:
+        # A device enrolled during bootstrap is unbound; bind it now that the key exists.
+        ok, v = bind_admin_device_by_passkey(email, password)
+        step('gate device bound by a passkey login (X4)', ok, v)
+    return r.ok or refused
 RESULTS = []  # {journey, step, ok, detail}
 _journey = ['?']
 
