@@ -1,4 +1,5 @@
-import { BadGatewayException, BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, Inject, Injectable, Logger, Optional } from '@nestjs/common';
+import { CircuitBreakerService } from '../../common/circuit-breaker.service';
 import { escapeHtml } from '../../common/html-escape';
 import { I18nService } from '../i18n/i18n.service';
 import { Model } from 'mongoose';
@@ -20,6 +21,9 @@ import axios from 'axios';
 
 const EXPO_PUSH_MAX = 100;
 const FCM_MULTICAST_MAX = 500;
+async function infobipPost(url: string, body: Record<string, unknown>, config: { headers: Record<string, string>; timeout: number }): Promise<void> {
+  await axios.post(url, body, config);
+}
 function chunk<T>(items: T[], size: number): T[][] {
   const out: T[][] = [];
   for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
@@ -50,6 +54,7 @@ export class NotificationsService {
     private mail: MailService,
     @InjectQueue('notifications-delivery') private queue: Queue,
     private readonly i18n: I18nService,
+    @Optional() private readonly breakers?: CircuitBreakerService,
   ) {}
 
   async create(data: {
@@ -424,15 +429,20 @@ export class NotificationsService {
       return;
     }
     try {
-      await axios.post(`https://${process.env.INFOBIP_URL}/whatsapp/1/message/template`, {
+      const url = `https://${process.env.INFOBIP_URL}/whatsapp/1/message/template`;
+      const body = {
         messages: [{
           from: process.env.INFOBIP_SENDER,
           to: phone,
           content: { templateName: n.title_key, templateData: { body: { placeholders: [n.body_key] } }, language: 'ar' }
         }]
-      }, { headers: { Authorization: `App ${process.env.INFOBIP_API_KEY}` }, timeout: notifyTimeoutMs() });
+      };
+      const config = { headers: { Authorization: `App ${process.env.INFOBIP_API_KEY}` }, timeout: notifyTimeoutMs() };
+      // 15.7: Infobip runs behind a breaker; while it is open no request is made.
+      if (this.breakers) await this.breakers.call('whatsapp:infobip', infobipPost, [url, body, config]);
+      else await infobipPost(url, body, config);
     } catch(e) {
-      this.logger.error('Failed to send WhatsApp', e.message);
+      this.logger.error('Failed to send WhatsApp', e instanceof Error ? e.message : String(e));
     }
   }
 

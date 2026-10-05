@@ -1,9 +1,13 @@
-import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { AccessToken } from 'livekit-server-sdk';
 import { randomUUID } from 'crypto';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection, Types } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { CircuitBreakerService } from '../../common/circuit-breaker.service';
+
+type RoomMethod = 'listParticipants' | 'getParticipant' | 'mutePublishedTrack' | 'removeParticipant';
+type RoomServiceLike = Record<RoomMethod, (...args: unknown[]) => Promise<unknown>>;
 
 @Injectable()
 export class LiveKitService {
@@ -13,6 +17,7 @@ export class LiveKitService {
     @InjectModel('Appointment') private readonly appointments: Model<any>,
     @InjectConnection() private readonly conn: Connection,
     private readonly events: EventEmitter2,
+    @Optional() private readonly breakers?: CircuitBreakerService,
   ) {}
 
   private get callSessions() { return this.conn.collection('callsessions'); }
@@ -419,13 +424,22 @@ export class LiveKitService {
     return Promise.race([p, gate]).finally(() => clearTimeout(t)) as Promise<any>;
   }
 
+  /**
+   * 15.7: every LiveKit server call runs behind one breaker. Failures reach
+   * the breaker (so it can open); callers keep their fallbacks via .catch.
+   */
+  private roomCall<T>(svc: RoomServiceLike, method: RoomMethod, args: unknown[]): Promise<T> {
+    const run = (s: RoomServiceLike, m: RoomMethod, a: unknown[], ms: number): Promise<T> =>
+      this.withTimeout((s[m] as (...x: unknown[]) => Promise<T>)(...a), ms);
+    return this.breakers
+      ? this.breakers.call('livekit:room-service', run, [svc, method, args, this.serverTimeoutMs])
+      : run(svc, method, args, this.serverTimeoutMs);
+  }
+
   async getRoomParticipants(roomName: string) {
     const svc = this.roomService();
     if (!svc) return [];
-    const list = await this.withTimeout(
-      svc.listParticipants(roomName).catch(() => []),
-      this.serverTimeoutMs,
-    ).catch(() => []);
+    const list = await this.roomCall<any[]>(svc, 'listParticipants', [roomName]).catch(() => []);
     return (list || []).map((p: any) => ({
       identity: p.identity,
       name: p.name,
@@ -438,16 +452,10 @@ export class LiveKitService {
   async muteParticipant(roomName: string, participantId: string, muted: boolean) {
     const svc = this.roomService();
     if (!svc) return { success: false, reason: 'livekit_not_configured' };
-    const p = await this.withTimeout(
-      svc.getParticipant(roomName, participantId).catch(() => null),
-      this.serverTimeoutMs,
-    ).catch(() => null);
+    const p = await this.roomCall<any>(svc, 'getParticipant', [roomName, participantId]).catch(() => null);
     if (!p) return { success: false, reason: 'participant_not_found' };
     for (const track of p.tracks || []) {
-      await this.withTimeout(
-        svc.mutePublishedTrack(roomName, participantId, track.sid, muted).catch(() => null),
-        this.serverTimeoutMs,
-      ).catch(() => null);
+      await this.roomCall(svc, 'mutePublishedTrack', [roomName, participantId, track.sid, muted]).catch(() => null);
     }
     return { success: true };
   }
@@ -458,10 +466,7 @@ export class LiveKitService {
       const { NotFoundException } = await import('@nestjs/common');
       throw new NotFoundException('livekit_not_configured');
     }
-    await this.withTimeout(
-      svc.removeParticipant(roomName, participantId).catch(() => null),
-      this.serverTimeoutMs,
-    ).catch(() => null);
+    await this.roomCall(svc, 'removeParticipant', [roomName, participantId]).catch(() => null);
     return { success: true };
   }
 }

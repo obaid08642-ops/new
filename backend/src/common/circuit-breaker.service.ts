@@ -2,7 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import CircuitBreaker from 'opossum';
 
 export interface BreakerOptions {
-  timeout?: number;
+  /** false = no breaker timeout (the wrapped call enforces its own). */
+  timeout?: number | false;
   errorThresholdPercentage?: number;
   resetTimeout?: number;
   volumeThreshold?: number;
@@ -56,6 +57,16 @@ export class CircuitBreakerService {
   ): Promise<T> {
     const breaker = this.create(name, fn, {}, fallback);
     return breaker.fire(...args);
+  }
+
+  /**
+   * Run `fn(...args)` through the named breaker, with no fallback: while the
+   * circuit is open the call rejects at once without reaching the dependency,
+   * and the caller's own error handling applies. `fn` must take everything it
+   * needs as arguments, because breakers are cached by name.
+   */
+  async call<A extends unknown[], T>(name: string, fn: (...args: A) => Promise<T>, args: A, options: BreakerOptions = { timeout: false }): Promise<T> {
+    return this.create<T>(name, fn as (...a: unknown[]) => Promise<T>, options).fire(...args);
   }
 
   getStats(name: string) {

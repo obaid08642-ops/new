@@ -6,7 +6,8 @@ import { MongooseModule, InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as crypto from 'crypto';
 import { OnEvent } from '@nestjs/event-emitter';
-import { Logger } from '@nestjs/common';
+import { Logger, Optional } from '@nestjs/common';
+import { CircuitBreakerService } from '../../common/circuit-breaker.service';
 import { CurrentUser, Public, JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { UploadDto, UploadSuggestionImageDto } from './storage.dto';
 
@@ -123,6 +124,12 @@ class S3R2Adapter implements StorageAdapter {
   }
 }
 
+type PutPayload = Parameters<StorageAdapter['put']>[0];
+/** Breaker function: the adapter is an argument because breakers are cached by name. */
+function adapterPut(adapter: StorageAdapter, payload: PutPayload): ReturnType<StorageAdapter['put']> {
+  return adapter.put(payload);
+}
+
 const ALLOWED_MIME = new Set(['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf']);
 const MAX_BYTES = 25 * 1024 * 1024; // 25 MB hard cap per file at base64 layer
 
@@ -134,7 +141,10 @@ export class StorageService {
    * document flows (KYC, images) keep working in dev/staging without object storage.
    */
   private adapter: StorageAdapter = S3R2Adapter.configured() ? new S3R2Adapter() : new Base64Adapter();
-  constructor(@InjectModel('StorageObject') private readonly model: Model<StorageObject>) {
+  constructor(
+    @InjectModel('StorageObject') private readonly model: Model<StorageObject>,
+    @Optional() private readonly breakers?: CircuitBreakerService,
+  ) {
     if (!S3R2Adapter.configured()) {
       // eslint-disable-next-line no-console
       console.warn('S3 storage not configured (S3_BUCKET/S3_ENDPOINT/keys) — falling back to inline base64 storage');
@@ -224,7 +234,11 @@ export class StorageService {
     const checksum = crypto.createHash('sha256').update(input.data_base64).digest('hex');
     let adapterRes;
     try {
-      adapterRes = await this.adapter.put({ mime: input.mime, data_base64: input.data_base64, original_name: input.original_name || 'file', customKey: input.customKey });
+      const payload = { mime: input.mime, data_base64: input.data_base64, original_name: input.original_name || 'file', customKey: input.customKey };
+      // 15.7: the object store runs behind a breaker; while it is open uploads are refused at once.
+      adapterRes = this.breakers
+        ? await this.breakers.call('storage:s3:put', adapterPut, [this.adapter, payload])
+        : await adapterPut(this.adapter, payload);
     } catch (e: any) {
       this.logger.error(`S3/R2 put failed (${e.message}) — private upload refused`);
       throw new ServiceUnavailableException('PRIVATE_OBJECT_STORAGE_UNAVAILABLE');

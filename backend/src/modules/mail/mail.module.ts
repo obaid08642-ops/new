@@ -15,6 +15,7 @@ import { Connection } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Resend } from 'resend';
 import * as nodemailer from 'nodemailer';
+import { CircuitBreakerService } from '../../common/circuit-breaker.service';
 
 export interface MailResult {
   ok: boolean;
@@ -36,15 +37,36 @@ function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
   return Promise.race([p, gate]).finally(() => clearTimeout(t)) as Promise<T>;
 }
 
+type ResendPayload = Parameters<Resend['emails']['send']>[0];
+type SesMessage = nodemailer.SendMailOptions;
+
+/** Breaker functions take every input as an argument (breakers are cached by name). */
+async function resendSend(client: Resend, payload: ResendPayload): Promise<void> {
+  const { error } = await withTimeout(client.emails.send(payload), mailTimeoutMs());
+  if (error) throw new BadGatewayException(error.message || 'resend_error');
+}
+
+async function sesSend(transporter: nodemailer.Transporter, message: SesMessage): Promise<void> {
+  await withTimeout(transporter.sendMail(message), mailTimeoutMs());
+}
+
 @Injectable()
 export class MailService {
   private readonly logger = new Logger('MailService');
   private resend: Resend | null = null;
 
-  constructor(private readonly events: EventEmitter2, @Optional() @InjectConnection() private conn?: Connection) {
+  constructor(
+    private readonly events: EventEmitter2,
+    @Optional() @InjectConnection() private conn?: Connection,
+    @Optional() private readonly breakers?: CircuitBreakerService,
+  ) {
     if (process.env.RESEND_API_KEY) {
       this.resend = new Resend(process.env.RESEND_API_KEY);
     }
+  }
+
+  private guarded<A extends unknown[], T>(name: string, fn: (...args: A) => Promise<T>, args: A): Promise<T> {
+    return this.breakers ? this.breakers.call(name, fn, args) : fn(...args);
   }
 
   /** Persist send outcome for admin email-usage reports (best-effort). */
@@ -115,15 +137,16 @@ export class MailService {
     // 1) Primary: Resend
     try {
       if (!this.resend) throw new ServiceUnavailableException('resend_not_configured');
-      const { error } = await withTimeout(this.resend.emails.send({
+      const payload: ResendPayload = {
         from: this.fromAddress,
         to: opts.to,
         subject: opts.subject,
         html: opts.html,
         ...(opts.text ? { text: opts.text } : {}),
         ...(attachment ? { attachments: [{ filename: attachment.filename!, content: Buffer.from(attachment.content, 'utf-8').toString('base64') }] } : {}),
-      }), mailTimeoutMs());
-      if (error) throw new BadGatewayException(error.message || 'resend_error');
+      };
+      // 15.7: Resend runs behind a breaker; while it is open the send goes straight to SES.
+      await this.guarded('mail:resend', resendSend, [this.resend, payload]);
       this.events.emit('mail.sent', { to: opts.to, subject: opts.subject, provider: 'resend', fallback_used: false });
       await this.logMail(opts.to, opts.subject, true, 'resend', false);
       return { ok: true, provider: 'resend', fallback_used: false };
@@ -157,14 +180,14 @@ export class MailService {
   ): Promise<void> {
     if (!this.sesConfigured()) throw new ServiceUnavailableException('ses_not_configured');
     const transporter = this.sesTransport();
-    await withTimeout(transporter.sendMail({
+    await this.guarded('mail:ses', sesSend, [transporter, {
       from: process.env.SES_FROM || this.fromAddress,
       to: opts.to,
       subject: opts.subject,
       html: opts.html,
       ...(opts.text ? { text: opts.text } : {}),
       ...(attachment ? { attachments: [{ filename: attachment.filename, content: Buffer.from(attachment.content, 'utf-8') }] } : {}),
-    }), mailTimeoutMs());
+    }]);
   }
 
   /** Shared OTP template (Arabic, RTL) — used by auth + notifications. */
