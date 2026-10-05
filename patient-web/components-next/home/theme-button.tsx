@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { FIcon } from "@/components-next/ui-generated";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { THEME_STORAGE_KEY, isTheme, type Theme } from "@/app/theme";
 import styles from "./home.module.css";
 

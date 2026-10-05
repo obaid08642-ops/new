@@ -5,7 +5,10 @@ import { extractPatientNotifications, type PatientNotification } from "@/lib/api
 import { getPatientNotifications } from "@/lib/api/notifications-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { Card, EmptyState, FIcon, SectionHeader, SERVICE_ICONS, type FillIconName, type ServiceName, type ServiceTone } from "@/components-next/ui-generated";
+import { Card, SectionHeader } from "@/components-next/ui-generated/components/Surfaces";
+import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { SERVICE_ICONS, type FillIconName, type ServiceName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { CoreShell } from "@/components-next/core/core-shell";
 import core from "@/components-next/core/core.module.css";
 import { RetryErrorState } from "@/components-next/core/core-states";

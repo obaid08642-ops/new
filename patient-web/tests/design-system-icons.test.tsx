@@ -1,12 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { createElement } from "react";
+import * as phosphor from "@phosphor-icons/react";
+import { createElement, type ComponentType } from "react";
 
 import {
   ILLUSTRATED,
   ILLUSTRATED_ICONS,
   assertArtworkIsPaletteBound,
 } from "@nabd/ui/icons/illustrated";
+import { LINE_ICON_COMPONENTS } from "@nabd/ui/icons/names";
+import { LINE_ICON_PATHS } from "@nabd/ui/icons/line";
+import { ILLUSTRATED_ICONS as ILLUSTRATED_NAMES_ONLY } from "@nabd/ui/icons/illustrated-names";
 import {
   GRID,
   ILLUSTRATIONS,
@@ -49,6 +53,18 @@ function* paints(prims: readonly unknown[]): Generator<{ slot: string; value: st
 }
 
 describe("12.A6 — palette binding", () => {
+  it("every line icon is drawn from the generated regular outline, identical to the Phosphor library's (icons/line.ts)", () => {
+    for (const [name, component] of Object.entries(LINE_ICON_COMPONENTS)) {
+      const Glyph = (phosphor as unknown as Record<string, ComponentType<{ weight: string }>>)[component];
+      const lib = renderToStaticMarkup(createElement(Glyph, { weight: "regular" })).match(/<path d="([^"]+)"/)?.[1];
+      expect(LINE_ICON_PATHS[name as keyof typeof LINE_ICON_PATHS], name).toBe(lib);
+    }
+  });
+
+  it("illustrated-names matches illustrated.ts (the names list is kept apart so the artwork can load on demand)", () => {
+    expect([...ILLUSTRATED_NAMES_ONLY]).toEqual([...ILLUSTRATED_ICONS]);
+  });
+
   it("every illustrated-icon colour is a color.iconArt key, never a hex", () => {
     expect(assertArtworkIsPaletteBound(ILLUSTRATED)).toEqual([]);
   });

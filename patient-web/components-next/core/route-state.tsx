@@ -1,6 +1,7 @@
 "use client";
 
-import { EmptyState, ErrorState, SERVICE_ICONS } from "@/components-next/ui-generated";
+import { EmptyState, ErrorState } from "@/components-next/ui-generated/components/Feedback";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 
 type Props = {
   kind: "error" | "not-found";

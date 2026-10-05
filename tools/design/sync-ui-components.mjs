@@ -51,9 +51,12 @@ const CHECK_ONLY = process.argv.includes('--check');
  */
 const FILES = [
   { from: 'packages/ui/icons/illustrated.ts', to: 'patient-web/components-next/ui-generated/icons/illustrated.ts' },
+  { from: 'packages/ui/icons/illustrated-names.ts', to: 'patient-web/components-next/ui-generated/icons/illustrated-names.ts' },
   { from: 'packages/ui/icons/names.ts', to: 'patient-web/components-next/ui-generated/icons/names.ts' },
   { from: 'packages/ui/icons/illustrations.ts', to: 'patient-web/components-next/ui-generated/icons/illustrations.ts' },
   { from: 'packages/ui/src/Icon.tsx', to: 'patient-web/components-next/ui-generated/src/Icon.tsx', useClient: true },
+  // The illustrated artwork, loaded on demand by <Icon> (issue #286).
+  { from: 'packages/ui/src/Illustrated.tsx', to: 'patient-web/components-next/ui-generated/src/Illustrated.tsx', useClient: true },
   // DEVICE_STANDARD §1 web shells. AppShell holds the rail state, so it is a Client Component.
   { from: 'packages/ui/shells/AppShell.tsx', to: 'patient-web/components-next/ui-generated/shells/AppShell.tsx', useClient: true },
   { from: 'packages/ui/shells/StickyFooter.tsx', to: 'patient-web/components-next/ui-generated/shells/StickyFooter.tsx' },
@@ -64,6 +67,7 @@ const FILES = [
   // Component files hold state, refs or handlers, so they are Client Components here.
   { from: 'packages/ui/icons/fill.ts', to: 'patient-web/components-next/ui-generated/icons/fill.ts' },
   { from: 'packages/ui/icons/marks.ts', to: 'patient-web/components-next/ui-generated/icons/marks.ts' },
+  { from: 'packages/ui/icons/line.ts', to: 'patient-web/components-next/ui-generated/icons/line.ts' },
   { from: 'packages/ui/components/contract.ts', to: 'patient-web/components-next/ui-generated/components/contract.ts' },
   ...['Button', 'Spinner', 'FIcon', 'Inputs', 'Controls', 'Surfaces', 'Cards', 'Feedback'].map((name) => ({
     from: `packages/ui/components/${name}.tsx`,
@@ -86,6 +90,7 @@ const FILES = [
         .filter((line) => !/fixtures/.test(line))
         .join('\n')
         .replace(/from '\.\/Icon'/g, "from './src/Icon'")
+        .replace(/from '\.\/Illustrated'/g, "from './src/Illustrated'")
         .replace(/from '\.\.\//g, "from './"),
   },
 ];

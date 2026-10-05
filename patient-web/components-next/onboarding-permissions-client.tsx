@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Button, FIcon, SERVICE_ICONS } from "@/components-next/ui-generated";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import styles from "./auth/auth.module.css";
 
 type State = "unknown" | "granted" | "denied" | "unsupported";
