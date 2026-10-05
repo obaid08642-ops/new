@@ -3,11 +3,14 @@ import type { ReactTestRendererJSON } from 'react-test-renderer';
 
 import {
   Button,
+  Avatar,
   Card,
   Chip,
   EmptyState,
   ErrorState,
+  FIcon,
   IconButton,
+  SectionHeader,
   Rating,
   ServiceTile,
   Stepper,
@@ -53,6 +56,9 @@ function findAll(nodes: readonly Node[], pred: (n: Node) => boolean): Node[] {
 
 const byRole = (role: string) => (n: Node) => n.props?.accessibilityRole === role;
 const labelled = (nodes: readonly Node[]) => JSON.stringify(nodes);
+/** react-native-svg serialises a colour as an ARGB integer (paths unsigned, gradient stops signed). */
+const argb = (hex: string) => (0xff000000 | parseInt(hex.slice(1), 16)) >>> 0;
+const svgColour = (hex: string) => new RegExp(`(${argb(hex)}|${argb(hex) | 0})\\b`);
 
 describe('12.A7 — the native renderer keeps the contract semantics', () => {
   it('a Button is a button, named by its visible text', () => {
@@ -129,6 +135,23 @@ describe('12.A7 — the native renderer keeps the contract semantics', () => {
     expect(r.props.accessibilityLabel).toContain('5');
   });
 
+  it('a Rating is one filled star, the value and (count), and nothing without real ratings', () => {
+    const json = labelled(render(<Rating value={4.8} count={128} />));
+    expect(json.match(/RNSVGPath/g)).toHaveLength(1);
+    expect(json).toContain('4.8');
+    expect(json).toContain('(128)');
+    expect(render(<Rating value={null} count={0} />)).toEqual([]);
+    expect(render(<Rating value={4.2} count={0} />)).toEqual([]);
+  });
+
+  it('an Avatar is a photo, initials or the neutral user icon, named by the person', () => {
+    const [photo] = render(<Avatar name="د. أحمد" src="https://cdn.nabd.plus/doctors/1.jpg" />);
+    expect(photo.props.accessibilityLabel).toBe('د. أحمد');
+    expect(labelled([photo])).toContain('https://cdn.nabd.plus/doctors/1.jpg');
+    expect(labelled(render(<Avatar name="Amina Haddad" />))).toContain('AH');
+    expect(labelled(render(<Avatar name="" />))).toContain('RNSVG');
+  });
+
   it('the app localises the rating sentence, not the design system', () => {
     const [r] = render(
       <Rating value={4.5} count={128} formatLabel={() => "٤٫٥ من ٥ بناءً على ١٢٨ تقييماً"} />,
@@ -136,11 +159,39 @@ describe('12.A7 — the native renderer keeps the contract semantics', () => {
     expect(r.props.accessibilityLabel).toContain("١٢٨ تقييماً");
   });
 
-  it('a ServiceTile is named by its label and carries the illustrated art', () => {
-    const nodes = render(<ServiceTile name="pharmacy" label="Pharmacy" />);
-    expect(labelled(nodes)).toContain('Pharmacy');
-    // Illustrated artwork, not a 20px line glyph — the split the canvas states.
-    expect(labelled(nodes)).toContain('RNSVG');
+  it("a ServiceTile is named by its label and draws its service's FIcon from the handoff map", () => {
+    const [tile] = render(<ServiceTile name="pharmacy" label="Pharmacy" />);
+    expect(tile.props.accessibilityLabel).toBe('Pharmacy');
+    // Handoff §1: a filled glyph (an SVG path) in the pharmacy tone, not a 20px line glyph.
+    const light = tokens('light').color.service;
+    expect(labelled([tile])).toContain('RNSVG');
+    expect(labelled([tile])).toContain(light.coral.bg);
+    expect(labelled([tile])).toMatch(svgColour(light.coral.fg));
+  });
+
+  it('FIcon: radius 32% and glyph 52% of the edge, tone colours per theme, decorative unless named', () => {
+    const [soft] = render(<FIcon icon="pill" tone="mint" size={50} />);
+    expect(soft.props.style.borderRadius).toBe(16);
+    expect(soft.props.style.backgroundColor).toBe(tokens('light').color.service.mint.bg);
+    expect(soft.props.importantForAccessibility).toBe('no-hide-descendants');
+    const [dark] = render(<FIcon icon="pill" tone="mint" size={50} theme="dark" />);
+    expect(dark.props.style.backgroundColor).toBe(tokens('dark').color.service.mint.bg);
+    const [named] = render(<FIcon icon="pill" tone="coral" label="صيدلية" />);
+    expect(named.props.accessibilityRole).toBe('image');
+    expect(named.props.accessibilityLabel).toBe('صيدلية');
+    // solid: the tone gradient with the white glyph token
+    const solid = labelled(render(<FIcon icon="pill" tone="teal" chip="solid" />));
+    const teal = tokens('light').color.service.teal.solid;
+    expect(solid).toMatch(svgColour(teal.from));
+    expect(solid).toMatch(svgColour(teal.to));
+    expect(solid).toMatch(svgColour(tokens('light').color.icon.onSolid));
+  });
+
+  it('SectionHeader: the title is a header, the action a named link', () => {
+    const json = labelled(render(<SectionHeader title="عروض وباقات" actionLabel="عرض الكل" />));
+    expect(json).toContain('"accessibilityRole":"header"');
+    expect(json).toContain('"accessibilityRole":"link"');
+    expect(json).toContain('عرض الكل');
   });
 
   it('Tabs are a tablist of tabs, so arrow keys have something to move between', () => {

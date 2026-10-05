@@ -12,8 +12,11 @@ export { Button, IconButton } from './components/Button';
 export { Input, Select, Otp, Search, Stepper, SlotPicker } from './components/Inputs';
 export {
   Avatar, Badge, BottomTabBar, Card, Chip, ListItem, MapPinCard, NavBar, PriceTag,
-  Rating, ServiceTile, Sidebar, Tabs,
+  Rating, SectionHeader, ServiceTile, Sidebar, Tabs,
 } from './components/Surfaces';
+export { FIcon } from './components/FIcon';
+export { FILL_ICON_NAMES, FILL_ICON_PATHS, SERVICE_ICONS, SERVICE_TONES } from '../../ui/icons/fill';
+export type { FillIconName, ServiceName, ServiceTone } from '../../ui/icons/fill';
 export { EmptyState, ErrorState, Modal, Skeleton, Toast } from './components/Feedback';
 
 // Screen shells (DEVICE_STANDARD §1). Native-only layout, so not part of the cross-platform contract.
