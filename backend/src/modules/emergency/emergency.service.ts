@@ -22,6 +22,11 @@ const DISPATCH_WEIGHTS = {
   hospitalBonus: Number(process.env.AMBULANCE_HOSPITAL_PRIORITY_BONUS || 0),
 };
 
+/** The profile fields the dispatch score reads. */
+interface DispatchProfile { account_id: string; rating_avg?: number; type?: string }
+/** Active missions per unit (grouped aggregation). */
+interface DispatchWorkloadRow { _id: string; n: number }
+
 @Injectable()
 export class EmergencyService {
   constructor(
@@ -80,22 +85,24 @@ export class EmergencyService {
     // 1 × grouped aggregation for per-unit workloads, joined in memory.
     // Scoring below is byte-identical to the old per-vehicle loop — same
     // vehicle wins for the same input; only the data-access shape changed.
-    const providerIds = [...new Set(candidates.map((v: any) => (v as any).provider_account_id).filter(Boolean))];
-    const profByAccount = new Map<string, any>();
+    const providerIds = [...new Set(candidates.map((v) => v.provider_account_id).filter((id): id is string => Boolean(id)))];
+    const profByAccount = new Map<string, DispatchProfile>();
     if (providerIds.length) {
-      const profDocs: any[] = await profiles.find(
+      const profDocs = await profiles.find<DispatchProfile>(
         { account_id: { $in: providerIds } },
         { projection: { account_id: 1, rating_avg: 1, type: 1 } },
       ).toArray();
-      for (const p of profDocs || []) profByAccount.set((p as any).account_id, p);
+      // 705f22c: keep the FIRST profile per account, as the per-vehicle
+      // findOne did; a later duplicate row must not change the score.
+      for (const p of profDocs) if (!profByAccount.has(p.account_id)) profByAccount.set(p.account_id, p);
     }
     const workloadByVehicle = new Map<string, number>();
     if (candidates.length) {
-      const rows: any[] = await this.model.aggregate([
-        { $match: { assigned_ambulance_id: { $in: candidates.map((v: any) => (v as any).id) }, state: activeStates } },
+      const rows: DispatchWorkloadRow[] = await this.model.aggregate([
+        { $match: { assigned_ambulance_id: { $in: candidates.map((v) => v.id) }, state: activeStates } },
         { $group: { _id: '$assigned_ambulance_id', n: { $sum: 1 } } },
       ]);
-      for (const r of rows || []) workloadByVehicle.set((r as any)._id, (r as any).n);
+      for (const r of rows) workloadByVehicle.set(r._id, r.n);
     }
 
     let best: { v: any; score: number } | null = null;
