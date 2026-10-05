@@ -51,6 +51,7 @@ export type Variant =
 export type Tone = 'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
 
 import type { IconName } from '../icons/names';
+import type { FillIconName, ServiceName, ServiceTone } from '../icons/fill';
 
 /**
  * A value change. Deliberately ONE name for both platforms: React Native splits
@@ -236,26 +237,57 @@ export interface ListItemProps extends StateProps, A11yProps {
   endContent?: 'none' | 'chevron' | 'check' | 'switch';
   onEndPressLabel?: string;
   selected?: boolean;
+  /** A 40px <FIcon> at the start (canvas/Account.dc.html rows). Takes the place of `startIcon`. */
+  leading?: { icon: FillIconName; tone: ServiceTone };
 }
 
 /**
- * The home-screen service tile. Carries the illustrated artwork rather than a
- * glyph, which is why it has both a `name` (the artwork) and a `label` (text).
+ * The home-screen service tile (handoff §1 and canvas/HomeApp.dc.html): the
+ * service's filled icon in its tinted square (<FIcon>, from the service map) over
+ * a text label. The label names the tile; the icon is decorative.
  */
 export interface ServiceTileProps extends StateProps, A11yProps {
-  name: string;
+  /** A service of the handoff service map; it fixes the icon and the tone. */
+  name: ServiceName;
   label: string;
-  /** The tile edge. 76 is the canvas home default, 128 the marketing default. */
+  /** Icon chip edge: sm 44, md 50 (the canvas home), lg 56. */
   size?: 'sm' | 'md' | 'lg';
   badge?: string | number;
 }
 
+/**
+ * A filled Phosphor icon in a soft-tinted rounded square (radius 32% of its edge),
+ * handoff §1 "Icons". 40–58 in lists and grids, 72–112 for empty states.
+ * Decorative unless `label` is given.
+ */
+export interface FIconProps extends A11yProps {
+  icon: FillIconName;
+  tone: ServiceTone;
+  /** Edge in px. */
+  size?: number;
+  /** `soft` tinted square (default), `solid` gradient with a white glyph, `none` the bare glyph. */
+  chip?: 'soft' | 'solid' | 'none';
+}
+
+/** A section title with an optional "see all" link (canvas/HomeApp.dc.html). */
+export interface SectionHeaderProps extends A11yProps {
+  title: string;
+  /** Visible text of the trailing action, e.g. "عرض الكل". */
+  actionLabel?: string;
+  /** Heading level for the document outline; the look does not change. */
+  level?: 2 | 3;
+}
+
 export interface AvatarProps extends A11yProps {
-  /** A person or family member name. */
+  /** A person or family member name. Empty draws the neutral user icon. */
   name: string;
   size?: Size;
-  /** An illustrated role, when the person is a provider rather than a user. */
-  illustratedName?: string;
+  /**
+   * A real photo URL (e.g. a doctor's `photo_url`). Without one the avatar shows the
+   * initials, or the neutral user icon when there is no name. No cartoon or
+   * illustrated people (handoff §1).
+   */
+  src?: string;
   /** Shows a small state marker: verified, offline, needs attention. */
   status?: 'none' | 'online' | 'offline' | 'alert';
 }
@@ -273,13 +305,21 @@ export interface PriceTagProps extends A11yProps {
  * there is no "seed" or "sample" mode, because a rating with no count is a lie
  * rendered as a star row.
  */
+/**
+ * A compact rating as on the DoctorCard board: ONE filled star, the value, and the
+ * count in brackets. It renders nothing unless there are real ratings
+ * (`count > 0` and a value), so a screen can never show an empty-star row or a
+ * bare count (handoff §1: no fake ratings).
+ */
 export interface RatingProps extends A11yProps {
-  value: number;
-  count?: number;
+  value: number | null;
+  count: number;
   max?: number;
   size?: 'sm' | 'md';
+  /** `onBrand` on the coral DoctorCard footer; `default` on a surface. */
+  surface?: 'default' | 'onBrand';
   /** Supplied by the caller so the sentence is localised by the app, not here. */
-  formatLabel?: (value: number, count?: number) => string;
+  formatLabel?: (value: number, count: number) => string;
 }
 
 /* ------------------------------------------------------------- navigation */
@@ -453,6 +493,8 @@ export interface ContractMap {
   Card: CardProps;
   ListItem: ListItemProps;
   ServiceTile: ServiceTileProps;
+  FIcon: FIconProps;
+  SectionHeader: SectionHeaderProps;
   Avatar: AvatarProps;
   PriceTag: PriceTagProps;
   Rating: RatingProps;
@@ -510,7 +552,7 @@ export type NativeRequired = RequiredBy<'native'>;
 /** The names, for iteration in the gallery and the conformance check. */
 export const CONTRACT_NAMES = [
   'Button', 'IconButton', 'Input', 'Select', 'Otp', 'Search', 'Stepper',
-  'SlotPicker', 'Chip', 'Badge', 'Card', 'ListItem', 'ServiceTile', 'Avatar',
+  'SlotPicker', 'Chip', 'Badge', 'Card', 'ListItem', 'ServiceTile', 'FIcon', 'SectionHeader', 'Avatar',
   'PriceTag', 'Rating', 'Tabs', 'NavBar', 'BottomTabBar', 'Sidebar',
   'MapPinCard', 'EmptyState', 'ErrorState', 'Toast', 'Modal', 'Skeleton',
   'DataTable', 'ChartCard',

@@ -4,7 +4,8 @@ import { OtpModal } from '../OtpModal';
 
 // The modal reads theme + language from the app context; give it the real shape without the providers.
 jest.mock('../../context', () => {
-  const theme = new Proxy({}, { get: () => '#000000' });
+  const { tokens } = jest.requireActual('../../theme/tokens');
+  const theme = new Proxy({}, { get: () => tokens.text });
   return { useTheme: () => ({ theme, isDark: false }), useLang: () => ({ lang: 'ar', setLang: jest.fn() }) };
 });
 
