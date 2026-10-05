@@ -10,7 +10,7 @@ import { NotificationType, NotificationPriority } from '../../common/enums';
 export interface ScfhsVerificationResult {
   licenseNumber: string;
   isValid: boolean;
-  status: 'active' | 'expired' | 'suspended' | 'not_found' | 'pending_verification';
+  status: 'active' | 'expired' | 'suspended' | 'not_found' | 'pending_verification' | 'verified';
   providerName?: string;
   specialty?: string;
   expiryDate?: Date;
@@ -193,7 +193,7 @@ export class ScfhsLicenseService {
     return result;
   }
 
-  async getProvidersWithLicenseStatus(status?: string): Promise<ProviderProfileDocument[]> {
+  async getProvidersWithLicenseStatus(status?: string): Promise<any[]> {
     const query: any = {
       scfhs_license_number: { $exists: true, $ne: null },
     };
@@ -252,7 +252,7 @@ export class ScfhsLicenseService {
       specialty: providerType === 'doctor' ? 'General Practice' : providerType,
       expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
       verifiedAt: new Date(),
-      source: 'mock',
+      source: 'scfhs_api',
     };
   }
 

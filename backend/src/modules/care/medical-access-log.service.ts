@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Document } from 'mongoose';
 import { MedicalAccessLog, MedicalAccessLogSchema } from '../../schemas/medical-access-log.schema';
 
 export interface MedicalAccessLogEntry {
@@ -32,7 +32,7 @@ export class MedicalAccessLogService {
   async getPatientAccessLogs(
     patientId: string,
     options: { limit?: number; skip?: number; recordType?: string } = {},
-  ): Promise<MedicalAccessLog[]> {
+  ): Promise<any[]> {
     const query: any = { patientId };
     if (options.recordType) query.recordType = options.recordType;
     
@@ -48,7 +48,7 @@ export class MedicalAccessLogService {
   async getRecordAccessHistory(
     recordId: string,
     recordType: string,
-  ): Promise<MedicalAccessLog[]> {
+  ): Promise<any[]> {
     return this.logModel
       .find({ recordId, recordType })
       .sort({ accessedAt: -1 })
@@ -59,7 +59,7 @@ export class MedicalAccessLogService {
   async getProviderAccessLogs(
     providerId: string,
     options: { limit?: number; skip?: number } = {},
-  ): Promise<MedicalAccessLog[]> {
+  ): Promise<any[]> {
     return this.logModel
       .find({ accessedBy: providerId, accessorRole: 'provider' })
       .sort({ accessedAt: -1 })
@@ -73,7 +73,7 @@ export class MedicalAccessLogService {
     totalAccesses: number;
     byType: Record<string, number>;
     byRole: Record<string, number>;
-    recentActivity: MedicalAccessLog[];
+    recentActivity: any[];
   }> {
     const logs = await this.logModel.find({ patientId }).lean().exec();
     

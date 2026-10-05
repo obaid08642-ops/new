@@ -1,20 +1,16 @@
-import { MessageFormat } from "intl-messageformat";
+import { IntlMessageFormat } from "intl-messageformat";
 import type { SupportedLocale } from "../locales";
 
-interface ICUMessageFormatter {
-  format(values: Record<string, unknown>): string;
-}
-
-const formatterCache = new Map<string, ICUMessageFormatter>();
+const formatterCache = new Map<string, IntlMessageFormat>();
 
 export function getICUFormatter(
   locale: SupportedLocale,
   pattern: string
-): ICUMessageFormatter {
+): IntlMessageFormat {
   const cacheKey = `${locale}:${pattern}`;
   let formatter = formatterCache.get(cacheKey);
   if (!formatter) {
-    formatter = new MessageFormat(pattern, locale) as ICUMessageFormatter;
+    formatter = new IntlMessageFormat(pattern, locale);
     formatterCache.set(cacheKey, formatter);
   }
   return formatter;
@@ -26,7 +22,7 @@ export function formatMessage(
   values: Record<string, unknown>
 ): string {
   try {
-    return getICUFormatter(locale, pattern).format(values);
+    return String(getICUFormatter(locale, pattern).format(values));
   } catch {
     return pattern;
   }
@@ -106,17 +102,17 @@ export function formatRelativeTime(
 }
 
 export class ICUMessageFormatter {
-  private formatters: Map<string, ICUMessageFormatter> = new Map();
+  private formatters: Map<string, IntlMessageFormat> = new Map();
 
   format(locale: SupportedLocale, pattern: string, values: Record<string, unknown>): string {
     const key = `${locale}:${pattern}`;
     let formatter = this.formatters.get(key);
     if (!formatter) {
-      formatter = new MessageFormat(pattern, locale) as ICUMessageFormatter;
+      formatter = new IntlMessageFormat(pattern, locale);
       this.formatters.set(key, formatter);
     }
     try {
-      return formatter.format(values);
+      return String(formatter.format(values));
     } catch {
       return pattern;
     }

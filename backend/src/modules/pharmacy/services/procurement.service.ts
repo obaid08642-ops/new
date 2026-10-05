@@ -25,6 +25,11 @@ export class ProcurementService {
     
     @Inject('QuotationRepository') private readonly quotationModel: QuotationRepository,
   ) {}
+  
+  // Use the repository's underlying model for direct queries
+  private get model(): any {
+    return this.procurementModel.model;
+  }
 
   // ─── PHARMACY: Create a new procurement request ───────────────────────────
   async createRequest(
@@ -42,8 +47,7 @@ export class ProcurementService {
 
   // ─── PHARMACY: List own requests ──────────────────────────────────────────
   async getPharmacyRequests(pharmacyId: string): Promise<any[]> {
-    return this.procurementModel
-      .find({ pharmacy_id: String(pharmacyId) })
+    return this.procurementModel.find({ pharmacy_id: String(pharmacyId) })
       .sort({ createdAt: -1 })
       .lean() as any[];
   }
@@ -51,8 +55,8 @@ export class ProcurementService {
   // ─── PHARMACY: Get single request ─────────────────────────────────────────
   async getPharmacyRequest(pharmacyId: string, requestId: string): Promise<any> {
     // requestId is always the Mongo `_id` (see ID CONTRACT above).
-    const req = await this.procurementModel
-      .findOne({ ...findByAnyId(this.procurementModel, requestId), pharmacy_id: String(pharmacyId) })
+    const req = await this.model
+      .findOne({ ...findByAnyId(this.model, requestId), pharmacy_id: String(pharmacyId) })
       .lean() as any;
     if (!req) throw new NotFoundException('Procurement request not found');
     return req;
@@ -65,7 +69,7 @@ export class ProcurementService {
     dto: PharmacyQuotationFeedbackDto,
   ): Promise<any> {
     // requestId is always the Mongo `_id` (see ID CONTRACT above).
-    const req = await this.procurementModel.findOne({ ...findByAnyId(this.procurementModel, requestId), pharmacy_id: String(pharmacyId) });
+    const req = await this.model.findOne({ ...findByAnyId(this.model, requestId), pharmacy_id: String(pharmacyId) });
     if (!req) throw new NotFoundException('Procurement request not found');
 
     if (req.status !== ProcurementStatus.QUOTATION_ISSUED) {
@@ -82,36 +86,38 @@ export class ProcurementService {
       throw new BadRequestException('Invalid status transition');
     }
 
-    req.status = dto.status;
-    (req as any).pharmacyFeedback = dto.pharmacyFeedback;
-    await req.save();
-
+    // Use the model directly for updating
+    await this.model.findByIdAndUpdate(requestId, {
+      status: dto.status,
+      pharmacyFeedback: dto.pharmacyFeedback,
+    });
+    
     // Mirror status to the linked quotation
     await this.quotationModel.updateOne(
       { procurementRequestId: requestId },
       { status: dto.status },
     );
 
-    return req;
+    return { success: true };
   }
 
   // ─── ADMIN: List all requests ─────────────────────────────────────────────
   async adminListRequests(status?: ProcurementStatus): Promise<any[]> {
     const filter = status ? { status } : {};
-    return this.procurementModel.find(filter).sort({ createdAt: -1 }).lean() as any[];
+    return this.model.find(filter).sort({ createdAt: -1 }).lean() as any[];
   }
 
   // ─── ADMIN: Get single request ────────────────────────────────────────────
   async adminGetRequest(requestId: string): Promise<any> {
     // requestId is always the Mongo `_id` (see ID CONTRACT above).
-    const req = await findOneByAnyId(this.procurementModel, requestId);
+    const req = await this.model.findOne(findByAnyId(this.model, requestId));
     if (!req) throw new NotFoundException('Procurement request not found');
     return req;
   }
 
   // ─── ADMIN: status counts for dashboard chips ─────────────────────────────
   async adminSummary(): Promise<any> {
-    const rows = await (this.procurementModel as any).aggregate([
+    const rows = await this.model.aggregate([
       { $group: { _id: '$status', count: { $sum: 1 }, items: { $sum: { $size: { $ifNull: ['$items', []] } } } } },
     ]);
     const by_status: Record<string, number> = {};
@@ -139,7 +145,7 @@ export class ProcurementService {
   // ─── ADMIN: Move request to UNDER_ADMIN_REVIEW ───────────────────────────
   async adminStartReview(requestId: string): Promise<any> {
     // requestId is always the Mongo `_id` (see ID CONTRACT above).
-    const req = await findOneByAnyId(this.procurementModel, requestId);
+    const req = await this.model.findOne(findByAnyId(this.model, requestId));
     if (!req) throw new NotFoundException('Procurement request not found');
 
     if (req.status !== ProcurementStatus.PENDING_ADMIN_REVIEW) {
@@ -160,7 +166,7 @@ export class ProcurementService {
     dto: AdminCreateQuotationDto,
   ): Promise<any> {
     // requestId is always the Mongo `_id` (see ID CONTRACT above).
-    const req = await findOneByAnyId(this.procurementModel, requestId);
+    const req = await this.model.findOne(findByAnyId(this.model, requestId));
     if (!req) throw new NotFoundException('Procurement request not found');
 
     const validStatuses: ProcurementStatus[] = [
@@ -203,7 +209,7 @@ export class ProcurementService {
   // ─── ADMIN: Cancel a request ──────────────────────────────────────────────
   async adminCancelRequest(requestId: string): Promise<any> {
     // requestId is always the Mongo `_id` (see ID CONTRACT above).
-    const req = await findOneByAnyId(this.procurementModel, requestId);
+    const req = await this.model.findOne(findByAnyId(this.model, requestId));
     if (!req) throw new NotFoundException('Procurement request not found');
 
     const nonCancellable: ProcurementStatus[] = [
@@ -217,14 +223,14 @@ export class ProcurementService {
       );
     }
 
-    req.status = ProcurementStatus.CANCELLED;
-    return req.save();
+    await this.model.findByIdAndUpdate(requestId, { status: ProcurementStatus.CANCELLED });
+    return { success: true };
   }
 
   // ─── ADMIN: Mark as COMPLETED (after delivery) ───────────────────────────
   async adminCompleteRequest(requestId: string): Promise<any> {
     // requestId is always the Mongo `_id` (see ID CONTRACT above).
-    const req = await findOneByAnyId(this.procurementModel, requestId);
+    const req = await this.model.findOne(findByAnyId(this.model, requestId));
     if (!req) throw new NotFoundException('Procurement request not found');
 
     if (req.status !== ProcurementStatus.APPROVED_BY_PHARMACY) {
@@ -233,7 +239,7 @@ export class ProcurementService {
       );
     }
 
-    req.status = ProcurementStatus.COMPLETED;
-    return req.save();
+    await this.model.findByIdAndUpdate(requestId, { status: ProcurementStatus.COMPLETED });
+    return { success: true };
   }
 }

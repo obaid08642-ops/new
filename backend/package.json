@@ -22,6 +22,7 @@
     "@fastify/multipart": "^10.1.1",
     "@google-cloud/vision": "6.0.0",
     "@google/generative-ai": "^0.24.1",
+    "@nabd/i18n": "file:../packages/i18n/nabd-i18n-1.0.0.tgz",
     "@nestjs/axios": "^12.0.1",
     "@nestjs/bull": "11.0.5",
     "@nestjs/bullmq": "11.0.5",
