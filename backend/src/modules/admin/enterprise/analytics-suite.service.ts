@@ -246,13 +246,13 @@ export class AnalyticsSuiteService {
         { $match: { event_type: 'search', createdAt: { $gte: f, $lte: t } } },
         { $group: { _id: '$metadata.query', count: { $sum: 1 }, domain: { $first: '$domain' } } },
         { $sort: { count: -1 } }, { $limit: 40 },
-      ]).toArray().catch(() => []),
+      ]).toArray(),
       events.aggregate([
         { $match: { event_type: 'search', createdAt: { $gte: f, $lte: t } } },
         { $match: { $or: [{ 'metadata.results': 0 }, { 'metadata.result_count': 0 }] } },
         { $group: { _id: '$metadata.query', count: { $sum: 1 }, domain: { $first: '$domain' } } },
         { $sort: { count: -1 } }, { $limit: 40 },
-      ]).toArray().catch(() => []),
+      ]).toArray(),
     ]);
     return { top_queries: top, zero_result_opportunities: zeroResults };
   }
@@ -267,11 +267,11 @@ export class AnalyticsSuiteService {
         { $group: { _id: '$metadata.query', count: { $sum: 1 } } },
         { $sort: { count: -1 } },
         { $limit: 40 },
-      ]).toArray().catch(() => []),
+      ]).toArray(),
       events.aggregate([
         { $match: { event_type: 'click', createdAt: { $gte: f, $lte: t }, 'metadata.query': { $exists: true, $ne: null } } },
         { $group: { _id: '$metadata.query', count: { $sum: 1 } } },
-      ]).toArray().catch(() => []),
+      ]).toArray(),
     ]);
     const clickMap = new Map((clicks as any[]).map((r) => [String(r._id), Number(r.count) || 0]));
     const rows = (searches as any[])
@@ -301,7 +301,7 @@ export class AnalyticsSuiteService {
         conversions: { $sum: { $cond: [{ $in: ['$event_type', ['booking_attempt', 'add_to_cart']] }, 1, 0] } },
       } },
       { $sort: { impressions: -1 } },
-    ]).toArray().catch(() => []);
+    ]).toArray();
     return {
       range: { from, to },
       modes: (rows as any[]).map((r) => ({

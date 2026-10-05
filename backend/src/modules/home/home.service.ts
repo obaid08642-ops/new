@@ -1,13 +1,17 @@
-import { Injectable, Inject, ExecutionContext } from '@nestjs/common';
+import { Injectable, Inject, ExecutionContext, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PromotionCampaign, PromotionCampaignDocument } from '../../schemas/promotion-campaign.schema';
 import { Appointment, AppointmentDocument } from '../../schemas/appointment.schema';
 import { REQUEST } from '@nestjs/core';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
+import { v4 as uuidv4 } from 'uuid';
+import { normalizeSearchText } from '../seo-search/seo-search.module';
 
 @Injectable()
 export class HomeService {
+  private readonly logger = new Logger(HomeService.name);
+
   constructor(
     @InjectModel(PromotionCampaign.name) private promoModel: Model<PromotionCampaignDocument>,
     @InjectModel(Appointment.name) private apptModel: Model<AppointmentDocument>,
@@ -266,6 +270,31 @@ export class HomeService {
       }
     }
 
+    await this.recordSearchEvent(q, results.length, userId);
     return results;
+  }
+
+  /**
+   * 7982518 / 13.R10: every global search (patient app and website both call
+   * GET /home/search) is an `analytics_events` row, the source the admin
+   * search analytics, zero-result opportunities and CTR reports read.
+   * Telemetry must never fail the patient's search, so a write error is
+   * logged, not thrown.
+   */
+  private async recordSearchEvent(query: string, resultCount: number, userId?: string) {
+    try {
+      const now = new Date();
+      await this.promoModel.db.collection('analytics_events').insertOne({
+        id: uuidv4(),
+        ...(userId ? { user_id: String(userId) } : {}),
+        event_type: 'search',
+        domain: 'global',
+        metadata: { query: normalizeSearchText(query).slice(0, 120), results: resultCount },
+        createdAt: now,
+        updatedAt: now,
+      });
+    } catch (error) {
+      this.logger.warn(`search analytics event not recorded: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 }
