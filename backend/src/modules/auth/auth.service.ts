@@ -49,9 +49,11 @@ export class AuthService {
     @Optional() private sms?: SmsService,
   ) {}
 
-  signToken(user: any, deviceId?: string) {
+  signToken(user: any, deviceId?: string, opts?: { recovery?: boolean }) {
     const accessToken = this.jwt.sign(
-      { sub: user.id, id: user.id, role: user.role, phone: user.phone, is_guest: !!user.is_guest, tv: Number(user.token_version ?? 0), ...(deviceId ? { dev: deviceId.slice(0, 32) } : {}) },
+      // `rec`: a C6 break-glass session (recovery code + email code), which may
+      // enroll the browser it recovers from (X4).
+      { sub: user.id, id: user.id, role: user.role, phone: user.phone, is_guest: !!user.is_guest, tv: Number(user.token_version ?? 0), ...(deviceId ? { dev: deviceId.slice(0, 32) } : {}), ...(opts?.recovery ? { rec: 1 } : {}) },
       { expiresIn: '1h' } // Short-lived access token
     );
     // Refresh token carries a unique session id (jti) — tracked in Redis so
@@ -753,7 +755,7 @@ export class AuthService {
    * admin login attempt, with device, IP and time. Records the attempt for
    * the audit trail. Never throws.
    */
-  private async adminLoginAlert(u: any, ok: boolean, ctx?: { ua?: string; ip?: string; deviceId?: string; deviceName?: string }) {
+  async adminLoginAlert(u: any, ok: boolean, ctx?: { ua?: string; ip?: string; deviceId?: string; deviceName?: string }) {
     try {
       if (!u || (u.role !== UserRole.SUPER_ADMIN && u.role !== UserRole.ADMIN)) return;
       await this.adminSession?.recordLoginAttempt(u.id, u.email, ok, ctx?.ip, ctx?.ua);

@@ -71,6 +71,8 @@ export class AdminRecoveryController {
     await this.recovery.consume(u.id, recCode);
     u.last_login_at = new Date();
     await u.save();
-    return { user: (this.auth as any).publicUser(u), token: (this.auth as any).signToken(u) };
+    // C5: a break-glass sign-in alerts the owner like any admin login.
+    await this.auth.adminLoginAlert(u, true, { deviceName: 'استرجاع طوارئ' });
+    return { user: (this.auth as any).publicUser(u), token: this.auth.signToken(u, undefined, { recovery: true }) };
   }
 }
