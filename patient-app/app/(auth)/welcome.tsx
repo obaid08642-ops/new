@@ -9,8 +9,9 @@ import { Button, FIcon, Icon, Screen } from '../../../packages/ui-native/src';
 import { LANGUAGES, useApp, type LangCode, type ThemeMode } from '../../src/context/AppContext';
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { NabdLogo } from '../../src/components/NabdLogo';
-import { FONT, SocialButtons, availableSocialProviders, useAuthUi, type SocialProvider } from '../../src/components/auth/AuthKit';
+import { AUTH_COLUMN, FONT, SocialButtons, availableSocialProviders, useAuthUi, type SocialProvider } from '../../src/components/auth/AuthKit';
 import { apiFetch, storeAuthSession } from '../../utils/api';
+import { useSocialLogin } from '../../src/hooks/useSocialLogin';
 import { getDeviceId } from '../../src/utils/deviceId';
 import { decodeJwt } from '../../src/utils/jwt';
 import { guestLogin } from '../../src/store/slices/authSlice';
@@ -20,7 +21,7 @@ import { guestLogin } from '../../src/store/slices/authSlice';
  *
  * Top row: language pill and the theme switch. Centre: the Noon Dot at 150 with
  * the four service tiles around it, the wordmark, the ECG line and the tagline.
- * Bottom: the sign-in providers this build can complete, then create account |
+ * Bottom: the sign-in providers (Apple on iOS; Google, X, Snapchat everywhere), then create account |
  * sign in, then the guest link.
  */
 
@@ -112,9 +113,13 @@ export default function Welcome() {
     };
   }, [fadeAnim, slideAnim]);
 
-  // Providers go to the sign-in screen, which runs the provider's flow.
+  // The provider's flow runs here, through the same hook as the sign-in screen.
   const providers = availableSocialProviders();
-  const onSocial = (_p: SocialProvider) => go('s85');
+  const social = useSocialLogin();
+  const onSocial = (p: SocialProvider) => {
+    setGuestError(null);
+    void social.signIn(p);
+  };
 
   const current = LANGUAGES.find((l) => l.code === lang);
   const pill = { height: 40, borderRadius: 20, borderWidth: 1, borderColor: c.border.subtle, backgroundColor: c.glass.bg };
@@ -135,7 +140,7 @@ export default function Welcome() {
       </View>
 
       {/* language and theme */}
-      <View style={{ marginTop: 7, paddingHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+      <View style={{ ...AUTH_COLUMN, marginTop: 7, paddingHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`${tr('اللغة')}: ${current?.native ?? ''}`}
@@ -221,7 +226,7 @@ export default function Welcome() {
         </Pressable>
       </Modal>
 
-      <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
+      <Animated.View style={{ ...AUTH_COLUMN, flex: 1, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
         {/* the mark and the four services (board: a 300-tall stage 24 under the top row) */}
         <View style={{ marginTop: 24, flexShrink: 1, minHeight: 220, maxHeight: 300, justifyContent: 'center' }}>
           <View style={{ height: 300, width: '100%', maxWidth: 390, alignSelf: 'center', alignItems: 'center', justifyContent: 'center' }}>
@@ -264,7 +269,7 @@ export default function Welcome() {
         {/* providers, create account | sign in, guest */}
         <View style={{ flex: 1, minHeight: 24 }} />
         <View style={{ paddingHorizontal: 16, gap: 10 }}>
-          <SocialButtons layout="labelled" providers={providers} onPress={onSocial} />
+          <SocialButtons layout="labelled" providers={providers} onPress={onSocial} disabled={social.busy || guestBusy} />
           <View style={{ flexDirection: 'row', gap: 8, marginTop: providers.length ? 4 : 0 }}>
             <View style={{ flex: 1 }}>
               <Button label={tr('إنشاء حساب')} variant="primary" size="lg" fullWidth theme={theme} onPress={() => go('s86')} testID="welcome-register" />
@@ -286,9 +291,9 @@ export default function Welcome() {
             </LocalizedText>
             <Icon name={isRTL ? 'caret-left' : 'caret-right'} size={16} theme={theme} color={c.text.primary} />
           </Pressable>
-          {guestError ? (
+          {guestError ?? social.error ? (
             <LocalizedText accessibilityRole="alert" style={{ fontFamily: FONT.regular, fontSize: 13, lineHeight: 20, color: c.status.danger.fg, textAlign: 'center' }}>
-              {guestError}
+              {guestError ?? social.error}
             </LocalizedText>
           ) : null}
         </View>

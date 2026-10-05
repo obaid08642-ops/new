@@ -17,7 +17,10 @@
  * sign-in modules (expo-auth-session, expo-web-browser, expo-apple-authentication)
  * and SecureStore (the repo's web shim). Nothing is filled in: fields are empty,
  * and providers that need a client id render only if one is configured.
- * Platform.OS is "web" here, so iOS-only controls (Sign in with Apple) do not show.
+ * Platform.OS is "web" here, so iOS-only controls (Sign in with Apple) do not show; --platform ios
+ * forces Platform.OS to 'ios' (the official Apple button is a stub on the web: a plain button in the
+ * button's black / white style). --width/--height set the viewport (default 390x844; the boards are 390 wide,
+ * so a different size skips the board comparison) and --suffix is added to the file names (welcome-768-light.png).
  *
  * Needs Playwright (Chromium) and patient-app's node_modules; esbuild from packages/ui.
  */
@@ -58,12 +61,15 @@ const BOARD = {
 };
 const boardPage = (screen, theme) => `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><script src="./support.js"></script></head><body>
 <x-dc><helmet><style>body{margin:0}</style></helmet><div style="width: 390px; height: 844px">
-<dc-import name="Auth" screen="${screen}" theme="${theme}" platform="android" hint-size="390px,844px"></dc-import></div></x-dc>
+<dc-import name="Auth" screen="${screen}" theme="${theme}" platform="${PLATFORM === 'ios' ? 'ios' : 'android'}" hint-size="390px,844px"></dc-import></div></x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic { renderVals() { return {}; } }
 </script></body></html>`;
-const W = 390;
-const H = 844;
+const W = Number(arg('--width', 390));
+const H = Number(arg('--height', 844));
+const PLATFORM = arg('--platform', 'web');
+const SUFFIX = arg('--suffix', '');
+const BOARD_SIZE = W === 390 && H === 844;
 const INSETS = { top: 47, bottom: 34, left: 0, right: 0 };
 
 let playwright;
@@ -100,6 +106,17 @@ const MOCKS = {
   'expo-apple-authentication': `
     export const AppleAuthenticationScope = { FULL_NAME: 0, EMAIL: 1 };
     export const isAvailableAsync = async () => false;
+    export const AppleAuthenticationButtonType = { SIGN_IN: 0, CONTINUE: 1, SIGN_UP: 2 };
+    export const AppleAuthenticationButtonStyle = { WHITE: 0, WHITE_OUTLINE: 1, BLACK: 2 };
+    // web stand-in for the native button: same size, radius and black/white style, the system's wording
+    export function AppleAuthenticationButton({ buttonStyle, cornerRadius, style }) {
+      const dark = buttonStyle === 2;
+      return (
+        <div role="button" style={{ ...style, boxSizing: 'border-box', borderRadius: cornerRadius, background: dark ? '#000' : '#fff', color: dark ? '#fff' : '#000', border: dark ? 'none' : '1px solid #000', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, font: '500 17px -apple-system, system-ui, sans-serif', overflow: 'hidden' }}>
+          <span style={{ fontSize: 20 }}>&#63743;</span>{cornerRadius === 18 && <span>Continue with Apple</span>}
+        </div>
+      );
+    }
     export async function signInAsync() { throw Object.assign(new Error('unavailable'), { code: 'ERR_UNAVAILABLE' }); }`,
 };
 
@@ -196,7 +213,7 @@ for (const s of SCREENS) {
       localStorage.setItem('@nabdah_theme_mode', th);
       localStorage.setItem('@nabdah_language', 'ar');
     }, theme);
-    const cfg = { width: W, height: H, insets: INSETS, params: BOARD[s].params };
+    const cfg = { width: W, height: H, insets: INSETS, params: BOARD[s].params, platform: PLATFORM };
     await page.setContent(
       `<!doctype html><html dir="rtl" lang="ar"><meta charset="utf-8"><style>${appFaces}html,body{margin:0}*{animation:none!important;transition:none!important}</style>` +
         `<div id="root"></div><script>window.__SCREEN=${JSON.stringify(cfg)}</script><script src="${BASE}/__app-${s}.js"></script></html>`,
@@ -209,13 +226,18 @@ for (const s of SCREENS) {
     await page.waitForTimeout(1500); // AppProvider hydrates theme/language from storage; entrance animations settle
     const shot = await page.locator('#frame').screenshot();
     if (errors.length) console.warn(`${s}/${theme}: page errors: ${errors.join('; ')}`);
-    const file = join(OUT, `${s}-${theme}.png`);
+    const measured = await page.evaluate(() => {
+      const w = (id) => { const e = document.querySelector('[data-testid="' + id + '"]'); return e ? Math.round(e.getBoundingClientRect().width) : null; };
+      return { 'login-submit': w('login-submit'), 'welcome-guest': w('welcome-guest') };
+    });
+    if (measured['login-submit'] || measured['welcome-guest']) console.log(`measured ${s}${SUFFIX}/${theme} at ${W}: ${JSON.stringify(measured)}`);
+    const file = join(OUT, `${s}${SUFFIX}-${theme}.png`);
     await page.locator('#frame').screenshot({ path: file });
     written.push(file);
 
     const boardScreen = BOARD[s].board;
-    const boardName = boardScreen ? `Auth screen=${boardScreen} theme=${theme} platform=android` : null;
-    if (CMP) {
+    const boardName = boardScreen ? `Auth screen=${boardScreen} theme=${theme} platform=${PLATFORM === 'ios' ? 'ios' : 'android'}` : null;
+    if (CMP && BOARD_SIZE) {
       let boardPng = null;
       if (boardScreen) {
         await page.unrouteAll();
@@ -233,7 +255,7 @@ for (const s of SCREENS) {
         .col b{color:#fff}.col img,.none{display:block;width:${W}px;height:${H}px;border-radius:6px}.none{background:#999;color:#fff;display:flex;align-items:center;justify-content:center;text-align:center}</style>
         <div class="row"><div class="col"><b>Board: ${boardName || '(no ' + theme + ' board)'}</b>${boardPng ? `<img src="data:image/png;base64,${boardPng}">` : `<div class="none">No board for this screen.<br>It follows the Login/Register pattern.</div>`}</div>
         <div class="col"><b>patient-app ${s}.tsx, react-native-web (${theme})</b><img src="data:image/png;base64,${appPng}"></div></div>`);
-      const cfile = join(CMP, `${s}-${theme}.png`);
+      const cfile = join(CMP, `${s}${SUFFIX}-${theme}.png`);
       await page.locator('body').screenshot({ path: cfile });
       written.push(cfile);
     }

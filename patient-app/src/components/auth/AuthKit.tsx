@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Platform, Pressable, Text, TextInput, View, type KeyboardTypeOptions, type TextInputProps } from 'react-native';
-import Constants from 'expo-constants';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
 
 import { tokens, type ThemeName } from '../../../../packages/design-tokens/dist/ts/tokens';
@@ -24,6 +24,12 @@ import { NabdLogo } from '../NabdLogo';
 
 export const FONT = SHELL_FONT;
 
+/**
+ * The sign-in family's column on wide screens (tablet, 768 and up): centred, at most 440 wide, like the
+ * desktop layout. Phones (430 and under) are narrower than the cap, so nothing changes there.
+ */
+export const AUTH_COLUMN = { width: '100%', maxWidth: 440, alignSelf: 'center' } as const;
+
 /** The active theme, its tokens, the reading direction and a translator for strings that are not Text children. */
 export function useAuthUi() {
   const { isDark, lang, isRTL } = useApp();
@@ -44,12 +50,12 @@ export function focusRing(theme: ThemeName): string {
  * inset). Its own View, so the Screen's inset padding is added to it instead of being replaced.
  */
 export function AuthBody({ children }: { children: React.ReactNode }) {
-  return <View style={{ flexGrow: 1, paddingHorizontal: 20, paddingTop: 7, paddingBottom: 16 }}>{children}</View>;
+  return <View style={{ ...AUTH_COLUMN, flexGrow: 1, paddingHorizontal: 20, paddingTop: 7, paddingBottom: 16 }}>{children}</View>;
 }
 
 /** The footer's content, 4 inside the StickyFooter's 16 so the CTA lines up with the 20 column. */
 export function AuthFooter({ children }: { children: React.ReactNode }) {
-  return <View style={{ paddingHorizontal: 4, gap: 12 }}>{children}</View>;
+  return <View style={{ ...AUTH_COLUMN, paddingHorizontal: 4, gap: 12 }}>{children}</View>;
 }
 
 /** Top row of the form screens: back button, the Noon Dot, and a 44 balance so the mark stays centred. */
@@ -264,31 +270,14 @@ export function AuthDivider({ label }: { label: string }) {
 export type SocialProvider = 'apple' | 'google' | 'x' | 'snapchat';
 
 /**
- * The providers that can actually sign someone in from this build — a button is
- * shown only for these (owner, 2026-10: no button that cannot complete).
- *
- *  - apple: iOS only, and only when the build has the Sign in with Apple
- *    entitlement (`ios.usesAppleSignIn` in app.json). Without it
- *    `signInAsync` fails on every device.
- *  - google: when the client id for THIS platform is configured
- *    (EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID / _ANDROID_ / _CLIENT_ID on the web); the
- *    Google provider exchanges the code for the access token the backend verifies.
- *  - x, snapchat: never, for now. Their requests use the authorization-code flow
- *    with no code exchange, so `authentication.accessToken` is never set and the
- *    backend is never reached (login.tsx / register.tsx keep the requests so the
- *    flow can be finished, at which point they are listed here).
+ * The providers shown, as on the boards (owner, 2026-10): Apple on iOS only; Google, X and Snapchat on
+ * every platform. A provider whose client id is missing from the build still shows its button; pressing
+ * it shows the plain "not available" message (hooks/useSocialLogin.ts).
  */
 export function availableSocialProviders(): SocialProvider[] {
   const list: SocialProvider[] = [];
-  const iosConfig = (Constants.expoConfig?.ios ?? {}) as { usesAppleSignIn?: boolean };
-  if (Platform.OS === 'ios' && iosConfig.usesAppleSignIn === true) list.push('apple');
-  const googleId =
-    Platform.OS === 'ios'
-      ? process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID
-      : Platform.OS === 'android'
-        ? process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID
-        : process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
-  if (googleId) list.push('google');
+  if (Platform.OS === 'ios') list.push('apple');
+  list.push('google', 'x', 'snapchat');
   return list;
 }
 
@@ -301,19 +290,30 @@ function ProviderGlyph({ provider, color, size = 20 }: { provider: SocialProvide
 }
 
 /**
- * Login board: a centred row of 64×52 icon buttons (Apple filled ink).
- * Welcome board: Apple as a full-width 54 button, the others in equal columns with their name.
+ * Login board: a centred row of 64×52 icon buttons (Apple is the official button).
+ * Welcome board: the official Apple button full width at 54, the others in equal columns with their name.
+ * The Apple button is black on the light theme and white on the dark one (the board's ink / canvas fill).
  */
 export function SocialButtons({ providers, onPress, layout, disabled }: { providers: SocialProvider[]; onPress: (p: SocialProvider) => void; layout: 'icons' | 'labelled'; disabled?: boolean }) {
-  const { c, tr } = useAuthUi();
+  const { theme, c, tr } = useAuthUi();
   if (!providers.length) return null;
   const aria = (p: SocialProvider) => `${tr('المتابعة مع')} ${PROVIDER_NAME[p]}`;
-  const appleColours = { bg: c.text.primary, fg: c.bg.canvas };
+  const apple = (width: number | '100%', height: number, radius: number) => (
+    <View style={{ width, height, opacity: disabled ? 0.5 : 1 }} pointerEvents={disabled ? 'none' : 'auto'}>
+      <AppleAuthentication.AppleAuthenticationButton
+        buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
+        buttonStyle={theme === 'dark' ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE : AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+        cornerRadius={radius}
+        onPress={() => onPress('apple')}
+        style={{ width: '100%', height: '100%' }}
+      />
+    </View>
+  );
 
   if (layout === 'icons') {
     return (
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10 }}>
-        {providers.map((p) => (
+        {providers.map((p) => p === 'apple' ? <React.Fragment key={p}>{apple(64, 52, 16)}</React.Fragment> : (
           <Pressable
             key={p}
             accessibilityRole="button"
@@ -326,14 +326,14 @@ export function SocialButtons({ providers, onPress, layout, disabled }: { provid
               borderRadius: 16,
               borderWidth: 1,
               borderColor: c.border.subtle,
-              backgroundColor: p === 'apple' ? appleColours.bg : c.bg.surface,
+              backgroundColor: c.bg.surface,
               alignItems: 'center',
               justifyContent: 'center',
               opacity: disabled ? 0.5 : 1,
               transform: [{ scale: pressed ? 0.98 : 1 }],
             })}
           >
-            <ProviderGlyph provider={p} color={p === 'apple' ? appleColours.fg : c.text.primary} size={22} />
+            <ProviderGlyph provider={p} color={c.text.primary} size={22} />
           </Pressable>
         ))}
       </View>
@@ -343,18 +343,7 @@ export function SocialButtons({ providers, onPress, layout, disabled }: { provid
   const others = providers.filter((p) => p !== 'apple');
   return (
     <View style={{ gap: 10 }}>
-      {providers.includes('apple') ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={aria('apple')}
-          disabled={disabled}
-          onPress={() => onPress('apple')}
-          style={{ height: 54, borderRadius: 18, backgroundColor: appleColours.bg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}
-        >
-          <ProviderGlyph provider="apple" color={appleColours.fg} size={20} />
-          <Text style={{ fontFamily: FONT.bold, fontSize: 16, color: appleColours.fg }}>{aria('apple')}</Text>
-        </Pressable>
-      ) : null}
+      {providers.includes('apple') ? apple('100%', 54, 18) : null}
       {others.length ? (
         <View style={{ flexDirection: 'row', gap: 8 }}>
           {others.map((p) => (

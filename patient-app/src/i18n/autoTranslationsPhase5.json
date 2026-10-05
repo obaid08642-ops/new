@@ -22112,14 +22112,6 @@
       "bn": "পাসওয়ার্ড ভুলে গেছেন?",
       "fil": "Nakalimutan ang password?"
     },
-    "الدخول برمز التحقق": {
-      "ar": "الدخول برمز التحقق",
-      "en": "Sign in with a code",
-      "ur": "کوڈ کے ساتھ سائن اِن کریں",
-      "hi": "कोड से साइन इन करें",
-      "bn": "কোড দিয়ে সাইন ইন করুন",
-      "fil": "Mag-sign in gamit ang code"
-    },
     "تعذّر تسجيل الدخول الآن. حاول مرة أخرى.": {
       "ar": "تعذّر تسجيل الدخول الآن. حاول مرة أخرى.",
       "en": "We couldn't sign you in right now. Please try again.",
@@ -22391,6 +22383,14 @@
       "hi": "कोड फिर भेजने के लिए खाता पता नहीं चल सका",
       "bn": "কোন অ্যাকাউন্টে কোড আবার পাঠাতে হবে তা বোঝা যায়নি",
       "fil": "Hindi matukoy kung saang account ipapadala muli ang code"
+    },
+    "هذه الطريقة غير متاحة الآن. استخدم البريد أو رقم الجوال.": {
+      "ar": "هذه الطريقة غير متاحة الآن. استخدم البريد أو رقم الجوال.",
+      "en": "This sign-in option isn't available right now. Use your email or phone number.",
+      "ur": "یہ طریقہ ابھی دستیاب نہیں۔ ای میل یا موبائل نمبر استعمال کریں۔",
+      "hi": "यह तरीका अभी उपलब्ध नहीं है। ईमेल या मोबाइल नंबर इस्तेमाल करें।",
+      "bn": "এই পদ্ধতিটি এখন পাওয়া যাচ্ছে না। ইমেইল বা মোবাইল নম্বর ব্যবহার করুন।",
+      "fil": "Hindi available ang paraang ito ngayon. Gamitin ang email o numero ng telepono."
     }
   }
 }
