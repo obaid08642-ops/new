@@ -12,16 +12,22 @@
 
 import type { Option, Slot, TabItem } from './contract';
 
+/** The handoff §1 service map, in the order HomeApp shows it (labels are specimen text). */
 export const SERVICE_TILES = [
+  { name: 'consult', label: 'Consultations' },
   { name: 'pharmacy', label: 'Pharmacy' },
-  { name: 'consult', label: 'Consult' },
-  { name: 'lab', label: 'Lab' },
+  { name: 'lab', label: 'Labs' },
   { name: 'radiology', label: 'Radiology' },
   { name: 'nursing', label: 'Nursing' },
-  { name: 'mind', label: 'Mental health' },
   { name: 'nutrition', label: 'Nutrition' },
+  { name: 'maternity', label: 'Maternity' },
+  { name: 'map', label: 'Map' },
+  { name: 'health', label: 'My health' },
+  { name: 'emergency', label: 'Emergency' },
+  { name: 'mind', label: 'Mental health' },
   { name: 'family', label: 'Family' },
-  { name: 'doctor', label: 'Doctors' },
+  { name: 'insurance', label: 'Insurance' },
+  { name: 'points', label: 'Points' },
 ] as const;
 
 export const TABS: TabItem[] = [
