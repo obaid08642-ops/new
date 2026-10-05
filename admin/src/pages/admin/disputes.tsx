@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Head from 'next/head';
 import { adminFetch, adminMutation, apiErrorMessage, toQuery } from '@/lib/admin-client';
+import { normalizePagedList } from '@/lib/paged-list';
 import { useStepUp } from '@/hooks/useStepUp';
 
 type Dispute = { id: string; tracking_id?: string | null; patient: { id: string; name?: string | null; phone?: string | null }; category: string; subject?: string; message?: string; status: string; priority?: string; refunded_so_far: number; created_at?: string; sla_due_at?: string; sla_breached?: boolean; sla_hours_left?: number | null };
@@ -24,9 +25,8 @@ export default function DisputesPage() {
   const load = useCallback(async () => {
     setLoading(true); setError('');
     try {
-      const res: any = await adminFetch<DisputeResponse>(`/api/admin/admin/disputes${toQuery({ status: 'open', q: query, page, limit: 25 })}`);
-      const rows = Array.isArray(res) ? res : (Array.isArray(res?.data) ? res.data : []);
-      setResult({ data: rows, total: Number(res?.total ?? rows.length) || 0, page: Number(res?.page ?? page) || 1, pages: Number(res?.pages ?? 1) || 1 });
+      const res = await adminFetch<unknown>(`/api/admin/admin/disputes${toQuery({ status: 'open', q: query, page, limit: 25 })}`);
+      setResult(normalizePagedList<Dispute>(res, page));
     }
     catch (cause) { setError(apiErrorMessage(cause, 'تعذر تحميل قائمة النزاعات.')); }
     finally { setLoading(false); }

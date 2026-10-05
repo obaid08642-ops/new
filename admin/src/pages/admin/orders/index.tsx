@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { adminFetch, apiErrorMessage, toQuery } from '@/lib/admin-client';
+import { normalizePagedList } from '@/lib/paged-list';
 
 type Order = { id: string; kind: string; status: string; patient?: { id?: string; name?: string; phone?: string }; provider?: { id?: string; name?: string }; amount?: number; currency?: string; created_at?: string; sla_due_at?: string; is_delayed?: boolean };
 type OrdersResponse = { data: Order[]; total: number; page: number; pages: number };
@@ -27,9 +28,8 @@ export default function OrdersConsolePage() {
   const load = useCallback(async () => {
     setLoading(true); setError('');
     try {
-      const res: any = await adminFetch<OrdersResponse>(`/api/admin/admin/orders${toQuery({ ...filters, page, limit: 25 })}`);
-      const rows = Array.isArray(res) ? res : (Array.isArray(res?.data) ? res.data : []);
-      setResult({ data: rows, total: Number(res?.total ?? rows.length) || 0, page: Number(res?.page ?? page) || 1, pages: Number(res?.pages ?? 1) || 1 });
+      const res = await adminFetch<unknown>(`/api/admin/admin/orders${toQuery({ ...filters, page, limit: 25 })}`);
+      setResult(normalizePagedList<Order>(res, page));
     }
     catch (cause) { setError(apiErrorMessage(cause, 'تعذر تحميل الطلبات.')); }
     finally { setLoading(false); }
