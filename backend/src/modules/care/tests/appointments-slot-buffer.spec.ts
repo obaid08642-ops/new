@@ -75,8 +75,15 @@ describe('AppointmentsService slot-listing buffer parity (Q37)', () => {
       announceCreated: jest.fn().mockResolvedValue({}),
     };
     insurance = { createRequest: jest.fn() };
+    // The slot list under the one rule, over the bookings the test wires.
+    const slots = { slotsForDate: jest.fn(async (_d: unknown, day: string, _m: unknown, dur: number) => ({
+      slots: Array.from({ length: 96 }, (_, i) => {
+        const start = new Date(Date.parse(`${day}T00:00:00.000Z`) + i * 15 * 60_000);
+        return { start: start.toISOString(), available: isSlotListAvailable(start, listedBookings, dur) };
+      }),
+    })) };
     service = new AppointmentsService(
-      apptModel, providerModel, connection, events, engine, insurance,
+      apptModel, providerModel, connection, events, engine, insurance, slots as any,
     );
   });
 
@@ -84,7 +91,9 @@ describe('AppointmentsService slot-listing buffer parity (Q37)', () => {
    * Emulates the real Mongo overlap predicate of create() over the given
    * bookings; routes id-reads (transition + refreshed) to the created doc.
    */
+  let listedBookings: any[] = [];
   const wireOverlapQuery = (bookings: any[], createdRef: { doc: any }) => {
+    listedBookings = bookings;
     apptModel.findOne.mockImplementation(async (q: any) => {
       if (q?.status?.$in) {
         if (!q.slot_start?.$lt || !q.slot_end?.$gt) return null;
