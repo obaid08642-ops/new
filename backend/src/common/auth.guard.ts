@@ -298,9 +298,10 @@ export class JwtAuthGuard implements CanActivate {
           // C2/X4: a device enrolled by a passkey login is bound to that
           // credential; removing the passkey revokes the device with it.
           if (dev.credential_id) {
+            // A lookup error counts as revoked (fail closed), like the other checks here.
             const live = await this.connection.collection('passkey_credentials').findOne(
               { user_id: uid, credential_id: dev.credential_id }, { projection: { _id: 1 } },
-            );
+            ).catch(() => null);
             if (!live) throw new ForbiddenException('device_credential_revoked');
           }
           // C5: sliding 15-minute idle window for admin sessions.

@@ -106,6 +106,8 @@ describe('X4: devices are bound to a passkey assertion', () => {
         const call = await guardFor({ id: 'u1', role: 'admin', tv: 1 });
         await expect(call('/api/v1/admin/command-center')).rejects.toThrow('passkey_enrollment_required');
         await expect(call('/api/v1/auth/passkey/enroll/options')).resolves.toBe(true);
+        // Anchored: a path that merely contains the exempt segment is not exempt.
+        await expect(call('/api/v1/admin/users/api/v1/auth/passkey/enroll/options')).rejects.toThrow('passkey_enrollment_required');
       } finally {
         process.env.ADMIN_PASSKEY_ENFORCED = prev;
       }
@@ -148,5 +150,47 @@ describe('X4: the passkey login can bind the device', () => {
     }).compile();
     const auth = module.get(AuthService) as unknown as { adminDevices?: unknown };
     expect(auth.adminDevices).toEqual({ enroll: expect.any(Function) });
+  });
+});
+
+// Independent check on X4: three lines no mutation caught, and the C9 gap.
+describe('X4: passkey login binding, anchored exemption, no emailed-code session for a passkey admin', () => {
+  const user = (over: Record<string, unknown> = {}) => ({ id: 'u1', email: 'a@nabd.test', role: 'admin', active: true, save: async () => undefined, ...over });
+
+  it('a passkey login enrolls the presenting device bound to the credential that signed', async () => {
+    const enroll = jest.fn(async () => ({ ok: true }));
+    const auth = Object.assign(Object.create(AuthService.prototype), {
+      passkeys: { finishLogin: async () => 'u1' },
+      userModel: { findOne: async () => user() },
+      events: { emit: jest.fn() },
+      adminSession: { touch: async () => undefined },
+      adminLoginAlert: async () => undefined,
+      jwt: { sign: () => 'tok' },
+      storeRefreshSession: async () => undefined,
+      publicUser: (u: { id: string }) => ({ id: u.id }),
+      adminDevices: { enroll },
+    });
+    await auth.completePasskeyLogin('a@nabd.test', { id: 'cred-signed' }, { deviceId: DEV, deviceName: 'mac' });
+    expect(enroll).toHaveBeenCalledWith('u1', DEV, undefined, 'mac', 'cred-signed');
+  });
+
+  it('verify2fa refuses an admin who has a passkey, before the code is checked', async () => {
+    const verifyOtp = jest.fn(async () => true);
+    const make = (keys: number) => Object.assign(Object.create(AuthService.prototype), {
+      passkeys: { countCredentials: async () => keys },
+      userModel: { findOne: async () => user() },
+      otpContact: () => 'a@nabd.test',
+      verifyOtp,
+      adminLoginAlert: async () => undefined,
+      adminSession: { touch: async () => undefined },
+      events: { emit: jest.fn() },
+      jwt: { sign: () => 'tok' },
+      storeRefreshSession: async () => undefined,
+      publicUser: (u: { id: string }) => ({ id: u.id }),
+    });
+    await expect(make(1).verify2fa('a@nabd.test', '123456')).rejects.toThrow('passkey_required');
+    expect(verifyOtp).not.toHaveBeenCalled();
+    // The bootstrap admin (no passkey yet) still signs in with the emailed code.
+    await expect(make(0).verify2fa('a@nabd.test', '123456')).resolves.toEqual(expect.objectContaining({ user: { id: 'u1' } }));
   });
 });
