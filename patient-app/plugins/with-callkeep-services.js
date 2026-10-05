@@ -1,7 +1,7 @@
 // Q62/Q65: react-native-callkeep is set up self-managed (src/utils/callkeep.ts)
 // and needs its ConnectionService declared in the Android manifest; without it
 // Android has nothing to bind for an incoming call. Idempotent for prebuild.
-const { withAndroidManifest } = require('@expo/config-plugins');
+const { withAndroidManifest } = require('expo/config-plugins');
 
 const VOICE = 'io.wazo.callkeep.VoiceConnectionService';
 const MESSAGING = 'io.wazo.callkeep.RNCallKeepBackgroundMessagingService';
