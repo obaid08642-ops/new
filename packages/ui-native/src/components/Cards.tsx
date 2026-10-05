@@ -230,7 +230,7 @@ export function ProductCard({ name, meta, price, currency, imageSrc, discountLab
           accessibilityState={{ disabled: inert, busy: loading }}
           disabled={inert}
           onPress={inert ? undefined : onAdd}
-          hitSlop={{ top: 2, bottom: 2, left: 2, right: 2 }}
+          hitSlop={2}
           testID={testID ? `${testID}-add` : undefined}
           style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: c.action.selected.bg, alignItems: 'center', justifyContent: 'center', opacity: disabled ? 0.5 : 1 }}
         >
