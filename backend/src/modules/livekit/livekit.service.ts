@@ -8,6 +8,14 @@ import { CircuitBreakerService } from '../../common/circuit-breaker.service';
 
 type RoomMethod = 'listParticipants' | 'getParticipant' | 'mutePublishedTrack' | 'removeParticipant';
 type RoomServiceLike = Record<RoomMethod, (...args: unknown[]) => Promise<unknown>>;
+interface LkTrack { sid?: string; type?: unknown; source?: unknown; muted?: boolean }
+interface LkParticipant { identity?: string; name?: string; state?: unknown; isPublisher?: boolean; tracks?: LkTrack[] }
+
+/** LiveKit answers "no such participant/room" with a 404 / not_found: an answer, not an outage. */
+function isLiveKitNotFound(err: unknown): boolean {
+  const e = err as { status?: unknown; code?: unknown; message?: unknown } | null;
+  return !!e && (e.status === 404 || e.code === 'not_found' || (typeof e.message === 'string' && /not[ _]?found/i.test(e.message)));
+}
 
 @Injectable()
 export class LiveKitService {
@@ -398,7 +406,7 @@ export class LiveKitService {
   }
 
   /** LiveKit server RoomService — available when LIVEKIT_URL is configured. */
-  private roomService(): any | null {
+  private roomService(): RoomServiceLike | null {
     if (!process.env.LIVEKIT_URL || !process.env.LIVEKIT_API_KEY || !process.env.LIVEKIT_API_SECRET) return null;
     try {
       const { RoomServiceClient } = require('livekit-server-sdk');
@@ -415,13 +423,13 @@ export class LiveKitService {
    * Rejects after ms so a hung LiveKit server call fails fast into the
    * existing fallbacks below (empty list / { success:false } / null-swallowing).
    */
-  private withTimeout(p: Promise<any>, ms: number): Promise<any> {
-    let t: any;
+  private withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+    let t: ReturnType<typeof setTimeout> | undefined;
     const gate = new Promise<never>((_, rej) => {
       t = setTimeout(() => rej(new Error('livekit_timeout')), ms);
-      (t as any)?.unref?.();
+      t.unref?.();
     });
-    return Promise.race([p, gate]).finally(() => clearTimeout(t)) as Promise<any>;
+    return Promise.race([p, gate]).finally(() => clearTimeout(t));
   }
 
   /**
@@ -432,32 +440,38 @@ export class LiveKitService {
     const run = (s: RoomServiceLike, m: RoomMethod, a: unknown[], ms: number): Promise<T> =>
       this.withTimeout((s[m] as (...x: unknown[]) => Promise<T>)(...a), ms);
     return this.breakers
-      ? this.breakers.call('livekit:room-service', run, [svc, method, args, this.serverTimeoutMs])
+      ? this.breakers.call('livekit:room-service', run, [svc, method, args, this.serverTimeoutMs], { timeout: false, errorFilter: isLiveKitNotFound })
       : run(svc, method, args, this.serverTimeoutMs);
   }
 
   async getRoomParticipants(roomName: string) {
     const svc = this.roomService();
     if (!svc) return [];
-    const list = await this.roomCall<any[]>(svc, 'listParticipants', [roomName]).catch(() => []);
-    return (list || []).map((p: any) => ({
+    const list = await this.roomCall<LkParticipant[]>(svc, 'listParticipants', [roomName]).catch((): LkParticipant[] => []);
+    return (list || []).map((p) => ({
       identity: p.identity,
       name: p.name,
       state: p.state,
       is_publisher: p.isPublisher,
-      tracks: (p.tracks || []).map((t: any) => ({ type: t.type, source: t.source, muted: t.muted })),
+      tracks: (p.tracks || []).map((t) => ({ type: t.type, source: t.source, muted: t.muted })),
     }));
   }
 
   async muteParticipant(roomName: string, participantId: string, muted: boolean) {
     const svc = this.roomService();
     if (!svc) return { success: false, reason: 'livekit_not_configured' };
-    const p = await this.roomCall<any>(svc, 'getParticipant', [roomName, participantId]).catch(() => null);
-    if (!p) return { success: false, reason: 'participant_not_found' };
-    for (const track of p.tracks || []) {
-      await this.roomCall(svc, 'mutePublishedTrack', [roomName, participantId, track.sid, muted]).catch(() => null);
+    let p: LkParticipant | null;
+    try {
+      p = await this.roomCall<LkParticipant | null>(svc, 'getParticipant', [roomName, participantId]);
+    } catch (e) {
+      return { success: false, reason: isLiveKitNotFound(e) ? 'participant_not_found' : 'livekit_unavailable' };
     }
-    return { success: true };
+    if (!p) return { success: false, reason: 'participant_not_found' };
+    let failed = 0;
+    for (const track of p.tracks || []) {
+      await this.roomCall(svc, 'mutePublishedTrack', [roomName, participantId, track.sid, muted]).catch(() => { failed += 1; });
+    }
+    return failed ? { success: false, reason: 'mute_failed', failed_tracks: failed } : { success: true };
   }
 
   async removeParticipant(roomName: string, participantId: string) {
@@ -466,7 +480,11 @@ export class LiveKitService {
       const { NotFoundException } = await import('@nestjs/common');
       throw new NotFoundException('livekit_not_configured');
     }
-    await this.roomCall(svc, 'removeParticipant', [roomName, participantId]).catch(() => null);
-    return { success: true };
+    try {
+      await this.roomCall(svc, 'removeParticipant', [roomName, participantId]);
+      return { success: true };
+    } catch (e) {
+      return { success: false, reason: isLiveKitNotFound(e) ? 'participant_not_found' : 'livekit_unavailable' };
+    }
   }
 }

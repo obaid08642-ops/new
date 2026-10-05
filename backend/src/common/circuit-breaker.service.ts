@@ -7,6 +7,8 @@ export interface BreakerOptions {
   errorThresholdPercentage?: number;
   resetTimeout?: number;
   volumeThreshold?: number;
+  /** Return true for an error that is an answer (e.g. a 404), not an outage: it is not counted. */
+  errorFilter?: (err: unknown) => boolean;
 }
 
 @Injectable()
@@ -28,6 +30,7 @@ export class CircuitBreakerService {
       errorThresholdPercentage: options.errorThresholdPercentage ?? 50,
       resetTimeout: options.resetTimeout ?? 30000,
       volumeThreshold: options.volumeThreshold ?? 10,
+      ...(options.errorFilter ? { errorFilter: options.errorFilter } : {}),
       name,
     });
     if (fallback) {

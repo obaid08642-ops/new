@@ -23,7 +23,7 @@ import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
 import * as crypto from 'crypto';
 import { Request } from 'express';
 import { UserRole } from '../../common/enums';
-import { moyasarBase } from '../../common/moyasar-base';
+import { moyasarBase, moyasarFetch } from '../../common/moyasar-base';
 import {
   CreateIntentRequest,
   PaymentGateway,
@@ -38,7 +38,7 @@ import {
  * PAYMENT_PROVIDER. The adapter classes below are the real HTTP
  * implementations; payment-gateway.ts owns the contract and the selection.
  */
-class MoyasarAdapter implements PaymentGateway {
+export class MoyasarAdapter implements PaymentGateway {
   readonly name = 'moyasar' as const;
   private get base() { return moyasarBase(); }
   private headers() {
@@ -47,20 +47,20 @@ class MoyasarAdapter implements PaymentGateway {
   }
   async createIntent(o: CreateIntentRequest) {
     const body = JSON.stringify({ amount: Math.round(o.amount * 100), currency: o.currency || 'SAR', description: o.description, callback_url: process.env.PAYMENT_RESULT_URL || `${process.env.PUBLIC_APP_URL || ''}/payments/result` });
-    const r = await fetch(`${this.base}/payments`, { method: 'POST', headers: this.headers(), body });
+    const r = await moyasarFetch(`${this.base}/payments`, { method: 'POST', headers: this.headers(), body });
     const j: any = await r.json();
     if (!r.ok) throw new BadGatewayException(j.message || 'moyasar_intent_failed');
     return { intent_id: j.id, checkout_url: j.source?.transaction_url };
   }
   async verify(id: string) {
-    const r = await fetch(`${this.base}/payments/${id}`, { headers: this.headers() });
+    const r = await moyasarFetch(`${this.base}/payments/${id}`, { headers: this.headers() });
     const j: any = await r.json();
     const map: any = { paid: 'paid', initiated: 'pending', failed: 'failed', authorized: 'pending' };
     return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.id, raw: j };
   }
   async refund(id: string, amount?: number) {
     const body = JSON.stringify(amount ? { amount: Math.round(amount * 100) } : {});
-    const r = await fetch(`${this.base}/payments/${id}/refund`, { method: 'POST', headers: this.headers(), body });
+    const r = await moyasarFetch(`${this.base}/payments/${id}/refund`, { method: 'POST', headers: this.headers(), body });
     const j: any = await r.json();
     return { refunded: r.ok, raw: j };
   }
@@ -462,7 +462,7 @@ export class PaymentsService {
     if (t.gateway !== 'moyasar') throw new BadRequestException('capture_supported_for_moyasar_only');
     const key = process.env.MOYASAR_SECRET_KEY || process.env.MOYASAR_SECRET || process.env.MOYASAR_API_KEY;
     if (!key) throw new BadRequestException('payment_gateway_not_configured');
-    const r = await fetch(`${moyasarBase()}/payments/${t.gateway_intent_id}/capture`, {
+    const r = await moyasarFetch(`${moyasarBase()}/payments/${t.gateway_intent_id}/capture`, {
       method: 'POST',
       headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({}),
