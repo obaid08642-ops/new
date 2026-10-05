@@ -5,6 +5,7 @@ import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { router } from 'expo-router';
 import { HttpClient } from '@/services/HttpClient';
+import { tokens } from '../../../packages/design-tokens/dist/ts/tokens';
 
 export interface PushNotificationState {
   expoPushToken?: Notifications.ExpoPushToken;
@@ -32,7 +33,7 @@ Notifications.setNotificationHandler({
  */
 export function translateBackendRoute(route: string): { pathname: string; params?: Record<string, string> } | null {
   if (!route) return null;
-  const clean = String(route).split('?')[0];
+  const [clean, query = ''] = String(route).split('?');
 
   let m = clean.match(/^\/orders\/([^/]+)\/tracking$/) || clean.match(/^\/orders\/([^/]+)$/);
   if (m) return { pathname: '/pharmacy/order-tracking', params: { orderId: m[1] } };
@@ -59,8 +60,15 @@ export function translateBackendRoute(route: string): { pathname: string; params
   m = clean.match(/^\/radiology\/booking\/view\/([^/]+)$/);
   if (m) return { pathname: '/diagnostics/order/[id]', params: { id: m[1] } };
 
-  m = clean.match(/^\/health\/results\/(.+)$/) || clean.match(/^\/health\/reports\/(.+)$/);
-  if (m) return { pathname: '/reports/view-report', params: { reportId: m[1] } };
+  // the report screen reads `id` (app/reports/view-report.tsx), also for the "report ready" route /reports/:id
+  m = clean.match(/^\/health\/results\/(.+)$/) || clean.match(/^\/health\/reports\/(.+)$/) || clean.match(/^\/reports\/([^/]+)$/);
+  if (m) return { pathname: '/reports/view-report', params: { id: m[1] } };
+
+  // community notifications carry the post in the query: /community/post-detail?id=...
+  if (clean === '/community/post-detail') {
+    const id = new URLSearchParams(query).get('id');
+    return id ? { pathname: clean, params: { id } } : null;
+  }
 
   // Routes that already exist verbatim in the app
   if (clean === '/consultations/appointments') return { pathname: clean };
@@ -69,7 +77,7 @@ export function translateBackendRoute(route: string): { pathname: string; params
   const VERBATIM_ROUTES = new Set([
     '/insurance/hub', '/returns/hub',
     '/loyalty/hub', '/loyalty/referrals', '/loyalty/challenges',
-    '/health/family-hub', '/ai/symptom-timeline', '/emergency/tracking',
+    '/health/family-hub', '/ai/symptom-timeline', '/emergency/tracking', '/family/permission-request',
   ]);
   if (VERBATIM_ROUTES.has(clean)) return { pathname: clean };
 
@@ -203,7 +211,7 @@ export const usePushNotifications = (): PushNotificationState => {
         name: 'default',
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
+        lightColor: tokens('light').color.action.primary.bg, // the notification LED is the action colour (token)
       });
       await Notifications.setNotificationChannelAsync('calls', {
         name: 'Calls',

@@ -1,12 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
+import { useDispatch } from 'react-redux';
 
 import { AppHeader, Chip, EmptyState, ErrorState, FIcon, OfflineState, Screen, SectionHeader, Skeleton } from '../../../packages/ui-native/src';
 import { COLUMN, step as scale, tint, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { translateBackendRoute } from '../../src/hooks/usePushNotifications';
 import { apiFetch } from '../../src/utils/api';
-import { dateLocale } from '../../src/utils/dates';
+import { dateLocaleFor } from '../../src/utils/dates';
+import { setUnreadCount } from '../../src/store/slices/notificationsSlice';
 import { isOffline } from '../../src/utils/isOffline';
 import {
   BELL,
@@ -32,9 +34,10 @@ import {
 const CARD_RADIUS = 24;
 
 function Row({ item, onOpen }: { item: Extract<FeedItem, { kind: 'row' }>; onOpen: (n: Notif) => void }) {
-  const { theme, t, c, flow, tr } = useScreenUi();
+  const { theme, t, c, flow, tr, lang } = useScreenUi();
   const { n, first, last } = item;
-  const time = relativeTime(n.createdAt, tr, dateLocale());
+  // an old date is written in the app's language (not the Arabic locale)
+  const time = relativeTime(n.createdAt, tr, dateLocaleFor(lang));
   return (
     // the card is drawn row by row (surface, hairline ring, rounded ends) so a long feed stays virtualised
     <View
@@ -54,7 +57,7 @@ function Row({ item, onOpen }: { item: Extract<FeedItem, { kind: 'row' }>; onOpe
     >
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={[n.title, n.body, time, n.read ? '' : tr('جديد')].filter(Boolean).join('. ')}
+        accessibilityLabel={[n.title, n.body, time, n.read ? '' : tr('notifications.new')].filter(Boolean).join('. ')}
         onPress={() => onOpen(n)}
         style={({ pressed }) => ({
           flexDirection: 'row',
@@ -83,7 +86,7 @@ function Row({ item, onOpen }: { item: Extract<FeedItem, { kind: 'row' }>; onOpe
 function FeedSkeleton() {
   const { theme, c, tr } = useScreenUi();
   return (
-    <View accessibilityLabel={tr('جاري التحميل...')} accessibilityState={{ busy: true }} style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, gap: 16 }}>
+    <View accessibilityLabel={tr('common.loading')} accessibilityState={{ busy: true }} style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, gap: 16 }}>
       <Skeleton variant="title" width="half" theme={theme} />
       <View style={{ borderRadius: CARD_RADIUS, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
         {[0, 1, 2, 3].map((i) => (
@@ -101,6 +104,7 @@ function FeedSkeleton() {
 
 export default function NotificationsScreen() {
   const { theme, t, c, dir, tr } = useScreenUi();
+  const dispatch = useDispatch();
   const [filter, setFilter] = useState<NotifGroup | 'all'>('all');
   const [notifs, setNotifs] = useState<Notif[]>([]);
   const [loading, setLoading] = useState(true);
@@ -126,6 +130,11 @@ export default function NotificationsScreen() {
   }, [load]);
 
   const unread = notifs.filter((n) => !n.read).length;
+  // the Home bell's dot follows what this screen shows (read, read all, a refresh); unknown while the load failed
+  const known = !loading && !(failed && notifs.length === 0);
+  useEffect(() => {
+    if (!loading) dispatch(setUnreadCount(known ? unread : null));
+  }, [dispatch, known, loading, unread]);
   const groups = useMemo(() => GROUPS.filter((g) => notifs.some((n) => n.group === g.key)), [notifs]);
   // a filter whose group is gone (after a refresh) falls back to "All"
   useEffect(() => {
@@ -157,28 +166,28 @@ export default function NotificationsScreen() {
 
   const back = () => {
     if (router.canGoBack()) router.back();
-    else router.replace('/' as Href);
+    else router.replace('/(tabs)' as Href); // the group name: '/' is also the splash and the onboarding intro
   };
 
   const header = (
     <View style={COLUMN}>
       <AppHeader
-        title={tr('الإشعارات')}
+        title={tr('common.notifications')}
         onBack={back}
-        backLabel={tr('رجوع')}
+        backLabel={tr('common.back')}
         theme={theme}
         direction={dir}
         trailing={
           unread > 0 ? (
-            <Pressable accessibilityRole="button" accessibilityLabel={tr('قراءة الكل')} onPress={markAllRead} hitSlop={6} style={{ minHeight: 44, paddingHorizontal: 4, justifyContent: 'center' }}>
-              <Text style={{ ...scale(t, 'caption', 'bold'), color: c.text.link }}>{tr('قراءة الكل')}</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel={tr('notifications.readAll')} onPress={markAllRead} hitSlop={6} style={{ minHeight: 44, paddingHorizontal: 4, justifyContent: 'center' }}>
+              <Text style={{ ...scale(t, 'caption', 'bold'), color: c.text.link }}>{tr('notifications.readAll')}</Text>
             </Pressable>
           ) : undefined
         }
       />
       {notifs.length > 0 && groups.length > 1 ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingHorizontal: 16, paddingVertical: 6 }}>
-          <Chip label={tr('الكل')} selected={filter === 'all'} onPress={() => setFilter('all')} theme={theme} />
+          <Chip label={tr('common.all')} selected={filter === 'all'} onPress={() => setFilter('all')} theme={theme} />
           {groups.map((g) => (
             <Chip key={g.key} label={tr(g.label)} selected={filter === g.key} onPress={() => setFilter(g.key)} theme={theme} />
           ))}
@@ -201,12 +210,12 @@ export default function NotificationsScreen() {
   const emptyState =
     failed && notifs.length === 0 ? (
       failed === 'offline' ? (
-        <OfflineState title={tr('لا يوجد اتصال بالإنترنت')} body={tr('اتصل بالشبكة ثم حاول مرة أخرى.')} retryLabel={tr('إعادة المحاولة')} onRetry={() => void load()} theme={theme} />
+        <OfflineState title={tr('notifications.offlineTitle')} body={tr('notifications.offlineBody')} retryLabel={tr('common.retry')} onRetry={() => void load()} theme={theme} />
       ) : (
-        <ErrorState title={tr('تعذر تحميل الإشعارات')} body={tr('تحقق من اتصالك ثم حاول مرة أخرى.')} retryLabel={tr('إعادة المحاولة')} onRetry={() => void load()} theme={theme} />
+        <ErrorState title={tr('notifications.errorTitle')} body={tr('notifications.errorBody')} retryLabel={tr('common.retry')} onRetry={() => void load()} theme={theme} />
       )
     ) : (
-      <EmptyState icon={BELL.icon} tone={BELL.tone} title={tr('لا توجد إشعارات بعد')} body={tr('ستظهر هنا تنبيهات مواعيدك وأدويتك وعروضك')} theme={theme} />
+      <EmptyState icon={BELL.icon} tone={BELL.tone} title={tr('notifications.emptyTitle')} body={tr('notifications.emptyBody')} theme={theme} />
     );
 
   return (
@@ -227,7 +236,7 @@ export default function NotificationsScreen() {
           renderItem={({ item }) =>
             item.kind === 'title' ? (
               <View style={{ marginTop: item.section === 'earlier' && feed[0]?.key !== item.key ? 24 : 0, marginBottom: 10 }}>
-                <SectionHeader title={tr(item.section === 'today' ? 'اليوم' : 'سابقًا')} theme={theme} />
+                <SectionHeader title={tr(item.section === 'today' ? 'notifications.today' : 'notifications.earlier')} theme={theme} />
               </View>
             ) : (
               <Row item={item} onOpen={openNotif} />
