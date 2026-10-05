@@ -34,6 +34,12 @@ _KEY_BROWSER = ec.derive_private_key(int.from_bytes(_SEED_BROWSER, 'big') % (2**
 CRED_ID_BROWSER = hashlib.sha256(_SEED_BROWSER + b'cred').digest()[:16]
 
 
+def synthetic_key(label):
+    """Another fixed synthetic key + credential id (credential ids are unique per account)."""
+    seed = hashlib.sha256(b'nabd-live-gate-synthetic-passkey-' + label.encode()).digest()
+    return ec.derive_private_key(int.from_bytes(seed, 'big') % (2**256 - 2**224 - 1) or 1, ec.SECP256R1()), hashlib.sha256(seed + b'cred').digest()[:16]
+
+
 def b64u(b):
     return base64.urlsafe_b64encode(b).rstrip(b'=').decode()
 
@@ -76,12 +82,13 @@ def registration(options, key=None, cred_id=None):
             'response': {'clientDataJSON': b64u(cd), 'attestationObject': b64u(att), 'transports': ['internal']}}
 
 
-def assertion(options):
+def assertion(options, key=None, cred_id=None):
     """AuthenticationResponseJSON for a step-up (or passkey login) challenge."""
+    key, CRED_ID = key or _KEY, cred_id or globals()['CRED_ID']
     counter = _next_counter()
     auth = hashlib.sha256(RP_ID.encode()).digest() + bytes([0x05]) + struct.pack('>I', counter)
     cd = _client_data('webauthn.get', options['challenge'])
-    sig = _KEY.sign(auth + hashlib.sha256(cd).digest(), ec.ECDSA(hashes.SHA256()))
+    sig = key.sign(auth + hashlib.sha256(cd).digest(), ec.ECDSA(hashes.SHA256()))
     return {'id': b64u(CRED_ID), 'rawId': b64u(CRED_ID), 'type': 'public-key', 'clientExtensionResults': {},
             'response': {'clientDataJSON': b64u(cd), 'authenticatorData': b64u(auth), 'signature': b64u(sig), 'userHandle': None}}
 
