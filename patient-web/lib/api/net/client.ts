@@ -114,6 +114,46 @@ function stripKindHeader(raw: HeadersInit | undefined): HeadersInit {
 }
 
 /**
+ * F2 — a `Request` always carries its own `signal`, and the old code dropped
+ * it (`callerSignal: init?.signal`), so cancelling via the Request's signal
+ * silently did nothing. Both signals cancel: the attempt ends when EITHER
+ * fires, which is the safe direction (an extra abort only cancels, it never
+ * extends a deadline). `AbortSignal.any` is used where available; the manual
+ * fallback below exists because this app still supports iOS 16.4, which
+ * predates it.
+ */
+export function combineSignals(
+  first?: AbortSignal | null,
+  second?: AbortSignal | null,
+): AbortSignal | undefined {
+  const live = [first, second].filter((signal): signal is AbortSignal => !!signal);
+  if (live.length === 0) return undefined;
+  if (live.length === 1) return live[0];
+  const anyOf = (AbortSignal as unknown as { any?: (signals: AbortSignal[]) => AbortSignal }).any;
+  if (typeof anyOf === "function") return anyOf(live);
+  const controller = new AbortController();
+  const onAbort = (source: AbortSignal) => {
+    try {
+      controller.abort(abortReason(source));
+    } catch {
+      try {
+        controller.abort();
+      } catch {
+        /* a cancelling path must never throw back */
+      }
+    }
+  };
+  for (const source of live) {
+    if (source.aborted) {
+      onAbort(source);
+      break;
+    }
+    source.addEventListener("abort", () => onAbort(source), { once: true });
+  }
+  return controller.signal;
+}
+
+/**
  * Flattens `(string | Request, RequestInit)` into one replayable shape and
  * removes the local `x-nabd-request-kind` hint so it never hits the network.
  */
@@ -143,7 +183,7 @@ export async function normalizeFetchInput(input: RequestInfo | URL, init?: Reque
       url: input.url,
       init: { ...passthrough, method, headers: stripKindHeader(input.headers), body },
       replayable,
-      callerSignal: init?.signal ?? undefined,
+      callerSignal: combineSignals(input.signal, init?.signal),
     };
   }
 
