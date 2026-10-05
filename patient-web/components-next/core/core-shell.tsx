@@ -39,10 +39,19 @@ export type CoreShellProps = {
   cancelHref?: string;
   /** `narrow` is the single reading column of the notification pages. */
   width?: "wide" | "narrow";
+  /**
+   * A field for the wide top bar, beside the section links (canvas/ProductWeb); phones do not draw it
+   * (the page carries its own search there). Unlike `search`, it does not replace the section links.
+   */
+  topBarSearch?: ReactNode;
+  /** The page's sticky bottom bar (a <StickyFooter>, canvas/ProductFull); it sits above the tab bar and goes away from 1024. */
+  footer?: ReactNode;
+  /** Pages with a sticky buy bar and no tab bar on phones (canvas/ProductFull). */
+  hideTabs?: boolean;
   children: ReactNode;
 };
 
-export function CoreShell({ locale, title, backHref, search, cancelHref, width = "wide", children }: CoreShellProps) {
+export function CoreShell({ locale, title, backHref, search, cancelHref, width = "wide", topBarSearch, footer, hideTabs = false, children }: CoreShellProps) {
   const router = useRouter();
   const shell = useTranslations("CoreShell");
   const shared = useTranslations("Shared");
@@ -87,11 +96,14 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
           {cancelHref ? <Link href={cancelHref} className={`${styles.cancel} ${styles.phoneOnly}`}>{searchT("cancel")}</Link> : null}
         </>
       ) : (
-        <nav className={styles.sections} aria-label={shell("mainNav")}>
-          {sections.map((s) => (
-            <Link key={s.id} href={s.href} className={styles.section}>{s.label}</Link>
-          ))}
-        </nav>
+        <>
+          {topBarSearch ? <div className={styles.topSearch}>{topBarSearch}</div> : null}
+          <nav className={styles.sections} aria-label={shell("mainNav")}>
+            {sections.map((s) => (
+              <Link key={s.id} href={s.href} className={styles.section}>{s.label}</Link>
+            ))}
+          </nav>
+        </>
       )}
 
       <div className={`${styles.tools} ${styles.wideOnly}`}>
@@ -115,7 +127,8 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
       className={`nabd-core ${styles.root}`}
       topBar={topBar}
       tabBarLabel={shell("mainNav")}
-      tabBar={
+      footer={footer}
+      tabBar={hideTabs ? undefined : (
         <BottomTabBar
           label={shell("sections")}
           items={tabs.map(({ id, label, icon, raised }) => ({ id, label, icon, raised }))}
@@ -125,7 +138,7 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
             if (target) router.push(target.href);
           }}
         />
-      }
+      )}
     >
       <div className={`${styles.page} ${width === "narrow" ? styles.narrow : ""}`}>{children}</div>
     </AppShell>
