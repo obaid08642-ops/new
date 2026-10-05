@@ -149,3 +149,22 @@ export function isPastSlot(slotStart: string | number, nowMs: number = serverNow
 export function dayStripBaseMs(nowMs: number = serverNowMs()): number {
   return nowMs;
 }
+
+/** One day, for building `?date=` ranges off the anchored clock. */
+export const DAY_MS = 86_400_000;
+
+/**
+ * The `YYYY-MM-DD` keys a reschedule/availability strip queries, for the next
+ * `dayCount` days starting TOMORROW (day 1 — today cannot be rebooked into).
+ * Defaults to the server-anchored clock so a device set ±1 day cannot shift
+ * the strip and book against the wrong schedule. Same `toISOString` day
+ * framing the reschedule screen already used — only the clock base changes.
+ */
+export function dayKeysForRange(dayCount: number, nowMs: number = serverNowMs()): string[] {
+  const baseMs = dayStripBaseMs(nowMs);
+  const keys: string[] = [];
+  for (let i = 1; i <= dayCount; i++) {
+    keys.push(new Date(baseMs + i * DAY_MS).toISOString().slice(0, 10));
+  }
+  return keys;
+}

@@ -8,6 +8,7 @@
  */
 import {
   PROVIDER_TIME_ZONE,
+  dayKeysForRange,
   dayStripBaseMs,
   formatInProviderZone,
   formatServerInstant,
@@ -97,6 +98,25 @@ describe('15.9 · the anchor cancels a ±1-day device error', () => {
 
     expect(isPastSlot(slotMs, deviceNow)).toBe(false); // the device-clock bug
     expect(isPastSlot(slotMs, serverNowMs(deviceNow))).toBe(true); // anchored: correct
+  });
+
+  it('the reschedule ?date= strip is identical with the device clock ±1 day', () => {
+    const expected = [
+      '2026-10-07',
+      '2026-10-08',
+      '2026-10-09',
+      '2026-10-10',
+      '2026-10-11',
+      '2026-10-12',
+      '2026-10-13',
+    ];
+    for (const deviceNow of [TRUE_NOW + DAY_MS, TRUE_NOW - DAY_MS]) {
+      noteServerDate(SERVER_DATE_HEADER, deviceNow);
+      // What the screen queries, anchored …
+      expect(dayKeysForRange(7, serverNowMs(deviceNow))).toEqual(expected);
+      // … versus what the raw device clock would have queried (shifted a day).
+      expect(dayKeysForRange(7, deviceNow)).not.toEqual(expected);
+    }
   });
 });
 
