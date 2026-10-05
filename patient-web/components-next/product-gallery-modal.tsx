@@ -28,6 +28,7 @@ export function ProductGalleryModal({ name, images }: ProductGalleryModalProps) 
             onClick={() => setIsZoomOpen(true)}
             fill
             priority
+            fetchPriority="high"
             sizes="(max-width: 640px) 100vw, 420px"
           />
         ) : (

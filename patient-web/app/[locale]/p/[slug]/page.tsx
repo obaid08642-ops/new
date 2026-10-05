@@ -202,10 +202,11 @@ export default async function PublicProductPage({ params }: Props) {
   return (
     <main className={`main ${styles.page}`}>
       <JsonLd data={jsonLd} />
-      {images[0] && (
-        // eslint-disable-next-line @next/next/no-head-element
-        <link rel="preload" as="image" href={images[0]} fetchPriority="high" />
-      )}
+      {/*
+        F82-1: no hand-written <link rel="preload"> here. It named the ORIGINAL image URL, while the gallery's
+        next/image (priority, sizes) asks for the AVIF/WebP rendition from /_next/image, so the browser downloaded
+        both. `priority` already emits the correct preload (imagesrcset + imagesizes) for the rendition that is shown.
+      */}
       <nav className={styles.crumbs} aria-label="breadcrumb">
         <Link href={`/${locale}`}>{t("home")}</Link>
         <span aria-hidden="true">/</span>

@@ -47,7 +47,13 @@ describe("public product page (catalog v14)", () => {
     expect(html).toContain('"@type":"BreadcrumbList"');
     expect(html).toContain('"sku":"697836"');
     expect(html).toContain('https://cdn.nabd.plus/100002_img_1.webp');
-    expect(html).toContain('fetchPriority="high"');
+    // F82-1: the gallery image is the LCP element. next/image (priority) preloads the AVIF/WebP rendition with its
+    // srcset and sizes; a hand-written preload of the original URL (removed) downloaded the image twice.
+    const preloads = html.match(/<link[^>]*rel="preload"[^>]*>/g) ?? [];
+    expect(preloads.length).toBeGreaterThan(0);
+    for (const tag of preloads) expect(tag, "the preload names the optimised rendition, not the original").toMatch(/imageSrcSet|imagesrcset/i);
+    expect(preloads.join(" ")).toMatch(/fetchPriority="high"/i);
+    expect(preloads.join(" ")).toMatch(/imageSizes="\(max-width: 640px\) 100vw, 420px"/i);
     expect(html).toContain('href="/en/c/Medicine%20%26%20Treatment/Prescribed%20Treatments"');
   });
 
