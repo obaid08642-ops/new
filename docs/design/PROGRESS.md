@@ -78,13 +78,20 @@ _Last updated: 2026-10-05 (components 1/4–4/4, lint gates and the PROGRESS upd
 
 ## Next (in this order)
 
-1. Owner reviews the `design/batch-0-fixes` PR. Confirm the dark link token (`#FF8A91`, from Batch 0). Open decisions from Batch 0: should `/dashboard` and `/` show an error state with retry when the backend fails (today they hide the data silently)? Which client-side defects in `needs-review/batch-0-*.json` to fix? Start a separate rendering-path change for LCP (F82)?
+1. Owner reviews the `design/batch-0-fixes` PR. Dark link `#FF8A91` is approved. Still open: a separate rendering-path change for LCP (F82), not started.
 2. Resolve the blockers below (backend social-login verification, fetal-week CDN and endpoint).
 3. **Batch 1 (pharmacy flows)** on `design/batch-1` (started right after the fixes PR was opened; its own PR, screenshots and approval before Batch 2), then batches 2–13 in the order of `SCREEN_INVENTORY.md`. For each batch:
    - fix the `WIRING_REPORT.md` §4 rows that belong to it;
    - paste the `QUALITY_STANDARDS.md` checklist with measured numbers, and "Identity check: no new colours/logo/patterns" with the token diff;
    - send the owner screenshots at 390, 768 and 1440, in light and dark, and wait for approval before the next batch.
    - `globals.css` still has an old `.shell` layout. Pages switch to `AppShell` batch by batch (sign-in, Home, Dashboard, Search, Notifications already have); the old rules go when the last page moves.
+
+## Owner decisions (2026-10-06, after Batch 0 merged)
+
+1. **Test-mode seeders:** use them on the LOCAL test database only, never on staging or production; every screenshot that shows seeded data is labelled "test data" (file name suffix `-testdata`, and the PR text). Done once: `PharmacySeedService` (2 test pharmacies, 7 inventory items) and one draft pharmacy order for the seeded patient; the product catalog stays empty (the v14 catalog file is not available offline: reviewer item).
+2. **Dark link `#FF8A91` approved** (token change of Batch 0).
+3. **`/` and `/dashboard` show the `ErrorState` with retry when the backend fails** (not a silent hide). In the Batch 0 fixes work.
+4. **Client-side defects from Needs review are fixed in the batch that owns the screen; backend items stay for the reviewer.** Batch 0's client-side items are being fixed in `design/batch-0-fixes` (#291).
 
 ## Owner decisions (2026-10-05)
 
