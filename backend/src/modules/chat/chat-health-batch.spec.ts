@@ -76,52 +76,31 @@ describe('hasDirectRelationship early exit', () => {
   });
 });
 
-function healthServiceFor(rows: Record<string, any>, opts: { deferred?: boolean } = {}) {
-  const gates: Array<() => void> = [];
-  const findOneCalls: any[] = [];
-  const vitals: any = {
-    findOne: jest.fn((filter: any, proj: any) => {
-      findOneCalls.push({ filter, proj });
-      const row = rows[filter.type] ?? null;
-      if (opts.deferred) {
-        const p = new Promise((res) => gates.push(() => res(row)));
-        return { sort: jest.fn().mockReturnValue(p) };
-      }
-      return { sort: jest.fn().mockResolvedValue(row) };
-    }),
-  };
-  const service = new HealthService(vitals, {} as any, {} as any, {} as any, {} as any, undefined);
-  return { service, vitals, findOneCalls, flush: () => gates.splice(0).forEach((fn) => fn()) };
+function healthServiceFor(rows: Array<Record<string, unknown>>) {
+  const vitals = { aggregate: jest.fn().mockResolvedValue(rows) };
+  const service = new HealthService(vitals as never, {} as never, {} as never, {} as never, {} as never, undefined);
+  return { service, vitals };
 }
 
-describe('latestVitals batching (perf rank 8)', () => {
+describe('latestVitals single aggregate (a006d5a)', () => {
   const bp = { type: 'bp', value: '120/80', measured_at: new Date('2026-09-01') };
   const glucose = { type: 'glucose', value: '102', measured_at: new Date('2026-09-02') };
 
-  it('issues all per-type lookups in one round, not sequentially', async () => {
-    const { service, vitals, flush } = healthServiceFor({ bp, glucose }, { deferred: true });
-    const pending = service.latestVitals({ id: 'patient-1' });
-    await tick();
-    // Sequential version would have issued 1 findOne here; batched issues all 6.
-    expect(vitals.findOne).toHaveBeenCalledTimes(6);
-    flush();
-    const out = await pending;
-    expect(Object.keys(out).sort()).toEqual(['bp', 'glucose']);
+  it('issues one aggregate: patient match, newest first, first per type, no _id/__v', async () => {
+    const { service, vitals } = healthServiceFor([glucose, bp]);
+    const out = await service.latestVitals({ id: 'patient-9' });
+    expect(vitals.aggregate).toHaveBeenCalledTimes(1);
+    const [pipeline] = vitals.aggregate.mock.calls[0];
+    expect(pipeline[0]).toEqual({ $match: { patient_id: 'patient-9', type: { $in: expect.any(Array) }, deleted_at: null } });
+    expect(pipeline[1]).toEqual({ $sort: { measured_at: -1 } });
+    expect(pipeline[2]).toEqual({ $group: { _id: '$type', doc: { $first: '$$ROOT' } } });
+    expect(pipeline[4]).toEqual({ $project: { _id: 0, __v: 0 } });
+    expect(Object.keys(out)).toEqual(['bp', 'glucose']);
     expect(out.bp).toBe(bp);
-    expect(out.glucose).toBe(glucose);
   });
 
-  it('preserves filter, projection, sort and omission of missing types', async () => {
-    const { service, vitals, findOneCalls } = healthServiceFor({ heart_rate: { type: 'heart_rate', value: '72' } });
-    const out = await service.latestVitals({ id: 'patient-9' });
-    expect(Object.keys(out)).toEqual(['heart_rate']);
-    expect(vitals.findOne).toHaveBeenCalledTimes(6);
-    for (const { filter, proj } of findOneCalls) {
-      expect(filter).toEqual({ patient_id: 'patient-9', type: expect.any(String), deleted_at: null });
-      expect(proj).toEqual({ _id: 0, __v: 0 });
-    }
-    const sorts = vitals.findOne.mock.results.map((r: any) => r.value.sort);
-    expect(sorts).toHaveLength(6);
-    for (const sort of sorts) expect(sort).toHaveBeenCalledWith({ measured_at: -1 });
+  it('omits types without a reading', async () => {
+    const { service } = healthServiceFor([{ type: 'heart_rate', value: '72' }]);
+    await expect(service.latestVitals({ id: 'p' })).resolves.toEqual({ heart_rate: { type: 'heart_rate', value: '72' } });
   });
 });

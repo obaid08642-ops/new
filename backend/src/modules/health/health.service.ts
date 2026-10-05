@@ -11,6 +11,16 @@ import { OrdersService } from '../orders/orders.service';
 
 const VALID_TYPES = ['bp', 'glucose', 'heart_rate', 'weight', 'temperature', 'spo2'];
 
+/** A stored vital reading as latestVitals returns it (no _id / __v). */
+export interface LatestVital {
+  type: string;
+  value?: string;
+  value_secondary?: number;
+  unit?: string;
+  measured_at?: Date;
+  [field: string]: unknown;
+}
+
 @Injectable()
 export class HealthService {
   constructor(
@@ -131,19 +141,22 @@ export class HealthService {
   }
 
   async latestVitals(user: any) {
-    // Perf (rank 8): the per-type lookups are independent — fan out over
-    // VALID_TYPES in one round instead of ~6 sequential findOne calls per
-    // dashboard load. Filter, sort and "first truthy wins per type" selection
-    // are unchanged, so return values are identical.
-    const rows = await Promise.all(
-      VALID_TYPES.map((t) =>
-        this.vitals.findOne({ patient_id: user.id, type: t, deleted_at: null }, { _id: 0, __v: 0 }).sort({ measured_at: -1 }),
-      ),
-    );
-    const out: any = {};
-    VALID_TYPES.forEach((t, i) => {
-      if (rows[i]) out[t] = rows[i];
-    });
+    // One aggregate (newest non-deleted reading per type) instead of one
+    // findOne per type; served by the { patient_id, type, measured_at,
+    // deleted_at } index.
+    const rows: LatestVital[] = await this.vitals.aggregate([
+      { $match: { patient_id: user.id, type: { $in: VALID_TYPES }, deleted_at: null } },
+      { $sort: { measured_at: -1 } },
+      { $group: { _id: '$type', doc: { $first: '$$ROOT' } } },
+      { $replaceRoot: { newRoot: '$doc' } },
+      { $project: { _id: 0, __v: 0 } },
+    ]);
+    const byType = new Map(rows.map((r) => [r.type, r]));
+    const out: Record<string, LatestVital> = {};
+    for (const t of VALID_TYPES) {
+      const row = byType.get(t);
+      if (row) out[t] = row;
+    }
     return out;
   }
 
