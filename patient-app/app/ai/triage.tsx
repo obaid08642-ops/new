@@ -8,8 +8,9 @@ import { AppText } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
 import { guidedCareT } from '../../src/i18n/guided-care';
 import { ScreenState } from '../../src/components/ScreenStates';
+import { AiDisclaimerNotice } from '../../src/components/AiDisclaimerNotice';
 
-type TriageResult = { care_level: 'emergency' | 'consultation'; selected_red_flags: string[]; diagnosis: null; treatment: null; notice: string };
+type TriageResult = { care_level: 'emergency' | 'consultation'; selected_red_flags: string[]; diagnosis: null; treatment: null; notice: string; disclaimer?: { ar?: string; en?: string } };
 const flagOptions = [
   { value: 'chest_pain', key: 'flagChest' }, { value: 'breathing_difficulty', key: 'flagBreathing' },
   { value: 'fainting_or_unresponsive', key: 'flagFainting' }, { value: 'heavy_bleeding', key: 'flagBleeding' },
@@ -58,6 +59,7 @@ export default function GuidedTriageScreen() {
           {emergency ? <TouchableOpacity accessibilityRole="button" onPress={callLocalEmergency} style={[styles.primaryAction, { backgroundColor: '#B91C1C' }]}><Icon name="call" size={18} color="#FFFFFF" /><AppText variant="h6" color="#FFFFFF">{t('callEmergency')}</AppText></TouchableOpacity> : <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/(tabs)/consultations')} style={[styles.primaryAction, { backgroundColor: '#312E81' }]}><Icon name="doctor" size={18} color="#FFFFFF" /><AppText variant="h6" color="#FFFFFF">{t('bookConsultation')}</AppText></TouchableOpacity>}
         </View>
         <View style={[styles.notice, { backgroundColor: colors.backgroundSecondary }]}><AppText variant="caption" color={colors.textSecondary} style={styles.centerText}>{t('triageNotice')}</AppText></View>
+        <AiDisclaimerNotice payload={result} />
         {selectedCount > 0 ? <View style={[styles.selectionInfo, { backgroundColor: colors.surface }]}><AppText variant="caption" color={colors.textSecondary}>{selectedCount}</AppText></View> : null}
         <TouchableOpacity accessibilityRole="button" onPress={reset} style={[styles.outlineAction, { borderColor: colors.border }]}><AppText variant="h6" color={colors.textPrimary}>{t('startAgain')}</AppText></TouchableOpacity>
       </ScrollView>

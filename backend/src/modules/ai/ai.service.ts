@@ -59,6 +59,12 @@ export class AiService {
     return [...new Set(value)];
   }
 
+  /** Nutrition results: the model's object plus the disclaimer (the model cannot override it). */
+  private withDisclaimer(parsed: unknown): Record<string, unknown> & { disclaimer: typeof MEDICAL_DISCLAIMER } {
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new BadGatewayException('ai_upstream_error');
+    return { ...(parsed as Record<string, unknown>), disclaimer: MEDICAL_DISCLAIMER };
+  }
+
   private async gen(feature: string, prompt: string): Promise<string> {
     const r = await this.gateway.generate({ prompt, feature });
     return r.text;
@@ -106,9 +112,8 @@ export class AiService {
       notice: careLevel === 'emergency'
         ? 'selected_emergency_signs_require_local_emergency_services'
         : 'this_is_guidance_not_a_diagnosis_consult_a_clinician_if_symptoms_persist_or_worsen',
-      // 7B-B4 (recovered from stash): the triage payload carries the disclaimer
-      // so no patient can read it as a diagnosis. Skin/nutrition surfaces still
-      // need the same wiring — tracked, not silently assumed.
+      // 7B-B4: every AI health result carries the bilingual disclaimer so no
+      // patient can read it as a diagnosis (same on skin and nutrition below).
       disclaimer: MEDICAL_DISCLAIMER,
       diagnosis: null,
       treatment: null,
@@ -264,6 +269,7 @@ Return ONLY valid JSON with this exact structure:
       notice: needsClinicalAssessment
         ? 'selected_skin_changes_should_be_assessed_by_a_clinician'
         : 'this_check_cannot_rule_out_a_skin_condition_seek_clinical_advice_for_any_new_or_worsening_change',
+      disclaimer: MEDICAL_DISCLAIMER,
     };
     await this.conn.collection('ai_skin_self_checks').insertOne({
       patient_id: ownerId,
@@ -306,7 +312,7 @@ Return ONLY valid JSON with this exact structure:
       const text = base64
         ? await this.genVision('analyzeMeal', prompt, base64)
         : await this.gen('analyzeMeal', prompt);
-      return JSON.parse(this.cleanJson(text));
+      return this.withDisclaimer(JSON.parse(this.cleanJson(text)));
     } catch (e) {
       // F21: never fabricate nutrition values — 502 on provider failure.
       if (e instanceof BadGatewayException || e instanceof ServiceUnavailableException) throw e;
@@ -318,7 +324,7 @@ Return ONLY valid JSON with this exact structure:
     try {
       const prompt = `Generate a 7-day diet plan for: ${JSON.stringify(body)}. Return valid JSON: { "plan": [{ "day": 1, "meals": [...] }] }`;
       const text = await this.gen('generateDietPlan', prompt);
-      return JSON.parse(this.cleanJson(text));
+      return this.withDisclaimer(JSON.parse(this.cleanJson(text)));
     } catch (e) {
       // F21: never return an empty plan masking a provider failure.
       if (e instanceof BadGatewayException || e instanceof ServiceUnavailableException) throw e;

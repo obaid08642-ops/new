@@ -4,22 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, Sparkles, Stethoscope } from "lucide-react";
 import styles from "@/app/[locale]/ai/triage.module.css";
+import { describeSkinResult, extractAiDisclaimer } from "@/lib/api/ai-health";
 
 const AREAS = ["face", "scalp", "hands", "body"] as const;
 const OBSERVATIONS = ["redness", "itching", "dryness", "rash", "swelling", "none"] as const;
-
-function extractResult(payload: unknown): string | null {
-  const root = payload && typeof payload === "object" && !Array.isArray(payload) ? (payload as Record<string, unknown>) : null;
-  const source = root && typeof root.data === "object" && root.data !== null ? (root.data as Record<string, unknown>) : root;
-  if (!source) return null;
-  for (const key of ["result", "summary", "analysis", "assessment", "reply", "response", "answer"]) {
-    const v = source[key];
-    if (typeof v === "string" && v.trim()) return v;
-  }
-  // fallback: pretty json if structured but no string field
-  if (source && Object.keys(source).length) return JSON.stringify(source, null, 2);
-  return null;
-}
 
 export function SkinAnalysisForm({ locale }: { locale: string }) {
   const [areas, setAreas] = useState<string[]>([]);
@@ -27,6 +15,7 @@ export function SkinAnalysisForm({ locale }: { locale: string }) {
   const [note, setNote] = useState("");
   const [acked, setAcked] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+  const [disclaimer, setDisclaimer] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const ar = locale === "ar";
@@ -39,6 +28,7 @@ export function SkinAnalysisForm({ locale }: { locale: string }) {
     e.preventDefault();
     setError(null);
     setResult(null);
+    setDisclaimer(null);
     if (!areas.length) {
       setError(ar ? "اختر منطقة واحدة على الأقل" : "Select at least one area");
       return;
@@ -65,8 +55,14 @@ export function SkinAnalysisForm({ locale }: { locale: string }) {
         setError((data as { message?: string })?.message || (ar ? "تعذر التحليل" : "Analysis failed"));
         return;
       }
-      const extracted = extractResult(data);
-      setResult(extracted ?? JSON.stringify(data, null, 2));
+      const extracted = describeSkinResult(data, locale);
+      if (!extracted) {
+        setError(ar ? "تعذر التحليل" : "Analysis failed");
+        return;
+      }
+      setResult(extracted);
+      // a95be9a: the server's medical disclaimer, in the page language.
+      setDisclaimer(extractAiDisclaimer(data, locale));
     } catch {
       setError(ar ? "تعذر التحليل" : "Analysis failed");
     } finally {
@@ -204,7 +200,7 @@ export function SkinAnalysisForm({ locale }: { locale: string }) {
           <div className={styles.disclaimer} style={{ overflowWrap: "anywhere" }}>
             <AlertTriangle size={16} color="#b45309" aria-hidden="true" style={{ flexShrink: 0, marginTop: 2 }} />
             <span style={{ overflowWrap: "anywhere" }}>
-              {ar ? "نتيجة استرشادية لا تغني عن تشخيص الطبيب." : "Advisory result; not a diagnosis."}
+              {disclaimer ?? (ar ? "نتيجة استرشادية لا تغني عن تشخيص الطبيب." : "Advisory result; not a diagnosis.")}
             </span>
           </div>
           <Link
