@@ -14,6 +14,14 @@
     "devNotice": "Development preview — nasa construction at testing pa. Walang tunay na serbisyong ibinibigay sa site na ito; ang lahat ng nilalaman ay para sa pagsusuri lamang.",
     "theme": "Theme"
   },
+  "CoreShell": {
+    "back": "Bumalik",
+    "language": "Wika",
+    "notifications": "Mga abiso",
+    "cart": "Cart",
+    "mainNav": "Pangunahing nabigasyon",
+    "sections": "Mga seksyon"
+  },
   "Home": {
     "eyebrow": "Digital na portal ng pasyente",
     "title": "Ang iyong pangangalaga, malinaw at pribado.",
@@ -427,7 +435,10 @@
     "unavailableTitle": "Hindi na-load ang mga abiso",
     "unavailable": "Pakisubukang muli mamaya.",
     "notice": "Pang-view lang ang listahang ito. Hindi ka makakapagbukas ng link, makakapagmarka bilang nabasa o makakapagpalit ng settings dito.",
-    "settings": "Mga setting ng abiso"
+    "settings": "Mga setting ng abiso",
+    "today": "Ngayon",
+    "earlier": "Mas maaga",
+    "emptyTitle": "Wala pang abiso"
   },
   "Health": {
     "eyebrow": "Pribadong kalusugan",
@@ -655,35 +666,26 @@
     "sessionsSummary": "Ipinapakita ang unang {shown} sa {total} aktibong session."
   },
   "NotificationSettings": {
-    "eyebrow": "Mga kontrol ng notification",
     "title": "Mga setting ng notification",
-    "notice": "Ito ang kasalukuyang settings ng iyong account. Hindi pa ito mababago sa pahinang ito.",
-    "required": "Kailangan",
-    "enabled": "Naka-enable",
-    "disabled": "Naka-disable",
-    "notAvailable": "Hindi available",
-    "labels": {
-      "general": "General notifications",
-      "appointments": "Appointment reminders",
-      "orders": "Order updates",
-      "offers": "Offers at discounts",
-      "medications": "Medication reminders",
-      "doctorMessages": "Mga mensahe ng doktor",
-      "emergency": "Emergency notifications",
-      "sound": "Tunog",
-      "vibration": "Vibration"
-    },
-    "descriptions": {
-      "general": "Mga pangkalahatang update at mahalagang impormasyon",
-      "appointments": "Mga paalala para sa booked appointments",
-      "orders": "Mga update sa status ng pharmacy at delivery",
-      "offers": "Mga offer sa serbisyo at produkto",
-      "medications": "Mga alert sa oras ng gamot",
-      "doctorMessages": "Mga mensahe at tala mula sa mga doktor",
-      "emergency": "Kritikal na safety at health emergency alerts",
-      "sound": "Magpatugtog ng tunog sa pagdating ng notification",
-      "vibration": "Mag-vibrate kasama ng notification"
-    }
+    "appearance": "Itsura",
+    "appearanceAuto": "Awtomatiko",
+    "appearanceLight": "Maliwanag",
+    "appearanceDark": "Madilim",
+    "appearanceHint": "Sinusunod ng “Awtomatiko” ang setting ng iyong device.",
+    "language": "Wika",
+    "notifications": "Mga abiso",
+    "channels": "Mga channel ng abiso",
+    "catAppointments": "Mga appointment",
+    "catOrders": "Mga order",
+    "catHealth": "Kalusugan at gamot",
+    "catChat": "Mga mensahe",
+    "catAccount": "Account at seguridad",
+    "catMarketing": "Mga alok at balita sa kalusugan",
+    "chPush": "Mga abiso sa telepono",
+    "chEmail": "Email",
+    "chSms": "Mga text message",
+    "saveFailed": "Hindi na-save ang pagbabago. Subukang muli.",
+    "unavailable": "Hindi available sa ngayon"
   },
   "Articles": {
     "eyebrow": "Library ng kalusugan",
@@ -1004,7 +1006,35 @@
     "placeholder": "Maghanap ng doktor, gamot, o serbisyo…",
     "empty": "Walang tugmang resulta",
     "error": "Hindi magamit ang paghahanap ngayon",
-    "searching": "Naghahanap…"
+    "searching": "Naghahanap…",
+    "clear": "Burahin",
+    "cancel": "Kanselahin",
+    "resultsFor": "Mga resulta para sa “{query}”",
+    "resultsCount": "{count} resulta",
+    "emptyHint": "Subukan ang ibang salita o suriin ang baybay.",
+    "tabAll": "Lahat",
+    "tabMedicines": "Gamot",
+    "tabDoctors": "Mga doktor",
+    "tabLabs": "Pagsusuri",
+    "tabRadiology": "Radyolohiya",
+    "tabOther": "Iba pa",
+    "sectionMedicines": "Gamot at produkto",
+    "sectionDoctors": "Mga doktor",
+    "sectionTests": "Pagsusuri at radyolohiya",
+    "sectionOther": "Iba pang resulta",
+    "browseTitle": "Mag-browse ayon sa seksyon",
+    "catPharmacy": "Botika",
+    "catConsult": "Konsultasyon",
+    "catLab": "Pagsusuri",
+    "catRadiology": "Radyolohiya",
+    "catNursing": "Nursing",
+    "catMind": "Kalusugang pangkaisipan",
+    "catNutrition": "Nutrisyon",
+    "catFamily": "Pamilya",
+    "rxHelp": "Hindi mo makita? I-upload ang reseta at hahanapin ito ng mga botika para sa iyo",
+    "rxAction": "I-upload ang reseta",
+    "price": "{value} SAR",
+    "rating": "Rating {value}"
   },
   "Support": {
     "title": "Suporta",

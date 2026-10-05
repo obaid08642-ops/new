@@ -14,6 +14,14 @@
     "devNotice": "تجرباتی ورژن — تعمیر و جانچ کے مرحلے میں۔ اس سائٹ سے کوئی حقیقی خدمت فراہم نہیں کی جاتی؛ تمام مواد صرف جانچ کے لیے ہے۔",
     "theme": "تھیم"
   },
+  "CoreShell": {
+    "back": "واپس",
+    "language": "زبان",
+    "notifications": "اطلاعات",
+    "cart": "کارٹ",
+    "mainNav": "مرکزی نیویگیشن",
+    "sections": "سیکشنز"
+  },
   "Home": {
     "eyebrow": "ڈیجیٹل مریض پورٹل",
     "title": "آپ کی دیکھ بھال، واضح اور نجی۔",
@@ -427,7 +435,10 @@
     "unavailableTitle": "اطلاعات لوڈ نہیں ہو سکیں",
     "unavailable": "براہ کرم بعد میں دوبارہ کوشش کریں۔",
     "notice": "یہ فہرست صرف دیکھنے کے لیے ہے۔ یہاں سے لنک کھولنا، اطلاعات کو پڑھا ہوا نشان زد کرنا یا ترتیبات بدلنا ممکن نہیں۔",
-    "settings": "اطلاعات کی ترتیبات"
+    "settings": "اطلاعات کی ترتیبات",
+    "today": "آج",
+    "earlier": "پہلے",
+    "emptyTitle": "ابھی کوئی اطلاع نہیں"
   },
   "Health": {
     "eyebrow": "نجی صحت",
@@ -655,35 +666,26 @@
     "sessionsSummary": "فعال {total} سیشنز میں سے پہلے {shown} دکھائے جا رہے ہیں۔"
   },
   "NotificationSettings": {
-    "eyebrow": "اطلاعات کے کنٹرولز",
     "title": "اطلاعات کی ترتیبات",
-    "notice": "یہ آپ کے اکاؤنٹ کی موجودہ ترتیبات ہیں۔ اس صفحے پر ابھی انہیں تبدیل نہیں کیا جا سکتا۔",
-    "required": "ضروری",
-    "enabled": "فعال",
-    "disabled": "غیر فعال",
-    "notAvailable": "دستیاب نہیں",
-    "labels": {
-      "general": "عام اطلاعات",
-      "appointments": "اپوائنٹمنٹ یاددہانیاں",
-      "orders": "آرڈر اپ ڈیٹس",
-      "offers": "پیشکشیں اور رعایتیں",
-      "medications": "ادویات کی یاددہانیاں",
-      "doctorMessages": "ڈاکٹر کے پیغامات",
-      "emergency": "ہنگامی اطلاعات",
-      "sound": "آواز",
-      "vibration": "وائبریشن"
-    },
-    "descriptions": {
-      "general": "عام اپ ڈیٹس اور اہم معلومات",
-      "appointments": "بک شدہ اپوائنٹمنٹس کی یاددہانیاں",
-      "orders": "فارمیسی اور ترسیل کی حالت کی اپ ڈیٹس",
-      "offers": "سروسز اور مصنوعات کی پیشکشیں",
-      "medications": "ادویات کے اوقات کی تنبیہات",
-      "doctorMessages": "ڈاکٹروں کے پیغامات اور نوٹس",
-      "emergency": "اہم حفاظتی اور صحت کی ہنگامی تنبیہات",
-      "sound": "اطلاع آنے پر آواز چلائیں",
-      "vibration": "اطلاع کے ساتھ وائبریشن"
-    }
+    "appearance": "ظاہری شکل",
+    "appearanceAuto": "خودکار",
+    "appearanceLight": "روشن",
+    "appearanceDark": "گہرا",
+    "appearanceHint": "“خودکار” آپ کے آلے کی ترتیب کے مطابق چلتا ہے۔",
+    "language": "زبان",
+    "notifications": "اطلاعات",
+    "channels": "اطلاع کے ذرائع",
+    "catAppointments": "اپائنٹمنٹس",
+    "catOrders": "آرڈرز",
+    "catHealth": "صحت اور ادویات",
+    "catChat": "پیغامات",
+    "catAccount": "اکاؤنٹ اور سیکیورٹی",
+    "catMarketing": "آفرز اور صحت کی خبریں",
+    "chPush": "فون کی اطلاعات",
+    "chEmail": "ای میل",
+    "chSms": "ٹیکسٹ پیغامات",
+    "saveFailed": "تبدیلی محفوظ نہیں ہو سکی۔ دوبارہ کوشش کریں۔",
+    "unavailable": "ابھی دستیاب نہیں"
   },
   "Articles": {
     "eyebrow": "صحت کی لائبریری",
@@ -1004,7 +1006,35 @@
     "placeholder": "ڈاکٹر، دوا یا سروس تلاش کریں…",
     "empty": "کوئی نتیجہ نہیں ملا",
     "error": "ابھی تلاش دستیاب نہیں",
-    "searching": "تلاش جاری ہے…"
+    "searching": "تلاش جاری ہے…",
+    "clear": "صاف کریں",
+    "cancel": "منسوخ کریں",
+    "resultsFor": "“{query}” کے نتائج",
+    "resultsCount": "{count} نتائج",
+    "emptyHint": "دوسرے الفاظ آزمائیں یا ہجے چیک کریں۔",
+    "tabAll": "سب",
+    "tabMedicines": "ادویات",
+    "tabDoctors": "ڈاکٹرز",
+    "tabLabs": "لیب ٹیسٹ",
+    "tabRadiology": "ریڈیالوجی",
+    "tabOther": "دیگر",
+    "sectionMedicines": "ادویات اور مصنوعات",
+    "sectionDoctors": "ڈاکٹرز",
+    "sectionTests": "لیب ٹیسٹ اور ریڈیالوجی",
+    "sectionOther": "دیگر نتائج",
+    "browseTitle": "سیکشن کے مطابق دیکھیں",
+    "catPharmacy": "فارمیسی",
+    "catConsult": "مشاورت",
+    "catLab": "لیب ٹیسٹ",
+    "catRadiology": "ریڈیالوجی",
+    "catNursing": "نرسنگ",
+    "catMind": "ذہنی صحت",
+    "catNutrition": "غذائیت",
+    "catFamily": "خاندان",
+    "rxHelp": "جو چاہیے وہ نہیں ملا؟ نسخہ اپ لوڈ کریں، فارمیسیاں آپ کے لیے تلاش کریں گی",
+    "rxAction": "نسخہ اپ لوڈ کریں",
+    "price": "{value} ریال",
+    "rating": "ریٹنگ {value}"
   },
   "Support": {
     "title": "معاونت",

@@ -1,7 +1,7 @@
 {
   "note": "Hard-coded colours that predate the design system. Recorded once with --init. 12.A11 rebuilds the screens on tokens and each rebuilt file drops out. --update only ever LOWERS a count; it cannot raise one.",
   "totals": {
-    "patient-web": 5961,
+    "patient-web": 5907,
     "patient-app": 2495,
     "provider-app": 320,
     "admin": 215
@@ -167,8 +167,6 @@
     "patient-web/app/[locale]/medicines/compare/compare.module.css": 37,
     "patient-web/app/[locale]/mental-health/mental-health.module.css": 30,
     "patient-web/app/[locale]/not-found.tsx": 11,
-    "patient-web/app/[locale]/notifications/notifications.module.css": 42,
-    "patient-web/app/[locale]/notifications/settings/settings.module.css": 12,
     "patient-web/app/[locale]/nursing/catalog/catalog.module.css": 38,
     "patient-web/app/[locale]/nursing/catalog/page.tsx": 1,
     "patient-web/app/[locale]/nursing/nurses/[nurseId]/nurse-detail.module.css": 35,

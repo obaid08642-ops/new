@@ -105,6 +105,9 @@
   color: var(--nabd-color-text-primary);
 }
 .nabd-search__input--page { font-size: var(--nabd-font-size-input); }
+/* the field draws its own clear button (the board's 28px disc); WebKit's built-in one would be a second ✕ */
+.nabd-search__input::-webkit-search-cancel-button,
+.nabd-search__input::-webkit-search-decoration { -webkit-appearance: none; appearance: none; display: none; }
 /* A button inside the field: a 44 hit area that takes no more room than its glyph. */
 .nabd-search__inner {
   width: 44px;

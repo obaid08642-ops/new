@@ -584,3 +584,8 @@ body { background: var(--nabd-color-bg-canvas); }
 .shell:has(> .nabd-home-shell) { padding-bottom: 0; }
 .shell:has(> .nabd-home-shell) > .site-footer { margin-block-start: 0; }
 .shell:has(> .nabd-home-shell) .site-footer__links a { min-block-size: 44px; min-inline-size: 44px; display: inline-flex; align-items: center; justify-content: center; }
+/* The core screens (search, notifications, notification settings) render inside <AppShell>
+   (components-next/core/core-shell.tsx), which has its own top bar and tab bar; the site
+   header and footer would draw a second pair. Scoped to that wrapper class only. */
+.shell:has(> .nabd-core) > .topbar,
+.shell:has(> .nabd-core) > .site-footer { display: none; }

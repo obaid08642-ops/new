@@ -14,6 +14,14 @@
     "devNotice": "نسخة تجريبية قيد البناء والاختبار — لا تُقدَّم أي خدمة حقيقية عبر هذا الموقع حالياً، وأي محتوى لأغراض الاختبار فقط. لا تعتمد عليه لأي احتياج صحي أو طبي.",
     "theme": "السمة"
   },
+  "CoreShell": {
+    "back": "رجوع",
+    "language": "اللغة",
+    "notifications": "الإشعارات",
+    "cart": "السلة",
+    "mainNav": "التنقل الرئيسي",
+    "sections": "الأقسام"
+  },
   "Home": {
     "eyebrow": "بوابة المريض الرقمية",
     "title": "رعايتك، بوضوح وخصوصية.",
@@ -382,7 +390,10 @@
     "unavailableTitle": "تعذر تحميل الإشعارات",
     "unavailable": "يرجى المحاولة مرة أخرى لاحقًا.",
     "notice": "هذه القائمة للعرض فقط. لا يمكن فتح الروابط أو تعليم الإشعارات كمقروءة أو تغيير الإعدادات من هنا.",
-    "settings": "إعدادات الإشعارات"
+    "settings": "إعدادات الإشعارات",
+    "today": "اليوم",
+    "earlier": "سابقًا",
+    "emptyTitle": "لا توجد إشعارات"
   },
   "Health": {
     "eyebrow": "صحة خاصة",
@@ -655,35 +666,26 @@
     "sessionsSummary": "يُعرض أول {shown} من أصل {total} جلسة نشطة."
   },
   "NotificationSettings": {
-    "eyebrow": "ضوابط الإشعارات",
     "title": "إعدادات الإشعارات",
-    "notice": "هذه إعدادات حسابك الحالية. لا يمكن تغييرها من هذه الصفحة بعد.",
-    "required": "مطلوب",
-    "enabled": "مفعّل",
-    "disabled": "متوقف",
-    "notAvailable": "غير متاح",
-    "labels": {
-      "general": "الإشعارات العامة",
-      "appointments": "تذكير المواعيد",
-      "orders": "تحديثات الطلبات",
-      "offers": "عروض وخصومات",
-      "medications": "تذكير الأدوية",
-      "doctorMessages": "رسائل الأطباء",
-      "emergency": "إشعارات الطوارئ",
-      "sound": "الصوت",
-      "vibration": "الاهتزاز"
-    },
-    "descriptions": {
-      "general": "تحديثات عامة ومعلومات مهمة من التطبيق",
-      "appointments": "تذكيرات قبل المواعيد المحجوزة",
-      "orders": "متابعة حالة طلبات الصيدلية والتوصيل",
-      "offers": "عروض على الخدمات والمنتجات",
-      "medications": "تنبيهات بمواعيد تناول الأدوية",
-      "doctorMessages": "رسائل وملاحظات من الأطباء",
-      "emergency": "تنبيهات السلامة والطوارئ الصحية الحرجة",
-      "sound": "تشغيل صوت عند وصول الإشعارات",
-      "vibration": "تفعيل الاهتزاز مع الإشعارات"
-    }
+    "appearance": "المظهر",
+    "appearanceAuto": "تلقائي",
+    "appearanceLight": "فاتح",
+    "appearanceDark": "غامق",
+    "appearanceHint": "«تلقائي» يتبع إعداد جهازك.",
+    "language": "اللغة",
+    "notifications": "الإشعارات",
+    "channels": "قنوات التنبيه",
+    "catAppointments": "المواعيد",
+    "catOrders": "الطلبات",
+    "catHealth": "الصحة والأدوية",
+    "catChat": "الرسائل",
+    "catAccount": "الحساب والأمان",
+    "catMarketing": "العروض والنشرة الصحية",
+    "chPush": "إشعارات الجوال",
+    "chEmail": "البريد الإلكتروني",
+    "chSms": "الرسائل النصية",
+    "saveFailed": "تعذّر حفظ التغيير. حاول مرة أخرى.",
+    "unavailable": "غير متاح حالياً"
   },
   "Articles": {
     "eyebrow": "مكتبة الصحة",
@@ -1004,7 +1006,35 @@
     "placeholder": "ابحث عن طبيب أو دواء أو خدمة…",
     "empty": "لا توجد نتائج مطابقة",
     "error": "تعذر تنفيذ البحث الآن",
-    "searching": "جارٍ البحث…"
+    "searching": "جارٍ البحث…",
+    "clear": "مسح",
+    "cancel": "إلغاء",
+    "resultsFor": "نتائج «{query}»",
+    "resultsCount": "{count} نتيجة",
+    "emptyHint": "جرّب كلمات أخرى أو تأكد من الكتابة.",
+    "tabAll": "الكل",
+    "tabMedicines": "أدوية",
+    "tabDoctors": "أطباء",
+    "tabLabs": "تحاليل",
+    "tabRadiology": "أشعة",
+    "tabOther": "أخرى",
+    "sectionMedicines": "أدوية ومنتجات",
+    "sectionDoctors": "أطباء",
+    "sectionTests": "تحاليل وأشعة",
+    "sectionOther": "نتائج أخرى",
+    "browseTitle": "تصفّح حسب القسم",
+    "catPharmacy": "الصيدلية",
+    "catConsult": "استشارة",
+    "catLab": "تحاليل",
+    "catRadiology": "أشعة",
+    "catNursing": "تمريض",
+    "catMind": "صحة نفسية",
+    "catNutrition": "تغذية",
+    "catFamily": "العائلة",
+    "rxHelp": "لم تجد ما تبحث عنه؟ ارفع الوصفة وتبحث الصيدليات عنه لك",
+    "rxAction": "رفع الوصفة",
+    "price": "{value} ر.س",
+    "rating": "التقييم {value}"
   },
   "Support": {
     "title": "الدعم",
