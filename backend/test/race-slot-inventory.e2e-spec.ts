@@ -84,7 +84,7 @@ describeRace('Race: Inventory — last item (20 concurrent)', () => {
   }, 30000);
 });
 
-describeRace('Smart Collision Fallback', () => {
+describe('Smart Collision Fallback', () => {
   it('findAlternativeSlot returns next, prev, or null', async () => {
     // Unit-level check: verify the service method exists and handles fallback
     const { UnifiedBookingsService } = await import('../src/modules/unified-bookings/unified-bookings.service');

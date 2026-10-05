@@ -11,6 +11,7 @@
  *
  * Usage: node packages/ui/build-preview.mjs [--check]
  */
+import { loadCss } from './load-css.mjs';
 import { mkdirSync, writeFileSync, existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -85,6 +86,8 @@ const React = req('react');
 const { renderToStaticMarkup } = req('react-dom/server');
 
 const tokensCss = readFileSync(join(HERE, '..', 'design-tokens', 'dist', 'css', 'tokens.css'), 'utf8');
+// The components are styled by class (components/components.css explains why), so the gallery carries the sheet.
+const componentsCss = loadCss(join(HERE, 'components', 'components.css'));
 const fontsCss = readFileSync(join(HERE, '..', 'design-tokens', 'dist', 'css', 'fonts.css'), 'utf8');
 const tokens = JSON.parse(readFileSync(join(HERE, '..', 'design-tokens', 'tokens.json'), 'utf8'));
 
@@ -146,7 +149,7 @@ const LINE_COMPONENTS = {
   user: 'User', users: 'UsersThree', home: 'House', heart: 'Heart', clock: 'Clock',
   pin: 'MapPin', phone: 'Phone', card: 'CreditCard', star: 'Star', check: 'Check',
   'check-circle': 'CheckCircle', close: 'X', plus: 'Plus', minus: 'Minus',
-  filter: 'Funnel', settings: 'Gear', list: 'List', download: 'DownloadSimple',
+  filter: 'Funnel', sliders: 'SlidersHorizontal', settings: 'Gear', list: 'List', download: 'DownloadSimple',
   trash: 'Trash', warning: 'Warning', signout: 'SignOut',
   'caret-down': 'CaretDown', 'caret-up': 'CaretUp', 'caret-left': 'CaretLeft', 'caret-right': 'CaretRight',
 };
@@ -254,6 +257,7 @@ const html = `<!doctype html>
 <style>
 ${fontsCss}
 ${tokensCss}
+${componentsCss}
 *, *::before, *::after { box-sizing: border-box; }
 body {
   margin: 0;
@@ -287,7 +291,10 @@ h4 { font-size: var(--nabd-font-size-bodyStrong); color: var(--nabd-color-text-t
 .scene[data-kind="onboarding"] .scene-art { background: var(--nabd-color-bg-surface); }
 .scene-meta { font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-tertiary); font-style: normal; text-align: center; }
 .spec { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.spec-art { position: relative; display: grid; place-items: center; padding: var(--nabd-space-sm); border-radius: var(--nabd-radius-lg); background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-default); min-width: 120px; overflow: hidden; }
+/* Specimens sit on the canvas, as on the boards: a card component is the only card in its frame (a white frame made every card look nested). The frame is a dashed outline, not a surface. */
+.spec-art { position: relative; display: grid; place-items: center; padding: var(--nabd-space-sm); border-radius: var(--nabd-radius-lg); background: var(--nabd-color-bg-canvas); border: 1px dashed var(--nabd-color-border-subtle); min-width: 120px; overflow: hidden; }
+.spec-list { inline-size: 320px; border-radius: 24px; background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); box-shadow: var(--nabd-shadow-card); overflow: hidden; }
+.spec-coral { padding: 10px 14px; border-radius: 0 0 22px 22px; background: linear-gradient(180deg, var(--nabd-color-action-fab-from), var(--nabd-color-action-fab-to)); }
 /* An overlay specimen gets a taller box: the component is still position-fixed
    (correct for a real screen), but the containing block above keeps it inside
    its own specimen instead of over the whole gallery. */
@@ -353,20 +360,34 @@ function componentsGallery() {
   const F = fixtures;
   const out = [];
 
-  out.push('<h3>Controls</h3><div class="row">');
-  for (const v of ['primary', 'secondary', 'ghost', 'danger', 'lime']) {
+  out.push('<h3>Buttons (handoff PrimaryButton, OutlineButton)</h3><div class="row">');
+  for (const size of ['lg', 'md', 'sm']) {
+    out.push(specimen(`Button primary ${size}`, render(h(C.Button, { label: 'Continue', variant: 'primary', size }))));
+    out.push(specimen(`Button outline ${size}`, render(h(C.Button, { label: 'Details', variant: 'outline', size }))));
+  }
+  for (const v of ['secondary', 'ghost', 'danger', 'lime']) {
     out.push(specimen(`Button ${v}`, render(h(C.Button, { label: v, variant: v, size: 'md' }))));
   }
-  out.push(specimen('Button sm', render(h(C.Button, { label: 'small', size: 'sm' }))));
-  out.push(specimen('Button lg', render(h(C.Button, { label: 'large', size: 'lg' }))));
-  out.push(specimen('Button loading', render(h(C.Button, { label: 'Saving', loading: true }))));
-  out.push(specimen('Button disabled', render(h(C.Button, { label: 'Disabled', disabled: true }))));
+  out.push(specimen('Button loading', render(h(C.Button, { label: 'Saving', loading: true, size: 'lg' }))));
+  out.push(specimen('Button disabled', render(h(C.Button, { label: 'Disabled', disabled: true, size: 'lg' }))));
+  out.push(specimen('Button full width', render(h(C.Button, { label: 'Request pharmacy offers', size: 'lg', fullWidth: true }))));
   out.push('</div>');
 
-  out.push('<h3>Icon buttons</h3><div class="row">');
-  for (const v of ['plain', 'outlined', 'filled', 'tinted']) {
-    out.push(specimen(`IconButton ${v}`, render(h(C.IconButton, { name: 'close', label: `Close (${v})`, variant: v, onClick: noop }))));
+  out.push('<h3>Icon buttons (44, filter square 52)</h3><div class="row">');
+  for (const v of ['outlined', 'plain', 'tinted', 'filled']) {
+    out.push(specimen(`IconButton ${v}`, render(h(C.IconButton, { name: 'caret-right', label: `Back (${v})`, variant: v, onClick: noop }))));
   }
+  out.push(specimen('IconButton filled square lg', render(h(C.IconButton, { name: 'filter', label: 'Filter', variant: 'filled', shape: 'square', size: 'lg', onClick: noop }))));
+  out.push(specimen('IconButton glass', `<div class="spec-coral">${render(h(C.IconButton, { name: 'heart', label: 'Favourite', variant: 'glass', onClick: noop }))}</div>`));
+  out.push('</div>');
+
+  out.push('<h3>Selection (Segmented, Toggle, Radio)</h3><div class="row">');
+  const SEG = [{ value: 'auto', label: 'Auto' }, { value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }];
+  out.push(specimen('Segmented md', render(h(C.Segmented, { label: 'Theme', options: SEG, value: 'light', onChange: noop }))));
+  out.push(specimen('Segmented sm', render(h(C.Segmented, { label: 'Orders', size: 'sm', options: [{ value: 'now', label: 'Current' }, { value: 'past', label: 'Past' }], value: 'now', onChange: noop }))));
+  out.push(specimen('Toggle on', render(h(C.Toggle, { label: 'Order updates', value: true, onChange: noop }))));
+  out.push(specimen('Toggle off', render(h(C.Toggle, { label: 'Offers', value: false, onChange: noop }))));
+  out.push(specimen('Radio rows', `<div class="spec-list" role="radiogroup" aria-label="Language">${render(h(C.Radio, { label: 'العربية', meta: 'Arabic', selected: true, divider: true, onChange: noop }))}${render(h(C.Radio, { label: 'English', meta: 'English', selected: false, onChange: noop }))}</div>`));
   out.push('</div>');
 
   out.push('<h3>Inputs</h3><div class="row">');
@@ -375,45 +396,90 @@ function componentsGallery() {
   out.push(specimen('TextArea', render(h(C.Input, { label: 'Notes', multiline: true, rows: 3, onChange: noop }))));
   out.push(specimen('Select', render(h(C.Select, { label: 'City', options: F.CITIES, placeholder: 'Choose', onChange: noop }))));
   out.push(specimen('Otp', render(h(C.Otp, { label: 'Verification code', length: 6, onChange: noop, onComplete: noop }))));
-  out.push(specimen('Search', render(h(C.Search, { placeholder: 'Search medicines', onChange: noop, onFilterPress: noop, filterLabel: 'Filter' }))));
-  out.push(specimen('Stepper', render(h(C.Stepper, { value: 2, onChange: noop, label: 'Quantity', min: 1, max: 9 }))));
+  out.push(specimen('Search inline + filter', render(h(C.Search, { placeholder: 'Search doctors or specialties', onChange: noop, onFilterPress: noop, filterLabel: 'Filter' }))));
+  out.push(specimen('Search inline + scan', render(h(C.Search, { placeholder: 'Search by name or ingredient', onChange: noop, onScanPress: noop, scanLabel: 'Scan barcode' }))));
+  out.push(specimen('Search page (focused)', render(h(C.Search, { variant: 'page', value: 'Panadol', onChange: noop, onClear: noop, clearLabel: 'Clear' }))));
+  out.push(specimen('Stepper', `<div class="spec-list" style="padding:12px">${render(h(C.Stepper, { value: 2, onChange: noop, label: 'Quantity', min: 1, max: 9, decrementLabel: 'Decrease', incrementLabel: 'Increase' }))}</div>`));
   out.push(specimen('SlotPicker', render(h(C.SlotPicker, { dayLabel: 'Sunday 12 Oct', slots: F.SLOTS, value: '1000', onChange: noop }))));
   out.push('</div>');
 
   out.push('<h3>Chips &amp; badges</h3><div class="row">');
-  for (const t of ['neutral', 'primary', 'success', 'warning', 'danger', 'info']) {
-    out.push(specimen(`Chip ${t}`, render(h(C.Chip, { label: t, tone: t }))));
+  out.push(specimen('Chip selected', render(h(C.Chip, { label: 'Medicines', count: 24, selected: true, onClick: noop }))));
+  out.push(specimen('Chip', render(h(C.Chip, { label: 'Doctors', count: 6, onClick: noop }))));
+  for (const [tone, label] of [['coral', 'On the way'], ['amber', 'Awaiting sample'], ['mint', 'Delivered'], ['blue', 'Confirmed'], ['ink', 'Cancelled']]) {
+    out.push(specimen(`StatusChip ${tone}`, render(h(C.StatusChip, { label, tone }))));
   }
-  out.push(specimen('Chip dismiss', render(h(C.Chip, { label: 'Selected', variant: 'solid', tone: 'primary', onDismissLabel: 'Remove Selected' }))));
   out.push(specimen('Badge 7', render(h(C.Badge, { content: 7 }))));
   out.push(specimen('Badge 142 (capped)', render(h(C.Badge, { content: 142 }))));
   out.push('</div>');
 
   out.push('<h3>Surfaces</h3><div class="row">');
-  out.push(specimen('Card', render(h(C.Card, { title: 'Order #4821', subtitle: 'Confirmed · 12 Oct', footer: 'Pay at the clinic' }))));
-  out.push(specimen('ListItem', render(h(C.ListItem, { title: 'Dr. Amina Haddad', subtitle: 'Endocrinology', meta: '4.9', startIcon: 'star' }))));
-  for (const size of ['sm', 'md', 'lg']) {
+  // list rows live inside one white card on the boards (canvas/Account.dc.html)
+  out.push(specimen('ListItem', `<div class="spec-list">${render(h(C.ListItem, { title: 'Dr. Amina Haddad', subtitle: 'Endocrinology', meta: '4.9', startIcon: 'star' }))}</div>`));
+  out.push(specimen('ListItem leading', `<div class="spec-list">${render(h(C.ListItem, { title: 'Addresses', subtitle: '2 saved', leading: { icon: 'map-pin-line', tone: 'coral' } }))}${render(h(C.ListItem, { title: 'Payment cards', subtitle: 'For payment only', leading: { icon: 'credit-card', tone: 'blue' } }))}</div>`));
+  out.push(specimen('SectionHeader', render(h(C.SectionHeader, { title: 'Offers and packages', actionLabel: 'See all' }))));
+  for (const tile of F.SERVICE_TILES) {
+    out.push(specimen(`ServiceTile ${tile.name}`, render(h(C.ServiceTile, { name: tile.name, label: tile.label }))));
+  }
+  for (const size of ['sm', 'lg']) {
     out.push(specimen(`ServiceTile ${size}`, render(h(C.ServiceTile, { name: 'pharmacy', label: 'Pharmacy', size }))));
   }
   out.push(specimen('ServiceTile badge', render(h(C.ServiceTile, { name: 'consult', label: 'Consult', badge: 3 }))));
+  // No cartoon or illustrated people (handoff §1): a real photo (src), else initials, else the neutral user icon.
   out.push(specimen('Avatar initials', render(h(C.Avatar, { name: 'Amina Haddad', status: 'online' }))));
-  out.push(specimen('Avatar illustrated', render(h(C.Avatar, { name: 'Dr. Youssef', illustratedName: 'doctor' }))));
+  out.push(specimen('Avatar no name (neutral)', render(h(C.Avatar, { name: '' }))));
   out.push(specimen('PriceTag', render(h(C.PriceTag, { amount: '240', currency: 'SAR', was: '300', note: '20% off' }))));
-  out.push(specimen('Rating', render(h(C.Rating, { value: 4.5, count: 128 }))));
+  // DoctorCard board: one filled star, value, (count); nothing when there are no real ratings
+  out.push(specimen('Rating', render(h(C.Rating, { value: 4.8, count: 128 }))));
+  out.push(specimen('Rating onBrand (DoctorCard footer)', `<div class="spec-coral">${render(h(C.Rating, { value: 4.8, count: 128, surface: 'onBrand' }))}</div>`));
+  out.push(specimen('Rating, no ratings', render(h(C.Rating, { value: null, count: 0 })) || '<em class="scene-meta">renders nothing</em>'));
   out.push(specimen('MapPinCard', render(h(C.MapPinCard, { title: 'Nabd+ Olaya', address: 'King Fahd Rd', distance: '1.2 km', actionLabel: 'Directions' }))));
+  out.push('</div>');
+
+  out.push('<h3>Cards (handoff DoctorCard, ProductCard, OfferCard, Card, Timeline, ProgressRing)</h3><div class="row">');
+  out.push(specimen('DoctorCard', `<div style="width:358px">${render(h(C.DoctorCard, {
+    name: 'Dr. Amina Haddad', verifiedLabel: 'Verified', availableLabel: 'Available now', grade: 'Consultant', specialty: 'Endocrinology',
+    place: 'Nabd+ Olaya · 1.2 km', tone: 'blue', modes: [{ mode: 'clinic', label: 'Clinic' }, { mode: 'online', label: 'Online' }],
+    rating: { value: 4.8, count: 128 }, nextSlot: 'Today 7:30 pm', price: '180', currency: 'SAR', bookLabel: 'Book',
+  }))}</div>`));
+  out.push(specimen('DoctorCard, no rating or slot yet', `<div style="width:358px">${render(h(C.DoctorCard, { name: 'Dr. Omar Saleh', specialty: 'Paediatrics', tone: 'coral', price: '150', currency: 'SAR', bookLabel: 'Book' }))}</div>`));
+  out.push(specimen('ProductCard', `<div style="width:174px">${render(h(C.ProductCard, { name: 'Panadol 500 mg', meta: 'GSK · 24 tablets', price: '12.50', currency: 'SAR', discountLabel: '15% off', addLabel: 'Add to cart' }))}</div>`));
+  out.push(specimen('ProductCard rx', `<div style="width:174px">${render(h(C.ProductCard, { name: 'Augmentin 1 g', meta: 'GSK · 14 tablets', price: '48', currency: 'SAR', rxLabel: 'Needs a prescription', addLabel: 'Add to cart' }))}</div>`));
+  out.push(specimen('OfferCard', render(h(C.OfferCard, { title: 'Full blood panel', provider: 'Nabd+ Labs', price: '199', currency: 'SAR', was: '260', tag: 'Package', icon: 'test-tube', tone: 'blue' }))));
+  out.push(specimen('Card', `<div style="width:300px">${render(h(C.Card, { title: 'Delivery address', subtitle: 'Riyadh · Olaya', footer: 'Change' }))}</div>`));
+  out.push(specimen('Card tint + ProgressRing', `<div style="width:358px">${render(h(C.Card, { tint: 'pink', padding: 'lg', elevation: 'flat' }, h(C.ProgressRing, { value: 0.55, tone: 'pink', label: 'Week 22 of 40', valueText: '22', caption: 'weeks' })))}</div>`));
+  out.push(specimen('Timeline', `<div style="width:300px">${render(h(C.Timeline, { label: 'Order status', steps: [
+    { id: 'a', label: 'Order accepted', time: '7:02 pm', state: 'done' },
+    { id: 'b', label: 'Being prepared', time: '7:10 pm', state: 'done' },
+    { id: 'c', label: 'On the way', time: 'Now', state: 'current' },
+    { id: 'd', label: 'Delivered', state: 'upcoming' },
+  ] }))}</div>`));
+  out.push('</div>');
+
+  out.push('<h3>FIcon (handoff §1): soft, solid and none, every tone</h3><div class="row">');
+  for (const tone of C.SERVICE_TONES) {
+    out.push(specimen(`FIcon ${tone}`, render(h(C.FIcon, { icon: 'pill', tone, size: 52 }))));
+    out.push(specimen(`FIcon ${tone} solid`, render(h(C.FIcon, { icon: 'pill', tone, size: 52, chip: 'solid' }))));
+  }
+  out.push(specimen('FIcon none', render(h(C.FIcon, { icon: 'heartbeat', tone: 'coral', size: 32, chip: 'none' }))));
+  out.push(specimen('FIcon empty-state size', render(h(C.FIcon, { icon: 'package', tone: 'ink', size: 96 }))));
   out.push('</div>');
 
   out.push('<h3>Navigation</h3><div class="row">');
   out.push(specimen('Tabs line', render(h(C.Tabs, { items: F.TABS, value: 'home', onChange: noop }))));
   out.push(specimen('Tabs segmented', render(h(C.Tabs, { items: F.SEGMENTED, value: 'all', variant: 'segmented', onChange: noop }))));
   out.push(specimen('NavBar', render(h(C.NavBar, { title: 'Order details', showBack: true, backLabel: 'Back', actions: [{ name: 'close', label: 'Close' }] }))));
-  out.push(specimen('BottomTabBar', render(h(C.BottomTabBar, { items: F.TABS, value: 'bookings', onChange: noop }))));
+  // canvas/HomeApp: floating glass pill, ink active pill with its label, raised coral centre
+  out.push(specimen('BottomTabBar', `<div style="width:362px;padding-top:40px">${render(h(C.BottomTabBar, { items: F.MAIN_TABS, value: 'home', onChange: noop }))}</div>`));
   out.push(specimen('Sidebar', render(h(C.Sidebar, { title: 'Admin', items: F.SIDEBAR_ITEMS, value: 'orders', onChange: noop }))));
   out.push('</div>');
 
   out.push('<h3>Status</h3><div class="row">');
-  out.push(specimen('EmptyState', render(h(C.EmptyState, { illustration: 'emptyOrders', title: 'No orders yet', body: 'Your orders will appear here once you place one.', actionLabel: 'Browse medicines' }))));
-  out.push(specimen('ErrorState', render(h(C.ErrorState, { title: 'We could not reach Nabd+', body: 'Check your connection and try again.', detail: 'TypeError: fetch failed', retryLabel: 'Try again' }))));
+  // canvas/States: empty, error, offline and 404 share one layout (112 FIcon, title, body, CTA)
+  out.push(specimen('EmptyState', `<div style="width:358px">${render(h(C.EmptyState, { icon: 'package', tone: 'coral', title: 'Your cart is empty', body: 'Search for your medicine or upload a prescription.', actionLabel: 'Browse the pharmacy', secondaryActionLabel: 'Upload a prescription' }))}</div>`));
+  out.push(specimen('ErrorState', `<div style="width:358px">${render(h(C.ErrorState, { title: 'We could not load the page', body: 'The server did not answer. Your data is safe.', detail: 'TypeError: fetch failed', retryLabel: 'Try again' }))}</div>`));
+  out.push(specimen('OfflineState', `<div style="width:358px">${render(h(C.OfflineState, { title: 'No internet connection', body: 'Your saved orders and appointments are still here.', retryLabel: 'Try again' }))}</div>`));
+  out.push(specimen('EmptyState (404)', `<div style="width:358px">${render(h(C.EmptyState, { icon: 'magnifying-glass', tone: 'violet', title: 'Page not found', body: 'The link may be old. Try search or go home.', actionLabel: 'Home', secondaryActionLabel: 'Search' }))}</div>`));
   out.push(specimen('Toast', render(h(C.Toast, { message: 'Order confirmed', tone: 'success', dismissible: true, dismissLabel: 'Dismiss' })), undefined, 'overlay'));
   out.push(specimen('Modal', render(h(C.Modal, { open: true, title: 'Cancel this order?', body: 'The clinic will be notified.', confirmLabel: 'Cancel order', cancelLabel: 'Keep it', destructive: true, closeLabel: 'Close' })), undefined, 'overlay'));
   out.push(specimen('Skeleton text', render(h(C.Skeleton, { variant: 'text', lines: 3 }))));
@@ -431,8 +497,21 @@ function componentsGallery() {
   return `<section class="gallery"><h2>Components — the A7 roster, rendered</h2>${out.join('')}</section>`;
 }
 
+/**
+ * Every component in the gallery goes through here, so this is where the CSP rule
+ * (components/components.css) is enforced: a component that emits a `style`
+ * attribute or a `<style>` element renders unstyled on patient-web, whose
+ * style-src has no 'unsafe-inline'. The gallery's own frame may use inline
+ * styles (it is a static file); the components inside it may not.
+ */
 function render(el) {
-  return renderToStaticMarkup(el);
+  const markup = renderToStaticMarkup(el);
+  const inline = markup.match(/<[a-zA-Z][^>]*\sstyle="[^"]*"|<style[\s>]/);
+  if (inline) {
+    console.error(`preview: a component emitted an inline style, which the patient-web CSP refuses:\n  ${inline[0].slice(0, 200)}`);
+    process.exit(1);
+  }
+  return markup;
 }
 
 const summary =

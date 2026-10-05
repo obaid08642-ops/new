@@ -2,6 +2,7 @@
 import { INestApplication } from '@nestjs/common';
 import { NabdExtensionsController } from '../../src/modules/nabd-extensions/nabd-extensions.controller';
 import { NabdExtensionsService } from '../../src/modules/nabd-extensions/nabd-extensions.service';
+import * as extensionDtos from '../../src/modules/nabd-extensions/nabd-extensions.dto';
 import { PharmacyOfferService } from '../../src/modules/pharmacy/services/pharmacy-offer.service';
 import { buildSecurityApp, patientToken, post, tokenFor } from './harness';
 
@@ -9,7 +10,6 @@ describe('F01 wallet routes are gone (R6)', () => {
   let app: INestApplication;
   const svc = {
     processWalletTransaction: jest.fn(async () => ({ ok: true })),
-    auditAdminWalletAdjustment: jest.fn(async () => ({})),
     logActivity: jest.fn(async () => ({})),
   };
 
@@ -36,5 +36,14 @@ describe('F01 wallet routes are gone (R6)', () => {
 
   it('POST /wallet/debit → 404', async () => {
     await post(app, '/api/v1/wallet/debit', tokenFor('root-1', 'super_admin'), { amount: 10 }).expect(404);
+  });
+
+  // a537647 review: R6 said remove the routes "with their service methods and DTOs".
+  it('leaves no admin wallet service methods or DTOs behind', () => {
+    const proto = NabdExtensionsService.prototype as unknown as Record<string, unknown>;
+    expect(proto.getWalletBalance).toBeUndefined();
+    expect(proto.auditAdminWalletAdjustment).toBeUndefined();
+    expect(Object.keys(extensionDtos)).not.toEqual(expect.arrayContaining(['CreditWalletDto']));
+    expect(Object.keys(extensionDtos)).not.toEqual(expect.arrayContaining(['DebitWalletDto']));
   });
 });

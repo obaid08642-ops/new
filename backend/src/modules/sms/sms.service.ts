@@ -76,7 +76,7 @@ export class SmsService {
         const send = async (to: string, code: string): Promise<boolean> => {
           const res = await rejectAfter(axios.post('https://api.taqnyat.sa/v1/messages', {
             recipients: [to],
-            body: `Your Nabdah Plus OTP is: ${code}`,
+            body: `Your Nabd+ OTP is: ${code}`,
             sender: 'Nabdah'
           }, {
             headers: { Authorization: `Bearer ${process.env.TAQNYAT_API_KEY}` },

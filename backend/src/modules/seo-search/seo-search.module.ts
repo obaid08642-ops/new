@@ -305,9 +305,12 @@ export class SeoSearchService {
     // R12: renamed slugs fall back to slug_history; the caller 301s via moved_from.
     try {
       const hist: any = await this.conn.collection('slug_history').findOne({ entity_type: 'medicine', old_slug: decoded });
-      if (hist?.new_slug) {
+      if (hist?.new_slug || hist?.entity_id) {
+        // Resolve by the entity id first: after A→B→C the history's new_slug (B) is stale.
+        const or: any[] = [{ slug: hist.new_slug }, { [`translations.${db}.slug`]: hist.new_slug }];
+        if (hist.entity_id) or.unshift({ id: String(hist.entity_id) });
         const moved: any = await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne(
-          { ...this.publicProductFilter(), $or: [{ slug: hist.new_slug }, { [`translations.${db}.slug`]: hist.new_slug }] },
+          { ...this.publicProductFilter(), $or: or },
           { projection: { _id: 0 } },
         );
         if (moved) return { ...resolveMedicinePublicDto(moved, locale), moved_from: decoded };

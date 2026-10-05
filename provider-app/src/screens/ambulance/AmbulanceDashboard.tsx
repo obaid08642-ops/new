@@ -479,7 +479,7 @@ function AmbulanceProfileScreen({ onBack }: { onBack: () => void }) {
         contact_phone: phone.trim() || undefined,
         coverage_cities: coverage.split(',').map((c) => c.trim()).filter(Boolean),
       });
-      show(AR ? 'تم حفظ الملف' : 'Profile saved', 'success');
+      show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
     } catch (err: any) {
       show(err?.response?.data?.message || (AR ? 'تعذر حفظ الملف' : 'Could not save profile'), 'error');
     } finally {

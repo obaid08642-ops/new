@@ -1150,7 +1150,7 @@ return (
 
 
         <NCard style={{ marginBottom: SP.lg, backgroundColor: theme.surface2 }}>
-          <NCheckbox label={AR ? 'أوافق على شروط وأحكام نبضة بلس وسياسة الخصوصية.' : 'I agree to Nabd+ Plus Terms & Privacy Policy.'} value={agreed} onChange={setAgreed} />
+          <NCheckbox label={AR ? 'أوافق على شروط وأحكام نبض بلس وسياسة الخصوصية.' : 'I agree to Nabd+ Terms & Privacy Policy.'} value={agreed} onChange={setAgreed} />
         </NCard>
 
         <NBtn label={AR ? 'إرسال الطلب للمراجعة' : 'Submit Application'} onPress={submit} loading={loading} disabled={!agreed} style={{ marginBottom: 50, backgroundColor: theme.success }} />

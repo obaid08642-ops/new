@@ -1,0 +1,2 @@
+[fix, COTURN_HOST set, no COTURN_SECRET] GET /calls/ice/credentials -> 503 {'message': 'coturn_not_configured', 'error': 'Service Unavailable', 'statusCode': 503}
+[fix, with COTURN_SECRET] GET /calls/ice/credentials -> 200 ttl 86400

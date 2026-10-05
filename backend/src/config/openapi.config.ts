@@ -13,9 +13,9 @@ export const NABDAH_ACCESS_TOKEN_SECURITY_SCHEME = 'access-token';
 
 export function buildNabdahOpenApiConfig() {
   return new DocumentBuilder()
-    .setTitle('Nabdah Plus Enterprise API')
+    .setTitle('Nabd+ Enterprise API')
     .setDescription([
-      'The Nabdah Plus versioned backend API.',
+      'The Nabd+ versioned backend API.',
       '',
       '**Authentication.** Protected operations require an `Authorization: Bearer <JWT>` header using the `access-token` scheme.',
       '**Authorization.** JWT authentication does not carry OAuth scopes in this API. Each operation documents its required account role and ownership constraints; clients must not infer authorization from authentication alone.',
@@ -28,7 +28,7 @@ export function buildNabdahOpenApiConfig() {
       type: 'http',
       scheme: 'bearer',
       bearerFormat: 'JWT',
-      description: 'A valid Nabdah access token. Roles and record ownership are enforced by the endpoint.',
+      description: 'A valid Nabd+ access token. Roles and record ownership are enforced by the endpoint.',
     }, NABDAH_ACCESS_TOKEN_SECURITY_SCHEME)
     .build();
 }

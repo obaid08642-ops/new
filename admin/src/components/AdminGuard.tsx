@@ -276,7 +276,7 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
           <p className="mt-1 text-sm text-slate-400">مركز التحكم المؤسسي</p>
           <p className="mt-3 truncate text-xs text-slate-500">{session.user.full_name || session.user.email || session.user.id}</p>
         </div>
-        <nav className="h-[calc(100vh-180px)] overflow-y-auto px-3 py-4">
+        <nav className="h-[calc(100dvh-180px)] overflow-y-auto px-3 py-4">
           {sections.map((section) => (
             <section key={section.title} className="mb-5">
               <h2 className="mb-1 px-3 text-[11px] font-bold tracking-wide text-slate-500">{section.title}</h2>

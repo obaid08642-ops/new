@@ -239,14 +239,24 @@ describe('RefundService', () => {
   let service: RefundService;
   let refunds: any;
 
+  const hoursFromNow = (h: number) => new Date(Date.now() + h * 3600000);
+  // Q96: the booking and its paid transaction come from the store, not the body.
+  const store = (slotInHours: number) => ({
+    collection: jest.fn((name: string) => ({
+      findOne: jest.fn(async () => {
+        if (name === 'appointments') return { id: 'bk-1', patient_id: 'pat-1', slot_start: hoursFromNow(slotInHours) };
+        if (name === 'transactions') return { booking_kind: 'consultation', booking_id: 'bk-1', status: 'paid', amount: 300, gateway_payment_id: 'pay_1' };
+        return null;
+      }),
+    })),
+  });
+
   beforeEach(() => {
     refunds = { findOne: jest.fn(), create: jest.fn() };
     const fraud = { checkRefundAbuse: jest.fn().mockResolvedValue(false) };
-    service = new RefundService(refunds, events, fraud as any);
+    service = new RefundService(refunds, events, fraud as any, store(10) as any);
     jest.clearAllMocks();
   });
-
-  const hoursFromNow = (h: number) => new Date(Date.now() + h * 3600000);
 
   it('no scheduled date → full refund (100%)', () => {
     expect(service.policyFor(undefined).percent).toBe(100);
@@ -268,7 +278,7 @@ describe('RefundService', () => {
     refunds.create.mockImplementation(async (doc: any) => makeDoc({ id: 'rf-1', ...doc }));
     const res = await service.request(
       { id: 'pat-1' },
-      { booking_id: 'bk-1', booking_kind: 'appointment', amount_paid: 300, scheduled_at: hoursFromNow(10).toISOString(), reason: 'اختبار' },
+      { booking_id: 'bk-1', booking_kind: 'appointment', reason: 'اختبار' },
     );
     expect(res.refund_percent).toBe(50);
     expect(res.refund_amount).toBe(150);
@@ -278,14 +288,14 @@ describe('RefundService', () => {
   it('duplicate active request returns existing instead of creating', async () => {
     const existing = makeDoc({ id: 'rf-0', state: 'REQUESTED' });
     refunds.findOne.mockResolvedValue(existing);
-    const res = await service.request({ id: 'pat-1' }, { booking_id: 'bk-1', amount_paid: 300, reason: 'اختبار' });
+    const res = await service.request({ id: 'pat-1' }, { booking_id: 'bk-1', booking_kind: 'consultation', reason: 'اختبار' });
     expect(res.id).toBe('rf-0');
     expect(refunds.create).not.toHaveBeenCalled();
   });
 
-  it('rejects missing booking_id / non-positive amount', async () => {
+  it('rejects missing booking_id / unknown booking kind', async () => {
     await expect(service.request({ id: 'pat-1' }, {})).rejects.toThrow(BadRequestException);
-    await expect(service.request({ id: 'pat-1' }, { booking_id: 'bk-1', amount_paid: 0 })).rejects.toThrow(BadRequestException);
+    await expect(service.request({ id: 'pat-1' }, { booking_id: 'bk-1', booking_kind: 'spaceship', reason: 'x' })).rejects.toThrow(BadRequestException);
   });
 
   it('includes executed RefundExecutor ledger entries in the patient refund view (LJ-05)', async () => {

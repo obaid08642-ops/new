@@ -2,6 +2,13 @@
 
 Read this file fully at the start of EVERY session. These rules override any default behavior.
 
+## Design rebuild sessions (patient-app + patient-web redesign)
+For design-rebuild work (`docs/design/DESIGN_HANDOFF_FINAL.md`):
+- **Branches (owner, 2026-10-04):** each step or batch goes on its own `design/<batch>` branch from `main`, with one PR to `main` per batch, screenshots before and after, and a review before merge. The `fix/audit-2026-09` rules below are for the implementing agent only, not for design sessions.
+- **Start every session** by reading `docs/design/PROGRESS.md`, `docs/design/SCREEN_INVENTORY.md` and `docs/design/WIRING_REPORT.md`, then continue from the "Next" section of `PROGRESS.md`.
+- **After every PR**, update `docs/design/PROGRESS.md` (done / in progress / next / blockers, with PR links). Follow the steps in `docs/design/README.md`.
+- **When context runs low:** commit, push, update `PROGRESS.md`, push again, and stop.
+
 ## Your role
 You IMPLEMENT the plan. A separate reviewer reviews and merges your work. You never merge.
 
@@ -35,6 +42,11 @@ You IMPLEMENT the plan. A separate reviewer reviews and merges your work. You ne
 - Free-form JSON only with @IsObject (or @Allow) plus a comment `// free-form: <reason>`.
 - Field names must match what the clients (patient-app, patient-web, provider-app, admin) actually send.
 
+## Acceptance tests (owner decision 2026-10-05)
+- For a large item, the reviewer first merges acceptance tests: `backend/acceptance/<id>/`, `provider-app/acceptance/<id>/`, and any live journey named in `backend/acceptance/README.md`.
+- Your PR for that item must make `node scripts/run-acceptance.mjs <id>` (and the provider-app acceptance run, when present) pass. Paste the outputs.
+- Never edit, move, skip or delete acceptance files or those journeys. If one looks wrong, write it in AGENT_PROGRESS.md and ask the reviewer.
+
 ## Gate before every push (all must pass; paste the outputs)
 ```
 cd backend
@@ -43,6 +55,7 @@ npx nest build
 npm test -- --runInBand
 npx jest --config jest.boot.config.js --runInBand test/security test/journeys
 python3 ../tools/audit/dtolint.py            # exit 0
+node scripts/run-acceptance.mjs --done      # every approved acceptance item still passes
 node ../tools/audit/clientbodies.js > /tmp/c.json && node ../tools/audit/dtocheck.js /tmp/c.json   # 0 mismatches
 ```
 If a gate fails, fix it. Never push red.

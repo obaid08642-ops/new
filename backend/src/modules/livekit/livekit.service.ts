@@ -5,7 +5,6 @@ import { randomUUID } from 'crypto';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection, Types } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { APPT_STATES } from '../../schemas/appointment.schema';
 import { isChaosFail } from '../../common/chaos-switches';
 
 @Injectable()
@@ -78,7 +77,8 @@ export class LiveKitService {
     const isParticipant = appt && [String(appt.patient_id), String(appt.doctor_user_id)].includes(String(user?.id));
     if (!isParticipant) throw new NotFoundException('booking_not_found');
     if (appt.service_type !== 'video') throw new BadRequestException('call_token_only_available_for_video_booking');
-    if ([APPT_STATES.CANCELLED, APPT_STATES.COMPLETED, APPT_STATES.RESCHEDULED].includes(appt.status)) {
+    // R11: the same live states as /calls/initiate — never PENDING or NO_SHOW.
+    if (!['CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'].includes(String(appt.status))) {
       throw new BadRequestException('call_token_not_available_for_booking_state');
     }
     const slotStart = new Date(appt.slot_start).getTime();
@@ -192,6 +192,19 @@ export class LiveKitService {
     return session;
   }
 
+  /** A live appointment (not PENDING, not dead), from 15 minutes before its slot until 15 minutes after it ends. */
+  private assertLiveAppointmentWindow(appt: any) {
+    if (!['CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'].includes(String(appt.status))) {
+      throw new BadRequestException('appointment_not_active');
+    }
+    const slotStart = new Date(appt.slot_start).getTime();
+    const slotEnd = appt.slot_end ? new Date(appt.slot_end).getTime() : slotStart + Number(appt.duration_minutes || 30) * 60_000;
+    const now = Date.now();
+    if (!Number.isFinite(slotStart) || now < slotStart - 15 * 60_000 || now > slotEnd + 15 * 60_000) {
+      throw new BadRequestException('call_outside_appointment_window');
+    }
+  }
+
   async initiateCall(callerId: string, callerName: string, calleeId: string, callType: string, bookingId?: string) {
     if (!bookingId) throw new BadRequestException('appointmentId is required');
     const appointmentFilter: any = { id: { $eq: bookingId } };
@@ -200,9 +213,10 @@ export class LiveKitService {
     if (!appt) throw new NotFoundException('Appointment not found');
     // Dead appointments can never start a call (P0-14): unify both video
     // contracts on live states. The narrow token path already rejects these.
-    if (['CANCELLED', 'COMPLETED', 'RESCHEDULED', 'NO_SHOW'].includes(String(appt.status))) {
-      throw new BadRequestException('appointment_not_active');
-    }
+    // R11 §5: only a live appointment (not PENDING, not dead) can start a call,
+    // and only from 15 minutes before its slot until 15 minutes after it ends.
+    this.assertLiveAppointmentWindow(appt);
+    const now = Date.now();
     const patientId = String(appt.patient_id || appt.user_id || '');
     // doctor_user_id is the account id doctors authenticate with; profile ids
     // (doctor_id) never match a caller id — it must come after account ids.
@@ -213,6 +227,14 @@ export class LiveKitService {
     const resolvedCallee = calleeId || ([patientId, providerId].find(id => id !== String(callerId)) || '');
     if (!resolvedCallee || ![patientId, providerId].includes(String(resolvedCallee)) || String(resolvedCallee) === String(callerId)) {
       throw new ForbiddenException('Callee is not an appointment participant');
+    }
+    // A repeated initiate (double tap, retry) reuses the open session: a new
+    // token for the same room, and no second incoming-call push.
+    const open: any = await this.callSessions.findOne({
+      appointment_id: bookingId, status: 'INITIATED', createdAt: { $gte: new Date(now - 2 * 60_000) },
+    } as any);
+    if (open?.room_name) {
+      return { room_name: open.room_name, token: await this.createToken(open.room_name, callerName), call_type: open.call_type || callType || 'video', session_id: open.id };
     }
     const roomName = `room-${randomUUID()}`;
     const token = await this.createToken(roomName, callerName);
@@ -230,16 +252,34 @@ export class LiveKitService {
 
   async joinCall(sessionId: string, userId: string, userName: string) {
     const session = await this.findOwnedSession(sessionId, userId);
+    // An ended, failed or rejected session is never re-joined.
+    if (!['INITIATED', 'ACTIVE'].includes(String(session.status))) throw new BadRequestException('call_session_closed');
     // A session outlives its purpose when the appointment died meanwhile —
-    // fail it loudly instead of connecting a dead call (P0-14).
+    // fail it loudly instead of connecting a dead call (P0-14). Same live
+    // states and time window as initiating the call.
     if (session.appointment_id) {
-      const appt: any = await this.appointments.findOne({ id: session.appointment_id }).lean().catch(() => null);
-      if (appt && ['CANCELLED', 'COMPLETED', 'RESCHEDULED', 'NO_SHOW'].includes(String(appt.status))) {
-        await this.callSessions.updateOne(
-          { id: session.id },
-          { $set: { status: 'FAILED', end_reason: 'appointment_not_active', ended_at: new Date(), updatedAt: new Date() } },
-        );
-        throw new BadRequestException('appointment_not_active');
+      const appt: any = await this.appointments.findOne({ id: session.appointment_id }).lean();
+      if (!appt) throw new NotFoundException('Appointment not found');
+      try {
+        // A call already in progress (ACTIVE) can be rejoined after the window
+        // (app reopened mid-call); the appointment must still be live.
+        if (String(session.status) === 'ACTIVE') {
+          if (!['CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'].includes(String(appt.status))) throw new BadRequestException('appointment_not_active');
+          // An overrunning call, not a stale session: at most 2 hours past the slot end.
+          const slotStart = new Date(appt.slot_start).getTime();
+          const slotEnd = appt.slot_end ? new Date(appt.slot_end).getTime() : slotStart + Number(appt.duration_minutes || 30) * 60_000;
+          if (!Number.isFinite(slotEnd) || Date.now() > slotEnd + 2 * 3600_000) throw new BadRequestException('call_outside_appointment_window');
+        } else {
+          this.assertLiveAppointmentWindow(appt);
+        }
+      } catch (e) {
+        if ((e as Error).message === 'appointment_not_active') {
+          await this.callSessions.updateOne(
+            { id: session.id },
+            { $set: { status: 'FAILED', end_reason: 'appointment_not_active', ended_at: new Date(), updatedAt: new Date() } },
+          );
+        }
+        throw e;
       }
     }
     const token = await this.createToken(session.room_name, userName);

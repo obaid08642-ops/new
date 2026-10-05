@@ -351,7 +351,8 @@ export class LoyaltyRedeemService {
     const v = doc?.value || {};
     return {
       enabled: v.redeem_enabled !== false,
-      max_redeem_percent: Number(v.max_redeem_percent ?? DEFAULTS.loyalty_max_redeem_percent),
+      // PRODUCT.md: never more than 10% of the order, whatever is stored.
+      max_redeem_percent: Math.min(10, Math.max(0, Number(v.max_redeem_percent ?? DEFAULTS.loyalty_max_redeem_percent) || 0)),
       point_value_sar: Number(v.point_value_sar ?? DEFAULTS.loyalty_point_value_sar),
     };
   }
@@ -636,8 +637,11 @@ export class RefundExecutor {
     // 1) Gateway refund (real money back to the card)
     if (paidPayment && paidPayment.moyasar_id && !String(paidPayment.moyasar_id).startsWith('sandbox_')) {
       const key = this.moyasarKey();
-      // F7: plural `/refunds` — same gateway contract as MoyasarService.
-      const resp = await fetch(`${moyasarBase()}/payments/${paidPayment.moyasar_id}/refunds`, {
+      // SINGULAR `/payments/:id/refund` — the documented Moyasar endpoint
+      // (docs.moyasar.com Payments API -> Refund Payment), identical to the
+      // MoyasarService contract. A plural `/refunds` 404s and turns every
+      // card refund into `gateway_refund_failed`.
+      const resp = await fetch(`${moyasarBase()}/payments/${paidPayment.moyasar_id}/refund`, {
         method: 'POST',
         headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: Math.round(amount * 100), reason: opts.reason?.slice(0, 255) || 'refund' }),

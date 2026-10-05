@@ -7,19 +7,18 @@
 
 import { Linking } from 'react-native';
 import { Redirect } from 'expo-router';
-import { mapPath } from '../src/navigation/deepLinkMapper';
+import { resolveIncomingLink } from '../src/navigation/deepLinkMapper';
 
 /**
- * Expo Router calls this for every incoming universal link. Return a path to
- * stay in the app, or open the browser for web-only routes.
+ * Expo Router calls this for every incoming universal link and expects a path
+ * string back (not an object). Stay in the app for screens it has; otherwise
+ * open the web page in the browser and land on home.
  */
-export async function redirectSystemPath({ path, initial }: { path: string; initial: boolean }) {
-  const mapped = mapPath(path);
-  if (mapped) return { path: mapped };
-  // No app screen — open the full URL in the browser.
-  const url = `https://nabd.plus${path.startsWith('/') ? path : '/' + path}`;
-  await Linking.openURL(url);
-  return { path: '/' };
+export async function redirectSystemPath({ path }: { path: string; initial: boolean }): Promise<string> {
+  const target = resolveIncomingLink(path);
+  if ('app' in target) return target.app;
+  await Linking.openURL(target.browser);
+  return '/';
 }
 
 export default function NativeIntent() {

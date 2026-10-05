@@ -1,0 +1,20 @@
+[agent] /medicines/search/recent
+   anon-before 401 None
+   A           403 None cc=None {'code': 'INSUFFICIENT_PERMISSION', 'message': 'Insufficient role'}
+   anon-after  401 None {'code': 'AUTHENTICATION_REQUIRED', 'message': 'Missing token'}
+   B           403 None {'code': 'INSUFFICIENT_PERMISSION', 'message': 'Insufficient role'}
+[agent] /medicines/me/recently-viewed
+   anon-before 401 None
+   A           403 None cc=None {'code': 'INSUFFICIENT_PERMISSION', 'message': 'Insufficient role'}
+   anon-after  401 None {'code': 'AUTHENTICATION_REQUIRED', 'message': 'Missing token'}
+   B           403 None {'code': 'INSUFFICIENT_PERMISSION', 'message': 'Insufficient role'}
+[agent] /radiology/bookings/mine
+   anon-before 401 None
+   A           200 None cc=private, no-store []
+   anon-after  401 None {'code': 'AUTHENTICATION_REQUIRED', 'message': 'Missing token'}
+   B           200 None []
+[agent] /radiology/reports/mine
+   anon-before 401 None
+   A           200 None cc=private, no-store []
+   anon-after  401 None {'code': 'AUTHENTICATION_REQUIRED', 'message': 'Missing token'}
+   B           200 None []

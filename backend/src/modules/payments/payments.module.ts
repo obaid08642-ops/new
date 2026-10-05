@@ -203,10 +203,15 @@ export class MoyasarAdapter implements PaymentGateway {
   async refund(id: string, amount?: number) {
     const run = async (paymentId: string, amt?: number) => {
       const body = JSON.stringify(amt ? { amount: Math.round(amt * 100) } : {});
-      // F7: Moyasar's refund endpoint is plural `/refunds` (same as the
-      // reviewed-correct MoyasarService path); the singular `/refund` here
-      // was identical on main/base but never matched the gateway contract.
-      const r = await gatewayFetch(`${this.base}/payments/${paymentId}/refunds`, { method: 'POST', headers: this.headers(), body });
+      // Moyasar's refund endpoint is the SINGULAR `/payments/:id/refund`
+      // (docs.moyasar.com Payments API -> Refund Payment), matching its
+      // siblings `/payments/:id/capture` (see PaymentsService.capturePayment)
+      // and `/payments/:id/void`. There is no plural `/refunds` route; posting
+      // to one 404s at the gateway and `gatewayFetch` fails the adapter call,
+      // so the refund never reaches the cardholder. NOTE: the `/refunds`
+      // literals in StripeAdapter and TapAdapter above are DIFFERENT endpoints
+      // for different providers and are deliberately left plural.
+      const r = await gatewayFetch(`${this.base}/payments/${paymentId}/refund`, { method: 'POST', headers: this.headers(), body });
       const j: any = await r.json();
       return { refunded: r.ok, raw: j };
     };
@@ -424,7 +429,7 @@ export class PaymentsService {
     }
     if (!booking) {
       const M = this.modelFor(type);
-      booking = await M.findOne({ id }).lean();
+      booking = await M.findOne({ id: { $eq: String(id) } }).lean();
     }
     if (!booking) throw new NotFoundException('booking_not_found');
     if (governedPharmacy) {
@@ -453,7 +458,7 @@ export class PaymentsService {
       amount = Math.max(0, Math.round((amount - Number(booking.wallet_applied)) * 100) / 100);
     }
     if (amount <= 0) throw new BadRequestException('invalid_amount');
-    const existing: any = await this.txns.findOne({ booking_kind: kind, booking_id: id, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
+    const existing: any = await this.txns.findOne({ booking_kind: kind, booking_id: { $eq: String(id) }, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
     if (existing) return existing;
 
     // Persist an active reservation before calling the PSP. The partial unique
@@ -464,7 +469,7 @@ export class PaymentsService {
       txn = await this.txns.create({ booking_kind: kind, booking_id: id, patient_id: booking.patient_id || booking.patient_account_id, amount, gateway: this.adapter.name, method: booking.payment_method || 'card', status: 'initiating', idempotency_key: requestKey });
     } catch (error: any) {
       if (error?.code === 11000) {
-        const active: any = await this.txns.findOne({ booking_kind: kind, booking_id: id, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
+        const active: any = await this.txns.findOne({ booking_kind: kind, booking_id: { $eq: String(id) }, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
         if (active) return active;
       }
       throw error;

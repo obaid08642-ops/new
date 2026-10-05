@@ -49,7 +49,7 @@ export function extractClinic(payload: unknown): Clinic | null {
     address: typeof c.address === "string" ? c.address : undefined,
     phone: typeof c.phone === "string" ? c.phone : undefined,
     image: typeof c.image === "string" ? c.image : undefined,
-    rating: typeof c.rating === "number" ? c.rating : 4.9,
+    rating: typeof c.rating === "number" ? c.rating : undefined,
     description: typeof c.description === "string" ? c.description : undefined,
     description_ar: typeof c.description_ar === "string" ? c.description_ar : undefined,
     description_en: typeof c.description_en === "string" ? c.description_en : undefined,

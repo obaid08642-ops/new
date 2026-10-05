@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { randomBytes } from 'crypto';
@@ -124,11 +124,12 @@ export class AiCommerceService {
       this.connection.collection('facilities'),
     ];
 
-    const docFilter: Record<string, any> = { is_active: { $ne: false } };
+    // Public feed: approved, public doctors only (not every provider_profiles row).
+    const docFilter: Record<string, any> = { type: 'doctor', status: 'active', public_eligibility: true, is_deleted: { $ne: true } };
     if (query.specialty) docFilter.specialty = query.specialty;
     if (query.city) docFilter.city = { $regex: query.city, $options: 'i' };
 
-    const facFilter: Record<string, any> = { is_active: { $ne: false } };
+    const facFilter: Record<string, any> = { is_active: { $ne: false }, public_eligibility: true, is_deleted: { $ne: true } };
     if (query.city) facFilter.city = { $regex: query.city, $options: 'i' };
 
     const [doctors, facilities] = await Promise.all([
@@ -147,8 +148,9 @@ export class AiCommerceService {
         name: locale === 'en' ? (doc.name_en || doc.name_ar) : (doc.name_ar || doc.name_en),
         specialty: doc.specialty,
         city: doc.city,
-        priceRange: '150 SAR',
-        acceptedInsurance: doc.accepted_insurance || ['bupa', 'tawuniya', 'medgulf'],
+        // Real data only: the doctor's own clinic fee, and only the insurers it accepts.
+        priceRange: typeof doc.price_clinic === 'number' && doc.price_clinic > 0 ? `${doc.price_clinic} SAR` : undefined,
+        acceptedInsurance: Array.isArray(doc.accepted_insurance) ? doc.accepted_insurance : [],
         url: `https://nabd.plus/${locale}/doctor/${doc.slug || doc.id}`,
         deepLink: `nabdplus://doctor/${doc.slug || doc.id}`,
       });
@@ -222,11 +224,24 @@ export class AiCommerceService {
                 { slug: { $in: medIds } },
                 { sku: { $in: medSkuNumbers } },
               ],
+              // Q106: only public, medically reviewed medicines can be sold here.
+              is_deleted: { $ne: true },
+              public_eligibility: true,
+              medical_review_status: 'approved',
             })
             .toArray()
         : Promise.resolve([]),
       docIds.length
-        ? docCol.find({ $or: [{ id: { $in: docIds } }, { slug: { $in: docIds } }] }).toArray()
+        ? docCol
+            .find({
+              $or: [{ id: { $in: docIds } }, { slug: { $in: docIds } }],
+              // Q106: only active, reviewed, public doctors.
+              type: 'doctor',
+              status: 'active',
+              public_eligibility: true,
+              medical_review_status: 'approved',
+            })
+            .toArray()
         : Promise.resolve([]),
     ]);
 
@@ -246,7 +261,7 @@ export class AiCommerceService {
       if (doc.slug !== undefined && !docBySlug.has(String(doc.slug))) docBySlug.set(String(doc.slug), doc);
     }
     const resolveMed = (key: string) =>
-      medById.get(key) ?? medBySlug.get(key) ?? medBySku.get(key) ?? null;
+      medById.get(key) ?? medBySlug.get(key) ?? medBySku.get(String(Number(key) || -1)) ?? null;
     const resolveDoc = (key: string) => docById.get(key) ?? docBySlug.get(key) ?? null;
 
     for (const item of dto.items) {
@@ -257,7 +272,9 @@ export class AiCommerceService {
         if (!med) throw new NotFoundException(`Medicine '${item.id}' not found`);
 
         const qty = Math.max(1, Number(item.quantity) || 1);
-        const unitPrice = Number(med.price) || 20.0;
+        // The record's own price; never an invented default.
+        const unitPrice = Number(med.price);
+        if (!Number.isFinite(unitPrice) || unitPrice <= 0) throw new UnprocessableEntityException(`price_unavailable: medicine '${item.id}'`);
         const lineTotal = Number((unitPrice * qty).toFixed(2));
         subtotal += lineTotal;
 
@@ -280,7 +297,9 @@ export class AiCommerceService {
         const doc = resolveDoc(String(item.id));
         if (!doc) throw new NotFoundException(`Doctor '${item.id}' not found`);
 
-        const fee = 150.0;
+        // The doctor's own clinic consultation price; never a flat default.
+        const fee = Number(doc.price_clinic);
+        if (!Number.isFinite(fee) || fee <= 0) throw new UnprocessableEntityException(`price_unavailable: doctor '${item.id}'`);
         subtotal += fee;
 
         validatedItems.push({

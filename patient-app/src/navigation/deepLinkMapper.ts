@@ -29,3 +29,28 @@ export function mapPath(path: string): string | null {
 
   return null;
 }
+
+/**
+ * Expo Router hands redirectSystemPath a `path` that may be a bare path, a full
+ * https://nabd.plus URL or a nabdplus:// link (docs: "no guarantee that this is a
+ * path or a valid URL"). Resolve it to an app route, or to the web URL to open in
+ * the browser when the app has no such screen.
+ */
+export function resolveIncomingLink(raw: string): { app: string } | { browser: string } {
+  let path = raw || '/';
+  let search = '';
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(path)) {
+    try {
+      const u = new URL(path);
+      // nabdplus://doctor/x puts "doctor" in the host; https keeps it in the pathname.
+      path = u.protocol === 'https:' || u.protocol === 'http:' ? u.pathname : `/${u.host}${u.pathname}`;
+      search = u.search;
+    } catch {
+      path = '/';
+    }
+  }
+  if (!path.startsWith('/')) path = `/${path}`;
+  const mapped = mapPath(path);
+  if (mapped) return { app: mapped + search };
+  return { browser: `https://nabd.plus${path}${search}` };
+}

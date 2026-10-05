@@ -1,3 +1,4 @@
+import { copayRefundable, findCopayTransaction, gatewayPaymentIdOf } from '../../common/copay-transaction';
 /**
  * M3 — Insurance Engine (BR-2) + Unified Booking Quote (BR-1) + Financial Core.
  *
@@ -9,7 +10,7 @@
  * BR-1 (payment matrix): online/video/audio/home/delivery = online payment only;
  * clinic = online or pay-at-clinic. Enforced server-side via /bookings/quote.
  */
-import { Module, Controller, Injectable, Get, Post, Body, Param, Query, UseGuards, NotFoundException, BadRequestException, ForbiddenException, Optional, Logger } from '@nestjs/common';
+import { Module, Controller, Injectable, Get, Post, Body, Param, Query, UseGuards, NotFoundException, BadRequestException, ForbiddenException, Optional, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
@@ -852,22 +853,70 @@ export class RefundService {
     return REFUND_WINDOWS[REFUND_WINDOWS.length - 1];
   }
 
+  // Q96: where each booking kind lives (same map as claims and RefundExecutor).
+  private static readonly BOOKING_COLLECTIONS: Record<string, string> = {
+    pharmacy: 'orders', order: 'orders', consultation: 'appointments', appointment: 'appointments',
+    lab: 'labbookings', radiology: 'radiologybookings', nursing: 'homecarebookings',
+  };
+
   async request(user: any, body: any) {
-    if (!body?.booking_id) throw new BadRequestException('booking_id is required');
-    const paid = Number(body?.amount_paid || 0);
-    if (paid <= 0) throw new BadRequestException('amount_paid must be positive');
+    const bookingId = String(body?.booking_id || '').trim();
+    const bookingKind = String(body?.booking_kind || '').trim().toLowerCase();
+    if (!bookingId) throw new BadRequestException('booking_id is required');
+    const collection = RefundService.BOOKING_COLLECTIONS[bookingKind];
+    if (!collection) throw new BadRequestException('booking_kind must be pharmacy|consultation|lab|radiology|nursing');
     if (!body?.reason || typeof body.reason !== 'string' || !body.reason.trim()) throw new BadRequestException('reason is required');
-    const dup = await this.refunds.findOne({ booking_id: { $eq: body.booking_id }, state: { $ne: 'REJECTED' } });
+    if (!this.conn) throw new ServiceUnavailableException('refund_store_unavailable');
+
+    // Q96: the booking, its owner, what was paid and when it is scheduled come
+    // from the stored records; amount_paid / payment_id / scheduled_at in the
+    // body are ignored.
+    const booking: any = (collection === 'orders'
+      ? await this.conn.collection('pharmacy_orders').findOne({ id: { $eq: bookingId } } as any)
+      : null) || await this.conn.collection(collection).findOne({ id: { $eq: bookingId } } as any);
+    if (!booking) throw new NotFoundException('booking_not_found');
+    const owner = String(booking.patient_id ?? booking.patient_account_id ?? booking.user_id ?? '');
+    if (!owner || owner !== String(user.id)) throw new ForbiddenException('not_your_booking');
+
+    const kinds = collection === 'appointments' ? ['consultation', 'appointment']
+      : collection === 'orders' ? ['pharmacy', 'order'] : [bookingKind];
+    const tx: any = await this.conn.collection('transactions').findOne(
+      { booking_kind: { $in: kinds }, booking_id: { $eq: bookingId }, status: 'paid' } as any,
+      { sort: { createdAt: -1 } } as any,
+    );
+    const mp: any = tx ? null : await this.conn.collection('moyasar_payments').findOne(
+      { booking_id: { $eq: bookingId }, status: 'paid' } as any,
+      { sort: { createdAt: -1 } } as any,
+    );
+    // A lab/radiology booking paid through the diagnostics checkout has no paid
+    // row of its own: the child carries the parent's transaction_id. Refund the
+    // child's own price only, never the whole parent order.
+    const parentTx: any = (!tx && !mp && booking.transaction_id && String(booking.payment_status || '').toLowerCase() === 'paid')
+      ? await this.conn.collection('transactions').findOne({ id: { $eq: String(booking.transaction_id) }, status: 'paid' } as any)
+      : null;
+    // LabBooking keeps its price in `total` and defaults `total_price` to 0;
+    // radiology sets total_price. Take the first positive value. The
+    // diagnostics parent charges every child's full price, whatever the
+    // payment method, so the child's full price is what was paid for it.
+    const childPrice = [booking.total_price, booking.total, booking.price].map(Number).find((v) => v > 0) ?? 0;
+    const copayTx: any = (!tx && !mp && !parentTx) ? await findCopayTransaction(this.conn, booking, bookingId) : null;
+    const paid = parentTx ? Math.min(childPrice, Number(parentTx.amount || 0)) : (copayTx ? copayRefundable(copayTx) : Number(tx?.amount ?? mp?.amount ?? 0));
+    if (!(paid > 0)) throw new BadRequestException('booking_not_paid');
+    const payTx = tx || parentTx || copayTx;
+    const paymentId = gatewayPaymentIdOf(payTx) || mp?.moyasar_id || undefined;
+
+    const dup = await this.refunds.findOne({ booking_id: { $eq: bookingId }, patient_id: { $eq: String(user.id) }, state: { $ne: 'REJECTED' } });
     if (dup) return dup.toObject();
     // E1 S15: refund-abuse detection — frequent refunders are flagged for admin review
     await this.fraud.checkRefundAbuse(user.id).catch(() => false);
-    const policy = this.policyFor(body?.scheduled_at ? new Date(body.scheduled_at) : undefined);
+    const scheduledRaw = booking.slot_start || booking.scheduled_at || booking.scheduled_date || booking.appointment_time;
+    const policy = this.policyFor(scheduledRaw ? new Date(scheduledRaw) : undefined);
     const doc = await this.refunds.create({
-      patient_id: user.id, booking_id: body.booking_id, booking_kind: body.booking_kind,
+      patient_id: user.id, booking_id: bookingId, booking_kind: bookingKind,
       amount_paid: paid, refund_percent: policy.percent,
       refund_amount: Math.round(paid * (policy.percent / 100) * 100) / 100,
-      policy_note_ar: policy.note_ar, reason: body?.reason,
-      moyasar_payment_id: body?.payment_id,
+      policy_note_ar: policy.note_ar, reason: body.reason,
+      moyasar_payment_id: paymentId,
       history: [{ state: 'REQUESTED', at: new Date(), by: user.id }],
     });
     this.events.emit('refund.requested', { refund_id: doc.id });

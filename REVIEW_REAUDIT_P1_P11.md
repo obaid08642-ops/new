@@ -951,6 +951,26 @@ iOS: a smoke run of the core journeys before each store release.
 
 **Verdict:** Phase 13 **NOT APPROVED** (`REVIEW_P13.md`), Phase 14 **NOT APPROVED** (`REVIEW_P14.md`). 152 commits, **3 PASS, 149 FAIL**, each with a nine-point row and its evidence. Nothing is merged into `main`. **Do not start any new phase or task until every item below is closed.** Phase 12 stays frozen (owner): no new design work; do not revert its commits.
 
+### Status after the reviewer's own fixes (Round 2, 2026-10-04) — read this first
+
+The owner changed the rule after PR #239: the reviewer fixes the small defects in your code personally. Those fixes are merged into this branch as `[REVIEW-FIX]` commits (PR #240 → `1b12107`, PR #248). **Never revert or redo them.** Every row was re-checked personally; the result per sha is in `REVIEW_P13.md` / `REVIEW_P14.md`, section "Round 2".
+
+**Done by the reviewer — remove from your list:** A1 Q81 (`27a709a`, plus Q100 refund path) · A2 Q82 (`f9dfef6`) · A4 Q80 (`1695362`) · A5 Q87 (`d949b6d`; key rotation is the owner's) · A6 Q84 (`eb1026d`) · A7 Q83 (`089922e`; the Q89 part stays below) · A8 Q85 (`7388102`) · A10 guest lifecycle (`9559886`, `5546104`) · B11 Scenario 20 (`37f54f2`) · B12 patient-web parity (`66578b5`) · B14 CodeQL (`1f625c2`, `c35a221`, `422744b`; CodeQL green on PR #240) · B15 Q58 (`9df7b9e`; plain `npm ci` passes in the native strict run) · Q90 (`e717d1b`) · Q101 (`6f6b876`) · Q105 (`0ecba09`) · Q47/Q48 (`12163e1`) · Q69 (`d47c599`, `0605147`) · wishlist 404 and its allow-list entry (`4999f10`) · F8 bulk-approve (`af6cca1`) · R7 brand (`7edc44e`) · and the rows marked "fixed by reviewer" in the Round 2 tables.
+
+**Still yours, in this order (each is large: UI + API, a design decision, or money):**
+1. **Q79** registration creates no typed documents (A3). Large: every registration screen of 7 provider types must upload typed documents through the KYC API, and the journey's own upload must go. Verify: j_onboarding, j_nursing, j_ambulance, j_facility green with only screen payloads.
+2. **Q86 + Q104** payments (A9). Large (money, design): one payment path instead of `payments.module` + `MoyasarService`, one webhook receiver that authenticates Moyasar's `secret_token` field (Moyasar sends no HMAC header) and accepts the documented body. Do it together with Round 11 Q99.
+3. **Q102** the patient-web service booking modal fakes a booking. Wire the real booking API (or remove the modal), and fix the copay crash from `bdcdcb6`.
+4. **Q89 + R23** step-up on the remaining admin routes **and** the admin step-up UI, so the live harness and admins can pass it (j_loyalty).
+5. **F2** coverage-check: the app's add-policy screen must send network and class (or coverage must work without them). Verify: j_lab, j_radiology, j_consultation.
+6. **B13** `npx expo install --check`: waiting on the owner's decision (asked by the reviewer). Do not change CI until then.
+7. **Q103** demo seed data out of `backend/src`.
+8. **`31b1a1e`** second availability engine without the 5-minute buffer: one shared availability function (owner rule).
+9. **`82830cb`** Fastify path without its dependencies; **`16be643`** purge-bus unwired; then C17–C27 below, unchanged.
+10. D28 below, for every row marked "reproduced, agent" in the Round 2 tables. Notables: `d0b9ce9` (R83 clinic address is never sent by any screen), `7790744` (each report row needs its own filtered link, which means the target pages must accept a date filter), `973d08c` (insurer chips have no loading/empty/error state), `e64ec70` (an edit without approval keeps a medicine public), `9464055` (`/doctors/:id` 404 for real doctors), `/care/degrees` returns `[]`, `2ef3a3e` (engagement events 403, processor checks broken), `b4d1d98` (hard-coded facility names), `8e1e303` (testIDs), `a7596c8` (importer report).
+
+The A/B/C/D numbering below is kept for reference; where it disagrees with this block, this block wins.
+
 **Rules for this round (AGENTS.md, restated because they were broken):**
 - One item = one commit: `[R10-<n>] <id> <summary>`. Run the full gate before every push and paste the **real** output for each item in `AGENT_PROGRESS.md`. The gate on `bb97c87` was red (unit, patient-web, CI), so the branch was pushed red.
 - "Deferred", "wiring deferred", "follows", "out of scope" are not allowed. For each item: do it fully and wire it, or write `BLOCKED: <exact external reason>` in `AGENT_PROGRESS.md` and stop. The only external reasons the reviewer accepts are listed per item.
@@ -1001,3 +1021,58 @@ iOS: a smoke run of the core journeys before each store release.
 
 ### Verify for the whole round
 - The reviewer re-runs the nine-point review on every new commit, the full gate, the full CI on a review copy, the live gate, and the native strict run (`review/maestro-*`, workarounds off). Round 10 closes only when all of them are green and every row above is PASS or an accepted BLOCKED.
+
+## Round 11 — security audit with Trail of Bits skills (2026-10-04)
+
+Source: `docs/audit/SECURITY_SKILLS_REPORT.md`. Every item below was reproduced live on the local stack (synthetic data); evidence in `docs/review/evidence/security_skills_2026-10-04/`. Round 10 comes first; these follow it in this order. Rules of Round 10 apply (one item = one commit `[R11-<n>] <Q-id> <summary>`, full gate, a test that fails when the change is reverted, no "deferred").
+
+Already fixed by the reviewer on `main` (reach this branch through the main → agent sync; never revert): Q91 (`78e23175`), Q92 (`4f3b1898`), Q93 (`a35cb6f2`), Q94 fail-closed part (`16baba9f`).
+
+1. **Q96 refund requests** (`insurance-engine.module.ts` `RefundService.request`). Look up the booking by `booking_kind` + `booking_id`; 404 if missing, 403 unless `patient_id` is the caller; take the paid amount, payment id and schedule from the booking/transaction, never from the body; scope the duplicate check to `{booking_id, patient_id}` and never return another patient's document. **Verify:** spec with B → A's booking = 403 and a fake booking = 404; live replay of `probes/chat_refund.py` shows both refused.
+2. **Q95 medical reports** (`medical-reports.service.ts` `create`; same pattern in `POST /home-care/care-plans/:patientId`). The caller must be the provider on an appointment / lab booking / radiology booking / admission of that patient, or an admin; verify the referenced id; derive `doctor_id`/`doctor_name` from the caller. **Verify:** spec (unrelated doctor → 403, treating doctor → 201); live replay of `probes/medrep.py` → 403.
+3. **Q99 Moyasar webhook** (`webhooks.service.ts` `verifyMoyasar`). Fail closed in every environment; the local stack sets a test secret and `tools/live/fake_moyasar.py` signs with it; make the replay mark atomic (`SET NX` before processing). **Verify:** unsigned POST → 400 on a development build; the payment journeys stay green.
+4. **Q98 presigned uploads** (`media.controller.ts` `POST /media/presigned`, `media.service.ts`). Allow-list `mimetype` against the extension; sign `Content-Type` and a maximum `Content-Length` (or a POST policy with `content-length-range`); serve reads with `Content-Disposition: attachment`; check magic bytes on finalize. **Verify:** `probes/media_ct.py` → 400 for `text/html`; a real PDF still uploads.
+5. **Q97 group chat** (`chat.service.ts` `createGroupThread`, `addParticipant`). Apply the LJ-06 relationship rule to every participant of a new group and to each added participant; no participant changes on `direct` threads. **Verify:** `probes/chat_refund.py` → group with a stranger 403; family chat still works.
+6. **Q94 follow-up — TURN** (`coturn.controller.ts`/`coturn.service.ts`). Credentials only for a party of an active call session (appointment/booking id in the request, checked), TTL about 10 minutes, never for guests. **Verify:** spec; a guest token → 403; a call party → 200 with `ttl ≤ 600`.
+7. **Q91 follow-up — guest merge.** If merging a guest into an existing account is still wanted, add a flow that first authenticates as the existing account (password or OTP to its verified contact) and only then migrates the guest data. Until then convert-guest with someone else's email stays 409. **Verify:** spec for both branches; live: merge without proof → 409, with proof → data moved, token for the existing account.
+8. **Reproduce and close or refute each lead in §5 of the report** (payments `verifyPayment`/`RefundExecutor`/sync owner check, consultation `total_price`, provider privacy inboxes and nursing pool, `ChatGateway` token type and membership, `/calls/initiate`, AI limits and `copilot/suggest` role, patient-web CSRF, admin BFF gate token, the agent's `AdminDeviceService.revoke` id type, and the two functional regressions). For each: a failing test or live proof, then the fix — or a written reason why it is not a defect.
+
+
+## Round 12 — release split (owner, 2026-10-05)
+
+The owner split the remaining work into two phases. **Phase A blocks the next production deploy; Phase B comes after it.** This is the owner's decision, so Phase B items are not "deferred" by the agent: they are scheduled.
+
+**Who does what** (HANDOFF §2): large items go to the implementing agent, with acceptance tests the reviewer writes first. The reviewer reviews, fixes small defects and approves.
+
+### Phase A (before the deploy, in this order)
+1. Round 11 PR #255 (reviewer's, in review) merged.
+2. **Q79:** every provider registration screen (7 types) uploads the typed documents through the KYC API; remove the journey's own upload. Verify: j_onboarding, j_nursing, j_ambulance, j_facility green with screen payloads only.
+3. **Q86 + Q104 + Q99:** one payment path and one Moyasar webhook receiver that authenticates `secret_token` in every environment (staging included).
+4. **Q102:** the web service booking modal books for real (or is removed); fix the copay crash from `bdcdcb6`.
+5. **Q89 + R23:** step-up on every remaining money/privilege admin route, a usable admin step-up UI, and the Q66 route-list spec.
+6. **F2:** coverage-check works with what the add-policy screen sends. Verify: j_lab, j_radiology, j_consultation.
+7. **Q103:** demo seed data out of `backend/src`.
+8. **`31b1a1e`:** one shared availability function (5-minute buffer).
+9. **Design checks green on this branch:** no-raw-color in 7 files and no-emoji in 2 admin files (see the main sync `5ef60110`).
+10. The owner's answers of 2026-10-05:
+    - **e64ec70:** a pending revision until approval.
+    - **X4:** passkey enforcement, switched on only after the owner registers passkeys and the recovery path is tested.
+    - **N7:** individual providers' public pages show no phone, home address or internal IDs.
+
+Phase A closes when the gate, CI, the live gate and the native strict run are green on the tip, and every Phase A row is PASS. Then `fix/audit-2026-09` merges into `main` and the reviewer runs the rehearsed deploy.
+
+### Phase B (after the deploy)
+C17–C27 above:
+- 14.4/14.18 outbox and kill switches;
+- 14.20 media;
+- 14.15 indexes and the load seed;
+- 14.14 Redis roles and X12;
+- 14.17 load shedding;
+- 20.x observability;
+- 13.R21 AI gateway;
+- 13.R11 locations;
+- 13.R18 deep links;
+- 13.R13 propagation log;
+- the other unwired Phase 13 code.
+
+Until each is wired, it must be off (not called, or behind a flag that is off by default) in the Phase A deploy, and it must not change behaviour.

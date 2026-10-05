@@ -1,4 +1,5 @@
 import { BadGatewayException, BadRequestException, Inject, Injectable, Logger, Optional } from '@nestjs/common';
+import { escapeHtml } from '../../common/html-escape';
 import { I18nService } from '../i18n/i18n.service';
 import { Model } from 'mongoose';
 import { NotFoundException } from '@nestjs/common';
@@ -407,10 +408,11 @@ export class NotificationsService {
   async sendEmail(n: any, email: string) {
     // Unified pipeline: Resend primary → Amazon SES automatic fallback (MailModule).
     try {
+      // R11 §5: title and body carry user text; they are text, not markup.
       const result = await this.mail.send(
         email,
         n.title || n.title_key,
-        `<div dir="rtl" style="font-family: system-ui, sans-serif; text-align: right;"><h3>${n.title || n.title_key}</h3><p>${n.body || n.body_key}</p></div>`,
+        `<div dir="rtl" style="font-family: system-ui, sans-serif; text-align: right;"><h3>${escapeHtml(n.title || n.title_key)}</h3><p>${escapeHtml(n.body || n.body_key)}</p></div>`,
         n.body || n.body_key,
       );
       if (!result.ok) throw new BadGatewayException(result.error || 'mail_failed');

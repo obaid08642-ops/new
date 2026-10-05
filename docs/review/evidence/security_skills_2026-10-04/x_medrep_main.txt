@@ -1,0 +1,3 @@
+[main] doctor with no appointment/booking with the patient: login 201
+[main] doctor POST /medical-reports for unrelated patient -> 201 {'patient_id': '7d8d62e5-289f-4f7e-9984-b726fea20ca6', 'title_ar': 'تقرير اصطناعي', 'report_type': 'clinic_note', 'diagn
+[main] patient GET /medical-reports/mine contains it: 200 True

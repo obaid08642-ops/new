@@ -41,6 +41,7 @@ export const LINE_ICON_COMPONENTS = {
   plus: 'Plus',
   minus: 'Minus',
   filter: 'Funnel',
+  sliders: 'SlidersHorizontal',
   settings: 'Gear',
   list: 'List',
   download: 'DownloadSimple',

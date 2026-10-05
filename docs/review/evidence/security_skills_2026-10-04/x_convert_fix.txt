@@ -1,0 +1,5 @@
+[fix] victim id=016d715b-7edf-4744-aeae-a9da6c748f38 email=victim21166060895504@nabd.test
+[fix] guest created -> 201 id=889c1d63-8856-4bce-b857-9e7de4b77be2
+[fix] POST /auth/convert-guest {email: victim} -> 409 user.id=None
+[fix] GET /auth/me with returned token -> 401 id=None email=None
+[fix] victim can still log in with own password -> 201

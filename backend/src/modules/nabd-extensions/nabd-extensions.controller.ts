@@ -4,7 +4,7 @@ import { PharmacyOfferService } from '../pharmacy/services/pharmacy-offer.servic
 import { JwtAuthGuard, CurrentUser, Public, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
-import { CreditWalletDto, DebitWalletDto, RespondToBroadcastDto, ClaimReferralDto, UpdateFlagDto, EnrollProgramDto, CompleteSessionDto, MatchPharmacyDto, MatchNurseDto, VerifyNurseAttendanceDto, VerifyBarcodeDto, VerifyLabResultsDto, EnrollCorporateDto, CreateAdBidDto} from './nabd-extensions.dto';
+import { RespondToBroadcastDto, ClaimReferralDto, UpdateFlagDto, EnrollProgramDto, CompleteSessionDto, MatchPharmacyDto, MatchNurseDto, VerifyNurseAttendanceDto, VerifyBarcodeDto, VerifyLabResultsDto, EnrollCorporateDto, CreateAdBidDto} from './nabd-extensions.dto';
 
 @Controller()
 @UseGuards(JwtAuthGuard)

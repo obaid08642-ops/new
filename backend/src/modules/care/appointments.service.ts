@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException, Logger, Inject, Optional } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException, Logger, Inject, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { Model, Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { randomUUID } from 'crypto';
@@ -175,8 +175,9 @@ export class AppointmentsService {
       });
       blocking = typeof q?.lean === 'function' ? await q.lean() : await q;
     } catch (e) {
-      this.logger.warn(`slot-hold check unavailable, allowing booking to proceed: ${(e as any)?.message}`);
-      return;
+      // Fail closed: a booking that cannot see the holds could take a held slot.
+      this.logger.warn(`slot-hold check unavailable, refusing the booking: ${(e as any)?.message}`);
+      throw new ServiceUnavailableException('slot_hold_check_unavailable');
     }
     if (blocking) throw new ConflictException('slot_held');
   }
@@ -341,8 +342,7 @@ export class AppointmentsService {
     // holder's own booking stays allowed (their lock is excluded below, or
     // consumed via slot_lock_id). Pure read through the shared connection so
     // no other module's contract changes; expired holds never match because
-    // the query requires expires_at > now. Lookup failures fail open (logged)
-    // — the overlap check + unique index above remain the hard backstop.
+    // the query requires expires_at > now. Lookup failures refuse the booking (503).
     await this.assertNoForeignSlotHold(doctor.id, slotStart, slotEnd, user, patientId);
 
     // Optional slot hold (POST /slot-locks/reserve): validated before any
@@ -695,6 +695,8 @@ export class AppointmentsService {
       $or: [{ slot_start: { $lt: paddedEnd }, slot_end: { $gt: newStart } }],
     });
     if (overlapping) throw new ConflictException('slot_already_booked_or_conflicts_with_buffer');
+    // Q36: the new slot must not be another patient's active hold either.
+    await this.assertNoForeignSlotHold(appt.doctor_id, newStart, newEnd, user, appt.patient_id);
 
     // Create first so a rejected/conflicting replacement preserves the original
     // appointment. If persisting the original transition subsequently fails,

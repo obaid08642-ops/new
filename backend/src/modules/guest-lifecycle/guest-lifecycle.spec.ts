@@ -17,14 +17,10 @@ describe('GuestLifecycleService', () => {
   const svc = (guests: any[], linkedIds: Set<string> = new Set(), countsThrow = false) => {
     const service: any = Object.create(GuestLifecycleService.prototype);
     service.logger = { log: jest.fn() };
-    // Track WHICH guest is being checked: countDocuments receives no id, so
-    // sequence calls in guest order (implementation queries per guest serially).
-    const queue = guests.map((g) => String(g.id));
-    let i = 0;
-    const nextLinked = () => {
-      const gid = queue[Math.floor(i / 2)];
-      i++;
-      return linkedIds.has(gid) ? 1 : 0;
+    // Linkage is answered per guest from the filter's id (any collection, any owner field).
+    const linkedFor = (filter: any) => {
+      const ids: string[] = JSON.stringify(filter).match(/"\$eq":"([^"]+)"/g) ?? [];
+      return ids.some((m) => linkedIds.has(m.slice(7, -1))) ? 1 : 0;
     };
     service.users = {
       find: jest.fn(() => ({ select: jest.fn(() => ({ lean: jest.fn(async () => guests) })) })),
@@ -32,10 +28,11 @@ describe('GuestLifecycleService', () => {
       updateOne: jest.fn(async () => ({})),
       db: {
         collection: jest.fn(() => ({
-          countDocuments: jest.fn(async () => {
+          countDocuments: jest.fn(async (filter: any) => {
             if (countsThrow) throw new Error('db down');
-            return nextLinked();
+            return linkedFor(filter);
           }),
+          deleteMany: jest.fn(async () => ({})),
         })),
       },
     };

@@ -136,8 +136,15 @@ export class BookingOpsService {
       : this.appts;
     const set: any = {};
     if (body.status) {
+      // R11 §5: card and insurance payments are settled by the gateway or the
+      // insurer only. A provider may record cash it collected on a cash/COD
+      // booking, and never attaches a transaction id.
+      const admin = this.isAdmin(user);
+      // A booking with no recorded method is not assumed to be cash.
+      const method = String(entity.payment_method || entity.payment_method_id || '').toLowerCase();
+      if (!admin && !['cash', 'cod', 'cash_on_delivery'].includes(method)) throw new ForbiddenException('payment_settled_by_gateway');
       set.payment_status = body.status;
-      set.transaction_id = body.transaction_id || null;
+      set.transaction_id = admin ? body.transaction_id || null : null;
       set.paid_at = body.status === 'paid' ? new Date() : null;
     }
     if (body.insurance_status) {

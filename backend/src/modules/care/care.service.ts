@@ -83,11 +83,9 @@ export class CareService {
     // F9/R11: the admin-managed specialties collection is the single source.
     // The hard-coded SPECIALTY_MASTER fallback is gone: an admin-added specialty
     // reaches patients, and a removed one disappears.
-    let source: any[] = [];
-    try {
-      source = await (this.providerModel as any).db?.collection('specialties')
-        ?.find({ active: { $ne: false } }, { projection: { _id: 0 } }).toArray() || [];
-    } catch { source = []; }
+    // A read failure surfaces as an error, never as "no specialties".
+    const source: any[] = await (this.providerModel as any).db?.collection('specialties')
+      ?.find({ active: { $ne: false } }, { projection: { _id: 0 } }).toArray() || [];
     return source.map((s: any) => {
       // Profiles store the canonical specialty slug; Arabic/English fallbacks
       // retain compatibility with older imported records without counting
@@ -108,8 +106,10 @@ export class CareService {
   /** ===== Insurance companies — F9/R11: DB is the single source ===== */
   async insuranceCompanies() {
     try {
+      // Q85: insurers use is_active / catalog_status, not `active`: same public filter as
+      // /catalogs/insurance, and public fields only (no created_by/updated_by/deleted_at).
       const rows: any[] = await (this.providerModel as any).db?.collection('insurance_companies')
-        ?.find({ active: { $ne: false } }, { projection: { _id: 0 } }).toArray() || [];
+        ?.find({ is_active: true }, { projection: { _id: 0, id: 1, code: 1, name_ar: 1, name_en: 1, logo_url: 1, image_url: 1, is_active: 1 } }).toArray() || [];
       return rows;
     } catch { return []; }
   }

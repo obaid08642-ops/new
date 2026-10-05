@@ -9,7 +9,9 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger, ForbiddenException } from '@nestjs/common';
+import { Optional } from '@nestjs/common';
 import { ChatService } from './chat.service';
+import { isAccessTokenPayload, authenticateSocketToken, JwtAuthGuard } from '../../common/auth.guard';
 import { OnEvent } from '@nestjs/event-emitter';
 import { getWebSocketCorsOptions } from '../../config/websocket-cors';
 
@@ -29,7 +31,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private activeUsers = new Map<string, string>(); // socketId -> userId
   private restrictedThreads = new Map<string, string>(); // socketId -> thread id for chat_rt tokens
 
-  constructor(private readonly chatService: ChatService) {}
+  constructor(private readonly chatService: ChatService, @Optional() private readonly authGuard?: JwtAuthGuard) {}
 
   async handleConnection(socket: Socket) {
     // M6/ER-11: identity must come from a verified JWT — previously any client
@@ -45,8 +47,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         if (payload?.purpose === 'chat_rt') {
           if (payload?.aud !== 'chat-rt' || !payload?.thread_id || !userId) throw new Error('invalid_chat_rt_token');
           this.restrictedThreads.set(socket.id, payload.thread_id);
+        } else if (!isAccessTokenPayload(payload)) {
+          // R11 §5: refresh / QR / other non-access tokens never open a socket.
+          throw new Error('not_an_access_token');
+        } else {
+          // R11: an access token goes through the same JwtAuthGuard as REST
+          // (token_version, staff gate and device lock, impersonation session).
+          // Fails closed when the guard is not available.
+          if (!this.authGuard) throw new Error('auth_guard_unavailable');
+          const user = await authenticateSocketToken(this.authGuard, token, socket.handshake.headers as Record<string, unknown>, String(socket.handshake.address || ''));
+          if (!user) throw new Error('auth_guard_refused');
+          userId = user.id || user.sub || userId;
+          // RealtimeGateway re-checks it with the other sockets on this namespace.
+          (socket as any).data = { ...((socket as any).data || {}), user: (socket as any).data?.user || user };
         }
       } catch {
+        userId = null;
+        this.restrictedThreads.delete(socket.id);
         this.logger.warn('Socket rejected: invalid JWT');
       }
     }
@@ -86,11 +103,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return { status: 'joined' };
   }
 
+  /** R11 §5: relays go only into a thread room this socket joined (membership checked on join). */
+  private joined(socket: Socket, threadId: string): boolean {
+    return !!threadId && !!socket?.rooms?.has?.(`thread_${threadId}`);
+  }
+
   @SubscribeMessage('typing')
   async handleTyping(
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { threadId: string; isTyping: boolean },
   ) {
+    if (!this.joined(socket, data?.threadId)) return { error: 'not_joined' };
     const userId = this.activeUsers.get(socket.id);
     socket.to(`thread_${data.threadId}`).emit('typing', {
       threadId: data.threadId,
@@ -106,6 +129,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { threadId: string; content: string; state: string },
   ) {
+    if (!this.joined(socket, data?.threadId)) return { error: 'not_joined' };
     // Enforce CLOSED state
     if (data.state === 'CLOSED') {
       return { error: 'chat_closed_after_24h' };
@@ -126,6 +150,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { threadId: string; state: string },
   ) {
+    if (!this.joined(socket, data?.threadId)) return { error: 'not_joined' };
     // Enforce PRE_CONSULTATION state
     if (data.state === 'FOLLOW_UP' || data.state === 'CLOSED') {
       return { error: 'calls_disabled_in_this_state' };
@@ -143,6 +168,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { threadId: string; messageIds?: string[] },
   ) {
+    if (!this.joined(socket, data?.threadId)) return { error: 'not_joined' };
     // M6/ER-9: realtime read receipts — notify the other party instantly
     const userId = this.activeUsers.get(socket.id);
     socket.to(`thread_${data.threadId}`).emit('message_seen', {

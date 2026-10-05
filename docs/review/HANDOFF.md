@@ -29,11 +29,17 @@ Read this first in a new reviewer session, together with `AGENTS.md`. It replace
 - **Fixes small defects personally, in `main` code and in the agent's unmerged code alike** (owner decision 2026-10-04). Small means: local to a few files, the correct behaviour is unambiguous, and no schema, API contract, product or design decision is involved. Examples: a missing guard or filter, a wrong id passed, a missing translation key, a red test caused by a one-line bug.
   - Defect in `main` code: `review/*` branch from `main` → PR → merge commit into `main`.
   - Defect in agent code not yet in `main`: `review/fix-*` branch from the tip of `fix/audit-2026-09` → PR into `fix/audit-2026-09` → merge commit. Commit tag `[REVIEW-FIX] <Q/F-id> <summary>`, with a regression test that fails before the fix. Update the row in `REVIEW_P13.md` / `REVIEW_P14.md` and `QA_DEFECTS.md` to "fixed by reviewer, <sha>".
-- **Delegates only the larger defects** to the agent in `REVIEW_REAUDIT_P1_P11.md` and `docs/review/QA_DEFECTS.md`, each with Verify criteria.
+- **Owner decision 2026-10-05 (supersedes the 2026-10-04 rule): split by size, to save reviewer tokens.**
+  - **Reviewer session:** fixes small items itself (`review/fix-*` → `[REVIEW-FIX]`), reviews and approves every agent PR, and fixes the small defects it finds in them.
+  - **Implementing agent (OpenCode):** does the large items (Round 12 Phase A list, then Phase B), one PR per item into `fix/audit-2026-09`.
+  - **Tests first:** for each large item, the reviewer FIRST writes the acceptance tests (they fail on the current code and describe the required behaviour) on a `review/spec-<id>` branch merged into `fix/audit-2026-09`. The agent makes them pass and may not edit them. The reviewer runs the full gate, CI, the live journeys and a mutation (fix reverted → tests fail) before approving. Money and security items (payments, step-up) get the strictest review.
+  - Because the reviewer now also writes the fix, every fix PR gets an independent check before merge: a second reviewer session (or the lead reviewer) reads the diff and re-runs its test with the fix reverted (mutation).
+  - Product decisions that the code cannot answer (money flows, legal text, which of two payment systems to keep) are still asked of the owner, once, with a recommended option.
+- `QA_DEFECTS.md` and `REVIEW_REAUDIT_P1_P11.md` remain the work list; mark each row "fixed by reviewer, <sha>".
 - After every merge into `main`, merges `main` into `fix/audit-2026-09`. Never force-push, never rewrite the agent's history, never revert agent commits; the only reviewer commits on that branch are these merges and `[REVIEW-FIX]` merges.
 - **Merging the agent branch into `main`**: once the reviewer's own fixes are in and every remaining row is PASS or an accepted BLOCKED, with the full gate, CI, live gate and native run green. Never merge red.
 
-**Agent**: works only on `fix/audit-2026-09` and follows `AGENTS.md`. Last agent commit: `6ca29c4` (2026-10-04). **The 152 unmerged agent commits were reviewed on 2026-10-04 (tip `bb97c87`), one nine-point row each: 3 PASS, 149 FAIL** (`REVIEW_P13.md`, `REVIEW_P14.md`). Phases 13 and 14: NOT APPROVED. Nothing merged into `main`. The agent's work list is **Round 10** in `REVIEW_REAUDIT_P1_P11.md`; new defects Q78–Q90 in `QA_DEFECTS.md`. Review copy for CI: draft PR #237 (`review/agent-tip-ci`, never merge). Native on the agent code: `review/maestro-agent-tip` (strict, workarounds off) and `review/maestro-agent-tip-q58` (only Q58 on).
+**Agent**: works only on `fix/audit-2026-09` and follows `AGENTS.md`. Last agent commit: `b274e6f` (2026-10-04 14:30). **The 152 unmerged agent commits were reviewed on 2026-10-04 (tip `bb97c87`), one nine-point row each: 3 PASS, 149 FAIL** (`REVIEW_P13.md`, `REVIEW_P14.md`). Round 2 (same day) re-checked every row personally: the defects of 43 rows were fixed by the reviewer (44 fix commits), and 87 rows plus 6 newer commits go back to the agent. Phases 13 and 14: NOT APPROVED. Nothing merged into `main`. The agent's work list is **Round 10** in `REVIEW_REAUDIT_P1_P11.md`; new defects Q78–Q90 in `QA_DEFECTS.md`. Review copy for CI: draft PR #237 (`review/agent-tip-ci`, never merge). Native on the agent code: `review/maestro-agent-tip` (strict, workarounds off) and `review/maestro-agent-tip-q58` (only Q58 on).
 
 **Owner**
 - Reports go to the owner in **Arabic** (Egyptian-friendly, plain).
@@ -74,10 +80,10 @@ PR bodies end with the Claude Code line and the session link.
 
 | Id | Problem | Status |
 |---|---|---|
-| Q62 | patient-app Android build fails (react-native-callkeep: `jcenter()` + missing androidx dependency) | open |
-| Q67 | patient-app build fails: two WebRTC libraries (`react-native-webrtc` is unused) | open |
-| Q68 | provider-app crashes at launch: `expo-image-manipulator ~14` on Expo 57 | open |
-| Q69 | every map screen crashes on Android: no Google Maps key in `app.json` | open |
+| Q62 | patient-app Android build fails (react-native-callkeep: `jcenter()` + missing androidx dependency) | fixed on the agent branch; proven by the strict build (run `37203970270`, workarounds off) |
+| Q67 | patient-app build fails: two WebRTC libraries (`react-native-webrtc` is unused) | fixed on the agent branch; proven by the strict build |
+| Q68 | provider-app crashes at launch: `expo-image-manipulator ~14` on Expo 57 | fixed on the agent branch at build level (strict build); launch proven by the 7 provider crawls of run `37196546443` |
+| Q69 | every map screen crashes on Android: no Google Maps key in `app.json` | **fixed by the reviewer** on the agent branch (`d47c599` patient, `0605147` provider): a "map unavailable" fallback without a key. The real key is the owner's |
 | Q71 | patient-app session token never saved on native: SecureStore key had `@` | **fixed by the reviewer, PR #229** |
 
 **Other critical**
@@ -98,6 +104,7 @@ PR bodies end with the Claude Code line and the session link.
 **Medium and low**: see `QA_DEFECTS.md`.
 
 **Fixed by the reviewer** (each with a test and a live re-check)
+- **Round 2 (2026-10-04):** 44 fix commits in the agent's unmerged code (35 in PR #240 → `1b12107`, 9 in PR #248) and Q78 + Q106 on `main` (PR #244, PR #249). Full list: `REVIEW_P13.md` section "Round 2"; ids Q100–Q106 in `QA_DEFECTS.md`;
 - Q2, Q10–Q14, Q17, Q20, Q32, Q35, Q40, Q71;
 - the icon font;
 - tooling: Q6, Q7, Q18, Q19, Q26, Q27;
@@ -133,6 +140,10 @@ PR bodies end with the Claude Code line and the session link.
 - **Server access**: the reviewer needs HTTPS access to staging (API, admin, website) through a Cloudflare Access service token, not an SSH shell. Outbound traffic from the cloud container goes through an HTTPS proxy, so SSH is not the right channel. Deploys stay with the owner.
 - **Maps (Q69)**: recommendation given, owner to confirm: keep Google Maps for display (the key comes from the build environment, never the repo), make every map screen survive a missing key, and keep paid calls (Places, Geocoding, Directions) to a minimum with caching. OpenStreetMap/MapLibre is free but weaker for Arabic addresses in Saudi Arabia and is a larger rework.
 
+- **Calls (owner, 2026-10-04):** there is no separate voice consultation. A call is one LiveKit call; the doctor and the patient can each turn their camera on or off. One price (the consultation fee). `voice_consultation_fee` is removed from the design, and no separate voice/video product or price may be built.
+- **Design rebuild branches:** design work goes on `design/<batch>` branches from `main` with a PR to `main` (one batch per PR, screenshots before/after, reviewed before merge). Never on `fix/audit-2026-09`.
+- **Doctor profile fields** for the design (`scfhs_license_no`, `years_experience`, `qualifications[]`): added by the reviewer session in the backend, entered by the doctor at registration and approved by the admin. They stay hidden in the UI until filled, with no default or invented values.
+
 ## 6. Waiting on the owner
 
 1. Rotate the LiveKit key (Q53).
@@ -145,6 +156,8 @@ PR bodies end with the Claude Code line and the session link.
    - optional: authorize the Cloudflare connector in claude.ai connector settings for read-only checks of DNS, WAF and rate-limit rules.
 4. The medicine catalog for QA: a staging copy, or the export file in the environment.
 5. A server or staging check of video calls (LiveKit and coturn on OVH).
+6. CI step `npx expo install --check` (added by the agent in `458c7b8` without approval): it fails on every Expo patch release. The reviewer proposes replacing it with a major-version alignment check. The owner decides; no CI change until then.
+7. The SMS sender id stays `Nabdah` (the brand fix `7edc44e` did not touch it); change it only if the owner wants the registered sender renamed.
 
 ## 7. Native E2E pipeline (built 2026-10-03)
 
@@ -170,6 +183,12 @@ PR bodies end with the Claude Code line and the session link.
   - the emulator launcher's ANR dialog;
   - Maestro whole-label matching.
 
+### 7c. Native on the agent code (Round 2, 2026-10-04)
+
+- Run `37196546443` (agent tip, only the Q58 install workaround on): both builds and all 13 crawls succeeded. Provider doctor: 8 screens alive, no `FATAL EXCEPTION` in logcat, so **Q68 launch is proven**. Patient shard 0: 38/38 screens alive.
+- **Q69 is not proven on the emulator.** The crawler's `/map` deep link lands on Home (the screenshot shows Home with the language menu open), and the provider crawl never reaches `DoctorLocationScreen`, so no map rendered with or without the fix. The Q69 guard is proven by unit tests only (`map-primitives-missing-key.test.tsx`, `PlatformMap.missing-key.test.tsx`). To prove it on a device, add a crawler step that opens a real map screen (patient nearby pharmacies, provider doctor location).
+- Run `37203970270` (`1b12107`, **every workaround off**): patient-app and provider-app release builds succeeded, including plain `npm ci` for provider-app (Q58, Q62, Q67, Q68 proven at build level). The crawl was still running when this was written.
+
 ### 7b. Native baseline (run 37187173460, 2026-10-04)
 
 All 13 jobs green: 6 patient shards and 7 provider types, every one signed in.
@@ -185,7 +204,7 @@ All 13 jobs green: 6 patient shards and 7 provider types, every one signed in.
 
 ## 8. Reviewer next steps (in order)
 
-**Status 2026-10-04:** step 0 done for `bb97c87` (verdict above). Next: wait for the agent's Round 10 pushes, then repeat step 0 on every new commit (nine checks, gate, CI copy, live gate, native strict). Only when Round 10 is closed: merge to `main`, sync, tell the owner it is ready for staging.
+**Status 2026-10-04 (Round 2):** step 0 done for `bb97c87`, and every row re-checked personally under the new owner rule (no unconfirmed results; the reviewer fixes small defects). Reviewer fixes: PR #240 (merged, `1b12107`) and PR #248 into `fix/audit-2026-09`; PR #244 and PR #249 on `main`. The remaining work is large and belongs to the agent (Round 10 status block in `REVIEW_REAUDIT_P1_P11.md`, then Round 11). Next: wait for the agent's pushes and repeat the nine-point review on each new commit, with the full gate, CI copy, live gate and native strict run. Merge to `main` only when every row is PASS or an accepted BLOCKED.
 
 0. **Review the 152 unmerged agent commits first** (`git log origin/main..origin/fix/audit-2026-09 --no-merges`):
    - run the full `AGENTS.md` gate on the branch tip, and open a draft PR from a `review/*` copy so the whole CI runs;

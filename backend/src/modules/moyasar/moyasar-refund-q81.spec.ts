@@ -5,12 +5,15 @@
  * Before the fix, the `moyasar:payments:refund` breaker was cached by name with
  * the FIRST caller's work function, whose closure captured the first
  * `moyasarId`. Every later refund therefore POSTed to
- * `/payments/<first-id>/refunds` while the service marked the *later* payment
+ * `/payments/<first-id>/refund` while the service marked the *later* payment
  * refunded locally — a silent cross-payment mis-refund.
  *
- * This went unnoticed because the local fake gateway (tools/live/fake_moyasar.py)
- * serves `/refund` (singular) while the backend calls `/refunds`, so the live
- * journey never reached this code path successfully.
+ * These tests pin the per-payment targeting (the Q81 guarantee) AND the exact
+ * outgoing URL. The endpoint is the documented singular
+ * `POST /payments/:id/refund`, which is what the local fake gateway
+ * (tools/live/fake_moyasar.py) serves; a plural `/refunds` would 404 there and
+ * in production, so pinning it here also keeps the live journey able to
+ * exercise refunds at all.
  */
 import { CircuitBreakerService } from '../../common/circuit-breaker.service';
 import { MoyasarService } from './moyasar.module';
@@ -90,8 +93,8 @@ describe('MoyasarService.refundPayment — one breaker, many payments (Q81)', ()
 
     // The exact defect: the second refund targeted the FIRST payment.
     expect(requested.map((r) => r.url)).toEqual([
-      'https://gateway.test/v1/payments/pay_FIRST0001/refunds',
-      'https://gateway.test/v1/payments/pay_SECOND002/refunds',
+      'https://gateway.test/v1/payments/pay_FIRST0001/refund',
+      'https://gateway.test/v1/payments/pay_SECOND002/refund',
     ]);
   });
 
@@ -119,7 +122,7 @@ describe('MoyasarService.refundPayment — one breaker, many payments (Q81)', ()
     }
 
     expect(requested.map((r) => r.url)).toEqual(
-      ids.map((id) => `https://gateway.test/v1/payments/${id}/refunds`),
+      ids.map((id) => `https://gateway.test/v1/payments/${id}/refund`),
     );
   });
 
@@ -133,11 +136,11 @@ describe('MoyasarService.refundPayment — one breaker, many payments (Q81)', ()
 
     expect(requested).toEqual([
       {
-        url: 'https://gateway.test/v1/payments/pay_FIRST0001/refunds',
+        url: 'https://gateway.test/v1/payments/pay_FIRST0001/refund',
         body: { amount: 10000 },
       },
       {
-        url: 'https://gateway.test/v1/payments/pay_SECOND002/refunds',
+        url: 'https://gateway.test/v1/payments/pay_SECOND002/refund',
         body: { amount: 25000 },
       },
     ]);

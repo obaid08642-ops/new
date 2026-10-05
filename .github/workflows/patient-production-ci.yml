@@ -104,7 +104,7 @@ jobs:
       # the app root), so the web renderer is mirrored. This is what stops the
       # artwork a screen renders from drifting from the artwork A6/A7 ship.
       - name: Mirrored UI renderer in patient-web is not stale
-        run: node tools/design/sync-ui-components.mjs --check
+        run: node ../../tools/design/sync-ui-components.mjs --check
       - name: Contrast check (both themes)
         run: npm run contrast
       # A5's guard. Ratcheted: the 289 sizes that predate the design system are
@@ -121,25 +121,35 @@ jobs:
         run: npm run no-raw-color
       - name: No new emoji in UI (ratchet)
         run: npm run no-emoji
+      # handoff §6 / DEVICE_STANDARD §5. 100vh hides the page bottom under the
+      # mobile browser chrome (strict); SafeAreaView from react-native pads only
+      # on iOS (strict; Dimensions.get is ratcheted); physical left/right is on the
+      # wrong side in Arabic and Urdu (ratchet, tools/design/no-left-right.baseline.json).
+      - name: No 100vh on the web (strict)
+        run: npm run no-100vh
+      - name: No SafeAreaView from react-native; no new Dimensions.get (strict + ratchet)
+        run: npm run no-rn-safeareaview
+      - name: No new physical left/right, start/end only (ratchet)
+        run: npm run no-left-right
       # A4: a missing translation key is not an error in next-intl, it renders the
       # KEY. `NursingCatalog.emptyBody` reached users as that literal string on
       # the public nursing catalogue. This compares every locale against en.
       - name: Every locale covers every key (i18n coverage)
-        run: node tools/design/i18n-coverage.mjs
+        run: node ../../tools/design/i18n-coverage.mjs
       # A0 across the OTHER THREE clients. provider-app/src/theme/tokens.ts
       # claimed in its own comment to be a mirror of tokens.json and held the
       # pre-A2 palette while ten screens imported it: the token contrast check
       # reads tokens.json, the runtime check renders patient-web, and this file
       # was checked by neither. This closes that gap.
       - name: Generated client token modules are not stale
-        run: node tools/design/sync-client-tokens.mjs --check
+        run: node ../../tools/design/sync-client-tokens.mjs --check
       - name: No new off-palette colour in the mobile/admin clients (ratchet)
-        run: node tools/design/client-token-sync.mjs
+        run: node ../../tools/design/client-token-sync.mjs
       # C2, third leg: screens take visual primitives from packages/ui* only. The
       # other two lints catch a hard-coded VALUE; this catches a hard-coded
       # COMPONENT — a screen reaching past the design system for its own icons.
       - name: No new direct visual-primitive import in any client (ratchet)
-        run: node tools/design/import-rule.mjs
+        run: node ../../tools/design/import-rule.mjs
       - name: Install compiler
         run: npm install --ignore-scripts --no-save typescript@5.9.3
       - name: Type check the generated TypeScript module
@@ -160,21 +170,33 @@ jobs:
     name: runtime contrast (rendered pages, both themes)
     runs-on: ubuntu-latest
     needs: [design-system]
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      # patient-web is a pnpm project (no package-lock.json), installed exactly like its own job.
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.4.1
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: patient-web/pnpm-lock.yaml
       - name: Install workspace
-        run: npm --prefix patient-web ci --ignore-scripts
-      - name: Install a browser
-        run: npx --yes playwright@1.63.0 install --with-deps chromium
+        working-directory: patient-web
+        run: corepack enable && pnpm install --frozen-lockfile
+      # playwright is not a patient-web dependency: install the pinned version on the side and
+      # its matching browser, and point the audit at it.
+      - name: Install Playwright and a browser
+        run: |
+          npm install --no-save --no-package-lock --prefix "$RUNNER_TEMP/pw" playwright@1.63.0
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
       - name: Build
         working-directory: patient-web
-        run: npm run build
+        run: pnpm build
       - name: Start
         working-directory: patient-web
-        run: npm run start -- --port 3999 &
+        run: NODE_ENV=production pnpm exec next start --port 3999 &
       - name: Wait for the server
         run: |
           for i in $(seq 1 60); do
@@ -184,8 +206,9 @@ jobs:
           echo "server did not come up" >&2
           exit 1
       - name: No new unreadable text (ratchet)
+        timeout-minutes: 15
         run: |
-          PLAYWRIGHT_PATH="$PWD/patient-web/node_modules/playwright" \
+          PLAYWRIGHT_PATH="$RUNNER_TEMP/pw/node_modules/playwright" \
             node tools/design/runtime-contrast.mjs \
               --base http://localhost:3999 \
               --routes tools/design/runtime-contrast.routes.txt
@@ -204,14 +227,11 @@ jobs:
       # Same rule as the tokens: dist/ is committed, so this fails if anyone
       # hand-edits a generated icon or redraws the mark away from the approved
       # geometry in src/logo-mark.svg.
-      - name: Generated assets are in sync with the SVG sources
-        run: node build.mjs --check
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
+      # build.mjs needs sharp to rasterise; this package has no dependencies of its own, so install
+      # the version the admin install resolves (the PNGs are compared byte for byte) before checking.
       - name: Install sharp (rasteriser)
-        run: npm install --no-save --prefix ../admin sharp
-      - name: Re-verify after a clean rasteriser
+        run: npm install --no-save --no-package-lock sharp@0.35.4
+      - name: Generated assets are in sync with the SVG sources
         run: node build.mjs --check
 
   design-artwork:
@@ -229,6 +249,12 @@ jobs:
       # preview page are committed so a reviewer can open dist/preview.html
       # without booting anything. This fails if anyone hand-edits a generated
       # file or redraws geometry without regenerating it.
+      # The generators import react, react-dom and @phosphor-icons/react, and packages/ui's tsconfig
+      # also compiles ../ui-native, so both packages are installed before anything runs.
+      - name: Install the web and native design systems
+        run: |
+          npm install --ignore-scripts --no-audit --no-fund
+          npm --prefix ../ui-native install --ignore-scripts --no-audit --no-fund
       - name: Generated icon sheets and preview are in sync with the geometry
         run: npm test
       # The artwork is checked, not just generated: the generator refuses to emit
@@ -256,17 +282,18 @@ jobs:
       # renderer stops accepting a prop the contract promises, or when the two
       # disagree on a shape. That is the whole enforcement mechanism for "same
       # API on web and native", and it costs nothing to run.
-      - name: Install the web design system
-        working-directory: packages/ui
-        run: npm install --ignore-scripts --no-audit --no-fund
+      # conformance.ts imports BOTH renderers, so packages/ui's tsc also compiles ../ui-native and
+      # needs its react / react-native types: install both before the first tsc.
+      - name: Install the web and native design systems
+        run: |
+          npm --prefix packages/ui install --ignore-scripts --no-audit --no-fund
+          npm --prefix packages/ui-native install --ignore-scripts --no-audit --no-fund
       - name: The two renderers implement one contract
         working-directory: packages/ui
         run: npx tsc --noEmit -p tsconfig.json
       - name: The React Native renderer type checks against the same contract
         working-directory: packages/ui-native
-        run: |
-          npm install --ignore-scripts --no-audit --no-fund
-          npx tsc --noEmit -p tsconfig.json
+        run: npx tsc --noEmit -p tsconfig.json
       # The gallery is the review artifact, and it renders the REAL components
       # rather than a hand-written template, so a component that does not
       # compile cannot appear in it.
@@ -339,9 +366,13 @@ jobs:
       - name: Install frozen dependencies
         run: npm ci
       # Q68: an SDK-mismatched native module crashes the app at launch without
-      # touching JS. Fail the build if any native package is misaligned.
+      # touching JS. Fail only on an SDK major mismatch, a native package on a
+      # different major, or a missing native module; patch drift never fails
+      # (owner decision 2026-10-04, replaces `npx expo install --check`).
       - name: Verify native module alignment
-        run: npx expo install --check
+        run: |
+          node --test ../tools/native/check_expo_alignment.test.mjs
+          node ../tools/native/check_expo_alignment.mjs .
       # patient-app imports the design system sources from ../packages (12.A6/A7);
       # their own dependencies must be present for tsc, jest and the export.
       - name: Install the shared design packages
@@ -381,7 +412,7 @@ jobs:
         run: npm ci --legacy-peer-deps
       # Q68: see patient-app above.
       - name: Verify native module alignment
-        run: npx expo install --check
+        run: node ../tools/native/check_expo_alignment.mjs .
       - name: Type check
         run: npx tsc --noEmit
       - name: Run tests

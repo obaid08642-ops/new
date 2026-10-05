@@ -352,14 +352,29 @@ export class MoyasarService {
       const amountHalalas = amount ? Math.round(amount * 100) : undefined;
       // Q81: the payment id must travel as an ARGUMENT, never be captured from
       // the enclosing scope. The breaker is cached by name, so a closure over
-      // `moyasarId` sent every refund to the FIRST payment's /refunds endpoint
+      // `moyasarId` sent every refund to the FIRST payment's /refund endpoint
       // while marking each later payment refunded locally. Same args-driven
       // shape as the sync breaker above.
+      //
+      // Endpoint is the SINGULAR `/payments/{id}/refund` — the other side's
+      // correction, taken over our P15 "F7" plural `/refunds`:
+      //   * Moyasar's own API reference documents exactly
+      //     `POST /payments/:id/refund` (docs.moyasar.com Payments API →
+      //     Refund Payment), and its sibling operations are `/payments/:id/capture`
+      //     and `/payments/:id/void`. There is no plural `/refunds` endpoint.
+      //   * plural would 404 at the gateway, and because this method throws on
+      //     `!resp.ok` before saving, refunds would be impossible in production.
+      //   * our F7 plural claim was circular: it treated the pre-existing code as
+      //     the reviewed contract. The one independent signal — the local fake
+      //     gateway (tools/live/fake_moyasar.py), which serves singular — was
+      //     dismissed as noise, when it in fact matches the real API.
+      // Both sides' Q81 fix is preserved (args-driven); only the URL literal and
+      // the arg key differ, and the arg key is internal to this closure.
       const refundBreaker = this.moyasarBreaker(
         'moyasar:payments:refund',
         (arg: { paymentId: string; body: Record<string, unknown> }) =>
           this.gatewayFetch(
-            `${this.baseUrl}/payments/${encodeURIComponent(arg.paymentId)}/refunds`,
+            `${this.baseUrl}/payments/${encodeURIComponent(arg.paymentId)}/refund`,
             {
               method: 'POST',
               headers: this.authHeaders(),

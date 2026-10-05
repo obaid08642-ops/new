@@ -60,7 +60,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? `تحليل ${decTest} في ${decCity} | سحب عينات منزلي ومختبرات معتمدة`
     : `${decTest} Lab Test in ${decCity} | Home Sample Collection`;
   const desc = locale === "ar"
-    ? `احجز تحليل ${decTest} في ${decCity} مع خيار السحب المنزلي عبر ممرضين معتمدين ونتائج موثقة عبر تطبيق نبضة بلس.`
+    ? `احجز تحليل ${decTest} في ${decCity} مع خيار السحب المنزلي عبر ممرضين معتمدين ونتائج موثقة عبر تطبيق نبض بلس.`
     : `Book verified ${decTest} lab test in ${decCity} with home collection and fast results via Nabd Plus.`;
 
   return {

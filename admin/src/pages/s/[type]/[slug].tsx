@@ -5,6 +5,7 @@ import { GetServerSideProps } from 'next';
 import EmptyIcon from '../../../components/EmptyIcon';
 import { dateLocale } from '../../../utils/dates';
 import { httpRequest } from '@/lib/http/client';
+import { jsonLdHtml } from '../../../lib/json-ld';
 
 /**
  * M6-SEO1 / ER-2+ER-3: public entity page — /s/:type/:slug
@@ -78,7 +79,7 @@ export default function EntityPage({ meta, type }: Props) {
         <meta name="twitter:description" content={meta.twitter?.description || meta.description} />
         {meta.twitter?.image && <meta name="twitter:image" content={meta.twitter.image} />}
         {meta.structured && (
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(meta.structured) }} />
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(meta.structured) }} />
         )}
       </Head>
 
