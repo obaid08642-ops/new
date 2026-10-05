@@ -11,6 +11,7 @@
  *
  * Usage: node packages/ui/build-preview.mjs [--check]
  */
+import { loadCss } from './load-css.mjs';
 import { mkdirSync, writeFileSync, existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -85,6 +86,8 @@ const React = req('react');
 const { renderToStaticMarkup } = req('react-dom/server');
 
 const tokensCss = readFileSync(join(HERE, '..', 'design-tokens', 'dist', 'css', 'tokens.css'), 'utf8');
+// The components are styled by class (components/components.css explains why), so the gallery carries the sheet.
+const componentsCss = loadCss(join(HERE, 'components', 'components.css'));
 const fontsCss = readFileSync(join(HERE, '..', 'design-tokens', 'dist', 'css', 'fonts.css'), 'utf8');
 const tokens = JSON.parse(readFileSync(join(HERE, '..', 'design-tokens', 'tokens.json'), 'utf8'));
 
@@ -254,6 +257,7 @@ const html = `<!doctype html>
 <style>
 ${fontsCss}
 ${tokensCss}
+${componentsCss}
 *, *::before, *::after { box-sizing: border-box; }
 body {
   margin: 0;

@@ -18,6 +18,7 @@
  * is answered with the repo's own font files, so the run is offline and the type is
  * the same on both sides.
  */
+import { loadCss } from './load-css.mjs';
 import { createServer } from 'node:http';
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve, extname, sep } from 'node:path';
@@ -54,6 +55,7 @@ const tokensCss =
   readFileSync(join(REPO, 'packages/design-tokens/dist/css/tokens.css'), 'utf8') +
   readFileSync(join(REPO, 'packages/design-tokens/dist/css/fonts.css'), 'utf8').replace(/^@import url\([^)]*\);$/m, '');
 const shellsCss = existsSync(join(HERE, 'shells/shells.css')) ? readFileSync(join(HERE, 'shells/shells.css'), 'utf8') : '';
+const componentsCss = loadCss(join(HERE, 'components/components.css'));
 
 /**
  * id        output name
@@ -356,7 +358,7 @@ for (const c of COMPARISONS) {
           ? `<div style="padding:10px 14px;border-radius:12px;background:linear-gradient(180deg,var(--nabd-color-action-fab-from),var(--nabd-color-action-fab-to))">${body}</div>`
           : body;
     await page.setContent(
-      `<!doctype html><html dir="rtl" lang="ar" data-theme="${theme}"><meta charset="utf-8"><style>${fontFaces}${tokensCss}${shellsCss}
+      `<!doctype html><html dir="rtl" lang="ar" data-theme="${theme}"><meta charset="utf-8"><style>${fontFaces}${tokensCss}${shellsCss}${componentsCss}
       body{margin:0;background:var(--nabd-color-bg-canvas);font-family:'Readex Pro',system-ui,sans-serif;color:var(--nabd-color-text-primary)}
       #c{display:inline-block;padding:0;padding-top:${up}px;inline-size:${Math.ceil(box.width)}px}</style><body><div id="c">${frame}</div></body></html>`,
     );

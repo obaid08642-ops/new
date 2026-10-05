@@ -1,0 +1,29 @@
+/*
+ * @nabd/ui component styles (web).
+ *
+ * WHY THE COMPONENTS ARE STYLED BY CLASS, NOT BY THE `style` PROP
+ *
+ * patient-web's Content-Security-Policy (proxy.ts) is `style-src 'self' 'nonce-…'`.
+ * Under it the browser refuses every server-rendered `style="…"` attribute
+ * ("Refused to apply inline style"), and React does not re-apply them at
+ * hydration, so a component styled through the `style` prop renders unstyled on
+ * every page (audit finding F68). The rule for this package is therefore:
+ *
+ *   - a component never sets the `style` attribute; tests/design-system-csp
+ *     renders every component and fails on one;
+ *   - fixed values live here, as classes, on the `nabd-` prefix;
+ *   - a value that varies is a class modifier (size, variant, tone, state), an
+ *     SVG presentation attribute (width, height, fill), or a CSS percentage.
+ *
+ * Every colour, shadow and motion value is a `--nabd-*` token. Logical
+ * properties only (DEVICE_STANDARD §3.6).
+ *
+ * One file per component file. A consumer imports this one; the static
+ * renderers (build-preview, build-compare) inline the imports with
+ * load-css.mjs.
+ */
+@import "./css/tones.css";
+@import "./css/Spinner.css";
+@import "./css/FIcon.css";
+@import "./css/Button.css";
+@import "./css/Controls.css";
