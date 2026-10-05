@@ -646,6 +646,13 @@ export class AuthService {
     if (!u) throw new UnauthorizedException('User not found');
     // A banned or deactivated account never gets a token (as in password login).
     if (u.active === false) throw new UnauthorizedException('Account disabled');
+    // C9/X4: the email-code path is the bootstrap for an admin with no passkey.
+    // Once a passkey exists, an admin signs in with it (or break-glass recovery);
+    // an emailed code alone never opens an admin session.
+    if ((u.role === UserRole.SUPER_ADMIN || u.role === UserRole.ADMIN) && this.passkeys
+        && (await this.passkeys.countCredentials(u.id)) > 0) {
+      throw new ForbiddenException('passkey_required');
+    }
 
     // Verify using the same identifier that received the OTP during login.
     // Login may be initiated with email while the OTP is sent to the user's phone
