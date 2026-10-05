@@ -42,6 +42,8 @@ export const LINE_ICON_COMPONENTS = {
   minus: 'Minus',
   filter: 'Funnel',
   sliders: 'SlidersHorizontal',
+  eye: 'Eye',
+  'eye-slash': 'EyeSlash',
   settings: 'Gear',
   list: 'List',
   download: 'DownloadSimple',

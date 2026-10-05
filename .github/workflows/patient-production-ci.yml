@@ -127,6 +127,9 @@ jobs:
         run: npm run no-100vh
       - name: No SafeAreaView from react-native; no new Dimensions.get (strict + ratchet)
         run: npm run no-rn-safeareaview
+      # QUALITY_STANDARDS §1: no raster over 200 KB in the apps or patient-web/public.
+      - name: No raster asset over 200 KB (WebP/AVIF, CDN)
+        run: npm run no-large-raster
       - name: No new physical left/right, start/end only (ratchet)
         run: npm run no-left-right
       # A4: a missing translation key is not an error in next-intl, it renders the

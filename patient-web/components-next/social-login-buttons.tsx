@@ -1,10 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import styles from "./login-form.module.css";
+import styles from "./auth/auth.module.css";
 
-type Props = { locale: string; labels: { guest: string; guestLoading: string; error: string } };
+type Props = {
+  locale: string;
+  labels: { guest: string; guestLoading: string; error: string; divider: string; noAccount: string; register: string };
+};
 
 declare global {
   interface Window { google?: any; apple?: any }
@@ -71,17 +75,19 @@ export function SocialLoginButtons({ locale, labels }: Props) {
     } catch { setError(labels.error); setBusy(null); }
   }
 
-  return <div className={styles.socialArea}>
-    {googleClientId ? (
-      <div className={styles.socialGrid} aria-label={ar ? "طرق الدخول الاجتماعي" : "Social sign in options"}>
-        <button type="button" className={`${styles.socialButton} ${styles.google}`} disabled={busy !== null} onClick={() => { setBusy("google"); setError(null); tokenClient.current?.requestAccessToken(); }} aria-label="Google">
-          <span>G</span>
-        </button>
+  return <>
+    {googleClientId ? <>
+      <div className={styles.divider}>{labels.divider}</div>
+      <div className={styles.social} aria-label={ar ? "طرق الدخول الأخرى" : "Other ways to sign in"}>
+        <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={() => { setBusy("google"); setError(null); tokenClient.current?.requestAccessToken(); }}>Google</button>
       </div>
-    ) : null}
-    <button type="button" className={styles.guestButton} onClick={guestLogin} disabled={busy !== null}>
-      {busy === "guest" ? labels.guestLoading : labels.guest}
-    </button>
-    {error ? <p className={styles.blocked} role="alert">{error}</p> : null}
-  </div>;
+    </> : null}
+    <div className={styles.foot}>
+      <span>{labels.noAccount} <Link className={styles.link} href={`/${locale}/register`}>{labels.register}</Link></span>
+      <button type="button" className={`${styles.link} ${styles.guest}`} onClick={guestLogin} disabled={busy !== null}>
+        {busy === "guest" ? labels.guestLoading : labels.guest}
+      </button>
+    </div>
+    {error ? <p className={styles.error} role="alert">{error}</p> : null}
+  </>;
 }

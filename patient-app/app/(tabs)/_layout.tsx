@@ -1,24 +1,28 @@
 // @ts-nocheck
 import React from 'react';
 import { Tabs } from 'expo-router';
-import BottomNavBar from '../../src/components/BottomNavBar';
+import MainTabBar from '../../src/components/navigation/MainTabBar';
 import Header from '../../src/components/Header';
+
+// Home and Services draw their own top row (the HomeApp / ServiceHub boards), so they turn the
+// shared header off; the other tabs keep it until their own batch.
+const OWN_HEADER = { headerShown: false };
 
 export default function TabsLayout() {
   return (
     <Tabs
-      screenOptions={{ 
+      screenOptions={{
         headerShown: true,
         header: () => <Header />,
         headerTransparent: false,
       }}
-      tabBar={() => <BottomNavBar />}
+      tabBar={() => <MainTabBar />}
     >
-      <Tabs.Screen name="index" />
+      <Tabs.Screen name="index" options={OWN_HEADER} />
       <Tabs.Screen name="consultations/index" />
       <Tabs.Screen name="pharmacy" />
       <Tabs.Screen name="diagnostics" />
-      <Tabs.Screen name="services" />
+      <Tabs.Screen name="services" options={OWN_HEADER} />
       <Tabs.Screen name="health" />
       <Tabs.Screen name="nursing" />
     </Tabs>

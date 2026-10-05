@@ -192,7 +192,7 @@ export function SymptomTimelineClient({
 
       <p style={{ margin: 0, fontSize: 12, color: "#6B7C6E", lineHeight: 1.6, overflowWrap: "anywhere", display: "flex", gap: 6, alignItems: "flex-start" }}>
         <Sparkles size={12} aria-hidden="true" style={{ flexShrink: 0, marginTop: 3, color: "#1E332E" }} />
-        <span style={{ overflowWrap: "anywhere" }}>{ar ? "الجدول الزمني للعرض فقط ويُحفظ عبر الخلفية المصرح بها. لا يقدم تشخيصاً." : "Timeline is read-only and persisted via authorized backend. Not a diagnosis."}</span>
+        <span style={{ overflowWrap: "anywhere" }}>{ar ? "الجدول الزمني للعرض فقط ويُحفظ في حسابك. لا يقدم تشخيصاً." : "This timeline is view-only and saved to your account. It is not a diagnosis."}</span>
       </p>
     </div>
   );

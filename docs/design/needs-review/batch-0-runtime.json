@@ -1,0 +1,72 @@
+[
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/register",
+    "element": "Session probe on load",
+    "file": "patient-web/components-next/register-form.tsx",
+    "line": 36,
+    "found": "Runtime check: an anonymous visitor's GET /api/auth/session answers 401 (app/api/auth/session/route.ts returns 401 when there is no cookie), so the browser console shows two 'Failed to load resource: 401' errors on every /register load. The page itself renders and works.",
+    "suspect": "A 401 for 'not signed in' is expected data, not an error. The BFF could answer 200 {authenticated:false} for this probe, or the form could read the guest state another way. BFF contract change, so left to the reviewer."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/services",
+    "element": "Redirect target /consultations/doctors: inline style attribute",
+    "file": "patient-web/app/[locale]/consultations/doctors/page.tsx",
+    "line": 46,
+    "found": "Runtime check: /services redirects to /consultations/doctors (a Batch 3 screen). That page puts raw legacy colours (#FDFDFC, #E8EDEE, #1E332E) and layout in `style={{…}}` attributes (page.tsx:46-50 and following), so the nonce CSP refuses them (22 'style-src-attr' violations per load) and the page renders without that styling in production.",
+    "suspect": "Needs the same class-based rebuild as the Batch 0 pages (zero inline styles, token colours). Not in Batch 0's file list, so left for the batch that owns Consultations; reported here because /services lands on it."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/dashboard",
+    "element": "Upstream failure handling",
+    "file": "patient-web/lib/api/dashboard-server.ts",
+    "line": 5,
+    "found": "Runtime check with every data GET answering 500: /dashboard still renders (greeting without a name, no appointment card) with no error or retry state, because both calls swallow the failure. The same happens on / (home) for doctors and config. /notifications and /notifications/settings do show the board's error state with retry.",
+    "suspect": "Silent degradation matches the 'hide missing data' rule, but a total outage looks like an account with no data. Owner to decide whether /dashboard should show the error state when its profile call fails."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/notifications/settings",
+    "element": "Error state title (fixed in this PR)",
+    "file": "patient-web/app/[locale]/notifications/page.tsx",
+    "line": 0,
+    "found": "Runtime check (error scenario): the settings page showed the notifications list's title 'تعذر تحميل الإشعارات'. Fixed: it now uses NotificationSettings.unavailableTitle in all six locales.",
+    "suspect": "None left; listed so the reviewer knows the copy key was added."
+  },
+  {
+    "batch": 0,
+    "app": "patient-app",
+    "screen": "/",
+    "element": "GET /home/upcoming-appointment with no appointment",
+    "file": "backend/src/modules/home/home.controller.ts",
+    "line": 0,
+    "found": "Runtime check against the seeded backend: the endpoint answers 200 with an empty body (not JSON, not null) when the patient has no upcoming appointment. The web dashboard copes; whether the app's apiFetch handles an empty 200 body without throwing was not run (the app was not executed).",
+    "suspect": "A 200 with no body breaks clients that call res.json(). Suggest `null` or 204, and confirm apiFetch tolerates it."
+  },
+  {
+    "batch": 0,
+    "app": "patient-app",
+    "screen": "/notifications",
+    "element": "Populated states not exercised",
+    "file": "docs/design/audit/runtime-batch-0-app.md",
+    "line": 0,
+    "found": "The seeded patient has no notifications, reminders, mood entries or appointments, so the runtime check only shows these lists in their empty state (all 2xx). The populated rendering with real rows was not verified at runtime.",
+    "suspect": "The reviewer's seed should add at least one notification, reminder and appointment for the test patient so populated states can be checked."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "/",
+    "element": "Doctor names in the seeded data",
+    "file": "backend/src/modules/seed/seed.data.ts",
+    "line": 76,
+    "found": "GET /doctors on the seeded backend returns records with name_en: null (the seed sets Arabic names only).",
+    "suspect": "English and other locales fall back to the Arabic name. Seed data gap, not a screen bug."
+  }
+]

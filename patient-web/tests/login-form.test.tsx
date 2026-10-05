@@ -14,7 +14,8 @@ describe("LoginForm", () => {
     expect(html).toContain('autoComplete="username"');
     expect(html).toContain('autoComplete="current-password"');
     expect(html).toContain('type="password"');
-    expect(html).toContain("submit</button>");
+    // the shared Button: a type="submit" button whose label is the submit key
+    expect(html).toMatch(/<button[^>]*type="submit"[^>]*>(?:(?!<\/button>)[\s\S])*>submit<\/span>/);
     expect(html).not.toContain("Sandbox@123");
     expect(html).not.toContain("patient.sandbox@nabd.plus");
   });
