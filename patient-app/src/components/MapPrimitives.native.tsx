@@ -4,6 +4,7 @@ import Constants from 'expo-constants';
 import RNMapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import type { MapViewProps } from 'react-native-maps';
 import { LocalizedText } from './LocalizedText';
+import { lightColors } from '../theme/colors';
 
 /**
  * Q69: on Android the Google Maps SDK aborts the screen when the build has no
@@ -34,8 +35,8 @@ const MapView = (Platform.OS === 'android' && !hasGoogleMapsKey() ? MapUnavailab
 type MapView = RNMapView;
 
 const styles = StyleSheet.create({
-  box: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#F2F4F3', minHeight: 160 },
-  text: { color: '#4B5B55', fontSize: 15, textAlign: 'center', padding: 16 },
+  box: { alignItems: 'center', justifyContent: 'center', backgroundColor: lightColors.bg, minHeight: 160 },
+  text: { color: lightColors.t2, fontSize: 15, textAlign: 'center', padding: 16 },
 });
 
 export default MapView;
