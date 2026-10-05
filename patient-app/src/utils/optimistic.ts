@@ -31,6 +31,25 @@ export type CriticalKind = 'payment' | 'booking' | 'prescription' | 'emergency';
 
 export const CRITICAL_KINDS: readonly CriticalKind[] = ['payment', 'booking', 'prescription', 'emergency'];
 
+/**
+ * F1 — deny-by-default allowlist. `runOptimistic` may apply ONLY these kinds.
+ * A new or typo'd kind (`"order"`, `"paymnt"`) is refused rather than getting
+ * an instant false-success UI. `CRITICAL_KINDS` above stays as defense in depth
+ * (it is also the gate the outbox enforces) and as documentation of WHY the
+ * refusal exists for the dangerous four.
+ */
+export const SAFE_OPTIMISTIC_KINDS: readonly OptimisticKind[] = [
+  'cart',
+  'wishlist',
+  'reminder',
+  'mark-read',
+  'like',
+];
+
+export function isSafeOptimistic(kind: string): boolean {
+  return (SAFE_OPTIMISTIC_KINDS as readonly string[]).includes(kind);
+}
+
 export class OptimisticNotAllowedError extends Error {
   readonly kind: string;
   constructor(kind: string) {
@@ -41,7 +60,12 @@ export class OptimisticNotAllowedError extends Error {
 }
 
 export function assertOptimisticAllowed(kind: string): void {
+  // Deny-by-default: only the allowlist passes. The never-list check stays so
+  // the refusal reason for a critical kind is explicit rather than incidental.
   if ((CRITICAL_KINDS as readonly string[]).includes(kind)) {
+    throw new OptimisticNotAllowedError(kind);
+  }
+  if (!isSafeOptimistic(kind)) {
     throw new OptimisticNotAllowedError(kind);
   }
 }

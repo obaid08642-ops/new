@@ -7,6 +7,22 @@
     "ar": {
       "message": "يجب تسجيل الدخول للمتابعة.",
       "nextStep": "سجّل الدخول ثم حاول مرة أخرى."
+    },
+    "ur": {
+      "message": "میں آگے بڑھنے کے لیے سائن ان کرنا ضروری ہے।",
+      "nextStep": "سائن ان کر کے دوبارہ کوشش کریں।"
+    },
+    "hi": {
+      "message": "आगे बढ़ने के लिए साइन इन करना जरूरी है।",
+      "nextStep": "साइन इन करके फिर कोशिश करें।"
+    },
+    "bn": {
+      "message": "এগিয়ে যেতে সাইন ইন করা প্রয়োজন।",
+      "nextStep": "সাইন ইন করে আবার চেষ্টা করুন।"
+    },
+    "fil": {
+      "message": "Kailangan mong mag-sign in upang magpatuloy.",
+      "nextStep": "Mag-sign in at subukan muli."
     }
   },
   "INSUFFICIENT_PERMISSION": {
@@ -17,6 +33,22 @@
     "ar": {
       "message": "ليس لديك صلاحية لتنفيذ هذا الإجراء.",
       "nextStep": "تواصل مع الدعم إذا كنت تعتقد أن هذا خطأ."
+    },
+    "ur": {
+      "message": "آپ کو یہ کام کرنے کی اجازت نہیں۔",
+      "nextStep": "اگر آپ کو لگتا ہے کہ یہ غلطی ہے تو سپورٹ سے رابطہ کریں۔"
+    },
+    "hi": {
+      "message": "आपको यह करने की अनुमति नहीं है।",
+      "nextStep": "अगर आपको लगता है कि यह गलती है तो सपोर्ट से संपर्क करें।"
+    },
+    "bn": {
+      "message": "আপনার এই কাজটি করার অনুমতি নেই।",
+      "nextStep": "মনে হচ্ছে ভুল হয়েছে তাহলে সাপোর্টে যোগাযোগ করুন।"
+    },
+    "fil": {
+      "message": "Wala kang pahintulot para gawin ito.",
+      "nextStep": "Makipag-ugnayan sa suporta kung sa palagay mo ito ay mali."
     }
   },
   "PRESCRIPTION_REQUIRED": {
@@ -27,6 +59,22 @@
     "ar": {
       "message": "هذا الصنف يتطلب وصفة طبية سارية.",
       "nextStep": "ارفع الوصفة الطبية للمتابعة."
+    },
+    "ur": {
+      "message": "اس چیز کے لیے درست نسخہ درکار ہے۔",
+      "nextStep": "جاری رکھنے کے لیے اپنا نسخہ اپ لوڈ کریں۔"
+    },
+    "hi": {
+      "message": "इस चीज़ के लिए मान्य प्रिस्क्रिप्शन चाहिए।",
+      "nextStep": "जारी रखने के लिए अपना प्रिस्क्रिप्शन अपलोड करें।"
+    },
+    "bn": {
+      "message": "এই জিনিসের জন্য বৈধ প্রেসক্রিপশন প্রয়োজন।",
+      "nextStep": "চালিয়ে যেতে আপনার প্রেসক্রিপশন আপলোড করুন।"
+    },
+    "fil": {
+      "message": "Kailangan ng item na ito ng wastong reseta.",
+      "nextStep": "I-upload ang iyong reseta upang magpatuloy."
     }
   },
   "NO_AVAILABILITY": {
@@ -37,6 +85,22 @@
     "ar": {
       "message": "لا يوجد توفر حالياً.",
       "nextStep": "جرّب وقتاً أو تاريخاً آخر."
+    },
+    "ur": {
+      "message": "اس وقت کوئی دستیابی نہیں ہے।",
+      "nextStep": "کوئی اور وقت یا تاریخ آزمائیں।"
+    },
+    "hi": {
+      "message": "इस समय कोई उपलब्धता नहीं है।",
+      "nextStep": "कोई दूसरा समय या तारीख आज़माएँ।"
+    },
+    "bn": {
+      "message": "এই মুহূর্তে কোনো তাৎলভ্যতা নেঁ।",
+      "nextStep": "অন্য সময বা তারিখ চেষ্টা করুন।"
+    },
+    "fil": {
+      "message": "Walang bakante sa ngayon.",
+      "nextStep": "Subukan ang ibang oras o petsa."
     }
   },
   "SERVICE_UNAVAILABLE": {
@@ -47,6 +111,22 @@
     "ar": {
       "message": "هذه الخدمة غير متاحة مؤقتاً.",
       "nextStep": "يرجى المحاولة مرة أخرى بعد قليل."
+    },
+    "ur": {
+      "message": "یہ سروس عارضی طور پر دستیاب نہیں۔",
+      "nextStep": "براہ کرم کچھ دیر بعد دوبارہ کوشش کریں۔"
+    },
+    "hi": {
+      "message": "यह सेवा अस्थायी रूप से उपलब्ध नहीं है।",
+      "nextStep": "कृपया कुछ देर बाद फिर कोशिश करें।"
+    },
+    "bn": {
+      "message": "এই সেবাটি সাময়িকভাবে উপলব্ধ নয়।",
+      "nextStep": "অনুগ্রহ করে কিছুক্ষণ পরে আবার চেষ্টা করুন।"
+    },
+    "fil": {
+      "message": "Pansamantalaang hindi available ang serbisyong ito.",
+      "nextStep": "Pakisubukan muli pagkalipas ng ilang sandali."
     }
   },
   "PROVIDER_NOT_AVAILABLE": {
@@ -57,6 +137,22 @@
     "ar": {
       "message": "لا يوجد مقدم خدمة متاح لهذا الطلب.",
       "nextStep": "حاول لاحقاً أو اختر مقدم خدمة آخر."
+    },
+    "ur": {
+      "message": "اس درخواست کے لیے کوئی فراہم کنندہ دستیاب نہیں۔",
+      "nextStep": "بعد میں دوبارہ کوشش کریں یا دوسرا فراہم کنندہ منتخب کریں۔"
+    },
+    "hi": {
+      "message": "इस अनुरोध के लिए कोई प्रदाता उपलब्ध नहीं है।",
+      "nextStep": "बाद में फिर कोशिश करें या दूसरा प्रदाता चुनें।"
+    },
+    "bn": {
+      "message": "এই অনুরোধের জন্য কোনো প্রদানকারী নেই।",
+      "nextStep": "পরে আবার চেষ্টা করুন বা অন্য প্রদানকারী বেছে নিন।"
+    },
+    "fil": {
+      "message": "Walang provider na available para sa kahilingang ito.",
+      "nextStep": "Subukan muli sa bandang huli o pumili ng ibang provider."
     }
   },
   "PRODUCT_OUT_OF_STOCK": {
@@ -67,6 +163,22 @@
     "ar": {
       "message": "هذا المنتج غير متوفر حالياً.",
       "nextStep": "جرّب بديلاً أو تحقق لاحقاً."
+    },
+    "ur": {
+      "message": "یہ مصنوعات اس وقت دستیاب نہیں۔",
+      "nextStep": "بدیل آزمائیں یا بعد میں دوبارہ دیکھیں۔"
+    },
+    "hi": {
+      "message": "यह उत्पाद अभी स्टॉक में नहीं है।",
+      "nextStep": "कोई विकल्प आज़माएँ या बाद में फिर देखें।"
+    },
+    "bn": {
+      "message": "এই পণ্যটি এখন স্টকে নেই।",
+      "nextStep": "বিকল্প চেষ্টা করুন বা পরে আবার দেখুন।"
+    },
+    "fil": {
+      "message": "Wala nang stock ang produktong ito.",
+      "nextStep": "Subukan ang alternatibo o balikan sa bandang huli."
     }
   },
   "PAYMENT_REQUIRED": {
@@ -77,6 +189,22 @@
     "ar": {
       "message": "يلزم الدفع لإتمام هذا الإجراء.",
       "nextStep": "أكمل الدفع للمتابعة."
+    },
+    "ur": {
+      "message": "یہ مکمل کرنے کے لیے ادائیگی ضروری ہے۔",
+      "nextStep": "جاری رکھنے کے لیے ادائیگی مکمل کریں۔"
+    },
+    "hi": {
+      "message": "इसे पूरा करने के लिए भुगतान जरूरी है।",
+      "nextStep": "जारी रखने के लिए भुगतान पूरा करें।"
+    },
+    "bn": {
+      "message": "এটি শেষ করতে পেমেন্ট প্রয়োজন।",
+      "nextStep": "চালিয়ে যেতে পেমেন্ট সম্পন্ন করুন।"
+    },
+    "fil": {
+      "message": "Kailangan ang bayad upang matapos ito.",
+      "nextStep": "Kumpletuhin ang bayad upang magpatuloy."
     }
   },
   "INSURANCE_NOT_SUPPORTED": {
@@ -87,6 +215,22 @@
     "ar": {
       "message": "التأمين الخاص بك لا يغطي هذه الخدمة.",
       "nextStep": "تابع بالدفع الذاتي أو تواصل مع شركة التأمين."
+    },
+    "ur": {
+      "message": "آپ کا انشورنس اس کو کور نہیں کرتا۔",
+      "nextStep": "خود ادائیگی کے ساتھ جاری رکھیں یا اپنے بیمہ کمپنی سے رابطہ کریں۔"
+    },
+    "hi": {
+      "message": "आपका बीमा इसे कवर नहीं करता।",
+      "nextStep": "स्वयं भुगतान करके आगे बढ़ें या अपने बीमाकर्ता से संपर्क करें।"
+    },
+    "bn": {
+      "message": "আপনার বীমা এটি কভার করে না।",
+      "nextStep": "স্ব-পেমেন্টে এগিয়ে যান বা আপনার বীমাকর্তার সঙ্গে যোগাযোগ করুন।"
+    },
+    "fil": {
+      "message": "Hindi saklaw ng iyong insurance ang serbisyong ito.",
+      "nextStep": "Magpatuloy nang may sariling bayad o makipag-ugnayan sa iyong insurer."
     }
   },
   "LOCATION_NOT_SUPPORTED": {
@@ -97,6 +241,22 @@
     "ar": {
       "message": "لا نغطي هذا الموقع بعد.",
       "nextStep": "جرّب عنواناً آخر أو اختر الاستلام."
+    },
+    "ur": {
+      "message": "ہم ابھی اس مقام کو سروس نہیں دے رہے۔",
+      "nextStep": "کوئی اور پتہ آزمائیں یا پک اپ چنیں۔"
+    },
+    "hi": {
+      "message": "हम अभी इस जगह सेवा नहीं दे रहे।",
+      "nextStep": "कोई दूसरा पता आज़माएँ या पिकअप चुनें।"
+    },
+    "bn": {
+      "message": "এই এলাকায় আমরা এখনো সেবা দিই না।",
+      "nextStep": "অন্য ঠিকানা চেষ্টা করুন বা পিকআপ বেছে নিন।"
+    },
+    "fil": {
+      "message": "Hindi namin pinapaglilingkuran ang lokasyong ito.",
+      "nextStep": "Subukan ang ibang address o pumili ng pickup."
     }
   },
   "DUPLICATE_TRANSACTION": {
@@ -107,6 +267,22 @@
     "ar": {
       "message": "تم إرسال هذا الطلب مسبقاً.",
       "nextStep": "تحقق من طلباتك قبل إعادة المحاولة."
+    },
+    "ur": {
+      "message": "یہ پہلے ہی بھیج دیا جا چکا ہے۔",
+      "nextStep": "دوبارہ کوشش سے پہلے اپنے آرڈرز دیکھیں۔"
+    },
+    "hi": {
+      "message": "यह पहले ही भेजा जा चुका है।",
+      "nextStep": "दोबारा कोशिश से पहले अपने ऑर्डर देखें।"
+    },
+    "bn": {
+      "message": "এটি আগেই পাঠানো হয়েছে।",
+      "nextStep": "আবার চেষ্টা করার আগে আপনার অর্ডার দেখুন।"
+    },
+    "fil": {
+      "message": "Naipadala na ito dati.",
+      "nextStep": "Tingnan ang iyong mga order bago subukan muli."
     }
   },
   "INVALID_INPUT": {
@@ -117,6 +293,22 @@
     "ar": {
       "message": "بعض البيانات تبدو غير صحيحة.",
       "nextStep": "راجع الحقول المطلوبة وحاول مرة أخرى."
+    },
+    "ur": {
+      "message": "کچھ تفصیلات درست نظر نہیں آتیں۔",
+      "nextStep": "قابلِ نظر خانے دوبارہ چیک کر کے دوبارہ کوشش کریں۔"
+    },
+    "hi": {
+      "message": "कुछ जानकारी सही नहीं लग रही।",
+      "nextStep": "चिन्हित फ़ील्ड दोबारा देखें और फिर कोशिश करें।"
+    },
+    "bn": {
+      "message": "কিছু তথ্য সঠিক মনে হচ্ছে না।",
+      "nextStep": "চিহ্নিত ঘরগুলো দেখে আবার চেষ্টা করুন।"
+    },
+    "fil": {
+      "message": "May mga detalyeng mukhang mali.",
+      "nextStep": "Suriin ang mga naka-highlight na field at subukan muli."
     }
   },
   "RATE_LIMITED": {
@@ -127,6 +319,22 @@
     "ar": {
       "message": "محاولات كثيرة جداً. يرجى التمهل.",
       "nextStep": "انتظر قليلاً ثم حاول مرة أخرى."
+    },
+    "ur": {
+      "message": "بہت زیادہ کوششیں ہو گئیں۔ براہ کرم آہستہ ہو جائیں۔",
+      "nextStep": "ایک لمحہ انتظار کریں، پھر دوبارہ کوشش کریں۔"
+    },
+    "hi": {
+      "message": "बहुत ज़्यादा कोशिशें हो गई हैं। कृपया धीमे करें।",
+      "nextStep": "कुछ देर प्रतीक्षा करें, फिर कोशिश करें।"
+    },
+    "bn": {
+      "message": "অনেকবার চেষ্টা হয়েছে। অনুগ্রহ করে ধীরে চলুন।",
+      "nextStep": "একটু অপেক্ষা করে আবার চেষ্টা করুন।"
+    },
+    "fil": {
+      "message": "Masyadong maraming pagsubok. Pakisab slowdown.",
+      "nextStep": "Maghintay nang kaunti, pagkatapos ay subukan muli."
     }
   },
   "UNKNOWN_ERROR": {
@@ -137,6 +345,22 @@
     "ar": {
       "message": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
       "nextStep": "إذا استمرت المشكلة، تواصل مع الدعم."
+    },
+    "ur": {
+      "message": "کچھ غلط ہو گیا۔ براہ کرم دوبارہ کوشش کریں۔",
+      "nextStep": "اگر مسئلہ برقرار رہے تو سپورٹ سے رابطہ کریں۔"
+    },
+    "hi": {
+      "message": "कुछ गड़बड़ हो गई। कृपया फिर कोशिश करें।",
+      "nextStep": "अगर समस्या बनी रहे तो सपोर्ट से संपर्क करें।"
+    },
+    "bn": {
+      "message": "কিছু একটা ভুল হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।",
+      "nextStep": "সমস্যা থাকলে সাপোর্টে যোগাযোগ করুন।"
+    },
+    "fil": {
+      "message": "May nangyaring mali. Pakisubukan muli.",
+      "nextStep": "Kumipag-ugnayan sa suporta kung patuloy ang problema."
     }
   }
 }

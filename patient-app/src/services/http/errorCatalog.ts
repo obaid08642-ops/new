@@ -11,10 +11,16 @@
  * cannot be edited from this app slice. A build-time copy check
  * (`errorCatalog.parity.test.ts`) fails the suite if the two files drift.
  *
- * The backend catalogue ships `ar` + `en` only. The app ships six locales, so a
- * requested locale falls back to `ar` (the app default) rather than leaking an
- * English string into an Arabic UI. `resolveCatalogLocale` is the single place
- * that decision is made.
+ * The backend catalogue ships `ar` + `en` only. The app catalogue layers the
+ * `ur`/`hi`/`bn`/`fil` translations ported verbatim from the patient-web slice
+ * (`patient-web/messages/{ur,hi,bn,fil}.json`, `Errors.*`) on top, so an Urdu,
+ * Hindi, Bengali or Filipino user reads a real translation instead of falling
+ * back to Arabic. Backend parity is enforced on `ar`/`en` only (see the parity
+ * test): the four extra locales are a client-side supplement the backend is
+ * not required to carry. A requested locale with no catalogue entry still
+ * falls back to `ar` (the app default) rather than leaking an English string
+ * into an Arabic UI. `resolveCatalogLocale` is the single place that decision
+ * is made.
  *
  * This module is intentionally free of React and react-native imports so the
  * network layer can be imported by plain unit tests.

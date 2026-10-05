@@ -9,6 +9,7 @@ import { Icon } from '../../src/components/Icon';
 import { apiFetch } from '../../src/utils/api';
 import { useOptimisticMutation } from '../../src/hooks/useOptimisticMutation';
 import { medicationT } from '../../src/i18n/medications';
+import { serverNowMs } from '../../src/services/time/serverTime';
 import { cancelMedicationNotifications, cancelMedicationSnoozes, getMedicationNotificationPreferences, medicationDisplayName, scheduleMedicationNotifications } from '../../src/utils/medication-notifications';
 
 type DoseStatus = 'pending' | 'taken' | 'skipped' | 'missed';
@@ -42,7 +43,9 @@ export default function MedicationReminderListScreen() {
 
   const logDose = async (reminder: Reminder, dose: Dose, status: 'taken' | 'skipped') => {
     setActionKey(`${reminder.id}-${dose.time_key}-${status}`); setError(null);
-    try { await apiFetch(`/health/reminders/${reminder.id}/log`, { method: 'POST', body: JSON.stringify({ status, time_key: dose.time_key, occurred_at: new Date().toISOString() }) }); if (status === 'taken') await cancelMedicationSnoozes(reminder.id, dose.time_key); await load(); }
+    // 15.9: occurred_at uses the SERVER-anchored clock — a device date a day
+    // off must not file a dose log against the wrong day.
+    try { await apiFetch(`/health/reminders/${reminder.id}/log`, { method: 'POST', body: JSON.stringify({ status, time_key: dose.time_key, occurred_at: new Date(serverNowMs()).toISOString() }) }); if (status === 'taken') await cancelMedicationSnoozes(reminder.id, dose.time_key); await load(); }
     catch { setError(t('logError')); }
     finally { setActionKey(null); }
   };

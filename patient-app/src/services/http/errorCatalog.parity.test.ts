@@ -27,13 +27,36 @@ const backendCatalog = JSON.parse(fs.readFileSync(BACKEND_CATALOG_PATH, 'utf8'))
 const localCatalog = JSON.parse(fs.readFileSync(LOCAL_CATALOG_PATH, 'utf8'));
 
 describe('15.1 · error catalogue parity with the backend', () => {
-  it('copies every code the backend can emit, byte for byte', () => {
+  it('copies every code the backend can emit; ar/en match byte for byte', () => {
     expect(Object.keys(localCatalog).sort()).toEqual(Object.keys(backendCatalog).sort());
-    expect(localCatalog).toEqual(backendCatalog);
+    for (const code of Object.keys(backendCatalog)) {
+      expect(localCatalog[code].ar).toEqual(backendCatalog[code].ar);
+      expect(localCatalog[code].en).toEqual(backendCatalog[code].en);
+    }
+  });
+
+  it('layers real ur/hi/bn/fil translations (ported from the patient-web slice) on top', () => {
+    for (const code of BACKEND_ERROR_CODES) {
+      for (const locale of ['ur', 'hi', 'bn', 'fil']) {
+        const entry = ERROR_CATALOG[code][locale];
+        expect(typeof entry.message).toBe('string');
+        expect(entry.message.length).toBeGreaterThan(0);
+        expect(typeof entry.nextStep).toBe('string');
+        expect(entry.nextStep.length).toBeGreaterThan(0);
+        // A real translation, not a copy of the Arabic fallback.
+        expect(entry.message).not.toBe(ERROR_CATALOG[code].ar.message);
+      }
+      // Every ported locale resolves directly — no Arabic fallback.
+      for (const locale of ['ur', 'hi', 'bn', 'fil']) {
+        expect(resolveCatalogLocale(locale)).toBe(locale);
+        expect(lookupCatalogEntry(code, locale).usedFallbackLocale).toBe(false);
+        expect(lookupCatalogEntry(code, locale).locale).toBe(locale);
+      }
+    }
   });
 
   it('exposes each code for every locale the catalogue carries', () => {
-    expect(CATALOG_LOCALES.sort()).toEqual(['ar', 'en']);
+    expect(CATALOG_LOCALES.sort()).toEqual(['ar', 'bn', 'en', 'fil', 'hi', 'ur']);
     for (const code of BACKEND_ERROR_CODES) {
       for (const locale of CATALOG_LOCALES) {
         const entry = ERROR_CATALOG[code][locale];

@@ -410,16 +410,28 @@ describe('15.1 · every error maps to the 13.R5 catalogue with a message and a n
     expect(english).toEqual(ERROR_CATALOG.AUTHENTICATION_REQUIRED.en);
   });
 
-  it('falls back to Arabic rather than leaking English into a non-catalogue locale', () => {
-    expect(CATALOG_LOCALES.sort()).toEqual(['ar', 'en']);
-    expect(resolveCatalogLocale('ur')).toBe('ar');
-    expect(resolveCatalogLocale('fil')).toBe('ar');
+  it('serves real ur/hi/bn/fil translations instead of falling back to Arabic', () => {
+    expect(CATALOG_LOCALES.sort()).toEqual(['ar', 'bn', 'en', 'fil', 'hi', 'ur']);
+    expect(resolveCatalogLocale('ur')).toBe('ur');
+    expect(resolveCatalogLocale('fil')).toBe('fil');
+    expect(resolveCatalogLocale('hi')).toBe('hi');
+    expect(resolveCatalogLocale('bn')).toBe('bn');
     expect(resolveCatalogLocale('en-GB')).toBe('en');
     const urdu = describeError(
       new ApiError({ code: 'SERVER_ERROR', reason: 'x', catalogCode: 'SERVICE_UNAVAILABLE', locale: 'ur' }),
       'ur',
     );
-    expect(urdu).toEqual(ERROR_CATALOG.SERVICE_UNAVAILABLE.ar);
+    expect(urdu).toEqual(ERROR_CATALOG.SERVICE_UNAVAILABLE.ur);
+    expect(urdu.message).not.toBe(ERROR_CATALOG.SERVICE_UNAVAILABLE.ar.message);
+  });
+
+  it('still falls back to Arabic for a locale the catalogue does not carry', () => {
+    expect(resolveCatalogLocale('tr')).toBe('ar');
+    const turkish = describeError(
+      new ApiError({ code: 'SERVER_ERROR', reason: 'x', catalogCode: 'SERVICE_UNAVAILABLE', locale: 'tr' }),
+      'tr',
+    );
+    expect(turkish).toEqual(ERROR_CATALOG.SERVICE_UNAVAILABLE.ar);
   });
 
   it('coerces a NestJS validation array instead of crashing on it', async () => {

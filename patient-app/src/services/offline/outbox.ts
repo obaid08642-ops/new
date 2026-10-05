@@ -201,6 +201,12 @@ export class Outbox {
   /**
    * Enqueue, or run immediately when the device is online. Returns the entry so
    * a screen can tell the user what happened.
+   *
+   * F2 — persist FIRST, then send. The old online fast path `await`ed `send`
+   * directly: a transient throw meant an entry that was never persisted and was
+   * silently lost. Now the entry is enqueued (and persisted) before the first
+   * send attempt; a throw leaves it in the queue for `replay()` with its error
+   * recorded, and only a success removes it.
    */
   async submit(input: {
     kind: string;
@@ -211,18 +217,20 @@ export class Outbox {
   }): Promise<{ queued: boolean; entry: OutboxEntry }> {
     assertQueueable(input.kind);
     if (!isOffline()) {
-      const entry: OutboxEntry = {
-        id: `out-${this.now()}-live`,
-        kind: input.kind,
-        method: input.method,
-        endpoint: input.endpoint,
-        body: input.body,
-        headers: input.headers,
-        sequence: 0,
-        enqueuedAt: this.now(),
-        attempts: 1,
-      };
-      await this.send(entry);
+      const entry = await this.enqueue(input);
+      try {
+        await this.send(entry);
+      } catch (error) {
+        const target = this.entries.find((candidate) => candidate.id === entry.id);
+        if (target) {
+          target.attempts += 1;
+          target.lastError = error instanceof Error ? error.message : String(error);
+        }
+        await this.persist();
+        this.emit();
+        return { queued: true, entry: target ?? entry };
+      }
+      await this.remove(entry.id);
       return { queued: false, entry };
     }
     const entry = await this.enqueue(input);

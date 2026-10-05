@@ -14,6 +14,7 @@ import Svg, { Path, Circle, Rect, Line, Polyline } from 'react-native-svg';
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { ScreenState } from '../../src/components/ScreenStates';
+import { dayStripBaseMs, serverNowMs } from '../../src/services/time/serverTime';
 
 const { width } = Dimensions.get('window');
 
@@ -64,10 +65,12 @@ export default function NursingMegaProfile() {
     }, [])
   );
 
-  // Generator: 30 Days array — day names localized via Intl (no hardcoded Arabic)
+  // Generator: 30 Days array — day names localized via Intl (no hardcoded Arabic).
+  // 15.9: starts from the SERVER clock so a wrong device date cannot shift the
+  // schedule the user books against.
   const generateDays = () => {
     const days = [];
-    let d = new Date();
+    let d = new Date(dayStripBaseMs(serverNowMs()));
     for (let i = 0; i < 30; i++) {
       days.push({
         full: d.toISOString().split('T')[0],

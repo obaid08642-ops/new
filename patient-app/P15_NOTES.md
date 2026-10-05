@@ -559,3 +559,137 @@ and the working tree is clean.
   determinism choices forced by this harness (mocked toast host, payment describe first);
   both are explained in the file header.
 - **Scope**: only files under `patient-app/` were touched. Nothing was pushed.
+
+## Fix round (independent-reviewer findings F1–F5 + shared Sentry contract, 2026-10-05)
+
+Worktree `/var/folders/f1/j1zvgjbj0m16m2rwky7f5zqr0000gn/T/opencode/p15/app`, branch `p15-app`.
+The prompt's worktree path did not exist on arrival (only the sibling `web` worktree
+was present); it was created with `git worktree add .../p15/app p15-app`. The branch
+already carried four fix commits from a prior session (`2068206` F1, `e7dda23` F2,
+`3faba17` F3, `c7473e6` F4) plus the notes commit `2a28cb1`. None of that was trusted:
+every prior fix was re-verified with an independent break → red → restore mutation,
+and the remaining gaps (F5, Sentry contract, reschedule-screen clock wiring) were
+fixed in new commits below. NEVER pushed. Only `patient-app/` touched.
+
+Tooling notes: `node_modules` is gitignored and a fresh worktree has none, so
+`patient-app/node_modules` → main-checkout `patient-app/node_modules` and
+`packages/ui-native/node_modules` → main-checkout same path were symlinked
+(both gitignored, `git status` clean). `git` still needs
+`export DEVELOPER_DIR=/Library/Developer/CommandLineTools`. Shell caveat found the
+hard way: never mix `git` and `node` in one `&&` chain — the git half runs at the
+repo root and the node half then resolves `node_modules` from the wrong directory.
+Run them as separate commands.
+
+### F1 — fail-open optimistic default: VERIFIED (prior `2068206`), mutation re-proven
+`src/utils/optimistic.ts:49-71`: `runOptimistic` gates on `assertOptimisticAllowed`,
+which throws `OptimisticNotAllowedError` for anything outside
+`SAFE_OPTIMISTIC_KINDS` (deny-by-default); the `CRITICAL_KINDS` never-list stays as
+defense in depth with an explicit refusal reason.
+- Mutation (this round, uncommitted temp edit, restored via `git checkout --`):
+  removed the `!isSafeOptimistic` throw → `optimistic.test.ts`: **2 failed,
+  15 passed** → restored → green.
+- Full suite green after restore (see tails below).
+
+### F2 — Outbox.submit data loss: VERIFIED (prior `e7dda23`), mutation re-proven
+`src/services/offline/outbox.ts:211-238`: `submit` enqueues (persists) FIRST, then
+sends; a throw records attempts/error and returns `{ queued: true }`, success
+removes. The F2 test (`resilience.test.ts:199`) sends once-throw → entry survives in
+memory AND across a storage restart → delivered on `replay()`.
+- Mutation: inserted `await this.remove(entry.id)` between enqueue and send →
+  **1 failed, 40 passed** → restored → green.
+
+### F3 — server-time anchor: VERIFIED (prior `3faba17`) + one real gap found and fixed
+`src/services/time/serverTime.ts` anchors `offsetMs = serverMs - deviceMs` from the
+response `Date` header (same math as sibling
+`patient-web/lib/api/net/server-time.ts` — note: the actual web path is
+`lib/api/net/server-time.ts`, not `lib/server-time.ts` as the finding states),
+`client.ts` re-anchors on every settled response, tz helpers
+(user zone / `Asia/Riyadh` pin) included, booking screens wired.
+- Mutation: `noteServerDate` forced to `return false` → `serverTime.test.ts`:
+  **7 failed, 5 passed** → restored → 13/13 green.
+- **Gap found by re-scan**: `app/consultations/cancel-reschedule.tsx` built its
+  7-day reschedule `?date=` strip from device `Date.now()` (line 69) and the
+  refund-window countdown from device `Date.now()` (line 86) — a ±1-day clock
+  shifts the queried schedule and flips the 100/50/0% tier. Fixed in `3c02c09`:
+  new pure `dayKeysForRange(7)` (defaults to `serverNowMs()`), screen uses it for
+  the strip, `serverNowMs()` for `hoursUntil`, `formatSlotTime` for chips (same as
+  the book screen). New ±1-day test fails on revert (helper forced to `Date.now()`:
+  **1 failed, 12 passed**; restored → 13/13).
+- Reviewed, no change: `nurse-profile.tsx:90` `new Date()` only formats an explicit
+  `HH:MM` wall time (date part irrelevant); OTP screen (`(auth)/otp.tsx`) is an
+  interval resend countdown, expiry enforced server-side — both immune to date
+  shifts. Pure `toLocaleTimeString(isoInstant)` renders elsewhere are absolute-epoch
+  formatting, not clock reads.
+
+### F4 — min-OS gate: VERIFIED (prior `c7473e6`), mutation re-proven
+`src/deviceSupport/minOs.ts` floors iOS 16.4 / Android 7 (match sibling
+`provider-app/src/deviceSupport/minOs.ts`: Expo.podspec `:ios => '16.4'`,
+`minSdk = "24"`), bilingual "device too old, use the website" copy
+(`https://nabd.plus`), `DeviceGate` renders neutral `CheckingDevice` while the
+version is unresolved — `gateStatus(os, null) === 'loading'`, never rejection.
+- Mutation: `version == null` forced to `'unsupported'` →
+  `deviceSupport.test.tsx`: **2 failed, 11 passed** → restored → green.
+
+### F5 — locale shortfall: FIXED this round (`d158cf7`)
+Ported `Errors.*` ur/hi/bn/fil for all 14 codes **verbatim** from sibling
+`patient-web/messages/{ur,hi,bn,fil}.json` into `errors.i18n.json` (224 insertions,
+0 deletions — ar/en untouched; script-asserted identical to the web slice).
+Parity test evolved per the finding (not weakened): same code set, ar/en entries
+byte-equal to `backend/src/common/errors.i18n.json`, plus new assertions that every
+ported locale has non-empty message/nextStep, differs from the Arabic string, and
+resolves with `usedFallbackLocale === false`. `client.resilience.test.ts` fallback
+test updated to the new contract + a new test keeps the `tr` → ar fallback covered.
+No code needed machine-invented translations: all 14 codes had web translations, so
+**zero codes left on Arabic fallback** (no list required).
+- Mutation (reverted JSON + catalog comment): **3 failed, 35 passed** across both
+  suites → restored → 38/38 green.
+
+### Shared Sentry contract: FIXED this round (`6b9f5f0`)
+`resolveRelease` now implements exactly the contract: `patient-app@{version}+{build}`
+(`SENTRY_APP_ID = 'patient-app'`), `+dev` appended for dev builds (`__DEV__`,
+overridable via `dev` option for deterministic tests), env order explicit arg >
+`SENTRY_RELEASE` > legacy `EXPO_PUBLIC_SENTRY_RELEASE`, version/build from shipped
+constants + native binary, never hardcoded. Neither sibling implements this exact
+contract yet (web uses `patient-web-dev`/plain version; prov has no `SENTRY_RELEASE`
+reader) — implemented here from the spec as instructed.
+- Mutation (pre-fix code from `c7473e6`): **4 failed, 23 passed** in
+  `errorBoundary.test.tsx` → fixed code: 27/27 green. Explicit-release seeding
+  (`release: 'app@1.2.3(45)'`) passes through unchanged, so boundary payload tests
+  needed no edits.
+
+### Final gap check — plan PHASE 15 tasks 15.1/15.3/15.4/15.5 for patient-app
+- 15.1 one API client (timeout/retry+Retry-After/cancel/offline/catalogue): in place
+  (`e38ab01`), unit suite green. Nothing unmet in code.
+- 15.3 optimistic: F1 done. Nothing unmet.
+- 15.4 outbox: F2 done. Nothing unmet in code.
+- 15.5 boundaries + Sentry releases: done this round.
+- `BLOCKED (external, not code)`: live throttled-network journey (3G/1% loss/offline);
+  rapid-tap and app-killed-during-payment live journeys; device-farm report per
+  release (Firebase Test Lab / BrowserStack, low-end Android, Huawei w/o GMS,
+  font-scale/dark-mode matrix); crash-free ≥99.5% measurement (needs store data);
+  Sentry DSN is an owner secret. Ramadan/holiday hours are server-driven schedule
+  data — patient-app renders what the API sends, no client change.
+- `DEFERRED-OUT-OF-SCOPE`: none new. (Prior notes already record the utils/api.ts
+  call-site migration and backend `SUPPORTED_LOCALES`, both outside this slice.)
+
+### Command tails (this round)
+```
+$ node .../jest.js --silent --runInBand <7 suites>
+PASS src/utils/optimistic.test.ts
+PASS src/services/offline/resilience.test.ts
+PASS src/services/time/serverTime.test.ts
+PASS src/deviceSupport/__tests__/deviceSupport.test.tsx
+PASS src/components/__tests__/errorBoundary.test.tsx
+PASS src/services/http/client.resilience.test.ts
+PASS src/services/http/errorCatalog.parity.test.ts
+Test Suites: 7 passed, 7 total
+Tests:       149 passed, 149 total
+
+$ node .../typescript/bin/tsc --noEmit
+(exit 0, no output)
+```
+Baseline on arrival: same 7 suites green (one flaky single failure in the first
+combined run — a resilience timing test — green on immediate re-run and on the
+final run), `tsc` green after symlinking the two gitignored `node_modules`.
+After: 149/149 green, `tsc` exit 0. New commits on `p15-app`: `6b9f5f0` (Sentry),
+`d158cf7` (F5 locale), `3c02c09` (reschedule clock wiring).
