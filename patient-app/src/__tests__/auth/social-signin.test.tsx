@@ -33,22 +33,36 @@ const ui = (
   </SafeAreaProvider>
 );
 
-describe('social providers gate (board layout, no client-id gating)', () => {
-  afterEach(() => jest.restoreAllMocks());
-
-  it('android: google, x, snapchat', () => {
-    jest.replaceProperty(Platform, 'OS', 'android');
-    expect(availableSocialProviders()).toEqual(['google', 'x', 'snapchat']);
+describe('social providers gate (only providers the backend verifies, Q107)', () => {
+  const saved = process.env.EXPO_PUBLIC_SOCIAL_X_SNAPCHAT;
+  afterEach(() => {
+    jest.restoreAllMocks();
+    if (saved === undefined) delete process.env.EXPO_PUBLIC_SOCIAL_X_SNAPCHAT;
+    else process.env.EXPO_PUBLIC_SOCIAL_X_SNAPCHAT = saved;
   });
 
-  it('ios: apple first, then google, x, snapchat', () => {
+  it('android: google only (X and Snapchat hidden while the server refuses them)', () => {
+    delete process.env.EXPO_PUBLIC_SOCIAL_X_SNAPCHAT;
+    jest.replaceProperty(Platform, 'OS', 'android');
+    expect(availableSocialProviders()).toEqual(['google']);
+  });
+
+  it('ios: apple first, then google', () => {
+    delete process.env.EXPO_PUBLIC_SOCIAL_X_SNAPCHAT;
+    jest.replaceProperty(Platform, 'OS', 'ios');
+    expect(availableSocialProviders()).toEqual(['apple', 'google']);
+  });
+
+  it('web: google (no Apple)', () => {
+    delete process.env.EXPO_PUBLIC_SOCIAL_X_SNAPCHAT;
+    jest.replaceProperty(Platform, 'OS', 'web');
+    expect(availableSocialProviders()).toEqual(['google']);
+  });
+
+  it('flag on: X and Snapchat come back after google', () => {
+    process.env.EXPO_PUBLIC_SOCIAL_X_SNAPCHAT = '1';
     jest.replaceProperty(Platform, 'OS', 'ios');
     expect(availableSocialProviders()).toEqual(['apple', 'google', 'x', 'snapchat']);
-  });
-
-  it('web: google, x, snapchat (no Apple)', () => {
-    jest.replaceProperty(Platform, 'OS', 'web');
-    expect(availableSocialProviders()).toEqual(['google', 'x', 'snapchat']);
   });
 });
 
@@ -63,8 +77,9 @@ describe('Login screen', () => {
     expect(queryAllByText('نسيت كلمة المرور؟').length).toBe(1);
     expect(queryByText('أو تابع عبر')).not.toBeNull();
     expect(getByLabelText('المتابعة مع Google')).toBeTruthy();
-    expect(getByLabelText('المتابعة مع X')).toBeTruthy();
-    expect(getByLabelText('المتابعة مع Snapchat')).toBeTruthy();
+    // Q107: the server refuses X and Snapchat until it verifies them, so no button is drawn.
+    expect(screen.queryByLabelText('المتابعة مع X')).toBeNull();
+    expect(screen.queryByLabelText('المتابعة مع Snapchat')).toBeNull();
   });
 
   it('ios: the official Apple button is rendered', async () => {

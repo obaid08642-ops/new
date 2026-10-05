@@ -274,10 +274,16 @@ export type SocialProvider = 'apple' | 'google' | 'x' | 'snapchat';
  * every platform. A provider whose client id is missing from the build still shows its button; pressing
  * it shows the plain "not available" message (hooks/useSocialLogin.ts).
  */
+/**
+ * Providers the backend verifies (Q107): Apple (identity token checked against Apple's keys)
+ * and Google. X and Snapchat are refused by the server until it verifies them through the
+ * provider's own API, so their buttons stay hidden unless EXPO_PUBLIC_SOCIAL_X_SNAPCHAT=1.
+ */
 export function availableSocialProviders(): SocialProvider[] {
   const list: SocialProvider[] = [];
   if (Platform.OS === 'ios') list.push('apple');
-  list.push('google', 'x', 'snapchat');
+  list.push('google');
+  if (process.env.EXPO_PUBLIC_SOCIAL_X_SNAPCHAT === '1') list.push('x', 'snapchat');
   return list;
 }
 
