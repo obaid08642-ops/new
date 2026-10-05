@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Diagnostics hub — labs and radiology</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Readex Pro',sans-serif}
+a{color:#C8202F}
+@keyframes ndRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes ndBump{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<div dir="rtl" style="width: 390px; height: 1640px; box-sizing: border-box; position: relative; overflow: hidden; background: #F5F5F7; color: #0B1B2B; font-family: 'Readex Pro', sans-serif">
+<div style="padding: 54px 16px 0; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; gap: 10px">
+<h1 style="margin: 0; flex-grow: 1; font-size: 26px; font-weight: 700; letter-spacing: -0.3px">المختبرات والأشعة</h1>
+<a href="#" style="height: 40px; padding: 0 14px; border-radius: 20px; background: #FFFFFF; border: 1px solid rgba(11,27,43,0.08); color: #0B1B2B; font-size: 13.5px; font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: 6px">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0B1B2B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l4 4v14H7z M14 3v4h4 M10 13h5 M10 17h3"></path></svg>طلباتي والنتائج</a>
+</div>
+
+<div style="display: flex; gap: 8px">
+<label style="flex-grow: 1; height: 50px; border-radius: 25px; background: #FFFFFF; border: 1px solid rgba(11,27,43,0.08); display: flex; align-items: center; gap: 10px; padding: 0 16px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 11a7 7 0 1 0 14 0a7 7 0 1 0-14 0 M20 20l-4-4"></path></svg>
+<input placeholder="{{searchHint}}" style="flex-grow: 1; min-width: 0; border: 0; background: transparent; font-family: inherit; font-size: 15px; outline: none">
+</label>
+<button aria-label="تصفية" style="width: 50px; height: 50px; border-radius: 25px; border: 1px solid rgba(11,27,43,0.08); background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B1B2B" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10 M18 7h2 M4 17h4 M12 17h8 M16 5v4 M10 15v4"></path></svg></button>
+</div>
+
+<div role="tablist" aria-label="نوع الفحص" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{kinds}}" as="k" hint-placeholder-count="2">
+<button role="tab" aria-selected="{{k.on}}" onClick="{{k.pick}}" style="height: 84px; border-radius: 24px; border: {{k.border}}; background: {{k.bg}}; box-shadow: {{k.shadow}}; font-family: inherit; color: #0B1B2B; display: flex; align-items: center; gap: 10px; padding: 0 12px; text-align: start; transition: background 240ms ease, box-shadow 240ms ease">
+<dc-import name="FIcon" icon="{{k.icon}}" tone="{{k.tone}}" chip="soft" size="{{kIcon}}" hint-size="52px,52px"></dc-import>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700">{{k.l}}</span><span style="font-size: 12px; color: #6E6E73">{{k.s}}</span></div>
+</button>
+</sc-for>
+</div>
+
+<div style="display: flex; gap: 8px; align-items: center">
+<div role="radiogroup" aria-label="طريقة الدفع" style="display: flex; padding: 4px; border-radius: 16px; background: #EAEAEF">
+<sc-for list="{{pays}}" as="p" hint-placeholder-count="3">
+<button role="radio" aria-checked="{{p.on}}" onClick="{{p.pick}}" style="height: 36px; padding: 0 14px; border-radius: 12px; border: 0; background: {{p.bg}}; box-shadow: {{p.shadow}}; color: #0B1B2B; font-family: inherit; font-size: 13px; font-weight: {{p.w}}">{{p.l}}</button>
+</sc-for>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<a href="#" style="height: 64px; border-radius: 20px; background: #FFFFFF; border: 1px solid rgba(11,27,43,0.06); display: flex; align-items: center; gap: 10px; padding: 0 12px; text-decoration: none; color: #0B1B2B"><dc-import name="FIcon" icon="chart-line-up" tone="mint" chip="soft" size="{{q40}}" hint-size="40px,40px"></dc-import><span style="font-size: 14px; font-weight: 600">نتائجي</span></a>
+<a href="#" style="height: 64px; border-radius: 20px; background: #FFFFFF; border: 1px solid rgba(11,27,43,0.06); display: flex; align-items: center; gap: 10px; padding: 0 12px; text-decoration: none; color: #0B1B2B"><dc-import name="FIcon" icon="arrows-left-right" tone="teal" chip="soft" size="{{q40}}" hint-size="40px,40px"></dc-import><span style="font-size: 14px; font-weight: 600">قارن الأسعار</span></a>
+</div>
+<div style="display: flex; gap: 8px; align-items: center">
+<div role="radiogroup" aria-label="مكان الفحص" style="display: flex; padding: 4px; border-radius: 16px; background: #EAEAEF; flex-shrink: 0">
+<sc-for list="{{places}}" as="p" hint-placeholder-count="2">
+<button role="radio" aria-checked="{{p.on}}" onClick="{{p.pick}}" style="height: 38px; padding: 0 14px; border-radius: 12px; border: 0; background: {{p.bg}}; box-shadow: {{p.shadow}}; font-family: inherit; font-size: 13.5px; font-weight: {{p.w}}; color: #0B1B2B; transition: background 200ms ease">{{p.l}}</button>
+</sc-for>
+</div>
+<button style="flex-grow: 1; min-width: 0; height: 46px; border: 0; background: transparent; font-family: inherit; display: flex; align-items: center; gap: 6px; padding: 0; color: #0B1B2B">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D42A38" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z M12 12.5a2.5 2.5 0 1 0 0-5a2.5 2.5 0 0 0 0 5z"></path></svg>
+<span style="font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{placeNote}}</span>
+</button>
+</div>
+
+<a href="#" style="border-radius: 22px; background: #FFFFFF; border: 1px solid rgba(11,27,43,0.06); padding: 14px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: #0B1B2B">
+<div style="width: 44px; height: 44px; border-radius: 14px; background: #E8EEFF; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2848B8" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9c-4.5-1-8-4-8-9V6z M9 12l2 2 4-4"></path></svg></div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14.5px; font-weight: 600">استخدم تأمينك</span><span style="font-size: 12.5px; color: #6E6E73">ارفع بطاقة التأمين، والمختبر يطلب الموافقة عنك</span></div>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9A9AA0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>
+</a>
+
+<sc-if value="{{isLab}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-direction: column; gap: 22px; animation: ndRise 360ms cubic-bezier(.22,1,.36,1) both">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><h2 style="margin: 0; font-size: 18px; font-weight: 700">باقات الفحوصات</h2><a href="#" style="font-size: 13px; text-decoration: none; font-weight: 500">كل الباقات</a></div>
+<div style="display: flex; gap: 12px; margin: 0 -16px; padding: 0 16px; overflow: hidden">
+<sc-for list="{{packs}}" as="p" hint-placeholder-count="2">
+<a href="#" style="width: 268px; flex-shrink: 0; border-radius: 28px; background: {{p.bg}}; padding: 18px; display: flex; flex-direction: column; gap: 14px; text-decoration: none; color: #0B1B2B; position: relative; overflow: hidden">
+<div style="display: flex; justify-content: space-between; align-items: flex-start; position: relative">
+<dc-import name="FIcon" icon="{{p.icon}}" tone="{{p.tone}}" chip="soft" size="{{pIcon}}" hint-size="48px,48px"></dc-import>
+<span style="height: 26px; padding: 0 10px; border-radius: 13px; background: rgba(255,255,255,0.8); font-size: 12px; font-weight: 600; display: inline-flex; align-items: center">يشمل [N] تحليل</span>
+</div>
+<div style="position: relative; display: flex; flex-direction: column; gap: 4px"><div style="font-size: 17px; font-weight: 700">[اسم الباقة]</div><div style="font-size: 12.5px; color: #3C4651">[وصف قصير للباقة]</div></div>
+<div style="position: relative; display: flex; justify-content: space-between; align-items: center">
+<div style="font-size: 20px; font-weight: 700">[السعر] <span style="font-size: 12px; font-weight: 400">ر.س</span></div>
+<span style="height: 40px; padding: 0 16px; border-radius: 14px; background: #0B1B2B; color: #FFFFFF; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center">التفاصيل</span>
+</div>
+</a>
+</sc-for>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><h2 style="margin: 0; font-size: 18px; font-weight: 700">تحاليل شائعة</h2><a href="#" style="font-size: 13px; text-decoration: none; font-weight: 500">كل التحاليل</a></div>
+<div style="border-radius: 24px; background: #FFFFFF; overflow: hidden">
+<sc-for list="{{tests}}" as="t" hint-placeholder-count="4">
+<div style="display: flex; gap: 12px; padding: 14px; align-items: center; border-bottom: {{t.line}}">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0">
+<div style="font-size: 15px; font-weight: 500">[اسم التحليل]</div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap"><span style="height: 22px; padding: 0 8px; border-radius: 11px; background: #E1F6EE; color: #0F8A68; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center">عينة منزلية</span><span style="height: 22px; padding: 0 8px; border-radius: 11px; background: #FFF1DB; color: #8A4B00; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center">[صيام]</span><span style="font-size: 11.5px; color: #6E6E73; align-self: center">النتيجة خلال [المدة]</span></div>
+</div>
+<div style="font-size: 15px; font-weight: 700; white-space: nowrap">[السعر] <span style="font-size: 11px; font-weight: 400">ر.س</span></div>
+<button aria-label="أضف للطلب" aria-pressed="{{t.on}}" onClick="{{t.toggle}}" style="width: 44px; height: 44px; border-radius: 14px; border: {{t.border}}; background: {{t.bg}}; display: flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0; transition: background 200ms ease; animation: {{t.anim}}">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{t.fg}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{t.d}}"></path></svg>
+</button>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><h2 style="margin: 0; font-size: 18px; font-weight: 700">مختبرات معتمدة</h2><a href="#" style="font-size: 13px; text-decoration: none; font-weight: 500">قارن المختبرات</a></div>
+<div style="display: flex; gap: 10px; margin: 0 -16px; padding: 0 16px; overflow: hidden">
+<sc-for list="{{labs}}" as="l" hint-placeholder-count="2">
+<a href="#" style="width: 210px; flex-shrink: 0; border-radius: 24px; background: #FFFFFF; padding: 14px; display: flex; flex-direction: column; gap: 10px; text-decoration: none; color: #0B1B2B">
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="width: 48px; height: 48px; border-radius: 16px; background: #EEF6F3; border: 1px solid rgba(11,27,43,0.05); display: flex; align-items: center; justify-content: center; font-size: 11px; color: #6E6E73">[شعار]</div>
+<div style="display: flex; flex-direction: column; gap: 2px; min-width: 0"><span style="font-size: 14.5px; font-weight: 700">[اسم المختبر]</span><span style="font-size: 12px; color: #6E6E73">[المسافة] كم</span></div>
+</div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap">
+<span style="height: 24px; padding: 0 8px; border-radius: 12px; background: #F0F0F3; font-size: 11.5px; display: inline-flex; align-items: center">سحب منزلي</span>
+<span style="height: 24px; padding: 0 8px; border-radius: 12px; background: #E8EEFF; color: #2848B8; font-size: 11.5px; display: inline-flex; align-items: center">يقبل التأمين</span>
+</div>
+</a>
+</sc-for>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isRad}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 14px; animation: ndRise 360ms cubic-bezier(.22,1,.36,1) both">
+<div style="border-radius: 20px; background: #F2EEFF; padding: 14px; display: flex; gap: 10px; align-items: flex-start">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5B3BC4" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><path d="M12 21a9 9 0 1 0 0-18a9 9 0 0 0 0 18z M12 11v5 M12 8h.01"></path></svg>
+<div style="font-size: 13.5px; line-height: 1.7; color: #3B2A80">بعض الفحوصات تحتاج طلب طبيب. ارفعه عند الحجز، والمركز يراجعه قبل الموعد.</div>
+</div>
+<h2 style="margin: 0; font-size: 18px; font-weight: 700">فحوصات الأشعة</h2>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{rads}}" as="r" hint-placeholder-count="4">
+<a href="#" style="border-radius: 24px; background: #FFFFFF; padding: 14px; display: flex; flex-direction: column; gap: 10px; text-decoration: none; color: #0B1B2B">
+<dc-import name="FIcon" icon="scan" tone="violet" chip="soft" size="{{rIcon}}" hint-size="48px,48px"></dc-import>
+<div style="font-size: 15px; font-weight: 700">[اسم الفحص]</div>
+<div style="font-size: 12.5px; color: #6E6E73">من [السعر] ر.س · [عدد] مراكز</div>
+</a>
+</sc-for>
+</div>
+</div>
+</sc-if>
+</div>
+
+<sc-if value="{{hasCart}}" hint-placeholder-val="{{true}}">
+<div style="position: absolute; left: 16px; right: 16px; bottom: 30px; border-radius: 22px; background: rgba(255,255,255,0.86); backdrop-filter: blur(24px); border: 1px solid rgba(11,27,43,0.08); box-shadow: 0 18px 40px rgba(11,27,43,0.14); padding: 8px 8px 8px 14px; display: flex; align-items: center; gap: 12px">
+<div style="width: 44px; height: 44px; border-radius: 14px; background: #FFE3E5; color: #B81E2B; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; animation: ndBump 360ms ease {{bumpKey}}">{{count}}</div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 0; color: #0B1B2B"><span style="font-size: 12px; color: #6E6E73">{{count}} فحوصات</span><span style="font-size: 16px; font-weight: 700">[الإجمالي] ر.س</span></div>
+<button style="height: 48px; padding: 0 20px; border-radius: 16px; border: 0; background: linear-gradient(180deg, #DE3644 0%, #D42A38 100%); color: #FFFFFF; font-family: inherit; font-size: 15.5px; font-weight: 700">متابعة الحجز</button>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1640}}'>
+class Component extends DCLogic {
+constructor(props) { super(props); this.state = { kind: 0, place: 0, picked: [true, false, true, false], bump: 0 }; }
+renderVals() {
+const s = this.state;
+const K = [['التحاليل الطبية', 'دم، هرمونات، فيتامينات', 'test-tube', '#E6F7F1', 'mint'], ['الأشعة والتصوير', 'أشعة، رنين، سونار', 'scan', '#F1ECFF', 'violet']];
+const kinds = K.map((x, k) => ({ l: x[0], s: x[1], icon: x[2], tone: x[4], on: s.kind === k, bg: s.kind === k ? '#FFFFFF' : 'rgba(255,255,255,0.45)', tile: x[3], border: s.kind === k ? '2px solid #0B1B2B' : '1px solid rgba(11,27,43,0.06)', shadow: s.kind === k ? '0 10px 24px rgba(11,27,43,0.08)' : 'none', pick: () => this.setState({ kind: k }) }));
+const P = s.kind === 0 ? ['سحب منزلي', 'في المختبر'] : ['أشعة منزلية', 'في المركز'];
+const places = P.map((l, k) => ({ l, on: s.place === k, bg: s.place === k ? '#FFFFFF' : 'transparent', shadow: s.place === k ? '0 2px 6px rgba(11,27,43,0.10)' : 'none', w: s.place === k ? 700 : 500, pick: () => this.setState({ place: k }) }));
+const pays = ['الكل', 'كاش', 'تأمين'].map((l, k) => ({ l, on: (s.pay || 0) === k, bg: (s.pay || 0) === k ? '#FFFFFF' : 'transparent', shadow: (s.pay || 0) === k ? '0 2px 6px rgba(11,27,43,0.10)' : 'none', w: (s.pay || 0) === k ? 700 : 500, pick: () => this.setState({ pay: k }) }));
+const tests = s.picked.map((on, k) => ({ on, line: k < 3 ? '1px solid #EFEFF2' : '0', bg: on ? '#0B1B2B' : '#FFFFFF', fg: on ? '#FFFFFF' : '#0B1B2B', border: on ? '0' : '1.5px solid rgba(11,27,43,0.18)', d: on ? 'M5 12l4 4 10-10' : 'M12 5v14 M5 12h14', anim: on ? 'ndBump 320ms ease' : 'none',
+ toggle: () => { const p = s.picked.slice(); p[k] = !p[k]; this.setState({ picked: p, bump: s.bump + 1 }); } }));
+const packs = [
+{ bg: '#E6F7F1', icon: 'test-tube', tone: 'mint' },
+{ bg: '#FFF0E6', icon: 'heartbeat', tone: 'amber' },
+];
+const rads = ['#F1ECFF', '#E8EEFF', '#F1ECFF', '#E8EEFF'].map(tint => ({ tint }));
+const count = s.picked.filter(Boolean).length;
+return { pays, q40: 40, kinds, places, tests, packs, labs: [0, 1], rads, count, hasCart: count > 0, isLab: s.kind === 0, isRad: s.kind === 1,
+ bumpKey: s.bump % 2 ? '0ms' : '1ms', searchHint: s.kind === 0 ? 'ابحث عن تحليل أو باقة…' : 'ابحث عن فحص أشعة…',
+ placeNote: s.place === 0 ? 'في: [عنوانك المحفوظ]' : 'الأقرب إلى: [موقعك]', kIcon: 52, pIcon: 48, rIcon: 48 };
+}
+}
+</script>
+</body>
+</html>

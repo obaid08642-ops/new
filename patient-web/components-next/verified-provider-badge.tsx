@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeCheck } from "lucide-react";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { localizedUrl } from "@/lib/seo";
 import { isLocale, type Locale } from "@/lib/i18n";
 
@@ -164,7 +164,7 @@ export function VerifiedProviderBadge({ provider, locale, path }: VerifiedProvid
         overflowWrap: "anywhere",
       }}
     >
-      <BadgeCheck size={16} color="#00876F" aria-hidden="true" />
+      <Icon name="check-circle" size={16} tone="mint" />
       <span>{label}</span>
     </Link>
   );
