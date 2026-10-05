@@ -1,9 +1,8 @@
 {
   "$comment": "Recorded debt for tools/design/no-left-right.ts: physical left/right style keys and CSS properties, per file, when the gate landed. They move to start/end (logical properties) as each screen is rebuilt on the shells and the shared components. This file may only shrink.",
-  "total": 538,
+  "total": 526,
   "files": {
     "admin/src/pages/admin/dashboard.tsx": 1,
-    "patient-app/app/(onboarding)/index.tsx": 10,
     "patient-app/app/(tabs)/consultations/index.tsx": 54,
     "patient-app/app/(tabs)/diagnostics.tsx": 20,
     "patient-app/app/(tabs)/nursing.tsx": 5,
@@ -67,7 +66,6 @@
     "patient-app/app/returns/detail.tsx": 1,
     "patient-app/app/returns/hub.tsx": 3,
     "patient-app/app/room/[id].tsx": 3,
-    "patient-app/app/search/index.tsx": 2,
     "patient-app/app/settings/data.tsx": 2,
     "patient-app/app/settings/privacy.tsx": 2,
     "patient-app/app/settings/security.tsx": 1,
