@@ -1,0 +1,192 @@
+[
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy",
+    "element": "Product grid, product page, comparison: catalogue is empty on the local backend",
+    "file": "backend/src/modules/medicines/medicines.service.ts",
+    "line": 125,
+    "found": "Local seeded backend (NODE_ENV=test, 2026-10-05): GET /medicines answers [] for patient, guest and no session; GET /medicines/filters answers categories [] and brands []; GET /medicines/hot answers []. The pharmacy seeder added 2 test pharmacies, 7 inventory items and 1 draft order, but the public catalogue (publicCatalogFilter: public_eligibility, indexing_eligibility and medical_review_status=approved) is empty because the v14 catalogue file is not available offline. So no hub card, product page or comparison could be run against real rows; they were checked through the render tool with marked test values (images kept outside the repo) and unit tests.",
+    "suspect": "The reviewer session needs to import the reviewed v14 catalogue (or approve a set of products) on the test backend before the product screens can be verified end to end."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/filters",
+    "element": "Dosage-form chips",
+    "file": "backend/src/modules/medicines/medicines.service.ts",
+    "line": 888,
+    "found": "filters() returns a hard-coded list of six Arabic form names (أقراص, كبسولات, شراب, حقن, كريم / مرهم, نقط) when the catalogue has no form values. GET /medicines/filters on the empty local catalogue answers forms[6] with categories[] and brands[] empty. The screen draws what it gets.",
+    "suspect": "The backend invents filter options that no product has: choosing one returns nothing. It should return only forms that exist in the catalogue."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/filters",
+    "element": "Sort options",
+    "file": "patient-app/app/pharmacy/filters.tsx",
+    "line": 22,
+    "found": "GET /medicines/filters returns sortOptions as four Arabic strings; the screen ignores them and keeps its own four ids (relevant, price_asc, price_desc, newest) because the hub sends the id as the sort parameter.",
+    "suspect": "Two lists of the same options that can drift. The backend could return ids with labels."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy",
+    "element": "Category chips",
+    "file": "patient-app/src/utils/pharmacyCatalog.ts",
+    "line": 36,
+    "found": "The hub draws a fixed Arabic list of eight categories, sends each one's Arabic catalogue name as ?category=, and then filters the answer again on the client with an alias list (pharmacyCatalog.ts:100-121) that does not contain every name it sends (for example \"الأدوية والعلاج\"). GET /medicines/categories exists and is public; the hub does not call it. The catalogue is empty locally, so the result could not be checked.",
+    "suspect": "Chips that are not the catalogue's own categories, and a second client-side filter that can hide rows the server returned. The chips should come from GET /medicines/categories and the client pass should go."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy",
+    "element": "\"قارن البدائل\" quick tile (hidden)",
+    "file": "patient-app/app/(tabs)/pharmacy.tsx",
+    "line": 63,
+    "found": "The board draws four quick tiles; the fourth opens the comparison. /pharmacy/medicine-compare needs ids in its route and nothing in the app lets the patient pick medicines (no selection on the hub or the cards), so the tile would open an empty comparison. It is not drawn. The comparison is reachable from the product page (\"عرض الكل\" of the alternatives) with the product and its alternatives.",
+    "suspect": "Owner decision: a \"compare\" selection on the cards (or a picker) if the hub tile should come back."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy",
+    "element": "\"أعد طلبك السابق\" card",
+    "file": "patient-app/app/(tabs)/pharmacy.tsx",
+    "line": 172,
+    "found": "Drawn only for a signed-in patient (not a guest) whose GET /patient/pharmacy/orders has a non-draft order with items: \"N items · date\" and a button to /pharmacy/reorder?orderId. The endpoint does not document its order (the screen sorts by createdAt), and the seeded patient's only order is a CART_DRAFT, so the card is hidden there. The call is new on this screen (the hub made no order call before).",
+    "suspect": "Confirm the list is newest first, or add a \"latest\" query. Check that reorder works for a CONFIRMED order (not run: no such order is seeded)."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/product-detail",
+    "element": "Points line \"تكسب [عدد] نقطة\" (hidden)",
+    "file": "patient-app/app/pharmacy/product-detail.tsx",
+    "line": 0,
+    "found": "SPEC §A asks for a loyalty preview that respects the 10 % cap, hidden for guests. backend/src/modules/loyalty/loyalty.controller.ts has config, account, transactions, leaderboard, challenges and rewards routes, none that previews the points of a product or an order. The line is not drawn.",
+    "suspect": "Backend gap: a preview endpoint (points for a given price / medicine, capped at 10 % of the order)."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/product-detail",
+    "element": "Delivery / pickup choice with \"within [time]\" (hidden)",
+    "file": "patient-app/app/pharmacy/product-detail.tsx",
+    "line": 0,
+    "found": "The board draws a delivery or pickup segmented control with expected times. The cart item (src/context/CartContext.tsx) carries no delivery mode and the pharmacy draft is built later from the offers, and the medicine row has no delivery time. A control that changes nothing would be a dead control, so it is not drawn.",
+    "suspect": "Owner decision: where delivery or pickup is chosen (here, in the cart or on the selected offer) and which field gives the times."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/product-detail",
+    "element": "Insurance row (hidden)",
+    "file": "patient-app/app/pharmacy/product-detail.tsx",
+    "line": 0,
+    "found": "SPEC §A shows it only when the patient's insurer is in covered_by_insurance[] (company ids). The screen has no call for the patient's insurer and no id-to-name lookup for the row's \"مشمول في تأمين [شركة]\".",
+    "suspect": "Needs the insurer from the profile or the insurance module and a name lookup for the company ids; then the row can be drawn."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/product-detail",
+    "element": "Availability row and \"unavailable\" state",
+    "file": "patient-app/app/pharmacy/product-detail.tsx",
+    "line": 302,
+    "found": "The row shows \"available at N pharmacies\" from pharmacies_count (a network-wide count, not \"nearby\", so the board's \"قريبة\" and \"أقرب صيدلية على بعد [المسافة]\" are not drawn: no distance field). SPEC §A says pharmacies_count = 0 shows \"unavailable\" with \"notify me\" and disables Buy; that is not done because orders are broadcast to nearby pharmacies and a denormalised count of 0 can mean no inventory was entered, not that the order cannot be served. There is no \"notify me\" endpoint either.",
+    "suspect": "Owner decision on whether Buy is disabled at count 0; backend gap for the nearest distance and for a notify-me subscription."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/product-detail",
+    "element": "Related products",
+    "file": "patient-app/app/pharmacy/product-detail.tsx",
+    "line": 238,
+    "found": "details() returns related_product_ids (ids only). The screen reads the rows with POST /medicines/compare { ids } (up to 8), the only batch lookup by id that exists; it is named for comparison. The old screen read med.similar, which the backend never returns, and drew nothing.",
+    "suspect": "A real batch or \"related\" endpoint would be clearer; check compare's public filter returns the same rows details() would."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/product-detail",
+    "element": "\"الوصف\" section kept",
+    "file": "patient-app/app/pharmacy/product-detail.tsx",
+    "line": 316,
+    "found": "SPEC §A and the board list eleven detail sections and no description; the previous screen showed description_* first and open. It is kept as the first section so real catalogue text is not lost.",
+    "suspect": "Owner decision: keep the description section (as built) or drop it to match the board exactly."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/product-detail",
+    "element": "Alternatives: no picture, no pack size",
+    "file": "backend/src/modules/medicines/medicines.service.ts",
+    "line": 925,
+    "found": "details() fetches alternatives with the projection { id, name_ar, name_en, price, manufacturer, requires_prescription }: no image, no package_size, no name in the other four languages. The alternative cards therefore show the pill glyph and no pack, and the names are Arabic or English only.",
+    "suspect": "Add image, package_size and the translations name to the projection (and old_price for the \"أوفر\" chip)."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/product-detail",
+    "element": "\"شامل الضريبة\" under the price",
+    "file": "patient-app/app/pharmacy/product-detail.tsx",
+    "line": 567,
+    "found": "The words come from the board and SPEC §A. No medicine field says whether the price includes tax, and the cart keeps no price (sanitizePharmacyCartItem drops it), so the total in the footer is the catalogue price times the quantity: an indication; the price that is paid comes from the pharmacy offer.",
+    "suspect": "Confirm with the owner that every catalogue price is tax inclusive, or drop the words; make clear on the page that the final price is the offer's."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/product-detail",
+    "element": "Wishlist read on every visit",
+    "file": "patient-app/app/pharmacy/product-detail.tsx",
+    "line": 179,
+    "found": "The page calls GET /users/me/wishlist on open to colour the heart. Runtime check: 200 [] for patient and guest, 401 with no session. src/utils/api.ts deletes the stored token on any 401, so a visitor with no token at all is unaffected, but a stale token that the backend rejects is cleared by this call. The call was already there (unchanged).",
+    "suspect": "Skip the call when there is no session, and do not clear the session on a wishlist 401."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/product-detail",
+    "element": "Share link",
+    "file": "patient-app/app/pharmacy/product-detail.tsx",
+    "line": 419,
+    "found": "The share button shares \"https://app.nabdahplus.com/s/medicine/<slug or id>\", the same pattern the doctor page uses for doctors (app/consultations/doctor/[id].tsx). app/s/[type]/[slug].tsx maps the medicine type to the product page. The host was not checked from here.",
+    "suspect": "Confirm the host and that /s/medicine/<slug> resolves on the web."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/wishlist",
+    "element": "Availability chip",
+    "file": "backend/src/modules/users/users.service.ts",
+    "line": 51,
+    "found": "getWishlist() sets available = !!med, where med is the row found in the medicines collection by id (no public-catalogue filter, no stock). The chip \"متوفر / غير متوفر\" therefore means \"still in the collection\", not \"in stock\".",
+    "suspect": "Rename the field or compute it from the public catalogue and pharmacies_count."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/medicine-compare",
+    "element": "Rating, quantity and ingredient rows",
+    "file": "patient-app/app/pharmacy/medicine-compare.tsx",
+    "line": 31,
+    "found": "The previous screen read keys that the medicine row does not have (rating, qty, ingredient, requiresRx, sideEffects) and showed \"غير متوفر\" for them. POST /medicines/compare returns the raw medicine documents, so the rows now read active_ingredient, strength, form, package_size, price, requires_prescription and side_effects_*; a row nobody has a value for is not drawn. Medicines have no rating (SPEC §A: no product reviews).",
+    "suspect": "Nothing to fix; the comparison could not be run on real rows because the catalogue is empty locally."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy",
+    "element": "Six-language strings",
+    "file": "patient-app/src/i18n/locales/en.json",
+    "line": 0,
+    "found": "177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phrase catalogue after correcting the entries that were wrong).",
+    "suspect": "A native speaker should review the Urdu, Hindi, Bengali and Filipino text, especially the medical wording (precautions, contraindications, interactions)."
+  }
+]
