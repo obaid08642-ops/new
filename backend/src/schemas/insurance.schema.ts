@@ -42,6 +42,8 @@ export class InsuranceCompany {
 }
 export type InsuranceCompanyDocument = InsuranceCompany & Document;
 export const InsuranceCompanySchema = SchemaFactory.createForClass(InsuranceCompany);
+// 14.15: catalogs insuranceCatalog() reads find({ is_active: true }).sort({ name_en: 1 }).
+InsuranceCompanySchema.index({ is_active: 1, name_en: 1 });
 
 // 2. Insurance Network Schema
 @Schema({ timestamps: true, collection: 'insurance_networks' })
@@ -62,6 +64,8 @@ export class InsuranceNetwork {
 }
 export type InsuranceNetworkDocument = InsuranceNetwork & Document;
 export const InsuranceNetworkSchema = SchemaFactory.createForClass(InsuranceNetwork);
+// 14.15: catalogs insuranceCatalog() reads networks by catalog_status, grouped by company_id.
+InsuranceNetworkSchema.index({ catalog_status: 1, company_id: 1 });
 
 // 3. Coverage Rules Schema
 @Schema({ timestamps: true, collection: 'insurance_coverage_rules' })

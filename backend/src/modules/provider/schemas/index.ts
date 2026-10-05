@@ -187,6 +187,8 @@ export const ProviderOtpCodeSchema = SchemaFactory.createForClass(ProviderOtpCod
 export * from './capabilities.schema';
 export * from './requests.schema';
 ProviderOtpCodeSchema.index({ email: 1, purpose: 1, status: 1 });
+// 14.15 TTL: an OTP code is removed one day after it expires.
+ProviderOtpCodeSchema.index({ expires_at: 1 }, { expireAfterSeconds: 86400 });
 
 // ===================== AUDIT =====================
 @Schema({ timestamps: true, collection: 'provider_audit_logs' })

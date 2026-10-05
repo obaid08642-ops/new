@@ -18,6 +18,14 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import axios from 'axios';
 
+const EXPO_PUSH_MAX = 100;
+const FCM_MULTICAST_MAX = 500;
+function chunk<T>(items: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
+  return out;
+}
+
 /** Per-call HTTP timeout for outbound notification channels (ms). Env-overridable for tests. */
 const notifyTimeoutMs = () => Number(process.env.NOTIFY_TIMEOUT_MS) || 8000;
 
@@ -304,8 +312,9 @@ export class NotificationsService {
       // PushToken is the single source of truth (registered via /push/register
       // or /notifications/register-token). The old DeviceToken model never
       // existed as a schema — querying it threw MissingSchemaError.
-      // 14.15 hot-query guard: per-push token fan-out capped + projected; expected index { user_id: 1, active: 1 } on push_tokens (see backend/src/common/indexes/hot-path-indexes.md; DB work deferred).
-      const userTokens = await this.model.db.model('PushToken').find({ user_id: n.user_id, active: true }).select({ token: 1, provider: 1, _id: 0 }).limit(20).maxTimeMS(2000).lean();
+      // Every active device gets the push (no cap); projected, bounded in time,
+      // served by PushTokenSchema's { user_id: 1, active: 1 } index.
+      const userTokens = await this.model.db.model('PushToken').find({ user_id: n.user_id, active: true }).select({ token: 1, provider: 1, _id: 0 }).maxTimeMS(2000).lean();
       const tokens = userTokens.map((t: any) => ({ token: t.token, provider: t.provider })).filter((t: any) => t.token);
       const expoTokens = tokens.filter((t: any) => t.provider === 'expo' || t.token.startsWith('ExponentPushToken')).map((t: any) => t.token);
       const fcmTokens = tokens.filter((t: any) => t.provider === 'fcm' && !t.token.startsWith('ExponentPushToken')).map((t: any) => t.token);
@@ -344,11 +353,15 @@ export class NotificationsService {
       data: dataPayload,
     };
     if (tokens && tokens.length > 0) {
-      const res = await withTimeout(
-        getMessaging().sendEachForMulticast({ tokens, ...payload }),
-        notifyTimeoutMs(),
-      );
-      return res.successCount > 0;
+      let delivered = false;
+      for (const batch of chunk(tokens, FCM_MULTICAST_MAX)) {
+        const res = await withTimeout(
+          getMessaging().sendEachForMulticast({ tokens: batch, ...payload }),
+          notifyTimeoutMs(),
+        );
+        delivered = res.successCount > 0 || delivered;
+      }
+      return delivered;
     }
     if (topic) {
       await withTimeout(getMessaging().send({ topic, ...payload }), notifyTimeoutMs());
@@ -358,24 +371,28 @@ export class NotificationsService {
   }
 
   private async sendExpoPush(tokens: string[], n: any, dataPayload: any): Promise<boolean> {
-    try {
-      const messages = tokens.map((to) => ({
-        to,
-        title: n.title || n.title_key,
-        body: n.body || n.body_key,
-        data: dataPayload,
-        sound: n.priority === 'HIGH' || n.priority === 'CRITICAL' ? 'default' : undefined,
-      }));
-      const res = await axios.post('https://exp.host/--/api/v2/push/send', messages, {
-        headers: { 'Content-Type': 'application/json' },
-        timeout: notifyTimeoutMs(),
-      });
-      const receipts = Array.isArray(res.data?.data) ? res.data.data : [];
-      return receipts.some((r: any) => r.status === 'ok');
-    } catch (e: any) {
-      this.logger.error('Expo push failed', e.message);
-      return false;
+    let delivered = false;
+    // Expo accepts at most 100 messages per request; one failed batch does not stop the rest.
+    for (const batch of chunk(tokens, EXPO_PUSH_MAX)) {
+      try {
+        const messages = batch.map((to) => ({
+          to,
+          title: n.title || n.title_key,
+          body: n.body || n.body_key,
+          data: dataPayload,
+          sound: n.priority === 'HIGH' || n.priority === 'CRITICAL' ? 'default' : undefined,
+        }));
+        const res = await axios.post('https://exp.host/--/api/v2/push/send', messages, {
+          headers: { 'Content-Type': 'application/json' },
+          timeout: notifyTimeoutMs(),
+        });
+        const receipts: Array<{ status?: string }> = Array.isArray(res.data?.data) ? res.data.data : [];
+        delivered = receipts.some((r) => r.status === 'ok') || delivered;
+      } catch (e) {
+        this.logger.error('Expo push failed', e instanceof Error ? e.message : String(e));
+      }
     }
+    return delivered;
   }
 
   /** SMS retired: kept as a logged no-op so historic delivery records keep their shape. */
