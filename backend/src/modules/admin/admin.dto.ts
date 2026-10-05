@@ -1,4 +1,5 @@
-import { IsBoolean, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsBoolean, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Permission } from '../../common/permissions';
 
 export class CreateSubAdminDto {
   @IsOptional()
@@ -13,9 +14,12 @@ export class CreateSubAdminDto {
   @IsString()
   password: string;
 
+  // The controller stores a list of Permission names (it filtered an "object" to nothing).
   @IsOptional()
-  @IsObject()
-  permissions?: Record<string, unknown>;
+  @IsArray()
+  @ArrayMaxSize(64)
+  @IsIn(Object.values(Permission), { each: true })
+  permissions?: Permission[];
 
 
   @IsOptional()
@@ -25,9 +29,12 @@ export class CreateSubAdminDto {
 }
 
 export class UpdateSubAdminDto {
+  // The controller stores a list of Permission names (it filtered an "object" to nothing).
   @IsOptional()
-  @IsObject()
-  permissions?: Record<string, unknown>;
+  @IsArray()
+  @ArrayMaxSize(64)
+  @IsIn(Object.values(Permission), { each: true })
+  permissions?: Permission[];
 
 
   @IsOptional()

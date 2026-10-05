@@ -1,3 +1,4 @@
+import { AdminDeviceService } from './admin-device.service';
 import { Injectable, BadRequestException, UnauthorizedException, ConflictException, GoneException, ForbiddenException, Inject, HttpException, HttpStatus, ServiceUnavailableException } from '@nestjs/common';
 import { escapeHtml } from '../../common/html-escape';
 import { Model } from 'mongoose';
@@ -42,7 +43,7 @@ export class AuthService {
     private redisService: RedisService,
     @Optional() private passkeys?: PasskeyService,
     @Optional() private deviceTrust?: DeviceTrustService,
-    @Optional() private adminDevices?: any,
+    @Optional() private adminDevices?: AdminDeviceService,
     @Optional() private adminSession?: AdminSessionService,
     @Optional() private push?: PushService,
     @Optional() private mail?: MailService,
