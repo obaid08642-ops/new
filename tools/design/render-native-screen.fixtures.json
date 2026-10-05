@@ -1,0 +1,36 @@
+{
+  "_comment": "TEST VALUES for `render-native-screen.mjs --api fixture`: invented, clearly marked as tests, never real patient data. They exist only to draw the data-bound blocks of Home (name, reminder, appointment, records, curated offers) in a design render. Shipped code never reads this file.",
+  "/users/me/profile": { "full_name": "مستخدم تجريبي" },
+  "/health/reminders": [
+    {
+      "id": "test-1",
+      "medicine_name_ar": "دواء تجريبي",
+      "dose": "حبة واحدة",
+      "active": true,
+      "times": ["08:00", "20:00"],
+      "today_doses": [
+        { "time_key": "08:00", "status": "taken" },
+        { "time_key": "20:00", "status": "pending" }
+      ]
+    }
+  ],
+  "/nutrition/daily-summary": { "meals_count": 2, "water": { "consumed_ml": 600 } },
+  "/maternity/profile": { "profile_ready": true, "is_pregnant": true },
+  "/mental-health/mood": [],
+  "/health/vitals/summary": [{ "type": "test" }],
+  "/home/upcoming-appointment": { "id": "test-appt", "date": "2026-10-26", "doctorName": "د. طبيب تجريبي", "type": "استشارة فيديو", "time": "04:30 م" },
+  "/content/home": {
+    "sections": [
+      {
+        "id": "test-offers",
+        "title_ar": "عروض وباقات",
+        "title_en": "Offers and packages",
+        "enabled": true,
+        "items": [
+          { "id": "1", "title_ar": "عنصر تجريبي", "title_en": "Test item", "deep_link": "/offers" },
+          { "id": "2", "title_ar": "عنصر تجريبي ثانٍ", "title_en": "Second test item", "deep_link": "/offers" }
+        ]
+      }
+    ]
+  }
+}

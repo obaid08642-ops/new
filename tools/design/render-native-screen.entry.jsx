@@ -17,6 +17,8 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '@app/src/store/slices/authSlice';
 import { AppProvider } from '@app/src/context/AppContext';
 import Screen from '@screen';
+import TabBar from '@tabbar';
+import LayoutHeader from '@header';
 
 const cfg = window.__SCREEN;
 if (cfg.platform && cfg.platform !== "web") Platform.OS = cfg.platform; // e.g. the iOS layout of the sign-in screens
@@ -27,13 +29,18 @@ function Root() {
   return (
     // dir: react-native-web resolves start/end from the writing direction of its context, the
     // counterpart of I18nManager.isRTL on a device running in Arabic.
-    <View nativeID="frame" dir="rtl" lang="ar" style={{ width: cfg.width, height: cfg.height, overflow: 'hidden' }}>
+    <View nativeID="frame" dir={cfg.dir || "rtl"} lang={cfg.lang || "ar"} style={{ width: cfg.width, height: cfg.height, overflow: 'hidden', flexDirection: 'column' }}>
       {/* the contexts directly: on the web SafeAreaProvider measures the browser (zero insets) */}
       <SafeAreaFrameContext.Provider value={metrics.frame}>
         <SafeAreaInsetsContext.Provider value={metrics.insets}>
           <Provider store={store}>
             <AppProvider>
-              <Screen />
+              {/* what the tabs layout draws: its header above the screen, the tab bar floating over it */}
+              {cfg.header ? <LayoutHeader /> : null}
+              <View style={{ flex: 1 }}>
+                <Screen />
+              </View>
+              {cfg.tabbar ? <TabBar /> : null}
             </AppProvider>
           </Provider>
         </SafeAreaInsetsContext.Provider>

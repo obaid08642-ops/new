@@ -22,6 +22,17 @@
  * button's black / white style). --width/--height set the viewport (default 390x844; the boards are 390 wide,
  * so a different size skips the board comparison) and --suffix is added to the file names (welcome-768-light.png).
  *
+ *
+ * Tabs screens (Home, Services): `--dir "patient-app/app/(tabs)" --screens index:home,services` renders
+ * (tabs)/index.tsx and writes home-<theme>.png (`file[:name]`). With no --height the frame is the board's
+ * (HomeApp 390x2140, ServiceHub 390x1640), so the whole scroll is in the picture. `--tabbar <file>` puts a
+ * tab bar component (default export, e.g. patient-app/src/components/BottomNavBar.tsx) over the screen and
+ * `--header <file>` the tabs layout's header above it, as the tabs layout does; `--path` is what usePathname
+ * returns ('/' = Home). `--crop-bottom N` keeps the bottom N px of the frame and of the board (the tab bar).
+ * `--api empty` (default) answers every endpoint with an empty payload ("no data yet", nothing invented),
+ * `offline` makes every request fail, `fixture` answers with clearly marked TEST values from
+ * tools/design/render-native-screen.fixtures.json so data-bound layouts can be checked.
+ *
  * Needs Playwright (Chromium) and patient-app's node_modules; esbuild from packages/ui.
  */
 import { createServer } from 'node:http';
@@ -45,13 +56,34 @@ const CMP = arg('--compare') ? resolve(REPO, arg('--compare')) : null;
 // --dir renders the screens from another folder at the same depth (e.g. a copy of the screens as
 // they were before a change, so BEFORE and AFTER go through the same renderer).
 const SCREEN_DIR = resolve(REPO, arg('--dir', 'patient-app/app/(auth)'));
-const SCREENS = arg('--screens', 'welcome,login,register,otp').split(',');
+// `file[:name]`: the screen file in --dir, and the name its images are written under.
+const SCREEN_SPECS = arg('--screens', 'welcome,login,register,otp').split(',').map((x) => {
+  const [file, name] = x.split(':');
+  return { file, name: name || file };
+});
+const SCREENS = SCREEN_SPECS.map((x) => x.name);
+const API_MODE = arg('--api', 'empty');
+const WAIT = Number(arg('--wait', 2600));
+// --lang en renders the left-to-right layout (the same AsyncStorage key the app reads); the default is Arabic
+const LANG = arg('--lang', 'ar');
+const DIR = LANG === 'ar' || LANG === 'ur' ? 'rtl' : 'ltr';
+const TABBAR = arg('--tabbar') ? resolve(REPO, arg('--tabbar')) : null;
+const HEADER = arg('--header') ? resolve(REPO, arg('--header')) : null;
+const PATHNAME = arg('--path', '/');
+const CROP_BOTTOM = Number(arg('--crop-bottom', 0));
 /** The board each screen is drawn on, and the route params the screen is opened with in the flow. */
 // `board` is the Auth.dc.html screen (Welcome/Login/Register/Otp/…Dark.dc.html are that component
 // with screen/theme set; Register and Otp have no Dark file, so the dark board is Auth itself with
 // theme="dark", served the same way). The otp params are the reset flow's, the one that carries the
 // address in the route (the register flow carries it in a transaction that is not in the route).
 const BOARD = {
+  home: { component: 'HomeApp', size: [390, 2140], params: {} },
+  services: { component: 'ServiceHub', size: [390, 1640], params: {} },
+  // the tab bar alone: the HomeApp frame cropped to its bottom edge (--crop-bottom)
+  tabbar: { component: 'HomeApp', size: [390, 2140], params: {} },
+  // screens without a board of their own render at a phone's size and are not compared
+  'all-services': { params: {} },
+  splash: { params: {} },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },
@@ -59,17 +91,25 @@ const BOARD = {
   'forgot-password': { board: null, params: {} },
   'reset-password': { board: null, params: { email: 'name@example.com' } },
 };
-const boardPage = (screen, theme) => `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><script src="./support.js"></script></head><body>
-<x-dc><helmet><style>body{margin:0}</style></helmet><div style="width: 390px; height: 844px">
-<dc-import name="Auth" screen="${screen}" theme="${theme}" platform="${PLATFORM === 'ios' ? 'ios' : 'android'}" hint-size="390px,844px"></dc-import></div></x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+const boardPage = (screen, theme) => {
+  const comp = BOARD[screen]?.component;
+  const [bw, bh] = BOARD[screen]?.size || [390, 844];
+  const tag = comp
+    ? `<dc-import name="${comp}" theme="${theme}" hint-size="${bw}px,${bh}px"></dc-import>`
+    : `<dc-import name="Auth" screen="${screen}" theme="${theme}" platform="${PLATFORM === 'ios' ? 'ios' : 'android'}" hint-size="390px,844px"></dc-import>`;
+  return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><script src="./support.js"></script></head><body>
+<x-dc><helmet><style>body{margin:0}</style></helmet><div style="width: ${bw}px; height: ${bh}px">
+${tag}</div></x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":${bw},"height":${bh}}}'>
 class Component extends DCLogic { renderVals() { return {}; } }
 </script></body></html>`;
+};
 const W = Number(arg('--width', 390));
-const H = Number(arg('--height', 844));
+const H_ARG = arg('--height');
+/** The frame height: --height, else the board's own (Home, Services), else a phone's 844. */
+const frameHeight = (screen) => (H_ARG ? Number(H_ARG) : BOARD[screen]?.size?.[1] ?? 844);
 const PLATFORM = arg('--platform', 'web');
 const SUFFIX = arg('--suffix', '');
-const BOARD_SIZE = W === 390 && H === 844;
 const INSETS = { top: 47, bottom: 34, left: 0, right: 0 };
 
 let playwright;
@@ -84,19 +124,32 @@ const esbuild = createRequire(join(REPO, 'packages/ui/package.json'))('esbuild')
 /** Module-boundary mocks. Each is the smallest surface the auth screens call. */
 const MOCKS = {
   'expo-router': `
+    import * as React from 'react';
     export const router = { push() {}, replace() {}, back() {}, canGoBack: () => true, navigate() {} };
     export const useRouter = () => router;
     export const useLocalSearchParams = () => (window.__SCREEN.params || {});
     export const useGlobalSearchParams = useLocalSearchParams;
     export const useSegments = () => [];
-    export const usePathname = () => '/';
-    export const useFocusEffect = () => {};
+    export const usePathname = () => (window.__SCREEN && window.__SCREEN.pathname) || '/';
+    // a screen that loads on focus loads once when it is drawn
+    export const useFocusEffect = (cb) => { React.useEffect(() => { const out = cb(); return typeof out === 'function' ? out : undefined; }, [cb]); };
     export const useNavigation = () => ({ addListener: () => () => {}, setOptions() {} });
     export const Link = ({ children }) => children;
     export const Redirect = () => null;
     export const Stack = Object.assign(() => null, { Screen: () => null });`,
+  // The network client. 'empty' answers every endpoint with an empty payload (no data yet, nothing
+  // invented); 'offline' fails every request; 'fixture' answers with the TEST values in
+  // render-native-screen.fixtures.json (clearly marked as such) so data-bound layouts can be checked.
   'auth-api': `
-    export async function apiFetch() { throw new Error('offline'); }
+    import fixtures from '@fixtures';
+    const EMPTY = { '/health/reminders': [], '/mental-health/mood': [], '/health/vitals/summary': [], '/home/upcoming-appointment': null, '/content/home': { sections: [] } };
+    export async function apiFetch(path) {
+      const mode = (window.__SCREEN && window.__SCREEN.api) || 'empty';
+      if (mode === 'offline') throw new Error('offline');
+      const key = String(path).split('?')[0];
+      if (mode === 'fixture' && key in fixtures) return fixtures[key];
+      return key in EMPTY ? EMPTY[key] : {};
+    }
     export async function storeAuthSession() {}`,
   'expo-auth-session': `
     export const useAuthRequest = () => [null, null, async () => ({ type: 'dismiss' })];
@@ -130,7 +183,7 @@ const mockPlugin = {
     build.onResolve({ filter: /^expo-apple-authentication$/ }, () => virtual('expo-apple-authentication'));
     build.onResolve({ filter: /^expo-secure-store$/ }, () => ({ path: join(REPO, 'tools/live/rnweb/secure-store-web.js') }));
     // the network client, as the auth screens and their auth components import it
-    build.onResolve({ filter: /utils\/api$/ }, (a) => (a.importer.startsWith(SCREEN_DIR + sep) || a.importer.includes(`${sep}components${sep}auth${sep}`) ? virtual('auth-api') : undefined));
+    build.onResolve({ filter: /utils\/api$/ }, (a) => (a.importer.startsWith(APP + sep) && !a.importer.includes(`${sep}node_modules${sep}`) ? virtual('auth-api') : undefined));
     // server-rendering branches of expo packages import node builtins; the browser never runs them
     build.onResolve({ filter: /^node:/ }, () => virtual('node-builtin'));
     build.onLoad({ filter: /.*/, namespace: 'mock' }, (a) => ({ contents: MOCKS[a.path], loader: 'jsx', resolveDir: APP }));
@@ -149,6 +202,9 @@ async function bundle(screenFile) {
       'react-native': join(NM, 'react-native-web'),
       '@app': APP,
       '@screen': screenFile,
+      '@tabbar': TABBAR || join(REPO, 'tools/design/render-native-screen.null.jsx'),
+      '@header': HEADER || join(REPO, 'tools/design/render-native-screen.null.jsx'),
+      '@fixtures': join(REPO, 'tools/design/render-native-screen.fixtures.json'),
       react: join(NM, 'react'),
       'react-dom': join(NM, 'react-dom'),
       'react-native-svg': join(NM, 'react-native-svg'),
@@ -166,10 +222,10 @@ async function bundle(screenFile) {
 }
 
 const bundles = new Map();
-for (const s of SCREENS) {
-  const file = join(SCREEN_DIR, `${s}.tsx`);
+for (const { file: f, name } of SCREEN_SPECS) {
+  const file = join(SCREEN_DIR, `${f}.tsx`);
   if (!existsSync(file)) throw new Error(`no screen ${file}`);
-  bundles.set(s, await bundle(file));
+  bundles.set(name, await bundle(file));
 }
 
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.ttf': 'font/ttf' };
@@ -202,6 +258,8 @@ if (CMP) mkdirSync(CMP, { recursive: true });
 const browser = await playwright.chromium.launch();
 const written = [];
 for (const s of SCREENS) {
+  const H = frameHeight(s);
+  const [BW, BH] = BOARD[s].size || [390, 844];
   for (const theme of ['light', 'dark']) {
     const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 2, colorScheme: theme });
     const errors = [];
@@ -209,13 +267,13 @@ for (const s of SCREENS) {
     // no backend in a design render: every request that is not this server fails like an offline phone
     await page.route('**/*', (r) => (r.request().url().startsWith(BASE) ? r.continue() : r.abort()));
     await page.goto(`${BASE}/__blank`);
-    await page.evaluate((th) => {
+    await page.evaluate(([th, lg]) => {
       localStorage.setItem('@nabdah_theme_mode', th);
-      localStorage.setItem('@nabdah_language', 'ar');
-    }, theme);
-    const cfg = { width: W, height: H, insets: INSETS, params: BOARD[s].params, platform: PLATFORM };
+      localStorage.setItem('@nabdah_language', lg);
+    }, [theme, LANG]);
+    const cfg = { width: W, height: H, insets: INSETS, params: BOARD[s].params, platform: PLATFORM, dir: DIR, lang: LANG, pathname: PATHNAME, api: API_MODE, tabbar: Boolean(TABBAR), header: Boolean(HEADER) };
     await page.setContent(
-      `<!doctype html><html dir="rtl" lang="ar"><meta charset="utf-8"><style>${appFaces}html,body{margin:0}*{animation:none!important;transition:none!important}</style>` +
+      `<!doctype html><html dir="${DIR}" lang="${LANG}"><meta charset="utf-8"><style>${appFaces}html,body{margin:0}*{animation:none!important;transition:none!important}</style>` +
         `<div id="root"></div><script>window.__SCREEN=${JSON.stringify(cfg)}</script><script src="${BASE}/__app-${s}.js"></script></html>`,
       { waitUntil: 'load' },
     );
@@ -223,8 +281,11 @@ for (const s of SCREENS) {
       throw new Error(`${s}/${theme}: did not render: ${errors.join('; ')}`);
     });
     await page.evaluate(() => document.fonts.ready);
-    await page.waitForTimeout(1500); // AppProvider hydrates theme/language from storage; entrance animations settle
-    const shot = await page.locator('#frame').screenshot();
+    await page.waitForTimeout(WAIT); // AppProvider hydrates theme/language from storage; entrance animations settle (the home ECG line draws for 1.7 s)
+    const frameBox = await page.locator('#frame').boundingBox();
+    const cropClip = CROP_BOTTOM ? { x: frameBox.x, y: frameBox.y + H - CROP_BOTTOM, width: W, height: CROP_BOTTOM } : null;
+    const shoot = (path) => (cropClip ? page.screenshot({ clip: cropClip, path }) : page.locator('#frame').screenshot({ path }));
+    const shot = await shoot();
     if (errors.length) console.warn(`${s}/${theme}: page errors: ${errors.join('; ')}`);
     const measured = await page.evaluate(() => {
       const w = (id) => { const e = document.querySelector('[data-testid="' + id + '"]'); return e ? Math.round(e.getBoundingClientRect().width) : null; };
@@ -232,12 +293,13 @@ for (const s of SCREENS) {
     });
     if (measured['login-submit'] || measured['welcome-guest']) console.log(`measured ${s}${SUFFIX}/${theme} at ${W}: ${JSON.stringify(measured)}`);
     const file = join(OUT, `${s}${SUFFIX}-${theme}.png`);
-    await page.locator('#frame').screenshot({ path: file });
+    await shoot(file);
     written.push(file);
 
-    const boardScreen = BOARD[s].board;
-    const boardName = boardScreen ? `Auth screen=${boardScreen} theme=${theme} platform=${PLATFORM === 'ios' ? 'ios' : 'android'}` : null;
-    if (CMP && BOARD_SIZE) {
+    const boardScreen = BOARD[s].board ?? (BOARD[s].component ? s : null);
+    const boardName = boardScreen ? (BOARD[s].component ? `${BOARD[s].component} theme=${theme}` : `Auth screen=${boardScreen} theme=${theme} platform=${PLATFORM === 'ios' ? 'ios' : 'android'}`) : null;
+    // the board is drawn at its own size, so a comparison needs the same width (and, for the auth boards, height)
+    if (CMP && W === BW && (BOARD[s].component ? true : H === BH)) {
       let boardPng = null;
       if (boardScreen) {
         await page.unrouteAll();
@@ -246,15 +308,18 @@ for (const s of SCREENS) {
         await page.addStyleTag({ content: '*{animation:none!important;transition:none!important}' });
         await page.waitForTimeout(500);
         await page.evaluate(() => document.fonts.ready);
-        boardPng = (await page.screenshot({ clip: { x: 0, y: 0, width: W, height: H } })).toString('base64');
+        const bclip = CROP_BOTTOM ? { x: 0, y: BH - CROP_BOTTOM, width: BW, height: CROP_BOTTOM } : { x: 0, y: 0, width: BW, height: BH };
+        boardPng = (await page.screenshot({ clip: bclip, fullPage: true })).toString('base64');
       }
       const appPng = shot.toString('base64');
+      const PH = CROP_BOTTOM || H;
+      const BPH = CROP_BOTTOM || BH;
       await page.setViewportSize({ width: 900, height: 980 });
       await page.setContent(`<!doctype html><meta charset="utf-8"><style>body{margin:0;font:13px system-ui;background:#888;display:inline-block}
         .row{display:flex;gap:24px;padding:20px;align-items:flex-start}.col{display:grid;gap:8px;justify-items:start}
-        .col b{color:#fff}.col img,.none{display:block;width:${W}px;height:${H}px;border-radius:6px}.none{background:#999;color:#fff;display:flex;align-items:center;justify-content:center;text-align:center}</style>
+        .col b{color:#fff}.col img{display:block;width:${W}px;border-radius:6px}.none{display:block;width:${W}px;height:${BPH}px;border-radius:6px}.none{background:#999;color:#fff;display:flex;align-items:center;justify-content:center;text-align:center}</style>
         <div class="row"><div class="col"><b>Board: ${boardName || '(no ' + theme + ' board)'}</b>${boardPng ? `<img src="data:image/png;base64,${boardPng}">` : `<div class="none">No board for this screen.<br>It follows the Login/Register pattern.</div>`}</div>
-        <div class="col"><b>patient-app ${s}.tsx, react-native-web (${theme})</b><img src="data:image/png;base64,${appPng}"></div></div>`);
+        <div class="col"><b>patient-app ${s}, react-native-web (${theme}${API_MODE === 'empty' ? ', no data' : ', ' + API_MODE})</b><img src="data:image/png;base64,${appPng}"></div></div>`);
       const cfile = join(CMP, `${s}${SUFFIX}-${theme}.png`);
       await page.locator('body').screenshot({ path: cfile });
       written.push(cfile);
