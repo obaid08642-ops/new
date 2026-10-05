@@ -118,6 +118,11 @@ def fresh_patient(label):
 
 
 def canary_intact(pat, acct, label):
+    if pat is None or acct is None:
+        # The canary was never created (its setup raised). The invariant cannot be
+        # proven, and saying so beats crashing on a None client or skipping it.
+        return step(f'{label}: never loses data — canary patient intact after the drill', False,
+                    'no canary patient was created: the invariant cannot be proven')
     me = pat.get('/auth/me')
     body = json.dumps(me.body, ensure_ascii=False) if not isinstance(me.body, str) else me.body
     return step(f'{label}: never loses data — canary patient intact after the drill',
@@ -228,6 +233,10 @@ def drill_slow_api():
                       '--listen', '9101', '--target', 'http://127.0.0.1:8002',
                       '--delay', '2', '--slow-prefixes', '/api/v1'],
                      stdout=sp.DEVNULL, stderr=sp.DEVNULL)
+    # Initialised before the try: the canary check below runs after the proxy is
+    # torn down, and an unbound name there would raise NameError instead of
+    # reporting the real problem.
+    pat = acct = None
     try:
         time.sleep(1)
         real_base = libmod.BASE

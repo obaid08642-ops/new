@@ -100,7 +100,9 @@ backend_switch() {
 
 redis_container() {
   # A container publishing 6379 (CI service or production redis).
-  docker ps --format '{{.Names}}' 2>/dev/null | head -1 >/dev/null 2>&1 || return 1
+  # The docker check has to actually run: `... | head -1 >/dev/null` reports
+  # head's status, which is always 0, so the "no docker" branch was dead.
+  docker ps >/dev/null 2>&1 || return 1
   docker ps --format '{{.Names}} {{.Ports}}' 2>/dev/null | grep '6379' | head -1 | awk '{print $1}'
 }
 
