@@ -1687,5 +1687,12 @@
     "geriatrics": "Pangangalaga sa Matatanda",
     "laboratory": "Laboratoryo",
     "radiology": "Radyolohiya"
+  },
+  "ProductGallery": {
+    "zoom": "Palakihin ang larawan",
+    "zoomHint": "I-tap para palakihin at suriin ang kahon ng gamot",
+    "zoomShort": "Palakihin",
+    "thumb": "Maliit na larawan",
+    "close": "Isara"
   }
 }

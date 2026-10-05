@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Pill, ZoomIn, X, ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./product-gallery-modal.module.css";
 
@@ -11,6 +12,7 @@ interface ProductGalleryModalProps {
 }
 
 export function ProductGalleryModal({ name, images }: ProductGalleryModalProps) {
+  const t = useTranslations("ProductGallery");
   const [activeIdx, setActiveIdx] = useState(0);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
 
@@ -42,11 +44,11 @@ export function ProductGalleryModal({ name, images }: ProductGalleryModalProps) 
             type="button"
             className={styles.zoomTrigger}
             onClick={() => setIsZoomOpen(true)}
-            aria-label="تكبير الصورة"
-            title="انقر لتكبير وفحص علبة الدواء"
+            aria-label={t("zoom")}
+            title={t("zoomHint")}
           >
             <ZoomIn size={18} />
-            <span>تكبير</span>
+            <span>{t("zoomShort")}</span>
           </button>
         )}
       </div>
@@ -61,7 +63,7 @@ export function ProductGalleryModal({ name, images }: ProductGalleryModalProps) 
               className={`${styles.thumbBtn} ${idx === activeIdx ? styles.thumbActive : ""}`}
               onClick={() => setActiveIdx(idx)}
             >
-              <Image src={img} alt={`صورة مصغرة ${idx + 1}`} className={styles.thumbImg} width={56} height={56} />
+              <Image src={img} alt={`${t("thumb")} ${idx + 1}`} className={styles.thumbImg} width={56} height={56} />
             </button>
           ))}
         </div>
@@ -75,7 +77,7 @@ export function ProductGalleryModal({ name, images }: ProductGalleryModalProps) 
               type="button"
               className={styles.closeBtn}
               onClick={() => setIsZoomOpen(false)}
-              aria-label="إغلاق"
+              aria-label={t("close")}
             >
               <X size={22} />
             </button>

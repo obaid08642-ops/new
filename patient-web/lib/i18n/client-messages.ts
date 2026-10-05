@@ -26,6 +26,7 @@ export const CLIENT_NAMESPACES = [
   "PasswordReset",
   "Register",
   "RouteState",
+  "ProductGallery",
   "Search",
   "ShareReport",
   "Shared",

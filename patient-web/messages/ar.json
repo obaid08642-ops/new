@@ -1687,5 +1687,12 @@
     "geriatrics": "كبار السن",
     "laboratory": "معامل تحاليل",
     "radiology": "مراكز أشعة"
+  },
+  "ProductGallery": {
+    "zoom": "تكبير الصورة",
+    "zoomHint": "انقر لتكبير وفحص علبة الدواء",
+    "zoomShort": "تكبير",
+    "thumb": "صورة مصغرة",
+    "close": "إغلاق"
   }
 }

@@ -1687,5 +1687,12 @@
     "geriatrics": "Geriatrics",
     "laboratory": "Laboratory",
     "radiology": "Radiology"
+  },
+  "ProductGallery": {
+    "zoom": "Enlarge image",
+    "zoomHint": "Tap to enlarge and inspect the medicine box",
+    "zoomShort": "Enlarge",
+    "thumb": "Thumbnail",
+    "close": "Close"
   }
 }
