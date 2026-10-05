@@ -1076,3 +1076,29 @@ C17–C27 above:
 - the other unwired Phase 13 code.
 
 Until each is wired, it must be off (not called, or behind a flag that is off by default) in the Phase A deploy, and it must not change behaviour.
+
+### Design track (scheduled 2026-10-05; runs beside Phase A, on `main`)
+**F82: web LCP.** The design quality gates depend on this (`design/batch-0` tightens Lighthouse to LCP < 2.5 s).
+- **Measured** by the `lighthouse` check on #268 (`8f0e1ca`, 2026-10-05), against the 3000 ms budget in `patient-web/.github/lighthouse-budget.json`:
+
+  | route | LCP |
+  |---|---|
+  | `/ar` | 3246 ms |
+  | `/ar/pharmacy` (the log names it `/ar/c…`, its redirect target) | 4877 ms |
+  | `/ar/consultations/doctors` | 3009 ms |
+
+- **Owner of the fix:** the reviewer session (Option A), on a `perf/f82-lcp` branch from `main`, with a PR to `main`.
+- **Done when:**
+  - The `lighthouse` workflow is green on that PR, on the three routes, with the thresholds `design/batch-0` sets (LCP < 2.5 s, CLS < 0.1, TBT ≤ 200 ms).
+  - The LCP of each route is pasted into the PR from the job log.
+- **Not allowed:**
+  - Raising a budget.
+  - Removing a route from the audit.
+  - Hiding or deferring the main content to lower the number.
+  - Any change to the Lighthouse workflow other than one the reviewer approves.
+- **Investigate first, from the Lighthouse report's LCP breakdown:**
+  - TTFB: the CI build server-renders against `https://api.nabd.plus`, so slow SSR data fetches show up as TTFB.
+  - Resource load delay: is the LCP image or font discovered late?
+  - Render delay: client-only rendering, hydration.
+- **Fix the cause the breakdown shows.** Typical cases: preload or prioritise the LCP image, stream or cache the server data, avoid waiting on client JS for the first content.
+- **Until this lands:** `lighthouse` is the only check allowed to be red on design PRs (`mergewhen.sh` KNOWN list). Every other check must be green.
