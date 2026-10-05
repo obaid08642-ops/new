@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions, Modal, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
-import { FontAwesome, FontAwesome6 } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 import { useApp } from '../../src/context/AppContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { lightColors, darkColors } from '../../src/theme/colors';
@@ -214,15 +214,6 @@ export default function Welcome() {
           </TouchableOpacity>
           )}
 
-          {/* Snapchat */}
-          <TouchableOpacity onPress={() => router.push('/(auth)/login')} style={[styles.modernSocialBtn, { backgroundColor: '#FFFC00' }]} activeOpacity={0.8}>
-            <FontAwesome name="snapchat-ghost" size={24} color="#000000" />
-          </TouchableOpacity>
-
-          {/* X (Twitter) */}
-          <TouchableOpacity onPress={() => router.push('/(auth)/login')} style={[styles.modernSocialBtn, { backgroundColor: isDark ? '#1A2540' : '#FFFFFF' }]} activeOpacity={0.8}>
-            <FontAwesome6 name="x-twitter" size={20} color={isDark ? "#FFFFFF" : "#000000"} />
-          </TouchableOpacity>
         </View>
       </View>
       </Animated.View>

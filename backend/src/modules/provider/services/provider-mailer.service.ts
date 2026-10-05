@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { escapeHtml } from '../../../common/html-escape';
 import * as nodemailer from 'nodemailer';
 
 /**
@@ -57,7 +58,7 @@ class NodemailerAdapter implements MailerAdapter {
         to: msg.to,
         subject: msg.subject,
         text: msg.text,
-        html: msg.html || `<p>${msg.text}</p>`,
+        html: msg.html || `<p>${escapeHtml(msg.text)}</p>`,
       });
       return { status: 'sent' as const, id: info.messageId };
     } catch (e: any) {

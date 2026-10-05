@@ -5,7 +5,7 @@
  * with a different shape (and @Public — a security hole this module fixes by
  * requiring JWT on every compat endpoint). All writes persist state_history.
  */
-import { Module, Controller, Get, Post, Body, Param, Query, UseGuards, Header, NotFoundException, ForbiddenException, BadRequestException, Optional } from '@nestjs/common';
+import { Module, Controller, Get, Post, Body, Param, Query, UseGuards, UseInterceptors, Header, NotFoundException, ForbiddenException, BadRequestException, ConflictException, Optional } from '@nestjs/common';
 import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -16,12 +16,18 @@ import { ChatService } from '../chat/chat.service';
 import { HomeCareBookingSchema, HomeCareServiceSchema, CarePlanSchema } from '../../schemas/home-care.schema';
 import { ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { UserRole } from '../../common/enums';
+import { ProviderPrivacyInterceptor } from '../../common/provider-privacy';
 import { CreateBookingDto, RespondDto, AssignDto, CheckInDto, GpsDto, VisitReportDto, CreateCarePlanDto, SetAvailabilityDto, InventoryRequestDto, PostMessageDto, PostLegacyDto, ProviderSendDto } from './home-care-compat.dto';
 
-const ACTIVE_STATES = ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'CARE_STARTED'];
+// CONFIRMED / IN_TRANSIT / CARE_IN_PROGRESS: an accepted visit (respond -> CONFIRMED) stays in the dispatch list.
+const ACTIVE_STATES = ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'CONFIRMED', 'ACCEPTED', 'IN_TRANSIT', 'EN_ROUTE', 'ARRIVED', 'CARE_STARTED', 'CARE_IN_PROGRESS'];
 
 const NURSE_TYPES = ['home_care', 'nursing', 'nurse'];
 
+/** Accepting a home visit: a card visit must be paid; insurance goes through the coverage decision. */
+const PAYABLE = { $nor: [{ payment_method: 'insurance' }, { payment_method: 'card', payment_status: { $ne: 'paid' } }] };
+
+@UseInterceptors(ProviderPrivacyInterceptor)
 @Controller('home-care')
 @UseGuards(JwtAuthGuard)
 export class HomeCareCompatController {
@@ -128,31 +134,43 @@ export class HomeCareCompatController {
     if (status === 'active') filter.state = { $in: ACTIVE_STATES };
     else if (status === 'incoming') filter.state = 'NEW_REQUEST';
     else if (status === 'completed') filter.state = { $in: ['COMPLETED', 'CANCELLED'] };
-    // unassigned requests are visible to all nurses; assigned ones only to their provider
-    filter.$or = [{ provider_id: u.id }, { provider_id: { $exists: false } }, { provider_id: null }];
+    // unassigned requests are visible to all nurses (except one who declined
+    // it); assigned ones only to their provider
+    filter.$or = [{ provider_id: u.id }, { provider_id: { $exists: false }, declined_by: { $ne: u.id } }, { provider_id: null, declined_by: { $ne: u.id } }];
     return this.bookings.find(filter, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean();
   }
 
   private async transition(u: any, id: string, newState: string, extra: Record<string, any> = {}) {
-    const allowUnassigned = newState === 'PROVIDER_ASSIGNED' || newState === 'CANCELLED';
-    const b = await this.getBookingForAccess(u, id, allowUnassigned);
+    // R11 §5: a nurse acts only on a request assigned to them; an open request
+    // is claimed atomically in respond() first.
+    const b = await this.getBookingForAccess(u, id);
     if (u?.role === 'patient') throw new ForbiddenException('provider_transition_required');
     if (!this.isAdmin(u) && !this.isNursingProvider(u)) throw new ForbiddenException('provider_role_required');
     const allowed: Record<string, string[]> = {
       PROVIDER_ASSIGNED: ['NEW_REQUEST'],
-      ARRIVED: ['PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE'],
+      CONFIRMED: ['NEW_REQUEST', 'PROVIDER_ASSIGNED'],
+      ARRIVED: ['CONFIRMED', 'IN_TRANSIT', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE'],
       CARE_IN_PROGRESS: ['ARRIVED'],
       COMPLETED: ['CARE_IN_PROGRESS', 'ARRIVED'],
-      CANCELLED: ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'CARE_IN_PROGRESS'],
+      CANCELLED: ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'CONFIRMED', 'ACCEPTED', 'IN_TRANSIT', 'EN_ROUTE', 'ARRIVED', 'CARE_IN_PROGRESS'],
     };
     if (!this.isAdmin(u) && allowed[newState] && !allowed[newState].includes(String(b.state))) {
       throw new BadRequestException('invalid_transition');
     }
-    b.state = newState;
-    b.state_history = [...(b.state_history || []), { state: newState, at: new Date(), by: u.id, ...extra.meta }];
+    // Conditional on the state that was read: a concurrent change (e.g. the
+    // atomic accept in respondAs) is never overwritten by a stale read.
+    const done = await this.bookings.updateOne(
+      // A nurse also only while still the assigned one (an admin reassignment
+      // keeps the state, so the state check alone would not catch it).
+      { id: { $eq: id }, state: { $eq: String(b.state) }, ...(this.isAdmin(u) ? {} : { provider_id: { $eq: String(b.provider_id ?? '') } }) },
+      {
+        $set: { ...(extra.fields || {}), state: newState },
+        $push: { state_history: { state: newState, at: new Date(), by: u.id, ...extra.meta } },
+      },
+    );
+    if (!done.modifiedCount) throw new BadRequestException('invalid_transition');
     Object.assign(b, extra.fields || {});
-    b.markModified('state_history');
-    await b.save();
+    b.state = newState;
     // Fan out so the patient gets notified at every step of the visit
     try { this.emitter?.emit('homecare.booking_state_changed', { booking_id: id, patient_id: b.patient_id, state: newState, provider_id: b.provider_id }); } catch {}
     return { ok: true, id, state: newState };
@@ -161,11 +179,55 @@ export class HomeCareCompatController {
   @SelfService()
   @Post('bookings/:id/respond') respond(@CurrentUser() u: any, @Param('id') id: string, @Body() body: RespondDto) {
     const accept = body?.accept === true || body?.action === 'accept';
-    // NursingBookingState has no ACCEPTED/REJECTED — accepting nurse takes the
-    // job (PROVIDER_ASSIGNED + provider_id), declining cancels the request.
-    return this.transition(u, id, accept ? 'PROVIDER_ASSIGNED' : 'CANCELLED', {
-      fields: accept ? { provider_id: u.id } : {},
-      meta: { reason: body?.reason },
+    return this.respondAs(u, id, accept, body?.reason);
+  }
+
+  private async respondAs(u: any, id: string, accept: boolean, reason?: string) {
+    // R11 §5: on an open (unassigned) request, declining only hides it from
+    // this nurse, and claiming is atomic so a second nurse gets 409.
+    if (!this.isAdmin(u) && this.isNursingProvider(u) && u?.role !== 'patient') {
+      const b: any = await this.bookings.findOne({ id: { $eq: id } }, { provider_id: 1, state: 1, payment_method: 1, payment_status: 1 }).lean();
+      if (!b) throw new NotFoundException('booking not found');
+      // Same rule as provider-jobs accept: a card visit must be paid; insurance
+      // goes through the coverage decision. Checked before any claim.
+      if (accept && b.payment_method === 'insurance') throw new BadRequestException('insurance_booking_requires_coverage_decision');
+      if (accept && b.payment_method === 'card' && b.payment_status !== 'paid') throw new BadRequestException('card_payment_not_completed');
+      if (!b.provider_id) {
+        const open = { id: { $eq: id }, state: 'NEW_REQUEST', $or: [{ provider_id: { $exists: false } }, { provider_id: null }] };
+        if (!accept) {
+          await this.bookings.updateOne(open, { $addToSet: { declined_by: u.id } });
+          return { ok: true, id, state: b.state, declined: true };
+        }
+        // The claim re-checks the payment rule, so a booking that changed after the read is not taken.
+        const claimed = await this.bookings.updateOne({ ...open, ...PAYABLE }, { $set: { provider_id: u.id } });
+        if (!claimed.modifiedCount) throw new ConflictException('booking_already_claimed');
+      } else if (accept && b.provider_id !== u.id) {
+        throw new ConflictException('booking_already_claimed');
+      } else if (accept) {
+        // A booking assigned to this nurse: the accept is one conditional write
+        // on the stored row (state + payment rule), not a read then a save.
+        const now = new Date();
+        const done = await this.bookings.updateOne(
+          { id: { $eq: id }, provider_id: u.id, state: { $in: ['NEW_REQUEST', 'PROVIDER_ASSIGNED'] }, ...PAYABLE },
+          { $set: { state: 'CONFIRMED' }, $push: { state_history: { state: 'CONFIRMED', at: now, by: u.id, reason } } },
+        );
+        if (!done.modifiedCount) {
+          const cur: any = await this.bookings.findOne({ id: { $eq: id } }).lean();
+          if (cur?.payment_method === 'insurance') throw new BadRequestException('insurance_booking_requires_coverage_decision');
+          if (cur?.payment_method === 'card' && cur?.payment_status !== 'paid') throw new BadRequestException('card_payment_not_completed');
+          throw new BadRequestException('invalid_transition');
+        }
+        const row: any = await this.bookings.findOne({ id: { $eq: id } }, { patient_id: 1 }).lean();
+        try { this.emitter?.emit('homecare.booking_state_changed', { booking_id: id, patient_id: row?.patient_id, state: 'CONFIRMED', provider_id: u.id }); } catch {}
+        return { ok: true, id, state: 'CONFIRMED' };
+      }
+    }
+    // Accepting confirms the visit (as provider-jobs does): PROVIDER_ASSIGNED is
+    // the pre-acceptance state in which the nurse sees only the area. Declining
+    // their own request cancels it.
+    return this.transition(u, id, accept ? 'CONFIRMED' : 'CANCELLED', {
+      fields: accept && !this.isAdmin(u) ? { provider_id: u.id } : {},
+      meta: { reason },
     });
   }
 

@@ -330,42 +330,11 @@ async function main() {
     if (K.rad.status !== 'PENDING_ACCEPTANCE') throw new Error('status=' + K.rad.status);
   });
 
-  await t('R2 provider queue shows the booking', async () => {
-    const r = await axios.get(`${base}/radiology/provider/queue`, auth(U.rad.token));
-    const list = Array.isArray(r.data) ? r.data : r.data?.data || [];
-    const found = list.find((b) => b.id === K.rad.id);
-    if (!found) throw new Error('not in queue');
-  });
-
-  await t('R3 provider endpoints reject anonymous (security overhaul)', async () => {
-    const s = await httpStatus(axios.post(`${base}/radiology/provider/${K.rad.id}/respond`, { accept: true }));
-    if (s !== 401 && s !== 403) throw new Error('anonymous got ' + s);
-    return String(s);
-  });
-
-  await t('R4 center accepts (identity from auth, not body)', async () => {
-    const r = await axios.post(`${base}/radiology/provider/${K.rad.id}/respond`, { accept: true }, auth(U.rad.token));
-    if (r.data?.status !== 'ACCEPTED') throw new Error('status=' + r.data?.status);
-  });
-
-  await t('R5 allocate machine → CHECKED_IN', async () => {
-    const r = await axios.post(`${base}/radiology/provider/allocate-machine/${K.rad.id}`, { machineId: 'MACH-TEST-1' }, auth(U.rad.token));
-    const st = r.data?.status || r.data?.data?.status;
-    if (st !== 'CHECKED_IN') throw new Error('status=' + st);
-  });
-
-  await t('R6 finalize scan → REPORT_UPLOADED', async () => {
-    const r = await axios.post(`${base}/radiology/provider/finalize-scan/${K.rad.id}`, {
-      reportText: 'صدر سليم — لا توجد علامات مرضية.', files: ['https://cdn.example.com/scan1.dcm'], pdfUrl: 'https://cdn.example.com/report1.pdf',
-    }, auth(U.rad.token));
-    if (!r.data?.success) throw new Error('not success');
-  });
-
-  await t('R7 patient mine shows the report', async () => {
-    const r = await axios.get(`${base}/radiology/bookings/mine`, auth(U.patient.token));
-    const found = (r.data || []).find((b) => b.id === K.rad.id);
-    if (!found) throw new Error('not in mine');
-    if (found.status !== 'REPORT_UPLOADED') throw new Error('status=' + found.status);
+  await t('R2 the removed radiology provider engine routes answer 404 (R11)', async () => {
+    for (const path of ['queue', `${K.rad.id}/respond`, `allocate-machine/${K.rad.id}`, `finalize-scan/${K.rad.id}`]) {
+      const s = await httpStatus(path === 'queue' ? axios.get(`${base}/radiology/provider/${path}`, auth(U.rad.token)) : axios.post(`${base}/radiology/provider/${path}`, {}, auth(U.rad.token)));
+      if (s !== 404) throw new Error(`${path} got ${s}`);
+    }
   });
 
   // ══ N. NURSING / HOME CARE — full field-ops journey ══
