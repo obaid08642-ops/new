@@ -126,8 +126,10 @@ def drill_redis_down():
         me = pat.get('/auth/me')
         elapsed = time.time() - t0
         body = str(me.body)[:300]
+        # A 500 is never "graceful": the degrade/fail-fast drills allow a 2xx or a
+        # 4xx with a JSON message, never a server error with a body attached.
         step('reads degrade gracefully (2xx or a JSON error with a message — never a hang)',
-             (me.ok or (isinstance(me.body, dict) and bool(me.body))) and elapsed < 55,
+             me.status < 500 and (me.ok or (isinstance(me.body, dict) and bool(me.body))) and elapsed < 55,
              f'{me.status} in {elapsed:.1f}s {body[:150]}')
     finally:
         ok2, msg2 = ctrl('redis-resume')
@@ -155,7 +157,7 @@ def drill_mongo_stepdown():
     try:
         me = pat.get('/auth/me')
         elapsed = time.time() - t0
-        ok_read = me.ok or (isinstance(me.body, dict) and bool(str(me.body)))
+        ok_read = me.status < 500 and (me.ok or (isinstance(me.body, dict) and bool(str(me.body))))
         step('a read during step-down retries or fails with a message (never hangs)',
              ok_read and elapsed < 55, f'{me.status} in {elapsed:.1f}s {str(me.body)[:150]}')
     except Exception as e:
@@ -291,7 +293,7 @@ def drill_livekit_down():
         r = pat.post('/calls/initiate', {'callee_id': 'nobody', 'call_type': 'video'})
         elapsed = time.time() - t0
         step('a call attempt fails fast with a JSON message (never hangs, never a phantom room)',
-             r.status >= 400 and isinstance(r.body, dict) and bool(str(r.body)) and elapsed < 20,
+             r.status >= 400 and r.status < 500 and isinstance(r.body, dict) and bool(str(r.body)) and elapsed < 20,
              f'{r.status} in {elapsed:.1f}s {str(r.body)[:150]}')
     except Exception as e:
         step('a call attempt fails fast with a JSON message (never hangs, never a phantom room)', False, str(e)[:200])
