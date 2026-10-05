@@ -36,6 +36,7 @@ import { localizedUrl, siteOrigin } from "@/lib/seo";
 import { getPublicDoctors } from "@/lib/api/doctors-server";
 import { extractDoctors } from "@/lib/api/doctors";
 import { getHomeContent, getPublicConfig, isWebMaintenance, selectHomeSections } from "@/lib/api/public-config-server";
+import { normalizeDeepLink } from "@/lib/deep-links/nabd-links";
 import styles from "./home.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -280,7 +281,7 @@ export default async function LandingPage({ params }: Props) {
           </div>
           <div className={styles.grid || ""}>
             {(section.items || []).map((item) => (
-              <Link key={item.id || item.title_ar} href={item.deep_link || `/${locale}`} className={styles.card || ""}>
+              <Link key={item.id || item.title_ar} href={normalizeDeepLink(item.deep_link, siteOrigin(), locale)} className={styles.card || ""}>
                 {item.image_url ? <Image src={item.image_url} alt={isAr ? item.title_ar || "" : item.title_en || ""} width={440} height={220} loading="lazy" sizes="(max-width: 640px) 100vw, 440px" /> : null}
                 <span>{isAr ? item.title_ar || item.title_en : item.title_en || item.title_ar}</span>
               </Link>

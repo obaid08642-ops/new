@@ -1,5 +1,7 @@
 /**
- * 13.R18 — nabd:// fallback + deferred deep links (patient-web only, client-safe).
+ * 13.R18 — nabdplus:// fallback + deferred deep links (patient-web only, client-safe).
+ * Web consumer: the admin-curated home cards (app/[locale]/page.tsx) resolve
+ * their deep_link through normalizeDeepLink().
  *
  * Mapping (verified 2026-10-04, static):
  * - Universal-link config: app/.well-known/apple-app-site-association/route.ts
@@ -22,8 +24,8 @@
  * (13.R18 code part only — live proof needs Android + iOS hardware).
  */
 
-/** Custom app scheme handled by the native patient app (intent filter, native). */
-export const NABD_APP_SCHEME = "nabd";
+/** Custom app scheme registered by the native patient app (patient-app/app.json expo.scheme). */
+export const NABD_APP_SCHEME = "nabdplus";
 
 /** sessionStorage key for the pending (deferred) deep link. Tab-scoped on purpose. */
 export const NABD_DEFERRED_KEY = "nabd.pendingDeepLink.v1";
