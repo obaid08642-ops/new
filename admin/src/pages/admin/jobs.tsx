@@ -234,7 +234,7 @@ export default function JobsPage() {
           {loading ? (
             <div className="p-8 text-center text-slate-500">جاري التحميل...</div>
           ) : jobs.length === 0 ? (
-            <div className="p-8 text-center text-slate-400">لا توجد وظائف بهذه الحالة 🎉</div>
+            <div className="p-8 text-center text-slate-400">لا توجد وظائف بهذه الحالة</div>
           ) : (
             <table className="min-w-full text-right text-sm">
               <thead className="bg-slate-50 text-xs text-slate-600">

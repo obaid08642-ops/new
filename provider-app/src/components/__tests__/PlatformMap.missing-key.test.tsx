@@ -45,4 +45,22 @@ describe('PlatformMap on a build without a Google Maps key (Q69)', () => {
     await render(React.createElement(load('', 'ios')));
     expect(screen.getByTestId('native-map')).toBeTruthy();
   });
+
+  it('the panel text meets WCAG AA (4.5:1) on its background', async () => {
+    const { StyleSheet } = require('react-native');
+    const MapView = load('', 'android');
+    await render(<MapView />);
+    const box = StyleSheet.flatten(screen.getByTestId('map-unavailable').props.style);
+    const text = StyleSheet.flatten(screen.getByText(TR.en.mapUnavailable).props.style);
+    expect(contrast(text.color, box.backgroundColor)).toBeGreaterThanOrEqual(4.5);
+  });
 });
+
+function contrast(a: string, b: string): number {
+  const lum = (hex: string) => {
+    const [r, g, bl] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * r + 0.7152 * g + 0.0722 * bl;
+  };
+  const [x, y] = [lum(a), lum(b)];
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+}

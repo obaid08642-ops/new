@@ -287,7 +287,10 @@ h4 { font-size: var(--nabd-font-size-bodyStrong); color: var(--nabd-color-text-t
 .scene[data-kind="onboarding"] .scene-art { background: var(--nabd-color-bg-surface); }
 .scene-meta { font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-tertiary); font-style: normal; text-align: center; }
 .spec { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.spec-art { position: relative; display: grid; place-items: center; padding: var(--nabd-space-sm); border-radius: var(--nabd-radius-lg); background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-default); min-width: 120px; overflow: hidden; }
+/* Specimens sit on the canvas, as on the boards: a card component is the only card in its frame (a white frame made every card look nested). The frame is a dashed outline, not a surface. */
+.spec-art { position: relative; display: grid; place-items: center; padding: var(--nabd-space-sm); border-radius: var(--nabd-radius-lg); background: var(--nabd-color-bg-canvas); border: 1px dashed var(--nabd-color-border-subtle); min-width: 120px; overflow: hidden; }
+.spec-list { inline-size: 320px; border-radius: 24px; background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); box-shadow: var(--nabd-shadow-card); overflow: hidden; }
+.spec-coral { padding: 10px 14px; border-radius: 0 0 22px 22px; background: linear-gradient(180deg, var(--nabd-color-action-fab-from), var(--nabd-color-action-fab-to)); }
 /* An overlay specimen gets a taller box: the component is still position-fixed
    (correct for a real screen), but the containing block above keeps it inside
    its own specimen instead of over the whole gallery. */
@@ -391,16 +394,35 @@ function componentsGallery() {
 
   out.push('<h3>Surfaces</h3><div class="row">');
   out.push(specimen('Card', render(h(C.Card, { title: 'Order #4821', subtitle: 'Confirmed · 12 Oct', footer: 'Pay at the clinic' }))));
-  out.push(specimen('ListItem', render(h(C.ListItem, { title: 'Dr. Amina Haddad', subtitle: 'Endocrinology', meta: '4.9', startIcon: 'star' }))));
-  for (const size of ['sm', 'md', 'lg']) {
+  // list rows live inside one white card on the boards (canvas/Account.dc.html)
+  out.push(specimen('ListItem', `<div class="spec-list">${render(h(C.ListItem, { title: 'Dr. Amina Haddad', subtitle: 'Endocrinology', meta: '4.9', startIcon: 'star' }))}</div>`));
+  out.push(specimen('ListItem leading', `<div class="spec-list">${render(h(C.ListItem, { title: 'Addresses', subtitle: '2 saved', leading: { icon: 'map-pin-line', tone: 'coral' } }))}${render(h(C.ListItem, { title: 'Payment cards', subtitle: 'For payment only', leading: { icon: 'credit-card', tone: 'blue' } }))}</div>`));
+  out.push(specimen('SectionHeader', render(h(C.SectionHeader, { title: 'Offers and packages', actionLabel: 'See all' }))));
+  for (const tile of F.SERVICE_TILES) {
+    out.push(specimen(`ServiceTile ${tile.name}`, render(h(C.ServiceTile, { name: tile.name, label: tile.label }))));
+  }
+  for (const size of ['sm', 'lg']) {
     out.push(specimen(`ServiceTile ${size}`, render(h(C.ServiceTile, { name: 'pharmacy', label: 'Pharmacy', size }))));
   }
   out.push(specimen('ServiceTile badge', render(h(C.ServiceTile, { name: 'consult', label: 'Consult', badge: 3 }))));
+  // No cartoon or illustrated people (handoff §1): a real photo (src), else initials, else the neutral user icon.
   out.push(specimen('Avatar initials', render(h(C.Avatar, { name: 'Amina Haddad', status: 'online' }))));
-  out.push(specimen('Avatar illustrated', render(h(C.Avatar, { name: 'Dr. Youssef', illustratedName: 'doctor' }))));
+  out.push(specimen('Avatar no name (neutral)', render(h(C.Avatar, { name: '' }))));
   out.push(specimen('PriceTag', render(h(C.PriceTag, { amount: '240', currency: 'SAR', was: '300', note: '20% off' }))));
-  out.push(specimen('Rating', render(h(C.Rating, { value: 4.5, count: 128 }))));
+  // DoctorCard board: one filled star, value, (count); nothing when there are no real ratings
+  out.push(specimen('Rating', render(h(C.Rating, { value: 4.8, count: 128 }))));
+  out.push(specimen('Rating onBrand (DoctorCard footer)', `<div class="spec-coral">${render(h(C.Rating, { value: 4.8, count: 128, surface: 'onBrand' }))}</div>`));
+  out.push(specimen('Rating, no ratings', render(h(C.Rating, { value: null, count: 0 })) || '<em class="scene-meta">renders nothing</em>'));
   out.push(specimen('MapPinCard', render(h(C.MapPinCard, { title: 'Nabd+ Olaya', address: 'King Fahd Rd', distance: '1.2 km', actionLabel: 'Directions' }))));
+  out.push('</div>');
+
+  out.push('<h3>FIcon (handoff §1): soft, solid and none, every tone</h3><div class="row">');
+  for (const tone of C.SERVICE_TONES) {
+    out.push(specimen(`FIcon ${tone}`, render(h(C.FIcon, { icon: 'pill', tone, size: 52 }))));
+    out.push(specimen(`FIcon ${tone} solid`, render(h(C.FIcon, { icon: 'pill', tone, size: 52, chip: 'solid' }))));
+  }
+  out.push(specimen('FIcon none', render(h(C.FIcon, { icon: 'heartbeat', tone: 'coral', size: 32, chip: 'none' }))));
+  out.push(specimen('FIcon empty-state size', render(h(C.FIcon, { icon: 'package', tone: 'ink', size: 96 }))));
   out.push('</div>');
 
   out.push('<h3>Navigation</h3><div class="row">');
