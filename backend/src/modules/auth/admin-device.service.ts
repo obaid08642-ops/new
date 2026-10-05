@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Types } from 'mongoose';
 import { createHash, randomBytes } from 'crypto';
@@ -81,10 +81,29 @@ export class AdminDeviceService {
     return { ok: true };
   }
 
-  async setLock(userId: string, enabled: boolean, currentDeviceId?: string, ua?: string) {
+  /** True once the admin has at least one passkey. */
+  async hasPasskey(userId: string): Promise<boolean> {
+    return !!(await this.conn.collection('passkey_credentials').findOne({ user_id: userId }, { projection: { _id: 1 } }));
+  }
+
+  /**
+   * X4: who may enroll a device outside a passkey login. A device of an admin
+   * who has a passkey is enrolled only by a passkey login (bound to the
+   * credential that signed it) or by a break-glass recovery session (C6:
+   * recovery code + email code). A bootstrap admin with no passkey yet may
+   * enroll the browser they are setting the account up from.
+   */
+  async assertSessionMayEnroll(userId: string, viaRecovery: boolean): Promise<void> {
+    if (viaRecovery) return;
+    if (await this.hasPasskey(userId)) throw new ForbiddenException('passkey_assertion_required');
+  }
+
+  async setLock(userId: string, enabled: boolean, currentDeviceId?: string, ua?: string, viaRecovery = false) {
     await this.users.updateOne({ id: userId }, { $set: { device_lock_enabled: !!enabled } }).catch(() => null);
     if (enabled && currentDeviceId && currentDeviceId.length >= 16) {
-      await this.enroll(userId, currentDeviceId, ua, 'هذا الجهاز (تفعيل تلقائي)');
+      // X4: turning the lock on never enrolls a new browser for a passkey admin.
+      const may = await this.assertSessionMayEnroll(userId, viaRecovery).then(() => true, () => false);
+      if (may) await this.enroll(userId, currentDeviceId, ua, 'هذا الجهاز (تفعيل تلقائي)');
     }
     return { ok: true, device_lock_enabled: !!enabled };
   }

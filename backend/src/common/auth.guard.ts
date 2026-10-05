@@ -295,6 +295,14 @@ export class JwtAuthGuard implements CanActivate {
             { user_id: uid, device_hash: createHash('sha256').update(devId).digest('hex'), revoked: { $ne: true } },
           ).catch(() => null);
           if (!dev) throw new ForbiddenException('device_not_enrolled');
+          // C2/X4: a device enrolled by a passkey login is bound to that
+          // credential; removing the passkey revokes the device with it.
+          if (dev.credential_id) {
+            const live = await this.connection.collection('passkey_credentials').findOne(
+              { user_id: uid, credential_id: dev.credential_id }, { projection: { _id: 1 } },
+            );
+            if (!live) throw new ForbiddenException('device_credential_revoked');
+          }
           // C5: sliding 15-minute idle window for admin sessions.
           if (this.adminIdle) {
             if (await this.adminIdle.isIdleExpired(uid)) {
@@ -313,6 +321,10 @@ export class JwtAuthGuard implements CanActivate {
               { user_id: uid },
             ).catch(() => null);
             if (!hasPasskey) throw new ForbiddenException('passkey_enrollment_required');
+            // A browser enrolled during bootstrap (no passkey then) is not bound to
+            // a credential: once a passkey exists, sign in with it to bind the
+            // device. A break-glass recovery session keeps working (C6).
+            if (!dev.credential_id && payload?.rec !== 1) throw new ForbiddenException('device_rebind_required');
           }
         }
       }
