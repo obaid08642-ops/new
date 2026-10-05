@@ -1,2 +1,2 @@
-# read-only: confirm the unsigned social-login code is live and look for signs of use (Q107)
-15-check-social-login
+# Q107 hotfix (rehearsed in ops-rehearsal run 37300270620): Nginx returns 403 for POST /api/v1/auth/social-login until the verified backend is deployed
+22-block-social-login
