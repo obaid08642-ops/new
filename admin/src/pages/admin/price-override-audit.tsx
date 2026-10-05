@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import { adminFetch, apiErrorMessage, toQuery } from '@/lib/admin-client';
+import { fetchPriceOverridesCsv, saveCsvFile } from '@/lib/price-override-export';
 
 // Shape mirrors the real audit documents written by
 // backend/src/modules/pharmacy/services/pharmacy-offer.service.ts
@@ -73,6 +74,21 @@ export default function PriceOverrideAuditPage() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [exporting, setExporting] = useState(false);
+
+  // Q25: the full server-side audit trail as CSV (same rows the list pages through).
+  const exportCsv = useCallback(async () => {
+    setExporting(true);
+    setError('');
+    try {
+      const { filename, csv } = await fetchPriceOverridesCsv();
+      saveCsvFile(filename, csv);
+    } catch (err) {
+      setError(apiErrorMessage(err, 'تعذر تصدير سجل تدقيق الأسعار.'));
+    } finally {
+      setExporting(false);
+    }
+  }, []);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -150,6 +166,13 @@ export default function PriceOverrideAuditPage() {
               className="rounded-lg bg-teal-700 px-4 py-2 text-sm font-bold text-white hover:bg-teal-800 transition"
             >
               تحديث
+            </button>
+            <button
+              onClick={() => void exportCsv()}
+              disabled={exporting}
+              className="rounded-lg border border-teal-700 px-4 py-2 text-sm font-bold text-teal-800 hover:bg-teal-50 transition disabled:opacity-60"
+            >
+              {exporting ? 'جارٍ التصدير…' : 'تصدير CSV'}
             </button>
           </div>
         </div>
