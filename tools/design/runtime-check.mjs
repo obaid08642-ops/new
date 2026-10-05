@@ -127,7 +127,13 @@ async function run() {
           try { body = await res.text(); } catch { /* streamed */ }
           api.push({ method: res.request().method(), path: u.pathname, status: res.status(), shape: shape(body) });
         });
-        page.on('console', (m) => { if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 200)); });
+        // CSP violations are collected from the browser event so their source file is known: the Next dev
+        // overlay (next-devtools) injects inline styles by design and is not the app's, so it is ignored.
+        await page.addInitScript(() => {
+          window.__csp = [];
+          document.addEventListener('securitypolicyviolation', (e) => window.__csp.push(`${e.violatedDirective} ${e.sourceFile || ''}:${e.lineNumber} ${e.sample || ''}`.trim()));
+        });
+        page.on('console', (m) => { if (m.type() === 'error' && !/Content Security Policy/.test(m.text())) consoleErrors.push(m.text().slice(0, 200)); });
         page.on('pageerror', (e) => pageErrors.push(String(e).slice(0, 200)));
         page.on('requestfailed', (r) => failed.push(`${r.method()} ${new URL(r.url()).pathname} ${r.failure()?.errorText}`));
 
@@ -135,14 +141,21 @@ async function run() {
         let status = 0;
         let finalPath = '';
         try {
-          const nav = await page.goto(`${BASE}/${LOCALE}${route === '/' ? '' : route}`, { waitUntil: 'networkidle', timeout: 45000 });
+          const nav = await page.goto(`${BASE}/${LOCALE}${route === '/' ? '' : route}`, { waitUntil: 'load', timeout: 45000 });
           status = nav?.status() ?? 0;
-          await page.waitForTimeout(800);
+          // `networkidle` never arrives on a signed-in page (the session heartbeat), so settle on a fixed wait.
+          await page.waitForTimeout(2500);
           finalPath = new URL(page.url()).pathname;
         } catch (e) {
           pageErrors.push(`navigation: ${String(e).slice(0, 160)}`);
         }
-        const overlay = await page.locator('nextjs-portal').count().catch(() => 0);
+        const overlay = await page.evaluate(() => {
+          // Next's dev overlay host always exists; an error is a dialog inside its shadow root.
+          const root = document.querySelector('nextjs-portal')?.shadowRoot;
+          return root && root.querySelector('[data-nextjs-dialog], [data-nextjs-dialog-overlay]') ? 1 : 0;
+        }).catch(() => 0);
+        const csp = (await page.evaluate(() => window.__csp || []).catch(() => [])).filter((v) => !v.includes('next-devtools'));
+        for (const v of csp) consoleErrors.push(`CSP: ${v}`.slice(0, 200));
         const textLen = await page.evaluate(() => (document.body.innerText || '').trim().length).catch(() => 0);
         const server = scenario === 'normal' ? logSince(from) : [];
         if (scenario !== 'normal') {

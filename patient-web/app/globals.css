@@ -589,3 +589,7 @@ body { background: var(--nabd-color-bg-canvas); }
    header and footer would draw a second pair. Scoped to that wrapper class only. */
 .shell:has(> .nabd-core) > .topbar,
 .shell:has(> .nabd-core) > .site-footer { display: none; }
+
+/* Route-level error / not-found (components-next/core/route-state.tsx): the board's state card plus the way home. */
+.nabd-route-state { display: grid; gap: 12px; width: 100%; max-width: 440px; margin-inline: auto; }
+.nabd-route-state .nabd-state__text-action { justify-self: center; text-decoration: none; }
