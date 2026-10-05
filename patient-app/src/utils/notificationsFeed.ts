@@ -50,9 +50,9 @@ const TYPE_META: Record<string, { group: NotifGroup; icon: FillIconName; tone: S
 
 /** The filter chips after "All": the group and its Arabic label. */
 export const GROUPS: { key: NotifGroup; label: string }[] = [
-  { key: 'system', label: 'تحديثات' },
-  { key: 'medical', label: 'طبي' },
-  { key: 'promotion', label: 'عروض' },
+  { key: 'system', label: 'notifications.groupSystem' },
+  { key: 'medical', label: 'notifications.groupMedical' },
+  { key: 'promotion', label: 'notifications.groupPromo' },
 ];
 
 export function mapNotification(n: RawNotification): Notif {
@@ -108,12 +108,12 @@ export function buildFeed(rows: Notif[], now: Date = new Date()): FeedItem[] {
 export function relativeTime(iso: string | undefined, tr: (s: string) => string, dateLocale: string, now: number = Date.now()): string {
   if (!iso) return '';
   const mins = Math.floor((now - new Date(iso).getTime()) / 60000);
-  if (mins < 1) return tr('الآن');
-  if (mins < 60) return tr('منذ {n} دقيقة').replace('{n}', String(mins));
+  if (mins < 1) return tr('notifications.now');
+  if (mins < 60) return tr('notifications.minutesAgo').replace('{n}', String(mins));
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return tr('منذ {n} ساعة').replace('{n}', String(hours));
+  if (hours < 24) return tr('notifications.hoursAgo').replace('{n}', String(hours));
   const days = Math.floor(hours / 24);
-  if (days === 1) return tr('أمس');
-  if (days < 30) return tr('منذ {n} يوم').replace('{n}', String(days));
+  if (days === 1) return tr('notifications.yesterday');
+  if (days < 30) return tr('notifications.daysAgo').replace('{n}', String(days));
   return new Date(iso).toLocaleDateString(dateLocale);
 }

@@ -10,7 +10,8 @@ import { Search } from "@/components-next/ui-generated/components/Inputs";
 import { SERVICE_ICONS, type FillIconName, type ServiceName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { CoreShell } from "@/components-next/core/core-shell";
-import { extractSearchResults, type SearchResult } from "@/lib/api/search";
+import { extractSearchResults, intentRedirect, truncateQuery, type SearchResult } from "@/lib/api/search";
+import { specialtyLabel, type SpecialtySlug } from "@/lib/specialties";
 import { isLocale, type Locale } from "@/lib/i18n";
 import styles from "./search.module.css";
 
@@ -37,14 +38,14 @@ const KINDS: Record<string, { group: Exclude<Tab, "all">; icon: FillIconName; to
 const FALLBACK = { group: "other" as const, icon: "magnifying-glass" as FillIconName, tone: toneOf("consult") };
 
 const BROWSE: Array<{ name: ServiceName; label: "catPharmacy" | "catConsult" | "catLab" | "catRadiology" | "catNursing" | "catMind" | "catNutrition" | "catFamily"; path: string }> = [
-  { name: "pharmacy", label: "catPharmacy", path: "/pharmacy" },
-  { name: "consult", label: "catConsult", path: "/consultations/doctors" },
-  { name: "lab", label: "catLab", path: "/diagnostics/labs" },
-  { name: "radiology", label: "catRadiology", path: "/diagnostics/radiology" },
-  { name: "nursing", label: "catNursing", path: "/home-care" },
-  { name: "mind", label: "catMind", path: "/mental-health" },
-  { name: "nutrition", label: "catNutrition", path: "/nutrition" },
-  { name: "family", label: "catFamily", path: "/family" },
+  { name: "pharmacy", label: "catPharmacy", path: "/pharmacy" }, // i18n-ok: label is a Search message key
+  { name: "consult", label: "catConsult", path: "/consultations/doctors" }, // i18n-ok: label is a Search message key
+  { name: "lab", label: "catLab", path: "/diagnostics/labs" }, // i18n-ok: label is a Search message key
+  { name: "radiology", label: "catRadiology", path: "/diagnostics/radiology" }, // i18n-ok: label is a Search message key
+  { name: "nursing", label: "catNursing", path: "/home-care" }, // i18n-ok: label is a Search message key
+  { name: "mind", label: "catMind", path: "/mental-health" }, // i18n-ok: label is a Search message key
+  { name: "nutrition", label: "catNutrition", path: "/nutrition" }, // i18n-ok: label is a Search message key
+  { name: "family", label: "catFamily", path: "/family" }, // i18n-ok: label is a Search message key
 ];
 
 const kindOf = (r: SearchResult) => KINDS[r.typeEn || ""] || FALLBACK;
@@ -63,8 +64,13 @@ export function ResultItem({ result, locale, query }: { result: SearchResult; lo
   const kind = kindOf(result);
   const route = KINDS[result.typeEn || ""]?.href;
   const href = route ? route(result.id, locale) : undefined;
-  // The API's body-part and category codes ("whole_body", "chest") are identifiers, not words to show.
-  const sub = result.sub && !/^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$/.test(result.sub) ? result.sub : undefined;
+  // A doctor's sub line is the specialty SLUG: shown by its translated name (hidden when unknown). Other kinds' codes
+  // ("whole_body", "chest") are identifiers, not words to show.
+  const specialties = useTranslations("SpecialtyNames");
+  const isCode = !!result.sub && /^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$/.test(result.sub);
+  const sub = result.typeEn === "Doctor" && isCode
+    ? specialtyLabel(specialties as unknown as (key: SpecialtySlug) => string, result.sub) ?? undefined
+    : result.sub && !isCode ? result.sub : undefined;
   const price = result.price && Number(result.price) > 0 ? result.price : undefined;
   const rate = result.rate && Number(result.rate) > 0 ? result.rate : undefined;
   const body = <>
@@ -84,13 +90,13 @@ export function ResultItem({ result, locale, query }: { result: SearchResult; lo
     : <div className={styles.item}>{body}</div>;
 }
 
-export function SearchClient({ locale }: { locale: string }) {
+export function SearchClient({ locale, initialQuery = "" }: { locale: string; initialQuery?: string }) {
   const t = useTranslations("Search");
   const routeState = useTranslations("RouteState");
   const shellLocale: Locale = isLocale(locale) ? locale : "ar";
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<SearchResult[]>([]);
-  const [state, setState] = useState<"idle" | "loading" | "error">("idle");
+  const [state, setState] = useState<"idle" | "loading" | "error">(initialQuery.trim().length >= 2 ? "loading" : "idle");
   const [tab, setTab] = useState<Tab>("all");
   const [attempt, setAttempt] = useState(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -103,25 +109,19 @@ export function SearchClient({ locale }: { locale: string }) {
     timer.current = setTimeout(async () => {
       setState("loading");
       try {
-        // F71: parse intent first; a confident actionable intent navigates to
-        // its canonical path, otherwise fall back to the results list.
-        try {
-          const intentRes = await fetch(`/api/search/intent`, {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({ query: q, locale }),
-            cache: "no-store",
-          });
-          const intent = await intentRes.json().catch(() => null);
-          const path = intent?.canonical_path;
-          if (intentRes.ok && typeof path === "string" && path !== `/${locale}/search` && path.startsWith("/")) {
-            window.location.assign(path.startsWith(`/${locale}/`) ? path : `/${locale}${path}`);
-            return;
-          }
-        } catch { /* fall through to results list */ }
         const response = await fetch(`/api/patient/home/search?q=${encodeURIComponent(q)}`, { cache: "no-store" });
         if (!response.ok) throw new Error("search_unavailable");
-        setResults(extractSearchResults(await response.json().catch(() => []), locale));
+        const found = extractSearchResults(await response.json().catch(() => []), locale);
+        // F71: one request per query. Only a query that found NOTHING asks the intent parser, and a confident intent
+        // (a specialty, a lab, a medicine catalogue) takes the person to that page instead of an empty list.
+        if (found.length === 0) {
+          try {
+            const intentResponse = await fetch("/api/search/intent", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ query: q, locale }), cache: "no-store" });
+            const target = intentResponse.ok ? intentRedirect(await intentResponse.json().catch(() => null), locale) : null;
+            if (target) { window.location.assign(target); return; }
+          } catch { /* the empty state is the answer */ }
+        }
+        setResults(found);
         setTab("all");
         setState("idle");
       } catch {
@@ -205,7 +205,7 @@ export function SearchClient({ locale }: { locale: string }) {
     <CoreShell
       locale={shellLocale}
       cancelHref={`/${locale}`}
-      search={<Search variant="page" value={query} onChange={setQuery} placeholder={t("placeholder")} label={t("title")} onClear={() => setQuery("")} clearLabel={t("clear")} />}
+      search={<Search variant="page" value={query} onChange={(value) => setQuery(truncateQuery(value))} placeholder={t("placeholder")} label={t("title")} onClear={() => setQuery("")} clearLabel={t("clear")} />}
     >
       {searching && state === "idle" && results.length > 0 ? null : <h1 className={styles.srOnly}>{t("title")}</h1>}
       {content}

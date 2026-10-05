@@ -3,8 +3,10 @@ import { parseDashboardAppointment, parseDashboardProfile } from "./dashboard";
 
 describe("dashboard contract parsers", () => {
   it("extracts only approved profile display fields", () => {
-    expect(parseDashboardProfile({ data: { name: "  Patient  ", clinical_notes: "must not render" } })).toEqual({ name: "Patient" });
-    expect(parseDashboardProfile({ data: { clinical_notes: "private" } })).toEqual({ name: null });
+    expect(parseDashboardProfile({ display_name: "  Patient  ", health_id: "HP-1", locale: "ar" })).toEqual({ name: "Patient" });
+    expect(parseDashboardProfile({ data: { display_name: "Wrapped" } })).toEqual({ name: "Wrapped" });
+    expect(parseDashboardProfile({ display_name: "" })).toEqual({ name: null });
+    expect(parseDashboardProfile({ data: { clinical_notes: "private", name: "profile document field, not the display name" } })).toEqual({ name: null });
   });
 
   it("requires a stable appointment id and normalizes documented aliases", () => {

@@ -3,8 +3,8 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: vi.fn(), refresh: vi.fn() }) }));
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: vi.fn(), refresh: vi.fn(), push: vi.fn() }) }));
+vi.mock("next-intl", async () => (await import("./helpers/intl")).nextIntlMock("en"));
 
 import { LoginForm } from "../components-next/login-form";
 
@@ -14,8 +14,8 @@ describe("LoginForm", () => {
     expect(html).toContain('autoComplete="username"');
     expect(html).toContain('autoComplete="current-password"');
     expect(html).toContain('type="password"');
-    // the shared Button: a type="submit" button whose label is the submit key
-    expect(html).toMatch(/<button[^>]*type="submit"[^>]*>(?:(?!<\/button>)[\s\S])*>submit<\/span>/);
+    // the shared Button: a type="submit" button whose label is the sign-in message
+    expect(html).toMatch(/<button[^>]*type="submit"[^>]*>(?:(?!<\/button>)[\s\S])*>Sign in<\/span>/);
     expect(html).not.toContain("Sandbox@123");
     expect(html).not.toContain("patient.sandbox@nabd.plus");
   });

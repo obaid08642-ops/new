@@ -11,7 +11,22 @@
 
 .group { margin-block-end: var(--nabd-space-sm); }
 .list { list-style: none; margin: 0; padding: 0; }
-.row { display: flex; align-items: flex-start; gap: var(--nabd-space-xs); padding: 14px; background: var(--nabd-color-bg-surface); }
+.row { background: var(--nabd-color-bg-surface); }
+/* the tap target of a row: a link (the page exists on the web), a button (just marks it as read) or plain */
+.rowInner {
+  display: flex; align-items: flex-start; gap: var(--nabd-space-xs); inline-size: 100%; box-sizing: border-box; min-block-size: 44px; padding: 14px;
+  margin: 0; border: 0; background: none; font: inherit; color: inherit; text-align: start; text-decoration: none;
+}
+a.rowInner, button.rowInner { cursor: pointer; }
+.rowInner:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: -2px; }
+.tools { display: flex; justify-content: flex-end; margin-block-end: var(--nabd-space-xs); }
+.markAll {
+  display: inline-flex; align-items: center; min-block-size: 44px; padding-inline: 4px; border: 0; background: none; cursor: pointer; font: inherit;
+  font-size: var(--nabd-font-size-control); font-weight: 600; color: var(--nabd-color-action-primary-bg);
+}
+.markAll:disabled { opacity: .5; cursor: not-allowed; }
+.markAll:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-sm); }
+.failed { margin: 0 0 var(--nabd-space-xs); font-size: var(--nabd-font-size-label); color: var(--nabd-color-status-danger-fg); }
 .row + .row { border-block-start: 1px solid var(--nabd-color-border-subtle); }
 /* the board's faint coral tint: the action colour at 4% over the surface */
 .unread { background: color-mix(in srgb, var(--nabd-color-action-primary-bg) 4%, var(--nabd-color-bg-surface)); }

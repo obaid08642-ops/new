@@ -10,7 +10,9 @@ import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl, siteOrigin } from "@/lib/seo";
 import { getPublicDoctors } from "@/lib/api/doctors-server";
 import { extractDoctors } from "@/lib/api/doctors";
-import { getHomeContent, getPublicConfig, isWebMaintenance, selectHomeSections } from "@/lib/api/public-config-server";
+import { isOutage } from "@/lib/api/outage";
+import { readHomeContent, readPublicConfig, isWebMaintenance, selectHomeSections } from "@/lib/api/public-config-server";
+import { RetryErrorState } from "@/components-next/core/core-states";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -47,31 +49,41 @@ export default async function LandingPage({ params }: Props) {
   const metadata = await getTranslations({ locale, namespace: "Metadata" });
   const url = localizedUrl(locale);
   const signedIn = Boolean((await cookies()).get(authCookieNames.access)?.value);
-  const isAr = locale === "ar";
+  const specialties = await getTranslations({ locale, namespace: "SpecialtyNames" });
 
-  let doctors: ReturnType<typeof extractDoctors> = [];
-  try {
-    const res = await getPublicDoctors();
-    if (res && res.ok) {
-      doctors = extractDoctors(await res.json().catch(() => null)).slice(0, 4);
-    }
-  } catch {}
+  // Doctors and the public config are the page's data. A FAILURE of either (no answer, or a 5xx) shows the error state with a
+  // retry inside the shell; an empty answer or a missing optional part (the curated sections) still just hides.
+  const [doctorsResponse, config, content] = await Promise.all([
+    getPublicDoctors().catch(() => null),
+    readPublicConfig(),
+    readHomeContent(),
+  ]);
+  if (isOutage(doctorsResponse) || config.failed) {
+    return (
+      <HomeShell locale={locale} signedIn={signedIn} surface="home">
+        <div className={styles.page}>
+          <RetryErrorState title={t("unavailableTitle")} body={t("unavailableBody")} retryLabel={t("retry")} />
+        </div>
+      </HomeShell>
+    );
+  }
+  const doctors = extractDoctors(await doctorsResponse?.json().catch(() => null)).slice(0, 4);
 
   // R6-5: web honours the admin maintenance flag; home renders curated sections.
-  const maintenance = isWebMaintenance(await getPublicConfig());
+  const maintenance = isWebMaintenance(config.data, locale);
   if (maintenance.maintenance) {
     return (
       <HomeShell locale={locale} signedIn={signedIn} surface="home">
         <div className={styles.page}>
           <section className={styles.hero}>
-            <h1 className={styles.title}>{isAr ? "صيانة مجدولة" : "Scheduled maintenance"}</h1>
-            <p className={styles.eyebrow}>{maintenance.message || (isAr ? "نعمل على تحسين الخدمة. حاول لاحقاً." : "We are improving the service. Please try again later.")}</p>
+            <h1 className={styles.title}>{t("maintenanceTitle")}</h1>
+            <p className={styles.eyebrow}>{maintenance.message || t("maintenanceBody")}</p>
           </section>
         </div>
       </HomeShell>
     );
   }
-  const homeSections = selectHomeSections(await getHomeContent());
+  const homeSections = selectHomeSections(content.data);
 
   return (
     <HomeShell locale={locale} signedIn={signedIn} surface="home">
@@ -112,7 +124,7 @@ export default async function LandingPage({ params }: Props) {
         <ServiceGrid locale={locale} t={t} />
         <AiCard locale={locale} t={t} />
         <CuratedSections sections={homeSections} locale={locale} t={t} />
-        <DoctorsSection doctors={doctors} locale={locale} t={t} />
+        <DoctorsSection doctors={doctors} locale={locale} t={t} specialties={specialties} />
       </div>
     </HomeShell>
   );

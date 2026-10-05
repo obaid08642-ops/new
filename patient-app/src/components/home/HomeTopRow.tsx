@@ -31,20 +31,21 @@ export function HomeTopRow({ name }: { name: string | null }) {
   const { isDark, lang, toggleTheme } = useApp();
   const { theme, t, c, tr } = useScreenUi();
   const [langOpen, setLangOpen] = useState(false);
-  // unread notifications from the store the notification handler fills; the dot shows only when there are some
-  const unread = useSelector((state: { notifications?: { unreadCount?: number } }) => state.notifications?.unreadCount ?? 0);
+  // unread rows of GET /notifications (Home and the notifications screen report the count to the store); the dot
+  // shows only when the count is known and above zero
+  const unread = useSelector((state: { notifications?: { unreadCount?: number | null } }) => state.notifications?.unreadCount ?? 0);
   const first = name ? name.split(/\s+/)[0] : '';
   const ring = { height: HIT, borderRadius: HIT / 2, borderWidth: 1, borderColor: c.border.onGlass, backgroundColor: c.bg.surface };
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-      <Pressable accessibilityRole="button" accessibilityLabel={tr('الملف الشخصي')} onPress={() => router.push('/profile')} hitSlop={4}>
+      <Pressable accessibilityRole="button" accessibilityLabel={tr('common.profile')} onPress={() => router.push('/profile')} hitSlop={4}>
         <Avatar name={first} size="md" theme={theme} />
       </Pressable>
       <View style={{ flex: 1 }} />
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={tr('اللغة')}
+        accessibilityLabel={tr('common.language')}
         onPress={() => setLangOpen(true)}
         style={{ ...ring, minWidth: HIT, paddingHorizontal: 8, alignItems: 'center', justifyContent: 'center' }}
       >
@@ -53,7 +54,7 @@ export function HomeTopRow({ name }: { name: string | null }) {
       <Pressable
         accessibilityRole="switch"
         accessibilityState={{ checked: isDark }}
-        accessibilityLabel={tr('الوضع الغامق')}
+        accessibilityLabel={tr('common.darkMode')}
         onPress={toggleTheme}
         style={{ ...ring, width: 68, padding: 4, flexDirection: 'row', justifyContent: isDark ? 'flex-start' : 'flex-end', alignItems: 'center' }}
       >
@@ -74,9 +75,10 @@ export function HomeTopRow({ name }: { name: string | null }) {
         </View>
       </Pressable>
       <View>
-        <IconButton name="bell" label={tr('الإشعارات')} variant="outlined" theme={theme} onPress={() => router.push('/notifications')} />
+        <IconButton name="bell" label={tr('common.notifications')} variant="outlined" theme={theme} onPress={() => router.push('/notifications')} />
         {unread > 0 ? (
           <View
+            testID="home-bell-dot"
             pointerEvents="none"
             accessibilityElementsHidden
             importantForAccessibility="no-hide-descendants"
@@ -99,7 +101,7 @@ function LanguageSheet({ visible, onClose }: { visible: boolean; onClose: () => 
       <View style={{ flex: 1, justifyContent: 'flex-end' }}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={tr('إغلاق')}
+          accessibilityLabel={tr('common.close')}
           onPress={onClose}
           style={{ position: 'absolute', top: 0, bottom: 0, start: 0, end: 0, backgroundColor: withAlpha(c.text.primary, 0.4) }}
         />
@@ -117,7 +119,7 @@ function LanguageSheet({ visible, onClose }: { visible: boolean; onClose: () => 
             gap: 4,
           }}
         >
-          <Txt accessibilityRole="header" weight="bold" size={18} style={{ marginBottom: 8, paddingHorizontal: 4 }}>اللغة</Txt>
+          <Txt accessibilityRole="header" weight="bold" size={18} style={{ marginBottom: 8, paddingHorizontal: 4 }}>{'common.language'}</Txt>
           {LANG_ORDER.map((code) => {
             const item = LANGUAGES.find((l) => l.code === code);
             if (!item) return null;

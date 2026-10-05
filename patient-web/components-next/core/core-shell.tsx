@@ -10,6 +10,8 @@ import { Icon } from "@/components-next/ui-generated/src/Icon";
 import type { BottomTabItem } from "@/components-next/ui-generated/components/contract";
 import { NabdMark } from "@/components-next/nabd-mark";
 import { LocaleSelector } from "@/components-next/locale-selector";
+import { SignOutButton } from "@/components-next/sign-out-button";
+import { shellSectionHrefs } from "@/components-next/shell-links";
 import { ThemeToggle } from "@/components-next/theme-toggle";
 import { getDirection, type Locale } from "@/lib/i18n";
 import styles from "./core.module.css";
@@ -47,22 +49,24 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
   const shell = useTranslations("CoreShell");
   const shared = useTranslations("Shared");
   const searchT = useTranslations("Search");
+  const nav = useTranslations("HomeWeb");
+  const hrefs = shellSectionHrefs(locale);
   const rtl = getDirection(locale) === "rtl";
 
   const tabs: Array<BottomTabItem & { href: string }> = [
-    { id: "home", label: shared("navHome"), icon: "house", href: `/${locale}` },
-    { id: "pharmacy", label: shared("navPharmacy"), icon: "pill", href: `/${locale}/pharmacy` },
-    { id: "consult", label: shared("navDoctors"), icon: "stethoscope", href: `/${locale}/consultations/doctors`, raised: true },
-    { id: "labs", label: shared("navDiagnostics"), icon: "test-tube", href: `/${locale}/diagnostics/labs` },
-    { id: "nursing", label: shared("navNursing"), icon: "first-aid-kit", href: `/${locale}/home-care` },
+    { id: "home", label: nav("navHome"), icon: "house", href: `/${locale}` },
+    { id: "pharmacy", label: nav("navPharmacy"), icon: "pill", href: hrefs.pharmacy },
+    { id: "consult", label: nav("navConsult"), icon: "stethoscope", href: hrefs.consult, raised: true },
+    { id: "labs", label: nav("navLabs"), icon: "test-tube", href: hrefs.labs },
+    { id: "nursing", label: nav("navNursing"), icon: "first-aid-kit", href: hrefs.nursing },
   ];
 
   const sections = [
-    { id: "home", label: shared("navHome"), href: `/${locale}` },
-    { id: "pharmacy", label: shared("navPharmacy"), href: `/${locale}/pharmacy` },
-    { id: "consult", label: shared("navDoctors"), href: `/${locale}/consultations/doctors` },
-    { id: "labs", label: shared("navDiagnostics"), href: `/${locale}/diagnostics/labs` },
-    { id: "nursing", label: shared("navNursing"), href: `/${locale}/home-care` },
+    { id: "home", label: nav("navHome"), href: `/${locale}` },
+    { id: "pharmacy", label: nav("navPharmacy"), href: hrefs.pharmacy },
+    { id: "consult", label: nav("navConsult"), href: hrefs.consult },
+    { id: "labs", label: nav("navLabs"), href: hrefs.labs },
+    { id: "nursing", label: nav("navNursing"), href: hrefs.nursing },
   ];
 
   const topBar = (
@@ -77,7 +81,7 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
       <Link href={`/${locale}`} className={`${styles.brand} ${styles.wideOnly}`} aria-label={shared("brand")}>
         <NabdMark size={34} variant="text" />
         <span className={styles.wordmark} aria-hidden="true">
-          {locale === "ar" ? "نبض" : "Nabd"}<span className={styles.plus}>+</span>
+          {shared("wordmark")}<span className={styles.plus}>+</span>
         </span>
       </Link>
 
@@ -106,6 +110,7 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
         <Link href={`/${locale}/profile`} className={styles.iconLink} aria-label={shared("account")}>
           <Icon name="user" size={20} tone="currentColor" />
         </Link>
+        <SignOutButton locale={locale} className={styles.iconLink} />
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }), useSearchParams: () => new URLSearchParams("identifier=patient%40example.com") }));
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }), }));
+vi.mock("next-intl", async () => (await import("./helpers/intl")).nextIntlMock("en"));
 
 import { AuthWelcome } from "../components-next/auth-welcome";
 import { RegisterForm } from "../components-next/register-form";
@@ -30,7 +30,7 @@ describe("Auth screen parity contract", () => {
   });
 
   it("renders six OTP cells and does not place a token in markup", () => {
-    const html = renderToStaticMarkup(<OtpScreen locale="en" />);
+    const html = renderToStaticMarkup(<OtpScreen locale="en" identifier="patient@example.com" />);
     expect((html.match(/aria-label="Verification code/g) ?? []).length).toBe(6);
     expect(html).toContain("Resend available in");
     expect(html).toContain("Verify code");
