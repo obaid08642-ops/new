@@ -22,7 +22,7 @@ function Component() {
   const props = Object.fromEntries(Object.entries(cmp.props).map(([k, v]) => [k, /^on[A-Z]/.test(k) && v === true ? () => {} : v]));
   const bg = cmp.frame === 'surface' ? t.surface : t.canvas;
   return (
-    <View nativeID="frame" style={{ width: cmp.width, backgroundColor: bg, flexDirection: 'row', alignItems: 'flex-start' }}>
+    <View nativeID="frame" style={{ width: cmp.width, height: cmp.frame === 'screen' ? cmp.height : undefined, backgroundColor: bg, flexDirection: 'row', alignItems: cmp.frame === 'screen' ? 'center' : 'flex-start' }}>
       <View style={{ flex: 1, alignItems: cmp.fill ? 'stretch' : 'flex-start' }}>
         <Comp {...props} theme={cmp.theme} />
       </View>
