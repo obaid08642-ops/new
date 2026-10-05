@@ -1,13 +1,6 @@
 import type { Metadata } from "next";
-import { Tajawal } from "next/font/google";
 import Link from "next/link";
-
-const tajawal = Tajawal({
-  subsets: ["arabic", "latin"],
-  weight: ["400", "500", "700", "800"],
-  display: "swap",
-  variable: "--font-tajawal",
-});
+import { fontVariables } from "@/app/fonts";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
@@ -75,7 +68,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <NextIntlClientProvider messages={messages}>
       <WebMcpProvider locale={typedLocale} />
-      <div className={`shell ${tajawal.variable}`} lang={typedLocale} dir={getDirection(typedLocale)}>
+      <div className={`shell ${fontVariables}`} lang={typedLocale} dir={getDirection(typedLocale)}>
         {/*
           12.A3 — the theme has to be known before the first pixel, or every
           navigation flashes the wrong theme. This is a synchronous inline script
