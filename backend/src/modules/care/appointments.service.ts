@@ -1,5 +1,5 @@
 import { SlotService } from './slot.service';
-import { conflictingAppointmentFilter } from './availability';
+import { APPOINTMENT_MINUTES, conflictingAppointmentFilter } from './availability';
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException, Logger, Inject, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { Model, Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -181,7 +181,8 @@ export class AppointmentsService {
       throw new BadRequestException('slot_start must be exactly on a 15-minute boundary (e.g., 00, 15, 30, 45)');
     }
 
-    const duration = body.duration_minutes || 30;
+    // The length the slot list offers; a client-sent duration is not trusted.
+    const duration = APPOINTMENT_MINUTES;
     const slotEnd = new Date(slotStart.getTime() + duration * 60_000);
     await this.assertOffered(doctor, slotStart, duration, body.service_type, [user?.id, patientId]);
 
@@ -535,11 +536,12 @@ export class AppointmentsService {
       throw new BadRequestException('slot_start must be exactly on a 15-minute boundary');
     }
 
-    const newEnd = new Date(newStart.getTime() + appt.duration_minutes * 60_000);
+    const keptMinutes = appt.duration_minutes || APPOINTMENT_MINUTES;
+    const newEnd = new Date(newStart.getTime() + keptMinutes * 60_000);
     const doctorProfile: any = await this.providerModel.findOne({ id: appt.doctor_id, type: ProviderType.DOCTOR });
     if (!doctorProfile) throw new NotFoundException('doctor_not_found');
-    await this.assertOffered(doctorProfile, newStart, appt.duration_minutes || 30, appt.service_type, [user?.id, appt.patient_id]);
-    const overlapping = await this.apptModel.findOne(conflictingAppointmentFilter(appt.doctor_id, newStart, appt.duration_minutes));
+    await this.assertOffered(doctorProfile, newStart, keptMinutes, appt.service_type, [user?.id, appt.patient_id]);
+    const overlapping = await this.apptModel.findOne(conflictingAppointmentFilter(appt.doctor_id, newStart, keptMinutes));
     if (overlapping) throw new ConflictException('slot_already_booked_or_conflicts_with_buffer');
     // Q36: the new slot must not be another patient's active hold either.
     await this.assertNoForeignSlotHold(appt.doctor_id, newStart, newEnd, user, appt.patient_id);

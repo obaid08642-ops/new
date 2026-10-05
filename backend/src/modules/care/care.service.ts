@@ -5,7 +5,7 @@ import { User, UserDocument } from '../../schemas/user.schema';
 import { Facility, FacilityDocument } from '../../schemas/facility.schema';
 import { ProviderType, ProviderStatus } from '../../common/enums';
 import { SlotService } from './slot.service';
-import { ApprovedSlot, BLOCKING_APPOINTMENT_STATUSES, Range, appointmentRanges, candidateSlots, dayStartOf, markAvailability, onLeave, windowsFor } from './availability';
+import { APPOINTMENT_MINUTES, ApprovedSlot, BLOCKING_APPOINTMENT_STATUSES, Range, appointmentRanges, candidateSlots, dayStartOf, markAvailability, onLeave, windowsFor } from './availability';
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 import { UserRepository } from "./repositories/user.repository";
 import { FacilityRepository } from "./repositories/facility.repository";
@@ -261,7 +261,7 @@ export class CareService {
   async doctorSlots(id: string, date: string, service_type: 'clinic' | 'video' | 'home', viewerIds: string[] = []) {
     const doc = await this.providerModel.findOne({ id, type: ProviderType.DOCTOR, ...PUBLIC_PROVIDER_FILTER });
     if (!doc) throw new NotFoundException('doctor_not_found');
-    return this.slots.slotsForDate(doc, date, service_type, 30, viewerIds);
+    return this.slots.slotsForDate(doc, date, service_type, APPOINTMENT_MINUTES, viewerIds);
   }
 
   /** ===== Global search (doctors + specialties + facilities) ===== */
@@ -520,7 +520,7 @@ function firstAvailableOnDay(plain: any, batch: AvailabilityBatch, dateStr: stri
   if (!windows.length) return null;
   const linkIds = [plain.account_id, plain.user_id].filter(Boolean);
   if (linkIds.length && onLeave(batch.leaves, linkIds, dayStart)) return null;
-  const slots = markAvailability(candidateSlots(dayStart, windows, 30, batch.now), 30,
+  const slots = markAvailability(candidateSlots(dayStart, windows, APPOINTMENT_MINUTES, batch.now), APPOINTMENT_MINUTES,
     batch.bookingsByDoctor.get(plain.id) || [], batch.holdsByDoctor.get(plain.id) || []);
   return slots.find((s) => s.available)?.start ?? null;
 }

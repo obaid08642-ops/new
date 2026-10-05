@@ -21,6 +21,7 @@ import { RadiologyOpsService } from '../radiology/radiology.service';
 import { HomeCareSvc } from '../home-care/home-care.service';
 import { AppointmentsService } from '../care/appointments.service';
 import { SlotService } from '../care/slot.service';
+import { APPOINTMENT_MINUTES, ListedSlot } from '../care/availability';
 import { OrdersService } from '../orders/orders.service';
 import { CartService } from '../cart/cart.module';
 import { WorkflowEngineModule, WorkflowEngineService, toUniversal } from '../workflow-engine/workflow-engine.module';
@@ -274,8 +275,8 @@ export class UnifiedBookingsService {
     // Overnight windows are listed under the day they open (as assertOffered checks).
     let slot: { start: string; available: boolean } | undefined;
     for (const day of [requested.toISOString().slice(0, 10), new Date(requested.getTime() - 24 * 3600_000).toISOString().slice(0, 10)]) {
-      const availability = await this.slots.slotsForDate(doctor, day, type, 30, viewers);
-      slot = (availability?.slots || []).find((candidate: any) => candidate.start === slotId);
+      const availability = await this.slots.slotsForDate(doctor, day, type, APPOINTMENT_MINUTES, viewers);
+      slot = (availability?.slots || []).find((candidate: ListedSlot) => candidate.start === slotId);
       if (slot) break;
     }
     if (!slot) throw new BadRequestException('slot_not_available');
