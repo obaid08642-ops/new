@@ -30,7 +30,7 @@
  * Usage: node tools/design/sync-token-css.mjs [--check]
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -38,9 +38,22 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(HERE, '..', '..');
 const SRC = join(REPO, 'packages', 'design-tokens', 'dist', 'css');
 
-/** Every client that renders the tokens, and where the mirror lives inside it. */
+/**
+ * patient-web self-hosts its fonts through next/font/local (patient-web/app/fonts.ts,
+ * handoff §1). Its CSP only allows fonts and stylesheets from its own origin
+ * (font-src 'self'; style-src 'self'), so the preview `@import` of Google Fonts in
+ * fonts.css can never load there: it only costs a blocked request. The web mirror
+ * drops that one line; everything else is copied byte for byte.
+ */
+const GOOGLE_IMPORT = /^@import url\("https:\/\/fonts\.googleapis\.com\/[^"]*"\);$/m;
+const selfHostedFonts = (file, css) =>
+  file === 'fonts.css'
+    ? css.replace(GOOGLE_IMPORT, '/* patient-web: fonts are self-hosted (app/fonts.ts); the Google Fonts preview @import is removed by tools/design/sync-token-css.mjs. */')
+    : css;
+
+/** Every client that renders the tokens, where the mirror lives inside it, and how it is adapted. */
 const MIRRORS = [
-  { client: 'patient-web', to: join(REPO, 'patient-web', 'app', 'design-tokens') },
+  { client: 'patient-web', to: join(REPO, 'patient-web', 'app', 'design-tokens'), transform: selfHostedFonts },
 ];
 
 const FILES = ['tokens.css', 'fonts.css'];
@@ -55,12 +68,12 @@ if (!existsSync(SRC)) {
 const CHECK_ONLY = process.argv.includes('--check');
 const problems = [];
 
-for (const { client, to } of MIRRORS) {
+for (const { client, to, transform } of MIRRORS) {
   mkdirSync(to, { recursive: true });
   for (const file of FILES) {
     const from = join(SRC, file);
     const dest = join(to, file);
-    const want = readFileSync(from, 'utf8');
+    const want = transform(file, readFileSync(from, 'utf8'));
     const have = existsSync(dest) ? readFileSync(dest, 'utf8') : null;
 
     if (have === want) continue;

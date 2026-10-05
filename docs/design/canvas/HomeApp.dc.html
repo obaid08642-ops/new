@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Home — app</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Readex Pro',sans-serif}
+@keyframes ndRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes ndDraw{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
+@keyframes ndBeat{0%,100%{transform:scale(1)}12%{transform:scale(1.3)}24%{transform:scale(1)}36%{transform:scale(1.15)}60%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<div dir="rtl" style="width: 390px; height: 2140px; box-sizing: border-box; position: relative; overflow: hidden; background: {{c.bg}}; color: {{c.text}}; font-family: 'Readex Pro', sans-serif">
+<div style="padding: 54px 16px 150px; display: flex; flex-direction: column; gap: 16px">
+
+<div style="display: flex; align-items: center; gap: 8px; animation: ndRise 420ms cubic-bezier(.22,1,.36,1) both">
+<a href="#" aria-label="الملف الشخصي" style="width: 44px; height: 44px; border-radius: 22px; background: {{c.avatar}}; border: 2px solid {{c.surface}}; box-shadow: 0 0 0 2px #FF4B55; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: {{c.text}}; text-decoration: none">[ن]</a>
+<div style="flex-grow: 1"></div>
+<button aria-label="اللغة" style="width: 40px; height: 40px; border-radius: 20px; border: 1px solid {{c.hair}}; background: {{c.surface}}; color: {{c.text}}; font-family: inherit; font-size: 15px; font-weight: 600; padding: 0">ع</button>
+<button role="switch" aria-checked="{{darkOn}}" aria-label="الوضع الغامق" style="width: 64px; height: 40px; border-radius: 20px; border: 1px solid {{c.hair}}; background: {{c.surface}}; padding: 4px; display: flex; justify-content: {{c.knobSide}}; box-sizing: border-box">
+<span style="width: 30px; height: 30px; border-radius: 15px; background: {{c.knob}}; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(11,27,43,0.15)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{c.knobFg}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{c.knobIcon}}"></path></svg></span>
+</button>
+<button aria-label="الإشعارات" style="width: 40px; height: 40px; border-radius: 20px; border: 1px solid {{c.hair}}; background: {{c.surface}}; display: flex; align-items: center; justify-content: center; padding: 0; position: relative"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{c.text}}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z M10 20a2 2 0 0 0 4 0"></path></svg><span style="position: absolute; top: 9px; right: 10px; width: 8px; height: 8px; border-radius: 4px; background: #FF4B55; border: 2px solid {{c.surface}}"></span></button>
+</div>
+
+<div style="border-radius: 28px; background: {{c.greet}}; border: 1px solid {{c.cardBorder}}; box-shadow: {{c.cardShadow}}; padding: 18px 18px 14px; display: flex; flex-direction: column; gap: 10px; animation: ndRise 420ms cubic-bezier(.22,1,.36,1) 60ms both">
+<div style="display: flex; justify-content: space-between; align-items: flex-start">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; color: {{c.muted}}">مساء الخير</span><span style="font-size: 24px; font-weight: 700">[الاسم الكامل]</span></div>
+<svg width="36" height="36" viewBox="0 0 48 48" aria-hidden="true"><path d="M9 21a15 15 0 0 0 30 0" fill="none" stroke="{{c.text}}" stroke-width="4.6" stroke-linecap="round"></path><circle cx="24" cy="8" r="4.4" fill="#FF4B55" style="transform-origin: 24px 8px; transform-box: view-box; animation: ndBeat 1s ease-in-out infinite"></circle></svg>
+</div>
+<svg width="100%" height="34" viewBox="0 0 320 34" preserveAspectRatio="none" aria-hidden="true">
+<path d="M0 22 H120 L132 22 L140 8 L150 32 L160 4 L170 26 L178 22 H320" pathLength="100" fill="none" stroke="#FF4B55" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray: 100; animation: ndDraw 1400ms cubic-bezier(.65,0,.35,1) 300ms both"></path>
+</svg>
+</div>
+
+<a href="#" style="border-radius: 22px; background: {{c.remind}}; padding: 12px 14px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: {{c.text}}; animation: ndRise 420ms cubic-bezier(.22,1,.36,1) 110ms both">
+<dc-import name="FIcon" icon="drop" tone="violet" chip="solid" theme="{{theme}}" size="{{chip44}}" hint-size="44px,44px"></dc-import>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11.5px; font-weight: 600; color: {{c.remindAccent}}">تذكير صحي</span><span style="font-size: 14.5px; font-weight: 700">[نص التذكير من بياناتك]</span><span style="font-size: 12px; color: {{c.muted}}">[سبب التذكير]</span></div>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{c.muted}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>
+</a>
+
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; animation: ndRise 420ms cubic-bezier(.22,1,.36,1) 160ms both">
+<sc-for list="{{services}}" as="s" hint-placeholder-count="9">
+<a href="#" style="height: 108px; border-radius: 22px; background: {{c.surface}}; border: 1px solid {{c.cardBorder}}; box-shadow: {{c.cardShadow}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-decoration: none; color: {{c.text}}">
+<dc-import name="FIcon" icon="{{s.icon}}" tone="{{s.tone}}" chip="soft" theme="{{theme}}" size="{{chip50}}" hint-size="50px,50px"></dc-import>
+<span style="font-size: 13px; font-weight: 600">{{s.l}}</span>
+</a>
+</sc-for>
+</div>
+
+<a href="#" style="border-radius: 26px; background: {{c.ai}}; border: 1px solid {{c.aiBorder}}; padding: 16px; display: flex; align-items: center; gap: 14px; text-decoration: none; color: {{c.text}}; animation: ndRise 420ms cubic-bezier(.22,1,.36,1) 210ms both">
+<dc-import name="FIcon" icon="sparkle" tone="violet" chip="solid" theme="{{theme}}" size="{{chip56}}" hint-size="56px,56px"></dc-import>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px">
+<span style="align-self: flex-start; height: 22px; padding: 0 8px; border-radius: 11px; background: {{c.aiPill}}; color: {{c.aiAccent}}; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center">مدعوم بالذكاء الاصطناعي</span>
+<span style="font-size: 16.5px; font-weight: 700">المساعد الطبي الذكي</span>
+<span style="font-size: 12.5px; color: {{c.muted}}">صف أعراضك، ونقترح لك التخصص المناسب</span>
+</div>
+<span style="width: 40px; height: 40px; border-radius: 20px; background: {{c.surface}}; border: 1px solid {{c.aiBorder}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{c.aiAccent}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></span>
+</a>
+
+<div style="display: flex; gap: 8px; margin: 0 -16px; padding: 0 16px; overflow: hidden; animation: ndRise 420ms cubic-bezier(.22,1,.36,1) 250ms both">
+<sc-for list="{{tools}}" as="t" hint-placeholder-count="5">
+<a href="#" style="width: 86px; flex-shrink: 0; height: 100px; border-radius: 20px; background: {{c.surface}}; border: 1px solid {{c.cardBorder}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-decoration: none; color: {{c.text}}">
+<dc-import name="FIcon" icon="{{t.icon}}" tone="{{t.tone}}" chip="none" theme="{{theme}}" size="{{g26}}" hint-size="26px,26px"></dc-import>
+<span style="font-size: 11.5px; font-weight: 500; text-align: center; line-height: 1.3">{{t.l}}</span>
+</a>
+</sc-for>
+</div>
+
+<a href="#" style="border-radius: 22px; background: {{c.surface}}; border: 1px solid {{c.cardBorder}}; padding: 12px 14px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: {{c.text}}">
+<dc-import name="FIcon" icon="squares-four" tone="teal" chip="soft" theme="{{theme}}" size="{{chip44}}" hint-size="44px,44px"></dc-import>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700">كل الخدمات</span><span style="font-size: 12px; color: {{c.muted}}">الصحة النفسية، العائلة، التأمين، المجتمع، والمزيد</span></div>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{c.muted}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>
+</a>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><h2 style="margin: 0; font-size: 18px; font-weight: 700">موعدك القادم</h2><a href="#" style="font-size: 13px; color: {{c.link}}; text-decoration: none; font-weight: 500">كل المواعيد</a></div>
+<div style="border-radius: 24px; background: {{c.surface}}; border: 1px solid {{c.cardBorder}}; box-shadow: {{c.cardShadow}}; padding: 14px; display: flex; align-items: center; gap: 12px">
+<div style="width: 56px; height: 60px; border-radius: 18px; background: {{c.dateBg}}; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15; flex-shrink: 0"><span style="font-size: 20px; font-weight: 700; color: {{c.dateFg}}">[٢٦]</span><span style="font-size: 11px; color: {{c.dateFg}}">[الشهر]</span></div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0"><span style="font-size: 15px; font-weight: 700">د. [اسم الطبيب]</span><span style="font-size: 12.5px; color: {{c.muted}}">[نوع الاستشارة] · [الوقت]</span></div>
+<button style="height: 40px; padding: 0 14px; border-radius: 14px; border: 1.5px solid {{c.text}}; background: transparent; color: {{c.text}}; font-family: inherit; font-size: 13.5px; font-weight: 600">التفاصيل</button>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><h2 style="margin: 0; font-size: 18px; font-weight: 700">عروض وباقات</h2><a href="#" style="font-size: 13px; color: {{c.link}}; text-decoration: none; font-weight: 500">عرض الكل</a></div>
+<div style="display: flex; gap: 12px; margin: 0 -16px; padding: 0 16px; overflow: hidden">
+<sc-for list="{{offers}}" as="o" hint-placeholder-count="2">
+<a href="#" style="width: 236px; flex-shrink: 0; border-radius: 24px; background: {{c.surface}}; border: 1px solid {{c.cardBorder}}; box-shadow: {{c.cardShadow}}; overflow: hidden; display: flex; flex-direction: column; text-decoration: none; color: {{c.text}}">
+<div style="height: 112px; background: {{o.tint}}; position: relative; display: flex; align-items: center; justify-content: center">
+<dc-import name="FIcon" icon="{{o.icon}}" tone="{{o.tone}}" chip="none" theme="{{theme}}" size="{{g56}}" hint-size="56px,56px"></dc-import>
+<span style="position: absolute; top: 10px; right: 10px; height: 24px; padding: 0 9px; border-radius: 12px; background: {{c.surface}}; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center">{{o.tag}}</span>
+</div>
+<div style="padding: 12px 14px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 14.5px; font-weight: 700">[اسم العرض أو الباقة]</span>
+<span style="font-size: 12px; color: {{c.muted}}">[مقدم الخدمة]</span>
+<div style="display: flex; align-items: baseline; gap: 6px; margin-top: 4px"><span style="font-size: 17px; font-weight: 700; color: {{c.price}}">[السعر]</span><span style="font-size: 11px; color: {{c.muted}}">ر.س</span><span style="font-size: 12px; color: {{c.muted}}; text-decoration: line-through">[قبل الخصم]</span></div>
+</div>
+</a>
+</sc-for>
+</div>
+</div>
+
+<a href="#" style="border-radius: 24px; background: {{c.points}}; border: 1px solid {{c.cardBorder}}; padding: 14px 16px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: {{c.text}}">
+<dc-import name="FIcon" icon="star" tone="amber" chip="solid" theme="{{theme}}" size="{{chip44}}" hint-size="44px,44px"></dc-import>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 12px; color: {{c.muted}}">نقاط نبض+</span><span style="font-size: 20px; font-weight: 700">[رصيد النقاط] <span style="font-size: 12px; font-weight: 500; color: {{c.muted}}">نقطة</span></span></div>
+<span style="font-size: 12px; color: {{c.muted}}; max-width: 120px; text-align: left; line-height: 1.5">تخصم حتى ١٠٪ من قيمة طلبك</span>
+</a>
+</div>
+
+<nav aria-label="التنقل الرئيسي" style="position: absolute; left: 14px; right: 14px; bottom: 28px; height: 68px; border-radius: 34px; background: {{c.glass}}; border: 1px solid {{c.hair}}; backdrop-filter: blur(24px); box-shadow: 0 18px 40px rgba(11,27,43,0.14); display: flex; align-items: center; justify-content: space-between; padding: 0 8px">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="5">
+<a href="#" aria-label="{{t.l}}" aria-current="{{t.cur}}" style="height: 52px; min-width: 52px; padding: {{t.pad}}; border-radius: 26px; background: {{t.bg}}; color: {{t.color}}; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; font-size: 13.5px; font-weight: 600; box-sizing: border-box; position: relative">
+<sc-if value="{{t.fab}}" hint-placeholder-val="{{false}}">
+<span style="width: 66px; height: 66px; border-radius: 33px; margin-top: -34px; background: linear-gradient(180deg, #FF5A63 0%, #D42A38 100%); border: 5px solid {{c.bg}}; box-shadow: 0 12px 26px rgba(212,42,56,0.38); display: flex; align-items: center; justify-content: center; box-sizing: border-box">
+<svg width="28" height="28" viewBox="0 0 256 256" aria-hidden="true"><path d="{{t.d}}" fill="#FFFFFF"></path></svg></span>
+</sc-if>
+<sc-if value="{{t.plain}}" hint-placeholder-val="{{true}}">
+<svg width="24" height="24" viewBox="0 0 256 256" aria-hidden="true"><path d="{{t.d}}" fill="currentColor"></path></svg>
+<sc-if value="{{t.cur}}" hint-placeholder-val="{{false}}"><span>{{t.l}}</span></sc-if>
+</sc-if>
+</a>
+</sc-for>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":390,"height":2140}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'light';
+const dark = theme === 'dark';
+const sun = 'M12 16a4 4 0 1 0 0-8a4 4 0 0 0 0 8z M12 2v2 M12 20v2 M4.9 4.9l1.4 1.4 M17.7 17.7l1.4 1.4 M2 12h2 M20 12h2 M4.9 19.1l1.4-1.4 M17.7 6.3l1.4-1.4';
+const moon = 'M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z';
+const c = dark ? {
+bg: '#0B1B2B', surface: '#12263A', hair: 'rgba(255,255,255,0.12)', cardBorder: 'rgba(255,255,255,0.06)', cardShadow: 'none', text: '#F5F5F7', muted: '#9AA4B2', link: '#FF8A91', avatar: '#1A3148',
+greet: 'linear-gradient(160deg, #13304A 0%, #12263A 100%)', remind: 'rgba(156,125,255,0.10)', remindAccent: '#C2AEFF',
+ai: 'linear-gradient(160deg, #1E2650 0%, #12263A 100%)', aiBorder: 'rgba(156,125,255,0.22)', aiPill: 'rgba(156,125,255,0.16)', aiAccent: '#C2AEFF',
+dateBg: 'rgba(255,107,115,0.14)', dateFg: '#FF8A91', price: '#FF8A91', points: 'linear-gradient(160deg, #2A2614 0%, #12263A 100%)',
+glass: 'rgba(18,38,58,0.82)', knob: '#F5F5F7', knobFg: '#0B1B2B', knobIcon: moon, knobSide: 'flex-start', tabActive: '#F5F5F7', tabActiveFg: '#0B1B2B', tabIdle: '#9AA4B2',
+tints: ['rgba(110,139,255,0.12)', 'rgba(79,210,168,0.12)']
+} : {
+bg: '#F5F5F7', surface: '#FFFFFF', hair: 'rgba(11,27,43,0.08)', cardBorder: 'rgba(11,27,43,0.05)', cardShadow: '0 6px 18px rgba(11,27,43,0.05)', text: '#0B1B2B', muted: '#6E6E73', link: '#C8202F', avatar: '#FFE3E5',
+greet: 'linear-gradient(160deg, #FFFFFF 0%, #FFF4F5 100%)', remind: '#F1EDFF', remindAccent: '#6A3FD1',
+ai: 'linear-gradient(160deg, #FFFFFF 0%, #F3EFFF 100%)', aiBorder: 'rgba(106,63,209,0.14)', aiPill: '#EFEAFF', aiAccent: '#6A3FD1',
+dateBg: '#FFE8EA', dateFg: '#B81E2B', price: '#C8202F', points: 'linear-gradient(160deg, #FFFFFF 0%, #FFF6E3 100%)',
+glass: 'rgba(255,255,255,0.86)', knob: '#FFFFFF', knobFg: '#B86400', knobIcon: sun, knobSide: 'flex-end', tabActive: '#0B1B2B', tabActiveFg: '#FFFFFF', tabIdle: '#6E6E73',
+tints: ['#E7ECFF', '#E1F6EE']
+};
+c.knob = dark ? '#F5F5F7' : '#FFF1DB';
+const S = [['استشارات', 'stethoscope', 'blue'], ['صيدلية', 'pill', 'coral'], ['تحاليل وأشعة', 'test-tube', 'mint'], ['تمريض', 'first-aid-kit', 'teal'], ['التغذية', 'bowl-food', 'lime'], ['الأمومة', 'baby', 'pink'], ['الخريطة', 'map-trifold', 'amber'], ['صحتي', 'heartbeat', 'coral'], ['إسعاف', 'ambulance', 'peach']];
+const services = S.map(x => ({ l: x[0], icon: x[1], tone: x[2] }));
+const tools = [['فحص الأعراض', 'heartbeat', 'teal'], ['مترجم الروشتات', 'translate', 'violet'], ['تحليل البشرة', 'scan', 'pink'], ['طبيب افتراضي', 'robot', 'blue'], ['التقرير الشهري', 'chart-line-up', 'mint']].map(x => ({ l: x[0], icon: x[1], tone: x[2] }));
+const offers = [{ tint: c.tints[0], icon: 'test-tube', tone: 'blue', tag: 'باقة' }, { tint: c.tints[1], icon: 'tooth', tone: 'mint', tag: 'عرض' }];
+const IC = {"house": "M224,120v96a8,8,0,0,1-8,8H160a8,8,0,0,1-8-8V164a4,4,0,0,0-4-4H108a4,4,0,0,0-4,4v52a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V120a16,16,0,0,1,4.69-11.31l80-80a16,16,0,0,1,22.62,0l80,80A16,16,0,0,1,224,120Z", "pill": "M216.43,39.6a53.27,53.27,0,0,0-75.33,0L39.6,141.09a53.26,53.26,0,0,0,75.32,75.31L216.43,114.91A53.32,53.32,0,0,0,216.43,39.6Zm-11.32,64-50.75,50.74-52.69-52.68,50.75-50.75a37.26,37.26,0,0,1,52.69,52.69ZM189.68,82.34a8,8,0,0,1,0,11.32l-24,24a8,8,0,1,1-11.31-11.32l24-24A8,8,0,0,1,189.68,82.34Z", "steth": "M240,160a32,32,0,1,0-39.93,31,8,8,0,0,0-.07,1,32,32,0,0,1-32,32H144a32,32,0,0,1-32-32V151.48c31.47-4,56-31.47,56-64.31V40a8,8,0,0,0-8-8H136a8,8,0,0,0,0,16h16V87.17c0,26.58-21.25,48.49-47.36,48.83A48,48,0,0,1,56,88V48H72a8,8,0,0,0,0-16H48a8,8,0,0,0-8,8V88a64,64,0,0,0,56,63.49V192a48.05,48.05,0,0,0,48,48h24a48.05,48.05,0,0,0,48-48,8,8,0,0,0-.07-1A32,32,0,0,0,240,160Zm-32,8a8,8,0,1,1,8-8A8,8,0,0,1,208,168Z", "tube": "M237.66,86.34l-60-60a8,8,0,0,0-11.32,0L37.11,155.57a44.77,44.77,0,0,0,63.32,63.32L212.32,107l22.21-7.4a8,8,0,0,0,3.13-13.25Zm-32.19,6.07a8,8,0,0,0-3.13,1.93l-39.57,39.57c-8.47,2.9-21.75,4-39.07-5-10.6-5.54-20.18-8-28.56-8.73L172,43.31,217.19,88.5Z", "aid": "M216,56H176V48a24,24,0,0,0-24-24H104A24,24,0,0,0,80,48v8H40A16,16,0,0,0,24,72V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V72A16,16,0,0,0,216,56Zm-64,88H136v16a8,8,0,0,1-16,0V144H104a8,8,0,0,1,0-16h16V112a8,8,0,0,1,16,0v16h16a8,8,0,0,1,0,16Zm8-88H96V48a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8Z"};
+const T = [['الرئيسية', IC.house, true, false], ['الصيدلية', IC.pill, false, false], ['الاستشارات', IC.steth, false, true], ['التحاليل', IC.tube, false, false], ['التمريض', IC.aid, false, false]];
+const tabs = T.map(x => ({ l: x[0], d: x[1], cur: x[2], fab: x[3], plain: !x[3], bg: x[2] ? c.tabActive : 'transparent', color: x[2] ? c.tabActiveFg : c.tabIdle, pad: x[2] ? '0 18px' : '0' }));
+return { c, theme, darkOn: dark, services, tools, offers, tabs, chip44: 44, chip50: 50, chip56: 56, g26: 26, g56: 56 };
+}
+}
+</script>
+</body>
+</html>

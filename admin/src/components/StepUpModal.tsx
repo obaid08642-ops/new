@@ -22,7 +22,7 @@ export default function StepUpModal({ open, phase, actionLabel, errorText, noPas
   return (
     <div role="dialog" aria-modal="true" aria-label="تحقق مشدّد بمفتاح الأمان" className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
       <div dir="rtl" className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-        <h2 className="text-xl font-bold">🔐 تحقق مشدّد مطلوب</h2>
+        <h2 className="text-xl font-bold">تحقق مشدّد مطلوب</h2>
         <p className="mt-2 text-sm text-slate-600">
           العملية <strong>{actionLabel}</strong> حساسة وتتطلب تأكيداً جديداً ببصمتك (Face ID / Touch ID / رمز القفل) قبل التنفيذ.
         </p>

@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Product page — desktop</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Readex Pro',sans-serif}
+a{color:#C8202F}
+</style>
+</helmet>
+<div dir="rtl" style="width: 1440px; height: 1960px; box-sizing: border-box; background: #F5F5F7; color: #0B1B2B; font-family: 'Readex Pro', sans-serif; display: flex; flex-direction: column">
+
+<div style="height: 76px; padding: 0 64px; background: rgba(255,255,255,0.8); backdrop-filter: blur(20px); border-bottom: 1px solid #E5E5EA; display: flex; align-items: center; gap: 32px">
+<div style="display: flex; align-items: center; gap: 10px">
+<svg width="34" height="34" viewBox="0 0 48 48" aria-hidden="true"><path d="M10 22a14 14 0 0 0 28 0" fill="none" stroke="#0B1B2B" stroke-width="5" stroke-linecap="round"></path><circle cx="24" cy="10" r="5" fill="#FF4B55"></circle></svg>
+<div style="font-size: 22px; font-weight: 700">نبض<span style="color: #FF4B55">+</span></div>
+</div>
+<label style="flex-grow: 1; max-width: 560px; height: 48px; border-radius: 24px; background: #F5F5F7; border: 1px solid #E5E5EA; display: flex; align-items: center; gap: 10px; padding: 0 18px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 1 0 0-14a7 7 0 0 0 0 14z M20 20l-4-4"></path></svg>
+<input placeholder="ابحث عن دواء، طبيب، تحليل…" style="flex-grow: 1; border: 0; background: transparent; font-family: inherit; font-size: 15px; outline: none">
+</label>
+<nav style="display: flex; gap: 24px; font-size: 15px; margin-inline-start: auto">
+<a href="#" style="color: #0B1B2B; text-decoration: none; font-weight: 700">الصيدلية</a>
+<a href="#" style="color: #0B1B2B; text-decoration: none">الأطباء</a>
+<a href="#" style="color: #0B1B2B; text-decoration: none">التحاليل</a>
+<a href="#" style="color: #0B1B2B; text-decoration: none">الأشعة</a>
+<a href="#" style="color: #0B1B2B; text-decoration: none">التمريض</a>
+</nav>
+<div style="display: flex; gap: 8px">
+<button aria-label="السلة" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #E5E5EA; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#0B1B2B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.5 11h11L21 7H6.5 M8 20.5a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M16 20.5a1 1 0 1 0 2 0a1 1 0 1 0-2 0"></path></svg></button>
+<button aria-label="الحساب" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #E5E5EA; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#0B1B2B" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8a4 4 0 0 0 0 8z M4 21c1-4 4-6 8-6s7 2 8 6"></path></svg></button>
+</div>
+</div>
+
+<div style="width: 1200px; margin: 0 auto; padding: 24px 0 64px; display: flex; flex-direction: column; gap: 28px">
+<div style="font-size: 13px; color: #6E6E73; display: flex; gap: 8px"><a href="#" style="color: #6E6E73; text-decoration: none">الصيدلية</a><span>›</span><a href="#" style="color: #6E6E73; text-decoration: none">[الفئة]</a><span>›</span><a href="#" style="color: #6E6E73; text-decoration: none">[الفئة الفرعية]</a><span>›</span><span style="color: #0B1B2B">[اسم الدواء]</span></div>
+
+<div style="display: grid; grid-template-columns: 560px minmax(0, 1fr); gap: 48px; align-items: start">
+<div style="display: flex; gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{thumbs}}" as="t" hint-placeholder-count="5">
+<button aria-label="{{t.label}}" onClick="{{t.pick}}" style="width: 76px; height: 76px; border-radius: 18px; background: #FFFFFF; border: {{t.border}}; padding: 0; display: flex; align-items: center; justify-content: center">
+<dc-import name="PIcon" look="bare" icon="pharmacy" size="{{thumbIcon}}" hint-size="40px,40px"></dc-import>
+</button>
+</sc-for>
+</div>
+<div style="flex-grow: 1; height: 470px; border-radius: 32px; background: #FFFFFF; position: relative; display: flex; align-items: center; justify-content: center">
+<div style="width: 280px; height: 280px; border-radius: 48px; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px">
+<dc-import name="PIcon" look="bare" icon="pharmacy" size="{{hero}}" hint-size="150px,150px"></dc-import>
+<div style="font-size: 12px; color: #6E6E73">[صورة المنتج {{img}} / 5]</div>
+</div>
+<div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 8px">
+<span style="height: 30px; padding: 0 12px; border-radius: 15px; background: #D42A38; color: #FFFFFF; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center">خصم [٪]</span>
+<span style="height: 30px; padding: 0 12px; border-radius: 15px; background: #0B1B2B; color: #F5F5F7; font-size: 12.5px; display: inline-flex; align-items: center">حصري أونلاين</span>
+</div>
+<div style="position: absolute; top: 16px; left: 16px; display: flex; gap: 8px">
+<button aria-label="أضف للمفضلة" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #E5E5EA; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D42A38" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path></svg></button>
+<button aria-label="مشاركة" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #E5E5EA; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B1B2B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3 M7 8l5-5 5 5 M5 13v7h14v-7"></path></svg></button>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; gap: 6px; flex-wrap: wrap">
+<span style="height: 30px; padding: 0 12px; border-radius: 15px; background: #DDF4EC; color: #1F7A5C; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center">بدون وصفة</span>
+<span style="height: 30px; padding: 0 12px; border-radius: 15px; background: #E3EEFF; color: #2848B8; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center">يحتاج تبريد</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h1 style="margin: 0; font-size: 34px; line-height: 1.3; font-weight: 700">[اسم الدواء بالعربي] [التركيز]</h1>
+<div style="font-size: 16px; color: #6E6E73" dir="ltr">[English name]</div>
+<div style="font-size: 15px; color: #3C4651">المادة الفعالة: <span style="font-weight: 500">[المادة الفعالة]</span> · [الشركة المصنعة] · صنع في [بلد المنشأ]</div>
+</div>
+<div style="border-radius: 28px; background: #FFFFFF; box-shadow: 0 8px 24px rgba(11,27,43,0.06); padding: 22px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; align-items: baseline; gap: 10px">
+<div style="font-size: 36px; font-weight: 700">[السعر]</div><div style="font-size: 16px">ر.س</div>
+<div style="font-size: 16px; color: #6E6E73; text-decoration: line-through">[السعر القديم]</div>
+<div style="margin-inline-start: auto; font-size: 13px; color: #6E6E73">شامل الضريبة · [حجم العبوة]</div>
+</div>
+<div style="display: flex; gap: 10px">
+<div style="flex-grow: 1; display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 14px; background: #F4FBE0; font-size: 13.5px; color: #3E5A00">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A6B00" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"></path></svg>تكسب [عدد] نقطة</div>
+<div style="flex-grow: 1; display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 14px; background: #DDF4EC; font-size: 13.5px; color: #1F7A5C">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F7A5C" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z M12 12.5a2.5 2.5 0 1 0 0-5a2.5 2.5 0 0 0 0 5z"></path></svg>متوفر في [عدد] صيدليات قريبة</div>
+</div>
+<div role="radiogroup" aria-label="طريقة الاستلام" style="display: flex; padding: 4px; border-radius: 18px; background: #F0F0F3">
+<sc-for list="{{modes}}" as="m" hint-placeholder-count="2">
+<button role="radio" aria-checked="{{m.on}}" onClick="{{m.pick}}" style="flex-grow: 1; flex-basis: 0; height: 52px; border-radius: 14px; border: 0; background: {{m.bg}}; box-shadow: {{m.shadow}}; font-family: inherit; color: #0B1B2B; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px">
+<span style="font-size: 14.5px; font-weight: 700">{{m.label}}</span><span style="font-size: 12px; color: #6E6E73">{{m.sub}}</span>
+</button>
+</sc-for>
+</div>
+<div style="display: flex; gap: 12px; align-items: center">
+<div style="display: flex; align-items: center; gap: 4px; height: 56px; padding: 0 6px; border-radius: 18px; background: #F5F5F7">
+<button aria-label="إنقاص الكمية" onClick="{{dec}}" style="width: 44px; height: 44px; border-radius: 14px; border: 0; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0B1B2B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg></button>
+<div style="min-width: 32px; text-align: center; font-size: 17px; font-weight: 700" aria-live="polite">{{qty}}</div>
+<button aria-label="زيادة الكمية" onClick="{{inc}}" style="width: 44px; height: 44px; border-radius: 14px; border: 0; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0B1B2B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14 M5 12h14"></path></svg></button>
+</div>
+<button style="flex-grow: 1; height: 56px; border-radius: 18px; border: 1.5px solid #0B1B2B; background: transparent; font-family: inherit; font-size: 16px; font-weight: 700; color: #0B1B2B">أضف للسلة</button>
+<button style="flex-grow: 1; height: 56px; border-radius: 18px; border: 0; background: linear-gradient(180deg, #DE3644 0%, #D42A38 100%); box-shadow: 0 10px 22px rgba(212,42,56,0.30), inset 0 1px 0 rgba(255,255,255,0.25); color: #FFFFFF; font-family: inherit; font-size: 17px; font-weight: 700">اشترِ الآن</button>
+</div>
+</div>
+<div style="border-radius: 20px; background: #FFFFFF; border: 1px solid #E5E5EA; padding: 14px 16px; display: flex; align-items: center; gap: 12px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2848B8" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9c-4.5-1-8-4-8-9V6z M9 12l2 2 4-4"></path></svg>
+<div style="font-size: 14px"><span style="font-weight: 500">مشمول في تأمين [شركة التأمين]</span> <span style="color: #6E6E73">· الصيدلية تطلب الموافقة، وأنت تدفع نسبة التحمل فقط</span></div>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><div style="font-size: 22px; font-weight: 700">بدائل بنفس المادة الفعالة</div><a href="#" style="font-size: 14px; text-decoration: none">عرض الكل</a></div>
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px">
+<sc-for list="{{alts}}" as="p" hint-placeholder-count="5">
+<a href="#" style="border-radius: 24px; background: #FFFFFF; padding: 12px; display: flex; flex-direction: column; gap: 10px; text-decoration: none; color: #0B1B2B">
+<div style="height: 150px; border-radius: 18px; background: {{p.tint}}; display: flex; align-items: center; justify-content: center"><dc-import name="PIcon" look="bare" icon="pharmacy" size="{{cardIcon}}" hint-size="64px,64px"></dc-import></div>
+<div style="font-size: 14.5px; font-weight: 500">[اسم البديل]</div>
+<div style="font-size: 12.5px; color: #6E6E73">[الشركة] · [حجم العبوة]</div>
+<div style="display: flex; justify-content: space-between; align-items: center"><div style="font-size: 17px; font-weight: 700">[السعر] <span style="font-size: 12px; font-weight: 400">ر.س</span></div>
+<button aria-label="أضف للسلة" style="width: 40px; height: 40px; border-radius: 14px; border: 0; background: #0B1B2B; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14 M5 12h14"></path></svg></button></div>
+</a>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 28px; align-items: start">
+<div style="border-radius: 28px; background: #FFFFFF; overflow: hidden">
+<div role="tablist" style="display: flex; gap: 4px; padding: 10px; border-bottom: 1px solid #EFEFF2; flex-wrap: wrap">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="6">
+<button role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" style="height: 40px; padding: 0 16px; border-radius: 20px; border: 0; background: {{t.bg}}; color: {{t.fg}}; font-family: inherit; font-size: 14px; font-weight: {{t.w}}">{{t.label}}</button>
+</sc-for>
+</div>
+<div style="padding: 24px 28px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 32px">
+<sc-for list="{{panel}}" as="p" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 16px; font-weight: 700">{{p.t}}</div>
+<sc-for list="{{p.items}}" as="it" hint-placeholder-count="2">
+<div style="display: flex; gap: 10px; font-size: 14.5px; line-height: 1.7; color: #3C4651"><span style="width: 6px; height: 6px; border-radius: 3px; background: #D42A38; margin-top: 11px; flex-shrink: 0"></span><span>{{it}}</span></div>
+</sc-for>
+</div>
+</sc-for>
+</div>
+<div style="padding: 14px 28px; border-top: 1px solid #EFEFF2; font-size: 13px; color: #6E6E73">راجعه الفريق الطبي في [تاريخ آخر مراجعة] · المعلومات لا تغني عن استشارة الطبيب أو الصيدلي · رمز المنتج [SKU] · <span dir="ltr">[barcode]</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 16px">
+<div style="border-radius: 28px; background: #FFFFFF; padding: 20px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+<sc-for list="{{facts}}" as="f" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 4px"><div style="font-size: 12px; color: #6E6E73">{{f.l}}</div><div style="font-size: 14.5px; font-weight: 500">{{f.v}}</div></div>
+</sc-for>
+</div>
+<a href="#" style="border-radius: 28px; background: #FFFFFF; border: 1px solid rgba(11,27,43,0.06); color: #0B1B2B; padding: 20px; display: flex; align-items: center; gap: 14px; text-decoration: none">
+<div style="width: 52px; height: 52px; border-radius: 18px; background: #FFF1F2; display: flex; align-items: center; justify-content: center"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#D42A38" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z M8 9h8 M8 12h5"></path></svg></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><div style="font-size: 16px; font-weight: 700">اسأل صيدليًا</div><div style="font-size: 13px; color: #6E6E73">عن الجرعة أو التداخلات أو البدائل</div></div>
+</a>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1960}}'>
+class Component extends DCLogic {
+constructor(props) { super(props); this.state = { tab: 0, mode: 0, qty: 1, img: 0 }; }
+renderVals() {
+const s = this.state;
+const thumbs = [0, 1, 2, 3, 4].map(k => ({ label: 'صورة ' + (k + 1), border: s.img === k ? '2px solid #0B1B2B' : '1px solid #E5E5EA', pick: () => this.setState({ img: k }) }));
+const md = [['توصيل', 'خلال [الوقت المتوقع]'], ['استلام من الصيدلية', 'جاهز خلال [الوقت]']];
+const modes = md.map((m, k) => ({ label: m[0], sub: m[1], on: s.mode === k, bg: s.mode === k ? '#FFFFFF' : 'transparent', shadow: s.mode === k ? '0 2px 8px rgba(11,27,43,0.10)' : 'none', pick: () => this.setState({ mode: k }) }));
+const groups = [
+['الاستخدام', [['دواعي الاستعمال', ['[دواعي الاستعمال ١]', '[دواعي الاستعمال ٢]']], ['الجرعة', ['[الجرعة للبالغين]', '[الجرعة للأطفال]']], ['طريقة الاستخدام', ['[إرشادات الاستخدام]']]]],
+['التحذيرات', [['التحذيرات', ['[تحذير ١]', '[تحذير ٢]']], ['الاحتياطات', ['[احتياط ١]']], ['موانع الاستعمال', ['[مانع ١]']]]],
+['الآثار الجانبية', [['الآثار الجانبية', ['[أثر جانبي ١]', '[أثر جانبي ٢]']]]],
+['التداخلات', [['التداخلات الدوائية', ['[مادة فعالة تتداخل]']]]],
+['الحمل والرضاعة', [['الحمل', ['[معلومات الحمل]']], ['الرضاعة', ['[معلومات الرضاعة]']]]],
+['التخزين ومعلومات أخرى', [['التخزين', ['[شروط التخزين]']], ['معلومات إضافية', ['[معلومات إضافية]']]]],
+];
+const tabs = groups.map((g, k) => ({ label: g[0], on: s.tab === k, bg: s.tab === k ? '#0B1B2B' : 'transparent', fg: s.tab === k ? '#F5F5F7' : '#3C4651', w: s.tab === k ? 700 : 500, pick: () => this.setState({ tab: k }) }));
+const panel = groups[s.tab][1].map(x => ({ t: x[0], items: x[1] }));
+const facts = [{ l: 'الشكل', v: '[أقراص]' }, { l: 'التركيز', v: '[٥٠٠ ملغ]' }, { l: 'العبوة', v: '[٢٤ قرص]' }, { l: 'التخزين', v: '[أقل من ٢٥°]' }, { l: 'المنشأ', v: '[البلد]' }, { l: 'الوصفة', v: 'غير مطلوبة' }];
+const alts = ['#F2F3F5','#F2F3F5','#F2F3F5','#F2F3F5','#F2F3F5'].map(t => ({ tint: t }));
+return { thumbs, img: s.img + 1, modes, tabs, panel, facts, alts, qty: s.qty,
+ inc: () => this.setState({ qty: Math.min(s.qty + 1, 10) }), dec: () => this.setState({ qty: Math.max(s.qty - 1, 1) }),
+ hero: 150, thumbIcon: 40, cardIcon: 64 };
+}
+}
+</script>
+</body>
+</html>
