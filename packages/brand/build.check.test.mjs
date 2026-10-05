@@ -5,7 +5,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, symlinkSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -42,4 +43,31 @@ test('a build without sharp fails', () => {
   const r = run(isolatedCopy());
   assert.equal(r.status, 1);
   assert.match(r.stderr, /sharp is not available/);
+});
+
+test('--check --require-raster without sharp fails instead of skipping', () => {
+  const r = run(isolatedCopy(), '--check', '--require-raster');
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /sharp is not available/);
+});
+
+// CI runs `npm install --prefix ../admin sharp` from packages/brand, which puts
+// sharp in packages/admin/node_modules. The second --check must find it there
+// and compare the rasters (an empty dist/ then fails), not skip them.
+const realSharp = (() => {
+  const req = createRequire(import.meta.url);
+  for (const p of ['sharp', '../../admin/node_modules/sharp', '../../backend/node_modules/sharp']) {
+    try { return dirname(realpathSync(req.resolve(`${p}/package.json`))); } catch { /* next */ }
+  }
+  return null;
+})();
+
+test('--check finds sharp where the CI step installs it and compares the rasters', { skip: !realSharp && 'sharp is not installed here' }, () => {
+  const pkg = isolatedCopy();
+  mkdirSync(join(pkg, '..', 'admin', 'node_modules'), { recursive: true });
+  symlinkSync(realSharp, join(pkg, '..', 'admin', 'node_modules', 'sharp'), 'dir');
+  const r = run(pkg, '--check', '--require-raster');
+  assert.doesNotMatch(r.stdout, /raster comparison skipped/);
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /is not what the generator produces/);
 });

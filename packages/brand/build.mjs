@@ -14,7 +14,7 @@
  *     `icon-1024.png` is flattened onto an opaque coral field and the build
  *     fails if any transparency survives.
  *
- * Usage: node packages/brand/build.mjs [--check]
+ * Usage: node packages/brand/build.mjs [--check [--require-raster]]
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -25,6 +25,8 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const SRC = join(HERE, 'src');
 const DIST = join(HERE, 'dist');
 const CHECK_ONLY = process.argv.includes('--check');
+// After the rasteriser is installed, a missing sharp must fail, not skip.
+const REQUIRE_RASTER = process.argv.includes('--require-raster');
 
 // sharp lives in the admin and backend installs; this package has no deps of
 // its own so the brand assets never add a dependency to a client app.
@@ -32,6 +34,8 @@ const require = createRequire(import.meta.url);
 let sharp;
 for (const candidate of [
   () => require('sharp'),
+  // CI installs it here: `npm install --prefix ../admin sharp` run from packages/brand.
+  () => require('../admin/node_modules/sharp'),
   () => require('../../admin/node_modules/sharp'),
   () => require('../../backend/node_modules/sharp'),
 ]) {
@@ -97,7 +101,7 @@ if (adaptiveBg.includes(BOWL_PATH)) {
 // says so and passes (CI re-runs it after installing sharp for the raster
 // comparison); a build cannot produce anything and fails.
 if (!sharp) {
-  if (CHECK_ONLY) {
+  if (CHECK_ONLY && !REQUIRE_RASTER) {
     console.log('brand: mark geometry verified; raster comparison skipped (sharp is not installed).');
     process.exit(0);
   }
