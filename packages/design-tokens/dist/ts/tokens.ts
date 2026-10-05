@@ -13,6 +13,7 @@ export interface Tokens {
       readonly surface: string;
       readonly elevated: string;
       readonly sunken: string;
+      readonly media: string;
       readonly inverse: string;
     };
     readonly border: {
@@ -29,6 +30,7 @@ export interface Tokens {
       readonly onInverse: string;
       readonly onInverseSecondary: string;
       readonly link: string;
+      readonly price: string;
       readonly onAccent: string;
     };
     readonly icon: {
@@ -237,6 +239,9 @@ export interface Tokens {
         readonly glyph: string;
       };
     };
+    readonly presence: {
+      readonly online: string;
+    };
     readonly control: {
       readonly segmentedTrack: string;
       readonly switchOn: string;
@@ -411,6 +416,7 @@ export interface Tokens {
     readonly button: string;
     readonly segmented: string;
     readonly knob: string;
+    readonly feature: string;
   };
   readonly motion: {
     readonly duration: {
@@ -489,6 +495,7 @@ const lightTree: Tokens = {
       "surface": "#FFFFFF",
       "elevated": "#FFFFFF",
       "sunken": "#E8E8ED",
+      "media": "#F2F3F5",
       "inverse": "#0B1B2B",
     },
     "border": {
@@ -505,6 +512,7 @@ const lightTree: Tokens = {
       "onInverse": "#F5F5F7",
       "onInverseSecondary": "#9AA4B2",
       "link": "#C8202F",
+      "price": "#C8202F",
       "onAccent": "#0B1B2B",
     },
     "icon": {
@@ -713,6 +721,9 @@ const lightTree: Tokens = {
         "glyph": "#A65A00",
       },
     },
+    "presence": {
+      "online": "#1F9D6E",
+    },
     "control": {
       "segmentedTrack": "#EAEAEF",
       "switchOn": "#1F9D6E",
@@ -887,6 +898,7 @@ const lightTree: Tokens = {
     "button": "0 10px 22px rgba(212,42,56,0.28), inset 0 1px 0 rgba(255,255,255,0.25)",
     "segmented": "0 2px 6px rgba(11,27,43,0.10)",
     "knob": "0 2px 6px rgba(0,0,0,0.18)",
+    "feature": "0 10px 28px rgba(11,27,43,0.07)",
   },
   "motion": {
     "duration": {
@@ -965,6 +977,7 @@ const darkTree: Tokens = {
       "surface": "#12263A",
       "elevated": "#1A3148",
       "sunken": "#0E1F31",
+      "media": "#1A3148",
       "inverse": "#12263A",
     },
     "border": {
@@ -981,6 +994,7 @@ const darkTree: Tokens = {
       "onInverse": "#F5F5F7",
       "onInverseSecondary": "#9AA4B2",
       "link": "#D7FF00",
+      "price": "#FF8A91",
       "onAccent": "#0B1B2B",
     },
     "icon": {
@@ -990,7 +1004,7 @@ const darkTree: Tokens = {
       "favorite": "#D42A38",
       "onSolid": "#FFFFFF",
       "ratingStar": "#FFD166",
-      "ratingStarOnBrand": "#FFD166",
+      "ratingStarOnBrand": "#0B1B2B",
     },
     "action": {
       "primary": {
@@ -1189,6 +1203,9 @@ const darkTree: Tokens = {
         "glyph": "#FFC56E",
       },
     },
+    "presence": {
+      "online": "#1F9D6E",
+    },
     "control": {
       "segmentedTrack": "#1A3148",
       "switchOn": "#1F9D6E",
@@ -1363,6 +1380,7 @@ const darkTree: Tokens = {
     "button": "0 10px 24px rgba(255,107,115,0.25)",
     "segmented": "0 2px 6px rgba(11,27,43,0.12)",
     "knob": "0 2px 6px rgba(0,0,0,0.18)",
+    "feature": "0 10px 28px rgba(0,0,0,0.30)",
   },
   "motion": {
     "duration": {
@@ -1435,6 +1453,7 @@ const themedPaths: Readonly<Record<string, true>> = Object.freeze({
   "color.bg.surface": true,
   "color.bg.elevated": true,
   "color.bg.sunken": true,
+  "color.bg.media": true,
   "color.bg.inverse": true,
   "color.border.subtle": true,
   "color.border.strong": true,
@@ -1445,10 +1464,12 @@ const themedPaths: Readonly<Record<string, true>> = Object.freeze({
   "color.text.tertiary": true,
   "color.text.onBrand": true,
   "color.text.link": true,
+  "color.text.price": true,
   "color.icon.primary": true,
   "color.icon.secondary": true,
   "color.icon.onBrand": true,
   "color.icon.ratingStar": true,
+  "color.icon.ratingStarOnBrand": true,
   "color.action.primary.bg": true,
   "color.action.primary.fg": true,
   "color.action.primary.gradient.from": true,
@@ -1533,6 +1554,7 @@ const themedPaths: Readonly<Record<string, true>> = Object.freeze({
   "shadow.glass": true,
   "shadow.button": true,
   "shadow.segmented": true,
+  "shadow.feature": true,
   "a11y.focusRing.color": true,
 });
 
@@ -1553,6 +1575,7 @@ export const light: Readonly<Record<string, string | number>> = Object.freeze({
   "color.bg.surface": "#FFFFFF",
   "color.bg.elevated": "#FFFFFF",
   "color.bg.sunken": "#E8E8ED",
+  "color.bg.media": "#F2F3F5",
   "color.bg.inverse": "#0B1B2B",
   "color.border.subtle": "#E5E5EA",
   "color.border.strong": "#D8D8DE",
@@ -1565,6 +1588,7 @@ export const light: Readonly<Record<string, string | number>> = Object.freeze({
   "color.text.onInverse": "#F5F5F7",
   "color.text.onInverseSecondary": "#9AA4B2",
   "color.text.link": "#C8202F",
+  "color.text.price": "#C8202F",
   "color.text.onAccent": "#0B1B2B",
   "color.icon.primary": "#0B1B2B",
   "color.icon.secondary": "#6E6E73",
@@ -1670,6 +1694,7 @@ export const light: Readonly<Record<string, string | number>> = Object.freeze({
   "color.service.insurance.glyph": "#2D4FD6",
   "color.service.points.bg": "#FFF1DB",
   "color.service.points.glyph": "#A65A00",
+  "color.presence.online": "#1F9D6E",
   "color.control.segmentedTrack": "#EAEAEF",
   "color.control.switchOn": "#1F9D6E",
   "color.control.switchKnob": "#FFFFFF",
@@ -1770,6 +1795,7 @@ export const light: Readonly<Record<string, string | number>> = Object.freeze({
   "shadow.button": "0 10px 22px rgba(212,42,56,0.28), inset 0 1px 0 rgba(255,255,255,0.25)",
   "shadow.segmented": "0 2px 6px rgba(11,27,43,0.10)",
   "shadow.knob": "0 2px 6px rgba(0,0,0,0.18)",
+  "shadow.feature": "0 10px 28px rgba(11,27,43,0.07)",
   "motion.duration.enter": "200ms",
   "motion.duration.enterMax": "240ms",
   "motion.duration.press": "120ms",
@@ -1820,6 +1846,7 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "color.bg.surface": "#12263A",
   "color.bg.elevated": "#1A3148",
   "color.bg.sunken": "#0E1F31",
+  "color.bg.media": "#1A3148",
   "color.bg.inverse": "#12263A",
   "color.border.subtle": "rgba(255,255,255,0.10)",
   "color.border.strong": "rgba(255,255,255,0.20)",
@@ -1832,6 +1859,7 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "color.text.onInverse": "#F5F5F7",
   "color.text.onInverseSecondary": "#9AA4B2",
   "color.text.link": "#D7FF00",
+  "color.text.price": "#FF8A91",
   "color.text.onAccent": "#0B1B2B",
   "color.icon.primary": "#F5F5F7",
   "color.icon.secondary": "#9AA4B2",
@@ -1839,7 +1867,7 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "color.icon.favorite": "#D42A38",
   "color.icon.onSolid": "#FFFFFF",
   "color.icon.ratingStar": "#FFD166",
-  "color.icon.ratingStarOnBrand": "#FFD166",
+  "color.icon.ratingStarOnBrand": "#0B1B2B",
   "color.action.primary.bg": "#FF6B73",
   "color.action.primary.fg": "#0B1B2B",
   "color.action.primary.gradient.from": "#FF6B73",
@@ -1937,6 +1965,7 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "color.service.insurance.glyph": "#9DB0FF",
   "color.service.points.bg": "rgba(255,181,71,0.15)",
   "color.service.points.glyph": "#FFC56E",
+  "color.presence.online": "#1F9D6E",
   "color.control.segmentedTrack": "#1A3148",
   "color.control.switchOn": "#1F9D6E",
   "color.control.switchKnob": "#FFFFFF",
@@ -2037,6 +2066,7 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "shadow.button": "0 10px 24px rgba(255,107,115,0.25)",
   "shadow.segmented": "0 2px 6px rgba(11,27,43,0.12)",
   "shadow.knob": "0 2px 6px rgba(0,0,0,0.18)",
+  "shadow.feature": "0 10px 28px rgba(0,0,0,0.30)",
   "motion.duration.enter": "200ms",
   "motion.duration.enterMax": "240ms",
   "motion.duration.press": "120ms",

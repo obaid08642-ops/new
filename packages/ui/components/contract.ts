@@ -55,6 +55,8 @@ export type Variant =
 
 export type Tone = 'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
 
+import type { ReactNode } from 'react';
+
 import type { IconName } from '../icons/names';
 import type { FillIconName, ServiceName, ServiceTone } from '../icons/fill';
 
@@ -306,13 +308,128 @@ export interface BadgeProps extends A11yProps {
   max?: number;
 }
 
+/**
+ * The board card (canvas/OrderTracking, Cart, CareHub …): surface, radius 24, a
+ * hairline ring and the soft card shadow. `tint` is the hero card of HomeApp and
+ * CareHub: a 160° wash from the surface into the tone's soft colour.
+ * Padding: sm 14, md 16, lg 18 (the boards' three).
+ */
 export interface CardProps extends A11yProps {
   title?: string;
   subtitle?: string;
-  /** `flat` for a sunken list row, `raised` for a sheet, `glass` is A8's job. */
+  /** `flat` drops the shadow, `raised` is a sheet. */
   elevation?: 'flat' | 'card' | 'raised';
   padding?: 'none' | 'sm' | 'md' | 'lg';
   footer?: string;
+  tint?: ServiceTone;
+  children?: ReactNode;
+}
+
+/** How a doctor can be seen (owner 2026-10-04: clinic, home visit, and one call product). */
+export type ConsultMode = 'clinic' | 'home' | 'online';
+
+/**
+ * DoctorCard (handoff §3, canvas/Consult.dc.html): the organic photo shape with
+ * the doctor's real photo (or the neutral placeholder), name with the verified
+ * seal, grade, specialty, place, the visit modes, and the coral footer with the
+ * rating, the next slot, the price and the book button.
+ *
+ * Every optional field is hidden when it is absent: no default, sample or
+ * invented value (handoff §1; owner 2026-10-04 on doctor fields).
+ */
+export interface DoctorCardProps extends A11yProps {
+  name: string;
+  /** A real photo URL (`photo_url`). Without it, the neutral user mark on the tone. */
+  photoSrc?: string;
+  /** The soft colour behind the photo. */
+  tone?: ServiceTone;
+  /** Accessible name of the seal, e.g. "موثّق"; the seal shows only with it. */
+  verifiedLabel?: string;
+  /** Accessible name of the "available now" dot; the dot shows only with it. */
+  availableLabel?: string;
+  /** e.g. "استشاري". */
+  grade?: string;
+  specialty?: string;
+  /** Clinic or hospital, with the distance when known, already formatted. */
+  place?: string;
+  modes?: Array<{ mode: ConsultMode; label: string }>;
+  rating?: { value: number | null; count: number };
+  /** Already formatted, e.g. "اليوم ٧:٣٠ م". */
+  nextSlot?: string;
+  price?: string;
+  currency?: string;
+  bookLabel: string;
+}
+
+/**
+ * ProductCard (canvas/PharmacyHub.dc.html): the product image on the media
+ * colour, an optional discount badge, name, maker and pack, price, an optional
+ * prescription note, and the ink add-to-cart button (named by `addLabel`).
+ */
+export interface ProductCardProps extends StateProps, A11yProps {
+  name: string;
+  /** e.g. "[الشركة] · [العبوة]". */
+  meta?: string;
+  price: string;
+  currency?: string;
+  imageSrc?: string;
+  /** e.g. "خصم ١٥٪", from the API's real discount. */
+  discountLabel?: string;
+  /** e.g. "يحتاج وصفة". */
+  rxLabel?: string;
+  /** REQUIRED: the add button has no visible text. */
+  addLabel: string;
+}
+
+/**
+ * OfferCard (canvas/HomeApp.dc.html "عروض وباقات"): a 112 tall tinted head with
+ * the tone's filled icon and a tag, then the title, the provider, and the price
+ * in the price colour with the struck-through old price.
+ */
+export interface OfferCardProps extends A11yProps {
+  title: string;
+  provider?: string;
+  price: string;
+  currency?: string;
+  was?: string;
+  tag?: string;
+  icon: FillIconName;
+  tone: ServiceTone;
+}
+
+/** One step of a Timeline. */
+export interface TimelineStep {
+  id: string;
+  label: string;
+  /** Already formatted; omitted for a step that has not happened. */
+  time?: string;
+  state: 'done' | 'current' | 'upcoming';
+}
+
+/**
+ * Timeline (canvas/OrderTracking.dc.html): done steps are coral dots with a
+ * check joined by a coral line, the current step a larger dot with a soft halo,
+ * upcoming steps hollow grey dots with muted labels.
+ */
+export interface TimelineProps extends A11yProps {
+  steps: TimelineStep[];
+}
+
+/**
+ * ProgressRing (canvas/CareHub.dc.html): a 10-wide arc in the tone over its soft
+ * track, with a value and a caption in the centre. `value` is 0..1 of a real
+ * measure; the ring is a progressbar named by `label`.
+ */
+export interface ProgressRingProps extends A11yProps {
+  value: number;
+  tone: ServiceTone;
+  /** REQUIRED: what is being measured, e.g. "أسبوع الحمل ٢٢ من ٤٠". */
+  label: string;
+  size?: number;
+  /** Large text in the centre, e.g. "٢٢". */
+  valueText?: string;
+  /** Small text under it, e.g. "أسبوع". */
+  caption?: string;
 }
 
 export interface ListItemProps extends StateProps, A11yProps {
@@ -583,6 +700,11 @@ export interface ContractMap {
   Chip: ChipProps;
   Badge: BadgeProps;
   Card: CardProps;
+  DoctorCard: DoctorCardProps;
+  ProductCard: ProductCardProps;
+  OfferCard: OfferCardProps;
+  Timeline: TimelineProps;
+  ProgressRing: ProgressRingProps;
   ListItem: ListItemProps;
   ServiceTile: ServiceTileProps;
   FIcon: FIconProps;
@@ -644,7 +766,7 @@ export type NativeRequired = RequiredBy<'native'>;
 /** The names, for iteration in the gallery and the conformance check. */
 export const CONTRACT_NAMES = [
   'Button', 'IconButton', 'Segmented', 'Toggle', 'Radio', 'StatusChip', 'Input', 'Select', 'Otp', 'Search', 'Stepper',
-  'SlotPicker', 'Chip', 'Badge', 'Card', 'ListItem', 'ServiceTile', 'FIcon', 'SectionHeader', 'Avatar',
+  'SlotPicker', 'Chip', 'Badge', 'Card', 'DoctorCard', 'ProductCard', 'OfferCard', 'Timeline', 'ProgressRing', 'ListItem', 'ServiceTile', 'FIcon', 'SectionHeader', 'Avatar',
   'PriceTag', 'Rating', 'Tabs', 'NavBar', 'BottomTabBar', 'Sidebar',
   'MapPinCard', 'EmptyState', 'ErrorState', 'Toast', 'Modal', 'Skeleton',
   'DataTable', 'ChartCard',

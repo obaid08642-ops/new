@@ -410,7 +410,6 @@ function componentsGallery() {
   out.push('</div>');
 
   out.push('<h3>Surfaces</h3><div class="row">');
-  out.push(specimen('Card', render(h(C.Card, { title: 'Order #4821', subtitle: 'Confirmed · 12 Oct', footer: 'Pay at the clinic' }))));
   // list rows live inside one white card on the boards (canvas/Account.dc.html)
   out.push(specimen('ListItem', `<div class="spec-list">${render(h(C.ListItem, { title: 'Dr. Amina Haddad', subtitle: 'Endocrinology', meta: '4.9', startIcon: 'star' }))}</div>`));
   out.push(specimen('ListItem leading', `<div class="spec-list">${render(h(C.ListItem, { title: 'Addresses', subtitle: '2 saved', leading: { icon: 'map-pin-line', tone: 'coral' } }))}${render(h(C.ListItem, { title: 'Payment cards', subtitle: 'For payment only', leading: { icon: 'credit-card', tone: 'blue' } }))}</div>`));
@@ -431,6 +430,26 @@ function componentsGallery() {
   out.push(specimen('Rating onBrand (DoctorCard footer)', `<div class="spec-coral">${render(h(C.Rating, { value: 4.8, count: 128, surface: 'onBrand' }))}</div>`));
   out.push(specimen('Rating, no ratings', render(h(C.Rating, { value: null, count: 0 })) || '<em class="scene-meta">renders nothing</em>'));
   out.push(specimen('MapPinCard', render(h(C.MapPinCard, { title: 'Nabd+ Olaya', address: 'King Fahd Rd', distance: '1.2 km', actionLabel: 'Directions' }))));
+  out.push('</div>');
+
+  out.push('<h3>Cards (handoff DoctorCard, ProductCard, OfferCard, Card, Timeline, ProgressRing)</h3><div class="row">');
+  out.push(specimen('DoctorCard', `<div style="width:358px">${render(h(C.DoctorCard, {
+    name: 'Dr. Amina Haddad', verifiedLabel: 'Verified', availableLabel: 'Available now', grade: 'Consultant', specialty: 'Endocrinology',
+    place: 'Nabd+ Olaya · 1.2 km', tone: 'blue', modes: [{ mode: 'clinic', label: 'Clinic' }, { mode: 'online', label: 'Online' }],
+    rating: { value: 4.8, count: 128 }, nextSlot: 'Today 7:30 pm', price: '180', currency: 'SAR', bookLabel: 'Book',
+  }))}</div>`));
+  out.push(specimen('DoctorCard, no rating or slot yet', `<div style="width:358px">${render(h(C.DoctorCard, { name: 'Dr. Omar Saleh', specialty: 'Paediatrics', tone: 'coral', price: '150', currency: 'SAR', bookLabel: 'Book' }))}</div>`));
+  out.push(specimen('ProductCard', `<div style="width:174px">${render(h(C.ProductCard, { name: 'Panadol 500 mg', meta: 'GSK · 24 tablets', price: '12.50', currency: 'SAR', discountLabel: '15% off', addLabel: 'Add to cart' }))}</div>`));
+  out.push(specimen('ProductCard rx', `<div style="width:174px">${render(h(C.ProductCard, { name: 'Augmentin 1 g', meta: 'GSK · 14 tablets', price: '48', currency: 'SAR', rxLabel: 'Needs a prescription', addLabel: 'Add to cart' }))}</div>`));
+  out.push(specimen('OfferCard', render(h(C.OfferCard, { title: 'Full blood panel', provider: 'Nabd+ Labs', price: '199', currency: 'SAR', was: '260', tag: 'Package', icon: 'test-tube', tone: 'blue' }))));
+  out.push(specimen('Card', `<div style="width:300px">${render(h(C.Card, { title: 'Delivery address', subtitle: 'Riyadh · Olaya', footer: 'Change' }))}</div>`));
+  out.push(specimen('Card tint + ProgressRing', `<div style="width:358px">${render(h(C.Card, { tint: 'pink', padding: 'lg', elevation: 'flat' }, h(C.ProgressRing, { value: 0.55, tone: 'pink', label: 'Week 22 of 40', valueText: '22', caption: 'weeks' })))}</div>`));
+  out.push(specimen('Timeline', `<div style="width:300px">${render(h(C.Timeline, { label: 'Order status', steps: [
+    { id: 'a', label: 'Order accepted', time: '7:02 pm', state: 'done' },
+    { id: 'b', label: 'Being prepared', time: '7:10 pm', state: 'done' },
+    { id: 'c', label: 'On the way', time: 'Now', state: 'current' },
+    { id: 'd', label: 'Delivered', state: 'upcoming' },
+  ] }))}</div>`));
   out.push('</div>');
 
   out.push('<h3>FIcon (handoff §1): soft, solid and none, every tone</h3><div class="row">');

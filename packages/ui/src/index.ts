@@ -14,6 +14,7 @@ export { Icon, IllustratedIconView, Illustration, LINE_ICON_NAMES, ILLUSTRATED_I
 export { Button, IconButton } from '../components/Button';
 export { Spinner } from '../components/Spinner';
 export { Segmented, Toggle, Radio, StatusChip } from '../components/Controls';
+export { DoctorCard, ProductCard, OfferCard, Timeline, ProgressRing } from '../components/Cards';
 export { Input, Select, Otp, Search, Stepper, SlotPicker } from '../components/Inputs';
 export {
   Avatar, Badge, BottomTabBar, Card, Chip, ListItem, MapPinCard, NavBar, PriceTag,

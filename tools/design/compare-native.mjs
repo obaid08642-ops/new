@@ -157,11 +157,15 @@ const COMPONENTS = [
   { id: 'chip-selected', board: 'Search', xpath: "(//button[@role='tab'])[1]", name: 'Chip', props: { label: 'الكل', count: '[N]', selected: true } },
   { id: 'statuschip', board: 'Orders', xpath: "//span[normalize-space()='في الطريق']", name: 'StatusChip', frame: 'surface', props: { label: 'في الطريق', tone: 'coral' } },
   { id: 'search-page', board: 'Search', xpath: "//label[.//input[@aria-label='بحث']]", name: 'Search', fill: true, props: { variant: 'page', value: 'باراسيتامول', label: 'بحث', onClear: true, clearLabel: 'مسح', onScanPress: true, scanLabel: 'ماسح الأدوية' } },
+  { id: 'doctorcard', board: 'Consult', xpath: "(//a[.//span[normalize-space()='احجز']])[1]", name: 'DoctorCard', fill: true, props: { name: 'د. [اسم الطبيب]', verifiedLabel: 'موثّق', availableLabel: 'متاح الآن', grade: '[الدرجة: استشاري / أخصائي]', specialty: '[التخصص الدقيق]', place: '[اسم المستشفى أو العيادة] · [المسافة] كم', tone: 'blue', modes: [{ mode: 'clinic', label: 'عيادة' }, { mode: 'home', label: 'منزلي' }, { mode: 'online', label: 'أونلاين' }], rating: { value: 4.8, count: 128 }, nextSlot: 'اليوم [الوقت]', price: '[السعر]', currency: 'ر.س', bookLabel: 'احجز' } },
+  { id: 'productcard', board: 'PharmacyHub', xpath: "(//a[.//button[@aria-label='أضف للسلة']])[1]", name: 'ProductCard', fill: true, props: { name: '[اسم المنتج] [التركيز]', meta: '[الشركة] · [العبوة]', price: '[السعر]', currency: 'ر.س', discountLabel: 'خصم [٪]', addLabel: 'أضف للسلة' } },
+  { id: 'offercard', board: 'HomeApp', themes: ['light', 'dark'], xpath: "(//a[.//span[normalize-space()='[اسم العرض أو الباقة]']])[1]", name: 'OfferCard', props: { title: '[اسم العرض أو الباقة]', provider: '[مقدم الخدمة]', price: '[السعر]', currency: 'ر.س', was: '[قبل الخصم]', tag: 'باقة', icon: 'test-tube', tone: 'blue' } },
+  { id: 'progressring', board: 'CareHub', xpath: "(//*[name()='svg'][.//*[name()='circle']])[1]", name: 'ProgressRing', props: { value: 0.55, tone: 'pink', label: 'أسبوع الحمل', valueText: '[٢٢]', caption: 'أسبوع' } },
   { id: 'stepper', board: 'Cart', xpath: "(//button[@aria-label='إنقاص'])[1]/parent::div", name: 'Stepper', frame: 'surface', props: { value: 1, min: 0, label: 'الكمية', decrementLabel: 'إنقاص', incrementLabel: 'زيادة' } },
 ];
 for (const k of COMPONENTS) {
   COMPARISONS.push({
-    id: k.id, board: k.board, themes: ['light'], element: k.xpath,
+    id: k.id, board: k.board, themes: k.themes || ['light'], element: k.xpath,
     crop: () => ({}),
     data: () => ({}),
     // handlers cannot cross into the page as JSON: `true` marks a callback prop the component needs to show its button

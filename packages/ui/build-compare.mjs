@@ -66,6 +66,7 @@ const shellsCss = existsSync(join(HERE, 'shells/shells.css')) ? readFileSync(joi
  * needs     component names that must exist in this build (else the entry is skipped)
  * viewport  page width for both sides (default 430; desktop boards use 1440)
  * inject    true: render(C, inner) also gets the board element's own children (HTML), so a
+ *           (or a function run on the element in the page that returns the HTML to use)
  *           shell is compared with the board's content inside it — only the chrome differs
  * pick      selector of the part of the component render to cut out (default: all of it)
  */
@@ -183,6 +184,56 @@ const COMPARISONS = [
     id: 'stepper', board: 'Cart', xpath: "(//button[@aria-label='إنقاص'])[1]/parent::div", themes: ['light'], frame: 'surface',
     render: (C) => h(C.Stepper, { value: 1, min: 0, label: 'الكمية', decrementLabel: 'إنقاص', incrementLabel: 'زيادة' }), needs: ['Stepper'],
   },
+  // ---- components 3/4: cards
+  {
+    id: 'doctorcard', board: 'Consult', xpath: "(//a[.//span[normalize-space()='احجز']])[1]", themes: ['light'],
+    render: (C) => h(C.DoctorCard, {
+      name: 'د. [اسم الطبيب]', verifiedLabel: 'موثّق', availableLabel: 'متاح الآن', grade: '[الدرجة: استشاري / أخصائي]', specialty: '[التخصص الدقيق]',
+      place: '[اسم المستشفى أو العيادة] · [المسافة] كم', tone: 'blue',
+      modes: [{ mode: 'clinic', label: 'عيادة' }, { mode: 'home', label: 'منزلي' }, { mode: 'online', label: 'أونلاين' }],
+      rating: { value: 4.8, count: 128 }, nextSlot: 'اليوم [الوقت]', price: '[السعر]', currency: 'ر.س', bookLabel: 'احجز',
+    }),
+    needs: ['DoctorCard'],
+    note: 'Board placeholders: the photo ([صورة الطبيب]; the component shows the real photo or the neutral mark) and the rating ([N.N] ([العدد]); the component renders real numbers or nothing).',
+  },
+  {
+    id: 'productcard', board: 'PharmacyHub', xpath: "(//a[.//button[@aria-label='أضف للسلة']])[1]", themes: ['light'],
+    render: (C) => h(C.ProductCard, { name: '[اسم المنتج] [التركيز]', meta: '[الشركة] · [العبوة]', price: '[السعر]', currency: 'ر.س', discountLabel: 'خصم [٪]', addLabel: 'أضف للسلة' }),
+    needs: ['ProductCard'], note: 'Board placeholder [صورة المنتج]; the component shows the product image, or the pill mark when there is none.',
+  },
+  {
+    id: 'productcard-rx', board: 'PharmacyHub', xpath: "(//a[.//button[@aria-label='أضف للسلة']])[3]", themes: ['light'],
+    render: (C) => h(C.ProductCard, { name: '[اسم المنتج] [التركيز]', meta: '[الشركة] · [العبوة]', price: '[السعر]', currency: 'ر.س', rxLabel: 'يحتاج وصفة', addLabel: 'أضف للسلة' }),
+    needs: ['ProductCard'],
+  },
+  {
+    id: 'offercard', board: 'HomeApp', xpath: "(//a[.//span[normalize-space()='[اسم العرض أو الباقة]']])[1]", themes: ['light', 'dark'],
+    render: (C) => h(C.OfferCard, { title: '[اسم العرض أو الباقة]', provider: '[مقدم الخدمة]', price: '[السعر]', currency: 'ر.س', was: '[قبل الخصم]', tag: 'باقة', icon: 'test-tube', tone: 'blue' }),
+    needs: ['OfferCard'],
+  },
+  {
+    id: 'timeline', board: 'OrderTracking', xpath: "//div[contains(@style,'border-radius: 24px')][.//span[normalize-space()='تم قبول الطلب']]", themes: ['light'],
+    inject: (n) => n.firstElementChild.outerHTML,
+    render: (C, inner) => h(C.Card, { padding: 'md' }, h('div', { dangerouslySetInnerHTML: { __html: inner } }), h(C.Timeline, {
+      label: 'حالة الطلب',
+      steps: [
+        { id: 'a', label: 'تم قبول الطلب', time: '[الوقت]', state: 'done' },
+        { id: 'b', label: 'جارٍ التجهيز', time: '[الوقت]', state: 'done' },
+        { id: 'c', label: 'في الطريق إليك', time: 'الآن', state: 'current' },
+        { id: 'd', label: 'تم التوصيل', state: 'upcoming' },
+      ],
+    })),
+    needs: ['Card', 'Timeline'], note: 'Card + Timeline; the ETA row above the steps is the board\'s own (screen content).',
+  },
+  {
+    id: 'card-tint-progressring', board: 'CareHub', xpath: "//div[contains(@style,'border-radius: 28px')][.//*[name()='circle']]", themes: ['light'],
+    inject: (n) => n.lastElementChild.outerHTML,
+    render: (C, inner) => h(C.Card, { tint: 'pink', padding: 'lg', elevation: 'flat' }, h('div', { style: { display: 'flex', alignItems: 'center', gap: 16 } },
+      h(C.ProgressRing, { value: 0.55, tone: 'pink', label: 'أسبوع الحمل', valueText: '[٢٢]', caption: 'أسبوع' }),
+      h('div', { dangerouslySetInnerHTML: { __html: inner } }))),
+    needs: ['Card', 'ProgressRing'],
+    note: 'Card tint=pink + ProgressRing; the text beside the ring is the board\'s own. The ring track is the pink tone\'s soft colour (#FFE7F1) for the board\'s #FBD9E8.',
+  },
   {
     id: 'stickyfooter', board: 'Cart', xpath: "//button[contains(@style,'#E8384A 0%')]/parent::div", themes: ['light'], inject: true,
     render: (C, inner) => h(C.StickyFooter, null, raw(inner, { display: 'flex', gap: 10, alignItems: 'center' })),
@@ -254,7 +305,8 @@ for (const c of COMPARISONS) {
     }
     const box = await el.boundingBox();
     const boardPng = (await el.screenshot()).toString('base64');
-    const inner = c.inject ? await el.evaluate((n) => n.innerHTML) : '';
+    // inject: true = the element's own children; a function = the board HTML it picks (runs in the page)
+    const inner = typeof c.inject === 'function' ? await el.evaluate(c.inject) : c.inject ? await el.evaluate((n) => n.innerHTML) : '';
     const boardBg = await page.evaluate(() => getComputedStyle(document.querySelector('#dc-root > *') || document.body).backgroundColor);
 
     const body = renderToStaticMarkup(c.render(ui, inner));

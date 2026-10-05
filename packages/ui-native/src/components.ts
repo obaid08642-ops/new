@@ -20,6 +20,7 @@ import type {
   NativeSelectProps,
 } from './components/Inputs';
 import type { NativeRadioProps } from './components/Controls';
+import type { NativeDoctorCardProps, NativeOfferCardProps, NativeProductCardProps } from './components/Cards';
 import type { NativeChipProps } from './components/Surfaces';
 import type * as C from '../../ui/components/contract';
 
@@ -41,6 +42,11 @@ export interface ComponentProps {
   Chip: NativeChipProps;
   Badge: C.BadgeProps;
   Card: C.CardProps;
+  DoctorCard: NativeDoctorCardProps;
+  ProductCard: NativeProductCardProps;
+  OfferCard: NativeOfferCardProps;
+  Timeline: C.TimelineProps;
+  ProgressRing: C.ProgressRingProps;
   ListItem: C.ListItemProps;
   ServiceTile: C.ServiceTileProps;
   FIcon: C.FIconProps;
