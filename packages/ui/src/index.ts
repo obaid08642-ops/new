@@ -28,3 +28,6 @@ export type { IllustratedIcon } from '../icons/illustrated';
 export type { IllustrationName } from '../icons/illustrations';
 export * from '../components/contract';
 export * as fixtures from '../components/fixtures';
+
+// Screen shells (DEVICE_STANDARD §1). Web-only layout; import shells/shells.css once in the app.
+export * from '../shells';
