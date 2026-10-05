@@ -1,3 +1,6 @@
+import { Permission } from '../../common/permissions';
+import { RequirePermissions } from '../../common/permissions';
+import { StepUp } from '../../common/step-up.guard';
 import { BadRequestException, Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
@@ -47,6 +50,8 @@ export class NotificationsController {
     return this.svc.markAllRead(user);
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.CMS_EDIT)
   @Roles(UserRole.ADMIN)
   @Post('admin/send')
   @Roles(UserRole.ADMIN)
@@ -55,6 +60,8 @@ export class NotificationsController {
   }
 
   // M6/ER-8: admin — schedule a notification for future delivery
+  @StepUp()
+  @RequirePermissions(Permission.CMS_EDIT)
   @Roles(UserRole.ADMIN)
   @Post('admin/schedule')
   @Roles(UserRole.ADMIN)
