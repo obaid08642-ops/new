@@ -28,6 +28,10 @@ This folder holds everything a design-rebuild session needs: the design sources,
 | `SCREEN_INVENTORY.md` | Generated. Do not edit by hand. | `tools/design/screen-inventory.mjs` |
 | `WIRING_REPORT.md` | Generated. Do not edit by hand. | `tools/design/screen-inventory.mjs` |
 | `inventory/screens.json` | Generated. The same data, machine-readable, with every endpoint per route. | `tools/design/screen-inventory.mjs` |
+| `inventory/manual-calls.json` | `{"file:line": {"method", "path", "note"}}`: resolves an API call the tool cannot read from the code (a path built from variables). `--check` fails when an entry no longer sits on an unresolved call site. Empty while the tool resolves every site. | Any session, only when the tool reports an unresolved call |
+| `inventory/static-screens.json` | Verdict per web screen that calls no API (static by design, pointer page, suspicious), with the reason; rendered in `WIRING_REPORT.md` section 5b. | Whoever changes such a screen |
+| `needs-review/*.json` | Findings an agent cannot settle from client code, one file per session (format in `needs-review/README.md`); rendered in `WIRING_REPORT.md` section 7 and counted in its header. The reviewer session verifies them and fixes backend gaps. | Every session, own file |
+| `audit/*.md` | Per-screen element audits (`batch-0-web.md`, `batch-0-app.md`, ...): every element against its board and its data source. | The audit sessions |
 
 ## Regenerating the inventory and the wiring report
 
@@ -44,6 +48,8 @@ What it does, briefly:
 - It checks every call against the backend controllers. On the web it also checks the BFF route handlers in `patient-web/app/api` and the `/api/patient/*` proxy allowlist.
 
 Its limits are written at the top of the script and in the report.
+
+Beyond the endpoint check, the report also holds (see its header): how every call built from variables was resolved (3b), the web screens that call no API with a verdict each (5b), a heuristic scan for mock data and dead controls (6, from `tools/design/mock-scan.mjs`: sample on real hits before adding a pattern, precision over volume) and the merged Needs review list (7). **Every batch must leave sections 6 and 7 clean or explained for the screens it rebuilt**: a dead button, a made-up number or a timer that fakes a success is fixed or hidden, never shipped.
 
 ## Boards
 
