@@ -78,7 +78,7 @@ _Last updated: 2026-10-05 (components 1/4–4/4, lint gates and the PROGRESS upd
 
 ## Next (in this order)
 
-1. Owner reviews the `design/batch-0-fixes` PR. Dark link `#FF8A91` is approved. Still open: a separate rendering-path change for LCP (F82), not started.
+1. Owner reviews the `design/batch-0-fixes` PR. Dark link `#FF8A91` is approved. Still open: F82 (LCP), owner 2026-10-06: **F82-1 web rendering path** on `design/f82-1-web` and **F82-2 navigation** on `design/f82-2-nav`, one PR each, outside Batch 1; the plan is `docs/review/F82_PERFORMANCE_PLAN.md` (still only on `origin/review/f82-schedule`, #280 not merged). To be started once the in-flight Batch 0-fixes-2 / Batch 1a work is merged into branches, so Lighthouse numbers are not taken while other builds run.
 2. Resolve the blockers below (backend social-login verification, fetal-week CDN and endpoint).
 3. **Batch 1 (pharmacy flows)** on `design/batch-1` (started right after the fixes PR was opened; its own PR, screenshots and approval before Batch 2), then batches 2–13 in the order of `SCREEN_INVENTORY.md`. For each batch:
    - fix the `WIRING_REPORT.md` §4 rows that belong to it;
