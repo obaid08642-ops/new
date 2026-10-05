@@ -37,6 +37,8 @@ export interface Tokens {
       readonly onBrand: string;
       readonly favorite: string;
       readonly onSolid: string;
+      readonly ratingStar: string;
+      readonly ratingStarOnBrand: string;
     };
     readonly action: {
       readonly primary: {
@@ -234,6 +236,10 @@ export interface Tokens {
         readonly bg: string;
         readonly glyph: string;
       };
+    };
+    readonly avatar: {
+      readonly bg: string;
+      readonly ring: string;
     };
     readonly glass: {
       readonly bg: string;
@@ -441,6 +447,7 @@ export interface Tokens {
       readonly "4k": string;
     };
     readonly maxContent: string;
+    readonly maxContentAdmin: string;
   };
   readonly z: {
     readonly base: number;
@@ -498,6 +505,8 @@ const lightTree: Tokens = {
       "onBrand": "#FFFFFF",
       "favorite": "#D42A38",
       "onSolid": "#FFFFFF",
+      "ratingStar": "#A65A00",
+      "ratingStarOnBrand": "#FFD166",
     },
     "action": {
       "primary": {
@@ -695,6 +704,10 @@ const lightTree: Tokens = {
         "bg": "#FFF1DB",
         "glyph": "#A65A00",
       },
+    },
+    "avatar": {
+      "bg": "#FFE3E5",
+      "ring": "#FF4B55",
     },
     "glass": {
       "bg": "rgba(255,255,255,0.78)",
@@ -901,7 +914,8 @@ const lightTree: Tokens = {
       "max": "1920px",
       "4k": "2560px",
     },
-    "maxContent": "1180px",
+    "maxContent": "1200px",
+    "maxContentAdmin": "1600px",
   },
   "z": {
     "base": 0,
@@ -959,6 +973,8 @@ const darkTree: Tokens = {
       "onBrand": "#0B1B2B",
       "favorite": "#D42A38",
       "onSolid": "#FFFFFF",
+      "ratingStar": "#FFD166",
+      "ratingStarOnBrand": "#FFD166",
     },
     "action": {
       "primary": {
@@ -1156,6 +1172,10 @@ const darkTree: Tokens = {
         "bg": "rgba(255,181,71,0.15)",
         "glyph": "#FFC56E",
       },
+    },
+    "avatar": {
+      "bg": "#1A3148",
+      "ring": "#FF4B55",
     },
     "glass": {
       "bg": "rgba(18,38,58,0.72)",
@@ -1362,7 +1382,8 @@ const darkTree: Tokens = {
       "max": "1920px",
       "4k": "2560px",
     },
-    "maxContent": "1180px",
+    "maxContent": "1200px",
+    "maxContentAdmin": "1600px",
   },
   "z": {
     "base": 0,
@@ -1403,6 +1424,7 @@ const themedPaths: Readonly<Record<string, true>> = Object.freeze({
   "color.icon.primary": true,
   "color.icon.secondary": true,
   "color.icon.onBrand": true,
+  "color.icon.ratingStar": true,
   "color.action.primary.bg": true,
   "color.action.primary.fg": true,
   "color.action.primary.gradient.from": true,
@@ -1473,6 +1495,7 @@ const themedPaths: Readonly<Record<string, true>> = Object.freeze({
   "color.service.insurance.glyph": true,
   "color.service.points.bg": true,
   "color.service.points.glyph": true,
+  "color.avatar.bg": true,
   "color.glass.bg": true,
   "color.glass.bgStrong": true,
   "color.glass.scrim": true,
@@ -1520,6 +1543,8 @@ export const light: Readonly<Record<string, string | number>> = Object.freeze({
   "color.icon.onBrand": "#FFFFFF",
   "color.icon.favorite": "#D42A38",
   "color.icon.onSolid": "#FFFFFF",
+  "color.icon.ratingStar": "#A65A00",
+  "color.icon.ratingStarOnBrand": "#FFD166",
   "color.action.primary.bg": "#D42A38",
   "color.action.primary.fg": "#FFFFFF",
   "color.action.primary.gradient.from": "#E62337",
@@ -1617,6 +1642,8 @@ export const light: Readonly<Record<string, string | number>> = Object.freeze({
   "color.service.insurance.glyph": "#2D4FD6",
   "color.service.points.bg": "#FFF1DB",
   "color.service.points.glyph": "#A65A00",
+  "color.avatar.bg": "#FFE3E5",
+  "color.avatar.ring": "#FF4B55",
   "color.glass.bg": "rgba(255,255,255,0.78)",
   "color.glass.bgStrong": "rgba(255,255,255,0.90)",
   "color.glass.scrim": "rgba(11,27,43,0.06)",
@@ -1734,7 +1761,8 @@ export const light: Readonly<Record<string, string | number>> = Object.freeze({
   "layout.breakpoints.wide": "1440px",
   "layout.breakpoints.max": "1920px",
   "layout.breakpoints.4k": "2560px",
-  "layout.maxContent": "1180px",
+  "layout.maxContent": "1200px",
+  "layout.maxContentAdmin": "1600px",
   "z.base": 0,
   "z.raised": 10,
   "z.sticky": 100,
@@ -1776,6 +1804,8 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "color.icon.onBrand": "#0B1B2B",
   "color.icon.favorite": "#D42A38",
   "color.icon.onSolid": "#FFFFFF",
+  "color.icon.ratingStar": "#FFD166",
+  "color.icon.ratingStarOnBrand": "#FFD166",
   "color.action.primary.bg": "#FF6B73",
   "color.action.primary.fg": "#0B1B2B",
   "color.action.primary.gradient.from": "#FF6B73",
@@ -1873,6 +1903,8 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "color.service.insurance.glyph": "#9DB0FF",
   "color.service.points.bg": "rgba(255,181,71,0.15)",
   "color.service.points.glyph": "#FFC56E",
+  "color.avatar.bg": "#1A3148",
+  "color.avatar.ring": "#FF4B55",
   "color.glass.bg": "rgba(18,38,58,0.72)",
   "color.glass.bgStrong": "rgba(18,38,58,0.90)",
   "color.glass.scrim": "rgba(255,255,255,0.08)",
@@ -1990,7 +2022,8 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "layout.breakpoints.wide": "1440px",
   "layout.breakpoints.max": "1920px",
   "layout.breakpoints.4k": "2560px",
-  "layout.maxContent": "1180px",
+  "layout.maxContent": "1200px",
+  "layout.maxContentAdmin": "1600px",
   "z.base": 0,
   "z.raised": 10,
   "z.sticky": 100,

@@ -27,6 +27,8 @@
   --nabd-color-icon-onBrand: #FFFFFF;
   --nabd-color-icon-favorite: #D42A38;
   --nabd-color-icon-onSolid: #FFFFFF;
+  --nabd-color-icon-ratingStar: #A65A00;
+  --nabd-color-icon-ratingStarOnBrand: #FFD166;
   --nabd-color-action-primary-bg: #D42A38;
   --nabd-color-action-primary-fg: #FFFFFF;
   --nabd-color-action-primary-gradient-from: #E62337;
@@ -124,6 +126,8 @@
   --nabd-color-service-insurance-glyph: #2D4FD6;
   --nabd-color-service-points-bg: #FFF1DB;
   --nabd-color-service-points-glyph: #A65A00;
+  --nabd-color-avatar-bg: #FFE3E5;
+  --nabd-color-avatar-ring: #FF4B55;
   --nabd-color-glass-bg: rgba(255,255,255,0.78);
   --nabd-color-glass-bgStrong: rgba(255,255,255,0.90);
   --nabd-color-glass-scrim: rgba(11,27,43,0.06);
@@ -241,7 +245,8 @@
   --nabd-layout-breakpoints-wide: 1440px;
   --nabd-layout-breakpoints-max: 1920px;
   --nabd-layout-breakpoints-4k: 2560px;
-  --nabd-layout-maxContent: 1180px;
+  --nabd-layout-maxContent: 1200px;
+  --nabd-layout-maxContentAdmin: 1600px;
   --nabd-z-base: 0;
   --nabd-z-raised: 10;
   --nabd-z-sticky: 100;
@@ -276,6 +281,7 @@
   --nabd-color-icon-primary: #F5F5F7;
   --nabd-color-icon-secondary: #9AA4B2;
   --nabd-color-icon-onBrand: #0B1B2B;
+  --nabd-color-icon-ratingStar: #FFD166;
   --nabd-color-action-primary-bg: #FF6B73;
   --nabd-color-action-primary-fg: #0B1B2B;
   --nabd-color-action-primary-gradient-from: #FF6B73;
@@ -346,6 +352,7 @@
   --nabd-color-service-insurance-glyph: #9DB0FF;
   --nabd-color-service-points-bg: rgba(255,181,71,0.15);
   --nabd-color-service-points-glyph: #FFC56E;
+  --nabd-color-avatar-bg: #1A3148;
   --nabd-color-glass-bg: rgba(18,38,58,0.72);
   --nabd-color-glass-bgStrong: rgba(18,38,58,0.90);
   --nabd-color-glass-scrim: rgba(255,255,255,0.08);

@@ -11,6 +11,7 @@ import type {
   NavBarProps,
   PriceTagProps,
   RatingProps,
+  SectionHeaderProps,
   ServiceTileProps,
   SidebarProps,
   TabItem,
@@ -18,6 +19,8 @@ import type {
   Tone,
 } from './contract';
 import { Icon, IllustratedIconView } from '../src/Icon';
+import { FIcon } from './FIcon';
+import { FILL_ICON_PATHS, SERVICE_ICONS } from '../icons/fill';
 
 /**
  * The layout and navigation surfaces — 12.A7, web.
@@ -196,6 +199,7 @@ export function ListItem({
   selected = false,
   disabled = false,
   loading = false,
+  leading,
   testID,
 }: ListItemProps) {
   return (
@@ -214,9 +218,9 @@ export function ListItem({
         borderRadius: 'var(--nabd-radius-md)',
       }}
     >
-      {startIcon ? <Icon name={startIcon} size={20} tone="secondary" /> : null}
+      {leading ? <FIcon icon={leading.icon} tone={leading.tone} size={40} /> : startIcon ? <Icon name={startIcon} size={20} tone="secondary" /> : null}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 'var(--nabd-font-size-body)', color: 'var(--nabd-color-text-primary)' }}>{title}</div>
+        <div style={{ fontSize: 'var(--nabd-font-size-body)', fontWeight: 600, color: 'var(--nabd-color-text-primary)', overflowWrap: 'anywhere' }}>{title}</div>
         {subtitle ? (
           <div style={{ fontSize: 'var(--nabd-font-size-caption)', color: 'var(--nabd-color-text-secondary)' }}>
             {subtitle}
@@ -241,12 +245,12 @@ export function ListItem({
 }
 
 /**
- * The home-screen service tile: illustrated artwork at the canvas 76px inside a
- * 128px tile, a real text label beneath it, and an optional badge. The label is
- * what names the tile; the artwork is `aria-hidden` by the icon wrapper, so the
- * tile is read once, as its name.
+ * The home-screen service tile (canvas/HomeApp.dc.html): a 108px surface card,
+ * radius 22, with the service's <FIcon> (soft chip, from the handoff service map)
+ * over a 13/600 label. The label is what names the tile; the icon is aria-hidden,
+ * so the tile is read once, as its name.
  */
-const TILE_BOX = { sm: 76, md: 96, lg: 128 } as const;
+const TILE_CHIP = { sm: 44, md: 50, lg: 56 } as const;
 
 export function ServiceTile({
   name,
@@ -256,53 +260,72 @@ export function ServiceTile({
   disabled = false,
   testID,
 }: ServiceTileProps) {
-  const box = TILE_BOX[size];
-  const art = Math.round(box * 0.6);
-
+  const { icon, tone } = SERVICE_ICONS[name];
   return (
     <div
       data-testid={testID}
+      data-service={name}
       style={{
-        display: 'grid',
-        justifyItems: 'center',
-        gap: 'var(--nabd-space-3xs)',
-        width: box + 24,
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10,
+        minBlockSize: 108,
+        paddingInline: 'var(--nabd-space-2xs)',
+        borderRadius: 22,
+        background: 'var(--nabd-color-bg-surface)',
+        border: '1px solid var(--nabd-color-border-hairline)',
+        boxShadow: 'var(--nabd-shadow-card)',
+        color: 'var(--nabd-color-text-primary)',
         opacity: disabled ? 0.5 : 1,
       }}
     >
-      <div
-        style={{
-          position: 'relative',
-          display: 'grid',
-          placeItems: 'center',
-          width: box,
-          height: box,
-          borderRadius: 'var(--nabd-radius-2xl)',
-          background: 'var(--nabd-color-bg-sunken)',
-          boxShadow: 'var(--nabd-shadow-tile)',
-        }}
-      >
-        <IllustratedIconView name={name as never} size={art} />
-        {badge ? (
-          <span style={{ position: 'absolute', top: 4, insetInlineEnd: 4 }}>
-            <Badge content={badge} />
-          </span>
-        ) : null}
-      </div>
-      <span style={{ fontSize: 'var(--nabd-font-size-label)', color: 'var(--nabd-color-text-primary)', textAlign: 'center' }}>
-        {label}
-      </span>
+      <FIcon icon={icon} tone={tone} size={TILE_CHIP[size]} />
+      <span style={{ fontSize: 'var(--nabd-font-size-caption)', fontWeight: 600, textAlign: 'center', overflowWrap: 'anywhere' }}>{label}</span>
+      {badge ? (
+        <span style={{ position: 'absolute', insetBlockStart: 8, insetInlineEnd: 8 }}>
+          <Badge content={badge} />
+        </span>
+      ) : null}
     </div>
   );
 }
 
-export function Avatar({ name, size = 'md', illustratedName, status = 'none', testID }: AvatarProps) {
+/**
+ * A section title with an optional trailing action (canvas/HomeApp.dc.html:
+ * 18/700 heading, 13/500 link in text.link). The action is rendered by the screen
+ * as a link or button through `action`; `actionLabel` alone renders its text.
+ */
+export function SectionHeader({ title, actionLabel, level = 2, testID, action }: SectionHeaderProps & { action?: React.ReactNode }) {
+  const H = level === 3 ? 'h3' : 'h2';
+  return (
+    <div data-testid={testID} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 'var(--nabd-space-xs)' }}>
+      <H style={{ margin: 0, fontSize: 'var(--nabd-font-size-h4)', fontWeight: 700, color: 'var(--nabd-color-text-primary)' }}>{title}</H>
+      {action ?? (actionLabel ? <span style={{ fontSize: 'var(--nabd-font-size-caption)', fontWeight: 500, color: 'var(--nabd-color-text-link)' }}>{actionLabel}</span> : null)}
+    </div>
+  );
+}
+SectionHeader.displayName = 'SectionHeader';
+
+export function Avatar({ name, size = 'md', src, status = 'none', testID }: AvatarProps) {
   const box = size === 'sm' ? 32 : size === 'md' ? 44 : 64;
   const initials = name
     .split(/\s+/)
     .slice(0, 2)
     .map((w) => w[0] ?? '')
     .join('');
+  // canvas/HomeApp.dc.html: tinted disc, 2px surface gap, 2px coral ring
+  const ring: React.CSSProperties = {
+    boxSizing: 'border-box',
+    width: box,
+    height: box,
+    borderRadius: 'var(--nabd-radius-pill)',
+    background: 'var(--nabd-color-avatar-bg)',
+    border: '2px solid var(--nabd-color-bg-surface)',
+    boxShadow: '0 0 0 2px var(--nabd-color-avatar-ring)',
+  };
 
   return (
     <span
@@ -311,25 +334,15 @@ export function Avatar({ name, size = 'md', illustratedName, status = 'none', te
       aria-label={name}
       style={{ position: 'relative', display: 'inline-grid', placeItems: 'center', width: box, height: box }}
     >
-      {illustratedName ? (
-        <IllustratedIconView name={illustratedName as never} size={Math.round(box * 0.86)} />
+      {src ? (
+        // a real photo; the name is already the accessible name of the wrapper
+        <img src={src} alt="" aria-hidden width={box} height={box} style={{ ...ring, objectFit: 'cover' }} />
       ) : (
         <span
           aria-hidden
-          style={{
-            display: 'grid',
-            placeItems: 'center',
-            width: box,
-            height: box,
-            borderRadius: 'var(--nabd-radius-pill)',
-            background: 'var(--nabd-color-bg-sunken)',
-            boxShadow: 'var(--nabd-shadow-avatar)',
-            fontSize: 'var(--nabd-font-size-label)',
-            fontWeight: 700,
-            color: 'var(--nabd-color-text-primary)',
-          }}
+          style={{ ...ring, display: 'grid', placeItems: 'center', fontSize: Math.round(box * 0.36), fontWeight: 700, color: 'var(--nabd-color-text-primary)' }}
         >
-          {initials}
+          {initials || <Icon name="user" size={Math.round(box * 0.5)} tone="secondary" />}
         </span>
       )}
       {status !== 'none' ? (
@@ -377,34 +390,29 @@ export function PriceTag({ amount, currency, was, note, testID }: PriceTagProps)
  * is what turns a row of glyphs into information. `formatLabel` is supplied by
  * the app so the sentence is localised there, not here.
  */
-export function Rating({ value, count, max = 5, size = 'sm', formatLabel, testID }: RatingProps) {
-  const px = size === 'sm' ? 14 : 18;
-
+/**
+ * DoctorCard board rating: one filled star, the value (14/700) and the count in
+ * brackets (12/400). Nothing at all when there are no real ratings.
+ */
+export function Rating({ value, count, max = 5, size = 'sm', surface = 'default', formatLabel, testID }: RatingProps) {
+  if (value == null || !(count > 0)) return null;
+  const px = size === 'sm' ? 16 : 20;
+  const shown = value.toFixed(1);
+  const onBrand = surface === 'onBrand';
   return (
     <span
       data-testid={testID}
       role="img"
-      aria-label={formatLabel ? formatLabel(value, count) : `${value} out of ${max}${count ? ` from ${count}` : ''}`}
-      style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--nabd-space-3xs)' }}
+      aria-label={formatLabel ? formatLabel(value, count) : `${shown} out of ${max}, ${count} ratings`}
+      style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: onBrand ? 'var(--nabd-color-action-primary-fg)' : 'var(--nabd-color-text-primary)' }}
     >
-      <span aria-hidden style={{ display: 'inline-flex', gap: 2 }}>
-        {Array.from({ length: max }).map((_, i) => (
-          <span
-            key={i}
-            style={{
-              color: i < Math.round(value) ? 'var(--nabd-color-icon-favorite)' : 'var(--nabd-color-border-strong)',
-              display: 'grid',
-            }}
-          >
-            <Icon name="star" size={px} />
-          </span>
-        ))}
+      <svg aria-hidden="true" width={px} height={px} viewBox="0 0 256 256">
+        <path d={FILL_ICON_PATHS.star} fill={onBrand ? 'var(--nabd-color-icon-ratingStarOnBrand)' : 'var(--nabd-color-icon-ratingStar)'} />
+      </svg>
+      <span aria-hidden style={{ fontSize: size === 'sm' ? 'var(--nabd-font-size-caption)' : 'var(--nabd-font-size-body)', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
+        {shown}
       </span>
-      {count !== undefined ? (
-        <span aria-hidden style={{ fontSize: 'var(--nabd-font-size-caption)', color: 'var(--nabd-color-text-secondary)' }}>
-          {count}
-        </span>
-      ) : null}
+      <span aria-hidden style={{ fontSize: 'var(--nabd-font-size-label)', fontWeight: 400, opacity: 0.85 }}>({count})</span>
     </span>
   );
 }
