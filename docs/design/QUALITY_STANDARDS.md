@@ -16,7 +16,7 @@ Canvas `#F5F5F7` (plain, no patterns or decorative shapes), action `#D42A38`, br
 ## 2. Performance budgets
 Web (mobile, 4G), per route, **automated** by `lighthouse.yml` (`patient-web/.lighthouserc.json` and `.github/lighthouse-budget.json`):
 - LCP < 2.5 s, CLS < 0.1, TBT ≤ 200 ms (the lab stand-in for INP < 200 ms; INP itself is **measured** in the field), Lighthouse Performance ≥ 90.
-- First-load JS per route ≤ 170 KB gzip (the `script` budget), fonts subset and self-hosted.
+- First-load JS per route ≤ 170 KB gzip (the `script` budget), fonts subset and self-hosted. Measure on a production build (`next build`, standalone server) with `node tools/design/js-size.mjs` and Lighthouse (median of 3); `next experimental-analyze -o` shows which module a chunk's bytes are. Rules that keep it down: client components import component modules directly (no barrel), icons and illustrations are per-glyph or loaded on demand, no library for something the design system already draws, nothing on the always-loaded path (layout, error boundary) imports the component set.
 
 App (**measured** per release, pasted in the PR): cold start < 2 s on a mid-range Android; lists virtualised (FlashList / FlatList); Hermes on; animations on the UI thread at 60 fps; images cached with `expo-image`; the app download size per release.
 

@@ -18,8 +18,8 @@ Server-rendered fetches are not visible to the browser, so for the normal scenar
 | `/otp` | anonymous | ok (200) | ok (200) | ok (200) |
 | `/password-reset` | anonymous | ok (200) | ok (200) | ok (200) |
 | `/register` | anonymous | ok (200) | ok (200) | ok (200) |
-| `/search` | signed-in | FAIL: 1 distinct console error(s) | FAIL: 1 distinct console error(s) | ok (200) |
-| `/services` | signed-in | FAIL: 1 distinct console error(s) | FAIL: 1 distinct console error(s) | ok (200 → /ar/consultations/doctors) |
+| `/search` | signed-in | ok (200) | ok (200) | ok (200) |
+| `/services` | signed-in | ok (200 → /ar) | ok (200 → /ar) | ok (200 → /ar) |
 | `/welcome` | anonymous | ok (200) | ok (200) | ok (200) |
 
 ## Requests per route (normal scenario)
@@ -36,22 +36,22 @@ Server (backend log):
 - POST `/api/v1/auth/heartbeat` → 201
 
 Failed requests:
-- GET /ar/notifications net::ERR_ABORTED
 - GET /ar/profile net::ERR_ABORTED
 - GET /ar/consultations/doctors net::ERR_ABORTED
 - GET /ar/c net::ERR_ABORTED
+- GET /ar/notifications net::ERR_ABORTED
+- GET /ar/nutrition net::ERR_ABORTED
 - GET /ar/diagnostics net::ERR_ABORTED
 - GET /ar/nursing/catalog net::ERR_ABORTED
-- GET /ar/nutrition net::ERR_ABORTED
 - GET /ar/maternity net::ERR_ABORTED
 - GET /ar/map net::ERR_ABORTED
 - GET /ar/health net::ERR_ABORTED
 - GET /ar/emergency net::ERR_ABORTED
 - GET /ar/ai/triage net::ERR_ABORTED
-- GET /ar/ai/prescription-translator net::ERR_ABORTED
 - GET /ar/ai/skin-analysis net::ERR_ABORTED
-- GET /ar/ai/chat-doctor net::ERR_ABORTED
 - GET /ar/ai/symptom-checker net::ERR_ABORTED
+- GET /ar/ai/prescription-translator net::ERR_ABORTED
+- GET /ar/ai/chat-doctor net::ERR_ABORTED
 
 ### `/dashboard` (signed-in) → 200 /ar/dashboard
 
@@ -68,12 +68,12 @@ Failed requests:
 - GET /ar/profile net::ERR_ABORTED
 - GET /ar/consultations/doctors net::ERR_ABORTED
 - GET /ar/c net::ERR_ABORTED
-- GET /ar/diagnostics net::ERR_ABORTED
-- GET /ar/nursing/catalog net::ERR_ABORTED
 - GET /ar/nutrition net::ERR_ABORTED
 - GET /ar/maternity net::ERR_ABORTED
-- GET /ar/map net::ERR_ABORTED
+- GET /ar/diagnostics net::ERR_ABORTED
+- GET /ar/nursing/catalog net::ERR_ABORTED
 - GET /ar/health net::ERR_ABORTED
+- GET /ar/map net::ERR_ABORTED
 - GET /ar/emergency net::ERR_ABORTED
 - GET /ar/ai/triage net::ERR_ABORTED
 - GET /ar/ai/symptom-checker net::ERR_ABORTED
@@ -135,15 +135,15 @@ Failed requests:
 No API request: the screen is static (or redirected before fetching).
 
 Failed requests:
-- GET /ar/onboarding net::ERR_ABORTED
 - GET /ar net::ERR_ABORTED
 - GET /ar/onboarding/permissions net::ERR_ABORTED
+- GET /ar/onboarding net::ERR_ABORTED
 - GET /ar/onboarding/language net::ERR_ABORTED
-- GET /ur/onboarding/language net::ERR_ABORTED
 - GET /en/onboarding/language net::ERR_ABORTED
-- GET /hi/onboarding/language net::ERR_ABORTED
-- GET /bn/onboarding/language net::ERR_ABORTED
+- GET /ur/onboarding/language net::ERR_ABORTED
 - GET /fil/onboarding/language net::ERR_ABORTED
+- GET /bn/onboarding/language net::ERR_ABORTED
+- GET /hi/onboarding/language net::ERR_ABORTED
 
 ### `/onboarding/permissions` (anonymous) → 200 /ar/onboarding/permissions
 
@@ -177,8 +177,8 @@ Browser:
 
 Failed requests:
 - GET /ar/login net::ERR_ABORTED
-- GET /ar/terms net::ERR_ABORTED
 - GET /ar net::ERR_ABORTED
+- GET /ar/terms net::ERR_ABORTED
 - GET /ar/privacy net::ERR_ABORTED
 
 ### `/search` (signed-in) → 200 /ar/search
@@ -189,44 +189,50 @@ Browser:
 Server (backend log):
 - POST `/api/v1/auth/heartbeat` → 201
 
-Console errors:
-- CSP: script-src http://localhost:3010/_next/static/chunks/2ik4w5bf2a5lj.js:2
-
 Failed requests:
-- GET /ar net::ERR_ABORTED
 - GET /ar/pharmacy net::ERR_ABORTED
-- GET /ar/consultations/doctors net::ERR_ABORTED
+- GET /ar net::ERR_ABORTED
 - GET /ar/diagnostics/labs net::ERR_ABORTED
+- GET /ar/consultations/doctors net::ERR_ABORTED
 - GET /ar/diagnostics/radiology net::ERR_ABORTED
-- GET /ar/mental-health net::ERR_ABORTED
 - GET /ar/home-care net::ERR_ABORTED
 - GET /ar/nutrition net::ERR_ABORTED
+- GET /ar/mental-health net::ERR_ABORTED
 - GET /ar/family net::ERR_ABORTED
 
-### `/services` (signed-in) → 200 /ar/consultations/doctors
+### `/services` (signed-in) → 200 /ar
 
 Browser:
 - POST `/api/auth/heartbeat` → 200 · non-json
-- POST `/api/auth/heartbeat` → 200 · non-json
 
 Server (backend log):
-- POST `/api/v1/auth/heartbeat` → 201
 - GET `/api/v1/care/doctors` → 200
+- GET `/api/v1/config` → 200
+- GET `/api/v1/content/home` → 200
 - POST `/api/v1/auth/heartbeat` → 201
-
-Console errors:
-- CSP: style-src-attr http://localhost:3010/ar/consultations/doctors:9
 
 Failed requests:
-- GET /ar net::ERR_ABORTED
 - GET /ar/profile net::ERR_ABORTED
-- POST /api/auth/heartbeat net::ERR_ABORTED
-- GET /ar/terms net::ERR_ABORTED
 - GET /ar/privacy net::ERR_ABORTED
+- GET /ar/terms net::ERR_ABORTED
 - GET /ar/support net::ERR_ABORTED
 - GET /ar/articles net::ERR_ABORTED
 - GET /ar/map net::ERR_ABORTED
+- GET /ar net::ERR_ABORTED
+- GET /ar/notifications net::ERR_ABORTED
 - GET /ar/consultations/doctors net::ERR_ABORTED
+- GET /ar/c net::ERR_ABORTED
+- GET /ar/diagnostics net::ERR_ABORTED
+- GET /ar/nutrition net::ERR_ABORTED
+- GET /ar/nursing/catalog net::ERR_ABORTED
+- GET /ar/maternity net::ERR_ABORTED
+- GET /ar/health net::ERR_ABORTED
+- GET /ar/ai/triage net::ERR_ABORTED
+- GET /ar/emergency net::ERR_ABORTED
+- GET /ar/ai/symptom-checker net::ERR_ABORTED
+- GET /ar/ai/skin-analysis net::ERR_ABORTED
+- GET /ar/ai/chat-doctor net::ERR_ABORTED
+- GET /ar/ai/prescription-translator net::ERR_ABORTED
 
 ### `/welcome` (anonymous) → 200 /ar/welcome
 
@@ -234,7 +240,4 @@ No API request: the screen is static (or redirected before fetching).
 
 ## Failures
 
-- `/search` normal: 1 distinct console error(s)
-- `/search` empty: 1 distinct console error(s)
-- `/services` normal: 1 distinct console error(s)
-- `/services` empty: 1 distinct console error(s)
+None.
