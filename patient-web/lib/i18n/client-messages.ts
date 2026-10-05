@@ -11,16 +11,26 @@
  * missing string (a missing namespace would render the key instead of the text).
  */
 export const CLIENT_NAMESPACES = [
-  "AiHealthReport",
   "Addresses",
+  "AiHealthReport",
   "BookConsultation",
   "CoreShell",
   "Doctors",
+  "ForgotPassword",
+  "HomeWeb",
   "Login",
+  "NotificationSettings",
+  "Notifications",
+  "Onboarding",
+  "Otp",
+  "PasswordReset",
+  "Register",
   "RouteState",
   "Search",
-  "Shared",
   "ShareReport",
+  "Shared",
+  "SpecialtyNames",
+  "Welcome",
 ] as const;
 
 export type ClientNamespace = (typeof CLIENT_NAMESPACES)[number];
