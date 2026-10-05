@@ -78,6 +78,7 @@
     "firebase-admin": "^14.3.0",
     "helmet": "^8.2.0",
     "ioredis": "^6.0.0",
+    "libphonenumber-js": "^1.13.14",
     "livekit-server-sdk": "^2.17.0",
     "lru-cache": "^11.1.0",
     "mongoose": "^8.7.0",

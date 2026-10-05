@@ -10,7 +10,7 @@ export class GuestLifecycleService {
   constructor(@InjectConnection() private readonly connection: Connection) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_3AM)
-  async cleanupInactiveGuests(): Promise<void> {
+  async cleanupInactiveGuests(): Promise<number> {
     const twelveMonthsAgo = new Date();
     twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
 
@@ -24,6 +24,24 @@ export class GuestLifecycleService {
     });
 
     this.logger.log(`Cleaned up ${result.deletedCount} inactive guest accounts`);
+    return result.deletedCount;
+  }
+
+  async cleanupInactiveGuestsWithThreshold(monthsInactive: number = 12): Promise<number> {
+    const cutoffDate = new Date();
+    cutoffDate.setMonth(cutoffDate.getMonth() - monthsInactive);
+
+    const result = await this.connection.collection('users').deleteMany({
+      is_guest: true,
+      last_active: { $lt: cutoffDate },
+      $or: [
+        { orders_count: { $exists: false } },
+        { orders_count: 0 },
+      ],
+    });
+
+    this.logger.log(`Cleaned up ${result.deletedCount} inactive guest accounts (threshold: ${monthsInactive} months)`);
+    return result.deletedCount;
   }
 
   async getGuestData(guestUserId: string): Promise<any> {

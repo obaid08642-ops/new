@@ -98,13 +98,13 @@ export class AuthController {
   private readonly log = new Logger(AuthController.name);
   constructor(
     private auth: AuthService,
-    @Optional() private presence?: PresenceService,
     private turnstile: TurnstileService,
     private smsFraud: SmsFraudProtectionService,
     private emailOtp: EmailOtpService,
     private guest: GuestService,
     private accountLinking: AccountLinkingService,
     private checkoutContact: CheckoutContactService,
+    @Optional() private presence?: PresenceService,
   ) {}
 
   /** Patient-web bridge: opaque request response prevents account enumeration. */
@@ -116,9 +116,14 @@ export class AuthController {
       const turnstileResult = await this.turnstile.verify(dto.turnstileToken, clientIp(req));
       if (!turnstileResult.success) throw new BadRequestException('Turnstile verification failed');
     }
-    const smsCheck = await this.smsFraud.checkAndRecord(dto.identifier, clientIp(req) || 'unknown');
-    if (!smsCheck.allowed) throw new BadRequestException(smsCheck.reason);
-    return this.auth.requestPatientOtp(dto.identifier);
+    const ip = clientIp(req) || 'unknown';
+    // For email identifiers, rate limiting is now handled in EmailOtpService
+    // For phone, keep SMS fraud check
+    if (!dto.identifier.includes('@')) {
+      const smsCheck = await this.smsFraud.checkAndRecord(dto.identifier, ip);
+      if (!smsCheck.allowed) throw new BadRequestException(smsCheck.reason);
+    }
+    return this.auth.sendOtp(dto.identifier, 'signin', ip);
   }
 
   @Public()
@@ -149,7 +154,7 @@ export class AuthController {
       const turnstileResult = await this.turnstile.verify(dto.turnstileToken, clientIp(req));
       if (!turnstileResult.success) throw new BadRequestException('Turnstile verification failed');
     }
-    return this.auth.forgotPatientPassword(dto.identifier);
+    return this.auth.sendOtp(dto.identifier, 'reset', clientIp(req));
   }
 
   @Public()
@@ -208,7 +213,7 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @Post('guest')
-  guest(@Body() dto: GuestDto, @Headers('x-device-id') deviceId?: string) {
+  createGuest(@Body() dto: GuestDto, @Headers('x-device-id') deviceId?: string) {
     return this.auth.guest(dto.phone, deviceId);
   }
 
@@ -324,7 +329,7 @@ export class AuthController {
       if (!turnstileResult.success) throw new BadRequestException('Turnstile verification failed');
     }
     const id = body.identifier || body.email || body.phone || '';
-    return this.auth.sendOtp(id, body.purpose);
+    return this.auth.sendOtp(id, body.purpose, clientIp(req));
   }
 
   @Public()

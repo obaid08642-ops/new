@@ -5,6 +5,7 @@ import type { StringValue } from 'ms';
 import { PushModule } from '../push/push.module';
 import { PresenceModule } from '../presence/presence.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { FeatureFlagsModule } from '../feature-flags/feature-flags.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { PasskeyService } from './passkey.service';
@@ -58,6 +59,7 @@ import { MedicalAccessLog, MedicalAccessLogSchema } from '../../schemas/medical-
     }),
     PushModule,
     PresenceModule,
+    FeatureFlagsModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: PatientProfile.name, schema: PatientProfileSchema },
