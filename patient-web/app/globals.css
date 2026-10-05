@@ -97,7 +97,8 @@ html, body, .shell { max-width: 100%; overflow-x: clip; }
 .header-signout:disabled { opacity: .6; cursor: wait; }
 /* A :root palette that used to be here, removed in 12.A0: five of them existed
    and cascade order was choosing the brand. One now, on the tokens, below. */
-body { background: radial-gradient(circle at 85% -15%, rgba(95,217,179,.16), transparent 31rem), radial-gradient(circle at 4% 80%, rgba(184,224,48,.12), transparent 25rem), var(--canvas); }
+/* The boards' canvas is plain (#F5F5F7 / its dark token): no decorative glows. */
+body { background: var(--nabd-color-bg-canvas); }
 .topbar { position: sticky; top: 0; z-index: 20; border-color: var(--nabd-color-border-subtle); background: var(--nabd-color-glass-bgStrong); backdrop-filter: saturate(165%) blur(var(--nabd-color-glass-blur)); }
 .brand-mark { border: 1px solid rgba(184,224,48,.4); box-shadow: 0 4px 14px rgba(184,224,48,.25); background: #1E332E; }
 .brand-mark { overflow: hidden; }.pulse-shield-mark { width: 1.55rem; height: 1.55rem; color: #B8E030; filter: drop-shadow(0 1px 2px rgba(0,0,0,.25)); }
@@ -568,3 +569,9 @@ body { background: radial-gradient(circle at 85% -15%, rgba(95,217,179,.16), tra
 .site-footer { border-block-start: 1px solid var(--nabd-color-border-subtle); margin-block-start: 48px; padding: 24px 16px calc(24px + env(safe-area-inset-bottom)); background: var(--nabd-color-bg-surface); }
 .site-footer__links { display: flex; flex-wrap: wrap; gap: 12px 24px; }
 .site-footer__links a { padding-block: 4px; white-space: nowrap; color: var(--nabd-color-text-secondary); text-decoration: none; font-size: var(--nabd-font-size-label); }
+
+/* The sign-in pages draw their own top row (components-next/auth/auth-layout.tsx); the boards
+   have no site header or footer there. */
+.shell:has(> .nabd-auth) > .topbar,
+.shell:has(> .nabd-auth) > .site-footer { display: none; }
+.shell:has(> .nabd-auth) { padding-bottom: 0; }

@@ -72,6 +72,8 @@ const LINE: Record<SharedLineIconName, React.ComponentType<Record<string, unknow
   minus: phosphor.Minus,
   filter: phosphor.Funnel,
   sliders: phosphor.SlidersHorizontal,
+  eye: phosphor.Eye,
+  'eye-slash': phosphor.EyeSlash,
   settings: phosphor.Gear,
   list: phosphor.List,
   download: phosphor.DownloadSimple,
