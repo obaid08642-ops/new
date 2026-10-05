@@ -1,3 +1,4 @@
+import { escapeRegex } from '../../common/slug.util';
 import { Injectable, BadRequestException, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -125,12 +126,13 @@ export class AiCommerceService {
     ];
 
     // Public feed: approved, public doctors only (not every provider_profiles row).
-    const docFilter: Record<string, any> = { type: 'doctor', status: 'active', public_eligibility: true, is_deleted: { $ne: true } };
+    // Same rule as checkout and the public pages: active, public and medically approved.
+    const docFilter: Record<string, unknown> = { type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
     if (query.specialty) docFilter.specialty = query.specialty;
-    if (query.city) docFilter.city = { $regex: query.city, $options: 'i' };
+    if (query.city) docFilter.city = { $regex: escapeRegex(String(query.city)), $options: 'i' };
 
-    const facFilter: Record<string, any> = { is_active: { $ne: false }, public_eligibility: true, is_deleted: { $ne: true } };
-    if (query.city) facFilter.city = { $regex: query.city, $options: 'i' };
+    const facFilter: Record<string, unknown> = { is_active: { $ne: false }, public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
+    if (query.city) facFilter.city = { $regex: escapeRegex(String(query.city)), $options: 'i' };
 
     const [doctors, facilities] = await Promise.all([
       docCol.find(docFilter).limit(20).toArray(),

@@ -22,9 +22,11 @@ const collections = (data: Record<string, Row[]>) => ({
 });
 
 const providers: Row[] = [
-  { id: 'doc-pub', slug: 'dr-pub', type: 'doctor', status: 'active', public_eligibility: true, name_ar: 'د. عامة', specialty: 'cardiology', city: 'الرياض', price_clinic: 220 },
+  { id: 'doc-pub', slug: 'dr-pub', type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', name_ar: 'د. عامة', specialty: 'cardiology', city: 'الرياض', price_clinic: 220 },
   { id: 'doc-nofee', slug: 'dr-nofee', type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', name_ar: 'د. بدون رسوم', specialty: 'cardiology', city: 'الرياض' },
   { id: 'doc-pending', slug: 'dr-pending', type: 'doctor', status: 'pending', public_eligibility: false, name_ar: 'د. قيد المراجعة', city: 'الرياض' },
+  // Independent check: public but never medically reviewed -> not bookable, so not advertised.
+  { id: 'doc-unreviewed', slug: 'dr-unreviewed', type: 'doctor', status: 'active', public_eligibility: true, name_ar: 'د. بدون مراجعة', city: 'الرياض' },
   { id: 'ph-1', slug: 'ph-1', type: 'pharmacy', status: 'active', public_eligibility: true, name_ar: 'صيدلية', city: 'الرياض' },
 ];
 
