@@ -248,6 +248,27 @@ verified at the end). `tsc --noEmit` clean after every commit.
   Lesson (same as round 1): never `git checkout/stash` in a shared worktree;
   use editor-only probes.
 
+### F4 — UTC-anchored list mirror (FIXED)
+- Files: `backend/src/modules/care/care.service.ts`
+  (`loadAvailabilityBatch` anchors on `riyadhParts`, `firstAvailableOnDay` /
+  `firstAvailableSlot` / `hasAvailableSlotOnDay` / `batchNextAvailable` /
+  `batchHasSlotsToday` take `durationMinutes = 30`, `AvailabilityBatch` +
+  `firstAvailableOnDay` exported for tests); new spec
+  `backend/src/modules/care/care-riyadh-mirror.p15.spec.ts` (3 tests).
+- Midnight case pinned at `Date.now() = 2026-06-01T21:30Z` (= 00:30 Riyadh
+  06-02): `dayStrs[0] === '2026-06-02'` and the appointments range opens at
+  `2026-06-02T00:00:00.000Z`. Duration case: 09:00–09:45 window, 60-min
+  appointment → null (09:00 fits a 30-min step but not a 60-min stay);
+  booked-09:00 in a 09:00–10:30 window → 09:30.
+- Real tails: new spec `Tests: 3 passed, 3 total`; neighbours
+  `schedule-ramadan + care-pagination-guard` 13/13,
+  `doctor-list-perf + public-discovery + slot-listing-buffer` 12/12
+  (doctor-list-perf green — run outside its known 22:45–24:00Z flake window);
+  `tsc` clean.
+- Mutation proofs (editor-only, restored): UTC-anchor revert →
+  `1 failed, 2 passed` (dayStrs[0] back to 06-01); hardcoded 30-min step →
+  `1 failed, 2 passed` (60-min returns 09:00); `grep MUTATION-PROBE` clean.
+
 ## BLOCKED / DEFERRED lines (round 1, unchanged)
 
 - `BLOCKED: live rapid-tap journey needs a running server
