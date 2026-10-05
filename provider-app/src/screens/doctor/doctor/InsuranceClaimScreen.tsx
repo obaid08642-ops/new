@@ -17,7 +17,7 @@ import { I, IBg } from '../../../components/icons';
 import { SP, R, FS, FW, API_BASE } from '../../../constants';
 import { buildHeaders, Vault, SK } from '../../../security/Security';
 import client from '../../../api/client';
-import { useServicesCatalog, getInsuranceCatalog, useSpecialtiesCatalog, useInsuranceCatalog } from '../../../api/catalogs';
+import { useServicesCatalog, getInsuranceCatalog, useSpecialtiesCatalog, useInsuranceCatalogState } from '../../../api/catalogs';
 import { VideoCallRoom } from '../../shared/VideoCallRoom';
 import { InsuranceRequestsScreen } from '../../shared/InsuranceRequestsScreen';
 import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, GlobalSystemSettings, ChatSystem, MediaConfigScreen } from '../../shared/SharedScreens';
@@ -41,8 +41,10 @@ export function InsuranceClaimScreen({ apt, onBack }: { apt: any; onBack: () => 
  const { show } = useToast();
  const AR = lang === 'ar';
   const [company, setCompany] = useState('');
-  // Q51: the insurer list is the admin-managed catalog, never a hard-coded five.
-  const insurers = useInsuranceCatalog();
+  // Q51: the insurer list is the admin-managed catalog, never a hard-coded five,
+  // with explicit loading / error (retry) / empty states.
+  const insurerCatalog = useInsuranceCatalogState();
+  const insurers = insurerCatalog.companies;
  const [plan, setPlan] = useState('');
  const [diagCode, setDiagCode] = useState('');
  const [policyNumber, setPolicyNumber] = useState(apt?.patient?.insurance?.policy_number || '');
@@ -71,6 +73,22 @@ export function InsuranceClaimScreen({ apt, onBack }: { apt: any; onBack: () => 
  textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
  {AR ? 'شركة التأمين' : 'Insurance Company'}<Text style={{ color: theme.danger }}> *</Text>
  </Text>
+ {insurerCatalog.status === 'loading' ? (
+ <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm }}>
+ <ActivityIndicator size="small" color={theme.primary} />
+ <Text style={{ color: theme.textSub, fontSize: FS.sm }}>{AR ? 'جارٍ تحميل شركات التأمين…' : 'Loading insurance companies…'}</Text>
+ </View>
+ ) : insurerCatalog.status === 'error' ? (
+ <View style={{ alignItems: AR ? 'flex-end' : 'flex-start', gap: SP.sm }}>
+ <Text accessibilityRole="alert" style={{ color: theme.danger, fontSize: FS.sm }}>{AR ? 'تعذر تحميل شركات التأمين' : 'Could not load insurance companies'}</Text>
+ <TouchableOpacity accessibilityRole="button" onPress={insurerCatalog.reload}
+ style={[styles.insChip, { backgroundColor: theme.surface2, borderColor: theme.border }]}>
+ <Text style={{ color: theme.text, fontSize: FS.sm }}>{AR ? 'إعادة المحاولة' : 'Retry'}</Text>
+ </TouchableOpacity>
+ </View>
+ ) : insurers.length === 0 ? (
+ <Text style={{ color: theme.textSub, fontSize: FS.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'لا توجد شركات تأمين متاحة حالياً' : 'No insurance companies are available right now'}</Text>
+ ) : (
  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
  <View style={{ flexDirection: 'row', gap: SP.sm }}>
  {insurers.map(x => (AR ? x.ar : x.en)).map(c => (
@@ -84,6 +102,7 @@ export function InsuranceClaimScreen({ apt, onBack }: { apt: any; onBack: () => 
  ))}
  </View>
  </ScrollView>
+ )}
  </View>
 
  {/* Plan */}

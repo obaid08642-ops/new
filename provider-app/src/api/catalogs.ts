@@ -23,29 +23,39 @@ export interface CatalogCompany {
 let insuranceCache: CatalogCompany[] | null = null;
 let insuranceCacheAt = 0;
 
-export async function getInsuranceCatalog(force = false): Promise<CatalogCompany[]> {
+type RawInsurancePlan = { id?: string; code?: string; name_ar?: string; name_en?: string; tier_level?: number };
+type RawInsuranceCompany = { id?: string; code?: string; name_ar?: string; name_en?: string; logo?: string | null; logo_url?: string | null; plans?: RawInsurancePlan[] };
+
+/**
+ * Q51: the catalog request itself. Throws on a network/server failure so a
+ * screen can tell "could not load" apart from "the catalog is empty".
+ */
+export async function fetchInsuranceCatalog(force = false): Promise<CatalogCompany[]> {
   // 5-minute in-memory cache — the catalog is admin-managed and rarely changes
   if (!force && insuranceCache && Date.now() - insuranceCacheAt < 5 * 60 * 1000) return insuranceCache;
+  const res = await client.get('/insurance/companies');
+  const raw: RawInsuranceCompany[] = Array.isArray(res.data) ? res.data : (Array.isArray(res.data?.data) ? res.data.data : []);
+  const list: CatalogCompany[] = (raw || []).map((c) => ({
+    id: c.code || c.id || '',
+    ar: c.name_ar || c.name_en || c.code || '',
+    en: c.name_en || c.name_ar || c.code || '',
+    logo: c.logo || c.logo_url || null,
+    plans: (c.plans || []).map((p) => p.name_ar || p.name_en || p.code || '').filter(Boolean),
+    planDetails: (c.plans || []).map((p) => ({ ...p, id: p.id || p.code || '' })),
+  }));
+  if (list.length) {
+    insuranceCache = list;
+    insuranceCacheAt = Date.now();
+  }
+  return list;
+}
+
+export async function getInsuranceCatalog(force = false): Promise<CatalogCompany[]> {
   try {
-    const res = await client.get('/insurance/companies');
-    const raw = Array.isArray(res.data) ? res.data : (Array.isArray(res.data?.data) ? res.data.data : []);
-    const list: CatalogCompany[] = (raw || []).map((c: any) => ({
-      id: c.code || c.id,
-      ar: c.name_ar || c.name_en || c.code,
-      en: c.name_en || c.name_ar || c.code,
-      logo: c.logo || c.logo_url || null,
-      plans: (c.plans || []).map((p: any) => p.name_ar || p.name_en || p.code).filter(Boolean),
-      planDetails: c.plans || [],
-    }));
-    if (list.length) {
-      insuranceCache = list;
-      insuranceCacheAt = Date.now();
-      return list;
-    }
+    return await fetchInsuranceCatalog(force);
   } catch {
     return [];
   }
-  return [];
 }
 
 /** Clear the in-memory catalog cache (e.g. after the admin edits companies). */
@@ -63,6 +73,24 @@ export function useInsuranceCatalog(): CatalogCompany[] {
     return () => { alive = false; };
   }, []);
   return list;
+}
+
+export type CatalogLoadStatus = 'loading' | 'ready' | 'error';
+
+/** Q51: the insurance catalog with its load state, for screens that must show loading / error / empty. */
+export function useInsuranceCatalogState(): { status: CatalogLoadStatus; companies: CatalogCompany[]; reload: () => void } {
+  const [companies, setCompanies] = useState<CatalogCompany[]>([]);
+  const [status, setStatus] = useState<CatalogLoadStatus>('loading');
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    setStatus('loading');
+    fetchInsuranceCatalog(attempt > 0)
+      .then((list) => { if (alive) { setCompanies(list); setStatus('ready'); } })
+      .catch(() => { if (alive) { setCompanies([]); setStatus('error'); } });
+    return () => { alive = false; };
+  }, [attempt]);
+  return { status, companies, reload: () => setAttempt((n) => n + 1) };
 }
 
 // ─── Medical services catalogs (labs / radiology / nursing) ─────────────────
