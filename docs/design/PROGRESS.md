@@ -7,7 +7,7 @@
 >
 > Sources: `DESIGN_HANDOFF_FINAL.md`, `SPEC_PRODUCT_DOCTOR_DETAIL.md`, `DEVICE_STANDARD.md`, `canvas/`. How the folder works: `README.md`.
 
-_Last updated: 2026-10-05 (#256, #259, #260 and #261 merged; the owner approved the side-by-side method; components 2/4 is in review as #265; next: components 3/4)._
+_Last updated: 2026-10-05 (#263 and #264 merged; components 2/4, 3/4 and 4/4 are in review as #265, #267 and #268, so step 5 is complete pending review; next: the lint gates)._
 
 ## Snapshot
 
@@ -18,8 +18,8 @@ _Last updated: 2026-10-05 (#256, #259, #260 and #261 merged; the owner approved 
 | Foundation: tokens | **Merged** ([#259](https://github.com/obaid08642-ops/new/pull/259)) | Service tones and service map, solid chip correction |
 | Foundation: Readex Pro on the web | **Merged** ([#260](https://github.com/obaid08642-ops/new/pull/260)) | Self-hosted with `next/font/local` |
 | Foundation: native shells | **Merged** ([#261](https://github.com/obaid08642-ops/new/pull/261)) | `Screen`, `AppHeader`, `StickyFooter`, `TabBar` in `packages/ui-native` |
-| Foundation: web shells | **In review** ([#263](https://github.com/obaid08642-ops/new/pull/263)) | `AppShell`, `StickyFooter` in `packages/ui`, mirrored into patient-web |
-| Foundation: shared components | **1/4 and 2/4 in review** ([#264](https://github.com/obaid08642-ops/new/pull/264), [#265](https://github.com/obaid08642-ops/new/pull/265)) | 1/4: FIcon, SectionHeader, ServiceTile, ListItem, Avatar, Rating. 2/4: the controls |
+| Foundation: web shells | **Merged** ([#263](https://github.com/obaid08642-ops/new/pull/263)) | `AppShell`, `StickyFooter` in `packages/ui`, mirrored into patient-web |
+| Foundation: shared components | **1/4 merged ([#264](https://github.com/obaid08642-ops/new/pull/264)); 2/4–4/4 in review ([#265](https://github.com/obaid08642-ops/new/pull/265), [#267](https://github.com/obaid08642-ops/new/pull/267), [#268](https://github.com/obaid08642-ops/new/pull/268))** | 40 contract components on web and native, each with board side-by-side images |
 | Foundation: lint gates | Not started | See `WIRING_REPORT.md` §1 for the measured gaps |
 | Screen batches 0–13 | Not started | 410 screens to design (104 more routes only redirect) |
 
@@ -56,20 +56,12 @@ _Last updated: 2026-10-05 (#256, #259, #260 and #261 merged; the owner approved 
 - **Native shells**: PR [#261](https://github.com/obaid08642-ops/new/pull/261), merged.
   - `Screen`, `AppHeader`, `StickyFooter` and `TabBar`.
   - `tools/design/compare-native.mjs`. The reviewer fixed a CodeQL path-injection finding in it (`27d1685`).
+- **Web shells**: PR [#263](https://github.com/obaid08642-ops/new/pull/263), merged 2026-10-05. `AppShell` and `StickyFooter`, mirrored into patient-web; no page uses them yet.
+- **Components 1/4**: PR [#264](https://github.com/obaid08642-ops/new/pull/264), merged 2026-10-05. FIcon (`icons/fill.ts`), SectionHeader, ServiceTile, ListItem `leading`, Avatar (photo, initials or neutral), Rating (one star or nothing), and `build-compare.mjs`.
 - **Side-by-side method approved** (owner, 2026-10-05). The images match the boards for ServiceTile, TabBar, the web top bar, StickyFooter, ListItem, Rating and Avatar. Every component step includes the same images.
 
 ## In progress
 
-- **Web shells, PR [#263](https://github.com/obaid08642-ops/new/pull/263)** (branch `design/shells-web`), waiting for review.
-  - `AppShell` and `StickyFooter`, mirrored into patient-web. No page uses them yet.
-  - Board side-by-side images: StickyFooter vs Cart, and the top bar vs HomeWeb.
-  - CodeQL path-injection in `build-compare.mjs` fixed (`3d116ac`).
-- **Components 1/4, PR [#264](https://github.com/obaid08642-ops/new/pull/264)** (branch `design/components-icons`), waiting for review.
-  - FIcon (`icons/fill.ts` ported from the board), SectionHeader, ServiceTile, ListItem `leading`.
-  - Avatar: a real photo, else initials, else the neutral icon.
-  - Rating: one star, the value and `(count)`, or nothing.
-  - `build-compare.mjs`.
-  - CodeQL path-injection fixed (`b403dc0`).
 - **Components 2/4, PR [#265](https://github.com/obaid08642-ops/new/pull/265)** (branch `design/components-controls`, stacked on #264), waiting for review.
   - **Tokens:**
     - colours `color.control.{segmentedTrack, switchOn, switchKnob, radioOff}`;
@@ -86,26 +78,35 @@ _Last updated: 2026-10-05 (#256, #259, #260 and #261 merged; the owner approved 
     - the off switch track and the empty radio ring are below 3:1 (board values);
     - the Toggle "on" side in LTR;
     - the StatusChip ink compared with the Orders board.
+- **Components 3/4, PR [#267](https://github.com/obaid08642-ops/new/pull/267)** (branch `design/components-cards`, stacked on #265), waiting for review.
+  - **Tokens:** `color.bg.media`, `color.text.price`, `color.presence.online`, `shadow.feature`. `icon.ratingStarOnBrand` is ink in dark, because the yellow star was 1.6:1 on the dark coral. 171 contrast checks pass.
+  - **Card** holds children and has `tint` (the hero wash).
+  - **DoctorCard** (Consult): the real photo or the neutral mark; every optional field is hidden when absent.
+  - **ProductCard** (PharmacyHub), **OfferCard** (HomeApp), **Timeline** (OrderTracking), **ProgressRing** (CareHub).
+  - Roster 34 → 39. 7 web and 4 native board images.
+  - **Flagged in the PR:**
+    - the ProgressRing track is the tone's soft colour, not the board's `#FBD9E8`;
+    - native can't draw the elliptical photo shape exactly.
+  - The pharmacy broadcast-offer card (PharmacyOffers) is built with Batch 1.
+- **Components 4/4, PR [#268](https://github.com/obaid08642-ops/new/pull/268)** (branch `design/components-states`, stacked on #267), waiting for review.
+  - **States** (States board): EmptyState, ErrorState and the new OfflineState. They share one layout: a 112 FIcon, the title, the body and a full-width CTA. 404 is an EmptyState.
+    - The handoff FIcon replaces the 12.A6 illustration; the PR flags this.
+  - **BottomTabBar** exactly as HomeApp (glass pill, ink active pill, raised coral centre):
+    - items carry fill glyphs;
+    - native renders the shell TabBar from #261.
+  - Roster 39 → 40.
 
 ## Next (in this order)
 
 The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each step is its own PR on its own `design/<step>` branch, with board side-by-side images (web: `node packages/ui/build-compare.mjs`; native: `node tools/design/compare-native.mjs`), gallery screenshots before and after, and a review.
 
 1. **Shared components** (handoff §3), in both packages, through the contract (`packages/ui/components/contract.ts`):
-   - ~~1/4~~ (#264), ~~2/4~~ (#265).
-   - **3/4 (next, branch `design/components-cards`):** Card, DoctorCard, ProductCard, OfferCard, Timeline, ProgressRing.
-     - DoctorCard follows `canvas/Consult.dc.html`: an organic photo shape and a coral footer with rating, next slot, price and "احجز".
-     - It uses the single-star Rating, and a real photo or the neutral placeholder.
-     - Doctor fields that are not in the backend stay hidden.
-   - 4/4: EmptyState, ErrorState, OfflineState (`canvas/States.dc.html`), and the TabBar exactly as HomeApp:
-     - a floating glass bar;
-     - the active item is an ink pill with icon and label;
-     - the centre is a raised coral Consultations button;
-     - the shells get the real fill icons in place of the placeholder dots.
+   - ~~1/4~~ (#264, merged), ~~2/4~~ (#265), ~~3/4~~ (#267), ~~4/4~~ (#268). All are built; three are in review.
    - Whenever tokens change, re-run `node packages/ui/build-preview.mjs`.
-2. **Lint gates** still missing from `tools/design` (handoff §6, DEVICE_STANDARD §5): `no-left-right`, `no-100vh`, `no-rn-safeareaview`. They currently fail on:
+2. **Lint gates (next, branch `design/lint-gates` from main)** still missing from `tools/design` (handoff §6, DEVICE_STANDARD §5): `no-left-right`, `no-100vh`, `no-rn-safeareaview`. They currently fail on:
    - `patient-app/app/room/[id].tsx` (`SafeAreaView` imported from `react-native`);
    - 4 web files that use `100vh` (listed in `WIRING_REPORT.md` §1).
+   - `WIRING_REPORT.md` also lists `shells.css`. That is a false positive: its comment says "100dvh, never 100vh", and the inventory uses a plain grep. The real `no-100vh` gate ignores comments, and the inventory will use it.
 3. **Batch 0**, then batches 1–13 in the order of `SCREEN_INVENTORY.md`. For each batch:
    - fix the `WIRING_REPORT.md` §4 rows that belong to it;
    - send the owner screenshots at 390, 768 and 1440, in light and dark;
@@ -144,6 +145,7 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 
 | Date | Branch | What happened | Tip |
 |---|---|---|---|
+| 2026-10-05 | `design/components-cards`, `design/components-states` | Components 3/4 (cards) and 4/4 (states, main tab bar), with board images; main (#263, #264) merged into the 2/4–4/4 stack. | PR [#267](https://github.com/obaid08642-ops/new/pull/267) `664e27b`, PR [#268](https://github.com/obaid08642-ops/new/pull/268) `8a4c313` |
 | 2026-10-05 | `design/components-controls` | Components 2/4 (the controls) on web and native, with 19 web and 10 native board side-by-side images. CodeQL path fix on #263 and #264. | PR [#265](https://github.com/obaid08642-ops/new/pull/265), tip `27d336d` |
 | 2026-10-04 | `design/shells-native`, `design/shells-web` | Board side-by-side images for the shells, with fixes for the raised tab offset, the CTA canvas glass and the desktop top-bar inset. | PR [#261](https://github.com/obaid08642-ops/new/pull/261) `e5f9f7a`, PR [#263](https://github.com/obaid08642-ops/new/pull/263) `1962644` |
 | 2026-10-04 | `design/components-icons` | #264 design review fixes: one-card ServiceTile, Avatar without illustrated art, single-star Rating hidden without ratings, `build-compare.mjs` board side-by-side images. | PR [#264](https://github.com/obaid08642-ops/new/pull/264), tip `b0e4c17` |
