@@ -105,6 +105,59 @@ describe('OrdersService governed pharmacy_orders (Q30 tracking / Q16 reorder)', 
       expect(governedView.delivery_mode).toBe('DELIVERY');
     });
 
+    it('returns the governed order timeline in time order, without actor ids or meta', async () => {
+      const t0 = new Date('2026-10-01T08:00:00.000Z');
+      const t1 = new Date('2026-10-01T08:05:00.000Z');
+      const t2 = new Date('2026-10-01T09:00:00.000Z');
+      const { service } = setup({
+        governedOrder: {
+          ...governedOrder,
+          status: 'waiting_copay',
+          timeline: [
+            { ts: t2, event: 'pharmacy_insurance_decision_recorded', by: 'pharmacy-9', meta: { allocation_id: 'a-1' } },
+            { ts: t0, event: 'created' },
+            { ts: t1, event: 'broadcast_started', meta: { radius: 3 } },
+          ],
+        },
+      });
+
+      const view: any = await service.getTracking('gov-order-1', patient);
+
+      expect(view.state).toBe('waiting_copay');
+      expect(view.timeline).toEqual([
+        { state: 'created', at: t0.toISOString() },
+        { state: 'broadcast_started', at: t1.toISOString() },
+        { state: 'pharmacy_insurance_decision_recorded', at: t2.toISOString() },
+      ]);
+    });
+
+    it('returns the legacy order state_history as the same timeline shape', async () => {
+      const t0 = new Date('2026-09-01T10:00:00.000Z');
+      const t1 = new Date('2026-09-01T10:30:00.000Z');
+      const { service } = setup({
+        legacyOrder: {
+          id: 'legacy-2', patient_id: 'patient-1', state: 'ACCEPTED', updatedAt: t1, total: 10,
+          state_history: [
+            { from: '', to: 'CREATED', by_user_id: 'patient-1', at: t0 },
+            { from: 'CREATED', to: 'ACCEPTED', by_user_id: 'ph-1', reason: 'bid_accepted', at: t1 },
+          ],
+        },
+      });
+
+      const view: any = await service.getTracking('legacy-2', patient);
+
+      expect(view.timeline).toEqual([
+        { state: 'CREATED', at: t0.toISOString() },
+        { state: 'ACCEPTED', at: t1.toISOString() },
+      ]);
+    });
+
+    it('returns an empty timeline when the order has no history', async () => {
+      const { service } = setup({ governedOrder: { ...governedOrder, timeline: undefined } });
+      const view: any = await service.getTracking('gov-order-1', patient);
+      expect(view.timeline).toEqual([]);
+    });
+
     it('404s on an unknown id', async () => {
       const { service } = setup({});
       await expect(service.getTracking('nope', patient)).rejects.toBeInstanceOf(NotFoundException);

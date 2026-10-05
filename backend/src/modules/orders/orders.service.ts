@@ -12,6 +12,7 @@ import { Delivery, DeliveryDocument } from '../../schemas/delivery.schema';
 import { OrderState, ORDER_TRANSITIONS, UserRole, DeliveryState } from '../../common/enums';
 import { EVENTS } from '../../common/events';
 import { DispatchService } from './dispatch.service';
+import { buildTrackingTimeline } from './tracking-timeline';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { OrderRepository } from "./repositories/order.repository";
 import { MedicineRepository } from "./repositories/medicine.repository";
@@ -861,6 +862,7 @@ export class OrdersService {
         total: order.total,
         pharmacy_name: pharmacy?.name_ar || pharmacy?.name_en || null,
         delivery,
+        timeline: buildTrackingTimeline(order.state_history, 'to', 'at'),
       };
     }
 
@@ -890,6 +892,7 @@ export class OrdersService {
       total: governed.totals?.total ?? governed.total_price ?? governed.total ?? 0,
       pharmacy_name: governedPharmacy?.name_ar || governedPharmacy?.name_en || null,
       delivery: null,
+      timeline: buildTrackingTimeline(governed.timeline, 'event', 'ts'),
     };
   }
 

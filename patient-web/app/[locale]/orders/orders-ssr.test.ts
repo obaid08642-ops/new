@@ -6,6 +6,7 @@ vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) 
 vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatientAccess }));
 vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+import { redirect } from "next/navigation";
 import OrdersPage from "./page";
 import OrderDetailPage from "./[orderId]/page";
 import OrderTrackingPage from "./[orderId]/tracking/page";
@@ -18,3 +19,42 @@ describe("order detail SSR boundary", () => { beforeEach(() => { state.requirePa
 describe("order tracking SSR boundary", () => { beforeEach(() => { state.requirePatientAccess.mockReset().mockResolvedValue(serverToken); state.callPatientApi.mockReset(); }); it("renders tracking status only from the authorized backend and never serializes private payloads", async () => { state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ data: { state: "OUT_FOR_DELIVERY", pharmacy_name: "Sandbox Pharmacy", delivery: { eta_minutes: 24 }, total: 18, delivery_address: "private-address", patient_notes: "private-notes", prescription_attachments: ["private-file"] } }), { status: 200 })); const html = renderToStaticMarkup(await OrderTrackingPage({ params: Promise.resolve({ locale: "en", orderId }) })); expect(state.callPatientApi).toHaveBeenCalledWith(`/orders/${orderId}/tracking`, {}, serverToken); expect(html).toContain("OUT_FOR_DELIVERY"); expect(html).toContain("Sandbox Pharmacy");
     expect(html).toContain("18");
     for (const secret of [serverToken, "private-address", "private-notes", "private-file"]) expect(html).not.toContain(secret); }); });
+
+describe("order tracking timeline and payment hand-off (Q30)", () => {
+  beforeEach(() => { state.requirePatientAccess.mockReset().mockResolvedValue(serverToken); state.callPatientApi.mockReset(); vi.mocked(redirect).mockReset(); });
+
+  it("renders the governed timeline from the tracking payload with translated labels in time order", async () => {
+    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ order_id: orderId, state: "waiting_copay", total: 55, timeline: [
+      { state: "created", at: "2026-10-01T08:00:00.000Z" },
+      { state: "final_quote_accepted", at: "2026-10-01T09:00:00.000Z" },
+      { state: "some_future_event", at: "2026-10-01T10:00:00.000Z" },
+    ] }), { status: 200 }));
+    const html = renderToStaticMarkup(await OrderTrackingPage({ params: Promise.resolve({ locale: "ar", orderId }) }));
+    expect(html).toContain("timelineTitle");
+    const created = html.indexOf("states.created");
+    const accepted = html.indexOf("states.final_quote_accepted");
+    expect(created).toBeGreaterThan(-1);
+    expect(accepted).toBeGreaterThan(created);
+    expect(html).toContain("some future event");
+    expect(html).not.toContain("timelineEmpty");
+  });
+
+  it("shows the empty timeline state when the order has no history", async () => {
+    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ order_id: orderId, state: "draft", timeline: [] }), { status: 200 }));
+    const html = renderToStaticMarkup(await OrderTrackingPage({ params: Promise.resolve({ locale: "en", orderId }) }));
+    expect(html).toContain("timelineEmpty");
+  });
+
+  it("?pay=1 hands off to the governed pharmacy payment page", async () => {
+    vi.mocked(redirect).mockImplementation(() => { throw new Error("NEXT_REDIRECT"); });
+    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ order_id: orderId, state: "cash_card_payment_pending", timeline: [] }), { status: 200 }));
+    await expect(OrderTrackingPage({ params: Promise.resolve({ locale: "ar", orderId }), searchParams: Promise.resolve({ pay: "1" }) })).rejects.toThrow("NEXT_REDIRECT");
+    expect(redirect).toHaveBeenCalledWith(`/ar/pharmacy/payment?orderId=${orderId}`);
+  });
+
+  it("without ?pay=1 stays on tracking", async () => {
+    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ order_id: orderId, state: "confirmed", timeline: [] }), { status: 200 }));
+    await OrderTrackingPage({ params: Promise.resolve({ locale: "ar", orderId }) });
+    expect(redirect).not.toHaveBeenCalled();
+  });
+});
