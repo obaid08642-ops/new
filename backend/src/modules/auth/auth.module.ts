@@ -1,4 +1,4 @@
-import { Module, Global, InternalServerErrorException } from '@nestjs/common';
+import { Module, Global } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { HttpModule } from '@nestjs/axios';
 import type { StringValue } from 'ms';
@@ -28,6 +28,14 @@ import { UserRepository } from "./repositories/user.repository";
 import { PasswordSecurityService } from './password-security.service';
 import { TurnstileService } from './turnstile.service';
 import { SmsFraudProtectionService } from './sms-fraud-protection.service';
+import { GuestService } from './guest.service';
+import { PermissionMatrixService } from './permission-matrix.service';
+import { AccountLinkingService } from './account-linking.service';
+import { SessionService } from './session.service';
+import { GuestLifecycleService } from './guest-lifecycle.service';
+import { EmailOtpService } from './email-otp.service';
+import { CheckoutContactService } from './checkout-contact.service';
+import { MedicalAccessLog, MedicalAccessLogSchema } from '../../schemas/medical-access-log.schema';
 
 @Global()
 @Module({
@@ -36,8 +44,8 @@ import { SmsFraudProtectionService } from './sms-fraud-protection.service';
       global: true,
       useFactory: () => {
         const secret = process.env.JWT_SECRET;
-        if (!secret) throw new InternalServerErrorException('FATAL: JWT_SECRET must be configured');
-        if (process.env.NODE_ENV === 'production' && secret.length < 32) throw new InternalServerErrorException('FATAL: JWT_SECRET must be at least 32 characters in production');
+        if (!secret) throw new Error('FATAL: JWT_SECRET must be configured');
+        if (process.env.NODE_ENV === 'production' && secret.length < 32) throw new Error('FATAL: JWT_SECRET must be at least 32 characters in production');
         return {
           secret,
           signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN || '1h') as StringValue },
@@ -56,6 +64,7 @@ import { SmsFraudProtectionService } from './sms-fraud-protection.service';
       { name: ProviderProfile.name, schema: ProviderProfileSchema },
       { name: PasskeyCredential.name, schema: PasskeyCredentialSchema },
       { name: TrustedDevice.name, schema: TrustedDeviceSchema },
+      { name: MedicalAccessLog.name, schema: MedicalAccessLogSchema },
     ]),
   ],
   controllers: [AuthController, PasskeyController, AdminDevicesController, AdminRecoveryController, StepUpController],
@@ -72,9 +81,16 @@ import { SmsFraudProtectionService } from './sms-fraud-protection.service';
     PasswordSecurityService,
     TurnstileService,
     SmsFraudProtectionService,
+    GuestService,
+    PermissionMatrixService,
+    AccountLinkingService,
+    SessionService,
+    GuestLifecycleService,
+    EmailOtpService,
+    CheckoutContactService,
     { provide: 'PatientProfileRepository', useClass: PatientProfileRepository },
     { provide: 'UserRepository', useClass: UserRepository },
   ],
-  exports: [AuthService, JwtModule, JwtAuthGuard, MongooseModule, DeviceTrustService, AdminSessionService, PasswordSecurityService, TurnstileService, SmsFraudProtectionService],
+  exports: [AuthService, JwtModule, JwtAuthGuard, MongooseModule, DeviceTrustService, AdminSessionService, PasswordSecurityService, TurnstileService, SmsFraudProtectionService, GuestService, PermissionMatrixService, AccountLinkingService, SessionService, GuestLifecycleService, EmailOtpService, CheckoutContactService],
 })
 export class AuthModule {}

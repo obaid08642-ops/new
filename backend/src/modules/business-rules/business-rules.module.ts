@@ -284,6 +284,7 @@ export class BusinessRulesService {
 export class BusinessRulesController {
   constructor(private svc: BusinessRulesService) {}
   
+  @Roles(UserRole.ADMIN)
   @Get('config/surge')
   getSurge() { return this.svc.getSurgeConfig(); }
 
