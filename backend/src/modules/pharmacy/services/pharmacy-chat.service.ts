@@ -104,11 +104,12 @@ export class PharmacyChatService {
     const m = await this.messages.create({
       id: uuidv4(), thread_id, sender_account_id: user.id,
       sender_role: isPatient ? 'patient' : 'pharmacy',
-      text: body.text, image_uri: body.image_uri, substitute_offer: body.substitute_offer,
+      // Only the pharmacy proposes substitutes; a patient message never carries one.
+      text: body.text, image_uri: body.image_uri, substitute_offer: isPharmacy ? body.substitute_offer : undefined,
     });
     t.last_message_at = new Date();
     await t.save();
-    if (body.substitute_offer) {
+    if (body.substitute_offer && isPharmacy) {
       await this.bus.emit({ type: 'substitute.proposed', entity_type: 'chat', entity_id: t.id, actor_account_id: user.id, actor_role: isPatient ? 'patient' : 'provider', patient_account_id: t.patient_account_id, pharmacy_account_id: t.pharmacy_account_id, meta: { order_id: t.order_id, order_item_id: t.order_item_id, message_id: m.id, offer: body.substitute_offer } });
     }
     return m.toObject();
@@ -134,53 +135,18 @@ export class PharmacyChatService {
       throw new BadRequestException('substitute_not_from_pharmacy');
     }
     const offeredPrice = Number(msg.substitute_offer.price);
-    // Find the pharmacy's allocation for this order and update the matching item
-    const alloc = await this.allocs.findOne({ order_id: t.order_id, pharmacy_account_id: t.pharmacy_account_id });
-    let totals: SubstituteTotals | undefined;
-    if (alloc) {
+    const totals = await this.changeAllocationLine(user, t, 'substitute_accepted', (alloc) => {
       const item = alloc.items.find(i => i.order_item_id === t.order_item_id);
-      if (item) {
-        const order = await this.orders.findOne({ id: t.order_id }).lean();
-        const selected = Boolean(order && order.selected_allocation_id === alloc.id);
-        if (selected && order.pricing_snapshot?.hash) {
-          const paid = await this.orders.db.collection('pharmacy_payment_evidence').findOne({
-            order_id: t.order_id, status: 'confirmed', quote_snapshot_hash: order.pricing_snapshot.hash,
-          });
-          if (paid) throw new BadRequestException('substitute_after_payment_requires_new_quote');
-        }
-        item.action = AllocationItemAction.SUBSTITUTE;
-        item.substitute_for_sku = item.sku;
-        item.sku = msg.substitute_offer.sku || item.sku;
-        item.name = msg.substitute_offer.name || item.name;
-        item.substitute_reason = msg.substitute_offer.notes || 'patient_accepted_in_chat';
-        if (Number.isFinite(offeredPrice) && offeredPrice >= 0) item.unit_price = offeredPrice;
-        item.updated_at = new Date();
-        totals = allocationTotals(alloc);
-        alloc.totals = { ...alloc.totals, ...totals };
-        alloc.timeline.push({ ts: new Date(), event: 'substitute_accepted', by: user.id, meta: { order_item_id: t.order_item_id, message_id: msg.id, total: totals.total } });
-        alloc.markModified('items');
-        alloc.markModified('totals');
-        await alloc.save();
-        if (selected) {
-          const snapshot = order.pricing_snapshot;
-          const set: Record<string, unknown> = { totals };
-          if (snapshot?.offer_id) {
-            set.pricing_snapshot = {
-              ...snapshot,
-              totals,
-              hash: crypto.createHash('sha256')
-                .update(JSON.stringify({ offer_id: snapshot.offer_id, offer_version: snapshot.offer_version, totals }))
-                .digest('hex'),
-              captured_at: new Date(),
-            };
-          }
-          await this.orders.updateOne({ id: order.id }, {
-            $set: set,
-            $push: { timeline: { ts: new Date(), event: 'substitute_accepted_totals_updated', by: user.id, meta: { allocation_id: alloc.id, order_item_id: t.order_item_id, total: totals.total } } },
-          });
-        }
-      }
-    }
+      if (!item) return false;
+      item.action = AllocationItemAction.SUBSTITUTE;
+      item.substitute_for_sku = item.sku;
+      item.sku = msg.substitute_offer.sku || item.sku;
+      item.name = msg.substitute_offer.name || item.name;
+      item.substitute_reason = msg.substitute_offer.notes || 'patient_accepted_in_chat';
+      if (Number.isFinite(offeredPrice) && offeredPrice >= 0) item.unit_price = offeredPrice;
+      item.updated_at = new Date();
+      return true;
+    }, { message_id: msg.id });
     t.status = 'closed';
     t.resolution = 'accepted';
     await t.save();
@@ -189,27 +155,87 @@ export class PharmacyChatService {
     return { ok: true, ...(totals ? { totals } : {}) };
   }
 
+  /**
+   * Apply a patient decision to the pharmacy's allocation line for this thread
+   * and recompute the totals from the allocation lines. When the allocation is
+   * the order's selected one, the order totals and the quote snapshot the
+   * payment is bound to follow (same hash rule as the offer selection). Once a
+   * payment for the current quote is confirmed the lines can no longer change.
+   * Returns the new totals, or undefined when there was no line to change.
+   */
+  private async changeAllocationLine(
+    user: { id: string },
+    t: PharmacyChatThread,
+    event: 'substitute_accepted' | 'substitute_rejected_item_removed' | 'item_removed_by_patient',
+    mutate: (alloc: PharmacyAllocation) => boolean,
+    meta: Record<string, unknown> = {},
+  ): Promise<SubstituteTotals | undefined> {
+    const alloc = await this.allocs.findOne({ order_id: t.order_id, pharmacy_account_id: t.pharmacy_account_id });
+    if (!alloc || !alloc.items.some(i => i.order_item_id === t.order_item_id)) return undefined;
+    const order = await this.orders.findOne({ id: t.order_id }).lean();
+    const selected = Boolean(order && order.selected_allocation_id === alloc.id);
+    if (selected && order.pricing_snapshot?.hash) {
+      const paid = await this.orders.db.collection('pharmacy_payment_evidence').findOne({
+        order_id: t.order_id, status: 'confirmed', quote_snapshot_hash: order.pricing_snapshot.hash,
+      });
+      if (paid) throw new BadRequestException(event === 'substitute_accepted' ? 'substitute_after_payment_requires_new_quote' : 'item_change_after_payment_requires_new_quote');
+    }
+    if (!mutate(alloc)) return undefined;
+    const totals = allocationTotals(alloc);
+    alloc.totals = { ...alloc.totals, ...totals };
+    alloc.timeline.push({ ts: new Date(), event, by: user.id, meta: { ...meta, order_item_id: t.order_item_id, total: totals.total } });
+    alloc.markModified('items');
+    alloc.markModified('totals');
+    await alloc.save();
+    if (selected) {
+      const snapshot = order.pricing_snapshot;
+      const set: Record<string, unknown> = { totals };
+      if (snapshot?.offer_id) {
+        set.pricing_snapshot = {
+          ...snapshot,
+          totals,
+          hash: crypto.createHash('sha256')
+            .update(JSON.stringify({ offer_id: snapshot.offer_id, offer_version: snapshot.offer_version, totals }))
+            .digest('hex'),
+          captured_at: new Date(),
+        };
+      }
+      await this.orders.updateOne({ id: order.id }, {
+        $set: set,
+        $push: { timeline: { ts: new Date(), event: `${event}_totals_updated`, by: user.id, meta: { allocation_id: alloc.id, order_item_id: t.order_item_id, total: totals.total } } },
+      });
+    }
+    return totals;
+  }
+
+  /**
+   * Patient: reject the offered substitute, or remove the line outright. Both
+   * take the line out of the order (13.R2 Verify: "reject -> item removed")
+   * and out of the pharmacy's allocation, and the totals are recomputed.
+   */
   async rejectOrRemove(user: any, thread_id: string, action: 'rejected' | 'removed'): Promise<any> {
     const t = await this.threads.findOne({ id: thread_id });
     if (!t) throw new NotFoundException();
     if (t.patient_account_id !== user.id) throw new ForbiddenException();
     if (t.status !== 'open') throw new BadRequestException('thread_closed');
+    const totals = await this.changeAllocationLine(user, t, action === 'rejected' ? 'substitute_rejected_item_removed' : 'item_removed_by_patient', (alloc) => {
+      const before = alloc.items.length;
+      alloc.items = alloc.items.filter(i => i.order_item_id !== t.order_item_id);
+      return alloc.items.length !== before;
+    });
+    const order = await this.orders.findOne({ id: t.order_id });
+    if (order && order.items.some((it: any) => it.id === t.order_item_id)) {
+      order.items = order.items.filter((it: any) => it.id !== t.order_item_id);
+      order.markModified('items');
+      order.timeline.push({ ts: new Date(), event: 'item_removed_from_order', meta: { order_item_id: t.order_item_id, reason: action } });
+      await order.save();
+    }
     t.status = 'closed';
     t.resolution = action;
     await t.save();
-    if (action === 'removed') {
-      // Remove item from order
-      const order = await this.orders.findOne({ id: t.order_id });
-      if (order) {
-        order.items = order.items.filter((it: any) => it.id !== t.order_item_id);
-        order.markModified('items');
-        order.timeline.push({ ts: new Date(), event: 'item_removed_from_order', meta: { order_item_id: t.order_item_id } });
-        await order.save();
-      }
-    }
-    await this.messages.create({ id: uuidv4(), thread_id, sender_account_id: 'system', sender_role: 'system', text: action === 'rejected' ? `المريض رفض البديل.` : `تم حذف الصنف من الطلب.` });
+    await this.messages.create({ id: uuidv4(), thread_id, sender_account_id: 'system', sender_role: 'system', text: action === 'rejected' ? `المريض رفض البديل وحُذف الصنف من الطلب.` : `تم حذف الصنف من الطلب.` });
     await this.bus.emit({ type: action === 'rejected' ? 'substitute.rejected' : 'substitute.item_removed', entity_type: 'chat', entity_id: t.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: t.patient_account_id, pharmacy_account_id: t.pharmacy_account_id, meta: { order_id: t.order_id, order_item_id: t.order_item_id } });
-    return { ok: true };
+    return { ok: true, ...(totals ? { totals } : {}) };
   }
 
   /** Sweep closures (called by admin) — archive threads where order completed >12h ago. */

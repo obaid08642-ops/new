@@ -278,7 +278,9 @@ export class PharmacyChatController {
   constructor(private chat: PharmacyChatService) {}
   @Get('threads') list(@CurrentUser() u: any, @Query('order_id') oid?: string) { return this.chat.listThreads(u, oid); }
   @Get('threads/:id/messages') msgs(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.listMessages(u, id); }
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  // cc6e7bb: both clients show the patient a send box in the negotiation
+  // thread; the service checks the caller is that thread's patient or pharmacy.
+  @Roles(UserRole.PHARMACY, UserRole.ADMIN, UserRole.PATIENT)
   @Post('threads/:id/messages') post(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PostDto) { return this.chat.postMessage(u, id, b); }
   // R2: patients decide on substitution proposals for their own orders.
   // The service enforces t.patient_account_id === user.id, so opening the
