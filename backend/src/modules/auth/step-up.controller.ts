@@ -9,6 +9,9 @@ import { IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
 export class StepUpIssueDto {
   @IsOptional() @IsString() @MaxLength(320) identifier?: string;
   @IsOptional() @IsString() @MaxLength(320) action?: string;
+  // free-form: the WebAuthn assertion (id, rawId, type, response{clientDataJSON, authenticatorData,
+  // signature, userHandle}, clientExtensionResults) exactly as the browser returns it; its shape is
+  // verified by StepUpService.issueFromAssertion (verifyAuthenticationResponse) against the stored passkey.
   @IsOptional() @IsObject() response?: Record<string, unknown>;
 }
 
