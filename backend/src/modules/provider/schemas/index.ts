@@ -72,6 +72,10 @@ export class ProviderProfile extends Document {
   @Prop() years_of_experience?: number;
   // phones: [{id,type,country_code,number,is_primary,verified}]
   @Prop({ type: [Object], default: [] }) phones: any[];
+  /** Q45: public contact number the ambulance profile edits (PATCH provider profile, after approval). */
+  @Prop() contact_phone?: string;
+  /** Q45: cities the provider covers (ambulance profile), validated by ProviderProfileService. */
+  @Prop({ type: [String], default: undefined }) coverage_cities?: string[];
   @Prop() website?: string;
   @Prop({ type: Object }) social?: any;
   @Prop({ type: Object }) address?: any; // {country,city,district,street,building_number,postal_code,landmark}
