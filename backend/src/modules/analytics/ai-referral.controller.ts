@@ -1,62 +1,46 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { IsOptional, IsString, MaxLength } from 'class-validator';
-import { InjectConnection } from '@nestjs/mongoose';
-import { Connection } from 'mongoose';
-import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { AiReferralService } from './ai-referral.service';
 
 /**
  * C6.4: AI referral tracking.
  *
- * Tracks referrals from AI assistants (chat.openai.com, perplexity.ai, gemini,
- * copilot, claude.ai) in analytics and an admin report.
+ * Recording is a public, throttled beacon (AI referrals are anonymous web
+ * visitors); the report is admin-only.
  */
-
-const AI_REFERRERS = [
-  'chat.openai.com',
-  'perplexity.ai',
-  'gemini.google.com',
-  'copilot.microsoft.com',
-  'claude.ai',
-];
 
 /** F1/R25: real DTO for the AI-referral beacon body. */
 export class AiReferralDto {
   @IsOptional() @IsString() @MaxLength(512) referrer?: string;
   @IsOptional() @IsString() @MaxLength(512) path?: string;
+  @IsOptional() @IsString() @MaxLength(128) utm_source?: string;
   @IsOptional() @IsString() @MaxLength(512) user_agent?: string;
+}
+
+/** ccde4f0: POST /analytics/ai-referral — called by the patient website proxy. */
+@Controller('analytics/ai-referral')
+export class AiReferralBeaconController {
+  constructor(private readonly referrals: AiReferralService) {}
+
+  @Public()
+  @Throttle({ default: { limit: 60, ttl: 60_000 } })
+  @Post()
+  record(@Body() body: AiReferralDto) {
+    return this.referrals.record(body);
+  }
 }
 
 @Controller('admin/ai-referrals')
 @UseGuards(JwtAuthGuard)
+@Roles(UserRole.ADMIN)
 export class AiReferralController {
-  constructor(@InjectConnection() private readonly conn: Connection) {}
-
-  private get referrals() {
-    return this.conn.collection('ai_referrals');
-  }
-
-  @Post()
-  async record(@Body() body: AiReferralDto) {
-    const referrer = String(body?.referrer || '');
-    const isAi = AI_REFERRERS.some((r) => referrer.toLowerCase().includes(r));
-    if (!isAi) return { ok: false, reason: 'not_ai_referrer' };
-    await this.referrals.insertOne({
-      referrer,
-      path: body.path || '/',
-      user_agent: body.user_agent || null,
-      created_at: new Date(),
-    });
-    return { ok: true };
-  }
+  constructor(private readonly referrals: AiReferralService) {}
 
   @Get()
-  @Roles(UserRole.ADMIN)
   async stats() {
-    const stats = await this.referrals.aggregate([
-      { $group: { _id: '$referrer', count: { $sum: 1 } } },
-      { $sort: { count: -1 } },
-    ]).toArray();
-    return { stats };
+    return { stats: await this.referrals.stats() };
   }
 }

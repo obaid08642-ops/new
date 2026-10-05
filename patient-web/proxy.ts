@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextFetchEvent, NextRequest, NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 import { assertSameOrigin } from "./lib/api/csrf";
+import { aiReferralBeacon } from "./lib/ai-referral-beacon";
 
 const handleI18nRouting = createMiddleware(routing);
 const noIndexHeader = "noindex, nofollow, noarchive";
@@ -96,12 +97,26 @@ function createContentSecurityPolicy(nonce: string) {
   ].join("; ");
 }
 
-export async function proxy(request: NextRequest) {
+/** C6.4: report a page visit from an AI assistant without delaying the page. */
+function sendAiReferral(request: NextRequest, event?: NextFetchEvent) {
+  const body = aiReferralBeacon(request.nextUrl, request.headers);
+  if (!body) return;
+  const sent = fetch(`${API_BASE}/analytics/ai-referral`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(body),
+  }).then(() => undefined, () => undefined);
+  event?.waitUntil(sent);
+}
+
+export async function proxy(request: NextRequest, event?: NextFetchEvent) {
   const { pathname } = request.nextUrl;
   // R11 §5: every state-changing API call is refused when a browser sends it
   // from another site (login CSRF included).
   if (pathname.startsWith("/api")) return assertSameOrigin(request) ?? NextResponse.next();
   if (pathname.startsWith("/_next") || pathname.includes(".")) return NextResponse.next();
+
+  sendAiReferral(request, event);
 
   const legacyRedirect = await legacyMedicineRedirect(request);
   if (legacyRedirect) return legacyRedirect;

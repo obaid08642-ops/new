@@ -57,3 +57,35 @@ describe("indexing response policy", () => {
     expect(firstPolicy).not.toBe(secondPolicy);
   });
 });
+
+describe("AI referral beacon (C6.4)", () => {
+  beforeEach(() => vi.unstubAllGlobals());
+
+  function visit(pathname: string, headers: Record<string, string>) {
+    return new NextRequest(new URL(pathname, "https://nabd.plus"), { headers });
+  }
+
+  it("reports a page visit referred by an AI assistant to the public analytics endpoint", async () => {
+    const fetchMock = vi.fn(async () => new Response("{}", { status: 201 }));
+    vi.stubGlobal("fetch", fetchMock);
+    const waits: Promise<unknown>[] = [];
+    await proxy(visit("/ar/medicine-catalog", { referer: "https://chatgpt.com/c/abc", "user-agent": "UA" }), { waitUntil: (p: Promise<unknown>) => waits.push(p) } as never);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toMatch(/\/analytics\/ai-referral$/);
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(String(init.body))).toEqual({ referrer: "https://chatgpt.com/c/abc", path: "/ar/medicine-catalog", user_agent: "UA" });
+    expect(waits).toHaveLength(1);
+  });
+
+  it("reports a utm_source=perplexity.ai visit and ignores ordinary or look-alike referrers", async () => {
+    const fetchMock = vi.fn(async () => new Response("{}", { status: 201 }));
+    vi.stubGlobal("fetch", fetchMock);
+    await proxy(visit("/en?utm_source=perplexity.ai", {}));
+    expect(JSON.parse(String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body))).toEqual({ path: "/en", utm_source: "perplexity.ai" });
+    fetchMock.mockClear();
+    await proxy(visit("/en", { referer: "https://www.google.com/search?q=nabd" }));
+    await proxy(visit("/en", { referer: "https://evil.example/?claude.ai" }));
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
