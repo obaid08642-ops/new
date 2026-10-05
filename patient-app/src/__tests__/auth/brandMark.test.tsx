@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react-native';
 
 import { BrandMark } from '../../../../packages/ui-native/src';
+import { tokens } from '../../../../packages/design-tokens/dist/ts/tokens';
 import {
   BRAND_GOOGLE_PATH,
   BRAND_SNAPCHAT_PATH,
@@ -17,13 +18,15 @@ const findAll = (tree: unknown, type: string): Node[] => {
   return nodes.flatMap((n) => (n && typeof n === 'object' ? [...((n as Node).type === type ? [n as Node] : []), ...findAll((n as Node).children ?? [], type)] : []));
 };
 
+const INK = tokens('light').color.text.primary;
+
 describe('<BrandMark> (the sign-in brand marks of packages/ui-native)', () => {
   it.each([
     ['google', BRAND_GOOGLE_PATH],
     ['x', BRAND_X_PATH],
     ['snapchat', BRAND_SNAPCHAT_PATH],
   ] as const)('draws %s from the shared path data in the one colour it is given', async (brand, path) => {
-    await render(<BrandMark brand={brand} color="#0B1B2B" testID="mark" />);
+    await render(<BrandMark brand={brand} color={INK} testID="mark" />);
     expect(screen.getByTestId('mark', ANY)).toBeTruthy();
     const paths = findAll(screen.toJSON(), 'RNSVGPath');
     expect(paths).toHaveLength(1);
@@ -32,14 +35,14 @@ describe('<BrandMark> (the sign-in brand marks of packages/ui-native)', () => {
   });
 
   it('is decorative unless it is given a label', async () => {
-    await render(<BrandMark brand="google" color="#000" testID="deco" />);
+    await render(<BrandMark brand="google" color={INK} testID="deco" />);
     expect(screen.getByTestId('deco', ANY).props.accessible).toBe(false);
-    await render(<BrandMark brand="google" color="#000" label="Google" testID="named" />);
+    await render(<BrandMark brand="google" color={INK} label="Google" testID="named" />);
     expect(screen.getByTestId('named', ANY).props.accessibilityLabel).toBe('Google');
   });
 
   it('keeps the glyph proportions: the height is the size, the width follows the viewBox', async () => {
-    await render(<BrandMark brand="google" color="#000" size={20} testID="g" />);
+    await render(<BrandMark brand="google" color={INK} size={20} testID="g" />);
     expect(screen.getByTestId('g', ANY).props.height).toBe(20);
     expect(screen.getByTestId('g', ANY).props.width).toBe(Math.round((20 * 488) / 512));
   });
