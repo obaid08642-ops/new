@@ -158,9 +158,41 @@ describe("P15.3 — payment, booking, prescription and emergency are NEVER optim
     });
   }
 
-  it("an unknown kind defaults to optimistic, never to silent success", () => {
-    expect(pendingMode("something-new")).toBe("optimistic");
+  it("an unknown kind is processing, never optimistic (deny by default)", () => {
+    expect(pendingMode("something-new")).toBe("processing");
     expect(isNeverOptimistic("something-new")).toBe(false);
+    expect(isSafeOptimistic("something-new")).toBe(false);
+  });
+
+  it('a typo\'d kind ("paymnt") never applies optimistically', async () => {
+    expect(pendingMode("paymnt")).toBe("processing");
+    const apply = vi.fn();
+    const rollback = vi.fn();
+    const toast = vi.fn();
+    const commit = vi.fn(async () => "confirmed");
+
+    const outcome = await runOptimistic({ kind: "paymnt", apply, rollback, commit, toast, copy });
+
+    // "failed", NOT "committed-optimistic" and NOT "rolled_back": nothing was
+    // ever applied locally, so there is nothing to undo.
+    expect(outcome).toEqual({ status: "committed", optimistic: false, value: "confirmed" });
+    expect(apply).not.toHaveBeenCalled();
+    expect(rollback).not.toHaveBeenCalled();
+    expect(toast).not.toHaveBeenCalled();
+  });
+
+  it('a typo\'d kind ("paymnt") reports failure without pretending anything changed', async () => {
+    const apply = vi.fn();
+    const rollback = vi.fn();
+    const toast = vi.fn();
+
+    const outcome = await runOptimistic({ kind: "paymnt", apply, rollback, commit: failingCommit(500), toast, copy });
+
+    expect(outcome.status).toBe("failed");
+    expect(apply).not.toHaveBeenCalled();
+    expect(rollback).not.toHaveBeenCalled();
+    expect(toast).toHaveBeenCalledTimes(1);
+    expect(toast.mock.calls[0][0].title).toBe("Request failed");
   });
 });
 
