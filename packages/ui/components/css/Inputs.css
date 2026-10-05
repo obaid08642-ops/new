@@ -86,10 +86,10 @@
   background: transparent;
   outline: none;
   font-family: inherit;
-  font-size: 15px;
+  font-size: var(--nabd-font-size-body);
   color: var(--nabd-color-text-primary);
 }
-.nabd-search__input--page { font-size: 16px; }
+.nabd-search__input--page { font-size: var(--nabd-font-size-input); }
 /* A button inside the field: a 44 hit area that takes no more room than its glyph. */
 .nabd-search__inner {
   width: 44px;
@@ -154,14 +154,14 @@
   display: grid;
   place-items: center;
   /* canvas/Cart draws the signs as 16px text */
-  font-size: 16px;
+  font-size: var(--nabd-font-size-input);
   line-height: 1;
   background: var(--nabd-color-bg-elevated);
 }
 .nabd-stepper__value {
   min-width: 20px;
   text-align: center;
-  font-size: 14px;
+  font-size: var(--nabd-font-size-control);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--nabd-color-text-primary);

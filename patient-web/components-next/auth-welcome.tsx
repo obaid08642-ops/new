@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, FIcon, Icon } from "@/components-next/ui-generated";
+import { Button, FIcon, Icon, SERVICE_ICONS } from "@/components-next/ui-generated";
 import { NabdMark } from "@/components-next/nabd-mark";
 import { useRouter } from "next/navigation";
 import type { Locale } from "@/lib/i18n";
@@ -43,10 +43,10 @@ export function AuthWelcome({ locale }: { locale: Locale }) {
   const ar = locale === "ar";
   return <div className={styles.welcome}>
     <div className={styles.stage} aria-hidden="true">
-      <span className={`${styles.orbit} ${styles.o1}`}><FIcon icon="pill" tone="coral" chip="none" size={40} /></span>
-      <span className={`${styles.orbit} ${styles.o2}`}><FIcon icon="stethoscope" tone="blue" chip="none" size={36} /></span>
-      <span className={`${styles.orbit} ${styles.o3}`}><FIcon icon="test-tube" tone="mint" chip="none" size={34} /></span>
-      <span className={`${styles.orbit} ${styles.o4}`}><FIcon icon="first-aid-kit" tone="teal" chip="none" size={38} /></span>
+      <span className={`${styles.orbit} ${styles.o1}`}><FIcon icon={SERVICE_ICONS.pharmacy.icon} tone={SERVICE_ICONS.pharmacy.tone} chip="none" size={40} /></span>
+      <span className={`${styles.orbit} ${styles.o2}`}><FIcon icon={SERVICE_ICONS.consult.icon} tone={SERVICE_ICONS.consult.tone} chip="none" size={36} /></span>
+      <span className={`${styles.orbit} ${styles.o3}`}><FIcon icon={SERVICE_ICONS.lab.icon} tone={SERVICE_ICONS.lab.tone} chip="none" size={34} /></span>
+      <span className={`${styles.orbit} ${styles.o4}`}><FIcon icon={SERVICE_ICONS.nursing.icon} tone={SERVICE_ICONS.nursing.tone} chip="none" size={38} /></span>
       <NabdMark size={150} variant="text" pulse />
     </div>
     <div className={styles.identity}>

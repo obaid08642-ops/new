@@ -44,7 +44,7 @@
   align-items: center;
   gap: 6px;
   white-space: nowrap;
-  font-size: 14px;
+  font-size: var(--nabd-font-size-control);
   font-weight: 500;
   background: var(--nabd-color-bg-surface);
   color: var(--nabd-color-text-primary);
@@ -56,7 +56,7 @@
   color: var(--nabd-color-action-selected-fg);
   border: 0;
 }
-.nabd-chip__count { font-size: 12px; opacity: 0.7; }
+.nabd-chip__count { font-size: var(--nabd-font-size-meta); opacity: 0.7; }
 
 /* Badge. A tone resolves to two colours, the ink and the surface it sits on:
      neutral  text.secondary          on bg.sunken
@@ -184,9 +184,9 @@
 .nabd-avatar--sm, .nabd-avatar--sm > .nabd-avatar__ring { width: 32px; height: 32px; }
 .nabd-avatar--md, .nabd-avatar--md > .nabd-avatar__ring { width: 44px; height: 44px; }
 .nabd-avatar--lg, .nabd-avatar--lg > .nabd-avatar__ring { width: 64px; height: 64px; }
-.nabd-avatar--sm > .nabd-avatar__initials { font-size: 12px; }
-.nabd-avatar--md > .nabd-avatar__initials { font-size: 16px; }
-.nabd-avatar--lg > .nabd-avatar__initials { font-size: 23px; }
+.nabd-avatar--sm > .nabd-avatar__initials { font-size: var(--nabd-font-size-meta); }
+.nabd-avatar--md > .nabd-avatar__initials { font-size: var(--nabd-font-size-input); }
+.nabd-avatar--lg > .nabd-avatar__initials { font-size: var(--nabd-font-size-avatar); }
 .nabd-avatar__status {
   position: absolute;
   inset-block-end: 0;
@@ -354,7 +354,7 @@
   justify-content: center;
   gap: 8px;
   font-family: inherit;
-  font-size: 13.5px;
+  font-size: var(--nabd-font-size-small);
   font-weight: 600;
   cursor: pointer;
   position: relative;

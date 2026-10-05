@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { FIcon, Icon } from "@/components-next/ui-generated";
+import { FIcon, Icon, SERVICE_ICONS } from "@/components-next/ui-generated";
 import { NabdMark } from "@/components-next/nabd-mark";
 import { LocaleSelector } from "@/components-next/locale-selector";
 import { ThemeToggle } from "@/components-next/theme-toggle";
@@ -65,9 +65,9 @@ export async function AuthLayout({
         <div className={styles.body}>{children}</div>
       </div>
       <aside className={styles.hero} aria-hidden="true">
-        <span className={`${styles.tile} ${styles.tileA}`}><FIcon icon="pill" tone="coral" chip="none" size={96} /></span>
-        <span className={`${styles.tile} ${styles.tileB}`}><FIcon icon="stethoscope" tone="blue" chip="none" size={110} /></span>
-        <span className={`${styles.tile} ${styles.tileC}`}><FIcon icon="test-tube" tone="mint" chip="none" size={86} /></span>
+        <span className={`${styles.tile} ${styles.tileA}`}><FIcon icon={SERVICE_ICONS.pharmacy.icon} tone={SERVICE_ICONS.pharmacy.tone} chip="none" size={96} /></span>
+        <span className={`${styles.tile} ${styles.tileB}`}><FIcon icon={SERVICE_ICONS.consult.icon} tone={SERVICE_ICONS.consult.tone} chip="none" size={110} /></span>
+        <span className={`${styles.tile} ${styles.tileC}`}><FIcon icon={SERVICE_ICONS.lab.icon} tone={SERVICE_ICONS.lab.tone} chip="none" size={86} /></span>
         <p className={styles.heroTitle}>{hero.title[0]}<br />{hero.title[1]}</p>
         <ul className={styles.points}>
           {hero.points.map((p) => (
