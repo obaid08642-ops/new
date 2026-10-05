@@ -32,7 +32,8 @@ if (sentryOrg && sentryProject) {
   plugins.push([
     '@sentry/react-native/expo',
     {
-      // Must match the `release` stamped in src/utils/sentry.ts: `app@version+build`.
+      // Must match the `release` stamped in src/utils/sentry.ts:
+      // `{appId}@{version}+{build}` with appId `provider-app` (`+dev` in dev).
       url: 'https://sentry.io/',
       organization: sentryOrg,
       project: sentryProject,
@@ -56,6 +57,12 @@ module.exports = {
   extra: {
     ...(base.extra || {}),
     // Read by src/utils/sentry.ts at runtime; not a secret.
-    sentryReleaseName: `${base.name}@${base.version}`,
+    // Must match the shared release contract there: `{appId}@{version}+{build}`
+    // with appId `provider-app` (never the display name, never hardcoded).
+    sentryReleaseName: `provider-app@${base.version}${
+      (base.ios || {}).buildNumber || (base.android || {}).versionCode
+        ? `+${(base.ios || {}).buildNumber || (base.android || {}).versionCode}`
+        : ''
+    }`,
   },
 };

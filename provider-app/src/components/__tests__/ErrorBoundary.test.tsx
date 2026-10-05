@@ -168,10 +168,27 @@ describe('P15.5 Sentry receives the crash with the release', () => {
     expect(ctx?.extra?.screen).toBe('DoctorHome');
   });
 
-  it('resolves a release from the Expo config, including the build number', () => {
-    expect(resolveRelease()).toBe('Nabd Plus Provider@1.4.2+77');
-    expect(resolveRelease({ name: 'x', version: '2.0.0' })).toBe('x@2.0.0');
-    expect(resolveRelease({ name: 'x', version: '2.0.0', android: { versionCode: 9 } })).toBe('x@2.0.0+9');
+  it('resolves the shared release contract: provider-app@{version}+{build}[+dev]', () => {
+    // The expo-constants mock above reports version 1.4.2 + iOS build 77; jest
+    // runs with __DEV__ true, so the dev suffix applies.
+    expect(resolveRelease()).toBe('provider-app@1.4.2+77+dev');
+    expect(resolveRelease(undefined, { dev: false })).toBe('provider-app@1.4.2+77');
+    // The app id is the contract constant, never the config display name…
+    expect(resolveRelease({ name: 'x', version: '2.0.0' }, { dev: false })).toBe('provider-app@2.0.0');
+    // …and the build comes from either platform slot.
+    expect(resolveRelease({ name: 'x', version: '2.0.0', android: { versionCode: 9 } }, { dev: false })).toBe(
+      'provider-app@2.0.0+9',
+    );
+  });
+
+  it('reads SENTRY_RELEASE first, verbatim, before the Expo config fallback', () => {
+    expect(
+      resolveRelease({ name: 'x', version: '2.0.0' }, { env: { SENTRY_RELEASE: 'provider-app@9.9.9+1' }, dev: false }),
+    ).toBe('provider-app@9.9.9+1');
+    // A blank env value is not a release: falls through to the config.
+    expect(resolveRelease({ version: '2.0.0' }, { env: { SENTRY_RELEASE: '  ' }, dev: false })).toBe(
+      'provider-app@2.0.0',
+    );
   });
 
   it('passes the release to Sentry.init so every event is tied to a build', () => {
@@ -180,8 +197,8 @@ describe('P15.5 Sentry receives the crash with the release', () => {
     expect(mockInit).toHaveBeenCalledTimes(1);
     const opts = mockInit.mock.calls[0][0] as Record<string, unknown>;
     expect(opts.dsn).toBe('https://public@example.ingest.sentry.io/1');
-    expect(opts.release).toBe('Nabd Plus Provider@1.4.2+77');
-    expect(currentRelease()).toBe('Nabd Plus Provider@1.4.2+77');
+    expect(opts.release).toBe('provider-app@1.4.2+77+dev');
+    expect(currentRelease()).toBe('provider-app@1.4.2+77+dev');
   });
 
   it('stays disabled without a DSN rather than crashing at startup', async () => {
