@@ -168,9 +168,12 @@ export class CircuitBreakerService {
     fn: (...args: any[]) => Promise<T>,
     args: any[] = [],
     fallback?: (...args: any[]) => T | Promise<T>,
+    options: BreakerOptions = {},
   ): Promise<T> {
     // Same per-call binding as create(): `fn` is this call's work function.
-    return this.create(name, fn, {}, fallback).fire(...args);
+    // F5: the caller's options travel with the call — previously `{}` was
+    // passed, silently discarding per-call timeout/threshold policy.
+    return this.create(name, fn, options, fallback).fire(...args);
   }
 
   getStats(name: string) {
