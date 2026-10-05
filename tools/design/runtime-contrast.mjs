@@ -244,6 +244,11 @@ async function loadPlaywright() {
   process.exit(2);
 }
 
+/** Resolves when `p` settles or after `ms`, whichever is first; never rejects. */
+function withCeiling(p, ms) {
+  return Promise.race([Promise.resolve(p).catch(() => {}), new Promise((r) => setTimeout(r, ms))]);
+}
+
 async function main() {
   const { chromium } = await loadPlaywright();
   let routes;
@@ -343,13 +348,14 @@ async function main() {
       } catch {
         if (hung) stalled++; else skipped++;
       } finally {
-        if (cdp) { try { await cdp.detach(); } catch { /* ignore */ } }
-        await page.close().catch(() => {});
+        // A wedged page can also wedge detach()/close(), so they get the same ceiling.
+        if (cdp) await withCeiling(cdp.detach(), 5000);
+        await withCeiling(page.close(), 5000);
       }
     }
   }
-  await context.close();
-  await browser.close();
+  await withCeiling(context.close(), 10000);
+  await withCeiling(browser.close(), 10000);
 
   // A repeated selector failing on many routes is one design decision, not many.
   const bySignature = new Map();
@@ -423,7 +429,7 @@ async function main() {
   console.log('runtime-contrast: no NEW failing text.');
 }
 
-main().catch((e) => {
+main().then(() => process.exit(process.exitCode ?? 0), (e) => {
   console.error(e);
   process.exit(1);
 });
