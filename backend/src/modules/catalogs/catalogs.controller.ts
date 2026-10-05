@@ -147,11 +147,9 @@ export class CatalogsController {
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
   async deleteSpecialty(@Param('code') code: string) {
-    const res: any = await this.conn.collection('specialties').updateOne({ code: { $eq: code } }, { $set: { active: false } });
-    if (!res?.modifiedCount) {
-      const { NotFoundException } = await import('@nestjs/common');
-      throw new NotFoundException('specialty_not_found');
-    }
+    // matchedCount (not modifiedCount): deactivating an already-inactive specialty is an idempotent success.
+    const res = await this.conn.collection('specialties').updateOne({ code: { $eq: code } }, { $set: { active: false } });
+    if (!res.matchedCount) throw new NotFoundException('specialty_not_found');
     return { ok: true };
   }
 }

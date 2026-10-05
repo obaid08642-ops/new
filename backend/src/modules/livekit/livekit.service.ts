@@ -435,33 +435,70 @@ export class LiveKitService {
     }));
   }
 
+  /**
+   * Resolves a live participant for an admin moderation action.
+   * 404 when LiveKit reports the room/participant as absent; 503 when the
+   * server call fails or times out (we cannot tell whether it exists).
+   */
+  private async requireParticipant(svc: LiveKitModerationClient, roomName: string, participantId: string): Promise<LiveKitParticipantLike> {
+    try {
+      const p: LiveKitParticipantLike | null = await this.withTimeout(svc.getParticipant(roomName, participantId), this.serverTimeoutMs);
+      if (!p) throw new NotFoundException('participant_not_found');
+      return p;
+    } catch (e: unknown) {
+      if (e instanceof NotFoundException) throw e;
+      if (isLiveKitNotFound(e)) throw new NotFoundException('participant_not_found');
+      throw new ServiceUnavailableException('livekit_unavailable');
+    }
+  }
+
+  private moderationClient(): LiveKitModerationClient {
+    const svc: LiveKitModerationClient | null = this.roomService();
+    if (!svc) throw new ServiceUnavailableException('livekit_not_configured');
+    return svc;
+  }
+
   async muteParticipant(roomName: string, participantId: string, muted: boolean) {
-    const svc = this.roomService();
-    if (!svc) return { success: false, reason: 'livekit_not_configured' };
-    const p = await this.withTimeout(
-      svc.getParticipant(roomName, participantId).catch(() => null),
-      this.serverTimeoutMs,
-    ).catch(() => null);
-    if (!p) return { success: false, reason: 'participant_not_found' };
-    for (const track of p.tracks || []) {
-      await this.withTimeout(
-        svc.mutePublishedTrack(roomName, participantId, track.sid, muted).catch(() => null),
-        this.serverTimeoutMs,
-      ).catch(() => null);
+    const svc = this.moderationClient();
+    const p = await this.requireParticipant(svc, roomName, participantId);
+    try {
+      for (const track of p.tracks || []) {
+        await this.withTimeout(svc.mutePublishedTrack(roomName, participantId, track.sid, muted), this.serverTimeoutMs);
+      }
+    } catch (e: unknown) {
+      if (isLiveKitNotFound(e)) throw new NotFoundException('participant_not_found');
+      throw new ServiceUnavailableException('livekit_unavailable');
     }
     return { success: true };
   }
 
   async removeParticipant(roomName: string, participantId: string) {
-    const svc = this.roomService();
-    if (!svc) {
-      const { NotFoundException } = await import('@nestjs/common');
-      throw new NotFoundException('livekit_not_configured');
+    const svc = this.moderationClient();
+    await this.requireParticipant(svc, roomName, participantId);
+    try {
+      await this.withTimeout(svc.removeParticipant(roomName, participantId), this.serverTimeoutMs);
+    } catch (e: unknown) {
+      if (isLiveKitNotFound(e)) throw new NotFoundException('participant_not_found');
+      throw new ServiceUnavailableException('livekit_unavailable');
     }
-    await this.withTimeout(
-      svc.removeParticipant(roomName, participantId).catch(() => null),
-      this.serverTimeoutMs,
-    ).catch(() => null);
     return { success: true };
   }
 }
+
+/** The subset of livekit-server-sdk RoomServiceClient used by admin moderation. */
+export interface LiveKitParticipantLike {
+  tracks?: Array<{ sid: string }>;
+}
+export interface LiveKitModerationClient {
+  getParticipant(room: string, identity: string): Promise<LiveKitParticipantLike>;
+  mutePublishedTrack(room: string, identity: string, trackSid: string, muted: boolean): Promise<unknown>;
+  removeParticipant(room: string, identity: string): Promise<void>;
+}
+
+/** livekit-server-sdk ServerError: HTTP status 404 / twirp code "not_found". */
+function isLiveKitNotFound(e: unknown): boolean {
+  if (!e || typeof e !== 'object') return false;
+  const err = e as { status?: unknown; code?: unknown };
+  return err.status === 404 || err.code === 'not_found';
+}
+

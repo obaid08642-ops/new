@@ -313,7 +313,7 @@ export class ProviderImageProcessorService {
   }
 
   async retryFailedJobs(ownerId: string) {
-    const owner: any = await this.metadataModel.findOne({ owner_id: ownerId });
+    const owner = await this.metadataModel.findOne({ owner_id: ownerId });
     if (!owner) {
       const { NotFoundException } = await import('@nestjs/common');
       throw new NotFoundException('provider_not_found');

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Param, UseGuards, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { CurrentUser, Roles } from '../../common/auth.guard';
@@ -37,12 +37,10 @@ export class FacilityInboxController {
   @Post('inbox/:id/read')
   async markRead(@Param('id') id: string, @CurrentUser() user: any) {
     const fid = await facilityIdOf(this.conn, uid(user));
-    const res: any = await this.conn.collection('facilityinbox')
-      .updateOne({ ...(byStringOrObjectId(id) as any), facility_id: fid } as any, { $set: { read: true } });
-    if (!res?.modifiedCount) {
-      const { NotFoundException } = await import('@nestjs/common');
-      throw new NotFoundException('inbox_message_not_found');
-    }
+    // matchedCount (not modifiedCount): marking an already-read message read again is an idempotent success.
+    const res = await this.conn.collection('facilityinbox')
+      .updateOne({ ...byStringOrObjectId(id), facility_id: fid }, { $set: { read: true } });
+    if (!res.matchedCount) throw new NotFoundException('inbox_message_not_found');
     return { ok: true };
   }
 }
