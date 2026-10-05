@@ -36,4 +36,12 @@ describe('radiology booking checks the chosen centre, not a capped list', () => 
     expect(await svc.compatibleProviders(['s1'], 'acc-new')).toEqual([expect.objectContaining({ id: 'acc-new' })]);
     expect(await svc.compatibleProviders(['s1'], 'acc-ct')).toEqual([]);
   });
+
+  it('book() itself accepts that centre and refuses one without the modality', async () => {
+    const booker = Object.assign(Object.create(RadiologyOpsService.prototype), svc, { getById: async () => ({ id: 's1', modality: 'mri' }) });
+    const patient = { id: 'pat-1', role: 'patient' };
+    // Past the centre check, the next rule (no scheduled_at) is what refuses it.
+    await expect(booker.book(patient, { service_id: 's1', provider_account_id: 'acc-new' })).rejects.toThrow('scheduled_at_required');
+    await expect(booker.book(patient, { service_id: 's1', provider_account_id: 'acc-ct' })).rejects.toThrow('provider_cannot_perform_scan');
+  });
 });

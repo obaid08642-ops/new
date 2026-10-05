@@ -437,7 +437,7 @@ export class RadiologyOpsService {
     const providerId = typeof body?.provider_account_id === 'string' ? body.provider_account_id : '';
     if (!providerId && !isAdmin) throw new BadRequestException('provider_account_id_required');
     if (providerId && !isAdmin) {
-      const ok = (await this.compatibleProviders([svc.id], providerId)).some((p: any) => p.id === providerId);
+      const ok = (await this.compatibleProviders([svc.id], providerId)).some((p) => p.id === providerId);
       if (!ok) throw new BadRequestException('provider_cannot_perform_scan');
     }
     const when = new Date(String(body?.scheduled_at || ''));
