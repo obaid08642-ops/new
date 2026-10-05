@@ -4,7 +4,6 @@ import { Model } from 'mongoose';
 import { RADIOLOGY_SEED } from './radiology.seed';
 import { RadiologyController as RadiologyPublicController } from './radiology.controller';
 import { RadiologyOpsService } from './radiology.service';
-import { RadiologyProviderController } from './controllers/radiology-provider.controller';
 import { RadiologyServiceSchema, RadiologyMachineSchema, RadiologyBookingSchema as LegacyRadiologyBookingSchema } from '../../schemas/radiology.schema';
 import { ProviderNotificationSchema } from '../provider/schemas/requests.schema';
 import { RadiologyBookingSchema as RadiologyCenterBookingSchema } from './schemas/radiology-booking.schema';
@@ -67,7 +66,7 @@ export class RadiologySeed implements OnModuleInit {
   // controllers/radiology.controller.ts (a second RadiologyController) was removed: its book/mine/:id shadowed these
   // routes and wrote a store the center app never reads; its allocate/finalize duplicated the provider controller
   // without ownership checks.
-  controllers: [RadiologyProviderController, RadiologyPublicController],
+  controllers: [RadiologyPublicController],
   providers: [
     RadiologyOpsService, 
     RadiologyNotificationListener,

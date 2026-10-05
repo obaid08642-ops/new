@@ -15,7 +15,8 @@ import { RedisService } from '../redis/redis.service';
 import { Optional } from '@nestjs/common';
 import { RefundExecutor } from '../finance-engine/finance-engine.module';
 import { FinanceEngineModule } from '../finance-engine/finance-engine.module';
-import { JwtAuthGuard, Roles, CurrentUser, Public, SelfService } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles, CurrentUser, Public, SelfService, NoGuestsGuard } from '../../common/auth.guard';
+import { AiUserQuotaGuard } from '../ai/ai-user-quota.guard';
 import { UserRole } from '../../common/enums';
 import {
   InsuranceCompany, InsuranceCompanyDocument, InsuranceCompanySchema,
@@ -726,6 +727,8 @@ export class InsuranceController {
   }
 
   @SelfService()
+  // R11: the OCR calls the LLM — members only, under the per-user AI quota.
+  @UseGuards(NoGuestsGuard, AiUserQuotaGuard)
   @Post('ocr-extract')
   ocrExtract(@Body() body: OcrExtractDto) {
     return this.svc.ocrExtract(body);

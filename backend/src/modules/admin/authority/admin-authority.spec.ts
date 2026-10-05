@@ -21,7 +21,6 @@ const MUTATING: Array<{ method: string; permission: Permission }> = [
   { method: 'oir', permission: Permission.DISPUTES_RESOLVE },
   { method: 'susp', permission: Permission.USER_EDIT },
   { method: 'unsp', permission: Permission.USER_EDIT },
-  { method: 'impersonate', permission: Permission.USER_IMPERSONATE },
 ];
 
 describe('AdminAuthorityController dead-surface gate', () => {

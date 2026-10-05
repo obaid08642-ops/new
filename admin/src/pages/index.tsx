@@ -2,6 +2,7 @@ import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import EmptyIcon from '../components/EmptyIcon';
+import { jsonLdHtml } from '../lib/json-ld';
 
 /**
  * M6-SEO1 / ER-2: public landing page — was an admin-only redirect (M0).
@@ -42,7 +43,7 @@ export default function Home() {
         <meta property="og:url" content={SITE} />
         <meta property="og:locale" content="ar_SA" />
         <meta name="twitter:card" content="summary_large_image" />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }} />
       </Head>
 
       <div dir="rtl" className="min-h-screen bg-gradient-to-b from-teal-50 to-white">

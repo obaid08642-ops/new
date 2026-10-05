@@ -5,7 +5,7 @@ import { callPatientApi } from "@/lib/api/upstream";
 import { boundedUpstreamError } from "@/lib/api/error-response";
 
 const socialSchema = z.object({
-  provider: z.enum(["google", "apple", "x", "snapchat"]),
+  provider: z.enum(["google", "apple"]),
   token: z.string().min(10).max(8192),
   email: z.string().email().max(320).optional(),
   name: z.string().trim().min(1).max(160).optional(),
