@@ -2,7 +2,7 @@
   "note": "Hard-coded colours that predate the design system. Recorded once with --init. 12.A11 rebuilds the screens on tokens and each rebuilt file drops out. --update only ever LOWERS a count; it cannot raise one.",
   "totals": {
     "patient-web": 5830,
-    "patient-app": 2374,
+    "patient-app": 2373,
     "provider-app": 320,
     "admin": 215
   },
@@ -445,7 +445,6 @@
     "patient-app/src/features/consultation/InsuranceCopayScreen.tsx": 8,
     "patient-app/src/features/medical-orders/ActionableOrderScreen.tsx": 7,
     "patient-app/src/guided-tour/ui/SpotlightRenderer.tsx": 7,
-    "patient-app/src/hooks/usePushNotifications.ts": 1,
     "patient-app/src/navigation/guards/AdminGuard.tsx": 2,
     "patient-app/src/navigation/guards/AuthGuard.tsx": 1,
     "patient-app/src/services/Notifications.ts": 1,

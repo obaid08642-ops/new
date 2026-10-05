@@ -67,3 +67,47 @@ Only the validation changed: `lib/api/search.ts` checks the nine fields by hand 
 ## Colours (app)
 
 `ScreenStates` (retry button and label), `OfflineBanner` (offline and back-online banner, text), `SearchBar` (active filter icon) and `Progress` (active step label) used raw `#fff`, `#F0567A`, `#2BB89C`. They now read `c.action.primary.bg`, `c.text.onBrand`, `c.status.danger.*` and `c.status.success.*` from the tokens of the active theme. These four components have no board render of their own; verified by the app tests and the type check.
+
+## Client-side fixes from Needs review (app)
+
+Owner rule (2026-10-05): client-side defects from Needs review are fixed in the batch that owns the screen; backend items stay for the reviewer. Source: `needs-review/batch-0-app.json` (33 entries; indexes below are positions in that array). Contracts were checked with curl against the seeded backend (`/auth/login`, `/auth/send-otp`, `/auth/verify-otp`, `/auth/reset-password`, `/users/me/display`, `/loyalty/account`, `/notifications`, `/care/doctors`, `/care/specialties`). 13 entries are left in the file (rewritten to say what is needed, plus one new entry).
+
+| # | Entry | Result |
+|---|---|---|
+| 0 | Splash routing | FIXED by the owner's launch rule: first launch (no session, Welcome never shown) goes to Welcome and opens no guest behind it; a later launch opens Home, with the silent guest session when no session is stored; a stored session always opens Home. `Welcome` writes `ONBOARDING_DONE` when it opens (the flag the splash reads). The splash also tells the (non-persisted) auth slice about the stored guest/patient session (`restoreSession`). `utils/launchRoute.ts`, `app/index.tsx`, `app/(auth)/welcome.tsx` |
+| 1 | Onboarding without an entry point | LEFT: owner decision (intro/language/permissions before Welcome, or remove them) |
+| 2 | Bell unread dot | FIXED: Home reads GET /notifications and stores the count of `read:false` rows (`setUnreadCount`); the notifications screen reports its own count (read, read all, refresh); `null` (no dot) when the load failed. `notificationsSlice.ts`, `(tabs)/index.tsx`, `notifications/index.tsx`, `HomeTopRow.tsx` |
+| 3 | "Details" param | FIXED: `appointmentId` (`(tabs)/index.tsx`) |
+| 4 | Greeting name | FIXED: GET /users/me/display `display_name` (replaces /users/me/profile); empty or failed hides the name |
+| 5 | Dark-mode switch from `system` | FIXED: `toggleTheme` flips the effective `isDark` (`AppContext.tsx`) |
+| 6 | Route collisions | LEFT (`/services` pair and `/`: owner decision / device check). Part fixed: notifications Back fallback is `/(tabs)` instead of the bare `/` |
+| 7 | Points card | FIXED: GET /loyalty/account `points`, shown only when numeric ("Your balance: 1,250 points", Intl number); the owner's "up to 10%" sentence stays; no number otherwise (`HomeParts.tsx`) |
+| 8 | Curated deep links | FIXED: `utils/deepLinks.ts` allow-list of the app's section folders; anything else (external URL, `//host`, scheme, unknown path) is a card with no tap. The title already follows the language (`title_en`, else `title_ar`); `title_en` is only filled when the admin form writes it (backend) |
+| 9 | Failed login clears the guest session | FIXED: `skipAuth: true` for /auth/login and /auth/social-login (/auth/guest already had it); the fetch client no longer clears the session on a 401 from send-otp, verify-otp, reset-password, register, login, guest, social-login, refresh |
+| 10 | Session state after login and social login | FIXED: one `startSession` (`utils/authSession.ts`): both tokens to secure storage, then `loginSuccess` (clears `isGuest`, so the guard and the push registration see the user). Social login no longer falls back to AsyncStorage and keeps the refresh token. Not-stored answers an error and claims nothing |
+| 11 | Two api helpers | LEFT: one client is a repo-wide change (see the entry); the 401 rule above is the trivial part |
+| 12 | Identifier validation | FIXED: email by shape (a@b.sa passes), phone by 9-15 digits (`isValidIdentifier`) |
+| 13 | Server messages in English | FIXED on login, register, code, forgot and reset: `serverMessage()` maps the known messages (and the root helper's own Arabic fallbacks) to translation keys; an unknown message shows the screen's generic translated message, never the raw one |
+| 14 | Social hooks with empty client ids | LEFT: unverifiable without running the native app |
+| 15 | Backend does not verify Apple/X/Snapchat tokens | LEFT: backend |
+| 16 | Duplicate email/phone found after the OTP | LEFT: no availability endpoint exists (backend). The refusal after the code is now shown translated |
+| 17 | Resend without purpose | FIXED: in register mode the resend sends `purpose:'register'` (verified: without it a new email gets `{ok:true}` and no code) |
+| 18 | Reset flow asks for the code twice | FIXED client-side without touching the backend: reset mode skips `verify-otp` (the backend deletes the code on a valid check) and passes the code to the reset screen, which sends it once to `/auth/reset-password` |
+| 19 | Register stores no refresh token | FIXED: register goes through `startSession` (both tokens). The dead `login` mode and the unused `phone` param are left (no caller, no behaviour) |
+| 20 | Forgot password silent no-op | FIXED: inline messages for empty and malformed email |
+| 21 | Reset password silent no-op, missing email | FIXED: inline message per rule (email, code, length, mismatch); without the email param the screen shows an email field |
+| 22 | Services rows | PART FIXED: eye exam and dentistry open the doctors search with specialty `ophthalmology` / `dentistry`; the AI assistant row opens `/ai-assistant`. LEFT: the radiology rows (the radiology list is a toggle inside `(tabs)/diagnostics.tsx`: 46 literals, 37 raw colours, Diagnostics batch) |
+| 23 | Doctors view response shape | FIXED: reads `items[]` and the real fields (`utils/doctorSearch.ts`); nothing invented (no waiting time) |
+| 24 | Doctors view query names | FIXED: `q`, `specialty`, `sort=rating|price_asc` (no waiting-time sort); searches as the user types |
+| 25 | Pharmacy redirect drops the query | FIXED: redirects to `/search` with `q` |
+| 26 | Package/insurance results | PART FIXED: package opens `/offers/[id]`. LEFT: insurer (no detail screen: owner decision) |
+| 27 | Notification routes | PART FIXED: report/result id, community post, family permission request. LEFT: `/wallet/hub` and the engagement nudges' generic route (backend) |
+| 28 | `reportId` vs `id` | FIXED (`translateBackendRoute`) |
+| 29, 30, 32 | Notification language, types, doctor name | LEFT: backend items, untouched |
+| 31 | Date older than 30 days | FIXED: `dateLocaleFor(lang)` |
+
+Other client changes made on the way: `usePushNotifications.ts` had one raw colour (the Android notification LED, `#FF231F7C`), now the action token (no-raw-color 8739 -> 8738; client-token-sync stays 918: none of the touched files carried a counted colour). `render-native-screen.fixtures.json` (TEST values) now answers `/users/me/display`, `/notifications`, `/loyalty/account` for the Home render.
+
+### Translation rule (owner, 2026-10-06) on the files these fixes touch
+
+All 36 touched files end with zero literal UI strings (`no-literal-ui-string.mjs --changed`). The 120+ literals of the touched screens (login, otp, forgot, reset, register, welcome, Home, HomeParts, HomeTopRow, notifications, splash, doctors view) became keys of `src/i18n/locales/*.json` with all six translations (146 new keys in ar, en, ur, hi, bn, tl; `locale-parity --base` reports no missing or English key among them). `autoTranslate` resolves a dotted key, so existing components keep working; error messages from the server are keys too (`errors.*`). The language names in `AppContext.LANGUAGES` carry `i18n-ok` (English exonyms used as a second line).
