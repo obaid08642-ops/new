@@ -326,6 +326,6 @@ export class AuthService {
   async cleanupInactiveGuests(monthsInactive: number = 12): Promise<number> {
     return this.guestLifecycle.cleanupInactiveGuestsWithThreshold(monthsInactive);
   }
-
-  // ... rest of existing auth.service.ts methods
 }
+EOF
+wc -l backend/src/modules/auth/auth.service.ts
