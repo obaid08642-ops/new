@@ -146,7 +146,7 @@ Same strictness as colours; full text in `QUALITY_STANDARDS.md` §8 and `AGENTS.
 
 | Date | Branch | What happened | Tip |
 |---|---|---|---|
-| 2026-10-05 | `design/f82-1-web` | F82-1 web rendering path: messages narrowed, precompiled messages, WebMCP lazy, font subset, public data cache, content-visibility. Static/ISR blocked by the CSP nonce. | PR to be opened after #292 |
+| 2026-10-05 | `design/f82-1-web` | F82-1 web rendering path: messages narrowed, precompiled messages, WebMCP lazy, font subset, public data cache, content-visibility. Static/ISR blocked by the CSP nonce. | [PR #297](https://github.com/obaid08642-ops/new/pull/297) |
 | 2026-10-05 | `design/batch-0` | Batch 0: sign-in family, onboarding, Home, Dashboard, Search, Services, Notifications (web and app); quality standards and gates; fetal images off the app; links token. | PR [#285](https://github.com/obaid08642-ops/new/pull/285) |
 | 2026-10-05 | `design/components-csp` | Components styled by class (CSP, F68). | PR [#271](https://github.com/obaid08642-ops/new/pull/271) |
 | 2026-10-05 | `design/lint-gates` | Lint gates no-100vh, no-rn-safeareaview, no-left-right, with the SafeAreaView and 100dvh fixes. | PR [#269](https://github.com/obaid08642-ops/new/pull/269), tip `c2f4d95` |
