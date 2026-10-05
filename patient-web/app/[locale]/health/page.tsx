@@ -15,7 +15,7 @@ import styles from "./health.module.css";
 type Props = { params: Promise<{ locale: string }> };
 const quickActions = [
   { key: "prescriptions", href: "prescriptions", icon: FileText, color: "#7A6BEA" },
-  { key: "doctorOrders", href: "health/actionable-order", icon: FileText, color: "#0F766E" },
+  { key: "doctorOrders", href: "health/actionable-order", icon: FileText, color: "var(--nabd-color-status-success-fg)" },
   { key: "family", href: "family", icon: UsersRound, color: "#EC4899" },
   { key: "reminders", href: "reminders", icon: Bell, color: "#F0A526" },
   { key: "chat", href: "chat", icon: MessageCircle, color: "#23B5CE" },

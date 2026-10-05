@@ -211,13 +211,13 @@ export default async function DoctorsSpecialtyCityNeighborhoodPage({ params }: P
         </section>
       )}
       {doctors.length === 0 && facilities.length === 0 && (
-        <section className={styles.section} aria-label={locale === "ar" ? "لا توجد نتائج" : "No results"} style={{ gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)" } as any}>
+        <section className={styles.section} aria-label={locale === "ar" ? "لا توجد نتائج" : "No results"} style={{ gap: 16, padding: 24, borderRadius: 20, border: "1px solid var(--nabd-color-border-subtle)", background: "var(--nabd-color-glass-bg)" } as any}>
           <p role="status" style={{ overflowWrap: "anywhere" } as any}>
             {locale === "ar"
               ? `لا توجد أطباء أو مراكز معتمدة في حي ${decNeigh} حالياً.`
               : `No verified doctors or clinics in ${decNeigh} yet.`}
           </p>
-          <Link href={`/${locale}/doctors/${encodeURIComponent(specialty)}/${encodeURIComponent(city)}`} className={styles.primaryBtn} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "10px 16px", borderRadius: 20, border: "1px solid #E8EDEE", background: "#5FD9B3", color: "#1E332E", fontWeight: 760, overflowWrap: "anywhere" } as any}>
+          <Link href={`/${locale}/doctors/${encodeURIComponent(specialty)}/${encodeURIComponent(city)}`} className={styles.primaryBtn} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "10px 16px", borderRadius: 20, border: "1px solid var(--nabd-color-border-subtle)", background: "var(--nabd-color-action-primary-bg)", color: "var(--nabd-color-text-primary)", fontWeight: 760, overflowWrap: "anywhere" } as any}>
             {locale === "ar" ? `عرض أطباء ${decCity}` : `Browse doctors in ${decCity}`}
           </Link>
         </section>

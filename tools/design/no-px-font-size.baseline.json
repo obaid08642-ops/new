@@ -35,7 +35,6 @@
     "patient-web/components-next/header-cart-badge.module.css": 1,
     "patient-web/components-next/map-explorer.module.css": 10,
     "patient-web/components-next/product-cart-actions.module.css": 3,
-    "patient-web/components-next/product-gallery-modal.module.css": 2,
-    "patient-web/components-next/service-booking-modal.module.css": 18
+    "patient-web/components-next/product-gallery-modal.module.css": 2
   }
 }

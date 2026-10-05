@@ -206,18 +206,18 @@ export default async function HomeCareServicePage({ params }: Props) {
           {t("bookingNotice")}
         </p>
         <section aria-labelledby="service-nurses" style={{ display: "grid", gap: 12 }}>
-          <h2 id="service-nurses" style={{ color: "#1E332E", fontSize: 18 }}>{t("nursesTitle")}</h2>
+          <h2 id="service-nurses" style={{ color: "var(--nabd-color-text-primary)", fontSize: 18 }}>{t("nursesTitle")}</h2>
           {nurses === null ? (
-            <p role="alert" style={{ color: "#6B7C6E" }}>{t("nursesError")}</p>
+            <p role="alert" style={{ color: "var(--nabd-color-text-secondary)" }}>{t("nursesError")}</p>
           ) : nurses.length === 0 ? (
-            <p style={{ color: "#6B7C6E" }}>{t("nursesEmpty")}</p>
+            <p style={{ color: "var(--nabd-color-text-secondary)" }}>{t("nursesEmpty")}</p>
           ) : (
             <ul style={{ display: "grid", gap: 8, listStyle: "none", padding: 0, margin: 0 }}>
               {nurses.map((n) => (
                 <li key={n.id}>
                   <Link
                     href={`/${locale}/nursing/nurses/${encodeURIComponent(n.id)}`}
-                    style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "12px 16px", border: "1px solid #E8EDEE", borderRadius: 16, color: "#1E332E", textDecoration: "none", overflowWrap: "anywhere" } as any}
+                    style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "12px 16px", border: "1px solid var(--nabd-color-border-subtle)", borderRadius: 16, color: "var(--nabd-color-text-primary)", textDecoration: "none", overflowWrap: "anywhere" } as any}
                   >
                     <strong>{rtl ? (n.name_ar ?? n.name) : (n.name_en ?? n.name)}</strong>
                     {n.rating !== undefined ? <span>{n.rating.toFixed(1)}</span> : null}
