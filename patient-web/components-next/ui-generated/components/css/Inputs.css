@@ -1,0 +1,16 @@
+/*
+ * GENERATED FILE — DO NOT EDIT.
+ *
+ * Mirrored from packages/ui/components/css/Inputs.css by tools/design/sync-ui-components.mjs.
+ *
+ * patient-web cannot import from packages/: Turbopack refuses to resolve outside
+ * the app root, and the type checker does not, so the failure only appears at
+ * `next build`. This file is a copy, not a port — the renderer a screen uses and
+ * the renderer the conformance gallery exercises are the same code, so the
+ * artwork cannot drift between them. Run the script after changing the package;
+ * `--check` in CI fails if this drifts.
+ *
+ * tests/module-boundary.test.ts enforces the boundary this mirror exists to work
+ * around.
+ */
+/* Inputs (components/Inputs.tsx). */

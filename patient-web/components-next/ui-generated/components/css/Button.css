@@ -1,0 +1,94 @@
+/*
+ * GENERATED FILE — DO NOT EDIT.
+ *
+ * Mirrored from packages/ui/components/css/Button.css by tools/design/sync-ui-components.mjs.
+ *
+ * patient-web cannot import from packages/: Turbopack refuses to resolve outside
+ * the app root, and the type checker does not, so the failure only appears at
+ * `next build`. This file is a copy, not a port — the renderer a screen uses and
+ * the renderer the conformance gallery exercises are the same code, so the
+ * artwork cannot drift between them. Run the script after changing the package;
+ * `--check` in CI fails if this drifts.
+ *
+ * tests/module-boundary.test.ts enforces the boundary this mirror exists to work
+ * around.
+ */
+/* Button and IconButton (components/Button.tsx). Geometry is the boards' (see the
+   component's comment); colours and shadows are tokens. */
+.nabd-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--nabd-space-2xs);
+  box-sizing: border-box;
+  position: relative;
+  padding-block: 0;
+  font-family: inherit;
+  white-space: nowrap;
+  opacity: 1;
+  cursor: pointer;
+}
+.nabd-button--full { display: flex; width: 100%; }
+.nabd-button--disabled { opacity: 0.5; }
+.nabd-button--inert { cursor: not-allowed; }
+
+/* sizes: page CTA 56/18 at 17/700; outline and small 44 or 40 at radius 14 */
+.nabd-button--sm { height: 40px; padding-inline: 14px; font-size: 13.5px; font-weight: 600; border-radius: 14px; }
+.nabd-button--md { height: 44px; padding-inline: 16px; font-size: 14px; font-weight: 600; border-radius: 14px; }
+.nabd-button--lg { height: 56px; padding-inline: 24px; font-size: 17px; font-weight: 700; border-radius: 18px; }
+
+.nabd-button--primary {
+  background: linear-gradient(180deg, var(--nabd-color-action-primary-gradient-from) 0%, var(--nabd-color-action-primary-gradient-to) 100%);
+  color: var(--nabd-color-action-primary-fg);
+  border: 0;
+  box-shadow: var(--nabd-shadow-button);
+}
+.nabd-button--outline { background: transparent; color: var(--nabd-color-text-primary); border: 1.5px solid var(--nabd-color-text-primary); }
+.nabd-button--secondary { background: var(--nabd-color-action-secondary-bg); color: var(--nabd-color-action-secondary-fg); border: 1px solid var(--nabd-color-border-onGlass); }
+.nabd-button--ghost { background: transparent; color: var(--nabd-color-text-primary); border: 0; }
+.nabd-button--danger { background: var(--nabd-color-action-danger-bg); color: var(--nabd-color-action-danger-fg); border: 0; }
+.nabd-button--lime { background: var(--nabd-color-accent-lime); color: var(--nabd-color-text-onAccent); border: 0; }
+
+.nabd-button__icon { flex-shrink: 0; }
+/* sm is 40 to look at and 44 to hit: a transparent extender inside the button */
+.nabd-button__hit { position: absolute; inset-inline: 0; inset-block: calc((40px - var(--nabd-a11y-minTouchTarget)) / 2); }
+
+/* IconButton: 44×44 at sm/md (canvas/Settings back, Cart delete), 52×52 at lg (Consult filter) */
+.nabd-icon-button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  min-width: var(--nabd-a11y-minTouchTarget);
+  min-height: var(--nabd-a11y-minTouchTarget);
+  opacity: 1;
+  cursor: pointer;
+}
+.nabd-icon-button--disabled { opacity: 0.5; }
+.nabd-icon-button--inert { cursor: not-allowed; }
+.nabd-icon-button--sm, .nabd-icon-button--md { width: 44px; height: 44px; }
+.nabd-icon-button--lg { width: 52px; height: 52px; }
+.nabd-icon-button--circle.nabd-icon-button--sm, .nabd-icon-button--circle.nabd-icon-button--md { border-radius: 22px; }
+.nabd-icon-button--circle.nabd-icon-button--lg { border-radius: 26px; }
+.nabd-icon-button--square { border-radius: 14px; }
+.nabd-icon-button--square.nabd-icon-button--lg { border-radius: 18px; }
+
+.nabd-icon-button--plain { background: transparent; border: 0; }
+.nabd-icon-button--outlined { background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-onGlass); }
+.nabd-icon-button--filled { background: var(--nabd-color-action-selected-bg); border: 0; color: var(--nabd-color-action-selected-fg); }
+.nabd-icon-button--tinted { background: var(--nabd-color-bg-sunken); border: 0; }
+.nabd-icon-button--glass {
+  background: var(--nabd-color-glass-bg);
+  border: 1px solid var(--nabd-color-border-onGlass);
+  -webkit-backdrop-filter: blur(var(--nabd-color-glass-blur));
+  backdrop-filter: blur(var(--nabd-color-glass-blur));
+}
+
+.nabd-icon-button--tone-neutral { color: var(--nabd-color-icon-primary); }
+.nabd-icon-button--tone-primary { color: var(--nabd-color-action-primary-bg); }
+.nabd-icon-button--tone-success { color: var(--nabd-color-status-success-fg); }
+.nabd-icon-button--tone-warning { color: var(--nabd-color-status-warning-fg); }
+.nabd-icon-button--tone-danger { color: var(--nabd-color-status-danger-fg); }
+.nabd-icon-button--tone-info { color: var(--nabd-color-status-info-fg); }

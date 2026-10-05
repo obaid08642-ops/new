@@ -563,3 +563,8 @@ body { background: radial-gradient(circle at 85% -15%, rgba(95,217,179,.16), tra
     overflow-x: auto;
   }
 }
+
+/* Site footer (every page). Classes, not inline styles: the CSP refuses style attributes. */
+.site-footer { border-block-start: 1px solid var(--nabd-color-border-subtle); margin-block-start: 48px; padding: 24px 16px calc(24px + env(safe-area-inset-bottom)); background: var(--nabd-color-bg-surface); }
+.site-footer__links { display: flex; flex-wrap: wrap; gap: 12px 24px; }
+.site-footer__links a { padding-block: 4px; white-space: nowrap; color: var(--nabd-color-text-secondary); text-decoration: none; font-size: var(--nabd-font-size-label); }

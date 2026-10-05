@@ -70,6 +70,11 @@ const FILES = [
     to: `patient-web/components-next/ui-generated/components/${name}.tsx`,
     useClient: true,
   })),
+  // The component sheet (the components are styled by class: the CSP refuses style attributes).
+  ...['components.css', 'css/tones.css', 'css/Spinner.css', 'css/FIcon.css', 'css/Button.css', 'css/Controls.css', 'css/Inputs.css', 'css/Surfaces.css', 'css/Cards.css', 'css/Feedback.css'].map((name) => ({
+    from: `packages/ui/components/${name}`,
+    to: `patient-web/components-next/ui-generated/components/${name}`,
+  })),
   // The app's barrel is the package's, without the gallery fixtures (sample data never ships in
   // the app) and with the paths re-rooted at ui-generated/.
   {

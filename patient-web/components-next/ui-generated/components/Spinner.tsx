@@ -43,7 +43,7 @@ export function Spinner({ size = 20, label }: { size?: number; label?: string })
       aria-label={label}
       focusable="false"
       data-testid="nabd-spinner"
-      style={{ display: 'block', flexShrink: 0 }}
+      className="nabd-spinner"
     >
       <circle
         cx={size / 2}
@@ -61,12 +61,8 @@ export function Spinner({ size = 20, label }: { size?: number; label?: string })
         strokeWidth={stroke}
         strokeLinecap="round"
         strokeDasharray={`${c * 0.25} ${c}`}
-        style={{
-          transformOrigin: 'center',
-          animation: 'nabd-spin var(--nabd-motion-duration-skeleton) linear infinite',
-        }}
+        className="nabd-spinner__arc"
       />
-      <style>{'@keyframes nabd-spin{to{transform:rotate(360deg)}}'}</style>
     </svg>
   );
 }
