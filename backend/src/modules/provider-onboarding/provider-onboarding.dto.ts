@@ -156,10 +156,6 @@ export class Step2Dto {
 
   @IsOptional()
   @IsString()
-  clinic_address?: string; // R83: clinic street address from step 3
-
-  @IsOptional()
-  @IsString()
   display_name_ar?: string;
 
   @IsOptional()

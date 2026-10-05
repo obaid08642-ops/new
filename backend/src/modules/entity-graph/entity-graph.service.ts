@@ -174,6 +174,9 @@ export class EntityGraphService implements OnModuleInit {
         rating: typeof doctor.rating === 'number' ? doctor.rating : null,
         experience_years: doctor.experience_years,
         city: doctor.city,
+        // R83: same public clinic fields as GET /care/doctors/:id (care.service toPublicDoctor).
+        clinic_name: doctor.clinic_name || null,
+        clinic_address: doctor.clinic_address || doctor.address || null,
       },
       relationships: {
         facility,

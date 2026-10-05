@@ -124,7 +124,8 @@ export class ProviderOnboardingService {
     if (!profile) throw new NotFoundException('profile_not_started');
     const fields = ['name_ar', 'name_en', 'city', 'district', 'address', 'location', 'license_number', 'license_documents', 'coverage_radius_km', 'accepts_insurance', 'accepted_insurance', 'insurance_plans', 'accepts_cash', 'bio', 'languages', 'iban', 'bank_account_name', 'pharmacy_type', 'cr_number', 'moh_license_number', 'sfda_license_number', 'tax_number',
       // widened: fields the apps already sent but that were silently dropped
-      'clinic_images', 'scfhs_license_number', 'national_id', 'gender', 'clinic_name', 'clinic_address',
+      'clinic_images', 'scfhs_license_number', 'national_id', 'gender', 'clinic_name',
+      // R83: clinic_address is a step-3 field (Step3Dto); step 2 carries the street `address`.
       'display_name_ar', 'display_name_en', 'profile_photo', 'logo',
       // official full name (contracts/verification) — patients see display_name_* instead
       'legal_name', 'insurance_plans',

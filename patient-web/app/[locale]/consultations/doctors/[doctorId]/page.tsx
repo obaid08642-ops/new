@@ -104,10 +104,11 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
               <strong>{t("experience", { value: doctor.experienceYears })}</strong>
             </span>
           ) : null}
-          {doctor.facility ? (
+          {doctor.facility || doctor.clinicAddress ? (
             <span>
               <Building2 size={16} color="#526473" aria-hidden="true" />
-              {doctor.facility}
+              {/* R83: the clinic the doctor registered (name · street address). */}
+              {[doctor.facility, doctor.clinicAddress].filter(Boolean).join(" · ")}
             </span>
           ) : null}
         </div>

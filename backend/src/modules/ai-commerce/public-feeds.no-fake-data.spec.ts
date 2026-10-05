@@ -71,4 +71,16 @@ describe('entity-graph doctor (public read)', () => {
   it('does not resolve a doctor that is not public', async () => {
     await expect(graph(providers).getRelated('doctor', 'dr-pending')).rejects.toThrow('not found');
   });
+  it('R83: returns the clinic name and clinic address the doctor registered (address as fallback)', async () => {
+    const rows: Row[] = [
+      { id: 'doc-clinic', slug: 'dr-clinic', type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', name_ar: 'د. ريم', clinic_name: 'عيادة النخبة', clinic_address: 'برج النخبة، العليا', address: 'شارع العليا' },
+      { id: 'doc-addr', slug: 'dr-addr', type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', name_ar: 'د. سامي', address: 'شارع التحلية 5' },
+    ];
+    const withClinic: any = await graph(rows).getRelated('doctor', 'dr-clinic');
+    expect(withClinic.entity.clinic_name).toBe('عيادة النخبة');
+    expect(withClinic.entity.clinic_address).toBe('برج النخبة، العليا');
+    const addressOnly: any = await graph(rows).getRelated('doctor', 'dr-addr');
+    expect(addressOnly.entity.clinic_name).toBeNull();
+    expect(addressOnly.entity.clinic_address).toBe('شارع التحلية 5');
+  });
 });

@@ -12,6 +12,7 @@ import { apiFetch } from '../../../src/utils/api';
 import { pickLocalized } from '../../../src/utils/localize';
 import { dateLocale } from '@/utils/dates';
 import { LocalizedText } from '../../../src/components/LocalizedText';
+import { DoctorClinicInfo } from '../../../src/components/DoctorClinicInfo';
 
 const { width } = Dimensions.get('window');
 
@@ -244,15 +245,16 @@ export default function DoctorProfile() {
               </TouchableOpacity>
               ) : null}
 
-              {(doc?.city || doc?.district || doc?.address) ? (
-              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'flex-start', marginBottom: 14, width: '90%' }}>
+              {(doc?.city || doc?.district) ? (
+              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'flex-start', marginBottom: 6, width: '90%' }}>
                 <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--pd)'), fontSize: 14, marginRight: isRTL ? 0 : 4, marginLeft: isRTL ? 4 : 0 }}>location_on</LocalizedText>
                 <LocalizedText style={{ fontSize: 11.5, color: resolveColor('var(--t2)'), lineHeight: 14, textAlign: isRTL ? 'right' : 'left', fontWeight: '500' }}>
                   {[doc?.district, doc?.city].filter(Boolean).join('، ')}
-                  {doc?.address ? <LocalizedText style={{ fontSize: 11.5, color: resolveColor('var(--t3)'), fontWeight: '500' }}>{'\n'}{doc.address}</LocalizedText> : null}
                 </LocalizedText>
               </View>
               ) : null}
+              {/* R83: the clinic name + address the doctor registered (GET /care/doctors/:id). */}
+              <DoctorClinicInfo doctor={doc} />
 
               <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'baseline', marginBottom: 12 }}>
                 <LocalizedText style={{ fontSize: 36, fontWeight: '900', color: resolveColor('var(--n)'), letterSpacing: -2 }}>{getPrice(activeVt) ?? '—'}</LocalizedText>
