@@ -23,6 +23,7 @@ const RIYADH_FEED = {
   items: [
     { id: "8f15f372-0000-4000-8000-000000000001", slug: "dr-sara-cardiology", name: "د. سارة القحطاني", specialty: "cardiology", city: "الرياض", url: "https://nabd.plus/ar/doctor/dr-sara-cardiology" },
     { id: "72a9eeab-0000-4000-8000-000000000002", name: "منشأة بلا رابط", city: "الرياض" },
+    { id: "fac-9", slug: "kfsh-riyadh", name: "مستشفى الملك فيصل", city: "الرياض", deepLink: "nabdplus://facility/kfsh-riyadh" },
   ],
 };
 
@@ -67,6 +68,14 @@ describe("Q33 service x city page", () => {
   });
 });
 
+describe("R18 app links on the website", () => {
+  it("a row that only advertises a nabdplus:// link gets its website page through nabd-links", async () => {
+    backend();
+    const html = renderToStaticMarkup(await ServiceCityPage(params("ar", "kfsh-riyadh", "riyadh")));
+    expect(html).toContain('href="/ar/facility/kfsh-riyadh"');
+  });
+});
+
 describe("Q33 real HTTP status", () => {
   it("answers 404 (not a 200 page) for an unknown service or city", async () => {
     backend();
@@ -94,7 +103,7 @@ describe("Q33 sitemap emits only real pairs", () => {
     const xml = await (await servicesSitemap()).text();
     const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => new URL(m[1]).pathname);
     expect(locs.length).toBeGreaterThan(0);
-    expect(locs.every((p) => p.endsWith("/services/dr-sara-cardiology/riyadh"))).toBe(true);
+    expect(locs.every((p) => /\/services\/(dr-sara-cardiology|kfsh-riyadh)\/riyadh$/.test(p))).toBe(true);
     for (const p of locs) expect((await proxy(req(p))).status).toBe(200);
   });
 });

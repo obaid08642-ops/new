@@ -147,6 +147,8 @@ export async function proxy(request: NextRequest) {
   const contentSecurityPolicy = createContentSecurityPolicy(nonce);
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
+  // R18: the requested page, so a signed-out visit can continue there after login (lib/auth/session.ts).
+  requestHeaders.set("x-nabd-path", `${pathname}${request.nextUrl.search}`);
   requestHeaders.set("Content-Security-Policy", contentSecurityPolicy);
 
   const requestWithNonce = new NextRequest(request, { headers: requestHeaders });

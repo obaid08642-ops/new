@@ -223,10 +223,12 @@ export function savePendingDeepLink(path: string | null | undefined): void {
     if (!mapped) return;
     candidate = mapped;
   }
-  // Accept absolute same-origin URLs by reducing them to path + scrubbed query.
+  // Accept absolute URLs only on this site's own origin, reduced to path + scrubbed query.
   if (/^https?:\/\//i.test(candidate)) {
     try {
       const url = new URL(candidate);
+      const here = typeof window !== "undefined" && window.location ? window.location.origin : null;
+      if (!here || url.origin !== here) return;
       candidate = `${url.pathname}${scrubSearch(url.search)}`;
     } catch {
       return;

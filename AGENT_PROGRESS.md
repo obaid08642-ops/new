@@ -1324,3 +1324,7 @@ Gate evidence (this machine, DEVELOPER_DIR=/Library/Developer/CommandLineTools):
   now skips unless STAGING_BASE is set (V1-V5 staging blocker).
 - Under machine load average >18 the unit suite hits 5000 ms jest timeouts;
   that is contention, not assertion failure (all such tests pass in isolation).
+
+## 7d27a4e / R18 (review fix, branch review/fix-ledger-clients)
+
+BLOCKED: needs a physical device/simulator — on-device verification of deferred-install deep links (tap a nabdplus:// link with the app not installed, install from the store, first launch lands on the linked screen). The code paths are unit-tested: patient-app __tests__/nabdplus-deep-links.r18.test.ts (scheme + routing), patient-web lib/deep-links/*.test.ts and lib/auth/session.next.r18.test.ts (web fallback, login ?next continuation).

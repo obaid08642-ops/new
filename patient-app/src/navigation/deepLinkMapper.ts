@@ -31,6 +31,27 @@ export function mapPath(path: string): string | null {
 }
 
 /**
+ * R18: a nabdplus:// link explicitly asks for the app, so its section hosts
+ * (the website's nabd-links table: consultations, doctors, labs, radiology,
+ * nursing, home-nursing, pharmacy, pharmacies) open the app's own section
+ * tabs. A https web link to those listings keeps opening the richer website
+ * page (mapPath returns null for them). Detail pages without an app screen
+ * still fall through to the website.
+ */
+export function mapAppSchemePath(path: string): string | null {
+  const direct = mapPath(path);
+  if (direct) return direct;
+  const parts = stripLocale(path).replace(/^\//, '').split('/').filter(Boolean);
+  if ((parts[0] === 'consultations' || parts[0] === 'doctors') && !parts[1]) return '/consultations';
+  if ((parts[0] === 'labs' || parts[0] === 'radiology') && !parts[1]) return '/diagnostics';
+  if (parts[0] === 'nursing' && !parts[1]) return '/nursing';
+  if (parts[0] === 'home-nursing') return '/nursing';
+  if (parts[0] === 'pharmacy' && !parts[1]) return '/pharmacy';
+  if (parts[0] === 'pharmacies') return '/pharmacy';
+  return null;
+}
+
+/**
  * Expo Router hands redirectSystemPath a `path` that may be a bare path, a full
  * https://nabd.plus URL or a nabdplus:// link (docs: "no guarantee that this is a
  * path or a valid URL"). Resolve it to an app route, or to the web URL to open in
@@ -39,18 +60,28 @@ export function mapPath(path: string): string | null {
 export function resolveIncomingLink(raw: string): { app: string } | { browser: string } {
   let path = raw || '/';
   let search = '';
+  let appScheme = false;
   if (/^[a-z][a-z0-9+.-]*:\/\//i.test(path)) {
     try {
       const u = new URL(path);
       // nabdplus://doctor/x puts "doctor" in the host; https keeps it in the pathname.
-      path = u.protocol === 'https:' || u.protocol === 'http:' ? u.pathname : `/${u.host}${u.pathname}`;
+      if (u.protocol === 'https:' || u.protocol === 'http:') {
+        path = u.pathname;
+      } else {
+        appScheme = true;
+        // nabdplus://doctor/x puts "doctor" in the host; nabdplus://doctor/en/x
+        // carries the locale after the host (website nabd-links accepts both).
+        const rest = u.pathname.split('/').filter(Boolean);
+        if (rest.length > 1 && LOCALES.includes(rest[0])) rest.shift();
+        path = `/${u.host}${rest.length ? `/${rest.join('/')}` : ''}`;
+      }
       search = u.search;
     } catch {
       path = '/';
     }
   }
   if (!path.startsWith('/')) path = `/${path}`;
-  const mapped = mapPath(path);
+  const mapped = appScheme ? mapAppSchemePath(path) : mapPath(path);
   if (mapped) return { app: mapped + search };
   return { browser: `https://nabd.plus${path}${search}` };
 }

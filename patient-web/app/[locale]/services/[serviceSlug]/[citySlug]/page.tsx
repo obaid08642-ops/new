@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { MapPin, ShieldCheck } from "lucide-react";
 import { findNamedService, type ServiceFeedItem } from "@/lib/seo/service-city";
+import { nabdUrlToWebPath } from "@/lib/deep-links/nabd-links";
 
 type Props = { params: Promise<{ locale: string; serviceSlug: string; citySlug: string }> };
 
@@ -19,15 +20,17 @@ const cachedFetch = (url: string) => fetch(url, { next: { revalidate: 3600 } });
 
 function providerPath(item: ServiceFeedItem, locale: string): string {
   // Link the CTA to the provider's own page, never a generic list.
-  for (const raw of [item.url, item.deepLink]) {
-    if (!raw) continue;
+  if (item.url) {
     try {
-      const path = new URL(String(raw)).pathname.replace(/^\/(ar|en|ur|hi|bn|fil)(?=\/)/, "");
+      const path = new URL(String(item.url)).pathname.replace(/^\/(ar|en|ur|hi|bn|fil)(?=\/)/, "");
       if (path && path !== "/") return `/${locale}${path}`;
     } catch {
       /* ignore malformed advertised URLs */
     }
   }
+  // R18: an app link (nabdplus://facility/x) maps to its website page via nabd-links.
+  const fromAppLink = nabdUrlToWebPath(item.deepLink);
+  if (fromAppLink) return /^\/(ar|en|ur|hi|bn|fil)\//.test(fromAppLink) ? fromAppLink : `/${locale}${fromAppLink}`;
   return `/${locale}/consultations`;
 }
 

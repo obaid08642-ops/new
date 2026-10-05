@@ -1,12 +1,13 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Eye, EyeOff, LoaderCircle, MailCheck, ShieldCheck } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
 import { SocialLoginButtons } from "./social-login-buttons";
 import styles from "./login-form.module.css";
+import { postLoginDestination, rememberDeepLinkFromQuery } from "@/lib/deep-links/post-login";
 
 function NLogo() {
   return <span className={styles.logoMark} aria-hidden="true"><svg viewBox="0 0 100 100" role="presentation"><path d="M18 52H38l5-22 9 44 6-30 5 8H82" /></svg></span>;
@@ -24,6 +25,8 @@ export function LoginForm({ locale }: { locale: Locale }) {
   const [otpRequested, setOtpRequested] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // R18: a deep link that needed a session (?next=) continues after sign-in.
+  useEffect(() => { rememberDeepLinkFromQuery(window.location.search); }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setMessage(null); setSubmitting(true);
@@ -38,7 +41,7 @@ export function LoginForm({ locale }: { locale: Locale }) {
         if (!verify.ok) { setMessage(responseMessage(verify.status, t("otpUnavailable"), t("otpInvalid"))); return; }
         const exchange = await fetch("/api/auth/session/exchange", { method: "POST", headers: { "x-nabd-device-id": crypto.randomUUID() } });
         if (!exchange.ok) { setMessage(responseMessage(exchange.status, t("otpUnavailable"), t("otpExchangeInvalid"))); return; }
-        router.replace(`/${locale}/dashboard`); router.refresh(); return;
+        router.replace(postLoginDestination(locale)); router.refresh(); return;
       }
       const endpoint = twoFactor ? "/api/auth/verify-2fa" : "/api/auth/login";
       const body = twoFactor ? { identifier, code } : { identifier, password };
@@ -46,7 +49,7 @@ export function LoginForm({ locale }: { locale: Locale }) {
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) { setMessage(responseMessage(response.status, twoFactor ? t("twoFactorUnavailable") : t("unavailable"), twoFactor ? t("twoFactorInvalid") : t("invalid"))); return; }
       if (!twoFactor && payload.requires2fa) { setTwoFactor(true); setPassword(""); setMessage(null); return; }
-      router.replace(`/${locale}/dashboard`); router.refresh();
+      router.replace(postLoginDestination(locale)); router.refresh();
     } catch { setMessage(otpMode ? t("otpUnavailable") : (twoFactor ? t("twoFactorUnavailable") : t("unavailable"))); }
     finally { setSubmitting(false); }
   }
