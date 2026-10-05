@@ -24,7 +24,7 @@ export default async function FamilyChatPage({ params }: Props) {
         <div className={styles.introText}>
           <p className={styles.eyebrow} style={{ color: "#1E332E", overflowWrap: "anywhere" }}><ShieldCheck size={15} aria-hidden="true" />{ar ? "تواصل العائلة" : "Family chat"}</p>
           <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{ar ? "محادثة العائلة" : "Family chat"}</h1>
-          <p style={{ overflowWrap: "anywhere" }}>{ar ? "رسائل فورية بين أفراد المجموعة العائلية — يتم التحديث كل 5 ثوانٍ من الخادم." : "Instant family thread — polled from the server every 5s."}</p>
+          <p style={{ overflowWrap: "anywhere" }}>{ar ? "رسائل فورية بين أفراد المجموعة العائلية — تتحدث تلقائيًا." : "Instant messages with your family group — updates automatically."}</p>
         </div>
         <div className={styles.introVector}><VectorFamily size={48} aria-hidden="true" /></div>
       </section>

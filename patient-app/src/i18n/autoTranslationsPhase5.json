@@ -588,13 +588,13 @@
       "bn": "আপনি কী নিয়ে উদ্বিগ্ন তা নির্বাচন করুন, আমরা আপনার জন্য সেরা স্পেশালিস্ট খুঁজে দেব",
       "fil": "Pumili ng iyong alalahanin at hahanapan ka namin ng pinakamahusay na espesyalista"
     },
-    "اختر مزوّداً مفعلاً من السلة، ثم أرسل طلب الحجز. سيُظهر النظام حالة التوافر وتفاصيل الحجز من الخادم.": {
-      "ar": "اختر مزوّداً مفعلاً من السلة، ثم أرسل طلب الحجز. سيُظهر النظام حالة التوافر وتفاصيل الحجز من الخادم.",
-      "en": "Select an active provider from the cart, then send the booking request. The system will display availability and booking details from the server.",
-      "ur": "کارٹ سے ایک فعال فراہم کنندہ منتخب کریں، پھر بکنگ درخواست بھیجیں۔ سسٹم سرور سے دستیابی کی حالت اور بکنگ کی تفصیلات دکھائے گا.",
-      "hi": "कार्ट से एक सक्रिय प्रदाता चुनें, फिर बुकिंग अनुरोध भेजें। सिस्टम सर्वर से उपलब्धता और बुकिंग विवरण दिखाएगा।",
-      "bn": "কার্ট থেকে একটি সক্রিয় প্রদানকারী নির্বাচন করুন, তারপর বুকিং অনুরোধ পাঠান। সিস্টেম সার্ভার থেকে উপলব্ধতা ও বুকিং বিবরণ দেখাবে।",
-      "fil": "Piliin ang aktibong provider mula sa cart, pagkatapos ipadala ang booking request. Ipapakita ng system ang availability at booking details mula sa server."
+    "اختر مزوّداً متاحاً من السلة، ثم أرسل طلب الحجز. ستظهر لك حالة التوافر وتفاصيل الحجز.": {
+      "ar": "اختر مزوّداً متاحاً من السلة، ثم أرسل طلب الحجز. ستظهر لك حالة التوافر وتفاصيل الحجز.",
+      "en": "Choose an available provider from your cart, then send the booking request. You'll see availability and booking details.",
+      "ur": "اپنی کارٹ سے دستیاب فراہم کنندہ منتخب کریں، پھر بکنگ کی درخواست بھیجیں۔ آپ کو دستیابی اور بکنگ کی تفصیلات نظر آئیں گی۔",
+      "hi": "अपने कार्ट से उपलब्ध प्रदाता चुनें, फिर बुकिंग अनुरोध भेजें। आपको उपलब्धता और बुकिंग का विवरण दिखेगा।",
+      "bn": "আপনার কার্ট থেকে একজন উপলব্ধ সেবাদাতা বেছে নিন, তারপর বুকিং অনুরোধ পাঠান। আপনি প্রাপ্যতা ও বুকিংয়ের বিবরণ দেখতে পাবেন।",
+      "fil": "Pumili ng available na provider mula sa iyong cart, saka ipadala ang booking request. Makikita mo ang availability at detalye ng booking."
     },
     "اختر مصدر الصورة": {
       "ar": "اختر مصدر الصورة",
@@ -4300,13 +4300,13 @@
       "bn": "অ্যাম্বুল্যান্স গাড়ি ট্র্যাক করুন",
       "fil": "Subaybayan ang sasakyan ng ambulansya"
     },
-    "تتم مراجعة الصيدلية والتوفر والعنوان والسعر النهائي وسداد التأمين من الخادم في خطوة إتمام الطلب. لا ينشأ طلب أو دفع من هذه الشاشة.": {
-      "ar": "تتم مراجعة الصيدلية والتوفر والعنوان والسعر النهائي وسداد التأمين من الخادم في خطوة إتمام الطلب. لا ينشأ طلب أو دفع من هذه الشاشة.",
-      "en": "Pharmacy, availability, address, final price and insurance payment are reviewed by the server at order completion. No order or payment is created from this screen.",
-      "ur": "فارمیسی، دستیابی، پتہ، حتمی قیمت اور انشورنس کی ادائیگی سرور کی جانب سے آرڈر مکمل کرنے کے مرحلے میں جانچی جاتی ہیں۔ اس اسکرین سے کوئی آرڈر یا ادائیگی پیدا نہیں ہوتی۔",
-      "hi": "फार्मेसी, उपलब्धता, पता, अंतिम कीमत और बीमा भुगतान को सर्वर द्वारा ऑर्डर पूरा करने के चरण में समीक्षा किया जाता है। इस स्क्रीन से कोई ऑर्डर या भुगतान नहीं बनता।",
-      "bn": "ফার্মেসি, উপলভ্যতা, ঠিকানা, চূড়ান্ত মূল্য এবং বীমা পরিশোধ সার্ভারের দ্বারা অর্ডার সম্পন্নকরণ ধাপে পর্যালোচিত হয়। এই স্ক্রিন থেকে কোনো অর্ডার বা পেমেন্ট তৈরি হয় না।",
-      "fil": "Sinusuri ng server ang botika, availability, address, pangwakas na presyo, at pagbabayad ng insurance sa hakbang ng pag-kompleto ng order. Walang order o bayad na nagagawa mula sa screen na ito."
+    "تتم مراجعة الصيدلية والتوفر والعنوان والسعر النهائي والتأمين في خطوة إتمام الطلب. لا يُنشأ طلب أو دفع من هذه الشاشة.": {
+      "ar": "تتم مراجعة الصيدلية والتوفر والعنوان والسعر النهائي والتأمين في خطوة إتمام الطلب. لا يُنشأ طلب أو دفع من هذه الشاشة.",
+      "en": "Pharmacy, availability, address, final price and insurance are reviewed at checkout. No order or payment is created on this screen.",
+      "ur": "فارمیسی، دستیابی، پتہ، حتمی قیمت اور انشورنس کا جائزہ چیک آؤٹ پر لیا جاتا ہے۔ اس اسکرین سے کوئی آرڈر یا ادائیگی نہیں ہوتی۔",
+      "hi": "फ़ार्मेसी, उपलब्धता, पता, अंतिम कीमत और बीमा की समीक्षा चेकआउट पर होती है। इस स्क्रीन से कोई ऑर्डर या भुगतान नहीं होता।",
+      "bn": "ফার্মেসি, প্রাপ্যতা, ঠিকানা, চূড়ান্ত দাম ও বীমা চেকআউটে যাচাই করা হয়। এই স্ক্রিন থেকে কোনো অর্ডার বা পেমেন্ট হয় না।",
+      "fil": "Sinusuri sa checkout ang botika, availability, address, huling presyo at insurance. Walang order o bayad na nagagawa sa screen na ito."
     },
     "تجديد البوليصة": {
       "ar": "تجديد البوليصة",
@@ -7444,13 +7444,13 @@
       "bn": "এখানে আপনার অ্যাপয়েন্টমেন্ট, ওষুধ ও অফারের অ্যালার্ট দেখা যাবে",
       "fil": "Dito lalabas ang mga alerto para sa iyong mga appointment, gamot, at mga alok"
     },
-    "ستُعاد معالجة الطلب بعنوان وطريقة استلام وطريقة دفع الطلب السابقين. يمكنك تعديلها في الطلب الجديد بعد أن يحدّد الخادم الصيدلية المتاحة.": {
-      "ar": "ستُعاد معالجة الطلب بعنوان وطريقة استلام وطريقة دفع الطلب السابقين. يمكنك تعديلها في الطلب الجديد بعد أن يحدّد الخادم الصيدلية المتاحة.",
-      "en": "The order will be reprocessed using the previous order's address, pickup method, and payment method. You can edit them in the new order after the server selects an available pharmacy.",
-      "ur": "آرڈر کو سابقہ آرڈر کے پتے، وصولی کے طریقہ اور ادائیگی کے طریقے کے ساتھ دوبارہ پروسیس کیا جائے گا۔ جب سرور دستیاب فارمیسی منتخب کرے گا تو آپ نئے آرڈر میں انہیں تبدیل کر سکتے ہیں۔",
-      "hi": "ऑर्डर को पिछले ऑर्डर के पते, प्राप्ति तरीके और भुगतान तरीके के साथ पुनः संसाधित किया जाएगा। जब सर्वर उपलब्ध फार्मेसी चुनता है, तब आप नए ऑर्डर में इन्हें बदल सकते हैं।",
-      "bn": "অর্ডারটি পূর্বের অর্ডারের ঠিকানা, সংগ্রহ পদ্ধতি এবং পেমেন্ট পদ্ধতিতে পুনরায় প্রক্রিয়া করা হবে। সার্ভার উপলব্ধ ফার্মেসি নির্ধারণ করার পর আপনি নতুন অর্ডারে এগুলো পরিবর্তন করতে পারবেন।",
-      "fil": "Ang order ay muling ipoproseso gamit ang address, paraan ng pagkuha, at paraan ng pagbabayad mula sa nakaraang order. Maaari mong baguhin ang mga ito sa bagong order pagkatapos piliin ng server ang available na parmasya."
+    "سنعيد الطلب بعنوان وطريقة استلام وطريقة دفع الطلب السابق. يمكنك تعديلها في الطلب الجديد بعد تحديد الصيدلية المتاحة.": {
+      "ar": "سنعيد الطلب بعنوان وطريقة استلام وطريقة دفع الطلب السابق. يمكنك تعديلها في الطلب الجديد بعد تحديد الصيدلية المتاحة.",
+      "en": "We'll repeat the order with your previous address, pickup method and payment method. You can change them in the new order once an available pharmacy is chosen.",
+      "ur": "ہم آپ کے پچھلے پتے، وصولی کے طریقے اور ادائیگی کے طریقے کے ساتھ آرڈر دہرائیں گے۔ دستیاب فارمیسی منتخب ہونے کے بعد آپ نئے آرڈر میں انہیں بدل سکتے ہیں۔",
+      "hi": "हम आपके पिछले पते, पिकअप तरीके और भुगतान तरीके के साथ ऑर्डर दोहराएँगे। उपलब्ध फ़ार्मेसी चुने जाने के बाद आप नए ऑर्डर में इन्हें बदल सकते हैं।",
+      "bn": "আমরা আপনার আগের ঠিকানা, সংগ্রহের পদ্ধতি ও পেমেন্ট পদ্ধতি দিয়ে অর্ডারটি আবার করব। উপলব্ধ ফার্মেসি বাছাই হলে নতুন অর্ডারে এগুলো বদলাতে পারবেন।",
+      "fil": "Uulitin namin ang order gamit ang dati mong address, paraan ng pagkuha at paraan ng pagbabayad. Mababago mo ang mga ito sa bagong order kapag may napiling available na botika."
     },
     "ستفتح هذه المزايا:": {
       "ar": "ستفتح هذه المزايا:",
@@ -11367,9 +11367,9 @@
     "يُحدد عند الحجز": {
       "ar": "يُحدد عند الحجز",
       "en": "Set at booking",
-      "ur": "بکنگ کے وقت طے ہوگا",
-      "hi": "बुकिंग के समय तय होगा",
-      "bn": "বুকিংয়ের সময় নির্ধারণ করা হবে",
+      "ur": "بکنگ پر طے ہوگا",
+      "hi": "बुकिंग पर तय होगा",
+      "bn": "বুকিংয়ের সময় ঠিক হবে",
       "fil": "Itatakda sa booking"
     },
     "يرجى إدخال اسم الدواء ووقت التذكير": {
@@ -12164,13 +12164,13 @@
       "bn": "প্রদানকারী পর্যালোচনার পর অ্যাপয়েন্টমেন্ট নিশ্চিতকরণ ও কেন্দ্র বিবরণ দেখাবে",
       "fil": "Lilitaw ang kumpirmasyon ng appointment at mga detalye ng sentro sa iyong mga booking pagkatapos ng pagsusuri ng provider"
     },
-    "سحب من المنزل (تُحسب الرسوم من الخادم)": {
-      "ar": "سحب من المنزل (تُحسب الرسوم من الخادم)",
-      "en": "Home collection (fees computed by server)",
-      "ur": "گھر سے نمونہ (فیس سرور سے)",
-      "hi": "घर से संग्रह (शुल्क सर्वर से)",
-      "bn": "বাড়ি থেকে সংগ্রহ (ফি সার্ভার থেকে)",
-      "fil": "Koleksyon mula sa bahay (bayad mula sa server)"
+    "سحب من المنزل (تُحدد الرسوم عند الحجز)": {
+      "ar": "سحب من المنزل (تُحدد الرسوم عند الحجز)",
+      "en": "Home collection (fee set at booking)",
+      "ur": "گھر سے نمونہ (فیس بکنگ پر طے ہوگی)",
+      "hi": "घर से सैंपल (शुल्क बुकिंग पर तय होगा)",
+      "bn": "বাড়ি থেকে নমুনা সংগ্রহ (ফি বুকিংয়ের সময় ঠিক হবে)",
+      "fil": "Home collection (itatakda ang bayad sa booking)"
     },
     "طاقم التمريض": {
       "ar": "طاقم التمريض",
@@ -12419,14 +12419,6 @@
       "hi": "नस",
       "bn": "শিরা",
       "fil": "Ugatan (IV)"
-    },
-    "يحدده الخادم": {
-      "ar": "يحدده الخادم",
-      "en": "Determined by server",
-      "ur": "سرور طے کرتا ہے",
-      "hi": "सर्वर निर्धारित करता है",
-      "bn": "সার্ভার নির্ধারণ করে",
-      "fil": "Tinutukoy ng server"
     },
     "يرجى التوجه إلى نقطة الاستلام الموضحة على الخريطة.": {
       "ar": "يرجى التوجه إلى نقطة الاستلام الموضحة على الخريطة.",
@@ -13132,13 +13124,13 @@
       "bn": "অ্যাপ ও অবকাঠামো উন্নয়ন",
       "fil": "Pagpapaunlad ng app at imprastruktura"
     },
-    "تعذر الاتصال بالخادم. يرجى المحاولة لاحقاً.": {
-      "ar": "تعذر الاتصال بالخادم. يرجى المحاولة لاحقاً.",
-      "en": "Could not reach the server. Please try later.",
-      "ur": "سرور سے رابطہ نہیں ہو سکا۔ بعد میں کوشش کریں۔",
-      "hi": "सर्वर से संपर्क नहीं हो सका। बाद में प्रयास करें।",
-      "bn": "সার্ভারে সংযোগ হয়নি। পরে চেষ্টা করুন।",
-      "fil": "Hindi makakonekta sa server. Subukang muli mamaya."
+    "تعذّر الاتصال الآن. يرجى المحاولة لاحقاً.": {
+      "ar": "تعذّر الاتصال الآن. يرجى المحاولة لاحقاً.",
+      "en": "We can't connect right now. Please try again later.",
+      "ur": "ابھی رابطہ نہیں ہو پا رہا۔ براہ کرم بعد میں کوشش کریں۔",
+      "hi": "अभी कनेक्ट नहीं हो पा रहा है। कृपया बाद में कोशिश करें।",
+      "bn": "এখন সংযোগ করা যাচ্ছে না। অনুগ্রহ করে পরে চেষ্টা করুন।",
+      "fil": "Hindi makakonekta ngayon. Pakisubukang muli mamaya."
     },
     "تفعيل الاهتزاز مع الإشعارات": {
       "ar": "تفعيل الاهتزاز مع الإشعارات",
@@ -14148,13 +14140,13 @@
       "bn": "FHIR R4 / HL7 সামঞ্জস্যপূর্ণ",
       "fil": "FHIR R4 / HL7 compatible"
     },
-    "JSON / PDF — يصل خلال 24 ساعة": {
-      "ar": "JSON / PDF — يصل خلال 24 ساعة",
-      "en": "JSON / PDF — delivered within 24 hours",
-      "ur": "JSON / PDF — 24 گھنٹے میں موصول",
-      "hi": "JSON / PDF — 24 घंटे में वितरित",
-      "bn": "JSON / PDF — ২৪ ঘণ্টায় ডেলিভারি",
-      "fil": "JSON / PDF — ihahatid sa loob ng 24 oras"
+    "نسخة من بياناتك — تصلك خلال 24 ساعة": {
+      "ar": "نسخة من بياناتك — تصلك خلال 24 ساعة",
+      "en": "A copy of your data — arrives within 24 hours",
+      "ur": "آپ کے ڈیٹا کی کاپی — 24 گھنٹوں میں موصول",
+      "hi": "आपके डेटा की कॉपी — 24 घंटे में मिलेगी",
+      "bn": "আপনার তথ্যের একটি কপি — ২৪ ঘণ্টার মধ্যে পৌঁছাবে",
+      "fil": "Kopya ng iyong data — darating sa loob ng 24 oras"
     },
     "الموعد بصيغة 2026-09-01T10:00:00Z": {
       "ar": "الموعد بصيغة 2026-09-01T10:00:00Z",
@@ -17756,13 +17748,13 @@
       "bn": "নিরাপদ পেমেন্ট শুরু ব্যর্থ",
       "fil": "Nabigong simulan ang secure na bayad"
     },
-    "تعذر بدء غرفة الفيديو — لم يصل رمز اتصال صالح من الخادم": {
-      "ar": "تعذر بدء غرفة الفيديو — لم يصل رمز اتصال صالح من الخادم",
-      "en": "Could not start video room — no valid token from server",
-      "ur": "ویڈیو روم شروع ناکام — سرور سے درست ٹوکن نہیں ملا",
-      "hi": "वीडियो रूम शुरू विफल — सर्वर से मान्य टोकन नहीं मिला",
-      "bn": "ভিডিও রুম শুরু ব্যর্থ — সার্ভার থেকে বৈধ টোকেন আসেনি",
-      "fil": "Nabigong simulan ang video room — walang dumating na wastong token mula sa server"
+    "تعذّر بدء مكالمة الفيديو الآن. حاول مرة أخرى بعد قليل.": {
+      "ar": "تعذّر بدء مكالمة الفيديو الآن. حاول مرة أخرى بعد قليل.",
+      "en": "We couldn't start the video call. Try again in a moment.",
+      "ur": "ویڈیو کال شروع نہیں ہو سکی۔ تھوڑی دیر میں دوبارہ کوشش کریں۔",
+      "hi": "वीडियो कॉल शुरू नहीं हो सकी। थोड़ी देर में फिर से कोशिश करें।",
+      "bn": "ভিডিও কল শুরু করা যায়নি। একটু পরে আবার চেষ্টা করুন।",
+      "fil": "Hindi masimulan ang video call. Subukang muli sa ilang sandali."
     },
     "تعذر تأمين الجلسة على هذا الجهاز.": {
       "ar": "تعذر تأمين الجلسة على هذا الجهاز.",
@@ -18108,13 +18100,13 @@
       "bn": "প্রেসক্রিপশনের ছবি পড়া যায়নি।",
       "fil": "Hindi mabasa ang larawan ng reseta."
     },
-    "تعذر متابعة قرار التأمين. لم يُسجّل أي دفع محلياً.": {
-      "ar": "تعذر متابعة قرار التأمين. لم يُسجّل أي دفع محلياً.",
-      "en": "Could not proceed with insurance decision. No local payment recorded.",
-      "ur": "انشورنس فیصلہ آگے نہیں بڑھ سکا۔ کوئی مقامی ادائیگی درج نہیں۔",
-      "hi": "बीमा निर्णय आगे नहीं बढ़ सका। कोई स्थानीय भुगतान दर्ज नहीं।",
-      "bn": "বিমা সিদ্ধান্ত এগোনো যায়নি। কোনো স্থানীয় পেমেন্ট নেই।",
-      "fil": "Hindi makapagpatuloy sa desisyon ng insurance. Walang lokal na bayad na naitala."
+    "تعذّر متابعة قرار التأمين. لم يتم أي دفع.": {
+      "ar": "تعذّر متابعة قرار التأمين. لم يتم أي دفع.",
+      "en": "We couldn't continue with the insurance decision. No payment was made.",
+      "ur": "انشورنس کے فیصلے کو آگے نہیں بڑھایا جا سکا۔ کوئی ادائیگی نہیں ہوئی۔",
+      "hi": "बीमा निर्णय के साथ आगे नहीं बढ़ सके। कोई भुगतान नहीं हुआ।",
+      "bn": "বীমার সিদ্ধান্ত নিয়ে এগোনো যায়নি। কোনো পেমেন্ট হয়নি।",
+      "fil": "Hindi naituloy ang desisyon ng insurance. Walang naganap na bayad."
     },
     "تعذّر تحليل الصورة — تحقق من الاتصال وحاول مجدداً": {
       "ar": "تعذّر تحليل الصورة — تحقق من الاتصال وحاول مجدداً",
@@ -18148,13 +18140,13 @@
       "bn": "ছবি বদলান",
       "fil": "Baguhin ang larawan"
     },
-    "تفاصيل الأصناف من الخادم": {
-      "ar": "تفاصيل الأصناف من الخادم",
-      "en": "Item details from server",
-      "ur": "سرور سے اشیاء کی تفصیل",
-      "hi": "सर्वर से आइटम विवरण",
-      "bn": "সার্ভার থেকে আইটেম বিবরণ",
-      "fil": "Mga detalye ng item mula sa server"
+    "تفاصيل الأصناف": {
+      "ar": "تفاصيل الأصناف",
+      "en": "Item details",
+      "ur": "اشیاء کی تفصیلات",
+      "hi": "आइटम का विवरण",
+      "bn": "আইটেমের বিবরণ",
+      "fil": "Detalye ng mga item"
     },
     "تفاصيل الطلب": {
       "ar": "تفاصيل الطلب",
@@ -19172,13 +19164,13 @@
       "bn": "নিরাপদ পেমেন্ট লিংক এখন নেই",
       "fil": "Hindi available ngayon ang secure na link sa pagbabayad"
     },
-    "راجع حالة البث يدوياً للحصول على آخر بيانات الخادم.": {
-      "ar": "راجع حالة البث يدوياً للحصول على آخر بيانات الخادم.",
-      "en": "Manually refresh broadcast for latest server data.",
-      "ur": "تازہ سرور ڈیٹا کے لیے براڈکاسٹ دستی چیک کریں۔",
-      "hi": "ताज़ा सर्वर डेटा हेतु प्रसारण मैन्युअल जांचें।",
-      "bn": "সর্বশেষ সার্ভার ডেটার জন্য সম্প্রচার ম্যানুয়ালি দেখুন।",
-      "fil": "Suriing manu-mano ang broadcast para sa pinakabagong datos ng server."
+    "حدّث الصفحة لرؤية آخر حالة لطلبك.": {
+      "ar": "حدّث الصفحة لرؤية آخر حالة لطلبك.",
+      "en": "Refresh to see the latest status of your request.",
+      "ur": "اپنی درخواست کی تازہ ترین صورتحال دیکھنے کے لیے ریفریش کریں۔",
+      "hi": "अपने अनुरोध की ताज़ा स्थिति देखने के लिए रीफ़्रेश करें।",
+      "bn": "আপনার অনুরোধের সর্বশেষ অবস্থা দেখতে রিফ্রেশ করুন।",
+      "fil": "I-refresh para makita ang pinakabagong status ng iyong request."
     },
     "ربما انتهت صلاحيته أو اختاره مريض آخر.": {
       "ar": "ربما انتهت صلاحيته أو اختاره مريض آخر.",
@@ -19532,29 +19524,29 @@
       "bn": "বাতিল ও ফেরত নীতি",
       "fil": "Patakaran sa pagkansela at refund"
     },
-    "سيتم فتح بوابة دفع آمنة للمبلغ الذي قبلته خادمياً فقط.": {
-      "ar": "سيتم فتح بوابة دفع آمنة للمبلغ الذي قبلته خادمياً فقط.",
-      "en": "A secure gateway opens only for the server-accepted amount.",
-      "ur": "صرف سرور منظور رقم کے لیے محفوظ گیٹ وے کھلے گا۔",
-      "hi": "केवल सर्वर-स्वीकृत राशि हेतु सुरक्षित गेटवे खुलेगा।",
-      "bn": "শুধু সার্ভার-গৃহীত টাকার জন্য নিরাপদ গেটওয়ে খুলবে।",
-      "fil": "Magbubukas lang ang secure na gateway para sa halagang tinanggap ng server."
+    "ستُفتح صفحة دفع آمنة للمبلغ الذي قبلته فقط.": {
+      "ar": "ستُفتح صفحة دفع آمنة للمبلغ الذي قبلته فقط.",
+      "en": "A secure payment page will open for the amount you accepted only.",
+      "ur": "صرف آپ کی قبول کردہ رقم کے لیے محفوظ ادائیگی کا صفحہ کھلے گا۔",
+      "hi": "सिर्फ़ आपकी स्वीकार की गई राशि के लिए सुरक्षित भुगतान पेज खुलेगा।",
+      "bn": "শুধু আপনার গ্রহণ করা পরিমাণের জন্য নিরাপদ পেমেন্ট পেজ খুলবে।",
+      "fil": "Magbubukas ang secure na payment page para lang sa halagang tinanggap mo."
     },
-    "سيتم فتح بوابة دفع آمنة لمبلغ التحمل الذي أقره الخادم فقط.": {
-      "ar": "سيتم فتح بوابة دفع آمنة لمبلغ التحمل الذي أقره الخادم فقط.",
-      "en": "A secure gateway opens only for the server-approved co-pay.",
-      "ur": "صرف سرور منظور کوپے کے لیے محفوظ گیٹ وے کھلے گا۔",
-      "hi": "केवल सर्वर-अनुमोदित को-पे हेतु सुरक्षित गेटवे खुलेगा।",
-      "bn": "শুধু সার্ভার-অনুমোদিত কো-পের জন্য নিরাপদ গেটওয়ে খুলবে।",
-      "fil": "Magbubukas lang ang secure na gateway para sa co-pay na inaprubahan ng server."
+    "ستُفتح صفحة دفع آمنة لمبلغ التحمّل المعتمد فقط.": {
+      "ar": "ستُفتح صفحة دفع آمنة لمبلغ التحمّل المعتمد فقط.",
+      "en": "A secure payment page will open for the approved co-pay only.",
+      "ur": "صرف منظور شدہ کو-پے کے لیے محفوظ ادائیگی کا صفحہ کھلے گا۔",
+      "hi": "सिर्फ़ स्वीकृत को-पे के लिए सुरक्षित भुगतान पेज खुलेगा।",
+      "bn": "শুধু অনুমোদিত কো-পে-র জন্য নিরাপদ পেমেন্ট পেজ খুলবে।",
+      "fil": "Magbubukas ang secure na payment page para lang sa aprubadong co-pay."
     },
-    "سيقرر الخادم أهلية الإلغاء والاسترداد من مصدر الدفع الموثق. هل تريد المتابعة؟": {
-      "ar": "سيقرر الخادم أهلية الإلغاء والاسترداد من مصدر الدفع الموثق. هل تريد المتابعة؟",
-      "en": "The server decides cancellation/refund eligibility from the verified payment source. Continue?",
-      "ur": "سرور تصدیق شدہ ادائیگی سے منسوخی/واپسی اہلیت طے کرے گا۔ جاری رکھیں؟",
-      "hi": "सर्वर सत्यापित भुगतान स्रोत से रद्दीकरण/वापसी पात्रता तय करेगा। जारी रखें?",
-      "bn": "সার্ভার যাচাইকৃত পেমেন্ট উৎস থেকে বাতিল/ফেরত যোগ্যতা নির্ধারণ করবে। চালিয়ে যাবেন?",
-      "fil": "Tutukuyin ng server ang pagiging karapat-dapat sa pagkansela/refund mula sa beripikadong pinagmulan ng bayad. Magpatuloy?"
+    "سنتحقق من إمكانية الإلغاء واسترداد المبلغ إلى وسيلة الدفع الأصلية. هل تريد المتابعة؟": {
+      "ar": "سنتحقق من إمكانية الإلغاء واسترداد المبلغ إلى وسيلة الدفع الأصلية. هل تريد المتابعة؟",
+      "en": "We'll check whether this booking can be cancelled and refunded to your original payment method. Continue?",
+      "ur": "ہم چیک کریں گے کہ آیا یہ بکنگ منسوخ ہو سکتی ہے اور رقم آپ کے اصل ادائیگی کے طریقے پر واپس ہو سکتی ہے۔ جاری رکھیں؟",
+      "hi": "हम जाँचेंगे कि यह बुकिंग रद्द होकर आपके मूल भुगतान तरीके में रिफ़ंड हो सकती है या नहीं। जारी रखें?",
+      "bn": "এই বুকিং বাতিল করে আপনার মূল পেমেন্ট পদ্ধতিতে টাকা ফেরত দেওয়া যায় কি না আমরা যাচাই করব। চালিয়ে যাবেন?",
+      "fil": "Titingnan namin kung puwedeng i-cancel ang booking at i-refund sa orihinal mong paraan ng pagbabayad. Magpatuloy?"
     },
     "سيكتب الطبيب ملخص الاستشارة بعد انتهاء الموعد": {
       "ar": "سيكتب الطبيب ملخص الاستشارة بعد انتهاء الموعد",
@@ -19572,13 +19564,13 @@
       "bn": "এক্স-রে, এমআরআই, সিটি",
       "fil": "X-ray, MRI, CT"
     },
-    "سيُرسل طلب الإلغاء إلى الخادم. لا يغيّر التطبيق الحالة محلياً قبل قبول الاستجابة.": {
-      "ar": "سيُرسل طلب الإلغاء إلى الخادم. لا يغيّر التطبيق الحالة محلياً قبل قبول الاستجابة.",
-      "en": "Cancellation goes to the server. The app does not change status before acceptance.",
-      "ur": "منسوخی سرور جائے گی۔ قبولیت سے پہلے ایپ حالت نہیں بدلے گی۔",
-      "hi": "रद्दीकरण सर्वर जाएगा। स्वीकृति से पहले ऐप स्थिति नहीं बदलेगा।",
-      "bn": "বাতিলকরণ সার্ভারে যাবে। গ্রহণের আগে অ্যাপ অবস্থা বদলাবে না।",
-      "fil": "Ipapadala ang pagkansela sa server. Hindi babaguhin ng app ang katayuan bago ang pagtanggap."
+    "سنرسل طلب الإلغاء، وتتغير حالة الطلب بعد قبوله.": {
+      "ar": "سنرسل طلب الإلغاء، وتتغير حالة الطلب بعد قبوله.",
+      "en": "We'll send your cancellation request. The order status changes once it's accepted.",
+      "ur": "ہم آپ کی منسوخی کی درخواست بھیجیں گے۔ قبول ہونے پر آرڈر کی صورتحال بدل جائے گی۔",
+      "hi": "हम आपका रद्द करने का अनुरोध भेजेंगे। स्वीकार होने पर ऑर्डर की स्थिति बदलेगी।",
+      "bn": "আমরা আপনার বাতিলের অনুরোধ পাঠাব। গৃহীত হলে অর্ডারের অবস্থা বদলাবে।",
+      "fil": "Ipapadala namin ang iyong cancellation request. Magbabago ang status ng order kapag natanggap ito."
     },
     "سيُزال الاختيار المحلي فقط قبل إنشاء أي طلب.": {
       "ar": "سيُزال الاختيار المحلي فقط قبل إنشاء أي طلب.",
@@ -20580,13 +20572,13 @@
       "bn": "প্রেসক্রিপশনে সম্প্রচারযোগ্য আইটেম নেই।",
       "fil": "Walang maibobrodkast na item ang reseta."
     },
-    "لا تعتبر الخدمة مؤكدة حتى يطابق الخادم سجل الدفع ويحدّث حالتها.": {
-      "ar": "لا تعتبر الخدمة مؤكدة حتى يطابق الخادم سجل الدفع ويحدّث حالتها.",
-      "en": "Service is not confirmed until the server matches payment and updates status.",
-      "ur": "سرور ادائیگی ملائے و حالت اپڈیٹ کرے تبھی خدمت مصدقہ۔",
-      "hi": "सर्वर भुगतान मिलाए व स्थिति अपडेट करे तभी सेवा पुष्ट।",
-      "bn": "সার্ভার পেমেন্ট মিলিয়ে অবস্থা আপডেট করলেই সেবা নিশ্চিত।",
-      "fil": "Kumpirmado lang ang serbisyo kapag itinugma ng server ang bayad at na-update ang katayuan."
+    "تتأكد الخدمة بعد التحقق من إتمام الدفع.": {
+      "ar": "تتأكد الخدمة بعد التحقق من إتمام الدفع.",
+      "en": "The service is confirmed once your payment is verified.",
+      "ur": "ادائیگی کی تصدیق کے بعد سروس کی تصدیق ہو جاتی ہے۔",
+      "hi": "भुगतान की पुष्टि होते ही सेवा पक्की हो जाती है।",
+      "bn": "পেমেন্ট যাচাই হলেই সেবা নিশ্চিত হয়।",
+      "fil": "Kumpirmado ang serbisyo kapag na-verify ang iyong bayad."
     },
     "لا تغلق هذه الشاشة": {
       "ar": "لا تغلق هذه الشاشة",
@@ -20772,13 +20764,13 @@
       "bn": "কোনো বৈধ ঠিকানা নেই",
       "fil": "Walang wastong address"
     },
-    "لا يوجد مبلغ مستحق. حدّث الخادم حالة الخدمة ولا حاجة إلى دفع صوري.": {
-      "ar": "لا يوجد مبلغ مستحق. حدّث الخادم حالة الخدمة ولا حاجة إلى دفع صوري.",
-      "en": "No amount due. The server updates service status; no dummy payment needed.",
-      "ur": "کوئی واجب رقم نہیں۔ سرور حالت اپڈیٹ کرتا ہے؛ فرضی ادائیگی غیر ضروری۔",
-      "hi": "कोई देय राशि नहीं। सर्वर स्थिति अपडेट करता है; डमी भुगतान अनावश्यक।",
-      "bn": "কোনো বকেয়া নেই। সার্ভার অবস্থা আপডেট করে; ডামি পেমেন্ট অপ্রয়োজনীয়।",
-      "fil": "Walang dapat bayaran. Ina-update ng server ang katayuan; hindi kailangan ng huwad na bayad."
+    "لا يوجد مبلغ مستحق، ولا حاجة إلى أي دفع.": {
+      "ar": "لا يوجد مبلغ مستحق، ولا حاجة إلى أي دفع.",
+      "en": "Nothing to pay. No payment is needed.",
+      "ur": "کوئی رقم واجب الادا نہیں، ادائیگی کی ضرورت نہیں۔",
+      "hi": "कोई राशि बकाया नहीं है, भुगतान की ज़रूरत नहीं।",
+      "bn": "কোনো বকেয়া নেই, পেমেন্টের প্রয়োজন নেই।",
+      "fil": "Walang babayaran. Hindi kailangan ng bayad."
     },
     "لا يوجد محتوى للمنشور.": {
       "ar": "لا يوجد محتوى للمنشور.",
@@ -22012,13 +22004,13 @@
       "bn": "আপনার অ্যাপয়েন্টমেন্ট ট্র্যাক করুন ও পরামর্শের প্রস্তুতি নিন",
       "fil": "Maaari mong subaybayan ang iyong appointment at maghanda para sa konsultasyon"
     },
-    "يمكنك قبول الدفع الذاتي للسعر الخادمي كاملاً أو الرجوع دون إنشاء دفع.": {
-      "ar": "يمكنك قبول الدفع الذاتي للسعر الخادمي كاملاً أو الرجوع دون إنشاء دفع.",
-      "en": "You may accept self-pay for the full server price or go back without creating payment.",
-      "ur": "مکمل سرور قیمت پر ذاتی ادائیگی قبول کریں یا بغیر ادائیگی واپس جائیں۔",
-      "hi": "पूर्ण सर्वर मूल्य हेतु स्व-भुगतान स्वीकारें या बिना भुगतान लौटें।",
-      "bn": "সম্পূর্ণ সার্ভার মূল্যে নিজ-পেমেন্ট গ্রহণ করুন বা পেমেন্ট ছাড়াই ফিরুন।",
-      "fil": "Maaari mong tanggapin ang self-pay para sa buong presyo ng server o bumalik nang hindi lumilikha ng bayad."
+    "يمكنك قبول الدفع الذاتي للسعر كاملاً، أو الرجوع دون دفع.": {
+      "ar": "يمكنك قبول الدفع الذاتي للسعر كاملاً، أو الرجوع دون دفع.",
+      "en": "You can accept self-pay for the full price, or go back without paying.",
+      "ur": "آپ پوری قیمت پر خود ادائیگی قبول کر سکتے ہیں، یا ادائیگی کے بغیر واپس جا سکتے ہیں۔",
+      "hi": "आप पूरी कीमत पर स्वयं भुगतान स्वीकार कर सकते हैं, या बिना भुगतान के वापस जा सकते हैं।",
+      "bn": "আপনি পুরো দামে নিজে পরিশোধ গ্রহণ করতে পারেন, অথবা পেমেন্ট ছাড়াই ফিরে যেতে পারেন।",
+      "fil": "Puwede mong tanggapin ang self-pay para sa buong presyo, o bumalik nang hindi nagbabayad."
     },
     "ينتهي في": {
       "ar": "ينتهي في",

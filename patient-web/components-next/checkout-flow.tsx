@@ -414,8 +414,8 @@ export function CheckoutFlow({ locale }: Props) {
               <div className={`${styles.formField} ${styles.fullWidth}`} style={{ background: "#FEF3C7", padding: "10px", borderRadius: "10px" }}>
                 <span style={{ fontSize: "0.85rem", fontWeight: "bold" }}>
                   {isAr
-                    ? "تنبيه: سلتك تحتوي أدوية بوصفة — يلزم وصفة محفوظة وفعّالة، وسيتحقق الخادم منها قبل إنشاء الطلب."
-                    : "Notice: your cart has prescription medicines — an active saved prescription is required and verified server-side."}{" "}
+                    ? "تنبيه: سلتك تحتوي أدوية بوصفة — يلزم وصفة محفوظة وفعّالة، وسنتحقق منها قبل إنشاء الطلب."
+                    : "Notice: your cart has prescription medicines — an active saved prescription is required, and we check it before placing the order."}{" "}
                   <Link href={`/${locale}/pharmacy/scan-prescription`}>{isAr ? "رفع وصفة" : "Upload prescription"}</Link>
                 </span>
               </div>
