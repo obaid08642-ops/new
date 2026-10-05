@@ -1,14 +1,14 @@
 import { Body, Controller, Post, UseGuards, BadRequestException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { RecoveryStartDto, RecoveryRedeemDto } from './step-up.dto';
 import { Throttle } from '@nestjs/throttler';
-import { JwtAuthGuard, Public, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, Public, CurrentUser, isPlatformStaffRole } from '../../common/auth.guard';
 import { StepUp } from '../../common/step-up.guard';
 import { AuthService } from './auth.service';
 import { AdminRecoveryService } from './admin-recovery.service';
-import { UserRole } from '../../common/enums';
 
 /**
- * C6: break-glass recovery for admin accounts.
+ * C6: break-glass recovery for platform staff accounts (admin, super_admin,
+ * finance, support_agent).
  * - Generate: authenticated admin + step-up → 10 plaintext codes (shown once).
  * - Redeem: recovery code + FRESH email OTP together → session.
  *   Email code alone, unknown code, or used code → 403.
@@ -21,8 +21,8 @@ export class AdminRecoveryController {
   @StepUp()
   @Post('generate')
   async generate(@CurrentUser() user: any) {
-    if (user?.role !== UserRole.ADMIN && user?.role !== UserRole.SUPER_ADMIN) {
-      throw new ForbiddenException('admin_only');
+    if (!isPlatformStaffRole(user?.role)) {
+      throw new ForbiddenException('staff_only');
     }
     const codes = await this.recovery.generate(user.id);
     return { ok: true, codes, warning: 'Store these offline. Each code works once, only with an email code.' };
@@ -42,7 +42,7 @@ export class AdminRecoveryController {
     const email = String(body?.email || '').trim().toLowerCase();
     if (!email) throw new BadRequestException('email_required');
     const u: any = await (this.auth as any).userModel.findOne({ email });
-    if (!u || u.active === false || (u.role !== UserRole.ADMIN && u.role !== UserRole.SUPER_ADMIN)) {
+    if (!u || u.active === false || !isPlatformStaffRole(u.role)) {
       // Same answer as a sent code: this endpoint must not reveal which emails
       // are registered admin accounts.
       return { ok: true, channel: 'email' };
@@ -63,7 +63,7 @@ export class AdminRecoveryController {
     if (!recCode) throw new ForbiddenException('recovery_code_required');
     // 1) Email OTP first — proves control of the mailbox. Alone it grants nothing.
     const u: any = await (this.auth as any).userModel.findOne({ email });
-    if (!u || u.active === false || (u.role !== UserRole.ADMIN && u.role !== UserRole.SUPER_ADMIN)) {
+    if (!u || u.active === false || !isPlatformStaffRole(u.role)) {
       throw new UnauthorizedException('Invalid credentials');
     }
     await this.auth.verifyOtp((this.auth as any).otpContact(u, email), emailCode);

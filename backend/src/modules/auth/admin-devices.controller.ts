@@ -7,7 +7,8 @@ import { EnrollDto, SetLockDto } from './admin-devices.dto';
 /** This-device-only admin access (device-bound, never IP-bound). */
 @Controller('admin/devices')
 @UseGuards(JwtAuthGuard)
-@Roles(UserRole.ADMIN)
+// X4: every platform staff role signs in from an enrolled device.
+@Roles(UserRole.ADMIN, UserRole.FINANCE, UserRole.SUPPORT_AGENT)
 export class AdminDevicesController {
   constructor(private readonly devices: AdminDeviceService) {}
 
