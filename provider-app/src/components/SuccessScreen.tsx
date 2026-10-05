@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Dimensions } from 'react-native';
+// DEVICE_STANDARD §5: the safe-area-context SafeAreaView (iOS and Android), never react-native's iOS-only one
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { I as NIcon } from './icons';
 import { useTheme, useLang } from '../context';
 import { FS, FW, R, SP } from '../constants';

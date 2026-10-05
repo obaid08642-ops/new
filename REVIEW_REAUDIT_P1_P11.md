@@ -1036,3 +1036,43 @@ Already fixed by the reviewer on `main` (reach this branch through the main → 
 6. **Q94 follow-up — TURN** (`coturn.controller.ts`/`coturn.service.ts`). Credentials only for a party of an active call session (appointment/booking id in the request, checked), TTL about 10 minutes, never for guests. **Verify:** spec; a guest token → 403; a call party → 200 with `ttl ≤ 600`.
 7. **Q91 follow-up — guest merge.** If merging a guest into an existing account is still wanted, add a flow that first authenticates as the existing account (password or OTP to its verified contact) and only then migrates the guest data. Until then convert-guest with someone else's email stays 409. **Verify:** spec for both branches; live: merge without proof → 409, with proof → data moved, token for the existing account.
 8. **Reproduce and close or refute each lead in §5 of the report** (payments `verifyPayment`/`RefundExecutor`/sync owner check, consultation `total_price`, provider privacy inboxes and nursing pool, `ChatGateway` token type and membership, `/calls/initiate`, AI limits and `copilot/suggest` role, patient-web CSRF, admin BFF gate token, the agent's `AdminDeviceService.revoke` id type, and the two functional regressions). For each: a failing test or live proof, then the fix — or a written reason why it is not a defect.
+
+
+## Round 12 — release split (owner, 2026-10-05)
+
+The owner split the remaining work into two phases. **Phase A blocks the next production deploy; Phase B comes after it.** This is the owner's decision, so Phase B items are not "deferred" by the agent: they are scheduled.
+
+**Who does what** (HANDOFF §2): large items go to the implementing agent, with acceptance tests the reviewer writes first. The reviewer reviews, fixes small defects and approves.
+
+### Phase A (before the deploy, in this order)
+1. Round 11 PR #255 (reviewer's, in review) merged.
+2. **Q79:** every provider registration screen (7 types) uploads the typed documents through the KYC API; remove the journey's own upload. Verify: j_onboarding, j_nursing, j_ambulance, j_facility green with screen payloads only.
+3. **Q86 + Q104 + Q99:** one payment path and one Moyasar webhook receiver that authenticates `secret_token` in every environment (staging included).
+4. **Q102:** the web service booking modal books for real (or is removed); fix the copay crash from `bdcdcb6`.
+5. **Q89 + R23:** step-up on every remaining money/privilege admin route, a usable admin step-up UI, and the Q66 route-list spec.
+6. **F2:** coverage-check works with what the add-policy screen sends. Verify: j_lab, j_radiology, j_consultation.
+7. **Q103:** demo seed data out of `backend/src`.
+8. **`31b1a1e`:** one shared availability function (5-minute buffer).
+9. **Design checks green on this branch:** no-raw-color in 7 files and no-emoji in 2 admin files (see the main sync `5ef60110`).
+10. The owner's answers of 2026-10-05:
+    - **e64ec70:** a pending revision until approval.
+    - **X4:** passkey enforcement, switched on only after the owner registers passkeys and the recovery path is tested.
+    - **N7:** individual providers' public pages show no phone, home address or internal IDs.
+
+Phase A closes when the gate, CI, the live gate and the native strict run are green on the tip, and every Phase A row is PASS. Then `fix/audit-2026-09` merges into `main` and the reviewer runs the rehearsed deploy.
+
+### Phase B (after the deploy)
+C17–C27 above:
+- 14.4/14.18 outbox and kill switches;
+- 14.20 media;
+- 14.15 indexes and the load seed;
+- 14.14 Redis roles and X12;
+- 14.17 load shedding;
+- 20.x observability;
+- 13.R21 AI gateway;
+- 13.R11 locations;
+- 13.R18 deep links;
+- 13.R13 propagation log;
+- the other unwired Phase 13 code.
+
+Until each is wired, it must be off (not called, or behind a flag that is off by default) in the Phase A deploy, and it must not change behaviour.
