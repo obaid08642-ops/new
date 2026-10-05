@@ -11,6 +11,8 @@ const SRC = path.join(__dirname, '..');
 // [review row, module path relative to src/ without extension]
 const MODULES: Array<[string, string]> = [
   ['16be643', 'common/purge-bus'],
+  ['cffbab5', 'common/shedding/load-shedding.guard'],
+  ['cffbab5', 'common/shedding/shed-classifier'],
 ];
 
 function sourceFiles(dir: string, out: string[] = []): string[] {
