@@ -1,8 +1,8 @@
 {
   "note": "Hard-coded colours that predate the design system. Recorded once with --init. 12.A11 rebuilds the screens on tokens and each rebuilt file drops out. --update only ever LOWERS a count; it cannot raise one.",
   "totals": {
-    "patient-web": 5907,
-    "patient-app": 2386,
+    "patient-web": 5854,
+    "patient-app": 2383,
     "provider-app": 320,
     "admin": 215
   },
@@ -227,8 +227,6 @@
     "patient-web/app/[locale]/voice/voice.module.css": 16,
     "patient-web/app/[locale]/wishlist/wishlist.module.css": 10,
     "patient-web/app/favicon.ico/route.ts": 2,
-    "patient-web/app/globals.css": 46,
-    "patient-web/app/layout.tsx": 1,
     "patient-web/app/manifest.ts": 2,
     "patient-web/components/premium-icons.tsx": 88,
     "patient-web/components-next/ai-report-client.tsx": 11,
@@ -257,7 +255,6 @@
     "patient-web/components-next/map-explorer-client.tsx": 4,
     "patient-web/components-next/map-explorer.module.css": 37,
     "patient-web/components-next/mobile-bottom-nav.module.css": 8,
-    "patient-web/components-next/nabd-mark.tsx": 6,
     "patient-web/components-next/pharmacy-request-form.tsx": 10,
     "patient-web/components-next/post-call-rating-form.tsx": 12,
     "patient-web/components-next/premium-health-illustration.tsx": 9,
@@ -275,7 +272,6 @@
     "patient-web/components-next/symptom-timeline-client.tsx": 18,
     "patient-web/components-next/vector-illustrations.tsx": 291,
     "patient-web/components-next/video-room-client.tsx": 11,
-    "patient-app/app/(auth)/welcome.tsx": 2,
     "patient-app/app/(tabs)/consultations/index.tsx": 39,
     "patient-app/app/(tabs)/diagnostics.tsx": 37,
     "patient-app/app/(tabs)/health.tsx": 20,
@@ -450,7 +446,6 @@
     "patient-app/src/design-system/components/Button.tsx": 6,
     "patient-app/src/design-system/components/Progress.tsx": 1,
     "patient-app/src/design-system/components/SearchBar.tsx": 1,
-    "patient-app/src/design-system/components/States.tsx": 1,
     "patient-app/src/design-system/components/Toast.tsx": 4,
     "patient-app/src/design-system/tokens.ts": 2,
     "patient-app/src/features/consultation/InsuranceCopayScreen.tsx": 8,

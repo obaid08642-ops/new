@@ -5,7 +5,7 @@ import Svg, { Defs, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { router } from 'expo-router';
 import { useDispatch } from 'react-redux';
 
-import { Button, FIcon, Icon, Screen } from '../../../packages/ui-native/src';
+import { Button, FIcon, Icon, Screen, SERVICE_ICONS } from '../../../packages/ui-native/src';
 import { LANGUAGES, useApp, type LangCode, type ThemeMode } from '../../src/context/AppContext';
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { NabdLogo } from '../../src/components/NabdLogo';
@@ -39,10 +39,10 @@ const ECG = 'M0 7h58l6-6 7 12 6-10 4 4h79';
 
 /** The four tiles around the mark: position in the 300-tall stage (start = right in RTL, as drawn). */
 const TILES = [
-  { icon: 'pill', tone: 'coral', box: 68, radius: 22, glyph: 44, pos: { top: 18, start: 46 } },
-  { icon: 'stethoscope', tone: 'blue', box: 62, radius: 20, glyph: 40, pos: { top: 74, end: 34 } },
-  { icon: 'test-tube', tone: 'mint', box: 58, radius: 19, glyph: 38, pos: { bottom: 30, start: 60 } },
-  { icon: 'first-aid-kit', tone: 'teal', box: 64, radius: 21, glyph: 44, pos: { bottom: 8, end: 70 } },
+  { ...SERVICE_ICONS.pharmacy, box: 68, radius: 22, glyph: 44, pos: { top: 18, start: 46 } },
+  { ...SERVICE_ICONS.consult, box: 62, radius: 20, glyph: 40, pos: { top: 74, end: 34 } },
+  { ...SERVICE_ICONS.lab, box: 58, radius: 19, glyph: 38, pos: { bottom: 30, start: 60 } },
+  { ...SERVICE_ICONS.nursing, box: 64, radius: 21, glyph: 44, pos: { bottom: 8, end: 70 } },
 ] as const;
 
 export default function Welcome() {

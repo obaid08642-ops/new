@@ -6,6 +6,7 @@ import React from 'react';
 import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { useApp } from '../../context/AppContext';
 import { Spacing, BorderRadius } from '../tokens';
+import { tokens } from '../../../../packages/design-tokens/dist/ts/tokens';
 import { DSText } from './Text';
 import { DSButton } from './Button';
 import { Icon, IconName } from '../Icon';
@@ -141,7 +142,7 @@ export function DSErrorState({
   onBack,
   style,
 }: DSErrorStateProps) {
-  const { colors } = useApp();
+  const { colors, isDark } = useApp();
   const config = ERROR_CONFIG[type];
 
   return (
@@ -152,7 +153,7 @@ export function DSErrorState({
       accessibilityLabel={title ?? config.defaultTitle}
     >
       {/* Icon */}
-      <View style={[styles.iconContainer, { backgroundColor: '#FEF2F2' }]}>
+      <View style={[styles.iconContainer, { backgroundColor: tokens(isDark ? 'dark' : 'light').color.status.danger.bg }]}>
         <Icon name={config.icon} size={40} color={colors.error} />
       </View>
 

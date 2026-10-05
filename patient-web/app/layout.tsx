@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
+import { THEME_COLOR } from "./design-tokens/theme-color";
 // DEVICE_STANDARD §1 web shells (<AppShell>, <StickyFooter>), mirrored from packages/ui/shells.
 import "@/components-next/ui-generated/shells/shells.css";
 import "@/components-next/ui-generated/components/components.css";
@@ -14,7 +15,11 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   viewportFit: "cover",
-  themeColor: "#1E332E",
+  // the canvas of each theme (generated from tokens.json by tools/design/sync-token-css.mjs)
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: THEME_COLOR.light },
+    { media: "(prefers-color-scheme: dark)", color: THEME_COLOR.dark },
+  ],
 };
 
 // <html lang/dir> must match the page locale: search engines read the language from <html>, and
