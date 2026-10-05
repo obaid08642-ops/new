@@ -60,13 +60,13 @@ export async function GET() {
           `${backendUrl}/api/v1/public/ai-catalog/services?city=${encodeURIComponent(arabic)}`,
           10000,
         );
-        const items: any[] = feed?.items || [];
+        const items: unknown[] = Array.isArray(feed?.items) ? feed.items : [];
         const sids = new Set<string>();
         for (const item of items) {
-          // Feed rows carry `id` (+ optional slug/service_id); the page
-          // resolves the same identifiers, so emit only what it can render.
-          const sid = item?.id || item?.slug || item?.service_id;
-          if (sid) sids.add(String(sid));
+          // Q33: URLs carry the record's real slug (the feed's `slug`; the page
+          // resolves it). A row without a slug is skipped: no raw ids in URLs.
+          const slug = item && typeof item === "object" ? (item as { slug?: unknown }).slug : undefined;
+          if (typeof slug === "string" && slug.trim()) sids.add(slug.trim());
         }
         return { latin, sids: [...sids] };
       }),

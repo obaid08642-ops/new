@@ -42,6 +42,18 @@ describe('public AI service feed carries only real, public data', () => {
     expect(nofee.priceRange).toBeUndefined();
     expect(nofee.acceptedInsurance).toEqual([]);
   });
+
+  it('Q33: each row carries its real slug (the sitemap emits slugs, never raw ids); none when the record has no slug', async () => {
+    const svc = new AiCommerceService(collections({
+      provider_profiles: [...providers, { id: 'doc-noslug', type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', name_ar: 'د. بلا رابط', city: 'الرياض' }],
+      facilities: [{ id: 'fac-1', slug: 'kfsh-riyadh', public_eligibility: true, medical_review_status: 'approved', name_ar: 'مستشفى', city: 'الرياض' }],
+    }) as never);
+    const feed = await svc.getServiceFeed({ city: 'الرياض', locale: 'ar' });
+    const byId = new Map(feed.items.map((i: Row) => [i.id, i]));
+    expect((byId.get('doc-pub') as Row).slug).toBe('dr-pub');
+    expect((byId.get('fac-1') as Row).slug).toBe('kfsh-riyadh');
+    expect((byId.get('doc-noslug') as Row).slug).toBeUndefined();
+  });
 });
 
 describe('entity-graph doctor (public read)', () => {

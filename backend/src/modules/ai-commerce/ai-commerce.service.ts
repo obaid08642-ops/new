@@ -147,6 +147,8 @@ export class AiCommerceService {
         '@type': 'MedicalBusiness',
         serviceType: 'Doctor Consultation',
         id: doc.id,
+        // Q33: the record's real slug; the services sitemap emits slugs only.
+        slug: typeof doc.slug === 'string' && doc.slug ? doc.slug : undefined,
         name: locale === 'en' ? (doc.name_en || doc.name_ar) : (doc.name_ar || doc.name_en),
         specialty: doc.specialty,
         city: doc.city,
@@ -164,6 +166,7 @@ export class AiCommerceService {
         '@type': 'Hospital',
         serviceType: 'Healthcare Facility',
         id: fac.id,
+        slug: typeof fac.slug === 'string' && fac.slug ? fac.slug : undefined,
         name: locale === 'en' ? (fac.name_en || fac.name_ar) : (fac.name_ar || fac.name_en),
         facilityType: fac.type,
         city: fac.city,
