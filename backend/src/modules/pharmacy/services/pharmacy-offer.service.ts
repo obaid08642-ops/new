@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException, Optional } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,6 +8,11 @@ import { EventBusService } from '../../events/event-bus.service';
 import { BusinessRulesService } from '../../business-rules/business-rules.module';
 
 const OFFER_TTL_MS = 10 * 60_000;
+
+/** Mongo duplicate-key error (E11000) from a unique index. */
+export function isDuplicateKeyError(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && Number((error as { code?: unknown }).code) === 11000;
+}
 const ACTIVE_PHARMACY_STATUSES = ['approved', 'active'];
 
 type ProviderOfferItemInput = {
@@ -190,13 +195,16 @@ export class PharmacyOfferService {
     const now = new Date();
     const prior: any = await this.offers.findOne({ order_id: orderId, pharmacy_account_id: user.id, status: { $in: ['draft', 'submitted'] } }).lean();
     if (prior?.status === 'submitted') throw new BadRequestException('submitted_offer_cannot_be_edited_create_new_version');
+    // 13.R1: versions are unique per (order, pharmacy). A new quote after an
+    // expired/withdrawn one continues from the latest version of any status.
+    const latest = prior ? null : await this.offers.findOne({ order_id: orderId, pharmacy_account_id: user.id }, { version: 1 }).sort({ version: -1 }).lean<{ version?: number }>();
     const values = {
       order_id: orderId,
       broadcast_id: broadcast.id,
       patient_account_id: order.patient_account_id,
       pharmacy_account_id: user.id,
       status: 'draft',
-      version: Number(prior?.version || 0) + 1,
+      version: Number((prior ?? latest)?.version || 0) + 1,
       items: quote.items,
       totals: quote.totals,
       provider_note: typeof body?.provider_note === 'string' ? body.provider_note.slice(0, 500) : undefined,
@@ -207,9 +215,16 @@ export class PharmacyOfferService {
       created_by: user.id,
       updated_by: user.id,
     };
-    const offer: any = prior
-      ? await this.offers.findOneAndUpdate({ id: prior.id, status: 'draft' }, { $set: values }, { new: true })
-      : await this.offers.create({ id: uuidv4(), ...values, created_at: now, timeline: [{ ts: now, event: 'draft_created', by: user.id }] });
+    let offer: any;
+    try {
+      offer = prior
+        ? await this.offers.findOneAndUpdate({ id: prior.id, status: 'draft' }, { $set: values }, { new: true })
+        : await this.offers.create({ id: uuidv4(), ...values, created_at: now, timeline: [{ ts: now, event: 'draft_created', by: user.id }] });
+    } catch (error: unknown) {
+      // A concurrent draft from the same pharmacy took this version first.
+      if (isDuplicateKeyError(error)) throw new ConflictException('offer_draft_conflict');
+      throw error;
+    }
     return this.providerDto(offer.toObject ? offer.toObject() : offer);
   }
 
@@ -410,6 +425,10 @@ export class PharmacyOfferService {
           throw new BadRequestException('offer_selection_conflict');
         }
         selected = { offer, allocation: allocation[0], next_status: nextStatus };
+      }).catch((error: unknown) => {
+        // 13.R1: an allocation for this (order, pharmacy) already exists.
+        if (isDuplicateKeyError(error)) throw new ConflictException('offer_selection_conflict');
+        throw error;
       });
       await this.bus.emit({
         type: 'pharmacy.offer.selected', entity_type: 'pharmacy_offer', entity_id: offerId,

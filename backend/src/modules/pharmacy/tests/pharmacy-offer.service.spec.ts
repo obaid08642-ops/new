@@ -1,7 +1,10 @@
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { PharmacyOfferService } from '../services/pharmacy-offer.service';
 
-const lean = (value: any) => ({ lean: jest.fn().mockResolvedValue(value) });
+const lean = (value: any) => {
+  const query = { lean: jest.fn().mockResolvedValue(value), sort: jest.fn(() => query) };
+  return query;
+};
 
 describe('PharmacyOfferService', () => {
   const order = {

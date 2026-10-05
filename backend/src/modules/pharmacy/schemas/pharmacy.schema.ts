@@ -294,7 +294,9 @@ export class PharmacyAllocation extends Document {
 }
 export const PharmacyAllocationSchema = SchemaFactory.createForClass(PharmacyAllocation);
 PharmacyAllocationSchema.index({ pharmacy_account_id: 1, status: 1, createdAt: -1 });
-PharmacyAllocationSchema.index({ order_id: 1, pharmacy_account_id: 1 });
+// 13.R1: one allocation per pharmacy per order. A concurrent second create for
+// the same pair is a duplicate-key error, mapped to 409 by the writers.
+PharmacyAllocationSchema.index({ order_id: 1, pharmacy_account_id: 1 }, { unique: true, name: 'pharmacy_allocation_order_pharmacy_unique' });
 
 // ============ PRESCRIPTION INTAKE (raw upload + parse result) ============
 @Schema({ timestamps: true, collection: 'pharmacy_prescription_intakes' })
@@ -433,7 +435,12 @@ export class PharmacyOffer extends Document {
   @Prop({ type: [Object], default: [] }) timeline: Array<{ ts: Date; event: string; by?: string; meta?: any }>;
 }
 export const PharmacyOfferSchema = SchemaFactory.createForClass(PharmacyOffer);
-PharmacyOfferSchema.index({ order_id: 1, pharmacy_account_id: 1, version: -1 });
+// 13.R1: no duplicate offers. A pharmacy has one offer document per version of
+// its quote for an order; two concurrent drafts cannot both become version N.
+PharmacyOfferSchema.index({ order_id: 1, pharmacy_account_id: 1, version: -1 }, { unique: true, name: 'pharmacy_offer_order_pharmacy_version_unique' });
+// ...and at most one open draft per (order, pharmacy): two concurrent first
+// drafts cannot both be created (the second gets a duplicate-key 409).
+PharmacyOfferSchema.index({ order_id: 1, pharmacy_account_id: 1 }, { unique: true, name: 'pharmacy_offer_one_draft_unique', partialFilterExpression: { status: 'draft' } });
 PharmacyOfferSchema.index({ patient_account_id: 1, order_id: 1, status: 1, quote_expires_at: 1 });
 PharmacyOfferSchema.index({ status: 1, quote_expires_at: 1, id: 1 });
 
