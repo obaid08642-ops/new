@@ -7,6 +7,12 @@
  * it used to drag `react-native-localize` into every suite that imported
  * `HttpClient`. Everything is re-exported here, so `@/services/ErrorHandler`
  * imports are unchanged.
+ *
+ * audit-2026-09: the `SERVER_ERROR` sentence this boundary used to carry was
+ * reworded to "a temporary problem" so it matches the design-system server state
+ * (`States.tsx` `server.defaultTitle`) instead of telling the user their request
+ * hit a backend fault. That sentence now lives with the rest of the message table,
+ * in `./errors`.
  */
 import React from 'react';
 import { View, StyleSheet } from 'react-native';

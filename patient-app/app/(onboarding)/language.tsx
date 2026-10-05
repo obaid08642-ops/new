@@ -1,69 +1,66 @@
-// @ts-nocheck
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { router } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { FadeInDown } from 'react-native-reanimated';
-import { useApp, LANGUAGES, LangCode } from '../../src/context/AppContext';
-import { NabdLogo } from '../../src/components/NabdLogo';
-import { AppText, Button } from '../../src/components/ui';
-import { Icon } from '../../src/components/Icon';
+import { View } from 'react-native';
+import { router, type Href } from 'expo-router';
 
-function getFlagEmoji(countryCode: string) {
-  const codePoints = countryCode
-    .toUpperCase()
-    .split('')
-    .map(char => 127397 + char.charCodeAt(0));
-  return String.fromCodePoint(...codePoints);
-}
+import { Button, Card, Radio, Screen, StickyFooter } from '../../../packages/ui-native/src';
+import { AuthBody, AuthFooter, AuthTitle, AuthTopBar, useAuthUi } from '../../src/components/auth/AuthKit';
+import { LANGUAGES, useApp, type LangCode } from '../../src/context/AppContext';
 
-export default function LanguageScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors, lang, setLang } = useApp();
-  const [selected, setSelected] = useState<LangCode>(lang);
+/**
+ * Onboarding, language — the sign-in kit's look with the Settings board's language card (canvas/Settings.dc.html):
+ * one white card, a Radio row per language (its own name, the English name beside it, the action-coloured ring
+ * when chosen), "Continue" in the sticky footer. The chosen language is applied on Continue, as before.
+ */
+export default function OnboardingLanguage() {
+  const { lang, setLang } = useApp();
+  const { theme, tr, isRTL } = useAuthUi();
+  const dir = isRTL ? 'rtl' : 'ltr';
+  // nothing chosen yet means the current language (read at render, so it is right once the app has loaded it)
+  const [picked, setPicked] = useState<LangCode | null>(null);
+  const selected = picked ?? lang;
+
+  const back = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace('/(onboarding)' as Href);
+  };
+  const next = () => {
+    setLang(selected);
+    router.replace('/(onboarding)/permissions' as Href);
+  };
+
+  const footer = (
+    <StickyFooter theme={theme}>
+      <AuthFooter>
+        <Button label={tr('متابعة')} variant="primary" size="lg" fullWidth theme={theme} onPress={next} testID="language-continue" />
+      </AuthFooter>
+    </StickyFooter>
+  );
 
   return (
-    <View style={[styles.c, { backgroundColor: colors.background, paddingTop: insets.top + 20 } ]}>
-      <View style={styles.logoWrap}>
-        <NabdLogo size={84} />
-        <AppText variant="h2" align="center" style={{ marginTop: 12 }}>اختر لغتك</AppText>
-        <AppText variant="bodySM" color={colors.textTertiary} align="center">Choose your language</AppText>
-      </View>
-
-      <ScrollView contentContainerStyle={{ padding: 20, gap: 12 }} showsVerticalScrollIndicator={false}>
-        {LANGUAGES.map((l, i) => {
-          const active = selected === l.code;
-          return (
-            <Animated.View key={l.code} entering={FadeInDown.delay(i * 60).duration(400)}>
-              <TouchableOpacity
-                activeOpacity={0.85}
-                onPress={() => setSelected(l.code)}
-                style={[styles.item, {
-                  backgroundColor: active ? colors.primarySurface : colors.surface,
-                  borderColor: active ? colors.primary : colors.border,
-                } ]}>
-                {active ? <Icon name="check_circle" size={24} color={colors.primary} /> : <View style={{ width: 24 }}/>}
-                <View style={{ flex: 1, alignItems: 'flex-end' }}>
-                  <AppText variant="h5" color={active ? colors.primary : colors.textPrimary}>{l.native}</AppText>
-                  <AppText variant="caption" color={colors.textTertiary}>{l.label}</AppText>
-                </View>
-                <AppText variant="h2">{getFlagEmoji(l.flag)}</AppText>
-              </TouchableOpacity>
-            </Animated.View>
-          );
-        })}
-      </ScrollView>
-
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 16, borderTopColor: colors.borderLight, backgroundColor: colors.surface } ]}>
-        <Button label="متابعة" variant="gradient" size="lg" iconRight="chevronLeft" onPress={() => { setLang(selected); router.replace('/(auth)/welcome'); }} />
-      </View>
-    </View>
+    <Screen theme={theme} edges={['top', 'start', 'end']} scroll footer={footer} testID="onboarding-language">
+      <AuthBody>
+        <AuthTopBar onBack={back} />
+        <AuthTitle title="اختر لغتك" sub="يمكنك تغييرها لاحقًا من الإعدادات." />
+        <View style={{ marginTop: 24 }}>
+          <Card elevation="flat" padding="none" theme={theme}>
+            <View>
+              {LANGUAGES.map((l, i) => (
+                <Radio
+                  key={l.code}
+                  label={l.native}
+                  meta={l.label}
+                  selected={selected === l.code}
+                  onChange={() => setPicked(l.code)}
+                  divider={i < LANGUAGES.length - 1}
+                  direction={dir}
+                  theme={theme}
+                  testID={`language-${l.code}`}
+                />
+              ))}
+            </View>
+          </Card>
+        </View>
+      </AuthBody>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  c: { flex: 1 },
-  logoWrap: { alignItems: 'center', paddingVertical: 16 },
-  item: { flexDirection: 'row-reverse', alignItems: 'center', gap: 14, padding: 16, borderRadius: 18, borderWidth: 1.5 },
-  footer: { padding: 20, borderTopWidth: 1 },
-});

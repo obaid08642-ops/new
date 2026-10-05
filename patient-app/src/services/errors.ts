@@ -183,7 +183,7 @@ const ERROR_MESSAGES: Record<AppErrorCode, string> = {
   FORBIDDEN_ERROR:   'ليس لديك صلاحية لهذا الإجراء.',
   NOT_FOUND_ERROR:   'لم يتم العثور على المحتوى المطلوب.',
   VALIDATION_ERROR:  'يرجى مراجعة البيانات المدخلة.',
-  SERVER_ERROR:      'خطأ في الخادم. يرجى المحاولة لاحقاً.',
+  SERVER_ERROR:      'حدث خلل مؤقت. يرجى المحاولة لاحقاً.',
   UNKNOWN_ERROR:     'حدث خطأ غير متوقع. يرجى المحاولة مجدداً.',
   OFFLINE_ERROR:     'أنت غير متصل بالإنترنت.',
   CANCELLED_ERROR:   'تم إلغاء العملية.',

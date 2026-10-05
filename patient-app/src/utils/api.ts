@@ -89,6 +89,12 @@ export interface ApiFetchExtras extends RequestInit {
    * a key — payments, bookings, prescriptions, SOS.
    */
   retryable?: boolean;
+  /**
+   * Send the request with no `Authorization` header even when a session exists.
+   * Used by the unauthenticated endpoints (e.g. `POST /auth/guest` creating the
+   * guest session), which must not present the current user's token.
+   */
+  skipAuth?: boolean;
 }
 
 /**
@@ -104,7 +110,7 @@ export async function apiFetch<T = any>(endpoint: string, options: ApiFetchExtra
   const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;
 
   const headers = new Headers(options.headers as HeadersInit | undefined);
-  if (token) {
+  if (token && !options.skipAuth) {
     headers.set('Authorization', `Bearer ${token}`);
   }
   if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {

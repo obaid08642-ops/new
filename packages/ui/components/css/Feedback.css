@@ -36,8 +36,8 @@
   text-align: center;
   color: var(--nabd-color-text-primary);
 }
-.nabd-state__title { margin: 0; font-size: 22px; font-weight: 700; }
-.nabd-state__body { margin: 0; font-size: 14.5px; line-height: 1.7; color: var(--nabd-color-text-secondary); }
+.nabd-state__title { margin: 0; font-size: var(--nabd-font-size-stat); font-weight: 700; }
+.nabd-state__body { margin: 0; font-size: var(--nabd-font-size-segment); line-height: 1.7; color: var(--nabd-color-text-secondary); }
 /* `detail` is the technical cause, shown small and quiet under the body */
 .nabd-state__detail { display: block; margin-top: 4px; font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-tertiary); }
 .nabd-state__actions { width: 100%; margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
@@ -47,7 +47,7 @@
   border: 0;
   background: transparent;
   font-family: inherit;
-  font-size: 15px;
+  font-size: var(--nabd-font-size-body);
   font-weight: 600;
   color: var(--nabd-color-text-primary);
   cursor: pointer;
