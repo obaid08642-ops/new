@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Put, Delete, Query, UseGuards, Body, NotFoundException, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
+import { Controller, Get, Param, Post, Put, Delete, Query, UseGuards, UseInterceptors, Body, NotFoundException, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 import { JwtAuthGuard, Public, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
@@ -9,10 +9,12 @@ import { HomeCareBooking, NursingBookingState, HomeCareService, NurseProvider } 
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { HomeCareSvc } from './home-care.service';
 import { UserRole } from '../../common/enums';
+import { ProviderPrivacyInterceptor, mustHidePatientContact } from '../../common/provider-privacy';
 import { CreateNoteDto, CreateBookingDto, ArriveAtPatientDto, TriggerEmergencyDto, CompleteVisitDto} from './home-care.dto';
 import { CreateHomeCareCatalogDto, UpdateHomeCareCatalogDto, ApproveCatalogDto, BulkApproveCatalogDto } from './home-care.dto';
 
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(ProviderPrivacyInterceptor)
 @Controller('nursing')
 export class NursingController {
   constructor(
@@ -181,8 +183,10 @@ export class NursingController {
     const b: any = await this.findVisit(id);
     this.assertReadAccess(b, user);
 
-    const destLat = b.patient_location?.lat ?? null;
-    const destLng = b.patient_location?.lng ?? null;
+    // Privacy: a nurse who has not accepted yet does not get the exact destination.
+    const hide = mustHidePatientContact(user, b.toObject ? b.toObject() : b);
+    const destLat = hide ? null : b.patient_location?.lat ?? null;
+    const destLng = hide ? null : b.patient_location?.lng ?? null;
     const curLat = b.gps_tracking?.current_lat ?? null;
     const curLng = b.gps_tracking?.current_lng ?? null;
 
@@ -433,6 +437,7 @@ export class NursingController {
 
 /** Patient-web contract bridge. It deliberately exposes only a bounded booking view. */
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(ProviderPrivacyInterceptor)
 @Controller('home-care')
 export class HomeCareContractController {
   constructor(@InjectModel('HomeCareBooking') private readonly bookings: Model<HomeCareBooking>) {}

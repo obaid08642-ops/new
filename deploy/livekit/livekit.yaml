@@ -11,7 +11,6 @@ rtc:
   use_external_ip: true
 
 keys:
-  # Injected by deploy/scripts/deploy.sh from LIVEKIT_API_KEY / LIVEKIT_API_SECRET env
   ${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}
 
 # Embedded TURN disabled — our dedicated coturn container handles STUN/TURN
