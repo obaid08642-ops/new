@@ -29,8 +29,8 @@
 .hero { display: none; }
 
 @media (min-width: 1024px) {
-  .page { grid-template-columns: minmax(0, 1fr) 640px; gap: 16px; padding: 16px; }
-  .column { max-inline-size: none; padding: 24px 96px; box-sizing: border-box; }
+  .page { grid-template-columns: minmax(0, 1fr) min(640px, 45vw); gap: 16px; padding: 16px; }
+  .column { max-inline-size: none; padding: 24px clamp(24px, 7vw, 96px); box-sizing: border-box; }
   .top { grid-template-columns: auto 1fr auto; }
   .back, .backSpacer { display: none; }
   .brand { justify-self: start; }
@@ -89,7 +89,9 @@
   min-block-size: 44px; display: inline-flex; align-items: center;
 }
 .link:disabled { opacity: .5; cursor: not-allowed; }
-.links { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0 16px; margin-block-start: -8px; }
+.links { display: flex; justify-content: flex-start; flex-wrap: wrap; gap: 0 16px; margin-block-start: -8px; }
+.forgotTop { display: none; min-block-size: 0; }
+@media (min-width: 1024px) { .forgotTop { display: inline-flex; } .forgotBelow { display: none; } }
 .error {
   margin: 0; padding: 12px 14px; border-radius: 14px; font-size: var(--nabd-font-size-control);
   background: var(--nabd-color-status-danger-bg); color: var(--nabd-color-status-danger-fg);
