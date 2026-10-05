@@ -59,6 +59,35 @@ const FILES = [
   { from: 'packages/ui/shells/StickyFooter.tsx', to: 'patient-web/components-next/ui-generated/shells/StickyFooter.tsx' },
   { from: 'packages/ui/shells/index.ts', to: 'patient-web/components-next/ui-generated/shells/index.ts' },
   { from: 'packages/ui/shells/shells.css', to: 'patient-web/components-next/ui-generated/shells/shells.css' },
+  // handoff §3 shared components (Batch 0 onward): the contract, the icon data and every
+  // component file, so a page uses the same renderer the gallery and the board comparisons do.
+  // Component files hold state, refs or handlers, so they are Client Components here.
+  { from: 'packages/ui/icons/fill.ts', to: 'patient-web/components-next/ui-generated/icons/fill.ts' },
+  { from: 'packages/ui/icons/marks.ts', to: 'patient-web/components-next/ui-generated/icons/marks.ts' },
+  { from: 'packages/ui/components/contract.ts', to: 'patient-web/components-next/ui-generated/components/contract.ts' },
+  ...['Button', 'Spinner', 'FIcon', 'Inputs', 'Controls', 'Surfaces', 'Cards', 'Feedback'].map((name) => ({
+    from: `packages/ui/components/${name}.tsx`,
+    to: `patient-web/components-next/ui-generated/components/${name}.tsx`,
+    useClient: true,
+  })),
+  // The component sheet (the components are styled by class: the CSP refuses style attributes).
+  ...['components.css', 'css/tones.css', 'css/Spinner.css', 'css/FIcon.css', 'css/Button.css', 'css/Controls.css', 'css/Inputs.css', 'css/Surfaces.css', 'css/Cards.css', 'css/Feedback.css'].map((name) => ({
+    from: `packages/ui/components/${name}`,
+    to: `patient-web/components-next/ui-generated/components/${name}`,
+  })),
+  // The app's barrel is the package's, without the gallery fixtures (sample data never ships in
+  // the app) and with the paths re-rooted at ui-generated/.
+  {
+    from: 'packages/ui/src/index.ts',
+    to: 'patient-web/components-next/ui-generated/index.ts',
+    transform: (body) =>
+      body
+        .split('\n')
+        .filter((line) => !/fixtures/.test(line))
+        .join('\n')
+        .replace(/from '\.\/Icon'/g, "from './src/Icon'")
+        .replace(/from '\.\.\//g, "from './"),
+  },
 ];
 
 const banner = (from) => `// GENERATED FILE — DO NOT EDIT.
@@ -83,12 +112,17 @@ for (const file of FILES) {
     console.error(`sync-ui-components: missing source ${file.from}`);
     process.exit(2);
   }
-  const body = readFileSync(src, 'utf8');
+  const raw = readFileSync(src, 'utf8');
+  const body = file.transform ? file.transform(raw) : raw;
   // A leading `// @ts-nocheck` or shebang must stay first, so the banner is
   // inserted after any leading comment block.
   const lines = body.split('\n');
   let insertAt = 0;
   while (insertAt < lines.length && /^\s*(\/\/|@ts-|['"]use (client|server)|\/\*)/.test(lines[insertAt])) {
+    // A leading /* */ block is skipped whole, so the banner never lands inside it.
+    if (/^\s*\/\*/.test(lines[insertAt])) {
+      while (insertAt < lines.length && !lines[insertAt].includes('*/')) insertAt++;
+    }
     insertAt++;
   }
   // CSS has no // comments: the same banner goes in a /* */ block, at the top.
