@@ -24,9 +24,10 @@ import { Icon, Spinner } from '../Icon';
 const HEIGHT: Record<Size, number> = { sm: 40, md: 44, lg: 56 };
 const RADIUS: Record<Size, number> = { sm: 14, md: 14, lg: 18 };
 const PAD_X: Record<Size, number> = { sm: 14, md: 16, lg: 24 };
+// The boards set sm/md at 600; the app ships Readex Pro 400/500/700, and 600 draws with the 700 face.
 const FONT: Record<Size, { size: number; family: string }> = {
-  sm: { size: 13.5, family: 'ReadexPro-500' },
-  md: { size: 14, family: 'ReadexPro-500' },
+  sm: { size: 13.5, family: 'ReadexPro-700' },
+  md: { size: 14, family: 'ReadexPro-700' },
   lg: { size: 17, family: 'ReadexPro-700' },
 };
 const ICON_PX: Record<Size, number> = { sm: 16, md: 18, lg: 22 };
