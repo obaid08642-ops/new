@@ -85,6 +85,7 @@ export default function BroadcastStatusScreen() {
               <View style={styles.row}>
                 <View style={{ flex: 1, alignItems: 'flex-end' }}>
                   <AppText variant="h6">{offer.pharmacy_name || offer.pharmacyName || 'عرض صيدلية'}</AppText>
+                  {[offer.pharmacy_district, offer.pharmacy_city].some((v) => typeof v === 'string' && v) ? <AppText variant="caption" color={colors.textTertiary}>{[offer.pharmacy_district, offer.pharmacy_city].filter((v) => typeof v === 'string' && v).join('، ')}</AppText> : null}
                   <AppText variant="caption" color={colors.textTertiary}>العناصر المتاحة: {Array.isArray(offer.lines) ? offer.lines.filter((item: any) => item.available).length : 0}</AppText>
                 </View>
                 <Icon name="pharmacy" size={24} color={colors.primary} />

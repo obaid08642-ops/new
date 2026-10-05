@@ -25,6 +25,8 @@ export type PatientPharmacyOffer = {
   quoteHash?: string;
   quoteRevision?: number;
   approxDistanceKm?: number;
+  /** District and city of the pharmacy (never its exact address before acceptance). */
+  pharmacyArea?: string;
   etaLabel?: string;
   lines: PatientPharmacyOfferLine[];
 };
@@ -111,6 +113,7 @@ export function extractPatientPharmacyOffers(payload: unknown): PatientPharmacyO
       quoteHash: stringValue(source, ["snapshot_hash", "quote_hash", "quoteHash"]),
       quoteRevision: numberValue(source, ["revision", "quote_revision", "quoteRevision"]),
       approxDistanceKm: numberValue(source, ["approx_distance_km", "approxDistanceKm"]),
+      pharmacyArea: [stringValue(source, ["pharmacy_district"]), stringValue(source, ["pharmacy_city"])].filter(Boolean).join(", ") || undefined,
       etaLabel: (() => {
         const delivery = valueRecord(source.approx_delivery);
         return stringValue(delivery ?? {}, ["label_ar", "label_en"]);

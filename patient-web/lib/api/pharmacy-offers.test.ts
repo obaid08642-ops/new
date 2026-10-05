@@ -24,6 +24,25 @@ describe("patient pharmacy offer adapter", () => {
   });
 });
 
+describe("patient pharmacy offer location (13.R4)", () => {
+  it("shows the pharmacy district and city from the offer and nothing finer", () => {
+    const [offer] = extractPatientPharmacyOffers({ data: [{
+      id: "91047ef2-ad36-422a-a184-629693e7c729",
+      pharmacy_district: "العليا",
+      pharmacy_city: "الرياض",
+      approx_distance_km: 2.5,
+      items: [],
+    }] });
+    expect(offer.pharmacyArea).toBe("العليا, الرياض");
+    expect(offer.approxDistanceKm).toBe(2.5);
+  });
+
+  it("leaves the area empty when the offer has neither district nor city", () => {
+    const [offer] = extractPatientPharmacyOffers({ data: [{ id: "91047ef2-ad36-422a-a184-629693e7c729", pharmacy_district: null, items: [] }] });
+    expect(offer.pharmacyArea).toBeUndefined();
+  });
+});
+
 describe("patient pharmacy order-progress adapter", () => {
   it("exposes only the state and accepted quote details required for patient actions", () => {
     expect(extractPatientPharmacyOrderProgress({
