@@ -42,6 +42,11 @@ You IMPLEMENT the plan. A separate reviewer reviews and merges your work. You ne
 - Free-form JSON only with @IsObject (or @Allow) plus a comment `// free-form: <reason>`.
 - Field names must match what the clients (patient-app, patient-web, provider-app, admin) actually send.
 
+## Acceptance tests (owner decision 2026-10-05)
+- For a large item, the reviewer first merges acceptance tests: `backend/acceptance/<id>/`, `provider-app/acceptance/<id>/`, and any live journey named in `backend/acceptance/README.md`.
+- Your PR for that item must make `node scripts/run-acceptance.mjs <id>` (and the provider-app acceptance run, when present) pass. Paste the outputs.
+- Never edit, move, skip or delete acceptance files or those journeys. If one looks wrong, write it in AGENT_PROGRESS.md and ask the reviewer.
+
 ## Gate before every push (all must pass; paste the outputs)
 ```
 cd backend
@@ -50,6 +55,7 @@ npx nest build
 npm test -- --runInBand
 npx jest --config jest.boot.config.js --runInBand test/security test/journeys
 python3 ../tools/audit/dtolint.py            # exit 0
+node scripts/run-acceptance.mjs --done      # every approved acceptance item still passes
 node ../tools/audit/clientbodies.js > /tmp/c.json && node ../tools/audit/dtocheck.js /tmp/c.json   # 0 mismatches
 ```
 If a gate fails, fix it. Never push red.
