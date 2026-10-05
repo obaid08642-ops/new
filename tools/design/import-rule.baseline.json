@@ -223,10 +223,6 @@
     "patient-app/app/room/[id].tsx": 1,
     "patient-app/src/components/Icon.tsx": 1,
     "patient-app/src/components/ProductImage.tsx": 1,
-    "patient-app/src/components/auth/AuthKit.tsx": 1,
     "provider-app/src/screens/shared/RegistrationSuccess.tsx": 1
-  },
-  "exceptions": {
-    "patient-app/src/components/auth/AuthKit.tsx": "Reviewer, 2026-10-05: third-party sign-in brand marks (Google, X, Snapchat) from FontAwesome; not part of the boards' icon set. Move them into packages/ui-native as a BrandMark component in Batch 1, then remove this entry."
   }
 }
