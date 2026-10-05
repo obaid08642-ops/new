@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 
 export const authCookieNames = { access: "nabd_access", refresh: "nabd_refresh", device: "nabd_device" } as const;
+/** Where the one-time code of a new registration was sent: set by /api/auth/register, read by the /otp page, cleared by the session exchange. */
+export const otpIdentifierCookie = "nabd_otp_identifier";
 type TokenPair = { accessToken: string; refreshToken: string };
 const commonCookie = { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" as const, path: "/" };
 export function setSessionCookies(response: NextResponse, tokens: TokenPair, deviceId: string) {

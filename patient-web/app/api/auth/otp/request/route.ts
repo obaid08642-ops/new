@@ -3,8 +3,10 @@ import { z } from "zod";
 import { callPatientApi } from "@/lib/api/upstream";
 
 const schema = z.object({ identifier: z.string().trim().min(3).max(320) });
+// The backend answers {otp_sent: true, channel, expires_in} (AuthService.requestPatientOtp), the same body
+// whether or not the account exists. The browser only gets {ok, expires_in} back.
 const successSchema = z.object({
-  ok: z.literal(true),
+  otp_sent: z.literal(true),
   expires_in: z.number().int().positive().max(600),
 });
 
@@ -24,5 +26,5 @@ export async function POST(request: Request) {
     && Object.keys(data as Record<string, unknown>).some((key) => /token/i.test(key));
   const parsed = successSchema.safeParse(data);
   if (hasTokenField || !parsed.success) return NextResponse.json({ message: "unexpected_otp_response" }, { status: 502 });
-  return NextResponse.json(parsed.data, { status: upstream.status, headers: { "cache-control": "no-store" } });
+  return NextResponse.json({ ok: true, expires_in: parsed.data.expires_in }, { status: upstream.status, headers: { "cache-control": "no-store" } });
 }
