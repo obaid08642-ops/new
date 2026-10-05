@@ -10,7 +10,8 @@ import uuid
 
 from lib import journey, step
 
-ADMIN_WEB = os.environ.get('NABD_ADMIN_WEB', 'http://127.0.0.1:3001')
+# localhost, not 127.0.0.1: the passkey's RP ID is 'localhost' (softkey.py).
+ADMIN_WEB = os.environ.get('NABD_ADMIN_WEB', 'http://localhost:3001')
 
 EMAIL = 'admin@nabd.test'
 
@@ -48,6 +49,12 @@ def main():
         return fail('admin clicks', f'no chromium: {e}')
     ctx = browser.new_context(locale='ar-SA')
     page = ctx.new_page()
+    import softkey
+    # The browser has its own synthetic passkey; enroll it through the API session first.
+    api_admin, _ = j_admin.login()
+    step('browser passkey enrolled', softkey.ensure_enrolled(lambda p, b: api_admin.req('POST', '/api/admin' + p, b),
+                                                            lambda p: api_admin.req('GET', '/api/admin' + p), browser=True), 'enroll failed')
+    softkey.add_virtual_authenticator(ctx, page)  # passkey login + step-up prompts (R23)
     try:
         page.goto(f'{ADMIN_WEB}/login', wait_until='load', timeout=45000)
     except Exception as e:
@@ -61,15 +68,25 @@ def main():
         page.locator('form input:not([type])').first.fill(EMAIL)
         page.fill('input[type="password"]', os.environ.get('NABD_ADMIN_PASSWORD', 'Adm1n!Live-Pass'))
         page.click('button[type="submit"]')
-        page.wait_for_selector('input[inputmode="numeric"]', timeout=20000)
-        code = mail_code(EMAIL, t0)
-        if not code:
+        # An admin with a passkey signs in with it (the virtual authenticator answers);
+        # otherwise the emailed 2FA code is asked for.
+        passkey_btn = page.get_by_role('button', name='تأكيد بمفتاح الأمان')
+        page.wait_for_function("() => !!document.querySelector('input[inputmode=\"numeric\"]') || [...document.querySelectorAll('button')].some(b => b.textContent.includes('مفتاح الأمان'))", timeout=30000)
+        if passkey_btn.count():
+            passkey_btn.click()  # the virtual authenticator signs, like Touch ID would
+            code = None
+        else:
+            code = mail_code(EMAIL, t0)
+        if code is None:
+            pass
+        elif not code:
             step('admin browser login', False, 'no 2FA mail')
             browser.close()
             pw.stop()
             return
-        page.fill('input[inputmode="numeric"]', code)
-        page.click('button[type="submit"]')
+        else:
+            page.fill('input[inputmode="numeric"]', code)
+            page.click('button[type="submit"]')
         page.wait_for_url('**/admin**', timeout=20000)
     except Exception as e:
         step('admin browser login', False, f'login form changed: {e}')
