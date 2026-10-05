@@ -10,10 +10,8 @@ import { LANGUAGES, useApp, type LangCode, type ThemeMode } from '../../src/cont
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { NabdLogo } from '../../src/components/NabdLogo';
 import { AUTH_COLUMN, FONT, SocialButtons, availableSocialProviders, useAuthUi, type SocialProvider } from '../../src/components/auth/AuthKit';
-import { apiFetch, storeAuthSession } from '../../utils/api';
 import { useSocialLogin } from '../../src/hooks/useSocialLogin';
-import { getDeviceId } from '../../src/utils/deviceId';
-import { decodeJwt } from '../../src/utils/jwt';
+import { createGuestSession } from '../../src/utils/guestSession';
 import { guestLogin } from '../../src/store/slices/authSlice';
 
 /**
@@ -67,20 +65,8 @@ export default function Welcome() {
     setGuestBusy(true);
     setGuestError(null);
     try {
-      const deviceId = await getDeviceId();
-      const res = await apiFetch('/auth/guest', {
-        method: 'POST',
-        headers: { 'x-device-id': deviceId },
-        body: JSON.stringify({}),
-      });
-      const token = typeof res?.token === 'string' ? res.token : (res?.token?.accessToken || null);
-      if (!token) throw new Error('guest_session_failed');
-      await storeAuthSession(res?.token);
-      const decoded = decodeJwt(token) || {};
-      dispatch(guestLogin({
-        user: res?.user || { id: decoded.sub, role: 'guest', name: tr('زائر') },
-        token,
-      }));
+      const session = await createGuestSession();
+      dispatch(guestLogin(session));
       router.replace('/(tabs)');
     } catch (e) {
       setGuestError('تعذّرت المتابعة كضيف الآن. تحقّق من الاتصال وحاول مرة أخرى.');
