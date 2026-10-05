@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({ accessToken: "dashboard-server-token-never-in-html", redirect: vi.fn(), profile: vi.fn(), appointment: vi.fn() }));
 
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: (name: string) => (name === "nabd_access" ? { value: state.accessToken } : undefined) }) }));
-vi.mock("next/navigation", () => ({ redirect: state.redirect, useRouter: () => ({ push: vi.fn() }) }));
+vi.mock("next/navigation", () => ({ redirect: state.redirect, useRouter: () => ({ push: vi.fn() }), usePathname: () => "/ar/dashboard" }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
 vi.mock("@/lib/i18n", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/lib/i18n")>()), isLocale: () => true }));
 vi.mock("@/lib/api/dashboard-server", () => ({ getPatientDashboardProfile: state.profile, getPatientDashboardUpcomingAppointment: state.appointment }));

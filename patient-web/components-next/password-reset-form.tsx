@@ -1,8 +1,73 @@
 "use client";
+
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
+import { authErrorKind } from "@/lib/auth/auth-errors";
 import type { Locale } from "@/lib/i18n";
 import styles from "./auth/auth.module.css";
-const copy:Record<Locale,{title:string;body:string;token:string;password:string;confirm:string;submit:string;busy:string;success:string;failed:string;back:string}>= {ar:{title:"تعيين كلمة مرور جديدة",body:"أدخل الرمز الذي وصلك وكلمة المرور الجديدة.",token:"الرمز",password:"كلمة المرور الجديدة",confirm:"تأكيد كلمة المرور",submit:"تعيين كلمة المرور",busy:"جارٍ التعيين…",success:"تم تعيين كلمة المرور. يمكنك تسجيل الدخول الآن.",failed:"تعذر تعيين كلمة المرور. لم يتم تغييرها.",back:"العودة إلى الدخول"},en:{title:"Set a new password",body:"Enter the code you received and a new password.",token:"Code",password:"New password",confirm:"Confirm password",submit:"Set password",busy:"Setting password…",success:"Password set. You can sign in now.",failed:"Password could not be changed.",back:"Back to sign in"},fil:{title:"Magtakda ng bagong password",body:"Ilagay ang code na natanggap mo at ang bagong password.",token:"Code",password:"Bagong password",confirm:"Kumpirmahin ang password",submit:"Itakda ang password",busy:"Itinatakda…",success:"Naitakda ang password. Maaari ka nang mag-sign in.",failed:"Hindi nabago ang password.",back:"Bumalik sa login"},hi:{title:"नया पासवर्ड सेट करें",body:"आपको मिला कोड और नया पासवर्ड दर्ज करें।",token:"कोड",password:"नया पासवर्ड",confirm:"पासवर्ड की पुष्टि",submit:"पासवर्ड सेट करें",busy:"सेट किया जा रहा है…",success:"पासवर्ड सेट हो गया। अब साइन इन कर सकते हैं।",failed:"पासवर्ड बदला नहीं जा सका।",back:"लॉगिन पर लौटें"},ur:{title:"نیا پاس ورڈ مقرر کریں",body:"موصول ہونے والا کوڈ اور نیا پاس ورڈ درج کریں۔",token:"کوڈ",password:"نیا پاس ورڈ",confirm:"پاس ورڈ کی تصدیق",submit:"پاس ورڈ مقرر کریں",busy:"مقرر کیا جا رہا ہے…",success:"پاس ورڈ مقرر ہو گیا۔ اب سائن اِن کریں۔",failed:"پاس ورڈ تبدیل نہیں ہو سکا۔",back:"لاگ اِن پر واپس جائیں"},bn:{title:"নতুন পাসওয়ার্ড সেট করুন",body:"পাওয়া কোড এবং নতুন পাসওয়ার্ড দিন।",token:"কোড",password:"নতুন পাসওয়ার্ড",confirm:"পাসওয়ার্ড নিশ্চিত করুন",submit:"পাসওয়ার্ড সেট করুন",busy:"সেট করা হচ্ছে…",success:"পাসওয়ার্ড সেট হয়েছে। এখন সাইন ইন করতে পারবেন।",failed:"পাসওয়ার্ড পরিবর্তন করা যায়নি।",back:"লগইনে ফিরুন"}};
-export function PasswordResetForm({locale}:{locale:Locale}){const t=copy[locale];const router=useRouter();const [reset_token,setToken]=useState("");const [new_password,setPassword]=useState("");const [confirm,setConfirm]=useState("");const [busy,setBusy]=useState(false);const [message,setMessage]=useState<string|null>(null);const [ok,setOk]=useState(false);async function submit(event:FormEvent){event.preventDefault();if(new_password!==confirm||reset_token.trim().length<1||new_password.length<8){setMessage(t.failed);return;}setBusy(true);setMessage(null);try{const response=await fetch("/api/auth/password/reset",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({reset_token,new_password})});if(!response.ok)throw new Error("reset_failed");setOk(true);setMessage(t.success);setToken("");setPassword("");setConfirm("");}catch{setMessage(t.failed)}finally{setBusy(false)}}return <><div className={styles.heading}><h1 className={styles.title}>{t.title}</h1><p className={styles.subtitle}>{t.body}</p></div><form className={styles.form} onSubmit={submit} aria-busy={busy}><label className={styles.field}><span className={styles.label}>{t.token}</span><span className={styles.control}><input required dir="ltr" inputMode="numeric" value={reset_token} onChange={e=>setToken(e.target.value)} autoComplete="one-time-code" /></span></label><label className={styles.field}><span className={styles.label}>{t.password}</span><span className={styles.control}><input required minLength={8} type="password" value={new_password} onChange={e=>setPassword(e.target.value)} autoComplete="new-password" /></span></label><label className={styles.field}><span className={styles.label}>{t.confirm}</span><span className={styles.control}><input required minLength={8} type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} autoComplete="new-password" /></span></label>{message?<p className={ok?styles.note:styles.error} role="status">{message}</p>:null}<div className={styles.actions}><Button type="submit" variant="primary" size="lg" fullWidth label={busy?t.busy:t.submit} loading={busy} /><p className={styles.foot}><button type="button" className={styles.link} onClick={()=>router.push(`/${locale}/login`)}>{t.back}</button></p></div></form></>}
+
+/** An unknown or expired code (the backend answers 401 reset_token_invalid) says so; any other failure is the generic one. */
+export function resetErrorMessage(t: (key: string) => string, status: number): string {
+  return authErrorKind(status) === "unauthorized" ? t("invalidToken") : t("failed");
+}
+
+export function PasswordResetForm({ locale }: { locale: Locale }) {
+  const t = useTranslations("PasswordReset");
+  const router = useRouter();
+  const [resetToken, setToken] = useState("");
+  const [newPassword, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [ok, setOk] = useState(false);
+  const [expired, setExpired] = useState(false);
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    setExpired(false);
+    if (newPassword !== confirm) { setOk(false); setMessage(t("mismatch")); return; }
+    if (resetToken.trim().length < 1 || newPassword.length < 8) { setOk(false); setMessage(t("failed")); return; }
+    setBusy(true); setMessage(null);
+    try {
+      const response = await fetch("/api/auth/password/reset", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ reset_token: resetToken.trim(), new_password: newPassword }) });
+      if (!response.ok) {
+        setOk(false); setExpired(authErrorKind(response.status) === "unauthorized");
+        setMessage(resetErrorMessage(t, response.status));
+        return;
+      }
+      setOk(true); setMessage(t("success")); setToken(""); setPassword(""); setConfirm("");
+    } catch { setOk(false); setMessage(t("failed")); }
+    finally { setBusy(false); }
+  }
+
+  return <>
+    <div className={styles.heading}>
+      <h1 className={styles.title}>{t("title")}</h1>
+      <p className={styles.subtitle}>{t("body")}</p>
+    </div>
+    <form className={styles.form} onSubmit={submit} aria-busy={busy}>
+      <label className={styles.field}>
+        <span className={styles.label}>{t("token")}</span>
+        {/* The reset token is a long mixed-case string, not digits: plain text input, no number pad, no autocapitalise. */}
+        <span className={styles.control}><input required dir="ltr" autoComplete="off" autoCapitalize="none" autoCorrect="off" spellCheck={false} value={resetToken} onChange={(event) => setToken(event.target.value)} /></span>
+      </label>
+      <label className={styles.field}>
+        <span className={styles.label}>{t("password")}</span>
+        <span className={styles.control}><input required minLength={8} type="password" value={newPassword} onChange={(event) => setPassword(event.target.value)} autoComplete="new-password" /></span>
+      </label>
+      <label className={styles.field}>
+        <span className={styles.label}>{t("confirm")}</span>
+        <span className={styles.control}><input required minLength={8} type="password" value={confirm} onChange={(event) => setConfirm(event.target.value)} autoComplete="new-password" /></span>
+      </label>
+      {message ? <p className={ok ? styles.note : styles.error} role={ok ? "status" : "alert"}>{message}</p> : null}
+      {expired ? <p className={styles.foot}><Link className={styles.link} href={`/${locale}/forgot-password`}>{t("requestNew")}</Link></p> : null}
+      <div className={styles.actions}>
+        <Button type="submit" variant="primary" size="lg" fullWidth label={busy ? t("busy") : t("submit")} loading={busy} />
+        <p className={styles.foot}><button type="button" className={styles.link} onClick={() => router.push(`/${locale}/login`)}>{t("back")}</button></p>
+      </div>
+    </form>
+  </>;
+}

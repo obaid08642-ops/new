@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({ access: true, redirect: vi.fn() }));
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => state.access ? { value: "test-access-token" } : undefined }) }));
-vi.mock("next/navigation", () => ({ redirect: state.redirect, useRouter: () => ({ push: vi.fn() }) }));
+vi.mock("next/navigation", () => ({ redirect: state.redirect, useRouter: () => ({ push: vi.fn() }), usePathname: () => "/ar/dashboard" }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
 vi.mock("@/lib/i18n", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/lib/i18n")>()), isLocale: () => true }));
 import DashboardPage from "./page";
