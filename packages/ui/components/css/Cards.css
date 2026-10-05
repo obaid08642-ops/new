@@ -1,1 +1,272 @@
-/* Cards (components/Cards.tsx). */
+/* Cards (components/Cards.tsx): DoctorCard, ProductCard, OfferCard, Timeline and
+   ProgressRing. Geometry is the boards' (named on each); colours and shadows are
+   tokens. A service tone is the `nabd-tone--<tone>` class (css/tones.css). */
+
+/* A fill glyph or mark inline with text never shrinks. */
+.nabd-cards-glyph { flex-shrink: 0; }
+
+/* DoctorCard (canvas/Consult); with `href` the whole card is the link */
+.nabd-doctor-card {
+  text-decoration: none;
+  color: var(--nabd-color-text-primary);
+  border-radius: 28px;
+  background: var(--nabd-color-bg-surface);
+  border: 1px solid var(--nabd-color-border-hairline);
+  box-shadow: var(--nabd-shadow-feature);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.nabd-doctor-card__body { padding: 16px; display: flex; gap: 14px; }
+.nabd-doctor-card__photo {
+  width: 104px;
+  height: 118px;
+  flex-shrink: 0;
+  /* the organic photo shape of the board */
+  border-radius: 52% 48% 46% 54% / 44% 46% 54% 56%;
+  background: var(--nabd-tone-bg);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nabd-doctor-card__img { width: 100%; height: 100%; object-fit: cover; }
+.nabd-doctor-card__available {
+  position: absolute;
+  inset-block-end: 8px;
+  inset-inline-end: 8px;
+  /* 14 plus a 3px ring each side, as the board's content-box dot */
+  width: 14px;
+  height: 14px;
+  box-sizing: content-box;
+  border-radius: 10px;
+  background: var(--nabd-color-presence-online);
+  border: 3px solid var(--nabd-color-bg-surface);
+}
+.nabd-doctor-card__info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.nabd-doctor-card__title { display: flex; align-items: center; gap: 6px; }
+.nabd-doctor-card__name { font-size: 17px; font-weight: 700; }
+.nabd-doctor-card__grade {
+  align-self: flex-start;
+  height: 24px;
+  padding-inline: 10px;
+  border-radius: 12px;
+  background: var(--nabd-color-service-blue-bg);
+  color: var(--nabd-color-service-blue-fg);
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+}
+.nabd-doctor-card__specialty { font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-tertiary); }
+.nabd-doctor-card__place { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); display: flex; align-items: center; gap: 4px; }
+.nabd-doctor-card__modes { display: flex; gap: 6px; flex-wrap: wrap; }
+.nabd-doctor-card__mode {
+  height: 26px;
+  padding-inline: 9px;
+  border-radius: 13px;
+  background: var(--nabd-tone-bg);
+  color: var(--nabd-tone-fg);
+  font-size: var(--nabd-font-size-micro);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.nabd-doctor-card__footer {
+  padding-block: 12px;
+  padding-inline-start: 12px;
+  padding-inline-end: 14px;
+  background: linear-gradient(180deg, var(--nabd-color-action-primary-gradient-from) 0%, var(--nabd-color-action-primary-gradient-to) 100%);
+  color: var(--nabd-color-action-primary-fg);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.nabd-doctor-card__slot { display: flex; align-items: center; gap: 4px; font-size: var(--nabd-font-size-caption); }
+.nabd-doctor-card__price { margin-inline-start: auto; font-size: 16px; font-weight: 700; }
+.nabd-doctor-card__currency { font-size: 11px; font-weight: 400; }
+.nabd-doctor-card__book {
+  height: 40px;
+  padding-inline: 18px;
+  border-radius: 14px;
+  background: var(--nabd-color-bg-surface);
+  color: var(--nabd-color-action-primary-bg);
+  font-size: 15px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  border: 0;
+  font-family: inherit;
+}
+/* without a price the book action takes the free space before it */
+.nabd-doctor-card__book--push { margin-inline-start: auto; }
+.nabd-doctor-card__book--button { position: relative; cursor: pointer; }
+/* 40 to look at, 44 to hit: a transparent extender inside the button */
+.nabd-doctor-card__hit { position: absolute; inset-inline: 0; inset-block: calc((40px - var(--nabd-a11y-minTouchTarget)) / 2); }
+
+/* ProductCard */
+.nabd-product-card {
+  border-radius: 24px;
+  background: var(--nabd-color-bg-surface);
+  border: 1px solid var(--nabd-color-border-hairline);
+  box-shadow: var(--nabd-shadow-card);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--nabd-color-text-primary);
+}
+.nabd-product-card__link { text-decoration: none; color: var(--nabd-color-text-primary); display: flex; flex-direction: column; gap: 8px; }
+.nabd-product-card__media {
+  height: 132px;
+  border-radius: 18px;
+  background: var(--nabd-color-bg-media);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.nabd-product-card__img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.nabd-product-card__discount {
+  position: absolute;
+  inset-block-start: 8px;
+  inset-inline-start: 8px;
+  height: 22px;
+  padding-inline: 8px;
+  border-radius: 11px;
+  background: var(--nabd-color-action-primary-bg);
+  color: var(--nabd-color-action-primary-fg);
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+}
+.nabd-product-card__name { font-size: 14px; font-weight: 600; line-height: 1.4; }
+.nabd-product-card__meta { font-size: 12px; color: var(--nabd-color-text-secondary); }
+.nabd-product-card__bar { display: flex; justify-content: space-between; align-items: center; }
+.nabd-product-card__prices { display: flex; flex-direction: column; }
+.nabd-product-card__price { font-size: 16px; font-weight: 700; }
+.nabd-product-card__currency { font-size: 11px; font-weight: 400; }
+.nabd-product-card__rx { font-size: 11px; font-weight: 600; color: var(--nabd-color-status-warning-fg); }
+/* the add button: 40 to look at, 44 to hit */
+.nabd-product-card__add {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  border: 0;
+  padding: 0;
+  position: relative;
+  background: var(--nabd-color-action-selected-bg);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: 1;
+}
+.nabd-product-card__add--inert { cursor: not-allowed; }
+.nabd-product-card__add--disabled { opacity: 0.5; }
+.nabd-product-card__hit {
+  position: absolute;
+  inset-inline: calc((40px - var(--nabd-a11y-minTouchTarget)) / 2);
+  inset-block: calc((40px - var(--nabd-a11y-minTouchTarget)) / 2);
+}
+
+/* OfferCard */
+.nabd-offer-card {
+  text-decoration: none;
+  color: var(--nabd-color-text-primary);
+  width: 236px;
+  flex-shrink: 0;
+  border-radius: 24px;
+  background: var(--nabd-color-bg-surface);
+  border: 1px solid var(--nabd-color-border-hairline);
+  box-shadow: var(--nabd-shadow-card);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.nabd-offer-card__head {
+  height: 112px;
+  background: var(--nabd-tone-bg);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nabd-offer-card__tag {
+  position: absolute;
+  inset-block-start: 10px;
+  inset-inline-start: 10px;
+  height: 24px;
+  padding-inline: 9px;
+  border-radius: 12px;
+  background: var(--nabd-color-bg-surface);
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+}
+.nabd-offer-card__body { padding-block: 12px; padding-inline: 14px; display: flex; flex-direction: column; gap: 4px; }
+.nabd-offer-card__title { font-size: 14.5px; font-weight: 700; }
+.nabd-offer-card__provider { font-size: 12px; color: var(--nabd-color-text-secondary); }
+.nabd-offer-card__prices { display: flex; align-items: baseline; gap: 6px; margin-block-start: 4px; }
+.nabd-offer-card__price { font-size: 17px; font-weight: 700; color: var(--nabd-color-text-price); }
+.nabd-offer-card__currency { font-size: 11px; color: var(--nabd-color-text-secondary); }
+.nabd-offer-card__was { font-size: 12px; color: var(--nabd-color-text-secondary); text-decoration: line-through; }
+
+/* Timeline (canvas/OrderTracking): 14 between the steps (the card's gap), each step
+   at least 56 tall, the last one 30 */
+.nabd-timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.nabd-timeline__step { display: flex; gap: 12px; min-height: 56px; }
+.nabd-timeline__step--last { min-height: 30px; }
+.nabd-timeline__rail { display: flex; flex-direction: column; align-items: center; width: 24px; }
+/* a 16 dot, outlined while upcoming, filled once reached; the current one is 22 with a 6px halo */
+.nabd-timeline__dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 12px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: var(--nabd-color-bg-surface);
+  border: 2px solid var(--nabd-color-border-strong);
+  box-shadow: none;
+}
+.nabd-timeline__dot--reached { background: var(--nabd-color-action-primary-bg); border: 0; }
+.nabd-timeline__dot--current {
+  width: 22px;
+  height: 22px;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--nabd-color-action-primary-bg) 15%, transparent);
+}
+/* the line below a step is coral once the next step has been reached */
+.nabd-timeline__line { flex-grow: 1; width: 2px; margin-block: 4px; background: var(--nabd-color-border-subtle); }
+.nabd-timeline__line--reached { background: var(--nabd-color-action-primary-bg); }
+.nabd-timeline__text { display: flex; flex-direction: column; gap: 2px; }
+.nabd-timeline__label { font-size: var(--nabd-font-size-body); font-weight: 500; color: var(--nabd-color-text-primary); }
+.nabd-timeline__label--current { font-weight: 700; }
+.nabd-timeline__label--upcoming { color: var(--nabd-color-text-secondary); }
+.nabd-timeline__time { font-size: 12px; color: var(--nabd-color-text-secondary); }
+
+/* ProgressRing (canvas/CareHub). The size is free, so the box is the SVG's own
+   width/height attributes (r 44 and stroke 10 in a 104 box, scaled with it): the
+   ring's box shrink-wraps the SVG, drawn as a block so no line box adds to it. */
+.nabd-progress-ring { position: relative; width: max-content; height: max-content; flex-shrink: 0; }
+.nabd-progress-ring__svg { display: block; }
+/* The centre is a size container, so the value can be 24 in 104 of whatever size
+   the ring is drawn at: 100cqi is the ring's edge. */
+.nabd-progress-ring__centre {
+  position: absolute;
+  inset-inline: 0;
+  inset-block: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
+  container-type: inline-size;
+}
+.nabd-progress-ring__value { font-size: calc(100cqi * 24 / 104); font-weight: 700; color: var(--nabd-color-text-primary); }
+.nabd-progress-ring__caption { font-size: 11px; color: var(--nabd-color-text-secondary); }
