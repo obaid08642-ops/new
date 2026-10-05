@@ -9,7 +9,7 @@
  * device — `__tests__/deviceSupport.test.tsx` drives it with injected props.
  */
 import React, { useEffect, useState } from 'react';
-import { Linking, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaInsetsContext, type EdgeInsets } from 'react-native-safe-area-context';
 import { WEBSITE_URL, meetsMinimumOs, minimumOsLabel, unsupportedDeviceCopy } from './minOs';
 
@@ -57,6 +57,21 @@ function usePlatformVersion(fallback: string | number | undefined): string | num
 export function DeviceGate({ children, os, version, staticVersion }: DeviceGateProps) {
   const platform = os ?? Platform.OS;
   const detected = usePlatformVersion(staticVersion ?? version);
+  if (detected === undefined) {
+    // F1: the OS version is still resolving (first render, before the async
+    // expo-device read lands). Never show the unsupported screen here: on every
+    // launch `meetsMinimumOs(platform, undefined)` is false, so the first
+    // render would otherwise flash "device too old" — including on web, where
+    // the effect later reports '999'.
+    return (
+      <View style={styles.loading} testID="device-gate-loading">
+        <ActivityIndicator size="large" color="#0E7C7B" />
+      </View>
+    );
+  }
+  // No minimum-OS floor applies to the web build (see `usePlatformVersion`
+  // above, which reports '999' there): the gate must never lock web out.
+  if (platform === 'web') return <>{children}</>;
   const supported = meetsMinimumOs(platform, detected);
   if (supported) return <>{children}</>;
   return <UnsupportedDevice os={platform} lang="ar" />;
@@ -94,6 +109,8 @@ export function UnsupportedDevice({ os, lang = 'ar' }: { os: string; lang?: 'ar'
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#FFFFFF' },
+  /** Neutral placeholder while the OS version is still resolving (F1). */
+  loading: { flex: 1, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
   scroll: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 28, gap: 12 },
   icon: { fontSize: 52 },
   title: { fontSize: 21, fontWeight: '800', color: '#101828', textAlign: 'center' },

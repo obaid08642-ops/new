@@ -21,6 +21,12 @@ import {
 } from '../minOs';
 import { DeviceGate, UnsupportedDevice } from '../DeviceGate';
 
+// F1: pin the async version source so "unresolved" is deterministic. With
+// `platformVersion` null the effect never calls setVersion, so a gate mounted
+// without a version stays in the resolving state instead of racing the real
+// native module (or its absence under Jest).
+jest.mock('expo-device', () => ({ platformVersion: null }));
+
 describe('P15.10 minimum OS', () => {
   it('documents iOS 16.4 and Android 7, and only those platforms', () => {
     expect(MIN_OS).toEqual({ ios: 16.4, android: 7 });
@@ -87,6 +93,60 @@ describe('P15.10 minimum OS', () => {
     expect(en.action).toBe('Continue on the website');
     expect(ar.body).toContain('Android 7');
     expect(en.body).toContain('Android 7');
+  });
+});
+
+describe('F1 cold start: never reject while the version is still resolving', () => {
+  // NOTE (RNTL 14 + React 19 quirk, same family as the one documented in
+  // P15_NOTES.md for ErrorBoundary.test.tsx): the 'website action' test below
+  // presses a link whose openURL rejects, and every render() after it in this
+  // file returns a null tree. This block therefore runs BEFORE any
+  // fireEvent.press-with-rejection test.
+  it('first render with an unresolved version shows loading, not the rejection', async () => {
+    // No `version`/`staticVersion`, and expo-device reports nothing (mocked
+    // above), so `detected` stays undefined: the old code rendered
+    // `meetsMinimumOs(platform, undefined)` → false → "device too old" on
+    // every launch, including supported devices.
+    const r = await render(
+      <DeviceGate os="ios">
+        <Text>app content</Text>
+      </DeviceGate>,
+    );
+    expect(r.getByTestId('device-gate-loading')).toBeTruthy();
+    expect(r.queryByTestId('unsupported-device')).toBeNull();
+    expect(r.queryByText('app content')).toBeNull();
+  });
+
+  it('web never sees the rejection either: loading while resolving, app once resolved', async () => {
+    const resolving = await render(
+      <DeviceGate os="web">
+        <Text>app content</Text>
+      </DeviceGate>,
+    );
+    expect(resolving.getByTestId('device-gate-loading')).toBeTruthy();
+    expect(resolving.queryByTestId('unsupported-device')).toBeNull();
+
+    // No minimum-OS floor applies to the web build: a resolved version —
+    // even one below the native floor — renders the app, not the gate.
+    const resolved = await render(
+      <DeviceGate os="web" staticVersion="16.3">
+        <Text>app content</Text>
+      </DeviceGate>,
+    );
+    expect(resolved.getByText('app content')).toBeTruthy();
+    expect(resolved.queryByTestId('unsupported-device')).toBeNull();
+    expect(resolved.queryByTestId('device-gate-loading')).toBeNull();
+  });
+
+  it('a resolved version below the floor still rejects (no loading flash-through)', async () => {
+    const r = await render(
+      <DeviceGate os="ios" staticVersion="16.3">
+        <Text>app content</Text>
+      </DeviceGate>,
+    );
+    expect(r.getByTestId('unsupported-device')).toBeTruthy();
+    expect(r.queryByTestId('device-gate-loading')).toBeNull();
+    expect(r.queryByText('app content')).toBeNull();
   });
 });
 
