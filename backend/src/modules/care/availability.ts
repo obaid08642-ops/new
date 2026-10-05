@@ -9,8 +9,9 @@
  * - opening windows: admin-approved weekly schedule slots first, then the
  *   per-mode schedule from registration, then legacy working_hours;
  * - approved leave overlapping the day closes it;
- * - candidates every `duration` minutes inside each window, at least
- *   SLOT_LEAD_MINUTES ahead;
+ * - candidates on a SLOT_STEP_MINUTES grid from each window's opening, the
+ *   opening rounded up to the SLOT_ALIGN_MINUTES boundary booking requires,
+ *   at least SLOT_LEAD_MINUTES ahead, each APPOINTMENT_MINUTES long;
  * - a candidate conflicts with a blocking appointment when
  *   appt.slot_start < candidate end + SLOT_BUFFER_MINUTES and
  *   appt.slot_end > candidate start;
@@ -21,6 +22,10 @@ export const SLOT_BUFFER_MINUTES = 5;
 export const SLOT_LEAD_MINUTES = 15;
 /** Slot starts are on one 30-minute grid whatever the appointment's duration. */
 export const SLOT_STEP_MINUTES = 30;
+/** Booking accepts starts on a 15-minute boundary only, so the grid starts on one. */
+export const SLOT_ALIGN_MINUTES = 15;
+/** Every doctor appointment is this long; the patient does not choose it. */
+export const APPOINTMENT_MINUTES = 30;
 
 /** Appointment statuses that occupy their slot (RESCHEDULED frees the old slot). */
 export const BLOCKING_APPOINTMENT_STATUSES: readonly string[] = ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'];
@@ -133,9 +138,11 @@ export function candidateSlots(dayStart: Date, windows: Window[], durationMinute
     const [oh, om] = w.open.split(':').map(Number);
     const [ch, cm] = w.close.split(':').map(Number);
     if (![oh, om, ch, cm].every((n) => Number.isFinite(n))) continue;
-    const openTs = dayStart.getTime() + oh * 3600_000 + om * MIN;
+    const rawOpen = dayStart.getTime() + oh * 3600_000 + om * MIN;
+    // An opening such as 09:10 starts the grid at 09:15, a start booking accepts.
+    const openTs = Math.ceil(rawOpen / (SLOT_ALIGN_MINUTES * MIN)) * SLOT_ALIGN_MINUTES * MIN;
     let closeTs = dayStart.getTime() + ch * 3600_000 + cm * MIN;
-    if (closeTs <= openTs) closeTs += DAY; // overnight
+    if (closeTs <= rawOpen) closeTs += DAY; // overnight
     for (let t = openTs; t + durationMinutes * MIN <= closeTs; t += SLOT_STEP_MINUTES * MIN) {
       if (t < nowMs + SLOT_LEAD_MINUTES * MIN) continue;
       const id = new Date(t).toISOString();

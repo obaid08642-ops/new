@@ -8,6 +8,7 @@ import { AppointmentRepository } from "./repositories/appointment.repository";
 import {
   ApprovedSlot, BLOCKING_APPOINTMENT_STATUSES, DoctorScheduleSource, Range, appointmentRanges, candidateSlots, candidateSpan,
   dayStartOf, markAvailability, onLeave, windowsFor,
+  APPOINTMENT_MINUTES,
 } from './availability';
 
 /**
@@ -31,7 +32,7 @@ export class SlotService {
    * reschedule() and the doctor-list preview). `viewerIds` are the caller's
    * own ids, whose holds do not block them.
    */
-  async slotsForDate(doctor: ProviderProfileDocument, dateStr: string, service_type: 'clinic' | 'video' | 'home', duration_minutes = 30, viewerIds: string[] = []) {
+  async slotsForDate(doctor: ProviderProfileDocument, dateStr: string, service_type: 'clinic' | 'video' | 'home', duration_minutes = APPOINTMENT_MINUTES, viewerIds: string[] = []) {
     if (!doctor.consultation_modes?.includes(service_type)) {
       return { date: dateStr, service_type, slots: [], reason: 'service_not_supported' };
     }
