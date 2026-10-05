@@ -422,7 +422,7 @@
   --nabd-color-text-secondary: #9AA4B2;
   --nabd-color-text-tertiary: #8B99A8;
   --nabd-color-text-onBrand: #0B1B2B;
-  --nabd-color-text-link: #D7FF00;
+  --nabd-color-text-link: #FF8A91;
   --nabd-color-text-price: #FF8A91;
   --nabd-color-icon-primary: #F5F5F7;
   --nabd-color-icon-secondary: #9AA4B2;
@@ -933,6 +933,9 @@
   color: var(--nabd-color-text-primary);
 }
 .nabd-search__input--page { font-size: var(--nabd-font-size-input); }
+/* the field draws its own clear button (the board's 28px disc); WebKit's built-in one would be a second ✕ */
+.nabd-search__input::-webkit-search-cancel-button,
+.nabd-search__input::-webkit-search-decoration { -webkit-appearance: none; appearance: none; display: none; }
 /* A button inside the field: a 44 hit area that takes no more room than its glyph. */
 .nabd-search__inner {
   width: 44px;
