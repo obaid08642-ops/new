@@ -441,6 +441,7 @@ export interface Tokens {
       readonly "4k": string;
     };
     readonly maxContent: string;
+    readonly maxContentAdmin: string;
   };
   readonly z: {
     readonly base: number;
@@ -901,7 +902,8 @@ const lightTree: Tokens = {
       "max": "1920px",
       "4k": "2560px",
     },
-    "maxContent": "1180px",
+    "maxContent": "1200px",
+    "maxContentAdmin": "1600px",
   },
   "z": {
     "base": 0,
@@ -1362,7 +1364,8 @@ const darkTree: Tokens = {
       "max": "1920px",
       "4k": "2560px",
     },
-    "maxContent": "1180px",
+    "maxContent": "1200px",
+    "maxContentAdmin": "1600px",
   },
   "z": {
     "base": 0,
@@ -1734,7 +1737,8 @@ export const light: Readonly<Record<string, string | number>> = Object.freeze({
   "layout.breakpoints.wide": "1440px",
   "layout.breakpoints.max": "1920px",
   "layout.breakpoints.4k": "2560px",
-  "layout.maxContent": "1180px",
+  "layout.maxContent": "1200px",
+  "layout.maxContentAdmin": "1600px",
   "z.base": 0,
   "z.raised": 10,
   "z.sticky": 100,
@@ -1990,7 +1994,8 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "layout.breakpoints.wide": "1440px",
   "layout.breakpoints.max": "1920px",
   "layout.breakpoints.4k": "2560px",
-  "layout.maxContent": "1180px",
+  "layout.maxContent": "1200px",
+  "layout.maxContentAdmin": "1600px",
   "z.base": 0,
   "z.raised": 10,
   "z.sticky": 100,
