@@ -335,6 +335,45 @@ verified at the end). `tsc --noEmit` clean after every commit.
 - Live-toggle proof is another agent's journey (stated in the task): behaviour
   here is correct and testable per toggle.
 
+### F10 — chaos drills get real failure switches (FIXED)
+
+New helper `backend/src/common/chaos-switches.ts` (`isChaosFail`), wired
+into `SmsService.sendOtp` (first line) and `LiveKitService.roomService()`;
+new spec `backend/src/common/chaos-switches.p15.spec.ts` (5 tests: exact-'1'
+semantics, SMS force-false + control, LiveKit null-gate + control).
+
+EXACT env-var contract for the gates agent (do not rename without updating
+both the helper and this section):
+- `CHAOS_FAIL_SMS` — honoured ONLY when the value is exactly the string
+  `1`. Effect: `SmsService.sendOtp()` returns `false` immediately, BEFORE
+  the `sms_enabled` check and before any Taqnyat/axios call (a `warn` is
+  logged). Forced fallback: the standard OTP email+push path that every
+  `sendOtp === false` already triggers. Unset / empty / `0` / `true` / any
+  other value → completely normal behavior. Never on by default; no
+  production code sets it.
+- `CHAOS_FAIL_LIVEKIT` — honoured ONLY when the value is exactly the string
+  `1`. Effect: `LiveKitService.roomService()` returns `null`, i.e. the
+  service behaves EXACTLY as if the LiveKit server were unconfigured, with
+  zero network contact: `getRoomParticipants()` → `[]`,
+  `muteParticipant()` → `{ success: false, reason:
+  'livekit_not_configured' }`, `removeParticipant()` → throws
+  `NotFoundException('livekit_not_configured')`. Explicitly NOT gated: local
+  token minting (`createToken`/`createBookingToken` — process-local crypto,
+  not a server dependency) and the verified-webhook path. Any other
+  value/unset → normal behavior. Never on by default; no production code
+  sets it.
+- Drill recipe: `CHAOS_FAIL_SMS=1 <server>` then run the OTP journey and
+  assert delivery via email/push with no SMS HTTP call;
+  `CHAOS_FAIL_LIVEKIT=1 <server>` then assert call flows degrade to the
+  answers above (never hang, never 500).
+- Real tails: new spec `Tests: 5 passed, 5 total`; neighbours
+  `sms.timeout + livekit.followup + chaos-switches` 21/21,
+  `resilience-chaos` 28/28 (switches unset there → paths unchanged);
+  `tsc` clean.
+- Mutation proof (editor-only, restored): `isChaosFail` compares to
+  `'never'` → `3 failed, 2 passed` (the 3 switch-on tests red, 2 controls
+  green); restored → green, `grep MUTATION-PROBE` clean.
+
 ## BLOCKED / DEFERRED lines (round 1, unchanged)
 
 - `BLOCKED: live rapid-tap journey needs a running server
