@@ -36,6 +36,9 @@ const ROLE_ALIASES: Record<string, string> = {
   laboratory: 'lab', home_care: 'nurse', homecare: 'nurse',
   pharmacist: 'pharmacy', hospital: 'hospital', facility: 'hospital',
 };
+/** The authenticated provider as the CRM relationship check reads it (JWT payload). */
+interface CrmActor { id: string; role?: string; roles?: string[]; provider_type?: string }
+
 function assertProviderRole(user: any) {
   // P2.2: provider JWTs carry role='provider' + provider_type. Evaluate the
   // same effective roles as JwtAuthGuard (role, provider_type, aliases) so a
@@ -280,10 +283,40 @@ export class ProviderProductionService {
     return doc.data || {};
   }
 
+  /**
+   * CRM writes need a patient account this provider has served (an appointment,
+   * a provider request, a pharmacy order or a lab/radiology/home-care booking).
+   * Unknown ids, non-patient accounts and patients without a relationship all
+   * answer the same 404, so the endpoint is not an existence oracle.
+   */
+  private async requireServedPatient(user: CrmActor, patientId: string): Promise<void> {
+    const pid = String(patientId);
+    const me = String(user.id);
+    const patient = await this.conn.collection('users').findOne(
+      { id: { $eq: pid }, role: UserRole.PATIENT },
+      { projection: { _id: 0, id: 1 } },
+    );
+    if (!patient || !(await this.hasServedPatient(me, user, pid))) throw new NotFoundException('patient_not_found');
+  }
+
+  private async hasServedPatient(providerId: string, user: CrmActor, patientId: string): Promise<boolean> {
+    const projection = { projection: { _id: 0, id: 1 } };
+    if (await this.conn.collection('appointments').findOne({ patient_id: { $eq: patientId }, doctor_user_id: { $eq: providerId } }, projection)) return true;
+    if (await this.conn.collection('provider_requests').findOne({ account_id: { $eq: providerId }, 'patient.id': { $eq: patientId } }, projection)) return true;
+    for (const [type, src] of Object.entries(PROVIDER_WORK_SOURCES)) {
+      if (!hasEffectiveRole(user, type)) continue;
+      if (await this.conn.collection(src.collection).findOne({ [src.providerField]: { $eq: providerId }, [src.patientField]: { $eq: patientId } }, projection)) return true;
+    }
+    const orderIds = (await this.conn.collection('pharmacy_orders')
+      .find({ patient_account_id: { $eq: patientId } }, projection).limit(500).toArray())
+      .map((o) => String(o.id));
+    if (orderIds.length && await this.conn.collection('pharmacy_allocations').findOne({ pharmacy_account_id: { $eq: providerId }, order_id: { $in: orderIds } }, projection)) return true;
+    return false;
+  }
+
   async putCrm(user: any, patientId: string, data: any) {
     assertProviderRole(user);
-    const patient: any = await this.conn.collection('users').findOne({ id: patientId });
-    if (!patient) throw new NotFoundException('patient_not_found');
+    await this.requireServedPatient(user, patientId);
     const clean = {
       tags: Array.isArray(data?.tags) ? data.tags.slice(0, 50).map((t: any) => String(t).slice(0, 60)) : [],
       notes: Array.isArray(data?.notes)
