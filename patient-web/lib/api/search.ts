@@ -1,15 +1,19 @@
 import { z } from "zod";
 
+// The API sends `null` for a field it has no value for (a doctor without a price, a medicine without a
+// rating); that is "absent", not a malformed result, so it must not drop the whole row.
+const optionalText = z.string().nullish().transform((value) => value ?? undefined);
+
 const resultSchema = z.object({
   id: z.string().min(1),
   type: z.string().min(1),
-  typeEn: z.string().optional(),
+  typeEn: optionalText,
   name: z.string().min(1),
-  nameEn: z.string().optional(),
-  sub: z.string().optional(),
-  subEn: z.string().optional(),
-  rate: z.string().optional(),
-  price: z.string().optional(),
+  nameEn: optionalText,
+  sub: optionalText,
+  subEn: optionalText,
+  rate: optionalText,
+  price: optionalText,
 });
 
 export type SearchResult = z.infer<typeof resultSchema>;
