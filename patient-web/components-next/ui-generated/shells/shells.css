@@ -1,0 +1,220 @@
+/*
+ * GENERATED FILE — DO NOT EDIT.
+ *
+ * Mirrored from packages/ui/shells/shells.css by tools/design/sync-ui-components.mjs.
+ *
+ * patient-web cannot import from packages/: Turbopack refuses to resolve outside
+ * the app root, and the type checker does not, so the failure only appears at
+ * `next build`. This file is a copy, not a port — the renderer a screen uses and
+ * the renderer the conformance gallery exercises are the same code, so the
+ * artwork cannot drift between them. Run the script after changing the package;
+ * `--check` in CI fails if this drifts.
+ *
+ * tests/module-boundary.test.ts enforces the boundary this mirror exists to work
+ * around.
+ */
+/*
+ * Web screen shells — DEVICE_STANDARD §1 (patient-web, later admin).
+ *
+ *  - height is 100dvh, never 100vh (the mobile URL bar does not cut the page);
+ *  - the top bar, the bottom tab bar and the sticky CTA are padded with
+ *    env(safe-area-inset-*) (viewport-fit=cover is set in app/layout.tsx);
+ *  - < 768: top bar + bottom tab bar;
+ *    768–1023: top bar + collapsible side rail;
+ *    >= 1024: top bar + side nav, content max-width var(--nabd-layout-maxContent);
+ *  - logical properties only (inline/block), so RTL and LTR need no second rule.
+ *    The left/right safe-area insets are physical, so the inline padding takes the
+ *    larger of both instead of guessing which side the notch is on.
+ *  - glass only on the top bar, the tab bar and the sticky CTA (handoff §1).
+ *
+ * Media queries cannot read custom properties: 768px and 1024px are
+ * layout.breakpoints.tablet and layout.breakpoints.laptop in tokens.json.
+ */
+
+.nabd-shell {
+  --nabd-shell-gutter: max(var(--nabd-space-sm), env(safe-area-inset-left), env(safe-area-inset-right));
+  --nabd-shell-rail: 72px;
+  /* top bar: 64 on phones and tablets, 76 on desktop (canvas/HomeWeb.dc.html), plus the top inset */
+  --nabd-shell-top-h: calc(64px + env(safe-area-inset-top));
+  --nabd-shell-side: 248px;
+  min-block-size: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas: "top" "main" "bottom";
+  background: var(--nabd-color-bg-canvas);
+  color: var(--nabd-color-text-primary);
+}
+
+.nabd-shell__top {
+  grid-area: top;
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--nabd-z-appBar);
+  box-sizing: border-box;
+  block-size: var(--nabd-shell-top-h);
+  display: flex;
+  align-items: center;
+  padding-block-start: env(safe-area-inset-top);
+  padding-inline: var(--nabd-shell-gutter);
+  background: var(--nabd-color-glass-bgStrong);
+  -webkit-backdrop-filter: blur(var(--nabd-color-glass-blur));
+  backdrop-filter: blur(var(--nabd-color-glass-blur));
+  border-block-end: 1px solid var(--nabd-color-border-hairline);
+}
+
+.nabd-shell__side {
+  display: none;
+}
+
+.nabd-shell__main {
+  grid-area: main;
+  min-inline-size: 0;
+  padding-inline: var(--nabd-shell-gutter);
+}
+
+.nabd-shell__content {
+  inline-size: 100%;
+  max-inline-size: var(--nabd-layout-maxContent);
+  margin-inline: auto;
+}
+
+.nabd-shell__bottom {
+  grid-area: bottom;
+  position: sticky;
+  inset-block-end: 0;
+  z-index: var(--nabd-z-sticky);
+}
+
+.nabd-shell__tabs {
+  padding-block: var(--nabd-space-2xs) max(var(--nabd-space-2xs), env(safe-area-inset-bottom));
+  padding-inline: var(--nabd-shell-gutter);
+}
+
+/* The CTA inside the shell: the bottom area is the sticky one; the tab bar below it owns the inset. */
+.nabd-shell__bottom .nabd-sticky-footer {
+  position: static;
+}
+.nabd-shell[data-has-tabs="true"] .nabd-shell__bottom .nabd-sticky-footer {
+  padding-block-end: var(--nabd-space-xs);
+}
+
+/* A label inside the side nav: hidden visually (not from screen readers) while the rail is collapsed. */
+.nabd-shell[data-side-collapsed="true"] .nabd-shell__side .nabd-shell-label {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.nabd-shell__rail-toggle {
+  display: none;
+}
+
+/* The rail chevron points toward the content when the rail is closed, back when open, in either direction. */
+.nabd-shell {
+  --nabd-shell-flip: 1;
+}
+[dir="rtl"] .nabd-shell,
+.nabd-shell[dir="rtl"] {
+  --nabd-shell-flip: -1;
+}
+.nabd-shell__rail-toggle svg {
+  transform: scaleX(var(--nabd-shell-flip));
+}
+.nabd-shell[data-side-collapsed="false"] .nabd-shell__rail-toggle svg {
+  transform: scaleX(calc(var(--nabd-shell-flip) * -1));
+}
+
+.nabd-sticky-footer {
+  position: sticky;
+  inset-block-end: 0;
+  z-index: var(--nabd-z-sticky);
+  padding-block-start: var(--nabd-space-xs);
+  padding-block-end: max(var(--nabd-space-sm), env(safe-area-inset-bottom));
+  padding-inline: var(--nabd-shell-gutter, var(--nabd-space-sm));
+  /* canvas-tinted glass, as the handoff CTA bars (Cart, CheckoutV2, RxUpload, BookingConfirm: canvas at 86%) */
+  background: color-mix(in srgb, var(--nabd-color-bg-canvas) 86%, transparent);
+  -webkit-backdrop-filter: blur(var(--nabd-color-glass-blur));
+  backdrop-filter: blur(var(--nabd-color-glass-blur));
+  border-block-start: 1px solid var(--nabd-color-border-hairline);
+}
+
+/* Tablet: collapsible side rail; the bottom tab bar gives way to it. */
+@media (min-width: 768px) {
+  .nabd-shell[data-has-side="true"] {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas: "top top" "side main" "side bottom";
+  }
+  .nabd-shell[data-has-side="true"] .nabd-shell__side {
+    grid-area: side;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: var(--nabd-space-2xs);
+    inline-size: var(--nabd-shell-side);
+    position: sticky;
+    inset-block-start: var(--nabd-shell-top-h);
+    box-sizing: border-box;
+    block-size: calc(100dvh - var(--nabd-shell-top-h));
+    overflow-y: auto;
+    padding-block: var(--nabd-space-sm) max(var(--nabd-space-sm), env(safe-area-inset-bottom));
+    padding-inline: var(--nabd-space-xs);
+    background: var(--nabd-color-bg-surface);
+    border-inline-end: 1px solid var(--nabd-color-border-subtle);
+  }
+  .nabd-shell[data-has-side="true"][data-side-collapsed="true"] .nabd-shell__side {
+    inline-size: var(--nabd-shell-rail);
+  }
+  .nabd-shell[data-has-side="true"] .nabd-shell__rail-toggle {
+    display: inline-grid;
+    place-items: center;
+    inline-size: 44px;
+    block-size: 44px;
+    border: 1px solid var(--nabd-color-border-subtle);
+    border-radius: var(--nabd-radius-pill);
+    background: var(--nabd-color-bg-surface);
+    color: var(--nabd-color-text-primary);
+    cursor: pointer;
+  }
+  .nabd-shell[data-has-side="true"] .nabd-shell__tabs {
+    display: none;
+  }
+  /* the tab bar is gone, so the CTA owns the bottom inset again */
+  .nabd-shell[data-has-side="true"] .nabd-shell__bottom .nabd-sticky-footer {
+    padding-block-end: max(var(--nabd-space-sm), env(safe-area-inset-bottom));
+  }
+}
+
+/* Desktop: the side nav is always open. */
+@media (min-width: 1024px) {
+  .nabd-shell {
+    --nabd-shell-top-h: calc(76px + env(safe-area-inset-top));
+  }
+  /* HomeWeb: the desktop top bar is inset 64px from the window edges */
+  .nabd-shell__top {
+    padding-inline: max(var(--nabd-space-5xl), var(--nabd-shell-gutter));
+  }
+  .nabd-shell[data-has-side="true"][data-side-collapsed="true"] .nabd-shell__side {
+    inline-size: var(--nabd-shell-side);
+  }
+  .nabd-shell[data-side-collapsed="true"] .nabd-shell__side .nabd-shell-label {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    overflow: visible;
+    clip-path: none;
+  }
+  .nabd-shell[data-has-side="true"] .nabd-shell__rail-toggle {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .nabd-shell__side {
+    transition: inline-size var(--nabd-motion-duration-enter) var(--nabd-motion-easing-enter);
+  }
+}
