@@ -108,6 +108,7 @@ export class MedicinesController {
 
   /** Recent searches of the authenticated user */
   @Get('search/recent')
+  @Roles(UserRole.PATIENT) // Q78: the class default is ADMIN
   recent(@CurrentUser() user: any, @Query('limit') limit?: string) {
     return this.svc.recentSearches(user?.id, parseInt(limit || '10'));
   }
@@ -121,6 +122,7 @@ export class MedicinesController {
 
   /** Provider reports a shortage — badge stays hidden until admin approval */
   @Post(':id/report-shortage')
+  @Roles(UserRole.PHARMACY) // Q78: the class default is ADMIN
   reportShortage(@Param('id') id: string, @CurrentUser() user: any, @Body() body: ReportShortageDto) {
     return this.svc.reportShortage(id, user, body || {});
   }
@@ -282,7 +284,7 @@ export class MedicinesController {
   /** P6.0: bulk medical-review decision (max 200 ids). */
   @Post('admin/catalog/bulk-approve')
   @Roles(UserRole.ADMIN)
-  @RequirePermissions(Permission.CATALOG_UPDATE)
+  @RequirePermissions(Permission.CATALOG_APPROVE) // F8: bulk publishing needs the approve permission too
   async adminBulkApprove(@Body() body: AdminBulkApproveCatalogDto, @CurrentUser('id') by: string) {
     const list = (Array.isArray(body?.ids) ? body.ids : []).filter((x) => typeof x === 'string' && x).slice(0, 200);
     if (!list.length) throw new BadRequestException('ids_required');
@@ -377,6 +379,7 @@ export class MedicinesController {
 
   /** Recently viewed products — "أكمل من حيث توقفت" */
   @Get('me/recently-viewed')
+  @Roles(UserRole.PATIENT) // Q78: the class default is ADMIN
   recentlyViewed(@CurrentUser() user: any, @Query('limit') limit?: string) {
     return this.svc.recentlyViewed(user?.id, parseInt(limit || '20'));
   }

@@ -1072,7 +1072,7 @@ function PStep7Submit({ data, update, onDone, onBack, step, total }: any) {
 
 
         <NCard style={{ marginBottom:SP.lg, backgroundColor:theme.surface2 }}>
-          <NCheckbox label={AR?'أوافق على شروط وأحكام نبضة بلس وسياسة الخصوصية، وأقر بصحة البيانات.':'I agree to terms & conditions.'} value={agreed} onChange={setAgreed} />
+          <NCheckbox label={AR?'أوافق على شروط وأحكام نبض بلس وسياسة الخصوصية، وأقر بصحة البيانات.':'I agree to terms & conditions.'} value={agreed} onChange={setAgreed} />
         </NCard>
 
         <NBtn label={AR?' إرسال ملف الصيدلية للمراجعة':' Submit Pharmacy Application'} onPress={submit} loading={loading} style={{ marginBottom: 50, backgroundColor: theme.success }} />

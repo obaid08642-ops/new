@@ -106,6 +106,14 @@ describe('CareService public discovery contract', () => {
     expect(result.find((item: any) => item.slug === 'internal_medicine')).toMatchObject({ count: 1, published_provider_count: 1 });
   });
 
+  it('F9: an empty specialties collection returns nothing (no built-in list) and a read failure is not shown as empty', async () => {
+    providers.aggregate.mockResolvedValue([{ _id: 'cardiology', count: 3 }]);
+    expect(await service.specialties()).toEqual([]);
+
+    providers.db.collection.mockImplementationOnce(() => ({ find: jest.fn(() => ({ toArray: jest.fn().mockRejectedValue(new Error('mongo down')) })) }));
+    await expect(service.specialties()).rejects.toThrow('mongo down');
+  });
+
   it('escapes user search metacharacters and reports exact total only when it is exact', async () => {
     providers.find.mockReturnValue({ sort: jest.fn(() => ({ limit: jest.fn().mockResolvedValue([]) })) });
 

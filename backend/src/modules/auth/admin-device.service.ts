@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
-import { Connection } from 'mongoose';
+import { Connection, Types } from 'mongoose';
 import { createHash, randomBytes } from 'crypto';
 
 /**
@@ -46,8 +46,9 @@ export class AdminDeviceService {
   }
 
   async list(userId: string) {
-    const rows: any[] = await this.devices.find({ user_id: userId, revoked: { $ne: true } }, { projection: { _id: 0, device_hash: 0 } }).sort({ last_seen_at: -1 }).toArray().catch(() => []);
-    return rows;
+    const rows: any[] = await this.devices.find({ user_id: userId, revoked: { $ne: true } }, { projection: { device_hash: 0 } }).sort({ last_seen_at: -1 }).toArray().catch(() => []);
+    // R11 §5: expose the row id (never the device hash) so a device can be revoked.
+    return rows.map(({ _id, ...row }) => ({ id: String(_id), ...row }));
   }
 
   /**
@@ -67,8 +68,13 @@ export class AdminDeviceService {
   }
 
   async revoke(userId: string, deviceDbId: string) {
-    const res: any = await this.devices.updateOne({ _id: deviceDbId as any, user_id: userId }, { $set: { revoked: true } }).catch(() => null);
-    if (!res?.modifiedCount && !(await this.devices.findOne({ _id: deviceDbId as any, user_id: userId }).catch(() => null))) {
+    // R11 §5: admin_devices is a raw collection — the string id must become an
+    // ObjectId or it never matches (every revoke used to answer 404).
+    const { NotFoundException } = await import('@nestjs/common');
+    if (!Types.ObjectId.isValid(String(deviceDbId))) throw new NotFoundException('device_not_found');
+    const _id = new Types.ObjectId(String(deviceDbId));
+    const res: any = await this.devices.updateOne({ _id, user_id: userId }, { $set: { revoked: true } }).catch(() => null);
+    if (!res?.modifiedCount && !(await this.devices.findOne({ _id, user_id: userId }).catch(() => null))) {
       const { NotFoundException } = await import('@nestjs/common');
       throw new NotFoundException('device_not_found');
     }

@@ -12,11 +12,19 @@
  */
 
 import type { WebButtonProps, WebIconButtonProps } from './components/Button';
+import type { WebRadioProps } from './components/Controls';
+import type { WebEmptyStateProps, WebErrorStateProps, WebOfflineStateProps } from './components/Feedback';
+import type { WebDoctorCardProps, WebOfferCardProps, WebProductCardProps } from './components/Cards';
+import type { WebChipProps } from './components/Surfaces';
 import type * as C from './components/contract';
 
 export interface ComponentProps {
   Button: WebButtonProps;
   IconButton: WebIconButtonProps;
+  Segmented: C.SegmentedProps;
+  Toggle: C.ToggleProps;
+  Radio: WebRadioProps;
+  StatusChip: C.StatusChipProps;
 
   Input: C.InputProps;
   Select: C.SelectProps;
@@ -25,11 +33,18 @@ export interface ComponentProps {
   Stepper: C.StepperProps;
   SlotPicker: C.SlotPickerProps;
 
-  Chip: C.ChipProps;
+  Chip: WebChipProps;
   Badge: C.BadgeProps;
   Card: C.CardProps;
+  DoctorCard: WebDoctorCardProps;
+  ProductCard: WebProductCardProps;
+  OfferCard: WebOfferCardProps;
+  Timeline: C.TimelineProps;
+  ProgressRing: C.ProgressRingProps;
   ListItem: C.ListItemProps;
   ServiceTile: C.ServiceTileProps;
+  FIcon: C.FIconProps;
+  SectionHeader: C.SectionHeaderProps;
   Avatar: C.AvatarProps;
   PriceTag: C.PriceTagProps;
   Rating: C.RatingProps;
@@ -39,8 +54,9 @@ export interface ComponentProps {
   Sidebar: C.SidebarProps;
   MapPinCard: C.MapPinCardProps;
 
-  EmptyState: C.EmptyStateProps;
-  ErrorState: C.ErrorStateProps;
+  EmptyState: WebEmptyStateProps;
+  ErrorState: WebErrorStateProps;
+  OfflineState: WebOfflineStateProps;
   Toast: C.ToastProps;
   Modal: C.ModalProps;
   Skeleton: C.SkeletonProps;

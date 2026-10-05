@@ -6,6 +6,7 @@ import { ProcurementService } from '../services/procurement.service';
 import { JwtAuthGuard, Roles, CurrentUser } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
 import { AiGatewayService } from '../../ai/ai-gateway.service';
+import { AiUserQuotaGuard } from '../../ai/ai-user-quota.guard';
 import { Medicine } from '../../../schemas/medicine.schema';
 import { CreateProcurementRequestDto, FeedbackDto, AnalyzeFileDto} from './procurement.dto';
 
@@ -83,6 +84,8 @@ export class ProcurementController {
    */
   @Post('analyze-file')
   @Roles(UserRole.PHARMACY, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  // Calls the LLM: under the same per-user AI quota as the other AI routes.
+  @UseGuards(AiUserQuotaGuard)
   async analyzeFile(@CurrentUser() user: any, @Body() body: AnalyzeFileDto) {
     if (!body?.file_base64 && !body?.text) throw new BadRequestException('file_base64 or text is required');
     if (body.file_base64 && body.file_base64.length > 8_000_000) throw new BadRequestException('file too large (max ~6MB)');

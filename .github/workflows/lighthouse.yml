@@ -57,5 +57,7 @@ jobs:
             http://localhost:3000/ar/pharmacy
             http://localhost:3000/ar/consultations/doctors
           budgetPath: ./patient-web/.github/lighthouse-budget.json
+          # QUALITY_STANDARDS §2/§3: performance >= 90, accessibility >= 95, LCP < 2.5 s, CLS < 0.1, TBT <= 200 ms
+          configPath: ./patient-web/.lighthouserc.json
           uploadArtifacts: true
           temporaryPublicStorage: true

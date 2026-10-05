@@ -1,0 +1,2 @@
+[agent] patient POST /workflow/match {kind:consultation} -> 201 rows 1
+    {'iban': 'SA0380000000608010167519', 'bank_account_name': 'Synthetic Doctor Bank Acct', 'commission_rate': 10}

@@ -2430,6 +2430,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.patient.nabd",
+      "usesAppleSignIn": true,
       "associatedDomains": [
         "applinks:app.nabd.plus",
         "applinks:nabd.plus",

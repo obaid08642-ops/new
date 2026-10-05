@@ -1,4 +1,6 @@
-import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, Optional, ServiceUnavailableException } from '@nestjs/common';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 import * as crypto from 'crypto';
 
 export interface TurnCredentials {
@@ -20,9 +22,11 @@ export class CoturnService {
   private readonly turnRealm: string;
   private readonly customUrls: string[] | null;
 
-  constructor() {
+  constructor(@Optional() @InjectConnection() private readonly conn?: Connection) {
     this.coturnHost = process.env.COTURN_HOST || 'turn.example.com';
-    this.coturnSecret = process.env.COTURN_SECRET || 'change_this_secret';
+    // No fallback: a default secret is public (it is in this repo), so anyone could
+    // mint valid TURN credentials offline. Without COTURN_SECRET, TURN is unconfigured.
+    this.coturnSecret = process.env.COTURN_SECRET || '';
     this.stunPort = parseInt(process.env.COTURN_STUN_PORT || '3478', 10);
     this.turnPort = parseInt(process.env.COTURN_TURN_PORT || '3478', 10);
     // TURN realm — must match the `realm=` directive in turnserver.conf
@@ -31,6 +35,19 @@ export class CoturnService {
     this.customUrls = process.env.TURN_URLS
       ? process.env.TURN_URLS.split(',').map((u) => u.trim()).filter(Boolean)
       : null;
+  }
+
+  /** Q94: about the length of a call setup; the client asks again for a new call. */
+  static readonly TTL_SECONDS = 600;
+
+  /** Q94: the caller must be the patient or the provider of an INITIATED/ACTIVE call session. */
+  async assertCallParty(userId: string, sessionId: string): Promise<void> {
+    if (!sessionId || typeof sessionId !== 'string') throw new BadRequestException('session_id_required');
+    if (!this.conn) throw new ServiceUnavailableException('call_store_unavailable');
+    const s: any = await this.conn.collection('callsessions').findOne({ id: { $eq: sessionId } } as any);
+    if (!s) throw new NotFoundException('call_session_not_found');
+    if (![s.patient_id, s.provider_id].map(String).includes(String(userId))) throw new ForbiddenException('not_a_call_party');
+    if (!['INITIATED', 'ACTIVE'].includes(String(s.status))) throw new ForbiddenException('call_session_not_active');
   }
 
   /** ICE URL list — custom TURN_URLS override or the standard derived set. */
@@ -46,7 +63,7 @@ export class CoturnService {
 
   /** True only when a real TURN host is configured (never the placeholder). */
   isConfigured(): boolean {
-    return !!process.env.COTURN_HOST || !!process.env.TURN_URLS;
+    return (!!process.env.COTURN_HOST || !!process.env.TURN_URLS) && !!this.coturnSecret;
   }
 
   /**
@@ -54,7 +71,7 @@ export class CoturnService {
    * Compatible with Coturn's REST API auth (--use-auth-secret flag).
    * The username format `<expiry-timestamp>:<userId>` is the Coturn REST API standard.
    */
-  generateCredentials(userId: string, ttlSeconds = 86400): TurnCredentials {
+  generateCredentials(userId: string, ttlSeconds = CoturnService.TTL_SECONDS): TurnCredentials {
     if (!this.isConfigured()) throw new ServiceUnavailableException('coturn_not_configured');
     const timestamp = Math.floor(Date.now() / 1000) + ttlSeconds;
     const username = `${timestamp}:${userId}`;

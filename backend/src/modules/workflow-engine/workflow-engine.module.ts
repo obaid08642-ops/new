@@ -31,6 +31,7 @@ import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-p
 import { Facility, FacilitySchema, FacilityDocument } from '../../schemas/facility.schema';
 import { EventBusService } from '../events/event-bus.service';
 import { MatchDto } from './workflow-engine.dto';
+import { withoutProviderPrivateFields } from '../provider-onboarding/provider-private-fields';
 
 /* ──────────────────────────────────────────────────────────────────────
  *   DOMAIN-STATE → UNIVERSAL-STATE MAP (the ONLY place mapping exists)
@@ -473,7 +474,7 @@ export class WorkflowEngineService {
 
       const total = Math.round(cap + ins + avail + dist);
       return {
-        ...p,
+        ...withoutProviderPrivateFields(p),
         distance_km: km !== null ? Math.round(km * 10) / 10 : null,
         _score: {
           total,

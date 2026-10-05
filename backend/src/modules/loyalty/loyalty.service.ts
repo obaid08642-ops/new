@@ -144,11 +144,15 @@ export class LoyaltyService {
     // created it first, so re-run the conditional update.
     const existing: any = await col.findOne({ _id });
     if (!existing) {
+      // An award larger than the whole cap never fits, even as the first one.
+      if (pts > cap) return 0;
       try {
         await col.insertOne({ _id, user_id: userId, reason, period, period_key: periodKey, count: pts, updatedAt: new Date() });
         return pts;
       } catch (e: any) {
-        if (String(e?.code) !== '11000') return pts;
+        // Only a duplicate key (someone created the counter first) retries below;
+        // any other failure grants nothing (fail closed, never above the cap).
+        if (String(e?.code) !== '11000') return 0;
       }
     }
     const after: any = await col.findOneAndUpdate(
@@ -610,7 +614,7 @@ export class LoyaltyService {
     }
     if (body?.max_redeem_percent !== undefined) {
       const value = Number(body.max_redeem_percent);
-      if (!Number.isFinite(value) || value < 0 || value > 100) throw new BadRequestException('max_redeem_percent must be 0-100');
+      if (!Number.isFinite(value) || value < 0 || value > 10) throw new BadRequestException('max_redeem_percent must be 0-10');
       patch.max_redeem_percent = value;
     }
     if (body?.redeem_enabled !== undefined) patch.redeem_enabled = body.redeem_enabled === true;

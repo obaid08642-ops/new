@@ -1,5 +1,7 @@
 import * as React from 'react';
 import {
+  I18nManager,
+  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -9,6 +11,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
+import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 import type {
   AvatarProps,
   BadgeProps,
@@ -20,6 +23,7 @@ import type {
   NavBarProps,
   PriceTagProps,
   RatingProps,
+  SectionHeaderProps,
   ServiceTileProps,
   SidebarProps,
   TabItem,
@@ -27,6 +31,11 @@ import type {
   Tone,
 } from '../../../ui/components/contract';
 import { Icon, IllustratedIconView } from '../Icon';
+import { FIcon } from './FIcon';
+import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, SERVICE_ICONS } from '../../../ui/icons/fill';
+import { TabBar as ShellTabBar } from '../shells/TabBar';
+import { tokens } from '../../../design-tokens/dist/ts/tokens';
+import { withAlpha } from '../shells/shellTokens';
 
 /**
  * The layout and navigation surfaces — 12.A7, React Native.
@@ -66,51 +75,47 @@ function tones(dark: boolean): Record<Tone, TonePair> {
 
 /* ------------------------------------------------------------------- chips */
 
-export function Chip({
-  label,
-  tone = 'neutral',
-  variant = 'soft',
-  startIcon,
-  onDismissLabel,
-  selected = false,
-  disabled = false,
-  testID,
-  theme = 'light',
-}: ChipProps & { theme?: 'light' | 'dark' }) {
-  const t = tones(theme === 'dark')[tone];
-  const solid = variant === 'solid';
-  const fg = solid ? '#FFFFFF' : t.fg;
-  const bg = solid ? t.fg : selected ? '#0B1B2B' : t.bg;
+export interface NativeChipProps extends ChipProps {
+  onPress?: () => void;
+  theme?: 'light' | 'dark';
+}
 
+/**
+ * The filter chip of canvas/Search: 38 tall (44 with hitSlop), radius 19, 14pt;
+ * a surface pill with a subtle border, or ink with a bold label when selected.
+ * Same geometry as the web renderer.
+ */
+export function Chip({ label, count, startIcon, selected = false, loading = false, disabled = false, testID, onPress, theme = 'light' }: NativeChipProps) {
+  const c = tokens(theme).color;
+  const inert = disabled || loading;
+  const fg = selected ? c.action.selected.fg : c.text.primary;
   return (
-    <View
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected, disabled: inert }}
+      accessibilityLabel={count !== undefined ? `${label} ${count}` : label}
+      disabled={inert}
+      onPress={inert ? undefined : onPress}
+      hitSlop={{ top: 3, bottom: 3 }}
       testID={testID}
       style={{
+        height: 38,
+        paddingHorizontal: 14,
+        borderRadius: 19,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
-        minHeight: 44,
-        paddingHorizontal: 16,
-        borderRadius: 9999,
-        backgroundColor: bg,
-        borderWidth: variant === 'outline' ? 1 : 0,
-        borderColor: t.fg,
-        opacity: disabled ? 0.5 : 1,
+        gap: 6,
         alignSelf: 'flex-start',
+        backgroundColor: selected ? c.action.selected.bg : c.bg.surface,
+        borderWidth: selected ? 0 : 1,
+        borderColor: c.border.subtle,
+        opacity: disabled ? 0.5 : 1,
       }}
     >
-      {startIcon ? <Icon name={startIcon} size={16} theme={theme} tone="secondary" /> : null}
-      <Text style={{ fontSize: 12, fontWeight: '600', color: fg }}>{label}</Text>
-      {onDismissLabel ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={onDismissLabel}
-          style={{ width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}
-        >
-          <Icon name="close" size={14} theme={theme} />
-        </Pressable>
-      ) : null}
-    </View>
+      {startIcon ? <Icon name={startIcon} size={16} theme={theme} color={fg} /> : null}
+      <Text style={{ fontSize: 14, fontFamily: selected ? 'ReadexPro-700' : 'ReadexPro-500', color: fg }}>{label}</Text>
+      {count !== undefined ? <Text style={{ fontSize: 12, fontFamily: 'ReadexPro-400', color: fg, opacity: 0.7 }}>{count}</Text> : null}
+    </Pressable>
   );
 }
 
@@ -133,51 +138,75 @@ export function Badge({ content, tone = 'danger', max = 99, testID, theme = 'lig
         backgroundColor: tones(theme === 'dark')[tone].fg,
       }}
     >
-      <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFFFFF' }}>{shown}</Text>
+      <Text style={{ fontSize: 11, fontFamily: 'ReadexPro-700', color: '#FFFFFF' }}>{shown}</Text>
     </View>
   );
 }
 
 /* ------------------------------------------------------------------- cards */
 
+/**
+ * The board card (canvas/OrderTracking, Cart, CareHub): surface, radius 24, a
+ * hairline ring, the soft card shadow; `tint` is the hero card's wash from the
+ * surface into the tone's soft colour (radius 28). Same as the web renderer.
+ */
 export function Card({
   title,
   subtitle,
   elevation = 'card',
   padding = 'md',
   footer,
+  tint,
+  children,
   testID,
   theme = 'light',
 }: CardProps & { theme?: 'light' | 'dark' }) {
-  const dark = theme === 'dark';
-  const pad = { none: 0, sm: 8, md: 20, lg: 24 }[padding];
+  const t = tokens(theme);
+  const c = t.color;
+  const pad = { none: 0, sm: 14, md: 16, lg: 18 }[padding];
+  const gid = `nabd-card-${React.useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
 
   return (
     <View
       testID={testID}
       style={{
-        backgroundColor: elevation === 'flat' ? (dark ? '#12263A' : '#F4F6F8') : dark ? '#12263A' : '#FFFFFF',
-        borderRadius: 16,
-        borderWidth: elevation === 'flat' ? 1 : 0,
-        borderColor: dark ? '#6E8BFF' : '#D5DBE4',
+        backgroundColor: tint ? 'transparent' : c.bg.surface,
+        borderRadius: tint ? 28 : 24,
+        borderWidth: 1,
+        borderColor: tint ? withAlpha(c.service[tint].fg, 0.1) : c.border.hairline,
+        boxShadow: elevation === 'raised' ? t.shadow.raised : elevation === 'card' && !tint ? t.shadow.card : undefined,
+        overflow: tint ? 'hidden' : 'visible',
         padding: pad,
-        gap: 8,
-        // The canvas gives the raised card a soft shadow; on Android that is an
-        // elevation, on iOS a shadow — one prop, both platforms.
-        elevation: elevation === 'raised' ? 6 : elevation === 'card' ? 2 : 0,
-        shadowColor: '#0B1B2B',
-        shadowOpacity: elevation === 'raised' ? 0.16 : 0.08,
-        shadowRadius: elevation === 'raised' ? 16 : 8,
-        shadowOffset: { width: 0, height: 4 },
+        gap: 12,
       }}
     >
-      {title ? <Text style={{ fontSize: 15, fontWeight: '700', color: dark ? '#F5F5F7' : '#0B1B2B' }}>{title}</Text> : null}
-      {subtitle ? <Text style={{ fontSize: 15, color: dark ? '#C2CBD6' : '#5B6673' }}>{subtitle}</Text> : null}
-      {footer ? (
-        <View style={{ borderTopWidth: 1, borderTopColor: dark ? '#6E8BFF' : '#D5DBE4', paddingTop: 8 }}>
-          <Text style={{ fontSize: 11, color: dark ? '#C2CBD6' : '#5B6673' }}>{footer}</Text>
+      {tint ? (
+        <Svg style={{ position: 'absolute', top: 0, bottom: 0, start: 0, end: 0 }} width="100%" height="100%">
+          <Defs>
+            {/* 160° on the board: mostly top to bottom, a little across */}
+            <LinearGradient id={gid} x1="0.33" y1="0" x2="0.67" y2="1">
+              <Stop offset="0" stopColor={c.bg.surface} />
+              <Stop offset="1" stopColor={c.service[tint].bg} />
+            </LinearGradient>
+          </Defs>
+          <Rect x="0" y="0" width="100%" height="100%" fill={`url(#${gid})`} />
+        </Svg>
+      ) : null}
+      {/* above the wash: a positioned sibling paints over static content on web */}
+      <View style={{ gap: 12, zIndex: 1 }}>
+      {title || subtitle ? (
+        <View style={{ gap: 2 }}>
+          {title ? <Text accessibilityRole="header" style={{ fontSize: 15, fontFamily: 'ReadexPro-700', color: c.text.primary }}>{title}</Text> : null}
+          {subtitle ? <Text style={{ fontSize: 12.5, fontFamily: 'ReadexPro-400', color: c.text.secondary }}>{subtitle}</Text> : null}
         </View>
       ) : null}
+      {children}
+      {footer ? (
+        <View style={{ borderTopWidth: 1, borderTopColor: c.border.subtle, paddingTop: 12 }}>
+          <Text style={{ fontSize: 13, fontFamily: 'ReadexPro-400', color: c.text.secondary }}>{footer}</Text>
+        </View>
+      ) : null}
+      </View>
     </View>
   );
 }
@@ -193,9 +222,11 @@ export function ListItem({
   selected = false,
   disabled = false,
   loading = false,
+  leading,
+  onPress,
   testID,
   theme = 'light',
-}: ListItemProps & { theme?: 'light' | 'dark' }) {
+}: ListItemProps & { theme?: 'light' | 'dark'; onPress?: () => void }) {
   const dark = theme === 'dark';
   return (
     <Pressable
@@ -203,6 +234,7 @@ export function ListItem({
       accessibilityLabel={[title, subtitle, meta].filter(Boolean).join(', ')}
       accessibilityState={{ selected, disabled: disabled || loading }}
       disabled={disabled}
+      onPress={onPress}
       testID={testID}
       style={{
         flexDirection: 'row',
@@ -216,20 +248,25 @@ export function ListItem({
         opacity: disabled ? 0.5 : 1,
       }}
     >
-      {startIcon ? <Icon name={startIcon} size={20} theme={theme} tone="secondary" /> : null}
+      {leading ? (
+        <FIcon icon={leading.icon} tone={leading.tone} size={40} theme={theme} />
+      ) : startIcon ? (
+        <Icon name={startIcon} size={20} theme={theme} tone="secondary" />
+      ) : null}
       <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 15, color: selected ? (dark ? '#0B1B2B' : '#F5F5F7') : dark ? '#F5F5F7' : '#0B1B2B' }}>
+        <Text style={{ fontSize: 15, fontFamily: 'ReadexPro-500', color: selected ? (dark ? '#0B1B2B' : '#F5F5F7') : dark ? '#F5F5F7' : '#0B1B2B' }}>
           {title}
         </Text>
         {subtitle ? (
-          <Text style={{ fontSize: 11, color: selected ? (dark ? '#0B1B2B' : '#C2CBD6') : dark ? '#C2CBD6' : '#5B6673' }}>
+          <Text style={{ fontSize: 12, fontFamily: 'ReadexPro-400', color: selected ? (dark ? '#0B1B2B' : '#C2CBD6') : dark ? '#C2CBD6' : '#5B6673' }}>
             {subtitle}
           </Text>
         ) : null}
       </View>
-      {meta ? <Text style={{ fontSize: 15, color: dark ? '#C2CBD6' : '#5B6673' }}>{meta}</Text> : null}
+      {meta ? <Text style={{ fontSize: 15, fontFamily: 'ReadexPro-400', color: dark ? '#C2CBD6' : '#5B6673' }}>{meta}</Text> : null}
       {endIcon ? <Icon name={endIcon} size={20} theme={theme} tone="secondary" /> : null}
-      {endContent === 'chevron' ? <Icon name="caret-left" size={16} theme={theme} tone="secondary" /> : null}
+      {/* the chevron points where the row leads: left when the page reads right to left, right otherwise */}
+      {endContent === 'chevron' ? <Icon name={I18nManager.isRTL ? 'caret-left' : 'caret-right'} size={16} theme={theme} tone="secondary" /> : null}
       {endContent === 'check' ? <Icon name="check" size={20} theme={theme} /> : null}
       {endContent === 'switch' ? (
         <View
@@ -252,7 +289,8 @@ export function ListItem({
   );
 }
 
-const TILE_BOX = { sm: 76, md: 96, lg: 128 } as const;
+/** canvas/HomeApp.dc.html: a 108pt surface card, radius 22, the service's <FIcon> over a 13/600 label. */
+const TILE_CHIP = { sm: 44, md: 50, lg: 56 } as const;
 
 export function ServiceTile({
   name,
@@ -260,11 +298,12 @@ export function ServiceTile({
   size = 'md',
   badge,
   disabled = false,
+  onPress,
   testID,
   theme = 'light',
-}: ServiceTileProps & { theme?: 'light' | 'dark' }) {
-  const box = TILE_BOX[size];
-  const dark = theme === 'dark';
+}: ServiceTileProps & { theme?: 'light' | 'dark'; onPress?: () => void }) {
+  const t = tokens(theme);
+  const { icon, tone } = SERVICE_ICONS[name];
 
   return (
     <Pressable
@@ -272,35 +311,65 @@ export function ServiceTile({
       accessibilityLabel={label}
       accessibilityState={{ disabled }}
       disabled={disabled}
+      onPress={onPress}
       testID={testID}
-      style={{ width: box + 24, alignItems: 'center', gap: 4, opacity: disabled ? 0.5 : 1 }}
+      style={{
+        minHeight: 108,
+        paddingHorizontal: 8,
+        borderRadius: 22,
+        borderWidth: 1,
+        borderColor: t.color.border.hairline,
+        backgroundColor: t.color.bg.surface,
+        boxShadow: t.shadow.card,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10,
+        opacity: disabled ? 0.5 : 1,
+      }}
     >
-      <View
-        style={{
-          width: box,
-          height: box,
-          borderRadius: 24,
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: dark ? '#12263A' : '#F4F6F8',
-        }}
-      >
-        <IllustratedIconView name={name as never} size={Math.round(box * 0.6)} />
-        {badge ? (
-          <View style={{ position: 'absolute', top: 4, insetInlineEnd: 4 }}>
-            <Badge content={badge} theme={theme} />
-          </View>
-        ) : null}
-      </View>
-      <Text style={{ fontSize: 12, color: dark ? '#F5F5F7' : '#0B1B2B', textAlign: 'center' }}>{label}</Text>
+      <FIcon icon={icon} tone={tone} size={TILE_CHIP[size]} theme={theme} />
+      <Text style={{ fontSize: 13, fontFamily: 'ReadexPro-700', color: t.color.text.primary, textAlign: 'center' }}>{label}</Text>
+      {badge ? (
+        <View style={{ position: 'absolute', top: 8, end: 8 }}>
+          <Badge content={badge} theme={theme} />
+        </View>
+      ) : null}
     </Pressable>
   );
 }
 
-export function Avatar({ name, size = 'md', illustratedName, status = 'none', testID, theme = 'light' }: AvatarProps & { theme?: 'light' | 'dark' }) {
+/** Section title with an optional trailing action (canvas/HomeApp.dc.html: 18/700, link 13/500). */
+export function SectionHeader({ title, actionLabel, testID, theme = 'light', onActionPress }: SectionHeaderProps & { theme?: 'light' | 'dark'; onActionPress?: () => void }) {
+  const t = tokens(theme);
+  return (
+    <View testID={testID} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 }}>
+      <Text accessibilityRole="header" style={{ fontSize: 18, fontFamily: 'ReadexPro-700', color: t.color.text.primary, flexShrink: 1 }}>
+        {title}
+      </Text>
+      {actionLabel ? (
+        <Pressable accessibilityRole="link" accessibilityLabel={actionLabel} onPress={onActionPress} hitSlop={12}>
+          <Text style={{ fontSize: 13, fontFamily: 'ReadexPro-500', color: t.color.text.link }}>{actionLabel}</Text>
+        </Pressable>
+      ) : null}
+    </View>
+  );
+}
+
+export function Avatar({ name, size = 'md', src, status = 'none', testID, theme = 'light' }: AvatarProps & { theme?: 'light' | 'dark' }) {
+  const t = tokens(theme);
   const box = size === 'sm' ? 32 : size === 'md' ? 44 : 64;
   const dark = theme === 'dark';
   const initials = name.split(/\s+/).slice(0, 2).map((w) => w[0] ?? '').join('');
+  // canvas/HomeApp.dc.html: tinted disc, 2pt surface gap, 2pt coral ring
+  const ring = {
+    width: box,
+    height: box,
+    borderRadius: box / 2,
+    backgroundColor: t.color.avatar.bg,
+    borderWidth: 2,
+    borderColor: t.color.bg.surface,
+    boxShadow: `0 0 0 2px ${t.color.avatar.ring}`,
+  };
 
   return (
     <View
@@ -309,22 +378,25 @@ export function Avatar({ name, size = 'md', illustratedName, status = 'none', te
       accessibilityLabel={name}
       style={{ width: box, height: box }}
     >
-      {illustratedName ? (
-        <IllustratedIconView name={illustratedName as never} size={Math.round(box * 0.86)} />
+      {src ? (
+        // a real photo; the wrapper carries the name
+        <Image
+          source={{ uri: src }}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          style={ring}
+        />
       ) : (
         <View
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants"
-          style={{
-            width: box,
-            height: box,
-            borderRadius: box / 2,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: dark ? '#2A3A4D' : '#F4F6F8',
-          }}
+          style={[ring, { alignItems: 'center', justifyContent: 'center' }]}
         >
-          <Text style={{ fontSize: 12, fontWeight: '700', color: dark ? '#F5F5F7' : '#0B1B2B' }}>{initials}</Text>
+          {initials ? (
+            <Text style={{ fontSize: Math.round(box * 0.36), fontWeight: '700', color: t.color.text.primary }}>{initials}</Text>
+          ) : (
+            <Icon name="user" size={Math.round(box * 0.5)} theme={theme} tone="secondary" />
+          )}
         </View>
       )}
       {status !== 'none' ? (
@@ -362,27 +434,27 @@ export function PriceTag({ amount, currency, was, note, testID, theme = 'light' 
   );
 }
 
-export function Rating({ value, count, max = 5, size = 'sm', formatLabel, testID, theme = 'light' }: RatingProps & { theme?: 'light' | 'dark' }) {
-  const px = size === 'sm' ? 14 : 18;
-  const dark = theme === 'dark';
+/** DoctorCard board rating: one filled star, value, (count). Nothing without real ratings. */
+export function Rating({ value, count, max = 5, size = 'sm', surface = 'default', formatLabel, testID, theme = 'light' }: RatingProps & { theme?: 'light' | 'dark' }) {
+  if (value == null || !(count > 0)) return null;
+  const t = tokens(theme);
+  const px = size === 'sm' ? 16 : 20;
+  const shown = value.toFixed(1);
+  const onBrand = surface === 'onBrand';
+  const ink = onBrand ? t.color.action.primary.fg : t.color.text.primary;
   return (
     <View
       testID={testID}
       accessible
       accessibilityRole="image"
-      // A rating with no count is a claim the product cannot back, so the label
-      // says what it is out of and how many rated it.
-      accessibilityLabel={formatLabel ? formatLabel(value, count) : `${value} out of ${max}${count ? ` from ${count}` : ''}`}
+      accessibilityLabel={formatLabel ? formatLabel(value, count) : `${shown} out of ${max}, ${count} ratings`}
       style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
     >
-      <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{ flexDirection: 'row', gap: 2 }}>
-        {Array.from({ length: max }).map((_, i) => (
-          <Icon key={i} name="star" size={px} theme={theme} tone={i < Math.round(value) ? 'favorite' : 'secondary'} />
-        ))}
-      </View>
-      {count !== undefined ? (
-        <Text accessibilityElementsHidden style={{ fontSize: 11, color: dark ? '#C2CBD6' : '#5B6673' }}>{count}</Text>
-      ) : null}
+      <Svg width={px} height={px} viewBox="0 0 256 256">
+        <Path d={FILL_ICON_PATHS.star} fill={onBrand ? t.color.icon.ratingStarOnBrand : t.color.icon.ratingStar} />
+      </Svg>
+      <Text style={{ fontSize: size === 'sm' ? 14 : 16, fontWeight: '700', color: ink }}>{shown}</Text>
+      <Text style={{ fontSize: 12, color: ink, opacity: 0.85 }}>{`(${count})`}</Text>
     </View>
   );
 }
@@ -560,27 +632,31 @@ export function NavBar({ title, showBack = false, backLabel = 'Back', actions = 
   );
 }
 
-export function BottomTabBar({ items, value, onChange, testID, theme = 'light' }: BottomTabBarProps & { theme?: 'light' | 'dark' }) {
-  const dark = theme === 'dark';
+/**
+ * The main tab bar: the DEVICE_STANDARD shell TabBar (packages/ui-native/src/shells),
+ * which is canvas/HomeApp's nav 1:1 (floating glass pill, ink active pill with its
+ * label, raised coral centre), fed the handoff fill glyphs. Render it inside a
+ * SafeAreaProvider; it floats above the bottom inset.
+ */
+export function BottomTabBar({ items, value, onChange, label = 'Main navigation', testID, theme = 'light' }: BottomTabBarProps & { theme?: 'light' | 'dark' }) {
   return (
-    <View
-      accessibilityRole="tablist"
-      accessibilityLabel="Primary"
+    <ShellTabBar
       testID={testID}
-      style={{
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        paddingTop: 8,
-        paddingBottom: 28,
-        backgroundColor: dark ? '#12263A' : '#FFFFFF',
-        borderTopWidth: 1,
-        borderTopColor: dark ? '#6E8BFF' : '#D5DBE4',
-      }}
-    >
-      {items.map((item) => (
-        <TabButton key={item.id} item={item} active={item.id === value} onSelect={onChange} layout="bar" dark={dark} />
-      ))}
-    </View>
+      label={label}
+      theme={theme}
+      value={value}
+      onChange={(key) => onChange?.(key)}
+      items={items.map((item) => ({
+        key: item.id,
+        label: item.label,
+        raised: item.raised,
+        icon: (color: string, size: number) => (
+          <Svg width={size} height={size} viewBox={FILL_ICON_VIEWBOX}>
+            <Path d={FILL_ICON_PATHS[item.icon]} fill={color} />
+          </Svg>
+        ),
+      }))}
+    />
   );
 }
 

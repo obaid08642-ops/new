@@ -20,6 +20,7 @@ import { BookingAttachmentSchema } from '../unified-bookings/booking-ops.module'
 import { ServiceState, ServiceDomain, UserRole } from '../../common/enums';
 import { toUniversal, domainStatesFor, WorkflowEngineService, WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 import { AcceptDto, RejectDto, StartDto, CompleteDto, InsuranceDto } from './provider-jobs.dto';
+import { withoutPatientContact } from '../../common/provider-privacy';
 
 type JobStatus = 'incoming' | 'active' | 'completed';
 
@@ -164,7 +165,7 @@ export class ProviderJobsService {
     const userMap = new Map<string, any>(users.map((u: any) => [u.id, u]));
     const attMap = new Map<string, number>(attachmentCounts.map((a: any) => [a._id, a.n]));
     const profileMap = new Map<string, any>(profiles.map((p: any) => [p.user_id, p]));
-    return combined.map((c: any) => ({
+    const rows = combined.map((c: any) => ({
       ...c,
       patient_name: userMap.get(c.patient_id)?.full_name || null,
       patient_phone: userMap.get(c.patient_id)?.phone || null,
@@ -175,6 +176,9 @@ export class ProviderJobsService {
       patient_chronic: profileMap.get(c.patient_id)?.chronic_diseases || [],
       attachments_count: attMap.get(c.id) || 0,
     }));
+    // R11 §5 / PRODUCT.md privacy: an incoming job has not been accepted yet,
+    // so the provider sees the area only, not the exact address or phone.
+    return status === 'incoming' && user.role !== 'admin' ? rows.map((r) => withoutPatientContact(r)) : rows;
   }
 
   private async findEntity(kind: ServiceDomain, id: string, providerId: string) {

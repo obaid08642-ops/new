@@ -1,31 +1,19 @@
-// @ts-nocheck
 import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  StatusBar,
-  KeyboardAvoidingView,
-  Platform,
-  Alert,
-} from "react-native";
+import { View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useApp } from "../../src/context/AppContext";
-import { Icon } from "../../src/components/Icon";
-import { AppText, Button, Input, IconButton } from "../../src/components/ui";
+import { Button, Icon, Screen, StickyFooter } from "../../../packages/ui-native/src";
 import { apiFetch } from "../../src/utils/api";
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
-import { ScreenState } from '../../src/components/ScreenStates';
+import { LocalizedText } from '../../src/components/LocalizedText';
+import { AuthBody, AuthField, AuthFooter, AuthTitle, AuthTopBar, FONT, useAuthUi } from '../../src/components/auth/AuthKit';
 
 export default function ResetPasswordScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
+  const { theme, c, tr } = useAuthUi();
   const params = useLocalSearchParams();
   const email = (params.email as string) || "";
   const [pw, setPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
   const [code, setCode] = useState("");
-  const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -51,129 +39,102 @@ export default function ResetPasswordScreen() {
 
   if (done) {
     return (
-      <View
-        style={[
-          st.c,
-          {
-            backgroundColor: colors.background,
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 16,
-          },
-        ]}
+      <Screen
+        theme={theme}
+        footer={
+          <StickyFooter theme={theme}>
+            <AuthFooter>
+              <Button
+                label={tr('تسجيل الدخول')}
+                variant="primary"
+                size="lg"
+                fullWidth
+                theme={theme}
+                onPress={() => router.replace("/(auth)/login")}
+                testID="reset-done-login"
+              />
+            </AuthFooter>
+          </StickyFooter>
+        }
       >
-        <View
-          style={[st.iconCircle, { backgroundColor: colors.successSurface }]}
-        >
-          <Icon name="check_circle" size={40} color={colors.success} />
-        </View>
-        <AppText variant="h2" align="center">
-          تم بنجاح!
-        </AppText>
-        <AppText variant="bodySM" color={colors.textTertiary} align="center">
-          يمكنك الآن تسجيل الدخول بكلمة مرورك الجديدة
-        </AppText>
-        <Button
-          label="تسجيل الدخول"
-          variant="gradient"
-          size="lg"
-          onPress={() => router.replace("/(auth)/login")}
-          style={{ marginTop: 16, width: "80%" }}
-        />
-      </View>
+        <AuthBody>
+          <AuthTopBar />
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 14 }}>
+            <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: c.status.success.bg, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="check" size={34} theme={theme} color={c.status.success.fg} />
+            </View>
+            <LocalizedText accessibilityRole="header" style={{ fontFamily: FONT.bold, fontSize: 24, lineHeight: 32, color: c.text.primary, textAlign: 'center' }}>
+              تم تغيير كلمة المرور
+            </LocalizedText>
+            <LocalizedText style={{ fontFamily: FONT.regular, fontSize: 15, lineHeight: 24, color: c.text.secondary, textAlign: 'center' }}>
+              يمكنك الآن تسجيل الدخول بكلمة مرورك الجديدة
+            </LocalizedText>
+          </View>
+        </AuthBody>
+      </Screen>
     );
   }
 
+  const mismatch = Boolean(confirmPw) && pw !== confirmPw;
   return (
-    <KeyboardAvoidingView
-      style={[st.c, { backgroundColor: colors.background }]}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    <Screen
+      theme={theme}
+      keyboard
+      scroll
+      footer={
+        <StickyFooter theme={theme}>
+          <AuthFooter>
+            <Button
+              label={tr(loading ? 'لحظة…' : 'حفظ كلمة المرور')}
+              variant="primary"
+              size="lg"
+              fullWidth
+              loading={loading}
+              theme={theme}
+              onPress={handleReset}
+              testID="reset-submit"
+            />
+          </AuthFooter>
+        </StickyFooter>
+      }
     >
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-      <View
-        style={[
-          st.hdr,
-          {
-            paddingTop: insets.top + 8,
-            backgroundColor: colors.surface,
-            borderBottomColor: colors.borderLight,
-          },
-        ]}
-      >
-        <View style={{ width: 40 }} />
-        <AppText variant="h4">كلمة مرور جديدة</AppText>
-        <IconButton icon="back" onPress={() => router.back()} />
-      </View>
-      <View style={st.body}>
-        <View
-          style={[st.iconCircle, { backgroundColor: colors.primarySurface }]}
-        >
-          <Icon name="lock" size={32} color={colors.primary} />
-        </View>
-        <AppText variant="h3" align="center">
-          أدخل كلمة مرور جديدة
-        </AppText>
-        <Input
+      <AuthBody>
+      <AuthTopBar onBack={() => router.back()} />
+      <AuthTitle title="كلمة مرور جديدة" sub="أدخل الرمز الذي وصلك، ثم اختر كلمة مرور جديدة" />
+      <View style={{ marginTop: 22, gap: 12 }}>
+        <AuthField
+          label="رمز التحقق"
+          placeholder="٦ أرقام"
+          ltr
+          keyboardType="number-pad"
+          autoComplete="one-time-code"
+          textContentType="oneTimeCode"
           value={code}
           onChangeText={setCode}
-          placeholder="رمز التحقق المرسل إليك"
-          icon="shield"
-          style={{ width: "100%", marginTop: 16 }}
+          testID="reset-code"
         />
-        <Input
+        <AuthField
+          label="كلمة المرور الجديدة"
+          hint="٦ أحرف على الأقل"
+          secure
+          autoComplete="new-password"
+          textContentType="newPassword"
           value={pw}
           onChangeText={setPw}
-          placeholder="كلمة المرور الجديدة"
-          icon="lock"
-          secureTextEntry={!show}
-          iconRight={show ? "eyeOff" : "eye"}
-          onIconRightPress={() => setShow(!show)}
-          style={{ width: "100%", marginTop: 16 }}
+          testID="reset-password"
         />
-        <Input
+        <AuthField
+          label="تأكيد كلمة المرور"
+          secure
+          autoComplete="new-password"
+          textContentType="newPassword"
           value={confirmPw}
           onChangeText={setConfirmPw}
-          placeholder="تأكيد كلمة المرور"
-          icon="lock"
-          secureTextEntry={!show}
-          error={confirmPw && pw !== confirmPw ? "غير متطابقتين" : ""}
-          style={{ width: "100%" }}
-        />
-        <Button
-          label="حفظ كلمة المرور"
-          variant="gradient"
-          size="lg"
-          loading={loading}
-          onPress={handleReset}
-          style={{ marginTop: 16 }}
+          error={mismatch ? "كلمتا المرور غير متطابقتين" : undefined}
+          testID="reset-confirm"
         />
       </View>
-    </KeyboardAvoidingView>
+      </AuthBody>
+    </Screen>
   );
 }
-
-const st = StyleSheet.create({
-  c: { flex: 1 },
-  hdr: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-  },
-  body: {
-    flex: 1,
-    alignItems: "center",
-    padding: 24,
-    gap: 12,
-    justifyContent: "center",
-  },
-  iconCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 24,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

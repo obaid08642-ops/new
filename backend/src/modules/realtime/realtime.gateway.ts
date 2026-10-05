@@ -1,3 +1,4 @@
+import { isAccessTokenPayload, authenticateSocketToken, revalidateOpenSockets, JwtAuthGuard } from '../../common/auth.guard';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Logger, Optional } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -129,10 +130,42 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     private readonly chat: ChatService,
     private readonly livekit: LiveKitService,
     @Optional() private readonly redisStore?: RedisService,
+    @Optional() private readonly authGuard?: JwtAuthGuard,
   ) {}
+
+  private revalidateTimer?: ReturnType<typeof setInterval>;
+
+  /**
+   * Re-checks every open socket on the default namespace (this gateway's and
+   * ChatGateway's: they share it) through the REST guard, so a ban or revoke
+   * after connect closes the socket within one interval.
+   */
+  private sweeping = false;
+
+  async revalidateSockets(): Promise<number> {
+    // A gateway on a namespace gets a Namespace (`.sockets` is the Map); a
+    // root Server keeps it one level down.
+    const srv: any = this.server;
+    const sockets = srv?.sockets instanceof Map ? srv.sockets : srv?.sockets?.sockets;
+    const conn: any = (this.apptModel as any)?.db;
+    if (!(sockets instanceof Map) || !conn || this.sweeping) return 0;
+    this.sweeping = true;
+    try {
+      return await revalidateOpenSockets(conn, Array.from(sockets.values()));
+    } finally {
+      this.sweeping = false;
+    }
+  }
+
+  onModuleDestroy() {
+    if (this.revalidateTimer) clearInterval(this.revalidateTimer);
+  }
 
   afterInit(server: Server) {
     this.realtime.setServer(server);
+    const every = Number(process.env.SOCKET_REVALIDATE_MS) || 120_000;
+    this.revalidateTimer = setInterval(() => { this.revalidateSockets().catch((e) => this.logger.warn(`Socket re-check failed: ${e?.message}`)); }, every);
+    this.revalidateTimer.unref?.();
     this.logger.log('WebSocket Gateway initialized');
     // 14.13: Redis adapter intentionally NOT attached — the
     // `@socket.io/redis-adapter` package is not installed (see note above).
@@ -146,8 +179,17 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     try {
       const token = client.handshake.auth?.token || client.handshake.query?.token as string;
       if (!token) { client.disconnect(); return; }
-      const payload = await this.jwt.verifyAsync(token, { secret: process.env.JWT_SECRET });
+      // R11: the same JwtAuthGuard as REST (token kind, token_version, staff
+      // gate and device lock, impersonation session) decides who connects.
+      // Fails closed: without the guard no socket connects (never a bare JWT check).
+      if (!this.authGuard) { this.logger.error('Socket rejected: auth guard not available'); client.disconnect(); return; }
+      const payload: any = await authenticateSocketToken(this.authGuard, String(token), client.handshake.headers as Record<string, unknown>, String(client.handshake.address || ''));
+      // R11 §5: refresh / QR / chat_rt / other non-access tokens never open a socket.
+      if (!payload || !isAccessTokenPayload(payload)) { client.disconnect(); return; }
       client.data.user = payload;
+      // Staff sockets are re-checked against the enrolled device they connected from.
+      const devId = String((client.handshake.headers as Record<string, unknown>)?.['x-admin-device'] || '');
+      if (devId) client.data.adminDeviceHash = require('crypto').createHash('sha256').update(devId).digest('hex');
       client.data.connectedAt = Date.now();
 
       // Join personal and role rooms

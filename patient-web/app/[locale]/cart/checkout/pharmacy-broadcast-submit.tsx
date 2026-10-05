@@ -25,7 +25,7 @@ export function PharmacyBroadcastSubmit({ locale, items, labels }: Props) {
       const created = await fetch("/api/patient/pharmacy/orders", { method: "POST", headers: { "content-type": "application/json", "idempotency-key": createKey.current }, body: JSON.stringify(draft) });
       const orderId = created.ok ? extractPatientPharmacyOrderId(await created.json().catch(() => null)) : null;
       if (!orderId) throw new Error("pharmacy_draft_unavailable");
-      const broadcast = await fetch(`/api/patient/pharmacy/orders/${encodeURIComponent(orderId)}/submit`, { method: "POST", headers: { "idempotency-key": submitKey.current } });
+      const broadcast = await fetch(`/api/patient/patient/pharmacy/orders/${encodeURIComponent(orderId)}/submit`, { method: "POST", headers: { "idempotency-key": submitKey.current } });
       if (!broadcast.ok) throw new Error("pharmacy_broadcast_unavailable");
       router.push(`/${locale}/orders/${orderId}/offers`);
     } catch { setState("error"); setError(labels.error); }

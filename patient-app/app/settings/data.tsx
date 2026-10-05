@@ -43,7 +43,7 @@ export default function DataManagementScreen() {
     {
       icon: "download",
       label: "تحميل نسخة من بياناتي",
-      sub: "JSON / PDF — يصل خلال 24 ساعة",
+      sub: "نسخة من بياناتك — تصلك خلال 24 ساعة",
       color: "#23B5CE",
       action: () => {},
     },

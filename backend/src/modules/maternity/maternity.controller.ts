@@ -1,13 +1,17 @@
 import { JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { Body, Controller, Get, Param, Post, Put, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { MaternityService } from './maternity.service';
+import { MaternityWeekContentService, parseWeek } from './maternity-week-content.service';
 import { UpdateProfileDto, LogKickDto, LogContractionDto, LogInfantGrowthDto} from './maternity.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('maternity')
 @SelfService()
 export class MaternityController {
-  constructor(private readonly maternityService: MaternityService) {}
+  constructor(
+    private readonly maternityService: MaternityService,
+    private readonly weekContent: MaternityWeekContentService,
+  ) {}
 
   private authenticatedPatientId(req: any): string {
     const userId = req?.user?.id;
@@ -26,6 +30,12 @@ export class MaternityController {
   @Get('content')
   getContent() {
     return this.maternityService.getContent();
+  }
+
+  /** GET /api/v1/maternity/content/weeks/:week — reviewed weekly content (read-only); available:false when none is published */
+  @Get('content/weeks/:week')
+  getWeekContent(@Param('week') week: string) {
+    return this.weekContent.getWeek(parseWeek(week));
   }
 
   /** POST /api/v1/maternity/profile — Set or update maternity/pregnancy profile variables */

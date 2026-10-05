@@ -12,6 +12,7 @@ import { ProviderDocumentRepository } from "./repositories/providerdocument.repo
 import { ProviderBankAccountRepository } from "./repositories/providerbankaccount.repository";
 import { ProviderAuditLogRepository } from "./repositories/providerauditlog.repository";
 import { AutoEntitySeoPipelineService } from '../../events/auto-entity-seo-pipeline.service';
+import { missingRequiredDocuments } from '../required-documents';
 
 @Injectable()
 export class ProviderAdminService {
@@ -137,13 +138,10 @@ export class ProviderAdminService {
     // R1: approval requires every required document to exist and not be rejected.
     // An explicit override needs a written reason (≥20 chars), is audit-logged,
     // and requires step-up (the @StepUp() decorator on the controller route).
-    const required = (await import('../provider.enums')).REQUIRED_DOCS_BY_PROVIDER_TYPE[(a as any).provider_type] || [];
     const docs = await this.docs.find({ account_id: id });
-    const okTypes = new Set(docs.filter((d: any) => d.review_status !== 'REJECTED').map((d: any) => d.doc_type));
-    // F4/F5: only a typed provider_documents row proves a document exists.
-    // Counting profile.license_documents URLs let three junk strings through,
-    // which is what the reviewer probe A caught.
-    const missing = required.filter((r: string) => !okTypes.has(r));
+    // F4/F5/Q80: only a typed provider_documents row that is not rejected or
+    // flagged for replacement proves a document (one rule for both approve paths).
+    const missing = missingRequiredDocuments((a as any).provider_type, docs);
     if (missing.length) {
       const reason = String(body?.override_reason || '').trim();
       if (reason.length < 20) {

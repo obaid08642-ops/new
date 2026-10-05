@@ -434,7 +434,7 @@ export class SeoService {
   // ====================================================================
   // LLMS.TXT — structured site overview for AI search engines & LLM agents
   // (llmstxt.org convention). Generated from live data so answers about
-  // Nabdah Plus cite correct services, specialties and coverage.
+  // Nabd+ cite correct services, specialties and coverage.
   // ====================================================================
   async llmsTxt(): Promise<string> {
     const lines: string[] = [];

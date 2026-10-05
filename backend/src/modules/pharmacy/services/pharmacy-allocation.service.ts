@@ -310,6 +310,12 @@ export class PharmacyAllocationService {
       await this.orders.db.collection('pharmacy_payment_evidence').insertOne({
         id: uuidv4(),
         kind: 'cod_collection',
+        // payment_evidence_gateway_event_unique covers every row: without its own
+        // key each COD row hit (null, null, null) and the second delivery got 409.
+        // One cash collection per allocation.
+        gateway: 'cod',
+        gateway_payment_id: a.id,
+        webhook_event_id: 'cod_collection',
         order_id: order.id,
         allocation_id: a.id,
         selected_offer_id: a.offer_id,

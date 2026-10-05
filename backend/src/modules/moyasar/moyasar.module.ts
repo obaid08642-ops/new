@@ -344,14 +344,16 @@ export class MoyasarService {
       const amountHalalas = amount ? Math.round(amount * 100) : undefined;
       const refundBreaker = this.moyasarBreaker(
         'moyasar:payments:refund',
-        (b: any) => this.gatewayFetch(`${this.baseUrl}/payments/${encodeURIComponent(moyasarId)}/refunds`, {
+        // Q81: the payment id travels as the breaker argument (breakers are cached by name).
+        // Q91: Moyasar's refund endpoint is POST /payments/:id/refund (singular).
+        (arg: { id: string; body: { amount?: number } }) => this.gatewayFetch(`${this.baseUrl}/payments/${encodeURIComponent(arg.id)}/refund`, {
           method: 'POST',
           headers: this.authHeaders(),
-          body: JSON.stringify(b),
+          body: JSON.stringify(arg.body),
         }),
         'moyasar_circuit_open',
       );
-      const resp = await refundBreaker.fire(amountHalalas ? { amount: amountHalalas } : {});
+      const resp = await refundBreaker.fire({ id: moyasarId, body: amountHalalas ? { amount: amountHalalas } : {} });
       const data: any = await resp.json();
       if (!resp.ok) throw new BadRequestException(data?.message || 'refund_failed');
 

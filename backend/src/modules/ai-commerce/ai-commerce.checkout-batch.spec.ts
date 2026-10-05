@@ -8,13 +8,13 @@ import { AiCommerceService } from './ai-commerce.service';
  */
 describe('AiCommerceService checkout batching', () => {
   const medFixtures = [
-    { id: 'med-1', slug: 'panadol-advance', sku: 101, name_ar: 'بانادول', name_en: 'Panadol', price: 18.5, requires_prescription: false },
-    { id: 'med-2', slug: 'lipitor-20mg', sku: 202, name_ar: 'ليبيتور', name_en: 'Lipitor', price: 95.0, requires_prescription: true },
-    { id: 'med-3', slug: 'augmentin-625', sku: 303, name_ar: 'أوجمنتين', name_en: 'Augmentin', price: 12.25, requires_prescription: false },
+    { id: 'med-1', slug: 'panadol-advance', sku: 101, name_ar: 'بانادول', name_en: 'Panadol', price: 18.5, requires_prescription: false, is_deleted: false, public_eligibility: true, medical_review_status: 'approved' },
+    { id: 'med-2', slug: 'lipitor-20mg', sku: 202, name_ar: 'ليبيتور', name_en: 'Lipitor', price: 95.0, requires_prescription: true, is_deleted: false, public_eligibility: true, medical_review_status: 'approved' },
+    { id: 'med-3', slug: 'augmentin-625', sku: 303, name_ar: 'أوجمنتين', name_en: 'Augmentin', price: 12.25, requires_prescription: false, is_deleted: false, public_eligibility: true, medical_review_status: 'approved' },
   ];
   const docFixtures = [
-    { id: 'doc-1', slug: 'dr-sara', name_ar: 'د. سارة', name_en: 'Dr. Sara', specialty: 'pediatrics' },
-    { id: 'doc-2', slug: 'dr-omar', name_ar: 'د. عمر', name_en: 'Dr. Omar', specialty: 'dermatology' },
+    { id: 'doc-1', slug: 'dr-sara', name_ar: 'د. سارة', name_en: 'Dr. Sara', specialty: 'pediatrics', type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', price_clinic: 150 },
+    { id: 'doc-2', slug: 'dr-omar', name_ar: 'د. عمر', name_en: 'Dr. Omar', specialty: 'dermatology', type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', price_clinic: 150 },
   ];
 
   // Minimal in-memory $or/$in matcher so the mock behaves like Mongo for our filters.
@@ -22,7 +22,10 @@ describe('AiCommerceService checkout batching', () => {
     (filter?.$or ?? []).some((clause: any) => {
       const [field, cond] = Object.entries<any>(clause)[0];
       return (cond?.$in ?? []).map(String).includes(String(doc[field]));
-    });
+    }) &&
+    // Q106 public filters next to $or: equality and $ne.
+    Object.entries<any>(filter ?? {}).filter(([k]) => k !== '$or').every(([k, v]) =>
+      v && typeof v === 'object' && '$ne' in v ? doc[k] !== v.$ne : doc[k] === v);
 
   let service: AiCommerceService;
   let medHandle: any;
@@ -106,5 +109,13 @@ describe('AiCommerceService checkout batching', () => {
     await service.createCheckoutSession({ items: [{ type: 'consultation', id: 'doc-1' }] });
     expect(docHandle.find).toHaveBeenCalledTimes(1);
     expect(medHandle.find).not.toHaveBeenCalled();
+  });
+
+  // 6fa7fce review: the query coerces the key with Number() (as before the
+  // batching) but the map was keyed by String(sku), so "0101" found sku 101 in
+  // the database and then missed it in the map (404).
+  it('resolves a sku key the same way the query matched it', async () => {
+    const session = await service.createCheckoutSession({ items: [{ type: 'medicine', id: '0101', quantity: 1 }] });
+    expect(session.items[0]).toEqual(expect.objectContaining({ id: 'med-1', sku: 101 }));
   });
 });

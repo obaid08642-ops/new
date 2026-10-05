@@ -418,8 +418,8 @@ export function CheckoutFlow({ locale }: Props) {
               <div className={`${styles.formField} ${styles.fullWidth}`} style={{ background: "#FEF3C7", padding: "10px", borderRadius: "10px" }}>
                 <span style={{ fontSize: "0.85rem", fontWeight: "bold" }}>
                   {isAr
-                    ? "تنبيه: سلتك تحتوي أدوية بوصفة — يلزم وصفة محفوظة وفعّالة، وسيتحقق الخادم منها قبل إنشاء الطلب."
-                    : "Notice: your cart has prescription medicines — an active saved prescription is required and verified server-side."}{" "}
+                    ? "تنبيه: سلتك تحتوي أدوية بوصفة — يلزم وصفة محفوظة وفعّالة، وسنتحقق منها قبل إنشاء الطلب."
+                    : "Notice: your cart has prescription medicines — an active saved prescription is required, and we check it before placing the order."}{" "}
                   <Link href={`/${locale}/pharmacy/scan-prescription`}>{isAr ? "رفع وصفة" : "Upload prescription"}</Link>
                 </span>
               </div>
@@ -519,13 +519,13 @@ export function CheckoutFlow({ locale }: Props) {
                     ))}
                   </select>
                   {INSURANCE_ERROR && (
-                    <div style={{ fontSize: "0.8rem", color: "#B91C1C" }}>
+                    <div style={{ fontSize: "0.8rem", color: "var(--nabd-color-status-danger-fg)" }}>
                       {isAr ? "تعذّر تحميل شركات التأمين. " : "Could not load insurers. "}
                       <button type="button" onClick={INSURANCE_RELOAD} style={{ textDecoration: "underline" }}>{isAr ? "إعادة المحاولة" : "Retry"}</button>
                     </div>
                   )}
                   {!INSURANCE_LOADING && !INSURANCE_ERROR && !INSURANCE_CATALOG.length && (
-                    <div style={{ fontSize: "0.8rem", color: "#B45309" }}>{isAr ? "لا توجد شركات تأمين متاحة حاليًا." : "No insurers available right now."}</div>
+                    <div style={{ fontSize: "0.8rem", color: "var(--nabd-color-status-warning-fg)" }}>{isAr ? "لا توجد شركات تأمين متاحة حاليًا." : "No insurers available right now."}</div>
                   )}
                 </div>
 

@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? `أطباء ${specialty} في ${city} | احجز موعدك الآن`
     : `${specialty} Doctors in ${city} | Book Appointment`;
   const desc = locale === "ar"
-    ? `قائمة الأطباء المعتمدين لتخصص ${specialty} في ${city}. احجز استشارتك مع نخبة من الأطباء والمراكز المعتمدة عبر نبضة بلس.`
+    ? `قائمة الأطباء المعتمدين لتخصص ${specialty} في ${city}. احجز استشارتك مع نخبة من الأطباء والمراكز المعتمدة عبر نبض بلس.`
     : `Verified ${specialty} doctors and clinics in ${city}. Book in-clinic or online consultation via Nabd Plus.`;
 
   return {

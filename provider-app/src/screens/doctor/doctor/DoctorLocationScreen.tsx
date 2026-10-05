@@ -33,6 +33,7 @@ import {
 } from '../../shared/BlueprintScreens';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
+import MapView, { Marker } from '../../../components/PlatformMap';
 
 export function DoctorLocationScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
@@ -89,8 +90,6 @@ export function DoctorLocationScreen({ onBack }: { onBack: () => void }) {
     }
   }
 
-  const MapView = require('react-native-maps').default;
-  const Marker = require('react-native-maps').Marker;
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>

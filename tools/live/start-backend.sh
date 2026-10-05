@@ -34,6 +34,8 @@ export DISABLE_RATE_LIMIT="${DISABLE_RATE_LIMIT:-true}" THROTTLER_LIMIT="${THROT
 export OTP_ISSUE_LIMIT="${OTP_ISSUE_LIMIT:-1000}"
 # Card payments go to tools/live/fake_moyasar.py (:9100); /__pay/<id> plays the patient completing checkout.
 export MOYASAR_API_KEY="${MOYASAR_API_KEY:-sk_test_live_journeys}" MOYASAR_API_BASE="${MOYASAR_API_BASE:-http://127.0.0.1:9100/v1}"
+# Q86/Q104: the single Moyasar webhook checks this shared secret (j_payments sends it).
+export MOYASAR_WEBHOOK_SECRET="${MOYASAR_WEBHOOK_SECRET:-live-webhook-secret}"
 # 7C-C3: the backend network-gate check requires this header on /api/v1/admin/*.
 # The harness sends it (NABD_ADMIN_GATE_TOKEN, same default); keep both in sync.
 export ADMIN_GATE_TOKEN="${ADMIN_GATE_TOKEN:-live-gate-token}"

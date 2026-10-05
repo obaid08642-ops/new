@@ -10,7 +10,6 @@ function controllerFor(options: { asset?: any; chatThread?: any } = {}) {
   const controller: any = Object.create(MediaController.prototype);
   controller.mediaService = {
     uploadBuffer: jest.fn().mockResolvedValue({ key: 'chat/patient-1/object.pdf' }),
-    generatePresignedUploadUrl: jest.fn().mockResolvedValue({ key: 'chat/patient-1/object.pdf', uploadUrl: 'https://signed-upload.example' }),
     generatePresignedDownloadUrl: jest.fn().mockResolvedValue('https://signed-download.example'),
     deleteFile: jest.fn().mockResolvedValue(undefined),
   };
@@ -26,7 +25,7 @@ function controllerFor(options: { asset?: any; chatThread?: any } = {}) {
 describe('MediaController private-asset contract', () => {
   it('rejects a chat upload by a non-participant before storage is invoked', async () => {
     const { controller, ChatThreadModel } = controllerFor({ chatThread: null });
-    const file: any = { buffer: Buffer.from('x'), originalname: 'note.pdf', mimetype: 'application/pdf', size: 1 };
+    const file: any = { buffer: Buffer.from('%PDF-1.4\n'), originalname: 'note.pdf', mimetype: 'application/pdf', size: 1 };
 
     await expect(controller.uploadFile(OTHER, file, { purpose: 'chat', thread_id: 'thread-1' })).rejects.toThrow(NotFoundException);
 
@@ -36,7 +35,7 @@ describe('MediaController private-asset contract', () => {
 
   it('persists a private chat asset owner binding and exposes an ID rather than a public URL', async () => {
     const { controller } = controllerFor({ chatThread: { id: 'thread-1', participant_ids: [OWNER.id] } });
-    const file: any = { buffer: Buffer.from('x'), originalname: 'note.pdf', mimetype: 'application/pdf', size: 1 };
+    const file: any = { buffer: Buffer.from('%PDF-1.4\n'), originalname: 'note.pdf', mimetype: 'application/pdf', size: 1 };
 
     await expect(controller.uploadFile(OWNER, file, { purpose: 'chat', thread_id: 'thread-1' }))
       .resolves.toEqual({ id: 'media-1', purpose: 'chat', thread_id: 'thread-1' });

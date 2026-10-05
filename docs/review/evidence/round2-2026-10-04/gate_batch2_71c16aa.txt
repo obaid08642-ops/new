@@ -1,0 +1,13 @@
+# Gate on review/fix-batch-2 tip 71c16aa (reviewer, 2026-10-04)
+tsc 0
+build 0
+unit 0
+boot 0
+dtolint 0
+dtocheck 0
+[chunked-jest] done: 12/12 chunks passed
+Test Suites: 15 passed, 15 total
+Tests:       66 passed, 66 total
+== @Body() x: any handlers: 0
+== @Body() typed as non-class / unvalidated key (ValidationPipe skips): 0
+649 DTO routes checked, 321 matched by client calls, 0 mismatches

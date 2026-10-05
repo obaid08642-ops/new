@@ -180,7 +180,13 @@ export class AdminPharmacyController {
     }
     const rows: any[] = await col.find(filter).sort({ changed_at: -1 }).limit(5000).toArray();
     const cols = ['changed_at', 'pharmacy_account_id', 'order_id', 'offer_id', 'sku', 'catalog_price', 'override_price', 'reason', 'changed_by'];
-    const esc = (v: any) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    // CSV injection: a cell starting with = + - @ tab or CR runs as a formula in Excel;
+    // prefix it with an apostrophe (pharmacy-entered reasons reach this file).
+    const esc = (v: any) => {
+      const raw = String(v ?? '');
+      const safe = /^[=+\-@\t\r]/.test(raw) ? `'${raw}` : raw;
+      return `"${safe.replace(/"/g, '""')}"`;
+    };
     const lines = [cols.join(',')];
     for (const r of rows) {
       lines.push(cols.map((c) => {

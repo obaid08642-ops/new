@@ -9,6 +9,9 @@ Uses the fake Moyasar gateway (tools/live/fake_moyasar.py) to prove:
 from lib import Client, journey, step
 
 
+FAKE_PAY = 'http://127.0.0.1:9100'
+
+
 def register_patient(tag):
     import time
     from lib import mail_code, uniq, phone
@@ -35,23 +38,20 @@ def run(pat=None, admin=None):
     from j_onboarding import register_type, admin_review, provider_after_approval
     import j_admin
     admin, _ = j_admin.login()
-    lab = register_type('lab')
+    # LabRegistration: the lab ticks the tests it runs from the public catalog (as j_lab does).
+    catalog = [x['id'] for x in Client(None, 'anon').get('/labs/services').items()]
+    lab = register_type('lab', {'test_categories': catalog})
     admin_review(admin, lab)
     provider_after_approval(lab)
-    lab_id = lab.get('account_id') or lab.get('id')
-
-    r = pat.get('/labs/services')
-    services = r.items() if r.ok else []
-    if not services or not lab_id:
-        step('SKIP payment sandbox (no lab catalog seeded)', True, 'no live data')
-    else:
-        svc = services[0]
-        sid = svc.get('id')
-        r = pat.post('/labs/bookings', {'items': [{'service_id': sid}], 'provider_account_id': lab_id,
-                                        'scheduled_at': '2030-01-01T10:00:00Z',
-                                        'location_type': 'facility', 'payment_method': 'card'})
-        bid = r.get('id')
-        step('lab booking created for payment test', r.ok and bid, r)
+    # register_type returns no id; read the approved lab's account id as j_lab does.
+    from j_onboarding import provider_client
+    lab_client = provider_client(lab.get('token'))
+    lab_id = lab_client.get('/provider/me').get('account', 'id') if lab.get('token') else None
+    step('approved lab has an account id', bool(lab_id), lab_id)
+    if lab_id:
+        from j_lab import patient_books
+        bid, _picks = patient_books(pat, lab_id, location='facility', method='card')
+        step('lab booking created for payment test', bool(bid), bid)
         if bid:
             # 2. Intent succeeds
             import uuid
@@ -60,10 +60,39 @@ def run(pat=None, admin=None):
             txn = r.body.get('data', r.body) if isinstance(r.body, dict) else {}
             step('payment intent created (sandbox)', r.ok and txn.get('id'), r)
             if txn.get('gateway_intent_id'):
-                from j_consultation import fake_pay
+                from j_nursing import fake_pay
                 fake_pay(txn['gateway_intent_id'])
+                # Q86/Q104: the one Moyasar webhook settles the payment on its own;
+                # its secret_token must match MOYASAR_WEBHOOK_SECRET.
+                import os, datetime
+                event = {'id': f"evt_{txn['gateway_intent_id']}", 'type': 'payment_paid',
+                         'created_at': datetime.datetime.utcnow().isoformat() + 'Z',
+                         'data': {'id': txn['gateway_intent_id'], 'status': 'paid'}}
+                anon = Client(None, 'anon')
+                w = anon.post('/payments/webhook/moyasar', {**event, 'secret_token': 'wrong-secret'})
+                step('webhook with a wrong secret is refused (401)', w.status == 401, w)
+                # Stored transactions, read without gateway reconciliation (unlike /payments/status).
+                def stored_status():
+                    rows = pat.get(f'/payments/booking/lab/{bid}')
+                    lst = rows.body if isinstance(rows.body, list) else []
+                    return next((x.get('status') for x in lst if x.get('id') == txn['id']), None), rows
+                s0, rows = stored_status()
+                step('a refused webhook leaves the payment open', s0 not in (None, 'paid'), rows)
+                w = anon.post('/payments/webhook/moyasar', {**event, 'secret_token': os.environ.get('MOYASAR_WEBHOOK_SECRET', 'live-webhook-secret')})
+                step('webhook with the shared secret is accepted', w.ok and w.get('ok') is True, w)
+                s1, rows = stored_status()
+                step('the webhook alone marked the payment paid', s1 == 'paid', rows)
+                st = pat.get(f"/payments/status/{txn['id']}")
+                step('payment status reports paid', st.ok and st.get('status') == 'paid', st)
                 v = pat.post(f"/payments/verify/{txn['id']}", {})
                 step('payment succeeds end-to-end (sandbox)', v.ok and v.get('status') == 'paid', v)
+                # 3. Admin refund reaches the gateway for THIS payment (Q81/Q91)
+                rf = admin.post(f"/payments/refund/{txn['id']}", {'reason': 'live journey refund'})
+                step('admin refund succeeds', rf.ok, rf)
+                import json as _json, urllib.request as _ur
+                with _ur.urlopen(f"{FAKE_PAY}/v1/payments/{txn['gateway_intent_id']}", timeout=5) as resp:
+                    gw = _json.loads(resp.read() or b'{}')
+                step('the gateway shows this payment refunded', gw.get('status') == 'refunded', gw)
 
     journey('payments: declined payment fails safely (Gate P10)')
     # A declined card must fail without charging and without confirming any booking.

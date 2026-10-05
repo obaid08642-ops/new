@@ -4,7 +4,7 @@
  * actively holds (409 slot_held), while the holder can still book inside
  * their own hold and expired holds never block.
  */
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, ServiceUnavailableException } from '@nestjs/common';
 import { AppointmentsService } from '../appointments.service';
 
 const makeDoc = (obj: any) => {
@@ -152,5 +152,30 @@ describe('AppointmentsService slot-hold integrity (Q36)', () => {
     expect(q.status).toBe('held');
     expect(q.expires_at?.$gt instanceof Date).toBe(true);
     expect(q.expires_at.$gt.getTime()).toBeLessThanOrEqual(Date.now() + 60_000);
+  });
+  it('(4) a failing hold lookup refuses the booking (fail closed, 503)', async () => {
+    slotLockFindOne.mockRejectedValue(new Error('mongo down'));
+    apptModel.findOne.mockResolvedValue(null);
+    await expect(service.create({ id: 'pat-B', role: 'patient' }, bookBody(futureQuarterHour())))
+      .rejects.toBeInstanceOf(ServiceUnavailableException);
+    expect(apptModel.create).not.toHaveBeenCalled();
+  });
+
+  it('(5) rescheduling into another patient\'s active hold is refused 409 slot_held', async () => {
+    const original = makeDoc({
+      id: 'appt-0', patient_id: 'pat-B', doctor_id: 'doc-1', doctor_user_id: 'doc-user-1',
+      service_type: 'clinic', status: 'confirmed', duration_minutes: 30, price: 200,
+    });
+    apptModel.findOne.mockImplementation(async (q: any) => (q?.id === 'appt-0' ? original : null));
+    slotLockFindOne.mockResolvedValue({
+      id: 'lock-A', patient_id: 'pat-A', provider_id: 'doc-1',
+      status: 'held', expires_at: new Date(Date.now() + 9 * 60_000),
+    });
+    await expect(service.reschedule('appt-0', { id: 'pat-B', role: 'patient' }, { slot_start: futureQuarterHour().toISOString() }))
+      .rejects.toThrow('slot_held');
+    expect(apptModel.create).not.toHaveBeenCalled();
+    const q = slotLockFindOne.mock.calls[0][0];
+    expect(q.provider_id).toBe('doc-1');
+    expect(q.patient_id?.$nin).toEqual(expect.arrayContaining(['pat-B']));
   });
 });
