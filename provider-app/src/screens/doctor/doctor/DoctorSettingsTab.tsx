@@ -230,6 +230,7 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
         <NSettingsRow icon="mapPin" label={AR ? 'الموقع ونطاق التغطية' : 'Location & Coverage'} onPress={() => onNavigate('location_config')} />
         <NSettingsRow icon="calendar" label={AR ? 'مواعيد العمل (Scheduler)' : 'Availability Engine'} onPress={() => onNavigate('availability_engine')} />
         <NSettingsRow icon="shield" label={AR ? 'شركات التأمين' : 'Insurance Config'} onPress={() => onNavigate('insurance_config')} />
+        <NSettingsRow icon="globe" label={AR ? 'شارة الموقع (للمواقع الخارجية)' : 'Website badge'} onPress={() => onNavigate('website_badge')} />
        <NSettingsRow icon="shield" label={AR ? 'طلبات التأمين الواردة' : 'Insurance Requests'} onPress={() => onNavigate('insurance_requests')} />
         <GlobalSystemSettings />
         

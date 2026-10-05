@@ -44,7 +44,7 @@ import { User, UserSchema } from '../../schemas/user.schema';
 import { HomeCareBooking, HomeCareBookingSchema, NursingVisitReport, NursingVisitReportSchema } from '../../schemas/home-care.schema';
 import { RadiologyBooking, RadiologyBookingSchema } from '../../schemas/radiology.schema';
 import { LeaveRequestsController } from './leave-requests.controller';
-import { ProviderBadgeController } from './provider-badge.controller';
+import { ProviderBadgeController, ProviderWebsiteBadgeController } from './provider-badge.controller';
 import {
   ProviderAuthController, ProviderProfileController, ProviderOperatorsController, ProviderAdminController,
   ProviderRequestsController, ProviderNotificationsController, ProviderScheduleController, ProviderDashboardController,
@@ -143,6 +143,7 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
   controllers: [
     LeaveRequestsController,
     ProviderBadgeController,
+    ProviderWebsiteBadgeController,
     ProviderAuthController,
     ProviderProfileController,
     ProviderOperatorsController,
