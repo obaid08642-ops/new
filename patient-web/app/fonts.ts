@@ -8,8 +8,10 @@ import localFont from "next/font/local";
  * The files in ./fonts are the variable fonts from github.com/google/fonts (SIL Open
  * Font License, see the OFL-*.txt next to them), converted to woff2 with the width
  * axes pinned to their defaults (Readex Pro HEXP=0, Noto wdth=100), so one file covers
- * every weight. next/font serves them from this origin (the CSP allows only
- * font-src 'self') with a metric-matched fallback, so text does not jump on swap.
+ * every weight. Readex Pro is further subset (F82-1) to Latin + Arabic, the two scripts it
+ * draws (78.6 KB to 51.4 KB; every character in the six message catalogues is still covered).
+ * next/font serves them from this origin (the CSP allows only font-src 'self') with a
+ * metric-matched fallback, so text does not jump on swap.
  *
  * Only Readex Pro is preloaded: it is the first family on every page. Each Noto face is
  * limited to its own script (unicode-range), so it is downloaded only when a page renders
