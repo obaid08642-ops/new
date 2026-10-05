@@ -1,56 +1,88 @@
 import * as React from 'react';
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  type StyleProp,
-  type ViewStyle,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 
 import type { ButtonProps, IconButtonProps, Size, Variant } from '../../../ui/components/contract';
+import { tokens, type ThemeName } from '../../../design-tokens/dist/ts/tokens';
+import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, type FillIconName } from '../../../ui/icons/fill';
+import type { IconName } from '../../../ui/icons/names';
 import { Icon, Spinner } from '../Icon';
 
 /**
- * Button and IconButton — 12.A7, React Native.
+ * Button and IconButton — handoff §3 (PrimaryButton, OutlineButton, IconButton),
+ * React Native.
  *
- * Same props as the web renderer (the conformance check in
- * `packages/ui/components/conformance.ts` will not compile if they diverge) and
- * the same visual contract, expressed in the two things React Native has instead
- * of CSS: a StyleSheet and the token MODULE rather than custom properties.
- *
- * Colours come from `tokens(theme).color.*` so the dark theme is the same
- * switch the token file defines, not a second hand-maintained palette. Spacing
- * and radius come from `tokens(theme).space` / `.radius`, so `space.md` is 20 on
- * both platforms.
+ * Same props and the same geometry as the web renderer (the conformance check in
+ * `packages/ui/components/conformance.ts` will not compile if the props
+ * diverge): the page CTA is 56 tall with radius 18 and a 17/700 label, the
+ * smaller buttons 44 or 40 with radius 14. Colours and shadows come from
+ * `tokens(theme)`, so the dark theme is the token file's switch: the primary
+ * fill is the `action.primary.gradient` pair (flat coral with an ink label in
+ * dark, as on the Auth dark board) under `shadow.button`.
  */
 
-const HEIGHT: Record<Size, number> = { sm: 32, md: 40, lg: 48 };
-const FONT_SIZE: Record<Size, number> = { sm: 15, md: 15, lg: 12 };
-const ICON_PX: Record<Size, number> = { sm: 16, md: 20, lg: 24 };
+const HEIGHT: Record<Size, number> = { sm: 40, md: 44, lg: 56 };
+const RADIUS: Record<Size, number> = { sm: 14, md: 14, lg: 18 };
+const PAD_X: Record<Size, number> = { sm: 14, md: 16, lg: 24 };
+const FONT: Record<Size, { size: number; family: string }> = {
+  sm: { size: 13.5, family: 'ReadexPro-500' },
+  md: { size: 14, family: 'ReadexPro-500' },
+  lg: { size: 17, family: 'ReadexPro-700' },
+};
+const ICON_PX: Record<Size, number> = { sm: 16, md: 18, lg: 22 };
+
+/** A handoff fill glyph when the name is one (the boards draw button icons filled), else the line icon. */
+function ButtonIcon({ name, size, color, theme }: { name: IconName | FillIconName; size: number; color: string; theme: ThemeName }) {
+  if (name in FILL_ICON_PATHS) {
+    return (
+      <Svg width={size} height={size} viewBox={FILL_ICON_VIEWBOX}>
+        <Path d={FILL_ICON_PATHS[name as FillIconName]} fill={color} />
+      </Svg>
+    );
+  }
+  return <Icon name={name as IconName} size={size} theme={theme} color={color} />;
+}
 
 export interface NativeButtonProps extends ButtonProps {
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
-  theme?: 'light' | 'dark';
+  theme?: ThemeName;
 }
 
-function variantColors(variant: Variant, dark: boolean) {
-  const pick = (light: string, d: string) => (dark ? d : light);
+function variantStyle(variant: Variant, theme: ThemeName) {
+  const c = tokens(theme).color;
   switch (variant) {
     case 'primary':
-      return { bg: pick('#D42A38', '#FF6B73'), fg: pick('#FFFFFF', '#0B1B2B') };
+      return { bg: 'transparent', fg: c.action.primary.fg, border: 0, borderColor: 'transparent' };
+    case 'outline':
+      return { bg: 'transparent', fg: c.text.primary, border: 1.5, borderColor: c.text.primary };
     case 'secondary':
-      return { bg: pick('#FFFFFF', '#1A3148'), fg: pick('#0B1B2B', '#F5F5F7') };
+      return { bg: c.action.secondary.bg, fg: c.action.secondary.fg, border: 1, borderColor: c.border.onGlass };
     case 'danger':
-      return { bg: pick('#D42A38', '#FF6B73'), fg: pick('#FFFFFF', '#0B1B2B') };
+      return { bg: c.action.danger.bg, fg: c.action.danger.fg, border: 0, borderColor: 'transparent' };
     case 'lime':
       // The canvas restricts acid lime to dark surfaces and always with ink text,
       // so the pairing is fixed here exactly as on the web.
-      return { bg: '#D7FF00', fg: '#0B1B2B' };
+      return { bg: c.accent.lime, fg: c.text.onAccent, border: 0, borderColor: 'transparent' };
     default:
-      return { bg: 'transparent', fg: pick('#0B1B2B', '#F5F5F7') };
+      return { bg: 'transparent', fg: c.text.primary, border: 0, borderColor: 'transparent' };
   }
+}
+
+/** The coral gradient behind a primary button; a positioned SVG so it works on every renderer. */
+function PrimaryFill({ theme, radius, id }: { theme: ThemeName; radius: number; id: string }) {
+  const g = tokens(theme).color.action.primary.gradient;
+  return (
+    <Svg style={StyleSheet.absoluteFill} width="100%" height="100%">
+      <Defs>
+        <LinearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor={g.from} />
+          <Stop offset="1" stopColor={g.to} />
+        </LinearGradient>
+      </Defs>
+      <Rect x="0" y="0" width="100%" height="100%" rx={radius} ry={radius} fill={`url(#${id})`} />
+    </Svg>
+  );
 }
 
 export function Button({
@@ -69,56 +101,52 @@ export function Button({
   theme = 'light',
 }: NativeButtonProps) {
   const inert = disabled || loading;
-  const dark = theme === 'dark';
-  const { bg, fg } = variantColors(variant, dark);
+  const t = tokens(theme);
+  const v = variantStyle(variant, theme);
   const px = ICON_PX[size];
+  const id = `nabd-btn-${React.useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
 
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ disabled: inert, busy: loading }}
       accessibilityLabel={label}
+      aria-invalid={invalid || undefined}
       disabled={inert}
       onPress={inert ? undefined : onPress}
+      hitSlop={HEIGHT[size] < 44 ? { top: (44 - HEIGHT[size]) / 2, bottom: (44 - HEIGHT[size]) / 2 } : undefined}
       testID={testID}
       style={({ pressed }) => [
         styles.base,
         {
-          // 44 is the floor, not the size: a dense table can render a 32px
-          // button and still get a 44px target.
-          minHeight: 44,
-          height: fullWidth ? undefined : HEIGHT[size],
-          paddingHorizontal: size === 'sm' ? 16 : size === 'md' ? 20 : 24,
-          paddingVertical: 0,
-          backgroundColor: bg,
-          borderRadius: 9999,
+          // an sm button is 40 to look at and 44 to hit (hitSlop below)
+          height: HEIGHT[size],
+          paddingHorizontal: PAD_X[size],
+          backgroundColor: v.bg,
+          borderWidth: v.border,
+          borderColor: v.borderColor,
+          borderRadius: RADIUS[size],
+          boxShadow: variant === 'primary' ? t.shadow.button : undefined,
           opacity: disabled ? 0.5 : 1,
-          transform: [{ scale: pressed && !inert ? 0.98 : 1 }],
-        },
-        variant === 'secondary' && {
-          borderWidth: StyleSheet.hairlineWidth,
-          borderColor: dark ? '#6E8BFF' : '#D5DBE4',
+          transform: [{ scale: pressed && !inert ? t.motion.press.scale : 1 }],
         },
         fullWidth && styles.full,
         style,
       ]}
     >
-      {loading ? (
-        <Spinner size={px} />
-      ) : startIcon ? (
-        <Icon name={startIcon} size={px} theme={theme} />
-      ) : null}
-      <Text
-        numberOfLines={1}
-        style={{
-          color: fg,
-          fontSize: FONT_SIZE[size],
-          fontWeight: variant === 'primary' || variant === 'lime' ? '700' : '600',
-        }}
-      >
-        {label}
-      </Text>
-      {!loading && endIcon ? <Icon name={endIcon} size={px} theme={theme} /> : null}
+      {variant === 'primary' ? <PrimaryFill theme={theme} radius={RADIUS[size]} id={id} /> : null}
+      {/* above the gradient: a positioned sibling paints over static content on web */}
+      <View style={styles.content}>
+        {loading ? (
+          <Spinner size={px} color={v.fg} />
+        ) : startIcon ? (
+          <ButtonIcon name={startIcon} size={px} theme={theme} color={v.fg} />
+        ) : null}
+        <Text numberOfLines={1} style={{ color: v.fg, fontSize: FONT[size].size, fontFamily: FONT[size].family }}>
+          {label}
+        </Text>
+        {!loading && endIcon ? <ButtonIcon name={endIcon} size={px} theme={theme} color={v.fg} /> : null}
+      </View>
     </Pressable>
   );
 }
@@ -126,23 +154,19 @@ export function Button({
 export interface NativeIconButtonProps extends IconButtonProps {
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
-  theme?: 'light' | 'dark';
+  theme?: ThemeName;
 }
 
-const TONE: Record<string, string> = {
-  neutral: '#6E6E73',
-  primary: '#0B1B2B',
-  success: '#1B7A4B',
-  warning: '#8A5A00',
-  danger: '#D42A38',
-  info: '#1F5FBF',
-};
+/** IconButton: 44×44 at sm/md (canvas/Settings back, Cart delete), 52×52 at lg (Consult filter). */
+const ICON_BOX: Record<Size, number> = { sm: 44, md: 44, lg: 52 };
+const ICON_GLYPH: Record<Size, number> = { sm: 20, md: 22, lg: 22 };
 
 export function IconButton({
   name,
   label,
   size = 'md',
   variant = 'plain',
+  shape = 'circle',
   tone = 'neutral',
   loading = false,
   disabled = false,
@@ -153,8 +177,25 @@ export function IconButton({
   theme = 'light',
 }: NativeIconButtonProps) {
   const inert = disabled || loading;
-  const dark = theme === 'dark';
-  const edge = Math.max(HEIGHT[size], 44);
+  const t = tokens(theme);
+  const c = t.color;
+  const box = ICON_BOX[size];
+  const toneColour: Record<string, string> = {
+    neutral: c.icon.primary,
+    primary: c.action.primary.bg,
+    success: c.status.success.fg,
+    warning: c.status.warning.fg,
+    danger: c.status.danger.fg,
+    info: c.status.info.fg,
+  };
+  const fill: Record<NonNullable<IconButtonProps['variant']>, { bg: string; border: number }> = {
+    plain: { bg: 'transparent', border: 0 },
+    outlined: { bg: c.bg.surface, border: 1 },
+    filled: { bg: c.action.selected.bg, border: 0 },
+    tinted: { bg: c.bg.sunken, border: 0 },
+    glass: { bg: c.glass.bg, border: 1 },
+  };
+  const glyph = variant === 'filled' ? c.action.selected.fg : toneColour[tone] ?? toneColour.neutral;
 
   return (
     <Pressable
@@ -162,47 +203,27 @@ export function IconButton({
       // Required by the contract, so the accessible name is never missing here.
       accessibilityLabel={label}
       accessibilityState={{ disabled: inert, busy: loading }}
+      aria-invalid={invalid || undefined}
       disabled={inert}
       onPress={inert ? undefined : onPress}
       testID={testID}
       style={({ pressed }) => [
-        styles.base,
         styles.center,
         {
-          minWidth: 44,
-          minHeight: 44,
-          width: edge,
-          height: edge,
-          borderRadius: 9999,
+          width: box,
+          height: box,
+          borderRadius: shape === 'square' ? (size === 'lg' ? 18 : 14) : box / 2,
+          backgroundColor: fill[variant].bg,
+          borderWidth: fill[variant].border,
+          borderColor: c.border.onGlass,
           opacity: disabled ? 0.5 : 1,
-          transform: [{ scale: pressed && !inert ? 0.96 : 1 }],
-          backgroundColor:
-            variant === 'filled'
-              ? dark
-                ? '#1A3148'
-                : '#FFFFFF'
-              : variant === 'tinted'
-                ? dark
-                  ? '#12263A'
-                  : '#F4F6F8'
-                : 'transparent',
-          borderWidth: variant === 'outlined' ? StyleSheet.hairlineWidth : 0,
-          borderColor: dark ? '#6E8BFF' : '#D5DBE4',
+          transform: [{ scale: pressed && !inert ? t.motion.press.scale : 1 }],
         },
         style,
       ]}
     >
-      {loading ? (
-        <Spinner size={ICON_PX[size]} />
-      ) : (
-        <Icon
-          name={name}
-          size={ICON_PX[size]}
-          theme={theme}
-          tone={tone === 'neutral' ? 'secondary' : tone === 'primary' ? 'primary' : 'primary'}
-        />
-      )}
-      {invalid ? <View style={styles.invalidDot} /> : null}
+      {loading ? <Spinner size={ICON_GLYPH[size]} color={glyph} /> : <Icon name={name} size={ICON_GLYPH[size]} theme={theme} color={glyph} />}
+      {invalid ? <View style={[styles.invalidDot, { backgroundColor: c.status.danger.fg }]} /> : null}
     </Pressable>
   );
 }
@@ -213,16 +234,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
+    overflow: 'visible',
   },
   center: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
+  content: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, zIndex: 1 },
   full: { alignSelf: 'stretch' },
   invalidDot: {
     position: 'absolute',
     top: 6,
-    right: 6,
+    end: 6,
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#D42A38',
   },
 });

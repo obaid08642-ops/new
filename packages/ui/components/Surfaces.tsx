@@ -51,50 +51,63 @@ const NO_UNDERLINE: React.CSSProperties = {
 
 /* ------------------------------------------------------------------- chips */
 
-export function Chip({
-  label,
-  tone = 'neutral',
-  variant = 'soft',
-  startIcon,
-  onDismissLabel,
-  selected = false,
-  disabled = false,
-  testID,
-}: ChipProps) {
-  const t = TONE_STYLE[tone];
-  const solid = variant === 'solid';
+export interface WebChipProps extends ChipProps {
+  onClick?: () => void;
+}
 
+/**
+ * The filter chip of canvas/Search: 38 tall (44 hit area), radius 19, 14px; a
+ * surface pill with a subtle border, or ink with a bold label when selected. A
+ * count rides after the label at 12px. It is a toggle button (`aria-pressed`).
+ */
+export function Chip({ label, count, startIcon, selected = false, loading = false, disabled = false, invalid = false, describedBy, testID, onClick }: WebChipProps) {
+  const inert = disabled || loading;
   return (
-    <span
+    <button
+      type="button"
+      aria-pressed={selected}
+      aria-describedby={describedBy}
+      aria-invalid={invalid || undefined}
+      disabled={inert}
+      onClick={inert ? undefined : onClick}
       data-testid={testID}
-      data-tone={tone}
       style={{
+        // 38 visual, 44 hit: the extra 3px each side is given back to the layout
+        height: 44,
+        marginBlock: -3,
+        padding: 0,
+        border: 0,
+        background: 'transparent',
+        fontFamily: 'inherit',
+        flexShrink: 0,
+        cursor: inert ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.5 : 1,
         display: 'inline-flex',
         alignItems: 'center',
-        gap: 'var(--nabd-space-3xs)',
-        minHeight: 'var(--nabd-a11y-minTouchTarget)',
-        paddingInline: 'var(--nabd-space-sm)',
-        borderRadius: 'var(--nabd-radius-pill)',
-        fontSize: 'var(--nabd-font-size-label)',
-        fontWeight: 600,
-        background: solid ? t.fg : selected ? 'var(--nabd-color-action-selected-bg)' : t.bg,
-        color: solid ? 'var(--nabd-color-action-secondary-fg)' : t.fg,
-        border: `1px solid ${variant === 'outline' ? t.fg : 'transparent'}`,
-        opacity: disabled ? 0.5 : 1,
       }}
     >
-      {startIcon ? <Icon name={startIcon} size={16} /> : null}
-      {label}
-      {onDismissLabel ? (
-        <button
-          type="button"
-          aria-label={onDismissLabel}
-          style={{ background: 'transparent', border: 0, cursor: 'pointer', color: 'inherit', display: 'grid', placeItems: 'center' }}
-        >
-          <Icon name="close" size={14} />
-        </button>
-      ) : null}
-    </span>
+      <span
+        style={{
+          height: 38,
+          boxSizing: 'border-box',
+          paddingInline: 14,
+          borderRadius: 19,
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          whiteSpace: 'nowrap',
+          fontSize: '14px',
+          fontWeight: selected ? 700 : 500,
+          background: selected ? 'var(--nabd-color-action-selected-bg)' : 'var(--nabd-color-bg-surface)',
+          color: selected ? 'var(--nabd-color-action-selected-fg)' : 'var(--nabd-color-text-primary)',
+          border: selected ? 0 : '1px solid var(--nabd-color-border-subtle)',
+        }}
+      >
+        {startIcon ? <Icon name={startIcon} size={16} tone="currentColor" /> : null}
+        {label}
+        {count !== undefined ? <span style={{ fontSize: '12px', opacity: 0.7 }}>{count}</span> : null}
+      </span>
+    </button>
   );
 }
 

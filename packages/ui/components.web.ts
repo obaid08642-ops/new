@@ -12,11 +12,17 @@
  */
 
 import type { WebButtonProps, WebIconButtonProps } from './components/Button';
+import type { WebRadioProps } from './components/Controls';
+import type { WebChipProps } from './components/Surfaces';
 import type * as C from './components/contract';
 
 export interface ComponentProps {
   Button: WebButtonProps;
   IconButton: WebIconButtonProps;
+  Segmented: C.SegmentedProps;
+  Toggle: C.ToggleProps;
+  Radio: WebRadioProps;
+  StatusChip: C.StatusChipProps;
 
   Input: C.InputProps;
   Select: C.SelectProps;
@@ -25,7 +31,7 @@ export interface ComponentProps {
   Stepper: C.StepperProps;
   SlotPicker: C.SlotPickerProps;
 
-  Chip: C.ChipProps;
+  Chip: WebChipProps;
   Badge: C.BadgeProps;
   Card: C.CardProps;
   ListItem: C.ListItemProps;

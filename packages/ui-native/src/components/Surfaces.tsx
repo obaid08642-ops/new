@@ -72,51 +72,47 @@ function tones(dark: boolean): Record<Tone, TonePair> {
 
 /* ------------------------------------------------------------------- chips */
 
-export function Chip({
-  label,
-  tone = 'neutral',
-  variant = 'soft',
-  startIcon,
-  onDismissLabel,
-  selected = false,
-  disabled = false,
-  testID,
-  theme = 'light',
-}: ChipProps & { theme?: 'light' | 'dark' }) {
-  const t = tones(theme === 'dark')[tone];
-  const solid = variant === 'solid';
-  const fg = solid ? '#FFFFFF' : t.fg;
-  const bg = solid ? t.fg : selected ? '#0B1B2B' : t.bg;
+export interface NativeChipProps extends ChipProps {
+  onPress?: () => void;
+  theme?: 'light' | 'dark';
+}
 
+/**
+ * The filter chip of canvas/Search: 38 tall (44 with hitSlop), radius 19, 14pt;
+ * a surface pill with a subtle border, or ink with a bold label when selected.
+ * Same geometry as the web renderer.
+ */
+export function Chip({ label, count, startIcon, selected = false, loading = false, disabled = false, testID, onPress, theme = 'light' }: NativeChipProps) {
+  const c = tokens(theme).color;
+  const inert = disabled || loading;
+  const fg = selected ? c.action.selected.fg : c.text.primary;
   return (
-    <View
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected, disabled: inert }}
+      accessibilityLabel={count !== undefined ? `${label} ${count}` : label}
+      disabled={inert}
+      onPress={inert ? undefined : onPress}
+      hitSlop={{ top: 3, bottom: 3 }}
       testID={testID}
       style={{
+        height: 38,
+        paddingHorizontal: 14,
+        borderRadius: 19,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
-        minHeight: 44,
-        paddingHorizontal: 16,
-        borderRadius: 9999,
-        backgroundColor: bg,
-        borderWidth: variant === 'outline' ? 1 : 0,
-        borderColor: t.fg,
-        opacity: disabled ? 0.5 : 1,
+        gap: 6,
         alignSelf: 'flex-start',
+        backgroundColor: selected ? c.action.selected.bg : c.bg.surface,
+        borderWidth: selected ? 0 : 1,
+        borderColor: c.border.subtle,
+        opacity: disabled ? 0.5 : 1,
       }}
     >
-      {startIcon ? <Icon name={startIcon} size={16} theme={theme} tone="secondary" /> : null}
-      <Text style={{ fontSize: 12, fontWeight: '600', color: fg }}>{label}</Text>
-      {onDismissLabel ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={onDismissLabel}
-          style={{ width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}
-        >
-          <Icon name="close" size={14} theme={theme} />
-        </Pressable>
-      ) : null}
-    </View>
+      {startIcon ? <Icon name={startIcon} size={16} theme={theme} color={fg} /> : null}
+      <Text style={{ fontSize: 14, fontFamily: selected ? 'ReadexPro-700' : 'ReadexPro-500', color: fg }}>{label}</Text>
+      {count !== undefined ? <Text style={{ fontSize: 12, fontFamily: 'ReadexPro-400', color: fg, opacity: 0.7 }}>{count}</Text> : null}
+    </Pressable>
   );
 }
 

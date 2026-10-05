@@ -126,6 +126,10 @@
   --nabd-color-service-insurance-glyph: #2D4FD6;
   --nabd-color-service-points-bg: #FFF1DB;
   --nabd-color-service-points-glyph: #A65A00;
+  --nabd-color-control-segmentedTrack: #EAEAEF;
+  --nabd-color-control-switchOn: #1F9D6E;
+  --nabd-color-control-switchKnob: #FFFFFF;
+  --nabd-color-control-radioOff: #C7C7CC;
   --nabd-color-avatar-bg: #FFE3E5;
   --nabd-color-avatar-ring: #FF4B55;
   --nabd-color-glass-bg: rgba(255,255,255,0.78);
@@ -219,7 +223,9 @@
   --nabd-shadow-glass: 0 8px 32px rgba(11,27,43,0.10);
   --nabd-shadow-tabBar: 0 18px 40px rgba(11,27,43,0.14);
   --nabd-shadow-fab: 0 12px 26px rgba(212,42,56,0.38);
-  --nabd-shadow-button: 0 10px 22px rgba(212,42,56,0.28);
+  --nabd-shadow-button: 0 10px 22px rgba(212,42,56,0.28), inset 0 1px 0 rgba(255,255,255,0.25);
+  --nabd-shadow-segmented: 0 2px 6px rgba(11,27,43,0.10);
+  --nabd-shadow-knob: 0 2px 6px rgba(0,0,0,0.18);
   --nabd-motion-duration-enter: 200ms;
   --nabd-motion-duration-enterMax: 240ms;
   --nabd-motion-duration-press: 120ms;
@@ -351,6 +357,8 @@
   --nabd-color-service-insurance-glyph: #9DB0FF;
   --nabd-color-service-points-bg: rgba(255,181,71,0.15);
   --nabd-color-service-points-glyph: #FFC56E;
+  --nabd-color-control-segmentedTrack: #1A3148;
+  --nabd-color-control-radioOff: rgba(255,255,255,0.28);
   --nabd-color-avatar-bg: #1A3148;
   --nabd-color-glass-bg: rgba(18,38,58,0.72);
   --nabd-color-glass-bgStrong: rgba(18,38,58,0.90);
@@ -361,5 +369,7 @@
   --nabd-shadow-raised: 0 16px 40px rgba(0,0,0,0.35);
   --nabd-shadow-avatar: 0 8px 20px rgba(0,0,0,0.40);
   --nabd-shadow-glass: 0 8px 32px rgba(0,0,0,0.30);
+  --nabd-shadow-button: 0 10px 24px rgba(255,107,115,0.25);
+  --nabd-shadow-segmented: 0 2px 6px rgba(11,27,43,0.12);
   --nabd-a11y-focusRing-color: #D7FF00;
 }

@@ -19,11 +19,17 @@ import type {
   NativeInputProps,
   NativeSelectProps,
 } from './components/Inputs';
+import type { NativeRadioProps } from './components/Controls';
+import type { NativeChipProps } from './components/Surfaces';
 import type * as C from '../../ui/components/contract';
 
 export interface ComponentProps {
   Button: NativeButtonProps;
   IconButton: NativeIconButtonProps;
+  Segmented: C.SegmentedProps;
+  Toggle: C.ToggleProps;
+  Radio: NativeRadioProps;
+  StatusChip: C.StatusChipProps;
 
   Input: NativeInputProps;
   Select: NativeSelectProps;
@@ -32,7 +38,7 @@ export interface ComponentProps {
   Stepper: C.StepperProps;
   SlotPicker: C.SlotPickerProps;
 
-  Chip: C.ChipProps;
+  Chip: NativeChipProps;
   Badge: C.BadgeProps;
   Card: C.CardProps;
   ListItem: C.ListItemProps;

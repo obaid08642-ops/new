@@ -489,6 +489,18 @@ const colors = {
     "dark": "#FFC56E",
     "DEFAULT": "#A65A00"
   },
+  "control-segmentedTrack": {
+    "light": "#EAEAEF",
+    "dark": "#1A3148",
+    "DEFAULT": "#EAEAEF"
+  },
+  "control-switchOn": "#1F9D6E",
+  "control-switchKnob": "#FFFFFF",
+  "control-radioOff": {
+    "light": "#C7C7CC",
+    "dark": "rgba(255,255,255,0.28)",
+    "DEFAULT": "#C7C7CC"
+  },
   "avatar-bg": {
     "light": "#FFE3E5",
     "dark": "#1A3148",
@@ -567,7 +579,9 @@ const boxShadow = {
   "glass": "0 8px 32px rgba(11,27,43,0.10)",
   "tabBar": "0 18px 40px rgba(11,27,43,0.14)",
   "fab": "0 12px 26px rgba(212,42,56,0.38)",
-  "button": "0 10px 22px rgba(212,42,56,0.28)"
+  "button": "0 10px 22px rgba(212,42,56,0.28), inset 0 1px 0 rgba(255,255,255,0.25)",
+  "segmented": "0 2px 6px rgba(11,27,43,0.10)",
+  "knob": "0 2px 6px rgba(0,0,0,0.18)"
 };
 
 const fontFamily = {

@@ -146,7 +146,7 @@ const LINE_COMPONENTS = {
   user: 'User', users: 'UsersThree', home: 'House', heart: 'Heart', clock: 'Clock',
   pin: 'MapPin', phone: 'Phone', card: 'CreditCard', star: 'Star', check: 'Check',
   'check-circle': 'CheckCircle', close: 'X', plus: 'Plus', minus: 'Minus',
-  filter: 'Funnel', settings: 'Gear', list: 'List', download: 'DownloadSimple',
+  filter: 'Funnel', sliders: 'SlidersHorizontal', settings: 'Gear', list: 'List', download: 'DownloadSimple',
   trash: 'Trash', warning: 'Warning', signout: 'SignOut',
   'caret-down': 'CaretDown', 'caret-up': 'CaretUp', 'caret-left': 'CaretLeft', 'caret-right': 'CaretRight',
 };
@@ -356,20 +356,34 @@ function componentsGallery() {
   const F = fixtures;
   const out = [];
 
-  out.push('<h3>Controls</h3><div class="row">');
-  for (const v of ['primary', 'secondary', 'ghost', 'danger', 'lime']) {
+  out.push('<h3>Buttons (handoff PrimaryButton, OutlineButton)</h3><div class="row">');
+  for (const size of ['lg', 'md', 'sm']) {
+    out.push(specimen(`Button primary ${size}`, render(h(C.Button, { label: 'Continue', variant: 'primary', size }))));
+    out.push(specimen(`Button outline ${size}`, render(h(C.Button, { label: 'Details', variant: 'outline', size }))));
+  }
+  for (const v of ['secondary', 'ghost', 'danger', 'lime']) {
     out.push(specimen(`Button ${v}`, render(h(C.Button, { label: v, variant: v, size: 'md' }))));
   }
-  out.push(specimen('Button sm', render(h(C.Button, { label: 'small', size: 'sm' }))));
-  out.push(specimen('Button lg', render(h(C.Button, { label: 'large', size: 'lg' }))));
-  out.push(specimen('Button loading', render(h(C.Button, { label: 'Saving', loading: true }))));
-  out.push(specimen('Button disabled', render(h(C.Button, { label: 'Disabled', disabled: true }))));
+  out.push(specimen('Button loading', render(h(C.Button, { label: 'Saving', loading: true, size: 'lg' }))));
+  out.push(specimen('Button disabled', render(h(C.Button, { label: 'Disabled', disabled: true, size: 'lg' }))));
+  out.push(specimen('Button full width', render(h(C.Button, { label: 'Request pharmacy offers', size: 'lg', fullWidth: true }))));
   out.push('</div>');
 
-  out.push('<h3>Icon buttons</h3><div class="row">');
-  for (const v of ['plain', 'outlined', 'filled', 'tinted']) {
-    out.push(specimen(`IconButton ${v}`, render(h(C.IconButton, { name: 'close', label: `Close (${v})`, variant: v, onClick: noop }))));
+  out.push('<h3>Icon buttons (44, filter square 52)</h3><div class="row">');
+  for (const v of ['outlined', 'plain', 'tinted', 'filled']) {
+    out.push(specimen(`IconButton ${v}`, render(h(C.IconButton, { name: 'caret-right', label: `Back (${v})`, variant: v, onClick: noop }))));
   }
+  out.push(specimen('IconButton filled square lg', render(h(C.IconButton, { name: 'filter', label: 'Filter', variant: 'filled', shape: 'square', size: 'lg', onClick: noop }))));
+  out.push(specimen('IconButton glass', `<div class="spec-coral">${render(h(C.IconButton, { name: 'heart', label: 'Favourite', variant: 'glass', onClick: noop }))}</div>`));
+  out.push('</div>');
+
+  out.push('<h3>Selection (Segmented, Toggle, Radio)</h3><div class="row">');
+  const SEG = [{ value: 'auto', label: 'Auto' }, { value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }];
+  out.push(specimen('Segmented md', render(h(C.Segmented, { label: 'Theme', options: SEG, value: 'light', onChange: noop }))));
+  out.push(specimen('Segmented sm', render(h(C.Segmented, { label: 'Orders', size: 'sm', options: [{ value: 'now', label: 'Current' }, { value: 'past', label: 'Past' }], value: 'now', onChange: noop }))));
+  out.push(specimen('Toggle on', render(h(C.Toggle, { label: 'Order updates', value: true, onChange: noop }))));
+  out.push(specimen('Toggle off', render(h(C.Toggle, { label: 'Offers', value: false, onChange: noop }))));
+  out.push(specimen('Radio rows', `<div class="spec-list" role="radiogroup" aria-label="Language">${render(h(C.Radio, { label: 'العربية', meta: 'Arabic', selected: true, divider: true, onChange: noop }))}${render(h(C.Radio, { label: 'English', meta: 'English', selected: false, onChange: noop }))}</div>`));
   out.push('</div>');
 
   out.push('<h3>Inputs</h3><div class="row">');
@@ -378,16 +392,19 @@ function componentsGallery() {
   out.push(specimen('TextArea', render(h(C.Input, { label: 'Notes', multiline: true, rows: 3, onChange: noop }))));
   out.push(specimen('Select', render(h(C.Select, { label: 'City', options: F.CITIES, placeholder: 'Choose', onChange: noop }))));
   out.push(specimen('Otp', render(h(C.Otp, { label: 'Verification code', length: 6, onChange: noop, onComplete: noop }))));
-  out.push(specimen('Search', render(h(C.Search, { placeholder: 'Search medicines', onChange: noop, onFilterPress: noop, filterLabel: 'Filter' }))));
-  out.push(specimen('Stepper', render(h(C.Stepper, { value: 2, onChange: noop, label: 'Quantity', min: 1, max: 9 }))));
+  out.push(specimen('Search inline + filter', render(h(C.Search, { placeholder: 'Search doctors or specialties', onChange: noop, onFilterPress: noop, filterLabel: 'Filter' }))));
+  out.push(specimen('Search inline + scan', render(h(C.Search, { placeholder: 'Search by name or ingredient', onChange: noop, onScanPress: noop, scanLabel: 'Scan barcode' }))));
+  out.push(specimen('Search page (focused)', render(h(C.Search, { variant: 'page', value: 'Panadol', onChange: noop, onClear: noop, clearLabel: 'Clear' }))));
+  out.push(specimen('Stepper', `<div class="spec-list" style="padding:12px">${render(h(C.Stepper, { value: 2, onChange: noop, label: 'Quantity', min: 1, max: 9, decrementLabel: 'Decrease', incrementLabel: 'Increase' }))}</div>`));
   out.push(specimen('SlotPicker', render(h(C.SlotPicker, { dayLabel: 'Sunday 12 Oct', slots: F.SLOTS, value: '1000', onChange: noop }))));
   out.push('</div>');
 
   out.push('<h3>Chips &amp; badges</h3><div class="row">');
-  for (const t of ['neutral', 'primary', 'success', 'warning', 'danger', 'info']) {
-    out.push(specimen(`Chip ${t}`, render(h(C.Chip, { label: t, tone: t }))));
+  out.push(specimen('Chip selected', render(h(C.Chip, { label: 'Medicines', count: 24, selected: true, onClick: noop }))));
+  out.push(specimen('Chip', render(h(C.Chip, { label: 'Doctors', count: 6, onClick: noop }))));
+  for (const [tone, label] of [['coral', 'On the way'], ['amber', 'Awaiting sample'], ['mint', 'Delivered'], ['blue', 'Confirmed'], ['ink', 'Cancelled']]) {
+    out.push(specimen(`StatusChip ${tone}`, render(h(C.StatusChip, { label, tone }))));
   }
-  out.push(specimen('Chip dismiss', render(h(C.Chip, { label: 'Selected', variant: 'solid', tone: 'primary', onDismissLabel: 'Remove Selected' }))));
   out.push(specimen('Badge 7', render(h(C.Badge, { content: 7 }))));
   out.push(specimen('Badge 142 (capped)', render(h(C.Badge, { content: 142 }))));
   out.push('</div>');
