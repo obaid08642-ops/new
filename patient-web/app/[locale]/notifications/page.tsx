@@ -1,17 +1,16 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { extractPatientNotifications, type PatientNotification } from "@/lib/api/notifications";
+import { extractPatientNotifications, webRouteForNotification, type PatientNotification } from "@/lib/api/notifications";
 import { getPatientNotifications } from "@/lib/api/notifications-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { Card, SectionHeader } from "@/components-next/ui-generated/components/Surfaces";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { SERVICE_ICONS, type FillIconName, type ServiceName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { CoreShell } from "@/components-next/core/core-shell";
 import core from "@/components-next/core/core.module.css";
 import { RetryErrorState } from "@/components-next/core/core-states";
+import { NotificationsList, type NotificationGroup } from "./notifications-list";
 import styles from "./notifications.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -76,6 +75,25 @@ export default async function NotificationsPage({ params }: Props) {
     { key: "today", title: t("today"), items: notifications.filter(isToday) },
     { key: "earlier", title: t("earlier"), items: notifications.filter((n) => !isToday(n)) },
   ].filter((g) => g.items.length > 0);
+  // The client list gets plain data: the icon, the time text and the web page each notification opens (resolved here, so the
+  // backend's app route is never sent to the browser).
+  const rows: NotificationGroup[] = groups.map((group) => ({
+    key: group.key,
+    title: group.title,
+    items: group.items.map((n) => {
+      const kind = iconFor(n);
+      return {
+        id: n.id,
+        title: n.title ?? null,
+        body: n.body ?? null,
+        when: n.createdAt ? whenLabel(n.createdAt, locale, now) : null,
+        icon: kind.icon,
+        tone: kind.tone,
+        unread: n.read === false,
+        href: webRouteForNotification(n.route, locale),
+      };
+    }),
+  }));
 
   return <CoreShell locale={locale} title={t("title")} backHref={back} width="narrow">
     <div className={styles.head}>
@@ -84,28 +102,6 @@ export default async function NotificationsPage({ params }: Props) {
     </div>
     {notifications.length === 0 ? (
       <EmptyState icon="bell" tone={toneOf("nursing")} title={t("emptyTitle")} body={t("empty")} />
-    ) : groups.map((group) => (
-      <section key={group.key} className={styles.group} aria-label={group.title}>
-        <SectionHeader title={group.title} />
-        <Card padding="none">
-          <ul className={styles.list}>
-            {group.items.map((n) => {
-              const kind = iconFor(n);
-              const unread = n.read === false;
-              const when = n.createdAt ? whenLabel(n.createdAt, locale, now) : null;
-              return <li key={n.id} className={`${styles.row} ${unread ? styles.unread : ""}`}>
-                <FIcon icon={kind.icon} tone={kind.tone} size={42} />
-                <div className={styles.body}>
-                  <span className={`${styles.title} ${unread ? styles.titleUnread : ""}`}>{n.title || t("untitled")}</span>
-                  {n.body ? <span className={styles.copy}>{n.body}</span> : null}
-                  {when ? <time className={styles.time} dateTime={when.iso}>{when.text}</time> : null}
-                </div>
-                {unread ? <span className={styles.dot} role="img" aria-label={t("unread")} /> : null}
-              </li>;
-            })}
-          </ul>
-        </Card>
-      </section>
-    ))}
+    ) : <NotificationsList groups={rows} />}
   </CoreShell>;
 }
