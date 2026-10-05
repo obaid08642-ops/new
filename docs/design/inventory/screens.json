@@ -1,5 +1,5 @@
 {
- "commit": "7f957f64",
+ "commit": "a54e8478",
  "routes": [
   {
    "app": "patient-app",
@@ -7957,16 +7957,6 @@
      "handler": "patient-web/app/api/patient/pharmacy/orders/route.ts"
     },
     {
-     "method": "POST",
-     "path": "/api/patient/pharmacy/orders/:param/submit",
-     "target": "web-proxy",
-     "query": "",
-     "line": 18,
-     "file": "patient-web/app/[locale]/cart/checkout/pharmacy-broadcast-submit.tsx",
-     "status": "PROXY_BLOCKED?",
-     "note": "blocked for every sample param value (UUID, slug, literals of the file); no backend route either"
-    },
-    {
      "method": "GET",
      "path": "/api/patient/prescriptions/active",
      "target": "web-proxy",
@@ -9083,8 +9073,7 @@
      "line": 79,
      "file": "patient-web/components-next/diagnostics-insurance-approval-client.tsx",
      "backend": "backend/src/modules/labs/labs.controller.ts:74",
-     "status": "PROXY_BLOCKED?",
-     "note": "blocked for every sample param value (UUID, slug, literals of the file)"
+     "status": "OK"
     }
    ],
    "files": 6,
