@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { View, StyleSheet, ScrollView, StatusBar, Switch } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -10,9 +10,19 @@ import { AppText, Card, IconButton } from "../../src/components/ui";
 import type { IconName } from "../../src/components/Icon";
 import { apiFetch } from "../../src/utils/api";
 import { ScreenState } from "../../src/components/ScreenStates";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  DEFAULT_SWITCHES,
+  DEVICE_SETTINGS_STORAGE_KEY,
+  parseDeviceSwitches,
+  persistToggle,
+  serverToSwitches,
+  type SwitchKey,
+  type SwitchState,
+} from "../../src/utils/notification-settings";
 
 interface NotificationSetting {
-  key: string;
+  key: SwitchKey;
   label: string;
   description: string;
   icon: IconName;
@@ -84,42 +94,51 @@ export default function NotificationsSettingsScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
 
-  const [settings, setSettings] = useState<Record<string, boolean>>({
-    general: true,
-    appointments: true,
-    orders: true,
-    offers: true,
-    medications: true,
-    doctorMessages: true,
-    emergency: true,
-    sound: true,
-    vibration: true,
-  });
+  // Q38: the server stores {channels, categories}; the switches are read and
+  // written through the owner-decided mapping (src/utils/notification-settings).
+  const [settings, setSettings] = useState<SwitchState>(DEFAULT_SWITCHES);
+  const settingsRef = useRef<SwitchState>(DEFAULT_SWITCHES);
+  const [saving, setSaving] = useState<SwitchKey | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string|null>(null);
 
+  const applySettings = (next: SwitchState) => {
+    settingsRef.current = next;
+    setSettings(next);
+  };
+
   const loadSettings = () => {
     setLoading(true);
     setError(null);
-    apiFetch<Record<string, boolean>>('/users/me/notification-settings')
-      .then(res => { if (res) setSettings(prev => ({ ...prev, ...res })); })
+    Promise.all([
+      apiFetch<unknown>('/users/me/notification-settings'),
+      AsyncStorage.getItem(DEVICE_SETTINGS_STORAGE_KEY).catch(() => null),
+    ])
+      .then(([res, device]) => {
+        applySettings({ ...DEFAULT_SWITCHES, ...serverToSwitches(res), ...parseDeviceSwitches(device), emergency: true });
+      })
       .catch(() => setError('تعذر تحميل إعدادات الإشعارات'))
       .finally(() => setLoading(false));
   };
 
   useEffect(() => { loadSettings(); }, []);
 
-  const toggleSetting = (key: string) => {
-    const next = (prev: Record<string, boolean>) => ({ ...prev, [key]: !prev[key] });
-    setSettings(prev => {
-      const updated = next(prev);
-      apiFetch('/users/me/notification-settings', {
-        method: 'PATCH',
-        body: JSON.stringify({ [key]: updated[key] }),
-      }).catch(() => {});
-      return updated;
+  const toggleSetting = async (key: SwitchKey) => {
+    if (saving) return;
+    const prev = settingsRef.current;
+    setSaveError(null);
+    setSaving(key);
+    // Show the flip immediately; persistToggle returns the previous state on failure.
+    setSettings({ ...prev, [key]: !prev[key] });
+    const result = await persistToggle(prev, key, {
+      sendPatch: (body) => apiFetch('/users/me/notification-settings', { method: 'PATCH', body: JSON.stringify(body) }),
+      saveDevice: (value) => AsyncStorage.setItem(DEVICE_SETTINGS_STORAGE_KEY, JSON.stringify(value)),
     });
+    applySettings(result.settings);
+    if (result.failed) setSaveError('تعذر حفظ الإعداد. أعدنا المفتاح إلى حالته السابقة.');
+    setSaving(null);
   };
 
   const renderToggleRow = (
@@ -145,12 +164,12 @@ export default function NotificationsSettingsScreen() {
           value={settings[item.key]}
           onValueChange={() => {
             if (!item.locked) {
-              toggleSetting(item.key);
+              void toggleSetting(item.key);
             }
           }}
           trackColor={{ false: colors.border, true: colors.primary + "50" }}
           thumbColor={settings[item.key] ? colors.primary : colors.textTertiary}
-          disabled={item.locked}
+          disabled={item.locked || saving !== null}
         />
         <View style={styles.toggleInfo}>
           <View style={styles.toggleLabelRow}>
@@ -230,6 +249,20 @@ export default function NotificationsSettingsScreen() {
             </AppText>
           </View>
         </Animated.View>
+
+        {saveError ? (
+          <View
+            accessibilityRole="alert"
+            style={[styles.infoBanner, { backgroundColor: colors.errorSurface }]}
+          >
+            <View style={styles.infoBannerRow}>
+              <Icon name="warning" size={18} color={colors.error} />
+              <AppText variant="bodySM" color={colors.error} style={{ flex: 1 }}>
+                {saveError}
+              </AppText>
+            </View>
+          </View>
+        ) : null}
 
         <Animated.View entering={FadeInDown.delay(150).duration(500)}>
           <AppText variant="h5" style={styles.sectionLabel}>
