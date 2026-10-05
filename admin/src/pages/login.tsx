@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { startAuthentication } from '@simplewebauthn/browser';
 import { apiErrorMessage } from '@/lib/admin-client';
+import { STAFF_ROLES } from '@/lib/admin-session';
 
 type LoginStep = 'credentials' | 'otp' | 'passkey' | 'reset-request' | 'reset-confirm' | 'recovery-start' | 'recovery-redeem';
 
@@ -37,7 +38,8 @@ export default function AdminLogin() {
 
   function completeLogin(payload: any) {
     const role = payload?.user?.role;
-    if (role !== 'admin' && role !== 'super_admin') {
+    // X4: every staff role (admin, super_admin, finance, support_agent) signs in here.
+    if (typeof role !== 'string' || !STAFF_ROLES.has(role)) {
       setError('بيانات الدخول غير صحيحة.');
       return;
     }
@@ -141,7 +143,7 @@ export default function AdminLogin() {
       setRecoveryCode('');
       // A recovery session lands on the security page to enroll a new passkey.
       const role = payload?.user?.role;
-      if (role !== 'admin' && role !== 'super_admin') { setError('بيانات الدخول غير صحيحة.'); return; }
+      if (typeof role !== 'string' || !STAFF_ROLES.has(role)) { setError('بيانات الدخول غير صحيحة.'); return; }
       router.replace('/admin/security');
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'تعذر إتمام الاسترجاع.');

@@ -14,6 +14,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { User, UserDocument } from '../../schemas/user.schema';
 import { PatientProfile, PatientProfileDocument } from '../../schemas/patient-profile.schema';
 import { UserRole } from '../../common/enums';
+import { isPlatformStaffRole } from '../../common/auth.guard';
 import { EVENTS } from '../../common/events';
 import { UserRepository } from "./repositories/user.repository";
 import { PatientProfileRepository } from "./repositories/patientprofile.repository";
@@ -575,8 +576,8 @@ export class AuthService {
     }
     if (u.active === false) throw new UnauthorizedException('Account disabled');
 
-    // Check 2FA requirement
-    if (u.role === UserRole.SUPER_ADMIN || u.role === UserRole.ADMIN) {
+    // Check 2FA requirement (X4: every platform staff role, not only admin)
+    if (isPlatformStaffRole(u.role)) {
       // Trusted device fast-path: a device that already completed full 2FA
       // (and wasn't revoked) signs in with password only.
       if (this.deviceTrust && ctx?.deviceToken) {
@@ -595,39 +596,31 @@ export class AuthService {
           };
         }
       }
-      // C1: Passkey is MANDATORY for every admin/super_admin account.
+      // C1/X4: Passkey is MANDATORY for every platform staff account
+      // (admin, super_admin, finance, support_agent).
       // Password is already verified above — the ONLY next step is the WebAuthn
       // assertion. No session token, no OTP fallback for admin roles.
-      if (u.role === UserRole.SUPER_ADMIN || u.role === UserRole.ADMIN) {
-        if (!this.passkeys) throw new UnauthorizedException('passkey_not_available');
-        const keyCount = await this.passkeys.countCredentials(u.id);
-        if (keyCount === 0) {
-          // Bootstrap: no passkey enrolled yet → email OTP so the owner can
-          // sign in once and enroll the first device from the security page.
-          // After the first key exists, OTP is never offered again.
-          const contact = this.otpContact(u, identifier);
-          await this.sendOtp(contact);
-          return {
-            requires_2fa: true,
-            identifier: contact,
-            message: 'OTP sent to your registered contact.',
-            passkey_bootstrap: true,
-          };
-        }
-        const options = await this.passkeys.startLogin(u);
+      if (!this.passkeys) throw new UnauthorizedException('passkey_not_available');
+      const keyCount = await this.passkeys.countCredentials(u.id);
+      if (keyCount === 0) {
+        // Bootstrap: no passkey enrolled yet → email OTP so the owner can
+        // sign in once and enroll the first device from the security page.
+        // After the first key exists, OTP is never offered again.
+        const contact = this.otpContact(u, identifier);
+        await this.sendOtp(contact);
         return {
-          requires_passkey: true,
-          identifier: u.email,
-          passkey_options: options,
-          message: 'Passkey verification required.',
+          requires_2fa: true,
+          identifier: contact,
+          message: 'OTP sent to your registered contact.',
+          passkey_bootstrap: true,
         };
       }
-      const contact = this.otpContact(u, identifier);
-      await this.sendOtp(contact);
+      const options = await this.passkeys.startLogin(u);
       return {
-        requires_2fa: true,
-        identifier: contact,
-        message: 'OTP sent to your registered contact.'
+        requires_passkey: true,
+        identifier: u.email,
+        passkey_options: options,
+        message: 'Passkey verification required.',
       };
     }
 
@@ -649,7 +642,7 @@ export class AuthService {
     // C9/X4: the email-code path is the bootstrap for an admin with no passkey.
     // Once a passkey exists, an admin signs in with it (or break-glass recovery);
     // an emailed code alone never opens an admin session.
-    if ((u.role === UserRole.SUPER_ADMIN || u.role === UserRole.ADMIN) && this.passkeys
+    if (isPlatformStaffRole(u.role) && this.passkeys
         && (await this.passkeys.countCredentials(u.id)) > 0) {
       throw new ForbiddenException('passkey_required');
     }
@@ -674,7 +667,7 @@ export class AuthService {
 
     // Admin accounts: trust this device (default on — the owner asked for his
     // iPhone + Mac to be approved) and alert by email about the new device.
-    if (this.deviceTrust && (u.role === UserRole.SUPER_ADMIN || u.role === UserRole.ADMIN)) {
+    if (this.deviceTrust && isPlatformStaffRole(u.role)) {
       const { token, device } = await this.deviceTrust.issue(u.id, ctx?.ua, ctx?.ip);
       result.device_token = token;
       result.device = { id: device.id, name: device.name };
@@ -693,7 +686,7 @@ export class AuthService {
     AuthService.assertString(identifier, 'identifier');
     if (!this.passkeys) throw new UnauthorizedException('passkey_not_available');
     const u = await this.userModel.findOne({ email: identifier.trim().toLowerCase() });
-    if (!u || (u.role !== UserRole.SUPER_ADMIN && u.role !== UserRole.ADMIN)) {
+    if (!u || !isPlatformStaffRole(u.role)) {
       // Never reveal passkey state for other accounts
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -947,7 +940,7 @@ export class AuthService {
       avatar_url: u.avatar_url,
       is_guest: u.is_guest,
     };
-    if (u.role === 'admin' || u.role === 'super_admin') {
+    if (isPlatformStaffRole(u.role)) {
       base.device_lock_enabled = (u as any).device_lock_enabled === true;
     }
     return base;

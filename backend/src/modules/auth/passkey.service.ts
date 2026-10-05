@@ -16,6 +16,7 @@ import { PasskeyCredential } from './schemas/passkey-credential.schema';
 import { User } from '../../schemas/user.schema';
 import { RedisService } from '../redis/redis.service';
 import { passkeyPublicKeyBytes } from '../../common/passkey-bytes';
+import { isPlatformStaffRole } from '../../common/auth.guard';
 
 const ENROLL_CHAL_TTL = 300; // 5 minutes
 const LOGIN_CHAL_TTL = 300;
@@ -55,7 +56,8 @@ export class PasskeyService {
   }
 
   /**
-   * Enrollment gate: admin/super_admin role. The JWT payload does NOT carry the
+   * Enrollment gate: a platform staff role (admin, super_admin, finance,
+   * support_agent — X4: every staff account must be able to hold a passkey). The JWT payload does NOT carry the
    * email (only id/role) — always resolve the fresh user record from the
    * database so the check cannot be bypassed with a stale token.
    *
@@ -65,7 +67,7 @@ export class PasskeyService {
   async assertEnrollmentAllowed(user: any, requireExisting = false) {
     const dbUser: any = await this.userModel.findOne({ id: user?.id }).lean();
     const role = dbUser?.role || user?.role;
-    if (role !== 'admin' && role !== 'super_admin') throw new ForbiddenException('admin_only');
+    if (!isPlatformStaffRole(role)) throw new ForbiddenException('staff_only');
     if (requireExisting) {
       const count = await this.countCredentials(user.id);
       if (count === 0) throw new ForbiddenException('existing_passkey_required');
@@ -78,7 +80,7 @@ export class PasskeyService {
     try {
       const dbUser: any = await this.userModel.findOne({ id: user?.id }).lean();
       const role = dbUser?.role || user?.role;
-      if (role !== 'admin' && role !== 'super_admin') return { eligible: false };
+      if (!isPlatformStaffRole(role)) return { eligible: false };
       return { eligible: true };
     } catch {
       return { eligible: false };
