@@ -34,6 +34,9 @@ import { SystemConfigController } from '../modules/admin/governance/system-confi
 import { BansController } from '../modules/bans/bans.controller';
 import { AdminFulfillmentPolicyController } from '../modules/pharmacy/pharmacy.controllers';
 import { AdminInsuranceClaimsController } from '../modules/insurance/insurance.module';
+import { NotificationsController } from '../modules/notifications/notifications.controller';
+import { AdminCouponsController } from '../modules/admin/enterprise/admin-coupons.controller';
+import { AdminCouponsController as CompatCouponsController, AdminPromotionsController, AdminBroadcastController } from '../modules/compat/admin-spa.module';
 
 const ROUTES: Array<[string, any, string]> = [
   ['PUT system/permissions', AdminSystemController, 'putPermissions'],
@@ -105,7 +108,30 @@ const ROUTES: Array<[string, any, string]> = [
   ['POST bans', BansController, 'ban'],
   ['DELETE bans/:value', BansController, 'unban'],
   ['PUT admin/pharmacy/fulfillment-policies/cod', AdminFulfillmentPolicyController, 'setCod'],
+  // Fourth independent check: every path that sends to many users (a scheduled
+  // campaign is sent by the cron, so creating it is the send), and discounts.
+  ['POST admin/notification-center/campaigns', AdminNotificationCenterController, 'createCampaign'],
+  ['POST admin/notification-center/retarget/run', AdminNotificationCenterController, 'retarget'],
+  ['POST admin/notification-center/recurring', AdminNotificationCenterController, 'upsertRecurring'],
+  ['PATCH admin/notification-center/recurring/:id', AdminNotificationCenterController, 'toggleRecurring'],
+  ['POST notifications/admin/send', NotificationsController, 'send'],
+  ['POST notifications/admin/schedule', NotificationsController, 'schedule'],
+  ['POST notifications/auto-rules (compat)', AdminNotificationsController, 'createAutoRule'],
+  ['PUT notifications/auto-rules/:id (compat)', AdminNotificationsController, 'updateAutoRule'],
+  ['PUT broadcast/config (compat)', AdminBroadcastController, 'putConfig'],
+  ['POST admin/coupons', AdminCouponsController, 'create'],
+  ['PATCH admin/coupons/:id', AdminCouponsController, 'update'],
+  ['DELETE admin/coupons/:id', AdminCouponsController, 'remove'],
+  ['POST coupons (compat)', CompatCouponsController, 'create'],
+  ['PATCH coupons/:code (compat)', CompatCouponsController, 'update'],
+  ['POST promotions (compat)', AdminPromotionsController, 'create'],
+  ['PUT promotions/:id (compat)', AdminPromotionsController, 'update'],
+  ['POST promotions/:id/toggle (compat)', AdminPromotionsController, 'toggle'],
 ];
+// Not listed: campaign cancel and notification-rule delete only stop sends;
+// coupon redeem only records a redemption (checkout bookkeeping);
+// catalog edits (nursing services included) follow the catalog permissions
+// like every other catalog.
 // Not listed on purpose: POST admin/impersonation/:id/revoke ends a support
 // session; making the stop button wait for a passkey would only delay
 // cutting off a misused session.

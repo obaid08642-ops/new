@@ -426,6 +426,8 @@ export class AdminNotificationCenterController {
   broadcast(@CurrentUser() admin: any, @Body() body: BroadcastDto) { return this.svc.broadcast(String(admin?.id), body); }
 
   /** Create campaign (draft or scheduled when scheduled_at provided) */
+  @StepUp()
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post('campaigns')
   createCampaign(@CurrentUser() admin: any, @Body() body: CreateCampaignDto) { return this.svc.createCampaign(String(admin?.id), body); }
 
@@ -450,6 +452,8 @@ export class AdminNotificationCenterController {
   cancelCampaign(@Param('id') id: string) { return this.svc.cancelCampaign(id); }
 
   /** Manual retargeting run (also runs automatically every 6h) */
+  @StepUp()
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post('retarget/run')
   retarget() { return this.svc.retargetIncompleteOrders(); }
 
@@ -458,12 +462,16 @@ export class AdminNotificationCenterController {
   listRecurring() { return this.recurring.listRules(); }
 
   /** Create or update a recurring rule */
+  @StepUp()
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post('recurring')
   upsertRecurring(@CurrentUser() admin: any, @Body() body: RecurringRuleDto) {
     return this.recurring.upsertRule(String(admin?.id), body);
   }
 
   /** Enable or disable a recurring rule */
+  @StepUp()
+  @RequirePermissions(Permission.CMS_EDIT)
   @Patch('recurring/:id')
   toggleRecurring(@Param('id') id: string, @Body() body: RecurringToggleDto) {
     return this.recurring.toggleRule(id, body.enabled === true);

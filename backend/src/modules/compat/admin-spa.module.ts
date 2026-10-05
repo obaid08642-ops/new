@@ -133,7 +133,7 @@ class AdminDashboardController extends AdminController {
 @Controller('broadcast')
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
-class AdminBroadcastController extends AdminController {
+export class AdminBroadcastController extends AdminController {
   @Get('live')
   async live() {
     const rows = await this.conn.collection('admin_broadcasts')
@@ -148,6 +148,8 @@ class AdminBroadcastController extends AdminController {
     return doc?.value || {};
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.CMS_EDIT)
   @Put('config')
   async putConfig(@CurrentUser() user: any, @Body(new FreeformConfigObjectPipe()) body: Record<string, unknown>) {
     await this.conn.collection('admin_config').updateOne(
@@ -592,13 +594,15 @@ class AdminRefundsController extends AdminController {
 @Controller('coupons')
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
-class AdminCouponsController extends AdminController {
+export class AdminCouponsController extends AdminController {
   @Get()
   async list() {
     const rows = await this.conn.collection('coupons').find({} as any).sort({ createdAt: -1 }).limit(300).toArray();
     return rows.map((r: any) => ({ ...r, id: r.id || String(r._id) }));
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Post()
   async create(@CurrentUser() user: any, @Body() body: CreateDto4) {
     if (!body?.code) throw new BadRequestException('رمز القسيمة مطلوب');
@@ -622,6 +626,8 @@ class AdminCouponsController extends AdminController {
     return doc;
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Patch(':code')
   async update(@CurrentUser() user: any, @Param('code') code: string, @Body() body: CouponUpdateDto) {
     const allowed = ['discount_percent', 'discount_amount', 'max_uses', 'valid_from', 'valid_until',
@@ -840,7 +846,7 @@ class DeliveryCheckController extends AdminController {
 @Controller('promotions')
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
-class AdminPromotionsController extends AdminController {
+export class AdminPromotionsController extends AdminController {
   @Get()
   async list(@Query('status') status?: string) {
     const filter: any = status ? { status } : {};
@@ -855,6 +861,8 @@ class AdminPromotionsController extends AdminController {
     return { ...doc, id: doc.id || String(doc._id) };
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Post()
   async create(@CurrentUser() user: any, @Body() body: CreateDto5) {
     if (!body?.title_ar) throw new BadRequestException('عنوان العرض مطلوب');
@@ -871,6 +879,8 @@ class AdminPromotionsController extends AdminController {
     return doc;
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Put(':id')
   async update(@Param('id') id: string, @CurrentUser() user: any, @Body() body: PromotionUpdateDto) {
     const allowed = ['title_ar', 'title_en', 'original_price', 'discounted_price', 'start_date', 'end_date', 'image_url', 'target_parameters', 'status'];
@@ -881,6 +891,8 @@ class AdminPromotionsController extends AdminController {
     return { ok: true };
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Post(':id/toggle')
   async toggle(@Param('id') id: string) {
     const doc: any = await this.conn.collection('promotioncampaigns').findOne(byId(id) as any);
@@ -972,6 +984,8 @@ export class AdminNotificationsController extends AdminController {
     return rows.map((r: any) => ({ ...r, id: r.id || String(r._id) }));
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post('auto-rules')
   async createAutoRule(@CurrentUser() user: any, @Body() body: CreateAutoRuleDto) {
     if (!body?.name || !body?.trigger) throw new BadRequestException('الاسم والمشغّل مطلوبان');
@@ -984,6 +998,8 @@ export class AdminNotificationsController extends AdminController {
     return doc;
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.CMS_EDIT)
   @Put('auto-rules/:id')
   async updateAutoRule(@Param('id') id: string, @Body() body: AutoRuleUpdateDto) {
     const allowed = ['name', 'trigger', 'template', 'channels', 'active'];
