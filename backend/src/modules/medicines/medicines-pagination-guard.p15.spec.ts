@@ -115,3 +115,57 @@ describe('15.6 medicines controller coerces garbage ?page= ?limit=', () => {
     expect(svc.paginate.mock.calls[0][3]).toBe(30);
   });
 });
+
+describe('F3 every remaining medicines controller path coerces ?page=abc / ?limit=abc', () => {
+  const ctrlWithAll = () => {
+    const svc: any = {
+      trendingSearches: jest.fn(async () => []),
+      recentSearches: jest.fn(async () => []),
+      listShortageReports: jest.fn(async () => ({})),
+      listImageSuggestions: jest.fn(async () => ({})),
+      listChangeRequests: jest.fn(async () => ({})),
+      adminListCatalog: jest.fn(async () => ({})),
+      getPriceHistory: jest.fn(async () => ({})),
+      recentlyViewed: jest.fn(async () => []),
+    };
+    return { ctrl: new MedicinesController(svc), svc };
+  };
+  const finite = (v: any) => expect(Number.isFinite(v)).toBe(true);
+
+  it('trending/recent ?limit=abc → finite default 10', async () => {
+    const { ctrl, svc } = ctrlWithAll();
+    await (ctrl as any).trending('abc');
+    expect(svc.trendingSearches.mock.calls[0][0]).toBe(10);
+    await (ctrl as any).recent({ id: 'u-1' }, 'abc');
+    expect(svc.recentSearches.mock.calls[0][1]).toBe(10);
+  });
+
+  it('shortage/image/change-request ?page=abc&limit=abc → 1 / 20', async () => {
+    const { ctrl, svc } = ctrlWithAll();
+    await (ctrl as any).shortageReports('pending', 'abc', 'abc');
+    expect(svc.listShortageReports.mock.calls[0].slice(1)).toEqual([1, 20]);
+    await (ctrl as any).imageSuggestions('pending', 'abc', 'abc');
+    expect(svc.listImageSuggestions.mock.calls[0].slice(1)).toEqual([1, 20]);
+    await (ctrl as any).changeRequests('pending', undefined, 'abc', 'abc');
+    expect(svc.listChangeRequests.mock.calls[0].slice(2)).toEqual([1, 20]);
+  });
+
+  it('adminCatalog ?page=abc&limit=abc → 1 / 25; priceHistory → 1 / 50; recentlyViewed → 20', async () => {
+    const { ctrl, svc } = ctrlWithAll();
+    await (ctrl as any).adminCatalog(undefined, undefined, 'abc', 'abc', undefined);
+    expect(svc.adminListCatalog.mock.calls[0][0]).toMatchObject({ page: 1, limit: 25 });
+    await (ctrl as any).priceHistory('m-1', 'abc', 'abc');
+    expect(svc.getPriceHistory.mock.calls[0].slice(1)).toEqual([1, 50]);
+    await (ctrl as any).recentlyViewed({ id: 'u-1' }, 'abc');
+    expect(svc.recentlyViewed.mock.calls[0][1]).toBe(20);
+  });
+
+  it('valid numbers still pass through untouched', async () => {
+    const { ctrl, svc } = ctrlWithAll();
+    await (ctrl as any).trending('7');
+    expect(svc.trendingSearches.mock.calls[0][0]).toBe(7);
+    await (ctrl as any).shortageReports('pending', '3', '15');
+    expect(svc.listShortageReports.mock.calls[0].slice(1)).toEqual([3, 15]);
+    finite(svc.trendingSearches.mock.calls[0][0]);
+  });
+});
