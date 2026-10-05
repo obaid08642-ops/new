@@ -30,6 +30,7 @@ import {
 } from './errors';
 import type { BackendErrorCode } from './errorCatalog';
 import { markTransportFailure, markTransportSuccess } from './connectivity';
+import { noteServerDate } from '../time/serverTime';
 
 export interface HttpRequestOptions {
   /** Absolute URL, or a path resolved against `baseUrl`. */
@@ -255,6 +256,15 @@ export async function httpRequest<T = unknown>(options: HttpRequestOptions): Pro
 
     markTransportSuccess();
     lastError = null;
+
+    // 15.9 — every settled response re-anchors the server clock, so a wrong
+    // device clock stops mattering for slots, reminders and OTP windows. A
+    // missing or broken Date header keeps the previous offset (or none).
+    try {
+      noteServerDate(outcome.headers['date']);
+    } catch {
+      // A header read must never break the response path.
+    }
 
     const retryAfterHeader = outcome.headers['retry-after'] ?? null;
     const decision = decideRetry({
