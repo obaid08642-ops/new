@@ -199,6 +199,15 @@ const LONG_TEXT_TR_KEYS: Record<string, string> = {
   brand_benefits: 'brand_benefits',
 };
 
+/**
+ * Field keys an admin/import may write inside translations[locale]: exactly the
+ * keys the public resolvers read (long texts, structured facts, active ingredient).
+ * System-derived keys such as `slug` (unique index, slug history) are never accepted.
+ */
+export const TRANSLATION_FIELD_KEYS: readonly string[] = [
+  ...new Set([...Object.values(LONG_TEXT_TR_KEYS), ...Object.values(TR_KEY), 'active_ingredient', 'more_information']),
+];
+
 // v14 root fact fields are Arabic-only; localized English forms via dictionaries.
 function localizeFactField(base: string, arabicValue: string, trValue: unknown, lang: DbLang): string | null {
   const fromTr = typeof trValue === 'string' && trValue.trim() ? trValue.trim() : null;

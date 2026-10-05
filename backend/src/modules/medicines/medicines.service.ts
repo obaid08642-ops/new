@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Inject, BadRequestException, Logger, Optional } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, BadRequestException, ConflictException, Logger, Optional } from '@nestjs/common';
 import { rethrowAsNotFoundIfInvalidId } from '../../common/id.utils';
 import { Cron } from '@nestjs/schedule';
 import { Model } from 'mongoose';
@@ -11,10 +11,18 @@ import { MedicineRepository } from "./repositories/medicine.repository";
 import { RedisService } from '../redis/redis.service';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 import { AutoEntitySeoPipelineService } from '../events/auto-entity-seo-pipeline.service';
-import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES } from './med-i18n';
+import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES, TRANSLATION_FIELD_KEYS } from './med-i18n';
 import { ProductRankingService } from '../product-ranking/product-ranking.service';
 import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
 import { buildSlug, escapeRegex } from '../../common/slug.util';
+
+/** Identity fields a create/import may carry (DTO strings, CSV cells or JSON numbers). */
+interface MedicineIdentityInput {
+  sku?: unknown;
+  source_product_id?: unknown;
+  sourceProductId?: unknown;
+  barcode?: unknown;
+}
 
 @Injectable()
 export class MedicinesService {
@@ -1009,12 +1017,18 @@ export class MedicinesService {
   // Admin async review later.
   // R19: manual entries merge into the single-id doc (sku/source/barcode) — locale
   // fields fold into translations, never a sibling per-language record.
-  async createManualEntry(data: Partial<Medicine>, byUserId: string, byRole: string) {
+  async createManualEntry(
+    data: Omit<Partial<Medicine>, 'sku' | 'source_product_id' | 'translations'> & MedicineIdentityInput & { translations?: unknown },
+    byUserId: string,
+    byRole: string,
+  ) {
     const editable = this.pickEditable(data);
-    const incomingTranslations = this.normalizeTranslationsMap((data as any)?.translations);
-    const identity = this.identityFilterFor({ ...(data as any), ...editable });
+    const incomingTranslations = this.normalizeTranslationsMap(data.translations);
+    const sku = this.parseIdentityNumber(data.sku, 'sku');
+    const sourceProductId = this.parseIdentityNumber(data.source_product_id, 'source_product_id');
+    const identity = this.identityFilterFor({ sku, source_product_id: sourceProductId, barcode: editable.barcode });
     if (identity) {
-      const existing: any = await this.model.findOne({ ...identity, is_deleted: { $ne: true } });
+      const existing: MedicineDocument | null = await this.model.findOne({ ...identity, is_deleted: { $ne: true } });
       if (existing) {
         const merged = this.mergeTranslations(existing.translations, incomingTranslations);
         const m = await this.model.findOneAndUpdate(
@@ -1036,6 +1050,8 @@ export class MedicinesService {
       ...editable,
       id: (editable as any).id || manualId,
       translations: incomingTranslations,
+      ...(sku !== undefined ? { sku } : {}),
+      ...(sourceProductId !== undefined ? { source_product_id: sourceProductId } : {}),
       verified: false,
       source: byRole,
       created_by_user_id: byUserId,
@@ -1429,8 +1445,9 @@ export class MedicinesService {
         const name_ar = String(r.name_ar || r['name ar'] || r['اسم عربي'] || '').trim();
         if (!name_ar) { failed.push({ row: r, error: 'missing name_ar' }); continue; }
         // R19: stable identity is sku → source_product_id → barcode (never the display name).
-        const skuNum = Number(r.sku ?? r['sku']);
-        const srcNum = Number(r.source_product_id ?? r.sourceProductId ?? r['source_product_id'] ?? r.productId ?? r.product_id);
+        // Leading zeros / unsafe integers fail the row (never silently become another id).
+        const skuNum = this.parseIdentityNumber(r.sku, 'sku');
+        const srcNum = this.parseIdentityNumber(r.source_product_id ?? r.sourceProductId ?? r.productId ?? r.product_id, 'source_product_id');
         const barcodeStr = String(r.barcode ?? r['barcode'] ?? '').trim();
         const doc: any = {
           name_ar,
@@ -1444,8 +1461,8 @@ export class MedicinesService {
           requires_prescription: !!(r.requires_prescription === true || String(r.requires_prescription || '').toLowerCase() === 'true' || r['rx'] === '1'),
           image: r.image || undefined,
           barcode: barcodeStr || undefined,
-          sku: Number.isFinite(skuNum) && String(r.sku ?? r['sku'] ?? '').trim() !== '' ? skuNum : undefined,
-          source_product_id: Number.isFinite(srcNum) && String(r.source_product_id ?? r.sourceProductId ?? r['source_product_id'] ?? r.productId ?? r.product_id ?? '').trim() !== '' ? srcNum : undefined,
+          sku: skuNum,
+          source_product_id: srcNum,
           // R19: locale payloads fold into the translations map of the single doc.
           translations: this.normalizeTranslationsMap(r.translations),
           source: 'bulk_import',
@@ -1546,15 +1563,31 @@ export class MedicinesService {
     return out;
   }
 
+  /**
+   * R19 identity numbers. The catalog stores sku / source_product_id as numbers
+   * (schema, ai-commerce, entity-graph and SEO lookups all key on the number), so
+   * a value is accepted only when that number round-trips to the exact string:
+   * "00123" (leading zeros) or a 17-digit id beyond 2^53 is refused, never
+   * silently turned into a different product id.
+   */
+  private parseIdentityNumber(raw: unknown, field: 'sku' | 'source_product_id'): number | undefined {
+    if (raw === undefined || raw === null) return undefined;
+    const text = String(raw).trim();
+    if (text === '') return undefined;
+    const value = Number(text);
+    if (!/^\d+$/.test(text) || !Number.isSafeInteger(value) || String(value) !== text) {
+      throw new BadRequestException(`${field} must be digits without leading zeros (got "${text.slice(0, 40)}")`);
+    }
+    return value;
+  }
+
   /** R19: single-id identity — one doc per product keyed by sku → source_product_id → barcode. */
-  private identityFilterFor(input: any): Record<string, unknown> | null {
-    const skuRaw = input?.sku ?? input?.SKU ?? input?.['sku '];
-    const skuNum = typeof skuRaw === 'number' ? skuRaw : Number(String(skuRaw ?? '').trim());
-    if (Number.isFinite(skuNum) && String(skuRaw ?? '').trim() !== '') return { sku: skuNum };
-    const srcRaw = input?.source_product_id ?? input?.sourceProductId ?? input?.['source_product_id'];
-    const srcNum = typeof srcRaw === 'number' ? srcRaw : Number(String(srcRaw ?? '').trim());
-    if (Number.isFinite(srcNum) && String(srcRaw ?? '').trim() !== '') return { source_product_id: srcNum };
-    const code = String(input?.barcode ?? input?.['barcode'] ?? '').trim();
+  private identityFilterFor(input: MedicineIdentityInput): { sku: number } | { source_product_id: number } | { barcode: string } | null {
+    const sku = this.parseIdentityNumber(input.sku, 'sku');
+    if (sku !== undefined) return { sku };
+    const src = this.parseIdentityNumber(input.source_product_id ?? input.sourceProductId, 'source_product_id');
+    if (src !== undefined) return { source_product_id: src };
+    const code = String(input.barcode ?? '').trim();
     if (code) return { barcode: code };
     return null;
   }
@@ -1570,9 +1603,10 @@ export class MedicinesService {
       if (!map || typeof map !== 'object' || Array.isArray(map)) continue;
       const clean: Record<string, string> = {};
       for (const [k, v] of Object.entries(map as Record<string, unknown>)) {
-        if (typeof v !== 'string') continue;
+        // Allow-listed field keys only (no `slug` or arbitrary keys from a client).
+        if (!TRANSLATION_FIELD_KEYS.includes(k) || typeof v !== 'string') continue;
         const val = v.trim().slice(0, 5000);
-        if (val) clean[String(k).slice(0, 80)] = val;
+        if (val) clean[k] = val;
       }
       if (Object.keys(clean).length) out[locale] = clean;
     }
@@ -1582,14 +1616,24 @@ export class MedicinesService {
     return out;
   }
 
+  /**
+   * Merge validated incoming locale fields into the stored map. The stored map is
+   * kept as-is (imported slugs, search_aliases arrays and other system keys are
+   * not dropped); only the incoming side is allow-listed and normalized.
+   */
   private mergeTranslations(
     existing: unknown,
     incoming: unknown,
-  ): Record<string, Record<string, string>> {
-    const base = this.normalizeTranslationsMap(existing);
-    const next = this.normalizeTranslationsMap(incoming);
-    const merged: Record<string, Record<string, string>> = { ...base };
-    for (const [locale, map] of Object.entries(next)) merged[locale] = { ...(merged[locale] || {}), ...map };
+  ): Record<string, Record<string, unknown>> {
+    const merged: Record<string, Record<string, unknown>> = {};
+    if (existing && typeof existing === 'object' && !Array.isArray(existing)) {
+      for (const [locale, map] of Object.entries(existing as Record<string, unknown>)) {
+        if (map && typeof map === 'object' && !Array.isArray(map)) merged[locale] = { ...(map as Record<string, unknown>) };
+      }
+    }
+    for (const [locale, map] of Object.entries(this.normalizeTranslationsMap(incoming))) {
+      merged[locale] = { ...(merged[locale] || {}), ...map };
+    }
     return merged;
   }
 
@@ -1779,16 +1823,24 @@ export class MedicinesService {
   async adminCreateCatalog(body: any, adminId: string) {
     const clean = this.pickEditable(body);
     if (!clean.name_ar && !clean.name_en) throw new BadRequestException('name_ar أو name_en مطلوب');
-    // R19: admin creates merge into the single-id doc — same sku/barcode/source never forks a sibling.
-    const incomingTranslations = this.mergeTranslations({}, (body as any)?.translations);
-    const createIdentity = this.identityFilterFor({ ...(body as any), ...clean });
+    // R19: single-id — a create whose sku/source_product_id/barcode already belongs to a
+    // product is refused (409 with the existing id). It never forks a sibling and never
+    // silently drops the other fields; the admin edits the existing product instead.
+    const input: MedicineIdentityInput & { translations?: unknown } = body ?? {};
+    const incomingTranslations = this.normalizeTranslationsMap(input.translations);
+    const sku = this.parseIdentityNumber(input.sku, 'sku');
+    const sourceProductId = this.parseIdentityNumber(input.source_product_id, 'source_product_id');
+    const createIdentity = this.identityFilterFor({ sku, source_product_id: sourceProductId, barcode: clean.barcode });
     if (createIdentity) {
-      const dupe: any = await this.model.findOne({ ...createIdentity, is_deleted: { $ne: true } });
+      const dupe: MedicineDocument | null = await this.model.findOne({ ...createIdentity, is_deleted: { $ne: true } });
       if (dupe) {
-        const merged = this.mergeTranslations(dupe.translations, incomingTranslations);
-        await this.model.updateOne({ id: dupe.id }, { $set: { translations: merged, updatedAt: new Date() } });
-        await this.invalidateCache();
-        return { ok: true, id: dupe.id, merged: true };
+        throw new ConflictException({
+          statusCode: 409,
+          error: 'Conflict',
+          message: 'duplicate_product',
+          existing_id: dupe.id,
+          matched_on: Object.keys(createIdentity)[0],
+        });
       }
     }
     const id = require('crypto').randomUUID();
@@ -1800,6 +1852,8 @@ export class MedicinesService {
       id,
       ...clean,
       translations: incomingTranslations,
+      ...(sku !== undefined ? { sku } : {}),
+      ...(sourceProductId !== undefined ? { source_product_id: sourceProductId } : {}),
       categories: clean.category ? [clean.category, ...(clean.sub_category ? [clean.sub_category] : [])] : [],
       images: Array.isArray(clean.images) ? clean.images : (clean.image ? [clean.image] : []),
       price: Number(clean.price) || 0,

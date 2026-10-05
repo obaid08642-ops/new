@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength, Min } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsNumber, IsObject, IsOptional, IsString, Matches, MaxLength, Min } from 'class-validator';
 
 export class SuggestChangeDto {
   @IsOptional()
@@ -88,12 +88,14 @@ export class CatalogMedicineFieldsDto {
   @IsOptional() @IsArray() @IsString({ each: true }) precautions_en?: string[];
   @IsOptional() @IsArray() @IsString({ each: true }) interactions?: string[];
   // R10/R19: 6-locale translations map (ur/hi/bn/fil names editable from admin).
-  // R19: single-id — locale payloads merge into the SAME product id (validated here,
-  // normalized tl→fil in MedicinesService.mergeTranslations); never a sibling per locale.
-  // Allowed locale keys: ar/en/ur/hi/bn/fil (+ legacy tl folded to fil by the service).
+  // R19: single-id — locale payloads merge into the SAME product id; never a sibling per locale.
+  // free-form: nested {locale: {field: text}} map; MedicinesService.normalizeTranslationsMap
+  // allow-lists the locale keys (ar/en/ur/hi/bn/fil, fil stored as tl) and the field keys
+  // (TRANSLATION_FIELD_KEYS — no slug or arbitrary keys) and drops non-string values.
   @IsOptional() @IsObject() translations?: Record<string, Record<string, string>>;
-  @IsOptional() @IsNumber() @Min(0) sku?: number;
-  @IsOptional() @IsNumber() @Min(0) source_product_id?: number;
+  // Identity ids as digit strings: the service refuses values whose leading zeros would be lost.
+  @IsOptional() @IsString() @Matches(/^\d{1,16}$/) sku?: string;
+  @IsOptional() @IsString() @Matches(/^\d{1,16}$/) source_product_id?: string;
   // audit note (price history / change log)
   @IsOptional() @IsString() @MaxLength(500) reason?: string;
 }
@@ -255,17 +257,20 @@ export class ManualEntryDto {
   @IsString()
   barcode?: string;
 
+  // Identity ids as digit strings: the service refuses values whose leading zeros would be lost.
   @IsOptional()
-  @IsNumber()
-  @Min(0)
-  sku?: number;
+  @IsString()
+  @Matches(/^\d{1,16}$/)
+  sku?: string;
 
   @IsOptional()
-  @IsNumber()
-  @Min(0)
-  source_product_id?: number;
+  @IsString()
+  @Matches(/^\d{1,16}$/)
+  source_product_id?: string;
 
-  // R19: manual locale payloads merge into the single-id translations map (service-validated).
+  // R19: manual locale payloads merge into the single-id translations map.
+  // free-form: nested {locale: {field: text}} map; locale and field keys are allow-listed
+  // by MedicinesService.normalizeTranslationsMap (TRANSLATION_FIELD_KEYS, no slug).
   @IsOptional()
   @IsObject()
   translations?: Record<string, Record<string, string>>;
