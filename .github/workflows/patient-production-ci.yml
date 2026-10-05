@@ -144,6 +144,8 @@ jobs:
       # languages. Both are ratchets that only go down; a new key must be complete in ar, en, ur, hi, bn, fil/tl.
       - name: Locale parity (6 languages, no English left in a non-English file)
         run: node ../../tools/design/locale-parity.mjs --base origin/main
+      - name: Install compiler
+        run: npm install --ignore-scripts --no-save typescript@5.9.3
       - name: No literal UI string in JSX/TSX (ratchet)
         run: node ../../tools/design/no-literal-ui-string.mjs
       # A0 across the OTHER THREE clients. provider-app/src/theme/tokens.ts
@@ -155,8 +157,6 @@ jobs:
         run: node ../../tools/design/sync-client-tokens.mjs --check
       - name: No new off-palette colour in the mobile/admin clients (ratchet)
         run: node ../../tools/design/client-token-sync.mjs
-      - name: Install compiler
-        run: npm install --ignore-scripts --no-save typescript@5.9.3
       - name: Type check the generated TypeScript module
         run: npx tsc --noEmit --strict --target ES2022 --module ESNext --moduleResolution bundler dist/ts/tokens.ts
 
