@@ -1,4 +1,4 @@
-import { IsBoolean, IsNumber, IsObject, IsOptional, IsString, Min } from 'class-validator';
+import { IsBoolean, IsNumber, IsObject, IsOptional, IsString, Min, Max } from 'class-validator';
 
 export class RewardDto {
   // The admin form (loyalty-config.tsx) sends title_ar/title_en/points_required/
@@ -50,6 +50,7 @@ export class LoyaltyConfigDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
+  @Max(10) // PRODUCT.md: loyalty points are capped at 10% of the order.
   max_redeem_percent?: number;
 
   @IsOptional()

@@ -3,7 +3,8 @@ import { Throttle } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AiService } from './ai.service';
 import { AiGatewayService } from './ai-gateway.service';
-import { JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles, SelfService, NoGuestsGuard } from '../../common/auth.guard';
+import { AiUserQuotaGuard } from './ai-user-quota.guard';
 import { UserRole } from '../../common/enums';
 import { TriageDto, SkinAnalysisDto, SetModeDto, SetPurposeDto, VoiceDto, OcrDto, CopilotSuggestDto, OcrTranslateDto, MedicineImageSearchDto, BarcodeLookupDto, AnalyzeMealDto, GenerateExercisePlanDto, GenerateDietPlanDto, UpdateAiConfigDto, UpdateAiProviderDto} from './ai.dto';
 import { AiProviderName } from './ai-gateway.service';
@@ -72,6 +73,8 @@ export class AiController {
     return this.svc.triageHistory(req.user?.id, limit === undefined ? 50 : Number(limit));
   }
 
+  // R11 §5: paid AI calls — members only, per-user daily quota.
+  @UseGuards(NoGuestsGuard, AiUserQuotaGuard)
   @Post('voice-to-order')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @UseInterceptors(FileInterceptor('audio', {
@@ -91,6 +94,8 @@ export class AiController {
   }
 
   @Throttle({ default: { limit: 15, ttl: 60000 } }) // E5-F4 paid AI quota
+  // R11 §5: paid AI calls — members only, per-user daily quota.
+  @UseGuards(NoGuestsGuard, AiUserQuotaGuard)
   @Post('prescription-ocr')
   ocr(@Body() body: OcrDto) {
     const base64 = body.image_base64 || body.imageBase64 || '';
@@ -113,6 +118,9 @@ export class AiController {
   }
 
   @Throttle({ default: { limit: 15, ttl: 60000 } }) // E5-F4 paid AI quota
+  // R11 §5: paid AI calls — members only, per-user daily quota.
+  @UseGuards(NoGuestsGuard, AiUserQuotaGuard)
+  @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Post('copilot/suggest')
   copilotSuggest(@Body() body: CopilotSuggestDto) {
     return this.svc.copilotSuggest(body.notes || '');
@@ -120,6 +128,8 @@ export class AiController {
 
   /** OCR + bilingual translation of a prescription image — uses GEMINI_KEY_OCR */
   @Throttle({ default: { limit: 15, ttl: 60000 } }) // E5-F4 paid AI quota
+  // R11 §5: paid AI calls — members only, per-user daily quota.
+  @UseGuards(NoGuestsGuard, AiUserQuotaGuard)
   @Post('ocr-translate')
   ocrTranslate(@Body() body: OcrTranslateDto) {
     return this.svc.ocrTranslate(body.image_base64 || '', body.target_lang || 'ar');
@@ -131,16 +141,22 @@ export class AiController {
     return this.svc.skinAnalysis(body, req.user?.id);
   }
 
+  // R11 §5: paid AI calls — members only, per-user daily quota.
+  @UseGuards(NoGuestsGuard, AiUserQuotaGuard)
   @Post('medicine-image-search')
   medicineImageSearch(@Body() body: MedicineImageSearchDto) {
     return this.svc.medicineImageSearch(body.image_base64);
   }
 
+  // R11 §5: paid AI calls — members only, per-user daily quota.
+  @UseGuards(NoGuestsGuard, AiUserQuotaGuard)
   @Post('barcode-lookup')
   barcodeLookup(@Body() body: BarcodeLookupDto) {
     return this.svc.barcodeLookup(body.code);
   }
 
+  // R11 §5: paid AI calls — members only, per-user daily quota.
+  @UseGuards(NoGuestsGuard, AiUserQuotaGuard)
   @Post('analyze-meal')
   analyzeMeal(@Body() body: AnalyzeMealDto) {
     return this.svc.analyzeMeal(body.query || '', body.image_base64);
@@ -156,11 +172,15 @@ export class AiController {
   }
 
   /** EPIC4/S21: AI weekly exercise plan (goal/level/days/location). */
+  // R11 §5: paid AI calls — members only, per-user daily quota.
+  @UseGuards(NoGuestsGuard, AiUserQuotaGuard)
   @Post('generate-exercise-plan')
   generateExercisePlan(@Body() body: GenerateExercisePlanDto) {
     return this.svc.generateExercisePlan(body || {});
   }
 
+  // R11 §5: paid AI calls — members only, per-user daily quota.
+  @UseGuards(NoGuestsGuard, AiUserQuotaGuard)
   @Post('generate-diet-plan')
   generateDietPlan(@Body() body: GenerateDietPlanDto) {
     return this.svc.generateDietPlan(body);

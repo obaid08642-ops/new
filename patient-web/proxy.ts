@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
+import { assertSameOrigin } from "./lib/api/csrf";
 
 const handleI18nRouting = createMiddleware(routing);
 const noIndexHeader = "noindex, nofollow, noarchive";
@@ -97,7 +98,10 @@ function createContentSecurityPolicy(nonce: string) {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (pathname.startsWith("/api") || pathname.startsWith("/_next") || pathname.includes(".")) return NextResponse.next();
+  // R11 §5: every state-changing API call is refused when a browser sends it
+  // from another site (login CSRF included).
+  if (pathname.startsWith("/api")) return assertSameOrigin(request) ?? NextResponse.next();
+  if (pathname.startsWith("/_next") || pathname.includes(".")) return NextResponse.next();
 
   const legacyRedirect = await legacyMedicineRedirect(request);
   if (legacyRedirect) return legacyRedirect;
@@ -126,4 +130,4 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
-export const config = { matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"] };
+export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"] };

@@ -614,7 +614,7 @@ export class LoyaltyService {
     }
     if (body?.max_redeem_percent !== undefined) {
       const value = Number(body.max_redeem_percent);
-      if (!Number.isFinite(value) || value < 0 || value > 100) throw new BadRequestException('max_redeem_percent must be 0-100');
+      if (!Number.isFinite(value) || value < 0 || value > 10) throw new BadRequestException('max_redeem_percent must be 0-10');
       patch.max_redeem_percent = value;
     }
     if (body?.redeem_enabled !== undefined) patch.redeem_enabled = body.redeem_enabled === true;
