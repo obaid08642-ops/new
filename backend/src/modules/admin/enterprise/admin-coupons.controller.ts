@@ -1,3 +1,4 @@
+import { StepUp } from '../../../common/step-up.guard';
 import { BadRequestException, ConflictException, Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -92,6 +93,8 @@ export class AdminCouponsController {
     return this.col.find(q).sort({ createdAt: -1 }).limit(200).project({ _id: 0 }).toArray();
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Post()
   async create(@Body() b: CreateDto, @CurrentUser() me: any) {
     let reason: string;
@@ -128,6 +131,8 @@ export class AdminCouponsController {
     return clean;
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Roles(UserRole.ADMIN)
   @Patch(':id')
   async update(@Param('id') id: string, @Body() b: UpdateDto, @CurrentUser() me: any): Promise<any> {
@@ -189,6 +194,8 @@ export class AdminCouponsController {
     return { ok: true, code, used_count: (res as any).used_count };
   }
 
+  @StepUp()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Roles(UserRole.ADMIN)
   @Delete(':id')
   async remove(@Param('id') id: string, @Body() b: RemoveDto, @CurrentUser() me: any) {
