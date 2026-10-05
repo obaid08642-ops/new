@@ -134,6 +134,14 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
    - send the owner screenshots at 390, 768 and 1440, in light and dark;
    - wait for approval before starting the next batch (handoff §4).
 
+## Owner decisions (2026-10-05)
+
+- **A. Identity is fixed.** Canvas `#F5F5F7` (plain), action `#D42A38`, coral `#FF4B55`, ink `#0B1B2B`, the Noon Dot logo (`canvas/Main.dc.html`), Readex Pro, the boards' icons, buttons and cards. Never add a colour, logo variant, background pattern or shape that is not on a board; ask the owner first. Every PR description carries "Identity check: no new colours/logo/patterns" and the token diff.
+- **B. Login first.** The login screens (web and app: Welcome, Login, Register, email code, AuthWeb) are the first screens of Batch 0, rebuilt from the boards, with the ten listed defects gone (before/after at 390/768/1440, light and dark). Built; see the Batch 0 PR.
+- **C. Quality standards** are in `QUALITY_STANDARDS.md` and enforced in CI where a tool exists: `no-large-raster` (200 KB), Lighthouse performance ≥ 90 / accessibility ≥ 95 / LCP < 2.5 s / CLS < 0.1 / TBT ≤ 200 ms / JS ≤ 170 KB. Every screen PR pastes the measured checklist.
+- **D. Fetal-week images:** keep the current artwork, move it out of the app, serve it from the CDN; week content comes from the backend. See "Fetal-week images" under Blockers for what is done and what waits.
+- **E. Model.** From the next session: Claude Sonnet 5, high effort for components 2-4, medium for regular screens, high for payment, booking, pharmacy offers, insurance and calls.
+
 ## Owner decisions (2026-10-04)
 
 - **Branches:** every step or batch gets its own `design/<batch>` branch from `main`, and one PR to `main` per batch. Each PR includes screenshots before and after and is reviewed before merge. Design work never goes on `fix/audit-2026-09`. This is recorded in `/AGENTS.md`.
@@ -152,6 +160,9 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 - **Dev only:** `next dev` rejects the inline theme script (`app/theme.ts`) under the CSP nonce, so the page ignores the stored or system theme. Screenshot scripts set `data-theme` themselves. Check whether production has the same problem when doing the web shell (step 4).
 
 ## Blockers
+
+- **Fetal-week images (owner D).** Done: the 41 week images in `patient-app/assets/images/maternity/fetus/` (29 MB, 1080×1920 PNG/JPG; no code referenced them: `baby-development.tsx` only redirects) were converted to WebP at 390/780/1080 px wide (1x/2x/3x, q80, 2.8 MB for all three sizes, largest file 75 KB) in `cdn-source/maternity/fetus/` and deleted from the app. Not done, and why: (1) **upload to Cloudflare R2**: this session has no R2 credentials (the Cloudflare connector is not authorised); upload `cdn-source/maternity/fetus/*` to the bucket behind the CDN and give me the base URL. (2) **Backend week content** (`GET` of week → image URL, size/length/weight, text): `backend/src/modules/maternity` has no such endpoint (`GET /maternity/content` exists; check it covers this), so the **reviewer session** adds it; no mock data is used meanwhile. (3) The app screen that shows the images (with an `expo-image` disk cache and a placeholder) is built when the endpoint and URLs exist. App download size: no build was run here; the images were never referenced from code but `assetBundlePatterns` is `**/*`, so they were shipped, about 29 MB of the repo's 30 MB under `assets/images/maternity`.
+- **Fonts:** `MaterialSymbolsRounded.ttf` (1.7 MB) is still used by 28 patient-app files; it goes when the last of them moves to the shared icons.
 
 - **CI is red on the base branch, in 5 jobs. This is for the reviewer.** Every PR shows these, including the docs-only #256:
   - The design-tokens job runs `tools/design/sync-ui-components.mjs` from `packages/design-tokens`, so the script is not found.
