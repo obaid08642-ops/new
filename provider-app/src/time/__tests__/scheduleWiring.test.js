@@ -16,6 +16,7 @@ const fs = require('fs');
 const path = require('path');
 
 const SCREEN = path.resolve(__dirname, '../../screens/doctor/doctor/DoctorScheduleTab.tsx');
+const HOME_TAB = path.resolve(__dirname, '../../screens/doctor/doctor/DoctorHomeTab.tsx');
 
 describe('P15.9 schedule screen renders server instants in Asia/Riyadh', () => {
   const source = fs.readFileSync(SCREEN, 'utf8');
@@ -33,5 +34,13 @@ describe('P15.9 schedule screen renders server instants in Asia/Riyadh', () => {
 
   it('a missing instant still renders empty, not "Invalid Date"', () => {
     expect(source).toMatch(/\?\?\s*''/);
+  });
+
+  it('the home tab queue renders the same server instants in Asia/Riyadh', () => {
+    const home = fs.readFileSync(HOME_TAB, 'utf8');
+    expect(home).toContain("from '../../../time/providerZone'");
+    expect(home.match(/formatInProviderZone\(\s*x\.scheduled_at/g).length).toBe(2);
+    expect(home).not.toMatch(/scheduled_at\)\.toLocale/);
+    expect(home).not.toContain('new Date(x.scheduled_at).toLocaleTimeString');
   });
 });

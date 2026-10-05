@@ -18,6 +18,7 @@ import { I, IBg } from '../../../components/icons';
 import { SP, R, FS, FW, API_BASE } from '../../../constants';
 import { buildHeaders, Vault, SK } from '../../../security/Security';
 import client from '../../../api/client';
+import { formatInProviderZone } from '../../../time/providerZone';
 import { useServicesCatalog, getInsuranceCatalog, useSpecialtiesCatalog } from '../../../api/catalogs';
 import { VideoCallRoom } from '../../shared/VideoCallRoom';
 import { InsuranceRequestsScreen } from '../../shared/InsuranceRequestsScreen';
@@ -126,16 +127,18 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
 	setRequests((resIncoming.data || []).map((x: any) => ({
 	id: x.id, kind: x.kind || 'consultation', patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabd+ Patient'),
         age: x.age ?? null, type: x.service_type || 'video', price: x.total ?? x.price ?? 0,
-        time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (AR ? 'غير محدد' : 'Unscheduled'),
+        // P15.9 — server instant in Asia/Riyadh (was device-zone toLocaleTimeString).
+        time: formatInProviderZone(x.scheduled_at, AR ? 'ar-SA-u-ca-gregory' : 'en-GB', { dateStyle: undefined, timeStyle: 'short' }) ?? (AR ? 'غير محدد' : 'Unscheduled'),
         avatar: '', complaint: x.title_ar || '', insurance: x.insurance_provider || 'Cash',
         paid: x.payment_status === 'PAID', urgent: !!x.is_urgent,
          policyClass: x.policy_class || null, nationalId: x.national_id || null, dob: x.dob || null
   })));
 
  const resToday = await client.get('/provider/jobs/queue?status=active');
- setTodayApts((resToday.data || []).map((x: any) => ({
- id: x.id, patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabd+ Patient'),
-     type: x.service_type || 'video', time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (AR ? 'غير محدد' : 'Unscheduled'),
+	setTodayApts((resToday.data || []).map((x: any) => ({
+	id: x.id, patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabd+ Patient'),
+      // P15.9 — server instant in Asia/Riyadh (was device-zone toLocaleTimeString).
+      type: x.service_type || 'video', time: formatInProviderZone(x.scheduled_at, AR ? 'ar-SA-u-ca-gregory' : 'en-GB', { dateStyle: undefined, timeStyle: 'short' }) ?? (AR ? 'غير محدد' : 'Unscheduled'),
      status: x.status || 'confirmed', price: x.total ?? x.price ?? 0, insurance: x.insurance_provider || 'Cash',
      age: x.age ?? null, avatar: ''
  })));
