@@ -313,6 +313,12 @@ export class ProviderAdminService {
   async reactivate(user: any, id: string, body: any) {
     this.assertAdmin(user);
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
+    // R1 (9d331ed): reactivation puts the provider back to APPROVED, so it is an
+    // approval path too: the same typed-document rule applies, with no bypass.
+    // A document rejected or flagged for replacement while suspended must be
+    // re-uploaded and reviewed first.
+    const missing = missingRequiredDocuments((a as any).provider_type, await this.docs.find({ account_id: id }));
+    if (missing.length) throw new BadRequestException(`required_documents_missing: ${missing.join(', ')}`);
     await this.transition(a, ProviderAccountStatus.APPROVED, user, body?.reason || 'reactivated');
     (a as any).token_version = Number((a as any).token_version || 0) + 1;
     await a.save();
