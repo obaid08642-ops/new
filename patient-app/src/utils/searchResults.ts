@@ -115,7 +115,7 @@ export function routeFor(r: SearchResult): { pathname: string; params?: Record<s
   if (!id) return null;
   switch (r.type) {
     case 'دكتور': return `/consultations/doctor/${id}`;
-    case 'باقة': return '/(tabs)/health';
+    case 'باقة': return { pathname: '/offers/[id]', params: { id } }; // the campaign's own page (GET /offers/:id)
     case 'دواء': return { pathname: '/pharmacy/product-detail', params: { id } };
     case 'تحليل': return { pathname: '/diagnostics/test-detail', params: { id } };
     case 'أشعة': return { pathname: '/diagnostics/test-detail', params: { id, type: 'radiology' } };

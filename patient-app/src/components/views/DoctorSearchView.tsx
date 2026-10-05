@@ -23,71 +23,53 @@ import {
 } from "../../../src/components/ui";
 import { apiFetch } from "../../../src/utils/api";
 import { pickLocalized } from '../../../src/utils/localize';
+import { autoTranslate } from '../../../src/i18n';
+import { dateLocaleFor } from '../../../src/utils/dates';
+import { DOCTOR_SORTS, doctorRows, doctorsQuery, type DoctorSort } from '../../../src/utils/doctorSearch';
 
 // Removed STATIC_DOCS
 
 export default function DoctorSearchView() {
   const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
+  const { colors, isDark, lang } = useApp();
+  const tr = (s: string): string => autoTranslate(s, lang);
   const params = useLocalSearchParams();
-  const [query, setQuery] = useState((params.specialty as string) || "");
-  const [sort, setSort] = useState<"rating" | "price" | "wait">("rating");
+  // the route's `specialty` is a filter the server understands, not text to type into the search box
+  const specialty = typeof params.specialty === "string" ? params.specialty : "";
+  const [query, setQuery] = useState(typeof params.q === "string" ? params.q : "");
+  const [sort, setSort] = useState<DoctorSort>("rating");
   const [doctors, setDoctors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchDoctors = useCallback(async (search: string, sortBy: string) => {
+  const fetchDoctors = useCallback(async (search: string, sortBy: DoctorSort) => {
     try {
       setLoading(true);
-      const qs = new URLSearchParams();
-      if (search) qs.set("search", search);
-      if (sortBy) qs.set("sort", sortBy);
-      const res = await apiFetch(`/care/doctors?${qs.toString()}`);
-      // E2: always set (empty search must clear old results) and never invent stats —
-      // rating/price/wait/exp/hospital stay null when the backend doesn't provide them
-      const rows = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+      // GET /care/doctors reads q, specialty and sort (rating | price_asc | ...) and answers { items: [...] }
+      const res = await apiFetch(`/care/doctors?${doctorsQuery({ q: search, specialty, sort: sortBy })}`);
       setDoctors(
-        rows.map((d: any) => ({
-          id: d._id || d.id,
-          name: pickLocalized(d.name_ar, d.name) || d.display_name,
-          deg: d.degree || d.title || null,
-          spec: pickLocalized(d.specialty_ar, d.specialty) || null,
-          rating: d.rating ?? null,
-          reviews: d.review_count ?? d.reviews_count ?? null,
-          price: d.consultation_fee ?? d.price ?? null,
-          wait: d.average_wait ? `${d.average_wait} دق` : null,
-          exp: d.years_experience ?? d.experience_years ?? null,
-          online: d.offers_online ?? false,
-          clinic: d.offers_clinic ?? false,
-          home: d.offers_home ?? false,
-          ins: d.accepts_insurance ?? false,
-          hospital: d.facility_name || d.clinic_name || null,
-          slot: d.next_available_slot || null,
-        })),
+        doctorRows(
+          res,
+          (ar, en) => pickLocalized(ar, en) ?? null,
+          (iso) => {
+            const d = new Date(iso);
+            return Number.isNaN(d.getTime()) ? null : d.toLocaleString(dateLocaleFor(lang), { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+          },
+        ),
       );
     } catch {
       setDoctors([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [specialty, lang]);
 
+  // search as the user types (the server does the matching), and again when the sort changes
   useEffect(() => {
-    fetchDoctors(query, sort);
-  }, [sort]);
+    const timer = setTimeout(() => { void fetchDoctors(query, sort); }, 350);
+    return () => clearTimeout(timer);
+  }, [query, sort, fetchDoctors]);
 
-  const handleSearch = () => fetchDoctors(query, sort);
-
-  const filtered = query
-    ? doctors.filter((d) => (d.name || '').includes(query) || (d.spec || '').includes(query))
-    : doctors;
-  // Null-safe sort: unknown values sink to the end instead of producing NaN ordering
-  const sorted = [...filtered].sort((a, b) =>
-    sort === "price"
-      ? (a.price ?? Infinity) - (b.price ?? Infinity)
-      : sort === "wait"
-        ? (a.wait || '٩٩٩').localeCompare(b.wait || '٩٩٩')
-        : (b.rating ?? -1) - (a.rating ?? -1),
-  );
+  const sorted = doctors;
 
   return (
     <View style={[st.c, { backgroundColor: colors.background }]}>
@@ -102,7 +84,7 @@ export default function DoctorSearchView() {
           },
         ]}
       >
-        <AppText variant="h4">البحث عن طبيب</AppText>
+        <AppText variant="h4">{tr("search.doctors.title")}</AppText>
         <IconButton icon="back" onPress={() => router.back()} />
       </View>
 
@@ -110,7 +92,7 @@ export default function DoctorSearchView() {
         <Input
           value={query}
           onChangeText={setQuery}
-          placeholder="ابحث بالاسم أو التخصص..."
+          placeholder={tr("search.doctors.placeholder")}
           icon="search"
         />
         <ScrollView
@@ -122,16 +104,10 @@ export default function DoctorSearchView() {
             marginTop: 12,
           }}
         >
-          {(
-            [
-              ["rating", "الأعلى تقييماً"],
-              ["price", "الأقل سعراً"],
-              ["wait", "الأقل انتظاراً"],
-            ] as const
-          ).map(([k, l]) => (
+          {DOCTOR_SORTS.map((k) => (
             <Chip
               key={k}
-              label={l}
+              label={tr(k === "rating" ? "search.doctors.sortRating" : "search.doctors.sortPrice")}
               active={sort === k}
               onPress={() => setSort(k)}
             />
@@ -149,7 +125,7 @@ export default function DoctorSearchView() {
             color={colors.textSecondary}
             style={{ marginTop: 12 }}
           >
-            جاري تحميل الأطباء...
+            {tr("search.doctors.loading")}
           </AppText>
         </View>
       ) : (
@@ -165,10 +141,10 @@ export default function DoctorSearchView() {
             <View style={{ alignItems: "center", paddingTop: 40 }}>
               <Icon name="search" size={48} color={colors.textTertiary} />
               <AppText variant="h5" style={{ marginTop: 12 }}>
-                لا توجد نتائج
+                {tr("search.doctors.emptyTitle")}
               </AppText>
               <AppText variant="bodySM" color={colors.textSecondary}>
-                جرب البحث بتخصص مختلف
+                {tr("search.doctors.emptyBody")}
               </AppText>
             </View>
           }

@@ -40,8 +40,8 @@ export const MAIN_SERVICES: MainService[] = [
 /** The rest of the Services tab, as rows. */
 export const MORE_SERVICES: ServiceRow[] = [
   { icon: 'ambulance', tone: tone('emergency'), title: 'الطوارئ والإسعاف', desc: 'طلب إسعاف أو استشارة طارئة', route: '/emergency/sos' },
-  { icon: 'eye', tone: 'blue', title: 'فحص النظر', desc: 'حجز فحص عيون مع أخصائي', route: '/consultations/specialty-select' },
-  { icon: 'tooth', tone: 'mint', title: 'طب الأسنان', desc: 'تنظيف، حشو، تقويم، زراعة', route: '/consultations/specialty-select' },
+  { icon: 'eye', tone: 'blue', title: 'فحص النظر', desc: 'حجز فحص عيون مع أخصائي', route: '/search?view=doctors&specialty=ophthalmology' },
+  { icon: 'tooth', tone: 'mint', title: 'طب الأسنان', desc: 'تنظيف، حشو، تقويم، زراعة', route: '/search?view=doctors&specialty=dentistry' },
   { icon: 'brain', tone: tone('mind'), title: 'الصحة النفسية', desc: 'استشارات نفسية وجلسات علاجية', route: '/mental-health/hub' },
   { icon: 'bowl-food', tone: tone('nutrition'), title: 'التغذية والحمية', desc: 'خطط غذائية وتتبع السعرات', route: '/nutrition/hub' },
   { icon: 'house', tone: tone('nursing'), title: 'الرعاية المنزلية', desc: 'رعاية كبار السن والأمراض المزمنة', route: '/(tabs)/nursing' },
@@ -72,7 +72,7 @@ export const SERVICE_GROUPS: ServiceGroupData[] = [
   {
     title: 'أدوات الذكاء الاصطناعي',
     items: [
-      { title: 'المساعد الطبي الذكي', desc: 'فرز الأعراض وإرشاد أولي', icon: 'robot', tone: 'violet', route: '/ai/symptom-checker' },
+      { title: 'المساعد الطبي الذكي', desc: 'فرز الأعراض وإرشاد أولي', icon: 'robot', tone: 'violet', route: '/ai-assistant' },
       { title: 'مترجم الروشتات', desc: 'فهم وصفتك الطبية بسهولة', icon: 'translate', tone: 'violet', route: '/ai/prescription-translator' },
       { title: 'التقرير الشهري', desc: 'ملخص صحتك خلال الشهر', icon: 'chart-line-up', tone: 'mint', route: '/ai/monthly-report' },
     ],
