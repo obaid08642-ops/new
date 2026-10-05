@@ -218,6 +218,8 @@ describe('LabsService', () => {
     const svcDoc = { id: 'svc-1', price: 100, home_visit_supported: true, sample_type: 'blood', fasting_required: false };
     function bookMocks() {
       mockLabService.find.mockResolvedValue([svcDoc]);
+      // The chosen lab runs the test (book() checks it directly).
+      mockProviderProfile.find.mockReturnValue({ sort: () => ({ limit: () => ({ lean: async () => [{ account_id: 'lab-1' }] }) }) });
       mockLabBooking.countDocuments.mockResolvedValue(0);
       mockLabBooking.find.mockReturnValue({ lean: jest.fn().mockResolvedValue([]) });
       mockLabBooking.create.mockImplementation(async (doc: any) => ({ ...doc, toObject: () => doc }));

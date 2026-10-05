@@ -77,7 +77,8 @@ export class LabsService {
     return s;
   }
 
-  async compatibleProviders(testIds: string[]) {
+  /** Labs that can run every requested test; `onlyAccountId` checks one chosen lab (booking) past the list cap. */
+  async compatibleProviders(testIds: string[], onlyAccountId?: string) {
     const ids = [...new Set((testIds || []).filter(Boolean))];
     if (!ids.length) return [];
     const services = await this.svcModel.find({ id: { $in: ids }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, category: 1 });
@@ -88,7 +89,7 @@ export class LabsService {
       status: 'active',
       public_eligibility: true,
       medical_review_status: 'approved',
-      account_id: { $exists: true, $ne: null },
+      account_id: onlyAccountId ? { $eq: onlyAccountId } : { $exists: true, $ne: null },
       // The lab registration stores the tests it runs (catalog service ids) in test_categories;
       // older profiles may hold category names. Either must cover every requested test.
       $or: [{ test_categories: { $all: ids } }, ...(categories.length ? [{ test_categories: { $all: categories } }] : [])],
@@ -108,8 +109,11 @@ export class LabsService {
   async book(user: any, data: any) {
     if (!Array.isArray(data.items) || !data.items.length) throw new BadRequestException('items required');
     if (!data.scheduled_at) throw new BadRequestException('scheduled_at required');
-    const services = await this.svcModel.find({ id: { $in: data.items.map((x: any) => x.service_id) } });
+    // Only approved, active catalogue tests are bookable, and every requested one must be.
+    const requestedIds: string[] = [...new Set<string>(data.items.map((x: { service_id?: unknown }) => String(x?.service_id || '')).filter(Boolean))];
+    const services = await this.svcModel.find({ id: { $in: requestedIds }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' });
     if (!services.length) throw new BadRequestException('no_valid_services');
+    if (services.length !== requestedIds.length) throw new BadRequestException('service_not_available');
     const paymentMethod = ['cash', 'card', 'insurance'].includes(data.payment_method) ? data.payment_method : 'cash';
     // Normalize location_type: schema enum is home|facility — accept clinic aliases
     if (['in_clinic', 'clinic', 'lab', 'center'].includes(data.location_type)) data.location_type = 'facility';
@@ -127,6 +131,12 @@ export class LabsService {
     // Admin/system roles may create without provider_account_id (e.g. seeding, manual ops).
     if (!data.provider_account_id && user.role !== 'admin' && user.role !== 'system') {
       throw new BadRequestException('provider_account_id_required');
+    }
+    // The chosen lab must be an approved, public lab that runs every requested test.
+    if (data.provider_account_id && user.role !== 'admin' && user.role !== 'system') {
+      const providerId = String(data.provider_account_id);
+      const ok = (await this.compatibleProviders(requestedIds, providerId)).some((p) => p.id === providerId);
+      if (!ok) throw new BadRequestException('provider_cannot_perform_tests');
     }
     const documents: any[] = Array.isArray(data.documents) ? data.documents.map((d: any) => ({ ...d, uploaded_at: new Date() })) : [];
     // Home rule: insurance + home requires uploaded doctor_request OR preauth
