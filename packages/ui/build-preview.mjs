@@ -497,8 +497,21 @@ function componentsGallery() {
   return `<section class="gallery"><h2>Components — the A7 roster, rendered</h2>${out.join('')}</section>`;
 }
 
+/**
+ * Every component in the gallery goes through here, so this is where the CSP rule
+ * (components/components.css) is enforced: a component that emits a `style`
+ * attribute or a `<style>` element renders unstyled on patient-web, whose
+ * style-src has no 'unsafe-inline'. The gallery's own frame may use inline
+ * styles (it is a static file); the components inside it may not.
+ */
 function render(el) {
-  return renderToStaticMarkup(el);
+  const markup = renderToStaticMarkup(el);
+  const inline = markup.match(/<[a-zA-Z][^>]*\sstyle="[^"]*"|<style[\s>]/);
+  if (inline) {
+    console.error(`preview: a component emitted an inline style, which the patient-web CSP refuses:\n  ${inline[0].slice(0, 200)}`);
+    process.exit(1);
+  }
+  return markup;
 }
 
 const summary =
