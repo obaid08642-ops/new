@@ -7,6 +7,8 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import type { BottomTabItem } from "@/components-next/ui-generated/components/contract";
 import { NabdMark } from "@/components-next/nabd-mark";
 import { LocaleSelector } from "@/components-next/locale-selector";
+import { SignOutButton } from "@/components-next/sign-out-button";
+import { shellSectionHrefs } from "@/components-next/shell-links";
 import { ThemeButton } from "./theme-button";
 import type { Locale } from "@/lib/i18n";
 import { HomeTabBar } from "./home-tab-bar";
@@ -40,11 +42,12 @@ export async function HomeShell({
     getTranslations({ locale, namespace: "Shared" }),
   ]);
   const base = `/${locale}`;
+  const hrefsOf = shellSectionHrefs(locale);
   const sections: Array<{ id: string; href: string; label: string }> = [
-    { id: "pharmacy", href: `${base}/c`, label: t("navPharmacy") },
-    { id: "consult", href: `${base}/consultations/doctors`, label: t("navConsult") },
-    { id: "labs", href: `${base}/diagnostics`, label: t("navLabs") },
-    { id: "nursing", href: `${base}/nursing/catalog`, label: t("navNursing") },
+    { id: "pharmacy", href: hrefsOf.pharmacy, label: t("navPharmacy") },
+    { id: "consult", href: hrefsOf.consult, label: t("navConsult") },
+    { id: "labs", href: hrefsOf.labs, label: t("navLabs") },
+    { id: "nursing", href: hrefsOf.nursing, label: t("navNursing") },
   ];
   const home = signedIn ? `${base}/dashboard` : base;
   const tabs: BottomTabItem[] = [
@@ -61,7 +64,7 @@ export async function HomeShell({
       <Link href={base} className={styles.brand} aria-label={shared("brand")}>
         <NabdMark size={34} variant="text" />
         <span className={styles.wordmark} aria-hidden="true">
-          {locale === "ar" ? "نبض" : "Nabd"}<span className={styles.plus}>+</span>
+          {shared("wordmark")}<span className={styles.plus}>+</span>
         </span>
       </Link>
       <nav className={styles.nav} aria-label={t("mainNav")}>
@@ -82,9 +85,12 @@ export async function HomeShell({
           <FIcon icon="package" tone="ink" chip="none" size={20} />
         </Link>
         {signedIn ? (
-          <Link href={`${base}/profile`} className={styles.accountLink} aria-label={t("account")}>
-            <Avatar name={name ?? ""} size="md" />
-          </Link>
+          <>
+            <SignOutButton locale={locale} className={styles.iconBtn} />
+            <Link href={`${base}/profile`} className={styles.accountLink} aria-label={t("account")}>
+              <Avatar name={name ?? ""} size="md" />
+            </Link>
+          </>
         ) : (
           <Link href={`${base}/login`} className={styles.signIn}>{t("signIn")}</Link>
         )}

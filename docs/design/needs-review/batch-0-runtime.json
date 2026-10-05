@@ -12,16 +12,6 @@
   {
     "batch": 0,
     "app": "patient-web",
-    "screen": "/dashboard",
-    "element": "Upstream failure handling",
-    "file": "patient-web/lib/api/dashboard-server.ts",
-    "line": 5,
-    "found": "Runtime check with every data GET answering 500: /dashboard still renders (greeting without a name, no appointment card) with no error or retry state, because both calls swallow the failure. The same happens on / (home) for doctors and config. /notifications and /notifications/settings do show the board's error state with retry.",
-    "suspect": "Silent degradation matches the 'hide missing data' rule, but a total outage looks like an account with no data. Owner to decide whether /dashboard should show the error state when its profile call fails."
-  },
-  {
-    "batch": 0,
-    "app": "patient-web",
     "screen": "/notifications/settings",
     "element": "Error state title (fixed in this PR)",
     "file": "patient-web/app/[locale]/notifications/page.tsx",

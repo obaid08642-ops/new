@@ -25,7 +25,9 @@ describe("swr-lite", () => {
     expect(source).not.toMatch(/localStorage|sessionStorage|indexedDB|document\.cookie/);
   });
 
-  it("sign-out clears it", () => {
-    expect(readFileSync(resolve(process.cwd(), "components-next/session-actions.tsx"), "utf8")).toContain("clearSwr()");
+  it("every sign-out clears it", () => {
+    for (const file of ["components-next/session-actions.tsx", "components-next/sign-out-button.tsx"]) {
+      expect(readFileSync(resolve(process.cwd(), file), "utf8"), file).toContain("clearSwr()");
+    }
   });
 });

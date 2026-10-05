@@ -4,8 +4,10 @@ import { router } from 'expo-router';
 import { Button, Screen, StickyFooter } from '../../../packages/ui-native/src';
 // storeAuthSession lives in the shared network client (root utils/api.ts) —
 // src/utils/api.ts is a legacy thin wrapper that does not export it.
-import { apiFetch, storeAuthSession } from '../../utils/api';
-import { decodeJwt } from '../../src/utils/jwt';
+import { useDispatch } from 'react-redux';
+import { apiFetch } from '../../utils/api';
+import { startSession } from '../../src/utils/authSession';
+import { serverMessage } from '../../src/utils/serverMessage';
 import { useSocialLogin, type SocialProvider } from '../../src/hooks/useSocialLogin';
 import {
   AuthAltLine,
@@ -21,13 +23,14 @@ import {
   availableSocialProviders,
   useAuthUi,
 } from '../../src/components/auth/AuthKit';
-import { loginCredentials } from '../../src/utils/login-credentials';
+import { isValidIdentifier, loginCredentials } from '../../src/utils/login-credentials';
 
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_MS = 5 * 60 * 1000;
 
 export default function LoginScreen() {
   const { theme, tr } = useAuthUi();
+  const dispatch = useDispatch();
 
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -45,52 +48,57 @@ export default function LoginScreen() {
     social.clearError();
     if (isLockedOut) {
       const remaining = Math.ceil((lockoutUntil! - Date.now()) / 60000);
-      setErrorMessage(`تم تجاوز المحاولات. حاول بعد ${remaining} دقائق`);
+      setErrorMessage(tr("auth.err.lockedOut").replace("{n}", String(remaining)));
       return;
     }
-    if (!phone || phone.length < 9) { 
-      setErrorMessage('أدخل بريد إلكتروني أو هاتف صحيح'); 
-      return; 
+    if (!isValidIdentifier(phone)) {
+      setErrorMessage('auth.err.identifier');
+      return;
     }
     if (!password || password.length < 6) { 
-      setErrorMessage('كلمة المرور 6 أحرف على الأقل'); 
+      setErrorMessage('auth.err.passwordShort'); 
       return; 
     }
     
     setLoading(true);
     try {
+        // skipAuth: a wrong password answers 401, which must not delete the guest session that is stored, and the
+        // request must not carry that guest's token either.
         const res = await apiFetch('/auth/login', {
           method: 'POST',
           body: JSON.stringify(loginCredentials(phone, password)),
+          skipAuth: true,
         });
         // M1: backend returns { user, token: { accessToken, refreshToken } }
-        const token = typeof res?.token === 'string' ? res.token : (res?.token?.accessToken || null);
+      const session = await startSession(res, dispatch);
 
-      if (!token) {
+      if (!session.ok && session.reason === 'not_stored') {
+        setErrorMessage('auth.err.notStored');
+        setLoading(false);
+        return;
+      }
+      if (!session.ok) {
         setAttempts(prev => {
           const next = prev + 1;
           if (next >= MAX_ATTEMPTS) setLockoutUntil(Date.now() + LOCKOUT_MS);
           return next;
         });
-        setErrorMessage('تحقق من البيانات وحاول مجدداً');
+        setErrorMessage('auth.err.checkData');
         setLoading(false);
         return;
       }
       
-      // M1: persist both access + refresh tokens through the shared session helper
-      await storeAuthSession(res?.token);
+      // both tokens are stored and the auth slice knows the signed-in user (startSession)
       setAttempts(0);
       setLockoutUntil(null);
 
-      const decoded = decodeJwt(token);
-      const userRole = decoded?.role || 'patient';
-      if (userRole !== 'patient') {
+      if (session.role !== 'patient') {
         router.replace('/(auth)/provider-info' as any);
       } else {
         router.replace('/(tabs)');
       }
     } catch (err: any) { 
-      setErrorMessage(err.message || 'فشل تسجيل الدخول، حاول مجدداً');
+      setErrorMessage(serverMessage(err, 'auth.err.loginFailed'));
       setAttempts(prev => {
         const next = prev + 1;
         if (next >= MAX_ATTEMPTS) setLockoutUntil(Date.now() + LOCKOUT_MS);
@@ -111,7 +119,7 @@ export default function LoginScreen() {
         <StickyFooter theme={theme}>
           <AuthFooter>
             <Button
-              label={tr(loading ? 'لحظة…' : 'تسجيل الدخول')}
+              label={tr(loading ? 'common.pleaseWait' : 'auth.login')}
               variant="primary"
               size="lg"
               fullWidth
@@ -120,20 +128,20 @@ export default function LoginScreen() {
               onPress={handleLogin}
               testID="login-submit"
             />
-            <AuthDivider label="أو تابع عبر" />
+            <AuthDivider label="auth.orContinueWith" />
             <SocialButtons layout="icons" providers={providers} onPress={(p: SocialProvider) => { setErrorMessage(null); void social.signIn(p); }} disabled={loading || social.busy} />
-            <AuthAltLine text="ليس لديك حساب؟" link="إنشاء حساب" onPress={() => router.push('/(auth)/register')} />
+            <AuthAltLine text="auth.noAccount" link="auth.createAccount" onPress={() => router.push('/(auth)/register')} />
           </AuthFooter>
         </StickyFooter>
       }
     >
       <AuthBody>
       <AuthTopBar onBack={() => router.back()} />
-      <AuthTitle title="تسجيل الدخول" sub="بالبريد الإلكتروني أو رقم الجوال وكلمة المرور" />
+      <AuthTitle title="auth.login" sub="auth.loginSub" />
 
       <View style={{ marginTop: 22, gap: 12 }}>
         <AuthField
-          label="البريد الإلكتروني أو رقم الجوال"
+          label="auth.identifier"
           placeholder="name@example.com"
           ltr
           keyboardType="email-address"
@@ -144,7 +152,7 @@ export default function LoginScreen() {
           testID="login-identifier"
         />
         <AuthField
-          label="كلمة المرور"
+          label="auth.password"
           secure
           autoComplete="password"
           textContentType="password"
@@ -153,7 +161,7 @@ export default function LoginScreen() {
           testID="login-password"
         />
         <View style={{ alignItems: 'flex-start' }}>
-          <AuthLink label="نسيت كلمة المرور؟" onPress={() => router.push('/(auth)/forgot-password')} />
+          <AuthLink label="auth.forgotLink" onPress={() => router.push('/(auth)/forgot-password')} />
         </View>
         <AuthError message={errorMessage ?? social.error} />
       </View>

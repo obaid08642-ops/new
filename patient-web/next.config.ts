@@ -2,15 +2,14 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { withSentryConfig } from "@sentry/nextjs";
 import { contentSecurityPolicy } from "./csp";
+import { IMAGE_HOSTS } from "./lib/image-hosts";
 
 const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "cdn.nabd.plus", pathname: "/**" },
-      { protocol: "https", hostname: "res.cloudinary.com", pathname: "/**" },
-    ],
+    // The same hosts lib/image-hosts.ts lets the page render; any other host would make next/image throw.
+    remotePatterns: IMAGE_HOSTS.map((hostname) => ({ protocol: "https" as const, hostname, pathname: "/**" })),
     formats: ["image/avif", "image/webp"],
   },
   outputFileTracingIncludes: {

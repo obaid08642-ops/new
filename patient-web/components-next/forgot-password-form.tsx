@@ -1,17 +1,55 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
+import { authErrorKind } from "@/lib/auth/auth-errors";
 import type { Locale } from "@/lib/i18n";
 import styles from "./auth/auth.module.css";
 
-const copy: Record<Locale,{title:string;body:string;identifier:string;submit:string;busy:string;success:string;failed:string;back:string}>={
- ar:{title:"استعادة كلمة المرور",body:"أدخل بريدك الإلكتروني أو رقم جوالك. إذا كان الحساب مسجلاً، ستصلك تعليمات الاستعادة.",identifier:"البريد الإلكتروني أو رقم الجوال",submit:"إرسال التعليمات",busy:"جارٍ الإرسال…",success:"تم طلب التعليمات. تحقق من وسيلة التواصل المسجلة.",failed:"تعذر إرسال الطلب. لم يتم تغيير كلمة المرور.",back:"العودة إلى الدخول"},
- en:{title:"Reset your password",body:"Enter your email or mobile number. If an account exists, recovery instructions will be sent.",identifier:"Email or mobile number",submit:"Send instructions",busy:"Sending…",success:"Recovery requested. Check your registered contact method.",failed:"The request could not be sent. Your password was not changed.",back:"Back to sign in"},
- fil:{title:"I-reset ang password",body:"Ilagay ang email o mobile. Kung may account, ipapadala ang instructions.",identifier:"Email o mobile number",submit:"Ipadala ang instructions",busy:"Ipinapadala…",success:"Na-request ang recovery. Suriin ang registered contact.",failed:"Hindi naipadala ang request. Hindi nabago ang password.",back:"Bumalik sa login"},
- hi:{title:"पासवर्ड रीसेट करें",body:"ईमेल या मोबाइल नंबर दर्ज करें। खाता होने पर निर्देश भेजे जाएंगे।",identifier:"ईमेल या मोबाइल नंबर",submit:"निर्देश भेजें",busy:"भेजा जा रहा है…",success:"रिकवरी का अनुरोध किया गया। पंजीकृत संपर्क जांचें।",failed:"अनुरोध नहीं भेजा जा सका। पासवर्ड नहीं बदला गया।",back:"लॉगिन पर लौटें"},
- ur:{title:"پاس ورڈ ری سیٹ",body:"ای میل یا موبائل نمبر درج کریں۔ اکاؤنٹ موجود ہونے پر ہدایات بھیجی جائیں گی۔",identifier:"ای میل یا موبائل نمبر",submit:"ہدایات بھیجیں",busy:"بھیجا جا رہا ہے…",success:"ریکوری کی درخواست ہو گئی۔ رجسٹرڈ رابطہ دیکھیں۔",failed:"درخواست نہیں بھیجی جا سکی۔ پاس ورڈ تبدیل نہیں ہوا۔",back:"لاگ اِن پر واپس جائیں"},
- bn:{title:"পাসওয়ার্ড রিসেট",body:"ইমেল বা মোবাইল নম্বর দিন। অ্যাকাউন্ট থাকলে নির্দেশনা পাঠানো হবে।",identifier:"ইমেল বা মোবাইল নম্বর",submit:"নির্দেশনা পাঠান",busy:"পাঠানো হচ্ছে…",success:"রিকভারি অনুরোধ করা হয়েছে। নিবন্ধিত যোগাযোগ দেখুন।",failed:"অনুরোধ পাঠানো যায়নি। পাসওয়ার্ড পরিবর্তন হয়নি।",back:"লগইনে ফিরুন"}
-};
-export function ForgotPasswordForm({locale}:{locale:Locale}){const t=copy[locale];const router=useRouter();const [identifier,setIdentifier]=useState("");const [busy,setBusy]=useState(false);const [message,setMessage]=useState<string|null>(null);async function submit(event:FormEvent){event.preventDefault();if(identifier.trim().length<3){setMessage(t.failed);return;}setBusy(true);setMessage(null);try{const response=await fetch("/api/auth/password/forgot",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({identifier})});setMessage(response.ok?t.success:t.failed);}catch{setMessage(t.failed)}finally{setBusy(false)}}return <><div className={styles.heading}><h1 className={styles.title}>{t.title}</h1><p className={styles.subtitle}>{t.body}</p></div><form className={styles.form} onSubmit={submit} aria-busy={busy}><label className={styles.field}><span className={styles.label}>{t.identifier}</span><span className={styles.control}><input required dir="ltr" placeholder="name@example.com" value={identifier} onChange={e=>setIdentifier(e.target.value)} autoComplete="username" /></span></label>{message?<p className={styles.note} role="status">{message}</p>:null}<div className={styles.actions}><Button type="submit" variant="primary" size="lg" fullWidth label={busy?t.busy:t.submit} loading={busy} /><p className={styles.foot}><button type="button" className={styles.link} onClick={()=>router.push(`/${locale}/login`)}>{t.back}</button></p></div></form></>}
+/** Why the recovery request failed: too many requests is not "could not send". */
+export function forgotErrorMessage(t: (key: string) => string, status: number): string {
+  return authErrorKind(status) === "rateLimited" ? t("limited") : t("failed");
+}
+
+export function ForgotPasswordForm({ locale }: { locale: Locale }) {
+  const t = useTranslations("ForgotPassword");
+  const router = useRouter();
+  const [identifier, setIdentifier] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    if (identifier.trim().length < 3) { setSent(false); setMessage(t("failed")); return; }
+    setBusy(true); setMessage(null); setSent(false);
+    try {
+      const response = await fetch("/api/auth/password/forgot", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier }) });
+      setSent(response.ok);
+      setMessage(response.ok ? t("success") : forgotErrorMessage(t, response.status));
+    } catch { setMessage(t("failed")); }
+    finally { setBusy(false); }
+  }
+
+  return <>
+    <div className={styles.heading}>
+      <h1 className={styles.title}>{t("title")}</h1>
+      <p className={styles.subtitle}>{t("body")}</p>
+    </div>
+    <form className={styles.form} onSubmit={submit} aria-busy={busy}>
+      <label className={styles.field}>
+        <span className={styles.label}>{t("identifier")}</span>
+        <span className={styles.control}><input required dir="ltr" autoCapitalize="none" spellCheck={false} value={identifier} onChange={(event) => setIdentifier(event.target.value)} autoComplete="username" /></span>
+      </label>
+      {message ? <p className={sent ? styles.note : styles.error} role={sent ? "status" : "alert"}>{message}</p> : null}
+      {sent ? <p className={styles.foot}><Link className={styles.link} href={`/${locale}/password-reset`}>{t("nextStep")}</Link></p> : null}
+      <div className={styles.actions}>
+        <Button type="submit" variant="primary" size="lg" fullWidth label={busy ? t("busy") : t("submit")} loading={busy} />
+        <p className={styles.foot}><button type="button" className={styles.link} onClick={() => router.push(`/${locale}/login`)}>{t("back")}</button></p>
+      </div>
+    </form>
+  </>;
+}

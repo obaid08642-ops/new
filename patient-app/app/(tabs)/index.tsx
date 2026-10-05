@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { RefreshControl, View } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
+import { useDispatch } from 'react-redux';
 
 import { Screen, Skeleton, SectionHeader, useTabBarHeight } from '../../../packages/ui-native/src';
 import { useApp } from '../../src/context/AppContext';
@@ -24,6 +25,7 @@ import {
   type UpcomingAppointment,
 } from '../../src/components/home/HomeParts';
 import { HOME_SERVICES, HOME_TOOLS } from '../../src/features/home/homeItems';
+import { setUnreadCount } from '../../src/store/slices/notificationsSlice';
 
 /**
  * Home — board HomeApp / HomeAppDark (canvas/HomeApp.dc.html).
@@ -40,7 +42,11 @@ type Reminder = { id: string; medicine_name_ar?: string; medicine_name_en?: stri
 type NutritionSummary = { meals_count?: number; water?: { consumed_ml?: number; target_ml?: number | null } };
 type MaternityProfile = { profile_ready?: boolean; tracking_mode?: 'pregnancy' | 'cycle' | null; is_pregnant?: boolean };
 type MoodEntry = { logged_at?: string; createdAt?: string };
-type Profile = { full_name?: string; name?: string; display_name?: string };
+/** GET /users/me/display: the signed-in patient's public card (the name is the user record's, set at registration). */
+type Display = { display_name?: string | null };
+/** GET /loyalty/account: the points the patient holds. */
+type LoyaltyAccount = { points?: number | null };
+type NotificationRow = { read?: boolean };
 type Payload<T> = { data?: T } | T | null | undefined;
 const unwrap = <T,>(value: Payload<T>): T | undefined => (value && typeof value === 'object' && 'data' in value ? (value as { data?: T }).data : (value as T | undefined));
 const localDate = (value?: string) => (value ? new Date(value).toDateString() : '');
@@ -54,7 +60,9 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [failed, setFailed] = useState(0);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const dispatch = useDispatch();
+  const [display, setDisplay] = useState<Display | null>(null);
+  const [points, setPoints] = useState<number | null>(null);
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [nutrition, setNutrition] = useState<NutritionSummary | null>(null);
   const [maternity, setMaternity] = useState<MaternityProfile | null>(null);
@@ -65,25 +73,32 @@ export default function HomeScreen() {
   const load = useCallback(async (refresh = false) => {
     if (refresh) setRefreshing(true); else setLoading(true);
     const results = await Promise.allSettled([
-      apiFetch('/users/me/profile'), apiFetch('/health/reminders'), apiFetch('/nutrition/daily-summary'),
+      apiFetch('/users/me/display'), apiFetch('/health/reminders'), apiFetch('/nutrition/daily-summary'),
       apiFetch('/maternity/profile'), apiFetch('/mental-health/mood?days=1'), apiFetch('/health/vitals/summary'), apiFetch('/home/upcoming-appointment'),
+      apiFetch('/notifications'), apiFetch('/loyalty/account'),
     ]);
     const value = (index: number) => (results[index].status === 'fulfilled' ? (results[index] as PromiseFulfilledResult<unknown>).value : undefined);
     const rows = <T,>(index: number): T[] | null => {
       const v = unwrap<T[]>(value(index) as Payload<T[]>);
       return Array.isArray(v) ? v : null;
     };
-    setProfile(unwrap<Profile>(value(0) as Payload<Profile>) || null);
+    setDisplay(unwrap<Display>(value(0) as Payload<Display>) || null);
     setReminders(rows<Reminder>(1) ?? []);
     setNutrition(unwrap<NutritionSummary>(value(2) as Payload<NutritionSummary>) || null);
     setMaternity(unwrap<MaternityProfile>(value(3) as Payload<MaternityProfile>) || null);
     setMoodEntries(rows<MoodEntry>(4));
     setVitals(rows<unknown>(5) ?? []);
     setAppointment(unwrap<UpcomingAppointment>(value(6) as Payload<UpcomingAppointment>) || null);
+    // the bell's dot: the real unread rows of GET /notifications; unknown (null) when the call failed, so no dot
+    const notificationRows = rows<NotificationRow>(7);
+    dispatch(setUnreadCount(notificationRows ? notificationRows.filter((row) => !row.read).length : null));
+    // the points card shows a number only when the API returned one
+    const loyalty = unwrap<LoyaltyAccount>(value(8) as Payload<LoyaltyAccount>);
+    setPoints(typeof loyalty?.points === 'number' && Number.isFinite(loyalty.points) ? loyalty.points : null);
     setFailed(results.filter((item) => item.status === 'rejected').length);
     setLoading(false);
     setRefreshing(false);
-  }, []);
+  }, [dispatch]);
   useFocusEffect(useCallback(() => { void load(); }, [load]));
 
   const doseSummary = useMemo(() => {
@@ -92,7 +107,8 @@ export default function HomeScreen() {
     return { total: doses.length, taken: doses.filter((item) => item.status === 'taken').length, next: doses.filter((item) => item.status === 'pending').sort((a, b) => a.time_key.localeCompare(b.time_key))[0], activeCount: active.length };
   }, [reminders]);
 
-  const patientName = [profile?.full_name, profile?.name, profile?.display_name].find((v) => typeof v === 'string' && v.trim())?.trim() ?? null;
+  // the user record's name from /users/me/display; empty (a guest, or no name yet) hides the name everywhere
+  const patientName = typeof display?.display_name === 'string' && display.display_name.trim() ? display.display_name.trim() : null;
   const goReminders = () => router.push('/health/medication-reminder-list');
 
   // The reminder card: the next dose, or that today's doses are done; nothing when there are no active reminders.
@@ -116,7 +132,7 @@ export default function HomeScreen() {
   if (moodEntries) records.push({ key: 'mood', service: 'mind', title: t('mood'), subtitle: moodLoggedToday ? t('moodLogged') : t('moodNotLogged'), route: '/mental-health/mood-journal' });
   if (maternity?.profile_ready) records.push({ key: 'maternity', service: 'maternity', title: t('maternity'), subtitle: maternity.is_pregnant ? t('maternityPregnancy') : t('maternityCycle'), route: '/maternity/hub' });
 
-  const goAppointment = () => (appointment?.id ? router.push({ pathname: '/consultations/appointment-detail', params: { id: appointment.id } }) : router.push('/(tabs)/consultations'));
+  const goAppointment = () => (appointment?.id ? router.push({ pathname: '/consultations/appointment-detail', params: { appointmentId: appointment.id } }) : router.push('/(tabs)/consultations'));
   const hasAppointment = Boolean(appointment && (appointment.doctorName || appointment.type || appointment.time || appointment.date));
 
   return (
@@ -131,20 +147,20 @@ export default function HomeScreen() {
         <HomeTopRow name={patientName} />
         <GreetingCard name={patientName} />
         {failed > 0 && !loading ? <LoadBanner message={t('error')} retryLabel={t('retry')} onRetry={() => void load(true)} /> : null}
-        {loading ? <Skeleton variant="block" theme={theme} /> : reminder ? <ReminderCard label={tr('تذكير صحي')} title={reminder.title} subtitle={reminder.subtitle} onPress={goReminders} /> : null}
+        {loading ? <Skeleton variant="block" theme={theme} /> : reminder ? <ReminderCard label={tr('home.reminder')} title={reminder.title} subtitle={reminder.subtitle} onPress={goReminders} /> : null}
         <ServiceGrid items={HOME_SERVICES} />
         <AiCard onPress={() => router.push('/ai-assistant')} />
         <ToolsRow tools={HOME_TOOLS} />
         <AllServicesRow onPress={() => router.push('/services')} />
         {hasAppointment && appointment ? (
           <View style={{ gap: 10 }}>
-            <SectionHeader title={tr('موعدك القادم')} actionLabel={tr('كل المواعيد')} onActionPress={() => router.push('/consultations/appointments')} theme={theme} />
-            <AppointmentCard appointment={appointment} onDetails={goAppointment} detailsLabel={tr('التفاصيل')} />
+            <SectionHeader title={tr('home.nextAppointment')} actionLabel={tr('home.allAppointments')} onActionPress={() => router.push('/consultations/appointments')} theme={theme} />
+            <AppointmentCard appointment={appointment} onDetails={goAppointment} detailsLabel={tr('home.details')} />
           </View>
         ) : null}
         <DayRecords title={t('healthRecords')} rows={records} />
         <HomeSections />
-        <PointsCard onPress={() => router.push('/loyalty/hub')} />
+        <PointsCard points={points} onPress={() => router.push('/loyalty/hub')} />
       </View>
     </Screen>
   );

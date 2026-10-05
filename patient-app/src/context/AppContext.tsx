@@ -26,11 +26,11 @@ export const LANGUAGES: {
   flag: string;
   rtl: boolean;
 }[] = [
-  { code: 'ar', label: 'Arabic', native: 'العربية', flag: 'SA', rtl: true },
+  { code: 'ar', label: 'Arabic', /* i18n-ok: English exonym, the list's second line */ native: 'العربية', flag: 'SA', rtl: true },
   { code: 'en', label: 'English', native: 'English', flag: 'GB', rtl: false },
-  { code: 'ur', label: 'Urdu', native: 'اردو', flag: 'PK', rtl: true },
-  { code: 'hi', label: 'Hindi', native: 'हिन्दी', flag: 'IN', rtl: false },
-  { code: 'bn', label: 'Bengali', native: 'বাংলা', flag: 'BD', rtl: false },
+  { code: 'ur', label: 'Urdu', /* i18n-ok: English exonym, the list's second line */ native: 'اردو', flag: 'PK', rtl: true },
+  { code: 'hi', label: 'Hindi', /* i18n-ok: English exonym, the list's second line */ native: 'हिन्दी', flag: 'IN', rtl: false },
+  { code: 'bn', label: 'Bengali', /* i18n-ok: English exonym, the list's second line */ native: 'বাংলা', flag: 'BD', rtl: false },
   { code: 'fil', label: 'Filipino', native: 'Filipino', flag: 'PH', rtl: false },
 ];
 
@@ -123,15 +123,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  // Toggle what the user SEES, not the stored mode: in mode 'system' on a dark device the screen is dark while the
+  // mode is 'system', so flipping the stored mode ('system' is not 'dark', so the next is 'dark') changed nothing.
   const toggleTheme = useCallback(() => {
-    setThemeModeState((prev) => {
-      const next = prev === 'dark' ? 'light' : 'dark';
-      AsyncStorage.setItem(STORAGE_THEME, next).catch((_err) => {
-        /* handled */
-      });
-      return next;
-    });
-  }, []);
+    setThemeMode(isDark ? 'light' : 'dark');
+  }, [isDark, setThemeMode]);
 
   const setLang = useCallback((l: LangCode) => {
     setLangState(l);

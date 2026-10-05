@@ -67,3 +67,117 @@ Only the validation changed: `lib/api/search.ts` checks the nine fields by hand 
 ## Colours (app)
 
 `ScreenStates` (retry button and label), `OfflineBanner` (offline and back-online banner, text), `SearchBar` (active filter icon) and `Progress` (active step label) used raw `#fff`, `#F0567A`, `#2BB89C`. They now read `c.action.primary.bg`, `c.text.onBrand`, `c.status.danger.*` and `c.status.success.*` from the tokens of the active theme. These four components have no board render of their own; verified by the app tests and the type check.
+
+## Client-side fixes from Needs review (app)
+
+Owner rule (2026-10-05): client-side defects from Needs review are fixed in the batch that owns the screen; backend items stay for the reviewer. Source: `needs-review/batch-0-app.json` (33 entries; indexes below are positions in that array). Contracts were checked with curl against the seeded backend (`/auth/login`, `/auth/send-otp`, `/auth/verify-otp`, `/auth/reset-password`, `/users/me/display`, `/loyalty/account`, `/notifications`, `/care/doctors`, `/care/specialties`). 13 entries are left in the file (rewritten to say what is needed, plus one new entry).
+
+| # | Entry | Result |
+|---|---|---|
+| 0 | Splash routing | FIXED by the owner's launch rule: first launch (no session, Welcome never shown) goes to Welcome and opens no guest behind it; a later launch opens Home, with the silent guest session when no session is stored; a stored session always opens Home. `Welcome` writes `ONBOARDING_DONE` when it opens (the flag the splash reads). The splash also tells the (non-persisted) auth slice about the stored guest/patient session (`restoreSession`). `utils/launchRoute.ts`, `app/index.tsx`, `app/(auth)/welcome.tsx` |
+| 1 | Onboarding without an entry point | LEFT: owner decision (intro/language/permissions before Welcome, or remove them) |
+| 2 | Bell unread dot | FIXED: Home reads GET /notifications and stores the count of `read:false` rows (`setUnreadCount`); the notifications screen reports its own count (read, read all, refresh); `null` (no dot) when the load failed. `notificationsSlice.ts`, `(tabs)/index.tsx`, `notifications/index.tsx`, `HomeTopRow.tsx` |
+| 3 | "Details" param | FIXED: `appointmentId` (`(tabs)/index.tsx`) |
+| 4 | Greeting name | FIXED: GET /users/me/display `display_name` (replaces /users/me/profile); empty or failed hides the name |
+| 5 | Dark-mode switch from `system` | FIXED: `toggleTheme` flips the effective `isDark` (`AppContext.tsx`) |
+| 6 | Route collisions | LEFT (`/services` pair and `/`: owner decision / device check). Part fixed: notifications Back fallback is `/(tabs)` instead of the bare `/` |
+| 7 | Points card | FIXED: GET /loyalty/account `points`, shown only when numeric ("Your balance: 1,250 points", Intl number); the owner's "up to 10%" sentence stays; no number otherwise (`HomeParts.tsx`) |
+| 8 | Curated deep links | FIXED: `utils/deepLinks.ts` allow-list of the app's section folders; anything else (external URL, `//host`, scheme, unknown path) is a card with no tap. The title already follows the language (`title_en`, else `title_ar`); `title_en` is only filled when the admin form writes it (backend) |
+| 9 | Failed login clears the guest session | FIXED: `skipAuth: true` for /auth/login and /auth/social-login (/auth/guest already had it); the fetch client no longer clears the session on a 401 from send-otp, verify-otp, reset-password, register, login, guest, social-login, refresh |
+| 10 | Session state after login and social login | FIXED: one `startSession` (`utils/authSession.ts`): both tokens to secure storage, then `loginSuccess` (clears `isGuest`, so the guard and the push registration see the user). Social login no longer falls back to AsyncStorage and keeps the refresh token. Not-stored answers an error and claims nothing |
+| 11 | Two api helpers | LEFT: one client is a repo-wide change (see the entry); the 401 rule above is the trivial part |
+| 12 | Identifier validation | FIXED: email by shape (a@b.sa passes), phone by 9-15 digits (`isValidIdentifier`) |
+| 13 | Server messages in English | FIXED on login, register, code, forgot and reset: `serverMessage()` maps the known messages (and the root helper's own Arabic fallbacks) to translation keys; an unknown message shows the screen's generic translated message, never the raw one |
+| 14 | Social hooks with empty client ids | LEFT: unverifiable without running the native app |
+| 15 | Backend does not verify Apple/X/Snapchat tokens | LEFT: backend |
+| 16 | Duplicate email/phone found after the OTP | LEFT: no availability endpoint exists (backend). The refusal after the code is now shown translated |
+| 17 | Resend without purpose | FIXED: in register mode the resend sends `purpose:'register'` (verified: without it a new email gets `{ok:true}` and no code) |
+| 18 | Reset flow asks for the code twice | FIXED client-side without touching the backend: reset mode skips `verify-otp` (the backend deletes the code on a valid check) and passes the code to the reset screen, which sends it once to `/auth/reset-password` |
+| 19 | Register stores no refresh token | FIXED: register goes through `startSession` (both tokens). The dead `login` mode and the unused `phone` param are left (no caller, no behaviour) |
+| 20 | Forgot password silent no-op | FIXED: inline messages for empty and malformed email |
+| 21 | Reset password silent no-op, missing email | FIXED: inline message per rule (email, code, length, mismatch); without the email param the screen shows an email field |
+| 22 | Services rows | PART FIXED: eye exam and dentistry open the doctors search with specialty `ophthalmology` / `dentistry`; the AI assistant row opens `/ai-assistant`. LEFT: the radiology rows (the radiology list is a toggle inside `(tabs)/diagnostics.tsx`: 46 literals, 37 raw colours, Diagnostics batch) |
+| 23 | Doctors view response shape | FIXED: reads `items[]` and the real fields (`utils/doctorSearch.ts`); nothing invented (no waiting time) |
+| 24 | Doctors view query names | FIXED: `q`, `specialty`, `sort=rating|price_asc` (no waiting-time sort); searches as the user types |
+| 25 | Pharmacy redirect drops the query | FIXED: redirects to `/search` with `q` |
+| 26 | Package/insurance results | PART FIXED: package opens `/offers/[id]`. LEFT: insurer (no detail screen: owner decision) |
+| 27 | Notification routes | PART FIXED: report/result id, community post, family permission request. LEFT: `/wallet/hub` and the engagement nudges' generic route (backend) |
+| 28 | `reportId` vs `id` | FIXED (`translateBackendRoute`) |
+| 29, 30, 32 | Notification language, types, doctor name | LEFT: backend items, untouched |
+| 31 | Date older than 30 days | FIXED: `dateLocaleFor(lang)` |
+
+Other client changes made on the way: `usePushNotifications.ts` had one raw colour (the Android notification LED, `#FF231F7C`), now the action token (no-raw-color 8739 -> 8738; client-token-sync stays 918: none of the touched files carried a counted colour). `render-native-screen.fixtures.json` (TEST values) now answers `/users/me/display`, `/notifications`, `/loyalty/account` for the Home render.
+
+### Translation rule (owner, 2026-10-06) on the files these fixes touch
+
+All 36 touched files end with zero literal UI strings (`no-literal-ui-string.mjs --changed`). The 120+ literals of the touched screens (login, otp, forgot, reset, register, welcome, Home, HomeParts, HomeTopRow, notifications, splash, doctors view) became keys of `src/i18n/locales/*.json` with all six translations (146 new keys in ar, en, ur, hi, bn, tl; `locale-parity --base` reports no missing or English key among them). `autoTranslate` resolves a dotted key, so existing components keep working; error messages from the server are keys too (`errors.*`). The language names in `AppContext.LANGUAGES` carry `i18n-ok` (English exonyms used as a second line).
+
+
+## Client-side fixes from Needs review (patient-web, branch `wip-b0fix-web`)
+
+Owner rule (2026-10-05): client-side defects found by the Batch 0 audits are fixed in the batch that owns the screen; backend items stay for the reviewer. The source list was `needs-review/batch-0-web.json` (42 entries, numbered here by position, 0 to 41) and `batch-0-runtime.json`. FIXED entries are removed from the lists; LEFT entries (and the backend part of a partly fixed one) stay with a `suspect` that names the decision or backend change. Backend entries (6, 8, 34, 39, 40, 41) were not touched.
+
+| # | Screen and element | Result | What and where |
+|---|---|---|---|
+| 0 | Language menu | FIXED | `locale-selector.tsx` swaps only the locale segment (`lib/locale-path.ts`) and keeps `?query#hash`; test `lib/locale-path.test.ts` |
+| 1 | /login guest button and Google callback | FIXED | one stable device id per browser (`lib/auth/device-id.ts`, key `nabd_device_id`, the one /welcome already used) in `social-login-buttons.tsx` and `auth-welcome.tsx`; the guest lands on Home like /welcome |
+| 2 | Two-factor step | LEFT | the seeded backend has no staff credentials to verify the 2FA contract against; which roles may open a patient session is an owner decision |
+| 3 | Login error text | FIXED | `loginErrorMessage` maps 400, 401, 403, 429, 5xx, 503/504 (`login-form.tsx`, `lib/auth/auth-errors.ts`), six languages |
+| 4 | Google button busy state | FIXED (part) | `error_callback`, script failure and a press before the script loaded clear the busy state and show a message. LEFT: the COOP / CSP headers (needs a client id and a security decision) |
+| 5 | Hard-coded login copy, identifier keyboard | FIXED | strings in `Login.*`; the identifier field is plain text (no e-mail keyboard, no fixed placeholder) |
+| 7 | Consent ids and versions | LEFT | the backend only asserts strings and no endpoint lists the current policies: backend question |
+| 9 | Register errors | FIXED (client) | 409 "already registered", 429, 5xx "could not be completed, your account may exist" (never "no account was created"). LEFT: the backend reports an OTP-send failure as a registration failure |
+| 10 | Copy outside messages (register, otp, forgot, reset, welcome) | FIXED | `Register`, `Otp`, `ForgotPassword`, `PasswordReset`, `Welcome`, `Metadata.*Title`, `AuthFrame`, `Shared.wordmark` in six languages; unused keys dropped |
+| 11 | OTP resend | FIXED | `app/api/auth/otp/request/route.ts` accepts the real `{otp_sent, channel, expires_in}` (was `{ok}`); resend errors by status |
+| 12 | OTP exchange body | FIXED | `session/exchange/route.ts` sends `{exchange_token}` in the JSON body (verified against the backend: an empty body answers 400) |
+| 13 | OTP session cookies | FIXED | the BFF re-issues the backend's `nabd_patient_access/refresh` cookies as `nabd_access/nabd_refresh` (the cookies the web reads) and clears the exchange cookie; `session/exchange/route.test.ts`. The success answer was read from the controller (the seeded backend cannot deliver a code: SMS/e-mail are off in `NODE_ENV=test`) |
+| 14 | Identifier in the /otp URL | FIXED | `/api/auth/register` sets a 15-minute httpOnly cookie, the page reads it on the server, the exchange clears it |
+| 15 | Forgot password | FIXED (client) | success message links to /password-reset; throttled request says so. LEFT: e-mail with a link, longer lifetime, phone-only accounts (backend) |
+| 16 | Reset token field | FIXED (client) | plain text field, no number pad; expired code says so with a link to request a new one. LEFT: the 60 s lifetime (backend, in 15) |
+| 17 | /welcome guest button | FIXED | `/login?guest=blocked` is read by the page and shown; both guest buttons go to Home |
+| 18 | /onboarding entry and outcome | LEFT | redirecting the indexable public Home to /welcome on first visit is a product decision |
+| 19 | Onboarding copy | FIXED (part) | all copy in `Onboarding.*`. LEFT: slide 2 and 3 icon pairing, to be checked against a board |
+| 20 | Button inside a link (onboarding) | FIXED | `components-next/link-button.tsx`: one `<button>` that navigates |
+| 21 | Allow buttons do nothing | LEFT | needs a push-subscribe route and a service worker, or removing the buttons: decision |
+| 22 | Home search `?q=` | FIXED (part) | /search starts with `?q=` and runs it. LEFT: the page still requires a session (product decision) |
+| 23 | Language button label | FIXED | `Shared.language` is "Language" in Arabic and English (was the other language's name) |
+| 24 | Theme toggle names | FIXED | `theme-toggle.tsx` reads `NotificationSettings.appearance*`; the empty live region is gone |
+| 25 | Doctor cards: price, place, next slot | FIXED | `lib/api/doctors.ts` reads `price_clinic/online/home`, `hospital`, `next_available_at`, `consultation_modes`, `academic_degree`; next slot through `lib/format-slot.ts` (locale formatters, Riyadh time). `GET /care/doctors` is empty on the seeded backend: written from `toPublicDoctor`, tested with that shape (new Needs review entry) |
+| 26 | Doctor cards: name, specialty | FIXED | name by locale (`doctorDisplayName`), specialty by `SpecialtyNames.<slug>` (42 slugs, six languages, equal to the backend master by test), hidden when unknown |
+| 27 | error.tsx | DONE earlier | removed from the list |
+| 28 | Sign-out | FIXED (client) | `sign-out-button.tsx` in HomeShell and CoreShell. LEFT: the backend does not revoke the refresh session |
+| 29 | Curated items: link | FIXED | `lib/curated.ts`: locale-prefixed, only pages that exist on the web (list kept equal to `app/[locale]` by test), no scheme or host; otherwise the card has no link |
+| 30 | Curated items: image | FIXED | `lib/image-hosts.ts`, also the source of `next.config.ts` (not widened); another host renders the card without the image |
+| 31 | Section links | FIXED | `components-next/shell-links.ts`, one source for both frames. Targets chosen: the Home board's (kept in Needs review to confirm) |
+| 32 | Maintenance copy and footer | FIXED | `HomeWeb.maintenance*`, the admin's message only in its own language; footer links in `Shared.footer*` |
+| 33 | Dashboard hero name | FIXED | `GET /users/me/display` (`display_name`); no name hides |
+| 35 | Search intent | FIXED | results first; the intent parser is asked only when nothing was found and confidence is 0.85 or more (`intentRedirect`) |
+| 36 | Query length | FIXED | the query is cut to 120 characters (`truncateQuery`); the BFF allowlist cap now fits 120 encoded characters (`patient-allowlist.ts`, 1440) so Arabic is not a 404 |
+| 37 | Doctor sub-line | FIXED | slug to translated name in `search-client.tsx` |
+| 38 | Notification rows | FIXED | rows are buttons or links, tap marks read (`POST /notifications/:id/read`, `read-all`, allowlisted) and the dot clears; web routes for five app routes; `Notifications.notice` ("view-only") removed |
+| runtime | /dashboard and / on upstream failure | FIXED | owner decision 3: `ErrorState` with a retry inside the shell (see below) |
+
+### Owner decision 3: Home and dashboard error state
+
+`/` fails (error state) when the doctors call or the public config call gets no answer or a 5xx; `/dashboard` when the display-name or the upcoming-appointment call does. A 401 on the dashboard still goes to sign-in; an empty 200, a 404 for an optional part and the curated sections failing only hide. The state is `ErrorState` with the existing `RetryErrorState` (`router.refresh()`), copy `HomeWeb.unavailableTitle / unavailableBody / retry`. Tests: `app/[locale]/home-page.test.tsx`, `dashboard/dashboard-ssr.test.ts`.
+
+### Tests that encoded the old behaviour (changed)
+
+- `app/api/auth/otp/otp-routes.test.ts`: the OTP request mock was `{ok: true, ...}`; it is now the backend's `{otp_sent, channel, expires_in}`.
+- `tests/login-form.test.tsx`, `tests/auth-parity.test.tsx`: the `next-intl` mock returned the key; it now reads the real English messages (`tests/helpers/intl.tsx`); the code screen takes `identifier` as a prop, not from the URL.
+- `app/[locale]/dashboard/dashboard-page.test.ts`, `dashboard-ssr.test.ts`: the page test called the real backend and expected a dashboard even when it was unreachable (that is now the error state), so it mocks the two calls; the profile mock is the display DTO.
+- `lib/api/dashboard.test.ts`: the name is `display_name`.
+- `lib/api/notifications.test.ts`, `notifications-ssr.test.ts`: the parsed notification keeps `action.route` (resolved to a web path on the server, never sent to the browser).
+
+### Other deviations
+
+- `lib/api/patient-allowlist.ts` (BFF, patient-web code): two entries added (mark read) and the search cap raised from 120 to 1440 encoded characters, for the reason in 36.
+- `next.config.ts` now builds `images.remotePatterns` from `lib/image-hosts.ts` (same two hosts).
+- The dev server cannot run Turbopack from a git worktree (a `node_modules` symlink outside the root panics it); the checks below used `next dev --webpack`.
+
+### Checks run for these fixes
+
+- Seeded backend through the BFF (real answers, no mock): `POST /api/auth/otp/request` for an unknown e-mail answers `201 {"ok":true,"expires_in":300}`; `otp/verify` with no stored code answers 410; `session/exchange` with a bogus cookie answers 401 `exchange_token_invalid` (and clears the cookie), without a cookie 400.
+- Production build (`next build --webpack`) and `next start`, signed in as the seeded patient, CSP active: 19 routes at 390, 768 and 1440 (Home, login with `?guest=blocked`, register, otp, forgot, reset, welcome, onboarding x3, search with `?q=`, notifications, notification settings, dashboard in two languages): 0 style attributes, 0 horizontal overflow, 0 console errors. `tools/design/runtime-check.mjs --batch 0`: `runtime-batch-0-fixes2-web.md`, 45 runs, 0 with issues.
+- Error state: with the fault proxy in `error` mode `/` and `/dashboard` render the `ErrorState` with a retry (screenshots in `docs/design/screenshots/batch0-fixes/web-fix/`, Arabic at 390, 768 and 1440 in light and dark, English and Urdu at 390).
+- Not shown: the populated notification rows (the seeded patient has no notifications; the rows are covered by `notifications-ssr.test.ts`) and the featured-doctor cards (`GET /care/doctors` is empty on the seeded backend; covered by `app/[locale]/home-page.test.tsx` with the real `toPublicDoctor` shape).

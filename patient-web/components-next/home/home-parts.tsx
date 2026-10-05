@@ -9,7 +9,11 @@ import { ListItem, SectionHeader, ServiceTile } from "@/components-next/ui-gener
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import type { FillIconName, ServiceName, ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { NabdMark } from "@/components-next/nabd-mark";
-import type { DoctorRow } from "@/lib/api/doctors";
+import { doctorDisplayName, type DoctorRow } from "@/lib/api/doctors";
+import { curatedHref } from "@/lib/curated";
+import { formatNextSlot } from "@/lib/format-slot";
+import { allowedImageUrl } from "@/lib/image-hosts";
+import { specialtyLabel, type SpecialtySlug } from "@/lib/specialties";
 import type { HomeSection } from "@/lib/api/public-config-server";
 import type { Locale } from "@/lib/i18n";
 import styles from "./home.module.css";
@@ -202,7 +206,11 @@ export function AllServices({ locale, t, labels }: { locale: Locale; t: T; label
   );
 }
 
-/** Admin-curated home sections (GET /content/home): an image card per item. */
+/**
+ * Admin-curated home sections (GET /content/home): an image card per item. The admin stores a free-form `deep_link` (an app
+ * route) and an image URL: the link is followed only when it is a page that exists on the web (under the page's locale), the
+ * image only from the hosts next/image may load. Anything else renders the card as plain text instead of breaking the page.
+ */
 export function CuratedSections({ sections, locale, t }: { sections: HomeSection[]; locale: Locale; t: T }) {
   const ar = locale === "ar";
   const pick = (a?: string, e?: string) => (ar ? a || e : e || a) || "";
@@ -218,16 +226,21 @@ export function CuratedSections({ sections, locale, t }: { sections: HomeSection
             <ul className={styles.cards}>
               {items.map((item) => {
                 const label = pick(item.title_ar, item.title_en);
+                const href = curatedHref(item.deep_link, locale);
+                const image = allowedImageUrl(item.image_url);
+                const body = (
+                  <>
+                    {image ? (
+                      <span className={styles.cardMedia}>
+                        <Image src={image} alt="" fill sizes="(min-width: 1024px) 300px, (min-width: 768px) 45vw, 78vw" />
+                      </span>
+                    ) : null}
+                    <span className={styles.cardTitle}>{label}</span>
+                  </>
+                );
                 return (
                   <li key={item.id || label}>
-                    <Link href={item.deep_link || `/${locale}`} className={styles.card}>
-                      {item.image_url ? (
-                        <span className={styles.cardMedia}>
-                          <Image src={item.image_url} alt="" fill sizes="(min-width: 1024px) 300px, (min-width: 768px) 45vw, 78vw" />
-                        </span>
-                      ) : null}
-                      <span className={styles.cardTitle}>{label}</span>
-                    </Link>
+                    {href ? <Link href={href} className={styles.card}>{body}</Link> : <div className={styles.card}>{body}</div>}
                   </li>
                 );
               })}
@@ -239,9 +252,9 @@ export function CuratedSections({ sections, locale, t }: { sections: HomeSection
   );
 }
 
-/** Real doctors from GET /care/doctors; the section is absent when there are none. */
-export function DoctorsSection({ doctors, locale, t }: { doctors: DoctorRow[]; locale: Locale; t: T }) {
-  const rows = doctors.filter((d) => d.name);
+/** Real doctors from GET /care/doctors; the section is absent when there are none. `specialties` is the SpecialtyNames translator. */
+export function DoctorsSection({ doctors, locale, t, specialties }: { doctors: DoctorRow[]; locale: Locale; t: T; specialties: (key: SpecialtySlug) => string }) {
+  const rows = doctors.flatMap((d) => { const name = doctorDisplayName(d, locale); return name ? [{ d, name }] : []; });
   if (!rows.length) return null;
   const number = new Intl.NumberFormat(locale);
   return (
@@ -251,16 +264,16 @@ export function DoctorsSection({ doctors, locale, t }: { doctors: DoctorRow[]; l
         <NavLink href={`/${locale}/consultations/doctors`} className={styles.seeAll} prefetch="viewport">{t("seeAll")}</NavLink>
       </div>
       <SoftLinks className={styles.cards}>
-        {rows.map((d) => (
+        {rows.map(({ d, name }) => (
           <li key={d.id}>
             <DoctorCard
-              name={d.name as string}
+              name={name}
               href={`/${locale}/consultations/doctors/${encodeURIComponent(d.id)}`}
               grade={d.degree}
-              specialty={d.specialty}
+              specialty={specialtyLabel(specialties, d.specialty) ?? undefined}
               place={d.facility}
               rating={d.rating && d.reviews ? { value: d.rating, count: d.reviews } : undefined}
-              nextSlot={d.nextSlot}
+              nextSlot={formatNextSlot(d.nextSlot, locale) ?? undefined}
               price={d.price ? number.format(d.price) : undefined}
               currency={d.price ? t("currency") : undefined}
               bookLabel={t("bookNow")}
