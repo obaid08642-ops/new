@@ -25,4 +25,5 @@ behaviour exactly.
 | f2 | F2: coverage-check reads what add-policy and the provider save; benefits-summary per service as providers decided | `acceptance/f2` | — | `tools/live/j_insurance.py`; j_lab, j_radiology, j_consultation green |
 | q103 | Q103: no demo seed data in backend/src or its scripts | `acceptance/q103` | — | — |
 | 31b1a1e | 31b1a1e/Q37/Q36/Q41: one availability function (buffer, holds, grid, fixed length) for list, preview and booking | `acceptance/31b1a1e` | — | j_consultation green |
+| e64ec70 | e64ec70/F8 (owner: pending revision b): an edit without catalog.approve waits as `pending_revision`; patients see the approved version until approve; reject discards it | `acceptance/e64ec70` | — | — |
 | n7 | N7 (owner): doctors' and nurses' public views hold no account id, phone, email, street/home address, national id or IBAN; name, specialty, clinic/district, rating stay; businesses keep their phone | `acceptance/n7` | — | j_consultation, j_nursing green (booking by the public id) |
