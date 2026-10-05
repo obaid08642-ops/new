@@ -48,7 +48,8 @@ export default async function SpecialtySelectPage({ params, searchParams }: Prop
   const specialties = extractSpecialties(await response.json().catch(() => null));
   const query = q.trim().toLocaleLowerCase(locale);
   const filtered = specialties.filter((specialty) => [specialty.nameAr, specialty.nameEn, specialty.slug].filter(Boolean).some((value) => value!.toLocaleLowerCase(locale).includes(query)));
-  const faqs: Array<{ q: string; a: string }> = t.raw("faq") as any;
+  // F82-1: the catalogues are precompiled, which does not allow arrays, so the FAQ is a keyed object.
+  const faqs: Array<{ q: string; a: string }> = Object.keys(t.raw("faq") as Record<string, unknown>).map((key) => ({ q: t(`faq.${key}.q`), a: t(`faq.${key}.a`) }));
   return (
     <main className="main" style={{ maxWidth: 980, margin: "0 auto", padding: "32px 16px 80px", background: "#FDFDFC" }}>
       <JsonLd data={[{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }]} />

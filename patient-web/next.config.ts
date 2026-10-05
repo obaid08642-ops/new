@@ -51,7 +51,12 @@ const nextConfig: NextConfig = {
   }
 };
 
-const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
+// F82-1: the catalogues are compiled at build time, so the browser does not ship the ICU message
+// parser (about 12 KB gz) and does not parse a message on first use.
+const withNextIntl = createNextIntlPlugin({
+  requestConfig: "./i18n/request.ts",
+  experimental: { messages: { path: "./messages", format: "json", locales: "infer", precompile: true } },
+});
 export default withSentryConfig(withNextIntl(nextConfig), {
   silent: true,
   disableLogger: true,
