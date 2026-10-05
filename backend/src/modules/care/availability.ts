@@ -19,6 +19,8 @@
  */
 export const SLOT_BUFFER_MINUTES = 5;
 export const SLOT_LEAD_MINUTES = 15;
+/** Slot starts are on one 30-minute grid whatever the appointment's duration. */
+export const SLOT_STEP_MINUTES = 30;
 
 /** Appointment statuses that occupy their slot (RESCHEDULED frees the old slot). */
 export const BLOCKING_APPOINTMENT_STATUSES: readonly string[] = ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'];
@@ -123,7 +125,7 @@ export function dayStartOf(dateStr: string): Date | null {
   return isNaN(d.getTime()) ? null : d;
 }
 
-/** Candidate slots inside the windows, every `duration` minutes, at least the lead time ahead. */
+/** Candidate slots inside the windows on the 30-minute start grid, `duration` long, at least the lead time ahead. */
 export function candidateSlots(dayStart: Date, windows: Window[], durationMinutes: number, nowMs: number): ListedSlot[] {
   const out: ListedSlot[] = [];
   const seen = new Set<string>();
@@ -134,7 +136,7 @@ export function candidateSlots(dayStart: Date, windows: Window[], durationMinute
     const openTs = dayStart.getTime() + oh * 3600_000 + om * MIN;
     let closeTs = dayStart.getTime() + ch * 3600_000 + cm * MIN;
     if (closeTs <= openTs) closeTs += DAY; // overnight
-    for (let t = openTs; t + durationMinutes * MIN <= closeTs; t += durationMinutes * MIN) {
+    for (let t = openTs; t + durationMinutes * MIN <= closeTs; t += SLOT_STEP_MINUTES * MIN) {
       if (t < nowMs + SLOT_LEAD_MINUTES * MIN) continue;
       const id = new Date(t).toISOString();
       if (seen.has(id)) continue;

@@ -271,8 +271,13 @@ export class UnifiedBookingsService {
     if (!doctor) throw new NotFoundException('doctor_not_found');
     // The booker's (or booked-for member's) own hold does not hide the slot from them.
     const viewers = [...new Set(viewerIds.filter(Boolean).map(String))];
-    const availability = await this.slots.slotsForDate(doctor, requested.toISOString().slice(0, 10), type, 30, viewers);
-    const slot = (availability?.slots || []).find((candidate: any) => candidate.start === slotId);
+    // Overnight windows are listed under the day they open (as assertOffered checks).
+    let slot: { start: string; available: boolean } | undefined;
+    for (const day of [requested.toISOString().slice(0, 10), new Date(requested.getTime() - 24 * 3600_000).toISOString().slice(0, 10)]) {
+      const availability = await this.slots.slotsForDate(doctor, day, type, 30, viewers);
+      slot = (availability?.slots || []).find((candidate: any) => candidate.start === slotId);
+      if (slot) break;
+    }
     if (!slot) throw new BadRequestException('slot_not_available');
     if (!slot.available) throw new ConflictException('slot_taken');
     return slot.start;
