@@ -5,7 +5,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import {
-  Avatar, Badge, Button, Card, Chip, DoctorCard, EmptyState, OfferCard, ProductCard, ProgressRing, Timeline, ErrorState, FIcon, IconButton, ListItem, Radio, Rating,
+  Avatar, Badge, BottomTabBar, Button, Card, Chip, DoctorCard, EmptyState, OfflineState, OfferCard, ProductCard, ProgressRing, Timeline, ErrorState, FIcon, IconButton, ListItem, Radio, Rating,
   Search, SectionHeader, Segmented, Select, ServiceTile, SERVICE_ICONS, SERVICE_TONES, StatusChip, Stepper, Tabs, Toggle,
   FILL_ICON_PATHS,
 } from "@nabd/ui";
@@ -32,8 +32,8 @@ describe("12.A7 — the contract roster is honest", () => {
   it("lists every component exactly once", () => {
     expect(new Set(CONTRACT_NAMES).size).toBe(CONTRACT_NAMES.length);
     // 28 from §A7 + FIcon, SectionHeader (handoff §3, components 1/4) + Segmented, Toggle, Radio, StatusChip (2/4)
-    // + DoctorCard, ProductCard, OfferCard, Timeline, ProgressRing (3/4)
-    expect(CONTRACT_NAMES.length).toBe(39);
+    // + DoctorCard, ProductCard, OfferCard, Timeline, ProgressRing (3/4) + OfflineState (4/4)
+    expect(CONTRACT_NAMES.length).toBe(40);
   });
 
   it("every component named in the docs roster is in the contract", () => {
@@ -43,7 +43,7 @@ describe("12.A7 — the contract roster is honest", () => {
       "Button", "IconButton", "Segmented", "Toggle", "Radio", "StatusChip", "Input", "Select", "Otp", "Search", "Stepper",
       "SlotPicker", "Chip", "Badge", "Card", "DoctorCard", "ProductCard", "OfferCard", "Timeline", "ProgressRing", "ListItem", "ServiceTile", "FIcon", "SectionHeader", "Avatar",
       "PriceTag", "Rating", "Tabs", "NavBar", "BottomTabBar", "Sidebar",
-      "MapPinCard", "EmptyState", "ErrorState", "Toast", "Modal", "Skeleton",
+      "MapPinCard", "EmptyState", "ErrorState", "OfflineState", "Toast", "Modal", "Skeleton",
       "DataTable", "ChartCard",
     ];
     expect([...CONTRACT_NAMES].sort()).toEqual(fromTheSpec.sort());
@@ -462,10 +462,56 @@ describe("handoff §3 — cards (components 2/4 → 3/4) match the boards", () =
   });
 });
 
+describe("handoff §3 — states and the main tab bar (components 4/4) match the boards", () => {
+  it("EmptyState: the 112 FIcon in its tone, a 22/700 title, the full-width CTA and the text action", () => {
+    const html = markup(EmptyState, { icon: "package", tone: "coral", title: "السلة فاضية", body: "ابحث", actionLabel: "تصفح الصيدلية", secondaryActionLabel: "ارفع الروشتة" });
+    expect(html).toContain('data-icon="package"');
+    expect(html).toContain("var(--nabd-color-service-coral-bg)");
+    expect(html).toMatch(/<h2[^>]*>السلة فاضية<\/h2>/);
+    expect(html).toContain("width:100%"); // the lg CTA is full width
+    expect(html).toContain(">ارفع الروشتة<");
+    expect(html).not.toContain('role="alert"');
+  });
+
+  it("ErrorState is an alert, amber warning by default, the detail small and never the title", () => {
+    const html = markup(ErrorState, { title: "ما قدرنا نحمّل الصفحة", detail: "TypeError: fetch failed", retryLabel: "إعادة المحاولة" });
+    expect(html).toContain('role="alert"');
+    expect(html).toContain('data-icon="warning"');
+    expect(html).toContain("var(--nabd-color-service-amber-bg)");
+    expect(html).toMatch(/<code[^>]*>TypeError: fetch failed<\/code>/);
+  });
+
+  it("OfflineState is a polite status with wifi-slash in blue", () => {
+    const html = markup(OfflineState, { title: "لا يوجد اتصال", retryLabel: "إعادة المحاولة" });
+    expect(html).toContain('role="status"');
+    expect(html).toContain('data-icon="wifi-slash"');
+    expect(html).toContain("var(--nabd-color-service-blue-bg)");
+  });
+
+  it("BottomTabBar is HomeApp's bar: glass pill, ink active pill with its label, raised coral centre, every item named", () => {
+    const html = markup(BottomTabBar, { label: "التنقل الرئيسي", value: "home", items: [
+      { id: "home", label: "الرئيسية", icon: "house" },
+      { id: "consult", label: "الاستشارات", icon: "stethoscope", raised: true },
+      { id: "labs", label: "التحاليل", icon: "test-tube" },
+    ] });
+    expect(html).toMatch(/^<nav aria-label="التنقل الرئيسي"/);
+    expect(html).toContain("background:var(--nabd-color-glass-bgStrong)");
+    expect(html).toContain("box-shadow:var(--nabd-shadow-tabBar)");
+    expect(html.match(/aria-current="page"/g)).toHaveLength(1);
+    expect(html).toContain("background:var(--nabd-color-action-selected-bg)");
+    expect(html).toContain("linear-gradient(180deg, var(--nabd-color-action-fab-from) 0%, var(--nabd-color-action-fab-to) 100%)");
+    expect(html).toContain("margin-top:-34px");
+    for (const name of ["الرئيسية", "الاستشارات", "التحاليل"]) expect(html).toContain(`aria-label="${name}"`);
+    // the label is shown only on the active item
+    expect(html.match(/<span aria-hidden="true">/g)).toHaveLength(1);
+    expect(html).toContain(`d="${FILL_ICON_PATHS.stethoscope}"`);
+  });
+});
+
 describe("12.A7 — the gallery has every component", () => {
   it("build-preview renders a specimen for each contract component", () => {
     const src = readFileSync(resolve(process.cwd(), "../packages/ui/build-preview.mjs"), "utf8");
-    for (const name of ["Button", "IconButton", "Segmented", "Toggle", "Radio", "StatusChip", "DoctorCard", "ProductCard", "OfferCard", "Timeline", "ProgressRing", "Chip", "Badge", "Card", "ListItem", "ServiceTile", "FIcon", "SectionHeader", "Avatar", "PriceTag", "Rating", "Tabs", "NavBar", "BottomTabBar", "Sidebar", "MapPinCard", "EmptyState", "ErrorState", "Toast", "Modal", "Skeleton", "Input", "Select", "Otp", "Search", "Stepper", "SlotPicker"]) {
+    for (const name of ["Button", "IconButton", "Segmented", "Toggle", "Radio", "StatusChip", "DoctorCard", "ProductCard", "OfferCard", "Timeline", "ProgressRing", "Chip", "Badge", "Card", "ListItem", "ServiceTile", "FIcon", "SectionHeader", "Avatar", "PriceTag", "Rating", "Tabs", "NavBar", "BottomTabBar", "Sidebar", "MapPinCard", "EmptyState", "ErrorState", "OfflineState", "Toast", "Modal", "Skeleton", "Input", "Select", "Otp", "Search", "Stepper", "SlotPicker"]) {
       expect(src, `${name} has no specimen in the gallery`).toContain(name);
     }
   });

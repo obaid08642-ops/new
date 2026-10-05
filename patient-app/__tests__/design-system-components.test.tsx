@@ -1,4 +1,5 @@
 import { StyleSheet, Text } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as TestRenderer from 'react-test-renderer';
 import type { ReactTestRendererJSON } from 'react-test-renderer';
 
@@ -6,9 +7,11 @@ import {
   Button,
   Avatar,
   Card,
+  BottomTabBar,
   Chip,
   DoctorCard,
   EmptyState,
+  OfflineState,
   OfferCard,
   ProductCard,
   ProgressRing,
@@ -126,7 +129,7 @@ describe('12.A7 — the native renderer keeps the contract semantics', () => {
   it('empty and error stay two different components with two different roles', () => {
     // "You have no orders" is information. "We could not load your orders" is an
     // apology. Merging them means apologising to people with nothing yet.
-    const empty = render(<EmptyState illustration="emptyOrders" title="No orders yet" />);
+    const empty = render(<EmptyState icon="package" tone="coral" title="No orders yet" />);
     const error = render(<ErrorState title="We could not reach Nabd+" />);
 
     expect(findAll(empty, byRole('alert'))).toHaveLength(0);
@@ -406,6 +409,50 @@ describe('handoff §3 — native cards (components 3/4) keep the web semantics',
     const json = JSON.stringify(render(<Card title="t" tint="pink"><Text>داخل</Text></Card>));
     expect(json).toContain('داخل');
     expect(json).toMatch(svgColour(light.color.service.pink.bg));
+  });
+});
+
+describe('handoff §3 — native states and the main tab bar (components 4/4)', () => {
+  const light = tokens('light');
+
+  it('the three states share the board layout: the 112 FIcon in its tone, a header title, the full-width CTA', () => {
+    const empty = render(<EmptyState icon="package" tone="coral" title="السلة فاضية" actionLabel="تصفح الصيدلية" secondaryActionLabel="ارفع الروشتة" />);
+    const json = JSON.stringify(empty);
+    expect(json).toMatch(svgColour(light.color.service.coral.fg));
+    expect(findAll(empty, byRole('header'))[0]).toBeDefined();
+    expect(findAll(empty, byRole('button')).map((b) => b.props.accessibilityLabel)).toEqual(['تصفح الصيدلية', 'ارفع الروشتة']);
+  });
+
+  it('ErrorState is an alert with the amber warning by default; OfflineState is a polite summary with wifi-slash in blue', () => {
+    const error = render(<ErrorState title="ما قدرنا نحمّل الصفحة" retryLabel="إعادة المحاولة" />);
+    expect(findAll(error, byRole('alert'))).toHaveLength(1);
+    expect(JSON.stringify(error)).toMatch(svgColour(light.color.service.amber.fg));
+    const offline = render(<OfflineState title="لا يوجد اتصال" retryLabel="إعادة المحاولة" />);
+    expect(findAll(offline, byRole('alert'))).toHaveLength(0);
+    expect(findAll(offline, byRole('summary'))).toHaveLength(1);
+    expect(JSON.stringify(offline)).toMatch(svgColour(light.color.service.blue.fg));
+  });
+
+  it('BottomTabBar is the shell TabBar: a named tablist, one selected tab, the centre raised', () => {
+    const nodes = render(
+      <SafeAreaProvider initialMetrics={{ frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 47, bottom: 34, left: 0, right: 0 } }}>
+        <BottomTabBar
+          label="التنقل الرئيسي"
+          value="home"
+          items={[
+            { id: 'home', label: 'الرئيسية', icon: 'house' },
+            { id: 'consult', label: 'الاستشارات', icon: 'stethoscope', raised: true },
+            { id: 'labs', label: 'التحاليل', icon: 'test-tube' },
+          ]}
+        />
+      </SafeAreaProvider>,
+    );
+    const [list] = findAll(nodes, byRole('tablist'));
+    expect(list.props.accessibilityLabel).toBe('التنقل الرئيسي');
+    const tabs = findAll(nodes, byRole('tab'));
+    expect(tabs.map((t) => t.props.accessibilityLabel)).toEqual(['الرئيسية', 'الاستشارات', 'التحاليل']);
+    expect(tabs.map((t) => t.props.accessibilityState.selected)).toEqual([true, false, false]);
+    expect(JSON.stringify(nodes)).toMatch(svgColour(light.color.action.fab.from));
   });
 });
 

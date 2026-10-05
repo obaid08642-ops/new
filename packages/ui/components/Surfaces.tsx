@@ -20,7 +20,7 @@ import type {
 } from './contract';
 import { Icon, IllustratedIconView } from '../src/Icon';
 import { FIcon } from './FIcon';
-import { FILL_ICON_PATHS, SERVICE_ICONS } from '../icons/fill';
+import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, SERVICE_ICONS } from '../icons/fill';
 
 /**
  * The layout and navigation surfaces — 12.A7, web.
@@ -623,26 +623,111 @@ export function NavBar({ title, showBack = false, backLabel = 'Back', actions = 
   );
 }
 
-export function BottomTabBar({ items, value, onChange, testID }: BottomTabBarProps) {
+const TAB_BAR_H = 68;
+const TAB_ITEM = 52;
+const TAB_FAB = 66;
+
+/**
+ * canvas/HomeApp.dc.html nav: the floating glass pill, the active item an ink pill
+ * with icon and label, the raised coral centre. Geometry and colours as the
+ * native shell TabBar (packages/ui-native/src/shells/TabBar.tsx).
+ */
+export function BottomTabBar({ items, value, onChange, label = 'Main navigation', safeAreaInset = false, testID }: BottomTabBarProps) {
   return (
     <nav
-      aria-label="Primary"
+      aria-label={label}
       data-testid={testID}
       style={{
-        position: 'sticky',
-        bottom: 0,
-        zIndex: 'var(--nabd-z-appBar)',
+        height: TAB_BAR_H,
+        boxSizing: 'border-box',
+        borderRadius: TAB_BAR_H / 2,
+        background: 'var(--nabd-color-glass-bgStrong)',
+        WebkitBackdropFilter: 'blur(var(--nabd-color-glass-blur))',
+        backdropFilter: 'blur(var(--nabd-color-glass-blur))',
+        border: '1px solid var(--nabd-color-border-onGlass)',
+        boxShadow: 'var(--nabd-shadow-tabBar)',
         display: 'flex',
-        justifyContent: 'space-around',
-        paddingBlock: 'var(--nabd-space-2xs)',
-        paddingBottom: 'max(var(--nabd-space-2xs), env(safe-area-inset-bottom))',
-        background: 'var(--nabd-color-bg-surface)',
-        borderTop: '1px solid var(--nabd-color-border-default)',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingInline: 8,
+        marginBlockEnd: safeAreaInset ? 'env(safe-area-inset-bottom)' : undefined,
       }}
     >
-      {items.map((item) => (
-        <TabButton key={item.id} item={item} active={item.id === value} onSelect={onChange} layout="bar" />
-      ))}
+      {items.map((item) => {
+        const active = item.id === value;
+        const common = {
+          type: 'button' as const,
+          'aria-label': item.label,
+          'aria-current': active ? ('page' as const) : undefined,
+          disabled: item.disabled,
+          onClick: () => onChange?.(item.id),
+        };
+        if (item.raised) {
+          return (
+            <button
+              key={item.id}
+              {...common}
+              style={{ width: TAB_ITEM, height: TAB_ITEM, padding: 0, border: 0, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+            >
+              <span
+                style={{
+                  width: TAB_FAB,
+                  height: TAB_FAB,
+                  flexShrink: 0,
+                  marginTop: -34,
+                  boxSizing: 'border-box',
+                  borderRadius: TAB_FAB / 2,
+                  background: 'linear-gradient(180deg, var(--nabd-color-action-fab-from) 0%, var(--nabd-color-action-fab-to) 100%)',
+                  border: '5px solid var(--nabd-color-bg-canvas)',
+                  boxShadow: 'var(--nabd-shadow-fab)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <svg width={28} height={28} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true">
+                  <path d={FILL_ICON_PATHS[item.icon]} fill="var(--nabd-color-action-fab-fg)" />
+                </svg>
+              </span>
+            </button>
+          );
+        }
+        return (
+          <button
+            key={item.id}
+            {...common}
+            style={{
+              height: TAB_ITEM,
+              minWidth: TAB_ITEM,
+              boxSizing: 'border-box',
+              paddingInline: active ? 18 : 0,
+              borderRadius: TAB_ITEM / 2,
+              border: 0,
+              background: active ? 'var(--nabd-color-action-selected-bg)' : 'transparent',
+              color: active ? 'var(--nabd-color-action-selected-fg)' : 'var(--nabd-color-text-secondary)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              fontFamily: 'inherit',
+              fontSize: '13.5px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              position: 'relative',
+            }}
+          >
+            <svg width={24} height={24} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true">
+              <path d={FILL_ICON_PATHS[item.icon]} fill="currentColor" />
+            </svg>
+            {active ? <span aria-hidden>{item.label}</span> : null}
+            {item.badge !== undefined ? (
+              <span style={{ position: 'absolute', top: 4, insetInlineEnd: 4 }} aria-hidden>
+                <Badge content={item.badge} />
+              </span>
+            ) : null}
+          </button>
+        );
+      })}
     </nav>
   );
 }

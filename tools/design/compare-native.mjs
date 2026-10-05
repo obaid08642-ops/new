@@ -161,15 +161,17 @@ const COMPONENTS = [
   { id: 'productcard', board: 'PharmacyHub', xpath: "(//a[.//button[@aria-label='أضف للسلة']])[1]", name: 'ProductCard', fill: true, props: { name: '[اسم المنتج] [التركيز]', meta: '[الشركة] · [العبوة]', price: '[السعر]', currency: 'ر.س', discountLabel: 'خصم [٪]', addLabel: 'أضف للسلة' } },
   { id: 'offercard', board: 'HomeApp', themes: ['light', 'dark'], xpath: "(//a[.//span[normalize-space()='[اسم العرض أو الباقة]']])[1]", name: 'OfferCard', props: { title: '[اسم العرض أو الباقة]', provider: '[مقدم الخدمة]', price: '[السعر]', currency: 'ر.س', was: '[قبل الخصم]', tag: 'باقة', icon: 'test-tube', tone: 'blue' } },
   { id: 'progressring', board: 'CareHub', xpath: "(//*[name()='svg'][.//*[name()='circle']])[1]", name: 'ProgressRing', props: { value: 0.55, tone: 'pink', label: 'أسبوع الحمل', valueText: '[٢٢]', caption: 'أسبوع' } },
+  { id: 'emptystate', board: 'States', viewport: 1650, xpath: "//div[contains(@style,'left: 1260px')]", name: 'EmptyState', fill: true, frame: 'screen', props: { icon: 'package', tone: 'coral', title: 'السلة فاضية', body: 'ابحث عن دوائك أو ارفع الروشتة، والصيدليات القريبة تجهزه لك.', actionLabel: 'تصفح الصيدلية', secondaryActionLabel: 'ارفع الروشتة' } },
+  { id: 'offlinestate', board: 'States', viewport: 1650, xpath: "//div[contains(@style,'left: 420px')]", name: 'OfflineState', fill: true, frame: 'screen', props: { title: 'لا يوجد اتصال بالإنترنت', body: 'تقدر تشوف طلباتك ومواعيدك المحفوظة، وبنكمل أول ما يرجع الاتصال.', retryLabel: 'إعادة المحاولة' } },
   { id: 'stepper', board: 'Cart', xpath: "(//button[@aria-label='إنقاص'])[1]/parent::div", name: 'Stepper', frame: 'surface', props: { value: 1, min: 0, label: 'الكمية', decrementLabel: 'إنقاص', incrementLabel: 'زيادة' } },
 ];
 for (const k of COMPONENTS) {
   COMPARISONS.push({
-    id: k.id, board: k.board, themes: k.themes || ['light'], element: k.xpath,
+    id: k.id, board: k.board, themes: k.themes || ['light'], element: k.xpath, viewport: k.viewport,
     crop: () => ({}),
     data: () => ({}),
     // handlers cannot cross into the page as JSON: `true` marks a callback prop the component needs to show its button
-    cmp: (box, _data, theme) => ({ kind: 'component', theme, name: k.name, frame: k.frame, fill: k.fill, width: Math.ceil(box.width), props: k.props }),
+    cmp: (box, _data, theme) => ({ kind: 'component', theme, name: k.name, frame: k.frame, fill: k.fill, width: Math.ceil(box.width), height: Math.ceil(box.height), props: k.props }),
     note: `${k.name} from packages/ui-native, rendered through react-native-web at the board element's width.`,
   });
 }
@@ -179,7 +181,7 @@ const browser = await playwright.chromium.launch();
 const done = [];
 for (const c of COMPARISONS) {
   for (const theme of c.themes) {
-    const page = await browser.newPage({ viewport: { width: 390, height: 900 }, deviceScaleFactor: 2 });
+    const page = await browser.newPage({ viewport: { width: c.viewport || 390, height: 900 }, deviceScaleFactor: 2 });
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e)));
     page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text().slice(0, 300)); });

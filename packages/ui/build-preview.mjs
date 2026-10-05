@@ -465,13 +465,17 @@ function componentsGallery() {
   out.push(specimen('Tabs line', render(h(C.Tabs, { items: F.TABS, value: 'home', onChange: noop }))));
   out.push(specimen('Tabs segmented', render(h(C.Tabs, { items: F.SEGMENTED, value: 'all', variant: 'segmented', onChange: noop }))));
   out.push(specimen('NavBar', render(h(C.NavBar, { title: 'Order details', showBack: true, backLabel: 'Back', actions: [{ name: 'close', label: 'Close' }] }))));
-  out.push(specimen('BottomTabBar', render(h(C.BottomTabBar, { items: F.TABS, value: 'bookings', onChange: noop }))));
+  // canvas/HomeApp: floating glass pill, ink active pill with its label, raised coral centre
+  out.push(specimen('BottomTabBar', `<div style="width:362px;padding-top:40px">${render(h(C.BottomTabBar, { items: F.MAIN_TABS, value: 'home', onChange: noop }))}</div>`));
   out.push(specimen('Sidebar', render(h(C.Sidebar, { title: 'Admin', items: F.SIDEBAR_ITEMS, value: 'orders', onChange: noop }))));
   out.push('</div>');
 
   out.push('<h3>Status</h3><div class="row">');
-  out.push(specimen('EmptyState', render(h(C.EmptyState, { illustration: 'emptyOrders', title: 'No orders yet', body: 'Your orders will appear here once you place one.', actionLabel: 'Browse medicines' }))));
-  out.push(specimen('ErrorState', render(h(C.ErrorState, { title: 'We could not reach Nabd+', body: 'Check your connection and try again.', detail: 'TypeError: fetch failed', retryLabel: 'Try again' }))));
+  // canvas/States: empty, error, offline and 404 share one layout (112 FIcon, title, body, CTA)
+  out.push(specimen('EmptyState', `<div style="width:358px">${render(h(C.EmptyState, { icon: 'package', tone: 'coral', title: 'Your cart is empty', body: 'Search for your medicine or upload a prescription.', actionLabel: 'Browse the pharmacy', secondaryActionLabel: 'Upload a prescription' }))}</div>`));
+  out.push(specimen('ErrorState', `<div style="width:358px">${render(h(C.ErrorState, { title: 'We could not load the page', body: 'The server did not answer. Your data is safe.', detail: 'TypeError: fetch failed', retryLabel: 'Try again' }))}</div>`));
+  out.push(specimen('OfflineState', `<div style="width:358px">${render(h(C.OfflineState, { title: 'No internet connection', body: 'Your saved orders and appointments are still here.', retryLabel: 'Try again' }))}</div>`));
+  out.push(specimen('EmptyState (404)', `<div style="width:358px">${render(h(C.EmptyState, { icon: 'magnifying-glass', tone: 'violet', title: 'Page not found', body: 'The link may be old. Try search or go home.', actionLabel: 'Home', secondaryActionLabel: 'Search' }))}</div>`));
   out.push(specimen('Toast', render(h(C.Toast, { message: 'Order confirmed', tone: 'success', dismissible: true, dismissLabel: 'Dismiss' })), undefined, 'overlay'));
   out.push(specimen('Modal', render(h(C.Modal, { open: true, title: 'Cancel this order?', body: 'The clinic will be notified.', confirmLabel: 'Cancel order', cancelLabel: 'Keep it', destructive: true, closeLabel: 'Close' })), undefined, 'overlay'));
   out.push(specimen('Skeleton text', render(h(C.Skeleton, { variant: 'text', lines: 3 }))));

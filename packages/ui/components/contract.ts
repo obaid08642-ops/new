@@ -555,11 +555,28 @@ export interface NavBarProps extends A11yProps {
   actions?: Array<{ name: IconName; label: string; disabled?: boolean }>;
 }
 
+/** One item of the main tab bar: a filled glyph of the handoff set (canvas/HomeApp). */
+export interface BottomTabItem {
+  id: string;
+  label: string;
+  icon: FillIconName;
+  /** The raised coral centre button (Consultations). At most one item. */
+  raised?: boolean;
+  badge?: string | number;
+  disabled?: boolean;
+}
+
+/**
+ * The main tab bar, exactly as canvas/HomeApp.dc.html (design review 2026-10-04):
+ * a floating glass pill 68 tall, the active item an ink pill with its icon and
+ * label, and the raised 66 coral Consultations button in the centre. Every item
+ * is named by its label. Native renders the DEVICE_STANDARD shell TabBar.
+ */
 export interface BottomTabBarProps extends A11yProps {
-  items: TabItem[];
+  items: BottomTabItem[];
   value: string;
   onChange?: OnChange<string>;
-  /** The web renders this as a nav; native as a tab bar. */
+  /** Web: add the bottom safe-area inset below the bar (leave off inside AppShell, which pads for it). */
   safeAreaInset?: boolean;
 }
 
@@ -592,23 +609,39 @@ export interface MapPinCardProps extends StateProps, A11yProps {
 
 /* --------------------------------------------------------- status & dialogs */
 
+/**
+ * The state screens of canvas/States.dc.html (handoff §3 EmptyState / ErrorState /
+ * OfflineState): a 112 soft FIcon, a 22/700 title, the body, a full-width primary
+ * button and an optional text button, centred. The handoff's filled icon replaces
+ * the 12.A6 illustration here (handoff §1: 72–112 icons for empty states).
+ */
 export interface EmptyStateProps extends A11yProps {
-  /** An `ILLUSTRATION_NAME`. The picture says "nothing here" in any language. */
-  illustration: string;
+  /** e.g. `package` (empty cart), `magnifying-glass` (404). */
+  icon: FillIconName;
+  tone: ServiceTone;
   title: string;
   body?: string;
   actionLabel?: string;
   secondaryActionLabel?: string;
 }
 
+/** An error the user can act on. Announced (role alert); `detail` is small and never the title. */
 export interface ErrorStateProps extends StateProps, A11yProps {
-  /** An `ILLUSTRATION_NAME` from the error set. */
-  illustration?: string;
+  /** Defaults to `warning` in amber, as on the board. */
+  icon?: FillIconName;
+  tone?: ServiceTone;
   title: string;
   body?: string;
   /** The technical cause, for support. Rendered small, never as the title. */
   detail?: string;
   actionLabel?: string;
+  retryLabel?: string;
+}
+
+/** No connection (canvas/States): the wifi-slash icon in blue, the body and a retry. */
+export interface OfflineStateProps extends StateProps, A11yProps {
+  title: string;
+  body?: string;
   retryLabel?: string;
 }
 
@@ -719,6 +752,7 @@ export interface ContractMap {
   MapPinCard: MapPinCardProps;
   EmptyState: EmptyStateProps;
   ErrorState: ErrorStateProps;
+  OfflineState: OfflineStateProps;
   Toast: ToastProps;
   Modal: ModalProps;
   Skeleton: SkeletonProps;
@@ -768,6 +802,6 @@ export const CONTRACT_NAMES = [
   'Button', 'IconButton', 'Segmented', 'Toggle', 'Radio', 'StatusChip', 'Input', 'Select', 'Otp', 'Search', 'Stepper',
   'SlotPicker', 'Chip', 'Badge', 'Card', 'DoctorCard', 'ProductCard', 'OfferCard', 'Timeline', 'ProgressRing', 'ListItem', 'ServiceTile', 'FIcon', 'SectionHeader', 'Avatar',
   'PriceTag', 'Rating', 'Tabs', 'NavBar', 'BottomTabBar', 'Sidebar',
-  'MapPinCard', 'EmptyState', 'ErrorState', 'Toast', 'Modal', 'Skeleton',
+  'MapPinCard', 'EmptyState', 'ErrorState', 'OfflineState', 'Toast', 'Modal', 'Skeleton',
   'DataTable', 'ChartCard',
 ] as const satisfies readonly ContractName[];

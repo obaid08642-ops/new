@@ -31,7 +31,8 @@ import type {
 } from '../../../ui/components/contract';
 import { Icon, IllustratedIconView } from '../Icon';
 import { FIcon } from './FIcon';
-import { FILL_ICON_PATHS, SERVICE_ICONS } from '../../../ui/icons/fill';
+import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, SERVICE_ICONS } from '../../../ui/icons/fill';
+import { TabBar as ShellTabBar } from '../shells/TabBar';
 import { tokens } from '../../../design-tokens/dist/ts/tokens';
 import { withAlpha } from '../shells/shellTokens';
 
@@ -625,27 +626,31 @@ export function NavBar({ title, showBack = false, backLabel = 'Back', actions = 
   );
 }
 
-export function BottomTabBar({ items, value, onChange, testID, theme = 'light' }: BottomTabBarProps & { theme?: 'light' | 'dark' }) {
-  const dark = theme === 'dark';
+/**
+ * The main tab bar: the DEVICE_STANDARD shell TabBar (packages/ui-native/src/shells),
+ * which is canvas/HomeApp's nav 1:1 (floating glass pill, ink active pill with its
+ * label, raised coral centre), fed the handoff fill glyphs. Render it inside a
+ * SafeAreaProvider; it floats above the bottom inset.
+ */
+export function BottomTabBar({ items, value, onChange, label = 'Main navigation', testID, theme = 'light' }: BottomTabBarProps & { theme?: 'light' | 'dark' }) {
   return (
-    <View
-      accessibilityRole="tablist"
-      accessibilityLabel="Primary"
+    <ShellTabBar
       testID={testID}
-      style={{
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        paddingTop: 8,
-        paddingBottom: 28,
-        backgroundColor: dark ? '#12263A' : '#FFFFFF',
-        borderTopWidth: 1,
-        borderTopColor: dark ? '#6E8BFF' : '#D5DBE4',
-      }}
-    >
-      {items.map((item) => (
-        <TabButton key={item.id} item={item} active={item.id === value} onSelect={onChange} layout="bar" dark={dark} />
-      ))}
-    </View>
+      label={label}
+      theme={theme}
+      value={value}
+      onChange={(key) => onChange?.(key)}
+      items={items.map((item) => ({
+        key: item.id,
+        label: item.label,
+        raised: item.raised,
+        icon: (color: string, size: number) => (
+          <Svg width={size} height={size} viewBox={FILL_ICON_VIEWBOX}>
+            <Path d={FILL_ICON_PATHS[item.icon]} fill={color} />
+          </Svg>
+        ),
+      }))}
+    />
   );
 }
 

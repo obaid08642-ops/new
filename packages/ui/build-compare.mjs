@@ -62,7 +62,9 @@ const shellsCss = existsSync(join(HERE, 'shells/shells.css')) ? readFileSync(joi
  * themes    which themes to render (the board must accept `theme` for dark)
  * render    the component, with the board's text
  * frame     'canvas' (default), 'card' (the component sits in a white card on the board) or
- *           'surface' (a plain card-coloured background, for a control cut out of a card)
+ *           'surface' (a plain card-coloured background, for a control cut out of a card), or
+ *           'screen' (the board's whole phone screen, the component centred in it)
+ * expandTop also keep this many px above the element (content that overflows upward)
  * needs     component names that must exist in this build (else the entry is skipped)
  * viewport  page width for both sides (default 430; desktop boards use 1440)
  * inject    true: render(C, inner) also gets the board element's own children (HTML), so a
@@ -234,6 +236,35 @@ const COMPARISONS = [
     needs: ['Card', 'ProgressRing'],
     note: 'Card tint=pink + ProgressRing; the text beside the ring is the board\'s own. The ring track is the pink tone\'s soft colour (#FFE7F1) for the board\'s #FBD9E8.',
   },
+  // ---- components 4/4: states and the main tab bar
+  {
+    id: 'tabbar', board: 'HomeApp', xpath: "//nav[@aria-label='التنقل الرئيسي']", themes: ['light', 'dark'], expandTop: 40,
+    render: (C) => h(C.BottomTabBar, { label: 'التنقل الرئيسي', value: 'home', items: [
+      { id: 'home', label: 'الرئيسية', icon: 'house' }, { id: 'pharmacy', label: 'الصيدلية', icon: 'pill' },
+      { id: 'consult', label: 'الاستشارات', icon: 'stethoscope', raised: true }, { id: 'labs', label: 'التحاليل', icon: 'test-tube' },
+      { id: 'nursing', label: 'التمريض', icon: 'first-aid-kit' },
+    ] }), needs: ['BottomTabBar'],
+  },
+  {
+    id: 'emptystate', board: 'States', viewport: 1650, xpath: "//div[contains(@style,'left: 1260px')]", themes: ['light'], frame: 'screen',
+    render: (C) => h(C.EmptyState, { icon: 'package', tone: 'coral', title: 'السلة فاضية', body: 'ابحث عن دوائك أو ارفع الروشتة، والصيدليات القريبة تجهزه لك.', actionLabel: 'تصفح الصيدلية', secondaryActionLabel: 'ارفع الروشتة' }),
+    needs: ['EmptyState'],
+  },
+  {
+    id: 'errorstate', board: 'States', viewport: 1650, xpath: "//div[contains(@style,'left: 840px')]", themes: ['light'], frame: 'screen',
+    render: (C) => h(C.ErrorState, { title: 'ما قدرنا نحمّل الصفحة', body: 'حصلت مشكلة في الاتصال بالخادم. بياناتك محفوظة.', retryLabel: 'إعادة المحاولة' }),
+    needs: ['ErrorState'],
+  },
+  {
+    id: 'offlinestate', board: 'States', viewport: 1650, xpath: "//div[contains(@style,'left: 420px')]", themes: ['light'], frame: 'screen',
+    render: (C) => h(C.OfflineState, { title: 'لا يوجد اتصال بالإنترنت', body: 'تقدر تشوف طلباتك ومواعيدك المحفوظة، وبنكمل أول ما يرجع الاتصال.', retryLabel: 'إعادة المحاولة' }),
+    needs: ['OfflineState'],
+  },
+  {
+    id: 'notfound', board: 'States', viewport: 1650, xpath: "//div[contains(@style,'left: 0px')][contains(@style,'width: 390px')]", themes: ['light'], frame: 'screen',
+    render: (C) => h(C.EmptyState, { icon: 'magnifying-glass', tone: 'violet', title: 'الصفحة غير موجودة', body: 'يمكن الرابط قديم أو اتنقل. جرّب البحث أو ارجع للرئيسية.', actionLabel: 'الرئيسية', secondaryActionLabel: 'البحث' }),
+    needs: ['EmptyState'], note: 'The 404 screen is an EmptyState with the magnifying glass in violet.',
+  },
   {
     id: 'stickyfooter', board: 'Cart', xpath: "//button[contains(@style,'#E8384A 0%')]/parent::div", themes: ['light'], inject: true,
     render: (C, inner) => h(C.StickyFooter, null, raw(inner, { display: 'flex', gap: 10, alignItems: 'center' })),
@@ -304,7 +335,11 @@ for (const c of COMPARISONS) {
       continue;
     }
     const box = await el.boundingBox();
-    const boardPng = (await el.screenshot()).toString('base64');
+    // expandTop: also keep what overflows above the element (the tab bar's raised button)
+    const up = c.expandTop || 0;
+    const boardPng = (up
+      ? await page.screenshot({ fullPage: true, clip: { x: box.x, y: box.y - up, width: box.width, height: box.height + up } })
+      : await el.screenshot()).toString('base64');
     // inject: true = the element's own children; a function = the board HTML it picks (runs in the page)
     const inner = typeof c.inject === 'function' ? await el.evaluate(c.inject) : c.inject ? await el.evaluate((n) => n.innerHTML) : '';
     const boardBg = await page.evaluate(() => getComputedStyle(document.querySelector('#dc-root > *') || document.body).backgroundColor);
@@ -313,6 +348,8 @@ for (const c of COMPARISONS) {
     const frame =
       c.frame === 'card'
         ? `<div style="border-radius:24px;background:var(--nabd-color-bg-surface);border:1px solid var(--nabd-color-border-hairline);overflow:hidden">${body}</div>`
+        : c.frame === 'screen'
+          ? `<div style="width:${Math.ceil(box.width)}px;height:${Math.ceil(box.height)}px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;background:var(--nabd-color-bg-canvas)">${body}</div>`
         : c.frame === 'surface'
           ? `<div style="background:var(--nabd-color-bg-surface)">${body}</div>`
         : c.frame === 'coral'
@@ -321,7 +358,7 @@ for (const c of COMPARISONS) {
     await page.setContent(
       `<!doctype html><html dir="rtl" lang="ar" data-theme="${theme}"><meta charset="utf-8"><style>${fontFaces}${tokensCss}${shellsCss}
       body{margin:0;background:var(--nabd-color-bg-canvas);font-family:'Readex Pro',system-ui,sans-serif;color:var(--nabd-color-text-primary)}
-      #c{display:inline-block;padding:0;inline-size:${Math.ceil(box.width)}px}</style><body><div id="c">${frame}</div></body></html>`,
+      #c{display:inline-block;padding:0;padding-top:${up}px;inline-size:${Math.ceil(box.width)}px}</style><body><div id="c">${frame}</div></body></html>`,
     );
     await page.evaluate(() => document.fonts.ready);
     const compPng = (await page.locator(c.pick ? `#c ${c.pick}` : '#c').first().screenshot()).toString('base64');

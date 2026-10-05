@@ -13,6 +13,7 @@
 
 import type { WebButtonProps, WebIconButtonProps } from './components/Button';
 import type { WebRadioProps } from './components/Controls';
+import type { WebEmptyStateProps, WebErrorStateProps, WebOfflineStateProps } from './components/Feedback';
 import type { WebDoctorCardProps, WebOfferCardProps, WebProductCardProps } from './components/Cards';
 import type { WebChipProps } from './components/Surfaces';
 import type * as C from './components/contract';
@@ -53,8 +54,9 @@ export interface ComponentProps {
   Sidebar: C.SidebarProps;
   MapPinCard: C.MapPinCardProps;
 
-  EmptyState: C.EmptyStateProps;
-  ErrorState: C.ErrorStateProps;
+  EmptyState: WebEmptyStateProps;
+  ErrorState: WebErrorStateProps;
+  OfflineState: WebOfflineStateProps;
   Toast: C.ToastProps;
   Modal: C.ModalProps;
   Skeleton: C.SkeletonProps;

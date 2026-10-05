@@ -23,7 +23,7 @@ export {
 export { FIcon } from '../components/FIcon';
 export { FILL_ICON_NAMES, FILL_ICON_PATHS, SERVICE_ICONS, SERVICE_TONES } from '../icons/fill';
 export type { FillIconName, ServiceName, ServiceTone } from '../icons/fill';
-export { ChartCard, DataTable, EmptyState, ErrorState, Modal, Skeleton, Toast } from '../components/Feedback';
+export { ChartCard, DataTable, EmptyState, ErrorState, OfflineState, Modal, Skeleton, Toast } from '../components/Feedback';
 
 export type { IconName, LineIconName } from '../icons/names';
 export type { IllustratedIcon } from '../icons/illustrated';
