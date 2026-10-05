@@ -3,7 +3,8 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Button, Icon } from "@/components-next/ui-generated";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import type { Locale } from "@/lib/i18n";
 import { SocialLoginButtons } from "./social-login-buttons";
 import styles from "./auth/auth.module.css";

@@ -3,7 +3,12 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Chip, EmptyState, ErrorState, FIcon, SectionHeader, Search, SERVICE_ICONS, ServiceTile, StatusChip, type FillIconName, type ServiceName, type ServiceTone } from "@/components-next/ui-generated";
+import { Chip, SectionHeader, ServiceTile } from "@/components-next/ui-generated/components/Surfaces";
+import { EmptyState, ErrorState } from "@/components-next/ui-generated/components/Feedback";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { Search } from "@/components-next/ui-generated/components/Inputs";
+import { SERVICE_ICONS, type FillIconName, type ServiceName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
+import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { extractSearchResults, type SearchResult } from "@/lib/api/search";
 import { isLocale, type Locale } from "@/lib/i18n";

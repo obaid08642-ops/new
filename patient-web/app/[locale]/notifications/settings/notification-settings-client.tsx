@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, Radio, SectionHeader, Segmented, Toggle } from "@/components-next/ui-generated";
+import { Card, SectionHeader } from "@/components-next/ui-generated/components/Surfaces";
+import { Radio, Segmented, Toggle } from "@/components-next/ui-generated/components/Controls";
 import { THEME_STORAGE_KEY, isTheme, type Theme } from "@/app/theme";
 import { localeLabels, locales, type Locale } from "@/lib/i18n";
 import styles from "./settings.module.css";

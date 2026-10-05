@@ -2,12 +2,15 @@
 import { useEffect } from "react";
 import { View } from "react-native";
 import { router } from "expo-router";
+import { useDispatch } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { STORAGE_KEYS } from "../src/constants";
 import { NabdLogo } from "../src/components/NabdLogo";
 import { Txt, useScreenUi } from "../src/components/home/homeKit";
+import { ensureGuestSession } from "../src/utils/guestSession";
+import { guestLogin } from "../src/store/slices/authSlice";
 
 /**
  * The splash that opens the app: the Noon Dot on the canvas, then Home (HomeApp board). Colours come from the
@@ -15,19 +18,26 @@ import { Txt, useScreenUi } from "../src/components/home/homeKit";
  */
 export default function Index() {
   const { c } = useScreenUi();
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const t = setTimeout(checkAppState, 2600); // let logo animation play
+    // First launch with no session: the silent guest session is requested while the logo plays, so Home finds
+    // a session and loads without the error banner (owner decision B2). It never delays the splash.
+    const guest = ensureGuestSession();
+    const t = setTimeout(() => checkAppState(guest), 2600); // let logo animation play
     return () => clearTimeout(t);
   }, []);
 
-  const checkAppState = async () => {
+  const checkAppState = async (guest: ReturnType<typeof ensureGuestSession>) => {
     try {
+      const session = await Promise.race([guest, new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000))]);
+      if (session) dispatch(guestLogin(session));
+
       // Preserve authenticated and guest sessions; the splash must never clear patient data.
       await SecureStore.getItemAsync(STORAGE_KEYS.AUTH_TOKEN).catch(() => null);
       await AsyncStorage.getItem(STORAGE_KEYS.GUEST_MODE ?? "@nabdah_guest");
 
-      // Public-first navigation: browsing must not require authentication.
+      // Public-first navigation: browsing must not require authentication; with no session a silent guest one was opened above.
       // Checkout/service mutations enforce the session policy at the action boundary.
       // Existing authenticated and device-bound guest sessions still land on tabs.
       router.replace("/(tabs)");

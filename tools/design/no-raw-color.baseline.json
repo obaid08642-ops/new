@@ -2,7 +2,7 @@
   "note": "Hard-coded colours that predate the design system. Recorded once with --init. 12.A11 rebuilds the screens on tokens and each rebuilt file drops out. --update only ever LOWERS a count; it cannot raise one.",
   "totals": {
     "patient-web": 5830,
-    "patient-app": 2383,
+    "patient-app": 2374,
     "provider-app": 320,
     "admin": 215
   },
@@ -424,9 +424,7 @@
     "patient-app/src/components/Header.tsx": 28,
     "patient-app/src/components/MapPrimitives.web.tsx": 4,
     "patient-app/src/components/NabdLogo.tsx": 2,
-    "patient-app/src/components/OfflineBanner.tsx": 3,
     "patient-app/src/components/ProductImage.tsx": 2,
-    "patient-app/src/components/ScreenStates.tsx": 4,
     "patient-app/src/components/animations.tsx": 4,
     "patient-app/src/components/insurance/claim-tracking.tsx": 17,
     "patient-app/src/components/insurance/refund-status.tsx": 9,
@@ -442,8 +440,6 @@
     "patient-app/src/design-system/components/Avatar.tsx": 11,
     "patient-app/src/design-system/components/Badge.tsx": 5,
     "patient-app/src/design-system/components/Button.tsx": 6,
-    "patient-app/src/design-system/components/Progress.tsx": 1,
-    "patient-app/src/design-system/components/SearchBar.tsx": 1,
     "patient-app/src/design-system/components/Toast.tsx": 4,
     "patient-app/src/design-system/tokens.ts": 2,
     "patient-app/src/features/consultation/InsuranceCopayScreen.tsx": 8,

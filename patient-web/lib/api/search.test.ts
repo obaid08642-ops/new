@@ -12,4 +12,23 @@ describe("search results guard", () => {
     expect(rows[0]).toMatchObject({ name: "Dr S", sub: "Cardiology", type: "Doctor", price: undefined, rate: undefined });
     expect(rows[1].price).toBe("12");
   });
+
+  it("drops rows that are not objects, or whose fields have the wrong type, and keeps only the known fields", () => {
+    const rows = extractSearchResults([
+      null,
+      "text",
+      ["array"],
+      { id: "a", type: "t", name: "n", price: 5 },
+      { id: "b", type: 1, name: "n" },
+      { id: "c", type: "t", name: "n", extra: "not kept", rate: "4.5" },
+    ], "ar");
+    expect(rows.map((r) => r.id)).toEqual(["c"]);
+    expect(Object.keys(rows[0]).sort()).toEqual(["id", "name", "nameEn", "price", "rate", "sub", "subEn", "type", "typeEn"]);
+    expect(rows[0].rate).toBe("4.5");
+  });
+
+  it("returns no rows for a payload that is not a list", () => {
+    expect(extractSearchResults({ items: [] }, "ar")).toEqual([]);
+    expect(extractSearchResults(undefined, "en")).toEqual([]);
+  });
 });

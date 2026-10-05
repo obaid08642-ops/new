@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { AppShell, Avatar, FIcon } from "@/components-next/ui-generated";
-import type { BottomTabItem } from "@/components-next/ui-generated";
+import { AppShell } from "@/components-next/ui-generated/shells";
+import { Avatar } from "@/components-next/ui-generated/components/Surfaces";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import type { BottomTabItem } from "@/components-next/ui-generated/components/contract";
 import { NabdMark } from "@/components-next/nabd-mark";
 import { LocaleSelector } from "@/components-next/locale-selector";
 import { ThemeButton } from "./theme-button";

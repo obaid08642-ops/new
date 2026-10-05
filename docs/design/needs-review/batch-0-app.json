@@ -43,16 +43,6 @@
     "batch": 0,
     "app": "patient-app",
     "screen": "/",
-    "element": "Home data blocks without a session",
-    "file": "patient-app/app/(tabs)/index.tsx",
-    "line": 67,
-    "found": "Home calls 7 endpoints (GET /users/me/profile, /health/reminders, /nutrition/daily-summary, /maternity/profile, /mental-health/mood?days=1, /health/vitals/summary, /home/upcoming-appointment). All are JWT-only (JwtAuthGuard, no @Public: e.g. backend/src/modules/home/home.controller.ts:5, health.controller.ts:8) and the guard answers 401 'Missing token' without a token (backend/src/common/auth.guard.ts, the !token branch). The splash sends everyone to /(tabs) without creating a session; a guest session exists only after the Welcome guest link (POST /auth/guest, welcome.tsx:71), a login or a register.",
-    "suspect": "On a first launch every Home call fails, the warning banner 'تعذر تحميل بعض بيانات اليوم' shows, and no greeting name, reminder, appointment or records appear. Only /content/home (public) works. Needs the launch routing decision (silent guest session, or send the user to Welcome)."
-  },
-  {
-    "batch": 0,
-    "app": "patient-app",
-    "screen": "/",
     "element": "Greeting card name (and avatar initial)",
     "file": "patient-app/app/(tabs)/index.tsx",
     "line": 95,
@@ -278,26 +268,6 @@
     "line": 118,
     "found": "A package ('باقة') result opens /(tabs)/health (line 118) and an insurer ('تأمين') result opens /insurance/hub (line 124), both without the result id; the other kinds pass id or slug to a detail screen.",
     "suspect": "Tapping a specific package or insurer opens a generic tab or hub, not the item shown. Needs a detail route or an owner decision."
-  },
-  {
-    "batch": 0,
-    "app": "patient-app",
-    "screen": "/search",
-    "element": "GET /home/search without a session",
-    "file": "patient-app/app/search/index.tsx",
-    "line": 327,
-    "found": "The controller is JWT-only (backend/src/modules/home/home.controller.ts:5-23, no @Public). With no token (the state after the splash, see the Home item) the call answers 401 and the screen shows 'تعذر تنفيذ البحث' with a retry that cannot succeed.",
-    "suspect": "Search is not usable until a session exists, which contradicts the 'browsing must not require authentication' comment in app/index.tsx:30. Make the route public (backend) or create a guest session at launch."
-  },
-  {
-    "batch": 0,
-    "app": "patient-app",
-    "screen": "/notifications",
-    "element": "GET /notifications without a session",
-    "file": "patient-app/app/notifications/index.tsx",
-    "line": 114,
-    "found": "The controller is JWT-only (backend/src/modules/notifications/notifications.controller.ts:9). Without a token the call answers 401 and the screen shows 'تعذر تحميل الإشعارات' with a retry.",
-    "suspect": "Same cause as the Home and Search items: no session after the splash. The error state says the connection is the problem."
   },
   {
     "batch": 0,

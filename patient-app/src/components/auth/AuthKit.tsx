@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Platform, Pressable, Text, TextInput, View, type KeyboardTypeOptions, type TextInputProps } from 'react-native';
 import * as AppleAuthentication from 'expo-apple-authentication';
-import { FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
 
 import { tokens, type ThemeName } from '../../../../packages/design-tokens/dist/ts/tokens';
-import { Icon, IconButton, SHELL_FONT } from '../../../../packages/ui-native/src';
+import { BrandMark, Icon, IconButton, SHELL_FONT } from '../../../../packages/ui-native/src';
 import { withAlpha } from '../../../../packages/ui-native/src/shells/shellTokens';
 import { useApp } from '../../context/AppContext';
 import { autoTranslate } from '../../i18n';
@@ -289,10 +288,10 @@ export function availableSocialProviders(): SocialProvider[] {
 
 const PROVIDER_NAME: Record<SocialProvider, string> = { apple: 'Apple', google: 'Google', x: 'X', snapchat: 'Snapchat' };
 
+// Apple is always the official AppleAuthentication button (never a glyph); the rest are the BrandMark of ui-native.
 function ProviderGlyph({ provider, color, size = 20 }: { provider: SocialProvider; color: string; size?: number }) {
-  if (provider === 'x') return <FontAwesome6 name="x-twitter" size={size} color={color} />;
-  if (provider === 'snapchat') return <FontAwesome5 name="snapchat-ghost" size={size} color={color} />;
-  return <FontAwesome5 name={provider} size={size} color={color} />;
+  if (provider === 'apple') return null;
+  return <BrandMark brand={provider} color={color} size={size} />;
 }
 
 /**

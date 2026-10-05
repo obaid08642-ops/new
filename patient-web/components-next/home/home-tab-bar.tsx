@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { BottomTabBar } from "@/components-next/ui-generated";
-import type { BottomTabItem } from "@/components-next/ui-generated";
+import { BottomTabBar } from "@/components-next/ui-generated/components/Surfaces";
+import type { BottomTabItem } from "@/components-next/ui-generated/components/contract";
 
 /** The phone tab bar of HomeApp: the shared BottomTabBar, navigating to the section's page. */
 export function HomeTabBar({

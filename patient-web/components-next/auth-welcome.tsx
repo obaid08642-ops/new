@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Button, FIcon, Icon, SERVICE_ICONS } from "@/components-next/ui-generated";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { NabdMark } from "@/components-next/nabd-mark";
 import { useRouter } from "next/navigation";
 import type { Locale } from "@/lib/i18n";

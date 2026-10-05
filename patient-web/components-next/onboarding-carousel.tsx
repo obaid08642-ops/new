@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Button, FIcon, type FillIconName, type ServiceTone } from "@/components-next/ui-generated";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import type { FillIconName, ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import styles from "./auth/auth.module.css";
 
 export type OnboardingSlide = { title: string; body: string; icon: FillIconName; tone: ServiceTone };

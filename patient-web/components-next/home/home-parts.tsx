@@ -1,8 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { DoctorCard, FIcon, ListItem, SectionHeader, ServiceTile, SERVICE_ICONS } from "@/components-next/ui-generated";
-import type { FillIconName, ServiceName, ServiceTone } from "@/components-next/ui-generated";
+import { DoctorCard } from "@/components-next/ui-generated/components/Cards";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { ListItem, SectionHeader, ServiceTile } from "@/components-next/ui-generated/components/Surfaces";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
+import type { FillIconName, ServiceName, ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { NabdMark } from "@/components-next/nabd-mark";
 import type { DoctorRow } from "@/lib/api/doctors";
 import type { HomeSection } from "@/lib/api/public-config-server";

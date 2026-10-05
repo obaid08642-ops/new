@@ -2,21 +2,11 @@
   {
     "batch": 0,
     "app": "patient-web",
-    "screen": "/register",
-    "element": "Session probe on load",
-    "file": "patient-web/components-next/register-form.tsx",
-    "line": 36,
-    "found": "Runtime check: an anonymous visitor's GET /api/auth/session answers 401 (app/api/auth/session/route.ts returns 401 when there is no cookie), so the browser console shows two 'Failed to load resource: 401' errors on every /register load. The page itself renders and works.",
-    "suspect": "A 401 for 'not signed in' is expected data, not an error. The BFF could answer 200 {authenticated:false} for this probe, or the form could read the guest state another way. BFF contract change, so left to the reviewer."
-  },
-  {
-    "batch": 0,
-    "app": "patient-web",
     "screen": "/services",
-    "element": "Redirect target /consultations/doctors: inline style attribute",
+    "element": "Direct visits to /consultations/doctors: inline style attributes",
     "file": "patient-web/app/[locale]/consultations/doctors/page.tsx",
     "line": 46,
-    "found": "Runtime check: /services redirects to /consultations/doctors (a Batch 3 screen). That page puts raw legacy colours (#FDFDFC, #E8EDEE, #1E332E) and layout in `style={{…}}` attributes (page.tsx:46-50 and following), so the nonce CSP refuses them (22 'style-src-attr' violations per load) and the page renders without that styling in production.",
+    "found": "/services no longer lands here (batch-0-fixes: it goes to Home), but the page itself, reached by its own URL or from Home's doctor links, still puts raw legacy colours (#FDFDFC, #E8EDEE, #1E332E) and layout in `style={{…}}` attributes (page.tsx:46-50 and on), which the nonce CSP refuses (22 'style-src-attr' violations per load): it renders without that styling in production.",
     "suspect": "Needs the same class-based rebuild as the Batch 0 pages (zero inline styles, token colours). Not in Batch 0's file list, so left for the batch that owns Consultations; reported here because /services lands on it."
   },
   {
@@ -68,5 +58,35 @@
     "line": 76,
     "found": "GET /doctors on the seeded backend returns records with name_en: null (the seed sets Arabic names only).",
     "suspect": "English and other locales fall back to the Arabic name. Seed data gap, not a screen bug."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "all routes",
+    "element": "Shared JS still over the 170 KB gz budget after the #286 trim",
+    "file": "patient-web/next.config.ts",
+    "line": 0,
+    "found": "Measured with Lighthouse (median of 3, production build, seeded backend), script transfer on /ar/pharmacy and /ar/consultations/doctors went from 224 to about 177 KB and on /ar from 224 to about 196 KB. What is left is the React and Next client runtime (about 113 KB gz in two chunks), the next-intl ICU message parser (about 12 KB gz: @formatjs/icu-messageformat-parser, intl-messageformat, use-intl), and components-next/web-mcp-provider.tsx (3.4 KB gz: six languages of tool descriptions shipped to every page, registering tools on a navigator.modelContext that nothing reads unless a WebMCP-capable browser provides it).",
+    "suspect": "The budget cannot be met by design-system changes alone. Candidates for a separate change: load web-mcp-provider only when navigator.modelContext exists (or send only the current locale's descriptions from the server), and precompile the ICU messages so the parser leaves the client. Both are outside the design track, so reported here."
+  },
+  {
+    "batch": 0,
+    "app": "patient-web",
+    "screen": "all routes",
+    "element": "Largest-contentful-paint stays above 2.5 s (F82)",
+    "file": "patient-web/app/[locale]/layout.tsx",
+    "line": 0,
+    "found": "Lighthouse on the production build (median of 3): LCP 3.0-3.2 s on /ar and /ar/consultations/doctors, 4.3 s on /ar/pharmacy, against 2.5 s. The shared-JS trim did not move it (main measured the same: 3.1 s, 2.6 s, 4.6 s). Lighthouse lists render-blocking CSS (three stylesheets, about 28 KB gz) and the theme/nonce script as the savings.",
+    "suspect": "F82 is a rendering-path problem (render-blocking CSS, font loading, server time to first byte on /pharmacy), not a bundle-size one. Needs its own change; not started."
+  },
+  {
+    "batch": 0,
+    "app": "repo",
+    "screen": "tooling",
+    "element": "tools/design/import-rule.baseline.json is not on main",
+    "file": "tools/design/import-rule.baseline.json",
+    "line": 226,
+    "found": "The import rule (P12.C2) and its baseline exist on fix/audit-2026-09 only; main has neither. patient-app AuthKit no longer imports @expo/vector-icons (BrandMark in packages/ui-native), and running the rule from fix/audit against this branch reports AuthKit as clean and `--update` removes its baseline line (226) and its `exceptions` entry (230).",
+    "suspect": "When fix/audit-2026-09 reaches main, run `node tools/design/import-rule.mjs --update`; it lowers the baseline from 224 to 223 files and drops the exception. I did not copy the rule onto this branch, to avoid an add/add conflict with the reviewer's copy."
   }
 ]
