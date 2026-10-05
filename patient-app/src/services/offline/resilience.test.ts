@@ -186,12 +186,45 @@ describe('15.4 · queue order and replay', () => {
     const online = await onlineBox.submit({ kind: 'cart', method: 'POST', endpoint: '/live' });
     expect(online.queued).toBe(false);
     expect(send).toHaveBeenCalledTimes(1);
+    // A delivered entry leaves nothing behind.
+    expect(await onlineBox.size()).toBe(0);
 
     markOffline();
     const offlineBox = new Outbox({ storage, send });
     const offline = await offlineBox.submit({ kind: 'cart', method: 'POST', endpoint: '/later' });
     expect(offline.queued).toBe(true);
     expect(await offlineBox.size()).toBe(1);
+  });
+
+  it('F2 · a transient send failure keeps the entry: it survives and is delivered on retry', async () => {
+    const storage = memoryStorage();
+    let calls = 0;
+    const sent: string[] = [];
+    const outbox = new Outbox({
+      storage,
+      send: async (entry) => {
+        calls += 1;
+        if (calls === 1) throw new Error('transient blip');
+        sent.push(entry.endpoint);
+      },
+    });
+
+    // Online, but the single send attempt throws.
+    const first = await outbox.submit({ kind: 'cart', method: 'POST', endpoint: '/live' });
+    expect(first.queued).toBe(true);
+
+    // The entry survived: it is in memory AND persisted across a restart.
+    expect(await outbox.size()).toBe(1);
+    const restarted = new Outbox({
+      storage,
+      send: async (entry) => { sent.push(entry.endpoint); },
+    });
+    expect(await restarted.size()).toBe(1);
+
+    const result = await restarted.replay();
+    expect(sent).toEqual(['/live']);
+    expect(result.replayed).toBe(1);
+    expect(await restarted.size()).toBe(0);
   });
 
   it('survives an app restart: the queue is reloaded from storage in order', async () => {
