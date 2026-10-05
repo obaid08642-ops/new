@@ -7,7 +7,7 @@
 >
 > Sources: `DESIGN_HANDOFF_FINAL.md`, `SPEC_PRODUCT_DOCTOR_DETAIL.md`, `DEVICE_STANDARD.md`, `canvas/`. How the folder works: `README.md`.
 
-_Last updated: 2026-10-05 (components 1/4–4/4, lint gates and the PROGRESS update merged; CSP step in review as #271; Batch 0 in review as #285)._
+_Last updated: 2026-10-05 (components 1/4–4/4, lint gates and the PROGRESS update merged; Batch 0 merged as #285 on 2026-10-05, with the CSP step's commits stacked in it)._
 
 ## Snapshot
 
@@ -20,9 +20,9 @@ _Last updated: 2026-10-05 (components 1/4–4/4, lint gates and the PROGRESS upd
 | Foundation: native shells | **Merged** ([#261](https://github.com/obaid08642-ops/new/pull/261)) | `Screen`, `AppHeader`, `StickyFooter`, `TabBar` in `packages/ui-native` |
 | Foundation: web shells | **Merged** ([#263](https://github.com/obaid08642-ops/new/pull/263)) | `AppShell`, `StickyFooter` in `packages/ui`, mirrored into patient-web |
 | Foundation: shared components | **Merged** ([#264](https://github.com/obaid08642-ops/new/pull/264), [#265](https://github.com/obaid08642-ops/new/pull/265), [#267](https://github.com/obaid08642-ops/new/pull/267), [#268](https://github.com/obaid08642-ops/new/pull/268)) | 40 contract components on web and native, each with board side-by-side images |
-| Foundation: components by class (CSP, F68) | In review ([#271](https://github.com/obaid08642-ops/new/pull/271)) | Web components set no `style` attribute; `components.css` |
+| Foundation: components by class (CSP, F68) | **Merged** (its commits came in with [#285](https://github.com/obaid08642-ops/new/pull/285); #271 itself is superseded) | Web components set no `style` attribute; `components.css` |
 | Foundation: lint gates | **Merged** ([#269](https://github.com/obaid08642-ops/new/pull/269)) | `no-100vh`, `no-rn-safeareaview`, `no-left-right`; plus `no-large-raster` in Batch 0 |
-| Screen batch 0 | In review ([#285](https://github.com/obaid08642-ops/new/pull/285)) | 29 screens (web and app): sign-in, onboarding, Home, Search, Services, Notifications |
+| Screen batch 0 | **Merged** ([#285](https://github.com/obaid08642-ops/new/pull/285), `78af922f`) | 29 screens (web and app): sign-in, onboarding, Home, Search, Services, Notifications |
 | Screen batches 1–13 | Not started | 381 screens to design |
 
 ### Screens per batch (from `SCREEN_INVENTORY.md`; redirect-only routes excluded)
@@ -66,7 +66,7 @@ _Last updated: 2026-10-05 (components 1/4–4/4, lint gates and the PROGRESS upd
 ## In progress
 
 - **CSP step, PR [#271](https://github.com/obaid08642-ops/new/pull/271)** (branch `design/components-csp`): patient-web's CSP refuses `style` attributes, so every shared web component is styled by class (`packages/ui/components/components.css`). Gallery pixel-identical outside the FIcon boxes; tests read the sheet through `tests/support/resolve-css.ts`. Merge before #285.
-- **Batch 0, PR [#285](https://github.com/obaid08642-ops/new/pull/285)** (branch `design/batch-0`, stacked on #271), waiting for owner approval.
+- **Batch 0, PR [#285](https://github.com/obaid08642-ops/new/pull/285)** (branch `design/batch-0`): **merged 2026-10-05** (`78af922f`), after the reviewer's `[REVIEW-FIX]` commits (X and Snapchat hidden until the backend verifies them; the date-dependent `slot-leave` spec). Kept here for the record; it moves to Done with the next update.
   - **Per-batch audit (owner, 2026-10-05), inside #285:** element audits `audit/batch-0-web.md` (393 elements, 14 screens) and `audit/batch-0-app.md` (16 screens); runtime check `audit/runtime-batch-0-web.md` (15 routes x normal/empty/error, backend and web through `tools/design/fault-proxy.mjs`; 13 of 15 clean; `/register` logs the 401 of its own session probe and `/services` lands on `/consultations/doctors`, whose inline styles the CSP refuses; both are in Needs review) and `audit/runtime-batch-0-app.md` (every GET the app screens call, with patient / guest / no session; 0 failures); `WIRING_REPORT.md` now has 0 unresolved calls (was 160 web + 10 app), the 18 static web screens classified, a mock scan (0 hits in Batch 0) and **98 Needs review items** (`needs-review/*.json`, backend gaps reported and not fixed). Colours: route error/not-found rebuilt from the board state components (zero raw colours), `theme-color` generated from the tokens, no Batch 0 file left in the raw-colour baseline (8772 -> 8748), `client-token-sync` 928 -> 927.
   - **Sign-in family** (web and app): Welcome, Login, Register, email code, forgot and reset password, AuthWeb. The ten login-review defects are gone; the one-time-code login link is removed; tablet centred at 440. Social sign-in: app shows Apple (iOS only, official button), Google, X, Snapchat; web shows Google only (see Blockers).
   - **Onboarding** (web and app), **Home and Dashboard** (web), **Home, tab bar and Services** (app), **Search, Notifications, Notification settings** (web and app).
@@ -78,7 +78,7 @@ _Last updated: 2026-10-05 (components 1/4–4/4, lint gates and the PROGRESS upd
 
 ## Next (in this order)
 
-1. Owner reviews [#271](https://github.com/obaid08642-ops/new/pull/271) then [#285](https://github.com/obaid08642-ops/new/pull/285) (merge #271 first). Confirm the dark link token (`#FF8A91`).
+1. **Owner decisions pending after Batch 0:** (a) confirm the dark link token (`#FF8A91`); (b) should `/dashboard` and `/` show an error state with retry when the backend fails (today they hide the data silently)? (c) which client-side defects in `needs-review/batch-0-*.json` to fix (for example app Home "التفاصيل" passes `id` where `appointmentId` is read, silent returns in forgot/reset, web search `?q=` ignored); (d) start the Lighthouse follow-up (bundle size and LCP; red since F82, Batch 0 adds 25–55 KB gz of shared chunk) on its own branch?
 2. Resolve the blockers below (backend social-login verification, fetal-week CDN and endpoint).
 3. **Batch 1 (pharmacy flows)** on `design/batch-1` after Batch 0 is approved, then batches 2–13 in the order of `SCREEN_INVENTORY.md`. For each batch:
    - fix the `WIRING_REPORT.md` §4 rows that belong to it;
