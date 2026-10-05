@@ -1324,3 +1324,285 @@ Gate evidence (this machine, DEVELOPER_DIR=/Library/Developer/CommandLineTools):
   now skips unless STAGING_BASE is set (V1-V5 staging blocker).
 - Under machine load average >18 the unit suite hits 5000 ms jest timeouts;
   that is contention, not assertion failure (all such tests pass in isolation).
+
+## R12 — e64ec70 (F8): catalog edits without `catalog.approve` become a pending revision
+
+Owner decision 2026-10-05 (REVIEW_REAUDIT_P1_P11.md Round 12, item 10): "**e64ec70:** a pending
+revision until approval." Previously an admin who held only `catalog.update`/`catalog.price.write`
+had the edit written onto the LIVE document and the item pushed back to
+`medical_review_status:'pending'` — the public read 404'd and the next approval published
+unreviewed content.
+
+Behaviour now (contract = `backend/acceptance/e64ec70/pending-revision.acceptance.ts`, written by
+the reviewer, not edited):
+- edit of a PUBLISHED item without `catalog.approve` → stored as
+  `pending_revision = { changes, submitted_by, submitted_at }`; the live document is NOT touched,
+  so patients keep the approved version (content, price, slug). Answer `requires_reapproval: true`.
+- a second edit before the decision JOINS the same pending revision (`changes` merged).
+- `adminApproveCatalog(id, true, approverId)` applies the revision, publishes it, writes
+  `medicine_price_history` (before_price → after_price, with the editor's own reason) and refreshes
+  the public projection.
+- `adminApproveCatalog(id, false, approverId)` discards the revision; the approved version stays
+  public and unchanged.
+- an editor holding `catalog.approve` still publishes directly (no pending revision);
+  a draft (never published) is still edited in place and stays unpublished.
+- an approver's direct edit clears a stale pending revision.
+
+Files: `backend/src/schemas/medicine.schema.ts` (new `pending_revision` field),
+`backend/src/modules/medicines/medicines.service.ts`, and the pre-existing unit spec
+`medicines.service.publication.spec.ts`, whose first case asserted the OLD behaviour
+(`verified:false / medical_review_status:'pending' / provenance:'admin_direct_edit_pending_review'`)
+and was updated to the new contract. No acceptance test, no `tools/**`, no baseline touched.
+
+Acceptance (item target) — real output:
+```
+$ MONGOMS_VERSION=7.0.14 node scripts/run-acceptance.mjs e64ec70
+PASS acceptance/e64ec70/pending-revision.acceptance.ts
+  catalog edits without catalog.approve are pending revisions (e64ec70)
+    ✓ patients keep seeing the approved version while the edit waits (311 ms)
+    ✓ the admin catalog shows the pending revision with what the editor proposed (420 ms)
+    ✓ a second edit before approval joins the same pending revision (248 ms)
+    ✓ approving applies and publishes the revision (price history records the change) (888 ms)
+    ✓ rejecting a pending revision discards it and keeps the approved version public (214 ms)
+    ✓ an editor holding catalog.approve still publishes directly (no pending revision) (351 ms)
+    ✓ a draft that was never published is edited in place and stays unpublished (584 ms)
+Tests:       7 passed, 7 total
+acceptance e64ec70: PASS
+```
+Run 3× consecutively, 7/7 each time.
+
+Full gate on the tip (this commit's tree), real output:
+```
+$ npx tsc --noEmit
+TSC_EXIT=0                       (no output, 0 lines)
+
+$ npx nest build
+BUILD_EXIT=0                     (no output)
+
+$ MONGOMS_VERSION=7.0.14 node scripts/run-tests-chunked.mjs      # = npm test
+3) npm test EXIT=0
+[chunked-jest] done: 14/14 chunks passed
+   tests passed: 3491            (290 suites across 14 chunks)
+
+$ MONGOMS_VERSION=7.0.14 npx jest --config jest.boot.config.js --runInBand test/security test/journeys
+4) boot security+journeys EXIT=0
+Test Suites: 16 passed, 16 total
+Tests:       74 passed, 74 total
+Time:        136.499 s
+
+$ python3 ../tools/audit/dtolint.py
+== undecorated DTO props (always rejected): 0
+== `any` props with only @IsOptional (no type check): 0
+== @Body() x: any handlers: 0
+== @Body() typed as non-class / unvalidated key (ValidationPipe skips): 0
+5) dtolint EXIT=0
+
+$ node tools/audit/clientbodies.js > /tmp/c.json && node tools/audit/dtocheck.js /tmp/c.json
+6) dtocheck EXIT=0
+639 DTO routes checked, 319 matched by client calls, 0 mismatches
+```
+
+Two honest notes on running that gate on this machine (both pre-existing, neither caused or hidden
+by this change — nothing deferred, no test weakened):
+
+1. **`MONGOMS_VERSION=7.0.14` is required on this machine.** The default binary mongodb-memory-server
+   downloads (`mongod-x64-darwin-8.2.6`) cannot start on this OS — it aborts with
+   `dyld: Symbol not found: (__ZTVNSt3__13pmr25monotonic_buffer_resourceE)`, expected in
+   `/usr/lib/libc++.1.dylib` (macOS 12.7.6, Intel). Every `.mongo.spec.ts` and the acceptance suite
+   then fail with `UnexpectedCloseError ... SIGABRT` / "Instance failed to start within 10000ms".
+   Already recorded above under "Known environment blockers"; with 7.0.14 the same specs pass.
+   Nothing was pinned in package.json (that would be a change outside this item's scope).
+2. **Gate step 6 as literally written in AGENTS.md cannot work**, and this is also pre-existing:
+   `cd backend && node ../tools/audit/clientbodies.js` makes the tool resolve
+   `path.resolve('backend/node_modules/typescript')` against CWD → `backend/backend/node_modules/…`
+   → `MODULE_NOT_FOUND`. Verified identically in the untouched main checkout. The tool's own header
+   says "run from repo root", so I ran it that way; result 0 mismatches (above).
+
+Also observed while gating, NOT part of this item and NOT changed by me:
+`src/modules/care/tests/slot-leave.spec.ts` fails after 17:00 local because it pins the date
+`2026-10-05` and `slot.service.ts:73` drops slots within 15 min of now. Proven pre-existing: it
+fails identically with my changes stashed, and the reviewer fixed it independently in
+`bc928c80` ("[REVIEW-FIX] slot-leave spec: use a day 30 days ahead, not the fixed 2026-10-05"),
+which this branch now fast-forwarded onto.
+
+### Re-verified after the reviewer's base moved (rebase onto `a82319bb`, commit `59f0bf00`)
+
+The reviewer merged a large design batch while this item was in flight; per AGENTS.md the commit was
+rebased onto the new `fix/audit-2026-09` tip and the whole gate was re-run on that base (no
+`[REVIEW-FIX]` change discarded or reworked):
+
+```
+$ npx tsc --noEmit                          -> tsc EXIT=0
+$ npx nest build                           -> build EXIT=0
+$ node scripts/run-acceptance.mjs e64ec70  -> Tests: 7 passed, 7 total / acceptance e64ec70: PASS
+$ node scripts/run-tests-chunked.mjs       -> npm test EXIT=0 / [chunked-jest] done: 14/14 chunks passed / tests passed: 3491
+$ npx jest --config jest.boot.config.js --runInBand test/security test/journeys
+                                            -> boot EXIT=0 / Test Suites: 16 passed / Tests: 74 passed / 116.637 s
+$ python3 ../tools/audit/dtolint.py         -> dtolint EXIT=0 (all four counters 0)
+$ node tools/audit/clientbodies.js && node tools/audit/dtocheck.js
+                                            -> dtocheck EXIT=0 / 639 DTO routes checked, 319 matched, 0 mismatches
+```
+(The two commands above were run with `MONGOMS_VERSION=7.0.14`, for the macOS 12.7.6 mongod reason
+recorded above; nothing in the repo was changed to accommodate it.)
+
+One unit chunk failed on the first attempt at this base and is contention, not code:
+`src/modules/provider/providers.service.spec.ts` hit jest's 5000 ms timeout while the machine load
+average was **161**; the same spec passes 6/6 in isolation (47 s on its own). It passes inside the
+14/14 chunk run above once load fell to ~32 — the same documented condition already noted in this
+file ("Under machine load average >18 the unit suite hits 5000 ms jest timeouts").
+
+### BLOCKED: cannot push `r12/e64ec70` — no GitHub credentials in this environment
+
+The item's code is complete and the full gate is green on the current `fix/audit-2026-09` tip, but
+the push (and therefore the PR) cannot be performed from this shell:
+
+```
+$ git push -u origin r12/e64ec70
+fatal: could not read Username for 'https://github.com': Device not configured
+```
+
+Exact cause, checked: the remote `https://github.com/obaid08642-ops/new.git` is readable
+anonymously (`git ls-remote` OK — it is public) but there is no write credential anywhere on this
+machine — `gh` is not installed, `git credential fill` for `host=github.com` returns nothing
+(`credential.helper = osxkeychain` is configured but has no entry), `security find-internet-password
+-s github.com` finds nothing, and there is no `GH_TOKEN`/`GITHUB_TOKEN`/`ghp_*`/`github_pat_*` in
+the environment, in any `.env`, or in the git config. `GIT_TERMINAL_PROMPT` cannot help because the
+session is non-interactive.
+
+So the commit sits locally on branch `r12/e64ec70`, rebased onto the current
+`origin/fix/audit-2026-09`, with the whole gate re-run green on that base. Publishing it needs a
+credential (or a `git push` / PR run by someone with one); nothing else is outstanding for this
+item. Not deferred, not partially done: the behaviour, the acceptance test and the gate are all
+complete — only the upload is missing.
+
+### Self-review after the first commit — one real defect found and fixed
+
+Compared the change against the acceptance contract, the git history of `medicines.service.ts`, and
+every read path that can return a medicine document. **A defect I introduced was found and fixed:**
+
+Storing the proposed values on the document made them readable through the public catalog reads, so
+the unreviewed price/description leaked to patients — the exact thing the item exists to prevent. The
+acceptance test cannot catch it (it asserts the approved fields with `objectContaining`). Proven with
+a throwaway probe (written, run, then deleted — it is NOT part of the commit), which printed:
+
+```
+LEAK getPublicById: {"changes":{"price":99,"description_ar":" unreviewed draft "},...}
+LEAK list card:     {"changes":{"price":99,"description_ar":" unreviewed draft "},...}
+LEAK paginate card: {"changes":{"price":99,"description_ar":" unreviewed draft "},...}
+LEAK cursor card:   {"changes":{"price":99,"description_ar":" unreviewed draft "},...}
+ADMIN must carry it: {"price":99,"description_ar":" unreviewed draft "}   <- correct, must stay
+```
+and after the fix all four read `undefined` while the admin row still carries the revision.
+
+Fixed at every path that can return a medicine document to a non-admin caller:
+`CARD_PROJECTION` (list / hot / recently-viewed / paginate / cursor / public catalog fragment),
+`getPublicById` (and therefore `details`), `byBarcode` (both queries), `compare`, `alternatives`,
+the public `GET /medicines/stream` endpoint (it streamed whole documents with no projection at all),
+and `GET /catalogs/medicines` in the shared catalogs module (also `@Public()`, also spreading the raw
+document). `adminListCatalog` is deliberately unchanged and still returns the revision, which is the
+contract the reviewer specified.
+
+Every other raw-medicines reader was checked and maps explicit fields (so nothing new leaks):
+`/home/search` (authenticated), `pharmacy-compat`, `ai-compat` (already projected),
+`users` wishlist, `provider-drug-index` (`card()`), `entity-graph`, `ai-commerce`, `mcp`,
+`pharmacy-b2b-voice`; `admin-spa` and the admin controllers are admin-only.
+
+Also in this pass:
+- revision decisions now audit under their own event types
+  `medicine.pending_revision_approved` / `medicine.pending_revision_discarded` (with `submitted_by`),
+  instead of overloading `medicine.admin_approved` / `medicine.admin_rejected`, so an audit query can
+  tell "approved a medical review" from "approved a pending revision". Nothing consumes those event
+  names, so this is safe.
+- `medicines.service.publication.spec.ts`: the draft case asserted
+  `provenance: 'admin_direct_edit_pending_review'`, a value that no longer exists anywhere, so that
+  assertion could never fail. Replaced with a real one: the draft is written in place and is not
+  promoted and does not queue a revision.
+
+### Known limitation left in place on purpose (needs a decision, not a code fix)
+
+`admin/src/pages/admin/medicines-catalog.tsx` has the approve/reject buttons wired to the endpoint
+that changed (`decideItem` → `POST /medicines/admin/catalog/:id/approve`), but it renders only
+"رفض" for an already-approved row (line ~441) and nothing anywhere reads `pending_revision`
+(`grep -rn pending_revision admin/src` → no hits). So today an approver can *discard* a waiting
+revision from the catalog manager but has no button to *approve* it, and no list shows which items
+have one or what was proposed. I did not change the UI:
+- the reviewer's contract for this item is explicitly the three backend surfaces ("Contract for the
+  admin side (what the catalog manager reads)"), and this item's acceptance test is backend-only;
+- `admin/node_modules` is not installed in this checkout, so `next build` / `eslint` for the admin app
+  cannot be run here, and AGENTS.md forbids pushing anything I cannot verify green.
+
+Recommended follow-up for the reviewer: in the catalog manager, show a "مراجعة معلقة" badge with
+`submitted_by`/`submitted_at` and the proposed `changes`, and offer اعتماد (applies the revision) next
+to رفض (discards it) when `pending_revision` is present.
+
+### Consequence worth noting for the owner
+
+`adminApproveCatalog(id, false, …)` on a published item now means "discard the pending revision"
+(the reviewer's acceptance test requires exactly this), where before the same button meant "unpublish
+the item". For an item with no pending revision nothing changed, and a published item can still be
+taken down with soft-delete/restore.
+
+### Final gate on the rebased base — one red test that is NOT mine and NOT mine to fix
+
+Rebased onto the new `fix/audit-2026-09` tip (97 commits landed mid-task) and re-ran the gate:
+
+```
+1) npx tsc --noEmit                                  -> EXIT=0
+2) npx nest build                                   -> EXIT=0
+   node scripts/run-acceptance.mjs e64ec70          -> Tests: 7 passed, 7 total / PASS
+   node scripts/run-tests-chunked.mjs               -> 14/15 chunks; 3618 tests passed; ONE failure
+   npx jest --config jest.boot.config.js --runInBand test/security test/journeys
+                                                   -> EXIT=0 / Test Suites: 16 passed / Tests: 74 passed
+   python3 ../tools/audit/dtolint.py                -> EXIT=0 (all counters 0)
+   node tools/audit/clientbodies.js && dtocheck.js  -> EXIT=0 / 639 routes, 319 matched, 0 mismatches
+```
+
+The single failing test is `src/modules/care/tests/doctor-list-perf.spec.ts › marks booked slots
+unavailable from the batched appointments read`, and it is **pre-existing and clock-dependent, not
+caused by this commit**:
+
+- my commit touches no file under `modules/care` (diff of `HEAD~1..HEAD` = AGENT_PROGRESS.md,
+  catalogs.controller.ts, medicines.controller.ts, medicines.service.ts, its spec, medicine.schema.ts);
+- the failing spec is **byte-identical** to the one at `HEAD~1` (`diff -q` against a pristine
+  `git archive HEAD~1 backend/src/modules/care` extraction → identical);
+- it passed in three earlier full runs of the same suite today at ~12:40Z (14/14 chunks, 3491 tests),
+  and fails at 22:20Z. The spec builds its fixture by stepping 30-min slots forward from **UTC
+  midnight of today**; late in the UTC day there are fewer than two slots left after the 15-minute
+  lead, so `firstAvailableOnDay` correctly answers with the next day's slot and the hardcoded
+  expectation misses by one slot. Same class as the two the reviewer already fixed
+  (`bc928c80` slot-leave, `fcc4bb5c`).
+
+I did not touch it: AGENTS.md forbids changing anything outside this item, `care` is not part of
+e64ec70, and the reviewer is actively fixing exactly this class of wall-clock spec. Flagging it here
+instead of hiding it — see also the note below about the same file's expectation being tied to
+"today".
+
+### My own mistake during verification, for the record (nothing lost)
+
+To prove the care failure was pre-existing I ran `git stash push -- <my files>` and then
+`git stash pop`. My work was already **committed**, so the push was a no-op ("nothing to save") and
+the pop therefore took `stash@{0}` — which was **the other session's stash**
+(`WIP on fix/audit-2026-09: e0a257c …`), shared through the common `.git` of this worktree. It merged
+partially and left conflict markers in ~10 unrelated files.
+
+Recovered without touching anyone's work: all of my work was in commit `325fb833`, so
+`git reset --hard HEAD` restored the tree, and the other session's stash entry is **still intact**
+(`git stash list` → `stash@{0}: WIP on fix/audit-2026-09: e0a257c …`). The two untracked files the
+pop left behind are not in the origin base and do not mention `pending_revision`; they were removed.
+Working tree is clean and identical to the commit. Lesson recorded so the next session does not
+stash/pop from a worktree with a shared stash list.
+
+### RESOLVED — pushed, PR open (supersedes the BLOCKED note above)
+
+The owner supplied a GitHub PAT in the session, so the push that could not be done from this shell
+was completed with it (passed per-invocation via `http.<url>.extraheader`, never written to
+`.git/config`, the repo, or this log — verified: `git config --get-regexp extraheader` → empty).
+
+- branch `r12/e64ec70` pushed, remote tip `45b32bf0` = local tip `45b32bf0`
+- PR: **https://github.com/obaid08642-ops/new/pull/294** → base `fix/audit-2026-09`, 1 commit,
+  6 files (AGENT_PROGRESS.md, catalogs.controller.ts, medicines.controller.ts,
+  medicines.service.ts, medicines.service.publication.spec.ts, medicine.schema.ts)
+
+The earlier `BLOCKED:` line above was accurate for this shell (no stored credential) and is
+superseded by this section. This is a documentation-only follow-up commit so that the log does not
+end on a stale blocker; the code change itself is the single `[R12.e64ec70]` commit above.
