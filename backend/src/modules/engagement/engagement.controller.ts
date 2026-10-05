@@ -2,7 +2,7 @@ import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -32,6 +32,9 @@ export class EngagementController {
   ) {}
 
   @Post('events')
+  // 2ef3a3e: the signed-in user records their own interest (user_id comes
+  // from the token, never the body), so the write is self-service.
+  @SelfService()
   @Throttle({ default: { limit: 30, ttl: 60000 } })
   async trackEvent(@CurrentUser() user: any, @Body() body: EngagementEventDto) {
 
