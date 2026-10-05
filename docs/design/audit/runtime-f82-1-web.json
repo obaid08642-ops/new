@@ -16,7 +16,7 @@
   "server": [
    {
     "method": "GET",
-    "path": "/api/v1/config",
+    "path": "/api/v1/care/doctors",
     "status": 200
    },
    {
@@ -25,9 +25,34 @@
     "status": 200
    },
    {
+    "method": "GET",
+    "path": "/api/v1/config",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/care/doctors",
+    "status": 200
+   },
+   {
     "method": "POST",
     "path": "/api/v1/auth/heartbeat",
     "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/care/doctors",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/content/home",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/config",
+    "status": 200
    }
   ],
   "consoleErrors": [],
@@ -35,35 +60,31 @@
   "failed": [
    "GET /ar/notifications net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/c net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/c net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/nursing/catalog net::ERR_ABORTED",
-   "GET /ar/nutrition net::ERR_ABORTED",
-   "GET /ar/maternity net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
    "GET /ar/health net::ERR_ABORTED",
    "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar/ai/triage net::ERR_ABORTED",
    "GET /ar/ai/symptom-checker net::ERR_ABORTED",
    "GET /ar/ai/prescription-translator net::ERR_ABORTED",
-   "GET /ar/ai/chat-doctor net::ERR_ABORTED",
    "GET /ar/ai/skin-analysis net::ERR_ABORTED",
-   "GET /ar/notifications net::ERR_ABORTED",
-   "GET /ar/c net::ERR_ABORTED",
+   "GET /ar/ai/chat-doctor net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/nursing/catalog net::ERR_ABORTED",
+   "GET /ar/notifications net::ERR_ABORTED",
+   "GET /ar/c net::ERR_ABORTED",
    "GET /ar/nutrition net::ERR_ABORTED",
-   "GET /ar/maternity net::ERR_ABORTED",
-   "GET /ar/ai/triage net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
    "GET /ar/health net::ERR_ABORTED",
    "GET /ar/emergency net::ERR_ABORTED",
-   "GET /ar/ai/symptom-checker net::ERR_ABORTED",
+   "GET /ar/ai/triage net::ERR_ABORTED",
    "GET /ar/ai/prescription-translator net::ERR_ABORTED",
+   "GET /ar/ai/skin-analysis net::ERR_ABORTED",
    "GET /ar/ai/chat-doctor net::ERR_ABORTED",
-   "GET /ar/ai/skin-analysis net::ERR_ABORTED"
+   "GET /ar/ai/symptom-checker net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 330
@@ -86,34 +107,37 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/c net::ERR_ABORTED",
    "GET /ar/notifications net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/c net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/maternity net::ERR_ABORTED",
    "GET /ar/nursing/catalog net::ERR_ABORTED",
    "GET /ar/nutrition net::ERR_ABORTED",
-   "GET /ar/maternity net::ERR_ABORTED",
-   "GET /ar/emergency net::ERR_ABORTED",
-   "GET /ar/ai/triage net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
    "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar/ai/triage net::ERR_ABORTED",
    "GET /ar/ai/symptom-checker net::ERR_ABORTED",
    "GET /ar/ai/prescription-translator net::ERR_ABORTED",
    "GET /ar/ai/skin-analysis net::ERR_ABORTED",
    "GET /ar/ai/chat-doctor net::ERR_ABORTED",
    "GET /ar/notifications net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/c net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/c net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/nursing/catalog net::ERR_ABORTED",
    "GET /ar/nutrition net::ERR_ABORTED",
+   "GET /ar/maternity net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/health net::ERR_ABORTED",
    "GET /ar/ai/triage net::ERR_ABORTED",
-   "GET /ar/emergency net::ERR_ABORTED",
-   "GET /ar/ai/prescription-translator net::ERR_ABORTED",
-   "GET /ar/ai/skin-analysis net::ERR_ABORTED",
    "GET /ar/ai/symptom-checker net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar/ai/skin-analysis net::ERR_ABORTED",
+   "GET /ar/ai/prescription-translator net::ERR_ABORTED",
    "GET /ar/ai/chat-doctor net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -137,37 +161,37 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/c net::ERR_ABORTED",
    "GET /ar/notifications net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/c net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/nursing/catalog net::ERR_ABORTED",
    "GET /ar/nutrition net::ERR_ABORTED",
    "GET /ar/maternity net::ERR_ABORTED",
-   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar/nursing/catalog net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
    "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
    "GET /ar/ai/triage net::ERR_ABORTED",
    "GET /ar/ai/symptom-checker net::ERR_ABORTED",
+   "GET /ar/ai/prescription-translator net::ERR_ABORTED",
    "GET /ar/ai/skin-analysis net::ERR_ABORTED",
    "GET /ar/ai/chat-doctor net::ERR_ABORTED",
    "GET /ar/notifications net::ERR_ABORTED",
-   "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/c net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/c net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/nutrition net::ERR_ABORTED",
-   "GET /ar/nursing/catalog net::ERR_ABORTED",
    "GET /ar/maternity net::ERR_ABORTED",
+   "GET /ar/nursing/catalog net::ERR_ABORTED",
    "GET /ar/emergency net::ERR_ABORTED",
-   "GET /ar/health net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
    "GET /ar/ai/triage net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED",
    "GET /ar/ai/prescription-translator net::ERR_ABORTED",
-   "GET /ar/ai/chat-doctor net::ERR_ABORTED",
    "GET /ar/ai/symptom-checker net::ERR_ABORTED",
-   "GET /ar/ai/skin-analysis net::ERR_ABORTED"
+   "GET /ar/ai/skin-analysis net::ERR_ABORTED",
+   "GET /ar/ai/chat-doctor net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 330
@@ -189,7 +213,7 @@
   "server": [
    {
     "method": "GET",
-    "path": "/api/v1/users/me/profile",
+    "path": "/api/v1/users/me/display",
     "status": 200
    },
    {
@@ -210,37 +234,37 @@
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/c net::ERR_ABORTED",
-   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/nursing/catalog net::ERR_ABORTED",
-   "GET /ar/maternity net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/nutrition net::ERR_ABORTED",
+   "GET /ar/maternity net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/ai/triage net::ERR_ABORTED",
    "GET /ar/health net::ERR_ABORTED",
    "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar/ai/triage net::ERR_ABORTED",
+   "GET /ar/ai/skin-analysis net::ERR_ABORTED",
    "GET /ar/ai/symptom-checker net::ERR_ABORTED",
    "GET /ar/ai/prescription-translator net::ERR_ABORTED",
-   "GET /ar/ai/skin-analysis net::ERR_ABORTED",
    "GET /ar/ai/chat-doctor net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/notifications net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/c net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/nursing/catalog net::ERR_ABORTED",
-   "GET /ar/nutrition net::ERR_ABORTED",
    "GET /ar/maternity net::ERR_ABORTED",
+   "GET /ar/nutrition net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED",
    "GET /ar/emergency net::ERR_ABORTED",
    "GET /ar/ai/triage net::ERR_ABORTED",
-   "GET /ar/health net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/ai/symptom-checker net::ERR_ABORTED",
    "GET /ar/ai/skin-analysis net::ERR_ABORTED",
    "GET /ar/ai/prescription-translator net::ERR_ABORTED",
-   "GET /ar/ai/chat-doctor net::ERR_ABORTED"
+   "GET /ar/ai/chat-doctor net::ERR_ABORTED",
+   "GET /ar/ai/symptom-checker net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 515
+  "textLen": 529
  },
  {
   "route": "/dashboard",
@@ -260,34 +284,34 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/notifications net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/c net::ERR_ABORTED",
-   "GET /ar/notifications net::ERR_ABORTED",
+   "GET /ar/nutrition net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/nursing/catalog net::ERR_ABORTED",
-   "GET /ar/nutrition net::ERR_ABORTED",
-   "GET /ar/maternity net::ERR_ABORTED",
-   "GET /ar/health net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED",
    "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar/ai/triage net::ERR_ABORTED",
+   "GET /ar/ai/symptom-checker net::ERR_ABORTED",
+   "GET /ar/ai/prescription-translator net::ERR_ABORTED",
    "GET /ar/ai/skin-analysis net::ERR_ABORTED",
    "GET /ar/ai/chat-doctor net::ERR_ABORTED",
-   "GET /ar/ai/prescription-translator net::ERR_ABORTED",
-   "GET /ar/ai/symptom-checker net::ERR_ABORTED",
-   "GET /ar/c net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/notifications net::ERR_ABORTED",
-   "GET /ar/nutrition net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/c net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/nutrition net::ERR_ABORTED",
    "GET /ar/nursing/catalog net::ERR_ABORTED",
-   "GET /ar/ai/triage net::ERR_ABORTED",
    "GET /ar/health net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar/ai/triage net::ERR_ABORTED",
    "GET /ar/ai/symptom-checker net::ERR_ABORTED",
-   "GET /ar/ai/chat-doctor net::ERR_ABORTED",
    "GET /ar/ai/prescription-translator net::ERR_ABORTED",
+   "GET /ar/ai/chat-doctor net::ERR_ABORTED",
    "GET /ar/ai/skin-analysis net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -311,40 +335,13 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/c net::ERR_ABORTED",
    "GET /ar/notifications net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/nursing/catalog net::ERR_ABORTED",
-   "GET /ar/nutrition net::ERR_ABORTED",
-   "GET /ar/maternity net::ERR_ABORTED",
-   "GET /ar/ai/triage net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/health net::ERR_ABORTED",
-   "GET /ar/emergency net::ERR_ABORTED",
-   "GET /ar/ai/symptom-checker net::ERR_ABORTED",
-   "GET /ar/ai/prescription-translator net::ERR_ABORTED",
-   "GET /ar/ai/chat-doctor net::ERR_ABORTED",
-   "GET /ar/ai/skin-analysis net::ERR_ABORTED",
-   "GET /ar/notifications net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/c net::ERR_ABORTED",
-   "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/maternity net::ERR_ABORTED",
-   "GET /ar/nutrition net::ERR_ABORTED",
-   "GET /ar/nursing/catalog net::ERR_ABORTED",
-   "GET /ar/emergency net::ERR_ABORTED",
-   "GET /ar/ai/triage net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/health net::ERR_ABORTED",
-   "GET /ar/ai/prescription-translator net::ERR_ABORTED",
-   "GET /ar/ai/symptom-checker net::ERR_ABORTED",
-   "GET /ar/ai/chat-doctor net::ERR_ABORTED",
-   "GET /ar/ai/skin-analysis net::ERR_ABORTED"
+   "GET /ar/notifications net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 515
+  "textLen": 89
  },
  {
   "route": "/forgot-password",
@@ -353,17 +350,43 @@
   "status": 200,
   "finalPath": "/ar/forgot-password",
   "api": [],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/care/doctors",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/nursing/catalog",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/labs/services",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/radiology/services",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/labs/packages",
+    "status": 200
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
    "GET /ar/login net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/login net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED"
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/login net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 198
+  "textLen": 197
  },
  {
   "route": "/forgot-password",
@@ -376,12 +399,13 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar net::ERR_ABORTED",
    "GET /ar/login net::ERR_ABORTED",
    "GET /ar/login net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 198
+  "textLen": 197
  },
  {
   "route": "/forgot-password",
@@ -400,7 +424,7 @@
    "GET /ar net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 198
+  "textLen": 197
  },
  {
   "route": "/login",
@@ -413,15 +437,19 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/welcome net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/register net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/welcome net::ERR_ABORTED",
    "GET /ar/register net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/welcome net::ERR_ABORTED"
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 249
+  "textLen": 248
  },
  {
   "route": "/login",
@@ -435,14 +463,18 @@
   "pageErrors": [],
   "failed": [
    "GET /ar/register net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/welcome net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/welcome net::ERR_ABORTED",
    "GET /ar/register net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/welcome net::ERR_ABORTED"
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 249
+  "textLen": 248
  },
  {
   "route": "/login",
@@ -458,12 +490,15 @@
    "GET /ar/welcome net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/register net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/register net::ERR_ABORTED",
-   "GET /ar/welcome net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED"
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 249
+  "textLen": 248
  },
  {
   "route": "/notifications",
@@ -489,14 +524,49 @@
     "method": "POST",
     "path": "/api/v1/auth/heartbeat",
     "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/care/doctors",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/care/doctors",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/config",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/content/home",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/radiology/services",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/labs/services",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/labs/packages",
+    "status": 200
    }
   ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
    "GET /ar net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/notifications/settings net::ERR_ABORTED"
+   "GET /ar/notifications/settings net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 74
@@ -519,10 +589,10 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/notifications/settings net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/notifications/settings net::ERR_ABORTED",
-   "GET /ar/notifications/settings net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED"
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/notifications/settings net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 74
@@ -574,11 +644,27 @@
     "method": "POST",
     "path": "/api/v1/auth/heartbeat",
     "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/content/home",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/config",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/care/doctors",
+    "status": 200
    }
   ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/notifications net::ERR_ABORTED",
    "GET /ar/notifications net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -645,7 +731,7 @@
    "GET /ar/welcome net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 112
+  "textLen": 111
  },
  {
   "route": "/onboarding",
@@ -661,7 +747,7 @@
    "GET /ar/welcome net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 112
+  "textLen": 111
  },
  {
   "route": "/onboarding",
@@ -674,14 +760,75 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/welcome net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 112
+  "textLen": 111
  },
  {
   "route": "/onboarding/language",
   "scenario": "normal",
+  "session": "anonymous",
+  "status": 200,
+  "finalPath": "/ar/onboarding/language",
+  "api": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/care/doctors",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/labs/services",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/radiology/services",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/labs/packages",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/nursing/catalog",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/onboarding net::ERR_ABORTED",
+   "GET /ar/onboarding/language net::ERR_ABORTED",
+   "GET /en/onboarding/language net::ERR_ABORTED",
+   "GET /ar/onboarding net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /hi/onboarding/language net::ERR_ABORTED",
+   "GET /ur/onboarding/language net::ERR_ABORTED",
+   "GET /fil/onboarding/language net::ERR_ABORTED",
+   "GET /bn/onboarding/language net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 121
+ },
+ {
+  "route": "/onboarding/language",
+  "scenario": "empty",
   "session": "anonymous",
   "status": 200,
   "finalPath": "/ar/onboarding/language",
@@ -691,22 +838,19 @@
   "pageErrors": [],
   "failed": [
    "GET /ar/onboarding net::ERR_ABORTED",
-   "GET /ar/onboarding/permissions net::ERR_ABORTED",
-   "GET /ar/onboarding/language net::ERR_ABORTED",
-   "GET /ar/onboarding net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
+   "GET /ar/onboarding net::ERR_ABORTED",
    "GET /ur/onboarding/language net::ERR_ABORTED",
-   "GET /ar/onboarding/permissions net::ERR_ABORTED",
    "GET /hi/onboarding/language net::ERR_ABORTED",
    "GET /fil/onboarding/language net::ERR_ABORTED",
    "GET /bn/onboarding/language net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 122
+  "textLen": 121
  },
  {
   "route": "/onboarding/language",
-  "scenario": "empty",
+  "scenario": "error",
   "session": "anonymous",
   "status": 200,
   "finalPath": "/ar/onboarding/language",
@@ -717,43 +861,16 @@
   "failed": [
    "GET /ar/onboarding net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/onboarding/permissions net::ERR_ABORTED",
    "GET /ar/onboarding/language net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
    "GET /en/onboarding/language net::ERR_ABORTED",
    "GET /ar/onboarding net::ERR_ABORTED",
-   "GET /ar/onboarding/permissions net::ERR_ABORTED",
-   "GET /hi/onboarding/language net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ur/onboarding/language net::ERR_ABORTED",
    "GET /bn/onboarding/language net::ERR_ABORTED",
    "GET /fil/onboarding/language net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 122
- },
- {
-  "route": "/onboarding/language",
-  "scenario": "error",
-  "session": "anonymous",
-  "status": 200,
-  "finalPath": "/ar/onboarding/language",
-  "api": [],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar/onboarding net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/onboarding/permissions net::ERR_ABORTED",
-   "GET /ar/onboarding/language net::ERR_ABORTED",
-   "GET /ar/onboarding net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/onboarding/permissions net::ERR_ABORTED",
-   "GET /bn/onboarding/language net::ERR_ABORTED",
-   "GET /fil/onboarding/language net::ERR_ABORTED",
-   "GET /hi/onboarding/language net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 122
+  "textLen": 121
  },
  {
   "route": "/onboarding/permissions",
@@ -766,13 +883,25 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/onboarding/language net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/welcome net::ERR_ABORTED",
+   "GET /ar/onboarding/language net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
    "GET /ar/welcome net::ERR_ABORTED",
    "GET /ar/onboarding/language net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 216
+  "textLen": 215
  },
  {
   "route": "/onboarding/permissions",
@@ -788,31 +917,32 @@
    "GET /ar/onboarding/language net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/welcome net::ERR_ABORTED",
-   "GET /ar/onboarding/language net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 216
- },
- {
-  "route": "/onboarding/permissions",
-  "scenario": "error",
-  "session": "anonymous",
-  "status": 200,
-  "finalPath": "/ar/onboarding/permissions",
-  "api": [],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar/onboarding/language net::ERR_ABORTED",
-   "GET /ar/welcome net::ERR_ABORTED",
-   "GET /ar/onboarding/language net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
+   "GET /ar/onboarding/language net::ERR_ABORTED",
    "GET /ar/welcome net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 216
+  "textLen": 215
+ },
+ {
+  "route": "/onboarding/permissions",
+  "scenario": "error",
+  "session": "anonymous",
+  "status": 200,
+  "finalPath": "/ar/onboarding/permissions",
+  "api": [],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/onboarding/language net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/welcome net::ERR_ABORTED",
+   "GET /ar/onboarding/language net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 215
  },
  {
   "route": "/otp",
@@ -830,7 +960,7 @@
    "GET /ar net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 194
+  "textLen": 193
  },
  {
   "route": "/otp",
@@ -838,43 +968,6 @@
   "session": "anonymous",
   "status": 200,
   "finalPath": "/ar/otp",
-  "api": [],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar/login net::ERR_ABORTED",
-   "GET /ar/login net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 194
- },
- {
-  "route": "/otp",
-  "scenario": "error",
-  "session": "anonymous",
-  "status": 200,
-  "finalPath": "/ar/otp",
-  "api": [],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar/login net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/login net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 194
- },
- {
-  "route": "/password-reset",
-  "scenario": "normal",
-  "session": "anonymous",
-  "status": 200,
-  "finalPath": "/ar/password-reset",
   "api": [],
   "server": [],
   "consoleErrors": [],
@@ -886,7 +979,66 @@
    "GET /ar/login net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 173
+  "textLen": 193
+ },
+ {
+  "route": "/otp",
+  "scenario": "error",
+  "session": "anonymous",
+  "status": 200,
+  "finalPath": "/ar/otp",
+  "api": [],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/login net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/login net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 193
+ },
+ {
+  "route": "/password-reset",
+  "scenario": "normal",
+  "session": "anonymous",
+  "status": 200,
+  "finalPath": "/ar/password-reset",
+  "api": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/care/doctors",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/care/doctors",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/content/home",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/config",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/login net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/login net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 172
  },
  {
   "route": "/password-reset",
@@ -899,12 +1051,13 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/login net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/login net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 173
+  "textLen": 172
  },
  {
   "route": "/password-reset",
@@ -917,13 +1070,13 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/login net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/login net::ERR_ABORTED",
-   "GET /ar/login net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED"
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/login net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 173
+  "textLen": 172
  },
  {
   "route": "/register",
@@ -943,17 +1096,16 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/login net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/login net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/login net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED"
+   "GET /ar/privacy net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 237
+  "textLen": 236
  },
  {
   "route": "/register",
@@ -973,17 +1125,17 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/login net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/login net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED"
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/login net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 237
+  "textLen": 236
  },
  {
   "route": "/register",
@@ -1003,16 +1155,17 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/login net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/login net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED"
+   "GET /ar/login net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 237
+  "textLen": 236
  },
  {
   "route": "/search",
@@ -1033,6 +1186,31 @@
     "method": "POST",
     "path": "/api/v1/auth/heartbeat",
     "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/labs/services",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/care/doctors",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/radiology/services",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/labs/packages",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/nursing/catalog",
+    "status": 200
    }
   ],
   "consoleErrors": [],
@@ -1044,14 +1222,16 @@
    "GET /ar/diagnostics/labs net::ERR_ABORTED",
    "GET /ar/diagnostics/radiology net::ERR_ABORTED",
    "GET /ar/home-care net::ERR_ABORTED",
+   "GET /ar/mental-health net::ERR_ABORTED",
    "GET /ar/nutrition net::ERR_ABORTED",
-   "GET /ar/mental-health net::ERR_ABORTED",
    "GET /ar/family net::ERR_ABORTED",
-   "GET /ar/pharmacy net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/mental-health net::ERR_ABORTED",
    "GET /ar/diagnostics/labs net::ERR_ABORTED",
+   "GET /ar/pharmacy net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/home-care net::ERR_ABORTED",
+   "GET /ar/mental-health net::ERR_ABORTED",
+   "GET /ar/diagnostics/radiology net::ERR_ABORTED",
    "GET /ar/nutrition net::ERR_ABORTED",
    "GET /ar/family net::ERR_ABORTED"
   ],
@@ -1077,22 +1257,23 @@
   "pageErrors": [],
   "failed": [
    "GET /ar net::ERR_ABORTED",
+   "GET /ar/pharmacy net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/diagnostics/labs net::ERR_ABORTED",
    "GET /ar/diagnostics/radiology net::ERR_ABORTED",
-   "GET /ar/home-care net::ERR_ABORTED",
    "GET /ar/mental-health net::ERR_ABORTED",
    "GET /ar/nutrition net::ERR_ABORTED",
-   "GET /ar/family net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/pharmacy net::ERR_ABORTED",
-   "GET /ar/diagnostics/labs net::ERR_ABORTED",
-   "GET /ar/diagnostics/radiology net::ERR_ABORTED",
-   "GET /ar/mental-health net::ERR_ABORTED",
    "GET /ar/home-care net::ERR_ABORTED",
    "GET /ar/family net::ERR_ABORTED",
-   "GET /ar/nutrition net::ERR_ABORTED"
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/pharmacy net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/diagnostics/labs net::ERR_ABORTED",
+   "GET /ar/home-care net::ERR_ABORTED",
+   "GET /ar/diagnostics/radiology net::ERR_ABORTED",
+   "GET /ar/mental-health net::ERR_ABORTED",
+   "GET /ar/nutrition net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 86
@@ -1119,18 +1300,19 @@
    "GET /ar/pharmacy net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/diagnostics/labs net::ERR_ABORTED",
-   "GET /ar/home-care net::ERR_ABORTED",
-   "GET /ar/nutrition net::ERR_ABORTED",
-   "GET /ar/mental-health net::ERR_ABORTED",
-   "GET /ar/family net::ERR_ABORTED",
-   "GET /ar/pharmacy net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/diagnostics/labs net::ERR_ABORTED",
-   "GET /ar/home-care net::ERR_ABORTED",
-   "GET /ar/mental-health net::ERR_ABORTED",
    "GET /ar/diagnostics/radiology net::ERR_ABORTED",
+   "GET /ar/home-care net::ERR_ABORTED",
+   "GET /ar/mental-health net::ERR_ABORTED",
+   "GET /ar/nutrition net::ERR_ABORTED",
    "GET /ar/family net::ERR_ABORTED",
-   "GET /ar/nutrition net::ERR_ABORTED"
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/pharmacy net::ERR_ABORTED",
+   "GET /ar/home-care net::ERR_ABORTED",
+   "GET /ar/diagnostics/radiology net::ERR_ABORTED",
+   "GET /ar/mental-health net::ERR_ABORTED",
+   "GET /ar/nutrition net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 86
@@ -1157,12 +1339,12 @@
    },
    {
     "method": "GET",
-    "path": "/api/v1/content/home",
+    "path": "/api/v1/config",
     "status": 200
    },
    {
     "method": "GET",
-    "path": "/api/v1/config",
+    "path": "/api/v1/content/home",
     "status": 200
    },
    {
@@ -1179,29 +1361,29 @@
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/nutrition net::ERR_ABORTED",
    "GET /ar/nursing/catalog net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/emergency net::ERR_ABORTED",
-   "GET /ar/ai/triage net::ERR_ABORTED",
-   "GET /ar/ai/skin-analysis net::ERR_ABORTED",
-   "GET /ar/ai/symptom-checker net::ERR_ABORTED",
-   "GET /ar/ai/prescription-translator net::ERR_ABORTED",
-   "GET /ar/ai/chat-doctor net::ERR_ABORTED",
-   "GET /ar/notifications net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/nutrition net::ERR_ABORTED",
-   "GET /ar/nursing/catalog net::ERR_ABORTED",
    "GET /ar/maternity net::ERR_ABORTED",
-   "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/emergency net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/ai/triage net::ERR_ABORTED",
    "GET /ar/health net::ERR_ABORTED",
-   "GET /ar/ai/prescription-translator net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
    "GET /ar/ai/symptom-checker net::ERR_ABORTED",
+   "GET /ar/ai/prescription-translator net::ERR_ABORTED",
+   "GET /ar/ai/skin-analysis net::ERR_ABORTED",
    "GET /ar/ai/chat-doctor net::ERR_ABORTED",
-   "GET /ar/ai/skin-analysis net::ERR_ABORTED"
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/notifications net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/nursing/catalog net::ERR_ABORTED",
+   "GET /ar/nutrition net::ERR_ABORTED",
+   "GET /ar/maternity net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar/ai/triage net::ERR_ABORTED",
+   "GET /ar/ai/chat-doctor net::ERR_ABORTED",
+   "GET /ar/ai/symptom-checker net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 330
@@ -1224,35 +1406,36 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/c net::ERR_ABORTED",
    "GET /ar/notifications net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/nutrition net::ERR_ABORTED",
-   "GET /ar/nursing/catalog net::ERR_ABORTED",
-   "GET /ar/maternity net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/health net::ERR_ABORTED",
-   "GET /ar/emergency net::ERR_ABORTED",
-   "GET /ar/ai/symptom-checker net::ERR_ABORTED",
-   "GET /ar/ai/prescription-translator net::ERR_ABORTED",
-   "GET /ar/ai/skin-analysis net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/c net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/nursing/catalog net::ERR_ABORTED",
    "GET /ar/nutrition net::ERR_ABORTED",
-   "GET /ar/maternity net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/ai/triage net::ERR_ABORTED",
-   "GET /ar/emergency net::ERR_ABORTED",
    "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar/ai/triage net::ERR_ABORTED",
+   "GET /ar/ai/symptom-checker net::ERR_ABORTED",
    "GET /ar/ai/prescription-translator net::ERR_ABORTED",
    "GET /ar/ai/skin-analysis net::ERR_ABORTED",
    "GET /ar/ai/chat-doctor net::ERR_ABORTED",
-   "GET /ar/ai/symptom-checker net::ERR_ABORTED"
+   "GET /ar/notifications net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/c net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/nursing/catalog net::ERR_ABORTED",
+   "GET /ar/nutrition net::ERR_ABORTED",
+   "GET /ar/maternity net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar/ai/symptom-checker net::ERR_ABORTED",
+   "GET /ar/ai/triage net::ERR_ABORTED",
+   "GET /ar/ai/prescription-translator net::ERR_ABORTED",
+   "GET /ar/ai/skin-analysis net::ERR_ABORTED",
+   "GET /ar/ai/chat-doctor net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 330
@@ -1275,38 +1458,37 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/notifications net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/notifications net::ERR_ABORTED",
    "GET /ar/c net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/nursing/catalog net::ERR_ABORTED",
    "GET /ar/nutrition net::ERR_ABORTED",
    "GET /ar/maternity net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
    "GET /ar/health net::ERR_ABORTED",
-   "GET /ar/emergency net::ERR_ABORTED",
-   "GET /ar/ai/triage net::ERR_ABORTED",
-   "GET /ar/ai/skin-analysis net::ERR_ABORTED",
    "GET /ar/ai/symptom-checker net::ERR_ABORTED",
    "GET /ar/ai/prescription-translator net::ERR_ABORTED",
+   "GET /ar/ai/skin-analysis net::ERR_ABORTED",
    "GET /ar/ai/chat-doctor net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/c net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/notifications net::ERR_ABORTED",
-   "GET /ar/c net::ERR_ABORTED",
-   "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/nutrition net::ERR_ABORTED",
    "GET /ar/maternity net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/nursing/catalog net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/nutrition net::ERR_ABORTED",
+   "GET /ar/ai/triage net::ERR_ABORTED",
    "GET /ar/health net::ERR_ABORTED",
    "GET /ar/emergency net::ERR_ABORTED",
-   "GET /ar/ai/triage net::ERR_ABORTED",
-   "GET /ar/ai/chat-doctor net::ERR_ABORTED",
-   "GET /ar/ai/symptom-checker net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/ai/prescription-translator net::ERR_ABORTED",
    "GET /ar/ai/skin-analysis net::ERR_ABORTED",
-   "GET /ar/ai/prescription-translator net::ERR_ABORTED"
+   "GET /ar/ai/symptom-checker net::ERR_ABORTED",
+   "GET /ar/ai/chat-doctor net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 330
@@ -1318,12 +1500,33 @@
   "status": 200,
   "finalPath": "/ar/welcome",
   "api": [],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/care/doctors",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/care/doctors",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/content/home",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/config",
+    "status": 200
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [],
   "overlay": 0,
-  "textLen": 94
+  "textLen": 93
  },
  {
   "route": "/welcome",
@@ -1337,7 +1540,7 @@
   "pageErrors": [],
   "failed": [],
   "overlay": 0,
-  "textLen": 94
+  "textLen": 93
  },
  {
   "route": "/welcome",
@@ -1351,6 +1554,6 @@
   "pageErrors": [],
   "failed": [],
   "overlay": 0,
-  "textLen": 94
+  "textLen": 93
  }
 ]
