@@ -1,5 +1,12 @@
 import { MedicinesService } from './medicines.service';
 
+// createCatalog (R12, not R19) stamps `id: randomUUID()` over whatever the model
+// returns, so pin randomUUID to keep the new-item assertions on one concrete id.
+jest.mock('crypto', () => ({
+  ...jest.requireActual<typeof import('crypto')>('crypto'),
+  randomUUID: jest.fn(() => 'med-new'),
+}));
+
 // Q60: admin create → medical-review approve must grant indexing_eligibility,
 // otherwise the public filter (public_eligibility + indexing_eligibility +
 // medical_review_status=approved) keeps the item 404 for everyone.
@@ -85,15 +92,9 @@ describe('MedicinesService medical approval indexing (Q60)', () => {
 
     const result = await service.approveChangeRequest('ccr_1', 'admin-1', {});
 
-    // R19 gives new items identity-based ids (UUID here — the fixture has no
-    // sku/source/barcode), so pin the returned id instead of the mock's.
-    // What matters is that THE SAME medicine gets published with all flags.
-    const newId: string = (result as any)?.applied?.new_medicine_id;
-    expect(result).toEqual(expect.objectContaining({ ok: true }));
-    expect(typeof newId).toBe('string');
-    expect(newId.length).toBeGreaterThan(0);
+    expect(result).toEqual(expect.objectContaining({ ok: true, applied: { new_medicine_id: 'med-new' } }));
     expect(model.updateOne).toHaveBeenCalledWith(
-      { id: newId },
+      { id: 'med-new' },
       expect.objectContaining({
         $set: expect.objectContaining({
           medical_review_status: 'approved',
@@ -110,8 +111,8 @@ describe('MedicinesService medical approval indexing (Q60)', () => {
     const { service, publication } = createService(null, {
       id: 'ccr_2', type: 'new_item', status: 'pending', medicine_id: null, changes: { name_ar: 'دواء جديد' },
     });
-    const result: any = await service.approveChangeRequest('ccr_2', 'admin-1', {});
-    expect(publication.refresh).toHaveBeenCalledWith(expect.objectContaining({ entityType: 'medicine', entityId: result.applied.new_medicine_id }));
+    await service.approveChangeRequest('ccr_2', 'admin-1', {});
+    expect(publication.refresh).toHaveBeenCalledWith(expect.objectContaining({ entityType: 'medicine', entityId: 'med-new' }));
   });
 
   it('approving a duplicate_remove refreshes the projection so the deleted copy leaves public search', async () => {
