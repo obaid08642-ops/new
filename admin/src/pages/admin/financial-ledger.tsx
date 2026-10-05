@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
-
-interface CommissionRow {
-  id: string;
-  providerName: string;
-  type: 'doctor' | 'home_care' | 'pharmacy';
-  baseBill: number;
-}
+import { commissionRate, loadCommissionLedger, type CommissionLedgerRow } from '@/lib/ledger-commissions';
 
 interface WithdrawalRow {
   id: string;
@@ -34,7 +28,8 @@ interface FinanceSummary {
 export default function FinancialLedger() {
   const [activeTab, setActiveTab] = useState<'ledger' | 'warehouse'>('ledger');
 
-  const [commissions, setCommissions] = useState<CommissionRow[]>([]);
+  const [commissions, setCommissions] = useState<CommissionLedgerRow[]>([]);
+  const [commissionsStatus, setCommissionsStatus] = useState<'loading' | 'ready' | 'empty' | 'error'>('loading');
   const [withdrawals, setWithdrawals] = useState<WithdrawalRow[]>([]);
   const [warehouseOrders, setWarehouseOrders] = useState<WarehouseOrder[]>([]);
   const [summary, setSummary] = useState<FinanceSummary | null>(null);
@@ -57,12 +52,11 @@ export default function FinancialLedger() {
           setFinanceUnavailable(true);
         }
 
-        // Fetch Commissions (R36 ledger endpoint — legacy /admin/finance/commissions was moved)
-        const commRes = await fetchWithAdminGuard(`/api/admin/admin/finance/ledger/commissions`);
-        if (commRes.ok) {
-          const data = await commRes.json();
-          setCommissions(data.data || []);
-        }
+        // Q5: commissions from the R36 ledger route, with the amounts the ledger stored.
+        setCommissionsStatus('loading');
+        const ledger = await loadCommissionLedger((url) => fetchWithAdminGuard(url));
+        setCommissions(ledger.rows);
+        setCommissionsStatus(ledger.status);
 
         // Fetch Withdrawals
         const withRes = await fetchWithAdminGuard(`/api/admin/admin/finance/withdrawals/pending`);
@@ -83,6 +77,7 @@ export default function FinancialLedger() {
         }
       } catch (error) {
         console.error('Finance fetch error:', error);
+        setCommissionsStatus((current) => (current === 'loading' ? 'error' : current));
       } finally {
         setIsLoading(false);
       }
@@ -90,21 +85,6 @@ export default function FinancialLedger() {
 
     fetchFinanceData();
   }, []);
-
-  const getCommissionRate = (type: string) => {
-    if (type === 'doctor') return 0.15;
-    if (type === 'home_care') return 0.10;
-    if (type === 'pharmacy') return 0.05;
-    return 0;
-  };
-
-  const calculateNet = (base: number, type: string) => {
-    const rate = getCommissionRate(type);
-    const systemCommission = base * rate;
-    const vatOnCommission = systemCommission * 0.15; // VAT 15% on platform commission — remitted to tax, NOT paid to provider
-    const providerEarning = base - systemCommission;
-    return { systemCommission, vatOnCommission, providerEarning };
-  };
 
   const handleExecutePayout = async (id: string) => {
     try {
@@ -215,18 +195,24 @@ export default function FinancialLedger() {
                     </tr>
                   </thead>
                   <tbody>
-                    {commissions.map(c => {
-                      const net = calculateNet(c.baseBill, c.type);
+                    {commissionsStatus === 'loading' ? (
+                      <tr><td colSpan={6} className="px-4 py-6 text-center text-gray-500" dir="rtl">جارٍ تحميل سجل العمولات…</td></tr>
+                    ) : commissionsStatus === 'error' ? (
+                      <tr><td colSpan={6} role="alert" className="px-4 py-6 text-center text-rose-700 bg-rose-50" dir="rtl">تعذر تحميل سجل العمولات.</td></tr>
+                    ) : commissionsStatus === 'empty' ? (
+                      <tr><td colSpan={6} className="px-4 py-6 text-center text-gray-500" dir="rtl">لا توجد قيود عمولات بعد.</td></tr>
+                    ) : commissions.map(c => {
+                      const rate = commissionRate(c);
                       return (
                         <tr key={c.id} className="border-b">
                           <td className="px-4 py-3 font-medium text-gray-900">{c.providerName}</td>
                           <td className="px-4 py-3">
-                            <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">{c.type} ({(getCommissionRate(c.type) * 100)}%)</span>
+                            <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">{c.providerType}{rate !== null ? ` (${rate}%)` : ''}</span>
                           </td>
                           <td className="px-4 py-3">{c.baseBill} SAR</td>
-                          <td className="px-4 py-3 text-red-600">-{net.systemCommission} SAR</td>
-                          <td className="px-4 py-3 text-amber-600">+{net.vatOnCommission.toFixed(2)} SAR</td>
-                          <td className="px-4 py-3 font-bold text-green-600 bg-green-50">{net.providerEarning.toFixed(2)} SAR</td>
+                          <td className="px-4 py-3 text-red-600">-{c.systemCommission.toFixed(2)} SAR</td>
+                          <td className="px-4 py-3 text-amber-600">+{c.vatOnCommission.toFixed(2)} SAR</td>
+                          <td className="px-4 py-3 font-bold text-green-600 bg-green-50">{c.providerEarning.toFixed(2)} SAR</td>
                         </tr>
                       );
                     })}
