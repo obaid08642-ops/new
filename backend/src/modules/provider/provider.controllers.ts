@@ -162,6 +162,8 @@ export class ProviderAdminController {
     return this.svc.approve(u, id, body, stepUpToken);
   }
   @Post(':id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() body: RejectDto) { return this.svc.reject(u, id, body); }
+  @StepUp()
+  @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   @Post(':id/approve-bank') approveBank(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.approveBank(u, id); }
 
   @Post(':id/reprocess-image')

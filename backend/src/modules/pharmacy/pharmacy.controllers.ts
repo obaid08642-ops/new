@@ -1,3 +1,6 @@
+import { Permission } from '../../common/permissions';
+import { RequirePermissions } from '../../common/permissions';
+import { StepUp } from '../../common/step-up.guard';
 import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException, Res } from '@nestjs/common';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -227,6 +230,8 @@ export class AdminFulfillmentPolicyController {
   constructor(@InjectConnection() private readonly conn: Connection) {}
   private get col() { return this.conn.collection('pharmacy_fulfillment_policies'); }
   @Get() list(): Promise<any[]> { return this.col.find({ provider_account_id: null }, { projection: { _id: 0 } }).toArray(); }
+  @StepUp()
+  @RequirePermissions(Permission.OPS_QUEUES_MANAGE)
   @Put('cod') async setCod(@CurrentUser() u: any, @Body() b: SetCodPolicyDto): Promise<any> {
     const now = new Date();
     await this.col.updateOne(

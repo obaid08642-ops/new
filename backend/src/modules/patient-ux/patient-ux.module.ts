@@ -1,3 +1,6 @@
+import { Permission } from '../../common/permissions';
+import { RequirePermissions } from '../../common/permissions';
+import { StepUp } from '../../common/step-up.guard';
 import { Module, Injectable, Controller, Get, Post, Param, Body, UseGuards, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -181,6 +184,8 @@ export class AdminRefundsController {
   constructor(private svc: PatientUxService) {}
   @Get() list() { return this.svc.adminListRefunds(); }
   @Get('pending') pending() { return this.svc.adminListRefunds('requested'); }
+  @StepUp()
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post(':id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() body: DecideDto) {
     return this.svc.adminDecideRefund(u, id, body.decision, body.note, body.amount);
   }
@@ -306,6 +311,8 @@ export class AdminOverrideController {
     return this.svc.forceTransition(u, body.kind, body.id, body.state, body.reason);
   }
   /** Manually mark a payment as paid / refunded / failed. */
+  @StepUp()
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post('payment') markPayment(@CurrentUser() u: any, @Body() body: MarkPaymentDto) {
     if (!body?.reason || !body?.payment_status) throw new BadRequestException('reason_and_status_required');
     return this.svc.markPayment(u, body.kind, body.id, body.payment_status, body.reason, body.amount);
