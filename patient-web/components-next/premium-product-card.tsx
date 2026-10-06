@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import { NavLink } from "@/components-next/nav/nav-link";
 import Image from "next/image";
 
 type Props = {
@@ -34,7 +34,7 @@ export function PremiumProductCard({ slug, name, price, oldPrice, image, images,
   const href = `/${locale}/p/${encodeURIComponent(slug)}`;
 
   return (
-    <Link href={href} style={{ textDecoration: 'none' }}>
+    <NavLink href={href} style={{ textDecoration: 'none' }}>
       <div
         style={{
           background: 'rgba(255,255,255,0.82)',
@@ -118,6 +118,6 @@ export function PremiumProductCard({ slug, name, price, oldPrice, image, images,
            </div>
         </div>
       </div>
-    </Link>
+    </NavLink>
   );
 }

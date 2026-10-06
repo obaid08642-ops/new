@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { NavLink } from "@/components-next/nav/nav-link";
+import { useRoutePrefetch } from "@/components-next/nav/use-route-prefetch";
 import { AppShell } from "@/components-next/ui-generated/shells";
 import { BottomTabBar } from "@/components-next/ui-generated/components/Surfaces";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
@@ -69,6 +71,11 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
     { id: "nursing", label: nav("navNursing"), href: hrefs.nursing },
   ];
 
+  // The tabs are buttons that call router.push, which Next never prefetches: fetch their pages once the page is idle.
+  // This frame does not know whether a session exists, so it assumes one: the diagnostics hub lists the patient's own
+  // bookings then and is left out of the full prefetch (the public sections are not affected).
+  useRoutePrefetch(tabs.map((t) => t.href), { signedIn: true });
+
   const topBar = (
     <div className={styles.bar}>
       {!search && backHref ? (
@@ -93,7 +100,7 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
       ) : (
         <nav className={styles.sections} aria-label={shell("mainNav")}>
           {sections.map((s) => (
-            <Link key={s.id} href={s.href} className={styles.section}>{s.label}</Link>
+            <NavLink key={s.id} href={s.href} className={styles.section} prefetch="viewport" signedIn>{s.label}</NavLink>
           ))}
         </nav>
       )}

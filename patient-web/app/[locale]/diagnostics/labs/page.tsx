@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, Search, ShieldCheck } from "lucide-react";
@@ -42,6 +43,7 @@ export default async function LabsServicesPage({ params, searchParams }: Props) 
   const services = extractLabServices(await response.json().catch(() => null));
   return (
     <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
+      <StaleWhileRevalidate />
       <section className={styles.hero} style={{ gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
         <div style={{ display: "grid", gap: 8, minWidth: 0, flex: 1 } as any}>
           <p className={styles.eyebrow} style={{ color: "#1E332E", gap: 8, overflowWrap: "anywhere" } as any}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
