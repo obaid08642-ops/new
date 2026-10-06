@@ -59,13 +59,38 @@ export class RatingsService {
     );
   }
 
+  /**
+   * The rating keys a provider's reviews may be stored under, given whatever the
+   * caller has: the public profile id is resolved to the profile's account id (and
+   * the given id is kept so an internal caller that already has the account id
+   * still works). Nothing here is returned to the caller.
+   */
+  private async resolveProviderKeys(publicId: string): Promise<string[]> {
+    const keys = new Set<string>();
+    const key = String(publicId || '');
+    if (key) keys.add(key);
+    try {
+      const profile: any = await this.profiles.findOne({ id: { $eq: key } }, { projection: { id: 1, account_id: 1 } });
+      if (profile?.account_id) keys.add(String(profile.account_id));
+    } catch { /* fall back to the id as given */ }
+    return [...keys];
+  }
+
   async forProvider(providerId: string, page = 1, limit = 20): Promise<any> {
     const skip = (Math.max(page, 1) - 1) * Math.min(limit, 100);
+    // N7: a public caller passes the provider's PUBLIC id. Ratings are keyed by the
+    // provider account, so resolve it here (server-side) and keep it out of the
+    // response; the reviewer's own account id is not published either.
+    const providerKeys = await this.resolveProviderKeys(providerId);
+    const match = { provider_id: { $in: providerKeys }, status: 'published' };
+    // N7: neither the provider's account id (the row's provider_id key) nor the
+    // reviewer's own account id belongs in a public reviews response.
+    const reviewProjection = { _id: 0, user_id: 0, provider_id: 0 };
     const [rows, total, agg] = await Promise.all([
-      this.ratings.find({ provider_id: providerId, status: 'published' }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).skip(skip).limit(Math.min(limit, 100)).toArray(),
-      this.ratings.countDocuments({ provider_id: providerId, status: 'published' }),
+      this.ratings.find(match, { projection: reviewProjection }).sort({ createdAt: -1 }).skip(skip).limit(Math.min(limit, 100)).toArray(),
+      this.ratings.countDocuments(match),
       this.ratings.aggregate([
-        { $match: { provider_id: providerId, status: 'published' } },
+        { $match: match },
         { $group: { _id: null, avg: { $avg: '$score' }, n: { $sum: 1 } } },
       ]).toArray(),
     ]);

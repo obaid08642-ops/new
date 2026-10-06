@@ -291,7 +291,8 @@ export class EntityGraphService implements OnModuleInit {
 
     const doctors = await docCol
       .find(query)
-      .project({ id: 1, slug: 1, name_ar: 1, name_en: 1, specialty: 1, rating: 1, city: 1, facility_id: 1, experience_years: 1 })
+      // N7: never publish the internal database _id on a public graph read.
+      .project({ _id: 0, id: 1, slug: 1, name_ar: 1, name_en: 1, specialty: 1, rating: 1, city: 1, facility_id: 1, experience_years: 1 })
       .limit(20)
       .toArray();
 
@@ -305,7 +306,7 @@ export class EntityGraphService implements OnModuleInit {
 
     const facilities = await facCol
       .find(facQuery)
-      .project({ id: 1, slug: 1, name_ar: 1, name_en: 1, type: 1, city: 1, district: 1, phone: 1, rating: 1 })
+      .project({ _id: 0, id: 1, slug: 1, name_ar: 1, name_en: 1, type: 1, city: 1, district: 1, phone: 1, rating: 1 })
       .limit(10)
       .toArray();
 

@@ -57,7 +57,11 @@ export default async function ConsultationClinicConfirmPage({ params, searchPara
     ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(slotStart))
     : null;
   const clinicName = (facility && text(facility, ["name", "name_ar"])) || (doctor && text(doctor, ["clinic_name", "clinicName"])) || (ar ? "العيادة" : "Clinic");
-  const address = (facility && text(facility, ["address", "address_ar"])) || (doctor && text(doctor, ["clinic_address", "clinicAddress"]));
+  // N7: an individual provider's street address is not published any more; fall back
+  // to the clinic/district the patient is choosing by.
+  const address = (facility && text(facility, ["address", "address_ar"]))
+    || (doctor && text(doctor, ["clinic_address", "clinicAddress"]))
+    || (doctor && text(doctor, ["district", "city"]));
   const phone = (facility && text(facility, ["phone"])) || (doctor && text(doctor, ["clinic_phone", "clinicPhone", "phone"]));
   const loc = asRecord(facility?.location) ?? asRecord(doctor?.location);
   const lat = typeof loc?.lat === "number" ? loc.lat : null;

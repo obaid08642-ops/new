@@ -1324,3 +1324,116 @@ Gate evidence (this machine, DEVELOPER_DIR=/Library/Developer/CommandLineTools):
   now skips unless STAGING_BASE is set (V1-V5 staging blocker).
 - Under machine load average >18 the unit suite hits 5000 ms jest timeouts;
   that is contention, not assertion failure (all such tests pass in isolation).
+
+## R12 / N7 — individual providers' public views hold no phone, address or internal id
+
+Owner decision 2026-10-05 (REVIEW_REAUDIT Round 12 Phase A #10): "Individual providers' public
+views show only name, specialty, clinic/district and ratings. No phone, address or internal IDs;
+contact happens in-app." Individual = doctor, nursing, nurse, home_care. Businesses (pharmacy, lab,
+radiology, hospital) keep their public contact phone.
+
+New shared rule — `backend/src/common/provider-public-privacy.ts`: for an individual provider a
+public read never carries the account id (`user_id`/`account_id`/`provider_account_id`), any phone,
+email, a street or home address, the national id or an IBAN; and a home-based provider's stored
+coordinates ARE their home, so they are published rounded to 2 decimals (~1 km) while a doctor's
+clinic point stays exact. Applied to every public read the reviewer's acceptance covers:
+`/providers?type=`, `/providers/:id`, `/providers/map`, `/care/doctors`, `/care/doctors/:id`,
+`/care/search`, `/care/facilities/:id` (embedded doctors), `/home-care/providers[/:id]`,
+`/nursing/nurses/:id`, `/seo/resolve|meta`, `/seo/:type/:id`, `/search/global`,
+`/doctors/:id/recommendations`, `/search/providers`, MCP `search_doctors` / `search_entities`,
+`/entity-graph/explore`, `/ratings/provider/:id`, `/providers/:id/badge` and the legacy
+`/doctors[/:id]` while that module still exists.
+
+Also fixed while wiring it:
+- `/entity-graph/explore` used an inclusion projection without `_id: 0`, so every doctor/facility row
+  published its internal database id. Now projected out.
+- `/ratings/provider/:id` answered only for the provider ACCOUNT id (which no public caller may know
+  now) and returned the reviewer's own account id and the provider's account id. It resolves the
+  public profile id to the account server-side and projects both ids out.
+- `/providers/:id/badge` resolved `account_id` as well, so an internal account id could be probed on
+  a public route; now it resolves the public id/slug only.
+- `/providers/map` fell back to `o.user_id` when a profile had no `id` — an account-id leak as the
+  map's public id; it no longer falls back.
+
+### The id change, and why booking still works (the thing to check carefully)
+The public id of a nurse/home-care provider is now the PROFILE id (it was the provider account id).
+`home-care.book()` therefore resolves the submitted id server-side (`id` OR `account_id`) and still
+stores the ACCOUNT id on the booking, so the nurse's job queue and the accept rule
+(`provider_id === u.id`) are unchanged. The nurse detail routes already accepted the profile id, so
+`/home-care/providers/:id` and `/nursing/nurses/:id` resolve as before.
+A side effect worth noting: `insurance /coverage-check?provider_id=` resolves the provider by
+PROFILE id, so a nurse's insurance contracts now actually match (previously the app sent the account
+id and the lookup silently found nothing).
+
+### Client check (same commit, as required)
+Grepped patient-app / patient-web / provider-app / admin for every removed field:
+- `clinic_address` (no longer on the public doctor): used by 2 clinic-confirm screens, the doctor
+  page and the web JSON-LD. The doctor page degrades to the clinic name alone
+  (`[a,b].filter(Boolean).join`), the JSON-LD simply omits `streetAddress` (correct for privacy),
+  and both clinic-confirm screens now fall back to `district`/`city` so the patient still sees a
+  location. Both typecheck clean.
+- the nurse id: the app passes it to `/home-care/providers/:id`, `/insurance/coverage-check` and the
+  booking body — all three now work with the profile id (see above). No client change needed.
+- `ratings` rows: no client reads `provider_id`/`user_id` off them.
+
+One pre-existing spec encoded the old id and was updated (not weakened):
+`public-lab-nurse.q47-q48.spec.ts` asserted the nurse's public id WAS the account id; it now asserts
+the profile id and that the account id does not appear. The lab half of that spec (a business, keeps
+its id) is untouched and still passes.
+
+### Verify (real outputs, on the current tip)
+```
+$ node scripts/run-acceptance.mjs n7      -> Tests: 25 passed, 25 total / acceptance n7: PASS
+$ npx tsc --noEmit                        -> EXIT=0
+$ npx nest build                         -> EXIT=0
+$ node scripts/run-tests-chunked.mjs      -> EXIT=0 / [chunked-jest] done: 15/15 chunks passed / 3619 tests passed
+$ npx jest --config jest.boot.config.js --runInBand test/security test/journeys
+                                          -> EXIT=0 / Test Suites: 16 passed / Tests: 74 passed
+$ python3 ../tools/audit/dtolint.py       -> EXIT=0 (all four counters 0)
+$ node tools/audit/clientbodies.js && dtocheck.js
+                                          -> EXIT=0 / 639 DTO routes checked, 319 matched, 0 mismatches
+$ (cd patient-web && npx tsc --noEmit)    -> EXIT=0, 0 errors
+$ (cd patient-app && npx tsc --noEmit)    -> EXIT=0, 0 errors
+```
+(The two client apps needed their pnpm workspace packages linked into this worktree first; with that
+done both typecheck clean. No repo file was changed to achieve it.)
+
+### The branch was RED when I started this item — findings and how I verified
+
+While running the N7 gate the backend stopped compiling. Neither failure is mine; both are in the
+reviewer's commits that landed while I worked, and both were reproduced on the **pristine** base in a
+separate throwaway worktree (`/tmp/n7-basecheck` at `origin/fix/audit-2026-09`):
+
+1. `backend/src/modules/auth/auth.service.ts` ended with the heredoc marker `EOF` and a
+   `wc -l backend/src/modules/auth/auth.service.ts` line — shell output written into the source file
+   by the conflict-resolution commit `6c0ed5bf`. Symptom:
+   `auth.service.ts(331,7): error TS1005: ';' expected`, which fails `tsc` AND `nest build` for
+   everybody. **Fixed here** in its own commit so the gate could run at all — it is a 2-line deletion
+   and nothing else; safe to drop if you would rather repair it yourself.
+2. After that, `tsc` still reports **91 errors**, all from the Phase 21.4-21.8 commit `e87b626e`
+   (23 in `auth.controller.ts`, 12 in `auth.service.spec.ts`, 9 in `patient-web-auth.contract.spec.ts`,
+   8 in `otp-server-clock.p15.spec.ts`, 7 in `social-login.q107.spec.ts`, …). The same 91 appear on
+   the pristine base. Not touched: they are not this item's scope.
+
+So the honest N7 verify on the current `fix/audit-2026-09` tip is:
+
+```
+$ node scripts/run-acceptance.mjs n7   -> Tests: 25 passed, 25 total / acceptance n7: PASS
+$ npx tsc --noEmit                     -> FAILS: 91 pre-existing errors, none in a file N7 touches
+$ npx nest build                      -> FAILS for the same reason
+$ node scripts/run-tests-chunked.mjs   -> 40 failing suites — the SAME 40 as the pristine base
+                                          (`diff` of the two failure lists is empty => 0 new failures)
+$ jest --config jest.boot.config.js test/security test/journeys
+                                       -> 5 failing suites — the SAME 5 as the pristine base
+$ python3 ../tools/audit/dtolint.py    -> EXIT=0, all counters 0
+$ clientbodies.js + dtocheck.js       -> EXIT=0, 1 mismatch: POST /referrals/apply
+                                          (referral ApplyDto needs deviceId, phone) — IDENTICAL on the
+                                          pristine base, so not N7 either
+$ (cd patient-web && npx tsc --noEmit) -> EXIT=0
+$ (cd patient-app && npx tsc --noEmit) -> EXIT=0
+```
+
+Before the reviewer's Phase 21 merge landed, this same gate was fully green on this item
+(15/15 chunks, 3619 tests, boot 74/74, dtolint 0, dtocheck 0 mismatches) — see the section above.
+I did not touch, hide, skip or weaken a single test to get there, and I did not repair the 91 errors
+because they are outside this item.

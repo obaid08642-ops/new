@@ -14,6 +14,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 import { escapeRegex } from '../../common/slug.util';
 import { findOneByAnyId } from '../../common/find-by-id';
+import { missingRequiredDocuments } from './required-documents';
+import { coarsenHomePoint, isHomeBasedProviderType, toPublicProvider, toPublicProviderList } from '../../common/provider-public-privacy';
 
 /**
  * Fields a provider may edit on their own profile (and, via the
@@ -356,7 +358,8 @@ export class ProvidersService {
       q.insurance_contracts = { $elemMatch: elemMatch };
     }
 
-    return this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1, createdAt: -1 }).limit(200).lean();
+    return this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1, createdAt: -1 }).limit(200).lean()
+      .then((rows: any[]) => toPublicProviderList(rows));
   }
   /** Map providers: ACTIVE only, must have real stored coordinates. */
   async mapProviders(type?: string, lat?: number, lng?: number, radiusKm?: number) {
@@ -370,9 +373,12 @@ export class ProvidersService {
     };
     let out = rows.map((r: any) => {
       const o = r.toObject ? r.toObject() : r;
-      const loc = o.location || {};
+      // N7: a nurse's stored point is their home — publish at most a ~1 km point
+      // or the district. A doctor's point is the clinic's and stays exact.
+      const loc = isHomeBasedProviderType(o.type) ? coarsenHomePoint(o.location) : (o.location || {});
       const item: any = {
-        id: o.id || o.user_id, type: o.type, name_ar: o.name_ar, name_en: o.name_en,
+        // N7: the public id is the profile id. Never fall back to the account id.
+        id: o.id, type: o.type, name_ar: o.name_ar, name_en: o.name_en,
         city: o.city, district: o.district, rating: o.rating ?? null,
         lat: loc.lat, lng: loc.lng,
         distance_km: (lat != null && lng != null && isFinite(lat) && isFinite(lng))
@@ -392,9 +398,11 @@ export class ProvidersService {
   }
 
   async getPublicById(id: string) {
+    // N7: never publish an individual provider's account id, phone, email, street
+    // or home address, national id or IBAN — and a nurse's exact home point.
     const p = await this.providerModel.findOne({ id, ...this.publicDiscoveryFilter() }, { _id: 0, __v: 0 });
     if (!p) throw new NotFoundException();
-    return p;
+    return toPublicProvider(p.toObject ? p.toObject() : p);
   }
   async myProfile(actor: any) {
     const identifiers = [

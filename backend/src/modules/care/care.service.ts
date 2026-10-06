@@ -458,7 +458,8 @@ export class CareService {
       accepted_insurance: Array.isArray(d.accepted_insurance) ? d.accepted_insurance : [],
       clinicPhotos: Array.isArray(d.clinic_images) ? d.clinic_images : [],
       clinic_name: d.clinic_name || null, // R83: from registration step 3
-      clinic_address: d.clinic_address || d.address || null, // R83
+      // N7: an individual provider's street address is not published (patients
+      // see the clinic name and district; contact happens in-app).
       next_available_at: nextAvailableAt,
     };
     if (typeof distanceKm === 'number' && Number.isFinite(distanceKm)) publicDoctor.distance_km = Math.round(distanceKm * 10) / 10;

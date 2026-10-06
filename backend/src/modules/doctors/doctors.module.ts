@@ -81,11 +81,17 @@ export class DoctorsService implements OnModuleInit {
       const s = escapeRegex(String(filter.search));
       q.$or = [{ name_ar: { $regex: s, $options: 'i' } }, { name_en: { $regex: s, $options: 'i' } }, { specialty_ar: { $regex: s, $options: 'i' } }];
     }
-    return this.doctors.find(q, { _id: 0, __v: 0 }).sort({ rating: -1, reviews_count: -1 }).limit(100).lean();
+    // N7: a public list of individual doctors publishes neither the provider
+    // account id nor a clinic street address.
+    return this.doctors.find(q, { _id: 0, __v: 0, provider_account_id: 0, 'clinic_location.address': 0 })
+      .sort({ rating: -1, reviews_count: -1 }).limit(100).lean();
   }
 
   async doctorDetail(id: string) {
-    const d = await this.doctors.findOne({ id: { $eq: id }, is_deleted: { $ne: true }, status: 'published' }, { _id: 0, __v: 0 }).lean();
+    const d = await this.doctors.findOne(
+      { id: { $eq: id }, is_deleted: { $ne: true }, status: 'published' },
+      { _id: 0, __v: 0, provider_account_id: 0, 'clinic_location.address': 0 },
+    ).lean();
     if (!d) throw new NotFoundException();
     return d;
   }
