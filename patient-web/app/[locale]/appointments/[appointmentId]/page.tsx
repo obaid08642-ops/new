@@ -1,52 +1,113 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractAppointmentDetail, parseAppointmentId } from "@/lib/api/appointments";
 import { getPatientAppointment } from "@/lib/api/appointments-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { RetryButton } from "@/components-next/retry-button";
+import { isDone, isOpen, MODE_VISUAL, modeOf, statusKey, statusTone } from "@/lib/consult/appointment-view";
 import { AppointmentActions } from "@/components-next/appointment-actions";
 import { AppointmentRescheduleForm } from "@/components-next/appointment-reschedule-form";
 import { CallTokenLauncher } from "@/components-next/call-token-launcher";
 import { ConsultationPaymentAction } from "@/components-next/consultation-payment-action";
-import { CalendarDays, ChevronLeft, ShieldCheck } from "lucide-react";
-import { VectorDoctor } from "@/components-next/vector-illustrations";
-import styles from "./appointment-detail.module.css";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { ActionLinks, Facts, Hero, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
+import { LocalTimeLine } from "@/components-next/consult/local-time-line";
+import { StatusChip } from "@/components-next/ui-generated/components/Controls";
+import styles from "@/components-next/consult/consult.module.css";
 
 type Props = { params: Promise<{ locale: string; appointmentId: string }> };
 
+/** One appointment (canvas/Appointments, opened): who, what, when, its status, and the actions the status allows. */
 export default async function AppointmentDetailPage({ params }: Props) {
   const { locale, appointmentId } = await params;
   if (!isLocale(locale) || !parseAppointmentId(appointmentId).success) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("Appointments");
+  const c = await getTranslations("ConsultWeb");
+  const rs = await getTranslations("RouteState");
   const token = await requirePatientAccess(locale);
   const response = await getPatientAppointment(token, appointmentId);
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
-  if (!response.ok) return <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}><section className={styles.state} role="alert" style={{ border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: 16, gap: 8 }}><span style={{ inlineSize: 48, blockSize: 48, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.9)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center" }} aria-hidden="true"><VectorDoctor size={48} aria-hidden="true" /></span><h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t("unavailableTitle")}</h1><p style={{ color: "#6B7C6E", overflowWrap: "anywhere" }}>{t("unavailableBody")}</p><RetryButton /></section></main>;
-  const appointment = extractAppointmentDetail(await response.json().catch(() => null));
-  if (!appointment) return <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}><section className={styles.state} role="alert" style={{ border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: 16, gap: 8 }}><span style={{ inlineSize: 48, blockSize: 48, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.9)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center" }} aria-hidden="true"><VectorDoctor size={48} aria-hidden="true" /></span><h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t("unavailableTitle")}</h1><p style={{ color: "#6B7C6E", overflowWrap: "anywhere" }}>{t("unavailableBody")}</p><RetryButton /></section></main>;
-  const serviceLabel = appointment.serviceType === "clinic" ? t("services.clinic") : appointment.serviceType === "video" ? t("services.video") : appointment.serviceType === "home" ? t("services.home") : t("serviceUnavailable");
-  const status = appointment.status || t("statusUnavailable");
+  const appointment = response.ok ? extractAppointmentDetail(await response.json().catch(() => null)) : null;
+  const back = `/${locale}/appointments`;
+  if (!appointment) {
+    return (
+      <ConsultPage locale={locale} title={t("title")} backHref={back}>
+        <ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailableBody")} retryLabel={rs("retry")} />
+      </ConsultPage>
+    );
+  }
+
+  const mode = modeOf(appointment.serviceType);
+  const visual = mode ? MODE_VISUAL[mode] : undefined;
+  const serviceLabel = mode ? t(`services.${mode}`) : t("serviceUnavailable");
+  const key = statusKey(appointment.status);
+  const statusLabel = key ? c(`status.${key}`) : t("statusUnavailable");
   const insurancePending = appointment.insuranceReviewState === "PENDING_PROVIDER_REVIEW" || !appointment.insuranceReviewState;
-  return <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
-    <Link className={styles.back} href={`/${locale}/appointments`} style={{ color: "#1E332E" }}><ChevronLeft size={17} aria-hidden="true" />{t("back")}</Link>
-    <section className={styles.hero} style={{ background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 16, display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
-      <div className={styles.heroText} style={{ display: "grid", gap: 8, minWidth: 0 }}><p className={styles.eyebrow} style={{ color: "#1E332E", display: "inline-flex", alignItems: "center", gap: 8 }}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p><h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{appointment.doctorName || serviceLabel}</h1><span className={styles.status} style={{ borderColor: "#E8EDEE" }}>{status}</span></div>
-      <span className={styles.heroIcon} style={{ inlineSize: 48, blockSize: 48, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.9)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }} aria-hidden="true"><VectorDoctor size={48} aria-hidden="true" /></span>
-    </section>
-    <section className={styles.detail} aria-label={t("title")} style={{ borderColor: "#E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: 16, display: "grid", gap: 16 }}><dl className={styles.grid} style={{ gap: 8 }}>
-      <div className={styles.item} style={{ borderColor: "#E8EDEE", borderRadius: 20 }}><dt style={{ color: "#6B7C6E" }}>{t("service")}</dt><dd style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{serviceLabel}</dd></div>
-      <div className={styles.item} style={{ borderColor: "#E8EDEE", borderRadius: 20 }}><dt style={{ color: "#6B7C6E" }}>{t("status")}</dt><dd style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{status}</dd></div>
-      {appointment.slotStart ? <div className={styles.item} style={{ borderColor: "#E8EDEE", borderRadius: 20 }}><dt style={{ color: "#6B7C6E" }}><CalendarDays size={15} aria-hidden="true" />{t("scheduled")}</dt><dd style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(appointment.slotStart))}</dd></div> : null}
-      {appointment.specialty ? <div className={styles.item} style={{ borderColor: "#E8EDEE", borderRadius: 20 }}><dt style={{ color: "#6B7C6E" }}>{t("specialty")}</dt><dd style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{appointment.specialty}</dd></div> : null}
-    </dl><p className={styles.notice} style={{ borderColor: "#E8EDEE", borderRadius: 20, color: "#6B7C6E", overflowWrap: "anywhere" }}>{t("detailNotice")}</p></section>
-    {appointment.paymentMethod === "insurance" && appointment.insuranceRequestId ? <section className={styles.detail} aria-label="حالة التأمين"><p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />التأمين</p><h2>{insurancePending ? "طلب التأمين قيد المراجعة" : "تم تسجيل قرار التأمين"}</h2><p className={styles.notice}>حالة الطلب: {appointment.insuranceReviewState || "PENDING_PROVIDER_REVIEW"}. {insurancePending ? "لا يوجد دفع أو تأكيد قبل قرار مزود الخدمة وتأكيد نسبة التحمّل إن وُجدت." : "تعتمد خطوة الدفع أو التأكيد على قرار التأمين، وهذه الصفحة ليست تأكيدًا للدفع."}</p><Link className={styles.back} href={`/${locale}/insurance/requests/${appointment.insuranceRequestId}`}>عرض قرار التأمين</Link></section> : null}
-    {appointment.status === "PENDING" && appointment.paymentMethod === "card" ? <ConsultationPaymentAction appointmentId={appointmentId} /> : null}
-    {["pending", "pending_payment", "confirmed", "scheduled"].includes((appointment.status ?? "").toLowerCase()) ? <nav aria-label={locale === "ar" ? "حالة الحجز" : "Booking status"} style={{ display: "flex", gap: 8, marginTop: 12 }}><Link className={styles.back} href={`/${locale}/consultations/booking-status?appointmentId=${appointmentId}`}>{locale === "ar" ? "حالة الحجز" : "Booking status"}</Link></nav> : null}
-    {["completed", "complete", "finished", "done"].includes((appointment.status ?? "").toLowerCase()) ? <nav aria-label={locale === "ar" ? "ما بعد الاستشارة" : "Post-visit"} style={{ display: "flex", gap: 8, marginTop: 12 }}><Link className={styles.back} href={`/${locale}/appointments/${appointmentId}/summary`}>{locale === "ar" ? "ملخص الاستشارة" : "Visit summary"}</Link><Link className={styles.back} href={`/${locale}/prescriptions`}>{locale === "ar" ? "وصفاتي" : "My prescriptions"}</Link></nav> : null}
-    {["pending", "pending_payment", "confirmed", "scheduled"].includes((appointment.status ?? "").toLowerCase()) ? <><AppointmentActions appointmentId={appointmentId} labels={{ actionsTitle: t("actionsTitle"), cancelAppointment: t("cancelAppointment"), cancelConfirm: t("cancelConfirm"), cancelReason: t("cancelReason"), keepAppointment: t("keepAppointment"), confirmCancel: t("confirmCancel"), cancelConflict: t("cancelConflict"), cancelFailed: t("cancelFailed"), cancelUnavailable: t("cancelUnavailable") }} /><AppointmentRescheduleForm appointmentId={appointmentId} labels={{ title: t("rescheduleTitle"), date: t("rescheduleDate"), reason: t("rescheduleReason"), submit: t("rescheduleSubmit"), cancel: t("rescheduleCancel"), conflict: t("rescheduleConflict"), failed: t("rescheduleFailed"), unavailable: t("rescheduleUnavailable"), invalid: t("rescheduleInvalid") }} />{appointment.serviceType === "video" ? <CallTokenLauncher appointmentId={appointmentId} labels={{ title: t("callTitle"), join: t("callJoin"), loading: t("callLoading"), ready: t("callReady"), unavailable: t("callUnavailable"), notReady: t("callDiscard") }} /> : null}</> : null}
-  </main>;
+  const id = encodeURIComponent(appointmentId);
+  const open = isOpen(appointment.status);
+
+  const rows: FactRow[] = [
+    { label: t("service"), value: serviceLabel, icon: visual?.icon, tone: visual?.tone },
+    { label: t("status"), value: statusLabel, icon: "check-circle", tone: statusTone(appointment.status) },
+  ];
+  if (appointment.slotStart) rows.push({ label: t("scheduled"), value: <LocalTimeLine iso={appointment.slotStart} locale={locale} />, icon: "calendar-dots", tone: "coral" });
+  if (appointment.specialty) rows.push({ label: t("specialty"), value: appointment.specialty, icon: "stethoscope", tone: "blue" });
+
+  return (
+    <ConsultPage locale={locale} title={appointment.doctorName || serviceLabel} backHref={back}>
+      <Hero icon={visual?.icon} tone={visual?.tone} title={appointment.doctorName || serviceLabel} sub={appointment.specialty}>
+        <span className={styles.chips}>
+          {mode && visual ? <StatusChip label={serviceLabel} tone={visual.tone} /> : null}
+          <StatusChip label={statusLabel} tone={statusTone(appointment.status)} />
+        </span>
+      </Hero>
+      <SectionCard id="appointment-facts" title={t("title")}>
+        <Facts rows={rows} />
+        <p className={`${styles.body} ${styles.muted}`}>{t("detailNotice")}</p>
+      </SectionCard>
+
+      {appointment.paymentMethod === "insurance" && appointment.insuranceRequestId ? (
+        <SectionCard id="appointment-insurance" title={insurancePending ? c("insurancePendingTitle") : c("insuranceDecidedTitle")}>
+          <p className={styles.body}>{insurancePending ? c("insurancePendingBody") : c("insuranceDecidedBody")}</p>
+          <ActionLinks actions={[{ href: `/${locale}/insurance/requests/${appointment.insuranceRequestId}`, label: c("insuranceView"), variant: "outline" }]} />
+        </SectionCard>
+      ) : null}
+
+      {appointment.status === "PENDING" && appointment.paymentMethod === "card" ? <ConsultationPaymentAction appointmentId={appointmentId} /> : null}
+
+      {open ? (
+        <ActionLinks actions={[{ href: `/${locale}/consultations/booking-status?appointmentId=${id}`, label: c("actionBookingStatus"), variant: "outline" }]} />
+      ) : null}
+      {isDone(appointment.status) ? (
+        <ActionLinks
+          actions={[
+            { href: `/${locale}/appointments/${id}/summary`, label: c("actionSummary") },
+            { href: `/${locale}/prescriptions`, label: c("actionPrescriptions"), variant: "outline" },
+          ]}
+        />
+      ) : null}
+
+      {open ? (
+        <>
+          <AppointmentActions
+            appointmentId={appointmentId}
+            labels={{ actionsTitle: t("actionsTitle"), cancelAppointment: t("cancelAppointment"), cancelConfirm: t("cancelConfirm"), cancelReason: t("cancelReason"), keepAppointment: t("keepAppointment"), confirmCancel: t("confirmCancel"), cancelConflict: t("cancelConflict"), cancelFailed: t("cancelFailed"), cancelUnavailable: t("cancelUnavailable") }}
+          />
+          <AppointmentRescheduleForm
+            appointmentId={appointmentId}
+            labels={{ title: t("rescheduleTitle"), date: t("rescheduleDate"), reason: t("rescheduleReason"), submit: t("rescheduleSubmit"), cancel: t("rescheduleCancel"), conflict: t("rescheduleConflict"), failed: t("rescheduleFailed"), unavailable: t("rescheduleUnavailable"), invalid: t("rescheduleInvalid") }}
+          />
+          {appointment.serviceType === "video" ? (
+            <CallTokenLauncher
+              appointmentId={appointmentId}
+              labels={{ title: t("callTitle"), join: t("callJoin"), loading: t("callLoading"), ready: t("callReady"), unavailable: t("callUnavailable"), notReady: t("callDiscard") }}
+            />
+          ) : null}
+        </>
+      ) : null}
+    </ConsultPage>
+  );
 }

@@ -21,6 +21,11 @@ vi.mock("@/lib/api/appointments-server", () => ({
   getPatientUnifiedConsultation: state.getPatientUnifiedConsultation,
 }));
 
+vi.mock("@/components-next/core/core-shell", async () => {
+  const { createElement } = await import("react");
+  return { CoreShell: ({ children, backHref }: { children: unknown; backHref?: string }) => createElement("div", { "data-shell": true }, createElement("a", { href: backHref }, "back"), children as never) };
+});
+
 import AppointmentsPage from "./page";
 import AppointmentDetailPage from "./[appointmentId]/page";
 

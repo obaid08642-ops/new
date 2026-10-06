@@ -15,6 +15,7 @@ export const CLIENT_NAMESPACES = [
   "AiHealthReport",
   "BookConsultation",
   "CartScreen",
+  "ConsultClient",
   "CoreShell",
   "DeliveryAddressSelect",
   "Doctors",

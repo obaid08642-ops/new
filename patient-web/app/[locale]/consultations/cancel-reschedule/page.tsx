@@ -1,29 +1,31 @@
-import Link from "next/link";
-import { VectorDoctor } from "@/components-next/vector-illustrations";
 import { notFound, redirect } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
 import { extractAppointmentDetail } from "@/lib/api/appointments";
+import { APPOINTMENT_ID, MODE_VISUAL, modeOf } from "@/lib/consult/appointment-view";
 import { AppointmentActions } from "@/components-next/appointment-actions";
 import { AppointmentRescheduleForm } from "@/components-next/appointment-reschedule-form";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { BulletList, Hero, SectionCard } from "@/components-next/consult/consult-parts";
+import { LocalTimeLine } from "@/components-next/consult/local-time-line";
+import styles from "@/components-next/consult/consult.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ appointmentId?: string; id?: string }> };
-const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-/** Parity with app cancel-reschedule: choose mode + refund policy + cancel reasons + 7-day reschedule. */
+/** Cancel or reschedule one appointment: the appointment, the refund policy, a new time, and the cancellation. */
 export default async function ConsultationCancelReschedulePage({ params, searchParams }: Props) {
   const { locale } = await params;
   const sp = await searchParams;
   const appointmentId = (sp.appointmentId || sp.id || "").trim();
-  if (!isLocale(locale) || !idPattern.test(appointmentId)) notFound();
+  if (!isLocale(locale) || !APPOINTMENT_ID.test(appointmentId)) notFound();
   setRequestLocale(locale);
-  const ar = locale === "ar";
+  const c = await getTranslations("ConsultWeb");
+  const a = await getTranslations("Appointments");
   const token = await requirePatientAccess(locale);
   const response = await callPatientApi(`/care/appointments/${encodeURIComponent(appointmentId)}`, {}, token);
   if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
   if (!response.ok) notFound();
   const appointment = extractAppointmentDetail(await response.json().catch(() => null));
   if (!appointment) notFound();
@@ -31,55 +33,26 @@ export default async function ConsultationCancelReschedulePage({ params, searchP
   const slotMs = appointment.slotStart ? Date.parse(appointment.slotStart) : NaN;
   const hoursUntil = Number.isFinite(slotMs) ? (slotMs - Date.now()) / 3600000 : null;
   const refundPct = hoursUntil === null ? null : hoursUntil >= 24 ? 100 : hoursUntil >= 12 ? 50 : 0;
-  const when = Number.isFinite(slotMs)
-    ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(slotMs))
-    : null;
+  const mode = modeOf(appointment.serviceType);
+  const visual = mode ? MODE_VISUAL[mode] : undefined;
 
   return (
-    <main className="main" style={{ background: "#FDFDFC" }}>
-      <Link href={`/${locale}/appointments/${appointmentId}`}>{ar ? "الموعد" : "Appointment"}</Link>
-      <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}><VectorDoctor size={48} aria-hidden="true" style={{ verticalAlign: "middle", marginInlineEnd: 8 } as any} />{ar ? "إلغاء / إعادة جدولة الموعد" : "Cancel / reschedule appointment"}</h1>
-      <section aria-label={ar ? "ملخص الموعد" : "Appointment summary"}>
-        {appointment.doctorName ? <p><strong>{appointment.doctorName}</strong></p> : null}
-        {when ? <p>{when}</p> : null}
-        {refundPct !== null ? <p role="status">{ar ? `الاسترداد المتوقع: ${refundPct}%` : `Expected refund: ${refundPct}%`}</p> : null}
-      </section>
-      <section aria-label={ar ? "سياسة الإلغاء" : "Cancellation policy"}>
-        <h2>{ar ? "سياسة الإلغاء والاسترداد" : "Cancellation & refund policy"}</h2>
-        <ul>
-          <li>{ar ? "قبل 24 ساعة: استرداد 100%" : "More than 24h before: 100% refund"}</li>
-          <li>{ar ? "قبل 12-24 ساعة: استرداد 50%" : "12–24h before: 50% refund"}</li>
-          <li>{ar ? "أقل من 12 ساعة: لا يوجد استرداد" : "Less than 12h: no refund"}</li>
-        </ul>
-      </section>
+    <ConsultPage locale={locale} title={c("cancelTitle")} backHref={`/${locale}/appointments/${encodeURIComponent(appointmentId)}`}>
+      <Hero icon={visual?.icon} tone={visual?.tone} title={appointment.doctorName ?? (mode ? a(`services.${mode}`) : a("serviceUnavailable"))} sub={appointment.specialty}>
+        {Number.isFinite(slotMs) && appointment.slotStart ? <LocalTimeLine iso={appointment.slotStart} locale={locale} className={styles.heroSub} /> : null}
+      </Hero>
+      {refundPct !== null ? <p className={styles.ok} role="status">{c("expectedRefund", { percent: refundPct })}</p> : null}
+      <SectionCard id="cancel-policy" title={c("policyTitle")}>
+        <BulletList items={[c("policy24"), c("policy12"), c("policyNone")]} />
+      </SectionCard>
       <AppointmentRescheduleForm
         appointmentId={appointmentId}
-        labels={{
-          title: ar ? "إعادة الجدولة (موصى به)" : "Reschedule (recommended)",
-          date: ar ? "الموعد الجديد" : "New date & time",
-          reason: ar ? "السبب" : "Reason",
-          submit: ar ? "تأكيد الموعد الجديد" : "Confirm new appointment",
-          cancel: ar ? "تراجع" : "Back",
-          conflict: ar ? "الموعد الجديد غير متاح" : "New slot unavailable",
-          failed: ar ? "تعذر إعادة الجدولة" : "Reschedule failed",
-          unavailable: ar ? "تعذر الاتصال" : "Connection unavailable",
-          invalid: ar ? "اختر وقتاً متاحاً" : "Choose an available time",
-        }}
+        labels={{ title: a("rescheduleTitle"), date: a("rescheduleDate"), reason: a("rescheduleReason"), submit: a("rescheduleSubmit"), cancel: a("rescheduleCancel"), conflict: a("rescheduleConflict"), failed: a("rescheduleFailed"), unavailable: a("rescheduleUnavailable"), invalid: a("rescheduleInvalid") }}
       />
       <AppointmentActions
         appointmentId={appointmentId}
-        labels={{
-          actionsTitle: ar ? "إلغاء الموعد" : "Cancel appointment",
-          cancelAppointment: ar ? "إلغاء الموعد" : "Cancel appointment",
-          cancelConfirm: ar ? "هل أنت متأكد من إلغاء هذا الموعد؟" : "Are you sure you want to cancel?",
-          cancelReason: ar ? "سبب الإلغاء" : "Cancellation reason",
-          keepAppointment: ar ? "إبقاء الموعد" : "Keep appointment",
-          confirmCancel: ar ? "تأكيد الإلغاء" : "Confirm cancellation",
-          cancelConflict: ar ? "تعذر الإلغاء حالياً" : "Cannot cancel right now",
-          cancelFailed: ar ? "فشل الإلغاء" : "Cancellation failed",
-          cancelUnavailable: ar ? "تعذر الاتصال" : "Connection unavailable",
-        }}
+        labels={{ actionsTitle: a("actionsTitle"), cancelAppointment: a("cancelAppointment"), cancelConfirm: a("cancelConfirm"), cancelReason: a("cancelReason"), keepAppointment: a("keepAppointment"), confirmCancel: a("confirmCancel"), cancelConflict: a("cancelConflict"), cancelFailed: a("cancelFailed"), cancelUnavailable: a("cancelUnavailable") }}
       />
-    </main>
+    </ConsultPage>
   );
 }
