@@ -1,6 +1,56 @@
-# Reviewer handoff (state on 2026-10-04)
+# Reviewer handoff (state on 2026-10-06; sections 1–9 from 2026-10-04)
 
-Read this first in a new reviewer session, together with `AGENTS.md`. It replaces the conversation history: everything needed is in the repository. Older state is in git history (`git log -p docs/review/HANDOFF.md`).
+Read this first in a new reviewer session, together with `AGENTS.md` and `docs/review/OPENCODE_QUEUE.md`. It replaces the conversation history: everything needed is in the repository. Older state is in git history (`git log -p docs/review/HANDOFF.md`). **Section 0 is newer than sections 1–9 and wins where they differ.**
+
+## 0. State on 2026-10-06 (read first)
+
+**Who does what (owner, 2026-10-06)**
+- **OpenCode:** does all fixes beyond a few lines, one `oc/<item>` branch and one PR per item. Rules and list: `docs/review/OPENCODE_QUEUE.md`.
+- **Review session (you):**
+  - Reviews every OpenCode PR with the nine-point checklist in §8. Re-runs the gate yourself and runs a mutation (revert the fix, the test must fail).
+  - Writes the acceptance specs that the queue marks "wait for the acceptance spec". Start with Q-2, Q-3, then Q-5 if confirmed. Put them in `backend/acceptance/<id>/` on a `review/spec-<id>` branch.
+  - Fixes only very small defects yourself (a few lines, unambiguous). Anything larger becomes a queue item.
+  - Does not merge into `main`: say "approved" on the PR and tell the owner.
+- **Lead reviewer session:** merges into `main` and `fix/audit-2026-09`, reviews design PRs, does ops and the deploy.
+- **Design session:** works on `design/<batch>` → `main`. It lists business-logic defects in its PR's "Needs review" section and does not fix them. Backend items from there go into the OpenCode queue.
+
+**Branches**
+- `fix/audit-2026-09` was force-pushed over by OpenCode three times. Its tip is `5b644e88`, which is OpenCode's unreviewed state.
+  - The reviewed tree is `review/restore-f9abab6d`.
+  - `review/phase-a-merged` (`d6475951`) is that tree plus #304–307, already verified.
+- This waits for the owner's branch ruleset: block force pushes, restrict deletions, and require a PR on `main` and `fix/audit-2026-09`. On 2026-10-06 the rulesets list was still empty.
+- Once the ruleset is set, the lead reviewer restores the branch and merges #304–307, then #298, #300, #299, #281 and #282.
+
+**Merged into `main` recently**
+- #301: F68 edge-nonce CSP. `patient-web/server/nonce-server.mjs` is the production entry point.
+- #302: decisions.
+- #293: design Batch 1.
+- #309: nonce-server compression.
+- #310: payments. Moyasar sync owner check, no paid replay on verify, raw gateway data removed from responses.
+
+**Open and not yet reviewed**
+- #311 (OpenCode, X and Snapchat sign-in, into the fix branch).
+- #308 (design F82-3, static/ISR public pages).
+- #303 (design, symlinks).
+
+**Known red**
+- 20 boot tests on `main` (queue item Q-1).
+- CI `lighthouse` on LCP: `/ar` is 3.4 s against a 2.5 s target (F82).
+- JS budget: pharmacy message namespaces ship to every page (an F82 follow-up for the design session).
+- The other design checks are known-red and do not block a merge.
+
+**Production**
+- It runs an old image.
+- Social sign-in is blocked by an Nginx 403 (ops task `22-block-social-login`). It stays blocked until a deploy that sets `GOOGLE_OAUTH_CLIENT_IDS` and `APPLE_SIGNIN_CLIENT_IDS`; then run `REVERT=1` for that task and the Q107 checks.
+- Server changes go only through the server-ops workflow, with the owner's Approve, after a rehearsal in ops-rehearsal: one change per run, each step checked.
+
+**Owner decisions since 2026-10-04 (do not re-ask)**
+- F68: an edge nonce on public pages, and a per-request nonce plus no-store on private and admin pages.
+- F82: the CI LCP gate is 2.5 s and moves to 1.8 s once met; 1.2 s is measured on real users (F82-4).
+- Stale-if-error: public pages keep the last good copy, with no cap.
+- The cart is local-first: orders are broadcast to pharmacies and there is no stock check.
+- X and Snapchat sign-in are wanted. The owner sets the keys on the server; never in chat.
+- The nutrition plan is AI-generated, with a button to the nutrition doctors.
 
 ## 1. The project
 

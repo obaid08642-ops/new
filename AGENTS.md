@@ -24,6 +24,7 @@ You IMPLEMENT the plan. A separate reviewer reviews and merges your work. You ne
 - `AGENT_PROGRESS.md` — your log.
 
 ## Branch rules
+- **Owner, 2026-10-06 (supersedes the lines below where they differ):** work only from `docs/review/OPENCODE_QUEUE.md`. Each item goes on its own `oc/<item-id>` branch from the base named there (`main` or `fix/audit-2026-09`), with one PR per item into that base. Never push directly to `main` or `fix/audit-2026-09`.
 - Work ONLY on `fix/audit-2026-09`. Never push to `main`. Never force-push.
 - Start every session with: `git fetch origin && git checkout fix/audit-2026-09 && git pull --ff-only origin fix/audit-2026-09`
 - Never revert code from `[REVIEW-*]` commits.
