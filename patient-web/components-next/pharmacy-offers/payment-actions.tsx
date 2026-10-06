@@ -4,8 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
-import { parsePaymentIntent } from "@/lib/api/payments";
-import { isTrustedCheckoutUrl, parsePatientPharmacyPaymentCapabilities, type PatientPharmacyOnlineMethod } from "@/lib/api/pharmacy-payment";
+import { checkoutUrlOf, isTrustedCheckoutUrl, parsePatientPharmacyPaymentCapabilities, type PatientPharmacyOnlineMethod } from "@/lib/api/pharmacy-payment";
 import { formatMoney } from "./format";
 import { usePharmacyAction } from "./use-pharmacy-action";
 import styles from "./offers.module.css";
@@ -48,10 +47,10 @@ export function OnlinePaymentActions({ orderId }: { orderId: string }) {
     const result = await action.run(`pay:${method}`, `/api/patient/payments/intent/pharmacy/${encodeURIComponent(orderId)}`, { method });
     if (!result) return;
     if (!result.ok) return;
-    const intent = parsePaymentIntent(result.data);
-    if (intent && isTrustedCheckoutUrl(intent.checkoutUrl)) {
+    const checkoutUrl = checkoutUrlOf(result.data);
+    if (isTrustedCheckoutUrl(checkoutUrl)) {
       setHandoff("going");
-      window.location.assign(intent.checkoutUrl);
+      window.location.assign(checkoutUrl);
       return;
     }
     // The server answered but gave no secure checkout address: no payment was made, and none is claimed.
