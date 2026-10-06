@@ -104,12 +104,6 @@ export class CancelDto {
 
 }
 
-export class PaymentIntentDto {
-  @IsOptional()
-  @IsString()
-  idempotency_key?: string;
-
-}
 
 export class CancelRejectedInsuranceDto {
   @IsOptional()

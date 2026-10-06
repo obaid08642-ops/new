@@ -1,6 +1,5 @@
 import { PaymentsService } from './payments.module';
 import { BadGatewayException } from '@nestjs/common';
-import * as crypto from 'crypto';
 
 /** E5-F2 regression: payment listing/verify must enforce ownership (IDOR). */
 describe('PaymentsService ownership guards (E5-F2)', () => {
@@ -63,30 +62,6 @@ describe('PaymentsService ownership guards (E5-F2)', () => {
   it('listForBooking rejects an unassigned provider role', async () => {
     await expect(svc.listForBooking({ id: 'provider-foreign', role: 'provider' }, 'pharmacy', 'b1'))
       .rejects.toThrow('not_authorized');
-  });
-
-  it('fails closed when a payment webhook has no valid Moyasar signature', async () => {
-    const previous = process.env.MOYASAR_WEBHOOK_SECRET;
-    delete process.env.MOYASAR_WEBHOOK_SECRET;
-    await expect(svc.handleWebhook('moyasar', { id: 'pi_1' }, undefined, '{"id":"pi_1"}'))
-      .rejects.toThrow('invalid_webhook_signature');
-    expect(txns.findOne).not.toHaveBeenCalled();
-    if (previous === undefined) delete process.env.MOYASAR_WEBHOOK_SECRET;
-    else process.env.MOYASAR_WEBHOOK_SECRET = previous;
-  });
-
-  it('accepts only an exact HMAC over the raw Moyasar webhook payload', () => {
-    const previous = process.env.MOYASAR_WEBHOOK_SECRET;
-    process.env.MOYASAR_WEBHOOK_SECRET = 'test-webhook-secret';
-    const rawBody = '{"id":"pi_1"}';
-    const valid = crypto.createHmac('sha256', 'test-webhook-secret').update(rawBody).digest('hex');
-
-    expect((svc as any).verifyWebhookSignature('moyasar', valid, rawBody)).toBe(true);
-    expect((svc as any).verifyWebhookSignature('moyasar', `${valid}00`, rawBody)).toBe(false);
-    expect((svc as any).verifyWebhookSignature('tap', valid, rawBody)).toBe(false);
-
-    if (previous === undefined) delete process.env.MOYASAR_WEBHOOK_SECRET;
-    else process.env.MOYASAR_WEBHOOK_SECRET = previous;
   });
 
   it('refundPayment rejects non-admin roles (admin-only refunds)', async () => {

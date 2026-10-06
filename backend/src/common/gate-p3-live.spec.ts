@@ -40,7 +40,8 @@ import { UsersAddressesController } from '../modules/users/users.addresses.contr
 import { UsersInsuranceController } from '../modules/users/users.insurance.controller';
 import { LegalService } from '../modules/legal/legal.module';
 import { PharmacyShortageService } from '../modules/pharmacy/services/pharmacy-shortage.service';
-import { MoyasarService } from '../modules/moyasar/moyasar.module';
+import { PaymentsService } from '../modules/payments/payments.module';
+import { DisabledGatewayAdapter } from '../modules/payments/payment-gateway';
 import { ProviderProfileController, ProviderScoreController } from '../modules/provider/provider.controllers';
 
 describe('Gate P3 live: empty bodies do not create records', () => {
@@ -70,27 +71,21 @@ describe('Gate P3 live: empty bodies do not create records', () => {
   });
 });
 
-describe('Gate P3 live: Moyasar without a key fails closed in production', () => {
-  const saved = { ...process.env };
-  afterEach(() => { process.env = { ...saved }; });
-  const make = () => {
-    delete process.env.MOYASAR_API_KEY; delete process.env.MOYASAR_SECRET_KEY; delete process.env.MOYASAR_SECRET;
-    const payment: any = { status: 'paid', amount: 100, save: jest.fn() };
-    const model: any = { findOne: async () => payment };
-    return { svc: new MoyasarService(model, {} as any, { emit: () => true } as any), payment };
-  };
-  it('refund in production: 503, and the payment is NOT marked refunded', async () => {
-    process.env.NODE_ENV = 'production';
-    const { svc, payment } = make();
-    await expect(svc.refundPayment('pay_live_123', 50)).rejects.toBeInstanceOf(ServiceUnavailableException);
-    expect(payment.status).toBe('paid');
-    expect(payment.save).not.toHaveBeenCalled();
-  });
-  it('refund outside production keeps the sandbox behavior', async () => {
-    process.env.NODE_ENV = 'development';
-    const { svc, payment } = make();
-    await expect(svc.refundPayment('sandbox_1', 50)).resolves.toEqual({ ok: true, sandbox: true });
-    expect(payment.status).toBe('refunded');
+describe('Gate P3 live: a refund without a gateway key fails closed', () => {
+  // Q104: the second Moyasar service (with a "sandbox" refund that marked the
+  // payment refunded without calling the gateway) is gone; refunds go through
+  // PaymentsService and its adapter only.
+  it('admin refund with no gateway configured: 503, and the transaction is NOT marked refunded', async () => {
+    const t: any = { id: 'tx1', status: 'paid', amount: 100, refunded_amount: 0, gateway_charge_id: 'pay_1' };
+    const svc: any = Object.create(PaymentsService.prototype);
+    svc.txns = {
+      findOne: () => ({ lean: async () => t }),
+      updateOne: jest.fn(async (_q: any, u: any) => { if (u.$inc) t.refunded_amount += u.$inc.refunded_amount; if (u.$set) Object.assign(t, u.$set); return { modifiedCount: 1 }; }),
+    };
+    svc.adapter = new DisabledGatewayAdapter();
+    await expect(svc.refundPayment({ id: 'adm', role: 'admin' }, 'tx1', 50)).rejects.toBeInstanceOf(ServiceUnavailableException);
+    expect(t.status).toBe('paid');
+    expect(t.refunded_amount).toBe(0);
   });
 });
 

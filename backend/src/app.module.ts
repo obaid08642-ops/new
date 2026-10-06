@@ -21,7 +21,6 @@ import { PresenceModule } from './modules/presence/presence.module';
 import { OpsModule } from './modules/ops/ops.module';
 import { FeatureFlagsModule } from './modules/feature-flags/feature-flags.module';
 import { MediaModule } from './modules/media/media.module';
-import { MoyasarModule } from './modules/moyasar/moyasar.module';
 import { FinanceEngineModule } from './modules/finance-engine/finance-engine.module';
 import { ConfigModule } from '@nestjs/config';
 import { validateEnvironment } from './config/env.validation';
@@ -228,7 +227,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     EventReliabilityModule,
     OperationsSafetyModule,
     PaymentsModule,
-    MoyasarModule,
     FinanceEngineModule,
     SlotLocksModule,
     GuestLifecycleModule, // Phase 21: inactive-guest lifecycle (opt-in via env)
