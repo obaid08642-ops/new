@@ -46,6 +46,7 @@
     {
       "route": "/consultations/booking-status",
       "elements": [
+        ["Success summary: doctor, date, visit type", "GET /care/appointments/:param: doctor_name, scheduled_at, consultation_type", "fixed"],
         ["Confirm form: doctor, visit type, date and time, notes, payment choice", "GET /care/doctors/:param, URL params slot_start/notes/visit_*, GET /users/me/profile (insurance)", "ok"],
         ["Hold the slot", "POST /slot-locks/reserve (unchanged)", "ok"],
         ["Create the appointment", "POST /care/appointments (unchanged headers and body)", "ok"],
@@ -58,7 +59,7 @@
     {
       "route": "/consultations/call-history",
       "elements": [
-        ["Call cards: direction, outcome, date, duration, call again", "GET /calls/history: data[], total (the screen read `calls`, which the server never sends)", "fixed"],
+        ["Call cards: direction, outcome, date, duration, call again", "GET /calls/history: data[], total, appointment_id (call again passes it; no appointment, no button)", "fixed"],
         ["Paging", "page and limit=20 on the same endpoint; has-more from total", "ok"]
       ]
     },
@@ -68,7 +69,7 @@
         ["Appointment summary", "GET /care/appointments/:param: doctor, scheduled_at, price", "ok"],
         ["Cancel with a reason", "PATCH /care/appointments/:param/cancel {reason} (stored Arabic text, as before)", "ok"],
         ["Reschedule", "GET /care/doctors/:param/slots (next 7 days) then PATCH /care/appointments/:param/reschedule {slot_start}", "ok"],
-        ["Refund note and policy rows", "computed in the client (24 h / 12 h), as before", "gap"]
+        ["Refund note and policy rows", "cancellation_policy of GET /system-config/public (the doctor page's source); no figure while it is unknown", "fixed"]
       ]
     },
     {
@@ -85,6 +86,7 @@
       "elements": [
         ["QR, booking code, date and time", "GET /care/appointments/:param: id, slot_start", "ok"],
         ["Clinic name, address, phone, location, doctor", "GET /care/doctors/:param: facility/clinic fields", "ok"],
+        ["Clinic location view (?view=location): map, name, address, directions", "GET /care/appointments/:param then GET /care/doctors/:doctor_id: facility location; no map or button without coordinates", "fixed"],
         ["Refund percentages", "hard-coded numbers; replaced by a line that points to the cancel screen", "fixed"],
         ["Preparation list", "static advice, translated", "ok"]
       ]
@@ -187,26 +189,20 @@
     }
   ],
   "needsReview": [
-    { "route": "/consultations/call-history", "element": "Call again", "kind": "client", "note": "It opens video-call with the call session id as appointmentId; the video-call screen expects an appointment id." },
     { "route": "/consultations/appointments", "element": "List call", "kind": "client", "note": "GET /care/appointments is made inside ConsultationsContext, so the inventory lists no call for this route; the context also maps the list once for the whole app." },
     { "route": "/consultations", "element": "Welcome modal", "kind": "owner", "note": "Removed (owner approved): the board has none." },
     { "route": "/consultations/doctor/[id]", "element": "Favourite and years of experience", "kind": "backend", "note": "The heart had no endpoint and is hidden; years_experience and the licence are drawn only when the backend sends them (SPEC B gaps)." },
     { "route": "/consultations/home-visit-tracking", "element": "Doctor on the way, map", "kind": "backend", "note": "The backend has no en-route status or doctor position; the steps follow CONFIRMED, CHECKED_IN and COMPLETED only." },
-    { "route": "/consultations/cancel-reschedule", "element": "Refund policy", "kind": "client", "note": "24 h / 12 h refund figures are fixed in the screen while the doctor page reads them from /system-config/public; online appointments (type 'online') ask for clinic slots when rescheduling." },
+    { "route": "/consultations/cancel-reschedule", "element": "Refund policy", "kind": "client", "note": "Online appointments (type 'online') ask for clinic slots when rescheduling (the refund figures now come from /system-config/public)." },
     { "route": "/consultations/prescription-from-doctor", "element": "Prescription fields", "kind": "backend", "note": "The seeded patient has no active prescription, so the doctor, spec, date, diagnosis, labs and notes fields were not seen at runtime." },
     { "route": "/consultations/chat-with-doctor", "element": "Microphone button", "kind": "owner", "note": "It sent nothing and is removed; voice messages would be a feature." },
     { "route": "/consultations/video-call", "element": "Camera button", "kind": "owner", "note": "The camera on/off control already existed here and in /room/[id] and is kept; the calls decision of PROGRESS_ARCHIVE says to add none." },
-    { "route": "/consultations/incoming-call", "element": "Ring timeout", "kind": "client", "note": "The 35 s timeout calls reject from inside a state updater, which can fire twice; signalling was not touched." },
     { "route": "/consultations/booking-status", "element": "Price summary of the board", "kind": "owner", "note": "The board shows fee and points rows; the confirm form states the price at the payment step, so none is drawn." },
-    { "route": "/consultations/clinic-confirm", "element": "Clinic location view", "kind": "client", "note": "?view=location renders ClinicLocationView, a separate component not rebuilt in this slice." },
     { "route": "/consultations/virtual-waiting-room", "element": "Wait time unit", "kind": "backend", "note": "wait_time has no stated unit; it is drawn as a plain number." },
     { "route": "/consultations", "element": "Nearest and Available now filters", "kind": "backend", "note": "GET /providers (the doctor search) must accept sort=distance with lat/lng (or city) and available_within (minutes) with the consultation type, and return distance and next-slot per doctor; until then the controls are hidden by the flag." },
     { "route": "/consultations", "element": "EXPO_PUBLIC_CONSULT_NEARBY_FILTERS", "kind": "owner", "note": "Set it to 1 in the app build once the backend supports the params; the hub still filters the visit type on the client and sends only type=doctor." },
-    { "route": "/consultations", "element": "Doctor names after a language change", "kind": "client", "note": "Names are localised once when the list is fetched (also in follow-up), so a language change while the tab stays open does not update them until the next load." },
     { "route": "/consultations/appointment-detail", "element": "Urdu text", "kind": "owner", "note": "Readex Pro has no Urdu glyphs, so Urdu falls back to a system font and mixes two typefaces in one line (seen at 390 in ur on every consultation screen); needs an Urdu-capable face approved by the owner." },
     { "route": "/consultations/doctor/[id]", "element": "Board elements without data", "kind": "backend", "note": "The DoctorFull board's verified badge, rating-distribution bars and clinic photos with distance are not drawn: the doctor payload has no such fields." },
-    { "route": "/consultations/appointments", "element": "Status case", "kind": "client", "note": "The tabs match lowercase statuses ('confirmed', 'completed') while the detail and summary screens test uppercase (COMPLETED); if the backend sends one case, one side never matches." },
-    { "route": "/consultations/booking-status", "element": "Success summary", "kind": "client", "note": "The success state shows no doctor, date or visit type although the appointment is already fetched; the board's summary card is not drawn." },
     { "route": "/consultations/clinic-confirm", "element": "Header", "kind": "owner", "note": "The header has a close button next to the back button (two exits); the board has only back." }
   ]
 }
