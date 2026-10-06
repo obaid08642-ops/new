@@ -20,6 +20,7 @@ import { Avatar } from "@/components-next/ui-generated/components/Surfaces";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import health from "@/components-next/health/health.module.css";
+import styles from "@/components-next/family/family.module.css";
 
 type Props = { params: Promise<{ locale: string; memberRef: string }>; searchParams: Promise<{ tab?: string | string[] }> };
 const TABS = ["records", "permissions"] as const;
@@ -51,12 +52,10 @@ export default async function FamilyMemberPage({ params, searchParams }: Props) 
   const sub = [member.role === "owner" ? t("owner") : t("memberRole"), member.relation].filter(Boolean).join(" · ");
   const frame = (body: ReactNode) => (
     <ConsultPage locale={locale} title={name} backHref={base}>
-      <section className={`${rx.card} ${health.row}`}>
+      <section className={`${rx.card} ${styles.memberHero}`}>
         <Avatar name={name} size="lg" />
-        <span className={health.rowBody}>
-          <h2 className={health.rowTitle}>{name}</h2>
-          <span className={health.rowSub}>{sub}</span>
-        </span>
+        <h2 className={styles.heroTitle}>{name}</h2>
+        <span className={styles.heroSub}>{sub}</span>
       </section>
       <HealthTabs label={name} base={`${base}/${memberRef}`} active={tab} options={[
         { value: "records", label: t("tabRecords") },

@@ -15,6 +15,9 @@
 .heroActions { display: flex; flex-wrap: wrap; gap: 8px; }
 .heroActions > * { flex: 1 1 8rem; min-inline-size: 0; }
 
+/* ---- the member screen's head: the avatar, the name, the role ---- */
+.memberHero { align-items: center; text-align: center; gap: 6px; }
+
 /* ---- the member row: the avatar, the name and the relation, the permission badge, the caret ---- */
 .rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
 .rows > li { border-block-end: 1px solid var(--nabd-color-border-subtle); min-inline-size: 0; }

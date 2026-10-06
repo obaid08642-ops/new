@@ -84,7 +84,7 @@ export default async function FamilyPage({ params }: Props) {
   return (
     <ConsultPage locale={locale} title={t("title")}>
       <div className={styles.toolbar}>
-        <p className={rx.lead}>{[group?.name, t("membersCount", { count })].filter(Boolean).join(" · ")}</p>
+        <p className={rx.lead}>{group?.name ? <><bdi>{group.name}</bdi>{" · "}</> : null}{t("membersCount", { count })}</p>
         <Link href={`${base}/add`} className={health.iconButton} aria-label={t("addMember")}>
           <Icon name="plus" size={22} tone="currentColor" />
         </Link>
