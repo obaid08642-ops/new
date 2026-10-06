@@ -65,6 +65,10 @@ const SCREENS = SCREEN_SPECS.map((x) => x.name);
 const API_MODE = arg('--api', 'empty');
 // --auth member renders as a signed-in patient (default: a visitor with no session)
 const AUTH = arg('--auth', 'visitor');
+// --cart test fills the local cart with marked TEST lines (one needs a prescription) so a filled cart can be drawn
+const CART = arg('--cart', 'empty');
+// --params 'a=b,c=d' overrides the route params of every screen of the run (e.g. prescriptionId=test-rx)
+const PARAMS_OVERRIDE = arg('--params') ? Object.fromEntries(arg('--params').split(',').map((kv) => kv.split('='))) : null;
 const WAIT = Number(arg('--wait', 2600));
 // --lang en renders the left-to-right layout (the same AsyncStorage key the app reads); the default is Arabic
 const LANG = arg('--lang', 'ar');
@@ -96,6 +100,16 @@ const BOARD = {
   wishlist: { params: {} },
   filters: { params: {} },
   'medicine-compare': { params: { ids: 'test-med,test-alt' } },
+  // Batch 1b (cart and prescription). The cart and the prescription upload have boards; the prescription list
+  // (rx-order), the barcode scanner, the manual request and the negotiation chat follow the RxUpload / PharmacyHub
+  // templates and have none. The cart is filled with --cart test (marked test lines), the chat opens an order id.
+  cart: { component: 'Cart', size: [390, 1260], params: {} },
+  'scan-prescription': { component: 'RxUpload', size: [390, 1100], params: {} },
+  'rx-order': { params: {} },
+  'rx-order-detail': { params: { prescriptionId: 'test-rx' } },
+  'barcode-scanner': { params: {} },
+  request: { params: {} },
+  'pharmacist-chat': { params: { orderId: 'test-order' } },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },
@@ -121,6 +135,7 @@ const H_ARG = arg('--height');
 /** The frame height: --height, else the board's own (Home, Services), else a phone's 844. */
 const frameHeight = (screen) => (H_ARG ? Number(H_ARG) : BOARD[screen]?.size?.[1] ?? 844);
 const PLATFORM = arg('--platform', 'web');
+const CAMERA = arg('--camera', 'granted');
 const SUFFIX = arg('--suffix', '');
 const INSETS = { top: 47, bottom: 34, left: 0, right: 0 };
 
@@ -163,6 +178,7 @@ const MOCKS = {
       return key in EMPTY ? EMPTY[key] : {};
     }
     export async function storeAuthSession() {}
+    export const newIdempotencyKey = () => 'render-test-key';
     // the constants other modules read from the client (image URLs resolve against them); no real host in a render
     export const BASE_URL = 'https://api.example.test/api/v1';
     export const FASTAPI_BASE_URL = 'https://ai.example.test';
@@ -171,6 +187,20 @@ const MOCKS = {
     export const useAuthRequest = () => [null, null, async () => ({ type: 'dismiss' })];
     export const makeRedirectUri = () => 'nabdplus://redirect';`,
   'node-builtin': `export class AsyncLocalStorage { getStore() { return undefined; } run(_s, f) { return f(); } } export default {};`,
+  // camera and picker: a design render has neither; the permission is "granted" unless --camera denied
+  'expo-camera': `
+    import * as React from 'react';
+    const state = () => (window.__SCREEN && window.__SCREEN.camera) || 'granted';
+    export const useCameraPermissions = () => {
+      const s = state();
+      return s === 'undetermined' ? [null, async () => {}] : [{ granted: s === 'granted', canAskAgain: s !== 'blocked', status: s }, async () => {}];
+    };
+    export const CameraView = React.forwardRef(({ style }, ref) => <div ref={ref} style={{ ...(Array.isArray(style) ? Object.assign({}, ...style.flat()) : style), background: 'transparent' }} />);`,
+  'expo-image-picker': `
+    export const requestCameraPermissionsAsync = async () => ({ granted: false });
+    export const requestMediaLibraryPermissionsAsync = async () => ({ granted: false });
+    export const launchCameraAsync = async () => ({ canceled: true });
+    export const launchImageLibraryAsync = async () => ({ canceled: true });`,
   'expo-web-browser': `export const maybeCompleteAuthSession = () => ({ type: 'failed' });`,
   'expo-apple-authentication': `
     export const AppleAuthenticationScope = { FULL_NAME: 0, EMAIL: 1 };
@@ -196,10 +226,12 @@ const mockPlugin = {
     build.onResolve({ filter: /^expo-router$/ }, () => virtual('expo-router'));
     build.onResolve({ filter: /^expo-auth-session(\/providers\/google)?$/ }, () => virtual('expo-auth-session'));
     build.onResolve({ filter: /^expo-web-browser$/ }, () => virtual('expo-web-browser'));
+    build.onResolve({ filter: /^expo-camera$/ }, () => virtual('expo-camera'));
+    build.onResolve({ filter: /^expo-image-picker$/ }, () => virtual('expo-image-picker'));
     build.onResolve({ filter: /^expo-apple-authentication$/ }, () => virtual('expo-apple-authentication'));
     build.onResolve({ filter: /^expo-secure-store$/ }, () => ({ path: join(REPO, 'tools/live/rnweb/secure-store-web.js') }));
     // the network client, as the auth screens and their auth components import it
-    build.onResolve({ filter: /utils\/api$/ }, (a) => (a.importer.startsWith(APP + sep) && !a.importer.includes(`${sep}node_modules${sep}`) ? virtual('auth-api') : undefined));
+    build.onResolve({ filter: /(utils\/|^\.\/)api$/ }, (a) => (a.importer.startsWith(APP + sep) && !a.importer.includes(`${sep}node_modules${sep}`) ? virtual('auth-api') : undefined));
     // server-rendering branches of expo packages import node builtins; the browser never runs them
     build.onResolve({ filter: /^node:/ }, () => virtual('node-builtin'));
     build.onLoad({ filter: /.*/, namespace: 'mock' }, (a) => ({ contents: MOCKS[a.path], loader: 'jsx', resolveDir: APP }));
@@ -287,7 +319,7 @@ for (const s of SCREENS) {
       localStorage.setItem('@nabdah_theme_mode', th);
       localStorage.setItem('@nabdah_language', lg);
     }, [theme, LANG]);
-    const cfg = { width: W, height: H, insets: INSETS, params: BOARD[s].params, platform: PLATFORM, dir: DIR, lang: LANG, pathname: PATHNAME, api: API_MODE, auth: AUTH, tabbar: Boolean(TABBAR), header: Boolean(HEADER) };
+    const cfg = { width: W, height: H, insets: INSETS, params: PARAMS_OVERRIDE || BOARD[s].params, cart: CART, camera: CAMERA, platform: PLATFORM, dir: DIR, lang: LANG, pathname: PATHNAME, api: API_MODE, auth: AUTH, tabbar: Boolean(TABBAR), header: Boolean(HEADER) };
     await page.setContent(
       `<!doctype html><html dir="${DIR}" lang="${LANG}"><meta charset="utf-8"><style>${appFaces}html,body{margin:0}*{animation:none!important;transition:none!important}</style>` +
         `<div id="root"></div><script>window.__SCREEN=${JSON.stringify(cfg)}</script><script src="${BASE}/__app-${s}.js"></script></html>`,

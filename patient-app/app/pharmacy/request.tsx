@@ -1,23 +1,152 @@
-// Phase 2.3: شاشة الطلب اليدوي الموحدة — تدمج drug-not-found + custom-item + manual-order
-// المنطق منقول حرفياً من manual-order.tsx (عقد /patient/pharmacy/orders + idempotency محفوظ).
-// الدخول إليها يكون من: نتيجة بحث بلا نتائج، ماسح الباركود، السلة — عبر redirects آمنة.
-import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { router } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../../src/context/AppContext';
-import { darkColors, lightColors } from '../../src/theme/colors';
-import { apiFetch } from '../../src/utils/api';
-import { buildPatientPharmacyDraft, extractPatientPharmacyOrderId } from '../../src/utils/pharmacy-draft';
-import { LocalizedText } from '../../src/components/LocalizedText';
-import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+// Phase 2.3: the single manual-request screen — merges drug-not-found + custom-item + manual-order.
+// The order contract (POST /patient/pharmacy/orders, then /submit, with a stable idempotency key) is unchanged.
+// It is entered from a search with no result, the barcode scanner and the cart, through the redirect routes.
+import React, { useCallback, useRef, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
+import { router, useFocusEffect } from 'expo-router';
 
-const key = () => `mobile-pharmacy-manual-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+import { AppHeader, Button, Card, FIcon, Input, Screen, StickyFooter } from '../../../packages/ui-native/src';
+import { Notice, goBack } from '../../src/components/pharmacy/PharmacyKit';
+import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { apiFetch, newIdempotencyKey } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
+import { buildPatientPharmacyDraft, extractPatientPharmacyOrderId } from '../../src/utils/pharmacy-draft';
+import { resolveEffectiveAddress, type SelectedAddress } from '../../src/utils/selectedAddress';
+
+/**
+ * Manual medicine request — the PharmacyHub family (no board of its own): a form (the medicine's name, details that
+ * help the pharmacy), the delivery location the request will use, and the sticky button that broadcasts the request
+ * to nearby pharmacies. The location is the one the patient picked last (shared/location-picker), else the default
+ * saved address, and it is read again when the screen comes back into focus, so a change made in the picker shows.
+ * A request needs a real map point (lat, lng); without one the button explains instead of sending.
+ */
+
+const MIN_NAME = 3;
+
 export default function PharmacyRequestScreen() {
-  const insets = useSafeAreaInsets(); const { isDark, lang } = useApp() as any; const colors = isDark ? darkColors : lightColors; const isRTL = lang === 'ar' || lang === 'ur'; const requestKey = useRef(key());
-  const [name, setName] = useState(''); const [details, setDetails] = useState(''); const [address, setAddress] = useState<any>(null); const [loadingAddress, setLoadingAddress] = useState(true); const [submitting, setSubmitting] = useState(false);
-  useEffect(() => { let active = true; void (async () => { try { const profile: any = await apiFetch('/users/me/profile'); const addresses = profile?.addresses || []; if (active) setAddress(addresses.find((entry: any) => entry.is_default) || addresses[0] || null); } finally { if (active) setLoadingAddress(false); } })(); return () => { active = false; }; }, []);
-  async function submit() { const medicine = name.trim(); if (medicine.length < 3) return; if (!Number.isFinite(Number(address?.lat)) || !Number.isFinite(Number(address?.lng))) return showLocalizedAlert('حدد موقع الاستلام', 'يلزم عنوان ذو موقع حقيقي قبل بث طلب الدواء اليدوي.'); const rawName = details.trim() ? `${medicine} — ${details.trim()}` : medicine; setSubmitting(true); try { const draft = buildPatientPharmacyDraft([{ name: rawName, qty: 1, intake_source: 'manual' }], address); const created: any = await apiFetch('/patient/pharmacy/orders', { method: 'POST', headers: { 'Idempotency-Key': requestKey.current }, body: JSON.stringify(draft) }); const orderId = extractPatientPharmacyOrderId(created); if (!orderId) throw new Error('governed_pharmacy_order_id_missing'); await apiFetch(`/patient/pharmacy/orders/${orderId}/submit`, { method: 'POST', headers: { 'Idempotency-Key': `${requestKey.current}-submit` }, body: JSON.stringify({}) }); router.replace({ pathname: '/pharmacy/broadcast-status', params: { orderId } }); } catch (reason: any) { showLocalizedAlert('تعذر بث الطلب', reason?.message || 'لم يُنشأ طلب مكتمل. أعد المحاولة يدوياً.'); } finally { setSubmitting(false); } }
-  return <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top + 16 }]}><View style={[styles.header, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}><TouchableOpacity onPress={() => router.back()} style={[styles.back, { backgroundColor: colors.s }]}><LocalizedText style={{ color: colors.n, fontFamily: 'MaterialSymbolsRounded', fontSize: 25 }}>{isRTL ? 'arrow_forward' : 'arrow_back'}</LocalizedText></TouchableOpacity><LocalizedText style={[styles.title, { color: colors.n }]}>طلب دواء غير متوفر</LocalizedText><View style={{ width: 44 }} /></View><ScrollView contentContainerStyle={{ padding: 20, gap: 14, paddingBottom: insets.bottom + 28 }}><LocalizedText style={[styles.copy, { color: colors.t2 }]}>اكتب الاسم والتفاصيل ليُبث الطلب إلى الصيدليات. لا تدخل سعراً أو وسيلة دفع، ولا تُرسل صورة محلية غير محفوظة في هذا المسار.</LocalizedText><LocalizedText style={{ color: colors.n, fontFamily: 'Cairo-Bold' }}>اسم الدواء</LocalizedText><TextInput value={name} onChangeText={setName} placeholder="مثال: كونجستال أقراص" placeholderTextColor={colors.t3} style={[styles.input, { backgroundColor: colors.s, borderColor: colors.bd, color: colors.n, textAlign: isRTL ? 'right' : 'left' }]} /><LocalizedText style={{ color: colors.n, fontFamily: 'Cairo-Bold' }}>تفاصيل تساعد الصيدلية (اختياري)</LocalizedText><TextInput value={details} onChangeText={setDetails} multiline placeholder="تركيز الدواء أو الشكل أو ملاحظة" placeholderTextColor={colors.t3} style={[styles.input, styles.details, { backgroundColor: colors.s, borderColor: colors.bd, color: colors.n, textAlign: isRTL ? 'right' : 'left' }]} /><View style={[styles.address, { backgroundColor: colors.s, borderColor: colors.bd }]}><LocalizedText style={{ color: colors.n, fontFamily: 'Cairo-Bold' }}>{loadingAddress ? 'جاري تحميل العنوان…' : address?.label || 'لا يوجد عنوان صالح'}</LocalizedText><LocalizedText style={{ color: colors.t2 }}>{address ? 'يستخدم البث عنوان ملفك الحالي.' : 'أضف عنواناً بموقع حقيقي قبل البث.'}</LocalizedText><TouchableOpacity onPress={() => router.push('/shared/location-picker')}><LocalizedText style={{ color: colors.p, fontFamily: 'Cairo-Bold' }}>تغيير الموقع</LocalizedText></TouchableOpacity></View><TouchableOpacity disabled={submitting || loadingAddress || name.trim().length < 3} onPress={() => void submit()} style={[styles.submit, { backgroundColor: submitting || loadingAddress || name.trim().length < 3 ? colors.bd : colors.p }]}>{submitting ? <ActivityIndicator color="#fff" /> : <LocalizedText style={styles.submitText}>بث الطلب وطلب عروض</LocalizedText>}</TouchableOpacity></ScrollView></View>;
+  const { theme, t, c, dir, flow, k } = useScreenUi();
+  // one key per screen visit: a retry of the same request is de-duplicated by the backend
+  const requestKey = useRef(newIdempotencyKey());
+  const [name, setName] = useState('');
+  const [details, setDetails] = useState('');
+  const [address, setAddress] = useState<SelectedAddress | null>(null);
+  const [loadingAddress, setLoadingAddress] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [problem, setProblem] = useState<'location' | 'send' | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      setLoadingAddress(true);
+      void (async () => {
+        try {
+          const next = await resolveEffectiveAddress();
+          if (active) setAddress(next);
+        } catch (e) {
+          logError('pharmacy:request:address', e);
+        } finally {
+          if (active) setLoadingAddress(false);
+        }
+      })();
+      return () => {
+        active = false;
+      };
+    }, []),
+  );
+
+  const medicine = name.trim();
+  const nameTooShort = medicine.length > 0 && medicine.length < MIN_NAME;
+  const hasPoint = Boolean(address) && Number.isFinite(Number(address?.lat)) && Number.isFinite(Number(address?.lng));
+  const canSend = medicine.length >= MIN_NAME && !submitting && !loadingAddress;
+
+  const submit = async () => {
+    if (!canSend) return;
+    if (!address || !hasPoint) {
+      setProblem('location');
+      return;
+    }
+    setProblem(null);
+    setSubmitting(true);
+    try {
+      const rawName = details.trim() ? `${medicine} — ${details.trim()}` : medicine;
+      const draft = buildPatientPharmacyDraft([{ name: rawName, qty: 1, intake_source: 'manual' }], address);
+      const created = await apiFetch<{ id?: string; data?: { id?: string } }>('/patient/pharmacy/orders', { method: 'POST', headers: { 'Idempotency-Key': requestKey.current }, body: JSON.stringify(draft) });
+      const orderId = extractPatientPharmacyOrderId(created);
+      if (!orderId) throw new Error('governed_pharmacy_order_id_missing');
+      await apiFetch(`/patient/pharmacy/orders/${orderId}/submit`, { method: 'POST', headers: { 'Idempotency-Key': `${requestKey.current}-submit` }, body: JSON.stringify({}) });
+      router.replace({ pathname: '/pharmacy/broadcast-status', params: { orderId } });
+    } catch (e) {
+      logError('pharmacy:request:submit', e);
+      setProblem('send');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const addressLine = address ? [address.street || address.address, address.city].filter(Boolean).join(', ') : '';
+
+  const header = (
+    <View style={COLUMN}>
+      <AppHeader title={k('pharmacy.request.title')} onBack={goBack} backLabel={k('pharmacy.back')} theme={theme} direction={dir} />
+    </View>
+  );
+
+  const footer = (
+    <StickyFooter theme={theme} direction={dir}>
+      <View style={COLUMN}>
+        <Button label={k('pharmacy.request.submit')} size="lg" fullWidth disabled={!canSend} loading={submitting} onPress={() => void submit()} testID="request-submit" theme={theme} />
+      </View>
+    </StickyFooter>
+  );
+
+  return (
+    <Screen theme={theme} direction={dir} header={header} footer={footer} scroll keyboard testID="request-screen">
+      <View style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, gap: 16 }}>
+        <Text style={{ ...scale(t, 'meta', 'regular'), lineHeight: 21, color: c.text.secondary, ...flow }}>{k('pharmacy.request.intro')}</Text>
+
+        <Input
+          label={k('pharmacy.request.nameLabel')}
+          placeholder={k('pharmacy.request.namePlaceholder')}
+          value={name}
+          onChange={setName}
+          hint={nameTooShort ? k('pharmacy.request.nameHint') : undefined}
+          invalid={nameTooShort}
+          disabled={submitting}
+          testID="request-name"
+          theme={theme}
+        />
+        <Input
+          label={k('pharmacy.request.detailsLabel')}
+          placeholder={k('pharmacy.request.detailsPlaceholder')}
+          value={details}
+          onChange={setDetails}
+          multiline
+          rows={4}
+          disabled={submitting}
+          testID="request-details"
+          theme={theme}
+        />
+
+        <Card theme={theme}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <FIcon icon="map-pin" tone="coral" size={40} theme={theme} />
+            <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+              <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('pharmacy.request.addressTitle')}</Text>
+              <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>
+                {loadingAddress ? k('pharmacy.request.addressLoading') : address ? address.label || addressLine || k('pharmacy.request.addressUsed') : k('pharmacy.request.addressNone')}
+              </Text>
+              {address && address.label && addressLine ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{addressLine}</Text> : null}
+            </View>
+          </View>
+          {!loadingAddress && !hasPoint ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.status.warning.fg, ...flow }}>{k('pharmacy.request.addressMissing')}</Text> : null}
+          <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.request.changeLocation')} onPress={() => router.push('/shared/location-picker')} style={{ minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start' }}>
+            <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.link, ...flow }}>{k('pharmacy.request.changeLocation')}</Text>
+          </Pressable>
+        </Card>
+
+        {problem === 'location' ? <Notice tone="warning" icon="map-pin" title={k('pharmacy.request.noLocation')} /> : null}
+        {problem === 'send' ? <Notice tone="danger" icon="warning" title={k('pharmacy.request.failedTitle')} body={k('pharmacy.request.failedBody')} /> : null}
+      </View>
+    </Screen>
+  );
 }
-const styles = StyleSheet.create({ container: { flex: 1 }, header: { alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 16 }, back: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' }, title: { fontFamily: 'Cairo-Black', fontSize: 18 }, copy: { fontFamily: 'Cairo-Regular', lineHeight: 21, textAlign: 'center' }, input: { borderWidth: 1, borderRadius: 14, padding: 14, fontFamily: 'Cairo-Regular' }, details: { minHeight: 110, textAlignVertical: 'top' }, address: { gap: 5, borderWidth: 1, borderRadius: 14, padding: 14 }, submit: { minWidth: '100%', alignItems: 'center', borderRadius: 14, paddingVertical: 16 }, submitText: { color: '#fff', fontFamily: 'Cairo-Bold' } });
