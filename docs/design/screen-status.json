@@ -32,5 +32,14 @@
   "patient-app /pharmacy/product-detail": "rebuilt on design/batch-1 (slice 1a, PR pending)",
   "patient-app /pharmacy/wishlist": "rebuilt on design/batch-1 (slice 1a, PR pending)",
   "patient-app /pharmacy/filters": "rebuilt on design/batch-1 (slice 1a, PR pending)",
-  "patient-app /pharmacy/medicine-compare": "rebuilt on design/batch-1 (slice 1a, PR pending)"
+  "patient-app /pharmacy/medicine-compare": "rebuilt on design/batch-1 (slice 1a, PR pending)",
+  "patient-web /cart": "rebuilt on wip-b1b-web (slice 1b, not merged yet)",
+  "patient-web /cart/prescription": "rebuilt on wip-b1b-web (slice 1b, not merged yet)",
+  "patient-web /pharmacy/scan-prescription": "rebuilt on wip-b1b-web (slice 1b, not merged yet)",
+  "patient-web /pharmacy/rx-order": "rebuilt on wip-b1b-web (slice 1b, not merged yet)",
+  "patient-web /pharmacy/request": "rebuilt on wip-b1b-web (slice 1b, not merged yet)",
+  "patient-web /pharmacy/barcode": "rebuilt on wip-b1b-web (slice 1b, not merged yet)",
+  "patient-web /pharmacy/chat": "rebuilt on wip-b1b-web (slice 1b, not merged yet)",
+  "patient-web /prescriptions": "rebuilt on wip-b1b-web (slice 1b, not merged yet)",
+  "patient-web /prescriptions/[prescriptionId]": "rebuilt on wip-b1b-web (slice 1b, not merged yet)"
 }
