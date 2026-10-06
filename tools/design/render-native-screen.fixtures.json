@@ -126,17 +126,77 @@
   ],
   "/patient/pharmacy/orders": [
     {
-      "id": "test-order",
-      "createdAt": "2026-10-01T10:00:00Z",
-      "governed_state": "CONFIRMED",
+      "id": "test-order-aaa111",
+      "createdAt": "2026-10-06T10:00:00Z",
+      "status": "out_for_delivery",
+      "selected_offer_id": "test-offer-1",
+      "payment_status": "paid",
+      "pricing_snapshot": {
+        "offer_id": "test-offer-1",
+        "offer_version": 1,
+        "totals": {
+          "subtotal": 70,
+          "delivery_fee": 10,
+          "total": 80,
+          "currency": "SAR"
+        },
+        "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
       "items": [
         {
+          "id": "ti1",
           "raw_name": "منتج تجريبي ١",
-          "qty": 1
+          "qty": 2,
+          "matched_sku": "TEST-SKU-1"
         },
         {
+          "id": "ti2",
           "raw_name": "منتج تجريبي ٢",
-          "qty": 2
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "test-order-bbb222",
+      "createdAt": "2026-10-05T10:00:00Z",
+      "status": "broadcasting",
+      "items": [
+        {
+          "id": "ti1",
+          "raw_name": "منتج تجريبي ١",
+          "qty": 2,
+          "matched_sku": "TEST-SKU-1"
+        }
+      ]
+    },
+    {
+      "id": "test-delivered",
+      "createdAt": "2026-10-01T10:00:00Z",
+      "status": "delivered",
+      "selected_offer_id": "test-offer-1",
+      "payment_status": "paid",
+      "pricing_snapshot": {
+        "offer_id": "test-offer-1",
+        "offer_version": 1,
+        "totals": {
+          "subtotal": 70,
+          "delivery_fee": 10,
+          "total": 80,
+          "currency": "SAR"
+        },
+        "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "items": [
+        {
+          "id": "ti1",
+          "raw_name": "منتج تجريبي ١",
+          "qty": 2,
+          "matched_sku": "TEST-SKU-1"
+        },
+        {
+          "id": "ti2",
+          "raw_name": "منتج تجريبي ٢",
+          "qty": 1
         }
       ]
     }
@@ -334,6 +394,18 @@
       "lat": 24.7,
       "lng": 46.7,
       "is_default": true
+    },
+    {
+      "id": "test-addr-2",
+      "label": "عمل تجريبي",
+      "street": "طريق تجريبي",
+      "city": "مدينة تجريبية",
+      "lat": 24.8,
+      "lng": 46.6
+    },
+    {
+      "id": "test-addr-3",
+      "street": "عنوان تجريبي بلا موقع"
     }
   ],
   "/pharmacy/chat/threads": [
@@ -1670,5 +1742,94 @@
     "amount": 80,
     "currency": "SAR",
     "paid_at": null
-  }
+  },
+  "/patient/pharmacy/orders/test-delivered": {
+    "id": "test-delivered",
+    "status": "delivered",
+    "governed_state": "DELIVERED",
+    "items": [
+      {
+        "id": "ti1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2,
+        "matched_sku": "TEST-SKU-1"
+      },
+      {
+        "id": "ti2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-track": {
+    "id": "test-track-ccdd33",
+    "status": "out_for_delivery",
+    "governed_state": "OUT_FOR_DELIVERY",
+    "payment_status": "paid",
+    "selected_offer_id": "test-offer-1",
+    "fulfillment": "delivery",
+    "items": [
+      {
+        "id": "ti1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2,
+        "matched_sku": "TEST-SKU-1"
+      },
+      {
+        "id": "ti2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "pricing_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "timeline": [
+      {
+        "ts": "2026-10-06T09:00:00Z",
+        "event": "all_allocations_confirmed"
+      },
+      {
+        "ts": "2026-10-06T09:20:00Z",
+        "event": "fulfillment_started"
+      },
+      {
+        "ts": "2026-10-06T10:05:00Z",
+        "event": "first_out_for_delivery"
+      }
+    ],
+    "delivery": {
+      "courier_name": "مندوب تجريبي",
+      "courier_phone": "+966500000000",
+      "courier_eta": "2026-10-06T10:45:00Z"
+    }
+  },
+  "/care/appointments": [
+    {
+      "id": "test-appt",
+      "status": "CONFIRMED",
+      "doctor_name": "د. تجريبي",
+      "service_type": "video",
+      "slot_start": "2026-10-07T09:00:00Z",
+      "total_price": 150
+    }
+  ],
+  "/labs/bookings/mine": [
+    {
+      "id": "test-lab-1",
+      "state": "SAMPLE_COLLECTED",
+      "service_name_ar": "تحاليل تجريبية",
+      "visit_type": "home",
+      "scheduled_at": "2026-10-06T08:00:00Z",
+      "total": 90
+    }
+  ]
 }

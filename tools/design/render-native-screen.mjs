@@ -124,6 +124,13 @@ const BOARD = {
   'insurance-decision': { component: 'CheckoutV2', size: [390, 1100], params: { orderId: 'test-ins-partial' } },
   'order-confirm': { params: { orderId: 'test-order' } },
   'payment-result': { component: 'Success', size: [390, 844], params: { transactionId: 'test-txn-paid', bookingKind: 'pharmacy', bookingId: 'test-pay' } },
+  // Batch 1e (orders and tracking). Orders and OrderTracking are boards; the pharmacy order history is the Orders board for the
+  // governed orders only, order-again and the delivery address follow its card and the Account board's rows (no board of their own).
+  orders: { component: 'Orders', size: [390, 900], params: {} },
+  'order-history': { component: 'Orders', size: [390, 900], params: {} },
+  'order-tracking': { component: 'OrderTracking', size: [390, 1120], params: { orderId: 'test-track' } },
+  reorder: { params: { orderId: 'test-delivered' } },
+  'address-select': { params: {} },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },
