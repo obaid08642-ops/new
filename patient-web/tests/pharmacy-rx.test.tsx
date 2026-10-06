@@ -413,7 +413,15 @@ describe("messages of the Batch 1b screens", () => {
   const locales = ["ar", "en", "ur", "hi", "bn", "fil"];
   const data = Object.fromEntries(locales.map((l) => [l, JSON.parse(read(`messages/${l}.json`)) as Record<string, Record<string, string>>]));
   // the arguments of an ICU message: the sub-messages of a plural ({one {...}}) are not arguments
-  const slots = (message: string) => [...message.replace(/\b(?:zero|one|two|few|many|other|=\d+)\s*\{[^{}]*\}/g, "").matchAll(/\{(\w+)/g)].map((m) => m[1]).sort().join(",");
+  const withoutPluralBranches = (message: string) => {
+    let current = message;
+    for (let previous = ""; previous !== current;) {
+      previous = current;
+      current = current.replace(/\b(?:zero|one|two|few|many|other|=\d+)\s*\{[^{}]*\}/g, "");
+    }
+    return current;
+  };
+  const slots = (message: string) => [...withoutPluralBranches(message).matchAll(/\{(\w+)/g)].map((m) => m[1]).sort().join(",");
 
   it("has every key in every language, non-empty, with the same {slots}", () => {
     for (const ns of NAMESPACES) {
