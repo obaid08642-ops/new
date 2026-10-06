@@ -81,7 +81,7 @@ export default async function SettingsFeedbackPage({ params }: Props) {
             {ar ? "أرسل ملاحظة" : "Send a note"}
           </h2>
           <p style={{ margin: 0, overflowWrap: "anywhere", color: "#64748B", fontSize: ".84rem", lineHeight: 1.6 } as any}>
-            {ar ? "اختر النوع، قيّم التجربة، واكتب رسالتك. تُرسل عبر الخلفية المصرح بها فقط." : "Pick a type, rate the experience, and write your message. Sent via the authorized backend only."}
+            {ar ? "اختر النوع، قيّم التجربة، واكتب رسالتك." : "Pick a type, rate the experience, and write your message."}
           </p>
           <div style={{ marginTop: 8 }}>
             <FeedbackForm locale={locale} />

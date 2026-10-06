@@ -1,17 +1,4 @@
 /**
-// GENERATED FILE — DO NOT EDIT.
-//
-// Mirrored from packages/ui/icons/illustrated.ts by tools/design/sync-ui-components.mjs.
-//
-// patient-web cannot import from packages/: Turbopack refuses to resolve outside
-// the app root, and the type checker does not, so the failure only appears at
-// `next build`. This file is a copy, not a port — the renderer a screen uses and
-// the renderer the conformance gallery exercises are the same code, so the
-// artwork cannot drift between them. Run the script after changing the package;
-// `--check` in CI fails if this drifts.
-//
-// tests/module-boundary.test.ts enforces the boundary this mirror exists to work
-// around.
  * The illustrated icon set — 12.A6.
  *
  * ONE geometry, TWO renderers. Every icon here is transcribed verbatim from the
@@ -29,6 +16,19 @@
  * too. The artwork is identical in both themes, exactly as the canvas shows it;
  * readability comes from the ink outline rather than from the fill.
  */
+// GENERATED FILE — DO NOT EDIT.
+//
+// Mirrored from packages/ui/icons/illustrated.ts by tools/design/sync-ui-components.mjs.
+//
+// patient-web cannot import from packages/: Turbopack refuses to resolve outside
+// the app root, and the type checker does not, so the failure only appears at
+// `next build`. This file is a copy, not a port — the renderer a screen uses and
+// the renderer the conformance gallery exercises are the same code, so the
+// artwork cannot drift between them. Run the script after changing the package;
+// `--check` in CI fails if this drifts.
+//
+// tests/module-boundary.test.ts enforces the boundary this mirror exists to work
+// around.
 
 export type IconArtKey =
   | 'ink'

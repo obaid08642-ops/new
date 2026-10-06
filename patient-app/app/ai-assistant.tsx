@@ -74,7 +74,7 @@ export default function AIAssistantScreen() {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'تعذر الاتصال بالخادم. يرجى المحاولة لاحقاً.',
+        content: 'تعذّر الاتصال الآن. يرجى المحاولة لاحقاً.',
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);

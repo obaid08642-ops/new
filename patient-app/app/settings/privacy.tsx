@@ -234,7 +234,7 @@ export default function PrivacySettingsScreen() {
             onPress={onExport}
           >
             <AppText variant="bodySM" style={{ color: colors.primary }}>
-              {exporting ? "جارٍ تجهيز الملف…" : "تصدير كل بياناتي (ملف JSON)"}
+              {exporting ? "جارٍ تجهيز الملف…" : "تصدير كل بياناتي"}
             </AppText>
           </TouchableOpacity>
 
