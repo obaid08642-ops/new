@@ -1,0 +1,155 @@
+/* The prescription and request screens (Batch 1b): the cart's prescription, the upload (canvas/RxUpload), the order from a
+   prescription, the prescription list and detail (canvas/HealthHub rows), the barcode lookup, the manual request and
+   the pharmacist chat (no board: current layout, tokens and shared components only). The shell (top bar, tab bar) is
+   components-next/core. Tokens only, logical properties only, no inline styles (the CSP refuses them). */
+
+.srOnly {
+  position: absolute; inline-size: 1px; block-size: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+.page { display: flex; flex-direction: column; gap: var(--nabd-space-sm); min-inline-size: 0; max-inline-size: 720px; margin-inline: auto; inline-size: 100%; }
+
+/* the page's own title: phones carry it in the shell's header row, from 768 it is the page's h1 */
+.head { display: none; flex-direction: column; gap: 4px; }
+.title { margin: 0; font-size: var(--nabd-font-size-h1); line-height: var(--nabd-font-size-h1-lineHeight); font-weight: 700; overflow-wrap: anywhere; }
+.lead { margin: 0; font-size: var(--nabd-font-size-body); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.note { margin: 0; font-size: var(--nabd-font-size-caption); line-height: 1.7; color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.noteCenter { text-align: center; }
+.h2 { margin: 0; font-size: var(--nabd-font-size-h4); line-height: var(--nabd-font-size-h4-lineHeight); font-weight: 700; }
+
+/* ---- cards (canvas: white, radius 24, hairline, soft shadow) ---- */
+.card {
+  display: flex; flex-direction: column; gap: 12px; padding: 12px 14px; min-inline-size: 0;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
+  border-radius: var(--nabd-radius-3xl); box-shadow: var(--nabd-shadow-card);
+}
+.cardFlush { padding-block: 4px; padding-inline: 16px; gap: 0; }
+.cardRow { display: flex; align-items: center; gap: 12px; min-inline-size: 0; }
+.cardBody { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
+.cardLabel { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); }
+.cardValue { font-size: var(--nabd-font-size-row); font-weight: 600; overflow-wrap: anywhere; }
+.cardLink {
+  flex: none; display: inline-flex; align-items: center; min-block-size: 44px; padding-inline: 4px;
+  font-size: var(--nabd-font-size-segment); font-weight: 600; color: var(--nabd-color-text-link); text-decoration: none;
+}
+.cardLink:focus-visible, .rowLink:focus-visible, .textLink:focus-visible {
+  outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-sm);
+}
+.textLink { display: inline-flex; align-items: center; min-block-size: 44px; font-size: var(--nabd-font-size-control); font-weight: 600; color: var(--nabd-color-text-link); text-decoration: none; }
+.warn { color: var(--nabd-color-status-warning-fg); }
+
+/* ---- list rows (canvas/HealthHub: a white card of rows, 40 tall chip, caret) ---- */
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.list > li { border-block-end: 1px solid var(--nabd-color-border-subtle); min-inline-size: 0; }
+.list > li:last-child { border-block-end: 0; }
+.listRow { display: flex; align-items: center; gap: 12px; padding-block: 12px; min-inline-size: 0; }
+.rowLink { color: inherit; text-decoration: none; }
+.rowBody { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.rowTitle { margin: 0; font-size: var(--nabd-font-size-row); line-height: 1.4; font-weight: 600; overflow-wrap: anywhere; }
+.rowSub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.clamp2 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.rowEnd { flex: none; color: var(--nabd-color-icon-secondary); display: inline-flex; }
+
+/* ---- the banner of canvas/Cart: "an item needs a prescription" ---- */
+.banner {
+  display: flex; align-items: center; gap: 10px; padding: 12px 14px; min-inline-size: 0;
+  border-radius: var(--nabd-radius-xl); background: var(--nabd-color-status-warning-bg); color: var(--nabd-color-status-warning-fg);
+}
+.bannerBody { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
+.bannerTitle { font-size: var(--nabd-font-size-control); font-weight: 700; }
+.bannerText { font-size: var(--nabd-font-size-label); }
+.bannerAction {
+  flex: none; display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; min-inline-size: 44px; padding-inline: 14px; box-sizing: border-box;
+  border-radius: var(--nabd-radius-lg); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary);
+  font-size: var(--nabd-font-size-segment); font-weight: 600; text-decoration: none;
+}
+.bannerAction:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+
+/* ---- the upload zone and the attachment (canvas/RxUpload) ---- */
+.drop {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center;
+  min-block-size: 260px; padding: var(--nabd-space-md) var(--nabd-space-sm); box-sizing: border-box;
+  background: var(--nabd-color-bg-surface); border: 2px dashed var(--nabd-color-border-strong); border-radius: var(--nabd-radius-4xl);
+}
+.dropTitle { margin: 0; font-size: var(--nabd-font-size-body-lg); font-weight: 700; overflow-wrap: anywhere; }
+.dropHint { margin: 0; font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.dropButtons { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-block-start: 4px; }
+.attachments { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; }
+.thumb {
+  position: relative; inline-size: 92px; block-size: 112px; border-radius: var(--nabd-radius-2xl); overflow: hidden;
+  background: var(--nabd-color-bg-media);
+}
+.thumbImage { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; }
+.thumbRemove {
+  position: absolute; inset-block-start: 0; inset-inline-start: 0; inline-size: 44px; block-size: 44px; padding: 0; border: 0; background: transparent;
+  display: grid; place-items: center; cursor: pointer;
+}
+.thumbRemove::before {
+  content: ""; position: absolute; inline-size: 28px; block-size: 28px; border-radius: var(--nabd-radius-pill); background: var(--nabd-color-glass-bgStrong);
+}
+.thumbRemove > * { position: relative; }
+.thumbRemove:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: -4px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-inline-size: 0; }
+
+.progress { display: flex; flex-direction: column; gap: 6px; }
+.progressBar { inline-size: 100%; block-size: 8px; border: 0; border-radius: var(--nabd-radius-pill); overflow: hidden; background: var(--nabd-color-track-rest); }
+.progressBar::-webkit-progress-bar { background: var(--nabd-color-track-rest); }
+.progressBar::-webkit-progress-value { background: var(--nabd-color-track-filled); border-radius: var(--nabd-radius-pill); }
+.progressBar::-moz-progress-bar { background: var(--nabd-color-track-filled); border-radius: var(--nabd-radius-pill); }
+.status { margin: 0; font-size: var(--nabd-font-size-control); color: var(--nabd-color-text-secondary); }
+.error {
+  margin: 0; padding: 12px 14px; border-radius: var(--nabd-radius-xl); font-size: var(--nabd-font-size-control); overflow-wrap: anywhere;
+  background: var(--nabd-color-status-danger-bg); color: var(--nabd-color-status-danger-fg);
+}
+.errorActions { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-block-start: 6px; }
+
+/* ---- the page's bottom bar on phones (the shell's sticky footer) and the same actions inline from 1024 ---- */
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-inline: var(--nabd-shell-gutter, 16px); padding-block: var(--nabd-space-2xs); }
+.bar > :global(.nabd-button), .bar > .linkButton { flex: 1 1 auto; min-inline-size: 0; }
+.barTotal { display: flex; flex-direction: column; min-inline-size: 0; margin-inline-end: auto; }
+.barLabel { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); }
+.barAmount { font-size: var(--nabd-font-size-h4); font-weight: 700; white-space: nowrap; }
+.deskActions { display: none; }
+.linkButton { text-decoration: none; }
+.linkButton:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.actionsStack { display: flex; flex-direction: column; gap: 8px; }
+
+/* ---- the states ---- */
+.state { inline-size: 100%; max-inline-size: 440px; margin-inline: auto; display: grid; gap: 12px; padding-block: var(--nabd-space-md); }
+
+/* ---- barcode lookup ---- */
+.lookup { display: flex; gap: 8px; align-items: flex-end; }
+.lookup > :first-child { flex: 1; min-inline-size: 0; }
+.result { display: flex; flex-direction: column; gap: 12px; }
+.resultHead { display: flex; align-items: center; gap: 12px; min-inline-size: 0; }
+.price { font-size: var(--nabd-font-size-h4); font-weight: 700; }
+.chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+/* ---- the pharmacist chat (no board: the current layout, a conversation list and a message box) ---- */
+.threadTabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.messages { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.message { display: flex; flex-direction: column; gap: 4px; max-inline-size: 86%; min-inline-size: 0; }
+.messageMine { align-self: flex-end; align-items: flex-end; }
+.messageTheirs { align-self: flex-start; align-items: flex-start; }
+.bubble { margin: 0; padding: 10px 14px; border-radius: var(--nabd-radius-2xl); font-size: var(--nabd-font-size-body); line-height: 1.6; overflow-wrap: anywhere; white-space: pre-line; }
+.bubbleMine { background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); }
+.bubbleTheirs { background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); color: var(--nabd-color-text-primary); }
+.messageMeta { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-secondary); }
+.offer { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: var(--nabd-radius-2xl); background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-subtle); }
+.offerTitle { margin: 0; font-size: var(--nabd-font-size-row); font-weight: 700; overflow-wrap: anywhere; }
+.offerActions { display: flex; flex-direction: column; gap: 8px; }
+.composer { display: flex; flex-direction: column; gap: 8px; }
+
+@media (min-width: 768px) {
+  .head { display: flex; }
+  .drop { min-block-size: 280px; }
+}
+
+@media (min-width: 1024px) {
+  .deskActions { display: flex; flex-direction: column; gap: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progressBar { transition: none; }
+}

@@ -49,3 +49,64 @@ export function extractPrescriptionSummaries(payload: unknown) {
     return prescription ? [prescription] : [];
   });
 }
+
+export type PrescriptionDetailItem = { name: string; dose?: string; everyHours?: number; timesPerDay?: number; durationDays?: number };
+export type PrescriptionDetail = { id: string; state?: string; issuedAt?: string; doctorName?: string; doctorSpecialty?: string; items: PrescriptionDetailItem[] };
+
+function positive(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) && value > 0 ? value : undefined;
+}
+
+function plainText(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+/**
+ * GET /prescriptions/:id answers the patient's own bounded view (backend prescriptions.service.ts toPatientWebDto):
+ * `{ id, status, items: [{ name, dose, frequency: { every_hours } | { times_per_day }, duration }], issued_at,
+ * doctor: { display_name, specialty } }`. Nothing else is read: the diagnosis, the notes and the photo are not in
+ * that view, and a field the API did not send is not drawn.
+ */
+export function extractPrescriptionDetail(payload: unknown): PrescriptionDetail | null {
+  const root = asRecord(payload);
+  const record = asRecord(root?.data) ?? root;
+  const id = prescriptionIdSchema.safeParse(record?.id);
+  if (!id.success || !record) return null;
+  const items = (Array.isArray(record.items) ? record.items : []).flatMap((value): PrescriptionDetailItem[] => {
+    const item = asRecord(value);
+    const name = plainText(item?.name);
+    if (!item || !name) return [];
+    const frequency = asRecord(item.frequency);
+    return [{ name, dose: plainText(item.dose), everyHours: positive(frequency?.every_hours), timesPerDay: positive(frequency?.times_per_day), durationDays: positive(item.duration) }];
+  });
+  const doctor = asRecord(record.doctor);
+  return {
+    id: id.data,
+    state: plainText(record.status) ?? plainText(record.state),
+    issuedAt: plainText(record.issued_at),
+    doctorName: plainText(doctor?.display_name),
+    doctorSpecialty: plainText(doctor?.specialty),
+    items,
+  };
+}
+
+/** The message key (namespace Prescriptions) of each state the backend has; a raw state enum never reaches the screen. */
+const STATE_KEYS: Record<string, string> = {
+  CREATED_BY_DOCTOR: "stateCreatedByDoctor",
+  UPLOADED_BY_PATIENT: "stateUploadedByPatient",
+  SENT_TO_PHARMACY: "stateSentToPharmacy",
+  PARTIALLY_EDITED: "statePartiallyEdited",
+  VERIFIED_BY_PHARMACIST: "stateVerifiedByPharmacist",
+  APPROVED: "stateApproved",
+  DISPENSED: "stateDispensed",
+  ARCHIVED: "stateArchived",
+};
+
+export function prescriptionStateKey(state: string | undefined): string {
+  return (state && STATE_KEYS[state]) || "stateUnavailable";
+}
+
+/** The states in which a prescription can still be ordered from (backend activeForPatient: not dispensed, not archived). */
+export function isOrderablePrescriptionState(state: string | undefined): boolean {
+  return state !== "DISPENSED" && state !== "ARCHIVED";
+}

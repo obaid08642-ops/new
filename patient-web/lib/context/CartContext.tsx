@@ -24,6 +24,8 @@ interface CartContextType {
   itemCount: number;
   subtotal: number;
   hasRxItems: boolean;
+  /** False until the items saved in this browser have been read: a screen shows its empty state only when this is true. */
+  ready: boolean;
 }
 
 const defaultCartContext: CartContextType = {
@@ -35,11 +37,31 @@ const defaultCartContext: CartContextType = {
   itemCount: 0,
   subtotal: 0,
   hasRxItems: false,
+  ready: true,
 };
 
 const CartContext = createContext<CartContextType>(defaultCartContext);
 
 const STORAGE_KEY = "nabd_patient_cart_v1";
+
+/** What this browser stored, kept only when it is a usable line: a corrupt or hand-edited entry must not break the cart screen. */
+export function sanitizeCartItems(value: unknown): CartItem[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((entry): CartItem[] => {
+    if (!entry || typeof entry !== "object") return [];
+    const line = entry as Record<string, unknown>;
+    const text = (v: unknown) => (typeof v === "string" && v.trim() ? v : null);
+    const id = text(line.id);
+    const name = text(line.name);
+    const price = typeof line.price === "number" && Number.isFinite(line.price) && line.price >= 0 ? line.price : null;
+    const qty = typeof line.qty === "number" && Number.isInteger(line.qty) && line.qty >= 1 ? Math.min(line.qty, 99) : null;
+    if (!id || !name || price === null || qty === null) return [];
+    return [{
+      id, name, price, qty, rx: line.rx === true,
+      image: text(line.image), activeIngredient: text(line.activeIngredient), form: text(line.form), strength: text(line.strength), slug: text(line.slug),
+    }];
+  });
+}
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -49,8 +71,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) setItems(parsed);
+        setItems(sanitizeCartItems(JSON.parse(raw)));
       }
     } catch {
       // ignore localStorage errors
@@ -103,7 +124,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQty, clearCart, itemCount, subtotal, hasRxItems }}
+      value={{ items, addItem, removeItem, updateQty, clearCart, itemCount, subtotal, hasRxItems, ready: hydrated }}
     >
       {children}
     </CartContext.Provider>
