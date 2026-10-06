@@ -151,7 +151,7 @@ export function CartScreen({ locale, signedIn, account, accountFailed }: { local
             <p className={cs.headNote}>{t("deviceNote")}</p>
             {/* the board's cart header button: the filled trash glyph in the design system's 44 px outlined circle */}
             <button type="button" className="nabd-icon-button nabd-icon-button--md nabd-icon-button--outlined nabd-icon-button--circle nabd-icon-button--tone-neutral" aria-label={t("emptyCart")} onClick={() => setConfirming(true)}>
-              <svg width={20} height={20} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true"><path d={FILL_ICON_PATHS.trash} fill="currentColor" /></svg>
+              <svg width={20} height={20} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true"><path d={FILL_ICON_PATHS["trash"]} fill="currentColor" /></svg>
             </button>
           </div>
 
