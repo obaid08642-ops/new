@@ -1,6 +1,6 @@
 # Screen merge map (owner decisions 5, 6, 7 and the mental-health part of 8), 2026-10-06
 
-**Status: PROPOSAL for owner approval. Nothing is merged, deleted or redirected until the owner approves this map.** Issues #324 (health + family), #325 (settings), #326 (AI assistant). Source of the route list: `docs/design/inventory/screens.json` (one row per route; endpoints from the same file). The proposals below come from route names, templates and the endpoints each route calls; where that was not enough to be sure, the row says **confirm**. I did not read every screen file for this map.
+**Status: APPROVED (2026-10-06).** The owner delegated the decision to the lead reviewer ("see what is right and do it"), and the reviewer approved the map with the answers in §7. Implement it in the batches that own the screens. Issues #324 (health + family), #325 (settings), #326 (AI assistant). Source of the route list: `docs/design/inventory/screens.json` (one row per route; endpoints from the same file). The proposals below come from route names, templates and the endpoints each route calls; where that was not enough to be sure, the row says **confirm**. I did not read every screen file for this map.
 
 **Rules of the map**
 - One screen per user task. Old routes become redirects to the new screen (web: `redirect()` / `next.config` redirect; app: `<Redirect>`), keeping query params; deep links and notification targets keep working.
@@ -83,9 +83,18 @@ Decision 3 (family calls not built): any call/video entry in family screens is r
 ## 6. What this map does NOT touch
 Pharmacy templates: the "Rx required" badge, the "online only" badge and the "استشر طبيب" cart button (decisions 10 and 11) go into the pharmacy templates when the reviewer's backend part lands. Doctor profile (17) and "order the prescription's medicines" (18) are done in Batch 2 / Batch 5 screens when their backend parts land.
 
-## 7. Questions for the owner
-1. Approve the health, family, settings and AI maps above (or mark rows to change)? Batch 5 and Batch 6 slices wait for this.
-2. Family emergency contacts vs the user's emergency contacts: one list or two (row E)?
-3. `/health/actionable-order`: what is it for (row "Medications")?
-4. Breathing and meditation: two screens (as today) or one with tabs?
-5. `/ai/chat-doctor` on web: confirm it is an AI-assistant entry, not the human doctor chat.
+## 7. Answers (reviewer, delegated by the owner, 2026-10-06)
+
+1. **The map:** approved as written, with answers 2–5 below.
+2. **Emergency contacts (row E):** these are two different lists.
+   - `/family/emergency-contacts` returns the user's family-group members (app users, read-only).
+   - `/health/emergency-contacts` holds the contacts the user adds by hand (any phone, editable).
+   - Show both on **one** "Emergency contacts" screen inside Medical profile, in two sections: "My contacts" (editable) and "My family on Nabd+" (read-only).
+   - The emergency button's "send my location to my family" (decision 14) goes to both.
+   - `/family/emergency-contacts` redirects there.
+3. **`/health/actionable-order`:** a web page that renders a consultation's medicines, labs and radiology from a URL payload. Nothing links to it.
+   - It is removed as a screen and becomes the decision-18 action "اطلب الأدوية دي" on the prescription and consultation result. Labs and radiology from the same outcome get "book" actions there.
+   - The route redirects to `/health/records?tab=prescriptions`.
+   - Health data must not be carried in a URL query.
+4. **Breathing and meditation:** one "Relax" screen with two tabs (the owner wants fewer screens).
+5. **Web `/ai/chat-doctor`:** it reads `/chat/threads`, the human doctor chat, so it is not an AI entry. It redirects to `/chat` and is **not** merged into the assistant.
