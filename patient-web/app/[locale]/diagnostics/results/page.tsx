@@ -1,67 +1,86 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { FlaskConical } from "lucide-react";
+import { extractDiagnosticBookings } from "@/lib/api/diagnostics";
+import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { callPatientApi } from "@/lib/api/upstream";
-import { VectorLabs } from "@/components-next/vector-illustrations";
-import styles from "../diagnostics.module.css";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { RowCard } from "@/components-next/consult/consult-parts";
+import { LAB, RADIOLOGY } from "@/components-next/diagnostics/diag-parts";
+import { diagStatus } from "@/components-next/diagnostics/status";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
+import consult from "@/components-next/consult/consult.module.css";
+import styles from "@/components-next/diagnostics/diag.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
 
+function rowsOf(payload: unknown): unknown[] {
+  if (Array.isArray(payload)) return payload;
+  const data = (payload as { data?: unknown } | null)?.data;
+  return Array.isArray(data) ? data : [];
+}
+
+/** The patient's results (canvas/ServiceHub "نتائجي"): the lab bookings, with the ones whose report is ready first, and the radiology reports, each as the server sent it. */
 export default async function DiagnosticsResultsPage({ params }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  const t = await getTranslations("Diagnostics");
+  const t = await getTranslations("DiagWeb");
+  const d = await getTranslations("Diagnostics");
   const token = await requirePatientAccess(locale);
-  const [labsRes, radioRes] = await Promise.all([
-    callPatientApi("/labs/bookings/mine", {}, token),
-    callPatientApi("/radiology/reports/mine", {}, token),
-  ]);
+  const [labsRes, radioRes] = await Promise.all([callPatientApi("/labs/bookings/mine", {}, token), callPatientApi("/radiology/reports/mine", {}, token)]);
   if (labsRes.status === 401 || radioRes.status === 401) redirect(`/${locale}/login`);
-  const labs = labsRes.ok ? await labsRes.json().catch(() => null) : null;
-  const radio = radioRes.ok ? await radioRes.json().catch(() => null) : null;
-  const labList = Array.isArray(labs) ? labs : (labs as { data?: unknown })?.data;
-  const radioList = Array.isArray(radio) ? radio : (radio as { data?: unknown })?.data;
+  const backHref = `/${locale}/diagnostics`;
+  if (!labsRes.ok && !radioRes.ok) {
+    return (
+      <ConsultPage locale={locale} title={t("resultsTitle")} backHref={backHref}>
+        <ConsultState kind="error" title={t("resultsErrorTitle")} body={d("unavailable")} retryLabel={t("retry")} actionLabel={t("backToHub")} actionHref={backHref} />
+      </ConsultPage>
+    );
+  }
+  const labs = labsRes.ok ? extractDiagnosticBookings(await labsRes.json().catch(() => null)) : [];
+  const reports = radioRes.ok ? rowsOf(await radioRes.json().catch(() => null)) : [];
+  const ordered = [...labs.filter((b) => b.hasReport), ...labs.filter((b) => !b.hasReport)];
+  const caret = <Icon name={locale === "ar" || locale === "ur" ? "caret-left" : "caret-right"} size={20} tone="currentColor" />;
 
   return (
-    <main className={`main ${styles.page}`}>
-      <Link href={`/${locale}/diagnostics`} style={{ color: "#1E332E", fontWeight: 760, textDecoration: "none", overflowWrap: "anywhere" as any }}>{t("back")}</Link>
-      <section className={styles.intro}>
-        <div className={styles.introText}>
-          <p className={styles.eyebrow}><FlaskConical size={15} aria-hidden="true" />{t("eyebrow")}</p>
-          <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{locale === "ar" ? "نتائجي وتقاريري" : "My results & reports"}</h1>
-          <p style={{ overflowWrap: "anywhere" }}>{locale === "ar" ? "نتائج المختبر وتقارير الأشعة الخاصة بك." : "Your lab results and radiology reports."}</p>
-        </div>
-        <span className={styles.introIcon} aria-hidden="true"><VectorLabs size={48} aria-hidden="true" /></span>
-      </section>
-      <section className={styles.domain} style={{ display: "grid", gap: 16 }}>
-        <h2 style={{ margin: 0, color: "#1E332E", fontSize: "1.05rem", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{locale === "ar" ? "حجوزات المختبر" : "Lab bookings"}</h2>
-        {Array.isArray(labList) && labList.length > 0 ? (
-          <div style={{ display: "grid", gap: 16 }}>
-            {labList.map((b: unknown, i: number) => {
-              const r = b as Record<string, unknown>;
-              const id = String(r.id ?? r.bookingId ?? r._id ?? i);
-              const label = String(r.service_name ?? r.name ?? id);
-              return <Link key={id} href={`/${locale}/diagnostics/labs/${encodeURIComponent(id)}`} style={{ display: "flex", alignItems: "center", gap: 16, padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", fontWeight: 700, textDecoration: "none", overflowWrap: "anywhere", boxShadow: "0 8px 24px rgba(30,51,46,.07)" }}><span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{label}</span></Link>;
+    <ConsultPage locale={locale} title={t("resultsTitle")} backHref={backHref}>
+      <section className={styles.stack} aria-labelledby="results-labs">
+        <h2 id="results-labs" className={styles.sectionTitle}>{t("resultsLabs")}</h2>
+        {ordered.length === 0 ? (
+          <ConsultState kind="empty" icon="test-tube" tone={LAB.tone} title={t("resultsLabsEmptyTitle")} body={t("resultsLabsEmptyBody")} />
+        ) : (
+          <ul className={consult.list}>
+            {ordered.map((b) => {
+              const status = diagStatus(b.state);
+              return (
+                <li key={b.id}>
+                  <RowCard href={`/${locale}/diagnostics/labs/${encodeURIComponent(b.id)}`} icon={LAB.icon} tone={LAB.tone} title={d("labs.label")} sub={b.hasReport ? d("reportReady") : status.key === "unknown" ? d("statusUnavailable") : t(`status_${status.key}`)} caret={caret} />
+                </li>
+              );
             })}
-          </div>
-        ) : <p className={styles.empty} style={{ overflowWrap: "anywhere" }}>{t("unavailable")}</p>}
+          </ul>
+        )}
       </section>
-      <section className={styles.domain} style={{ display: "grid", gap: 16 }}>
-        <h2 style={{ margin: 0, color: "#1E332E", fontSize: "1.05rem", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{locale === "ar" ? "تقارير الأشعة" : "Radiology reports"}</h2>
-        {Array.isArray(radioList) && radioList.length > 0 ? (
-          <div style={{ display: "grid", gap: 16 }}>
-            {radioList.map((b: unknown, i: number) => {
-              const r = b as Record<string, unknown>;
-              const label = String(r.title ?? r.service_name ?? r.id ?? i);
-              return <div key={String(r.id ?? i)} style={{ padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", color: "#1E332E", fontWeight: 700, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any, boxShadow: "0 8px 24px rgba(30,51,46,.07)" }}>{label}</div>;
+      <section className={styles.stack} aria-labelledby="results-radiology">
+        <h2 id="results-radiology" className={styles.sectionTitle}>{t("resultsRadiology")}</h2>
+        {reports.length === 0 ? (
+          <ConsultState kind="empty" icon="scan" tone={RADIOLOGY.tone} title={t("resultsRadiologyEmptyTitle")} body={t("resultsRadiologyEmptyBody")} />
+        ) : (
+          <ul className={consult.list}>
+            {reports.map((item, i) => {
+              const r = (item && typeof item === "object" ? item : {}) as Record<string, unknown>;
+              const title = [r.title, r.service_name].find((v): v is string => typeof v === "string" && v.trim().length > 0);
+              return (
+                <li key={typeof r.id === "string" ? r.id : i}>
+                  <RowCard icon={RADIOLOGY.icon} tone={RADIOLOGY.tone} title={title ?? t("radiologyReport")} />
+                </li>
+              );
             })}
-          </div>
-        ) : <p className={styles.empty} style={{ overflowWrap: "anywhere" }}>{t("unavailable")}</p>}
+          </ul>
+        )}
       </section>
-    </main>
+    </ConsultPage>
   );
 }

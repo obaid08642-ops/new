@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { LAB } from "@/components-next/diagnostics/diag-parts";
+import { formatPrice } from "@/lib/format-price";
+import consult from "@/components-next/consult/consult.module.css";
+import rx from "@/components-next/pharmacy/rx.module.css";
+import styles from "@/components-next/diagnostics/diag.module.css";
 
 export type DiagCartItem = { id: string; name: string; price?: number };
 
@@ -18,14 +26,16 @@ function readCart(): DiagCartItem[] {
   }
 }
 
+/** The diagnostics cart (canvas/Cart): the tests of this browser, the way to take the sample, the lab that can run all of them, and the way on to the checkout. The cart is local to this browser; the page only restyles it. */
 export function DiagnosticsCartClient({ locale }: { locale: string }) {
+  const t = useTranslations("DiagWeb");
   const router = useRouter();
   const searchParams = useSearchParams();
   const [items, setItems] = useState<DiagCartItem[]>([]);
   const [location, setLocation] = useState<"home" | "facility">("home");
   const [labId, setLabId] = useState("");
   const [labs, setLabs] = useState<Array<{ id: string; name: string }>>([]);
-  const ar = locale === "ar";
+  const [labsLoaded, setLabsLoaded] = useState(false);
 
   useEffect(() => {
     const addId = searchParams.get("add");
@@ -45,8 +55,10 @@ export function DiagnosticsCartClient({ locale }: { locale: string }) {
   useEffect(() => {
     if (!items.length) {
       setLabs([]);
+      setLabsLoaded(false);
       return;
     }
+    setLabsLoaded(false);
     const ids = items.map((i) => encodeURIComponent(i.id)).join(",");
     fetch(`/api/diagnostics/compatible-labs?testIds=${ids}`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
@@ -60,8 +72,12 @@ export function DiagnosticsCartClient({ locale }: { locale: string }) {
         }).filter((l): l is { id: string; name: string } => l !== null);
         setLabs(mapped);
         if (mapped.length === 1) setLabId(mapped[0].id);
+        setLabsLoaded(true);
       })
-      .catch(() => setLabs([]));
+      .catch(() => {
+        setLabs([]);
+        setLabsLoaded(true);
+      });
   }, [items]);
 
   function remove(id: string) {
@@ -79,13 +95,13 @@ export function DiagnosticsCartClient({ locale }: { locale: string }) {
     } catch {}
   }
 
+  const priced = items.filter((i) => i.price !== undefined);
   const total = items.reduce((s, i) => s + (i.price || 0), 0);
 
   if (!items.length) {
     return (
-      <div>
-        <p>{ar ? "السلة فارغة — أضف تحاليل قبل الحجز." : "Cart is empty — add tests before booking."}</p>
-        <Link href={`/${locale}/diagnostics/labs`}>{ar ? "تصفح التحاليل" : "Browse tests"}</Link>
+      <div className={rx.state}>
+        <ConsultState kind="empty" icon="test-tube" tone={LAB.tone} title={t("cartEmptyTitle")} body={t("cartEmptyBody")} actionLabel={t("browseTests")} actionHref={`/${locale}/diagnostics/labs`} />
       </div>
     );
   }
@@ -95,40 +111,61 @@ export function DiagnosticsCartClient({ locale }: { locale: string }) {
     `&location=${location}${labId ? `&labId=${encodeURIComponent(labId)}` : ""}`;
 
   return (
-    <div style={{ display: "grid", gap: 12 }}>
-      <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: 8 }}>
-        {items.map((i) => (
-          <li key={i.id} style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-            <span>{i.name}{i.price !== undefined ? ` — ${i.price}` : ""}</span>
-            <button type="button" onClick={() => remove(i.id)}>{ar ? "إزالة" : "Remove"}</button>
-          </li>
-        ))}
-      </ul>
-      <p><strong>{ar ? "الإجمالي التقريبي:" : "Estimated total:"} {total}</strong></p>
-      <div style={{ display: "flex", gap: 8 }}>
-        {(["home", "facility"] as const).map((loc) => (
-          <button key={loc} type="button" onClick={() => setLocation(loc)} style={{ fontWeight: location === loc ? 800 : 400 }}>
-            {loc === "home" ? (ar ? "سحب منزلي" : "Home collection") : (ar ? "في المختبر" : "At lab")}
-          </button>
-        ))}
-      </div>
-      {labs.length > 0 ? (
-        <label style={{ display: "grid", gap: 6 }}>
-          <span>{ar ? "المختبر" : "Lab"}</span>
-          <select value={labId} onChange={(e) => setLabId(e.target.value)}>
-            <option value="">{ar ? "اختر المختبر" : "Select lab"}</option>
-            {labs.map((l) => (
-              <option key={l.id} value={l.id}>{l.name}</option>
+    <>
+      <section className={rx.card} aria-label={t("cartItems")}>
+        <ul className={styles.cartLines}>
+          {items.map((i) => (
+            <li key={i.id}>
+              <span className={styles.lineText}>
+                <span className={consult.rowTitle}>{i.name}</span>
+                {i.price !== undefined ? <span className={consult.rowSub}><bdi>{formatPrice(locale, i.price).text}</bdi></span> : null}
+              </span>
+              <button type="button" className={styles.removeBtn} onClick={() => remove(i.id)} aria-label={t("removeItem", { name: i.name })}>{t("remove")}</button>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className={rx.card} aria-label={t("cartTake")}>
+        <fieldset className={consult.fieldset}>
+          <legend className={consult.legend}>{t("cartTake")}</legend>
+          <div className={consult.choices}>
+            {(["home", "facility"] as const).map((loc) => (
+              <button key={loc} type="button" className={consult.choice} aria-pressed={location === loc} onClick={() => setLocation(loc)}>
+                {loc === "home" ? t("placeHomeLab") : t("placeLab")}
+              </button>
             ))}
-          </select>
-        </label>
-      ) : (
-        <p>{ar ? "جارٍ تحميل المختبرات المتوافقة..." : "Loading compatible labs..."}</p>
-      )}
-      <div style={{ display: "flex", gap: 8 }}>
-        <button type="button" onClick={clear}>{ar ? "إفراغ السلة" : "Clear cart"}</button>
-        <Link href={checkoutHref}>{ar ? "متابعة للدفع والحجز" : "Continue to checkout"}</Link>
+          </div>
+        </fieldset>
+        {labs.length > 0 ? (
+          <label className={consult.field}>
+            <span className={consult.label}>{t("cartLab")}</span>
+            <select className={consult.control} value={labId} onChange={(e) => setLabId(e.target.value)}>
+              <option value="">{t("cartChooseLab")}</option>
+              {labs.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
+            </select>
+          </label>
+        ) : labsLoaded ? (
+          <p className={consult.notice} role="status">{t("cartNoLabs")}</p>
+        ) : (
+          <p className={styles.flowNote} role="status">{t("cartLoadingLabs")}</p>
+        )}
+      </section>
+
+      {priced.length > 0 ? (
+        <section className={rx.card} aria-label={t("cartSummary")}>
+          <div className={styles.totalLine}>
+            <span>{t("cartTotal")}</span>
+            <span><bdi>{formatPrice(locale, total).text}</bdi></span>
+          </div>
+          <p className={styles.flowNote}>{t("cartTotalNote")}</p>
+        </section>
+      ) : null}
+
+      <div className={consult.actions}>
+        {labId ? <ButtonLink href={checkoutHref} label={t("cartContinue")} /> : <Button label={t("cartContinue")} size="lg" disabled />}
+        <Button label={t("cartClear")} variant="outline" size="lg" onClick={clear} />
       </div>
-    </div>
+    </>
   );
 }
