@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards, Res } from '@nestjs/common';
 import { OrdersService } from './orders.service';
+import { ReorderEligibilityService } from './reorder-eligibility.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { OrderState, UserRole, DeliveryState } from '../../common/enums';
@@ -10,7 +11,7 @@ import { ReorderPartialDto, CancelDto, RejectBasketDto, OptInCashDto, UpdateInsu
 @SelfService()
 @UseGuards(JwtAuthGuard)
 export class OrdersController {
-  constructor(private svc: OrdersService) {}
+  constructor(private svc: OrdersService, private eligibility: ReorderEligibilityService) {}
 
   // Patient only — providers use the read-only Drug Index and can never order
   @Post('create')
@@ -76,6 +77,12 @@ export class OrdersController {
   @Get(':id/tracking')
   getTracking(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.getTracking(id, user);
+  }
+
+  /** P22.1 — what "order again" would get wrong: Rx validity + stock flags. */
+  @Get(':id/reorder-eligibility')
+  reorderEligibility(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.eligibility.forOrder(id, user.id);
   }
 
   @Patch(':id/items/:itemId/opt-in-cash')

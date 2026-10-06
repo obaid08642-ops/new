@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
 import { DispatchService } from './dispatch.service';
+import { ReorderEligibilityService } from './reorder-eligibility.service';
 import { Order, OrderSchema, PharmacyBid, PharmacyBidSchema } from '../../schemas/order.schema';
 import { Medicine, MedicineSchema } from '../../schemas/medicine.schema';
 import { Delivery, DeliverySchema } from '../../schemas/delivery.schema';
@@ -31,7 +32,7 @@ import { ProviderProfileRepository } from "./repositories/providerprofile.reposi
     ]),
   ],
   controllers: [OrdersController],
-  providers: [OrdersService, DispatchService, { provide: 'DeliveryRepository', useClass: DeliveryRepository }, { provide: 'MedicineRepository', useClass: MedicineRepository }, { provide: 'OrderRepository', useClass: OrderRepository }, { provide: 'PharmacyBidRepository', useClass: PharmacyBidRepository }, { provide: 'PharmacyInventoryRepository', useClass: PharmacyInventoryRepository }, { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository }],
-  exports: [OrdersService, DispatchService],
+  providers: [OrdersService, DispatchService, ReorderEligibilityService, { provide: 'DeliveryRepository', useClass: DeliveryRepository }, { provide: 'MedicineRepository', useClass: MedicineRepository }, { provide: 'OrderRepository', useClass: OrderRepository }, { provide: 'PharmacyBidRepository', useClass: PharmacyBidRepository }, { provide: 'PharmacyInventoryRepository', useClass: PharmacyInventoryRepository }, { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository }],
+  exports: [OrdersService, DispatchService, ReorderEligibilityService],
 })
 export class OrdersModule {}

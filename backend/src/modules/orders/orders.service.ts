@@ -12,6 +12,7 @@ import { Delivery, DeliveryDocument } from '../../schemas/delivery.schema';
 import { OrderState, ORDER_TRANSITIONS, UserRole, DeliveryState } from '../../common/enums';
 import { EVENTS } from '../../common/events';
 import { DispatchService } from './dispatch.service';
+import { ReorderEligibilityService } from './reorder-eligibility.service';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { OrderRepository } from "./repositories/order.repository";
 import { MedicineRepository } from "./repositories/medicine.repository";
@@ -38,6 +39,7 @@ export class OrdersService {
     private readonly refundExec: RefundExecutor,
     private readonly cancelPolicy: CancellationPolicy,
     @Optional() private readonly rankingEvents?: ProductRankingEventService,
+    @Optional() private readonly reorderEligibility?: ReorderEligibilityService,
   ) {}
 
   /** Legacy /orders mutations must never operate on a pharmacy order. */
@@ -619,7 +621,23 @@ export class OrdersService {
     // opening a fresh patient draft with the previous order's items.
     const governed: any = await this.conn.collection('pharmacy_orders').findOne({ id: orderId, patient_account_id: patient.id } as any);
     if (!governed) throw new NotFoundException();
-    return this.createGovernedDraftFromPrevious(governed);
+    const draft = await this.createGovernedDraftFromPrevious(governed);
+    return this.withReorderEligibility(draft, orderId, patient.id);
+  }
+
+  /**
+   * P22.1 — attach the Rx/stock eligibility of the SOURCE order to a reorder
+   * draft (response-only, never persisted). A failed lookup must not fail the
+   * reorder itself: the draft is already stored at this point.
+   */
+  private async withReorderEligibility(draft: any, sourceOrderId: string, patientId: string) {
+    if (!this.reorderEligibility) return draft;
+    try {
+      draft.reorder_eligibility = await this.reorderEligibility.forOrder(sourceOrderId, patientId);
+    } catch {
+      draft.reorder_eligibility = null;
+    }
+    return draft;
   }
 
   /**
@@ -696,7 +714,7 @@ export class OrdersService {
     const governed: any = await this.conn.collection('pharmacy_orders').findOne({ id: orderId, patient_account_id: patient.id } as any);
     if (!governed) throw new NotFoundException();
     if (!Array.isArray(body.items) || body.items.length === 0) throw new BadRequestException('items_required');
-    return this.createGovernedDraftFromPrevious(governed, {
+    const draft = await this.createGovernedDraftFromPrevious(governed, {
       items: body.items.map((it: any) => ({
         raw_name: it.raw_name || it.name || it.name_ar || it.name_en,
         name_ar: it.name_ar,
@@ -715,6 +733,7 @@ export class OrdersService {
       delivery_address: body.delivery_address || governed.delivery_address,
       patient_notes: body.notes ?? governed.patient_notes,
     });
+    return this.withReorderEligibility(draft, orderId, patient.id);
   }
 
   // ============ Basket Review (patient side) ============
