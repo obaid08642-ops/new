@@ -84,6 +84,8 @@ Found while writing the Q-3 spec (review 2026-10-06):
 |---|---|---|---|
 | Q-21 | M | A paid pharmacy order never reaches a confirmed governed state. Card: after payment `governed_state` stays `FINAL_QUOTE_ACCEPTED` (`PAYMENT_PENDING` is never produced) and `status` stays `cash_card_payment_pending`. Insurance co-pay: after the co-pay is paid `status` stays `waiting_copay`. Only `payment_status` changes (`payments.module.ts` `finalizeGovernedPharmacyPaid`). The apps work around it with `payment_status`. | Wait for the acceptance spec `backend/acceptance/q-21/` (after Q-3). |
 
+| Q-22 | M | `GET /nursing/nurses/:id` (`home-care/nurse-profile.controller.ts`) needs a token, so the public nurse page shows "unavailable" to visitors (design Batch 4). It also returns the **whole** `nurses` document (`const { _id, ...out } = doc`) to any signed-in user, which can hold a phone, address or identity data and breaks the N7 rule (individual providers' public views hold no phone, address or internal id). | The endpoint is public and returns only an explicit allow-list of public fields (name, photo, specialties, languages, rating, verified, SCFHS licence; decision 17). Never the national ID, phone, email or address. Tests: anonymous 200 with only those keys, and an unknown id 404. |
+
 Closed, do not do:
 - **Barcode `$regex`:** already escaped on `main`.
 - **Pharmacy expiry scheduler:** exists (`pharmacy-expiry.scheduler.ts`, every 15 s).
