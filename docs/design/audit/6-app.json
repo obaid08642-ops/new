@@ -441,61 +441,81 @@
       "route": "/family/member-health",
       "element": "Book on their behalf",
       "kind": "owner",
-      "note": "Opens the consultations tab without the member: booking for a member is not wired (the booking flow takes no member); the permission 'booking' exists but nothing uses it."
+      "note": "Opens the consultations tab without the member: booking for a member is not wired (the booking flow takes no member); the permission 'booking' exists but nothing uses it.",
+      "file": "patient-app/src/components/family/FamilyMemberView.tsx",
+      "line": 101
     },
     {
       "route": "/family",
       "element": "Board 'Permissions' row and 'full / managed / view' chips",
       "kind": "owner",
-      "note": "The board draws a permission level per member and a group permissions row; the backend has only a flat list of 9 permissions per member, so the count is shown and the row is left out."
+      "note": "The board draws a permission level per member and a group permissions row; the backend has only a flat list of 9 permissions per member, so the count is shown and the row is left out.",
+      "file": "patient-app/src/components/family/FamilyHubView.tsx",
+      "line": 175
     },
     {
       "route": "/family/add",
       "element": "Copy invite",
       "kind": "client",
-      "note": "The old copy button never copied (no clipboard module); removed, share remains. Add expo-clipboard if a copy button is wanted."
+      "note": "The old copy button never copied (no clipboard module); removed, share remains. Add expo-clipboard if a copy button is wanted.",
+      "file": "patient-app/src/components/family/FamilyAddView.tsx",
+      "line": 109
     },
     {
       "route": "/family/add",
       "element": "Join relation",
       "kind": "backend",
-      "note": "relation and display_name are stored as Arabic free text ('الزوجة'); a code list would let each client localize it."
+      "note": "relation and display_name are stored as Arabic free text ('الزوجة'); a code list would let each client localize it.",
+      "file": "patient-app/src/components/family/FamilyAddView.tsx",
+      "line": 154
     },
     {
       "route": "/family/calendar",
       "element": "Date field",
       "kind": "client",
-      "note": "Event date is typed as ISO text; a date and time picker in the shared kit would replace it (feature, not done here)."
+      "note": "Event date is typed as ISO text; a date and time picker in the shared kit would replace it (feature, not done here).",
+      "file": "patient-app/src/components/family/FamilyCalendarView.tsx",
+      "line": 137
     },
     {
       "route": "/profile",
       "element": "Family row",
       "kind": "client",
-      "note": "app/profile/index.tsx still links /health/family-hub (works through the redirect); the file has 12 literal strings and belongs to the settings batch."
+      "note": "app/profile/index.tsx still links /health/family-hub (works through the redirect); the file has 12 literal strings and belongs to the settings batch.",
+      "file": "patient-app/app/profile/index.tsx",
+      "line": 25
     },
     {
       "route": "/family",
       "element": "Hero card background",
       "kind": "client",
-      "note": "The board draws the hero card with a peach gradient and ink buttons; the shared Card (white) and Button (primary) are used, as no gradient or ink-button token exists."
+      "note": "The board draws the hero card with a peach gradient and ink buttons; the shared Card (white) and Button (primary) are used, as no gradient or ink-button token exists.",
+      "file": "patient-app/src/components/family/FamilyHubView.tsx",
+      "line": 120
     },
     {
       "route": "/family",
       "element": "Member avatar",
       "kind": "client",
-      "note": "The board tints each initials disc per member (raw pink/blue/green); the shared Avatar (coral ring) is used, no per-member colour is invented."
+      "note": "The board tints each initials disc per member (raw pink/blue/green); the shared Avatar (coral ring) is used, no per-member colour is invented.",
+      "file": "patient-app/src/components/family/FamilyKit.tsx",
+      "line": 103
     },
     {
       "route": "/family/emergency-contacts",
       "element": "Entry from the hub",
       "kind": "owner",
-      "note": "Kept as a row (board draws it); it redirects to the medical profile Emergency tab (Batch 5)."
+      "note": "Kept as a row (board draws it); it redirects to the medical profile Emergency tab (Batch 5).",
+      "file": "patient-app/src/components/family/FamilyHubView.tsx",
+      "line": 189
     },
     {
       "route": "/family/calendar",
       "element": "Person with no family group",
       "kind": "client",
-      "note": "Runtime check: the seeded patient has no group, so GET /family/calendar answers 404 and GET /family/chat/messages 403 (not_active_family_member); both screens show the generic failure instead of 'join or create a family first'. Same as before the rebuild; the group-present screens were checked on render fixtures only."
+      "note": "Runtime check: the seeded patient has no group, so GET /family/calendar answers 404 and GET /family/chat/messages 403 (not_active_family_member); both screens show the generic failure instead of 'join or create a family first'. Same as before the rebuild; the group-present screens were checked on render fixtures only.",
+      "file": "patient-app/src/components/family/FamilyCalendarView.tsx",
+      "line": 36
     }
   ]
 }

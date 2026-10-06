@@ -1,5 +1,5 @@
 {
- "commit": "adeea53a",
+ "commit": "2d58a572",
  "routes": [
   {
    "app": "patient-app",
@@ -546,7 +546,7 @@
      "path": "/care/specialties",
      "target": "backend",
      "query": "",
-     "line": 185,
+     "line": 170,
      "file": "patient-app/app/(tabs)/consultations/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:11"
@@ -556,7 +556,7 @@
      "path": "/home/offers",
      "target": "backend",
      "query": "",
-     "line": 191,
+     "line": 176,
      "file": "patient-app/app/(tabs)/consultations/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home/home.controller.ts:10"
@@ -566,7 +566,7 @@
      "path": "/insurance/companies",
      "target": "backend",
      "query": "",
-     "line": 197,
+     "line": 182,
      "file": "patient-app/app/(tabs)/consultations/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:694"
@@ -576,7 +576,7 @@
      "path": "/insurance/companies/:param/networks",
      "target": "backend",
      "query": "",
-     "line": 214,
+     "line": 199,
      "file": "patient-app/app/(tabs)/consultations/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/insurance/insurance.module.ts:604"
@@ -610,7 +610,7 @@
      "path": "/care/appointments/:param",
      "target": "backend",
      "query": "",
-     "line": 60,
+     "line": 61,
      "file": "patient-app/app/consultations/appointment-detail.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:25"
@@ -620,13 +620,13 @@
      "path": "/insurance/requests/my",
      "target": "backend",
      "query": "",
-     "line": 88,
+     "line": 89,
      "file": "patient-app/app/consultations/appointment-detail.tsx",
      "status": "OK",
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:718"
     }
    ],
-   "files": 32,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -639,7 +639,7 @@
    "batch": 2,
    "status": "—",
    "calls": [],
-   "files": 26,
+   "files": 27,
    "unresolved": 0
   },
   {
@@ -737,7 +737,7 @@
      "path": "/care/appointments/:param",
      "target": "backend",
      "query": "",
-     "line": 65,
+     "line": 97,
      "file": "patient-app/app/consultations/booking-status.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:25"
@@ -747,7 +747,7 @@
      "path": "/care/appointments/:param/cancel",
      "target": "backend",
      "query": "",
-     "line": 95,
+     "line": 128,
      "file": "patient-app/app/consultations/booking-status.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:35"
@@ -803,7 +803,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:34"
     }
    ],
-   "files": 36,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -834,13 +834,13 @@
      "path": "/calls/history",
      "target": "backend",
      "query": "?page=:param&limit=20",
-     "line": 62,
+     "line": 64,
      "file": "patient-app/app/consultations/call-history.tsx",
      "status": "OK",
      "backend": "backend/src/modules/livekit/livekit.controller.ts:77"
     }
    ],
-   "files": 30,
+   "files": 31,
    "unresolved": 0
   },
   {
@@ -858,7 +858,7 @@
      "path": "/care/appointments/:param",
      "target": "backend",
      "query": "",
-     "line": 75,
+     "line": 77,
      "file": "patient-app/app/consultations/cancel-reschedule.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:25"
@@ -868,7 +868,7 @@
      "path": "/care/appointments/:param/cancel",
      "target": "backend",
      "query": "",
-     "line": 146,
+     "line": 160,
      "file": "patient-app/app/consultations/cancel-reschedule.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:35"
@@ -878,7 +878,7 @@
      "path": "/care/appointments/:param/reschedule",
      "target": "backend",
      "query": "",
-     "line": 152,
+     "line": 166,
      "file": "patient-app/app/consultations/cancel-reschedule.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:40"
@@ -888,13 +888,23 @@
      "path": "/care/doctors/:param/slots",
      "target": "backend",
      "query": "?date=:param&service_type=:param",
-     "line": 100,
+     "line": 106,
      "file": "patient-app/app/consultations/cancel-reschedule.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:66"
+    },
+    {
+     "method": "GET",
+     "path": "/system-config/public",
+     "target": "backend",
+     "query": "",
+     "line": 91,
+     "file": "patient-app/app/consultations/cancel-reschedule.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/governance/system-config.controller.ts:51"
     }
    ],
-   "files": 33,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -982,7 +992,7 @@
      "backend": "backend/src/modules/care/care.controller.ts:60"
     }
    ],
-   "files": 37,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -1107,7 +1117,7 @@
      "path": "/care/appointments/:param",
      "target": "backend",
      "query": "",
-     "line": 49,
+     "line": 51,
      "file": "patient-app/app/consultations/follow-up.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:25"
@@ -1117,13 +1127,13 @@
      "path": "/care/doctors/:param",
      "target": "backend",
      "query": "",
-     "line": 59,
+     "line": 61,
      "file": "patient-app/app/consultations/follow-up.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:60"
     }
    ],
-   "files": 31,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -1147,7 +1157,7 @@
      "backend": "backend/src/modules/care/appointments.controller.ts:25"
     }
    ],
-   "files": 30,
+   "files": 31,
    "unresolved": 0
   },
   {
@@ -1165,7 +1175,7 @@
      "path": "/calls/:param/reject",
      "target": "backend",
      "query": "",
-     "line": 62,
+     "line": 66,
      "file": "patient-app/app/consultations/incoming-call.tsx",
      "status": "OK",
      "backend": "backend/src/modules/livekit/livekit.controller.ts:62"
@@ -2393,13 +2403,98 @@
    "app": "patient-app",
    "route": "/family",
    "file": "patient-app/app/family/index.tsx",
-   "redirect": "/health/family-hub",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "hub",
+   "board": "Family",
    "batch": 6,
-   "status": "n/a",
-   "calls": [],
-   "files": 1,
+   "status": "—",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/family/create",
+     "target": "backend",
+     "query": "",
+     "line": 65,
+     "file": "patient-app/src/components/family/FamilyHubView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:23"
+    },
+    {
+     "method": "GET",
+     "path": "/family/members",
+     "target": "backend",
+     "query": "",
+     "line": 53,
+     "file": "patient-app/src/components/family/FamilyKit.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:84"
+    },
+    {
+     "method": "GET",
+     "path": "/family/my-group",
+     "target": "backend",
+     "query": "",
+     "line": 47,
+     "file": "patient-app/src/components/family/FamilyKit.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:28"
+    },
+    {
+     "method": "GET",
+     "path": "/family/permissions/pending",
+     "target": "backend",
+     "query": "",
+     "line": 48,
+     "file": "patient-app/src/components/family/FamilyHubView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:121"
+    },
+    {
+     "method": "PUT",
+     "path": "/family/permissions/respond/:param",
+     "target": "backend",
+     "query": "",
+     "line": 87,
+     "file": "patient-app/src/components/family/FamilyHubView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:126"
+    }
+   ],
+   "files": 34,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-app",
+   "route": "/family/add",
+   "file": "patient-app/app/family/add.tsx",
+   "redirect": null,
+   "template": "form",
+   "board": "Family",
+   "batch": 6,
+   "status": "—",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/family/invite",
+     "target": "backend",
+     "query": "",
+     "line": 63,
+     "file": "patient-app/src/components/family/FamilyAddView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:34"
+    },
+    {
+     "method": "POST",
+     "path": "/family/join",
+     "target": "backend",
+     "query": "",
+     "line": 155,
+     "file": "patient-app/src/components/family/FamilyAddView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:39"
+    }
+   ],
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -2417,8 +2512,8 @@
      "path": "/family/calendar",
      "target": "backend",
      "query": "",
-     "line": 62,
-     "file": "patient-app/app/family/calendar.tsx",
+     "line": 36,
+     "file": "patient-app/src/components/family/FamilyCalendarView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:105"
     },
@@ -2427,8 +2522,8 @@
      "path": "/family/calendar/event",
      "target": "backend",
      "query": "",
-     "line": 83,
-     "file": "patient-app/app/family/calendar.tsx",
+     "line": 70,
+     "file": "patient-app/src/components/family/FamilyCalendarView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:100"
     },
@@ -2437,8 +2532,8 @@
      "path": "/family/calendar/event/:param",
      "target": "backend",
      "query": "",
-     "line": 106,
-     "file": "patient-app/app/family/calendar.tsx",
+     "line": 89,
+     "file": "patient-app/src/components/family/FamilyCalendarView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:110"
     },
@@ -2447,13 +2542,13 @@
      "path": "/family/members",
      "target": "backend",
      "query": "",
-     "line": 62,
-     "file": "patient-app/app/family/calendar.tsx",
+     "line": 36,
+     "file": "patient-app/src/components/family/FamilyCalendarView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:84"
     }
    ],
-   "files": 17,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -2471,8 +2566,8 @@
      "path": "/family/chat/messages",
      "target": "backend",
      "query": "",
-     "line": 47,
-     "file": "patient-app/app/family/chat.tsx",
+     "line": 34,
+     "file": "patient-app/src/components/family/FamilyChatView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat-compat.controller.ts:31"
     },
@@ -2481,8 +2576,8 @@
      "path": "/family/chat/messages",
      "target": "backend",
      "query": "",
-     "line": 87,
-     "file": "patient-app/app/family/chat.tsx",
+     "line": 73,
+     "file": "patient-app/src/components/family/FamilyChatView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat-compat.controller.ts:43"
     },
@@ -2491,8 +2586,8 @@
      "path": "/family/members",
      "target": "backend",
      "query": "",
-     "line": 68,
-     "file": "patient-app/app/family/chat.tsx",
+     "line": 53,
+     "file": "patient-app/src/components/family/FamilyChatView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:84"
     },
@@ -2501,13 +2596,13 @@
      "path": "/users/me/profile",
      "target": "backend",
      "query": "",
-     "line": 63,
-     "file": "patient-app/app/family/chat.tsx",
+     "line": 46,
+     "file": "patient-app/src/components/family/FamilyChatView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:34"
     }
    ],
-   "files": 14,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -2532,19 +2627,8 @@
    "board": "Family",
    "batch": 6,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/family/invite",
-     "target": "backend",
-     "query": "",
-     "line": 33,
-     "file": "patient-app/app/family/invite.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:34"
-    }
-   ],
-   "files": 16,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2556,19 +2640,8 @@
    "board": "Family",
    "batch": 6,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/family/join",
-     "target": "backend",
-     "query": "",
-     "line": 46,
-     "file": "patient-app/app/family/join.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:39"
-    }
-   ],
-   "files": 15,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2586,13 +2659,63 @@
      "path": "/family/member-records/:param",
      "target": "backend",
      "query": "",
-     "line": 50,
-     "file": "patient-app/app/family/member-health.tsx",
+     "line": 40,
+     "file": "patient-app/src/components/family/FamilyMemberView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:64"
+    },
+    {
+     "method": "PATCH",
+     "path": "/family/member/:param/permissions",
+     "target": "backend",
+     "query": "",
+     "line": 129,
+     "file": "patient-app/src/components/family/FamilyMemberView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:59"
+    },
+    {
+     "method": "GET",
+     "path": "/family/members",
+     "target": "backend",
+     "query": "",
+     "line": 53,
+     "file": "patient-app/src/components/family/FamilyKit.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:84"
+    },
+    {
+     "method": "GET",
+     "path": "/family/my-group",
+     "target": "backend",
+     "query": "",
+     "line": 47,
+     "file": "patient-app/src/components/family/FamilyKit.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:28"
+    },
+    {
+     "method": "POST",
+     "path": "/family/permissions/request",
+     "target": "backend",
+     "query": "",
+     "line": 133,
+     "file": "patient-app/src/components/family/FamilyMemberView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:116"
+    },
+    {
+     "method": "DELETE",
+     "path": "/family/remove-member/:param",
+     "target": "backend",
+     "query": "",
+     "line": 153,
+     "file": "patient-app/src/components/family/FamilyMemberView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:74"
     }
    ],
-   "files": 16,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -2604,29 +2727,8 @@
    "board": "Family",
    "batch": 6,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/family/permissions/pending",
-     "target": "backend",
-     "query": "",
-     "line": 26,
-     "file": "patient-app/app/family/permission-request.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:121"
-    },
-    {
-     "method": "PUT",
-     "path": "/family/permissions/respond/:param",
-     "target": "backend",
-     "query": "",
-     "line": 54,
-     "file": "patient-app/app/family/permission-request.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:126"
-    }
-   ],
-   "files": 16,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2638,49 +2740,8 @@
    "board": "Family",
    "batch": 6,
    "status": "—",
-   "calls": [
-    {
-     "method": "PATCH",
-     "path": "/family/member/:param/permissions",
-     "target": "backend",
-     "query": "",
-     "line": 149,
-     "file": "patient-app/app/family/permissions.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:59"
-    },
-    {
-     "method": "GET",
-     "path": "/family/my-group",
-     "target": "backend",
-     "query": "",
-     "line": 121,
-     "file": "patient-app/app/family/permissions.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:28"
-    },
-    {
-     "method": "POST",
-     "path": "/family/permissions/request",
-     "target": "backend",
-     "query": "",
-     "line": 155,
-     "file": "patient-app/app/family/permissions.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:116"
-    },
-    {
-     "method": "DELETE",
-     "path": "/family/remove-member/:param",
-     "target": "backend",
-     "query": "",
-     "line": 188,
-     "file": "patient-app/app/family/permissions.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:74"
-    }
-   ],
-   "files": 15,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2693,20 +2754,20 @@
    "batch": 6,
    "status": "—",
    "calls": [],
-   "files": 8,
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/family/shared-calendar",
    "file": "patient-app/app/family/shared-calendar.tsx",
-   "redirect": "/family/calendar",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "list",
+   "board": "Family",
    "batch": 6,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 1,
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2804,13 +2865,13 @@
    "app": "patient-app",
    "route": "/health/add-family-member",
    "file": "patient-app/app/health/add-family-member.tsx",
-   "redirect": "/family/invite",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "form",
+   "board": "Family",
    "batch": 6,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 1,
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2882,26 +2943,26 @@
    "app": "patient-app",
    "route": "/health/family-calendar",
    "file": "patient-app/app/health/family-calendar.tsx",
-   "redirect": "/family/shared-calendar",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "list",
+   "board": "Family",
    "batch": 6,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 1,
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/health/family-chat",
    "file": "patient-app/app/health/family-chat.tsx",
-   "redirect": "/family/chat",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "flow step",
+   "board": "none: chat",
    "batch": 6,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 1,
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2913,52 +2974,21 @@
    "board": "Family",
    "batch": 6,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/family/create",
-     "target": "backend",
-     "query": "",
-     "line": 100,
-     "file": "patient-app/app/health/family-hub.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:23"
-    },
-    {
-     "method": "GET",
-     "path": "/family/members",
-     "target": "backend",
-     "query": "",
-     "line": 83,
-     "file": "patient-app/app/health/family-hub.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:84"
-    },
-    {
-     "method": "GET",
-     "path": "/family/my-group",
-     "target": "backend",
-     "query": "",
-     "line": 81,
-     "file": "patient-app/app/health/family-hub.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:28"
-    }
-   ],
-   "files": 14,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/health/family-member-detail",
    "file": "patient-app/app/health/family-member-detail.tsx",
-   "redirect": "/family/member-health",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "detail",
+   "board": "Family",
    "batch": 6,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 1,
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -7585,7 +7615,7 @@
      "path": "/api/appointments/:param/call-token",
      "target": "web-bff",
      "query": "",
-     "line": 12,
+     "line": 14,
      "file": "patient-web/components-next/call-token-launcher.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/appointments/[appointmentId]/call-token/route.ts"
@@ -8515,7 +8545,7 @@
      "path": "/care/doctors/:param/slots",
      "target": "backend",
      "query": "?date=:param&service_type=:param",
-     "line": 21,
+     "line": 30,
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:66"
@@ -8800,7 +8830,7 @@
      "path": "/api/appointments/:param/call-token",
      "target": "web-bff",
      "query": "",
-     "line": 12,
+     "line": 14,
      "file": "patient-web/components-next/call-token-launcher.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/appointments/[appointmentId]/call-token/route.ts"
@@ -8826,7 +8856,7 @@
      "backend": "backend/src/modules/care/appointments.controller.ts:25"
     }
    ],
-   "files": 35,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -9648,13 +9678,13 @@
      "path": "/entity-graph/related/doctor/:param",
      "target": "backend",
      "query": "",
-     "line": 21,
-     "file": "patient-web/app/[locale]/doctor/[slug]/page.tsx",
+     "line": 25,
+     "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/entity-graph/entity-graph.controller.ts:10"
     }
    ],
-   "files": 33,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -9682,13 +9712,13 @@
      "path": "/entity-graph/related/doctor/:param",
      "target": "backend",
      "query": "",
-     "line": 21,
-     "file": "patient-web/app/[locale]/doctor/[slug]/page.tsx",
+     "line": 25,
+     "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/entity-graph/entity-graph.controller.ts:10"
     }
    ],
-   "files": 34,
+   "files": 36,
    "unresolved": 0
   },
   {
