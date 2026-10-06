@@ -1,9 +1,9 @@
 import React from 'react';
-import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
+import { Animated, FlatList, Modal as RNModal, Pressable, RefreshControl, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
 import { AppHeader, Card, EmptyState, ErrorState, FIcon, OfflineState, Screen, SERVICE_ICONS, StickyFooter, type AppHeaderAction, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
-import { COLUMN, step as scale, useScreenUi } from '../screen/ScreenKit';
+import { COLUMN, step as scale, tint, useScreenUi } from '../screen/ScreenKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
 import { dateLocaleFor } from '../../utils/dates';
 
@@ -70,7 +70,12 @@ export function useConsultFormat() {
     if (value === null || value === undefined || Number.isNaN(d.getTime())) return '';
     return d.toLocaleString(locale, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
   };
-  return { date, dayMonth, time, dateTime, num, money };
+  /** A time of day from an ISO instant or a timestamp. */
+  const clock = (value: unknown): string => {
+    const d = new Date(value as string | number);
+    return value === null || value === undefined || Number.isNaN(d.getTime()) ? '' : d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
+  };
+  return { date, dayMonth, time, dateTime, clock, num, money };
 }
 
 /**
@@ -233,7 +238,7 @@ export function appointmentStatus(raw: unknown): { key: string; tone: StatusTone
   if (s === 'completed' || s === 'done') return { key: 'consult.status.completed', tone: 'success' };
   if (s === 'cancelled' || s === 'canceled' || s === 'rejected') return { key: 'consult.status.cancelled', tone: 'danger' };
   if (s === 'pending' || s === 'requested' || s === 'awaiting_payment') return { key: 'consult.status.pending', tone: 'warning' };
-  if (s === 'in_progress' || s === 'ongoing' || s === 'active') return { key: 'consult.status.inProgress', tone: 'info' };
+  if (s === 'in_progress' || s === 'checked_in' || s === 'ongoing' || s === 'active') return { key: 'consult.status.inProgress', tone: 'info' };
   if (s === 'no_show' || s === 'missed') return { key: 'consult.status.missed', tone: 'neutral' };
   if (s === 'rescheduled') return { key: 'consult.status.rescheduled', tone: 'warning' };
   return { key: 'consult.status.other', tone: 'neutral' };
@@ -337,6 +342,44 @@ export function ApptCard({ day, icon, title, subtitle, mode, status, actions, on
         </View>
       ) : null}
     </Card>
+  );
+}
+
+/**
+ * The result template (booking placed, status of a request): a round status glyph, a title and a line, centred. The
+ * glyph and its tone come from the status tokens; `children` is drawn under it (a card, the actions).
+ */
+export function ResultHero({ icon, tone = 'success', title, body, pop, children }: { icon: FillIconName; tone?: StatusTone; title: string; body?: string; pop?: Animated.Value; children?: React.ReactNode }) {
+  const { t, c } = useScreenUi();
+  const look = c.status[tone];
+  return (
+    <View accessibilityRole="summary" style={{ alignItems: 'center', gap: 12, paddingTop: 24, paddingBottom: 8 }}>
+      <Animated.View style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: look.bg, alignItems: 'center', justifyContent: 'center', transform: [{ scale: pop ?? 1 }] }}>
+        <Glyph name={icon} size={52} color={look.fg} />
+      </Animated.View>
+      <Text accessibilityRole="header" style={{ ...scale(t, 'h2'), color: c.text.primary, textAlign: 'center' }}>{title}</Text>
+      {body ? <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, textAlign: 'center' }}>{body}</Text> : null}
+      {children}
+    </View>
+  );
+}
+
+/** A blocking dialog (insurance co-pay lock): a scrim, a surface card with a glyph, a title, a line and the actions. */
+export function Dialog({ open, icon, title, body, children }: { open: boolean; icon: FillIconName; title: string; body: string; children: React.ReactNode }) {
+  const { theme, t, c } = useScreenUi();
+  return (
+    <RNModal visible={open} transparent animationType="fade" onRequestClose={() => undefined}>
+      <View accessibilityViewIsModal style={{ flex: 1, backgroundColor: tint(c.bg.inverse, 0.6), justifyContent: 'center', padding: 20 }}>
+        <Card theme={theme} elevation="raised">
+          <View style={{ alignItems: 'center', gap: 10 }}>
+            <FIcon icon={icon} tone="blue" size={56} theme={theme} />
+            <Text accessibilityRole="header" style={{ ...scale(t, 'h3'), color: c.text.primary, textAlign: 'center' }}>{title}</Text>
+            <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, textAlign: 'center' }}>{body}</Text>
+            <View style={{ alignSelf: 'stretch', gap: 8, marginTop: 8 }}>{children}</View>
+          </View>
+        </Card>
+      </View>
+    </RNModal>
   );
 }
 
