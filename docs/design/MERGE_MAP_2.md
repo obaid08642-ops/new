@@ -1,6 +1,6 @@
 # Screen merge map 2 (owner decision 27, second pass over ALL sections), 2026-10-06
 
-**Status: PROPOSED.** The owner delegated the approval to the lead reviewer (decision 27). Same format as `MERGE_MAP.md` (approved; its health, family, settings, AI and mental-health rows are **not repeated** here and stay as approved, except the two changes in §9). Source of the route list and the endpoints: `docs/design/inventory/screens.json`. Rows I could not decide from route names, templates and endpoints say **confirm**; I did not read every screen file.
+**Status: APPROVED (2026-10-06)** by the lead reviewer, delegated by the owner (decision 27), with the answers in §11. Same format as `MERGE_MAP.md` (approved; its health, family, settings, AI and mental-health rows are **not repeated** here and stay as approved, except the two changes in §9). Source of the route list and the endpoints: `docs/design/inventory/screens.json`. Rows I could not decide from route names, templates and endpoints say **confirm**; I did not read every screen file.
 
 **Rules (as in MERGE_MAP.md)**
 - One screen per user task. An old route becomes a redirect (web: `redirect()` / `next.config`; app: `<Redirect>`) that keeps the query string; deep links and notification targets keep working. In-code links are updated to the new route; the redirect is only for stale links.
@@ -128,3 +128,20 @@ All screens stay (`/nursing/**`, web `/home-care/**`). The SEO page `/home-nursi
 3. Are web `waiting-for-pharmacy` and `broadcast-status` the same state (§3)?
 4. Voice: confirm it is only a mic input of the assistant (§8).
 5. Insurance: is the Policy tab the right place to choose the insurer (§6)?
+
+## 11. Answers (lead reviewer, delegated by the owner, 2026-10-06)
+
+**Rule for every "confirm" row:**
+- Merge only when, while implementing, you see that both screens read the same record through the same endpoint.
+- If they do not, keep them separate and add one Needs-review line. Never change a payload to make two screens fit one.
+
+1. **Follow-up and clinic-confirm:** approved under the rule above.
+   - A follow-up is a booking with `followUp=<appointmentId>`. If the follow-up endpoint needs a different payload, keep the follow-up screen and send a Needs-review line.
+   - `clinic-confirm` merges into `booking-status` only if it shows the same appointment.
+2. **Sample and technician tracking:** approved under the rule.
+   - Web `/diagnostics/labs/book`: if it posts to the same checkout as `/diagnostics/checkout`, redirect it there; otherwise keep it and add a Needs-review line.
+3. **`waiting-for-pharmacy` and `broadcast-status`:** approved under the rule.
+4. **Voice:** approved. Remove it as a screen; the assistant gets the mic button.
+5. **Insurer choice:** yes, in the Policy tab.
+
+**Also approved:** pharmacy `request`, `rx-order` and `scan-prescription` become **one** "order with a prescription" screen with three ways in (photo, upload, type the names), in Batch 14. The steps after it (offers, payment, tracking) do not change.
