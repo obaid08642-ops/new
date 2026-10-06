@@ -1,146 +1,104 @@
-// @ts-nocheck
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
-// DEVICE_STANDARD §5: the safe-area-context SafeAreaView (iOS and Android), never react-native's iOS-only one
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, router, Stack } from 'expo-router';
+import { HttpClient } from '@/services/HttpClient';
+import { useAppSelector } from '@/store/hooks';
+
+import { ErrorState } from '../../../packages/ui-native/src';
+import { CallButton, CallIdentity, useCallUi } from '../../src/components/consult/CallKit';
+import { step as scale } from '../../src/components/screen/ScreenKit';
+import { logError } from '../../src/utils/logger';
+
+/**
+ * Call room — no board (owner decision, 2026-10-04): the layout stays (the other side full screen, a small picture of
+ * yourself, mute / end / camera), drawn with the dark tokens and labelled controls. The token is POST /calls/:id/join and
+ * the room is LiveKit's, exactly as before.
+ */
+
+interface Participant {
+  identity: string;
+  setMicrophoneEnabled: (on: boolean) => unknown;
+  setCameraEnabled: (on: boolean) => unknown;
+}
+interface TrackRef {
+  participant: { identity: string };
+}
+type NativeView = React.ComponentType<Record<string, unknown>> | null;
+
 // @livekit/react-native is a NATIVE module — absent in Expo Go. A static
 // import crashes module evaluation so the default export never registers
 // (Metro: "missing the required default export"). Load defensively.
-let LiveKitRoom: any = null;
-let VideoTrack: any = null;
-let useRoomContext: any = () => null;
-let useTracks: any = () => [];
-let useLocalParticipant: any = () => ({ localParticipant: null });
-let Track: any = { Source: { Camera: 'camera' } };
+let LiveKitRoom: NativeView = null;
+let VideoTrack: NativeView = null;
+let useTracks: (sources: unknown[]) => TrackRef[] = () => [];
+let useLocalParticipant: () => { localParticipant: Participant | null } = () => ({ localParticipant: null });
+let CameraSource: unknown = 'camera';
 let LIVEKIT_NATIVE_OK = false;
 try {
-  const lk = require('@livekit/react-native');
+  const lk = require('@livekit/react-native'); // eslint-disable-line @typescript-eslint/no-require-imports
   LiveKitRoom = lk.LiveKitRoom;
   VideoTrack = lk.VideoTrack;
-  useRoomContext = lk.useRoomContext;
   useTracks = lk.useTracks;
   useLocalParticipant = lk.useLocalParticipant;
-  Track = require('livekit-client').Track;
+  CameraSource = require('livekit-client').Track.Source.Camera; // eslint-disable-line @typescript-eslint/no-require-imports
   LIVEKIT_NATIVE_OK = !!LiveKitRoom;
 } catch {
   LIVEKIT_NATIVE_OK = false;
 }
-import { HttpClient } from '@/services/HttpClient';
-import { DSText } from '@/design-system';
-
-// Local token shim — the DS barrel doesn't export a DSTokens object; using it
-// crashed module evaluation (TypeError: colors of undefined) and the route
-// lost its default export in Metro.
-const DSTokens = {
-  colors: {
-    primary: { main: '#0EA5E9' },
-    error: { main: '#EF4444' },
-    base: { white: '#FFFFFF' },
-    text: { secondary: '#94A3B8' },
-    background: { default: '#0F172A' },
-  },
-};
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useAppSelector } from '@/store/hooks';
-import { logError } from '../../src/utils/logger';
-import { ScreenState } from '../../src/components/ScreenStates';
 
 // Set up server URL (can be from env)
 const liveKitUrl = process.env.EXPO_PUBLIC_LIVEKIT_URL || 'wss://live.nabd.plus';
 
 const ActiveCallView = ({ onEndCall }: { onEndCall: () => void }) => {
-  const room = useRoomContext();
+  const { c, k } = useCallUi();
   const { localParticipant } = useLocalParticipant();
-  
+  const tracks = useTracks([CameraSource]);
+
   // Get remote video tracks
-  const remoteVideoTracks = useTracks([Track.Source.Camera]).filter(
-    (tr) => tr.participant.identity !== localParticipant.identity
-  );
-  
+  const remoteVideoTracks = tracks.filter((tr) => tr.participant.identity !== localParticipant?.identity);
   // Get local video track
-  const localVideoTrack = useTracks([Track.Source.Camera]).find(
-    (tr) => tr.participant.identity === localParticipant.identity
-  );
+  const localVideoTrack = tracks.find((tr) => tr.participant.identity === localParticipant?.identity);
 
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOff, setIsCameraOff] = useState(false);
 
   const toggleMic = () => {
     const enabled = !isMuted;
-    localParticipant.setMicrophoneEnabled(!enabled);
+    void localParticipant?.setMicrophoneEnabled(!enabled);
     setIsMuted(enabled);
   };
 
   const toggleCamera = () => {
     const enabled = !isCameraOff;
-    localParticipant.setCameraEnabled(!enabled);
+    void localParticipant?.setCameraEnabled(!enabled);
     setIsCameraOff(enabled);
   };
 
+  const Video = VideoTrack;
   return (
-    <View style={styles.callContainer}>
+    <View style={{ flex: 1 }}>
       {/* Remote Participant Video (Full Screen) */}
-      <View style={styles.remoteVideoContainer}>
-        {remoteVideoTracks.length > 0 ? (
-          <VideoTrack 
-            trackRef={remoteVideoTracks[0]} 
-            style={StyleSheet.absoluteFill} 
-          />
+      <View style={{ flex: 1, backgroundColor: c.bg.canvas }}>
+        {remoteVideoTracks.length > 0 && Video ? (
+          <Video trackRef={remoteVideoTracks[0]} style={StyleSheet.absoluteFill} />
         ) : (
-          <View style={styles.waitingContainer}>
-            <ActivityIndicator size="large" color={DSTokens.colors.primary.main} />
-            <DSText variant="body" color={DSTokens.colors.text.secondary} style={{ marginTop: 12 }}>
-              بانتظار انضمام الطبيب...
-            </DSText>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 }}>
+            <ActivityIndicator accessibilityLabel={k('consult.loading')} size="large" color={c.text.primary} />
+            <CallIdentity name="" line={k('consult.call.waitingDoctor')} />
           </View>
         )}
       </View>
 
       {/* Local Participant Video (PiP) */}
-      <View style={styles.localVideoContainer}>
-        {localVideoTrack && !isCameraOff ? (
-          <VideoTrack 
-            trackRef={localVideoTrack} 
-            style={StyleSheet.absoluteFill} 
-          />
-        ) : (
-          <View style={styles.cameraOffPlaceholder}>
-            <MaterialCommunityIcons name="video-off" size={32} color={DSTokens.colors.base.white} />
-          </View>
-        )}
+      <View style={{ position: 'absolute', top: 50, end: 20, width: 110, height: 150, borderRadius: 14, backgroundColor: c.bg.elevated, overflow: 'hidden', borderWidth: 2, borderColor: c.border.strong }}>
+        {localVideoTrack && !isCameraOff && Video ? <Video trackRef={localVideoTrack} style={StyleSheet.absoluteFill} /> : null}
       </View>
 
       {/* Call Controls */}
-      <View style={styles.controlsContainer}>
-        <TouchableOpacity 
-          style={[styles.controlButton, isMuted && styles.controlButtonActive]} 
-          onPress={toggleMic}
-        >
-          <MaterialCommunityIcons 
-            name={isMuted ? "microphone-off" : "microphone"} 
-            size={28} 
-            color={DSTokens.colors.base.white} 
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={[styles.controlButton, styles.endCallButton]} 
-          onPress={onEndCall}
-        >
-          <MaterialCommunityIcons name="phone-hangup" size={32} color={DSTokens.colors.base.white} />
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={[styles.controlButton, isCameraOff && styles.controlButtonActive]} 
-          onPress={toggleCamera}
-        >
-          <MaterialCommunityIcons 
-            name={isCameraOff ? "video-off" : "video"} 
-            size={28} 
-            color={DSTokens.colors.base.white} 
-          />
-        </TouchableOpacity>
+      <View style={{ position: 'absolute', bottom: 40, start: 0, end: 0, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 12, paddingHorizontal: 16 }}>
+        <CallButton label={isMuted ? k('consult.call.unmute') : k('consult.call.mute')} active={!isMuted} onPress={toggleMic} testID="room-mic" />
+        <CallButton label={k('consult.call.end')} tone="danger" onPress={onEndCall} testID="room-end" />
+        <CallButton label={isCameraOff ? k('consult.call.cameraOn') : k('consult.call.cameraOff')} active={!isCameraOff} onPress={toggleCamera} testID="room-camera" />
       </View>
     </View>
   );
@@ -148,13 +106,14 @@ const ActiveCallView = ({ onEndCall }: { onEndCall: () => void }) => {
 
 export default function RoomScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { tk, c, k } = useCallUi();
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const user = useAppSelector(state => state.auth.user);
+  const user = useAppSelector((state) => state.auth.user);
 
   useEffect(() => {
     if (!LIVEKIT_NATIVE_OK) {
-      setError('مكالمات الفيديو تتطلب نسخة التطبيق الكاملة (Development Build) ولا تعمل داخل Expo Go.');
+      setError(k('consult.call.needsBuild'));
       return;
     }
     // Fetch LiveKit token from backend
@@ -165,137 +124,44 @@ export default function RoomScreen() {
         setToken(response.data.token);
       } catch (err) {
         logError('room:get-token', err);
-        setError('تعذر الانضمام للغرفة. يرجى التأكد من الموعد.');
+        setError(k('consult.call.joinFailed'));
       }
     };
 
-    if (id) fetchToken();
+    if (id) void fetchToken();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, user]);
 
   const handleDisconnect = () => {
     router.back();
   };
 
+  const shell = { flex: 1, backgroundColor: c.bg.canvas, justifyContent: 'center', alignItems: 'center', padding: 24 } as const;
+
   if (error) {
     return (
-      <SafeAreaView style={styles.centerContainer}>
-        <MaterialCommunityIcons name="alert-circle" size={48} color={DSTokens.colors.error.main} />
-        <DSText variant="h3" style={{ marginVertical: 12 }}>خطأ في الاتصال</DSText>
-        <DSText variant="body" color={DSTokens.colors.text.secondary}>{error}</DSText>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <DSText variant="button" color={DSTokens.colors.base.white}>العودة للاستشارات</DSText>
-        </TouchableOpacity>
-      </SafeAreaView>
+      <View style={shell}>
+        <ErrorState title={k('consult.call.connectionError')} body={error} retryLabel={k('consult.call.backToConsult')} onRetry={() => router.back()} theme="dark" />
+      </View>
     );
   }
 
-  if (!token) {
+  if (!token || !LiveKitRoom) {
     return (
-      <SafeAreaView style={styles.centerContainer}>
-        <ActivityIndicator size="large" color={DSTokens.colors.primary.main} />
-        <DSText variant="body" style={{ marginTop: 12 }}>جاري تحضير غرفة الاستشارة...</DSText>
-      </SafeAreaView>
+      <View style={shell}>
+        <ActivityIndicator accessibilityLabel={k('consult.call.preparing')} size="large" color={c.text.primary} />
+        <Text style={{ ...scale(tk, 'small', 'regular'), color: c.text.onInverseSecondary, marginTop: 12 }}>{k('consult.call.preparing')}</Text>
+      </View>
     );
   }
 
+  const Room = LiveKitRoom;
   return (
-    <ScreenState loading={false} error={null} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
-    <View style={styles.container}>
+    <View style={{ flex: 1, backgroundColor: c.bg.canvas }} testID="room-screen">
       <Stack.Screen options={{ headerShown: false }} />
-      <LiveKitRoom
-        serverUrl={liveKitUrl}
-        token={token}
-        connect={true}
-        audio={true}
-        video={true}
-        onDisconnected={handleDisconnect}
-      >
+      <Room serverUrl={liveKitUrl} token={token} connect audio video onDisconnected={handleDisconnect}>
         <ActiveCallView onEndCall={handleDisconnect} />
-      </LiveKitRoom>
+      </Room>
     </View>
-    </ScreenState>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-  centerContainer: {
-    flex: 1,
-    backgroundColor: DSTokens.colors.background.default,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  callContainer: {
-    flex: 1,
-  },
-  remoteVideoContainer: {
-    flex: 1,
-    backgroundColor: '#111',
-  },
-  waitingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  localVideoContainer: {
-    position: 'absolute',
-    top: Platform.OS === 'ios' ? 60 : 40,
-    right: 20,
-    width: 110,
-    height: 150,
-    borderRadius: 12,
-    backgroundColor: '#333',
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.2)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  cameraOffPlaceholder: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#222',
-  },
-  controlsContainer: {
-    position: 'absolute',
-    bottom: 40,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 24,
-  },
-  controlButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  controlButtonActive: {
-    backgroundColor: DSTokens.colors.error.main,
-  },
-  endCallButton: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: DSTokens.colors.error.main,
-  },
-  backButton: {
-    marginTop: 24,
-    paddingHorizontal: 32,
-    paddingVertical: 12,
-    backgroundColor: DSTokens.colors.primary.main,
-    borderRadius: 24,
-  }
-});

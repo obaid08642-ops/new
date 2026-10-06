@@ -1,0 +1,132 @@
+[
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations/call-history",
+    "element": "Call again",
+    "file": "",
+    "line": 0,
+    "found": "[client] It opens video-call with the call session id as appointmentId; the video-call screen expects an appointment id.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations/appointments",
+    "element": "List call",
+    "file": "",
+    "line": 0,
+    "found": "[client] GET /care/appointments is made inside ConsultationsContext, so the inventory lists no call for this route; the context also maps the list once for the whole app.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations",
+    "element": "Welcome modal, availability filter, nearest sort",
+    "file": "",
+    "line": 0,
+    "found": "[owner] Removed because the board has none and the list carries no next-slot or distance; confirm or ask the backend for a next-slot field.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations/doctor/[id]",
+    "element": "Favourite and years of experience",
+    "file": "",
+    "line": 0,
+    "found": "[backend] The heart had no endpoint and is hidden; years_experience and the licence are drawn only when the backend sends them (SPEC B gaps).",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations/home-visit-tracking",
+    "element": "Doctor on the way, map",
+    "file": "",
+    "line": 0,
+    "found": "[backend] The backend has no en-route status or doctor position; the steps follow CONFIRMED, CHECKED_IN and COMPLETED only.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations/cancel-reschedule",
+    "element": "Refund policy",
+    "file": "",
+    "line": 0,
+    "found": "[client] 24 h / 12 h refund figures are fixed in the screen while the doctor page reads them from /system-config/public; online appointments (type 'online') ask for clinic slots when rescheduling.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations/prescription-from-doctor",
+    "element": "Prescription fields",
+    "file": "",
+    "line": 0,
+    "found": "[backend] The seeded patient has no active prescription, so the doctor, spec, date, diagnosis, labs and notes fields were not seen at runtime.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations/chat-with-doctor",
+    "element": "Microphone button",
+    "file": "",
+    "line": 0,
+    "found": "[owner] It sent nothing and is removed; voice messages would be a feature.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations/video-call",
+    "element": "Camera button",
+    "file": "",
+    "line": 0,
+    "found": "[owner] The camera on/off control already existed here and in /room/[id] and is kept; the calls decision of PROGRESS_ARCHIVE says to add none.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations/incoming-call",
+    "element": "Ring timeout",
+    "file": "",
+    "line": 0,
+    "found": "[client] The 35 s timeout calls reject from inside a state updater, which can fire twice; signalling was not touched.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations/booking-status",
+    "element": "Price summary of the board",
+    "file": "",
+    "line": 0,
+    "found": "[owner] The board shows fee and points rows; the confirm form states the price at the payment step, so none is drawn.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations/clinic-confirm",
+    "element": "Clinic location view",
+    "file": "",
+    "line": 0,
+    "found": "[client] ?view=location renders ClinicLocationView, a separate component not rebuilt in this slice.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations/virtual-waiting-room",
+    "element": "Wait time unit",
+    "file": "",
+    "line": 0,
+    "found": "[backend] wait_time has no stated unit; it is drawn as a plain number.",
+    "suspect": "Backend gap: reviewer session."
+  }
+]

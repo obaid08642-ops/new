@@ -1,80 +1,91 @@
-// @ts-nocheck
-import { logError } from '../../src/utils/logger';
-// EPIC4/S21: was a hardcoded REPORTS list + setTimeout "share" that did
-// nothing. Now loads the real /medical-reports/mine list and shares the
-// selected reports as a text bundle via the device share sheet (real action).
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  StatusBar,
-  TouchableOpacity,
-  ActivityIndicator,
-  Share,
-  Alert,
-  TextInput,
-} from "react-native";
-import { router } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useApp } from "../../src/context/AppContext";
-import { Icon } from "../../src/components/Icon";
-import {
-  AppText,
-  Card,
-  Badge,
-  Button,
-  IconButton,
-  SectionHeader,
-} from "../../src/components/ui";
-import { apiFetch } from "../../src/utils/api";
-import { pickLocalized } from '../../src/utils/localize';
-import { dateLocale } from '@/utils/dates';
-import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Pressable, Share, Text, View } from 'react-native';
+import { router, type Href } from 'expo-router';
 
-function fmtDate(d: any): string {
-  if (!d) return "";
-  try {
-    return new Date(d).toLocaleDateString(dateLocale(), { year: "numeric", month: "long", day: "numeric" });
-  } catch {
-    return "";
-  }
+import { Button, Card, FIcon, Input, type FillIconName } from '../../../packages/ui-native/src';
+import { ConsultList, ConsultScreen, Section, goBack, useConsultFormat } from '../../src/components/consult/ConsultKit';
+import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
+import { Notice } from '../../src/components/pharmacy/OfferKit';
+import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { apiFetch } from '../../src/utils/api';
+import { isOffline } from '../../src/utils/isOffline';
+import { logError } from '../../src/utils/logger';
+import { pickLocalized } from '../../src/utils/localize';
+
+/**
+ * Share a report with the doctor — board Consult's card list. The reports are GET /medical-reports/mine; the chosen
+ * ones go out as a text bundle through the device share sheet, and one report can be shared with a named doctor on the
+ * platform (POST /medical-reports/:id/share, DELETE /medical-reports/:id/share/:doctorId; the doctors come from
+ * GET /care/doctors?q=). Nothing is drawn that the server did not send.
+ */
+
+interface Report {
+  id: string;
+  title_ar?: string;
+  title_en?: string;
+  facility_name?: string;
+  doctor_name?: string;
+  issued_at?: string;
+  createdAt?: string;
+  summary?: string;
+  diagnosis?: string;
+  lab_booking_id?: string;
+  radiology_booking_id?: string;
+}
+interface DoctorHit {
+  id: string;
+  name_ar?: string;
+  name_en?: string;
+  specialty?: string;
+  city?: string;
+}
+interface ShareRow {
+  doctor_id: string;
+  doctor_name?: string;
+  shared_at?: string;
 }
 
+const list = <T,>(res: unknown, extra?: string): T[] => {
+  if (Array.isArray(res)) return res as T[];
+  const r = res as Record<string, unknown> | null;
+  const inner = r?.data ?? (extra ? r?.[extra] : undefined);
+  return Array.isArray(inner) ? (inner as T[]) : [];
+};
+
 export default function ShareReportScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
-  const [reports, setReports] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { theme, t, c, flow, k, num } = useScreenUi();
+  const { date } = useConsultFormat();
+  const [reports, setReports] = useState<Report[]>([]);
+  const [status, setStatus] = useState<'loading' | 'error' | 'offline' | 'ready'>('loading');
   const [selected, setSelected] = useState<string[]>([]);
   const [sending, setSending] = useState(false);
   // Server-side sharing with a specific doctor (POST /medical-reports/:id/share).
-  const [shareTarget, setShareTarget] = useState<any | null>(null);
-  const [docQuery, setDocQuery] = useState("");
-  const [docResults, setDocResults] = useState<any[]>([]);
-  const [docSearching, setDocSearching] = useState(false);
+  const [target, setTarget] = useState<Report | null>(null);
+  const [query, setQuery] = useState('');
+  const [hits, setHits] = useState<DoctorHit[]>([]);
+  const [searching, setSearching] = useState(false);
   const [sharing, setSharing] = useState(false);
-  const [shares, setShares] = useState<any[]>([]);
+  const [shares, setShares] = useState<ShareRow[]>([]);
   const [sharesLoading, setSharesLoading] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await apiFetch("/medical-reports/mine?limit=100");
-        setReports(Array.isArray(res) ? res : res?.data || []);
-      } catch (e) {
-        logError('consultations:share-report', e);
-        setReports([]);
-      } finally {
-        setLoading(false);
-      }
-    })();
+  const load = useCallback(async () => {
+    setStatus('loading');
+    try {
+      setReports(list<Report>(await apiFetch('/medical-reports/mine?limit=100')));
+      setStatus('ready');
+    } catch (e) {
+      logError('consultations:share-report', e);
+      setStatus((await isOffline()) ? 'offline' : 'error');
+    }
   }, []);
 
-  const toggle = (id: string) =>
-    setSelected((p) =>
-      p.includes(id) ? p.filter((x) => x !== id) : [...p, id],
-    );
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const toggle = (id: string) => setSelected((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
+  const title = (r: Report) => pickLocalized(r.title_ar, r.title_en) || k('consult.share.reportFallback');
 
   const handleShare = async () => {
     const chosen = reports.filter((r) => selected.includes(r.id));
@@ -82,22 +93,12 @@ export default function ShareReportScreen() {
     setSending(true);
     try {
       const text = chosen
-        .map((r) =>
-          [
-            `■ ${pickLocalized(r.title_ar, r.title_en) || "تقرير طبي"}`,
-            r.facility_name || r.doctor_name || "",
-            fmtDate(r.issued_at || r.createdAt),
-            r.summary ? `الملخص: ${r.summary}` : "",
-            r.diagnosis ? `التشخيص: ${r.diagnosis}` : "",
-          ]
-            .filter(Boolean)
-            .join("\n"),
-        )
-        .join("\n\n");
-      await Share.share({ message: `تقاريري الطبية — عبر تطبيق نبض\n\n${text}` });
-      router.back();
+        .map((r) => [`■ ${title(r)}`, r.facility_name || r.doctor_name || '', date(r.issued_at || r.createdAt, true), r.summary ? `${k('consult.share.bundleSummary')}: ${r.summary}` : '', r.diagnosis ? `${k('consult.share.bundleDiagnosis')}: ${r.diagnosis}` : ''].filter(Boolean).join('\n'))
+        .join('\n\n');
+      await Share.share({ message: `${k('consult.share.bundleHead')}\n\n${text}` });
+      goBack();
     } catch {
-      showLocalizedAlert("خطأ", "تعذرت المشاركة — حاول لاحقاً");
+      showLocalizedAlert(k('consult.share.errorTitle'), k('consult.share.errorBody'));
     } finally {
       setSending(false);
     }
@@ -106,11 +107,11 @@ export default function ShareReportScreen() {
   const loadShares = async (reportId: string) => {
     setSharesLoading(true);
     try {
-      const res: any = await apiFetch(`/medical-reports/${reportId}`);
-      const d = res?.data || res || {};
-      const ids: string[] = Array.isArray(d.shared_with_doctor_ids) ? d.shared_with_doctor_ids : [];
-      const hist = Array.isArray(d.share_history) ? d.share_history : [];
-      setShares(hist.filter((h: any) => ids.includes(h.doctor_id)));
+      const res = await apiFetch<{ data?: Record<string, unknown> } & Record<string, unknown>>(`/medical-reports/${reportId}`);
+      const d = (res?.data as Record<string, unknown> | undefined) ?? res ?? {};
+      const ids = Array.isArray(d.shared_with_doctor_ids) ? (d.shared_with_doctor_ids as string[]) : [];
+      const hist = Array.isArray(d.share_history) ? (d.share_history as ShareRow[]) : [];
+      setShares(hist.filter((h) => ids.includes(h.doctor_id)));
     } catch {
       setShares([]);
     } finally {
@@ -118,292 +119,135 @@ export default function ShareReportScreen() {
     }
   };
 
-  const openServerShare = (report: any) => {
-    setShareTarget(report);
-    setDocQuery("");
-    setDocResults([]);
+  const openServerShare = (report: Report) => {
+    setTarget(report);
+    setQuery('');
+    setHits([]);
     void loadShares(report.id);
   };
 
   const searchDoctors = async () => {
-    if (!docQuery.trim() || docSearching) return;
-    setDocSearching(true);
+    if (!query.trim() || searching) return;
+    setSearching(true);
     try {
-      const res: any = await apiFetch(`/care/doctors?q=${encodeURIComponent(docQuery.trim())}&limit=10`);
-      setDocResults(Array.isArray(res) ? res : res?.data || res?.items || []);
+      setHits(list<DoctorHit>(await apiFetch(`/care/doctors?q=${encodeURIComponent(query.trim())}&limit=10`), 'items'));
     } catch {
-      setDocResults([]);
+      setHits([]);
     } finally {
-      setDocSearching(false);
+      setSearching(false);
     }
   };
 
-  const doShare = async (doc: any) => {
-    if (!shareTarget || sharing) return;
+  const doShare = async (doc: DoctorHit) => {
+    if (!target || sharing) return;
     setSharing(true);
     try {
-      await apiFetch(`/medical-reports/${shareTarget.id}/share`, {
-        method: "POST",
-        body: JSON.stringify({ doctor_profile_id: doc.id, doctor_name: pickLocalized(doc.name_ar, doc.name_en) }),
-      });
-      await loadShares(shareTarget.id);
-      showLocalizedAlert("تمت المشاركة", "أصبح التقرير متاحاً للطبيب عبر المنصة");
-    } catch (e: any) {
-      showLocalizedAlert("تعذرت المشاركة", e?.message || "حاول لاحقاً");
+      await apiFetch(`/medical-reports/${target.id}/share`, { method: 'POST', body: JSON.stringify({ doctor_profile_id: doc.id, doctor_name: pickLocalized(doc.name_ar, doc.name_en) }) });
+      await loadShares(target.id);
+      showLocalizedAlert(k('consult.share.doneTitle'), k('consult.share.doneBody'));
+    } catch (e) {
+      showLocalizedAlert(k('consult.share.failedTitle'), e instanceof Error && e.message ? e.message : k('consult.share.tryLater'));
     } finally {
       setSharing(false);
     }
   };
 
   const doRevoke = async (doctorId: string) => {
-    if (!shareTarget) return;
+    if (!target) return;
     try {
-      await apiFetch(`/medical-reports/${shareTarget.id}/share/${encodeURIComponent(doctorId)}`, { method: "DELETE" });
-      await loadShares(shareTarget.id);
-    } catch (e: any) {
-      showLocalizedAlert("تعذر الإلغاء", e?.message || "حاول لاحقاً");
+      await apiFetch(`/medical-reports/${target.id}/share/${encodeURIComponent(doctorId)}`, { method: 'DELETE' });
+      await loadShares(target.id);
+    } catch (e) {
+      showLocalizedAlert(k('consult.share.revokeFailed'), e instanceof Error && e.message ? e.message : k('consult.share.tryLater'));
     }
   };
 
-
-  if (shareTarget) {
+  if (target) {
     return (
-      <View style={[st.c, { backgroundColor: colors.background }]}>
-        <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-        <View
-          style={[
-            st.hdr,
-            {
-              paddingTop: insets.top + 8,
-              backgroundColor: colors.surface,
-              borderBottomColor: colors.borderLight,
-            },
-          ]}
-        >
-          <View style={{ width: 40 }} />
-          <AppText variant="h4">مشاركة تقارير مع الطبيب</AppText>
-          <IconButton icon="back" onPress={() => router.back()} />
-        </View>
-          <ScrollView contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 120 }}>
-            <TouchableOpacity onPress={() => setShareTarget(null)} style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6 }}>
-              <Icon name="back" size={18} color={colors.primary} />
-              <AppText color={colors.primary}>رجوع للتقارير</AppText>
-            </TouchableOpacity>
-            <Card>
-              <AppText variant="h6">{pickLocalized(shareTarget.title_ar, shareTarget.title_en) || "تقرير طبي"}</AppText>
-              <AppText variant="caption" color={colors.textTertiary}>مشاركة عبر المنصة — يراها الطبيب المختار فقط ويمكنك إلغاؤها في أي وقت</AppText>
+      <ConsultScreen title={k('consult.share.title')} onBack={() => setTarget(null)} testID="share-report-doctor">
+        <Card theme={theme}>
+          <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{title(target)}</Text>
+          <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, marginTop: 4, ...flow }}>{k('consult.share.platformNote')}</Text>
+        </Card>
+        <Section title={k('consult.share.findDoctor')}>
+          <Input label={k('consult.share.doctorField')} placeholder={k('consult.share.doctorPlaceholder')} value={query} onChange={setQuery} startIcon="search" theme={theme} testID="share-doctor-query" />
+          <Button label={k('consult.share.search')} size="md" fullWidth loading={searching} onPress={() => void searchDoctors()} theme={theme} />
+          {hits.map((d) => (
+            <Card key={d.id} theme={theme}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                  <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{pickLocalized(d.name_ar, d.name_en) || k('consult.doctorFallback')}</Text>
+                  <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{[d.specialty, d.city].filter(Boolean).join(' · ')}</Text>
+                </View>
+                <Button label={k('consult.share.share')} size="sm" loading={sharing} onPress={() => void doShare(d)} theme={theme} />
+              </View>
             </Card>
-            <SectionHeader title="ابحث عن الطبيب" />
-            <View style={{ flexDirection: "row-reverse", gap: 8 }}>
-              <TextInput
-                value={docQuery}
-                onChangeText={setDocQuery}
-                placeholder="اسم الطبيب أو التخصص"
-                placeholderTextColor={colors.textTertiary}
-                style={{ flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, color: colors.textPrimary, backgroundColor: colors.surface, textAlign: "right" }}
-                onSubmitEditing={() => void searchDoctors()}
-                returnKeyType="search"
-              />
-              <Button label="بحث" size="sm" full={false} loading={docSearching} onPress={() => void searchDoctors()} />
-            </View>
-            {docResults.map((d: any) => (
-              <Card key={d.id} style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
-                <View style={{ flex: 1 }}>
-                  <AppText variant="h6">{pickLocalized(d.name_ar, d.name_en) || "طبيب"}</AppText>
-                  <AppText variant="caption" color={colors.textTertiary}>{[d.specialty, d.city].filter(Boolean).join(" · ")}</AppText>
+          ))}
+        </Section>
+        <Section title={k('consult.share.sharedWith')}>
+          {sharesLoading ? (
+            <ActivityIndicator color={c.text.secondary} accessibilityLabel={k('consult.loading')} />
+          ) : shares.length === 0 ? (
+            <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.share.sharedNone')}</Text>
+          ) : (
+            shares.map((h) => (
+              <Card key={h.doctor_id} theme={theme}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                    <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{h.doctor_name || k('consult.doctorFallback')}</Text>
+                    <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{date(h.shared_at)}</Text>
+                  </View>
+                  <Button label={k('consult.share.revoke')} variant="outline" size="sm" onPress={() => void doRevoke(h.doctor_id)} theme={theme} />
                 </View>
-                <Button label="مشاركة" size="sm" full={false} loading={sharing} onPress={() => void doShare(d)} />
               </Card>
-            ))}
-            <SectionHeader title="مشارك حالياً مع" />
-            {sharesLoading ? (
-              <ActivityIndicator size="small" color={colors.primary} />
-            ) : shares.length === 0 ? (
-              <AppText variant="caption" color={colors.textTertiary}>لم تتم المشاركة مع أي طبيب بعد</AppText>
-            ) : shares.map((h: any) => (
-              <Card key={h.doctor_id} style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
-                <View style={{ flex: 1 }}>
-                  <AppText variant="h6">{h.doctor_name || "طبيب"}</AppText>
-                  <AppText variant="caption" color={colors.textTertiary}>{fmtDate(h.shared_at)}</AppText>
-                </View>
-                <Button label="إلغاء" size="sm" full={false} onPress={() => void doRevoke(h.doctor_id)} />
-              </Card>
-            ))}
-          </ScrollView>
-      </View>
+            ))
+          )}
+        </Section>
+      </ConsultScreen>
     );
   }
 
-  return (
-    <View style={[st.c, { backgroundColor: colors.background }]}>
-        <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-        <View
-          style={[
-            st.hdr,
-            {
-              paddingTop: insets.top + 8,
-              backgroundColor: colors.surface,
-              borderBottomColor: colors.borderLight,
-            },
-          ]}
-        >
-          <View style={{ width: 40 }} />
-          <AppText variant="h4">مشاركة تقارير مع الطبيب</AppText>
-          <IconButton icon="back" onPress={() => router.back()} />
-        </View>
-        <ScrollView
-          contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 120 }}
-        >
-          <Card style={{ backgroundColor: colors.infoSurface }}>
-            <View
-              style={{
-                flexDirection: "row-reverse",
-                gap: 10,
-                alignItems: "center",
-              }}
-            >
-              <Icon name="shield" size={20} color={colors.info} />
-              <AppText
-                variant="bodySM"
-                color={colors.textSecondary}
-                style={{ flex: 1 }}
-              >
-                شارك تقاريرك مع طبيبك عبر أي تطبيق — أنت من يختار المستلم
-              </AppText>
-            </View>
-          </Card>
+  const footer =
+    selected.length > 0 ? (
+      <>
+        {selected.length === 1 ? (
+          <Button label={k('consult.share.withDoctor')} variant="outline" size="md" fullWidth onPress={() => { const r = reports.find((x) => x.id === selected[0]); if (r) openServerShare(r); }} theme={theme} />
+        ) : null}
+        <Button label={k('consult.share.shareN', { n: num(selected.length) })} size="lg" fullWidth startIcon="arrows-left-right" loading={sending} onPress={() => void handleShare()} theme={theme} testID="share-send" />
+      </>
+    ) : undefined;
 
-          <SectionHeader title="اختر التقارير للمشاركة" />
-          {loading ? (
-            <View style={{ alignItems: "center", paddingVertical: 32 }}>
-              <ActivityIndicator size="large" color={colors.primary} />
-            </View>
-          ) : reports.length === 0 ? (
-            <Card style={{ alignItems: "center", gap: 10, paddingVertical: 28 }}>
-              <Icon name="document" size={36} color={colors.textTertiary} />
-              <AppText variant="body" color={colors.textSecondary}>
-                لا توجد تقارير لمشاركتها بعد
-              </AppText>
-              <Button
-                label="العودة للتقارير"
-                size="sm"
-                full={false}
-                onPress={() => router.push("/reports/hub")}
-              />
+  return (
+    <ConsultList
+      testID="share-report-screen"
+      title={k('consult.share.title')}
+      top={<Notice tone="info" text={k('consult.share.intro')} />}
+      data={reports}
+      status={status}
+      onRetry={() => void load()}
+      footer={footer}
+      empty={{ icon: 'file-text', title: k('consult.share.empty'), actionLabel: k('consult.share.backToReports'), onAction: () => router.push('/reports/hub' as Href) }}
+      keyExtractor={(r) => r.id}
+      renderItem={(r) => {
+        const on = selected.includes(r.id);
+        const icon: FillIconName = r.lab_booking_id ? 'test-tube' : r.radiology_booking_id ? 'scan' : 'file-text';
+        return (
+          <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: on }} accessibilityLabel={title(r)} onPress={() => toggle(r.id)} style={{ minHeight: 44 }}>
+            <Card theme={theme} padding="sm" testID={`report-${r.id}`}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <View style={{ width: 28, height: 28, borderRadius: 14, borderWidth: on ? 0 : 1.5, borderColor: c.border.strong, backgroundColor: on ? c.action.selected.bg : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
+                  {on ? <Glyph name="check-circle" size={20} color={c.action.selected.fg} /> : null}
+                </View>
+                <FIcon icon={icon} tone={r.lab_booking_id ? 'violet' : r.radiology_booking_id ? 'violet' : 'blue'} size={44} theme={theme} />
+                <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                  <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{title(r)}</Text>
+                  <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{[r.facility_name || r.doctor_name, date(r.issued_at || r.createdAt, true)].filter(Boolean).join(' · ')}</Text>
+                </View>
+              </View>
             </Card>
-          ) : (
-            reports.map((r) => {
-              const sel = selected.includes(r.id);
-              const isLab = !!r.lab_booking_id;
-              return (
-                <Card
-                  key={r.id}
-                  onPress={() => toggle(r.id)}
-                  style={[
-                    st.reportCard,
-                    sel && { borderColor: colors.primary, borderWidth: 2 },
-                  ]}
-                >
-                  <View
-                    style={{
-                      flexDirection: "row-reverse",
-                      gap: 12,
-                      alignItems: "center",
-                    }}
-                  >
-                    <View
-                      style={[
-                        st.check,
-                        {
-                          borderColor: sel ? colors.primary : colors.border,
-                          backgroundColor: sel ? colors.primary : "transparent",
-                        },
-                      ]}
-                    >
-                      {sel && <Icon name="check" size={14} color="#fff" />}
-                    </View>
-                    <View
-                      style={[
-                        st.rIcon,
-                        { backgroundColor: isLab ? "#7A6BEA18" : "#23B5CE18" },
-                      ]}
-                    >
-                      <Icon
-                        name={isLab ? "testTube" : r.radiology_booking_id ? "scan" : "document"}
-                        size={22}
-                        color={isLab ? "#7A6BEA" : "#23B5CE"}
-                      />
-                    </View>
-                    <View style={{ flex: 1, alignItems: "flex-end", gap: 2 }}>
-                      <AppText variant="h6">{pickLocalized(r.title_ar, r.title_en) || "تقرير طبي"}</AppText>
-                      <AppText variant="caption" color={colors.textTertiary}>
-                        {[r.facility_name || r.doctor_name, fmtDate(r.issued_at || r.createdAt)].filter(Boolean).join(" · ")}
-                      </AppText>
-                    </View>
-                  </View>
-                </Card>
-              );
-            })
-          )}
-        </ScrollView>
-        {selected.length > 0 && (
-          <View
-            style={[
-              st.bottom,
-              {
-                paddingBottom: insets.bottom + 8,
-                backgroundColor: colors.surface,
-                borderTopColor: colors.borderLight,
-              },
-            ]}
-          >
-            {selected.length === 1 && (
-              <TouchableOpacity
-                onPress={() => { const r = reports.find((x) => x.id === selected[0]); if (r) openServerShare(r); }}
-                style={{ borderWidth: 1, borderColor: colors.primary, borderRadius: 14, paddingVertical: 12, alignItems: "center", marginBottom: 8 }}
-              >
-                <AppText style={{ color: colors.primary, fontWeight: "bold" }}>مشاركة عبر نبض مع طبيب محدد</AppText>
-              </TouchableOpacity>
-            )}
-            <Button
-              label={`مشاركة ${selected.length} تقرير مع الطبيب`}
-              variant="gradient"
-              size="lg"
-              icon="send"
-              loading={sending}
-              onPress={handleShare}
-            />
-          </View>
-        )}
-    </View>
+          </Pressable>
+        );
+      }}
+    />
   );
 }
-
-const st = StyleSheet.create({
-  c: { flex: 1 },
-  hdr: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-  },
-  reportCard: { borderWidth: 1, borderColor: "transparent" },
-  check: {
-    width: 24,
-    height: 24,
-    borderRadius: 7,
-    borderWidth: 2,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  rIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  bottom: { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1 },
-});
