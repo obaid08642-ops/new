@@ -272,49 +272,65 @@
       "route": "/nursing/visits",
       "element": "Visit card opens live-tracking with type=patient",
       "kind": "client",
-      "note": "type=patient makes the tracking page say 'go and pick up the nurse' for every home visit opened from the list; the booking flow sends type=nurse. Left as is (logic)."
+      "note": "type=patient makes the tracking page say 'go and pick up the nurse' for every home visit opened from the list; the booking flow sends type=nurse. Left as is (logic).",
+      "file": "patient-app/app/nursing/visits.tsx",
+      "line": 52
     },
     {
       "route": "/nursing/nurse-profile",
       "element": "Transport choice",
       "kind": "client",
-      "note": "The choice is not part of the POST /nursing/bookings payload; it only changes the tracking wording. The invented '(0 SAR)' price on the second option was removed."
+      "note": "The choice is not part of the POST /nursing/bookings payload; it only changes the tracking wording. The invented '(0 SAR)' price on the second option was removed.",
+      "file": "patient-app/app/nursing/nurse-profile.tsx",
+      "line": 247
     },
     {
       "route": "/nursing/nurse-profile",
       "element": "Booking time",
       "kind": "backend",
-      "note": "The booking is built from a fixed list of daily slots (08:00 to 13:00), not from the nurse's availability."
+      "note": "The booking is built from a fixed list of daily slots (08:00 to 13:00), not from the nurse's availability.",
+      "file": "patient-app/app/nursing/nurse-profile.tsx",
+      "line": 236
     },
     {
       "route": "/nursing/service-details",
       "element": "Injection policy check",
       "kind": "client",
-      "note": "Decided by service ids and Arabic words in the title; a title in another language skips the prescription dialog."
+      "note": "Decided by service ids and Arabic words in the title; a title in another language skips the prescription dialog.",
+      "file": "patient-app/app/nursing/service-details.tsx",
+      "line": 63
     },
     {
       "route": "/nursing/service-details",
       "element": "Providers query",
       "kind": "client",
-      "note": "The search, gender and nationality values are put in the URL without encoding."
+      "note": "The search, gender and nationality values are put in the URL without encoding.",
+      "file": "patient-app/app/nursing/service-details.tsx",
+      "line": 43
     },
     {
       "route": "/nursing",
       "element": "Search and filters",
       "kind": "backend",
-      "note": "Only passed to /home-care/providers on the next screen; the hub itself filters nothing."
+      "note": "Only passed to /home-care/providers on the next screen; the hub itself filters nothing.",
+      "file": "patient-app/app/(tabs)/nursing.tsx",
+      "line": 115
     },
     {
       "route": "/nursing/live-tracking",
       "element": "Back button",
       "kind": "owner",
-      "note": "Goes back or to the home tab; the old screen always went to the home tab. Kept the old target as the fallback."
+      "note": "Goes back or to the home tab; the old screen always went to the home tab. Kept the old target as the fallback.",
+      "file": "patient-app/app/nursing/live-tracking.tsx",
+      "line": 105
     },
     {
       "route": "/nursing/live-tracking",
       "element": "Visit steps",
       "kind": "backend",
-      "note": "The tracking answer has no steps, so the OrderTracking timeline is not drawn."
+      "note": "The tracking answer has no steps, so the OrderTracking timeline is not drawn.",
+      "file": "patient-app/app/nursing/live-tracking.tsx",
+      "line": 120
     }
   ]
 }
