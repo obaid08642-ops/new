@@ -19,6 +19,7 @@ export const CLIENT_NAMESPACES = [
   "CoreShell",
   "DeliveryAddressSelect",
   "Doctors",
+  "FamilyWeb",
   "ForgotPassword",
   "HealthWeb",
   "HomeWeb",
