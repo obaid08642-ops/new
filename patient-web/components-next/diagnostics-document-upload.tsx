@@ -8,6 +8,7 @@ import consult from "@/components-next/consult/consult.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/diagnostics/diag.module.css";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
+import { diagnosticBookingHref } from "@/lib/diagnostics-links";
 
 const KINDS = ["doctor_request", "preauth", "insurance_card", "other"] as const;
 const KIND_KEYS = { doctor_request: "docDoctorRequest", preauth: "docPreauth", insurance_card: "docInsuranceCard", other: "docOther" } as const;
@@ -46,7 +47,7 @@ export function DiagnosticsDocumentUpload({ locale, bookingId }: { locale: strin
         setError((data as { message?: string })?.message || t("errUpload"));
         return;
       }
-      router.push(`/${locale}/diagnostics/labs/${encodeURIComponent(bookingId)}`);
+      router.push(diagnosticBookingHref(locale, "labs", bookingId));
       router.refresh();
     } catch {
       setError(t("errUpload"));

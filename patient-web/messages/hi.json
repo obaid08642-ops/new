@@ -2632,12 +2632,7 @@
     "trackingBeforeTitle": "सैंपल से पहले",
     "trackingBeforeBody": "जब तक डॉक्टर कुछ और न कहें, सैंपल से 8 से 12 घंटे पहले कुछ न खाएँ।",
     "trackingStepsTitle": "चरण",
-    "stepReceived": "ऑर्डर मिल गया",
-    "stepAssigned": "सैंपल लेने वाला नियुक्त हुआ",
-    "stepOnTheWay": "सैंपल लेने वाला रास्ते में है",
-    "stepCollected": "सैंपल ले लिया गया",
-    "stepAtLab": "सैंपल लैब में है",
-    "stepResult": "नतीजा तैयार है",
+    "trackingNoSteps": "अभी तक ट्रैकिंग की कोई अपडेट नहीं है। लैब जब चरण दर्ज करेगी तो वे यहाँ दिखेंगे।",
     "searchTests": "टेस्ट खोजें…",
     "noResultsTitle": "कोई नतीजा नहीं",
     "noResultsBody": "कोई और नाम या श्रेणी आज़माएँ।",
@@ -2666,6 +2661,10 @@
     "status_sampled": "सैंपल ले लिया गया",
     "status_processing": "जारी है",
     "status_report": "रिपोर्ट तैयार है",
-    "status_cancelled": "रद्द"
+    "status_cancelled": "रद्द",
+    "bookingNotSentTitle": "कोई बुकिंग नहीं हुई",
+    "bookingNotSentBody": "यह विंडो अभी बुकिंग नहीं भेजती, इसलिए कोई अपॉइंटमेंट नहीं बना और कोई भुगतान नहीं लिया गया। विज़िट बुक करने के लिए नर्सिंग पेज खोलें।",
+    "bookingNotSentCta": "नर्सिंग पेज पर जाएँ",
+    "bookingNotSentClose": "बंद करें"
   }
 }
