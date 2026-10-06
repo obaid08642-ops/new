@@ -4,6 +4,14 @@ Reviewer: Claude, 2026-10-05. Rules: AGENTS.md, docs/audit/02_AGENT_EXECUTION_PL
 Backup of the work: `opencode/phases-13-21-snapshot`. Per-group detail (commands, file:line, patches): the
 sections below are the reviewers' full tables.
 
+## Owner decision 2026-10-06 (B) — done
+`fix/audit-2026-09` was restored with normal commits (no force-push): 5691122a = tree of 08420c11, then
+e0bec75c = the reviewed line 8fbb9358 (no OpenCode commit; PRs #279 #285 #287 #288 #289 #290 #291 + main).
+Gate on e0bec75c: tsc 0, build ok, unit 2165, boot 74, dtolint 0, dtocheck 0 mismatches. OpenCode's work stays
+on `opencode/phases-13-21-snapshot` (6c0ed5bf) and comes back as reviewed PRs: P15 first (green up to 00334901),
+then 16–21, each with A–K fixed and the `oc-*` acceptance passing. Item F (CI pins) is closed by the restore:
+`acceptance/oc-ci` passes 9/9 on e0bec75c.
+
 ## Verdict: FAIL — tip 6c0ed5bf is broken
 
 | check at tip | result | base 08420c11 |
@@ -29,7 +37,7 @@ patient-web 701, provider-app 147); later OpenCode commits (52dc3644, 6180cdf1, 
 ## For OpenCode (each with an acceptance test it may not edit)
 | id | work | acceptance |
 |---|---|---|
-| A | Restore auth.service.ts from 08420c11 and ADD Phase 21 on top; all 14 auth suites of 08420c11 green unchanged; socialLogin route removed with the method (Q107) | `acceptance/oc-auth` + `npx jest src/modules/auth` |
+| A | Restore auth.service.ts from 08420c11 and ADD Phase 21 on top; all 14 auth suites of 08420c11 green unchanged; socialLogin kept (Q107 review fix) | `acceptance/oc-auth` + `npx jest src/modules/auth` |
 | B | Phase 21 rework: linking needs proof + ownership (no placeholder emails), guest merge (correct filters, no swallowed errors in the transaction, proof of target), atomic session rotation + family revoke on reuse, OTP hashed + capped + opaque + CSPRNG, DTO classes, `guest/cleanup` admin-only, permission matrix stored and enforced, tests for every Verify | `acceptance/oc-phase21` |
 | C | Delete/realign the 2026-10 migrations with REVIEW_P5 (no drop, explicit URI, honest report) | `acceptance/oc-migrations` |
 | D | Restore the audit-log event writers and `/security/audit`, tracing and correlation id (`x-correlation-id`, `req.correlationId`) removed by 6180cdf1 | `acceptance/oc-security` |

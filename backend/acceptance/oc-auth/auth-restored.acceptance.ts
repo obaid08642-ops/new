@@ -6,7 +6,7 @@
 // was gone. Required: the service of 08420c11 is back, with Phase 21 ADDED on top.
 // Also required (run separately, see README): `npx jest src/modules/auth` passes
 // every suite that passed at 08420c11 (14/14) without editing those specs.
-// Q107 (owner): socialLogin stays removed.
+// Q107: socialLogin stays, verifying the provider token ([REVIEW-FIX] d7dc620f / #290).
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -16,7 +16,7 @@ const REQUIRED = [
   'logoutAllDevices', 'recordComplianceConsent', 'requestPatientOtp', 'verifyPatientOtp', 'exchangePatientSession',
   'forgotPatientPassword', 'resetPatientPassword', 'registerPatientContract', 'register', 'login', 'verify2fa',
   'completePasskeyLogin', 'adminLoginAlert', 'listTrustedDevices', 'revokeTrustedDevice', 'deviceHeartbeat', 'onlineDevices',
-  'guest', 'convertGuest', 'me', 'publicUser', 'sendOtp', 'verifyOtp', 'resetPassword',
+  'guest', 'convertGuest', 'me', 'publicUser', 'sendOtp', 'verifyOtp', 'resetPassword', 'socialLogin',
 ];
 
 describe('auth service restored (OpenCode review item A)', () => {
@@ -41,8 +41,4 @@ describe('auth service restored (OpenCode review item A)', () => {
     expect(missing).toEqual([]);
   });
 
-  it('Q107: social login stays removed', async () => {
-    const { AuthService } = await import('../../src/modules/auth/auth.service');
-    expect((AuthService.prototype as unknown as Record<string, unknown>).socialLogin).toBeUndefined();
-  });
 });
