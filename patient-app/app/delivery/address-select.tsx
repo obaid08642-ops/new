@@ -1,186 +1,155 @@
-// @ts-nocheck
-// app/delivery/address-select.tsx — اختيار عنوان التوصيل مع خريطة حقيقية
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-  View, StyleSheet, ScrollView, StatusBar, TouchableOpacity, ActivityIndicator,
-} from 'react-native';
-import { router } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../../src/context/AppContext';
-import { Icon } from '../../src/components/Icon';
-import { AppText, Button, IconButton, SectionHeader } from '../../src/components/ui';
-import { apiFetch } from '../../src/utils/api';
-import { setSelectedAddress } from '../../src/utils/selectedAddress';
-import { ScreenState } from '../../src/components/ScreenStates';
+import React, { useCallback, useRef, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
+import { router, useFocusEffect, type Href } from 'expo-router';
 
-interface Address {
-  id: string;
-  label: string;
-  street?: string;
-  city?: string;
-  lat?: number;
-  lng?: number;
-  is_default?: boolean;
-}
+import { AppHeader, Button, Card, EmptyState, ErrorState, FIcon, OfflineState, Screen, StickyFooter } from '../../../packages/ui-native/src';
+import { Pill, goBack } from '../../src/components/pharmacy/PharmacyKit';
+import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { apiFetch } from '../../src/utils/api';
+import { isOffline } from '../../src/utils/isOffline';
+import { logError } from '../../src/utils/logger';
+import { ORDERS_TONE } from '../../src/utils/orderCenter';
+import { getSelectedAddress, hasMapPoint, readAddresses, setSelectedAddress, startingSelection, type SelectedAddress } from '../../src/utils/selectedAddress';
+
+/**
+ * Delivery address — the saved addresses (GET /users/me/addresses) in the list-row look of the Account board
+ * (canvas/Account.dc.html "العناوين"). The patient picks one and confirms; the choice is kept on this phone
+ * (utils/selectedAddress.ts) for the pharmacy, lab and visit screens that read it. The list is read again when the screen
+ * comes back into focus, so an address added on the map appears at once. Nothing is made up: a saved address without a
+ * map point says so, because the pharmacy requests need one.
+ */
 
 export default function AddressSelectScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
+  const { theme, t, c, dir, flow, k } = useScreenUi();
+  const [addresses, setAddresses] = useState<SelectedAddress[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
-  const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
+  const [saving, setSaving] = useState(false);
+  const hasData = useRef(false);
+  const choice = useRef<string | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await apiFetch('/users/me/addresses');
-        const list: Address[] = Array.isArray(data) ? data : [];
-        setAddresses(list);
-        const def = list.find(a => a.is_default) || list[0];
-        if (def) setSelected(def.id);
-      } catch {
-        // No mock fallback — show the honest empty state
-        setError('تعذر تحميل العناوين المحفوظة');
-        setAddresses([]);
-      } finally {
-        setLoading(false);
-      }
-    })();
+  const load = useCallback(async (mode: 'first' | 'again') => {
+    if (mode === 'first') setLoading(true);
+    try {
+      const list = readAddresses(await apiFetch('/users/me/addresses'));
+      const picked = await getSelectedAddress();
+      setAddresses(list);
+      // keep what the patient chose on this screen, else the address picked last, else the default
+      const start = startingSelection(list, choice.current, picked?.id ?? null);
+      choice.current = start;
+      setSelected(start);
+      setFailed(null);
+      hasData.current = true;
+    } catch (error) {
+      logError('delivery:address-select', error);
+      if (!hasData.current) setFailed((await isOffline()) ? 'offline' : 'error');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const handleConfirm = useCallback(async () => {
-    const chosen = addresses.find(a => a.id === selected);
-    if (chosen) {
+  useFocusEffect(
+    useCallback(() => {
+      void load(hasData.current ? 'again' : 'first');
+    }, [load]),
+  );
+
+  const confirm = async () => {
+    const chosen = addresses.find((a) => a.id === selected);
+    if (!chosen || saving) return;
+    setSaving(true);
+    try {
       await setSelectedAddress(chosen);
+      goBack();
+    } finally {
+      setSaving(false);
     }
-    router.back();
-  }, [selected, addresses]);
+  };
 
-  return (
-    <View style={[styles.c, { backgroundColor: colors.background } ]}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+  const toMap = () => router.push('/shared/location-picker' as Href);
 
-      {/* Header */}
-      <View style={[styles.hdr, { paddingTop: insets.top + 8, backgroundColor: colors.surface, borderBottomColor: colors.borderLight } ]}>
-        <View style={{ width: 40 }}/>
-        <AppText variant="h4">عنوان التوصيل</AppText>
-        <IconButton icon="back" onPress={() => router.back()} />
-      </View>
-
-      <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد عناوين" onRetry={() => setError(null)}>
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 120 }}>
-        {/* GPS button → opens real location picker */}
-        <TouchableOpacity
-          style={[styles.gpsBtn, { backgroundColor: colors.primarySurface, borderColor: colors.primary }]}
-          onPress={() => router.push('/shared/location-picker')}
-          activeOpacity={0.85}
-        >
-          <Icon name="map-marker-radius" size={22} color={colors.primary} />
-          <AppText variant="labelMD" color={colors.primary}>استخدم موقعي الحالي أو حدد على الخريطة</AppText>
-        </TouchableOpacity>
-
-        {/* Saved Addresses from Backend */}
-        <SectionHeader title="العناوين المحفوظة" />
-
-        {loading ? (
-          <ActivityIndicator color={colors.primary} style={{ marginTop: 20 }}/>
-        ) : addresses.length === 0 ? (
-          <View style={styles.emptyWrap}>
-            <Icon name="location" size={40} color={colors.textTertiary} />
-            <AppText variant="bodyMD" color={colors.textTertiary} align="center">
-              لا توجد عناوين محفوظة
-            </AppText>
-          </View>
-        ) : (
-          addresses.map(addr => (
-            <TouchableOpacity
-              key={addr.id}
-              onPress={() => setSelected(addr.id)}
-              style={[
-                styles.addrCard,
-                {
-                  backgroundColor: colors.surface,
-                  borderColor: selected === addr.id ? colors.primary : colors.border,
-                  borderWidth: selected === addr.id ? 2 : 1,
-                },]} >
-              <View style={[styles.addrIcon, {
-                backgroundColor: selected === addr.id ? colors.primarySurface : colors.surfaceSecondary,
-              } ]}>
-                <Icon
-                  name={addr.label === 'العمل' ? 'hospital' : 'home'}
-                  size={22}
-                  color={selected === addr.id ? colors.primary : colors.textTertiary}
-                />
-              </View>
-              <View style={{ flex: 1, alignItems: 'flex-end', gap: 4 }}>
-                <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 8 }}>
-                  <AppText variant="h6">{addr.label}</AppText>
-                  {addr.is_default && (
-                    <View style={[styles.defaultBadge, { backgroundColor: colors.primarySurface } ]}>
-                      <AppText variant="caption" color={colors.primary}>افتراضي</AppText>
-                    </View>
-                  )}
-                </View>
-                <AppText variant="caption" color={colors.textTertiary}>
-                  {addr.street}{addr.city ? `، ${addr.city}` : ''}
-                </AppText>
-              </View>
-              <View style={[styles.radio, { borderColor: selected === addr.id ? colors.primary : colors.border } ]}>
-                {selected === addr.id && <View style={[styles.radioDot, { backgroundColor: colors.primary }]} />}
-              </View>
-            </TouchableOpacity>
-          ))
-        )}
-
-        {/* Add new → opens full location picker */}
-        <TouchableOpacity
-          onPress={() => router.push('/shared/location-picker')}
-          style={[styles.addNew, { borderColor: colors.primary } ]}>
-          <Icon name="add" size={22} color={colors.primary} />
-          <AppText variant="labelMD" color={colors.primary}>إضافة عنوان جديد على الخريطة</AppText>
-        </TouchableOpacity>
-      </ScrollView>
-
-      {/* Confirm button */}
-      <View style={[styles.bottomBar, { paddingBottom: insets.bottom + 12, backgroundColor: colors.surface, borderTopColor: colors.border } ]}>
-        <Button
-          label="تأكيد العنوان"
-          variant="primary"
-          icon="check_circle"
-          onPress={handleConfirm}
-          disabled={!selected}
-        />
-      </View>
-      </ScreenState>
+  const header = (
+    <View style={COLUMN}>
+      <AppHeader title={k('address.title')} onBack={goBack} backLabel={k('pharmacy.back')} theme={theme} direction={dir} />
     </View>
   );
-}
+  const state = (node: React.ReactNode) => (
+    <Screen theme={theme} direction={dir} header={header} scroll testID="address-select-screen">
+      <View style={{ ...COLUMN, paddingHorizontal: 16, paddingBottom: 32, flexGrow: 1, justifyContent: 'center' }}>{node}</View>
+    </Screen>
+  );
 
-const styles = StyleSheet.create({
-  c: { flex: 1 },
-  hdr: {
-    flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1,
-  },
-  gpsBtn: {
-    flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center',
-    gap: 10, paddingVertical: 14, borderRadius: 16, borderWidth: 1,
-  },
-  emptyWrap: { alignItems: 'center', gap: 12, paddingVertical: 30 },
-  addrCard: { flexDirection: 'row-reverse', alignItems: 'center', gap: 12, padding: 14, borderRadius: 16 },
-  addrIcon: { width: 46, height: 46, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
-  defaultBadge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 },
-  radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, justifyContent: 'center', alignItems: 'center' },
-  radioDot: { width: 12, height: 12, borderRadius: 6 },
-  addNew: {
-    flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center',
-    gap: 8, paddingVertical: 14, borderRadius: 16, borderWidth: 1.5, borderStyle: 'dashed', marginTop: 4,
-  },
-  bottomBar: {
-    position: 'absolute', bottom: 0, left: 0, right: 0,
-    paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1,
-  },
-});
+  if (loading) {
+    return (
+      <Screen theme={theme} direction={dir} header={header} scroll testID="address-select-screen">
+        <View accessibilityLabel={k('pharmacy.loading')} accessibilityState={{ busy: true }} style={{ ...COLUMN, paddingHorizontal: 16, gap: 12 }}>
+          <View style={{ height: 72, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} />
+          <View style={{ height: 72, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} />
+        </View>
+      </Screen>
+    );
+  }
+  if (failed === 'offline') {
+    return state(<OfflineState title={k('pharmacy.offline.title')} body={k('pharmacy.offline.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void load('first')} theme={theme} />);
+  }
+  if (failed === 'error') {
+    return state(<ErrorState title={k('address.loadError')} body={k('pharmacy.error.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void load('first')} theme={theme} />);
+  }
+  if (!addresses.length) {
+    return state(<EmptyState icon="map-pin-line" tone={ORDERS_TONE} title={k('address.empty')} body={k('address.emptyBody')} actionLabel={k('address.add')} onAction={toMap} theme={theme} />);
+  }
+
+  const footer = (
+    <StickyFooter theme={theme} direction={dir}>
+      <View style={COLUMN}>
+        <Button label={k('address.confirm')} size="lg" fullWidth disabled={!selected || saving} loading={saving} onPress={() => void confirm()} testID="address-confirm" theme={theme} />
+      </View>
+    </StickyFooter>
+  );
+
+  return (
+    <Screen theme={theme} direction={dir} header={header} footer={footer} scroll testID="address-select-screen">
+      <View style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, gap: 16 }}>
+        <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{k('address.saved')}</Text>
+        <Card padding="none" theme={theme}>
+          <View accessibilityRole="radiogroup" accessibilityLabel={k('address.saved')}>
+            {addresses.map((a, i) => {
+              const on = a.id === selected;
+              const line = [a.street, a.district, a.city].filter(Boolean).join(', ');
+              const name = [a.label ?? line, a.is_default ? k('address.default') : '', a.label ? line : '', hasMapPoint(a) ? '' : k('address.noPoint')].filter(Boolean).join(', ');
+              return (
+                <Pressable
+                  key={a.id}
+                  accessibilityRole="radio"
+                  accessibilityLabel={name}
+                  accessibilityState={{ checked: on }}
+                  onPress={() => {
+                    choice.current = a.id;
+                    setSelected(a.id);
+                  }}
+                  style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 14, minHeight: 64, borderBottomWidth: i === addresses.length - 1 ? 0 : 1, borderBottomColor: c.border.subtle, opacity: pressed ? 0.85 : 1 })}
+                >
+                  <FIcon icon="map-pin-line" tone={ORDERS_TONE} chip="soft" size={40} theme={theme} />
+                  <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                    <Text style={{ ...scale(t, 'row', 'medium'), color: c.text.primary, ...flow }}>{a.label ?? (line || k('address.unnamed'))}</Text>
+                    {a.label && line ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{line}</Text> : null}
+                    {a.is_default || !hasMapPoint(a) ? (
+                      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, paddingTop: 2 }}>
+                        {a.is_default ? <Pill label={k('address.default')} tone="info" /> : null}
+                        {!hasMapPoint(a) ? <Pill label={k('address.noPoint')} tone="warning" /> : null}
+                      </View>
+                    ) : null}
+                  </View>
+                  <View style={{ width: 22, height: 22, borderRadius: 11, borderWidth: on ? 7 : 2, borderColor: on ? c.action.primary.bg : c.control.radioOff }} />
+                </Pressable>
+              );
+            })}
+          </View>
+        </Card>
+
+        <Button label={k('address.add')} variant="outline" size="lg" fullWidth onPress={toMap} theme={theme} />
+      </View>
+    </Screen>
+  );
+}
