@@ -44,3 +44,15 @@ Contracts: existing `feature_flags.rollout_percentage` read path untouched; new 
 BLOCKED: warehouse provisioning needs owner infra decision (ClickHouse/BigQuery instance + creds + backfill).
 DEFERRED-NEED: none (no app.module/common/other-module edits).
 Live journey (other agent): create exp → assign 2 subjects twice (same variant) → convert → report shows winner; ingest identified event w/o consent → consent_required + 0 rows; admin funnel/retention reflect seeded events.
+
+### 22.11 Fraud and risk — BUILT-NEW scorers + risk API on existing stores
+Files (all in owned `admin/enterprise`, wired into owned `admin.module.ts` — no other-module edits):
+- `fraud-scoring.math.ts` — pure scorers (fake orders, COD abuse, account farms, promo abuse, payment fraud; 0..1 + reasons + ≥0.6 flag), `aggregateRisk` (allow/review/block), read-only 3DS capability matrix (Moyasar hosted / Stripe payment-intent / Tap hosted / HyperPay unavailable) + `threeDSHook` (require 3DS for high-risk or ≥1000 card orders; cash never).
+- `fraud-scoring.service.ts` — `FraudScoringService`: idempotent `raiseAlert` (fraud_alerts, idempotencyKey dedupe), `scoreUser` (reads users/orders/coupon_failures/coupon_usages/moyasar_payments with `$eq` filters), `threeDS`, `queue` (scores/queues), `actOnAlert` (acknowledge/dismiss/escalate + reason + idempotent risk_actions row).
+- `risk-dashboard.controller.ts` + `risk-dashboard.dto.ts` — `admin/risk/scores/:userId`, `admin/risk/queue`, `admin/risk/alerts/:id/action`, `admin/risk/3ds` (admin-guarded, validated DTOs).
+Existing pieces reused read-only: DeviceLimitGuard (max 3/device — farm threshold mirrors it), finance-engine FraudService flagTypes (refund/payment-velocity/coupon/duplicate — new scorers cover the missing five), PaymentGateway PAYMENT_PROVIDER matrix, Moyasar hosted-checkout redirect.
+Tests: 10 (7 pure incl. allow/review/block escalation + 3DS matrix; 3 service: seeded u-fraud flags ALL FIVE with action review/block, clean user allowed, idempotent raise + queue + dismiss flow).
+Proof: COD branch removed → `COD abuse` FAIL (1 failed/9 skipped); restored byte-identical → 10/10 green. tsc clean.
+Note: one design fix during build — device-over-limit weight 0.55→0.65 so exceeding the platform's own hard limit flags on its own (test caught it).
+Live tuning with real traffic is ops → NOT done (noted).
+Live journey (other agent): score seeded u-fraud → all five flagged; high-risk card order → 3ds required:true provider=moyasar; dismiss alert → queue(dismissed) contains it.
