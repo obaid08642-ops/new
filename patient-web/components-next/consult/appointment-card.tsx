@@ -3,7 +3,7 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { MODE_VISUAL, type Mode } from "@/lib/consult/appointment-view";
-import type { ServiceTone } from "@/components-next/ui-generated/icons/fill";
+import { SERVICE_ICONS, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { LocalTile } from "./local-tile";
 import styles from "./consult.module.css";
 
@@ -46,7 +46,7 @@ export function AppointmentCard({
   return (
     <li className={styles.appt}>
       <Link href={href} className={styles.apptLink}>
-        {slotStart ? <LocalTile iso={slotStart} locale={locale} tone="coral" /> : visual ? <FIcon icon={visual.icon} tone={visual.tone} size={52} /> : null}
+        {slotStart ? <LocalTile iso={slotStart} locale={locale} tone={SERVICE_ICONS.health.tone} /> : visual ? <FIcon icon={visual.icon} tone={visual.tone} size={52} /> : null}
         <span className={styles.apptText}>
           <span className={styles.apptTitle}>{title}</span>
           {specialty || timeLine ? <span className={styles.apptMeta}>{specialty}{specialty && timeLine ? " · " : ""}{timeLine}</span> : null}

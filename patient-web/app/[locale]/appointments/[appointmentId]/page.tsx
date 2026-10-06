@@ -13,6 +13,7 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { ActionLinks, Facts, Hero, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
 import { LocalTimeLine } from "@/components-next/consult/local-time-line";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import styles from "@/components-next/consult/consult.module.css";
 
@@ -53,7 +54,7 @@ export default async function AppointmentDetailPage({ params }: Props) {
     { label: t("service"), value: serviceLabel, icon: visual?.icon, tone: visual?.tone },
     { label: t("status"), value: statusLabel, icon: "check-circle", tone: statusTone(appointment.status) },
   ];
-  if (appointment.slotStart) rows.push({ label: t("scheduled"), value: <LocalTimeLine iso={appointment.slotStart} locale={locale} />, icon: "calendar-dots", tone: "coral" });
+  if (appointment.slotStart) rows.push({ label: t("scheduled"), value: <LocalTimeLine iso={appointment.slotStart} locale={locale} />, icon: "calendar-dots", tone: SERVICE_ICONS.health.tone });
   if (appointment.specialty) rows.push({ label: t("specialty"), value: appointment.specialty, icon: "stethoscope", tone: "blue" });
 
   return (

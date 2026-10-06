@@ -1,0 +1,82 @@
+[
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/appointments",
+    "element": "Tabs",
+    "file": "",
+    "line": 0,
+    "found": "[client] pending_payment, scheduled, in_progress and no_show appointments are in neither tab (the old filter, kept).",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/consultations/cancel-reschedule",
+    "element": "Refund policy",
+    "file": "",
+    "line": 0,
+    "found": "[backend] Two refund policies are written in the pages (12/24 h here, 4/24 h on clinic-confirm); neither reads a server rule.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/consultations/call-history",
+    "element": "List",
+    "file": "",
+    "line": 0,
+    "found": "[backend] Shows finished appointments; there is no call-record endpoint behind the name.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/appointments/[appointmentId]",
+    "element": "Prepare video visit",
+    "file": "",
+    "line": 0,
+    "found": "[client] The launcher gets a credential but opens nothing (the text says continue in the video app); /consultations/video-call is not linked from here.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/consultations/video-call",
+    "element": "Camera on/off",
+    "file": "",
+    "line": 0,
+    "found": "[owner] The web room already has mute and camera buttons; not added or changed, per the calls decision.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/consultations/doctors",
+    "element": "Photo and verified seal",
+    "file": "",
+    "line": 0,
+    "found": "[client] extractDoctors reads no photo_url or verification field; the card shows the neutral mark.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/consultations/book/[doctorId]",
+    "element": "Attach reports, points discount, duration",
+    "file": "",
+    "line": 0,
+    "found": "[backend] On the BookingConfirm board; the booking call has no field for them, so they are not drawn.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/consultations/doctors/[doctorId]",
+    "element": "Static twin",
+    "file": "",
+    "line": 0,
+    "found": "[client] Still dynamic on this base (reads ?date and ?service_type); #308 owns the static/ISR split.",
+    "suspect": "Client-side: later batch."
+  }
+]
