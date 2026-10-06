@@ -1,5 +1,5 @@
 {
-  "_comment": "TEST VALUES for `render-native-screen.mjs --api fixture`: invented, clearly marked as tests, never real patient data. They exist only to draw the data-bound blocks of Home (name, reminder, appointment, records, curated offers) and the pharmacy hub and product screens (a catalogue of marked test products) in a design render. Shipped code never reads this file.",
+  "_comment": "TEST VALUES for `render-native-screen.mjs --api fixture`: invented, clearly marked as tests, never real patient data. They exist only to draw the data-bound blocks of Home (name, reminder, appointment, records, curated offers) and the pharmacy hub and product screens (a catalogue of marked test products) in a design render. Shipped code never reads this file. Batch 1c adds TEST pharmacy offers and orders (the shape of the backend patient endpoints; names, prices and ids are invented).",
   "/users/me/display": {
     "display_name": "مستخدم تجريبي"
   },
@@ -391,5 +391,370 @@
       "price": 18.5,
       "requires_prescription": true
     }
+  },
+  "/patient/pharmacy/orders/test-order": {
+    "id": "test",
+    "status": "broadcasting",
+    "items": [
+      {
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-order/offers": [
+    {
+      "id": "test-offer-1",
+      "status": "open",
+      "pharmacy_name_ar": "صيدلية تجريبية ١",
+      "pharmacy_name_en": "Test pharmacy 1",
+      "approx_distance_km": 1.5,
+      "preparation_minutes": 20,
+      "expires_at": "@in+585s",
+      "insurance_ready": true,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "lines": [
+        {
+          "order_item_id": "i1",
+          "name": "منتج تجريبي ١",
+          "available": true,
+          "requested_qty": 2,
+          "offered_qty": 2,
+          "unit_price": 20,
+          "currency": "SAR"
+        },
+        {
+          "order_item_id": "i2",
+          "name": "منتج تجريبي ٢",
+          "available": true,
+          "requested_qty": 1,
+          "offered_qty": 1,
+          "unit_price": 30,
+          "currency": "SAR"
+        }
+      ],
+      "provider_note": null
+    },
+    {
+      "id": "test-offer-2",
+      "status": "open",
+      "pharmacy_name_ar": "صيدلية تجريبية ٢",
+      "pharmacy_name_en": "Test pharmacy 2",
+      "approx_distance_km": 4,
+      "preparation_minutes": 35,
+      "expires_at": "@in+240s",
+      "insurance_ready": true,
+      "totals": {
+        "subtotal": 95,
+        "delivery_fee": 0,
+        "total": 95,
+        "currency": "SAR"
+      },
+      "lines": [
+        {
+          "order_item_id": "i1",
+          "name": "منتج تجريبي ١",
+          "available": true,
+          "requested_qty": 2,
+          "offered_qty": 2,
+          "unit_price": 25,
+          "currency": "SAR"
+        },
+        {
+          "order_item_id": "i2",
+          "name": "منتج تجريبي ٢",
+          "available": false,
+          "requested_qty": 1,
+          "offered_qty": 0,
+          "unit_price": 45,
+          "currency": "SAR",
+          "alternative": "بديل تجريبي"
+        }
+      ],
+      "provider_note": "ملاحظة تجريبية من الصيدلية"
+    },
+    {
+      "id": "test-offer-3",
+      "status": "open",
+      "pharmacy_name_ar": null,
+      "pharmacy_name_en": null,
+      "approx_distance_km": null,
+      "preparation_minutes": null,
+      "expires_at": "@in+30s",
+      "insurance_ready": true,
+      "totals": {
+        "subtotal": 88,
+        "delivery_fee": 12,
+        "total": 100,
+        "currency": "SAR"
+      },
+      "lines": []
+    }
+  ],
+  "/patient/pharmacy/orders/test-order-none": {
+    "id": "test",
+    "status": "broadcasting",
+    "items": [
+      {
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-order-none/offers": [],
+  "/patient/pharmacy/orders/test-order-review": {
+    "id": "test",
+    "status": "manual_review",
+    "items": [
+      {
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-order-review/offers": [],
+  "/patient/pharmacy/orders/test-order-cancelled": {
+    "id": "test",
+    "status": "cancelled",
+    "items": [
+      {
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-order-cancelled/offers": [],
+  "/patient/pharmacy/orders/test-order-selected": {
+    "id": "test",
+    "status": "cash_card_payment_pending",
+    "items": [
+      {
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "selected_offer_id": "test-offer-1",
+    "governed_state": "OFFER_SELECTED"
+  },
+  "/patient/pharmacy/orders/test-order-selected/offers": [],
+  "/patient/pharmacy/orders/test-order-quote": {
+    "id": "test",
+    "status": "cash_card_payment_pending",
+    "items": [
+      {
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "governed_state": "OFFER_SELECTED",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "coverage_mode": "cash",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "allocations_detail": [
+      {
+        "id": "test-alloc",
+        "items": [
+          {
+            "order_item_id": "i1",
+            "name": "منتج تجريبي ١",
+            "qty_offered": 2,
+            "unit_price": 20,
+            "action": "available"
+          },
+          {
+            "order_item_id": "i2",
+            "name": "منتج تجريبي ٢",
+            "qty_offered": 1,
+            "unit_price": 30,
+            "action": "substitute"
+          }
+        ]
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-order-accepted": {
+    "id": "test",
+    "status": "cash_card_payment_pending",
+    "items": [
+      {
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "governed_state": "FINAL_QUOTE_ACCEPTED",
+    "accepted_quote_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cod_allowed": true
+    },
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "coverage_mode": "cash",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "allocations_detail": [
+      {
+        "id": "test-alloc",
+        "items": [
+          {
+            "order_item_id": "i1",
+            "name": "منتج تجريبي ١",
+            "qty_offered": 2,
+            "unit_price": 20,
+            "action": "available"
+          },
+          {
+            "order_item_id": "i2",
+            "name": "منتج تجريبي ٢",
+            "qty_offered": 1,
+            "unit_price": 30,
+            "action": "substitute"
+          }
+        ]
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-order-cod": {
+    "id": "test",
+    "status": "cod_due_on_delivery",
+    "items": [
+      {
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "governed_state": "COD_REGISTERED",
+    "accepted_quote_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cod_allowed": true
+    },
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "coverage_mode": "cash",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "allocations_detail": [
+      {
+        "id": "test-alloc",
+        "items": [
+          {
+            "order_item_id": "i1",
+            "name": "منتج تجريبي ١",
+            "qty_offered": 2,
+            "unit_price": 20,
+            "action": "available"
+          },
+          {
+            "order_item_id": "i2",
+            "name": "منتج تجريبي ٢",
+            "qty_offered": 1,
+            "unit_price": 30,
+            "action": "substitute"
+          }
+        ]
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-order-noquote": {
+    "id": "test",
+    "status": "confirmed",
+    "items": [
+      {
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "governed_state": "CONFIRMED"
   }
 }

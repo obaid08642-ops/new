@@ -1,5 +1,5 @@
 {
- "commit": "3fe30bcc",
+ "commit": "fae94132",
  "routes": [
   {
    "app": "patient-app",
@@ -5516,11 +5516,21 @@
    "status": "—",
    "calls": [
     {
+     "method": "GET",
+     "path": "/patient/pharmacy/orders/:param",
+     "target": "backend",
+     "query": "",
+     "line": 79,
+     "file": "patient-app/app/pharmacy/broadcast-status.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
+    },
+    {
      "method": "POST",
      "path": "/patient/pharmacy/orders/:param/cancel",
      "target": "backend",
      "query": "",
-     "line": 122,
+     "line": 196,
      "file": "patient-app/app/pharmacy/broadcast-status.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:39"
@@ -5530,7 +5540,7 @@
      "path": "/patient/pharmacy/orders/:param/offers",
      "target": "backend",
      "query": "",
-     "line": 29,
+     "line": 79,
      "file": "patient-app/app/pharmacy/broadcast-status.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:42"
@@ -5540,13 +5550,13 @@
      "path": "/patient/pharmacy/orders/:param/offers/:param/select",
      "target": "backend",
      "query": "",
-     "line": 50,
+     "line": 168,
      "file": "patient-app/app/pharmacy/broadcast-status.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:43"
     }
    ],
-   "files": 14,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -5681,33 +5691,23 @@
      "path": "/patient/pharmacy/orders/:param",
      "target": "backend",
      "query": "",
-     "line": 14,
+     "line": 47,
      "file": "patient-app/app/pharmacy/final-quote.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
     },
     {
      "method": "POST",
-     "path": "/patient/pharmacy/orders/:param/cod/register",
+     "path": "/patient/pharmacy/orders/:param/:param",
      "target": "backend",
      "query": "",
-     "line": 18,
+     "line": 90,
      "file": "patient-app/app/pharmacy/final-quote.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:51"
-    },
-    {
-     "method": "POST",
-     "path": "/patient/pharmacy/orders/:param/final-quote/accept",
-     "target": "backend",
-     "query": "",
-     "line": 17,
-     "file": "patient-app/app/pharmacy/final-quote.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:47"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:38"
     }
    ],
-   "files": 11,
+   "files": 31,
    "unresolved": 0
   },
   {
@@ -6218,13 +6218,13 @@
    "app": "patient-app",
    "route": "/pharmacy/waiting-for-pharmacy",
    "file": "patient-app/app/pharmacy/waiting-for-pharmacy.tsx",
-   "redirect": "?",
+   "redirect": "/pharmacy/order-history",
    "template": "redirect",
    "board": "— (redirect)",
    "batch": 1,
    "status": "n/a",
    "calls": [],
-   "files": 1,
+   "files": 2,
    "unresolved": 0
   },
   {

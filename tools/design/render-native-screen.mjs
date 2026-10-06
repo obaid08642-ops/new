@@ -68,7 +68,8 @@ const AUTH = arg('--auth', 'visitor');
 // --cart test fills the local cart with marked TEST lines (one needs a prescription) so a filled cart can be drawn
 const CART = arg('--cart', 'empty');
 // --params 'a=b,c=d' overrides the route params of every screen of the run (e.g. prescriptionId=test-rx)
-const PARAMS_OVERRIDE = arg('--params') ? Object.fromEntries(arg('--params').split(',').map((kv) => kv.split('='))) : null;
+// --params takes JSON ('{"orderId":"x"}') or a comma list ('a=1,b=2')
+const PARAMS_OVERRIDE = arg('--params') ? (arg('--params').trim().startsWith('{') ? JSON.parse(arg('--params')) : Object.fromEntries(arg('--params').split(',').map((kv) => kv.split('=')))) : null;
 const WAIT = Number(arg('--wait', 2600));
 // --lang en renders the left-to-right layout (the same AsyncStorage key the app reads); the default is Arabic
 const LANG = arg('--lang', 'ar');
@@ -110,6 +111,11 @@ const BOARD = {
   'barcode-scanner': { params: {} },
   request: { params: {} },
   'pharmacist-chat': { params: { orderId: 'test-order' } },
+  // Batch 1c (pharmacy offers, high effort). broadcast-status is the PharmacyOffers board; final-quote follows the same
+  // template with no board of its own. The order ids select the TEST order of render-native-screen.fixtures.json
+  // (`--order <id>`, or `--params '{"requestId":"test-order"}'` for a screen that reads another param).
+  'broadcast-status': { component: 'PharmacyOffers', size: [390, 1180], params: { orderId: 'test-order' } },
+  'final-quote': { params: { orderId: 'test-order-quote' } },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },
@@ -130,6 +136,9 @@ ${tag}</div></x-dc>
 class Component extends DCLogic { renderVals() { return {}; } }
 </script></body></html>`;
 };
+// --order <id> sets the route param orderId; --params '<json>' replaces the params of every rendered screen
+const ORDER_OVERRIDE = arg('--order');
+const paramsOf = (screen) => PARAMS_OVERRIDE ?? { ...BOARD[screen].params, ...(ORDER_OVERRIDE ? { orderId: ORDER_OVERRIDE } : {}) };
 const W = Number(arg('--width', 390));
 const H_ARG = arg('--height');
 /** The frame height: --height, else the board's own (Home, Services), else a phone's 844. */
@@ -170,13 +179,17 @@ const MOCKS = {
   'auth-api': `
     import fixtures from '@fixtures';
     const EMPTY = { '/health/reminders': [], '/mental-health/mood': [], '/health/vitals/summary': [], '/home/upcoming-appointment': null, '/content/home': { sections: [] } };
-    export async function apiFetch(path) {
+    // a fixture string "@in+600s" is a time 600 s from now (an offer's expiry), so a countdown draws like a live one
+    const resolve = (v) => typeof v === 'string' && /^@in\\+\\d+s$/.test(v) ? new Date(Date.now() + Number(v.slice(4, -1)) * 1000).toISOString() : Array.isArray(v) ? v.map(resolve) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, resolve(x)])) : v;
+    export async function apiFetch(path, options) {
       const mode = (window.__SCREEN && window.__SCREEN.api) || 'empty';
       if (mode === 'offline') throw new Error('offline');
       const key = String(path).split('?')[0];
-      if (mode === 'fixture' && key in fixtures) return fixtures[key];
+      if (options && options.method && options.method !== 'GET') { window.__MUTATIONS = (window.__MUTATIONS || []).concat([{ path: key, method: options.method }]); return {}; }
+      if (mode === 'fixture' && key in fixtures) return resolve(fixtures[key]);
       return key in EMPTY ? EMPTY[key] : {};
     }
+    export const newIdempotencyKey = () => 'app-render-test-key';
     export async function storeAuthSession() {}
     export const newIdempotencyKey = () => 'render-test-key';
     // the constants other modules read from the client (image URLs resolve against them); no real host in a render
@@ -319,7 +332,7 @@ for (const s of SCREENS) {
       localStorage.setItem('@nabdah_theme_mode', th);
       localStorage.setItem('@nabdah_language', lg);
     }, [theme, LANG]);
-    const cfg = { width: W, height: H, insets: INSETS, params: PARAMS_OVERRIDE || BOARD[s].params, cart: CART, camera: CAMERA, platform: PLATFORM, dir: DIR, lang: LANG, pathname: PATHNAME, api: API_MODE, auth: AUTH, tabbar: Boolean(TABBAR), header: Boolean(HEADER) };
+    const cfg = { width: W, height: H, insets: INSETS, params: paramsOf(s), cart: CART, camera: CAMERA, platform: PLATFORM, dir: DIR, lang: LANG, pathname: PATHNAME, api: API_MODE, auth: AUTH, tabbar: Boolean(TABBAR), header: Boolean(HEADER) };
     await page.setContent(
       `<!doctype html><html dir="${DIR}" lang="${LANG}"><meta charset="utf-8"><style>${appFaces}html,body{margin:0}*{animation:none!important;transition:none!important}</style>` +
         `<div id="root"></div><script>window.__SCREEN=${JSON.stringify(cfg)}</script><script src="${BASE}/__app-${s}.js"></script></html>`,
