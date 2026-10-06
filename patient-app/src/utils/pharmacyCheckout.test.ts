@@ -14,7 +14,6 @@ import {
   readPayOrder,
   readPaymentResult,
   readResultParams,
-  resultRequest,
 } from './pharmacyCheckout';
 
 const snap = { totals: { subtotal: 70, delivery_fee: 10, total: 80, currency: 'SAR' }, hash: 'a'.repeat(64) };
@@ -134,13 +133,15 @@ describe('payment result', () => {
   });
   it('the address never says what happened: status and amount params are not read', () => {
     const p = readResultParams({ status: 'success', amount: '9999', transactionId: 'txn-1', bookingKind: 'pharmacy', bookingId: 'o1' });
-    expect(p).toEqual({ transactionId: 'txn-1', gatewayId: null, bookingKind: 'pharmacy', bookingId: 'o1', visitType: null });
-    expect(resultRequest(p)).toEqual({ path: '/payments/verify/txn-1', method: 'POST' });
+    expect(p).toEqual({ transactionId: 'txn-1', gatewayId: null, bookingKind: 'pharmacy', bookingId: 'o1', visitType: null, paymentUrl: null });
     // the older callers' name for the transaction, and the gateway's own id from its redirect
     expect(readResultParams({ moyasarId: 'txn-2' }).transactionId).toBe('txn-2');
-    const gw = readResultParams({ id: 'pay_abc', status: 'paid' });
-    expect(resultRequest(gw)).toEqual({ path: '/moyasar/payments/sync/pay_abc', method: 'GET' });
-    expect(resultRequest(readResultParams({ status: 'success' }))).toBeNull();
+    expect(readResultParams({ id: 'pay_abc', status: 'paid' })).toMatchObject({ transactionId: null, gatewayId: 'pay_abc' });
+    expect(readResultParams({ status: 'success' })).toMatchObject({ transactionId: null, gatewayId: null });
+    // the hosted page other services hand over: https only
+    expect(readResultParams({ moyasarId: 'txn-2', paymentUrl: 'https://pay.example.test/x' }).paymentUrl).toBe('https://pay.example.test/x');
+    expect(readResultParams({ moyasarId: 'txn-2', paymentUrl: 'javascript:alert(1)' }).paymentUrl).toBeNull();
+    expect(readResultParams({ moyasarId: 'txn-2', paymentUrl: '' }).paymentUrl).toBeNull();
   });
   it('the payment page is opened only when it is an https address', () => {
     expect(readIntent({ id: 't1', status: 'pending', checkout_url: 'https://pay.example.test/x' })).toEqual({ transactionId: 't1', checkoutUrl: 'https://pay.example.test/x', status: 'pending' });

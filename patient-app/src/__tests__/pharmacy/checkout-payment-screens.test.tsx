@@ -414,7 +414,23 @@ describe('payment result', () => {
     apiFetch.mockResolvedValue({ moyasar_id: 'pay_abc', status: 'initiated', amount: 80 });
     await render(wrap(<PaymentResultScreen />));
     await screen.findByText(k('payments.result.checkingTitle'));
-    expect(apiFetch).toHaveBeenCalledWith('/moyasar/payments/sync/pay_abc', { method: 'GET' });
+    expect(apiFetch).toHaveBeenCalledWith('/moyasar/payments/sync/pay_abc');
+  });
+
+  it('opens the hosted page a service hands over (https only), once, and then asks the server', async () => {
+    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    mockParams.current = { moyasarId: 'txn-9', paymentUrl: 'https://pay.example.test/hosted', bookingKind: 'diagnostics', bookingId: 'd1' };
+    apiFetch.mockResolvedValue({ id: 'x', status: 'pending' });
+    await render(wrap(<PaymentResultScreen />));
+    await screen.findByText(k('payments.result.checkingTitle'));
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(open).toHaveBeenCalledWith('https://pay.example.test/hosted');
+    expect(apiFetch).toHaveBeenCalledWith('/payments/verify/txn-9', { method: 'POST' });
+    open.mockClear();
+    mockParams.current = { moyasarId: 'txn-9', paymentUrl: 'http://insecure.example.test', bookingKind: 'diagnostics' };
+    await render(wrap(<PaymentResultScreen />));
+    expect(open).not.toHaveBeenCalled();
+    open.mockRestore();
   });
 
   it('failed and cancelled use the failure state with a retry to the payment screen', async () => {

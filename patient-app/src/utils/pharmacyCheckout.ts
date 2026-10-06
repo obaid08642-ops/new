@@ -308,16 +308,17 @@ export interface Intent {
   status: string | null;
 }
 
+function httpsUrl(value: string | null): string | null {
+  try {
+    return value && new URL(value).protocol === 'https:' ? value : null;
+  } catch {
+    return null;
+  }
+}
+
 export function readIntent(response: unknown): Intent {
   const o = unwrap(response);
-  const url = text(o?.checkout_url);
-  let https: string | null = null;
-  try {
-    https = url && new URL(url).protocol === 'https:' ? url : null;
-  } catch {
-    https = null;
-  }
-  return { transactionId: text(o?.id), checkoutUrl: https, status: text(o?.status) };
+  return { transactionId: text(o?.id), checkoutUrl: httpsUrl(text(o?.checkout_url)), status: text(o?.status) };
 }
 
 /* ------------------------------------------------------------------------------------------------------------------ */
@@ -364,6 +365,8 @@ export interface ResultParams {
   bookingKind: string | null;
   bookingId: string | null;
   visitType: string | null;
+  /** The hosted payment page the caller wants opened (diagnostics, nursing and insurance still hand it over); only an https address. */
+  paymentUrl: string | null;
 }
 
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) || null;
@@ -381,14 +384,8 @@ export function readResultParams(params: Record<string, string | string[] | unde
     bookingKind: first(params.bookingKind),
     bookingId: first(params.bookingId) ?? first(params.orderId),
     visitType: first(params.visitType),
+    paymentUrl: httpsUrl(first(params.paymentUrl)),
   };
-}
-
-/** The request that asks the server for the result of a payment; null when the link carries nothing to ask about. */
-export function resultRequest(p: ResultParams): { path: string; method: 'GET' | 'POST' } | null {
-  if (p.transactionId) return { path: `/payments/verify/${encodeURIComponent(p.transactionId)}`, method: 'POST' };
-  if (p.gatewayId) return { path: `/moyasar/payments/sync/${encodeURIComponent(p.gatewayId)}`, method: 'GET' };
-  return null;
 }
 
 /* ------------------------------------------------------------------------------------------------------------------ */

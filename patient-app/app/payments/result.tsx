@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState, Text, View } from 'react-native';
+import { AppState, Linking, Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { AppHeader, Card, EmptyState, ErrorState, Screen } from '../../../packages/ui-native/src';
@@ -7,7 +7,7 @@ import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/
 import { apiFetch } from '../../src/utils/api';
 import { dateLocaleFor } from '../../src/utils/dates';
 import { logError } from '../../src/utils/logger';
-import { readPaymentResult, readResultParams, resultRequest, type PaymentResult } from '../../src/utils/pharmacyCheckout';
+import { readPaymentResult, readResultParams, type PaymentResult } from '../../src/utils/pharmacyCheckout';
 
 /**
  * The result of a payment — the Success board's state (a check on its ring, the amount, the reference) and the board's
@@ -30,25 +30,29 @@ export default function PaymentResultRoute() {
   const { theme, t, c, lang, dir, flow, k, money } = useScreenUi();
   const params = useLocalSearchParams<Record<string, string | string[]>>();
   const p = readResultParams(params);
-  const request = resultRequest(p);
+  const transactionId = p.transactionId;
+  const gatewayId = p.gatewayId;
+  const hasTarget = transactionId !== null || gatewayId !== null;
   const pharmacy = p.bookingKind === 'pharmacy' && p.bookingId !== null;
 
   const [result, setResult] = useState<PaymentResult | null>(null);
-  const [phase, setPhase] = useState<'checking' | 'slow' | 'error' | 'unknown'>(request ? 'checking' : 'unknown');
+  const [phase, setPhase] = useState<'checking' | 'slow' | 'error' | 'unknown'>(hasTarget ? 'checking' : 'unknown');
   const busy = useRef(false);
   const attempts = useRef(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const alive = useRef(true);
-  const path = request?.path;
-  const method = request?.method;
+  const opened = useRef(false);
+  const paymentUrl = p.paymentUrl;
 
   const check = useCallback(async () => {
-    if (!path || !method || busy.current) return;
+    if ((!transactionId && !gatewayId) || busy.current) return;
     busy.current = true;
     if (timer.current) clearTimeout(timer.current);
     attempts.current += 1;
     try {
-      const next = readPaymentResult(await apiFetch(path, { method }));
+      // the server's own answer: the transaction as the gateway reports it, or (for the id of the gateway's redirect) its payment record
+      const raw = transactionId ? await apiFetch(`/payments/verify/${encodeURIComponent(transactionId)}`, { method: 'POST' }) : await apiFetch(`/moyasar/payments/sync/${encodeURIComponent(gatewayId ?? '')}`);
+      const next = readPaymentResult(raw);
       if (!alive.current) return;
       if (!next || next.phase === 'unknown') {
         setPhase('unknown');
@@ -70,11 +74,16 @@ export default function PaymentResultRoute() {
     } finally {
       busy.current = false;
     }
-  }, [path, method]);
+  }, [transactionId, gatewayId]);
 
   useEffect(() => {
     alive.current = true;
     attempts.current = 0;
+    // the services that start a payment elsewhere (diagnostics, nursing, insurance co-pay) hand the hosted page over here
+    if (paymentUrl && !opened.current) {
+      opened.current = true;
+      Linking.openURL(paymentUrl).catch((error) => logError('payments:result:open', error));
+    }
     void check();
     const sub = AppState.addEventListener('change', (s) => {
       if (s === 'active' && alive.current) void check();
@@ -84,7 +93,7 @@ export default function PaymentResultRoute() {
       sub.remove();
       if (timer.current) clearTimeout(timer.current);
     };
-  }, [check]);
+  }, [check, paymentUrl]);
 
   const again = () => {
     attempts.current = 0;
