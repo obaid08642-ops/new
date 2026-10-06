@@ -1,5 +1,5 @@
 {
- "commit": "85fabe73",
+ "commit": "7d196fb5",
  "routes": [
   {
    "app": "patient-app",
@@ -8764,6 +8764,26 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 23,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "PATCH",
+     "path": "/api/patient/users/me/addresses/:param",
+     "target": "web-proxy",
+     "query": "",
+     "line": 46,
+     "file": "patient-web/components-next/delivery-address/address-picker.tsx",
+     "backend": "backend/src/modules/users/users.addresses.controller.ts:41",
+     "status": "OK"
+    },
+    {
      "method": "GET",
      "path": "/users/me/addresses",
      "target": "backend",
@@ -8774,7 +8794,7 @@
      "backend": "backend/src/modules/users/users.addresses.controller.ts:13"
     }
    ],
-   "files": 8,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -12472,17 +12492,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 23,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/patient/pharmacy/orders",
      "target": "backend",
      "query": "",
-     "line": 32,
-     "file": "patient-web/app/[locale]/orders/page.tsx",
+     "line": 10,
+     "file": "patient-web/components-next/orders/read-orders.ts",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:35"
     }
    ],
-   "files": 8,
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -12497,26 +12527,26 @@
    "calls": [
     {
      "method": "POST",
-     "path": "/api/orders/:param/reorder",
+     "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 15,
-     "file": "patient-web/components-next/order-reorder-button.tsx",
+     "line": 23,
+     "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
-     "handler": "patient-web/app/api/orders/[orderId]/reorder/route.ts"
+     "handler": "patient-web/app/api/auth/logout/route.ts"
     },
     {
      "method": "GET",
      "path": "/patient/pharmacy/orders/:param",
      "target": "backend",
      "query": "",
-     "line": 22,
-     "file": "patient-web/app/[locale]/orders/[orderId]/page.tsx",
+     "line": 18,
+     "file": "patient-web/components-next/orders/read-orders.ts",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
     }
    ],
-   "files": 9,
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -12672,17 +12702,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 23,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
-     "path": "/orders/:param/tracking",
+     "path": "/patient/pharmacy/orders/:param",
      "target": "backend",
      "query": "",
-     "line": 21,
-     "file": "patient-web/app/[locale]/orders/[orderId]/tracking/page.tsx",
+     "line": 18,
+     "file": "patient-web/components-next/orders/read-orders.ts",
      "status": "OK",
-     "backend": "backend/src/modules/orders/orders.controller.ts:76"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
     }
    ],
-   "files": 8,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -13407,46 +13447,26 @@
    "calls": [
     {
      "method": "POST",
-     "path": "/api/patient/patient/pharmacy/orders",
-     "target": "web-proxy",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
      "query": "",
-     "line": 85,
-     "file": "patient-web/components-next/pharmacy-reorder-client.tsx",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:34",
-     "status": "OK"
+     "line": 23,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
     },
     {
      "method": "GET",
-     "path": "/api/patient/patient/pharmacy/orders/:param",
-     "target": "web-proxy",
+     "path": "/patient/pharmacy/orders/:param",
+     "target": "backend",
      "query": "",
-     "line": 52,
-     "file": "patient-web/components-next/pharmacy-reorder-client.tsx",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36",
-     "status": "OK"
-    },
-    {
-     "method": "POST",
-     "path": "/api/patient/patient/pharmacy/orders/:param/submit",
-     "target": "web-proxy",
-     "query": "",
-     "line": 97,
-     "file": "patient-web/components-next/pharmacy-reorder-client.tsx",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:38",
-     "status": "OK"
-    },
-    {
-     "method": "GET",
-     "path": "/api/patient/users/me/profile",
-     "target": "web-proxy",
-     "query": "",
-     "line": 53,
-     "file": "patient-web/components-next/pharmacy-reorder-client.tsx",
-     "backend": "backend/src/modules/users/users.controller.ts:34",
-     "status": "OK"
+     "line": 18,
+     "file": "patient-web/components-next/orders/read-orders.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
     }
    ],
-   "files": 6,
+   "files": 39,
    "unresolved": 0
   },
   {

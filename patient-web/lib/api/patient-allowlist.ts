@@ -142,9 +142,11 @@ export function isAllowedPatientApiPath(path: string) {
 }
 
 // Q10: the website address book (components-next/addresses.tsx) adds and removes the patient's own addresses.
-const addressMutationRoutes: Array<{ method: "POST" | "DELETE"; route: RegExp }> = [
+// The delivery address picker (components-next/delivery-address) makes one of them the default (PATCH `is_default`).
+const addressMutationRoutes: Array<{ method: "POST" | "DELETE" | "PATCH"; route: RegExp }> = [
   { method: "POST", route: new RegExp("^/users/me/addresses$") },
   { method: "DELETE", route: new RegExp(`^/users/me/addresses/${orderId}$`, "i") },
+  { method: "PATCH", route: new RegExp(`^/users/me/addresses/${orderId}$`, "i") },
 ];
 
 // The notifications list marks one notification, or all of them, as read (backend POST /notifications/:id/read and /read-all).
