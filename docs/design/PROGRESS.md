@@ -26,6 +26,7 @@ Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy
 4. Per-route client messages: Batch 1 adds ~36 KB of pharmacy namespaces to `CLIENT_NAMESPACES` (shipped on every page); move them to a pharmacy route-group provider.
 
 ## Process (owner, 2026-10-06; quality rules unchanged, recording changed)
+- **Lean v2 (Batch 2 on): under 40k tokens per screen** (Batch 1 cost ~100k). Design only (no business-logic changes, no features; wrong logic = one Needs-review line); templates first, built once with tests, screens converted mechanically; no backend reading per screen (inventory + one runtime check per slice); tests only for new templates and payment/booking; translations extracted in one pass at the end of the slice; read only the screen, its board and the template; slices of 15-25 screens; stop and say why if a slice passes 40k/screen.
 - **No screenshots committed or sent.** A temporary screenshot only to compare with the board while building, then delete it. No before/after/compare images.
 - **One production build and one runtime check per slice, at the end**; dev server while building. Lighthouse only in F82 PRs and once per batch.
 - **Audit is generated, short:** `node tools/design/audit-table.mjs` from a compact `audit/<slice>.json` (route, element, source, status); notes one line each, only for problems. Needs-review: one line each.
@@ -47,7 +48,6 @@ Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy
 | 1e orders, tracking | app 5, web 5 | 439k / 473k | first slices under the lean process: fewer tokens per screen than 1a/1b |
 
 ## Open blockers (details in `PROGRESS_ARCHIVE.md` and the Needs-review JSON)
-- **CRITICAL, reviewer:** `POST /auth/social-login` does not verify Apple/X/Snapchat tokens (archive, "Blockers"). X/Snapchat are hidden behind `EXPO_PUBLIC_SOCIAL_X_SNAPCHAT`; web shows Google only.
 - **Public product catalogue is empty** on the seeded backend (v14 import is the reviewer's): product/category screens are checked with injected TEST data only.
 - **Backend gaps found in Batch 1** (reviewer; in `needs-review/batch-1*.json`): patient chat actions answer 403 (`@Roles(PHARMACY, ADMIN)`); governed states `OFFERS_READY`/`ORDER_BROADCASTING` never produced; offer ETA/`insurance_ready`/`cod_allowed` constants; expiry command has no scheduler; OCR field names not read by the upload endpoint; barcode `$regex` unescaped; prescription lists return base64 photos; no replica set locally so submit/select answer 500.
 - **Endpoints the reviewer will add:** `GET /payments/status/:ref` (web `/payments/result`), `GET /insurance/claims/my` (batch 7), `GET /nutrition/plan` (batch 8); doctor fields `scfhs_license_no`, `years_experience`, `qualifications[]`. Hide the part, never invent data.
