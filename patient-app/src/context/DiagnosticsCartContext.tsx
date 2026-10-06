@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
 import { apiFetch } from '../utils/api';
 import { Alert } from 'react-native';
+import { useApp } from './AppContext';
+import { message } from '../components/screen/ScreenKit';
 
 export interface DiagnosticsCartItem {
   line_id?: string;
@@ -45,18 +47,19 @@ export function DiagnosticsCartProvider({ children }: { children: React.ReactNod
   const [prescriptionUrl, setPrescriptionUrl] = useState<string | null>(null);
   const [paymentType, setPaymentType] = useState<'cash' | 'insurance'>('cash');
   const [homeVisitFeeState, setHomeVisitFee] = useState<number>(0);
+  const { lang } = useApp();
 
   const addItem = useCallback(async (item: Omit<DiagnosticsCartItem, 'qty'> & { qty?: number }) => {
     
     // Check if we are trying to add an item from a SPECIFIC LAB (Lab B) while the cart is locked to (Lab A)
     if (lockedProviderId && item.lockedProviderId && item.lockedProviderId !== lockedProviderId) {
       Alert.alert(
-        'السلة مقيدة بمختبر آخر',
-        'سلتك الحالية تحتوي على فحوصات من مختبر مختلف. هل تريد تفريغ السلة للبدء مع هذا المختبر؟',
+        message(lang, 'diag.cart.lockedTitle'),
+        message(lang, 'diag.cart.lockedBody'),
         [
-          { text: 'إلغاء', style: 'cancel' },
+          { text: message(lang, 'diag.cart.lockedCancel'), style: 'cancel' },
           { 
-            text: 'تفريغ السلة والمتابعة', 
+            text: message(lang, 'diag.cart.lockedClear'), 
             style: 'destructive',
             onPress: () => {
               setItems([{ ...item, qty: item.qty || 1 }]);
@@ -65,7 +68,7 @@ export function DiagnosticsCartProvider({ children }: { children: React.ReactNod
           }
         ]
       );
-      return { success: false, message: 'Cart restricted' };
+      return { success: false, message: message(lang, 'diag.cart.lockedTitle') };
     }
 
     // If cart was purely generic, and now we add a Lab Specific test, lock the cart to that lab
@@ -82,7 +85,7 @@ export function DiagnosticsCartProvider({ children }: { children: React.ReactNod
     });
 
     return { success: true };
-  }, [items, lockedProviderId]);
+  }, [items, lockedProviderId, lang]);
 
   const removeItem = useCallback(async (id: string, kind: 'lab' | 'radiology') => {
     setItems(prev => {
