@@ -243,6 +243,69 @@ The design session proposes a merge map first, the owner approves it, and only t
 - The owner is handling licensing with a lawyer: commercial registration, the MOH telehealth licence or a partnership model with licensed facilities, and SDAIA registration.
 - Nafath and Wasfaty integrations wait until then. Do not start them.
 
+## G. Added later on 2026-10-06 (owner; details delegated to the reviewer)
+
+### 24. Doctor chat only inside a booked consultation
+
+**Decision**
+- There is no free chat with a doctor. Chat exists only for a booking.
+- **Online consultation:** full messaging, from the time the booking is confirmed until the follow-up window ends:
+  - text, voice notes, images and files;
+  - one call where each side turns the camera and microphone on or off (the earlier decision on calls: one LiveKit call, one price).
+- **Clinic or home visit:** after the doctor marks the visit completed, the patient can send **text, images and files only (no calls, no voice notes)** to that doctor for a follow-up window.
+
+**Reviewer's settings** (admin-editable)
+- The follow-up window is **72 hours** after completion, for every consultation type.
+- The doctor can close a thread early, or extend it once.
+- Every thread shows "for emergencies call 997".
+- Outside the window the thread is read-only, with a "book a follow-up" button.
+
+### 25. Payment method by service
+
+**Decision**
+- **Online only (no cash):**
+  - online consultations;
+  - home doctor visits;
+  - home nursing.
+  Someone travels to the patient, or there is no meeting, so the payment is taken when booking.
+- **Pharmacy delivery:**
+  - Online payment is the default.
+  - Cash on delivery stays as an option (the market expects it; Nahdi offers it) but only when all of these hold:
+    - the order has no prescription item and no insurance;
+    - it is under an admin-set cap;
+    - the user has at least one completed order;
+    - the pharmacy can switch cash off for itself.
+- **Clinic visits:** pay online, or at the clinic.
+
+### 26. Cancellation and refund policy
+
+This replaces the earlier Q-14 note.
+
+**Basis**
+- Saudi e-commerce law: the consumer may cancel and get a full refund within 7 days if the service has not been used yet. The consumer bears the costs that the cancellation causes, if this was agreed. So a fee that covers a real cost (a held slot, a trip already made) is allowed only when it is shown clearly before payment.
+- Vezeeta refunds in full when the patient cancels before the appointment time, and in full when the provider cancels, does not show, or a call fails for technical reasons.
+- Nahdi refunds the full amount, including the delivery fee, when an order is cancelled before delivery.
+
+**Policy (every value is admin-editable; refunds go back to the original payment method; the wallet only if the patient chooses it)**
+
+| Service | Patient cancels | Provider cancels / no-show / technical failure |
+|---|---|---|
+| Clinic and online consultation | 2 h or more before: 100%. Less than 2 h: 50%. Patient no-show: 0%. One free reschedule up to 2 h before. | 100% |
+| Home doctor visit, home nursing | Before the provider is "on the way": 100%. After that: 100% minus a fixed trip fee (admin-set, shown before payment). Patient not there when the provider arrives: 0%. | 100% |
+| Pharmacy delivery | Before the courier is dispatched: 100%, including the delivery fee. After dispatch: 100% minus the delivery fee. After delivery: medicines are refunded only if wrong, damaged, defective or expired (SFDA requires a refund for defective products). | 100% |
+
+- The terms (plan 19.12) show this table before payment.
+- **A lawyer confirms it before launch.**
+- This **changes** the current server rule: today it is ">24 h 100% to the card, otherwise 50% to the wallet".
+
+### 27. Fewer screens, second pass
+
+**Decision:** after the approved merge map, the design session proposes a second map for **all** sections (not only health, family, settings, AI and mental health):
+- remove duplicates;
+- merge screens whose content fits one screen.
+
+The core services keep priority: pharmacy, consultations, labs/radiology, nursing. The reviewer approves (delegated by the owner).
+
 ## Order of work (reviewer's proposal)
 
 1. **Item 16 (module switches) first.** It lets the owner hide a module at once while its removal or merge is still being built.
@@ -261,7 +324,7 @@ The design session proposes a merge map first, the owner approves it, and only t
 
 - **O-1 (item 12):** answered. The catalogue price in the server database is the ceiling.
 - **O-2 (item 14):** answered. Remove the whole ambulance system.
-- **Q-14 (refund rules):** decided by the reviewer (delegated by the owner): keep the server's current rule; one admin-editable config; the clients show the server value.
+- **Q-14 (refund rules):** replaced by decision 26.
 
 ## Issues
 
