@@ -13,8 +13,8 @@
 
 | Area | Screens now (app / web, redirect routes excluded) | Proposed (app / web) |
 |---|---|---|
-| Health (`/health/**`, incl. chronic care) | 21 / 16 | 7 / 7 |
-| Family (`/family/**`, `/health/family-hub`) | 9 / 10 | 5 / 5 |
+| Health (`/health/**`, incl. chronic care; the app's `/health/family-hub` is counted under Family) | 20 / 16 | 7 / 7 |
+| Family (`/family/**`, `/health/family-hub`) | 10 / 10 | 5 / 5 |
 | Settings | 10 / 9 | 7 / 7 |
 | AI assistant | 5 / 9 | 2 / 2 |
 | Mental health | 2 / 7 | 2 / 4 (decision 8, not a merge) |
@@ -34,7 +34,7 @@ New screens: **Health hub, Vitals, Sleep, Medications, Medical profile, Records,
 | `/health/records` Records | `/health/reports`, `/health/prescriptions` | `/health/reports`, `/health/timeline` | redirect | One screen, tabs **Reports · Prescriptions · Timeline**. The prescription detail stays `/prescriptions/[id]` (Batch 1, already rebuilt); this tab lists them. |
 | `/health/wearables` Wearables | `/health/wearables` | `/health/wearables` | keep | Unchanged (device list + data). |
 
-Removed with no replacement: none in Health except duplicates. Redirect count: 14 app routes and 12 web routes become redirects.
+Removed with no replacement: none in Health except duplicates.
 
 ## 2. Family (decision 5 + decision 3, issue #324)
 
@@ -61,7 +61,7 @@ Decision 3 (family calls not built): any call/video entry in family screens is r
 | `/settings/help` Help and support | `/settings/help`, `/settings/feedback`, `/settings/support-chat` (redirect to `/support/chat`) | `/settings/help`, `/settings/feedback` | redirect | One screen: FAQ, send feedback, open support chat. |
 | `/settings/about` About and legal | `/settings/about`, `/settings/terms` | `/settings/about` | redirect | About, terms, privacy policy links (`/system-config/public`). |
 
-## 4. One AI assistant (decision 7, issue #326): 14 routes → 2 screens
+## 4. One AI assistant (decision 7, issue #326): 14 routes (5 app, 9 web) → 2 screens per client
 
 | New screen | Old routes (app) | Old routes (web) | Old becomes | What it is / what is removed |
 |---|---|---|---|---|
