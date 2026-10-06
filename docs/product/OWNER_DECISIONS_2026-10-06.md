@@ -133,7 +133,7 @@ The design session proposes a merge map first, the owner approves it, and only t
 **Notes and open question**
 - The catalogue has only `price` (and `old_price`). There is no field showing that `price` is the SFDA registered price, and no source field.
 - The implementation adds `sfda_price`, `sfda_price_source` and `sfda_price_updated_at`, and checks the ceiling against `sfda_price` only.
-- **Owner decision needed (O-1):** where do the SFDA prices come from? Is the current `price` the SFDA price, or do we import SFDA's published price list?
+- **Owner answer O-1 (2026-10-06):** the ceiling is the catalogue price held in the server database (about 21,000 pharmacy items with full details). So `sfda_price` is filled from the catalogue `price`, with `sfda_price_source = "catalogue (owner 2026-10-06)"` and the import date. The admin can correct an item's price, and every change is audit-logged.
 - Until items have `sfda_price`, every medicine line is "price not verified". Pharmacy orders would wait for admin review, so the import must come before this rule is switched on.
 
 ### 13. Offers waiting
@@ -161,7 +161,13 @@ The design session proposes a merge map first, the owner approves it, and only t
   - `ambulance-fleet.controller.ts`;
   - the `drivers` module;
   - the **ambulance provider type** in the provider app (one of the 7 types).
-- **Owner decision needed (O-2):** remove the ambulance provider type, the fleet and the drivers completely, or keep them for something else? The reviewer recommends removing them all, since the platform does no dispatch.
+- **Owner answer O-2 (2026-10-06): remove the whole ambulance system.** That means:
+  - emergency dispatch, missions, claim and tracking;
+  - the ambulance fleet (admin);
+  - the `drivers` module;
+  - the ambulance provider type in the provider app, registration, KYC and admin (6 provider types remain);
+  - their screens, translations and tests.
+- Data is archived first. Kept: the 997 dial button, and "send my location to my emergency contacts".
 
 ### 15. AI assistant behaviour
 
@@ -253,8 +259,8 @@ The design session proposes a merge map first, the owner approves it, and only t
 
 ## Open owner decisions
 
-- **O-1 (item 12):** the source of SFDA registered prices.
-- **O-2 (item 14):** remove the ambulance provider type, fleet and drivers completely?
+- **O-1 (item 12):** answered. The catalogue price in the server database is the ceiling.
+- **O-2 (item 14):** answered. Remove the whole ambulance system.
 - **Q-14 (refund rules):** the refund rule values per consultation type.
 
 ## Issues
