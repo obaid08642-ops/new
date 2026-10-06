@@ -12,8 +12,7 @@ _Updated 2026-10-06._
 | Foundation (tokens, Readex Pro, shells, 40 components, lint gates, CSP by class) | Merged |
 | Batch 0 (29 screens) + fixes | Merged (#285, #291, #292) |
 | **Batch 1 pharmacy**, `design/batch-1`, draft PR [#293](https://github.com/obaid08642-ops/new/pull/293) | 1a, 1b, 1c merged into the branch (app + web); **1d (checkout, payment) in progress**, 1e (orders, tracking) next |
-| F82-1 web rendering, [#297](https://github.com/obaid08642-ops/new/pull/297) | Open. Static/ISR waits for the reviewer's hash-based CSP (owner: option B) |
-| F82-2 navigation, [#295](https://github.com/obaid08642-ops/new/pull/295) | Open |
+| F82-1 [#297](https://github.com/obaid08642-ops/new/pull/297), F82-2 [#295](https://github.com/obaid08642-ops/new/pull/295), F68 CSP [#301](https://github.com/obaid08642-ops/new/pull/301) | Merged into main (and into `design/batch-1`). Next: F82-3 static/ISR for public pages on `design/f82-3-static` |
 | Gates (baselines only go down) | `no-literal-ui-string` 5740, `no-raw-color` 7792, `no-left-right` 485, `client-token-sync` 916, `locale-parity` 667 |
 
 Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy: 23/34 (done so far: app 13, web 24); 2 consultations 22/24; 3 labs 17/22; 4 nursing 7/9; 5 records 26/24; 6 family 10/10; 7 insurance 10/13; 8 maternity etc. 11/21; 9 AI 7/10; 10 community 5/5; 11 loyalty 7/7; 12 account 20/20; 13 web-only 3/14.
@@ -21,8 +20,9 @@ Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy
 ## Next
 
 1. Finish Batch 1: slice 1d (high effort), then 1e; merge into `design/batch-1`; ONE production build + runtime check + Lighthouse (once per batch) at the end; update #293 (draft → ready), checklist with numbers. Then Batch 2 on its own `design/batch-2` from `main`.
-2. F82: when the reviewer lands the hash CSP, make public pages static/ISR (public data only in cached HTML, per-user bits to the client). Owner to confirm: with the 60 s data cache `/` keeps the last good page during an outage (ErrorState only with no cached copy), or cap it (#297).
-3. After #297 merges: add each new web client namespace to `lib/i18n/client-messages.ts` (a test fails until you do).
+2. **Owner 2026-10-06, cart is local-first (Batch 1):** add/remove/change without the backend (web localStorage per user or guest; app persisted per owner), only "send the order" calls the backend (failure: clear error, cart unchanged), no prices or stock in the cart, clear on sign-out, merge guest cart into the account on sign-in; tests incl. backend-down (task file for the agent: scratchpad `task-cart-local.md`; branch `wip-b1-cart`).
+3. **F82-3 static/ISR** (owner: on top of #301; public routes only, no cookies/headers in them, per-user parts on the client, LCP per route before/after, ratchet `.lighthouserc.json` LCP 2.5 → 1.8 s when met). Decision #302: public pages serve the last good copy during an outage, ErrorState only with no cached copy, no cap.
+4. Per-route client messages: Batch 1 adds ~36 KB of pharmacy namespaces to `CLIENT_NAMESPACES` (shipped on every page); move them to a pharmacy route-group provider.
 
 ## Process (owner, 2026-10-06; quality rules unchanged, recording changed)
 - **No screenshots committed or sent.** A temporary screenshot only to compare with the board while building, then delete it. No before/after/compare images.
