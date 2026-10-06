@@ -109,6 +109,11 @@ export class PaymentIntentDto {
   @IsString()
   idempotency_key?: string;
 
+  @IsOptional()
+  @IsIn(['cash', 'cod', 'card', 'insurance'])
+  @IsString()
+  method?: string;
+
 }
 
 export class CancelRejectedInsuranceDto {
