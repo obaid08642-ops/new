@@ -183,6 +183,17 @@ Fetch (new on this page): `GET /prescriptions/:id`, the patient's own bounded vi
 
 Hero cards with eyebrows ("Private cart", "Smart Pharmacy Service", "Nabd Pharmacy — Premium Care"), the vector illustrations in glass tiles, the free-delivery claim ("Free" next to the delivery fee in the old cart summary: the fee comes from the pharmacy's offer), the fixed English prescription note written by the old upload, the Arabic/English hard-coded strings of all nine screens, the unused `cart-view`, `scan-prescription-form`, `pharmacy-request-form`, `pharmacy-barcode-client`, `pharmacy-chat-client` and the stylesheets of the old pages.
 
+## Board deviations
+
+- `/pharmacy/scan-prescription`: the board's camera button is a solid ink button; the design system's `Button` has no ink variant, so it is the primary (coral) button, with the outline "Photos" next to it. The "add a photo" tile and the insurance switch are not drawn (R3). The footer label says "Save prescription and continue" (the board's "send to nearby pharmacies" would be false at this step: the request is sent from the next screen).
+- `/cart`: the board's "use your points" row and its discount line are not drawn (Needs review 2); the flow note drops the board's "within minutes" (no time is promised by the backend); the per-item delete is the minus at quantity 1.
+- The cart header shows the note "saved in this browser" beside the trash button instead of a centred title (the title is in the shell's header row).
+- `/prescriptions` rows follow the HealthHub rows (40 px chip, title, caret) with the state chip and the medicine names, which that board has no place for.
+
+## Screenshots
+
+`screenshots/batch1b-web/after/`: every screen at 390, 768 and 1440 in light and dark (Arabic), English at 390 light, Urdu at 390 light and dark (261 images). `before/`: the old screens on `origin/design/batch-1` (Arabic, 390 / 768 / 1440, light and dark; real states only, plus the cart with TEST items). `compare/`: before, after and the board side by side at 390 (cart, empty cart, upload, prescriptions, request, barcode). **Files named `*-testdata*` show TEST data** (a browser-injected cart, and a local proxy outside the repo that answers a few GETs with TEST payloads: a prescription list and detail, a saved address, a server cart line, two barcodes, a chat); no seeded production data and no write to the database was made. The seeded patient has no prescription, no address and an empty cart, so the files without the suffix show the real empty states.
+
 ## Checks run on this slice
 
 See `audit/runtime-batch-1b-web.md` (production build, normal / empty / error through the fault proxy, DOM check, console), the screenshots in `screenshots/batch1b-web/` and the Needs review file `needs-review/batch-1b-web.json`.
