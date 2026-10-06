@@ -6,203 +6,580 @@
     {
       "route": "/consultations",
       "elements": [
-        ["Doctor cards (name, grade, specialty, place, modes, rating, price)", "GET /providers (type=doctor): name_ar/name_en, title, specialty, district, city, consultation_modes, rating_avg, rating_count, price_*", "ok"],
-        ["Specialty row with live counts", "GET /care/specialties: name_ar, count (only count > 0)", "ok"],
-        ["Offers row", "GET /home/offers: id, t, price, old, disc", "ok"],
-        ["Insurance company and class choice", "GET /insurance/companies and GET /insurance/companies/:param/networks", "ok"],
-        ["Search, visit-type, payment, advanced filters", "client filters over the fields above; no request", "ok"],
-        ["Quick filters 'Nearest' and 'Available now'", "query params of GET /providers: sort=distance with lat/lng (or city of the saved address), available_within=15; Nearest never for online; behind EXPO_PUBLIC_CONSULT_NEARBY_FILTERS=1 (default off)", "hidden"],
-        ["Welcome modal on every open", "static; not on the board", "hidden"],
-        ["Next-slot line on the doctor card", "no field in /providers", "hidden"]
+        [
+          "Doctor cards (name, grade, specialty, place, modes, rating, price)",
+          "GET /providers (type=doctor): name_ar/name_en, title, specialty, district, city, consultation_modes, rating_avg, rating_count, price_*",
+          "ok"
+        ],
+        [
+          "Specialty row with live counts",
+          "GET /care/specialties: name_ar, count (only count > 0)",
+          "ok"
+        ],
+        [
+          "Offers row",
+          "GET /home/offers: id, t, price, old, disc",
+          "ok"
+        ],
+        [
+          "Insurance company and class choice",
+          "GET /insurance/companies and GET /insurance/companies/:param/networks",
+          "ok"
+        ],
+        [
+          "Search, visit-type, payment, advanced filters",
+          "client filters over the fields above; no request",
+          "ok"
+        ],
+        [
+          "Quick filters 'Nearest' and 'Available now'",
+          "query params of GET /providers: sort=distance with lat/lng (or city of the saved address), available_within=15; Nearest never for online; behind EXPO_PUBLIC_CONSULT_NEARBY_FILTERS=1 (default off)",
+          "hidden"
+        ],
+        [
+          "Welcome modal on every open",
+          "static; not on the board",
+          "hidden"
+        ],
+        [
+          "Next-slot line on the doctor card",
+          "no field in /providers",
+          "hidden"
+        ]
       ]
     },
     {
       "route": "/consultations/appointments",
       "elements": [
-        ["Appointment cards, tabs by status", "GET /care/appointments through ConsultationsContext: doctor_name, specialty, appointment_date, start_time, consultation_type, status, consultation_fee", "ok"],
-        ["Date tile and price", "appointment_date (ISO, formatted by Intl) and consultation_fee, shown only when present", "fixed"],
-        ["Book again", "doctor_id from the same list; hidden when the server sent none (was a fake id 1)", "fixed"]
+        [
+          "Appointment cards, tabs by status",
+          "GET /care/appointments through ConsultationsContext: doctor_name, specialty, appointment_date, start_time, consultation_type, status, consultation_fee",
+          "ok"
+        ],
+        [
+          "Date tile and price",
+          "appointment_date (ISO, formatted by Intl) and consultation_fee, shown only when present",
+          "fixed"
+        ],
+        [
+          "Book again",
+          "doctor_id from the same list; hidden when the server sent none (was a fake id 1)",
+          "fixed"
+        ]
       ]
     },
     {
       "route": "/consultations/appointment-detail",
       "elements": [
-        ["Status, date, time, doctor, visit type, payment, number, amount", "GET /care/appointments/:param: status, scheduled_at, doctor_*, consultation_type, payment_method, id, price", "ok"],
-        ["Duration '30 minutes' and the fallback date/time", "invented text; removed", "fixed"],
-        ["Banner always 'confirmed'", "now the appointment's own status", "fixed"],
-        ["Insurance co-pay step", "GET /insurance/requests/my (booking_kind, booking_id, state), copay_amount from the appointment", "ok"],
-        ["Summary and rating links", "shown when status is COMPLETED", "ok"]
+        [
+          "Status, date, time, doctor, visit type, payment, number, amount",
+          "GET /care/appointments/:param: status, scheduled_at, doctor_*, consultation_type, payment_method, id, price",
+          "ok"
+        ],
+        [
+          "Duration '30 minutes' and the fallback date/time",
+          "invented text; removed",
+          "fixed"
+        ],
+        [
+          "Banner always 'confirmed'",
+          "now the appointment's own status",
+          "fixed"
+        ],
+        [
+          "Insurance co-pay step",
+          "GET /insurance/requests/my (booking_kind, booking_id, state), copay_amount from the appointment",
+          "ok"
+        ],
+        [
+          "Summary and rating links",
+          "shown when status is COMPLETED",
+          "ok"
+        ]
       ]
     },
     {
       "route": "/consultations/book/[id]",
       "elements": [
-        ["Doctor line, visit-type tiles with fees", "GET /care/doctors/:param: name, title, specialty, photo_url, consultation_modes, price_clinic/price_online/price_home, rating", "ok"],
-        ["Day strip (7 real days) and time grid", "GET /care/doctors/:param/slots?date&service_type: slots[].start/available, reason", "ok"],
-        ["Home-visit address", "GET /users/me/addresses through resolveEffectiveAddress", "ok"],
-        ["Notes", "user input, passed on to booking-status as before", "ok"]
+        [
+          "Doctor line, visit-type tiles with fees",
+          "GET /care/doctors/:param: name, title, specialty, photo_url, consultation_modes, price_clinic/price_online/price_home, rating",
+          "ok"
+        ],
+        [
+          "Day strip (7 real days) and time grid",
+          "GET /care/doctors/:param/slots?date&service_type: slots[].start/available, reason",
+          "ok"
+        ],
+        [
+          "Home-visit address",
+          "GET /users/me/addresses through resolveEffectiveAddress",
+          "ok"
+        ],
+        [
+          "Notes",
+          "user input, passed on to booking-status as before",
+          "ok"
+        ]
       ]
     },
     {
       "route": "/consultations/booking-status",
       "elements": [
-        ["Success summary: doctor, date, visit type", "GET /care/appointments/:param: doctor_name, scheduled_at, consultation_type", "fixed"],
-        ["Confirm form: doctor, visit type, date and time, notes, payment choice", "GET /care/doctors/:param, URL params slot_start/notes/visit_*, GET /users/me/profile (insurance)", "ok"],
-        ["Hold the slot", "POST /slot-locks/reserve (unchanged)", "ok"],
-        ["Create the appointment", "POST /care/appointments (unchanged headers and body)", "ok"],
-        ["Card payment", "GET /payments/consultation/:param/capabilities then POST /payments/intent/consultation/:param (unchanged)", "ok"],
-        ["Placed state and appointment status", "GET /care/appointments/:param: status", "ok"],
-        ["Cancel", "PATCH /care/appointments/:param/cancel (unchanged headers)", "ok"],
-        ["Fee, points discount and attach-reports rows of the board", "no points or attachment flow; the price is stated at the payment step", "hidden"]
+        [
+          "Success summary: doctor, date, visit type",
+          "GET /care/appointments/:param: doctor_name, scheduled_at, consultation_type",
+          "fixed"
+        ],
+        [
+          "Confirm form: doctor, visit type, date and time, notes, payment choice",
+          "GET /care/doctors/:param, URL params slot_start/notes/visit_*, GET /users/me/profile (insurance)",
+          "ok"
+        ],
+        [
+          "Hold the slot",
+          "POST /slot-locks/reserve (unchanged)",
+          "ok"
+        ],
+        [
+          "Create the appointment",
+          "POST /care/appointments (unchanged headers and body)",
+          "ok"
+        ],
+        [
+          "Card payment",
+          "GET /payments/consultation/:param/capabilities then POST /payments/intent/consultation/:param (unchanged)",
+          "ok"
+        ],
+        [
+          "Placed state and appointment status",
+          "GET /care/appointments/:param: status",
+          "ok"
+        ],
+        [
+          "Cancel",
+          "PATCH /care/appointments/:param/cancel (unchanged headers)",
+          "ok"
+        ],
+        [
+          "Fee, points discount and attach-reports rows of the board",
+          "no points or attachment flow; the price is stated at the payment step",
+          "hidden"
+        ]
       ]
     },
     {
       "route": "/consultations/call-history",
       "elements": [
-        ["Call cards: direction, outcome, date, duration, call again", "GET /calls/history: data[], total, appointment_id (call again passes it; no appointment, no button)", "fixed"],
-        ["Paging", "page and limit=20 on the same endpoint; has-more from total", "ok"]
+        [
+          "Call cards: direction, outcome, date, duration, call again",
+          "GET /calls/history: data[], total, appointment_id (call again passes it; no appointment, no button)",
+          "fixed"
+        ],
+        [
+          "Paging",
+          "page and limit=20 on the same endpoint; has-more from total",
+          "ok"
+        ]
       ]
     },
     {
       "route": "/consultations/cancel-reschedule",
       "elements": [
-        ["Appointment summary", "GET /care/appointments/:param: doctor, scheduled_at, price", "ok"],
-        ["Cancel with a reason", "PATCH /care/appointments/:param/cancel {reason} (stored Arabic text, as before)", "ok"],
-        ["Reschedule", "GET /care/doctors/:param/slots (next 7 days) then PATCH /care/appointments/:param/reschedule {slot_start}", "ok"],
-        ["Refund note and policy rows", "cancellation_policy of GET /system-config/public (the doctor page's source); no figure while it is unknown", "fixed"]
+        [
+          "Appointment summary",
+          "GET /care/appointments/:param: doctor, scheduled_at, price",
+          "ok"
+        ],
+        [
+          "Cancel with a reason",
+          "PATCH /care/appointments/:param/cancel {reason} (stored Arabic text, as before)",
+          "ok"
+        ],
+        [
+          "Reschedule",
+          "GET /care/doctors/:param/slots (next 7 days) then PATCH /care/appointments/:param/reschedule {slot_start}",
+          "ok"
+        ],
+        [
+          "Refund note and policy rows",
+          "cancellation_policy of GET /system-config/public (the doctor page's source); no figure while it is unknown",
+          "fixed"
+        ]
       ]
     },
     {
       "route": "/consultations/chat-with-doctor",
       "elements": [
-        ["Messages and history", "POST /chat/threads/booking, GET /chat/threads/:param/messages and the chat:message socket event", "ok"],
-        ["Send", "POST /chat/threads/:param/messages {body, type, client_message_id}", "ok"],
-        ["Doctor name and presence", "GET /care/doctors/:param (name, specialty) and the socket's online map", "ok"],
-        ["Microphone button", "no action existed (it sent nothing)", "hidden"]
+        [
+          "Messages and history",
+          "POST /chat/threads/booking, GET /chat/threads/:param/messages and the chat:message socket event",
+          "ok"
+        ],
+        [
+          "Send",
+          "POST /chat/threads/:param/messages {body, type, client_message_id}",
+          "ok"
+        ],
+        [
+          "Doctor name and presence",
+          "GET /care/doctors/:param (name, specialty) and the socket's online map",
+          "ok"
+        ],
+        [
+          "Microphone button",
+          "no action existed (it sent nothing)",
+          "hidden"
+        ]
       ]
     },
     {
       "route": "/consultations/clinic-confirm",
       "elements": [
-        ["QR, booking code, date and time", "GET /care/appointments/:param: id, slot_start", "ok"],
-        ["Clinic name, address, phone, location, doctor", "GET /care/doctors/:param: facility/clinic fields", "ok"],
-        ["Clinic location view (?view=location): map, name, address, directions", "GET /care/appointments/:param then GET /care/doctors/:doctor_id: facility location; no map or button without coordinates", "fixed"],
-        ["Refund percentages", "hard-coded numbers; replaced by a line that points to the cancel screen", "fixed"],
-        ["Preparation list", "static advice, translated", "ok"]
+        [
+          "QR, booking code, date and time",
+          "GET /care/appointments/:param: id, slot_start",
+          "ok"
+        ],
+        [
+          "Clinic name, address, phone, location, doctor",
+          "GET /care/doctors/:param: facility/clinic fields",
+          "ok"
+        ],
+        [
+          "Clinic location view (?view=location): map, name, address, directions",
+          "GET /care/appointments/:param then GET /care/doctors/:doctor_id: facility location; no map or button without coordinates",
+          "fixed"
+        ],
+        [
+          "Refund percentages",
+          "hard-coded numbers; replaced by a line that points to the cancel screen",
+          "fixed"
+        ],
+        [
+          "Preparation list",
+          "static advice, translated",
+          "ok"
+        ]
       ]
     },
     {
       "route": "/consultations/clinic/[id]",
       "elements": [
-        ["Photo, name, city, description, doctors", "GET /care/facilities/:param: image, name_ar, city, description_ar, doctors[]", "ok"],
-        ["Rating 4.9, default city and default description", "invented; removed", "fixed"]
+        [
+          "Photo, name, city, description, doctors",
+          "GET /care/facilities/:param: image, name_ar, city, description_ar, doctors[]",
+          "ok"
+        ],
+        [
+          "Rating 4.9, default city and default description",
+          "invented; removed",
+          "fixed"
+        ]
       ]
     },
     {
       "route": "/consultations/doctor/[id]",
       "elements": [
-        ["Hero, tags, stats, about, photos, info rows, reviews", "GET /care/doctors/:param: name, photo_url, tags, years_experience, rating_*, biography, clinic_images, facility_images, education, languages, scfhs_license_number, reviews_data; each hidden when empty", "ok"],
-        ["Visit-type fees, days and times", "price_* and GET /care/doctors/:param/slots", "ok"],
-        ["Cancellation question", "GET /system-config/public: cancellation_policy", "ok"],
-        ["Favourite heart", "local state only, no endpoint", "hidden"]
+        [
+          "Hero, tags, stats, about, photos, info rows, reviews",
+          "GET /care/doctors/:param: name, photo_url, tags, years_experience, rating_*, biography, clinic_images, facility_images, education, languages, scfhs_license_number, reviews_data; each hidden when empty",
+          "ok"
+        ],
+        [
+          "Visit-type fees, days and times",
+          "price_* and GET /care/doctors/:param/slots",
+          "ok"
+        ],
+        [
+          "Cancellation question",
+          "GET /system-config/public: cancellation_policy",
+          "ok"
+        ],
+        [
+          "Favourite heart",
+          "local state only, no endpoint",
+          "hidden"
+        ]
       ]
     },
     {
       "route": "/consultations/follow-up",
       "elements": [
-        ["Doctor, date, status, visit type, notes, prescriptions, status history", "GET /care/appointments/:param: slot_start, status, service_type, patient_notes, prescriptions, state_history", "ok"],
-        ["Doctor name", "GET /care/doctors/:param: name_ar/name_en", "ok"]
+        [
+          "Doctor, date, status, visit type, notes, prescriptions, status history",
+          "GET /care/appointments/:param: slot_start, status, service_type, patient_notes, prescriptions, state_history",
+          "ok"
+        ],
+        [
+          "Doctor name",
+          "GET /care/doctors/:param: name_ar/name_en",
+          "ok"
+        ]
       ]
     },
     {
       "route": "/consultations/home-visit-tracking",
       "elements": [
-        ["Doctor, wait time, steps", "GET /care/appointments/:param: doctor_name, wait_time, status, state_history", "ok"],
-        ["Map picture", "placeholder, no doctor position exists", "hidden"],
-        ["Doctor on the way step", "no such status exists", "hidden"]
+        [
+          "Doctor, wait time, steps",
+          "GET /care/appointments/:param: doctor_name, wait_time, status, state_history",
+          "ok"
+        ],
+        [
+          "Map picture",
+          "placeholder, no doctor position exists",
+          "hidden"
+        ],
+        [
+          "Doctor on the way step",
+          "no such status exists",
+          "hidden"
+        ]
       ]
     },
     {
       "route": "/consultations/incoming-call",
       "elements": [
-        ["Caller, ringing, vibration, 35 s timeout, accept", "route params and local timers; logic untouched", "ok"],
-        ["Decline", "POST /calls/:param/reject (unchanged)", "ok"]
+        [
+          "Caller, ringing, vibration, 35 s timeout, accept",
+          "route params and local timers; logic untouched",
+          "ok"
+        ],
+        [
+          "Decline",
+          "POST /calls/:param/reject (unchanged)",
+          "ok"
+        ]
       ]
     },
     {
       "route": "/consultations/post-call-rating",
       "elements": [
-        ["Stars, comment, aspects, submit", "POST /patient-ux/review {booking_kind, booking_id, rating, comment, aspects}", "ok"]
+        [
+          "Stars, comment, aspects, submit",
+          "POST /patient-ux/review {booking_kind, booking_id, rating, comment, aspects}",
+          "ok"
+        ]
       ]
     },
     {
       "route": "/consultations/prescription-from-doctor",
       "elements": [
-        ["Doctor, diagnosis, medicines, labs, notes", "GET /prescriptions/active: doctor, spec, date, diagnosis, items, labs, notes; each hidden when empty", "ok"],
-        ["Add to reminders", "POST /health/reminders (unchanged payload)", "ok"],
-        ["Download PDF", "no endpoint; the button did nothing", "hidden"],
-        ["'Official prescription' badge, default lab instructions, 'follow-up in two weeks'", "invented; removed", "fixed"]
+        [
+          "Doctor, diagnosis, medicines, labs, notes",
+          "GET /prescriptions/active: doctor, spec, date, diagnosis, items, labs, notes; each hidden when empty",
+          "ok"
+        ],
+        [
+          "Add to reminders",
+          "POST /health/reminders (unchanged payload)",
+          "ok"
+        ],
+        [
+          "Download PDF",
+          "no endpoint; the button did nothing",
+          "hidden"
+        ],
+        [
+          "'Official prescription' badge, default lab instructions, 'follow-up in two weeks'",
+          "invented; removed",
+          "fixed"
+        ]
       ]
     },
     {
       "route": "/consultations/share-report",
       "elements": [
-        ["Report list and selection", "GET /medical-reports/mine?limit=100", "ok"],
-        ["Share sheet bundle", "device share sheet; text from the selected reports", "ok"],
-        ["Share with a doctor on the platform", "GET /care/doctors?q=, POST /medical-reports/:param/share", "ok"],
-        ["Shared with, stop sharing", "GET /medical-reports/:param (share_history) and DELETE /medical-reports/:param/share/:param", "ok"]
+        [
+          "Report list and selection",
+          "GET /medical-reports/mine?limit=100",
+          "ok"
+        ],
+        [
+          "Share sheet bundle",
+          "device share sheet; text from the selected reports",
+          "ok"
+        ],
+        [
+          "Share with a doctor on the platform",
+          "GET /care/doctors?q=, POST /medical-reports/:param/share",
+          "ok"
+        ],
+        [
+          "Shared with, stop sharing",
+          "GET /medical-reports/:param (share_history) and DELETE /medical-reports/:param/share/:param",
+          "ok"
+        ]
       ]
     },
     {
       "route": "/consultations/specialty-select",
       "elements": [
-        ["Specialty list with counts, search", "GET /care/specialties: name_ar, count", "ok"]
+        [
+          "Specialty list with counts, search",
+          "GET /care/specialties: name_ar, count",
+          "ok"
+        ]
       ]
     },
     {
       "route": "/consultations/summary",
       "elements": [
-        ["Diagnosis, prescription lines, notes, recommendations", "GET /care/appointments/:param/summary", "ok"],
-        ["Follow-up window and doctor", "summary.follow_up_*, GET /care/appointments/:param doctor_id", "ok"]
+        [
+          "Diagnosis, prescription lines, notes, recommendations",
+          "GET /care/appointments/:param/summary",
+          "ok"
+        ],
+        [
+          "Follow-up window and doctor",
+          "summary.follow_up_*, GET /care/appointments/:param doctor_id",
+          "ok"
+        ]
       ]
     },
     {
       "route": "/consultations/video-call",
       "elements": [
-        ["Connection, mute, camera, end", "POST /calls/initiate then POST /calls/:param/join; LiveKit (unchanged)", "ok"],
-        ["Doctor name while waiting", "session.doctor_name", "ok"]
+        [
+          "Connection, mute, camera, end",
+          "POST /calls/initiate then POST /calls/:param/join; LiveKit (unchanged)",
+          "ok"
+        ],
+        [
+          "Doctor name while waiting",
+          "session.doctor_name",
+          "ok"
+        ]
       ]
     },
     {
       "route": "/consultations/virtual-waiting-room",
       "elements": [
-        ["Doctor, specialty, wait", "GET /care/appointments/:param: doctor_name, specialty, wait_time (shown only when sent)", "ok"],
-        ["Join button", "GET /config: features.video_calls", "ok"],
-        ["'You are next in the queue'", "static claim; removed", "fixed"]
+        [
+          "Doctor, specialty, wait",
+          "GET /care/appointments/:param: doctor_name, specialty, wait_time (shown only when sent)",
+          "ok"
+        ],
+        [
+          "Join button",
+          "GET /config: features.video_calls",
+          "ok"
+        ],
+        [
+          "'You are next in the queue'",
+          "static claim; removed",
+          "fixed"
+        ]
       ]
     },
     {
       "route": "/room/[id]",
       "elements": [
-        ["Room, mute, camera, end", "POST /calls/:param/join then LiveKit (unchanged)", "ok"]
+        [
+          "Room, mute, camera, end",
+          "POST /calls/:param/join then LiveKit (unchanged)",
+          "ok"
+        ]
       ]
     }
   ],
   "needsReview": [
-    { "route": "/consultations/appointments", "element": "List call", "kind": "client", "note": "GET /care/appointments is made inside ConsultationsContext, so the inventory lists no call for this route; the context also maps the list once for the whole app." },
-    { "route": "/consultations", "element": "Welcome modal", "kind": "owner", "note": "Removed (owner approved): the board has none." },
-    { "route": "/consultations/doctor/[id]", "element": "Favourite and years of experience", "kind": "backend", "note": "The heart had no endpoint and is hidden; years_experience and the licence are drawn only when the backend sends them (SPEC B gaps)." },
-    { "route": "/consultations/home-visit-tracking", "element": "Doctor on the way, map", "kind": "backend", "note": "The backend has no en-route status or doctor position; the steps follow CONFIRMED, CHECKED_IN and COMPLETED only." },
-    { "route": "/consultations/cancel-reschedule", "element": "Refund policy", "kind": "client", "note": "Online appointments (type 'online') ask for clinic slots when rescheduling (the refund figures now come from /system-config/public)." },
-    { "route": "/consultations/prescription-from-doctor", "element": "Prescription fields", "kind": "backend", "note": "The seeded patient has no active prescription, so the doctor, spec, date, diagnosis, labs and notes fields were not seen at runtime." },
-    { "route": "/consultations/chat-with-doctor", "element": "Microphone button", "kind": "owner", "note": "It sent nothing and is removed; voice messages would be a feature." },
-    { "route": "/consultations/video-call", "element": "Camera button", "kind": "owner", "note": "The camera on/off control already existed here and in /room/[id] and is kept; the calls decision of PROGRESS_ARCHIVE says to add none." },
-    { "route": "/consultations/booking-status", "element": "Price summary of the board", "kind": "owner", "note": "The board shows fee and points rows; the confirm form states the price at the payment step, so none is drawn." },
-    { "route": "/consultations/virtual-waiting-room", "element": "Wait time unit", "kind": "backend", "note": "wait_time has no stated unit; it is drawn as a plain number." },
-    { "route": "/consultations", "element": "Nearest and Available now filters", "kind": "backend", "note": "GET /providers (the doctor search) must accept sort=distance with lat/lng (or city) and available_within (minutes) with the consultation type, and return distance and next-slot per doctor; until then the controls are hidden by the flag." },
-    { "route": "/consultations", "element": "EXPO_PUBLIC_CONSULT_NEARBY_FILTERS", "kind": "owner", "note": "Set it to 1 in the app build once the backend supports the params; the hub still filters the visit type on the client and sends only type=doctor." },
-    { "route": "/consultations/appointment-detail", "element": "Urdu text", "kind": "owner", "note": "Readex Pro has no Urdu glyphs, so Urdu falls back to a system font and mixes two typefaces in one line (seen at 390 in ur on every consultation screen); needs an Urdu-capable face approved by the owner." },
-    { "route": "/consultations/doctor/[id]", "element": "Board elements without data", "kind": "backend", "note": "The DoctorFull board's verified badge, rating-distribution bars and clinic photos with distance are not drawn: the doctor payload has no such fields." },
-    { "route": "/consultations/clinic-confirm", "element": "Header", "kind": "owner", "note": "The header has a close button next to the back button (two exits); the board has only back." }
+    {
+      "route": "/consultations/appointments",
+      "element": "List call",
+      "kind": "client",
+      "note": "GET /care/appointments is made inside ConsultationsContext, so the inventory lists no call for this route; the context also maps the list once for the whole app."
+    },
+    {
+      "route": "/consultations",
+      "element": "Welcome modal",
+      "kind": "owner",
+      "note": "Removed (owner approved): the board has none."
+    },
+    {
+      "route": "/consultations/doctor/[id]",
+      "element": "Favourite and years of experience",
+      "kind": "backend",
+      "note": "The heart had no endpoint and is hidden; years_experience and the licence are drawn only when the backend sends them (SPEC B gaps)."
+    },
+    {
+      "route": "/consultations/home-visit-tracking",
+      "element": "Doctor on the way, map",
+      "kind": "backend",
+      "note": "The backend has no en-route status or doctor position; the steps follow CONFIRMED, CHECKED_IN and COMPLETED only."
+    },
+    {
+      "route": "/consultations/cancel-reschedule",
+      "element": "Refund policy",
+      "kind": "client",
+      "note": "Online appointments (type 'online') ask for clinic slots when rescheduling (the refund figures now come from /system-config/public)."
+    },
+    {
+      "route": "/consultations/prescription-from-doctor",
+      "element": "Prescription fields",
+      "kind": "backend",
+      "note": "The seeded patient has no active prescription, so the doctor, spec, date, diagnosis, labs and notes fields were not seen at runtime."
+    },
+    {
+      "route": "/consultations/chat-with-doctor",
+      "element": "Microphone button",
+      "kind": "owner",
+      "note": "It sent nothing and is removed; voice messages would be a feature."
+    },
+    {
+      "route": "/consultations/video-call",
+      "element": "Camera button",
+      "kind": "owner",
+      "note": "The camera on/off control already existed here and in /room/[id] and is kept; the calls decision of PROGRESS_ARCHIVE says to add none."
+    },
+    {
+      "route": "/consultations/booking-status",
+      "element": "Price summary of the board",
+      "kind": "owner",
+      "note": "The board shows fee and points rows; the confirm form states the price at the payment step, so none is drawn."
+    },
+    {
+      "route": "/consultations/virtual-waiting-room",
+      "element": "Wait time unit",
+      "kind": "backend",
+      "note": "wait_time has no stated unit; it is drawn as a plain number."
+    },
+    {
+      "route": "/consultations",
+      "element": "Nearest and Available now filters",
+      "kind": "backend",
+      "note": "GET /providers (the doctor search) must accept sort=distance with lat/lng (or city) and available_within (minutes) with the consultation type, and return distance and next-slot per doctor; until then the controls are hidden by the flag."
+    },
+    {
+      "route": "/consultations",
+      "element": "EXPO_PUBLIC_CONSULT_NEARBY_FILTERS",
+      "kind": "owner",
+      "note": "Set it to 1 in the app build once the backend supports the params; the hub still filters the visit type on the client and sends only type=doctor."
+    },
+    {
+      "route": "/consultations/appointment-detail",
+      "element": "Urdu text",
+      "kind": "owner",
+      "note": "Readex Pro has no Urdu glyphs, so Urdu falls back to a system font and mixes two typefaces in one line (seen at 390 in ur on every consultation screen); needs an Urdu-capable face approved by the owner."
+    },
+    {
+      "route": "/consultations/doctor/[id]",
+      "element": "Board elements without data",
+      "kind": "backend",
+      "note": "The DoctorFull board's verified badge, rating-distribution bars and clinic photos with distance are not drawn: the doctor payload has no such fields."
+    },
+    {
+      "route": "/consultations/clinic-confirm",
+      "element": "Header",
+      "kind": "owner",
+      "note": "The header has a close button next to the back button (two exits); the board has only back."
+    },
+    {
+      "route": "/consultations/call-history",
+      "element": "Call status and caller",
+      "kind": "client",
+      "note": "look() and isCaller read lowercase statuses and caller_id while the backend schema uses INITIATED/ACTIVE/ENDED/FAILED and patient_id/provider_id: rows may show the wrong state/direction."
+    }
   ]
 }
