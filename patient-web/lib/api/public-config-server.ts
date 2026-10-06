@@ -26,9 +26,21 @@ export function selectHomeSections(payload: any): HomeSection[] {
 /** What a public read answered: the body (null when there is none) and whether the service FAILED (network error or 5xx), as opposed to answering with nothing. */
 export type PublicRead = { data: any | null; failed: boolean };
 
+/**
+ * F82-1: these reads are public (no credential, no cookie, the same answer for everyone), so the Next data
+ * cache keeps a successful answer for a minute instead of every render paying an API round trip (that round
+ * trip was the TTFB of the home page). The cache lives in the app server and is keyed by URL; nothing
+ * user-specific is ever stored in it. An admin change shows within a minute. A failed read (5xx or a network
+ * error) is reported as `failed` and is never stored. Next serves the last good copy while it revalidates and
+ * keeps it when the revalidation fails, so during an outage a page that has a cached copy keeps showing it
+ * (stale-while-revalidate); the ErrorState shows when there is no cached copy (first request, or a cleared
+ * cache). Measured in the F82-1 PR.
+ */
+const PUBLIC_REVALIDATE_SECONDS = 60;
+
 async function readPublic(path: string): Promise<PublicRead> {
   try {
-    const res = await fetch(patientApiUrl(path), { headers: { Accept: "application/json" }, cache: "no-store" });
+    const res = await fetch(patientApiUrl(path), { headers: { Accept: "application/json" }, next: { revalidate: PUBLIC_REVALIDATE_SECONDS } });
     if (res.status >= 500) return { data: null, failed: true };
     if (!res.ok) return { data: null, failed: false };
     return { data: await res.json().catch(() => null), failed: false };
