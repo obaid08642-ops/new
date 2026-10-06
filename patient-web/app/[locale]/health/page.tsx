@@ -9,7 +9,7 @@ import { getPatientMedicationReminders } from "@/lib/api/reminders-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { getDirection, isLocale } from "@/lib/i18n";
 import { todayDoses } from "@/lib/health/doses";
-import { BOARD_VITALS, VITAL_ORDER, VITAL_VIEW } from "@/lib/health/view";
+import { BOARD_VITALS, VITAL_ORDER, VITAL_VIEW, CORAL, TEAL } from "@/lib/health/view";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { LocalTimeLine } from "@/components-next/consult/local-time-line";
@@ -132,10 +132,10 @@ export default async function HealthPage({ params }: Props) {
       <SectionHead id="health-records" title={t("recordsTitle")} />
       <RowsCard label={t("recordsTitle")}>
         {[
-          { href: `${base}/records?tab=reports`, icon: "file-text" as const, tone: "teal" as const, label: t("tabReports") },
-          { href: `${base}/records?tab=prescriptions`, icon: "prescription" as const, tone: "coral" as const, label: t("tabPrescriptions") },
+          { href: `${base}/records?tab=reports`, icon: "file-text" as const, tone: TEAL, label: t("tabReports") },
+          { href: `${base}/records?tab=prescriptions`, icon: "prescription" as const, tone: CORAL, label: t("tabPrescriptions") },
           { href: `${base}/records?tab=timeline`, icon: "clock-counter-clockwise" as const, tone: "blue" as const, label: t("tabTimeline") },
-          { href: `${base}/medications`, icon: "pill" as const, tone: "coral" as const, label: t("medicationsTitle") },
+          { href: `${base}/medications`, icon: "pill" as const, tone: CORAL, label: t("medicationsTitle") },
           { href: `${base}/sleep`, icon: "moon" as const, tone: "violet" as const, label: t("sleepTitle") },
           ...(wearablesOn() ? [{ href: `${base}/wearables`, icon: care.icon, tone: care.tone, label: t("wearablesTitle") }] : []),
         ].map((row) => (

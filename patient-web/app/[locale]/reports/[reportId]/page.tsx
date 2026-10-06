@@ -8,6 +8,7 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { Hero, SectionCard } from "@/components-next/consult/consult-parts";
 import styles from "@/components-next/consult/consult.module.css";
+import { TEAL } from "@/lib/health/view";
 
 type Props = { params: Promise<{ locale: string; reportId: string }> };
 
@@ -46,7 +47,7 @@ export default async function ReportDetailPage({ params }: Props) {
 
   return (
     <ConsultPage locale={locale} title={t("reportTitle")} backHref={back}>
-      <Hero icon="file-text" tone="teal" title={title} sub={issued ?? undefined} />
+      <Hero icon="file-text" tone={TEAL} title={title} sub={issued ?? undefined} />
       {FIELDS.flatMap((key) => {
         const value = text(row[key]);
         return value ? [(

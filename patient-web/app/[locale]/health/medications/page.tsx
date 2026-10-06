@@ -9,7 +9,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { formatDate } from "@/lib/format-date";
 import { isLocale } from "@/lib/i18n";
 import { todayDoses } from "@/lib/health/doses";
-import { isFlag, pickTab } from "@/lib/health/view";
+import { isFlag, pickTab, CORAL } from "@/lib/health/view";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { Notice } from "@/components-next/consult/consult-parts";
@@ -107,7 +107,7 @@ export default async function MedicationsPage({ params, searchParams }: Props) {
                 <FIcon icon={pharmacy.icon} tone={pharmacy.tone} size={40} />
                 <span className={styles.rowBody}>
                   <span className={styles.rowTitle}>{medicineName(reminder.medicineName)}</span>
-                  {reminder.dose ? <span className={styles.rowSub}>{reminder.dose}</span> : null}
+                  {reminder.dose ? <span className={styles.rowSub}><bdi>{reminder.dose}</bdi></span> : null}
                   {tab === "all" && reminder.times.length ? <span className={styles.times}>{reminder.times.map((time) => <span className={styles.time} key={time}>{time}</span>)}</span> : null}
                   {tab === "all" && reminder.frequency ? <span className={styles.rowSub}>{freq(reminder.frequency)}</span> : null}
                 </span>
@@ -141,13 +141,13 @@ export default async function MedicationsPage({ params, searchParams }: Props) {
                 <FIcon icon={pharmacy.icon} tone={pharmacy.tone} size={40} />
                 <span className={styles.rowBody}>
                   <span className={styles.rowTitle}>{med.name ?? t("medicineUnnamed")}</span>
-                  {[med.dose, med.frequency].filter(Boolean).length ? <span className={styles.rowSub}>{[med.dose, med.frequency ? freq(med.frequency) : undefined].filter(Boolean).join(" · ")}</span> : null}
+                  {[med.dose, med.frequency].filter(Boolean).length ? <span className={styles.rowSub}>{med.dose ? <bdi>{med.dose}</bdi> : null}{med.dose && med.frequency ? " · " : ""}{med.frequency ? freq(med.frequency) : null}</span> : null}
                   {med.times.length ? <span className={styles.times}>{med.times.map((time) => <span className={styles.time} key={time}>{time}</span>)}</span> : null}
                   {refill ? <span className={styles.rowSub}>{t("refillOn", { date: refill })}{med.daysUntilRefill !== undefined ? ` · ${t("refillInDays", { count: med.daysUntilRefill })}` : ""}</span> : null}
                   {med.pillsRemaining !== undefined ? <span className={styles.rowSub}>{t("unitsRemaining", { count: med.pillsRemaining })}</span> : null}
                   <span className={styles.times}>
                     <StatusChip label={med.active ? t("chronicActive") : t("chronicInactive")} tone={med.active ? "mint" : "amber"} />
-                    {med.needsRefillSoon ? <StatusChip label={t("refillSoon")} tone="coral" /> : null}
+                    {med.needsRefillSoon ? <StatusChip label={t("refillSoon")} tone={CORAL} /> : null}
                   </span>
                 </span>
               </div>

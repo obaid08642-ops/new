@@ -1,4 +1,5 @@
 import type { MedicationDoseSummary, MedicationReminderSummary } from "@/lib/api/reminders";
+import { CORAL } from "@/lib/health/view";
 import type { ServiceTone } from "@/components-next/ui-generated/icons/fill";
 
 export type DoseRow = { reminder: MedicationReminderSummary; timeKey: string; status: MedicationDoseSummary["status"] };
@@ -23,7 +24,7 @@ export function doseTone(status: MedicationDoseSummary["status"]): ServiceTone {
     case "skipped":
       return "amber";
     case "missed":
-      return "coral";
+      return CORAL;
     default:
       return "blue";
   }

@@ -9,7 +9,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { formatDate } from "@/lib/format-date";
 import { getDirection, isLocale } from "@/lib/i18n";
 import { TIMELINE_TYPES, extractReports, extractTimeline } from "@/lib/health/records";
-import { pickTab } from "@/lib/health/view";
+import { pickTab, TEAL } from "@/lib/health/view";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
@@ -77,7 +77,7 @@ export default async function RecordsPage({ params, searchParams }: Props) {
           return (
             <li key={report.id}>
               <Link className={`${styles.row} ${rx.rowLink}`} href={`/${locale}/reports/${encodeURIComponent(report.id)}`}>
-                <FIcon icon="file-text" tone="teal" size={40} />
+                <FIcon icon="file-text" tone={TEAL} size={40} />
                 <span className={styles.rowBody}>
                   <span className={styles.rowTitle}>{report.title}</span>
                   {[report.type, issued].filter(Boolean).length ? <span className={styles.rowSub}>{[report.type, issued].filter(Boolean).join(" · ")}</span> : null}

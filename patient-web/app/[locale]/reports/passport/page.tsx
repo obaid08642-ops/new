@@ -9,6 +9,7 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { Facts, Hero, Notice, SectionCard } from "@/components-next/consult/consult-parts";
 import { CopyTextButton } from "@/components-next/copy-text-button";
 import styles from "@/components-next/consult/consult.module.css";
+import { TEAL } from "@/lib/health/view";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -63,7 +64,7 @@ export default async function HealthPassportPage({ params }: Props) {
         <SectionCard id="passport-basics" title={t("secBasics")}>
           <Facts rows={[
             ...(basics.heightCm !== undefined ? [{ label: t("basicsHeight"), value: <bdi>{basics.heightCm}</bdi>, icon: "user" as const, tone: "blue" as const }] : []),
-            ...(basics.weightKg !== undefined ? [{ label: t("basicsWeight"), value: <bdi>{basics.weightKg}</bdi>, icon: "scales" as const, tone: "teal" as const }] : []),
+            ...(basics.weightKg !== undefined ? [{ label: t("basicsWeight"), value: <bdi>{basics.weightKg}</bdi>, icon: "scales" as const, tone: TEAL }] : []),
           ]} />
         </SectionCard>
       ) : null}

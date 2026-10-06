@@ -22,7 +22,7 @@ export function DoseRows({ rows, labels, withAction = false }: { rows: DoseRow[]
             <FIcon icon={pharmacy.icon} tone={pharmacy.tone} size={40} />
             <span className={styles.rowBody}>
               <span className={styles.rowTitle}>{row.reminder.medicineName ?? labels.medicineUnavailable}</span>
-              <span className={styles.rowSub}>{[row.reminder.dose, row.timeKey].filter(Boolean).map((part, index) => <bdi key={index}>{index ? " · " : ""}{part}</bdi>)}</span>
+              <span className={styles.rowSub}>{row.reminder.dose ? <><bdi>{row.reminder.dose}</bdi> · </> : null}<bdi>{row.timeKey}</bdi></span>
               <StatusChip label={labels.statuses[row.status]} tone={doseTone(row.status)} />
             </span>
             {withAction && row.status === "pending" ? <TakeDoseButton id={row.reminder.id} timeKey={row.timeKey} /> : null}

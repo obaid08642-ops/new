@@ -20,6 +20,7 @@ import { PartUnavailable } from "@/components-next/health/health-kit";
 import { BasicsForm, ProfileList } from "@/components-next/health/profile-forms";
 import styles from "@/components-next/health/health.module.css";
 import forms from "@/components-next/consult/consult.module.css";
+import { CORAL, TEAL } from "@/lib/health/view";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -84,9 +85,9 @@ export default async function HealthProfilePage({ params }: Props) {
       <div id="basics" className={styles.anchor}>
         <SectionCard id="profile-basics" title={t("secBasics")}>
           <Facts rows={[
-            { label: t("basicsBlood"), value: basics.bloodType ? <bdi>{basics.bloodType}</bdi> : t("notSet"), icon: "drop", tone: "coral" },
+            { label: t("basicsBlood"), value: basics.bloodType ? <bdi>{basics.bloodType}</bdi> : t("notSet"), icon: "drop", tone: CORAL },
             { label: t("basicsHeight"), value: basics.heightCm !== undefined ? <bdi>{basics.heightCm}</bdi> : t("notSet"), icon: "user", tone: "blue" },
-            { label: t("basicsWeight"), value: basics.weightKg !== undefined ? <bdi>{basics.weightKg}</bdi> : t("notSet"), icon: "scales", tone: "teal" },
+            { label: t("basicsWeight"), value: basics.weightKg !== undefined ? <bdi>{basics.weightKg}</bdi> : t("notSet"), icon: "scales", tone: TEAL },
           ]} />
           <FormSheet title={t("basicsEdit")} triggerLabel={t("basicsEdit")} closeLabel={t("close")} closeHref={`${base}#basics`} triggerVariant="outline">
             <BasicsForm initial={basics} />
@@ -114,7 +115,7 @@ export default async function HealthProfilePage({ params }: Props) {
                 {recorded.map((disease, index) => (
                   <li key={disease.id || `${disease.name}-${index}`}>
                     <div className={styles.row}>
-                      <FIcon icon="heartbeat" tone="coral" size={40} />
+                      <FIcon icon="heartbeat" tone={CORAL} size={40} />
                       <span className={styles.rowBody}>
                         <span className={styles.rowTitle}>{disease.name}</span>
                         <span className={styles.rowSub}>{t("recordedSource", { source: disease.source || t("sourceUnknown") })}</span>

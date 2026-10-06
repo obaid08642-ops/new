@@ -131,7 +131,7 @@ export default async function VitalsPage({ params, searchParams }: Props) {
             <li key={trend.id} className={forms.rowCard}>
               <FIcon icon={vitalView(trend.id).icon} tone={vitalView(trend.id).tone} size={44} />
               <span className={forms.rowBody}>
-                <span className={forms.rowTitle}>{trend.name}</span>
+                <span className={forms.rowTitle}>{trend.id in VITAL_VIEW ? label(trend.id as VitalKey) : trend.name}</span>
                 <span className={forms.rowSub}><bdi>{trend.current} {trend.unit}</bdi> · {t(`direction.${trend.trendDir}`)} · {t("readingsCount", { count: trend.data.length })}</span>
                 {trend.labels.length ? <span className={forms.rowSub}><bdi>{trend.labels.slice(-5).join(" · ")}</bdi></span> : null}
               </span>
