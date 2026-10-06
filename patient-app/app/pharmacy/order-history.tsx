@@ -8,9 +8,11 @@ import { apiFetch } from '../../src/utils/api';
 import { lightColors, darkColors } from '../../src/theme/colors';
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { dateLocale } from '@/utils/dates';
+import { orderRoute } from '../../src/utils/pharmacyCheckout';
 
 const labels: Record<string, string> = { CART_DRAFT: 'مسودة', ORDER_BROADCASTING: 'قيد بث العروض', OFFERS_READY: 'العروض جاهزة', OFFER_SELECTED: 'بانتظار السعر النهائي', FINAL_QUOTE_READY: 'السعر النهائي جاهز', FINAL_QUOTE_ACCEPTED: 'بانتظار الدفع', INSURANCE_PROCESSING: 'قيد معالجة التأمين', INSURANCE_DECISION_READY: 'قرار التأمين جاهز', CO_PAY_PENDING: 'بانتظار نسبة التحمل', COD_REGISTERED: 'الدفع عند الاستلام مسجل', CONFIRMED: 'مؤكد', CANCELLED: 'ملغي' };
-function destination(order: any) { const id = order.id; const state = order.governed_state; if (['ORDER_BROADCASTING', 'OFFERS_READY'].includes(state)) return { pathname: '/pharmacy/broadcast-status', params: { orderId: id } }; if (['OFFER_SELECTED', 'FINAL_QUOTE_READY', 'FINAL_QUOTE_ACCEPTED', 'COD_REGISTERED'].includes(state)) return { pathname: '/pharmacy/final-quote', params: { orderId: id } }; if (['INSURANCE_PROCESSING', 'INSURANCE_DECISION_READY', 'CO_PAY_PENDING'].includes(state)) return { pathname: '/pharmacy/insurance-decision', params: { orderId: id } }; return { pathname: '/pharmacy/order-tracking', params: { orderId: id } }; }
+// the step the server says the order is at (src/utils/pharmacyCheckout.ts `orderRoute`: governed_state is empty until an offer is chosen)
+function destination(order: any) { return orderRoute(order); }
 export default function PharmacyOrderHistoryScreen() {
   const insets = useSafeAreaInsets(); const { isDark, lang } = useApp() as any; const colors = isDark ? darkColors : lightColors; const isRTL = lang === 'ar' || lang === 'ur'; const [orders, setOrders] = useState<any[]>([]); const [loading, setLoading] = useState(true); const [refreshing, setRefreshing] = useState(false); const [error, setError] = useState('');
   const load = useCallback(async (manual = false) => { manual ? setRefreshing(true) : setLoading(true); setError(''); try { const response: any = await apiFetch('/patient/pharmacy/orders'); const list = response?.data || response; setOrders(Array.isArray(list) ? list : []); } catch (reason: any) { setOrders([]); setError(reason?.message || 'تعذر تحميل سجل الطلبات'); } finally { setLoading(false); setRefreshing(false); } }, []);

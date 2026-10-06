@@ -169,6 +169,7 @@ export interface PayOrder {
   /** The order's own payment flag: `paid` once the gateway confirmed, `covered_by_insurance`, or null. */
   paymentStatus: string | null;
   paymentMethod: string | null;
+  selectedOfferId: string | null;
   coverageMode: string | null;
   fulfillment: 'delivery' | 'pickup' | null;
   address: { label: string | null; line: string | null } | null;
@@ -222,6 +223,7 @@ export function readPayOrder(response: unknown): PayOrder | null {
     governedState: text(o.governed_state),
     paymentStatus: text(o.payment_status),
     paymentMethod: text(o.payment_method),
+    selectedOfferId: text(o.selected_offer_id),
     coverageMode: text(o.coverage_mode),
     fulfillment,
     address: readAddress(o.delivery_address),
@@ -407,13 +409,21 @@ const BEFORE_SELECTION = new Set(['draft', 'intake_processing', 'ready_for_split
  * selected (it never says ORDER_BROADCASTING or OFFERS_READY, which older screens tested for), so an order still looking for
  * or choosing an offer is told by its `status`.
  */
-export function orderRoute(order: { id: string; status?: string | null; governed_state?: string | null; payment_status?: string | null }): OrderRoute {
+export function orderRoute(order: { id: string; status?: string | null; governed_state?: string | null; payment_status?: string | null; selected_offer_id?: string | null; payment_method?: string | null }): OrderRoute {
   const orderId = order.id;
   const state = order.governed_state ?? '';
+  const status = String(order.status ?? '');
   const paid = order.payment_status === 'paid';
   if (state === 'INSURANCE_PROCESSING' || state === 'INSURANCE_DECISION_READY' || state === 'CO_PAY_PENDING') return { pathname: '/pharmacy/insurance-decision', params: { orderId } };
   if (!paid && ['OFFER_SELECTED', 'FINAL_QUOTE_READY', 'FINAL_QUOTE_ACCEPTED', 'COD_REGISTERED'].includes(state)) return { pathname: '/pharmacy/final-quote', params: { orderId } };
-  if (!state && BEFORE_SELECTION.has(String(order.status))) return { pathname: '/pharmacy/broadcast-status', params: { orderId } };
+  if (!state && order.selected_offer_id) {
+    // the order list sends the stored order, without the derived `governed_state`: the status and the chosen offer tell the step
+    const insurance = String(order.payment_method ?? '').toLowerCase() === 'insurance';
+    if (!paid && (['insurance_decision_pending', 'waiting_copay'].includes(status) || (insurance && status === 'manual_review'))) return { pathname: '/pharmacy/insurance-decision', params: { orderId } };
+    if (!paid && ['cash_card_payment_pending', 'cod_due_on_delivery'].includes(status)) return { pathname: '/pharmacy/final-quote', params: { orderId } };
+    return { pathname: '/pharmacy/order-tracking', params: { orderId } };
+  }
+  if (!state && BEFORE_SELECTION.has(status)) return { pathname: '/pharmacy/broadcast-status', params: { orderId } };
   return { pathname: '/pharmacy/order-tracking', params: { orderId } };
 }
 
