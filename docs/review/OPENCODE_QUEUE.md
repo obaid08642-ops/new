@@ -56,6 +56,10 @@ Each item is checked against `main` (2026-10-06) unless marked "verify first".
 | Q-9 | M | OCR field names that the app sends are not read by the prescription upload endpoint, so every OCR'd prescription from the app is saved empty (verify first; compare `patient-app` request bodies with the DTO). | The DTO accepts the client's field names (DTO rules in `AGENTS.md`); the fields are saved. `dtocheck` shows 0 mismatches. |
 | Q-10 | M | Prescription lists return base64 photos (verify first). | Lists return metadata plus an attachment id. The photo comes from a separate owner-checked GET. Update every client that reads the list in the same PR. |
 | Q-11 | S | Verify first. The `prescription_attachments` shape differs between writer and readers. | One shape, documented in the DTO. Test. |
+| Q-12 | L | Owner feature "Nearest". Doctors and providers store a geo point for each clinic, with a `2dsphere` index. The list endpoint accepts `sort=distance&lat=&lng=` and returns `distance_km`. With no location it falls back to the patient's city. Applies to clinic and home-visit only. | **Wait for the acceptance spec** `backend/acceptance/q-12/`. |
+| Q-13 | L | Owner feature "Available now". The list endpoint accepts `available_within=<minutes>` (for example 15) and `type=clinic\|video\|home_visit`. It returns doctors with a free slot starting within that window, computed from `weekly_schedule`, `blocked_dates` and slot locks, using the one shared availability function (Q37). For video, a doctor who is online and accepting also counts. Each result carries `next_slot_at`. | **Wait for the acceptance spec** `backend/acceptance/q-13/`. |
+
+The design Batch 2 (#313) "Needs review" backend lines are added here by the reviewer as Q-14 and on, after they are checked against `main`.
 
 Closed, do not do:
 - **Barcode `$regex`:** already escaped on `main`.
