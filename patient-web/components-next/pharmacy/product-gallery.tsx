@@ -36,7 +36,7 @@ export function ProductGallery({ name, images, badge }: { name: string; images: 
             </button>
             <dialog ref={zoom} className={styles.zoom} aria-label={name} onClick={(event) => { if (event.target === zoom.current) zoom.current?.close(); }}>
               {/* eslint-disable-next-line @next/next/no-img-element -- the dialog shows the picture at its own size, once, on request */}
-              <img src={current} alt={name} className={styles.zoomImage} />
+              <img src={current} alt={name} className={styles.zoomImage} loading="lazy" decoding="async" />
               <div className={styles.zoomClose}>
                 <IconButton name="close" label={t("closeImage")} variant="outlined" onClick={() => zoom.current?.close()} />
               </div>

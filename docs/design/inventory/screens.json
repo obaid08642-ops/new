@@ -1,5 +1,5 @@
 {
- "commit": "ed656a80",
+ "commit": "c3e41a7e",
  "routes": [
   {
    "app": "patient-app",
@@ -7380,17 +7380,17 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
     },
     {
-     "method": "GET",
+     "method": "*",
      "path": "/care/doctors",
      "target": "backend",
      "query": "",
-     "line": 5,
+     "line": 11,
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:29"
@@ -7400,7 +7400,7 @@
      "path": "/config",
      "target": "backend",
      "query": "",
-     "line": 41,
+     "line": 53,
      "file": "patient-web/lib/api/public-config-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/config/config.controller.ts:10"
@@ -7410,13 +7410,13 @@
      "path": "/content/home",
      "target": "backend",
      "query": "",
-     "line": 43,
+     "line": 55,
      "file": "patient-web/lib/api/public-config-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:262"
     }
    ],
-   "files": 39,
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -7934,7 +7934,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -7960,7 +7960,7 @@
      "backend": "backend/src/modules/seo-search/seo-search.module.ts:1086"
     }
    ],
-   "files": 37,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -7978,7 +7978,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -7994,7 +7994,7 @@
      "backend": "backend/src/modules/cart/cart.module.ts:230"
     }
    ],
-   "files": 40,
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -8012,7 +8012,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -8038,7 +8038,7 @@
      "status": "OK"
     }
    ],
-   "files": 36,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -8056,7 +8056,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -8072,7 +8072,7 @@
      "backend": "backend/src/modules/cart/cart.module.ts:244"
     }
    ],
-   "files": 33,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -8286,7 +8286,7 @@
      "path": "/care/doctors/:param",
      "target": "backend",
      "query": "",
-     "line": 10,
+     "line": 16,
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:60"
@@ -8516,17 +8516,17 @@
    "status": "—",
    "calls": [
     {
-     "method": "GET",
+     "method": "*",
      "path": "/care/doctors",
      "target": "backend",
      "query": "",
-     "line": 5,
+     "line": 11,
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:29"
     }
    ],
-   "files": 7,
+   "files": 11,
    "unresolved": 0
   },
   {
@@ -8554,7 +8554,7 @@
      "path": "/care/doctors/:param",
      "target": "backend",
      "query": "",
-     "line": 10,
+     "line": 16,
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:60"
@@ -8564,7 +8564,7 @@
      "path": "/care/doctors/:param/slots",
      "target": "backend",
      "query": "?date=:param&service_type=:param",
-     "line": 15,
+     "line": 21,
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:66"
@@ -8826,7 +8826,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -8852,7 +8852,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:18"
     }
    ],
-   "files": 30,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -8914,7 +8914,7 @@
      "path": "/labs/packages",
      "target": "backend",
      "query": "",
-     "line": 77,
+     "line": 78,
      "file": "patient-web/app/[locale]/diagnostics/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:32"
@@ -8940,7 +8940,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:12"
     }
    ],
-   "files": 17,
+   "files": 19,
    "unresolved": 0
   },
   {
@@ -9209,7 +9209,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:12"
     }
    ],
-   "files": 7,
+   "files": 9,
    "unresolved": 0
   },
   {
@@ -11500,13 +11500,13 @@
      "path": "/api/patient/providers/map",
      "target": "web-proxy",
      "query": "?radius=25",
-     "line": 66,
+     "line": 70,
      "file": "patient-web/components-next/map-explorer-client.tsx",
      "backend": "backend/src/modules/provider/providers.controller.ts:35",
      "status": "OK"
     }
    ],
-   "files": 4,
+   "files": 5,
    "unresolved": 0
   },
   {
@@ -11672,7 +11672,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -11698,7 +11698,7 @@
      "backend": "backend/src/modules/seo-search/seo-search.module.ts:1049"
     }
    ],
-   "files": 44,
+   "files": 48,
    "unresolved": 0
   },
   {
@@ -11716,7 +11716,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -11732,7 +11732,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:15"
     }
    ],
-   "files": 30,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -11774,7 +11774,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -11790,7 +11790,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:388"
     }
    ],
-   "files": 25,
+   "files": 29,
    "unresolved": 0
   },
   {
@@ -11954,7 +11954,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -11980,7 +11980,7 @@
      "backend": "backend/src/modules/doctors/doctors.module.ts:293"
     }
    ],
-   "files": 29,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -11998,7 +11998,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -12024,7 +12024,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:55"
     }
    ],
-   "files": 30,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -12084,7 +12084,7 @@
      "backend": "backend/src/modules/home-care/home-care.controller.ts:101"
     }
    ],
-   "files": 10,
+   "files": 12,
    "unresolved": 0
   },
   {
@@ -12636,7 +12636,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -12672,7 +12672,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:42"
     }
    ],
-   "files": 44,
+   "files": 48,
    "unresolved": 0
   },
   {
@@ -12690,7 +12690,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -12716,7 +12716,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:270"
     }
    ],
-   "files": 32,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -12734,7 +12734,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -12760,7 +12760,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:271"
     }
    ],
-   "files": 36,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -12859,7 +12859,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -12885,7 +12885,7 @@
      "backend": "backend/src/modules/seo-search/seo-search.module.ts:1049"
     }
    ],
-   "files": 43,
+   "files": 47,
    "unresolved": 0
   },
   {
@@ -12966,13 +12966,13 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
     }
    ],
-   "files": 28,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -13053,7 +13053,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -13079,7 +13079,7 @@
      "backend": "backend/src/modules/articles/seo.controller.ts:16"
     }
    ],
-   "files": 23,
+   "files": 27,
    "unresolved": 0
   },
   {
@@ -13097,7 +13097,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -13113,7 +13113,7 @@
      "status": "OK"
     }
    ],
-   "files": 30,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -13131,7 +13131,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -13167,7 +13167,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:42"
     }
    ],
-   "files": 44,
+   "files": 48,
    "unresolved": 0
   },
   {
@@ -13185,7 +13185,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -13221,7 +13221,7 @@
      "status": "OK"
     }
    ],
-   "files": 31,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -13265,7 +13265,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -13281,7 +13281,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:74"
     }
    ],
-   "files": 28,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -13299,7 +13299,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -13325,7 +13325,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
     }
    ],
-   "files": 38,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -13343,7 +13343,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -13369,7 +13369,7 @@
      "backend": "backend/src/modules/payments/payments.module.ts:580"
     }
    ],
-   "files": 39,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -13397,13 +13397,13 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
     }
    ],
-   "files": 27,
+   "files": 31,
    "unresolved": 0
   },
   {
@@ -13434,7 +13434,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -13450,7 +13450,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
     }
    ],
-   "files": 31,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -13468,7 +13468,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -13494,7 +13494,7 @@
      "backend": "backend/src/modules/payments/payments.module.ts:580"
     }
    ],
-   "files": 41,
+   "files": 45,
    "unresolved": 0
   },
   {
@@ -13566,13 +13566,13 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
     }
    ],
-   "files": 32,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -13590,7 +13590,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -13616,7 +13616,7 @@
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:57"
     }
    ],
-   "files": 40,
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -13634,7 +13634,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -13650,7 +13650,7 @@
      "status": "OK"
     }
    ],
-   "files": 29,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -13668,7 +13668,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -13694,7 +13694,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:42"
     }
    ],
-   "files": 34,
+   "files": 38,
    "unresolved": 0
   },
   {
@@ -13712,7 +13712,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -13728,7 +13728,7 @@
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:60"
     }
    ],
-   "files": 35,
+   "files": 39,
    "unresolved": 0
   },
   {
@@ -13746,7 +13746,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -13762,7 +13762,7 @@
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:77"
     }
    ],
-   "files": 34,
+   "files": 38,
    "unresolved": 0
   },
   {
@@ -14441,7 +14441,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -14467,7 +14467,7 @@
      "handler": "patient-web/app/api/search/intent/route.ts"
     }
    ],
-   "files": 29,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -14937,7 +14937,7 @@
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 22,
+     "line": 23,
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
@@ -14953,7 +14953,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:44"
     }
    ],
-   "files": 31,
+   "files": 35,
    "unresolved": 0
   }
  ]

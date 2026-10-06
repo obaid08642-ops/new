@@ -8,6 +8,7 @@ vi.mock("next/navigation", () => ({ notFound: vi.fn(), useRouter: () => ({ push:
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/components-next/core/core-shell", () => ({ CoreShell: ({ children }: { children: unknown }) => children }));
 
+vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
 vi.mock("@/lib/i18n", () => ({
   isLocale: () => true,
@@ -58,7 +59,13 @@ describe("public product page (catalog v14)", () => {
     expect(html).toContain('"@type":"BreadcrumbList"');
     expect(html).toContain('"sku":"697836"');
     expect(html).toContain('https://cdn.nabd.plus/100002_img_1.webp');
-    expect(html).toContain('fetchPriority="high"');
+    // F82-1: the gallery image is the LCP element. It is a priority <img> (fetchPriority high) and React emits ONE
+    // preload for it (with its srcset when the optimizer is on). The hand-written preload of the ORIGINAL url (removed)
+    // made the browser download the picture twice, so exactly one image preload must be in the page.
+    const preloads = html.match(/<link[^>]*rel="preload"[^>]*as="image"[^>]*>/g) ?? [];
+    expect(preloads.length).toBe(1);
+    expect(preloads[0]).toMatch(/imageSrcSet=/i); // the rendition that is shown, with its srcset
+    expect(html).toMatch(/<img[^>]*src="https:\/\/cdn\.nabd\.plus\/100002_img_1\.webp"[^>]*loading="lazy"/i); // the zoom dialog picture is not fetched up front
     expect(html).toContain('href="/en/c/Medicine%20%26%20Treatment/Prescribed%20Treatments"');
   });
 

@@ -267,10 +267,7 @@ export default async function PublicProductPage({ params }: Props) {
       >
         <div className={styles.page}>
           <JsonLd data={jsonLd} />
-          {images[0] && (
-            // eslint-disable-next-line @next/next/no-head-element
-            <link rel="preload" as="image" href={images[0]} fetchPriority="high" />
-          )}
+          {/* F82-1: the gallery's CatalogImage (priority) emits the one correct preload, for the rendition shown. */}
 
           <nav className={styles.crumbs} aria-label={b("breadcrumb")}>
             <ol>

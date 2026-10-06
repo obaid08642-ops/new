@@ -11,7 +11,8 @@ import { PresenceBeacon } from "@/components-next/presence-beacon";
 import { NabdMark } from "@/components-next/nabd-mark";
 import { authCookieNames } from "@/lib/auth/cookies";
 import { getDirection, isLocale, locales, type Locale } from "@/lib/i18n";
-import { WebMcpProvider } from "@/components-next/web-mcp-provider";
+import { WebMcpLoader } from "@/components-next/web-mcp-loader";
+import { pickClientMessages } from "@/lib/i18n/client-messages";
 import { ThemeToggle } from "@/components-next/theme-toggle";
 import { THEME_INIT_SCRIPT } from "@/app/theme";
 import { ServiceWorkerRegister } from "@/components-next/service-worker-register";
@@ -61,7 +62,8 @@ export default async function LocaleLayout({ children, params }: Props) {
   if (!isLocale(locale)) notFound();
   const typedLocale = locale as Locale;
   setRequestLocale(typedLocale);
-  const messages = await getMessages({ locale: typedLocale });
+  // F82-1: only the namespaces client components read go into the HTML (lib/i18n/client-messages.ts).
+  const messages = pickClientMessages(await getMessages({ locale: typedLocale }));
   const t = await getTranslations({ locale: typedLocale, namespace: "Shared" });
   const hasAccessToken = Boolean((await cookies()).get(authCookieNames.access)?.value);
   // proxy.ts puts the per-request CSP nonce here; an inline script without it is refused.
@@ -69,7 +71,7 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <WebMcpProvider locale={typedLocale} />
+      <WebMcpLoader locale={typedLocale} />
       <div className={`shell ${fontVariables}`} lang={typedLocale} dir={getDirection(typedLocale)}>
         {/*
           12.A3 — the theme has to be known before the first pixel, or every

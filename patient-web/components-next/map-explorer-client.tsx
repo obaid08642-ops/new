@@ -14,7 +14,10 @@ import {
   Star,
   Stethoscope,
 } from "lucide-react";
+import { peekSwr, putSwr } from "@/lib/swr-lite";
 import styles from "./map-explorer.module.css";
+
+const MAP_URL = "/api/patient/providers/map?radius=25";
 
 type Labels = {
   title: string;
@@ -53,8 +56,9 @@ export function MapExplorerClient({
   locale: string;
   labels: Labels;
 }) {
-  const [providers, setProviders] = useState<Provider[]>([]);
-  const [loading, setLoading] = useState(true);
+  // The list the last visit in this tab received shows at once; the request below replaces it (lib/swr-lite.ts).
+  const [providers, setProviders] = useState<Provider[]>(() => peekSwr<Provider[]>(MAP_URL) ?? []);
+  const [loading, setLoading] = useState(() => peekSwr<Provider[]>(MAP_URL) === undefined);
   const [selectedType, setSelectedType] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
@@ -63,12 +67,12 @@ export function MapExplorerClient({
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch("/api/patient/providers/map?radius=25");
+        const res = await fetch(MAP_URL);
         if (res.ok) {
           const data = await res.json().catch(() => null);
           const list = Array.isArray(data) ? data : data?.data ?? [];
           if (!cancelled && Array.isArray(list)) {
-            setProviders(
+            const next: Provider[] =
               list.map((p: any) => ({
                 id: String(p.id ?? p._id ?? ""),
                 name: String(p.name_ar ?? p.name ?? p.clinic_name ?? ""),
@@ -79,8 +83,9 @@ export function MapExplorerClient({
                 lng: p.lng ?? p.location?.lng,
                 address: p.address || p.city || undefined,
                 specialty: p.specialty || p.specialties?.[0],
-              }))
-            );
+              }));
+            putSwr(MAP_URL, next);
+            setProviders(next);
           }
         }
       } catch {

@@ -911,24 +911,24 @@
     "emptyBody": "Walang available na specialty ngayon.",
     "noMatch": "Walang tumugmang espesyalisasyon sa paghahanap.",
     "doctorCount": "{count} doktor ang available",
-    "faq": [
-      {
+    "faq": {
+      "0": {
         "q": "Paano mag-book ng konsultasyon?",
         "a": "Pumili ng specialty, doktor, at slot, pagkatapos kumpirmahin."
       },
-      {
+      "1": {
         "q": "Anong mga mode?",
         "a": "Clinic visit, video call, at home visit."
       },
-      {
+      "2": {
         "q": "Puwede ba ang insurance?",
         "a": "Oo — naitatala ang desisyon bago magbayad."
       },
-      {
+      "3": {
         "q": "Puwede bang kanselahin?",
         "a": "Oo, mula sa My appointments ayon sa patakaran।"
       }
-    ],
+    },
     "faqTitle": "Mga FAQ"
   },
   "HomeCareServices": {
@@ -2225,5 +2225,12 @@
     "confirmTitle": "Tungkol sa order",
     "confirmNoOrderTitle": "Walang pinangalanang order",
     "confirmNoOrderBody": "Magbukas ng order mula sa mga order mo, o magsimula ng bagong kahilingan."
+  },
+  "ProductGallery": {
+    "zoom": "Palakihin ang larawan",
+    "zoomHint": "I-tap para palakihin at suriin ang kahon ng gamot",
+    "zoomShort": "Palakihin",
+    "thumb": "Maliit na larawan",
+    "close": "Isara"
   }
 }

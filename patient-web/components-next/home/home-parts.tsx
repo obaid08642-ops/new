@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { NavLink } from "@/components-next/nav/nav-link";
+import { SoftLinks } from "@/components-next/nav/soft-links";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { DoctorCard } from "@/components-next/ui-generated/components/Cards";
@@ -92,7 +94,10 @@ export function AppointmentCard({
 }
 
 /** The nine services of HomeWeb, each the shared ServiceTile inside a link. */
-export function ServiceGrid({ locale, t }: { locale: Locale; t: T }) {
+/** The four sections of the tab bar: their pages are fetched once the page is idle; the other tiles on touch or hover. */
+const MAIN_SERVICES = new Set<ServiceName>(["consult", "pharmacy", "lab", "nursing"]);
+
+export function ServiceGrid({ locale, t, signedIn = false }: { locale: Locale; t: T; signedIn?: boolean }) {
   const base = `/${locale}`;
   const items: Array<{ name: ServiceName; label: string; href: string }> = [
     { name: "consult", label: t("svcConsult"), href: `${base}/consultations/doctors` },
@@ -110,9 +115,9 @@ export function ServiceGrid({ locale, t }: { locale: Locale; t: T }) {
       <ul className={`${styles.services} ${styles.rise}`}>
         {items.map((s) => (
           <li key={s.name}>
-            <Link href={s.href} className={styles.tileLink}>
+            <NavLink href={s.href} className={styles.tileLink} prefetch={MAIN_SERVICES.has(s.name) ? "viewport" : "intent"} signedIn={signedIn}>
               <ServiceTile name={s.name} label={s.label} size="lg" />
-            </Link>
+            </NavLink>
           </li>
         ))}
       </ul>
@@ -256,9 +261,9 @@ export function DoctorsSection({ doctors, locale, t, specialties }: { doctors: D
     <section className={styles.section} aria-labelledby="home-doctors-title">
       <div className={styles.sectionHead}>
         <h2 id="home-doctors-title" className={styles.sectionTitle}>{t("doctorsTitle")}</h2>
-        <Link href={`/${locale}/consultations/doctors`} className={styles.seeAll}>{t("seeAll")}</Link>
+        <NavLink href={`/${locale}/consultations/doctors`} className={styles.seeAll} prefetch="viewport">{t("seeAll")}</NavLink>
       </div>
-      <ul className={styles.cards}>
+      <SoftLinks className={styles.cards}>
         {rows.map(({ d, name }) => (
           <li key={d.id}>
             <DoctorCard
@@ -275,7 +280,7 @@ export function DoctorsSection({ doctors, locale, t, specialties }: { doctors: D
             />
           </li>
         ))}
-      </ul>
+      </SoftLinks>
     </section>
   );
 }

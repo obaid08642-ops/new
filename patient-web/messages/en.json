@@ -911,24 +911,24 @@
     "emptyBody": "No specialties are available right now.",
     "noMatch": "No specialties match your search.",
     "doctorCount": "{count} doctors available",
-    "faq": [
-      {
+    "faq": {
+      "0": {
         "q": "How do I book a consultation?",
         "a": "Choose a specialty, then a doctor, then a slot, and confirm from the doctor page."
       },
-      {
+      "1": {
         "q": "What consultation modes exist?",
         "a": "In-clinic visit, video call, and home visit depending on the doctor."
       },
-      {
+      "2": {
         "q": "Can I use insurance?",
         "a": "Yes — the insurance decision is recorded before payment; you pay only the copay."
       },
-      {
+      "3": {
         "q": "Can I cancel or reschedule?",
         "a": "Yes, from My appointments under the policy shown at booking."
       }
-    ],
+    },
     "faqTitle": "FAQs"
   },
   "HomeCareServices": {
@@ -2225,5 +2225,12 @@
     "confirmTitle": "Order",
     "confirmNoOrderTitle": "No order was named",
     "confirmNoOrderBody": "Open an order from your orders, or start a new request."
+  },
+  "ProductGallery": {
+    "zoom": "Enlarge image",
+    "zoomHint": "Tap to enlarge and inspect the medicine box",
+    "zoomShort": "Enlarge",
+    "thumb": "Thumbnail",
+    "close": "Close"
   }
 }

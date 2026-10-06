@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useRoutePrefetch } from "@/components-next/nav/use-route-prefetch";
 import { BottomTabBar } from "@/components-next/ui-generated/components/Surfaces";
 import type { BottomTabItem } from "@/components-next/ui-generated/components/contract";
 
@@ -10,13 +11,17 @@ export function HomeTabBar({
   hrefs,
   value,
   label,
+  signedIn = false,
 }: {
   items: BottomTabItem[];
   hrefs: Record<string, string>;
   value: string;
   label: string;
+  signedIn?: boolean;
 }) {
   const router = useRouter();
+  // The tabs are buttons that call router.push, which Next never prefetches: fetch their pages once the page is idle.
+  useRoutePrefetch(Object.values(hrefs), { signedIn });
   return (
     <BottomTabBar
       label={label}

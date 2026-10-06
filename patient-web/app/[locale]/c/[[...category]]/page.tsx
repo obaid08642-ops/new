@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPublicCategories, getPublicCategoryProducts } from "@/lib/api/public-products-server";
 import { JsonLd } from "@/components-next/json-ld";
+import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
 import { isLocale, locales, type Locale } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
 import { CoreShell } from "@/components-next/core/core-shell";
@@ -168,6 +169,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
   return (
     <CoreShell locale={typedLocale} title={heading} backHref={backHref}>
+      <StaleWhileRevalidate />
       <JsonLd data={jsonLd} />
       <div className={styles.page}>
         <div className={styles.head}>

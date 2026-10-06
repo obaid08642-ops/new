@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractDiagnosticBookings } from "@/lib/api/diagnostics";
@@ -94,6 +95,7 @@ export default async function DiagnosticsPage({ params }: Props) {
 
   return (
     <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
+      <StaleWhileRevalidate />
       {/* Intro Header */}
       <section className={styles.intro} style={{ gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
         <div className={styles.introText} style={{ display: "grid", gap: 8, minWidth: 0, flex: 1 } as any}>
