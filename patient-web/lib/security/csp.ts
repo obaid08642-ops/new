@@ -18,10 +18,20 @@
  * the app renders is the theme script and JSON-LD (escaped). A test pins that list (tests/csp-raw-html.test.ts).
  */
 
+import { createHash } from "node:crypto";
+import { THEME_INIT_SCRIPT } from "../../app/theme";
+
 export const CSP_NONCE_PLACEHOLDER = "nabdCspNoncePlaceholder0000";
 /** Response header the proxy sets on public HTML for the nonce server; the nonce server removes it. */
 export const CSP_INJECT_HEADER = "x-nabd-csp-inject";
 export const SESSION_COOKIES = ["nabd_access", "nabd_refresh"] as const;
+
+/**
+ * F82-3: the theme script (app/theme.ts) runs inline before the first paint, in the root layout of every page. A static or
+ * cached page cannot carry a per-request nonce for it, so the policy allows it by its hash: exactly these bytes, nothing
+ * else (an injected script has other content). The hash is computed from the script itself, so they cannot drift apart.
+ */
+export const THEME_SCRIPT_HASH = `sha256-${createHash("sha256").update(THEME_INIT_SCRIPT).digest("base64")}`;
 
 export function contentSecurityPolicy(nonce: string, isDevelopment = process.env.NODE_ENV === "development") {
   return [
@@ -31,7 +41,7 @@ export function contentSecurityPolicy(nonce: string, isDevelopment = process.env
     "frame-ancestors 'none'",
     "img-src 'self' data: https:",
     `style-src 'self' 'nonce-${nonce}'${isDevelopment ? " 'unsafe-inline'" : ""}`,
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDevelopment ? " 'unsafe-eval'" : ""}`,
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' '${THEME_SCRIPT_HASH}'${isDevelopment ? " 'unsafe-eval'" : ""}`,
     "connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus",
     "font-src 'self' data:",
     "media-src 'self' https:",

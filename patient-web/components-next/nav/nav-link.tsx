@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState, type ComponentProps } from "react";
-import { ambientPrefetchAllowed, isFullPrefetchRoute, onIdle } from "@/lib/nav/prefetch-routes";
+import { useSessionIdentity } from "@/lib/auth/session-identity";
+import { ambientPrefetchAllowed, dependsOnSession, isFullPrefetchRoute, onIdle } from "@/lib/nav/prefetch-routes";
 
 type LinkProps = ComponentProps<typeof Link>;
 
@@ -15,13 +16,20 @@ export type NavLinkProps = Omit<LinkProps, "prefetch"> & {
    * a plain `next/link` (prefetch the shell only).
    */
   prefetch?: "viewport" | "intent";
-  /** The visitor has a session; `/diagnostics` is per-patient then and stays out of the full prefetch. */
+  /**
+   * The visitor has a session; `/diagnostics` is per-patient then and stays out of the full prefetch. Leave it out on a
+   * static page (F82-3): the link then asks the session identity in the browser, only when its own route depends on it,
+   * and treats `unknown` as signed in until the answer arrives.
+   */
   signedIn?: boolean;
 };
 
 /** `next/link` that upgrades its prefetch to the full page for the routes that are safe to prefetch in full. */
-export function NavLink({ prefetch = "intent", signedIn = false, href, onMouseEnter, onTouchStart, onFocus, ...rest }: NavLinkProps) {
-  const eligible = typeof href === "string" && isFullPrefetchRoute(href, { signedIn });
+export function NavLink({ prefetch = "intent", signedIn, href, onMouseEnter, onTouchStart, onFocus, ...rest }: NavLinkProps) {
+  const needsIdentity = signedIn === undefined && typeof href === "string" && dependsOnSession(href);
+  const identity = useSessionIdentity({ enabled: needsIdentity });
+  const visitorSignedIn = signedIn ?? identity.status !== "anonymous";
+  const eligible = typeof href === "string" && isFullPrefetchRoute(href, { signedIn: visitorSignedIn });
   const [full, setFull] = useState(false);
 
   useEffect(() => {

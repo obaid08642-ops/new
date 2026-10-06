@@ -34,6 +34,8 @@
   background: var(--nabd-color-brand-ink); color: var(--nabd-color-text-onInverse);
   font-size: var(--nabd-font-size-control); font-weight: 600; text-decoration: none;
 }
+/* F82-3: the static Home does not know who is looking; until the browser has the answer the sign-in button's size is held by this invisible stand-in. */
+.identityPending { visibility: hidden; }
 .accountLink { display: inline-grid; place-items: center; inline-size: 44px; block-size: 44px; border-radius: 22px; text-decoration: none; flex-shrink: 0; }
 @media (min-width: 540px) { .brand { display: inline-flex; } }
 @media (min-width: 768px) {

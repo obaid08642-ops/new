@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { authErrorKind } from "@/lib/auth/auth-errors";
+import { resetSessionIdentity } from "@/lib/auth/session-identity";
 import type { Locale } from "@/lib/i18n";
 import styles from "./auth/auth.module.css";
 
@@ -82,7 +83,7 @@ export function OtpScreen({ locale, identifier = "" }: { locale: Locale; identif
       if (!verified.ok) { setError(verifyErrorMessage(t, verified.status)); return; }
       const exchanged = await fetch("/api/auth/session/exchange", { method: "POST" });
       if (!exchanged.ok) { setError(t("failed")); return; }
-      router.replace(`/${locale}/dashboard`); router.refresh();
+      resetSessionIdentity(); router.replace(`/${locale}/dashboard`); router.refresh();
     } catch { setError(t("failed")); }
     finally { setBusy(false); }
   }

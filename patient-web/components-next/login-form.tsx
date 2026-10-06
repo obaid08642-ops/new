@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { authErrorKind } from "@/lib/auth/auth-errors";
+import { resetSessionIdentity } from "@/lib/auth/session-identity";
 import type { Locale } from "@/lib/i18n";
 import { SocialLoginButtons } from "./social-login-buttons";
 import styles from "./auth/auth.module.css";
@@ -45,7 +46,7 @@ export function LoginForm({ locale, guestBlocked = false }: { locale: Locale; gu
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) { setMessage(loginErrorMessage(t, response.status, twoFactor)); return; }
       if (!twoFactor && payload.requires2fa) { setTwoFactor(true); setPassword(""); setMessage(null); return; }
-      router.replace(`/${locale}/dashboard`); router.refresh();
+      resetSessionIdentity(); router.replace(`/${locale}/dashboard`); router.refresh();
     } catch { setMessage(twoFactor ? t("twoFactorUnavailable") : t("unavailable")); }
     finally { setSubmitting(false); }
   }

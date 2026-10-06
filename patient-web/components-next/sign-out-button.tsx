@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import type { Locale } from "@/lib/i18n";
 import { clearSwr } from "@/lib/swr-lite";
+import { resetSessionIdentity } from "@/lib/auth/session-identity";
 import styles from "./sign-out-button.module.css";
 
 /**
@@ -21,7 +22,7 @@ export function SignOutButton({ locale, className }: { locale: Locale; className
     if (busy) return;
     setBusy(true);
     try { await fetch("/api/auth/logout", { method: "POST" }); }
-    finally { clearSwr(); router.replace(`/${locale}`); router.refresh(); }
+    finally { clearSwr(); resetSessionIdentity(); router.replace(`/${locale}`); router.refresh(); }
   }
 
   return (
