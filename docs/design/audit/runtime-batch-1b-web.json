@@ -1,0 +1,931 @@
+[
+ {
+  "route": "/cart",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/cart",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/cart",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/patient/pharmacy/orders/761e9693-e517-4ad6-ae20-330363005b28/offers",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/patient/pharmacy/orders/761e9693-e517-4ad6-ae20-330363005b28",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/c net::ERR_ABORTED",
+   "GET /ar/c net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 81
+ },
+ {
+  "route": "/cart",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/cart",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/c net::ERR_ABORTED",
+   "GET /ar/c net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 81
+ },
+ {
+  "route": "/cart",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/cart",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/c net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 121
+ },
+ {
+  "route": "/cart/prescription",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/cart/prescription",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/cart/prescription",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/pharmacy/chat/threads",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/patient/pharmacy/orders/761e9693-e517-4ad6-ae20-330363005b28",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/cart net::ERR_ABORTED",
+   "GET /ar/cart net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 72
+ },
+ {
+  "route": "/cart/prescription",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/cart/prescription",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/cart net::ERR_ABORTED",
+   "GET /ar/cart net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 72
+ },
+ {
+  "route": "/cart/prescription",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/cart/prescription",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/cart net::ERR_ABORTED",
+   "GET /ar/cart net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 65
+ },
+ {
+  "route": "/pharmacy/barcode",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/barcode",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [],
+  "overlay": 0,
+  "textLen": 76
+ },
+ {
+  "route": "/pharmacy/barcode",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/barcode",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/c net::ERR_ABORTED",
+   "GET /ar/c net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 76
+ },
+ {
+  "route": "/pharmacy/barcode",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/barcode",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/c net::ERR_ABORTED",
+   "GET /ar/c net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 76
+ },
+ {
+  "route": "/pharmacy/request",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/request",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/patient/users/me/addresses",
+    "status": 200,
+    "shape": "array(0)"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/users/me/addresses",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/c net::ERR_ABORTED",
+   "GET /ar/c net::ERR_ABORTED",
+   "GET /ar/profile/addresses net::ERR_ABORTED",
+   "GET /ar/profile/addresses net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 361
+ },
+ {
+  "route": "/pharmacy/request",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/request",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/patient/users/me/addresses",
+    "status": 200,
+    "shape": "array(0)"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/profile/addresses net::ERR_ABORTED",
+   "GET /ar/profile/addresses net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 361
+ },
+ {
+  "route": "/pharmacy/request",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/request",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/patient/users/me/addresses",
+    "status": 500,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/c net::ERR_ABORTED",
+   "GET /ar/c net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 285
+ },
+ {
+  "route": "/pharmacy/rx-order",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/rx-order",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/prescriptions/active",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/prescriptions net::ERR_ABORTED",
+   "GET /ar/prescriptions net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 78
+ },
+ {
+  "route": "/pharmacy/rx-order",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/rx-order",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/prescriptions net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 78
+ },
+ {
+  "route": "/pharmacy/rx-order",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/rx-order",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/prescriptions net::ERR_ABORTED",
+   "GET /ar/prescriptions net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 71
+ },
+ {
+  "route": "/pharmacy/scan-prescription",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/scan-prescription",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/c net::ERR_ABORTED",
+   "GET /ar/c net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 137
+ },
+ {
+  "route": "/pharmacy/scan-prescription",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/scan-prescription",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/c net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 137
+ },
+ {
+  "route": "/pharmacy/scan-prescription",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/scan-prescription",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/c net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 137
+ },
+ {
+  "route": "/prescriptions",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/prescriptions",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/prescriptions/mine",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 94
+ },
+ {
+  "route": "/prescriptions",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/prescriptions",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 94
+ },
+ {
+  "route": "/prescriptions",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/prescriptions",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 70
+ },
+ {
+  "route": "/pharmacy/chat?orderId=761e9693-e517-4ad6-ae20-330363005b28",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/chat",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/patient/pharmacy/chat/threads",
+    "status": 200,
+    "shape": "array(0)"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/pharmacy/chat/threads",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 76
+ },
+ {
+  "route": "/pharmacy/chat?orderId=761e9693-e517-4ad6-ae20-330363005b28",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/chat",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/patient/pharmacy/chat/threads",
+    "status": 200,
+    "shape": "array(0)"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED",
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 76
+ },
+ {
+  "route": "/pharmacy/chat?orderId=761e9693-e517-4ad6-ae20-330363005b28",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/chat",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/patient/pharmacy/chat/threads",
+    "status": 500,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED",
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 53
+ },
+ {
+  "route": "/prescriptions/0f0f0f0f-0f0f-4f0f-8f0f-0f0f0f0f0f0f",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/prescriptions/0f0f0f0f-0f0f-4f0f-8f0f-0f0f0f0f0f0f",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/prescriptions/0f0f0f0f-0f0f-4f0f-8f0f-0f0f0f0f0f0f",
+    "status": 404
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/prescriptions/0f0f0f0f-0f0f-4f0f-8f0f-0f0f0f0f0f0f",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/prescriptions/0f0f0f0f-0f0f-4f0f-8f0f-0f0f0f0f0f0f",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/prescriptions net::ERR_ABORTED",
+   "GET /ar/prescriptions net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 68
+ },
+ {
+  "route": "/prescriptions/0f0f0f0f-0f0f-4f0f-8f0f-0f0f0f0f0f0f",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/prescriptions/0f0f0f0f-0f0f-4f0f-8f0f-0f0f0f0f0f0f",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/prescriptions net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 68
+ },
+ {
+  "route": "/pharmacy/rx-order?prescriptionId=0f0f0f0f-0f0f-4f0f-8f0f-0f0f0f0f0f0f",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/rx-order",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/prescriptions/0f0f0f0f-0f0f-4f0f-8f0f-0f0f0f0f0f0f",
+    "status": 404
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/pharmacy/rx-order?prescriptionId=0f0f0f0f-0f0f-4f0f-8f0f-0f0f0f0f0f0f",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/rx-order",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/prescriptions net::ERR_ABORTED",
+   "GET /ar/prescriptions net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 71
+ },
+ {
+  "route": "/pharmacy/rx-order?prescriptionId=0f0f0f0f-0f0f-4f0f-8f0f-0f0f0f0f0f0f",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/rx-order",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/prescriptions net::ERR_ABORTED",
+   "GET /ar/prescriptions net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 71
+ }
+]

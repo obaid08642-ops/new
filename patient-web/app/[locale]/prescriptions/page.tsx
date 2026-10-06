@@ -1,94 +1,92 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { extractPrescriptionSummaries } from "@/lib/api/prescriptions";
+import { extractPrescriptionSummaries, prescriptionStateKey } from "@/lib/api/prescriptions";
 import { getPatientPrescriptions } from "@/lib/api/prescriptions-server";
 import { requirePatientAccess } from "@/lib/auth/session";
-import { isLocale } from "@/lib/i18n";
-import { RetryButton } from "@/components-next/retry-button";
-import { VectorPharmacy } from "@/components-next/vector-illustrations";
-import { CalendarDays, FileText, ShieldCheck } from "lucide-react";
-import styles from "./prescriptions.module.css";
+import { formatDate } from "@/lib/format-date";
+import { getDirection, isLocale } from "@/lib/i18n";
+import { CoreShell } from "@/components-next/core/core-shell";
+import { RetryErrorState } from "@/components-next/core/core-states";
+import { StatusChip } from "@/components-next/ui-generated/components/Controls";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { LinkEmptyState } from "@/components-next/pharmacy/link-empty-state";
+import { prescriptionStateTone } from "@/components-next/pharmacy/rx-state";
+import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
+import rx from "@/components-next/pharmacy/rx.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
 
+export async function generateMetadata({ params }: Props) {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  const t = await getTranslations({ locale, namespace: "Prescriptions" });
+  return { title: t("title") };
+}
+
+/** The patient's prescriptions (canvas/HealthHub: a white card of rows). Each row opens its detail. */
 export default async function PrescriptionsPage({ params }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("Prescriptions");
+  const flow = await getTranslations("PharmacyFlow");
   const token = await requirePatientAccess(locale);
   const response = await getPatientPrescriptions(token);
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
-  if (!response.ok)
+  const back = `/${locale}/health`;
+  const upload = `/${locale}/pharmacy/scan-prescription`;
+
+  if (!response.ok) {
     return (
-      <main className={`main ${styles.page}`}>
-        <section className={styles.state} role="alert">
-          <VectorPharmacy size={48} aria-hidden="true" />
-          <h1>{t("unavailableTitle")}</h1>
-          <p>{t("unavailable")}</p>
-          <RetryButton />
-        </section>
-      </main>
+      <CoreShell locale={locale} title={t("title")} backHref={back} width="narrow">
+        <div className={rx.state}><RetryErrorState title={t("unavailableTitle")} body={t("unavailable")} retryLabel={flow("retry")} /></div>
+      </CoreShell>
     );
+  }
+
   const prescriptions = extractPrescriptionSummaries(await response.json().catch(() => null));
-  // F32: never render raw prescription state enums — every known state has a
-  // translated label; anything unknown falls back to "unavailable", never raw.
-  const stateLabels: Record<string, string> = {
-    CREATED_BY_DOCTOR: t("stateCreatedByDoctor"),
-    UPLOADED_BY_PATIENT: t("stateUploadedByPatient"),
-    SENT_TO_PHARMACY: t("stateSentToPharmacy"),
-    PARTIALLY_EDITED: t("statePartiallyEdited"),
-    VERIFIED_BY_PHARMACIST: t("stateVerifiedByPharmacist"),
-    APPROVED: t("stateApproved"),
-    DISPENSED: t("stateDispensed"),
-    ARCHIVED: t("stateArchived"),
-  };
+  const caret = getDirection(locale) === "rtl" ? "caret-left" : "caret-right";
+  const list = new Intl.ListFormat(locale, { type: "conjunction", style: "narrow" });
+
   return (
-    <main className={`main ${styles.page}`}>
-      <section className={styles.intro}>
-        <div className={styles.introText}>
-          <p className={styles.eyebrow}>
-            <ShieldCheck size={15} aria-hidden="true" />
-            {t("eyebrow")}
-          </p>
-          <h1>{t("title")}</h1>
-        </div>
-        <div className={styles.introVector}>
-          <VectorPharmacy size={48} aria-hidden="true" />
-        </div>
-      </section>
-      {prescriptions.length === 0 ? (
-        <section className={styles.state}>
-          <VectorPharmacy size={48} aria-hidden="true" />
-          <p>{t("empty")}</p>
-        </section>
-      ) : (
-        <section className={styles.grid} aria-label={t("title")}>
-          {prescriptions.map((prescription) => (
-            <article className={styles.card} key={prescription.id}>
-              <span className={styles.cardIcon}>
-                <FileText size={19} aria-hidden="true" />
-              </span>
-              <div className={styles.cardBody}>
-                <strong className={styles.status}>{stateLabels[prescription.state ?? ""] ?? t("stateUnavailable")}</strong>
-                {prescription.doctorName ? <span className={styles.doctor}>{prescription.doctorName}</span> : null}
-                <span className={styles.items}>{t("items", { count: prescription.itemCount })}</span>
-                {prescription.medicationNames.length ? (
-                  <span className={styles.medications}>{prescription.medicationNames.join("، ")}</span>
-                ) : null}
-                {prescription.createdAt ? (
-                  <span className={styles.date}>
-                    <CalendarDays size={14} aria-hidden="true" />
-                    {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(prescription.createdAt))}
-                  </span>
-                ) : null}
-              </div>
-            </article>
-          ))}
-        </section>
-      )}
-      <p className={styles.notice}>{t("notice")}</p>
-    </main>
+    <CoreShell locale={locale} title={t("title")} backHref={back} width="narrow">
+      <div className={rx.page}>
+        <div className={rx.head}><h1 className={rx.title}>{t("title")}</h1></div>
+        {prescriptions.length === 0 ? (
+          <div className={rx.state}>
+            <LinkEmptyState icon="prescription" tone={PHARMACY_TONE} title={t("emptyTitle")} body={t("empty")} actionLabel={t("uploadCta")} actionHref={upload} />
+          </div>
+        ) : (
+          <>
+            <ButtonLink href={upload} label={t("uploadCta")} variant="outline" size="md" />
+            <section className={`${rx.card} ${rx.cardFlush}`} aria-label={t("listLabel")}>
+              <ul className={rx.list}>
+                {prescriptions.map((item) => {
+                  const issued = formatDate(locale, item.createdAt);
+                  return (
+                    <li key={item.id}>
+                      <Link className={`${rx.listRow} ${rx.rowLink}`} href={`/${locale}/prescriptions/${encodeURIComponent(item.id)}`}>
+                        <FIcon icon="prescription" tone={PHARMACY_TONE} size={40} />
+                        <span className={rx.rowBody}>
+                          <span className={rx.rowTitle}>{item.doctorName ? t("fromDoctor", { doctor: item.doctorName }) : t(prescriptionStateKey(item.state))}</span>
+                          {item.medicationNames.length ? <span className={`${rx.rowSub} ${rx.clamp2}`}>{list.format(item.medicationNames)}</span> : null}
+                          <span className={rx.rowSub}>{[t("medicineCount", { count: item.itemCount }), issued].filter(Boolean).join(" · ")}</span>
+                          {item.doctorName ? <StatusChip label={t(prescriptionStateKey(item.state))} tone={prescriptionStateTone(item.state)} /> : null}
+                        </span>
+                        <span className={rx.rowEnd}><Icon name={caret} size={16} tone="secondary" /></span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          </>
+        )}
+      </div>
+    </CoreShell>
   );
 }

@@ -1,5 +1,5 @@
 {
- "commit": "92582728",
+ "commit": "20868931",
  "routes": [
   {
    "app": "patient-app",
@@ -7971,20 +7971,30 @@
    "template": "flow step",
    "board": "Cart",
    "batch": 1,
-   "status": "—",
+   "status": "rebuilt on wip-b1b-web (slice 1b, not merged yet)",
    "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
     {
      "method": "GET",
      "path": "/cart",
      "target": "backend",
      "query": "",
-     "line": 21,
+     "line": 32,
      "file": "patient-web/app/[locale]/cart/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/cart/cart.module.ts:230"
     }
    ],
-   "files": 9,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -8079,20 +8089,30 @@
    "template": "flow step",
    "board": "RxUpload",
    "batch": 1,
-   "status": "—",
+   "status": "rebuilt on wip-b1b-web (slice 1b, not merged yet)",
    "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
     {
      "method": "GET",
      "path": "/cart/prescription",
      "target": "backend",
      "query": "",
-     "line": 20,
+     "line": 37,
      "file": "patient-web/app/[locale]/cart/prescription/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/cart/cart.module.ts:244"
     }
    ],
-   "files": 7,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -13109,20 +13129,30 @@
    "template": "flow step",
    "board": "PharmacyHub",
    "batch": 1,
-   "status": "—",
+   "status": "rebuilt on wip-b1b-web (slice 1b, not merged yet)",
    "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
     {
      "method": "GET",
      "path": "/api/patient/medicines/by-barcode/:param",
      "target": "web-proxy",
      "query": "",
-     "line": 46,
-     "file": "patient-web/components-next/pharmacy-barcode-client.tsx",
+     "line": 42,
+     "file": "patient-web/components-next/pharmacy/barcode-screen.tsx",
      "backend": "backend/src/modules/medicines/medicines.controller.ts:62",
      "status": "OK"
     }
    ],
-   "files": 6,
+   "files": 30,
    "unresolved": 0
   },
   {
@@ -13187,15 +13217,25 @@
    "template": "flow step",
    "board": "none: chat",
    "batch": 1,
-   "status": "—",
+   "status": "rebuilt on wip-b1b-web (slice 1b, not merged yet)",
    "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
     {
      "method": "GET",
      "path": "/api/patient/pharmacy/chat/threads",
      "target": "web-proxy",
      "query": "?order_id=:param",
-     "line": 35,
-     "file": "patient-web/components-next/pharmacy-chat-client.tsx",
+     "line": 57,
+     "file": "patient-web/components-next/pharmacy/chat-screen.tsx",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:270",
      "status": "OK"
     },
@@ -13205,8 +13245,8 @@
      "target": "web-proxy",
      "query": "",
      "partial": true,
-     "line": 75,
-     "file": "patient-web/components-next/pharmacy-chat-client.tsx",
+     "line": 88,
+     "file": "patient-web/components-next/pharmacy/chat-screen.tsx",
      "status": "PARTIAL"
     },
     {
@@ -13214,23 +13254,13 @@
      "path": "/api/patient/pharmacy/chat/threads/:param/messages",
      "target": "web-proxy",
      "query": "",
-     "line": 27,
-     "file": "patient-web/components-next/pharmacy-chat-client.tsx",
+     "line": 41,
+     "file": "patient-web/components-next/pharmacy/chat-screen.tsx",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:271",
-     "status": "OK"
-    },
-    {
-     "method": "POST",
-     "path": "/api/patient/pharmacy/chat/threads/:param/messages",
-     "target": "web-proxy",
-     "query": "",
-     "line": 55,
-     "file": "patient-web/components-next/pharmacy-chat-client.tsx",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:273",
      "status": "OK"
     }
    ],
-   "files": 6,
+   "files": 31,
    "unresolved": 0
   },
   {
@@ -13558,20 +13588,20 @@
    "template": "form",
    "board": "PharmacyHub",
    "batch": 1,
-   "status": "—",
+   "status": "rebuilt on wip-b1b-web (slice 1b, not merged yet)",
    "calls": [
     {
      "method": "POST",
-     "path": "/api/patient/pharmacy/orders",
+     "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
-     "line": 20,
-     "file": "patient-web/components-next/pharmacy-request-form.tsx",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
-     "handler": "patient-web/app/api/patient/pharmacy/orders/route.ts"
+     "handler": "patient-web/app/api/auth/logout/route.ts"
     }
    ],
-   "files": 5,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -13582,14 +13612,24 @@
    "template": "flow step",
    "board": "RxUpload",
    "batch": 1,
-   "status": "—",
+   "status": "rebuilt on wip-b1b-web (slice 1b, not merged yet)",
    "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
     {
      "method": "GET",
      "path": "/prescriptions/:param",
      "target": "backend",
      "query": "",
-     "line": 40,
+     "line": 50,
      "file": "patient-web/app/[locale]/pharmacy/rx-order/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:77"
@@ -13599,13 +13639,13 @@
      "path": "/prescriptions/active",
      "target": "backend",
      "query": "",
-     "line": 72,
+     "line": 65,
      "file": "patient-web/app/[locale]/pharmacy/rx-order/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:57"
     }
    ],
-   "files": 6,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -13616,30 +13656,30 @@
    "template": "flow step",
    "board": "RxUpload",
    "batch": 1,
-   "status": "—",
+   "status": "rebuilt on wip-b1b-web (slice 1b, not merged yet)",
    "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
     {
      "method": "POST",
      "path": "/api/patient/ai/prescription-ocr",
      "target": "web-proxy",
      "query": "",
-     "line": 51,
-     "file": "patient-web/components-next/scan-prescription-form.tsx",
+     "line": 79,
+     "file": "patient-web/components-next/pharmacy/rx-upload-screen.tsx",
      "backend": "backend/src/modules/ai/ai.controller.ts:94",
-     "status": "OK"
-    },
-    {
-     "method": "POST",
-     "path": "/api/patient/prescriptions/upload",
-     "target": "web-proxy",
-     "query": "",
-     "line": 67,
-     "file": "patient-web/components-next/scan-prescription-form.tsx",
-     "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:19",
      "status": "OK"
     }
    ],
-   "files": 5,
+   "files": 29,
    "unresolved": 0
   },
   {
@@ -13694,8 +13734,18 @@
    "template": "list",
    "board": "HealthHub",
    "batch": 1,
-   "status": "—",
+   "status": "rebuilt on wip-b1b-web (slice 1b, not merged yet)",
    "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
     {
      "method": "GET",
      "path": "/prescriptions/mine",
@@ -13707,7 +13757,7 @@
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:60"
     }
    ],
-   "files": 9,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -13718,9 +13768,30 @@
    "template": "detail",
    "board": "HealthHub",
    "batch": 1,
-   "status": "—",
-   "calls": [],
-   "files": 4,
+   "status": "rebuilt on wip-b1b-web (slice 1b, not merged yet)",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/prescriptions/:param",
+     "target": "backend",
+     "query": "",
+     "line": 39,
+     "file": "patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:77"
+    }
+   ],
+   "files": 34,
    "unresolved": 0
   },
   {
