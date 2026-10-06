@@ -35,9 +35,10 @@ export async function InsuranceDecision({ locale, orderId, progress }: { locale:
           </li>
         ))}
       </ul>
-      {insurance.coPayAmount !== undefined ? (
+      {insurance.coPayAmount !== undefined || insurance.coveredAmount !== undefined ? (
         <dl className={styles.sums}>
-          <div className={`${styles.sum} ${styles.sumTotal}`}><dt>{t("coPayLabel")}</dt><dd>{formatMoney(locale, insurance.coPayAmount)}</dd></div>
+          {insurance.coveredAmount !== undefined ? <div className={styles.sum}><dt>{t("coveredLabel")}</dt><dd>{formatMoney(locale, insurance.coveredAmount)}</dd></div> : null}
+          {insurance.coPayAmount !== undefined ? <div className={`${styles.sum} ${styles.sumTotal}`}><dt>{t("coPayLabel")}</dt><dd>{formatMoney(locale, insurance.coPayAmount)}</dd></div> : null}
         </dl>
       ) : null}
       <InsuranceDecisionActions orderId={orderId} canCoPay={canCoPay} canSelfPay={canSelfPay} />

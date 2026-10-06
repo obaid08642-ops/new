@@ -71,23 +71,29 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
     };
   }, [active, hasRxItems]);
 
-  // the saved insurance, only when the patient asks for the insurance path
+  // the saved insurance, read once, only when the patient asks for the insurance path (asked again after a failed read)
+  const policyAsked = useRef(false);
+  const mounted = useRef(true);
+  useEffect(() => () => { mounted.current = false; }, []);
   useEffect(() => {
-    if (!active || mode !== "insurance" || policy.status !== "idle") return;
-    let live = true;
+    if (!active || mode !== "insurance" || policyAsked.current) return;
+    policyAsked.current = true;
     setPolicy({ status: "loading" });
     void fetch("/api/patient/insurance/my-policy", { credentials: "same-origin", cache: "no-store" })
       .then(async (response) => {
-        if (!live) return;
-        if (!response.ok) return setPolicy({ status: "error" });
+        if (!mounted.current) return;
+        if (!response.ok) {
+          policyAsked.current = false;
+          return setPolicy({ status: "error" });
+        }
         const parsed = parseInsurancePolicy(await response.json().catch(() => null));
         setPolicy(parsed ? { status: "ok", policy: parsed } : { status: "none" });
       })
-      .catch(() => live && setPolicy({ status: "error" }));
-    return () => {
-      live = false;
-    };
-  }, [active, mode, policy.status]);
+      .catch(() => {
+        policyAsked.current = false;
+        if (mounted.current) setPolicy({ status: "error" });
+      });
+  }, [active, mode]);
 
   const prescriptionOk = !hasRxItems || prescription.status === "found";
   const insuranceOk = mode === "cash" || policy.status === "ok";
@@ -113,7 +119,9 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
       return; // the button stays disabled until the page changes
     }
     setSending(false);
-    setFailure(result.reason === "unauthenticated" ? "session" : result.status === 403 ? "forbidden" : result.status === undefined ? "network" : "send");
+    // no answer, or a 5xx that may or may not have been applied: the retry is the same request and will not create a second order
+    const unknown = result.status === undefined || result.status >= 500;
+    setFailure(result.reason === "unauthenticated" ? "session" : result.status === 403 ? "forbidden" : unknown ? "network" : "send");
   }
 
   const sendButton = <Button label={sending ? t("sending") : t("send")} size="lg" fullWidth disabled={!canSend} loading={sending} onClick={() => void send()} />;
