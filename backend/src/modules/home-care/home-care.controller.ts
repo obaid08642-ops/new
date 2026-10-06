@@ -10,7 +10,7 @@ import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module
 import { HomeCareSvc } from './home-care.service';
 import { UserRole } from '../../common/enums';
 import { ProviderPrivacyInterceptor, mustHidePatientContact } from '../../common/provider-privacy';
-import { CreateNoteDto, CreateBookingDto, ArriveAtPatientDto, TriggerEmergencyDto, CompleteVisitDto} from './home-care.dto';
+import { CreateNoteDto, CreateBookingDto, ArriveAtPatientDto, TriggerEmergencyDto, CompleteVisitDto, VisitPositionDto} from './home-care.dto';
 import { CreateHomeCareCatalogDto, UpdateHomeCareCatalogDto, ApproveCatalogDto, BulkApproveCatalogDto } from './home-care.dto';
 
 @UseGuards(JwtAuthGuard)
@@ -229,6 +229,12 @@ export class NursingController {
    * is introduced with these dependencies.
    */
   @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
+  @Post('visits/:id/position')
+  async pushPosition(@Param('id') id: string, @Body() body: VisitPositionDto, @CurrentUser() user: any) {
+    return this.homeSvc.pushPosition(user, id, body ?? {});
+  }
+
+  @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('visits/:id/respond')
   respondToVisit() {
     throw new ServiceUnavailableException('legacy_nursing_visit_response_disabled_pending_governed_payment_coverage_capacity_command');
@@ -355,6 +361,8 @@ export class NursingController {
     const b: any = await this.findVisit(id);
     this.assertProviderMutation(b, user);
     if (b.state !== NursingBookingState.CARE_IN_PROGRESS) throw new BadRequestException('Invalid state transition');
+    // P22.4: proof of visit — signature, photo, or the handover code. One is required.
+    const method = this.homeSvc.verifyVisitProof(b, body ?? {});
     const from = b.state;
     const { vitals, clinical_notes, recommendations, signature_base64 } = body;
     
@@ -365,6 +373,9 @@ export class NursingController {
     b.clinical_notes = clinical_notes || b.clinical_notes;
     b.recommendations = recommendations || b.recommendations;
     b.patient_signature_base64 = signature_base64;
+    b.photo_proof_url = body?.photo_proof_url || b.photo_proof_url;
+    b.proof_method = method;
+    b.proof_verified_at = new Date();
     b.state_history.push({ from, to: b.state, at: new Date() });
     await b.save();
 

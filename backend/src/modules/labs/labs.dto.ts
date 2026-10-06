@@ -49,6 +49,15 @@ export class BookDto {
   @IsString()
   insurance_member_id?: string;
 
+  // P22.4: optional booked collection window (home bookings only).
+  @IsOptional()
+  @IsString()
+  visit_slot_id?: string;
+
+  @IsOptional()
+  @IsString()
+  visit_slot_hold_id?: string;
+
 }
 
 export class TransitionDto {

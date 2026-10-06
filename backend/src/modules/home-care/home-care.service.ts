@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject, Optional } from '@nestjs/common';
 import { Model } from 'mongoose';
+import { randomInt } from 'crypto';
 import { HomeCareService, HomeCareBooking, NursingBookingState, HomeCareBookingState, NursingVisitReport, CarePlan, MedicalSupplyRequest } from '../../schemas/home-care.schema';
 import { pick } from '../../common/sanitize';
 
@@ -94,6 +95,8 @@ export class HomeCareSvc {
     if (dupe) return dupe;
     const sessions = Math.max(1, parseInt(data.sessions_count || 1, 10));
     const total = svc.price * sessions;
+    // P22.4: handover code for proof-of-visit — shown to the patient, the
+    // nurse asks for it (or takes a photo / signature) at completion.
     const booking = await this.bkgModel.create({
       patient_id: user.id,
       patient_name: data.contact?.name || user.full_name,
@@ -111,6 +114,7 @@ export class HomeCareSvc {
       notes: data.notes,
       payment_method: paymentMethod,
       sessions_count: sessions,
+      visit_code: String(randomInt(100000, 1000000)),
     });
     this.events.emit('homecare.booking_created', { booking_id: booking.id, patient_id: user.id });
     await this.engine.announceCreated({ kind: 'nursing', entity_id: booking.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { service_id: svc.id, total, sessions } });
@@ -225,7 +229,56 @@ export class HomeCareSvc {
     return { ok: true, approve, results };
   }
 
-  async checkIn(user: any, bookingId: string, lat?: number, lng?: number) {    if (!['admin', 'nurse', 'hospital'].includes(user.role)) throw new ForbiddenException();
+  /**
+   * P22.4 — live nurse position push during transit. The patient polls
+   * GET /nursing/visits/:id/tracking (map UI). Rejects missing/zero
+   * coordinates like the lab GPS path — no fabricated positions.
+   */
+  async pushPosition(user: { id: string; role: string }, bookingId: string, body: { lat?: number; lng?: number }) {
+    const b = await this.bkgModel.findOne({ id: bookingId });
+    if (!b) throw new NotFoundException('booking_not_found');
+    const staff = ['admin', 'super_admin'].includes(String(user?.role));
+    const assigned = ['nurse', 'nursing', 'home_care', 'hospital'].includes(String(user?.role)) && String(b.provider_id) === String(user.id);
+    if (!staff && !assigned) throw new ForbiddenException('visit is not assigned to this provider');
+    const lat = Number(body?.lat);
+    const lng = Number(body?.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0)) {
+      throw new BadRequestException('real_device_location_required');
+    }
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) throw new BadRequestException('lat_lng_out_of_range');
+    b.gps_tracking = { ...(b.gps_tracking ?? {}), current_lat: lat, current_lng: lng, last_updated: new Date() };
+    if (typeof b.markModified === 'function') b.markModified('gps_tracking');
+    await b.save();
+    this.events.emit('homecare.position_updated', { booking_id: b.id, patient_id: b.patient_id, lat, lng });
+    return { ok: true, position: { lat, lng } };
+  }
+
+  /**
+   * P22.4 — proof-of-visit verification shared by the completion path.
+   * Exactly one of signature / photo / handover code is required; a wrong
+   * code is a 400, not a silent accept.
+   */
+  verifyVisitProof(
+    booking: { visit_code?: string },
+    proof: { signature_base64?: string; photo_proof_url?: string; visit_code?: string },
+  ): 'signature' | 'photo' | 'visit_code' {
+    const signature = String(proof?.signature_base64 ?? '').trim();
+    const photo = String(proof?.photo_proof_url ?? '').trim();
+    const code = String(proof?.visit_code ?? '').trim();
+    if (signature) return 'signature';
+    if (photo) {
+      if (!/^https?:\/\/.+\..+/.test(photo) && !photo.startsWith('data:image/')) throw new BadRequestException('photo_proof_invalid');
+      return 'photo';
+    }
+    if (code) {
+      if (!booking?.visit_code || code !== String(booking.visit_code)) throw new BadRequestException('visit_code_mismatch');
+      return 'visit_code';
+    }
+    throw new BadRequestException('visit_proof_required');
+  }
+
+  async checkIn(user: any, bookingId: string, lat?: number, lng?: number) {
+    if (!['admin', 'nurse', 'hospital'].includes(user.role)) throw new ForbiddenException();
     const b = await this.bkgModel.findOne({ id: bookingId });
     if (!b) throw new NotFoundException('booking_not_found');
 

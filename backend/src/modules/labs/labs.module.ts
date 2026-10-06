@@ -5,7 +5,7 @@ import { LabResultsController } from './lab-results.controller';
 import { LabsService } from './labs.service';
 import { LabResultsService } from './lab-results.service';
 import { LabPdfService } from './lab-pdf.service';
-import { LabServiceSchema, LabBookingSchema, LabSampleSchema } from '../../schemas/lab.schema';
+import { LabServiceSchema, LabBookingSchema, LabSampleSchema, LabVisitSlotSchema, LabSlotHoldSchema } from '../../schemas/lab.schema';
 import { LabResultSchema } from '../../schemas/lab-result.schema';
 import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 import { BusinessRulesModule } from '../business-rules/business-rules.module';
@@ -16,6 +16,9 @@ import { LabSampleRepository } from "./repositories/labsample.repository";
 import { LabServiceRepository } from "./repositories/labservice.repository";
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { PatientLabsCatalogController } from './labs-compat.controller';
+import { VisitSlotsController } from './visit-slots.controller';
+import { VisitSlotsService } from './visit-slots.service';
+import { LabVisitSlot, LabSlotHold } from '../../schemas/lab.schema';
 
 @Module({
   imports: [
@@ -27,11 +30,13 @@ import { PatientLabsCatalogController } from './labs-compat.controller';
       { name: 'LabBooking', schema: LabBookingSchema },
       { name: 'LabResult', schema: LabResultSchema },
       { name: 'LabSample', schema: LabSampleSchema },
+      { name: LabVisitSlot.name, schema: LabVisitSlotSchema },
+      { name: LabSlotHold.name, schema: LabSlotHoldSchema },
       { name: ProviderProfile.name, schema: ProviderProfileSchema },
     ]),
   ],
-  controllers: [LabsController, LabResultsController, PatientLabsCatalogController],
-  providers: [LabsService, LabResultsService, LabPdfService, { provide: 'LabBookingRepository', useClass: LabBookingRepository }, { provide: 'LabResultRepository', useClass: LabResultRepository }, { provide: 'LabSampleRepository', useClass: LabSampleRepository }, { provide: 'LabServiceRepository', useClass: LabServiceRepository }],
-  exports: [LabsService, LabResultsService, LabPdfService],
+  controllers: [LabsController, LabResultsController, PatientLabsCatalogController, VisitSlotsController],
+  providers: [LabsService, LabResultsService, LabPdfService, VisitSlotsService, { provide: 'LabBookingRepository', useClass: LabBookingRepository }, { provide: 'LabResultRepository', useClass: LabResultRepository }, { provide: 'LabSampleRepository', useClass: LabSampleRepository }, { provide: 'LabServiceRepository', useClass: LabServiceRepository }],
+  exports: [LabsService, LabResultsService, LabPdfService, VisitSlotsService],
 })
 export class LabsModule {}

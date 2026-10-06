@@ -19,7 +19,8 @@ export class LabsController {
     @Query('home_visit') hv?: string,
     @Query('highest_rated') hr?: string,
     @Query('nearest') nr?: string,
-    @Query('lowest_price') lp?: string
+    @Query('lowest_price') lp?: string,
+    @Query('city') city?: string
   ) {
     return this.svc.list({ 
       category: cat, 
@@ -27,18 +28,19 @@ export class LabsController {
       home_only: ho === '1' || hv === 'true' || hv === '1',
       highest_rated: hr === 'true' || hr === '1',
       nearest: nr === 'true' || nr === '1',
-      lowest_price: lp === 'true' || lp === '1'
+      lowest_price: lp === 'true' || lp === '1',
+      city,
     });
   }
 
   @Public() @Get('packages')
-  packages() { return this.svc.list({ packages_only: true }); }
+  packages(@Query('city') city?: string) { return this.svc.list({ packages_only: true, city }); }
 
   @Public() @Get('categories')
   categories() { return this.svc.categoryCounts(); }
 
   @Public() @Get('services/:id')
-  one(@Param('id') id: string) { return this.svc.getById(id); }
+  one(@Param('id') id: string, @Query('city') city?: string) { return this.svc.getById(id, city); }
 
   @SelfService()
   @Post('bookings')

@@ -48,6 +48,9 @@ export class LabService extends Document {
   @Prop({ type: Object }) reference_ranges?: { min: number; max: number; unit: string };
   @Prop() image_url?: string; // Cloudinary catalog image
   @Prop() icon?: string;
+  // P22.4: cold-chain flag — surfaced on catalog reads and snapshotted into
+  // booking items so the collection/courier journey knows what needs refrigeration.
+  @Prop({ default: false }) cold_chain_required: boolean;
 }
 export const LabServiceSchema = SchemaFactory.createForClass(LabService);
 LabServiceSchema.index({ name_ar: 'text', name_en: 'text' });
@@ -125,6 +128,9 @@ export class LabBooking extends Document {
 
   @Prop() provider_account_id?: string; // serving provider/center
   @Prop() rejection_reason?: string;
+  // P22.4: booked collection window (lab_visit_slots) + consumed hold reference.
+  @Prop() visit_slot_id?: string;
+  @Prop() visit_slot_hold_id?: string;
 
   // Added per Addendum edge cases
   @Prop() reschedule_reason?: string;
@@ -153,3 +159,36 @@ export class LabSample extends Document {
   @Prop() notes?: string;
 }
 export const LabSampleSchema = SchemaFactory.createForClass(LabSample);
+
+/**
+ * P22.4 — bookable home-collection windows ("delivery slots").
+ * A slot is a provider/city time window with a fixed capacity; patients take
+ * holds against it (LabSlotHold) instead of free-form scheduled_at guessing.
+ */
+@Schema({ timestamps: true, collection: 'lab_visit_slots' })
+export class LabVisitSlot extends Document {
+  @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
+  @Prop({ index: true }) provider_account_id?: string; // owning lab; absent = platform-managed pool
+  @Prop({ required: true, index: true }) city: string; // normalized lower-case
+  @Prop({ required: true, index: true }) window_start: Date;
+  @Prop({ required: true }) window_end: Date;
+  @Prop({ required: true, min: 1, max: 50 }) capacity: number;
+  @Prop({ default: 0 }) booked_count: number;
+  @Prop({ type: String, enum: ['OPEN', 'FULL', 'CLOSED'], default: 'OPEN', index: true }) status: string;
+  @Prop() idempotency_key?: string; // create-side replay key (provider + window scoped)
+}
+export const LabVisitSlotSchema = SchemaFactory.createForClass(LabVisitSlot);
+LabVisitSlotSchema.index({ city: 1, window_start: 1, status: 1 });
+LabVisitSlotSchema.index({ idempotency_key: 1 }, { sparse: true, unique: true });
+
+/** P22.4 — one patient's hold against a LabVisitSlot (idempotent by key). */
+@Schema({ timestamps: true, collection: 'lab_slot_holds' })
+export class LabSlotHold extends Document {
+  @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
+  @Prop({ required: true, index: true }) slot_id: string;
+  @Prop({ required: true, index: true }) patient_id: string;
+  @Prop({ required: true, unique: true, index: true }) idempotency_key: string;
+  @Prop({ type: String, enum: ['HELD', 'CONSUMED', 'RELEASED', 'EXPIRED'], default: 'HELD', index: true }) status: string;
+  @Prop() consumed_by_booking_id?: string;
+}
+export const LabSlotHoldSchema = SchemaFactory.createForClass(LabSlotHold);

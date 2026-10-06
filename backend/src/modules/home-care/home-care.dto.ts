@@ -88,6 +88,14 @@ export class CompleteVisitDto {
   @IsOptional() @IsString() clinical_notes?: string;
   @IsOptional() @IsArray() @IsString({ each: true }) recommendations?: string[];
   @IsOptional() @IsString() signature_base64?: string;
+  // P22.4: proof of visit — photo URL and/or the handover code shown to the patient.
+  @IsOptional() @IsString() photo_proof_url?: string;
+  @IsOptional() @IsString() visit_code?: string;
+}
+
+export class VisitPositionDto {
+  @IsDefined() @IsNumber() lat: number;
+  @IsDefined() @IsNumber() lng: number;
 }
 
 // Admin catalog editor (admin/src/pages/admin/catalog-manager.tsx). medical_review_status publishes/unpublishes.
