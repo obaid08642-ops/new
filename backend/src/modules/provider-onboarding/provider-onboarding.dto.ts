@@ -1,4 +1,5 @@
-import { IsArray, IsBoolean, IsDefined, IsEnum, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import { ProviderDocumentType } from '../provider/provider.enums';
 import { Transform, Type } from 'class-transformer';
 import { ProviderType } from '../../common/enums';
 
@@ -20,7 +21,24 @@ export class WorkingHoursEntryDto {
   @IsOptional() @IsBoolean() closed?: boolean;
 }
 
+/** Q79: one uploaded file (POST /storage/upload id) per KYC document type. */
+export class OnboardingDocumentDto {
+  @IsIn(Object.values(ProviderDocumentType))
+  doc_type!: string;
+
+  @IsString()
+  @MaxLength(128)
+  file_id!: string;
+}
+
 export class Step2Dto {
+  // Q79: typed KYC documents; approval counts these, not license_documents URLs.
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => OnboardingDocumentDto)
+  documents?: OnboardingDocumentDto[];
+
   @IsOptional()
   @IsString()
   name_ar?: string;

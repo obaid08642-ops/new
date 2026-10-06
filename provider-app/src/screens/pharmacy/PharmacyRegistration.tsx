@@ -26,6 +26,8 @@ import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
 import { SuccessScreen } from '../../components/SuccessScreen';
 import { SignatureCanvasModal } from '../../components/SignatureCanvasModal';
 import { I } from '../../components/icons';
+import { KycDocButton } from '../../components/KycDocButton';
+import { typedDocuments } from '../../utils/onboardingDocuments';
 
 const { width: W } = Dimensions.get('window');
 
@@ -49,6 +51,7 @@ interface PharmacyRegData {
   crNumber: string; mohLicense: string; sfdaNumber: string;
   iban: string; accountHolderName: string; taxNumber: string;
   crUri: string; mohUri: string; sfdaUri: string; logoUri: string;
+  ibanLetterUri: string; ibanLetterMime?: string;
   // Step 3
   city: string; location: {lat: number; lng: number}; district: string; address: string;
   deliveryRadius: number; hasDelivery: boolean; hasOwnDrivers: boolean;
@@ -76,7 +79,7 @@ const INIT: PharmacyRegData = {
   nameAr:'', nameEn:'', type:'', languages: [], managerName:'', managerPhone:'',
   managerEmail:'', password:'', confirmPass:'', pharmacistName:'',
   crNumber:'', mohLicense:'', sfdaNumber:'', iban:'', taxNumber:'',
-  crUri:'', mohUri:'', sfdaUri:'', logoUri:'',
+  crUri:'', mohUri:'', sfdaUri:'', logoUri:'', ibanLetterUri:'',
   city:'', district:'', address:'', deliveryRadius: 0, hasDelivery: false, hasOwnDrivers: false,
   workDays:[], is24_7: false, vacationDate: '',
   shiftType: 'morning', openTime:'', closeTime:'',
@@ -292,6 +295,7 @@ function PStep2Legal({ data, update, onNext, onBack, step, total, bare = false, 
     if (!data.mohLicense.trim()) e.moh = AR?'مطلوب':'Required';
     if (!data.sfdaNumber.trim()) e.sfda = AR?'رقم SFDA مطلوب':'SFDA number required';
     if (!Validate.iban(data.iban)) e.iban = AR?'رقم الآيبان غير صحيح':'Invalid IBAN';
+    if (!data.ibanLetterUri) e.ibanLetter = AR?'أرفق خطاب الآيبان من البنك':'Attach the bank IBAN letter';
     setErrs(e); return Object.keys(e).length === 0;
   };
 
@@ -361,10 +365,13 @@ function PStep2Legal({ data, update, onNext, onBack, step, total, bare = false, 
       const crUrl = await ProviderApi.uploadFile(data.crUri, 'image/jpeg', 'cr.jpg');
       const mohUrl = await ProviderApi.uploadFile(data.mohUri, 'image/jpeg', 'moh.jpg');
       const sfdaUrl = await ProviderApi.uploadFile(data.sfdaUri, 'image/jpeg', 'sfda.jpg');
+      const ibanLetterId = await ProviderApi.uploadFile(data.ibanLetterUri, data.ibanLetterMime || 'image/jpeg', 'iban_letter');
 
       await ProviderApi.step2({
         license_number: data.crNumber,
         license_documents: [crUrl, mohUrl, sfdaUrl],
+        // Q79: typed KYC documents (approval counts these).
+        documents: typedDocuments([['commercial_registration', crUrl], ['facility_license', mohUrl], ['iban_letter', ibanLetterId], ['other', sfdaUrl]]),
       });
       if (!bare) onNext();
       return true;
@@ -387,6 +394,7 @@ function PStep2Legal({ data, update, onNext, onBack, step, total, bare = false, 
       <NInput label={AR?'رقم ترخيص وزارة الصحة MOH':'MOH License Number'} placeholder="MOH-PHR-XXXXX" value={data.mohLicense} onChange={v=>update({mohLicense:v})} required error={errs.moh} hint={AR?'ترخيص الصيدلية من وزارة الصحة السعودية':'Saudi Ministry of Health pharmacy license'} />
       <NInput label={AR?'رقم ترخيص SFDA (هيئة الغذاء والدواء)':'SFDA License Number'} placeholder="SFDA-XXXXX" value={data.sfdaNumber} onChange={v=>update({sfdaNumber:v})} required error={errs.sfda} hint={AR?'ترخيص صرف الأدوية من هيئة الغذاء والدواء':'Saudi Food and Drug Authority license'} />
       <NInput label={AR?'رقم الآيبان IBAN':'Bank IBAN'} placeholder="SA0000000000000000000000" value={data.iban} onChange={v=>update({iban:v.toUpperCase().replace(/\s/g,'')})} required error={errs.iban} maxLen={24} hint={AR?'SA + 22 رقم — لاستلام المدفوعات':'SA + 22 digits — to receive payments'} />
+      <KycDocButton testID="kyc-iban-letter" label={AR?'خطاب الآيبان من البنك':'Bank IBAN letter'} uri={data.ibanLetterUri} error={errs.ibanLetter} onPicked={(uri, mime) => update({ ibanLetterUri: uri, ibanLetterMime: mime })} />
       <NInput label={AR?'الرقم الضريبي VAT (اختياري)':'VAT Number (Optional)'} placeholder="300XXXXXXXXX003" value={data.taxNumber} onChange={v=>update({taxNumber:v})} maxLen={15} />
 
       <Text style={[s.sectionTitle, { color:theme.text, textAlign:AR?'right':'left', marginTop: SP.md }]}>{AR?'رفع الوثائق الرسمية':'Upload Official Documents'}</Text>
@@ -906,9 +914,11 @@ function PStep7Submit({ data, update, onDone, onBack, step, total }: any) {
       });
 
         const docs: string[] = [];
-        if (data.crUri) docs.push(await ProviderApi.uploadFile(data.crUri, 'application/pdf', 'cr_document'));
-        if (data.mohUri) docs.push(await ProviderApi.uploadFile(data.mohUri, 'application/pdf', 'moh_license'));
-        if (data.sfdaUri) docs.push(await ProviderApi.uploadFile(data.sfdaUri, 'application/pdf', 'sfda_license'));
+        const crId = data.crUri ? await ProviderApi.uploadFile(data.crUri, 'application/pdf', 'cr_document') : null;
+        const mohId = data.mohUri ? await ProviderApi.uploadFile(data.mohUri, 'application/pdf', 'moh_license') : null;
+        const sfdaId = data.sfdaUri ? await ProviderApi.uploadFile(data.sfdaUri, 'application/pdf', 'sfda_license') : null;
+        const ibanLetterId = data.ibanLetterUri ? await ProviderApi.uploadFile(data.ibanLetterUri, data.ibanLetterMime || 'image/jpeg', 'iban_letter') : null;
+        for (const id of [crId, mohId, sfdaId]) if (id) docs.push(id);
         
         // The pharmacy logo goes to its OWN field — it is the brand mark, not a gallery photo.
         let logo: string | undefined;
@@ -928,6 +938,8 @@ function PStep7Submit({ data, update, onDone, onBack, step, total }: any) {
           sfda_license_number: data.sfdaNumber,
           tax_number: data.taxNumber,
           license_documents: docs,
+          // Q79: typed KYC documents (approval counts these).
+          documents: typedDocuments([['commercial_registration', crId], ['facility_license', mohId], ['iban_letter', ibanLetterId], ['other', sfdaId]]),
           logo,
           languages: data.languages,
         });

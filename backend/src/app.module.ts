@@ -28,6 +28,7 @@ import { validateEnvironment } from './config/env.validation';
 import { MongooseModule } from '@nestjs/mongoose';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { shouldSkipThrottle } from './common/throttle-skip';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BullModule } from '@nestjs/bullmq';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
@@ -187,7 +188,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     }),
     EventEmitterModule.forRoot({ wildcard: true, maxListeners: 50 }),
     ScheduleModule.forRoot(),
-    ThrottlerModule.forRoot([{ ttl: 60_000, limit: process.env.THROTTLER_LIMIT ? parseInt(process.env.THROTTLER_LIMIT, 10) : 200 }]),
+    ThrottlerModule.forRoot({ throttlers: [{ ttl: 60_000, limit: process.env.THROTTLER_LIMIT ? parseInt(process.env.THROTTLER_LIMIT, 10) : 200 }], skipIf: () => shouldSkipThrottle() }),
     I18nCoreModule,
     AuthModule,
     UsersModule,

@@ -7,6 +7,8 @@ import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import SignatureCanvas from 'react-native-signature-canvas';
 import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+import { KycDocButton } from '../../components/KycDocButton';
+import { typedDocuments } from '../../utils/onboardingDocuments';
 import { useInsuranceCatalog, useServicesCatalog } from '../../api/catalogs';
 import { useTheme, useLang, useToast } from '../../context';
 import {
@@ -48,6 +50,7 @@ interface LabRegData {
   taxNumber: string;
   languages: string[];
   crUri: string; mohUri: string; logoUri: string;
+  ibanLetterUri: string; ibanLetterMime?: string;
   // Step 3
   city: string; location: {lat: number; lng: number}; district: string; address: string;
   hasHomeSvc: boolean; homeRadius: number;
@@ -87,7 +90,7 @@ const INIT: LabRegData = {
   techOfficerName: '', techOfficerScfhs: '',
   password: '', confirmPass: '',
   crNumber: '', mohLicense: '', iban: '', accountHolderName: '', taxNumber: '', languages: [],
-  crUri: '', mohUri: '', logoUri: '',
+  crUri: '', mohUri: '', logoUri: '', ibanLetterUri: '',
   city: '', location: { lat: 0, lng: 0 }, district: '', address: '',
   hasHomeSvc: false, homeRadius: 0, homeCollectorCount: '', homeCollectionFee: '', targetGenders: 'both', homeCollectorGender: 'both',
   enabledTests: [], testPrices: {}, testHomeAvail: {}, testTurnaround: {}, testInsuranceCov: {}, scanInsuranceCov: {},
@@ -402,6 +405,7 @@ function LStep2({ data, update, onNext, onBack, step, total, bare = false, submi
     if (!Validate.cr(data.crNumber)) e.cr = AR ? 'السجل التجاري 10 أرقام' : 'CR must be 10 digits';
     if (!data.mohLicense.trim()) e.moh = AR ? 'مطلوب' : 'Required';
     if (!Validate.iban(data.iban)) e.iban = AR ? 'رقم الآيبان غير صحيح' : 'Invalid IBAN';
+    if (!data.ibanLetterUri) e.ibanLetter = AR ? 'أرفق خطاب الآيبان من البنك' : 'Attach the bank IBAN letter';
     
     // Custom validation for Lab/Radiology separation
     const isLab = data.centerType === 'lab' || data.centerType === 'both';
@@ -505,12 +509,13 @@ function LStep2({ data, update, onNext, onBack, step, total, bare = false, submi
       const crUrl = await ProviderApi.uploadFile(data.crUri, 'image/jpeg', 'cr.jpg');
       const mohUrl = await ProviderApi.uploadFile(data.mohUri, 'image/jpeg', 'moh.jpg');
       
-      let radUrl: string | undefined = undefined;
-      // if (radUrl) radUrl = await ProviderApi.uploadFile(radUrl, 'application/pdf', 'rad.pdf');
+      const ibanLetterId = await ProviderApi.uploadFile(data.ibanLetterUri, data.ibanLetterMime || 'image/jpeg', 'iban_letter');
 
       await ProviderApi.step2({
         license_number: data.crNumber,
-        license_documents: [crUrl, mohUrl, radUrl].filter(Boolean) as string[],
+        license_documents: [crUrl, mohUrl].filter(Boolean) as string[],
+        // Q79: typed KYC documents (approval counts these).
+        documents: typedDocuments([['commercial_registration', crUrl], ['facility_license', mohUrl], ['iban_letter', ibanLetterId]]),
       });
       if (!bare) onNext();
       return true;
@@ -596,6 +601,7 @@ function LStep2({ data, update, onNext, onBack, step, total, bare = false, submi
         onChange={v => update({ iban: v.toUpperCase().replace(/\s/g, '') })}
         required error={errs.iban} maxLen={24}
         hint={AR ? 'SA + 22 رقم — لاستلام المدفوعات' : 'SA + 22 digits — to receive payments'} />
+      <KycDocButton testID="kyc-iban-letter" label={AR ? 'خطاب الآيبان من البنك' : 'Bank IBAN letter'} uri={data.ibanLetterUri} error={errs.ibanLetter} onPicked={(uri, mime) => update({ ibanLetterUri: uri, ibanLetterMime: mime })} />
 
       <NInput label={AR ? 'الرقم الضريبي VAT (اختياري)' : 'VAT Number (Optional)'}
         placeholder="300XXXXXXXXX003" value={data.taxNumber}
@@ -1736,8 +1742,10 @@ function LStep8Signature({ data, update, onDone, onBack, step, total }: {
     setLoading(true);
     try {
       const docs: string[] = [];
-      if (data.crUri) docs.push(await ProviderApi.uploadFile(data.crUri, 'application/pdf', 'cr_document'));
-      if (data.mohUri) docs.push(await ProviderApi.uploadFile(data.mohUri, 'application/pdf', 'moh_license'));
+      const crId = data.crUri ? await ProviderApi.uploadFile(data.crUri, 'application/pdf', 'cr_document') : null;
+      const mohId = data.mohUri ? await ProviderApi.uploadFile(data.mohUri, 'application/pdf', 'moh_license') : null;
+      const ibanLetterId = data.ibanLetterUri ? await ProviderApi.uploadFile(data.ibanLetterUri, data.ibanLetterMime || 'image/jpeg', 'iban_letter') : null;
+      for (const id of [crId, mohId]) if (id) docs.push(id);
       
       // Logo goes to its OWN field — it is the brand mark, not a gallery photo.
       let logo: string | undefined;
@@ -1802,6 +1810,8 @@ function LStep8Signature({ data, update, onDone, onBack, step, total }: {
         moh_license_number: data.mohLicense,
         tax_number: data.taxNumber,
         license_documents: docs,
+        // Q79: typed KYC documents (approval counts these).
+        documents: typedDocuments([['commercial_registration', crId], ['facility_license', mohId], ['iban_letter', ibanLetterId]]),
         logo,
         languages: data.languages,
       });

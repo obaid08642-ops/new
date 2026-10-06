@@ -25,6 +25,8 @@ import { GeoPicker } from '../../components/GeoPicker';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+import { KycDocButton } from '../../components/KycDocButton';
+import { typedDocuments } from '../../utils/onboardingDocuments';
 import { useInsuranceCatalog, useServicesCatalog, useSpecialtiesCatalog } from '../../api/catalogs';
 
 import SignatureCanvas from 'react-native-signature-canvas';
@@ -58,6 +60,7 @@ interface FacilityRegData {
   managerName: string; managerPhone: string; managerEmail: string; password: string; confirmPass: string;
   languages: string[];
   crNumber: string; mohLicense: string; crDocUri: string; mohDocUri: string; facilityLogoUri: string; facilityImagesUris: string[];
+  vatCertUri: string; vatCertMime?: string; ibanLetterUri: string; ibanLetterMime?: string;
   region: string; city: string; district: string; fullAddress: string;
   location: {lat: number; lng: number};
   // Sub-accounts
@@ -73,7 +76,7 @@ const INIT: FacilityRegData = {
   
   facilityNameAr: '', facilityNameEn: '', facilityType: '',
   managerName: '', managerPhone: '', managerEmail: '', password: '', confirmPass: '',
-  languages: [], crNumber: '', mohLicense: '', crDocUri: '', mohDocUri: '', facilityLogoUri: '', facilityImagesUris: [],
+  languages: [], crNumber: '', mohLicense: '', crDocUri: '', mohDocUri: '', facilityLogoUri: '', facilityImagesUris: [], vatCertUri: '', ibanLetterUri: '',
   region: '', city: '', district: '', fullAddress: '', location: {lat: 0, lng: 0}, subProviders: [], cashOnly: false, acceptedInsurance: [], hasInsuranceCoordinator: false, signatureData: '', signerName: '', signerRole: '', termsAgreed: false, loading: false
 };
 
@@ -336,6 +339,7 @@ const body = (
       <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.md, marginBottom: SP.sm, textAlign: AR?'right':'left' }}>{AR ? 'المرفقات' : 'Attachments'}</Text>
       <DocBtn label={AR ? 'شهادة السجل التجاري' : 'CR Document'} field="crDocUri" />
       <DocBtn label={AR ? 'ترخيص وزارة الصحة' : 'MOH Document'} field="mohDocUri" />
+      <KycDocButton testID="kyc-vat-certificate" label={AR ? 'شهادة ضريبة القيمة المضافة' : 'VAT certificate'} uri={data.vatCertUri} onPicked={(uri, mime) => update({ vatCertUri: uri, vatCertMime: mime })} />
       <DocBtn label={AR ? 'شعار المستشفى (Logo)' : 'Facility Logo'} field="facilityLogoUri" />
       
       <View style={{ marginTop: SP.md }}>
@@ -406,6 +410,7 @@ function Step3Location({ data, update, onNext, onBack, step, total, bare = false
       if (logoUrl && !logoUrl.startsWith('http')) logoUrl = await ProviderApi.uploadFile(logoUrl, 'image/jpeg', 'logo.jpg');
 
       const docs = [crUrl, mohUrl].filter(Boolean);
+      const vatCertId = data.vatCertUri ? await ProviderApi.uploadFile(data.vatCertUri, data.vatCertMime || 'image/jpeg', 'vat_certificate') : null;
       // Logo goes to its OWN field — brand mark, not a gallery photo.
       const images: string[] = [];
       
@@ -430,6 +435,8 @@ function Step3Location({ data, update, onNext, onBack, step, total, bare = false
         cr_number: data.crNumber || undefined,
         moh_license_number: data.mohLicense || undefined,
         license_documents: docs,
+        // Q79: typed KYC documents (approval counts these).
+        documents: typedDocuments([['commercial_registration', crUrl], ['facility_license', mohUrl], ['vat_certificate', vatCertId]]),
         clinic_images: images,
         logo: logoUrl || undefined,
         languages: data.languages,
@@ -1186,9 +1193,12 @@ function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
       update({ loading: true });
       const sigUrl = await ProviderApi.uploadSignature(data.signatureData);
       
+      const ibanLetterId = data.ibanLetterUri ? await ProviderApi.uploadFile(data.ibanLetterUri, data.ibanLetterMime || 'image/jpeg', 'iban_letter') : null;
       await ProviderApi.step2({
         iban: data.iban,
         bank_account_name: data.accountHolderName,
+        // Q79: typed KYC document (approval counts it).
+        documents: typedDocuments([['iban_letter', ibanLetterId]]),
       });
 
       await ProviderApi.submit({
@@ -1211,6 +1221,8 @@ function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
 
   const submit = () => {
     if (!data.signatureData) return show(AR ? 'الرجاء التوقيع أولاً' : 'Please sign first', 'error');
+    if (!data.vatCertUri) return show(AR ? 'أرفق شهادة ضريبة القيمة المضافة (الخطوة 2)' : 'Attach the VAT certificate (step 2)', 'error');
+    if (!data.ibanLetterUri) return show(AR ? 'أرفق خطاب الآيبان من البنك' : 'Attach the bank IBAN letter', 'error');
     // Send the REAL email OTP via the backend mailer before opening the modal
     sendEmailOtp(data.managerEmail || data.email)
       .then(() => show(AR ? 'تم إرسال رمز التحقق إلى بريدك الإلكتروني' : 'Verification code sent to your email', 'success'))
@@ -1267,6 +1279,7 @@ function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
               placeholder="SA0000000000000000000000"
               maxLen={24}
             />
+            <KycDocButton testID="kyc-iban-letter" label={AR ? 'خطاب الآيبان من البنك' : 'Bank IBAN letter'} uri={data.ibanLetterUri} onPicked={(uri, mime) => update({ ibanLetterUri: uri, ibanLetterMime: mime })} />
             <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
               {AR ? 'ملاحظة: سيتم تحويل مستحقاتك إلى هذا الحساب.' : 'Note: Your earnings will be transferred to this account.'}
             </Text>

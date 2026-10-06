@@ -26,6 +26,8 @@ import * as DocumentPicker from 'expo-document-picker';
 import MapView, { Circle, Marker } from '../../components/PlatformMap';
 import SignatureCanvas from 'react-native-signature-canvas';
 import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+import { KycDocButton } from '../../components/KycDocButton';
+import { typedDocuments } from '../../utils/onboardingDocuments';
 import { useInsuranceCatalog, useSpecialtiesCatalog } from '../../api/catalogs';
 
 const { width: W } = Dimensions.get('window');
@@ -40,6 +42,7 @@ interface DoctorRegData {
   // Step 2
   scfhsNumber: string; nationalId: string; iban: string; accountHolderName: string;
   idFrontUri: string; scfhsDocUri: string; extraDocUri: string;
+  cvUri: string; cvMime?: string; ibanLetterUri: string; ibanLetterMime?: string;
   // Step 3
   specialty: string; degree: string; yearsExp: string;
   bio: string; profilePhotoUri: string; clinicImagesUris: string[];
@@ -66,7 +69,7 @@ interface DoctorRegData {
 
 const INITIAL: DoctorRegData = {
   legalName:'', nameAr:'', nameEn:'', email:'', phone:'', password:'', confirmPass:'', gender:'',
-  scfhsNumber:'', nationalId:'', iban:'', accountHolderName: '', idFrontUri:'', scfhsDocUri:'', extraDocUri:'',
+  scfhsNumber:'', nationalId:'', iban:'', accountHolderName: '', idFrontUri:'', scfhsDocUri:'', extraDocUri:'', cvUri:'', ibanLetterUri:'',
   specialty:'', degree:'', yearsExp:'', bio:'', profilePhotoUri:'', clinicImagesUris: [],
   offersClinic:false, clinicPrice:'', clinicDuration:'',
   offersHome:false, homePrice:'', homeDuration:'', homeRadius: 0, homeTransportFee: false, homeTransportPrice: '',
@@ -335,7 +338,7 @@ function Step2KYC({ data, update, onNext, onBack, step, total, bare = false, sub
 
   const [loading, setLoading] = useState(false);
   const handleNext = async (): Promise<boolean> => {
-    if (!data.nationalId || !data.scfhsNumber || !data.idFrontUri || !data.scfhsDocUri) {
+    if (!data.nationalId || !data.scfhsNumber || !data.idFrontUri || !data.scfhsDocUri || !data.cvUri) {
       show(AR ? 'أكمل بيانات التوثيق والمستندات المطلوبة' : 'Complete the required licensing fields & documents', 'error');
       return false;
     }
@@ -345,10 +348,13 @@ function Step2KYC({ data, update, onNext, onBack, step, total, bare = false, sub
       const scfhsUrl = await ProviderApi.uploadFile(data.scfhsDocUri, 'image/jpeg', 'scfhs.jpg');
       let extraUrl = data.extraDocUri;
       if (extraUrl) extraUrl = await ProviderApi.uploadFile(extraUrl, 'application/pdf', 'extra.pdf');
+      const cvId = await ProviderApi.uploadFile(data.cvUri, data.cvMime || 'application/pdf', 'professional_cv');
 
       await ProviderApi.step2({
         license_number: data.scfhsNumber,
         license_documents: [idFrontUrl, scfhsUrl, extraUrl].filter(Boolean),
+        // Q79: typed KYC documents (approval counts these).
+        documents: typedDocuments([['national_id', idFrontUrl], ['medical_license', scfhsUrl], ['professional_cv', cvId], ['other', extraUrl]]),
       });
       if (!bare) onNext();
       return true;
@@ -372,6 +378,7 @@ function Step2KYC({ data, update, onNext, onBack, step, total, bare = false, sub
       <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.md, marginBottom: SP.sm, textAlign: AR ? 'right':'left' }}>{AR ? 'المرفقات' : 'Attachments'}</Text>
       <DocBtn label={AR ? 'الهوية الوطنية (الوجه الأمامي)' : 'National ID (Front)'} field="idFrontUri" />
       <DocBtn label={AR ? 'بطاقة تصنيف الهيئة' : 'SCFHS License'} field="scfhsDocUri" />
+      <KycDocButton testID="kyc-professional-cv" label={AR ? 'السيرة الذاتية المهنية' : 'Professional CV'} uri={data.cvUri} onPicked={(uri, mime) => update({ cvUri: uri, cvMime: mime })} />
       <DocBtn label={AR ? 'شهادات أو مستندات إضافية (اختياري)' : 'Additional Documents (Optional)'} field="extraDocUri" desc={AR ? 'مثل البورد، شهادات الزمالة...' : 'Fellowships, Board...'} />
     </>
   );
@@ -380,7 +387,7 @@ function Step2KYC({ data, update, onNext, onBack, step, total, bare = false, sub
     <NScroll>
       <NHeader title={AR ? 'التوثيق والمستندات' : 'KYC & Documents'} step={step} total={total} onBack={onBack} />
       {body}
-      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={handleNext} loading={loading} disabled={!data.nationalId || !data.scfhsNumber || !data.idFrontUri || !data.scfhsDocUri} style={{ marginTop: SP.lg }} />
+      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={handleNext} loading={loading} disabled={!data.nationalId || !data.scfhsNumber || !data.idFrontUri || !data.scfhsDocUri || !data.cvUri} style={{ marginTop: SP.lg }} />
     </NScroll>
   );
 }
@@ -1116,9 +1123,12 @@ function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
       update({ signatureData: sigUrl });
 
       // 4. Submit
+      const ibanLetterId = data.ibanLetterUri ? await ProviderApi.uploadFile(data.ibanLetterUri, data.ibanLetterMime || 'image/jpeg', 'iban_letter') : null;
       await ProviderApi.step2({
         iban: data.iban,
-        bank_account_name: data.accountHolderName
+        bank_account_name: data.accountHolderName,
+        // Q79: typed KYC document (approval counts it).
+        documents: typedDocuments([['iban_letter', ibanLetterId]]),
       });
       await ProviderApi.submit({ signer_name: data.signerName, signer_role: data.signerRole, lat: data.lat, lng: data.lng , signature_url: sigUrl, full_data: sanitizeWizardData(data) });
 
@@ -1134,6 +1144,10 @@ function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
   const submit = () => {
     if (!data.signatureData) {
       show(AR ? 'الرجاء توقيع العقد أولاً' : 'Please sign the contract first', 'error');
+      return;
+    }
+    if (!data.ibanLetterUri) {
+      show(AR ? 'أرفق خطاب الآيبان من البنك' : 'Attach the bank IBAN letter', 'error');
       return;
     }
     // Send the REAL email OTP via the backend mailer before opening the modal
@@ -1222,6 +1236,7 @@ function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
               placeholder="SA0000000000000000000000"
               maxLen={24}
             />
+            <KycDocButton testID="kyc-iban-letter" label={AR ? 'خطاب الآيبان من البنك' : 'Bank IBAN letter'} uri={data.ibanLetterUri} onPicked={(uri, mime) => update({ ibanLetterUri: uri, ibanLetterMime: mime })} />
             <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
               {AR ? 'ملاحظة: سيتم تحويل مستحقاتك إلى هذا الحساب.' : 'Note: Your earnings will be transferred to this account.'}
             </Text>
