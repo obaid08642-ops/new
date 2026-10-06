@@ -89,6 +89,15 @@ describe('native shells (DEVICE_STANDARD §1)', () => {
     expect(scrolled.backgroundColor).toBe(light.glass);
   });
 
+  it('AppHeader: a text action (Notifications "Read all") takes the place of the 44 balance and the title stays a header', () => {
+    const root = mount(<AppHeader title="t" onBack={() => undefined} backLabel="back" trailing={<Text>Read all</Text>} />);
+    expect(root.findAll((n) => n.props.children === 'Read all').length).toBeGreaterThan(0);
+    expect(root.findAll((n) => n.props.accessibilityRole === 'header' && n.props.children === 't').length).toBeGreaterThan(0);
+    // the trailing slot is at least 44 tall, so a text link inside it is a 44 target
+    const slot = root.find((n) => typeof n.type === 'string' && flat(n.props.style).minHeight === 44 && flat(n.props.style).minWidth === 44);
+    expect(slot).toBeTruthy();
+  });
+
   it('TabBar: a named tablist, 52pt items, the active one is the ink pill with its label, the raised one is the coral button', () => {
     const items = ['home', 'pharmacy', 'consult', 'labs', 'nursing'].map((key) => ({
       key,

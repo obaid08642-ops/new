@@ -31,6 +31,11 @@ export interface AppHeaderProps {
   /** Accessible name of the back button, in the screen's language. */
   backLabel?: string;
   actions?: AppHeaderAction[];
+  /**
+   * A text action in place of the 44-wide balance (canvas/Notifications.dc.html: "قراءة الكل" at the end of the
+   * header). The caller draws it, at least 44 tall, and names it; icon actions use `actions`.
+   */
+  trailing?: React.ReactNode;
   /** Content has scrolled under the header: switch to the glass background. */
   scrolled?: boolean;
   theme?: ThemeName;
@@ -40,7 +45,7 @@ export interface AppHeaderProps {
 
 const CHEVRON = { ltr: 'M15 6l-6 6 6 6', rtl: 'M9 6l6 6-6 6' } as const;
 
-export function AppHeader({ title, onBack, backLabel = 'Back', actions = [], scrolled = false, theme = 'light', direction, testID }: AppHeaderProps) {
+export function AppHeader({ title, onBack, backLabel = 'Back', actions = [], trailing, scrolled = false, theme = 'light', direction, testID }: AppHeaderProps) {
   const insets = useSafeAreaInsets();
   const t = shellTokens(theme);
   const dir = resolveDirection(direction);
@@ -88,7 +93,9 @@ export function AppHeader({ title, onBack, backLabel = 'Back', actions = [], scr
         >
           {title}
         </Text>
-        {actions.length ? (
+        {trailing ? (
+          <View style={{ minWidth: HIT, minHeight: HIT, alignItems: 'center', justifyContent: 'center' }}>{trailing}</View>
+        ) : actions.length ? (
           <View style={{ flexDirection: 'row', gap: 8 }}>
             {actions.map((a) => (
               <Pressable key={a.key} accessibilityRole="button" accessibilityLabel={a.label} onPress={a.onPress} hitSlop={4} style={roundButton}>

@@ -1,0 +1,132 @@
+[
+  {
+    "batch": 3,
+    "app": "patient-web",
+    "screen": "/diagnostics/packages/[packageId]",
+    "element": "Booking modal (\"Book Service Now\"): confirmation. Same modal on /diagnostics/radiology/[serviceId], /diagnostics and /nursing/catalog.",
+    "file": "patient-web/components-next/service-booking-modal.tsx",
+    "line": 97,
+    "found": "The submit handler makes no API call. A 900 ms setTimeout calls setConfirmedData with a reference built by Math.random (`LAB-/RAD-/NUR-` + 6 random digits) and, for a clinic visit with no address, the text \"مركز نبض الطبي - الرياض\". The confirmation screen then shows that reference, the slot, the price and the insurance split as a booked appointment.",
+    "suspect": "A fake success: no booking exists on the backend, so a patient can believe a lab, radiology or nursing visit is booked when nothing was sent. The reference number and clinic address are invented. The booking endpoint for these services (and a slot lock) should be called, and the reference taken from its response."
+  },
+  {
+    "batch": 3,
+    "app": "patient-web",
+    "screen": "/diagnostics/packages/[packageId]",
+    "element": "Insurance co-pay and \"covered\" amounts in the booking modal",
+    "file": "patient-web/lib/data/use-central-insurance.ts",
+    "line": 27,
+    "found": "The hook loads the insurer catalog from `${NEXT_PUBLIC_API_URL || \"https://api.nabd.plus\"}/api/v1/catalogs/insurance`, then sets `defaultCoPay: 0.2` and `maxCoPaySar: 50` on every insurer (lines 27-28). The fallback list lib/data/insurance-companies.ts (14 insurers) repeats 0.2 with a 50 or 75 SAR cap per row. service-booking-modal.tsx:63 computes `Math.min(price * defaultCoPay, maxCoPaySar)` and shows it as the patient share.",
+    "suspect": "Co-pay percentage and cap are constants in the client, not the insurer's or the patient's policy; the screen presents them as the real split. Check what GET /catalogs/insurance returns (co-pay fields?) and what the real eligibility / co-pay endpoint is; show the split only from that response. The hard-coded API base URL fallback is a second problem."
+  },
+  {
+    "batch": 3,
+    "app": "patient-web",
+    "screen": "/diagnostics",
+    "element": "Lab package cards and test/scan rows (price, name, description, \"Most Popular\" badge)",
+    "file": "patient-web/components-next/diagnostics-hub-client.tsx",
+    "line": 333,
+    "found": "`const price = pkg.price || 450` (line 333) and `item.price || (mainTab === \"labs\" ? 180 : 250)` (line 403): a missing price is shown as 450, 180 or 250. Package name and description fall back to fixed text (\"باقة الفحص الشامل\", \"تشمل فحوصات الدم الكاملة والمؤشرات الحيوية.\"), and every package card carries a \"Most Popular\" badge (line 336) with no data behind it.",
+    "suspect": "Invented prices and a badge that is not driven by the backend. A package or test without a price should hide the price (or the card); the badge needs a real field (popularity / order count) or should go."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/consultations/clinics/[clinicId]",
+    "element": "Clinic rating",
+    "file": "patient-web/lib/api/clinics-server.ts",
+    "line": 52,
+    "found": "`rating: typeof c.rating === \"number\" ? c.rating : 4.9`: a clinic without a rating is returned with 4.9.",
+    "suspect": "A made-up rating shown as real. Return no rating and hide the stars when the backend has none."
+  },
+  {
+    "batch": 3,
+    "app": "patient-web",
+    "screen": "/labs",
+    "element": "Lab rating (also /diagnostics/labs, /diagnostics/labs/[labId])",
+    "file": "patient-web/lib/api/labs-server.ts",
+    "line": 119,
+    "found": "`rating: typeof item.rating === \"number\" ? item.rating : 4.8`: a lab without a rating is returned with 4.8. The same file sets (line 121) `home_visit: Boolean(item.home_visit ?? true)`, so a missing flag reads as \"home visit supported\".",
+    "suspect": "A made-up rating (and an optimistic default for home visits) shown as real data."
+  },
+  {
+    "batch": 4,
+    "app": "patient-web",
+    "screen": "/nursing/nurses/[nurseId]",
+    "element": "Nurse rating and specialty",
+    "file": "patient-web/lib/api/nursing-server.ts",
+    "line": 52,
+    "found": "`rating: ... : 4.9` when the backend sends no number, and `specialty` falls back to the fixed text \"تمريض عام ورعاية منزلية\" (line 53).",
+    "suspect": "A made-up rating and specialty shown as the nurse's own."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/prescriptions/[prescriptionId]",
+    "element": "Whole screen (prescription detail)",
+    "file": "patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx",
+    "line": 22,
+    "found": "The page validates the id, then always renders \"Prescription details aren't available yet\" (message key Prescriptions.contractPending); there is no fetch. The backend has `GET /prescriptions/:id` (backend/src/modules/prescriptions/prescriptions.controller.ts) and the app uses it (patient-app/app/pharmacy/rx-order.tsx). The /prescriptions list page has no link to this route.",
+    "suspect": "A stub that predates the endpoint: the screen should load the prescription through the proxy, with the allowlist updated if needed. Verify the response shape and ownership check on the backend before wiring."
+  },
+  {
+    "batch": 5,
+    "app": "patient-web",
+    "screen": "/health/actionable-order",
+    "element": "Prescription, lab and radiology order lists",
+    "file": "patient-web/app/[locale]/health/actionable-order/page.tsx",
+    "line": 42,
+    "found": "No API call. The lists come from a JSON `payload` query string parsed on the server (parsePayload). Nothing in patient-web links to this route. The app screen (patient-app/app/health/actionable-order.tsx) reads a payload pushed from the consultation end, and patient-app/src/features/medical-orders/ActionableOrderScreen.tsx is an unused copy whose two buttons have no onPress.",
+    "suspect": "An orphan route fed by a client-built query string rather than by the consultation's own prescription and orders (the appointment summary page already loads them). Either wire it to consultation data or retire it."
+  },
+  {
+    "batch": 8,
+    "app": "patient-web",
+    "screen": "/maternity/baby-growth",
+    "element": "Weekly baby growth content",
+    "file": "patient-web/app/[locale]/maternity/baby-growth/page.tsx",
+    "line": 16,
+    "found": "The text says weekly educational content linked to the maternity profile is shown here, but the page renders only that sentence and a link to the tracker; there is no fetch. The sibling /maternity/baby-development redirects to the hub with the comment \"curated content pending clinical review\". The backend's GET /maternity/content returns `weekly_tips: []` by design (maternity.service.ts getContent) and no client calls it.",
+    "suspect": "The screen promises content that does not exist yet. Owner decision D says week content comes from the backend: this is blocked on the clinically reviewed content, not on the client. Until then the copy should not claim it."
+  },
+  {
+    "batch": 8,
+    "app": "patient-web",
+    "screen": "/maternity/ovulation",
+    "element": "Intro text (\"estimates are computed locally ... labelled as estimates\")",
+    "file": "patient-web/app/[locale]/maternity/ovulation/page.tsx",
+    "line": 28,
+    "found": "The page shows no estimate, window or date; it has a sentence about how the estimate is computed and a link to /maternity/tracker, whose only call is GET /maternity/profile.",
+    "suspect": "Copy describes a feature the page does not have. Either show the estimate from the profile (last period, cycle length) with the estimate badge, or point to the tracker without the claim."
+  },
+  {
+    "batch": 12,
+    "app": "patient-app",
+    "screen": "/profile/addresses",
+    "element": "Button \"إضافة عنوان جديد\"",
+    "file": "patient-app/app/profile/addresses.tsx",
+    "line": 158,
+    "found": "The Button has label, variant, icon and style but no onPress.",
+    "suspect": "A dead primary action on the address list: a patient cannot add an address from this screen. It should open the add-address flow (shared/location-picker.tsx saves an address to the backend), or be hidden."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations/prescription-from-doctor",
+    "element": "Button \"تحميل PDF\"",
+    "file": "patient-app/app/consultations/prescription-from-doctor.tsx",
+    "line": 363,
+    "found": "`onPress={() => { /* Requires backend API integration */ }}`: the handler is empty.",
+    "suspect": "A dead button. Needs a prescription PDF endpoint (none found in the prescriptions module or the health controller) or the button should be hidden."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/medicine-compare",
+    "element": "\"أضف للسلة\" under each compared medicine",
+    "file": "patient-app/app/pharmacy/medicine-compare.tsx",
+    "line": 122,
+    "found": "`onPress={() => { /* Requires backend API integration */ }}`: the handler is empty. product-detail.tsx has a working cart (items, router.push('/pharmacy/cart')).",
+    "suspect": "A dead add-to-cart button. It should call the same add-to-cart as product-detail.tsx, or be hidden."
+  }
+]

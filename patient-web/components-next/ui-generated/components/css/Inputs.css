@@ -1,0 +1,212 @@
+/*
+ * GENERATED FILE — DO NOT EDIT.
+ *
+ * Mirrored from packages/ui/components/css/Inputs.css by tools/design/sync-ui-components.mjs.
+ *
+ * patient-web cannot import from packages/: Turbopack refuses to resolve outside
+ * the app root, and the type checker does not, so the failure only appears at
+ * `next build`. This file is a copy, not a port — the renderer a screen uses and
+ * the renderer the conformance gallery exercises are the same code, so the
+ * artwork cannot drift between them. Run the script after changing the package;
+ * `--check` in CI fails if this drifts.
+ *
+ * tests/module-boundary.test.ts enforces the boundary this mirror exists to work
+ * around.
+ */
+/* Inputs (components/Inputs.tsx): Input, Select, Otp, SearchField, Stepper and
+   SlotPicker. A field is never below the 44px touch target; every colour and
+   shadow is a token. Within a component, a modifier comes after its base rule. */
+
+/* The field: label, control, messages */
+.nabd-field { display: grid; gap: var(--nabd-space-2xs); }
+.nabd-field__label { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); }
+.nabd-field__messages { display: grid; gap: 2px; margin-block-start: var(--nabd-space-2xs); }
+.nabd-field__hint { font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-secondary); }
+.nabd-field__error { font-size: var(--nabd-font-size-caption); color: var(--nabd-color-status-danger-fg); }
+
+/* The field box (textarea, select, OTP cell): at least the 44px touch target tall */
+.nabd-field__control {
+  width: 100%;
+  min-height: var(--nabd-a11y-minTouchTarget);
+  padding-inline: var(--nabd-space-md);
+  padding-block: var(--nabd-space-xs);
+  font-size: var(--nabd-font-size-body);
+  font-family: var(--nabd-font-family-body);
+  color: var(--nabd-color-text-primary);
+  background: var(--nabd-color-bg-surface);
+  border: 1px solid var(--nabd-color-border-default);
+  border-radius: var(--nabd-radius-md);
+  appearance: none;
+}
+.nabd-field__control--invalid { border-color: var(--nabd-color-status-danger-fg); background: var(--nabd-color-status-danger-bg); }
+
+/* Input: the icons sit over the control, at the inline ends */
+.nabd-input__row { position: relative; display: flex; align-items: center; }
+.nabd-input__start { position: absolute; inset-inline-start: var(--nabd-space-sm); display: grid; place-items: center; }
+.nabd-input__end { position: absolute; inset-inline-end: var(--nabd-space-sm); display: grid; place-items: center; }
+.nabd-input__loading { position: absolute; inset-inline-end: var(--nabd-space-sm); }
+.nabd-input__textarea { resize: vertical; }
+/* The single-line control (.nabd-input__native) is drawn as it rendered before
+   this sheet: no field box (its own style prop replaced the shared one), only the
+   start-icon room below. */
+/* room for the 20px start icon: the field padding plus 28 */
+.nabd-input__control--start-icon { padding-inline-start: calc(var(--nabd-space-md) + 28px); }
+
+/* Select: room for the caret at the inline end */
+.nabd-select { position: relative; }
+.nabd-select__control { padding-inline-end: var(--nabd-space-xl); }
+.nabd-select__caret { position: absolute; inset-inline-end: var(--nabd-space-sm); inset-block-start: 50%; transform: translateY(-50%); pointer-events: none; }
+
+/* Otp: square 44 cells, the digits in LTR order in both directions */
+.nabd-otp { display: flex; gap: var(--nabd-space-2xs); direction: ltr; }
+.nabd-otp__cell {
+  width: var(--nabd-a11y-minTouchTarget);
+  min-width: var(--nabd-a11y-minTouchTarget);
+  text-align: center;
+  font-family: var(--nabd-font-family-mono, monospace);
+}
+
+/* SearchField: inline 52 tall, radius 18, hairline ring (canvas/PharmacyHub, Consult);
+   page a 50 tall pill (canvas/Search); either takes the ink border while focused */
+.nabd-search { display: flex; align-items: center; gap: 8px; }
+.nabd-search__field {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  height: 52px;
+  border-radius: 18px;
+  background: var(--nabd-color-bg-surface);
+  border: 1px solid var(--nabd-color-border-onGlass);
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-inline: 14px;
+  opacity: 1;
+}
+.nabd-search__field--page { height: 50px; border-radius: 25px; }
+.nabd-search__field--active {
+  border: 2px solid var(--nabd-color-text-primary);
+  box-shadow: 0 0 0 4px var(--nabd-color-glass-scrim);
+  /* the 2px border takes 1px more than the hairline: keep the content still */
+  padding-inline: 13px;
+}
+.nabd-search__field--disabled { opacity: 0.5; }
+.nabd-search__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  outline: none;
+  font-family: inherit;
+  font-size: var(--nabd-font-size-body);
+  color: var(--nabd-color-text-primary);
+}
+.nabd-search__input--page { font-size: var(--nabd-font-size-input); }
+/* the field draws its own clear button (the board's 28px disc); WebKit's built-in one would be a second ✕ */
+.nabd-search__input::-webkit-search-cancel-button,
+.nabd-search__input::-webkit-search-decoration { -webkit-appearance: none; appearance: none; display: none; }
+/* A button inside the field: a 44 hit area that takes no more room than its glyph. */
+.nabd-search__inner {
+  width: 44px;
+  height: 44px;
+  /* the board's inner buttons take 36 of the row (PharmacyHub barcode) */
+  margin-inline: -4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+/* canvas/Search: a 28px sunken disc with the cross, inside a 44 hit area */
+.nabd-search__clear-disc { width: 28px; height: 28px; border-radius: 14px; background: var(--nabd-color-bg-sunken); display: grid; place-items: center; }
+/* the filter is the 52px ink square beside the field */
+.nabd-search__filter {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 18px;
+  border: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background: var(--nabd-color-action-selected-bg);
+  color: var(--nabd-color-action-selected-fg);
+}
+
+/* Stepper (canvas/Cart): a 36 tall pill in the canvas colour, two 30px discs, 14/700 between */
+.nabd-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 36px;
+  padding-inline: 3px;
+  box-sizing: border-box;
+  border-radius: 18px;
+  background: var(--nabd-color-bg-canvas);
+  opacity: 1;
+}
+.nabd-stepper--disabled { opacity: 0.5; }
+/* 44×44 target around a 30px disc; the 7px each side is given back to the layout. */
+.nabd-stepper__button {
+  width: 44px;
+  height: 44px;
+  margin: -7px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: var(--nabd-color-text-primary);
+}
+.nabd-stepper__disc {
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  /* canvas/Cart draws the signs as 16px text */
+  font-size: var(--nabd-font-size-input);
+  line-height: 1;
+  background: var(--nabd-color-bg-elevated);
+}
+.nabd-stepper__value {
+  min-width: 20px;
+  text-align: center;
+  font-size: var(--nabd-font-size-control);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--nabd-color-text-primary);
+}
+
+/* SlotPicker: 44 tall pills, at least 72 wide; an unavailable slot is struck through, never hidden */
+.nabd-slot-picker { display: grid; gap: var(--nabd-space-2xs); }
+.nabd-slot-picker__day { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); }
+.nabd-slot-picker__row { display: flex; flex-wrap: wrap; gap: var(--nabd-space-2xs); }
+.nabd-slot-picker__skeleton { width: 72px; height: var(--nabd-a11y-minTouchTarget); border-radius: var(--nabd-radius-pill); background: var(--nabd-color-bg-sunken); }
+.nabd-slot-picker__slot {
+  min-height: var(--nabd-a11y-minTouchTarget);
+  min-width: 72px;
+  padding-inline: var(--nabd-space-sm);
+  font-size: var(--nabd-font-size-body);
+  font-variant-numeric: tabular-nums;
+  border-radius: var(--nabd-radius-pill);
+  cursor: pointer;
+  border: 1px solid var(--nabd-color-border-default);
+  background: var(--nabd-color-bg-surface);
+  color: var(--nabd-color-text-primary);
+  text-decoration: none;
+  opacity: 1;
+}
+.nabd-slot-picker__slot--selected {
+  border: 1px solid var(--nabd-color-action-primary-bg);
+  background: var(--nabd-color-action-primary-bg);
+  color: var(--nabd-color-action-primary-fg);
+}
+.nabd-slot-picker__slot--unavailable { cursor: not-allowed; text-decoration: line-through; opacity: 0.5; }
