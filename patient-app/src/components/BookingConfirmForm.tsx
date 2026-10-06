@@ -67,7 +67,7 @@ export default function BookingConfirmScreen() {
 
   useEffect(() => {
     if (isGuest || payMethod !== 'insurance') return;
-    apiFetch<any>('/users/me/profile')
+    apiFetch<{ insurance?: InsuranceLite | null }>('/users/me/profile')
       .then((profile) => setInsurance(profile?.insurance || null))
       .catch(() => setInsurance(null));
   }, [isGuest, payMethod]);

@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button, Card, FIcon } from '../../../packages/ui-native/src';
-import { ConsultScreen, Gate, InfoRow, Section, useConsultFormat, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { RX_TONE, ConsultScreen, Gate, InfoRow, Section, useConsultFormat, type GateStatus } from '../../src/components/consult/ConsultKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { apiFetch } from '../../src/utils/api';
@@ -105,7 +105,7 @@ export default function PrescriptionFromDoctorScreen() {
           <>
             <Card theme={theme}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <FIcon icon="prescription" tone="coral" size={48} theme={theme} />
+                <FIcon icon="prescription" tone={RX_TONE} size={48} theme={theme} />
                 <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
                   {prescription.doctor ? <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{prescription.doctor}</Text> : null}
                   {prescription.spec ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{prescription.spec}</Text> : null}
@@ -128,7 +128,7 @@ export default function PrescriptionFromDoctorScreen() {
                 return (
                   <Card key={med.id} theme={theme}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                      <FIcon icon="pill" tone="coral" size={44} theme={theme} />
+                      <FIcon icon="pill" tone={RX_TONE} size={44} theme={theme} />
                       <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, flex: 1, minWidth: 0, ...flow }}>{med.name}</Text>
                     </View>
                     <View style={{ marginTop: 6 }}>

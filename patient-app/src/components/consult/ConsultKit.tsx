@@ -17,6 +17,10 @@ import { dateLocaleFor } from '../../utils/dates';
 /** The consultations' own service tone (the service map of the handoff). */
 export const CONSULT_TONE: ServiceTone = SERVICE_ICONS.consult.tone;
 
+/** The pharmacy's service tone (medicines, prescriptions) and the nursing tone, named by the service map, never by colour. */
+export const RX_TONE: ServiceTone = SERVICE_ICONS.pharmacy.tone;
+export const CARE_TONE: ServiceTone = SERVICE_ICONS.nursing.tone;
+
 export type VisitMode = 'clinic' | 'home' | 'online';
 
 /** Board Consult: clinic is blue (hospital), home is mint (house), online is violet (video). */
@@ -59,8 +63,8 @@ export function Chevron({ size = 18, back = false }: { size?: number; back?: boo
 const SPEC_LOOK: Array<[RegExp, FillIconName, ServiceTone]> = [
   [/أسنان|dent|tooth/i, 'tooth', 'mint'],
   [/جلد|derma|skin/i, 'hand-heart', 'pink'],
-  [/عيون|عين|eye|ophth/i, 'eye', 'teal'],
-  [/قلب|cardio|heart/i, 'heart', 'coral'],
+  [/عيون|عين|eye|ophth/i, 'eye', CARE_TONE],
+  [/قلب|cardio|heart/i, 'heart', RX_TONE],
   [/أطفال|طفل|pediat|child/i, 'baby', 'amber'],
   [/عظام|ortho|bone/i, 'bone', 'violet'],
   [/نساء|ولادة|gyn|obst|matern/i, 'baby-carriage', 'pink'],

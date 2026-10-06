@@ -8,7 +8,7 @@ import { Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button, Card, FIcon } from '../../../packages/ui-native/src';
-import { ConsultScreen, Gate, Section, StatusTag, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { RX_TONE, ConsultScreen, Gate, Section, StatusTag, type GateStatus } from '../../src/components/consult/ConsultKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
@@ -110,7 +110,7 @@ export default function ConsultationSummaryScreen() {
                 <Card theme={theme}>
                   {prescription.map((med, i) => (
                     <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8, borderBottomWidth: i === prescription.length - 1 ? 0 : 1, borderBottomColor: c.border.hairline }}>
-                      <FIcon icon="pill" tone="coral" size={40} theme={theme} />
+                      <FIcon icon="pill" tone={RX_TONE} size={40} theme={theme} />
                       <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
                         <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{med.medicine_name}</Text>
                         {[med.dose, med.duration].filter(Boolean).length > 0 ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{[med.dose, med.duration].filter(Boolean).join(' · ')}</Text> : null}

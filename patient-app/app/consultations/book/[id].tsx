@@ -5,7 +5,7 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button, Card, FIcon, Input } from '../../../../packages/ui-native/src';
 import { DayStrip, DoctorHead, ModeTiles, SlotGrid, slotsEmptyKey, useDays, type ModeTile } from '../../../src/components/consult/ConsultBooking';
-import { ConsultScreen, Gate, Section, useConsultFormat, visitMode, type GateStatus } from '../../../src/components/consult/ConsultKit';
+import { RX_TONE, ConsultScreen, Gate, Section, useConsultFormat, visitMode, type GateStatus } from '../../../src/components/consult/ConsultKit';
 import { step as scale, useScreenUi } from '../../../src/components/screen/ScreenKit';
 import { showLocalizedAlert } from '../../../src/components/LocalizedAlert';
 import { apiFetch } from '../../../src/utils/api';
@@ -196,7 +196,7 @@ export default function BookAppointmentScreen() {
                 <Card theme={theme} padding="sm">
                   {homeAddress ? (
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                      <FIcon icon="map-pin" tone="coral" size={40} theme={theme} />
+                      <FIcon icon="map-pin" tone={RX_TONE} size={40} theme={theme} />
                       <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
                         <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{homeAddress.label || k('consult.book.addressSelected')}</Text>
                         <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{formatAddressLine(homeAddress)}</Text>

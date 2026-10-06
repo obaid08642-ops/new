@@ -58,9 +58,11 @@ export default function CallHistoryScreen() {
   const fetchHistory = useCallback(async (pageNum: number, isRefresh = false) => {
     try {
       if (pageNum === 1 && !isRefresh) setLoading(true);
-      const data = await apiFetch<{ calls?: CallSession[]; total?: number }>(`/calls/history?page=${pageNum}&limit=20`);
-      if (data && Array.isArray(data.calls)) {
-        const next = isRefresh || pageNum === 1 ? data.calls : [...loaded.current, ...data.calls];
+      // The server answers { data: [...], total, page, total_pages } (older builds sent `calls`).
+      const data = await apiFetch<{ data?: CallSession[]; calls?: CallSession[]; total?: number }>(`/calls/history?page=${pageNum}&limit=20`);
+      const rows = Array.isArray(data?.data) ? data.data : Array.isArray(data?.calls) ? data.calls : null;
+      if (data && rows) {
+        const next = isRefresh || pageNum === 1 ? rows : [...loaded.current, ...rows];
         loaded.current = next;
         setCalls(next);
         setHasMore(next.length < (data.total ?? 0));
