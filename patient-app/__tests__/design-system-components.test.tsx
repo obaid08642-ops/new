@@ -1,3 +1,5 @@
+import { StyleSheet, Text } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as TestRenderer from 'react-test-renderer';
 import type { ReactTestRendererJSON } from 'react-test-renderer';
 
@@ -5,12 +7,23 @@ import {
   Button,
   Avatar,
   Card,
+  BottomTabBar,
   Chip,
+  DoctorCard,
   EmptyState,
+  OfflineState,
+  OfferCard,
+  ProductCard,
+  ProgressRing,
+  Timeline,
   ErrorState,
   FIcon,
   IconButton,
+  Radio,
   SectionHeader,
+  Segmented,
+  StatusChip,
+  Toggle,
   Rating,
   ServiceTile,
   Stepper,
@@ -81,26 +94,42 @@ describe('12.A7 — the native renderer keeps the contract semantics', () => {
   });
 
   it('nothing interactive is smaller than the 44px touch target', () => {
+    // Controls may be drawn smaller than 44 (the 40 sm button, the 30 stepper
+    // discs, the 38 chip) as the boards do, but the TARGET may not: it is the
+    // drawn height plus the hitSlop. Measured on every pressable node, not
+    // inferred from a "44" somewhere in the tree.
     const cases: Array<[string, React.ReactElement]> = [
       ['Button sm', <Button key="a" label="x" size="sm" />],
       ['Button md', <Button key="b" label="x" size="md" />],
       ['IconButton sm', <IconButton key="c" name="close" label="Close" size="sm" />],
       ['Stepper', <Stepper key="d" value={1} onChange={() => {}} />],
+      ['Chip', <Chip key="e" label="x" />],
+      ['Segmented sm', <Segmented key="f" label="g" size="sm" value="a" options={[{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }]} />],
+      ['Toggle', <Toggle key="g" label="t" value />],
+      ['Radio', <Radio key="h" label="r" selected={false} />],
+      ['DoctorCard book', <DoctorCard key="i" name="d" bookLabel="احجز" />],
+      ['ProductCard add', <ProductCard key="j" name="p" price="1" addLabel="أضف" />],
     ];
-    // The web renderer states the floor as the token; the native one states the
-    // same number, and the token test asserts the two agree. Collecting the
-    // offenders rather than asserting inside the loop means one failure names
-    // every component that lost the floor.
-    const underFloor = cases
-      .filter(([, el]) => !JSON.stringify(render(el)).includes('44'))
-      .map(([name]) => name);
+    const interactive = (n: Node) => ['button', 'switch', 'radio'].includes(n.props?.accessibilityRole);
+    const slop = (h: unknown, a: 'top' | 'bottom') => (typeof h === 'number' ? h : (h as Record<string, number> | undefined)?.[a] ?? 0);
+    const underFloor: string[] = [];
+    for (const [name, el] of cases) {
+      const nodes = findAll(render(el), interactive);
+      expect(nodes.length).toBeGreaterThan(0);
+      for (const n of nodes) {
+        const st = StyleSheet.flatten(n.props.style) ?? {};
+        const drawn = typeof st.height === 'number' ? st.height : typeof st.minHeight === 'number' ? st.minHeight : 0;
+        const target = drawn + slop(n.props.hitSlop, 'top') + slop(n.props.hitSlop, 'bottom');
+        if (target < 44) underFloor.push(`${name}: ${target}`);
+      }
+    }
     expect(underFloor).toEqual([]);
   });
 
   it('empty and error stay two different components with two different roles', () => {
     // "You have no orders" is information. "We could not load your orders" is an
     // apology. Merging them means apologising to people with nothing yet.
-    const empty = render(<EmptyState illustration="emptyOrders" title="No orders yet" />);
+    const empty = render(<EmptyState icon="package" tone="coral" title="No orders yet" />);
     const error = render(<ErrorState title="We could not reach Nabd+" />);
 
     expect(findAll(empty, byRole('alert'))).toHaveLength(0);
@@ -220,16 +249,19 @@ describe('12.A7 — the native renderer keeps the contract semantics', () => {
     expect(light.color.bg.surface).not.toBe(dark.color.bg.surface);
   });
 
-  it('a Chip states its tone so a screen can pick the surface', () => {
-    const [c] = render(<Chip label="Warning" tone="warning" testID="chip-warning" />);
-    expect(c.props.testID).toBe('chip-warning');
-    expect(labelled([c])).toContain('Warning');
+  it('a Chip is a selectable filter: it says when it is selected, and shows a real count', () => {
+    const [c] = render(<Chip label="أدوية" count={12} selected testID="chip-meds" />);
+    expect(c.props.testID).toBe('chip-meds');
+    expect(c.props.accessibilityRole).toBe('button');
+    expect(c.props.accessibilityState).toMatchObject({ selected: true });
+    expect(labelled([c])).toContain('أدوية');
+    expect(labelled([c])).toContain('"12"');
   });
 
   it('a component invents no testID when the caller did not ask for one', () => {
     // An id nobody requested is noise in the test tree, and it can collide with
     // a real one. It only exists because someone passed it.
-    const [c] = render(<Chip label="Warning" tone="warning" />);
+    const [c] = render(<Chip label="Warning" />);
     expect(c.props.testID).toBeUndefined();
   });
 
@@ -239,3 +271,188 @@ describe('12.A7 — the native renderer keeps the contract semantics', () => {
     expect(labelled(nodes)).toContain('Pay at the clinic');
   });
 });
+
+describe('handoff §3 — native controls (components 2/4) keep the web semantics', () => {
+  const light = tokens('light');
+
+  it('Segmented is a named radiogroup; exactly the chosen option is checked and raised', () => {
+    const nodes = render(
+      <Segmented label="المظهر" value="light" options={[{ value: 'auto', label: 'تلقائي' }, { value: 'light', label: 'فاتح' }, { value: 'dark', label: 'غامق' }]} />,
+    );
+    const [group] = findAll(nodes, byRole('radiogroup'));
+    expect(group.props.accessibilityLabel).toBe('المظهر');
+    expect(StyleSheet.flatten(group.props.style).backgroundColor).toBe(light.color.control.segmentedTrack);
+    const radios = findAll(nodes, byRole('radio'));
+    expect(radios).toHaveLength(3);
+    expect(radios.map((r) => r.props.accessibilityState.checked)).toEqual([false, true, false]);
+    expect(StyleSheet.flatten(radios[1].props.style).backgroundColor).toBe(light.color.bg.surface);
+  });
+
+  it('Toggle is a named switch that reports its state, green when on', () => {
+    const on = findAll(render(<Toggle label="تذكير الأدوية" value />), byRole('switch'))[0];
+    expect(on.props.accessibilityLabel).toBe('تذكير الأدوية');
+    expect(on.props.accessibilityState.checked).toBe(true);
+    expect(StyleSheet.flatten(on.props.style).backgroundColor).toBe(light.color.control.switchOn);
+    const off = findAll(render(<Toggle label="العروض" value={false} />), byRole('switch'))[0];
+    expect(StyleSheet.flatten(off.props.style).backgroundColor).toBe(light.color.border.strong);
+  });
+
+  it('Toggle calls onChange with the new value', () => {
+    let got: boolean | undefined;
+    let tree!: TestRenderer.ReactTestRenderer;
+    TestRenderer.act(() => {
+      tree = TestRenderer.create(<Toggle label="x" value={false} onChange={(v) => (got = v)} />);
+    });
+    TestRenderer.act(() => {
+      tree.root.findAll((n) => n.props.accessibilityRole === 'switch' && typeof n.props.onPress === 'function')[0].props.onPress();
+    });
+    expect(got).toBe(true);
+  });
+
+  it('Radio is a checked or unchecked row with the coral 7pt ring when chosen', () => {
+    const [on] = findAll(render(<Radio label="العربية" meta="Arabic" selected />), byRole('radio'));
+    expect(on.props.accessibilityState.checked).toBe(true);
+    expect(on.props.accessibilityLabel).toBe('العربية, Arabic');
+    expect(JSON.stringify(on)).toContain(`"borderColor":"${light.color.action.primary.bg}"`);
+    expect(JSON.stringify(on)).toContain('"borderWidth":7');
+    const [off] = findAll(render(<Radio label="English" selected={false} />), byRole('radio'));
+    expect(off.props.accessibilityState.checked).toBe(false);
+    expect(JSON.stringify(off)).toContain(`"borderColor":"${light.color.control.radioOff}"`);
+  });
+
+  it('StatusChip uses the tone colours of the service map', () => {
+    const json = JSON.stringify(render(<StatusChip label="تم التوصيل" tone="mint" />));
+    expect(json).toContain(light.color.service.mint.bg);
+    expect(json).toContain(light.color.service.mint.fg);
+    expect(json).toContain('تم التوصيل');
+  });
+
+  it('a primary Button paints the gradient tokens behind its label', () => {
+    const json = JSON.stringify(render(<Button label="متابعة" size="lg" />));
+    const g = light.color.action.primary.gradient;
+    expect(json).toMatch(svgColour(g.from));
+    expect(json).toMatch(svgColour(g.to));
+    expect(json).toContain('"height":56');
+    expect(json).toContain('"borderRadius":18');
+  });
+});
+
+describe('handoff §3 — native cards (components 3/4) keep the web semantics', () => {
+  const light = tokens('light');
+
+  it('DoctorCard shows only what it is given, and its book action is a named button', () => {
+    const full = render(
+      <DoctorCard
+        name="د. أمينة"
+        bookLabel="احجز"
+        verifiedLabel="موثّق"
+        availableLabel="متاح الآن"
+        rating={{ value: 4.8, count: 128 }}
+        nextSlot="اليوم ٧:٣٠ م"
+        price="180"
+        currency="ر.س"
+      />,
+    );
+    const json = JSON.stringify(full);
+    expect(json).toContain('موثّق');
+    expect(json).toContain('متاح الآن');
+    expect(json).toContain('4.8');
+    expect(findAll(full, byRole('button')).map((b) => b.props.accessibilityLabel)).toContain('احجز');
+    const bare = JSON.stringify(render(<DoctorCard name="د. عمر" bookLabel="احجز" />));
+    expect(bare).not.toContain(light.color.presence.online);
+    expect(bare).not.toContain('accessibilityLabel":"موثّق');
+    expect(bare).not.toMatch(svgColour(light.color.icon.ratingStarOnBrand));
+  });
+
+  it('ProductCard: the add button is named and the discount and rx note appear only when given', () => {
+    const nodes = render(<ProductCard name="بنادول" price="12.50" addLabel="أضف للسلة" discountLabel="خصم ١٥٪" rxLabel="يحتاج وصفة" />);
+    expect(findAll(nodes, byRole('button'))[0].props.accessibilityLabel).toBe('أضف للسلة');
+    expect(JSON.stringify(nodes)).toContain('خصم ١٥٪');
+    expect(JSON.stringify(nodes)).toContain(light.color.bg.media);
+    const bare = JSON.stringify(render(<ProductCard name="x" price="1" addLabel="أضف" />));
+    expect(bare).not.toContain('خصم');
+  });
+
+  it('OfferCard paints the price in the price colour and strikes the old price', () => {
+    const json = JSON.stringify(render(<OfferCard title="باقة" price="199" was="260" icon="test-tube" tone="blue" />));
+    expect(json).toContain(light.color.text.price);
+    expect(json).toContain('"textDecorationLine":"line-through"');
+  });
+
+  it('Timeline is a named list; the current step is selected, done steps are coral', () => {
+    const nodes = render(
+      <Timeline
+        label="حالة الطلب"
+        steps={[
+          { id: 'a', label: 'تم القبول', time: '٧:٠٢', state: 'done' },
+          { id: 'b', label: 'في الطريق', state: 'current' },
+          { id: 'c', label: 'تم التوصيل', state: 'upcoming' },
+        ]}
+      />,
+    );
+    const [list] = findAll(nodes, byRole('list'));
+    expect(list.props.accessibilityLabel).toBe('حالة الطلب');
+    const steps = findAll(nodes, (n) => n.props?.accessible === true);
+    expect(steps.map((n) => n.props.accessibilityState.selected)).toEqual([false, true, false]);
+    expect(steps[0].props.accessibilityLabel).toBe('تم القبول, ٧:٠٢');
+  });
+
+  it('ProgressRing is a named progressbar with its value, clamped', () => {
+    const [ring] = findAll(render(<ProgressRing value={0.55} tone="pink" label="أسبوع ٢٢" />), byRole('progressbar'));
+    expect(ring.props.accessibilityLabel).toBe('أسبوع ٢٢');
+    expect(ring.props.accessibilityValue).toEqual({ min: 0, max: 100, now: 55 });
+    const [over] = findAll(render(<ProgressRing value={3} tone="pink" label="x" />), byRole('progressbar'));
+    expect(over.props.accessibilityValue.now).toBe(100);
+  });
+
+  it('Card holds children and tints with the tone', () => {
+    const json = JSON.stringify(render(<Card title="t" tint="pink"><Text>داخل</Text></Card>));
+    expect(json).toContain('داخل');
+    expect(json).toMatch(svgColour(light.color.service.pink.bg));
+  });
+});
+
+describe('handoff §3 — native states and the main tab bar (components 4/4)', () => {
+  const light = tokens('light');
+
+  it('the three states share the board layout: the 112 FIcon in its tone, a header title, the full-width CTA', () => {
+    const empty = render(<EmptyState icon="package" tone="coral" title="السلة فاضية" actionLabel="تصفح الصيدلية" secondaryActionLabel="ارفع الروشتة" />);
+    const json = JSON.stringify(empty);
+    expect(json).toMatch(svgColour(light.color.service.coral.fg));
+    expect(findAll(empty, byRole('header'))[0]).toBeDefined();
+    expect(findAll(empty, byRole('button')).map((b) => b.props.accessibilityLabel)).toEqual(['تصفح الصيدلية', 'ارفع الروشتة']);
+  });
+
+  it('ErrorState is an alert with the amber warning by default; OfflineState is a polite summary with wifi-slash in blue', () => {
+    const error = render(<ErrorState title="ما قدرنا نحمّل الصفحة" retryLabel="إعادة المحاولة" />);
+    expect(findAll(error, byRole('alert'))).toHaveLength(1);
+    expect(JSON.stringify(error)).toMatch(svgColour(light.color.service.amber.fg));
+    const offline = render(<OfflineState title="لا يوجد اتصال" retryLabel="إعادة المحاولة" />);
+    expect(findAll(offline, byRole('alert'))).toHaveLength(0);
+    expect(findAll(offline, byRole('summary'))).toHaveLength(1);
+    expect(JSON.stringify(offline)).toMatch(svgColour(light.color.service.blue.fg));
+  });
+
+  it('BottomTabBar is the shell TabBar: a named tablist, one selected tab, the centre raised', () => {
+    const nodes = render(
+      <SafeAreaProvider initialMetrics={{ frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 47, bottom: 34, left: 0, right: 0 } }}>
+        <BottomTabBar
+          label="التنقل الرئيسي"
+          value="home"
+          items={[
+            { id: 'home', label: 'الرئيسية', icon: 'house' },
+            { id: 'consult', label: 'الاستشارات', icon: 'stethoscope', raised: true },
+            { id: 'labs', label: 'التحاليل', icon: 'test-tube' },
+          ]}
+        />
+      </SafeAreaProvider>,
+    );
+    const [list] = findAll(nodes, byRole('tablist'));
+    expect(list.props.accessibilityLabel).toBe('التنقل الرئيسي');
+    const tabs = findAll(nodes, byRole('tab'));
+    expect(tabs.map((t) => t.props.accessibilityLabel)).toEqual(['الرئيسية', 'الاستشارات', 'التحاليل']);
+    expect(tabs.map((t) => t.props.accessibilityState.selected)).toEqual([true, false, false]);
+    expect(JSON.stringify(nodes)).toMatch(svgColour(light.color.action.fab.from));
+  });
+});
+

@@ -29,7 +29,7 @@ export default async function DrugInteractionsPage({ params }: Props) {
 
       <Link href={`/${locale}/pharmacy`} style={{ color: "#00876F", fontWeight: 700, fontSize: 13, textDecoration: "none" }}>{ar ? "الصيدلية" : "Pharmacy"}</Link>
       
-      <p>{ar ? "يفحص الخادم أدويتك الحالية مع المدخلة ويرجع التفاعلات المعروفة فقط." : "The server checks your current medications against the entered ones."}</p>
+      <p>{ar ? "نفحص أدويتك الحالية مع الأدوية التي تدخلها ونعرض التفاعلات المعروفة." : "We check your current medicines against the ones you enter and show known interactions."}</p>
       <DrugInteractionChecker locale={locale} />
           </section>
     </main>

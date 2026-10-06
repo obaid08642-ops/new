@@ -4,12 +4,11 @@ import { fontVariables } from "@/app/fonts";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { LocaleSelector } from "@/components-next/locale-selector";
 import { SessionActions } from "@/components-next/session-actions";
 import { PresenceBeacon } from "@/components-next/presence-beacon";
 import { NabdMark } from "@/components-next/nabd-mark";
-import { ShieldCheck } from "lucide-react";
 import { authCookieNames } from "@/lib/auth/cookies";
 import { getDirection, isLocale, locales, type Locale } from "@/lib/i18n";
 import { WebMcpProvider } from "@/components-next/web-mcp-provider";
@@ -64,6 +63,8 @@ export default async function LocaleLayout({ children, params }: Props) {
   const messages = await getMessages({ locale: typedLocale });
   const t = await getTranslations({ locale: typedLocale, namespace: "Shared" });
   const hasAccessToken = Boolean((await cookies()).get(authCookieNames.access)?.value);
+  // proxy.ts puts the per-request CSP nonce here; an inline script without it is refused.
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
     <NextIntlClientProvider messages={messages}>
@@ -75,7 +76,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           at the top of the body for that reason; see app/theme.ts for why it
           sets BOTH data-theme and .dark.
         */}
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <header className="topbar">
           <Link className="brand" href={`/${typedLocale}`}>
             <span className="brand-mark">
@@ -88,23 +89,18 @@ export default async function LocaleLayout({ children, params }: Props) {
             <ThemeToggle label={t("theme")} />
             {hasAccessToken ? (
               <SessionActions locale={typedLocale} accountLabel={t("account")} signOutLabel={t("signOut")} />
-            ) : (
-              <Link className="button button-primary header-login" href={`/${typedLocale}/login`}>
-                <ShieldCheck size={16} aria-hidden="true" />
-                <span>{t("patientSignIn")}</span>
-              </Link>
-            )}
+            ) : null}
           </div>
         </header>
         {hasAccessToken ? <PresenceBeacon /> : null}
         {children}
-        <footer style={{ borderTop: "1px solid #E8EDEE", marginTop: 48, padding: "24px 16px", background: "#FDFDFC" }}>
-          <nav aria-label={t("brand")} style={{ display: "flex", flexWrap: "wrap", gap: "12px 24px", rowGap: 12, columnGap: 24 }}>
-            <Link href={`/${typedLocale}/terms`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "الشروط" : "Terms"}</Link>
-            <Link href={`/${typedLocale}/privacy`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "الخصوصية" : "Privacy"}</Link>
-            <Link href={`/${typedLocale}/support`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "الدعم" : "Support"}</Link>
-            <Link href={`/${typedLocale}/articles`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "المقالات" : "Articles"}</Link>
-            <Link href={`/${typedLocale}/map`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "الخريطة" : "Map"}</Link>
+        <footer className="site-footer">
+          <nav aria-label={t("brand")} className="site-footer__links">
+            <Link href={`/${typedLocale}/terms`}>{typedLocale === "ar" ? "الشروط" : "Terms"}</Link>
+            <Link href={`/${typedLocale}/privacy`}>{typedLocale === "ar" ? "الخصوصية" : "Privacy"}</Link>
+            <Link href={`/${typedLocale}/support`}>{typedLocale === "ar" ? "الدعم" : "Support"}</Link>
+            <Link href={`/${typedLocale}/articles`}>{typedLocale === "ar" ? "المقالات" : "Articles"}</Link>
+            <Link href={`/${typedLocale}/map`}>{typedLocale === "ar" ? "الخريطة" : "Map"}</Link>
           </nav>
         </footer>
       </div>

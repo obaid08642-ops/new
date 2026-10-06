@@ -10,7 +10,7 @@
  * which is the only honest way to render a component in a static preview.
  */
 
-import type { Option, Slot, TabItem } from './contract';
+import type { BottomTabItem, Option, Slot, TabItem } from './contract';
 
 /** The handoff §1 service map, in the order HomeApp shows it (labels are specimen text). */
 export const SERVICE_TILES = [
@@ -36,6 +36,15 @@ export const TABS: TabItem[] = [
   { id: 'orders', label: 'Orders', icon: 'list' },
   { id: 'family', label: 'Family', icon: 'users' },
   { id: 'profile', label: 'Profile', icon: 'user' },
+];
+
+/** The main tab bar of canvas/HomeApp.dc.html, with the board's glyphs; Consultations is raised. */
+export const MAIN_TABS: BottomTabItem[] = [
+  { id: 'home', label: 'Home', icon: 'house' },
+  { id: 'pharmacy', label: 'Pharmacy', icon: 'pill' },
+  { id: 'consult', label: 'Consultations', icon: 'stethoscope', raised: true },
+  { id: 'labs', label: 'Labs', icon: 'test-tube' },
+  { id: 'nursing', label: 'Nursing', icon: 'first-aid-kit' },
 ];
 
 export const SEGMENTED: TabItem[] = [

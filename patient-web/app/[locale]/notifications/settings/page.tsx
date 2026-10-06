@@ -1,32 +1,61 @@
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Bell, CalendarDays, LockKeyhole, MessageCircle, Pill, ShoppingBag, Tag, Volume2, Vibrate, ShieldAlert } from "lucide-react";
 import { getPatientNotificationSettings } from "@/lib/api/notification-settings-server";
-import { extractNotificationSettings } from "@/lib/api/notification-settings";
+import { extractNotificationPreferences, NOTIFICATION_CATEGORIES, NOTIFICATION_CHANNELS } from "@/lib/api/notification-settings";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { RetryButton } from "@/components-next/retry-button";
+import { CoreShell } from "@/components-next/core/core-shell";
+import core from "@/components-next/core/core.module.css";
+import { RetryErrorState } from "@/components-next/core/core-states";
+import { NotificationSettingsClient, type SettingRow } from "./notification-settings-client";
 import styles from "./settings.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
-const items = [
-  ["general", Bell], ["appointments", CalendarDays], ["orders", ShoppingBag], ["offers", Tag],
-  ["medications", Pill], ["doctorMessages", MessageCircle], ["emergency", ShieldAlert],
-  ["sound", Volume2], ["vibration", Vibrate],
-] as const;
+
+const CATEGORY_LABEL = {
+  appointments: "catAppointments", orders: "catOrders", health: "catHealth",
+  chat: "catChat", account: "catAccount", marketing: "catMarketing",
+} as const;
+const CHANNEL_LABEL = { push: "chPush", email: "chEmail", sms: "chSms" } as const;
 
 export default async function NotificationSettingsPage({ params }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("Notifications");
-  const settingsT = await getTranslations("NotificationSettings");
+  const s = await getTranslations("NotificationSettings");
+  const routeState = await getTranslations("RouteState");
   const token = await requirePatientAccess(locale);
+  const back = `/${locale}/notifications`;
+  const failed = (
+    <CoreShell locale={locale} title={s("title")} backHref={back} width="narrow">
+      <RetryErrorState title={s("unavailableTitle")} body={s("unavailable")} retryLabel={routeState("retry")} />
+    </CoreShell>
+  );
   let response: Response;
-  try { response = await getPatientNotificationSettings(token); } catch { return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton /></section></main>; }
+  try { response = await getPatientNotificationSettings(token); } catch { return failed; }
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
-  if (!response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton /></section></main>;
-  const settings = extractNotificationSettings(await response.json().catch(() => null));
-  return <main className={`main ${styles.page}`}><section className={styles.header}><div><p className={styles.eyebrow}>{settingsT("eyebrow")}</p><h1>{settingsT("title")}</h1><p>{settingsT("notice")}</p></div><span className={styles.headerIcon}><Bell size={26} aria-hidden="true" /></span></section><section className={styles.list} aria-label={settingsT("title")}>{items.map(([key, Icon]) => { const locked = key === "emergency"; const value = settings[key as keyof typeof settings]; return <article className={styles.card} key={key}><span className={styles.icon}><Icon size={20} aria-hidden="true" /></span><div className={styles.copy}><strong>{settingsT(`labels.${key}`)}</strong><span>{settingsT(`descriptions.${key}`)}</span></div><span className={`${styles.value} ${locked ? styles.locked : ""}`}>{locked ? <><LockKeyhole size={14} aria-hidden="true" /> {settingsT("required")}</> : typeof value === "boolean" ? value ? settingsT("enabled") : settingsT("disabled") : settingsT("notAvailable")}</span></article>; })}</section></main>;
+  if (!response.ok) return failed;
+
+  const prefs = extractNotificationPreferences(await response.json().catch(() => null));
+  const rows: SettingRow[] = [
+    ...NOTIFICATION_CATEGORIES.flatMap((key) => typeof prefs.categories[key] === "boolean" ? [{ group: "categories" as const, key, label: s(CATEGORY_LABEL[key]), value: prefs.categories[key] === true }] : []),
+    ...NOTIFICATION_CHANNELS.flatMap((key) => typeof prefs.channels[key] === "boolean" ? [{ group: "channels" as const, key, label: s(CHANNEL_LABEL[key]), value: prefs.channels[key] === true }] : []),
+  ];
+
+  return (
+    <CoreShell locale={locale} title={s("title")} backHref={back} width="narrow">
+      <h1 className={`${core.deskOnly} ${styles.deskTitle}`}>{s("title")}</h1>
+      <NotificationSettingsClient
+        locale={locale}
+        rows={rows}
+        labels={{
+          appearance: s("appearance"), appearanceAuto: s("appearanceAuto"), appearanceLight: s("appearanceLight"), appearanceDark: s("appearanceDark"),
+          appearanceHint: s("appearanceHint"), language: s("language"), notifications: s("notifications"), channels: s("channels"),
+          saveFailed: s("saveFailed"), unavailable: s("unavailable"),
+        }}
+      />
+    </CoreShell>
+  );
 }

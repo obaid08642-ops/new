@@ -56,7 +56,7 @@ export default async function InsuranceRequestPage({ params }: Props) {
           <p>
             {AR
               ? "تُعرض النتيجة وخيارات الدفع الآمنة وفق السياسات المعتمدة من شركة التأمين ومزود الخدمة."
-              : "Coverage adjudication and secure copay options determined directly from authorized insurer endpoints."}
+              : "Your coverage result and payment options follow your insurer's and provider's policies."}
           </p>
         </div>
         <div className={styles.heroIllustration}>

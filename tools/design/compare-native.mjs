@@ -53,6 +53,7 @@ const bundle = await esbuild.build({
   alias: {
     'react-native': join(NM, 'react-native-web'),
     '@shells': join(REPO, 'packages/ui-native/src/shells/index.ts'),
+    '@ui-native': join(REPO, 'packages/ui-native/src/index.ts'),
     react: join(NM, 'react'),
     'react-dom': join(NM, 'react-dom'),
     'react-native-svg': join(NM, 'react-native-svg'),
@@ -141,12 +142,46 @@ const COMPARISONS = [
   },
 ];
 
+/**
+ * Contract components (packages/ui-native): the board element cut out by xpath, the component
+ * rendered at the same width with the board's text. `frame` is the background behind it
+ * (`surface` for a control that sits in a card); `fill` stretches it to the width.
+ */
+const COMPONENTS = [
+  { id: 'button-primary', board: 'Cart', xpath: "//button[contains(@style,'#E8384A 0%')]", name: 'Button', fill: true, props: { label: 'اطلب عروض الصيدليات', variant: 'primary', size: 'lg', fullWidth: true } },
+  { id: 'button-outline-md', board: 'RxUpload', xpath: "//button[normalize-space()='الصور']", name: 'Button', frame: 'surface', props: { label: 'الصور', variant: 'outline', size: 'md', startIcon: 'image' } },
+  { id: 'iconbutton-outlined', board: 'Settings', xpath: "//button[@aria-label='رجوع']", name: 'IconButton', props: { name: 'caret-right', label: 'رجوع', variant: 'outlined' } },
+  { id: 'segmented-md', board: 'Settings', xpath: "(//*[@role='radiogroup'])[1]", name: 'Segmented', fill: true, props: { label: 'المظهر', value: 'auto', options: [{ value: 'auto', label: 'تلقائي' }, { value: 'light', label: 'فاتح' }, { value: 'dark', label: 'غامق' }] } },
+  { id: 'toggle-on', board: 'Settings', xpath: "(//*[@role='switch'])[1]", name: 'Toggle', frame: 'surface', props: { label: 'حالة الطلبات والمواعيد', value: true } },
+  { id: 'radio', board: 'Settings', xpath: "//button[.//span[normalize-space()='العربية']]", name: 'Radio', frame: 'surface', fill: true, props: { label: 'العربية', meta: 'Arabic', selected: true, divider: true } },
+  { id: 'chip-selected', board: 'Search', xpath: "(//button[@role='tab'])[1]", name: 'Chip', props: { label: 'الكل', count: '[N]', selected: true } },
+  { id: 'statuschip', board: 'Orders', xpath: "//span[normalize-space()='في الطريق']", name: 'StatusChip', frame: 'surface', props: { label: 'في الطريق', tone: 'coral' } },
+  { id: 'search-page', board: 'Search', xpath: "//label[.//input[@aria-label='بحث']]", name: 'Search', fill: true, props: { variant: 'page', value: 'باراسيتامول', label: 'بحث', onClear: true, clearLabel: 'مسح', onScanPress: true, scanLabel: 'ماسح الأدوية' } },
+  { id: 'doctorcard', board: 'Consult', xpath: "(//a[.//span[normalize-space()='احجز']])[1]", name: 'DoctorCard', fill: true, props: { name: 'د. [اسم الطبيب]', verifiedLabel: 'موثّق', availableLabel: 'متاح الآن', grade: '[الدرجة: استشاري / أخصائي]', specialty: '[التخصص الدقيق]', place: '[اسم المستشفى أو العيادة] · [المسافة] كم', tone: 'blue', modes: [{ mode: 'clinic', label: 'عيادة' }, { mode: 'home', label: 'منزلي' }, { mode: 'online', label: 'أونلاين' }], rating: { value: 4.8, count: 128 }, nextSlot: 'اليوم [الوقت]', price: '[السعر]', currency: 'ر.س', bookLabel: 'احجز' } },
+  { id: 'productcard', board: 'PharmacyHub', xpath: "(//a[.//button[@aria-label='أضف للسلة']])[1]", name: 'ProductCard', fill: true, props: { name: '[اسم المنتج] [التركيز]', meta: '[الشركة] · [العبوة]', price: '[السعر]', currency: 'ر.س', discountLabel: 'خصم [٪]', addLabel: 'أضف للسلة' } },
+  { id: 'offercard', board: 'HomeApp', themes: ['light', 'dark'], xpath: "(//a[.//span[normalize-space()='[اسم العرض أو الباقة]']])[1]", name: 'OfferCard', props: { title: '[اسم العرض أو الباقة]', provider: '[مقدم الخدمة]', price: '[السعر]', currency: 'ر.س', was: '[قبل الخصم]', tag: 'باقة', icon: 'test-tube', tone: 'blue' } },
+  { id: 'progressring', board: 'CareHub', xpath: "(//*[name()='svg'][.//*[name()='circle']])[1]", name: 'ProgressRing', props: { value: 0.55, tone: 'pink', label: 'أسبوع الحمل', valueText: '[٢٢]', caption: 'أسبوع' } },
+  { id: 'emptystate', board: 'States', viewport: 1650, xpath: "//div[contains(@style,'left: 1260px')]", name: 'EmptyState', fill: true, frame: 'screen', props: { icon: 'package', tone: 'coral', title: 'السلة فاضية', body: 'ابحث عن دوائك أو ارفع الروشتة، والصيدليات القريبة تجهزه لك.', actionLabel: 'تصفح الصيدلية', secondaryActionLabel: 'ارفع الروشتة' } },
+  { id: 'offlinestate', board: 'States', viewport: 1650, xpath: "//div[contains(@style,'left: 420px')]", name: 'OfflineState', fill: true, frame: 'screen', props: { title: 'لا يوجد اتصال بالإنترنت', body: 'تقدر تشوف طلباتك ومواعيدك المحفوظة، وبنكمل أول ما يرجع الاتصال.', retryLabel: 'إعادة المحاولة' } },
+  { id: 'stepper', board: 'Cart', xpath: "(//button[@aria-label='إنقاص'])[1]/parent::div", name: 'Stepper', frame: 'surface', props: { value: 1, min: 0, label: 'الكمية', decrementLabel: 'إنقاص', incrementLabel: 'زيادة' } },
+];
+for (const k of COMPONENTS) {
+  COMPARISONS.push({
+    id: k.id, board: k.board, themes: k.themes || ['light'], element: k.xpath, viewport: k.viewport,
+    crop: () => ({}),
+    data: () => ({}),
+    // handlers cannot cross into the page as JSON: `true` marks a callback prop the component needs to show its button
+    cmp: (box, _data, theme) => ({ kind: 'component', theme, name: k.name, frame: k.frame, fill: k.fill, width: Math.ceil(box.width), height: Math.ceil(box.height), props: k.props }),
+    note: `${k.name} from packages/ui-native, rendered through react-native-web at the board element's width.`,
+  });
+}
+
 mkdirSync(OUT, { recursive: true });
 const browser = await playwright.chromium.launch();
 const done = [];
 for (const c of COMPARISONS) {
   for (const theme of c.themes) {
-    const page = await browser.newPage({ viewport: { width: 390, height: 900 }, deviceScaleFactor: 2 });
+    const page = await browser.newPage({ viewport: { width: c.viewport || 390, height: 900 }, deviceScaleFactor: 2 });
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e)));
     page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text().slice(0, 300)); });
@@ -155,10 +190,19 @@ for (const c of COMPARISONS) {
     await page.addStyleTag({ content: '*{animation:none!important;transition:none!important}' });
     await page.waitForTimeout(400);
     await page.evaluate(() => document.fonts.ready);
-    const box = await page.evaluate(c.crop);
+    let box;
+    let boardPng;
     const data = await page.evaluate(c.data);
-    await page.setViewportSize({ width: 390, height: Math.ceil(box.y + box.height) + 10 });
-    const boardPng = (await page.screenshot({ clip: { x: 0, y: box.y, width: 390, height: box.height } })).toString('base64');
+    if (c.element) {
+      const el = page.locator(`xpath=${c.element}`).first();
+      box = await el.boundingBox();
+      boardPng = (await el.screenshot()).toString('base64');
+    } else {
+      box = await page.evaluate(c.crop);
+      await page.setViewportSize({ width: 390, height: Math.ceil(box.y + box.height) + 10 });
+      boardPng = (await page.screenshot({ clip: { x: 0, y: box.y, width: 390, height: box.height } })).toString('base64');
+    }
+    const shownWidth = c.element ? Math.ceil(box.width) : 390;
 
     errors.length = 0; // the board's own template (pre-render {{…}} paths) is not ours to report
     await page.setContent(
@@ -174,9 +218,9 @@ for (const c of COMPARISONS) {
 
     await page.setContent(`<!doctype html><meta charset="utf-8"><style>body{margin:0;font:13px system-ui;background:#888;display:inline-block}
       .row{display:flex;gap:24px;padding:20px;align-items:flex-start}.col{display:grid;gap:8px;justify-items:start}
-      .col b{color:#fff}.col img{display:block;width:390px;border-radius:6px}em{color:#eee;padding:0 20px 16px;display:block;max-width:804px}</style>
+      .col b{color:#fff}.col img{display:block;width:${shownWidth}px;border-radius:6px}em{color:#eee;padding:0 20px 16px;display:block;max-width:804px}</style>
       <div class="row"><div class="col"><b>Board: ${c.board} (${theme})</b><img src="data:image/png;base64,${boardPng}"></div>
-      <div class="col"><b>Native shell, react-native-web (${theme})</b><img src="data:image/png;base64,${compPng}"></div></div><em>${c.note}</em>`);
+      <div class="col"><b>Native ${c.element ? 'component' : 'shell'}, react-native-web (${theme})</b><img src="data:image/png;base64,${compPng}"></div></div><em>${c.note}</em>`);
     const file = `native-${c.id}-${theme}.png`;
     await page.locator('body').screenshot({ path: join(OUT, file) });
     done.push(file);
@@ -189,6 +233,6 @@ const readme = join(OUT, 'README.md');
 const prev = existsSync(readme) ? readFileSync(readme, 'utf8').replace(/\n## Native shells[\s\S]*$/, '\n') : '# Board ↔ component comparisons\n';
 writeFileSync(
   readme,
-  `${prev.trimEnd()}\n\n## Native shells\n\nGenerated by \`node tools/design/compare-native.mjs\`. Left: the board strip. Right: the shell from \`packages/ui-native\` through react-native-web.\n\n${done.map((f) => `- [${f}](${f})`).join('\n')}\n`,
+  `${prev.trimEnd()}\n\n## Native shells\n\nGenerated by \`node tools/design/compare-native.mjs\`. Left: the board strip or element. Right: the shell or component from \`packages/ui-native\` through react-native-web.\n\n${done.map((f) => `- [${f}](${f})`).join('\n')}\n`,
 );
 console.log(`compare-native: wrote ${done.length} comparison(s) to docs/design/compare/`);

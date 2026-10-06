@@ -5,7 +5,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { CalendarDays, FileCheck2 } from "lucide-react";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { callPatientApi } from "@/lib/api/upstream";
+import { getPatientClaims } from "@/lib/api/claims-server";
 import { parseClaims } from "@/lib/api/claims";
 import styles from "../insurance.module.css";
 
@@ -17,7 +17,7 @@ export default async function InsuranceClaimsPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("Insurance");
   const token = await requirePatientAccess(locale);
-  const res = await callPatientApi("/insurance/claims/my", {}, token);
+  const res = await getPatientClaims(token);
   if (res.status === 401) redirect(`/${locale}/login`);
   if (res.status === 403 || res.status === 404) notFound();
   if (!res.ok) {
