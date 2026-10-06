@@ -116,6 +116,14 @@ const BOARD = {
   // (`--order <id>`, or `--params '{"requestId":"test-order"}'` for a screen that reads another param).
   'broadcast-status': { component: 'PharmacyOffers', size: [390, 1180], params: { orderId: 'test-order' } },
   'final-quote': { params: { orderId: 'test-order-quote' } },
+  // Batch 1d (checkout, payment, insurance decision, payment result; high effort). checkout, payment and the insurance decision
+  // are the CheckoutV2 board's header, summary cards, totals and sticky action; the result of a payment is the Success board.
+  // The ids select the TEST orders and payments of render-native-screen.fixtures.json.
+  checkout: { component: 'CheckoutV2', size: [390, 1100], params: {} },
+  payment: { component: 'CheckoutV2', size: [390, 1100], params: { orderId: 'test-pay' } },
+  'insurance-decision': { component: 'CheckoutV2', size: [390, 1100], params: { orderId: 'test-ins-partial' } },
+  'order-confirm': { params: { orderId: 'test-order' } },
+  'payment-result': { component: 'Success', size: [390, 844], params: { transactionId: 'test-txn-paid', bookingKind: 'pharmacy', bookingId: 'test-pay' } },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },
@@ -185,13 +193,15 @@ const MOCKS = {
       const mode = (window.__SCREEN && window.__SCREEN.api) || 'empty';
       if (mode === 'offline') throw new Error('offline');
       const key = String(path).split('?')[0];
-      if (options && options.method && options.method !== 'GET') { window.__MUTATIONS = (window.__MUTATIONS || []).concat([{ path: key, method: options.method }]); return {}; }
-      if (mode === 'fixture' && key in fixtures) return resolve(fixtures[key]);
+      // a fixture of the form {"__error": "code"} makes the request fail with that server code, like an answer of 400
+      const answer = (v) => { if (v && typeof v === 'object' && '__error' in v) throw new Error(v.__error); return resolve(v); };
+      // a mutation is recorded; a fixture named "POST /path" is its answer (e.g. the result of a payment check), else {}
+      if (options && options.method && options.method !== 'GET') { window.__MUTATIONS = (window.__MUTATIONS || []).concat([{ path: key, method: options.method }]); const fk = options.method + ' ' + key; return mode === 'fixture' && fk in fixtures ? answer(fixtures[fk]) : {}; }
+      if (mode === 'fixture' && key in fixtures) return answer(fixtures[key]);
       return key in EMPTY ? EMPTY[key] : {};
     }
     export const newIdempotencyKey = () => 'app-render-test-key';
     export async function storeAuthSession() {}
-    export const newIdempotencyKey = () => 'render-test-key';
     // the constants other modules read from the client (image URLs resolve against them); no real host in a render
     export const BASE_URL = 'https://api.example.test/api/v1';
     export const FASTAPI_BASE_URL = 'https://ai.example.test';

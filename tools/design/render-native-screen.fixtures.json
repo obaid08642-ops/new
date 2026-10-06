@@ -1,5 +1,5 @@
 {
-  "_comment": "TEST VALUES for `render-native-screen.mjs --api fixture`: invented, clearly marked as tests, never real patient data. They exist only to draw the data-bound blocks of Home (name, reminder, appointment, records, curated offers) and the pharmacy hub and product screens (a catalogue of marked test products) in a design render. Shipped code never reads this file. Batch 1c adds TEST pharmacy offers and orders (the shape of the backend patient endpoints; names, prices and ids are invented).",
+  "_comment": "TEST VALUES for `render-native-screen.mjs --api fixture`: invented, clearly marked as tests, never real patient data. They exist only to draw the data-bound blocks of Home (name, reminder, appointment, records, curated offers) and the pharmacy hub and product screens (a catalogue of marked test products) in a design render. Shipped code never reads this file. Batch 1c adds TEST pharmacy offers and orders (the shape of the backend patient endpoints; names, prices and ids are invented). Batch 1d adds TEST orders for payment, insurance decision and checkout, TEST payment capabilities and TEST payment results (the shape of the backend answers of payments.module.ts and pharmacy-order.service.ts; amounts and ids are invented).",
   "/users/me/display": {
     "display_name": "مستخدم تجريبي"
   },
@@ -756,5 +756,919 @@
       }
     ],
     "governed_state": "CONFIRMED"
+  },
+  "/patient/pharmacy/orders/test-pay": {
+    "id": "test-order-0001a1",
+    "status": "cash_card_payment_pending",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "cash",
+    "payment_method": "card",
+    "governed_state": "FINAL_QUOTE_ACCEPTED",
+    "accepted_quote_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cod_allowed": true
+    },
+    "accepted_quote_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "accepted_quote_revision": 1
+  },
+  "/payments/pharmacy/test-pay/capabilities": {
+    "booking_id": "test-pay",
+    "amount": 80,
+    "currency": "SAR",
+    "methods": [
+      {
+        "id": "card",
+        "kind": "online"
+      },
+      {
+        "id": "apple-pay",
+        "kind": "online"
+      },
+      {
+        "id": "google-pay",
+        "kind": "online"
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-pay-pickup": {
+    "id": "test-order-0001a1",
+    "status": "cash_card_payment_pending",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "pickup",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "cash",
+    "payment_method": "card",
+    "governed_state": "FINAL_QUOTE_ACCEPTED",
+    "accepted_quote_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cod_allowed": true
+    },
+    "accepted_quote_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "accepted_quote_revision": 1
+  },
+  "/payments/pharmacy/test-pay-pickup/capabilities": {
+    "booking_id": "test-pay-pickup",
+    "amount": 80,
+    "currency": "SAR",
+    "methods": [
+      {
+        "id": "card",
+        "kind": "online"
+      },
+      {
+        "id": "apple-pay",
+        "kind": "online"
+      },
+      {
+        "id": "google-pay",
+        "kind": "online"
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-pay-nomethods": {
+    "id": "test-order-0001a1",
+    "status": "cash_card_payment_pending",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "cash",
+    "payment_method": "card",
+    "governed_state": "FINAL_QUOTE_ACCEPTED",
+    "accepted_quote_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cod_allowed": true
+    },
+    "accepted_quote_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "accepted_quote_revision": 1
+  },
+  "/payments/pharmacy/test-pay-nomethods/capabilities": {
+    "booking_id": "test-pay-nomethods",
+    "amount": 80,
+    "currency": "SAR",
+    "methods": []
+  },
+  "/patient/pharmacy/orders/test-pay-paid": {
+    "id": "test-order-0001a1",
+    "status": "cash_card_payment_pending",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "cash",
+    "payment_method": "card",
+    "governed_state": "FINAL_QUOTE_ACCEPTED",
+    "accepted_quote_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cod_allowed": true
+    },
+    "accepted_quote_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "accepted_quote_revision": 1,
+    "payment_status": "paid"
+  },
+  "/patient/pharmacy/orders/test-pay-quote": {
+    "id": "test-order-0001a1",
+    "status": "cash_card_payment_pending",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "cash",
+    "payment_method": "card",
+    "governed_state": "OFFER_SELECTED"
+  },
+  "/payments/pharmacy/test-pay-quote/capabilities": {
+    "__error": "final_quote_acceptance_required"
+  },
+  "/patient/pharmacy/orders/test-pay-cod": {
+    "id": "test-order-0001a1",
+    "status": "cod_due_on_delivery",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "cash",
+    "payment_method": "cod",
+    "governed_state": "COD_REGISTERED",
+    "accepted_quote_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cod_allowed": true
+    }
+  },
+  "/payments/pharmacy/test-pay-cod/capabilities": {
+    "__error": "cod_orders_do_not_require_online_payment"
+  },
+  "/patient/pharmacy/orders/test-pay-cancelled": {
+    "id": "test-order-0001a1",
+    "status": "cancelled",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "cash",
+    "payment_method": "card",
+    "governed_state": "CANCELLED"
+  },
+  "/payments/pharmacy/test-pay-cancelled/capabilities": {
+    "booking_id": "test-pay-cancelled",
+    "amount": 80,
+    "currency": "SAR",
+    "methods": [
+      {
+        "id": "card",
+        "kind": "online"
+      },
+      {
+        "id": "apple-pay",
+        "kind": "online"
+      },
+      {
+        "id": "google-pay",
+        "kind": "online"
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-pay-error": {
+    "id": "test-order-0001a1",
+    "status": "cash_card_payment_pending",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "cash",
+    "payment_method": "card",
+    "governed_state": "FINAL_QUOTE_ACCEPTED",
+    "accepted_quote_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cod_allowed": true
+    },
+    "accepted_quote_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "accepted_quote_revision": 1
+  },
+  "/payments/pharmacy/test-pay-error/capabilities": {
+    "__error": "something_unexpected"
+  },
+  "/patient/pharmacy/orders/test-ins-processing": {
+    "id": "test-order-0001a1",
+    "status": "insurance_decision_pending",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "insurance",
+    "payment_method": "insurance",
+    "governed_state": "INSURANCE_PROCESSING"
+  },
+  "/patient/pharmacy/orders/test-ins-partial": {
+    "id": "test-order-0001a1",
+    "status": "waiting_copay",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "insurance",
+    "payment_method": "insurance",
+    "governed_state": "INSURANCE_DECISION_READY",
+    "insurance_decision": {
+      "outcome": "partial",
+      "patient_share": 30,
+      "insurer_share": 50
+    },
+    "insurance_decision_summary": {
+      "decision": "APPROVED_PARTIAL",
+      "co_pay_amount": 30,
+      "insurer_share": 50,
+      "currency": "SAR"
+    },
+    "insurance_item_decisions": [
+      {
+        "order_item_id": "i1",
+        "decision": "APPROVED_PARTIAL",
+        "line_amount": 40,
+        "covered_amount": 20,
+        "co_pay_amount": 20,
+        "reason": "سبب تجريبي"
+      },
+      {
+        "order_item_id": "i2",
+        "decision": "APPROVED_FULL",
+        "line_amount": 30,
+        "covered_amount": 30,
+        "co_pay_amount": 0,
+        "reason": null
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-ins-accepted": {
+    "id": "test-order-0001a1",
+    "status": "waiting_copay",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "insurance",
+    "payment_method": "insurance",
+    "governed_state": "INSURANCE_DECISION_READY",
+    "insurance_decision": {
+      "outcome": "partial",
+      "patient_share": 30,
+      "insurer_share": 50,
+      "patient_acceptance": {
+        "kind": "co-pay"
+      }
+    },
+    "insurance_decision_summary": {
+      "decision": "APPROVED_PARTIAL",
+      "co_pay_amount": 30,
+      "insurer_share": 50,
+      "currency": "SAR"
+    },
+    "insurance_item_decisions": [
+      {
+        "order_item_id": "i1",
+        "decision": "APPROVED_PARTIAL",
+        "line_amount": 40,
+        "covered_amount": 20,
+        "co_pay_amount": 20,
+        "reason": "سبب تجريبي"
+      },
+      {
+        "order_item_id": "i2",
+        "decision": "APPROVED_FULL",
+        "line_amount": 30,
+        "covered_amount": 30,
+        "co_pay_amount": 0,
+        "reason": null
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-ins-rejected": {
+    "id": "test-order-0001a1",
+    "status": "manual_review",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "insurance",
+    "payment_method": "insurance",
+    "governed_state": "INSURANCE_DECISION_READY",
+    "insurance_decision": {
+      "outcome": "rejected",
+      "patient_share": 80,
+      "insurer_share": 0
+    },
+    "insurance_decision_summary": {
+      "decision": "REJECTED",
+      "co_pay_amount": 80,
+      "insurer_share": 0,
+      "currency": "SAR"
+    },
+    "insurance_item_decisions": [
+      {
+        "order_item_id": "i1",
+        "decision": "REJECTED",
+        "line_amount": 40,
+        "covered_amount": 0,
+        "co_pay_amount": 40,
+        "reason": "سبب تجريبي"
+      },
+      {
+        "order_item_id": "i2",
+        "decision": "REJECTED",
+        "line_amount": 30,
+        "covered_amount": 0,
+        "co_pay_amount": 30,
+        "reason": "سبب تجريبي"
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-ins-full": {
+    "id": "test-order-0001a1",
+    "status": "confirmed",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "insurance",
+    "payment_method": "insurance",
+    "governed_state": "CONFIRMED",
+    "payment_status": "covered_by_insurance",
+    "insurance_decision": {
+      "outcome": "full",
+      "patient_share": 0,
+      "insurer_share": 80
+    },
+    "insurance_decision_summary": {
+      "decision": "APPROVED_FULL",
+      "co_pay_amount": 0,
+      "insurer_share": 80,
+      "currency": "SAR"
+    },
+    "insurance_item_decisions": [
+      {
+        "order_item_id": "i1",
+        "decision": "APPROVED_FULL",
+        "line_amount": 40,
+        "covered_amount": 40,
+        "co_pay_amount": 0,
+        "reason": null
+      },
+      {
+        "order_item_id": "i2",
+        "decision": "APPROVED_FULL",
+        "line_amount": 30,
+        "covered_amount": 30,
+        "co_pay_amount": 0,
+        "reason": null
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-pay-ins": {
+    "id": "test-order-0001a1",
+    "status": "waiting_copay",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "insurance",
+    "payment_method": "insurance",
+    "governed_state": "INSURANCE_DECISION_READY",
+    "insurance_decision": {
+      "outcome": "partial",
+      "patient_share": 30,
+      "insurer_share": 50,
+      "patient_acceptance": {
+        "kind": "co-pay"
+      }
+    },
+    "insurance_decision_summary": {
+      "decision": "APPROVED_PARTIAL",
+      "co_pay_amount": 30,
+      "insurer_share": 50,
+      "currency": "SAR"
+    },
+    "insurance_item_decisions": [
+      {
+        "order_item_id": "i1",
+        "decision": "APPROVED_PARTIAL",
+        "line_amount": 40,
+        "covered_amount": 20,
+        "co_pay_amount": 20,
+        "reason": "سبب تجريبي"
+      },
+      {
+        "order_item_id": "i2",
+        "decision": "APPROVED_FULL",
+        "line_amount": 30,
+        "covered_amount": 30,
+        "co_pay_amount": 0,
+        "reason": null
+      }
+    ]
+  },
+  "/payments/pharmacy/test-pay-ins/capabilities": {
+    "booking_id": "test-pay-ins",
+    "amount": 30,
+    "currency": "SAR",
+    "methods": [
+      {
+        "id": "card",
+        "kind": "online"
+      },
+      {
+        "id": "apple-pay",
+        "kind": "online"
+      },
+      {
+        "id": "google-pay",
+        "kind": "online"
+      }
+    ]
+  },
+  "POST /payments/verify/test-txn-paid": {
+    "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    "status": "paid",
+    "amount": 80,
+    "currency": "SAR",
+    "paid_at": "2026-10-06T09:30:00.000Z"
+  },
+  "POST /payments/verify/test-txn-pending": {
+    "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    "status": "pending",
+    "amount": 80,
+    "currency": "SAR",
+    "paid_at": null
+  },
+  "POST /payments/verify/test-txn-failed": {
+    "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    "status": "failed",
+    "amount": 80,
+    "currency": "SAR",
+    "paid_at": null
+  },
+  "POST /payments/verify/test-txn-cancelled": {
+    "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    "status": "cancelled",
+    "amount": 80,
+    "currency": "SAR",
+    "paid_at": null
   }
 }
