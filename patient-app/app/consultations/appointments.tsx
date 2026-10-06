@@ -6,6 +6,7 @@ import { ApptCard, ConsultList, appointmentStatus, useConsultFormat, visitMode, 
 import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
 import { useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useConsultations } from '../../src/context/ConsultationsContext';
+import { statusCode, statusIs } from '../../src/utils/statusCase';
 
 /**
  * My appointments — board Appointments (canvas/Appointments.dc.html). The list is what GET /care/appointments returns
@@ -24,7 +25,7 @@ export default function AppointmentsScreen() {
   const { appointments, isLoading, error, fetchAppointments } = useConsultations();
   const [refreshing, setRefreshing] = useState(false);
 
-  const rows = appointments.filter((a) => (tab === 'upcoming' ? UPCOMING : PAST).includes(String(a.status)));
+  const rows = appointments.filter((a) => statusIs(a.status, tab === 'upcoming' ? UPCOMING : PAST));
 
   const refresh = async () => {
     setRefreshing(true);
@@ -75,7 +76,7 @@ export default function AppointmentsScreen() {
       renderItem={(a) => {
         const mode = visitMode(a.type);
         const st = appointmentStatus(a.status);
-        const status = String(a.status);
+        const status = statusCode(a.status);
         const actions = [];
         if (status === 'confirmed') {
           const p = primary(String(a.id), mode);
