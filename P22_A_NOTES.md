@@ -123,3 +123,15 @@ Files:
   module cycle; documented as pipeline contract instead).
 - Proofs: new specs 13/13 green; existing pharmacy specs 7/7 green; `tsc` clean; mutation probe
   (key-match gate disabled) → ownership test RED (notified 2, wrong user), restored → green.
+
+### P22.3 Bundles + alternatives — BUILT-NEW (nothing existed; commit below)
+Files:
+- `backend/src/modules/pharmacy/bundles/bundle-rules.ts` (new, pure: co-purchase pairs, no-Rx
+  cross-sell, symmetric interaction warnings, same-ingredient alternatives)
+- `backend/src/modules/pharmacy/bundles/bundles.service.ts` (new, read-only over orders /
+  pharmacy_orders / prescriptions / medicines) + `.spec.ts` (12 tests: 7 pure + 5 service)
+- `backend/src/modules/pharmacy/bundles/bundles.controller.ts` (new: BundlesController +
+  MedicineAlternativesController)
+- Edited (owned): `pharmacy.module.ts` only.
+- Proofs: 12/12 green; `tsc` clean; zero `any` in new files; mutation probe (Rx gate disabled)
+  → 2 service tests RED (Rx item suggested), restored → green.

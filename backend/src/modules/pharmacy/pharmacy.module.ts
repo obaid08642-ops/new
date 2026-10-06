@@ -38,6 +38,8 @@ import { PharmacyOrdersProviderService } from './services/pharmacy-orders-provid
 import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { RefillSubscriptionService } from './services/refill-subscription.service';
 import { ProductAlertService } from './services/product-alert.service';
+import { BundlesService } from './bundles/bundles.service';
+import { BundlesController, MedicineAlternativesController } from './bundles/bundles.controller';
 import { RefillController } from './controllers/refill.controller';
 import { ProductAlertController } from './controllers/product-alert.controller';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
@@ -128,6 +130,7 @@ import { PharmacyIndexesService } from './pharmacy-indexes';
     PharmacyOfferService,
     RefillSubscriptionService,
     ProductAlertService,
+    BundlesService,
     PharmacyInsuranceDecisionService,
     PharmacyExpiryCommandService,
     PharmacyExpiryScheduler,
@@ -173,6 +176,8 @@ import { PharmacyIndexesService } from './pharmacy-indexes';
     PromotionsOffersController,
     RefillController,
     ProductAlertController,
+    BundlesController,
+    MedicineAlternativesController,
     PharmacyCompatController,
     B2BVoiceController
 ],
