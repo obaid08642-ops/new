@@ -15,7 +15,7 @@ describe('MedicinesService catalog governance', () => {
     return { service, model };
   };
 
-  it('flags a public medicine for review when the editor lacks the approve permission (F8)', async () => {
+  it('stores the edit as a pending revision when the editor lacks the approve permission (F8/e64ec70)', async () => {
     const { service, model } = createService({
       id: 'med-1', name_ar: 'دواء', description_ar: 'قبل', images: [],
       public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved',
@@ -23,19 +23,23 @@ describe('MedicinesService catalog governance', () => {
 
     const result = await service.adminUpdateCatalog('med-1', { description_ar: 'بعد' }, 'admin-1');
 
-    // The item stays visible but returns to medical review; only an admin
-    // holding catalog.approve may publish by editing.
+    // The edit waits as a pending revision; the live document stays approved
+    // and public — patients keep seeing the approved version until an
+    // approver decides (e64ec70 owner decision 2026-10-05).
     expect(result).toEqual(expect.objectContaining({ ok: true, requires_reapproval: true }));
     expect(model.updateOne).toHaveBeenCalledWith(
       { id: 'med-1' },
       expect.objectContaining({
         $set: expect.objectContaining({
-          description_ar: 'بعد', verified: false,
-          medical_review_status: 'pending',
-          provenance: 'admin_direct_edit_pending_review',
+          pending_revision: expect.objectContaining({
+            changes: expect.objectContaining({ description_ar: 'بعد' }),
+            submitted_by: 'admin-1',
+          }),
         }),
       }),
     );
+    const setArg = (model.updateOne.mock.calls[0] as any[])[1].$set;
+    expect(setArg).toEqual(expect.not.objectContaining({ medical_review_status: 'pending' }));
   });
 
   it('publishes immediately when the editor holds the approve permission (F8/R9c)', async () => {
@@ -70,9 +74,13 @@ describe('MedicinesService catalog governance', () => {
     const result = await service.adminUpdateCatalog('med-2', { description_ar: 'بعد' }, 'admin-1');
 
     expect(result).toEqual(expect.objectContaining({ ok: true, requires_reapproval: false }));
-    expect(model.updateOne).toHaveBeenCalledWith(
-      { id: 'med-2' },
-      expect.objectContaining({ $set: expect.not.objectContaining({ provenance: 'admin_direct_edit_pending_review' }) }),
-    );
+    // The draft is written in place and is NOT promoted, and it never queues a
+    // revision (there is nothing public to protect yet).
+    const setArg = (model.updateOne.mock.calls[0] as any[])[1].$set;
+    expect(setArg).toEqual(expect.objectContaining({ description_ar: 'بعد' }));
+    expect(setArg).toEqual(expect.not.objectContaining({
+      medical_review_status: 'approved', public_eligibility: true, indexing_eligibility: true,
+      provenance: 'admin_direct_edit_published', pending_revision: expect.anything(),
+    }));
   });
 });

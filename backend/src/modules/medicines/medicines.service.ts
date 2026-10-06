@@ -15,6 +15,14 @@ import { ProductRankingService } from '../product-ranking/product-ranking.servic
 import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
 import { buildSlug, escapeRegex } from '../../common/slug.util';
 
+
+/** e64ec70: an edit waiting for an approver (admin-only; never on a public read). */
+interface PendingRevision {
+  changes: Record<string, unknown>;
+  submitted_by: string;
+  submitted_at: Date;
+  reason?: string;
+}
 @Injectable()
 export class MedicinesService {
   /** Search/list cache TTL — medicine catalog changes are rare, reads are hot. */
@@ -413,6 +421,9 @@ export class MedicinesService {
     breastfeeding_info_ar: 0, breastfeeding_info_en: 0, package_content_details: 0,
     brand_benefits: 0, skin_hair_type: 0, color_shade: 0, drugs_com_link: 0, sfda_link: 0,
     seo_description_ar: 0, seo_description_en: 0,
+    // e64ec70: a pending revision is admin-only (it holds unreviewed values), so
+    // it must never ride along on a public card.
+    pending_revision: 0,
   };
 
   /** Compute list badges so catalog rows can render RX/discount/shortage chips. */
@@ -844,14 +855,14 @@ export class MedicinesService {
     // 1) Exact match in catalog (try all candidate codes)
     const doc = await this.model.findOne(
       { barcode: { $in: candidates }, ...this.publicCatalogFilter() },
-      { _id: 0, __v: 0 },
+      { _id: 0, __v: 0, pending_revision: 0 },
     ).lean();
     if (doc) return { found: true, source: 'catalog', medicine: doc, codes_tried: candidates };
 
     // 2) Fuzzy match on name / active_ingredient (in case scanner read a textual code)
     const fuzzy = await this.model.findOne(
       { $or: [{ name_en: { $regex: c, $options: 'i' } }, { active_ingredient: { $regex: c, $options: 'i' } }], ...this.publicCatalogFilter() },
-      { _id: 0, __v: 0 },
+      { _id: 0, __v: 0, pending_revision: 0 },
     ).lean();
     if (fuzzy) return { found: true, source: 'fuzzy', medicine: fuzzy, codes_tried: candidates };
 
@@ -911,7 +922,7 @@ export class MedicinesService {
 
   async compare(ids: string[]) {
     if (!ids || !ids.length) return [];
-    return this.model.find({ id: { $in: ids }, ...this.publicCatalogFilter() }, { _id: 0, __v: 0 }).lean();
+    return this.model.find({ id: { $in: ids }, ...this.publicCatalogFilter() }, { _id: 0, __v: 0, pending_revision: 0 }).lean();
   }
 
   async getById(id: string) {
@@ -921,7 +932,9 @@ export class MedicinesService {
   }
 
   async getPublicById(id: string) {
-    const m = await this.model.findOne({ id, ...this.publicCatalogFilter() }, { _id: 0, __v: 0 });
+    // pending_revision is excluded: it carries not-yet-approved values, so a public
+    // read must return the approved version only (e64ec70).
+    const m = await this.model.findOne({ id, ...this.publicCatalogFilter() }, { _id: 0, __v: 0, pending_revision: 0 });
     if (!m) throw new NotFoundException();
     return m;
   }
@@ -996,11 +1009,11 @@ export class MedicinesService {
   }
 
   async alternatives(id: string) {
-    const med = await this.getPublicById(id);
+    const med: any = await this.getPublicById(id);
     if (!med.active_ingredient) return [];
     return this.model.find(
       { active_ingredient: med.active_ingredient, id: { $ne: id }, ...this.publicCatalogFilter() },
-      { _id: 0, __v: 0 },
+      { _id: 0, __v: 0, pending_revision: 0 },
     ).limit(20);
   }
 
@@ -1857,6 +1870,43 @@ export class MedicinesService {
   async adminApproveCatalog(medicineId: string, approve: boolean, adminId: string) {
     const med: any = await this.model.findOne({ id: medicineId }, { _id: 0, __v: 0 }).lean();
     if (!med) throw new NotFoundException('الصنف غير موجود');
+    // e64ec70: while a pending revision waits, this endpoint is the revision
+    // decision. Approve applies the proposed changes and publishes them (price
+    // history records the old→new price); reject discards the revision and the
+    // approved version stays public untouched.
+    const pending: PendingRevision | null = med.pending_revision && typeof med.pending_revision === 'object' && med.pending_revision.changes
+      ? (med.pending_revision as PendingRevision)
+      : null;
+    if (pending) {
+      // Re-derive the patch the same way a direct edit does, so a revision can
+      // only ever write what an admin edit could (whitelisted fields, allowlisted
+      // availability_status, slug recomputed from the rename, merged translations).
+      const { clean, extra } = this.adminCatalogPatch(med, pending.changes || {});
+      const changes: Record<string, unknown> = { ...clean, ...extra };
+      if (approve) {
+        const reviewedAt = new Date();
+        await this.model.updateOne(
+          { id: medicineId },
+          { $set: { ...changes, pending_revision: null, verified: true, public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved', last_reviewed: reviewedAt, approved_by: adminId, approved_at: reviewedAt, provenance: 'admin_pending_revision_approved', updatedAt: new Date() } },
+        );
+        if (changes.price !== undefined && Number(changes.price) !== Number(med.price || 0)) {
+          await this.priceHistory.insertOne({ id: `mph_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: medicineId, before_price: Number(med.price || 0), after_price: Number(changes.price), reason: String(pending?.reason || 'pending_revision_approved').trim(), changed_by: adminId, createdAt: new Date() });
+        }
+        this.events.emit(EVENTS.MEDICINE_APPROVED, { medicine_id: medicineId, by: adminId });
+        // The applied revision renames/removes the same things a direct edit does,
+        // so the old slug keeps resolving and the dropped images leave R2.
+        if (changes.slug) await this.recordSlugHistory(medicineId, med.slug, changes.slug);
+        for (const url of this.removedImageUrls(med, changes)) this.events.emit('storage.delete_by_url', { url });
+        await this.refreshPublicProjection({ ...med, ...changes, pending_revision: null, verified: true, public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved', last_reviewed: reviewedAt }, adminId, 'medicine_pending_revision_approved');
+        this.audit('medicine.pending_revision_approved', medicineId, adminId, 'admin', { applied: changes, submitted_by: pending?.submitted_by || null });
+        await this.invalidateCache();
+        return { ok: true, id: medicineId, medical_review_status: 'approved', pending_revision: null };
+      }
+      // Reject: discard the proposed changes; the approved version stays public.
+      await this.model.updateOne({ id: medicineId }, { $set: { pending_revision: null, updatedAt: new Date() } });
+      this.audit('medicine.pending_revision_discarded', medicineId, adminId, 'admin', { discarded: changes, submitted_by: pending?.submitted_by || null });
+      return { ok: true, id: medicineId, medical_review_status: med.medical_review_status, pending_revision: null };
+    }
     // Q60: the public catalog/search/detail filter requires indexing_eligibility:true,
     // so medical approval must grant it here — otherwise an approved item stays 404.
     const reviewedAt = new Date();
@@ -1924,17 +1974,18 @@ export class MedicinesService {
     }
   }
 
-  async adminUpdateCatalog(medicineId: string, patch: any, adminId: string) {
-    // getById returns a mongoose document: spreading it ({ ...med }) drops `id`, and the publication
-    // refresh below then ran with an undefined id -> 404 to the admin after the edit was already saved.
-    const found: any = await this.getById(medicineId);
-    const med: any = typeof found?.toObject === 'function' ? found.toObject() : found;
-    if (!med) throw new NotFoundException('الصنف غير موجود');    const clean = this.pickEditable(patch);
+  /**
+   * The patch an admin catalog edit may write onto the LIVE document:
+   * `clean` is the EDITABLE_FIELDS mass-assignment whitelist; `extra` holds the
+   * fields adminUpdateCatalog derives from it — the allowlisted
+   * availability_status, the image, the canonical slug recomputed on a rename,
+   * and the merged translations map. adminUpdateCatalog and the e64ec70
+   * pending-revision approval share it, so a revision can never write a field
+   * a direct edit could not.
+   */
+  private adminCatalogPatch(med: any, patch: any): { clean: any; extra: any } {
+    const clean = this.pickEditable(patch);
     const extra: any = {};
-    if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0)) {
-      const priceReason = String(patch?.reason || '').trim();
-      if (priceReason.length < 5) throw new BadRequestException('price_change_reason_required');
-    }
     if (patch?.availability_status !== undefined) {
       const allowed = ['none', 'availability_may_be_limited', 'admin_flagged_shortage', 'discontinued'];
       if (!allowed.includes(patch.availability_status)) throw new BadRequestException('invalid availability_status');
@@ -1942,48 +1993,26 @@ export class MedicinesService {
     }
     if (patch?.image !== undefined) extra.image = patch.image;
     // R12: renames recompute the canonical slug (updateOne skips the schema pre-save hook).
-    const adminNextName = clean.name_ar || clean.name_en;
-    if (adminNextName && adminNextName !== (med.name_ar || med.name_en)) {
-      const adminNextSlug = buildSlug(String(adminNextName), String(medicineId));
-      if (adminNextSlug && adminNextSlug !== med.slug) extra.slug = adminNextSlug;
+    const nextName = clean.name_ar || clean.name_en;
+    if (nextName && nextName !== (med.name_ar || med.name_en)) {
+      const nextSlug = buildSlug(String(nextName), String(med.id));
+      if (nextSlug && nextSlug !== med.slug) extra.slug = nextSlug;
     }
     // R19: locale edits merge into the SAME id's translations map (validated; fil stored as tl, Q90).
-    const incomingAdminTranslations = this.normalizeTranslationsMap((patch as any)?.translations);
-    if (Object.keys(incomingAdminTranslations).length) {
-      extra.translations = this.mergeTranslations(med.translations, incomingAdminTranslations);
+    const incomingTranslations = this.normalizeTranslationsMap((patch as any)?.translations);
+    if (Object.keys(incomingTranslations).length) {
+      extra.translations = this.mergeTranslations(med.translations, incomingTranslations);
     }
-    if (Object.keys(clean).length === 0 && Object.keys(extra).length === 0) {
-      throw new BadRequestException('patch must include at least one editable field');
-    }
-    const before: any = {};
-    for (const f of Object.keys({ ...clean, ...extra })) before[f] = med[f] ?? null;
-    // F8/R9c: publishing an item by editing it requires the catalog APPROVE
-    // permission. An admin who only holds CATALOG_UPDATE/CATALOG_PRICE_WRITE
-    // sends the item back to medical review instead of publishing it.
-    // Price history + audit log are kept below in both cases.
-    const canPublish = await this.holdsCatalogApprove(adminId);
-    const wasPublic = med.public_eligibility === true || med.medical_review_status === 'approved';
-    const governanceReset = wasPublic && canPublish ? {
-      verified: true,
-      public_eligibility: true,
-      indexing_eligibility: true,
-      medical_review_status: 'approved',
-      last_reviewed: new Date(),
-      provenance: 'admin_direct_edit_published',
-    } : (wasPublic ? {
-      // Keep the item visible but flag it for a fresh medical review decision.
-      verified: false,
-      medical_review_status: 'pending',
-      last_reviewed: null,
-      provenance: 'admin_direct_edit_pending_review',
-    } : {});
-    await this.model.updateOne({ id: medicineId }, { $set: { ...clean, ...extra, ...governanceReset, updatedAt: new Date() } });
-    if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0)) {
-      await this.priceHistory.insertOne({ id: `mph_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: medicineId, before_price: Number(med.price || 0), after_price: Number(clean.price), reason: String(patch.reason).trim(), changed_by: adminId, createdAt: new Date() });
-    }
-    // Physically delete any image the edit removed (main image, gallery
-    // entries, image_1..5 slots) from R2 — no orphaned files on the CDN.
-    const after = { ...clean, ...extra };
+    return { clean, extra };
+  }
+
+  /**
+   * Image URLs the patch removed from a catalog item (main image, gallery
+   * entries, image_1..5 slots) — the caller emits the R2 delete for each. The
+   * comparison runs against the FULL merged document so a URL still referenced
+   * by an un-patched slot (e.g. the main image) is never deleted.
+   */
+  private removedImageUrls(before: any, after: any): string[] {
     const collectImgs = (doc: any): string[] => {
       if (!doc) return [];
       const out: string[] = [];
@@ -1991,17 +2020,74 @@ export class MedicinesService {
       for (const k of ['image', 'image_1', 'image_2', 'image_3', 'image_4', 'image_5']) if (doc[k]) out.push(doc[k]);
       return [...new Set(out)];
     };
-    // Compare against the FULL merged document so a URL still referenced by an
-    // un-patched slot (e.g. main image) is never deleted out from under it.
-    const merged = { ...med, ...after };
-    const removed = collectImgs(med).filter(u => !collectImgs(merged).includes(u));
+    const merged = { ...before, ...after };
+    return collectImgs(before).filter((u) => !collectImgs(merged).includes(u));
+  }
+
+  async adminUpdateCatalog(medicineId: string, patch: any, adminId: string) {
+    // getById returns a mongoose document: spreading it ({ ...med }) drops `id`, and the publication
+    // refresh below then ran with an undefined id -> 404 to the admin after the edit was already saved.
+    const found: any = await this.getById(medicineId);
+    const med: any = typeof found?.toObject === 'function' ? found.toObject() : found;
+    if (!med) throw new NotFoundException('الصنف غير موجود');
+    const { clean, extra } = this.adminCatalogPatch(med, patch);
+    if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0)) {
+      const priceReason = String(patch?.reason || '').trim();
+      if (priceReason.length < 5) throw new BadRequestException('price_change_reason_required');
+    }
+    if (Object.keys(clean).length === 0 && Object.keys(extra).length === 0) {
+      throw new BadRequestException('patch must include at least one editable field');
+    }
+    const before: any = {};
+    for (const f of Object.keys({ ...clean, ...extra })) before[f] = med[f] ?? null;
+    // F8/R9c: publishing an item by editing it requires the catalog APPROVE
+    // permission. Price history + audit log are kept below in both cases.
+    const canPublish = await this.holdsCatalogApprove(adminId);
+    const wasPublic = med.public_eligibility === true || med.medical_review_status === 'approved';
+    // e64ec70 (owner decision 2026-10-05): an edit to a PUBLISHED item by an
+    // editor without catalog.approve becomes a pending revision. The live
+    // document — what patients read — stays untouched (still approved, still
+    // public) until an approver approves (applies) or rejects (discards) it.
+    // A second edit before the decision joins the same pending revision
+    // instead of stacking a second one.
+    if (wasPublic && !canPublish) {
+      const existingPending: PendingRevision | null = med.pending_revision && typeof med.pending_revision === 'object' ? (med.pending_revision as PendingRevision) : null;
+      const changes = { ...(existingPending?.changes || {}), ...clean, ...extra };
+      const pending_revision: PendingRevision = {
+        changes,
+        submitted_by: existingPending?.submitted_by || adminId,
+        submitted_at: existingPending?.submitted_at || new Date(),
+      };
+      const priceReason = String(patch?.reason || '').trim();
+      if (priceReason) pending_revision.reason = priceReason;
+      await this.model.updateOne({ id: medicineId }, { $set: { pending_revision, updatedAt: new Date() } });
+      this.audit('medicine.admin_direct_edit', medicineId, adminId, 'admin', { before, after: { ...clean, ...extra }, pending_revision: true, catalog_approve: false });
+      return { ok: true, updated: Object.keys({ ...clean, ...extra }), requires_reapproval: true };
+    }
+    // An approver's direct edit supersedes any pending revision waiting on the item.
+    const governanceReset = wasPublic && canPublish ? {
+      verified: true,
+      public_eligibility: true,
+      indexing_eligibility: true,
+      medical_review_status: 'approved',
+      last_reviewed: new Date(),
+      provenance: 'admin_direct_edit_published',
+      pending_revision: null,
+    } : {};
+    await this.model.updateOne({ id: medicineId }, { $set: { ...clean, ...extra, ...governanceReset, updatedAt: new Date() } });
+    if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0)) {
+      await this.priceHistory.insertOne({ id: `mph_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: medicineId, before_price: Number(med.price || 0), after_price: Number(clean.price), reason: String(patch.reason).trim(), changed_by: adminId, createdAt: new Date() });
+    }
+    // Physically delete any image the edit removed (main image, gallery
+    // entries, image_1..5 slots) from R2 — no orphaned files on the CDN.
+    const after = { ...clean, ...extra };
+    const removed = this.removedImageUrls(med, after);
     for (const url of removed) this.events.emit('storage.delete_by_url', { url });
     // R12: record rename history for 301s (no-op when slug unchanged).
     if ((extra as any)?.slug) await this.recordSlugHistory(medicineId, med.slug, (extra as any).slug);
     await this.refreshPublicProjection({ ...med, ...after, ...governanceReset }, adminId, 'medicine_admin_edit_published');
-    const requiresReapproval = wasPublic && !canPublish;
-    this.audit('medicine.admin_direct_edit', medicineId, adminId, 'admin', { before, after, requires_reapproval: requiresReapproval, catalog_approve: canPublish, images_deleted: removed });
+    this.audit('medicine.admin_direct_edit', medicineId, adminId, 'admin', { before, after, requires_reapproval: false, catalog_approve: canPublish, images_deleted: removed });
     await this.invalidateCache();
-    return { ok: true, updated: Object.keys({ ...clean, ...extra }), requires_reapproval: requiresReapproval };
+    return { ok: true, updated: Object.keys({ ...clean, ...extra }), requires_reapproval: false };
   }
 }

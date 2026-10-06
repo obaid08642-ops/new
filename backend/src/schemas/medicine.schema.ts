@@ -38,6 +38,14 @@ export class Medicine {
   @Prop() approved_by?: string;
   @Prop() approved_at?: Date;
   @Prop() rejected_reason?: string;
+  /**
+   * e64ec70: an edit to a PUBLISHED item by an editor without catalog.approve is
+   * stored here as a pending revision — { changes, submitted_by, submitted_at }
+   * — instead of being written onto the live document. Patients keep seeing the
+   * approved version until an approver approves (applies) or rejects (discards)
+   * the revision. Absent/null while no revision is waiting.
+   */
+  @Prop({ type: Object, default: null }) pending_revision?: Record<string, unknown> | null;
   @Prop({ default: 0 }) usage_count: number; // how many times referenced
   @Prop({ index: true }) barcode?: string; // EAN13 / UPC / GTIN
   // ============ MEDICAL INFO (production-ready medicine details) ============

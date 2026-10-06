@@ -61,7 +61,9 @@ export class CatalogsController {
       } as any)
       .limit(2000).toArray().catch(() => []);
     if (!rows.length) throw new NotFoundException('catalog_unavailable');
-    return (rows as any[]).map(({ _id, ...r }: any) => ({
+    // e64ec70: this public route spreads the rest of the document, so the
+    // pending revision (admin-only, unreviewed values) is stripped here.
+    return (rows as any[]).map(({ _id, pending_revision, ...r }: any) => ({
       code: r.barcode || r.id,
       name_ar: r.name_ar,
       name_en: r.name_en,

@@ -351,17 +351,20 @@ export class MedicinesController {
       const mongooseModel: any = modelAny?.model || modelAny;
       // Prefer repository find that returns a Mongoose Query with lean/batchSize/cursor
       let cursor: any;
+      // e64ec70: this public stream ships whole documents, so the pending
+      // revision (unreviewed values, admin-only) is excluded from every item.
+      const publicProjection = { pending_revision: 0 };
       if (modelAny && typeof modelAny.find === 'function') {
         // Try repository path first (returns Query)
-        const q: any = modelAny.find(filter);
+        const q: any = modelAny.find(filter, publicProjection);
         // q may already be a Query; apply lean/batchSize
         if (q && typeof q.lean === 'function') {
           cursor = q.lean().batchSize(100).cursor();
         } else {
-          cursor = mongooseModel.find(filter).lean().batchSize(100).cursor();
+          cursor = mongooseModel.find(filter, publicProjection).lean().batchSize(100).cursor();
         }
       } else {
-        cursor = mongooseModel.find(filter).lean().batchSize(100).cursor();
+        cursor = mongooseModel.find(filter, publicProjection).lean().batchSize(100).cursor();
       }
       for await (const doc of cursor) {
         if (!first) raw.write(',');

@@ -439,7 +439,17 @@ export default function MedicinesCatalogPage() {
                           <td className="p-3">
                             <div className="flex gap-2">
                               <button onClick={() => openEdit(m)} className="text-teal-700 font-bold text-xs">تعديل</button>
-                              {m.medical_review_status === 'approved' ? (
+                              {m.pending_revision?.changes ? (
+                                // e64ec70: an edit by an editor without catalog.approve waits here;
+                                // patients keep the approved version until it is approved or rejected.
+                                <>
+                                  <span className="text-[11px] font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5" title={Object.keys(m.pending_revision.changes).join('، ')}>
+                                    تعديل بانتظار الاعتماد ({Object.keys(m.pending_revision.changes).length})
+                                  </span>
+                                  <button onClick={() => decideItem(m, true)} disabled={busy === m.id} className="text-green-700 font-bold text-xs">اعتماد التعديل</button>
+                                  <button onClick={() => decideItem(m, false)} disabled={busy === m.id} className="text-amber-700 font-bold text-xs">رفض التعديل</button>
+                                </>
+                              ) : m.medical_review_status === 'approved' ? (
                                 <button onClick={() => decideItem(m, false)} disabled={busy === m.id} className="text-amber-700 font-bold text-xs">رفض</button>
                               ) : (
                                 <button onClick={() => decideItem(m, true)} disabled={busy === m.id} className="text-green-700 font-bold text-xs">اعتماد</button>
