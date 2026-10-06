@@ -1,542 +1,185 @@
-// @ts-nocheck
-// app/payments/processing.tsx
-import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { View, StyleSheet, Animated, Easing, Linking } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../../src/context/AppContext';
-import { Icon } from '../../src/components/Icon';
-import { AppText, Card, Button } from '../../src/components/ui';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { AppState, Linking, Text, View } from 'react-native';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
+
+import { AppHeader, Card, EmptyState, ErrorState, Screen } from '../../../packages/ui-native/src';
+import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
-import { useLocalSearchParams as __useRouteParams } from "expo-router";
-import PaymentSuccessView from "../../src/components/views/PaymentSuccessView";
-import PaymentFailedView from "../../src/components/views/PaymentFailedView";
-import { ScreenState } from '../../src/components/ScreenStates';
+import { dateLocaleFor } from '../../src/utils/dates';
+import { logError } from '../../src/utils/logger';
+import { readPaymentResult, readResultParams, type PaymentResult } from '../../src/utils/pharmacyCheckout';
 
-// Conditionally import WebView (not available in Expo Go)
-let WebViewComponent: any = null;
-try {
-  WebViewComponent = require('react-native-webview').WebView;
-} catch {}
+/**
+ * The result of a payment — the Success board's state (a check on its ring, the amount, the reference) and the board's
+ * state components for everything else. The result comes only from the server: this screen asks it
+ * (POST /payments/verify/:transaction, or GET /moyasar/payments/sync/:id for the id the payment page's redirect carries),
+ * asks again while the payment is pending (every 3 s, at most 15 times, and when the app comes back to the foreground),
+ * and draws "paid" only when the server's status says `paid`. The `status` and `amount` of the address (a redirect, a deep
+ * link, anything a person can type) are not read, so a link can never show a payment as made.
+ *
+ * Pending, failed, cancelled, refunded, unknown and unreachable each have their own state with a way out; a payment that
+ * cannot be confirmed is never assumed to have failed or succeeded. Shared by the services that pay online (pharmacy,
+ * diagnostics, nursing, insurance co-pay): the params that name what was paid for (`bookingKind`, `bookingId`, `visitType`)
+ * only choose where "continue" goes.
+ */
 
-type PaymentStatus = 'webview' | 'polling' | 'timeout' | 'error';
+const EVERY = 3000;
+const LIMIT = 15;
 
-function PaymentProcessingScreenInner() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
-  const params = useLocalSearchParams<{
-    moyasarId: string;
-    paymentUrl: string;
-    bookingId: string;
-    bookingKind: string;
-    amount: string;
-  }>();
+export default function PaymentResultRoute() {
+  const { theme, t, c, lang, dir, flow, k, money } = useScreenUi();
+  const params = useLocalSearchParams<Record<string, string | string[]>>();
+  const p = readResultParams(params);
+  const transactionId = p.transactionId;
+  const gatewayId = p.gatewayId;
+  const hasTarget = transactionId !== null || gatewayId !== null;
+  const pharmacy = p.bookingKind === 'pharmacy' && p.bookingId !== null;
 
-  const { moyasarId, paymentUrl, bookingId, bookingKind, amount } = params;
+  const [result, setResult] = useState<PaymentResult | null>(null);
+  const [phase, setPhase] = useState<'checking' | 'slow' | 'error' | 'unknown'>(hasTarget ? 'checking' : 'unknown');
+  const busy = useRef(false);
+  const attempts = useRef(0);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const alive = useRef(true);
+  const opened = useRef(false);
+  const paymentUrl = p.paymentUrl;
 
-  const [phase, setPhase] = useState<PaymentStatus>(
-    paymentUrl ? 'webview' : 'polling'
-  );
-  const [pollCount, setPollCount] = useState(0);
-  const [statusText, setStatusText] = useState('جاري معالجة الدفع...');
-  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isMountedRef = useRef(true);
-
-  // Animations
-  const spinAnim = useRef(new Animated.Value(0)).current;
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-  const dotAnims = useRef([
-    new Animated.Value(0.3),
-    new Animated.Value(0.3),
-    new Animated.Value(0.3),
-  ]).current;
-
-  // Spinning animation
-  useEffect(() => {
-    const spin = Animated.loop(
-      Animated.timing(spinAnim, {
-        toValue: 1,
-        duration: 2000,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      })
-    );
-    spin.start();
-    return () => spin.stop();
-  }, []);
-
-  // Pulse animation
-  useEffect(() => {
-    const pulse = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.1,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    pulse.start();
-    return () => pulse.stop();
-  }, []);
-
-  // Dot loading animation
-  useEffect(() => {
-    const animateDots = () => {
-      const animations = dotAnims.map((dot, index) =>
-        Animated.sequence([
-          Animated.delay(index * 250),
-          Animated.timing(dot, {
-            toValue: 1,
-            duration: 400,
-            useNativeDriver: true,
-          }),
-          Animated.timing(dot, {
-            toValue: 0.3,
-            duration: 400,
-            useNativeDriver: true,
-          }),
-        ])
-      );
-      Animated.loop(Animated.parallel(animations)).start();
-    };
-    animateDots();
-  }, []);
-
-  // Cleanup
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
-      if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
-    };
-  }, []);
-
-  // Poll payment status from backend
-  const pollPaymentStatus = useCallback(
-    async (attempt: number = 1) => {
-      if (!isMountedRef.current || !moyasarId) return;
-
-      const MAX_ATTEMPTS = 15;
-      const POLL_INTERVAL = 3000;
-
-      if (attempt > MAX_ATTEMPTS) {
-        if (isMountedRef.current) {
-          setPhase('timeout');
-          setStatusText('انتهت مهلة التحقق');
-        }
+  const check = useCallback(async () => {
+    if ((!transactionId && !gatewayId) || busy.current) return;
+    busy.current = true;
+    if (timer.current) clearTimeout(timer.current);
+    attempts.current += 1;
+    try {
+      // the server's own answer: the transaction as the gateway reports it, or (for the id of the gateway's redirect) its payment record
+      const raw = transactionId ? await apiFetch(`/payments/verify/${encodeURIComponent(transactionId)}`, { method: 'POST' }) : await apiFetch(`/moyasar/payments/sync/${encodeURIComponent(gatewayId ?? '')}`);
+      const next = readPaymentResult(raw);
+      if (!alive.current) return;
+      if (!next || next.phase === 'unknown') {
+        setPhase('unknown');
         return;
       }
-
-      try {
-        setPollCount(attempt);
-        setStatusText(
-          attempt === 1
-            ? 'جاري التحقق من حالة الدفع...'
-            : `جاري التحقق... (${attempt}/${MAX_ATTEMPTS})`
-        );
-
-        // Detect if moyasarId is a general transaction UUID vs a Moyasar pay ID
-        const isTxn = moyasarId.startsWith('txn_') || moyasarId.includes('-') || !moyasarId.startsWith('pay_');
-        const endpoint = isTxn ? `/payments/verify/${moyasarId}` : `/moyasar/payments/sync/${moyasarId}`;
-
-        const res = await apiFetch<{
-          status: string;
-          payment_method?: string;
-          method?: string;
-          reason?: string;
-          failure_reason?: string;
-        }>(endpoint, { method: isTxn ? 'POST' : 'GET' });
-
-        if (!isMountedRef.current) return;
-
-        if (res.status === 'paid') {
-          router.replace({
-            pathname: '/payments/success',
-            params: {
-              bookingId: bookingId || '',
-              bookingKind: bookingKind || '',
-              amount: amount || '',
-              moyasarId: moyasarId,
-              paymentMethod: res.payment_method || res.method || '',
-            },
-          });
-          return;
+      setResult(next);
+      if (next.phase === 'pending') {
+        if (attempts.current >= LIMIT) setPhase('slow');
+        else {
+          setPhase('checking');
+          timer.current = setTimeout(() => void check(), EVERY);
         }
+      } else setPhase('checking');
+    } catch (error) {
+      logError('payments:result', error);
+      if (!alive.current) return;
+      if (attempts.current >= LIMIT) setPhase('error');
+      else timer.current = setTimeout(() => void check(), EVERY);
+    } finally {
+      busy.current = false;
+    }
+  }, [transactionId, gatewayId]);
 
-        if (res.status === 'failed') {
-          router.replace({
-            pathname: '/payments/failed',
-            params: {
-              bookingId: bookingId || '',
-              bookingKind: bookingKind || '',
-              amount: amount || '',
-              reason: res.reason || res.failure_reason || 'فشلت عملية الدفع',
-            },
-          });
-          return;
-        }
-
-        // Status is still pending/initiated - poll again
-        pollTimerRef.current = setTimeout(() => {
-          pollPaymentStatus(attempt + 1);
-        }, POLL_INTERVAL);
-      } catch (err: any) {
-        if (!isMountedRef.current) return;
-        // Network error - retry
-        if (attempt < MAX_ATTEMPTS) {
-          pollTimerRef.current = setTimeout(() => {
-            pollPaymentStatus(attempt + 1);
-          }, POLL_INTERVAL);
-        } else {
-          setPhase('timeout');
-          setStatusText('تعذر التحقق من حالة الدفع');
-        }
-      }
-    },
-    [moyasarId, bookingId, bookingKind, amount]
-  );
-
-  // If no paymentUrl (sandbox mode), start polling immediately
   useEffect(() => {
-    if (!paymentUrl) {
-      setPhase('polling');
-      pollPaymentStatus(1);
+    alive.current = true;
+    attempts.current = 0;
+    // the services that start a payment elsewhere (diagnostics, nursing, insurance co-pay) hand the hosted page over here
+    if (paymentUrl && !opened.current) {
+      opened.current = true;
+      Linking.openURL(paymentUrl).catch((error) => logError('payments:result:open', error));
     }
-  }, []);
+    void check();
+    const sub = AppState.addEventListener('change', (s) => {
+      if (s === 'active' && alive.current) void check();
+    });
+    return () => {
+      alive.current = false;
+      sub.remove();
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, [check, paymentUrl]);
 
-  // WebView fallback: open in external browser
-  const openInBrowser = useCallback(async () => {
-    if (paymentUrl) {
-      try {
-        await Linking.openURL(paymentUrl);
-      } catch {}
-      // Start polling after opening browser
-      setPhase('polling');
-      pollPaymentStatus(1);
-    }
-  }, [paymentUrl, pollPaymentStatus]);
-
-  // If WebView is not available but paymentUrl exists, open in browser
-  useEffect(() => {
-    if (paymentUrl && !WebViewComponent) {
-      openInBrowser();
-    }
-  }, []);
-
-  // Handle WebView navigation state change
-  const handleWebViewNavChange = useCallback(
-    (navState: { url: string }) => {
-      const url = navState.url?.toLowerCase() || '';
-      if (url.includes('callback') || url.includes('nabd://')) {
-        // Moyasar redirected back - start polling
-        setPhase('polling');
-        pollPaymentStatus(1);
-      }
-    },
-    [pollPaymentStatus]
-  );
-
-  // Manual check button
-  const handleManualCheck = () => {
-    setPhase('polling');
-    setPollCount(0);
-    setStatusText('جاري التحقق من حالة الدفع...');
-    pollPaymentStatus(1);
+  const again = () => {
+    attempts.current = 0;
+    setPhase('checking');
+    void check();
   };
+  const home = () => router.replace('/(tabs)' as Href);
+  const toOrder = () => router.replace({ pathname: '/pharmacy/order-tracking', params: { orderId: p.bookingId } });
+  const toOrders = () => router.replace('/pharmacy/order-history' as Href);
+  const retryPay = () => (pharmacy ? router.replace({ pathname: '/pharmacy/payment', params: { orderId: p.bookingId } }) : router.back());
 
-  const spinInterpolate = spinAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
+  const visit = (() => {
+    if (!p.visitType) return null;
+    const appointment = p.bookingId;
+    if (appointment) return { label: p.visitType === 'clinic' ? k('payments.result.clinicLocation') : p.visitType === 'home' ? k('payments.result.trackDoctor') : k('payments.result.waitingRoom'), go: () => router.push({ pathname: '/consultations/booking-status', params: { appointmentId: appointment, visitType: p.visitType } }) };
+    if (p.visitType === 'clinic') return { label: k('payments.result.clinicLocation'), go: () => router.push('/consultations/clinic-location' as Href) };
+    if (p.visitType === 'home') return { label: k('payments.result.trackDoctor'), go: () => router.push('/consultations/home-visit-tracking' as Href) };
+    return { label: k('payments.result.waitingRoom'), go: () => router.push({ pathname: '/consultations/booking-status', params: { visitType: p.visitType } }) };
+  })();
 
-  // WebView phase - show Moyasar checkout
-  if (phase === 'webview' && paymentUrl && WebViewComponent) {
-    return (
-      <View style={[styles.container, { paddingTop: insets.top } ]}>
-        <View
-          style={styles.webviewHeader}
-        >
-          <View style={styles.webviewHeaderContent}>
-            <Icon name="lock" size={14} color="#5BA84F" />
-            <AppText variant="bodySM" style={{ color: '#fff' }}>
-              دفع آمن - Moyasar
-            </AppText>
-            <Icon name="card" size={14} color={colors.primary} />
-          </View>
-          {amount && (
-            <AppText
-              variant="bodySM"
-              style={{ color: 'rgba(255,255,255,0.6)' }}>
-              {amount} ريال
-            </AppText>
-          )}
-        </View>
-        <WebViewComponent
-          source={{ uri: paymentUrl }}
-          style={styles.webview}
-          onNavigationStateChange={handleWebViewNavChange}
-          javaScriptEnabled
-          domStorageEnabled
-          startInLoadingState
-          renderLoading={() => (
-            <View style={styles.webviewLoading}>
-              <Animated.View
-                style={{ transform: [{ rotate: spinInterpolate }] }}>
-                <Icon name="refresh" size={24} color={colors.primary} />
-              </Animated.View>
-              <AppText variant="bodySM" style={{ color: colors.textSecondary }}>
-                جاري تحميل صفحة الدفع...
-              </AppText>
-            </View>
-          )}
-        />
-      </View>
-    );
-  }
-
-  // Polling / Timeout phase
-  return (
-    <View style={styles.container}>
-      <View
-        style={StyleSheet.absoluteFill}
-      />
-
-      {/* Background orbs */}
-      <View style={styles.shimmer1} />
-      <View style={styles.shimmer2} />
-
-      <View style={styles.content}>
-        {/* Animated icon */}
-        <Animated.View
-          style={[
-            styles.icon,
-            {
-              transform: [{ scale: pulseAnim }],
-            },
-          ]}>
-          <Animated.View style={{ transform: [{ rotate: spinInterpolate }] }}>
-            <Icon
-              name={phase === 'timeout' ? 'time' : 'card'}
-              size={24}
-              color={phase === 'timeout' ? '#F0A526' : colors.primary}
-            />
-          </Animated.View>
-        </Animated.View>
-
-        {/* Status text */}
-        <AppText variant="bodySM" style={{ color: '#fff', textAlign: 'center' }}>
-          {statusText}
-        </AppText>
-        <AppText
-          variant="bodySM"
-          style={{ color: 'rgba(255,255,255,0.6)', textAlign: 'center' }}>
-          {phase === 'timeout'
-            ? 'يمكنك التحقق يدوياً من حالة الدفع'
-            : 'لا تغلق هذه الشاشة'}
-        </AppText>
-
-        {/* Loading dots */}
-        {phase === 'polling' && (
-          <View style={styles.dots}>
-            {dotAnims.map((anim, i) => (
-              <Animated.View
-                key={i}
-                style={[
-                  styles.dot,
-                  {
-                    opacity: anim,
-                    transform: [
-                      {
-                        scale: anim.interpolate({
-                          inputRange: [0.3, 1],
-                          outputRange: [0.8, 1.2],
-                        }),
-                      },
-                    ],
-                  },
-                ]}/>
-            ))}
-          </View>
-        )}
-
-        {/* Amount badge */}
-        {amount && (
-          <View style={styles.amountBadge}>
-            <AppText variant="bodySM" style={{ color: '#fff' }}>
-              {amount} ريال
-            </AppText>
-          </View>
-        )}
-
-        {/* Timeout actions */}
-        {phase === 'timeout' && (
-          <View style={styles.timeoutActions}>
-            <Button
-              label="تحقق من حالة الدفع"
-              icon="refresh"
-              onPress={handleManualCheck}
-              style={styles.checkBtn}
-            />
-
-            <Button
-              label="إلغاء العملية"
-              onPress={() =>
-                router.replace({
-                  pathname: '/payments/failed',
-                  params: {
-                    bookingId: bookingId || '',
-                    bookingKind: bookingKind || '',
-                    amount: amount || '',
-                    reason: 'انتهت مهلة التحقق من الدفع',
-                  },
-                })
-              }
-              variant="ghost"
-              style={styles.cancelBtn}
-            />
-          </View>
-        )}
-
-        {/* Secure note */}
-        <View
-          style={{
-            flexDirection: 'row-reverse',
-            alignItems: 'center',
-            gap: 6, }}>
-          <Icon name="lock" size={16} color="#5BA84F" />
-          <AppText
-            variant="bodySM"
-            style={{ color: 'rgba(255,255,255,0.5)' }}>
-            معاملة آمنة ومشفرة بـ SSL
-          </AppText>
-        </View>
-
-        {/* Poll progress indicator */}
-        {phase === 'polling' && pollCount > 0 && (
-          <View style={styles.progressBar}>
-            <View
-              style={[
-                styles.progressFill,
-                { width: `${Math.min((pollCount / 10) * 100, 100)}%` },
-              ]} />
-          </View>
-        )}
-      </View>
+  const header = (
+    <View style={COLUMN}>
+      <AppHeader title={k('pharmacy.pay.title')} onBack={() => (router.canGoBack() ? router.back() : home())} backLabel={k('pharmacy.back')} theme={theme} direction={dir} />
     </View>
   );
-}
+  const state = (node: React.ReactNode, below?: React.ReactNode) => (
+    <Screen theme={theme} direction={dir} header={header} scroll testID="payment-result-screen">
+      <View style={{ ...COLUMN, paddingHorizontal: 16, paddingBottom: 32, flexGrow: 1, justifyContent: 'center', gap: 16 }}>
+        {node}
+        {below}
+      </View>
+    </Screen>
+  );
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F172A' },
-  shimmer1: {
-    position: 'absolute',
-    width: 250,
-    height: 250,
-    borderRadius: 125,
-    backgroundColor: 'rgba(0,102,204,0.1)',
-    top: '10%',
-    right: '-20%',
-  },
-  shimmer2: {
-    position: 'absolute',
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: 'rgba(0,201,167,0.08)',
-    bottom: '10%',
-    left: '-15%',
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 14,
-    padding: 32,
-  },
-  icon: {
-    width: 100,
-    height: 100,
-    borderRadius: 30,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.2)',
-  },
-  dots: { flexDirection: 'row', gap: 8 },
-  dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#23B5CE' },
-  amountBadge: {
-    backgroundColor: 'rgba(0,102,204,0.3)',
-    borderRadius: 14,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(0,102,204,0.4)',
-  },
-  timeoutActions: {
-    width: '100%',
-    gap: 10,
-    marginTop: 10,
-  },
-  checkBtn: {
-    height: 50,
-    borderRadius: 14,
-    backgroundColor: '#23B5CE',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cancelBtn: {
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  progressBar: {
-    width: '60%',
-    height: 3,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 2,
-    overflow: 'hidden',
-    marginTop: 8,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#23B5CE',
-    borderRadius: 2,
-  },
-  webviewHeader: {
-    paddingTop: 8,
-    paddingBottom: 12,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    gap: 4,
-  },
-  webviewHeaderContent: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: 8,
-  },
-  webview: { flex: 1 },
-  webviewLoading: {
-    ...StyleSheet.absoluteFill,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: '#0F172A',
-  },
-});
+  const symbol = (cur: string | null) => (!cur || cur === 'SAR' ? k('pharmacy.currency') : cur);
 
-// __RouteGuard: Phase 2.5 unified payment-result host (status=success|failed|processing)
-export default function PaymentResultRoute() {
-  const __p = __useRouteParams() as any;
-  if (__p?.status === "success") return <PaymentSuccessView />;
-  if (__p?.status === "failed") return <PaymentFailedView />;
-  return <PaymentProcessingScreenInner />;
+  if (phase === 'unknown') {
+    return state(<EmptyState icon="warning" tone="amber" title={k('payments.result.unknownTitle')} body={k('payments.result.unknownBody')} actionLabel={pharmacy ? k('pharmacy.quote.orderStatus') : k('payments.result.toHome')} onAction={pharmacy ? toOrder : home} secondaryActionLabel={pharmacy ? k('pharmacy.offers.myOrders') : undefined} onSecondaryAction={pharmacy ? toOrders : undefined} theme={theme} />);
+  }
+  if (phase === 'error') {
+    return state(<ErrorState title={k('payments.result.errorTitle')} body={k('pharmacy.error.body')} retryLabel={k('payments.result.check')} onRetry={again} actionLabel={pharmacy ? k('pharmacy.quote.orderStatus') : k('payments.result.toHome')} onAction={pharmacy ? toOrder : home} theme={theme} />);
+  }
+  const phaseNow = result?.phase ?? 'pending';
+
+  if (phaseNow === 'paid' && result) {
+    const rows: Array<[string, string]> = [];
+    if (result.amount !== null) rows.push([k('payments.result.amount'), `${money(result.amount)} ${symbol(result.currency)}`]);
+    if (result.reference) rows.push([k('payments.result.reference'), result.reference]);
+    if (result.paidAt !== null) rows.push([k('payments.result.paidOn'), new Date(result.paidAt).toLocaleString(dateLocaleFor(lang), { dateStyle: 'medium', timeStyle: 'short', numberingSystem: 'latn' })]);
+    const primary = visit ?? (pharmacy ? { label: k('pharmacy.quote.orderStatus'), go: toOrder } : { label: k('payments.result.toHome'), go: home });
+    const showHome = visit !== null || pharmacy;
+    return state(
+      <EmptyState icon="check-circle" tone="mint" title={k('pharmacy.pay.paidTitle')} body={k('payments.result.paidBody')} actionLabel={primary.label} onAction={primary.go} secondaryActionLabel={showHome ? k('payments.result.toHome') : undefined} onSecondaryAction={showHome ? home : undefined} theme={theme} />,
+      rows.length ? (
+        <Card theme={theme}>
+          <View style={{ gap: 12 }}>
+            {rows.map(([label, value]) => (
+              <View key={label} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                <Text style={{ ...scale(t, 'caption', 'regular'), color: c.text.secondary, ...flow }}>{label}</Text>
+                <Text style={{ flexShrink: 1, ...scale(t, 'caption', 'bold'), color: c.text.primary, ...flow }}>{value}</Text>
+              </View>
+            ))}
+          </View>
+        </Card>
+      ) : null,
+    );
+  }
+  if (phaseNow === 'failed' || phaseNow === 'cancelled') {
+    return state(<ErrorState icon="x-circle" tone="peach" title={phaseNow === 'cancelled' ? k('payments.result.cancelledTitle') : k('payments.result.failedTitle')} body={k('payments.result.failedBody')} retryLabel={k('payments.result.tryAgain')} onRetry={retryPay} actionLabel={pharmacy ? k('pharmacy.quote.orderStatus') : k('payments.result.toHome')} onAction={pharmacy ? toOrder : home} theme={theme} />);
+  }
+  if (phaseNow === 'refunded') {
+    return state(<EmptyState icon="receipt" tone="blue" title={k('payments.result.refundedTitle')} body={k('pharmacy.pay.cancelledBody')} actionLabel={pharmacy ? k('pharmacy.quote.orderStatus') : k('payments.result.toHome')} onAction={pharmacy ? toOrder : home} theme={theme} />);
+  }
+  // pending: still asking, or asked often enough and the gateway has not settled
+  const slow = phase === 'slow';
+  return state(
+    <EmptyState
+      icon="clock-counter-clockwise"
+      tone="amber"
+      title={slow ? k('payments.result.pendingTitle') : k('payments.result.checkingTitle')}
+      body={slow ? k('payments.result.pendingBody') : k('payments.result.checkingBody')}
+      actionLabel={slow ? k('payments.result.check') : undefined}
+      onAction={slow ? again : undefined}
+      secondaryActionLabel={pharmacy ? k('pharmacy.quote.orderStatus') : k('payments.result.toHome')}
+      onSecondaryAction={pharmacy ? toOrder : home}
+      theme={theme}
+    />,
+  );
 }

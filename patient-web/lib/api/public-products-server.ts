@@ -59,6 +59,8 @@ export type PublicProductCard = {
   available: boolean;
   image: string | null;
   images?: string[];
+  /** Only the search endpoint sends it (the category listing does not). */
+  active_ingredient?: string | null;
 };
 
 const CDN = (process.env.NEXT_PUBLIC_CDN_BASE_URL || "https://cdn.nabd.plus").replace(/\/$/, "");
@@ -180,6 +182,31 @@ export async function getPublicCategoryProducts(
       image: resolveImageUri(it.image) || (Array.isArray(it.images) && it.images[0] ? resolveImageUri(it.images[0]) : null),
     })),
   };
+}
+
+/**
+ * Products with the same active ingredient (the product page's "alternatives"): the public product search
+ * (`GET /public/products/search`) by the ingredient, kept to exact matches of it, without the product itself.
+ * Empty when the product has no active ingredient or the search is unavailable: the section is then hidden.
+ */
+export async function getPublicAlternatives(
+  locale: Locale,
+  product: { id: string; active_ingredient: string | null },
+  max = 5,
+): Promise<PublicProductCard[]> {
+  const ingredient = (product.active_ingredient || "").trim();
+  if (!isLocale(locale) || !ingredient) return [];
+  const params = new URLSearchParams({ q: ingredient, locale, page: "1", limit: "12" });
+  const data = await getJson<{ items?: PublicProductCard[] }>(`/public/products/search?${params.toString()}`);
+  const wanted = ingredient.toLowerCase();
+  return (data?.items || [])
+    .filter((it) => it.id !== product.id && (it.active_ingredient || "").trim().toLowerCase() === wanted && it.price > 0)
+    .slice(0, max)
+    .map((it) => ({
+      ...it,
+      name: cleanProductName(it.name, it.official_name),
+      image: resolveImageUri(it.image) || (Array.isArray(it.images) && it.images[0] ? resolveImageUri(it.images[0]) : null),
+    }));
 }
 
 export type ProductSitemapPage = {

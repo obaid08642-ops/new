@@ -34,6 +34,7 @@
 .wordmark { font-size: var(--nabd-font-size-stat); font-weight: 700; }
 .plus { color: var(--nabd-color-brand-coral); }
 
+.topSearch { display: none; }
 .sections { display: none; gap: 6px; }
 .section {
   display: inline-flex; align-items: center; min-block-size: 44px; padding-inline: 16px; border-radius: var(--nabd-radius-pill);
@@ -60,6 +61,7 @@
   .phoneOnly { display: none; }
   .wideOnly { display: inline-flex; }
   .search { max-inline-size: 620px; margin-inline: var(--nabd-space-sm) auto; }
+  .topSearch { display: block; flex: 1; min-inline-size: 0; max-inline-size: 560px; margin-inline: var(--nabd-space-sm) auto; }
   .page { padding-block-start: var(--nabd-space-lg); }
   .deskOnly { display: block; }
   /* the shell keeps the tab bar on tablets; the desktop top bar carries the sections instead */

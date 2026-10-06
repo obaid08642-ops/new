@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { authErrorKind } from "@/lib/auth/auth-errors";
+import { announceSignedIn } from "@/lib/auth/session-identity";
 import type { Locale } from "@/lib/i18n";
 import styles from "./auth/auth.module.css";
 
@@ -72,6 +73,7 @@ export function RegisterForm({ locale }: { locale: Locale }) {
           return;
         }
         setMessage(t("converted"));
+        announceSignedIn(); // the guest account is now a patient: the cart follows
         router.push(`/${locale}`);
         return;
       }

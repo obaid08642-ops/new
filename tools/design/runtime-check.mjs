@@ -48,9 +48,14 @@ const PASSWORD = arg('password', 'Test@123');
 const PUBLIC = /^\/(welcome|login|register|otp|forgot-password|password-reset|onboarding(\/.*)?)$/;
 
 const screens = JSON.parse(readFileSync(join(REPO, 'docs/design/inventory/screens.json'), 'utf8')).routes;
-const routes = screens
+// --only /a,/b limits the run to those routes (a slice of a batch); --extra /c,/p/x adds routes the batch lists with a
+// dynamic segment, written with a concrete value (the tool opens static routes only).
+const ONLY = arg('only') ? arg('only').split(',') : null;
+const EXTRA = arg('extra') ? arg('extra').split(',') : [];
+const routes = [...screens
   .filter((r) => r.app === 'patient-web' && String(r.batch).replace(/\D/g, '') === String(BATCH) && !r.route.includes('['))
-  .map((r) => r.route)
+  .map((r) => r.route), ...EXTRA]
+  .filter((r) => !ONLY || ONLY.includes(r) || EXTRA.includes(r))
   .filter((r, i, a) => a.indexOf(r) === i);
 
 const logSize = () => (BACKEND_LOG ? statSync(BACKEND_LOG).size : 0);

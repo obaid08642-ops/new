@@ -1,0 +1,42 @@
+[
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/cart",
+    "element": "Session probe",
+    "file": "",
+    "line": 0,
+    "found": "[client] GET /api/auth/session does not refresh an expired access token, so it can say 'anonymous' for a patient whose refresh token still works; the cart treats anonymous as 'change nothing' and only a sign-out clears it.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/cart",
+    "element": "Extra request per page load",
+    "file": "",
+    "line": 0,
+    "found": "[owner] The CartProvider is in the locale layout and asks GET /api/auth/session once per page load for every visitor; the F82 static/ISR work may read the cookie flag instead.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/cart",
+    "element": "Address card request",
+    "file": "",
+    "line": 0,
+    "found": "[owner] A signed-in cart still reads the saved address (read-only, not a cart call); confirm that 'opening the cart makes no call' excludes the address card, or drop it from the cart.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/cart",
+    "element": "Header cart badge label",
+    "file": "",
+    "line": 0,
+    "found": "[client] components-next/header-cart-badge.tsx has an English aria-label literal (already in the literal baseline); fix in the batch that owns the header.",
+    "suspect": "Client-side: later batch."
+  }
+]

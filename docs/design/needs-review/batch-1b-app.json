@@ -1,0 +1,122 @@
+[
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/pharmacist-chat",
+    "element": "Send a message, accept the substitute, reject it, ask to remove the item (the patient's four actions)",
+    "file": "backend/src/modules/pharmacy/pharmacy.controllers.ts",
+    "line": 273,
+    "found": "Runtime probe on the seeded backend (2026-10-06): POST /pharmacy/chat/threads/:id/messages, /accept-substitute/:msgId, /reject and /remove-item answer 403 {\"message\":\"Insufficient role\"} for the seeded patient and for a guest, even for a thread id that does not exist (the role guard runs first). The four routes carry @Roles(UserRole.PHARMACY, UserRole.ADMIN), while PharmacyChatService.postMessage / acceptSubstitute / rejectOrRemove check patient ownership (`t.patient_account_id !== user.id`) and are written for the patient. The app screen calls all four as the patient, so every patient action in the substitute negotiation fails. The screen shows the translated 'could not record your decision, the price and the payment did not change' notice; nothing is faked.",
+    "suspect": "The role decorators on the patient actions are wrong (or a patient route is missing): the patient needs to post messages and accept, reject or remove. Backend fix for the reviewer; the app calls will work unchanged once the guard allows the patient."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/pharmacist-chat",
+    "element": "Hub tile 'Pharmacist consult' and product page 'Ask a pharmacist' open this screen with no order",
+    "file": "patient-app/app/(tabs)/pharmacy.tsx",
+    "line": 63,
+    "found": "The screen is the substitute-negotiation chat of one order (GET /pharmacy/chat/threads?order_id=); a thread exists only when a pharmacy proposes a substitute for an order line. The hub (pharmacy.tsx:63) and the product page (product-detail.tsx:686) open it without an orderId, so a patient who wants to ask a pharmacist a question always lands on 'Open the chat from an order'. The backend has no general pharmacist-consultation endpoint (no thread without an order). The screen now says this honestly and points to the orders list instead of an endless empty chat.",
+    "suspect": "Owner decision: either remove the two entry points, or add a pharmacist-consultation chat on the backend (a thread not tied to an order). Both entry points are slice 1a files, so they were not changed here."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/cart",
+    "element": "Price per line, 'Total', 'Delivery', points toggle, 'Deliver to' address row (board Cart)",
+    "file": "patient-app/src/context/CartContext.tsx",
+    "line": 2,
+    "found": "The board Cart draws a unit price per line, an estimated total in the footer, a totals card (subtotal, delivery, points discount), a 'use your points' switch and a delivery address row. CartContext is a local staging list that deliberately keeps no price (sanitizePharmacyCartItem drops it; 'no client price, payment choice, or cart persistence is used before a pharmacy offer is selected'): the pharmacies' offers set the price. The medicine row has a catalogue price, but showing it as an estimate would contradict the broadcast model and the file's own rule. Not drawn: prices, total, points, delivery. The address is chosen at the next step (checkout, slice 1d). The note under the list says that prices come from the offers.",
+    "suspect": "Owner decision: whether the cart may show an indicative catalogue total (labelled as an estimate) and the points switch (no cart-level points endpoint was found; the 10% rule belongs to payment), or whether the board's price rows are replaced by the 'prices come from offers' note as built."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/rx-order",
+    "element": "Checkout reads the prescription instead of the cart lines, and a cart field that does not exist",
+    "file": "patient-app/app/pharmacy/checkout.tsx",
+    "line": 21,
+    "found": "checkout.tsx:17 reads `prescriptionUrl` from useCart(), but CartContext has no such field (it belongs to DiagnosticsCartContext), so it is always undefined; line 21 `orderItems = rxId ? rxItems : items` means that when the patient continues from the cart through 'choose a prescription' (rx-order passes prescriptionId) the order is built from the prescription's lines only and the other cart lines are dropped without a word. Slice 1d owns checkout; the cart and rx-order only link to it.",
+    "suspect": "Client defect for slice 1d: merge the prescription's lines with the cart's non-Rx lines (or say that only the prescription is ordered), and remove the dead `prescriptionUrl` read."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/rx-order",
+    "element": "Quantity and medicine id of the prescription lines",
+    "file": "backend/src/modules/prescriptions/prescriptions.service.ts",
+    "line": 346,
+    "found": "GET /prescriptions/:id answers toPatientWebDto: items are {name, dose, frequency, duration} only, without `quantity` and without `medicine_id`, while the stored lines have both. The app used to show 'Quantity: 1' for every line (the mapper defaults to 1), which the API never said; it now shows a quantity only when a line carries one, so with this endpoint no quantity is drawn. The checkout builds the draft from the same lines, so every prescription line is ordered with quantity 1 and by name.",
+    "suspect": "Backend: return `quantity` (and `medicine_id`) in the patient DTO if the quantity matters to the order, or the owner confirms that the pharmacy decides the quantity."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/rx-order",
+    "element": "Active prescriptions list payload",
+    "file": "backend/src/modules/prescriptions/prescriptions.service.ts",
+    "line": 324,
+    "found": "GET /prescriptions/active returns the raw documents (`find(..., { _id: 0, __v: 0 })`), which include `upload_image`, the whole base64 photo of each prescription, up to 100 of them, for a list that only needs id, state, date and the line names. The screen reads id, state, createdAt and items only.",
+    "suspect": "Backend: project the list (no upload_image, no patient or doctor ids) or return the same bounded DTO as GET /prescriptions/:id."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/scan-prescription",
+    "element": "Each OCR line without a medicine id is added to the medicine catalogue",
+    "file": "backend/src/modules/prescriptions/prescriptions.service.ts",
+    "line": 170,
+    "found": "POST /prescriptions/upload calls medicines.createManualEntry for every line the OCR could not match (is_manual_entry) with the patient's own text; the app sends the OCR result as it is. A misread OCR line therefore creates a catalogue record. Not executed in the runtime check (mutation on the shared test database); read from the source.",
+    "suspect": "Backend/reviewer: confirm that manual entries stay out of the public catalogue until a pharmacist or admin approves them (publicCatalogFilter requires approval, so likely yes), and that the OCR result needs a patient review step before lines are saved (the app has none; the saved prescription is reviewed on /pharmacy/rx-order)."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/scan-prescription",
+    "element": "Board RxUpload: 'Use my insurance' switch",
+    "file": "docs/design/canvas/RxUpload.dc.html",
+    "line": 39,
+    "found": "The board draws an insurance switch ('[insurance company] · the pharmacy asks for approval') on the upload screen. Payment mode (cash or insurance) is chosen at checkout (buildPatientPharmacyDraft payment_mode, slice 1d) and the upload endpoint takes no insurance field, so a switch here would change nothing. Not drawn. The board's 'Attachments' row is drawn for the one photo the endpoint accepts (no add-another tile: POST /prescriptions/upload takes a single upload_image).",
+    "suspect": "Owner/slice 1d: where the insurance choice lives for a prescription order; whether several photos per prescription are wanted (backend takes one)."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/pharmacist-chat",
+    "element": "System message text written by the backend",
+    "file": "backend/src/modules/pharmacy/services/pharmacy-chat.service.ts",
+    "line": 130,
+    "found": "When the patient accepts a substitute the backend stores a system message in Arabic only (`البديل مقبول من المريض.`) and the app shows message text as the server sent it, so a patient using English, Urdu, Hindi, Bengali or Filipino sees an Arabic line in the chat. The same applies to any text the pharmacy writes (that is data).",
+    "suspect": "Backend: store a message code (substitute_accepted, ...) for system messages and let the client translate it; the app would map the code to a key."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/request",
+    "element": "Delivery location used by the request",
+    "file": "patient-app/app/pharmacy/request.tsx",
+    "line": 43,
+    "found": "Fixed here (client defect of this screen): 'Change location' opened shared/location-picker, which saves the chosen address locally (setSelectedAddress), but the screen read only the profile's default address once on mount, so the change had no effect. The request now uses resolveEffectiveAddress (last picked, else default, else first saved) and reads it again when the screen regains focus. Remaining: resolveEffectiveAddress returns a picked address that was later deleted from the account without checking (selectedAddress.ts), and the address record is the profile's, not a snapshot.",
+    "suspect": "Low: validate the picked address id against GET /users/me/addresses in resolveEffectiveAddress (shared helper, also used by checkout in slice 1d)."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/barcode-scanner",
+    "element": "Availability badge on a found medicine (removed) and 'not found' on a failed lookup (fixed)",
+    "file": "patient-app/app/pharmacy/barcode-scanner.tsx",
+    "line": 1,
+    "found": "Fixed here (client defects of this screen): the old result card always drew 'Available' (`available: true` was a constant, the endpoint says nothing about stock) and a failed request (offline, server error) was reported as 'the barcode is not in the directory'. Now no availability is drawn and a failed lookup is its own state with a retry. The camera could not be run in this environment (the render tool and tests replace expo-camera): permission states, the frame and the lookup logic are covered by tests, the live camera preview and the real barcode read were not verified on a device.",
+    "suspect": "Verify on a device (iOS and Android): camera permission prompt, 'blocked' state after a refusal, the real scan, the photo identification (POST /ai/medicine-image-search needs the AI service configured on the backend)."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/cart",
+    "element": "End-to-end add, change, remove, upload and continue with a real catalogue",
+    "file": "backend/src/modules/medicines/medicines.service.ts",
+    "line": 125,
+    "found": "The local public catalogue is still empty (see the 1a entry), so the cart could only be filled with marked TEST lines in the render tool and in unit tests; no real medicine could be added from the hub. The prescription upload (POST /ai/prescription-ocr, POST /prescriptions/upload) and the manual request broadcast (POST /patient/pharmacy/orders, /submit) are mutations and were not executed against the shared test database; they are covered by tests with the API mocked and their GET side was probed.",
+    "suspect": "Reviewer: import the catalogue, then run add to cart, upload a prescription, continue to checkout once end to end."
+  }
+]

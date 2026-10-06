@@ -1,0 +1,189 @@
+/* The pharmacy offer screens (Batch 1c): the offers list, the final price, the waiting screen and the negotiation
+   conversations. Layout of canvas/PharmacyOffers; the shell (top bar, tab bar) is components-next/core. Tokens only,
+   logical properties only, no inline styles (the CSP refuses them). Amounts and states drawn here are the server's. */
+
+.srOnly {
+  position: absolute; inline-size: 1px; block-size: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+.page { display: flex; flex-direction: column; gap: var(--nabd-space-sm); min-inline-size: 0; }
+
+/* the page's own title: phones carry it in the shell's header row, from 768 it is the page's h1 */
+.head { display: none; flex-direction: column; gap: 4px; }
+.title {
+  margin: 0; font-size: var(--nabd-font-size-h1); line-height: var(--nabd-font-size-h1-lineHeight);
+  font-weight: 700; overflow-wrap: anywhere;
+}
+.lead { margin: 0; font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-secondary); line-height: 1.7; overflow-wrap: anywhere; }
+
+.backLink {
+  display: inline-flex; align-items: center; gap: 6px; min-block-size: 44px; align-self: flex-start;
+  color: var(--nabd-color-text-link); text-decoration: none; font-size: var(--nabd-font-size-control); font-weight: 600;
+}
+.backLink:focus-visible, .linkButton:focus-visible, .rowLink:focus-visible {
+  outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-sm);
+}
+
+/* ---- the hero of canvas/PharmacyOffers: a pulsing storefront, who is looking, how many answered ---- */
+.hero {
+  display: flex; align-items: center; gap: 16px; padding: 18px; box-sizing: border-box;
+  border-radius: var(--nabd-radius-3xl); border: 1px solid var(--nabd-color-border-hairline);
+  background: linear-gradient(160deg, var(--nabd-color-bg-surface) 0%, var(--nabd-color-service-coral-bg) 100%);
+}
+.pulse { position: relative; flex: none; inline-size: 72px; block-size: 72px; display: grid; place-items: center; }
+.ring {
+  position: absolute; inset: 0; border-radius: var(--nabd-radius-pill); background: var(--nabd-color-service-coral-bg);
+  animation: pulse 1.8s ease-out infinite;
+}
+.ring + .ring { animation-delay: .9s; }
+.pulse > :global(.nabd-ficon) { position: relative; }
+@keyframes pulse { 0% { transform: scale(.6); opacity: .6; } 100% { transform: scale(1.8); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .ring { animation: none; opacity: 0; } }
+.heroText { display: flex; flex-direction: column; gap: 4px; min-inline-size: 0; }
+.heroTitle { margin: 0; font-size: var(--nabd-font-size-body-lg); font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.heroSub { margin: 0; font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-secondary); line-height: 1.6; overflow-wrap: anywhere; }
+
+/* ---- live check while no offer has arrived ---- */
+.live {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 16px;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-xl);
+  font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-secondary);
+}
+.live > span { flex: 1 1 12rem; min-inline-size: 0; overflow-wrap: anywhere; }
+
+/* ---- sort ---- */
+.sort { display: flex; }
+.sort > * { inline-size: 100%; }
+
+/* ---- offer cards ---- */
+.list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.offer {
+  display: flex; flex-direction: column; gap: 12px; padding: 14px; box-sizing: border-box; min-inline-size: 0;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
+  border-radius: var(--nabd-radius-2xl); box-shadow: var(--nabd-shadow-card);
+}
+.offerHead { display: flex; align-items: center; gap: 12px; min-inline-size: 0; }
+.offerId { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
+.pharmacy { margin: 0; font-size: var(--nabd-font-size-body-lg); font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.meta { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.priceRow { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; }
+.priceBox { display: flex; flex-direction: column; gap: 2px; min-inline-size: 0; }
+.priceLabel { font-size: var(--nabd-font-size-small); color: var(--nabd-color-text-secondary); }
+.price { font-size: var(--nabd-font-size-stat); font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+.validity { margin: 0; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); }
+.expiredNote { margin: 0; font-size: var(--nabd-font-size-label); font-weight: 600; color: var(--nabd-color-status-danger-fg); }
+
+/* items and price details: a native disclosure, so it works without scripts */
+.details { border-block-start: 1px solid var(--nabd-color-border-subtle); }
+.details > summary {
+  display: flex; align-items: center; min-block-size: 44px; cursor: pointer; list-style: none;
+  font-size: var(--nabd-font-size-control); font-weight: 600; color: var(--nabd-color-text-link);
+}
+.details > summary::-webkit-details-marker { display: none; }
+.details > summary:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-sm); }
+.details .whenOpen { display: none; }
+.details[open] .whenOpen { display: inline; }
+.details[open] .whenClosed { display: none; }
+.lines { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.line { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding-block: 10px; border-block-start: 1px solid var(--nabd-color-border-subtle); font-size: var(--nabd-font-size-control); }
+.line:first-child { border-block-start: 0; }
+.lineName { overflow-wrap: anywhere; font-weight: 600; }
+.lineAmount { font-weight: 600; text-align: end; }
+.lineSub { grid-column: 1 / -1; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.lineOut { color: var(--nabd-color-status-danger-fg); }
+.sums { margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; border-block-start: 1px solid var(--nabd-color-border-subtle); padding-block-start: 10px; }
+.sum { display: flex; justify-content: space-between; gap: 12px; font-size: var(--nabd-font-size-control); }
+.sum dt { color: var(--nabd-color-text-secondary); }
+.sum dd { margin: 0; font-weight: 600; text-align: end; }
+.sumTotal dt, .sumTotal dd { color: var(--nabd-color-text-primary); font-weight: 700; }
+.note { margin: 0; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); line-height: 1.6; overflow-wrap: anywhere; }
+
+/* the choice made on one card */
+.pick { display: flex; flex-direction: column; gap: 10px; padding-block-start: 12px; border-block-start: 1px solid var(--nabd-color-border-subtle); }
+.pickLegend { margin: 0; padding: 0; font-size: var(--nabd-font-size-control); font-weight: 700; }
+.pickGroup { display: flex; flex-direction: column; gap: 0; }
+.pickGroup > :global(.nabd-radio) { inline-size: 100%; }
+.errorText { margin: 0; font-size: var(--nabd-font-size-control); color: var(--nabd-color-status-danger-fg); line-height: 1.6; overflow-wrap: anywhere; }
+.okText { margin: 0; font-size: var(--nabd-font-size-control); color: var(--nabd-color-status-success-fg); line-height: 1.6; overflow-wrap: anywhere; }
+
+/* the board draws the select button in ink (canvas/PharmacyOffers): the selected-action pair of the tokens, so it flips in dark */
+.pickAction > :global(.nabd-button) { background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); border: 0; }
+.pickAction > :global(.nabd-button--inert) { opacity: .5; }
+
+.privacy { margin: 0; text-align: center; font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-secondary); line-height: 1.7; }
+
+/* ---- the final price, notices, payment ---- */
+.panel {
+  display: flex; flex-direction: column; gap: 12px; padding: 16px; box-sizing: border-box; min-inline-size: 0;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
+  border-radius: var(--nabd-radius-2xl); box-shadow: var(--nabd-shadow-card);
+}
+.panelTitle { margin: 0; font-size: var(--nabd-font-size-body-lg); font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.notice {
+  display: flex; align-items: flex-start; gap: 10px; margin: 0; padding: 12px 14px; border-radius: var(--nabd-radius-xl);
+  background: var(--nabd-color-status-info-bg); color: var(--nabd-color-text-primary);
+  font-size: var(--nabd-font-size-control); line-height: 1.6; overflow-wrap: anywhere;
+}
+.noticeOk { background: var(--nabd-color-status-success-bg); }
+.noticeWarn { background: var(--nabd-color-status-warning-bg); }
+.actions { display: flex; flex-direction: column; gap: 10px; }
+.actionsRow { display: flex; flex-wrap: wrap; gap: 10px; }
+.actionsRow > * { flex: 1 1 14rem; }
+.linkButton { text-decoration: none; }
+
+.insuranceRows { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; }
+.insuranceRow { display: flex; flex-direction: column; gap: 6px; padding-block: 12px; border-block-start: 1px solid var(--nabd-color-border-subtle); }
+.insuranceRow:first-child { border-block-start: 0; }
+.insuranceName { font-weight: 700; font-size: var(--nabd-font-size-control); overflow-wrap: anywhere; }
+
+/* ---- waiting and conversations ---- */
+.rows { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.row {
+  display: flex; align-items: center; gap: var(--nabd-space-xs); padding: 12px; min-block-size: 76px; box-sizing: border-box;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
+  border-radius: var(--nabd-radius-2xl); box-shadow: var(--nabd-shadow-card);
+  color: var(--nabd-color-text-primary); text-decoration: none; min-inline-size: 0;
+}
+.rowLink { color: inherit; text-decoration: none; }
+.rowBody { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.rowName { margin: 0; font-size: var(--nabd-font-size-row); font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+.rowEnd { flex: none; color: var(--nabd-color-icon-secondary); display: inline-flex; }
+
+.messages { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.message { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: var(--nabd-radius-xl); min-inline-size: 0; box-sizing: border-box; max-inline-size: 88%; }
+.theirs { align-self: flex-start; background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); }
+.mine { align-self: flex-end; background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); }
+.system { align-self: center; background: var(--nabd-color-bg-sunken); text-align: center; max-inline-size: 100%; }
+.sender { font-size: var(--nabd-font-size-small); font-weight: 700; opacity: .8; }
+.when { font-size: var(--nabd-font-size-small); opacity: .7; }
+.body { margin: 0; font-size: var(--nabd-font-size-control); line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+.substitute {
+  display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: var(--nabd-radius-lg);
+  background: var(--nabd-color-service-coral-bg); color: var(--nabd-color-text-primary); border-inline-start: 3px solid var(--nabd-color-brand-coral);
+  font-size: var(--nabd-font-size-control); overflow-wrap: anywhere;
+}
+.substituteTitle { font-weight: 700; }
+
+.compose { display: flex; flex-direction: column; gap: 10px; }
+.fieldLabel { font-size: var(--nabd-font-size-control); font-weight: 700; }
+.field {
+  inline-size: 100%; box-sizing: border-box; min-block-size: 96px; padding: 12px 14px; resize: vertical; font: inherit;
+  font-size: var(--nabd-font-size-body); color: var(--nabd-color-text-primary); background: var(--nabd-color-bg-surface);
+  border: 1px solid var(--nabd-color-border-strong); border-radius: var(--nabd-radius-xl);
+}
+.field:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+
+.state { inline-size: 100%; max-inline-size: 440px; margin-inline: auto; display: grid; gap: 12px; padding-block: var(--nabd-space-md); }
+.skeleton { display: flex; flex-direction: column; gap: 12px; }
+
+@media (min-width: 768px) {
+  .head { display: flex; }
+  .rows { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .list { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+}
+
+@media (min-width: 1024px) {
+  .rows { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

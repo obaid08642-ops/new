@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { getStableDeviceId } from "@/lib/auth/device-id";
+import { announceSignedIn } from "@/lib/auth/session-identity";
 import styles from "./auth/auth.module.css";
 
 type Props = { locale: string };
@@ -58,6 +59,7 @@ export function SocialLoginButtons({ locale }: Props) {
                 body: JSON.stringify({ provider: "google", token: response.access_token }),
               });
               if (!res.ok) throw new Error("social_failed");
+              announceSignedIn();
               router.replace(`/${locale}/dashboard`); router.refresh();
             } catch { setError(failedMessage); } finally { setBusy(null); }
           },
@@ -86,6 +88,7 @@ export function SocialLoginButtons({ locale }: Props) {
     try {
       const res = await fetch("/api/auth/guest", { method: "POST", headers: { "x-nabd-device-id": getStableDeviceId() } });
       if (!res.ok) throw new Error("guest_failed");
+      announceSignedIn();
       router.replace(`/${locale}`); router.refresh();
     } catch { setError(failedMessage); setBusy(null); }
   }

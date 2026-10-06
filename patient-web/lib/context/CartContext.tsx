@@ -1,29 +1,27 @@
 "use client";
 
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { SIGNED_OUT_EVENT, useSessionIdentity } from "@/lib/auth/session-identity";
+import { cartAccountId, createCartStore, SERVER_CART_SNAPSHOT, type CartItem, type CartItemInput } from "@/lib/cart/cart-store";
 
-export interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  qty: number;
-  rx: boolean;
-  image?: string | null;
-  activeIngredient?: string | null;
-  form?: string | null;
-  strength?: string | null;
-  slug?: string | null;
-}
+export { mergeCarts, sanitizeCartItems, type CartItem, type CartItemInput } from "@/lib/cart/cart-store";
 
+/**
+ * The pharmacy cart is LOCAL-FIRST (owner decision 2026-10-06; the rules are in lib/cart/cart-store): a line is a product
+ * and a quantity, never a price, a subtotal or a stock figure, and adding, removing or changing a line never calls the
+ * backend. The provider shows the cart this browser kept for the last known owner at once, asks the session once
+ * (lib/auth/session-identity) and, when a patient is signed in, merges the guest cart into theirs. Sign-out clears it.
+ */
 interface CartContextType {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, "qty"> & { qty?: number }) => void;
+  addItem: (item: CartItemInput) => void;
   removeItem: (id: string) => void;
   updateQty: (id: string, delta: number) => void;
   clearCart: () => void;
   itemCount: number;
-  subtotal: number;
   hasRxItems: boolean;
+  /** False until the items saved in this browser have been read: a screen shows its empty state only when this is true. */
+  ready: boolean;
 }
 
 const defaultCartContext: CartContextType = {
@@ -33,81 +31,51 @@ const defaultCartContext: CartContextType = {
   updateQty: () => {},
   clearCart: () => {},
   itemCount: 0,
-  subtotal: 0,
   hasRxItems: false,
+  ready: true,
 };
 
 const CartContext = createContext<CartContextType>(defaultCartContext);
 
-const STORAGE_KEY = "nabd_patient_cart_v1";
+const browserStorage = () => (typeof window === "undefined" ? null : window.localStorage);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
-  const [hydrated, setHydrated] = useState(false);
+  const [store] = useState(() => createCartStore(browserStorage));
+  const { items, ready } = useSyncExternalStore(store.subscribe, store.getSnapshot, () => SERVER_CART_SNAPSHOT);
+  const identity = useSessionIdentity();
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) setItems(parsed);
-      }
-    } catch {
-      // ignore localStorage errors
-    } finally {
-      setHydrated(true);
-    }
-  }, []);
+    store.load();
+    const onStorage = (event: StorageEvent) => store.syncFromStorage(event.key);
+    const onSignedOut = () => store.signOut();
+    window.addEventListener("storage", onStorage);
+    window.addEventListener(SIGNED_OUT_EVENT, onSignedOut);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener(SIGNED_OUT_EVENT, onSignedOut);
+    };
+  }, [store]);
 
+  // A signed-in patient: their cart, with the guest cart merged in. "anonymous" and "unknown" change nothing: the session
+  // probe does not refresh an expired access token, so only an explicit sign-out (the event above) clears a cart.
+  const userId = cartAccountId(identity);
   useEffect(() => {
-    if (!hydrated) return;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-    } catch {
-      // ignore
-    }
-  }, [items, hydrated]);
+    if (userId) store.adoptUser(userId);
+  }, [store, userId]);
 
-  const addItem = useCallback((item: Omit<CartItem, "qty"> & { qty?: number }) => {
-    const qty = item.qty && item.qty > 0 ? item.qty : 1;
-    setItems((prev) => {
-      const idx = prev.findIndex((line) => line.id === item.id);
-      if (idx >= 0) {
-        const copy = [...prev];
-        copy[idx] = { ...copy[idx], qty: copy[idx].qty + qty };
-        return copy;
-      }
-      return [...prev, { ...item, qty }];
-    });
-  }, []);
-
-  const removeItem = useCallback((id: string) => {
-    setItems((prev) => prev.filter((line) => line.id !== id));
-  }, []);
-
-  const updateQty = useCallback((id: string, delta: number) => {
-    setItems((prev) =>
-      prev
-        .map((line) => (line.id === id ? { ...line, qty: line.qty + delta } : line))
-        .filter((line) => line.qty > 0)
-    );
-  }, []);
-
-  const clearCart = useCallback(() => {
-    setItems([]);
-  }, []);
+  const addItem = useCallback((item: CartItemInput) => store.add(item), [store]);
+  const removeItem = useCallback((id: string) => store.remove(id), [store]);
+  const updateQty = useCallback((id: string, delta: number) => store.update(id, delta), [store]);
+  const clearCart = useCallback(() => store.clear(), [store]);
 
   const itemCount = useMemo(() => items.reduce((sum, item) => sum + item.qty, 0), [items]);
-  const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.price * item.qty, 0), [items]);
   const hasRxItems = useMemo(() => items.some((item) => item.rx), [items]);
 
-  return (
-    <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQty, clearCart, itemCount, subtotal, hasRxItems }}
-    >
-      {children}
-    </CartContext.Provider>
+  const value = useMemo(
+    () => ({ items, addItem, removeItem, updateQty, clearCart, itemCount, hasRxItems, ready }),
+    [items, addItem, removeItem, updateQty, clearCart, itemCount, hasRxItems, ready],
   );
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
 export function useCart(): CartContextType {

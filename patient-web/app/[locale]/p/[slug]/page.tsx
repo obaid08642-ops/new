@@ -2,16 +2,27 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { cdnImage, getPublicProduct, type PublicProduct } from "@/lib/api/public-products-server";
+import { cdnImage, getPublicAlternatives, getPublicProduct, type PublicProduct } from "@/lib/api/public-products-server";
 import { JsonLd } from "@/components-next/json-ld";
-import { ProductCartActions } from "@/components-next/product-cart-actions";
-import { ProductGalleryModal } from "@/components-next/product-gallery-modal";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl, siteOrigin } from "@/lib/seo";
 import { howToJsonLd, speakable } from "@/lib/seo/json-ld";
 import { CiteThis } from "@/components-next/cite-this";
-import { ChevronLeft, ShieldCheck, FileText, AlertCircle, Info, Sparkles, Pill, Factory, Package, Beaker, Layers, Barcode, Tag } from "lucide-react";
-import styles from "./product-page.module.css";
+import { CoreShell } from "@/components-next/core/core-shell";
+import { StickyFooter } from "@/components-next/ui-generated/shells/StickyFooter";
+import { Card } from "@/components-next/ui-generated/components/Surfaces";
+import { StatusChip } from "@/components-next/ui-generated/components/Controls";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { CatalogSearch } from "@/components-next/pharmacy/catalog-search";
+import { ChipLink } from "@/components-next/pharmacy/chip-link";
+import { BuyActions, BuyBar, BuyProvider } from "@/components-next/pharmacy/product-buy";
+import { ProductGallery } from "@/components-next/pharmacy/product-gallery";
+import { ProductGrid, type GridProduct } from "@/components-next/pharmacy/product-grid";
+import { discountPercent } from "@/lib/discount";
+import { formatNumber, formatPrice } from "@/lib/format-price";
+import { ProductSections, type DetailGroup, type DetailSection } from "@/components-next/pharmacy/product-sections";
+import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
+import styles from "@/components-next/pharmacy/product-detail.module.css";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -49,51 +60,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-function factIcon(label: string) {
-  const l = label.toLowerCase();
-  if (l.includes("active") || l.includes("مادة") || l.includes("ingredient")) return <Beaker size={14} color="#1E332E" aria-hidden="true" />;
-  if (l.includes("form") || l.includes("شكل")) return <Pill size={14} color="#1E332E" aria-hidden="true" />;
-  if (l.includes("strength") || l.includes("تركيز") || l.includes("قوة")) return <Layers size={14} color="#1E332E" aria-hidden="true" />;
-  if (l.includes("package") || l.includes("عبوة") || l.includes("حجم")) return <Package size={14} color="#1E332E" aria-hidden="true" />;
-  if (l.includes("category") || l.includes("فئة")) return <Tag size={14} color="#1E332E" aria-hidden="true" />;
-  if (l.includes("manufacturer") || l.includes("شركة") || l.includes("مصنع")) return <Factory size={14} color="#1E332E" aria-hidden="true" />;
-  if (l.includes("origin") || l.includes("منشأ") || l.includes("بلد")) return <Factory size={14} color="#1E332E" aria-hidden="true" />;
-  if (l.includes("barcode") || l.includes("باركود")) return <Barcode size={14} color="#1E332E" aria-hidden="true" />;
-  return <Info size={14} color="#1E332E" aria-hidden="true" />;
-}
-
-function facts(product: PublicProduct, t: (k: string) => string): Array<[string, string]> {
-  const rows: Array<[string, string | null | undefined]> = [
-    [t("activeIngredient"), product.active_ingredient],
-    [t("form"), product.form],
-    [t("strength"), product.strength],
-    [t("packageSize"), product.package_size || product.package_content_details],
-    [t("category"), [product.category, product.sub_category, product.sub_sub_category].filter(Boolean).join(" › ") || null],
-    [t("manufacturer"), product.manufacturer],
-    [t("origin"), product.country_of_origin],
-    [t("barcode"), product.barcode],
-    [t("sku"), product.sku != null ? String(product.sku) : null],
-  ];
-  return rows.filter((r): r is [string, string] => Boolean(r[1]));
-}
+/** A long text field of the API as the lines it is written in (an empty field gives none, so no section is drawn). */
+const lines = (value?: string | null) => (value || "").split(/\n+/).map((line) => line.trim()).filter(Boolean);
 
 export default async function PublicProductPage({ params }: Props) {
   const { locale, slug } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("PublicProduct");
+  const b = await getTranslations("PharmacyBrowse");
+  const shared = await getTranslations("Shared");
+  const medicines = await getTranslations("Medicines");
   const fetchedProduct = await getPublicProduct(locale, slug);
   if (!fetchedProduct) notFound();
   const product: PublicProduct = fetchedProduct;
   const name = product.name || product.official_name || t("products");
   const canonical = localizedUrl(locale, `/p/${encodeURIComponent(product.slug)}`);
   const rawImages = (product.images && product.images.length > 0 ? product.images : [product.image]).filter((u): u is string => Boolean(u));
-  const images = rawImages.length > 0 ? rawImages.map((u) => cdnImage(u) || u).filter(Boolean) : ["/images/categories/medications.jpg"];
+  // No stock photo stands in for a missing picture: the gallery draws the category's icon instead (spec A, "Gallery").
+  const images = rawImages.map((u) => cdnImage(u) || u).filter(Boolean);
   const categoryPath = product.category
     ? `/${locale}/c/${encodeURIComponent(product.category)}${product.sub_category ? `/${encodeURIComponent(product.sub_category)}` : ""}`
     : null;
-
-  const availabilityLabel = product.available ? t("available") : t("limited");
 
   const howTo = howToJsonLd(product);
   const jsonLd: Array<Record<string, unknown>> = [
@@ -103,7 +91,7 @@ export default async function PublicProductPage({ params }: Props) {
       name,
       alternateName: product.official_name !== name ? product.official_name : undefined,
       description: product.description || name,
-      image: images,
+      image: images.length ? images : undefined,
       url: canonical,
       sku: product.sku != null ? String(product.sku) : undefined,
       gtin13: product.barcode && /^\d{13}$/.test(product.barcode) ? product.barcode : undefined,
@@ -199,162 +187,241 @@ export default async function PublicProductPage({ params }: Props) {
     ...(howTo ? [howTo] : []),
   ];
 
+  // What the buy card may offer: a price from the API, and a product that is still sold.
+  const hasPrice = product.price > 0;
+  const discontinued = product.availability_status === "discontinued";
+  const canBuy = hasPrice && !discontinued;
+  const percent = discountPercent(product.price, product.old_price);
+  const money = formatPrice(locale, product.price);
+
+  const alternatives: GridProduct[] = (await getPublicAlternatives(locale, product)).map((alt) => ({
+    id: alt.id,
+    slug: alt.slug,
+    name: alt.name || alt.slug,
+    price: alt.price,
+    oldPrice: alt.old_price,
+    image: alt.image,
+    form: alt.form,
+    strength: alt.strength,
+    packageSize: alt.package_size,
+    rx: alt.is_rx,
+    // "cheaper" is computed here, from the two real prices (spec A, "Alternatives")
+    badge: alt.price > 0 && hasPrice && alt.price < product.price ? b("cheaper") : undefined,
+  }));
+
+  const section = (id: string, title: string, items: string[]): DetailSection | null => (items.length ? { id, title, items } : null);
+  const group = (id: string, title: string, parts: Array<DetailSection | null>): DetailGroup | null => {
+    const sections = parts.filter((p): p is DetailSection => p !== null);
+    return sections.length ? { id, title, sections } : null;
+  };
+  const groups = [
+    group("usage", b("groupUsage"), [
+      section("description", t("description"), lines(product.description)),
+      section("indications", t("indications"), product.indications || []),
+      section("dosage", t("dosage"), lines(product.dosage_instructions)),
+      section("howToUse", t("howToUse"), product.how_to_use || []),
+    ]),
+    group("warnings", t("warnings"), [section("warnings", t("warnings"), product.warnings || [])]),
+    group("sideEffects", t("sideEffects"), [section("sideEffects", t("sideEffects"), product.side_effects || [])]),
+    group("more", b("groupMore"), [
+      section("storage", t("storage"), lines(product.storage_conditions)),
+      section("packageContent", t("packageContent"), lines(product.package_content_details)),
+      section("brandBenefits", t("brandBenefits"), lines(product.brand_benefits)),
+    ]),
+  ].filter((g): g is DetailGroup => g !== null);
+
+  const facts: Array<[string, string]> = ([
+    [t("form"), product.form],
+    [t("strength"), product.strength],
+    [t("packageSize"), product.package_size || product.package_content_details],
+    [t("manufacturer"), product.manufacturer],
+    [t("origin"), product.country_of_origin],
+    [medicines("prescription"), product.is_rx ? medicines("yes") : medicines("no")],
+  ] as Array<[string, string | null | undefined]>).filter((row): row is [string, string] => Boolean(row[1]));
+
+  const names = lines(product.official_name !== name ? product.official_name : null);
+  const ingredient = product.active_ingredient ? b("activeIngredientLine", { value: product.active_ingredient }) : null;
+  const maker = [product.manufacturer, product.country_of_origin ? b("madeIn", { country: product.country_of_origin }) : null].filter(Boolean).join(" · ");
+
   return (
-    <main className={`main ${styles.page}`}>
-      <JsonLd data={jsonLd} />
-      {/*
-        F82-1: no hand-written <link rel="preload"> here. It named the ORIGINAL image URL, while the gallery's
-        next/image (priority, sizes) asks for the AVIF/WebP rendition from /_next/image, so the browser downloaded
-        both. `priority` already emits the correct preload (imagesrcset + imagesizes) for the rendition that is shown.
-      */}
-      <nav className={styles.crumbs} aria-label="breadcrumb">
-        <Link href={`/${locale}`}>{t("home")}</Link>
-        <span aria-hidden="true">/</span>
-        <Link href={`/${locale}/c`}>{t("products")}</Link>
-        {product.category && categoryPath ? (
-          <>
-            <span aria-hidden="true">/</span>
-            <Link href={categoryPath}>{product.category}</Link>
-          </>
-        ) : null}
-        <span aria-hidden="true">/</span>
-        <span aria-current="page">{name}</span>
-      </nav>
-
-      {/* Hero with Gallery Lightbox & Purchase Actions */}
-      <section className={styles.hero}>
-        <div className={styles.heroMedia}>
-          <ProductGalleryModal name={name} images={images} />
-          {product.has_discount ? (
-            <span className={styles.badge}>
-              {t("discount").replace("{percent}", String(product.discount_percent))}
-            </span>
-          ) : null}
-        </div>
-        <div className={styles.heroText}>
-          <div className={styles.eyebrowWrap}>
-            <p className={styles.eyebrow}>
-              <ShieldCheck size={16} aria-hidden="true" />
-              <span>{product.is_rx ? t("rxRequired") : t("otc")} · {availabilityLabel}</span>
-            </p>
-          </div>
-          <h1>{name}</h1>
-          <div className={styles.priceCard}>
-            <div className={styles.priceRow}>
-              <strong className={styles.price}>{product.price.toFixed(2)} {product.currency}</strong>
-              {product.old_price && product.old_price > product.price ? (
-                <s className={styles.oldPrice}>{product.old_price.toFixed(2)} {product.currency}</s>
-              ) : null}
-            </div>
-            <p className={styles.subline}>{[product.form, product.strength, product.package_size].filter(Boolean).join(" · ")}</p>
-          </div>
-
-          {/* Add to Cart Actions */}
-          <div className={styles.actionWrap}>
-            <ProductCartActions
-              locale={locale}
-              product={{
-                id: product.id,
-                name,
-                price: product.price,
-                rx: product.is_rx,
-                image: images[0] || null,
-                slug: product.slug,
-                activeIngredient: product.active_ingredient,
-                form: product.form,
-                strength: product.strength,
-              }}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Key Facts & Specifications Grid */}
-      <section className={styles.detail} aria-label={t("facts")}>
-        <div className={styles.sectionHeading}>
-          <Info size={20} color="#00876F" />
-          <h2 className={styles.h2}>{t("facts")}</h2>
-        </div>
-        <dl className={styles.grid}>
-          {facts(product, t).map(([label, value]) => (
-            <div className={styles.item} key={label}>
-              <dt style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#1E332E" }}>
-                {factIcon(label)}
-                <span style={{ overflowWrap: "anywhere" }}>{label}</span>
-              </dt>
-              <dd style={{ overflowWrap: "anywhere" }}>{value}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
-
-      {/* Clear Medical Descriptions & Usage Blocks with distinct typography */}
-      {product.description ? (
-        <section className={styles.block}>
-          <div className={styles.sectionHeading}>
-            <FileText size={20} color="#00876F" />
-            <h2 className={styles.h2}>{t("description")}</h2>
-          </div>
-          <p className={styles.prose}>{product.description}</p>
-        </section>
-      ) : null}
-
-      {product.indications?.length ? (
-        <section className={`${styles.block} ${styles.indicationsBlock}`}>
-          <div className={styles.sectionHeading}>
-            <Sparkles size={20} color="#00876F" />
-            <h2 className={`${styles.h2} ${styles.highlightHeading}`}>{t("indications")}</h2>
-          </div>
-          <ul className={styles.list}>
-            {product.indications.map((x, i) => (
-              <li key={i}>{x}</li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      {product.dosage_instructions ? (
-        <section className={`${styles.block} ${styles.dosageBlock}`}>
-          <div className={styles.sectionHeading}>
-            <Info size={20} color="#2563EB" />
-            <h2 className={`${styles.h2} ${styles.dosageHeading}`}>{t("dosage")}</h2>
-          </div>
-          <p className={styles.prose}>{product.dosage_instructions}</p>
-        </section>
-      ) : null}
-
-      {product.warnings?.length ? (
-        <section className={`${styles.block} ${styles.warningBlock}`}>
-          <div className={styles.sectionHeading}>
-            <AlertCircle size={20} color="#DC2626" />
-            <h2 className={`${styles.h2} ${styles.warningHeading}`}>{t("warnings")}</h2>
-          </div>
-          <ul className={styles.list}>
-            {product.warnings.map((x, i) => (
-              <li key={i}>{x}</li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      <div className={styles.notice}>
-        <ShieldCheck size={20} color="#00876F" />
-        <p>{t("disclaimer")}</p>
-      </div>
-
-      <CiteThis
-        title={name}
-        uri={canonical}
-        author={null}
-        authorTitle={null}
-        publishedAt={null}
+    <BuyProvider
+      locale={locale}
+      product={{
+        id: product.id,
+        name,
+        price: product.price,
+        rx: product.is_rx,
+        image: images[0] || null,
+        slug: product.slug,
+        activeIngredient: product.active_ingredient,
+        form: product.form,
+        strength: product.strength,
+      }}
+    >
+      <CoreShell
         locale={locale}
-      />
+        backHref={categoryPath || `/${locale}/c`}
+        hideTabs
+        topBarSearch={<CatalogSearch locale={locale} tools={false} />}
+        footer={canBuy ? <StickyFooter label={b("total")}><BuyBar locale={locale} /></StickyFooter> : undefined}
+      >
+        <div className={styles.page}>
+          <JsonLd data={jsonLd} />
+          {/* F82-1: the gallery's CatalogImage (priority) emits the one correct preload, for the rendition shown. */}
 
-      <Link className={styles.back} href={categoryPath || `/${locale}/c`}>
-        <ChevronLeft size={18} aria-hidden="true" />
-        <span>{product.category ? t("browseCategory").replace("{category}", product.category) : t("backToCatalog")}</span>
-      </Link>
-    </main>
+          <nav className={styles.crumbs} aria-label={b("breadcrumb")}>
+            <ol>
+              <li><Link href={`/${locale}/c`}>{shared("navPharmacy")}</Link></li>
+              {product.category && categoryPath ? (
+                <>
+                  <li aria-hidden="true" className={styles.crumbSep}>›</li>
+                  <li><Link href={`/${locale}/c/${encodeURIComponent(product.category)}`}>{product.category}</Link></li>
+                </>
+              ) : null}
+              {product.category && product.sub_category ? (
+                <>
+                  <li aria-hidden="true" className={styles.crumbSep}>›</li>
+                  <li><Link href={categoryPath!}>{product.sub_category}</Link></li>
+                </>
+              ) : null}
+              <li aria-hidden="true" className={styles.crumbSep}>›</li>
+              <li aria-current="page">{name}</li>
+            </ol>
+          </nav>
+
+          <section className={styles.hero}>
+            <ProductGallery name={name} images={images} badge={percent > 0 ? t("discount", { percent: formatNumber(locale, percent) }) : undefined} />
+
+            <div className={styles.info}>
+              <div className={styles.chipsRow}>
+                <StatusChip label={product.is_rx ? t("rxRequired") : t("otc")} tone={product.is_rx ? "amber" : "mint"} />
+                <StatusChip label={product.available ? t("available") : discontinued ? t("unavailable") : t("limited")} tone={product.available ? "mint" : "amber"} />
+              </div>
+              {product.category && categoryPath ? (
+                <div className={styles.catChips}>
+                  <ChipLink href={categoryPath} label={[product.category, product.sub_category].filter(Boolean).join(" › ")} />
+                </div>
+              ) : null}
+
+              <div className={styles.names}>
+                <h1 className={styles.title}>{name}</h1>
+                {names.map((n) => <div key={n} className={styles.altName} dir="auto">{n}</div>)}
+                {ingredient ? <div className={styles.maker}>{ingredient}</div> : null}
+                {maker ? <div className={styles.maker}>{maker}</div> : null}
+              </div>
+
+              <Card elevation="card" padding="lg">
+                {hasPrice ? (
+                  <div className={styles.priceBlock}>
+                    <div className={styles.priceRow}>
+                      <strong className={styles.price}>{money.amount}</strong>
+                      <span className={styles.currency}>{money.currency}</span>
+                      {product.old_price && product.old_price > product.price ? (
+                        <s className={styles.oldPrice}>{formatPrice(locale, product.old_price).text}</s>
+                      ) : null}
+                    </div>
+                    <div className={styles.priceNote}>{[b("taxIncluded"), product.package_size].filter(Boolean).join(" · ")}</div>
+                  </div>
+                ) : (
+                  <p className={styles.noPrice}>{b("priceUnavailable")}</p>
+                )}
+
+                {!product.available ? (
+                  <div className={styles.banner} role="note">
+                    <FIcon icon="warning" tone="amber" chip="none" size={24} />
+                    <p className={styles.bannerTitle}>{discontinued ? b("discontinuedTitle") : b("shortageTitle")}</p>
+                  </div>
+                ) : null}
+
+                {product.is_rx ? (
+                  <div className={styles.rxCard}>
+                    <FIcon icon="prescription" tone={PHARMACY_TONE} size={44} />
+                    <div className={styles.rxBody}>
+                      <p className={styles.rxTitle}>{b("rxCardTitle")}</p>
+                      <p className={styles.rxText}>{b("rxCardBody")}</p>
+                      <Link className={styles.rxLink} href={`/${locale}/pharmacy/scan-prescription`}>{b("rxCardAction")}</Link>
+                    </div>
+                  </div>
+                ) : null}
+
+                {canBuy ? <BuyActions locale={locale} /> : null}
+              </Card>
+            </div>
+          </section>
+
+          <div className={styles.below}>
+            <div className={styles.side}>
+              {facts.length ? (
+                <section className={styles.factsBlock} aria-label={t("facts")}>
+                  <h2 className={styles.blockTitle}>{t("facts")}</h2>
+                  <dl className={styles.factsList}>
+                    {facts.map(([label, value]) => (
+                      <div className={styles.fact} key={label}>
+                        <dt className={styles.factLabel}>{label}</dt>
+                        <dd className={styles.factValue}>{value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+              ) : null}
+              <Link className={styles.ask} href={`/${locale}/pharmacy/chat`}>
+                <FIcon icon="chat-circle-text" tone={PHARMACY_TONE} size={52} />
+                <span className={styles.askText}>
+                  <span className={styles.askTitle}>{b("askTitle")}</span>
+                  <span className={styles.askBody}>{b("askBody")}</span>
+                </span>
+              </Link>
+            </div>
+
+            {alternatives.length ? (
+              <section className={`${styles.block} ${styles.alts}`} aria-label={b("alternativesTitle")}>
+                <div className={styles.blockHead}>
+                  <h2 className={styles.blockTitle}>{b("alternativesTitle")}</h2>
+                  {product.active_ingredient ? (
+                    <Link className={styles.blockLink} href={`/${locale}/c?q=${encodeURIComponent(product.active_ingredient)}`}>{b("seeAll")}</Link>
+                  ) : null}
+                </div>
+                <ProductGrid locale={locale} items={alternatives} layout="rail" />
+              </section>
+            ) : null}
+
+            <section className={`${styles.block} ${styles.details}`} aria-label={b("detailsTitle")}>
+              {groups.length ? (
+                <>
+                  <h2 className={styles.blockTitle}>{b("detailsTitle")}</h2>
+                  <div className={styles.detailsCard}>
+                    <ProductSections groups={groups} label={b("detailsTitle")} />
+                    <div className={styles.legal}>
+                      <p>{t("disclaimer")}</p>
+                      <div className={styles.ids}>
+                        {product.sku != null ? <span>{t("sku")}: {String(product.sku)}</span> : null}
+                        {product.barcode ? <span>{t("barcode")}: <bdi dir="ltr">{product.barcode}</bdi></span> : null}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className={styles.legal}>
+                  <p>{t("disclaimer")}</p>
+                  <div className={styles.ids}>
+                    {product.sku != null ? <span>{t("sku")}: {String(product.sku)}</span> : null}
+                    {product.barcode ? <span>{t("barcode")}: <bdi dir="ltr">{product.barcode}</bdi></span> : null}
+                  </div>
+                </div>
+              )}
+            </section>
+          </div>
+
+          <CiteThis
+            title={name}
+            uri={canonical}
+            author={null}
+            authorTitle={null}
+            publishedAt={null}
+            locale={locale}
+          />
+        </div>
+      </CoreShell>
+    </BuyProvider>
   );
 }

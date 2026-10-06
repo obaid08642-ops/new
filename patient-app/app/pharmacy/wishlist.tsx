@@ -1,232 +1,149 @@
-// @ts-nocheck
-import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  StatusBar,
-} from "react-native";
-import { router } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useApp } from "../../src/context/AppContext";
-import { Icon } from "../../src/components/Icon";
-import {
-  AppText,
-  Card,
-  Badge,
-  Button,
-  IconButton,
-} from "../../src/components/ui";
+import React, { useCallback, useEffect, useState } from 'react';
+import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
+import { router, type Href } from 'expo-router';
 
+import { AppHeader, Card, EmptyState, ErrorState, Icon, OfflineState, Screen, StatusChip } from '../../../packages/ui-native/src';
+import ProductImage from '../../src/components/ProductImage';
+import { Glyph, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
+import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
+import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
-import { useCart } from '../../src/context/CartContext';
-import { pickLocalized } from '../../src/utils/localize';
-import { ScreenState } from '../../src/components/ScreenStates';
+import { medGallery, medName, medPrice, needsRx, type Med } from '../../src/utils/pharmacyCatalog';
 
-export default function WishlistScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
-  const { addItem } = useCart();
+/**
+ * Wishlist — the PharmacyHub template (canvas/PharmacyHub.dc.html: the media tile, name, price, the Rx note and the
+ * ink add button) as a list of rows. The rows are what GET /users/me/wishlist returns; removing a row toggles it with
+ * POST /users/me/wishlist/:id and puts it back if the server refuses.
+ */
 
-  const [items, setItems] = useState<any[]>([]);
-  const [addingId, setAddingId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string|null>(null);
-
-  const loadWishlist = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await apiFetch('/users/me/wishlist');
-      if (data && Array.isArray(data)) setItems(data);
-    } catch (err) {
-      setError('تعذر تحميل قائمة الأمنيات');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  React.useEffect(() => { loadWishlist(); }, []);
-
-  const removeFromWishlist = async (id: string) => {
-    const prev = items;
-    setItems((p) => p.filter((i) => i.id !== id));
-    try {
-      await apiFetch(`/users/me/wishlist/${id}`, { method: 'POST' });
-    } catch (err) {
-      setItems(prev); // revert on failure
-    }
-  };
-
-  const addToCart = async (item: any) => {
-    setAddingId(item.id);
-    try {
-      await addItem({
-        id: item.id,
-        name: pickLocalized(item.name_ar, item.name_en) || item.name || 'منتج',
-        price: item.price ?? 0,
-        rx: !!item.rx || !!item.requires_prescription,
-        image: item.image,
-      });
-    } catch (err) {
-      logError('pharmacy:wishlist', err);
-    } finally {
-      setAddingId(null);
-    }
-  };
-
+function Row({ item, onRemove, onAdd, onOpen }: { item: Med; onRemove: (m: Med) => void; onAdd: (m: Med) => void; onOpen: (m: Med) => void }) {
+  const { theme, t, c, flow, k, money } = useScreenUi();
+  const price = medPrice(item);
+  const unavailable = item.available === false;
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-      <View
-        style={[
-          styles.header,
-          {
-            paddingTop: insets.top + 8,
-            backgroundColor: isDark ? colors.surface : colors.white,
-          },
-        ]}
-      >
-        <AppText variant="bodySM">قائمة الأمنيات</AppText>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Icon name="back" size={22} color={colors.textPrimary} />
-        </TouchableOpacity>
-      </View>
-
-      <ScreenState loading={loading} error={error} empty={!loading && !error && items.length === 0} emptyTitle="لا توجد منتجات في قائمة الأمنيات" onRetry={loadWishlist}>
-      <FlatList
-        data={items}
-        keyExtractor={(i) => i.id}
-        contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <Icon name="favorite" size={20} color={colors.primary} />
-            <AppText variant="bodySM">قائمة الأمنيات فارغة</AppText>
-            <TouchableOpacity
-              onPress={() => router.back()}
-              style={[styles.shopBtn, { backgroundColor: colors.secondary }]}
-            >
-              <AppText variant="bodySM">ابدأ التسوق</AppText>
-            </TouchableOpacity>
+    <Card padding="sm" theme={theme}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <Pressable accessibilityRole="link" accessibilityLabel={medName(item)} onPress={() => onOpen(item)} style={{ flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <View style={{ width: 72, height: 72, borderRadius: 16, backgroundColor: c.bg.media, overflow: 'hidden' }}>
+            <ProductImage uri={medGallery(item)[0]} style={{ width: '100%', height: '100%' }} iconSize={34} />
           </View>
-        }
-        renderItem={({ item }) => (
-          <View
-            style={[
-              styles.wishCard,
-              { backgroundColor: isDark ? colors.surface : colors.white },
-            ]}
+          <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+            <Text numberOfLines={2} style={{ ...scale(t, 'small', 'medium'), lineHeight: 19, color: c.text.primary, ...flow }}>{medName(item)}</Text>
+            {price ? (
+              <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>
+                {money(price)} <Text style={{ ...scale(t, 'tag', 'regular') }}>{k('pharmacy.currency')}</Text>
+              </Text>
+            ) : null}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <StatusChip label={unavailable ? k('pharmacy.wishlist.unavailable') : k('pharmacy.wishlist.available')} tone={unavailable ? 'peach' : 'mint'} theme={theme} />
+              {needsRx(item) ? <Text style={{ ...scale(t, 'tag', 'bold'), color: c.status.warning.fg }}>{k('pharmacy.needsRx')}</Text> : null}
+            </View>
+          </View>
+        </Pressable>
+        <View style={{ gap: 8 }}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={k('pharmacy.product.favRemove')}
+            onPress={() => onRemove(item)}
+            style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 14, backgroundColor: c.status.danger.bg, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.8 : 1 })}
           >
-            <View style={styles.wishLeft}>
-              <TouchableOpacity
-                onPress={() => removeFromWishlist(item.id)}
-                style={[styles.removeBtn, { backgroundColor: "#FEE2E2" }]}
-                accessibilityLabel="إزالة من المفضلة"
-              >
-                <Icon name="delete" size={16} color="#F0695C" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => addToCart(item)}
-                style={[styles.cartBtn, { backgroundColor: item.available === false ? colors.textDisabled : colors.secondary }]}
-                disabled={item.available === false || addingId === item.id}
-              >
-                <Icon name="shopping_cart" size={16} color="#fff" />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.wishInfo}>
-              <AppText variant="bodySM">{pickLocalized(item.name_ar, item.name_en) || 'منتج'}</AppText>
-              {!!item.requires_prescription && (
-                <View style={[styles.discountBadge, { backgroundColor: "#EDE9FE" }]}>
-                  <AppText variant="bodySM">يتطلب روشتة</AppText>
-                </View>
-              )}
-              <View style={styles.wishPricing}>
-                <AppText variant="bodySM">{Number(item.price || 0).toFixed(2)} ر.س</AppText>
-              </View>
-              <View style={[styles.stockBadge, { backgroundColor: item.available === false ? "#FEE2E2" : "#DCFCE7" }]}>
-                <AppText variant="bodySM">{item.available === false ? " غير متوفر" : " متوفر"}</AppText>
-              </View>
-            </View>
-            <TouchableOpacity
-              onPress={() =>
-                router.push({
-                  pathname: "/pharmacy/product-detail",
-                  params: { id: item.id, name: item.name_ar },
-                })
-              }
-              style={[styles.wishEmoji, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}
-            >
-              <Icon name="medication" size={26} color={colors.primary} />
-            </TouchableOpacity>
-          </View>
-        )}
-      />
-      </ScreenState>
-    </View>
+            <Glyph name="heart" size={20} color={c.icon.favorite} />
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={k('pharmacy.addToCart')}
+            accessibilityState={{ disabled: unavailable }}
+            disabled={unavailable}
+            onPress={() => onAdd(item)}
+            style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 14, backgroundColor: c.action.selected.bg, alignItems: 'center', justifyContent: 'center', opacity: unavailable ? 0.4 : pressed ? 0.8 : 1 })}
+          >
+            <Icon name="plus" size={18} color={c.action.selected.fg} />
+          </Pressable>
+        </View>
+      </View>
+    </Card>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingBottom: 14,
-  },
-  title: { fontSize: 18, fontWeight: "800" },
-  empty: { alignItems: "center", paddingTop: 60, gap: 12 },
-  emptyText: { fontSize: 15, fontWeight: "400" },
-  shopBtn: {
-    borderRadius: 14,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    marginTop: 8,
-  },
-  shopBtnText: { color: "#fff", fontSize: 15, fontWeight: "800" },
-  wishCard: {
-    borderRadius: 18,
-    padding: 14,
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    gap: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  wishEmoji: {
-    width: 64,
-    height: 64,
-    borderRadius: 18,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  wishInfo: { flex: 1, alignItems: "flex-end", gap: 4 },
-  wishName: { fontSize: 14, fontWeight: "800" },
-  wishBrand: { fontSize: 11, fontWeight: "400" },
-  wishPricing: { flexDirection: "row-reverse", alignItems: "center", gap: 6 },
-  wishPrice: { fontSize: 16, fontFamily: "Cairo-ExtraBold" },
-  discountBadge: { borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
-  stockBadge: { borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 },
-  wishLeft: { gap: 8 },
-  removeBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  cartBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});
+export default function WishlistScreen() {
+  const { theme, c, dir, k } = useScreenUi();
+  const addToCart = useAddMedToCart();
+  const [items, setItems] = useState<Med[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
+
+  const load = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
+    setFailed(null);
+    try {
+      const data = await apiFetch<Med[] | { data?: Med[] }>('/users/me/wishlist');
+      const rows = Array.isArray(data) ? data : data?.data;
+      setItems(Array.isArray(rows) ? rows : []);
+    } catch (e) {
+      logError('pharmacy:wishlist', e);
+      setFailed((await isOffline()) ? 'offline' : 'error');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const remove = async (m: Med) => {
+    const before = items;
+    setItems((p) => p.filter((i) => i.id !== m.id));
+    try {
+      await apiFetch(`/users/me/wishlist/${m.id}`, { method: 'POST' });
+    } catch {
+      setItems(before); // put it back when the server refused
+    }
+  };
+
+  const back = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace('/(tabs)/pharmacy' as Href);
+  };
+
+  let empty: React.ReactNode;
+  if (loading) {
+    empty = (
+      <View accessibilityLabel={k('pharmacy.loading')} accessibilityState={{ busy: true }} style={{ gap: 12 }}>
+        {[0, 1, 2].map((i) => (
+          <View key={i} style={{ height: 100, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} />
+        ))}
+      </View>
+    );
+  } else if (failed === 'offline') {
+    empty = <OfflineState title={k('pharmacy.offline.title')} body={k('pharmacy.offline.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void load()} theme={theme} />;
+  } else if (failed === 'error') {
+    empty = <ErrorState title={k('pharmacy.wishlist.loadError')} body={k('pharmacy.error.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void load()} theme={theme} />;
+  } else {
+    empty = <EmptyState icon="heart" tone={PHARMACY_TONE} title={k('pharmacy.wishlist.empty')} body={k('pharmacy.wishlist.emptyBody')} actionLabel={k('pharmacy.wishlist.shop')} onAction={() => router.replace('/(tabs)/pharmacy' as Href)} theme={theme} />;
+  }
+
+  return (
+    <Screen theme={theme} direction={dir} header={<View style={COLUMN}><AppHeader title={k('pharmacy.favorites')} onBack={back} backLabel={k('pharmacy.back')} theme={theme} direction={dir} /></View>} testID="wishlist-screen">
+      <FlatList
+        style={{ flex: 1 }}
+        data={loading || failed ? [] : items}
+        keyExtractor={(i) => String(i.id)}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void load(true); }} tintColor={c.text.primary} />}
+        ListEmptyComponent={<View style={{ flex: 1, justifyContent: 'center' }}>{empty}</View>}
+        contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 40, gap: 12, flexGrow: 1 }}
+        renderItem={({ item }) => (
+          <Row
+            item={item}
+            onRemove={remove}
+            onAdd={addToCart}
+            onOpen={(m) => router.push({ pathname: '/pharmacy/product-detail', params: { id: m.id, name: medName(m) } })}
+          />
+        )}
+      />
+    </Screen>
+  );
+}
