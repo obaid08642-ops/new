@@ -2,7 +2,7 @@
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { SIGNED_OUT_EVENT, useSessionIdentity } from "@/lib/auth/session-identity";
-import { createCartStore, SERVER_CART_SNAPSHOT, type CartItem, type CartItemInput } from "@/lib/cart/cart-store";
+import { cartAccountId, createCartStore, SERVER_CART_SNAPSHOT, type CartItem, type CartItemInput } from "@/lib/cart/cart-store";
 
 export { mergeCarts, sanitizeCartItems, type CartItem, type CartItemInput } from "@/lib/cart/cart-store";
 
@@ -58,7 +58,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // A signed-in patient: their cart, with the guest cart merged in. "anonymous" and "unknown" change nothing: the session
   // probe does not refresh an expired access token, so only an explicit sign-out (the event above) clears a cart.
-  const userId = identity.status === "user" ? identity.id : null;
+  const userId = cartAccountId(identity);
   useEffect(() => {
     if (userId) store.adoptUser(userId);
   }, [store, userId]);

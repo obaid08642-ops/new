@@ -7,6 +7,7 @@ import {
   mergeCarts,
   sanitizeCartItems,
   userCartKey,
+  cartAccountId,
   type CartItemInput,
   type StorageLike,
 } from "./cart-store";
@@ -328,5 +329,13 @@ describe("signing out", () => {
     store.signOut();
     stop();
     expect(seen).toEqual([0]);
+  });
+});
+
+describe("whose cart a session answer names", () => {
+  it("is a patient's id only: not a guest account, not anonymous, not unknown, not loading", () => {
+    expect(cartAccountId({ status: "user", id: "u1", isGuest: false })).toBe("u1");
+    expect(cartAccountId({ status: "user", id: "g1", isGuest: true })).toBeNull();
+    for (const status of ["anonymous", "unknown", "loading"]) expect(cartAccountId({ status })).toBeNull();
   });
 });

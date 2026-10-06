@@ -72,6 +72,14 @@ export function mergeCarts(base: CartItem[], extra: CartItem[]): CartItem[] {
   return merged;
 }
 
+/**
+ * Whose cart a session answer names: a signed-in patient, never a guest account (it shares the visitor's cart, which is
+ * merged when a real patient signs in) and never an answer that is not a patient ("anonymous", "unknown", "loading").
+ */
+export function cartAccountId(identity: { status: string; id?: string; isGuest?: boolean }): string | null {
+  return identity.status === "user" && identity.id && !identity.isGuest ? identity.id : null;
+}
+
 export type CartSnapshot = { items: CartItem[]; ready: boolean };
 
 export const SERVER_CART_SNAPSHOT: CartSnapshot = { items: [], ready: false };
