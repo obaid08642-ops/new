@@ -24,6 +24,7 @@ import { RowCard } from "@/components-next/consult/consult-parts";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import styles from "@/components-next/diagnostics/diag.module.css";
 import type { Metadata } from "next";
+import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string }> };
 
@@ -106,7 +107,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
 
   const testTags = (s: LabService): Tag[] => [
     ...(s.homeVisitSupported ? [{ label: t("tagHome"), tone: LAB.tone } as Tag] : []),
-    ...(s.fastingRequired ? [{ label: t("tagFasting"), tone: "amber" } as Tag] : []),
+    ...(s.fastingRequired ? [{ label: t("tagFasting"), tone: DIAG_TONES.warn } as Tag] : []),
   ];
   const addHref = (s: LabService, name: string) => `/${locale}/diagnostics/cart?add=${encodeURIComponent(s.id)}&name=${encodeURIComponent(name)}${s.price !== undefined ? `&price=${s.price}` : ""}`;
   const caret = <Icon name={rtl ? "caret-left" : "caret-right"} size={20} tone="currentColor" />;
@@ -151,8 +152,8 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
       </div>
 
       <div className={styles.quickGrid}>
-        <QuickLink href={`/${locale}/diagnostics/results`} icon="chart-line-up" tone="mint" label={t("quickResults")} />
-        <QuickLink href={`/${locale}/diagnostics/lab-comparison`} icon="arrows-left-right" tone="teal" label={t("quickCompare")} />
+        <QuickLink href={`/${locale}/diagnostics/results`} icon="chart-line-up" tone={DIAG_TONES.good} label={t("quickResults")} />
+        <QuickLink href={`/${locale}/diagnostics/lab-comparison`} icon="arrows-left-right" tone={DIAG_TONES.facility} label={t("quickCompare")} />
       </div>
       <RowCard href={`/${locale}/diagnostics/bookings`} icon={SERVICE_ICONS.insurance.icon} tone={SERVICE_ICONS.insurance.tone} title={t("insuranceTitle")} sub={t("insuranceSub")} caret={caret} />
 

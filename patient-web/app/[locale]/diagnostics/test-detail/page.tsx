@@ -23,7 +23,7 @@ export default async function DiagnosticsTestDetailPage({ params, searchParams }
   if (!response.ok) notFound();
   const payload = await response.json().catch(() => null);
   const root = payload && typeof payload === "object" ? (payload as Record<string, unknown>) : {};
-  const list = [root.data, root.items, root.services, root.results].find(Array.isArray);
+  const list = Array.isArray(payload) ? payload : [root.data, root.items, root.services, root.results].find(Array.isArray);
   const match = Array.isArray(list) ? list.find((item) => {
     if (!item || typeof item !== "object") return false;
     const o = item as Record<string, unknown>;

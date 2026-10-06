@@ -7,6 +7,7 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import consult from "@/components-next/consult/consult.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/diagnostics/diag.module.css";
+import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 
 const KINDS = ["doctor_request", "preauth", "insurance_card", "other"] as const;
 const KIND_KEYS = { doctor_request: "docDoctorRequest", preauth: "docPreauth", insurance_card: "docInsuranceCard", other: "docOther" } as const;
@@ -57,7 +58,7 @@ export function DiagnosticsDocumentUpload({ locale, bookingId }: { locale: strin
   return (
     <div className={consult.stack}>
       <div className={rx.drop}>
-        <FIcon icon="shield-check" tone="blue" size={72} />
+        <FIcon icon="shield-check" tone={DIAG_TONES.info} size={72} />
         <p className={rx.dropTitle}>{t("uploadDropTitle")}</p>
         <p className={rx.dropHint}>{t("uploadDropHint")}</p>
         <label className={`nabd-button nabd-button--primary nabd-button--lg ${styles.fileBtn}`}>

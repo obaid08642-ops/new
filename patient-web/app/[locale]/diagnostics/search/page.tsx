@@ -11,7 +11,7 @@ type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ q?: 
 
 function extractServices(payload: unknown, locale: string): SearchRow[] {
   const root = payload && typeof payload === "object" ? (payload as Record<string, unknown>) : {};
-  const list = [root.data, root.items, root.services, root.results].find(Array.isArray);
+  const list = Array.isArray(payload) ? payload : [root.data, root.items, root.services, root.results].find(Array.isArray);
   if (!Array.isArray(list)) return [];
   return list.flatMap((item) => {
     if (!item || typeof item !== "object") return [];

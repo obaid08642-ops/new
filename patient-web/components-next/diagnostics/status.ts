@@ -1,4 +1,5 @@
 import type { ServiceTone } from "@/components-next/ui-generated/icons/fill";
+import { DIAG_TONES } from "./tones";
 
 export type DiagStatusKey = "pending" | "insurance" | "confirmed" | "arrived" | "sampled" | "processing" | "report" | "cancelled" | "unknown";
 
@@ -29,15 +30,15 @@ const GROUPS: Record<string, DiagStatusKey> = {
 };
 
 const TONES: Record<DiagStatusKey, ServiceTone> = {
-  pending: "amber",
-  insurance: "blue",
-  confirmed: "mint",
-  arrived: "mint",
-  sampled: "teal",
-  processing: "blue",
-  report: "mint",
-  cancelled: "ink",
-  unknown: "ink",
+  pending: DIAG_TONES.warn,
+  insurance: DIAG_TONES.info,
+  confirmed: DIAG_TONES.good,
+  arrived: DIAG_TONES.good,
+  sampled: DIAG_TONES.facility,
+  processing: DIAG_TONES.info,
+  report: DIAG_TONES.good,
+  cancelled: DIAG_TONES.quiet,
+  unknown: DIAG_TONES.quiet,
 };
 
 export function diagStatus(state: string | undefined): { key: DiagStatusKey; tone: ServiceTone } {

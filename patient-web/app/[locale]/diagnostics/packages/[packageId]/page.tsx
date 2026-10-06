@@ -10,6 +10,7 @@ import { getPublicLabPackage } from "@/lib/api/labs-server";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ActionLinks, BulletList, Facts, Hero, Notice, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
 import { LAB, TagRow, hoursText, money, pickText, type Tag } from "@/components-next/diagnostics/diag-parts";
+import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 
 type Props = { params: Promise<{ locale: string; packageId: string }> };
 
@@ -57,14 +58,14 @@ export default async function LabPackageDetailPage({ params }: Props) {
   const preparation = (locale === "ar" || locale === "ur" ? pkg.preparationAr ?? pkg.preparationEn : pkg.preparationEn ?? pkg.preparationAr) ?? [];
   const tags: Tag[] = [
     ...(pkg.homeVisitSupported ? [{ label: w("tagHome"), tone: LAB.tone } as Tag] : []),
-    ...(pkg.fastingRequired ? [{ label: w("tagFasting"), tone: "amber" } as Tag] : []),
+    ...(pkg.fastingRequired ? [{ label: w("tagFasting"), tone: DIAG_TONES.warn } as Tag] : []),
   ];
   const rows: FactRow[] = [
     ...(pkg.price !== undefined ? [{ label: t("priceLabel"), value: <bdi>{money(locale, pkg.price)}</bdi>, icon: "tag", tone: LAB.tone } as FactRow] : []),
-    ...(pkg.oldPrice !== undefined && pkg.oldPrice > (pkg.price ?? 0) ? [{ label: t("previousPrice"), value: <bdi>{money(locale, pkg.oldPrice)}</bdi>, icon: "tag", tone: "amber" } as FactRow] : []),
+    ...(pkg.oldPrice !== undefined && pkg.oldPrice > (pkg.price ?? 0) ? [{ label: t("previousPrice"), value: <bdi>{money(locale, pkg.oldPrice)}</bdi>, icon: "tag", tone: DIAG_TONES.warn } as FactRow] : []),
     ...(pkg.includedServices?.length ? [{ label: t("testsLabel"), value: t("tests", { count: pkg.includedServices.length }), icon: "test-tube", tone: LAB.tone } as FactRow] : []),
-    ...(pkg.turnaroundHours !== undefined ? [{ label: t("turnaround"), value: hoursText(locale, pkg.turnaroundHours), icon: "file-text", tone: "blue" } as FactRow] : []),
-    ...(pkg.fastingRequired ? [{ label: t("preparation"), value: pkg.fastingHours ? t("fastingHours", { value: pkg.fastingHours }) : t("fasting"), icon: "clock-counter-clockwise", tone: "amber" } as FactRow] : []),
+    ...(pkg.turnaroundHours !== undefined ? [{ label: t("turnaround"), value: hoursText(locale, pkg.turnaroundHours), icon: "file-text", tone: DIAG_TONES.info } as FactRow] : []),
+    ...(pkg.fastingRequired ? [{ label: t("preparation"), value: pkg.fastingHours ? t("fastingHours", { value: pkg.fastingHours }) : t("fasting"), icon: "clock-counter-clockwise", tone: DIAG_TONES.warn } as FactRow] : []),
   ];
   const addHref = `/${locale}/diagnostics/cart?add=${encodeURIComponent(packageId)}&name=${encodeURIComponent(name ?? "")}${pkg.price !== undefined ? `&price=${pkg.price}` : ""}`;
 

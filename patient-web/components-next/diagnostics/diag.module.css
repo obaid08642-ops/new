@@ -41,6 +41,7 @@
 .check:has(input:focus-visible) { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-sm); }
 .checks { display: flex; flex-wrap: wrap; gap: 4px 20px; }
 .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.filters > * { flex: 1 1 100%; min-inline-size: 0; }
 
 /* ---- a package card: a tinted card on a rail (ServiceHub "باقات الفحوصات") ---- */
 .rail { display: flex; gap: 12px; overflow-x: auto; padding-block-end: 4px; scroll-snap-type: x proximity; margin-inline: calc(var(--nabd-shell-gutter, 16px) * -1); padding-inline: var(--nabd-shell-gutter, 16px); }

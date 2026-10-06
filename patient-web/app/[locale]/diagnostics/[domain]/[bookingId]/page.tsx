@@ -11,6 +11,7 @@ import { LAB, RADIOLOGY, TagRow, pickText } from "@/components-next/diagnostics/
 import { diagStatus } from "@/components-next/diagnostics/status";
 import { Timeline } from "@/components-next/ui-generated/components/Cards";
 import { formatWhen } from "@/components-next/pharmacy-offers/format";
+import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 
 type Props = { params: Promise<{ locale: string; domain: string; bookingId: string }> };
 
@@ -45,9 +46,9 @@ export default async function DiagnosticDetailPage({ params }: Props) {
   const home = booking.locationType === "HOME_COLLECTION" || booking.locationType === "MOBILE_HOME_VISIT";
   const rows: FactRow[] = [
     { label: t("status"), value: statusText, icon: "check-circle", tone: status.tone },
-    ...(when ? [{ label: t("scheduled"), value: <bdi>{when}</bdi>, icon: "calendar-dots", tone: "coral" } as FactRow] : []),
-    ...(booking.locationType ? [{ label: t("location"), value: home ? w("locationHome") : w("locationFacility"), icon: home ? "moped" : "hospital", tone: "teal" } as FactRow] : []),
-    ...(booking.medicalReferralRequired !== undefined ? [{ label: t("referral"), value: booking.medicalReferralRequired ? t("yes") : t("no"), icon: "file-text", tone: "blue" } as FactRow] : []),
+    ...(when ? [{ label: t("scheduled"), value: <bdi>{when}</bdi>, icon: "calendar-dots", tone: DIAG_TONES.health } as FactRow] : []),
+    ...(booking.locationType ? [{ label: t("location"), value: home ? w("locationHome") : w("locationFacility"), icon: home ? "moped" : "hospital", tone: DIAG_TONES.facility } as FactRow] : []),
+    ...(booking.medicalReferralRequired !== undefined ? [{ label: t("referral"), value: booking.medicalReferralRequired ? t("yes") : t("no"), icon: "file-text", tone: DIAG_TONES.info } as FactRow] : []),
   ];
   const steps = tracking?.steps ?? [];
   const current = steps.findIndex((step) => !step.done);
@@ -62,7 +63,7 @@ export default async function DiagnosticDetailPage({ params }: Props) {
   return (
     <ConsultPage locale={locale} title={label} backHref={backHref}>
       <Hero icon={visual.icon} tone={visual.tone} title={label} sub={statusText}>
-        {booking.hasReport ? <TagRow tags={[{ label: t("reportReady"), tone: "mint" }]} /> : null}
+        {booking.hasReport ? <TagRow tags={[{ label: t("reportReady"), tone: DIAG_TONES.good }]} /> : null}
       </Hero>
       <SectionCard id="diag-facts" title={w("bookingDetails")}><Facts rows={rows} label={label} /></SectionCard>
       {steps.length > 0 ? (

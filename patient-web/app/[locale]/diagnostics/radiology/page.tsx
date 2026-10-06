@@ -10,6 +10,7 @@ import consult from "@/components-next/consult/consult.module.css";
 import { CheckField, RADIOLOGY, RadiologyTile, SearchForm, hoursText, minutesText, money, pickText, type Tag } from "@/components-next/diagnostics/diag-parts";
 import styles from "@/components-next/diagnostics/diag.module.css";
 import type { Metadata } from "next";
+import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<Record<string, string | string[] | undefined>> };
 
@@ -94,8 +95,8 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
           {services.map((service) => {
             const tags: Tag[] = [
               ...(service.homeVisitSupported ? [{ label: t("homeVisit"), tone: RADIOLOGY.tone } as Tag] : []),
-              ...(service.facilityVisitSupported ? [{ label: t("facilityVisit"), tone: "teal" } as Tag] : []),
-              ...(service.contrastRequired ? [{ label: w("tagContrast"), tone: "amber" } as Tag] : []),
+              ...(service.facilityVisitSupported ? [{ label: t("facilityVisit"), tone: DIAG_TONES.facility } as Tag] : []),
+              ...(service.contrastRequired ? [{ label: w("tagContrast"), tone: DIAG_TONES.warn } as Tag] : []),
             ];
             const sub = [
               service.modality?.toUpperCase(),

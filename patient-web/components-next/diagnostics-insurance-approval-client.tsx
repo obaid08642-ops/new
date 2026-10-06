@@ -10,6 +10,7 @@ import { formatPrice, formatNumber } from "@/lib/format-price";
 import consult from "@/components-next/consult/consult.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/diagnostics/diag.module.css";
+import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 
 type Item = { id: string; name: string; price: number; covered: boolean; rejectReason?: string };
 type OrderState = {
@@ -112,7 +113,7 @@ export function DiagnosticsInsuranceApprovalClient({ orderId, labName, visitType
   const checkoutQuery = order.status === "rejected"
     ? `visitType=${encodeURIComponent(visitType)}&isInsurance=false&total=${order.totalAmount + (visitType === "home" ? 50 : 0)}`
     : `visitType=${encodeURIComponent(visitType)}&isInsurance=hybrid&copay=${finalToPay}`;
-  const tone = order.status === "approved" ? "mint" : order.status === "partial_approval" ? "amber" : order.status === "rejected" ? "ink" : "blue";
+  const tone = order.status === "approved" ? DIAG_TONES.good : order.status === "partial_approval" ? DIAG_TONES.warn : order.status === "rejected" ? DIAG_TONES.quiet : DIAG_TONES.info;
 
   return (
     <>
@@ -136,7 +137,7 @@ export function DiagnosticsInsuranceApprovalClient({ orderId, labName, visitType
               <div className={styles.coverageRow}>
                 <span className={consult.rowTitle}>{item.name}</span>
                 <span className={styles.price}><bdi>{money(item.price)}</bdi></span>
-                <StatusChip label={item.covered ? t("covered") : t("notCovered")} tone={item.covered ? "mint" : "ink"} />
+                <StatusChip label={item.covered ? t("covered") : t("notCovered")} tone={item.covered ? DIAG_TONES.good : DIAG_TONES.quiet} />
               </div>
               {!item.covered && order.status !== "rejected" ? (
                 <>

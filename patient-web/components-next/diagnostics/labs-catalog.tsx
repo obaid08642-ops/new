@@ -6,6 +6,7 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { CheckField, LAB, LabCard, SearchForm, money, pickText, type Tag } from "./diag-parts";
 import styles from "./diag.module.css";
+import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 
 /**
  * The laboratory catalogue (canvas/ServiceHub, the tests list): a search and a "home collection" filter in the URL, one card
@@ -42,9 +43,9 @@ export async function LabsCatalog({ locale, search, homeOnly, backHref }: { loca
           {services.map((service) => {
             const tags: Tag[] = [
               ...(service.homeVisitSupported ? [{ label: t("homeVisit"), tone: LAB.tone } as Tag] : []),
-              ...(service.facilityVisitSupported ? [{ label: t("facilityVisit"), tone: "teal" } as Tag] : []),
-              ...(service.fastingRequired ? [{ label: w("tagFasting"), tone: "amber" } as Tag] : []),
-              ...(service.unavailable ? [{ label: t("unavailable"), tone: "ink" } as Tag] : []),
+              ...(service.facilityVisitSupported ? [{ label: t("facilityVisit"), tone: DIAG_TONES.facility } as Tag] : []),
+              ...(service.fastingRequired ? [{ label: w("tagFasting"), tone: DIAG_TONES.warn } as Tag] : []),
+              ...(service.unavailable ? [{ label: t("unavailable"), tone: DIAG_TONES.quiet } as Tag] : []),
             ];
             return (
               <LabCard
