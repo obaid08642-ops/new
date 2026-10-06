@@ -1,0 +1,112 @@
+[
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics",
+    "element": "Payment filter (cash / insurance) drawn on ServiceHub",
+    "file": "",
+    "line": 0,
+    "found": "[owner] The board has it; no field says which test or lab takes insurance, so it is not drawn.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics",
+    "element": "Filter 'nearest'",
+    "file": "",
+    "line": 0,
+    "found": "[backend] No distance on the catalogue lists; the option was dropped.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics",
+    "element": "Approved labs carousel",
+    "file": "",
+    "line": 0,
+    "found": "[backend] GET /providers?type=lab returns an empty list on the seeded database, so the carousel is hidden; the board's 'accepts insurance' tag has no field.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics",
+    "element": "Compare prices shortcut",
+    "file": "",
+    "line": 0,
+    "found": "[owner] Opens the test search (lab-comparison needs a test); confirm that is the intended entry.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics/insurance-approval",
+    "element": "Home visit fee 50",
+    "file": "",
+    "line": 0,
+    "found": "[backend] A constant added in the screen to the amount to pay; the server sends no such fee.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics/checkout",
+    "element": "Times and days",
+    "file": "",
+    "line": 0,
+    "found": "[backend] Six fixed times and seven days, no availability from the server.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics/sample-tracking",
+    "element": "Preparation text, six default steps",
+    "file": "",
+    "line": 0,
+    "found": "[owner] Static medical text and a fixed step list, not from the booking; confirm the wording.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics/technician-tracking",
+    "element": "Tips",
+    "file": "",
+    "line": 0,
+    "found": "[owner] Static text; the old third tip (samples sent in cold containers) was dropped as an unverified claim.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics/orders",
+    "element": "Back button",
+    "file": "",
+    "line": 0,
+    "found": "[client] The shared OrderList falls back to the pharmacy hub when there is nothing to go back to.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics/cart",
+    "element": "Cart context",
+    "file": "",
+    "line": 0,
+    "found": "[client] DiagnosticsCartContext holds Arabic literal text in its lab-lock alert and keeps the cart in memory only (not touched: logic).",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics/lab-comparison",
+    "element": "Price of every lab",
+    "file": "",
+    "line": 0,
+    "found": "[backend] Every lab shows the same base price of the service; the compatible-providers answer carries no per-lab price.",
+    "suspect": "Backend gap: reviewer session."
+  }
+]
