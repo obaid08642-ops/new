@@ -29,6 +29,8 @@
 .kindText { display: flex; flex-direction: column; gap: 2px; min-inline-size: 0; }
 .kindTitle { font-size: var(--nabd-font-size-row); font-weight: 700; overflow-wrap: anywhere; }
 .kindSub { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+/* text.secondary on bg.sunken is 4.15:1 (needs 4.5): the sub line of the unselected kind uses text.primary */
+.kind:not([aria-current="page"]) .kindSub { color: var(--nabd-color-text-primary); }
 .quickGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .quick {
   display: flex; align-items: center; gap: 10px; min-block-size: 64px; padding: 0 12px; box-sizing: border-box; min-inline-size: 0;
