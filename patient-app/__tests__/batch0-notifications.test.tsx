@@ -38,6 +38,13 @@ const ui = withStore(
   store,
 );
 
+// Only the clock is faked, pinned to midday: "Today" is a calendar day, so rows 20 and 40 minutes old fell into
+// "Earlier" whenever the suite ran shortly after midnight.
+jest.useFakeTimers({
+  now: Date.parse('2026-10-05T12:00:00Z'),
+  doNotFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'setImmediate', 'clearImmediate', 'nextTick', 'queueMicrotask', 'requestAnimationFrame', 'cancelAnimationFrame', 'requestIdleCallback', 'cancelIdleCallback', 'hrtime', 'performance'],
+});
+
 const ago = (ms: number) => new Date(Date.now() - ms).toISOString();
 const MIN = 60_000;
 const DAY = 24 * 60 * MIN;
