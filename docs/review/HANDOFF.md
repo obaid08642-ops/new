@@ -44,6 +44,8 @@ Read this first in a new reviewer session, together with `AGENTS.md` and `docs/r
 - Social sign-in is blocked by an Nginx 403 (ops task `22-block-social-login`). It stays blocked until a deploy that sets `GOOGLE_OAUTH_CLIENT_IDS` and `APPLE_SIGNIN_CLIENT_IDS`; then run `REVERT=1` for that task and the Q107 checks.
 - Server changes go only through the server-ops workflow, with the owner's Approve, after a rehearsal in ops-rehearsal: one change per run, each step checked.
 
+**Product decisions 2026-10-06:** `docs/product/OWNER_DECISIONS_2026-10-06.md` (issues #320–#342). The review session writes the acceptance specs for Queue C (`backend/acceptance/d-<n>/`) in the queue's order, starting with D-16. Open owner questions: O-1 (SFDA price source), O-2 (remove the ambulance provider type) and the Q-14 refund values.
+
 **Owner decisions since 2026-10-04 (do not re-ask)**
 - F68: an edge nonce on public pages, and a per-request nonce plus no-store on private and admin pages.
 - F82: the CI LCP gate is 2.5 s and moves to 1.8 s once met; 1.2 s is measured on real users (F82-4).

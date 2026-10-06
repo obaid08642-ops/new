@@ -39,19 +39,28 @@ import { ProviderProductionService } from '../../src/modules/provider-production
 import { TEST_JWT_SECRET, signToken, tokenFor } from '../security/harness';
 import { makeDb } from '../support/fake-db';
 import request from 'supertest';
+import { createHash } from 'crypto';
 
 jest.setTimeout(180_000);
 
 describe('Gate P2 provider onboarding journeys', () => {
   let app: INestApplication;
+  // Admin tokens act only from an enrolled admin device (C2, auth.guard.ts);
+  // the device is enrolled in the fake DB in beforeAll.
+  const ADMIN_DEVICE = 'journey-admin-device-0001';
   const post = (url: string, token: string, body: any = {}) =>
-    request(app.getHttpServer()).post(url).set('Authorization', `Bearer ${token}`).send(body);
+    request(app.getHttpServer()).post(url).set('Authorization', `Bearer ${token}`).set('x-admin-device', ADMIN_DEVICE).send(body);
   const get = (url: string, token: string) =>
-    request(app.getHttpServer()).get(url).set('Authorization', `Bearer ${token}`);
+    request(app.getHttpServer()).get(url).set('Authorization', `Bearer ${token}`).set('x-admin-device', ADMIN_DEVICE);
 
   beforeAll(async () => {
     process.env.JWT_SECRET = TEST_JWT_SECRET;
     const db = makeDb();
+    await db.collection('admin_devices').insertOne({
+      user_id: 'admin-1',
+      device_hash: createHash('sha256').update(ADMIN_DEVICE).digest('hex'),
+      revoked: false,
+    });
     const repo = (name: string) => {
       const m = db.model(name);
       return { findOne: m.findOne, find: m.find, create: m.create, updateOne: m.updateOne, updateMany: m.updateMany, countDocuments: m.countDocuments, model: m };
