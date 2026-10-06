@@ -72,7 +72,7 @@ function newKey() {
 }
 
 /** The framework-free core of the hook: the request, its idempotency keys and the one-at-a-time rule. */
-export function createActionRunner(fetchImpl: typeof fetch = (...args) => fetch(...args), makeKey: () => string = newKey) {
+export function createActionRunner(send: typeof fetch = globalThis.fetch.bind(globalThis), makeKey: () => string = newKey) {
   const keys = new Map<string, string>();
   let busy = false;
   return {
@@ -84,7 +84,7 @@ export function createActionRunner(fetchImpl: typeof fetch = (...args) => fetch(
       const key = keys.get(actionId) ?? makeKey();
       keys.set(actionId, key);
       try {
-        const response = await fetchImpl(path, {
+        const response = await send(path, {
           method: "POST",
           headers: { "content-type": "application/json", "idempotency-key": key },
           body: JSON.stringify(body),
