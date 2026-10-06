@@ -44,7 +44,10 @@ describe('social login verifies the provider token (Q107)', () => {
     await expect(service(staff).socialLogin({ provider: 'apple', token: unsigned({ email: 'admin@nabd.test' }) })).rejects.toBeInstanceOf(UnauthorizedException);
   });
 
-  it('X and Snapchat (no verification exists) are refused', async () => {
+  it('X and Snapchat no longer take a token from the device (R12.social-xs supersedes this case)', async () => {
+    // R12.social-xs: the app now sends the authorization code, the PKCE verifier and the redirect
+    // URI, and the server does the exchange with its own secret. A device token is refused, so the
+    // unsigned-JWT bypass these providers used to have stays closed.
     for (const provider of ['x', 'snapchat'] as const) {
       await expect(service(staff).socialLogin({ provider, token: unsigned({ email: 'admin@nabd.test' }) })).rejects.toBeInstanceOf(BadRequestException);
     }

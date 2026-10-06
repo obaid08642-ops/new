@@ -1,4 +1,5 @@
 import { Injectable, BadRequestException, UnauthorizedException, ConflictException, GoneException, ForbiddenException, Inject, HttpException, HttpStatus, ServiceUnavailableException } from '@nestjs/common';
+import { createPublicKey, KeyObject } from 'crypto';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -1153,37 +1154,46 @@ export class AuthService {
     return u?.phone || u?.email || identifier;
   }
 
-  async socialLogin(dto: { provider: 'google' | 'apple' | 'x' | 'snapchat'; token: string; email?: string; name?: string }) {
-    let email = dto.email;
-    let name = dto.name || 'Social User';
-
-    if (dto.provider === 'google') {
-      const googleInfo = await this.verifyGoogleToken(dto.token);
-      if (!googleInfo) throw new UnauthorizedException('Invalid Google token');
-      email = googleInfo.email;
-      name = googleInfo.full_name || name;
-    } else if (dto.provider === 'apple') {
-      const appleInfo = await this.verifyAppleToken(dto.token);
-      if (!appleInfo) throw new UnauthorizedException('Invalid Apple token');
-      email = appleInfo.email;
-      name = appleInfo.full_name || name;
-    } else if (dto.provider === 'x') {
-      const xInfo = await this.verifyXToken(dto.token);
-      if (!xInfo) throw new UnauthorizedException('Invalid X token');
-      email = xInfo.email;
-      name = xInfo.full_name || name;
-    } else if (dto.provider === 'snapchat') {
-      const snapchatInfo = await this.verifySnapchatToken(dto.token);
-      if (!snapchatInfo) throw new UnauthorizedException('Invalid Snapchat token');
-      email = snapchatInfo.email;
-      name = snapchatInfo.full_name || name;
+  async socialLogin(dto: {
+    provider: 'google' | 'apple' | 'x' | 'snapchat';
+    token?: string;
+    code?: string;
+    code_verifier?: string;
+    redirect_uri?: string;
+    email?: string;
+    name?: string;
+  }) {
+    // R12.social-xs: X and Snapchat arrive as an authorization code, never as a token from the
+    // device, so the exchange happens here with our own client secret.
+    if (dto.provider === 'x' || dto.provider === 'snapchat') {
+      return this.socialLoginByCode({
+        provider: dto.provider,
+        code: dto.code,
+        code_verifier: dto.code_verifier,
+        redirect_uri: dto.redirect_uri,
+      });
     }
+
+    // Q107: the email comes only from a provider token whose signature and
+    // audience were verified, never from the body. X and Snapchat had no
+    // verification at all (unsigned JWT decode, or a made-up address).
+    let verified: { email: string; full_name: string } | null;
+    if (dto.provider === 'google') verified = await this.verifyGoogleToken(dto.token || '');
+    else if (dto.provider === 'apple') verified = await this.verifyAppleToken(dto.token || '');
+    else throw new BadRequestException('social_provider_not_supported');
+    if (!verified) throw new UnauthorizedException('invalid_social_token');
+    const email = verified.email;
+    const name = verified.full_name || dto.name || 'Social User';
 
     if (!email) {
       throw new BadRequestException('Email not provided by social provider');
     }
 
     let u = await this.userModel.findOne({ email });
+    // Q107: social sign-in is a patient feature; staff and provider accounts keep their password,
+    // 2FA and device checks. A deactivated account cannot come back through a provider either.
+    if (u && u.role !== UserRole.PATIENT) throw new ForbiddenException('password_login_required');
+    if (u && u.active === false) throw new ForbiddenException('account_inactive');
     if (!u) {
       u = await this.userModel.create({
         full_name: name,
@@ -1204,69 +1214,210 @@ export class AuthService {
     return { user: this.publicUser(u), token: this.signToken(u) };
   }
 
-  private async verifyGoogleToken(token: string): Promise<any> {
-    try {
-      const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-        headers: { Authorization: `Bearer ${token}` }
+  /** Q107: allowed OAuth client ids for a provider; none configured means the provider is off. */
+  private static clientIds(name: string): string[] {
+    const ids = String(process.env[name] || '')
+      .split(',')
+      .map((v) => v.trim())
+      .filter(Boolean);
+    if (!ids.length) throw new ServiceUnavailableException('social_login_not_configured');
+    return ids;
+  }
+
+  private static emailVerified(value: unknown): boolean {
+    return value === true || value === 'true';
+  }
+
+  /** R12.social-xs: the link table, in the same database as `users`. */
+  private socialIdentities(): {
+    findOne: (f: Record<string, unknown>) => Promise<any>;
+    insertOne: (d: Record<string, unknown>) => Promise<unknown>;
+  } {
+    const holder = this.userModel as unknown as {
+      db?: { collection: (n: string) => any };
+      model?: { db?: { collection: (n: string) => any } };
+    };
+    const connection = typeof holder.db?.collection === 'function' ? holder.db : holder.model?.db;
+    return connection!.collection('social_identities');
+  }
+
+  /**
+   * R12.social-xs: exchange the authorization code with our own client secret, then read the
+   * provider's own profile. Nothing from the request body is trusted; the returned provider user
+   * id is what links the account.
+   */
+  private async socialLoginByCode(dto: {
+    provider: 'x' | 'snapchat';
+    code?: string;
+    code_verifier?: string;
+    redirect_uri?: string;
+  }): Promise<{ user: unknown; token: unknown; needs_contact?: boolean }> {
+    const isX = dto.provider === 'x';
+    // The redirect URI is checked before any call to the provider.
+    const allowedRedirects = String(process.env[isX ? 'X_REDIRECT_URIS' : 'SNAPCHAT_REDIRECT_URIS'] || '')
+      .split(',')
+      .map((v) => v.trim())
+      .filter(Boolean);
+    if (!dto.redirect_uri || !allowedRedirects.includes(dto.redirect_uri)) {
+      throw new BadRequestException('social_redirect_uri_not_allowed');
+    }
+    const clientId = process.env[isX ? 'X_CLIENT_ID' : 'SNAPCHAT_CLIENT_ID'];
+    const clientSecret = process.env[isX ? 'X_CLIENT_SECRET' : 'SNAPCHAT_CLIENT_SECRET'];
+    if (!clientId || !clientSecret) throw new ServiceUnavailableException('social_login_not_configured');
+
+    const tokenUrl = isX ? 'https://api.x.com/2/oauth2/token' : 'https://accounts.snapchat.com/accounts/oauth2/token';
+    const form = new URLSearchParams({
+      grant_type: 'authorization_code',
+      code: dto.code || '',
+      redirect_uri: dto.redirect_uri,
+      code_verifier: dto.code_verifier || '',
+    });
+    const headers: Record<string, string> = { 'content-type': 'application/x-www-form-urlencoded' };
+    if (isX) headers.Authorization = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`;
+    else {
+      form.set('client_id', clientId);
+      form.set('client_secret', clientSecret);
+    }
+
+    const tokenRes = await fetch(tokenUrl, { method: 'POST', headers, body: form.toString() }).catch(() => null);
+    if (!tokenRes?.ok) throw new UnauthorizedException('invalid_social_code');
+    const tokenBody: any = await tokenRes.json().catch(() => null);
+    if (!tokenBody?.access_token) throw new UnauthorizedException('invalid_social_code');
+
+    const meUrl = isX ? 'https://api.x.com/2/users/me' : 'https://kit.snapchat.com/v1/me';
+    const meRes = await fetch(meUrl, {
+      headers: { Authorization: `Bearer ${tokenBody.access_token}` },
+    }).catch(() => null);
+    if (!meRes?.ok) throw new UnauthorizedException('invalid_social_code');
+    const meBody: any = await meRes.json().catch(() => null);
+
+    const providerUserId = String(isX ? meBody?.data?.id ?? '' : meBody?.data?.me?.externalId ?? '');
+    if (!providerUserId) throw new UnauthorizedException('invalid_social_code');
+    const name = String(isX ? meBody?.data?.name ?? '' : meBody?.data?.me?.displayName ?? '') || 'Social User';
+    // An email counts only when the provider says it is confirmed (X confirmed_email).
+    const confirmedEmail =
+      isX && typeof meBody?.data?.confirmed_email === 'string' ? meBody.data.confirmed_email.trim().toLowerCase() : '';
+
+    const identities = this.socialIdentities();
+    const link = await identities.findOne({ provider: dto.provider, provider_user_id: providerUserId });
+    let u: any = null;
+    let needsContact = false;
+
+    if (link?.user_id) {
+      // The same provider id always opens the same account.
+      u = await this.userModel.findOne({ id: link.user_id });
+      if (!u) throw new UnauthorizedException('invalid_social_code');
+      if (u.active === false) throw new ForbiddenException('account_inactive');
+    } else if (confirmedEmail) {
+      const byEmail = await this.userModel.findOne({ email: confirmedEmail });
+      if (byEmail) {
+        // A staff/provider email is refused, and nothing is written.
+        if (byEmail.role !== UserRole.PATIENT) throw new ForbiddenException('password_login_required');
+        if (byEmail.active === false) throw new ForbiddenException('account_inactive');
+        u = byEmail;
+        await identities.insertOne({
+          provider: dto.provider,
+          provider_user_id: providerUserId,
+          user_id: u.id,
+          linked_at: new Date(),
+        });
+      }
+    }
+
+    if (!u) {
+      // No confirmed email: a patient without one, and the app asks for a phone or email.
+      u = await this.userModel.create({
+        full_name: name,
+        email: '',
+        phone: '',
+        password_hash: '',
+        role: UserRole.PATIENT,
+        active: true,
       });
-      if (response.ok) {
-        const payload: any = await response.json();
-        return {
-          email: payload.email,
-          full_name: payload.name || `${payload.given_name || ''} ${payload.family_name || ''}`.trim(),
-        };
+      await this.patientModel.create({ user_id: u.id });
+      this.events.emit(EVENTS.USER_REGISTERED, { user_id: u.id, role: u.role });
+      await identities.insertOne({
+        provider: dto.provider,
+        provider_user_id: providerUserId,
+        user_id: u.id,
+        linked_at: new Date(),
+      });
+      needsContact = true;
+    }
+
+    u.last_login_at = new Date();
+    await u.save();
+    this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role });
+
+    return {
+      user: this.publicUser(u),
+      token: this.signToken(u),
+      ...(needsContact ? { needs_contact: true } : {}),
+    };
+  }
+
+  /** Google OAuth access token: tokeninfo must name one of our client ids and a verified email. */
+  private async verifyGoogleToken(token: string): Promise<{ email: string; full_name: string } | null> {
+    const allowed = AuthService.clientIds('GOOGLE_OAUTH_CLIENT_IDS');
+    try {
+      const info = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(token)}`);
+      if (!info.ok) return null;
+      const p: any = await info.json();
+      if (!allowed.includes(String(p.aud || '')) && !allowed.includes(String(p.azp || ''))) return null;
+      if (!AuthService.emailVerified(p.email_verified) || typeof p.email !== 'string' || !p.email) return null;
+      if (p.expires_in !== undefined && !(Number(p.expires_in) > 0)) return null;
+      let fullName = '';
+      const profile = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch(() => null);
+      if (profile?.ok) {
+        const u: any = await profile.json().catch(() => ({}));
+        fullName = u.name || `${u.given_name || ''} ${u.family_name || ''}`.trim();
       }
-      return null;
-    } catch (err) {
+      return { email: p.email.toLowerCase(), full_name: fullName };
+    } catch {
       return null;
     }
   }
 
-  private async verifyAppleToken(token: string): Promise<any> {
-    try {
-      const parts = token.split('.');
-      if (parts.length === 3) {
-        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
-        return {
-          email: payload.email,
-          full_name: payload.name ? `${payload.name.firstName || ''} ${payload.name.lastName || ''}`.trim() : 'Apple User',
-        };
+  private static appleKeys: { at: number; keys: Map<string, KeyObject> } | null = null;
+
+  /** Apple's signing keys (JWKS), cached for an hour. */
+  private static async appleKey(kid: string): Promise<KeyObject | null> {
+    const fresh = AuthService.appleKeys && Date.now() - AuthService.appleKeys.at < 3600_000;
+    if (!fresh || !AuthService.appleKeys!.keys.has(kid)) {
+      const r = await fetch('https://appleid.apple.com/auth/keys');
+      if (!r.ok) return null;
+      const body: any = await r.json();
+      const keys = new Map<string, KeyObject>();
+      for (const jwk of Array.isArray(body?.keys) ? body.keys : []) {
+        if (jwk?.kid && jwk.kty === 'RSA') keys.set(String(jwk.kid), createPublicKey({ key: jwk, format: 'jwk' }));
       }
-      return null;
-    } catch (err) {
-      return null;
+      AuthService.appleKeys = { at: Date.now(), keys };
     }
+    return AuthService.appleKeys!.keys.get(kid) || null;
   }
 
-  private async verifyXToken(token: string): Promise<any> {
+  /** Apple identity token: RS256 signature from Apple's keys, issuer, audience, expiry, verified email. */
+  private async verifyAppleToken(token: string): Promise<{ email: string; full_name: string } | null> {
+    const allowed = AuthService.clientIds('APPLE_SIGNIN_CLIENT_IDS');
     try {
-      const parts = token.split('.');
-      if (parts.length === 3) {
-        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
-        return {
-          email: payload.email || `${payload.username || 'x_user'}@twitter.com`,
-          full_name: payload.name || 'X User',
-        };
-      }
-      return { email: `x_user_${Date.now().toString().slice(-4)}@nabd.app`, full_name: 'X User' };
-    } catch (e) {
-      return { email: `x_user_${Date.now().toString().slice(-4)}@nabd.app`, full_name: 'X User' };
-    }
-  }
-
-  private async verifySnapchatToken(token: string): Promise<any> {
-    try {
-      const parts = token.split('.');
-      if (parts.length === 3) {
-        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
-        return {
-          email: payload.email || `${payload.username || 'snap_user'}@snapchat.com`,
-          full_name: payload.name || 'Snapchat User',
-        };
-      }
-      return { email: `snapchat_user_${Date.now().toString().slice(-4)}@nabd.app`, full_name: 'Snapchat User' };
-    } catch (e) {
-      return { email: `snapchat_user_${Date.now().toString().slice(-4)}@nabd.app`, full_name: 'Snapchat User' };
+      const verifier = new JwtService();
+      const decoded: any = verifier.decode(token, { complete: true });
+      const kid = decoded?.header?.kid;
+      if (!kid || decoded?.header?.alg !== 'RS256') return null;
+      const key = await AuthService.appleKey(String(kid));
+      if (!key) return null;
+      const p: any = verifier.verify(token, {
+        publicKey: key.export({ type: 'spki', format: 'pem' }).toString(),
+        algorithms: ['RS256'],
+        issuer: 'https://appleid.apple.com',
+        audience: allowed as [string, ...string[]],
+      });
+      if (!AuthService.emailVerified(p.email_verified) || typeof p.email !== 'string' || !p.email) return null;
+      return { email: p.email.toLowerCase(), full_name: '' };
+    } catch {
+      return null;
     }
   }
 

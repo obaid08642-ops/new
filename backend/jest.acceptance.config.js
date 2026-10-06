@@ -10,5 +10,9 @@ module.exports = {
   testRegex: '\\.acceptance\\.ts$',
   moduleFileExtensions: ['js', 'json', 'ts'],
   transform: { '^.+\\.(t|j)s$': 'ts-jest' },
+  // R12.social-xs: the first acceptance suite that imports AuthService reaches
+  // password-security.service -> @nestjs/axios, which ships as ESM only. Jest runs as CommonJS,
+  // so that one dependency has to be transformed instead of ignored.
+  transformIgnorePatterns: ['/node_modules/(?!(@nestjs/axios)/)'],
   testEnvironment: 'node',
 };

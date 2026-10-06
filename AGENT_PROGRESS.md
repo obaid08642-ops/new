@@ -1324,3 +1324,67 @@ Gate evidence (this machine, DEVELOPER_DIR=/Library/Developer/CommandLineTools):
   now skips unless STAGING_BASE is set (V1-V5 staging blocker).
 - Under machine load average >18 the unit suite hits 5000 ms jest timeouts;
   that is contention, not assertion failure (all such tests pass in isolation).
+
+---
+
+## R12.social-xs — X and Snapchat sign-in (owner decision 2026-10-05)
+
+Branch `r12/social-xs` off `origin/fix/audit-2026-09` (1ae95e8b). One commit.
+Contract: `backend/acceptance/social-xs/x-snapchat-signin.acceptance.ts` (not edited).
+
+### What changed
+- `backend/src/modules/auth/auth.dto.ts` — `SocialLoginDto` now accepts
+  `google|apple|x|snapchat`. Google/Apple keep `token`; X/Snapchat require
+  `code`, `code_verifier`, `redirect_uri` and reject a device `token`
+  (class-level constraint `socialCodeFlowHasNoToken`).
+- `backend/src/modules/auth/auth.service.ts` — `socialLogin` delegates X/Snapchat
+  to a new `socialLoginByCode`: the SERVER exchanges the code with its own
+  client secret (X: HTTP Basic `X_CLIENT_ID:X_CLIENT_SECRET` to
+  `api.x.com/2/oauth2/token`, then `GET /2/users/me`; Snapchat: client_id +
+  client_secret in the form to `accounts.snapchat.com/accounts/oauth2/token`,
+  then `kit.snapchat.com/v1/me`). The account is linked by the provider user id
+  in `social_identities` (`{provider, provider_user_id, user_id}`). An email is
+  used only when the provider says it is confirmed (X `confirmed_email`); a
+  staff/provider email is refused (403) and nothing is written. No confirmed
+  email → new patient without an email and `needs_contact: true`. Body
+  email/name are never trusted. Any provider failure is 401 and writes nothing.
+  Also restored the Q107 hardening that `1ae95e8b` had clobbered: Google
+  audience check, Apple RS256 signature + issuer + audience, staff/provider
+  refusal, deactivated-account refusal, and `social_login_not_configured` (503).
+- `backend/src/modules/auth/social-login.q107.spec.ts` — only the X/Snapchat case
+  updated (it asserted X/Snapchat are refused; that is superseded).
+- `patient-app/src/hooks/useSocialLogin.ts` — X/Snapchat now send
+  `{provider, code, code_verifier, redirect_uri}`; the device no longer calls
+  `exchangeCodeAsync`. `needs_contact` routes to `/(auth)/provider-info`.
+  Buttons stay behind `EXPO_PUBLIC_SOCIAL_X_SNAPCHAT` (unchanged in AuthKit).
+- `backend/jest.acceptance.config.js` — `transformIgnorePatterns` so ts-jest
+  transpiles the ESM-only `@nestjs/axios` (the first acceptance suite that
+  imports AuthService reaches it). No test is skipped or weakened.
+
+### Gate outputs (real)
+- `node scripts/run-acceptance.mjs social-xs` → **11 passed, 11 total** (PASS).
+- `npx jest src/modules/auth/social-login.q107.spec.ts` → **7 passed, 7 total**
+  (was 1/7 on the base; the base had regressed it).
+- `npx jest src/common/dto-validation-table.spec.ts` → **2008 passed, 2008 total**.
+- patient-app: `useSocialLogin` + `q107-social-providers` + `social-signin` →
+  **15 passed, 15 total**.
+- `npx tsc --noEmit` → 16 errors, **identical file set to the pristine base**
+  (verified in a throwaway worktree at `origin/fix/audit-2026-09`): zero introduced.
+- `npx nest build` → exit 1, **identical error set to base**.
+- `npm test -- --runInBand` → **25 failing suites, all pre-existing**; the base
+  has 26. Zero regressions introduced; `social-login.q107.spec.ts` is fixed.
+- `jest.boot.config.js test/security test/journeys` → 5 failed suites,
+  **identical to base**.
+- `python3 ../tools/audit/dtolint.py` → 0 undecorated / 0 any-optional /
+  0 any-body / 0 unvalidated (exit 0).
+- `node scripts/run-acceptance.mjs --done` → "no approved items yet" (exit 0).
+- `clientbodies.js` + `dtocheck.js` → 639 DTO routes, 319 matched,
+  **1 mismatch, identical to base** (`POST /referrals/apply`).
+- patient-app `tsc --noEmit` → 3 errors in `src/i18n/locale-detector.ts`
+  (`expo-localization`, `@nabd/i18n` not installed in the shared node_modules);
+  pre-existing, file untouched.
+
+### Note
+The base `fix/audit-2026-09` is independently red (16 tsc errors, 25 failing
+unit suites, 5 failing boot suites, nest build exit 1) from the `1ae95e8b`
+constructor restore. This item introduces zero new failures and fixes one.
