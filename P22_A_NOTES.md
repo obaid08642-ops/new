@@ -154,3 +154,26 @@ Files:
   governed flow — documented in code.
 - Proofs: new 15/15 green; whole orders dir 55/55 green; `tsc` clean; no new `any`; mutation probe
   (`$gte` removed) → concurrency test RED (both racers win), restored → green.
+
+### P22.15-backend Coupons + referral/affiliate — BUILT on existing engines (commit below)
+Inventory depth (read-only): CouponService validate/apply/release is genuinely deep (expiry, max-uses
+atomic guard, per-user caps, min-order, max-discount, provider/category scope, first-order-only);
+FraudService.recordCouponFailure abuse hook exists (threshold 10/h); ReferralService issuance/apply/
+conversion exists but had NO device/phone anti-fraud.
+Files:
+- `backend/src/modules/coupons/` (new module: rules service + controller + dto + spec, 8 tests):
+  stacking limits (non-stackable exclusivity, max 3), abuse gate mirroring the FraudService 10/h
+  threshold, combined-cap math, applyStack with compensation; single-code leg delegates to existing
+  CouponService.validate/apply/release (unmodified).
+- `backend/src/modules/referral/affiliate.service.ts` (new) + `.spec.ts` (5 tests): AFF- code issuance
+  (collision-checked), click attribution, redemption with one-device/one-phone program-wide guards
+  (sha256 hashes only, raw phones never stored), max-uses atomic cap.
+- `referral.service.ts` (treated-owned, additive): apply() accepts optional device/phone, enforces the
+  same reuse guards, stores device_id/phone_hash; `referral.dto.ts` + `referral.controller.ts`
+  (affiliate routes) + `referral-device-fraud.spec.ts` (3 tests).
+- New modules needing app.module registration: CouponsModule (imports FinanceEngineModule — no cycle:
+  finance-engine imports no feature modules); WishlistModule (P22.2).
+- Fraud scoring (velocity/farms/3DS) NOT built here per plan — hard uniqueness only; scoring stays with
+  FraudService/fraud agent.
+- Proofs: new 16/16 green; `tsc` clean; no new `any` (controller req params typed); mutation probe
+  (all-codes-stackable) → 2 stacking tests RED, restored → green.

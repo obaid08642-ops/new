@@ -7,6 +7,7 @@ import {
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { createHash } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -88,7 +89,7 @@ export class ReferralService {
   }
 
   /** A new user applies a referrer's code. */
-  async apply(userId: string, rawCode: string) {
+  async apply(userId: string, rawCode: string, signal?: { device_id?: string; phone?: string }) {
     const code = String(rawCode || '').trim().toUpperCase();
     if (!code) throw new BadRequestException('code is required');
 
@@ -115,6 +116,20 @@ export class ReferralService {
     const existing = await this.invites.findOne({ referred_user_id: userId });
     if (existing) throw new ConflictException('a referral code was already applied to this account');
 
+    // P22.15 anti-fraud: one device and one phone per referred user program-wide.
+    // Raw phones are never stored — only a salted hash (fraud scoring itself
+    // lives in finance-engine FraudService / the fraud agent).
+    const deviceId = signal?.device_id ? String(signal.device_id) : null;
+    const phoneHash = ReferralService.hashPhone(signal?.phone);
+    if (deviceId) {
+      const reuse = await this.invites.findOne({ device_id: deviceId, referred_user_id: { $ne: userId } });
+      if (reuse) throw new ConflictException('referral_device_reuse');
+    }
+    if (phoneHash) {
+      const reuse = await this.invites.findOne({ phone_hash: phoneHash, referred_user_id: { $ne: userId } });
+      if (reuse) throw new ConflictException('referral_phone_reuse');
+    }
+
     await this.invites.insertOne({
       id: uuidv4(),
       referrer_id: referrer.id,
@@ -122,11 +137,19 @@ export class ReferralService {
       code,
       status: 'registered',
       reward_points: 0,
+      device_id: deviceId,
+      phone_hash: phoneHash,
       createdAt: new Date(),
       updatedAt: new Date(),
     } as any);
     await this.users.updateOne({ id: userId }, { $set: { referred_by: referrer.id, referral_applied_at: new Date() } });
     return { ok: true, status: 'registered' };
+  }
+
+  private static hashPhone(phone: string | undefined): string | null {
+    const digits = String(phone || '').replace(/\D/g, '');
+    if (!digits) return null;
+    return createHash('sha256').update(`ref:${digits}`).digest('hex');
   }
 
   /** Every domain completes through the workflow engine (service.completed); nothing emits booking.completed. */
