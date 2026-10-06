@@ -1,60 +1,43 @@
-// app/diagnostics/book-sample.tsx — routes the legacy entrypoint into the live provider-selection flow.
 import React from 'react';
-import { View, StyleSheet, ScrollView, StatusBar } from 'react-native';
-import { router } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../../src/context/AppContext';
-import { Icon } from '../../src/components/Icon';
-import { AppText, Card, Button, IconButton, SectionHeader } from '../../src/components/ui';
+import { Text, View } from 'react-native';
+import { router, type Href } from 'expo-router';
+
+import { Button } from '../../../packages/ui-native/src';
+import { ConsultScreen, Section } from '../../src/components/consult/ConsultKit';
+import { Block, Mark, goBackDiag } from '../../src/components/diagnostics/DiagKit';
+import { Notice } from '../../src/components/pharmacy/OfferKit';
+import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 
+/** The legacy entry of a sample booking: it lists what is in the cart and sends the patient to the cart, where the lab is chosen (no order is made here). */
 export default function BookSampleScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
+  const { theme, t, c, k, flow } = useScreenUi();
   const { items } = useDiagnosticsCart();
-
   return (
-    <View style={[st.c, { backgroundColor: colors.background }]}> 
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-      <View style={[st.hdr, { paddingTop: insets.top + 8, backgroundColor: colors.surface, borderBottomColor: colors.borderLight }]}>
-        <View style={{ width: 40 }} />
-        <AppText variant="h4">حجز سحب عينة</AppText>
-        <IconButton icon="back" onPress={() => router.back()} />
-      </View>
-
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 120 }}>
-        <Card style={{ backgroundColor: colors.infoSurface }}>
-          <View style={{ flexDirection: 'row-reverse', gap: 10, alignItems: 'flex-start' }}>
-            <Icon name="info" size={18} color={colors.info} />
-            <AppText variant="bodySM" color={colors.textSecondary} style={{ flex: 1 }}>اختيار المزوّد والتوفر والسعر النهائي يتم من السلة بناءً على بيانات الخدمة الحية. لا يُنشأ طلب أو دفع من هذه الشاشة.</AppText>
-          </View>
-        </Card>
-
-        <Card>
-          <SectionHeader title="التحاليل المطلوبة" />
-          {items.length > 0 ? items.map((item, index) => (
-            <View key={`${item.id}-${index}`} style={{ flexDirection: 'row-reverse', gap: 6, paddingVertical: 4, alignItems: 'center' }}>
-              <Icon name="check_circle" size={16} color={colors.success} />
-              <AppText variant="bodySM">{item.name}</AppText>
-            </View>
-          )) : <AppText variant="bodySM" color={colors.textSecondary}>لا يوجد تحاليل في السلة حالياً.</AppText>}
-        </Card>
-
-        <Card>
-          <SectionHeader title="الخطوة التالية" />
-          <AppText variant="bodySM" color={colors.textSecondary}>اختر مزوّداً متاحاً من السلة، ثم أرسل طلب الحجز. ستظهر لك حالة التوافر وتفاصيل الحجز.</AppText>
-        </Card>
-      </ScrollView>
-
-      <View style={[st.bottom, { paddingBottom: insets.bottom + 8, backgroundColor: colors.surface, borderTopColor: colors.borderLight }]}>
-        <Button label="الذهاب إلى السلة" variant="gradient" size="lg" icon="cart" onPress={() => router.replace('/diagnostics/cart')} />
-      </View>
-    </View>
+    <ConsultScreen
+      testID="diagnostics-book-sample"
+      title={k('diag.sample.title')}
+      onBack={goBackDiag}
+      footer={<Button theme={theme} size="lg" fullWidth startIcon="cart" label={k('diag.sample.toCart')} onPress={() => router.replace('/diagnostics/cart' as Href)} />}
+    >
+      <Notice tone="info" text={k('diag.sample.info')} />
+      <Section title={k('diag.sample.tests')}>
+        <Block gap={8}>
+          {items.length > 0 ? (
+            items.map((item, i) => (
+              <View key={`${item.id}-${i}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 32 }}>
+                <Mark kind="check" size={16} color={c.status.success.fg} />
+                <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'small', 'regular'), color: c.text.primary, ...flow }}>{item.name}</Text>
+              </View>
+            ))
+          ) : (
+            <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k('diag.sample.empty')}</Text>
+          )}
+        </Block>
+      </Section>
+      <Section title={k('diag.sample.next')}>
+        <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }}>{k('diag.sample.nextBody')}</Text>
+      </Section>
+    </ConsultScreen>
   );
 }
-
-const st = StyleSheet.create({
-  c: { flex: 1 },
-  hdr: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1 },
-  bottom: { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1 },
-});

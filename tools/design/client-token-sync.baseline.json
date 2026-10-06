@@ -107,7 +107,6 @@
     "patient-app/src/theme/brand.ts": 9,
     "patient-app/src/theme/colors.ts": 2,
     "patient-app/src/theme/index.ts": 109,
-    "patient-app/src/utils/labMappers.ts": 8,
     "patient-app/src/utils/medication-notifications.ts": 2,
     "patient-app/src/utils/notifications.ts": 2,
     "admin/src/components/EmptyIcon.tsx": 1,
