@@ -16,6 +16,7 @@
 import http from "node:http";
 import path from "node:path";
 import { timingSafeEqual } from "node:crypto";
+import zlib from "node:zlib";
 import { fileURLToPath } from "node:url";
 import { CSP_INJECT_HEADER, UNAVAILABLE_FALLBACK_HEADER, createStamper, freshNonce, policyWithNonce } from "./nonce-transform.mjs";
 
@@ -36,6 +37,40 @@ function sameSecret(given, expected) {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
+// Compression. The app answers a page request uncompressed because this server may rewrite the body, so the pages are
+// compressed here, on the way out (streaming, flushed per chunk). Hashed assets and images are never rewritten: they keep
+// their own Accept-Encoding and Next's compression passes through untouched. Without this, a deployment with no compressing
+// proxy in front (the Lighthouse job in CI) sends 4x the bytes.
+const PASS_THROUGH_ENCODING = /^\/(?:_next\/(?:static|image)\/|images\/|fonts\/)|\.(?:js|css|woff2?|png|jpe?g|webp|avif|svg|ico|gif|map)(?:\?|$)/i;
+const COMPRESSIBLE = /^(?:text\/|application\/(?:json|javascript|manifest\+json|xml)|image\/svg\+xml)/i;
+const acceptsGzip = (req) => /\bgzip\b/i.test(String(req.headers["accept-encoding"] || ""));
+
+/**
+ * Writes the response head and returns where the body goes. Gzip when the client accepts it, the type is text and nobody
+ * compressed it yet; the content length is then unknown, so it is dropped.
+ */
+function willGzip(req, status, headers) {
+  const type = String(headers["content-type"] || "");
+  return acceptsGzip(req) && req.method !== "HEAD" && COMPRESSIBLE.test(type) && !headers["content-encoding"] && status !== 204 && status !== 304;
+}
+
+function openBody(req, res, status, headers) {
+  if (!willGzip(req, status, headers)) {
+    res.writeHead(status, headers);
+    return { write: (chunk) => res.write(chunk), end: (chunk) => res.end(chunk) };
+  }
+  const out = { ...headers, "content-encoding": "gzip", vary: headers.vary ? `${headers.vary}, Accept-Encoding` : "Accept-Encoding" };
+  delete out["content-length"];
+  delete out.etag;
+  res.writeHead(status, out);
+  const z = zlib.createGzip({ level: 6 });
+  z.pipe(res);
+  return {
+    write: (chunk) => { z.write(chunk); z.flush(); },
+    end: (chunk) => { if (chunk) z.write(chunk); z.end(); },
+  };
+}
+
 const isHtml = (headers) => /text\/html/i.test(String(headers["content-type"] || ""));
 const wantsHtmlPage = (req) => req.method === "GET" && /text\/html/i.test(String(req.headers.accept || "")) && !req.headers.rsc;
 
@@ -46,7 +81,7 @@ function edgeCacheControl(value) {
   return /stale-if-error/i.test(base) ? base : `${base}, stale-if-error=31536000`;
 }
 
-function sendStamped(res, up, status, extra = {}) {
+function sendStamped(req, res, up, status, extra = {}) {
   const out = { ...up.headers, ...extra };
   delete out[CSP_INJECT_HEADER];
   const nonce = freshNonce();
@@ -57,19 +92,25 @@ function sendStamped(res, up, status, extra = {}) {
   if (!/no-store/i.test(String(out["cache-control"] || ""))) out["cache-control"] = "private, no-cache";
   delete out["content-length"];
   delete out.etag;
-  res.writeHead(status, out);
+  const body = openBody(req, res, status, out);
   const stamper = createStamper(nonce);
   up.setEncoding("utf8");
-  up.on("data", (chunk) => res.write(stamper.push(chunk)));
-  up.on("end", () => res.end(stamper.end()));
+  up.on("data", (chunk) => body.write(stamper.push(chunk)));
+  up.on("end", () => body.end(stamper.end()));
   up.on("error", () => res.destroy());
 }
 
-function sendUntouched(res, up, status, drop = []) {
-  const out = { ...up.headers };
-  for (const name of drop) delete out[name];
-  res.writeHead(status, out);
-  up.pipe(res);
+function sendUntouched(req, res, up, status) {
+  const headers = { ...up.headers };
+  if (!willGzip(req, status, headers)) {
+    res.writeHead(status, headers);
+    up.pipe(res);
+    return;
+  }
+  const body = openBody(req, res, status, headers);
+  up.on("data", (chunk) => body.write(chunk));
+  up.on("end", () => body.end());
+  up.on("error", () => res.destroy());
 }
 
 export function handler(internalPort, options = {}) {
@@ -82,8 +123,9 @@ export function handler(internalPort, options = {}) {
 
   return (req, res) => {
     const headers = { ...req.headers };
-    // The body may be rewritten, so the app answers uncompressed; Nginx compresses on the way out.
-    delete headers["accept-encoding"];
+    // The body may be rewritten, so the app answers a page uncompressed and it is compressed on the way out (openBody);
+    // assets are never rewritten and keep their Accept-Encoding.
+    if (!PASS_THROUGH_ENCODING.test(String(req.url || ""))) delete headers["accept-encoding"];
     // Only this server may ask for the unavailable page, and only a trusted edge may ask not to be stamped.
     delete headers[UNAVAILABLE_FALLBACK_HEADER];
     const edgeStamps = sameSecret(headers[EDGE_STAMP_HEADER], edgeToken);
@@ -103,7 +145,7 @@ export function handler(internalPort, options = {}) {
         up.resume();
         const retry = ask(req, { ...headers, [UNAVAILABLE_FALLBACK_HEADER]: "1" }, (fallback) => {
           if (fallback.statusCode === 200 && fallback.headers[CSP_INJECT_HEADER] === "1" && isHtml(fallback.headers)) {
-            sendStamped(res, fallback, 503, { "retry-after": UNAVAILABLE_RETRY_SECONDS, "cache-control": NO_STORE, "x-robots-tag": "noindex, nofollow, noarchive" });
+            sendStamped(req, res, fallback, 503, { "retry-after": UNAVAILABLE_RETRY_SECONDS, "cache-control": NO_STORE, "x-robots-tag": "noindex, nofollow, noarchive" });
           } else {
             fallback.resume();
             if (!res.headersSent) res.writeHead(503, { "content-type": "text/plain", "cache-control": "no-store", "retry-after": UNAVAILABLE_RETRY_SECONDS });
@@ -115,18 +157,20 @@ export function handler(internalPort, options = {}) {
       }
 
       const inject = marked && isHtml(up.headers);
-      if (!inject) return sendUntouched(res, up, status);
+      if (!inject) return sendUntouched(req, res, up, status);
 
       const sharedCacheable = !/no-store/i.test(String(up.headers["cache-control"] || ""));
       if (edgeStamps && sharedCacheable && status === 200) {
         // The edge worker replaces the placeholder in the header and in the HTML for every response it sends.
         const out = { ...up.headers, "cache-control": edgeCacheControl(up.headers["cache-control"]) };
         delete out[CSP_INJECT_HEADER];
-        res.writeHead(status, out);
-        up.pipe(res);
+        const body = openBody(req, res, status, out);
+        up.on("data", (chunk) => body.write(chunk));
+        up.on("end", () => body.end());
+        up.on("error", () => res.destroy());
         return;
       }
-      sendStamped(res, up, status);
+      sendStamped(req, res, up, status);
     }, bad);
     req.pipe(upstream);
   };
