@@ -4,6 +4,10 @@ import { v4 as uuid } from 'uuid';
 import { FacilityType } from '../common/enums';
 import { InsuranceNetworkContract, InsuranceNetworkContractSchema } from './insurance.schema';
 
+/** Supported locale keys (tl = Filipino/Tagalog). */
+export const LOCALES = ['ar', 'en', 'ur', 'hi', 'bn', 'tl'] as const;
+export type Locale = (typeof LOCALES)[number];
+
 /**
  * Facility = Hospital / Clinic / Medical Center / Polyclinic.
  * Doctors reference Facility via ProviderProfile.facility_id (string FK).
@@ -60,6 +64,15 @@ export class Facility {
   medical_review_status: string;
   @Prop() last_reviewed?: Date;
   @Prop() provenance?: string;
+
+  /** Per-locale translations for 6 languages (ar, en, ur, hi, bn, tl). */
+  @Prop({ type: Object, default: {} }) translations: Record<string, Record<string, unknown>>;
 }
 export type FacilityDocument = Facility & Document;
 export const FacilitySchema = SchemaFactory.createForClass(Facility);
+
+// Per-locale public URL slugs — every locale resolves its own slug without
+// mixing languages. Sparse so pre-v14 documents (no localized slugs) are exempt.
+for (const lang of ['ar', 'en', 'ur', 'hi', 'bn', 'tl']) {
+  FacilitySchema.index({ [`translations.${lang}.slug`]: 1 }, { unique: true, sparse: true });
+}

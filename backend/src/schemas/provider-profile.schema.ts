@@ -5,6 +5,10 @@ import { v4 as uuid } from 'uuid';
 import { InsuranceNetworkContract, InsuranceNetworkContractSchema } from './insurance.schema';
 import { buildSlug } from '../common/slug.util';
 
+/** Supported locale keys (tl = Filipino/Tagalog). */
+export const LOCALES = ['ar', 'en', 'ur', 'hi', 'bn', 'tl'] as const;
+export type Locale = (typeof LOCALES)[number];
+
 @Schema({ timestamps: true, collection: 'provider_profiles' })
 export class ProviderProfile {
   // Written by the services but previously undeclared: strict mode silently dropped these (tools/audit/schemadrift.js).
@@ -42,6 +46,10 @@ export class ProviderProfile {
   medical_review_status: string;
   @Prop() last_reviewed?: Date;
   @Prop() provenance?: string;
+
+  /** Per-locale translations for 6 languages (ar, en, ur, hi, bn, tl). */
+  @Prop({ type: Object, default: {} }) translations: Record<string, Record<string, unknown>>;
+
   @Prop({
     type: [{
       status: String,
@@ -282,6 +290,12 @@ export class ProviderProfile {
 }
 export type ProviderProfileDocument = ProviderProfile & Document;
 export const ProviderProfileSchema = SchemaFactory.createForClass(ProviderProfile);
+
+// Per-locale public URL slugs — every locale resolves its own slug without
+// mixing languages. Sparse so pre-v14 documents (no localized slugs) are exempt.
+for (const lang of ['ar', 'en', 'ur', 'hi', 'bn', 'tl']) {
+  ProviderProfileSchema.index({ [`translations.${lang}.slug`]: 1 }, { unique: true, sparse: true });
+}
 
 ProviderProfileSchema.pre('save', function (next) {
   if (this.isModified('name_ar') || this.isModified('name_en') || !this.slug) {

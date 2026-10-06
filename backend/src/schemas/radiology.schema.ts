@@ -4,6 +4,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { trackingId, TRACK_PREFIX } from '../common/tracking';
 import { InsuranceDetails, InsuranceDetailsSchema } from './insurance.schema';
 
+/** Supported locale keys (tl = Filipino/Tagalog). */
+export const LOCALES = ['ar', 'en', 'ur', 'hi', 'bn', 'tl'] as const;
+export type Locale = (typeof LOCALES)[number];
+
 /**
  * RadiologyService — independent catalog from LabService (X-Ray / CT / MRI / Ultrasound / Mammography / DEXA).
  */
@@ -42,6 +46,10 @@ export class RadiologyService extends Document {
   @Prop() last_reviewed?: Date;
   @Prop() provenance?: string;
   @Prop({ default: 1 }) version: number;
+
+  /** Per-locale translations for 6 languages (ar, en, ur, hi, bn, tl). */
+  @Prop({ type: Object, default: {} }) translations: Record<string, Record<string, unknown>>;
+
   @Prop() image_url?: string; // Cloudinary catalog image
   @Prop() icon?: string;
 
@@ -64,6 +72,12 @@ export class RadiologyService extends Document {
 }
 export const RadiologyServiceSchema = SchemaFactory.createForClass(RadiologyService);
 RadiologyServiceSchema.index({ name_ar: 'text', name_en: 'text' });
+
+// Per-locale public URL slugs — every locale resolves its own slug without
+// mixing languages. Sparse so pre-v14 documents (no localized slugs) are exempt.
+for (const lang of ['ar', 'en', 'ur', 'hi', 'bn', 'tl']) {
+  RadiologyServiceSchema.index({ [`translations.${lang}.slug`]: 1 }, { unique: true, sparse: true });
+}
 RadiologyServiceSchema.index({ modality: 1, popularity: -1 });
 
 @Schema({ timestamps: true })

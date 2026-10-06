@@ -230,6 +230,11 @@ export function savePendingDeepLink(path: string | null | undefined): void {
       return;
     }
   }
+  // Scrub sensitive params from query string for any path with query.
+  if (candidate.includes("?")) {
+    const [pathPart, queryPart] = candidate.split("?", 2);
+    candidate = `${pathPart}${scrubSearch(queryPart)}`;
+  }
   if (!isSafeRelativePath(candidate.split("?")[0])) return;
   try {
     store.setItem(NABD_DEFERRED_KEY, candidate);

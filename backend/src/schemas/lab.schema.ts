@@ -4,6 +4,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { trackingId, TRACK_PREFIX } from '../common/tracking';
 import { InsuranceDetails, InsuranceDetailsSchema } from './insurance.schema';
 
+/** Supported locale keys (tl = Filipino/Tagalog). */
+export const LOCALES = ['ar', 'en', 'ur', 'hi', 'bn', 'tl'] as const;
+export type Locale = (typeof LOCALES)[number];
+
 @Schema({ timestamps: true, collection: 'lab_services' })
 export class LabService extends Document {
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
@@ -39,6 +43,9 @@ export class LabService extends Document {
   @Prop() provenance?: string;
   @Prop({ default: 1 }) version: number;
 
+  /** Per-locale translations for 6 languages (ar, en, ur, hi, bn, tl). */
+  @Prop({ type: Object, default: {} }) translations: Record<string, Record<string, unknown>>;
+  
   // Added per Addendum
   @Prop({ default: true }) cash_availability: boolean;
   @Prop({ default: true }) insurance_availability: boolean;
@@ -52,6 +59,12 @@ export class LabService extends Document {
 export const LabServiceSchema = SchemaFactory.createForClass(LabService);
 LabServiceSchema.index({ name_ar: 'text', name_en: 'text' });
 LabServiceSchema.index({ category: 1, popularity: -1 });
+
+// Per-locale public URL slugs — every locale resolves its own slug without
+// mixing languages. Sparse so pre-v14 documents (no localized slugs) are exempt.
+for (const lang of ['ar', 'en', 'ur', 'hi', 'bn', 'tl']) {
+  LabServiceSchema.index({ [`translations.${lang}.slug`]: 1 }, { unique: true, sparse: true });
+}
 
 export enum LabBookingState {
   NEW_REQUEST = 'NEW_REQUEST',

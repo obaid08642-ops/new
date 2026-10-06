@@ -50,6 +50,31 @@ export class CreateDto {
 
   @IsOptional()
   @IsString()
+  medical_reviewer_name?: string;
+
+  @IsOptional()
+  @IsString()
+  medical_reviewer_title?: string;
+
+  @IsOptional()
+  @IsString()
+  medical_reviewer_credentials?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  references?: string[];
+
+  @IsOptional()
+  @IsString()
+  editorial_policy_url?: string;
+
+  @IsOptional()
+  @IsString()
+  disclaimer?: string;
+
+  @IsOptional()
+  @IsString()
   seo_description_ar?: string;
 
   @IsOptional()

@@ -4,6 +4,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { trackingId, TRACK_PREFIX } from '../common/tracking';
 import { InsuranceDetails, InsuranceDetailsSchema } from './insurance.schema';
 
+/** Supported locale keys (tl = Filipino/Tagalog). */
+export const LOCALES = ['ar', 'en', 'ur', 'hi', 'bn', 'tl'] as const;
+export type Locale = (typeof LOCALES)[number];
+
 export enum NursingBookingState {
   NEW_REQUEST = 'NEW_REQUEST',
   PENDING_INSURANCE = 'PENDING_INSURANCE',
@@ -51,8 +55,17 @@ export class HomeCareService extends Document {
   @Prop() last_reviewed?: Date;
   @Prop() provenance?: string;
   @Prop({ default: 0 }) popularity: number;
+  
+  /** Per-locale translations for 6 languages (ar, en, ur, hi, bn, tl). */
+  @Prop({ type: Object, default: {} }) translations: Record<string, Record<string, unknown>>;
 }
 export const HomeCareServiceSchema = SchemaFactory.createForClass(HomeCareService);
+
+// Per-locale public URL slugs — every locale resolves its own slug without
+// mixing languages. Sparse so pre-v14 documents (no localized slugs) are exempt.
+for (const lang of ['ar', 'en', 'ur', 'hi', 'bn', 'tl']) {
+  HomeCareServiceSchema.index({ [`translations.${lang}.slug`]: 1 }, { unique: true, sparse: true });
+}
 
 
 @Schema({ timestamps: true })
@@ -177,8 +190,17 @@ export class NurseProvider extends Document {
   @Prop({ default: 0 }) distance_km: number;
   @Prop({ required: true }) price: number;
   @Prop({ default: true }) available_now: boolean;
+
+  /** Per-locale translations for 6 languages (ar, en, ur, hi, bn, tl). */
+  @Prop({ type: Object, default: {} }) translations: Record<string, Record<string, unknown>>;
 }
 export const NurseProviderSchema = SchemaFactory.createForClass(NurseProvider);
+
+// Per-locale public URL slugs — every locale resolves its own slug without
+// mixing languages. Sparse so pre-v14 documents (no localized slugs) are exempt.
+for (const lang of ['ar', 'en', 'ur', 'hi', 'bn', 'tl']) {
+  NurseProviderSchema.index({ [`translations.${lang}.slug`]: 1 }, { unique: true, sparse: true });
+}
 
 @Schema({ timestamps: true })
 export class NursingVisitReport extends Document {
@@ -224,8 +246,17 @@ export class HomeCarePackage extends Document {
   @Prop({ default: 30 }) duration_days: number;
   @Prop({ type: [String], default: [] }) service_ids: string[];
   @Prop({ default: true, index: true }) active: boolean;
+
+  /** Per-locale translations for 6 languages (ar, en, ur, hi, bn, tl). */
+  @Prop({ type: Object, default: {} }) translations: Record<string, Record<string, unknown>>;
 }
 export const HomeCarePackageSchema = SchemaFactory.createForClass(HomeCarePackage);
+
+// Per-locale public URL slugs — every locale resolves its own slug without
+// mixing languages. Sparse so pre-v14 documents (no localized slugs) are exempt.
+for (const lang of ['ar', 'en', 'ur', 'hi', 'bn', 'tl']) {
+  HomeCarePackageSchema.index({ [`translations.${lang}.slug`]: 1 }, { unique: true, sparse: true });
+}
 
 // ─── Medical Supply Request (nurse requests supplies after a visit) ─────────
 @Schema({ timestamps: true })
