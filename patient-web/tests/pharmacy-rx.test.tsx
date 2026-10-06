@@ -397,6 +397,30 @@ describe("the cart kept in this browser", () => {
   });
 });
 
+describe("client bundles of the Batch 1b screens", () => {
+  /** Every module a client screen reaches through "@/..." and relative imports (not node_modules). */
+  function reach(file: string, seen = new Set<string>()): Set<string> {
+    if (seen.has(file)) return seen;
+    seen.add(file);
+    const source = read(file);
+    for (const match of source.matchAll(/from\s+"((?:@\/|\.\.?\/)[^"]+)"/g)) {
+      const spec = match[1];
+      const base = spec.startsWith("@/") ? spec.slice(2) : resolve(file, "..", spec).slice(process.cwd().length + 1);
+      const found = [".ts", ".tsx", "/index.ts"].map((ext) => `${base}${ext}`).find((candidate) => { try { read(candidate); return true; } catch { return false; } });
+      if (found) reach(found, seen);
+    }
+    return seen;
+  }
+
+  it("never reach zod: it probes for eval, which the page's CSP reports as a violation on every page that loads it", () => {
+    for (const screen of ["cart-screen", "rx-upload-screen", "rx-order-screen", "request-screen", "barcode-screen", "chat-screen"]) {
+      const modules = [...reach(`components-next/pharmacy/${screen}.tsx`)];
+      const offenders = modules.filter((module) => /from\s+"zod"/.test(read(module)));
+      expect(offenders, screen).toEqual([]);
+    }
+  });
+});
+
 describe("messages of the Batch 1b screens", () => {
   const NAMESPACES = ["CartScreen", "PharmacyFlow", "PharmacyAddress", "RxUpload", "PharmacyRequest", "PharmacyBarcode", "PharmacyChat", "Prescriptions"];
   const locales = ["ar", "en", "ur", "hi", "bn", "fil"];

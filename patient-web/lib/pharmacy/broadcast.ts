@@ -1,5 +1,13 @@
 import { parseDeliveryAddresses, toBroadcastAddress, type DeliveryAddress } from "./delivery-address";
-import { extractPatientPharmacyOrderId } from "@/lib/api/pharmacy-draft";
+// no zod here: this module is in the client bundle of every sending screen, and zod probes for `eval`, which the page's CSP reports as a violation
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+/** The created order's id from `{ id }` or `{ data: { id } }`, only when it is a UUID (a name like "cart" is not an order). */
+function extractPatientPharmacyOrderId(value: unknown): string | null {
+  const root = value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
+  const inner = root?.data && typeof root.data === "object" && !Array.isArray(root.data) ? (root.data as Record<string, unknown>) : root;
+  return typeof inner?.id === "string" && UUID.test(inner.id) ? inner.id : null;
+}
 
 /**
  * Sending a pharmacy request to the nearby pharmacies (handoff §1: the order is broadcast 3 -> 5 -> 8 km and the pharmacies

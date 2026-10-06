@@ -10,7 +10,7 @@ import { Button } from "@/components-next/ui-generated/components/Button";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { LinkEmptyState } from "./link-empty-state";
 import { formatDate } from "@/lib/format-date";
-import { isOrderablePrescriptionState, prescriptionStateKey } from "@/lib/api/prescriptions";
+import { isOrderablePrescriptionState, prescriptionStateKey } from "@/lib/pharmacy/prescription-state";
 import type { Locale } from "@/lib/i18n";
 import { newIdempotencyKey, sendBroadcast } from "@/lib/pharmacy/broadcast";
 import { AddressCard } from "./address-card";
