@@ -129,4 +129,34 @@ describe('PaymentsService ownership guards (E5-F2)', () => {
     await expect(svc.createPaymentIntent({ id: 'patient-1', role: 'patient' }, 'pharmacy', 'b1', 'client-key-1')).resolves.toEqual(active);
     expect(svc.adapter.createIntent).not.toHaveBeenCalled();
   });
+
+  it('does not replay paid side effects when an already-paid transaction is verified again', async () => {
+    const paid: any = { id: 'tx1', patient_id: 'patient-1', gateway_intent_id: 'pi_1', status: 'paid', webhook_payload: { source: { token: 'tok_secret' } }, save: jest.fn() };
+    svc.txns.findOne = jest.fn(async () => paid);
+    const out = await svc.verifyPayment({ id: 'patient-1', role: 'patient' }, 'tx1');
+    expect(svc.adapter.verify).not.toHaveBeenCalled();
+    expect(svc.events.emit).not.toHaveBeenCalled();
+    expect(paid.save).not.toHaveBeenCalled();
+    expect(out.status).toBe('paid');
+    expect(out.webhook_payload).toBeUndefined();
+  });
+
+  it('never returns the raw gateway payload or idempotency key from verify or intent', async () => {
+    const txn: any = { id: 'tx1', patient_id: 'patient-1', gateway_intent_id: 'pi_1', status: 'pending', save: jest.fn() };
+    txn.toObject = () => ({ id: txn.id, status: txn.status, webhook_payload: txn.webhook_payload, idempotency_key: 'k1' });
+    svc.txns.findOne = jest.fn(async () => txn);
+    svc.adapter.verify = jest.fn(async () => ({ status: 'failed', raw: { source: { token: 'tok_secret' } } }));
+    svc.fraud.checkPaymentVelocity = jest.fn(async () => false);
+    const verified = await svc.verifyPayment({ id: 'patient-1', role: 'patient' }, 'tx1');
+    expect(JSON.stringify(verified)).not.toContain('tok_secret');
+    expect(verified.idempotency_key).toBeUndefined();
+
+    svc.modelFor = jest.fn(() => ({
+      findOne: jest.fn(() => ({ lean: async () => ({ id: 'b1', patient_id: 'patient-1', total: 12, payment_status: 'pending', payment_method: 'card' }) })),
+    }));
+    const active = { id: 'active-txn', status: 'pending', checkout_url: 'https://pay', webhook_payload: { raw: 'x' }, idempotency_key: 'k2' };
+    svc.txns.findOne = jest.fn(() => ({ lean: async () => active }));
+    const intent = await svc.createPaymentIntent({ id: 'patient-1', role: 'patient' }, 'pharmacy', 'b1', 'client-key-2');
+    expect(intent).toEqual({ id: 'active-txn', status: 'pending', checkout_url: 'https://pay' });
+  });
 });
