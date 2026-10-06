@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { Button } from "@/components-next/ui-generated/components/Button";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/consult/consult.module.css";
 
-type Labels = { title:string; join:string; loading:string; ready:string; unavailable:string; notReady:string };
+type Labels = { title:string; join:string; loading:string; ready:string; unavailable:string; notReady:string; open:string };
 type CallCredential = { provider:"livekit"; token:string; room:string };
-export function CallTokenLauncher({ appointmentId, labels }: { appointmentId:string; labels:Labels }) {
+/** `joinHref` is the video-call page of this appointment (/consultations/video-call?appointmentId=), which asks for its own credential; this launcher only checks that the visit is ready and then links there. */
+export function CallTokenLauncher({ appointmentId, joinHref, labels }: { appointmentId:string; joinHref:string; labels:Labels }) {
   const [state,setState]=useState<"idle"|"loading"|"ready"|"error">("idle"); const [credential,setCredential]=useState<CallCredential|null>(null); const [error,setError]=useState<string|null>(null);
   async function requestToken(){ if(state==="loading")return; setState("loading");setError(null);try{const response=await fetch(`/api/appointments/${appointmentId}/call-token`,{method:"GET",cache:"no-store",credentials:"same-origin"});const data=await response.json().catch(()=>null);if(!response.ok||!data?.token||data.provider!=="livekit"||!data.room){setState("error");setError(response.status===409?labels.notReady:labels.unavailable);return;}setCredential({provider:"livekit",token:data.token,room:data.room});setState("ready");}catch{setState("error");setError(labels.unavailable)}}
   function discard(){setCredential(null);setState("idle");setError(null)}
@@ -17,6 +19,7 @@ export function CallTokenLauncher({ appointmentId, labels }: { appointmentId:str
       {state==="ready"&&credential ? (
         <div className={styles.stack}>
           <p className={styles.body} role="status">{labels.ready}</p>
+          <ButtonLink href={joinHref} label={labels.open} fullWidth />
           <Button variant="outline" label={labels.notReady} onClick={discard} />
         </div>
       ) : (

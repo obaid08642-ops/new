@@ -292,7 +292,7 @@
   min-height: var(--nabd-a11y-minTouchTarget);
   padding-inline: var(--nabd-space-sm);
   background: var(--nabd-color-bg-surface);
-  border-block-end: 1px solid var(--nabd-color-border-default);
+  border-block-end: 1px solid var(--nabd-color-border-subtle);
 }
 .nabd-nav-bar__title { flex: 1; margin: 0; font-size: var(--nabd-font-size-h4); color: var(--nabd-color-text-primary); }
 
@@ -374,7 +374,7 @@
   width: var(--nabd-space-5xl);
   padding: var(--nabd-space-sm);
   background: var(--nabd-color-bg-surface);
-  border-inline-end: 1px solid var(--nabd-color-border-default);
+  border-inline-end: 1px solid var(--nabd-color-border-subtle);
 }
 .nabd-sidebar--collapsed { width: var(--nabd-space-4xl); }
 .nabd-sidebar__title { font-size: var(--nabd-font-size-label); font-weight: 700; color: var(--nabd-color-text-tertiary); }

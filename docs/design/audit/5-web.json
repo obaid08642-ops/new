@@ -6,150 +6,517 @@
     {
       "route": "/health",
       "elements": [
-        ["Health ID button", "link to /reports/passport", "ok"],
-        ["My medical file card", "link to /health/profile", "ok"],
-        ["Score card (score, status, components) - absorbs /health/score", "GET /health/score: score, status, components[]", "ok"],
-        ["Vital tiles (BP, sugar, weight, temperature always; heart rate, SpO2 when read)", "GET /health/vitals/summary: key, value, unit, measured_at", "ok"],
-        ["Tile time", "measured_at, device time zone (LocalTimeLine)", "ok"],
-        ["Add reading link", "link to /health/vitals?tab=today&add=1", "ok"],
-        ["Today's doses (name, dose, time, state)", "GET /health/reminders: today_doses[] or times[]", "ok"],
-        ["Records, medications, sleep and wearables rows", "links to the merged screens (wearables only when NEXT_PUBLIC_WEARABLES_ENABLED)", "ok"],
-        ["Quick grid: prescriptions, reminders, sleep, chronic, trends, vitals history, medications, refills, conditions", "now tabs, sections and rows of the merged screens", "ok"],
-        ["Quick grid: family and chat shortcuts", "not health; both are on the home grid and the tab bar", "hidden"],
-        ["Next appointment (map text)", "the old web hub never read an appointments endpoint", "hidden"],
-        ["Error state with retry (vitals summary failed); in-place notes for score and doses", "response not ok", "ok"],
-        ["Raw colours, inline styles, literal Arabic/English text of the old page", "tokens and HealthWeb messages", "fixed"]
+        [
+          "Health ID button",
+          "link to /reports/passport",
+          "ok"
+        ],
+        [
+          "My medical file card",
+          "link to /health/profile",
+          "ok"
+        ],
+        [
+          "Score card (score, status, components) - absorbs /health/score",
+          "GET /health/score: score, status, components[]",
+          "ok"
+        ],
+        [
+          "Vital tiles (BP, sugar, weight, temperature always; heart rate, SpO2 when read)",
+          "GET /health/vitals/summary: key, value, unit, measured_at",
+          "ok"
+        ],
+        [
+          "Tile time",
+          "measured_at, device time zone (LocalTimeLine)",
+          "ok"
+        ],
+        [
+          "Add reading link",
+          "link to /health/vitals?tab=today&add=1",
+          "ok"
+        ],
+        [
+          "Today's doses (name, dose, time, state)",
+          "GET /health/reminders: today_doses[] or times[]",
+          "ok"
+        ],
+        [
+          "Records, medications, sleep and wearables rows",
+          "links to the merged screens (wearables only when NEXT_PUBLIC_WEARABLES_ENABLED)",
+          "ok"
+        ],
+        [
+          "Quick grid: prescriptions, reminders, sleep, chronic, trends, vitals history, medications, refills, conditions",
+          "now tabs, sections and rows of the merged screens",
+          "ok"
+        ],
+        [
+          "Quick grid: family and chat shortcuts",
+          "not health; both are on the home grid and the tab bar",
+          "hidden"
+        ],
+        [
+          "Next appointment (map text)",
+          "the old web hub never read an appointments endpoint",
+          "hidden"
+        ],
+        [
+          "Error state with retry (vitals summary failed); in-place notes for score and doses",
+          "response not ok",
+          "ok"
+        ],
+        [
+          "Raw colours, inline styles, literal Arabic/English text of the old page",
+          "tokens and HealthWeb messages",
+          "fixed"
+        ]
       ],
-      "notes": ["Absorbs /health/score (redirect to /health)."]
+      "notes": [
+        "Absorbs /health/score (redirect to /health)."
+      ]
     },
     {
       "route": "/health/vitals",
       "elements": [
-        ["Tabs Today | History | Trends", "?tab= (link tabs)", "ok"],
-        ["Today: latest reading per vital - absorbs the old hub grid", "GET /health/vitals/summary", "ok"],
-        ["History: every saved reading (type, value, unit, context, time) - old /health/vitals", "GET /health/vitals?limit=100: id, key, value, unit, context, measured_at", "ok"],
-        ["Trends: name, current, direction, readings count, last labels - old /health/trends", "GET /health/trends: id, name, unit, current, trendDir, labels, data", "ok"],
-        ["Add reading sheet (type chips, systolic/diastolic or value, save) - old /health/vitals/log", "POST /api/health/vitals {type, unit, value|systolic,diastolic}", "ok"],
-        ["Sheet opens on load with ?add=1", "URL flag only, no health data", "ok"],
-        ["Error and empty states", "response not ok / empty list", "ok"],
-        ["Hard-coded Arabic/English strings of the log form", "HealthWeb messages", "fixed"]
+        [
+          "Tabs Today | History | Trends",
+          "?tab= (link tabs)",
+          "ok"
+        ],
+        [
+          "Today: latest reading per vital - absorbs the old hub grid",
+          "GET /health/vitals/summary",
+          "ok"
+        ],
+        [
+          "History: every saved reading (type, value, unit, context, time) - old /health/vitals",
+          "GET /health/vitals?limit=100: id, key, value, unit, context, measured_at",
+          "ok"
+        ],
+        [
+          "Trends: name, current, direction, readings count, last labels - old /health/trends",
+          "GET /health/trends: id, name, unit, current, trendDir, labels, data",
+          "ok"
+        ],
+        [
+          "Add reading sheet (type chips, systolic/diastolic or value, save) - old /health/vitals/log",
+          "POST /api/health/vitals {type, unit, value|systolic,diastolic}",
+          "ok"
+        ],
+        [
+          "Sheet opens on load with ?add=1",
+          "URL flag only, no health data",
+          "ok"
+        ],
+        [
+          "Error and empty states",
+          "response not ok / empty list",
+          "ok"
+        ],
+        [
+          "Hard-coded Arabic/English strings of the log form",
+          "HealthWeb messages",
+          "fixed"
+        ]
       ],
-      "notes": ["Absorbs /health/vitals/log and /health/trends (redirects)."]
+      "notes": [
+        "Absorbs /health/vitals/log and /health/trends (redirects)."
+      ]
     },
     {
       "route": "/health/sleep",
       "elements": [
-        ["Last night card (score, hours, time)", "GET /health/sleep?limit=100: sleep_score, duration_hours, measured_at (newest)", "ok"],
-        ["Sleep log (score, hours, time per night)", "same list", "ok"],
-        ["Add sleep", "no web BFF route; the old page was read-only too", "gap"],
-        ["Error and empty states", "response not ok / empty list", "ok"]
+        [
+          "Last night card (score, hours, time)",
+          "GET /health/sleep?limit=100: sleep_score, duration_hours, measured_at (newest)",
+          "ok"
+        ],
+        [
+          "Sleep log (score, hours, time per night)",
+          "same list",
+          "ok"
+        ],
+        [
+          "Add sleep",
+          "no web BFF route; the old page was read-only too",
+          "gap"
+        ],
+        [
+          "Error and empty states",
+          "response not ok / empty list",
+          "ok"
+        ]
       ]
     },
     {
       "route": "/health/medications",
       "elements": [
-        ["Tabs Today's doses | All reminders | Refills | Chronic", "?tab= (link tabs)", "ok"],
-        ["Today's doses with state and count taken", "GET /health/reminders: today_doses[], times[]", "ok"],
-        ["Taken button per pending dose", "POST /api/health/reminders/:id/log {status, time_key} + idempotency key", "ok"],
-        ["All reminders (name, dose, times, frequency) - old /reminders", "GET /health/reminders", "ok"],
-        ["Edit reminder (sheet filled from the row; ?edit=<id>) - old /reminders/add?edit", "PATCH /api/health/reminders/:id + idempotency key", "ok"],
-        ["Delete reminder (press, then confirm)", "DELETE /api/health/reminders/:id + idempotency key", "ok"],
-        ["Add reminder sheet (name, dose, times, frequency, chronic) - old /reminders/add", "POST /api/health/reminders + idempotency key", "ok"],
-        ["Refills: request refill per reminder - old /health/refills", "POST /api/health/reminders/:id/refill", "ok"],
-        ["Chronic: name, dose, frequency, times, refill date, days left, units left, active, refill soon - old /health/chronic-medications", "GET /health/chronic-meds", "ok"],
-        ["Old medications page buttons (Reminders, New reminder, Refills)", "tabs and the Add reminder sheet", "ok"],
-        ["Error and empty states per tab", "response not ok / empty list", "ok"],
-        ["Native window.confirm with literal text on delete", "two-step button with messages", "fixed"]
+        [
+          "Tabs Today's doses | All reminders | Refills | Chronic",
+          "?tab= (link tabs)",
+          "ok"
+        ],
+        [
+          "Today's doses with state and count taken",
+          "GET /health/reminders: today_doses[], times[]",
+          "ok"
+        ],
+        [
+          "Taken button per pending dose",
+          "POST /api/health/reminders/:id/log {status, time_key} + idempotency key",
+          "ok"
+        ],
+        [
+          "All reminders (name, dose, times, frequency) - old /reminders",
+          "GET /health/reminders",
+          "ok"
+        ],
+        [
+          "Edit reminder (sheet filled from the row; ?edit=<id>) - old /reminders/add?edit",
+          "PATCH /api/health/reminders/:id + idempotency key",
+          "ok"
+        ],
+        [
+          "Delete reminder (press, then confirm)",
+          "DELETE /api/health/reminders/:id + idempotency key",
+          "ok"
+        ],
+        [
+          "Add reminder sheet (name, dose, times, frequency, chronic) - old /reminders/add",
+          "POST /api/health/reminders + idempotency key",
+          "ok"
+        ],
+        [
+          "Refills: request refill per reminder - old /health/refills",
+          "POST /api/health/reminders/:id/refill",
+          "ok"
+        ],
+        [
+          "Chronic: name, dose, frequency, times, refill date, days left, units left, active, refill soon - old /health/chronic-medications",
+          "GET /health/chronic-meds",
+          "ok"
+        ],
+        [
+          "Old medications page buttons (Reminders, New reminder, Refills)",
+          "tabs and the Add reminder sheet",
+          "ok"
+        ],
+        [
+          "Error and empty states per tab",
+          "response not ok / empty list",
+          "ok"
+        ],
+        [
+          "Native window.confirm with literal text on delete",
+          "two-step button with messages",
+          "fixed"
+        ]
       ],
-      "notes": ["Absorbs /reminders, /reminders/add, /health/refills, /health/chronic-medications (redirects); /health/smart-reminders now redirects to ?tab=all; /health/actionable-order redirects to /health/records?tab=prescriptions."]
+      "notes": [
+        "Absorbs /reminders, /reminders/add, /health/refills, /health/chronic-medications (redirects); /health/smart-reminders now redirects to ?tab=all; /health/actionable-order redirects to /health/records?tab=prescriptions."
+      ]
     },
     {
       "route": "/health/profile",
       "elements": [
-        ["Jump bar to the five sections", "anchors #basics #conditions #chronic #emergency #healthid", "ok"],
-        ["Basics: blood type, height, weight", "GET /medical-profile: blood_type, height_cm, weight_kg", "ok"],
-        ["Edit basics sheet", "PATCH /api/medical-profile {height_cm, weight_kg, blood_type}", "ok"],
-        ["Conditions and allergies: allergies and surgeries lists, add and remove - old /health/conditions-allergies", "GET /medical-profile lists; POST /api/medical-profile/:list; DELETE /api/medical-profile/:list/:id", "ok"],
-        ["Chronic diseases and long-term medicines lists, add and remove", "GET /medical-profile lists; POST/DELETE /api/medical-profile/:list", "ok"],
-        ["Recorded conditions (name, source) read-only - old /health/chronic-diseases", "GET /health/chronic-diseases: name, source", "ok"],
-        ["My contacts (name, relation, masked phone, primary) - old /health/emergency-contacts", "GET /health/emergency-contacts", "ok"],
-        ["Add and delete my contacts", "no web BFF route; the old page was read-only", "gap"],
-        ["My family on Nabd+ (name, relation, masked phone) read-only - old /family/emergency-contacts", "GET /family/emergency-contacts: user_id, display_name, relation, phone", "ok"],
-        ["Health ID card row", "link to /reports/passport (old /health/health-id redirect kept)", "ok"],
-        ["In-place note when one section fails; error state without the profile", "response not ok", "ok"],
-        ["Family contacts phone shown unmasked", "masked like the old health page", "fixed"]
+        [
+          "Jump bar to the five sections",
+          "anchors #basics #conditions #chronic #emergency #healthid",
+          "ok"
+        ],
+        [
+          "Basics: blood type, height, weight",
+          "GET /medical-profile: blood_type, height_cm, weight_kg",
+          "ok"
+        ],
+        [
+          "Edit basics sheet",
+          "PATCH /api/medical-profile {height_cm, weight_kg, blood_type}",
+          "ok"
+        ],
+        [
+          "Conditions and allergies: allergies and surgeries lists, add and remove - old /health/conditions-allergies",
+          "GET /medical-profile lists; POST /api/medical-profile/:list; DELETE /api/medical-profile/:list/:id",
+          "ok"
+        ],
+        [
+          "Chronic diseases and long-term medicines lists, add and remove",
+          "GET /medical-profile lists; POST/DELETE /api/medical-profile/:list",
+          "ok"
+        ],
+        [
+          "Recorded conditions (name, source) read-only - old /health/chronic-diseases",
+          "GET /health/chronic-diseases: name, source",
+          "ok"
+        ],
+        [
+          "My contacts (name, relation, masked phone, primary) - old /health/emergency-contacts",
+          "GET /health/emergency-contacts",
+          "ok"
+        ],
+        [
+          "Add and delete my contacts",
+          "no web BFF route; the old page was read-only",
+          "gap"
+        ],
+        [
+          "My family on Nabd+ (name, relation, masked phone) read-only - old /family/emergency-contacts",
+          "GET /family/emergency-contacts: user_id, display_name, relation, phone",
+          "ok"
+        ],
+        [
+          "Health ID card row",
+          "link to /reports/passport (old /health/health-id redirect kept)",
+          "ok"
+        ],
+        [
+          "In-place note when one section fails; error state without the profile",
+          "response not ok",
+          "ok"
+        ],
+        [
+          "Family contacts phone shown unmasked",
+          "masked like the old health page",
+          "fixed"
+        ]
       ],
-      "notes": ["Absorbs /health/conditions-allergies, /health/chronic-diseases, /health/emergency-contacts and /family/emergency-contacts (redirects to #conditions, #chronic, #emergency)."]
+      "notes": [
+        "Absorbs /health/conditions-allergies, /health/chronic-diseases, /health/emergency-contacts and /family/emergency-contacts (redirects to #conditions, #chronic, #emergency)."
+      ]
     },
     {
       "route": "/health/records",
       "elements": [
-        ["Tabs Reports | Prescriptions | Timeline", "?tab= (link tabs)", "ok"],
-        ["Reports list (title in the reader's language, type, date) opens /reports/:id - old /reports", "GET /medical-reports/mine", "ok"],
-        ["Reports list of /health/reports (title, doctor, facility, date; no detail)", "second report endpoint, same records, not drawn", "hidden"],
-        ["Prescriptions list opens /prescriptions/:id, upload button - old /prescriptions entry", "GET /prescriptions/mine", "ok"],
-        ["Timeline with type filter (all, appointment, lab, prescription, vitals) - old /health/timeline and /reports/timeline", "GET /medical-reports/timeline; &type= in the URL", "ok"],
-        ["Error and empty states per tab", "response not ok / empty list", "ok"]
+        [
+          "Tabs Reports | Prescriptions | Timeline",
+          "?tab= (link tabs)",
+          "ok"
+        ],
+        [
+          "Reports list (title in the reader's language, type, date) opens /reports/:id - old /reports",
+          "GET /medical-reports/mine",
+          "ok"
+        ],
+        [
+          "Reports list of /health/reports (title, doctor, facility, date; no detail)",
+          "second report endpoint, same records, not drawn",
+          "hidden"
+        ],
+        [
+          "Prescriptions list opens /prescriptions/:id, upload button - old /prescriptions entry",
+          "GET /prescriptions/mine",
+          "ok"
+        ],
+        [
+          "Timeline with type filter (all, appointment, lab, prescription, vitals) - old /health/timeline and /reports/timeline",
+          "GET /medical-reports/timeline; &type= in the URL",
+          "ok"
+        ],
+        [
+          "Error and empty states per tab",
+          "response not ok / empty list",
+          "ok"
+        ]
       ],
-      "notes": ["Absorbs /reports, /reports/timeline, /health/reports, /health/timeline (redirects)."]
+      "notes": [
+        "Absorbs /reports, /reports/timeline, /health/reports, /health/timeline (redirects)."
+      ]
     },
     {
       "route": "/health/wearables",
       "elements": [
-        ["Title, pairing text, log-manually and history buttons", "static keys; links to /health/vitals", "ok"],
-        ["Hidden until the integration is real", "NEXT_PUBLIC_WEARABLES_ENABLED (404 otherwise)", "ok"]
+        [
+          "Title, pairing text, log-manually and history buttons",
+          "static keys; links to /health/vitals",
+          "ok"
+        ],
+        [
+          "Hidden until the integration is real",
+          "NEXT_PUBLIC_WEARABLES_ENABLED (404 otherwise)",
+          "ok"
+        ]
       ]
     },
     {
       "route": "/reports/[reportId]",
       "elements": [
-        ["Hero (title, date)", "GET /medical-reports/:param: title_ar|title_en|title|report_type, issued_at", "ok"],
-        ["Summary, diagnosis, recommendations, doctor, facility, body", "GET /medical-reports/:param", "ok"],
-        ["Back to the Reports tab", "link to /health/records?tab=reports", "ok"],
-        ["Error state", "response not ok", "ok"]
+        [
+          "Hero (title, date)",
+          "GET /medical-reports/:param: title_ar|title_en|title|report_type, issued_at",
+          "ok"
+        ],
+        [
+          "Summary, diagnosis, recommendations, doctor, facility, body",
+          "GET /medical-reports/:param",
+          "ok"
+        ],
+        [
+          "Back to the Reports tab",
+          "link to /health/records?tab=reports",
+          "ok"
+        ],
+        [
+          "Error state",
+          "response not ok",
+          "ok"
+        ]
       ]
     },
     {
       "route": "/reports/passport",
       "elements": [
-        ["Hero (name, blood type)", "GET /medical-profile: full_name|name, blood_type", "ok"],
-        ["Share code and copy button", "GET /medical-profile/passport-token: token", "ok"],
-        ["Height and weight", "GET /medical-profile", "ok"],
-        ["Error when the code or the profile fails", "response not ok", "ok"]
+        [
+          "Hero (name, blood type)",
+          "GET /medical-profile: full_name|name, blood_type",
+          "ok"
+        ],
+        [
+          "Share code and copy button",
+          "GET /medical-profile/passport-token: token",
+          "ok"
+        ],
+        [
+          "Height and weight",
+          "GET /medical-profile",
+          "ok"
+        ],
+        [
+          "Error when the code or the profile fails",
+          "response not ok",
+          "ok"
+        ]
       ]
     },
     {
       "route": "/health/actionable-order",
       "elements": [
-        ["Screen rendering medicines, labs and radiology from a URL payload", "removed: health data must not be in a URL; redirect without the query", "hidden"]
+        [
+          "Screen rendering medicines, labs and radiology from a URL payload",
+          "removed: health data must not be in a URL; redirect without the query",
+          "hidden"
+        ]
       ]
     },
     {
       "route": "/prescriptions/[prescriptionId]",
       "elements": [
-        ["Order button reads the decision-18 text", "GET /prescriptions/:param (existing); message Prescriptions.orderCta; opens the existing /pharmacy/rx-order", "ok"],
-        ["Fill the cart from the medicines", "items carry no catalogue product id", "gap"]
+        [
+          "Order button reads the decision-18 text",
+          "GET /prescriptions/:param (existing); message Prescriptions.orderCta; opens the existing /pharmacy/rx-order",
+          "ok"
+        ],
+        [
+          "Fill the cart from the medicines",
+          "items carry no catalogue product id",
+          "gap"
+        ]
       ]
     },
     {
       "route": "/consultations/prescription",
       "elements": [
-        ["Order button reads the decision-18 text", "message ConsultClient.rxOrder; opens the existing /pharmacy/rx-order", "ok"],
-        ["Book labs and radiology from the same outcome", "the prescription data has no labs or radiology", "hidden"]
+        [
+          "Order button reads the decision-18 text",
+          "message ConsultClient.rxOrder; opens the existing /pharmacy/rx-order",
+          "ok"
+        ],
+        [
+          "Book labs and radiology from the same outcome",
+          "the prescription data has no labs or radiology",
+          "hidden"
+        ]
       ]
     }
   ],
   "needsReview": [
-    { "route": "/health/sleep", "element": "Add sleep", "kind": "client", "note": "Web has no BFF route or form to add a night (the old page was read-only); the map and the app have it. Not added: new feature." },
-    { "route": "/health/profile", "element": "Add and delete my emergency contacts", "kind": "client", "note": "The map wants an editable list; the web has only GET /health/emergency-contacts (no BFF POST/DELETE), as before. Read-only here." },
-    { "route": "/health/records", "element": "Two report lists", "kind": "backend", "note": "GET /health/reports and GET /medical-reports/mine both list the patient's reports with different fields; only the second (it has a detail page) is drawn. Confirm they are the same records." },
-    { "route": "/health/medications", "element": "Edit a chronic reminder", "kind": "backend", "note": "The reminder list has no `chronic` flag, so editing sends chronic=false (as the old form did). The list should return it." },
-    { "route": "/health", "element": "Score status and component keys", "kind": "backend", "note": "GET /health/score returns a raw English status and component keys (sleep, activity); drawn as sent, no translation key exists." },
-    { "route": "/health", "element": "Next appointment", "kind": "owner", "note": "The map says the hub keeps the next appointment, but the web hub never read one; not added (new call)." },
-    { "route": "/health/vitals", "element": "Today tab", "kind": "owner", "note": "Today shows the latest reading of each vital (summary endpoint), not only readings taken today. Confirm that is what Today means." },
-    { "route": "/prescriptions/[prescriptionId]", "element": "Order these medicines (decision 18)", "kind": "backend", "note": "Prescription items have no catalogue product id, so the local cart cannot be filled; the button opens the existing Rx order flow (/pharmacy/rx-order) and is relabelled. The Rx-to-cart link needs a medicine id on the items." },
-    { "route": "/ai/monthly-report", "element": "Links to the old health routes", "kind": "client", "note": "Links to /health/vitals/log and /health/trends still work through the redirects; not edited here because the file is Batch 9 and carries old literal strings (the touched-file rule would force its rebuild)." },
-    { "route": "/health", "element": "Dead API helpers", "kind": "client", "note": "getPatientReports and parseReports (lib/api/reports*.ts, vitals-server.ts) have no screen left; kept with their tests for the reviewer to delete." },
-    { "route": "/consultations/prescription", "element": "Labs and radiology from the outcome", "kind": "backend", "note": "The active prescription carries medicines only, so there is nothing to book into diagnostics; no action drawn." }
+    {
+      "route": "/health/sleep",
+      "element": "Add sleep",
+      "kind": "client",
+      "note": "Web has no BFF route or form to add a night (the old page was read-only); the map and the app have it. Not added: new feature.",
+      "file": "patient-web/app/[locale]/health/sleep/page.tsx",
+      "line": 60
+    },
+    {
+      "route": "/health/profile",
+      "element": "Add and delete my emergency contacts",
+      "kind": "client",
+      "note": "The map wants an editable list; the web has only GET /health/emergency-contacts (no BFF POST/DELETE), as before. Read-only here.",
+      "file": "patient-web/app/[locale]/health/profile/page.tsx",
+      "line": 136
+    },
+    {
+      "route": "/health/records",
+      "element": "Two report lists",
+      "kind": "backend",
+      "note": "GET /health/reports and GET /medical-reports/mine both list the patient's reports with different fields; only the second (it has a detail page) is drawn. Confirm they are the same records.",
+      "file": "patient-web/app/[locale]/health/records/page.tsx",
+      "line": 61
+    },
+    {
+      "route": "/health/medications",
+      "element": "Edit a chronic reminder",
+      "kind": "backend",
+      "note": "The reminder list has no `chronic` flag, so editing sends chronic=false (as the old form did). The list should return it.",
+      "file": "patient-web/app/[locale]/health/medications/page.tsx",
+      "line": 66
+    },
+    {
+      "route": "/health",
+      "element": "Score status and component keys",
+      "kind": "backend",
+      "note": "GET /health/score returns a raw English status and component keys (sleep, activity); drawn as sent, no translation key exists.",
+      "file": "patient-web/app/[locale]/health/page.tsx",
+      "line": 88
+    },
+    {
+      "route": "/health",
+      "element": "Next appointment",
+      "kind": "owner",
+      "note": "The map says the hub keeps the next appointment, but the web hub never read one; not added (new call).",
+      "file": "patient-web/app/[locale]/health/page.tsx",
+      "line": 123
+    },
+    {
+      "route": "/health/vitals",
+      "element": "Today tab",
+      "kind": "owner",
+      "note": "Today shows the latest reading of each vital (summary endpoint), not only readings taken today. Confirm that is what Today means.",
+      "file": "patient-web/app/[locale]/health/vitals/page.tsx",
+      "line": 72
+    },
+    {
+      "route": "/prescriptions/[prescriptionId]",
+      "element": "Order these medicines (decision 18)",
+      "kind": "backend",
+      "note": "Prescription items have no catalogue product id, so the local cart cannot be filled; the button opens the existing Rx order flow (/pharmacy/rx-order) and is relabelled. The Rx-to-cart link needs a medicine id on the items.",
+      "file": "patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx",
+      "line": 97
+    },
+    {
+      "route": "/ai/monthly-report",
+      "element": "Links to the old health routes",
+      "kind": "client",
+      "note": "Links to /health/vitals/log and /health/trends still work through the redirects; not edited here because the file is Batch 9 and carries old literal strings (the touched-file rule would force its rebuild).",
+      "file": "patient-web/app/[locale]/ai/monthly-report/page.tsx",
+      "line": 98
+    },
+    {
+      "route": "/health",
+      "element": "Dead API helpers",
+      "kind": "client",
+      "note": "getPatientReports and parseReports (lib/api/reports*.ts, vitals-server.ts) have no screen left; kept with their tests for the reviewer to delete.",
+      "file": "patient-web/lib/api/vitals-server.ts",
+      "line": 16
+    },
+    {
+      "route": "/consultations/prescription",
+      "element": "Labs and radiology from the outcome",
+      "kind": "backend",
+      "note": "The active prescription carries medicines only, so there is nothing to book into diagnostics; no action drawn.",
+      "file": "patient-web/components-next/prescription-client.tsx",
+      "line": 107
+    }
   ]
 }

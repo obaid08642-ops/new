@@ -384,9 +384,10 @@
     "callTitle": "নিরাপদ ভিডিও ভিজিট",
     "callJoin": "ভিডিও ভিজিট প্রস্তুত করুন",
     "callLoading": "নিরাপদ ভিজিট প্রস্তুত হচ্ছে…",
-    "callReady": "আপনার ভিডিও ভিজিট প্রস্তুত। ভিডিও অ্যাপে চালিয়ে যান।",
+    "callReady": "আপনার ভিডিও ভিজিট প্রস্তুত।",
     "callUnavailable": "ভিডিও ভিজিট এখন পাওয়া যাচ্ছে না।",
-    "callDiscard": "ভিডিও ভিজিট বন্ধ করুন"
+    "callDiscard": "ভিডিও ভিজিট বন্ধ করুন",
+    "callOpen": "ভিডিও ভিজিটে যোগ দিন"
   },
   "Medicines": {
     "eyebrow": "ব্যক্তিগত ক্যাটালগ",
@@ -2544,6 +2545,9 @@
     "acceptsInsurance": "বিমা গ্রহণ করেন",
     "acceptedInsurance": "গ্রহণযোগ্য বিমা কোম্পানি",
     "actionBookConsultation": "পরামর্শ বুক করুন",
+    "doctorMetaFallback": "ডাক্তার",
+    "doctorMetaDescription": "{name} - {specialty}। {brand}-এ অনলাইনে বা ক্লিনিকে পরামর্শ বুক করুন।",
+    "doctorMetaDescriptionCity": "{name} - {city}-এ {specialty}। {brand}-এ অনলাইনে বা ক্লিনিকে পরামর্শ বুক করুন।",
     "locationLabel": "অবস্থান",
     "videoCallTitle": "ভিডিও পরামর্শ",
     "videoCallSub": "আপনার ডাক্তারের সাথে নিরাপদ, সরাসরি ভিডিও কল",

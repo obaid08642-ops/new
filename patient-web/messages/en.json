@@ -346,9 +346,10 @@
     "callTitle": "Secure video visit",
     "callJoin": "Prepare video visit",
     "callLoading": "Preparing secure visit…",
-    "callReady": "Your video visit is ready. Continue in the video app.",
+    "callReady": "Your video visit is ready.",
     "callUnavailable": "Video visit isn't available right now.",
-    "callDiscard": "Close video visit"
+    "callDiscard": "Close video visit",
+    "callOpen": "Join the video visit"
   },
   "Medicines": {
     "eyebrow": "Private catalog",
@@ -2544,6 +2545,9 @@
     "acceptsInsurance": "Accepts insurance",
     "acceptedInsurance": "Accepted insurance companies",
     "actionBookConsultation": "Book a consultation",
+    "doctorMetaFallback": "Doctor",
+    "doctorMetaDescription": "{name} - {specialty}. Book an online or clinic consultation on {brand}.",
+    "doctorMetaDescriptionCity": "{name} - {specialty} in {city}. Book an online or clinic consultation on {brand}.",
     "locationLabel": "Location",
     "videoCallTitle": "Video consultation",
     "videoCallSub": "A secure, direct video call with your doctor",
