@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@ne
 import { AppointmentsService } from './appointments.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';import { ApptState } from '../../schemas/appointment.schema';
-import { CreateAppointmentDto, CancelAppointmentDto, RescheduleAppointmentDto, JoinWaitlistDto} from './appointments.dto';
+import { CreateAppointmentDto, CancelAppointmentDto, RescheduleAppointmentDto, JoinWaitlistDto, ReportLateDto} from './appointments.dto';
 import { FinishAppointmentDto, CancelDto } from './appointments.generated.dto';
 
 @Controller('care/appointments')
@@ -30,6 +30,28 @@ export class AppointmentsController {
   @Post('waitlist/join')
   joinWaitlist(@Body() body: JoinWaitlistDto, @CurrentUser() user: any) {
     return this.svc.joinWaitlist(user, body);
+  }
+
+  @Post('waitlist/leave/:entryId')
+  leaveWaitlist(@Param('entryId') entryId: string, @CurrentUser() user: any) {
+    return this.svc.leaveWaitlist(user, entryId);
+  }
+
+  @Post('waitlist/offers/:entryId/accept')
+  acceptOffer(@Param('entryId') entryId: string, @CurrentUser() user: any) {
+    return this.svc.acceptOffer(user, entryId);
+  }
+
+  @Patch(':id/no-show')
+  @Roles(UserRole.DOCTOR, UserRole.ADMIN)
+  markNoShow(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.markNoShow(id, user);
+  }
+
+  @Post(':id/report-late')
+  @Roles(UserRole.DOCTOR, UserRole.ADMIN)
+  reportLate(@Param('id') id: string, @Body() body: ReportLateDto, @CurrentUser() user: any) {
+    return this.svc.reportLate(user, id, body.delay_minutes);
   }
 
   @Patch(':id/cancel')

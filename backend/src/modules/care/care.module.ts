@@ -21,6 +21,7 @@ import { ProviderProfileRepository } from "./repositories/providerprofile.reposi
 import { UserRepository } from "./repositories/user.repository";
 import { SlotLocksModule } from "../slot-locks/slot-locks.module";
 import { ConsultationsCompatController } from './care-compat.controller';
+import { WaitlistEntry, WaitlistEntrySchema } from './schemas/waitlist-entry.schema';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ConsultationsCompatController } from './care-compat.controller';
       { name: EncounterReferral.name, schema: EncounterReferralSchema },
       { name: DoctorProfileExtended.name, schema: DoctorProfileExtendedSchema },
       { name: LeaveRequest.name, schema: LeaveRequestSchema },
+      { name: WaitlistEntry.name, schema: WaitlistEntrySchema },
     ]),
   ],
   controllers: [CareController, PublicSpecialtiesController, AppointmentsController, AdminAppointmentsController, DoctorReferralsController, ConsultationsCompatController],

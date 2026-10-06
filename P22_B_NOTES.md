@@ -53,6 +53,13 @@ Owned: `backend/src/modules/{care,labs,radiology,home-care,emergency,prescriptio
 - Proof B (slot race): disabled the `modified===0` guard → `loser of the atomic race gets slot_full` RED → restored.
 - Proof C (visit code): accepted any code → `rejects a wrong code…` RED → restored.
 
+### 22.6 (commit [P22.22.6])
+- New: 23 tests — `care/tests/appointment-quality.p22.spec.ts`. Regressions: `appointments-states.spec` (17) + `appointments-slot-hold.spec` (5) green. `tsc --noEmit` clean.
+- Fixture alignment (NOT a weakening): `appointments-slot-hold.spec.ts` test (5) used legacy lowercase `status:'confirmed'`; the P22.6 reschedule guard now enforces the `APPT_STATES` enum, so the fixture was corrected to `'CONFIRMED'` — same assertion (409 slot_held, no create, hold query shape) still passes.
+- Proof D (waitlist race): bypassed the lost-race `null` → second contender also "offered", `exactly one OFFERED` RED (2 offered events) → restored.
+- Proof E (no-show fee): forced fee 0 → `applies the admin-set fee` RED (expected 75) → restored.
+- Proof F (reschedule preservation): forced CONFIRMED replacement → `stays PENDING` RED → restored.
+
 ## DEFERRED-NEED (exact file + diff proposal, needs outside owned modules)
 
 ### 22.4
@@ -61,6 +68,10 @@ Owned: `backend/src/modules/{care,labs,radiology,home-care,emergency,prescriptio
 - D-22.4.3 `backend/src/modules/orders/orders.service.ts:getTracking()` governed branch: resolve the live `pharmacy_allocations` row for the order and return `{state, courier position, eta}` instead of `delivery:null`.
 - D-22.4.4 `backend/src/modules/orders/orders.dto.ts:DeliveryUpdateDto.location`: replace `unknown` with validated `{lat:number(±90), lng:number(±180), at?: ISO}` via class-validator.
 - D-22.4.5 pharmacy product-page ETA-by-location + pharmacy delivery slots: new `pharmacy_delivery_slots` windows mirroring `lab_visit_slots` (another agent owns pharmacy).
+
+### 22.6
+- D-22.6.1 `backend/src/modules/admin/web-core/controllers/admin-config.controller.ts` + `admin-config.dto.ts`: add `GET/PUT admin/config/noshow-policy` (audited, same shape as dispute-config) writing `system_configs` key `noshow_policy` `{enabled, fee_sar, late_threshold_minutes, waitlist_offer_ttl_minutes}`; the care service already reads it.
+- D-22.6.2 notifications listener (notifications module owns delivery): `@OnEvent('appointment.doctor_running_late')` → patient push/SMS with delay minutes (Arabic template), and `@OnEvent('appointment.waitlist.offered')` → offer notification with expiry; `@OnEvent('appointment.no_show')` → receipt with fee.
 
 ## BLOCKED
 - Monthly human SOS drill with real people/ambulances is an ops action, not code. Procedure + template + simulation ship here.

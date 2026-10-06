@@ -1,8 +1,10 @@
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException, Logger, Inject, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { Model, Connection } from 'mongoose';
-import { InjectConnection } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { Appointment, AppointmentDocument, APPT_STATES, APPT_TRANSITIONS, ApptState, ServiceType } from '../../schemas/appointment.schema';
+import { WaitlistEntry, WaitlistEntryDocument } from './schemas/waitlist-entry.schema';
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { UserRole, ProviderType, ProviderStatus } from '../../common/enums';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
@@ -33,6 +35,41 @@ const PLATFORM_FEES = {
  * intentionally untouched.
  */
 export const APPOINTMENT_SLOT_BUFFER_MINUTES = 5;
+
+/** P22.6 — no-show / late / waitlist policy (admin-settable, audited). */
+export const NOSHOW_POLICY_KEY = 'noshow_policy';
+export const NOSHOW_POLICY_DEFAULTS = {
+  enabled: true,
+  fee_sar: 50,
+  late_threshold_minutes: 15,
+  waitlist_offer_ttl_minutes: 15,
+} as const;
+
+export interface NoShowPolicy {
+  enabled: boolean;
+  fee_sar: number;
+  late_threshold_minutes: number;
+  waitlist_offer_ttl_minutes: number;
+}
+
+export function normalizePolicy(raw: unknown): NoShowPolicy {
+  const r = (raw ?? {}) as Partial<Record<keyof NoShowPolicy, unknown>>;
+  const num = (v: unknown, fallback: number, min: number, max: number) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : fallback;
+  };
+  return {
+    enabled: r.enabled === undefined ? NOSHOW_POLICY_DEFAULTS.enabled : r.enabled === true,
+    fee_sar: num(r.fee_sar, NOSHOW_POLICY_DEFAULTS.fee_sar, 0, 10000),
+    late_threshold_minutes: Math.floor(num(r.late_threshold_minutes, NOSHOW_POLICY_DEFAULTS.late_threshold_minutes, 5, 240)),
+    waitlist_offer_ttl_minutes: Math.floor(num(r.waitlist_offer_ttl_minutes, NOSHOW_POLICY_DEFAULTS.waitlist_offer_ttl_minutes, 5, 1440)),
+  };
+}
+
+export function toSlotDate(d: Date | string): string {
+  const dt = new Date(d);
+  return dt.toISOString().slice(0, 10);
+}
 
 /** Blocking statuses mirrored from create()'s overlap query (Q37 parity). */
 export const APPOINTMENT_LISTING_BLOCKING_STATUSES = [
@@ -82,7 +119,24 @@ export class AppointmentsService {
     private engine: WorkflowEngineService,
     private insurance: InsuranceFlowService,
     @Optional() private locks?: SlotLocksService,
+    @Optional() @InjectModel(WaitlistEntry.name) private waitlist?: Model<WaitlistEntryDocument>,
   ) {}
+
+  /**
+   * P22.6 — read the admin-settable no-show policy. Fail-open to compiled
+   * defaults when the store is unreachable; fail-closed validation clamps
+   * every field so a bad admin write can never produce a negative fee.
+   */
+  async getNoShowPolicy(): Promise<NoShowPolicy> {
+    try {
+      const doc = await this.connection.db.collection('system_configs').findOne({ key: { $eq: NOSHOW_POLICY_KEY } });
+      const raw = (doc as unknown as { value?: unknown } | null)?.value;
+      if (!raw || typeof raw !== 'object') return { ...NOSHOW_POLICY_DEFAULTS };
+      return normalizePolicy(raw);
+    } catch {
+      return { ...NOSHOW_POLICY_DEFAULTS };
+    }
+  }
 
   /**
    * Family on-behalf check: the booker must share a family group with the
@@ -516,7 +570,15 @@ export class AppointmentsService {
       penalty_amount: penaltyAmount
     });
 
-    return this.transition(id, APPT_STATES.CANCELLED, user, reason);
+    const cancelled = await this.transition(id, APPT_STATES.CANCELLED, user, reason);
+    // P22.6 — a freed slot goes to the waitlist first. Best-effort: offering
+    // must never fail the cancellation itself.
+    try {
+      await this.offerNextOnCancellation(appt.doctor_id, toSlotDate(appt.slot_start), new Date(appt.slot_start));
+    } catch (e) {
+      this.logger.warn(`waitlist offer after cancel failed: ${(e as Error)?.message}`);
+    }
+    return cancelled;
   }
 
   async confirm(id: string, user: any) {
@@ -559,7 +621,9 @@ export class AppointmentsService {
   async getSummary(id: string, user: any) {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
-    if (user.role !== UserRole.ADMIN && appt.patient_id !== user.id && appt.doctor_user_id !== user.id) throw new ForbiddenException();
+    // P22.6 — same ownership as the appointment itself (patient, owning
+    // doctor identity, linked facility, admin), not just the raw user id.
+    await this.assertAppointmentAccess(appt, user);
     if (!appt.summary || !(appt.summary.diagnosis || appt.summary.notes || (appt.summary.prescription || []).length)) {
       throw new NotFoundException('summary not available yet');
     }
@@ -569,10 +633,13 @@ export class AppointmentsService {
   async reschedule(id: string, user: any, body: { slot_start: string }) {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
-    if (user.role !== UserRole.ADMIN && appt.patient_id !== user.id && appt.doctor_user_id !== user.id) {
-      throw new ForbiddenException();
-    }
-    if ([APPT_STATES.CANCELLED, APPT_STATES.COMPLETED, APPT_STATES.RESCHEDULED].includes(appt.status)) {
+    // P22.6 — ownership mirrors appointment access (patient, owning doctor,
+    // linked facility, admin) plus the family member who booked on behalf.
+    const isBooker = typeof appt.booked_by_user_id === 'string' && appt.booked_by_user_id !== '' && appt.booked_by_user_id === user?.id;
+    if (!isBooker) await this.assertAppointmentAccess(appt, user);
+    // P22.6 — only future, unstarted bookings move. A checked-in/in-progress
+    // visit is already underway; cancelled/completed/rescheduled are terminal.
+    if (![APPT_STATES.PENDING, APPT_STATES.CONFIRMED].includes(appt.status)) {
       throw new BadRequestException('cannot_reschedule');
     }
     const newStart = new Date(body.slot_start);
@@ -597,22 +664,26 @@ export class AppointmentsService {
     // Create first so a rejected/conflicting replacement preserves the original
     // appointment. If persisting the original transition subsequently fails,
     // remove the replacement as a compensating action before surfacing the error.
+    // P22.6 — an unpaid (PENDING, card) booking stays PENDING after the move;
+    // only CONFIRMED bookings produce CONFIRMED replacements.
+    const replacementStatus = appt.status === APPT_STATES.PENDING ? APPT_STATES.PENDING : APPT_STATES.CONFIRMED;
     const fresh = await this.apptModel.create({
       patient_id: appt.patient_id,
+      booked_by_user_id: (appt as { booked_by_user_id?: string }).booked_by_user_id,
       doctor_id: appt.doctor_id,
       doctor_user_id: appt.doctor_user_id,
       service_type: appt.service_type,
       slot_start: newStart,
       slot_end: newEnd,
       duration_minutes: appt.duration_minutes,
-      status: APPT_STATES.CONFIRMED,
+      status: replacementStatus,
       price: appt.price,
       service_fee: (appt as any).service_fee || 0,
       home_visit_fee: (appt as any).home_visit_fee || 0,
       transportation_fee: (appt as any).transportation_fee || 0,
       total_price: (appt as any).total_price || appt.price,
       rescheduled_from_id: appt.id,
-      state_history: [{ state: APPT_STATES.CONFIRMED, at: new Date(), by_user_id: user.id, by_role: user.role, note: 'rescheduled-from-' + appt.id }],
+      state_history: [{ state: replacementStatus, at: new Date(), by_user_id: user.id, by_role: user.role, note: 'rescheduled-from-' + appt.id }],
     });
     try {
       appt.status = APPT_STATES.RESCHEDULED;
@@ -625,19 +696,266 @@ export class AppointmentsService {
     return fresh.toObject();
   }
 
-  // ===== Waitlist =====
-  async joinWaitlist(user: any, body: { doctorId: string; date: string }) {
+  /**
+   * P22.6 — governed no-show marking (the configurable policy path).
+   * Only a CONFIRMED booking whose slot already passed can be marked; the fee
+   * comes from the admin-settable policy (0 when disabled). Idempotent: a
+   * booking already NO_SHOW returns its record unchanged.
+   */
+  async markNoShow(id: string, actor: { id: string; role: string }) {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    if (appt.status === APPT_STATES.NO_SHOW) return appt.toObject();
+    const doctorOwned = await this.isDoctorOwner(appt, actor);
+    const admin = actor?.role === UserRole.ADMIN || actor?.role === UserRole.SUPER_ADMIN;
+    if (!doctorOwned && !admin) throw new ForbiddenException('doctor_or_admin_only');
+    if (appt.status !== APPT_STATES.CONFIRMED) {
+      throw new BadRequestException(`no_show_requires_confirmed (was ${appt.status})`);
+    }
+    if (new Date(appt.slot_start).getTime() > Date.now()) {
+      throw new BadRequestException('slot_has_not_passed');
+    }
+    const policy = await this.getNoShowPolicy();
+    const fee = policy.enabled ? policy.fee_sar : 0;
+    return await this.engine.apply({
+      kind: 'consultation', entity_id: appt.id, from_domain: appt.status, to_domain: APPT_STATES.NO_SHOW,
+      actor_account_id: actor.id, actor_role: actor.role, patient_account_id: appt.patient_id, reason: 'no_show',
+      mutate: async () => {
+        appt.status = APPT_STATES.NO_SHOW;
+        appt.noshow_fee = fee;
+        appt.noshow_at = new Date();
+        appt.state_history.push({ state: APPT_STATES.NO_SHOW, at: new Date(), by_user_id: actor.id, by_role: actor.role, note: `no_show fee_sar=${fee}` });
+        await appt.save();
+        this.events.emit('appointment.no_show', {
+          id: appt.id, patient_id: appt.patient_id, doctor_id: appt.doctor_id, fee_sar: fee,
+        });
+        return appt.toObject();
+      },
+    });
+  }
+
+  // ===== Waitlist (P22.6 — persistent, auto-offer on cancellation) =====
+  private requireWaitlist() {
+    if (!this.waitlist) throw new ServiceUnavailableException('waitlist_unavailable');
+    return this.waitlist;
+  }
+
+  /**
+   * Join the waitlist for a doctor+day. Idempotent by key: replaying the same
+   * key returns the original entry; joining twice without a key returns the
+   * live entry instead of duplicating it.
+   */
+  async joinWaitlist(user: { id: string }, body: { doctorId: string; date: string; idempotency_key: string }) {
     if (!body?.doctorId || !body?.date) {
       throw new BadRequestException('doctorId and date are required');
     }
-    // Emit an event to be handled by a notification worker or admin dashboard
-    this.events.emit('appointment.waitlist.joined', {
-      patient_id: user.id,
-      doctor_id: body.doctorId,
-      date: body.date,
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(body.date))) throw new BadRequestException('date_must_be_YYYY-MM-DD');
+    const key = String(body?.idempotency_key ?? '').trim();
+    if (!key) throw new BadRequestException('idempotency_key_required');
+    const store = this.requireWaitlist();
+    const byKey = await store.findOne({ idempotency_key: { $eq: key } });
+    if (byKey) {
+      const row = byKey.toObject();
+      if (String(row.patient_id) !== String(user.id)) throw new ConflictException('idempotency_key_reused');
+      return row;
+    }
+    const live = await store.findOne({
+      doctor_id: { $eq: String(body.doctorId) },
+      slot_date: { $eq: String(body.date) },
+      patient_id: { $eq: String(user.id) },
+      status: { $in: ['WAITING', 'OFFERED'] },
     });
-    this.logger.log(`Patient ${user.id} joined waitlist for doctor ${body.doctorId} on ${body.date}`);
-    return { success: true, message: 'Joined waitlist successfully' };
+    if (live) return live.toObject();
+    const doctor = await this.providerModel.findOne({ id: String(body.doctorId), type: ProviderType.DOCTOR, status: ProviderStatus.ACTIVE });
+    if (!doctor) throw new NotFoundException('doctor_not_found');
+    try {
+      const created = await store.create({
+        doctor_id: String(body.doctorId),
+        slot_date: String(body.date),
+        patient_id: String(user.id),
+        status: 'WAITING',
+        idempotency_key: key,
+      });
+      const out = created.toObject();
+      this.events.emit('appointment.waitlist.joined', { entry_id: out.id, patient_id: user.id, doctor_id: out.doctor_id, date: out.slot_date });
+      this.logger.log(`Patient ${user.id} joined waitlist for doctor ${body.doctorId} on ${body.date}`);
+      return out;
+    } catch (e: unknown) {
+      if ((e as { code?: number })?.code === 11000) {
+        const winner = await store.findOne({ idempotency_key: { $eq: key } });
+        if (winner) return winner.toObject();
+      }
+      throw e;
+    }
+  }
+
+  async leaveWaitlist(user: { id: string; role?: string }, entryId: string) {
+    const store = this.requireWaitlist();
+    const entry = await store.findOne({ id: { $eq: String(entryId) } });
+    if (!entry) throw new NotFoundException('waitlist_entry_not_found');
+    const admin = user?.role === UserRole.ADMIN || user?.role === UserRole.SUPER_ADMIN;
+    if (String(entry.patient_id) !== String(user.id) && !admin) throw new ForbiddenException('not_your_waitlist_entry');
+    if (!['WAITING', 'OFFERED'].includes(String(entry.status))) throw new BadRequestException('entry_not_active');
+    entry.status = 'LEFT';
+    await entry.save();
+    this.events.emit('appointment.waitlist.left', { entry_id: entry.id, patient_id: entry.patient_id });
+    return { id: entry.id, status: 'LEFT' };
+  }
+
+  /**
+   * Flip the oldest WAITING entry for a freed (doctor, day) to OFFERED with an
+   * expiry. The update filter is atomic — two patients racing for one freed
+   * slot produce exactly one OFFERED row.
+   */
+  async offerNextOnCancellation(doctorId: string, slotDate: string, freedSlotStart: Date): Promise<Record<string, unknown> | null> {
+    if (!this.waitlist) return null;
+    const policy = await this.getNoShowPolicy();
+    const ttlMs = policy.waitlist_offer_ttl_minutes * 60_000;
+    const next = await this.waitlist.findOne({
+      doctor_id: { $eq: String(doctorId) },
+      slot_date: { $eq: String(slotDate) },
+      status: { $eq: 'WAITING' },
+    }).sort({ createdAt: 1 });
+    if (!next) return null;
+    const candidate = next.toObject() as { id: string };
+    const won = await this.waitlist.findOneAndUpdate(
+      { id: { $eq: candidate.id }, status: { $eq: 'WAITING' } },
+      { $set: { status: 'OFFERED', offer_expires_at: new Date(Date.now() + ttlMs), offered_slot_start: new Date(freedSlotStart) } },
+      { new: true },
+    );
+    if (!won) return null; // lost the race — the winner's offer stands
+    const out = won.toObject() as { id: string; patient_id: string };
+    this.events.emit('appointment.waitlist.offered', {
+      entry_id: out.id, patient_id: out.patient_id, doctor_id: String(doctorId),
+      slot_date: String(slotDate), offer_expires_at: (out as { offer_expires_at?: Date }).offer_expires_at,
+    });
+    return out as unknown as Record<string, unknown>;
+  }
+
+  async acceptOffer(user: { id: string }, entryId: string) {
+    const store = this.requireWaitlist();
+    const entry = await store.findOne({ id: { $eq: String(entryId) } });
+    if (!entry) throw new NotFoundException('waitlist_entry_not_found');
+    if (String(entry.patient_id) !== String(user.id)) throw new ForbiddenException('not_your_waitlist_entry');
+    if (entry.status !== 'OFFERED') throw new BadRequestException('no_active_offer');
+    if (entry.offer_expires_at && new Date(entry.offer_expires_at).getTime() < Date.now()) {
+      entry.status = 'EXPIRED';
+      await entry.save();
+      throw new BadRequestException('offer_expired');
+    }
+    entry.status = 'CONSUMED';
+    await entry.save();
+    this.events.emit('appointment.waitlist.consumed', { entry_id: entry.id, patient_id: entry.patient_id });
+    return {
+      id: entry.id, status: 'CONSUMED', doctor_id: entry.doctor_id,
+      slot_date: entry.slot_date, offered_slot_start: entry.offered_slot_start ?? null,
+    };
+  }
+
+  /** Expire stale offers and cascade to the next waiter (5-min cron + cancel path). */
+  async sweepExpiredOffers(now: Date = new Date()): Promise<{ expired: number; reoffered: number }> {
+    if (!this.waitlist) return { expired: 0, reoffered: 0 };
+    const stale = await this.waitlist.find(
+      { status: { $eq: 'OFFERED' }, offer_expires_at: { $lt: now } },
+      { id: 1, doctor_id: 1, slot_date: 1, offered_slot_start: 1 },
+    ).limit(200);
+    let expired = 0;
+    let reoffered = 0;
+    for (const doc of stale) {
+      const row = doc.toObject() as { id: string; doctor_id: string; slot_date: string; offered_slot_start?: Date };
+      const res = await this.waitlist.updateOne(
+        { id: { $eq: row.id }, status: { $eq: 'OFFERED' } },
+        { $set: { status: 'EXPIRED' } },
+      );
+      const modified = Number((res as unknown as { modifiedCount?: number })?.modifiedCount ?? 0);
+      if (modified > 0) {
+        expired += 1;
+        const next = await this.offerNextOnCancellation(row.doctor_id, row.slot_date, row.offered_slot_start ? new Date(row.offered_slot_start) : now);
+        if (next) reoffered += 1;
+      }
+    }
+    return { expired, reoffered };
+  }
+
+  // ===== Doctor-running-late notices (P22.6) =====
+  /**
+   * Provider-triggered late notice. The owning doctor (or admin) declares the
+   * delay; the patient is notified through the existing notification pipeline
+   * via the `appointment.doctor_running_late` event (read-only use — the
+   * notifications module owns delivery).
+   */
+  async reportLate(actor: { id: string; role: string }, id: string, delayMinutes: number) {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    const owned = await this.isDoctorOwner(appt, actor);
+    const admin = actor?.role === UserRole.ADMIN || actor?.role === UserRole.SUPER_ADMIN;
+    if (!owned && !admin) throw new ForbiddenException('doctor_or_admin_only');
+    if (![APPT_STATES.CONFIRMED, APPT_STATES.CHECKED_IN].includes(appt.status)) {
+      throw new BadRequestException('late_notice_requires_upcoming_visit');
+    }
+    const delay = Math.floor(Number(delayMinutes));
+    if (!Number.isFinite(delay) || delay < 5 || delay > 180) throw new BadRequestException('delay_minutes_out_of_range');
+    appt.late_delay_minutes = delay;
+    appt.late_reported_at = new Date();
+    appt.late_reported_by = String(actor.id);
+    appt.late_auto = false;
+    await appt.save();
+    this.events.emit('appointment.doctor_running_late', {
+      id: appt.id, patient_id: appt.patient_id, doctor_id: appt.doctor_id,
+      delay_minutes: delay, auto: false,
+    });
+    return { id: appt.id, delay_minutes: delay, auto: false };
+  }
+
+  /**
+   * Automatic threshold: CONFIRMED visits still unstarted past
+   * late_threshold_minutes get one auto notice. Runs on the 5-min cron;
+   * each appointment is flagged once (late_reported_at set).
+   */
+  async applyAutoLateNotices(now: Date = new Date()): Promise<{ flagged: number }> {
+    const policy = await this.getNoShowPolicy();
+    const cutoff = new Date(now.getTime() - policy.late_threshold_minutes * 60_000);
+    const due = await this.apptModel.find({
+      status: { $eq: APPT_STATES.CONFIRMED },
+      slot_start: { $lt: cutoff },
+    }).limit(100);
+    let flagged = 0;
+    for (const doc of due as unknown as Array<{
+      id: string; patient_id: string; doctor_id: string; slot_start: Date;
+      late_reported_at?: Date; late_delay_minutes?: number; late_auto?: boolean; save: () => Promise<unknown>; toObject: () => Record<string, unknown>;
+    }>) {
+      if (doc.late_reported_at) continue;
+      const delay = Math.max(5, Math.round((now.getTime() - new Date(doc.slot_start).getTime()) / 60_000));
+      doc.late_delay_minutes = Math.min(180, delay);
+      doc.late_reported_at = now;
+      doc.late_auto = true;
+      try {
+        await doc.save();
+      } catch {
+        continue; // lost a concurrent flag race — the winner's notice stands
+      }
+      flagged += 1;
+      this.events.emit('appointment.doctor_running_late', {
+        id: doc.id, patient_id: doc.patient_id, doctor_id: doc.doctor_id,
+        delay_minutes: doc.late_delay_minutes, auto: true,
+      });
+    }
+    return { flagged };
+  }
+
+  /** 5-min ops sweep: expire stale waitlist offers + flag late visits. */
+  @Cron(CronExpression.EVERY_5_MINUTES)
+  async appointmentQualitySweep() {
+    try {
+      await this.sweepExpiredOffers();
+    } catch (e) {
+      this.logger.warn(`waitlist sweep failed: ${(e as Error)?.message}`);
+    }
+    try {
+      await this.applyAutoLateNotices();
+    } catch (e) {
+      this.logger.warn(`auto-late sweep failed: ${(e as Error)?.message}`);
+    }
   }
 
   // ===== Payment webhook handler =====
