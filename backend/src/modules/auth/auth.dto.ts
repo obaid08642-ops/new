@@ -1,4 +1,17 @@
-import { IsArray, IsDefined, IsIn, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsDefined,
+  IsIn,
+  IsObject,
+  IsOptional,
+  IsString,
+  Validate,
+  ValidateIf,
+  ValidateNested,
+  ValidationArguments,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import type {
   AuthenticationExtensionsClientOutputs,
@@ -223,16 +236,60 @@ export class ResetPasswordDto {
   @IsString()
   turnstileToken?: string;
 }
+/**
+ * R12.social-xs: Google and Apple send a token the backend verifies itself. X and Snapchat send the
+ * OAuth authorization code plus the PKCE verifier, so the SERVER does the exchange with its own
+ * client secret; an access token from the device is refused for those two.
+ */
+const CODE_FLOW = (o: { provider?: unknown }): boolean => o.provider === "x" || o.provider === "snapchat";
+
+@ValidatorConstraint({ name: "socialCodeFlowHasNoToken", async: false })
+class SocialCodeFlowConstraint implements ValidatorConstraintInterface {
+  validate(_value: unknown, args: ValidationArguments): boolean {
+    const o = args.object as Record<string, unknown>;
+    // For the code flow the device must not hand over a provider token.
+    return CODE_FLOW(o) ? o.token === undefined : true;
+  }
+
+  defaultMessage(): string {
+    return "x and snapchat sign in with the authorization code, never with a token";
+  }
+}
+
 export class SocialLoginDto {
   @IsDefined()
-  // Q107: only providers whose tokens the backend can verify.
-  @IsIn(["google", "apple"])
-  provider: "google" | "apple";
+  // Q107: only providers the backend can verify itself.
+  @Validate(SocialCodeFlowConstraint)
+  @IsIn(["google", "apple", "x", "snapchat"])
+  provider: "google" | "apple" | "x" | "snapchat";
 
+  /**
+   * google / apple only. Left optional on purpose: a token-less google/apple body is rejected by the
+   * provider verification in the service, not by the shape of the request.
+   */
+  @IsOptional()
+  @IsString()
+  token?: string;
+
+  /** x / snapchat only. */
   @IsDefined()
   @IsString()
-  token: string;
+  @ValidateIf(CODE_FLOW)
+  code?: string;
 
+  /** x / snapchat only. */
+  @IsDefined()
+  @IsString()
+  @ValidateIf(CODE_FLOW)
+  code_verifier?: string;
+
+  /** x / snapchat only. */
+  @IsDefined()
+  @IsString()
+  @ValidateIf(CODE_FLOW)
+  redirect_uri?: string;
+
+  // R12.social-xs: the email and name in the body are never trusted; kept for Apple only.
   @IsOptional()
   @IsString()
   email?: string;

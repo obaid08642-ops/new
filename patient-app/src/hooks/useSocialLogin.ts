@@ -46,43 +46,83 @@ function googleClientId(): string {
  * Social sign-in for Welcome and Login, in one place.
  *
  *  - Google: expo-auth-session's Google provider; its `authentication.accessToken` goes to the backend.
- *  - X and Snapchat: authorization code + PKCE, then `AuthSession.exchangeCodeAsync` (the request's
- *    `codeVerifier`, the same redirect URI and token endpoint) and the resulting access token goes to the backend.
+ *  - X and Snapchat: authorization code + PKCE. The CODE, the PKCE `code_verifier` and the same
+ *    redirect URI go to the backend, which exchanges them with its own client secret, so no provider
+ *    token is ever minted on the device (R12.social-xs).
  *  - Apple (iOS): `signInAsync`; the identity token goes to the backend with the name and email when Apple
  *    returns them (first sign-in only).
  *
- * Every path ends in `POST /auth/social-login { provider, token }` and the same session handling as the
- * password login. A provider without a client id in this build shows the plain "not available" message;
- * nothing sensitive is logged.
+ * Every path ends in `POST /auth/social-login` and the same session handling as the password login.
+ * When the backend answers `needs_contact` (a provider account with no confirmed email) the user is
+ * taken to add a phone or email. A provider without a client id in this build shows the plain
+ * "not available" message; the X and Snapchat buttons stay behind EXPO_PUBLIC_SOCIAL_X_SNAPCHAT.
  */
 export function useSocialLogin() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const redirectUri = useMemo(() => AuthSession.makeRedirectUri({ scheme: 'nabdplus' }), []);
 
-  const finish = useCallback(async (provider: SocialProvider, token: string, extra?: { email?: string; name?: string }) => {
+  /** Store the session and tell the caller where the user belongs next. */
+  const persist = useCallback(async (res: any) => {
+    const jwtToken = typeof res?.token === 'string' ? res.token : res?.token?.accessToken || null;
+    if (!jwtToken) throw new Error('no_session');
     try {
-      setBusy(true);
-      const body: Record<string, string> = { provider, token };
-      if (extra?.email) body.email = extra.email;
-      if (extra?.name) body.name = extra.name;
-      const res = await apiFetch('/auth/social-login', { method: 'POST', body: JSON.stringify(body) });
-      const jwtToken = typeof res?.token === 'string' ? res.token : res?.token?.accessToken || null;
-      if (!jwtToken) throw new Error('no_session');
-      try {
-        await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_TOKEN, jwtToken);
-      } catch (_err) {
-        await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, jwtToken);
-      }
-      const decoded = decodeJwt(jwtToken);
-      if (decoded?.role !== 'patient') router.replace('/(auth)/provider-info' as any);
-      else router.replace('/(tabs)');
+      await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_TOKEN, jwtToken);
     } catch (_err) {
-      setError(SOCIAL_FAILED);
-    } finally {
-      setBusy(false);
+      await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, jwtToken);
     }
+    return decodeJwt(jwtToken);
   }, []);
+
+  /** Where a finished sign-in lands. needs_contact means "no email yet": add one. */
+  const goNext = useCallback((decoded: any, needsContact: boolean) => {
+    if (needsContact || decoded?.role !== 'patient') router.replace('/(auth)/provider-info' as any);
+    else router.replace('/(tabs)');
+  }, []);
+
+  const finish = useCallback(
+    async (provider: SocialProvider, token: string, extra?: { email?: string; name?: string }) => {
+      try {
+        setBusy(true);
+        const body: Record<string, string> = { provider, token };
+        if (extra?.email) body.email = extra.email;
+        if (extra?.name) body.name = extra.name;
+        const res = await apiFetch('/auth/social-login', { method: 'POST', body: JSON.stringify(body) });
+        const decoded = await persist(res);
+        goNext(decoded, res?.needs_contact === true);
+      } catch (_err) {
+        setError(SOCIAL_FAILED);
+      } finally {
+        setBusy(false);
+      }
+    },
+    [persist, goNext],
+  );
+
+  /** R12.social-xs: X and Snapchat send the code; the backend does the exchange. */
+  const finishWithCode = useCallback(
+    async (provider: 'x' | 'snapchat', code: string, codeVerifier: string) => {
+      try {
+        setBusy(true);
+        const res = await apiFetch('/auth/social-login', {
+          method: 'POST',
+          body: JSON.stringify({
+            provider,
+            code,
+            code_verifier: codeVerifier,
+            redirect_uri: redirectUri,
+          }),
+        });
+        const decoded = await persist(res);
+        goNext(decoded, res?.needs_contact === true);
+      } catch (_err) {
+        setError(SOCIAL_FAILED);
+      } finally {
+        setBusy(false);
+      }
+    },
+    [persist, goNext, redirectUri],
+  );
 
   // Google
   const [googleReq, googleRes, googlePrompt] = Google.useAuthRequest({
@@ -119,7 +159,6 @@ export function useSocialLogin() {
       clientId: string,
       request: AuthSession.AuthRequest | null,
       prompt: () => Promise<AuthSession.AuthSessionResult>,
-      tokenEndpoint: string,
     ) => {
       if (!clientId) {
         setError(SOCIAL_UNAVAILABLE);
@@ -139,18 +178,14 @@ export function useSocialLogin() {
         }
         const code = result.params?.code;
         if (!code || !request.codeVerifier) throw new Error('no_code');
-        const tokens = await AuthSession.exchangeCodeAsync(
-          { clientId, code, redirectUri, extraParams: { code_verifier: request.codeVerifier } },
-          { tokenEndpoint },
-        );
-        if (!tokens.accessToken) throw new Error('no_access_token');
-        await finish(provider, tokens.accessToken);
+        // The server exchanges the code with its own client secret; the device holds no token.
+        await finishWithCode(provider, code, request.codeVerifier);
       } catch (_err) {
         setError(SOCIAL_FAILED);
         setBusy(false);
       }
     },
-    [finish, redirectUri],
+    [finishWithCode],
   );
 
   const appleLogin = useCallback(async () => {
@@ -186,9 +221,9 @@ export function useSocialLogin() {
             await googlePrompt();
           }
         } else if (provider === 'x') {
-          await codeFlow('x', xClientId, xReq, xPrompt, X_DISCOVERY.tokenEndpoint);
+          await codeFlow('x', xClientId, xReq, xPrompt);
         } else {
-          await codeFlow('snapchat', snapClientId, snapReq, snapPrompt, SNAPCHAT_DISCOVERY.tokenEndpoint);
+          await codeFlow('snapchat', snapClientId, snapReq, snapPrompt);
         }
       } catch (_err) {
         setError(SOCIAL_FAILED);
