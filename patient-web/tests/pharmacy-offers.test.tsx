@@ -17,6 +17,7 @@ import { QuoteSection } from "@/components-next/pharmacy-offers/quote-section";
 import { createActionRunner, classifyError, errorCode } from "@/components-next/pharmacy-offers/use-pharmacy-action";
 import { formatMoney, formatRemaining } from "@/components-next/pharmacy-offers/format";
 import { statusKey } from "@/components-next/pharmacy-offers/status";
+import { LocalTime } from "@/components-next/pharmacy-offers/local-time";
 import { extractPatientPharmacyOrderProgress } from "@/lib/api/pharmacy-offers";
 
 const ORDER = "91047ef2-ad36-422a-a184-629693e7c729";
@@ -164,6 +165,17 @@ describe("the mutation runner", () => {
     expect(classifyError(401)).toBe("signedOut");
     expect(classifyError(502)).toBe("network");
     expect(classifyError(400, "something_new")).toBe("generic");
+  });
+});
+
+describe("times", () => {
+  it("a time is written by the browser after mount, so the server render never holds a server-zone string", () => {
+    const html = renderToStaticMarkup(<LocalTime iso="2026-10-06T10:00:00.000Z" locale="hi" />);
+    expect(html).toBe('<time dateTime="2026-10-06T10:00:00.000Z"></time>');
+  });
+  it("the absolute validity of an offer is not drawn on the server either", () => {
+    const html = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" offers={[offer({ expiresAt: "2099-10-06T10:00:00.000Z" })]} />);
+    expect(html).not.toContain("validUntil");
   });
 });
 

@@ -128,7 +128,8 @@ export function OfferList({ orderId, offers, after }: Props & { offers: OfferVie
           const unavailable = offer.lines.filter((line) => line.available === false).length;
           const allAvailable = offer.lines.length > 0 && unavailable === 0;
           const remaining = now !== null && offer.expiresAt ? new Date(offer.expiresAt).getTime() - now : null;
-          const until = offer.expiresAt ? formatWhen(locale, offer.expiresAt) : null;
+          // the absolute time is written by the browser, after mount, in the reader's own time zone (not on the server: see LocalTime)
+          const until = now !== null && offer.expiresAt ? formatWhen(locale, offer.expiresAt) : null;
           const mode = modes[offer.id] ?? "cash";
           const selectable = offer.open && !gone && offer.total !== undefined;
           const meta = [

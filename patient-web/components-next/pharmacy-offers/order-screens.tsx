@@ -13,7 +13,8 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { getDirection, type Locale } from "@/lib/i18n";
-import { formatMoney, formatWhen, pickName } from "./format";
+import { formatMoney, pickName } from "./format";
+import { LocalTime } from "./local-time";
 import { NegotiationActions } from "./negotiation-actions";
 import { QuoteSection } from "./quote-section";
 import { statusKey } from "./status";
@@ -205,8 +206,7 @@ export async function NegotiationThreadScreen({ locale, orderId, threadId }: { l
           <ul className={styles.messages} aria-label={t("threadTitle")}>
             {messages.map((message) => {
               const role = message.senderRole === "patient" || message.senderRole === "pharmacy" || message.senderRole === "system" ? message.senderRole : null;
-              const when = message.createdAt ? formatWhen(locale, message.createdAt) : null;
-              return (
+                            return (
                 <li key={message.id} className={`${styles.message} ${role === "patient" ? styles.mine : role === "system" ? styles.system : styles.theirs}`}>
                   {role ? <span className={styles.sender}>{t(`sender.${role}`)}</span> : null}
                   {message.text ? <p className={styles.body} dir="auto">{message.text}</p> : null}
@@ -218,7 +218,7 @@ export async function NegotiationThreadScreen({ locale, orderId, threadId }: { l
                       {message.substitute.notes ? <span dir="auto">{message.substitute.notes}</span> : null}
                     </div>
                   ) : null}
-                  {when ? <span className={styles.when}>{when}</span> : null}
+                  {message.createdAt ? <LocalTime iso={message.createdAt} locale={locale} className={styles.when} /> : null}
                 </li>
               );
             })}
