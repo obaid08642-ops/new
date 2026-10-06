@@ -92,8 +92,6 @@
     "patient-app/src/components/views/ClinicLocationView.tsx": 2,
     "patient-app/src/components/views/CrisisContactsView.tsx": 25,
     "patient-app/src/components/views/InsuranceBenefitsView.tsx": 27,
-    "patient-app/src/components/views/PaymentFailedView.tsx": 7,
-    "patient-app/src/components/views/PaymentSuccessView.tsx": 12,
     "patient-app/src/constants/index.ts": 10,
     "patient-app/src/design-system/components/Avatar.tsx": 10,
     "patient-app/src/design-system/components/Badge.tsx": 5,
