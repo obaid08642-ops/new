@@ -1,5 +1,5 @@
 {
- "commit": "fae94132",
+ "commit": "92582728",
  "routes": [
   {
    "app": "patient-app",
@@ -12653,64 +12653,21 @@
    "calls": [
     {
      "method": "POST",
-     "path": "/api/patient/patient/pharmacy/orders/:param/cod/register",
-     "target": "web-proxy",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
      "query": "",
      "line": 22,
-     "file": "patient-web/app/[locale]/orders/[orderId]/offers/post-selection-actions.tsx",
-     "via": "request builder",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:51",
-     "status": "OK"
-    },
-    {
-     "method": "POST",
-     "path": "/api/patient/patient/pharmacy/orders/:param/final-quote/accept",
-     "target": "web-proxy",
-     "query": "",
-     "line": 22,
-     "file": "patient-web/app/[locale]/orders/[orderId]/offers/post-selection-actions.tsx",
-     "via": "request builder",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:47",
-     "status": "OK"
-    },
-    {
-     "method": "POST",
-     "path": "/api/patient/patient/pharmacy/orders/:param/insurance/:param/accept",
-     "target": "web-proxy",
-     "query": "",
-     "line": 32,
-     "file": "patient-web/app/[locale]/orders/[orderId]/offers/insurance-decision-actions.tsx",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:55",
-     "status": "OK"
-    },
-    {
-     "method": "POST",
-     "path": "/api/patient/patient/pharmacy/orders/:param/offers/:param/select",
-     "target": "web-proxy",
-     "query": "",
-     "line": 21,
-     "file": "patient-web/app/[locale]/orders/[orderId]/offers/offer-selection.tsx",
-     "via": "request builder",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:43",
-     "status": "OK"
-    },
-    {
-     "method": "POST",
-     "path": "/api/patient/payments/intent/pharmacy/:param",
-     "target": "web-proxy",
-     "query": "",
-     "line": 30,
-     "file": "patient-web/app/[locale]/orders/[orderId]/offers/online-payment-actions.tsx",
-     "backend": "backend/src/modules/payments/payments.module.ts:561",
-     "status": "OK"
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
     },
     {
      "method": "GET",
      "path": "/api/patient/payments/pharmacy/:param/capabilities",
      "target": "web-proxy",
      "query": "",
-     "line": 21,
-     "file": "patient-web/app/[locale]/orders/[orderId]/offers/insurance-decision-actions.tsx",
+     "line": 25,
+     "file": "patient-web/components-next/pharmacy-offers/payment-actions.tsx",
      "backend": "backend/src/modules/payments/payments.module.ts:580",
      "status": "OK"
     },
@@ -12719,8 +12676,8 @@
      "path": "/patient/pharmacy/orders/:param",
      "target": "backend",
      "query": "",
-     "line": 30,
-     "file": "patient-web/app/[locale]/orders/[orderId]/offers/page.tsx",
+     "line": 45,
+     "file": "patient-web/components-next/pharmacy-offers/offers-screen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
     },
@@ -12729,13 +12686,13 @@
      "path": "/patient/pharmacy/orders/:param/offers",
      "target": "backend",
      "query": "",
-     "line": 30,
-     "file": "patient-web/app/[locale]/orders/[orderId]/offers/page.tsx",
+     "line": 44,
+     "file": "patient-web/components-next/pharmacy-offers/offers-screen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:42"
     }
    ],
-   "files": 16,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -12749,17 +12706,37 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/patient/pharmacy/orders/:param",
+     "target": "backend",
+     "query": "",
+     "line": 115,
+     "file": "patient-web/components-next/pharmacy-offers/order-screens.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
+    },
+    {
      "method": "GET",
      "path": "/pharmacy/chat/threads",
      "target": "backend",
      "query": "?order_id=:param",
-     "line": 12,
-     "file": "patient-web/app/[locale]/orders/[orderId]/offers/negotiation/page.tsx",
+     "line": 114,
+     "file": "patient-web/components-next/pharmacy-offers/order-screens.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:270"
     }
    ],
-   "files": 6,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -12774,26 +12751,36 @@
    "calls": [
     {
      "method": "POST",
-     "path": "/api/patient/pharmacy/chat/threads/:param/…",
-     "target": "web-proxy",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
      "query": "",
-     "partial": true,
-     "line": 12,
-     "file": "patient-web/app/[locale]/orders/[orderId]/offers/negotiation/actions.tsx",
-     "status": "PARTIAL"
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/patient/pharmacy/orders/:param",
+     "target": "backend",
+     "query": "",
+     "line": 176,
+     "file": "patient-web/components-next/pharmacy-offers/order-screens.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
     },
     {
      "method": "GET",
      "path": "/pharmacy/chat/threads/:param/messages",
      "target": "backend",
      "query": "",
-     "line": 13,
-     "file": "patient-web/app/[locale]/orders/[orderId]/offers/negotiation/[threadId]/page.tsx",
+     "line": 175,
+     "file": "patient-web/components-next/pharmacy-offers/order-screens.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:271"
     }
    ],
-   "files": 7,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -13149,27 +13136,47 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
-     "path": "/api/patient/patient/pharmacy/orders/:param/offers",
+     "path": "/api/patient/payments/pharmacy/:param/capabilities",
      "target": "web-proxy",
      "query": "",
-     "line": 58,
-     "file": "patient-web/components-next/pharmacy-broadcast-client.tsx",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:42",
+     "line": 25,
+     "file": "patient-web/components-next/pharmacy-offers/payment-actions.tsx",
+     "backend": "backend/src/modules/payments/payments.module.ts:580",
      "status": "OK"
     },
     {
-     "method": "POST",
-     "path": "/api/patient/patient/pharmacy/orders/:param/offers/:param/select",
-     "target": "web-proxy",
+     "method": "GET",
+     "path": "/patient/pharmacy/orders/:param",
+     "target": "backend",
      "query": "",
-     "line": 81,
-     "file": "patient-web/components-next/pharmacy-broadcast-client.tsx",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:43",
-     "status": "OK"
+     "line": 45,
+     "file": "patient-web/components-next/pharmacy-offers/offers-screen.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
+    },
+    {
+     "method": "GET",
+     "path": "/patient/pharmacy/orders/:param/offers",
+     "target": "backend",
+     "query": "",
+     "line": 44,
+     "file": "patient-web/components-next/pharmacy-offers/offers-screen.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:42"
     }
    ],
-   "files": 6,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -13297,37 +13304,37 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
-     "path": "/api/patient/patient/pharmacy/orders/:param",
+     "path": "/api/patient/payments/pharmacy/:param/capabilities",
      "target": "web-proxy",
      "query": "",
-     "line": 48,
-     "file": "patient-web/components-next/pharmacy-final-quote-client.tsx",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36",
+     "line": 25,
+     "file": "patient-web/components-next/pharmacy-offers/payment-actions.tsx",
+     "backend": "backend/src/modules/payments/payments.module.ts:580",
      "status": "OK"
     },
     {
-     "method": "POST",
-     "path": "/api/patient/patient/pharmacy/orders/:param/cod/register",
-     "target": "web-proxy",
+     "method": "GET",
+     "path": "/patient/pharmacy/orders/:param",
+     "target": "backend",
      "query": "",
-     "line": 78,
-     "file": "patient-web/components-next/pharmacy-final-quote-client.tsx",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:51",
-     "status": "OK"
-    },
-    {
-     "method": "POST",
-     "path": "/api/patient/patient/pharmacy/orders/:param/final-quote/accept",
-     "target": "web-proxy",
-     "query": "",
-     "line": 63,
-     "file": "patient-web/components-next/pharmacy-final-quote-client.tsx",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:47",
-     "status": "OK"
+     "line": 31,
+     "file": "patient-web/components-next/pharmacy-offers/order-screens.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
     }
    ],
-   "files": 6,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -13646,27 +13653,37 @@
    "status": "—",
    "calls": [
     {
-     "method": "GET",
-     "path": "/api/patient/patient/pharmacy/orders/:param",
-     "target": "web-proxy",
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
      "query": "",
-     "line": 31,
-     "file": "patient-web/components-next/pharmacy-waiting-client.tsx",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36",
-     "status": "OK"
+     "line": 22,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
     },
     {
-     "method": "POST",
-     "path": "/api/patient/patient/pharmacy/orders/:param/cancel",
-     "target": "web-proxy",
+     "method": "GET",
+     "path": "/patient/pharmacy/orders/:param",
+     "target": "backend",
      "query": "",
-     "line": 45,
-     "file": "patient-web/components-next/pharmacy-waiting-client.tsx",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:39",
-     "status": "OK"
+     "line": 31,
+     "file": "patient-web/components-next/pharmacy-offers/order-screens.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
+    },
+    {
+     "method": "GET",
+     "path": "/patient/pharmacy/orders/:param/offers",
+     "target": "backend",
+     "query": "",
+     "line": 70,
+     "file": "patient-web/components-next/pharmacy-offers/order-screens.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:42"
     }
    ],
-   "files": 6,
+   "files": 34,
    "unresolved": 0
   },
   {
