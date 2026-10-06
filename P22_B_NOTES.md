@@ -60,6 +60,12 @@ Owned: `backend/src/modules/{care,labs,radiology,home-care,emergency,prescriptio
 - Proof E (no-show fee): forced fee 0 → `applies the admin-set fee` RED (expected 75) → restored.
 - Proof F (reschedule preservation): forced CONFIRMED replacement → `stays PENDING` RED → restored.
 
+### 22.9 (commit [P22.22.9])
+- New: 12 tests — `prescriptions-documents.p22.spec.ts` (7), `billing-invoice-download.p22.spec.ts` (2), `visit-report.p22.spec.ts` (3). Regressions: `prescriptions.authorization` + `prescription-claim.r11` + `billing-zatca` (31) green. `tsc --noEmit` clean.
+- REAL BUG FOUND by verify-don't-duplicate: `billing.module.ts:invoicePdf()` used `new (PDFDocument as any)` on an `import *` namespace — "PDFDocument is not a constructor", i.e. the existing e-invoice PDF download was broken. Fixed (require-based constructor, same as the new code) inside the owned billing module.
+- Proof G (fingerprint binding): ignored the fingerprint compare → `editing the lines…invalidates printed QRs` RED (edited Rx still verified) → restored.
+- Proof H (billing fix load-bearing): reverted to `.default` constructor → `invoicePdf renders…` RED (`PDFKit.default is not a constructor`) → restored.
+
 ## DEFERRED-NEED (exact file + diff proposal, needs outside owned modules)
 
 ### 22.4
@@ -72,6 +78,9 @@ Owned: `backend/src/modules/{care,labs,radiology,home-care,emergency,prescriptio
 ### 22.6
 - D-22.6.1 `backend/src/modules/admin/web-core/controllers/admin-config.controller.ts` + `admin-config.dto.ts`: add `GET/PUT admin/config/noshow-policy` (audited, same shape as dispute-config) writing `system_configs` key `noshow_policy` `{enabled, fee_sar, late_threshold_minutes, waitlist_offer_ttl_minutes}`; the care service already reads it.
 - D-22.6.2 notifications listener (notifications module owns delivery): `@OnEvent('appointment.doctor_running_late')` → patient push/SMS with delay minutes (Arabic template), and `@OnEvent('appointment.waitlist.offered')` → offer notification with expiry; `@OnEvent('appointment.no_show')` → receipt with fee.
+
+### 22.9
+- D-22.9.1 `backend/src/modules/medical-reports/medical-reports.controller.ts` + service (not owned): add `GET /medical-reports/:id/pdf` rendering the clinician-authored report via pdfkit (mirror `visitReportPdf` in `care/appointments.service.ts`); the appointment-level report ships here.
 
 ## BLOCKED
 - Monthly human SOS drill with real people/ambulances is an ops action, not code. Procedure + template + simulation ship here.

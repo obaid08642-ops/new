@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Res, StreamableFile, UseGuards } from '@nestjs/common';
 import { PrescriptionsService } from './prescriptions.service';
-import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, Public, Roles, SelfService } from '../../common/auth.guard';
 import { PrescriptionState, UserRole } from '../../common/enums';
 import { CreateDto, UploadDto, ManualEntryDto, SendDto, TransitionDto, SubDto} from './prescriptions.dto';
 
@@ -77,5 +77,21 @@ export class PrescriptionsController {
   @Get(':id')
   one(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.getByIdForUser(id, user);
+  }
+
+  /** P22.9 — participant-only prescription PDF with a verifying QR code. */
+  @Post(':id/pdf')
+  async pdf(@Param('id') id: string, @CurrentUser() user: any, @Res({ passthrough: true }) res: { set: (h: Record<string, string>) => void }) {
+    const buf = await this.svc.prescriptionPdf(user, id);
+    res.set({ 'Content-Type': 'application/pdf', 'Content-Disposition': `attachment; filename="rx-${id.slice(0, 8)}.pdf"` });
+    const { Readable } = require('stream') as typeof import('stream');
+    return new StreamableFile(Readable.from(buf));
+  }
+
+  /** P22.9 — public QR verification (opaque token in, authenticity verdict out). */
+  @Public()
+  @Get('verify/:token')
+  verifyQr(@Param('token') token: string) {
+    return this.svc.verifyToken(token);
   }
 }
