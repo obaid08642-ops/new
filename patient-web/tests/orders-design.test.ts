@@ -2,18 +2,29 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const css = readFileSync(resolve(process.cwd(), "app/[locale]/orders/orders.module.css"), "utf8");
+const orders = readFileSync(resolve(process.cwd(), "components-next/orders/orders.module.css"), "utf8");
+const addresses = readFileSync(resolve(process.cwd(), "components-next/delivery-address/address-select.module.css"), "utf8");
 
-describe("orders design", () => {
-  it("provides accessible tabs, cards, and an honest empty state", () => {
-    expect(css).toContain(".tab:focus-visible");
-    expect(css).toContain(".card:focus-visible");
-    expect(css).toContain(".state");
-    expect(css).toContain("border: 1px dashed");
+describe("order screens design", () => {
+  it("every link and choice has a visible keyboard focus and a 44 px target", () => {
+    for (const selector of [".orderLink:focus-visible", ".callLink:focus-visible", ".summaryLink:focus-visible", ".textLink:focus-visible", ".pickLabel:has(input:focus-visible)"]) {
+      expect(orders).toContain(selector);
+    }
+    expect(orders).toContain("min-block-size: 44px");
+    expect(addresses).toContain(".choice:has(input:focus-visible)");
+    expect(addresses).toContain("min-block-size: 44px");
   });
 
-  it("limits hover motion and honours reduced-motion preferences", () => {
-    expect(css).toContain("@media (hover: hover) and (pointer: fine)");
-    expect(css).toContain("prefers-reduced-motion: reduce");
+  it("uses tokens only: no raw colour, no physical left/right, no px font size", () => {
+    for (const css of [orders, addresses]) {
+      expect(css).not.toMatch(/#[0-9a-f]{3,8}\b/i);
+      expect(css).not.toMatch(/\brgba?\(/i);
+      expect(css).not.toMatch(/\b(margin|padding|border)-(left|right)\b|\b(left|right):/);
+      expect(css).not.toMatch(/font-size:\s*\d+px/);
+    }
+  });
+
+  it("draws the board's card: white surface, hairline, 24 radius (3xl), soft shadow, from tokens", () => {
+    expect(orders).toMatch(/\.order\s*\{[^}]*var\(--nabd-color-bg-surface\)[^}]*var\(--nabd-color-border-hairline\)[^}]*var\(--nabd-radius-3xl\)[^}]*var\(--nabd-shadow-card\)/s);
   });
 });
