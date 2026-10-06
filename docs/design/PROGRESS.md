@@ -11,7 +11,7 @@ _Updated 2026-10-06._
 |---|---|
 | Foundation (tokens, Readex Pro, shells, 40 components, lint gates, CSP by class) | Merged |
 | Batch 0 (29 screens) + fixes | Merged (#285, #291, #292) |
-| **Batch 1 pharmacy**, `design/batch-1`, draft PR [#293](https://github.com/obaid08642-ops/new/pull/293) | **All slices 1a-1e merged into the branch (app + web).** In flight: local-first cart (`wip-b1-cart`). Then: batch-end production build + runtime check + Lighthouse once, update the PR body, ready for review |
+| **Batch 1 pharmacy**, `design/batch-1`, draft PR [#293](https://github.com/obaid08642-ops/new/pull/293) | **Complete and ready for review** (all slices 1a-1e + local-first cart; batch-end build, runtime check 129 runs / 2 known flags, Lighthouse done). Baselines: literals 5234, raw colour 7273, left/right 476, client-token-sync 897, parity 663 |
 | F82-1 [#297](https://github.com/obaid08642-ops/new/pull/297), F82-2 [#295](https://github.com/obaid08642-ops/new/pull/295), F68 CSP [#301](https://github.com/obaid08642-ops/new/pull/301) | Merged into main (and into `design/batch-1`). Next: F82-3 static/ISR for public pages on `design/f82-3-static` |
 | Gates (baselines only go down) | `no-literal-ui-string` 5234, `no-raw-color` 7273, `no-left-right` 476, `client-token-sync` 897, `locale-parity` 663 |
 
@@ -19,7 +19,7 @@ Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy
 
 ## Next
 
-1. Finish Batch 1: slice 1d (high effort), then 1e; merge into `design/batch-1`; ONE production build + runtime check + Lighthouse (once per batch) at the end; update #293 (draft → ready), checklist with numbers. Then Batch 2 on its own `design/batch-2` from `main`.
+1. Batch 1 (#293) is ready for review. When it merges: Batch 2 (consultations and video, high effort for calls) on its own `design/batch-2` from `main`. Open items for the reviewer: nonce-server drops compression (CI Lighthouse sees uncompressed bytes), merge #303 (committed node_modules symlinks).
 2. **Owner 2026-10-06, cart is local-first (Batch 1):** add/remove/change without the backend (web localStorage per user or guest; app persisted per owner), only "send the order" calls the backend (failure: clear error, cart unchanged), no prices or stock in the cart, clear on sign-out, merge guest cart into the account on sign-in; tests incl. backend-down (task file for the agent: scratchpad `task-cart-local.md`; branch `wip-b1-cart`).
 3. **F82-3 static/ISR** (owner: on top of #301; public routes only, no cookies/headers in them, per-user parts on the client, LCP per route before/after, ratchet `.lighthouserc.json` LCP 2.5 → 1.8 s when met). Decision #302: public pages serve the last good copy during an outage, ErrorState only with no cached copy, no cap.
 4. Per-route client messages: Batch 1 adds ~36 KB of pharmacy namespaces to `CLIENT_NAMESPACES` (shipped on every page); move them to a pharmacy route-group provider.
