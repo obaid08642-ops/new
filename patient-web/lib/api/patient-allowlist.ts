@@ -117,6 +117,8 @@ const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }>
   { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/insurance/co-pay/accept$`, "i") },
   { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/insurance/self-pay/accept$`, "i") },
   { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/cod/register$`, "i") },
+  // the way out of a rejected insurance decision besides paying the full price (backend: cancelRejectedByPatient)
+  { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/insurance-rejection/cancel$`, "i") },
   { method: "POST", route: new RegExp(`^/payments/intent/pharmacy/${orderId}$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/messages$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/accept-substitute/[A-Za-z0-9_-]{1,128}$`, "i") },

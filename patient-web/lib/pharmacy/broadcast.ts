@@ -42,14 +42,39 @@ export async function loadDeliveryAddresses(doFetch: BroadcastFetch = fetch): Pr
   }
 }
 
+/** One line of the browser cart as the request carries it: what to find and how many, never a price. */
+export type BroadcastCartLine = { name: string; qty: number; sku?: string };
+
 export type BroadcastRequest =
   /** A named medicine the catalogue does not have (backend `manual_request`). */
   | { kind: "manual"; name: string; details: string }
   /** The medicines of a saved prescription (backend `prescription_id`); quantity is the pharmacy's to confirm. */
-  | { kind: "prescription"; prescriptionId: string; names: string[] };
+  | { kind: "prescription"; prescriptionId: string; names: string[] }
+  /**
+   * The cart of this browser (checkout). `paymentMode` and `fulfillment` are the draft's own fields (`payment_mode`,
+   * `fulfillment`): how the patient really pays is decided when an offer is selected, so no price, policy number or
+   * identity number is sent here. A prescription medicine is ordered with the saved prescription that covers it.
+   */
+  | { kind: "cart"; lines: BroadcastCartLine[]; paymentMode: "cash" | "insurance"; fulfillment: "delivery" | "pickup"; prescriptionId?: string };
+
+const MAX_LINE_QTY = 99;
 
 export function buildBroadcastBody(request: BroadcastRequest, address: DeliveryAddress & { lat: number; lng: number }) {
   const base = { delivery_address: toBroadcastAddress(address), fulfillment: "delivery", payment_mode: "cash" };
+  if (request.kind === "cart") {
+    return {
+      ...base,
+      fulfillment: request.fulfillment,
+      payment_mode: request.paymentMode,
+      items: request.lines.map((line) => ({
+        raw_name: line.name.slice(0, 240),
+        qty: Math.min(MAX_LINE_QTY, Math.max(1, Math.trunc(line.qty) || 1)),
+        intake_source: "cart",
+        ...(line.sku ? { sku: line.sku.slice(0, 120) } : {}),
+      })),
+      ...(request.prescriptionId ? { prescription_id: request.prescriptionId, prescription_attachments: [request.prescriptionId] } : {}),
+    };
+  }
   if (request.kind === "manual") {
     const name = request.name.trim().slice(0, 200);
     const details = request.details.trim().slice(0, 500);

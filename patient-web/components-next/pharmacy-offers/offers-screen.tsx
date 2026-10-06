@@ -4,16 +4,15 @@ import { getTranslations } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { callPatientApi } from "@/lib/api/upstream";
 import { parseOrderId } from "@/lib/api/orders";
-import { extractPatientPharmacyOffers, extractPatientPharmacyOrderProgress, type PatientPharmacyOrderProgress } from "@/lib/api/pharmacy-offers";
+import { extractPatientPharmacyOffers, extractPatientPharmacyOrderProgress } from "@/lib/api/pharmacy-offers";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { RetryErrorState } from "@/components-next/core/core-states";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import type { Locale } from "@/lib/i18n";
-import { formatMoney, pickName } from "./format";
+import { InsuranceDecision } from "./insurance-decision";
 import { OfferList, type OfferView } from "./offer-list";
 import { OffersLiveRefresh } from "./live-refresh";
-import { InsuranceDecisionActions } from "./payment-actions";
 import { QuoteSection } from "./quote-section";
 import { statusKey } from "./status";
 import { OFFER_TONES } from "./tones";
@@ -133,42 +132,5 @@ export async function OffersScreen({ locale, orderId, variant }: Props) {
         ) : null}
       </div>
     </CoreShell>
-  );
-}
-
-/** The insurer's decision for each item, in the server's amounts, and the patient's two explicit choices. */
-async function InsuranceDecision({ locale, orderId, progress }: { locale: Locale; orderId: string; progress: PatientPharmacyOrderProgress }) {
-  const t = await getTranslations({ locale, namespace: "PharmacyOffers" });
-  const insurance = progress.insurance;
-  if (!insurance) return null;
-  const names = new Map((progress.items ?? []).map((item) => [item.id, pickName(locale, { ar: item.nameAr, en: item.nameEn, raw: item.rawName })]));
-  const decisionLabel = (value?: string) => (value === "APPROVED_FULL" || value === "APPROVED_PARTIAL" || value === "REJECTED" ? t(`decision.${value}`) : null);
-  // The server's own rules: a share can be accepted when it is above zero; paying the full price is open after a partial or a rejected decision.
-  const canCoPay = Number(insurance.coPayAmount) > 0;
-  const canSelfPay = insurance.decision === "APPROVED_PARTIAL" || insurance.decision === "REJECTED";
-  return (
-    <section className={styles.panel} aria-labelledby="insurance-title">
-      <h2 className={styles.panelTitle} id="insurance-title">{t("insuranceDecisionTitle")}</h2>
-      {insurance.decision && decisionLabel(insurance.decision) ? <p className={styles.note}><strong>{decisionLabel(insurance.decision)}</strong></p> : null}
-      <ul className={styles.insuranceRows}>
-        {insurance.items.map((item) => (
-          <li key={item.id} className={styles.insuranceRow}>
-            <span className={styles.insuranceName}>{names.get(item.id) ?? t("pharmacyFallback")}</span>
-            {decisionLabel(item.decision) ? <span className={styles.meta}>{decisionLabel(item.decision)}</span> : null}
-            <dl className={styles.sums}>
-              {item.coveredAmount !== undefined ? <div className={styles.sum}><dt>{t("coveredLabel")}</dt><dd>{formatMoney(locale, item.coveredAmount)}</dd></div> : null}
-              {item.coPayAmount !== undefined ? <div className={styles.sum}><dt>{t("coPayLabel")}</dt><dd>{formatMoney(locale, item.coPayAmount)}</dd></div> : null}
-            </dl>
-            {item.reason ? <span className={styles.note}>{t("reasonLabel")}: {item.reason}</span> : null}
-          </li>
-        ))}
-      </ul>
-      {insurance.coPayAmount !== undefined ? (
-        <dl className={styles.sums}>
-          <div className={`${styles.sum} ${styles.sumTotal}`}><dt>{t("coPayLabel")}</dt><dd>{formatMoney(locale, insurance.coPayAmount)}</dd></div>
-        </dl>
-      ) : null}
-      <InsuranceDecisionActions orderId={orderId} canCoPay={canCoPay} canSelfPay={canSelfPay} />
-    </section>
   );
 }

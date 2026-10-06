@@ -45,13 +45,20 @@ export function isTrustedCheckoutUrl(value: unknown): value is string {
   try { return new URL(value).protocol === "https:"; } catch { return false; }
 }
 
-/** The secure checkout address of a payment intent answer, only when the answer names its transaction (a uuid); nothing else is read. */
-export function checkoutUrlOf(value: unknown): string | undefined {
+/** The transaction a payment intent answer names (a uuid), or nothing: the result screen asks the backend about it later. */
+export function transactionIdOf(value: unknown): string | undefined {
   const root = asRecord(value);
   const source = asRecord(root?.data) ?? root;
   if (!source) return undefined;
   const transaction = [source.transaction_id, source.transactionId, source.id].find((candidate) => typeof candidate === "string" && candidate.trim());
-  if (typeof transaction !== "string" || !UUID.test(transaction)) return undefined;
+  return typeof transaction === "string" && UUID.test(transaction) ? transaction : undefined;
+}
+
+/** The secure checkout address of a payment intent answer, only when the answer names its transaction (a uuid); nothing else is read. */
+export function checkoutUrlOf(value: unknown): string | undefined {
+  const root = asRecord(value);
+  const source = asRecord(root?.data) ?? root;
+  if (!source || !transactionIdOf(value)) return undefined;
   for (const key of ["checkout_url", "checkoutUrl", "url"]) {
     const candidate = source[key];
     if (typeof candidate === "string" && candidate.trim()) return candidate;
