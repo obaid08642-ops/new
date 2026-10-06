@@ -3,7 +3,7 @@ import { Share, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
 import { Button, Card, EmptyState, FIcon, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
-import { RX_TONE, Gate, Section, useConsultFormat } from '../consult/ConsultKit';
+import { CARE_TONE, RX_TONE, Gate, Section, useConsultFormat } from '../consult/ConsultKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { pickLocalized } from '../../utils/localize';
@@ -39,7 +39,7 @@ type Kind = 'lab' | 'radiology' | 'notes';
 const KIND_LOOK: Record<Kind, { icon: FillIconName; tone: ServiceTone }> = {
   lab: { icon: 'test-tube', tone: 'mint' },
   radiology: { icon: 'scan', tone: 'violet' },
-  notes: { icon: 'file-text', tone: 'teal' },
+  notes: { icon: 'file-text', tone: CARE_TONE },
 };
 const kindOf = (r: { lab_booking_id?: unknown; radiology_booking_id?: unknown }): Kind => (r.lab_booking_id ? 'lab' : r.radiology_booking_id ? 'radiology' : 'notes');
 
@@ -60,7 +60,7 @@ function ReportsTab() {
       <HealthTabs tabs={(['all', 'lab', 'radiology', 'notes'] as const).map((key) => ({ key, label: k(`health.records.kind.${key}`) }))} value={filter} onChange={setFilter} testID="report-kinds" />
       <Gate status={mine.status} onRetry={() => void mine.reload()}>
         {nothing ? (
-          <EmptyState icon="file-text" tone="teal" title={k('health.records.reportsEmpty')} body={k('health.records.reportsEmptyBody')} theme={theme} />
+          <EmptyState icon="file-text" tone={CARE_TONE} title={k('health.records.reportsEmpty')} body={k('health.records.reportsEmptyBody')} theme={theme} />
         ) : list.length > 0 ? (
           <Panel>
             {list.map((r, i) => {
@@ -91,7 +91,7 @@ function ReportsTab() {
               <Row
                 key={r.id}
                 icon="file-text"
-                tone="teal"
+                tone={CARE_TONE}
                 title={r.title || k('health.records.report')}
                 subtitle={[r.type, r.doctor, r.facility, fmt.date(r.date)].filter(Boolean).join(' · ')}
                 caption={r.has_attachments ? k('health.records.attachments') : undefined}
@@ -153,7 +153,7 @@ const EVENT_LOOK: Record<EventKind, { icon: FillIconName; tone: ServiceTone }> =
   appointment: { icon: 'calendar-dots', tone: 'blue' },
   lab: { icon: 'test-tube', tone: 'mint' },
   prescription: { icon: 'prescription', tone: RX_TONE },
-  vitals: { icon: 'heartbeat', tone: 'coral' },
+  vitals: { icon: 'heartbeat', tone: RX_TONE },
 };
 interface TimelineEvent { id: string; type?: string; date?: string; time?: string; title?: string; details?: string }
 

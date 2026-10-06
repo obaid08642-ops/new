@@ -4,7 +4,7 @@ import QRCode from 'react-native-qrcode-svg';
 
 import { Card } from '../../../packages/ui-native/src';
 import { tokens } from '../../../packages/design-tokens/dist/ts/tokens';
-import { Gate, InfoRow, Section, ShareGlyph, useConsultFormat } from '../../src/components/consult/ConsultKit';
+import { RX_TONE, Gate, InfoRow, Section, ShareGlyph, useConsultFormat } from '../../src/components/consult/ConsultKit';
 import { HealthScreen, Panel, Pill, Row, bodyOf, useRemote } from '../../src/components/health/HealthKit';
 import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
@@ -86,7 +86,7 @@ export default function HealthPassportScreen() {
             <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k('health.id.noMedicines')}</Text>
           ) : (
             <Panel>
-              {(profile?.long_term_medications ?? []).map((m, i, all) => <Row key={i} icon="pill" tone="coral" title={m.name ?? ''} subtitle={m.dosage || m.dose} trailing={<Pill label={k('health.id.ongoing')} tone="success" />} last={i === all.length - 1} />)}
+              {(profile?.long_term_medications ?? []).map((m, i, all) => <Row key={i} icon="pill" tone={RX_TONE} title={m.name ?? ''} subtitle={m.dosage || m.dose} trailing={<Pill label={k('health.id.ongoing')} tone="success" />} last={i === all.length - 1} />)}
             </Panel>
           )}
         </Section>

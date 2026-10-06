@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Share, Text, View } from 'react-native';
 
 import { Button, EmptyState, Input, Segmented } from '../../../../packages/ui-native/src';
-import { Gate, Section, useConsultFormat } from '../consult/ConsultKit';
+import { RX_TONE, Gate, Section, useConsultFormat } from '../consult/ConsultKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { HealthScreen, HealthTabs, LineChart, MetricGrid, MetricTile, Notice, Panel, Pill, Row, SheetForm, bodyOf, rowsOf, useRemote, useTab, vitalLook } from './HealthKit';
@@ -60,7 +60,7 @@ function TodayTab({ version, onOpen, onAdd }: { version: number; onOpen: (key: V
   return (
     <Gate status={status} onRetry={() => void reload()}>
       {rows.length === 0 ? (
-        <EmptyState icon="heartbeat" tone="coral" title={k('health.vitals.empty')} body={k('health.vitals.emptyBody')} actionLabel={k('health.vitals.add')} onAction={onAdd} theme={theme} />
+        <EmptyState icon="heartbeat" tone={RX_TONE} title={k('health.vitals.empty')} body={k('health.vitals.emptyBody')} actionLabel={k('health.vitals.add')} onAction={onAdd} theme={theme} />
       ) : (
         <>
           <MetricGrid>

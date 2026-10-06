@@ -3,7 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button, Card, Chip, EmptyState, FIcon, Input, ProgressRing, Segmented } from '../../../../packages/ui-native/src';
-import { Gate, InfoRow, Section, useConsultFormat } from '../consult/ConsultKit';
+import { RX_TONE, Gate, InfoRow, Section, useConsultFormat } from '../consult/ConsultKit';
 import { showLocalizedAlert } from '../LocalizedAlert';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
@@ -13,7 +13,7 @@ import {
   cancelMedicationNotifications, cancelMedicationSnoozes, getMedicationNotificationPreferences, medicationDisplayName,
   scheduleMedicationNotifications, setMedicationNotificationPreferences, type MedicationNotificationPreferences,
 } from '../../utils/medication-notifications';
-import { HealthScreen, HealthTabs, Notice, Panel, Pill, Row, SheetForm, rowsOf, useRemote, useTab } from './HealthKit';
+import { DoseMark, HealthScreen, HealthTabs, Notice, Panel, Pill, Row, SheetForm, rowsOf, useRemote, useTab } from './HealthKit';
 
 /**
  * Medications (board HealthHub "أدوية اليوم", merge map row "Medications"): the tabs Today's doses, All reminders, Refills and
@@ -134,13 +134,13 @@ function TodayTab({ reminders, actionKey, onLog, onAdd }: { reminders: Reminder[
   const doses = reminders.flatMap((reminder) => dosesOf(reminder).map((dose) => ({ dose, reminder }))).sort((a, b) => a.dose.time_key.localeCompare(b.dose.time_key));
   const taken = doses.filter((d) => d.dose.status === 'taken').length;
   if (reminders.length === 0) {
-    return <EmptyState icon="pill" tone="coral" title={t('noReminders')} body={t('noRemindersHint')} actionLabel={t('addReminder')} onAction={onAdd} theme={theme} />;
+    return <EmptyState icon="pill" tone={RX_TONE} title={t('noReminders')} body={t('noRemindersHint')} actionLabel={t('addReminder')} onAction={onAdd} theme={theme} />;
   }
   return (
     <>
-      <Card theme={theme} tint="coral">
+      <Card theme={theme} tint={RX_TONE}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-          <ProgressRing value={doses.length ? taken / doses.length : 0} tone="coral" size={88} label={t('dosesLogged')} valueText={fmt.num(doses.length ? Math.round((taken / doses.length) * 100) : 0)} caption="%" theme={theme} />
+          <ProgressRing value={doses.length ? taken / doses.length : 0} tone={RX_TONE} size={88} label={t('dosesLogged')} valueText={fmt.num(doses.length ? Math.round((taken / doses.length) * 100) : 0)} caption="%" theme={theme} />
           <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
             <Text style={{ ...scale(tk, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{t('dailyPlan')}</Text>
             <Text style={{ ...scale(tk, 'small', 'regular'), color: c.text.secondary, ...flow }}>{doses.length ? t('doseProgress', { taken: fmt.num(taken), scheduled: fmt.num(doses.length) }) : t('noDoseToday')}</Text>
@@ -157,10 +157,10 @@ function TodayTab({ reminders, actionKey, onLog, onAdd }: { reminders: Reminder[
                 <Row
                   key={`${reminder.id}-${dose.time_key}`}
                   icon="pill"
-                  tone="coral"
+                  tone={RX_TONE}
                   title={t('doseOf', { name: nameOf(reminder, t('medicineUnnamed')), dose: reminder.dose })}
                   subtitle={fmt.time(dose.time_key)}
-                  trailing={done ? <Pill label={t(dose.status)} tone={STATUS_TONE[dose.status]} /> : <TakeBox label={t('takeDose')} busy={busy} onPress={() => onLog(reminder, dose, 'taken')} />}
+                  trailing={dose.status === 'taken' ? <DoseMark taken /> : done ? <Pill label={t(dose.status)} tone={STATUS_TONE[dose.status]} /> : <TakeBox label={t('takeDose')} busy={busy} onPress={() => onLog(reminder, dose, 'taken')} />}
                   last={i === doses.length - 1}
                 />
               );
@@ -197,7 +197,7 @@ function RemindersTab({ reminders, actionKey, onLog, onStop, onSync, onEdit, onA
       {reminders.map((reminder) => (
         <Card key={reminder.id} theme={theme} testID={`reminder-${reminder.id}`}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <FIcon icon="pill" tone="coral" size={44} theme={theme} />
+            <FIcon icon="pill" tone={RX_TONE} size={44} theme={theme} />
             <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
               <Text style={{ ...scale(tk, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{nameOf(reminder, t('medicineUnnamed'))}</Text>
               <Text style={{ ...scale(tk, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{[reminder.dose, reminder.dosage_count != null ? `${fmt.num(reminder.dosage_count)} ${t('unitsPerDose')}` : '', freq(reminder.frequency)].filter(Boolean).join(' · ')}</Text>
@@ -277,7 +277,7 @@ function RefillsTab({ version }: { version: number }) {
     <Gate status={status} onRetry={() => void reload()}>
       <Notice tone="info" text={k('health.refill.note')} />
       {items.length === 0 ? (
-        <EmptyState icon="pill" tone="coral" title={k('health.refill.empty')} body={k('health.refill.emptyBody')} theme={theme} />
+        <EmptyState icon="pill" tone={RX_TONE} title={k('health.refill.empty')} body={k('health.refill.emptyBody')} theme={theme} />
       ) : (
         items.map((item) => {
           const left = item.refill_date ? Math.max(0, Math.ceil((new Date(item.refill_date).getTime() - Date.now()) / 86400000)) : item.days_until_refill ?? null;
@@ -286,7 +286,7 @@ function RefillsTab({ version }: { version: number }) {
           return (
             <Card key={item.id} theme={theme}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <FIcon icon="pill" tone="coral" size={44} theme={theme} />
+                <FIcon icon="pill" tone={RX_TONE} size={44} theme={theme} />
                 <Text style={{ ...scale(tk, 'bodyStrong', 'bold'), color: c.text.primary, flex: 1, minWidth: 0, ...flow }}>{nameOf(item, t('medicineUnnamed'))}</Text>
                 {left != null ? <Pill label={critical ? k('health.refill.critical', { n: fmt.num(left) }) : t('daysLeft', { days: fmt.num(left) })} tone={critical ? 'danger' : 'success'} /> : null}
               </View>
@@ -345,14 +345,14 @@ function ChronicTab({ version, onAdd }: { version: number; onAdd: () => void }) 
       <Notice tone="info" text={t('chronicNotice')} />
       {error ? <Notice tone="danger" text={error} /> : null}
       {items.length === 0 ? (
-        <EmptyState icon="heartbeat" tone="coral" title={t('noChronic')} body={t('noChronicHint')} actionLabel={t('addReminder')} onAction={onAdd} theme={theme} />
+        <EmptyState icon="heartbeat" tone={RX_TONE} title={t('noChronic')} body={t('noChronicHint')} actionLabel={t('addReminder')} onAction={onAdd} theme={theme} />
       ) : (
         items.map((item) => {
           const frequency = item.frequency === 'daily' ? t('daily') : item.frequency === 'weekly' ? t('weekly') : t('asNeeded');
           return (
             <Card key={item.id} theme={theme}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <FIcon icon="pill" tone={item.needs_refill_soon ? 'amber' : 'coral'} size={44} theme={theme} />
+                <FIcon icon="pill" tone={item.needs_refill_soon ? 'amber' : RX_TONE} size={44} theme={theme} />
                 <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
                   <Text style={{ ...scale(tk, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{item.name || t('medicineUnnamed')}</Text>
                   <Text style={{ ...scale(tk, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{t('doseOf', { name: item.dose || t('doseUnrecorded'), dose: frequency })}</Text>

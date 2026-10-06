@@ -4,7 +4,8 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import Svg, { Circle, Path } from 'react-native-svg';
 
 import { Button, Card, Chip, FIcon, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
-import { ConsultScreen, Chevron, Sheet, goBack, type GateStatus } from '../consult/ConsultKit';
+import { CARE_TONE, RX_TONE, ConsultScreen, Chevron, Sheet, goBack, type GateStatus } from '../consult/ConsultKit';
+import { Glyph } from '../pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { isOffline } from '../../utils/isOffline';
 import { logError } from '../../utils/logger';
@@ -78,9 +79,9 @@ export interface HealthTabItem<T extends string = string> {
 
 /** Link tabs: a row of chips that scrolls when the labels are long. The selected one is the ink chip of the boards. */
 export function HealthTabs<T extends string>({ tabs, value, onChange, testID }: { tabs: HealthTabItem<T>[]; value: T; onChange: (tab: T) => void; testID?: string }) {
-  const { theme, dir } = useScreenUi();
+  const { theme } = useScreenUi();
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityRole="tablist" testID={testID} contentContainerStyle={{ gap: 8, paddingVertical: 2, flexDirection: dir === 'rtl' ? 'row-reverse' : 'row' }}>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityRole="tablist" testID={testID} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
       {tabs.map((tab) => (
         <Chip key={tab.key} label={tab.label} count={tab.count} selected={tab.key === value} onPress={() => onChange(tab.key)} theme={theme} testID={testID ? `${testID}-${tab.key}` : undefined} />
       ))}
@@ -146,6 +147,16 @@ export function Row({ icon, tone, title, subtitle, caption, trailing, onPress, l
     </Pressable>
   ) : (
     <View testID={testID}>{body}</View>
+  );
+}
+
+/** The board's dose mark (HealthHub "أدوية اليوم"): a 30 square, green with a check once the dose is taken, an empty ring until then. */
+export function DoseMark({ taken }: { taken: boolean }) {
+  const { c } = useScreenUi();
+  return (
+    <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{ width: 30, height: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: taken ? c.status.success.fill : 'transparent', borderWidth: taken ? 0 : 2, borderColor: c.border.strong }}>
+      {taken ? <Glyph name="check-circle" size={14} color={c.action.primary.fg} /> : null}
+    </View>
   );
 }
 
@@ -220,11 +231,11 @@ export function LineChart({ values, tone, height = 120, label, testID }: { value
 
 /** A tone for each vital of the API (`key` of GET /health/vitals/summary and the types of POST /health/vitals) and its glyph. */
 export const VITAL_LOOK: Record<string, { icon: FillIconName; tone: ServiceTone; label: string }> = {
-  bp: { icon: 'heart', tone: 'coral', label: 'health.vital.bp' },
+  bp: { icon: 'heart', tone: RX_TONE, label: 'health.vital.bp' },
   glucose: { icon: 'drop', tone: 'violet', label: 'health.vital.glucose' },
   heart_rate: { icon: 'heartbeat', tone: 'peach', label: 'health.vital.heart_rate' },
-  weight: { icon: 'scales', tone: 'teal', label: 'health.vital.weight' },
+  weight: { icon: 'scales', tone: CARE_TONE, label: 'health.vital.weight' },
   temperature: { icon: 'thermometer', tone: 'amber', label: 'health.vital.temperature' },
   spo2: { icon: 'drop', tone: 'blue', label: 'health.vital.spo2' },
 };
-export const vitalLook = (key: unknown) => VITAL_LOOK[String(key)] ?? { icon: 'heartbeat' as FillIconName, tone: 'coral' as ServiceTone, label: '' };
+export const vitalLook = (key: unknown) => VITAL_LOOK[String(key)] ?? { icon: 'heartbeat' as FillIconName, tone: RX_TONE, label: '' };

@@ -3,7 +3,7 @@ import { Share, Text, View } from 'react-native';
 import { useLocalSearchParams, type Href } from 'expo-router';
 
 import { Card, EmptyState, FIcon } from '../../../packages/ui-native/src';
-import { Gate, InfoRow, Section, ShareGlyph, goBack, useConsultFormat } from '../../src/components/consult/ConsultKit';
+import { CARE_TONE, Gate, InfoRow, Section, ShareGlyph, goBack, useConsultFormat } from '../../src/components/consult/ConsultKit';
 import { HealthScreen, Pill, bodyOf, useRemote } from '../../src/components/health/HealthKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
@@ -62,7 +62,7 @@ export default function ViewReportScreen() {
           <>
             <Card theme={theme}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <FIcon icon="file-text" tone="teal" size={48} theme={theme} />
+                <FIcon icon="file-text" tone={CARE_TONE} size={48} theme={theme} />
                 <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
                   <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{title}</Text>
                   <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
@@ -95,7 +95,7 @@ export default function ViewReportScreen() {
                 </Card>
               </Section>
             )) : null}
-            {empty ? <EmptyState icon="file-text" tone="teal" title={k('health.report.empty')} theme={theme} /> : null}
+            {empty ? <EmptyState icon="file-text" tone={CARE_TONE} title={k('health.report.empty')} theme={theme} /> : null}
           </>
         ) : null}
       </Gate>

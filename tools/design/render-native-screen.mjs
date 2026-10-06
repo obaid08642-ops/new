@@ -158,6 +158,28 @@ const BOARD = {
   'c-video-call': { params: { appointmentId: 'test-appt-video' } },
   'c-waiting-room': { params: { appointmentId: 'test-appt-video' } },
   'c-room': { params: { id: 'test-room' } },
+  // Batch 5 (health and records; merge map). The hub is the HealthHub board; every other screen follows its card, row and
+  // tile language and has none. The tab of a merged screen is a route param (`tab`), so one file is rendered once per tab:
+  // `--dir patient-app/app/health --screens vitals:h-vitals,vitals:h-vitals-trends,...` (`--dir "patient-app/app/(tabs)" --screens health:h-hub`).
+  // The ids select the TEST records of render-native-screen.fixtures.json (`test-report`).
+  'h-hub': { component: 'HealthHub', size: [390, 1360], params: {} },
+  'h-vitals': { params: {} },
+  'h-vitals-history': { params: { tab: 'history', type: 'bp' } },
+  'h-vitals-trends': { params: { tab: 'trends' } },
+  'h-sleep': { params: {} },
+  'h-meds': { params: {} },
+  'h-meds-reminders': { params: { tab: 'reminders' } },
+  'h-meds-refills': { params: { tab: 'refills' } },
+  'h-meds-chronic': { params: { tab: 'chronic' } },
+  'h-profile': { params: {} },
+  'h-profile-conditions': { params: { tab: 'conditions' } },
+  'h-profile-emergency': { params: { tab: 'emergency' } },
+  'h-records': { params: {} },
+  'h-records-rx': { params: { tab: 'prescriptions' } },
+  'h-records-timeline': { params: { tab: 'timeline' } },
+  'h-wearables': { params: {} },
+  'h-report': { params: { id: 'test-report' } },
+  'h-id': { params: {} },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },

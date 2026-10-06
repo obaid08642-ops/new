@@ -2,11 +2,11 @@ import React from 'react';
 import { Pressable, RefreshControl, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
-import { Card, FIcon, ProgressRing, Screen, useTabBarHeight, type ServiceTone } from '../../../packages/ui-native/src';
+import { Card, FIcon, ProgressRing, SERVICE_ICONS, Screen, useTabBarHeight, type ServiceTone } from '../../../packages/ui-native/src';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
-import { Chevron, Gate, Section, useConsultFormat } from '../../src/components/consult/ConsultKit';
+import { CARE_TONE, RX_TONE, Chevron, Gate, Section, useConsultFormat } from '../../src/components/consult/ConsultKit';
 import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
-import { MetricGrid, MetricTile, Notice, Panel, Pill, Row, rowsOf, useRemote, vitalLook } from '../../src/components/health/HealthKit';
+import { DoseMark, MetricGrid, MetricTile, Notice, Panel, Pill, Row, rowsOf, useRemote, vitalLook } from '../../src/components/health/HealthKit';
 import { apiFetch } from '../../src/utils/api';
 
 /**
@@ -21,8 +21,9 @@ interface Score { score?: number | null; status?: string; message?: string; comp
 interface Appointment { id?: string; doctorName?: string; type?: string; time?: string }
 interface Reminder { id: string; medicine_name_ar?: string; medicine_name_en?: string; dose?: string; times?: string[]; today_doses?: Array<{ time_key: string; status: string }> }
 
+const NUTRITION_TONE = SERVICE_ICONS.nutrition.tone;
 const HUB_VITALS = ['bp', 'glucose', 'weight', 'temperature'];
-const SCORE_TONE: Record<string, ServiceTone> = { excellent: 'mint', good: 'blue', fair: 'amber', needs_attention: 'coral' };
+const SCORE_TONE: Record<string, ServiceTone> = { excellent: 'mint', good: 'blue', fair: 'amber', needs_attention: RX_TONE };
 
 export default function HealthHub() {
   const { theme, t, c, dir, flow, k, num } = useScreenUi();
@@ -137,10 +138,10 @@ export default function HealthHub() {
                   <Row
                     key={`${r.id}-${d.time_key}`}
                     icon="pill"
-                    tone="coral"
+                    tone={RX_TONE}
                     title={[r.medicine_name_ar || r.medicine_name_en, r.dose].filter(Boolean).join(' · ') || k('health.med.medicineUnnamed')}
                     subtitle={fmt.time(d.time_key)}
-                    trailing={d.status === 'taken' ? <Pill label={k('health.med.taken')} tone="success" /> : undefined}
+                    trailing={<DoseMark taken={d.status === 'taken'} />}
                     onPress={go('/health/medications')}
                     last={i === all.length - 1}
                   />
@@ -167,10 +168,10 @@ export default function HealthHub() {
         </Gate>
 
         <Panel>
-          <Row icon="file-text" tone="teal" title={k('health.hub.reports')} subtitle={k('health.hub.reportsHint')} onPress={go('/health/records?tab=reports')} testID="hub-reports" />
-          <Row icon="prescription" tone="coral" title={k('health.hub.prescriptions')} subtitle={k('health.hub.prescriptionsHint')} onPress={go('/health/records?tab=prescriptions')} />
-          <Row icon="pill" tone="coral" title={k('health.hub.medications')} subtitle={k('health.hub.medicationsHint')} onPress={go('/health/medications')} />
-          <Row icon="heartbeat" tone="coral" title={k('health.hub.chronic')} subtitle={k('health.hub.chronicHint')} onPress={go('/health/profile?tab=conditions')} />
+          <Row icon="file-text" tone={CARE_TONE} title={k('health.hub.reports')} subtitle={k('health.hub.reportsHint')} onPress={go('/health/records?tab=reports')} testID="hub-reports" />
+          <Row icon="prescription" tone={RX_TONE} title={k('health.hub.prescriptions')} subtitle={k('health.hub.prescriptionsHint')} onPress={go('/health/records?tab=prescriptions')} />
+          <Row icon="pill" tone={RX_TONE} title={k('health.hub.medications')} subtitle={k('health.hub.medicationsHint')} onPress={go('/health/medications')} />
+          <Row icon="heartbeat" tone={RX_TONE} title={k('health.hub.chronic')} subtitle={k('health.hub.chronicHint')} onPress={go('/health/profile?tab=conditions')} />
           <Row icon="chart-line-up" tone="mint" title={k('health.hub.trends')} subtitle={k('health.hub.trendsHint')} onPress={go('/health/vitals?tab=trends')} />
           <Row icon="moon" tone="violet" title={k('health.hub.sleep')} subtitle={k('health.hub.sleepHint')} onPress={go('/health/sleep')} />
           <Row icon="heart" tone="blue" title={k('health.hub.wearables')} subtitle={k('health.hub.wearablesHint')} onPress={go('/health/wearables')} last />
@@ -179,8 +180,8 @@ export default function HealthHub() {
         <Panel>
           <Row icon="users-three" tone="peach" title={k('health.hub.family')} subtitle={k('health.hub.familyHint')} onPress={go('/health/family-hub')} />
           <Row icon="chat-circle-text" tone="blue" title={k('health.hub.familyChat')} subtitle={k('health.hub.familyChatHint')} onPress={go('/family/chat')} />
-          <Row icon="first-aid-kit" tone="teal" title={k('health.hub.nursing')} subtitle={k('health.hub.nursingHint')} onPress={go('/(tabs)/nursing')} />
-          <Row icon="clipboard-text" tone="lime" title={k('health.hub.articles')} subtitle={k('health.hub.articlesHint')} onPress={go('/articles')} />
+          <Row icon="first-aid-kit" tone={CARE_TONE} title={k('health.hub.nursing')} subtitle={k('health.hub.nursingHint')} onPress={go('/(tabs)/nursing')} />
+          <Row icon="clipboard-text" tone={NUTRITION_TONE} title={k('health.hub.articles')} subtitle={k('health.hub.articlesHint')} onPress={go('/articles')} />
           <Row icon="star" tone="amber" title={k('health.hub.challenges')} subtitle={k('health.hub.challengesHint')} onPress={go('/loyalty/hub')} last />
         </Panel>
       </View>

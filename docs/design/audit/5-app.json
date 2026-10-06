@@ -1,0 +1,175 @@
+{
+  "slice": "5-app",
+  "batch": 5,
+  "app": "patient-app",
+  "screens": [
+    {
+      "route": "/health",
+      "elements": [
+        ["Title, Health ID button", "static keys; opens /reports/passport", "ok"],
+        ["Medical profile card", "static; opens /health/profile", "ok"],
+        ["Health score card (old /health/score page and the hub's score card)", "GET /health/score (score, status, components, recommendations, message)", "ok"],
+        ["Vitals grid (bp, glucose, weight, temperature)", "GET /health/vitals/summary (key, value, unit, measured_at)", "ok"],
+        ["Today's medicines with dose mark", "GET /health/reminders (today_doses, times)", "ok"],
+        ["Next appointment row", "GET /home/upcoming-appointment", "ok"],
+        ["Shortcuts: reports, prescriptions, medicines, chronic, trends, sleep, wearables, family, family chat, nursing, articles, challenges", "static routes of the merged screens", "ok"],
+        ["Old quick grid (9 tiles)", "replaced by the two shortcut panels", "ok"],
+        ["Water intake lookup", "GET /nutrition/daily-summary matched a label that never existed (dead)", "hidden"],
+        ["Old edit button", "now inside the medical profile", "ok"]
+      ],
+      "notes": ["Reports and conditions counts of the board have no hub endpoint: a hint line is drawn instead of [N]."]
+    },
+    {
+      "route": "/health/vitals",
+      "elements": [
+        ["Tabs Today, History, Trends (?tab=)", "route query", "ok"],
+        ["Today: last reading per vital", "GET /health/vitals/summary", "ok"],
+        ["History: type chips and last 30 readings", "GET /health/vitals?type=&limit=30", "ok"],
+        ["Add reading sheet (bp systolic/diastolic, value, time of day)", "POST /health/vitals", "ok"],
+        ["Link to conditions and allergies", "now the profile tab (hub row)", "ok"]
+      ]
+    },
+    {
+      "route": "/health/vitals-log",
+      "elements": [["Redirect to /health/vitals?tab=history, keeps the query", "app Redirect", "ok"], ["Log list and add form", "GET /health/vitals, POST /health/vitals (History tab and sheet of the vitals screen)", "ok"]]
+    },
+    {
+      "route": "/health/trends",
+      "elements": [
+        ["Redirect to /health/vitals?tab=trends", "app Redirect", "ok"],
+        ["Vital selector, current value, normal range pill, line chart, trend and insight text", "GET /health/trends (id, unit, data, current, normal, trend, insight)", "ok"],
+        ["Highest, lowest, average, count tiles", "computed from the series", "ok"],
+        ["Overview of the other vitals (mini charts)", "the selector chips replace it (same series)", "hidden"],
+        ["Share summary", "Share of the loaded series (kept)", "ok"],
+        ["Time filter chips (1w ... 1y)", "changed nothing: the call has no range", "hidden"],
+        ["AI summary card 'better by 18%'", "hard-coded text, no endpoint", "hidden"]
+      ],
+      "notes": ["Removed a fake AI summary and a time filter that filtered nothing."]
+    },
+    {
+      "route": "/health/sleep-score",
+      "elements": [["Redirect to /health/sleep", "app Redirect", "ok"], ["Score ring, hours, date, source", "GET /health/sleep?limit=30", "ok"], ["Last 7 days bars", "GET /health/sleep", "ok"], ["Tips", "static (translated)", "ok"]]
+    },
+    {
+      "route": "/health/sleep-tracker",
+      "elements": [["Redirect to /health/sleep", "app Redirect", "ok"], ["Last night, weekly average, log", "GET /health/sleep", "ok"], ["Add sleep sheet (hours, score)", "POST /health/sleep", "ok"]]
+    },
+    {
+      "route": "/health/medications",
+      "elements": [
+        ["Tabs Today's doses, All reminders, Refills, Chronic (?tab=)", "route query", "ok"],
+        ["Progress ring and dose list with mark", "GET /health/reminders", "ok"],
+        ["Take / skip a dose", "POST /health/reminders/:param/log", "ok"],
+        ["Stop a reminder", "PATCH /health/reminders/:param", "ok"],
+        ["Sync device alerts", "src/utils/medication-notifications", "ok"],
+        ["Add / edit reminder sheet (?add=1, ?edit=id)", "POST/PATCH /health/reminders", "ok"],
+        ["Refills tab: days left, reorder with confirm and tracking", "GET /health/reminders?active=1, POST /health/reminders/:param/refill", "ok"],
+        ["Chronic tab: supply, start refill, defer 3 days, stop tracking", "GET /health/chronic-meds, POST /health/reminders/:param/refill, /refill/snooze, /refill/cancel", "ok"],
+        ["Link to prescriptions", "opens /health/records?tab=prescriptions", "ok"],
+        ["Device alerts card and prescriptions card of the old hub", "tab and sheet replace them", "ok"]
+      ]
+    },
+    {
+      "route": "/health/medication-reminder-list",
+      "elements": [["Redirect to /health/medications?tab=reminders", "app Redirect", "ok"], ["Next dose, reminder cards, doses, edit, sync, stop", "GET /health/reminders, PATCH /health/reminders/:param, POST /health/reminders/:param/log", "ok"]]
+    },
+    {
+      "route": "/health/medication-reminder-add",
+      "elements": [["Redirect to ?tab=reminders&add=1 (or &edit=id)", "app Redirect", "ok"], ["Form fields, validation, device-alert scheduling", "POST/PATCH /health/reminders, PATCH /health/reminders/:param", "ok"]]
+    },
+    {
+      "route": "/health/refills",
+      "elements": [["Redirect to /health/medications?tab=refills", "app Redirect", "ok"], ["Refill list and reorder flow", "GET /health/reminders, POST /health/reminders/:param/refill", "ok"], ["Price line", "the pharmacy sets it (text only)", "ok"]]
+    },
+    {
+      "route": "/health/actionable-order",
+      "elements": [["Removed as a screen: redirect to /health/records?tab=prescriptions", "merge map answer 3; no endpoint; nothing linked to it", "ok"], ["Order the medicines of a prescription", "button 'اطلب الأدوية دي' on the prescription (cart store)", "ok"]]
+    },
+    {
+      "route": "/health/reminders",
+      "elements": [["Redirect retargeted to /health/medications?tab=reminders", "app Redirect", "ok"]]
+    },
+    {
+      "route": "/health/smart-reminders",
+      "elements": [["Redirect retargeted to /health/medications?tab=reminders", "app Redirect", "ok"]]
+    },
+    {
+      "route": "/health/edit-profile",
+      "elements": [
+        ["Redirect to /health/profile?tab=basics", "app Redirect", "ok"],
+        ["Blood type, height, weight, gender, pregnant, breastfeeding, smoker, save", "GET/PATCH /medical-profile", "ok"],
+        ["Photo pick and upload", "POST /media/upload, GET/PATCH /users/me/profile", "ok"],
+        ["Link to conditions", "second tab of the same screen", "ok"]
+      ]
+    },
+    {
+      "route": "/health/conditions-allergies",
+      "elements": [["Redirect to /health/profile?tab=conditions", "app Redirect", "ok"], ["Chronic diseases and allergies: list, add, delete", "GET /medical-profile, POST /medical-profile/:param, DELETE /medical-profile/:param/:param", "ok"]]
+    },
+    {
+      "route": "/health/emergency-contacts",
+      "elements": [["Redirect to /health/profile?tab=emergency", "app Redirect", "ok"], ["My contacts: list, add sheet, call, delete with confirm", "GET/POST /health/emergency-contacts, DELETE /health/emergency-contacts/:param", "ok"], ["My family on Nabd Plus (read only, call)", "GET /family/emergency-contacts", "ok"]]
+    },
+    {
+      "route": "/health/health-id",
+      "elements": [["Redirect to /reports/passport", "app Redirect", "ok"], ["QR with the national id, text share", "the passport has a safer short-lived token and its own share", "hidden"], ["Chronic medicines, contacts, profile on the card", "GET /health/chronic-meds, GET /health/emergency-contacts, GET /users/me/profile: the passport reads GET /medical-profile for the same lines", "hidden"]],
+      "notes": ["The old card put the national id in a QR; it now goes to the passport (token QR)."]
+    },
+    {
+      "route": "/health/prescriptions",
+      "elements": [["Redirect to /health/records?tab=prescriptions", "app Redirect", "ok"], ["List: doctor, date, medicines, purchased, OCR pill, order, share", "GET /health/prescriptions", "ok"], ["Upload a prescription", "opens /pharmacy/rx-order (footer button)", "ok"], ["Counts card (prescriptions, medicines, unpurchased)", "derived; dropped with the card", "hidden"]]
+    },
+    {
+      "route": "/health/reports",
+      "elements": [["Redirect to /health/records?tab=reports", "app Redirect", "ok"], ["Provider reports list", "GET /health/reports", "ok"]]
+    },
+    {
+      "route": "/reports/hub",
+      "elements": [["Redirect to /health/records?tab=reports", "app Redirect", "ok"], ["My reports with kind filters, important and new pills, open detail", "GET /medical-reports/mine", "ok"]]
+    },
+    {
+      "route": "/reports/timeline",
+      "elements": [["Redirect to /health/records?tab=timeline", "app Redirect", "ok"], ["Events with type filter", "GET /medical-reports/timeline", "ok"], ["Download PDF button", "an alert only, no file or endpoint", "hidden"], ["QR button to the passport", "now in the profile and the hub", "ok"]]
+    },
+    {
+      "route": "/reports/passport",
+      "elements": [["Restyled Health ID card", "GET /medical-profile, GET /medical-profile/passport-token", "ok"], ["QR (token only), expiry pill", "passport-token", "ok"], ["Blood type, age and gender, patient", "GET /medical-profile", "ok"], ["Allergies, ongoing medicines", "GET /medical-profile", "ok"], ["Emergency contacts (tap now dials)", "GET /medical-profile (emergencyContacts)", "fixed"], ["Share", "Share text of the profile", "ok"]]
+    },
+    {
+      "route": "/reports/view-report",
+      "elements": [["Restyled report: title, type, facility, date, doctor, critical", "GET /reports/:param", "ok"], ["Summary, diagnosis, body, recommendations, lab categories", "GET /reports/:param", "ok"], ["Share", "Share text of the report", "ok"], ["Analyse with AI button", "route redirects: no governed workflow", "hidden"]]
+    },
+    {
+      "route": "/reports/ai-analysis",
+      "elements": [["Redirect retargeted to /health/records?tab=reports", "app Redirect", "ok"]]
+    },
+    {
+      "route": "/health/wearables",
+      "elements": [["Restyled devices screen behind wearables_enabled", "feature flag (unchanged)", "ok"], ["Latest sample per metric", "GET /wearables/data", "ok"], ["My devices, pair a device by name", "GET /wearables/devices, POST /wearables/devices", "ok"], ["Brand colours of the device list", "tokens only", "fixed"], ["Link to sleep", "header action", "ok"]]
+    },
+    {
+      "route": "/wearables/hub",
+      "elements": [["Redirect to /health/vitals", "app Redirect", "ok"], ["Manual entry of heart rate, blood pressure, glucose, weight, SpO2", "the Add reading sheet (POST /health/vitals)", "ok"]]
+    }
+  ],
+  "needsReview": [
+    { "route": "/health/trends", "element": "Time filter and AI summary", "kind": "client", "note": "Removed: the filter changed nothing (the call has no range) and the AI summary was fixed text. Add a range to GET /health/trends if the owner wants the filter back." },
+    { "route": "/health/vitals", "element": "Server text in Arabic only", "kind": "backend", "note": "/health/trends trend and insight, /health/score message, components and recommendations arrive in Arabic only: not translated by the app." },
+    { "route": "/reports/timeline", "element": "Download PDF", "kind": "backend", "note": "The old button was an alert with no file; hasFile has no download endpoint. Removed." },
+    { "route": "/health/prescriptions", "element": "Order from the list", "kind": "backend", "note": "GET /health/prescriptions returns medicines as plain strings (no medicine ids): the card's Order opens the pharmacy tab, the cart cannot be filled from it." },
+    { "route": "/health/actionable-order", "element": "Decision 18 Rx link", "kind": "backend", "note": "'اطلب الأدوية دي' fills the local cart with the catalogue medicines of the prescription (rx lines) and opens it; no existing field links the prescription to that order, so the prescription is not counted as uploaded." },
+    { "route": "/consultations/summary", "element": "Decision 18 on the consultation result", "kind": "backend", "note": "GET /care/appointments/:id/summary lines have no medicine_id, so the button is not drawn there; 'to pharmacy' opens the prescription screen which has it." },
+    { "route": "/consultations/prescription-from-doctor", "element": "Labs and radiology", "kind": "backend", "note": "Labs open /diagnostics/search (existing); no radiology list in the prescription data, so no radiology book action." },
+    { "route": "/health/reports", "element": "Two report endpoints", "kind": "backend", "note": "GET /medical-reports/mine and GET /health/reports both list reports; both are drawn (second under 'from providers'). Confirm they are one concept." },
+    { "route": "/health/health-id", "element": "National id in a QR", "kind": "owner", "note": "The old Health ID put the national id in its QR; it now redirects to /reports/passport (token QR). Confirm." },
+    { "route": "/health/chronic-disease", "element": "Recent readings list", "kind": "client", "note": "Removed from the conditions tab: same data as Vitals > History. Details of GET /health/chronic-diseases stay as follow-up cards." },
+    { "route": "/health/emergency-contacts", "element": "SOS notifies family", "kind": "backend", "note": "The family section says the emergency button sends the location to contacts and family (decision 14); confirm POST /emergency/trigger does." },
+    { "route": "/wearables/hub", "element": "Not in the merge map", "kind": "owner", "note": "Manual vitals entry duplicated the Add reading sheet and nothing linked to it: redirected to /health/vitals." },
+    { "route": "/health/wearables", "element": "Pairing by name", "kind": "backend", "note": "POST /wearables/devices registers a device by name with no real pairing; kept behind wearables_enabled." },
+    { "route": "/health", "element": "Water lookup", "kind": "client", "note": "GET /nutrition/daily-summary was only read to patch a label that did not exist: dropped." },
+    { "route": "/health/sleep-score", "element": "Static sleep tips", "kind": "owner", "note": "Four educational tips are static text (translated): confirm they stay." },
+    { "route": "/profile", "element": "Old routes in other batches' files", "kind": "client", "note": "app/profile/index.tsx, app/map/index.tsx, app/ai/monthly-report.tsx and app/ai/prescription-translator.tsx still push the old health routes (the redirects open the right tab). Not edited: each carries literal-string debt the gate counts; fix in their batches." },
+    { "route": "/health/edit-profile", "element": "Phone digits in RTL", "kind": "client", "note": "A phone number beginning with + shows the sign at the end in Arabic rows; wrap numbers in an LTR run in the shared Row." },
+    { "route": "/health", "element": "Family rows", "kind": "client", "note": "The hub still opens /health/family-hub and /family/chat; Batch 6 retargets them to the merged family routes." }
+  ]
+}

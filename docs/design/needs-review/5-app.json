@@ -1,0 +1,182 @@
+[
+  {
+    "batch": 5,
+    "app": "patient-app",
+    "screen": "/health/trends",
+    "element": "Time filter and AI summary",
+    "file": "",
+    "line": 0,
+    "found": "[client] Removed: the filter changed nothing (the call has no range) and the AI summary was fixed text. Add a range to GET /health/trends if the owner wants the filter back.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 5,
+    "app": "patient-app",
+    "screen": "/health/vitals",
+    "element": "Server text in Arabic only",
+    "file": "",
+    "line": 0,
+    "found": "[backend] /health/trends trend and insight, /health/score message, components and recommendations arrive in Arabic only: not translated by the app.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 5,
+    "app": "patient-app",
+    "screen": "/reports/timeline",
+    "element": "Download PDF",
+    "file": "",
+    "line": 0,
+    "found": "[backend] The old button was an alert with no file; hasFile has no download endpoint. Removed.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 5,
+    "app": "patient-app",
+    "screen": "/health/prescriptions",
+    "element": "Order from the list",
+    "file": "",
+    "line": 0,
+    "found": "[backend] GET /health/prescriptions returns medicines as plain strings (no medicine ids): the card's Order opens the pharmacy tab, the cart cannot be filled from it.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 5,
+    "app": "patient-app",
+    "screen": "/health/actionable-order",
+    "element": "Decision 18 Rx link",
+    "file": "",
+    "line": 0,
+    "found": "[backend] 'اطلب الأدوية دي' fills the local cart with the catalogue medicines of the prescription (rx lines) and opens it; no existing field links the prescription to that order, so the prescription is not counted as uploaded.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 5,
+    "app": "patient-app",
+    "screen": "/consultations/summary",
+    "element": "Decision 18 on the consultation result",
+    "file": "",
+    "line": 0,
+    "found": "[backend] GET /care/appointments/:id/summary lines have no medicine_id, so the button is not drawn there; 'to pharmacy' opens the prescription screen which has it.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 5,
+    "app": "patient-app",
+    "screen": "/consultations/prescription-from-doctor",
+    "element": "Labs and radiology",
+    "file": "",
+    "line": 0,
+    "found": "[backend] Labs open /diagnostics/search (existing); no radiology list in the prescription data, so no radiology book action.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 5,
+    "app": "patient-app",
+    "screen": "/health/reports",
+    "element": "Two report endpoints",
+    "file": "",
+    "line": 0,
+    "found": "[backend] GET /medical-reports/mine and GET /health/reports both list reports; both are drawn (second under 'from providers'). Confirm they are one concept.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 5,
+    "app": "patient-app",
+    "screen": "/health/health-id",
+    "element": "National id in a QR",
+    "file": "",
+    "line": 0,
+    "found": "[owner] The old Health ID put the national id in its QR; it now redirects to /reports/passport (token QR). Confirm.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 5,
+    "app": "patient-app",
+    "screen": "/health/chronic-disease",
+    "element": "Recent readings list",
+    "file": "",
+    "line": 0,
+    "found": "[client] Removed from the conditions tab: same data as Vitals > History. Details of GET /health/chronic-diseases stay as follow-up cards.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 5,
+    "app": "patient-app",
+    "screen": "/health/emergency-contacts",
+    "element": "SOS notifies family",
+    "file": "",
+    "line": 0,
+    "found": "[backend] The family section says the emergency button sends the location to contacts and family (decision 14); confirm POST /emergency/trigger does.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 5,
+    "app": "patient-app",
+    "screen": "/wearables/hub",
+    "element": "Not in the merge map",
+    "file": "",
+    "line": 0,
+    "found": "[owner] Manual vitals entry duplicated the Add reading sheet and nothing linked to it: redirected to /health/vitals.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 5,
+    "app": "patient-app",
+    "screen": "/health/wearables",
+    "element": "Pairing by name",
+    "file": "",
+    "line": 0,
+    "found": "[backend] POST /wearables/devices registers a device by name with no real pairing; kept behind wearables_enabled.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 5,
+    "app": "patient-app",
+    "screen": "/health",
+    "element": "Water lookup",
+    "file": "",
+    "line": 0,
+    "found": "[client] GET /nutrition/daily-summary was only read to patch a label that did not exist: dropped.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 5,
+    "app": "patient-app",
+    "screen": "/health/sleep-score",
+    "element": "Static sleep tips",
+    "file": "",
+    "line": 0,
+    "found": "[owner] Four educational tips are static text (translated): confirm they stay.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 5,
+    "app": "patient-app",
+    "screen": "/profile",
+    "element": "Old routes in other batches' files",
+    "file": "",
+    "line": 0,
+    "found": "[client] app/profile/index.tsx, app/map/index.tsx, app/ai/monthly-report.tsx and app/ai/prescription-translator.tsx still push the old health routes (the redirects open the right tab). Not edited: each carries literal-string debt the gate counts; fix in their batches.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 5,
+    "app": "patient-app",
+    "screen": "/health/edit-profile",
+    "element": "Phone digits in RTL",
+    "file": "",
+    "line": 0,
+    "found": "[client] A phone number beginning with + shows the sign at the end in Arabic rows; wrap numbers in an LTR run in the shared Row.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 5,
+    "app": "patient-app",
+    "screen": "/health",
+    "element": "Family rows",
+    "file": "",
+    "line": 0,
+    "found": "[client] The hub still opens /health/family-hub and /family/chat; Batch 6 retargets them to the merged family routes.",
+    "suspect": "Client-side: later batch."
+  }
+]
