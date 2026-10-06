@@ -223,7 +223,12 @@ export class AuthController {
       const turnstileResult = await this.turnstile.verify(dto.turnstileToken, clientIp(req));
       if (!turnstileResult.success) throw new BadRequestException('Turnstile verification failed');
     }
-    return this.auth.migrateGuestData(guestUserId, dto);
+    return this.auth.convertGuest(guestUserId, {
+      full_name: dto.full_name,
+      phone: dto.phone,
+      password: dto.password,
+      email: dto.email,
+    });
   }
 
   @Public()
@@ -377,13 +382,13 @@ export class AuthController {
   // ==========================================
 
   @Post('account/link')
-  async linkAccount(@CurrentUser('id') userId: string, @Body() body: { method: 'google' | 'apple' | 'email'; token: string }) {
-    return this.auth.linkAccounts(userId, body.method, body.token);
+  async linkAccount(@CurrentUser('id') userId: string, @Body() body: { method: 'google' | 'apple' | 'email'; providerEmail: string; providerId?: string; appleRelayEmail?: string }) {
+    return this.auth.initiateAccountLink(userId, body.method, body.providerEmail, body.providerId, body.appleRelayEmail);
   }
 
   @Post('guest/merge')
-  async mergeGuest(@CurrentUser('id') guestUserId: string, @Body() dto: ConvertGuestDto) {
-    return this.auth.migrateGuestData(guestUserId, dto);
+  async mergeGuest(@CurrentUser('id') guestUserId: string, @Body() dto: { targetUserId: string }) {
+    return this.auth.migrateGuestData(guestUserId, dto.targetUserId);
   }
 
   @Post('checkout/contact')
