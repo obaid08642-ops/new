@@ -82,21 +82,11 @@
   {
     "batch": 3,
     "app": "patient-app",
-    "screen": "/diagnostics/orders",
-    "element": "Back button",
-    "file": "",
-    "line": 0,
-    "found": "[client] The shared OrderList falls back to the pharmacy hub when there is nothing to go back to.",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": 3,
-    "app": "patient-app",
     "screen": "/diagnostics/cart",
     "element": "Cart context",
     "file": "",
     "line": 0,
-    "found": "[client] DiagnosticsCartContext holds Arabic literal text in its lab-lock alert and keeps the cart in memory only (not touched: logic).",
+    "found": "[client] DiagnosticsCartContext keeps the cart in memory only (lost when the app closes); persisting it is a logic change, left for the reviewer.",
     "suspect": "Client-side: later batch."
   },
   {

@@ -38,7 +38,8 @@
         ["Clear the cart", "DiagnosticsCart clearCart", "ok"],
         ["Home / lab segmented", "local state, passed to checkout", "ok"],
         ["Compatible labs", "GET /labs/compatible-providers, GET /radiology/compatible-providers", "ok"],
-        ["Total, continue", "sum of price x qty, /diagnostics/checkout", "ok"]
+        ["Total, continue", "sum of price x qty, /diagnostics/checkout", "ok"],
+        ["Lab-lock alert (cart tied to another lab)", "locale keys diag.cart.locked* in six languages (was Arabic literals in DiagnosticsCartContext)", "fixed"]
       ]
     },
     {
@@ -120,7 +121,8 @@
       "route": "/diagnostics/orders",
       "elements": [
         ["Current / previous list", "GET /labs/bookings/mine, GET /radiology/bookings/mine (shared OrderList)", "ok"],
-        ["Card opens the booking", "route /diagnostics/order/[id] (was this list itself)", "fixed"]
+        ["Card opens the booking", "route /diagnostics/order/[id] (was this list itself)", "fixed"],
+        ["Back with nothing to go back to", "OrderList backFor(endpoints): labs and radiology go to the diagnostics hub (pharmacy list: pharmacy hub; all-services list: home)", "fixed"]
       ],
       "notes": ["Past orders never appeared: the old list tested 'ready' while the server says REPORTED; the shared status table fixes it."]
     },
@@ -189,8 +191,7 @@
     { "route": "/diagnostics/checkout", "element": "Times and days", "kind": "backend", "note": "Six fixed times and seven days, no availability from the server." },
     { "route": "/diagnostics/sample-tracking", "element": "Preparation text, six default steps", "kind": "owner", "note": "Static medical text and a fixed step list, not from the booking; confirm the wording." },
     { "route": "/diagnostics/technician-tracking", "element": "Tips", "kind": "owner", "note": "Static text; the old third tip (samples sent in cold containers) was dropped as an unverified claim." },
-    { "route": "/diagnostics/orders", "element": "Back button", "kind": "client", "note": "The shared OrderList falls back to the pharmacy hub when there is nothing to go back to." },
-    { "route": "/diagnostics/cart", "element": "Cart context", "kind": "client", "note": "DiagnosticsCartContext holds Arabic literal text in its lab-lock alert and keeps the cart in memory only (not touched: logic)." },
+    { "route": "/diagnostics/cart", "element": "Cart context", "kind": "client", "note": "DiagnosticsCartContext keeps the cart in memory only (lost when the app closes); persisting it is a logic change, left for the reviewer." },
     { "route": "/diagnostics/lab-comparison", "element": "Price of every lab", "kind": "backend", "note": "Every lab shows the same base price of the service; the compatible-providers answer carries no per-lab price." }
   ]
 }

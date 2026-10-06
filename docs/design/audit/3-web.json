@@ -60,11 +60,16 @@
           "Insurance catalogue call of the old booking sheet",
           "* /catalogs/insurance no longer made by this screen",
           "fixed"
+        ],
+        [
+          "service-booking-modal.tsx (nursing/catalog)",
+          "no booking call: the fake form and confirmation are replaced by a translated \"nothing was booked\" window that links to /nursing",
+          "fixed"
         ]
       ]
     },
     {
-      "route": "/diagnostics/[domain]/[bookingId]",
+      "route": "/diagnostics/bookings/[domain]/[bookingId]",
       "elements": [
         [
           "Hero, status chip, report-ready tag",
@@ -95,6 +100,11 @@
           "Reports, documents and prices",
           "deliberately not drawn (test pins it)",
           "hidden"
+        ],
+        [
+          "Every booking link (hub, list, results, success, tracking back, upload)",
+          "lib/diagnostics-links.ts diagnosticBookingHref: /diagnostics/bookings/{labs|radiology}/<bookingId> (the old path was shadowed by labs/[labId] and radiology/[serviceId])",
+          "fixed"
         ]
       ]
     },
@@ -195,6 +205,11 @@
           "Empty state (no items or no lab)",
           "query items, labId",
           "ok"
+        ],
+        [
+          "After the order",
+          "POST /api/diagnostics/orders answer: lines[].booking_id; one booking opens /diagnostics/booking-success, otherwise /diagnostics/bookings (the old /diagnostics/orders/<id> had no page)",
+          "fixed"
         ]
       ]
     },
@@ -473,8 +488,8 @@
         ],
         [
           "Steps timeline",
-          "tracking steps; a fixed 6 step list when the server sends none",
-          "gap"
+          "tracking steps as the server sent them; none: a translated \"no tracking updates yet\" line, no invented steps",
+          "fixed"
         ],
         [
           "Before the sample (fasting advice)",
@@ -566,18 +581,6 @@
   ],
   "needsReview": [
     {
-      "route": "/diagnostics/[domain]/[bookingId]",
-      "element": "route",
-      "kind": "client",
-      "note": "labs/[labId] and radiology/[serviceId] shadow it: every booking link (/diagnostics/labs/<bookingId>, also after booking and after an insurance upload) opens the lab or service page and 404s; the detail needs another path (folders were not renamed here)"
-    },
-    {
-      "route": "/diagnostics/checkout",
-      "element": "after the order",
-      "kind": "client",
-      "note": "pushes to /diagnostics/orders/<id>, which has no page"
-    },
-    {
       "route": "/diagnostics/insurance-approval",
       "element": "home visit fee",
       "kind": "client",
@@ -593,7 +596,7 @@
       "route": "/diagnostics",
       "element": "service-booking-modal.tsx",
       "kind": "client",
-      "note": "no longer used by the diagnostics screens; nursing/catalog still uses it and its confirmation is fake (timer, random reference, default price 250)"
+      "note": "nursing/catalog's Book button now opens a window that says nothing was booked and links to /nursing (the old fake confirmation is gone); a real booking from the catalogue and the screen's own literals are Batch 4's"
     },
     {
       "route": "/diagnostics",
@@ -612,12 +615,6 @@
       "element": "radiology report row",
       "kind": "backend",
       "note": "no link or file for a report: the shape of GET /radiology/reports/mine is not typed in the client"
-    },
-    {
-      "route": "/diagnostics/sample-tracking",
-      "element": "steps",
-      "kind": "client",
-      "note": "when the server sends no steps the screen draws a fixed six-step list (only the first two flags come from data)"
     },
     {
       "route": "/diagnostics/technician-tracking",
