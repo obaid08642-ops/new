@@ -9,6 +9,8 @@ import { Connection } from 'mongoose';
 import { JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { AiReferralController } from './ai-referral.controller';
+import { AnalyticsEventService } from './analytics-event.service';
+import { AnalyticsIngestController, AnalyticsPipelineController } from './analytics-event.controller';
 
 @Injectable()
 export class AdminAnalyticsService {
@@ -144,7 +146,8 @@ export class AdminAnalyticsController {
 }
 
 @Module({
-  controllers: [AdminAnalyticsController, AiReferralController],
-  providers: [AdminAnalyticsService],
+  controllers: [AdminAnalyticsController, AiReferralController, AnalyticsIngestController, AnalyticsPipelineController],
+  providers: [AdminAnalyticsService, AnalyticsEventService],
+  exports: [AnalyticsEventService],
 })
 export class AnalyticsModule {}
