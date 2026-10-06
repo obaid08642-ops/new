@@ -153,7 +153,7 @@ export function routeFromNotificationData(data: any): void {
         break;
       case 'medication':
       case 'medication_reminder':
-        router.push('/health/medication-reminder-list' as any);
+        router.push('/health/medications?tab=reminders' as any);
         break;
       case 'loyalty':
       case 'promotion':
