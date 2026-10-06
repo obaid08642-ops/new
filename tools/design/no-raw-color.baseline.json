@@ -1,7 +1,7 @@
 {
   "note": "Hard-coded colours that predate the design system. Recorded once with --init. 12.A11 rebuilds the screens on tokens and each rebuilt file drops out. --update only ever LOWERS a count; it cannot raise one.",
   "totals": {
-    "patient-web": 5432,
+    "patient-web": 5361,
     "patient-app": 2172,
     "provider-app": 320,
     "admin": 215
@@ -176,15 +176,12 @@
     "patient-web/app/[locale]/offers/[offerId]/offer-detail.module.css": 24,
     "patient-web/app/[locale]/offers/[offerId]/page.tsx": 4,
     "patient-web/app/[locale]/offers/offers.module.css": 28,
-    "patient-web/app/[locale]/orders/[orderId]/offers/offers.module.css": 32,
     "patient-web/app/[locale]/orders/[orderId]/order-detail.module.css": 48,
     "patient-web/app/[locale]/orders/orders.module.css": 44,
     "patient-web/app/[locale]/payments/result/payment-result.module.css": 17,
     "patient-web/app/[locale]/pharmacies/[citySlug]/page.tsx": 21,
     "patient-web/app/[locale]/pharmacy/barcode/page.tsx": 13,
-    "patient-web/app/[locale]/pharmacy/broadcast-status/page.tsx": 13,
     "patient-web/app/[locale]/pharmacy/chat/page.tsx": 13,
-    "patient-web/app/[locale]/pharmacy/final-quote/page.tsx": 13,
     "patient-web/app/[locale]/pharmacy/insurance-decision/page.tsx": 13,
     "patient-web/app/[locale]/pharmacy/order-confirm/page.tsx": 32,
     "patient-web/app/[locale]/pharmacy/payment/page.tsx": 13,
@@ -192,7 +189,6 @@
     "patient-web/app/[locale]/pharmacy/request/request.module.css": 23,
     "patient-web/app/[locale]/pharmacy/rx-order/page.tsx": 37,
     "patient-web/app/[locale]/pharmacy/scan-prescription/scan.module.css": 10,
-    "patient-web/app/[locale]/pharmacy/waiting-for-pharmacy/page.tsx": 13,
     "patient-web/app/[locale]/prescriptions/prescriptions.module.css": 32,
     "patient-web/app/[locale]/profile/page.tsx": 12,
     "patient-web/app/[locale]/profile/profile.module.css": 30,
