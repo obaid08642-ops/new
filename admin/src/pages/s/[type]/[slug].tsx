@@ -77,7 +77,7 @@ export default function EntityPage({ meta, type }: Props) {
         <meta name="twitter:description" content={meta.twitter?.description || meta.description} />
         {meta.twitter?.image && <meta name="twitter:image" content={meta.twitter.image} />}
         {meta.structured && (
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(meta.structured) }} />
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(meta.structured).replace(/</g, "\\u003c") }} />
         )}
       </Head>
 

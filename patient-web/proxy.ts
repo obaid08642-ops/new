@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
+import { contentSecurityPolicy, CSP_INJECT_HEADER, CSP_NONCE_PLACEHOLDER, edgeNonceEnabled, hasSessionCookie } from "./lib/security/csp";
 
 const handleI18nRouting = createMiddleware(routing);
 const noIndexHeader = "noindex, nofollow, noarchive";
@@ -48,24 +49,6 @@ function isMarkdownEligible(pathname: string) {
   return routing.locales.some((loc) => pathname === `/${loc}` || pathname === `/${loc}/articles` || pathname === `/${loc}/medicine-catalog` || pathname.startsWith(`/${loc}/p/`)) || pathname === "/";
 }
 
-function createContentSecurityPolicy(nonce: string) {
-  const isDevelopment = process.env.NODE_ENV === "development";
-  return [
-    "default-src 'self'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "frame-ancestors 'none'",
-    "img-src 'self' data: https:",
-    `style-src 'self' 'nonce-${nonce}'${isDevelopment ? " 'unsafe-inline'" : ""}`,
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDevelopment ? " 'unsafe-eval'" : ""}`,
-    "connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus",
-    "font-src 'self' data:",
-    "media-src 'self' https:",
-    "object-src 'none'",
-    "upgrade-insecure-requests",
-  ].join("; ");
-}
-
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (pathname.startsWith("/api") || pathname.startsWith("/_next") || pathname.includes(".")) return NextResponse.next();
@@ -80,16 +63,29 @@ export async function proxy(request: NextRequest) {
     return NextResponse.rewrite(markdownUrl);
   }
 
+  // F68: public pages without a session render without a nonce (cacheable); the nonce server stamps a fresh
+  // one on every response. Everything else gets a per-request nonce from here and is never stored.
+  const publicPage = isPublicIndexable(pathname);
+  const withSession = hasSessionCookie(request.headers.get("cookie"));
+  if (publicPage && !withSession && edgeNonceEnabled()) {
+    const response = handleI18nRouting(request);
+    response.headers.set("Content-Security-Policy", contentSecurityPolicy(CSP_NONCE_PLACEHOLDER));
+    response.headers.set(CSP_INJECT_HEADER, "1");
+    return response;
+  }
+
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
-  const contentSecurityPolicy = createContentSecurityPolicy(nonce);
+  const policy = contentSecurityPolicy(nonce);
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
-  requestHeaders.set("Content-Security-Policy", contentSecurityPolicy);
+  requestHeaders.set("Content-Security-Policy", policy);
 
   const requestWithNonce = new NextRequest(request, { headers: requestHeaders });
   const response = handleI18nRouting(requestWithNonce);
-  response.headers.set("Content-Security-Policy", contentSecurityPolicy);
-  if (!isPublicIndexable(pathname)) response.headers.set("X-Robots-Tag", noIndexHeader);
+  response.headers.set("Content-Security-Policy", policy);
+  // A page that is private, or any page answered to a session, is never cacheable (no shared or stored copy).
+  if (!publicPage || withSession) response.headers.set("Cache-Control", "private, no-cache, no-store, max-age=0, must-revalidate");
+  if (!publicPage) response.headers.set("X-Robots-Tag", noIndexHeader);
   return response;
 }
 
