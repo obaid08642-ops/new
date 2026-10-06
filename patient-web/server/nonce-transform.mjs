@@ -4,6 +4,7 @@ import { randomBytes } from "node:crypto";
 
 export const CSP_NONCE_PLACEHOLDER = "nabdCspNoncePlaceholder0000";
 export const CSP_INJECT_HEADER = "x-nabd-csp-inject";
+export const UNAVAILABLE_FALLBACK_HEADER = "x-nabd-unavailable";
 
 export function freshNonce() {
   return randomBytes(18).toString("base64");
