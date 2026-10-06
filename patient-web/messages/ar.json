@@ -284,7 +284,11 @@
     "total": "الإجمالي",
     "notAvailable": "غير متاح",
     "unavailableTitle": "تعذر تحميل الطلب",
-    "unavailableBody": "يرجى المحاولة مرة أخرى لاحقًا."
+    "unavailableBody": "يرجى المحاولة مرة أخرى لاحقًا.",
+    "courierTitle": "مندوب التوصيل",
+    "courierUnknown": "لم يتم تعيين مندوب بعد",
+    "slotTitle": "موعد التوصيل",
+    "slotUnknown": "لم يتم تحديد موعد التوصيل بعد"
   },
   "Cart": {
     "eyebrow": "سلة خاصة",

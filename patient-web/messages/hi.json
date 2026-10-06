@@ -330,7 +330,11 @@
     "total": "कुल",
     "notAvailable": "उपलब्ध नहीं",
     "unavailableTitle": "ऑर्डर लोड नहीं हो सका",
-    "unavailableBody": "कृपया बाद में फिर से कोशिश करें।"
+    "unavailableBody": "कृपया बाद में फिर से कोशिश करें।",
+    "courierTitle": "डिलीवरी कूरियर",
+    "courierUnknown": "अभी कोई कूरियर नियुक्त नहीं है",
+    "slotTitle": "डिलीवरी स्लॉट",
+    "slotUnknown": "अभी डिलीवरी स्लॉट तय नहीं है"
   },
   "Cart": {
     "eyebrow": "निजी कार्ट",

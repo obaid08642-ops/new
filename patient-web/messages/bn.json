@@ -330,7 +330,11 @@
     "total": "মোট",
     "notAvailable": "অনুপলব্ধ",
     "unavailableTitle": "অর্ডার লোড করা যায়নি",
-    "unavailableBody": "অনুগ্রহ করে পরে আবার চেষ্টা করুন।"
+    "unavailableBody": "অনুগ্রহ করে পরে আবার চেষ্টা করুন।",
+    "courierTitle": "ডেলিভারি কুরিয়ার",
+    "courierUnknown": "এখনো কোনো কুরিয়ার নিয়োগ হয়নি",
+    "slotTitle": "ডেলিভারি স্লট",
+    "slotUnknown": "এখনো ডেলিভারি স্লট নির্ধারিত হয়নি"
   },
   "Cart": {
     "eyebrow": "ব্যক্তিগত কার্ট",

@@ -296,7 +296,11 @@
     "total": "Total",
     "notAvailable": "Not available",
     "unavailableTitle": "Unable to load the order",
-    "unavailableBody": "Please try again later."
+    "unavailableBody": "Please try again later.",
+    "courierTitle": "Courier",
+    "courierUnknown": "No courier assigned yet",
+    "slotTitle": "Delivery slot",
+    "slotUnknown": "No delivery slot set yet"
   },
   "Cart": {
     "eyebrow": "Private cart",

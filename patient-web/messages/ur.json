@@ -330,7 +330,11 @@
     "total": "کل",
     "notAvailable": "دستیاب نہیں",
     "unavailableTitle": "آرڈر لوڈ نہیں ہو سکا",
-    "unavailableBody": "براہ کرم بعد میں دوبارہ کوشش کریں۔"
+    "unavailableBody": "براہ کرم بعد میں دوبارہ کوشش کریں۔",
+    "courierTitle": "ڈیلیوری کورئیر",
+    "courierUnknown": "ابھی کوئی کورئیر مقرر نہیں ہوا",
+    "slotTitle": "ترسیل کا وقت",
+    "slotUnknown": "ابھی ترسیل کا وقت مقرر نہیں ہوا"
   },
   "Cart": {
     "eyebrow": "نجی کارٹ",

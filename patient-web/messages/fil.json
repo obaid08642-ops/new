@@ -330,7 +330,11 @@
     "total": "Kabuuan",
     "notAvailable": "Hindi magagamit",
     "unavailableTitle": "Hindi na-load ang order",
-    "unavailableBody": "Pakisubukang muli mamaya."
+    "unavailableBody": "Pakisubukang muli mamaya.",
+    "courierTitle": "Courier",
+    "courierUnknown": "Wala pang nakatalagang courier",
+    "slotTitle": "Oras ng delivery",
+    "slotUnknown": "Wala pang itinakdang oras ng delivery"
   },
   "Cart": {
     "eyebrow": "Pribadong cart",
