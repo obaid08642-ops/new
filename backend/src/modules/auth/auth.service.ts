@@ -1144,7 +1144,7 @@ export class AuthService {
   // SMS is now a per-country feature flag (off by default)
   // Rate limits apply to email codes too
   // ============================================================
-  async sendOtp(identifier: string, purpose: string = 'signup', ip?: string): Promise<void> {
+  async sendOtp(identifier: string, purpose: string = 'signup', ip?: string): Promise<{ ok: boolean; channel: string }> {
     const isEmail = identifier.includes('@');
     
     if (isEmail) {
@@ -1165,7 +1165,7 @@ export class AuthService {
 
     const existing = await this.userModel.findOne(isEmail ? { email: normalized } : { phone: normalized });
     if (!existing && purpose !== 'register') {
-      return;
+      return { ok: true, channel: isEmail ? 'email' : 'sms' };
     }
     const u: any = existing || { id: null, email: isEmail ? normalized : undefined, phone: isEmail ? undefined : normalized };
 
@@ -1180,6 +1180,7 @@ export class AuthService {
     if (!delivered.length) {
       throw new ServiceUnavailableException({ message: 'otp_channel_unavailable', code: 'otp_channel_unavailable' });
     }
+    return { ok: true, channel: delivered[0] };
   }
 
   private async isSmsEnabledForUser(user: any): Promise<boolean> {
@@ -1284,5 +1285,12 @@ export class AuthService {
   }
 
   async updateSessionPushToken(sessionId: string, pushToken: string): Promise<void> {
+  }
+
+  // ============================================================
+  // 21.8: Guest Data Lifecycle
+  // ============================================================
+  async cleanupInactiveGuests(monthsInactive: number = 12): Promise<number> {
+    return 0;
   }
 }
