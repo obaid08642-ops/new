@@ -22,6 +22,7 @@ import { ImpersonationSessionService } from '../../src/common/impersonation-sess
 import { AuthController } from '../../src/modules/auth/auth.controller';
 import { AuthService } from '../../src/modules/auth/auth.service';
 import { UsersController } from '../../src/modules/users/users.controller';
+import { PdplService } from '../../src/modules/users/pdpl.service';
 import { UsersService } from '../../src/modules/users/users.service';
 import { RedisService } from '../../src/modules/redis/redis.service';
 import { TEST_JWT_SECRET } from './harness';
@@ -50,6 +51,8 @@ describe('P3.0a password change/reset revokes refresh sessions', () => {
       providers: [
         AuthService,
         UsersService,
+        // UsersController also serves the PDPL endpoints (P10.1); not exercised here.
+        { provide: PdplService, useValue: {} },
         { provide: 'UserRepository', useValue: repo('users') },
         { provide: 'PatientProfileRepository', useValue: repo('patient_profiles') },
         { provide: 'ProviderProfileRepository', useValue: repo('provider_profiles') },

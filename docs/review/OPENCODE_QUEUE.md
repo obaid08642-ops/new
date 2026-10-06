@@ -2,6 +2,13 @@
 
 Read this file and `AGENTS.md` at the start of every OpenCode session. This file is the task list; `AGENTS.md` holds the rules. If they disagree, this file's **Git rules** win (they are newer, owner 2026-10-06).
 
+## Where your instructions come from (owner, 2026-10-06)
+
+- **Your only task list is this file on `origin/main`.** Read it with `git fetch origin && git show origin/main:docs/review/OPENCODE_QUEUE.md` at the start of every session and before every new item. Copies on other branches are stale.
+- **The old phase plan is frozen.** Do not start Phase 22 or any other new phase from `docs/audit/02_AGENT_EXECUTION_PLAN.md`. Phases 13–22 are not approved. They are audited on `oc/phase-audit` by the session that built them (`docs/review/OPENCODE_PHASE_AUDIT.md`); that session uses that file, not this queue.
+- The owner's product decisions (`docs/product/OWNER_DECISIONS_2026-10-06.md`) win over the old plan. Never build or keep anything the decisions remove: community posts, leaderboard, family calls, skin analysis, the ambulance system, mental-health scoring or crisis handling.
+- **Branch names:** only `oc/<item-id>` (this session) or `oc/phase-audit` (the phase-audit session). Branches named `r12/phase13-*` and direct pushes to `fix/audit-2026-09` are not accepted. The direct push `a0df24b3` (2026-10-06 12:34 UTC) broke rule 3 below and will not be merged as is.
+
 ## Git rules (owner, 2026-10-06), binding
 
 1. **One branch per item:** `oc/<item-id>` (for example `oc/Q-1`). Create it from the base named in the item:
@@ -37,7 +44,7 @@ node ../tools/audit/clientbodies.js > /tmp/c.json && node ../tools/audit/dtochec
 
 - On `fix/audit-2026-09` items, also run `node scripts/run-acceptance.mjs --done`.
 - For a web or app item, also run that package's `tsc` and tests.
-- Until Q-1 is merged, the boot suite has 20 known failures on `main` (from Q-1). Your PR must not add any. After Q-1 it must be 0.
+- The boot suites must be 0 failures (65/65 on `main` after Q-1).
 
 ## Queue A: base `main` (start now, in this order)
 
@@ -45,19 +52,19 @@ Each item is checked against `main` (2026-10-06) unless marked "verify first".
 
 | Id | Size | Defect (evidence) | Done when |
 |---|---|---|---|
-| Q-1 | S–M | Boot tests are red on `main`: 20 failures in `test/journeys/provider-onboarding.e2e-spec.ts`, `test/security/p3-provider-credential.e2e-spec.ts` and `test/security/p3-credential-rotation.e2e-spec.ts`. Cause 1: `UsersController` now injects `PdplService` (commit `51ae8e7b`, "[P10.1] WIP salvaged") and the test modules do not provide it. Cause 2: onboarding expects 403/201 where the API now answers differently. | All 65 boot tests pass. Fix the cause, not the expectations. If a behaviour change was intended, say which commit and why in the PR, and stop. |
-| Q-2 | M | Patients cannot act in their own pharmacy chat. In `backend/src/modules/pharmacy/pharmacy.controllers.ts` (`PharmacyChatController`), post message, accept-substitute, reject and remove-item carry `@Roles(PHARMACY, ADMIN)`, so the patient gets 403. | **Wait for the acceptance spec** `backend/acceptance/q-2/` from the reviewer. The order's patient can do the four actions on their own thread; another patient gets 403 or 404; the pharmacy still can. |
-| Q-3 | L | The governed pharmacy states `ORDER_BROADCASTING`, `OFFERS_READY` and `CO_PAY_PENDING` (from `packages/shared-contracts/src/state-machines.ts`) are never written by the backend (0 references in `backend/src`). `FINAL_QUOTE_READY` is written in one place only. | **Wait for the acceptance spec** `backend/acceptance/q-3/`. |
+| Q-1 | — | **Done by the reviewer (2026-10-06), do not do.** The failures were test setup, not product bugs: the journey's admin had no enrolled admin device (`device_not_enrolled`, the C2 rule), and the two credential suites did not provide `PdplService`. The boot suites are 65/65. | — |
+| Q-2 | M | Patients cannot act in their own pharmacy chat. In `backend/src/modules/pharmacy/pharmacy.controllers.ts` (`PharmacyChatController`), post message, accept-substitute, reject and remove-item carry `@Roles(PHARMACY, ADMIN)`, so the patient gets 403. | Spec ready: PR #315, `backend/acceptance/q-2/` (17 tests). Start once #315 is merged; make it pass without editing it. |
+| Q-3 | L | The governed pharmacy states `ORDER_BROADCASTING`, `OFFERS_READY` and `CO_PAY_PENDING` (from `packages/shared-contracts/src/state-machines.ts`) are never written by the backend (0 references in `backend/src`). `FINAL_QUOTE_READY` is written in one place only. | Spec ready: PR #316, `backend/acceptance/q-3/` (10 tests). Start once #316 is merged. |
 | Q-4 | M | Offer read model fakes data. `backend/src/modules/pharmacy/services/pharmacy-offer.service.ts` around lines 298–308 returns `insurance_ready: true`, `cod_allowed: true` and `approx_delivery.eta_minutes: 60` as constants. | The values come from the pharmacy's offer or profile. Where there is no data, return `null` (the clients hide null). A test proves two pharmacies with different settings give different values. |
-| Q-5 | M | Verify first. Insurance acceptance needs payment capabilities, which are refused until acceptance (circular). | Reproduce with a test. If confirmed, **wait for the acceptance spec**. |
+| Q-5 | M | Verify first. Insurance acceptance needs payment capabilities, which are refused until acceptance (circular). | **Closed, not reproduced (review 2026-10-06).** The capabilities refusal before acceptance is intended (`pharmacyDueAmount`); both clients now accept without asking for capabilities first (design Batch 1). Nothing to do. |
 | Q-6 | M | Verify first. The payment intent ignores the method the patient chose (`createPaymentIntent` uses the stored `booking.payment_method`; the body `method` of `POST /payments/intent/diagnostics` is never read). | The chosen method is validated against the order's allowed methods and used. Test both. |
 | Q-7 | S | `PATCH /users/me/addresses/:id` with an unknown id answers 200 `null` (verify first). | 404 `address_not_found`. Test. |
 | Q-8 | M | `GET /orders/:id/tracking` always returns 404 for pharmacy orders; they live in `pharmacy_orders` (verify first). | The order's patient gets tracking for a governed pharmacy order; another user gets 403 or 404. Test. |
 | Q-9 | M | OCR field names that the app sends are not read by the prescription upload endpoint, so every OCR'd prescription from the app is saved empty (verify first; compare `patient-app` request bodies with the DTO). | The DTO accepts the client's field names (DTO rules in `AGENTS.md`); the fields are saved. `dtocheck` shows 0 mismatches. |
 | Q-10 | M | Prescription lists return base64 photos (verify first). | Lists return metadata plus an attachment id. The photo comes from a separate owner-checked GET. Update every client that reads the list in the same PR. |
 | Q-11 | S | Verify first. The `prescription_attachments` shape differs between writer and readers. | One shape, documented in the DTO. Test. |
-| Q-12 | L | Owner feature "Nearest". Doctors and providers store a geo point for each clinic, with a `2dsphere` index. The list endpoint accepts `sort=distance&lat=&lng=` and returns `distance_km`. With no location it falls back to the patient's city. Applies to clinic and home-visit only. | **Wait for the acceptance spec** `backend/acceptance/q-12/`. |
-| Q-13 | L | Owner feature "Available now". The list endpoint accepts `available_within=<minutes>` (for example 15) and `type=clinic\|video\|home_visit`. It returns doctors with a free slot starting within that window, computed from `weekly_schedule`, `blocked_dates` and slot locks, using the one shared availability function (Q37). For video, a doctor who is online and accepting also counts. Each result carries `next_slot_at`. | **Wait for the acceptance spec** `backend/acceptance/q-13/`. |
+| Q-12 | L | Owner feature "Nearest". Doctors and providers store a geo point for each clinic, with a `2dsphere` index. The list endpoint accepts `sort=distance&lat=&lng=` and returns `distance_km`. With no location it falls back to the patient's city. Applies to clinic and home-visit only. | Spec ready: PR #317, `backend/acceptance/q-12/` (9 tests). Start once #317 is merged. |
+| Q-13 | L | Owner feature "Available now". The list endpoint accepts `available_within=<minutes>` (for example 15) and `type=clinic\|video\|home_visit`. It returns doctors with a free slot starting within that window, computed from `weekly_schedule`, `blocked_dates` and slot locks, using the one shared availability function (Q37). For video, a doctor who is online and accepting also counts. Each result carries `next_slot_at`. | Spec ready: PR #343, `backend/acceptance/q-13/` (7 tests). **Also waits for #306** (the shared availability function) to reach `main`; build on it, no second slot engine. |
 
 Backend lines from the design Batch 2 (#313) "Needs review". The client screens are already built; each item also updates the screen that reads it, in the same PR.
 
@@ -71,18 +78,56 @@ Backend lines from the design Batch 2 (#313) "Needs review". The client screens 
 | Q-19 | S | The appointment row carries `specialty_ar` only. | It carries the specialty id plus every locale's name the specialty catalog has, from the catalog (single source). |
 | Q-20 | M | No data or endpoint for: favourite doctor (heart); booking-confirm reports, points and duration rows; doctor rating breakdown, verified badge and clinic photos. | Verify each. Add only what has a real source (for example `verified` from the admin KYC approval). For anything with no source, write `NO SOURCE` in the PR and the screen hides it. Never invent values. |
 
+Found while writing the Q-3 spec (review 2026-10-06):
+
+| Id | Size | Defect (evidence) | Done when |
+|---|---|---|---|
+| Q-21 | M | A paid pharmacy order never reaches a confirmed governed state. Card: after payment `governed_state` stays `FINAL_QUOTE_ACCEPTED` (`PAYMENT_PENDING` is never produced) and `status` stays `cash_card_payment_pending`. Insurance co-pay: after the co-pay is paid `status` stays `waiting_copay`. Only `payment_status` changes (`payments.module.ts` `finalizeGovernedPharmacyPaid`). The apps work around it with `payment_status`. | Wait for the acceptance spec `backend/acceptance/q-21/` (after Q-3). |
+
 Closed, do not do:
 - **Barcode `$regex`:** already escaped on `main`.
 - **Pharmacy expiry scheduler:** exists (`pharmacy-expiry.scheduler.ts`, every 15 s).
 - **Moyasar sync owner check, verify re-emitting `payment.completed`, raw gateway data in responses:** fixed in #310.
 - **`GET /payments/status/:ref`:** comes with #282 (Q86) on the fix branch.
 
-## Queue B: base `fix/audit-2026-09` (wait for the reviewer's "go")
+## Queue C: owner product decisions 2026-10-06 (base `main`)
 
-Do not start until the reviewer says the branch is protected and restored. Items:
-- The auth fixes sent back in #298 (read its report and acceptance tests).
-- Re-deliver the phase 13–21 work from `opencode/phases-13-21-snapshot`, one item per PR. Every item is reviewed on its own.
-- F82-4 (real-user LCP measurement).
-- Nutrition plan: AI-generated, with a button to the nutrition doctors. This one waits for the acceptance spec.
+Source: `docs/product/OWNER_DECISIONS_2026-10-06.md`. Each item is a GitHub issue; put `Closes #<issue>` in the PR body.
 
-Already open, keep them updated and do not open duplicates: #294/#300 (e64ec70), #299 (N7), #311 (social-xs, X and Snapchat sign-in).
+**Scope:** backend and logic only, including admin forms that only expose a backend field. Patient-app and patient-web screens belong to the design session: in the PR, list the UI change the design session must make.
+
+**Specs first:** every C item waits for the acceptance spec `backend/acceptance/d-<n>/`, written by the review session. Start an item only when its spec is merged.
+
+**Removal items (A):** deleting the tests of the removed feature is allowed in that PR, and the PR lists every deleted test. Before any data is dropped:
+1. a migration exports the collection to an archive collection or a file;
+2. the PR body shows the archive step;
+3. production data is never touched by a PR (the reviewer runs it through server-ops).
+
+Order (do not skip ahead):
+
+| Id | Issue | Item | Waits for |
+|---|---|---|---|
+| D-16 | #335 | Module switches: one flag per module, a public read endpoint, and the server refuses a switched-off module's routes. | spec |
+| D-14 | #333 | Emergency: remove the whole ambulance system: dispatch, missions, tracking, fleet, the `drivers` module, and the ambulance provider type in the provider app, registration, KYC and admin. Archive the data first. Keep "send my location to my emergency contacts". | spec (owner O-2 answered: remove) |
+| D-10 | #329 | Rx rules on the server: no promo, offer or points on Rx items; an order with an Rx item needs an attached prescription; `controlled` items are never orderable. | spec |
+| D-15 | #334 | AI assistant limits: specialty routing, leaflet mode, the output filter, red flags, the disclaimer, and a 100+ prompt test set in CI. | spec + test set |
+| D-1 | #320 | Community removed (archive first). Doctor articles: verified doctors only, admin approval, no comments, Rx brand-name block. | spec |
+| D-8 | #327 | Mental health: remove assessment scoring and crisis handling; urgent-help number in admin config. | spec |
+| D-2 | #321 | Remove the loyalty leaderboard. | spec |
+| D-4 | #323 | Remove AI skin analysis. | spec |
+| D-9 | #328 | Loyalty challenges: health-habit `target_action` only; existing purchase challenges ended and archived. | spec |
+| D-12 | #331 | SFDA price ceiling: `sfda_price` and its source; line mapping; reject offers over the ceiling; unmapped lines go to admin review. | spec (owner O-1 answered: the catalogue `price` in the server DB is the ceiling) |
+| D-13 | #332 | Offers waiting: the final "no pharmacy available" state (with Q-3). | spec, Q-3 |
+| D-17 | #336 | Doctor public view: SCFHS licence and `verified`; never national ID, phone or email. | spec |
+| D-19 | #338 | Lab result push deep link to the result. | spec |
+| D-7 | #326 | One assistant endpoint replacing the seven AI routes. | owner-approved merge map |
+
+Items 3, 5, 6, 11 and 18 are UI only (design session). Items 21–23 are owner tasks. Item 20 is Q-12 / Q-13.
+
+## Queue B: replaced by the phase audit (owner, 2026-10-06)
+
+The phase 13–22 work on `fix/audit-2026-09` is audited by the OpenCode session that built it, on the single branch `oc/phase-audit`, following `docs/review/OPENCODE_PHASE_AUDIT.md`. That work includes the #298 FAIL items, the nutrition plan, X/Snapchat sign-in and the re-delivery of the phases.
+
+**This session (Queue A/C) does not touch `fix/audit-2026-09` or `oc/phase-audit`.**
+
+The PRs already open into the fix branch (#294/#300, #299, #311) stay as they are; the reviewer handles them.
