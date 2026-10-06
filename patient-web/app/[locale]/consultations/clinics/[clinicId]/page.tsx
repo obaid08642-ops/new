@@ -11,6 +11,7 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { ProfileHeader, type ProfileStat } from "@/components-next/consult/profile-header";
 import { ActionLinks, Facts, RowCard, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import styles from "@/components-next/consult/consult.module.css";
 
 type Props = { params: Promise<{ locale: string; clinicId: string }> };
@@ -62,7 +63,7 @@ export default async function ClinicDetailPage({ params }: Props) {
   const place = clinic.city || clinic.address;
   const stats: ProfileStat[] = clinic.rating !== undefined ? [{ value: formatNumber(locale, clinic.rating), label: c("statRating") }] : [];
   const rows: FactRow[] = [];
-  if (place) rows.push({ label: c("locationLabel"), value: place, icon: "map-pin", tone: "coral" });
+  if (place) rows.push({ label: c("locationLabel"), value: place, icon: "map-pin", tone: SERVICE_ICONS.map.tone });
 
   return (
     <ConsultPage locale={locale} title={clinic.name} backHref={back}>

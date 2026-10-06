@@ -7,6 +7,7 @@ import { APPOINTMENT_ID } from "@/lib/consult/appointment-view";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ActionLinks, BulletList, Facts, SectionCard, type FactRow, type LinkAction } from "@/components-next/consult/consult-parts";
 import { LocalTimeLine } from "@/components-next/consult/local-time-line";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import styles from "@/components-next/consult/consult.module.css";
 
 type Props = {
@@ -72,7 +73,7 @@ export default async function ConsultationClinicConfirmPage({ params, searchPara
   // the booking code is the appointment's own id, shown as the reception's scan text (a code, not a sentence)
   const codeText = `NABDAH:APPT:${bookingCode.slice(0, 8)}`; // i18n-ok: reception code, not translatable
   const detailRows: FactRow[] = [{ label: c("clinicNameLabel"), value: clinicName, icon: "hospital", tone: "blue" }];
-  if (address) detailRows.push({ label: c("clinicAddressLabel"), value: address, icon: "map-pin", tone: "coral" });
+  if (address) detailRows.push({ label: c("clinicAddressLabel"), value: address, icon: "map-pin", tone: SERVICE_ICONS.map.tone });
   const actions: LinkAction[] = [];
   if (mapsUrl) actions.push({ href: mapsUrl, label: c("actionDirections"), variant: "primary", external: true });
   if (phone) actions.push({ href: `tel:${phone}`, label: c("actionCall"), variant: "outline", external: true });
