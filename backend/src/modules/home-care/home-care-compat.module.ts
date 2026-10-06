@@ -82,10 +82,14 @@ export class HomeCareCompatController {
     return list;
   }
 
-  /** The bookable nurse: `id` is the provider account id (bookings and the nurse's job queue key on it). */
+  /**
+   * N7: the public id is the PROFILE id; the provider account id is never
+   * published. home-care.book() resolves the profile id to the account
+   * server-side, so the booking and the nurse's job queue still key on it.
+   */
   private nurseView(p: any, svc?: any) {
     return {
-      id: p.account_id, profile_id: p.id,
+      id: p.id, profile_id: p.id,
       name_ar: p.name_ar || p.full_name || p.name_en, name: p.name_ar || p.full_name || p.name_en, name_en: p.name_en,
       gender: p.gender || null, degree: p.qualification || p.degree || null,
       facility_name: p.facility_name || p.organization_name || '', facility: p.facility_name || p.organization_name || '',

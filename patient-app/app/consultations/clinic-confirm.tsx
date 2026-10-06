@@ -58,7 +58,9 @@ function ClinicConfirmScreenInner() {
 
   const facility = doctor?.facility || null;
   const clinicName = facility?.name || doctor?.clinic_name || (AR ? 'العيادة' : 'Clinic');
-  const address = facility?.address || doctor?.clinic_address || '';
+  // N7: an individual provider's clinic street address is no longer published, so
+  // fall back to the clinic/district the patient is choosing by.
+  const address = facility?.address || doctor?.clinic_address || doctor?.district || doctor?.city || '';
   const phone = facility?.phone || doctor?.clinic_phone || doctor?.phone || '';
   const lat = facility?.location?.lat ?? doctor?.location?.lat;
   const lng = facility?.location?.lng ?? doctor?.location?.lng;

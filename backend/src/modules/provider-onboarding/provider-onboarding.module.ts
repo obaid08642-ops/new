@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { escapeRegex } from '../../common/slug.util';
 import { StartDto, SubmitDto, AdminContractVisibilityDto } from './provider-onboarding.dto';
 import { PROVIDER_PUBLIC_PROJECTION } from './provider-private-fields';
+import { toPublicProvider } from '../../common/provider-public-privacy';
 
 /**
  * Unified Provider Onboarding Wizard.
@@ -466,7 +467,9 @@ export class ProviderOnboardingService {
       ];
     }
     const list = await this.providerModel.find(filter, PROVIDER_PUBLIC_PROJECTION).sort({ rating: -1 }).limit(80).lean();
-    return list.map((p: any) => ({
+    // N7: an individual provider is listed without their account id, phone, email,
+    // street/home address, national id or IBAN, and a nurse's exact home point.
+    return list.map((p: any) => toPublicProvider({
       ...p,
       matched_capabilities: this.summarizeCaps(p, q.service),
     }));

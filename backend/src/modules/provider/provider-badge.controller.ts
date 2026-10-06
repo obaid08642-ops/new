@@ -17,8 +17,10 @@ export class ProviderBadgeController {
   @Public()
   @Get(':id/badge')
   async badge(@Param('id') id: string) {
+    // N7: this public route resolves the PUBLIC identifier only (profile id or
+    // slug). It must never answer for — or be probed with — a provider account id.
     const p: any = await this.conn.collection('provider_profiles').findOne({
-      $or: [{ id }, { account_id: id }, { slug: id }],
+      $or: [{ id: { $eq: id } }, { slug: { $eq: id } }],
     } as any);
     if (!p || p.status !== 'active') throw new NotFoundException('badge_not_available');
     const slug = p.slug || p.id;

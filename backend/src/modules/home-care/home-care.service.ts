@@ -70,14 +70,22 @@ export class HomeCareSvc {
     // The patient picks the nurse (nursing/service-details -> nurse-profile): it must be an approved home-care
     // provider offering this service. The booking lands in that nurse's job queue (provider-jobs, ASSIGNED).
     const isAdmin = ['admin', 'super_admin', 'system'].includes(user?.role);
-    const providerId = typeof data.provider_id === 'string' ? data.provider_id : '';
-    if (!providerId && !isAdmin) throw new BadRequestException('provider_id_required');
-    if (providerId) {
+    const requestedProviderId = typeof data.provider_id === 'string' ? data.provider_id : '';
+    if (!requestedProviderId && !isAdmin) throw new BadRequestException('provider_id_required');
+    // N7: a patient picks the nurse by the public PROFILE id (the public views no
+    // longer publish the account id). Resolve it to the provider account here, so
+    // the booking — and the nurse's job queue and accept rule, which key on the
+    // account id — are unchanged.
+    let providerId = '';
+    if (requestedProviderId) {
       const nurse = await this.svcModel.db.collection('provider_profiles').findOne({
-        account_id: providerId, type: { $in: ['home_care', 'nursing', 'nurse'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
+        $or: [{ id: { $eq: requestedProviderId } }, { account_id: { $eq: requestedProviderId } }],
+        type: { $in: ['home_care', 'nursing', 'nurse'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
         'nursing_services.key': svc.id,
       });
       if (!nurse) throw new BadRequestException('provider_cannot_perform_service');
+      providerId = String(nurse.account_id || nurse.id || '');
+      if (!providerId) throw new BadRequestException('provider_cannot_perform_service');
     }
     const when = new Date(String(data.scheduled_at));
     if (isNaN(when.getTime()) || when.getTime() < Date.now() - 5 * 60_000) throw new BadRequestException('slot_expired');

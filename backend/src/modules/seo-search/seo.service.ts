@@ -10,6 +10,7 @@ import { HomeCareServiceRepository } from "./seo-repositories/homecareservice.re
 import { FacilityRepository } from "./seo-repositories/facility.repository";
 import { ProviderProfileRepository } from "./seo-repositories/providerprofile.repository";
 import { decideInternalLink, preferredSlug, isSupportedInternalLinkType } from './internal-link-edge.util';
+import { toPublicProvider } from '../../common/provider-public-privacy';
 
 export type EntityType = 'medicine' | 'doctor' | 'lab-service' | 'home-care-service' | 'facility' | 'article';
 
@@ -165,15 +166,17 @@ export class SeoService {
     if (!model) return null;
 
     // Exact lookup only inside the reviewed, publicly eligible entity set.
+    // N7: an individual provider resolves without its account id, phone, email,
+    // street/home address, national id, IBAN, and with a coarsened home point.
     const exact = await model.findOne({ ...this.publicQuery(type), slug }, { _id: 0, __v: 0 }).lean();
-    if (exact) return exact;
+    if (exact) return toPublicProvider(exact);
 
     // R69: renamed slugs resolve via history (caller issues the 301).
     try {
       const hist: any = await this.conn.collection('slug_history').findOne({ entity_type: type, old_slug: slug });
       if (hist?.new_slug) {
         const moved: any = await model.findOne({ ...this.publicQuery(type), slug: hist.new_slug }, { _id: 0, __v: 0 }).lean();
-        if (moved) return { ...moved, _moved_from: slug };
+        if (moved) return toPublicProvider({ ...moved, _moved_from: slug });
       }
     } catch { /* history is best-effort */ }
 
@@ -184,13 +187,14 @@ export class SeoService {
       return model.findOne(
         { ...this.publicQuery(type), $or: [{ name_en: re }, { name_ar: re }, { full_name: re }] },
         { _id: 0, __v: 0 },
-      ).lean();
+      ).lean().then((row: any) => (row ? toPublicProvider(row) : row));
     }
     // Match the id-prefix (first 6 hex chars after stripping dashes).
     // sfx is hex-constrained by parseSlugSuffix and escaped: no regex metachars survive.
     if (!/^[0-9a-f]{1,64}$/i.test(sfx)) return null;
     const reId = new RegExp(`^${escapeRegex(sfx)}`, 'i');
-    return model.findOne({ ...this.publicQuery(type), id: { $regex: reId } } as any, { _id: 0, __v: 0 }).lean();
+    return model.findOne({ ...this.publicQuery(type), id: { $regex: reId } } as any, { _id: 0, __v: 0 }).lean()
+      .then((row: any) => (row ? toPublicProvider(row) : row));
   }
 
   /** Build meta tags for an entity slug. */

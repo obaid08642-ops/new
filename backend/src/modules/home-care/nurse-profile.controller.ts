@@ -24,7 +24,8 @@ export class PatientNurseProfileController {
     if (!p) throw new NotFoundException('nurse_not_found');
     return {
       data: {
-        id: p.account_id, profile_id: p.id,
+        // N7: public id is the profile id; the account id stays server-side.
+        id: p.id, profile_id: p.id,
         name_ar: p.name_ar || p.full_name || p.name_en, name: p.name_ar || p.full_name || p.name_en, name_en: p.name_en,
         gender: p.gender || null, degree: p.qualification || p.degree || null,
         facility_name: p.facility_name || p.organization_name || '', facility: p.facility_name || p.organization_name || '',

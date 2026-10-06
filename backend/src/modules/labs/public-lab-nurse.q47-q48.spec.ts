@@ -38,6 +38,9 @@ describe('public lab and nurse detail (Q47/Q48)', () => {
   it('a visitor gets the nurse profile', async () => {
     const ctrl = new PatientNurseProfileController(conn({ ...profile, type: 'home_care', account_id: 'acc-n', id: 'pp-n' }) as never);
     const { data } = await ctrl.one(undefined as never, 'acc-n');
-    expect(data).toMatchObject({ id: 'acc-n' });
+    // N7: a nurse is an individual provider, so the public id is the profile id and
+    // the provider account id is never published.
+    expect(data).toMatchObject({ id: 'pp-n', profile_id: 'pp-n' });
+    expect(JSON.stringify(data)).not.toContain('acc-n');
   });
 });
