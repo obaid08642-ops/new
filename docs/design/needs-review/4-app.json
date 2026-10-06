@@ -1,0 +1,82 @@
+[
+  {
+    "batch": 4,
+    "app": "patient-app",
+    "screen": "/nursing/visits",
+    "element": "Visit card opens live-tracking with type=patient",
+    "file": "",
+    "line": 0,
+    "found": "[client] type=patient makes the tracking page say 'go and pick up the nurse' for every home visit opened from the list; the booking flow sends type=nurse. Left as is (logic).",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 4,
+    "app": "patient-app",
+    "screen": "/nursing/nurse-profile",
+    "element": "Transport choice",
+    "file": "",
+    "line": 0,
+    "found": "[client] The choice is not part of the POST /nursing/bookings payload; it only changes the tracking wording. The invented '(0 SAR)' price on the second option was removed.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 4,
+    "app": "patient-app",
+    "screen": "/nursing/nurse-profile",
+    "element": "Booking time",
+    "file": "",
+    "line": 0,
+    "found": "[backend] The booking is built from a fixed list of daily slots (08:00 to 13:00), not from the nurse's availability.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 4,
+    "app": "patient-app",
+    "screen": "/nursing/service-details",
+    "element": "Injection policy check",
+    "file": "",
+    "line": 0,
+    "found": "[client] Decided by service ids and Arabic words in the title; a title in another language skips the prescription dialog.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 4,
+    "app": "patient-app",
+    "screen": "/nursing/service-details",
+    "element": "Providers query",
+    "file": "",
+    "line": 0,
+    "found": "[client] The search, gender and nationality values are put in the URL without encoding.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 4,
+    "app": "patient-app",
+    "screen": "/nursing",
+    "element": "Search and filters",
+    "file": "",
+    "line": 0,
+    "found": "[backend] Only passed to /home-care/providers on the next screen; the hub itself filters nothing.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 4,
+    "app": "patient-app",
+    "screen": "/nursing/live-tracking",
+    "element": "Back button",
+    "file": "",
+    "line": 0,
+    "found": "[owner] Goes back or to the home tab; the old screen always went to the home tab. Kept the old target as the fallback.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 4,
+    "app": "patient-app",
+    "screen": "/nursing/live-tracking",
+    "element": "Visit steps",
+    "file": "",
+    "line": 0,
+    "found": "[backend] The tracking answer has no steps, so the OrderTracking timeline is not drawn.",
+    "suspect": "Backend gap: reviewer session."
+  }
+]
