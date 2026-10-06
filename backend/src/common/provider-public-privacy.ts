@@ -86,11 +86,10 @@ export function toPublicProvider<T>(row: T, options: { coarsenHomeLocation?: boo
   for (const [key, value] of Object.entries(source)) {
     if (PRIVATE_PROVIDER_KEYS.includes(key.toLowerCase())) continue;
     if (value && typeof value === 'object' && !Array.isArray(value)) {
-      // Nested objects (e.g. an embedded doctor inside a facility) are sanitized too.
-      const child = value as Record<string, unknown>;
-      const isEmbeddedProvider = isIndividualProviderType(typeOf(child))
-        || INDIVIDUAL_PROVIDER_TYPES.some((t) => Boolean(child[t]));
-      if (isEmbeddedProvider) {
+      // A nested provider document (e.g. a doctor embedded in a facility) is
+      // sanitized too. Type is the only reliable signal: a nested object without
+      // one is left exactly as it is, so no unrelated data is ever stripped.
+      if (isIndividualProviderType(typeOf(value))) {
         out[key] = toPublicProvider(value as T, options);
         continue;
       }
