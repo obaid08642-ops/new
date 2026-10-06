@@ -4,6 +4,55 @@
 
 ---
 
+## PLAN AMENDMENTS (owner product decisions 2026-10-06), binding
+
+Source: `docs/product/OWNER_DECISIONS_2026-10-06.md` (issues #320–#342). **These amendments win over every task below.** A task marked REMOVED is not built, kept or extended. A task marked CHANGED is built only as changed here. ADDED work is in `docs/review/OPENCODE_QUEUE.md` (Queue C), not here.
+
+**Features the owner removed (in every phase, not only 13–23):**
+- community user posts (`/community/*`);
+- the loyalty leaderboard;
+- family calls;
+- AI skin analysis;
+- the whole ambulance system: emergency dispatch, missions, tracking, fleet, the `drivers` module and the ambulance provider type;
+- mental-health self-assessment scoring and in-app crisis handling;
+- loyalty challenges tied to buying medicines.
+
+How removal is handled:
+- The removal itself is done once, on `main`, by Queue C items D-1, D-2, D-4, D-8, D-9 and D-14.
+- Phase work must not add to, extend or depend on a removed feature.
+- Where a phase commit did, the phase audit (`docs/review/OPENCODE_PHASE_AUDIT.md`) takes that part out of the commit's own changes. It never deletes code that already exists on `main`.
+
+**Rules that change existing tasks:**
+- **Prescription-only items** (`requires_prescription`) never get offers, discounts, coupons, banners, price-drop alerts, "frequently bought together" placement or loyalty points.
+  - An order with such an item needs an attached prescription (an uploaded one, or one from a Nabd+ consultation).
+  - `controlled` items are never orderable online. (Decision 10)
+- **Pharmacy offer prices** are capped by the catalogue price held in the server database (`sfda_price`, filled from the catalogue `price`, with its source). (Decision 12)
+- **The AI** never diagnoses, names a drug to take or gives a dose. It routes symptoms to a specialty and explains leaflets from the catalogue. Red-flag symptoms show 997 / urgent help first. (Decision 15)
+- **Every module** can be switched off from admin without an app update. (Decision 16)
+- **Nafath and Wasfaty** wait for licensing: do not start them. (Decision 23)
+
+| Task | Status | Change |
+|---|---|---|
+| 13.R14 | CHANGED | Consultation outputs: "order these medicines" fills the cart from the prescription (decision 18). That prescription counts as the attached prescription for its Rx items. |
+| 13.R15 | CHANGED | Medical content: articles are written only by verified doctors and approved by the admin before publishing; no comments; prescription-only brand names are blocked (decision 1). AI-written content is not published as an article. |
+| 13.R21 | CHANGED | AI gateway: add the decision-15 limits (system prompt, output filter, red flags, disclaimer) and the 100+ prompt test set in 6 locales, run in CI. |
+| 14.18 | CHANGED | Kill switches: also one switch per module (the twelve modules in decision 16), read by the apps at runtime; a switched-off module's routes are refused by the server. |
+| 16.12 | CHANGED | Business-logic abuse: no loyalty accrual, coupon or promotion on Rx items. Challenges are health habits only (decision 9). |
+| 17.10 | CHANGED | Trust signals: the doctor profile shows the SCFHS licence and a "verified" badge after admin approval; never the national ID, phone or email (decision 17). |
+| 19.1 | CHANGED | Hosting: owner task (decision 21). Development stays on OVH Germany; a migration plan to an in-Kingdom host before launch. No code now. |
+| 19.2 | CHANGED | SFDA listing rules are implemented by decisions 10 and 12 (Queue C D-10, D-12). |
+| 19.5, 19.6 | NOT NOW | Wasfaty and Nafath wait for licensing (decision 23). |
+| 22.1 | CHANGED | Auto-refill only for items with a valid prescription; no discount on Rx refills. |
+| 22.2 | CHANGED | Price-drop alerts and shared wishlists exclude Rx items. |
+| 22.3 | CHANGED | "Frequently bought together" and alternatives never promote Rx items. |
+| 22.5 | CHANGED | Refunds follow the one server refund rule (queue Q-14). |
+| 22.8 | CHANGED | The help-center AI assistant obeys decision 15 and hands over to a human. |
+| 22.14 | CHANGED | Safety: the ambulance part is REMOVED (no dispatch, no drills). What stays: the emergency button dials 997 and sends the user's location to their emergency contacts; red-flag symptoms in chat or AI show 997 first. |
+| 22.15 | CHANGED | Coupons, referral rewards and campaigns never apply to Rx items. |
+| 23.x | CHANGED | Includes an access log for health records (decision 22). Retention periods come from the owner and the lawyer. |
+
+---
+
 ## ORDER OF WORK (owner decisions 2026-09-29 and 2026-10-01)
 1. **X0** (urgent data leak), then **X11** and **X12**, then **X1–X10**. All are in `REVIEW_P7R_TO_P12.md`.
 2. **7D** (reviewer-led security review), then **16** (security hardening), including C9 and C10 (admin on two devices; Cloudflare Access and Tunnel).
