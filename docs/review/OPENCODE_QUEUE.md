@@ -5,9 +5,9 @@ Read this file and `AGENTS.md` at the start of every OpenCode session. This file
 ## Where your instructions come from (owner, 2026-10-06)
 
 - **Your only task list is this file on `origin/main`.** Read it with `git fetch origin && git show origin/main:docs/review/OPENCODE_QUEUE.md` at the start of every session and before every new item. Copies on other branches are stale.
-- **The old phase plan is frozen.** Do not start Phase 22 or any other new phase from `docs/audit/02_AGENT_EXECUTION_PLAN.md`. Phases 13–21 are not approved; they come back only as Queue B items, one PR each, when the reviewer says "go".
+- **The old phase plan is frozen.** Do not start Phase 22 or any other new phase from `docs/audit/02_AGENT_EXECUTION_PLAN.md`. Phases 13–22 are not approved. They are audited on `oc/phase-audit` by the session that built them (`docs/review/OPENCODE_PHASE_AUDIT.md`); that session uses that file, not this queue.
 - The owner's product decisions (`docs/product/OWNER_DECISIONS_2026-10-06.md`) win over the old plan. Never build or keep anything the decisions remove: community posts, leaderboard, family calls, skin analysis, the ambulance system, mental-health scoring or crisis handling.
-- **Branch names:** only `oc/<item-id>`. Branches named `r12/phase13-*` and direct pushes to `fix/audit-2026-09` are not accepted. The direct push `a0df24b3` (2026-10-06 12:34 UTC) broke rule 3 below and will not be merged as is.
+- **Branch names:** only `oc/<item-id>` (this session) or `oc/phase-audit` (the phase-audit session). Branches named `r12/phase13-*` and direct pushes to `fix/audit-2026-09` are not accepted. The direct push `a0df24b3` (2026-10-06 12:34 UTC) broke rule 3 below and will not be merged as is.
 
 ## Git rules (owner, 2026-10-06), binding
 
@@ -124,12 +124,10 @@ Order (do not skip ahead):
 
 Items 3, 5, 6, 11 and 18 are UI only (design session). Items 21–23 are owner tasks. Item 20 is Q-12 / Q-13.
 
-## Queue B: base `fix/audit-2026-09` (wait for the reviewer's "go")
+## Queue B: replaced by the phase audit (owner, 2026-10-06)
 
-Do not start until the reviewer says the branch is protected and restored. Items:
-- The auth fixes sent back in #298 (read its report and acceptance tests).
-- Re-deliver the phase 13–21 work from `opencode/phases-13-21-snapshot`, one item per PR. Every item is reviewed on its own.
-- F82-4 (real-user LCP measurement).
-- Nutrition plan: AI-generated, with a button to the nutrition doctors. This one waits for the acceptance spec.
+The phase 13–22 work on `fix/audit-2026-09` is audited by the OpenCode session that built it, on the single branch `oc/phase-audit`, following `docs/review/OPENCODE_PHASE_AUDIT.md`. That work includes the #298 FAIL items, the nutrition plan, X/Snapchat sign-in and the re-delivery of the phases.
 
-Already open, keep them updated and do not open duplicates: #294/#300 (e64ec70), #299 (N7), #311 (social-xs, X and Snapchat sign-in).
+**This session (Queue A/C) does not touch `fix/audit-2026-09` or `oc/phase-audit`.**
+
+The PRs already open into the fix branch (#294/#300, #299, #311) stay as they are; the reviewer handles them.
