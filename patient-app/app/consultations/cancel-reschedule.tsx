@@ -12,12 +12,13 @@ import { apiFetch } from '../../src/utils/api';
 import { dateLocaleFor } from '../../src/utils/dates';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
+import { readCancellationPolicy, refundPercent, type CancellationPolicy } from '../../src/utils/refundPolicy';
 
 /**
  * Cancel or reschedule — board Consult's form language. The appointment is GET /care/appointments/:id; cancelling is
  * PATCH /care/appointments/:id/cancel with the reason, rescheduling is PATCH /care/appointments/:id/reschedule with the
- * new slot from GET /care/doctors/:id/slots (the next seven days). The refund note is the page's own calculation, as it
- * was; the screen only draws it.
+ * new slot from GET /care/doctors/:id/slots (the next seven days). The refund figures are the cancellation policy of GET
+ * /system-config/public, the one the doctor page reads; while it is not known the page states no figure.
  */
 
 /** The reasons the patient can pick; the server stores the Arabic text of the chosen one, as it always did. */
@@ -64,6 +65,7 @@ export default function CancelRescheduleScreen() {
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [policy, setPolicy] = useState<CancellationPolicy | null>(null);
 
   const loadAppointment = useCallback(async () => {
     if (!appointmentId) {
@@ -84,6 +86,10 @@ export default function CancelRescheduleScreen() {
   useEffect(() => {
     void loadAppointment();
   }, [loadAppointment]);
+
+  useEffect(() => {
+    apiFetch<unknown>('/system-config/public').then((config) => setPolicy(readCancellationPolicy(config))).catch(() => setPolicy(null));
+  }, []);
 
   // Load real availability for the next 7 days when entering reschedule mode
   useEffect(() => {
@@ -117,7 +123,15 @@ export default function CancelRescheduleScreen() {
   const price = Number(appointment?.price ?? appointment?.amount_total ?? 0);
   const scheduledAt = appointment?.scheduled_at ? new Date(appointment.scheduled_at) : null;
   const hoursUntil = scheduledAt ? (scheduledAt.getTime() - Date.now()) / 3600000 : null;
-  const refundPct = hoursUntil == null ? null : hoursUntil >= 24 ? 100 : hoursUntil >= 12 ? 50 : 0;
+  const refundPct = refundPercent(hoursUntil, policy);
+
+  const policyLines = policy
+    ? [
+        k('consult.cancel.policyFull', { full: num(policy.full_hours) }),
+        k('consult.cancel.policyHalf', { half: num(policy.half_hours), full: num(policy.full_hours), pct: num(policy.half_refund_percent) }),
+        k('consult.cancel.policyLess', { half: num(policy.half_hours) }),
+      ]
+    : [k('consult.doc.faqCancelGeneric')];
 
   const dayKeys = useMemo(() => Object.keys(slotsByDay).sort(), [slotsByDay]);
   const [activeDay, setActiveDay] = useState<string>('');
@@ -188,9 +202,9 @@ export default function CancelRescheduleScreen() {
             </Card>
             <Section title={k('consult.cancel.policy')}>
               <Card theme={theme}>
-                {(['consult.cancel.policy24', 'consult.cancel.policy12', 'consult.cancel.policyLess'] as const).map((key, i) => (
-                  <View key={key} style={{ paddingVertical: 8, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: c.border.hairline }}>
-                    <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k(key)}</Text>
+                {policyLines.map((line, i) => (
+                  <View key={i} style={{ paddingVertical: 8, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: c.border.hairline }}>
+                    <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{line}</Text>
                   </View>
                 ))}
               </Card>
@@ -213,7 +227,7 @@ export default function CancelRescheduleScreen() {
                 );
               })}
             </View>
-            {refundPct != null && price > 0 ? <Notice tone="warning" text={refundPct > 0 ? k('consult.cancel.refundNote', { pct: num(refundPct), amount: `${money(price)} ${k('consult.currency')}` }) : k('consult.cancel.noRefund')} /> : null}
+            {refundPct != null && price > 0 ? <Notice tone="warning" text={refundPct > 0 ? k('consult.cancel.refundNote', { pct: num(refundPct), amount: `${money(price)} ${k('consult.currency')}` }) : k('consult.cancel.noRefund', { half: num(policy?.half_hours ?? 0) })} /> : null}
           </>
         ) : (
           <Section>

@@ -104,7 +104,8 @@ export default async function AppointmentDetailPage({ params }: Props) {
           {appointment.serviceType === "video" ? (
             <CallTokenLauncher
               appointmentId={appointmentId}
-              labels={{ title: t("callTitle"), join: t("callJoin"), loading: t("callLoading"), ready: t("callReady"), unavailable: t("callUnavailable"), notReady: t("callDiscard") }}
+              joinHref={`/${locale}/consultations/video-call?appointmentId=${id}`}
+              labels={{ title: t("callTitle"), join: t("callJoin"), loading: t("callLoading"), ready: t("callReady"), unavailable: t("callUnavailable"), notReady: t("callDiscard"), open: t("callOpen") }}
             />
           ) : null}
         </>

@@ -48,7 +48,7 @@ import { Facts } from "@/components-next/consult/consult-parts";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import { ProfileHeader } from "@/components-next/consult/profile-header";
 import { BookingFlow } from "@/components-next/booking-flow";
-import { isDone, isJoinable, isOpen, isPast, isUpcoming, statusKey } from "@/lib/consult/appointment-view";
+import { KNOWN_STATUSES, isDone, isJoinable, isOpen, isPast, isUpcoming, statusKey } from "@/lib/consult/appointment-view";
 
 const ID = "91047ef2-ad36-422a-a184-629693e7c729";
 const TOKEN = "server-only-consult-token";
@@ -110,6 +110,14 @@ describe("the status helpers", () => {
     expect(statusKey("SOMETHING_NEW")).toBeNull();
     expect(isUpcoming("PENDING") && isPast("COMPLETED") && isOpen("SCHEDULED") && isJoinable("CHECKED_IN") && isDone("completed")).toBe(true);
     expect(isOpen("COMPLETED") || isJoinable("PENDING")).toBe(false);
+  });
+
+  it("puts every known status in exactly one of the two tabs, in any case", () => {
+    for (const status of KNOWN_STATUSES) {
+      expect([isUpcoming(status), isPast(status)].filter(Boolean)).toHaveLength(1);
+      expect([isUpcoming(status.toUpperCase()), isPast(status.toUpperCase())].filter(Boolean)).toHaveLength(1);
+    }
+    expect(isUpcoming("pending_payment") && isUpcoming("SCHEDULED") && isUpcoming("in_progress") && isPast("no_show")).toBe(true);
   });
 });
 

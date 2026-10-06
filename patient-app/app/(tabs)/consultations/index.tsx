@@ -98,12 +98,13 @@ const TITLE_WORDS: Record<Exclude<TitleF, 'all'>, string[]> = { specialist: ['أ
 const priceOf = (d: Doc): number => d.consultation_fee || Number(String(d.p ?? '0').replace(/\D/g, '')) || 0;
 
 export default function Consultations() {
-  const { theme, t, c, flow, dir, k, num, money } = useScreenUi();
+  const { theme, t, c, flow, dir, lang, k, num, money } = useScreenUi();
   const barHeight = useTabBarHeight();
   const [activePay, setActivePay] = useState<'all' | 'cash' | 'insurance'>('all');
   const [activeVt, setActiveVt] = useState<VisitMode>('clinic');
   const [activeSpec, setActiveSpec] = useState('');
-  const [doctors, setDoctors] = useState<Doc[]>([]);
+  // The rows as the server sent them; the card shape (with the localised name) is derived below so a language change re-derives it.
+  const [providerRows, setProviderRows] = useState<ProviderRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [specialties, setSpecialties] = useState<Spec[]>([]);
   const [offers, setOffers] = useState<Offer[]>([]);
@@ -149,27 +150,11 @@ export default function Consultations() {
       try {
         const data = await apiFetch<ProviderRow[]>(doctorsPath);
         if (!live) return;
-        // Normalize real provider-profile fields into the card display shape
-        const normalized = (Array.isArray(data) ? data : []).map((x) => {
-          return {
-            ...x,
-            n: pickLocalized(x.name_ar, x.name_en) || '',
-            sp: [x.title, x.specialty].filter(Boolean).join(' — '),
-            specialty_ar: x.specialty,
-            badge: x.title || '',
-            loc: [x.district, x.city].filter(Boolean).join('، '),
-            addr: x.address || '',
-            services: (Array.isArray(x.consultation_modes) ? x.consultation_modes : []).map((m) => (m === 'video' ? 'online' : m)),
-            r: x.rating_avg ?? null,
-            rev: x.rating_count ?? 0,
-            p: (typeof x.price_clinic === 'number' ? x.price_clinic : null) ?? x.price_online ?? x.price_home ?? null,
-          } as Doc;
-        });
-        setDoctors(normalized);
+        setProviderRows(Array.isArray(data) ? data : []);
       } catch (err) {
         if (!live) return;
         logError('consultations:fetch-doctors', err);
-        setDoctors([]);
+        setProviderRows([]);
       } finally {
         if (live) setLoading(false);
       }
@@ -215,6 +200,28 @@ export default function Consultations() {
       .then((res) => setInsuranceNetworks(Array.isArray(res) ? res : res?.data || []))
       .catch(() => setInsuranceNetworks([]));
   }, [insCompany]);
+
+  // Normalize real provider-profile fields into the card display shape (the name follows the language, so it is derived here, not at fetch).
+  const doctors = useMemo(
+    () =>
+      providerRows.map((x) => {
+        return {
+          ...x,
+          n: pickLocalized(x.name_ar, x.name_en) || '',
+          sp: [x.title, x.specialty].filter(Boolean).join(' — '),
+          specialty_ar: x.specialty,
+          badge: x.title || '',
+          loc: [x.district, x.city].filter(Boolean).join('، '),
+          addr: x.address || '',
+          services: (Array.isArray(x.consultation_modes) ? x.consultation_modes : []).map((m) => (m === 'video' ? 'online' : m)),
+          r: x.rating_avg ?? null,
+          rev: x.rating_count ?? 0,
+          p: (typeof x.price_clinic === 'number' ? x.price_clinic : null) ?? x.price_online ?? x.price_home ?? null,
+        } as Doc;
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [providerRows, lang],
+  );
 
   const filteredDocs = useMemo(() => {
     const q = searchQuery.toLowerCase();
