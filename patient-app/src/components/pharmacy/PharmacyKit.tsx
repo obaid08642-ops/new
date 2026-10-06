@@ -1,11 +1,12 @@
 import React, { useCallback } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import { router, type Href } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
 
 import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, type FillIconName } from '../../../../packages/ui/icons/fill';
 import { Badge, SERVICE_ICONS } from '../../../../packages/ui-native/src';
 import { useCart } from '../../context/CartContext';
-import { useScreenUi } from '../screen/ScreenKit';
+import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { showLocalizedAlert } from '../LocalizedAlert';
 import { medGallery, medName, needsRx, type Med } from '../../utils/pharmacyCatalog';
 
@@ -94,5 +95,88 @@ export function useAddMedToCart() {
       });
     },
     [addItem, k],
+  );
+}
+
+/** Back, or the pharmacy hub when there is nothing to go back to (a deep link, a notification). */
+export function goBack() {
+  if (router.canGoBack()) router.back();
+  else router.replace('/(tabs)/pharmacy' as Href);
+}
+
+type StatusTone = 'warning' | 'danger' | 'success' | 'info' | 'neutral';
+
+/** A short status label (a prescription's state, the Rx note of the cart): the status tokens, wraps in any language. */
+export function Pill({ label, tone }: { label: string; tone: StatusTone }) {
+  const { t, c } = useScreenUi();
+  return (
+    <View style={{ alignSelf: 'flex-start', minHeight: 24, paddingHorizontal: 9, paddingVertical: 2, borderRadius: 12, backgroundColor: c.status[tone].bg, justifyContent: 'center' }}>
+      <Text style={{ ...scale(t, 'tag', 'bold'), color: c.status[tone].fg }}>{label}</Text>
+    </View>
+  );
+}
+
+/**
+ * The board's notice card (Cart: the prescription banner; here also the permission and error notices): a tinted
+ * status surface, an icon tile, a title, a line and an optional action button.
+ */
+export function Notice({ tone, icon, title, body, actionLabel, onAction }: { tone: 'warning' | 'danger'; icon: FillIconName; title: string; body?: string; actionLabel?: string; onAction?: () => void }) {
+  const { t, c, flow } = useScreenUi();
+  const s = c.status[tone];
+  return (
+    <View accessibilityRole={tone === 'danger' ? 'alert' : undefined} style={{ borderRadius: 20, backgroundColor: s.bg, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+      <View style={{ width: 40, height: 40, borderRadius: 13, backgroundColor: c.bg.surface, alignItems: 'center', justifyContent: 'center' }}>
+        <Glyph name={icon} size={22} color={s.fg} />
+      </View>
+      <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+        <Text style={{ ...scale(t, 'small', 'bold'), color: s.fg, ...flow }}>{title}</Text>
+        {body ? <Text style={{ ...scale(t, 'meta', 'regular'), lineHeight: 18, color: s.fg, ...flow }}>{body}</Text> : null}
+      </View>
+      {actionLabel ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={actionLabel}
+          onPress={onAction}
+          style={({ pressed }) => ({ minHeight: 44, minWidth: 44, paddingHorizontal: 14, borderRadius: 12, backgroundColor: c.bg.surface, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.8 : 1 })}
+        >
+          <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary }}>{actionLabel}</Text>
+        </Pressable>
+      ) : null}
+    </View>
+  );
+}
+
+/**
+ * The board's two picker buttons (RxUpload: camera, photos): 44 tall, radius 14, a fill glyph and a label that grows
+ * with the language. `ink` is the filled one, the other is outlined.
+ */
+export function PickButton({ name, label, ink, disabled, onPress }: { name: FillIconName; label: string; ink?: boolean; disabled?: boolean; onPress: () => void }) {
+  const { t, c } = useScreenUi();
+  const fg = ink ? c.action.selected.fg : c.text.primary;
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ disabled: Boolean(disabled) }}
+      disabled={disabled}
+      onPress={onPress}
+      style={({ pressed }) => ({
+        minHeight: 44,
+        paddingHorizontal: 16,
+        paddingVertical: 6,
+        borderRadius: 14,
+        backgroundColor: ink ? c.action.selected.bg : 'transparent',
+        borderWidth: ink ? 0 : 1.5,
+        borderColor: c.text.primary,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        opacity: disabled ? 0.5 : pressed ? 0.8 : 1,
+      })}
+    >
+      <Glyph name={name} size={18} color={fg} />
+      <Text style={{ ...scale(t, 'small', 'bold'), color: fg }}>{label}</Text>
+    </Pressable>
   );
 }

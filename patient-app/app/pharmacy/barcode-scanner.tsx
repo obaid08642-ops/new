@@ -1,84 +1,60 @@
-// @ts-nocheck
 import React, { useRef, useState } from 'react';
-import { View, StyleSheet, StatusBar, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { router } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ActivityIndicator, Linking, Pressable, StatusBar, Text, View } from 'react-native';
+import { router, type Href } from 'expo-router';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { useApp } from '../../src/context/AppContext';
-import { Icon } from '../../src/components/Icon';
+
+import { Button, Card, FIcon, Icon, Screen } from '../../../packages/ui-native/src';
+import { Pill, goBack, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
+import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
-import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
-import { pickLocalized } from '../../src/utils/localize';
-import { ScreenState } from '../../src/components/ScreenStates';
+import { logError } from '../../src/utils/logger';
+import { medMeta, medName, medPrice, needsRx, type Med } from '../../src/utils/pharmacyCatalog';
+
+/**
+ * Barcode scanner — the PharmacyHub family (no board of its own; the hub's search field opens it).
+ *
+ * A camera on the ink surface of the tokens with a scan frame; a barcode is looked up with
+ * GET /medicines/by-barcode/:code. A pack can also be photographed (POST /ai/medicine-image-search), and a manual
+ * request is always one tap away. States: asking for the camera, camera refused (ask again, or open the phone's
+ * settings), looking up, found, not in the directory, and lookup failed (retry). What a found medicine shows is what the
+ * directory sends: no availability or price is drawn that the response does not carry.
+ */
+
+const BARCODE_TYPES = ['qr', 'code128', 'code39', 'code93', 'ean13', 'ean8', 'upc_a', 'upc_e', 'datamatrix', 'pdf417', 'itf14'] as const;
+const FRAME = 250;
+const CORNER = 40;
+
+type Found = { code: string; med: Med };
+
+/** A route that is a screen of the app (the typed router only knows the generated list). */
+const go = (href: string) => router.push(href as Href);
 
 export default function BarcodeScannerScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors } = useApp();
+  const { theme, t, c, dir, flow, k, money } = useScreenUi();
+  const addToCart = useAddMedToCart();
   const [permission, requestPermission] = useCameraPermissions();
-  const [result, setResult] = useState<any>(null);
+  const [found, setFound] = useState<Found | null>(null);
   const [notFound, setNotFound] = useState<string | null>(null);
+  const [lookupFailed, setLookupFailed] = useState<string | null>(null);
   const [lookingUp, setLookingUp] = useState(false);
   const [aiBusy, setAiBusy] = useState(false);
-  const [aiError, setAiError] = useState<string | null>(null);
+  const [aiProblem, setAiProblem] = useState<'unknown' | 'error' | null>(null);
   const busyRef = useRef(false);
   const cameraRef = useRef<CameraView | null>(null);
 
-  // Identify a medicine by photographing its packaging (Gemini vision on the
-  // backend) — the real fallback since most catalog items carry no barcode.
-  const captureAndIdentify = async () => {
-    if (aiBusy || busyRef.current) return;
-    setAiError(null);
-    setAiBusy(true);
-    busyRef.current = true;
-    try {
-      const photo = await cameraRef.current?.takePictureAsync({ base64: true, quality: 0.4 });
-      if (!photo?.base64) throw new Error('capture_failed');
-      const ai = await apiFetch<any>('/ai/medicine-image-search', {
-        method: 'POST',
-        body: JSON.stringify({ image_base64: photo.base64 }),
-      });
-      const name = String(ai?.name || '').trim();
-      if (!name || name.toLowerCase() === 'unknown') {
-        setAiError('لم نتمكن من التعرف على العبوة — قرّب الكاميرا من اسم الدواء وحاول مجدداً');
-        return;
-      }
-      const res = await apiFetch<any>(`/medicines?search=${encodeURIComponent(name)}&limit=5`);
-      const items = Array.isArray(res) ? res : (res?.items || res?.data || []);
-      if (items.length > 0) {
-        const m = items[0];
-        router.push({ pathname: '/pharmacy/product-detail', params: { id: m.id || m._id, name: pickLocalized(m.name_ar, m.name_en) } });
-      } else {
-        router.push({ pathname: '/search', params: { q: name } });
-      }
-    } catch {
-      setAiError('تعذّر تحليل الصورة — تحقق من الاتصال وحاول مجدداً');
-    } finally {
-      setAiBusy(false);
-      busyRef.current = false;
-    }
-  };
+  const idle = !found && !notFound && !lookupFailed;
 
   const lookup = async (code: string) => {
     setLookingUp(true);
+    setLookupFailed(null);
     try {
-      const res = await apiFetch<any>(`/medicines/by-barcode/${encodeURIComponent(code)}`);
-      if (res?.found && res.medicine) {
-        const m = res.medicine;
-        setResult({
-          barcode: code,
-          id: m.id,
-          name: pickLocalized(m.name_ar, m.name_en),
-          dose: pickLocalized(m.dosage_ar, m.dosage_en) || null,
-          brand: m.manufacturer || null,
-          price: typeof m.price === 'number' && m.price > 0 ? m.price : null,
-          available: true,
-          requiresRx: !!m.requires_prescription,
-        });
-      } else {
-        setNotFound(code);
-      }
-    } catch {
-      setNotFound(code);
+      const res = await apiFetch<{ found?: boolean; medicine?: Med }>(`/medicines/by-barcode/${encodeURIComponent(code)}`);
+      if (res?.found && res.medicine) setFound({ code, med: res.medicine });
+      else setNotFound(code);
+    } catch (e) {
+      // a failed request is not "not in the directory": it can be retried
+      logError('pharmacy:barcode-scanner:lookup', e);
+      setLookupFailed(code);
     } finally {
       setLookingUp(false);
       busyRef.current = false;
@@ -87,154 +63,201 @@ export default function BarcodeScannerScreen() {
 
   const onBarcodeScanned = ({ data }: { data?: string }) => {
     const code = String(data || '').trim();
-    if (!code || busyRef.current || result || notFound) return;
+    if (!code || busyRef.current || !idle) return;
     busyRef.current = true;
-    lookup(code);
+    void lookup(code);
   };
 
-  const reset = () => { setResult(null); setNotFound(null); busyRef.current = false; };
-
-  const handleAddToCart = () => {
-    router.push({ pathname: '/pharmacy/product-detail', params: { id: result.id || result.barcode, name: result.name } });
+  const reset = () => {
+    setFound(null);
+    setNotFound(null);
+    setLookupFailed(null);
+    busyRef.current = false;
   };
 
-  return (
-    <View style={[st.c, { backgroundColor: '#000' } ]}>
-      <StatusBar barStyle="light-content" />
+  // a pack photographed: the backend names the medicine, the directory finds it (works for packs with no barcode)
+  const identify = async () => {
+    if (aiBusy || busyRef.current) return;
+    setAiProblem(null);
+    setAiBusy(true);
+    busyRef.current = true;
+    try {
+      const photo = await cameraRef.current?.takePictureAsync({ base64: true, quality: 0.4 });
+      if (!photo?.base64) throw new Error('capture_failed');
+      const ai = await apiFetch<{ name?: string }>('/ai/medicine-image-search', { method: 'POST', body: JSON.stringify({ image_base64: photo.base64 }) });
+      const name = String(ai?.name || '').trim();
+      if (!name || name.toLowerCase() === 'unknown') {
+        setAiProblem('unknown');
+        return;
+      }
+      const res = await apiFetch<Med[] | { items?: Med[]; data?: Med[] }>(`/medicines?search=${encodeURIComponent(name)}&limit=5`);
+      const rows = Array.isArray(res) ? res : res?.items || res?.data || [];
+      const first = rows[0];
+      if (first) router.push({ pathname: '/pharmacy/product-detail', params: { id: String(first.id || first._id), name: medName(first) } });
+      else router.push({ pathname: '/search', params: { q: name } });
+    } catch (e) {
+      logError('pharmacy:barcode-scanner:identify', e);
+      setAiProblem('error');
+    } finally {
+      setAiBusy(false);
+      busyRef.current = false;
+    }
+  };
 
-      {/* Header overlay */}
-      <View style={[st.hdr, { paddingTop: insets.top + 8 } ]}>
-        <View style={{ width: 40 }}/>
-        <AppText variant="h4" color="#fff">مسح الباركود</AppText>
-        <IconButton icon="back" bg="rgba(255,255,255,0.18)" color="#fff" onPress={() => router.back()} />
-      </View>
+  const onInverse = c.text.onInverse;
+  const onInverseSoft = c.text.onInverseSecondary;
 
-      {!result && !notFound ? (
-        <View style={st.cameraArea}>
-          {!permission ? (
-            <ActivityIndicator size="large" color="#fff" />
-          ) : !permission.granted ? (
-            <>
-              <AppText variant="bodySM" color="rgba(255,255,255,0.85)" align="center">
-                نحتاج إذن الكاميرا لمسح باركود الدواء
-              </AppText>
-              <Button label="منح إذن الكاميرا" variant="gradient" icon="photo_camera" onPress={requestPermission} style={{ marginTop: 16 }} />
-            </>
-          ) : (
-            <>
-              <View style={st.scanFrame}>
-                <CameraView
-                  ref={cameraRef}
-                  style={StyleSheet.absoluteFill}
-                  facing="back"
-                  barcodeScannerSettings={{
-                    barcodeTypes: ['qr', 'code128', 'code39', 'code93', 'ean13', 'ean8', 'upc_a', 'upc_e', 'datamatrix', 'pdf417', 'itf14'],
-                  }}
-                  onBarcodeScanned={onBarcodeScanned}
-                />
-                <View style={[st.corner, st.tl]} />
-                <View style={[st.corner, st.tr]} />
-                <View style={[st.corner, st.bl]} />
-                <View style={[st.corner, st.br]} />
-              </View>
-              {lookingUp && <ActivityIndicator size="small" color="#fff" style={{ marginTop: 16 }} />}
-              <AppText variant="bodySM" color="rgba(255,255,255,0.8)" align="center" style={{ marginTop: 24 }}>
-                وجّه الكاميرا نحو باركود أو QR code الدواء
-              </AppText>
-
-              {/* AI photo identification — works even when the product has no barcode */}
-              <Button
-                label={aiBusy ? 'جارٍ تحليل الصورة…' : 'صوّر عبوة الدواء للتعرف عليها'}
-                variant="gradient"
-                icon="document_scanner"
-                loading={aiBusy}
-                onPress={captureAndIdentify}
-                style={{ marginTop: 20, alignSelf: 'stretch' }}
-              />
-              {aiError && (
-                <AppText variant="caption" color="#FCA5A5" align="center" style={{ marginTop: 8 }}>{aiError}</AppText>
-              )}
-            </>
-          )}
-
-          {/* Manual entry */}
-          <TouchableOpacity onPress={() => router.push('/pharmacy/request')} style={{ marginTop: 16 }}>
-            <AppText variant="labelMD" color="rgba(255,255,255,0.8)">لم أجد الدواء؟ أضفه يدوياً</AppText>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <View style={[st.resultArea, { backgroundColor: colors.background } ]}>
-          {result && (
-            <Card style={{ gap: 12, marginTop: 40 }}>
-              <View style={{ alignItems: 'center', gap: 10 }}>
-                <View style={[st.foundIcon, { backgroundColor: colors.successSurface } ]}>
-                  <Icon name="check_circle" size={40} color={colors.success} />
-                </View>
-                <AppText variant="h4" align="center">تم التعرف على الدواء</AppText>
-              </View>
-
-              <View style={[st.infoRow, { borderColor: colors.borderLight } ]}>
-                <View style={[st.drugIcon, { backgroundColor: colors.primarySurface } ]}>
-                  <Icon name="medication" size={28} color={colors.primary} />
-                </View>
-                <View style={{ flex: 1, alignItems: 'flex-end', gap: 4 }}>
-                  <AppText variant="h5">{result.name}</AppText>
-                  {(result.brand || result.dose) && (
-                    <AppText variant="bodySM" color={colors.textTertiary}>{[result.brand, result.dose].filter(Boolean).join(' · ')}</AppText>
-                  )}
-                  <View style={{ flexDirection: 'row-reverse', gap: 6 }}>
-                    <Badge label={result.available ? 'متوفر' : 'غير متوفر'} color={result.available ? colors.success : colors.error} />
-                    {result.requiresRx && <Badge label="يتطلب وصفة" color={colors.warning} />}
-                  </View>
-                  {result.price !== null && <AppText variant="h4" color={colors.primary}>{result.price} ر.س</AppText>}
-                </View>
-              </View>
-
-              <AppText variant="caption" color={colors.textTertiary} align="center">الباركود: {result.barcode}</AppText>
-
-              <View style={{ gap: 8 }}>
-                <Button label="عرض التفاصيل وإضافة للسلة" variant="gradient" icon="shopping_cart" onPress={handleAddToCart} />
-                <Button label="مسح دواء آخر" variant="outline" icon="qr_code_scanner" onPress={reset} />
-              </View>
-            </Card>
-          )}
-
-          {notFound && (
-            <Card style={{ gap: 12, marginTop: 40 }}>
-              <View style={{ alignItems: 'center', gap: 10 }}>
-                <View style={[st.foundIcon, { backgroundColor: colors.errorSurface } ]}>
-                  <Icon name="search_off" size={40} color={colors.error} />
-                </View>
-                <AppText variant="h4" align="center">لم يُعثر على الدواء</AppText>
-                <AppText variant="bodySM" color={colors.textTertiary} align="center">
-                  الباركود {notFound} غير مسجّل في دليل الأدوية
-                </AppText>
-              </View>
-              <View style={{ gap: 8 }}>
-                <Button label="التعرف بالذكاء الاصطناعي (تصوير العبوة)" variant="gradient" icon="document_scanner" onPress={() => { setNotFound(null); busyRef.current = false; }} />
-                <Button label="إضافة الدواء يدوياً" variant="outline" icon="add" onPress={() => router.push('/pharmacy/request')} />
-                <Button label="مسح باركود آخر" variant="outline" icon="qr_code_scanner" onPress={reset} />
-              </View>
-            </Card>
-          )}
-        </View>
-      )}
+  const header = (
+    <View style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={k('pharmacy.back')}
+        onPress={goBack}
+        hitSlop={4}
+        style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: c.bg.surface, alignItems: 'center', justifyContent: 'center' }}
+      >
+        <Icon name={dir === 'rtl' ? 'caret-right' : 'caret-left'} size={22} theme={theme} />
+      </Pressable>
+      <Text accessibilityRole="header" style={{ flex: 1, ...scale(t, 'h4'), color: onInverse, textAlign: 'center' }}>{k('pharmacy.hub.scanBarcode')}</Text>
+      <View style={{ width: 44 }} />
     </View>
   );
-}
 
-const st = StyleSheet.create({
-  c: { flex: 1 },
-  hdr: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 12 },
-  cameraArea: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 },
-  scanFrame: { width: 250, height: 250, position: 'relative', overflow: 'hidden', borderRadius: 12 },
-  corner: { position: 'absolute', width: 40, height: 40, borderColor: '#10B981', borderWidth: 3 },
-  tl: { top: 0, left: 0, borderRightWidth: 0, borderBottomWidth: 0, borderTopLeftRadius: 12 },
-  tr: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0, borderTopRightRadius: 12 },
-  bl: { bottom: 0, left: 0, borderRightWidth: 0, borderTopWidth: 0, borderBottomLeftRadius: 12 },
-  br: { bottom: 0, right: 0, borderLeftWidth: 0, borderTopWidth: 0, borderBottomRightRadius: 12 },
-  resultArea: { flex: 1, padding: 16 },
-  foundIcon: { width: 72, height: 72, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
-  infoRow: { flexDirection: 'row-reverse', gap: 14, alignItems: 'center', paddingVertical: 14, borderTopWidth: 1, borderBottomWidth: 1 },
-  drugIcon: { width: 56, height: 56, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-});
+  const corner = (side: 'tl' | 'tr' | 'bl' | 'br') => ({
+    position: 'absolute' as const,
+    width: CORNER,
+    height: CORNER,
+    borderColor: onInverse,
+    ...(side[0] === 't' ? { top: 0, borderTopWidth: 3 } : { bottom: 0, borderBottomWidth: 3 }),
+    ...(side[1] === 'l' ? { start: 0, borderStartWidth: 3 } : { end: 0, borderEndWidth: 3 }),
+    ...(side === 'tl' ? { borderTopStartRadius: 12 } : side === 'tr' ? { borderTopEndRadius: 12 } : side === 'bl' ? { borderBottomStartRadius: 12 } : { borderBottomEndRadius: 12 }),
+  });
+
+  const manual = (
+    <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.barcode.manual')} onPress={() => go('/pharmacy/request')} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}>
+      <Text style={{ ...scale(t, 'label', 'medium'), color: onInverse, textAlign: 'center', textDecorationLine: 'underline' }}>{k('pharmacy.barcode.manual')}</Text>
+    </Pressable>
+  );
+
+  let body: React.ReactNode;
+  if (found) {
+    const price = medPrice(found.med);
+    const meta = medMeta(found.med);
+    body = (
+      <Card theme={theme}>
+        <View style={{ alignItems: 'center', gap: 10 }}>
+          <FIcon icon="check-circle" tone="mint" size={64} theme={theme} />
+          <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, textAlign: 'center' }}>{k('pharmacy.barcode.found')}</Text>
+        </View>
+        <View style={{ gap: 6, paddingVertical: 12, borderTopWidth: 1, borderBottomWidth: 1, borderColor: c.border.subtle }}>
+          <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{medName(found.med)}</Text>
+          {meta ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{meta}</Text> : null}
+          {needsRx(found.med) ? <Pill label={k('pharmacy.needsRx')} tone="warning" /> : null}
+          {price ? (
+            <Text style={{ ...scale(t, 'h4'), color: c.text.price, ...flow }}>
+              {money(price)} <Text style={{ ...scale(t, 'meta', 'regular') }}>{k('pharmacy.currency')}</Text>
+            </Text>
+          ) : null}
+        </View>
+        <Text style={{ ...scale(t, 'caption', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('pharmacy.barcode.code', { code: found.code })}</Text>
+        <View style={{ gap: 8 }}>
+          <Button
+            label={k('pharmacy.addToCart')}
+            size="lg"
+            fullWidth
+            onPress={() => {
+              addToCart(found.med);
+              go('/pharmacy/cart');
+            }}
+            theme={theme}
+          />
+          <Button label={k('pharmacy.barcode.details')} variant="outline" fullWidth onPress={() => router.push({ pathname: '/pharmacy/product-detail', params: { id: found.med.id, name: medName(found.med) } })} theme={theme} />
+          <Button label={k('pharmacy.barcode.scanAnother')} variant="secondary" fullWidth onPress={reset} theme={theme} />
+        </View>
+      </Card>
+    );
+  } else if (notFound) {
+    body = (
+      <Card theme={theme}>
+        <View style={{ alignItems: 'center', gap: 10 }}>
+          <FIcon icon="magnifying-glass" tone="amber" size={64} theme={theme} />
+          <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, textAlign: 'center' }}>{k('pharmacy.barcode.notFoundTitle')}</Text>
+          <Text style={{ ...scale(t, 'label', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('pharmacy.barcode.notFoundBody', { code: notFound })}</Text>
+        </View>
+        <View style={{ gap: 8 }}>
+          <Button label={k('pharmacy.barcode.photo')} size="lg" fullWidth onPress={reset} theme={theme} />
+          <Button label={k('pharmacy.hub.manualRequest')} variant="outline" fullWidth onPress={() => go('/pharmacy/request')} theme={theme} />
+          <Button label={k('pharmacy.barcode.scanAnotherCode')} variant="secondary" fullWidth onPress={reset} theme={theme} />
+        </View>
+      </Card>
+    );
+  } else if (lookupFailed) {
+    body = (
+      <Card theme={theme}>
+        <View style={{ alignItems: 'center', gap: 10 }}>
+          <FIcon icon="warning" tone="amber" size={64} theme={theme} />
+          <Text accessibilityRole="alert" style={{ ...scale(t, 'h4'), color: c.text.primary, textAlign: 'center' }}>{k('pharmacy.barcode.errorTitle')}</Text>
+          <Text style={{ ...scale(t, 'label', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('pharmacy.error.body')}</Text>
+        </View>
+        <View style={{ gap: 8 }}>
+          <Button
+            label={k('pharmacy.retry')}
+            size="lg"
+            fullWidth
+            loading={lookingUp}
+            onPress={() => {
+              busyRef.current = true;
+              void lookup(lookupFailed);
+            }}
+            theme={theme}
+          />
+          <Button label={k('pharmacy.barcode.scanAnotherCode')} variant="secondary" fullWidth onPress={reset} theme={theme} />
+        </View>
+      </Card>
+    );
+  } else if (!permission) {
+    body = <ActivityIndicator accessibilityLabel={k('pharmacy.loading')} size="large" color={onInverse} />;
+  } else if (!permission.granted) {
+    body = (
+      <View style={{ alignItems: 'center', gap: 16 }}>
+        <Text accessibilityRole="alert" style={{ ...scale(t, 'label', 'regular'), lineHeight: 22, color: onInverse, textAlign: 'center' }}>
+          {permission.canAskAgain ? k('pharmacy.barcode.permBody') : k('pharmacy.barcode.permBlocked')}
+        </Text>
+        {permission.canAskAgain ? (
+          <Button label={k('pharmacy.barcode.permAllow')} onPress={() => void requestPermission()} theme={theme} />
+        ) : (
+          <Button label={k('pharmacy.openSettings')} onPress={() => void Linking.openSettings()} theme={theme} />
+        )}
+        {manual}
+      </View>
+    );
+  } else {
+    body = (
+      <View style={{ alignItems: 'center', alignSelf: 'stretch', gap: 16 }}>
+        <View accessibilityLabel={k('pharmacy.barcode.frame')} style={{ width: FRAME, height: FRAME, borderRadius: 12, overflow: 'hidden' }}>
+          <CameraView ref={cameraRef} style={{ width: FRAME, height: FRAME }} facing="back" barcodeScannerSettings={{ barcodeTypes: [...BARCODE_TYPES] }} onBarcodeScanned={onBarcodeScanned} />
+          <View pointerEvents="none" style={corner('tl')} />
+          <View pointerEvents="none" style={corner('tr')} />
+          <View pointerEvents="none" style={corner('bl')} />
+          <View pointerEvents="none" style={corner('br')} />
+        </View>
+        {lookingUp ? <ActivityIndicator accessibilityLabel={k('pharmacy.barcode.looking')} size="small" color={onInverse} /> : null}
+        <Text style={{ ...scale(t, 'label', 'regular'), color: onInverseSoft, textAlign: 'center' }}>{k('pharmacy.barcode.aim')}</Text>
+        <Button label={aiBusy ? k('pharmacy.barcode.photoBusy') : k('pharmacy.barcode.photo')} fullWidth loading={aiBusy} onPress={() => void identify()} theme={theme} />
+        {aiProblem ? (
+          <Text accessibilityRole="alert" style={{ ...scale(t, 'meta', 'regular'), color: onInverse, textAlign: 'center' }}>
+            {aiProblem === 'unknown' ? k('pharmacy.barcode.photoUnknown') : k('pharmacy.barcode.photoError')}
+          </Text>
+        ) : null}
+        {manual}
+      </View>
+    );
+  }
+
+  return (
+    <Screen theme={theme} direction={dir} header={header} background={c.bg.inverse} testID="barcode-scanner-screen">
+      <StatusBar barStyle="light-content" />
+      <View style={{ ...COLUMN, flex: 1, justifyContent: 'center', paddingHorizontal: 24, paddingBottom: 24 }}>{body}</View>
+    </Screen>
+  );
+}

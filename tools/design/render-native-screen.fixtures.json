@@ -276,5 +276,120 @@
       "price": 24,
       "requires_prescription": true
     }
-  ]
+  ],
+  "/prescriptions/active": [
+    {
+      "id": "test-rx-0001a1",
+      "state": "UPLOADED_BY_PATIENT",
+      "createdAt": "2026-10-01T09:30:00.000Z",
+      "items": [
+        {
+          "medicine_name_ar": "دواء تجريبي ١"
+        },
+        {
+          "medicine_name_ar": "دواء تجريبي ٢"
+        }
+      ]
+    },
+    {
+      "id": "test-rx-0002b2",
+      "state": "VERIFIED_BY_PHARMACIST",
+      "createdAt": "2026-09-28T16:10:00.000Z",
+      "items": [
+        {
+          "medicine_name_ar": "دواء تجريبي ٣"
+        }
+      ]
+    }
+  ],
+  "/prescriptions/test-rx": {
+    "id": "test-rx-0001a1",
+    "status": "UPLOADED_BY_PATIENT",
+    "issued_at": "2026-10-01T09:30:00.000Z",
+    "items": [
+      {
+        "name": "دواء تجريبي ١",
+        "dose": "جرعة تجريبية",
+        "frequency": null,
+        "duration": 5
+      },
+      {
+        "name": "دواء تجريبي ٢",
+        "dose": null,
+        "frequency": null,
+        "duration": null
+      }
+    ],
+    "doctor": {
+      "display_name": null,
+      "specialty": null
+    }
+  },
+  "/users/me/addresses": [
+    {
+      "id": "test-addr",
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية",
+      "lat": 24.7,
+      "lng": 46.7,
+      "is_default": true
+    }
+  ],
+  "/pharmacy/chat/threads": [
+    {
+      "id": "test-thread",
+      "order_id": "test-order",
+      "order_item_id": "test-item-1",
+      "status": "open"
+    },
+    {
+      "id": "test-thread-2",
+      "order_id": "test-order",
+      "order_item_id": "test-item-2",
+      "status": "open"
+    }
+  ],
+  "/pharmacy/chat/threads/test-thread/messages": {
+    "thread": {
+      "id": "test-thread",
+      "status": "open"
+    },
+    "messages": [
+      {
+        "id": "m1",
+        "sender_role": "pharmacy",
+        "text": "رسالة تجريبية من الصيدلية",
+        "createdAt": "2026-10-02T10:00:00.000Z",
+        "substitute_offer": {
+          "name": "بديل تجريبي",
+          "price": 12.5
+        }
+      },
+      {
+        "id": "m2",
+        "sender_role": "patient",
+        "text": "رد تجريبي",
+        "createdAt": "2026-10-02T10:05:00.000Z"
+      },
+      {
+        "id": "m3",
+        "sender_role": "system",
+        "text": "رسالة نظام تجريبية",
+        "createdAt": "2026-10-02T10:06:00.000Z"
+      }
+    ]
+  },
+  "/medicines/by-barcode/test-code": {
+    "found": true,
+    "medicine": {
+      "id": "test-med",
+      "name_ar": "منتج تجريبي ١",
+      "name_en": "Test product 1",
+      "manufacturer": "شركة تجريبية",
+      "package_size": "٢٤ قرص",
+      "price": 18.5,
+      "requires_prescription": true
+    }
+  }
 }
