@@ -42,14 +42,39 @@ export async function loadDeliveryAddresses(doFetch: BroadcastFetch = fetch): Pr
   }
 }
 
+/** One line of the browser cart as the request carries it: what to find and how many, never a price. */
+export type BroadcastCartLine = { name: string; qty: number; sku?: string };
+
 export type BroadcastRequest =
   /** A named medicine the catalogue does not have (backend `manual_request`). */
   | { kind: "manual"; name: string; details: string }
   /** The medicines of a saved prescription (backend `prescription_id`); quantity is the pharmacy's to confirm. */
-  | { kind: "prescription"; prescriptionId: string; names: string[] };
+  | { kind: "prescription"; prescriptionId: string; names: string[] }
+  /**
+   * The cart of this browser (checkout). `paymentMode` and `fulfillment` are the draft's own fields (`payment_mode`,
+   * `fulfillment`): how the patient really pays is decided when an offer is selected, so no price, policy number or
+   * identity number is sent here. A prescription medicine is ordered with the saved prescription that covers it.
+   */
+  | { kind: "cart"; lines: BroadcastCartLine[]; paymentMode: "cash" | "insurance"; fulfillment: "delivery" | "pickup"; prescriptionId?: string };
+
+const MAX_LINE_QTY = 99;
 
 export function buildBroadcastBody(request: BroadcastRequest, address: DeliveryAddress & { lat: number; lng: number }) {
   const base = { delivery_address: toBroadcastAddress(address), fulfillment: "delivery", payment_mode: "cash" };
+  if (request.kind === "cart") {
+    return {
+      ...base,
+      fulfillment: request.fulfillment,
+      payment_mode: request.paymentMode,
+      items: request.lines.map((line) => ({
+        raw_name: line.name.slice(0, 240),
+        qty: Math.min(MAX_LINE_QTY, Math.max(1, Math.trunc(line.qty) || 1)),
+        intake_source: "cart",
+        ...(line.sku ? { sku: line.sku.slice(0, 120) } : {}),
+      })),
+      ...(request.prescriptionId ? { prescription_id: request.prescriptionId, prescription_attachments: [request.prescriptionId] } : {}),
+    };
+  }
   if (request.kind === "manual") {
     const name = request.name.trim().slice(0, 200);
     const details = request.details.trim().slice(0, 500);
@@ -93,4 +118,37 @@ export async function sendBroadcast(
   } catch {
     return { ok: false, reason: "create_failed" };
   }
+}
+
+type SendFn = (request: BroadcastRequest, address: DeliveryAddress & { lat: number; lng: number }, key: string) => Promise<BroadcastResult>;
+
+/**
+ * One sending of a request, made safe to press twice and to retry:
+ *  - `run` does nothing (returns null) while a send is in flight, whatever the screen's button looks like;
+ *  - the same request (same lines, options and address) keeps the same idempotency key until the server has answered,
+ *    so a retry after a dropped connection or a 5xx is the same order, never a second one;
+ *  - once the server has refused for good (a 4xx at creation) the key is dropped, so a corrected request is a new one;
+ *  - after a success the key is dropped too: the next request is a new order.
+ */
+export function createBroadcastAttempt(send: SendFn = (request, address, key) => sendBroadcast(request, address, key), makeKey: () => string = newIdempotencyKey) {
+  let busy = false;
+  let attempt: { signature: string; key: string } | null = null;
+  return {
+    get busy() {
+      return busy;
+    },
+    async run(request: BroadcastRequest, address: DeliveryAddress & { lat: number; lng: number }): Promise<BroadcastResult | null> {
+      if (busy) return null;
+      busy = true;
+      try {
+        const signature = JSON.stringify([request, address.id]);
+        if (attempt?.signature !== signature) attempt = { signature, key: makeKey() };
+        const result = await send(request, address, attempt.key);
+        if (result.ok || (result.reason === "create_failed" && result.status !== undefined && result.status < 500)) attempt = null;
+        return result;
+      } finally {
+        busy = false;
+      }
+    },
+  };
 }

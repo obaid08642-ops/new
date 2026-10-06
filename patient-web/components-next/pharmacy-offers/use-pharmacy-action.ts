@@ -20,6 +20,7 @@ export type ErrorKind =
   | "quoteChanged"
   | "notActionable"
   | "alreadyRecorded"
+  | "alreadyPaid"
   | "threadClosed"
   | "contentBlocked"
   | "signedOut"
@@ -41,6 +42,15 @@ const CODES: Record<string, ErrorKind> = {
   insurance_decision_pending: "notActionable",
   copay_acceptance_requires_partial_decision: "notActionable",
   self_pay_acceptance_not_applicable: "notActionable",
+  // payment: the server's own reasons for refusing to start one
+  payment_order_not_collectable: "notActionable",
+  copay_acceptance_required: "notActionable",
+  insurance_rejected_acceptance_required: "notActionable",
+  covered_by_insurance_no_payment_due: "notActionable",
+  cod_orders_do_not_require_online_payment: "notActionable",
+  rejected_insurance_decision_required: "notActionable",
+  rejected_order_cancellation_not_allowed_after_fulfillment: "notActionable",
+  booking_already_paid: "alreadyPaid",
   insurance_acceptance_already_recorded: "alreadyRecorded",
   insurance_acceptance_conflict: "alreadyRecorded",
   thread_closed: "threadClosed",

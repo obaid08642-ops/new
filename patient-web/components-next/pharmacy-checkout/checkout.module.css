@@ -1,0 +1,54 @@
+/* Checkout and payment screens (Batch 1d): the request step (canvas/CheckoutV2 layout), the payment step, the
+   insurance decision and the payment result. The shell (top bar, tab bar) is components-next/core; cards, notes, bars
+   and states come from the shared pharmacy styles (pharmacy/rx.module.css) and the offers styles
+   (pharmacy-offers/offers.module.css). Tokens only, logical properties only, no inline styles (the CSP refuses them).
+   Every amount drawn by these screens is a number the server sent; nothing here adds or rounds. */
+
+.legend { margin: 0; padding: 0; font-size: var(--nabd-font-size-row); font-weight: 700; line-height: 1.4; }
+.group { display: flex; flex-direction: column; gap: 10px; border: 0; margin: 0; padding: 0; min-inline-size: 0; }
+.segmented > * { inline-size: 100%; }
+
+/* the request's items: a white card of rows */
+.items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.item {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: baseline;
+  padding-block: 10px; border-block-start: 1px solid var(--nabd-color-border-subtle); min-inline-size: 0;
+}
+.item:first-child { border-block-start: 0; }
+.itemName { font-size: var(--nabd-font-size-control); font-weight: 600; overflow-wrap: anywhere; }
+.itemQty { font-size: var(--nabd-font-size-control); color: var(--nabd-color-text-secondary); white-space: nowrap; }
+.itemChip { grid-column: 1 / -1; display: flex; }
+
+/* the rows of a summary: label at the start, the server's value at the end */
+.rows { margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: var(--nabd-font-size-control); }
+.row dt { color: var(--nabd-color-text-secondary); min-inline-size: 0; overflow-wrap: anywhere; }
+.row dd { margin: 0; font-weight: 600; text-align: end; min-inline-size: 0; overflow-wrap: anywhere; }
+.rowDivider { block-size: 1px; background: var(--nabd-color-border-subtle); border: 0; margin: 0; }
+.rowTotal { font-size: var(--nabd-font-size-body-lg); font-weight: 700; }
+.rowTotal dt { color: var(--nabd-color-text-primary); }
+.rowTotal dd { font-weight: 700; }
+.rowCovered dd { color: var(--nabd-color-status-success-fg); }
+
+/* the insurance card of canvas/CheckoutV2 */
+.insurance { display: flex; flex-direction: column; gap: 12px; }
+.ltr { direction: ltr; unicode-bidi: isolate; }
+
+/* the payment methods: the design system's Radio rows inside one card */
+.methods { display: flex; flex-direction: column; padding-block: 4px; padding-inline: 16px; }
+.methods > :global(.nabd-radio) { inline-size: 100%; }
+
+.secure { margin: 0; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); line-height: 1.7; text-align: center; overflow-wrap: anywhere; }
+
+/* the result screen */
+.result { display: flex; flex-direction: column; align-items: center; gap: 12px; inline-size: 100%; max-inline-size: 440px; margin-inline: auto; padding-block: var(--nabd-space-md); }
+.result > * { inline-size: 100%; }
+.reference { margin: 0; text-align: center; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.reference bdi { unicode-bidi: isolate; direction: ltr; }
+.resultActions { display: flex; flex-direction: column; gap: 10px; }
+.checking { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+
+.statusLine { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 16px; background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-xl); font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-secondary); }
+.statusLine > span { flex: 1 1 12rem; min-inline-size: 0; overflow-wrap: anywhere; }
+
+.confirmBox { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-status-warning-bg); color: var(--nabd-color-text-primary); }
