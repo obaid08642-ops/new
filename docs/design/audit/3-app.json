@@ -1,0 +1,196 @@
+{
+  "slice": "3-app",
+  "batch": 3,
+  "app": "patient-app",
+  "screens": [
+    {
+      "route": "/diagnostics",
+      "elements": [
+        ["Title, my orders pill", "static key, /diagnostics/orders", "ok"],
+        ["Search field", "local filter of the loaded lists", "fixed"],
+        ["Filter sheet (all, tests, packages, labs, rating, price, home)", "local filter / sort of the loaded lists", "fixed"],
+        ["Filter: nearest", "no distance data guaranteed", "hidden"],
+        ["Labs / radiology tiles", "local tab state", "ok"],
+        ["Results, compare shortcuts", "/diagnostics/my-results, /diagnostics/search", "ok"],
+        ["Payment filter (all, cash, insurance) of the board", "no field to filter on", "hidden"],
+        ["Home / lab segmented, address row", "GET /users/me/addresses (resolveEffectiveAddress)", "ok"],
+        ["Insurance banner", "/diagnostics/insurance-upload", "ok"],
+        ["Packages carousel", "GET /labs/packages (name, description, price, old price, included_services)", "ok"],
+        ["Common tests list, add toggle", "GET /labs/services, DiagnosticsCart addItem / removeItem", "ok"],
+        ["Approved labs carousel", "GET /providers?type=lab (name, rating, distance, home visit)", "ok"],
+        ["Radiology list, note", "GET /radiology/services (home_visit_supported)", "fixed"],
+        ["Cart bar (count, total)", "DiagnosticsCart itemCount, total", "ok"],
+        ["Failure / offline / empty states", "all four calls failing, isOffline", "fixed"]
+      ],
+      "notes": ["Home-visit radiology filter read a field the mapper never set (list empty at home); now read from home_visit_supported."]
+    },
+    {
+      "route": "/diagnostics/book-sample",
+      "elements": [
+        ["Tests in the cart", "DiagnosticsCart items", "ok"],
+        ["Go to the cart", "/diagnostics/cart", "ok"]
+      ]
+    },
+    {
+      "route": "/diagnostics/cart",
+      "elements": [
+        ["Lines, quantity stepper, remove", "DiagnosticsCart items, updateQty, removeItem", "ok"],
+        ["Clear the cart", "DiagnosticsCart clearCart", "ok"],
+        ["Home / lab segmented", "local state, passed to checkout", "ok"],
+        ["Compatible labs", "GET /labs/compatible-providers, GET /radiology/compatible-providers", "ok"],
+        ["Total, continue", "sum of price x qty, /diagnostics/checkout", "ok"]
+      ]
+    },
+    {
+      "route": "/diagnostics/checkout",
+      "elements": [
+        ["Lab, place, count", "route params, DiagnosticsCart items", "ok"],
+        ["Days, times", "local (7 days, 6 fixed times)", "ok"],
+        ["Payment methods", "local list by place", "ok"],
+        ["Total", "DiagnosticsCart total", "ok"],
+        ["Confirm: bookings", "POST /labs/bookings, POST /radiology/bookings (unchanged)", "ok"],
+        ["Confirm: card payment", "POST /payments/intent/:param/:param with the idempotency headers (unchanged)", "ok"],
+        ["Insurance: go to upload", "/diagnostics/insurance-upload", "ok"]
+      ]
+    },
+    {
+      "route": "/diagnostics/insurance-approval",
+      "elements": [
+        ["Waiting state", "GET /labs/bookings/:param every 3 s", "ok"],
+        ["Approved / partial / rejected head", "insurance_status", "ok"],
+        ["Items, covered tag, reason", "items[].isCovered, rejectReason", "ok"],
+        ["Pay cash toggle", "PATCH /labs/bookings/:param/items/:param/opt-in-cash", "ok"],
+        ["Totals", "items[].price, insurance_copay (computed as before)", "ok"],
+        ["Home visit fee line", "constant 50 in the screen, not from the server", "gap"],
+        ["Continue / pay myself / consult", "/insurance/payment-split, /diagnostics/checkout, /consultations", "ok"]
+      ]
+    },
+    {
+      "route": "/diagnostics/insurance-upload",
+      "elements": [
+        ["Camera, photos", "expo-image-picker", "ok"],
+        ["Read tests", "POST /ai/ocr-translate", "ok"],
+        ["Insurer and network", "GET /insurance/companies, GET /insurance/companies/:param/networks, GET /users/me/profile", "ok"],
+        ["Labs list", "GET /providers?type=lab", "ok"],
+        ["Send for approval", "POST /labs/bookings, POST /radiology/bookings, POST /labs/bookings/:param/documents (unchanged)", "ok"],
+        ["Talk to a GP", "/consultations", "ok"]
+      ]
+    },
+    {
+      "route": "/diagnostics/lab-comparison",
+      "elements": [
+        ["Labs that can do the test", "GET /labs/compatible-providers?testIds", "ok"],
+        ["Price", "GET /labs/services/:param price", "ok"],
+        ["Book now", "DiagnosticsCart addItem, /diagnostics/cart", "ok"],
+        ["Availability line", "static key (the provider confirms)", "ok"]
+      ]
+    },
+    {
+      "route": "/diagnostics/lab/[id]",
+      "elements": [
+        ["Name, description", "GET /providers/:param", "ok"],
+        ["Rating, distance, branches, address", "GET /providers/:param (hidden when not sent)", "ok"],
+        ["Directions", "lat / lng or address, opens maps", "ok"],
+        ["About text made up by the screen when the lab had none", "removed", "fixed"],
+        ["Tests of the lab, add toggle", "GET /labs/services?providerId, DiagnosticsCart", "ok"]
+      ]
+    },
+    {
+      "route": "/diagnostics/my-results",
+      "elements": [
+        ["Lab bookings", "GET /labs/bookings/mine", "ok"],
+        ["Radiology reports", "GET /radiology/reports/mine", "ok"],
+        ["Status pill", "state through the shared order status table", "ok"],
+        ["Report ready tag", "reports[] / signed_report_pdf_url", "ok"],
+        ["Fallback names (an approved lab / centre) when the server sent none", "removed", "fixed"]
+      ]
+    },
+    {
+      "route": "/diagnostics/order/[id]",
+      "elements": [
+        ["Status, stages", "GET /radiology/bookings/:param then GET /labs/bookings/:param (state)", "ok"],
+        ["Technician row, call", "technician.name, eta, phone", "ok"],
+        ["Lab results", "results[] name, result, reference, isAbnormal", "ok"],
+        ["Report PDF, images viewer", "report id (protected report screen), images_url", "ok"],
+        ["Date, type, total", "scheduled_at, location_type, total", "ok"],
+        ["Cancel", "POST /labs/bookings/:param/cancel, POST /radiology/bookings/:param/cancel", "ok"]
+      ]
+    },
+    {
+      "route": "/diagnostics/orders",
+      "elements": [
+        ["Current / previous list", "GET /labs/bookings/mine, GET /radiology/bookings/mine (shared OrderList)", "ok"],
+        ["Card opens the booking", "route /diagnostics/order/[id] (was this list itself)", "fixed"]
+      ],
+      "notes": ["Past orders never appeared: the old list tested 'ready' while the server says REPORTED; the shared status table fixes it."]
+    },
+    {
+      "route": "/diagnostics/package-detail",
+      "elements": [
+        ["Name, description", "GET /labs/packages/:param", "ok"],
+        ["Tests included, fasting, turnaround, home visit", "included_services, fasting_*, turnaround_hours, home_visit_supported", "ok"],
+        ["Default fasting '10 - 12 hours' made up when missing", "removed", "fixed"],
+        ["Price, saving, add to cart", "price, old_price, DiagnosticsCart", "ok"]
+      ]
+    },
+    {
+      "route": "/diagnostics/packages",
+      "elements": [
+        ["Search", "local filter", "fixed"],
+        ["Category chips", "GET /labs/categories (slug)", "fixed"],
+        ["Package cards", "GET /labs/packages", "ok"],
+        ["'Available in' line of labs", "no field", "hidden"]
+      ],
+      "notes": ["The chips compared a localized name with the package slug (never matched); they now filter by slug."]
+    },
+    {
+      "route": "/diagnostics/sample-tracking",
+      "elements": [
+        ["Status", "GET /labs/bookings/:param state", "ok"],
+        ["Arrival, technician", "GET /labs/bookings/:param/tracking eta, techName", "ok"],
+        ["Appointment", "scheduled_at", "ok"],
+        ["Steps", "tracking.steps, or the fixed six-step list with the two known flags", "ok"],
+        ["Preparation note", "static translated text", "ok"]
+      ]
+    },
+    {
+      "route": "/diagnostics/search",
+      "elements": [
+        ["Search field", "local filter of GET /labs/services", "ok"],
+        ["Rows open the test", "/diagnostics/test-detail?id (was testId, never read)", "fixed"]
+      ]
+    },
+    {
+      "route": "/diagnostics/technician-tracking",
+      "elements": [
+        ["Arrival time", "GET /labs/bookings/:param/tracking eta", "ok"],
+        ["'Near you' when no time was sent", "now says it is not set yet", "fixed"],
+        ["Technician, call", "techName, techPhone", "ok"],
+        ["Tips", "static translated text", "ok"]
+      ]
+    },
+    {
+      "route": "/diagnostics/test-detail",
+      "elements": [
+        ["Name, image, description", "GET /labs/services/:param or /radiology/services/:param", "ok"],
+        ["Fasting, preparation", "fasting_*, preparation_ar / _en", "ok"],
+        ["Result time", "turnaround_hours (no default now)", "fixed"],
+        ["Favourite heart that saved nothing", "removed", "hidden"],
+        ["Price, add to cart, book now", "price, DiagnosticsCart, /diagnostics/cart", "ok"]
+      ]
+    }
+  ],
+  "needsReview": [
+    { "route": "/diagnostics", "element": "Payment filter (cash / insurance) drawn on ServiceHub", "kind": "owner", "note": "The board has it; no field says which test or lab takes insurance, so it is not drawn." },
+    { "route": "/diagnostics", "element": "Filter 'nearest'", "kind": "backend", "note": "No distance on the catalogue lists; the option was dropped." },
+    { "route": "/diagnostics", "element": "Approved labs carousel", "kind": "backend", "note": "GET /providers?type=lab returns an empty list on the seeded database, so the carousel is hidden; the board's 'accepts insurance' tag has no field." },
+    { "route": "/diagnostics", "element": "Compare prices shortcut", "kind": "owner", "note": "Opens the test search (lab-comparison needs a test); confirm that is the intended entry." },
+    { "route": "/diagnostics/insurance-approval", "element": "Home visit fee 50", "kind": "backend", "note": "A constant added in the screen to the amount to pay; the server sends no such fee." },
+    { "route": "/diagnostics/checkout", "element": "Times and days", "kind": "backend", "note": "Six fixed times and seven days, no availability from the server." },
+    { "route": "/diagnostics/sample-tracking", "element": "Preparation text, six default steps", "kind": "owner", "note": "Static medical text and a fixed step list, not from the booking; confirm the wording." },
+    { "route": "/diagnostics/technician-tracking", "element": "Tips", "kind": "owner", "note": "Static text; the old third tip (samples sent in cold containers) was dropped as an unverified claim." },
+    { "route": "/diagnostics/orders", "element": "Back button", "kind": "client", "note": "The shared OrderList falls back to the pharmacy hub when there is nothing to go back to." },
+    { "route": "/diagnostics/cart", "element": "Cart context", "kind": "client", "note": "DiagnosticsCartContext holds Arabic literal text in its lab-lock alert and keeps the cart in memory only (not touched: logic)." },
+    { "route": "/diagnostics/lab-comparison", "element": "Price of every lab", "kind": "backend", "note": "Every lab shows the same base price of the service; the compatible-providers answer carries no per-lab price." }
+  ]
+}

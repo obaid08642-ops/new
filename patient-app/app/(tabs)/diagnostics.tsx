@@ -87,13 +87,17 @@ export default function DiagnosticsHub() {
     setLoading(true);
     setFailed(null);
     let failures = 0;
-    const get = (path: string) =>
-      apiFetch<unknown>(path).catch((err: unknown) => {
-        failures += 1;
-        logError('diagnostics:tab', err);
-        return null;
-      });
-    const [pkgsRes, testsRes, radsRes, labsRes] = await Promise.all([get('/labs/packages'), get('/labs/services'), get('/radiology/services'), get('/providers?type=lab')]);
+    const miss = (err: unknown) => {
+      failures += 1;
+      logError('diagnostics:tab', err);
+      return null;
+    };
+    const [pkgsRes, testsRes, radsRes, labsRes] = await Promise.all([
+      apiFetch<unknown>('/labs/packages').catch(miss),
+      apiFetch<unknown>('/labs/services').catch(miss),
+      apiFetch<unknown>('/radiology/services').catch(miss),
+      apiFetch<unknown>('/providers?type=lab').catch(miss),
+    ]);
     setPackages(normalizeLabList(pkgsRes));
     setTests(normalizeLabList(testsRes));
     setRads(normalizeLabList(radsRes));

@@ -54,13 +54,12 @@ export default function MyResults() {
   const load = useCallback(async () => {
     setStatus('loading');
     let failures = 0;
-    const get = (path: string) =>
-      apiFetch<unknown>(path).catch((err: unknown) => {
-        failures += 1;
-        logError('diagnostics:my-results', err);
-        return null;
-      });
-    const [labs, rads] = await Promise.all([get('/labs/bookings/mine'), get('/radiology/reports/mine')]);
+    const miss = (err: unknown) => {
+      failures += 1;
+      logError('diagnostics:my-results', err);
+      return null;
+    };
+    const [labs, rads] = await Promise.all([apiFetch<unknown>('/labs/bookings/mine').catch(miss), apiFetch<unknown>('/radiology/reports/mine').catch(miss)]);
     const list = [...rowsOf(labs).map((r) => toRow(r, false)), ...rowsOf(rads).map((r) => toRow(r, true))].filter((r): r is ResultRow => r !== null);
     setRows(list);
     if (failures === 2) setStatus((await isOffline()) ? 'offline' : 'error');
