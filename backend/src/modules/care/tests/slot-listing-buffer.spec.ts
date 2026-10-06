@@ -10,14 +10,14 @@ describe('SlotService.slotsForDate buffer parity (Q37 wiring)', () => {
   const day = '2026-11-04'; // a Wednesday; hours mocked per weekday below
   const mkService = (bookings: any[]) => {
     const svc: any = Object.create(SlotService.prototype);
-    svc.hoursFor = jest.fn(async () => [{ open: '16:00', close: '18:00' }]);
-    svc.leaves = { findOne: jest.fn(() => ({ select: jest.fn(() => ({ lean: jest.fn(async () => null) })) })) };
+    svc.leaves = { find: jest.fn(() => ({ select: jest.fn(() => ({ lean: jest.fn(() => ({ catch: async () => [] })) })) })) };
     svc.apptModel = { find: jest.fn(() => ({ select: jest.fn(() => ({ lean: jest.fn(async () => bookings) })) })) };
     return svc as SlotService;
   };
   const doctor: any = {
     id: 'doc-1',
     consultation_modes: ['clinic'],
+    working_hours: [{ day: 'all', open: '16:00', close: '18:00' }],
     account_id: 'acc-1',
     user_id: 'u-1',
   };

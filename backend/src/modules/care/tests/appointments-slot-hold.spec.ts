@@ -20,6 +20,11 @@ const futureQuarterHour = () => {
   return d;
 };
 
+/** SlotService stand-in: every 15-minute slot of the day is offered and free. */
+const openSlots = () => ({ slotsForDate: jest.fn(async (_d: unknown, day: string) => ({
+  slots: Array.from({ length: 96 }, (_, i) => ({ start: new Date(Date.parse(`${day}T00:00:00.000Z`) + i * 15 * 60_000).toISOString(), available: true })),
+})) });
+
 describe('AppointmentsService slot-hold integrity (Q36)', () => {
   let service: AppointmentsService;
   let apptModel: any;
@@ -74,7 +79,7 @@ describe('AppointmentsService slot-hold integrity (Q36)', () => {
       releaseQuietly: jest.fn().mockResolvedValue({ ok: true }),
     };
     service = new AppointmentsService(
-      apptModel, providerModel, connection, events, engine, insurance, locks,
+      apptModel, providerModel, connection, events, engine, insurance, openSlots() as any, locks,
     );
   });
 

@@ -12,6 +12,11 @@ const makeDoc = (obj: any) => {
   return doc;
 };
 
+/** SlotService stand-in: every 15-minute slot of the day is offered and free. */
+const openSlots = () => ({ slotsForDate: jest.fn(async (_d: unknown, day: string) => ({
+  slots: Array.from({ length: 96 }, (_, i) => ({ start: new Date(Date.parse(`${day}T00:00:00.000Z`) + i * 15 * 60_000).toISOString(), available: true })),
+})) });
+
 describe('AppointmentsService state machine', () => {
   let service: AppointmentsService;
   let apptModel: any;
@@ -29,7 +34,7 @@ describe('AppointmentsService state machine', () => {
     // covers cancel paths that never invoke it; locks stay undefined (no lock
     // paths in these tests). These tests exercise the state machine only.
     const insurance = { createRequest: jest.fn() };
-    service = new AppointmentsService(apptModel, providerModel, { db: { collection: jest.fn() } } as any, events, engine, insurance as any);
+    service = new AppointmentsService(apptModel, providerModel, { db: { collection: jest.fn() } } as any, events, engine, insurance as any, openSlots() as any);
     jest.clearAllMocks();
   });
 
