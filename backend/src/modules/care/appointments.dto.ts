@@ -1,6 +1,7 @@
-import { IsArray, IsDefined, IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsDefined, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ServiceType } from '../../schemas/appointment.schema';
+import { APPOINTMENT_MINUTES } from './availability';
 
 export class VisitLocationDto {
   @IsDefined()
@@ -30,7 +31,10 @@ export class CreateAppointmentDto {
   @IsNotEmpty()
   slot_start: string;
 
-  @IsNumber()
+  // Every appointment is APPOINTMENT_MINUTES long (the length the slot list
+  // offers); a different value is refused rather than booked.
+  @IsInt()
+  @IsIn([APPOINTMENT_MINUTES])
   @IsOptional()
   duration_minutes?: number;
 

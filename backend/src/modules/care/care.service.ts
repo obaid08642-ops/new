@@ -5,6 +5,7 @@ import { User, UserDocument } from '../../schemas/user.schema';
 import { Facility, FacilityDocument } from '../../schemas/facility.schema';
 import { ProviderType, ProviderStatus } from '../../common/enums';
 import { SlotService } from './slot.service';
+import { APPOINTMENT_MINUTES, ApprovedSlot, BLOCKING_APPOINTMENT_STATUSES, Range, appointmentRanges, candidateSlots, dayStartOf, markAvailability, onLeave, windowsFor } from './availability';
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 import { UserRepository } from "./repositories/user.repository";
 import { FacilityRepository } from "./repositories/facility.repository";
@@ -45,10 +46,7 @@ const DOCTOR_LIST_EXCLUDED = {
   equipment_list: 0,
 } as const;
 
-/** Appointment states that block a slot (mirrors SlotService.slotsForDate). */
-const BLOCKING_APPT_STATES = ['PENDING', 'CONFIRMED', 'RESCHEDULED', 'CHECKED_IN', 'IN_PROGRESS'];
-const SLOT_DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-const SLOT_FULL_DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+const DAY_MS = 24 * 3600_000;
 /** Card preview horizon — must match SlotService.nextAvailable (14 days). */
 const NEXT_AVAILABLE_DAYS = 14;
 
@@ -260,10 +258,10 @@ export class CareService {
   }
 
   /** ===== Slots ===== */
-  async doctorSlots(id: string, date: string, service_type: 'clinic' | 'video' | 'home') {
+  async doctorSlots(id: string, date: string, service_type: 'clinic' | 'video' | 'home', viewerIds: string[] = []) {
     const doc = await this.providerModel.findOne({ id, type: ProviderType.DOCTOR, ...PUBLIC_PROVIDER_FILTER });
     if (!doc) throw new NotFoundException('doctor_not_found');
-    return this.slots.slotsForDate(doc, date, service_type);
+    return this.slots.slotsForDate(doc, date, service_type, APPOINTMENT_MINUTES, viewerIds);
   }
 
   /** ===== Global search (doctors + specialties + facilities) ===== */
@@ -381,19 +379,21 @@ export class CareService {
       const accountIds = [...new Set(plains.map((p) => p.account_id).filter(Boolean))];
       const linkIds = [...new Set(plains.flatMap((p) => [p.account_id, p.user_id]).filter(Boolean))];
 
-      const bookedByDoctorDay = new Map<string, Set<string>>();
+      // Blocking appointments and other patients' active holds overlapping the
+      // horizon (a slot just before midnight can meet a booking after it).
+      const bookingsByDoctor = new Map<string, Range[]>();
+      const holdsByDoctor = new Map<string, Range[]>();
       if (doctorIds.length) {
         const rows: any[] = await db.collection('appointments').find(
-          { doctor_id: { $in: doctorIds }, slot_start: { $gte: windowStart, $lt: windowEnd }, status: { $in: BLOCKING_APPT_STATES } },
-          { projection: { _id: 0, doctor_id: 1, slot_start: 1 } },
+          { doctor_id: { $in: doctorIds }, status: { $in: [...BLOCKING_APPOINTMENT_STATUSES] }, slot_start: { $lt: new Date(windowEnd.getTime() + DAY_MS) }, slot_end: { $gt: windowStart } },
+          { projection: { _id: 0, doctor_id: 1, slot_start: 1, slot_end: 1, duration_minutes: 1 } },
         ).toArray().catch(() => []);
-        for (const r of rows) {
-          const iso = new Date(r.slot_start).toISOString();
-          const key = `${r.doctor_id}|${iso.substring(0, 10)}`;
-          let set = bookedByDoctorDay.get(key);
-          if (!set) { set = new Set<string>(); bookedByDoctorDay.set(key, set); }
-          set.add(iso);
-        }
+        for (const r of rows) bookingsByDoctor.set(r.doctor_id, [...(bookingsByDoctor.get(r.doctor_id) || []), ...appointmentRanges([r], 30)]);
+        const holds: any[] = await db.collection('slotlocks').find(
+          { provider_id: { $in: doctorIds }, status: 'held', expires_at: { $gt: new Date(now) }, slot_start: { $lt: new Date(windowEnd.getTime() + DAY_MS) }, slot_end: { $gt: windowStart } },
+          { projection: { _id: 0, provider_id: 1, slot_start: 1, slot_end: 1 } },
+        ).toArray().catch(() => []);
+        for (const h of holds) holdsByDoctor.set(h.provider_id, [...(holdsByDoctor.get(h.provider_id) || []), { s: new Date(h.slot_start).getTime(), e: new Date(h.slot_end).getTime() }]);
       }
 
       let leaves: any[] = [];
@@ -416,7 +416,7 @@ export class CareService {
           schedByAccount.set(r.provider_account_id, arr);
         }
       }
-      return { now, windowStart, windowEnd, dayStrs, bookedByDoctorDay, leaves, schedByAccount };
+      return { now, dayStrs, bookingsByDoctor, holdsByDoctor, leaves, schedByAccount };
     } catch {
       return null;
     }
@@ -502,92 +502,34 @@ function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number) {
  */
 interface AvailabilityBatch {
   now: number;
-  windowStart: Date;
-  windowEnd: Date;
   dayStrs: string[];
-  bookedByDoctorDay: Map<string, Set<string>>;
-  leaves: any[];
-  schedByAccount: Map<string, any[]>;
+  bookingsByDoctor: Map<string, Range[]>;
+  holdsByDoctor: Map<string, Range[]>;
+  leaves: Array<{ provider_account_id?: string; start_date?: unknown; end_date?: unknown }>;
+  schedByAccount: Map<string, ApprovedSlot[]>;
 }
 
-const HHMM_RE = /^\d{2}:\d{2}$/;
-
-function batchDayMatches(day: any, dow: number): boolean {
-  const v = String(day ?? '').toLowerCase();
-  return v === 'all' || v === String(dow) || v === SLOT_DAY_KEYS[dow] || v === SLOT_FULL_DAYS[dow];
-}
-
-function batchEntries(rows: any[], dow: number) {
-  return (rows || []).filter((w) => w && !w.closed && batchDayMatches(w.day, dow)).flatMap((w) => [
-    ...(HHMM_RE.test(w.open || '') && HHMM_RE.test(w.close || '') ? [{ open: w.open, close: w.close }] : []),
-    ...(HHMM_RE.test(w.open_evening || '') && HHMM_RE.test(w.close_evening || '') ? [{ open: w.open_evening, close: w.close_evening }] : []),
-  ]);
-}
-
-/** Mirrors SlotService.hoursFor: approved schedule slots, then per-mode schedule, then legacy working_hours. */
-function batchWindowsFor(plain: any, batch: AvailabilityBatch, dow: number, mode: string): { open: string; close: string }[] {
-  if (plain.account_id) {
-    const rows = batch.schedByAccount.get(plain.account_id) || [];
-    const approved = rows
-      .filter((x) => x.day_of_week === dow && (x.service_type === mode || x.service_type === 'all') && HHMM_RE.test(x.start_time || '') && HHMM_RE.test(x.end_time || ''))
-      .map((x) => ({ open: x.start_time, close: x.end_time }));
-    if (approved.length) return approved;
-  }
-  const perMode = batchEntries(plain[`schedule_${mode}`], dow);
-  if (perMode.length) return perMode;
-  return batchEntries(plain.working_hours, dow);
-}
-
-/** Mirrors the SlotService leave check: approved leave overlapping the day blocks it. */
-function batchOnLeave(plain: any, batch: AvailabilityBatch, dayStart: Date, dayEnd: Date): boolean {
-  const ids = [plain.account_id, plain.user_id].filter(Boolean);
-  if (!ids.length) return false;
-  return batch.leaves.some((l) =>
-    ids.includes(l.provider_account_id) &&
-    new Date(l.start_date).getTime() < dayEnd.getTime() &&
-    new Date(l.end_date).getTime() >= dayStart.getTime(),
-  );
-}
-
-/** First available 30-min slot start (ISO) on one day, or null. Mirrors SlotService.slotsForDate. */
+/** First available 30-min slot (ISO) on one day under the shared rule (./availability), or null. */
 function firstAvailableOnDay(plain: any, batch: AvailabilityBatch, dateStr: string): string | null {
   const mode = plain.consultation_modes && plain.consultation_modes[0];
   if (!mode) return null;
-  if (!plain.consultation_modes.includes(mode)) return null;
-  const dow = new Date(dateStr + 'T00:00:00Z').getUTCDay();
-  const windows = batchWindowsFor(plain, batch, dow, mode);
+  const dayStart = dayStartOf(dateStr);
+  if (!dayStart) return null;
+  const dow = dayStart.getUTCDay();
+  const windows = windowsFor(plain, plain.account_id ? batch.schedByAccount.get(plain.account_id) || [] : [], dow, mode);
   if (!windows.length) return null;
-  const baseDate = new Date(dateStr + 'T00:00:00Z');
-  const dayStart = new Date(baseDate.getTime());
-  const dayEnd = new Date(baseDate.getTime() + 24 * 3600_000);
-  if (batchOnLeave(plain, batch, dayStart, dayEnd)) return null;
-  const booked = batch.bookedByDoctorDay.get(`${plain.id}|${dateStr}`) || new Set<string>();
-  const seen = new Set<string>();
-  const starts: string[] = [];
-  for (const w of windows) {
-    const [oh, om] = String(w.open).split(':').map(Number);
-    const [ch, cm] = String(w.close).split(':').map(Number);
-    if (![oh, om, ch, cm].every((n) => Number.isFinite(n))) continue;
-    const openTs = new Date(baseDate.getTime() + oh * 3600_000 + om * 60_000);
-    let closeTs = new Date(baseDate.getTime() + ch * 3600_000 + cm * 60_000);
-    if (closeTs.getTime() <= openTs.getTime()) closeTs = new Date(closeTs.getTime() + 24 * 3600_000); // overnight
-    for (let t = openTs.getTime(); t + 30 * 60_000 <= closeTs.getTime(); t += 30 * 60_000) {
-      if (t < batch.now + 15 * 60_000) continue; // >=15 min lead time
-      const iso = new Date(t).toISOString();
-      if (seen.has(iso)) continue;
-      seen.add(iso);
-      starts.push(iso);
-    }
-  }
-  starts.sort();
-  return starts.find((s) => !booked.has(s)) || null;
+  const linkIds = [plain.account_id, plain.user_id].filter(Boolean);
+  if (linkIds.length && onLeave(batch.leaves, linkIds, dayStart)) return null;
+  const slots = markAvailability(candidateSlots(dayStart, windows, APPOINTMENT_MINUTES, batch.now), APPOINTMENT_MINUTES,
+    batch.bookingsByDoctor.get(plain.id) || [], batch.holdsByDoctor.get(plain.id) || []);
+  return slots.find((s) => s.available)?.start ?? null;
 }
 
 function hasAvailableSlotOnDay(plain: any, batch: AvailabilityBatch, dateStr: string): boolean {
   return firstAvailableOnDay(plain, batch, dateStr) !== null;
 }
 
-/** First available slot across the batch horizon (mirrors SlotService.nextAvailable). */
+/** First available slot across the batch horizon (same horizon as SlotService.nextAvailable). */
 function firstAvailableSlot(plain: any, batch: AvailabilityBatch): string | null {
   for (const dateStr of batch.dayStrs) {
     const slot = firstAvailableOnDay(plain, batch, dateStr);
