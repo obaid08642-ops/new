@@ -70,7 +70,7 @@ Backend lines from the design Batch 2 (#313) "Needs review". The client screens 
 
 | Id | Size | Defect (evidence) | Done when |
 |---|---|---|---|
-| Q-14 | M | The cancel/refund rule exists twice and the copies disagree. The server (`care/appointments.service.ts`) refunds 100% to the card when the patient cancels more than 24 h before, otherwise 50% to the wallet; no-show 0%; a doctor or facility cancellation refunds 100% (with the doctor penalty). The app (`cancel-reschedule.tsx`) tells the patient: ≥24 h 100%, 12–24 h 50%, <12 h 0%. `clinic-confirm` shows yet another text. | **Rule decided (owner delegated to the reviewer, 2026-10-06):** keep the server's current rule, so money behaviour does not change: >24 h → 100% to the original payment; ≤24 h → 50% to the wallet; no-show → 0%; doctor or facility cancels → 100% to the original payment. Done when: (1) the rule lives in one server config that the admin can edit, used by the cancel code; (2) every appointment response carries the rule and the refund the patient would get now; (3) patient-app and patient-web show only that server value, and the hard-coded 12/24 h and 4/24 h copies are removed; (4) tests at the boundaries (24 h exactly, no-show, doctor cancel). |
+| Q-14 | M | The cancel/refund rule exists twice and the copies disagree (server `care/appointments.service.ts`: >24 h 100% to the card, otherwise 50% to the wallet; app `cancel-reschedule.tsx`: ≥24 h 100%, 12–24 h 50%, <12 h 0%). | **Replaced by Queue C item D-26** (owner decision 26). Do not do it separately. |
 | Q-15 | M | Home-visit tracking never shows "on the way" or "arrived": `PROVIDER_EN_ROUTE` and `PROVIDER_ARRIVED` are never sent by the backend (0 references in `backend/src`). | The provider app's start-trip and arrived actions set these states, and the patient receives them (API and realtime). Test the full sequence. |
 | Q-16 | M | The video call is not reachable. The launcher opens nothing, and the appointment page does not link to the call. There is no call-record endpoint: call history is just finished appointments. | Verify first which part is backend and which is client. The appointment response carries what the call screen needs (room or join token route). A call-record endpoint lists the patient's calls (owner-checked). |
 | Q-17 | S | Online reschedule asks for clinic slots (verify first: client query or backend default). | Reschedule of a video appointment offers video slots only. Test. |
@@ -123,6 +123,10 @@ Order (do not skip ahead):
 | D-17 | #336 | Doctor public view: SCFHS licence and `verified`; never national ID, phone or email. | spec |
 | D-19 | #338 | Lab result push deep link to the result. | spec |
 | D-7 | #326 | One assistant endpoint replacing the seven AI routes. | owner-approved merge map |
+
+| D-26 | — | Cancellation and refund policy (decision 26). One admin-editable policy per service type: consultations, home visit and nursing, pharmacy delivery. Used by every cancel path, returned with each booking or order (the rule plus the refund the patient would get now), refunded to the original payment method. The clients show only the server value; remove the hard-coded copies. | spec |
+| D-25 | — | Payment method by service (decision 25). The server refuses cash for online consultations, home visits and nursing. Pharmacy cash on delivery only under all of its conditions. | spec |
+| D-24 | — | Doctor chat only inside a booking (decision 24). Online: text, voice, images, files and the call. Clinic or home: text, images and files for 72 h after completion. The doctor can close or extend once. Read-only after the window. | spec |
 
 Items 3, 5, 6, 11 and 18 are UI only (design session). Items 21–23 are owner tasks. Item 20 is Q-12 / Q-13.
 

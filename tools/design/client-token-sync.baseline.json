@@ -89,7 +89,6 @@
     "patient-app/src/components/insurance/refund-status.tsx": 8,
     "patient-app/src/components/livekit-view.tsx": 8,
     "patient-app/src/components/ui.tsx": 18,
-    "patient-app/src/components/views/ClinicLocationView.tsx": 2,
     "patient-app/src/components/views/CrisisContactsView.tsx": 25,
     "patient-app/src/components/views/InsuranceBenefitsView.tsx": 27,
     "patient-app/src/constants/index.ts": 10,
