@@ -42,7 +42,7 @@ export default function Home() {
         <meta property="og:url" content={SITE} />
         <meta property="og:locale" content="ar_SA" />
         <meta name="twitter:card" content="summary_large_image" />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       </Head>
 
       <div dir="rtl" className="min-h-screen bg-gradient-to-b from-teal-50 to-white">

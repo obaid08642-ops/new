@@ -3,10 +3,9 @@
 // may not edit it.
 //
 //  - Public pages (the indexable surfaces: locale home, articles, products,
-//    catalogue, doctor/lab/radiology listings…) get a HASH-based CSP: script-src
-//    allows 'self' plus 'sha256-…'/'sha384-…'/'sha512-…' sources, no nonce, no
-//    'unsafe-inline', no 'unsafe-eval' — the same header on every request, so the
-//    HTML can be cached by the CDN.
+//    catalogue, doctor/lab/radiology listings…) render without a nonce so Next
+//    can cache them; the nonce server stamps a fresh nonce on every response
+//    (revised 2026-10-06, see the public-pages block below).
 //  - Signed-in, checkout, payment and account pages get a per-request NONCE CSP
 //    ('nonce-…' + 'strict-dynamic', a fresh nonce each request) and
 //    Cache-Control: no-store.
@@ -52,19 +51,78 @@ const csp = (r: Response) => r.headers.get("content-security-policy") || "";
 const directive = (policy: string, name: string) => (policy.split(";").map((d) => d.trim()).find((d) => d.startsWith(`${name} `)) || "");
 const cacheControl = (r: Response) => (r.headers.get("cache-control") || "").toLowerCase();
 
-describe("F68: public pages carry a hash-based CSP (cacheable HTML)", () => {
+// Revised by the reviewer, 2026-10-06 (owner: "choose the best and do it"): a hash-based policy cannot work with
+// the App Router (each page carries ~9 inline RSC-payload scripts that change per page and per revalidation; SRI
+// covers external chunks only; measured on a production build). Public pages instead render WITHOUT a nonce (so
+// they can be static/ISR) and server/nonce-server.mjs stamps a fresh nonce on every response. The browser-facing
+// policy is the same strict one as on private pages: per-response nonce + 'strict-dynamic', no unsafe-inline/eval.
+describe("F68: public pages render without a nonce and get a fresh one per response from the nonce server", () => {
+  beforeEach(() => { process.env.NABD_CSP_EDGE_NONCE = "1"; });
+  afterEach(() => { delete process.env.NABD_CSP_EDGE_NONCE; });
+
   for (const path of PUBLIC_PAGES) {
-    it(`${path}: script-src uses hashes, no nonce, no unsafe-inline/eval; same policy on every request`, async () => {
-      const a = await hit(path);
-      const b = await hit(path);
-      const script = directive(csp(a), "script-src");
-      expect(script).toMatch(/'sha(256|384|512)-[A-Za-z0-9+/=]+'/);
-      expect(script).not.toMatch(/'nonce-/);
+    it(`${path}: the proxy marks it for stamping, with the placeholder policy and no no-store`, async () => {
+      const { CSP_NONCE_PLACEHOLDER, CSP_INJECT_HEADER } = await import("../../lib/security/csp");
+      const r = await hit(path);
+      const script = directive(csp(r), "script-src");
+      expect(script).toContain(`'nonce-${CSP_NONCE_PLACEHOLDER}'`);
+      expect(script).toContain("'strict-dynamic'");
       expect(script).not.toContain("'unsafe-inline'");
       expect(script).not.toContain("'unsafe-eval'");
-      expect(csp(b)).toBe(csp(a));
-      expect(directive(csp(a), "frame-ancestors")).toBe("frame-ancestors 'none'");
-      expect(cacheControl(a)).not.toContain("no-store");
+      expect(directive(csp(r), "frame-ancestors")).toBe("frame-ancestors 'none'");
+      expect(r.headers.get(CSP_INJECT_HEADER)).toBe("1");
+      expect(cacheControl(r)).not.toContain("no-store");
+    });
+  }
+
+  it("through the nonce server: a fresh nonce per response, in the header and on every script/style tag; never shared-cacheable", async () => {
+    const http = await import("node:http");
+    const { handler } = await import("../../server/nonce-server.mjs");
+    const { contentSecurityPolicy, CSP_NONCE_PLACEHOLDER, CSP_INJECT_HEADER } = await import("../../lib/security/csp");
+    const page = '<html><head><script>self.__next_f=[]</script><style>.a{}</style><script src="/_next/static/a.js" async></script></head><body><p>&lt;script&gt;</p></body></html>';
+    const upstream = http.createServer((_req, res) => {
+      res.writeHead(200, { "content-type": "text/html; charset=utf-8", "content-security-policy": contentSecurityPolicy(CSP_NONCE_PLACEHOLDER, false), [CSP_INJECT_HEADER]: "1", "cache-control": "s-maxage=60, stale-while-revalidate" });
+      res.end(page);
+    });
+    await new Promise<void>((resolve) => upstream.listen(0, "127.0.0.1", resolve));
+    const front = http.createServer(handler((upstream.address() as { port: number }).port));
+    await new Promise<void>((resolve) => front.listen(0, "127.0.0.1", resolve));
+    const url = `http://127.0.0.1:${(front.address() as { port: number }).port}/ar`;
+    try {
+      const a = await fetch(url);
+      const b = await fetch(url);
+      const [ha, hb] = [await a.text(), await b.text()];
+      const na = /'nonce-([^']+)'/.exec(directive(csp(a), "script-src"))?.[1];
+      const nb = /'nonce-([^']+)'/.exec(directive(csp(b), "script-src"))?.[1];
+      expect(na).toBeTruthy();
+      expect(na).not.toBe(CSP_NONCE_PLACEHOLDER);
+      expect(na).not.toBe(nb);
+      expect(directive(csp(a), "script-src")).toContain("'strict-dynamic'");
+      expect(ha.match(/<script nonce="/g)?.length).toBe(2);
+      expect(ha.match(/<style nonce="/g)?.length).toBe(1);
+      expect(ha).toContain(`nonce="${na}"`);
+      expect(hb).toContain(`nonce="${nb}"`);
+      expect(ha).toContain("<p>&lt;script&gt;</p>");
+      expect(a.headers.get(CSP_INJECT_HEADER)).toBeNull();
+      expect(cacheControl(a)).toContain("private");
+      expect(cacheControl(a)).not.toContain("s-maxage");
+    } finally {
+      front.close();
+      upstream.close();
+    }
+  });
+});
+
+describe("F68: without the nonce server (dev, tests, plain next start) public pages keep a per-request nonce", () => {
+  for (const path of ["/ar", "/en/articles"]) {
+    it(`${path}: fresh nonce per request, strict-dynamic`, async () => {
+      const a = await hit(path);
+      const b = await hit(path);
+      const na = /'nonce-([^']+)'/.exec(directive(csp(a), "script-src"))?.[1];
+      const nb = /'nonce-([^']+)'/.exec(directive(csp(b), "script-src"))?.[1];
+      expect(na).toBeTruthy();
+      expect(na).not.toBe(nb);
+      expect(directive(csp(a), "script-src")).toContain("'strict-dynamic'");
     });
   }
 });
