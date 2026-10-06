@@ -327,5 +327,3 @@ export class AuthService {
     return this.guestLifecycle.cleanupInactiveGuestsWithThreshold(monthsInactive);
   }
 }
-EOF
-wc -l backend/src/modules/auth/auth.service.ts
