@@ -384,9 +384,10 @@
     "callTitle": "محفوظ ویڈیو وزٹ",
     "callJoin": "ویڈیو وزٹ تیار کریں",
     "callLoading": "محفوظ وزٹ تیار ہو رہا ہے…",
-    "callReady": "آپ کی ویڈیو ملاقات تیار ہے۔ ویڈیو ایپ میں جاری رکھیں۔",
+    "callReady": "آپ کی ویڈیو ملاقات تیار ہے۔",
     "callUnavailable": "ویڈیو ملاقات ابھی دستیاب نہیں ہے۔",
-    "callDiscard": "ویڈیو ملاقات بند کریں"
+    "callDiscard": "ویڈیو ملاقات بند کریں",
+    "callOpen": "ویڈیو ملاقات میں شامل ہوں"
   },
   "Medicines": {
     "eyebrow": "نجی کیٹلاگ",
@@ -2390,6 +2391,9 @@
     "acceptsInsurance": "انشورنس قبول کرتے ہیں",
     "acceptedInsurance": "قبول شدہ انشورنس کمپنیاں",
     "actionBookConsultation": "مشاورت بک کریں",
+    "doctorMetaFallback": "ڈاکٹر",
+    "doctorMetaDescription": "{name} - {specialty}۔ {brand} پر آن لائن یا کلینک میں مشاورت بک کریں۔",
+    "doctorMetaDescriptionCity": "{name} - {city} میں {specialty}۔ {brand} پر آن لائن یا کلینک میں مشاورت بک کریں۔",
     "locationLabel": "مقام",
     "videoCallTitle": "ویڈیو مشاورت",
     "videoCallSub": "آپ کے ڈاکٹر کے ساتھ محفوظ، براہِ راست ویڈیو کال",

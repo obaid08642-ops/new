@@ -70,7 +70,7 @@ Backend lines from the design Batch 2 (#313) "Needs review". The client screens 
 
 | Id | Size | Defect (evidence) | Done when |
 |---|---|---|---|
-| Q-14 | M | Cancel and reschedule refund rules are hard-coded in the clients: 12/24 h in cancel-reschedule and 4/24 h in clinic-confirm. There is no server rule; `system-config` holds only a free-text `cancellation_policy`. | One server rule per consultation type, used by the refund calculation and returned with the appointment, so the clients show it. The two hard-coded rules are removed from patient-app and patient-web. **Ask the owner for the rule values through the reviewer. Do not invent them.** |
+| Q-14 | M | The cancel/refund rule exists twice and the copies disagree (server `care/appointments.service.ts`: >24 h 100% to the card, otherwise 50% to the wallet; app `cancel-reschedule.tsx`: ≥24 h 100%, 12–24 h 50%, <12 h 0%). | **Replaced by Queue C item D-26** (owner decision 26). Do not do it separately. |
 | Q-15 | M | Home-visit tracking never shows "on the way" or "arrived": `PROVIDER_EN_ROUTE` and `PROVIDER_ARRIVED` are never sent by the backend (0 references in `backend/src`). | The provider app's start-trip and arrived actions set these states, and the patient receives them (API and realtime). Test the full sequence. |
 | Q-16 | M | The video call is not reachable. The launcher opens nothing, and the appointment page does not link to the call. There is no call-record endpoint: call history is just finished appointments. | Verify first which part is backend and which is client. The appointment response carries what the call screen needs (room or join token route). A call-record endpoint lists the patient's calls (owner-checked). |
 | Q-17 | S | Online reschedule asks for clinic slots (verify first: client query or backend default). | Reschedule of a video appointment offers video slots only. Test. |
@@ -83,6 +83,8 @@ Found while writing the Q-3 spec (review 2026-10-06):
 | Id | Size | Defect (evidence) | Done when |
 |---|---|---|---|
 | Q-21 | M | A paid pharmacy order never reaches a confirmed governed state. Card: after payment `governed_state` stays `FINAL_QUOTE_ACCEPTED` (`PAYMENT_PENDING` is never produced) and `status` stays `cash_card_payment_pending`. Insurance co-pay: after the co-pay is paid `status` stays `waiting_copay`. Only `payment_status` changes (`payments.module.ts` `finalizeGovernedPharmacyPaid`). The apps work around it with `payment_status`. | Wait for the acceptance spec `backend/acceptance/q-21/` (after Q-3). |
+
+| Q-22 | M | `GET /nursing/nurses/:id` (`home-care/nurse-profile.controller.ts`) needs a token, so the public nurse page shows "unavailable" to visitors (design Batch 4). It also returns the **whole** `nurses` document (`const { _id, ...out } = doc`) to any signed-in user, which can hold a phone, address or identity data and breaks the N7 rule (individual providers' public views hold no phone, address or internal id). | The endpoint is public and returns only an explicit allow-list of public fields (name, photo, specialties, languages, rating, verified, SCFHS licence; decision 17). Never the national ID, phone, email or address. Tests: anonymous 200 with only those keys, and an unknown id 404. |
 
 Closed, do not do:
 - **Barcode `$regex`:** already escaped on `main`.
@@ -121,6 +123,10 @@ Order (do not skip ahead):
 | D-17 | #336 | Doctor public view: SCFHS licence and `verified`; never national ID, phone or email. | spec |
 | D-19 | #338 | Lab result push deep link to the result. | spec |
 | D-7 | #326 | One assistant endpoint replacing the seven AI routes. | owner-approved merge map |
+
+| D-26 | — | Cancellation and refund policy (decision 26). One admin-editable policy per service type: consultations, home visit and nursing, pharmacy delivery. Used by every cancel path, returned with each booking or order (the rule plus the refund the patient would get now), refunded to the original payment method. The clients show only the server value; remove the hard-coded copies. | spec |
+| D-25 | — | Payment method by service (decision 25). The server refuses cash for online consultations, home visits and nursing. Pharmacy cash on delivery only under all of its conditions. | spec |
+| D-24 | — | Doctor chat only inside a booking (decision 24). Online: text, voice, images, files and the call. Clinic or home: text, images and files for 72 h after completion. The doctor can close or extend once. Read-only after the window. | spec |
 
 Items 3, 5, 6, 11 and 18 are UI only (design session). Items 21–23 are owner tasks. Item 20 is Q-12 / Q-13.
 

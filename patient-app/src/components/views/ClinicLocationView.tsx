@@ -1,109 +1,116 @@
-// @ts-nocheck
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar, ActivityIndicator, Linking, Platform } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../../../src/context/AppContext';
-import { resolveColor, darkColors, lightColors } from '../../../src/theme/colors';
-import { apiFetch } from '../../../src/utils/api';
-import MapView, { Marker, PROVIDER_DEFAULT } from '../../../src/components/MapPrimitives';
-import { LocalizedText } from '../../../src/components/LocalizedText';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Linking, Platform, Text, View } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+
+import { Button, Card, FIcon } from '../../../../packages/ui-native/src';
+import { ConsultScreen, Gate, type GateStatus } from '../consult/ConsultKit';
+import { step as scale, useScreenUi } from '../screen/ScreenKit';
+import MapView, { Marker, PROVIDER_DEFAULT } from '../MapPrimitives';
+import { apiFetch } from '../../utils/api';
+import { isOffline } from '../../utils/isOffline';
+import { logError } from '../../utils/logger';
+
+/**
+ * Clinic location (`clinic-confirm?view=location`) — the consult kit's screen (tokens, translation keys). The place is what
+ * clinic-confirm reads: GET /care/appointments/:id and the doctor's facility (GET /care/doctors/:doctor_id). The map and the
+ * directions button are drawn only when the doctor's record states coordinates; none is invented.
+ */
+
+interface Doctor {
+  name?: string;
+  clinic_name?: string;
+  clinic_address?: string;
+  location?: { lat?: number; lng?: number };
+  facility?: { name?: string; address?: string; location?: { lat?: number; lng?: number } };
+}
 
 export default function ClinicLocationView() {
-  const { appointmentId } = useLocalSearchParams();
-  const insets = useSafeAreaInsets();
-  const { isDark, lang } = useApp() as any;
-  const colors = isDark ? darkColors : lightColors;
-  const isRTL = lang === 'ar' || lang === 'ur';
+  const { theme, t, c, flow, k } = useScreenUi();
+  const { appointmentId } = useLocalSearchParams<{ appointmentId?: string }>();
+  const [doctor, setDoctor] = useState<Doctor | null>(null);
+  const [status, setStatus] = useState<GateStatus>('loading');
 
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<any>(null);
-
-  useEffect(() => {
-    if (appointmentId) {
-      apiFetch(`/care/appointments/${appointmentId}`)
-        .then((res: any) => { setData(res?.data || res); setLoading(false); })
-        .catch(() => { setData(null); setLoading(false); });
-    } else {
-      setData(null); setLoading(false);
+  const load = useCallback(async () => {
+    if (!appointmentId) {
+      setStatus('missing');
+      return;
+    }
+    setStatus('loading');
+    try {
+      const res = await apiFetch<{ id?: string; doctor_id?: string; data?: { id?: string; doctor_id?: string } }>(`/care/appointments/${encodeURIComponent(String(appointmentId))}`);
+      const appt = res?.data || res;
+      if (!appt) {
+        setStatus('missing');
+        return;
+      }
+      if (appt.doctor_id) {
+        try {
+          setDoctor(await apiFetch<Doctor>(`/care/doctors/${appt.doctor_id}`));
+        } catch (e) {
+          logError('consultations:clinic-location:doctor', e);
+        }
+      }
+      setStatus('ready');
+    } catch (e) {
+      logError('consultations:clinic-location', e);
+      setStatus((await isOffline()) ? 'offline' : 'error');
     }
   }, [appointmentId]);
 
-  const lat = data?.lat || data?.clinic_lat || 24.7136;
-  const lng = data?.lng || data?.clinic_lng || 46.6753;
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const facility = doctor?.facility ?? null;
+  const clinicName = facility?.name || doctor?.clinic_name || k('consult.clinic.fallback');
+  const address = facility?.address || doctor?.clinic_address || '';
+  const lat = facility?.location?.lat ?? doctor?.location?.lat;
+  const lng = facility?.location?.lng ?? doctor?.location?.lng;
+  const placed = typeof lat === 'number' && typeof lng === 'number';
 
   const openDirections = () => {
-    const name = data?.clinic_name || 'العيادة';
+    if (!placed) return;
     const url = Platform.select({
-      ios: `maps:0,0?q=${name}@${lat},${lng}`,
-      android: `geo:0,0?q=${lat},${lng}(${name})`,
+      ios: `maps:0,0?q=${encodeURIComponent(clinicName)}@${lat},${lng}`,
+      android: `geo:0,0?q=${lat},${lng}(${encodeURIComponent(clinicName)})`,
     });
-    if (url) Linking.openURL(url);
+    if (url) void Linking.openURL(url);
   };
 
-  if (loading) return (
-    <View style={[styles.container, { backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center' } ]}>
-      <ActivityIndicator color={resolveColor('var(--p)')} size="large" />
-    </View>
-  );
-
   return (
-    <View style={[styles.container, { backgroundColor: colors.bg } ]}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-
-      <View style={[styles.header, { paddingTop: insets.top + 10, borderBottomColor: colors.bd } ]}>
-        <TouchableOpacity onPress={() => router.back()} style={{ width: 40, height: 40, justifyContent: 'center' }}>
-          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 24 }}>arrow_forward</LocalizedText>
-        </TouchableOpacity>
-        <LocalizedText style={{ fontSize: 16, fontWeight: '800', color: colors.n }}>موقع العيادة</LocalizedText>
-        <View style={{ width: 40 }}/>
-      </View>
-
-      {/* ── Real MapView ── */}
-      <View style={styles.mapBox}>
-        <MapView
-          provider={PROVIDER_DEFAULT}
-          style={StyleSheet.absoluteFill}
-          userInterfaceStyle={isDark ? 'dark' : 'light'}
-          initialRegion={{ latitude: lat, longitude: lng, latitudeDelta: 0.01, longitudeDelta: 0.01 }} showsUserLocation
-          showsMyLocationButton={false}
-          showsCompass={false}
-          scrollEnabled={false}
-          zoomEnabled={false}
-        >
-          <Marker coordinate={{ latitude: lat, longitude: lng }} title={data?.clinic_name} tracksViewChanges={false} />
-        </MapView>
-      </View>
-
-      <View style={{ padding: 16 }}>
-        <View style={{ marginTop: 14 }}>
-          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-            <View style={[styles.duoIcon, { backgroundColor: resolveColor('var(--ps)') } ]}>
-              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 24 }}>business</LocalizedText>
-            </View>
-            <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
-              <LocalizedText style={{ fontSize: 14, fontWeight: '800', color: colors.n }}>{data?.clinic_name || 'عيادة الطبيب'}</LocalizedText>
-              <LocalizedText style={{ fontSize: 10, color: colors.t3 }}>{data?.address}</LocalizedText>
+    <ConsultScreen
+      title={k('consult.detail.clinicPlace')}
+      testID="clinic-location-screen"
+      footer={placed ? <Button label={k('consult.clinic.directions')} size="lg" fullWidth startIcon="map-pin" onPress={openDirections} theme={theme} testID="clinic-directions" /> : undefined}
+    >
+      <Gate status={status} onRetry={() => void load()} missingTitle={k('consult.clinic.missing')} missingBody={k('consult.missing.body')}>
+        {placed ? (
+          <View style={{ height: 230, borderRadius: 24, overflow: 'hidden', borderWidth: 1, borderColor: c.border.hairline }}>
+            <MapView
+              provider={PROVIDER_DEFAULT}
+              style={{ flex: 1 }}
+              userInterfaceStyle={theme}
+              initialRegion={{ latitude: lat, longitude: lng, latitudeDelta: 0.01, longitudeDelta: 0.01 }}
+              showsMyLocationButton={false}
+              showsCompass={false}
+              scrollEnabled={false}
+              zoomEnabled={false}
+            >
+              <Marker coordinate={{ latitude: lat, longitude: lng }} title={clinicName} tracksViewChanges={false} />
+            </MapView>
+          </View>
+        ) : null}
+        <Card theme={theme}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <FIcon icon="hospital" tone="blue" size={44} theme={theme} />
+            <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+              <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{clinicName}</Text>
+              {doctor?.name ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{doctor.name}</Text> : null}
+              {address ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{address}</Text> : null}
             </View>
           </View>
-          <LocalizedText style={{ fontSize: 11, color: colors.t2, lineHeight: 18, textAlign: isRTL ? 'right' : 'left' }}>
-            {data?.details}
-          </LocalizedText>
-        </View>
-
-        <TouchableOpacity style={[styles.directionsBtn, { backgroundColor: colors.n, marginTop: 24 }]} onPress={openDirections}>
-          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 19, color: '#fff', marginRight: 8 }}>directions_car</LocalizedText>
-          <LocalizedText style={{ fontSize: 13, fontWeight: '800', color: '#fff' }}>فتح الاتجاهات</LocalizedText>
-        </TouchableOpacity>
-      </View>
-    </View>
+        </Card>
+      </Gate>
+    </ConsultScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1 },
-  mapBox: { height: 230, overflow: 'hidden' },
-  duoIcon: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
-  directionsBtn: { width: '100%', padding: 15, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }
-});

@@ -334,9 +334,10 @@
     "callTitle": "زيارة مرئية آمنة",
     "callJoin": "تجهيز الزيارة المرئية",
     "callLoading": "جارٍ تجهيز الزيارة الآمنة…",
-    "callReady": "زيارة الفيديو جاهزة. تابع في تطبيق الفيديو.",
+    "callReady": "زيارة الفيديو جاهزة.",
     "callUnavailable": "زيارة الفيديو غير متاحة الآن.",
-    "callDiscard": "إغلاق زيارة الفيديو"
+    "callDiscard": "إغلاق زيارة الفيديو",
+    "callOpen": "انضم إلى الزيارة المرئية"
   },
   "Medicines": {
     "eyebrow": "كتالوج خاص",
@@ -2390,6 +2391,9 @@
     "acceptsInsurance": "يقبل التأمين",
     "acceptedInsurance": "شركات التأمين المقبولة",
     "actionBookConsultation": "احجز استشارة",
+    "doctorMetaFallback": "طبيب",
+    "doctorMetaDescription": "{name} - {specialty}. احجز استشارة عبر الإنترنت أو في العيادة على {brand}.",
+    "doctorMetaDescriptionCity": "{name} - {specialty} في {city}. احجز استشارة عبر الإنترنت أو في العيادة على {brand}.",
     "locationLabel": "الموقع",
     "videoCallTitle": "الاستشارة المرئية",
     "videoCallSub": "اتصال فيديو مباشر وآمن مع طبيبك",

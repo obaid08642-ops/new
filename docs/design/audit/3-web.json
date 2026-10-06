@@ -569,67 +569,89 @@
       "route": "/diagnostics/[domain]/[bookingId]",
       "element": "route",
       "kind": "client",
-      "note": "labs/[labId] and radiology/[serviceId] shadow it: every booking link (/diagnostics/labs/<bookingId>, also after booking and after an insurance upload) opens the lab or service page and 404s; the detail needs another path (folders were not renamed here)"
+      "note": "labs/[labId] and radiology/[serviceId] shadow it: every booking link (/diagnostics/labs/<bookingId>, also after booking and after an insurance upload) opens the lab or service page and 404s; the detail needs another path (folders were not renamed here)",
+      "file": "patient-web/app/[locale]/diagnostics/[domain]/[bookingId]/page.tsx",
+      "line": 19
     },
     {
       "route": "/diagnostics/checkout",
       "element": "after the order",
       "kind": "client",
-      "note": "pushes to /diagnostics/orders/<id>, which has no page"
+      "note": "pushes to /diagnostics/orders/<id>, which has no page",
+      "file": "patient-web/components-next/diagnostics-checkout-form.tsx",
+      "line": 138
     },
     {
       "route": "/diagnostics/insurance-approval",
       "element": "home visit fee",
       "kind": "client",
-      "note": "50 SAR is a constant of the client; the checkout ignores the isInsurance, copay and total it is sent"
+      "note": "50 SAR is a constant of the client; the checkout ignores the isInsurance, copay and total it is sent",
+      "file": "patient-web/components-next/diagnostics-insurance-approval-client.tsx",
+      "line": 112
     },
     {
       "route": "/diagnostics/radiology/[serviceId]",
       "element": "add to my order",
       "kind": "backend",
-      "note": "the cart sends rad_<id> to GET /labs/compatible-providers; confirm the backend answers for radiology ids, or radiology has no way to a lab choice"
+      "note": "the cart sends rad_<id> to GET /labs/compatible-providers; confirm the backend answers for radiology ids, or radiology has no way to a lab choice",
+      "file": "patient-web/app/[locale]/diagnostics/radiology/[serviceId]/page.tsx",
+      "line": 90
     },
     {
       "route": "/diagnostics",
       "element": "service-booking-modal.tsx",
       "kind": "client",
-      "note": "no longer used by the diagnostics screens; nursing/catalog still uses it and its confirmation is fake (timer, random reference, default price 250)"
+      "note": "no longer used by the diagnostics screens; nursing/catalog still uses it and its confirmation is fake (timer, random reference, default price 250)",
+      "file": "patient-web/components-next/service-booking-modal.tsx",
+      "line": 97
     },
     {
       "route": "/diagnostics",
       "element": "labs carousel, cash filter, add toggle",
       "kind": "owner",
-      "note": "board elements with no endpoint on the hub (no lab list, no cash flag, the cart is page based)"
+      "note": "board elements with no endpoint on the hub (no lab list, no cash flag, the cart is page based)",
+      "file": "patient-web/app/[locale]/diagnostics/page.tsx",
+      "line": 146
     },
     {
       "route": "/diagnostics/bookings",
       "element": "lab booking name",
       "kind": "backend",
-      "note": "the bookings list does not send the test names of a lab booking, so the card says only 'Lab booking'"
+      "note": "the bookings list does not send the test names of a lab booking, so the card says only 'Lab booking'",
+      "file": "patient-web/app/[locale]/diagnostics/bookings/page.tsx",
+      "line": 52
     },
     {
       "route": "/diagnostics/results",
       "element": "radiology report row",
       "kind": "backend",
-      "note": "no link or file for a report: the shape of GET /radiology/reports/mine is not typed in the client"
+      "note": "no link or file for a report: the shape of GET /radiology/reports/mine is not typed in the client",
+      "file": "patient-web/app/[locale]/diagnostics/results/page.tsx",
+      "line": 77
     },
     {
       "route": "/diagnostics/sample-tracking",
       "element": "steps",
       "kind": "client",
-      "note": "when the server sends no steps the screen draws a fixed six-step list (only the first two flags come from data)"
+      "note": "when the server sends no steps the screen draws a fixed six-step list (only the first two flags come from data)",
+      "file": "patient-web/components-next/diagnostics-sample-tracking-client.tsx",
+      "line": 77
     },
     {
       "route": "/diagnostics/technician-tracking",
       "element": "live map",
       "kind": "owner",
-      "note": "the board's live map needs a collector position the tracking API does not send"
+      "note": "the board's live map needs a collector position the tracking API does not send",
+      "file": "patient-web/components-next/diagnostics-technician-tracking-client.tsx",
+      "line": 56
     },
     {
       "route": "/diagnostics/labs/[labId]",
       "element": "rating",
       "kind": "backend",
-      "note": "the lab API sends a rating without a count, so none is drawn"
+      "note": "the lab API sends a rating without a count, so none is drawn",
+      "file": "patient-web/app/[locale]/diagnostics/labs/[labId]/page.tsx",
+      "line": 67
     }
   ]
 }
