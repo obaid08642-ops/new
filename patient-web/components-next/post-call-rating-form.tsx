@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Star } from "lucide-react";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import rx from "@/components-next/pharmacy/rx.module.css";
+import styles from "@/components-next/consult/consult.module.css";
 
-type Labels = { comment: string; commentPh: string; submit: string; submitting: string; thanks: string; error: string };
+/** `star` is a template with {n}: the name of one star ("{n} of 5"), the number written for the reader's language. */
+type Labels = { rating: string; star: string; comment: string; commentPh: string; submit: string; submitting: string; thanks: string; error: string };
 
 export function PostCallRatingForm({ locale, appointmentId, labels }: { locale: string; appointmentId: string; labels: Labels }) {
   const [rating, setRating] = useState(0);
@@ -27,75 +31,36 @@ export function PostCallRatingForm({ locale, appointmentId, labels }: { locale: 
     } catch { setErr(labels.error); } finally { setBusy(false); }
   }
 
-  if (done) return <p role="status" style={{ color: "#00876F", fontWeight: 800 }}>{labels.thanks}</p>;
-  const rtl = locale !== "en";
+  if (done) return <p className={styles.ok} role="status">{labels.thanks}</p>;
   const activeStars = hoverRating || rating;
+  const number = new Intl.NumberFormat(locale);
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); void submit(); }} style={{ display: "grid", gap: 16 }} dir={rtl ? "rtl" : "ltr"}>
-      <div role="radiogroup" aria-label="rating" style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+    <form onSubmit={(e) => { e.preventDefault(); void submit(); }} className={rx.card}>
+      <div role="radiogroup" aria-label={labels.rating} className={styles.stars}>
         {[1, 2, 3, 4, 5].map((n) => (
           <button
             key={n}
             type="button"
+            role="radio"
+            aria-checked={rating === n}
+            aria-label={labels.star.replace("{n}", number.format(n))}
+            data-on={n <= activeStars ? "true" : "false"}
+            className={styles.star}
             onClick={() => setRating(n)}
             onMouseEnter={() => setHoverRating(n)}
             onMouseLeave={() => setHoverRating(0)}
-            aria-pressed={rating === n}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: 4,
-              transition: "transform 0.15s ease",
-            }}
           >
-            <Star
-              size={28}
-              fill={n <= activeStars ? "#FBBF24" : "none"}
-              color={n <= activeStars ? "#F59E0B" : "rgba(30,51,46,0.25)"}
-            />
+            <FIcon icon="star" tone="amber" size={36} chip="none" />
           </button>
         ))}
       </div>
-      <textarea
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-        placeholder={labels.commentPh}
-        rows={3}
-        aria-label={labels.comment}
-        style={{
-          padding: 16,
-          borderRadius: 16,
-          border: "1px solid #E8EDEE",
-          background: "#FFFFFF",
-          color: "#1E332E",
-          resize: "vertical",
-          fontFamily: "inherit",
-          fontSize: 14,
-          lineHeight: "1.6",
-          overflowWrap: "anywhere",
-        }}
-      />
-      {err ? <p role="alert" style={{ color: "#DC2626", overflowWrap: "anywhere" }}>{err}</p> : null}
-      <button
-        type="submit"
-        disabled={busy || rating < 1}
-        style={{
-          background: "#5FD9B3",
-          color: "#1E332E",
-          fontWeight: 800,
-          padding: 14,
-          borderRadius: 16,
-          border: "1px solid #5FD9B3",
-          cursor: busy || rating < 1 ? "not-allowed" : "pointer",
-          opacity: busy || rating < 1 ? 0.6 : 1,
-          boxShadow: "0 4px 12px rgba(30,51,46,0.12)",
-          overflowWrap: "anywhere",
-        }}
-      >
-        {busy ? labels.submitting : labels.submit}
-      </button>
+      <label className={styles.field}>
+        <span className={styles.label}>{labels.comment}</span>
+        <textarea className={styles.control} value={comment} onChange={(e) => setComment(e.target.value)} placeholder={labels.commentPh} rows={4} />
+      </label>
+      {err ? <p className={styles.error} role="alert">{err}</p> : null}
+      <Button type="submit" fullWidth label={busy ? labels.submitting : labels.submit} loading={busy} disabled={rating < 1} />
     </form>
   );
 }

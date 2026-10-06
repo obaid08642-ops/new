@@ -19,7 +19,7 @@ export default function TabsLayout() {
       tabBar={() => <MainTabBar />}
     >
       <Tabs.Screen name="index" options={OWN_HEADER} />
-      <Tabs.Screen name="consultations/index" />
+      <Tabs.Screen name="consultations/index" options={OWN_HEADER} />
       <Tabs.Screen name="pharmacy" options={OWN_HEADER} />
       <Tabs.Screen name="diagnostics" />
       <Tabs.Screen name="services" options={OWN_HEADER} />

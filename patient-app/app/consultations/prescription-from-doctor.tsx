@@ -1,69 +1,76 @@
-// @ts-nocheck
-import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  StatusBar,
-  TouchableOpacity,
-} from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useApp } from "../../src/context/AppContext";
-import { Icon } from "../../src/components/Icon";
-import {
-  AppText,
-  Card,
-  Badge,
-  Button,
-  IconButton,
-  SectionHeader,
-} from "../../src/components/ui";
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Text, View } from 'react-native';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 
-import { apiFetch } from '../../src/utils/api';
-import { logError } from '../../src/utils/logger';
-import { toMedicationViews, reminderPayload, MedicationView } from '../../src/utils/prescription-view';
+import { Button, Card, FIcon } from '../../../packages/ui-native/src';
+import { RX_TONE, ConsultScreen, Gate, InfoRow, Section, useConsultFormat, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { apiFetch } from '../../src/utils/api';
+import { isOffline } from '../../src/utils/isOffline';
+import { logError } from '../../src/utils/logger';
+import { toMedicationViews, reminderPayload, type MedicationView } from '../../src/utils/prescription-view';
+
+/**
+ * Prescription from the doctor — board Consult's card language. Everything is what GET /prescriptions/active returns
+ * (the one issued for this appointment when the screen was opened from one): the doctor, the diagnosis, the medicines
+ * with their dose, duration and instructions, the requested labs and the doctor's notes. A line the server did not send
+ * is not drawn. Reminders are created through POST /health/reminders, the order goes to the pharmacy's prescription flow.
+ */
+
+interface Lab {
+  id?: string;
+  name?: string;
+  instructions?: string;
+}
+interface Prescription {
+  id?: string;
+  doctor?: string;
+  spec?: string;
+  date?: string;
+  diagnosis?: string;
+  notes?: string;
+  labs?: Lab[];
+  [key: string]: unknown;
+}
 
 export default function PrescriptionFromDoctorScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
-  const [addedToReminders, setAddedToReminders] = useState<string[]>([]);
-  const [ordering, setOrdering] = useState(false);
-  const [prescription, setPrescription] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  React.useEffect(() => {
-    fetchPrescription();
-  }, []);
-
+  const { theme, t, c, flow, k, num } = useScreenUi();
+  const { date } = useConsultFormat();
   const { appointmentId } = useLocalSearchParams<{ appointmentId?: string }>();
+  const [added, setAdded] = useState<string[]>([]);
+  const [prescription, setPrescription] = useState<Prescription | null>(null);
+  const [status, setStatus] = useState<GateStatus>('loading');
 
-  const fetchPrescription = async () => {
+  const load = useCallback(async () => {
+    setStatus('loading');
     try {
       // Real backend prescriptions; prefer the one issued for this appointment.
-      const response: any = await apiFetch('/prescriptions/active');
-      const list = Array.isArray(response) ? response : response?.data || [];
-      const match = (Array.isArray(list) ? list : []).find((p: any) =>
-        appointmentId ? String(p.appointment_id || p.appointmentId || '') === String(appointmentId) : true,
-      ) || null;
+      const response = await apiFetch<unknown>('/prescriptions/active');
+      const body = response as { data?: unknown } | unknown[] | null;
+      const raw = Array.isArray(body) ? body : (body as { data?: unknown } | null)?.data;
+      const list = (Array.isArray(raw) ? raw : []) as Prescription[];
+      const match = list.find((p) => (appointmentId ? String(p.appointment_id ?? p.appointmentId ?? '') === String(appointmentId) : true)) ?? null;
       setPrescription(match);
+      setStatus(match ? 'ready' : 'missing');
     } catch (e) {
       logError('consultations:prescription-from-doctor', e);
-      setPrescription(null);
-    } finally {
-      setLoading(false);
+      setStatus((await isOffline()) ? 'offline' : 'error');
     }
-  };
+  }, [appointmentId]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   // The API returns `items`; the screen shows mapped medicine views (src/utils/prescription-view).
-  const medications: MedicationView[] = React.useMemo(() => toMedicationViews(prescription), [prescription]);
+  const medications: MedicationView[] = useMemo(() => toMedicationViews(prescription), [prescription]);
 
   /** Creates the reminder on the server; the row is marked added only when that succeeded. */
   const createReminder = async (med: MedicationView): Promise<boolean> => {
     try {
       await apiFetch('/health/reminders', { method: 'POST', body: JSON.stringify(reminderPayload(med, prescription?.id)) });
-      setAddedToReminders((p) => (p.includes(med.id) ? p : [...p, med.id]));
+      setAdded((p) => (p.includes(med.id) ? p : [...p, med.id]));
       return true;
     } catch (e) {
       logError('consultations:prescription:reminder', e);
@@ -71,343 +78,102 @@ export default function PrescriptionFromDoctorScreen() {
     }
   };
 
-  const addToReminder = async (id: string) => {
-    const med = medications.find((m) => m.id === id);
-    if (!med) return;
-    if (!(await createReminder(med))) showLocalizedAlert('تعذر إضافة التذكير', 'حاول مرة أخرى بعد قليل.');
+  const addOne = async (med: MedicationView) => {
+    if (!(await createReminder(med))) showLocalizedAlert(k('consult.rx.reminderFailed'), k('consult.rx.tryAgain'));
   };
 
-  const addAllToReminders = async () => {
-    const pending = medications.filter((m) => !addedToReminders.includes(m.id));
+  const addAll = async () => {
+    const pending = medications.filter((m) => !added.includes(m.id));
     let failed = 0;
     for (const med of pending) if (!(await createReminder(med))) failed += 1;
-    if (failed) showLocalizedAlert('تعذر إضافة بعض التذكيرات', `لم يُضف ${failed} من ${pending.length}. حاول مرة أخرى.`);
+    if (failed) showLocalizedAlert(k('consult.rx.someFailedTitle'), k('consult.rx.someFailedBody', { n: num(failed), total: num(pending.length) }));
   };
 
-  const orderFromPharmacy = () => {
-    if (!prescription?.id) return;
-    setOrdering(true);
-    try {
-      router.push({ pathname: "/pharmacy/rx-order", params: { prescriptionId: String(prescription.id) } });
-    } finally {
-      setOrdering(false);
-    }
-  };
+  const labs = Array.isArray(prescription?.labs) ? prescription.labs : [];
+  const ready = status === 'ready' && prescription;
+  const footer = ready ? (
+    <>
+      {prescription.id ? <Button label={k('consult.rx.order')} size="lg" fullWidth startIcon="package" onPress={() => router.push({ pathname: '/pharmacy/rx-order', params: { prescriptionId: String(prescription.id) } } as unknown as Href)} theme={theme} testID="rx-order" /> : null}
+      {labs.length > 0 ? <Button label={k('consult.rx.bookLab')} variant="outline" size="md" fullWidth onPress={() => router.push('/diagnostics/search' as Href)} theme={theme} /> : null}
+    </>
+  ) : undefined;
 
   return (
-    <View style={[st.c, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-      <View
-        style={[
-          st.hdr,
-          {
-            paddingTop: insets.top + 8,
-            backgroundColor: colors.surface,
-            borderBottomColor: colors.borderLight,
-          },
-        ]}
-      >
-        <View style={{ width: 40 }} />
-        <AppText variant="h4">وصفة طبية</AppText>
-        <IconButton icon="back" onPress={() => router.back()} />
-      </View>
-
-      <ScrollView
-        contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 140 }}
-      >
-        {loading ? (
-          <AppText>جاري التحميل...</AppText>
-        ) : !prescription ? (
-          <AppText style={{ textAlign: 'center', marginTop: 40 }}>لا توجد وصفات طبية نشطة حالياً.</AppText>
-        ) : (
+    <ConsultScreen title={k('consult.rx.title')} footer={footer} testID="prescription-from-doctor-screen">
+      <Gate status={status} onRetry={() => void load()} missingTitle={k('consult.rx.empty')} missingBody={k('consult.rx.emptyBody')}>
+        {prescription ? (
           <>
-            {/* Doctor info */}
-            <Card
-              style={{
-                flexDirection: "row-reverse",
-                gap: 12,
-                alignItems: "center",
-              }}
-            >
-              <View
-                style={[st.docAvatar, { backgroundColor: colors.primarySurface }]}
-              >
-                <Icon name="doctor" size={28} color={colors.primary} />
-              </View>
-              <View style={{ flex: 1, alignItems: "flex-end", gap: 3 }}>
-                <AppText variant="h5">{prescription.doctor}</AppText>
-                <AppText variant="caption" color={colors.textTertiary}>
-                  {prescription.spec}
-                </AppText>
-                <AppText variant="caption" color={colors.textTertiary}>
-                  {prescription.date}
-                </AppText>
-              </View>
-              <Badge
-                label="وصفة رسمية"
-                color={colors.success}
-                icon="check_circle"
-              />
-            </Card>
-
-            {/* Diagnosis */}
-            <Card>
-              <SectionHeader title="التشخيص" />
-              <AppText variant="bodySM" color={colors.textSecondary}>
-                {prescription.diagnosis}
-              </AppText>
-            </Card>
-
-            {/* Medications */}
-            <View
-              style={{
-                flexDirection: "row-reverse",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <SectionHeader
-                title={`الأدوية (${medications.length})`}
-              />
-              <TouchableOpacity onPress={addAllToReminders}>
-                <AppText variant="labelMD" color={colors.primary}>
-                  إضافة الكل للتذكير
-                </AppText>
-              </TouchableOpacity>
-            </View>
-
-            {medications.map((med) => {
-              const added = addedToReminders.includes(med.id);
-              return (
-                <Card key={med.id}>
-                  <View
-                    style={{
-                      flexDirection: "row-reverse",
-                      gap: 12,
-                      alignItems: "center",
-                    }}
-                  >
-                    <View
-                      style={[
-                        st.medIcon,
-                        { backgroundColor: colors.primarySurface },
-                      ]}
-                    >
-                      <Icon name="medication" size={22} color={colors.primary} />
-                    </View>
-                    <View style={{ flex: 1, alignItems: "flex-end", gap: 2 }}>
-                      <AppText variant="h5">{med.name}</AppText>
-                      <AppText variant="bodySM" color={colors.textTertiary}>
-                        {med.dose}
-                      </AppText>
-                    </View>
-                  </View>
-
-                  <View
-                    style={[st.detailsGrid, { borderColor: colors.borderLight }]}
-                  >
-                    {[
-                      { icon: "medication", label: "الجرعة", value: med.dose },
-                      { icon: "calendar", label: "المدة", value: med.duration },
-                      { icon: "food", label: "التعليمات", value: med.instruction },
-                    ].filter((d) => d.value).map((d, i) => (
-                      <View key={i} style={st.detailItem}>
-                        <Icon
-                          name={d.icon as any}
-                          size={14}
-                          color={colors.textTertiary}
-                        />
-                        <AppText variant="caption" color={colors.textTertiary}>
-                          {d.label}
-                        </AppText>
-                        <AppText variant="labelSM" color={colors.textPrimary}>
-                          {d.value}
-                        </AppText>
-                      </View>
-                    ))}
-                  </View>
-
-                  <View
-                    style={{ flexDirection: "row-reverse", gap: 8, marginTop: 10 }}
-                  >
-                    <Button
-                      label={added ? "تمت الإضافة " : "إضافة للتذكير"}
-                      variant={added ? "ghost" : "outline"}
-                      icon={added ? "check-circle" : "bell"}
-                      size="sm"
-                      full={false}
-                      disabled={added}
-                      onPress={() => addToReminder(med.id)}
-                      style={{ flex: 1 }}
-                    />
-                    {/* catalog medicines only: a manually written line has no product page */}
-                    {med.medicine_id ? (
-                    <Button
-                      label="التفاصيل"
-                      variant="ghost"
-                      icon="info"
-                      size="sm"
-                      full={false}
-                      onPress={() =>
-                        router.push({
-                          pathname: "/pharmacy/product-detail",
-                          params: { productId: med.medicine_id },
-                        })
-                      }
-                      style={{ flex: 1 }}
-                    />
-                    ) : null}
-                  </View>
-                </Card>
-              );
-            })}
-
-            {/* Requested Labs */}
-            {prescription.labs && prescription.labs.length > 0 && (
-              <>
-                <SectionHeader title={`التحاليل المطلوبة (${prescription.labs.length})`} />
-                {prescription.labs.map((lab: any) => (
-                  <Card key={lab.id}>
-                    <View style={{ flexDirection: "row-reverse", gap: 12, alignItems: "center" }}>
-                      <View style={[st.medIcon, { backgroundColor: colors.infoSurface }]}>
-                        <Icon name="activity" size={22} color={colors.info} />
-                      </View>
-                      <View style={{ flex: 1, alignItems: "flex-end", gap: 2 }}>
-                        <AppText variant="h5">{lab.name}</AppText>
-                        <AppText variant="bodySM" color={colors.textTertiary}>{lab.instructions || 'صائم 8 ساعات'}</AppText>
-                      </View>
-                    </View>
-                  </Card>
-                ))}
-              </>
-            )}
-
-            {/* Doctor notes */}
-            <Card style={{ backgroundColor: colors.warningSurface }}>
-              <View
-                style={{
-                  flexDirection: "row-reverse",
-                  gap: 10,
-                  alignItems: "flex-start",
-                }}
-              >
-                <Icon name="edit" size={18} color={colors.warning} />
-                <View style={{ flex: 1 }}>
-                  <AppText variant="h6" color={colors.warning}>
-                    ملاحظات الطبيب
-                  </AppText>
-                  <AppText variant="bodySM" color={colors.textSecondary}>
-                    {prescription.notes}
-                  </AppText>
+            <Card theme={theme}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <FIcon icon="prescription" tone={RX_TONE} size={48} theme={theme} />
+                <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                  {prescription.doctor ? <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{prescription.doctor}</Text> : null}
+                  {prescription.spec ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{prescription.spec}</Text> : null}
+                  {prescription.date ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.tertiary, ...flow }}>{date(prescription.date)}</Text> : null}
                 </View>
               </View>
             </Card>
 
-            {/* Follow-up CTA */}
-            <Card
-              onPress={() => router.push("/consultations/follow-up")}
-              style={{
-                flexDirection: "row-reverse",
-                alignItems: "center",
-                gap: 12,
-              }}
-            >
-              <View
-                style={[st.medIcon, { backgroundColor: colors.secondarySurface }]}
-              >
-                <Icon name="calendar" size={22} color={colors.secondary} />
-              </View>
-              <View style={{ flex: 1, alignItems: "flex-end" }}>
-                <AppText variant="h6">حجز موعد متابعة</AppText>
-                <AppText variant="caption" color={colors.textTertiary}>
-                  المطلوب: بعد أسبوعين
-                </AppText>
-              </View>
-              <Icon name="chevronLeft" size={18} color={colors.textTertiary} />
-            </Card>
-          </>
-        )}
-      </ScrollView>
+            {prescription.diagnosis ? (
+              <Section title={k('consult.rx.diagnosis')}>
+                <Card theme={theme}>
+                  <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }}>{prescription.diagnosis}</Text>
+                </Card>
+              </Section>
+            ) : null}
 
-      {/* Bottom */}
-      <View
-        style={[
-          st.bottom,
-          {
-            paddingBottom: insets.bottom + 8,
-            backgroundColor: colors.surface,
-            borderTopColor: colors.borderLight,
-          },
-        ]}
-      >
-        <View style={{ flexDirection: "row-reverse", gap: 10 }}>
-          <Button
-            label="طلب من الصيدلية"
-            variant="gradient"
-            icon="shopping_cart"
-            loading={ordering}
-            onPress={orderFromPharmacy}
-            full={false}
-            style={{ flex: 1 }}
-          />
-          {prescription?.labs?.length > 0 && (
-            <Button
-              label="احجز موعد مختبر"
-              variant="outline"
-              icon="activity"
-              onPress={() => router.push("/diagnostics/search")}
-              full={false}
-              style={{ flex: 1 }}
-            />
-          )}
-          <Button
-            label="تحميل PDF"
-            variant="outline"
-            icon="download"
-            onPress={() => {
-              /* Requires backend API integration */
-            }}
-            full={false}
-            style={{ flex: 1 }}
-          />
-        </View>
-      </View>
-    </View>
+            <Section title={k('consult.rx.medicines', { n: num(medications.length) })} actionLabel={medications.length > 0 ? k('consult.rx.addAll') : undefined} onAction={() => void addAll()}>
+              {medications.map((med) => {
+                const done = added.includes(med.id);
+                return (
+                  <Card key={med.id} theme={theme}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                      <FIcon icon="pill" tone={RX_TONE} size={44} theme={theme} />
+                      <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, flex: 1, minWidth: 0, ...flow }}>{med.name}</Text>
+                    </View>
+                    <View style={{ marginTop: 6 }}>
+                      <InfoRow label={k('consult.rx.dose')} value={med.dose} />
+                      <InfoRow label={k('consult.rx.duration')} value={med.duration_days ? k('consult.rx.days', { n: num(med.duration_days) }) : ''} />
+                      <InfoRow label={k('consult.rx.instructions')} value={med.instruction} last />
+                    </View>
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
+                      <Button label={done ? k('consult.rx.reminderAdded') : k('consult.rx.addReminder')} variant="outline" size="sm" startIcon={done ? 'check-circle' : 'bell'} disabled={done} onPress={() => void addOne(med)} theme={theme} />
+                      {/* catalog medicines only: a manually written line has no product page */}
+                      {med.medicine_id ? <Button label={k('consult.rx.details')} variant="ghost" size="sm" startIcon="info" onPress={() => router.push({ pathname: '/pharmacy/product-detail', params: { productId: med.medicine_id } } as unknown as Href)} theme={theme} /> : null}
+                    </View>
+                  </Card>
+                );
+              })}
+            </Section>
+
+            {labs.length > 0 ? (
+              <Section title={k('consult.rx.labs', { n: num(labs.length) })}>
+                {labs.map((lab, i) => (
+                  <Card key={lab.id ?? i} theme={theme}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                      <FIcon icon="test-tube" tone="mint" size={44} theme={theme} />
+                      <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                        <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{lab.name}</Text>
+                        {lab.instructions ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{lab.instructions}</Text> : null}
+                      </View>
+                    </View>
+                  </Card>
+                ))}
+              </Section>
+            ) : null}
+
+            {prescription.notes ? (
+              <Section title={k('consult.rx.notes')}>
+                <Card theme={theme}>
+                  <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }}>{prescription.notes}</Text>
+                </Card>
+              </Section>
+            ) : null}
+
+            <Button label={k('consult.rx.followUp')} variant="outline" size="md" fullWidth startIcon="calendar-dots" onPress={() => router.push('/consultations/follow-up' as Href)} theme={theme} />
+          </>
+        ) : null}
+      </Gate>
+    </ConsultScreen>
   );
 }
-
-const st = StyleSheet.create({
-  c: { flex: 1 },
-  hdr: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-  },
-  docAvatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  medIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 15,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  detailsGrid: {
-    flexDirection: "row-reverse",
-    flexWrap: "wrap",
-    borderTopWidth: 1,
-    marginTop: 10,
-    paddingTop: 10,
-    gap: 8,
-  },
-  detailItem: { width: "47%", alignItems: "flex-end", gap: 2 },
-  bottom: { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1 },
-});

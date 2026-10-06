@@ -11,10 +11,12 @@ _Updated 2026-10-06._
 |---|---|
 | Foundation (tokens, Readex Pro, shells, 40 components, lint gates, CSP by class) | Merged |
 | Batch 0 (29 screens) + fixes | Merged (#285, #291, #292) |
+| **Batch 2 consultations**, `design/batch-2` (stacked on `design/batch-1`; PR base is the batch-1 branch until #293 merges) | 46 screens (22 app + 24 web) rebuilt, render entries + board comparison done, flagged hub filters (`EXPO_PUBLIC_CONSULT_NEARBY_FILTERS`); web runtime check 69 runs / 0 issues, app endpoints 31 routes / 0 failures. PR #313 (to main) |
+| **Batch 3 labs, radiology**, `design/batch-3` (stacked on `design/batch-2`) | 17 app + 22 web; app slice in progress, web next |
 | **Batch 1 pharmacy**, `design/batch-1`, draft PR [#293](https://github.com/obaid08642-ops/new/pull/293) | **Complete and ready for review** (all slices 1a-1e + local-first cart; batch-end build, runtime check 129 runs / 2 known flags, Lighthouse done). Baselines: literals 5234, raw colour 7273, left/right 476, client-token-sync 897, parity 663 |
 | F82-3 static/ISR for public pages, [#308](https://github.com/obaid08642-ops/new/pull/308) | Open (PR to main): pages cached, per-user parts on the client; LCP unchanged (JS-bound), `.lighthouserc.json` not ratcheted; finding: nonce server serves uncompressed |
 | F82-1 [#297](https://github.com/obaid08642-ops/new/pull/297), F82-2 [#295](https://github.com/obaid08642-ops/new/pull/295), F68 CSP [#301](https://github.com/obaid08642-ops/new/pull/301) | Merged into main (and into `design/batch-1`). Merged into main and into `design/batch-1` |
-| Gates (baselines only go down) | `no-literal-ui-string` 5234, `no-raw-color` 7273, `no-left-right` 476, `client-token-sync` 897, `locale-parity` 663 |
+| Gates (baselines only go down) | `no-literal-ui-string` 4528, `no-raw-color` 6282, `no-left-right` 359, `client-token-sync` 897, `locale-parity` 663 |
 
 Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy: 23/34 (done: app 23, web 34 = all); 2 consultations 22/24; 3 labs 17/22; 4 nursing 7/9; 5 records 26/24; 6 family 10/10; 7 insurance 10/13; 8 maternity etc. 11/21; 9 AI 7/10; 10 community 5/5; 11 loyalty 7/7; 12 account 20/20; 13 web-only 3/14.
 
@@ -26,6 +28,7 @@ Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy
 4. Per-route client messages: Batch 1 adds ~36 KB of pharmacy namespaces to `CLIENT_NAMESPACES` (shipped on every page); move them to a pharmacy route-group provider.
 
 ## Process (owner, 2026-10-06; quality rules unchanged, recording changed)
+- **Lean v2 (Batch 2 on): under 40k tokens per screen** (Batch 1 cost ~100k). Design only (no business-logic changes, no features; wrong logic = one Needs-review line); templates first, built once with tests, screens converted mechanically; no backend reading per screen (inventory + one runtime check per slice); tests only for new templates and payment/booking; translations extracted in one pass at the end of the slice; read only the screen, its board and the template; slices of 15-25 screens; stop and say why if a slice passes 40k/screen.
 - **No screenshots committed or sent.** A temporary screenshot only to compare with the board while building, then delete it. No before/after/compare images.
 - **One production build and one runtime check per slice, at the end**; dev server while building. Lighthouse only in F82 PRs and once per batch.
 - **Audit is generated, short:** `node tools/design/audit-table.mjs` from a compact `audit/<slice>.json` (route, element, source, status); notes one line each, only for problems. Needs-review: one line each.
@@ -44,10 +47,10 @@ Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy
 | 1b cart, prescription | app 6, web 9 | 439k / 736k | web includes an API cut-off and resume |
 | 1c offers (high) | app 2 (+1 redirect), web 6 | 514k / 607k | no live offer seedable locally |
 | 1d checkout, payment (high) | app 5, web 5 (+redirects) | 582k / 673k | lean process; no gateway key/replica set locally |
+| 2 consultations (lean v2) | app 22, web 24 | 585k / 470k (**26.6k / 19.6k per screen**, target 40k) | templates built once (`consult/` kits), mechanical conversion, one translation pass: 418 app keys, 145 web keys |
 | 1e orders, tracking | app 5, web 5 | 439k / 473k | first slices under the lean process: fewer tokens per screen than 1a/1b |
 
 ## Open blockers (details in `PROGRESS_ARCHIVE.md` and the Needs-review JSON)
-- **CRITICAL, reviewer:** `POST /auth/social-login` does not verify Apple/X/Snapchat tokens (archive, "Blockers"). X/Snapchat are hidden behind `EXPO_PUBLIC_SOCIAL_X_SNAPCHAT`; web shows Google only.
 - **Public product catalogue is empty** on the seeded backend (v14 import is the reviewer's): product/category screens are checked with injected TEST data only.
 - **Backend gaps found in Batch 1** (reviewer; in `needs-review/batch-1*.json`): patient chat actions answer 403 (`@Roles(PHARMACY, ADMIN)`); governed states `OFFERS_READY`/`ORDER_BROADCASTING` never produced; offer ETA/`insurance_ready`/`cod_allowed` constants; expiry command has no scheduler; OCR field names not read by the upload endpoint; barcode `$regex` unescaped; prescription lists return base64 photos; no replica set locally so submit/select answer 500.
 - **Endpoints the reviewer will add:** `GET /payments/status/:ref` (web `/payments/result`), `GET /insurance/claims/my` (batch 7), `GET /nutrition/plan` (batch 8); doctor fields `scfhs_license_no`, `years_experience`, `qualifications[]`. Hide the part, never invent data.

@@ -1,208 +1,196 @@
-// @ts-nocheck
 /**
- * M4-FE2 · شاشة تأكيد العيادة الختامية (BR-3)
- * بعد قبول المزود لحجز العيادة: باركود/QR للحجز + موقع واتجاهات +
- * تواصل (اتصال/محادثة) + تعليمات تحضير + سياسة الإلغاء والاسترداد.
- * المصادر: GET /appointments/:id · GET /care/doctors/:doctor_id
+ * Clinic confirmation — board BookingConfirm's result (canvas/BookingConfirm.dc.html) for an accepted clinic booking:
+ * the QR for reception, the place and the ways to reach it, the preparation list and the way to cancel or reschedule.
+ * Sources: GET /care/appointments/:id and GET /care/doctors/:doctor_id. The screen also hosts the clinic-location view
+ * (`?view=location`), which is its own component.
  */
-import React, { useEffect, useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Linking, Platform, Alert, RefreshControl } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Linking, Platform, Text, View } from 'react-native';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 import QRCode from 'react-native-qrcode-svg';
-import { useApp } from '../../src/context/AppContext';
-import { Icon } from '../../src/components/Icon';
-import { AppText, Card, Button } from '../../src/components/ui';
-import { ScreenState } from '../../src/components/ScreenStates';
-import { apiFetch } from '../../src/utils/api';
-import { dateLocale } from '@/utils/dates';
+
+import { Button, Card, FIcon } from '../../../packages/ui-native/src';
+import { ConsultScreen, Gate, InfoRow, Section, useConsultFormat, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
+import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
-import { useLocalSearchParams as __useRouteParams } from "expo-router";
-import ClinicLocationView from "../../src/components/views/ClinicLocationView";
+import ClinicLocationView from '../../src/components/views/ClinicLocationView';
+import { tokens } from '../../../packages/design-tokens/dist/ts/tokens';
+import { apiFetch } from '../../src/utils/api';
+import { isOffline } from '../../src/utils/isOffline';
+import { logError } from '../../src/utils/logger';
+
+interface Facility {
+  name?: string;
+  address?: string;
+  phone?: string;
+  location?: { lat?: number; lng?: number };
+}
+interface Doctor {
+  name?: string;
+  clinic_name?: string;
+  clinic_address?: string;
+  clinic_phone?: string;
+  phone?: string;
+  location?: { lat?: number; lng?: number };
+  facility?: Facility;
+}
+interface Appt {
+  id?: string;
+  slot_start?: string;
+  doctor_id?: string;
+  doctor_user_id?: string;
+}
+
+const TIPS = ['consult.clinic.tip1', 'consult.clinic.tip2', 'consult.clinic.tip3', 'consult.clinic.tip4'] as const;
 
 function ClinicConfirmScreenInner() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark, lang } = useApp();
-  const AR = lang !== 'en';
+  const { theme, t, c, flow, k } = useScreenUi();
+  const { date, clock } = useConsultFormat();
   const { appointmentId } = useLocalSearchParams<{ appointmentId?: string }>();
+  // A QR must stay dark on light in either theme, or a reception scanner cannot read it.
+  const light = tokens('light').color;
 
-  const [appt, setAppt] = useState<any>(null);
-  const [doctor, setDoctor] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [appt, setAppt] = useState<Appt | null>(null);
+  const [doctor, setDoctor] = useState<Doctor | null>(null);
+  const [status, setStatus] = useState<GateStatus>('loading');
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async (isRefresh = false) => {
-    if (!appointmentId) { setError(AR ? 'معرّف الموعد مفقود' : 'Missing appointment id'); setLoading(false); return; }
-    if (isRefresh) setRefreshing(true); else setLoading(true);
-    setError(null);
-    try {
-      const a = await apiFetch<any>(`/care/appointments/${appointmentId}`);
-      setAppt(a);
-      if (a?.doctor_id) {
-        try { setDoctor(await apiFetch<any>(`/care/doctors/${a.doctor_id}`)); } catch {}
+  const load = useCallback(
+    async (isRefresh = false) => {
+      if (!appointmentId) {
+        setStatus('missing');
+        return;
       }
-    } catch (e: any) {
-      setError(e?.message || (AR ? 'تعذر تحميل بيانات الموعد' : 'Failed to load appointment'));
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [appointmentId, AR]);
+      if (isRefresh) setRefreshing(true);
+      else setStatus('loading');
+      try {
+        const a = await apiFetch<Appt>(`/care/appointments/${appointmentId}`);
+        setAppt(a);
+        if (a?.doctor_id) {
+          try {
+            setDoctor(await apiFetch<Doctor>(`/care/doctors/${a.doctor_id}`));
+          } catch (e) {
+            logError('consultations:clinic-confirm:doctor', e);
+          }
+        }
+        setStatus(a ? 'ready' : 'missing');
+      } catch (e) {
+        logError('consultations:clinic-confirm', e);
+        setStatus((await isOffline()) ? 'offline' : 'error');
+      } finally {
+        setRefreshing(false);
+      }
+    },
+    [appointmentId],
+  );
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
-  if (loading) return <ScreenState loading>{null}</ScreenState>;
-  if (error && !appt) return <ScreenState error={error} onRetry={() => load()}>{null}</ScreenState>;
-  if (!appt) return <ScreenState empty emptyTitle={AR ? 'لا يوجد موعد' : 'Appointment not found'}>{null}</ScreenState>;
-
-  const facility = doctor?.facility || null;
-  const clinicName = facility?.name || doctor?.clinic_name || (AR ? 'العيادة' : 'Clinic');
+  const facility = doctor?.facility ?? null;
+  const clinicName = facility?.name || doctor?.clinic_name || k('consult.clinic.fallback');
   const address = facility?.address || doctor?.clinic_address || '';
   const phone = facility?.phone || doctor?.clinic_phone || doctor?.phone || '';
   const lat = facility?.location?.lat ?? doctor?.location?.lat;
   const lng = facility?.location?.lng ?? doctor?.location?.lng;
-
-  const dateStr = appt.slot_start
-    ? new Date(appt.slot_start).toLocaleDateString(AR ? dateLocale() : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
-    : '—';
-  const timeStr = appt.slot_start
-    ? new Date(appt.slot_start).toLocaleTimeString(AR ? dateLocale() : 'en-GB', { hour: '2-digit', minute: '2-digit' })
-    : '—';
-  const bookingCode = String(appt.id || '').toUpperCase();
+  const bookingCode = String(appt?.id || '').toUpperCase();
 
   const openDirections = () => {
     if (lat == null || lng == null) {
-      router.push({ pathname: '/consultations/clinic-location', params: { appointmentId } });
+      router.push({ pathname: '/consultations/clinic-location', params: { appointmentId } } as unknown as Href);
       return;
     }
     const url = Platform.select({
       ios: `maps:0,0?q=${encodeURIComponent(clinicName)}@${lat},${lng}`,
       android: `geo:0,0?q=${lat},${lng}(${encodeURIComponent(clinicName)})`,
     });
-    if (url) Linking.openURL(url);
+    if (url) void Linking.openURL(url);
   };
 
   const callClinic = () => {
-    if (!phone) { showLocalizedAlert(AR ? 'غير متاح' : 'Unavailable', AR ? 'رقم التواصل غير متوفر حاليًا' : 'Contact number not available'); return; }
-    Linking.openURL(`tel:${phone}`);
+    if (!phone) {
+      showLocalizedAlert(k('consult.clinic.unavailable'), k('consult.clinic.noPhone'));
+      return;
+    }
+    void Linking.openURL(`tel:${phone}`);
   };
 
-  const openChat = () => {
-    router.push({ pathname: '/consultations/chat-with-doctor', params: { doctorId: appt.doctor_user_id || appt.doctor_id, appointmentId } });
-  };
-
-  const openCancelPolicy = () => {
-    router.push({ pathname: '/consultations/cancel-reschedule', params: { appointmentId } });
-  };
+  const openChat = () => router.push({ pathname: '/consultations/chat-with-doctor', params: { doctorId: appt?.doctor_user_id || appt?.doctor_id, appointmentId } } as unknown as Href);
 
   return (
-    <View style={[st.c, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-      <View style={[st.hdr, { paddingTop: insets.top + 8, backgroundColor: colors.surface, borderBottomColor: colors.borderLight }]}>
-        <View style={{ width: 40 }} />
-        <AppText variant="h4">{AR ? 'تأكيد موعد العيادة' : 'Clinic Booking Confirmed'}</AppText>
-        <TouchableOpacity onPress={() => router.replace('/(tabs)')} style={{ width: 40, alignItems: 'center' }}>
-          <Icon name="close" size={22} color={colors.textSecondary} />
-        </TouchableOpacity>
-      </View>
+    <ConsultScreen
+      title={k('consult.clinic.title')}
+      actions={[{ key: 'close', label: k('consult.close'), icon: <Glyph name="x-circle" size={22} color={c.icon.primary} />, onPress: () => router.replace('/(tabs)' as Href) }]}
+      onRefresh={() => void load(true)}
+      refreshing={refreshing}
+      testID="clinic-confirm-screen"
+    >
+      <Gate status={status} onRetry={() => void load()} missingTitle={k('consult.clinic.missing')} missingBody={k('consult.missing.body')}>
+        {appt ? (
+          <>
+            <Card theme={theme}>
+              <View style={{ alignItems: 'center', gap: 10 }}>
+                <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, textAlign: 'center' }}>{k('consult.clinic.showCode')}</Text>
+                <View style={{ backgroundColor: light.bg.surface, padding: 16, borderRadius: 16 }}>
+                  <QRCode value={`NABDAH:APPT:${bookingCode}`} size={170} color={light.text.primary} backgroundColor={light.bg.surface} />
+                </View>
+                <Text selectable style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.secondary, letterSpacing: 2 }}>{bookingCode.slice(0, 8)}</Text>
+              </View>
+              <View style={{ marginTop: 8 }}>
+                <InfoRow label={k('consult.detail.date')} value={appt.slot_start ? date(appt.slot_start, true) : ''} />
+                <InfoRow label={k('consult.detail.time')} value={appt.slot_start ? clock(appt.slot_start) : ''} last />
+              </View>
+            </Card>
 
-      <ScrollView
-        contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: insets.bottom + 32 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor={colors.primary} />}
-      >
-        {/* QR / Barcode card */}
-        <Card style={{ alignItems: 'center', gap: 10 }}>
-          <AppText variant="h5">{AR ? 'أظهر هذا الرمز عند الاستقبال' : 'Show this code at reception'}</AppText>
-          <View style={{ backgroundColor: '#FFF', padding: 16, borderRadius: 16 }}>
-            <QRCode value={`NABDAH:APPT:${bookingCode}`} size={170} />
-          </View>
-          <AppText variant="labelMD" color={colors.textSecondary} style={{ letterSpacing: 2 }}>{bookingCode.slice(0, 8)}</AppText>
-          <View style={{ flexDirection: 'row-reverse', gap: 16, marginTop: 4 }}>
-            <View style={{ alignItems: 'center' }}>
-              <AppText variant="caption" color={colors.textTertiary}>{AR ? 'التاريخ' : 'Date'}</AppText>
-              <AppText variant="labelMD">{dateStr}</AppText>
-            </View>
-            <View style={{ alignItems: 'center' }}>
-              <AppText variant="caption" color={colors.textTertiary}>{AR ? 'الوقت' : 'Time'}</AppText>
-              <AppText variant="labelMD">{timeStr}</AppText>
-            </View>
-          </View>
-        </Card>
+            <Section title={k('consult.clinic.details')}>
+              <Card theme={theme}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <FIcon icon="hospital" tone="blue" size={44} theme={theme} />
+                  <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                    <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{clinicName}</Text>
+                    {doctor?.name ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{doctor.name}</Text> : null}
+                    {address ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{address}</Text> : null}
+                  </View>
+                </View>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
+                  <Button label={k('consult.clinic.directions')} variant="outline" size="md" startIcon="map-pin" onPress={openDirections} theme={theme} />
+                  <Button label={k('consult.clinic.call')} variant="outline" size="md" startIcon="headset" onPress={callClinic} theme={theme} />
+                  <Button label={k('consult.clinic.chat')} variant="outline" size="md" startIcon="chat-circle-text" onPress={openChat} theme={theme} />
+                </View>
+              </Card>
+            </Section>
 
-        {/* Clinic info + contact */}
-        <Card style={{ gap: 10 }}>
-          <AppText variant="h5" style={{ textAlign: 'right' }}>{AR ? 'بيانات العيادة' : 'Clinic details'}</AppText>
-          <View style={st.row}>
-            <AppText variant="bodyMD" style={{ flex: 1, textAlign: 'right' }}>{clinicName}{doctor?.name ? ` · ${doctor.name}` : ''}</AppText>
-            <Icon name="hospital" size={18} color={colors.primary} />
-          </View>
-          {!!address && (
-            <View style={st.row}>
-              <AppText variant="bodySM" color={colors.textSecondary} style={{ flex: 1, textAlign: 'right' }}>{address}</AppText>
-              <Icon name="map" size={18} color={colors.textTertiary} />
-            </View>
-          )}
-          <View style={{ flexDirection: 'row-reverse', gap: 10, marginTop: 6 }}>
-            <TouchableOpacity onPress={openDirections} style={[st.actionBtn, { backgroundColor: colors.primarySurface }]}>
-              <Icon name="map" size={18} color={colors.primary} />
-              <AppText variant="labelSM" color={colors.primary}>{AR ? 'الاتجاهات' : 'Directions'}</AppText>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={callClinic} style={[st.actionBtn, { backgroundColor: colors.primarySurface }]}>
-              <Icon name="phone" size={18} color={colors.primary} />
-              <AppText variant="labelSM" color={colors.primary}>{AR ? 'اتصال' : 'Call'}</AppText>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={openChat} style={[st.actionBtn, { backgroundColor: colors.primarySurface }]}>
-              <Icon name="chat" size={18} color={colors.primary} />
-              <AppText variant="labelSM" color={colors.primary}>{AR ? 'محادثة' : 'Chat'}</AppText>
-            </TouchableOpacity>
-          </View>
-        </Card>
+            <Section title={k('consult.clinic.before')}>
+              <Card theme={theme}>
+                {TIPS.map((tip) => (
+                  <View key={tip} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingVertical: 6 }}>
+                    <Glyph name="check-circle" size={18} color={c.status.success.fg} />
+                    <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, flex: 1, ...flow }}>{k(tip)}</Text>
+                  </View>
+                ))}
+              </Card>
+            </Section>
 
-        {/* Preparation */}
-        <Card style={{ gap: 8 }}>
-          <AppText variant="h5" style={{ textAlign: 'right' }}>{AR ? 'قبل موعدك' : 'Before your visit'}</AppText>
-          {(AR
-            ? ['احضر قبل الموعد بـ 15 دقيقة لتسجيل الوصول', 'أحضر الهوية الوطنية وبطاقة التأمين إن وجدت', 'أحضر نتائج التحاليل أو الأشعة السابقة', 'جهّز قائمة بالأدوية التي تتناولها حاليًا']
-            : ['Arrive 15 minutes early for check-in', 'Bring your national ID and insurance card if any', 'Bring previous lab or radiology results', 'Prepare a list of your current medications']
-          ).map((tip, i) => (
-            <View key={i} style={st.row}>
-              <AppText variant="bodySM" color={colors.textSecondary} style={{ flex: 1, textAlign: 'right' }}>{tip}</AppText>
-              <Icon name="check_circle" size={16} color={colors.success} />
-            </View>
-          ))}
-        </Card>
-
-        {/* Cancellation policy */}
-        <Card style={{ gap: 8, borderWidth: 1, borderColor: colors.borderLight }}>
-          <AppText variant="h5" style={{ textAlign: 'right' }}>{AR ? 'سياسة الإلغاء والاسترداد' : 'Cancellation & refund policy'}</AppText>
-          {[
-            AR ? 'قبل الموعد بأكثر من 24 ساعة: استرداد 100%' : 'More than 24h before: 100% refund',
-            AR ? 'قبل 4–24 ساعة: استرداد 50%' : '4–24h before: 50% refund',
-            AR ? 'أقل من 4 ساعات: غير قابل للاسترداد' : 'Less than 4h: non-refundable',
-          ].map((rule, i) => (
-            <View key={i} style={st.row}>
-              <AppText variant="bodySM" color={colors.textSecondary} style={{ flex: 1, textAlign: 'right' }}>{rule}</AppText>
-              <Icon name="document" size={14} color={colors.textTertiary} />
-            </View>
-          ))}
-          <Button variant="outline" label={AR ? 'إلغاء / إعادة جدولة الموعد' : 'Cancel / reschedule'} onPress={openCancelPolicy} style={{ marginTop: 8 }} />
-        </Card>
-      </ScrollView>
-    </View>
+            <Section title={k('consult.clinic.policy')}>
+              <Card theme={theme}>
+                <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }}>{k('consult.clinic.policyBody')}</Text>
+                <View style={{ marginTop: 12 }}>
+                  <Button label={k('consult.clinic.cancelReschedule')} variant="outline" size="md" fullWidth onPress={() => router.push({ pathname: '/consultations/cancel-reschedule', params: { appointmentId } } as unknown as Href)} theme={theme} />
+                </View>
+              </Card>
+            </Section>
+          </>
+        ) : null}
+      </Gate>
+    </ConsultScreen>
   );
 }
 
-const st = StyleSheet.create({
-  c: { flex: 1 },
-  hdr: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1 },
-  row: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8 },
-  actionBtn: { flex: 1, flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 6, borderRadius: 12, paddingVertical: 10 },
-});
-
-// __RouteGuard: Phase 2 unified-screen host (view=location)
-export default function ClinicConfirmScreenInnerRoute() {
-  const __p = __useRouteParams() as any;
-  if (__p?.view === "location") return <ClinicLocationView />;
+// Phase 2 unified-screen host: `?view=location` shows the clinic-location view.
+export default function ClinicConfirmScreenRoute() {
+  const params = useLocalSearchParams<{ view?: string }>();
+  if (params?.view === 'location') return <ClinicLocationView />;
   return <ClinicConfirmScreenInner />;
 }

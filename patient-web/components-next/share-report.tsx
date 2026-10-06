@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { Notice } from "@/components-next/consult/consult-parts";
+import rx from "@/components-next/pharmacy/rx.module.css";
+import styles from "@/components-next/consult/consult.module.css";
 
 export type MedicalReportSummary = {
   id: string;
@@ -36,7 +41,7 @@ export function ShareReportPanel({ reports, locale, origin }: {
       const date = r.created_at ? new Date(r.created_at).toLocaleDateString(locale) : "";
       return `- ${r.title || r.report_type || r.id}${date ? ` (${date})` : ""} — ${origin}/${locale}/reports/${encodeURIComponent(r.id)}`;
     });
-    return `Nabd Plus — Medical reports shared:\n${lines.join("\n")}`;
+    return `${t("bundleHeader")}\n${lines.join("\n")}`;
   }
 
   async function share() {
@@ -45,7 +50,7 @@ export function ShareReportPanel({ reports, locale, origin }: {
     const text = buildBundle();
     try {
       if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({ title: "Nabd Plus", text });
+        await navigator.share({ title: t("bundleTitle"), text });
         setStatus(t("shared"));
       } else if (typeof navigator !== "undefined" && navigator.clipboard) {
         await navigator.clipboard.writeText(text);
@@ -59,34 +64,30 @@ export function ShareReportPanel({ reports, locale, origin }: {
   }
 
   if (reports.length === 0) {
-    return <p className="reports-empty">{t("empty")}</p>;
+    return <ConsultState kind="empty" icon="file-text" title={t("title")} body={t("empty")} />;
   }
 
   return (
-    <section className="reports-share" aria-label={t("reportsLabel")}>
-      <ul className="reports-list">
+    <section className={styles.stack} aria-label={t("reportsLabel")}>
+      <ul className={styles.list}>
         {reports.map((report) => (
-          <li key={report.id} className="reports-item">
-            <label className="reports-row">
-              <input
-                type="checkbox"
-                checked={selected.has(report.id)}
-                onChange={() => toggle(report.id)}
-              />
-              <span className="reports-title">{report.title || report.report_type || report.id}</span>
-              <span className="reports-meta">
-                {report.provider_name ? `${report.provider_name} · ` : ""}
-                {report.created_at ? new Date(report.created_at).toLocaleDateString(locale) : ""}
+          <li key={report.id} className={rx.card}>
+            <label className={styles.pickRow}>
+              <input type="checkbox" checked={selected.has(report.id)} onChange={() => toggle(report.id)} />
+              <span className={styles.rowBody}>
+                <span className={styles.rowTitle}>{report.title || report.report_type || report.id}</span>
+                <span className={styles.rowSub}>
+                  {report.provider_name ? `${report.provider_name}${report.created_at ? " · " : ""}` : ""}
+                  {report.created_at ? new Date(report.created_at).toLocaleDateString(locale) : ""}
+                </span>
               </span>
             </label>
           </li>
         ))}
       </ul>
-      <p className="reports-notice">{t("notice")}</p>
-      <button type="button" className="reports-share-btn" disabled={selected.size === 0} onClick={() => void share()}>
-        {t("share")} ({selected.size})
-      </button>
-      {status ? <p className="reports-status" role="status">{status}</p> : null}
+      <Notice>{t("notice")}</Notice>
+      <Button fullWidth label={`${t("share")} (${new Intl.NumberFormat(locale).format(selected.size)})`} disabled={selected.size === 0} onClick={() => void share()} />
+      {status ? <p className={styles.ok} role="status">{status}</p> : null}
     </section>
   );
 }

@@ -70,6 +70,10 @@
 
 @media (min-width: 1024px) {
   .sections { display: flex; }
-  .root :global(.nabd-shell__bottom) { display: none; }
+  /* the tab bar goes; a page CTA (StickyFooter) stays: without it the booking, order and payment buttons vanished from 1024 */
+  .root :global(.nabd-shell__tabs) { display: none; }
+  .root :global(.nabd-shell__bottom:not(:has(.nabd-sticky-footer))) { display: none; }
+  /* the CTA keeps the width of the page column, not the window */
+  .root :global(.nabd-sticky-footer) > * { max-inline-size: 720px; margin-inline: auto; }
   .page { padding-block-end: var(--nabd-space-5xl); }
 }

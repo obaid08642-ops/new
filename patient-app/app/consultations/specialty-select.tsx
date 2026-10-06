@@ -1,139 +1,82 @@
-// @ts-nocheck
-import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  StatusBar,
-} from "react-native";
-import { router } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useApp } from "../../src/context/AppContext";
-import { Icon, IconName } from "../../src/components/Icon";
-import { AppText, Card, Input, IconButton } from "../../src/components/ui";
-import { apiFetch } from "../../src/utils/api";
-import { ScreenState } from "../../src/components/ScreenStates";
+import React, { useCallback, useEffect, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
+import { router, type Href } from 'expo-router';
 
+import { Card, FIcon, Input } from '../../../packages/ui-native/src';
+import { Chevron, ConsultList, specialtyLook } from '../../src/components/consult/ConsultKit';
+import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { apiFetch } from '../../src/utils/api';
+import { isOffline } from '../../src/utils/isOffline';
+import { logError } from '../../src/utils/logger';
+import { pickLocalized } from '../../src/utils/localize';
 
+/**
+ * Choose a specialty — board Consult's specialty row as a list. The list is GET /care/specialties (the real specialties
+ * with their live doctor counts, never a fallback list); choosing one opens the doctor search for it.
+ */
 
-export default function SpecialtySelectScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
-  const [q, setQ] = useState("");
-  const [specs, setSpecs] = useState<any[]>([]);
-  const [loadError, setLoadError] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  const loadSpecs = React.useCallback(() => {
-    setLoading(true);
-    setLoadError(false);
-    apiFetch('/care/specialties')
-      .then((res: any) => {
-        const list = Array.isArray(res) ? res : res?.data;
-        // Real specialties with live counts only — never a fabricated fallback list
-        setSpecs(Array.isArray(list) ? list : []);
-      })
-      .catch(() => { setSpecs([]); setLoadError(true); })
-      .finally(() => setLoading(false));
-  }, []);
-
-  React.useEffect(() => { loadSpecs(); }, [loadSpecs]);
-
-  const filtered = q
-    ? specs.filter((s) => (s?.name_ar || s?.name_en || s?.specialty || '').includes(q))
-    : specs;
-
-  return (
-    <View style={[st.c, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-      <View
-        style={[
-          st.hdr,
-          {
-            paddingTop: insets.top + 8,
-            backgroundColor: colors.surface,
-            borderBottomColor: colors.borderLight,
-          },
-        ]}
-      >
-        <AppText variant="h4">التخصصات الطبية</AppText>
-        <IconButton icon="back" onPress={() => router.back()} />
-      </View>
-      <View style={{ paddingHorizontal: 16, paddingTop: 12 }}>
-        <Input
-          value={q}
-          onChangeText={setQ}
-          placeholder="ابحث عن تخصص..."
-          icon="search"
-        />
-      </View>
-      <ScreenState loading={loading} error={null} empty={false} emptyTitle="لا توجد تخصصات" onRetry={loadSpecs}>
-      <ScrollView
-        contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: 100 }}
-      >
-        {filtered.length === 0 && (
-          <View style={{ alignItems: 'center', gap: 10, paddingVertical: 40 }}>
-            <Icon name="stethoscope" size={40} color={colors.textTertiary} />
-            <AppText variant="bodySM" color={colors.textTertiary} align="center">
-              {loadError ? 'تعذر تحميل التخصصات. تحقق من اتصالك.' : 'لا توجد تخصصات مطابقة'}
-            </AppText>
-            {loadError && (
-              <AppText variant="labelMD" color={colors.primary} onPress={loadSpecs}>إعادة المحاولة</AppText>
-            )}
-          </View>
-        )}
-        {filtered.map((sp, idx) => {
-          const colorList = ['#23B5CE', '#00C9A7', '#7A6BEA', '#F0695C', '#F0A526', '#EC4899'];
-          const color = colorList[idx % colorList.length];
-          return (
-          <Card
-            key={sp.slug || idx}
-            onPress={() =>
-              router.push({
-                pathname: "/consultations/doctor-search",
-                params: { specialty: sp.name_ar },
-              })
-            }
-            style={{
-              flexDirection: "row-reverse",
-              alignItems: "center",
-              gap: 12,
-            }}
-          >
-            <View style={[st.spIcon, { backgroundColor: color + "18" }]}>
-              <Icon name="stethoscope" size={24} color={color} />
-            </View>
-            <View style={{ flex: 1, alignItems: "flex-end" }}>
-              <AppText variant="h6">{sp.name_ar}</AppText>
-              <AppText variant="caption" color={colors.textTertiary}>
-                {sp.count} طبيب متاح
-              </AppText>
-            </View>
-            <Icon name="chevronLeft" size={18} color={colors.textTertiary} />
-          </Card>
-        )})}
-      </ScrollView>
-      </ScreenState>
-    </View>
-  );
+interface Specialty {
+  slug?: string;
+  name_ar?: string;
+  name_en?: string;
+  specialty?: string;
+  count?: number;
 }
 
-const st = StyleSheet.create({
-  c: { flex: 1 },
-  hdr: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-  },
-  spIcon: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+export default function SpecialtySelectScreen() {
+  const { theme, t, c, flow, k, num } = useScreenUi();
+  const [q, setQ] = useState('');
+  const [specs, setSpecs] = useState<Specialty[]>([]);
+  const [status, setStatus] = useState<'loading' | 'error' | 'offline' | 'ready'>('loading');
+
+  const load = useCallback(async () => {
+    setStatus('loading');
+    try {
+      const res = await apiFetch<Specialty[] | { data?: Specialty[] }>('/care/specialties');
+      const list = Array.isArray(res) ? res : res?.data;
+      setSpecs(Array.isArray(list) ? list : []);
+      setStatus('ready');
+    } catch (e) {
+      logError('consultations:specialty-select', e);
+      setSpecs([]);
+      setStatus((await isOffline()) ? 'offline' : 'error');
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const filtered = q ? specs.filter((s) => (s?.name_ar || s?.name_en || s?.specialty || '').includes(q)) : specs;
+
+  return (
+    <ConsultList
+      testID="specialty-select-screen"
+      title={k('consult.spec.title')}
+      top={<Input label={k('consult.spec.searchLabel')} placeholder={k('consult.spec.search')} value={q} onChange={setQ} startIcon="search" theme={theme} testID="specialty-search" />}
+      data={filtered}
+      status={status}
+      onRetry={() => void load()}
+      empty={{ icon: 'stethoscope', title: k('consult.spec.empty') }}
+      keyExtractor={(sp, i) => sp.slug || String(i)}
+      renderItem={(sp) => {
+        const look = specialtyLook(sp.name_ar || sp.name_en || sp.specialty);
+        const name = pickLocalized(sp.name_ar, sp.name_en || sp.specialty) || '';
+        return (
+          <Pressable accessibilityRole="button" accessibilityLabel={name} onPress={() => router.push({ pathname: '/consultations/doctor-search', params: { specialty: sp.name_ar } } as unknown as Href)} style={{ minHeight: 44 }}>
+            <Card theme={theme} padding="sm">
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <FIcon icon={look.icon} tone={look.tone} size={52} theme={theme} />
+                <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                  <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{name}</Text>
+                  {typeof sp.count === 'number' ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.spec.count', { n: num(sp.count) })}</Text> : null}
+                </View>
+                <Chevron />
+              </View>
+            </Card>
+          </Pressable>
+        );
+      }}
+    />
+  );
+}

@@ -1,325 +1,238 @@
-// @ts-nocheck
-import React, { useEffect, useMemo, useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Alert, ActivityIndicator } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../../src/context/AppContext';
-import { Icon } from '../../src/components/Icon';
-import { AppText } from '../../src/components/ui';
-import { apiFetch } from '../../src/utils/api';
-import { dateLocale } from '@/utils/dates';
-import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 
+import { Button, Card, FIcon } from '../../../packages/ui-native/src';
+import { DayStrip, SlotGrid, type DayItem } from '../../src/components/consult/ConsultBooking';
+import { ConsultScreen, Gate, Section, useConsultFormat, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { Notice } from '../../src/components/pharmacy/OfferKit';
+import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { apiFetch } from '../../src/utils/api';
+import { dateLocaleFor } from '../../src/utils/dates';
+import { isOffline } from '../../src/utils/isOffline';
+import { logError } from '../../src/utils/logger';
+
+/**
+ * Cancel or reschedule — board Consult's form language. The appointment is GET /care/appointments/:id; cancelling is
+ * PATCH /care/appointments/:id/cancel with the reason, rescheduling is PATCH /care/appointments/:id/reschedule with the
+ * new slot from GET /care/doctors/:id/slots (the next seven days). The refund note is the page's own calculation, as it
+ * was; the screen only draws it.
+ */
+
+/** The reasons the patient can pick; the server stores the Arabic text of the chosen one, as it always did. */
 const CANCEL_REASONS = [
-  'ارتباط طارئ',
-  'تحسّنت صحتي',
-  'أريد تغيير الطبيب',
-  'الوقت لا يناسبني',
-  'مشكلة في الدفع',
-  'سبب آخر',
-];
+  { id: 'emergency', stored: 'ارتباط طارئ' }, // i18n-ok: the reason as stored on the server, not shown to the user
+  { id: 'better', stored: 'تحسّنت صحتي' }, // i18n-ok: stored value
+  { id: 'otherDoctor', stored: 'أريد تغيير الطبيب' }, // i18n-ok: stored value
+  { id: 'time', stored: 'الوقت لا يناسبني' }, // i18n-ok: stored value
+  { id: 'payment', stored: 'مشكلة في الدفع' }, // i18n-ok: stored value
+  { id: 'other', stored: 'سبب آخر' }, // i18n-ok: stored value
+] as const;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+interface Appointment {
+  id?: string;
+  doctor_id?: string;
+  doctor_name?: string;
+  doctor?: { name?: string };
+  consultation_type?: string;
+  scheduled_at?: string;
+  price?: number;
+  amount_total?: number;
+}
+interface Slot {
+  start?: string;
+  slot_start?: string;
+  time?: string;
+  available?: boolean;
+}
+
 export default function CancelRescheduleScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
+  const { theme, t, c, flow, lang, k, num } = useScreenUi();
+  const { date, clock, money } = useConsultFormat();
   const params = useLocalSearchParams();
   const appointmentId = String(params.appointmentId || params.id || '');
 
   const [mode, setMode] = useState<'choose' | 'cancel' | 'reschedule'>('choose');
-  const [appointment, setAppointment] = useState<any>(null);
-  const [loadingAppt, setLoadingAppt] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [appointment, setAppointment] = useState<Appointment | null>(null);
+  const [status, setStatus] = useState<GateStatus>('loading');
 
   const [selectedReason, setSelectedReason] = useState('');
-  const [slotsByDay, setSlotsByDay] = useState<Record<string, any[]>>({});
+  const [slotsByDay, setSlotsByDay] = useState<Record<string, Slot[]>>({});
   const [slotsLoading, setSlotsLoading] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState<any>(null);
+  const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const loadAppointment = async () => {
+  const loadAppointment = useCallback(async () => {
     if (!appointmentId) {
-      setLoadError('لم يتم تحديد الموعد');
-      setLoadingAppt(false);
+      setStatus('missing');
       return;
     }
-    setLoadingAppt(true);
-    setLoadError(null);
+    setStatus('loading');
     try {
-      const data = await apiFetch<any>(`/care/appointments/${appointmentId}`);
+      const data = await apiFetch<Appointment & { data?: Appointment }>(`/care/appointments/${appointmentId}`);
       setAppointment(data?.data || data);
-    } catch (e: any) {
-      setLoadError(e?.message || 'تعذر تحميل بيانات الموعد');
-    } finally {
-      setLoadingAppt(false);
+      setStatus('ready');
+    } catch (e) {
+      logError('consultations:cancel-reschedule', e);
+      setStatus((await isOffline()) ? 'offline' : 'error');
     }
-  };
+  }, [appointmentId]);
 
-  useEffect(() => { loadAppointment(); }, [appointmentId]);
+  useEffect(() => {
+    void loadAppointment();
+  }, [loadAppointment]);
 
   // Load real availability for the next 7 days when entering reschedule mode
   useEffect(() => {
     if (mode !== 'reschedule' || !appointment?.doctor_id) return;
     const loadSlots = async () => {
       setSlotsLoading(true);
-      const out: Record<string, any[]> = {};
+      const out: Record<string, Slot[]> = {};
       const serviceType = appointment.consultation_type === 'home' ? 'home' : appointment.consultation_type === 'video' ? 'video' : 'clinic';
       const days: string[] = [];
       for (let i = 1; i <= 7; i++) days.push(new Date(Date.now() + i * DAY_MS).toISOString().slice(0, 10));
-      const results = await Promise.all(days.map(async (d) => {
-        try {
-          const res = await apiFetch<any>(`/care/doctors/${appointment.doctor_id}/slots?date=${d}&service_type=${serviceType}`);
-          const list = Array.isArray(res) ? res : (res?.slots || res?.data || []);
-          return [d, list.filter((s: any) => s.available !== false)];
-        } catch { return [d, []]; }
-      }));
-      results.forEach(([d, list]) => { if (list.length) out[d as string] = list as any[]; });
+      const results = await Promise.all(
+        days.map(async (d): Promise<[string, Slot[]]> => {
+          try {
+            const res = await apiFetch<Slot[] | { slots?: Slot[]; data?: Slot[] }>(`/care/doctors/${appointment.doctor_id}/slots?date=${d}&service_type=${serviceType}`);
+            const list = Array.isArray(res) ? res : res?.slots || res?.data || [];
+            return [d, list.filter((s) => s.available !== false)];
+          } catch {
+            return [d, []];
+          }
+        }),
+      );
+      results.forEach(([d, list]) => {
+        if (list.length) out[d] = list;
+      });
       setSlotsByDay(out);
       setSlotsLoading(false);
     };
-    loadSlots();
-  }, [mode, appointment?.doctor_id]);
+    void loadSlots();
+  }, [mode, appointment?.doctor_id, appointment?.consultation_type]);
 
   const price = Number(appointment?.price ?? appointment?.amount_total ?? 0);
   const scheduledAt = appointment?.scheduled_at ? new Date(appointment.scheduled_at) : null;
   const hoursUntil = scheduledAt ? (scheduledAt.getTime() - Date.now()) / 3600000 : null;
   const refundPct = hoursUntil == null ? null : hoursUntil >= 24 ? 100 : hoursUntil >= 12 ? 50 : 0;
 
-  const formattedDate = scheduledAt
-    ? scheduledAt.toLocaleDateString(dateLocale(), { weekday: 'long', day: 'numeric', month: 'long' })
-    : '—';
-  const formattedTime = scheduledAt
-    ? scheduledAt.toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' })
-    : '';
-
   const dayKeys = useMemo(() => Object.keys(slotsByDay).sort(), [slotsByDay]);
   const [activeDay, setActiveDay] = useState<string>('');
-  useEffect(() => { if (!activeDay && dayKeys.length) setActiveDay(dayKeys[0]); }, [dayKeys]);
+  useEffect(() => {
+    if (!activeDay && dayKeys.length) setActiveDay(dayKeys[0]);
+  }, [dayKeys, activeDay]);
+
+  const dayItems: DayItem[] = dayKeys.map((d) => {
+    const at = new Date(`${d}T00:00:00`);
+    const locale = dateLocaleFor(lang);
+    return {
+      iso: d,
+      name: new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(at),
+      day: num(at.getDate(), { useGrouping: false }),
+      month: new Intl.DateTimeFormat(locale, { month: 'short', numberingSystem: 'latn' }).format(at),
+    };
+  });
+  const slotStart = (s: Slot) => s.start || s.slot_start || s.time || '';
 
   const handleAction = async () => {
     if (!appointmentId) return;
     setIsLoading(true);
     try {
       if (mode === 'cancel') {
-        await apiFetch(`/care/appointments/${appointmentId}/cancel`, {
-          method: 'PATCH',
-          body: JSON.stringify({ reason: selectedReason }),
-        });
-        showLocalizedAlert('تم الإلغاء', refundPct && refundPct > 0 && price > 0
-          ? `تم إلغاء الموعد. سيُعاد ${refundPct}% من قيمة الحجز وفق سياسة الاسترداد.`
-          : 'تم إلغاء الموعد بنجاح.', [
-          { text: 'حسناً', onPress: () => router.replace('/consultations/appointments') },
-        ]);
+        const reason = CANCEL_REASONS.find((r) => r.id === selectedReason)?.stored ?? '';
+        await apiFetch(`/care/appointments/${appointmentId}/cancel`, { method: 'PATCH', body: JSON.stringify({ reason }) });
+        showLocalizedAlert(k('consult.cancel.doneTitle'), refundPct && refundPct > 0 && price > 0 ? k('consult.cancel.doneRefund', { pct: num(refundPct) }) : k('consult.cancel.doneBody'), [{ text: k('consult.ok'), onPress: () => router.replace('/consultations/appointments' as Href) }]);
       } else {
-        const slotStart = selectedSlot?.start || selectedSlot?.slot_start || selectedSlot?.time;
-        if (!slotStart) throw new Error('اختر وقتاً متاحاً');
-        const iso = new Date(slotStart).toISOString();
-        await apiFetch(`/care/appointments/${appointmentId}/reschedule`, {
-          method: 'PATCH',
-          body: JSON.stringify({ slot_start: iso }),
-        });
-        showLocalizedAlert('تمت إعادة الجدولة', 'تم تأكيد موعدك الجديد بنجاح.', [
-          { text: 'حسناً', onPress: () => router.replace('/consultations/appointments') },
-        ]);
+        const start = selectedSlot ? slotStart(selectedSlot) : '';
+        if (!start) throw new Error(k('consult.cancel.pickSlot'));
+        const iso = new Date(start).toISOString();
+        await apiFetch(`/care/appointments/${appointmentId}/reschedule`, { method: 'PATCH', body: JSON.stringify({ slot_start: iso }) });
+        showLocalizedAlert(k('consult.cancel.rescheduledTitle'), k('consult.cancel.rescheduledBody'), [{ text: k('consult.ok'), onPress: () => router.replace('/consultations/appointments' as Href) }]);
       }
-    } catch (e: any) {
-      showLocalizedAlert('تعذر إتمام العملية', e?.message || 'حدث خطأ غير متوقع. حاول مرة أخرى.');
+    } catch (e) {
+      showLocalizedAlert(k('consult.cancel.failedTitle'), (e instanceof Error && e.message) || k('consult.cancel.failedBody'));
     } finally {
       setIsLoading(false);
     }
   };
 
-  const header = (title: string, onBack: () => void) => (
-    <View style={[styles.header, { paddingTop: insets.top + 8, backgroundColor: isDark ? colors.surface : colors.white }]}>
-      <AppText variant="bodySM">{title}</AppText>
-      <TouchableOpacity onPress={onBack} accessibilityLabel="رجوع">
-        <Icon name="back" size={22} color={colors.textPrimary} />
-      </TouchableOpacity>
-    </View>
-  );
+  const doctor = appointment?.doctor?.name || appointment?.doctor_name || k('consult.doctorFallback');
+  const when = scheduledAt ? `${date(scheduledAt, true)} · ${clock(scheduledAt)}` : '';
 
-  if (loadingAppt) {
-    return (
-      <View style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
-  }
+  const title = mode === 'cancel' ? k('consult.cancel.reasonTitle') : mode === 'reschedule' ? k('consult.cancel.newSlot') : k('consult.cancel.title');
+  const back = mode === 'choose' ? undefined : () => setMode('choose');
 
-  if (loadError || !appointment) {
-    return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        {header('الموعد', () => router.back())}
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12, padding: 24 }}>
-          <Icon name="warning" size={40} color={colors.error} />
-          <AppText variant="bodySM">{loadError || 'الموعد غير موجود'}</AppText>
-          <TouchableOpacity onPress={loadAppointment} style={[styles.confirmCancelBtn, { backgroundColor: colors.primary, paddingHorizontal: 32 }]}>
-            <AppText variant="bodySM" color="#fff">إعادة المحاولة</AppText>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
+  const footer =
+    status !== 'ready' ? undefined : mode === 'cancel' ? (
+      <Button label={isLoading ? k('consult.cancel.cancelling') : k('consult.cancel.confirm')} variant="danger" size="lg" fullWidth disabled={!selectedReason || isLoading} loading={isLoading} onPress={() => void handleAction()} theme={theme} testID="cancel-confirm" />
+    ) : mode === 'reschedule' ? (
+      <Button label={isLoading ? k('consult.cancel.rescheduling') : k('consult.cancel.confirmNew')} size="lg" fullWidth disabled={!selectedSlot || isLoading} loading={isLoading} onPress={() => void handleAction()} theme={theme} testID="reschedule-confirm" />
+    ) : undefined;
 
-  if (mode === 'choose') {
-    return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-        {header('الموعد', () => router.back())}
-        <View style={styles.chooseContent}>
-          <View style={[styles.apptSummary, { backgroundColor: isDark ? colors.surface : colors.white }]}>
-            <Icon name="doctor" size={20} color={colors.primary} />
-            <View style={{ alignItems: 'flex-end', flex: 1 }}>
-              <AppText variant="bodySM">{appointment?.doctor?.name || appointment?.doctor_name || 'الطبيب'}</AppText>
-              <AppText variant="bodySM">{formattedDate}{formattedTime ? ` — ${formattedTime}` : ''}</AppText>
-            </View>
-          </View>
-          <View style={[styles.policyCard, { backgroundColor: isDark ? colors.surface : colors.white }]}>
-            <AppText variant="bodySM">سياسة الإلغاء</AppText>
-            {[
-              { range: 'قبل 24 ساعة', refund: 'استرداد 100%', color: '#5BA84F' },
-              { range: 'قبل 12-24 ساعة', refund: 'استرداد 50%', color: '#F0A526' },
-              { range: 'أقل من 12 ساعة', refund: 'لا يوجد استرداد', color: '#F0695C' },
-            ].map((p, i) => (
-              <View key={i} style={[styles.policyRow, { borderBottomColor: colors.border }]}>
-                <AppText variant="bodySM">{p.refund}</AppText>
-                <AppText variant="bodySM">{p.range}</AppText>
-              </View>
-            ))}
-          </View>
-          <TouchableOpacity onPress={() => setMode('reschedule')} style={styles.rescheduleBtn} accessibilityRole="button">
-            <View style={styles.actionBtnInner}>
-              <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 6 }}>
-                <Icon name="calendar" size={16} color={colors.primary} />
-                <AppText variant="bodySM">إعادة الجدولة (موصى به)</AppText>
-              </View>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setMode('cancel')} style={[styles.cancelBtn, { borderColor: colors.error }]} accessibilityRole="button">
-            <AppText variant="bodySM">إلغاء الموعد</AppText>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
-
-  if (mode === 'cancel') {
-    return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        {header('سبب الإلغاء', () => setMode('choose'))}
-        <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}>
-          {CANCEL_REASONS.map((r) => (
-            <TouchableOpacity key={r} onPress={() => setSelectedReason(r)} accessibilityRole="radio" accessibilityState={{ selected: selectedReason === r }}
-              style={[styles.reasonItem, { backgroundColor: isDark ? colors.surface : colors.white, borderColor: selectedReason === r ? colors.error : colors.border }]}>
-              <View style={[styles.radioOuter, { borderColor: selectedReason === r ? colors.error : colors.border }]}>
-                {selectedReason === r && <View style={[styles.radioDot, { backgroundColor: colors.error }]} />}
-              </View>
-              <AppText variant="bodySM">{r}</AppText>
-            </TouchableOpacity>
-          ))}
-          {refundPct != null && price > 0 && (
-            <View style={[styles.refundNote, { backgroundColor: '#FEF3C7' }]}>
-              <AppText variant="bodySM">
-                {refundPct > 0
-                  ? `سيتم استرداد ${refundPct}% من قيمة الحجز (${price} ر.س) وفق سياسة الإلغاء.`
-                  : 'الإلغاء قبل أقل من 12 ساعة — لا يوجد استرداد وفق السياسة.'}
-              </AppText>
-            </View>
-          )}
-        </ScrollView>
-        <View style={[styles.bottomBar, { paddingBottom: insets.bottom + 8 }]}>
-          <TouchableOpacity
-            onPress={handleAction}
-            disabled={!selectedReason || isLoading}
-            style={[styles.confirmCancelBtn, { opacity: !selectedReason || isLoading ? 0.5 : 1, backgroundColor: colors.error }]}>
-            <AppText variant="bodySM" color="#fff">{isLoading ? 'جاري الإلغاء...' : 'تأكيد الإلغاء'}</AppText>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
-
-  // Reschedule mode — real slots from the doctor's availability
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {header('اختر موعداً جديداً', () => setMode('choose'))}
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}>
-        {slotsLoading ? (
-          <View style={{ alignItems: 'center', paddingVertical: 40, gap: 8 }}>
-            <ActivityIndicator size="large" color={colors.primary} />
-            <AppText variant="caption" color={colors.textSecondary}>جاري تحميل المواعيد المتاحة...</AppText>
-          </View>
-        ) : dayKeys.length === 0 ? (
-          <View style={{ alignItems: 'center', paddingVertical: 40, gap: 8 }}>
-            <Icon name="calendar" size={36} color={colors.textTertiary} />
-            <AppText variant="bodySM">لا توجد مواعيد متاحة خلال الأسبوع القادم</AppText>
-            <AppText variant="caption" color={colors.textSecondary}>جرّب لاحقاً أو تواصل مع العيادة</AppText>
-          </View>
-        ) : (
+    <ConsultScreen title={title} onBack={back} footer={footer} testID="cancel-reschedule-screen">
+      <Gate status={status} onRetry={() => void loadAppointment()} missingTitle={k('consult.detail.missing')}>
+        {mode === 'choose' ? (
           <>
-            <AppText variant="bodySM">اليوم</AppText>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
-              {dayKeys.map((d) => {
-                const label = new Date(d + 'T00:00:00').toLocaleDateString(dateLocale(), { weekday: 'short', day: 'numeric' });
+            <Card theme={theme}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <FIcon icon="stethoscope" tone="blue" size={44} theme={theme} />
+                <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                  <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{doctor}</Text>
+                  {when ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{when}</Text> : null}
+                </View>
+              </View>
+            </Card>
+            <Section title={k('consult.cancel.policy')}>
+              <Card theme={theme}>
+                {(['consult.cancel.policy24', 'consult.cancel.policy12', 'consult.cancel.policyLess'] as const).map((key, i) => (
+                  <View key={key} style={{ paddingVertical: 8, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: c.border.hairline }}>
+                    <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k(key)}</Text>
+                  </View>
+                ))}
+              </Card>
+            </Section>
+            <Button label={k('consult.cancel.reschedule')} size="lg" fullWidth startIcon="calendar-dots" onPress={() => { setSlotsLoading(true); setMode('reschedule'); }} theme={theme} testID="choose-reschedule" />
+            <Button label={k('consult.cancel.cancelAppt')} variant="outline" size="md" fullWidth onPress={() => setMode('cancel')} theme={theme} testID="choose-cancel" />
+          </>
+        ) : mode === 'cancel' ? (
+          <>
+            <View accessibilityRole="radiogroup" accessibilityLabel={k('consult.cancel.reasonTitle')} style={{ gap: 8 }}>
+              {CANCEL_REASONS.map((r) => {
+                const on = selectedReason === r.id;
                 return (
-                  <TouchableOpacity key={d} onPress={() => { setActiveDay(d); setSelectedSlot(null); }}
-                    style={[styles.dayChip, activeDay === d && { backgroundColor: colors.primary }]}>
-                    <AppText variant="bodySM" color={activeDay === d ? '#fff' : undefined}>{label}</AppText>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
-            <AppText variant="bodySM">الوقت</AppText>
-            <View style={styles.timesGrid}>
-              {(slotsByDay[activeDay] || []).map((s: any, i: number) => {
-                const start = s.start || s.slot_start || s.time;
-                const label = new Date(start).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' });
-                const selected = selectedSlot === s;
-                return (
-                  <TouchableOpacity key={`${start}-${i}`} onPress={() => setSelectedSlot(s)}
-                    style={[styles.timeChip, selected && { backgroundColor: colors.primary }]}>
-                    <AppText variant="bodySM" color={selected ? '#fff' : undefined}>{label}</AppText>
-                  </TouchableOpacity>
+                  <Pressable key={r.id} accessibilityRole="radio" accessibilityState={{ selected: on }} accessibilityLabel={k(`consult.cancel.reason.${r.id}`)} onPress={() => setSelectedReason(r.id)} style={{ minHeight: 52, borderRadius: 18, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: c.bg.surface, borderWidth: on ? 2 : 1, borderColor: on ? c.status.danger.fg : c.border.hairline }}>
+                    <View style={{ width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: on ? c.status.danger.fg : c.border.strong, alignItems: 'center', justifyContent: 'center' }}>
+                      {on ? <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: c.status.danger.fg }} /> : null}
+                    </View>
+                    <Text style={{ ...scale(t, 'small', 'medium'), color: c.text.primary, flex: 1, ...flow }}>{k(`consult.cancel.reason.${r.id}`)}</Text>
+                  </Pressable>
                 );
               })}
             </View>
+            {refundPct != null && price > 0 ? <Notice tone="warning" text={refundPct > 0 ? k('consult.cancel.refundNote', { pct: num(refundPct), amount: `${money(price)} ${k('consult.currency')}` }) : k('consult.cancel.noRefund')} /> : null}
           </>
+        ) : (
+          <Section>
+            {slotsLoading || dayKeys.length > 0 ? (
+              <>
+                <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('consult.book.day')}</Text>
+                <DayStrip days={dayItems} value={Math.max(0, dayKeys.indexOf(activeDay))} onChange={(i) => { setActiveDay(dayKeys[i]); setSelectedSlot(null); }} label={k('consult.book.day')} />
+                <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('consult.book.times')}</Text>
+                <SlotGrid loading={slotsLoading} value={selectedSlot ? slotStart(selectedSlot) : null} onChange={(id) => setSelectedSlot((slotsByDay[activeDay] || []).find((s) => slotStart(s) === id) ?? null)} emptyText={k('consult.cancel.noSlots')} slots={(slotsByDay[activeDay] || []).map((s) => ({ id: slotStart(s), label: clock(slotStart(s)), available: true }))} />
+              </>
+            ) : (
+              <View style={{ alignItems: 'center', gap: 6, paddingVertical: 32 }}>
+                <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, textAlign: 'center' }}>{k('consult.cancel.noSlotsWeek')}</Text>
+                <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('consult.cancel.noSlotsHint')}</Text>
+              </View>
+            )}
+          </Section>
         )}
-      </ScrollView>
-      <View style={[styles.bottomBar, { paddingBottom: insets.bottom + 8 }]}>
-        <TouchableOpacity
-          onPress={handleAction}
-          disabled={!selectedSlot || isLoading}
-          style={[{ opacity: !selectedSlot || isLoading ? 0.5 : 1 }]}>
-          <View style={[styles.rescheduleConfirmBtn, { backgroundColor: colors.primary }]}>
-            <AppText variant="bodySM" color="#fff">{isLoading ? 'جاري التأجيل...' : 'تأكيد الموعد الجديد'}</AppText>
-          </View>
-        </TouchableOpacity>
-      </View>
-    </View>
+      </Gate>
+    </ConsultScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 14 },
-  chooseContent: { flex: 1, padding: 16, gap: 12 },
-  content: { padding: 16, gap: 12 },
-  apptSummary: { borderRadius: 18, padding: 16, flexDirection: 'row-reverse', alignItems: 'center', gap: 12 },
-  policyCard: { borderRadius: 18, padding: 16 },
-  policyRow: { flexDirection: 'row-reverse', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 1 },
-  rescheduleBtn: { borderRadius: 16, overflow: 'hidden' },
-  actionBtnInner: { height: 54, justifyContent: 'center', alignItems: 'center' },
-  cancelBtn: { height: 50, borderRadius: 16, borderWidth: 1.5, justifyContent: 'center', alignItems: 'center' },
-  reasonItem: { flexDirection: 'row-reverse', alignItems: 'center', gap: 12, borderRadius: 14, borderWidth: 1.5, padding: 14 },
-  radioOuter: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, justifyContent: 'center', alignItems: 'center' },
-  radioDot: { width: 11, height: 11, borderRadius: 5.5 },
-  refundNote: { borderRadius: 14, padding: 12 },
-  bottomBar: { paddingHorizontal: 16, paddingTop: 12 },
-  confirmCancelBtn: { height: 54, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-  dayChip: { borderRadius: 12, paddingHorizontal: 16, paddingVertical: 10, backgroundColor: 'rgba(0,0,0,0.06)' },
-  timesGrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 8 },
-  timeChip: { borderRadius: 12, paddingHorizontal: 16, paddingVertical: 10, backgroundColor: 'rgba(0,0,0,0.06)' },
-  rescheduleConfirmBtn: { height: 54, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-});

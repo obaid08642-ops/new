@@ -1,16 +1,19 @@
-import Link from "next/link";
-import { VectorDoctor } from "@/components-next/vector-illustrations";
 import { notFound, redirect } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
+import { APPOINTMENT_ID } from "@/lib/consult/appointment-view";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ActionLinks, BulletList, Facts, SectionCard, type FactRow, type LinkAction } from "@/components-next/consult/consult-parts";
+import { LocalTimeLine } from "@/components-next/consult/local-time-line";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
+import styles from "@/components-next/consult/consult.module.css";
 
 type Props = {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ appointmentId?: string; id?: string; view?: string }>;
 };
-const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
@@ -28,14 +31,13 @@ export default async function ConsultationClinicConfirmPage({ params, searchPara
   const { locale } = await params;
   const sp = await searchParams;
   const appointmentId = (sp.appointmentId || sp.id || "").trim();
-  if (!isLocale(locale) || !idPattern.test(appointmentId)) notFound();
+  if (!isLocale(locale) || !APPOINTMENT_ID.test(appointmentId)) notFound();
   setRequestLocale(locale);
-  const ar = locale === "ar";
+  const c = await getTranslations("ConsultWeb");
   const locationView = sp.view === "location";
   const token = await requirePatientAccess(locale);
   const response = await callPatientApi(`/care/appointments/${encodeURIComponent(appointmentId)}`, {}, token);
   if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
   if (!response.ok) notFound();
   const raw = asRecord(await response.json().catch(() => null));
   const appt = asRecord(raw?.data) ?? raw;
@@ -53,10 +55,8 @@ export default async function ConsultationClinicConfirmPage({ params, searchPara
   const facility = asRecord(appt.facility) ?? asRecord(doctor?.facility) ?? null;
   const bookingCode = String(appt.id).toUpperCase();
   const slotStart = text(appt, ["slot_start", "slotStart"]);
-  const when = slotStart && Number.isFinite(Date.parse(slotStart))
-    ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(slotStart))
-    : null;
-  const clinicName = (facility && text(facility, ["name", "name_ar"])) || (doctor && text(doctor, ["clinic_name", "clinicName"])) || (ar ? "العيادة" : "Clinic");
+  const hasWhen = Boolean(slotStart && Number.isFinite(Date.parse(slotStart)));
+  const clinicName = (facility && text(facility, ["name", "name_ar"])) || (doctor && text(doctor, ["clinic_name", "clinicName"])) || c("clinicDefaultName");
   const address = (facility && text(facility, ["address", "address_ar"])) || (doctor && text(doctor, ["clinic_address", "clinicAddress"]));
   const phone = (facility && text(facility, ["phone"])) || (doctor && text(doctor, ["clinic_phone", "clinicPhone", "phone"]));
   const loc = asRecord(facility?.location) ?? asRecord(doctor?.location);
@@ -69,51 +69,39 @@ export default async function ConsultationClinicConfirmPage({ params, searchPara
       : null;
   const doctorUserId = doctorId && doctor ? text(doctor, ["doctor_user_id", "user_id", "account_id"]) || doctorId : doctorId;
 
+  const id = encodeURIComponent(appointmentId);
+  // the booking code is the appointment's own id, shown as the reception's scan text (a code, not a sentence)
+  const codeText = `NABDAH:APPT:${bookingCode.slice(0, 8)}`; // i18n-ok: reception code, not translatable
+  const detailRows: FactRow[] = [{ label: c("clinicNameLabel"), value: clinicName, icon: "hospital", tone: "blue" }];
+  if (address) detailRows.push({ label: c("clinicAddressLabel"), value: address, icon: "map-pin", tone: SERVICE_ICONS.map.tone });
+  const actions: LinkAction[] = [];
+  if (mapsUrl) actions.push({ href: mapsUrl, label: c("actionDirections"), variant: "primary", external: true });
+  if (phone) actions.push({ href: `tel:${phone}`, label: c("actionCall"), variant: "outline", external: true });
+  if (doctorUserId) actions.push({ href: `/${locale}/consultations/chat?doctorId=${encodeURIComponent(doctorUserId)}`, label: c("actionChat"), variant: "outline" });
+
   return (
-    <main className="main" style={{ background: "#FDFDFC" }}>
-      <Link href={`/${locale}/appointments/${appointmentId}`}>{ar ? "الموعد" : "Appointment"}</Link>
-      <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{locationView ? (ar ? "موقع العيادة" : "Clinic location") : (ar ? "تأكيد موعد العيادة" : "Clinic booking confirmed")}</h1>
+    <ConsultPage locale={locale} title={locationView ? c("clinicLocationTitle") : c("clinicConfirmTitle")} backHref={`/${locale}/appointments/${id}`}>
       {!locationView ? (
-        <section aria-label={ar ? "رمز الحجز" : "Booking code"} style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: 20, backdropFilter: "blur(16px)", padding: 16 } as any}>
-          <h2>{ar ? "أظهر هذا الرمز عند الاستقبال" : "Show this code at reception"}</h2>
-          <p style={{ overflowWrap: "anywhere" } as any}><strong>NABDAH:APPT:{bookingCode.slice(0, 8)}</strong></p>
-          {when ? <p>{when}</p> : null}
-        </section>
+        <SectionCard id="clinic-code" title={c("bookingCodeTitle")}>
+          <p className={styles.codeText}><bdi>{codeText}</bdi></p>
+          {slotStart && hasWhen ? <LocalTimeLine iso={slotStart} locale={locale} className={styles.heroSub} /> : null}
+        </SectionCard>
       ) : null}
-      <section aria-label={ar ? "بيانات العيادة" : "Clinic details"} style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: 20, backdropFilter: "blur(16px)", padding: 16, marginTop: 12 } as any}>
-        <h2>{ar ? "بيانات العيادة" : "Clinic details"}</h2>
-        <p><strong>{clinicName}</strong></p>
-        {address ? <p>{address}</p> : null}
-        <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {mapsUrl ? <a href={mapsUrl} target="_blank" rel="noreferrer">{ar ? "الاتجاهات" : "Directions"}</a> : null}
-          {phone ? <a href={`tel:${phone}`}>{ar ? "اتصال" : "Call"}</a> : null}
-          {doctorUserId ? <Link href={`/${locale}/consultations/chat?doctorId=${encodeURIComponent(doctorUserId)}`}>{ar ? "محادثة" : "Chat"}</Link> : null}
-        </nav>
-      </section>
+      <SectionCard id="clinic-details" title={c("clinicDetailsTitle")}>
+        <Facts rows={detailRows} />
+        <ActionLinks actions={actions} />
+      </SectionCard>
       {!locationView ? (
         <>
-          <section aria-label={ar ? "قبل موعدك" : "Before your visit"} style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: 20, backdropFilter: "blur(16px)", padding: 16, marginTop: 12 } as any}>
-            <h2>{ar ? "قبل موعدك" : "Before your visit"}</h2>
-            <ul>
-              <li>{ar ? "احضر قبل الموعد بـ 15 دقيقة" : "Arrive 15 minutes early"}</li>
-              <li>{ar ? "أحضر الهوية وبطاقة التأمين" : "Bring your ID and insurance card"}</li>
-              <li>{ar ? "أحضر تقاريرك وأدويتك الحالية" : "Bring your reports and current medications"}</li>
-              <li>{ar ? "أظهر رمز الحجز عند الاستقبال" : "Show the booking code at reception"}</li>
-            </ul>
-          </section>
-          <section aria-label={ar ? "سياسة الإلغاء والاسترداد" : "Cancellation & refund policy"} style={{ background: "rgba(253,253,252,0.92)", border: "1px solid #E8EDEE", borderRadius: 20, backdropFilter: "blur(16px)", padding: 16, marginTop: 12 } as any}>
-            <h2>{ar ? "سياسة الإلغاء والاسترداد" : "Cancellation & refund policy"}</h2>
-            <ul>
-              <li>{ar ? "قبل الموعد بأكثر من 24 ساعة: استرداد 100%" : "More than 24h before: 100% refund"}</li>
-              <li>{ar ? "قبل 4–24 ساعة: استرداد 50%" : "4–24h before: 50% refund"}</li>
-              <li>{ar ? "أقل من 4 ساعات: لا يوجد استرداد" : "Less than 4h: non-refundable"}</li>
-            </ul>
-            <Link href={`/${locale}/consultations/cancel-reschedule?appointmentId=${encodeURIComponent(appointmentId)}`}>
-              {ar ? "إلغاء / إعادة جدولة الموعد" : "Cancel / reschedule"}
-            </Link>
-          </section>
+          <SectionCard id="clinic-prep" title={c("prepTitle")}>
+            <BulletList items={[c("prep1"), c("prep2"), c("prep3"), c("prep4")]} />
+          </SectionCard>
+          <SectionCard id="clinic-policy" title={c("policyTitle")}>
+            <BulletList items={[c("clinicPolicy24"), c("clinicPolicy4"), c("clinicPolicyNone")]} />
+            <ActionLinks actions={[{ href: `/${locale}/consultations/cancel-reschedule?appointmentId=${id}`, label: c("cancelTitle"), variant: "outline" }]} />
+          </SectionCard>
         </>
       ) : null}
-    </main>
+    </ConsultPage>
   );
 }

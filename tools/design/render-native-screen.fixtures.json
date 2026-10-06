@@ -1820,6 +1820,46 @@
       "service_type": "video",
       "slot_start": "2026-10-07T09:00:00Z",
       "total_price": 150
+    },
+    {
+      "id": "test-appt-video",
+      "status": "confirmed",
+      "doctor_id": "test-doc",
+      "doctor_name": "د. طبيب تجريبي",
+      "specialty": "تخصص تجريبي",
+      "consultation_type": "online",
+      "scheduled_at": "2026-10-12T09:30:00Z",
+      "price": 150
+    },
+    {
+      "id": "test-appt",
+      "status": "confirmed",
+      "doctor_id": "test-doc",
+      "doctor_name": "د. طبيب تجريبي",
+      "specialty": "تخصص تجريبي",
+      "consultation_type": "clinic",
+      "scheduled_at": "2026-10-13T11:00:00Z",
+      "price": 150
+    },
+    {
+      "id": "test-appt-home",
+      "status": "pending",
+      "doctor_id": "test-doc",
+      "doctor_name": "د. طبيب تجريبي",
+      "specialty": "تخصص تجريبي",
+      "consultation_type": "home",
+      "scheduled_at": "2026-10-14T16:00:00Z",
+      "price": 150
+    },
+    {
+      "id": "test-appt-done",
+      "status": "completed",
+      "doctor_id": "test-doc",
+      "doctor_name": "د. طبيب تجريبي",
+      "specialty": "تخصص تجريبي",
+      "consultation_type": "online",
+      "scheduled_at": "2026-09-28T10:00:00Z",
+      "price": 150
     }
   ],
   "/labs/bookings/mine": [
@@ -1831,5 +1871,370 @@
       "scheduled_at": "2026-10-06T08:00:00Z",
       "total": 90
     }
-  ]
+  ],
+  "/providers": [
+    {
+      "id": "test-doc-1",
+      "name_ar": "د. طبيب تجريبي ١",
+      "name_en": "Test doctor 1",
+      "title": "استشاري",
+      "specialty": "باطنة",
+      "city": "مدينة تجريبية",
+      "district": "حي تجريبي",
+      "address": "عيادة تجريبية",
+      "consultation_modes": [
+        "clinic",
+        "home",
+        "video"
+      ],
+      "rating_avg": 4.6,
+      "rating_count": 128,
+      "price_clinic": 200,
+      "price_online": 170,
+      "price_home": 250,
+      "is_online": true
+    },
+    {
+      "id": "test-doc-2",
+      "name_ar": "د. طبيبة تجريبية ٢",
+      "name_en": "Test doctor 2",
+      "title": "استشاري",
+      "specialty": "جلدية",
+      "city": "مدينة تجريبية",
+      "district": "حي تجريبي",
+      "address": "عيادة تجريبية",
+      "consultation_modes": [
+        "clinic",
+        "video"
+      ],
+      "rating_avg": 4.6,
+      "rating_count": 128,
+      "price_clinic": 180,
+      "price_online": 150,
+      "price_home": 230,
+      "is_online": true
+    }
+  ],
+  "/care/specialties": [
+    {
+      "slug": "internal",
+      "name_ar": "باطنة",
+      "name_en": "Internal",
+      "count": 12
+    },
+    {
+      "slug": "dental",
+      "name_ar": "أسنان",
+      "name_en": "Dental",
+      "count": 8
+    },
+    {
+      "slug": "derma",
+      "name_ar": "جلدية",
+      "name_en": "Dermatology",
+      "count": 5
+    },
+    {
+      "slug": "eyes",
+      "name_ar": "عيون",
+      "name_en": "Eyes",
+      "count": 4
+    },
+    {
+      "slug": "heart",
+      "name_ar": "قلب",
+      "name_en": "Cardiology",
+      "count": 3
+    }
+  ],
+  "/home/offers": [],
+  "/insurance/companies": [],
+  "/care/appointments/test-appt": {
+    "id": "test-appt",
+    "status": "CONFIRMED",
+    "scheduled_at": "2026-10-12T09:30:00Z",
+    "slot_start": "2026-10-12T09:30:00Z",
+    "consultation_type": "clinic",
+    "service_type": "clinic",
+    "payment_method": "card",
+    "doctor_id": "test-doc",
+    "doctor_name": "د. طبيب تجريبي",
+    "specialty": "تخصص تجريبي",
+    "doctor": {
+      "name": "د. طبيب تجريبي",
+      "specialty": "تخصص تجريبي"
+    },
+    "price": 150,
+    "amount": 150,
+    "state_history": [
+      {
+        "state": "CONFIRMED",
+        "at": "2026-10-12T08:00:00Z"
+      }
+    ]
+  },
+  "/care/appointments/test-appt-home": {
+    "id": "test-appt-home",
+    "status": "CONFIRMED",
+    "scheduled_at": "2026-10-12T09:30:00Z",
+    "slot_start": "2026-10-12T09:30:00Z",
+    "consultation_type": "home",
+    "service_type": "home",
+    "payment_method": "card",
+    "doctor_id": "test-doc",
+    "doctor_name": "د. طبيب تجريبي",
+    "specialty": "تخصص تجريبي",
+    "doctor": {
+      "name": "د. طبيب تجريبي",
+      "specialty": "تخصص تجريبي"
+    },
+    "price": 150,
+    "amount": 150,
+    "state_history": [
+      {
+        "state": "CONFIRMED",
+        "at": "2026-10-12T08:00:00Z"
+      }
+    ]
+  },
+  "/care/appointments/test-appt-video": {
+    "id": "test-appt-video",
+    "status": "CONFIRMED",
+    "scheduled_at": "2026-10-12T09:30:00Z",
+    "slot_start": "2026-10-12T09:30:00Z",
+    "consultation_type": "online",
+    "service_type": "video",
+    "payment_method": "card",
+    "doctor_id": "test-doc",
+    "doctor_name": "د. طبيب تجريبي",
+    "specialty": "تخصص تجريبي",
+    "doctor": {
+      "name": "د. طبيب تجريبي",
+      "specialty": "تخصص تجريبي"
+    },
+    "price": 150,
+    "amount": 150,
+    "state_history": [
+      {
+        "state": "CONFIRMED",
+        "at": "2026-10-12T08:00:00Z"
+      }
+    ]
+  },
+  "/care/appointments/test-appt-done": {
+    "id": "test-appt-done",
+    "status": "COMPLETED",
+    "scheduled_at": "2026-10-12T09:30:00Z",
+    "slot_start": "2026-10-12T09:30:00Z",
+    "consultation_type": "online",
+    "service_type": "video",
+    "payment_method": "card",
+    "doctor_id": "test-doc",
+    "doctor_name": "د. طبيب تجريبي",
+    "specialty": "تخصص تجريبي",
+    "doctor": {
+      "name": "د. طبيب تجريبي",
+      "specialty": "تخصص تجريبي"
+    },
+    "price": 150,
+    "amount": 150,
+    "state_history": [
+      {
+        "state": "CONFIRMED",
+        "at": "2026-10-12T08:00:00Z"
+      }
+    ]
+  },
+  "/care/appointments/test-appt-done/summary": {
+    "doctor_id": "test-doc",
+    "diagnosis": "تشخيص تجريبي",
+    "prescription": [
+      {
+        "medicine_name": "دواء تجريبي",
+        "dose": "حبة يوميا",
+        "duration": "7 أيام"
+      }
+    ],
+    "notes": "ملاحظات تجريبية",
+    "recommendations": "توصية تجريبية",
+    "follow_up_recommended": true,
+    "follow_up_window_days": 14
+  },
+  "/care/appointments/test-appt/summary": {
+    "doctor_id": "test-doc",
+    "diagnosis": "تشخيص تجريبي",
+    "prescription": [
+      {
+        "medicine_name": "دواء تجريبي",
+        "dose": "حبة يوميا",
+        "duration": "7 أيام"
+      }
+    ],
+    "notes": "ملاحظات تجريبية",
+    "recommendations": "توصية تجريبية",
+    "follow_up_recommended": true,
+    "follow_up_window_days": 14
+  },
+  "/care/doctors/test-doc": {
+    "id": "test-doc",
+    "name_ar": "د. طبيب تجريبي",
+    "name_en": "Test doctor c",
+    "title": "استشاري",
+    "specialty": "باطنة",
+    "city": "مدينة تجريبية",
+    "district": "حي تجريبي",
+    "address": "عيادة تجريبية",
+    "consultation_modes": [
+      "clinic",
+      "home",
+      "video"
+    ],
+    "rating_avg": 4.6,
+    "rating_count": 128,
+    "price_clinic": 200,
+    "price_online": 170,
+    "price_home": 250,
+    "is_online": true,
+    "bio": "نبذة تجريبية عن الطبيب.",
+    "years_experience": 12,
+    "languages": [
+      "العربية",
+      "English"
+    ],
+    "accepts_insurance": true,
+    "facility": {
+      "name_ar": "مستشفى تجريبي"
+    },
+    "hospital": "مستشفى تجريبي",
+    "sub_specialties": [
+      "تخصص دقيق تجريبي"
+    ],
+    "reviews_data": [
+      {
+        "id": "r1",
+        "rating": 5,
+        "text": "تقييم تجريبي",
+        "date": "2026-09-20"
+      }
+    ]
+  },
+  "/care/doctors/test-doc/slots": {
+    "slots": [
+      {
+        "start": "2026-10-12T09:00:00Z",
+        "available": true
+      },
+      {
+        "start": "2026-10-12T09:30:00Z",
+        "available": true
+      },
+      {
+        "start": "2026-10-12T10:00:00Z",
+        "available": false
+      },
+      {
+        "start": "2026-10-12T11:00:00Z",
+        "available": true
+      }
+    ]
+  },
+  "/care/facilities/test-clinic": {
+    "name_ar": "عيادة تجريبية",
+    "name_en": "Test clinic",
+    "city": "مدينة تجريبية",
+    "description_ar": "وصف تجريبي للعيادة.",
+    "doctors": [
+      {
+        "id": "test-doc",
+        "name_ar": "د. طبيب تجريبي",
+        "specialty_ar": "باطنة"
+      }
+    ]
+  },
+  "/system-config/public": {},
+  "/config": {
+    "features": {
+      "video_calls": true
+    }
+  },
+  "/calls/history": {
+    "data": [
+      {
+        "id": "test-call-1",
+        "caller_id": "test-user",
+        "callee_id": "test-doc",
+        "call_type": "video",
+        "status": "ended",
+        "duration_seconds": 840,
+        "createdAt": "2026-10-05T10:00:00Z"
+      },
+      {
+        "id": "test-call-2",
+        "caller_id": "test-doc",
+        "callee_id": "test-user",
+        "call_type": "voice",
+        "status": "missed",
+        "createdAt": "2026-10-03T18:20:00Z"
+      }
+    ],
+    "total": 2,
+    "page": 1,
+    "total_pages": 1
+  },
+  "/medical-reports/mine": {
+    "data": [
+      {
+        "id": "test-report",
+        "title_ar": "تقرير تجريبي",
+        "facility_name": "مستشفى تجريبي",
+        "doctor_name": "د. طبيب تجريبي",
+        "issued_at": "2026-09-01T10:00:00Z",
+        "summary": "ملخص تجريبي"
+      }
+    ]
+  },
+  "/medical-reports/test-report": {
+    "id": "test-report",
+    "title_ar": "تقرير تجريبي",
+    "shared_with": []
+  },
+  "/care/doctors": {
+    "items": [
+      {
+        "id": "test-doc",
+        "name_ar": "د. طبيب تجريبي",
+        "specialty": "باطنة",
+        "hospital": "مستشفى تجريبي"
+      }
+    ],
+    "total": 1
+  },
+  "/insurance/requests/my": [],
+  "/chat/threads/booking": {
+    "id": "test-thread"
+  },
+  "/chat/threads/test-thread/messages": [
+    {
+      "id": "m1",
+      "sender_role": "doctor",
+      "body": "رسالة تجريبية من الطبيب",
+      "createdAt": "2026-10-06T09:00:00Z"
+    },
+    {
+      "id": "m2",
+      "sender_role": "patient",
+      "body": "رد تجريبي من المريض",
+      "createdAt": "2026-10-06T09:02:00Z"
+    }
+  ],
+  "/users/me/profile": {
+    "id": "test-user",
+    "full_name": "مستخدم تجريبي"
+  },
+  "/payments/consultation/test-appt/capabilities": {
+    "methods": []
+  },
+  "POST /chat/threads/booking": {
+    "id": "test-thread"
+  }
 }

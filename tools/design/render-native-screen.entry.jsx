@@ -17,6 +17,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '@app/src/store/slices/authSlice';
 import { AppProvider } from '@app/src/context/AppContext';
 import { CartProvider, useCart } from '@app/src/context/CartContext';
+import { ConsultationsProvider } from '@app/src/context/ConsultationsContext';
 import Screen from '@screen';
 import TabBar from '@tabbar';
 import LayoutHeader from '@header';
@@ -54,6 +55,7 @@ function Root() {
             <AppProvider>
               {/* the real cart (local state, as in the app root): the pharmacy screens read and write it */}
               <CartProvider>
+               <ConsultationsProvider>
                 <SeedCart />
                 {/* what the tabs layout draws: its header above the screen, the tab bar floating over it */}
                 {cfg.header ? <LayoutHeader /> : null}
@@ -61,6 +63,7 @@ function Root() {
                   <Screen />
                 </View>
                 {cfg.tabbar ? <TabBar /> : null}
+               </ConsultationsProvider>
               </CartProvider>
             </AppProvider>
           </Provider>

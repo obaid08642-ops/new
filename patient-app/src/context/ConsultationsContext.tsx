@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 import { apiFetch } from '../utils/api';
 
 import { Appointment, AppointmentStatus, AppointmentMode } from '../types/contracts';
-import { dateLocale } from '@/utils/dates';
 
 interface ConsultationsContextValue {
   appointments: Appointment[];
@@ -28,10 +27,11 @@ export function ConsultationsProvider({ children }: { children: ReactNode }) {
         const raw = Array.isArray(res) ? res : res?.data;
         const mapped = raw.map((a: any) => ({
           id: a._id || a.id,
-          docName: a.doctor_name || a.provider_name || 'طبيب',
+          docName: a.doctor_name || a.provider_name || '',
+          docId: a.doctor_id ? String(a.doctor_id) : undefined,
           spec: a.specialty || a.specialty_ar || '',
           emoji: '',
-          date: a.appointment_date ? new Date(a.appointment_date).toLocaleDateString(dateLocale()) : '',
+          at: a.appointment_date || a.scheduled_at || undefined,
           time: a.start_time || '',
           type: a.consultation_type || 'online',
           status: a.status || 'pending',

@@ -1,34 +1,66 @@
-// @ts-nocheck
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar, TextInput, ScrollView, ActivityIndicator, Alert } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../../src/context/AppContext';
-import { resolveColor, darkColors, lightColors } from '../../src/theme/colors';
-import { apiFetch } from '../../src/utils/api';
-import { router as expRouter, useLocalSearchParams as expSearchParams } from 'expo-router';
-import { useSocket } from '../../src/context/SocketContext';
-import { pickLocalized } from '../../src/utils/localize';
-import { dateLocale } from '@/utils/dates';
-import { LocalizedText } from '../../src/components/LocalizedText';
+import React, { useEffect, useRef, useState } from 'react';
+import { ScrollView, Text, TextInput, View } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+
+import { AppHeader, Avatar, Button, Screen, StickyFooter } from '../../../packages/ui-native/src';
+import { goBack } from '../../src/components/consult/ConsultKit';
+import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { useSocket } from '../../src/context/SocketContext';
+import { apiFetch } from '../../src/utils/api';
+import { pickLocalized } from '../../src/utils/localize';
+import { dateLocaleFor } from '../../src/utils/dates';
+
+/**
+ * Chat with the doctor — no board of its own (owner decision, 2026-10-04): the layout stays (header with the doctor and
+ * presence, the messages, the input row), drawn with the tokens, the shared header and the translation files. The thread
+ * is the booking's (POST /chat/threads/booking), the history is GET /chat/threads/:id/messages, messages are sent with
+ * POST /chat/threads/:id/messages and arrive on the socket. None of that changed.
+ */
+
+interface Doc {
+  user_id?: string;
+  account_id?: string;
+  name_ar?: string;
+  name_en?: string;
+  name?: string;
+  specialty?: string;
+  photo_url?: string;
+}
+interface ChatMsg {
+  id: string;
+  sender: 'me' | 'doc';
+  text: string;
+  time: string;
+  pending?: boolean;
+  failed?: boolean;
+}
+interface ServerMsg {
+  id?: string;
+  _id?: string;
+  thread_id?: string;
+  sender_role?: string;
+  body?: string;
+  content?: string;
+  text?: string;
+  createdAt?: string;
+}
 
 export default function ChatWithDoctorScreen() {
-  const { doctorId, appointmentId } = expSearchParams();
-  const insets = useSafeAreaInsets();
-  const { isDark, lang } = useApp() as any;
-  const colors = isDark ? darkColors : lightColors;
-  const isRTL = lang === 'ar' || lang === 'ur';
+  const { doctorId, appointmentId } = useLocalSearchParams();
+  const { theme, t, c, flow, lang, dir, k } = useScreenUi();
+  const locale = dateLocaleFor(lang);
+  const stamp = (at?: string | number | Date) => new Date(at ?? Date.now()).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
 
-  const { socket, onlineUsers, typingUsers, sendTyping, joinThread, leaveThread, isConnected } = useSocket();
+  const { socket, onlineUsers, sendTyping, joinThread, leaveThread, isConnected } = useSocket();
 
-  const [loading, setLoading] = useState(true);
-  const [docData, setDocData] = useState<any>(null);
+  const [docData, setDocData] = useState<Doc | null>(null);
   // Real presence: is the doctor's user id currently online? (onlineUsers is a map: userId → bool)
-  const docOnline = !!(docData && onlineUsers && onlineUsers[docData.user_id || docData.account_id]);
-  const [messages, setMessages] = useState<any[]>([]);
+  const docOnline = !!(docData && onlineUsers && onlineUsers[docData.user_id || docData.account_id || '']);
+  const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [msg, setMsg] = useState('');
   const [blocked, setBlocked] = useState('');
+  const scroller = useRef<ScrollView>(null);
 
   // LJ-06: chat is always per booking — the appointment's booking thread, not a
   // bare direct thread. The doctor is resolved from the booking server-side.
@@ -40,70 +72,74 @@ export default function ChatWithDoctorScreen() {
     if (!appointmentId) {
       setDocData(null);
       setMessages([]);
-      setLoading(false);
-      setBlocked('افتح المحادثة من تفاصيل الاستشارة حتى نربطها بالحجز.');
-      return () => { cancelled = true; };
+      setBlocked(k('consult.chat.openFromDetail'));
+      return () => {
+        cancelled = true;
+      };
     }
 
     // 1) Doctor profile is display-only (name, specialty) — the thread is keyed
     //    by the appointment, so no doctor user id is needed to open it.
     if (doctorId) {
-      apiFetch(`/care/doctors/${doctorId}`)
-        .then((res: any) => { if (!cancelled) setDocData(res?.data || res); })
+      apiFetch<Doc & { data?: Doc }>(`/care/doctors/${doctorId}`)
+        .then((res) => {
+          if (!cancelled) setDocData(res?.data || res);
+        })
         .catch(() => null);
     }
 
     // 2) Get-or-create the booking thread for this appointment.
     const appointment = String(appointmentId);
-    apiFetch(`/chat/threads/booking`, { method: 'POST', body: JSON.stringify({ booking_kind: 'consultation', booking_id: appointment }) })
-      .then((tres: any) => {
+    apiFetch<{ data?: { id?: string; thread_id?: string }; id?: string; thread_id?: string }>(`/chat/threads/booking`, { method: 'POST', body: JSON.stringify({ booking_kind: 'consultation', booking_id: appointment }) })
+      .then((tres) => {
         const thread = tres?.data || tres;
         const tid = thread?.id || thread?.thread_id;
         if (!tid || cancelled) return null;
         setThreadId(tid);
         joinThread(tid);
-        return apiFetch(`/chat/threads/${tid}/messages`);
+        return apiFetch<{ data?: ServerMsg[] } | ServerMsg[]>(`/chat/threads/${tid}/messages`);
       })
-      .then((mres: any) => {
+      .then((mres) => {
         if (!mres || cancelled) return;
-        const list = mres?.data || mres || [];
-        setMessages(Array.isArray(list) ? list.map((m: any) => ({
-          id: m.id || m._id,
-          sender: (m.sender_role === 'provider' || m.sender_role === 'doctor') ? 'doc' : 'me',
-          text: m.body || m.content || m.text || '',
-          time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' }) : '',
-        })) : []);
+        const list = (Array.isArray(mres) ? mres : mres?.data) || [];
+        setMessages(
+          Array.isArray(list)
+            ? list.map((m) => ({
+                id: String(m.id || m._id),
+                sender: m.sender_role === 'provider' || m.sender_role === 'doctor' ? 'doc' : 'me',
+                text: m.body || m.content || m.text || '',
+                time: m.createdAt ? stamp(m.createdAt) : '',
+              }))
+            : [],
+        );
       })
       .catch(() => {
-        if (!cancelled) setBlocked('تعذر فتح المحادثة. تأكد أن الاستشارة بدأت وأنك طرف فيها.');
-      })
-      .finally(() => { if (!cancelled) setLoading(false); });
+        if (!cancelled) setBlocked(k('consult.chat.openFailed'));
+      });
 
     return () => {
       cancelled = true;
-      setThreadId((current) => { if (current) leaveThread(current); return current; });
+      setThreadId((current) => {
+        if (current) leaveThread(current);
+        return current;
+      });
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appointmentId, doctorId, isConnected]);
 
   useEffect(() => {
     if (!socket) return;
-    
-    const handleNewMessage = (newMsg: any) => {
+    const handleNewMessage = (newMsg: ServerMsg) => {
       if (newMsg.thread_id === threadId) {
         const mine = !(newMsg.sender_role === 'provider' || newMsg.sender_role === 'doctor');
-        setMessages(prev => [...prev, {
-          id: newMsg.id || String(Date.now()),
-          sender: mine ? 'me' : 'doc',
-          text: newMsg.body || newMsg.content || '',
-          time: new Date().toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' }),
-        }]);
+        setMessages((prev) => [...prev, { id: newMsg.id || String(Date.now()), sender: mine ? 'me' : 'doc', text: newMsg.body || newMsg.content || '', time: stamp() }]);
       }
     };
-    
     socket.on('chat:message', handleNewMessage);
     return () => {
       socket.off('chat:message', handleNewMessage);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket, threadId]);
 
   const handleTyping = (text: string) => {
@@ -115,116 +151,78 @@ export default function ChatWithDoctorScreen() {
     const text = msg.trim();
     if (!text) return;
     if (!threadId) {
-      showLocalizedAlert('تعذر الإرسال', 'قناة المحادثة غير جاهزة بعد. حاول بعد لحظات.');
+      showLocalizedAlert(k('consult.chat.sendFailedTitle'), k('consult.chat.notReady'));
       return;
     }
     const tempId = `tmp-${Date.now()}`;
-    const newMsg = { id: tempId, sender: 'me', text, time: new Date().toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' }), pending: true };
-    setMessages(prev => [...prev, newMsg]);
+    setMessages((prev) => [...prev, { id: tempId, sender: 'me', text, time: stamp(), pending: true }]);
     setMsg('');
     try {
       await apiFetch(`/chat/threads/${threadId}/messages`, { method: 'POST', body: JSON.stringify({ body: text, type: 'text', client_message_id: tempId }) });
-      setMessages(prev => prev.map(m => m.id === tempId ? { ...m, pending: false } : m));
+      setMessages((prev) => prev.map((m) => (m.id === tempId ? { ...m, pending: false } : m)));
     } catch {
       // Honest failure — mark the message as failed instead of pretending it sent
-      setMessages(prev => prev.map(m => m.id === tempId ? { ...m, pending: false, failed: true } : m));
-      showLocalizedAlert('فشل إرسال الرسالة', 'لم تصل رسالتك. تحقق من اتصالك ثم أعد المحاولة.');
+      setMessages((prev) => prev.map((m) => (m.id === tempId ? { ...m, pending: false, failed: true } : m)));
+      showLocalizedAlert(k('consult.chat.failedTitle'), k('consult.chat.failedBody'));
     }
   };
 
-  if (loading) return <View style={[styles.container, { backgroundColor: colors.bg, justifyContent: 'center' } ]}><ActivityIndicator color={resolveColor('var(--p)')} /></View>;
+  const name = pickLocalized(docData?.name_ar, docData?.name_en) || docData?.name || '';
 
-  return (
-    <View style={[styles.container, { backgroundColor: colors.bg } ]}>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-      
-      {/* Header */}
-      <View style={[styles.header, { backgroundColor: colors.s, borderBottomColor: colors.bd, paddingTop: insets.top + 8 } ]}>
-        <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, paddingBottom: 8 }}>
-          <TouchableOpacity onPress={() => expRouter.back()} style={styles.iconBtn}>
-            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 22 }}>arrow_forward</LocalizedText>
-          </TouchableOpacity>
-          <View style={{ position: 'relative' }}>
-            <View style={[styles.docImgPlaceholder, { backgroundColor: resolveColor('var(--ps)') } ]}>
-              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 24 }}>person</LocalizedText>
-            </View>
-            {docOnline && (
-              <View style={[styles.onlineDot, { backgroundColor: resolveColor('var(--gr)'), borderColor: colors.s }]} />
-            )}
-          </View>
-          <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
-            <LocalizedText style={{ fontSize: 13, fontWeight: '700', color: colors.n }}>{pickLocalized(docData?.name_ar, docData?.name_en) || docData?.name || ''}</LocalizedText>
-            <LocalizedText style={{ fontSize: 9, color: docOnline ? resolveColor('var(--gr)') : colors.t3 }}>{docOnline ? 'متصل الآن' : (docData?.specialty || '')}</LocalizedText>
-          </View>
-        </View>
-      </View>
-
-      {!!blocked && (
-        <View style={{ backgroundColor: '#FEF3C7', paddingHorizontal: 14, paddingVertical: 10 }}>
-          <LocalizedText style={{ fontSize: 11, color: '#92400E', textAlign: isRTL ? 'right' : 'left' }}>{blocked}</LocalizedText>
-        </View>
-      )}
-
-      <ScrollView contentContainerStyle={styles.chatArea}>
-
-        {messages.length === 0 && !blocked ? (
-          <LocalizedText style={{ fontSize: 11, color: colors.t3, textAlign: 'center', marginTop: 24 }}>
-            لا توجد رسائل بعد. ابدأ المحادثة حول هذه الاستشارة.
-          </LocalizedText>
-        ) : messages.map((m: any) => m.sender === 'doc' ? (
-          <View key={m.id} style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 8, marginBottom: 12 }}>
-            <View style={[styles.chatAvatar, { backgroundColor: resolveColor('var(--ps)') } ]}>
-              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 20 }}>person</LocalizedText>
-            </View>
-            <View style={[styles.docBubble, { backgroundColor: colors.s, borderColor: colors.bd, borderTopLeftRadius: isRTL ? 4 : 14, borderTopRightRadius: isRTL ? 14 : 4 } ]}>
-              <LocalizedText style={{ fontSize: 12, color: colors.n, lineHeight: 18, textAlign: isRTL ? 'right' : 'left' }}>{m.text}</LocalizedText>
-              <LocalizedText style={{ fontSize: 8, color: colors.t3, textAlign: isRTL ? 'left' : 'right', marginTop: 4 }}>{m.time}</LocalizedText>
-            </View>
-          </View>
-        ) : (
-          <View key={m.id} style={{ flexDirection: isRTL ? 'row' : 'row-reverse', marginBottom: 12, opacity: m.pending ? 0.6 : 1 }}>
-            <View style={[styles.myBubble, { backgroundColor: m.failed ? '#B91C1C' : resolveColor('var(--p)'), borderTopRightRadius: isRTL ? 4 : 14, borderTopLeftRadius: isRTL ? 14 : 4 } ]}>
-              <LocalizedText style={{ fontSize: 12, color: '#fff', lineHeight: 18, textAlign: isRTL ? 'right' : 'left' }}>{m.text}</LocalizedText>
-              <LocalizedText style={{ fontSize: 8, color: 'rgba(255,255,255,0.7)', textAlign: isRTL ? 'right' : 'left', marginTop: 4 }}>
-                {m.failed ? 'فشل الإرسال' : m.pending ? 'جاري الإرسال...' : m.time}
-              </LocalizedText>
-            </View>
-          </View>
-        ))}
-      </ScrollView>
-
-      {/* Input */}
-      <View style={[styles.inputArea, { backgroundColor: colors.s, borderTopColor: colors.bd, paddingBottom: Math.max(insets.bottom, 12) } ]}>
+  const header = (
+    <View style={COLUMN}>
+      <AppHeader title={name || k('consult.chat.title')} onBack={() => goBack()} backLabel={k('consult.back')} theme={theme} direction={dir} />
+    </View>
+  );
+  const footer = (
+    <StickyFooter theme={theme} direction={dir}>
+      <View style={{ ...COLUMN, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         <TextInput
-          style={[styles.input, { backgroundColor: colors.bg, color: colors.n, textAlign: isRTL ? 'right' : 'left' }]}
-          placeholder="اكتب رسالة..."
-          placeholderTextColor={colors.t3}
+          accessibilityLabel={k('consult.chat.placeholder')}
+          style={{ flex: 1, minHeight: 44, borderRadius: 22, paddingHorizontal: 16, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, color: c.text.primary, ...scale(t, 'small', 'regular'), textAlign: flow.textAlign, writingDirection: dir }}
+          placeholder={k('consult.chat.placeholder')}
+          placeholderTextColor={c.text.tertiary}
           value={msg}
           editable={!blocked}
           onChangeText={handleTyping}
-          onSubmitEditing={send}
+          onSubmitEditing={() => void send()}
+          returnKeyType="send"
         />
-        <TouchableOpacity disabled={!!blocked} style={[styles.micBtn, { backgroundColor: resolveColor('var(--p)'), opacity: blocked ? 0.5 : 1 }]} onPress={send}>
-          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 21 }}>{msg ? 'send' : 'mic'}</LocalizedText>
-        </TouchableOpacity>
+        <Button label={k('consult.chat.send')} size="md" disabled={Boolean(blocked) || !msg.trim()} onPress={() => void send()} theme={theme} testID="chat-send" />
       </View>
-    </View>
+    </StickyFooter>
+  );
+
+  return (
+    <Screen theme={theme} direction={dir} header={header} footer={footer} keyboard testID="chat-screen">
+      <View style={{ ...COLUMN, flex: 1 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingBottom: 8 }}>
+          <Avatar name={name} src={docData?.photo_url} size="md" status={docOnline ? 'online' : 'none'} theme={theme} />
+          <Text style={{ ...scale(t, 'meta', 'regular'), color: docOnline ? c.status.success.fg : c.text.secondary, ...flow }}>{docOnline ? k('consult.chat.online') : docData?.specialty || ''}</Text>
+        </View>
+        {blocked ? (
+          <View accessibilityRole="alert" style={{ marginHorizontal: 16, padding: 12, borderRadius: 16, backgroundColor: c.status.warning.bg }}>
+            <Text style={{ ...scale(t, 'meta', 'regular'), color: c.status.warning.fg, ...flow }}>{blocked}</Text>
+          </View>
+        ) : null}
+        <ScrollView ref={scroller} onContentSizeChange={() => scroller.current?.scrollToEnd({ animated: true })} contentContainerStyle={{ padding: 16, gap: 12 }}>
+          {messages.length === 0 && !blocked ? (
+            <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.tertiary, textAlign: 'center', marginTop: 24 }}>{k('consult.chat.empty')}</Text>
+          ) : (
+            messages.map((m) => {
+              const mine = m.sender === 'me';
+              return (
+                <View key={m.id} style={{ alignItems: mine ? 'flex-end' : 'flex-start', opacity: m.pending ? 0.6 : 1 }}>
+                  <View style={{ maxWidth: '78%', borderRadius: 18, padding: 12, backgroundColor: m.failed ? c.action.danger.bg : mine ? c.action.primary.bg : c.bg.surface, borderWidth: mine ? 0 : 1, borderColor: c.border.hairline }}>
+                    <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 20, color: m.failed ? c.action.danger.fg : mine ? c.action.primary.fg : c.text.primary, ...flow }}>{m.text}</Text>
+                    <Text style={{ ...scale(t, 'micro', 'regular'), color: m.failed ? c.action.danger.fg : mine ? c.action.primary.fg : c.text.tertiary, marginTop: 4, ...flow }}>{m.failed ? k('consult.chat.failed') : m.pending ? k('consult.chat.sending') : m.time}</Text>
+                  </View>
+                </View>
+              );
+            })
+          )}
+        </ScrollView>
+      </View>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: { borderBottomWidth: 1.5, zIndex: 55 },
-  iconBtn: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
-  docImgPlaceholder: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-  onlineDot: { position: 'absolute', bottom: 0, left: 0, width: 11, height: 11, borderRadius: 5.5, borderWidth: 2 },
-  actionBtn: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', marginHorizontal: 2 },
-  chatArea: { padding: 14, paddingBottom: 20 },
-  chatAvatar: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-  docBubble: { borderWidth: 1.5, borderRadius: 14, padding: 11, maxWidth: '75%' },
-  myBubble: { borderRadius: 14, padding: 11, maxWidth: '75%' },
-  inputArea: { borderTopWidth: 1.5, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 8 },
-  attachBtn: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
-  input: { flex: 1, borderRadius: 20, paddingHorizontal: 16, height: 40, fontSize: 12 },
-  micBtn: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' }
-});

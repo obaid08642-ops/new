@@ -131,6 +131,33 @@ const BOARD = {
   'order-tracking': { component: 'OrderTracking', size: [390, 1120], params: { orderId: 'test-track' } },
   reorder: { params: { orderId: 'test-delivered' } },
   'address-select': { params: {} },
+  // Batch 2 (consultations; the 22 screens of the batch). Run them per folder: `--dir patient-app/app/consultations --screens
+  // appointments:c-appointments,book/[id]:c-book,...` (`file[:name]`), `--dir "patient-app/app/(tabs)/consultations" --screens index:c-hub`
+  // and `--dir patient-app/app/room --screens "[id]:c-room"`. The ids select the TEST records of render-native-screen.fixtures.json
+  // (`test-appt`, `test-doc`, `test-clinic`). Screens that follow the Consult template draw on its board (the hub), pass --height 844.
+  // The call screens have no board: they keep their layout (owner decision of 2026-10-04) and render at a phone's size.
+  'c-hub': { component: 'Consult', size: [390, 1660], params: {} },
+  'c-specialty-select': { component: 'Consult', size: [390, 1660], params: {} },
+  'c-appointments': { component: 'Appointments', size: [390, 960], params: {} },
+  'c-call-history': { component: 'Appointments', size: [390, 960], params: {} },
+  'c-appointment-detail': { component: 'Consult', size: [390, 1660], params: { appointmentId: 'test-appt' } },
+  'c-cancel-reschedule': { component: 'Consult', size: [390, 1660], params: { appointmentId: 'test-appt' } },
+  'c-follow-up': { component: 'Consult', size: [390, 1660], params: { appointmentId: 'test-appt' } },
+  'c-post-call-rating': { component: 'Consult', size: [390, 1660], params: { appointmentId: 'test-appt-done' } },
+  'c-prescription-from-doctor': { component: 'Consult', size: [390, 1660], params: {} },
+  'c-share-report': { component: 'Consult', size: [390, 1660], params: {} },
+  'c-summary': { component: 'Consult', size: [390, 1660], params: { appointmentId: 'test-appt-done' } },
+  'c-book': { component: 'BookingConfirm', size: [390, 1180], params: { id: 'test-doc', visit_type: 'clinic' } },
+  'c-booking-status': { component: 'BookingConfirm', size: [390, 1180], params: { appointmentId: 'test-appt', visitType: 'clinic' } },
+  'c-clinic-confirm': { component: 'BookingConfirm', size: [390, 1180], params: { appointmentId: 'test-appt' } },
+  'c-clinic': { component: 'DoctorFull', size: [390, 2700], params: { id: 'test-clinic' } },
+  'c-doctor': { component: 'DoctorFull', size: [390, 2700], params: { id: 'test-doc' } },
+  'c-home-visit-tracking': { component: 'OrderTracking', size: [390, 1120], params: { appointmentId: 'test-appt-home' } },
+  'c-chat': { params: { doctorId: 'test-doc', appointmentId: 'test-appt' } },
+  'c-incoming-call': { params: { callerName: 'د. طبيب تجريبي', sessionId: 'test-session', callType: 'video' } },
+  'c-video-call': { params: { appointmentId: 'test-appt-video' } },
+  'c-waiting-room': { params: { appointmentId: 'test-appt-video' } },
+  'c-room': { params: { id: 'test-room' } },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },
@@ -231,6 +258,17 @@ const MOCKS = {
     export const requestMediaLibraryPermissionsAsync = async () => ({ granted: false });
     export const launchCameraAsync = async () => ({ canceled: true });
     export const launchImageLibraryAsync = async () => ({ canceled: true });`,
+  // the call screens load the native LiveKit modules lazily; a design render draws the screen before any connection, with no media
+  'livekit-native': `
+    export const VideoView = () => null;
+    export const AudioSession = { startAudioSession: async () => {}, stopAudioSession: async () => {} };
+    export const registerGlobals = () => {};
+    export const useRoomContext = () => null;
+    export default {};`,
+  // the realtime socket: a design render has no connection (the chat draws its thread from the REST fixtures)
+  'socket-context': `
+    export const useSocket = () => ({ socket: null, onlineUsers: [], isConnected: false, sendTyping() {}, joinThread() {}, leaveThread() {} });
+    export const SocketProvider = ({ children }) => children;`,
   'expo-web-browser': `export const maybeCompleteAuthSession = () => ({ type: 'failed' });`,
   'expo-apple-authentication': `
     export const AppleAuthenticationScope = { FULL_NAME: 0, EMAIL: 1 };
@@ -256,6 +294,8 @@ const mockPlugin = {
     build.onResolve({ filter: /^expo-router$/ }, () => virtual('expo-router'));
     build.onResolve({ filter: /^expo-auth-session(\/providers\/google)?$/ }, () => virtual('expo-auth-session'));
     build.onResolve({ filter: /^expo-web-browser$/ }, () => virtual('expo-web-browser'));
+    build.onResolve({ filter: /context\/SocketContext$/ }, (a) => (a.importer.startsWith(APP + sep) ? virtual('socket-context') : undefined));
+    build.onResolve({ filter: /^@livekit\/react-native(-webrtc)?$/ }, () => virtual('livekit-native'));
     build.onResolve({ filter: /^expo-camera$/ }, () => virtual('expo-camera'));
     build.onResolve({ filter: /^expo-image-picker$/ }, () => virtual('expo-image-picker'));
     build.onResolve({ filter: /^expo-apple-authentication$/ }, () => virtual('expo-apple-authentication'));
@@ -292,7 +332,7 @@ async function bundle(screenFile) {
     mainFields: ['browser', 'module', 'main'],
     conditions: ['browser', 'import', 'default'],
     resolveExtensions: ['.web.tsx', '.web.ts', '.web.js', '.tsx', '.ts', '.jsx', '.js', '.mjs', '.json'],
-    define: { 'process.env.NODE_ENV': '"production"', __DEV__: 'false', global: 'window', 'process.env.EXPO_OS': '"web"' },
+    define: { 'process.env.EXPO_PUBLIC_CONSULT_NEARBY_FILTERS': JSON.stringify(process.env.EXPO_PUBLIC_CONSULT_NEARBY_FILTERS ?? ''), 'process.env.NODE_ENV': '"production"', __DEV__: 'false', global: 'window', 'process.env.EXPO_OS': '"web"' },
     banner: { js: 'window.process = window.process || { env: { NODE_ENV: "production" } };' },
     logLevel: 'error',
   });
