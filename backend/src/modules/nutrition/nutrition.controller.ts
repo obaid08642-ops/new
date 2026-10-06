@@ -1,7 +1,10 @@
-import { Body, Controller, Get, Post, Query, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Post, Query, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard, SelfService } from '../../common/auth.guard';
+import { Response } from 'express';
+import { JwtAuthGuard, NoGuestsGuard, SelfService } from '../../common/auth.guard';
+import { AiUserQuotaGuard } from '../ai/ai-user-quota.guard';
 import { NutritionService } from './nutrition.service';
+import { NutritionPlanService } from './nutrition-plan.service';
 import { UpdateProfileDto, LogMealDto, LogExerciseDto, LogWaterDto} from './nutrition.dto';
 
 @ApiTags('Nutrition | التغذية')
@@ -10,6 +13,11 @@ import { UpdateProfileDto, LogMealDto, LogExerciseDto, LogWaterDto} from './nutr
 @SelfService()
 export class NutritionController {
   constructor(private readonly nutritionService: NutritionService) {}
+
+  // Injected as a property so the controller keeps the single-argument constructor the
+  // patient-owned controller contract (ownership-controllers.spec.ts) constructs it with.
+  @Inject()
+  private readonly nutritionPlanService: NutritionPlanService;
 
   private authenticatedPatientId(req: any): string {
     const userId = req?.user?.id;
@@ -83,5 +91,25 @@ export class NutritionController {
   @Get('weekly-report')
   getWeeklyReport(@Req() req: any) {
     return this.nutritionService.getWeeklyReport(this.authenticatedPatientId(req));
+  }
+
+  /* ───────── AI Nutrition Plan ───────── */
+  @ApiOperation({ summary: 'Get the latest AI nutrition plan | الحصول على خطة التغذية الذكية' })
+  @Get('plan')
+  async getPlan(@Req() req: any, @Res({ passthrough: true }) res: Response) {
+    const plan = await this.nutritionPlanService.latest(this.authenticatedPatientId(req));
+    if (!plan) {
+      res.status(HttpStatus.NO_CONTENT);
+      return null;
+    }
+    return plan;
+  }
+
+  @ApiOperation({ summary: 'Generate an AI nutrition plan | توليد خطة تغذية ذكية' })
+  @Post('plan/generate')
+  @UseGuards(NoGuestsGuard, AiUserQuotaGuard)
+  @HttpCode(HttpStatus.CREATED)
+  generatePlan(@Req() req: any) {
+    return this.nutritionPlanService.generate(this.authenticatedPatientId(req));
   }
 }

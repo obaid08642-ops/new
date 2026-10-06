@@ -1458,7 +1458,15 @@
   "NutritionPlan": {
     "title": "My nutrition plan",
     "back": "Back",
-    "empty": "No data yet."
+    "empty": "No data yet.",
+    "generate": "Generate my plan",
+    "generating": "Generating...",
+    "nutritionist": "Follow up with a nutritionist",
+    "day": "Day",
+    "meals": "Meals",
+    "error": "Could not generate the plan now. Please try again.",
+    "emptyTitle": "No nutrition plan yet",
+    "emptyHint": "Generate a smart nutrition plan built from your nutrition profile."
   },
   "MaternityTracker": {
     "title": "Pregnancy tracking",

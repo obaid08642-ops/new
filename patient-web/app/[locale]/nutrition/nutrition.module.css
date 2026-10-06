@@ -369,6 +369,51 @@
   overflow: hidden;
 }
 
+.state h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--ink, #1E332E);
+}
+
+.notice {
+  margin: 0;
+  padding: 14px 18px;
+  border-radius: 16px;
+  border: 1px solid #F0C987;
+  background: #FEF6E7;
+  color: #7A5B16;
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.nutritionistLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid #B9E3DC;
+  background: #fff;
+  color: #00876F;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nutritionistLink:hover {
+  background: #F0FDF9;
+  transform: translateY(-1px);
+}
+
 @media (max-width: 760px) {
   .statsGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
