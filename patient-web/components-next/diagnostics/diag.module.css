@@ -1,0 +1,153 @@
+/* The labs and radiology screens (Batch 3, slice 3-web): the hub (canvas/ServiceHub), the catalogues, the details, the booking
+   flow steps (canvas/BookingConfirm, Cart, CheckoutV2, RxUpload) and the trackers (canvas/OrderTracking). The shell (top bar,
+   tab bar) is components-next/core; page frame, cards, forms, states and the segmented links come from consult.module.css and
+   pharmacy/rx.module.css. This file only adds what those do not have: the two kind tabs, a package card, a test row with its
+   add button, a radiology tile, a lab card and the little rails. Tokens only, logical properties only, no inline styles (the CSP
+   refuses them). Every name, price and time drawn here is one the server sent. */
+
+.stack { display: flex; flex-direction: column; gap: var(--nabd-space-sm); min-inline-size: 0; }
+.sectionHead { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-inline-size: 0; }
+.sectionTitle { margin: 0; font-size: var(--nabd-font-size-body-lg); font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.sectionLink {
+  flex: none; display: inline-flex; align-items: center; min-block-size: 44px; padding-inline: 4px; font-size: var(--nabd-font-size-segment); font-weight: 500;
+  color: var(--nabd-color-text-link); text-decoration: none;
+}
+.sectionLink:focus-visible, .quick:focus-visible, .kind:focus-visible, .test:focus-visible, .pack:focus-visible, .rad:focus-visible, .lab:focus-visible, .addBtn:focus-visible, .chipLink:focus-visible {
+  outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px;
+}
+
+/* ---- the hub: the search pill, the two kinds, two quick links ---- */
+.searchPill { display: flex; gap: 8px; align-items: stretch; }
+.searchPill > :first-child { flex: 1; min-inline-size: 0; }
+.kinds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.kind {
+  display: flex; align-items: center; gap: 10px; min-block-size: 84px; padding: 0 12px; box-sizing: border-box; min-inline-size: 0; text-align: start;
+  color: var(--nabd-color-text-primary); text-decoration: none; border-radius: var(--nabd-radius-3xl);
+  background: var(--nabd-color-bg-sunken); border: 1px solid var(--nabd-color-border-hairline);
+}
+.kind[aria-current="page"] { background: var(--nabd-color-bg-surface); border: 2px solid var(--nabd-color-action-selected-bg); box-shadow: var(--nabd-shadow-card); }
+.kindText { display: flex; flex-direction: column; gap: 2px; min-inline-size: 0; }
+.kindTitle { font-size: var(--nabd-font-size-row); font-weight: 700; overflow-wrap: anywhere; }
+.kindSub { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.quickGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.quick {
+  display: flex; align-items: center; gap: 10px; min-block-size: 64px; padding: 0 12px; box-sizing: border-box; min-inline-size: 0;
+  color: var(--nabd-color-text-primary); text-decoration: none; font-size: var(--nabd-font-size-control); font-weight: 600; overflow-wrap: anywhere;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-2xl);
+}
+.searchForm { display: flex; flex-direction: column; gap: 8px; min-inline-size: 0; }
+.check { display: flex; align-items: center; gap: 10px; min-block-size: 44px; font-size: var(--nabd-font-size-control); cursor: pointer; overflow-wrap: anywhere; }
+.check input { flex: none; inline-size: 22px; block-size: 22px; margin: 0; accent-color: var(--nabd-color-action-primary-bg); }
+.check:has(input:focus-visible) { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-sm); }
+.checks { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.filters > * { flex: 1 1 100%; min-inline-size: 0; }
+
+/* ---- a package card: a tinted card on a rail (ServiceHub "باقات الفحوصات") ---- */
+.rail { display: flex; gap: 12px; overflow-x: auto; padding-block-end: 4px; scroll-snap-type: x proximity; margin-inline: calc(var(--nabd-shell-gutter, 16px) * -1); padding-inline: var(--nabd-shell-gutter, 16px); }
+.rail > * { scroll-snap-align: start; }
+.pack {
+  flex: none; inline-size: min(268px, 78%); box-sizing: border-box; display: flex; flex-direction: column; gap: 14px; padding: 18px; min-inline-size: 0;
+  color: var(--nabd-color-text-primary); text-decoration: none; border-radius: var(--nabd-radius-4xl); background: var(--nabd-tone-bg);
+}
+.packFluid { inline-size: 100%; }
+.packTop { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.packCount {
+  display: inline-flex; align-items: center; min-block-size: 26px; padding-inline: 10px; border-radius: var(--nabd-radius-pill); background: var(--nabd-color-bg-surface);
+  font-size: var(--nabd-font-size-micro); font-weight: 600; overflow-wrap: anywhere;
+}
+.packBody { display: flex; flex-direction: column; gap: 4px; min-inline-size: 0; }
+.packName { font-size: var(--nabd-font-size-body-lg); font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.packDesc { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.packFoot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.packCta {
+  display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; padding-inline: 16px; border-radius: var(--nabd-radius-xl);
+  background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); font-size: var(--nabd-font-size-control); font-weight: 600;
+}
+
+/* ---- prices ---- */
+.price { font-size: var(--nabd-font-size-row); font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.priceBig { font-size: var(--nabd-font-size-h4); font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.was { margin-inline-start: 6px; font-size: var(--nabd-font-size-label); font-weight: 400; color: var(--nabd-color-text-secondary); text-decoration: line-through; }
+
+/* ---- a test row: name, tags, price and an add button (ServiceHub "تحاليل شائعة") ---- */
+.tests { list-style: none; margin: 0; padding: 0; background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-3xl); box-shadow: var(--nabd-shadow-card); overflow: hidden; }
+.tests > li { border-block-end: 1px solid var(--nabd-color-border-subtle); min-inline-size: 0; }
+.tests > li:last-child { border-block-end: 0; }
+.test { display: flex; align-items: center; gap: 12px; padding: 14px; min-inline-size: 0; }
+.testMain { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 6px; color: inherit; text-decoration: none; min-block-size: 44px; justify-content: center; }
+.testName { font-size: var(--nabd-font-size-row); font-weight: 500; line-height: 1.4; overflow-wrap: anywhere; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tagNote { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.addBtn {
+  flex: none; inline-size: 44px; block-size: 44px; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; border-radius: var(--nabd-radius-lg);
+  border: 1.5px solid var(--nabd-color-border-strong); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary); text-decoration: none;
+}
+
+/* ---- radiology tiles and lab cards ---- */
+.radGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; list-style: none; margin: 0; padding: 0; }
+.rad, .lab {
+  display: flex; flex-direction: column; gap: 10px; padding: 14px; box-sizing: border-box; min-inline-size: 0; block-size: 100%;
+  color: var(--nabd-color-text-primary); text-decoration: none; background: var(--nabd-color-bg-surface);
+  border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-3xl); box-shadow: var(--nabd-shadow-card);
+}
+.radName, .labName { font-size: var(--nabd-font-size-row); font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.radSub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.labGrid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; list-style: none; margin: 0; padding: 0; }
+.labHead { display: flex; align-items: center; gap: 10px; min-inline-size: 0; }
+.photo { flex: none; position: relative; inline-size: 48px; block-size: 48px; border-radius: var(--nabd-radius-xl); overflow: hidden; background: var(--nabd-color-bg-media); display: grid; place-items: center; }
+.photoImage { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; object-fit: cover; }
+.coverBox { position: relative; inline-size: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--nabd-radius-3xl); background: var(--nabd-color-bg-sunken); }
+.referral {
+  display: flex; align-items: flex-start; gap: 10px; padding: 14px; border-radius: var(--nabd-radius-2xl); background: var(--nabd-tone-bg); color: var(--nabd-tone-fg);
+  font-size: var(--nabd-font-size-control); line-height: 1.7; overflow-wrap: anywhere;
+}
+.referral > :first-child { flex: none; }
+
+/* ---- a form flow step (labs/book, checkout, insurance upload) ---- */
+.flowNote { margin: 0; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); line-height: 1.7; overflow-wrap: anywhere; }
+.totalLine { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: var(--nabd-font-size-body-lg); font-weight: 700; }
+.line { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: var(--nabd-font-size-control); color: var(--nabd-color-text-secondary); }
+.lineValue { font-weight: 500; text-align: end; overflow-wrap: anywhere; }
+.cartLines { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.cartLines > li { display: flex; align-items: center; gap: 12px; padding-block: 12px; border-block-end: 1px solid var(--nabd-color-border-subtle); min-inline-size: 0; }
+.cartLines > li:last-child { border-block-end: 0; }
+.lineText { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
+.removeBtn {
+  flex: none; display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; min-inline-size: 44px; padding-inline: 8px; border: 0; background: transparent; cursor: pointer;
+  font: inherit; font-size: var(--nabd-font-size-segment); font-weight: 600; color: var(--nabd-color-text-link); border-radius: var(--nabd-radius-sm);
+}
+.removeBtn:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.pickGroup { display: flex; flex-direction: column; gap: 8px; border: 0; margin: 0; padding: 0; min-inline-size: 0; }
+.coverage { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.coverage > li { display: flex; flex-direction: column; gap: 6px; min-inline-size: 0; }
+.coverageRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+/* ---- the trackers ---- */
+.eta { display: flex; align-items: center; gap: 12px; min-inline-size: 0; }
+.etaText { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
+.etaLabel { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); }
+.etaValue { font-size: var(--nabd-font-size-h4); font-weight: 700; overflow-wrap: anywhere; }
+.callLink {
+  flex: none; display: inline-flex; align-items: center; min-block-size: 44px; padding-inline: 4px; font-size: var(--nabd-font-size-control); font-weight: 600;
+  color: var(--nabd-color-text-link); text-decoration: none;
+}
+.callLink:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-sm); }
+.chipLink { display: inline-flex; }
+
+@media (min-width: 768px) {
+  .radGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .labGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (hover: hover) and (pointer: fine) {
+  .pack, .rad, .lab, .kind { transition: transform var(--nabd-motion-duration-fast, 160ms) ease, box-shadow var(--nabd-motion-duration-fast, 160ms) ease; }
+  .rad:hover, .lab:hover, .pack:hover { transform: translateY(-2px); }
+}
+/* the file chooser of the upload: a design-system button around a visually hidden input */
+.fileBtn { cursor: pointer; text-decoration: none; }
+.fileBtn:has(input:focus-visible) { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pack, .rad, .lab, .kind { transition: none; }
+  .rad:hover, .lab:hover, .pack:hover { transform: none; }
+}

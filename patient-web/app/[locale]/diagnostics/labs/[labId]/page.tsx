@@ -1,13 +1,16 @@
-import { isLocale, locales } from "@/lib/i18n";
-import { localizedUrl } from "@/lib/seo";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowLeft, ArrowRight, FlaskConical, Home, MapPin, Phone, Star } from "lucide-react";
 import { getPublicLab, extractLab } from "@/lib/api/labs-server";
-import { VectorLabs } from "@/components-next/vector-illustrations";
-import styles from "./lab-detail.module.css";
+import { isLocale, locales } from "@/lib/i18n";
+import { localizedUrl } from "@/lib/seo";
+import { allowedImageUrl } from "@/lib/image-hosts";
+import { CatalogImage } from "@/components-next/pharmacy/catalog-image";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { ActionLinks, Hero, Notice, SectionCard, type LinkAction } from "@/components-next/consult/consult-parts";
+import { LAB, LabCard, TagRow, money, pickText } from "@/components-next/diagnostics/diag-parts";
+import styles from "@/components-next/diagnostics/diag.module.css";
 
 type Props = { params: Promise<{ locale: string; labId: string }> };
 
@@ -31,115 +34,57 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+/** A laboratory (canvas/ServiceHub, the lab card opened): the cover, the name, the city, the phone and the tests it offers, each going to its booking. */
 export default async function LabDetailPage({ params }: Props) {
   const { locale, labId } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
 
   const t = await getTranslations("LabsDetail");
+  const w = await getTranslations("DiagWeb");
   const response = await getPublicLab(labId);
   if (!response || response.status === 404) notFound();
+  const backHref = `/${locale}/diagnostics/labs`;
 
   if (!response.ok) {
     return (
-      <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
-        <section className={styles.state} role="alert" style={{ gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
-          <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE" } as any}><VectorLabs size={48} aria-hidden="true" /></span>
-          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("unavailableTitle")}</h1>
-          <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("unavailableBody")}</p>
-          <Link href={`/${locale}/diagnostics/labs`} className={styles.action} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "10px 16px", borderRadius: 20, border: "1px solid #E8EDEE", background: "#5FD9B3", color: "#1E332E", fontWeight: 760, overflowWrap: "anywhere" } as any}>
-            {t("retry")}
-          </Link>
-        </section>
-      </main>
+      <ConsultPage locale={locale} title={t("title")} backHref={backHref}>
+        <ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailableBody")} retryLabel={t("retry")} actionLabel={t("back")} actionHref={backHref} />
+      </ConsultPage>
     );
   }
 
   const lab = extractLab(await response.json().catch(() => null));
   if (!lab) notFound();
-
-  const rtl = locale === "ar" || locale === "ur";
-  const Arrow = rtl ? ArrowLeft : ArrowRight;
+  const name = pickText(locale, lab.name_ar ?? lab.name, lab.name_en ?? lab.name) ?? lab.name;
+  const image = allowedImageUrl(lab.image);
+  const place = [lab.city, lab.address].filter(Boolean).join(" · ");
+  const actions: LinkAction[] = lab.phone ? [{ href: `tel:${lab.phone}`, label: w("callLab"), variant: "outline", external: true }] : [];
 
   return (
-    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
-      <Link href={`/${locale}/diagnostics/labs`} className={styles.back} style={{ color: "#1E332E", gap: 8, borderRadius: 20, border: "1px solid #E8EDEE", padding: "8px 12px", background: "rgba(255,255,255,.82)", overflowWrap: "anywhere" } as any}>
-        <Arrow size={17} aria-hidden="true" />
-        <span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("back")}</span>
-      </Link>
-
-      <article className={styles.detail} style={{ gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
-        <div className={styles.heroBanner}>
-          {lab.image ? (
-            <img src={lab.image} alt={lab.name} className={styles.coverImage} />
-          ) : (
-            <div className={styles.placeholderBanner}>
-              <VectorLabs size={48} aria-hidden="true" />
-            </div>
-          )}
-        </div>
-
-        <div className={styles.header}>
-          <div className={styles.badge}>{t("typeLabel")}</div>
-          <div className={styles.rating}>
-            <Star size={16} fill="#F59E0B" color="#F59E0B" aria-hidden="true" />
-            <strong>{lab.rating?.toFixed(1)}</strong>
-          </div>
-        </div>
-
-        <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{locale === "ar" ? lab.name_ar || lab.name : lab.name_en || lab.name}</h1>
-
-        {lab.city || lab.address ? (
-          <p className={styles.location}>
-            <MapPin size={16} aria-hidden="true" />
-            <span>{lab.city || lab.address}</span>
-          </p>
-        ) : null}
-
-        {lab.home_visit ? (
-          <p className={styles.homeBadge}>
-            <Home size={15} aria-hidden="true" />
-            <span>{t("homeVisitSupported")}</span>
-          </p>
-        ) : null}
-
-        {lab.phone ? (
-          <p className={styles.contact}>
-            <Phone size={16} aria-hidden="true" />
-            <a href={`tel:${lab.phone}`}>{lab.phone}</a>
-          </p>
-        ) : null}
-
-        <section className={styles.section} style={{ gap: 8 } as any}>
-          <h2 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("aboutTitle")}</h2>
-          <p className={styles.aboutText} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{lab.description || t("defaultAbout")}</p>
+    <ConsultPage locale={locale} title={name} backHref={backHref}>
+      {image ? <div className={styles.coverBox}><CatalogImage src={image} alt={name} sizes="(max-width: 720px) 100vw, 720px" className={styles.photoImage} priority /></div> : null}
+      <Hero icon={LAB.icon} tone={LAB.tone} title={name} sub={place || undefined}>
+        <TagRow tags={lab.home_visit ? [{ label: t("homeVisitSupported"), tone: LAB.tone }] : []} />
+      </Hero>
+      {lab.description ? <SectionCard id="lab-about" title={t("aboutTitle")}><p className={styles.flowNote}>{lab.description}</p></SectionCard> : <Notice>{t("defaultAbout")}</Notice>}
+      <ActionLinks actions={actions} />
+      {lab.services && lab.services.length > 0 ? (
+        <section className={styles.stack} aria-labelledby="lab-services">
+          <h2 id="lab-services" className={styles.sectionTitle}>{t("servicesTitle")}</h2>
+          <ul className={styles.labGrid}>
+            {lab.services.map((svc) => (
+              <LabCard
+                key={svc.id}
+                href={`/${locale}/diagnostics/labs/book?serviceId=${encodeURIComponent(svc.id)}&labId=${encodeURIComponent(lab.id)}`}
+                title={pickText(locale, svc.name_ar ?? svc.name, svc.name_en ?? svc.name) ?? svc.name}
+                sub={svc.sample_type}
+                price={svc.price !== undefined ? money(locale, svc.price) : undefined}
+              />
+            ))}
+          </ul>
         </section>
-
-        {lab.services && lab.services.length > 0 ? (
-          <section className={styles.section} style={{ gap: 16 } as any}>
-            <h2 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("servicesTitle")}</h2>
-            <div className={styles.serviceGrid} style={{ gap: 16 } as any}>
-              {lab.services.map((svc) => (
-                <Link
-                  key={svc.id}
-                  href={`/${locale}/diagnostics/labs/book?serviceId=${encodeURIComponent(svc.id)}&labId=${encodeURIComponent(lab.id)}`}
-                  className={styles.serviceCard}
-                  style={{ borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.72)", gap: 8, padding: 16 } as any}
-                >
-                  <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE", flex: "0 0 auto" } as any}><VectorLabs size={48} aria-hidden="true" /></span>
-                  <div className={styles.serviceInfo} style={{ gap: 8 } as any}>
-                    <strong style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{locale === "ar" ? svc.name_ar || svc.name : svc.name_en || svc.name}</strong>
-                    {svc.sample_type ? <small style={{ overflowWrap: "anywhere" } as any}>{svc.sample_type}</small> : null}
-                    {svc.price !== undefined ? (
-                      <span className={styles.price} style={{ overflowWrap: "anywhere" } as any}>{t("price", { value: svc.price })}</span>
-                    ) : null}
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        ) : null}
-      </article>
-    </main>
+      ) : null}
+    </ConsultPage>
   );
 }
