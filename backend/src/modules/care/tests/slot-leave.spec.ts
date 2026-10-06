@@ -3,6 +3,7 @@ import { SlotService } from '../slot.service';
 const chain = (rows: any) => ({ select: jest.fn().mockReturnValue({ lean: jest.fn().mockReturnValue({ catch: async () => rows }) }) });
 
 // A day well in the future: a fixed date turns into "today" (past slots dropped) and then into the past.
+// The approved leave is built around that day so it always overlaps it.
 const DAY = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
 
 describe('SlotService leave linkage (R12)', () => {
@@ -16,7 +17,7 @@ describe('SlotService leave linkage (R12)', () => {
 
   it('blocks the whole day with reason on_leave when an approved leave overlaps', async () => {
     const appt = { find: jest.fn().mockReturnValue({ select: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }) }) };
-    const leaves = { find: jest.fn().mockReturnValue(chain([{ provider_account_id: 'acc-1', start_date: new Date('2026-10-01T00:00:00Z'), end_date: new Date('2026-10-09T00:00:00Z') }])) };
+    const leaves = { find: jest.fn().mockReturnValue(chain([{ provider_account_id: 'acc-1', start_date: new Date(Date.parse(`${DAY}T00:00:00Z`) - 3 * 86_400_000), end_date: new Date(Date.parse(`${DAY}T00:00:00Z`) + 3 * 86_400_000) }])) };
     const svc = new SlotService(appt as any, leaves as any);
     const out: any = await svc.slotsForDate(doctor, DAY, 'clinic');
     expect(out.slots).toEqual([]);
