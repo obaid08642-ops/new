@@ -23,6 +23,11 @@ describe("F68 nonce stamping", () => {
     expect(out).toBe('<link rel="stylesheet" href="/a.css" nonce="N3"/><script nonce="N3" src="/b.js"></script><script nonce="N3">c()</script>');
   });
 
+  it("stamps the preload of a script that a page prerendered at build time carries without a nonce, and leaves other links alone", () => {
+    const html = '<link rel="preload" as="script" fetchPriority="low" href="/w.js"/><link rel="preload" as="script" nonce="keep" href="/k.js"/><link rel="preload" href="/f.woff2" as="font" crossorigin=""/><link rel="stylesheet" href="/a.css"/>';
+    expect(stampTags(html, "N4")).toBe('<link nonce="N4" rel="preload" as="script" fetchPriority="low" href="/w.js"/><link rel="preload" as="script" nonce="keep" href="/k.js"/><link rel="preload" href="/f.woff2" as="font" crossorigin=""/><link rel="stylesheet" href="/a.css"/>');
+  });
+
   it("a tag split across stream chunks is stamped once, and the output is identical to the one-shot result", () => {
     const html = `<html><head><link nonce="${CSP_NONCE_PLACEHOLDER}" href="/s.css"/><script>self.__next_f=[]</script><style>.b{}</style></head><body><script src="/c.js" async></script></body></html>`;
     for (let cut = 1; cut < html.length; cut++) {

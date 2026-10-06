@@ -59,7 +59,7 @@ function openBody(req, res, status, headers) {
     res.writeHead(status, headers);
     return { write: (chunk) => res.write(chunk), end: (chunk) => res.end(chunk) };
   }
-  const out = { ...headers, "content-encoding": "gzip", vary: headers.vary ? `${headers.vary}, Accept-Encoding` : "Accept-Encoding" };
+  const out = { ...headers, "content-encoding": "gzip", vary: !headers.vary ? "Accept-Encoding" : /accept-encoding/i.test(String(headers.vary)) ? headers.vary : `${headers.vary}, Accept-Encoding` };
   delete out["content-length"];
   delete out.etag;
   res.writeHead(status, out);
