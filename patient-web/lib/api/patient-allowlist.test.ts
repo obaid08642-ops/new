@@ -96,6 +96,17 @@ describe("patient API allowlist", () => {
   });
 });
 
+describe("patient allowlist: the delivery address picker", () => {
+  const address = "91047ef2-ad36-422a-a184-629693e7c729";
+  it("lets the patient change one of their own saved addresses (to make it the default), and nothing wider", () => {
+    expect(isAllowedPatientApiRequest(`/users/me/addresses/${address}`, "PATCH")).toBe(true);
+    expect(isAllowedPatientApiRequest("/users/me/addresses", "PATCH")).toBe(false);
+    expect(isAllowedPatientApiRequest(`/users/me/addresses/${address}/x`, "PATCH")).toBe(false);
+    expect(isAllowedPatientApiRequest(`/users/me/addresses/${address}`, "PUT")).toBe(false);
+    expect(isAllowedPatientApiRequest("/users/me/profile/addresses", "PATCH")).toBe(false);
+  });
+});
+
 describe("patient allowlist: providers map (render test finding)", () => {
   it("allows the map page to read nearby providers, read-only", async () => {
     const { isAllowedPatientApiRequest } = await import("./patient-allowlist");
