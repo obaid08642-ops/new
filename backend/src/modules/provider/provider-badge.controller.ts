@@ -19,8 +19,9 @@ export class ProviderBadgeController {
   async badge(@Param('id') id: string) {
     const p: any = await this.conn.collection('provider_profiles').findOne({
       $or: [{ id }, { account_id: id }, { slug: id }],
+      status: 'active', public_eligibility: true, medical_review_status: 'approved',
     } as any);
-    if (!p || p.status !== 'active') throw new NotFoundException('badge_not_available');
+    if (!p) throw new NotFoundException('badge_not_available');
     const slug = p.slug || p.id;
     const url = `https://www.nabd.plus/ar/doctor/${encodeURIComponent(slug)}`;
     const name = p.display_name_ar || p.name_ar || p.name_en || 'مقدم خدمة معتمد';

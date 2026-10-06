@@ -114,7 +114,7 @@ const RENDERED_ONBOARDING_KEYS = new Set([
   'consultation_modes', 'price_clinic', 'price_online', 'price_home',
   'home_visit_supported', 'coverage_radius_km', 'accepts_cash',
   'accepts_insurance', 'accepted_insurance', 'insurance_clinic', 'insurance_online', 'insurance_home',
-  'has_insurance_officer', 'insurance_contracts', 'working_hours',
+  'has_insurance_officer', 'working_hours',
   'signature_url', 'signer_name', 'signer_role', 'license_documents', 'clinic_images',
   'enabled_categories', 'test_categories', 'pricingModel', 'nursing_services', 'equipment_list',
   'rx_dispensing', 'otc_selling', 'has_own_delivery', 'has_own_drivers', 'delivery_mode',
@@ -401,16 +401,6 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
                     <span key={i} className="text-xs bg-teal-50 text-teal-800 border border-teal-200 rounded px-2 py-1 font-bold">
                       {typeof c === 'object' ? (c.name_ar || c.name || c.id || JSON.stringify(c)) : String(c)}
                     </span>
-                  ))}
-                </div>
-              </div>
-            )}
-            {Array.isArray(ob.insurance_contracts) && ob.insurance_contracts.length > 0 && (
-              <div>
-                <label className="text-sm font-bold text-gray-500 block mb-2">عقود التأمين</label>
-                <div className="space-y-1">
-                  {ob.insurance_contracts.map((c: any, i: number) => (
-                    <p key={i} className="text-xs text-gray-600 bg-slate-50 border border-gray-200 rounded px-3 py-2 break-all" dir="ltr">{genericValue(c)}</p>
                   ))}
                 </div>
               </div>

@@ -217,6 +217,9 @@ export class QuoteController {
 // Insurance flow service + controllers (BR-2)
 // ============================================================================
 
+/** History note acceptSelfPay writes; benefitsSummary tells it apart from a provider decision. */
+const SELF_PAY_NOTE = 'patient accepted full self-pay';
+
 @Injectable()
 export class InsuranceFlowService {
   private readonly logger = new Logger('InsuranceFlowService');
@@ -278,76 +281,68 @@ export class InsuranceFlowService {
   }
 
   /**
-   * F2 — benefits-summary must return an ARRAY of per-service benefits, because
-   * InsuranceBenefitsView does `Array.isArray(res) ? res : []` and renders an
-   * empty list for anything else. Returning myPolicy's object here meant every
-   * policy holder silently saw "no benefits" with a 200.
-   *
-   * Every number below comes from a real record, nothing is invented:
-   * - services and their caps come from insurance_coverage_rules for the
-   *   networks of the patient's company (rules without a max_annual_limit are
-   *   skipped — the view divides by it, and a fabricated cap would be a lie);
-   * - usedAmount is the sum of the patient's approved/reimbursed claims for
-   *   that service (0 when nothing is recorded, which is the truth, not a
-   *   default);
-   * - coverage is 100 minus the rule's copay percent;
-   * - icon names are verified against patient-app Icon.tsx (stethoscope, pill,
-   *   flask, radiology-box-outline, heart).
-   * No policy, no linkable rules, or no capped rules → [] (the client's empty
-   * state), which is honest: there is nothing itemized to show.
+   * F2 (PRODUCT.md): Nabd+ does not approve claims or hold annual limits; the
+   * provider approves in its own system and records approved / partial /
+   * rejected on the insurance request. The summary is therefore the patient's
+   * own insurance requests per service, exactly as the providers decided them,
+   * plus the copay paid / still due. An array (InsuranceBenefitsView does
+   * `Array.isArray(res) ? res : []`); no policy or no requests -> [].
    */
-  async benefitsSummary(user: any) {
-    const { has_policy, policy } = await this.myPolicy(user);
+  async benefitsSummary(user: { id: string }) {
+    const { has_policy } = await this.myPolicy(user);
     if (!has_policy) return [];
-    const db: any = (this.patients as any)?.db;
-    if (!db) return [];
-    const companyId = String((policy as any)?.company_id || '');
-    let networkIds: string[] = [];
-    try {
-      if (companyId) {
-        const contracts: any[] = await db.collection('insurance_network_contracts')
-          .find({ company_id: { $eq: companyId } }, { projection: { network_id: 1 } }).toArray();
-        networkIds = [...new Set((contracts || []).map((c) => String(c?.network_id)).filter(Boolean))];
-      }
-    } catch { networkIds = []; }
-    if (!networkIds.length) return [];
-    let rules: any[] = [];
-    try {
-      rules = await db.collection('insurance_coverage_rules')
-        .find({ network_id: { $in: networkIds } }).toArray() || [];
-    } catch { rules = []; }
-    const capped = (rules || []).filter((r) => Number((r as any)?.max_annual_limit) > 0);
-    if (!capped.length) return [];
-    let claims: any[] = [];
-    try {
-      claims = await db.collection('insurance_claims').find({
-        patient_id: { $eq: String((user as any)?.id) },
-        status: { $in: ['approved', 'reimbursed'] },
-      }).toArray() || [];
-    } catch { claims = []; }
-    const usedByService: Record<string, number> = {};
-    for (const cl of claims) {
-      const s = String((cl as any)?.service || '');
-      if (!s) continue;
-      usedByService[s] = (usedByService[s] || 0) + (Number((cl as any)?.covered) || 0);
-    }
+    type RequestRow = { booking_kind?: string; service_type?: string; state?: string; copay_amount?: number; copay_percent?: number; payment_status?: string; history?: Array<{ state?: string; note?: string }> };
+    const rows = (await this.requests.find({ patient_id: { $eq: String(user.id) } }, { _id: 0, booking_kind: 1, service_type: 1, state: 1, copay_amount: 1, copay_percent: 1, payment_status: 1, history: 1 }).lean()) as unknown as RequestRow[];
+    const SERVICE: Record<string, string> = { home_care: 'nursing', 'home-care': 'nursing', appointment: 'consultation', order: 'pharmacy' };
     const ICONS: Record<string, string> = {
       consultation: 'stethoscope', pharmacy: 'pill', lab: 'flask',
       radiology: 'radiology-box-outline', nursing: 'heart',
     };
-    return capped.map((r: any) => {
-      const service = String(r.service_type);
-      const annualLimit = Number(r.max_annual_limit);
-      const usedAmount = usedByService[service] || 0;
-      return {
-        service,
-        coverage: 100 - (Number(r.copay_percent) || 0),
-        annualLimit,
-        usedAmount,
-        remaining: Math.max(0, annualLimit - usedAmount),
-        icon: ICONS[service] || 'shield',
-      };
-    });
+    const PENDING = new Set(['PENDING_PROVIDER_REVIEW', 'APPEAL_PENDING']);
+    // The provider's last decision from the request history (decide() and the
+    // provider-request copay route push APPROVED_FULL, COPAY_PENDING or
+    // REJECTED; acceptSelfPay pushes COPAY_PENDING with SELF_PAY_NOTE; a
+    // resubmission or appeal reopens it). A patient choosing to self-pay after
+    // a rejection does not turn it into an approval. Rows without history fall
+    // back to the current state.
+    const providerDecision = (r: RequestRow): 'full' | 'partial' | 'rejected' | null => {
+      let decision: 'full' | 'partial' | 'rejected' | null = null;
+      const history = Array.isArray(r.history) ? r.history : [];
+      for (const h of history) {
+        const st = String(h?.state || '');
+        if (st === 'APPROVED_FULL') decision = 'full';
+        else if (st === 'APPROVED_PARTIAL' || (st === 'COPAY_PENDING' && String(h?.note || '') !== SELF_PAY_NOTE)) decision = 'partial';
+        else if (st === 'REJECTED') decision = 'rejected';
+        else if (PENDING.has(st)) decision = null;
+      }
+      if (history.length) return decision;
+      const st = String(r.state || '');
+      if (st === 'REJECTED') return 'rejected';
+      if (st === 'APPROVED_FULL') return 'full';
+      if (['APPROVED_PARTIAL', 'COPAY_PENDING', 'COPAY_PAID'].includes(st)) return (Number(r.copay_amount) > 0 || Number(r.copay_percent) > 0 || st === 'APPROVED_PARTIAL') ? 'partial' : 'full';
+      return null;
+    };
+    const out = new Map<string, { service: string; icon: string; requests: number; approved: number; partially_approved: number; rejected: number; pending: number; copay_paid: number; copay_due: number }>();
+    for (const r of rows) {
+      // provider_request rows carry the real service in service_type.
+      const raw = String((r.booking_kind === 'provider_request' ? r.service_type : r.booking_kind) || r.service_type || '').toLowerCase();
+      if (!raw) continue;
+      const service = SERVICE[raw] || raw;
+      const s = out.get(service) || { service, icon: ICONS[service] || 'shield', requests: 0, approved: 0, partially_approved: 0, rejected: 0, pending: 0, copay_paid: 0, copay_due: 0 };
+      const state = String(r.state || '');
+      const copay = Number(r.copay_amount) || 0;
+      const decision = providerDecision(r);
+      s.requests += 1;
+      if (decision === 'full' || decision === 'partial') {
+        s.approved += 1;
+        if (decision === 'partial') s.partially_approved += 1;
+      } else if (decision === 'rejected') s.rejected += 1;
+      else if (PENDING.has(state)) s.pending += 1;
+      const paid = state === 'COPAY_PAID' || ['paid', 'partially_refunded'].includes(String(r.payment_status || ''));
+      if (paid) s.copay_paid += copay; else if (state === 'COPAY_PENDING') s.copay_due += copay;
+      out.set(service, s);
+    }
+    return [...out.values()];
   }
 
   private bookingModel(kind: string): { kind: string; model: Model<any> } {
@@ -588,7 +583,7 @@ export class InsuranceFlowService {
     if (!['REJECTED', 'APPROVED_PARTIAL'].includes(req.state)) throw new BadRequestException(`self-pay not available in state ${req.state}`);
     const price = Number(req.price) || 0;
     if (price <= 0) throw new BadRequestException('invalid request price');
-    this.push(req, 'COPAY_PENDING', user.id, 'patient accepted full self-pay');
+    this.push(req, 'COPAY_PENDING', user.id, SELF_PAY_NOTE);
     req.copay_percent = 100; req.copay_amount = Math.round(price * 100) / 100;
     await req.save();
     return req.toObject();

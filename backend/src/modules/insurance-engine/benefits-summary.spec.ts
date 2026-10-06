@@ -1,74 +1,73 @@
-import { InsuranceFlowService } from './insurance-engine.module';
+// F2 (PRODUCT.md): Nabd+ does not approve claims or hold annual limits, so the
+// old summary (coverage rules from a collection that does not exist, always
+// []) is replaced by what Nabd+ really records: the patient's insurance
+// requests, decided by the providers, per service.
+import mongoose, { Connection, Model } from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { InsuranceFlowService, InsuranceServiceRequestSchema } from './insurance-engine.module';
 
-/**
- * F2 — benefits-summary must return an ARRAY (the client does
- * `Array.isArray(res) ? res : []`). Returning myPolicy's object meant every
- * policy holder silently saw an empty list with a 200. Every number asserted
- * here comes from a record; nothing is invented.
- */
-describe('InsuranceFlowService.benefitsSummary', () => {
-  const svc = (policy: any, contracts: any[] = [], rules: any[] = [], claims: any[] = []) => {
-    const col = (docs: any[], filter?: (q: any) => any[]) => ({
-      find: jest.fn((q: any) => ({ toArray: jest.fn(async () => (filter ? filter(q) : docs)) })),
-    });
-    const service: any = Object.create(InsuranceFlowService.prototype);
-    service.patients = {
-      findOne: jest.fn(() => ({ lean: async () => ({ insurance: policy }) })),
-      db: {
-        collection: jest.fn((name: string) => {
-          if (name === 'insurance_network_contracts') return col(contracts);
-          if (name === 'insurance_coverage_rules') return col(rules);
-          if (name === 'insurance_claims') {
-            // Honor the status filter like Mongo would: only approved/reimbursed
-            // claims count toward usage. A mock returning everything would hide
-            // a missing filter in the implementation.
-            return col(claims, (q: any) => {
-              const allowed: string[] = q?.status?.$in || [];
-              return claims.filter((c) => allowed.includes(c.status));
-            });
-          }
-          return col([]);
-        }),
-      },
-    };
-    return service;
-  };
+jest.setTimeout(60_000);
 
-  it('returns [] when there is no policy', async () => {
-    const service = svc(null);
-    await expect(service.benefitsSummary({ id: 'p1' })).resolves.toEqual([]);
+describe('InsuranceFlowService.benefitsSummary (F2: decided insurance requests per service)', () => {
+  let mongo: MongoMemoryServer;
+  let conn: Connection;
+  let requests: Model<any>;
+  let patients: Model<any>;
+  let service: InsuranceFlowService;
+  const policy = { company_id: 'bupa', provider: 'بوبا العربية', policy_number: 'P-1' };
+  const req = (over: Record<string, unknown>) => ({ id: new mongoose.Types.ObjectId().toString(), patient_id: 'pat-1', provider_id: 'prov-1', price: 300, policy: { company_id: 'bupa' }, history: [], documents: [], ...over });
+
+  beforeAll(async () => {
+    mongo = await MongoMemoryServer.create();
+    conn = await mongoose.createConnection(mongo.getUri(), { dbName: 'f2ben' }).asPromise();
+    requests = conn.model('InsuranceServiceRequest', InsuranceServiceRequestSchema);
+    patients = conn.model('PatientProfile', new mongoose.Schema({ user_id: String, insurance: Object }, { strict: false }));
+    service = new InsuranceFlowService(requests as never, {} as never, patients as never, {} as never, {} as never, {} as never, {} as never, {} as never, {} as never, {} as never);
+  });
+  afterAll(async () => { await conn.close(); await mongo.stop(); });
+  beforeEach(async () => { await requests.deleteMany({}); await patients.deleteMany({}); });
+
+  it('no policy -> []', async () => {
+    await patients.collection.insertOne({ user_id: 'pat-1' });
+    expect(await service.benefitsSummary({ id: 'pat-1' })).toEqual([]);
   });
 
-  it('returns [] when no coverage rules link to the company', async () => {
-    const service = svc({ company_id: 'c1' }, [], [], []);
-    await expect(service.benefitsSummary({ id: 'p1' })).resolves.toEqual([]);
-  });
-
-  it('returns one real entry per capped rule with usage summed from approved claims', async () => {
-    const service = svc(
-      { company_id: 'c1' },
-      [{ network_id: 'n1' }],
-      [
-        { service_type: 'consultation', copay_percent: 20, max_annual_limit: 50000 },
-        { service_type: 'lab', copay_percent: 0, max_annual_limit: 10000 },
-        { service_type: 'pharmacy' }, // no cap → skipped, never fabricated
-      ],
-      [
-        { service: 'consultation', covered: 1000, status: 'approved' },
-        { service: 'consultation', covered: 500, status: 'reimbursed' },
-        { service: 'consultation', covered: 9999, status: 'rejected' }, // not counted
-        { service: 'lab', covered: 200, status: 'approved' },
-      ],
-    );
-    await expect(service.benefitsSummary({ id: 'p1' })).resolves.toEqual([
-      {
-        service: 'consultation', coverage: 80, annualLimit: 50000,
-        usedAmount: 1500, remaining: 48500, icon: 'stethoscope',
-      },
-      {
-        service: 'lab', coverage: 100, annualLimit: 10000,
-        usedAmount: 200, remaining: 9800, icon: 'flask',
-      },
+  it('summarises the patient\'s own requests per service, as the providers decided them', async () => {
+    await patients.collection.insertOne({ user_id: 'pat-1', insurance: policy });
+    await requests.collection.insertMany([
+      req({ booking_kind: 'consultation', state: 'APPROVED_FULL' }),
+      req({ booking_kind: 'consultation', state: 'COPAY_PAID', copay_amount: 60, copay_percent: 20 }),
+      req({ booking_kind: 'consultation', state: 'REJECTED', rejection_reason: 'not covered' }),
+      req({ booking_kind: 'consultation', state: 'PENDING_PROVIDER_REVIEW' }),
+      req({ booking_kind: 'home_care', state: 'COPAY_PENDING', copay_amount: 40, copay_percent: 10 }),
+      req({ booking_kind: 'consultation', state: 'APPROVED_FULL', patient_id: 'someone-else' }),
     ]);
+    const out: any[] = await service.benefitsSummary({ id: 'pat-1' });
+    const byService = Object.fromEntries(out.map((r) => [r.service, r]));
+    expect(byService.consultation).toMatchObject({ requests: 4, approved: 2, partially_approved: 1, rejected: 1, pending: 1, copay_paid: 60, icon: 'stethoscope' });
+    expect(byService.nursing).toMatchObject({ requests: 1, approved: 1, partially_approved: 1, copay_paid: 0, copay_due: 40, icon: 'heart' });
+    expect(out).toHaveLength(2);
+  });
+
+  it('a rejection the patient then chose to self-pay still counts as rejected (the provider\'s decision)', async () => {
+    await patients.collection.insertOne({ user_id: 'pat-1', insurance: policy });
+    const at = new Date();
+    await requests.collection.insertMany([
+      req({ booking_kind: 'consultation', state: 'COPAY_PENDING', copay_percent: 100, copay_amount: 300,
+        history: [{ state: 'PENDING_PROVIDER_REVIEW', at, by: 'pat-1' }, { state: 'REJECTED', at, by: 'doc', note: 'not covered' }, { state: 'COPAY_PENDING', at, by: 'pat-1', note: 'patient accepted full self-pay' }] }),
+      req({ booking_kind: 'consultation', state: 'COPAY_PAID', copay_percent: 20, copay_amount: 60,
+        history: [{ state: 'PENDING_PROVIDER_REVIEW', at, by: 'pat-1' }, { state: 'COPAY_PENDING', at, by: 'doc', note: 'patient copay 20%' }, { state: 'COPAY_PAID', at, by: 'system', note: 'verified payment p1' }] }),
+    ]);
+    const [row]: any[] = await service.benefitsSummary({ id: 'pat-1' });
+    expect(row).toMatchObject({ service: 'consultation', requests: 2, approved: 1, partially_approved: 1, rejected: 1, pending: 0, copay_paid: 60, copay_due: 300 });
+  });
+
+  it('a provider-request decision (approval code note) counts under its real service', async () => {
+    await patients.collection.insertOne({ user_id: 'pat-1', insurance: policy });
+    const at = new Date();
+    await requests.collection.insertOne(req({ booking_kind: 'provider_request', service_type: 'lab', state: 'COPAY_PENDING', copay_amount: 30, copay_percent: 15,
+      history: [{ state: 'PENDING_PROVIDER_REVIEW', at, by: 'pat-1' }, { state: 'COPAY_PENDING', at, by: 'prov-1', note: 'APR-778' }] }));
+    const out: any[] = await service.benefitsSummary({ id: 'pat-1' });
+    expect(out).toEqual([expect.objectContaining({ service: 'lab', requests: 1, approved: 1, partially_approved: 1, copay_due: 30, icon: 'flask' })]);
   });
 });

@@ -1,3 +1,4 @@
+import { PROVIDER_PUBLIC_PROJECTION } from '../provider-onboarding/provider-private-fields';
 import { randomBytes } from 'crypto';
 import { Injectable, NotFoundException, BadRequestException, ConflictException, ForbiddenException, Inject } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
@@ -12,7 +13,6 @@ import { UserRepository } from "./repositories/user.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 import { InjectModel } from '@nestjs/mongoose';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
-import { escapeRegex } from '../../common/slug.util';
 import { missingRequiredDocuments } from './required-documents';
 
 /**
@@ -296,61 +296,22 @@ export class ProvidersService {
     };
   }
 
+  /**
+   * F2: `insurance_company` is the catalog company code the patient's policy
+   * stores; providers list the codes they accept in accepted_insurance.
+   */
   async listPublic(
     type?: ProviderType,
     city?: string,
     insurance_company?: string,
-    insurance_network?: string,
-    insurance_class?: string,
   ) {
     const q: any = this.publicDiscoveryFilter();
     if (type) q.type = type;
     if (city) q.city = city;
+    const company = String(insurance_company || '').trim();
+    if (company) q.accepted_insurance = { $in: [...new Set([company, company.toLowerCase()])] };
 
-    if (insurance_company || insurance_network || insurance_class) {
-      const elemMatch: any = {};
-      if (insurance_company) {
-        const compRe = new RegExp(escapeRegex(String(insurance_company)), 'i');
-        elemMatch.$or = [
-          { company_id: insurance_company },
-          { company_name_en: { $regex: compRe } },
-          { company_name_ar: { $regex: compRe } }
-        ];
-      }
-      if (insurance_network) {
-        const netRe = new RegExp(escapeRegex(String(insurance_network)), 'i');
-        const netOr = [
-          { network_id: insurance_network },
-          { network_name_en: { $regex: netRe } },
-          { network_name_ar: { $regex: netRe } }
-        ];
-        if (elemMatch.$or) {
-          elemMatch.$and = [
-            { $or: elemMatch.$or },
-            { $or: netOr }
-          ];
-          delete elemMatch.$or;
-        } else {
-          elemMatch.$or = netOr;
-        }
-      }
-      if (insurance_class) {
-        const cleanClass = insurance_class.replace(/class\s+/i, '').toUpperCase();
-        elemMatch.covered_classes = { 
-          $in: [
-            insurance_class, 
-            cleanClass, 
-            `Class ${cleanClass}`, 
-            `class ${cleanClass}`,
-            insurance_class.toUpperCase(),
-            insurance_class.toLowerCase()
-          ] 
-        };
-      }
-      q.insurance_contracts = { $elemMatch: elemMatch };
-    }
-
-    return this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1, createdAt: -1 }).limit(200).lean();
+    return this.providerModel.find(q, PROVIDER_PUBLIC_PROJECTION).sort({ rating: -1, createdAt: -1 }).limit(200).lean();
   }
   /** Map providers: ACTIVE only, must have real stored coordinates. */
   async mapProviders(type?: string, lat?: number, lng?: number, radiusKm?: number) {
@@ -386,7 +347,7 @@ export class ProvidersService {
   }
 
   async getPublicById(id: string) {
-    const p = await this.providerModel.findOne({ id, ...this.publicDiscoveryFilter() }, { _id: 0, __v: 0 });
+    const p = await this.providerModel.findOne({ id, ...this.publicDiscoveryFilter() }, PROVIDER_PUBLIC_PROJECTION);
     if (!p) throw new NotFoundException();
     return p;
   }
