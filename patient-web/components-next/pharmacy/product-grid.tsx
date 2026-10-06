@@ -74,7 +74,6 @@ export function ProductGrid({
                   addItem({
                     id: item.id,
                     name: item.name,
-                    price: item.price,
                     rx: item.rx,
                     image: item.image,
                     slug: item.slug,

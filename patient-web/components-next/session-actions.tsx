@@ -5,6 +5,7 @@ import { LogOut, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { Locale } from "@/lib/i18n";
+import { announceSignedOut } from "@/lib/auth/session-identity";
 import { clearSwr } from "@/lib/swr-lite";
 
 export function SessionActions({ locale, accountLabel, signOutLabel }: { locale: Locale; accountLabel: string; signOutLabel: string }) {
@@ -15,7 +16,7 @@ export function SessionActions({ locale, accountLabel, signOutLabel }: { locale:
     if (isSigningOut) return;
     setIsSigningOut(true);
     try { await fetch("/api/auth/logout", { method: "POST" }); }
-    finally { clearSwr(); router.replace(`/${locale}`); router.refresh(); }
+    finally { clearSwr(); announceSignedOut(); router.replace(`/${locale}`); router.refresh(); }
   }
 
   return <div className="session-actions">

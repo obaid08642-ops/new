@@ -13,7 +13,7 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Stepper } from "@/components-next/ui-generated/components/Inputs";
 import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX } from "@/components-next/ui-generated/icons/fill";
 import { useCart, type CartItem } from "@/lib/context/CartContext";
-import { formatNumber, formatPrice } from "@/lib/format-price";
+import { formatNumber } from "@/lib/format-price";
 import { allowedImageUrl } from "@/lib/image-hosts";
 import type { Locale } from "@/lib/i18n";
 import { AddressCard } from "./address-card";
@@ -24,40 +24,29 @@ import { useDeliveryAddress } from "./use-delivery-address";
 import cs from "./cart-screen.module.css";
 import rx from "./rx.module.css";
 
-/** The lines the server keeps for the signed-in account (GET /cart), already reduced to what the screen shows. */
-export type AccountCart = {
-  groups: Array<{ kind: string; subtotal?: number; items: Array<{ lineId: string; name?: string; nameEn?: string; quantity?: number; price?: number }> }>;
-  subtotal?: number;
-  homeVisitFee?: number;
-  total?: number;
-};
-
 const MAX_QTY = 99;
-const KIND_KEYS: Record<string, string> = { pharmacy: "kindPharmacy", lab: "kindLab", radiology: "kindRadiology", doctor: "kindDoctor", home_care: "kindHomeCare" };
 
 function packLine(item: CartItem) {
   return [item.form, item.strength].filter(Boolean).join(" · ");
 }
 
 /**
- * The cart, from canvas/Cart. It shows the cart of THIS browser (the product pages fill it; see lib/context/CartContext):
- * the items, their catalogue prices and an estimated total. The delivery fee and the final price are not known until a
- * pharmacy answers, so the screen says so instead of adding a number. A signed-in patient's server cart (GET /cart) is
- * shown apart, as saved in the account, and is never merged into the totals above it.
+ * The cart, from canvas/Cart. It is the cart of THIS browser (the product pages fill it; see lib/context/CartContext) and it
+ * is local-first: the items and their quantities, no price, no total and no stock, because a pharmacy order is broadcast
+ * and the pharmacies answer with offers that carry the prices. Opening the screen, and changing a quantity or removing a
+ * line, make no request. A signed-in patient also sees the delivery address the request will use (a read of the address
+ * list; if it fails the card says so and the cart still works).
  */
-export function CartScreen({ locale, signedIn, account, accountFailed }: { locale: Locale; signedIn: boolean; account: AccountCart | null; accountFailed: boolean }) {
+export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boolean }) {
   const t = useTranslations("CartScreen");
   const router = useRouter();
-  const { items, ready, updateQty, removeItem, clearCart, subtotal, hasRxItems } = useCart();
+  const { items, ready, updateQty, removeItem, clearCart, itemCount, hasRxItems } = useCart();
   const [confirming, setConfirming] = useState(false);
   const [announce, setAnnounce] = useState("");
   const address = useDeliveryAddress(signedIn && ready && items.length > 0);
 
   const checkout = `/${locale}/cart/checkout`;
   const upload = `/${locale}/pharmacy/scan-prescription`;
-  const missingPrice = items.some((item) => !(item.price > 0));
-  const savedGroups = (account?.groups ?? []).filter((group) => group.items.length > 0);
-  const kindLabel = (kind: string) => t(KIND_KEYS[kind] ?? "kindOther");
 
   const changeQty = (item: CartItem, next: number) => {
     if (next < 1) {
@@ -74,48 +63,13 @@ export function CartScreen({ locale, signedIn, account, accountFailed }: { local
     <StickyFooter label={t("summaryLabel")}>
       <div className={rx.bar}>
         <div className={rx.barTotal}>
-          <span className={rx.barLabel}>{t("estimated")}</span>
-          <span className={rx.barAmount}>{formatPrice(locale, subtotal).text}</span>
+          <span className={rx.barLabel}>{t("itemsTotal")}</span>
+          <span className={rx.barAmount}>{formatNumber(locale, itemCount)}</span>
         </div>
         {requestButton}
       </div>
     </StickyFooter>
   ) : undefined;
-
-  const saved = savedGroups.length > 0 ? (
-    <section className={rx.card} aria-label={t("savedTitle")}>
-      <h2 className={rx.h2}>{t("savedTitle")}</h2>
-      <p className={rx.note}>{t("savedNote")}</p>
-      {savedGroups.map((group) => (
-        <div className={cs.group} key={group.kind}>
-          <div className={cs.groupHead}>
-            <h3 className={rx.rowTitle}>{kindLabel(group.kind)}</h3>
-            {group.subtotal !== undefined ? <span className={cs.groupValue}>{formatPrice(locale, group.subtotal).text}</span> : null}
-          </div>
-          <ul className={cs.items}>
-            {group.items.map((line) => (
-              <li className={cs.item} key={line.lineId}>
-                <div className={cs.info}>
-                  <span className={cs.name}>{(locale === "ar" ? line.name : line.nameEn ?? line.name) ?? kindLabel(group.kind)}</span>
-                  {line.quantity !== undefined && line.price !== undefined ? (
-                    <span className={cs.sub}>{t("savedLine", { qty: formatNumber(locale, line.quantity), price: formatPrice(locale, line.price).text })}</span>
-                  ) : null}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
-      {account?.homeVisitFee ? (
-        <div className={cs.line}><span>{t("savedHomeVisit")}</span><span className={cs.lineValue}>{formatPrice(locale, account.homeVisitFee).text}</span></div>
-      ) : null}
-      {account?.total !== undefined ? (
-        <div className={`${cs.line} ${cs.totalLine}`}><span>{t("savedTotal")}</span><span className={cs.lineValue}>{formatPrice(locale, account.total).text}</span></div>
-      ) : null}
-    </section>
-  ) : accountFailed ? (
-    <p role="status" className={rx.note}>{t("savedUnavailable")}</p>
-  ) : null;
 
   let body;
   if (!ready) {
@@ -140,7 +94,6 @@ export function CartScreen({ locale, signedIn, account, accountFailed }: { local
             onSecondaryAction={() => router.push(upload)}
           />
         </div>
-        {saved}
       </>
     );
   } else {
@@ -180,7 +133,6 @@ export function CartScreen({ locale, signedIn, account, accountFailed }: { local
             <ul className={cs.items}>
               {items.map((item) => {
                 const image = allowedImageUrl(item.image);
-                const priced = item.price > 0;
                 const pack = packLine(item);
                 return (
                   <li className={cs.item} key={item.id}>
@@ -201,7 +153,6 @@ export function CartScreen({ locale, signedIn, account, accountFailed }: { local
                       {item.rx ? <StatusChip label={t("needsRx")} tone="amber" /> : null}
                     </div>
                     <div className={cs.end}>
-                      {priced ? <span className={cs.price}>{formatPrice(locale, item.price * item.qty).text}</span> : <span className={cs.noPrice}>{t("priceUnavailable")}</span>}
                       <Stepper
                         value={item.qty}
                         onChange={(next) => changeQty(item, next)}
@@ -233,14 +184,12 @@ export function CartScreen({ locale, signedIn, account, accountFailed }: { local
 
         <div className={cs.side}>
           <section className={`${rx.card} ${cs.summary}`} aria-label={t("summaryLabel")}>
-            <div className={cs.line}><span>{t("subtotal")}</span><span className={cs.lineValue}>{formatPrice(locale, subtotal).text}</span></div>
+            <div className={cs.line}><span>{t("itemsTotal")}</span><span className={cs.lineValue}>{formatNumber(locale, itemCount)}</span></div>
             <div className={cs.line}><span>{t("delivery")}</span><span className={cs.lineValue}>{t("deliveryFromOffer")}</span></div>
-            <div className={`${cs.line} ${cs.totalLine}`}><span>{t("estimatedTotal")}</span><span className={cs.lineValue}>{formatPrice(locale, subtotal).text}</span></div>
-            <p className={rx.note}>{missingPrice ? t("partialEstimate") : t("estimateNote")}</p>
+            <div className={`${cs.line} ${cs.totalLine}`}><span>{t("finalPrice")}</span><span className={cs.lineValue}>{t("finalPriceFromOffer")}</span></div>
             <div className={rx.deskActions}>{requestButton}</div>
           </section>
           <p className={`${rx.note} ${rx.noteCenter}`}>{t("flowNote")}</p>
-          {saved}
         </div>
       </div>
     );

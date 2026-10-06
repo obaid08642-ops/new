@@ -208,14 +208,14 @@ export function reorderLines(detail: Pick<OrderDetail, "lines">): ReorderLines {
 
 /**
  * The lines to put in the browser cart for what the patient ticked. The cart's id is the catalogue product (the order
- * line's `matched_sku`), the quantity is the patient's (1 to 99), and the price is left at 0 ("not available" in the
- * cart): a past price is not a price today, the pharmacies send theirs again. When the earlier order used a prescription
+ * line's `matched_sku`), the quantity is the patient's (1 to 99), and there is no price: the cart holds none,
+ * the pharmacies send theirs again. When the earlier order used a prescription
  * the lines are marked as needing one, so checkout asks for it again.
  */
 export function cartItemsFor(lines: CatalogueLine[], picks: Record<string, { on: boolean; qty: number }>, needsPrescription: boolean) {
   return lines.flatMap((line) => {
     const pick = picks[line.id];
     if (!pick?.on) return [];
-    return [{ id: line.sku, name: line.name, price: 0, rx: needsPrescription, qty: Math.min(99, Math.max(1, Math.trunc(pick.qty) || 1)) }];
+    return [{ id: line.sku, name: line.name, rx: needsPrescription, qty: Math.min(99, Math.max(1, Math.trunc(pick.qty) || 1)) }];
   });
 }

@@ -45,15 +45,21 @@ export function BuyProvider({ locale, product, children }: { locale: string; pro
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
 
-  const addToCart = useCallback(() => {
-    addItem({ ...product, qty });
-    setAdded(true);
+  // the cart keeps what to order, never the catalogue price (the pharmacies' offers carry the prices)
+  const putInCart = useCallback(() => {
+    const { id, name, rx, image, slug, activeIngredient, form, strength } = product;
+    addItem({ id, name, rx, image, slug, activeIngredient, form, strength, qty });
   }, [addItem, product, qty]);
 
+  const addToCart = useCallback(() => {
+    putInCart();
+    setAdded(true);
+  }, [putInCart]);
+
   const buyNow = useCallback(() => {
-    addItem({ ...product, qty });
+    putInCart();
     router.push(`/${locale}/cart`);
-  }, [addItem, product, qty, router, locale]);
+  }, [putInCart, router, locale]);
 
   const value = useMemo(() => ({ product, qty, setQty: (n: number) => { setQty(n); setAdded(false); }, added, addToCart, buyNow }), [product, qty, added, addToCart, buyNow]);
   return <BuyContext.Provider value={value}>{children}</BuyContext.Provider>;

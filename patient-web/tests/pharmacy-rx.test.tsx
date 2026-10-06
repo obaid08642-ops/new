@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const cart = vi.hoisted(() => ({
-  value: { items: [] as unknown[], ready: true, updateQty: vi.fn(), removeItem: vi.fn(), clearCart: vi.fn(), addItem: vi.fn(), itemCount: 0, subtotal: 0, hasRxItems: false },
+  value: { items: [] as unknown[], ready: true, updateQty: vi.fn(), removeItem: vi.fn(), clearCart: vi.fn(), addItem: vi.fn(), itemCount: 0, hasRxItems: false },
 }));
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
@@ -41,7 +41,7 @@ const ORDER = "761e9693-e517-4ad6-ae20-330363005b28";
 const located = { id: "a1", label: "Home", street: "12 King Fahd Rd", city: "Riyadh", district: "Olaya", lat: 24.7, lng: 46.7, isDefault: true };
 
 function item(over: Record<string, unknown> = {}) {
-  return { id: "m1", name: "Paracetamol 500", price: 12.5, qty: 2, rx: false, image: null, form: "Tablets", strength: "500 mg", slug: "paracetamol-500", ...over };
+  return { id: "m1", name: "Paracetamol 500", qty: 2, rx: false, image: null, form: "Tablets", strength: "500 mg", slug: "paracetamol-500", ...over };
 }
 
 describe("the button link", () => {
@@ -58,44 +58,38 @@ describe("the button link", () => {
 
 describe("the cart screen (canvas/Cart)", () => {
   beforeEach(() => {
-    cart.value = { ...cart.value, items: [], ready: true, subtotal: 0, hasRxItems: false };
+    cart.value = { ...cart.value, items: [], ready: true, itemCount: 0, hasRxItems: false };
   });
 
-  it("draws the items of this browser with their catalogue prices, the estimate and the way to ask the pharmacies", () => {
-    cart.value = { ...cart.value, items: [item(), item({ id: "m2", name: "Amoxicillin", price: 30, qty: 1, rx: true, slug: null, form: null, strength: null })], subtotal: 55, hasRxItems: true };
-    const html = renderToStaticMarkup(<CartScreen locale="en" signedIn={false} account={null} accountFailed={false} />);
+  it("draws the items of this browser with their quantities and the way to ask the pharmacies, and no price, total or stock", () => {
+    cart.value = { ...cart.value, items: [item(), item({ id: "m2", name: "Amoxicillin", qty: 1, rx: true, slug: null, form: null, strength: null })], itemCount: 3, hasRxItems: true };
+    const html = renderToStaticMarkup(<CartScreen locale="en" signedIn={false} />);
     expect(html).toContain("Paracetamol 500");
     expect(html).toContain('href="/en/p/paracetamol-500"');
-    expect(html).toContain("SAR"); // formatted by Intl, not a hand-built string
-    expect(html).toContain("25.00"); // 12.50 x 2
-    expect(html).toContain("55.00"); // the estimate
     expect(html).toContain("Needs a prescription");
     expect(html).toContain("An item needs a prescription");
     expect(html).toContain('href="/en/pharmacy/scan-prescription"');
     expect(html).toContain('href="/en/cart/checkout"');
     expect(html).toContain("Set by the pharmacy&#x27;s offer"); // the delivery fee is not invented
+    expect(html).toContain("Shown with each offer"); // nor the final price
     expect(html).toContain("This cart is saved in this browser, on this device.");
+    const text = html.replace(/<svg[\s\S]*?<\/svg>/g, " ").replace(/<[^>]+>/g, " "); // what a person reads
+    expect(text).not.toMatch(/SAR|ر\.س|\d+\.\d{2}|Subtotal|Estimated|Price not available|catalogue price|in stock|out of stock/i);
+    expect(html).not.toContain("Saved in your account"); // no server cart is read or drawn
     expect(html).not.toContain("style=");
   });
 
   it("names the quantity controls per item, and the minus at 1 says it removes", () => {
-    cart.value = { ...cart.value, items: [item({ qty: 1 }), item({ id: "m2", name: "Amoxicillin", qty: 3 })], subtotal: 100 };
-    const html = renderToStaticMarkup(<CartScreen locale="en" signedIn={false} account={null} accountFailed={false} />);
+    cart.value = { ...cart.value, items: [item({ qty: 1 }), item({ id: "m2", name: "Amoxicillin", qty: 3 })], itemCount: 4 };
+    const html = renderToStaticMarkup(<CartScreen locale="en" signedIn={false} />);
     expect(html).toContain('aria-label="Remove Paracetamol 500 from the cart"');
     expect(html).toContain('aria-label="Decrease the quantity of Amoxicillin"');
     expect(html).toContain('aria-label="Increase the quantity of Amoxicillin"');
     expect(html).toContain('aria-label="Empty the cart"');
   });
 
-  it("says a price is missing instead of drawing 0.00, and warns that the estimate is partial", () => {
-    cart.value = { ...cart.value, items: [item({ price: 0 })], subtotal: 0 };
-    const html = renderToStaticMarkup(<CartScreen locale="en" signedIn={false} account={null} accountFailed={false} />);
-    expect(html).toContain("Price not available");
-    expect(html).toContain("Some items have no catalogue price");
-  });
-
   it("shows the empty state, with the ways out, when the cart is empty and loaded", () => {
-    const html = renderToStaticMarkup(<CartScreen locale="en" signedIn={false} account={null} accountFailed={false} />);
+    const html = renderToStaticMarkup(<CartScreen locale="en" signedIn={false} />);
     expect(html).toContain("Your cart is empty");
     expect(html).toContain("Browse medicines");
     expect(html).toContain("Upload a prescription");
@@ -104,36 +98,23 @@ describe("the cart screen (canvas/Cart)", () => {
 
   it("does not show the empty state before the cart of this browser has been read", () => {
     cart.value = { ...cart.value, ready: false };
-    const html = renderToStaticMarkup(<CartScreen locale="en" signedIn={false} account={null} accountFailed={false} />);
+    const html = renderToStaticMarkup(<CartScreen locale="en" signedIn={false} />);
     expect(html).toContain("Loading your cart");
     expect(html).not.toContain("Your cart is empty");
   });
 
-  it("shows the account's saved lines apart, with the server's own numbers, and never mixes them into the estimate", () => {
-    cart.value = { ...cart.value, items: [item()], subtotal: 25 };
-    const account = { groups: [{ kind: "lab", subtotal: 90, items: [{ lineId: "l1", name: "CBC", nameEn: "Complete blood count", quantity: 1, price: 90 }] }], homeVisitFee: 50, total: 140 };
-    const html = renderToStaticMarkup(<CartScreen locale="en" signedIn account={account} accountFailed={false} />);
-    expect(html).toContain("Saved in your account");
-    expect(html).toContain("Complete blood count");
-    expect(html).toContain("Laboratory");
-    expect(html).toContain("140.00");
-    expect(html).toContain("They are not part of the cart on this device.");
+  it("shows no money in any language: no currency, no amount, only the count and what the offers will carry", () => {
+    cart.value = { ...cart.value, items: [item()], itemCount: 2 };
+    for (const locale of ["en", "ar"] as const) {
+      const html = renderToStaticMarkup(<CartScreen locale={locale} signedIn={false} />);
+      expect(html, locale).not.toMatch(/SAR|ر\.س/);
+    }
   });
 
-  it("says when the account cart could not be read", () => {
-    cart.value = { ...cart.value, items: [item()], subtotal: 25 };
-    const html = renderToStaticMarkup(<CartScreen locale="en" signedIn account={null} accountFailed />);
-    expect(html).toContain("could not be loaded");
-  });
-
-  it("formats money and numbers in the page's own language", () => {
-    cart.value = { ...cart.value, items: [item()], subtotal: 25 };
-    // the formatter, not the markup, decides the currency's name: English says SAR, Arabic says ر.س
-    const en = renderToStaticMarkup(<CartScreen locale="en" signedIn={false} account={null} accountFailed={false} />);
-    const ar = renderToStaticMarkup(<CartScreen locale="ar" signedIn={false} account={null} accountFailed={false} />);
-    expect(en).toContain("SAR");
-    expect(ar).toContain("ر.س");
-    expect(ar).not.toContain("SAR");
+  it("makes no request of its own: no fetch in the screen, and the page asks the backend for nothing", () => {
+    const code = read("components-next/pharmacy/cart-screen.tsx").replace(/\/\*[\s\S]*?\*\//g, "");
+    expect(code).not.toMatch(/\bfetch\(|callPatientApi|useSWR|formatPrice|\.price\b|subtotal/i);
+    expect(read("app/[locale]/cart/page.tsx")).not.toMatch(/callPatientApi|\bfetch\(/);
   });
 });
 
@@ -390,10 +371,16 @@ describe("prescription data", () => {
 
 describe("the cart kept in this browser", () => {
   it("keeps only usable lines of what localStorage holds", () => {
-    const kept = sanitizeCartItems([item(), { id: "x" }, { ...item({ id: "m3" }), qty: 0 }, { ...item({ id: "m4" }), price: -1 }, null, "x", { ...item({ id: "m5" }), qty: 500, rx: "yes" }]);
+    const kept = sanitizeCartItems([item(), { id: "x" }, { ...item({ id: "m3" }), qty: 0 }, null, "x", { ...item({ id: "m5" }), qty: 500, rx: "yes" }]);
     expect(kept.map((line) => line.id)).toEqual(["m1", "m5"]);
     expect(kept[1]).toMatchObject({ qty: 99, rx: false });
     expect(sanitizeCartItems("nope")).toEqual([]);
+  });
+
+  it("drops a price, a stock figure and any other money field of a stored line instead of keeping it", () => {
+    const [line] = sanitizeCartItems([{ ...item(), price: 12.5, subtotal: 25, stock: 4, in_stock: true, payment_method: "card" }]);
+    expect(line).toEqual({ id: "m1", name: "Paracetamol 500", qty: 2, rx: false, image: null, activeIngredient: null, form: "Tablets", strength: "500 mg", slug: "paracetamol-500" });
+    for (const field of ["price", "subtotal", "stock", "in_stock", "payment_method"]) expect(line).not.toHaveProperty(field);
   });
 });
 
