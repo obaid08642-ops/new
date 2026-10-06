@@ -7,7 +7,7 @@
 >
 > Sources: `DESIGN_HANDOFF_FINAL.md`, `SPEC_PRODUCT_DOCTOR_DETAIL.md`, `DEVICE_STANDARD.md`, `canvas/`. How the folder works: `README.md`.
 
-_Last updated: 2026-10-05 (components 2/4–4/4 in review as #265, #267, #268; lint gates in review as #269; next: Batch 0)._
+_Last updated: 2026-10-05 (components 1/4–4/4, lint gates and the PROGRESS update merged; Batch 0 merged as #285 with the CSP step's commits stacked in it; `design/batch-0-fixes` in review)._
 
 ## Snapshot
 
@@ -19,9 +19,11 @@ _Last updated: 2026-10-05 (components 2/4–4/4 in review as #265, #267, #268; l
 | Foundation: Readex Pro on the web | **Merged** ([#260](https://github.com/obaid08642-ops/new/pull/260)) | Self-hosted with `next/font/local` |
 | Foundation: native shells | **Merged** ([#261](https://github.com/obaid08642-ops/new/pull/261)) | `Screen`, `AppHeader`, `StickyFooter`, `TabBar` in `packages/ui-native` |
 | Foundation: web shells | **Merged** ([#263](https://github.com/obaid08642-ops/new/pull/263)) | `AppShell`, `StickyFooter` in `packages/ui`, mirrored into patient-web |
-| Foundation: shared components | **1/4 merged ([#264](https://github.com/obaid08642-ops/new/pull/264)); 2/4–4/4 in review ([#265](https://github.com/obaid08642-ops/new/pull/265), [#267](https://github.com/obaid08642-ops/new/pull/267), [#268](https://github.com/obaid08642-ops/new/pull/268))** | 40 contract components on web and native, each with board side-by-side images |
-| Foundation: lint gates | **In review** ([#269](https://github.com/obaid08642-ops/new/pull/269)) | `no-100vh` (strict), `no-rn-safeareaview` (strict, plus a `Dimensions.get` ratchet), `no-left-right` (ratchet, 548 recorded) |
-| Screen batches 0–13 | Not started | 410 screens to design (104 more routes only redirect) |
+| Foundation: shared components | **Merged** ([#264](https://github.com/obaid08642-ops/new/pull/264), [#265](https://github.com/obaid08642-ops/new/pull/265), [#267](https://github.com/obaid08642-ops/new/pull/267), [#268](https://github.com/obaid08642-ops/new/pull/268)) | 40 contract components on web and native, each with board side-by-side images |
+| Foundation: components by class (CSP, F68) | **Merged** (its commits came in with [#285](https://github.com/obaid08642-ops/new/pull/285)) | Web components set no `style` attribute; `components.css` |
+| Foundation: lint gates | **Merged** ([#269](https://github.com/obaid08642-ops/new/pull/269)) | `no-100vh`, `no-rn-safeareaview`, `no-left-right`; plus `no-large-raster` in Batch 0 |
+| Screen batch 0 | **Merged** ([#285](https://github.com/obaid08642-ops/new/pull/285), `78af922f`) | 29 screens (web and app): sign-in, onboarding, Home, Search, Services, Notifications |
+| Screen batches 1–13 | Not started | 381 screens to design |
 
 ### Screens per batch (from `SCREEN_INVENTORY.md`; redirect-only routes excluded)
 
@@ -59,66 +61,38 @@ _Last updated: 2026-10-05 (components 2/4–4/4 in review as #265, #267, #268; l
 - **Web shells**: PR [#263](https://github.com/obaid08642-ops/new/pull/263), merged 2026-10-05. `AppShell` and `StickyFooter`, mirrored into patient-web; no page uses them yet.
 - **Components 1/4**: PR [#264](https://github.com/obaid08642-ops/new/pull/264), merged 2026-10-05. FIcon (`icons/fill.ts`), SectionHeader, ServiceTile, ListItem `leading`, Avatar (photo, initials or neutral), Rating (one star or nothing), and `build-compare.mjs`.
 - **Side-by-side method approved** (owner, 2026-10-05). The images match the boards for ServiceTile, TabBar, the web top bar, StickyFooter, ListItem, Rating and Avatar. Every component step includes the same images.
+- **Components 2/4, 3/4, 4/4 and lint gates**: PRs [#265](https://github.com/obaid08642-ops/new/pull/265), [#267](https://github.com/obaid08642-ops/new/pull/267), [#268](https://github.com/obaid08642-ops/new/pull/268), [#269](https://github.com/obaid08642-ops/new/pull/269), merged 2026-10-05.
 
 ## In progress
 
-- **Components 2/4, PR [#265](https://github.com/obaid08642-ops/new/pull/265)** (branch `design/components-controls`, stacked on #264), waiting for review.
-  - **Tokens:**
-    - colours `color.control.{segmentedTrack, switchOn, switchKnob, radioOff}`;
-    - `shadow.button` themed;
-    - new `shadow.segmented` and `shadow.knob`.
-    - 161 contrast checks pass.
-  - **Button:** the gradient primary, the new `outline` variant, sizes 56/44/40 with a 44 hit area, and fill-set icons.
-  - **IconButton:** outlined (the board header button), filled ink, glass, and the 52 square filter.
-  - **New components:** Segmented, Toggle, Radio and StatusChip. The roster goes from 30 to 34.
-  - **Restyled:** Chip as the Search filter chip, Search as the `inline` and `page` field, Stepper as the Cart pill.
-  - **Side-by-side images:** 19 web and 10 native, the native ones from `compare-native.mjs`, which now renders contract components too.
-  - **Test change:** the native touch-target test measures drawn height plus hitSlop. The PR flags this change.
-  - **Open questions for the design session (listed in #265):**
-    - the off switch track and the empty radio ring are below 3:1 (board values);
-    - the Toggle "on" side in LTR;
-    - the StatusChip ink compared with the Orders board.
-- **Components 3/4, PR [#267](https://github.com/obaid08642-ops/new/pull/267)** (branch `design/components-cards`, stacked on #265), waiting for review.
-  - **Tokens:** `color.bg.media`, `color.text.price`, `color.presence.online`, `shadow.feature`. `icon.ratingStarOnBrand` is ink in dark, because the yellow star was 1.6:1 on the dark coral. 171 contrast checks pass.
-  - **Card** holds children and has `tint` (the hero wash).
-  - **DoctorCard** (Consult): the real photo or the neutral mark; every optional field is hidden when absent.
-  - **ProductCard** (PharmacyHub), **OfferCard** (HomeApp), **Timeline** (OrderTracking), **ProgressRing** (CareHub).
-  - Roster 34 → 39. 7 web and 4 native board images.
-  - **Flagged in the PR:**
-    - the ProgressRing track is the tone's soft colour, not the board's `#FBD9E8`;
-    - native can't draw the elliptical photo shape exactly.
-  - The pharmacy broadcast-offer card (PharmacyOffers) is built with Batch 1.
-- **Components 4/4, PR [#268](https://github.com/obaid08642-ops/new/pull/268)** (branch `design/components-states`, stacked on #267), waiting for review.
-  - **States** (States board): EmptyState, ErrorState and the new OfflineState. They share one layout: a 112 FIcon, the title, the body and a full-width CTA. 404 is an EmptyState.
-    - The handoff FIcon replaces the 12.A6 illustration; the PR flags this.
-  - **BottomTabBar** exactly as HomeApp (glass pill, ink active pill, raised coral centre):
-    - items carry fill glyphs;
-    - native renders the shell TabBar from #261.
-  - Roster 39 → 40.
-- **Lint gates, PR [#269](https://github.com/obaid08642-ops/new/pull/269)** (branch `design/lint-gates`, from main), waiting for review.
-  - `tools/design/no-100vh.ts`, strict: patient-web, admin, packages/ui.
-  - `tools/design/no-rn-safeareaview.ts`, strict for `SafeAreaView` from `react-native`. `Dimensions.get` is a ratchet with 41 recorded.
-  - `tools/design/no-left-right.ts`, a ratchet: 548 physical left/right recorded in 121 files, across all clients and both packages.
-  - All three ignore comments and test files, are wired into `npm test` and CI, and each was proven to catch a probe.
-  - **Fixes:**
-    - SafeAreaView now comes from safe-area-context in patient-app `room/[id]` and in provider-app `SuccessScreen` and `SignatureCanvasModal`.
-    - `100dvh` replaces `100vh` in the 4 patient-web files and admin's `AdminGuard`.
-  - `screen-inventory.mjs` matches code only for the 100vh and SafeAreaView rows.
-  - On a scratch merge with the component stack, the gates found one symmetric `hitSlop` in the native ProductCard. It is fixed on #267.
+- **Batch 0 fixes, branch `design/batch-0-fixes`** (owner request 2026-10-05, first PR before Batch 1): (1) B2 silent guest session on first launch (`src/utils/guestSession.ts`, splash); (2) B5 web `/register` session probe quiet (200 `{authenticated:false}`), `/services` goes to Home; (3) `BrandMark` in `packages/ui-native`, `AuthKit` no longer imports `@expo/vector-icons`; (4) issue #286, shared JS: line icons drawn from their own regular outline (no icon library at runtime), illustrated artwork loaded on demand, direct module imports instead of the barrel, per-glyph fill exports for the route error boundary (now independent of the component set), web fill mirror limited to the glyphs named, `zod` out of the Search client chunk. Measured (Lighthouse, median of 3, production build): script transfer `/ar` 224 → 196 KB, `/ar/pharmacy` 225 → 178 KB, `/ar/consultations/doctors` 223 → 176 KB; median route first-load JS 688 → 517 KB raw, `/search` 941 → 588 KB. Still over the 170 KB budget on every route: what is left is the React/Next runtime (about 113 KB gz), the next-intl ICU parser (12 KB) and `web-mcp-provider` (3.4 KB), see Needs review. Runtime check (production build, normal/empty/error, all 15 Batch 0 web routes): 0 issues, 0 console errors; app endpoints with patient / guest / no session: 0 failures. `client-token-sync` 927 → 918, `no-raw-color` 8748 → 8739. Audit: `audit/batch-0-fixes.md`, `audit/runtime-batch-0-fixes-{web,app}.md`.
+- **Batch 0, PR [#285](https://github.com/obaid08642-ops/new/pull/285)**: merged 2026-10-05 (`78af922f`) after the reviewer's `[REVIEW-FIX]` commits (X and Snapchat hidden until the backend verifies them; the date-dependent `slot-leave` spec). Detail kept here for the record.
+  - **Per-batch audit (owner, 2026-10-05), inside #285:** element audits `audit/batch-0-web.md` (393 elements, 14 screens) and `audit/batch-0-app.md` (16 screens); runtime check `audit/runtime-batch-0-web.md` (15 routes x normal/empty/error, backend and web through `tools/design/fault-proxy.mjs`; 13 of 15 clean; `/register` logs the 401 of its own session probe and `/services` lands on `/consultations/doctors`, whose inline styles the CSP refuses; both are in Needs review) and `audit/runtime-batch-0-app.md` (every GET the app screens call, with patient / guest / no session; 0 failures); `WIRING_REPORT.md` now has 0 unresolved calls (was 160 web + 10 app), the 18 static web screens classified, a mock scan (0 hits in Batch 0) and **98 Needs review items** (`needs-review/*.json`, backend gaps reported and not fixed). Colours: route error/not-found rebuilt from the board state components (zero raw colours), `theme-color` generated from the tokens, no Batch 0 file left in the raw-colour baseline (8772 -> 8748), `client-token-sync` 928 -> 927.
+  - **Sign-in family** (web and app): Welcome, Login, Register, email code, forgot and reset password, AuthWeb. The ten login-review defects are gone; the one-time-code login link is removed; tablet centred at 440. Social sign-in: app shows Apple (iOS only, official button), Google, X, Snapchat; web shows Google only (see Blockers).
+  - **Onboarding** (web and app), **Home and Dashboard** (web), **Home, tab bar and Services** (app), **Search, Notifications, Notification settings** (web and app).
+  - Plain-language sweep: 130 strings in each of 6 locales, plus hard-coded web and app strings.
+  - Tokens: dark `text.link` `#D7FF00` → `#FF8A91` (a board colour; owner to confirm) and 12 new font sizes. Nothing else.
+  - Quality gates added: `no-large-raster` (200 KB), Lighthouse tightened (see `QUALITY_STANDARDS.md`); the fetal-week images left the app.
+  - Screenshots: `docs/design/screenshots/batch0-web/` and `batch0-app/{before,after,compare}/`.
+  - Dropped from app Home because the HomeApp board has no place for them: "Core Health Services" cards, "Specialized Care Hub" pills, nutrition/vitals/mood metric cards (reachable through all services).
 
 ## Next (in this order)
 
-The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each step is its own PR on its own `design/<step>` branch, with board side-by-side images (web: `node packages/ui/build-compare.mjs`; native: `node tools/design/compare-native.mjs`), gallery screenshots before and after, and a review.
-
-1. **Shared components** (handoff §3), in both packages, through the contract (`packages/ui/components/contract.ts`):
-   - ~~1/4~~ (#264, merged), ~~2/4~~ (#265), ~~3/4~~ (#267), ~~4/4~~ (#268). All are built; three are in review.
-   - Whenever tokens change, re-run `node packages/ui/build-preview.mjs`.
-2. ~~**Lint gates**~~: #269 is in review.
-3. **Batch 0 (next, branch `design/batch-0`, stacked on #268 and #269)**, then batches 1–13 in the order of `SCREEN_INVENTORY.md`. For each batch:
+1. Owner reviews the `design/batch-0-fixes` PR. Confirm the dark link token (`#FF8A91`, from Batch 0). Open decisions from Batch 0: should `/dashboard` and `/` show an error state with retry when the backend fails (today they hide the data silently)? Which client-side defects in `needs-review/batch-0-*.json` to fix? Start a separate rendering-path change for LCP (F82)?
+2. Resolve the blockers below (backend social-login verification, fetal-week CDN and endpoint).
+3. **Batch 1 (pharmacy flows)** on `design/batch-1` (started right after the fixes PR was opened; its own PR, screenshots and approval before Batch 2), then batches 2–13 in the order of `SCREEN_INVENTORY.md`. For each batch:
    - fix the `WIRING_REPORT.md` §4 rows that belong to it;
-   - send the owner screenshots at 390, 768 and 1440, in light and dark;
-   - wait for approval before starting the next batch (handoff §4).
-   - `globals.css` still has its own `--nabd-layout-max: 1180px` and an old `.shell` layout. Pages switch to `AppShell` batch by batch, and the old `.shell` rules are removed when the last page moves.
+   - paste the `QUALITY_STANDARDS.md` checklist with measured numbers, and "Identity check: no new colours/logo/patterns" with the token diff;
+   - send the owner screenshots at 390, 768 and 1440, in light and dark, and wait for approval before the next batch.
+   - `globals.css` still has an old `.shell` layout. Pages switch to `AppShell` batch by batch (sign-in, Home, Dashboard, Search, Notifications already have); the old rules go when the last page moves.
+
+## Owner decisions (2026-10-05)
+
+- **A. Identity is fixed.** Canvas `#F5F5F7` (plain), action `#D42A38`, coral `#FF4B55`, ink `#0B1B2B`, the Noon Dot logo (`canvas/Main.dc.html`), Readex Pro, the boards' icons, buttons and cards. Never add a colour, logo variant, background pattern or shape that is not on a board; ask the owner first. Every PR description carries "Identity check: no new colours/logo/patterns" and the token diff.
+- **B. Login first.** The login screens (web and app: Welcome, Login, Register, email code, AuthWeb) are the first screens of Batch 0, rebuilt from the boards, with the ten listed defects gone (before/after at 390/768/1440, light and dark). Built; see the Batch 0 PR.
+- **C. Quality standards** are in `QUALITY_STANDARDS.md` and enforced in CI where a tool exists: `no-large-raster` (200 KB), Lighthouse performance ≥ 90 / accessibility ≥ 95 / LCP < 2.5 s / CLS < 0.1 / TBT ≤ 200 ms / JS ≤ 170 KB. Every screen PR pastes the measured checklist.
+- **D. Fetal-week images:** keep the current artwork, move it out of the app, serve it from the CDN; week content comes from the backend. See "Fetal-week images" under Blockers for what is done and what waits.
+- **E. Model.** From the next session: Claude Sonnet 5, high effort for components 2-4, medium for regular screens, high for payment, booking, pharmacy offers, insurance and calls.
 
 ## Owner decisions (2026-10-04)
 
@@ -139,6 +113,14 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 
 ## Blockers
 
+- **Web shared JS and LCP (issue #286, updated by `design/batch-0-fixes`):** Batch 0 had added a 47 KB gz shared chunk (the whole component library, 78 fill glyphs, six-weight Phosphor icons, illustration data) to every route, because the route error boundary imported the component barrel. Now trimmed (see In progress): `/ar` 224 → 196 KB, `/ar/pharmacy` 225 → 178 KB, `/ar/consultations/doctors` 223 → 176 KB (Lighthouse transfer, median of 3). Remaining over the 170 KB budget: React/Next runtime (~113 KB gz), next-intl ICU parser (12 KB), `web-mcp-provider` (3.4 KB, six languages of tool descriptions on every page). LCP (3.0-3.2 s on `/ar`, 4.3 s on `/ar/pharmacy`) did not move with bundle size; Lighthouse points at render-blocking CSS (three sheets, about 28 KB gz); F82 needs its own change. `node tools/design/js-size.mjs` reproduces the per-route numbers.
+- **Import rule baseline (batch-0-fixes item 3):** `tools/design/import-rule.baseline.json` exists on `fix/audit-2026-09` only, not on main. AuthKit is clean now; when the rule reaches main run `node tools/design/import-rule.mjs --update` to drop its baseline line and its `exceptions` entry (listed in Needs review).
+- **Token correction (owner to confirm in the Batch 0 PR token diff):** `color.text.link` dark was lime (`#D7FF00`), which no board uses; the boards draw links `#FF8A91` (Auth board dark; already the `text.price` dark value). Changed to `#FF8A91`; contrast check (4.5:1 on canvas and surface) passes.
+- **CRITICAL, for the reviewer session (found 2026-10-05 while wiring social sign-in): `POST /auth/social-login` does not verify Apple, X or Snapchat tokens.** `backend/src/modules/auth/auth.service.ts`: `verifyAppleToken` base64-decodes the JWT payload without checking its signature, issuer or audience; `verifyXToken` and `verifySnapchatToken` do the same and, when the token is not a JWT, invent an email. The handler then runs `userModel.findOne({ email })` and signs a session for that user, so a forged token with `{"email":"victim@example.com"}` logs in as that user (any role). Only Google is verified (a call to Google's userinfo). Needed: Apple (verify against Apple's JWKS, `iss`, `aud`, `exp`), X and Snapchat (call the provider's "me" endpoint with the access token; neither returns an email by default, so account linking needs a decision), and never mint an account from a made-up address. Until then the app buttons call a flow that is unsafe on the server.
+- **Web social sign-in (Batch 0 login review item 1):** the row is hidden except Google, and Google only when `NEXT_PUBLIC_GOOGLE_CLIENT_ID` is set. Apple, X and Snapchat have no web sign-in flow yet and the backend does not verify their tokens (above), so no dead or unsafe buttons are drawn. Add them to `social-login-buttons.tsx` when both exist.
+- **Fetal-week images (owner D).** Done: the 41 week images in `patient-app/assets/images/maternity/fetus/` (29 MB, 1080×1920 PNG/JPG; no code referenced them: `baby-development.tsx` only redirects) were converted to WebP at 390/780/1080 px wide (1x/2x/3x, q80, 2.8 MB for all three sizes, largest file 75 KB) in `cdn-source/maternity/fetus/` and deleted from the app. Not done, and why: (1) **upload to Cloudflare R2**: this session has no R2 credentials (the Cloudflare connector is not authorised); upload `cdn-source/maternity/fetus/*` to the bucket behind the CDN and give me the base URL. (2) **Backend week content** (`GET` of week → image URL, size/length/weight, text): `backend/src/modules/maternity` has no such endpoint (`GET /maternity/content` exists; check it covers this), so the **reviewer session** adds it; no mock data is used meanwhile. (3) The app screen that shows the images (with an `expo-image` disk cache and a placeholder) is built when the endpoint and URLs exist. App download size: no build was run here; the images were never referenced from code but `assetBundlePatterns` is `**/*`, so they were shipped, about 29 MB of the repo's 30 MB under `assets/images/maternity`.
+- **Fonts:** `MaterialSymbolsRounded.ttf` (1.7 MB) is still used by 28 patient-app files; it goes when the last of them moves to the shared icons.
+
 - **CI: the `lighthouse` job fails on every PR. This is for the reviewer.** It fails on Largest Contentful Paint for `/ar` (about 3.3 s) and `/ar/c` (about 4.9 s), against a 3000 ms limit. It fails the same way on #255, #257 and #259 to #265, including PRs that change no page. The five CI jobs that used to fail were fixed by the reviewer in #262.
 
 - **Fixed by the reviewer in PR #257 (merged):** pharmacy submit (web `/cart/checkout`) and lab opt-in-cash (web `/diagnostics/insurance-approval`). Re-run `node tools/design/screen-inventory.mjs` at the start of Batch 0.
@@ -152,6 +134,8 @@ The foundation comes before any screen (DEVICE_STANDARD §4, handoff §3). Each 
 
 | Date | Branch | What happened | Tip |
 |---|---|---|---|
+| 2026-10-05 | `design/batch-0` | Batch 0: sign-in family, onboarding, Home, Dashboard, Search, Services, Notifications (web and app); quality standards and gates; fetal images off the app; links token. | PR [#285](https://github.com/obaid08642-ops/new/pull/285) |
+| 2026-10-05 | `design/components-csp` | Components styled by class (CSP, F68). | PR [#271](https://github.com/obaid08642-ops/new/pull/271) |
 | 2026-10-05 | `design/lint-gates` | Lint gates no-100vh, no-rn-safeareaview, no-left-right, with the SafeAreaView and 100dvh fixes. | PR [#269](https://github.com/obaid08642-ops/new/pull/269), tip `c2f4d95` |
 | 2026-10-05 | `design/components-cards`, `design/components-states` | Components 3/4 (cards) and 4/4 (states, main tab bar), with board images; main (#263, #264) merged into the 2/4–4/4 stack. | PR [#267](https://github.com/obaid08642-ops/new/pull/267) `664e27b`, PR [#268](https://github.com/obaid08642-ops/new/pull/268) `8a4c313` |
 | 2026-10-05 | `design/components-controls` | Components 2/4 (the controls) on web and native, with 19 web and 10 native board side-by-side images. CodeQL path fix on #263 and #264. | PR [#265](https://github.com/obaid08642-ops/new/pull/265), tip `27d336d` |

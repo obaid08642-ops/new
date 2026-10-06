@@ -97,8 +97,12 @@ export class UsersService {
     let p = await this.patientRepository.findOne({ user_id }, { _id: 0, __v: 0 });
     if (!p) p = await this.patientRepository.create({ user_id });
     const o: any = typeof (p as any).toObject === 'function' ? (p as any).toObject() : p;
+    // The name lives on the account (registration and PATCH /users/me write users.full_name);
+    // patient_profiles.full_name is never written at registration, so Home greeted nobody.
+    const account: any = await this.userRepository.findOne({ id: user_id });
+    const fullName = String(account?.full_name || o.full_name || '').trim();
     // Alias: the app reads/writes `chronic_conditions`; the schema field is `chronic_diseases`.
-    return { ...o, chronic_conditions: o.chronic_diseases || [] };
+    return { ...o, full_name: fullName || null, chronic_conditions: o.chronic_diseases || [] };
   }
 
   private async userForPatientContract(userId: string): Promise<any> {

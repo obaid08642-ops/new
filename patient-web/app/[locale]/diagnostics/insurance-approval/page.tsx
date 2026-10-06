@@ -31,7 +31,7 @@ export default async function DiagnosticsInsuranceApprovalPage({ params, searchP
             {ar ? "حالة الموافقة" : "Approval status"}
           </h1>
           <p style={{ color: "#6B7C6E", lineHeight: 1.7, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" }}>
-            {ar ? "متابعة حية لحالة الموافقة — بيانات الخادم فقط." : "Live approval status — server data only."}
+            {ar ? "تابع حالة موافقة التأمين لحظة بلحظة." : "Follow your insurance approval status as it updates."}
           </p>
           <Link href={`/${locale}/diagnostics/bookings`} style={{ color: "#1E332E", fontWeight: 760, textDecoration: "none", width: "fit-content", padding: "8px 16px", borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", marginTop: 8 }}>
             {ar ? "حجوزاتي" : "My bookings"}

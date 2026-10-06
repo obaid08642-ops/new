@@ -39,7 +39,7 @@ export default async function InsuranceAddPolicyPage({ params }: Props) {
         <div>
           <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
           <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{locale === "ar" ? "إضافة وثيقة تأمين" : "Add insurance policy"}</h1>
-          <p>{locale === "ar" ? "تُحفظ الوثيقة في حسابك فقط بعد تحقق الخادم — لا نقبل أرقاماً وهمية." : "The policy is stored only after server verification."}</p>
+          <p>{locale === "ar" ? "تُحفظ الوثيقة في حسابك بعد التحقق منها." : "Your policy is saved to your account once it's verified."}</p>
         </div>
               <span style={{ inlineSize: 48, blockSize: 48, borderRadius: 16, border: "1px solid #E8EDEE", background: "rgba(95,217,179,.12)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } as React.CSSProperties} aria-hidden="true"><VectorInsurance size={48} aria-hidden="true" /></span>
       <span style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", padding: "8px 12px", display: "inline-flex", gap: 8, alignItems: "center" } as React.CSSProperties} aria-hidden="true" />

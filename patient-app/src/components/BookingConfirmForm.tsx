@@ -171,13 +171,13 @@ export default function BookingConfirmScreen() {
           <SectionHeader title="طريقة المتابعة" />
           <SegmentedControl value={payMethod} onChange={(value) => setPayMethod(value as any)} options={visitType === 'clinic' ? [{ key: 'card', label: 'بطاقة', icon: 'card' }, { key: 'cash', label: 'نقد عند العيادة', icon: 'payments' }, { key: 'insurance', label: 'تأمين', icon: 'shield' }] : [{ key: 'card', label: 'بطاقة', icon: 'card' }, { key: 'insurance', label: 'تأمين', icon: 'shield' }]} />
           <AppText variant="caption" color={colors.textTertiary} style={{ marginTop: 12, textAlign: 'right' }}>
-            {payMethod === 'insurance' ? 'سيُرسل الطلب للمراجعة التأمينية. لا تُعرض نسبة التحمل أو تُنشأ عملية دفع قبل قرار الجهة المختصة.' : payMethod === 'card' ? 'سيحدد الخادم المبلغ ووسائل الدفع المتاحة. فتح رابط الدفع لا يعني تأكيد الدفع أو الموعد.' : 'الدفع النقدي متاح للعيادة فقط وفق سياسة الخادم.'}
+            {payMethod === 'insurance' ? 'سيُرسل الطلب للمراجعة التأمينية. لا تُعرض نسبة التحمل أو تُنشأ عملية دفع قبل قرار الجهة المختصة.' : payMethod === 'card' ? 'سيظهر لك المبلغ ووسائل الدفع المتاحة. فتح صفحة الدفع لا يعني تأكيد الدفع أو الموعد.' : 'الدفع النقدي متاح لزيارات العيادة فقط.'}
           </AppText>
         </Card>
 
-        {payMethod === 'insurance' && <Card style={{ backgroundColor: insuranceReady ? colors.successSurface : colors.warningSurface }}><AppText variant="bodySM" color={colors.textSecondary}>{insuranceReady ? 'سيستخدم الخادم بيانات بوليصتك المسجلة لإرسال طلب مراجعة التأمين.' : 'لا توجد بوليصة نشطة قابلة للاستخدام. أضف بيانات التأمين إلى ملفك أولاً.'}</AppText><Button label="إدارة التأمين" variant="ghost" onPress={() => router.push('/profile/insurance')} style={{ marginTop: 8 }} /></Card>}
+        {payMethod === 'insurance' && <Card style={{ backgroundColor: insuranceReady ? colors.successSurface : colors.warningSurface }}><AppText variant="bodySM" color={colors.textSecondary}>{insuranceReady ? 'سنستخدم بيانات بوليصتك المسجلة لإرسال طلب مراجعة التأمين.' : 'لا توجد بوليصة نشطة قابلة للاستخدام. أضف بيانات التأمين إلى ملفك أولاً.'}</AppText><Button label="إدارة التأمين" variant="ghost" onPress={() => router.push('/profile/insurance')} style={{ marginTop: 8 }} /></Card>}
 
-        <Card style={{ backgroundColor: colors.infoSurface }}><AppText variant="bodySM" color={colors.textSecondary}>لا تعرض هذه الشاشة إجمالياً أو ضريبة أو تحملاً محسوباً محلياً. السعر والقرار التأميني والدفع يصدر كل منها من الخادم في مرحلته الصحيحة.</AppText></Card>
+        <Card style={{ backgroundColor: colors.infoSurface }}><AppText variant="bodySM" color={colors.textSecondary}>يظهر لك السعر وقرار التأمين والدفع كلٌّ في خطوته.</AppText></Card>
       </ScrollView>
       <View style={[styles.bottom, { paddingBottom: insets.bottom + 8, backgroundColor: colors.surface, borderTopColor: colors.borderLight }]}><Button label={payMethod === 'insurance' ? 'إرسال طلب المراجعة التأمينية' : payMethod === 'card' ? 'المتابعة إلى الدفع الآمن' : 'تأكيد الحجز النقدي'} variant="gradient" size="lg" icon={payMethod === 'insurance' ? 'shield' : 'check-circle'} loading={loading} disabled={loading || (payMethod === 'insurance' && !insuranceReady)} onPress={handleConfirm} /></View>
     </View>

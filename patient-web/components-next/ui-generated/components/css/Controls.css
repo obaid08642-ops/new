@@ -1,0 +1,143 @@
+/*
+ * GENERATED FILE — DO NOT EDIT.
+ *
+ * Mirrored from packages/ui/components/css/Controls.css by tools/design/sync-ui-components.mjs.
+ *
+ * patient-web cannot import from packages/: Turbopack refuses to resolve outside
+ * the app root, and the type checker does not, so the failure only appears at
+ * `next build`. This file is a copy, not a port — the renderer a screen uses and
+ * the renderer the conformance gallery exercises are the same code, so the
+ * artwork cannot drift between them. Run the script after changing the package;
+ * `--check` in CI fails if this drifts.
+ *
+ * tests/module-boundary.test.ts enforces the boundary this mirror exists to work
+ * around.
+ */
+/* Segmented, Toggle, Radio and StatusChip (components/Controls.tsx). A control
+   drawn smaller than 44px keeps a 44px hit area: the clickable box is 44 and gives
+   the extra back with a negative margin. */
+
+/* Segmented */
+.nabd-segmented { display: flex; padding: 4px; border-radius: 16px; background: var(--nabd-color-control-segmentedTrack); opacity: 1; }
+.nabd-segmented--disabled { opacity: 0.5; }
+.nabd-segmented__option {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 44px;
+  margin-block: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  color: var(--nabd-color-text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.nabd-segmented--sm .nabd-segmented__option { margin-block: -3px; }
+.nabd-segmented__option--inert { cursor: not-allowed; }
+.nabd-segmented__pill {
+  flex: 1;
+  padding-inline: 14px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  font-weight: 500;
+  background: transparent;
+  box-shadow: none;
+  opacity: 1;
+  transition: background-color 200ms cubic-bezier(.22, 1, .36, 1), box-shadow 200ms cubic-bezier(.22, 1, .36, 1);
+}
+.nabd-segmented--sm .nabd-segmented__pill { height: 38px; font-size: var(--nabd-font-size-small); }
+.nabd-segmented--md .nabd-segmented__pill { height: 44px; font-size: var(--nabd-font-size-segment); }
+.nabd-segmented__pill--on { font-weight: 700; background: var(--nabd-color-bg-surface); box-shadow: var(--nabd-shadow-segmented); }
+.nabd-segmented__pill--disabled { opacity: 0.5; }
+
+/* Toggle: a 50×30 track, a 24px knob, 3px inset; the hit area is 44 tall */
+.nabd-toggle {
+  padding: 7px 0;
+  margin: -7px 0;
+  border: 0;
+  background: transparent;
+  display: inline-flex;
+  flex-shrink: 0;
+  cursor: pointer;
+  opacity: 1;
+}
+.nabd-toggle--inert { cursor: not-allowed; }
+.nabd-toggle--disabled { opacity: 0.5; }
+.nabd-toggle__track {
+  position: relative;
+  display: block;
+  width: 50px;
+  height: 30px;
+  border-radius: 15px;
+  background: var(--nabd-color-border-strong);
+  transition: background-color 200ms cubic-bezier(.22, 1, .36, 1);
+}
+.nabd-toggle__track--on { background: var(--nabd-color-control-switchOn); }
+.nabd-toggle__knob {
+  position: absolute;
+  top: 3px;
+  inset-inline-start: 23px;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--nabd-color-control-switchKnob);
+  box-shadow: var(--nabd-shadow-knob);
+  transition: inset-inline-start 200ms cubic-bezier(.22, 1, .36, 1);
+}
+/* On is the knob at the inline start, as the boards draw it in RTL. */
+.nabd-toggle__track--on .nabd-toggle__knob { inset-inline-start: 3px; }
+
+/* Radio row */
+.nabd-radio {
+  width: 100%;
+  min-height: 54px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-inline: 14px;
+  padding-block: 0;
+  border: 0;
+  border-block-end: 0;
+  background: transparent;
+  font-family: inherit;
+  color: var(--nabd-color-text-primary);
+  text-align: start;
+  cursor: pointer;
+  opacity: 1;
+}
+.nabd-radio--divider { border-block-end: 1px solid var(--nabd-color-border-subtle); }
+.nabd-radio--inert { cursor: not-allowed; }
+.nabd-radio--disabled { opacity: 0.5; }
+.nabd-radio__label { flex: 1; font-size: var(--nabd-font-size-row); font-weight: 400; }
+.nabd-radio__label--on { font-weight: 700; }
+.nabd-radio__meta { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); }
+.nabd-radio__ring {
+  width: 22px;
+  height: 22px;
+  border-radius: 11px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  border: 2px solid var(--nabd-color-control-radioOff);
+  transition: border-width 200ms cubic-bezier(.22, 1, .36, 1);
+}
+.nabd-radio__ring--on { border: 7px solid var(--nabd-color-action-primary-bg); }
+
+/* StatusChip (canvas/Orders): 26 tall, 10 padding, 12/600, in the service tone */
+.nabd-status-chip {
+  height: 26px;
+  padding-inline: 10px;
+  border-radius: 13px;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  font-size: var(--nabd-font-size-meta);
+  font-weight: 600;
+  background: var(--nabd-tone-bg);
+  color: var(--nabd-tone-fg);
+}
