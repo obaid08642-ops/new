@@ -8,7 +8,7 @@ import LocaleLoading from "./loading";
 
 describe("locale route states", () => {
   it("does not serialize an upstream error message in the recovery boundary", () => {
-    const html = renderToStaticMarkup(<LocaleError />);
+    const html = renderToStaticMarkup(<LocaleError error={new Error("upstream-token-and-stack-must-not-render")} reset={vi.fn()} />);
 
     expect(html).not.toContain("upstream-token-and-stack-must-not-render");
     expect(html).toContain('role="alert"');

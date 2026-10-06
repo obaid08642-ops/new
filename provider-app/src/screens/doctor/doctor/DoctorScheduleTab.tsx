@@ -17,8 +17,6 @@ import { I, IBg } from '../../../components/icons';
 import { SP, R, FS, FW, API_BASE } from '../../../constants';
 import { buildHeaders, Vault, SK } from '../../../security/Security';
 import client from '../../../api/client';
-import { formatInProviderZone } from '../../../time/providerZone';
-import { findTodaySpecialHours } from '../../../time/scheduleHours';
 import { useServicesCatalog, getInsuranceCatalog, useSpecialtiesCatalog } from '../../../api/catalogs';
 import { VideoCallRoom } from '../../shared/VideoCallRoom';
 import { InsuranceRequestsScreen } from '../../shared/InsuranceRequestsScreen';
@@ -61,22 +59,8 @@ export function DoctorScheduleTab({ onNavigate }: { onNavigate: (s: string, p?: 
  const AR = lang === 'ar';
  const [view, setView] = useState<'day'|'week'|'list'>('list');
  const [filter, setFilter] = useState<'all'|'video'|'clinic'|'home'>('all');
-   const [apts, setApts] = useState<any[]>([]);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  // P15.9 — today's special/holiday-hours entry from the same profile source
-  // the slot engine honours. Resolved on the server-anchored Riyadh day, so a
-  // device clock off by ±1 day still shows the right entry. Hidden when none
-  // applies (or when the lookup fails — appointments still render).
-  const [todaySpecial, setTodaySpecial] = useState<any | null>(null);
-  useEffect(() => {
-    let active = true;
-    client.get('/provider/profile/availability').then(res => {
-      if (!active) return;
-      const list = Array.isArray(res.data?.special_hours) ? res.data.special_hours : [];
-      setTodaySpecial(findTodaySpecialHours(list));
-    }).catch(() => { if (active) setTodaySpecial(null); });
-    return () => { active = false; };
-  }, []);
+  const [apts, setApts] = useState<any[]>([]);
+ const [loadError, setLoadError] = useState<string | null>(null);
  const filters = [
  { k:'all', ar:'الكل', en:'All' },
  { k:'video', ar:'فيديو', en:'Video' },
@@ -88,13 +72,10 @@ export function DoctorScheduleTab({ onNavigate }: { onNavigate: (s: string, p?: 
  client.get('/provider/jobs/queue?status=active&kind=consultation')
  .then(res => {
  setLoadError(null);
-  setApts((res.data || []).map((x: any) => ({
-  id: x.id,
-  patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabd+ Patient'),
-  // P15.9 — a server instant, always displayed in Asia/Riyadh: the old
-  // `new Date(...).toLocaleTimeString([], ...)` rendered in the *device* zone,
-  // so a wrong device zone moved every appointment on this screen.
-  time: formatInProviderZone(x.scheduled_at, AR ? 'ar-SA-u-ca-gregory' : 'en-GB', { dateStyle: undefined, timeStyle: 'short' }) ?? '',
+ setApts((res.data || []).map((x: any) => ({
+ id: x.id,
+ patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabd+ Patient'),
+ time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
  type: x.service_type || 'video',
  status: x.domain_state === 'IN_PROGRESS' || x.universal_state === AppointmentStatus.IN_PROGRESS ? AppointmentStatus.IN_PROGRESS : 'confirmed',
  price: x.total ?? x.price ?? 0,
@@ -121,17 +102,7 @@ export function DoctorScheduleTab({ onNavigate }: { onNavigate: (s: string, p?: 
  </TouchableOpacity>
  </View>
 
-  {todaySpecial ? (
-  <View testID="special-hours-today-banner" style={{ marginHorizontal: SP.lg, marginTop: SP.md, backgroundColor: theme.primaryLight, borderRadius: 8, padding: SP.md }}>
-  <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.primary, textAlign: AR ? 'right' : 'left' }}>
-  {todaySpecial.closed
-    ? (AR ? `مغلق اليوم${todaySpecial.reason ? ` — ${todaySpecial.reason}` : ''}` : `Closed today${todaySpecial.reason ? ` — ${todaySpecial.reason}` : ''}`)
-    : (AR ? `دوام اليوم: ${todaySpecial.open} - ${todaySpecial.close}${todaySpecial.reason ? ` (${todaySpecial.reason})` : ''}` : `Today's hours: ${todaySpecial.open} - ${todaySpecial.close}${todaySpecial.reason ? ` (${todaySpecial.reason})` : ''}`)}
-  </Text>
-  </View>
-  ) : null}
-
-  {/* View toggles */}
+ {/* View toggles */}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, paddingHorizontal: SP.lg, paddingTop: SP.lg, paddingBottom: SP.xs, alignItems: 'center' }}>
  {(['day','week','list'] as const).map(v => (
  <TouchableOpacity key={v} onPress={() => setView(v)}

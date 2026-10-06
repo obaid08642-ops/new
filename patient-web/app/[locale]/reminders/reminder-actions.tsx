@@ -4,50 +4,24 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { reminderLogRequest } from "@/lib/api/reminder-log-request";
-import { useOptimisticAction } from "@/lib/api/use-optimistic-action";
 
-/**
- * F69: per-reminder actions (same endpoints as the app).
- * P15.3: marking a dose taken is SAFE-optimistic — the ✓ appears instantly and
- * is rolled back with an explaining toast when the POST fails.
- */
+/** F69: per-reminder actions (same endpoints as the app). */
 export function ReminderActions({ locale, id, nextTimeKey }: { locale: string; id: string; nextTimeKey?: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [taken, setTaken] = useState(false);
-  const { run: runDose, pending: dosePending } = useOptimisticAction<Response>();
 
-  const logTaken = () => {
-    if (dosePending) return;
-    setFailed(false);
-    // One key per tap, shared by the live commit and the offline queue entry,
-    // so a retried tap can never log the dose twice.
-    const key = crypto.randomUUID();
-    const [url, init] = reminderLogRequest(id, nextTimeKey, key);
-    void runDose("reminder", {
-      apply: () => setTaken(true),
-      rollback: () => {
-        setTaken(false);
-        setFailed(true);
-      },
-      commit: async () => {
-        const res = await fetch(url, init);
-        if (!res.ok) throw new Error(`reminder_log_${res.status}`);
-        return res;
-      },
-      onCommitted: () => router.refresh(),
-    },
-    {
-      // P15.4: offline taps queue and replay in order on reconnect.
-      outbox: {
-        kind: "reminder",
-        url,
-        method: "POST",
-        headers: { "content-type": "application/json", "idempotency-key": key },
-        body: typeof init.body === "string" ? init.body : null,
-      },
-    });
+  const logTaken = async () => {
+    setBusy(true); setFailed(false);
+    try {
+      const res = await fetch(...reminderLogRequest(id, nextTimeKey));
+      if (!res.ok) { setFailed(true); return; }
+      router.refresh();
+    } catch {
+      setFailed(true);
+    } finally {
+      setBusy(false);
+    }
   };
 
   const remove = async () => {
@@ -67,9 +41,9 @@ export function ReminderActions({ locale, id, nextTimeKey }: { locale: string; i
 
   return (
     <span style={{ display: "flex", gap: 8 }}>
-      <button type="button" onClick={logTaken} disabled={busy || dosePending} aria-label={locale === "ar" ? "تم أخذ الجرعة" : "Mark dose taken"}>{taken ? "✔" : "✓"}</button>
+      <button type="button" onClick={() => void logTaken()} disabled={busy} aria-label={locale === "ar" ? "تم أخذ الجرعة" : "Mark dose taken"}>✓</button>
       <Link href={`/${locale}/reminders/add?edit=${encodeURIComponent(id)}`}>✎</Link>
-      <button type="button" onClick={() => void remove()} disabled={busy || dosePending} aria-label={locale === "ar" ? "حذف التذكير" : "Delete reminder"}>×</button>
+      <button type="button" onClick={() => void remove()} disabled={busy} aria-label={locale === "ar" ? "حذف التذكير" : "Delete reminder"}>×</button>
       {failed ? <span role="alert">{locale === "ar" ? "تعذّر الحفظ، حاول مرة أخرى" : "Could not save, try again"}</span> : null}
     </span>
   );

@@ -5,23 +5,12 @@
   POST /v1/payments/<id>/refund    -> status refunded (amount optional)
   POST /v1/payments/<id>/capture   -> status paid
   POST /__pay/<id>?status=paid|failed  (test hook: the patient completes/declines the hosted checkout)
-  POST /__mode {"payments_fail": bool} + GET /__mode
-      (P15.11 chaos hook: while payments_fail is true, POST /v1/payments
-      answers 500 gateway_failure_drill; flip back with chaos_ctrl.sh
-      moyasar-fail / moyasar-ok)
 """
 import json, uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
 PAYMENTS = {}
-
-# P15.11 chaos drill: in-memory gateway failure switch (reset on restart).
-#   POST /__mode {"payments_fail": true}  -> POST /v1/payments answers 500
-#   POST /__mode {"payments_fail": false} -> normal behaviour (default)
-#   GET  /__mode                           -> {"payments_fail": bool}
-# Existing behaviour is unchanged while the switch is off.
-MODE = {'payments_fail': False}
 
 
 class H(BaseHTTPRequestHandler):
@@ -45,8 +34,6 @@ class H(BaseHTTPRequestHandler):
 
     def do_GET(self):
         p = urlparse(self.path).path.rstrip('/').split('/')
-        if p[1:] == ['__mode']:
-            return self._send(200, MODE)
         if len(p) == 4 and p[1:3] == ['v1', 'payments'] and p[3] in PAYMENTS:
             return self._send(200, PAYMENTS[p[3]])
         self._send(404, {'message': 'not found'})
@@ -54,12 +41,7 @@ class H(BaseHTTPRequestHandler):
     def do_POST(self):
         u = urlparse(self.path)
         p = u.path.rstrip('/').split('/')
-        if p[1:] == ['__mode']:
-            MODE['payments_fail'] = bool(self._body().get('payments_fail', False))
-            return self._send(200, MODE)
         if p[1:] == ['v1', 'payments']:
-            if MODE['payments_fail']:
-                return self._send(500, {'message': 'gateway_failure_drill', 'type': 'api_error'})
             b = self._body()
             pid = 'pay_' + uuid.uuid4().hex[:20]
             PAYMENTS[pid] = {'id': pid, 'status': 'initiated', 'amount': b.get('amount'), 'currency': b.get('currency', 'SAR'),

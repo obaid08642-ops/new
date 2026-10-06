@@ -1,101 +1,83 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from '@react-native-community/netinfo';
 import { apiFetch } from '@/utils/api';
-import { subscribeConnectivity } from '@/services/http/connectivity';
-import { offlineCache } from '@/services/offline/cache';
-import { outbox } from '@/services/offline/outbox';
 
 /**
- * Offline-first data hook — Phase 5, rebuilt on the Phase 15 primitives.
+ * Offline-first data hook — Phase 5 (Offline Support).
  *
- * Strategy (unchanged in intent, single implementation now):
- *   1. Show the cached copy immediately, with its `updatedAt`, so the screen is
- *      never blank while the network is being asked.
- *   2. ONLINE  → fetch, write through the shared cache, return fresh data.
- *   3. Failure → keep showing the cached copy and mark it as stale.
- *   4. The ONE connectivity signal (owned by the HTTP client) triggers a resync.
+ * Strategy:
+ *   1. ONLINE  → fetch from API, persist to AsyncStorage, return fresh data.
+ *   2. OFFLINE/failure → return last cached copy instantly (stale-while-revalidate).
+ *   3. NetInfo listener → when connectivity returns, auto-resync in background.
  *
- * It previously opened its own NetInfo listener and its own storage keys. The app
- * now has one idea of "am I online" and one cache format, which is what lets the
- * offline banner report a truthful "last updated" time.
- *
- * Usage: const { data, loading, fromCache, updatedAt, refresh } = useOfflineData('medicines', '/medicines?limit=50');
+ * Usage: const { data, loading, fromCache, refresh } = useOfflineData('medicines', '/medicines?limit=50');
  */
 export function useOfflineData<T = any>(cacheKey: string, endpoint: string, options?: { ttlMs?: number }) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [fromCache, setFromCache] = useState(false);
-  const [updatedAt, setUpdatedAt] = useState<number | null>(null);
   const mounted = useRef(true);
+  const storageKey = `@nabdah_offline_${cacheKey}`;
 
   const load = useCallback(async (isResync = false) => {
-    // 1) cached copy first, so the screen renders even before the network answers.
+    // 1) show cached copy immediately (instant render even before network)
     if (!isResync) {
-      const cached = await offlineCache.read<T>(cacheKey);
-      if (cached && mounted.current) {
-        setData(cached.data);
-        setUpdatedAt(cached.updatedAt);
-        setFromCache(true);
-      }
+      try {
+        const raw = await AsyncStorage.getItem(storageKey);
+        if (raw && mounted.current) {
+          const cached = JSON.parse(raw);
+          setData(cached.data);
+          setFromCache(true);
+        }
+      } catch { /* cache miss is fine */ }
     }
 
-    // 2) network, with the screen-close cancellation of 15.1.
-    const controller = new AbortController();
+    // 2) network fetch
     try {
-      const fresh = await apiFetch<T>(endpoint, { signal: controller.signal });
-      if (!mounted.current) return;
-      setData(fresh);
-      setFromCache(false);
-      const written = await offlineCache.write(cacheKey, fresh);
-      if (mounted.current) setUpdatedAt(written.updatedAt);
+      const fresh = await apiFetch(endpoint);
+      if (mounted.current) {
+        setData(fresh);
+        setFromCache(false);
+      }
+      await AsyncStorage.setItem(storageKey, JSON.stringify({ data: fresh, ts: Date.now() }));
     } catch {
-      // Offline or server error: the cached copy stays on screen.
+      // offline or server error — cached copy already shown if present
       if (mounted.current && isResync) setFromCache(true);
     } finally {
       if (mounted.current && !isResync) setLoading(false);
     }
-  }, [cacheKey, endpoint]);
+  }, [endpoint, storageKey]);
 
   useEffect(() => {
     mounted.current = true;
-    void load();
-    // 3) resync on reconnect, and drain anything the outbox is holding.
-    const unsubscribe = subscribeConnectivity((snapshot) => {
-      if (snapshot.online) {
-        void load(true);
-        void outbox.replay();
-      }
+    load();
+
+    // 3) auto-resync when connectivity returns
+    const unsub = NetInfo.addEventListener((state) => {
+      if (state.isConnected) load(true);
     });
     return () => {
       mounted.current = false;
-      unsubscribe();
+      unsub();
     };
   }, [load]);
 
   const refresh = useCallback(() => load(true), [load]);
 
-  return { data, loading, fromCache, updatedAt, refresh };
+  return { data, loading, fromCache, refresh };
 }
 
-/**
- * Write-through cache for user-specific collections (notifications, orders,
- * messages). Retained under the ORIGINAL `@nabdah_offline_` keys so data written
- * by earlier releases is still readable after the upgrade.
- */
-const LEGACY_PREFIX = '@nabdah_offline_';
-
+/** Write-through cache for user-specific collections (notifications, orders, messages). */
 export async function cacheWrite(cacheKey: string, data: any): Promise<void> {
   try {
-    await AsyncStorage.setItem(`${LEGACY_PREFIX}${cacheKey}`, JSON.stringify({ data, ts: Date.now() }));
+    await AsyncStorage.setItem(`@nabdah_offline_${cacheKey}`, JSON.stringify({ data, ts: Date.now() }));
   } catch { /* best-effort */ }
-  await offlineCache.write(cacheKey, data);
 }
 
 export async function cacheRead<T = any>(cacheKey: string): Promise<T | null> {
-  const shared = await offlineCache.read<T>(cacheKey);
-  if (shared) return shared.data;
   try {
-    const raw = await AsyncStorage.getItem(`${LEGACY_PREFIX}${cacheKey}`);
+    const raw = await AsyncStorage.getItem(`@nabdah_offline_${cacheKey}`);
     return raw ? JSON.parse(raw).data : null;
   } catch {
     return null;

@@ -10,7 +10,6 @@ import { UserRole } from '../../common/enums';
 import { User, UserDocument } from '../../schemas/user.schema';
 import { ProviderDelta } from '../provider/schemas/provider-delta.schema';
 import { CreateSubAdminDto, UpdateSubAdminDto, CreateProviderDto, CleanupOrphansDto } from './admin.dto';
-import { findOneByAnyId } from '../../common/find-by-id';
 
 /** Provider roles an admin may create accounts for (never staff/admin roles). */
 const PROVIDER_CREATABLE_ROLES = [
@@ -142,7 +141,8 @@ export class AdminController {
   @Get('users/:userId/overview')
   async userOverview(@Param('userId') userId: string, @Query('days') daysQ?: string): Promise<any> {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
-    const user: any = await findOneByAnyId(this.userModel, userId);
+    const user: any = await this.userModel.findOne({ id: userId }, { password_hash: 0, otp_codes: 0 }).lean()
+      || await this.userModel.findById(userId, { password_hash: 0, otp_codes: 0 }).catch(() => null);
     if (!user) throw new BadRequestException('user_not_found');
 
     const asPatient = { patient_id: user.id };
@@ -460,7 +460,8 @@ export class AdminController {
   @Post('users/:userId/ban')
   async banUser(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
-    const user = await findOneByAnyId(this.userModel, userId);
+    const user = await this.userModel.findOne({ id: userId }).exec()
+      || await this.userModel.findById(userId).catch(() => null);
     if (!user) throw new BadRequestException('user_not_found');
     if (user.role === UserRole.ADMIN || user.role === UserRole.SUPER_ADMIN) {
       throw new BadRequestException('cannot_ban_admin');
@@ -483,7 +484,8 @@ export class AdminController {
   @Post('users/:userId/unban')
   async unbanUser(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
-    const user = await findOneByAnyId(this.userModel, userId);
+    const user = await this.userModel.findOne({ id: userId }).exec()
+      || await this.userModel.findById(userId).catch(() => null);
     if (!user) throw new BadRequestException('user_not_found');
     (user as any).active = true;
     (user as any).suspended = false;
@@ -515,7 +517,8 @@ export class AdminController {
   @Delete('users/:userId')
   async deleteUser(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
-    const user = await findOneByAnyId(this.userModel, userId);
+    const user = await this.userModel.findOne({ id: userId }).exec()
+      || await this.userModel.findById(userId).catch(() => null);
     if (!user) throw new BadRequestException('user_not_found');
     if (user.role === UserRole.ADMIN || user.role === UserRole.SUPER_ADMIN) {
       throw new BadRequestException('cannot_delete_admin');
@@ -599,7 +602,8 @@ export class AdminController {
   @Post('approve/:userId')
   async approveProvider(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
-    const user = await findOneByAnyId(this.userModel, userId);
+    const user = await this.userModel.findOne({ id: userId }).exec()
+      || await this.userModel.findById(userId).catch(() => null);
     if (!user) throw new BadRequestException('user_not_found');
     if (![UserRole.DOCTOR, UserRole.PHARMACY].includes(user.role)) {
       throw new BadRequestException('user_not_a_provider');
@@ -615,7 +619,8 @@ export class AdminController {
   @Post('suspend/:userId')
   async suspendProvider(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
-    const user = await findOneByAnyId(this.userModel, userId);
+    const user = await this.userModel.findOne({ id: userId }).exec()
+      || await this.userModel.findById(userId).catch(() => null);
     if (!user) throw new BadRequestException('user_not_found');
     
     user.suspended = true;

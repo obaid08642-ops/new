@@ -28,12 +28,6 @@ export class ProcurementController {
     private readonly ai: AiGatewayService,
   ) {}
 
-  private toObjectId(id: string) {
-    return Types.ObjectId.isValid(id) ? new Types.ObjectId(id) : null;
-  }
-
-  /** Submit a B2B warehouse price-quote request — admin reviews it and issues a quotation. */
-
   /** Submit a B2B warehouse price-quote request — admin reviews it and issues a quotation. */
   @Post('submit-request')
   @Roles(UserRole.PHARMACY, UserRole.ADMIN, UserRole.SUPER_ADMIN)
@@ -41,7 +35,7 @@ export class ProcurementController {
     // Identity always comes from the verified token — never from the body (IDOR-safe).
     const items = (Array.isArray(dto.items) ? dto.items : []).slice(0, 500).map((it: any) => ({
       // medicine_id references the Medicine Mongo `_id`; anything else links by name (null here).
-      medicine_id: it.medicine_id && Types.ObjectId.isValid(it.medicine_id) ? this.toObjectId(it.medicine_id) : null,
+      medicine_id: it.medicine_id && Types.ObjectId.isValid(it.medicine_id) ? new Types.ObjectId(it.medicine_id) : null,
       raw_name_string: String(it.raw_name_string || it.name || '').slice(0, 300),
       requested_quantity: Math.max(1, Math.min(Number(it.requested_quantity || it.quantity) || 1, 100000)),
       category_group: it.category_group === 'non_medical' ? 'non_medical' : 'medical',

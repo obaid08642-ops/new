@@ -94,13 +94,13 @@ function AppNavigator() {
       <NavigationContainer ref={navigationRef}>
         <Stack.Navigator id={undefined as any} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bg } }}>
           <Stack.Screen name="Pending">
-            {({ navigation }) => <ScreenBoundary name="PendingDashboard"><PendingDashboard providerType={pType} onExplore={() => navigation.navigate('GuestJobs' as never)} onLogout={async () => { await logout(); }} /></ScreenBoundary>}
+            {({ navigation }) => <PendingDashboard providerType={pType} onExplore={() => navigation.navigate('GuestJobs' as never)} onLogout={async () => { await logout(); }} />}
           </Stack.Screen>
           <Stack.Screen name="GuestJobs">
-            {({ navigation }) => <ScreenBoundary name="MedicalJobs"><MedicalJobsScreen onBack={() => navigation.goBack()} /></ScreenBoundary>}
+            {({ navigation }) => <MedicalJobsScreen onBack={() => navigation.goBack()} />}
           </Stack.Screen>
           <Stack.Screen name="GuestDrugIndex">
-            {({ navigation }) => <ScreenBoundary name="MedicalDrugIndex"><MedicalDrugIndexScreen onBack={() => navigation.goBack()} /></ScreenBoundary>}
+            {({ navigation }) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}
           </Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>
@@ -115,47 +115,47 @@ function AppNavigator() {
             {(props) => {
               const t = (user?.providerType ?? pType).toLowerCase();
               const doLogout = async () => { await logout(); };
-              if (t === 'pharmacy' || t === 'pharmacist') return <ScreenBoundary name="PharmacyDashboard"><PharmacyDashboardNavigator onLogout={doLogout} /></ScreenBoundary>;
-              if (t === 'doctor' || t === 'physician') return <ScreenBoundary name="DoctorDashboard"><DoctorDashboardNavigator onLogout={doLogout} /></ScreenBoundary>;
-              if (t === 'facility' || t === 'hospital' || t === 'clinic' || t === 'center') return <ScreenBoundary name="FacilityDashboard"><FacilityDashboardNavigator onLogout={doLogout} /></ScreenBoundary>;
-              if (t === 'home_care' || t === 'nursing' || t === 'nurse') return <ScreenBoundary name="NursingDashboard"><NursingDashboardNavigator onLogout={doLogout} /></ScreenBoundary>;
-              if (t === 'lab' || t === 'laboratory') return <ScreenBoundary name="LabDashboard"><LabDashboardNavigator onLogout={doLogout} /></ScreenBoundary>;
-              if (t === 'radiology' || t === 'radiologist' || t === 'scan_center') return <ScreenBoundary name="RadiologyDashboard"><RadiologyDashboardNavigator onLogout={doLogout} /></ScreenBoundary>;
-              if (t === 'ambulance' || t === 'paramedic' || t === 'emt') return <ScreenBoundary name="AmbulanceDashboard"><AmbulanceDashboardNavigator onLogout={doLogout} /></ScreenBoundary>;
-              return <ScreenBoundary name="ProviderHome"><ProviderHome onLogout={doLogout} /></ScreenBoundary>;
+              if (t === 'pharmacy' || t === 'pharmacist') return <PharmacyDashboardNavigator onLogout={doLogout} />;
+              if (t === 'doctor' || t === 'physician') return <DoctorDashboardNavigator onLogout={doLogout} />;
+              if (t === 'facility' || t === 'hospital' || t === 'clinic' || t === 'center') return <FacilityDashboardNavigator onLogout={doLogout} />;
+              if (t === 'home_care' || t === 'nursing' || t === 'nurse') return <NursingDashboardNavigator onLogout={doLogout} />;
+              if (t === 'lab' || t === 'laboratory') return <LabDashboardNavigator onLogout={doLogout} />;
+              if (t === 'radiology' || t === 'radiologist' || t === 'scan_center') return <RadiologyDashboardNavigator onLogout={doLogout} />;
+              if (t === 'ambulance' || t === 'paramedic' || t === 'emt') return <AmbulanceDashboardNavigator onLogout={doLogout} />;
+              return <ProviderHome onLogout={doLogout} />;
             }}
           </Stack.Screen>
         ) : (
           <>
             <Stack.Screen name="Welcome">
-              {({ navigation }) => <ScreenBoundary name="Welcome"><WelcomeScreen onSelectType={t => { setPType(t); navigation.navigate('Register'); }} onLogin={() => navigation.navigate('Login')} onGuestJobs={() => navigation.navigate('GuestJobs')} onGuestDrugIndex={() => navigation.navigate('GuestDrugIndex')} /></ScreenBoundary>}
+              {({ navigation }) => <WelcomeScreen onSelectType={t => { setPType(t); navigation.navigate('Register'); }} onLogin={() => navigation.navigate('Login')} onGuestJobs={() => navigation.navigate('GuestJobs')} onGuestDrugIndex={() => navigation.navigate('GuestDrugIndex')} />}
             </Stack.Screen>
             <Stack.Screen name="Login">
-              {({ navigation }) => <ScreenBoundary name="Login"><LoginScreen onSuccess={() => {}} onBack={() => navigation.goBack()} onForgot={() => navigation.navigate('Forgot')} onRegister={() => navigation.navigate('Welcome')} /></ScreenBoundary>}
+              {({ navigation }) => <LoginScreen onSuccess={() => {}} onBack={() => navigation.goBack()} onForgot={() => navigation.navigate('Forgot')} onRegister={() => navigation.navigate('Welcome')} />}
             </Stack.Screen>
             <Stack.Screen name="Forgot">
-              {({ navigation }) => <ScreenBoundary name="ForgotPassword"><ForgotPasswordScreen onBack={() => navigation.goBack()} onSuccess={() => navigation.goBack()} /></ScreenBoundary>}
+              {({ navigation }) => <ForgotPasswordScreen onBack={() => navigation.goBack()} onSuccess={() => navigation.goBack()} />}
             </Stack.Screen>
             <Stack.Screen name="Register">
               {({ navigation }) => {
-                if (pType === 'doctor')   return <ScreenBoundary name="DoctorRegistration"><DoctorRegistration   onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} /></ScreenBoundary>;
-                if (pType === 'facility') return <ScreenBoundary name="FacilityRegistration"><FacilityRegistration onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} /></ScreenBoundary>;
-                if (pType === 'pharmacy') return <ScreenBoundary name="PharmacyRegistration"><PharmacyRegistration onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} /></ScreenBoundary>;
-                if (pType === 'lab') return <ScreenBoundary name="LabRegistration"><LabRegistration providerType={pType} onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} /></ScreenBoundary>;
-                if (pType === 'radiology') return <ScreenBoundary name="RadiologyRegistration"><RadiologyRegistration onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} /></ScreenBoundary>;
-                if (pType === 'nursing')  return <ScreenBoundary name="NursingRegistration"><NursingRegistration  onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} /></ScreenBoundary>;
-                if (pType === 'ambulance') return <ScreenBoundary name="AmbulanceRegistration"><AmbulanceRegistration onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} /></ScreenBoundary>;
+                if (pType === 'doctor')   return <DoctorRegistration   onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
+                if (pType === 'facility') return <FacilityRegistration onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
+                if (pType === 'pharmacy') return <PharmacyRegistration onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
+                if (pType === 'lab') return <LabRegistration providerType={pType} onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
+                if (pType === 'radiology') return <RadiologyRegistration onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
+                if (pType === 'nursing')  return <NursingRegistration  onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
+                if (pType === 'ambulance') return <AmbulanceRegistration onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
                 return <PendingDashboard providerType={pType} onExplore={() => {}} onLogout={() => navigation.goBack()} />;
               }}
             </Stack.Screen>
             <Stack.Screen name="Pending">
-              {({ navigation }) => <ScreenBoundary name="PendingDashboard"><PendingDashboard providerType={pType} onExplore={() => {}} onLogout={() => navigation.navigate('Welcome')} /></ScreenBoundary>}
+              {({ navigation }) => <PendingDashboard providerType={pType} onExplore={() => {}} onLogout={() => navigation.navigate('Welcome')} />}
             </Stack.Screen>
             <Stack.Screen name="GuestJobs">
-              {({ navigation }) => <ScreenBoundary name="MedicalJobs"><MedicalJobsScreen onBack={() => navigation.goBack()} /></ScreenBoundary>}
+              {({ navigation }) => <MedicalJobsScreen onBack={() => navigation.goBack()} />}
             </Stack.Screen>
             <Stack.Screen name="GuestDrugIndex">
-              {({ navigation }) => <ScreenBoundary name="MedicalDrugIndex"><MedicalDrugIndexScreen onBack={() => navigation.goBack()} /></ScreenBoundary>}
+              {({ navigation }) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}
             </Stack.Screen>
           </>
         )}
@@ -167,8 +167,6 @@ function AppNavigator() {
 import { ProviderHome } from "./src/screens/shared/ProviderHome";
 import { LiveKitRoomProvider } from "./src/screens/shared/LiveKitRoomProvider";
 import { AppGate } from "./src/components/AppGate";
-import { ErrorBoundary, ScreenBoundary } from "./src/components/ErrorBoundary";
-import { DeviceGate } from "./src/deviceSupport/DeviceGate";
 import { initProviderSentry } from "./src/utils/sentry";
 
 initProviderSentry();
@@ -189,23 +187,12 @@ export default function App() {
     return () => { if (timer) clearInterval(timer); };
   }, []);
   return (
-    // SafeAreaProvider stays outside the boundary: the root fallback needs insets too.
     <SafeAreaProvider>
-      <ErrorBoundary screenName="AppRoot">
-        {/* P15.10: a device below Expo SDK 57's floor (iOS 16.4 / Android 7) is told so
-            explicitly and pointed at the website, instead of launching into a broken app. */}
-        <DeviceGate>
-          <RootProvider>
-            <AppGate>
-              {/* P15.5: every screen below the root is individually recoverable, so one
-                  broken screen cannot blank the whole app. */}
-              <ScreenBoundary name="AppNavigator">
-                <AppNavigator />
-              </ScreenBoundary>
-            </AppGate>
-          </RootProvider>
-        </DeviceGate>
-      </ErrorBoundary>
+      <RootProvider>
+        <AppGate>
+          <AppNavigator />
+        </AppGate>
+      </RootProvider>
     </SafeAreaProvider>
   );
 }

@@ -1,4 +1,4 @@
-import { Module, InternalServerErrorException } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
 import {
@@ -133,9 +133,9 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
     ]),
     JwtModule.registerAsync({ useFactory: () => {
       const secret = process.env.JWT_SECRET;
-      if (!secret) throw new InternalServerErrorException('FATAL: JWT_SECRET must be configured');
+      if (!secret) throw new Error('FATAL: JWT_SECRET must be configured');
       if (process.env.NODE_ENV === 'production' && secret.length < 32) {
-        throw new InternalServerErrorException('FATAL: JWT_SECRET must be at least 32 characters in production');
+        throw new Error('FATAL: JWT_SECRET must be at least 32 characters in production');
       }
       return { secret, signOptions: { expiresIn: '14d' } };
     } }),

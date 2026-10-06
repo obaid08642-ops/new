@@ -5,7 +5,6 @@ import { QueryAnalytics, QueryAnalyticsSchema } from './schemas/query-analytics.
 import { SearchIntentService } from './search-intent.service';
 import { SearchIntentController } from './search-intent.controller';
 import { LocationModule } from '../location/location.module';
-import { CommonModule } from '../../common/common.module';
 
 @Module({
   imports: [
@@ -14,7 +13,6 @@ import { CommonModule } from '../../common/common.module';
       { name: QueryAnalytics.name, schema: QueryAnalyticsSchema },
     ]),
     LocationModule,
-    CommonModule,
   ],
   controllers: [SearchIntentController],
   providers: [SearchIntentService],

@@ -19,7 +19,6 @@ import { randomUUID } from 'crypto';
 import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, HandoverDto, CompleteDto, PutPricingDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto } from './provider-ops.dto';
-import { findByAnyId } from '../../common/find-by-id';
 
 /** Provider withdrawal requests (consumed by admin-web-core finance controller). */
 export const ProviderWithdrawalSchema = new Schema(
@@ -632,15 +631,15 @@ export class ProviderOpsService {
     );
     if (!r.matchedCount) {
       // ratings created without an `id` field — match by Mongo _id
-      const { Types } = require('mongoose');
-      const idFilter = Types.ObjectId.isValid(ratingId)
-        ? { _id: new Types.ObjectId(ratingId) }
-        : { id: ratingId };
-      const filter = { ...idFilter, ...own } as any;
-      r = await this.conn.collection('ratings').updateOne(
-        filter,
-        { $set: { reply: reply.trim(), reply_at: new Date() } },
-      );
+      try {
+        const { Types } = require('mongoose');
+        if (Types.ObjectId.isValid(ratingId)) {
+          r = await this.conn.collection('ratings').updateOne(
+            { _id: { $eq: new Types.ObjectId(ratingId) }, ...own } as any,
+            { $set: { reply: reply.trim(), reply_at: new Date() } },
+          );
+        }
+      } catch { /* invalid ObjectId format */ }
     }
     if (!r.matchedCount) throw new NotFoundException('review not found');
     return { ok: true };
@@ -854,7 +853,6 @@ export class ProviderCompatController {
   }
 
   /** Doctor pricing settings (clinic/online/home) — persisted server-side. */
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Get('settings/pricing') async getPricing(@CurrentUser() u: any) {
     return { pricing: await this.svc.getProviderSetting(u.id, 'pricing', null) };
   }
@@ -874,7 +872,6 @@ export class ProviderCompatController {
   }
 
   /** Working hours get/set */
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Get('working-hours') async getHours(@CurrentUser() u: any) {
     return this.svc.getProviderSetting(u.id, 'working_hours', null);
   }

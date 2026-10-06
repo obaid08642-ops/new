@@ -33,9 +33,6 @@
       "@/components/*": [
         "./components-next/*"
       ],
-      "@/components-next/*": [
-        "./components-next/*"
-      ],
       "@/lib/*": [
         "./lib/*"
       ],

@@ -2,17 +2,18 @@
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, Eye, EyeOff, LoaderCircle } from "lucide-react";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import type { Locale } from "@/lib/i18n";
-import styles from "./login-form.module.css";
+import styles from "./auth/auth.module.css";
 
-const copy: Record<Locale, { name: string; identifier: string; password: string; confirm: string; terms: string; privacy: string; submit: string; busy: string; invalid: string; unavailable: string; success: string; login: string; title: string; body: string; converting: string; converted: string; guestNote: string }> = {
-  ar: { name: "الاسم الكامل", identifier: "البريد الإلكتروني أو رقم الهاتف", password: "كلمة المرور", confirm: "تأكيد كلمة المرور", terms: "أوافق على الشروط والأحكام", privacy: "سياسة الخصوصية", submit: "إنشاء الحساب", busy: "جارٍ إنشاء الحساب…", invalid: "راجع الحقول وأكمل البيانات المطلوبة.", unavailable: "تعذر الوصول إلى خدمة التسجيل. لم يُنشأ حساب.", success: "تم إنشاء الحساب. أكمل التحقق بالرمز المرسل.", login: "لديك حساب؟ دخول", title: "إنشاء حساب", body: "ابدأ رعايتك الصحية مع نبض بلس.", converting: "جارٍ دمج بيانات الضيف في حسابك…", converted: "تم إنشاء حسابك ودمج سجل الضيف.", guestNote: "أنت تتصفح كضيف — التسجيل برقم الهاتف يدمج سجلك الحالي." },
-  en: { name: "Full name", identifier: "Email or mobile number", password: "Password", confirm: "Confirm password", terms: "I agree to the Terms", privacy: "Privacy Policy", submit: "Create account", busy: "Creating account…", invalid: "Review the fields and complete the required information.", unavailable: "Registration is unavailable. No account was created.", success: "Account created. Complete verification with the code sent to you.", login: "Already have an account? Log in", title: "Create your account", body: "Start your care journey with Nabd Plus.", converting: "Merging your guest data into your account…", converted: "Account created with your guest history merged.", guestNote: "You're browsing as a guest — registering with a phone number merges your current history." },
-  fil: { name: "Buong pangalan", identifier: "Email o mobile number", password: "Password", confirm: "Kumpirmahin ang password", terms: "Sumasang-ayon ako sa Terms", privacy: "Privacy Policy", submit: "Gumawa ng account", busy: "Gumagawa ng account…", invalid: "Suriin ang mga field at kumpletuhin ang kailangan.", unavailable: "Hindi available ang pagpaparehistro. Walang account na ginawa.", success: "Nagawa ang account. I-verify gamit ang ipinadalang code.", login: "May account na? Mag-log in", title: "Gumawa ng account", body: "Simulan ang iyong care journey sa Nabd Plus.", converting: "Pinagsasama ang guest data sa account…", converted: "Nagawa ang account kasama ang guest history.", guestNote: "Naka-guest ka — ang pagrehistro gamit ang phone ay isasama ang history." },
-  hi: { name: "पूरा नाम", identifier: "ईमेल या मोबाइल नंबर", password: "पासवर्ड", confirm: "पासवर्ड की पुष्टि करें", terms: "मैं शर्तों से सहमत हूं", privacy: "गोपनीयता नीति", submit: "खाता बनाएं", busy: "खाता बनाया जा रहा है…", invalid: "फ़ील्ड जांचें और आवश्यक जानकारी पूरी करें।", unavailable: "पंजीकरण उपलब्ध नहीं है। कोई खाता नहीं बनाया गया।", success: "खाता बन गया। भेजे गए कोड से सत्यापन करें।", login: "पहले से खाता है? लॉग इन", title: "खाता बनाएं", body: "Nabd Plus के साथ अपनी देखभाल शुरू करें।", converting: "अतिथि डेटा को खाते में मिलाया जा रहा है…", converted: "अतिथि इतिहास के साथ खाता बन गया।", guestNote: "आप अतिथि हैं — फ़ोन से पंजीकरण पर इतिहास जुड़ जाएगा।" },
-  ur: { name: "پورا نام", identifier: "ای میل یا موبائل نمبر", password: "پاس ورڈ", confirm: "پاس ورڈ کی تصدیق", terms: "میں شرائط سے اتفاق کرتا ہوں", privacy: "رازداری کی پالیسی", submit: "اکاؤنٹ بنائیں", busy: "اکاؤنٹ بنایا جا رہا ہے…", invalid: "خانے دیکھیں اور مطلوبہ معلومات مکمل کریں۔", unavailable: "رجسٹریشن دستیاب نہیں۔ اکاؤنٹ نہیں بنایا گیا۔", success: "اکاؤنٹ بن گیا۔ بھیجے گئے کوڈ سے تصدیق کریں۔", login: "اکاؤنٹ ہے؟ لاگ اِن", title: "اکاؤنٹ بنائیں", body: "Nabd Plus کے ساتھ اپنی نگہداشت شروع کریں۔", converting: "مہمان ڈیٹا اکاؤنٹ میں ضم کیا جا رہا ہے…", converted: "مہمان ریکارڈ کے ساتھ اکاؤنٹ بن گیا۔", guestNote: "آپ مہمان ہیں — فون سے رجسٹریشن پر ریکارڈ ضم ہو جائے گا۔" },
-  bn: { name: "পূর্ণ নাম", identifier: "ইমেল বা মোবাইল নম্বর", password: "পাসওয়ার্ড", confirm: "পাসওয়ার্ড নিশ্চিত করুন", terms: "আমি শর্তাবলিতে সম্মত", privacy: "গোপনীয়তা নীতি", submit: "অ্যাকাউন্ট তৈরি করুন", busy: "অ্যাকাউন্ট তৈরি হচ্ছে…", invalid: "ফিল্ডগুলো পরীক্ষা করে প্রয়োজনীয় তথ্য পূরণ করুন।", unavailable: "নিবন্ধন উপলভ্য নয়। কোনো অ্যাকাউন্ট তৈরি হয়নি।", success: "অ্যাকাউন্ট তৈরি হয়েছে। পাঠানো কোড দিয়ে যাচাই করুন।", login: "অ্যাকাউন্ট আছে? লগ ইন", title: "অ্যাকাউন্ট তৈরি করুন", body: "Nabd Plus-এর সঙ্গে আপনার যত্নের যাত্রা শুরু করুন।", converting: "অতিথি ডেটা অ্যাকাউন্টে একত্রিত হচ্ছে…", converted: "অতিথি ইতিহাসসহ অ্যাকাউন্ট তৈরি হয়েছে।", guestNote: "আপনি অতিথি — ফোন দিয়ে নিবন্ধনে ইতিহাস যুক্ত হবে।" }
+const copy: Record<Locale, { name: string; identifier: string; password: string; confirm: string; terms: string; privacy: string; submit: string; busy: string; invalid: string; unavailable: string; success: string; login: string; title: string; body: string; converting: string; converted: string; guestNote: string; hintIdentifier: string; hintPassword: string; haveAccount: string }> = {
+  ar: { name: "الاسم الكامل", identifier: "البريد الإلكتروني أو رقم الهاتف", password: "كلمة المرور", confirm: "تأكيد كلمة المرور", terms: "أوافق على الشروط والأحكام", privacy: "سياسة الخصوصية", submit: "إنشاء الحساب", busy: "جارٍ إنشاء الحساب…", invalid: "راجع الحقول وأكمل البيانات المطلوبة.", unavailable: "تعذر الوصول إلى خدمة التسجيل. لم يُنشأ حساب.", success: "تم إنشاء الحساب. أكمل التحقق بالرمز المرسل.", login: "لديك حساب؟ دخول", title: "إنشاء حساب", body: "ابدأ رعايتك الصحية مع نبض بلس.", converting: "جارٍ دمج بيانات الضيف في حسابك…", converted: "تم إنشاء حسابك ودمج سجل الضيف.", guestNote: "أنت تتصفح كضيف — التسجيل برقم الهاتف يدمج سجلك الحالي.", hintIdentifier: "نرسل إليه رمز التأكيد", hintPassword: "8 أحرف على الأقل", haveAccount: "لديك حساب؟" },
+  en: { name: "Full name", identifier: "Email or mobile number", password: "Password", confirm: "Confirm password", terms: "I agree to the Terms", privacy: "Privacy Policy", submit: "Create account", busy: "Creating account…", invalid: "Review the fields and complete the required information.", unavailable: "Registration is unavailable. No account was created.", success: "Account created. Complete verification with the code sent to you.", login: "Already have an account? Log in", title: "Create your account", body: "Start your care journey with Nabd Plus.", converting: "Merging your guest data into your account…", converted: "Account created with your guest history merged.", guestNote: "You're browsing as a guest — registering with a phone number merges your current history.", hintIdentifier: "We'll send the confirmation code here", hintPassword: "At least 8 characters", haveAccount: "Have an account?" },
+  fil: { name: "Buong pangalan", identifier: "Email o mobile number", password: "Password", confirm: "Kumpirmahin ang password", terms: "Sumasang-ayon ako sa Terms", privacy: "Privacy Policy", submit: "Gumawa ng account", busy: "Gumagawa ng account…", invalid: "Suriin ang mga field at kumpletuhin ang kailangan.", unavailable: "Hindi available ang pagpaparehistro. Walang account na ginawa.", success: "Nagawa ang account. I-verify gamit ang ipinadalang code.", login: "May account na? Mag-log in", title: "Gumawa ng account", body: "Simulan ang iyong care journey sa Nabd Plus.", converting: "Pinagsasama ang guest data sa account…", converted: "Nagawa ang account kasama ang guest history.", guestNote: "Naka-guest ka — ang pagrehistro gamit ang phone ay isasama ang history.", hintIdentifier: "Dito namin ipapadala ang confirmation code", hintPassword: "Hindi bababa sa 8 character", haveAccount: "May account ka na?" },
+  hi: { name: "पूरा नाम", identifier: "ईमेल या मोबाइल नंबर", password: "पासवर्ड", confirm: "पासवर्ड की पुष्टि करें", terms: "मैं शर्तों से सहमत हूं", privacy: "गोपनीयता नीति", submit: "खाता बनाएं", busy: "खाता बनाया जा रहा है…", invalid: "फ़ील्ड जांचें और आवश्यक जानकारी पूरी करें।", unavailable: "पंजीकरण उपलब्ध नहीं है। कोई खाता नहीं बनाया गया।", success: "खाता बन गया। भेजे गए कोड से सत्यापन करें।", login: "पहले से खाता है? लॉग इन", title: "खाता बनाएं", body: "Nabd Plus के साथ अपनी देखभाल शुरू करें।", converting: "अतिथि डेटा को खाते में मिलाया जा रहा है…", converted: "अतिथि इतिहास के साथ खाता बन गया।", guestNote: "आप अतिथि हैं — फ़ोन से पंजीकरण पर इतिहास जुड़ जाएगा।", hintIdentifier: "हम पुष्टि कोड यहीं भेजेंगे", hintPassword: "कम से कम 8 अक्षर", haveAccount: "पहले से खाता है?" },
+  ur: { name: "پورا نام", identifier: "ای میل یا موبائل نمبر", password: "پاس ورڈ", confirm: "پاس ورڈ کی تصدیق", terms: "میں شرائط سے اتفاق کرتا ہوں", privacy: "رازداری کی پالیسی", submit: "اکاؤنٹ بنائیں", busy: "اکاؤنٹ بنایا جا رہا ہے…", invalid: "خانے دیکھیں اور مطلوبہ معلومات مکمل کریں۔", unavailable: "رجسٹریشن دستیاب نہیں۔ اکاؤنٹ نہیں بنایا گیا۔", success: "اکاؤنٹ بن گیا۔ بھیجے گئے کوڈ سے تصدیق کریں۔", login: "اکاؤنٹ ہے؟ لاگ اِن", title: "اکاؤنٹ بنائیں", body: "Nabd Plus کے ساتھ اپنی نگہداشت شروع کریں۔", converting: "مہمان ڈیٹا اکاؤنٹ میں ضم کیا جا رہا ہے…", converted: "مہمان ریکارڈ کے ساتھ اکاؤنٹ بن گیا۔", guestNote: "آپ مہمان ہیں — فون سے رجسٹریشن پر ریکارڈ ضم ہو جائے گا۔", hintIdentifier: "ہم تصدیقی کوڈ یہیں بھیجیں گے", hintPassword: "کم از کم 8 حروف", haveAccount: "پہلے سے اکاؤنٹ ہے؟" },
+  bn: { name: "পূর্ণ নাম", identifier: "ইমেল বা মোবাইল নম্বর", password: "পাসওয়ার্ড", confirm: "পাসওয়ার্ড নিশ্চিত করুন", terms: "আমি শর্তাবলিতে সম্মত", privacy: "গোপনীয়তা নীতি", submit: "অ্যাকাউন্ট তৈরি করুন", busy: "অ্যাকাউন্ট তৈরি হচ্ছে…", invalid: "ফিল্ডগুলো পরীক্ষা করে প্রয়োজনীয় তথ্য পূরণ করুন।", unavailable: "নিবন্ধন উপলভ্য নয়। কোনো অ্যাকাউন্ট তৈরি হয়নি।", success: "অ্যাকাউন্ট তৈরি হয়েছে। পাঠানো কোড দিয়ে যাচাই করুন।", login: "অ্যাকাউন্ট আছে? লগ ইন", title: "অ্যাকাউন্ট তৈরি করুন", body: "Nabd Plus-এর সঙ্গে আপনার যত্নের যাত্রা শুরু করুন।", converting: "অতিথি ডেটা অ্যাকাউন্টে একত্রিত হচ্ছে…", converted: "অতিথি ইতিহাসসহ অ্যাকাউন্ট তৈরি হয়েছে।", guestNote: "আপনি অতিথি — ফোন দিয়ে নিবন্ধনে ইতিহাস যুক্ত হবে।", hintIdentifier: "আমরা নিশ্চিতকরণ কোড এখানে পাঠাব", hintPassword: "কমপক্ষে ৮টি অক্ষর", haveAccount: "আগে থেকেই অ্যাকাউন্ট আছে?" }
 };
 
 const policyIds = {
@@ -25,7 +26,7 @@ const policyIds = {
 export function RegisterForm({ locale }: { locale: Locale }) {
   const t = copy[locale];
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", identifier: "", password: "", confirm: "" });
+  const [form, setForm] = useState({ name: "", identifier: "", password: "" });
   const [agreed, setAgreed] = useState(false);
   const [show, setShow] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -46,7 +47,7 @@ export function RegisterForm({ locale }: { locale: Locale }) {
       { policy_id: policyIds.terms, version: policyIds.termsVersion },
       { policy_id: policyIds.privacy, version: policyIds.privacyVersion },
     ];
-    if (form.name.trim().length < 2 || form.identifier.trim().length < 3 || form.password.length < 8 || form.password !== form.confirm || !agreed) {
+    if (form.name.trim().length < 2 || form.identifier.trim().length < 3 || form.password.length < 8 || !agreed) {
       setMessage(t.invalid);
       return;
     }
@@ -89,56 +90,48 @@ export function RegisterForm({ locale }: { locale: Locale }) {
   }
 
   return (
-    <form className={styles.form} onSubmit={submit} aria-busy={busy}>
-      <label className={styles.field}>
-        <span>{t.name}</span>
-        <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} autoComplete="name" inputMode="text" />
-      </label>
-      <label className={styles.field}>
-        <span>{t.identifier}</span>
-        <input required value={form.identifier} onChange={(e) => setForm({ ...form, identifier: e.target.value })} autoComplete="username" inputMode="text" />
-      </label>
-      <label className={styles.field}>
-        <span>{t.password}</span>
-        <span className={styles.inputWrap}>
-          <input required minLength={8} type={show ? "text" : "password"} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} autoComplete="new-password" />
-          <button type="button" className={styles.iconButton} onClick={() => setShow((v) => !v)} aria-label={show ? "Hide password" : "Show password"}>
-            {show ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-        </span>
-      </label>
-      <label className={styles.field}>
-        <span>{t.confirm}</span>
-        <input required minLength={8} type={show ? "text" : "password"} value={form.confirm} onChange={(e) => setForm({ ...form, confirm: e.target.value })} autoComplete="new-password" />
-      </label>
-<label className={styles.consent}>
-        <input
-          type="checkbox"
-          className={styles.checkbox}
-          checked={agreed}
-          onChange={() => setAgreed((v) => !v)}
-          required
-          aria-describedby="terms-privacy"
-        />
-        <span id="terms-privacy">
-          {locale === "ar" ? (
-            <>أوافق على <Link className={styles.textLink} href={`/${locale}/terms`}>{t.terms}</Link> و<Link className={styles.textLink} href={`/${locale}/privacy`}>{t.privacy}</Link></>
-          ) : (
-            <>{t.terms} & <Link className={styles.textLink} href={`/${locale}/privacy`}>{t.privacy}</Link></>
-          )}
-        </span>
-      </label>
-      {message ? <p className={styles.error} role="alert">{message}</p> : null}
-      {isGuest ? <p className={styles.error} role="note" style={{ borderStyle: "dashed" }}>{t.guestNote}</p> : null}
-      <button className={styles.submit} disabled={busy}>
-        {busy ? <LoaderCircle className={styles.spinner} size={18} /> : null}
-        {busy ? t.busy : t.submit}
-      </button>
-      <p className={styles.registerPrompt}>
-        <button type="button" className={styles.textLink} onClick={() => router.push(`/${locale}/login`)}>
-          {t.login}
-        </button>
-      </p>
-    </form>
+    <>
+      <div className={styles.heading}>
+        <h1 className={styles.title}>{t.title}</h1>
+        <p className={styles.subtitle}>{t.body}</p>
+      </div>
+      <form className={styles.form} onSubmit={submit} aria-busy={busy}>
+        <label className={styles.field}>
+          <span className={styles.label}>{t.name}</span>
+          <span className={styles.control}><input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} autoComplete="name" /></span>
+        </label>
+        <label className={styles.field}>
+          <span className={styles.label}>{t.identifier}</span>
+          <span className={styles.control}><input required dir="ltr" placeholder="name@example.com" value={form.identifier} onChange={(e) => setForm({ ...form, identifier: e.target.value })} autoComplete="username" /></span>
+          <span className={styles.hint}>{t.hintIdentifier}</span>
+        </label>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="register-password">{t.password}</label>
+          <span className={styles.control}>
+            <input id="register-password" required minLength={8} type={show ? "text" : "password"} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} autoComplete="new-password" />
+            <button type="button" className={styles.eye} onClick={() => setShow((v) => !v)} aria-label={show ? (locale === "ar" ? "إخفاء كلمة المرور" : "Hide password") : (locale === "ar" ? "إظهار كلمة المرور" : "Show password")}>
+              <Icon name={show ? "eye-slash" : "eye"} size={20} tone="currentColor" />
+            </button>
+          </span>
+          <span className={styles.hint}>{t.hintPassword}</span>
+        </div>
+        <label className={styles.consent}>
+          <input type="checkbox" className={styles.checkbox} checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
+          <span>
+            {locale === "ar" ? (
+              <>أوافق على <Link href={`/${locale}/terms`}>الشروط والأحكام</Link> و<Link href={`/${locale}/privacy`}>{t.privacy}</Link></>
+            ) : (
+              <>{t.terms} &amp; <Link href={`/${locale}/privacy`}>{t.privacy}</Link></>
+            )}
+          </span>
+        </label>
+        {message ? <p className={styles.error} role="alert">{message}</p> : null}
+        {isGuest ? <p className={styles.note} role="note">{t.guestNote}</p> : null}
+        <div className={styles.actions}>
+          <Button type="submit" variant="primary" size="lg" fullWidth label={busy ? t.busy : t.submit} loading={busy} />
+          <p className={styles.foot}><Link className={styles.link} href={`/${locale}/login`}>{t.login}</Link></p>
+        </div>
+      </form>
+    </>
   );
 }

@@ -4,10 +4,7 @@ import { router, type Href } from 'expo-router';
 
 import { AppHeader, Chip, EmptyState, ErrorState, FIcon, OfflineState, Screen, SectionHeader, Skeleton } from '../../../packages/ui-native/src';
 import { COLUMN, step as scale, tint, useScreenUi } from '../../src/components/screen/ScreenKit';
-import { useOptimisticMutation } from '../../src/hooks/useOptimisticMutation';
 import { translateBackendRoute } from '../../src/hooks/usePushNotifications';
-import { isApiError } from '../../src/services/http/errors';
-import { outbox } from '../../src/services/offline/outbox';
 import { apiFetch } from '../../src/utils/api';
 import { dateLocale } from '../../src/utils/dates';
 import { isOffline } from '../../src/utils/isOffline';
@@ -30,13 +27,6 @@ import {
  * one row per notification: the type's filled icon on its soft tone, the title (bold while unread), the body, the
  * time, and a coral dot when unread. The system / medical / offers filter is kept as the board's chips, shown
  * only when there is something to filter. All data is the real feed; a missing time is simply not drawn.
- *
- * 15.3/15.4: marking a notification read is a SAFE action, so it is applied to local
- * state immediately through `useOptimisticMutation` — which is deny-by-default, so
- * `mark-read` has to be on the allowlist for the local change to happen at all — and
- * the previous state is restored (with the catalogue reason) if the server refuses.
- * A write that never reached the server because there is no connection goes into the
- * outbox instead, and replays in order on reconnect rather than rolling back.
  */
 
 const CARD_RADIUS = 24;
@@ -110,7 +100,7 @@ function FeedSkeleton() {
 }
 
 export default function NotificationsScreen() {
-  const { theme, t, c, dir, tr, lang } = useScreenUi();
+  const { theme, t, c, dir, tr } = useScreenUi();
   const [filter, setFilter] = useState<NotifGroup | 'all'>('all');
   const [notifs, setNotifs] = useState<Notif[]>([]);
   const [loading, setLoading] = useState(true);
@@ -143,53 +133,19 @@ export default function NotificationsScreen() {
   }, [filter, groups]);
   const feed = useMemo(() => buildFeed(filter === 'all' ? notifs : notifs.filter((n) => n.group === filter)), [notifs, filter]);
 
-  // 15.3 + 15.4 — the write behind a read receipt. Applied optimistically by the
-  // mutations below; if the request never reached the server (a transport failure
-  // with no connection) it is handed to the outbox so it is replayed in order on
-  // reconnect instead of being rolled back. A server refusal still propagates, and
-  // the mutation restores the unread state.
-  const sendReadReceipt = async (endpoint: string): Promise<void> => {
+  const markAllRead = async () => {
+    setNotifs((p) => p.map((n) => ({ ...n, read: true })));
     try {
-      await apiFetch(endpoint, { method: 'POST' });
-    } catch (error) {
-      if (isApiError(error) && error.transportFailure) {
-        await outbox.submit({ kind: 'mark-read', method: 'POST', endpoint });
-        return;
-      }
-      throw error;
+      await apiFetch('/notifications/read-all', { method: 'POST' });
+    } catch {
+      void load(true); // put the real state back when the server refused
     }
-  };
-
-  const markAllReadMutation = useOptimisticMutation<Notif[]>({
-    kind: 'mark-read',
-    read: () => notifs,
-    write: setNotifs,
-    apply: (current) => current.map((n) => ({ ...n, read: true })),
-    locale: lang === 'en' ? 'en' : 'ar',
-  });
-
-  // Which single row is being marked, so "read one" only touches that row.
-  const markingIdRef = React.useRef<string | null>(null);
-  const markOneReadMutation = useOptimisticMutation<Notif[]>({
-    kind: 'mark-read',
-    read: () => notifs,
-    write: setNotifs,
-    apply: (current) => current.map((x) => (x.id === markingIdRef.current ? { ...x, read: true } : x)),
-    locale: lang === 'en' ? 'en' : 'ar',
-  });
-
-  const markAllRead = () => {
-    void markAllReadMutation.run(() => sendReadReceipt('/notifications/read-all'));
   };
 
   const openNotif = (n: Notif) => {
     if (!n.read) {
-      markingIdRef.current = n.id;
-      void markOneReadMutation
-        .run(() => sendReadReceipt(`/notifications/${n.id}/read`))
-        .finally(() => {
-          markingIdRef.current = null;
-        });
+      setNotifs((p) => p.map((x) => (x.id === n.id ? { ...x, read: true } : x)));
+      apiFetch(`/notifications/${n.id}/read`, { method: 'POST' }).catch(() => {});
     }
     // Backend routes use the server vocabulary (/tracking/lab/:id, /orders/:id ...): translate them to app paths,
     // pushing them raw would land on an unmatched route.
@@ -214,7 +170,7 @@ export default function NotificationsScreen() {
         direction={dir}
         trailing={
           unread > 0 ? (
-            <Pressable accessibilityRole="button" accessibilityLabel={tr('قراءة الكل')} disabled={markAllReadMutation.pending} onPress={markAllRead} hitSlop={6} style={{ minHeight: 44, paddingHorizontal: 4, justifyContent: 'center' }}>
+            <Pressable accessibilityRole="button" accessibilityLabel={tr('قراءة الكل')} onPress={markAllRead} hitSlop={6} style={{ minHeight: 44, paddingHorizontal: 4, justifyContent: 'center' }}>
               <Text style={{ ...scale(t, 'caption', 'bold'), color: c.text.link }}>{tr('قراءة الكل')}</Text>
             </Pressable>
           ) : undefined
