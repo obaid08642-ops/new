@@ -143,10 +143,8 @@ function RadiologyOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) 
   const [tab, setTab] = useState<'new'|'insurance'|'confirmed'|'inScan'>('new');
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  // P15.1: renamed from `fetch` — a local callback named `fetch` shadowed the global and
-// hid the fact that this screen uses the shared client like every other screen.
-  const loadInbox = useCallback(async () => { try { setLoading(true); const res = await client.get('/radiology/provider/inbox'); setOrders(res.data || []); } catch {} finally { setLoading(false); } }, []);
-  useEffect(() => { loadInbox(); }, [loadInbox]);
+  const fetch = useCallback(async () => { try { setLoading(true); const res = await client.get('/radiology/provider/inbox'); setOrders(res.data || []); } catch {} finally { setLoading(false); } }, []);
+  useEffect(() => { fetch(); }, [fetch]);
   const filtered = orders.filter(o => {
     if (tab === 'new')       return o.state === 'NEW_REQUEST';
     if (tab === 'insurance') return ['PENDING_INSURANCE', 'WAITING_COPAY'].includes(o.state);

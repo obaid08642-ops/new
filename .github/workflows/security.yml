@@ -17,11 +17,11 @@ jobs:
     name: Gitleaks secret scan (full history)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Run gitleaks on full git history
-        uses: gitleaks/gitleaks-action@7a9390d0e8c5d8b6f5c8b5a8f8e8c8b5a8f8e8c8b
+        uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_COMMENTS: 'false'

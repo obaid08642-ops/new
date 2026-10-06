@@ -2,8 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { AdminApiError, adminFetch, adminMutation, type AdminSession } from '@/lib/admin-client';
-import { ErrorFallback } from '@/components/ErrorFallback';
-import { reportError } from '@/lib/observability/error-reporter';
 import { getAdminCalendar, setAdminCalendar, type AdminCalendar } from '../utils/dates';
 
 type NavItem = { href: string; label: string; permission?: string };
@@ -160,9 +158,6 @@ function requiredPermissionFor(pathname: string): string | undefined {
 
 export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<AdminSession | null>(null);
-  const [probeError, setProbeError] = useState<unknown>(null);
-  const [probeErrorId, setProbeErrorId] = useState('');
-  const [probeAttempt, setProbeAttempt] = useState(0);
   const [loading, setLoading] = useState(true);
   const [calendar, setCalendar] = useState<AdminCalendar>('gregory');
   const router = useRouter();
@@ -184,8 +179,6 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     let mounted = true;
-    setLoading(true);
-    setProbeError(null);
     adminFetch<AdminSession>('/api/admin/admin/session')
       .then((data) => {
         if (mounted) setSession(data);
@@ -196,11 +189,7 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
           router.replace(`/login?returnTo=${encodeURIComponent(router.asPath)}`);
           return;
         }
-        // 15.5: this used to leave `session` null, and the render below returned
-        // null — a blank white screen with no way out. Any other failure (a
-        // transport timeout, a 500, a malformed body) now produces a state the
-        // operator can retry or escalate.
-        setProbeError(error);
+        setSession(null);
       })
       .finally(() => {
         if (mounted) setLoading(false);
@@ -208,19 +197,7 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
     return () => {
       mounted = false;
     };
-  }, [router, probeAttempt]);
-
-  // 15.5: a failed session probe must be visible and recoverable, not blank.
-  useEffect(() => {
-    if (!probeError) return;
-    let active = true;
-    void reportError(probeError, { boundary: 'admin-guard-session-probe' }).then((entry) => {
-      if (active) setProbeErrorId(entry.errorId);
-    });
-    return () => {
-      active = false;
-    };
-  }, [probeError]);
+  }, [router]);
 
   const permissionSet = useMemo(() => new Set(session?.permissions || []), [session]);
   const sections = useMemo(
@@ -239,20 +216,6 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">جاري التحقق من جلسة الإدارة…</div>;
   }
-  if (probeError) {
-    return (
-      <ErrorFallback
-        title="تعذّر التحقق من جلسة الإدارة"
-        errorId={probeErrorId}
-        segment={router.asPath}
-        onRetry={() => {
-          setProbeErrorId('');
-          setProbeAttempt((attempt) => attempt + 1);
-        }}
-      />
-    );
-  }
-  // `session` is null here only while the very first probe has not resolved.
   if (!session) return null;
 
   const requiredPermission = requiredPermissionFor(router.pathname);

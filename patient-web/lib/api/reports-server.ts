@@ -1,4 +1,4 @@
-import { patientUpstreamFetch } from "./upstream";
+import { patientApiUrl } from "./upstream";
 
 export type MedicalReportSummary = {
   id: string;
@@ -11,7 +11,7 @@ export type MedicalReportSummary = {
 
 export async function getMyMedicalReports(token: string): Promise<Response> {
   try {
-    return await patientUpstreamFetch("/medical-reports/mine?limit=100", {
+    return await fetch(patientApiUrl("/medical-reports/mine?limit=100"), {
       headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
       cache: "no-store",
     });

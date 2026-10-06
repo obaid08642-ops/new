@@ -67,30 +67,11 @@ export function FamilyJoinForm({ locale, initialCode }: { locale: string; initia
     >
       <label style={{ display: "grid", gap: 8 }}>
         <span style={{ color: "#1E332E", fontSize: ".88rem", fontWeight: 700, overflowWrap: "anywhere" }}>{ar ? "كود الدعوة" : "Invite code"}</span>
-        <input
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          required
-          minLength={3}
-          maxLength={64}
-          dir="ltr"
-          placeholder={ar ? "الصق الكود هنا" : "Paste code here"}
-          style={inputStyle}
-          autoComplete="off"
-          inputMode="text"
-        />
+        <input value={code} onChange={(e) => setCode(e.target.value)} required minLength={3} maxLength={64} dir="ltr" placeholder={ar ? "الصق الكود هنا" : "Paste code here"} style={inputStyle} />
       </label>
       <label style={{ display: "grid", gap: 8 }}>
         <span style={{ color: "#1E332E", fontSize: ".88rem", fontWeight: 700, overflowWrap: "anywhere" }}>{ar ? "صلة القرابة (اختياري)" : "Relation (optional)"}</span>
-        <input
-          value={relation}
-          onChange={(e) => setRelation(e.target.value)}
-          maxLength={64}
-          placeholder={ar ? "مثال: أخ، أم" : "e.g. brother, mother"}
-          style={inputStyle}
-          autoComplete="off"
-          inputMode="text"
-        />
+        <input value={relation} onChange={(e) => setRelation(e.target.value)} maxLength={64} placeholder={ar ? "مثال: أخ، أم" : "e.g. brother, mother"} style={inputStyle} />
       </label>
       {error ? <p role="alert" style={{ margin: 0, color: "#B42318", background: "#FDFDFC", border: "1px solid #E8EDEE", borderRadius: 16, padding: 16, overflowWrap: "anywhere", fontSize: ".9rem" }}>{error}</p> : null}
       <button

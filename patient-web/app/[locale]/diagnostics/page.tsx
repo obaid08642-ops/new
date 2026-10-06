@@ -8,7 +8,7 @@ import { getPublicLabServices } from "@/lib/api/labs-server";
 import { extractRadiologyServices } from "@/lib/api/radiology";
 import { getPublicRadiologyServices } from "@/lib/api/radiology-server";
 import { requirePatientAccess } from "@/lib/auth/session";
-import { patientUpstreamFetch } from "@/lib/api/upstream";
+import { patientApiUrl } from "@/lib/api/upstream";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
 import { ArrowUpLeft, ArrowUpRight, CalendarDays, FlaskConical, ScanLine, ShieldCheck } from "lucide-react";
@@ -74,7 +74,7 @@ export default async function DiagnosticsPage({ params }: Props) {
   const [labsRes, radRes, pkgsRes] = await Promise.all([
     getPublicLabServices().catch(() => null),
     getPublicRadiologyServices().catch(() => null),
-    patientUpstreamFetch("/labs/packages", { headers: { Accept: "application/json" }, cache: "no-store" }).catch(() => null)
+    fetch(patientApiUrl("/labs/packages"), { headers: { Accept: "application/json" }, cache: "no-store" }).catch(() => null)
   ]);
 
   const labServices = labsRes && labsRes.ok ? extractLabServices(await labsRes.json().catch(() => null)) : [];

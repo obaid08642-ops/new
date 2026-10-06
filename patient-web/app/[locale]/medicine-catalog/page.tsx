@@ -3,7 +3,7 @@ import NextImage from "next/image";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { parseMedicineSearch } from "@/lib/api/medicines";
-import { patientUpstreamFetch } from "@/lib/api/upstream";
+import { patientApiUrl } from "@/lib/api/upstream";
 import { cdnImage, cleanProductName } from "@/lib/api/public-products-server";
 import { JsonLd } from "@/components-next/json-ld";
 import { isLocale, locales } from "@/lib/i18n";
@@ -25,7 +25,7 @@ async function searchPublicProducts(locale: string, q: string | undefined, page:
   try {
     const params = new URLSearchParams({ locale, page: String(page), limit: "24" });
     if (q) params.set("q", q);
-    const res = await patientUpstreamFetch(`/public/products/search?${params.toString()}`, {
+    const res = await fetch(patientApiUrl(`/public/products/search?${params.toString()}`), {
       headers: { Accept: "application/json" },
       next: { revalidate: 1800 },
     } as RequestInit);

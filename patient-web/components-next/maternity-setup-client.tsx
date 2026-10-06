@@ -54,7 +54,7 @@ export function MaternitySetupClient({ locale }: { locale: string }) {
         <label>{ar ? "موعد الولادة المتوقع (اختياري)" : "Due date (optional)"} <input value={dueDate} onChange={(e) => setDueDate(e.target.value)} placeholder="2026-10-01" /></label>
       ) : (
         <>
-          <label>{ar ? "طول الدورة (يوم)" : "Cycle length (days)"} <input inputMode="numeric" value={cycleLength} onChange={(e) => setCycleLength(e.target.value.replace(/[^\d٠-٩]/g, ""))} autoComplete="off" maxLength={2} /></label>
+          <label>{ar ? "طول الدورة (يوم)" : "Cycle length (days)"} <input inputMode="numeric" value={cycleLength} onChange={(e) => setCycleLength(e.target.value)} /></label>
           <div style={{ display: "flex", gap: 8 }} role="radiogroup" aria-label={ar ? "الانتظام" : "Regularity"}>
             <button type="button" role="radio" aria-checked={regular === "true"} onClick={() => setRegular("true")}>{ar ? "منتظمة" : "Regular"}</button>
             <button type="button" role="radio" aria-checked={regular === "false"} onClick={() => setRegular("false")}>{ar ? "غير منتظمة" : "Irregular"}</button>

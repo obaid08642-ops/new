@@ -39,12 +39,12 @@ const MAX_SERIALIZED_CHARS = 20_000;
 /**
  * Key-name pattern for values that must never land in logs in cleartext:
  * credentials / session material / payment instruments / national ids /
- * contact + identity PII / medical data. Mirrors the audit-log redaction list and extends
+ * contact + identity PII. Mirrors the audit-log redaction list and extends
  * it with PII key names (email/phone/address/dob/...) since logs — unlike
  * audit diffs — routinely carry whole request bodies.
  */
 const SENSITIVE_KEY_PATTERN =
-  /password|passwd|secret|token|authorization|cookie|set-cookie|session|otp|api[_-]?key|private[_-]?key|national[_-]?id|iqama|passport|iban|card|cvv|cvc|biometric|email|phone|mobile|address|dob|birth|ssn|patient|medical|health|diagnosis|prescription|treatment|symptom|condition|allergy|medication|blood|lab|radiology|report|clinical/i;
+  /password|passwd|secret|token|authorization|cookie|set-cookie|session|otp|api[_-]?key|private[_-]?key|national[_-]?id|iqama|passport|iban|card|cvv|cvc|biometric|email|phone|mobile|address|dob|birth|ssn|patient/i;
 
 function isSensitiveKey(key: string): boolean {
   return SENSITIVE_KEY_PATTERN.test(key);

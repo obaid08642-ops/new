@@ -1,8 +1,5 @@
-import { Injectable, Optional } from '@nestjs/common';
-import { InjectConnection } from '@nestjs/mongoose';
-import { Connection } from 'mongoose';
+import { Injectable } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service';
-import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
 
 /**
  * 13.R9 — Dynamic product ranking (events + windows + modes + category scope + anti-abuse).
@@ -59,12 +56,7 @@ function hourBucket(now = Date.now()): string {
 
 @Injectable()
 export class DynamicRankingR9Service {
-  constructor(
-    private readonly redis: RedisService,
-    // F9 — optional so existing direct constructions (specs) keep working;
-    // absent connection fails open (recommendations stay on).
-    @Optional() @InjectConnection() private readonly conn?: Connection,
-  ) {}
+  constructor(private readonly redis: RedisService) {}
 
   /** Window ZSet key. kind=composite|views|purchases. */
   keyFor(window: R9Window, category: string | undefined, kind: 'composite' | 'views' | 'purchases' = 'composite'): string {
@@ -144,12 +136,6 @@ export class DynamicRankingR9Service {
   async getRankedIds(query: R9RankedQuery): Promise<{ ids: string[]; total: number; mode: R9Mode; window: R9Window }> {
     const mode: R9Mode = query.mode || 'smart';
     const { window, kind } = this.resolveMode(mode);
-    // F9 (15.12) — recommendations kill switch: this path has no local
-    // non-personalized source (Redis-only), so the honest degraded answer is
-    // an empty list rather than a fabricated ranking.
-    if (await isKilled('recommendations', connectionFlagSource(this.conn))) {
-      return { ids: [], total: 0, mode, window };
-    }
     const key = this.keyFor(window, query.category, kind);
     const limit = Math.min(100, Math.max(1, Math.floor(query.limit || 20)));
     const offset = Math.max(0, Math.floor(query.offset || 0));

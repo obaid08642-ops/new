@@ -24,9 +24,9 @@ jobs:
         image: redis:7
         ports: ['6379:6379']
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
@@ -34,7 +34,7 @@ jobs:
             backend/package-lock.json
             admin/package-lock.json
 
-      - uses: actions/setup-python@0b93645e9eea4d47c6c2f7a2c6e8c8b8c8b8c8b8c
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 

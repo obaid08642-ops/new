@@ -55,58 +55,6 @@ export class NabdExtensionsController {
     return this.svc.updateFlag(body.flagName, body.isEnabled, admin.id);
   }
 
-  @Roles(UserRole.ADMIN)
-  @Post('wallet/credit')
-  async creditWallet(@CurrentUser() admin: any, @Body() body: CreditWalletDto) {
-    if (!body.ownerId || !body.amount || body.amount <= 0) throw new BadRequestException('ownerId and positive amount required');
-    const ownerType = (body.ownerType === 'provider' ? 'provider' : 'patient') as 'patient' | 'provider';
-    const result = await this.svc.processWalletTransaction({
-      ownerId: body.ownerId,
-      ownerType,
-      amount: body.amount,
-      type: 'credit',
-      referenceType: body.referenceType || 'booking',
-      referenceId: body.referenceId || `manual_credit_${Date.now()}`,
-      description: body.description || 'Admin manual credit',
-    });
-    await this.svc.auditAdminWalletAdjustment(admin, {
-      ownerId: body.ownerId,
-      ownerType,
-      amount: body.amount,
-      type: 'credit',
-      referenceType: body.referenceType || 'booking',
-      referenceId: body.referenceId || `manual_credit_${Date.now()}`,
-      description: body.description || 'Admin manual credit',
-    });
-    return { success: true, transaction: result };
-  }
-
-  @Roles(UserRole.ADMIN)
-  @Post('wallet/debit')
-  async debitWallet(@CurrentUser() admin: any, @Body() body: DebitWalletDto) {
-    if (!body.ownerId || !body.amount || body.amount <= 0) throw new BadRequestException('ownerId and positive amount required');
-    const ownerType = (body.ownerType === 'provider' ? 'provider' : 'patient') as 'patient' | 'provider';
-    const result = await this.svc.processWalletTransaction({
-      ownerId: body.ownerId,
-      ownerType,
-      amount: body.amount,
-      type: 'debit',
-      referenceType: body.referenceType || 'booking',
-      referenceId: body.referenceId || `manual_debit_${Date.now()}`,
-      description: body.description || 'Admin manual debit',
-    });
-    await this.svc.auditAdminWalletAdjustment(admin, {
-      ownerId: body.ownerId,
-      ownerType,
-      amount: body.amount,
-      type: 'debit',
-      referenceType: body.referenceType || 'booking',
-      referenceId: body.referenceId || `manual_debit_${Date.now()}`,
-      description: body.description || 'Admin manual debit',
-    });
-    return { success: true, transaction: result };
-  }
-
   // ==========================================
   // MODULE 2: MEDICAL, PATHWAYS & DIAGNOSTICS
   // ==========================================

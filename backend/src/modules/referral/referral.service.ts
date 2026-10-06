@@ -8,7 +8,6 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { v4 as uuidv4 } from 'uuid';
-import { ReferralFraudService } from '../security/referral-fraud.service';
 
 /**
  * Patient referral program.
@@ -22,16 +21,12 @@ import { ReferralFraudService } from '../security/referral-fraud.service';
  *  - no self-referral
  *  - a user can be referred only once
  *  - only genuinely new users (account < 30 days, no completed bookings)
- *  - one device per referral (device fingerprint tracking)
- *  - one phone per referral (phone hash tracking)
- *  - block self-referrals
  */
 @Injectable()
 export class ReferralService {
   constructor(
     @InjectConnection() private connection: Connection,
     private events: EventEmitter2,
-    private referralFraud: ReferralFraudService,
   ) {}
 
   private get users() { return this.connection.db.collection('users'); }
@@ -92,14 +87,8 @@ export class ReferralService {
     };
   }
 
-  /** A new user applies a referrer's code with fraud prevention. */
-  async apply(
-    userId: string, 
-    rawCode: string,
-    deviceId: string,
-    phone: string,
-    metadata?: { ip?: string; userAgent?: string }
-  ) {
+  /** A new user applies a referrer's code. */
+  async apply(userId: string, rawCode: string) {
     const code = String(rawCode || '').trim().toUpperCase();
     if (!code) throw new BadRequestException('code is required');
 
@@ -126,33 +115,6 @@ export class ReferralService {
     const existing = await this.invites.findOne({ referred_user_id: userId });
     if (existing) throw new ConflictException('a referral code was already applied to this account');
 
-    // Fraud prevention: validate device/phone/self-referral
-    const validation = await this.referralFraud.validateReferral(
-      referrer.id,
-      userId,
-      deviceId,
-      phone,
-      metadata,
-    );
-
-    if (!validation.allowed) {
-      throw new BadRequestException(`referral_blocked: ${validation.reason}`);
-    }
-
-    // Record the referral application with device/phone tracking
-    const result = await this.referralFraud.recordReferralApplication(
-      referrer.id,
-      userId,
-      deviceId,
-      phone,
-      metadata,
-    );
-
-    if (!result.success) {
-      throw new BadRequestException(`referral_blocked: ${result.reason}`);
-    }
-
-    // Also record in legacy invites collection for compatibility
     await this.invites.insertOne({
       id: uuidv4(),
       referrer_id: referrer.id,
@@ -160,14 +122,11 @@ export class ReferralService {
       code,
       status: 'registered',
       reward_points: 0,
-      device_id: deviceId,
-      phone_hash: phone, // Will be hashed by fraud service
       createdAt: new Date(),
       updatedAt: new Date(),
     } as any);
-
     await this.users.updateOne({ id: userId }, { $set: { referred_by: referrer.id, referral_applied_at: new Date() } });
-    return { ok: true, status: 'registered', referralId: result.referralId };
+    return { ok: true, status: 'registered' };
   }
 
   /** Every domain completes through the workflow engine (service.completed); nothing emits booking.completed. */
@@ -192,10 +151,5 @@ export class ReferralService {
 
     this.events.emit('referral.converted', { user_id: invite.referrer_id, referred_id: payload.user_id });
     this.events.emit('referral.welcome_bonus', { user_id: payload.user_id, referral_id: invite.id });
-  }
-
-  /** Get referral fraud statistics for a user. */
-  async getFraudStats(userId: string) {
-    return this.referralFraud.getReferralFraudStats(userId);
   }
 }

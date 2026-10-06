@@ -1,12 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Readable } from 'node:stream';
-import {
-  backendBase,
-  callerIdempotencyKey,
-  isReplayable,
-  upstreamRequest,
-} from '@/lib/http/upstream';
-import { IDEMPOTENCY_HEADER } from '@/lib/http/policy';
 import { staffRoleOf } from '../../../lib/admin-session';
 
 const ACCESS_COOKIE = 'admin_access';
@@ -16,7 +9,9 @@ const WRITE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 const FORWARDED_HEADERS = ['accept', 'content-type', 'if-match', 'if-none-match', 'x-step-up-token'];
 
 function upstreamBase() {
-  return backendBase();
+  const value = process.env.ADMIN_BACKEND_URL;
+  if (!value) throw new Error('ADMIN_BACKEND_URL is required');
+  return value.replace(/\/$/, '');
 }
 
 function cookieValue(req: NextApiRequest, name: string) {
@@ -60,13 +55,11 @@ async function tryRefresh(req: NextApiRequest): Promise<{ accessToken: string; c
   const refreshToken = cookieValue(req, REFRESH_COOKIE);
   if (!refreshToken) return null;
   try {
-    // Not retried: a refresh either issues a token or it does not, and replaying
-    // it would race the cookie rotation below.
-    const r = await upstreamRequest('/api/v1/auth/refresh', {
+    const r = await fetch(`${upstreamBase()}/api/v1/auth/refresh`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ refresh_token: refreshToken }),
-      idempotent: false,
+      redirect: 'manual',
     });
     if (!r.ok) return null;
     const payload: any = await r.json().catch(() => null);
@@ -117,12 +110,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     headers.set('authorization', `Bearer ${accessToken}`);
     // Routes marked @RequireIdempotency reject writes without a key: keep the page's key, else mint one.
-    // 15.1: the *caller's* key also decides replayability. A key minted here is
-    // not reused across independent requests, so it must not make a write look
-    // retryable — otherwise a slow write becomes a duplicate.
-    const callerKey = WRITE_METHODS.has(req.method) ? callerIdempotencyKey(req.headers) : null;
     if (WRITE_METHODS.has(req.method)) {
-      headers.set(IDEMPOTENCY_HEADER, callerKey || `admin-${crypto.randomUUID()}`);
+      const sentKey = req.headers['idempotency-key'];
+      headers.set('idempotency-key', typeof sentKey === 'string' && sentKey.trim() ? sentKey.trim() : `admin-${crypto.randomUUID()}`);
     }
     headers.set('x-forwarded-for', req.socket.remoteAddress || '');
     headers.set('x-admin-bff', 'next-pages-router');
@@ -137,11 +127,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     headers.set('x-admin-device', deviceId);
 
-    const response = await upstreamRequest(apiPath(req), {
+    const response = await fetch(`${upstreamBase()}${apiPath(req)}`, {
       method: req.method,
       headers,
       body: incomingBody(req),
-      idempotent: isReplayable(req.method, callerKey),
+      redirect: 'manual',
     });
 
     copyResponseHeaders(response, res);
@@ -152,15 +142,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (refreshed) {
         for (const c of refreshed.cookies) res.appendHeader('set-cookie', c);
         headers.set('authorization', `Bearer ${refreshed.accessToken}`);
-        const retry = await upstreamRequest(apiPath(req), {
+        const retry = await fetch(`${upstreamBase()}${apiPath(req)}`, {
           method: req.method,
           headers,
           body: incomingBody(req),
-          // Same request, same key: a 401 means the access token expired, not that
-          // the write was lost. `idempotent: false` here keeps the plan's rule
-          // intact for callers that sent no key — the replay below is the
-          // pre-existing token-refresh flow, not a policy retry.
-          idempotent: false,
+          redirect: 'manual',
         });
         copyResponseHeaders(retry, res);
         res.statusCode = retry.status;

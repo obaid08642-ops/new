@@ -18,7 +18,6 @@ export const ERROR_CODES = {
   DUPLICATE_TRANSACTION: 'DUPLICATE_TRANSACTION',
   INVALID_INPUT: 'INVALID_INPUT',
   RATE_LIMITED: 'RATE_LIMITED',
-  INTERNAL_ERROR: 'INTERNAL_ERROR',
   // R65: booking/slot/lock codes — message strings asserted by specs
   // (slot-locks.service.spec.ts) and consumed by clients; registered here
   // as the single catalog so no per-client inventions diverge.
