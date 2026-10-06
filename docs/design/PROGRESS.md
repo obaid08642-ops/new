@@ -11,11 +11,11 @@ _Updated 2026-10-06._
 |---|---|
 | Foundation (tokens, Readex Pro, shells, 40 components, lint gates, CSP by class) | Merged |
 | Batch 0 (29 screens) + fixes | Merged (#285, #291, #292) |
-| **Batch 1 pharmacy**, `design/batch-1`, draft PR [#293](https://github.com/obaid08642-ops/new/pull/293) | 1a, 1b, 1c merged into the branch (app + web); **1d (checkout, payment) in progress**, 1e (orders, tracking) next |
+| **Batch 1 pharmacy**, `design/batch-1`, draft PR [#293](https://github.com/obaid08642-ops/new/pull/293) | **All slices 1a-1e merged into the branch (app + web).** In flight: local-first cart (`wip-b1-cart`). Then: batch-end production build + runtime check + Lighthouse once, update the PR body, ready for review |
 | F82-1 [#297](https://github.com/obaid08642-ops/new/pull/297), F82-2 [#295](https://github.com/obaid08642-ops/new/pull/295), F68 CSP [#301](https://github.com/obaid08642-ops/new/pull/301) | Merged into main (and into `design/batch-1`). Next: F82-3 static/ISR for public pages on `design/f82-3-static` |
-| Gates (baselines only go down) | `no-literal-ui-string` 5740, `no-raw-color` 7792, `no-left-right` 485, `client-token-sync` 916, `locale-parity` 667 |
+| Gates (baselines only go down) | `no-literal-ui-string` 5234, `no-raw-color` 7273, `no-left-right` 476, `client-token-sync` 897, `locale-parity` 663 |
 
-Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy: 23/34 (done so far: app 13, web 24); 2 consultations 22/24; 3 labs 17/22; 4 nursing 7/9; 5 records 26/24; 6 family 10/10; 7 insurance 10/13; 8 maternity etc. 11/21; 9 AI 7/10; 10 community 5/5; 11 loyalty 7/7; 12 account 20/20; 13 web-only 3/14.
+Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy: 23/34 (done: app 23, web 34 = all); 2 consultations 22/24; 3 labs 17/22; 4 nursing 7/9; 5 records 26/24; 6 family 10/10; 7 insurance 10/13; 8 maternity etc. 11/21; 9 AI 7/10; 10 community 5/5; 11 loyalty 7/7; 12 account 20/20; 13 web-only 3/14.
 
 ## Next
 
@@ -42,8 +42,8 @@ Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy
 | 1a pharmacy browse/product | app 5, web 9 | 700k / 644k | |
 | 1b cart, prescription | app 6, web 9 | 439k / 736k | web includes an API cut-off and resume |
 | 1c offers (high) | app 2 (+1 redirect), web 6 | 514k / 607k | no live offer seedable locally |
-| 1d checkout, payment (high) | in progress | | lean process applies |
-| 1e orders, tracking | not started | | |
+| 1d checkout, payment (high) | app 5, web 5 (+redirects) | 582k / 673k | lean process; no gateway key/replica set locally |
+| 1e orders, tracking | app 5, web 5 | 439k / 473k | first slices under the lean process: fewer tokens per screen than 1a/1b |
 
 ## Open blockers (details in `PROGRESS_ARCHIVE.md` and the Needs-review JSON)
 - **CRITICAL, reviewer:** `POST /auth/social-login` does not verify Apple/X/Snapchat tokens (archive, "Blockers"). X/Snapchat are hidden behind `EXPO_PUBLIC_SOCIAL_X_SNAPCHAT`; web shows Google only.
