@@ -56,3 +56,15 @@ Proof: COD branch removed → `COD abuse` FAIL (1 failed/9 skipped); restored by
 Note: one design fix during build — device-over-limit weight 0.55→0.65 so exceeding the platform's own hard limit flags on its own (test caught it).
 Live tuning with real traffic is ops → NOT done (noted).
 Live journey (other agent): score seeded u-fraud → all five flagged; high-risk card order → 3ds required:true provider=moyasar; dismiss alert → queue(dismissed) contains it.
+
+### 22.12 Provider quality — BUILT scorecards/alerts/procedure on existing scoring+ranking
+Files (owned `provider/services`, wired into owned `provider.module.ts` — no other-module edits):
+- `provider-scorecard.math.ts` — pure: median time-to-accept, `blendReliability` (base 70/30 with 5★ ratings, −10/open complaint, −15/−7 cancel gates), `computeScorecard` (acceptance/time-to-accept/cancel/ratings/complaints → tier excellent/good/watch/probation + 4 breach gates).
+- `provider-scorecard.service.ts` — reads provider_requests / provider_assignment_attempts / ratings (duck-types `score|rating`, published) / provider_complaints; `recordComplaint`+`resolveComplaint` (idempotent intake — the future support-flow feed hook); `recompute` persists `provider_scorecards` row, writes blended reliability back into `provider_scores.reliability_score` (the exact field `ProviderMatchingService` weights 150/1000 — ranking feed with zero matching-code change), opens `provider_quality_alerts` on breach.
+- `provider-scorecard.controller.ts` + `.dto.ts` — `admin/providers/scorecards` get/recompute/alerts/complaints/resolve (admin-guarded, validated DTOs).
+- `MYSTERY_SHOPPER.md` (procedure + 8-check checklist + scoring, critical-fail cap 59) + `mystery-shopper-report.template.md`.
+Tests: 7 (3 pure; 4 service: scorecard numbers match seeded DB — acceptance 0.8, cancel 0.3, median 120s, rating 4.7, complaints 1/2; snapshot reliability==blended + tier + alert row; healthy provider silent; idempotent complaint flows into scorecard).
+Proofs: blend removed → `blendReliability` FAIL (1 failed/6 skipped); restored identical → 7/7 green. tsc clean.
+BLOCKED: mystery shopping runs need ops staffing + budget (procedure + checklist + template ship now).
+DEFERRED-NEED: support/disputes module (not owned) → feed `POST admin/providers/scorecards/complaints` when a ticket names a provider; no code change needed on their side beyond the call.
+Live journey (other agent): seed requests/attempts/ratings/complaint → recompute → scorecard matches manual counts; snapshot reliability changes ranking order in admin matching preview; breach → quality alert row.
