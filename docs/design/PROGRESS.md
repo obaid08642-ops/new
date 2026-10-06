@@ -11,8 +11,8 @@ _Updated 2026-10-06._
 |---|---|
 | Foundation (tokens, Readex Pro, shells, 40 components, lint gates, CSP by class) | Merged |
 | Batch 0 (29 screens) + fixes | Merged (#285, #291, #292) |
-| **Batch 2 consultations**, `design/batch-2` (stacked on `design/batch-1`; PR base is the batch-1 branch until #293 merges) | 46 screens (22 app + 24 web) rebuilt, render entries + board comparison done, flagged hub filters (`EXPO_PUBLIC_CONSULT_NEARBY_FILTERS`); web runtime check 69 runs / 0 issues, app endpoints 31 routes / 0 failures. PR #313 (to main) |
-| **Batch 3 labs, radiology**, `design/batch-3` (stacked on `design/batch-2`) | 17 app + 22 web; app slice in progress, web next |
+| Batch 2 consultations (46 screens), PR [#313](https://github.com/obaid08642-ops/new/pull/313) | **Merged into main.** Backend Needs-review lines are OpenCode queue items Q-14..Q-20; hub "Nearest"/"Available now" = Q-12/Q-13 (`docs/review/OPENCODE_QUEUE.md`): **keep `EXPO_PUBLIC_CONSULT_NEARBY_FILTERS` off until the owner says Q-12/Q-13 are live**. Batch 2 client-only Needs-review items: branch `design/batch-2-client-fixes` (in progress) |
+| **Batch 3 labs, radiology**, `design/batch-3` (main merged in) | 17 app + 22 web; app slice done and merged into the branch, web slice in progress |
 | **Batch 1 pharmacy**, `design/batch-1`, draft PR [#293](https://github.com/obaid08642-ops/new/pull/293) | **Complete and ready for review** (all slices 1a-1e + local-first cart; batch-end build, runtime check 129 runs / 2 known flags, Lighthouse done). Baselines: literals 5234, raw colour 7273, left/right 476, client-token-sync 897, parity 663 |
 | F82-3 static/ISR for public pages, [#308](https://github.com/obaid08642-ops/new/pull/308) | Open (PR to main): pages cached, per-user parts on the client; LCP unchanged (JS-bound), `.lighthouserc.json` not ratcheted; finding: nonce server serves uncompressed |
 | F82-1 [#297](https://github.com/obaid08642-ops/new/pull/297), F82-2 [#295](https://github.com/obaid08642-ops/new/pull/295), F68 CSP [#301](https://github.com/obaid08642-ops/new/pull/301) | Merged into main (and into `design/batch-1`). Merged into main and into `design/batch-1` |
