@@ -23,7 +23,7 @@ import {
   VectorLabs,
   VectorRadiology
 } from "./vector-illustrations";
-import { ServiceBookingModal } from "./service-booking-modal";
+import { ServiceBookLink } from "./service-book-link";
 import styles from "./diagnostics-hub.module.css";
 
 export type DiagnosticsHubProps = {
@@ -327,34 +327,28 @@ export function DiagnosticsHubClient({
                 <span className={styles.packagesSub}>{isAr ? "فحوصات دورية وقائية متكاملة بأسعار مميزة" : "Comprehensive periodic preventive checkups"}</span>
               </div>
               <div className={styles.packagesGrid}>
-                {labPackages.slice(0, 4).map((pkg) => {
-                  const name = isAr ? (pkg.name_ar || pkg.nameAr || "باقة الفحص الشامل") : (pkg.name_en || pkg.nameEn || "Comprehensive Lab Package");
-                  const desc = isAr ? (pkg.description_ar || pkg.descriptionAr || "تشمل فحوصات الدم الكاملة والمؤشرات الحيوية.") : (pkg.description_en || pkg.descriptionEn || "Includes vital signs and complete diagnostic tests.");
-                  const price = pkg.price || 450;
+                {/* Q102/Q103: real catalog values only — no invented names, descriptions, prices or "most popular" badge. */}
+                {labPackages.filter((pkg) => pkg.name_ar || pkg.nameAr || pkg.name_en || pkg.nameEn).slice(0, 4).map((pkg) => {
+                  const name = isAr ? (pkg.name_ar || pkg.nameAr || pkg.name_en || pkg.nameEn) : (pkg.name_en || pkg.nameEn || pkg.name_ar || pkg.nameAr);
+                  const desc = isAr ? (pkg.description_ar || pkg.descriptionAr || pkg.description_en || pkg.descriptionEn) : (pkg.description_en || pkg.descriptionEn || pkg.description_ar || pkg.descriptionAr);
+                  const price = Number(pkg.price) > 0 ? Number(pkg.price) : null;
                   return (
                     <div key={pkg.id} className={styles.packageCard}>
-                      <div className={styles.packageBadge}>{isAr ? "الأكثر طلباً" : "Most Popular"}</div>
                       <div className={styles.packageTop}>
                         <span className={styles.packageIconWrap}>
                           <VectorLabs size={42} />
                         </span>
                         <h3>{name}</h3>
                       </div>
-                      <p className={styles.packageDesc}>{desc}</p>
+                      {desc ? <p className={styles.packageDesc}>{desc}</p> : null}
                       <div className={styles.packageFooter}>
-                        <div className={styles.priceContainer}>
-                          <span className={styles.priceVal}>{price}</span>
-                          <span className={styles.priceCurrency}>{isAr ? "ر.س" : "SAR"}</span>
-                        </div>
-                        <ServiceBookingModal
-                          locale={locale}
-                          serviceId={pkg.id}
-                          serviceName={name}
-                          servicePrice={price}
-                          serviceType="lab"
-                          homeVisitSupported={true}
-                          buttonLabel={isAr ? "احجز الباقة" : "Book Package"}
-                        />
+                        {price !== null ? (
+                          <div className={styles.priceContainer}>
+                            <span className={styles.priceVal}>{price}</span>
+                            <span className={styles.priceCurrency}>{isAr ? "ر.س" : "SAR"}</span>
+                          </div>
+                        ) : null}
+                        <ServiceBookLink locale={locale} serviceId={pkg.id} serviceName={name} serviceType="lab" label={isAr ? "احجز الباقة" : "Book Package"} />
                       </div>
                     </div>
                   );
@@ -400,11 +394,11 @@ export function DiagnosticsHubClient({
                   const nameEn = item.name_en || item.nameEn || "";
                   const displayName = isAr ? (nameAr || nameEn) : (nameEn || nameAr);
                   const subName = isAr ? nameEn : nameAr;
-                  const price = item.price || (mainTab === "labs" ? 180 : 250);
+                  const price = Number(item.price) > 0 ? Number(item.price) : null;
                   const categoryOrModality = item.category || item.modality || "";
                   const fasting = Boolean(item.fasting_required || item.fastingRequired);
-                  const homeSupported = Boolean(item.home_visit_supported ?? item.homeVisitSupported ?? true);
-                  const turnaround = item.turnaround_hours || item.turnaroundHours || 24;
+                  const homeSupported = Boolean(item.home_visit_supported ?? item.homeVisitSupported ?? false);
+                  const turnaround = Number(item.turnaround_hours || item.turnaroundHours) || null;
 
                   return (
                     <div key={item.id} className={styles.testCard}>
@@ -435,28 +429,24 @@ export function DiagnosticsHubClient({
                             {isAr ? "سحب منزلي" : "Home Visit"}
                           </span>
                         )}
-                        <span className={styles.turnaroundTag}>
-                          <Sparkles size={12} />
-                          {isAr ? `النتيجة خلال ${turnaround} ساعة` : `Results in ${turnaround}h`}
-                        </span>
+                        {turnaround ? (
+                          <span className={styles.turnaroundTag}>
+                            <Sparkles size={12} />
+                            {isAr ? `النتيجة خلال ${turnaround} ساعة` : `Results in ${turnaround}h`}
+                          </span>
+                        ) : null}
                       </div>
 
                       {/* Card Footer: Price & Booking Action */}
                       <div className={styles.cardFooter}>
-                        <div className={styles.cardPrice}>
-                          <strong className={styles.priceNum}>{price}</strong>
-                          <span className={styles.priceCurr}>{isAr ? "ر.س" : "SAR"}</span>
-                        </div>
+                        {price !== null ? (
+                          <div className={styles.cardPrice}>
+                            <strong className={styles.priceNum}>{price}</strong>
+                            <span className={styles.priceCurr}>{isAr ? "ر.س" : "SAR"}</span>
+                          </div>
+                        ) : <span />}
 
-                        <ServiceBookingModal
-                          locale={locale}
-                          serviceId={item.id}
-                          serviceName={displayName}
-                          servicePrice={price}
-                          serviceType={mainTab === "labs" ? "lab" : "radiology"}
-                          homeVisitSupported={homeSupported}
-                          buttonLabel={isAr ? "احجز الموعد" : "Book Now"}
-                        />
+                        <ServiceBookLink locale={locale} serviceId={item.id} serviceName={displayName} serviceType={mainTab === "labs" ? "lab" : "radiology"} label={isAr ? "احجز الموعد" : "Book Now"} />
                       </div>
                     </div>
                   );

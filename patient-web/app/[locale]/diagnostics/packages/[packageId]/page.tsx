@@ -12,7 +12,7 @@ import { extractLabService, parseLabServiceId } from "@/lib/api/labs";
 import { getPublicLabPackage } from "@/lib/api/labs-server";
 import styles from "../../labs/labs.module.css";
 
-import { ServiceBookingModal } from "@/components-next/service-booking-modal";
+import { ServiceBookLink } from "@/components-next/service-book-link";
 
 type Props = { params: Promise<{ locale: string; packageId: string }> };
 
@@ -69,15 +69,7 @@ export default async function LabPackageDetailPage({ params }: Props) {
           <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{name}</h1>
           {description ? <p className={styles.subtitle} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{description}</p> : null}
           <div style={{ marginTop: 8 }}>
-            <ServiceBookingModal
-              locale={locale}
-              serviceId={packageId}
-              serviceName={name ?? t("title")}
-              servicePrice={pkg.price || 350}
-              serviceType="lab"
-              homeVisitSupported={Boolean(pkg.homeVisitSupported)}
-              buttonLabel={rtl ? "احجز باقة التحليل الآن" : "Book Lab Package Now"}
-            />
+            <ServiceBookLink locale={locale} serviceId={packageId} serviceName={name ?? t("title")} serviceType="lab" label={rtl ? "احجز باقة التحليل الآن" : "Book Lab Package Now"} />
           </div>
         </div>
         <div style={{ width: 140, height: 140, borderRadius: 20, overflow: "hidden", border: "1px solid #E8EDEE", flexShrink: 0, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
