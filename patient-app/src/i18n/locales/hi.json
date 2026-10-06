@@ -656,7 +656,6 @@
   "pharmacy.ins.decision.full": "पूरी तरह कवर",
   "pharmacy.ins.decision.partial": "आंशिक रूप से कवर",
   "pharmacy.ins.decision.rejected": "कवर नहीं",
-  "pharmacy.ins.decisionTitle": "बीमा का फ़ैसला: {decision}",
   "pharmacy.ins.orderTotal": "ऑर्डर का कुल",
   "pharmacy.ins.itemsTitle": "हर आइटम पर फ़ैसला",
   "pharmacy.ins.itemCovered": "बीमा {amount} कवर करता है",

@@ -692,7 +692,6 @@
   "pharmacy.ins.decision.full": "مغطى بالكامل",
   "pharmacy.ins.decision.partial": "مغطى جزئيًا",
   "pharmacy.ins.decision.rejected": "غير مغطى",
-  "pharmacy.ins.decisionTitle": "قرار التأمين: {decision}",
   "pharmacy.ins.orderTotal": "إجمالي الطلب",
   "pharmacy.ins.itemsTitle": "القرار لكل صنف",
   "pharmacy.ins.itemCovered": "يغطي التأمين {amount}",

@@ -656,7 +656,6 @@
   "pharmacy.ins.decision.full": "সম্পূর্ণ বহন",
   "pharmacy.ins.decision.partial": "আংশিক বহন",
   "pharmacy.ins.decision.rejected": "বহন করা হয়নি",
-  "pharmacy.ins.decisionTitle": "বিমার সিদ্ধান্ত: {decision}",
   "pharmacy.ins.orderTotal": "অর্ডারের মোট",
   "pharmacy.ins.itemsTitle": "প্রতিটি পণ্যের সিদ্ধান্ত",
   "pharmacy.ins.itemCovered": "বিমা {amount} বহন করে",

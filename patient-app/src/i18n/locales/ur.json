@@ -656,7 +656,6 @@
   "pharmacy.ins.decision.full": "مکمل طور پر کور",
   "pharmacy.ins.decision.partial": "جزوی طور پر کور",
   "pharmacy.ins.decision.rejected": "کور نہیں",
-  "pharmacy.ins.decisionTitle": "انشورنس کا فیصلہ: {decision}",
   "pharmacy.ins.orderTotal": "آرڈر کا کل",
   "pharmacy.ins.itemsTitle": "ہر چیز پر فیصلہ",
   "pharmacy.ins.itemCovered": "انشورنس {amount} ادا کرتی ہے",

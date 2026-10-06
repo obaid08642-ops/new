@@ -692,7 +692,6 @@
   "pharmacy.ins.decision.full": "Covered in full",
   "pharmacy.ins.decision.partial": "Partly covered",
   "pharmacy.ins.decision.rejected": "Not covered",
-  "pharmacy.ins.decisionTitle": "Insurance decision: {decision}",
   "pharmacy.ins.orderTotal": "Order total",
   "pharmacy.ins.itemsTitle": "Decision per item",
   "pharmacy.ins.itemCovered": "Insurance covers {amount}",
