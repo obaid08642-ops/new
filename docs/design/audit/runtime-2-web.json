@@ -39,11 +39,7 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/appointments net::ERR_ABORTED",
    "GET /ar/appointments net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED"
   ],
@@ -139,14 +135,14 @@
     "status": 200
    },
    {
-    "method": "GET",
-    "path": "/api/v1/auth/me",
-    "status": 200
-   },
-   {
     "method": "POST",
     "path": "/api/v1/auth/heartbeat",
     "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
    }
   ],
   "consoleErrors": [],
@@ -212,6 +208,7 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -261,6 +258,11 @@
     "status": 201
    },
    {
+    "method": "GET",
+    "path": "/api/v1/care/doctors",
+    "status": 200
+   },
+   {
     "method": "POST",
     "path": "/api/v1/auth/heartbeat",
     "status": 201
@@ -274,16 +276,12 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar net::ERR_ABORTED",
    "POST /api/auth/heartbeat net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/consultations net::ERR_ABORTED",
-   "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/consultations net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -326,16 +324,16 @@
   "pageErrors": [],
   "failed": [
    "GET /ar net::ERR_ABORTED",
-   "POST /api/auth/heartbeat net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/consultations net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/consultations net::ERR_ABORTED"
+   "GET /ar/consultations/doctors net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 116
@@ -376,13 +374,12 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "POST /api/auth/heartbeat net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/consultations net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
@@ -454,18 +451,17 @@
   "pageErrors": [],
   "failed": [
    "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
    "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/appointments net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/appointments net::ERR_ABORTED"
+   "GET /ar/appointments net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 90
@@ -507,13 +503,15 @@
   "pageErrors": [],
   "failed": [
    "GET /ar net::ERR_ABORTED",
-   "POST /api/auth/heartbeat net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/appointments net::ERR_ABORTED",
    "GET /ar/appointments net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED"
   ],
@@ -557,12 +555,12 @@
   "pageErrors": [],
   "failed": [
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
-   "POST /api/auth/heartbeat net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -609,10 +607,10 @@
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
@@ -645,20 +643,19 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED"
+   "GET /ar/support net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 166
@@ -693,12 +690,11 @@
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED"
   ],
@@ -732,14 +728,14 @@
     "status": 200
    },
    {
-    "method": "POST",
-    "path": "/api/v1/auth/heartbeat",
-    "status": 201
-   },
-   {
     "method": "GET",
     "path": "/api/v1/auth/me",
     "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
    }
   ],
   "consoleErrors": [],
@@ -753,6 +749,35 @@
  {
   "route": "/consultations/call-history",
   "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/call-history",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/appointments net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 69
+ },
+ {
+  "route": "/consultations/call-history",
+  "scenario": "error",
   "session": "signed-in",
   "status": 200,
   "finalPath": "/ar/consultations/call-history",
@@ -781,35 +806,6 @@
   "textLen": 69
  },
  {
-  "route": "/consultations/call-history",
-  "scenario": "error",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/consultations/call-history",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar/appointments net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 69
- },
- {
   "route": "/consultations/cancel-reschedule",
   "scenario": "normal",
   "session": "signed-in",
@@ -844,17 +840,18 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED"
   ],
@@ -893,12 +890,12 @@
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED"
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 166
@@ -934,11 +931,12 @@
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -955,7 +953,7 @@
     "method": "GET",
     "path": "/api/auth/session",
     "status": 200,
-    "shape": "non-json"
+    "shape": "object{authenticated,user}"
    },
    {
     "method": "POST",
@@ -978,14 +976,14 @@
   ],
   "server": [
    {
-    "method": "POST",
-    "path": "/api/v1/auth/heartbeat",
-    "status": 201
-   },
-   {
     "method": "GET",
     "path": "/api/v1/auth/me",
     "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
    },
    {
     "method": "GET",
@@ -993,14 +991,14 @@
     "status": 200
    },
    {
-    "method": "POST",
-    "path": "/api/v1/auth/heartbeat",
-    "status": 201
-   },
-   {
     "method": "GET",
     "path": "/api/v1/auth/me",
     "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
    }
   ],
   "consoleErrors": [],
@@ -1010,12 +1008,11 @@
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
    "POST /api/auth/heartbeat net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -1059,8 +1056,8 @@
   "failed": [
    "GET /ar net::ERR_ABORTED",
    "POST /api/auth/heartbeat net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED"
@@ -1106,13 +1103,11 @@
   "failed": [
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "POST /api/auth/heartbeat net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -1140,14 +1135,14 @@
   ],
   "server": [
    {
-    "method": "POST",
-    "path": "/api/v1/auth/heartbeat",
-    "status": 201
-   },
-   {
     "method": "GET",
     "path": "/api/v1/auth/me",
     "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
    }
   ],
   "consoleErrors": [],
@@ -1156,15 +1151,16 @@
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED"
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 166
@@ -1193,18 +1189,17 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -1238,14 +1233,13 @@
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED"
   ],
@@ -1313,23 +1307,24 @@
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "POST /api/auth/heartbeat net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED"
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 166
@@ -1372,21 +1367,23 @@
   "failed": [
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
    "POST /api/auth/heartbeat net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED"
   ],
@@ -1430,21 +1427,21 @@
   "pageErrors": [],
   "failed": [
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
    "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED"
@@ -1501,27 +1498,28 @@
     "status": 200
    },
    {
-    "method": "POST",
-    "path": "/api/v1/auth/heartbeat",
-    "status": 201
-   },
-   {
     "method": "GET",
     "path": "/api/v1/auth/me",
     "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
    }
   ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "POST /api/auth/heartbeat net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/consultations net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/consultations net::ERR_ABORTED"
@@ -1540,7 +1538,7 @@
     "method": "GET",
     "path": "/api/auth/session",
     "status": 200,
-    "shape": "non-json"
+    "shape": "object{authenticated,user}"
    },
    {
     "method": "POST",
@@ -1566,14 +1564,13 @@
   "pageErrors": [],
   "failed": [
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
    "GET /ar/consultations net::ERR_ABORTED",
-   "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/consultations net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -1616,15 +1613,17 @@
   "pageErrors": [],
   "failed": [
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
    "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/consultations net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/consultations/doctors net::ERR_ABORTED"
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 116
@@ -1697,8 +1696,8 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/consultations net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/consultations net::ERR_ABORTED"
@@ -1731,9 +1730,6 @@
   "pageErrors": [],
   "failed": [
    "GET /ar/consultations net::ERR_ABORTED",
-   "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/consultations net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -1761,14 +1757,14 @@
   ],
   "server": [
    {
-    "method": "GET",
-    "path": "/api/v1/auth/me",
-    "status": 200
-   },
-   {
     "method": "POST",
     "path": "/api/v1/auth/heartbeat",
     "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
    }
   ],
   "consoleErrors": [],
@@ -1780,12 +1776,14 @@
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED"
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 166
@@ -1814,14 +1812,150 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/follow-up",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/follow-up",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/home-visit-tracking",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/home-visit-tracking",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/home-visit-tracking",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/home-visit-tracking",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
@@ -1833,11 +1967,11 @@
   "textLen": 166
  },
  {
-  "route": "/consultations/follow-up",
+  "route": "/consultations/home-visit-tracking",
   "scenario": "error",
   "session": "signed-in",
   "status": 200,
-  "finalPath": "/ar/consultations/follow-up",
+  "finalPath": "/ar/consultations/home-visit-tracking",
   "api": [
    {
     "method": "GET",
@@ -1862,145 +1996,11 @@
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 166
- },
- {
-  "route": "/consultations/home-visit-tracking",
-  "scenario": "normal",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/consultations/home-visit-tracking",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [
-   {
-    "method": "POST",
-    "path": "/api/v1/auth/heartbeat",
-    "status": 201
-   },
-   {
-    "method": "GET",
-    "path": "/api/v1/auth/me",
-    "status": 200
-   }
-  ],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 166
- },
- {
-  "route": "/consultations/home-visit-tracking",
-  "scenario": "empty",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/consultations/home-visit-tracking",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 166
- },
- {
-  "route": "/consultations/home-visit-tracking",
-  "scenario": "error",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/consultations/home-visit-tracking",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 166
@@ -2040,6 +2040,7 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/appointments net::ERR_ABORTED",
    "GET /ar/appointments net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -2069,7 +2070,6 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/appointments net::ERR_ABORTED",
    "GET /ar/appointments net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -2133,14 +2133,14 @@
   ],
   "server": [
    {
-    "method": "GET",
-    "path": "/api/v1/auth/me",
-    "status": 200
-   },
-   {
     "method": "POST",
     "path": "/api/v1/auth/heartbeat",
     "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
    },
    {
     "method": "GET",
@@ -2166,15 +2166,15 @@
   "api": [
    {
     "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "GET",
     "path": "/api/patient/prescriptions/active",
     "status": 200,
     "shape": "array(0)"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
    },
    {
     "method": "POST",
@@ -2224,6 +2224,7 @@
   ],
   "pageErrors": [],
   "failed": [
+   "GET /ar/appointments net::ERR_ABORTED",
    "GET /ar/appointments net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -2269,6 +2270,7 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/appointments net::ERR_ABORTED",
    "GET /ar/appointments net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -2327,7 +2329,6 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/appointments net::ERR_ABORTED",
    "GET /ar/appointments net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -2360,14 +2361,14 @@
     "status": 200
    },
    {
-    "method": "POST",
-    "path": "/api/v1/auth/heartbeat",
-    "status": 201
-   },
-   {
     "method": "GET",
     "path": "/api/v1/auth/me",
     "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
    }
   ],
   "consoleErrors": [],
@@ -2375,8 +2376,11 @@
   "failed": [
    "GET /ar/consultations net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/consultations net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED"
@@ -2436,10 +2440,7 @@
   "server": [],
   "consoleErrors": [],
   "pageErrors": [],
-  "failed": [
-   "GET /ar/consultations net::ERR_ABORTED",
-   "GET /ar/consultations net::ERR_ABORTED"
-  ],
+  "failed": [],
   "overlay": 0,
   "textLen": 83
  },
@@ -2465,14 +2466,14 @@
   ],
   "server": [
    {
-    "method": "POST",
-    "path": "/api/v1/auth/heartbeat",
-    "status": 201
-   },
-   {
     "method": "GET",
     "path": "/api/v1/auth/me",
     "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
    }
   ],
   "consoleErrors": [],
@@ -2484,14 +2485,14 @@
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED"
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 166
@@ -2520,17 +2521,20 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED"
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 166
@@ -2562,13 +2566,9 @@
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED"
@@ -2613,15 +2613,13 @@
   "failed": [
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED"
   ],
@@ -2652,20 +2650,19 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED"
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 166
@@ -2698,14 +2695,14 @@
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED"
   ],
@@ -2756,37 +2753,36 @@
     "status": 201
    },
    {
-    "method": "GET",
-    "path": "/api/v1/auth/me",
-    "status": 200
-   },
-   {
     "method": "POST",
     "path": "/api/v1/auth/heartbeat",
     "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
    }
   ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "POST /api/auth/heartbeat net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED"
   ],
@@ -2829,23 +2825,26 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "POST /api/auth/heartbeat net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED"
   ],
@@ -2890,21 +2889,27 @@
   "failed": [
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "POST /api/auth/heartbeat net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED"
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 166
@@ -2944,19 +2949,12 @@
     "method": "POST",
     "path": "/api/v1/auth/heartbeat",
     "status": 201
-   },
-   {
-    "method": "GET",
-    "path": "/api/v1/care/specialties",
-    "status": 200
    }
   ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
    "GET /ar/consultations net::ERR_ABORTED",
-   "GET /ar/consultations/doctors net::ERR_ABORTED",
-   "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/consultations net::ERR_ABORTED"
   ],
@@ -3021,6 +3019,9 @@
   "pageErrors": [],
   "failed": [
    "GET /ar/consultations net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/consultations net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -3062,6 +3063,7 @@
   "pageErrors": [],
   "failed": [
    "GET /ar/consultations net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/consultations/doctors net::ERR_ABORTED",
    "GET /ar/consultations net::ERR_ABORTED"

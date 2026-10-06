@@ -44,10 +44,7 @@ Server (backend log):
 - GET `/api/v1/auth/me` → 200
 
 Failed requests:
-- GET /ar net::ERR_ABORTED
 - GET /ar/profile net::ERR_ABORTED
-- GET /ar/terms net::ERR_ABORTED
-- GET /ar/privacy net::ERR_ABORTED
 - GET /ar/appointments net::ERR_ABORTED
 
 ### `/chat` (signed-in) → 200 /ar/chat
@@ -58,8 +55,8 @@ Browser:
 
 Server (backend log):
 - GET `/api/v1/chat/threads` → 200
-- GET `/api/v1/auth/me` → 200
 - POST `/api/v1/auth/heartbeat` → 201
+- GET `/api/v1/auth/me` → 200
 
 Failed requests:
 - GET /ar net::ERR_ABORTED
@@ -75,18 +72,17 @@ Browser:
 Server (backend log):
 - GET `/api/v1/auth/me` → 200
 - POST `/api/v1/auth/heartbeat` → 201
+- GET `/api/v1/care/doctors` → 200
 - POST `/api/v1/auth/heartbeat` → 201
 - GET `/api/v1/auth/me` → 200
 
 Failed requests:
-- GET /ar net::ERR_ABORTED
 - POST /api/auth/heartbeat net::ERR_ABORTED
-- GET /ar/privacy net::ERR_ABORTED
-- GET /ar/support net::ERR_ABORTED
-- GET /ar/terms net::ERR_ABORTED
+- GET /ar net::ERR_ABORTED
 - GET /ar/profile net::ERR_ABORTED
+- GET /ar/terms net::ERR_ABORTED
+- GET /ar/privacy net::ERR_ABORTED
 - GET /ar/consultations net::ERR_ABORTED
-- GET /ar/consultations/doctors net::ERR_ABORTED
 
 ### `/consultations/appointments` (signed-in) → 200 /ar/appointments
 
@@ -105,11 +101,13 @@ Server (backend log):
 
 Failed requests:
 - GET /ar net::ERR_ABORTED
-- GET /ar/privacy net::ERR_ABORTED
-- GET /ar/support net::ERR_ABORTED
-- POST /api/auth/heartbeat net::ERR_ABORTED
-- GET /ar/profile net::ERR_ABORTED
 - GET /ar/terms net::ERR_ABORTED
+- GET /ar/privacy net::ERR_ABORTED
+- POST /api/auth/heartbeat net::ERR_ABORTED
+- GET /ar/articles net::ERR_ABORTED
+- GET /ar/profile net::ERR_ABORTED
+- GET /ar/map net::ERR_ABORTED
+- GET /ar/support net::ERR_ABORTED
 - GET /ar/appointments net::ERR_ABORTED
 
 ### `/consultations/booking-status` (signed-in) → 200 /ar/consultations/booking-status
@@ -139,8 +137,8 @@ Browser:
 
 Server (backend log):
 - GET `/api/v1/care/appointments` → 200
-- POST `/api/v1/auth/heartbeat` → 201
 - GET `/api/v1/auth/me` → 200
+- POST `/api/v1/auth/heartbeat` → 201
 
 Failed requests:
 - GET /ar/appointments net::ERR_ABORTED
@@ -156,10 +154,10 @@ Server (backend log):
 - POST `/api/v1/auth/heartbeat` → 201
 
 Failed requests:
+- GET /ar net::ERR_ABORTED
 - GET /ar/profile net::ERR_ABORTED
 - GET /ar/terms net::ERR_ABORTED
 - GET /ar/privacy net::ERR_ABORTED
-- GET /ar net::ERR_ABORTED
 - GET /ar/support net::ERR_ABORTED
 - GET /ar/articles net::ERR_ABORTED
 - GET /ar/map net::ERR_ABORTED
@@ -167,27 +165,27 @@ Failed requests:
 ### `/consultations/chat` (signed-in) → 200 /ar/chat
 
 Browser:
-- GET `/api/auth/session` → 200 · non-json
+- GET `/api/auth/session` → 200 · object{authenticated,user}
 - POST `/api/auth/heartbeat` → 200 · non-json
 - GET `/api/auth/session` → 200 · object{authenticated,user}
 - POST `/api/auth/heartbeat` → 200 · non-json
 
 Server (backend log):
-- POST `/api/v1/auth/heartbeat` → 201
 - GET `/api/v1/auth/me` → 200
+- POST `/api/v1/auth/heartbeat` → 201
 - GET `/api/v1/chat/threads` → 200
-- POST `/api/v1/auth/heartbeat` → 201
 - GET `/api/v1/auth/me` → 200
+- POST `/api/v1/auth/heartbeat` → 201
 
 Failed requests:
 - GET /ar net::ERR_ABORTED
 - GET /ar/profile net::ERR_ABORTED
 - GET /ar/terms net::ERR_ABORTED
 - GET /ar/privacy net::ERR_ABORTED
+- GET /ar/map net::ERR_ABORTED
 - POST /api/auth/heartbeat net::ERR_ABORTED
 - GET /ar/support net::ERR_ABORTED
 - GET /ar/articles net::ERR_ABORTED
-- GET /ar/map net::ERR_ABORTED
 
 ### `/consultations/clinic-confirm` (signed-in) → 200 /ar/consultations/clinic-confirm
 
@@ -196,17 +194,17 @@ Browser:
 - POST `/api/auth/heartbeat` → 200 · non-json
 
 Server (backend log):
-- POST `/api/v1/auth/heartbeat` → 201
 - GET `/api/v1/auth/me` → 200
+- POST `/api/v1/auth/heartbeat` → 201
 
 Failed requests:
 - GET /ar net::ERR_ABORTED
 - GET /ar/profile net::ERR_ABORTED
 - GET /ar/terms net::ERR_ABORTED
+- GET /ar/privacy net::ERR_ABORTED
 - GET /ar/support net::ERR_ABORTED
 - GET /ar/articles net::ERR_ABORTED
 - GET /ar/map net::ERR_ABORTED
-- GET /ar/privacy net::ERR_ABORTED
 
 ### `/consultations/clinic-location` (signed-in) → 200 /ar/consultations/clinic-confirm
 
@@ -227,10 +225,10 @@ Failed requests:
 - GET /ar/profile net::ERR_ABORTED
 - GET /ar/terms net::ERR_ABORTED
 - GET /ar/privacy net::ERR_ABORTED
-- GET /ar/articles net::ERR_ABORTED
-- POST /api/auth/heartbeat net::ERR_ABORTED
 - GET /ar/map net::ERR_ABORTED
+- POST /api/auth/heartbeat net::ERR_ABORTED
 - GET /ar/support net::ERR_ABORTED
+- GET /ar/articles net::ERR_ABORTED
 
 ### `/consultations/doctor-profile` (signed-in) → 200 /ar/consultations/doctors
 
@@ -244,18 +242,19 @@ Server (backend log):
 - POST `/api/v1/auth/heartbeat` → 201
 - GET `/api/v1/auth/me` → 200
 - GET `/api/v1/care/doctors` → 200
-- POST `/api/v1/auth/heartbeat` → 201
 - GET `/api/v1/auth/me` → 200
+- POST `/api/v1/auth/heartbeat` → 201
 
 Failed requests:
 - GET /ar net::ERR_ABORTED
-- GET /ar/profile net::ERR_ABORTED
+- GET /ar/terms net::ERR_ABORTED
 - POST /api/auth/heartbeat net::ERR_ABORTED
 - GET /ar/privacy net::ERR_ABORTED
-- GET /ar/terms net::ERR_ABORTED
+- GET /ar/profile net::ERR_ABORTED
+- GET /ar/articles net::ERR_ABORTED
 - GET /ar/support net::ERR_ABORTED
-- GET /ar/consultations net::ERR_ABORTED
 - GET /ar/consultations/doctors net::ERR_ABORTED
+- GET /ar/consultations net::ERR_ABORTED
 
 ### `/consultations/doctors` (signed-in) → 200 /ar/consultations/doctors
 
@@ -278,8 +277,8 @@ Browser:
 - POST `/api/auth/heartbeat` → 200 · non-json
 
 Server (backend log):
-- GET `/api/v1/auth/me` → 200
 - POST `/api/v1/auth/heartbeat` → 201
+- GET `/api/v1/auth/me` → 200
 
 Failed requests:
 - GET /ar net::ERR_ABORTED
@@ -302,12 +301,12 @@ Server (backend log):
 
 Failed requests:
 - GET /ar net::ERR_ABORTED
+- GET /ar/profile net::ERR_ABORTED
+- GET /ar/terms net::ERR_ABORTED
+- GET /ar/privacy net::ERR_ABORTED
 - GET /ar/support net::ERR_ABORTED
 - GET /ar/articles net::ERR_ABORTED
 - GET /ar/map net::ERR_ABORTED
-- GET /ar/privacy net::ERR_ABORTED
-- GET /ar/profile net::ERR_ABORTED
-- GET /ar/terms net::ERR_ABORTED
 
 ### `/consultations/post-call-rating` (signed-in) → 200 /ar/consultations/post-call-rating
 
@@ -330,8 +329,8 @@ Browser:
 - POST `/api/auth/heartbeat` → 200 · non-json
 
 Server (backend log):
-- GET `/api/v1/auth/me` → 200
 - POST `/api/v1/auth/heartbeat` → 201
+- GET `/api/v1/auth/me` → 200
 - GET `/api/v1/prescriptions/active` → 200
 
 Failed requests:
@@ -359,8 +358,8 @@ Browser:
 
 Server (backend log):
 - GET `/api/v1/care/specialties` → 200
-- POST `/api/v1/auth/heartbeat` → 201
 - GET `/api/v1/auth/me` → 200
+- POST `/api/v1/auth/heartbeat` → 201
 
 Failed requests:
 - GET /ar/consultations net::ERR_ABORTED
@@ -373,8 +372,8 @@ Browser:
 - POST `/api/auth/heartbeat` → 200 · non-json
 
 Server (backend log):
-- POST `/api/v1/auth/heartbeat` → 201
 - GET `/api/v1/auth/me` → 200
+- POST `/api/v1/auth/heartbeat` → 201
 
 Failed requests:
 - GET /ar net::ERR_ABORTED
@@ -398,11 +397,11 @@ Server (backend log):
 Failed requests:
 - GET /ar net::ERR_ABORTED
 - GET /ar/profile net::ERR_ABORTED
-- GET /ar/terms net::ERR_ABORTED
-- GET /ar/privacy net::ERR_ABORTED
 - GET /ar/support net::ERR_ABORTED
 - GET /ar/articles net::ERR_ABORTED
 - GET /ar/map net::ERR_ABORTED
+- GET /ar/terms net::ERR_ABORTED
+- GET /ar/privacy net::ERR_ABORTED
 
 ### `/consultations/waiting-room` (signed-in) → 200 /ar/consultations/virtual-waiting-room
 
@@ -415,17 +414,17 @@ Browser:
 Server (backend log):
 - GET `/api/v1/auth/me` → 200
 - POST `/api/v1/auth/heartbeat` → 201
-- GET `/api/v1/auth/me` → 200
 - POST `/api/v1/auth/heartbeat` → 201
+- GET `/api/v1/auth/me` → 200
 
 Failed requests:
 - GET /ar net::ERR_ABORTED
-- GET /ar/profile net::ERR_ABORTED
-- POST /api/auth/heartbeat net::ERR_ABORTED
-- GET /ar/support net::ERR_ABORTED
-- GET /ar/articles net::ERR_ABORTED
 - GET /ar/privacy net::ERR_ABORTED
 - GET /ar/terms net::ERR_ABORTED
+- GET /ar/profile net::ERR_ABORTED
+- GET /ar/support net::ERR_ABORTED
+- POST /api/auth/heartbeat net::ERR_ABORTED
+- GET /ar/articles net::ERR_ABORTED
 - GET /ar/map net::ERR_ABORTED
 
 ### `/doctor` (signed-in) → 200 /ar/consultations/doctors
@@ -438,7 +437,6 @@ Server (backend log):
 - GET `/api/v1/care/doctors` → 200
 - GET `/api/v1/auth/me` → 200
 - POST `/api/v1/auth/heartbeat` → 201
-- GET `/api/v1/care/specialties` → 200
 
 Failed requests:
 - GET /ar/consultations net::ERR_ABORTED
