@@ -52,9 +52,9 @@ Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy
 | 1e orders, tracking | app 5, web 5 | 439k / 473k | first slices under the lean process: fewer tokens per screen than 1a/1b |
 
 ## Open blockers (details in `PROGRESS_ARCHIVE.md` and the Needs-review JSON)
-- **Public product catalogue is empty** on the seeded backend (v14 import is the reviewer's): product/category screens are checked with injected TEST data only.
+- **Public product catalogue is empty** on the seeded backend (the reviewer's v14 import): product screens use injected TEST data.
 - **Backend gaps** found in Batches 1-3 are in `needs-review/*.json` and the OpenCode queue (`docs/review/OPENCODE_QUEUE.md`); the reviewer owns them.
 - **Endpoints the reviewer will add:** `GET /payments/status/:ref`, `GET /insurance/claims/my` (batch 7), `GET /nutrition/plan` (batch 8), doctor fields; hide the part, never invent data.
-- **Fetal-week images (owner D):** converted to WebP in `cdn-source/`; upload to the CDN and the week endpoint are pending (archive).
+- **Fetal-week images (owner D):** WebP in `cdn-source/`; CDN upload and the week endpoint pending (archive).
 - **Import-rule baseline:** `tools/design/import-rule.baseline.json` is on `fix/audit-2026-09` only; drop its AuthKit line when the rule reaches main.
 - **Owner questions open:** intro/language/permissions screens before Welcome? Which roles may hold a patient session? Chat entry points with no order; compare picker; camera barcode on web; where the insurance choice belongs; native review of ur/hi/bn/tl wording.
