@@ -107,10 +107,10 @@ Order (do not skip ahead):
 
 | Id | Issue | Item | Waits for |
 |---|---|---|---|
-| D-16 | #335 | Module switches: one flag per module, a public read endpoint, and the server refuses a switched-off module's routes. | spec |
+| D-16 | #335 | Module switches: one flag per module, a public read endpoint, and the server refuses a switched-off module's routes. | Spec merged (#348): `backend/acceptance/d-16/` — **start now**. |
 | D-14 | #333 | Emergency: remove the whole ambulance system: dispatch, missions, tracking, fleet, the `drivers` module, and the ambulance provider type in the provider app, registration, KYC and admin. Archive the data first. Keep "send my location to my emergency contacts". | spec (owner O-2 answered: remove) |
-| D-10 | #329 | Rx rules on the server: no promo, offer or points on Rx items; an order with an Rx item needs an attached prescription; `controlled` items are never orderable. | spec |
-| D-15 | #334 | AI assistant limits: specialty routing, leaflet mode, the output filter, red flags, the disclaimer, and a 100+ prompt test set in CI. | spec + test set |
+| D-10 | #329 | Rx rules on the server: no promo, offer or points on Rx items; an order with an Rx item needs an attached prescription; `controlled` items are never orderable. | Spec: #353 `backend/acceptance/d-10/` (start once merged). |
+| D-15 | #334 | AI assistant limits: specialty routing, leaflet mode, the output filter, red flags, the disclaimer, and a 100+ prompt test set in CI. | Spec: #354 `backend/acceptance/d-15/` with the 120-prompt set (start once merged; translations to be checked by a native speaker). |
 | D-1 | #320 | Community removed (archive first). Doctor articles: verified doctors only, admin approval, no comments, Rx brand-name block. | spec |
 | D-8 | #327 | Mental health: remove assessment scoring and crisis handling; urgent-help number in admin config. | spec |
 | D-2 | #321 | Remove the loyalty leaderboard. | spec |
