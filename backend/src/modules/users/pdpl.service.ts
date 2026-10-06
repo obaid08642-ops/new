@@ -4,6 +4,7 @@ import { Connection } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../../schemas/user.schema';
+import * as bcrypt from 'bcryptjs';
 
 /**
  * PDPL (Saudi Personal Data Protection Law) data-subject rights.
@@ -178,7 +179,6 @@ export class PdplService {
       // bcrypt is neither declared nor installed, so the moment a patient supplied
       // a password the check threw "Cannot find module 'bcrypt'" and erasure 500'd
       // instead of verifying. The old test missed it by never passing a password.
-      const bcrypt = require('bcryptjs');
       const ok = await bcrypt.compare(opts.password, user.password_hash);
       if (!ok) throw new BadRequestException('invalid_password');
     }
