@@ -41,8 +41,6 @@ Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy
 
 | Slice | Screens finished | Tokens | Notes |
 |---|---|---|---|
-| Batch 0 fixes (client-side Needs review) | app 20 + web 28 entries | 468k / 599k | before the owner's lean process |
-| F82-1 / F82-2 | PR #297 / #295 | 356k / 369k | measured Lighthouse, nav timing |
 | 1a pharmacy browse/product | app 5, web 9 | 700k / 644k | |
 | 1b cart, prescription | app 6, web 9 | 439k / 736k | web includes an API cut-off and resume |
 | 1c offers (high) | app 2 (+1 redirect), web 6 | 514k / 607k | no live offer seedable locally |
