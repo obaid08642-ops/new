@@ -5,6 +5,7 @@ import { localizedUrl, siteOrigin } from "@/lib/seo";
 import { isLocale, locales, type Locale } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { specialtyLabel } from "@/lib/specialties";
 import { formatNumber } from "@/lib/format-price";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import styles from "@/components-next/consult/consult.module.css";
@@ -66,6 +67,7 @@ export default async function DoctorCanonicalPage({ params }: Props) {
   if (!data?.entity) notFound();
 
   const c = await getTranslations("ConsultWeb");
+  const names = await getTranslations("SpecialtyNames");
   const doctor = data.entity;
   const relationships = data.relationships || {};
   const facility = relationships.facility;
@@ -100,7 +102,7 @@ export default async function DoctorCanonicalPage({ params }: Props) {
           ]),
         ]}
       />
-      <ProfileHeader line={[doctor.specialty, facilityName].filter(Boolean).join(" · ") || undefined} stats={stats} />
+      <ProfileHeader line={[specialtyLabel(names, doctor.specialty), facilityName].filter(Boolean).join(" · ") || undefined} stats={stats} />
       {insurers.length > 0 ? (
         <SectionCard id="doctor-insurance" title={c("acceptedInsurance")}>
           <div className={styles.chips}>{insurers.map((ins) => <span key={ins} className={styles.tag}>{ins}</span>)}</div>

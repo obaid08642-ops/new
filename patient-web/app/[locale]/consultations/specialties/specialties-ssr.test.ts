@@ -5,7 +5,8 @@ const state = vi.hoisted(() => ({ getPublicSpecialties: vi.fn() }));
 vi.mock("next/navigation", () => ({ notFound: vi.fn(), useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }) }));
 vi.mock("next-intl/server", () => ({
   getTranslations: async () =>
-    Object.assign((key: string) => key, { raw: (_key: string) => [] as Array<{ q: string; a: string }> }),
+    // the page reads the FAQ with t.has (t.raw throws on precompiled messages): no FAQ keys in this mock
+    Object.assign((key: string) => key, { has: (_key: string) => false }),
   setRequestLocale: vi.fn(),
 }));
 vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));

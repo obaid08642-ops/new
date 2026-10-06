@@ -78,5 +78,65 @@
     "line": 0,
     "found": "[client] Still dynamic on this base (reads ?date and ?service_type); #308 owns the static/ISR split.",
     "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/consultations/doctors",
+    "element": "Filters",
+    "file": "",
+    "line": 0,
+    "found": "[owner] The Consult board draws a specialty rail, visit-mode chips and a cash/insurance segmented filter; the page has search and sort only (not added: feature).",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/appointments",
+    "element": "Specialty line",
+    "file": "",
+    "line": 0,
+    "found": "[backend] The appointment row carries specialty_ar only, so the specialty reads in Arabic on every language page.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/consultations/home-visit-tracking",
+    "element": "Visit steps",
+    "file": "",
+    "line": 0,
+    "found": "[backend] PROVIDER_EN_ROUTE and PROVIDER_ARRIVED are not statuses the backend appointments send, so those two steps are never reached; the page compares exact upper-case codes.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/consultations/book/[doctorId]",
+    "element": "Input and toggle borders",
+    "file": "",
+    "line": 0,
+    "found": "[client] packages/ui (Inputs.css, Feedback.css) use --nabd-color-border-default, which is not a token, so the generated Input draws no border; needs a token or a source change in packages/ui (not edited here).",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/doctor/[slug]",
+    "element": "Metadata and data source",
+    "file": "",
+    "line": 0,
+    "found": "[client] generateMetadata writes English sentences and a Doctor fallback in code, and the page reads NEXT_PUBLIC_API_URL (default https://api.nabd.plus) instead of the BFF upstream.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/consultations/virtual-waiting-room",
+    "element": "Connected call screens",
+    "file": "",
+    "line": 0,
+    "found": "[owner] The video call, waiting room and room screens were only seen in their error and not-ready states here (no media backend in the check); the connected layout is not verified.",
+    "suspect": "Owner decision."
   }
 ]

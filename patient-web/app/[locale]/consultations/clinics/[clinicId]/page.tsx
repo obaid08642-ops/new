@@ -6,7 +6,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPublicClinic, extractClinic } from "@/lib/api/clinics-server";
 import { formatNumber } from "@/lib/format-price";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { ProfileHeader, type ProfileStat } from "@/components-next/consult/profile-header";
@@ -67,12 +66,12 @@ export default async function ClinicDetailPage({ params }: Props) {
 
   return (
     <ConsultPage locale={locale} title={clinic.name} backHref={back}>
-      {clinic.image ? <img src={clinic.image} alt={clinic.name} className={styles.cover} /> : <div className={`${styles.cover} ${styles.coverEmpty}`}><FIcon icon="hospital" tone="blue" size={88} /></div>}
+      {clinic.image ? <img src={clinic.image} alt={clinic.name} className={styles.cover} /> : null}
       <ProfileHeader icon="hospital" tone="blue" line={t("typeLabel")} stats={stats} />
       {rows.length > 0 || clinic.phone ? (
         <SectionCard id="clinic-contact">
           {rows.length > 0 ? <Facts rows={rows} /> : null}
-          <ActionLinks actions={clinic.phone ? [{ href: `tel:${clinic.phone}`, label: clinic.phone, variant: "outline", external: true }] : []} />
+          <ActionLinks actions={clinic.phone ? [{ href: `tel:${clinic.phone}`, label: `\u2066${clinic.phone}\u2069`, variant: "outline", external: true }] : []} />
         </SectionCard>
       ) : null}
       {about ? (

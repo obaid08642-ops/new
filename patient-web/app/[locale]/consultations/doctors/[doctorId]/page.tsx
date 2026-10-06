@@ -5,7 +5,8 @@ import { localizedUrl } from "@/lib/seo";
 import { isLocale, locales } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { extractDoctor, extractDoctorSlots, type DoctorSlots } from "@/lib/api/doctors";
+import { specialtyLabel } from "@/lib/specialties";
+import { doctorDisplayName, extractDoctor, extractDoctorSlots, type DoctorSlots } from "@/lib/api/doctors";
 import { getPublicDoctor, getPublicDoctorSlots } from "@/lib/api/doctors-server";
 import { AppointmentBookingForm } from "@/components-next/appointment-booking-form";
 import { formatPrice, formatNumber } from "@/lib/format-price";
@@ -40,6 +41,7 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
   const query = await searchParams; const date = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(query.date ?? "") ? query.date! : today(); const serviceType = serviceTypes.includes(query.service_type as typeof serviceTypes[number]) ? query.service_type as typeof serviceTypes[number] : "video";
   const t = await getTranslations("Doctors");
   const c = await getTranslations("ConsultWeb");
+  const names = await getTranslations("SpecialtyNames");
 
   let doctor = null;
   try {
@@ -64,7 +66,7 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
   // No fabricated fallback: an empty/failed slot response renders the honest
   // closed/empty states below (P0-04). Never mask backend availability.
 
-  const name = doctor.name ?? t("nameUnavailable");
+  const name = doctorDisplayName(doctor, locale) ?? t("nameUnavailable");
   const stats: ProfileStat[] = [];
   if (doctor.rating !== undefined) stats.push({ value: formatNumber(locale, doctor.rating), label: c("statRating") });
   if (doctor.experienceYears !== undefined) stats.push({ value: formatNumber(locale, doctor.experienceYears), label: c("statYears") });
@@ -75,7 +77,7 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
   return (
     <ConsultPage locale={locale} title={name} backHref={`/${locale}/consultations/doctors`}>
       <JsonLd data={[physician({ name, path: `/consultations/doctors/${doctor.id}`, locale, specialty: doctor.specialty ?? null }), breadcrumbList([{ name: t("title"), locale, path: "/consultations/doctors" }, { name, locale, path: `/consultations/doctors/${doctor.id}` }])]} />
-      <ProfileHeader line={[doctor.degree, doctor.specialty].filter(Boolean).join(" · ") || undefined} tags={tags} stats={stats} />
+      <ProfileHeader line={[doctor.degree, specialtyLabel(names, doctor.specialty)].filter(Boolean).join(" · ") || undefined} tags={tags} stats={stats} />
       <SectionCard id="slots-title" title={t("slotsTitle")}>
         <LinkSegmented
           label={t("serviceTypeLabel")}

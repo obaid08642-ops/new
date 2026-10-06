@@ -48,7 +48,9 @@ export default async function SpecialtySelectPage({ params, searchParams }: Prop
   const query = q.trim().toLocaleLowerCase(locale);
   const filtered = specialties.filter((specialty) => [specialty.nameAr, specialty.nameEn, specialty.slug].filter(Boolean).some((value) => value!.toLocaleLowerCase(locale).includes(query)));
   // F82-1: the catalogues are precompiled, which does not allow arrays, so the FAQ is a keyed object.
-  const faqs: Array<{ q: string; a: string }> = Object.keys(t.raw("faq") as Record<string, unknown>).map((key) => ({ q: t(`faq.${key}.q`), a: t(`faq.${key}.a`) }));
+  // (t.raw throws on precompiled messages, which made this page fail whenever the specialties loaded: the keys are read with t.has.)
+  const faqs: Array<{ q: string; a: string }> = [];
+  for (let i = 0; t.has(`faq.${i}.q`); i += 1) faqs.push({ q: t(`faq.${i}.q`), a: t(`faq.${i}.a`) });
 
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`}>

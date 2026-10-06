@@ -1,7 +1,8 @@
 import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { extractDoctors } from "@/lib/api/doctors";
+import { specialtyLabel } from "@/lib/specialties";
+import { doctorDisplayName, extractDoctors } from "@/lib/api/doctors";
 import { getPublicDoctors } from "@/lib/api/doctors-server";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
@@ -40,6 +41,7 @@ export default async function DoctorsPage({ params, searchParams }: Props) {
   const { locale } = await params; const sp = (await searchParams) ?? {}; if (!isLocale(locale)) notFound(); setRequestLocale(locale);
   const t = await getTranslations("Doctors");
   const c = await getTranslations("ConsultWeb");
+  const names = await getTranslations("SpecialtyNames");
   let doctors: ReturnType<typeof extractDoctors> = [];
   try {
     const response = await getPublicDoctors({ search: sp.q, specialty: sp.specialty, sort: ["rating", "price", "wait"].includes(sp.sort ?? "") ? sp.sort : undefined });
@@ -84,9 +86,9 @@ export default async function DoctorsPage({ params, searchParams }: Props) {
                 <DoctorListCard
                   locale={locale}
                   href={`/${locale}/consultations/doctors/${doctor.id}`}
-                  name={doctor.name ?? t("nameUnavailable")}
+                  name={doctorDisplayName(doctor, locale) ?? t("nameUnavailable")}
                   grade={doctor.degree}
-                  specialty={doctor.specialty}
+                  specialty={specialtyLabel(names, doctor.specialty) ?? undefined}
                   place={doctor.facility}
                   modes={modes}
                   rating={doctor.rating !== undefined && doctor.reviews ? { value: doctor.rating, count: doctor.reviews } : undefined}
