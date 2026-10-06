@@ -23,10 +23,10 @@
     "batch": 2,
     "app": "patient-app",
     "screen": "/consultations",
-    "element": "Welcome modal, availability filter, nearest sort",
+    "element": "Welcome modal",
     "file": "",
     "line": 0,
-    "found": "[owner] Removed because the board has none and the list carries no next-slot or distance; confirm or ask the backend for a next-slot field.",
+    "found": "[owner] Removed (owner approved): the board has none.",
     "suspect": "Owner decision."
   },
   {
@@ -128,5 +128,85 @@
     "line": 0,
     "found": "[backend] wait_time has no stated unit; it is drawn as a plain number.",
     "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations",
+    "element": "Nearest and Available now filters",
+    "file": "",
+    "line": 0,
+    "found": "[backend] GET /providers (the doctor search) must accept sort=distance with lat/lng (or city) and available_within (minutes) with the consultation type, and return distance and next-slot per doctor; until then the controls are hidden by the flag.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations",
+    "element": "EXPO_PUBLIC_CONSULT_NEARBY_FILTERS",
+    "file": "",
+    "line": 0,
+    "found": "[owner] Set it to 1 in the app build once the backend supports the params; the hub still filters the visit type on the client and sends only type=doctor.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations",
+    "element": "Doctor names after a language change",
+    "file": "",
+    "line": 0,
+    "found": "[client] Names are localised once when the list is fetched (also in follow-up), so a language change while the tab stays open does not update them until the next load.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations/appointment-detail",
+    "element": "Urdu text",
+    "file": "",
+    "line": 0,
+    "found": "[owner] Readex Pro has no Urdu glyphs, so Urdu falls back to a system font and mixes two typefaces in one line (seen at 390 in ur on every consultation screen); needs an Urdu-capable face approved by the owner.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations/doctor/[id]",
+    "element": "Board elements without data",
+    "file": "",
+    "line": 0,
+    "found": "[backend] The DoctorFull board's verified badge, rating-distribution bars and clinic photos with distance are not drawn: the doctor payload has no such fields.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations/appointments",
+    "element": "Status case",
+    "file": "",
+    "line": 0,
+    "found": "[client] The tabs match lowercase statuses ('confirmed', 'completed') while the detail and summary screens test uppercase (COMPLETED); if the backend sends one case, one side never matches.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations/booking-status",
+    "element": "Success summary",
+    "file": "",
+    "line": 0,
+    "found": "[client] The success state shows no doctor, date or visit type although the appointment is already fetched; the board's summary card is not drawn.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations/clinic-confirm",
+    "element": "Header",
+    "file": "",
+    "line": 0,
+    "found": "[owner] The header has a close button next to the back button (two exits); the board has only back.",
+    "suspect": "Owner decision."
   }
 ]

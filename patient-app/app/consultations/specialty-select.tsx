@@ -8,6 +8,7 @@ import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKi
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
+import { pickLocalized } from '../../src/utils/localize';
 
 /**
  * Choose a specialty — board Consult's specialty row as a list. The list is GET /care/specialties (the real specialties
@@ -60,7 +61,7 @@ export default function SpecialtySelectScreen() {
       keyExtractor={(sp, i) => sp.slug || String(i)}
       renderItem={(sp) => {
         const look = specialtyLook(sp.name_ar || sp.name_en || sp.specialty);
-        const name = sp.name_ar || sp.name_en || sp.specialty || '';
+        const name = pickLocalized(sp.name_ar, sp.name_en || sp.specialty) || '';
         return (
           <Pressable accessibilityRole="button" accessibilityLabel={name} onPress={() => router.push({ pathname: '/consultations/doctor-search', params: { specialty: sp.name_ar } } as unknown as Href)} style={{ minHeight: 44 }}>
             <Card theme={theme} padding="sm">

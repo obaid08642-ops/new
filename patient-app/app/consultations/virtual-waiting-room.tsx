@@ -104,9 +104,10 @@ export default function VirtualWaitingRoomScreen() {
         <Button label={k('consult.close')} variant="secondary" size="md" onPress={() => router.back()} theme="dark" />
       </View>
 
-      <View style={{ width: 150, height: 150, alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
+      <View style={{ alignItems: 'center', marginBottom: 24 }}>
+        {/* the pulse ring is centred on the 120 px avatar (the name sits 10 px under the avatar, so the ring stays inside that gap) */}
         <Animated.View
-          style={{ position: 'absolute', top: 0, start: 0, end: 0, bottom: 0, borderRadius: 75, backgroundColor: c.action.primary.bg, opacity: pulseAnim.interpolate({ inputRange: [0, 1], outputRange: [0.1, 0.3] }), transform: [{ scale: pulseAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.1] }) }] }}
+          style={{ position: 'absolute', top: -10, width: 140, height: 140, borderRadius: 70, backgroundColor: c.action.primary.bg, opacity: pulseAnim.interpolate({ inputRange: [0, 1], outputRange: [0.1, 0.3] }), transform: [{ scale: pulseAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.1] }) }] }}
         />
         <CallIdentity name={data.doctor_name ?? ''} />
       </View>

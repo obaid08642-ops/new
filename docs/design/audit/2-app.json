@@ -11,7 +11,7 @@
         ["Offers row", "GET /home/offers: id, t, price, old, disc", "ok"],
         ["Insurance company and class choice", "GET /insurance/companies and GET /insurance/companies/:param/networks", "ok"],
         ["Search, visit-type, payment, advanced filters", "client filters over the fields above; no request", "ok"],
-        ["Availability filter and 'nearest' sort", "no field: the list carries no next-slot or distance", "hidden"],
+        ["Quick filters 'Nearest' and 'Available now'", "query params of GET /providers: sort=distance with lat/lng (or city of the saved address), available_within=15; Nearest never for online; behind EXPO_PUBLIC_CONSULT_NEARBY_FILTERS=1 (default off)", "hidden"],
         ["Welcome modal on every open", "static; not on the board", "hidden"],
         ["Next-slot line on the doctor card", "no field in /providers", "hidden"]
       ]
@@ -189,7 +189,7 @@
   "needsReview": [
     { "route": "/consultations/call-history", "element": "Call again", "kind": "client", "note": "It opens video-call with the call session id as appointmentId; the video-call screen expects an appointment id." },
     { "route": "/consultations/appointments", "element": "List call", "kind": "client", "note": "GET /care/appointments is made inside ConsultationsContext, so the inventory lists no call for this route; the context also maps the list once for the whole app." },
-    { "route": "/consultations", "element": "Welcome modal, availability filter, nearest sort", "kind": "owner", "note": "Removed because the board has none and the list carries no next-slot or distance; confirm or ask the backend for a next-slot field." },
+    { "route": "/consultations", "element": "Welcome modal", "kind": "owner", "note": "Removed (owner approved): the board has none." },
     { "route": "/consultations/doctor/[id]", "element": "Favourite and years of experience", "kind": "backend", "note": "The heart had no endpoint and is hidden; years_experience and the licence are drawn only when the backend sends them (SPEC B gaps)." },
     { "route": "/consultations/home-visit-tracking", "element": "Doctor on the way, map", "kind": "backend", "note": "The backend has no en-route status or doctor position; the steps follow CONFIRMED, CHECKED_IN and COMPLETED only." },
     { "route": "/consultations/cancel-reschedule", "element": "Refund policy", "kind": "client", "note": "24 h / 12 h refund figures are fixed in the screen while the doctor page reads them from /system-config/public; online appointments (type 'online') ask for clinic slots when rescheduling." },
@@ -199,6 +199,14 @@
     { "route": "/consultations/incoming-call", "element": "Ring timeout", "kind": "client", "note": "The 35 s timeout calls reject from inside a state updater, which can fire twice; signalling was not touched." },
     { "route": "/consultations/booking-status", "element": "Price summary of the board", "kind": "owner", "note": "The board shows fee and points rows; the confirm form states the price at the payment step, so none is drawn." },
     { "route": "/consultations/clinic-confirm", "element": "Clinic location view", "kind": "client", "note": "?view=location renders ClinicLocationView, a separate component not rebuilt in this slice." },
-    { "route": "/consultations/virtual-waiting-room", "element": "Wait time unit", "kind": "backend", "note": "wait_time has no stated unit; it is drawn as a plain number." }
+    { "route": "/consultations/virtual-waiting-room", "element": "Wait time unit", "kind": "backend", "note": "wait_time has no stated unit; it is drawn as a plain number." },
+    { "route": "/consultations", "element": "Nearest and Available now filters", "kind": "backend", "note": "GET /providers (the doctor search) must accept sort=distance with lat/lng (or city) and available_within (minutes) with the consultation type, and return distance and next-slot per doctor; until then the controls are hidden by the flag." },
+    { "route": "/consultations", "element": "EXPO_PUBLIC_CONSULT_NEARBY_FILTERS", "kind": "owner", "note": "Set it to 1 in the app build once the backend supports the params; the hub still filters the visit type on the client and sends only type=doctor." },
+    { "route": "/consultations", "element": "Doctor names after a language change", "kind": "client", "note": "Names are localised once when the list is fetched (also in follow-up), so a language change while the tab stays open does not update them until the next load." },
+    { "route": "/consultations/appointment-detail", "element": "Urdu text", "kind": "owner", "note": "Readex Pro has no Urdu glyphs, so Urdu falls back to a system font and mixes two typefaces in one line (seen at 390 in ur on every consultation screen); needs an Urdu-capable face approved by the owner." },
+    { "route": "/consultations/doctor/[id]", "element": "Board elements without data", "kind": "backend", "note": "The DoctorFull board's verified badge, rating-distribution bars and clinic photos with distance are not drawn: the doctor payload has no such fields." },
+    { "route": "/consultations/appointments", "element": "Status case", "kind": "client", "note": "The tabs match lowercase statuses ('confirmed', 'completed') while the detail and summary screens test uppercase (COMPLETED); if the backend sends one case, one side never matches." },
+    { "route": "/consultations/booking-status", "element": "Success summary", "kind": "client", "note": "The success state shows no doctor, date or visit type although the appointment is already fetched; the board's summary card is not drawn." },
+    { "route": "/consultations/clinic-confirm", "element": "Header", "kind": "owner", "note": "The header has a close button next to the back button (two exits); the board has only back." }
   ]
 }

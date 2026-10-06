@@ -8,6 +8,8 @@ import { MODE_LOOK, Section, Sheet, goBack, visitMode, specialtyLook, type Visit
 import { Glyph } from '../../../src/components/pharmacy/PharmacyKit';
 import { apiFetch } from '../../../src/utils/api';
 import { logError } from '../../../src/utils/logger';
+import { buildDoctorsPath, nearbyFiltersEnabled, nearestApplies, resolveNearbyPlace, sortsByDistance, type NearbyPlace } from '../../../src/utils/consultNearby';
+import { deviceNearbyDeps } from '../../../src/utils/consultNearbyDevice';
 import { pickLocalized } from '../../../src/utils/localize';
 
 /**
@@ -118,11 +120,35 @@ export default function Consultations() {
   const [insuranceCompanies, setInsuranceCompanies] = useState<Named[]>([]);
   const [insuranceNetworks, setInsuranceNetworks] = useState<Named[]>([]);
   const [insuranceCatalogUnavailable, setInsuranceCatalogUnavailable] = useState(false);
+  // The two quick filters (behind EXPO_PUBLIC_CONSULT_NEARBY_FILTERS=1): what the patient asked for, and where "Nearest" measures from.
+  const nearbyOn = nearbyFiltersEnabled();
+  const [nearest, setNearest] = useState(false);
+  const [availableNow, setAvailableNow] = useState(false);
+  const [place, setPlace] = useState<NearbyPlace | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [noPlace, setNoPlace] = useState(false);
+  const doctorsPath = buildDoctorsPath({ enabled: nearbyOn, mode: activeVt, nearest, availableNow, place });
+
+  const toggleNearest = async () => {
+    if (nearest) {
+      setNearest(false);
+      return;
+    }
+    setNoPlace(false);
+    setLocating(true);
+    const found = await resolveNearbyPlace(deviceNearbyDeps);
+    setLocating(false);
+    setPlace(found);
+    if (found) setNearest(true);
+    else setNoPlace(true);
+  };
 
   useEffect(() => {
+    let live = true;
     const fetchDoctors = async () => {
       try {
-        const data = await apiFetch<ProviderRow[]>('/providers?type=doctor');
+        const data = await apiFetch<ProviderRow[]>(doctorsPath);
+        if (!live) return;
         // Normalize real provider-profile fields into the card display shape
         const normalized = (Array.isArray(data) ? data : []).map((x) => {
           return {
@@ -141,14 +167,20 @@ export default function Consultations() {
         });
         setDoctors(normalized);
       } catch (err) {
+        if (!live) return;
         logError('consultations:fetch-doctors', err);
         setDoctors([]);
       } finally {
-        setLoading(false);
+        if (live) setLoading(false);
       }
     };
     void fetchDoctors();
+    return () => {
+      live = false;
+    };
+  }, [doctorsPath]);
 
+  useEffect(() => {
     // Real specialties (names + live doctor counts) and real active offers
     apiFetch<Spec[] | { data?: Spec[] }>('/care/specialties')
       .then((res) => {
@@ -226,10 +258,12 @@ export default function Consultations() {
         return matchesSearch && matchesVt && matchesPay && matchesSpec && matchesGender && matchesTitle && matchesPrice;
       })
       .sort((a, b) => {
+        // "Nearest": the server's distance order is kept (the sort is stable)
+        if (sortsByDistance(doctorsPath) && filterSort === 'rating') return 0;
         if (filterSort === 'price') return priceOf(a) - priceOf(b);
         return (b.rating || Number(b.r || 0)) - (a.rating || Number(a.r || 0));
       });
-  }, [doctors, searchQuery, activeVt, activePay, activeSpec, insCompany, insClass, filterGender, filterTitle, filterPrice, filterSort]);
+  }, [doctors, searchQuery, activeVt, activePay, activeSpec, insCompany, insClass, filterGender, filterTitle, filterPrice, filterSort, doctorsPath]);
 
   const openDoctor = (d: Doc) => router.push((d.id ? `/consultations/doctor/${d.id}` : '/consultations/doctor-search') as Href);
   const filtersOn = filterSort !== 'rating' || filterTitle !== 'all' || filterGender !== 'all' || filterPrice !== 'all';
@@ -302,6 +336,24 @@ export default function Consultations() {
           })}
         </View>
 
+        {nearbyOn ? (
+          <View style={{ gap: 8 }}>
+            <View accessibilityLabel={k('consult.hub.quick')} style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              <Chip label={k('consult.hub.nearest')} selected={nearest && nearestApplies(activeVt)} loading={locating} disabled={!nearestApplies(activeVt)} onPress={() => void toggleNearest()} theme={theme} testID="hub-nearest" />
+              <Chip label={k('consult.hub.availableNow')} selected={availableNow} onPress={() => setAvailableNow((v) => !v)} theme={theme} testID="hub-available-now" />
+            </View>
+            {!nearestApplies(activeVt) ? (
+              <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.nearestOnline')}</Text>
+            ) : locating ? (
+              <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.locating')}</Text>
+            ) : noPlace && !nearest ? (
+              <Text accessibilityRole="alert" style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.nearestNoPlace')}</Text>
+            ) : nearest && place?.kind === 'city' ? (
+              <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.nearestCity', { city: place.city })}</Text>
+            ) : null}
+          </View>
+        ) : null}
+
         {/* Specialties — the real list from /care/specialties with live doctor counts */}
         {specialties.length > 0 ? (
           <Section title={k('consult.hub.specialties')} actionLabel={k('consult.hub.viewAll')} onAction={() => router.push('/consultations/specialty-select' as Href)}>
@@ -310,9 +362,9 @@ export default function Consultations() {
                 .filter((s) => (s.count || 0) > 0)
                 .slice(0, 10)
                 .map((s, i) => {
-                  const name = s.name_ar || s.name_en || s.specialty || '';
+                  const name = pickLocalized(s.name_ar, s.name_en || s.specialty) || '';
                   const on = activeSpec === s.name_ar;
-                  const look = specialtyLook(name);
+                  const look = specialtyLook(s.name_ar || name);
                   return (
                     <Pressable key={s.slug || i} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={name} onPress={() => setActiveSpec(on ? '' : s.name_ar || '')} style={{ width: 72, minHeight: 44, alignItems: 'center', gap: 6 }}>
                       <View style={{ borderRadius: 22, borderWidth: on ? 2 : 0, borderColor: c.action.selected.bg, padding: on ? 2 : 0 }}>
