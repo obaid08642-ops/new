@@ -6,6 +6,12 @@ import { Appointment, AppointmentDocument } from '../../schemas/appointment.sche
 import { REQUEST } from '@nestjs/core';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
+/** The patient-facing name of a provider profile: the schema has display_name_ar, name_ar, name_en (no `name`). */
+export function providerDisplayName(p: { display_name_ar?: unknown; name_ar?: unknown; name_en?: unknown; facility_name?: unknown } | null | undefined): string | null {
+  for (const v of [p?.display_name_ar, p?.name_ar, p?.name_en, p?.facility_name]) if (typeof v === 'string' && v.trim()) return v.trim();
+  return null;
+}
+
 @Injectable()
 export class HomeService {
   constructor(
@@ -38,7 +44,7 @@ export class HomeService {
         old: c.original_price,
         disc: Math.round(((c.original_price - c.discounted_price) / c.original_price) * 100) + '%',
         rating: prov?.rating_avg ?? null,
-        prov: prov?.name || prov?.facility_name || 'شريك نبض',
+        prov: providerDisplayName(prov) || 'شريك نبض',
         c: '#FF4B55',
         ic: 'local_offer',
         sponsored: c.target_parameters?.sponsored || false,
@@ -71,7 +77,7 @@ export class HomeService {
       const prov: any = await this.apptModel.db.collection('provider_profiles').findOne({
         $or: [{ id: upcoming.doctor_id }, { user_id: upcoming.doctor_user_id }, { account_id: upcoming.doctor_id }],
       } as any);
-      doctorName = prov?.name || '';
+      doctorName = providerDisplayName(prov) || '';
     }
 
     return {
@@ -153,7 +159,7 @@ export class HomeService {
     const results: any[] = [];
 
     for (const c of campaigns) {
-      const provName = (c.provider_id && (provMap.get(String(c.provider_id))?.name || provMap.get(String(c.provider_id))?.facility_name)) || null;
+      const provName = (c.provider_id && providerDisplayName(provMap.get(String(c.provider_id)))) || null;
       results.push({
         id: c._id?.toString() || c.id,
         type: 'باقة', typeEn: 'Package',

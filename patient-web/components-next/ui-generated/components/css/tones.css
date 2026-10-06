@@ -1,0 +1,82 @@
+/*
+ * GENERATED FILE — DO NOT EDIT.
+ *
+ * Mirrored from packages/ui/components/css/tones.css by tools/design/sync-ui-components.mjs.
+ *
+ * patient-web cannot import from packages/: Turbopack refuses to resolve outside
+ * the app root, and the type checker does not, so the failure only appears at
+ * `next build`. This file is a copy, not a port — the renderer a screen uses and
+ * the renderer the conformance gallery exercises are the same code, so the
+ * artwork cannot drift between them. Run the script after changing the package;
+ * `--check` in CI fails if this drifts.
+ *
+ * tests/module-boundary.test.ts enforces the boundary this mirror exists to work
+ * around.
+ */
+/*
+ * Service tones (handoff §1, icons/fill.ts SERVICE_TONES) as classes.
+ *
+ * A component that takes a `tone` prop adds `nabd-tone--<tone>` and reads the four
+ * --nabd-tone-* properties below, instead of building a var() name in a style
+ * attribute. tests/design-system-csp checks that every SERVICE_TONES entry is here.
+ */
+.nabd-tone--coral {
+  --nabd-tone-bg: var(--nabd-color-service-coral-bg);
+  --nabd-tone-fg: var(--nabd-color-service-coral-fg);
+  --nabd-tone-solid-from: var(--nabd-color-service-coral-solid-from);
+  --nabd-tone-solid-to: var(--nabd-color-service-coral-solid-to);
+}
+.nabd-tone--blue {
+  --nabd-tone-bg: var(--nabd-color-service-blue-bg);
+  --nabd-tone-fg: var(--nabd-color-service-blue-fg);
+  --nabd-tone-solid-from: var(--nabd-color-service-blue-solid-from);
+  --nabd-tone-solid-to: var(--nabd-color-service-blue-solid-to);
+}
+.nabd-tone--mint {
+  --nabd-tone-bg: var(--nabd-color-service-mint-bg);
+  --nabd-tone-fg: var(--nabd-color-service-mint-fg);
+  --nabd-tone-solid-from: var(--nabd-color-service-mint-solid-from);
+  --nabd-tone-solid-to: var(--nabd-color-service-mint-solid-to);
+}
+.nabd-tone--violet {
+  --nabd-tone-bg: var(--nabd-color-service-violet-bg);
+  --nabd-tone-fg: var(--nabd-color-service-violet-fg);
+  --nabd-tone-solid-from: var(--nabd-color-service-violet-solid-from);
+  --nabd-tone-solid-to: var(--nabd-color-service-violet-solid-to);
+}
+.nabd-tone--amber {
+  --nabd-tone-bg: var(--nabd-color-service-amber-bg);
+  --nabd-tone-fg: var(--nabd-color-service-amber-fg);
+  --nabd-tone-solid-from: var(--nabd-color-service-amber-solid-from);
+  --nabd-tone-solid-to: var(--nabd-color-service-amber-solid-to);
+}
+.nabd-tone--pink {
+  --nabd-tone-bg: var(--nabd-color-service-pink-bg);
+  --nabd-tone-fg: var(--nabd-color-service-pink-fg);
+  --nabd-tone-solid-from: var(--nabd-color-service-pink-solid-from);
+  --nabd-tone-solid-to: var(--nabd-color-service-pink-solid-to);
+}
+.nabd-tone--lime {
+  --nabd-tone-bg: var(--nabd-color-service-lime-bg);
+  --nabd-tone-fg: var(--nabd-color-service-lime-fg);
+  --nabd-tone-solid-from: var(--nabd-color-service-lime-solid-from);
+  --nabd-tone-solid-to: var(--nabd-color-service-lime-solid-to);
+}
+.nabd-tone--peach {
+  --nabd-tone-bg: var(--nabd-color-service-peach-bg);
+  --nabd-tone-fg: var(--nabd-color-service-peach-fg);
+  --nabd-tone-solid-from: var(--nabd-color-service-peach-solid-from);
+  --nabd-tone-solid-to: var(--nabd-color-service-peach-solid-to);
+}
+.nabd-tone--teal {
+  --nabd-tone-bg: var(--nabd-color-service-teal-bg);
+  --nabd-tone-fg: var(--nabd-color-service-teal-fg);
+  --nabd-tone-solid-from: var(--nabd-color-service-teal-solid-from);
+  --nabd-tone-solid-to: var(--nabd-color-service-teal-solid-to);
+}
+.nabd-tone--ink {
+  --nabd-tone-bg: var(--nabd-color-service-ink-bg);
+  --nabd-tone-fg: var(--nabd-color-service-ink-fg);
+  --nabd-tone-solid-from: var(--nabd-color-service-ink-solid-from);
+  --nabd-tone-solid-to: var(--nabd-color-service-ink-solid-to);
+}

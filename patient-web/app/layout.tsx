@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
+import { THEME_COLOR } from "./design-tokens/theme-color";
 // DEVICE_STANDARD §1 web shells (<AppShell>, <StickyFooter>), mirrored from packages/ui/shells.
 import "@/components-next/ui-generated/shells/shells.css";
+import "@/components-next/ui-generated/components/components.css";
 import { getDirection, isLocale } from "@/lib/i18n";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -13,7 +15,11 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   viewportFit: "cover",
-  themeColor: "#1E332E",
+  // the canvas of each theme (generated from tokens.json by tools/design/sync-token-css.mjs)
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: THEME_COLOR.light },
+    { media: "(prefers-color-scheme: dark)", color: THEME_COLOR.dark },
+  ],
 };
 
 // <html lang/dir> must match the page locale: search engines read the language from <html>, and
@@ -30,7 +36,9 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   })();
 
   return (
-    <html lang={locale} dir={getDirection(locale)}>
+    // The theme script (app/theme.ts) sets data-theme, the class and color-scheme on <html> before
+    // hydration, so those attributes legitimately differ from the server render.
+    <html lang={locale} dir={getDirection(locale)} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href={apiOrigin} crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cdn.nabd.plus" crossOrigin="anonymous" />
