@@ -384,9 +384,10 @@
     "callTitle": "सुरक्षित वीडियो विज़िट",
     "callJoin": "वीडियो विज़िट तैयार करें",
     "callLoading": "सुरक्षित विज़िट तैयार हो रही है…",
-    "callReady": "आपकी वीडियो विज़िट तैयार है। वीडियो ऐप में जारी रखें।",
+    "callReady": "आपकी वीडियो विज़िट तैयार है।",
     "callUnavailable": "वीडियो विज़िट अभी उपलब्ध नहीं है।",
-    "callDiscard": "वीडियो विज़िट बंद करें"
+    "callDiscard": "वीडियो विज़िट बंद करें",
+    "callOpen": "वीडियो विज़िट में शामिल हों"
   },
   "Medicines": {
     "eyebrow": "निजी कैटलॉग",
@@ -2560,6 +2561,9 @@
     "acceptsInsurance": "बीमा स्वीकार करते हैं",
     "acceptedInsurance": "स्वीकृत बीमा कंपनियां",
     "actionBookConsultation": "परामर्श बुक करें",
+    "doctorMetaFallback": "डॉक्टर",
+    "doctorMetaDescription": "{name} - {specialty}। {brand} पर ऑनलाइन या क्लिनिक परामर्श बुक करें।",
+    "doctorMetaDescriptionCity": "{name} - {city} में {specialty}। {brand} पर ऑनलाइन या क्लिनिक परामर्श बुक करें।",
     "locationLabel": "स्थान",
     "videoCallTitle": "वीडियो परामर्श",
     "videoCallSub": "आपके डॉक्टर के साथ सुरक्षित, सीधी वीडियो कॉल",

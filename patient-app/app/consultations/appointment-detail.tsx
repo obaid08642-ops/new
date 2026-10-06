@@ -10,6 +10,7 @@ import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
+import { statusIs } from '../../src/utils/statusCase';
 
 /**
  * Appointment details — board Consult's card language. Everything is GET /care/appointments/:id: the status and the
@@ -74,7 +75,7 @@ export default function AppointmentDetailScreen() {
   const a = appointment;
   const mode = visitMode(a?.consultation_type);
   const st = appointmentStatus(a?.status);
-  const done = String(a?.status).toUpperCase() === 'COMPLETED';
+  const done = statusIs(a?.status, ['completed']);
   const doctorName = a?.doctor?.name || a?.doctor_name || '';
   const specialty = a?.doctor?.specialty || a?.specialty || '';
   const amount = a?.price ?? a?.amount ?? null;
@@ -189,7 +190,7 @@ export default function AppointmentDetailScreen() {
             </Section>
 
             {/* Insurance co-pay lock */}
-            <Dialog open={a.status === 'PENDING_COPAY'} icon="shield-check" title={k('consult.detail.copayTitle')} body={k('consult.detail.copayBody', { amount: `${money(a.copay_amount || 0)} ${k('consult.currency')}` })}>
+            <Dialog open={statusIs(a.status, ['pending_copay'])} icon="shield-check" title={k('consult.detail.copayTitle')} body={k('consult.detail.copayBody', { amount: `${money(a.copay_amount || 0)} ${k('consult.currency')}` })}>
               <Button label={k('consult.detail.copayAction')} size="md" fullWidth onPress={payCopay} theme={theme} />
               <Button label={k('consult.detail.copayCancel')} variant="outline" size="md" fullWidth onPress={() => router.back()} theme={theme} />
             </Dialog>

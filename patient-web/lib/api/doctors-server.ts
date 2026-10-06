@@ -16,6 +16,15 @@ export async function getPublicDoctor(doctorId: string): Promise<Response | null
   try { return await fetch(patientApiUrl(`/care/doctors/${doctorId}`), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
 }
 
+/**
+ * The public doctor page's record (GET /entity-graph/related/doctor/:slug): credential-free, so it goes through the
+ * Next data cache for an hour (ISR, F68/F82). The page and its metadata ask for the same URL and share one entry.
+ * Reads no cookie or header.
+ */
+export async function getPublicDoctorEntity(slug: string): Promise<Response | null> {
+  try { return await fetch(patientApiUrl(`/entity-graph/related/doctor/${encodeURIComponent(slug)}`), { headers: { Accept: "application/json" }, next: { revalidate: 3600 } }); } catch { return null; }
+}
+
 export async function getPublicDoctorSlots(input: { id: string; date: string; serviceType: "clinic" | "video" | "home" }): Promise<Response | null> {
   if (!/^[A-Za-z0-9_-]{1,128}$/.test(input.id) || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(input.date)) throw new Error("invalid_slots_query");
   try { return await fetch(patientApiUrl(doctorSlotsQuery(input)), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }

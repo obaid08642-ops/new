@@ -2,20 +2,10 @@
   {
     "batch": 2,
     "app": "patient-web",
-    "screen": "/appointments",
-    "element": "Tabs",
-    "file": "",
-    "line": 0,
-    "found": "[client] pending_payment, scheduled, in_progress and no_show appointments are in neither tab (the old filter, kept).",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": 2,
-    "app": "patient-web",
     "screen": "/consultations/cancel-reschedule",
     "element": "Refund policy",
-    "file": "",
-    "line": 0,
+    "file": "patient-web/app/[locale]/consultations/cancel-reschedule/page.tsx",
+    "line": 35,
     "found": "[backend] Two refund policies are written in the pages (12/24 h here, 4/24 h on clinic-confirm); neither reads a server rule.",
     "suspect": "Backend gap: reviewer session."
   },
@@ -24,28 +14,18 @@
     "app": "patient-web",
     "screen": "/consultations/call-history",
     "element": "List",
-    "file": "",
-    "line": 0,
+    "file": "patient-web/app/[locale]/consultations/call-history/page.tsx",
+    "line": 28,
     "found": "[backend] Shows finished appointments; there is no call-record endpoint behind the name.",
     "suspect": "Backend gap: reviewer session."
   },
   {
     "batch": 2,
     "app": "patient-web",
-    "screen": "/appointments/[appointmentId]",
-    "element": "Prepare video visit",
-    "file": "",
-    "line": 0,
-    "found": "[client] The launcher gets a credential but opens nothing (the text says continue in the video app); /consultations/video-call is not linked from here.",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": 2,
-    "app": "patient-web",
     "screen": "/consultations/video-call",
     "element": "Camera on/off",
-    "file": "",
-    "line": 0,
+    "file": "patient-web/app/[locale]/consultations/video-call/page.tsx",
+    "line": 31,
     "found": "[owner] The web room already has mute and camera buttons; not added or changed, per the calls decision.",
     "suspect": "Owner decision."
   },
@@ -54,9 +34,9 @@
     "app": "patient-web",
     "screen": "/consultations/doctors",
     "element": "Photo and verified seal",
-    "file": "",
-    "line": 0,
-    "found": "[client] extractDoctors reads no photo_url or verification field; the card shows the neutral mark.",
+    "file": "patient-web/app/[locale]/consultations/doctors/page.tsx",
+    "line": 86,
+    "found": "[client] extractDoctors reads no photo_url or verification field because GET /care/doctors (toPublicDoctor) sends none; the card shows the neutral mark until the backend adds them.",
     "suspect": "Client-side: later batch."
   },
   {
@@ -64,8 +44,8 @@
     "app": "patient-web",
     "screen": "/consultations/book/[doctorId]",
     "element": "Attach reports, points discount, duration",
-    "file": "",
-    "line": 0,
+    "file": "patient-web/components-next/booking-flow.tsx",
+    "line": 132,
     "found": "[backend] On the BookingConfirm board; the booking call has no field for them, so they are not drawn.",
     "suspect": "Backend gap: reviewer session."
   },
@@ -74,8 +54,8 @@
     "app": "patient-web",
     "screen": "/consultations/doctors/[doctorId]",
     "element": "Static twin",
-    "file": "",
-    "line": 0,
+    "file": "patient-web/app/[locale]/consultations/doctors/[doctorId]/page.tsx",
+    "line": 41,
     "found": "[client] Still dynamic on this base (reads ?date and ?service_type); #308 owns the static/ISR split.",
     "suspect": "Client-side: later batch."
   },
@@ -84,8 +64,8 @@
     "app": "patient-web",
     "screen": "/consultations/doctors",
     "element": "Filters",
-    "file": "",
-    "line": 0,
+    "file": "patient-web/app/[locale]/consultations/doctors/page.tsx",
+    "line": 58,
     "found": "[owner] The Consult board draws a specialty rail, visit-mode chips and a cash/insurance segmented filter; the page has search and sort only (not added: feature).",
     "suspect": "Owner decision."
   },
@@ -94,8 +74,8 @@
     "app": "patient-web",
     "screen": "/appointments",
     "element": "Specialty line",
-    "file": "",
-    "line": 0,
+    "file": "patient-web/app/[locale]/appointments/page.tsx",
+    "line": 83,
     "found": "[backend] The appointment row carries specialty_ar only, so the specialty reads in Arabic on every language page.",
     "suspect": "Backend gap: reviewer session."
   },
@@ -104,38 +84,18 @@
     "app": "patient-web",
     "screen": "/consultations/home-visit-tracking",
     "element": "Visit steps",
-    "file": "",
-    "line": 0,
+    "file": "patient-web/app/[locale]/consultations/home-visit-tracking/page.tsx",
+    "line": 29,
     "found": "[backend] PROVIDER_EN_ROUTE and PROVIDER_ARRIVED are not statuses the backend appointments send, so those two steps are never reached; the page compares exact upper-case codes.",
     "suspect": "Backend gap: reviewer session."
   },
   {
     "batch": 2,
     "app": "patient-web",
-    "screen": "/consultations/book/[doctorId]",
-    "element": "Input and toggle borders",
-    "file": "",
-    "line": 0,
-    "found": "[client] packages/ui (Inputs.css, Feedback.css) use --nabd-color-border-default, which is not a token, so the generated Input draws no border; needs a token or a source change in packages/ui (not edited here).",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": 2,
-    "app": "patient-web",
-    "screen": "/doctor/[slug]",
-    "element": "Metadata and data source",
-    "file": "",
-    "line": 0,
-    "found": "[client] generateMetadata writes English sentences and a Doctor fallback in code, and the page reads NEXT_PUBLIC_API_URL (default https://api.nabd.plus) instead of the BFF upstream.",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": 2,
-    "app": "patient-web",
     "screen": "/consultations/virtual-waiting-room",
     "element": "Connected call screens",
-    "file": "",
-    "line": 0,
+    "file": "patient-web/app/[locale]/consultations/virtual-waiting-room/page.tsx",
+    "line": 40,
     "found": "[owner] The video call, waiting room and room screens were only seen in their error and not-ready states here (no media backend in the check); the connected layout is not verified.",
     "suspect": "Owner decision."
   }
