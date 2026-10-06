@@ -73,8 +73,8 @@
         ],
         [
           "Prepare video visit",
-          "GET /api/appointments/:param/call-token",
-          "ok"
+          "GET /api/appointments/:param/call-token, then a link to /consultations/video-call?appointmentId=",
+          "fixed"
         ],
         [
           "Booking status / summary / prescriptions links",
@@ -526,12 +526,6 @@
   ],
   "needsReview": [
     {
-      "route": "/appointments",
-      "element": "Tabs",
-      "kind": "client",
-      "note": "pending_payment, scheduled, in_progress and no_show appointments are in neither tab (the old filter, kept)."
-    },
-    {
       "route": "/consultations/cancel-reschedule",
       "element": "Refund policy",
       "kind": "backend",
@@ -544,12 +538,6 @@
       "note": "Shows finished appointments; there is no call-record endpoint behind the name."
     },
     {
-      "route": "/appointments/[appointmentId]",
-      "element": "Prepare video visit",
-      "kind": "client",
-      "note": "The launcher gets a credential but opens nothing (the text says continue in the video app); /consultations/video-call is not linked from here."
-    },
-    {
       "route": "/consultations/video-call",
       "element": "Camera on/off",
       "kind": "owner",
@@ -559,7 +547,7 @@
       "route": "/consultations/doctors",
       "element": "Photo and verified seal",
       "kind": "client",
-      "note": "extractDoctors reads no photo_url or verification field; the card shows the neutral mark."
+      "note": "extractDoctors reads no photo_url or verification field because GET /care/doctors (toPublicDoctor) sends none; the card shows the neutral mark until the backend adds them."
     },
     {
       "route": "/consultations/book/[doctorId]",
@@ -590,18 +578,6 @@
       "element": "Visit steps",
       "kind": "backend",
       "note": "PROVIDER_EN_ROUTE and PROVIDER_ARRIVED are not statuses the backend appointments send, so those two steps are never reached; the page compares exact upper-case codes."
-    },
-    {
-      "route": "/consultations/book/[doctorId]",
-      "element": "Input and toggle borders",
-      "kind": "client",
-      "note": "packages/ui (Inputs.css, Feedback.css) use --nabd-color-border-default, which is not a token, so the generated Input draws no border; needs a token or a source change in packages/ui (not edited here)."
-    },
-    {
-      "route": "/doctor/[slug]",
-      "element": "Metadata and data source",
-      "kind": "client",
-      "note": "generateMetadata writes English sentences and a Doctor fallback in code, and the page reads NEXT_PUBLIC_API_URL (default https://api.nabd.plus) instead of the BFF upstream."
     },
     {
       "route": "/consultations/virtual-waiting-room",

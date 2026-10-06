@@ -39,7 +39,8 @@ export default async function VirtualWaitingRoomPage({ params, searchParams }: P
       {joinable ? (
         <CallTokenLauncher
           appointmentId={appointmentId}
-          labels={{ title: a("callTitle"), join: a("callJoin"), loading: a("callLoading"), ready: a("callReady"), unavailable: a("callUnavailable"), notReady: a("callDiscard") }}
+          joinHref={`/${locale}/consultations/video-call?appointmentId=${encodeURIComponent(appointmentId)}`}
+          labels={{ title: a("callTitle"), join: a("callJoin"), loading: a("callLoading"), ready: a("callReady"), unavailable: a("callUnavailable"), notReady: a("callDiscard"), open: a("callOpen") }}
         />
       ) : (
         <Notice>{c("waitingRoomNotYet")}</Notice>

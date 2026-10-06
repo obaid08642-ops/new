@@ -2,16 +2,6 @@
   {
     "batch": 2,
     "app": "patient-web",
-    "screen": "/appointments",
-    "element": "Tabs",
-    "file": "",
-    "line": 0,
-    "found": "[client] pending_payment, scheduled, in_progress and no_show appointments are in neither tab (the old filter, kept).",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": 2,
-    "app": "patient-web",
     "screen": "/consultations/cancel-reschedule",
     "element": "Refund policy",
     "file": "",
@@ -32,16 +22,6 @@
   {
     "batch": 2,
     "app": "patient-web",
-    "screen": "/appointments/[appointmentId]",
-    "element": "Prepare video visit",
-    "file": "",
-    "line": 0,
-    "found": "[client] The launcher gets a credential but opens nothing (the text says continue in the video app); /consultations/video-call is not linked from here.",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": 2,
-    "app": "patient-web",
     "screen": "/consultations/video-call",
     "element": "Camera on/off",
     "file": "",
@@ -56,7 +36,7 @@
     "element": "Photo and verified seal",
     "file": "",
     "line": 0,
-    "found": "[client] extractDoctors reads no photo_url or verification field; the card shows the neutral mark.",
+    "found": "[client] extractDoctors reads no photo_url or verification field because GET /care/doctors (toPublicDoctor) sends none; the card shows the neutral mark until the backend adds them.",
     "suspect": "Client-side: later batch."
   },
   {
@@ -108,26 +88,6 @@
     "line": 0,
     "found": "[backend] PROVIDER_EN_ROUTE and PROVIDER_ARRIVED are not statuses the backend appointments send, so those two steps are never reached; the page compares exact upper-case codes.",
     "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": 2,
-    "app": "patient-web",
-    "screen": "/consultations/book/[doctorId]",
-    "element": "Input and toggle borders",
-    "file": "",
-    "line": 0,
-    "found": "[client] packages/ui (Inputs.css, Feedback.css) use --nabd-color-border-default, which is not a token, so the generated Input draws no border; needs a token or a source change in packages/ui (not edited here).",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": 2,
-    "app": "patient-web",
-    "screen": "/doctor/[slug]",
-    "element": "Metadata and data source",
-    "file": "",
-    "line": 0,
-    "found": "[client] generateMetadata writes English sentences and a Doctor fallback in code, and the page reads NEXT_PUBLIC_API_URL (default https://api.nabd.plus) instead of the BFF upstream.",
-    "suspect": "Client-side: later batch."
   },
   {
     "batch": 2,

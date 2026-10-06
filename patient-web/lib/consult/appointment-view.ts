@@ -28,10 +28,10 @@ export const MODE_VISUAL: Record<Mode, { icon: FillIconName; tone: ServiceTone }
   home: { icon: "house", tone: "mint" },
 };
 
-/** Booked or waiting for a decision: what the "upcoming" tab lists. */
-export const isUpcoming = (status?: string) => ["confirmed", "pending"].includes(norm(status));
-/** Finished or closed: what the "past" tab lists. */
-export const isPast = (status?: string) => ["completed", "cancelled"].includes(norm(status));
+/** Booked, waiting for a decision or payment, or under way: what the "upcoming" tab lists (every status is in one tab). */
+export const isUpcoming = (status?: string) => ["confirmed", "pending", "pending_payment", "scheduled", "checked_in", "in_progress"].includes(norm(status));
+/** Finished or closed, including a missed visit: what the "past" tab lists. */
+export const isPast = (status?: string) => ["completed", "cancelled", "no_show"].includes(norm(status));
 /** A visit that can still change: cancel, reschedule, the booking status. */
 export const isOpen = (status?: string) => ["pending", "pending_payment", "confirmed", "scheduled"].includes(norm(status));
 /** The call or visit can be entered now. */

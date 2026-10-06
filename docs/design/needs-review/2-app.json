@@ -2,16 +2,6 @@
   {
     "batch": 2,
     "app": "patient-app",
-    "screen": "/consultations/call-history",
-    "element": "Call again",
-    "file": "",
-    "line": 0,
-    "found": "[client] It opens video-call with the call session id as appointmentId; the video-call screen expects an appointment id.",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": 2,
-    "app": "patient-app",
     "screen": "/consultations/appointments",
     "element": "List call",
     "file": "",
@@ -56,7 +46,7 @@
     "element": "Refund policy",
     "file": "",
     "line": 0,
-    "found": "[client] 24 h / 12 h refund figures are fixed in the screen while the doctor page reads them from /system-config/public; online appointments (type 'online') ask for clinic slots when rescheduling.",
+    "found": "[client] Online appointments (type 'online') ask for clinic slots when rescheduling (the refund figures now come from /system-config/public).",
     "suspect": "Client-side: later batch."
   },
   {
@@ -92,32 +82,12 @@
   {
     "batch": 2,
     "app": "patient-app",
-    "screen": "/consultations/incoming-call",
-    "element": "Ring timeout",
-    "file": "",
-    "line": 0,
-    "found": "[client] The 35 s timeout calls reject from inside a state updater, which can fire twice; signalling was not touched.",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": 2,
-    "app": "patient-app",
     "screen": "/consultations/booking-status",
     "element": "Price summary of the board",
     "file": "",
     "line": 0,
     "found": "[owner] The board shows fee and points rows; the confirm form states the price at the payment step, so none is drawn.",
     "suspect": "Owner decision."
-  },
-  {
-    "batch": 2,
-    "app": "patient-app",
-    "screen": "/consultations/clinic-confirm",
-    "element": "Clinic location view",
-    "file": "",
-    "line": 0,
-    "found": "[client] ?view=location renders ClinicLocationView, a separate component not rebuilt in this slice.",
-    "suspect": "Client-side: later batch."
   },
   {
     "batch": 2,
@@ -152,16 +122,6 @@
   {
     "batch": 2,
     "app": "patient-app",
-    "screen": "/consultations",
-    "element": "Doctor names after a language change",
-    "file": "",
-    "line": 0,
-    "found": "[client] Names are localised once when the list is fetched (also in follow-up), so a language change while the tab stays open does not update them until the next load.",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": 2,
-    "app": "patient-app",
     "screen": "/consultations/appointment-detail",
     "element": "Urdu text",
     "file": "",
@@ -182,31 +142,21 @@
   {
     "batch": 2,
     "app": "patient-app",
-    "screen": "/consultations/appointments",
-    "element": "Status case",
-    "file": "",
-    "line": 0,
-    "found": "[client] The tabs match lowercase statuses ('confirmed', 'completed') while the detail and summary screens test uppercase (COMPLETED); if the backend sends one case, one side never matches.",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": 2,
-    "app": "patient-app",
-    "screen": "/consultations/booking-status",
-    "element": "Success summary",
-    "file": "",
-    "line": 0,
-    "found": "[client] The success state shows no doctor, date or visit type although the appointment is already fetched; the board's summary card is not drawn.",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": 2,
-    "app": "patient-app",
     "screen": "/consultations/clinic-confirm",
     "element": "Header",
     "file": "",
     "line": 0,
     "found": "[owner] The header has a close button next to the back button (two exits); the board has only back.",
     "suspect": "Owner decision."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations/call-history",
+    "element": "Call status and caller",
+    "file": "",
+    "line": 0,
+    "found": "[client] look() and isCaller read lowercase statuses and caller_id while the backend schema uses INITIATED/ACTIVE/ENDED/FAILED and patient_id/provider_id: rows may show the wrong state/direction.",
+    "suspect": "Client-side: later batch."
   }
 ]

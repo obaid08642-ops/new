@@ -6,17 +6,19 @@ import { useSelector } from 'react-redux';
 import { ApptCard, ConsultList, useConsultFormat } from '../../src/components/consult/ConsultKit';
 import { useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
+import { callAgainParams } from '../../src/utils/callAgain';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 
 /**
  * Call history — board Appointments' card (canvas/Appointments.dc.html) for the calls of GET /calls/history (paged,
  * 20 a page). Each card says whether the call was outgoing or incoming, how it ended, when, and for how long; the
- * round button calls again through the video-call screen, as it did before.
+ * button calls again through the video-call screen with the call's appointment (no appointment, no button).
  */
 
 interface CallSession {
   id: string;
+  appointment_id?: string;
   caller_id: string;
   callee_id: string;
   call_type: 'voice' | 'video' | 'group';
@@ -118,6 +120,7 @@ export default function CallHistoryScreen() {
       renderItem={(item) => {
         const isCaller = item.caller_id === me;
         const st = look(item.status, isCaller);
+        const again = callAgainParams(item);
         const line = [dateTime(item.createdAt), item.status === 'ended' ? duration(item.duration_seconds) : ''].filter(Boolean).join(' · ');
         return (
           <ApptCard
@@ -125,7 +128,7 @@ export default function CallHistoryScreen() {
             title={k(isCaller ? 'consult.calls.outgoing' : 'consult.calls.incoming')}
             subtitle={line}
             status={{ label: k(st.key), tone: st.tone }}
-            actions={[{ label: k('consult.calls.callAgain'), tone: 'ink', flex: true, onPress: () => router.push({ pathname: '/consultations/video-call', params: { appointmentId: item.id } } as unknown as Href) }]}
+            actions={again ? [{ label: k('consult.calls.callAgain'), tone: 'ink', flex: true, onPress: () => router.push({ pathname: '/consultations/video-call', params: again } as unknown as Href) }] : []}
           />
         );
       }}

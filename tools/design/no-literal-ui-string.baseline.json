@@ -125,7 +125,6 @@
     "patient-app/src/components/OfflineBanner.tsx": 2,
     "patient-app/src/components/ScreenStates.tsx": 4,
     "patient-app/src/components/ui.tsx": 10,
-    "patient-app/src/components/views/ClinicLocationView.tsx": 3,
     "patient-app/src/components/views/InsuranceBenefitsView.tsx": 16,
     "patient-app/src/context/DiagnosticsCartContext.tsx": 7,
     "patient-app/src/design-system/components/Avatar.tsx": 3,

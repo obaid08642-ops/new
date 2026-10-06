@@ -10,6 +10,7 @@ import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKi
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { pickLocalized } from '../../src/utils/localize';
+import { statusIs } from '../../src/utils/statusCase';
 
 /**
  * Follow-up — board Consult's card language for a finished or running consultation. Everything is GET
@@ -36,7 +37,8 @@ export default function FollowUpScreen() {
   const appointmentId = (params.id || params.appointmentId) as string;
 
   const [appt, setAppt] = useState<Appt | null>(null);
-  const [doctorName, setDoctorName] = useState('');
+  // The doctor's names as sent; the one shown follows the language at render, so a language change updates it.
+  const [doctorNames, setDoctorNames] = useState<{ ar?: string; en?: string }>({});
   const [status, setStatus] = useState<GateStatus>('loading');
 
   const load = useCallback(async () => {
@@ -57,7 +59,7 @@ export default function FollowUpScreen() {
       setStatus('ready');
       if (a.doctor_id) {
         apiFetch<{ name_ar?: string; name_en?: string }>(`/care/doctors/${encodeURIComponent(a.doctor_id)}`)
-          .then((d) => setDoctorName(pickLocalized(d?.name_ar, d?.name_en) || ''))
+          .then((d) => setDoctorNames({ ar: d?.name_ar, en: d?.name_en }))
           .catch(() => undefined);
       }
     } catch {
@@ -70,9 +72,11 @@ export default function FollowUpScreen() {
     void load();
   }, [load]);
 
+  // pickLocalized reads the current language at render; this screen re-renders on a language change (useScreenUi).
+  const doctorName = pickLocalized(doctorNames.ar, doctorNames.en) || '';
   const prescriptions = Array.isArray(appt?.prescriptions) ? appt.prescriptions : [];
   const history = Array.isArray(appt?.state_history) ? [...appt.state_history].reverse() : [];
-  const isCompleted = appt?.status === 'COMPLETED';
+  const isCompleted = statusIs(appt?.status, ['completed']);
   const st = appointmentStatus(appt?.status);
   const mode = visitMode(appt?.service_type);
 
