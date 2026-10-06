@@ -1,259 +1,464 @@
-// @ts-nocheck
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { FlatList, Pressable, ScrollView, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useApp } from '../../src/context/AppContext';
-import { lightColors, darkColors, resolveColor } from '../../src/theme/colors';
-import { apiFetch } from '../../src/utils/api';
-import { logError } from '../../src/utils/logger';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { Card, Chip, EmptyState, ErrorState, FIcon, Icon, OfflineState, Screen, SectionHeader, Search, SERVICE_ICONS, Skeleton, StatusChip, type ServiceName } from '../../../packages/ui-native/src';
+import PharmacyProductSearchView from '../../src/components/views/PharmacyProductSearchView';
+import DoctorSearchView from '../../src/components/views/DoctorSearchView';
 import { LocalizedText } from '../../src/components/LocalizedText';
-import { useLocalSearchParams as __useRouteParams } from "expo-router";
-import PharmacyProductSearchView from "../../src/components/views/PharmacyProductSearchView";
-import DoctorSearchView from "../../src/components/views/DoctorSearchView";
-import { ScreenState } from '../../src/components/ScreenStates';
+import { COLUMN, FONT, tint, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { apiFetch } from '../../src/utils/api';
+import { isOffline } from '../../src/utils/isOffline';
+import { logError } from '../../src/utils/logger';
+import {
+  FILTERS,
+  blocksFor,
+  countByFilter,
+  iconFor,
+  routeFor,
+  type ResultBlock,
+  type SearchResult,
+} from '../../src/utils/searchResults';
+
+/**
+ * Search — board Search (canvas/Search.dc.html).
+ *
+ * A sticky glass header with the page search field and "Cancel"; with a query, the filter chips (only for kinds that
+ * have results, each with its count) and the results in blocks: medicines, doctors as a row of cards, tests and
+ * imaging, then the rest of what GET /home/search returns. With no query: recent searches (kept on the phone)
+ * and a "browse by section" grid. Only real data is drawn: a block, a price or a line is hidden when the backend
+ * does not send it.
+ */
 
 const RECENT_KEY = '@nabdah_recent_searches';
+const RECENT_MAX = 8;
+const DEBOUNCE_MS = 500;
 
-const cats = ['الكل', 'أطباء', 'صيدلية', 'تحاليل', 'أشعة', 'مقالات', 'أمراض', 'تأمين', 'مجتمع', 'عائلة'];
-const catsEn = ['All', 'Doctors', 'Pharmacy', 'Labs', 'Radiology', 'Articles', 'Diseases', 'Insurance', 'Community', 'Family'];
+/** The board's "browse by section" grid: the service-map icon of each section and where it opens. */
+const BROWSE: { label: string; service: ServiceName; route: string }[] = [
+  { label: 'الصيدلية', service: 'pharmacy', route: '/(tabs)/pharmacy' },
+  { label: 'استشارة', service: 'consult', route: '/(tabs)/consultations' },
+  { label: 'تحاليل', service: 'lab', route: '/(tabs)/diagnostics' },
+  { label: 'أشعة', service: 'radiology', route: '/(tabs)/diagnostics' },
+  { label: 'تمريض', service: 'nursing', route: '/(tabs)/nursing' },
+  { label: 'صحة نفسية', service: 'mind', route: '/mental-health' },
+  { label: 'تغذية', service: 'nutrition', route: '/nutrition/hub' },
+  { label: 'العائلة', service: 'family', route: '/family' },
+];
 
-const catMap = { 'أطباء': 'دكتور', 'صيدلية': 'دواء', 'تحاليل': 'تحليل', 'أشعة': 'أشعة', 'مقالات': 'مقال', 'أمراض': 'مرض', 'تأمين': 'تأمين', 'مجتمع': 'مجتمع', 'عائلة': 'عائلة' };
-const catMapEn = { 'Doctors': 'Doctor', 'Pharmacy': 'Medicine', 'Labs': 'Lab', 'Radiology': 'Radiology', 'Articles': 'Article', 'Diseases': 'Disease', 'Insurance': 'Insurance', 'Community': 'Community', 'Family': 'Family' };
+/** The text of a result in the screen's language: Arabic in Arabic, the English field otherwise. */
+const pick = (lang: string, ar?: string | null, en?: string | null): string => (lang === 'ar' ? ar ?? en : en ?? ar) ?? '';
 
-function SearchInner() {
-  const insets = useSafeAreaInsets();
-  const { isDark, lang } = useApp() as any;
-  const colors = isDark ? darkColors : lightColors;
-  const isRTL = lang === 'ar' || lang === 'ur';
+/** A price worth showing: the backend sends "0" when it has none, and a made-up 0 is never drawn. */
+const priceOf = (lang: string, r: SearchResult): string | null => {
+  const p = pick(lang, r.price, r.priceEn);
+  return p && Number(p) > 0 ? p : null;
+};
 
-  const [searchCat, setSearchCat] = useState(0); // index 0 for 'All'
-  const [query, setQuery] = useState('');
-  const [searchData, setSearchData] = useState<any[]>([]);
-  const [recent, setRecent] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string|null>(null);
-  const [nonce, setNonce] = useState(0);
-
-  // Load the user's real recent searches
-  React.useEffect(() => {
-    AsyncStorage.getItem(RECENT_KEY)
-      .then((raw) => { if (raw) setRecent(JSON.parse(raw)); })
-      .catch(() => {});
-  }, []);
-
-  const saveRecent = (term: string) => {
-    const t = term.trim();
-    if (t.length < 2) return;
-    setRecent((prev) => {
-      const next = [t, ...prev.filter((x) => x !== t)].slice(0, 8);
-      AsyncStorage.setItem(RECENT_KEY, JSON.stringify(next)).catch(() => {});
-      return next;
-    });
-  };
-
-  React.useEffect(() => {
-    if (!query) {
-      setSearchData([]);
-      return;
-    }
-    const delayDebounceFn = setTimeout(() => {
-      setLoading(true);
-      setError(null);
-      apiFetch(`/home/search?q=${encodeURIComponent(query)}`)
-        .then((res: any) => {
-          setSearchData(Array.isArray(res) ? res : res?.data || []);
-          saveRecent(query);
-        })
-        .catch((e) => {
-          logError('search', e);
-          setError('تعذر تنفيذ البحث');
-        })
-        .finally(() => setLoading(false));
-    }, 500);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [query, nonce]);
-
-  const catList = lang === 'ar' ? cats : catsEn;
-  const map = lang === 'ar' ? catMap : catMapEn;
-
-  const currentCatName = catList[searchCat];
-  const filterType = map[currentCatName];
-
-  let results = searchData.filter(x => {
-    const t = lang === 'ar' ? x.type : x.typeEn;
-    return searchCat === 0 || t === filterType;
-  });
-
-  // Sponsored first
-  results = [...results.filter(x => x.sponsored), ...results.filter(x => !x.sponsored)];
-
-  const handleResultClick = (r: any) => {
-    const typeAr = r.type;
-    const id = r.id;
-    if (!id) return;
-    if (typeAr === 'دكتور') {
-      router.push(`/consultations/doctor/${id}` as any);
-    } else if (typeAr === 'باقة') {
-      router.push('/(tabs)/health' as any);
-    } else if (typeAr === 'دواء') {
-      // M1-33: fixed broken route — the screen is product-detail, not product/[id]
-      router.push({ pathname: '/pharmacy/product-detail', params: { id } } as any);
-    } else if (typeAr === 'تحليل') {
-      router.push({ pathname: '/diagnostics/test-detail', params: { id } } as any);
-    } else if (typeAr === 'أشعة') {
-      router.push({ pathname: '/diagnostics/test-detail', params: { id, type: 'radiology' } } as any);
-    } else if (typeAr === 'مقال' || typeAr === 'مرض') {
-      router.push(`/articles/${r.slug || id}` as any);
-    } else if (typeAr === 'تأمين') {
-      router.push('/insurance/hub' as any);
-    } else if (typeAr === 'مجتمع') {
-      router.push({ pathname: '/community/post-detail', params: { id } } as any);
-    } else if (typeAr === 'عائلة') {
-      router.push({ pathname: '/family/member-health', params: { id } } as any);
-    }
-  };
-
+/** The matched part of the text in the bold face (the board's yellow mark is not a token colour). */
+function Highlight({ text, term, style }: { text: string; term: string; style: object }) {
+  const at = term ? text.toLowerCase().indexOf(term.toLowerCase()) : -1;
+  if (at < 0) return <Text style={style}>{text}</Text>;
   return (
-    <View style={[styles.container, { backgroundColor: colors.bg } ]}>
-      <ScreenState loading={loading} error={error} empty={!loading && !error && query.length > 0 && results.length === 0} emptyTitle="لا توجد نتائج" onRetry={() => setNonce(n => n + 1)}>
-      <ScrollView
-        contentContainerStyle={{ paddingTop: insets.top + 12, paddingBottom: 100, paddingHorizontal: 16 }} showsVerticalScrollIndicator={false}>
-        <View style={[styles.searchInputRow, { backgroundColor: colors.s, borderColor: colors.p, flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
-          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.p, fontSize: 20 }}>search</LocalizedText>
-          <TextInput 
-            style={{ flex: 1, fontSize: 13, color: colors.n, textAlign: isRTL ? 'right' : 'left' }} placeholder={lang === 'ar' ? 'ابحث عن طبيب، دواء، تحليل، مقال، تأمين...' : 'Search doctor, medicine, lab, article, insurance...'}
-            placeholderTextColor={colors.t3}
-            value={query}
-            onChangeText={setQuery}
-          />
-          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.t3, fontSize: 18 }}>mic</LocalizedText>
+    <Text style={style}>
+      {text.slice(0, at)}
+      <Text style={{ fontFamily: FONT.bold }}>{text.slice(at, at + term.length)}</Text>
+      {text.slice(at + term.length)}
+    </Text>
+  );
+}
+
+function ResultRow({ r, term, last, size, onOpen }: { r: SearchResult; term: string; last: boolean; size: 'media' | 'bare' | 'chip'; onOpen: (r: SearchResult) => void }) {
+  const { theme, t, c, lang, flow, tr } = useScreenUi();
+  const { icon, tone } = iconFor(r.type);
+  const name = pick(lang, r.name, r.nameEn);
+  const sub = pick(lang, r.sub, r.subEn);
+  const price = priceOf(lang, r);
+  const priceLine = price ? (
+    <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary }}>
+      {price} <Text style={{ ...scale(t, 'tag', 'regular') }}>{tr('ر.س')}</Text>
+    </Text>
+  ) : null;
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={[name, sub, price ? `${price} ${tr('ر.س')}` : ''].filter(Boolean).join('. ')}
+      onPress={() => onOpen(r)}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        padding: 12,
+        minHeight: 64,
+        borderBottomWidth: last ? 0 : 1,
+        borderBottomColor: c.border.subtle,
+        opacity: pressed ? 0.7 : 1,
+      })}
+    >
+      {size === 'media' ? (
+        // medicines: the board's 64 media tile with the bare glyph
+        <View style={{ width: 64, height: 64, borderRadius: 16, backgroundColor: c.bg.media, alignItems: 'center', justifyContent: 'center' }}>
+          <FIcon icon={icon} tone={tone} chip="none" size={38} theme={theme} />
         </View>
+      ) : size === 'bare' ? (
+        <View style={{ width: 48, height: 48, alignItems: 'center', justifyContent: 'center' }}>
+          <FIcon icon={icon} tone={tone} chip="none" size={34} theme={theme} />
+        </View>
+      ) : (
+        <FIcon icon={icon} tone={tone} size={48} theme={theme} />
+      )}
+      <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
+        {r.sponsored ? <StatusChip label={tr('إعلان')} tone="amber" theme={theme} /> : null}
+        <Highlight text={name} term={term} style={{ ...scale(t, 'segment', 'medium'), color: c.text.primary, ...flow }} />
+        {sub ? <Text numberOfLines={2} style={{ ...scale(t, 'label', 'regular'), color: c.text.secondary, ...flow }}>{sub}</Text> : null}
+        {size === 'media' ? priceLine : null}
+      </View>
+      {size !== 'media' ? priceLine : null}
+    </Pressable>
+  );
+}
 
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false} 
-          contentContainerStyle={{ marginBottom: 7, paddingBottom: 16, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-          {catList.map((ct, i) => (
-            <TouchableOpacity 
-              key={i} 
-              onPress={() => setSearchCat(i)}
-              style={[styles.catBtn, { 
-                backgroundColor: searchCat === i ? colors.n : colors.s,
-                borderWidth: searchCat === i ? 0 : 1.5,
-                borderColor: colors.bd
-              } ]}>
-              <LocalizedText style={{ fontSize: 11.5, fontWeight: '600', color: searchCat === i ? '#fff' : colors.t3 }}>
-                {ct}
-              </LocalizedText>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        {searchCat === 0 && recent.length > 0 && (
-          <View style={{ marginBottom: 16 }}>
-            <LocalizedText style={{ fontSize: 12, fontWeight: '700', color: colors.t2, marginBottom: 10, textAlign: isRTL ? 'right' : 'left' }}>
-              {lang === 'ar' ? 'عمليات بحث سابقة' : 'Recent Searches'}
-            </LocalizedText>
-            <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap', marginBottom: 8 }}>
-              {recent.map((r, idx) => (
-                <TouchableOpacity key={idx} onPress={() => setQuery(r)} style={[styles.recentBtn, { backgroundColor: colors.bg, flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
-                  <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 14, color: colors.t3 }}>history</LocalizedText>
-                  <LocalizedText style={{ fontSize: 11, color: colors.t2 }}>{r}</LocalizedText>
-                </TouchableOpacity>
-              ))}
-            </View>
+/** A doctor of the board's horizontal row: the filled stethoscope on its tone (the search gives no photo), name, specialty. */
+function DoctorCard({ r, term, onOpen }: { r: SearchResult; term: string; onOpen: (r: SearchResult) => void }) {
+  const { theme, t, c, lang, flow, tr } = useScreenUi();
+  const { icon, tone } = iconFor(r.type);
+  const name = pick(lang, r.name, r.nameEn);
+  const sub = pick(lang, r.sub, r.subEn);
+  const price = priceOf(lang, r);
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={[name, sub, price ? `${price} ${tr('ر.س')}` : ''].filter(Boolean).join('. ')}
+      onPress={() => onOpen(r)}
+      style={({ pressed }) => ({ width: 252, opacity: pressed ? 0.7 : 1 })}
+    >
+      <Card elevation="flat" padding="none" theme={theme}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12 }}>
+          <FIcon icon={icon} tone={tone} size={64} theme={theme} />
+          <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
+            <Highlight text={name} term={term} style={{ ...scale(t, 'segment', 'bold'), color: c.text.primary, ...flow }} />
+            {sub ? <Text numberOfLines={2} style={{ ...scale(t, 'label', 'regular'), color: c.text.secondary, ...flow }}>{sub}</Text> : null}
+            {price ? <Text style={{ ...scale(t, 'label', 'medium'), color: c.text.primary }}>{`${price} ${tr('ر.س')}`}</Text> : null}
           </View>
-        )}
-
-        <LocalizedText style={{ fontSize: 12, fontWeight: '700', color: colors.t2, marginBottom: 10, textAlign: isRTL ? 'right' : 'left' }}>
-          {lang === 'ar' ? 'النتائج' : 'Results'}
-        </LocalizedText>
-
-        <View style={{ marginBottom: 10 }}>
-          {results.map((r, idx) => {
-            const itemColor = resolveColor(r.c, colors);
-            const itemSoft = resolveColor(r.cs, colors);
-            return (
-              <TouchableOpacity 
-                key={idx} 
-                onPress={() => handleResultClick(r)}
-                style={[styles.resultCard, { 
-                  backgroundColor: colors.s, 
-                  borderColor: r.sponsored ? resolveColor('var(--as)', colors) : colors.bd,
-                  flexDirection: isRTL ? 'row-reverse' : 'row'
-                } ]}>
-                {r.sponsored && (
-                  <View style={[styles.sponsoredBadge, { backgroundColor: resolveColor('var(--as)', colors), left: isRTL ? undefined : 8, right: isRTL ? 8 : undefined } ]}>
-                    <LocalizedText style={{ fontSize: 8, fontWeight: '700', color: resolveColor('var(--am)', colors) }}>
-                      {lang === 'ar' ? 'عرض' : 'Ad'}
-                    </LocalizedText>
-                  </View>
-                )}
-                <View style={[styles.iconWrap, { backgroundColor: itemSoft } ]}>
-                  <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 24, color: itemColor}}>
-                    {r.ic}
-                  </LocalizedText>
-                </View>
-                <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
-                  <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', marginBottom: 6 }}>
-                    <View style={[styles.typeBadge, { backgroundColor: itemSoft } ]}>
-                      <LocalizedText style={{ fontSize: 8, fontWeight: '700', color: itemColor }}>
-                        {lang === 'ar' ? r.type : r.typeEn}
-                      </LocalizedText>
-                    </View>
-                    {r.rate ? (
-                      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', marginBottom: 12 }}>
-                        <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 11, color: '#F5A623'}}>star</LocalizedText>
-                        <LocalizedText style={{ fontSize: 9, color: colors.t3 }}>{lang === 'ar' ? r.rate : r.rateEn}</LocalizedText>
-                      </View>
-                    ) : null}
-                  </View>
-                  <LocalizedText style={{ fontSize: 13, fontWeight: '700', color: colors.n, marginTop: 3 }}>
-                    {lang === 'ar' ? r.name : r.nameEn}
-                  </LocalizedText>
-                  <LocalizedText style={{ fontSize: 10, color: colors.t3 }}>
-                    {lang === 'ar' ? r.sub : r.subEn}
-                  </LocalizedText>
-                </View>
-                {r.price ? (
-                  <View style={{ alignItems: isRTL ? 'flex-start' : 'flex-end' }}>
-                    <LocalizedText style={{ fontSize: 14, fontWeight: '900', color: colors.p }}>{lang === 'ar' ? r.price : r.priceEn}</LocalizedText>
-                    <LocalizedText style={{ fontSize: 8, color: colors.t3 }}>{lang === 'ar' ? 'ر.س' : 'SAR'}</LocalizedText>
-                  </View>
-                ) : (
-                  <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.t3, fontSize: 20 }}>
-                    {isRTL ? 'chevron_left' : 'chevron_right'}
-                  </LocalizedText>
-                )}
-              </TouchableOpacity>
-            );
-          })}
         </View>
+      </Card>
+    </Pressable>
+  );
+}
 
-      </ScrollView>
-      </ScreenState>
+function Block({ block, term, filter, count, onOpen, onSeeAll }: { block: ResultBlock; term: string; filter: string; count: number; onOpen: (r: SearchResult) => void; onSeeAll: (key: string) => void }) {
+  const { theme, tr } = useScreenUi();
+  const { section, rows } = block;
+  const all = filter === 'all';
+  const shown = all ? rows.slice(0, section.preview) : rows;
+  // "See all (n)" jumps to that kind's chip, whose count is the same n; blocks that mix two kinds never show it
+  const seeAll = all && rows.length > shown.length ? FILTERS.find((f) => f.types && f.types.length === section.types.length && f.types.every((x) => section.types.includes(x))) : undefined;
+  return (
+    <View style={{ gap: 10 }}>
+      <SectionHeader
+        title={tr(section.title)}
+        actionLabel={seeAll ? `${tr('الكل')} (${count})` : undefined}
+        onActionPress={seeAll ? () => onSeeAll(seeAll.key) : undefined}
+        theme={theme}
+      />
+      {section.layout === 'cards' ? (
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={shown}
+          keyExtractor={(r, i) => `${r.type}-${r.id ?? i}`}
+          renderItem={({ item }) => <DoctorCard r={item} term={term} onOpen={onOpen} />}
+          contentContainerStyle={{ gap: 10 }}
+          style={{ flexGrow: 0 }}
+        />
+      ) : (
+        <Card elevation="flat" padding="none" theme={theme}>
+          <View>
+            {shown.map((r, i) => (
+              <ResultRow
+                key={`${r.type}-${r.id ?? i}`}
+                r={r}
+                term={term}
+                last={i === shown.length - 1}
+                size={section.key === 'meds' ? 'media' : section.key === 'tests' ? 'bare' : 'chip'}
+                onOpen={onOpen}
+              />
+            ))}
+          </View>
+        </Card>
+      )}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  searchInputRow: { borderRadius: 16, borderWidth: 1.5, paddingVertical: 12, paddingHorizontal: 16, alignItems: 'center', marginBottom: 14 },
-  catBtn: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 40, alignItems: 'center' },
-  recentBtn: { alignItems: 'center', marginBottom: 5, paddingVertical: 7, paddingHorizontal: 13, borderRadius: 40 },
-  resultCard: { position: 'relative', alignItems: 'center', marginBottom: 12, borderWidth: 1.5, borderRadius: 16, padding: 12 },
-  sponsoredBadge: { position: 'absolute', top: 8, paddingVertical: 2, paddingHorizontal: 7, borderRadius: 5 },
-  iconWrap: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-  typeBadge: { paddingVertical: 2, paddingHorizontal: 7, borderRadius: 5 }
-});
+/** "Didn't find what you wanted? Upload the prescription": the board's dashed card, opening the real upload. */
+function UploadCard() {
+  const { theme, t, c, flow } = useScreenUi();
+  return (
+    <Pressable
+      accessibilityRole="link"
+      onPress={() => router.push('/pharmacy/scan-prescription' as Href)}
+      style={{ flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 44, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 22, borderWidth: 1, borderStyle: 'dashed', borderColor: c.border.strong }}
+    >
+      <FIcon icon="prescription" tone="ink" chip="none" size={24} theme={theme} />
+      <LocalizedText style={{ flex: 1, ...scale(t, 'small', 'regular'), color: c.text.primary, ...flow }}>
+        لم تجد ما تبحث عنه؟ ارفع الوصفة وتبحث الصيدليات عنه لك
+      </LocalizedText>
+      <LocalizedText style={{ ...scale(t, 'small', 'bold'), color: c.text.link }}>رفع الوصفة</LocalizedText>
+    </Pressable>
+  );
+}
 
-// __RouteGuard: Phase 2.8 global search (view=pharmacy|doctors|default)
-export default function SearchInnerRoute() {
-  const __p = __useRouteParams() as any;
-  if (__p?.view === "pharmacy") return <PharmacyProductSearchView />;
-  if (__p?.view === "doctors") return <DoctorSearchView />;
-  return <SearchInner />;
+function ResultsSkeleton() {
+  const { theme, c, tr } = useScreenUi();
+  return (
+    <View accessibilityLabel={tr('جاري التحميل...')} accessibilityState={{ busy: true }} style={{ gap: 10 }}>
+      <Skeleton variant="title" width="half" theme={theme} />
+      <View style={{ borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
+        {[0, 1, 2].map((i) => (
+          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderBottomWidth: i === 2 ? 0 : 1, borderBottomColor: c.border.subtle }}>
+            <Skeleton variant="circle" theme={theme} />
+            <View style={{ flex: 1 }}>
+              <Skeleton lines={2} theme={theme} />
+            </View>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+/** With no query: recent searches, then the browse grid. */
+function Discover({ recent, onPick, onClear }: { recent: string[]; onPick: (q: string) => void; onClear: () => void }) {
+  const { theme, t, c, flow, tr } = useScreenUi();
+  const rows: (typeof BROWSE)[] = [];
+  for (let i = 0; i < BROWSE.length; i += 4) rows.push(BROWSE.slice(i, i + 4));
+  return (
+    <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 40, gap: 24 }}>
+      {recent.length ? (
+        <View style={{ gap: 6 }}>
+          <SectionHeader title={tr('عمليات البحث الأخيرة')} actionLabel={tr('مسح')} onActionPress={onClear} theme={theme} />
+          {recent.map((q) => (
+            <Pressable
+              key={q}
+              accessibilityRole="button"
+              accessibilityLabel={q}
+              onPress={() => onPick(q)}
+              style={{ minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 12 }}
+            >
+              <Icon name="clock" size={18} theme={theme} color={c.text.secondary} />
+              <Text numberOfLines={1} style={{ flex: 1, ...scale(t, 'body', 'regular'), color: c.text.primary, ...flow }}>{q}</Text>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
+      <View style={{ gap: 12 }}>
+        <SectionHeader title={tr('تصفّح حسب القسم')} theme={theme} />
+        <View style={{ gap: 14 }}>
+          {rows.map((row, ri) => (
+            <View key={ri} style={{ flexDirection: 'row', gap: 10 }}>
+              {row.map((b) => {
+                const { icon, tone } = SERVICE_ICONS[b.service];
+                return (
+                  <Pressable key={b.label} accessibilityRole="button" accessibilityLabel={tr(b.label)} onPress={() => router.push(b.route as Href)} style={{ flex: 1, minWidth: 0, alignItems: 'center', gap: 8 }}>
+                    <View style={{ width: 72, height: 72, borderRadius: 22, backgroundColor: c.bg.surface, boxShadow: t.shadow.tile, alignItems: 'center', justifyContent: 'center' }}>
+                      <FIcon icon={icon} tone={tone} chip="none" size={46} theme={theme} />
+                    </View>
+                    <LocalizedText numberOfLines={2} style={{ ...scale(t, 'label', 'medium'), color: c.text.primary, textAlign: 'center' }}>{b.label}</LocalizedText>
+                  </Pressable>
+                );
+              })}
+            </View>
+          ))}
+        </View>
+      </View>
+    </ScrollView>
+  );
+}
+
+function SearchScreen({ initialQuery }: { initialQuery: string }) {
+  const { theme, t, c, dir, tr } = useScreenUi();
+  const insets = useSafeAreaInsets();
+  const [query, setQuery] = useState(initialQuery);
+  const [filter, setFilter] = useState('all');
+  const [rows, setRows] = useState<SearchResult[]>([]);
+  /** The term `rows` answer: results are only "none" once the term typed has been answered. */
+  const [answered, setAnswered] = useState<string | null>(null);
+  const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
+  const [recent, setRecent] = useState<string[]>([]);
+  const [nonce, setNonce] = useState(0);
+  const term = query.trim();
+
+  // the user's real recent searches, kept on the phone
+  useEffect(() => {
+    AsyncStorage.getItem(RECENT_KEY)
+      .then((raw) => {
+        if (raw) setRecent(JSON.parse(raw) as string[]);
+      })
+      .catch(() => {});
+  }, []);
+
+  const saveRecent = useCallback((value: string) => {
+    if (value.length < 2) return;
+    setRecent((prev) => {
+      const next = [value, ...prev.filter((x) => x !== value)].slice(0, RECENT_MAX);
+      AsyncStorage.setItem(RECENT_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  }, []);
+
+  const clearRecent = () => {
+    setRecent([]);
+    AsyncStorage.removeItem(RECENT_KEY).catch(() => {});
+  };
+
+  // debounced search; an answer for a term that is no longer typed is dropped
+  useEffect(() => {
+    setFailed(null);
+    if (!term) {
+      setRows([]);
+      setAnswered(null);
+      return;
+    }
+    let stale = false;
+    const timer = setTimeout(() => {
+      apiFetch<SearchResult[] | { data?: SearchResult[] }>(`/home/search?q=${encodeURIComponent(term)}`)
+        .then((res) => {
+          if (stale) return;
+          setRows(Array.isArray(res) ? res : res?.data ?? []);
+          setAnswered(term);
+          saveRecent(term);
+        })
+        .catch(async (e: unknown) => {
+          logError('search', e);
+          const offline = await isOffline();
+          if (!stale) setFailed(offline ? 'offline' : 'error');
+        });
+    }, DEBOUNCE_MS);
+    return () => {
+      stale = true;
+      clearTimeout(timer);
+    };
+  }, [term, nonce, saveRecent]);
+
+  const counts = useMemo(() => countByFilter(rows), [rows]);
+  // a chip whose kind is gone from the new results falls back to "All"
+  useEffect(() => {
+    if (filter !== 'all' && !counts[filter]) setFilter('all');
+  }, [counts, filter]);
+  const blocks = useMemo(() => blocksFor(rows, filter), [rows, filter]);
+  const chips = FILTERS.filter((f) => f.key === 'all' || counts[f.key] > 0);
+
+  const open = (r: SearchResult) => {
+    const target = routeFor(r);
+    if (target) router.push(target as Href);
+  };
+  const leave = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace('/(tabs)' as Href);
+  };
+
+  const startInset = dir === 'rtl' ? insets.right : insets.left;
+  const endInset = dir === 'rtl' ? insets.left : insets.right;
+  const header = (
+    <View style={{ paddingTop: insets.top + 7, paddingBottom: 10, gap: 12, backgroundColor: tint(c.bg.canvas, 0.86), zIndex: t.z.appBar }}>
+      <View style={{ ...COLUMN, paddingStart: 16 + startInset, paddingEnd: 16 + endInset, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Search
+            variant="page"
+            value={query}
+            onChange={setQuery}
+            placeholder={tr('ابحث عن دواء، طبيب، تحليل…')}
+            label={tr('بحث')}
+            onClear={() => setQuery('')}
+            clearLabel={tr('مسح')}
+            onScanPress={() => router.push('/pharmacy/barcode-scanner' as Href)}
+            scanLabel={tr('ماسح الأدوية')}
+            testID="search-field"
+            theme={theme}
+          />
+        </View>
+        <Pressable accessibilityRole="button" accessibilityLabel={tr('إلغاء')} onPress={leave} hitSlop={8} style={{ minHeight: 44, minWidth: 44, alignItems: 'center', justifyContent: 'center' }}>
+          <LocalizedText style={{ ...scale(t, 'body', 'regular'), color: c.text.primary }}>إلغاء</LocalizedText>
+        </Pressable>
+      </View>
+      {term && answered === term && rows.length && !failed ? (
+        <View style={COLUMN}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 8, paddingStart: 16 + startInset, paddingEnd: 16 + endInset }}>
+            {chips.map((f) => (
+              <Chip key={f.key} label={tr(f.label)} count={counts[f.key]} selected={filter === f.key} onPress={() => setFilter(f.key)} theme={theme} />
+            ))}
+          </ScrollView>
+        </View>
+      ) : null}
+    </View>
+  );
+
+  const centred = { ...COLUMN, flexGrow: 1, justifyContent: 'center', paddingHorizontal: 16, paddingBottom: 40 } as const;
+  let body: React.ReactNode;
+  if (!term) {
+    body = <Discover recent={recent} onPick={setQuery} onClear={clearRecent} />;
+  } else if (failed === 'offline') {
+    body = (
+      <ScrollView contentContainerStyle={centred}>
+        <OfflineState title={tr('لا يوجد اتصال بالإنترنت')} body={tr('اتصل بالشبكة ثم حاول مرة أخرى.')} retryLabel={tr('إعادة المحاولة')} onRetry={() => setNonce((n) => n + 1)} theme={theme} />
+      </ScrollView>
+    );
+  } else if (failed === 'error') {
+    body = (
+      <ScrollView contentContainerStyle={centred}>
+        <ErrorState title={tr('تعذر تنفيذ البحث')} body={tr('تحقق من اتصالك ثم حاول مرة أخرى.')} retryLabel={tr('إعادة المحاولة')} onRetry={() => setNonce((n) => n + 1)} theme={theme} />
+      </ScrollView>
+    );
+  } else if (answered !== term) {
+    body = (
+      <ScrollView contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 12 }}>
+        <ResultsSkeleton />
+      </ScrollView>
+    );
+  } else if (!rows.length) {
+    body = (
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 40, gap: 22 }}>
+        <EmptyState icon="magnifying-glass" tone="blue" title={tr('لا توجد نتائج')} body={tr('جرّب كلمة أخرى أو تحقق من الإملاء.')} theme={theme} />
+        <UploadCard />
+      </ScrollView>
+    );
+  } else {
+    body = (
+      <FlatList
+        style={{ flex: 1 }}
+        data={blocks}
+        keyExtractor={(b) => b.section.key}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 40, gap: 22 }}
+        renderItem={({ item }) => (
+          <Block
+            block={item}
+            term={term}
+            filter={filter}
+            count={item.rows.length}
+            onOpen={open}
+            onSeeAll={setFilter}
+          />
+        )}
+        ListFooterComponent={<UploadCard />}
+      />
+    );
+  }
+
+  return (
+    <Screen theme={theme} direction={dir} header={header} keyboard testID="search-screen">
+      {body}
+    </Screen>
+  );
+}
+
+// Route guard (Phase 2.8 global search): ?view=pharmacy and ?view=doctors open their own search views.
+export default function SearchRoute() {
+  const params = useLocalSearchParams<{ view?: string; q?: string }>();
+  if (params?.view === 'pharmacy') return <PharmacyProductSearchView />;
+  if (params?.view === 'doctors') return <DoctorSearchView />;
+  return <SearchScreen initialQuery={typeof params?.q === 'string' ? params.q : ''} />;
 }

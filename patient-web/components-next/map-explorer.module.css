@@ -1,4 +1,4 @@
-.container{display:flex;height:calc(100vh - 80px);position:relative;background:#FDFDFC}
+.container{display:flex;height:calc(100dvh - 80px);position:relative;background:#FDFDFC}
 .sidebar{width:420px;background:rgba(255,255,255,.92);border-inline-end:1px solid #E8EDEE;display:flex;flex-direction:column;z-index:10;overflow:hidden;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
 .header{padding:24px 16px 8px;display:grid;gap:8px}
 .header h1{font-size:clamp(1.4rem,2.5vw,1.75rem);font-weight:800;color:#1E332E;margin:0;letter-spacing:-.03em;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}

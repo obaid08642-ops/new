@@ -33,7 +33,7 @@ export default async function InsuranceCoverageCheckPage({ params, searchParams 
         <div>
           <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
           <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{locale === "ar" ? "فحص التغطية التأمينية" : "Coverage check"}</h1>
-          <p>{locale === "ar" ? "تحقق حي من الخادم — القرار المحلي ليس اعتماداً من شركة التأمين." : "Live server check — a local decision is not a payer approval."}</p>
+          <p>{locale === "ar" ? "هذه نتيجة فحص مبدئية وليست موافقة من شركة التأمين." : "This is an initial check, not an approval from your insurer."}</p>
         </div>
               <span style={{ inlineSize: 48, blockSize: 48, borderRadius: 16, border: "1px solid #E8EDEE", background: "rgba(95,217,179,.12)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } as React.CSSProperties} aria-hidden="true"><VectorInsurance size={48} aria-hidden="true" /></span>
       <span style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", padding: "8px 12px", display: "inline-flex", gap: 8, alignItems: "center" } as React.CSSProperties} aria-hidden="true" />

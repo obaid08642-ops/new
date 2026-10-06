@@ -10,9 +10,14 @@
  * and out of both themes, and the palette guard cannot see it any more.
  */
 
-export { Icon, IllustratedIconView, Illustration, LINE_ICON_NAMES, ILLUSTRATED_ICONS, ILLUSTRATION_NAMES, ILLUSTRATION_META, ILLUSTRATIONS, ICON_TINT } from './Icon';
+export { Icon, LINE_ICON_NAMES } from './Icon';
+// The illustrated artwork is its own module (loaded on demand by <Icon>); importing it here registers it, so the
+// barrel keeps illustrated icons synchronous for the gallery and the tests.
+export { IllustratedIconView, Illustration, ILLUSTRATED_ICONS, ILLUSTRATION_NAMES, ILLUSTRATION_META, ILLUSTRATIONS, ICON_TINT } from './Illustrated';
 export { Button, IconButton } from '../components/Button';
 export { Spinner } from '../components/Spinner';
+export { Segmented, Toggle, Radio, StatusChip } from '../components/Controls';
+export { DoctorCard, ProductCard, OfferCard, Timeline, ProgressRing } from '../components/Cards';
 export { Input, Select, Otp, Search, Stepper, SlotPicker } from '../components/Inputs';
 export {
   Avatar, Badge, BottomTabBar, Card, Chip, ListItem, MapPinCard, NavBar, PriceTag,
@@ -21,7 +26,7 @@ export {
 export { FIcon } from '../components/FIcon';
 export { FILL_ICON_NAMES, FILL_ICON_PATHS, SERVICE_ICONS, SERVICE_TONES } from '../icons/fill';
 export type { FillIconName, ServiceName, ServiceTone } from '../icons/fill';
-export { ChartCard, DataTable, EmptyState, ErrorState, Modal, Skeleton, Toast } from '../components/Feedback';
+export { ChartCard, DataTable, EmptyState, ErrorState, OfflineState, Modal, Skeleton, Toast } from '../components/Feedback';
 
 export type { IconName, LineIconName } from '../icons/names';
 export type { IllustratedIcon } from '../icons/illustrated';

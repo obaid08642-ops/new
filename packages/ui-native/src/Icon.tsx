@@ -82,6 +82,9 @@ const LINE: Record<SharedLineIconName, React.FC<GlyphProps>> = {
   plus: phosphor.PlusIcon,
   minus: phosphor.MinusIcon,
   filter: phosphor.FunnelIcon,
+  sliders: phosphor.SlidersHorizontalIcon,
+  eye: phosphor.EyeIcon,
+  'eye-slash': phosphor.EyeSlashIcon,
   settings: phosphor.GearIcon,
   list: phosphor.ListIcon,
   download: phosphor.DownloadSimpleIcon,
@@ -110,6 +113,8 @@ export interface IconProps {
   tone?: 'primary' | 'secondary' | 'onBrand' | 'favorite';
   /** Which theme to resolve the colour in. Defaults to light. */
   theme?: ThemeName;
+  /** An exact colour for a line icon (e.g. the label colour of the button it sits in); wins over `tone`. */
+  color?: string;
   /** Accessible name. Omit when the icon sits beside visible text. */
   title?: string;
   testID?: string;
@@ -193,6 +198,7 @@ export function Icon({
   weight = 'line',
   tone = 'primary',
   theme = 'light',
+  color,
   title,
   testID,
 }: IconProps) {
@@ -231,7 +237,7 @@ export function Icon({
     <Glyph
       size={px}
       weight="regular"
-      color={toneColour(tone, theme)}
+      color={color ?? toneColour(tone, theme)}
       testID={testID ?? `icon-${name}`}
       accessibilityLabel={title}
       accessibilityRole={title ? 'image' : 'none'}
