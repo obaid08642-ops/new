@@ -135,3 +135,22 @@ Files:
 - Edited (owned): `pharmacy.module.ts` only.
 - Proofs: 12/12 green; `tsc` clean; zero `any` in new files; mutation probe (Rx gate disabled)
   → 2 service tests RED (Rx item suggested), restored → green.
+
+### P22.5 Order changes — BUILT on existing cancel/refund/split (commit below)
+Files:
+- `backend/src/modules/orders/order-amendment.service.ts` (new) + `.spec.ts` (15 tests)
+- `backend/src/modules/orders/dispatch.service.ts`: added `tryDeductStock` (atomic `$gte` guard).
+- `backend/src/modules/orders/orders.service.ts`: patient cancellation window in `cancel()`
+  (finance_config `cancel_policy.cancel_window_minutes`, default 30; admin/provider ungated) +
+  exported `isGovernedPharmacyFlow` (amendment guard; shared `isCanonicalPharmacyOrder` untouched —
+  containment specs still green).
+- `backend/src/modules/orders/orders.dto.ts`: EditItemsDto / RefundPartialDto / SplitOrderDto.
+- `backend/src/modules/orders/orders.controller.ts`: PATCH `:id/items`, POST `:id/refund-partial`,
+  POST `:id/split` (all idempotent); `orders.module.ts` registers/exports OrderAmendmentService.
+- Semantics: edit pre-accept + unpaid only (coupon/loyalty released idempotently, totals recomputed
+  from catalog); partial refund capped at total, post-delivery → returns flow, via existing
+  RefundExecutor; split requires assigned primary, allocates shortfall atomically, lost race → 409
+  with restore. Real semantic find: bare `pharmacy_id` marks legacy-dispatch rows (amendable), not
+  governed flow — documented in code.
+- Proofs: new 15/15 green; whole orders dir 55/55 green; `tsc` clean; no new `any`; mutation probe
+  (`$gte` removed) → concurrency test RED (both racers win), restored → green.

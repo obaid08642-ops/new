@@ -185,9 +185,30 @@ export class DispatchService {
     }
   }
 
+  /**
+   * P22.5 — atomic guarded decrement for split allocation.
+   * The `$gte` guard makes the check-and-decrement a single atomic MongoDB
+   * write: two concurrent allocators racing for the last unit resolve to
+   * exactly one winner (matchedCount 1 vs 0). Returns true when stock moved.
+   */
+  async tryDeductStock(
+    pharmacy_user_id: string,
+    medicine_id: string,
+    qty: number,
+  ): Promise<boolean> {
+    if (!pharmacy_user_id || !medicine_id || !(qty > 0)) return false;
+    const res = (await this.invModel.updateOne(
+      {
+        pharmacy_id: { $eq: String(pharmacy_user_id) },
+        medicine_id: { $eq: String(medicine_id) },
+        stock_qty: { $gte: qty },
+      },
+      { $inc: { stock_qty: -qty }, $set: { last_restocked_at: new Date() } },
+    )) as unknown as { matchedCount?: number; modifiedCount?: number };
+    return Number(res?.matchedCount ?? res?.modifiedCount ?? 0) > 0;
+  }
   /** Restore stock when a previously-accepted order is cancelled before delivery. */
-  async restoreStock(pharmacy_user_id: string, items: { medicine_id: string; qty: number }[]) {
-    if (!pharmacy_user_id || !Array.isArray(items)) return;
+  async restoreStock(pharmacy_user_id: string, items: { medicine_id: string; qty: number }[]) {    if (!pharmacy_user_id || !Array.isArray(items)) return;
     for (const it of items) {
       if (!it?.medicine_id || !(it.qty > 0)) continue;
       await this.invModel.updateOne(

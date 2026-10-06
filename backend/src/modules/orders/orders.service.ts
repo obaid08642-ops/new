@@ -23,6 +23,38 @@ import { ProductRankingEventService } from '../product-ranking/product-ranking-e
 
 const round2 = (n: number) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
 
+/** P22.5 — shared with OrderAmendmentService: legacy mutations must never touch canonical pharmacy orders. */
+export function isCanonicalPharmacyOrder(order: any): boolean {  return Boolean(
+    order?.service_kind === 'pharmacy' ||
+    order?.order_type === 'pharmacy' ||
+    order?.type === 'pharmacy' ||
+    order?.pharmacy_id ||
+    (order?.basket_review_status && order.basket_review_status !== 'none') ||
+    order?.insurance_details ||
+    (Array.isArray(order?.items) && order.items.some((item: any) => item?.is_manual_entry || item?.is_substitute)),
+  );
+}
+
+/**
+ * P22.5 — amendment-surface guard. The shared `isCanonicalPharmacyOrder`
+ * treats a bare `pharmacy_id` as canonical, which is correct for the
+ * create/transition surface. The amendment surface (`OrderAmendmentService`)
+ * exclusively serves `orders`-collection rows: there a `pharmacy_id` is the
+ * legacy geo-dispatch assignment (the canonical flow persists to
+ * `pharmacy_orders`, never here), and those rows are exactly the amendable
+ * population. Governed-flow markers still block.
+ */
+export function isGovernedPharmacyFlow(order: any): boolean {
+  return Boolean(
+    order?.service_kind === 'pharmacy' ||
+    order?.order_type === 'pharmacy' ||
+    order?.type === 'pharmacy' ||
+    (order?.basket_review_status && order.basket_review_status !== 'none') ||
+    order?.insurance_details ||
+    (Array.isArray(order?.items) && order.items.some((item: any) => item?.is_manual_entry || item?.is_substitute)),
+  );
+}
+
 @Injectable()
 export class OrdersService {
   constructor(
@@ -44,16 +76,7 @@ export class OrdersService {
 
   /** Legacy /orders mutations must never operate on a pharmacy order. */
   private async assertNotCanonicalPharmacyOrder(order: any): Promise<void> {
-    const isPharmacy = Boolean(
-      order?.service_kind === 'pharmacy' ||
-      order?.order_type === 'pharmacy' ||
-      order?.type === 'pharmacy' ||
-      order?.pharmacy_id ||
-      (order?.basket_review_status && order.basket_review_status !== 'none') ||
-      order?.insurance_details ||
-      (Array.isArray(order?.items) && order.items.some((item: any) => item?.is_manual_entry || item?.is_substitute)),
-    );
-    if (isPharmacy) throw new ServiceUnavailableException('canonical_pharmacy_flow_required');
+    if (isCanonicalPharmacyOrder(order)) throw new ServiceUnavailableException('canonical_pharmacy_flow_required');
   }
 
   // ============ CREATE ============
@@ -443,6 +466,21 @@ export class OrdersService {
     await this.assertNotCanonicalPharmacyOrder(order);
     this.assertOrderAccess(order, by);
 
+    // P22.5 — configurable patient cancellation window (minutes since creation).
+    // Admins/providers keep the stage-based policy below; patients self-cancel
+    // only inside the window, afterwards they go through support (admin cancel).
+    if (String(by.role || '').toLowerCase() === UserRole.PATIENT) {
+      const windowMinutes = await this.cancelWindowMinutes();
+      const createdAt = order.createdAt
+        ? new Date(order.createdAt).getTime()
+        : Date.now();
+      if (Date.now() - createdAt > windowMinutes * 60 * 1000) {
+        throw new BadRequestException(
+          `cancel_window_expired: patient self-cancel is allowed within ${windowMinutes} minutes of ordering`,
+        );
+      }
+    }
+
     const policy = await this.cancelPolicy.forOrder(order.state as string, by.role, order.delivery_fee || 0);
     if (!policy.allowed) {
       throw new BadRequestException(`Cannot cancel order at this stage (${policy.block_reason || 'not_allowed'})`);
@@ -605,9 +643,20 @@ export class OrdersService {
     return del;
   }
 
+  /**
+   * P22.5 — patient self-cancel window (minutes), admin-configurable via
+   * `finance_config { key: 'cancel_policy', cancel_window_minutes }`.
+   */
+  async cancelWindowMinutes(): Promise<number> {
+    const cfg: any = await this.conn
+      .collection('finance_config')
+      .findOne({ key: 'cancel_policy' } as any);
+    const n = Number(cfg?.cancel_window_minutes ?? 30);
+    return Number.isFinite(n) && n > 0 ? Math.floor(n) : 30;
+  }
+
   // Reorder — keep items, re-dispatch via geo
-  async reorder(orderId: string, patient: any) {
-    const o = await this.orderModel.findOne({ id: orderId, patient_id: patient.id });
+  async reorder(orderId: string, patient: any) {    const o = await this.orderModel.findOne({ id: orderId, patient_id: patient.id });
     if (o) {
       await this.assertNotCanonicalPharmacyOrder(o);
       return this.create(patient, {

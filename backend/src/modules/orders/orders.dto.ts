@@ -1,4 +1,5 @@
-import { IsArray, IsBoolean, IsDefined, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsEnum, IsInt, IsNumber, IsOptional, IsString, Max, Min, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 import { DeliveryState, OrderState } from '../../common/enums';
 
 export class ReorderPartialDto {
@@ -118,4 +119,48 @@ export class AdminTransitionDto {
   @IsOptional()
   @IsString()
   reason?: string;
+}
+
+/** P22.5 — edit items before the pharmacy accepts. */
+export class EditItemDto {
+  @IsDefined()
+  @IsString()
+  medicine_id: string;
+
+  @IsDefined()
+  @IsInt()
+  @Min(1)
+  @Max(99)
+  qty: number;
+}
+
+export class EditItemsDto {
+  @IsDefined()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => EditItemDto)
+  items: EditItemDto[];
+}
+
+/** P22.5 — explicit partial refund. */
+export class RefundPartialDto {
+  @IsDefined()
+  @IsNumber()
+  @Min(0.01)
+  amount: number;
+
+  @IsOptional()
+  @IsString()
+  reason?: string;
+}
+
+/** P22.5 — split shortfall to a second pharmacy (origin defaults to the order address). */
+export class SplitOrderDto {
+  @IsOptional()
+  @IsNumber()
+  lat?: number;
+
+  @IsOptional()
+  @IsNumber()
+  lng?: number;
 }

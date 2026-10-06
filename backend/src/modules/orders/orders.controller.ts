@@ -1,17 +1,22 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards, Res } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { ReorderEligibilityService } from './reorder-eligibility.service';
+import { OrderAmendmentService } from './order-amendment.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { OrderState, UserRole, DeliveryState } from '../../common/enums';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { ReorderPartialDto, CancelDto, RejectBasketDto, OptInCashDto, UpdateInsuranceApprovalDto, RejectDto, PartialDto, PlaceBidDto, AssignDto, DeliveryUpdateDto, AdminTransitionDto} from './orders.dto';
+import { ReorderPartialDto, CancelDto, RejectBasketDto, OptInCashDto, UpdateInsuranceApprovalDto, RejectDto, PartialDto, PlaceBidDto, AssignDto, DeliveryUpdateDto, AdminTransitionDto, EditItemsDto, RefundPartialDto, SplitOrderDto} from './orders.dto';
 
 @Controller('orders')
 @SelfService()
 @UseGuards(JwtAuthGuard)
 export class OrdersController {
-  constructor(private svc: OrdersService, private eligibility: ReorderEligibilityService) {}
+  constructor(
+    private svc: OrdersService,
+    private eligibility: ReorderEligibilityService,
+    private amendments: OrderAmendmentService,
+  ) {}
 
   // Patient only — providers use the read-only Drug Index and can never order
   @Post('create')
@@ -42,6 +47,31 @@ export class OrdersController {
   @RequireIdempotency()
   cancel(@Param('id') id: string, @CurrentUser() user: any, @Body() body: CancelDto) {
     return this.svc.cancel(id, user, body?.reason || 'patient-cancel');
+  }
+
+  /** P22.5 — edit items before the pharmacy accepts (unpaid only). */
+  @Patch(':id/items')
+  @RequireIdempotency()
+  @Roles(UserRole.PATIENT, UserRole.ADMIN)
+  editItems(@Param('id') id: string, @CurrentUser() user: any, @Body() body: EditItemsDto) {
+    return this.amendments.editItems(id, user, body.items);
+  }
+
+  /** P22.5 — explicit partial refund via the existing refund pipeline. */
+  @Post(':id/refund-partial')
+  @RequireIdempotency()
+  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  refundPartial(@Param('id') id: string, @CurrentUser() user: any, @Body() body: RefundPartialDto) {
+    return this.amendments.refundPartial(id, user, body.amount, body.reason);
+  }
+
+  /** P22.5 — split the shortfall to a second pharmacy (atomic allocation). */
+  @Post(':id/split')
+  @RequireIdempotency()
+  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  split(@Param('id') id: string, @CurrentUser() user: any, @Body() body: SplitOrderDto) {
+    const origin = body?.lat && body?.lng ? { lat: body.lat, lng: body.lng } : undefined;
+    return this.amendments.splitOrder(id, user, origin);
   }
 
   // Patient: approve/reject pharmacy basket review
