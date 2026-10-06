@@ -121,6 +121,19 @@ jobs:
         run: npm run no-raw-color
       - name: No new emoji in UI (ratchet)
         run: npm run no-emoji
+      # handoff §6 / DEVICE_STANDARD §5. 100vh hides the page bottom under the
+      # mobile browser chrome (strict); SafeAreaView from react-native pads only
+      # on iOS (strict; Dimensions.get is ratcheted); physical left/right is on the
+      # wrong side in Arabic and Urdu (ratchet, tools/design/no-left-right.baseline.json).
+      - name: No 100vh on the web (strict)
+        run: npm run no-100vh
+      - name: No SafeAreaView from react-native; no new Dimensions.get (strict + ratchet)
+        run: npm run no-rn-safeareaview
+      # QUALITY_STANDARDS §1: no raster over 200 KB in the apps or patient-web/public.
+      - name: No raster asset over 200 KB (WebP/AVIF, CDN)
+        run: npm run no-large-raster
+      - name: No new physical left/right, start/end only (ratchet)
+        run: npm run no-left-right
       # A4: a missing translation key is not an error in next-intl, it renders the
       # KEY. `NursingCatalog.emptyBody` reached users as that literal string on
       # the public nursing catalogue. This compares every locale against en.
