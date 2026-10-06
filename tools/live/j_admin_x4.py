@@ -67,7 +67,7 @@ def staff_passkey(role):
     step('password alone gives no token: emailed-code bootstrap', r.ok and r.get('requires_2fa') and r.get('passkey_bootstrap') and not r.get('token'), r)
     code = mail_code(email, t0)
     step('bootstrap code emailed', code, 'no mail')
-    r = anon.post('/auth/verify-2fa', {'identifier': email, 'code': code})
+    r = anon.post('/auth/login/verify-2fa', {'identifier': email, 'code': code})
     tok = (r.get('token') or {}).get('accessToken') if r.ok and isinstance(r.get('token'), dict) else r.get('token') if r.ok else None
     if not step('bootstrap session issued', tok, r):
         return
@@ -87,7 +87,7 @@ def staff_passkey(role):
     opts = r.get('passkey_options') if r.ok else None
     step('with a passkey, login asks for it (no emailed code)', opts and not r.get('requires_2fa'), r)
     # No code is mailed once a passkey exists; whatever code is sent, the answer is passkey_required.
-    r = anon.post('/auth/verify-2fa', {'identifier': email, 'code': '000000'})
+    r = anon.post('/auth/login/verify-2fa', {'identifier': email, 'code': '000000'})
     step('an emailed code alone is refused (403 passkey_required)', r.status == 403 and 'passkey_required' in repr(r), r)
     if not opts:
         return

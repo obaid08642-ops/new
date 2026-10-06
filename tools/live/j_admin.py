@@ -35,6 +35,7 @@ def login():
     journey('admin: login with email 2FA (admin panel)')
     w = AdminWeb(ADMIN_WEB, 'admin')
     t0 = time.time()
+    bootstrap = False
     r = w.post('/api/admin/auth/login', {'identifier': EMAIL, 'password': PASSWORD})
     if r.status == 202 and r.get('requires_passkey'):
         # C1: once the admin has a passkey (softkey.py enrolls it for step-up),
@@ -44,6 +45,7 @@ def login():
         r = w.post('/api/admin/auth/passkey-verify', {'identifier': EMAIL, 'response': softkey.assertion(r.get('passkey_options'))})
         step('passkey-verify -> session', r.ok, r)
     else:
+        bootstrap = True
         step('credentials -> 202 requires_2fa', r.status == 202 and r.get('requires_2fa'), r)
         code = mail_code(EMAIL, t0)
         step('2FA code emailed to the admin', code, 'no mail')
@@ -64,6 +66,13 @@ def login():
     # 7C-C2: every direct /api/v1/admin/* call needs an enrolled device.
     if admin:
         enroll_admin_device(admin, EMAIL, PASSWORD)
+        if bootstrap:
+            # X4: the emailed-code (bootstrap) browser session is not bound to a
+            # passkey; once enroll_admin_device has enrolled one, sign the browser in
+            # again with it so the BFF device is bound (no device_rebind_required).
+            if SESSION_FILE and os.path.exists(SESSION_FILE):
+                os.remove(SESSION_FILE)
+            return login()
     return w, admin
 
 
