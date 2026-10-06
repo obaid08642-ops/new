@@ -17,6 +17,7 @@ import { I, IBg } from '../../../components/icons';
 import { SP, R, FS, FW, API_BASE } from '../../../constants';
 import { buildHeaders, Vault, SK } from '../../../security/Security';
 import client from '../../../api/client';
+import { reportRunningLate, markAppointmentNoShow } from '../../../api/visit';
 import { useServicesCatalog, getInsuranceCatalog, useSpecialtiesCatalog } from '../../../api/catalogs';
 import { VideoCallRoom } from '../../shared/VideoCallRoom';
 import { InsuranceRequestsScreen } from '../../shared/InsuranceRequestsScreen';
@@ -60,10 +61,15 @@ export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
  const [acting, setActing] = useState(false);
  const [showCancel, setShowCancel] = useState(false);
  const [cancelReason, setCancelReason] = useState('');
- const [showResched, setShowResched] = useState(false);
- const [newDate, setNewDate] = useState('');
- const [newTime, setNewTime] = useState('');
- const apptId = String(apt?.id || apt?.appointment_id || '');
+  const [showResched, setShowResched] = useState(false);
+  const [newDate, setNewDate] = useState('');
+  const [newTime, setNewTime] = useState('');
+  // P22.6 — provider running-late declaration + governed no-show marking.
+  const [showLate, setShowLate] = useState(false);
+  const [delayMinutes, setDelayMinutes] = useState('15');
+  const [lateResult, setLateResult] = useState<{ delay_minutes: number; auto: boolean } | null>(null);
+  const [noShowFee, setNoShowFee] = useState<number | null>(null);
+  const apptId = String(apt?.id || apt?.appointment_id || '');
 
  async function doPatch(action: string, body?: any) {
    if (!apptId) { show(AR ? 'معرف الموعد مفقود' : 'Appointment identifier is missing', 'error'); return; }
@@ -79,11 +85,49 @@ export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
    }
  }
 
- function submitReschedule() {
-   const iso = Date.parse(`${newDate.trim()}T${newTime.trim()}:00`);
-   if (!Number.isFinite(iso)) { show(AR ? 'أدخل التاريخ (YYYY-MM-DD) والوقت (HH:mm)' : 'Enter date (YYYY-MM-DD) and time (HH:mm)', 'error'); return; }
-   doPatch('reschedule', { slot_start: new Date(iso).toISOString() });
- }
+  function submitReschedule() {
+    const iso = Date.parse(`${newDate.trim()}T${newTime.trim()}:00`);
+    if (!Number.isFinite(iso)) { show(AR ? 'أدخل التاريخ (YYYY-MM-DD) والوقت (HH:mm)' : 'Enter date (YYYY-MM-DD) and time (HH:mm)', 'error'); return; }
+    doPatch('reschedule', { slot_start: new Date(iso).toISOString() });
+  }
+
+  // P22.6 — provider declares running late: POST /care/appointments/:id/report-late
+  // { delay_minutes: 5..180 }. The server notifies the patient; lateResult echoes the delay.
+  async function submitLate() {
+    const delay = Math.floor(Number(String(delayMinutes).trim()));
+    if (!Number.isFinite(delay) || delay < 5 || delay > 180) {
+      show(AR ? 'أدخل التأخير بالدقائق (5–180)' : 'Enter the delay in minutes (5–180)', 'error');
+      return;
+    }
+    setActing(true);
+    try {
+      const out = await reportRunningLate(apptId, delay);
+      setLateResult({ delay_minutes: out.delay_minutes, auto: !!out.auto });
+      show(AR ? `تم إشعار المريض — تأخير ${out.delay_minutes} دقيقة` : `Patient notified — running ${out.delay_minutes} min late`, 'success');
+      setShowLate(false);
+    } catch (err: any) {
+      show(err?.response?.data?.message || err?.message || (AR ? 'تعذر إرسال إشعار التأخير' : 'Could not send the late notice'), 'error');
+    } finally {
+      setActing(false);
+    }
+  }
+
+  // P22.6 — provider marks patient no-show: PATCH /care/appointments/:id/no-show.
+  // Governed server-side (CONFIRMED + slot passed); the admin-set fee comes back in noshow_fee.
+  async function submitNoShow() {
+    if (!apptId) { show(AR ? 'معرف الموعد مفقود' : 'Appointment identifier is missing', 'error'); return; }
+    setActing(true);
+    try {
+      const out = await markAppointmentNoShow(apptId);
+      const fee = Number(out?.noshow_fee ?? NaN);
+      setNoShowFee(Number.isFinite(fee) ? fee : 0);
+      show(AR ? 'سُجل عدم حضور المريض' : 'Patient marked as no-show', 'success');
+    } catch (err: any) {
+      show(err?.response?.data?.message || (AR ? 'تعذر التسجيل — يُسمح فقط لموعد مؤكد فات موعده' : 'Could not record — only a past confirmed visit can be marked'), 'error');
+    } finally {
+      setActing(false);
+    }
+  }
 
  return (
  <NScroll>
@@ -122,11 +166,35 @@ export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
   </NCard>
   {/* the consultation screen verifies the appointment with the server before anything opens */}
   <NBtn label={AR ? 'فتح الاستشارة' : 'Open consultation'} onPress={() => onNavigate('consultation', apt)} style={{ marginTop: SP.xl }} />
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md }}>
- <View style={{ flex: 1 }}><NBtn label={AR ? 'تأكيد الموعد' : 'Confirm'} loading={acting} onPress={() => doPatch('confirm')} /></View>
- <View style={{ flex: 1 }}><NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="danger" onPress={() => setShowCancel((v) => !v)} /></View>
- <View style={{ flex: 1 }}><NBtn label={AR ? 'جدولة' : 'Reschedule'} variant="outline" onPress={() => setShowResched((v) => !v)} /></View>
- </View>
+  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md }}>
+  <View style={{ flex: 1 }}><NBtn label={AR ? 'تأكيد الموعد' : 'Confirm'} loading={acting} onPress={() => doPatch('confirm')} /></View>
+  <View style={{ flex: 1 }}><NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="danger" onPress={() => setShowCancel((v) => !v)} /></View>
+  <View style={{ flex: 1 }}><NBtn label={AR ? 'جدولة' : 'Reschedule'} variant="outline" onPress={() => setShowResched((v) => !v)} /></View>
+  </View>
+  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md }}>
+  <View style={{ flex: 1 }}><NBtn label={AR ? 'سأتأخر' : "Running late"} variant="outline" onPress={() => setShowLate((v) => !v)} /></View>
+  <View style={{ flex: 1 }}><NBtn label={AR ? 'المريض لم يحضر' : 'No-show'} variant="outline" loading={acting} onPress={submitNoShow} /></View>
+  </View>
+  {lateResult && (
+  <NCard style={{ marginTop: SP.md, backgroundColor: tokens.infoSurface, borderColor: tokens.info }}>
+  <Text style={{ fontSize: FS.sm, color: tokens.info, textAlign: AR ? 'right' : 'left' }}>
+  {AR ? `أُشعر المريض بتأخير ${lateResult.delay_minutes} دقيقة` : `Patient was notified of a ${lateResult.delay_minutes}-minute delay`}
+  </Text>
+  </NCard>
+  )}
+  {noShowFee != null && (
+  <NCard style={{ marginTop: SP.md, backgroundColor: tokens.infoSurface, borderColor: tokens.info }}>
+  <Text style={{ fontSize: FS.sm, color: tokens.info, textAlign: AR ? 'right' : 'left' }}>
+  {AR ? `سُجل عدم الحضور — الرسم المطبق: ${noShowFee} ريال` : `No-show recorded — applied fee: ${noShowFee} SAR`}
+  </Text>
+  </NCard>
+  )}
+  {showLate && (
+  <NCard style={{ marginTop: SP.md }}>
+  <NInput label={AR ? 'مدة التأخير بالدقائق (5–180)' : 'Delay in minutes (5–180)'} value={delayMinutes} onChange={setDelayMinutes} kbType="numeric" maxLen={3} placeholder="15" />
+  <NBtn label={AR ? 'إشعار المريض بالتأخير' : 'Notify patient'} loading={acting} onPress={submitLate} style={{ marginTop: SP.md }} />
+  </NCard>
+  )}
  {showCancel && (
  <NCard style={{ marginTop: SP.md }}>
  <NInput placeholder={AR ? 'سبب الإلغاء' : 'Cancellation reason'} value={cancelReason} onChange={setCancelReason} />
