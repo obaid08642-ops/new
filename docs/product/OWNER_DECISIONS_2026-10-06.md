@@ -261,7 +261,7 @@ The design session proposes a merge map first, the owner approves it, and only t
 
 - **O-1 (item 12):** answered. The catalogue price in the server database is the ceiling.
 - **O-2 (item 14):** answered. Remove the whole ambulance system.
-- **Q-14 (refund rules):** the refund rule values per consultation type.
+- **Q-14 (refund rules):** decided by the reviewer (delegated by the owner): keep the server's current rule; one admin-editable config; the clients show the server value.
 
 ## Issues
 
