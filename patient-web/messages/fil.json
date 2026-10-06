@@ -1155,7 +1155,11 @@
     "send": "Ipadala",
     "sending": "Ipinapadala…",
     "sent": "Naipadala na ang iyong kahilingan",
-    "error": "Hindi maipadala ang kahilingan ngayon"
+    "error": "Hindi maipadala ang kahilingan ngayon",
+    "searchPlaceholder": "Maghanap ng mga artikulo ng tulong…",
+    "noFaqResults": "Walang artikulong tumugma sa iyong paghahanap",
+    "orderHelpLabel": "Kailangan ng tulong sa order? Tingnan ang iyong mga order",
+    "orderIdPlaceholder": "Order ID (opsyonal)"
   },
   "Reports": {
     "title": "Mga medikal na ulat",
