@@ -12,7 +12,7 @@ import {
   VectorHealthShield,
   VectorFamily,
 } from "@/components-next/vector-illustrations";
-import { ServiceBookingModal } from "@/components-next/service-booking-modal";
+import { ServiceBookLink } from "@/components-next/service-book-link";
 import type { Metadata } from "next";
 import styles from "./catalog.module.css";
 
@@ -127,15 +127,7 @@ export default async function NursingCatalogPage({ params }: Props) {
                 </div>
 
                 <div>
-                  <ServiceBookingModal
-                    locale={locale}
-                    serviceId={item.id}
-                    serviceName={name}
-                    servicePrice={item.price || 180}
-                    serviceType="nursing"
-                    homeVisitSupported={true}
-                    buttonLabel={rtl ? "احجز الآن" : "Book Now"}
-                  />
+                  <ServiceBookLink locale={locale} serviceId={item.id} serviceName={name} serviceType="nursing" label={rtl ? "احجز الآن" : "Book Now"} />
                 </div>
               </div>
             </div>
