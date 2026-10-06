@@ -10,7 +10,7 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { useGuestGuard } from '../../hooks/useGuestGuard';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
-import { FAMILY_ADD, FamilyScreen, MemberRow, loadFamily, permissionLabel, type FamilyMember } from './FamilyKit';
+import { CORAL_TONE, FAMILY_ADD, FamilyScreen, MemberRow, loadFamily, permissionLabel, type FamilyMember } from './FamilyKit';
 
 /**
  * The family hub (board Family, merge map row A, canonical `/family`): the add-a-member card, the pending permission
@@ -184,7 +184,7 @@ function Hub() {
             </Section>
 
             <Panel testID="family-links">
-              <Row icon="calendar-dots" tone="coral" title={k('family.hub.calendar')} subtitle={k('family.hub.calendarHint')} onPress={() => router.push('/family/calendar' as Href)} testID="family-link-calendar" />
+              <Row icon="calendar-dots" tone={CORAL_TONE} title={k('family.hub.calendar')} subtitle={k('family.hub.calendarHint')} onPress={() => router.push('/family/calendar' as Href)} testID="family-link-calendar" />
               <Row icon="chat-circle-text" tone="blue" title={k('family.hub.chat')} subtitle={k('family.hub.chatHint')} onPress={() => router.push('/family/chat' as Href)} testID="family-link-chat" />
               <Row icon="address-book" tone="amber" title={k('family.hub.emergency')} subtitle={k('family.hub.emergencyHint')} onPress={() => router.push('/family/emergency-contacts' as Href)} last testID="family-link-emergency" />
             </Panel>

@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { type Href } from 'expo-router';
 
-import { Avatar, FIcon, Toggle, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
+import { Avatar, FIcon, SERVICE_TONES, Toggle, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
 import { Chevron, goBack } from '../consult/ConsultKit';
 import { HealthScreen, Panel, Pill, rowsOf } from '../health/HealthKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
@@ -53,17 +53,21 @@ export async function loadFamily(): Promise<{ group: FamilyGroup | null; members
   return { group, members: rowsOf<FamilyMember>(await apiFetch('/family/members')) };
 }
 
+/** Service tones by position in the token list (color.service.*), so a screen names no colour. */
+export const CORAL_TONE: ServiceTone = SERVICE_TONES[0];
+export const TEAL_TONE: ServiceTone = SERVICE_TONES[8];
+
 /** The permissions of the API (`permissions` of /family/my-group and the body of /family/member/:id/permissions), each with its glyph. */
 export const PERMISSIONS: { key: string; icon: FillIconName; tone: ServiceTone }[] = [
   { key: 'vitals', icon: 'heartbeat', tone: 'peach' },
   { key: 'meds', icon: 'pill', tone: 'mint' },
   { key: 'reports', icon: 'file-text', tone: 'blue' },
-  { key: 'appointments', icon: 'calendar-dots', tone: 'coral' },
-  { key: 'booking', icon: 'stethoscope', tone: 'teal' },
+  { key: 'appointments', icon: 'calendar-dots', tone: CORAL_TONE },
+  { key: 'booking', icon: 'stethoscope', tone: TEAL_TONE },
   { key: 'pharmacy', icon: 'storefront', tone: 'violet' },
   { key: 'payment', icon: 'credit-card', tone: 'amber' },
   { key: 'location', icon: 'map-pin', tone: 'pink' },
-  { key: 'emergency', icon: 'bell', tone: 'coral' },
+  { key: 'emergency', icon: 'bell', tone: CORAL_TONE },
 ];
 
 /** The name of a permission in the screen's language; a permission this app does not know is shown as the server sent it. */

@@ -10,7 +10,7 @@ import { showLocalizedAlert } from '../LocalizedAlert';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { buildFamilyCalendarPayload, parseFamilyCalendarEvents, type FamilyCalendarEventType } from '../../utils/family-calendar-contract';
-import { FamilyScreen, type FamilyMember } from './FamilyKit';
+import { CORAL_TONE, FamilyScreen, type FamilyMember } from './FamilyKit';
 
 /**
  * The shared family calendar (merge map row C, `/family/calendar`): the events of the group and the form to add one.
@@ -105,7 +105,7 @@ export function FamilyCalendarView() {
     >
       <Gate status={data.status} onRetry={() => void data.reload()}>
         {events.length === 0 ? (
-          <EmptyState icon="calendar-dots" tone="coral" title={k('family.calendar.emptyTitle')} body={k('family.calendar.emptyBody')} actionLabel={k('family.calendar.add')} onAction={openForm} theme={theme} />
+          <EmptyState icon="calendar-dots" tone={CORAL_TONE} title={k('family.calendar.emptyTitle')} body={k('family.calendar.emptyBody')} actionLabel={k('family.calendar.add')} onAction={openForm} theme={theme} />
         ) : (
           <Panel testID="family-events">
             {events.map((e, i) => {

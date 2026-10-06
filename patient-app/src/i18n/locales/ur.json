@@ -1771,7 +1771,7 @@
   "family.invite.permsBody": "دعوت قبول ہونے کے بعد آپ فرد کی اجازتیں کنٹرول کرتے ہیں: ریڈنگز، ادویات، ان کی طرف سے بکنگ اور مزید۔",
   "family.invite.failed": "دعوتی کوڈ نہیں بن سکا۔ آپ کو فیملی گروپ کا مالک ہونا چاہیے: پہلے گروپ بنائیں یا دوبارہ کوشش کریں۔",
   "family.join.code": "دعوتی کوڈ",
-  "family.join.codePlaceholder": "مثال: F7X2K9",
+  "family.join.codePlaceholder": "کوڈ درج کریں",
   "family.join.relation": "دعوت دینے والے سے آپ کا رشتہ (اختیاری)",
   "family.join.submit": "خاندان میں شامل ہوں",
   "family.join.scan": "کیمرے سے QR کوڈ اسکین کریں",

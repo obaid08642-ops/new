@@ -180,6 +180,17 @@ const BOARD = {
   'h-wearables': { params: {} },
   'h-report': { params: { id: 'test-report' } },
   'h-id': { params: {} },
+  // Batch 6 (family; merge map). The hub is the Family board; the member, calendar, chat and add screens follow its rows and cards and have
+  // none. The tab of a merged screen is a route param. `--dir patient-app/app/family --screens index:f-hub,member-health:f-member,...`
+  // The ids select the TEST records of render-native-screen.fixtures.json (`test-m1`).
+  'f-hub': { component: 'Family', size: [390, 1060], params: {} },
+  'f-member': { params: { id: 'test-m1', name: 'فرد تجريبي ١', relation: 'الزوجة' } },
+  'f-member-perms': { params: { id: 'test-m1', name: 'فرد تجريبي ١', relation: 'الزوجة', tab: 'permissions' } },
+  'f-calendar': { params: {} },
+  'f-chat': { params: {} },
+  'f-add': { params: {} },
+  'f-add-join': { params: { tab: 'join', code: 'TEST42' } },
+  'f-add-scan': { params: { tab: 'scan' } },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },

@@ -1807,7 +1807,7 @@
   "family.invite.permsBody": "After the invite is accepted you control the member's permissions: readings, medicines, booking on their behalf and more.",
   "family.invite.failed": "Could not create the invite code. You need to own a family group: create one first, or try again.",
   "family.join.code": "Invite code",
-  "family.join.codePlaceholder": "Example: F7X2K9",
+  "family.join.codePlaceholder": "Enter the code",
   "family.join.relation": "Your relation to the person who invited you (optional)",
   "family.join.submit": "Join the family",
   "family.join.scan": "Scan a QR code with the camera",

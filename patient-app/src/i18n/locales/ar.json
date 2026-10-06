@@ -1807,7 +1807,7 @@
   "family.invite.permsBody": "بعد قبول الدعوة تتحكم في صلاحيات الفرد: المؤشرات والأدوية والحجز نيابةً وغيرها.",
   "family.invite.failed": "تعذر إنشاء كود الدعوة. يجب أن تكون مالك مجموعة عائلية، فأنشئ مجموعة أولاً أو حاول مجدداً.",
   "family.join.code": "كود الدعوة",
-  "family.join.codePlaceholder": "مثال: F7X2K9",
+  "family.join.codePlaceholder": "أدخل الكود",
   "family.join.relation": "صلتك بصاحب الدعوة (اختياري)",
   "family.join.submit": "انضمام للعائلة",
   "family.join.scan": "مسح رمز QR بالكاميرا",

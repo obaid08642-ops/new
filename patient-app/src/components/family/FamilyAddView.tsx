@@ -208,7 +208,7 @@ function ScanTab() {
   if (!permission.granted) {
     return <EmptyState icon="camera" tone="blue" title={k('family.scan.permTitle')} body={k('family.scan.permBody')} actionLabel={k('family.scan.grant')} onAction={() => void requestPermission()} theme={theme} testID="scan-permission" />;
   }
-  const corner = { position: 'absolute' as const, width: 32, height: 32, borderColor: c.brand.coral, borderWidth: 4 };
+  const corner = { position: 'absolute' as const, width: 32, height: 32, borderColor: c.action.primary.bg, borderWidth: 4 };
   return (
     <View style={{ alignItems: 'center', gap: 16 }}>
       <View accessibilityLabel={k('family.scan.frame')} style={{ width: 260, height: 260, borderRadius: 24, overflow: 'hidden', backgroundColor: c.bg.media }} testID="scan-frame">

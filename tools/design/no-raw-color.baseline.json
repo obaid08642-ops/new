@@ -2,7 +2,7 @@
   "note": "Hard-coded colours that predate the design system. Recorded once with --init. 12.A11 rebuilds the screens on tokens and each rebuilt file drops out. --update only ever LOWERS a count; it cannot raise one.",
   "totals": {
     "patient-web": 3464,
-    "patient-app": 1620,
+    "patient-app": 1577,
     "provider-app": 320,
     "admin": 215
   },
@@ -203,13 +203,6 @@
     "patient-app/app/emergency/sos.tsx": 11,
     "patient-app/app/emergency/tracking.tsx": 12,
     "patient-app/app/facility/[slug].tsx": 3,
-    "patient-app/app/family/calendar.tsx": 4,
-    "patient-app/app/family/chat.tsx": 3,
-    "patient-app/app/family/invite.tsx": 2,
-    "patient-app/app/family/member-health.tsx": 15,
-    "patient-app/app/family/permission-request.tsx": 3,
-    "patient-app/app/family/scan.tsx": 9,
-    "patient-app/app/health/family-hub.tsx": 7,
     "patient-app/app/insurance/add-policy.tsx": 5,
     "patient-app/app/insurance/approval-pending.tsx": 4,
     "patient-app/app/insurance/copay.tsx": 4,
