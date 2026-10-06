@@ -119,3 +119,36 @@ export async function sendBroadcast(
     return { ok: false, reason: "create_failed" };
   }
 }
+
+type SendFn = (request: BroadcastRequest, address: DeliveryAddress & { lat: number; lng: number }, key: string) => Promise<BroadcastResult>;
+
+/**
+ * One sending of a request, made safe to press twice and to retry:
+ *  - `run` does nothing (returns null) while a send is in flight, whatever the screen's button looks like;
+ *  - the same request (same lines, options and address) keeps the same idempotency key until the server has answered,
+ *    so a retry after a dropped connection or a 5xx is the same order, never a second one;
+ *  - once the server has refused for good (a 4xx at creation) the key is dropped, so a corrected request is a new one;
+ *  - after a success the key is dropped too: the next request is a new order.
+ */
+export function createBroadcastAttempt(send: SendFn = (request, address, key) => sendBroadcast(request, address, key), makeKey: () => string = newIdempotencyKey) {
+  let busy = false;
+  let attempt: { signature: string; key: string } | null = null;
+  return {
+    get busy() {
+      return busy;
+    },
+    async run(request: BroadcastRequest, address: DeliveryAddress & { lat: number; lng: number }): Promise<BroadcastResult | null> {
+      if (busy) return null;
+      busy = true;
+      try {
+        const signature = JSON.stringify([request, address.id]);
+        if (attempt?.signature !== signature) attempt = { signature, key: makeKey() };
+        const result = await send(request, address, attempt.key);
+        if (result.ok || (result.reason === "create_failed" && result.status !== undefined && result.status < 500)) attempt = null;
+        return result;
+      } finally {
+        busy = false;
+      }
+    },
+  };
+}

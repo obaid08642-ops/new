@@ -17,7 +17,7 @@ import { OFFER_TONES } from "@/components-next/pharmacy-offers/tones";
 import { useCart } from "@/lib/context/CartContext";
 import { formatNumber } from "@/lib/format-price";
 import type { Locale } from "@/lib/i18n";
-import { newIdempotencyKey, sendBroadcast, type BroadcastRequest } from "@/lib/pharmacy/broadcast";
+import { createBroadcastAttempt, type BroadcastRequest } from "@/lib/pharmacy/broadcast";
 import { activePrescriptionId, parseInsurancePolicy, type InsurancePolicyView } from "@/lib/pharmacy/checkout-support";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import ov from "@/components-next/pharmacy-offers/offers.module.css";
@@ -50,8 +50,7 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
   const [policy, setPolicy] = useState<PolicyState>({ status: "idle" });
   const [sending, setSending] = useState(false);
   const [failure, setFailure] = useState<Failure | null>(null);
-  const inFlight = useRef(false);
-  const attempt = useRef<{ signature: string; key: string } | null>(null);
+  const attempt = useRef(createBroadcastAttempt());
 
   // a cart with prescription medicines is ordered with the patient's saved, active prescription
   useEffect(() => {
@@ -95,10 +94,7 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
   const canSend = active && address.status === "ready" && prescriptionOk && insuranceOk && !sending;
 
   async function send() {
-    if (!canSend || inFlight.current || address.status !== "ready") return;
-    inFlight.current = true;
-    setSending(true);
-    setFailure(null);
+    if (!canSend || address.status !== "ready") return;
     const request: BroadcastRequest = {
       kind: "cart",
       lines: items.map((item) => ({ name: item.name, qty: item.qty, sku: item.id })),
@@ -106,18 +102,16 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
       fulfillment,
       ...(hasRxItems && prescription.status === "found" ? { prescriptionId: prescription.id } : {}),
     };
-    // the same request keeps the same key (a retry after no answer is the same order); a changed request gets a new one
-    const signature = JSON.stringify([request, address.address.id]);
-    if (attempt.current?.signature !== signature) attempt.current = { signature, key: newIdempotencyKey() };
-    const result = await sendBroadcast(request, address.address, attempt.current.key);
+    setSending(true);
+    setFailure(null);
+    // one send at a time, one idempotency key per request until the server has answered (see createBroadcastAttempt)
+    const result = await attempt.current.run(request, address.address);
+    if (!result) return; // another send is already in flight: nothing was sent
     if (result.ok) {
       clearCart();
       router.push(`/${locale}/pharmacy/broadcast-status?orderId=${encodeURIComponent(result.orderId)}`);
       return; // the button stays disabled until the page changes
     }
-    // the server refused for good (a 4xx that is not "signed out"): the next try is a new request with a new key
-    if (result.reason === "create_failed" && result.status !== undefined && result.status < 500) attempt.current = null;
-    inFlight.current = false;
     setSending(false);
     setFailure(result.reason === "unauthenticated" ? "session" : result.status === 403 ? "forbidden" : result.status === undefined ? "network" : "send");
   }
