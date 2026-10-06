@@ -28,7 +28,7 @@ Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy
 4. Per-route client messages: Batch 1 adds ~36 KB of pharmacy namespaces to `CLIENT_NAMESPACES` (shipped on every page); move them to a pharmacy route-group provider.
 
 ## Process (owner, 2026-10-06; quality rules unchanged, recording changed)
-- **Lean v2 (Batch 2 on): under 40k tokens per screen** (Batch 1 cost ~100k). Design only (no business-logic changes, no features; wrong logic = one Needs-review line); templates first, built once with tests, screens converted mechanically; no backend reading per screen (inventory + one runtime check per slice); tests only for new templates and payment/booking; translations extracted in one pass at the end of the slice; read only the screen, its board and the template; slices of 15-25 screens; stop and say why if a slice passes 40k/screen.
+- **Lean v2 (Batch 2 on): under 40k tokens per screen.** Design only (wrong logic = one Needs-review line); templates first; no backend reading per screen; one translation pass per slice; read only screen, board, template; slices of 15-25 screens. Rules in `/AGENTS.md`.
 - **No screenshots committed or sent.** A temporary screenshot only to compare with the board while building, then delete it. No before/after/compare images.
 - **One production build and one runtime check per slice, at the end**; dev server while building. Lighthouse only in F82 PRs and once per batch.
 - **Audit is generated, short:** `node tools/design/audit-table.mjs` from a compact `audit/<slice>.json` (route, element, source, status); notes one line each, only for problems. Needs-review: one line each.
