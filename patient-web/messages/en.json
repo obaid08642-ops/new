@@ -105,6 +105,7 @@
     "navPharmacy": "Pharmacy",
     "navDiagnostics": "Diagnostics",
     "navNursing": "Home Nursing",
+    "home": "Home",
     "devNotice": "Development preview under construction and testing — no real services are provided through this site; all content is for testing purposes only. Do not rely on it for any health or medical need.",
     "theme": "Theme"
   },
@@ -154,7 +155,36 @@
     "trustGenuine": "100% Genuine Medicines",
     "trustGenuineSub": "Sourced directly from verified pharmacies",
     "trustCare": "24/7 Continuous Care",
-    "trustCareSub": "Round-the-clock patient assistance"
+    "trustCareSub": "Round-the-clock patient assistance",
+    "searchLabel": "Search",
+    "searchPlaceholder": "Search for a medicine, doctor or test…",
+    "searchButton": "Search",
+    "services": "Services",
+    "svcConsult": "Consultations",
+    "svcPharmacy": "Pharmacy",
+    "svcLabs": "Labs & radiology",
+    "svcNursing": "Nursing",
+    "svcNutrition": "Nutrition",
+    "svcMaternity": "Maternity",
+    "svcMap": "Map",
+    "svcHealth": "My health",
+    "svcEmergency": "Emergency",
+    "aiTitle": "Smart medical assistant",
+    "aiSub": "Describe your symptoms and we suggest the right specialty",
+    "aiStart": "Start chat",
+    "aiSymptoms": "Symptom check",
+    "aiTranslator": "Prescription translator",
+    "aiSkin": "Skin analysis",
+    "aiDoctor": "Virtual doctor",
+    "aiReport": "Monthly report",
+    "offersTitle": "Offers & packages",
+    "seeAll": "See all",
+    "nextAppointment": "Your next appointment",
+    "details": "Details",
+    "allServices": "All services",
+    "doctorsTitle": "Featured doctors",
+    "bookNow": "Book now",
+    "currency": "SAR"
   },
   "HomeWeb": {
     "mainNav": "Main navigation",
@@ -240,6 +270,7 @@
     "price": "From {value}",
     "insurance": "Insurance available",
     "empty": "No nursing services are currently available.",
+    "emptyTitle": "No nursing services",
     "unavailable": "Nursing catalogue unavailable",
     "unavailableBody": "The catalogue couldn't be loaded right now. Please try again later.",
     "back": "Back",
@@ -298,19 +329,20 @@
     "unavailableTitle": "Unable to load the order",
     "unavailableBody": "Please try again later."
   },
-  "Cart": {
-    "eyebrow": "Private cart",
-    "title": "My cart",
+"Cart": {
+    "eyebrow": "Cart",
+    "title": "Your cart",
     "empty": "Your cart is empty.",
-    "itemCount": "Items",
+    "itemCount": "{count} item(s)",
     "subtotal": "Subtotal",
-    "homeVisitFee": "Home-visit fee",
+    "homeVisitFee": "Home visit fee",
     "total": "Total",
     "currency": "SAR",
-    "notice": "Review your cart items and totals here. Checkout isn't available on this page.",
-    "unavailableTitle": "Unable to load the cart",
+    "notice": "Prescription items will be verified by the pharmacy.",
+    "unavailableTitle": "Unable to load cart",
     "unavailableBody": "Please try again later.",
-    "back": "Back to medicines"
+    "back": "Back to medicines",
+    "notAvailable": "Not available"
   },
   "Appointments": {
     "eyebrow": "Private appointments",
@@ -358,6 +390,17 @@
     "callReady": "Your video visit is ready. Continue in the video app.",
     "callUnavailable": "Video visit isn't available right now.",
     "callDiscard": "Close video visit"
+  },
+  "AppointmentActions": {
+    "actionsTitle": "Appointment actions",
+    "cancelAppointment": "Cancel appointment",
+    "cancelConfirm": "Are you sure you want to cancel this appointment?",
+    "cancelReason": "Reason (optional)",
+    "keepAppointment": "Keep appointment",
+    "confirmCancel": "Confirm cancellation",
+    "cancelConflict": "This appointment can no longer be cancelled.",
+    "cancelFailed": "The appointment was not cancelled.",
+    "cancelUnavailable": "Cancellation service is unavailable."
   },
   "Medicines": {
     "eyebrow": "Private catalog",
@@ -458,6 +501,10 @@
     "empty": "No providers are available right now.",
     "unavailable": "Providers are unavailable",
     "unavailableBody": "The approved provider service could not be loaded."
+  },
+  "ProviderInfo": {
+    "title": "Provider information",
+    "description": "Details about this healthcare provider."
   },
   "Family": {
     "eyebrow": "Private family",
@@ -616,12 +663,19 @@
       "status": "Status"
     }
   },
-  "Metadata": {
+"Metadata": {
     "siteTitle": "Nabd Plus",
-    "siteDescription": "Nabd Plus digital patient portal.",
-    "publicDescription": "Nabd Plus public patient portal and medicine information catalogue.",
-    "portalTitle": "Patient portal",
-    "loginTitle": "Patient sign in"
+    "siteDescription": "Your integrated healthcare hub",
+    "publicDescription": "Nabd Plus Medical Portal - Complete pharmacy, consultations, labs, and home nursing",
+    "portalTitle": "Nabd Plus Medical Portal",
+    "loginTitle": "Sign in",
+    "skipToContent": "Skip to main content",
+    "brand": "Nabd Plus",
+    "language": "Language",
+    "theme": "Theme",
+    "account": "Account",
+    "signOut": "Sign out",
+    "patientSignIn": "Patient sign in"
   },
   "PublicMedicines": {
     "eyebrow": "Published catalogue information",
@@ -649,7 +703,10 @@
   "NotFound": {
     "title": "Page unavailable",
     "body": "This page can't be opened, or you don't have access to it.",
-    "returnHome": "Return home"
+    "returnHome": "Return home",
+    "searchLabel": "Search",
+    "searchPlaceholder": "Search...",
+    "popularLinks": "Popular links"
   },
   "RouteState": {
     "contactSupport": "Contact support",
@@ -660,7 +717,25 @@
     "errorTitle": "The page cannot be opened now",
     "errorBody": "Try again, or return home if the problem continues.",
     "retry": "Try again",
-    "returnHome": "Return home"
+    "returnHome": "Return home",
+    "title": "You're offline",
+    "body": "No internet connection detected.",
+    "searchPlaceholder": "Search...",
+    "popularLinks": "Popular links",
+    "cachedContent": "Showing cached content",
+    "installApp": "Install app",
+    "worksOffline": "Works offline"
+  },
+  "Offline": {
+    "title": "You're offline",
+    "body": "No internet connection detected.",
+    "retry": "Try again",
+    "returnHome": "Return home",
+    "searchPlaceholder": "Search...",
+    "cachedContent": "Showing cached content",
+    "popularLinks": "Popular links",
+    "installApp": "Install app",
+    "worksOffline": "Works offline"
   },
   "Insurance": {
     "eyebrow": "Private insurance",
@@ -685,6 +760,14 @@
       "rejected": "Rejected",
       "unknown": "Status unavailable"
     }
+  },
+  "Privacy": {
+    "title": "Privacy",
+    "description": "Your privacy settings and data controls."
+  },
+  "Terms": {
+    "title": "Terms of Service",
+    "description": "Terms and conditions for using Nabd Plus."
   },
   "MentalHealth": {
     "eyebrow": "Private wellbeing",
@@ -758,20 +841,20 @@
     "sessionsEmpty": "No active sessions.",
     "deviceUnknown": "Unknown device",
     "expiresIn": "Expires in {value} days",
-    "sessionsSummary": "Showing the first {shown} of {total} active sessions."
-  },
-  "Appearance": {
-    "eyebrow": "Appearance",
-    "title": "Appearance settings",
-    "description": "Choose how Nabd Plus looks on your device. Your preference is saved and synced across sessions.",
-    "themeTitle": "Theme",
-    "light": "Light",
-    "dark": "Dark",
-    "system": "System",
-    "hint": "Changes apply immediately. System follows your OS setting.",
-    "reducedMotionTitle": "Reduced motion",
-    "reducedMotionDescription": "When enabled in your system settings, animations and transitions are reduced or disabled.",
-    "reducedMotionNotice": "This setting is controlled by your operating system's accessibility preferences."
+    "sessionsSummary": "Showing the first {shown} of {total} active sessions.",
+    "Appearance": {
+      "eyebrow": "Appearance",
+      "title": "Appearance settings",
+      "description": "Choose how Nabd Plus looks on your device. Your preference is saved and synced across sessions.",
+      "themeTitle": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "hint": "Changes apply immediately. System follows your OS setting.",
+      "reducedMotionTitle": "Reduced motion",
+      "reducedMotionDescription": "When enabled in your system settings, animations and transitions are reduced or disabled.",
+      "reducedMotionNotice": "This setting is controlled by your operating system's accessibility preferences."
+    }
   },
   "NotificationSettings": {
     "title": "Notification settings",
@@ -915,6 +998,7 @@
     "eyebrow": "Care discovery",
     "title": "Medical specialties",
     "subtitle": "Choose a specialty to see available doctors.",
+    "description": "Browse medical specialties and find the right specialist for your needs.",
     "searchLabel": "Search specialties",
     "searchPlaceholder": "Search specialties...",
     "unavailableTitle": "Unable to load specialties",
@@ -924,6 +1008,12 @@
     "emptyBody": "No specialties are available right now.",
     "noMatch": "No specialties match your search.",
     "doctorCount": "{count} doctors available",
+    "consultations": {
+      "specialties": {
+        "title": "Medical specialties",
+        "description": "Choose a specialty to see available doctors."
+      }
+    },
     "faq": [
       {
         "q": "How do I book a consultation?",
@@ -944,24 +1034,31 @@
     ],
     "faqTitle": "FAQs"
   },
-  "HomeCareServices": {
+"HomeCareServices": {
     "eyebrow": "Home care",
-    "title": "Home-care services",
-    "subtitle": "Browse available home-care services.",
+    "title": "Home care services",
+    "subtitle": "Browse available home care services and book a visit.",
+    "description": "Choose a home care service for professional nursing visits at your location.",
     "searchLabel": "Search services",
     "searchPlaceholder": "Search services...",
     "unavailableTitle": "Unable to load services",
     "unavailableBody": "Please try again later.",
     "retry": "Retry",
     "emptyTitle": "No services",
-    "emptyBody": "No services are available right now.",
-    "noMatch": "No service matches your search.",
-    "price": "{value} SAR",
+    "emptyBody": "No home care services are available right now.",
+    "noMatch": "No services match your search.",
+    "price": "Price",
     "priceLabel": "Price",
     "durationLabel": "Duration",
-    "insurance": "Insurance available",
-    "bookingNotice": "Service details are read-only here. No booking is created from this page.",
-    "back": "Back to services"
+    "insurance": "Insurance",
+    "bookingNotice": "A nurse will confirm the appointment within 2 hours.",
+    "back": "Back to home care",
+    "home-care": {
+      "services": {
+        "title": "Home care services",
+        "description": "Browse available home care services and book a visit."
+      }
+    }
   },
   "Doctors": {
     "eyebrow": "Medical care",
@@ -1026,40 +1123,49 @@
     "unavailableBody": "Lab services couldn't be loaded. Please try again later.",
     "retry": "Try again"
   },
-  "LabsPackages": {
-    "eyebrow": "Laboratory care",
-    "title": "Lab packages",
-    "subtitle": "Explore available laboratory packages.",
+"LabsPackages": {
+    "eyebrow": "Lab packages",
+    "title": "Checkup packages",
+    "subtitle": "Browse lab packages and book in one place.",
+    "description": "Choose a lab package for comprehensive health screening at home or facility.",
     "searchLabel": "Search packages",
-    "searchPlaceholder": "Search packages",
+    "searchPlaceholder": "Search packages...",
     "category": "Category",
     "allCategories": "All categories",
-    "apply": "Apply",
-    "price": "From {value}",
-    "tests": "{count} tests",
-    "homeVisit": "Home collection",
-    "fasting": "Fasting may be required",
-    "unavailable": "Currently unavailable",
-    "emptyTitle": "No packages found",
-    "emptyBody": "No laboratory packages are available right now.",
-    "noMatch": "No package matches these filters.",
-    "unavailableTitle": "Lab catalog unavailable",
-    "unavailableBody": "This lab package couldn't be loaded. Please try again later.",
-    "invalidBody": "This package's details can't be shown right now.",
-    "retry": "Try again",
-    "back": "Back to packages",
-    "facts": "Package facts",
+    "apply": "Apply filters",
+    "price": "Price",
+    "tests": "Tests included",
+    "homeVisit": "Home visit available",
+    "fasting": "Fasting required",
+    "unavailable": "Not available",
+    "emptyTitle": "No packages",
+    "emptyBody": "No checkup packages are available right now.",
+    "noMatch": "No packages match your search.",
+    "unavailableTitle": "Unable to load packages",
+    "unavailableBody": "Please try again later.",
+    "invalidBody": "This package cannot be booked.",
+    "retry": "Retry",
+    "back": "Back to labs",
+    "facts": "Key facts",
     "priceLabel": "Price",
     "previousPrice": "Previous price",
-    "testsLabel": "Included tests",
-    "turnaround": "Result time",
-    "hours": "{value} hours",
-    "fastingHours": "Fasting for {value} hours",
-    "includedTitle": "Included tests",
+    "testsLabel": "Tests included",
+    "turnaround": "Turnaround time",
+    "hours": "hrs",
+    "fastingHours": "fasting hrs",
+    "includedTitle": "What's included",
     "preparation": "Preparation",
-    "preparationTitle": "Before your visit",
-    "homeAvailable": "Home collection is supported by this package.",
-    "homeUnavailable": "Home collection is not listed for this package."
+    "preparationTitle": "How to prepare",
+    "homeAvailable": "Home visit available",
+    "homeUnavailable": "Facility visit only",
+    "diagnostics": {
+      "packages": {
+        "title": "Checkup packages",
+        "description": "Browse lab packages and book in one place."
+      }
+    },
+    "orders": "Orders",
+    "revenue": "Revenue"
   },
   "RadiologyServices": {
     "eyebrow": "Radiology care",
@@ -1202,6 +1308,7 @@
   },
   "Offers": {
     "title": "Offers",
+    "subtitle": "Exclusive health packages and discounts",
     "empty": "No offers available right now",
     "error": "Could not load offers right now",
     "sar": "SAR"
@@ -1394,7 +1501,13 @@
     "manufacturer": "Manufacturer",
     "emptyBody": "Select at least two medicines from the catalog to compare.",
     "browse": "Browse medicines",
-    "back": "Medicines"
+    "back": "Medicines",
+    "medicines": {
+      "compare": {
+        "title": "Compare medicines",
+        "description": "Compare medicines side by side."
+      }
+    }
   },
   "PharmacyRequest": {
     "title": "Request an unavailable medicine",
@@ -1633,6 +1746,8 @@
     "failed_to_load_report": "Failed to load report",
     "export_success": "Report exported successfully",
     "export_failed": "Export failed",
-    "select_date": "Select date"
+    "select_date": "Select date",
+    "orders": "Orders",
+    "revenue": "Revenue"
   }
 }
