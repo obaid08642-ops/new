@@ -1,103 +1,154 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import type { CSSProperties } from "react";
-import { Activity, Bell, CalendarDays, FileText, HeartPulse, MessageCircle, Moon, Pill, UsersRound } from "lucide-react";
 import { extractVitalSummary } from "@/lib/api/vitals";
-import { getPatientVitalSummary } from "@/lib/api/vitals-server";
+import { getPatientHealthScore, getPatientVitalSummary } from "@/lib/api/vitals-server";
+import { parseHealthScore } from "@/lib/api/health-score";
+import { extractMedicationReminderSummaries } from "@/lib/api/reminders";
+import { getPatientMedicationReminders } from "@/lib/api/reminders-server";
 import { requirePatientAccess } from "@/lib/auth/session";
-import { isLocale } from "@/lib/i18n";
-import { RetryButton } from "@/components-next/retry-button";
-import { VitalGlyph, type VitalGlyphKind } from "@/components-next/vital-glyph";
-import { VectorHealthShield } from "@/components-next/vector-illustrations";
-import styles from "./health.module.css";
+import { getDirection, isLocale } from "@/lib/i18n";
+import { todayDoses } from "@/lib/health/doses";
+import { BOARD_VITALS, VITAL_ORDER, VITAL_VIEW } from "@/lib/health/view";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { LocalTimeLine } from "@/components-next/consult/local-time-line";
+import { Notice, RowCard } from "@/components-next/consult/consult-parts";
+import { DoseRows } from "@/components-next/health/dose-rows";
+import { PartUnavailable, RowsCard, SectionHead, VitalTile } from "@/components-next/health/health-kit";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
+import rx from "@/components-next/pharmacy/rx.module.css";
+import styles from "@/components-next/health/health.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
-const quickActions = [
-  { key: "prescriptions", href: "prescriptions", icon: FileText, color: "#7A6BEA" },
-  { key: "family", href: "family", icon: UsersRound, color: "#EC4899" },
-  { key: "reminders", href: "reminders", icon: Bell, color: "#F0A526" },
-  { key: "chat", href: "chat", icon: MessageCircle, color: "#23B5CE" },
-  { key: "sleep", href: "health/sleep", icon: Moon, color: "#6366F1" },
-  { key: "chronicDiseases", href: "health/chronic-diseases", icon: HeartPulse, color: "#E11D48" },
-  { key: "chronicMedications", href: "health/chronic-medications", icon: Pill, color: "#16A34A" },
-  { key: "trends", href: "health/trends", icon: Activity, color: "#2563EB" },
-  { key: "vitalsHistory", href: "health/vitals", icon: HeartPulse, color: "#0EA5E9" },
-  { key: "medications", href: "health/medications", icon: Pill, color: "#7C3AED" },
-  { key: "refills", href: "health/refills", icon: Bell, color: "#059669" },
-  { key: "conditions", href: "health/conditions-allergies", icon: FileText, color: "#DC2626" },
-  { key: "wearables", href: "health/wearables", icon: Activity, color: "#8B5CF6" },
-  // F20: filtered below unless NEXT_PUBLIC_WEARABLES_ENABLED=true
-] as const;
-const quickLabels: Record<string, Record<string, string>> = {
-  ar: { prescriptions: "وصفاتي", family: "العائلة", reminders: "تذكيراتي", chat: "محادثة", sleep: "النوم", chronicDiseases: "الحالات المزمنة", chronicMedications: "الأدوية المزمنة", trends: "الاتجاهات", vitalsHistory: "سجل المؤشرات", medications: "أدويتي", refills: "إعادة الصرف", conditions: "الحالات والحساسية" , wearables: "الأجهزة القابلة للارتداء"},
-  en: { prescriptions: "Prescriptions", family: "Family", reminders: "Reminders", chat: "Chat", sleep: "Sleep", chronicDiseases: "Chronic conditions", chronicMedications: "Chronic medicines", trends: "Trends", vitalsHistory: "Vitals history", medications: "My medications", refills: "Refills", conditions: "Conditions & allergies" , wearables: "Wearables"},
-  ur: { prescriptions: "نسخے", family: "خاندان", reminders: "یاددہانیاں", chat: "گفتگو", sleep: "نیند", chronicDiseases: "دائمی حالتیں", chronicMedications: "دائمی ادویات", trends: "رجحانات", vitalsHistory: "Vitals history", medications: "میری ادویات", refills: "دوا دوبارہ", conditions: "حالتیں اور الرجی" , wearables: "ویئرایبلز"},
-  hi: { prescriptions: "प्रिस्क्रिप्शन", family: "परिवार", reminders: "अनुस्मारक", chat: "चैट", sleep: "नींद", chronicDiseases: "दीर्घकालिक स्थितियाँ", chronicMedications: "दीर्घकालिक दवाएँ", trends: "रुझान", vitalsHistory: "Vitals history", medications: "मेरी दवाएँ", refills: "Refills", conditions: "Conditions & allergies" , wearables: "वियरेबल्स"},
-  bn: { prescriptions: "প্রেসক্রিপশন", family: "পরিবার", reminders: "রিমাইন্ডার", chat: "চ্যাট", sleep: "ঘুম", chronicDiseases: "দীর্ঘমেয়াদি অবস্থা", chronicMedications: "দীর্ঘমেয়াদি ওষুধ", trends: "প্রবণতা", vitalsHistory: "Vitals history", medications: "আমার ওষুধ", refills: "Refills", conditions: "Conditions & allergies" , wearables: "ওয়্যারেবল"},
-  fil: { prescriptions: "Reseta", family: "Pamilya", reminders: "Paalala", chat: "Chat", sleep: "Tulog", chronicDiseases: "Chronic conditions", chronicMedications: "Chronic medicines", trends: "Trends", vitalsHistory: "Vitals history", medications: "My medications", refills: "Refills", conditions: "Conditions & allergies" , wearables: "Wearables"},
-};
 
+/** F20: the wearables page is hidden until the device integration is real; the hub shows its row only when the page is on. */
+const wearablesOn = () => process.env.NEXT_PUBLIC_WEARABLES_ENABLED === "true";
+
+/**
+ * The health hub (canvas/HealthHub): the health ID button, the medical file, the score, the latest vitals, today's doses
+ * and the way into every other health screen. It replaces the old shortcut grid and the stand-alone score page (merge map,
+ * section 1: the score is a card here, one GET /health/score). The vitals summary is what the page needs; the score and
+ * today's doses say so in place when they cannot load.
+ */
 export default async function HealthPage({ params }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  const t = await getTranslations("Health");
-  const unavailable = <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton /></section></main>;
+  const t = await getTranslations("HealthWeb");
+  const rs = await getTranslations("RouteState");
   const token = await requirePatientAccess(locale);
-  let response: Response;
-  try { response = await getPatientVitalSummary(token); } catch { return unavailable; }
-  if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
-  if (!response.ok) return unavailable;
-  const vitals = extractVitalSummary(await response.json().catch(() => null));
-  const labels = quickLabels[locale] ?? quickLabels.en;
+  const unavailable = (
+    <ConsultPage locale={locale} title={t("title")}>
+      <ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />
+    </ConsultPage>
+  );
+
+  let summary: Response;
+  try { summary = await getPatientVitalSummary(token); } catch { return unavailable; }
+  if (summary.status === 401) redirect(`/${locale}/login`);
+  if (summary.status === 403 || summary.status === 404) notFound();
+  if (!summary.ok) return unavailable;
+  const vitals = extractVitalSummary(await summary.json().catch(() => null));
+
+  const [scoreRes, remindersRes] = await Promise.all([
+    getPatientHealthScore(token).catch(() => null),
+    getPatientMedicationReminders(token).catch(() => null),
+  ]);
+  const score = scoreRes?.ok ? parseHealthScore(await scoreRes.json().catch(() => null)) : null;
+  const reminders = remindersRes?.ok ? extractMedicationReminderSummaries(await remindersRes.json().catch(() => null)) : null;
+  const doses = reminders ? todayDoses(reminders) : [];
+
+  const base = `/${locale}/health`;
+  const latest = new Map(vitals.map((vital) => [vital.key, vital]));
+  const shown = VITAL_ORDER.filter((key) => BOARD_VITALS.includes(key) || latest.has(key));
+  const caret = getDirection(locale) === "rtl" ? "caret-left" : "caret-right";
+  const statuses = { taken: t("dose.taken"), pending: t("dose.pending"), skipped: t("dose.skipped"), missed: t("dose.missed") };
+  const care = SERVICE_ICONS.health;
+
   return (
-    <main className={`main ${styles.page}`}>
-      <section className={styles.hero}>
-        <div>
-          <p className={styles.eyebrow}><HeartPulse size={15} aria-hidden="true" />{t("eyebrow")}</p>
-          <h1>{t("title")}</h1>
-        </div>
-        <span className={styles.heroVector}>
-          <VectorHealthShield size={48} aria-hidden="true" />
-        </span>
-      </section>
-      <nav className={styles.quickGrid} aria-label={t("title")}>
-        {quickActions
-          .filter((a) => a.key !== 'wearables' || process.env.NEXT_PUBLIC_WEARABLES_ENABLED === 'true')
-          .map(({ key, href, icon: Icon, color }) => (
-          <Link className={styles.quickAction} key={key} href={`/${locale}/${href}`} style={{ "--quick-color": color } as CSSProperties}>
-            <span><Icon size={21} aria-hidden="true" /></span>
-            <strong>{labels[key]}</strong>
-          </Link>
-        ))}
-      </nav>
-      {vitals.length === 0 ? (
-        <section className={styles.state}>
-          <VectorHealthShield size={48} aria-hidden="true" />
-          <p>{t("empty")}</p>
+    <ConsultPage locale={locale} title={t("title")}>
+      <div className={styles.toolbar}>
+        <span />
+        <Link href={`/${locale}/reports/passport`} className={styles.iconButton} aria-label={t("healthId")}>
+          <FIcon icon="identification-card" tone="blue" size={32} chip="none" />
+        </Link>
+      </div>
+
+      <RowCard href={`${base}/profile`} icon="identification-card" tone="blue" title={t("fileTitle")} sub={t("fileSub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
+
+      {score ? (
+        <section className={rx.card} aria-labelledby="health-score">
+          <div className={styles.score}>
+            <p className={styles.scoreValue}>{score.score == null ? "—" : score.score}</p>
+            <div className={styles.scoreBody}>
+              <h2 id="health-score" className={styles.sectionTitle}>{t("scoreTitle")}</h2>
+              <span className={rx.cardLabel}>{score.score == null ? t("scoreInsufficient") : t("scoreStatus", { status: score.status })}</span>
+            </div>
+          </div>
+          {score.components.length ? (
+            <ul className={styles.parts} aria-label={t("scoreParts")}>
+              {score.components.map((part) => (
+                <li className={styles.part} key={part.key}><span className={rx.cardLabel}>{part.key}</span><span className={styles.partValue}>{part.score}</span></li>
+              ))}
+            </ul>
+          ) : null}
+          <p className={rx.note}>{t("scoreNotice")}</p>
         </section>
+      ) : scoreRes ? <PartUnavailable>{t("scoreUnavailable")}</PartUnavailable> : null}
+
+      <SectionHead id="health-vitals" title={t("vitalsTitle")} action={{ href: `${base}/vitals?tab=today&add=1`, label: t("addReading") }} />
+      <ul className={styles.tiles} aria-labelledby="health-vitals">
+        {shown.map((key) => {
+          const vital = latest.get(key);
+          const view = VITAL_VIEW[key];
+          return (
+            <li key={key}>
+              <VitalTile
+                href={`${base}/vitals?tab=${vital ? "history" : "today"}`}
+                label={t(`vital.${key}`)}
+                value={vital ? vital.value : "—"}
+                unit={vital?.unit}
+                when={vital?.measuredAt ? <>{t("lastMeasured")} <LocalTimeLine iso={vital.measuredAt} locale={locale} /></> : t("noReading")}
+                icon={view.icon}
+                tone={view.tone}
+              />
+            </li>
+          );
+        })}
+      </ul>
+
+      <SectionHead id="health-today" title={t("todayTitle")} action={{ href: `${base}/medications`, label: t("remindersLink") }} />
+      {reminders === null ? (
+        <PartUnavailable>{t("todayUnavailable")}</PartUnavailable>
+      ) : doses.length ? (
+        <section className={`${rx.card} ${rx.cardFlush}`} aria-labelledby="health-today"><ul className={styles.rows}><DoseRows rows={doses} labels={{ statuses, medicineUnavailable: t("medicineUnavailable") }} /></ul></section>
       ) : (
-        <section className={styles.grid} aria-label={t("title")}>
-          {vitals.map((vital) => (
-            <article className={styles.card} key={vital.key}>
-              <div className={styles.cardTop}>
-                <span>{t(`vitals.${vital.key}`)}</span>
-                <span className={styles.glyph}><VitalGlyph kind={vital.key as VitalGlyphKind} /></span>
-              </div>
-              <p className={styles.value}>{vital.value}{vital.unit ? ` ${vital.unit}` : ""}</p>
-              {vital.measuredAt ? (
-                <p className={styles.date}>
-                  <CalendarDays size={14} aria-hidden="true" />
-                  {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(vital.measuredAt))}
-                </p>
-              ) : null}
-            </article>
-          ))}
-        </section>
+        <p className={rx.note}>{t("todayEmpty")}</p>
       )}
-      <p className={styles.notice}>{t("notice")}</p>
-    </main>
+
+      <SectionHead id="health-records" title={t("recordsTitle")} />
+      <RowsCard label={t("recordsTitle")}>
+        {[
+          { href: `${base}/records?tab=reports`, icon: "file-text" as const, tone: "teal" as const, label: t("tabReports") },
+          { href: `${base}/records?tab=prescriptions`, icon: "prescription" as const, tone: "coral" as const, label: t("tabPrescriptions") },
+          { href: `${base}/records?tab=timeline`, icon: "clock-counter-clockwise" as const, tone: "blue" as const, label: t("tabTimeline") },
+          { href: `${base}/medications`, icon: "pill" as const, tone: "coral" as const, label: t("medicationsTitle") },
+          { href: `${base}/sleep`, icon: "moon" as const, tone: "violet" as const, label: t("sleepTitle") },
+          ...(wearablesOn() ? [{ href: `${base}/wearables`, icon: care.icon, tone: care.tone, label: t("wearablesTitle") }] : []),
+        ].map((row) => (
+          <li key={row.href}>
+            <Link className={`${styles.row} ${rx.rowLink}`} href={row.href}>
+              <FIcon icon={row.icon} tone={row.tone} size={40} />
+              <span className={styles.rowBody}><span className={styles.rowTitle}>{row.label}</span></span>
+              <span className={rx.rowEnd}><Icon name={caret} size={16} tone="secondary" /></span>
+            </Link>
+          </li>
+        ))}
+      </RowsCard>
+      <Notice>{t("notice")}</Notice>
+    </ConsultPage>
   );
 }

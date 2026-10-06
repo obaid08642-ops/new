@@ -20,7 +20,6 @@ export function GET() {
     { path: "/nursing/catalog", changefreq: "daily", priority: "0.7" },
     { path: "/nutrition", changefreq: "weekly", priority: "0.7" },
     { path: "/maternity/tracker", changefreq: "weekly", priority: "0.6" },
-    { path: "/reminders", changefreq: "weekly", priority: "0.6" },
     { path: "/mental-health", changefreq: "weekly", priority: "0.6" },
     { path: "/family", changefreq: "weekly", priority: "0.6" },
     { path: "/health", changefreq: "weekly", priority: "0.7" },
