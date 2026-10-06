@@ -44,7 +44,7 @@ node ../tools/audit/clientbodies.js > /tmp/c.json && node ../tools/audit/dtochec
 
 - On `fix/audit-2026-09` items, also run `node scripts/run-acceptance.mjs --done`.
 - For a web or app item, also run that package's `tsc` and tests.
-- Until Q-1 is merged, the boot suite has 20 known failures on `main` (from Q-1). Your PR must not add any. After Q-1 it must be 0.
+- The boot suites must be 0 failures (65/65 on `main` after Q-1).
 
 ## Queue A: base `main` (start now, in this order)
 
@@ -52,7 +52,7 @@ Each item is checked against `main` (2026-10-06) unless marked "verify first".
 
 | Id | Size | Defect (evidence) | Done when |
 |---|---|---|---|
-| Q-1 | S–M | Boot tests are red on `main`: 20 failures in `test/journeys/provider-onboarding.e2e-spec.ts`, `test/security/p3-provider-credential.e2e-spec.ts` and `test/security/p3-credential-rotation.e2e-spec.ts`. Cause 1: `UsersController` now injects `PdplService` (commit `51ae8e7b`, "[P10.1] WIP salvaged") and the test modules do not provide it. Cause 2: onboarding expects 403/201 where the API now answers differently. | All 65 boot tests pass. Fix the cause, not the expectations. If a behaviour change was intended, say which commit and why in the PR, and stop. |
+| Q-1 | — | **Done by the reviewer (2026-10-06), do not do.** The failures were test setup, not product bugs: the journey's admin had no enrolled admin device (`device_not_enrolled`, the C2 rule), and the two credential suites did not provide `PdplService`. The boot suites are 65/65. | — |
 | Q-2 | M | Patients cannot act in their own pharmacy chat. In `backend/src/modules/pharmacy/pharmacy.controllers.ts` (`PharmacyChatController`), post message, accept-substitute, reject and remove-item carry `@Roles(PHARMACY, ADMIN)`, so the patient gets 403. | Spec ready: PR #315, `backend/acceptance/q-2/` (17 tests). Start once #315 is merged; make it pass without editing it. |
 | Q-3 | L | The governed pharmacy states `ORDER_BROADCASTING`, `OFFERS_READY` and `CO_PAY_PENDING` (from `packages/shared-contracts/src/state-machines.ts`) are never written by the backend (0 references in `backend/src`). `FINAL_QUOTE_READY` is written in one place only. | Spec ready: PR #316, `backend/acceptance/q-3/` (10 tests). Start once #316 is merged. |
 | Q-4 | M | Offer read model fakes data. `backend/src/modules/pharmacy/services/pharmacy-offer.service.ts` around lines 298–308 returns `insurance_ready: true`, `cod_allowed: true` and `approx_delivery.eta_minutes: 60` as constants. | The values come from the pharmacy's offer or profile. Where there is no data, return `null` (the clients hide null). A test proves two pharmacies with different settings give different values. |
