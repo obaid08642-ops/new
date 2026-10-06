@@ -1,301 +1,142 @@
-import Link from "next/link";
+import type { ReactNode } from "react";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { isLocale } from "@/lib/i18n";
 import { requirePatientAccess } from "@/lib/auth/session";
-import { getPatientFamilyMemberRecords, getPatientFamilyMembers } from "@/lib/api/family-server";
+import { getPatientFamilyGroup, getPatientFamilyMemberRecords, getPatientFamilyMembers } from "@/lib/api/family-server";
 import { familyMemberRef } from "@/lib/api/family-member-ref";
 import { extractFamilyMembers } from "@/lib/api/family";
-import { VectorFamily } from "@/components-next/vector-illustrations";
-import styles from "../family.module.css";
+import { formatDate } from "@/lib/format-date";
+import { parseGroupPermissions, parseMemberRecords } from "@/lib/family/view";
+import { pickTab } from "@/lib/health/view";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { LocalTimeLine } from "@/components-next/consult/local-time-line";
+import { Facts, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
+import { MemberPermissions } from "@/components-next/family/member-permissions";
+import { HealthTabs, PartUnavailable } from "@/components-next/health/health-kit";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { Avatar } from "@/components-next/ui-generated/components/Surfaces";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
+import rx from "@/components-next/pharmacy/rx.module.css";
+import health from "@/components-next/health/health.module.css";
 
-type Props = { params: Promise<{ locale: string; memberRef: string }> };
-function list(value: unknown): any[] {
-  return Array.isArray(value) ? value : [];
-}
+type Props = { params: Promise<{ locale: string; memberRef: string }>; searchParams: Promise<{ tab?: string | string[] }> };
+const TABS = ["records", "permissions"] as const;
 
-export default async function FamilyMemberPage({ params }: Props) {
+/**
+ * One family member (merge map B): `?tab=records` is what the member shared (GET /family/member-records/:id: basic details,
+ * medicines and prescriptions, appointments, reports), `?tab=permissions` is that member's grants (from GET /family/my-group)
+ * with Save and "Remove from family". The route carries an opaque reference, never the account id.
+ */
+export default async function FamilyMemberPage({ params, searchParams }: Props) {
   const { locale, memberRef } = await params;
+  const query = await searchParams;
   if (!isLocale(locale) || !/^[a-f0-9]{32}$/.test(memberRef)) notFound();
   setRequestLocale(locale);
+  const t = await getTranslations("FamilyWeb");
+  const rs = await getTranslations("RouteState");
 
   const token = await requirePatientAccess(locale);
   if (!token) redirect(`/${locale}/login`);
+  const tab = pickTab(query.tab, TABS, "records");
+  const base = `/${locale}/family`;
 
   const membersResponse = await getPatientFamilyMembers(token);
-  const member = extractFamilyMembers(await membersResponse.json().catch(() => null)).find(
-    (x) => familyMemberRef(x.id) === memberRef,
-  );
+  if (membersResponse.status === 401) redirect(`/${locale}/login`);
+  const member = extractFamilyMembers(await membersResponse.json().catch(() => null)).find((x) => familyMemberRef(x.id) === memberRef);
   if (!member) notFound();
 
-  const memberId = member.id;
-  const recordsResponse = await getPatientFamilyMemberRecords(token, memberId);
-  if (membersResponse.status === 401 || recordsResponse.status === 401) redirect(`/${locale}/login`);
-  if (recordsResponse.status === 403 || recordsResponse.status === 404) notFound();
-  if (!recordsResponse.ok) notFound();
-
-  const records: any = (await recordsResponse.json().catch(() => null)) || {};
-  const t = await getTranslations("Family");
-  const AR = locale === "ar" || locale === "ur";
-
-  return (
-    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
-      <Link
-        href={`/${locale}/family`}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 8,
-          padding: "10px 20px",
-          borderRadius: 20,
-          border: "1px solid #E8EDEE",
-          background: "#5FD9B3",
-          color: "#1E332E",
-          fontWeight: 700,
-          textDecoration: "none",
-          overflowWrap: "anywhere",
-        } as any}
-      >
-        {AR ? "العودة للعائلة" : "Back to Family"}
-      </Link>
-
-      <section
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 16,
-          padding: 24,
-          border: "1px solid #E8EDEE",
-          borderRadius: 20,
-          background: "rgba(255,255,255,.82)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-        } as any}
-      >
-        <div style={{ display: "grid", gap: 8, minWidth: 0 }}>
-          <p
-            style={{
-              color: "#1E332E",
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              overflowWrap: "anywhere",
-              fontWeight: 700,
-            } as any}
-          >
-            {AR ? "ملف عائلي مصرح" : "Authorized family profile"}
-          </p>
-          <h1
-            style={{
-              color: "#1E332E",
-              overflowWrap: "anywhere",
-              display: "-webkit-box",
-              WebkitLineClamp: 2 as any,
-              WebkitBoxOrient: "vertical" as any,
-              overflow: "hidden",
-            } as any}
-          >
-            {member.displayName || t("member")}
-          </h1>
-          <p style={{ color: "#6B7C6E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" } as any}>
-            {member.relation ? `${member.relation} · ` : ""}
-            {member.role === "owner" ? t("owner") : t("memberRole")}
-          </p>
-        </div>
-        <span
-          style={{
-            display: "grid",
-            placeItems: "center",
-            width: 48,
-            height: 48,
-            borderRadius: 16,
-            background: "rgba(95,217,179,.12)",
-            border: "1px solid #E8EDEE",
-            flex: "0 0 auto",
-          } as any}
-        >
-          <VectorFamily size={48} aria-hidden="true" />
+  const name = member.displayName || t("member");
+  const sub = [member.role === "owner" ? t("owner") : t("memberRole"), member.relation].filter(Boolean).join(" · ");
+  const frame = (body: ReactNode) => (
+    <ConsultPage locale={locale} title={name} backHref={base}>
+      <section className={`${rx.card} ${health.row}`}>
+        <Avatar name={name} size="lg" />
+        <span className={health.rowBody}>
+          <h2 className={health.rowTitle}>{name}</h2>
+          <span className={health.rowSub}>{sub}</span>
         </span>
       </section>
+      <HealthTabs label={name} base={`${base}/${memberRef}`} active={tab} options={[
+        { value: "records", label: t("tabRecords") },
+        { value: "permissions", label: t("tabPermissions") },
+      ]} />
+      {body}
+    </ConsultPage>
+  );
 
-      {records.profile ? (
-        <section
-          style={{
-            display: "grid",
-            gap: 16,
-            padding: 16,
-            border: "1px solid #E8EDEE",
-            borderRadius: 20,
-            background: "rgba(255,255,255,.82)",
-            backdropFilter: "blur(16px)",
-            WebkitBackdropFilter: "blur(16px)",
-          } as any}
-        >
-          <h2
-            style={{
-              color: "#1E332E",
-              overflowWrap: "anywhere",
-              display: "-webkit-box",
-              WebkitLineClamp: 2 as any,
-              WebkitBoxOrient: "vertical" as any,
-              overflow: "hidden",
-            } as any}
-          >
-            {AR ? "البيانات الأساسية" : "Basic profile"}
-          </h2>
-          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-            {records.profile.gender ? (
-              <span style={{ overflowWrap: "anywhere", color: "#1E332E" } as any}>
-                <strong>{AR ? "الجنس:" : "Gender:"}</strong> {records.profile.gender}
-              </span>
-            ) : null}
-            {records.profile.birth_date ? (
-              <span style={{ overflowWrap: "anywhere", color: "#1E332E" } as any}>
-                <strong>{AR ? "الميلاد:" : "Birth:"}</strong> {records.profile.birth_date}
-              </span>
-            ) : null}
-            {records.profile.blood_type ? (
-              <span style={{ overflowWrap: "anywhere", color: "#1E332E" } as any}>
-                <strong>{AR ? "فصيلة الدم:" : "Blood type:"}</strong> {records.profile.blood_type}
-              </span>
-            ) : null}
-          </div>
-        </section>
-      ) : null}
+  if (tab === "permissions") {
+    const groupResponse = await getPatientFamilyGroup(token).catch(() => null);
+    if (groupResponse?.status === 401) redirect(`/${locale}/login`);
+    if (!groupResponse?.ok) return frame(<PartUnavailable>{t("permsUnavailable")}</PartUnavailable>);
+    const grants = parseGroupPermissions(await groupResponse.json().catch(() => null));
+    return frame(<MemberPermissions memberId={member.id} granted={grants.get(member.id) ?? []} backHref={base} />);
+  }
 
-      <section
-        style={{
-          display: "grid",
-          gap: 16,
-          padding: 16,
-          border: "1px solid #E8EDEE",
-          borderRadius: 20,
-          background: "rgba(255,255,255,.82)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-        } as any}
-      >
-        <h2
-          style={{
-            color: "#1E332E",
-            overflowWrap: "anywhere",
-            display: "-webkit-box",
-            WebkitLineClamp: 2 as any,
-            WebkitBoxOrient: "vertical" as any,
-            overflow: "hidden",
-          } as any}
-        >
-          {AR ? "الأدوية والوصفات الطبية" : "Medications & Prescriptions"}
-        </h2>
-        {list(records.meds).length || list(records.prescriptions).length ? (
-          <ul style={{ display: "grid", gap: 8, listStyle: "none", padding: 0, margin: 0 }}>
-            {[...list(records.meds), ...list(records.prescriptions)].slice(0, 20).map((x: any, i: number) => (
-              <li
-                key={x.id || i}
-                style={{
-                  padding: 16,
-                  border: "1px solid #E8EDEE",
-                  borderRadius: 20,
-                  background: "rgba(255,255,255,.82)",
-                  overflowWrap: "anywhere",
-                } as any}
-              >
-                <strong style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden", color: "#1E332E" } as any}>
-                  {x.medicine_name_ar || x.medicine_name_en || x.doctor_name || (AR ? "وصفة علاجية" : "Prescription")}
-                </strong>
-                {x.dose ? ` · ${x.dose}` : ""}
+  const recordsResponse = await getPatientFamilyMemberRecords(token, member.id);
+  if (recordsResponse.status === 401) redirect(`/${locale}/login`);
+  if (recordsResponse.status === 403 || recordsResponse.status === 404) notFound();
+  if (!recordsResponse.ok) return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
+
+  const records = parseMemberRecords(await recordsResponse.json().catch(() => null));
+  const arabicFirst = locale === "ar" || locale === "ur";
+  const gender = records.gender === "male" ? t("genderMale") : records.gender === "female" ? t("genderFemale") : undefined;
+  const birth = formatDate(locale, records.birthDate);
+  const facts: FactRow[] = [
+    ...(gender ? [{ label: t("gender"), value: gender }] : []),
+    ...(birth ? [{ label: t("birthDate"), value: birth }] : []),
+    ...(records.bloodType ? [{ label: t("bloodType"), value: <bdi>{records.bloodType}</bdi> }] : []),
+  ];
+  const meds = SERVICE_ICONS.pharmacy;
+  const consult = SERVICE_ICONS.consult;
+
+  return frame(
+    <>
+      {facts.length ? <SectionCard id="member-basics" title={t("basics")}><Facts rows={facts} /></SectionCard> : null}
+
+      <SectionCard id="member-meds" title={t("medsTitle")}>
+        {records.medicines.length ? (
+          <ul className={health.rows}>
+            {records.medicines.map((item) => {
+              const title = (arabicFirst ? item.nameAr ?? item.nameEn : item.nameEn ?? item.nameAr) ?? item.doctor ?? t("prescriptionFallback");
+              return (
+                <li key={item.id}>
+                  <div className={health.row}>
+                    <FIcon icon={meds.icon} tone={meds.tone} size={40} />
+                    <span className={health.rowBody}>
+                      <span className={health.rowTitle}>{title}</span>
+                      {item.dose ? <span className={health.rowSub}><bdi>{item.dose}</bdi></span> : null}
+                    </span>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        ) : <p className={rx.note}>{t("medsEmpty")}</p>}
+      </SectionCard>
+
+      <SectionCard id="member-appts" title={t("apptsTitle")}>
+        {records.appointments.length ? (
+          <ul className={health.rows}>
+            {records.appointments.map((item) => (
+              <li key={item.id}>
+                <div className={health.row}>
+                  <FIcon icon={consult.icon} tone={consult.tone} size={40} />
+                  <span className={health.rowBody}>
+                    <span className={health.rowTitle}>{item.doctor ?? t("apptFallback")}</span>
+                    {item.at ? <LocalTimeLine iso={item.at} locale={locale} className={health.rowSub} /> : null}
+                  </span>
+                </div>
               </li>
             ))}
           </ul>
-        ) : (
-          <p style={{ color: "#6B7C6E", overflowWrap: "anywhere" } as any}>{AR ? "لا توجد أدوية مصرح بمشاركتها حالياً." : "No shared medications available."}</p>
-        )}
-      </section>
+        ) : <p className={rx.note}>{t("apptsEmpty")}</p>}
+      </SectionCard>
 
-      <section
-        style={{
-          display: "grid",
-          gap: 16,
-          padding: 16,
-          border: "1px solid #E8EDEE",
-          borderRadius: 20,
-          background: "rgba(255,255,255,.82)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-        } as any}
-      >
-        <h2
-          style={{
-            color: "#1E332E",
-            overflowWrap: "anywhere",
-            display: "-webkit-box",
-            WebkitLineClamp: 2 as any,
-            WebkitBoxOrient: "vertical" as any,
-            overflow: "hidden",
-          } as any}
-        >
-          {AR ? "المواعيد السريرية والاستشارات" : "Appointments"}
-        </h2>
-        {list(records.appointments).length ? (
-          <ul style={{ display: "grid", gap: 8, listStyle: "none", padding: 0, margin: 0 }}>
-            {records.appointments.slice(0, 20).map((x: any, i: number) => (
-              <li
-                key={x.id || i}
-                style={{
-                  padding: 16,
-                  border: "1px solid #E8EDEE",
-                  borderRadius: 20,
-                  background: "rgba(255,255,255,.82)",
-                  overflowWrap: "anywhere",
-                } as any}
-              >
-                <strong style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden", color: "#1E332E" } as any}>
-                  {x.doctor_name || (AR ? "استشارة طبية" : "Consultation")}
-                </strong>
-                <span style={{ color: "#6B7C6E", overflowWrap: "anywhere" } as any}> · {x.scheduled_at || x.status || "—"}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p style={{ color: "#6B7C6E", overflowWrap: "anywhere" } as any}>{AR ? "لا توجد مواعيد مصرح بها." : "No shared appointments found."}</p>
-        )}
-      </section>
-
-      <section
-        style={{
-          display: "grid",
-          gap: 16,
-          padding: 16,
-          border: "1px solid #E8EDEE",
-          borderRadius: 20,
-          background: "rgba(255,255,255,.82)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-        } as any}
-      >
-        <h2
-          style={{
-            color: "#1E332E",
-            overflowWrap: "anywhere",
-            display: "-webkit-box",
-            WebkitLineClamp: 2 as any,
-            WebkitBoxOrient: "vertical" as any,
-            overflow: "hidden",
-          } as any}
-        >
-          {AR ? "السجلات والتقارير" : "Clinical Reports"}
-        </h2>
-        <p style={{ color: "#6B7C6E", overflowWrap: "anywhere" } as any}>
-          {records.reports
-            ? AR
-              ? "التقارير الطبية متاحة وفق الصلاحيات الممنوحة من ولي الأمر."
-              : "Clinical reports are accessible per authorized parental consent."
-            : AR
-              ? "لا توجد تقارير طبية مشاركة حالياً."
-              : "No shared clinical reports available."}
-        </p>
-      </section>
-    </main>
+      <SectionCard id="member-reports" title={t("reportsTitle")}>
+        <p className={rx.note}>{records.hasReports ? t("reportsShared") : t("reportsNone")}</p>
+      </SectionCard>
+    </>,
   );
 }

@@ -1,0 +1,82 @@
+/* The family screens (Batch 6, merge map section 2): the hub (canvas/Family), the member, the calendar, the chat and the
+   add / join screen. The shell and the cards come from components-next/core, pharmacy/rx.module.css and
+   consult/consult.module.css, the rows and the section heads from health/health-kit; this file only adds what the family
+   board draws that those do not (the member row with its badge, the request card, the permission list, the invite code).
+   Tokens only, logical properties only, no inline styles (the CSP refuses them). */
+
+.stack { display: flex; flex-direction: column; gap: var(--nabd-space-sm); min-inline-size: 0; }
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+/* ---- the hero card of the board: a tile, a line, two buttons side by side ---- */
+.heroRow { display: flex; align-items: center; gap: 12px; min-inline-size: 0; }
+.heroText { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
+.heroTitle { margin: 0; font-size: var(--nabd-font-size-body-lg); font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.heroSub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.heroActions { display: flex; flex-wrap: wrap; gap: 8px; }
+.heroActions > * { flex: 1 1 8rem; min-inline-size: 0; }
+
+/* ---- the member row: the avatar, the name and the relation, the permission badge, the caret ---- */
+.rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.rows > li { border-block-end: 1px solid var(--nabd-color-border-subtle); min-inline-size: 0; }
+.rows > li:last-child { border-block-end: 0; }
+.memberRow {
+  display: flex; align-items: center; gap: 12px; padding-block: 10px; min-block-size: 44px; min-inline-size: 0;
+  color: inherit; text-decoration: none;
+}
+a.memberRow:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-lg); }
+.memberBody { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.memberName { font-size: var(--nabd-font-size-row); font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+.memberSub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.badge {
+  flex: none; display: inline-flex; align-items: center; min-block-size: 24px; padding-inline: 9px; border-radius: var(--nabd-radius-pill);
+  background: var(--nabd-color-bg-sunken); color: var(--nabd-color-text-secondary); font-size: var(--nabd-font-size-micro); font-weight: 600; white-space: nowrap;
+}
+.badge bdi { unicode-bidi: isolate; }
+.caret { flex: none; display: inline-flex; color: var(--nabd-color-icon-secondary); }
+
+/* ---- a permission request ---- */
+.requests { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--nabd-space-sm); }
+.requestHead { display: flex; align-items: center; gap: 12px; min-inline-size: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  display: inline-flex; align-items: center; min-block-size: 26px; padding-inline: 10px; border-radius: var(--nabd-radius-pill);
+  background: var(--nabd-color-bg-sunken); font-size: var(--nabd-font-size-small); font-weight: 600;
+}
+.decide { display: flex; flex-wrap: wrap; gap: 8px; }
+.decide > * { flex: 1 1 8rem; min-inline-size: 0; }
+
+/* ---- the member's permissions: one pressable row per grant ---- */
+.grants { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.grant {
+  display: flex; align-items: center; gap: 12px; min-block-size: 44px; padding-inline: 4px; cursor: pointer;
+  font-size: var(--nabd-font-size-row); font-weight: 500; overflow-wrap: anywhere;
+}
+.grant input { flex: none; inline-size: 20px; block-size: 20px; accent-color: var(--nabd-color-action-selected-bg); }
+.grant input:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.actionsRow { display: flex; flex-wrap: wrap; gap: 8px; }
+.actionsRow > * { flex: 1 1 10rem; min-inline-size: 0; }
+.inline { display: flex; flex-direction: column; gap: 6px; }
+
+/* ---- the invite code ---- */
+.code {
+  margin: 0; padding: 14px; border-radius: var(--nabd-radius-xl); border: 1px dashed var(--nabd-color-border-strong); background: var(--nabd-color-bg-sunken);
+  font-size: var(--nabd-font-size-h3); font-weight: 700; letter-spacing: 0.06em; text-align: center; overflow-wrap: anywhere; unicode-bidi: isolate;
+}
+
+/* ---- the chat (the thread is the pharmacy chat's list and bubbles from rx.module.css; this only bounds its height) ---- */
+.thread { max-block-size: 28rem; overflow-y: auto; padding-block: 4px; }
+.pending { opacity: 0.6; }
+.composer { display: flex; align-items: flex-end; gap: 8px; }
+.composer > :first-child { flex: 1; min-inline-size: 0; }
+.composer > :global(.nabd-button) { flex: none; }
+.sender { font-weight: 700; }
+
+/* ---- the calendar rows ---- */
+.eventRow { display: flex; align-items: center; gap: 12px; padding-block: 12px; min-inline-size: 0; }
+.eventBody { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.eventTitle { font-size: var(--nabd-font-size-row); font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+.eventSub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+
+@media (prefers-reduced-motion: reduce) {
+  .memberRow { transition: none; }
+}
