@@ -13,9 +13,11 @@ import { useCart, type CartItem } from '../../src/context/CartContext';
  * Pharmacy cart — board Cart (canvas/Cart.dc.html).
  *
  * The cart is a local list of what the patient picked (CartContext): a medicine, its picture, its active ingredient,
- * whether it needs a prescription, and a quantity. It holds no price on purpose: the pharmacies' offers set the
- * price, so the board's price, total and points rows are not drawn here (Needs review). The delivery address is
- * chosen at the next step. The prescription banner shows only when a line of the cart needs one.
+ * whether it needs a prescription, and a quantity. It is local-first: kept on this device, with no price, total or stock
+ * on purpose (the pharmacies' offers set the price, so the board's price, total and points rows are not drawn here: Needs
+ * review), and opening it or changing a line makes no request. The delivery address is chosen at the next step. The
+ * prescription banner shows only when a line of the cart needs one. The empty state waits until the cart saved on this
+ * device has been read.
  */
 
 /** A route that is a screen of the app (the typed router only knows the generated list). */
@@ -61,7 +63,7 @@ function Line({ item, last }: { item: CartItem; last: boolean }) {
 
 export default function PharmacyCartScreen() {
   const { theme, t, c, dir, flow, k, num } = useScreenUi();
-  const { items, hasRxItems, clearCart } = useCart();
+  const { items, hasRxItems, clearCart, ready } = useCart();
 
   const confirmClear = () =>
     showLocalizedAlert(k('pharmacy.cart.clearTitle'), k('pharmacy.cart.clearBody'), [
@@ -84,6 +86,16 @@ export default function PharmacyCartScreen() {
       />
     </View>
   );
+
+  if (!ready) {
+    return (
+      <Screen theme={theme} direction={dir} header={header} testID="cart-screen">
+        <View accessibilityLabel={k('pharmacy.loading')} accessibilityState={{ busy: true }} style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8 }}>
+          <View style={{ height: 160, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} />
+        </View>
+      </Screen>
+    );
+  }
 
   if (!items.length) {
     return (

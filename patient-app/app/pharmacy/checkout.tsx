@@ -33,7 +33,7 @@ type Fulfillment = 'delivery' | 'pickup';
 
 export default function PharmacyCheckoutScreen() {
   const { theme, t, c, dir, flow, k, num } = useScreenUi();
-  const { items, clearCart } = useCart();
+  const { items, clearCart, ready: cartReady } = useCart();
   const params = useLocalSearchParams<{ prescriptionId?: string | string[] }>();
   const rxId = (Array.isArray(params.prescriptionId) ? params.prescriptionId[0] : params.prescriptionId) || undefined;
 
@@ -152,7 +152,7 @@ export default function PharmacyCheckoutScreen() {
     </Screen>
   );
 
-  if (rxId && rxState === 'loading') {
+  if (!cartReady || (rxId && rxState === 'loading')) {
     return (
       <Screen theme={theme} direction={dir} header={header} scroll testID="checkout-screen">
         <View accessibilityLabel={k('pharmacy.loading')} accessibilityState={{ busy: true }} style={{ ...COLUMN, paddingHorizontal: 16, gap: 12 }}>

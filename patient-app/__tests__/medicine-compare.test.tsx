@@ -1,6 +1,9 @@
 import React from 'react';
 import { Text } from 'react-native';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Boundaries only: API, router params, app context, safe area. The screen's own logic runs for real.
 const mockApiFetch = jest.fn();
@@ -13,18 +16,23 @@ jest.mock('../src/context/AppContext', () => ({ useApp: () => ({ isDark: false, 
 
 import MedicineCompare from '../app/pharmacy/medicine-compare';
 import { CartProvider, useCart } from '../src/context/CartContext';
+import authReducer from '../src/store/slices/authSlice';
 
 function CartProbe() {
   const { items } = useCart();
   return <>{items.map((i) => <Text key={i.id}>{`in-cart:${i.id}:${i.qty}`}</Text>)}</>;
 }
+// the cart follows the signed-in patient, so its provider sits inside the store (as in app/_layout)
+const store = () => configureStore({ reducer: { auth: authReducer } });
 const ui = (
-  <CartProvider>
-    <MedicineCompare />
-  </CartProvider>
+  <Provider store={store()}>
+    <CartProvider>
+      <MedicineCompare />
+    </CartProvider>
+  </Provider>
 );
 
-beforeEach(() => { mockApiFetch.mockReset(); mockApiFetch.mockResolvedValue([]); });
+beforeEach(async () => { mockApiFetch.mockReset(); mockApiFetch.mockResolvedValue([]); await AsyncStorage.clear(); });
 
 describe('pharmacy/medicine-compare', () => {
   it('POSTs the selected ids as JSON (the backend route is POST /medicines/compare)', async () => {
@@ -67,10 +75,12 @@ describe('pharmacy/medicine-compare', () => {
     mockParams = { ids: 'a1' };
     mockApiFetch.mockResolvedValue([{ id: 'a1', name_ar: 'دواء أ', price: 12, requires_prescription: false }]);
     await render(
-      <CartProvider>
-        <MedicineCompare />
-        <CartProbe />
-      </CartProvider>,
+      <Provider store={store()}>
+        <CartProvider>
+          <MedicineCompare />
+          <CartProbe />
+        </CartProvider>
+      </Provider>,
     );
     await waitFor(() => expect(screen.getByText('دواء أ')).toBeTruthy());
     await fireEvent.press(screen.getByLabelText('أضف للسلة'));
