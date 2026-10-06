@@ -10,31 +10,19 @@ describe('OrdersService chronic refill completion', () => {
       toObject: () => ({ id: 'refill-order-1', state: order.state }),
     };
     const orderRepository: any = { findOne: jest.fn().mockResolvedValue(order) };
-    const events: any = { emit: jest.fn() };
-    const dispatchSvc: any = {};
-    const engine: any = { apply: jest.fn(async ({ mutate }) => mutate()) };
-    const conn: any = { collection: jest.fn((name: string) => name === 'medicationreminders' ? { updateOne: updateReminder } : {}) };
-    const coupons: any = {};
-    const loyaltyRedeem: any = {};
-    const refundExec: any = {};
-    const cancelPolicy: any = {};
-    const abusePrevention: any = {};
-    const rankingEvents: any = {};
     const service = new OrdersService(
       orderRepository,
       {} as any,
       {} as any,
       {} as any,
-      events,
-      dispatchSvc,
-      engine,
-      conn,
-      coupons,
-      loyaltyRedeem,
-      refundExec,
-      cancelPolicy,
-      abusePrevention,
-      rankingEvents,
+      { emit: jest.fn() } as any,
+      {} as any,
+      { apply: jest.fn(async ({ mutate }) => mutate()) } as any,
+      { collection: jest.fn((name: string) => name === 'medicationreminders' ? { updateOne: updateReminder } : {}) } as any,
+      {} as any,
+      {} as any,
+      {} as any,
+      {} as any,
     );
 
     await expect(service.transition('refill-order-1', OrderState.DELIVERED, { id: 'admin-1', role: 'admin' }))

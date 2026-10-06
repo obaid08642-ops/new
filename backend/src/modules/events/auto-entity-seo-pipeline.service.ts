@@ -283,7 +283,6 @@ export class AutoEntitySeoPipelineService {
 
     switch (entityType) {
       case 'doctor':
-        const doctorRatingCount = doc.rating_count || doc.reviews_count || 0;
         return {
           ...base,
           '@type': 'Physician',
@@ -294,10 +293,10 @@ export class AutoEntitySeoPipelineService {
             addressCountry: 'SA',
           },
           priceRange: doc.price_clinic ? `SAR ${doc.price_clinic}` : undefined,
-          aggregateRating: doc.rating_avg && doctorRatingCount > 0 ? {
+          aggregateRating: doc.rating_avg && (doc.rating_count || doc.reviews_count) ? {
             '@type': 'AggregateRating',
             ratingValue: doc.rating_avg,
-            reviewCount: doctorRatingCount,
+            reviewCount: doc.rating_count || doc.reviews_count,
           } : undefined,
         };
 

@@ -22,13 +22,14 @@ jobs:
       matrix:
         language: [javascript-typescript]
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: github/codeql-action/init@1b54949b5f8e4b8b8b8b8b8b8b8b8b8b8b8b8b8b
+      - uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-      - uses: github/codeql-action/autobuild@7e8c8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8
-      - uses: github/codeql-action/analyze@8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b
+          config-file: ./.github/codeql/codeql-config.yml
+      - uses: github/codeql-action/autobuild@v3
+      - uses: github/codeql-action/analyze@v3
         with:
           category: '/language:${{ matrix.language }}'

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { AdaptiveImage } from "./network/adaptive-image";
+import Image from "next/image";
 import { Pill, ZoomIn, X, ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./product-gallery-modal.module.css";
 
@@ -22,7 +22,7 @@ export function ProductGalleryModal({ name, images }: ProductGalleryModalProps) 
           (PDP page also emits <link rel="preload"> for images[0]). */}
       <div className={styles.mainMediaWrap}>
         {currentImage ? (
-          <AdaptiveImage
+          <Image
             src={currentImage}
             alt={`${name} - ${activeIdx + 1}`}
             className={styles.mainImg}
@@ -62,7 +62,7 @@ export function ProductGalleryModal({ name, images }: ProductGalleryModalProps) 
               className={`${styles.thumbBtn} ${idx === activeIdx ? styles.thumbActive : ""}`}
               onClick={() => setActiveIdx(idx)}
             >
-              <AdaptiveImage src={img} alt={`صورة مصغرة ${idx + 1}`} className={styles.thumbImg} width={56} height={56} loading="lazy" sizes="56px" />
+              <Image src={img} alt={`صورة مصغرة ${idx + 1}`} className={styles.thumbImg} width={56} height={56} loading="lazy" sizes="56px" />
             </button>
           ))}
         </div>

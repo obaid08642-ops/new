@@ -1,7 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { staffRoleOf } from '../../../../lib/admin-session';
 import { randomBytes } from 'node:crypto';
-import { upstreamRequest } from '@/lib/http/upstream';
+
+function backendBase() {
+  const value = process.env.ADMIN_BACKEND_URL;
+  if (!value) throw new Error('ADMIN_BACKEND_URL is required');
+  return value.replace(/\/$/, '');
+}
 
 function cookie(name: string, value: string, httpOnly = true) {
   const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
@@ -16,12 +21,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!identifier || !code) return res.status(400).json({ code: 'identifier_and_code_required' });
 
   try {
-    // 15.1: an OTP verification is a single-use credential — never retried.
-    const upstream = await upstreamRequest('/api/v1/auth/login/verify-2fa', {
+    const upstream = await fetch(`${backendBase()}/api/v1/auth/login/verify-2fa`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', accept: 'application/json' },
       body: JSON.stringify({ identifier: String(identifier), code: String(code) }),
-      idempotent: false,
     });
     const payload = await upstream.json().catch(() => ({}));
     if (!upstream.ok) return res.status(upstream.status).json(payload);
@@ -40,11 +43,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const enrollHeaders: Record<string, string> = { 'content-type': 'application/json', authorization: `Bearer ${token}`, 'x-admin-device': deviceId };
       if (process.env.ADMIN_GATE_TOKEN) enrollHeaders['x-admin-gate-token'] = process.env.ADMIN_GATE_TOKEN;
-      await upstreamRequest('/api/v1/admin/devices/enroll', {
+      await fetch(`${backendBase()}/api/v1/admin/devices/enroll`, {
         method: 'POST',
         headers: enrollHeaders,
         body: JSON.stringify({ device_id: deviceId, name: 'admin-browser' }),
-        idempotent: false,
       }).catch(() => null);
     } catch { /* enrollment failure surfaces as device_not_enrolled on next call */ }
     const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';

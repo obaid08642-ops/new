@@ -3,14 +3,12 @@ import { SearchIntentService, ExtractedSearchIntent } from './search-intent.serv
 import { ExtractIntentDto } from './search-intent.dto';
 import { JwtAuthGuard, Roles, Public } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { SearchRateLimitGuard } from '../../common/guards/abuse-prevention.guard';
 
 @Controller('search/intent')
 export class SearchIntentController {
   constructor(private readonly intentService: SearchIntentService) {}
 
   @Public()
-  @UseGuards(SearchRateLimitGuard)
   @Post()
   async extractIntent(@Body() body: ExtractIntentDto): Promise<ExtractedSearchIntent> {
     return this.intentService.extractIntent(body.query, body.locale || 'ar', body.client_type || 'web', {

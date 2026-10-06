@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AiModule } from '../ai/ai.module';
-import { AnalyticsModule } from '../analytics/analytics.module';
 import {
   PharmacyOrderSchema, PharmacyAllocationSchema, PrescriptionIntakeSchema,
   PharmacySubstituteMapSchema, PharmacyLowStockAlertSchema,
@@ -60,6 +59,7 @@ import { PharmacyOrderRepository } from "./services/repositories/pharmacyorder.r
 import { ProcurementRequestRepository } from "./services/repositories/procurementrequest.repository";
 import { ProviderAccountRepository } from "./services/repositories/provideraccount.repository";
 import { ProviderAccountProfileRepository } from "./services/repositories/provideraccountprofile.repository";
+// P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)
 import { PharmacyOpsController, ProviderPharmacyAliasController } from './pharmacy_ops.controller';
 import { PharmacyOpsService } from './pharmacy_ops.service';
 import { OrdersModule } from '../orders/orders.module';
@@ -81,7 +81,6 @@ import { PharmacyIndexesService } from './pharmacy-indexes';
     BusinessRulesModule,
     RealtimeModule,
     AiModule,
-    AnalyticsModule,
     // P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)
     OrdersModule,
     MongooseModule.forFeature([

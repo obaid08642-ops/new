@@ -13,11 +13,11 @@ jobs:
   lighthouse:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 10.4.1
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
@@ -50,7 +50,7 @@ jobs:
           done
           echo "server not ready"; tail -100 /tmp/next.log; exit 1
       - name: Audit key routes
-        uses: treosh/lighthouse-ci-action@99f3757a1e8c4e5c8b8c8b8c8b8c8b8c8b8c8b8c8
+        uses: treosh/lighthouse-ci-action@v12
         with:
           urls: |
             http://localhost:3000/ar

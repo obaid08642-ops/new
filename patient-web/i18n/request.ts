@@ -1,7 +1,6 @@
 import { getRequestConfig } from "next-intl/server";
 import { hasLocale } from "next-intl";
 import { routing } from "./routing";
-import { getLocaleForUser, FALLBACK_LOCALE } from "@nabd/i18n";
 import arMessages from "../messages/ar.json";
 import enMessages from "../messages/en.json";
 import urMessages from "../messages/ur.json";
@@ -20,13 +19,11 @@ const messagesMap: Record<string, Record<string, any>> = {
 
 export default getRequestConfig(async ({ requestLocale }) => {
   const requested = await requestLocale;
-  const locale = hasLocale(routing.locales, requested)
-    ? (requested as string)
-    : getLocaleForUser(requested, undefined);
-
+  const locale = hasLocale(routing.locales, requested) ? requested : routing.defaultLocale;
   const base = enMessages;
-  const localized = messagesMap[locale] || enMessages;
+  const localized = messagesMap[locale] || arMessages;
 
+  // Deep merge base (English) with localized messages so all keys are guaranteed to exist
   const allNamespaces = new Set([...Object.keys(base), ...Object.keys(localized)]);
   const messages: Record<string, any> = {};
 
@@ -43,5 +40,3 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   return { locale, messages };
 });
-
-export { FALLBACK_LOCALE } from "@nabd/i18n";

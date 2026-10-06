@@ -1,11 +1,9 @@
-import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, Optional, ServiceUnavailableException } from '@nestjs/common';
-import { CircuitBreakerService } from '../../common/circuit-breaker.service';
+import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { AccessToken } from 'livekit-server-sdk';
 import { randomUUID } from 'crypto';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection, Types } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { isChaosFail } from '../../common/chaos-switches';
 
 @Injectable()
 export class LiveKitService {
@@ -15,29 +13,7 @@ export class LiveKitService {
     @InjectModel('Appointment') private readonly appointments: Model<any>,
     @InjectConnection() private readonly conn: Connection,
     private readonly events: EventEmitter2,
-    @Optional() private readonly breakers?: CircuitBreakerService,
   ) {}
-
-  /**
-   * One LiveKit server call behind a timeout + shared circuit breaker.
-   *
-   * Args-driven (room + participant travel as arguments) because the breaker is
-   * cached by name: a closure over one room's state would be the work function
-   * a later room's call executes (Q81). An open circuit resolves through
-   * `fallback`, which is the existing degraded answer for that operation —
-   * callers keep working and the user still gets a usable response.
-   */
-  private livekitCall<T>(
-    op: string,
-    fn: (...args: any[]) => Promise<T>,
-    args: any[],
-    fallback: () => T | Promise<T>,
-  ): Promise<T> {
-    if (!this.breakers) return fn(...args);
-    return this.breakers
-      .create(`livekit:${op}`, fn, { timeout: this.serverTimeoutMs }, fallback)
-      .fire(...args);
-  }
 
   private get callSessions() { return this.conn.collection('callsessions'); }
 
@@ -150,10 +126,9 @@ export class LiveKitService {
     // only from live states; record history like the canonical transition.
     const appointmentFilter: any = { id: { $eq: appointmentId }, doctor_user_id: { $eq: providerId } };
     if (Types.ObjectId.isValid(appointmentId)) {
-      const { Types: T } = require('mongoose');
       appointmentFilter.$or = [
         { id: { $eq: appointmentId }, doctor_user_id: { $eq: providerId } },
-        { _id: { $eq: new T.ObjectId(appointmentId) }, doctor_user_id: { $eq: providerId } },
+        { _id: { $eq: new Types.ObjectId(appointmentId) }, doctor_user_id: { $eq: providerId } },
       ];
       delete appointmentFilter.id;
       delete appointmentFilter.doctor_user_id;
@@ -209,10 +184,7 @@ export class LiveKitService {
   async initiateCall(callerId: string, callerName: string, calleeId: string, callType: string, bookingId?: string) {
     if (!bookingId) throw new BadRequestException('appointmentId is required');
     const appointmentFilter: any = { id: { $eq: bookingId } };
-    if (Types.ObjectId.isValid(bookingId)) {
-      const { Types: T } = require('mongoose');
-      appointmentFilter.$or = [{ id: { $eq: bookingId } }, { _id: { $eq: new T.ObjectId(bookingId) } }];
-    }
+    if (Types.ObjectId.isValid(bookingId)) appointmentFilter.$or = [{ id: { $eq: bookingId } }, { _id: { $eq: new Types.ObjectId(bookingId) } }];
     const appt: any = await this.appointments.findOne(appointmentFilter).lean();
     if (!appt) throw new NotFoundException('Appointment not found');
     // Dead appointments can never start a call (P0-14): unify both video
@@ -422,11 +394,6 @@ export class LiveKitService {
 
   /** LiveKit server RoomService — available when LIVEKIT_URL is configured. */
   private roomService(): any | null {
-    // F10 — TEST-ONLY chaos switch (honoured only when CHAOS_FAIL_LIVEKIT=1):
-    // behave exactly as if the server were unconfigured, so every server
-    // call below resolves its documented degraded answer without touching
-    // the network. Token minting is deliberately NOT gated (local crypto).
-    if (isChaosFail('livekit')) return null;
     if (!process.env.LIVEKIT_URL || !process.env.LIVEKIT_API_KEY || !process.env.LIVEKIT_API_SECRET) return null;
     try {
       const { RoomServiceClient } = require('livekit-server-sdk');
@@ -455,15 +422,10 @@ export class LiveKitService {
   async getRoomParticipants(roomName: string) {
     const svc = this.roomService();
     if (!svc) return [];
-    const list = await this.livekitCall(
-      'list_participants',
-      async (room: string) => this.withTimeout(
-        svc.listParticipants(room).catch(() => []),
-        this.serverTimeoutMs,
-      ).catch(() => [] as any),
-      [roomName],
-      () => [],
-    );
+    const list = await this.withTimeout(
+      svc.listParticipants(roomName).catch(() => []),
+      this.serverTimeoutMs,
+    ).catch(() => []);
     return (list || []).map((p: any) => ({
       identity: p.identity,
       name: p.name,
@@ -476,26 +438,16 @@ export class LiveKitService {
   async muteParticipant(roomName: string, participantId: string, muted: boolean) {
     const svc = this.roomService();
     if (!svc) return { success: false, reason: 'livekit_not_configured' };
-    const p = await this.livekitCall(
-      'get_participant',
-      async (room: string, id: string) => this.withTimeout(
-        svc.getParticipant(room, id).catch(() => null),
-        this.serverTimeoutMs,
-      ).catch(() => null),
-      [roomName, participantId],
-      () => null,
-    );
+    const p = await this.withTimeout(
+      svc.getParticipant(roomName, participantId).catch(() => null),
+      this.serverTimeoutMs,
+    ).catch(() => null);
     if (!p) return { success: false, reason: 'participant_not_found' };
     for (const track of p.tracks || []) {
-      await this.livekitCall(
-        'mute_track',
-        async (room: string, id: string, sid: string, isMuted: boolean) => this.withTimeout(
-          svc.mutePublishedTrack(room, id, sid, isMuted).catch(() => null),
-          this.serverTimeoutMs,
-        ).catch(() => null),
-        [roomName, participantId, track.sid, muted],
-        () => null,
-      );
+      await this.withTimeout(
+        svc.mutePublishedTrack(roomName, participantId, track.sid, muted).catch(() => null),
+        this.serverTimeoutMs,
+      ).catch(() => null);
     }
     return { success: true };
   }
@@ -506,15 +458,10 @@ export class LiveKitService {
       const { NotFoundException } = await import('@nestjs/common');
       throw new NotFoundException('livekit_not_configured');
     }
-    await this.livekitCall(
-      'remove_participant',
-      async (room: string, id: string) => this.withTimeout(
-        svc.removeParticipant(room, id).catch(() => null),
-        this.serverTimeoutMs,
-      ).catch(() => null),
-      [roomName, participantId],
-      () => null,
-    );
+    await this.withTimeout(
+      svc.removeParticipant(roomName, participantId).catch(() => null),
+      this.serverTimeoutMs,
+    ).catch(() => null);
     return { success: true };
   }
 }

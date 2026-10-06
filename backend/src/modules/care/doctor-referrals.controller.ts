@@ -2,12 +2,11 @@ import { Controller, Post, Body, Patch, Param, Get, BadRequestException, UseGuar
 import { JwtAuthGuard, NoGuestsGuard, Roles } from '../../common/auth.guard';
 import { InjectModel } from '@nestjs/mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
-import { Model, Connection, Types } from 'mongoose';
+import { Model, Types, Connection } from 'mongoose';
 import { EncounterReferral } from './schemas/encounter-referrals.schema';
 import { DoctorProfileExtended } from './schemas/doctor-profile-extended.schema';
 import { UserRole } from '../../common/enums';
 import { DiagnosticCallbackDto, IssueReferralsDto } from './doctor-referrals.dto';
-import { findByAnyId, findOneByAnyId } from '../../common/find-by-id';
 
 @UseGuards(JwtAuthGuard, NoGuestsGuard)
 @Controller('provider/doctor-referrals')
@@ -29,11 +28,6 @@ export class DoctorReferralsController {
     throw new ForbiddenException('Cannot access another doctor\'s referrals');
   }
 
-  /** Convert validated ObjectId string to ObjectId for queries targeting _id fields */
-  private toObjectId(id: string): any {
-    return new Types.ObjectId(id);
-  }
-
   /** Doctor's issued referrals + returned diagnostic results (inbound reports inbox) */
   @Get('my-referrals/:doctorId')
   async myReferrals(@Req() req: any, @Param('doctorId') doctorId: string) {
@@ -41,15 +35,14 @@ export class DoctorReferralsController {
     // key doctors by Mongo _id (see assertDoctorOwnership above).
     if (!Types.ObjectId.isValid(doctorId)) throw new BadRequestException('invalid doctor id');
     await this.assertDoctorOwnership(req, doctorId);
-    const doctorObjectId = this.toObjectId(doctorId);
     const rows = await this.referralModel
-      .find({ doctor_id: doctorObjectId })
+      .find({ doctor_id: new Types.ObjectId(doctorId) })
       .sort({ createdAt: -1 })
       .limit(100)
       .lean();
     const patientIds = [...new Set(rows.map((r: any) => String(r.patient_id)))]
       .filter((id) => Types.ObjectId.isValid(id))
-      .map((id) => this.toObjectId(id)!);
+      .map((id) => new Types.ObjectId(id));
     const users = patientIds.length
       ? await this.conn.db.collection('users')
           .find({ _id: { $in: patientIds } }, { projection: { full_name: 1, name: 1, phone: 1 } } as any)
@@ -83,15 +76,14 @@ export class DoctorReferralsController {
     // Ids are always Mongo ObjectIds (enforced by @IsMongoId() on
     // IssueReferralsDto); referral/appointment rows key by Mongo _id.
     // Fix 3: Automatic Internal Hospital Pharmacy Routing
-    const doctorObjectId = this.toObjectId(doctorId);
-    const doctorProfile = await this.doctorProfileModel.findOne({ doctor_id: doctorObjectId });
+    const doctorProfile = await this.doctorProfileModel.findOne({ doctor_id: new Types.ObjectId(doctorId) });
     const isInstitutional = doctorProfile && doctorProfile.parent_provider_account_id;
     const prescriptionStatus = isInstitutional ? 'hospital_internal_dispatch' : 'public_radius_broadcast';
 
     const referral = await this.referralModel.create({
-      appointment_id: this.toObjectId(appointmentId),
-      patient_id: this.toObjectId(patientId),
-      doctor_id: doctorObjectId,
+      appointment_id: new Types.ObjectId(appointmentId),
+      patient_id: new Types.ObjectId(patientId),
+      doctor_id: new Types.ObjectId(doctorId),
       requested_lab_tests: labTests || [],
       requested_radiology_scans: radScans || [],
       home_care_recommendation_notes: homeCareNotes || null,
@@ -112,9 +104,8 @@ export class DoctorReferralsController {
     // letting the cast fail downstream.
     if (!Types.ObjectId.isValid(appointmentId)) throw new BadRequestException('invalid appointment id');
     // Intercepted from Lab/Radiology Upload webhook to alert the parent Doctor automatically
-    const appointmentObjectId = this.toObjectId(appointmentId);
     const referral = await this.referralModel.findOneAndUpdate(
-      { appointment_id: appointmentObjectId },
+      { appointment_id: new Types.ObjectId(appointmentId) },
       {
         $set: {
           diagnostic_results_returned: true,

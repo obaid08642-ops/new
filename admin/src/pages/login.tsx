@@ -3,19 +3,14 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { startAuthentication } from '@simplewebauthn/browser';
 import { apiErrorMessage } from '@/lib/admin-client';
-import { httpRequest } from '@/lib/http/client';
 
 type LoginStep = 'credentials' | 'otp' | 'passkey' | 'reset-request' | 'reset-confirm';
 
 async function publicAuth(action: 'send-otp' | 'reset-password', body: Record<string, string>) {
-  // 15.1: login traffic goes through the one client (timeout + no retry on a
-  // credential POST) but stays on the same BFF routes as before.
-  const response = await httpRequest(`/api/admin/auth/public/${action}`, {
+  const response = await fetch(`/api/admin/auth/public/${action}`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
-    idempotent: false,
-    credentials: 'same-origin',
   });
   const payload = await response.json().catch(() => null);
   if (!response.ok) throw new Error(apiErrorMessage({ status: response.status, payload }, 'تعذر تنفيذ الطلب.'));
@@ -52,12 +47,10 @@ export default function AdminLogin() {
     event.preventDefault();
     setLoading(true); setError(''); setNotice('');
     try {
-      const response = await httpRequest('/api/admin/auth/login', {
+      const response = await fetch('/api/admin/auth/login', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ identifier: identifier.trim(), password }),
-        idempotent: false,
-        credentials: 'same-origin',
       });
       const payload = await response.json().catch(() => null);
       if (response.status === 202 && payload?.requires_2fa) {
@@ -82,11 +75,9 @@ export default function AdminLogin() {
     event.preventDefault();
     setLoading(true); setError('');
     try {
-      const response = await httpRequest('/api/admin/auth/verify-2fa', {
+      const response = await fetch('/api/admin/auth/verify-2fa', {
         method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ identifier: identifier.trim(), code: otp.trim() }),
-        idempotent: false,
-        credentials: 'same-origin',
       });
       const payload = await response.json().catch(() => null);
       if (!response.ok) throw new Error('رمز التحقق غير صحيح أو منتهي.');
@@ -102,11 +93,9 @@ export default function AdminLogin() {
     setLoading(true); setError('');
     try {
       const assertion = await startAuthentication({ optionsJSON: passkeyOptions });
-      const response = await httpRequest('/api/admin/auth/passkey-verify', {
+      const response = await fetch('/api/admin/auth/passkey-verify', {
         method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ identifier: identifier.trim(), response: assertion }),
-        idempotent: false,
-        credentials: 'same-origin',
       });
       const payload = await response.json().catch(() => null);
       if (!response.ok) throw new Error('فشل التحقق من مفتاح الأمان.');

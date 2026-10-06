@@ -160,22 +160,6 @@ export class NabdExtensionsService {
     });
   }
 
-  async auditAdminWalletAdjustment(admin: any, opts: {
-    ownerId: string;
-    ownerType: 'patient' | 'provider';
-    amount: number;
-    type: 'credit' | 'debit';
-    referenceType: string;
-    referenceId: string;
-    description: string;
-  }) {
-    await this.logActivity('admin.wallet.adjustment', admin.id, undefined, {
-      adminId: admin.id,
-      ...opts,
-      timestamp: new Date(),
-    });
-  }
-
   // Referral
   async generateReferralCode(ownerId: string): Promise<string> {
     const existing = await this.referralCodeModel.findOne({ ownerId });

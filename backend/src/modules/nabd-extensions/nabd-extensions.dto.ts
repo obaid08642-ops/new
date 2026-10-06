@@ -149,21 +149,3 @@ export class CreateAdBidDto {
   @IsOptional() @IsString() placement?: string;
   @IsOptional() @IsString() reason?: string;
 }
-
-export class CreditWalletDto {
-  @IsDefined() @IsString() ownerId: string;
-  @IsDefined() @IsNumber() amount: number;
-  @IsOptional() @IsString() ownerType?: 'patient' | 'provider';
-  @IsOptional() @IsString() referenceType?: string;
-  @IsOptional() @IsString() referenceId?: string;
-  @IsOptional() @IsString() description?: string;
-}
-
-export class DebitWalletDto {
-  @IsDefined() @IsString() ownerId: string;
-  @IsDefined() @IsNumber() amount: number;
-  @IsOptional() @IsString() ownerType?: 'patient' | 'provider';
-  @IsOptional() @IsString() referenceType?: string;
-  @IsOptional() @IsString() referenceId?: string;
-  @IsOptional() @IsString() description?: string;
-}

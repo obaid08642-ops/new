@@ -613,19 +613,7 @@ export class ProviderProductionService {
       { projection: { _id: 0, availability: 1 } },
     );
     if (!account) throw new NotFoundException('provider_account_not_found');
-    // 15.9 — the slot engine honours ramadan_hours/special_hours from the
-    // provider profile, so the provider schedule surface reads the same
-    // source. Merged read-only here; missing/malformed → empty lists.
-    const profile: any = await this.conn.collection('provider_profiles').findOne(
-      { $or: [{ user_id: user.id }, { account_id: user.id }] },
-      { projection: { _id: 0, ramadan_hours: 1, special_hours: 1 } },
-    ).catch(() => null);
-    const base = account.availability ?? {};
-    return {
-      ...base,
-      ramadan_hours: Array.isArray(profile?.ramadan_hours) ? profile.ramadan_hours : [],
-      special_hours: Array.isArray(profile?.special_hours) ? profile.special_hours : [],
-    };
+    return account.availability ?? null;
   }
   async patchAvailability(user: any, body: any): Promise<any> {
     assertProviderRole(user);

@@ -11,37 +11,3 @@ export class UploadMediaDto {
   thread_id?: string;
 }
 
-export class PresignedUrlDto {
-  @IsString()
-  url: string;
-  
-  @IsString()
-  key: string;
-  
-  @IsString()
-  bucket: string;
-  
-  @IsString()
-  method: string;
-  
-  @IsOptional()
-  @IsString()
-  fields?: Record<string, string>;
-}
-
-export class PresignedUrlRequestDto {
-  @IsString()
-  filename: string;
-  
-  @IsString()
-  mimetype: string;
-  
-  @IsOptional()
-  @IsString()
-  purpose?: string;
-  
-  @IsOptional()
-  @IsString()
-  thread_id?: string;
-}
-

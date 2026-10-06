@@ -19,7 +19,6 @@ import { DeliveryRepository } from "./repositories/delivery.repository";
 import { PharmacyBidRepository } from "./repositories/pharmacybid.repository";
 import { CouponService, LoyaltyRedeemService, RefundExecutor, CancellationPolicy } from '../finance-engine/finance-engine.module';
 import { ProductRankingEventService } from '../product-ranking/product-ranking-event.service';
-import { AbusePreventionService } from '../security/abuse-prevention.service';
 
 const round2 = (n: number) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
 
@@ -38,7 +37,6 @@ export class OrdersService {
     private readonly loyaltyRedeem: LoyaltyRedeemService,
     private readonly refundExec: RefundExecutor,
     private readonly cancelPolicy: CancellationPolicy,
-    private readonly abusePrevention: AbusePreventionService,
     @Optional() private readonly rankingEvents?: ProductRankingEventService,
   ) {}
 
@@ -158,42 +156,15 @@ export class OrdersService {
     let loyaltyPointsUsed = 0;
     const categories = items.map((i: any) => i.category).filter(Boolean);
 
-    // Coupon abuse prevention: max 3 attempts per order per hour per user
     if (data.coupon_code) {
-      const couponAttempt = await this.abusePrevention.checkCouponAttempt(patient.id, order.id, data.coupon_code);
-      if (!couponAttempt.allowed) {
-        throw new BadRequestException(`coupon_abuse_limit: max 3 attempts per hour. Retry after ${couponAttempt.retryAfterSeconds}s`);
-      }
-
       const v = await this.coupons.validate(patient.id, String(data.coupon_code), { order_total: preTotal, categories });
       if (!v.valid) throw new BadRequestException(`coupon_invalid: ${v.reason}`);
       couponDiscount = v.discount;
-
-      // Reset coupon attempts on successful validation
-      await this.abusePrevention.resetCouponAttempts(patient.id, order.id);
     }
-
-    // Loyalty points expiry check
     if (Number(data.loyalty_points) > 0) {
-      const loyaltyCheck = await this.abusePrevention.checkLoyaltyPointsExpiry(patient.id);
-      if (!loyaltyCheck.allowed) {
-        throw new BadRequestException(`loyalty_points_expired: ${loyaltyCheck.pointsExpiring} points expired`);
-      }
-
       const q = await this.loyaltyRedeem.quote(patient.id, preTotal - couponDiscount);
       loyaltyPointsUsed = Math.min(Math.floor(Number(data.loyalty_points)), q.max_points_for_order);
       loyaltyDiscount = round2(loyaltyPointsUsed * q.point_value_sar);
-
-      // Update loyalty activity timestamp
-      await this.abusePrevention.updateLoyaltyActivity(patient.id);
-    }
-
-    // Stacking prevention: only one coupon + one loyalty per order
-    const stackingCheck = await this.abusePrevention.validateDiscountStacking(
-      patient.id, order.id, couponDiscount, loyaltyPointsUsed
-    );
-    if (!stackingCheck.allowed) {
-      throw new BadRequestException(`discount_stacking_blocked: ${stackingCheck.reason}`);
     }
 
     order.total = Math.max(0, round2(preTotal - couponDiscount - loyaltyDiscount));

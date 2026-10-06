@@ -9,20 +9,8 @@ describe('OrdersService pharmacy legacy containment', () => {
   };
   function setup(order = pharmacyOrder) {
     const orderModel: any = { findOne: jest.fn().mockResolvedValue(order), create: jest.fn(), updateOne: jest.fn() };
-    const medModel: any = { findOne: jest.fn() };
     const delModel: any = { findOne: jest.fn(), findOneAndUpdate: jest.fn(), create: jest.fn() };
-    const bidModel: any = { findOne: jest.fn() };
-    const events: any = { emit: jest.fn() };
-    const dispatchSvc: any = {};
-    const engine: any = {};
-    const conn: any = { collection: jest.fn(() => ({ insertOne: jest.fn() })) };
-    const coupons: any = {};
-    const loyaltyRedeem: any = {};
-    const refundExec: any = {};
-    const cancelPolicy: any = {};
-    const abusePrevention: any = {};
-    const rankingEvents: any = {};
-    const service = new OrdersService(orderModel, medModel, delModel, bidModel, events, dispatchSvc, engine, conn, coupons, loyaltyRedeem, refundExec, cancelPolicy, abusePrevention, rankingEvents);
+    const service = new OrdersService(orderModel, {} as any, delModel, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any);
     return { service, orderModel, delModel };
   }
   it('rejects transition, insurance, assignment, and delivery update for a saved pharmacy order', async () => {
