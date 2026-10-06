@@ -1,0 +1,599 @@
+[
+ {
+  "route": "/pharmacy/broadcast-status?orderId=761e9693-e517-4ad6-ae20-330363005b28",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/broadcast-status",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/patient/pharmacy/orders/761e9693-e517-4ad6-ae20-330363005b28/offers",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/patient/pharmacy/orders/761e9693-e517-4ad6-ae20-330363005b28",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED",
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 248
+ },
+ {
+  "route": "/pharmacy/broadcast-status?orderId=761e9693-e517-4ad6-ae20-330363005b28",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/broadcast-status",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED",
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 248
+ },
+ {
+  "route": "/pharmacy/broadcast-status?orderId=761e9693-e517-4ad6-ae20-330363005b28",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/broadcast-status",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 83
+ },
+ {
+  "route": "/pharmacy/final-quote?orderId=761e9693-e517-4ad6-ae20-330363005b28",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/final-quote",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/patient/pharmacy/orders/761e9693-e517-4ad6-ae20-330363005b28",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 69
+ },
+ {
+  "route": "/pharmacy/final-quote?orderId=761e9693-e517-4ad6-ae20-330363005b28",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/final-quote",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 69
+ },
+ {
+  "route": "/pharmacy/final-quote?orderId=761e9693-e517-4ad6-ae20-330363005b28",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/final-quote",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [],
+  "overlay": 0,
+  "textLen": 82
+ },
+ {
+  "route": "/pharmacy/waiting-for-pharmacy?orderId=761e9693-e517-4ad6-ae20-330363005b28",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/waiting-for-pharmacy",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/patient/pharmacy/orders/761e9693-e517-4ad6-ae20-330363005b28",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/patient/pharmacy/orders/761e9693-e517-4ad6-ae20-330363005b28/offers",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED",
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 202
+ },
+ {
+  "route": "/pharmacy/waiting-for-pharmacy?orderId=761e9693-e517-4ad6-ae20-330363005b28",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/waiting-for-pharmacy",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 177
+ },
+ {
+  "route": "/pharmacy/waiting-for-pharmacy?orderId=761e9693-e517-4ad6-ae20-330363005b28",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/waiting-for-pharmacy",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [],
+  "overlay": 0,
+  "textLen": 86
+ },
+ {
+  "route": "/orders/761e9693-e517-4ad6-ae20-330363005b28/offers",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/orders/761e9693-e517-4ad6-ae20-330363005b28/offers",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/patient/pharmacy/orders/761e9693-e517-4ad6-ae20-330363005b28/offers",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/patient/pharmacy/orders/761e9693-e517-4ad6-ae20-330363005b28",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/prescriptions/0f0f0f0f-0f0f-4f0f-8f0f-0f0f0f0f0f0f",
+    "status": 404
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/prescriptions/0f0f0f0f-0f0f-4f0f-8f0f-0f0f0f0f0f0f",
+    "status": 404
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED",
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 248
+ },
+ {
+  "route": "/orders/761e9693-e517-4ad6-ae20-330363005b28/offers",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/orders/761e9693-e517-4ad6-ae20-330363005b28/offers",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED",
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 248
+ },
+ {
+  "route": "/orders/761e9693-e517-4ad6-ae20-330363005b28/offers",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/orders/761e9693-e517-4ad6-ae20-330363005b28/offers",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED",
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28 net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 83
+ },
+ {
+  "route": "/orders/761e9693-e517-4ad6-ae20-330363005b28/offers/negotiation",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/orders/761e9693-e517-4ad6-ae20-330363005b28/offers/negotiation",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/pharmacy/chat/threads",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/patient/pharmacy/orders/761e9693-e517-4ad6-ae20-330363005b28",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/users/me/addresses",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/users/me/addresses",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28/offers net::ERR_ABORTED",
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28/offers net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 191
+ },
+ {
+  "route": "/orders/761e9693-e517-4ad6-ae20-330363005b28/offers/negotiation",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/orders/761e9693-e517-4ad6-ae20-330363005b28/offers/negotiation",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28/offers net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 191
+ },
+ {
+  "route": "/orders/761e9693-e517-4ad6-ae20-330363005b28/offers/negotiation",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/orders/761e9693-e517-4ad6-ae20-330363005b28/offers/negotiation",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28/offers net::ERR_ABORTED",
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28/offers net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 88
+ },
+ {
+  "route": "/orders/761e9693-e517-4ad6-ae20-330363005b28/offers/negotiation/00000000-0000-4000-8000-000000000000",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/orders/761e9693-e517-4ad6-ae20-330363005b28/offers/negotiation/00000000-0000-4000-8000-000000000000",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/pharmacy/chat/threads/00000000-0000-4000-8000-000000000000/messages",
+    "status": 404
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/patient/pharmacy/orders/761e9693-e517-4ad6-ae20-330363005b28",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/orders/761e9693-e517-4ad6-ae20-330363005b28/offers/negotiation/00000000-0000-4000-8000-000000000000",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/orders/761e9693-e517-4ad6-ae20-330363005b28/offers/negotiation/00000000-0000-4000-8000-000000000000",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28/offers/negotiation net::ERR_ABORTED",
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28/offers/negotiation net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 139
+ },
+ {
+  "route": "/orders/761e9693-e517-4ad6-ae20-330363005b28/offers/negotiation/00000000-0000-4000-8000-000000000000",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/orders/761e9693-e517-4ad6-ae20-330363005b28/offers/negotiation/00000000-0000-4000-8000-000000000000",
+  "api": [
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders/761e9693-e517-4ad6-ae20-330363005b28/offers/negotiation net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 91
+ }
+]

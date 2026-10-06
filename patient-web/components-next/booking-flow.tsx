@@ -3,23 +3,37 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import type { DoctorRow } from "@/lib/api/doctors";
-import styles from "./booking-flow.module.css";
+import { specialtyLabel } from "@/lib/specialties";
+import type { ReactNode } from "react";
+import { doctorDisplayName, type DoctorRow } from "@/lib/api/doctors";
+import type { Locale } from "@/lib/i18n";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import { Input } from "@/components-next/ui-generated/components/Inputs";
+import { Segmented } from "@/components-next/ui-generated/components/Controls";
+import { StickyFooter } from "@/components-next/ui-generated/shells/StickyFooter";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { Hero, SectionCard } from "@/components-next/consult/consult-parts";
+import { formatPrice } from "@/lib/format-price";
+import rx from "@/components-next/pharmacy/rx.module.css";
+import styles from "@/components-next/consult/consult.module.css";
 
 const VISIT_TYPES = ["clinic", "video", "home"] as const;
 type VisitType = (typeof VISIT_TYPES)[number];
 
-function nextDays(count: number): Array<{ iso: string; label: string; dateNum: string; month: string }> {
+function nextDays(count: number, locale: string): Array<{ iso: string; label: string; dateNum: string; month: string }> {
   const out: Array<{ iso: string; label: string; dateNum: string; month: string }> = [];
   const today = new Date();
-  const weekday = new Intl.DateTimeFormat("en", { weekday: "short" });
-  const monthFmt = new Intl.DateTimeFormat("en", { month: "short" });
+  const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" });
+  const monthFmt = new Intl.DateTimeFormat(locale, { month: "short" });
+  const dayFmt = new Intl.NumberFormat(locale, { useGrouping: false });
   for (let i = 0; i < count; i++) {
     const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
+    // the calendar date the patient sees (not the UTC date of local midnight, which is the day before east of Greenwich)
+    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     out.push({
-      iso: d.toISOString().slice(0, 10),
+      iso,
       label: i === 0 ? "today" : weekday.format(d),
-      dateNum: String(d.getDate()),
+      dateNum: dayFmt.format(d.getDate()),
       month: monthFmt.format(d),
     });
   }
@@ -31,10 +45,12 @@ function newIdempotencyKey(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-export function BookingFlow({ doctorId, locale, doctor }: { doctorId: string; locale: string; doctor: DoctorRow | null }) {
+export function BookingFlow({ doctorId, locale, doctor, top }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode }) {
   const t = useTranslations("BookConsultation");
+  const names = useTranslations("SpecialtyNames");
+  const specialty = specialtyLabel(names, doctor?.specialty);
   const router = useRouter();
-  const days = useMemo(() => nextDays(7), []);
+  const days = useMemo(() => nextDays(7, locale), [locale]);
   const [visitType, setVisitType] = useState<VisitType>("clinic");
   const [dayIndex, setDayIndex] = useState(0);
   const [slots, setSlots] = useState<Array<{ start: string; end: string; label: string; available: boolean }>>([]);
@@ -143,88 +159,80 @@ export function BookingFlow({ doctorId, locale, doctor }: { doctorId: string; lo
     }
   }
 
+  const price = doctor?.price != null ? formatPrice(locale, doctor.price) : null;
+  const submitButton = (
+    <Button fullWidth size="lg" label={submitting ? t("submitting") : t("submit")} loading={submitting} disabled={!selectedSlot} onClick={() => void submit()} />
+  );
+
   return (
-    <section className={styles.flow} aria-label={t("title")}>
-      {doctor ? (
-        <p className={styles.meta}>{doctor.specialty ? `${doctor.specialty} · ` : ""}{doctor.price != null ? `${doctor.price} ${t("currency")}` : ""}</p>
-      ) : null}
-      <fieldset className={styles.group}>
-        <legend>{t("visitType")}</legend>
-        <div className={styles.types}>
-          {VISIT_TYPES.map((type) => (
-            <button key={type} type="button" className={type === visitType ? `${styles.typeBtn} ${styles.active}` : styles.typeBtn} onClick={() => pickVisitType(type)}>
-              {t(`types.${type}`)}
-            </button>
-          ))}
-        </div>
-      </fieldset>
-      <fieldset className={styles.group}>
-        <legend>{t("selectDay")}</legend>
-        <div className={styles.days}>
+    <ConsultPage
+      locale={locale as Locale}
+      title={t("title")}
+      backHref={`/${locale}/consultations/doctors/${encodeURIComponent(doctorId)}`}
+      hideTabs
+      footer={<StickyFooter label={t("title")}><div className={styles.bookBar}>{submitButton}</div></StickyFooter>}
+    >
+      {top}
+      <Hero title={(doctor ? doctorDisplayName(doctor, locale) : undefined) || t("doctorUnavailable")} sub={[specialty, doctor?.facility].filter(Boolean).join(" · ") || undefined} />
+      <SectionCard id="book-visit-type" title={t("visitType")}>
+        <Segmented
+          label={t("visitType")}
+          value={visitType}
+          onChange={(value) => pickVisitType(value === "video" ? "video" : value === "home" ? "home" : "clinic")}
+          options={VISIT_TYPES.map((type) => ({ value: type, label: t(`types.${type}`) }))}
+        />
+      </SectionCard>
+      <SectionCard id="book-day" title={t("selectDay")}>
+        <div className={styles.days} role="group" aria-label={t("selectDay")}>
           {days.map((day, index) => (
-            <button key={day.iso} type="button" className={index === dayIndex ? `${styles.day} ${styles.active}` : styles.day} onClick={() => setDayIndex(index)}>
-              <span className={styles.dayLabel}>{index === 0 ? t("today") : day.label}</span>
+            <button key={day.iso} type="button" className={`${styles.choice} ${styles.day}`} aria-pressed={index === dayIndex} onClick={() => setDayIndex(index)}>
+              <span className={styles.dayMeta}>{index === 0 ? t("today") : day.label}</span>
               <span className={styles.dayNum}>{day.dateNum}</span>
-              <span className={styles.dayMonth}>{day.month}</span>
+              <span className={styles.dayMeta}>{day.month}</span>
             </button>
           ))}
         </div>
-      </fieldset>
-      <fieldset className={styles.group}>
-        <legend>{t("slotsLabel")}</legend>
-        {loading ? <p className={styles.empty}>{t("loadingSlots")}</p> : slots.length === 0 ? (
-          <p className={styles.empty}>{slotsReason && slotsReason !== "load_failed" ? t("noSlots") : t("slotsUnavailable")}</p>
+      </SectionCard>
+      <SectionCard id="book-slots" title={t("slotsLabel")}>
+        {loading ? <p className={`${styles.body} ${styles.muted}`} role="status">{t("loadingSlots")}</p> : slots.length === 0 ? (
+          <p className={`${styles.body} ${styles.muted}`}>{slotsReason && slotsReason !== "load_failed" ? t("noSlots") : t("slotsUnavailable")}</p>
         ) : (
-          <div className={styles.slots}>
+          <div className={styles.slots} role="group" aria-label={t("slotsLabel")}>
             {slots.map((slot) => (
-              <button key={slot.start} type="button" className={slot.start === selectedSlot ? `${styles.slot} ${styles.active}` : styles.slot}
-                onClick={() => setSelectedSlot(slot.start)}>
+              <button key={slot.start} type="button" className={styles.choice} aria-pressed={slot.start === selectedSlot} onClick={() => setSelectedSlot(slot.start)}>
                 {new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(new Date(slot.start))}
               </button>
             ))}
           </div>
         )}
-      </fieldset>
-      <fieldset className={styles.group}>
-        <legend>{t("payment")}</legend>
-        <div className={styles.types}>
-          {allowedMethods.map((method) => (
-            <button key={method} type="button" className={paymentMethod === method ? `${styles.typeBtn} ${styles.active}` : styles.typeBtn} onClick={() => setPaymentMethod(method)}>
-              {t(`pay.${method}`)}
-            </button>
-          ))}
-        </div>
-        {visitType !== "clinic" && (
-          <p className={styles.empty}>{t("cashClinicOnly")}</p>
-        )}
-      </fieldset>
-      {visitType === "home" && (
-        <fieldset className={styles.group}>
-          <legend>{t("homeLocation")}</legend>
-          <label className={styles.notes}>
-            {t("homeAddress")}
-            <textarea value={homeAddress} onChange={(e) => setHomeAddress(e.target.value)} maxLength={500} rows={2} placeholder={t("homeAddressPlaceholder")} />
-          </label>
-          <div className={styles.types}>
-            <label className={styles.notes}>
-              {t("homeLat")}
-              <input value={homeLat} onChange={(e) => setHomeLat(e.target.value)} inputMode="decimal" placeholder="24.7136" />
-            </label>
-            <label className={styles.notes}>
-              {t("homeLng")}
-              <input value={homeLng} onChange={(e) => setHomeLng(e.target.value)} inputMode="decimal" placeholder="46.6753" />
-            </label>
+      </SectionCard>
+      {visitType === "home" ? (
+        <SectionCard id="book-home" title={t("homeLocation")}>
+          <Input label={t("homeAddress")} placeholder={t("homeAddressPlaceholder")} value={homeAddress} onChange={(value) => setHomeAddress(value.slice(0, 500))} multiline rows={2} />
+          <div className={styles.two}>
+            <Input label={t("homeLat")} value={homeLat} onChange={setHomeLat} keyboardType="decimal" />
+            <Input label={t("homeLng")} value={homeLng} onChange={setHomeLng} keyboardType="decimal" />
           </div>
-        </fieldset>
-      )}
-      <label className={styles.notes}>
-        {t("notes")}
-        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={2000} rows={3} placeholder={t("notesPlaceholder")} />
-      </label>
-      {error ? <p className={styles.error} role="alert">{error}</p> : null}
-      <button type="button" className={styles.submit} disabled={!selectedSlot || submitting} onClick={() => void submit()}>
-        {submitting ? t("submitting") : t("submit")}
-      </button>
-    </section>
+        </SectionCard>
+      ) : null}
+      <SectionCard id="book-notes" title={t("notes")}>
+        <Input value={notes} onChange={(value) => setNotes(value.slice(0, 2000))} multiline rows={3} placeholder={t("notesPlaceholder")} />
+      </SectionCard>
+      <SectionCard id="book-payment" title={t("payment")}>
+        <Segmented
+          label={t("payment")}
+          value={paymentMethod}
+          onChange={(value) => setPaymentMethod(value === "cash" ? "cash" : value === "insurance" ? "insurance" : "card")}
+          options={allowedMethods.map((method) => ({ value: method, label: t(`pay.${method}`) }))}
+        />
+        {visitType !== "clinic" ? <p className={`${styles.body} ${styles.muted}`}>{t("cashClinicOnly")}</p> : null}
+      </SectionCard>
+      {price ? (
+        <section className={`${rx.card} ${styles.priceCard}`} aria-label={t("fee")}>
+          <div className={styles.totalRow}><span>{t("fee")}</span><span>{price.text}</span></div>
+        </section>
+      ) : null}
+      {error ? <p className={styles.error} role="alert">{error === "booking_failed" ? t("bookingFailed") : error}</p> : null}
+    </ConsultPage>
   );
 }

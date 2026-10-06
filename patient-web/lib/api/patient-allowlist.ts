@@ -117,6 +117,8 @@ const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }>
   { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/insurance/co-pay/accept$`, "i") },
   { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/insurance/self-pay/accept$`, "i") },
   { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/cod/register$`, "i") },
+  // the way out of a rejected insurance decision besides paying the full price (backend: cancelRejectedByPatient)
+  { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/insurance-rejection/cancel$`, "i") },
   { method: "POST", route: new RegExp(`^/payments/intent/pharmacy/${orderId}$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/messages$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/accept-substitute/[A-Za-z0-9_-]{1,128}$`, "i") },
@@ -140,9 +142,11 @@ export function isAllowedPatientApiPath(path: string) {
 }
 
 // Q10: the website address book (components-next/addresses.tsx) adds and removes the patient's own addresses.
-const addressMutationRoutes: Array<{ method: "POST" | "DELETE"; route: RegExp }> = [
+// The delivery address picker (components-next/delivery-address) makes one of them the default (PATCH `is_default`).
+const addressMutationRoutes: Array<{ method: "POST" | "DELETE" | "PATCH"; route: RegExp }> = [
   { method: "POST", route: new RegExp("^/users/me/addresses$") },
   { method: "DELETE", route: new RegExp(`^/users/me/addresses/${orderId}$`, "i") },
+  { method: "PATCH", route: new RegExp(`^/users/me/addresses/${orderId}$`, "i") },
 ];
 
 // The notifications list marks one notification, or all of them, as read (backend POST /notifications/:id/read and /read-all).

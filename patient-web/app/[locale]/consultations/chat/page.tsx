@@ -1,10 +1,10 @@
-import Link from "next/link";
-import { VectorDoctor } from "@/components-next/vector-illustrations";
 import { notFound, redirect } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ doctorId?: string; id?: string }> };
 
@@ -19,22 +19,18 @@ export default async function ConsultationChatPage({ params, searchParams }: Pro
   const doctorId = (sp.doctorId || sp.id || "").trim();
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  const ar = locale === "ar";
   if (!doctorId) redirect(`/${locale}/chat`);
   const token = await requirePatientAccess(locale);
 
   const profile = await callPatientApi(`/care/doctors/${encodeURIComponent(doctorId)}`, {}, token);
   if (profile.status === 401) redirect(`/${locale}/login`);
   if (!profile.ok) {
+    const c = await getTranslations("ConsultWeb");
+    const rs = await getTranslations("RouteState");
     return (
-      <main className="main" style={{ background: "#FDFDFC", gap: 16 } as any}>
-        <Link href={`/${locale}/consultations`} style={{ color: "#1E332E", overflowWrap: "anywhere" } as any}>{ar ? "الاستشارات" : "Consultations"}</Link>
-        <section style={{ display: "grid", gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
-          <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE", flex: "0 0 auto" } as any}><VectorDoctor size={48} aria-hidden="true" /></span>
-          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "محادثة الطبيب" : "Chat with doctor"}</h1>
-          <p role="alert" style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "تعذر فتح المحادثة — تحقق من الطبيب وحاول مجدداً" : "Could not open the chat — check the doctor and retry"}</p>
-        </section>
-      </main>
+      <ConsultPage locale={locale} title={c("chatDoctorTitle")} backHref={`/${locale}/consultations`}>
+        <ConsultState kind="error" title={c("chatDoctorTitle")} body={c("chatDoctorFailed")} retryLabel={rs("retry")} />
+      </ConsultPage>
     );
   }
   const praw = asRecord(await profile.json().catch(() => null));

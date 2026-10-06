@@ -1,22 +1,244 @@
-// @ts-nocheck
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../../src/context/AppContext';
-import { apiFetch } from '../../src/utils/api';
-import { buildPatientPharmacyDraft, extractPatientPharmacyOrderId } from '../../src/utils/pharmacy-draft';
-import { lightColors, darkColors } from '../../src/theme/colors';
-import { LocalizedText } from '../../src/components/LocalizedText';
+import { Pressable, Text, View } from 'react-native';
+import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
-const key = () => `mobile-pharmacy-reorder-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+import { AppHeader, Button, Card, EmptyState, ErrorState, FIcon, OfflineState, Screen, Stepper, StickyFooter } from '../../../packages/ui-native/src';
+import { Notice } from '../../src/components/pharmacy/OfferKit';
+import { Glyph, PHARMACY_TONE, goBack } from '../../src/components/pharmacy/PharmacyKit';
+import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { apiFetch, newIdempotencyKey } from '../../src/utils/api';
+import { isOffline } from '../../src/utils/isOffline';
+import { logError } from '../../src/utils/logger';
+import { buildPatientPharmacyDraft, extractPatientPharmacyOrderId } from '../../src/utils/pharmacy-draft';
+import { checkoutErrorKey, noAnswerYet } from '../../src/utils/pharmacyCheckout';
+import { idemKey, orderIdParam } from '../../src/utils/pharmacyOffers';
+import { ORDERS_TONE } from '../../src/utils/orderCenter';
+import { readReorderLines, reorderBody, type ReorderLine } from '../../src/utils/reorder';
+import { resolveEffectiveAddress, type SelectedAddress } from '../../src/utils/selectedAddress';
+
+/**
+ * Order again — a new request built from the lines of an earlier order (GET /patient/pharmacy/orders/:id), board Orders'
+ * "أعد الطلب". Only the lines the server returns are offered; the patient keeps the ones to send and sets the quantities.
+ * Prices, the payment method and the insurance of the earlier order are not carried over: the new request goes out for
+ * fresh offers (create, then submit, each with an idempotency key that is sent again only after no answer came back).
+ */
+
 export default function PharmacyReorderScreen() {
-  const insets = useSafeAreaInsets(); const { isDark } = useApp() as any; const colors = isDark ? darkColors : lightColors; const { orderId } = useLocalSearchParams<{ orderId: string }>(); const id = Array.isArray(orderId) ? orderId[0] : orderId; const requestKey = useRef(key());
-  const [items, setItems] = useState<any[]>([]); const [address, setAddress] = useState<any>(null); const [loading, setLoading] = useState(true); const [submitting, setSubmitting] = useState(false); const [error, setError] = useState('');
-  const load = useCallback(async () => { if (!id) { setLoading(false); return; } setLoading(true); setError(''); try { const [orderResponse, profileResponse]: any = await Promise.all([apiFetch(`/patient/pharmacy/orders/${id}`), apiFetch('/users/me/profile')]); const order = orderResponse?.data || orderResponse; const addresses = profileResponse?.addresses || []; setAddress(addresses.find((entry: any) => entry.is_default) || addresses[0] || null); setItems((order?.items || []).map((item: any) => ({ id: item.matched_sku || item.id, sku: item.matched_sku, name: item.raw_name || item.name_ar || item.name_en, qty: Math.max(1, Number(item.qty) || 1), selected: true }))); } catch (reason: any) { setError(reason?.message || 'تعذر تحميل طلبك السابق'); } finally { setLoading(false); } }, [id]);
-  useEffect(() => { void load(); }, [load]);
-  const selected = items.filter((item) => item.selected && item.name); function toggle(itemId: string) { setItems((current) => current.map((item) => item.id === itemId ? { ...item, selected: !item.selected } : item)); } function adjust(itemId: string, delta: number) { setItems((current) => current.map((item) => item.id === itemId ? { ...item, qty: Math.max(1, item.qty + delta) } : item)); }
-  async function submit() { if (!selected.length) return setError('اختر صنفاً واحداً على الأقل.'); if (!Number.isFinite(Number(address?.lat)) || !Number.isFinite(Number(address?.lng))) return setError('حدّث عنوانك إلى موقع حقيقي قبل إعادة البث.'); setSubmitting(true); setError(''); try { const created: any = await apiFetch('/patient/pharmacy/orders', { method: 'POST', headers: { 'Idempotency-Key': requestKey.current }, body: JSON.stringify(buildPatientPharmacyDraft(selected, address)) }); const nextId = extractPatientPharmacyOrderId(created); if (!nextId) throw new Error('governed_pharmacy_order_id_missing'); await apiFetch(`/patient/pharmacy/orders/${nextId}/submit`, { method: 'POST', headers: { 'Idempotency-Key': `${requestKey.current}-submit` }, body: JSON.stringify({}) }); router.replace({ pathname: '/pharmacy/broadcast-status', params: { orderId: nextId } }); } catch (reason: any) { setError(reason?.message || 'تعذر بث إعادة الطلب.'); } finally { setSubmitting(false); } }
-  return <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top + 16 }]}><View style={styles.header}><TouchableOpacity onPress={() => router.back()} style={[styles.back, { backgroundColor: colors.s }]}><LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 25 }}>arrow_forward</LocalizedText></TouchableOpacity><LocalizedText style={[styles.title, { color: colors.n }]}>إعادة طلب الصيدلية</LocalizedText><View style={{ width: 44 }} /></View><ScrollView contentContainerStyle={{ padding: 20, gap: 12, paddingBottom: insets.bottom + 28 }}>{loading ? <ActivityIndicator color={colors.p} /> : error && !items.length ? <><LocalizedText style={{ color: colors.cr, textAlign: 'center' }}>{error}</LocalizedText><TouchableOpacity onPress={() => void load()} style={[styles.primary, { backgroundColor: colors.p }]}><LocalizedText style={styles.primaryText}>تحديث يدوياً</LocalizedText></TouchableOpacity></> : <><LocalizedText style={[styles.copy, { color: colors.t2 }]}>ستنشئ إعادة الطلب draft جديداً وتطلب عروضاً حديثة. لا تُعاد الأسعار أو وسيلة الدفع أو التأمين السابق.</LocalizedText>{items.map((item) => <View key={item.id} style={[styles.card, { backgroundColor: colors.s, borderColor: colors.bd }]}><TouchableOpacity onPress={() => toggle(item.id)} style={styles.line}><LocalizedText style={{ color: item.selected ? colors.p : colors.t2, fontFamily: 'MaterialSymbolsRounded', fontSize: 24 }}>{item.selected ? 'check_circle' : 'radio_button_unchecked'}</LocalizedText><LocalizedText style={{ color: colors.n, fontFamily: 'Cairo-Bold', flex: 1, textAlign: 'right' }}>{item.name}</LocalizedText></TouchableOpacity>{item.selected && <View style={styles.line}><TouchableOpacity onPress={() => adjust(item.id, -1)} style={[styles.qty, { backgroundColor: colors.bg }]}><LocalizedText style={{ color: colors.p, fontFamily: 'MaterialSymbolsRounded' }}>remove</LocalizedText></TouchableOpacity><LocalizedText style={{ color: colors.n, fontFamily: 'Cairo-Bold' }}>الكمية: {item.qty}</LocalizedText><TouchableOpacity onPress={() => adjust(item.id, 1)} style={[styles.qty, { backgroundColor: colors.bg }]}><LocalizedText style={{ color: colors.p, fontFamily: 'MaterialSymbolsRounded' }}>add</LocalizedText></TouchableOpacity></View>}</View>)}<LocalizedText style={{ color: colors.t2, textAlign: 'center' }}>{address ? `سيُستخدم عنوان ملفك الحالي: ${address.label || address.city || 'عنوان محفوظ'}` : 'يلزم عنوان محفوظ بموقع حقيقي قبل البث.'}</LocalizedText>{error && <LocalizedText style={{ color: colors.cr, textAlign: 'center' }}>{error}</LocalizedText>}<TouchableOpacity disabled={submitting || !selected.length} onPress={() => void submit()} style={[styles.primary, { backgroundColor: submitting || !selected.length ? colors.bd : colors.p }]}>{submitting ? <ActivityIndicator color="#fff" /> : <LocalizedText style={styles.primaryText}>إنشاء طلب جديد وطلب عروض</LocalizedText>}</TouchableOpacity></>}</ScrollView></View>;
+  const { theme, t, c, dir, flow, k, num } = useScreenUi();
+  const params = useLocalSearchParams<{ orderId?: string | string[] }>();
+  const id = orderIdParam({ orderId: params.orderId });
+
+  const [lines, setLines] = useState<ReorderLine[]>([]);
+  const [loading, setLoading] = useState(Boolean(id));
+  const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
+  const [address, setAddress] = useState<SelectedAddress | null>(null);
+  const [loadingAddress, setLoadingAddress] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [problemKey, setProblemKey] = useState<string | null>(null);
+  const [needsLocation, setNeedsLocation] = useState(false);
+
+  const busy = useRef(false);
+  const keys = useRef(new Map<string, { create: string; submit: string }>());
+  const created = useRef<{ body: string; orderId: string } | null>(null);
+
+  const load = useCallback(async () => {
+    if (!id) return;
+    setLoading(true);
+    setFailed(null);
+    try {
+      setLines(readReorderLines(await apiFetch(`/patient/pharmacy/orders/${id}`)));
+    } catch (error) {
+      logError('pharmacy:reorder:load', error);
+      setFailed((await isOffline()) ? 'offline' : 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      setLoadingAddress(true);
+      void (async () => {
+        try {
+          const next = await resolveEffectiveAddress();
+          if (active) setAddress(next);
+        } catch (error) {
+          logError('pharmacy:reorder:address', error);
+        } finally {
+          if (active) setLoadingAddress(false);
+        }
+      })();
+      return () => {
+        active = false;
+      };
+    }, []),
+  );
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const chosen = lines.filter((l) => l.selected);
+  const hasPoint = Boolean(address) && Number.isFinite(Number(address?.lat)) && Number.isFinite(Number(address?.lng));
+  const patch = (key: string, change: Partial<ReorderLine>) => setLines((all) => all.map((l) => (l.key === key ? { ...l, ...change } : l)));
+
+  const send = async () => {
+    if (busy.current || submitting || !chosen.length || loadingAddress) return;
+    if (!address || !hasPoint) {
+      setNeedsLocation(true);
+      return;
+    }
+    busy.current = true;
+    setSubmitting(true);
+    setProblemKey(null);
+    setNeedsLocation(false);
+    try {
+      const body = JSON.stringify(reorderBody(chosen, address, buildPatientPharmacyDraft));
+      let pair = keys.current.get(body);
+      if (!pair) {
+        const nonce = newIdempotencyKey();
+        pair = { create: idemKey('pharmacy-reorder', [], nonce), submit: idemKey('pharmacy-reorder-submit', [], nonce) };
+        keys.current.set(body, pair);
+      }
+      let orderId = created.current?.body === body ? created.current.orderId : null;
+      if (!orderId) {
+        const response = await apiFetch('/patient/pharmacy/orders', { method: 'POST', headers: { 'Idempotency-Key': pair.create }, body });
+        orderId = extractPatientPharmacyOrderId(response);
+        if (!orderId) throw new Error('governed_pharmacy_order_id_missing');
+        created.current = { body, orderId };
+      }
+      await apiFetch(`/patient/pharmacy/orders/${orderId}/submit`, { method: 'POST', headers: { 'Idempotency-Key': pair.submit }, body: JSON.stringify({}) });
+      keys.current.delete(body);
+      created.current = null;
+      router.replace({ pathname: '/pharmacy/broadcast-status', params: { orderId } });
+    } catch (error) {
+      logError('pharmacy:reorder:send', error);
+      // a server answer ends the attempt (the next one takes new keys); after no answer the same keys go out again
+      if (!noAnswerYet(error)) keys.current.clear();
+      setProblemKey(checkoutErrorKey(error));
+    } finally {
+      busy.current = false;
+      setSubmitting(false);
+    }
+  };
+
+  const header = (
+    <View style={COLUMN}>
+      <AppHeader title={k('orders.reorder.title')} onBack={goBack} backLabel={k('pharmacy.back')} theme={theme} direction={dir} />
+    </View>
+  );
+  const state = (node: React.ReactNode) => (
+    <Screen theme={theme} direction={dir} header={header} scroll testID="reorder-screen">
+      <View style={{ ...COLUMN, paddingHorizontal: 16, paddingBottom: 32, flexGrow: 1, justifyContent: 'center' }}>{node}</View>
+    </Screen>
+  );
+
+  if (!id) {
+    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('pharmacy.offers.noOrder')} body={k('pharmacy.offers.noOrderBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/pharmacy/order-history' as Href)} theme={theme} />);
+  }
+  if (loading) {
+    return (
+      <Screen theme={theme} direction={dir} header={header} scroll testID="reorder-screen">
+        <View accessibilityLabel={k('pharmacy.loading')} accessibilityState={{ busy: true }} style={{ ...COLUMN, paddingHorizontal: 16, gap: 12 }}>
+          <View style={{ height: 60, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} />
+          <View style={{ height: 200, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} />
+        </View>
+      </Screen>
+    );
+  }
+  if (failed === 'offline') {
+    return state(<OfflineState title={k('pharmacy.offline.title')} body={k('pharmacy.offline.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void load()} theme={theme} />);
+  }
+  if (failed === 'error') {
+    return state(<ErrorState title={k('orders.reorder.loadError')} body={k('pharmacy.error.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void load()} theme={theme} />);
+  }
+  if (!lines.length) {
+    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('orders.reorder.noLines')} body={k('orders.reorder.noLinesBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/pharmacy/order-history' as Href)} theme={theme} />);
+  }
+
+  const addressLine = address ? [address.street || address.address, address.city].filter(Boolean).join(', ') : '';
+  const footer = (
+    <StickyFooter theme={theme} direction={dir}>
+      <View style={COLUMN}>
+        <Button label={k('orders.reorder.submit')} size="lg" fullWidth disabled={!chosen.length || loadingAddress || submitting} loading={submitting} onPress={() => void send()} testID="reorder-submit" theme={theme} />
+      </View>
+    </StickyFooter>
+  );
+
+  return (
+    <Screen theme={theme} direction={dir} header={header} footer={footer} scroll testID="reorder-screen">
+      <View style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, gap: 16 }}>
+        <Text style={{ ...scale(t, 'meta', 'regular'), lineHeight: 21, color: c.text.secondary, ...flow }}>{k('orders.reorder.intro')}</Text>
+
+        <Card theme={theme}>
+          <View style={{ gap: 4 }}>
+            {lines.map((line, i) => (
+              <View key={line.key} style={{ gap: 8, paddingVertical: 8, borderBottomWidth: i === lines.length - 1 ? 0 : 1, borderBottomColor: c.border.subtle }}>
+                <Pressable
+                  accessibilityRole="checkbox"
+                  accessibilityLabel={line.name}
+                  accessibilityState={{ checked: line.selected, disabled: submitting }}
+                  disabled={submitting}
+                  onPress={() => patch(line.key, { selected: !line.selected })}
+                  style={{ minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 12 }}
+                >
+                  <View style={{ width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: line.selected ? c.action.primary.bg : c.bg.surface, borderWidth: line.selected ? 0 : 2, borderColor: c.border.strong }}>
+                    {line.selected ? <Glyph name="check-circle" size={14} color={c.action.primary.fg} /> : null}
+                  </View>
+                  <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'row', 'medium'), color: c.text.primary, ...flow }}>{line.name}</Text>
+                </Pressable>
+                {line.selected ? (
+                  <View style={{ alignSelf: 'flex-start' }}>
+                    <Stepper
+                      value={line.qty}
+                      min={1}
+                      max={99}
+                      onChange={(next) => patch(line.key, { qty: next })}
+                      label={k('pharmacy.cart.quantity', { name: line.name })}
+                      decrementLabel={k('pharmacy.cart.decrease', { name: line.name })}
+                      incrementLabel={k('pharmacy.cart.increase', { name: line.name })}
+                      format={(n) => num(n)}
+                      disabled={submitting}
+                      theme={theme}
+                    />
+                  </View>
+                ) : null}
+              </View>
+            ))}
+          </View>
+        </Card>
+
+        <Card theme={theme}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <FIcon icon="map-pin" tone={ORDERS_TONE} size={40} theme={theme} />
+            <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+              <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('pharmacy.request.addressTitle')}</Text>
+              <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>
+                {loadingAddress ? k('pharmacy.request.addressLoading') : address ? address.label || addressLine || k('pharmacy.request.addressUsed') : k('pharmacy.request.addressNone')}
+              </Text>
+              {address && address.label && addressLine ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{addressLine}</Text> : null}
+            </View>
+          </View>
+          {!loadingAddress && !hasPoint ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.status.warning.fg, ...flow }}>{k('pharmacy.request.addressMissing')}</Text> : null}
+          <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.request.changeLocation')} onPress={() => router.push('/delivery/address-select' as Href)} style={{ minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start' }}>
+            <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.link, ...flow }}>{k('pharmacy.request.changeLocation')}</Text>
+          </Pressable>
+        </Card>
+
+        <Text style={{ ...scale(t, 'caption'), lineHeight: 24, color: c.text.secondary, textAlign: 'center' }}>{k('orders.reorder.note')}</Text>
+
+        {!chosen.length ? <Notice tone="warning" text={k('orders.reorder.pickOne')} /> : null}
+        {needsLocation ? <Notice tone="warning" text={k('pharmacy.checkout.err.location')} actionLabel={k('pharmacy.request.changeLocation')} onAction={() => router.push('/delivery/address-select' as Href)} /> : null}
+        {problemKey ? (
+          <Notice
+            tone="danger"
+            text={k(problemKey)}
+            actionLabel={problemKey === 'pharmacy.checkout.err.signIn' ? k('pharmacy.checkout.signIn') : undefined}
+            onAction={problemKey === 'pharmacy.checkout.err.signIn' ? () => router.push('/(auth)/login' as Href) : undefined}
+          />
+        ) : null}
+      </View>
+    </Screen>
+  );
 }
-const styles = StyleSheet.create({ container: { flex: 1 }, header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 16 }, back: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center' }, title: { fontFamily: 'Cairo-Black', fontSize: 18 }, copy: { fontFamily: 'Cairo-Regular', lineHeight: 20, textAlign: 'center' }, card: { gap: 12, padding: 15, borderWidth: 1, borderRadius: 16 }, line: { flexDirection: 'row-reverse', alignItems: 'center', gap: 12 }, qty: { width: 34, height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center' }, primary: { minWidth: '100%', alignItems: 'center', borderRadius: 14, paddingVertical: 15, marginTop: 6 }, primaryText: { color: '#fff', fontFamily: 'Cairo-Bold' } });

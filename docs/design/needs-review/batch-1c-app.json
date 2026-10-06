@@ -1,0 +1,122 @@
+[
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/broadcast-status",
+    "element": "Real offers could not be produced on the local backend",
+    "file": "backend/src/modules/pharmacy/services/pharmacy-seed.service.ts",
+    "line": 54,
+    "found": "2026-10-06, local test backend: GET /patient/pharmacy/orders/:id/offers answers [] for the only order (a draft). The seeder pharmacies (pharma-north+phase2@test.com, pharma-east+phase2@test.com) answer 401 'invalid credentials' to POST /provider/auth/login with the seeder password, and POST /admin/pharmacy/seed answers 403 for the seeded patient, so no offer could be submitted. The offers list, select, final-quote accept, cod register and cancel were therefore exercised with unit tests of the screens against answers shaped like the backend DTOs and with marked TEST fixtures in the render tool, not against live offers. Mutations were not executed against the backend.",
+    "suspect": "The reviewer session should seed a pharmacy whose login works on the test backend (or submit one offer) so the offers flow can be run end to end."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/broadcast-status",
+    "element": "Delivery time ('يصل خلال') of an offer",
+    "file": "backend/src/modules/pharmacy/services/pharmacy-offer.service.ts",
+    "line": 308,
+    "found": "patientDtoAsync sends approx_delivery { eta_minutes: 60, label_ar: 'خلال ساعة تقريباً', label_en: 'Approximately within 1 hour' } for every offer: a constant, not a pharmacy or routing value.",
+    "suspect": "The board draws '[distance] km · arrives in [time]'. The app does not draw the constant (it would be an invented promise); it draws the real distance and the preparation estimate. Backend should send a real delivery estimate or none."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/broadcast-status",
+    "element": "Preparation minutes ('ready in about N min') and the 'Fastest' sort",
+    "file": "backend/src/modules/pharmacy/services/pharmacy-offer.service.ts",
+    "line": 162,
+    "found": "estimated_preparation_minutes is computed by the server as max(15, min(60, 10 + 5 x number of available lines)), not entered by the pharmacy. The app draws it ('ready in about N min') and sorts 'Fastest' by it, because it is the only time the server sends.",
+    "suspect": "Owner/reviewer: confirm that a formula-based estimate may be shown as the pharmacy's preparation time, or have the pharmacy enter it."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/broadcast-status",
+    "element": "'Accepts insurance' flag (insurance_ready) and cod_allowed",
+    "file": "backend/src/modules/pharmacy/services/pharmacy-offer.service.ts",
+    "line": 298,
+    "found": "patientDtoAsync sets insurance_ready: true and cod_allowed: true for every offer (hard-coded). The board draws a blue 'يقبل التأمين' chip; the app does not draw it (a constant is not a fact about the pharmacy). The coverage control keeps the old rule (insurance disabled only when the server says insurance_ready is false), so it is always enabled; the server then refuses an insurance order without a prescription (prescription_required_for_insurance_orders), which the app shows as a sentence.",
+    "suspect": "Backend should send the pharmacy's real insurance acceptance (network) and COD policy per offer."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/broadcast-status",
+    "element": "Pharmacy name",
+    "file": "backend/src/modules/pharmacy/services/pharmacy-offer.service.ts",
+    "line": 276,
+    "found": "pharmacy_name_ar/en are read from the provider profile fields display_name_ar/name_ar and display_name_en/name_en, but the provider profile schema (provider/schemas/index.ts) and the seeder store business_name / legal_name. For such a pharmacy pharmacy_name is null and the card shows the generic 'Pharmacy' (from code reading; not seen live, see the first entry).",
+    "suspect": "Backend should fall back to business_name so an offer names its pharmacy."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/broadcast-status",
+    "element": "Search radius and round ('نطاق 3 / 5 / 8 كم', the three progress bars)",
+    "file": "backend/src/modules/pharmacy/pharmacy.controllers.ts",
+    "line": 39,
+    "found": "No patient endpoint exposes the broadcast (current_round, current_radius_km, round_expires_at, round_radii_km live in the pharmacy_broadcasts collection; GET /patient/pharmacy/orders/:id does not include them, and the order timeline records only round 1). The board's radius line and bars are not drawn.",
+    "suspect": "Backend should expose the broadcast progress (round, radius, next round time) to the order's patient."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/broadcast-status",
+    "element": "Broadcast rounds and offer expiry never run",
+    "file": "backend/src/modules/pharmacy/services/pharmacy-expiry-command.service.ts",
+    "line": 26,
+    "found": "PharmacyExpiryCommandService says of itself 'no scheduler decoration and no caller in app startup'. Unless something calls POST expire-due, a broadcast never advances to the next radius or closes (the order never reaches manual_review), and offers only disappear because listForPatient filters quote_expires_at. The offers screen therefore may show 'searching' for an order whose round time has passed.",
+    "suspect": "Reviewer: schedule the expiry command."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/broadcast-status",
+    "element": "Offer countdown uses the phone clock",
+    "file": "patient-app/src/components/pharmacy/OfferKit.tsx",
+    "line": 195,
+    "found": "The countdown is quote_expires_at minus the phone's Date.now(); the answers carry no server time, so a phone with a wrong clock shows a wrong countdown. The server is still the authority: select refuses an expired offer (offer_not_selectable) and the screen shows that and reads the list again.",
+    "suspect": "Backend could send server_time with the offers so the client can correct for clock skew."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/final-quote",
+    "element": "FINAL_QUOTE_READY is never produced",
+    "file": "backend/src/modules/pharmacy/services/pharmacy-order.service.ts",
+    "line": 135,
+    "found": "governedView returns FINAL_QUOTE_READY when order.pending_final_quote_snapshot has a hash, but nothing in backend/src writes pending_final_quote_snapshot (grep), so the negotiation-to-final-quote path does not exist. If it were written, acceptFinalQuote compares the sent hash with order.pricing_snapshot.hash and would refuse the pending quote's own hash (quote_hash_or_revision_mismatch). The app sends the pending snapshot's own hash and revision as before.",
+    "suspect": "Backend: implement the pending final quote and make accept check it, or remove the state."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/final-quote",
+    "element": "Pharmacy name is not in the order detail",
+    "file": "backend/src/modules/pharmacy/services/pharmacy-order.service.ts",
+    "line": 276,
+    "found": "The order detail carries the chosen allocation (pharmacy_account_id, items, totals) but no pharmacy name, so the final-quote screen cannot say which pharmacy the price is from; it draws the lines and totals only.",
+    "suspect": "Backend should include the chosen pharmacy's display name in the order detail."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/final-quote",
+    "element": "Online payment was unreachable (fixed here, for 1d to check)",
+    "file": "patient-app/app/pharmacy/final-quote.tsx",
+    "line": 205,
+    "found": "Before: for an accepted cash order the screen showed only 'register cash on delivery' (canCod was tested before the branch that linked to /pharmacy/payment, and the server sets cod_allowed for every accepted quote), so the card payment screen could not be reached from here. Now the accepted state shows 'Pay online' (to /pharmacy/payment, which decides itself whether the order is payable) and, when the server allows it, 'Pay on delivery'.",
+    "suspect": "Slice 1d (payment): confirm /pharmacy/payment is the intended next step for a cash order and that it refuses an order that is not payable."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/broadcast-status",
+    "element": "Other screens route a broadcasting order to the wrong place (slices 1d, 1e)",
+    "file": "patient-app/app/pharmacy/order-history.tsx",
+    "line": 13,
+    "found": "order-history.tsx (destination) and order-confirm.tsx (line 12) send an order to broadcast-status only when governed_state is 'ORDER_BROADCASTING' or 'OFFERS_READY', but the backend's governedView sets governed_state to null before an offer is selected (it never produces those values). A broadcasting order therefore opens order-tracking instead of the offers. Also fixed in this slice: every caller (checkout, request, reorder, order-history, order-confirm) passes orderId while broadcast-status read only requestId, so the screen showed 'order id unavailable' after a broadcast; it now reads orderId and, for old links, requestId.",
+    "suspect": "Slices 1d and 1e: route by the order's status (broadcasting, awaiting_full_acceptance, manual_review) to /pharmacy/broadcast-status."
+  }
+]

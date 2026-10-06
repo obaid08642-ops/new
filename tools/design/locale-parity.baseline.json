@@ -15,22 +15,22 @@
       "ur": {
         "missing": 0,
         "empty": 0,
-        "english": 101
+        "english": 100
       },
       "hi": {
         "missing": 0,
         "empty": 0,
-        "english": 115
+        "english": 112
       },
       "bn": {
         "missing": 0,
         "empty": 0,
-        "english": 105
+        "english": 102
       },
       "fil": {
         "missing": 0,
         "empty": 0,
-        "english": 209
+        "english": 201
       }
     },
     "app": {

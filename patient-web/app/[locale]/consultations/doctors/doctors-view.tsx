@@ -1,26 +1,30 @@
-import Link from "next/link";
-import { NavLink } from "@/components-next/nav/nav-link";
 import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowLeft, ArrowRight, BadgeCheck, Calendar, Search, Star } from "lucide-react";
-import { extractDoctors } from "@/lib/api/doctors";
+import { specialtyLabel } from "@/lib/specialties";
+import { doctorDisplayName, extractDoctors } from "@/lib/api/doctors";
 import { getPublicDoctors } from "@/lib/api/doctors-server";
 import { isOutage } from "@/lib/api/outage";
 import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
-import { VectorDoctor } from "@/components-next/vector-illustrations";
 import type { Metadata } from "next";
-import styles from "./doctors.module.css";
+import type { ConsultMode } from "@/components-next/ui-generated/components/contract";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { DoctorListCard } from "@/components-next/consult/doctor-list-card";
+import { LinkSegmented } from "@/components-next/consult/link-segmented";
+import styles from "@/components-next/consult/consult.module.css";
 
 export type DoctorsViewProps = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; specialty?: string; sort?: "rating" | "price" | "wait" }> };
+type Props = DoctorsViewProps;
 
 /** F82-3: the list is one view with two routes: the static page (no query) and its dynamic twin under /q (lib/security/query-twin.ts). */
 export const DOCTORS_REVALIDATE_SECONDS = 60;
 
-export async function doctorsMetadata({ params }: Pick<DoctorsViewProps, "params">): Promise<Metadata> {
+export async function doctorsMetadata({ params }: Pick<Props, "params">): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
   const t = await getTranslations({ locale, namespace: "Doctors" });
@@ -38,99 +42,69 @@ export async function doctorsMetadata({ params }: Pick<DoctorsViewProps, "params
   };
 }
 
-export async function DoctorsView({ params, searchParams }: DoctorsViewProps) {
+/** Find a doctor (canvas/Consult): the search field, the sort choice and one card per doctor. */
+export async function DoctorsView({ params, searchParams }: Props) {
   const { locale } = await params; const sp = (await searchParams) ?? {}; if (!isLocale(locale)) notFound(); setRequestLocale(locale);
-  const t = await getTranslations("Doctors");  let doctors: any[] = [];
+  const t = await getTranslations("Doctors");
+  const c = await getTranslations("ConsultWeb");
+  const names = await getTranslations("SpecialtyNames");
+  let doctors: ReturnType<typeof extractDoctors> = [];
   const response = await getPublicDoctors({ search: sp.q, specialty: sp.specialty, sort: ["rating", "price", "wait"].includes(sp.sort ?? "") ? sp.sort : undefined });
   // A failure (no answer, or a 5xx) is not an empty list: this page is cached, and a cached "no doctors" would replace the good copy.
   if (isOutage(response)) throw new PublicDataUnavailableError("doctors");
   if (response && response.ok) doctors = extractDoctors(await response.json().catch(() => null));
 
-  const rtl = locale === "ar" || locale === "ur"; const Arrow = rtl ? ArrowLeft : ArrowRight;
+  const sortHref = (sort: string) => `/${locale}/consultations/doctors?${new URLSearchParams({ ...(sp.q ? { q: sp.q } : sp.specialty ? { specialty: sp.specialty } : {}), sort }).toString()}`;
+
   return (
-    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
+    <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`} width="wide">
       <StaleWhileRevalidate maxAgeSeconds={searchParams === undefined ? DOCTORS_REVALIDATE_SECONDS : undefined} />
-      <section className={styles.hero} style={{ gap: 16, padding: 24, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
-        <div style={{ display: "grid", gap: 8, minWidth: 0, flex: 1 } as any}>
-          <p className={styles.eyebrow} style={{ color: "#1E332E", gap: 8, overflowWrap: "anywhere" } as any}><BadgeCheck size={14} aria-hidden="true" />{t("eyebrow")}</p>
-          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("title")}</h1>
-          <p className={styles.subtitle} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("subtitle")}</p>
-        </div>
-        <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE", flex: "0 0 auto" } as any}>
-          <VectorDoctor size={48} aria-hidden="true" />
-        </span>
-      </section>
-
-      <form className={styles.search} method="get" role="search" style={{ borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", gap: 8, padding: 16 } as any}>
-        <Search size={18} className={styles.searchIcon} aria-hidden="true" style={{ color: "#1E332E" } as any} />
-        <label className="sr-only" htmlFor="doctor-search">{t("searchLabel")}</label>
-        <input id="doctor-search" name="q" defaultValue={sp.q ?? sp.specialty ?? ""} placeholder={t("searchPlaceholder")} style={{ color: "#1E332E" } as any} />
-        <button type="submit" style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", fontWeight: 760, gap: 8 } as any}>{t("search")}</button>
+      <form className={styles.search} method="get" role="search">
+        <label className={styles.searchField}>
+          <Icon name="search" size={20} tone="secondary" />
+          <span className="sr-only">{t("searchLabel")}</span>
+          <input id="doctor-search" name="q" defaultValue={sp.q ?? sp.specialty ?? ""} placeholder={t("searchPlaceholder")} className={styles.searchInput} />
+        </label>
+        <Button type="submit" label={t("search")} size="lg" />
       </form>
-
-      <nav className={styles.sorts} aria-label={t("sortLabel")} style={{ gap: 8 } as any}>
-        {([["rating", "sortRating"], ["price", "sortPrice"], ["wait", "sortWait"]] as const).map(([sort, key]) => (
-          <Link
-            key={sort}
-            href={`/${locale}/consultations/doctors?${new URLSearchParams({ ...(sp.q ? { q: sp.q } : sp.specialty ? { specialty: sp.specialty } : {}), sort }).toString()}`}
-            className={sp.sort === sort ? styles.sortActive : styles.sort}
-            style={sp.sort === sort ? ({ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE" } as any) : ({ borderRadius: 20, border: "1px solid #E8EDEE", gap: 8 } as any)}
-          >
-            <span style={{ overflowWrap: "anywhere" } as any}>{t(key)}</span>
-          </Link>
-        ))}
-      </nav>
-
+      <LinkSegmented
+        label={t("sortLabel")}
+        value={sp.sort ?? ""}
+        options={[
+          { value: "rating", label: t("sortRating"), href: sortHref("rating") },
+          { value: "price", label: t("sortPrice"), href: sortHref("price") },
+          { value: "wait", label: t("sortWait"), href: sortHref("wait") },
+        ]}
+      />
       {doctors.length === 0 ? (
-        <section className={styles.state} style={{ borderRadius: 20, border: "1px dashed #E8EDEE", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", gap: 16, padding: 24 } as any}>
-          <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE" } as any}><VectorDoctor size={48} aria-hidden="true" /></span>
-          <h2 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("emptyTitle")}</h2>
-          <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("emptyBody")}</p>
-        </section>
+        <ConsultState kind="empty" title={t("emptyTitle")} body={t("emptyBody")} />
       ) : (
-        <section className={styles.grid} aria-label={t("title")} style={{ gap: 16 } as any}>
-          {doctors.map((doctor) => (
-            <NavLink key={doctor.id} href={`/${locale}/consultations/doctors/${doctor.id}`} className={styles.card} style={{ borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", gap: 16, padding: 16 } as any}>
-              <div className={styles.cardTop} style={{ gap: 16 } as any}>
-                <span className={styles.avatar} style={{ width: 48, height: 48, borderRadius: 16, overflow: "hidden", border: "1px solid #E8EDEE", flexShrink: 0, display: "grid", placeItems: "center", position: "relative", background: "rgba(95,217,179,.12)" }}>
-                  <Image src={(doctor as any).image || `/images/doctors/${doctor.id}.jpg`} alt={doctor.name || ""} fill sizes="48px" style={{ objectFit: "cover" }} />
-                </span>
-                <div className={styles.copy} style={{ gap: 8 } as any}>
-                  <span className={styles.doctorName} style={{ overflowWrap: "anywhere" } as any}>
-                    <strong style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{doctor.name ?? t("nameUnavailable")}</strong>
-                    <BadgeCheck size={16} color="#5FD9B3" aria-hidden="true" />
-                  </span>
-                  {doctor.degree ? <small className={styles.doctorDegree} style={{ overflowWrap: "anywhere" } as any}>{doctor.degree}</small> : null}
-                  {doctor.specialty ? (
-                    <span className={styles.specialtyBadge} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
-                      {doctor.specialty}
-                    </span>
-                  ) : null}
-                </div>
-              </div>
-              <div className={styles.cardBottom} style={{ gap: 8 } as any}>
-                <div className={styles.meta} style={{ gap: 8 } as any}>
-                  {doctor.rating !== undefined ? (
-                    <span className={styles.ratingTag} style={{ overflowWrap: "anywhere" } as any}>
-                      <Star size={13} fill="#F59E0B" stroke="#F59E0B" aria-hidden="true" />
-                      {t("rating", { value: doctor.rating })}
-                    </span>
-                  ) : null}
-                  {doctor.price !== undefined ? (
-                    <span className={styles.priceTag} style={{ overflowWrap: "anywhere" } as any}>
-                      {t("price", { value: doctor.price })}
-                    </span>
-                  ) : null}
-                </div>
-                <span className={styles.bookButton} style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", gap: 8 } as any}>
-                  <Calendar size={14} aria-hidden="true" />
-                  <Arrow size={14} aria-hidden="true" />
-                </span>
-              </div>
-            </NavLink>
-          ))}
-        </section>
+        <ul className={`${styles.list} ${styles.grid}`} aria-label={t("title")}>
+          {doctors.map((doctor) => {
+            const modes: Array<{ mode: ConsultMode; label: string }> = [];
+            if (doctor.clinic) modes.push({ mode: "clinic", label: t("service_clinic") });
+            if (doctor.home) modes.push({ mode: "home", label: t("service_home") });
+            if (doctor.online) modes.push({ mode: "online", label: t("service_video") });
+            return (
+              <li key={doctor.id}>
+                <DoctorListCard
+                  locale={locale}
+                  href={`/${locale}/consultations/doctors/${doctor.id}`}
+                  name={doctorDisplayName(doctor, locale) ?? t("nameUnavailable")}
+                  grade={doctor.degree}
+                  specialty={specialtyLabel(names, doctor.specialty) ?? undefined}
+                  place={doctor.facility}
+                  modes={modes}
+                  rating={doctor.rating !== undefined && doctor.reviews ? { value: doctor.rating, count: doctor.reviews } : undefined}
+                  nextSlotIso={doctor.nextSlot}
+                  price={doctor.price}
+                  bookLabel={c("book")}
+                />
+              </li>
+            );
+          })}
+        </ul>
       )}
-    </main>
+    </ConsultPage>
   );
 }

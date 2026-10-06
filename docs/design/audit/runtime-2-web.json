@@ -1,0 +1,3140 @@
+[
+ {
+  "route": "/appointments",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/appointments",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/care/appointments",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/appointments net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 90
+ },
+ {
+  "route": "/appointments",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/appointments",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/appointments net::ERR_ABORTED",
+   "GET /ar/appointments net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 90
+ },
+ {
+  "route": "/appointments",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/appointments",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 73
+ },
+ {
+  "route": "/chat",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/chat",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/chat/threads",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 185
+ },
+ {
+  "route": "/chat",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/chat",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 185
+ },
+ {
+  "route": "/chat",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/chat",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 78
+ },
+ {
+  "route": "/consultations",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/doctors",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/care/doctors",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 116
+ },
+ {
+  "route": "/consultations",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/doctors",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 116
+ },
+ {
+  "route": "/consultations",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/doctors",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 116
+ },
+ {
+  "route": "/consultations/appointments",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/appointments",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/care/appointments",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/appointments net::ERR_ABORTED",
+   "GET /ar/appointments net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 90
+ },
+ {
+  "route": "/consultations/appointments",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/appointments",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/appointments net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 90
+ },
+ {
+  "route": "/consultations/appointments",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/appointments",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 73
+ },
+ {
+  "route": "/consultations/booking-status",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/booking-status",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/booking-status",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/booking-status",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/booking-status",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/booking-status",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/call-history",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/call-history",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/care/appointments",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/appointments net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 69
+ },
+ {
+  "route": "/consultations/call-history",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/call-history",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/appointments net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 69
+ },
+ {
+  "route": "/consultations/call-history",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/call-history",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/appointments net::ERR_ABORTED",
+   "GET /ar/appointments net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 69
+ },
+ {
+  "route": "/consultations/cancel-reschedule",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/cancel-reschedule",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/cancel-reschedule",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/cancel-reschedule",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/cancel-reschedule",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/cancel-reschedule",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/chat",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/chat",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/chat/threads",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 185
+ },
+ {
+  "route": "/consultations/chat",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/chat",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 185
+ },
+ {
+  "route": "/consultations/chat",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/chat",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 78
+ },
+ {
+  "route": "/consultations/clinic-confirm",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/clinic-confirm",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/clinic-confirm",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/clinic-confirm",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/clinic-confirm",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/clinic-confirm",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/clinic-location",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/clinic-confirm",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/clinic-location",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/clinic-confirm",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/clinic-location",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/clinic-confirm",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/doctor-profile",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/doctors",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/care/doctors",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 116
+ },
+ {
+  "route": "/consultations/doctor-profile",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/doctors",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 116
+ },
+ {
+  "route": "/consultations/doctor-profile",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/doctors",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 116
+ },
+ {
+  "route": "/consultations/doctors",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/doctors",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/consultations net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 116
+ },
+ {
+  "route": "/consultations/doctors",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/doctors",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 116
+ },
+ {
+  "route": "/consultations/doctors",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/doctors",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/consultations net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 116
+ },
+ {
+  "route": "/consultations/follow-up",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/follow-up",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/follow-up",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/follow-up",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/follow-up",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/follow-up",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/home-visit-tracking",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/home-visit-tracking",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/home-visit-tracking",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/home-visit-tracking",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/home-visit-tracking",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/home-visit-tracking",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/post-call-rating",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/post-call-rating",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/appointments net::ERR_ABORTED",
+   "GET /ar/appointments net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 86
+ },
+ {
+  "route": "/consultations/post-call-rating",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/post-call-rating",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/appointments net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 86
+ },
+ {
+  "route": "/consultations/post-call-rating",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/post-call-rating",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/appointments net::ERR_ABORTED",
+   "GET /ar/appointments net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 86
+ },
+ {
+  "route": "/consultations/prescription",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/prescription",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "GET",
+    "path": "/api/patient/prescriptions/active",
+    "status": 200,
+    "shape": "array(0)"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/prescriptions/active",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/appointments net::ERR_ABORTED",
+   "GET /ar/appointments net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 44
+ },
+ {
+  "route": "/consultations/prescription",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/prescription",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/patient/prescriptions/active",
+    "status": 200,
+    "shape": "array(0)"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/appointments net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 44
+ },
+ {
+  "route": "/consultations/prescription",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/prescription",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/patient/prescriptions/active",
+    "status": 500,
+    "shape": "object{message}"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/appointments net::ERR_ABORTED",
+   "GET /ar/appointments net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 44
+ },
+ {
+  "route": "/consultations/share-report",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/share-report",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/medical-reports/mine",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/appointments net::ERR_ABORTED",
+   "GET /ar/appointments net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 95
+ },
+ {
+  "route": "/consultations/share-report",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/share-report",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/appointments net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 95
+ },
+ {
+  "route": "/consultations/share-report",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/share-report",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/appointments net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 95
+ },
+ {
+  "route": "/consultations/specialties",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/specialties",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/care/specialties",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/consultations net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 1073
+ },
+ {
+  "route": "/consultations/specialties",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/specialties",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/consultations net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 199
+ },
+ {
+  "route": "/consultations/specialties",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/specialties",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [],
+  "overlay": 0,
+  "textLen": 83
+ },
+ {
+  "route": "/consultations/video-call",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/video-call",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/video-call",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/video-call",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/video-call",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/video-call",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/virtual-waiting-room",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/virtual-waiting-room",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/virtual-waiting-room",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/virtual-waiting-room",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/virtual-waiting-room",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/virtual-waiting-room",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/waiting-room",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/virtual-waiting-room",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/waiting-room",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/virtual-waiting-room",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/consultations/waiting-room",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/virtual-waiting-room",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/doctor",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/doctors",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/care/doctors",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/consultations net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 116
+ },
+ {
+  "route": "/doctor",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/doctors",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/consultations net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 116
+ },
+ {
+  "route": "/doctor",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/doctors",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/consultations net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 116
+ },
+ {
+  "route": "/doctors",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/doctors",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/consultations net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 116
+ },
+ {
+  "route": "/doctors",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/doctors",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/consultations net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 116
+ },
+ {
+  "route": "/doctors",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/consultations/doctors",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/consultations net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations/doctors net::ERR_ABORTED",
+   "GET /ar/consultations net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 116
+ }
+]

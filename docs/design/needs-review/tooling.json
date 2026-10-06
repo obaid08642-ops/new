@@ -118,15 +118,5 @@
     "line": 363,
     "found": "`onPress={() => { /* Requires backend API integration */ }}`: the handler is empty.",
     "suspect": "A dead button. Needs a prescription PDF endpoint (none found in the prescriptions module or the health controller) or the button should be hidden."
-  },
-  {
-    "batch": 1,
-    "app": "patient-app",
-    "screen": "/pharmacy/medicine-compare",
-    "element": "\"أضف للسلة\" under each compared medicine",
-    "file": "patient-app/app/pharmacy/medicine-compare.tsx",
-    "line": 122,
-    "found": "`onPress={() => { /* Requires backend API integration */ }}`: the handler is empty. product-detail.tsx has a working cart (items, router.push('/pharmacy/cart')).",
-    "suspect": "A dead add-to-cart button. It should call the same add-to-cart as product-detail.tsx, or be hidden."
   }
 ]

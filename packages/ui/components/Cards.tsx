@@ -139,6 +139,13 @@ export function DoctorCard({
 
 export interface WebProductCardProps extends ProductCardProps {
   href?: string;
+  /**
+   * The link element when `href` is set: a screen passes its router's <Link> so the card navigates
+   * client-side and is prefetched; the default is a plain <a>.
+   */
+  linkAs?: React.ElementType;
+  /** The first cards of a list are the page's largest paint: load their image early. Others are lazy. */
+  imagePriority?: boolean;
   onAdd?: () => void;
 }
 
@@ -152,17 +159,28 @@ export function ProductCard({
   rxLabel,
   addLabel,
   href,
+  linkAs,
+  imagePriority = false,
   onAdd,
   loading = false,
   disabled = false,
   testID,
 }: WebProductCardProps) {
+  const LinkEl: React.ElementType = linkAs ?? 'a';
   const inert = disabled || loading;
   const body = (
     <>
       <div className="nabd-product-card__media">
         {imageSrc ? (
-          <img src={imageSrc} alt="" aria-hidden className="nabd-product-card__img" />
+          <img
+            src={imageSrc}
+            alt=""
+            aria-hidden
+            className="nabd-product-card__img"
+            loading={imagePriority ? 'eager' : 'lazy'}
+            decoding="async"
+            fetchPriority={imagePriority ? 'high' : 'auto'}
+          />
         ) : (
           <Glyph name="pill" size={40} color="var(--nabd-color-icon-secondary)" />
         )}
@@ -176,9 +194,9 @@ export function ProductCard({
   return (
     <div data-testid={testID} className="nabd-product-card">
       {href ? (
-        <a href={href} className="nabd-product-card__link">
+        <LinkEl href={href} className="nabd-product-card__link">
           {body}
-        </a>
+        </LinkEl>
       ) : (
         body
       )}

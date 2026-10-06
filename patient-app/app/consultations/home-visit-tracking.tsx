@@ -1,136 +1,121 @@
-// @ts-nocheck
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar, ActivityIndicator } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../../src/context/AppContext';
-import { resolveColor, darkColors, lightColors } from '../../src/theme/colors';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Text, View } from 'react-native';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
+
+import { Button, Card, FIcon, Timeline } from '../../../packages/ui-native/src';
+import { ConsultScreen, Gate, StatusTag, appointmentStatus, useConsultFormat, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
-import { LocalizedText } from '../../src/components/LocalizedText';
-import { ScreenState } from '../../src/components/ScreenStates';
+import { isOffline } from '../../src/utils/isOffline';
+import { logError } from '../../src/utils/logger';
+
+/**
+ * Home visit tracking — board OrderTracking (canvas/OrderTracking.dc.html) for a home-visit appointment: the doctor, the
+ * waiting time when the server states one, and the steps of the visit. Everything is GET /care/appointments/:id: a step
+ * is reached when the appointment's status says so, and shows a time only when the status history recorded it. There is
+ * no live map: the backend has no doctor position to draw.
+ */
+
+interface Appt {
+  id?: string;
+  appointment_id?: string;
+  doctor_id?: string;
+  doctor_name?: string;
+  status?: string;
+  wait_time?: number;
+  state_history?: Array<{ state?: string; at?: string }>;
+}
+
+const REACHED = {
+  confirmed: ['CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS', 'COMPLETED'],
+  arrived: ['CHECKED_IN', 'IN_PROGRESS', 'COMPLETED'],
+  done: ['COMPLETED'],
+} as const;
 
 export default function HomeVisitTrackingScreen() {
+  const { theme, t, c, flow, k, num } = useScreenUi();
+  const { clock } = useConsultFormat();
   const { appointmentId } = useLocalSearchParams();
-  const insets = useSafeAreaInsets();
-  const { isDark, lang } = useApp() as any;
-  const colors = isDark ? darkColors : lightColors;
-  const isRTL = lang === 'ar' || lang === 'ur';
+  const [data, setData] = useState<Appt | null>(null);
+  const [status, setStatus] = useState<GateStatus>('loading');
 
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (appointmentId) {
-      setLoading(true);
-      setError(null);
-      apiFetch(`/care/appointments/${appointmentId}`)
-        .then((res: any) => { setData(res?.data || res); setLoading(false); })
-        .catch(() => { setData(null); setError('تعذر تحميل بيانات الزيارة'); setLoading(false); });
-    } else {
-      setData(null); setLoading(false);
+  const load = useCallback(async () => {
+    if (!appointmentId) {
+      setStatus('missing');
+      return;
+    }
+    setStatus('loading');
+    try {
+      const res = await apiFetch<Appt & { data?: Appt }>(`/care/appointments/${appointmentId}`);
+      setData(res?.data || res || null);
+      setStatus(res ? 'ready' : 'missing');
+    } catch (e) {
+      logError('consultations:home-visit-tracking', e);
+      setData(null);
+      setStatus((await isOffline()) ? 'offline' : 'error');
     }
   }, [appointmentId]);
 
+  useEffect(() => {
+    void load();
+  }, [load]);
 
-  if (!loading && !data) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg, padding: 20 }}>
-        <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 50, color: colors.t3 }}>error_outline</LocalizedText>
-        <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 16, color: colors.n, marginTop: 10, textAlign: 'center' }}>البيانات غير متوفرة أو فشل الاتصال</LocalizedText>
-        <TouchableOpacity style={{ marginTop: 20, paddingHorizontal: 20, paddingVertical: 10, backgroundColor: '#F0695C', borderRadius: 10 }} onPress={() => router.back()}>
-          <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff' }}>رجوع</LocalizedText>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-  if (loading) return <View style={[styles.container, { backgroundColor: colors.bg, justifyContent: 'center' } ]}><ActivityIndicator color={resolveColor('var(--p)')} /></View>;
+  const current = String(data?.status ?? '').toUpperCase();
+  const cancelled = current === 'CANCELLED' || current === 'NO_SHOW';
+  const at = (state: string): string | undefined => {
+    const hit = data?.state_history?.find((h) => String(h.state).toUpperCase() === state);
+    return hit?.at ? clock(hit.at) : undefined;
+  };
+  const flags = [REACHED.confirmed.includes(current as never), REACHED.arrived.includes(current as never), REACHED.done.includes(current as never)];
+  const firstOpen = flags.findIndex((f) => !f);
+  const steps = [
+    { id: 'confirmed', label: k('consult.track.confirmed'), time: at('CONFIRMED') },
+    { id: 'arrived', label: k('consult.track.arrived'), time: at('CHECKED_IN') },
+    { id: 'done', label: k('consult.track.done'), time: at('COMPLETED') },
+  ].map((s, i) => ({ ...s, state: (flags[i] ? 'done' : i === firstOpen ? 'current' : 'upcoming') as 'done' | 'current' | 'upcoming' }));
+  const st = appointmentStatus(data?.status);
+  const bookingId = data?.id || data?.appointment_id || (appointmentId ? String(appointmentId) : '');
 
   return (
-    <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
-    <View style={[styles.container, { backgroundColor: colors.bg } ]}>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-      
-      <View style={[styles.header, { paddingTop: insets.top + 10, borderBottomColor: colors.bd } ]}>
-        <TouchableOpacity onPress={() => router.back()} style={{ width: 40, height: 40, justifyContent: 'center' }}>
-          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 24 }}>arrow_forward</LocalizedText>
-        </TouchableOpacity>
-        <LocalizedText style={{ fontSize: 16, fontWeight: '800', color: colors.n }}>تتبع الزيارة المنزلية</LocalizedText>
-        <View style={{ width: 40 }}/>
-      </View>
-
-      <View style={{ padding: 16 }}>
-        <View    style={styles.mapBox}>
-          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 70, color: resolveColor('var(--p)'), opacity: 0.3 }}>map</LocalizedText>
-          <View style={styles.pinDot} />
-          <View style={{ position: 'absolute', bottom: '25%', right: '35%' }}>
-            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 30 }}>home</LocalizedText>
-          </View>
-        </View>
-
-        <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 12, marginTop: 14 }}>
-          <View style={[styles.duoIcon, { backgroundColor: resolveColor('var(--ps)') } ]}>
-            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 26 }}>medical_services</LocalizedText>
-          </View>
-          <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
-            <LocalizedText style={{ fontSize: 13, fontWeight: '700', color: colors.n }}>{data?.doctor_name}</LocalizedText>
-            <LocalizedText style={{ fontSize: 10, color: colors.t3 }}>طبيب زيارات منزلية</LocalizedText>
-          </View>
-          {data?.wait_time != null && (
-            <View style={[styles.timeBox, { backgroundColor: resolveColor('var(--ps)') } ]}>
-              <LocalizedText style={{ fontSize: 16, fontWeight: '900', color: resolveColor('var(--p)') }}>{data.wait_time}</LocalizedText>
-              <LocalizedText style={{ fontSize: 8, color: resolveColor('var(--pt)') }}>دقيقة</LocalizedText>
-            </View>
-          )}
-        </View>
-
-        <View style={{ marginTop: 24 }}>
-          {[
-            { label: 'تم تأكيد الطلب', active: true, icon: 'check' },
-            { label: 'الطبيب في الطريق', active: data?.status === 'الطبيب في الطريق' || data?.status === 'وصل لموقعك', icon: 'check' },
-            { label: 'وصل لموقعك', active: data?.status === 'وصل لموقعك', icon: 'home' }
-          ].map((s, i) => (
-            <View key={i} style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 14, paddingBottom: i < 2 ? 18 : 0, position: 'relative' }}>
-              {i < 2 && (
-                <View style={[styles.trackLine, { backgroundColor: s.active ? resolveColor('var(--p)') : colors.bd, right: isRTL ? 15 : undefined, left: isRTL ? undefined : 15 }]} />
-              )}
-              <View style={[styles.stepIcon, { backgroundColor: s.active ? resolveColor('var(--p)') : colors.bd } ]}>
-                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 17 }}>{s.icon}</LocalizedText>
+    <ConsultScreen
+      title={k('consult.track.title')}
+      onRefresh={() => void load()}
+      testID="home-visit-tracking-screen"
+      footer={
+        data && bookingId ? (
+          <Button label={k('consult.track.message')} size="lg" fullWidth startIcon="chat-circle-text" onPress={() => router.push({ pathname: '/consultations/chat-with-doctor', params: { doctorId: data.doctor_id, appointmentId: bookingId } } as unknown as Href)} theme={theme} testID="track-message" />
+        ) : undefined
+      }
+    >
+      <Gate status={status} onRetry={() => void load()} missingTitle={k('consult.track.missing')} errorTitle={k('consult.track.loadError')}>
+        {data ? (
+          <Card theme={theme}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <FIcon icon="house" tone="mint" size={48} theme={theme} />
+              <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
+                <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{data.doctor_name || k('consult.doctorFallback')}</Text>
+                <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.track.homeDoctor')}</Text>
+                <StatusTag label={k(st.key)} tone={st.tone} />
               </View>
-              <View style={{ flex: 1, paddingTop: 5, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
-                <LocalizedText style={{ fontSize: 12, fontWeight: '700', color: s.active ? colors.n : colors.t3 }}>{s.label}</LocalizedText>
-              </View>
+              {data.wait_time != null ? (
+                <View style={{ alignItems: 'center', backgroundColor: c.service.mint.bg, borderRadius: 14, paddingVertical: 8, paddingHorizontal: 12 }}>
+                  <Text style={{ ...scale(t, 'h3'), color: c.service.mint.fg }}>{num(data.wait_time)}</Text>
+                  <Text style={{ ...scale(t, 'micro', 'regular'), color: c.service.mint.fg }}>{k('consult.track.minutes')}</Text>
+                </View>
+              ) : null}
             </View>
-          ))}
-        </View>
-
-        <TouchableOpacity
-          style={[styles.callBtn, { backgroundColor: colors.n, marginTop: 24 }]}
-          onPress={() => {
-            const doctorId = data?.doctor_id;
-            const bookingId = data?.id || data?.appointment_id || appointmentId;
-            if (bookingId) {
-              router.push({ pathname: '/consultations/chat-with-doctor', params: { doctorId, appointmentId: bookingId } });
-            }
-          }}
-        >
-          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 19, color: '#fff', marginRight: 8 }}>chat</LocalizedText>
-          <LocalizedText style={{ fontSize: 13, fontWeight: '800', color: '#fff' }}>مراسلة الطبيب</LocalizedText>
-        </TouchableOpacity>
-      </View>
-    </View>
-    </ScreenState>
+            {cancelled ? (
+              <View style={{ marginTop: 12 }}>
+                <StatusTag label={k('consult.status.cancelled')} tone="danger" />
+              </View>
+            ) : (
+              <View style={{ marginTop: 12 }}>
+                <Timeline label={k('consult.track.title')} steps={steps} theme={theme} />
+              </View>
+            )}
+          </Card>
+        ) : null}
+      </Gate>
+    </ConsultScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1 },
-  mapBox: { height: 240, borderRadius: 20, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
-  pinDot: { position: 'absolute', top: '30%', left: '30%', width: 16, height: 16, borderRadius: 8, backgroundColor: resolveColor('var(--cr)'), borderWidth: 3, borderColor: '#fff' },
-  duoIcon: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center' },
-  timeBox: { alignItems: 'center', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 12 },
-  trackLine: { position: 'absolute', top: 34, bottom: 0, width: 2, zIndex: 0 },
-  stepIcon: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', zIndex: 1 },
-  callBtn: { width: '100%', padding: 15, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }
-});

@@ -1,92 +1,118 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 
 /**
- * F82-3: who is looking at the page, decided in the BROWSER.
- *
- * The public pages are static/ISR: one HTML for every visitor, shared by the Next cache and the edge, so it can hold
- * nothing that depends on the session (no cookie read on the server, no per-user link target). The parts that differ
- * for a signed-in patient (sign-in or account link, notifications, sign-out, the presence heartbeat, the signed-out-only
- * prefetch of `/diagnostics`) ask this hook after hydration.
- *
- * One request per page load (`GET /api/auth/session`, `no-store`) however many components ask; the answer lives in
- * this module's memory only (never storage), and `resetSessionIdentity()` clears it when the person signs in or out.
- * `unknown` is the neutral state of the server HTML and of the first client render, so server and client agree.
+ * Who is signed in, asked ONCE per page load from GET /api/auth/session (always 200: not being signed in is an answer).
+ * The answer is kept in memory only (a module variable, never storage), so every component that needs it shares one
+ * request. "unknown" means the probe could not be answered (backend down, bad reply): it is not cached, and a caller
+ * must treat it as "change nothing". Sign-in and sign-out flows call `announceSignedIn()` / `announceSignedOut()` so the
+ * answer is asked again (or reset) without a reload. Small and dependency-free on purpose: other client code reuses it.
  */
-export type SessionIdentity = { status: "unknown" } | { status: "anonymous" } | { status: "authenticated" };
+export type SessionIdentity =
+  | { status: "loading" }
+  | { status: "anonymous" }
+  | { status: "user"; id: string; isGuest: boolean }
+  | { status: "unknown" };
 
-const UNKNOWN: SessionIdentity = { status: "unknown" };
-const ANONYMOUS: SessionIdentity = { status: "anonymous" };
-const AUTHENTICATED: SessionIdentity = { status: "authenticated" };
+export const SIGNED_IN_EVENT = "nabd:signed-in";
+export const SIGNED_OUT_EVENT = "nabd:signed-out";
 
-let current: SessionIdentity = UNKNOWN;
-let inflight: Promise<void> | null = null;
-let generation = 0;
-const listeners = new Set<() => void>();
+type Settled = Exclude<SessionIdentity, { status: "loading" }>;
 
-function publish(next: SessionIdentity) {
-  current = next;
-  listeners.forEach((listener) => listener());
+let cached: Settled | null = null;
+let inflight: Promise<Settled> | null = null;
+let epoch = 0;
+
+async function probe(): Promise<Settled> {
+  try {
+    const response = await fetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" });
+    if (!response.ok) return { status: "unknown" };
+    const body: unknown = await response.json().catch(() => null);
+    if (!body || typeof body !== "object") return { status: "unknown" };
+    const { authenticated, user } = body as { authenticated?: unknown; user?: { id?: unknown; is_guest?: unknown } | null };
+    if (authenticated !== true) return authenticated === false ? { status: "anonymous" } : { status: "unknown" };
+    const rawId = user?.id;
+    const id = typeof rawId === "string" ? rawId : typeof rawId === "number" ? String(rawId) : "";
+    return id ? { status: "user", id, isGuest: user?.is_guest === true } : { status: "unknown" };
+  } catch {
+    return { status: "unknown" };
+  }
 }
 
-/** Asks the server once; later calls while a request is out, or after an answer, do nothing. */
-export function loadSessionIdentity(): Promise<void> {
-  if (current.status !== "unknown") return Promise.resolve();
+/** The shared answer: from memory when it is already known, otherwise one request that every caller waits on. */
+export function getSessionIdentity(): Promise<Settled> {
+  if (cached) return Promise.resolve(cached);
   if (inflight) return inflight;
-  const mine = generation;
-  inflight = fetch("/api/auth/session", { method: "GET", cache: "no-store", credentials: "same-origin", headers: { Accept: "application/json" } })
-    .then(async (response) => {
-      const body = response.ok ? ((await response.json().catch(() => null)) as { authenticated?: unknown } | null) : null;
-      return body?.authenticated === true ? AUTHENTICATED : ANONYMOUS;
-    })
-    .catch(() => ANONYMOUS)
-    .then((next) => {
-      // A sign-in or sign-out while the request was out makes its answer stale: ask again.
-      if (mine === generation) publish(next);
-    })
-    .finally(() => {
-      if (mine === generation) inflight = null;
-    });
-  return inflight;
+  const mine = epoch;
+  const pending: Promise<Settled> = probe().then((answer) => {
+    if (mine === epoch && answer.status !== "unknown") cached = answer;
+    if (inflight === pending) inflight = null;
+    return answer;
+  });
+  inflight = pending;
+  return pending;
 }
 
-/** The person signed in or out (or the session changed): forget the answer; mounted components ask again. */
-export function resetSessionIdentity(): void {
-  generation += 1;
+function reset(next: Settled | null) {
+  epoch += 1;
+  cached = next;
   inflight = null;
-  publish(UNKNOWN);
-  if (listeners.size > 0) void loadSessionIdentity();
 }
 
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  return () => {
-    listeners.delete(listener);
-  };
+function dispatch(name: string) {
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(name));
 }
 
-/** The current answer without subscribing (for code outside a component, and for tests). */
-export function peekSessionIdentity(): SessionIdentity {
-  return current;
+/** A sign-in flow succeeded (password, 2FA, OTP, social, guest): the next answer is asked again. */
+export function announceSignedIn(): void {
+  reset(null);
+  dispatch(SIGNED_IN_EVENT);
 }
 
-/** Test seam: back to the state of a fresh page load. */
-export function __resetSessionIdentityForTests(): void {
-  generation += 1;
-  inflight = null;
-  current = UNKNOWN;
-  listeners.clear();
+/** Every sign-out button calls this once the logout request has finished (or failed): nobody is signed in on this device now. */
+export function announceSignedOut(): void {
+  reset({ status: "anonymous" });
+  dispatch(SIGNED_OUT_EVENT);
+}
+
+/** Tests only: forget everything this module remembers. */
+export function resetSessionIdentityForTests(): void {
+  reset(null);
 }
 
 /**
- * The session identity of this page load. `enabled: false` reads without asking (a component that needs the answer
- * only for some links does not cause the request on a page where it has no use for it).
+ * `enabled: false` reads without asking (F82-3: a component that needs the answer only for some links does not cause
+ * the request on a page where it has no use for it); the state stays "loading", which is also what the server HTML
+ * of a cached public page shows.
  */
 export function useSessionIdentity({ enabled = true }: { enabled?: boolean } = {}): SessionIdentity {
-  const identity = useSyncExternalStore(subscribe, () => current, () => UNKNOWN);
+  const [identity, setIdentity] = useState<SessionIdentity>({ status: "loading" });
+
   useEffect(() => {
-    if (enabled) void loadSessionIdentity();
+    if (!enabled) return undefined;
+    let live = true;
+    let generation = 0;
+    // an answer that was asked before a sign-in or sign-out event is stale and must not be shown
+    const ask = () => {
+      const mine = ++generation;
+      void getSessionIdentity().then((answer) => {
+        if (live && mine === generation) setIdentity(answer);
+      });
+    };
+    const onSignedOut = () => {
+      generation += 1;
+      setIdentity({ status: "anonymous" });
+    };
+    ask();
+    window.addEventListener(SIGNED_IN_EVENT, ask);
+    window.addEventListener(SIGNED_OUT_EVENT, onSignedOut);
+    return () => {
+      live = false;
+      window.removeEventListener(SIGNED_IN_EVENT, ask);
+      window.removeEventListener(SIGNED_OUT_EVENT, onSignedOut);
+    };
   }, [enabled]);
+
   return identity;
 }

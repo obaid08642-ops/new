@@ -1,0 +1,35 @@
+{
+  "slice": "1-cart-web",
+  "batch": 1,
+  "app": "patient-web",
+  "screens": [
+    {
+      "route": "/cart",
+      "elements": [
+        ["Item rows: picture, name, pack, Rx chip, quantity stepper", "the cart kept in this browser (lib/cart/cart-store); no request", "ok"],
+        ["Line price and 'Price not available'", "removed: a cart line carries no price (offers carry it)", "hidden"],
+        ["Subtotal, estimated total, estimate notes (footer and summary)", "removed: no price in the cart; the summary shows the item count, 'set by the pharmacy offer' and 'shown with each offer' (static keys)", "fixed"],
+        ["'Saved in your account' section", "removed: GET /cart is not read by the pharmacy cart page any more", "hidden"],
+        ["Delivery address card (signed in)", "GET /users/me/addresses through the existing address hook; failure shows the card's error state, the cart still works", "ok"],
+        ["Empty state (only after the device storage was read)", "cart-store ready flag; static keys", "ok"],
+        ["Prescription banner, empty-cart confirm, request button", "cart lines (rx flag); static keys", "ok"]
+      ],
+      "notes": ["Add, change and remove never call the backend; the cart is per owner (guest / user id), merged on sign-in, cleared on sign-out."]
+    },
+    {
+      "route": "/cart/checkout",
+      "elements": [
+        ["Request lines and count", "the browser cart (names, quantities, product ids); no price", "ok"],
+        ["Send button", "POST /patient/pharmacy/orders then /submit (single-flight, idempotency key); the cart is cleared only after both succeeded and kept on every failure", "ok"],
+        ["Failure messages (no connection, 5xx, refusal, 403, session)", "translated keys by result; the cart stays as it was", "ok"]
+      ],
+      "notes": []
+    }
+  ],
+  "needsReview": [
+    { "route": "/cart", "element": "Session probe", "kind": "client", "note": "GET /api/auth/session does not refresh an expired access token, so it can say 'anonymous' for a patient whose refresh token still works; the cart treats anonymous as 'change nothing' and only a sign-out clears it." },
+    { "route": "/cart", "element": "Extra request per page load", "kind": "owner", "note": "The CartProvider is in the locale layout and asks GET /api/auth/session once per page load for every visitor; the F82 static/ISR work may read the cookie flag instead." },
+    { "route": "/cart", "element": "Address card request", "kind": "owner", "note": "A signed-in cart still reads the saved address (read-only, not a cart call); confirm that 'opening the cart makes no call' excludes the address card, or drop it from the cart." },
+    { "route": "/cart", "element": "Header cart badge label", "kind": "client", "note": "components-next/header-cart-badge.tsx has an English aria-label literal (already in the literal baseline); fix in the batch that owns the header." }
+  ]
+}

@@ -14,4 +14,9 @@ describe('patient pharmacy draft', () => {
   it('preserves a declared manual intake source while still omitting client attachment, price, and payment fields', () => {
     expect(buildPatientPharmacyDraft([{ name: 'دواء غير متوفر', qty: 1, intake_source: 'manual', price: 17, payment_method: 'card', photo_uri: 'file://local' }], { lat: 24.7, lng: 46.6 })).toEqual({ items: [{ raw_name: 'دواء غير متوفر', qty: 1, sku: undefined, intake_source: 'manual' }], delivery_address: { label: 'المنزل', street: '', city: '', lat: 24.7, lng: 46.6 }, prescription_attachments: [], fulfillment: 'delivery', payment_mode: 'cash' });
   });
+  it('links the saved prescription with prescription_id, the way the web does, and only when there is one', () => {
+    const lines = [{ id: 'm1', name: 'Medicine', qty: 1, intake_source: 'prescription' }];
+    expect(buildPatientPharmacyDraft(lines, { lat: 24.7, lng: 46.6 }, 'rx-1', { prescription_id: 'rx-1' })).toEqual(expect.objectContaining({ prescription_id: 'rx-1', prescription_attachments: ['rx-1'] }));
+    expect(buildPatientPharmacyDraft(lines, { lat: 24.7, lng: 46.6 })).not.toHaveProperty('prescription_id');
+  });
 });

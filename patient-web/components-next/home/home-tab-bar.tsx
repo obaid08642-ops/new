@@ -30,7 +30,7 @@ export function HomeTabBar({
 }) {
   const router = useRouter();
   const identity = useSessionIdentity({ enabled: signedIn === undefined });
-  const isSignedIn = signedIn ?? identity.status === "authenticated";
+  const isSignedIn = signedIn ?? identity.status === "user";
   // Until the identity is known the prefetch stays on the signed-in side (the one that prefetches less).
   const prefetchAsSignedIn = signedIn ?? identity.status !== "anonymous";
   const targets = isSignedIn && signedInHomeHref ? { ...hrefs, home: signedInHomeHref } : hrefs;

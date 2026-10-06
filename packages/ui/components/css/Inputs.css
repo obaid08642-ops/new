@@ -31,9 +31,26 @@
 .nabd-input__end { position: absolute; inset-inline-end: var(--nabd-space-sm); display: grid; place-items: center; }
 .nabd-input__loading { position: absolute; inset-inline-end: var(--nabd-space-sm); }
 .nabd-input__textarea { resize: vertical; }
-/* The single-line control (.nabd-input__native) is drawn as it rendered before
-   this sheet: no field box (its own style prop replaced the shared one), only the
-   start-icon room below. */
+/* The single-line control (.nabd-input__native) is the field box too. It had none (its own style prop replaced the
+   shared one when the component set no class), so a screen that used <Input> drew a bare browser input. Same box as
+   .nabd-field__control, with the focus ring of the other fields. */
+.nabd-input__native {
+  width: 100%;
+  min-height: var(--nabd-a11y-minTouchTarget);
+  box-sizing: border-box;
+  padding-inline: var(--nabd-space-md);
+  padding-block: var(--nabd-space-xs);
+  font-size: var(--nabd-font-size-input);
+  font-family: inherit;
+  color: var(--nabd-color-text-primary);
+  background: var(--nabd-color-bg-surface);
+  border: 1px solid var(--nabd-color-border-strong);
+  border-radius: var(--nabd-radius-md);
+  appearance: none;
+}
+.nabd-input__native:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 1px; }
+.nabd-input__native[aria-invalid="true"] { border-color: var(--nabd-color-status-danger-fg); background: var(--nabd-color-status-danger-bg); }
+.nabd-input__native:disabled { opacity: 0.5; }
 /* room for the 20px start icon: the field padding plus 28 */
 .nabd-input__control--start-icon { padding-inline-start: calc(var(--nabd-space-md) + 28px); }
 

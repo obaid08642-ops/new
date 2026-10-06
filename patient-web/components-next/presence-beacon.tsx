@@ -13,7 +13,7 @@ import { useSessionIdentity } from "@/lib/auth/session-identity";
 export function PresenceBeacon() {
   const { status } = useSessionIdentity();
   useEffect(() => {
-    if (status !== "authenticated") return undefined;
+    if (status !== "user") return undefined;
     let timer: ReturnType<typeof setInterval> | null = null;
     const post = () => {
       if (document.visibilityState !== "visible") return;

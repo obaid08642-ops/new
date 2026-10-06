@@ -1,35 +1,29 @@
-import { z } from "zod";
+// No validation library here: these builders are imported by client components, and a schema library would put its
+// whole runtime into the browser bundle of every offers screen (QUALITY_STANDARDS §2, JS budget).
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const QUOTE_HASH = /^[a-f0-9]{64}$/i;
 
-const identifier = z.string().uuid();
-const coverageMode = z.enum(["cash", "insurance"]);
-const quoteHash = z.string().regex(/^[a-f0-9]{64}$/i);
-const quoteRevision = z.number().int().positive();
+export type PharmacyCoverageMode = "cash" | "insurance";
 
-export type PharmacyCoverageMode = z.infer<typeof coverageMode>;
+const isUuid = (value: unknown): value is string => typeof value === "string" && UUID.test(value);
+const isCoverageMode = (value: unknown): value is PharmacyCoverageMode => value === "cash" || value === "insurance";
 
 export function buildOfferSelectionRequest(orderId: string, offerId: string, mode: unknown) {
-  const order = identifier.safeParse(orderId);
-  const offer = identifier.safeParse(offerId);
-  const coverage = coverageMode.safeParse(mode);
-  if (!order.success || !offer.success || !coverage.success) return null;
+  if (!isUuid(orderId) || !isUuid(offerId) || !isCoverageMode(mode)) return null;
   return {
-    path: `/api/patient/patient/pharmacy/orders/${order.data}/offers/${offer.data}/select`,
-    body: { coverage_mode: coverage.data },
+    path: `/api/patient/patient/pharmacy/orders/${orderId}/offers/${offerId}/select`,
+    body: { coverage_mode: mode },
   };
 }
 
 export function buildFinalQuoteAcceptanceRequest(orderId: string, hash: unknown, revision: unknown) {
-  const order = identifier.safeParse(orderId);
-  const parsedHash = quoteHash.safeParse(hash);
-  const parsedRevision = quoteRevision.safeParse(revision);
-  if (!order.success || !parsedHash.success || !parsedRevision.success) return null;
+  if (!isUuid(orderId) || typeof hash !== "string" || !QUOTE_HASH.test(hash) || typeof revision !== "number" || !Number.isInteger(revision) || revision <= 0) return null;
   return {
-    path: `/api/patient/patient/pharmacy/orders/${order.data}/final-quote/accept`,
-    body: { quote_hash: parsedHash.data, quote_revision: parsedRevision.data },
+    path: `/api/patient/patient/pharmacy/orders/${orderId}/final-quote/accept`,
+    body: { quote_hash: hash, quote_revision: revision },
   };
 }
 
 export function buildCodRegistrationRequest(orderId: string) {
-  const order = identifier.safeParse(orderId);
-  return order.success ? { path: `/api/patient/patient/pharmacy/orders/${order.data}/cod/register`, body: {} } : null;
+  return isUuid(orderId) ? { path: `/api/patient/patient/pharmacy/orders/${orderId}/cod/register`, body: {} } : null;
 }

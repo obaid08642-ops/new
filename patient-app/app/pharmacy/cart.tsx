@@ -1,18 +1,159 @@
-// @ts-nocheck
 import React from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { router } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../../src/context/AppContext';
-import { useCart } from '../../src/context/CartContext';
-import { lightColors, darkColors } from '../../src/theme/colors';
-import { LocalizedText } from '../../src/components/LocalizedText';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { router, type Href } from 'expo-router';
+
+import { AppHeader, Button, Card, EmptyState, FIcon, Icon, Screen, Stepper, StickyFooter } from '../../../packages/ui-native/src';
+import ProductImage from '../../src/components/ProductImage';
+import { Glyph, Notice, PHARMACY_TONE, Pill, goBack } from '../../src/components/pharmacy/PharmacyKit';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { useCart, type CartItem } from '../../src/context/CartContext';
+
+/**
+ * Pharmacy cart — board Cart (canvas/Cart.dc.html).
+ *
+ * The cart is a local list of what the patient picked (CartContext): a medicine, its picture, its active ingredient,
+ * whether it needs a prescription, and a quantity. It is local-first: kept on this device, with no price, total or stock
+ * on purpose (the pharmacies' offers set the price, so the board's price, total and points rows are not drawn here: Needs
+ * review), and opening it or changing a line makes no request. The delivery address is chosen at the next step. The
+ * prescription banner shows only when a line of the cart needs one. The empty state waits until the cart saved on this
+ * device has been read.
+ */
+
+/** A route that is a screen of the app (the typed router only knows the generated list). */
+const go = (href: string) => router.push(href as Href);
+
+function Line({ item, last }: { item: CartItem; last: boolean }) {
+  const { theme, t, c, flow, k, num } = useScreenUi();
+  const { updateQty, removeItem } = useCart();
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: last ? 0 : 1, borderBottomColor: c.border.subtle }}>
+      <View style={{ width: 64, height: 64, borderRadius: 16, backgroundColor: c.bg.media, overflow: 'hidden' }}>
+        <ProductImage uri={item.image} style={{ width: '100%', height: '100%' }} iconSize={30} />
+      </View>
+      <View style={{ flex: 1, minWidth: 0, gap: 6 }}>
+        <Text style={{ ...scale(t, 'row', 'medium'), color: c.text.primary, ...flow }}>{item.name}</Text>
+        {item.activeIngredient ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{item.activeIngredient}</Text> : null}
+        {item.rx ? <Pill label={k('pharmacy.needsRx')} tone="warning" /> : null}
+        <Stepper
+          value={item.qty}
+          min={1}
+          max={99}
+          onChange={(next) => void updateQty(item.id, next - item.qty)}
+          label={k('pharmacy.cart.quantity', { name: item.name })}
+          decrementLabel={k('pharmacy.cart.decrease', { name: item.name })}
+          incrementLabel={k('pharmacy.cart.increase', { name: item.name })}
+          format={(n) => num(n)}
+          testID={`cart-qty-${item.id}`}
+          theme={theme}
+        />
+      </View>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={k('pharmacy.cart.remove', { name: item.name })}
+        onPress={() => void removeItem(item.id)}
+        hitSlop={4}
+        style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 })}
+      >
+        <Glyph name="trash" size={20} color={c.icon.secondary} />
+      </Pressable>
+    </View>
+  );
+}
 
 export default function PharmacyCartScreen() {
-  const insets = useSafeAreaInsets(); const { isDark, lang } = useApp() as any; const colors = isDark ? darkColors : lightColors; const isRTL = lang === 'ar' || lang === 'ur'; const { items, updateQty, removeItem, hasRxItems, clearCart } = useCart();
-  function proceed() { if (hasRxItems) return router.push('/pharmacy/rx-order'); router.push('/pharmacy/checkout'); }
-  if (!items.length) return <View style={[styles.container, styles.centered, { backgroundColor: colors.bg }]}><LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.t3, fontSize: 80 }}>remove_shopping_cart</LocalizedText><LocalizedText style={[styles.emptyTitle, { color: colors.n }]}>السلة فارغة</LocalizedText><LocalizedText style={[styles.copy, { color: colors.t2 }]}>أضف أصنافاً قبل طلب عروض الصيدليات.</LocalizedText><TouchableOpacity style={styles.browse} onPress={() => router.back()}><LocalizedText style={styles.primaryText}>تصفح الأدوية</LocalizedText></TouchableOpacity></View>;
-  return <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top + 16 }]}><View style={[styles.header, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}><TouchableOpacity onPress={() => router.back()} style={[styles.icon, { backgroundColor: colors.s }]}><LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 24 }}>arrow_forward</LocalizedText></TouchableOpacity><LocalizedText style={[styles.headerTitle, { color: colors.n }]}>سلة الصيدلية ({items.length})</LocalizedText><TouchableOpacity onPress={() => showLocalizedAlert('تفريغ السلة', 'سيُزال الاختيار المحلي فقط قبل إنشاء أي طلب.', [{ text: 'إلغاء' }, { text: 'تفريغ', onPress: () => void clearCart(), style: 'destructive' }])} style={[styles.icon, { backgroundColor: colors.s }]}><LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.cr, fontSize: 22 }}>delete_sweep</LocalizedText></TouchableOpacity></View><ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 180 }}>{items.map((item) => <View key={item.id} style={[styles.card, { backgroundColor: colors.s, borderColor: colors.bd, flexDirection: isRTL ? 'row-reverse' : 'row' }]}><View style={[styles.itemIcon, { backgroundColor: item.iconBg || colors.bg }]}><LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: item.iconColor || colors.p, fontSize: 25 }}>{item.icon || 'medication'}</LocalizedText></View><View style={{ flex: 1, marginHorizontal: 12, alignItems: isRTL ? 'flex-end' : 'flex-start', gap: 9 }}><View style={[styles.line, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}><LocalizedText style={[styles.itemName, { color: colors.n }]}>{item.name}</LocalizedText>{item.rx && <LocalizedText style={styles.rx}>Rx</LocalizedText>}</View><LocalizedText style={[styles.copy, { color: colors.t2 }]}>السعر النهائي يظهر فقط بعد اختيار عرض الصيدلية.</LocalizedText><View style={[styles.line, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}><TouchableOpacity style={[styles.qty, { backgroundColor: colors.bg, borderColor: colors.bd }]} onPress={() => void updateQty(item.id, -1)}><LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n }}>remove</LocalizedText></TouchableOpacity><LocalizedText style={{ color: colors.n, fontFamily: 'Cairo-Bold' }}>الكمية: {item.qty}</LocalizedText><TouchableOpacity style={[styles.qty, { backgroundColor: colors.p }]} onPress={() => void updateQty(item.id, 1)}><LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff' }}>add</LocalizedText></TouchableOpacity></View></View><TouchableOpacity onPress={() => void removeItem(item.id)}><LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.t3, fontSize: 20 }}>delete_outline</LocalizedText></TouchableOpacity></View>)}<TouchableOpacity style={[styles.manual, { borderColor: colors.p }]} onPress={() => router.push('/pharmacy/request')}><LocalizedText style={{ color: colors.p, fontFamily: 'Cairo-Bold' }}>لم تجد دواءك؟ أضف طلباً يدوياً</LocalizedText></TouchableOpacity></ScrollView><View style={[styles.footer, { backgroundColor: colors.s, borderTopColor: colors.bd, paddingBottom: insets.bottom + 16 }]}><LocalizedText style={[styles.copy, { color: colors.t2 }]}>هذه قائمة أصناف فقط وليست سعراً أو وسيلة دفع أو طلباً مؤكداً.</LocalizedText><TouchableOpacity style={[styles.checkout, { backgroundColor: colors.p }]} onPress={proceed}><LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 22 }}>arrow_back</LocalizedText><LocalizedText style={styles.primaryText}>{hasRxItems ? 'اختيار وصفة للمتابعة' : 'مراجعة العنوان وطلب عروض'}</LocalizedText></TouchableOpacity></View></View>;
+  const { theme, t, c, dir, flow, k, num } = useScreenUi();
+  const { items, hasRxItems, clearCart, ready } = useCart();
+
+  const confirmClear = () =>
+    showLocalizedAlert(k('pharmacy.cart.clearTitle'), k('pharmacy.cart.clearBody'), [
+      { text: k('pharmacy.cancel'), style: 'cancel' },
+      { text: k('pharmacy.cart.clearConfirm'), style: 'destructive', onPress: () => void clearCart() },
+    ]);
+
+  // with a prescription medicine the next step is choosing the prescription; otherwise the address and the request
+  const proceed = () => go(hasRxItems ? '/pharmacy/rx-order' : '/pharmacy/checkout');
+
+  const header = (
+    <View style={COLUMN}>
+      <AppHeader
+        title={k('pharmacy.cart')}
+        onBack={goBack}
+        backLabel={k('pharmacy.back')}
+        actions={items.length ? [{ key: 'clear', label: k('pharmacy.cart.clear'), icon: <Glyph name="trash" size={20} color={c.icon.primary} />, onPress: confirmClear }] : []}
+        theme={theme}
+        direction={dir}
+      />
+    </View>
+  );
+
+  if (!ready) {
+    return (
+      <Screen theme={theme} direction={dir} header={header} testID="cart-screen">
+        <View accessibilityLabel={k('pharmacy.loading')} accessibilityState={{ busy: true }} style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8 }}>
+          <View style={{ height: 160, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} />
+        </View>
+      </Screen>
+    );
+  }
+
+  if (!items.length) {
+    return (
+      <Screen theme={theme} direction={dir} header={header} testID="cart-screen">
+        <View style={{ ...COLUMN, flex: 1, justifyContent: 'center', paddingHorizontal: 16 }}>
+          <EmptyState
+            icon="package"
+            tone={PHARMACY_TONE}
+            title={k('pharmacy.cart.emptyTitle')}
+            body={k('pharmacy.cart.emptyBody')}
+            actionLabel={k('pharmacy.cart.emptyAction')}
+            onAction={() => router.replace('/(tabs)/pharmacy' as Href)}
+            theme={theme}
+          />
+        </View>
+      </Screen>
+    );
+  }
+
+  const footer = (
+    <StickyFooter theme={theme} direction={dir}>
+      <View style={COLUMN}>
+        <Button label={hasRxItems ? k('pharmacy.cart.ctaRx') : k('pharmacy.cart.ctaRequest')} size="lg" fullWidth onPress={proceed} testID="cart-continue" theme={theme} />
+      </View>
+    </StickyFooter>
+  );
+
+  return (
+    <Screen theme={theme} direction={dir} header={header} footer={footer} testID="cart-screen">
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, gap: 16 }}>
+        <Text style={{ ...scale(t, 'label', 'medium'), color: c.text.secondary, ...flow }}>
+          {items.length === 1 ? k('pharmacy.hub.oneItem') : k('pharmacy.hub.items', { n: num(items.length) })}
+        </Text>
+
+        <Card padding="none" theme={theme}>
+          <View style={{ paddingHorizontal: 16 }}>
+            {items.map((item, i) => (
+              <Line key={item.id} item={item} last={i === items.length - 1} />
+            ))}
+          </View>
+        </Card>
+
+        {hasRxItems ? (
+          <Notice tone="warning" icon="prescription" title={k('pharmacy.cart.rxBannerTitle')} body={k('pharmacy.cart.rxBannerBody')} actionLabel={k('pharmacy.cart.rxBannerAction')} onAction={() => go('/pharmacy/scan-prescription')} />
+        ) : null}
+
+        <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.cart.manual')} onPress={() => go('/pharmacy/request')}>
+          <Card padding="sm" theme={theme}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <FIcon icon="pill" tone={PHARMACY_TONE} size={40} theme={theme} />
+              <Text style={{ flex: 1, ...scale(t, 'small', 'medium'), color: c.text.primary, ...flow }}>{k('pharmacy.cart.manual')}</Text>
+              <Icon name={dir === 'rtl' ? 'caret-left' : 'caret-right'} size={18} theme={theme} tone="secondary" />
+            </View>
+          </Card>
+        </Pressable>
+
+        <Text style={{ ...scale(t, 'meta', 'regular'), lineHeight: 21, color: c.text.secondary, textAlign: 'center' }}>{k('pharmacy.cart.note')}</Text>
+      </ScrollView>
+    </Screen>
+  );
 }
-const styles = StyleSheet.create({ container: { flex: 1 }, centered: { justifyContent: 'center', alignItems: 'center', padding: 28, gap: 12 }, emptyTitle: { fontFamily: 'Cairo-Black', fontSize: 22 }, header: { alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 16 }, icon: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center' }, headerTitle: { fontFamily: 'Cairo-Black', fontSize: 18 }, card: { alignItems: 'flex-start', padding: 14, borderRadius: 18, borderWidth: 1, marginBottom: 12 }, itemIcon: { width: 54, height: 54, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }, line: { alignItems: 'center', gap: 9 }, itemName: { fontFamily: 'Cairo-Bold', flexShrink: 1 }, rx: { color: '#fff', backgroundColor: '#F0695C', borderRadius: 6, overflow: 'hidden', paddingHorizontal: 6, fontSize: 11 }, copy: { fontFamily: 'Cairo-Regular', fontSize: 13, lineHeight: 20, textAlign: 'center' }, qty: { width: 31, height: 31, alignItems: 'center', justifyContent: 'center', borderRadius: 9, borderWidth: 1 }, manual: { borderWidth: 1, borderRadius: 14, alignItems: 'center', padding: 14, marginVertical: 10 }, footer: { position: 'absolute', bottom: 0, left: 0, right: 0, gap: 10, paddingHorizontal: 20, paddingTop: 13, borderTopWidth: 1 }, checkout: { borderRadius: 16, paddingVertical: 16, alignItems: 'center', justifyContent: 'center', flexDirection: 'row-reverse', gap: 10 }, primaryText: { color: '#fff', fontFamily: 'Cairo-Bold', fontSize: 15 }, browse: { backgroundColor: '#23B5CE', paddingVertical: 13, paddingHorizontal: 24, borderRadius: 14 } });

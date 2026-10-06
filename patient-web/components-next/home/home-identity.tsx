@@ -21,14 +21,14 @@ import styles from "./home.module.css";
 /** The active "Home" link of the web nav: the public Home, or the dashboard for a signed-in patient. */
 export function HomeNavLink({ locale, label }: { locale: Locale; label: string }) {
   const { status } = useSessionIdentity();
-  const href = status === "authenticated" ? `/${locale}/dashboard` : `/${locale}`;
+  const href = status === "user" ? `/${locale}/dashboard` : `/${locale}`;
   return <Link href={href} className={`${styles.navLink} ${styles.navLinkActive}`} aria-current="page">{label}</Link>;
 }
 
 /** The notifications bell; only a signed-in patient has one. */
 export function HomeNotificationsLink({ locale, label }: { locale: Locale; label: string }) {
   const { status } = useSessionIdentity();
-  if (status !== "authenticated") return null;
+  if (status !== "user") return null;
   return (
     <Link href={`/${locale}/notifications`} className={styles.iconBtn} aria-label={label}>
       <FIcon icon="bell" tone="ink" chip="none" size={20} />
@@ -39,10 +39,10 @@ export function HomeNotificationsLink({ locale, label }: { locale: Locale; label
 /** Sign out and the account avatar for a signed-in patient, the sign-in button for a visitor, a stand-in until known. */
 export function HomeAccountTools({ locale, signInLabel, accountLabel }: { locale: Locale; signInLabel: string; accountLabel: string }) {
   const { status } = useSessionIdentity();
-  if (status === "unknown") {
+  if (status === "loading") {
     return <span className={`${styles.signIn} ${styles.identityPending}`} aria-hidden="true">{signInLabel}</span>;
   }
-  if (status === "authenticated") {
+  if (status === "user") {
     return (
       <>
         <SignOutButton locale={locale} className={styles.iconBtn} />

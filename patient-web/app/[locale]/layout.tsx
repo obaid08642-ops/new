@@ -11,6 +11,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { LocaleSelector } from "@/components-next/locale-selector";
 import { SessionActions } from "@/components-next/session-actions";
+import { CartProvider } from "@/lib/context/CartContext";
 import { PresenceBeacon } from "@/components-next/presence-beacon";
 import { NabdMark } from "@/components-next/nabd-mark";
 import { getDirection, isLocale, locales, type Locale } from "@/lib/i18n";
@@ -131,7 +132,9 @@ export default async function LocaleLayout({ children, params }: Props) {
               </div>
             </header>
             <PresenceBeacon />
-            {children}
+            {/* The cart (lib/context/CartContext) was written but never mounted: every "add to cart" on the product pages
+                was a no-op. It keeps its items in this browser only, so mounting it here costs no request. */}
+            <CartProvider>{children}</CartProvider>
             <footer className="site-footer">
               <nav aria-label={t("brand")} className="site-footer__links">
                 <Link href={`/${typedLocale}/terms`}>{t("footerTerms")}</Link>

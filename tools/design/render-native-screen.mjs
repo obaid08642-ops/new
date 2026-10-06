@@ -63,6 +63,13 @@ const SCREEN_SPECS = arg('--screens', 'welcome,login,register,otp').split(',').m
 });
 const SCREENS = SCREEN_SPECS.map((x) => x.name);
 const API_MODE = arg('--api', 'empty');
+// --auth member renders as a signed-in patient (default: a visitor with no session)
+const AUTH = arg('--auth', 'visitor');
+// --cart test fills the local cart with marked TEST lines (one needs a prescription) so a filled cart can be drawn
+const CART = arg('--cart', 'empty');
+// --params 'a=b,c=d' overrides the route params of every screen of the run (e.g. prescriptionId=test-rx)
+// --params takes JSON ('{"orderId":"x"}') or a comma list ('a=1,b=2')
+const PARAMS_OVERRIDE = arg('--params') ? (arg('--params').trim().startsWith('{') ? JSON.parse(arg('--params')) : Object.fromEntries(arg('--params').split(',').map((kv) => kv.split('=')))) : null;
 const WAIT = Number(arg('--wait', 2600));
 // --lang en renders the left-to-right layout (the same AsyncStorage key the app reads); the default is Arabic
 const LANG = arg('--lang', 'ar');
@@ -86,6 +93,71 @@ const BOARD = {
   splash: { params: {} },
   notifications: { params: {} },
   search: { params: {} },
+  // Batch 1a (pharmacy hub and product screens). The hub and the product page have their own boards;
+  // the three list screens follow the PharmacyHub template and have none. product-detail is opened with
+  // the id the fixtures answer for; medicine-compare with two ids.
+  'pharmacy-hub': { component: 'PharmacyHub', size: [390, 1420], params: {} },
+  'product-detail': { component: 'ProductFull', size: [390, 3380], params: { id: 'test-med' } },
+  wishlist: { params: {} },
+  filters: { params: {} },
+  'medicine-compare': { params: { ids: 'test-med,test-alt' } },
+  // Batch 1b (cart and prescription). The cart and the prescription upload have boards; the prescription list
+  // (rx-order), the barcode scanner, the manual request and the negotiation chat follow the RxUpload / PharmacyHub
+  // templates and have none. The cart is filled with --cart test (marked test lines), the chat opens an order id.
+  cart: { component: 'Cart', size: [390, 1260], params: {} },
+  'scan-prescription': { component: 'RxUpload', size: [390, 1100], params: {} },
+  'rx-order': { params: {} },
+  'rx-order-detail': { params: { prescriptionId: 'test-rx' } },
+  'barcode-scanner': { params: {} },
+  request: { params: {} },
+  'pharmacist-chat': { params: { orderId: 'test-order' } },
+  // Batch 1c (pharmacy offers, high effort). broadcast-status is the PharmacyOffers board; final-quote follows the same
+  // template with no board of its own. The order ids select the TEST order of render-native-screen.fixtures.json
+  // (`--order <id>`, or `--params '{"requestId":"test-order"}'` for a screen that reads another param).
+  'broadcast-status': { component: 'PharmacyOffers', size: [390, 1180], params: { orderId: 'test-order' } },
+  'final-quote': { params: { orderId: 'test-order-quote' } },
+  // Batch 1d (checkout, payment, insurance decision, payment result; high effort). checkout, payment and the insurance decision
+  // are the CheckoutV2 board's header, summary cards, totals and sticky action; the result of a payment is the Success board.
+  // The ids select the TEST orders and payments of render-native-screen.fixtures.json.
+  checkout: { component: 'CheckoutV2', size: [390, 1100], params: {} },
+  payment: { component: 'CheckoutV2', size: [390, 1100], params: { orderId: 'test-pay' } },
+  'insurance-decision': { component: 'CheckoutV2', size: [390, 1100], params: { orderId: 'test-ins-partial' } },
+  'order-confirm': { params: { orderId: 'test-order' } },
+  'payment-result': { component: 'Success', size: [390, 844], params: { transactionId: 'test-txn-paid', bookingKind: 'pharmacy', bookingId: 'test-pay' } },
+  // Batch 1e (orders and tracking). Orders and OrderTracking are boards; the pharmacy order history is the Orders board for the
+  // governed orders only, order-again and the delivery address follow its card and the Account board's rows (no board of their own).
+  orders: { component: 'Orders', size: [390, 900], params: {} },
+  'order-history': { component: 'Orders', size: [390, 900], params: {} },
+  'order-tracking': { component: 'OrderTracking', size: [390, 1120], params: { orderId: 'test-track' } },
+  reorder: { params: { orderId: 'test-delivered' } },
+  'address-select': { params: {} },
+  // Batch 2 (consultations; the 22 screens of the batch). Run them per folder: `--dir patient-app/app/consultations --screens
+  // appointments:c-appointments,book/[id]:c-book,...` (`file[:name]`), `--dir "patient-app/app/(tabs)/consultations" --screens index:c-hub`
+  // and `--dir patient-app/app/room --screens "[id]:c-room"`. The ids select the TEST records of render-native-screen.fixtures.json
+  // (`test-appt`, `test-doc`, `test-clinic`). Screens that follow the Consult template draw on its board (the hub), pass --height 844.
+  // The call screens have no board: they keep their layout (owner decision of 2026-10-04) and render at a phone's size.
+  'c-hub': { component: 'Consult', size: [390, 1660], params: {} },
+  'c-specialty-select': { component: 'Consult', size: [390, 1660], params: {} },
+  'c-appointments': { component: 'Appointments', size: [390, 960], params: {} },
+  'c-call-history': { component: 'Appointments', size: [390, 960], params: {} },
+  'c-appointment-detail': { component: 'Consult', size: [390, 1660], params: { appointmentId: 'test-appt' } },
+  'c-cancel-reschedule': { component: 'Consult', size: [390, 1660], params: { appointmentId: 'test-appt' } },
+  'c-follow-up': { component: 'Consult', size: [390, 1660], params: { appointmentId: 'test-appt' } },
+  'c-post-call-rating': { component: 'Consult', size: [390, 1660], params: { appointmentId: 'test-appt-done' } },
+  'c-prescription-from-doctor': { component: 'Consult', size: [390, 1660], params: {} },
+  'c-share-report': { component: 'Consult', size: [390, 1660], params: {} },
+  'c-summary': { component: 'Consult', size: [390, 1660], params: { appointmentId: 'test-appt-done' } },
+  'c-book': { component: 'BookingConfirm', size: [390, 1180], params: { id: 'test-doc', visit_type: 'clinic' } },
+  'c-booking-status': { component: 'BookingConfirm', size: [390, 1180], params: { appointmentId: 'test-appt', visitType: 'clinic' } },
+  'c-clinic-confirm': { component: 'BookingConfirm', size: [390, 1180], params: { appointmentId: 'test-appt' } },
+  'c-clinic': { component: 'DoctorFull', size: [390, 2700], params: { id: 'test-clinic' } },
+  'c-doctor': { component: 'DoctorFull', size: [390, 2700], params: { id: 'test-doc' } },
+  'c-home-visit-tracking': { component: 'OrderTracking', size: [390, 1120], params: { appointmentId: 'test-appt-home' } },
+  'c-chat': { params: { doctorId: 'test-doc', appointmentId: 'test-appt' } },
+  'c-incoming-call': { params: { callerName: 'د. طبيب تجريبي', sessionId: 'test-session', callType: 'video' } },
+  'c-video-call': { params: { appointmentId: 'test-appt-video' } },
+  'c-waiting-room': { params: { appointmentId: 'test-appt-video' } },
+  'c-room': { params: { id: 'test-room' } },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },
@@ -106,11 +178,15 @@ ${tag}</div></x-dc>
 class Component extends DCLogic { renderVals() { return {}; } }
 </script></body></html>`;
 };
+// --order <id> sets the route param orderId; --params '<json>' replaces the params of every rendered screen
+const ORDER_OVERRIDE = arg('--order');
+const paramsOf = (screen) => PARAMS_OVERRIDE ?? { ...BOARD[screen].params, ...(ORDER_OVERRIDE ? { orderId: ORDER_OVERRIDE } : {}) };
 const W = Number(arg('--width', 390));
 const H_ARG = arg('--height');
 /** The frame height: --height, else the board's own (Home, Services), else a phone's 844. */
 const frameHeight = (screen) => (H_ARG ? Number(H_ARG) : BOARD[screen]?.size?.[1] ?? 844);
 const PLATFORM = arg('--platform', 'web');
+const CAMERA = arg('--camera', 'granted');
 const SUFFIX = arg('--suffix', '');
 const INSETS = { top: 47, bottom: 34, left: 0, right: 0 };
 
@@ -145,18 +221,54 @@ const MOCKS = {
   'auth-api': `
     import fixtures from '@fixtures';
     const EMPTY = { '/health/reminders': [], '/mental-health/mood': [], '/health/vitals/summary': [], '/home/upcoming-appointment': null, '/content/home': { sections: [] } };
-    export async function apiFetch(path) {
+    // a fixture string "@in+600s" is a time 600 s from now (an offer's expiry), so a countdown draws like a live one
+    const resolve = (v) => typeof v === 'string' && /^@in\\+\\d+s$/.test(v) ? new Date(Date.now() + Number(v.slice(4, -1)) * 1000).toISOString() : Array.isArray(v) ? v.map(resolve) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, resolve(x)])) : v;
+    export async function apiFetch(path, options) {
       const mode = (window.__SCREEN && window.__SCREEN.api) || 'empty';
       if (mode === 'offline') throw new Error('offline');
       const key = String(path).split('?')[0];
-      if (mode === 'fixture' && key in fixtures) return fixtures[key];
+      // a fixture of the form {"__error": "code"} makes the request fail with that server code, like an answer of 400
+      const answer = (v) => { if (v && typeof v === 'object' && '__error' in v) throw new Error(v.__error); return resolve(v); };
+      // a mutation is recorded; a fixture named "POST /path" is its answer (e.g. the result of a payment check), else {}
+      if (options && options.method && options.method !== 'GET') { window.__MUTATIONS = (window.__MUTATIONS || []).concat([{ path: key, method: options.method }]); const fk = options.method + ' ' + key; return mode === 'fixture' && fk in fixtures ? answer(fixtures[fk]) : {}; }
+      if (mode === 'fixture' && key in fixtures) return answer(fixtures[key]);
       return key in EMPTY ? EMPTY[key] : {};
     }
-    export async function storeAuthSession() {}`,
+    export const newIdempotencyKey = () => 'app-render-test-key';
+    export async function storeAuthSession() {}
+    // the constants other modules read from the client (image URLs resolve against them); no real host in a render
+    export const BASE_URL = 'https://api.example.test/api/v1';
+    export const FASTAPI_BASE_URL = 'https://ai.example.test';
+    export const R2_PUBLIC_URL = 'https://cdn.example.test';`,
   'expo-auth-session': `
     export const useAuthRequest = () => [null, null, async () => ({ type: 'dismiss' })];
     export const makeRedirectUri = () => 'nabdplus://redirect';`,
   'node-builtin': `export class AsyncLocalStorage { getStore() { return undefined; } run(_s, f) { return f(); } } export default {};`,
+  // camera and picker: a design render has neither; the permission is "granted" unless --camera denied
+  'expo-camera': `
+    import * as React from 'react';
+    const state = () => (window.__SCREEN && window.__SCREEN.camera) || 'granted';
+    export const useCameraPermissions = () => {
+      const s = state();
+      return s === 'undetermined' ? [null, async () => {}] : [{ granted: s === 'granted', canAskAgain: s !== 'blocked', status: s }, async () => {}];
+    };
+    export const CameraView = React.forwardRef(({ style }, ref) => <div ref={ref} style={{ ...(Array.isArray(style) ? Object.assign({}, ...style.flat()) : style), background: 'transparent' }} />);`,
+  'expo-image-picker': `
+    export const requestCameraPermissionsAsync = async () => ({ granted: false });
+    export const requestMediaLibraryPermissionsAsync = async () => ({ granted: false });
+    export const launchCameraAsync = async () => ({ canceled: true });
+    export const launchImageLibraryAsync = async () => ({ canceled: true });`,
+  // the call screens load the native LiveKit modules lazily; a design render draws the screen before any connection, with no media
+  'livekit-native': `
+    export const VideoView = () => null;
+    export const AudioSession = { startAudioSession: async () => {}, stopAudioSession: async () => {} };
+    export const registerGlobals = () => {};
+    export const useRoomContext = () => null;
+    export default {};`,
+  // the realtime socket: a design render has no connection (the chat draws its thread from the REST fixtures)
+  'socket-context': `
+    export const useSocket = () => ({ socket: null, onlineUsers: [], isConnected: false, sendTyping() {}, joinThread() {}, leaveThread() {} });
+    export const SocketProvider = ({ children }) => children;`,
   'expo-web-browser': `export const maybeCompleteAuthSession = () => ({ type: 'failed' });`,
   'expo-apple-authentication': `
     export const AppleAuthenticationScope = { FULL_NAME: 0, EMAIL: 1 };
@@ -182,10 +294,14 @@ const mockPlugin = {
     build.onResolve({ filter: /^expo-router$/ }, () => virtual('expo-router'));
     build.onResolve({ filter: /^expo-auth-session(\/providers\/google)?$/ }, () => virtual('expo-auth-session'));
     build.onResolve({ filter: /^expo-web-browser$/ }, () => virtual('expo-web-browser'));
+    build.onResolve({ filter: /context\/SocketContext$/ }, (a) => (a.importer.startsWith(APP + sep) ? virtual('socket-context') : undefined));
+    build.onResolve({ filter: /^@livekit\/react-native(-webrtc)?$/ }, () => virtual('livekit-native'));
+    build.onResolve({ filter: /^expo-camera$/ }, () => virtual('expo-camera'));
+    build.onResolve({ filter: /^expo-image-picker$/ }, () => virtual('expo-image-picker'));
     build.onResolve({ filter: /^expo-apple-authentication$/ }, () => virtual('expo-apple-authentication'));
     build.onResolve({ filter: /^expo-secure-store$/ }, () => ({ path: join(REPO, 'tools/live/rnweb/secure-store-web.js') }));
     // the network client, as the auth screens and their auth components import it
-    build.onResolve({ filter: /utils\/api$/ }, (a) => (a.importer.startsWith(APP + sep) && !a.importer.includes(`${sep}node_modules${sep}`) ? virtual('auth-api') : undefined));
+    build.onResolve({ filter: /(utils\/|^\.\/)api$/ }, (a) => (a.importer.startsWith(APP + sep) && !a.importer.includes(`${sep}node_modules${sep}`) ? virtual('auth-api') : undefined));
     // server-rendering branches of expo packages import node builtins; the browser never runs them
     build.onResolve({ filter: /^node:/ }, () => virtual('node-builtin'));
     build.onLoad({ filter: /.*/, namespace: 'mock' }, (a) => ({ contents: MOCKS[a.path], loader: 'jsx', resolveDir: APP }));
@@ -216,7 +332,7 @@ async function bundle(screenFile) {
     mainFields: ['browser', 'module', 'main'],
     conditions: ['browser', 'import', 'default'],
     resolveExtensions: ['.web.tsx', '.web.ts', '.web.js', '.tsx', '.ts', '.jsx', '.js', '.mjs', '.json'],
-    define: { 'process.env.NODE_ENV': '"production"', __DEV__: 'false', global: 'window', 'process.env.EXPO_OS': '"web"' },
+    define: { 'process.env.EXPO_PUBLIC_CONSULT_NEARBY_FILTERS': JSON.stringify(process.env.EXPO_PUBLIC_CONSULT_NEARBY_FILTERS ?? ''), 'process.env.NODE_ENV': '"production"', __DEV__: 'false', global: 'window', 'process.env.EXPO_OS': '"web"' },
     banner: { js: 'window.process = window.process || { env: { NODE_ENV: "production" } };' },
     logLevel: 'error',
   });
@@ -235,7 +351,7 @@ const server = createServer((rq, rs) => {
   const url = decodeURIComponent(rq.url.split('?')[0]);
   const m = url.match(/^\/__app-(.+)\.js$/);
   if (m && bundles.has(m[1])) return rs.writeHead(200, { 'content-type': MIME['.js'] }).end(bundles.get(m[1]));
-  const b = url.match(/^\/__board-(\w+)-(light|dark)\.html$/);
+  const b = url.match(/^\/__board-([\w-]+)-(light|dark)\.html$/);
   if (b) return rs.writeHead(200, { 'content-type': MIME['.html'] }).end(boardPage(b[1], b[2]));
   if (url === '/__blank') return rs.writeHead(200, { 'content-type': MIME['.html'] }).end('<!doctype html><title>x</title>');
   const root = url.startsWith('/__font/') ? FONTS : BOARDS;
@@ -273,7 +389,7 @@ for (const s of SCREENS) {
       localStorage.setItem('@nabdah_theme_mode', th);
       localStorage.setItem('@nabdah_language', lg);
     }, [theme, LANG]);
-    const cfg = { width: W, height: H, insets: INSETS, params: BOARD[s].params, platform: PLATFORM, dir: DIR, lang: LANG, pathname: PATHNAME, api: API_MODE, tabbar: Boolean(TABBAR), header: Boolean(HEADER) };
+    const cfg = { width: W, height: H, insets: INSETS, params: paramsOf(s), cart: CART, camera: CAMERA, platform: PLATFORM, dir: DIR, lang: LANG, pathname: PATHNAME, api: API_MODE, auth: AUTH, tabbar: Boolean(TABBAR), header: Boolean(HEADER) };
     await page.setContent(
       `<!doctype html><html dir="${DIR}" lang="${LANG}"><meta charset="utf-8"><style>${appFaces}html,body{margin:0}*{animation:none!important;transition:none!important}</style>` +
         `<div id="root"></div><script>window.__SCREEN=${JSON.stringify(cfg)}</script><script src="${BASE}/__app-${s}.js"></script></html>`,

@@ -49,11 +49,6 @@
     "verdict": "static",
     "reason": "components-next/onboarding-permissions-client.tsx asks the browser for geolocation and Notification permission; no API call and nothing is stored."
   },
-  "/prescriptions/[prescriptionId]": {
-    "file": "patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx",
-    "verdict": "suspicious",
-    "reason": "Always shows \"Prescription details aren't available yet\" (message key contractPending) and never fetches. The backend serves GET /prescriptions/:id (prescriptions.controller.ts) and the app calls it (pharmacy/rx-order.tsx). The /prescriptions list page does not link to this route either."
-  },
   "/privacy": {
     "file": "patient-web/app/[locale]/privacy/page.tsx",
     "verdict": "static",

@@ -2,14 +2,20 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({ getPublicSpecialties: vi.fn() }));
-vi.mock("next/navigation", () => ({ notFound: vi.fn() }));
+vi.mock("next/navigation", () => ({ notFound: vi.fn(), useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }) }));
 vi.mock("next-intl/server", () => ({
   getTranslations: async () =>
-    Object.assign((key: string) => key, { raw: (_key: string) => [] as Array<{ q: string; a: string }> }),
+    // the page reads the FAQ with t.has (t.raw throws on precompiled messages): no FAQ keys in this mock
+    Object.assign((key: string) => key, { has: (_key: string) => false }),
   setRequestLocale: vi.fn(),
 }));
 vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
 vi.mock("@/lib/api/specialties-server", () => ({ getPublicSpecialties: state.getPublicSpecialties }));
+
+vi.mock("@/components-next/core/core-shell", async () => {
+  const { createElement } = await import("react");
+  return { CoreShell: ({ children, backHref }: { children: unknown; backHref?: string }) => createElement("div", { "data-shell": true }, createElement("a", { href: backHref }, "back"), children as never) };
+});
 
 import SpecialtySelectPage from "./page";
 
@@ -20,7 +26,7 @@ describe("specialties SSR boundary", () => {
     state.getPublicSpecialties.mockResolvedValue(new Response(JSON.stringify({ data: [{ slug: "cardiology", name_ar: "قلب", name_en: "Cardiology", count: 7, patient_id: "private-patient" }] }), { status: 200 }));
     const html = renderToStaticMarkup(await SpecialtySelectPage({ params: Promise.resolve({ locale: "en" }) }));
     expect(html).toContain("Cardiology");
-    expect(html).toContain("/en/appointments?specialty=%D9%82%D9%84%D8%A8");
+    expect(html).toContain("/en/consultations/doctors?specialty=%D9%82%D9%84%D8%A8");
     expect(html).not.toContain("private-patient");
     expect(html).not.toContain("access-token");
   });

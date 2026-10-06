@@ -199,9 +199,24 @@ jobs:
       - name: Build
         working-directory: patient-web
         run: pnpm build
-      - name: Start
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NABD_API_BASE_URL: https://api.nabd.plus/api/v1
+          NEXT_PUBLIC_SITE_ORIGIN: http://localhost:3999
+      # F68: production starts through the nonce server (the public pages carry a placeholder nonce that it stamps per
+      # response); `next start` alone never answers them. Same start as .github/workflows/lighthouse.yml.
+      - name: Start (standalone, through the nonce server)
         working-directory: patient-web
-        run: NODE_ENV=production pnpm exec next start --port 3999 &
+        env:
+          NABD_API_BASE_URL: https://api.nabd.plus/api/v1
+          NEXT_PUBLIC_SITE_ORIGIN: http://localhost:3999
+          PORT: 3999
+          HOSTNAME: 127.0.0.1
+        run: |
+          cp -r .next/static .next/standalone/.next/static
+          [ -d public ] && cp -r public .next/standalone/public || true
+          cp -r server .next/standalone/server
+          (node .next/standalone/server/nonce-server.mjs &> /tmp/next.log &)
       - name: Wait for the server
         run: |
           for i in $(seq 1 60); do
@@ -209,6 +224,7 @@ jobs:
             sleep 2
           done
           echo "server did not come up" >&2
+          tail -100 /tmp/next.log >&2 || true
           exit 1
       - name: No new unreadable text (ratchet)
         timeout-minutes: 15

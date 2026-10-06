@@ -1,0 +1,44 @@
+/* The cart (canvas/Cart): an address card, one white card of item rows, the prescription banner, the summary and the note.
+   No price is drawn: the pharmacies' offers carry them. Phones draw the item count and the request button in the shell's
+   sticky footer; from 1024 the same actions sit in the summary card. Tokens only, logical properties only, no inline styles (the CSP refuses them). */
+
+.layout { display: flex; flex-direction: column; gap: var(--nabd-space-sm); }
+.main { display: flex; flex-direction: column; gap: var(--nabd-space-sm); min-inline-size: 0; }
+.side { display: flex; flex-direction: column; gap: var(--nabd-space-sm); min-inline-size: 0; }
+
+.headRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.headNote { margin: 0; font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-secondary); flex: 1; min-inline-size: 0; overflow-wrap: anywhere; }
+
+.confirm {
+  display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; border-radius: var(--nabd-radius-2xl);
+  background: var(--nabd-color-status-danger-bg); color: var(--nabd-color-status-danger-fg);
+}
+.confirmTitle { margin: 0; font-size: var(--nabd-font-size-control); font-weight: 700; }
+.confirmActions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.items { list-style: none; margin: 0; padding: 0; }
+.item { display: flex; align-items: center; gap: 12px; padding-block: 12px; border-block-end: 1px solid var(--nabd-color-border-subtle); min-inline-size: 0; }
+.item:last-child { border-block-end: 0; }
+.media {
+  flex: none; position: relative; inline-size: 64px; block-size: 64px; border-radius: var(--nabd-radius-xl); overflow: hidden;
+  background: var(--nabd-color-bg-media); display: grid; place-items: center;
+}
+.mediaImage { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; object-fit: contain; }
+.info { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.name { font-size: var(--nabd-font-size-row); line-height: 1.4; font-weight: 600; color: var(--nabd-color-text-primary); text-decoration: none; overflow-wrap: anywhere; }
+a.name { display: inline-flex; align-items: center; min-block-size: 44px; }
+a.name:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-sm); }
+.sub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.end { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+
+.summary { display: flex; flex-direction: column; gap: 10px; padding: 16px; }
+.line { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: var(--nabd-font-size-body); color: var(--nabd-color-text-secondary); }
+.lineValue { font-weight: 500; text-align: end; overflow-wrap: anywhere; }
+.totalLine { color: var(--nabd-color-text-primary); font-weight: 700; padding-block-start: 10px; border-block-start: 1px solid var(--nabd-color-border-subtle); }
+
+.skeleton { padding: var(--nabd-space-sm) 0; }
+
+@media (min-width: 1024px) {
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: var(--nabd-space-lg); align-items: start; }
+  .side { position: sticky; inset-block-start: calc(var(--nabd-shell-top-h) + var(--nabd-space-sm)); }
+}

@@ -34,7 +34,7 @@ describe('Patient unified insurance catalog contract', () => {
   it('fails closed when a company-selection catalog cannot be loaded instead of substituting stale data', () => {
     expect(consultations).toContain('setInsuranceCatalogUnavailable(true)');
     expect(insuranceUpload).toContain('setInsuranceCatalogUnavailable(true)');
-    expect(bookingConfirmation).toContain("apiFetch<any>('/users/me/profile')");
+    expect(bookingConfirmation).toMatch(/apiFetch<[^(]*>\('\/users\/me\/profile'\)/);
     expect(bookingConfirmation).toContain('insuranceReady');
     expect(bookingConfirmation).not.toMatch(/coverage-check|copay_percent|\/insurance\/requests/);
   });

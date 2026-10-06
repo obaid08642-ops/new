@@ -1,0 +1,184 @@
+/* The consultation screens (Batch 2, slice 2-web): appointments (canvas/Appointments), the booking steps (canvas/BookingConfirm),
+   the doctor, clinic and specialty pages (canvas/Consult, canvas/DoctorFull), the visit tracking (canvas/OrderTracking), the
+   forms and lists, and the call screens (no board: the current layout, tokens and shared components only). The shell (top bar,
+   tab bar) is components-next/core; page, card, note and state styles come from pharmacy/rx.module.css. Tokens only, logical
+   properties only, no inline styles (the CSP refuses them). Every name, time, status and amount drawn here is one the server sent. */
+
+.stack { display: flex; flex-direction: column; gap: var(--nabd-space-sm); min-inline-size: 0; }
+.rowEnd { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; min-inline-size: 0; }
+.actions { display: flex; flex-direction: column; gap: 8px; }
+.actionsRow { display: flex; flex-wrap: wrap; gap: 8px; }
+.actionsRow > * { flex: 1 1 10rem; min-inline-size: 0; }
+
+/* ---- a hero: the tile, a title and a line (canvas/OrderTracking head, DoctorFull head) ---- */
+.hero { display: flex; flex-direction: column; align-items: center; gap: 12px; min-inline-size: 0; text-align: center; }
+.heroText { min-inline-size: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.heroTitle { margin: 0; font-size: var(--nabd-font-size-body-lg); font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.heroSub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.sectionTitle { margin: 0; font-size: var(--nabd-font-size-body-lg); font-weight: 700; line-height: 1.4; }
+.section { display: flex; flex-direction: column; gap: 10px; min-inline-size: 0; }
+.body { margin: 0; font-size: var(--nabd-font-size-control); line-height: 1.7; overflow-wrap: anywhere; white-space: pre-line; }
+.muted { color: var(--nabd-color-text-secondary); }
+
+/* ---- label / value rows (BookingConfirm: a 38 tile, a label and a value) ---- */
+.facts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.fact { display: flex; align-items: center; gap: 10px; min-inline-size: 0; }
+.factText { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 1px; }
+.factLabel { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.factValue { font-size: var(--nabd-font-size-row); font-weight: 600; overflow-wrap: anywhere; }
+.factValue bdi { unicode-bidi: isolate; }
+
+.plain { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.plain > li { display: flex; gap: 8px; font-size: var(--nabd-font-size-control); line-height: 1.6; overflow-wrap: anywhere; min-inline-size: 0; }
+.plain > li::before { content: ""; flex: none; inline-size: 6px; block-size: 6px; margin-block-start: 0.6em; border-radius: var(--nabd-radius-pill); background: var(--nabd-color-icon-secondary); }
+
+/* ---- the appointment card (canvas/Appointments): a date tile, the title, the line, the mode chip, two actions ---- */
+.appt {
+  display: flex; flex-direction: column; gap: 12px; padding: 14px; box-sizing: border-box; min-inline-size: 0;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
+  border-radius: var(--nabd-radius-3xl); box-shadow: var(--nabd-shadow-card);
+}
+.apptLink { display: flex; align-items: center; gap: 12px; min-inline-size: 0; color: inherit; text-decoration: none; }
+.apptLink:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-sm); }
+.tile {
+  flex: none; inline-size: 58px; block-size: 62px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  border-radius: var(--nabd-radius-xl); background: var(--nabd-tone-bg); color: var(--nabd-tone-fg); line-height: 1.15;
+}
+.tileDay { font-size: var(--nabd-font-size-h4); font-weight: 700; }
+.tileMonth { font-size: var(--nabd-font-size-micro); }
+.apptText { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
+.apptTitle { font-size: var(--nabd-font-size-row); font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.apptMeta { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.apptMeta bdi { unicode-bidi: isolate; }
+.apptActions { display: flex; flex-wrap: wrap; gap: 8px; }
+.apptActions > * { flex: 1 1 8rem; min-inline-size: 0; }
+.apptActions .apptInk, .apptActions .apptInk:hover { background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); box-shadow: none; }
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--nabd-space-sm); }
+
+/* ---- a link row (chat threads, clinic doctors, specialties, call history): the HealthHub row on a white card ---- */
+.rowCard {
+  display: flex; align-items: center; gap: 12px; padding: 12px 14px; box-sizing: border-box; min-inline-size: 0; min-block-size: 44px;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
+  border-radius: var(--nabd-radius-3xl); box-shadow: var(--nabd-shadow-card); color: inherit; text-decoration: none;
+}
+a.rowCard:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.rowBody { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; align-items: flex-start; }
+.rowTitle { font-size: var(--nabd-font-size-row); font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+.rowSub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.rowEndIcon { flex: none; color: var(--nabd-color-icon-secondary); display: inline-flex; }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--nabd-space-sm); }
+
+/* ---- the search field and the segmented controls of the lists (canvas/Consult) ---- */
+.search { display: flex; gap: 8px; align-items: stretch; }
+.search > :first-child { flex: 1; min-inline-size: 0; }
+.searchField {
+  display: flex; align-items: center; gap: 10px; min-block-size: 52px; padding-inline: 16px; box-sizing: border-box; min-inline-size: 0;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-2xl);
+}
+.searchField:focus-within { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.searchInput { flex: 1; min-inline-size: 0; min-block-size: 44px; border: 0; background: transparent; color: var(--nabd-color-text-primary); font: inherit; font-size: var(--nabd-font-size-body); outline: 0; }
+.searchInput::placeholder { color: var(--nabd-color-text-tertiary); }
+.segLinks { display: flex; padding: 4px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); gap: 2px; }
+.segLinks > a {
+  flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; padding-inline: 12px; text-align: center; box-sizing: border-box;
+  border-radius: var(--nabd-radius-lg); color: var(--nabd-color-text-primary); text-decoration: none; font-size: var(--nabd-font-size-segment); font-weight: 500; overflow-wrap: anywhere;
+}
+.segLinks > a[aria-current="page"] { background: var(--nabd-color-bg-surface); font-weight: 700; box-shadow: var(--nabd-shadow-card); }
+.segLinks > a:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+
+/* ---- forms: a labelled field, a native control with the shared control look ---- */
+.field { display: flex; flex-direction: column; gap: 6px; min-inline-size: 0; }
+.label { font-size: var(--nabd-font-size-label); font-weight: 600; color: var(--nabd-color-text-primary); overflow-wrap: anywhere; }
+.control {
+  inline-size: 100%; box-sizing: border-box; min-block-size: 48px; padding: 12px 14px; font: inherit; font-size: var(--nabd-font-size-body);
+  color: var(--nabd-color-text-primary); background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-strong);
+  border-radius: var(--nabd-radius-xl); min-inline-size: 0;
+}
+textarea.control { resize: vertical; line-height: 1.6; overflow-wrap: anywhere; }
+.control:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; min-inline-size: 0; }
+.legend { padding: 0; margin: 0; font-size: var(--nabd-font-size-body-lg); font-weight: 700; line-height: 1.4; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.error {
+  margin: 0; padding: 12px 14px; border-radius: var(--nabd-radius-xl); font-size: var(--nabd-font-size-control); overflow-wrap: anywhere;
+  background: var(--nabd-color-status-danger-bg); color: var(--nabd-color-status-danger-fg);
+}
+.ok {
+  margin: 0; padding: 12px 14px; border-radius: var(--nabd-radius-xl); font-size: var(--nabd-font-size-control); overflow-wrap: anywhere;
+  background: var(--nabd-color-status-info-bg); color: var(--nabd-color-text-primary);
+}
+.notice {
+  margin: 0; padding: 12px 14px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-status-info-bg); color: var(--nabd-color-text-primary);
+  font-size: var(--nabd-font-size-control); line-height: 1.6; overflow-wrap: anywhere;
+}
+.noticeWarn { background: var(--nabd-color-status-warning-bg); }
+
+/* ---- booking: the visit type, the days and the times as pressable chips (canvas/BookingConfirm, DoctorFull) ---- */
+.choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.choice {
+  display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; min-inline-size: 44px; padding-inline: 16px; box-sizing: border-box; cursor: pointer;
+  border-radius: var(--nabd-radius-xl); border: 1px solid var(--nabd-color-border-strong); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary);
+  font: inherit; font-size: var(--nabd-font-size-segment); font-weight: 600; text-decoration: none; text-align: center; overflow-wrap: anywhere;
+}
+.choice[aria-pressed="true"], .choice[aria-current="page"] { background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); border-color: var(--nabd-color-action-selected-bg); }
+.choice:disabled { cursor: not-allowed; opacity: 0.55; }
+.choice:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.days { display: flex; gap: 8px; overflow-x: auto; padding-block-end: 4px; }
+.day { flex: none; flex-direction: column; gap: 2px; min-inline-size: 64px; padding-block: 8px; }
+.dayNum { font-size: var(--nabd-font-size-h4); font-weight: 700; }
+.dayMeta { font-size: var(--nabd-font-size-micro); font-weight: 500; }
+.slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr)); gap: 8px; }
+.slotOff { opacity: 0.55; cursor: default; background: var(--nabd-color-bg-sunken); }
+.priceCard { display: flex; flex-direction: column; gap: 10px; }
+.totalRow { display: flex; justify-content: space-between; gap: 12px; font-size: var(--nabd-font-size-body-lg); font-weight: 700; padding-block-start: 10px; border-block-start: 1px solid var(--nabd-color-border-subtle); }
+.bookBar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-inline: var(--nabd-shell-gutter, 16px); padding-block: var(--nabd-space-2xs); }
+.bookBar > :global(.nabd-button) { flex: 1 1 auto; min-inline-size: 0; }
+
+/* ---- the doctor, clinic and specialty pages ---- */
+.profile { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.profileName { display: inline-flex; align-items: center; gap: 6px; justify-content: center; flex-wrap: wrap; }
+.profileTitle { margin: 0; font-size: var(--nabd-font-size-h1); line-height: var(--nabd-font-size-h1-lineHeight); font-weight: 700; overflow-wrap: anywhere; }
+.stats { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; inline-size: 100%; }
+.stat { display: flex; flex-direction: column-reverse; align-items: center; gap: 2px; padding-block: 8px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); min-inline-size: 0; }
+.statValue { margin: 0; font-size: var(--nabd-font-size-row); font-weight: 700; overflow-wrap: anywhere; }
+.statLabel { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.cover { display: block; inline-size: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--nabd-radius-3xl); background: var(--nabd-color-bg-sunken); }
+.codeText { margin: 0; direction: ltr; text-align: start; unicode-bidi: isolate; font-size: var(--nabd-font-size-h4); font-weight: 700; letter-spacing: 0.04em; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.tag { display: inline-flex; align-items: center; min-block-size: 26px; padding-inline: 10px; border-radius: var(--nabd-radius-pill); background: var(--nabd-color-bg-sunken); font-size: var(--nabd-font-size-small); font-weight: 600; overflow-wrap: anywhere; }
+.faq { border-block-start: 1px solid var(--nabd-color-border-subtle); padding-block: 4px; }
+.faq:first-of-type { border-block-start: 0; }
+.faq > summary { min-block-size: 44px; display: flex; align-items: center; cursor: pointer; font-size: var(--nabd-font-size-row); font-weight: 600; overflow-wrap: anywhere; }
+.faq > summary:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-sm); }
+.faq > p { margin: 0 0 8px; font-size: var(--nabd-font-size-control); line-height: 1.7; color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+
+/* ---- a rating: five stars to press ---- */
+.stars { display: flex; gap: 4px; justify-content: center; }
+.star {
+  inline-size: 48px; block-size: 48px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
+  border: 0; background: transparent; border-radius: var(--nabd-radius-pill);
+}
+.star[data-on="false"] > * { opacity: 0.3; }
+.star:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+
+/* ---- the call screens: the current layout, a stage and the controls ---- */
+.stage {
+  display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); min-block-size: 320px; padding: 12px; box-sizing: border-box; overflow: hidden;
+  background: var(--nabd-color-bg-sunken); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-3xl);
+}
+.stage video { inline-size: 100%; max-block-size: 60vh; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-inverse); }
+.callState { display: flex; align-items: center; gap: 8px; margin: 0; font-size: var(--nabd-font-size-control); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.spin { animation: consult-spin 0.9s linear infinite; }
+@keyframes consult-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+
+@media (min-width: 768px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .actions { flex-direction: row; flex-wrap: wrap; }
+  .actions > * { flex: 1 1 14rem; }
+}
+
+/* ---- a row with a tick (the reports to share): a 44 tall label on a card ---- */
+.pickRow { display: flex; align-items: center; gap: 12px; min-block-size: 56px; padding: 8px 14px; box-sizing: border-box; cursor: pointer; min-inline-size: 0; }
+.pickRow input { flex: none; inline-size: 22px; block-size: 22px; margin: 0; accent-color: var(--nabd-color-action-primary-bg); }
+.pickRow:has(input:focus-visible) { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }

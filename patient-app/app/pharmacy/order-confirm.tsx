@@ -1,28 +1,71 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../../src/context/AppContext';
-import { lightColors, darkColors } from '../../src/theme/colors';
-import { apiFetch } from '../../src/utils/api';
-import { LocalizedText } from '../../src/components/LocalizedText';
-import { ScreenState } from '../../src/components/ScreenStates';
+import { View } from 'react-native';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 
-function routeFor(state: string, orderId: string) {
-  if (state === 'OFFERS_READY' || state === 'ORDER_BROADCASTING') return { pathname: '/pharmacy/broadcast-status', params: { orderId } } as const;
-  if (['OFFER_SELECTED', 'FINAL_QUOTE_READY', 'FINAL_QUOTE_ACCEPTED', 'COD_REGISTERED'].includes(state)) return { pathname: '/pharmacy/final-quote', params: { orderId } } as const;
-  if (['INSURANCE_PROCESSING', 'INSURANCE_DECISION_READY'].includes(state)) return { pathname: '/pharmacy/insurance-decision', params: { orderId } } as const;
-  return { pathname: '/pharmacy/order-tracking', params: { orderId } } as const;
-}
-export default function LegacyPharmacyOrderConfirmRoute() {
-  const insets = useSafeAreaInsets(); const { isDark } = useApp() as any; const colors = isDark ? darkColors : lightColors; const { orderId } = useLocalSearchParams<{ orderId: string }>(); const id = Array.isArray(orderId) ? orderId[0] : orderId;
-  const [error, setError] = useState<string|null>(null);
-  const [loading, setLoading] = useState(true);
-  const openGovernedStep = useCallback(async () => { if (!id) return; setError(null); setLoading(true); try { const response: any = await apiFetch(`/patient/pharmacy/orders/${id}`); const order = response?.data || response; router.replace(routeFor(order?.governed_state, id)); } catch (reason: any) { setError(reason?.message || 'تعذر فتح حالة الطلب الحاكمة'); } finally { setLoading(false); } }, [id]);
-  useEffect(() => { void openGovernedStep(); }, [openGovernedStep]);
+import { AppHeader, EmptyState, ErrorState, OfflineState, Screen } from '../../../packages/ui-native/src';
+import { PHARMACY_TONE, goBack } from '../../src/components/pharmacy/PharmacyKit';
+import { COLUMN, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { apiFetch } from '../../src/utils/api';
+import { isOffline } from '../../src/utils/isOffline';
+import { logError } from '../../src/utils/logger';
+import { orderRoute, readPayOrder } from '../../src/utils/pharmacyCheckout';
+import { orderIdParam } from '../../src/utils/pharmacyOffers';
+
+/**
+ * The entry of a pharmacy order from a link or a notification (`orders/:id` in the deep-link map, which names the param
+ * `id`; the app's own screens say `orderId`). It reads the order and opens the step the server says it is at (offers, final
+ * price, insurance decision, or the order status). The routing follows what the backend really produces: `governed_state`
+ * is empty until an offer is selected, so an order still looking for offers is told by its `status`.
+ */
+
+export default function PharmacyOrderConfirmRoute() {
+  const { theme, dir, k } = useScreenUi();
+  const params = useLocalSearchParams<{ orderId?: string | string[]; id?: string | string[] }>();
+  const id = orderIdParam({ orderId: params.orderId ?? params.id });
+  const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
+
+  const open = useCallback(async () => {
+    if (!id) return;
+    setFailed(null);
+    try {
+      const order = readPayOrder(await apiFetch(`/patient/pharmacy/orders/${id}`));
+      if (!order) throw new Error('order_unreadable');
+      router.replace(orderRoute({ id: order.id, status: order.status, governed_state: order.governedState, payment_status: order.paymentStatus, selected_offer_id: order.selectedOfferId, payment_method: order.paymentMethod }));
+    } catch (error) {
+      logError('pharmacy:order-confirm', error);
+      setFailed((await isOffline()) ? 'offline' : 'error');
+    }
+  }, [id]);
+
+  useEffect(() => {
+    void open();
+  }, [open]);
+
+  const header = (
+    <View style={COLUMN}>
+      <AppHeader title={k('pharmacy.confirm.title')} onBack={goBack} backLabel={k('pharmacy.back')} theme={theme} direction={dir} />
+    </View>
+  );
+  const state = (node: React.ReactNode) => (
+    <Screen theme={theme} direction={dir} header={header} scroll testID="order-confirm-screen">
+      <View style={{ ...COLUMN, paddingHorizontal: 16, paddingBottom: 32, flexGrow: 1, justifyContent: 'center' }}>{node}</View>
+    </Screen>
+  );
+
   if (!id) {
-    return <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top + 24 }]}><LocalizedText style={[styles.title, { color: colors.n }]}>يلزم رقم طلب الصيدلية</LocalizedText><LocalizedText style={{ color: colors.t2, textAlign: 'center' }}>لا يمكن اعتماد سلة أو رفض سعر من هذا المسار الموروث.</LocalizedText></View>;
+    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('pharmacy.offers.noOrder')} body={k('pharmacy.offers.noOrderBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/pharmacy/order-history' as Href)} theme={theme} />);
   }
-  return <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => void openGovernedStep()}><View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top + 24 }]}><LocalizedText style={{ color: colors.t2, textAlign: 'center' }}>فتح خطوة طلبك الحاكمة…</LocalizedText></View></ScreenState>;
+  if (failed === 'offline') {
+    return state(<OfflineState title={k('pharmacy.offline.title')} body={k('pharmacy.offline.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void open()} theme={theme} />);
+  }
+  if (failed === 'error') {
+    return state(<ErrorState title={k('pharmacy.confirm.loadError')} body={k('pharmacy.error.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void open()} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/pharmacy/order-history' as Href)} theme={theme} />);
+  }
+  return (
+    <Screen theme={theme} direction={dir} header={header} scroll testID="order-confirm-screen">
+      <View accessibilityLabel={k('pharmacy.confirm.opening')} accessibilityState={{ busy: true }} style={{ ...COLUMN, paddingHorizontal: 16 }}>
+        <EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('pharmacy.confirm.opening')} theme={theme} />
+      </View>
+    </Screen>
+  );
 }
-const styles = StyleSheet.create({ container: { flex: 1, gap: 14, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 28 }, title: { fontFamily: 'Cairo-Bold', fontSize: 18, textAlign: 'center' }, retry: { borderRadius: 12, paddingHorizontal: 22, paddingVertical: 13 }, retryText: { color: '#fff', fontFamily: 'Cairo-Bold' } });

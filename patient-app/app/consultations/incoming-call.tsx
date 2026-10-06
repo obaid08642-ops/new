@@ -1,32 +1,30 @@
-// @ts-nocheck
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  StatusBar,
-  TouchableOpacity,
-  Vibration,
-} from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useApp } from "../../src/context/AppContext";
-import { Icon } from "../../src/components/Icon";
-import { AppText } from "../../src/components/ui";
-import { apiFetch } from "../../src/utils/api";
-import { ScreenState } from "../../src/components/ScreenStates";
+import React, { useEffect, useState } from 'react';
+import { StatusBar, Vibration, View } from 'react-native';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { ErrorState } from '../../../packages/ui-native/src';
+import { CallButton, CallIdentity, useCallUi } from '../../src/components/consult/CallKit';
+import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
+
+/**
+ * Incoming call — no board (owner decision, 2026-10-04): the layout stays (who is calling, decline and accept), drawn with
+ * the dark tokens, the font and labelled buttons. The ringing, the vibration, the 35-second timeout, POST
+ * /calls/:sessionId/reject and the move to the video call on accept are exactly what they were.
+ */
 
 export default function IncomingCallScreen() {
   const insets = useSafeAreaInsets();
-  const { colors } = useApp();
+  const { c, k } = useCallUi();
   const params = useLocalSearchParams();
 
-  const callerId = (params.callerId as string) || undefined;
-  const callerName = (params.callerName as string) || "مكالمة واردة";
+  const callerName = (params.callerName as string) || k('consult.call.incoming');
   const sessionId = params.sessionId as string;
-  const callType = (params.callType as "voice" | "video") || "video";
+  const callType = (params.callType as 'voice' | 'video') || 'video';
 
-  const [ringTime, setRingTime] = useState(0);
-  const [error, setError] = useState<string | null>(null);
+  const [, setRingTime] = useState(0);
+  const [failed, setFailed] = useState(false);
 
   // Vibrate / ring simulator
   useEffect(() => {
@@ -38,7 +36,7 @@ export default function IncomingCallScreen() {
       setRingTime((p) => {
         if (p >= 35) {
           // Timeout call after 35 seconds of ringing
-          handleReject();
+          void handleReject();
           return p;
         }
         return p + 1;
@@ -49,118 +47,51 @@ export default function IncomingCallScreen() {
       Vibration.cancel();
       clearInterval(t);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
 
   const handleAccept = () => {
     Vibration.cancel();
-    router.replace({
-      pathname: "/consultations/video-call",
-      params: { sessionId, mode: callType },
-    });
+    router.replace({ pathname: '/consultations/video-call', params: { sessionId, mode: callType } } as unknown as Href);
   };
 
   const handleReject = async () => {
     Vibration.cancel();
     if (sessionId) {
       try {
-        await apiFetch(`/calls/${sessionId}/reject`, { method: "POST" });
+        await apiFetch(`/calls/${sessionId}/reject`, { method: 'POST' });
       } catch (err) {
-        console.warn("Could not reject call", err);
-        setError('تعذر رفض المكالمة');
+        logError('consultations:incoming-call:reject', err);
+        setFailed(true);
       }
     }
     router.back();
   };
 
+  if (failed) {
+    return (
+      <View style={{ flex: 1, backgroundColor: c.bg.canvas, justifyContent: 'center', padding: 24 }}>
+        <ErrorState title={k('consult.call.rejectFailed')} body={k('consult.call.startFailedBody')} retryLabel={k('consult.retry')} onRetry={() => setFailed(false)} theme="dark" />
+      </View>
+    );
+  }
+
   return (
-    <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
-    <View style={[st.c, { backgroundColor: "#090D14" }]}>
+    <View style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center', backgroundColor: c.bg.canvas }} testID="incoming-call-screen">
       <StatusBar barStyle="light-content" />
 
       {/* Top Section */}
-      <View style={[st.top, { paddingTop: insets.top + 60 }]}>
-        <View style={st.avatarWrap}>
-          <Icon name="doctor" size={72} color="rgba(255,255,255,0.7)" />
-        </View>
-        <AppText variant="h3" color="#fff" style={st.name}>
-          {callerName}
-        </AppText>
-        <AppText variant="bodyMD" color="rgba(255,255,255,0.5)">
-          {callType === "video"
-            ? "مكالمة فيديو واردة..."
-            : "مكالمة صوتية واردة..."}
-        </AppText>
+      <View style={{ alignItems: 'center', width: '100%', paddingTop: insets.top + 60 }}>
+        <CallIdentity name={callerName} line={k(callType === 'video' ? 'consult.call.incomingVideo' : 'consult.call.incomingVoice')} />
       </View>
 
       {/* Bottom Controls */}
-      <View style={[st.bottom, { paddingBottom: insets.bottom + 60 }]}>
-        <View style={st.buttonsRow}>
-          {/* Reject Button */}
-          <TouchableOpacity onPress={handleReject} style={[st.btn, st.reject]}>
-            <Icon name="call" size={32} color="#fff" style={st.rejectIcon} />
-          </TouchableOpacity>
-
-          {/* Accept Button */}
-          <TouchableOpacity onPress={handleAccept} style={[st.btn, st.accept]}>
-            <Icon name="call" size={32} color="#fff" />
-          </TouchableOpacity>
-        </View>
-        <View style={st.labelsRow}>
-          <AppText variant="labelMD" color="rgba(255,255,255,0.6)">
-            رفض
-          </AppText>
-          <AppText variant="labelMD" color="rgba(255,255,255,0.6)">
-            قبول
-          </AppText>
+      <View style={{ width: '100%', alignItems: 'center', paddingBottom: insets.bottom + 60 }}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 16, paddingHorizontal: 16 }}>
+          <CallButton label={k('consult.call.decline')} tone="danger" onPress={() => void handleReject()} testID="call-decline" />
+          <CallButton label={k('consult.call.accept')} tone="accept" onPress={handleAccept} testID="call-accept" />
         </View>
       </View>
     </View>
-    </ScreenState>
   );
 }
-
-const st = StyleSheet.create({
-  c: { flex: 1, justifyContent: "space-between", alignItems: "center" },
-  top: { alignItems: "center", width: "100%" },
-  avatarWrap: {
-    width: 140,
-    height: 140,
-    borderRadius: 50,
-    backgroundColor: "rgba(255,255,255,0.06)",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 2,
-    borderColor: "rgba(255,255,255,0.1)",
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 16,
-  },
-  name: { marginTop: 24, marginBottom: 8, fontWeight: "800" },
-  bottom: { width: "100%", alignItems: "center" },
-  buttonsRow: {
-    flexDirection: "row-reverse",
-    justifyContent: "space-around",
-    width: "80%",
-    marginBottom: 12,
-  },
-  labelsRow: {
-    flexDirection: "row-reverse",
-    justifyContent: "space-around",
-    width: "80%",
-    paddingHorizontal: 12,
-  },
-  btn: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowOpacity: 0.35,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 12,
-  },
-  reject: { backgroundColor: "#F0695C", shadowColor: "#F0695C" },
-  rejectIcon: { transform: [{ rotate: "135deg" }] },
-  accept: { backgroundColor: "#10B981", shadowColor: "#10B981" },
-});

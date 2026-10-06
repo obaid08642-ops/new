@@ -1,10 +1,11 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
 import { VideoRoomClient } from "@/components-next/video-room-client";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
 
 type Props = { params: Promise<{ locale: string; id: string }> };
 
@@ -17,7 +18,8 @@ export default async function CallRoomPage({ params }: Props) {
   const { locale, id } = await params;
   if (!isLocale(locale) || !id.trim()) notFound();
   setRequestLocale(locale);
-  const ar = locale === "ar";
+  const c = await getTranslations("ConsultWeb");
+  const rs = await getTranslations("RouteState");
   const token = await requirePatientAccess(locale);
   const join = await callPatientApi(`/calls/${encodeURIComponent(id)}`, { method: "POST", headers: { "content-type": "application/json" }, body: "{}" }, token);
   if (join.status === 401) redirect(`/${locale}/login`);
@@ -28,28 +30,18 @@ export default async function CallRoomPage({ params }: Props) {
   const room = typeof jrec?.room === "string" ? jrec.room : id;
   if (!join.ok || !roomToken) {
     return (
-      <main className="main">
-        <Link href={`/${locale}/consultations`}>{ar ? "الاستشارات" : "Consultations"}</Link>
-        <h1>{ar ? "خطأ في الاتصال" : "Connection error"}</h1>
-        <p role="alert">{ar ? "تعذر الانضمام للغرفة. يرجى التأكد من الموعد." : "Could not join the room. Please verify the appointment."}</p>
-      </main>
+      <ConsultPage locale={locale} title={c("roomErrorTitle")} backHref={`/${locale}/consultations`}>
+        <ConsultState kind="error" title={c("roomErrorTitle")} body={c("roomErrorBody")} retryLabel={rs("retry")} />
+      </ConsultPage>
     );
   }
   return (
-    <main className="main">
-      <Link href={`/${locale}/consultations`}>{ar ? "الاستشارات" : "Consultations"}</Link>
-      <h1>{ar ? "غرفة الاستشارة" : "Consultation room"}</h1>
+    <ConsultPage locale={locale} title={c("roomTitle")} backHref={`/${locale}/consultations`} width="wide">
       <VideoRoomClient
         token={roomToken}
         room={room}
-        labels={{
-          connecting: ar ? "جاري تحضير غرفة الاستشارة…" : "Preparing the consultation room…",
-          ended: ar ? "انتهت المكالمة" : "Call ended",
-          leave: ar ? "مغادرة" : "Leave",
-          mute: ar ? "كتم" : "Mute",
-          camera: ar ? "الكاميرا" : "Camera",
-        }}
+        labels={{ connecting: c("roomPreparing"), ended: c("callEnded"), leave: c("callLeave"), mute: c("callMute"), camera: c("callCamera") }}
       />
-    </main>
+    </ConsultPage>
   );
 }

@@ -174,6 +174,21 @@ export class PaymentsService {
     }
   }
 
+  /**
+   * Client-facing view of a transaction. The raw gateway payload and the
+   * request idempotency key stay server-side (they can carry PSP card/source
+   * detail and must never reach the browser or app).
+   */
+  private publicTxn(t: any) {
+    if (!t) return t;
+    const o = t.toObject ? t.toObject() : { ...t };
+    delete o.webhook_payload;
+    delete o.idempotency_key;
+    delete o._id;
+    delete o.__v;
+    return o;
+  }
+
   // ── Governed pharmacy orders (pharmacy_orders collection) ─────────────────
   // The broadcast→offer→selection flow stores orders in `pharmacy_orders` with
   // patient_account_id / pricing_snapshot, not in the legacy `orders` collection.
@@ -351,7 +366,7 @@ export class PaymentsService {
     }
     if (amount <= 0) throw new BadRequestException('invalid_amount');
     const existing: any = await this.txns.findOne({ booking_kind: kind, booking_id: id, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
-    if (existing) return existing;
+    if (existing) return this.publicTxn(existing);
 
     // Persist an active reservation before calling the PSP. The partial unique
     // index is the cross-process guard: a second request cannot create another
@@ -362,7 +377,7 @@ export class PaymentsService {
     } catch (error: any) {
       if (error?.code === 11000) {
         const active: any = await this.txns.findOne({ booking_kind: kind, booking_id: id, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
-        if (active) return active;
+        if (active) return this.publicTxn(active);
       }
       throw error;
     }
@@ -387,7 +402,7 @@ export class PaymentsService {
       { $set: { status: 'pending', gateway_intent_id: intent.intent_id, client_secret: intent.client_secret, checkout_url: intent.checkout_url } },
       { new: true },
     );
-    return persisted?.toObject ? persisted.toObject() : persisted;
+    return this.publicTxn(persisted);
   }
 
   async verifyPayment(user: any, transactionId: string) {
@@ -396,6 +411,10 @@ export class PaymentsService {
     // Gateway verification can mutate booking and ledger state. Only the owning
     // patient, an admin, or the signature-authenticated internal webhook path may trigger it.
     this.assertTransactionVerifier(user, t);
+    // Replays (patient re-verify, webhook redelivery) of an already-paid
+    // transaction must not re-run the paid side effects: payment.completed
+    // drives booking confirmation, wallet and ledger listeners.
+    if (t.status === 'paid') return this.publicTxn(t);
     const result = await this.adapter.verify(t.gateway_intent_id);
     t.status = result.status;
     if (result.charge_id) t.gateway_charge_id = result.charge_id;
@@ -438,7 +457,7 @@ export class PaymentsService {
     }
     t.webhook_payload = result.raw;
     await t.save();
-    return t.toObject();
+    return this.publicTxn(t);
   }
 
   async retryPayment(user: any, type: string, id: string, idempotencyKey: string) {
@@ -474,7 +493,7 @@ export class PaymentsService {
     await t.save();
     await this.modelFor(t.booking_kind).updateOne({ id: t.booking_id }, { $set: { payment_status: 'refunded' } });
     this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: t.status });
-    return t.toObject();
+    return this.publicTxn(t);
   }
 
   /**
@@ -512,7 +531,7 @@ export class PaymentsService {
       patient_id: t.patient_id, amount: t.amount, transaction_id: t.id,
     });
     this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: 'paid', booking_id: t.booking_id });
-    return t.toObject();
+    return this.publicTxn(t);
   }
 
   async listForBooking(user: any, type: string, id: string) {
@@ -525,7 +544,7 @@ export class PaymentsService {
     if (booking.patient_id !== user.id && !staffRoles.includes(user.role)) {
       throw new BadRequestException('not_authorized');
     }
-    return this.txns.find({ booking_kind: kind, booking_id: id }).sort({ createdAt: -1 }).lean();
+    return this.txns.find({ booking_kind: kind, booking_id: id }, { webhook_payload: 0, idempotency_key: 0 }).sort({ createdAt: -1 }).lean();
   }
 
   async handleWebhook(provider: string, payload: any, signature?: string, rawBody?: string) {

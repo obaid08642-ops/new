@@ -1,30 +1,253 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../../src/context/AppContext';
-import { lightColors, darkColors } from '../../src/theme/colors';
-import { apiFetch } from '../../src/utils/api';
-import { paymentIntentHeaders } from '../../src/utils/payment-idempotency';
-import { LocalizedText } from '../../src/components/LocalizedText';
-import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import React, { useCallback, useRef, useState } from 'react';
+import { Linking, RefreshControl, Text, View } from 'react-native';
+import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
-type OnlineMethod = 'card' | 'apple-pay' | 'google-pay';
-type Capability = { amount?: number; currency?: string; methods?: Array<{ id?: OnlineMethod }> };
+import { AppHeader, Button, Card, EmptyState, ErrorState, FIcon, OfflineState, Screen, StickyFooter } from '../../../packages/ui-native/src';
+import { AmountRow, Money, Notice } from '../../src/components/pharmacy/OfferKit';
+import { PHARMACY_TONE, goBack } from '../../src/components/pharmacy/PharmacyKit';
+import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { apiFetch, newIdempotencyKey } from '../../src/utils/api';
+import { isOffline } from '../../src/utils/isOffline';
+import { logError } from '../../src/utils/logger';
+import { isPayBlock, noAnswerYet, orderNumber, payBlock, payErrorKey, paymentView, readCapabilities, readIntent, readPayOrder, type Capabilities, type PayBlock, type PayOrder, type PaymentView } from '../../src/utils/pharmacyCheckout';
+import { idemKey, orderIdParam } from '../../src/utils/pharmacyOffers';
 
-function isHttpsCheckout(value: unknown): value is string { try { return typeof value === 'string' && new URL(value).protocol === 'https:'; } catch { return false; } }
+/**
+ * Payment — the CheckoutV2 board's header, order card, totals card and sticky "Pay" bar. What is payable is the server's
+ * decision, never the screen's: GET /payments/pharmacy/:id/capabilities answers the amount due now (the full accepted
+ * quote, or the co-pay the patient accepted) or refuses with a code (accept the final price first, the insurance step is
+ * not done, cash on delivery, ...), and the order's own `payment_status` says whether it is already paid. The amounts are
+ * those numbers as sent, formatted with Intl; nothing is added up here.
+ *
+ * Paying opens the payment provider's hosted page (POST /payments/intent/pharmacy/:id answers its https address); no card
+ * number, CVV or token is entered here, stored, logged or put in an address. Back from that page the result screen asks the
+ * server what happened: this screen never says "paid" on its own. The tap is single-flight (a synchronous guard plus a
+ * disabled control); its idempotency key is sent again by a retry after no answer and replaced after any answer.
+ */
 
 export default function PharmacyPaymentScreen() {
-  const insets = useSafeAreaInsets(); const { isDark, lang } = useApp() as any; const colors = isDark ? darkColors : lightColors; const isRTL = lang === 'ar' || lang === 'ur';
-  const { orderId } = useLocalSearchParams<{ orderId: string }>(); const id = Array.isArray(orderId) ? orderId[0] : orderId;
-  const [order, setOrder] = useState<any>(null); const [capabilities, setCapabilities] = useState<Capability | null>(null); const [loading, setLoading] = useState(true); const [processing, setProcessing] = useState<OnlineMethod | null>(null); const [error, setError] = useState('');
-  const load = useCallback(async () => { if (!id) { setLoading(false); return; } setLoading(true); setError(''); try { const [orderResponse, capResponse] = await Promise.all([apiFetch<any>(`/patient/pharmacy/orders/${id}`), apiFetch<any>(`/payments/pharmacy/${id}/capabilities`)]); setOrder(orderResponse?.data || orderResponse); setCapabilities((capResponse?.data || capResponse) as Capability); } catch (reason: any) { setError(reason?.message || 'تعذر تحميل خيارات الدفع'); } finally { setLoading(false); } }, [id]);
-  useEffect(() => { void load(); }, [load]);
-  const state = order?.governed_state; const amount = Number(capabilities?.amount); const methods = (capabilities?.methods || []).flatMap((method) => method?.id && ['card', 'apple-pay', 'google-pay'].includes(method.id) ? [method.id] : [] as OnlineMethod[]);
-  const payable = ['FINAL_QUOTE_ACCEPTED', 'CO_PAY_PENDING'].includes(state) && Number.isFinite(amount) && amount > 0;
-  async function pay(method: OnlineMethod) { if (!id || processing) return; setProcessing(method); setError(''); try { const txn: any = await apiFetch(`/payments/intent/pharmacy/${id}`, { method: 'POST', headers: paymentIntentHeaders('pharmacy', id), body: JSON.stringify({ method }) }); if (!isHttpsCheckout(txn?.checkout_url)) throw new Error('secure_checkout_redirect_unavailable'); await Linking.openURL(txn.checkout_url); router.replace({ pathname: '/pharmacy/order-tracking', params: { orderId: id } }); } catch (reason: any) { setError(reason?.message || 'تعذر بدء عملية الدفع الآمنة'); } finally { setProcessing(null); } }
-  const label: Record<OnlineMethod, string> = { card: 'بطاقة بنكية', 'apple-pay': 'Apple Pay', 'google-pay': 'Google Pay' };
-  return <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top + 16 }]}><View style={[styles.header, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}><TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.s }]}><LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 26 }}>{isRTL ? 'arrow_forward' : 'arrow_back'}</LocalizedText></TouchableOpacity><LocalizedText style={[styles.title, { color: colors.n }]}>الدفع الآمن</LocalizedText><View style={{ width: 44 }} /></View><ScrollView contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 32 }}><View style={[styles.card, { backgroundColor: colors.s, borderColor: colors.bd }]}>{loading ? <ActivityIndicator color={colors.p} /> : error ? <><LocalizedText style={[styles.heading, { color: colors.n }]}>تعذر تحميل الدفع</LocalizedText><LocalizedText style={{ color: colors.t2 }}>{error}</LocalizedText><TouchableOpacity onPress={() => void load()} style={[styles.retry, { backgroundColor: colors.p }]}><LocalizedText style={styles.primaryText}>تحديث يدوياً</LocalizedText></TouchableOpacity></> : state === 'CONFIRMED' && order?.payment_status === 'covered_by_insurance' ? <><LocalizedText style={[styles.heading, { color: colors.n }]}>التأمين غطى الطلب بالكامل</LocalizedText><LocalizedText style={{ color: colors.t2 }}>لا توجد عملية دفع مطلوبة.</LocalizedText></> : state === 'COD_REGISTERED' ? <><LocalizedText style={[styles.heading, { color: colors.n }]}>الدفع عند الاستلام مسجل</LocalizedText><LocalizedText style={{ color: colors.t2 }}>هذا التزام دفع مؤهل وليس دفعة محصلة داخل التطبيق.</LocalizedText></> : !payable ? <><LocalizedText style={[styles.heading, { color: colors.n }]}>الدفع غير متاح بعد</LocalizedText><LocalizedText style={{ color: colors.t2 }}>يجب قبول السعر النهائي، أو انتظار قرار التأمين وقبول نسبة التحمل أو الدفع الذاتي قبل إنشاء عملية الدفع.</LocalizedText><TouchableOpacity onPress={() => router.replace({ pathname: '/pharmacy/order-tracking', params: { orderId: id } })} style={[styles.retry, { backgroundColor: colors.p }]}><LocalizedText style={styles.primaryText}>العودة لحالة الطلب</LocalizedText></TouchableOpacity></> : <><LocalizedText style={[styles.heading, { color: colors.n }]}>المبلغ المستحق</LocalizedText><LocalizedText style={[styles.amount, { color: colors.n }]}>{amount.toFixed(2)} {capabilities?.currency || 'SAR'}</LocalizedText><LocalizedText style={{ color: colors.t2, textAlign: 'center' }}>تظهر فقط طرق الدفع التي أعلنتها البوابة المهيأة لهذا الطلب والجهاز.</LocalizedText><View style={styles.methods}>{methods.map((method) => <TouchableOpacity key={method} disabled={processing !== null} onPress={() => void pay(method)} style={[styles.method, { backgroundColor: processing === method ? colors.bd : colors.p }]}>{processing === method ? <ActivityIndicator color="#fff" /> : <LocalizedText style={styles.primaryText}>{label[method]}</LocalizedText>}</TouchableOpacity>)}</View>{methods.length === 0 && <LocalizedText style={{ color: colors.t2, textAlign: 'center' }}>لا توجد وسيلة دفع إلكتروني معلنة لهذا الطلب حالياً.</LocalizedText>}<LocalizedText style={[styles.notice, { color: colors.t2 }]}>ستُفتح صفحة دفع آمنة. بعد العودة، حدّث حالة الطلب للتأكد من نجاح الدفع.</LocalizedText></>}</View></ScrollView></View>;
-}
+  const { theme, t, c, dir, flow, k, money } = useScreenUi();
+  const params = useLocalSearchParams<{ orderId?: string | string[]; id?: string | string[] }>();
+  const id = orderIdParam({ orderId: params.orderId ?? params.id });
 
-const styles = StyleSheet.create({ container: { flex: 1 }, header: { alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 16 }, iconButton: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center' }, title: { fontFamily: 'Cairo-Black', fontSize: 18 }, card: { gap: 14, padding: 22, borderRadius: 20, borderWidth: 1, alignItems: 'center' }, heading: { fontFamily: 'Cairo-Bold', fontSize: 17, textAlign: 'center' }, amount: { fontFamily: 'Cairo-Black', fontSize: 38 }, methods: { width: '100%', gap: 10, marginTop: 6 }, method: { alignItems: 'center', borderRadius: 14, paddingVertical: 15 }, retry: { marginTop: 8, borderRadius: 12, paddingHorizontal: 20, paddingVertical: 12 }, primaryText: { color: '#fff', fontFamily: 'Cairo-Bold', fontSize: 14 }, notice: { fontFamily: 'Cairo-Regular', fontSize: 12, lineHeight: 19, textAlign: 'center', marginTop: 4 } });
+  const [order, setOrder] = useState<PayOrder | null>(null);
+  const [view, setView] = useState<PaymentView | null>(null);
+  const [loading, setLoading] = useState(Boolean(id));
+  const [refreshing, setRefreshing] = useState(false);
+  const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
+  const [paying, setPaying] = useState(false);
+  const [problemKey, setProblemKey] = useState<string | null>(null);
+  /** A payment that was started (the server holds its transaction) but whose page did not open: the result screen can ask about it. */
+  const [startedTxn, setStartedTxn] = useState<string | null>(null);
+
+  const busy = useRef(false);
+  const hasData = useRef(false);
+  const payKey = useRef<string | null>(null);
+
+  const load = useCallback(
+    async (mode: 'first' | 'manual') => {
+      if (!id) return;
+      if (mode === 'first') setLoading(true);
+      try {
+        const [orderResult, capsResult] = await Promise.allSettled([apiFetch(`/patient/pharmacy/orders/${id}`), apiFetch(`/payments/pharmacy/${id}/capabilities`)]);
+        if (orderResult.status === 'rejected') throw orderResult.reason;
+        const parsed = readPayOrder(orderResult.value);
+        if (!parsed) throw new Error('order_unreadable');
+        let caps: Capabilities | null = null;
+        let blocked: PayBlock | null = null;
+        let capsFailure: unknown = null;
+        if (capsResult.status === 'fulfilled') caps = readCapabilities(capsResult.value);
+        else if (isPayBlock(capsResult.reason)) blocked = payBlock(capsResult.reason);
+        else capsFailure = capsResult.reason;
+        const next = paymentView(parsed, caps, blocked);
+        // a failure to reach the payment service is not "nothing to pay": it is an error with a retry
+        if (capsFailure && next.kind === 'blocked') throw capsFailure;
+        setOrder(parsed);
+        setView(next);
+        setFailed(null);
+        hasData.current = true;
+      } catch (error) {
+        logError('pharmacy:payment', error);
+        if (!hasData.current) setFailed((await isOffline()) ? 'offline' : 'error');
+        else setProblemKey(payErrorKey(error, 'pharmacy.pay.loadError'));
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    },
+    [id],
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      void load(hasData.current ? 'manual' : 'first');
+    }, [load]),
+  );
+
+  const toTracking = () => router.replace({ pathname: '/pharmacy/order-tracking', params: { orderId: id } });
+  const toResult = (transactionId: string) => router.replace({ pathname: '/payments/result', params: { transactionId, bookingKind: 'pharmacy', bookingId: id } });
+
+  const pay = async () => {
+    if (!id || busy.current || view?.kind !== 'payable') return;
+    busy.current = true;
+    setPaying(true);
+    setProblemKey(null);
+    setStartedTxn(null);
+    if (!payKey.current) payKey.current = idemKey('payment', [id], newIdempotencyKey());
+    try {
+      const response = await apiFetch(`/payments/intent/pharmacy/${id}`, { method: 'POST', headers: { 'Idempotency-Key': payKey.current }, body: JSON.stringify({}) });
+      payKey.current = null;
+      const intent = readIntent(response);
+      if (!intent.transactionId) throw new Error('payment_intent_unreadable');
+      if (!intent.checkoutUrl) {
+        setStartedTxn(intent.transactionId);
+        throw new Error('secure_checkout_redirect_unavailable');
+      }
+      try {
+        await Linking.openURL(intent.checkoutUrl);
+      } catch (error) {
+        setStartedTxn(intent.transactionId);
+        throw new Error(`secure_checkout_redirect_unavailable:${error instanceof Error ? error.name : ''}`);
+      }
+      toResult(intent.transactionId);
+    } catch (error) {
+      logError('pharmacy:payment:pay', error);
+      if (!noAnswerYet(error)) payKey.current = null;
+      setProblemKey(payErrorKey(error));
+    } finally {
+      busy.current = false;
+      setPaying(false);
+    }
+  };
+
+  const header = (
+    <View style={COLUMN}>
+      <AppHeader title={k('pharmacy.pay.title')} onBack={goBack} backLabel={k('pharmacy.back')} theme={theme} direction={dir} />
+    </View>
+  );
+  const state = (node: React.ReactNode) => (
+    <Screen theme={theme} direction={dir} header={header} scroll testID="payment-screen">
+      <View style={{ ...COLUMN, paddingHorizontal: 16, paddingBottom: 32, flexGrow: 1, justifyContent: 'center' }}>{node}</View>
+    </Screen>
+  );
+
+  if (!id) {
+    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('pharmacy.offers.noOrder')} body={k('pharmacy.offers.noOrderBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/pharmacy/order-history' as Href)} theme={theme} />);
+  }
+  if (loading) {
+    return (
+      <Screen theme={theme} direction={dir} header={header} scroll testID="payment-screen">
+        <View accessibilityLabel={k('pharmacy.loading')} accessibilityState={{ busy: true }} style={{ ...COLUMN, paddingHorizontal: 16, gap: 12 }}>
+          <View style={{ height: 80, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} />
+          <View style={{ height: 180, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} />
+        </View>
+      </Screen>
+    );
+  }
+  if (failed === 'offline') {
+    return state(<OfflineState title={k('pharmacy.offline.title')} body={k('pharmacy.offline.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void load('first')} theme={theme} />);
+  }
+  if (failed === 'error' || !order || !view) {
+    return state(<ErrorState title={k('pharmacy.pay.loadError')} body={k('pharmacy.error.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void load('first')} theme={theme} />);
+  }
+
+  if (view.kind === 'paid') {
+    return state(<EmptyState icon="check-circle" tone="mint" title={k('pharmacy.pay.paidTitle')} body={k('pharmacy.pay.paidBody')} actionLabel={k('pharmacy.quote.orderStatus')} onAction={toTracking} theme={theme} />);
+  }
+  if (view.kind === 'covered') {
+    return state(<EmptyState icon="shield-check" tone="blue" title={k('pharmacy.pay.coveredTitle')} body={k('pharmacy.pay.coveredBody')} actionLabel={k('pharmacy.quote.orderStatus')} onAction={toTracking} theme={theme} />);
+  }
+  if (view.kind === 'cod') {
+    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('pharmacy.quote.codTitle')} body={k('pharmacy.quote.codNote')} actionLabel={k('pharmacy.quote.orderStatus')} onAction={toTracking} theme={theme} />);
+  }
+  if (view.kind === 'cancelled') {
+    return state(<EmptyState icon="x-circle" tone="peach" title={k('pharmacy.offers.cancelled')} body={k('pharmacy.pay.cancelledBody')} actionLabel={k('pharmacy.offers.backToPharmacy')} onAction={() => router.replace('/(tabs)/pharmacy' as Href)} theme={theme} />);
+  }
+  if (view.kind === 'blocked') {
+    const where = view.reason === 'acceptQuote' ? { label: k('pharmacy.quote.title'), go: () => router.replace({ pathname: '/pharmacy/final-quote', params: { orderId: id } }) }
+      : view.reason === 'insurance' ? { label: k('pharmacy.ins.title'), go: () => router.replace({ pathname: '/pharmacy/insurance-decision', params: { orderId: id } }) }
+      : view.reason === 'noSelection' ? { label: k('pharmacy.offers.title'), go: () => router.replace({ pathname: '/pharmacy/broadcast-status', params: { orderId: id } }) }
+      : { label: k('pharmacy.quote.orderStatus'), go: toTracking };
+    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k(`pharmacy.pay.blocked.${view.reason === 'notFound' ? 'other' : view.reason}.title`)} body={k(`pharmacy.pay.blocked.${view.reason === 'notFound' ? 'other' : view.reason}.body`)} actionLabel={where.label} onAction={where.go} theme={theme} />);
+  }
+  if (view.kind === 'noMethods') {
+    return state(<EmptyState icon="credit-card" tone="amber" title={k('pharmacy.pay.noMethodsTitle')} body={k('pharmacy.pay.noMethodsBody')} actionLabel={k('pharmacy.retry')} onAction={() => void load('first')} secondaryActionLabel={k('pharmacy.quote.orderStatus')} onSecondaryAction={toTracking} theme={theme} />);
+  }
+
+  const totals = { ...order.totals, currency: view.currency ?? order.totals.currency };
+  const symbol = !totals.currency || totals.currency === 'SAR' ? k('pharmacy.currency') : totals.currency;
+  const fee = totals.deliveryFee !== null && totals.deliveryFee > 0 ? totals.deliveryFee : null;
+  const insurance = order.insurance && order.insurance.accepted === 'co-pay' ? order.insurance : null;
+  const addressLine = order.address?.line ?? order.address?.label ?? null;
+  const orderLine = order.fulfillment === 'pickup' ? k('pharmacy.pay.pickup') : addressLine ? k('pharmacy.pay.deliverTo', { address: addressLine }) : null;
+
+  const footer = (
+    <StickyFooter theme={theme} direction={dir} testID="payment-bar">
+      <View style={{ ...COLUMN, gap: 10 }}>
+        {problemKey ? (
+          <Notice
+            tone="danger"
+            text={k(problemKey)}
+            actionLabel={startedTxn ? k('pharmacy.pay.checkStatus') : undefined}
+            onAction={startedTxn ? () => toResult(startedTxn) : undefined}
+          />
+        ) : null}
+        <Button label={k('pharmacy.pay.pay', { amount: `${money(view.amount)} ${symbol}` })} size="lg" fullWidth loading={paying} disabled={paying} onPress={() => void pay()} testID="payment-pay" theme={theme} />
+      </View>
+    </StickyFooter>
+  );
+
+  return (
+    <Screen
+      theme={theme}
+      direction={dir}
+      header={header}
+      footer={footer}
+      scroll
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void load('manual'); }} tintColor={c.text.primary} />}
+      testID="payment-screen"
+    >
+      <View style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 32, gap: 16 }}>
+        <Card theme={theme}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <FIcon icon="storefront" tone={PHARMACY_TONE} chip="soft" size={44} theme={theme} />
+            <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+              <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{k('pharmacy.pay.order', { id: orderNumber(order.id) })}</Text>
+              {orderLine ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{orderLine}</Text> : null}
+            </View>
+          </View>
+        </Card>
+
+        {insurance ? (
+          <Card theme={theme}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <FIcon icon="shield-check" tone="blue" chip="soft" size={44} theme={theme} />
+              <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{k('pharmacy.ins.acceptedTitle')}</Text>
+                <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('pharmacy.ins.optCopayBody')}</Text>
+              </View>
+            </View>
+          </Card>
+        ) : null}
+
+        <Card theme={theme}>
+          <View style={{ gap: 12 }}>
+            {totals.subtotal !== null ? <AmountRow label={k('pharmacy.quote.subtotal')} totals={totals} amount={totals.subtotal} /> : null}
+            {fee !== null ? <AmountRow label={k('pharmacy.quote.delivery')} totals={totals} amount={fee} /> : null}
+            {insurance && insurance.insurerShare !== null && insurance.insurerShare > 0 ? <AmountRow label={k('pharmacy.pay.insurerCovers')} totals={totals} amount={insurance.insurerShare} /> : null}
+            <View style={{ height: 1, backgroundColor: c.border.subtle }} />
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+              <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{k('pharmacy.pay.dueNow')}</Text>
+              <Money amount={view.amount} currency={totals.currency} size="h4" />
+            </View>
+          </View>
+        </Card>
+
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
+          <FIcon icon="lock" tone="ink" chip="soft" size={32} theme={theme} />
+          <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'meta', 'regular'), lineHeight: 21, color: c.text.secondary, ...flow }}>{k('pharmacy.pay.secureNote')}</Text>
+        </View>
+      </View>
+    </Screen>
+  );
+}

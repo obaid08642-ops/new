@@ -9,6 +9,7 @@ import { NabdMark } from "@/components-next/nabd-mark";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { getStableDeviceId } from "@/lib/auth/device-id";
+import { announceSignedIn } from "@/lib/auth/session-identity";
 import { getDirection, type Locale } from "@/lib/i18n";
 import styles from "./auth/auth.module.css";
 
@@ -24,6 +25,7 @@ export function AuthWelcome({ locale }: { locale: Locale }) {
       const deviceId = getStableDeviceId();
       const res = await fetch("/api/auth/guest", { method: "POST", headers: { "content-type": "application/json", "x-nabd-device-id": deviceId } });
       if (!res.ok) throw new Error("guest_failed");
+      announceSignedIn();
       router.push(`/${locale}`);
     } catch {
       router.push(`/${locale}/login?guest=blocked`);

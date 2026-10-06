@@ -3,11 +3,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({ getPatientChatThreads: vi.fn(), requirePatientAccess: vi.fn() }));
 
-vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn() }));
+vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn(), useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }) }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
 vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatientAccess }));
 vi.mock("@/lib/api/chat-server", () => ({ getPatientChatThreads: state.getPatientChatThreads }));
+
+vi.mock("@/components-next/core/core-shell", async () => {
+  const { createElement } = await import("react");
+  return { CoreShell: ({ children, backHref }: { children: unknown; backHref?: string }) => createElement("div", { "data-shell": true }, createElement("a", { href: backHref }, "back"), children as never) };
+});
 
 import ChatPage from "./page";
 

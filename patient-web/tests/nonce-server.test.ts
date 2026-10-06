@@ -1,8 +1,10 @@
-// F82-3: the nonce server in front of the static/ISR public pages (server/nonce-server.mjs).
+// F82-3: the nonce server in front of the static/ISR public pages (server/nonce-server.mjs), and its compression (F68
+// follow-up, #293 review: assets keep their own compression, the documents it rewrites are compressed here).
 import http from "node:http";
 import type { AddressInfo } from "node:net";
 import { afterEach, describe, expect, it } from "vitest";
-import { handler, EDGE_STAMP_HEADER } from "../server/nonce-server.mjs";
+import zlib from "node:zlib";
+import { handler, pickEncoding, EDGE_STAMP_HEADER } from "../server/nonce-server.mjs";
 import { CSP_INJECT_HEADER, CSP_NONCE_PLACEHOLDER, contentSecurityPolicy } from "../lib/security/csp";
 import { UNAVAILABLE_FALLBACK_HEADER } from "../lib/security/query-twin";
 
@@ -144,46 +146,122 @@ describe("edge mode (NABD_EDGE_STAMP_TOKEN)", () => {
   });
 });
 
-// Compression: the app answers a page uncompressed (this server may rewrite it), so pages are compressed here; assets keep
-// their own Accept-Encoding and Next's compression passes through. (Nginx in production compresses what is not yet compressed.)
+// Compression: the app answers a document uncompressed (this server may rewrite it), so documents are compressed here, br or
+// gzip by the client's Accept-Encoding; assets, images, RSC and JSON keep their own Accept-Encoding and Next's compression
+// passes through untouched. (Nginx in production compresses what is not yet compressed.)
 describe("compression on the way out", () => {
+  const ASSET = "console.log('chunk');".repeat(200);
+  const BODY = '<html><head><script>self.__next_f=[]</script></head><body><p>hello</p></body></html>';
   const raw = (url: string, headers: Record<string, string>) => new Promise<{ status: number; headers: http.IncomingHttpHeaders; body: Buffer }>((resolve, reject) => {
     http.get(url, { headers }, (res) => { const chunks: Buffer[] = []; res.on("data", (c) => chunks.push(c)); res.on("end", () => resolve({ status: res.statusCode || 0, headers: res.headers, body: Buffer.concat(chunks) })); }).on("error", reject);
   });
-  const big = `<html><head><script>self.__next_f=[]</script></head><body>${"<p>public page</p>".repeat(2000)}</body></html>`;
+  // /_next/ answers like Next (compressing when asked), /ar is a public page the proxy marked, anything else a private page.
+  const app: http.RequestListener = (req, res) => {
+    if ((req.url || "").startsWith("/_next/")) {
+      const gz = /gzip/.test(String(req.headers["accept-encoding"] || ""));
+      res.writeHead(200, { "content-type": "application/javascript", ...(gz ? { "content-encoding": "gzip" } : {}) });
+      res.end(gz ? zlib.gzipSync(ASSET) : ASSET);
+      return;
+    }
+    html(res, 200, BODY, req.url === "/ar" ? {} : { [CSP_INJECT_HEADER]: "" });
+  };
+  const privatePage: http.RequestListener = (_req, res) => {
+    res.writeHead(200, { "content-type": "text/html; charset=utf-8", "content-security-policy": PLACEHOLDER_POLICY });
+    res.end(BODY);
+  };
 
-  it("gzips a stamped page for a client that accepts it, and the stamp survives the round trip", async () => {
-    const { gunzipSync } = await import("node:zlib");
-    const { base, seen } = await start((_req, res) => html(res, 200, big, { "cache-control": "s-maxage=60" }));
-    const r = await raw(`${base}/ar`, { "accept-encoding": "gzip, br", accept: "text/html" });
+  it("picks br, then gzip, else none", () => {
+    expect(pickEncoding("gzip, deflate, br")).toBe("br");
+    expect(pickEncoding("gzip")).toBe("gzip");
+    expect(pickEncoding("identity")).toBeNull();
+    expect(pickEncoding(undefined)).toBeNull();
+  });
+
+  it("assets keep the app's compression (Accept-Encoding forwarded, body passed through)", async () => {
+    const { base, seen } = await start(app);
+    const r = await raw(`${base}/_next/static/chunks/a.js`, { "accept-encoding": "gzip" });
     expect(r.headers["content-encoding"]).toBe("gzip");
+    expect(zlib.gunzipSync(r.body).toString()).toBe(ASSET);
+    expect(seen.at(-1)?.headers["accept-encoding"]).toBe("gzip");
+  });
+
+  it("a stamped public document goes out compressed, with the fresh nonce inside", async () => {
+    const { base, seen } = await start(app);
+    const r = await raw(`${base}/ar`, { accept: "text/html", "accept-encoding": "br, gzip" });
+    expect(seen.at(-1)?.headers["accept-encoding"]).toBeUndefined(); // the app answers documents uncompressed
+    expect(r.headers["content-encoding"]).toBe("br");
     expect(r.headers.vary).toContain("Accept-Encoding");
     expect(r.headers["content-length"]).toBeUndefined();
-    const text = gunzipSync(r.body).toString("utf8");
-    expect(text).toContain("<p>public page</p>");
+    const text = zlib.brotliDecompressSync(r.body).toString();
+    const nonce = /'nonce-([^']+)'/.exec(String(r.headers["content-security-policy"]))?.[1];
+    expect(nonce).toBeTruthy();
+    expect(nonce).not.toBe(CSP_NONCE_PLACEHOLDER);
+    expect(text).toContain(`<script nonce="${nonce}">`);
+  });
+
+  it("gzips a big stamped page for a client that accepts only gzip, and the stamp survives the round trip", async () => {
+    const big = `<html><head><script>self.__next_f=[]</script></head><body>${"<p>public page</p>".repeat(2000)}</body></html>`;
+    const { base } = await start((_req, res) => html(res, 200, big, { "cache-control": "s-maxage=60" }));
+    const r = await raw(`${base}/ar`, { "accept-encoding": "gzip", accept: "text/html" });
+    expect(r.headers["content-encoding"]).toBe("gzip");
+    const text = zlib.gunzipSync(r.body).toString("utf8");
     expect(text).toMatch(/<script nonce="[^"]+">self\.__next_f=\[\]<\/script>/);
     expect(r.body.length).toBeLessThan(text.length / 5);
-    expect(seen[0].headers["accept-encoding"]).toBeUndefined(); // the app answers pages uncompressed
   });
 
-  it("sends a page as it is to a client that does not accept gzip", async () => {
-    const { base } = await start((_req, res) => html(res, 200, big));
-    const r = await raw(`${base}/ar`, { "accept-encoding": "identity" });
-    expect(r.headers["content-encoding"]).toBeUndefined();
-    expect(r.body.toString("utf8")).toContain("<p>public page</p>");
-  });
-
-  it("keeps the Accept-Encoding of a hashed asset and passes Next's own compression through untouched", async () => {
-    const { gzipSync } = await import("node:zlib");
-    const payload = gzipSync("a".repeat(5000));
-    const { base, seen } = await start((req, res) => {
-      res.writeHead(200, { "content-type": "application/javascript", "content-encoding": req.headers["accept-encoding"] ? "gzip" : "identity" });
-      res.end(payload);
-    });
-    const r = await raw(`${base}/_next/static/chunks/app.js`, { "accept-encoding": "gzip" });
-    expect(seen[0].headers["accept-encoding"]).toBe("gzip");
+  it("a private document is compressed too and left unchanged", async () => {
+    const { base } = await start(privatePage);
+    const r = await raw(`${base}/ar/dashboard`, { accept: "text/html", "accept-encoding": "gzip" });
     expect(r.headers["content-encoding"]).toBe("gzip");
-    expect(r.body.equals(payload)).toBe(true);
+    expect(zlib.gunzipSync(r.body).toString()).toBe(BODY);
+  });
+
+  it("a client that accepts no compression gets plain HTML", async () => {
+    const { base } = await start(privatePage);
+    const r = await raw(`${base}/ar/dashboard`, { accept: "text/html", "accept-encoding": "identity" });
+    expect(r.headers["content-encoding"]).toBeUndefined();
+    expect(r.body.toString()).toBe(BODY);
+  });
+
+  it("the unavailable page (503) is compressed like any document, and a trusted edge gets a compressed unstamped page", async () => {
+    const failing: http.RequestListener = (req, res) => {
+      if (req.headers[UNAVAILABLE_FALLBACK_HEADER] === "1") return html(res, 200, FALLBACK_PAGE, { "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate" });
+      res.writeHead(500, { "content-type": "text/plain", [CSP_INJECT_HEADER]: "1" });
+      res.end("Internal Server Error");
+    };
+    const a = await start(failing);
+    const r = await raw(`${a.base}/ar/c`, { accept: "text/html", "accept-encoding": "gzip" });
+    expect(r.status).toBe(503);
+    expect(r.headers["content-encoding"]).toBe("gzip");
+    expect(zlib.gunzipSync(r.body).toString()).toContain("unavailable");
+
+    const b = await start((_req, res) => html(res, 200, PAGE, { "cache-control": "s-maxage=60" }), { edgeToken: "s3cret" });
+    const e = await raw(`${b.base}/ar`, { accept: "text/html", "accept-encoding": "gzip", [EDGE_STAMP_HEADER]: "s3cret" });
+    expect(e.headers["content-encoding"]).toBe("gzip");
+    expect(zlib.gunzipSync(e.body).toString()).toBe(PAGE);
+    expect(e.headers["content-security-policy"]).toContain(`'nonce-${CSP_NONCE_PLACEHOLDER}'`);
+  });
+
+  it("a request that sends Accept: */* (a crawler, a script) for a marked page gets a page this server could stamp, never Next's compressed bytes", async () => {
+    // Next compresses a response when the request asks for it; stamping those bytes as text would corrupt the page.
+    const seenAcceptEncoding: Array<string | undefined> = [];
+    const { base } = await start((req, res) => {
+      seenAcceptEncoding.push(req.headers["accept-encoding"] as string | undefined);
+      const gz = /gzip/.test(String(req.headers["accept-encoding"] || ""));
+      res.writeHead(200, { "content-type": "text/html; charset=utf-8", "content-security-policy": PLACEHOLDER_POLICY, [CSP_INJECT_HEADER]: "1", ...(gz ? { "content-encoding": "gzip" } : {}) });
+      res.end(gz ? zlib.gzipSync(BODY) : BODY);
+    });
+    const r = await raw(`${base}/ar`, { accept: "*/*", "accept-encoding": "gzip" });
+    expect(seenAcceptEncoding).toEqual([undefined]);
+    const text = zlib.gunzipSync(r.body).toString();
+    expect(text).toContain(`<script nonce="${/'nonce-([^']+)'/.exec(String(r.headers["content-security-policy"]))?.[1]}">`);
+  });
+
+  it("an RSC or JSON request keeps its Accept-Encoding", async () => {
+    const { base, seen } = await start((_req, res) => { res.writeHead(200, { "content-type": "text/x-component" }); res.end("1:x"); });
+    await raw(`${base}/ar/c`, { accept: "text/x-component", rsc: "1", "accept-encoding": "gzip" });
+    await raw(`${base}/ar/c`, { accept: "application/json", "accept-encoding": "gzip" });
+    expect(seen.map((s) => s.headers["accept-encoding"])).toEqual(["gzip", "gzip"]);
   });
 
   it("leaves non-text answers alone", async () => {

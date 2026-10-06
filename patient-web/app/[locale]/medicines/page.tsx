@@ -1,53 +1,109 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractMedicineRows, parseMedicineSearch } from "@/lib/api/medicines";
 import { getPublicMedicines } from "@/lib/api/public-medicines-server";
-import { isLocale } from "@/lib/i18n";
-import { RetryButton } from "@/components-next/retry-button";
-import { ArrowUpLeft, Pill, Search, ShieldCheck } from "lucide-react";
-import styles from "../medicine-catalog/medicine-catalog.module.css";
+import { getDirection, isLocale } from "@/lib/i18n";
+import { CoreShell } from "@/components-next/core/core-shell";
+import { RetryErrorState } from "@/components-next/core/core-states";
+import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { StatusChip } from "@/components-next/ui-generated/components/Controls";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
+import { CatalogSearch } from "@/components-next/pharmacy/catalog-search";
+import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
+import styles from "@/components-next/pharmacy/pharmacy.module.css";
 
-type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ q?: string | string[]; page?: string | string[] }> };
+type Props = {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ q?: string | string[]; page?: string | string[]; category?: string | string[]; sort?: string | string[] }>;
+};
+
+const PAGE_SIZE = 24;
 
 export default async function MedicinesPage({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("Medicines");
+  const b = await getTranslations("PharmacyBrowse");
+  const routeState = await getTranslations("RouteState");
   const search = parseMedicineSearch(await searchParams);
   // F29: public SSR — no login gate; personalization happens client-side only.
   const response = await getPublicMedicines(search);
-  if (!response) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><span className={styles.stateIcon}><Pill size={24} aria-hidden="true" /></span><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><RetryButton /></section></main>;
+  const back = `/${locale}/pharmacy`;
+  const unavailable = (
+    <CoreShell locale={locale} title={t("title")} backHref={back}>
+      <div className={styles.state}><RetryErrorState title={t("unavailableTitle")} body={t("unavailableBody")} retryLabel={routeState("retry")} /></div>
+    </CoreShell>
+  );
+  if (!response) return unavailable;
   if (response.status === 404) notFound();
-  if (!response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><span className={styles.stateIcon}><Pill size={24} aria-hidden="true" /></span><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><RetryButton /></section></main>;
+  if (!response.ok) return unavailable;
 
   const medicines = extractMedicineRows(await response.json().catch(() => null));
   const nameForLocale = (medicine: typeof medicines[number]) => locale === "ar" ? medicine.nameAr || medicine.nameEn || t("untitled") : medicine.nameEn || medicine.nameAr || t("untitled");
-  return <main className={`main ${styles.page}`}>
-    <section className={styles.hero}>
-      <div>
-        <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
-        <h1>{t("title")}</h1>
+  const caret = getDirection(locale) === "rtl" ? "caret-left" : "caret-right";
+  // the list carries no total: another page exists when this one is full
+  const pageHref = (page: number) => {
+    const params = new URLSearchParams();
+    if (search.q) params.set("q", search.q);
+    if (search.category) params.set("category", search.category);
+    if (search.sort) params.set("sort", search.sort);
+    params.set("page", String(page));
+    return `/${locale}/medicines?${params.toString()}`;
+  };
+
+  return (
+    <CoreShell locale={locale} title={t("title")} backHref={back}>
+      <div className={styles.page}>
+        <div className={styles.head}>
+          <h1 className={styles.title}>{t("title")}</h1>
+        </div>
+        <div className={styles.searchWrap}>
+          <CatalogSearch locale={locale} target="medicines" initial={search.q || ""} />
+        </div>
+        {medicines.length === 0 ? (
+          <div className={styles.state}>
+            <EmptyState icon="pill" tone={PHARMACY_TONE} title={b("emptyTitle")} body={t("empty")} />
+          </div>
+        ) : (
+          <ul className={styles.rows} aria-label={t("title")}>
+            {medicines.map((medicine) => {
+              const detail = [medicine.form, medicine.strength].filter(Boolean).join(" · ");
+              return (
+                <li key={medicine.id}>
+                  <Link className={styles.row} href={`/${locale}/medicines/${medicine.id}`}>
+                    <span className={styles.rowMedia}><FIcon icon="pill" tone={PHARMACY_TONE} size={48} /></span>
+                    <span className={styles.rowBody}>
+                      <span className={styles.rowName}>{nameForLocale(medicine)}</span>
+                      {medicine.activeIngredient ? <span className={styles.rowSub}>{medicine.activeIngredient}</span> : null}
+                      {detail ? <span className={styles.rowSub}>{detail}</span> : null}
+                      {medicine.requiresPrescription === true ? <StatusChip label={t("prescriptionRequired")} tone="amber" /> : null}
+                    </span>
+                    <span className={styles.rowEnd}><Icon name={caret} size={16} tone="secondary" /></span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        {search.page > 1 || medicines.length >= PAGE_SIZE ? (
+          <nav className={styles.pager} aria-label={b("pagination")}>
+            {search.page > 1 ? (
+              <Link rel="prev" href={pageHref(search.page - 1)} className={`nabd-button nabd-button--outline nabd-button--md ${styles.linkButton}`}>
+                <span className="nabd-button__label">{b("previous")}</span>
+              </Link>
+            ) : null}
+            <span className={styles.pagerInfo}>{b("pageNumber", { page: search.page })}</span>
+            {medicines.length >= PAGE_SIZE ? (
+              <Link rel="next" href={pageHref(search.page + 1)} className={`nabd-button nabd-button--outline nabd-button--md ${styles.linkButton}`}>
+                <span className="nabd-button__label">{b("next")}</span>
+              </Link>
+            ) : null}
+          </nav>
+        ) : null}
       </div>
-      <span className={styles.heroIcon}><Pill size={27} aria-hidden="true" /></span>
-    </section>
-    <form className={styles.search} action={`/${locale}/medicines`} method="get">
-      <label className={styles.field}>
-        <span>{t("searchLabel")}</span>
-        <span className={styles.fieldInput}><Search size={18} aria-hidden="true" /><input name="q" maxLength={80} defaultValue={search.q} autoComplete="off" /></span>
-      </label>
-      <button className={`button button-primary ${styles.submit}`} type="submit"><Search size={17} aria-hidden="true" />{t("search")}</button>
-    </form>
-    {medicines.length === 0 ? <section className={styles.state}><span className={styles.stateIcon}><Pill size={24} aria-hidden="true" /></span><p>{t("empty")}</p></section> : <section className={styles.grid} aria-label={t("title")}>
-      {medicines.map((medicine) => <Link className={styles.card} key={medicine.id} href={`/${locale}/medicines/${medicine.id}`}>
-        <span className={styles.cardTop}><span className={styles.medicineIcon}><Pill size={20} aria-hidden="true" /></span><ArrowUpLeft className={styles.openIcon} size={17} aria-hidden="true" /></span>
-        <strong className={styles.name}>{nameForLocale(medicine)}</strong>
-        {medicine.activeIngredient ? <span className={styles.detail}>{medicine.activeIngredient}</span> : null}
-        {medicine.form || medicine.strength ? <span className={styles.detail}>{[medicine.form, medicine.strength].filter(Boolean).join(" · ")}</span> : null}
-        {medicine.requiresPrescription === true ? <span className={styles.prescription}><ShieldCheck size={13} aria-hidden="true" />{t("prescriptionRequired")}</span> : null}
-        <span className={styles.open}>{t("open")}<ArrowUpLeft size={14} aria-hidden="true" /></span>
-      </Link>)}
-    </section>}
-  </main>;
+    </CoreShell>
+  );
 }
