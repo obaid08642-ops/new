@@ -15,6 +15,14 @@ import { ProductRankingService } from '../product-ranking/product-ranking.servic
 import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
 import { buildSlug, escapeRegex } from '../../common/slug.util';
 
+
+/** e64ec70: an edit waiting for an approver (admin-only; never on a public read). */
+interface PendingRevision {
+  changes: Record<string, unknown>;
+  submitted_by: string;
+  submitted_at: Date;
+  reason?: string;
+}
 @Injectable()
 export class MedicinesService {
   /** Search/list cache TTL — medicine catalog changes are rare, reads are hot. */
@@ -1000,7 +1008,7 @@ export class MedicinesService {
     return { aggregate_stock: row.total || 0, pharmacies_count: row.n || 0, in_stock: (row.total || 0) > 0 };
   }
 
-async alternatives(id: string) {
+  async alternatives(id: string) {
     const med: any = await this.getPublicById(id);
     if (!med.active_ingredient) return [];
     return this.model.find(
@@ -1866,15 +1874,15 @@ async alternatives(id: string) {
     // decision. Approve applies the proposed changes and publishes them (price
     // history records the old→new price); reject discards the revision and the
     // approved version stays public untouched.
-    const pending = med.pending_revision && typeof med.pending_revision === 'object' && med.pending_revision.changes
-      ? med.pending_revision
+    const pending: PendingRevision | null = med.pending_revision && typeof med.pending_revision === 'object' && med.pending_revision.changes
+      ? (med.pending_revision as PendingRevision)
       : null;
     if (pending) {
       // Re-derive the patch the same way a direct edit does, so a revision can
       // only ever write what an admin edit could (whitelisted fields, allowlisted
       // availability_status, slug recomputed from the rename, merged translations).
-      const { clean, extra } = this.adminCatalogPatch(med, (pending as any)?.changes || {});
-      const changes: any = { ...clean, ...extra };
+      const { clean, extra } = this.adminCatalogPatch(med, pending.changes || {});
+      const changes: Record<string, unknown> = { ...clean, ...extra };
       if (approve) {
         const reviewedAt = new Date();
         await this.model.updateOne(
@@ -1882,7 +1890,7 @@ async alternatives(id: string) {
           { $set: { ...changes, pending_revision: null, verified: true, public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved', last_reviewed: reviewedAt, approved_by: adminId, approved_at: reviewedAt, provenance: 'admin_pending_revision_approved', updatedAt: new Date() } },
         );
         if (changes.price !== undefined && Number(changes.price) !== Number(med.price || 0)) {
-          await this.priceHistory.insertOne({ id: `mph_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: medicineId, before_price: Number(med.price || 0), after_price: Number(changes.price), reason: String((pending as any)?.reason || 'pending_revision_approved').trim(), changed_by: adminId, createdAt: new Date() });
+          await this.priceHistory.insertOne({ id: `mph_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: medicineId, before_price: Number(med.price || 0), after_price: Number(changes.price), reason: String(pending?.reason || 'pending_revision_approved').trim(), changed_by: adminId, createdAt: new Date() });
         }
         this.events.emit(EVENTS.MEDICINE_APPROVED, { medicine_id: medicineId, by: adminId });
         // The applied revision renames/removes the same things a direct edit does,
@@ -1890,13 +1898,13 @@ async alternatives(id: string) {
         if (changes.slug) await this.recordSlugHistory(medicineId, med.slug, changes.slug);
         for (const url of this.removedImageUrls(med, changes)) this.events.emit('storage.delete_by_url', { url });
         await this.refreshPublicProjection({ ...med, ...changes, pending_revision: null, verified: true, public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved', last_reviewed: reviewedAt }, adminId, 'medicine_pending_revision_approved');
-        this.audit('medicine.pending_revision_approved', medicineId, adminId, 'admin', { applied: changes, submitted_by: (pending as any)?.submitted_by || null });
+        this.audit('medicine.pending_revision_approved', medicineId, adminId, 'admin', { applied: changes, submitted_by: pending?.submitted_by || null });
         await this.invalidateCache();
         return { ok: true, id: medicineId, medical_review_status: 'approved', pending_revision: null };
       }
       // Reject: discard the proposed changes; the approved version stays public.
       await this.model.updateOne({ id: medicineId }, { $set: { pending_revision: null, updatedAt: new Date() } });
-      this.audit('medicine.pending_revision_discarded', medicineId, adminId, 'admin', { discarded: changes, submitted_by: (pending as any)?.submitted_by || null });
+      this.audit('medicine.pending_revision_discarded', medicineId, adminId, 'admin', { discarded: changes, submitted_by: pending?.submitted_by || null });
       return { ok: true, id: medicineId, medical_review_status: med.medical_review_status, pending_revision: null };
     }
     // Q60: the public catalog/search/detail filter requires indexing_eligibility:true,
@@ -2043,12 +2051,12 @@ async alternatives(id: string) {
     // A second edit before the decision joins the same pending revision
     // instead of stacking a second one.
     if (wasPublic && !canPublish) {
-      const existingPending = med.pending_revision && typeof med.pending_revision === 'object' ? med.pending_revision : null;
-      const changes = { ...(((existingPending as any)?.changes) || {}), ...clean, ...extra };
-      const pending_revision: Record<string, unknown> = {
+      const existingPending: PendingRevision | null = med.pending_revision && typeof med.pending_revision === 'object' ? (med.pending_revision as PendingRevision) : null;
+      const changes = { ...(existingPending?.changes || {}), ...clean, ...extra };
+      const pending_revision: PendingRevision = {
         changes,
-        submitted_by: (existingPending as any)?.submitted_by || adminId,
-        submitted_at: (existingPending as any)?.submitted_at || new Date(),
+        submitted_by: existingPending?.submitted_by || adminId,
+        submitted_at: existingPending?.submitted_at || new Date(),
       };
       const priceReason = String(patch?.reason || '').trim();
       if (priceReason) pending_revision.reason = priceReason;
