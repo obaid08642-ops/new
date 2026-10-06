@@ -1,208 +1,81 @@
-import Link from "next/link";
+import type { ReactNode } from "react";
 import { notFound, redirect } from "next/navigation";
-import { Activity, CalendarDays, ChevronLeft, Moon, ShieldCheck } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPatientSleepReadings } from "@/lib/api/sleep-server";
-import { parseSleepReadings } from "@/lib/api/sleep";
+import { parseSleepReadings, type SleepReading } from "@/lib/api/sleep";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { RetryButton } from "@/components-next/retry-button";
-import { VectorHealthShield } from "@/components-next/vector-illustrations";
-import styles from "../health.module.css";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { LocalTimeLine } from "@/components-next/consult/local-time-line";
+import { Notice } from "@/components-next/consult/consult-parts";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { RowsCard, SectionHead } from "@/components-next/health/health-kit";
+import rx from "@/components-next/pharmacy/rx.module.css";
+import styles from "@/components-next/health/health.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
 
+const when = (reading: SleepReading) => (reading.measuredAt ? new Date(reading.measuredAt).getTime() : 0);
+
+/**
+ * Sleep (merge map, section 1; restyled on the health template): the last night's score and hours as the lead card, then
+ * every saved reading (GET /health/sleep). The web has no way to add a night (the old page was read-only too): see Needs review.
+ */
 export default async function SleepPage({ params }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  const t = await getTranslations("Sleep");
+  const t = await getTranslations("HealthWeb");
+  const rs = await getTranslations("RouteState");
   const token = await requirePatientAccess(locale);
+  const frame = (body: ReactNode) => <ConsultPage locale={locale} title={t("sleepTitle")} backHref={`/${locale}/health`}>{body}</ConsultPage>;
+
   let response: Response;
-  try {
-    response = await getPatientSleepReadings(token);
-  } catch {
-    return (
-      <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
-        <section
-          className={styles.state}
-          role="alert"
-          style={{ border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: 24, gap: 16 } as any}
-        >
-          <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE" } as any}>
-            <VectorHealthShield size={48} aria-hidden="true" />
-          </span>
-          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" } as any}>
-            {t("unavailableTitle")}
-          </h1>
-          <p style={{ color: "#6B7C6E", overflowWrap: "anywhere" } as any}>{t("unavailable")}</p>
-          <RetryButton />
-        </section>
-      </main>
-    );
-  }
+  try { response = await getPatientSleepReadings(token); } catch { response = new Response(null, { status: 503 }); }
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
-  if (!response.ok)
-    return (
-      <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
-        <section
-          className={styles.state}
-          role="alert"
-          style={{ border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: 24, gap: 16 } as any}
-        >
-          <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE" } as any}>
-            <VectorHealthShield size={48} aria-hidden="true" />
-          </span>
-          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" } as any}>
-            {t("unavailableTitle")}
-          </h1>
-          <p style={{ color: "#6B7C6E", overflowWrap: "anywhere" } as any}>{t("unavailable")}</p>
-          <RetryButton />
-        </section>
-      </main>
-    );
+  if (!response.ok) return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
 
-  const readings = parseSleepReadings(await response.json().catch(() => null));
+  const readings = parseSleepReadings(await response.json().catch(() => null)).sort((a, b) => when(b) - when(a));
+  if (readings.length === 0) return frame(<ConsultState kind="empty" icon="moon" title={t("sleepTitle")} body={t("sleepEmpty")} />);
+  const last = readings[0];
 
-  return (
-    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
-      <Link
-        className={styles.back}
-        href={`/${locale}/health`}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 8,
-          padding: "10px 20px",
-          borderRadius: 20,
-          border: "1px solid #E8EDEE",
-          background: "#5FD9B3",
-          color: "#1E332E",
-          fontWeight: 700,
-          textDecoration: "none",
-          width: "fit-content",
-          overflowWrap: "anywhere",
-        } as any}
-      >
-        <ChevronLeft size={16} aria-hidden="true" />
-        {t("back")}
-      </Link>
-      <section
-        className={styles.hero}
-        style={{
-          gap: 16,
-          padding: 24,
-          border: "1px solid #E8EDEE",
-          borderRadius: 20,
-          background: "rgba(255,255,255,.82)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-        } as any}
-      >
-        <div style={{ display: "grid", gap: 8, minWidth: 0 }}>
-          <p className={styles.eyebrow} style={{ color: "#1E332E", display: "flex", alignItems: "center", gap: 8, overflowWrap: "anywhere" } as any}>
-            <Moon size={15} aria-hidden="true" />
-            <span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" } as any}>
-              {t("eyebrow")}
-            </span>
-          </p>
-          <h1
-            style={{
-              color: "#1E332E",
-              overflowWrap: "anywhere",
-              display: "-webkit-box",
-              WebkitLineClamp: 2 as any,
-              WebkitBoxOrient: "vertical" as any,
-              overflow: "hidden",
-            } as any}
-          >
-            {t("title")}
-          </h1>
+  return frame(
+    <>
+      <section className={rx.card} aria-labelledby="sleep-last">
+        <div className={styles.score}>
+          <FIcon icon="moon" tone="violet" size={52} />
+          <div className={styles.scoreBody}>
+            <h2 id="sleep-last" className={styles.sectionTitle}>{t("sleepLast")}</h2>
+            {last.measuredAt ? <span className={rx.cardLabel}><LocalTimeLine iso={last.measuredAt} locale={locale} /></span> : null}
+          </div>
+          <p className={styles.scoreValue}>{last.score ?? "—"}</p>
         </div>
-        <span
-          style={{
-            display: "grid",
-            placeItems: "center",
-            width: 48,
-            height: 48,
-            borderRadius: 16,
-            background: "rgba(95,217,179,.12)",
-            border: "1px solid #E8EDEE",
-            flex: "0 0 auto",
-          } as any}
-        >
-          <VectorHealthShield size={48} aria-hidden="true" />
-        </span>
+        <ul className={styles.parts}>
+          <li className={styles.part}><span className={rx.cardLabel}>{t("sleepScore")}</span><span className={styles.partValue}>{last.score ?? t("sleepNoScore")}</span></li>
+          <li className={styles.part}><span className={rx.cardLabel}>{t("sleepDuration")}</span><span className={styles.partValue}>{last.durationHours !== undefined ? t("sleepHours", { hours: last.durationHours }) : "—"}</span></li>
+        </ul>
       </section>
-      {readings.length ? (
-        <section className={styles.grid} aria-label={t("title")} style={{ gap: 16 } as any}>
-          {readings.map((reading, index) => (
-            <article
-              className={styles.card}
-              key={reading.id || `${reading.measuredAt || "reading"}-${index}`}
-              style={{
-                border: "1px solid #E8EDEE",
-                borderRadius: 20,
-                background: "rgba(255,255,255,.82)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-                padding: 16,
-                gap: 8,
-              } as any}
-            >
-              <div className={styles.cardTop} style={{ gap: 8 } as any}>
-                <span style={{ color: "#1E332E", fontWeight: 700, overflowWrap: "anywhere" } as any}>{t("reading")}</span>
-                <span
-                  style={{
-                    display: "grid",
-                    placeItems: "center",
-                    width: 48,
-                    height: 48,
-                    borderRadius: 16,
-                    background: "rgba(95,217,179,.12)",
-                    border: "1px solid #E8EDEE",
-                  } as any}
-                >
-                  <Moon size={18} aria-hidden="true" />
+      <SectionHead id="sleep-log" title={t("sleepLog")} />
+      <RowsCard label={t("sleepLog")}>
+        {readings.map((reading, index) => (
+          <li key={reading.id ?? index}>
+            <div className={styles.row}>
+              <FIcon icon="moon" tone="violet" size={40} />
+              <span className={styles.rowBody}>
+                <span className={styles.rowTitle}>{reading.score !== undefined ? t("sleepScoreValue", { score: reading.score }) : t("sleepNoScore")}</span>
+                <span className={styles.rowSub}>
+                  {reading.durationHours !== undefined ? t("sleepHours", { hours: reading.durationHours }) : null}
+                  {reading.durationHours !== undefined && reading.measuredAt ? " · " : null}
+                  {reading.measuredAt ? <LocalTimeLine iso={reading.measuredAt} locale={locale} /> : null}
                 </span>
-              </div>
-              <p className={styles.value} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden", color: "#1E332E" } as any}>
-                {reading.score !== undefined ? `${reading.score} ${t("score")}` : t("notAvailable")}
-              </p>
-              {reading.durationHours !== undefined ? (
-                <p className={styles.date} style={{ overflowWrap: "anywhere", color: "#6B7C6E" } as any}>
-                  {t("duration")}: {reading.durationHours} {t("hours")}
-                </p>
-              ) : null}
-              {reading.measuredAt ? (
-                <p className={styles.date} style={{ overflowWrap: "anywhere", color: "#6B7C6E", display: "flex", alignItems: "center", gap: 8 } as any}>
-                  <CalendarDays size={14} aria-hidden="true" />
-                  <span style={{ overflowWrap: "anywhere" } as any}>
-                    {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(reading.measuredAt))}
-                  </span>
-                </p>
-              ) : null}
-            </article>
-          ))}
-        </section>
-      ) : (
-        <section
-          className={styles.state}
-          style={{ border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: 24, gap: 16, display: "grid", placeItems: "center" } as any}
-        >
-          <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE" } as any}>
-            <VectorHealthShield size={48} aria-hidden="true" />
-          </span>
-          <p style={{ color: "#6B7C6E", overflowWrap: "anywhere" } as any}>{t("empty")}</p>
-        </section>
-      )}
-      <p
-        className={styles.notice}
-        style={{ color: "#6B7C6E", overflowWrap: "anywhere", border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", padding: "12px 16px", display: "flex", alignItems: "center", gap: 8 } as any}
-      >
-        <ShieldCheck size={15} aria-hidden="true" /> {t("notice")}
-      </p>
-    </main>
+              </span>
+            </div>
+          </li>
+        ))}
+      </RowsCard>
+      <Notice>{t("sleepNotice")}</Notice>
+    </>,
   );
 }
