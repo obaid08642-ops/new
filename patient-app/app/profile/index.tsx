@@ -22,7 +22,7 @@ const MENU: { icon: IconName; label: string; route: string; color: string; badge
   { icon: 'shopping_cart', label: 'طلباتي', route: '/orders', color: '#D97706' },
   { icon: 'shield', label: 'التأمين الطبي', route: '/profile/insurance', color: '#4F46E5' },
   { icon: 'location', label: 'عناويني', route: '/profile/addresses', color: '#DB2777' },
-  { icon: 'users', label: 'عائلتي', route: '/health/family-hub', color: '#0D9488' },
+  { icon: 'users', label: 'عائلتي', route: '/family', color: '#0D9488' },
   { icon: 'trophy', label: 'النقاط', route: '/loyalty/hub', color: '#F59E0B' },
   { icon: 'settings', label: 'الإعدادات', route: '/settings', color: '#64748B' },
 ];

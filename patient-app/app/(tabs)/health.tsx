@@ -178,7 +178,7 @@ export default function HealthHub() {
         </Panel>
 
         <Panel>
-          <Row icon="users-three" tone="peach" title={k('health.hub.family')} subtitle={k('health.hub.familyHint')} onPress={go('/health/family-hub')} />
+          <Row icon="users-three" tone="peach" title={k('health.hub.family')} subtitle={k('health.hub.familyHint')} onPress={go('/family')} />
           <Row icon="chat-circle-text" tone="blue" title={k('health.hub.familyChat')} subtitle={k('health.hub.familyChatHint')} onPress={go('/family/chat')} />
           <Row icon="first-aid-kit" tone={CARE_TONE} title={k('health.hub.nursing')} subtitle={k('health.hub.nursingHint')} onPress={go('/(tabs)/nursing')} />
           <Row icon="clipboard-text" tone={NUTRITION_TONE} title={k('health.hub.articles')} subtitle={k('health.hub.articlesHint')} onPress={go('/articles')} />
