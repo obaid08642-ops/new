@@ -19,29 +19,70 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/labs/bookings/mine",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/radiology/bookings/mine",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/labs/services",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/radiology/services",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/labs/packages",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/diagnostics/bookings net::ERR_ABORTED",
+   "GET /ar/diagnostics/results net::ERR_ABORTED",
+   "GET /ar/diagnostics/lab-comparison net::ERR_ABORTED",
    "GET /ar/diagnostics/packages net::ERR_ABORTED",
+   "GET /ar/diagnostics/packages/PKG_GENERAL net::ERR_ABORTED",
+   "GET /ar/diagnostics/test-detail net::ERR_ABORTED",
+   "GET /ar/diagnostics/packages/834c1dc5-9fbd-4341-82a5-e12863446ffa net::ERR_ABORTED",
+   "GET /ar/diagnostics/labs net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics/bookings net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics/results net::ERR_ABORTED",
+   "GET /ar/diagnostics/packages net::ERR_ABORTED",
+   "GET /ar/diagnostics/lab-comparison net::ERR_ABORTED",
    "GET /ar/diagnostics/packages/PKG_GENERAL net::ERR_ABORTED",
    "GET /ar/diagnostics/packages/834c1dc5-9fbd-4341-82a5-e12863446ffa net::ERR_ABORTED",
    "GET /ar/diagnostics/labs net::ERR_ABORTED",
    "GET /ar/diagnostics/test-detail net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/diagnostics/bookings net::ERR_ABORTED",
-   "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/diagnostics/results net::ERR_ABORTED",
-   "GET /ar/diagnostics/lab-comparison net::ERR_ABORTED",
-   "GET /ar/diagnostics/packages/PKG_GENERAL net::ERR_ABORTED",
-   "GET /ar/diagnostics/packages/834c1dc5-9fbd-4341-82a5-e12863446ffa net::ERR_ABORTED",
-   "GET /ar/diagnostics/packages net::ERR_ABORTED",
-   "GET /ar/diagnostics/labs net::ERR_ABORTED",
    "GET /ar/diagnostics/test-detail net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -73,13 +114,14 @@
   "failed": [
    "GET /ar/diagnostics/bookings net::ERR_ABORTED",
    "GET /ar/diagnostics/results net::ERR_ABORTED",
-   "GET /ar/diagnostics/labs net::ERR_ABORTED",
+   "GET /ar/diagnostics/lab-comparison net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
+   "GET /ar/diagnostics/bookings net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/diagnostics/labs net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics/results net::ERR_ABORTED",
-   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics/lab-comparison net::ERR_ABORTED",
    "GET /ar/diagnostics/labs net::ERR_ABORTED"
   ],
@@ -110,18 +152,181 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/diagnostics/lab-comparison net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/diagnostics/bookings net::ERR_ABORTED",
+   "GET /ar/diagnostics/results net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics/bookings net::ERR_ABORTED",
-   "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/diagnostics/results net::ERR_ABORTED"
+   "GET /ar/diagnostics/results net::ERR_ABORTED",
+   "GET /ar/diagnostics/lab-comparison net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 335
+ },
+ {
+  "route": "/diagnostics/book-sample",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/diagnostics/cart",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 107
+ },
+ {
+  "route": "/diagnostics/book-sample",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/diagnostics/cart",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 107
+ },
+ {
+  "route": "/diagnostics/book-sample",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/diagnostics/cart",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 107
  },
  {
   "route": "/diagnostics/booking-success",
@@ -143,19 +348,34 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED"
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 166
@@ -185,15 +405,16 @@
   "pageErrors": [],
   "failed": [
    "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -223,18 +444,18 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED"
   ],
@@ -261,7 +482,28 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/labs/bookings/mine",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/radiology/bookings/mine",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
@@ -294,7 +536,6 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -324,6 +565,7 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -349,6 +591,75 @@
     "shape": "non-json"
    }
   ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/diagnostics net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 107
+ },
+ {
+  "route": "/diagnostics/cart",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/diagnostics/cart",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/diagnostics net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 107
+ },
+ {
+  "route": "/diagnostics/cart",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/diagnostics/cart",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
   "server": [],
   "consoleErrors": [],
   "pageErrors": [],
@@ -360,64 +671,6 @@
   "textLen": 107
  },
  {
-  "route": "/diagnostics/cart",
-  "scenario": "empty",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/cart",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar/diagnostics net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 107
- },
- {
-  "route": "/diagnostics/cart",
-  "scenario": "error",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/cart",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar/diagnostics net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 107
- },
- {
   "route": "/diagnostics/checkout",
   "scenario": "normal",
   "session": "signed-in",
@@ -437,10 +690,22 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/diagnostics/cart net::ERR_ABORTED",
    "GET /ar/diagnostics/cart net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -470,7 +735,6 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/diagnostics/cart net::ERR_ABORTED",
    "GET /ar/diagnostics/cart net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -526,19 +790,34 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/system-config/public",
+    "status": 200
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
    "GET /ar net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -570,11 +849,13 @@
   "failed": [
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
@@ -608,93 +889,15 @@
   "pageErrors": [],
   "failed": [
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 166
- },
- {
-  "route": "/diagnostics/insurance-upload",
-  "scenario": "normal",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/insurance-upload",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 166
- },
- {
-  "route": "/diagnostics/insurance-upload",
-  "scenario": "empty",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/insurance-upload",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -702,6 +905,100 @@
  },
  {
   "route": "/diagnostics/insurance-upload",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/diagnostics/insurance-upload",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/diagnostics/insurance-upload",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/diagnostics/insurance-upload",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/diagnostics/insurance-upload",
   "scenario": "error",
   "session": "signed-in",
   "status": 200,
@@ -725,13 +1022,17 @@
   "pageErrors": [],
   "failed": [
    "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED"
   ],
@@ -758,12 +1059,25 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics/cart net::ERR_ABORTED",
-   "GET /ar/diagnostics net::ERR_ABORTED"
+   "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics/cart net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 150
@@ -793,6 +1107,7 @@
   "pageErrors": [],
   "failed": [
    "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics/cart net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics/cart net::ERR_ABORTED"
   ],
@@ -824,6 +1139,7 @@
   "pageErrors": [],
   "failed": [
    "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics/cart net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics/cart net::ERR_ABORTED"
   ],
@@ -850,15 +1166,37 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/labs/services",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics/labs/book net::ERR_ABORTED",
    "GET /ar/diagnostics/labs/book net::ERR_ABORTED",
    "GET /ar/diagnostics/labs/book net::ERR_ABORTED",
+   "GET /ar/diagnostics/labs/book net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics/labs/book net::ERR_ABORTED",
+   "GET /ar/diagnostics/labs/book net::ERR_ABORTED",
+   "GET /ar/diagnostics/labs/book net::ERR_ABORTED",
    "GET /ar/diagnostics/labs/book net::ERR_ABORTED",
    "GET /ar/diagnostics/labs/book net::ERR_ABORTED"
   ],
@@ -889,6 +1227,7 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -918,6 +1257,7 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -943,14 +1283,30 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
@@ -986,14 +1342,15 @@
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED"
+   "GET /ar/support net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 166
@@ -1022,15 +1379,16 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED"
   ],
@@ -1057,15 +1415,31 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/labs/services",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics/packages/PKG_GENERAL net::ERR_ABORTED",
    "GET /ar/diagnostics/packages/834c1dc5-9fbd-4341-82a5-e12863446ffa net::ERR_ABORTED",
-   "GET /ar/diagnostics/packages/PKG_GENERAL net::ERR_ABORTED",
    "GET /ar/diagnostics/packages/PKG_DIABETES net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics/packages/PKG_GENERAL net::ERR_ABORTED",
    "GET /ar/diagnostics/packages/834c1dc5-9fbd-4341-82a5-e12863446ffa net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics/packages/c2920aa5-71d1-48a2-8545-9462c91d3c4f net::ERR_ABORTED"
@@ -1097,6 +1471,7 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -1126,6 +1501,7 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -1151,17 +1527,43 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/radiology/modalities",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/radiology/services",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
    "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50b3 net::ERR_ABORTED",
    "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50b5 net::ERR_ABORTED",
-   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50b7 net::ERR_ABORTED",
+   "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50bb net::ERR_ABORTED",
+   "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50b3 net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50b5 net::ERR_ABORTED",
+   "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50bb net::ERR_ABORTED",
    "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50bc net::ERR_ABORTED",
-   "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50c2 net::ERR_ABORTED",
    "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50c4 net::ERR_ABORTED",
+   "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50c2 net::ERR_ABORTED",
    "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50c6 net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -1191,6 +1593,8 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -1220,7 +1624,6 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -1246,10 +1649,34 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/labs/bookings/mine",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/radiology/reports/mine",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
-  "failed": [],
+  "failed": [
+   "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED"
+  ],
   "overlay": 0,
   "textLen": 173
  },
@@ -1276,7 +1703,10 @@
   "server": [],
   "consoleErrors": [],
   "pageErrors": [],
-  "failed": [],
+  "failed": [
+   "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED"
+  ],
   "overlay": 0,
   "textLen": 173
  },
@@ -1303,7 +1733,10 @@
   "server": [],
   "consoleErrors": [],
   "pageErrors": [],
-  "failed": [],
+  "failed": [
+   "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED"
+  ],
   "overlay": 0,
   "textLen": 128
  },
@@ -1327,18 +1760,32 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -1368,15 +1815,19 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -1406,18 +1857,19 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -1443,13 +1895,34 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/labs/services",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
    "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics/test-detail net::ERR_ABORTED",
+   "GET /ar/diagnostics/test-detail net::ERR_ABORTED",
+   "GET /ar/diagnostics/test-detail net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics/test-detail net::ERR_ABORTED",
+   "GET /ar/diagnostics/test-detail net::ERR_ABORTED",
+   "GET /ar/diagnostics/test-detail net::ERR_ABORTED",
    "GET /ar/diagnostics/test-detail net::ERR_ABORTED",
    "GET /ar/diagnostics/test-detail net::ERR_ABORTED"
   ],
@@ -1480,6 +1953,7 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -1509,7 +1983,6 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -1535,21 +2008,28 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED"
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 166
@@ -1579,16 +2059,17 @@
   "pageErrors": [],
   "failed": [
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED"
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 166
@@ -1617,17 +2098,20 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED"
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 166
@@ -1652,16 +2136,34 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -1691,14 +2193,16 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED"
   ],
@@ -1729,19 +2233,186 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
    "GET /ar net::ERR_ABORTED",
    "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/privacy net::ERR_ABORTED",
    "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
    "GET /ar/articles net::ERR_ABORTED",
    "GET /ar/map net::ERR_ABORTED"
   ],
   "overlay": 0,
   "textLen": 166
+ },
+ {
+  "route": "/diagnostics/upload-rx",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/scan-prescription",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/c net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 137
+ },
+ {
+  "route": "/diagnostics/upload-rx",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/scan-prescription",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/c net::ERR_ABORTED",
+   "GET /ar/c net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 137
+ },
+ {
+  "route": "/diagnostics/upload-rx",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/pharmacy/scan-prescription",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/c net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 137
  },
  {
   "route": "/labs",
@@ -1763,14 +2434,34 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/labs/services",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/diagnostics/labs/book net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics/labs/book net::ERR_ABORTED",
    "GET /ar/diagnostics/labs/book net::ERR_ABORTED",
+   "GET /ar/diagnostics/labs/book net::ERR_ABORTED",
+   "GET /ar/diagnostics/labs/book net::ERR_ABORTED",
+   "GET /ar/diagnostics/labs/book net::ERR_ABORTED",
+   "GET /ar/diagnostics/labs/book net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics/labs/book net::ERR_ABORTED",
    "GET /ar/diagnostics/labs/book net::ERR_ABORTED"
   ],
@@ -1801,6 +2492,7 @@
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
+   "GET /ar/diagnostics net::ERR_ABORTED",
    "GET /ar/diagnostics net::ERR_ABORTED"
   ],
   "overlay": 0,
@@ -1837,11 +2529,11 @@
   "textLen": 111
  },
  {
-  "route": "/diagnostics/packages/PKG_GENERAL",
+  "route": "/radiology",
   "scenario": "normal",
   "session": "signed-in",
   "status": 200,
-  "finalPath": "/ar/diagnostics/packages/PKG_GENERAL",
+  "finalPath": "/ar/diagnostics/radiology",
   "api": [
    {
     "method": "GET",
@@ -1856,571 +2548,54 @@
     "shape": "non-json"
    }
   ],
-  "server": [],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/radiology/modalities",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/radiology/services",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
   "consoleErrors": [],
   "pageErrors": [],
   "failed": [
-   "GET /ar/diagnostics/labs/book net::ERR_ABORTED",
-   "GET /ar/diagnostics/packages net::ERR_ABORTED",
-   "GET /ar/diagnostics/labs/book net::ERR_ABORTED"
+   "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50b5 net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50b3 net::ERR_ABORTED",
+   "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50b5 net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50b3 net::ERR_ABORTED",
+   "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50b7 net::ERR_ABORTED",
+   "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50c2 net::ERR_ABORTED",
+   "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50c4 net::ERR_ABORTED",
+   "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50bc net::ERR_ABORTED",
+   "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50bb net::ERR_ABORTED",
+   "GET /ar/diagnostics net::ERR_ABORTED",
+   "GET /ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50c6 net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 572
+  "textLen": 2494
  },
  {
-  "route": "/diagnostics/packages/PKG_GENERAL",
+  "route": "/radiology",
   "scenario": "empty",
   "session": "signed-in",
   "status": 200,
-  "finalPath": "/ar/diagnostics/packages/PKG_GENERAL",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 166
- },
- {
-  "route": "/diagnostics/packages/PKG_GENERAL",
-  "scenario": "error",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/packages/PKG_GENERAL",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 166
- },
- {
-  "route": "/diagnostics/radiology/6ac3391b69a0b0ef9c9d50b3",
-  "scenario": "normal",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50b3",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/diagnostics/radiology net::ERR_ABORTED",
-   "GET /ar/diagnostics/cart net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 266
- },
- {
-  "route": "/diagnostics/radiology/6ac3391b69a0b0ef9c9d50b3",
-  "scenario": "empty",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50b3",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar/diagnostics/radiology net::ERR_ABORTED",
-   "GET /ar/diagnostics/radiology net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 114
- },
- {
-  "route": "/diagnostics/radiology/6ac3391b69a0b0ef9c9d50b3",
-  "scenario": "error",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/radiology/6ac3391b69a0b0ef9c9d50b3",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [],
-  "overlay": 0,
-  "textLen": 114
- },
- {
-  "route": "/diagnostics/test-detail?testId=2f227444-b928-40ee-8308-8cc8cc3ac9fb",
-  "scenario": "normal",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/test-detail",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar/diagnostics/search net::ERR_ABORTED",
-   "GET /ar/diagnostics/labs/book net::ERR_ABORTED",
-   "GET /ar/diagnostics/cart net::ERR_ABORTED",
-   "GET /ar/diagnostics/search net::ERR_ABORTED",
-   "GET /ar/diagnostics/labs/book net::ERR_ABORTED",
-   "GET /ar/diagnostics/cart net::ERR_ABORTED",
-   "GET /ar/diagnostics/labs/book net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 103
- },
- {
-  "route": "/diagnostics/test-detail?testId=2f227444-b928-40ee-8308-8cc8cc3ac9fb",
-  "scenario": "empty",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/test-detail",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 166
- },
- {
-  "route": "/diagnostics/test-detail?testId=2f227444-b928-40ee-8308-8cc8cc3ac9fb",
-  "scenario": "error",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/test-detail",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 166
- },
- {
-  "route": "/diagnostics/labs/book?serviceId=2f227444-b928-40ee-8308-8cc8cc3ac9fb",
-  "scenario": "normal",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/labs/book",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [],
-  "overlay": 0,
-  "textLen": 90
- },
- {
-  "route": "/diagnostics/labs/book?serviceId=2f227444-b928-40ee-8308-8cc8cc3ac9fb",
-  "scenario": "empty",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/labs/book",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 166
- },
- {
-  "route": "/diagnostics/labs/book?serviceId=2f227444-b928-40ee-8308-8cc8cc3ac9fb",
-  "scenario": "error",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/labs/book",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 166
- },
- {
-  "route": "/diagnostics/checkout?items=2f227444-b928-40ee-8308-8cc8cc3ac9fb&labId=lab1&location=home",
-  "scenario": "normal",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/checkout",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [],
-  "overlay": 0,
-  "textLen": 317
- },
- {
-  "route": "/diagnostics/checkout?items=2f227444-b928-40ee-8308-8cc8cc3ac9fb&labId=lab1&location=home",
-  "scenario": "empty",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/checkout",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar/diagnostics/cart net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 317
- },
- {
-  "route": "/diagnostics/checkout?items=2f227444-b928-40ee-8308-8cc8cc3ac9fb&labId=lab1&location=home",
-  "scenario": "error",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/checkout",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar/diagnostics/cart net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 317
- },
- {
-  "route": "/diagnostics/insurance-upload?bookingId=b1",
-  "scenario": "normal",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/insurance-upload",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [],
-  "overlay": 0,
-  "textLen": 234
- },
- {
-  "route": "/diagnostics/insurance-upload?bookingId=b1",
-  "scenario": "empty",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/insurance-upload",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar/diagnostics/bookings net::ERR_ABORTED",
-   "GET /ar/diagnostics/bookings net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 234
- },
- {
-  "route": "/diagnostics/insurance-upload?bookingId=b1",
-  "scenario": "error",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/insurance-upload",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar/diagnostics/bookings net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 234
- },
- {
-  "route": "/diagnostics/lab-comparison?testIds=2f227444-b928-40ee-8308-8cc8cc3ac9fb",
-  "scenario": "normal",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/lab-comparison",
+  "finalPath": "/ar/diagnostics/radiology",
   "api": [
    {
     "method": "GET",
@@ -2440,78 +2615,17 @@
   "pageErrors": [],
   "failed": [
    "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/diagnostics/cart net::ERR_ABORTED"
+   "GET /ar/diagnostics net::ERR_ABORTED"
   ],
   "overlay": 0,
-  "textLen": 156
+  "textLen": 173
  },
  {
-  "route": "/diagnostics/lab-comparison?testIds=2f227444-b928-40ee-8308-8cc8cc3ac9fb",
-  "scenario": "empty",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/lab-comparison",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/diagnostics/cart net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 156
- },
- {
-  "route": "/diagnostics/lab-comparison?testIds=2f227444-b928-40ee-8308-8cc8cc3ac9fb",
+  "route": "/radiology",
   "scenario": "error",
   "session": "signed-in",
   "status": 200,
-  "finalPath": "/ar/diagnostics/lab-comparison",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar/diagnostics net::ERR_ABORTED",
-   "GET /ar/diagnostics/cart net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 124
- },
- {
-  "route": "/diagnostics/labs/PKG_GENERAL",
-  "scenario": "normal",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/labs/PKG_GENERAL",
+  "finalPath": "/ar/diagnostics/radiology",
   "api": [
    {
     "method": "GET",
@@ -2531,73 +2645,6 @@
   "pageErrors": [],
   "failed": [],
   "overlay": 0,
-  "textLen": 97
- },
- {
-  "route": "/diagnostics/labs/PKG_GENERAL",
-  "scenario": "empty",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/labs/PKG_GENERAL",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/map net::ERR_ABORTED",
-   "GET /ar net::ERR_ABORTED",
-   "GET /ar/privacy net::ERR_ABORTED",
-   "GET /ar/terms net::ERR_ABORTED",
-   "GET /ar/support net::ERR_ABORTED",
-   "GET /ar/profile net::ERR_ABORTED",
-   "GET /ar/articles net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 166
- },
- {
-  "route": "/diagnostics/labs/PKG_GENERAL",
-  "scenario": "error",
-  "session": "signed-in",
-  "status": 200,
-  "finalPath": "/ar/diagnostics/labs/PKG_GENERAL",
-  "api": [
-   {
-    "method": "GET",
-    "path": "/api/auth/session",
-    "status": 200,
-    "shape": "object{authenticated,user}"
-   },
-   {
-    "method": "POST",
-    "path": "/api/auth/heartbeat",
-    "status": 200,
-    "shape": "non-json"
-   }
-  ],
-  "server": [],
-  "consoleErrors": [],
-  "pageErrors": [],
-  "failed": [
-   "GET /ar/diagnostics/labs net::ERR_ABORTED"
-  ],
-  "overlay": 0,
-  "textLen": 97
+  "textLen": 102
  }
 ]

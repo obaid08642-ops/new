@@ -12,11 +12,11 @@ _Updated 2026-10-06._
 | Foundation (tokens, Readex Pro, shells, 40 components, lint gates, CSP by class) | Merged |
 | Batch 0 (29 screens) + fixes | Merged (#285, #291, #292) |
 | Batch 2 consultations (46 screens), PR [#313](https://github.com/obaid08642-ops/new/pull/313) | **Merged into main.** Backend Needs-review lines are OpenCode queue items Q-14..Q-20; hub "Nearest"/"Available now" = Q-12/Q-13 (`docs/review/OPENCODE_QUEUE.md`): **keep `EXPO_PUBLIC_CONSULT_NEARBY_FILTERS` off until the owner says Q-12/Q-13 are live**. Batch 2 client-only Needs-review items: branch `design/batch-2-client-fixes` (in progress) |
-| **Batch 3 labs, radiology**, `design/batch-3` (main merged in) | 17 app + 22 web; app slice done and merged into the branch, web slice in progress |
+| **Batch 3 labs, radiology**, `design/batch-3` (main merged in) | 39 screens (17 app + 22 web) rebuilt; web runtime check 63 runs / 0 issues, app endpoints 21 routes / 0 failures; PR to main |
 | **Batch 1 pharmacy**, `design/batch-1`, draft PR [#293](https://github.com/obaid08642-ops/new/pull/293) | **Complete and ready for review** (all slices 1a-1e + local-first cart; batch-end build, runtime check 129 runs / 2 known flags, Lighthouse done). Baselines: literals 5234, raw colour 7273, left/right 476, client-token-sync 897, parity 663 |
 | F82-3 static/ISR for public pages, [#308](https://github.com/obaid08642-ops/new/pull/308) | Open (PR to main): pages cached, per-user parts on the client; LCP unchanged (JS-bound), `.lighthouserc.json` not ratcheted; finding: nonce server serves uncompressed |
 | F82-1 [#297](https://github.com/obaid08642-ops/new/pull/297), F82-2 [#295](https://github.com/obaid08642-ops/new/pull/295), F68 CSP [#301](https://github.com/obaid08642-ops/new/pull/301) | Merged into main (and into `design/batch-1`). Merged into main and into `design/batch-1` |
-| Gates (baselines only go down) | `no-literal-ui-string` 4528, `no-raw-color` 6282, `no-left-right` 359, `client-token-sync` 897, `locale-parity` 663 |
+| Gates (baselines only go down) | `no-literal-ui-string` 3891, `no-raw-color` 5562, `no-left-right` 267, `client-token-sync` 889, `locale-parity` 663 |
 
 Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy: 23/34 (done: app 23, web 34 = all); 2 consultations 22/24; 3 labs 17/22; 4 nursing 7/9; 5 records 26/24; 6 family 10/10; 7 insurance 10/13; 8 maternity etc. 11/21; 9 AI 7/10; 10 community 5/5; 11 loyalty 7/7; 12 account 20/20; 13 web-only 3/14.
 
@@ -48,6 +48,7 @@ Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy
 | 1c offers (high) | app 2 (+1 redirect), web 6 | 514k / 607k | no live offer seedable locally |
 | 1d checkout, payment (high) | app 5, web 5 (+redirects) | 582k / 673k | lean process; no gateway key/replica set locally |
 | 2 consultations (lean v2) | app 22, web 24 | 585k / 470k (**26.6k / 19.6k per screen**, target 40k) | templates built once (`consult/` kits), mechanical conversion, one translation pass: 418 app keys, 145 web keys |
+| 3 labs, radiology (lean v2 + visual check) | app 17, web 22 | 492k / 565k (**29k / 26k per screen**) | `DiagKit` (app) and `components-next/diagnostics` (web) on the Batch 2 kits |
 | 1e orders, tracking | app 5, web 5 | 439k / 473k | first slices under the lean process: fewer tokens per screen than 1a/1b |
 
 ## Open blockers (details in `PROGRESS_ARCHIVE.md` and the Needs-review JSON)
