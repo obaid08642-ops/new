@@ -25,7 +25,6 @@ import { ProviderRequestEngineService } from './services/provider-request-engine
 import { ProviderNotificationsService } from './services/provider-notifications.service';
 import { ProviderScheduleService } from './services/provider-schedule.service';
 import { ProviderDashboardService } from './services/provider-dashboard.service';
-import { ProviderSeedService } from './services/provider-seed.service';
 import { ServiceCapabilityService } from './services/service-capability.service';
 import { GeoEngineService } from './services/geo-engine.service';
 import { SchedulingEngineService } from './services/scheduling-engine.service';
@@ -79,7 +78,7 @@ import { LeaveRequestSchema } from '../../schemas/leave-request.schema';
 import { HospitalSubEntity, HospitalSubEntitySchema } from './schemas/hospital-sub-entity.schema';
 import { ProviderBranch, ProviderBranchSchema } from '../../schemas/provider-branch.schema';
 import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
-import { ProvidersController, ProvidersSeedController } from './providers.controller';
+import { ProvidersController } from './providers.controller';
 import { HospitalEnterpriseController } from './controllers/hospital-enterprise.controller';
 import { ProvidersService } from './providers.service';
 import { ProviderProfileRepository } from './repositories/providerprofile.repository';
@@ -162,7 +161,6 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
     // P5.3: merged from ProvidersModule (providers/ → provider/)
     ProvidersController,
     HospitalEnterpriseController,
-    ...(process.env.NODE_ENV === 'test' && process.env.ALLOW_TEST_SEED === 'true' ? [ProvidersSeedController] : []),
     ProviderDeltasMineController,
     ProviderFacilityController,
     ProviderDrugIndexController
@@ -181,7 +179,6 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
     ProviderNotificationsService,
     ProviderScheduleService,
     ProviderDashboardService,
-    ProviderSeedService,
     // Phase 1C
     ServiceCapabilityService,
     GeoEngineService,

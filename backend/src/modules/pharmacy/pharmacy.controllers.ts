@@ -8,7 +8,6 @@ import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { PharmacyOrderService } from './services/pharmacy-order.service';
 import { PharmacyAllocationService } from './services/pharmacy-allocation.service';
 import { PharmacyInventoryExtService } from './services/pharmacy-inventory-ext.service';
-import { PharmacySeedService } from './services/pharmacy-seed.service';
 import { SmartSplitService } from './services/smart-split.service';
 import { PharmacyBroadcastService } from './services/pharmacy-broadcast.service';
 import { PharmacyChatService } from './services/pharmacy-chat.service';
@@ -131,7 +130,6 @@ export class ProviderInventoryExtController {
 @Roles(UserRole.ADMIN)
 export class AdminPharmacyController {
   constructor(
-    private seedSvc: PharmacySeedService,
     private split: SmartSplitService,
     private allocs: PharmacyAllocationService,
     private broadcast: PharmacyBroadcastService,
@@ -201,27 +199,6 @@ export class AdminPharmacyController {
     return res.send('\uFEFF' + lines.join('\r\n'));
   }
   @Post('expire-stale-allocations') expireStale() { return this.allocs.expireStale(); }
-}
-
-/**
- * F17: demo seeders live ONLY in explicit test mode. This controller is
- * registered solely when NODE_ENV==='test' && ALLOW_TEST_SEED==='true', so
- * in every other environment the routes do not exist (404). The runtime
- * assert stays as defense-in-depth.
- */
-@Controller('admin/pharmacy')
-@UseGuards(JwtAuthGuard)
-@Roles(UserRole.ADMIN)
-export class AdminPharmacySeedController {
-  constructor(private seedSvc: PharmacySeedService) {}
-  private assertTestSeedAllowed() {
-    if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
-      throw new ServiceUnavailableException('test_seed_disabled');
-    }
-  }
-
-  @Post('seed') seed(@CurrentUser() u: any) { this.assertTestSeedAllowed(); return this.seedSvc.seed(u); }
-  @Post('seed/sample-order') sampleOrder(@CurrentUser() u: any, @Body() b: SampleOrderDto) { this.assertTestSeedAllowed(); return this.seedSvc.seedSampleOrder(b?.patient_account_id || u.id); }
 }
 
 // =========================================================================
