@@ -11,10 +11,11 @@ _Updated 2026-10-06._
 |---|---|
 | Foundation (tokens, Readex Pro, shells, 40 components, lint gates, CSP by class) | Merged |
 | Batch 0 (29 screens) + fixes | Merged (#285, #291, #292) |
+| **Batch 2 consultations**, `design/batch-2` (stacked on `design/batch-1`; PR base is the batch-1 branch until #293 merges) | 46 screens (22 app + 24 web) rebuilt and merged into the branch; web runtime check 69 runs / 0 issues, app endpoints 31 routes / 0 failures. Under the lean-v2 budget |
 | **Batch 1 pharmacy**, `design/batch-1`, draft PR [#293](https://github.com/obaid08642-ops/new/pull/293) | **Complete and ready for review** (all slices 1a-1e + local-first cart; batch-end build, runtime check 129 runs / 2 known flags, Lighthouse done). Baselines: literals 5234, raw colour 7273, left/right 476, client-token-sync 897, parity 663 |
 | F82-3 static/ISR for public pages, [#308](https://github.com/obaid08642-ops/new/pull/308) | Open (PR to main): pages cached, per-user parts on the client; LCP unchanged (JS-bound), `.lighthouserc.json` not ratcheted; finding: nonce server serves uncompressed |
 | F82-1 [#297](https://github.com/obaid08642-ops/new/pull/297), F82-2 [#295](https://github.com/obaid08642-ops/new/pull/295), F68 CSP [#301](https://github.com/obaid08642-ops/new/pull/301) | Merged into main (and into `design/batch-1`). Merged into main and into `design/batch-1` |
-| Gates (baselines only go down) | `no-literal-ui-string` 5234, `no-raw-color` 7273, `no-left-right` 476, `client-token-sync` 897, `locale-parity` 663 |
+| Gates (baselines only go down) | `no-literal-ui-string` 4528, `no-raw-color` 6282, `no-left-right` 359, `client-token-sync` 897, `locale-parity` 663 |
 
 Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy: 23/34 (done: app 23, web 34 = all); 2 consultations 22/24; 3 labs 17/22; 4 nursing 7/9; 5 records 26/24; 6 family 10/10; 7 insurance 10/13; 8 maternity etc. 11/21; 9 AI 7/10; 10 community 5/5; 11 loyalty 7/7; 12 account 20/20; 13 web-only 3/14.
 
@@ -45,6 +46,7 @@ Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy
 | 1b cart, prescription | app 6, web 9 | 439k / 736k | web includes an API cut-off and resume |
 | 1c offers (high) | app 2 (+1 redirect), web 6 | 514k / 607k | no live offer seedable locally |
 | 1d checkout, payment (high) | app 5, web 5 (+redirects) | 582k / 673k | lean process; no gateway key/replica set locally |
+| 2 consultations (lean v2) | app 22, web 24 | 585k / 470k (**26.6k / 19.6k per screen**, target 40k) | templates built once (`consult/` kits), mechanical conversion, one translation pass: 418 app keys, 145 web keys |
 | 1e orders, tracking | app 5, web 5 | 439k / 473k | first slices under the lean process: fewer tokens per screen than 1a/1b |
 
 ## Open blockers (details in `PROGRESS_ARCHIVE.md` and the Needs-review JSON)
