@@ -15,6 +15,10 @@ export interface RelatedGraphResponse {
   relationships: Record<string, any>;
 }
 
+/** Only providers patients may see: active, public and medically approved. */
+const PUBLIC_PROVIDER = { status: 'active', public_eligibility: true, medical_review_status: 'approved' };
+const PUBLIC_FACILITY = { is_active: true, public_eligibility: true, medical_review_status: 'approved' };
+
 @Injectable()
 export class EntityGraphService implements OnModuleInit {
   private readonly logger = new Logger(EntityGraphService.name);
@@ -131,7 +135,7 @@ export class EntityGraphService implements OnModuleInit {
     // Public read: only an approved, public doctor resolves.
     const doctor = await docCol.findOne({
       $or: [{ id: identifier }, { slug: identifier }],
-      type: 'doctor', status: 'active', public_eligibility: true,
+      type: 'doctor', ...PUBLIC_PROVIDER,
     });
 
     if (!doctor) {
@@ -143,7 +147,7 @@ export class EntityGraphService implements OnModuleInit {
     if (doctor.facility_id) {
       const facCol = this.connection.collection('facilities');
       facility = await facCol.findOne(
-        { $or: [{ id: doctor.facility_id }, { slug: doctor.facility_id }] },
+        { $or: [{ id: doctor.facility_id }, { slug: doctor.facility_id }], ...PUBLIC_FACILITY },
         { projection: { name_ar: 1, name_en: 1, slug: 1, city: 1, district: 1, address: 1, phone: 1, accepted_insurance: 1 } },
       );
     }
@@ -225,6 +229,7 @@ export class EntityGraphService implements OnModuleInit {
     const facCol = this.connection.collection('facilities');
     const facility = await facCol.findOne({
       $or: [{ id: identifier }, { slug: identifier }],
+      ...PUBLIC_FACILITY,
     });
 
     if (!facility) {
@@ -234,7 +239,7 @@ export class EntityGraphService implements OnModuleInit {
     // Find doctors practicing at this facility
     const docCol = this.connection.collection('provider_profiles');
     const doctors = await docCol
-      .find({ facility_id: facility.id, is_deleted: { $ne: true } })
+      .find({ facility_id: facility.id, is_deleted: { $ne: true }, ...PUBLIC_PROVIDER })
       .project({ id: 1, slug: 1, name_ar: 1, name_en: 1, specialty: 1, rating: 1 })
       .limit(10)
       .toArray();
@@ -271,7 +276,7 @@ export class EntityGraphService implements OnModuleInit {
     insurance?: string;
   }) {
     const docCol = this.connection.collection('provider_profiles');
-    const query: any = { is_deleted: { $ne: true } };
+    const query: any = { is_deleted: { $ne: true }, ...PUBLIC_PROVIDER };
 
     if (filters.specialty) {
       query.specialty = new RegExp(`^${escapeRegex(String(filters.specialty))}$`, 'i');
@@ -297,7 +302,7 @@ export class EntityGraphService implements OnModuleInit {
 
     // Fetch related facilities
     const facCol = this.connection.collection('facilities');
-    const facQuery: any = {};
+    const facQuery: any = { ...PUBLIC_FACILITY };
     if (filters.city) facQuery.city = new RegExp(escapeRegex(String(filters.city)), 'i');
     if (filters.district) facQuery.district = new RegExp(escapeRegex(String(filters.district)), 'i');
     if (filters.insurance) facQuery.accepted_insurance = new RegExp(escapeRegex(String(filters.insurance)), 'i');

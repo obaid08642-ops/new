@@ -24,10 +24,8 @@ export class ProvidersController {
     @Query('type') type: ProviderType,
     @Query('city') city: string,
     @Query('insurance_company') company?: string,
-    @Query('insurance_network') network?: string,
-    @Query('insurance_class') klass?: string,
   ) {
-    return this.svc.listPublic(type, city, company, network, klass);
+    return this.svc.listPublic(type, city, company);
   }
 
   /** Public map data — ACTIVE providers with real coordinates + distance from caller. */

@@ -5,7 +5,7 @@ import { PROVIDER_PRIVATE_FIELDS } from './provider-private-fields';
 /**
  * Q93: GET /search/providers (public) and POST /workflow/match (any signed-in
  * user) returned provider IBAN, bank account name and commission terms.
- * The fake model applies Mongo exclusion projections the way Mongo does.
+ * The fake model applies Mongo projections (inclusion and exclusion) the way Mongo does.
  */
 const stored = {
   id: 'prov-1', user_id: 'u-1', type: 'doctor', status: 'active', name_ar: 'د. اختبار', specialty: 'cardiology',
@@ -16,9 +16,12 @@ const stored = {
 
 function fakeModel() {
   return {
-    find: (_filter: unknown, projection?: Record<string, 0>) => {
-      const doc: Record<string, unknown> = { ...stored };
-      for (const [k, v] of Object.entries(projection || {})) if (v === 0) delete doc[k];
+    find: (_filter: unknown, projection?: Record<string, 0 | 1>) => {
+      let doc: Record<string, unknown> = { ...stored };
+      const entries = Object.entries(projection || {});
+      // Like Mongo: any 1 means "only these fields"; 0 drops a field.
+      if (entries.some(([, v]) => v === 1)) doc = Object.fromEntries(Object.entries(doc).filter(([k]) => projection![k] === 1));
+      for (const [k, v] of entries) if (v === 0) delete doc[k];
       const chain = { sort: () => chain, limit: () => chain, lean: async () => [doc] };
       return chain;
     },

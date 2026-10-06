@@ -7,6 +7,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { getPatientInsuranceBenefits } from "@/lib/api/insurance-server";
 import styles from "../insurance.module.css";
+import { benefitRows, serviceLabel } from "@/lib/insurance-f2";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -29,16 +30,42 @@ export default async function InsuranceBenefitsPage({ params }: Props) {
       </main>
     );
   }
+  const rows = benefitRows(data);
   return (
     <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
       <Link href={`/${locale}/insurance`} className={styles.back}>{locale === "ar" ? "التأمين" : "Insurance"}</Link>
       <section className={styles.hero} style={{ background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20, padding: 16, display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
         <div>
           <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
-          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{locale === "ar" ? "المزايا المتبقية" : "Remaining benefits"}</h1>
+          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{locale === "ar" ? "طلبات التأمين" : "Insurance requests"}</h1>
         </div>
       </section>
-      <pre dir="ltr" style={{ whiteSpace: "pre-wrap", border: "1px solid #E8EDEE", borderRadius: 20, padding: 16, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", overflowWrap: "anywhere" } as React.CSSProperties}>{JSON.stringify(data, null, 2)}</pre>
+      {rows.length === 0 ? (
+        <section className={styles.state}><p>{locale === "ar" ? "لا توجد طلبات تأمين بعد. عند الحجز بالتأمين يطلب مقدم الخدمة الموافقة ويظهر قراره هنا." : "No insurance requests yet. When you book with insurance, the provider requests approval and its decision appears here."}</p></section>
+      ) : (
+        <table style={{ inlineSize: "100%", borderCollapse: "collapse", background: "rgba(255,255,255,.82)", borderRadius: 20 }}>
+          <thead>
+            <tr>
+              {(locale === "ar" ? ["الخدمة", "الطلبات", "موافقة", "جزئية", "مرفوضة", "قيد المراجعة", "تحمل مدفوع", "تحمل مستحق"] : ["Service", "Requests", "Approved", "Partial", "Rejected", "Pending", "Copay paid", "Copay due"]).map((h) => <th key={h} scope="col" style={{ padding: 8, textAlign: "start" }}>{h}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.service}>
+                <th scope="row" style={{ padding: 8, textAlign: "start" }}>{serviceLabel(r.service, locale)}</th>
+                <td style={{ padding: 8 }}>{r.requests}</td>
+                <td style={{ padding: 8 }}>{r.approved}</td>
+                <td style={{ padding: 8 }}>{r.partiallyApproved}</td>
+                <td style={{ padding: 8 }}>{r.rejected}</td>
+                <td style={{ padding: 8 }}>{r.pending}</td>
+                <td style={{ padding: 8 }}>{r.copayPaid}</td>
+                <td style={{ padding: 8 }}>{r.copayDue}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <p style={{ margin: 0 }}>{locale === "ar" ? "نبض+ لا يعتمد المطالبات؛ القرار من مقدم الخدمة بعد موافقة شركة التأمين." : "Nabd+ does not approve claims; the decision is the provider's, after the insurer's approval."}</p>
     </main>
   );
 }
