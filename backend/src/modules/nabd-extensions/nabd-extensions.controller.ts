@@ -4,7 +4,7 @@ import { PharmacyOfferService } from '../pharmacy/services/pharmacy-offer.servic
 import { JwtAuthGuard, CurrentUser, Public, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
-import { RespondToBroadcastDto, ClaimReferralDto, UpdateFlagDto, EnrollProgramDto, CompleteSessionDto, MatchPharmacyDto, MatchNurseDto, VerifyNurseAttendanceDto, VerifyBarcodeDto, VerifyLabResultsDto, EnrollCorporateDto, CreateAdBidDto} from './nabd-extensions.dto';
+import { RespondToBroadcastDto, ClaimReferralDto, UpdateFlagDto, EnrollProgramDto, CompleteSessionDto, MatchPharmacyDto, MatchNurseDto, VerifyNurseAttendanceDto, VerifyBarcodeDto, VerifyLabResultsDto, EnrollCorporateDto, CreateAdBidDto, CreditWalletDto, DebitWalletDto } from './nabd-extensions.dto';
 
 @Controller()
 @UseGuards(JwtAuthGuard)
@@ -60,12 +60,13 @@ export class NabdExtensionsController {
   async creditWallet(@CurrentUser() admin: any, @Body() body: CreditWalletDto) {
     if (!body.ownerId || !body.amount || body.amount <= 0) throw new BadRequestException('ownerId and positive amount required');
     const ownerType = (body.ownerType === 'provider' ? 'provider' : 'patient') as 'patient' | 'provider';
+    const referenceType = (body.referenceType || 'booking') as 'booking' | 'refund' | 'referral';
     const result = await this.svc.processWalletTransaction({
       ownerId: body.ownerId,
       ownerType,
       amount: body.amount,
       type: 'credit',
-      referenceType: body.referenceType || 'booking',
+      referenceType,
       referenceId: body.referenceId || `manual_credit_${Date.now()}`,
       description: body.description || 'Admin manual credit',
     });
@@ -74,7 +75,7 @@ export class NabdExtensionsController {
       ownerType,
       amount: body.amount,
       type: 'credit',
-      referenceType: body.referenceType || 'booking',
+      referenceType,
       referenceId: body.referenceId || `manual_credit_${Date.now()}`,
       description: body.description || 'Admin manual credit',
     });
@@ -86,12 +87,13 @@ export class NabdExtensionsController {
   async debitWallet(@CurrentUser() admin: any, @Body() body: DebitWalletDto) {
     if (!body.ownerId || !body.amount || body.amount <= 0) throw new BadRequestException('ownerId and positive amount required');
     const ownerType = (body.ownerType === 'provider' ? 'provider' : 'patient') as 'patient' | 'provider';
+    const referenceType = (body.referenceType || 'booking') as 'booking' | 'refund' | 'referral';
     const result = await this.svc.processWalletTransaction({
       ownerId: body.ownerId,
       ownerType,
       amount: body.amount,
       type: 'debit',
-      referenceType: body.referenceType || 'booking',
+      referenceType,
       referenceId: body.referenceId || `manual_debit_${Date.now()}`,
       description: body.description || 'Admin manual debit',
     });
@@ -100,7 +102,7 @@ export class NabdExtensionsController {
       ownerType,
       amount: body.amount,
       type: 'debit',
-      referenceType: body.referenceType || 'booking',
+      referenceType,
       referenceId: body.referenceId || `manual_debit_${Date.now()}`,
       description: body.description || 'Admin manual debit',
     });

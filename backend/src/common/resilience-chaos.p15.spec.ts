@@ -311,7 +311,13 @@ describe('15.7 chaos — S3 / R2 object storage', () => {
       findOne: jest.fn(async () => null),
       find: jest.fn(() => ({ lean: jest.fn(async () => []) })),
     };
-    const svc = new StorageService(model, new CircuitBreakerService());
+    const mockUploadSecurity = {
+      validateAndSecureUpload: jest.fn().mockResolvedValue({ buffer: Buffer.from('x'), sanitized: false, exifStripped: false, clamavScanned: false, pdfSanitized: false }),
+      clamavAvailable: false,
+      clamavChecked: true,
+      checkClamavAvailability: jest.fn(),
+    } as any;
+    const svc = new StorageService(model, mockUploadSecurity);
 
     // Force the S3 adapter: stub the client send to hang.
     const aws = require('@aws-sdk/client-s3');
@@ -334,7 +340,13 @@ describe('15.7 chaos — S3 / R2 object storage', () => {
     process.env.S3_TIMEOUT_MS = '40';
     const model: any = { create: jest.fn(async (d: any) => d), findOne: jest.fn(async () => null) };
     const breakers = new CircuitBreakerService();
-    const svc = new StorageService(model, breakers);
+    const mockUploadSecurity = {
+      validateAndSecureUpload: jest.fn().mockResolvedValue({ buffer: Buffer.from('x'), sanitized: false, exifStripped: false, clamavScanned: false, pdfSanitized: false }),
+      clamavAvailable: false,
+      clamavChecked: true,
+      checkClamavAvailability: jest.fn(),
+    } as any;
+    const svc = new StorageService(model, mockUploadSecurity);
 
     const aws = require('@aws-sdk/client-s3');
     const sendSpy = jest.spyOn(aws.S3Client.prototype, 'send').mockImplementation(hang as any);

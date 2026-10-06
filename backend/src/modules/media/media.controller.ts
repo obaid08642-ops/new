@@ -6,7 +6,7 @@ import { Connection, Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { MediaService } from './media.service';
-import { UploadMediaDto, PresignedUrlDto } from './media.dto';
+import { UploadMediaDto, PresignedUrlRequestDto } from './media.dto';
 import { MediaAsset, MediaAssetDocument, MEDIA_PURPOSES, MediaPurpose } from './media.schema';
 import { UploadRateLimitGuard } from '../../common/guards/abuse-prevention.guard';
 
@@ -73,14 +73,15 @@ export class MediaController {
   @UseGuards(UploadRateLimitGuard)
   async getPresignedUrl(
     @CurrentUser() user: any,
-    @Body() body: PresignedUrlDto,
+    @Body() body: PresignedUrlRequestDto,
   ) {
     const { filename, mimetype, purpose, thread_id: threadId } = body;
     if (!filename || !mimetype) throw new BadRequestException('filename_and_mimetype_required');
     const allowedExtensions = /\.(jpg|jpeg|png|gif|webp|pdf|mp3|m4a|wav|doc|docx|xls|xlsx)$/i;
     if (!filename.match(allowedExtensions)) throw new BadRequestException('unsupported_media_extension');
-    await this.assertUploadAllowed(user, purpose, threadId);
-    const upload = await this.mediaService.generatePresignedUploadUrl(filename, mimetype, `${purpose}/${user.id}`, purpose);
+    const mediaPurpose = purpose as MediaPurpose;
+    await this.assertUploadAllowed(user, mediaPurpose, threadId);
+    const upload = await this.mediaService.generatePresignedUploadUrl(filename, mimetype, `${purpose}/${user.id}`, mediaPurpose);
     const asset: any = await this.assets.create({
       key: upload.key, owner_id: user.id, purpose, thread_id: threadId,
       original_name: filename, mime_type: mimetype,
