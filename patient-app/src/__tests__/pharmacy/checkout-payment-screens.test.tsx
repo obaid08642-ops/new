@@ -19,7 +19,7 @@ import { message } from '../../components/screen/ScreenKit';
  */
 
 const mockParams: { current: Record<string, string | undefined> } = { current: {} };
-const mockCart: { items: Array<{ id: string; name: string; qty: number; rx: boolean }>; clearCart: jest.Mock } = { items: [], clearCart: jest.fn(async () => undefined) };
+const mockCart: { items: Array<{ id: string; name: string; qty: number; rx: boolean }>; clearCart: jest.Mock; ready: boolean } = { items: [], clearCart: jest.fn(async () => undefined), ready: true };
 const mockAddress: { current: Record<string, unknown> | null } = { current: { id: 'a1', label: 'Test home', street: 'Test street', city: 'Test city', lat: 24.7, lng: 46.6 } };
 
 jest.mock('expo-router', () => {

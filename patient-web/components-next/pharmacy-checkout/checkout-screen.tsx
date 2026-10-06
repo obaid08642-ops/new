@@ -18,6 +18,7 @@ import { useCart } from "@/lib/context/CartContext";
 import { formatNumber } from "@/lib/format-price";
 import type { Locale } from "@/lib/i18n";
 import { createBroadcastAttempt, type BroadcastRequest } from "@/lib/pharmacy/broadcast";
+import { sendCartRequest, type SendFailure } from "@/lib/pharmacy/send-cart";
 import { activePrescriptionId, parseInsurancePolicy, type InsurancePolicyView } from "@/lib/pharmacy/checkout-support";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import ov from "@/components-next/pharmacy-offers/offers.module.css";
@@ -27,7 +28,7 @@ type Fulfillment = "delivery" | "pickup";
 type PaymentMode = "cash" | "insurance";
 type PrescriptionState = { status: "idle" } | { status: "loading" } | { status: "found"; id: string } | { status: "missing" } | { status: "error" } | { status: "unauthenticated" };
 type PolicyState = { status: "idle" } | { status: "loading" } | { status: "ok"; policy: InsurancePolicyView } | { status: "none" } | { status: "error" };
-type Failure = "session" | "forbidden" | "network" | "send";
+type Failure = SendFailure;
 
 /**
  * Step one of the pharmacy flow (canvas/CheckoutV2 layout): the cart of this browser becomes a request to the nearby
@@ -110,18 +111,16 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
     };
     setSending(true);
     setFailure(null);
-    // one send at a time, one idempotency key per request until the server has answered (see createBroadcastAttempt)
-    const result = await attempt.current.run(request, address.address);
-    if (!result) return; // another send is already in flight: nothing was sent
-    if (result.ok) {
-      clearCart();
-      router.push(`/${locale}/pharmacy/broadcast-status?orderId=${encodeURIComponent(result.orderId)}`);
+    // one send at a time, one idempotency key per request until the server has answered (see createBroadcastAttempt);
+    // the cart is cleared only when the backend confirmed the order, and stays exactly as it was on every failure
+    const outcome = await sendCartRequest(attempt.current, request, address.address, clearCart);
+    if (outcome.status === "busy") return;
+    if (outcome.status === "sent") {
+      router.push(`/${locale}/pharmacy/broadcast-status?orderId=${encodeURIComponent(outcome.orderId)}`);
       return; // the button stays disabled until the page changes
     }
     setSending(false);
-    // no answer, or a 5xx that may or may not have been applied: the retry is the same request and will not create a second order
-    const unknown = result.status === undefined || result.status >= 500;
-    setFailure(result.reason === "unauthenticated" ? "session" : result.status === 403 ? "forbidden" : unknown ? "network" : "send");
+    setFailure(outcome.failure);
   }
 
   const sendButton = <Button label={sending ? t("sending") : t("send")} size="lg" fullWidth disabled={!canSend} loading={sending} onClick={() => void send()} />;

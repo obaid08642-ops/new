@@ -1,21 +1,78 @@
 /**
- * Local pharmacy-item staging only. The authoritative order begins at the
- * governed pharmacy draft endpoint; no client price, payment choice, or cart
- * persistence is used before a pharmacy offer is selected.
+ * The pharmacy cart is LOCAL-FIRST (owner decision 2026-10-06; the rules are in src/utils/pharmacyCartStore): a line is a
+ * medicine and a quantity, never a price, a subtotal or a stock figure, and adding, removing or changing a line never calls
+ * the backend. The authoritative order begins at the governed pharmacy draft endpoint (checkout); the pharmacies' offers
+ * set the price. The cart is kept on this device per owner (a visitor, or a signed-in patient): signing in merges the
+ * visitor's cart into the patient's, signing out clears it.
  */
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSelector } from 'react-redux';
+import { isAnyOf } from '@reduxjs/toolkit';
 
-export interface CartItem { id: string; name: string; qty: number; rx: boolean; image?: string; icon?: string; iconColor?: string; iconBg?: string; activeIngredient?: string; }
-interface CartContextType { items: CartItem[]; addItem: (item: Omit<CartItem, 'qty'> & { qty?: number }) => Promise<void>; removeItem: (id: string) => Promise<void>; updateQty: (id: string, delta: number) => Promise<void>; clearCart: () => Promise<void>; itemCount: number; hasRxItems: boolean; }
-const CartContext = createContext<CartContextType | null>(null);
-export function sanitizePharmacyCartItem(item: Omit<CartItem, 'qty'> & { qty?: number }): CartItem { const { id, name, rx, image, icon, iconColor, iconBg, activeIngredient, qty } = item; return { id, name, rx, image, icon, iconColor, iconBg, activeIngredient, qty: qty || 1 }; }
-export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
-  const addItem = useCallback(async (item: Omit<CartItem, 'qty'> & { qty?: number }) => { const cleanItem = sanitizePharmacyCartItem(item); setItems((previous) => { const existing = previous.find((line) => line.id === cleanItem.id); return existing ? previous.map((line) => line.id === cleanItem.id ? { ...line, qty: line.qty + cleanItem.qty } : line) : [...previous, cleanItem]; }); }, []);
-  const removeItem = useCallback(async (id: string) => { setItems((previous) => previous.filter((line) => line.id !== id)); }, []);
-  const updateQty = useCallback(async (id: string, delta: number) => { setItems((previous) => previous.map((line) => line.id === id ? { ...line, qty: line.qty + delta } : line).filter((line) => line.qty > 0)); }, []);
-  const clearCart = useCallback(async () => { setItems([]); }, []);
-  const itemCount = useMemo(() => items.reduce((count, item) => count + item.qty, 0), [items]); const hasRxItems = useMemo(() => items.some((item) => item.rx), [items]);
-  return <CartContext.Provider value={{ items, addItem, removeItem, updateQty, clearCart, itemCount, hasRxItems }}>{children}</CartContext.Provider>;
+import { resetStoreAction } from '../store/actions/recovery';
+import { startAppListening } from '../store/middleware/listenerMiddleware';
+import { logout } from '../store/slices/authSlice';
+import { createPharmacyCartStore, EMPTY_CART_SNAPSHOT, sanitizePharmacyCartItem, type CartItem, type CartItemInput } from '../utils/pharmacyCartStore';
+
+export { sanitizePharmacyCartItem };
+export type { CartItem };
+
+interface CartContextType {
+  items: CartItem[];
+  addItem: (item: CartItemInput) => Promise<void>;
+  removeItem: (id: string) => Promise<void>;
+  updateQty: (id: string, delta: number) => Promise<void>;
+  clearCart: () => Promise<void>;
+  itemCount: number;
+  hasRxItems: boolean;
+  /** False until the cart saved on this device has been read: a screen shows its empty state only when this is true. */
+  ready: boolean;
 }
-export function useCart(): CartContextType { const context = useContext(CartContext); if (!context) throw new Error('useCart must be used inside CartProvider'); return context; }
+
+const CartContext = createContext<CartContextType | null>(null);
+
+type AuthSlice = { isAuthenticated?: boolean; isGuest?: boolean; user?: { id?: string } | null };
+
+export function CartProvider({ children }: { children: React.ReactNode }) {
+  const [store] = useState(() => createPharmacyCartStore(AsyncStorage));
+  const { items, ready } = useSyncExternalStore(store.subscribe, store.getSnapshot, () => EMPTY_CART_SNAPSHOT);
+  // a guest account has no cart of its own: it shares the device cart, which is merged when a patient signs in
+  const userId = useSelector((state: { auth?: AuthSlice }) => {
+    const auth = state.auth;
+    return auth?.isAuthenticated && !auth.isGuest && typeof auth.user?.id === 'string' && auth.user.id ? auth.user.id : null;
+  });
+
+  useEffect(() => {
+    void store.load();
+  }, [store]);
+
+  // the sign-out of the auth slice (and a full store reset) clear the cart in memory and on the device
+  useEffect(() => {
+    const stop = startAppListening({ matcher: isAnyOf(logout, resetStoreAction), effect: () => { void store.signOut(); } });
+    return () => { stop(); };
+  }, [store]);
+
+  useEffect(() => {
+    if (userId) void store.adoptUser(userId);
+  }, [store, userId]);
+
+  const addItem = useCallback((item: CartItemInput) => store.add(item), [store]);
+  const removeItem = useCallback((id: string) => store.remove(id), [store]);
+  const updateQty = useCallback((id: string, delta: number) => store.update(id, delta), [store]);
+  const clearCart = useCallback(() => store.clear(), [store]);
+
+  const itemCount = useMemo(() => items.reduce((count, item) => count + item.qty, 0), [items]);
+  const hasRxItems = useMemo(() => items.some((item) => item.rx), [items]);
+  const value = useMemo(
+    () => ({ items, addItem, removeItem, updateQty, clearCart, itemCount, hasRxItems, ready }),
+    [items, addItem, removeItem, updateQty, clearCart, itemCount, hasRxItems, ready],
+  );
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+}
+
+export function useCart(): CartContextType {
+  const context = useContext(CartContext);
+  if (!context) throw new Error('useCart must be used inside CartProvider');
+  return context;
+}

@@ -1,0 +1,30 @@
+{
+  "slice": "1-cart-app",
+  "batch": 1,
+  "app": "patient-app",
+  "screens": [
+    {
+      "route": "/pharmacy/cart",
+      "elements": [
+        ["Line rows: picture, name, active ingredient, Rx pill, quantity stepper, remove", "the cart kept on this device (AsyncStorage, per owner); no request", "ok"],
+        ["Loading placeholder before the device storage is read", "cart store ready flag; static key pharmacy.loading", "fixed"],
+        ["Empty state", "shown only when the store is ready and holds no line", "ok"],
+        ["Price, total, stock", "none: a cart line carries no price (offers carry it)", "hidden"]
+      ],
+      "notes": ["Add, change and remove never call the backend; signing in merges the device cart into the patient's, signing out clears it."]
+    },
+    {
+      "route": "/pharmacy/checkout",
+      "elements": [
+        ["Loading placeholder until the device cart is read", "cart store ready flag; static key pharmacy.loading", "fixed"],
+        ["Send button", "POST /patient/pharmacy/orders then /patient/pharmacy/orders/:param/submit (single-flight, idempotency keys); the cart is cleared only after both succeeded and kept on every failure", "ok"],
+        ["Prescription lines", "GET /prescriptions/:param", "ok"],
+        ["Delivery address", "GET /users/me/addresses (through the selected address)", "ok"]
+      ],
+      "notes": []
+    }
+  ],
+  "needsReview": [
+    { "route": "/pharmacy/cart", "element": "Sign-out clearing", "kind": "client", "note": "The cart clears on the auth slice's logout and on a full store reset; a session that ends through offlineUnauthenticated keeps the last owner's cart until the next sign-in or sign-out." }
+  ]
+}

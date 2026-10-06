@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const cart = vi.hoisted(() => ({
-  value: { items: [] as unknown[], ready: true, updateQty: vi.fn(), removeItem: vi.fn(), clearCart: vi.fn(), addItem: vi.fn(), itemCount: 0, subtotal: 0, hasRxItems: false },
+  value: { items: [] as unknown[], ready: true, updateQty: vi.fn(), removeItem: vi.fn(), clearCart: vi.fn(), addItem: vi.fn(), itemCount: 0, hasRxItems: false },
 }));
 const server = vi.hoisted(() => ({ order: vi.fn(), caps: vi.fn(), redirect: vi.fn(), notFound: vi.fn() }));
 
@@ -43,7 +43,7 @@ const render = (node: ReactNode) => renderToStaticMarkup(node).replace(/\u00a0/g
 const ORDER = "761e9693-e517-4ad6-ae20-330363005b28";
 const TXN = "91047ef2-ad36-422a-a184-629693e7c729";
 const located = { id: "a1", label: "Home", street: "12 King Fahd Rd", city: "Riyadh", district: "Olaya", lat: 24.7, lng: 46.7, isDefault: true };
-const item = (over: Record<string, unknown> = {}) => ({ id: "m1", name: "Paracetamol 500", price: 12.5, qty: 2, rx: false, ...over });
+const item = (over: Record<string, unknown> = {}) => ({ id: "m1", name: "Paracetamol 500", qty: 2, rx: false, ...over });
 
 describe("which screen the payment page shows (the order's own state plus the server's capabilities)", () => {
   const view = (over: Partial<OrderPaymentView>): OrderPaymentView => ({ ...over });
@@ -355,7 +355,7 @@ describe("the checkout screen", () => {
   });
 
   it("draws names and quantities, no price and no total of its own, and no card or identity field", () => {
-    cart.value.items = [item(), item({ id: "m2", name: "Amoxicillin", qty: 1, rx: true, price: 30 })];
+    cart.value.items = [item(), item({ id: "m2", name: "Amoxicillin", qty: 1, rx: true })];
     cart.value.hasRxItems = true;
     const html = render(<CheckoutScreen locale="en" />);
     expect(html).toContain("Paracetamol 500");
@@ -363,7 +363,7 @@ describe("the checkout screen", () => {
     expect(html).toContain("Needs a prescription");
     expect(html).toContain("Set by the pharmacy&#x27;s offer");
     expect(html).toContain("Shown with each offer");
-    // 2 x 12.5 + 30 would be 55: the browser's catalogue prices are never added up here
+    // the cart holds no price, so nothing here can be added up or drawn as money
     expect(html).not.toMatch(/55\.00|12\.50|30\.00|SAR/);
     expect(html).not.toMatch(/<input/);
     expect(html).not.toMatch(/national|iqama|policy number|card number|cvv/i);

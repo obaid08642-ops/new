@@ -300,8 +300,8 @@ describe("/pharmacy/reorder", () => {
 
   it("puts what was ticked in the cart with the catalogue id, the patient's quantity and no price, marked for a prescription when the order used one", () => {
     const { addable } = reorderLines(detail);
-    expect(cartItemsFor(addable, { i1: { on: true, qty: 3 } }, false)).toEqual([{ id: "sku-1", name: "Paracetamol 500 mg", price: 0, rx: false, qty: 3 }]);
-    expect(cartItemsFor(addable, { i1: { on: true, qty: 500 } }, true)).toEqual([{ id: "sku-1", name: "Paracetamol 500 mg", price: 0, rx: true, qty: 99 }]);
+    expect(cartItemsFor(addable, { i1: { on: true, qty: 3 } }, false)).toEqual([{ id: "sku-1", name: "Paracetamol 500 mg", rx: false, qty: 3 }]);
+    expect(cartItemsFor(addable, { i1: { on: true, qty: 500 } }, true)).toEqual([{ id: "sku-1", name: "Paracetamol 500 mg", rx: true, qty: 99 }]);
     expect(cartItemsFor(addable, { i1: { on: true, qty: 0 } }, false)[0].qty).toBe(1);
     expect(cartItemsFor(addable, { i1: { on: false, qty: 2 } }, false)).toEqual([]);
     expect(cartItemsFor(addable, {}, false)).toEqual([]);
