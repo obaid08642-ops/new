@@ -12,9 +12,6 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "res.cloudinary.com", pathname: "/**" },
     ],
     formats: ["image/avif", "image/webp"],
-    // P15.4: AdaptiveImage serves 75 normally and 50 on slow links. Next.js
-    // refuses unlisted qualities (warns and falls back), so both are declared.
-    qualities: [50, 75],
   },
   outputFileTracingIncludes: {
     "/*": ["./node_modules/@swc/helpers/**/*"],
@@ -33,7 +30,7 @@ const nextConfig: NextConfig = {
       { source: "/:locale/home-nursing", destination: "/:locale/nursing/catalog", permanent: false },
       { source: "/:locale/medicine", destination: "/:locale/medicines", permanent: false },
       { source: "/:locale/pharmacies", destination: "/:locale/c", permanent: false },
-      { source: "/:locale/services", destination: "/:locale", permanent: false },
+      { source: "/:locale/services", destination: "/:locale/consultations", permanent: false },
       { source: "/:locale/p", destination: "/:locale/c", permanent: false },
       { source: "/:locale/s", destination: "/:locale/search", permanent: false },
       { source: "/:locale/payments", destination: "/:locale/cart/checkout", permanent: false },

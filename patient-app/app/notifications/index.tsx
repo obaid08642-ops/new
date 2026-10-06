@@ -1,284 +1,220 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FlatList, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
-import { router, type Href } from 'expo-router';
-
-import { AppHeader, Chip, EmptyState, ErrorState, FIcon, OfflineState, Screen, SectionHeader, Skeleton } from '../../../packages/ui-native/src';
-import { COLUMN, step as scale, tint, useScreenUi } from '../../src/components/screen/ScreenKit';
-import { useOptimisticMutation } from '../../src/hooks/useOptimisticMutation';
-import { translateBackendRoute } from '../../src/hooks/usePushNotifications';
-import { isApiError } from '../../src/services/http/errors';
-import { outbox } from '../../src/services/offline/outbox';
+// @ts-nocheck
+// app/notifications/index.tsx — Grouped notifications by System, Medical, Promotions (real backend feed)
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, StyleSheet, ScrollView, StatusBar, TouchableOpacity, ActivityIndicator, RefreshControl, FlatList } from 'react-native';
+import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useApp } from '../../src/context/AppContext';
+import { Icon, IconName } from '../../src/components/Icon';
+import { AppText, Card, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
-import { dateLocale } from '../../src/utils/dates';
-import { isOffline } from '../../src/utils/isOffline';
-import {
-  BELL,
-  GROUPS,
-  buildFeed,
-  mapNotification,
-  relativeTime,
-  type FeedItem,
-  type Notif,
-  type NotifGroup,
-  type RawNotification,
-} from '../../src/utils/notificationsFeed';
+import { translateBackendRoute } from '../../src/hooks/usePushNotifications';
+import { dateLocale } from '@/utils/dates';
 
-/**
- * Notifications — board Notifications (canvas/Notifications.dc.html).
- *
- * Back button, centred title and "Read all" in the header; the feed in two white cards, "Today" and "Earlier",
- * one row per notification: the type's filled icon on its soft tone, the title (bold while unread), the body, the
- * time, and a coral dot when unread. The system / medical / offers filter is kept as the board's chips, shown
- * only when there is something to filter. All data is the real feed; a missing time is simply not drawn.
- *
- * 15.3/15.4: marking a notification read is a SAFE action, so it is applied to local
- * state immediately through `useOptimisticMutation` — which is deny-by-default, so
- * `mark-read` has to be on the allowlist for the local change to happen at all — and
- * the previous state is restored (with the catalogue reason) if the server refuses.
- * A write that never reached the server because there is no connection goes into the
- * outbox instead, and replays in order on reconnect rather than rolling back.
- */
+type CategoryGroup = 'system' | 'medical' | 'promotion';
 
-const CARD_RADIUS = 24;
-
-function Row({ item, onOpen }: { item: Extract<FeedItem, { kind: 'row' }>; onOpen: (n: Notif) => void }) {
-  const { theme, t, c, flow, tr } = useScreenUi();
-  const { n, first, last } = item;
-  const time = relativeTime(n.createdAt, tr, dateLocale());
-  return (
-    // the card is drawn row by row (surface, hairline ring, rounded ends) so a long feed stays virtualised
-    <View
-      style={{
-        backgroundColor: c.bg.surface,
-        borderColor: c.border.hairline,
-        borderStartWidth: 1,
-        borderEndWidth: 1,
-        borderTopWidth: first ? 1 : 0,
-        borderBottomWidth: last ? 1 : 0,
-        borderTopStartRadius: first ? CARD_RADIUS : 0,
-        borderTopEndRadius: first ? CARD_RADIUS : 0,
-        borderBottomStartRadius: last ? CARD_RADIUS : 0,
-        borderBottomEndRadius: last ? CARD_RADIUS : 0,
-        overflow: 'hidden',
-      }}
-    >
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={[n.title, n.body, time, n.read ? '' : tr('جديد')].filter(Boolean).join('. ')}
-        onPress={() => onOpen(n)}
-        style={({ pressed }) => ({
-          flexDirection: 'row',
-          gap: 12,
-          padding: 14,
-          minHeight: 44,
-          // the board's unread row: a whisper of the action colour over the surface
-          backgroundColor: n.read ? 'transparent' : tint(c.action.primary.bg, 0.03),
-          opacity: pressed ? 0.7 : 1,
-        })}
-      >
-        <FIcon icon={n.icon} tone={n.tone} size={42} theme={theme} />
-        <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
-          <Text style={{ ...scale(t, 'segment', n.read ? 'medium' : 'bold'), color: c.text.primary, ...flow }}>{n.title}</Text>
-          {n.body ? <Text style={{ ...scale(t, 'label', 'regular'), lineHeight: 19, color: c.text.secondary, ...flow }}>{n.body}</Text> : null}
-          {time ? <Text style={{ ...scale(t, 'micro', 'regular'), color: c.text.tertiary, ...flow }}>{time}</Text> : null}
-        </View>
-        {!n.read ? <View accessibilityElementsHidden style={{ width: 8, height: 8, borderRadius: 4, marginTop: 6, backgroundColor: c.action.primary.bg }} /> : null}
-      </Pressable>
-      {!last ? <View style={{ height: 1, backgroundColor: c.border.subtle }} /> : null}
-    </View>
-  );
+interface Notif {
+  id: string;
+  title: string;
+  body: string;
+  time: string;
+  group: CategoryGroup;
+  read: boolean;
+  route?: string;
+  icon: IconName;
+  color: string;
 }
 
-/** Four placeholder rows in one card while the first load runs. */
-function FeedSkeleton() {
-  const { theme, c, tr } = useScreenUi();
-  return (
-    <View accessibilityLabel={tr('جاري التحميل...')} accessibilityState={{ busy: true }} style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, gap: 16 }}>
-      <Skeleton variant="title" width="half" theme={theme} />
-      <View style={{ borderRadius: CARD_RADIUS, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
-        {[0, 1, 2, 3].map((i) => (
-          <View key={i} style={{ flexDirection: 'row', gap: 12, padding: 14, borderBottomWidth: i === 3 ? 0 : 1, borderBottomColor: c.border.subtle }}>
-            <Skeleton variant="circle" theme={theme} />
-            <View style={{ flex: 1 }}>
-              <Skeleton lines={3} theme={theme} />
-            </View>
-          </View>
-        ))}
-      </View>
-    </View>
-  );
+// Map backend notification.type → display group + icon + color
+const TYPE_META: Record<string, { group: CategoryGroup; icon: IconName; color: string }> = {
+  appointment:  { group: 'medical',   icon: 'doctor',     color: '#23B5CE' },
+  prescription: { group: 'medical',   icon: 'medication', color: '#16A34A' },
+  medication:   { group: 'medical',   icon: 'medication', color: '#16A34A' },
+  emergency:    { group: 'medical',   icon: 'warning',    color: '#F0695C' },
+  labs:         { group: 'medical',   icon: 'science',    color: '#7A6BEA' },
+  promo:        { group: 'promotion', icon: 'gift',       color: '#F0A526' },
+  order:        { group: 'system',    icon: 'document',     color: '#64748B' },
+  alert:        { group: 'system',    icon: 'warning',    color: '#F0695C' },
+  info:         { group: 'system',    icon: 'info',       color: '#64748B' },
+};
+const DEFAULT_META = TYPE_META.info;
+
+const GROUP_CONFIG: Record<CategoryGroup, { label: string; icon: IconName; color: string }> = {
+  system: { label: 'نظامي', icon: 'settings', color: '#64748B' },
+  medical: { label: 'طبي', icon: 'doctor', color: '#23B5CE' },
+  promotion: { label: 'عروض', icon: 'gift', color: '#F0A526' }
+};
+
+function relativeTime(iso?: string): string {
+  if (!iso) return '';
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'الآن';
+  if (mins < 60) return `منذ ${mins} دقيقة`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `منذ ${hours} ساعة`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return 'أمس';
+  if (days < 30) return `منذ ${days} يوم`;
+  return new Date(iso).toLocaleDateString(dateLocale());
+}
+
+function mapNotification(n: any): Notif {
+  const meta = TYPE_META[n.type] || DEFAULT_META;
+  return {
+    id: n.id,
+    title: n.title || '',
+    body: n.body || '',
+    time: relativeTime(n.createdAt),
+    group: meta.group,
+    read: !!n.read,
+    route: n.action?.route,
+    icon: meta.icon,
+    color: meta.color,
+  };
 }
 
 export default function NotificationsScreen() {
-  const { theme, t, c, dir, tr, lang } = useScreenUi();
-  const [filter, setFilter] = useState<NotifGroup | 'all'>('all');
+  const insets = useSafeAreaInsets();
+  const { colors, isDark } = useApp();
+  const [filter, setFilter] = useState<CategoryGroup | 'all'>('all');
   const [notifs, setNotifs] = useState<Notif[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
+  const [error, setError] = useState(false);
 
   const load = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
-    setFailed(null);
+    setError(false);
     try {
-      const rows = await apiFetch<RawNotification[]>('/notifications');
+      const rows = await apiFetch<any[]>('/notifications');
       setNotifs((Array.isArray(rows) ? rows : []).map(mapNotification));
     } catch {
-      setFailed((await isOffline()) ? 'offline' : 'error');
+      setError(true);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   }, []);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  useEffect(() => { load(); }, [load]);
 
-  const unread = notifs.filter((n) => !n.read).length;
-  const groups = useMemo(() => GROUPS.filter((g) => notifs.some((n) => n.group === g.key)), [notifs]);
-  // a filter whose group is gone (after a refresh) falls back to "All"
-  useEffect(() => {
-    if (filter !== 'all' && !groups.some((g) => g.key === filter)) setFilter('all');
-  }, [filter, groups]);
-  const feed = useMemo(() => buildFeed(filter === 'all' ? notifs : notifs.filter((n) => n.group === filter)), [notifs, filter]);
+  const filtered = filter === 'all' ? notifs : notifs.filter(n => n.group === filter);
+  const unreadCount = notifs.filter(n => !n.read).length;
 
-  // 15.3 + 15.4 — the write behind a read receipt. Applied optimistically by the
-  // mutations below; if the request never reached the server (a transport failure
-  // with no connection) it is handed to the outbox so it is replayed in order on
-  // reconnect instead of being rolled back. A server refusal still propagates, and
-  // the mutation restores the unread state.
-  const sendReadReceipt = async (endpoint: string): Promise<void> => {
-    try {
-      await apiFetch(endpoint, { method: 'POST' });
-    } catch (error) {
-      if (isApiError(error) && error.transportFailure) {
-        await outbox.submit({ kind: 'mark-read', method: 'POST', endpoint });
-        return;
-      }
-      throw error;
-    }
+  const markAllRead = async () => {
+    setNotifs(p => p.map(n => ({ ...n, read: true })));
+    try { await apiFetch('/notifications/read-all', { method: 'POST' }); }
+    catch { load(true); } // revert by reloading on failure
   };
 
-  const markAllReadMutation = useOptimisticMutation<Notif[]>({
-    kind: 'mark-read',
-    read: () => notifs,
-    write: setNotifs,
-    apply: (current) => current.map((n) => ({ ...n, read: true })),
-    locale: lang === 'en' ? 'en' : 'ar',
-  });
-
-  // Which single row is being marked, so "read one" only touches that row.
-  const markingIdRef = React.useRef<string | null>(null);
-  const markOneReadMutation = useOptimisticMutation<Notif[]>({
-    kind: 'mark-read',
-    read: () => notifs,
-    write: setNotifs,
-    apply: (current) => current.map((x) => (x.id === markingIdRef.current ? { ...x, read: true } : x)),
-    locale: lang === 'en' ? 'en' : 'ar',
-  });
-
-  const markAllRead = () => {
-    void markAllReadMutation.run(() => sendReadReceipt('/notifications/read-all'));
-  };
-
-  const openNotif = (n: Notif) => {
+  const openNotif = async (n: Notif) => {
     if (!n.read) {
-      markingIdRef.current = n.id;
-      void markOneReadMutation
-        .run(() => sendReadReceipt(`/notifications/${n.id}/read`))
-        .finally(() => {
-          markingIdRef.current = null;
-        });
+      setNotifs(p => p.map(x => x.id === n.id ? { ...x, read: true } : x));
+      apiFetch(`/notifications/${n.id}/read`, { method: 'POST' }).catch(() => {});
     }
-    // Backend routes use the server vocabulary (/tracking/lab/:id, /orders/:id ...): translate them to app paths,
-    // pushing them raw would land on an unmatched route.
+    // Backend routes use the server vocabulary (/tracking/lab/:id, /orders/:id …) —
+    // translate to real app paths; pushing raw would hit an unmatched-route blank screen.
     if (n.route) {
       const translated = translateBackendRoute(n.route);
-      if (translated) router.push({ pathname: translated.pathname, params: translated.params || {} } as Href);
+      if (translated) router.push({ pathname: translated.pathname as any, params: translated.params || {} });
     }
   };
 
-  const back = () => {
-    if (router.canGoBack()) router.back();
-    else router.replace('/' as Href);
-  };
+  return (
+    <View style={[st.c, { backgroundColor: colors.background } ]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+      <View style={[st.hdr, { paddingTop: insets.top + 8, backgroundColor: colors.surface, borderBottomColor: colors.borderLight } ]}>
+        {unreadCount > 0 ? (
+          <TouchableOpacity onPress={markAllRead}><AppText variant="labelMD" color={colors.primary}>قراءة الكل</AppText></TouchableOpacity>
+        ) : <View style={{ width: 60 }}/>}
+        <View style={{ alignItems: 'center' }}>
+          <AppText variant="h4">الإشعارات</AppText>
+          {unreadCount > 0 && <AppText variant="caption" color={colors.primary}>{unreadCount} جديد</AppText>}
+        </View>
+        <IconButton icon="back" onPress={() => {
+          if (router.canGoBack()) router.back();
+          else router.replace('/');
+        }} />
+      </View>
 
-  const header = (
-    <View style={COLUMN}>
-      <AppHeader
-        title={tr('الإشعارات')}
-        onBack={back}
-        backLabel={tr('رجوع')}
-        theme={theme}
-        direction={dir}
-        trailing={
-          unread > 0 ? (
-            <Pressable accessibilityRole="button" accessibilityLabel={tr('قراءة الكل')} disabled={markAllReadMutation.pending} onPress={markAllRead} hitSlop={6} style={{ minHeight: 44, paddingHorizontal: 4, justifyContent: 'center' }}>
-              <Text style={{ ...scale(t, 'caption', 'bold'), color: c.text.link }}>{tr('قراءة الكل')}</Text>
-            </Pressable>
-          ) : undefined
-        }
-      />
-      {notifs.length > 0 && groups.length > 1 ? (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingHorizontal: 16, paddingVertical: 6 }}>
-          <Chip label={tr('الكل')} selected={filter === 'all'} onPress={() => setFilter('all')} theme={theme} />
-          {groups.map((g) => (
-            <Chip key={g.key} label={tr(g.label)} selected={filter === g.key} onPress={() => setFilter(g.key)} theme={theme} />
+      {/* Categories chips (System, Medical, Promotions) */}
+      <View style={{ paddingVertical: 12 }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row-reverse', gap: 10, paddingHorizontal: 16 }}>
+          <TouchableOpacity onPress={() => setFilter('all')} style={[st.filterChip, filter === 'all' ? { backgroundColor: colors.primary, borderColor: colors.primary } : { backgroundColor: colors.surface, borderColor: colors.borderLight }]} >
+            <AppText variant="bodySM" color={filter === 'all' ? '#fff' : colors.textPrimary}>الكل</AppText>
+          </TouchableOpacity>
+          {(Object.keys(GROUP_CONFIG) as CategoryGroup[]).map(g => (
+            <TouchableOpacity key={g} onPress={() => setFilter(g)} style={[st.filterChip, filter === g ? { backgroundColor: GROUP_CONFIG[g].color, borderColor: GROUP_CONFIG[g].color } : { backgroundColor: colors.surface, borderColor: colors.borderLight }]}>
+              <Icon name={GROUP_CONFIG[g].icon} size={16} color={filter === g ? '#fff' : GROUP_CONFIG[g].color} />
+              <AppText variant="bodySM" color={filter === g ? '#fff' : colors.textPrimary}>{GROUP_CONFIG[g].label}</AppText>
+            </TouchableOpacity>
           ))}
         </ScrollView>
-      ) : null}
-    </View>
-  );
+      </View>
 
-  const refresh = (
-    <RefreshControl
-      refreshing={refreshing}
-      onRefresh={() => {
-        setRefreshing(true);
-        void load(true);
-      }}
-      tintColor={c.text.primary}
-    />
-  );
-
-  const emptyState =
-    failed && notifs.length === 0 ? (
-      failed === 'offline' ? (
-        <OfflineState title={tr('لا يوجد اتصال بالإنترنت')} body={tr('اتصل بالشبكة ثم حاول مرة أخرى.')} retryLabel={tr('إعادة المحاولة')} onRetry={() => void load()} theme={theme} />
-      ) : (
-        <ErrorState title={tr('تعذر تحميل الإشعارات')} body={tr('تحقق من اتصالك ثم حاول مرة أخرى.')} retryLabel={tr('إعادة المحاولة')} onRetry={() => void load()} theme={theme} />
-      )
-    ) : (
-      <EmptyState icon={BELL.icon} tone={BELL.tone} title={tr('لا توجد إشعارات بعد')} body={tr('ستظهر هنا تنبيهات مواعيدك وأدويتك وعروضك')} theme={theme} />
-    );
-
-  return (
-    <Screen theme={theme} direction={dir} header={header} testID="notifications-screen">
+      {/* Notifications feed */}
       {loading ? (
-        <FeedSkeleton />
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
       ) : (
         <FlatList
-          style={{ flex: 1 }}
-          data={feed}
-          keyExtractor={(i) => i.key}
-          refreshControl={refresh}
+          data={filtered}
+          keyExtractor={(n) => n.id}
+          contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: 100, flexGrow: 1 }}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(true); }} tintColor={colors.primary} />}
           initialNumToRender={15}
           maxToRenderPerBatch={15}
           windowSize={7}
-          contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 40, flexGrow: 1 }}
-          ListEmptyComponent={<View style={{ flex: 1, justifyContent: 'center' }}>{emptyState}</View>}
-          renderItem={({ item }) =>
-            item.kind === 'title' ? (
-              <View style={{ marginTop: item.section === 'earlier' && feed[0]?.key !== item.key ? 24 : 0, marginBottom: 10 }}>
-                <SectionHeader title={tr(item.section === 'today' ? 'اليوم' : 'سابقًا')} theme={theme} />
+          removeClippedSubviews
+          ListEmptyComponent={
+            error && notifs.length === 0 ? (
+              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+                <Icon name="warning" size={44} color={colors.textTertiary} />
+                <AppText variant="bodyMD" color={colors.textSecondary}>تعذر تحميل الإشعارات</AppText>
+                <TouchableOpacity accessibilityRole="button" accessibilityLabel="إعادة المحاولة" onPress={() => load()} style={[st.filterChip, { backgroundColor: colors.primary, borderColor: colors.primary }]}>
+                  <AppText variant="bodySM" color="#fff">إعادة المحاولة</AppText>
+                </TouchableOpacity>
               </View>
             ) : (
-              <Row item={item} onOpen={openNotif} />
+              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                <Icon name="bell" size={44} color={colors.textTertiary} />
+                <AppText variant="bodyMD" color={colors.textSecondary}>لا توجد إشعارات بعد</AppText>
+                <AppText variant="caption" color={colors.textTertiary}>ستظهر هنا تنبيهات مواعيدك وأدويتك وعروضك</AppText>
+              </View>
             )
           }
+          renderItem={({ item: n }) => (
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel={`${n.title}. ${n.body}`} activeOpacity={0.85} onPress={() => openNotif(n)}>
+              <Card style={[st.notifCard, !n.read && { backgroundColor: isDark ? 'rgba(35,181,206,0.1)' : '#DEF5F9' } ]}>
+                <View style={{ flexDirection: 'row-reverse', gap: 12, alignItems: 'flex-start' }}>
+                  <View style={[st.nIcon, { backgroundColor: n.color + '25' } ]}>
+                    <Icon name={n.icon} size={22} color={n.color} />
+                  </View>
+                  <View style={{ flex: 1, alignItems: 'flex-end', gap: 3 }}>
+                    <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-between', width: '100%' }}>
+                      <AppText variant="h6">{n.title}</AppText>
+                      {!n.read && <View style={[st.unreadDot, { backgroundColor: colors.primary }]} />}
+                    </View>
+                    <AppText variant="bodySM" color={colors.textSecondary}>{n.body}</AppText>
+                    {!!n.time && <AppText variant="caption" color={colors.textTertiary}>{n.time}</AppText>}
+                  </View>
+                </View>
+              </Card>
+            </TouchableOpacity>
+          )}
         />
       )}
-    </Screen>
+    </View>
   );
 }
+
+const st = StyleSheet.create({
+  c: { flex: 1 },
+  hdr: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1 },
+  notifCard: { shadowOpacity: 0.05, shadowRadius: 10, elevation: 2, padding: 14 },
+  nIcon: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  unreadDot: { width: 8, height: 8, borderRadius: 4 },
+  filterChip: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, borderWidth: 1 }
+});

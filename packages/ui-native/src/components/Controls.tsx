@@ -118,17 +118,11 @@ export function Toggle({ value, onChange, label, loading = false, disabled = fal
 export interface NativeRadioProps extends RadioProps, Themed {
   /** Draw the row divider below (canvas/Settings: every row but the last). */
   divider?: boolean;
-  /**
-   * The reading direction of the screen. A label in another script than the screen's (a Latin name in an Arabic
-   * screen, as in the language list) is aligned to the start of the row instead of by its own script.
-   */
-  direction?: 'ltr' | 'rtl';
 }
 
-export function Radio({ label, meta, selected, onChange, divider = false, direction, loading = false, disabled = false, testID, theme = 'light' }: NativeRadioProps) {
+export function Radio({ label, meta, selected, onChange, divider = false, loading = false, disabled = false, testID, theme = 'light' }: NativeRadioProps) {
   const c = tokens(theme).color;
   const inert = disabled || loading;
-  const align = direction ? ({ writingDirection: direction, textAlign: direction === 'rtl' ? 'right' : 'left' } as const) : null;
   return (
     <Pressable
       accessibilityRole="radio"
@@ -148,7 +142,7 @@ export function Radio({ label, meta, selected, onChange, divider = false, direct
         opacity: disabled ? 0.5 : 1,
       }}
     >
-      <Text style={{ flex: 1, fontSize: 15.5, fontFamily: selected ? 'ReadexPro-700' : 'ReadexPro-400', color: c.text.primary, ...align }}>{label}</Text>
+      <Text style={{ flex: 1, fontSize: 15.5, fontFamily: selected ? 'ReadexPro-700' : 'ReadexPro-400', color: c.text.primary }}>{label}</Text>
       {meta ? <Text style={{ fontSize: 12.5, fontFamily: 'ReadexPro-400', color: c.text.secondary }}>{meta}</Text> : null}
       <View
         style={{

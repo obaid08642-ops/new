@@ -5,9 +5,6 @@ const row = z.object({
   service: z.string().min(1).max(160).optional(),
   status: z.enum(["approved", "reimbursed", "pending", "rejected"]).optional(),
   date: z.string().max(80).optional(),
-  // GET /insurance/claims returns the stored claim: service_type and createdAt.
-  service_type: z.string().min(1).max(160).optional(),
-  createdAt: z.string().max(80).optional(),
 }).passthrough();
 
 export type ClaimSummary = {
@@ -33,9 +30,9 @@ export function parseClaims(payload: unknown): ClaimSummary[] {
     if (!parsed.success) return [];
     return [{
       id: parsed.data.id,
-      service: parsed.data.service ?? parsed.data.service_type,
+      service: parsed.data.service,
       status: parsed.data.status,
-      date: parsed.data.date ?? parsed.data.createdAt,
+      date: parsed.data.date,
     }];
   });
 }

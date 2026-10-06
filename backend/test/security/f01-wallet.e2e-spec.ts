@@ -1,15 +1,15 @@
-/** F01: POST /nabd-extensions/wallet/credit, /debit — ADMIN only with audit log. */
+/** F01: patient wallet routes removed (R6) — must answer 404, not 403/201. */
 import { INestApplication } from '@nestjs/common';
 import { NabdExtensionsController } from '../../src/modules/nabd-extensions/nabd-extensions.controller';
 import { NabdExtensionsService } from '../../src/modules/nabd-extensions/nabd-extensions.service';
+import * as extensionDtos from '../../src/modules/nabd-extensions/nabd-extensions.dto';
 import { PharmacyOfferService } from '../../src/modules/pharmacy/services/pharmacy-offer.service';
 import { buildSecurityApp, patientToken, post, tokenFor } from './harness';
 
-describe('F01 wallet admin routes access control', () => {
+describe('F01 wallet routes are gone (R6)', () => {
   let app: INestApplication;
   const svc = {
-    processWalletTransaction: jest.fn(async () => ({ ok: true, id: 'txn_1' })),
-    auditAdminWalletAdjustment: jest.fn(async () => ({})),
+    processWalletTransaction: jest.fn(async () => ({ ok: true })),
     logActivity: jest.fn(async () => ({})),
   };
 
@@ -24,31 +24,26 @@ describe('F01 wallet admin routes access control', () => {
   });
   afterAll(async () => { await app?.close(); });
 
-  it('patient token → 403 on credit', async () => {
-    await post(app, '/api/v1/wallet/credit', patientToken(), { ownerId: 'p1', amount: 100 }).expect(403);
+  it('GET /wallet/balance → 404 for any role', async () => {
+    await post(app, '/api/v1/wallet/balance', patientToken(), {}).expect(404);
+    await post(app, '/api/v1/wallet/balance', tokenFor('admin-1', 'admin'), {}).expect(404);
+  });
+
+  it('POST /wallet/credit → 404 (no admin backdoor remains)', async () => {
+    await post(app, '/api/v1/wallet/credit', tokenFor('admin-1', 'admin'), { amount: 5000 }).expect(404);
     expect(svc.processWalletTransaction).not.toHaveBeenCalled();
   });
 
-  it('patient token → 403 on debit', async () => {
-    await post(app, '/api/v1/wallet/debit', patientToken(), { ownerId: 'p1', amount: 50 }).expect(403);
-    expect(svc.processWalletTransaction).not.toHaveBeenCalled();
+  it('POST /wallet/debit → 404', async () => {
+    await post(app, '/api/v1/wallet/debit', tokenFor('root-1', 'super_admin'), { amount: 10 }).expect(404);
   });
 
-  it('admin token → 2xx on credit with audit log', async () => {
-    const res = await post(app, '/api/v1/wallet/credit', tokenFor('admin-1', 'admin'), { ownerId: 'p1', amount: 5000 });
-    expect([200, 201]).toContain(res.status);
-    expect(svc.processWalletTransaction).toHaveBeenCalledWith(expect.objectContaining({
-      ownerId: 'p1', amount: 5000, type: 'credit',
-    }));
-    expect(svc.auditAdminWalletAdjustment).toHaveBeenCalled();
-  });
-
-  it('admin token → 2xx on debit with audit log', async () => {
-    const res = await post(app, '/api/v1/wallet/debit', tokenFor('admin-1', 'admin'), { ownerId: 'p1', amount: 100 });
-    expect([200, 201]).toContain(res.status);
-    expect(svc.processWalletTransaction).toHaveBeenCalledWith(expect.objectContaining({
-      ownerId: 'p1', amount: 100, type: 'debit',
-    }));
-    expect(svc.auditAdminWalletAdjustment).toHaveBeenCalled();
+  // a537647 review: R6 said remove the routes "with their service methods and DTOs".
+  it('leaves no admin wallet service methods or DTOs behind', () => {
+    const proto = NabdExtensionsService.prototype as unknown as Record<string, unknown>;
+    expect(proto.getWalletBalance).toBeUndefined();
+    expect(proto.auditAdminWalletAdjustment).toBeUndefined();
+    expect(Object.keys(extensionDtos)).not.toEqual(expect.arrayContaining(['CreditWalletDto']));
+    expect(Object.keys(extensionDtos)).not.toEqual(expect.arrayContaining(['DebitWalletDto']));
   });
 });

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const notificationIdSchema = z.string().uuid();
 
-export type PatientNotification = { id: string; title?: string; body?: string; priority?: string; createdAt?: string; read?: boolean; type?: string };
+export type PatientNotification = { id: string; title?: string; body?: string; priority?: string; createdAt?: string; read?: boolean };
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
@@ -34,7 +34,6 @@ function notificationFrom(value: unknown): PatientNotification | null {
     title: presentationText(record, "title"),
     body: presentationText(record, "body"),
     priority: text(record, "priority"),
-    type: text(record, "type"),
     createdAt: text(record, "createdAt"),
     read: typeof record.read === "boolean" ? record.read : undefined,
   };

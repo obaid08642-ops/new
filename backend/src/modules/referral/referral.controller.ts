@@ -23,18 +23,6 @@ export class ReferralController {
   /** POST /api/v1/referrals/apply — apply someone's referral code (new users) */
   @Post('apply')
   apply(@Req() req: any, @Body() body: ApplyDto) {
-    return this.svc.apply(
-      req.user?.id, 
-      body?.code, 
-      body?.deviceId, 
-      body?.phone,
-      { ip: req.ip, userAgent: req.headers['user-agent'] }
-    );
-  }
-
-  /** GET /api/v1/referrals/fraud-stats — get fraud stats for current user */
-  @Get('fraud-stats')
-  fraudStats(@Req() req: any) {
-    return this.svc.getFraudStats(req.user?.id);
+    return this.svc.apply(req.user?.id, body?.code);
   }
 }

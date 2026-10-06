@@ -56,7 +56,7 @@ export default function LabComparison() {
           { text: "إلغاء", style: "cancel", onPress: () => setAdding(false) },
           { text: "زيارة الفرع", onPress: () => processAdd(lab, false) },
           {
-            text: "سحب من المنزل (تُحدد الرسوم عند الحجز)",
+            text: "سحب من المنزل (تُحسب الرسوم من الخادم)",
             onPress: () => processAdd(lab, true),
           },
         ],
@@ -165,7 +165,7 @@ export default function LabComparison() {
                 <AppText
                   style={{ fontSize: 10, color: theme.colors.textSecondary }}
                 >
-                  {basePrice ? 'ر.س (أساسي)' : 'يُحدد عند الحجز'}
+                  {basePrice ? 'ر.س (أساسي)' : 'يحدده الخادم'}
                 </AppText>
               </View>
             </View>

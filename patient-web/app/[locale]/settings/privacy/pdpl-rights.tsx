@@ -113,7 +113,7 @@ export function PdplRights({ locale }: { locale: string }) {
         <button type="button" style={btn} onClick={exportData} disabled={busy !== null}>
           {busy === "export"
             ? ar ? "جارٍ التجهيز…" : "Preparing…"
-            : ar ? "تصدير كل بياناتي" : "Export all my data"}
+            : ar ? "تصدير كل بياناتي (JSON)" : "Export all my data (JSON)"}
         </button>
         <button
           type="button"

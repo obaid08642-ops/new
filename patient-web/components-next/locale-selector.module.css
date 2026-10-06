@@ -9,12 +9,12 @@
   gap: 8px;
   height: 2.2rem;
   padding: 0 14px;
-  border: 1px solid var(--nabd-color-border-subtle);
+  border: 1px solid #E8EDEE;
   border-radius: 20px;
-  background: var(--nabd-color-glass-bg);
+  background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  color: var(--nabd-color-text-primary);
+  color: #1E332E;
   font-size: 0.78rem;
   font-weight: 750;
   cursor: pointer;
@@ -25,8 +25,8 @@
 
 .trigger:hover,
 .trigger:focus-visible {
-  border-color: var(--nabd-color-border-strong);
-  background: var(--nabd-color-bg-sunken);
+  border-color: #5FD9B3;
+  background: rgba(95, 217, 179, 0.14);
   outline: none;
 }
 
@@ -50,13 +50,13 @@
   top: calc(100% + 6px);
   inset-inline-end: 0;
   min-width: 11rem;
-  background: var(--nabd-color-glass-bg);
+  background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--nabd-color-border-subtle);
+  border: 1px solid #E8EDEE;
   border-radius: 20px;
   padding: 8px;
-  box-shadow: var(--nabd-shadow-raised);
+  box-shadow: 0 8px 32px rgba(30, 51, 46, 0.08);
   z-index: 100;
   display: grid;
   gap: 8px;
@@ -73,7 +73,7 @@
   gap: 8px;
   padding: 8px 12px;
   border-radius: 16px;
-  color: var(--nabd-color-text-primary);
+  color: #1E332E;
   text-decoration: none;
   font-size: 0.82rem;
   font-weight: 700;
@@ -82,18 +82,18 @@
 }
 
 .option:hover {
-  background: var(--nabd-color-bg-sunken);
-  color: var(--nabd-color-text-primary);
+  background: rgba(95, 217, 179, 0.14);
+  color: #1E332E;
 }
 
 .activeOption {
-  background: var(--nabd-color-bg-sunken);
-  color: var(--nabd-color-text-primary);
-  font-weight: 700;
+  background: #5FD9B3;
+  color: #1E332E;
+  font-weight: 850;
 }
 
 .checkIcon {
-  color: var(--nabd-color-text-primary);
+  color: #1E332E;
   font-weight: 900;
   font-size: 0.9rem;
 }

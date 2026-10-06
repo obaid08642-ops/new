@@ -74,7 +74,7 @@ export default function BookingStatusScreen() {
     if (mode === "pending" && confirmed) router.push(acceptedRoute(appointment, visitType));
   }, [mode, confirmed]);
 
-  const cancel = () => showLocalizedAlert(AR ? "إلغاء الحجز" : "Cancel appointment", AR ? "سنتحقق من إمكانية الإلغاء واسترداد المبلغ إلى وسيلة الدفع الأصلية. هل تريد المتابعة؟" : "The server will determine cancellation and any refund from the verified payment source. Continue?", [
+  const cancel = () => showLocalizedAlert(AR ? "إلغاء الحجز" : "Cancel appointment", AR ? "سيقرر الخادم أهلية الإلغاء والاسترداد من مصدر الدفع الموثق. هل تريد المتابعة؟" : "The server will determine cancellation and any refund from the verified payment source. Continue?", [
     { text: AR ? "رجوع" : "Back", style: "cancel" },
     { text: AR ? "إلغاء الحجز" : "Cancel appointment", style: "destructive", onPress: async () => {
       if (!appointmentId) return;

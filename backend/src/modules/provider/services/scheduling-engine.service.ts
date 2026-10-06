@@ -6,7 +6,6 @@ import { ProviderScheduleSlotRepository } from "./repositories/providerschedules
 import { ProviderRequestRepository } from "./repositories/providerrequest.repository";
 import { isProviderRole } from '../../../common/enums';
 import { ProviderProfileService } from './provider-profile.service';
-import { riyadhParts } from '../../../common/riyadh-clock';
 
 function assertProvider(user: any) {
   if (!user || !isProviderRole(user.role)) throw new ForbiddenException('provider scope required');
@@ -69,12 +68,8 @@ export class SchedulingEngineService {
    */
   async checkAvailability(provider_account_id: string, desiredAt: Date, duration_minutes: number = 30, service_type: string = 'all') {
     const d = new Date(desiredAt);
-    // 15.9: providers work in Asia/Riyadh. getDay()/getHours() read the
-    // PROCESS timezone (UTC in containers), so a Riyadh 09:00 opening was
-    // evaluated as 09:00 UTC — 3h off. Resolve dow + minutes in Riyadh.
-    const here = riyadhParts(d);
-    const dow = here.dow;
-    const startMin = here.hours * 60 + here.minutes;
+    const dow = d.getDay();
+    const startMin = d.getHours() * 60 + d.getMinutes();
     const endMin = startMin + duration_minutes;
     const slot = await this.slots.findOne({
       provider_account_id, day_of_week: dow, active: true,
@@ -113,10 +108,8 @@ export class SchedulingEngineService {
 
   /** Quick capacity flag: does provider have ANY active slot covering NOW? */
   async isOnDuty(provider_account_id: string, at: Date = new Date(), service_type: string = 'all') {
-    // 15.9: same Riyadh rule as checkAvailability — never process-local time.
-    const here = riyadhParts(new Date(at));
-    const dow = here.dow;
-    const minutes = here.hours * 60 + here.minutes;
+    const dow = at.getDay();
+    const minutes = at.getHours() * 60 + at.getMinutes();
     const slot = await this.slots.findOne({
       provider_account_id, day_of_week: dow, active: true,
       $or: [{ service_type: 'all' }, { service_type }, { service_type: { $exists: false } }],

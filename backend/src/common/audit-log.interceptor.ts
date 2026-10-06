@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { AuditService } from '../modules/security/audit.service';
+import { AuditService } from '../modules/security/security.module';
 
 export const AUDITED_KEY = 'audited';
 
@@ -17,11 +17,11 @@ export interface AuditMetadata {
 /**
  * Keys whose values must never land in the audit store in cleartext.
  * Audit logs are long-lived and broadly readable; credentials, OTP material,
- * national identifiers, payment instruments, contact PII, and medical data
- * would otherwise expand the breach scope of every audited mutation.
+ * national identifiers and payment instruments would otherwise expand the
+ * breach scope of every audited mutation.
  */
 const SENSITIVE_KEY_PATTERN =
-  /password|passwd|secret|token|otp|national[_-]?id|iqama|passport|iban|card[_-]?number|cvv|cvc|biometric|private[_-]?key|api[_-]?key|email|phone|mobile|address|dob|birth|ssn|patient|medical|health|diagnosis|prescription|treatment|symptom|condition|allergy|medication|blood|lab|radiology|report|clinical/i;
+  /password|passwd|secret|token|otp|national[_-]?id|iqama|passport|iban|card[_-]?number|cvv|cvc|biometric|private[_-]?key|api[_-]?key/i;
 
 const REDACTED = '[REDACTED]';
 const MAX_AUDIT_BODY_CHARS = 10_000;

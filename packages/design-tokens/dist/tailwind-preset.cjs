@@ -90,7 +90,7 @@ const colors = {
   "text-onInverseSecondary": "#9AA4B2",
   "text-link": {
     "light": "#C8202F",
-    "dark": "#FF8A91",
+    "dark": "#D7FF00",
     "DEFAULT": "#C8202F"
   },
   "text-price": {

@@ -1,4 +1,4 @@
-import { patientUpstreamFetch } from "@/lib/api/upstream";
+import { patientApiUrl } from "@/lib/api/upstream";
 import { isLocale, type Locale } from "@/lib/i18n";
 
 const slugSchema = /^[\p{L}\p{N}_-]{1,180}$/u;
@@ -116,7 +116,7 @@ export function cleanProductName(name?: string | null, officialName?: string | n
 
 async function getJson<T>(path: string, revalidate = 3600): Promise<T | null> {
   try {
-    const res = await patientUpstreamFetch(path, {
+    const res = await fetch(patientApiUrl(path), {
       headers: { Accept: "application/json" },
       next: { revalidate },
     } as RequestInit);

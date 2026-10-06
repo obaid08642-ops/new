@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { AdaptiveImage } from "./network/adaptive-image";
+import Image from "next/image";
 
 type Props = {
   id: string;
@@ -58,7 +58,7 @@ export function PremiumProductCard({ slug, name, price, oldPrice, image, images,
         <div style={{ aspectRatio: '1', position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, #FDFDFC 0%, #F0FDF9 100%)' }}>
           {allImages.length > 0 ? (
             <>
-              <AdaptiveImage
+              <Image
                 src={allImages[idx]}
                 alt={name}
                 fill

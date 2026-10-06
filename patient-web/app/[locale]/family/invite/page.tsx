@@ -23,7 +23,7 @@ export default async function FamilyInvitePage({ params }: Props) {
         <div className={styles.introText}>
           <p className={styles.eyebrow} style={{ color: "#1E332E", overflowWrap: "anywhere" }}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
           <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{locale === "ar" ? "دعوة فرد للعائلة" : "Invite a family member"}</h1>
-          <p style={{ overflowWrap: "anywhere" }}>{locale === "ar" ? "أنشئ كود دعوة وشاركه مع فرد العائلة." : "Create an invite code and share it with a family member."}</p>
+          <p style={{ overflowWrap: "anywhere" }}>{locale === "ar" ? "يُنشأ كود الدعوة من الخادم فقط — لا توجد أكواد وهمية." : "Invite codes are issued by the server only."}</p>
         </div>
         <div className={styles.introVector}><VectorFamily size={48} aria-hidden="true" /></div>
       </section>

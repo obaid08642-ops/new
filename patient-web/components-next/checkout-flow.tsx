@@ -327,8 +327,6 @@ export function CheckoutFlow({ locale }: Props) {
                 placeholder={isAr ? "مثال: عبد الله السعيد" : "e.g. Abdullah Al-Saeed"}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                autoComplete="name"
-                inputMode="text"
               />
             </div>
 
@@ -343,10 +341,7 @@ export function CheckoutFlow({ locale }: Props) {
                 required
                 placeholder="05XXXXXXXX"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value.replace(/[^\d٠-٩]/g, ""))}
-                autoComplete="tel"
-                inputMode="tel"
-                maxLength={15}
+                onChange={(e) => setPhone(e.target.value)}
               />
             </div>
 
@@ -418,8 +413,8 @@ export function CheckoutFlow({ locale }: Props) {
               <div className={`${styles.formField} ${styles.fullWidth}`} style={{ background: "#FEF3C7", padding: "10px", borderRadius: "10px" }}>
                 <span style={{ fontSize: "0.85rem", fontWeight: "bold" }}>
                   {isAr
-                    ? "تنبيه: سلتك تحتوي أدوية بوصفة — يلزم وصفة محفوظة وفعّالة، وسنتحقق منها قبل إنشاء الطلب."
-                    : "Notice: your cart has prescription medicines — an active saved prescription is required, and we check it before placing the order."}{" "}
+                    ? "تنبيه: سلتك تحتوي أدوية بوصفة — يلزم وصفة محفوظة وفعّالة، وسيتحقق الخادم منها قبل إنشاء الطلب."
+                    : "Notice: your cart has prescription medicines — an active saved prescription is required and verified server-side."}{" "}
                   <Link href={`/${locale}/pharmacy/scan-prescription`}>{isAr ? "رفع وصفة" : "Upload prescription"}</Link>
                 </span>
               </div>
@@ -555,10 +550,7 @@ export function CheckoutFlow({ locale }: Props) {
                     required
                     placeholder={isAr ? "مثال: 902384112" : "e.g. 902384112"}
                     value={policyNumber}
-                    onChange={(e) => setPolicyNumber(e.target.value.replace(/[^\d٠-٩]/g, ""))}
-                    autoComplete="off"
-                    inputMode="numeric"
-                    maxLength={20}
+                    onChange={(e) => setPolicyNumber(e.target.value)}
                   />
                 </div>
 
@@ -573,9 +565,7 @@ export function CheckoutFlow({ locale }: Props) {
                     maxLength={10}
                     placeholder="10XXXXXXXX / 2XXXXXXXXX"
                     value={nationalId}
-                    onChange={(e) => setNationalId(e.target.value.replace(/[^\d٠-٩]/g, ""))}
-                    autoComplete="off"
-                    inputMode="numeric"
+                    onChange={(e) => setNationalId(e.target.value)}
                   />
                 </div>
               </div>

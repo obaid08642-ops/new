@@ -1,76 +1,220 @@
-import React from 'react';
-import { Pressable, View } from 'react-native';
-import { router } from 'expo-router';
+// @ts-nocheck
+import React from "react";
+import { View, StyleSheet, ScrollView, StatusBar } from "react-native";
+import { router } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useApp } from "../../src/context/AppContext";
+import { Icon, IconName } from "../../src/components/Icon";
+import { AppText, Card, SectionHeader } from "../../src/components/ui";
 
-import { Icon, Screen, SectionHeader, ServiceTile, useTabBarHeight } from '../../../packages/ui-native/src';
-import { HUB_COLUMN, Txt, useScreenUi, useTileColumns } from '../../src/components/home/homeKit';
-import { ServiceRows } from '../../src/components/home/ServiceRows';
-import { MAIN_SERVICES, MORE_SERVICES } from '../../src/features/services/catalog';
+interface ServiceItem {
+  icon: IconName;
+  title: string;
+  desc: string;
+  route: string;
+  color: string;
+  badge?: string;
+}
 
-/**
- * Services — board ServiceHub (canvas/ServiceHub.dc.html). The board is the labs and radiology hub; this
- * screen takes its grammar: a 26/700 title with a pill link beside it, the 50 tall search pill, the soft
- * service tiles, and a white card of rows for the rest. The titles and routes are the ones the screen
- * already had.
- */
+const MAIN_SERVICES: ServiceItem[] = [
+  {
+    icon: "science",
+    title: "التحاليل المخبرية",
+    desc: "حجز تحاليل في المنزل أو المختبر",
+    route: "/(tabs)/diagnostics",
+    color: "#7A6BEA",
+  },
+  {
+    icon: "monitor_heart",
+    title: "التمريض المنزلي",
+    desc: "ممرضون معتمدون يصلون إليك",
+    route: "/(tabs)/nursing",
+    color: "#23B5CE",
+    badge: "جديد",
+  },
+  {
+    icon: "xray",
+    title: "الأشعة التشخيصية",
+    desc: "حجز أشعة سينية، رنين، أشعة مقطعية",
+    route: "/diagnostics/packages",
+    color: "#F0695C",
+  },
+  {
+    icon: "baby",
+    title: "رعاية الأمومة",
+    desc: "متابعة الحمل والولادة والنفاس",
+    route: "/maternity/pregnancy-tracker",
+    color: "#EC4899",
+  },
+];
+
+const MORE_SERVICES: ServiceItem[] = [
+  {
+    icon: "emergency",
+    title: "الطوارئ والإسعاف",
+    desc: "طلب إسعاف أو استشارة طارئة",
+    route: "/emergency/sos",
+    color: "#DC2626",
+  },
+  {
+    icon: "eye",
+    title: "فحص النظر",
+    desc: "حجز فحص عيون مع أخصائي",
+    route: "/consultations/specialty-select",
+    color: "#0EA5E9",
+  },
+  {
+    icon: "tooth",
+    title: "طب الأسنان",
+    desc: "تنظيف، حشو، تقويم، زراعة",
+    route: "/consultations/specialty-select",
+    color: "#14B8A6",
+  },
+  {
+    icon: "brain",
+    title: "الصحة النفسية",
+    desc: "استشارات نفسية وجلسات علاجية",
+    route: "/mental-health/hub",
+    color: "#A855F7",
+  },
+  {
+    icon: "food",
+    title: "التغذية والحمية",
+    desc: "خطط غذائية وتتبع السعرات",
+    route: "/nutrition/hub",
+    color: "#F0A526",
+  },
+  {
+    icon: "home",
+    title: "الرعاية المنزلية",
+    desc: "رعاية كبار السن والأمراض المزمنة",
+    route: "/(tabs)/nursing",
+    color: "#059669",
+  },
+];
+
 export default function ServicesScreen() {
-  const { theme, c, tr } = useScreenUi();
-  const barHeight = useTabBarHeight();
-  const cols = useTileColumns();
-  // the tiles sit two across on a phone and four across on a tablet
-  const perRow = cols === 4 ? 4 : 2;
-  const rows = [];
-  for (let i = 0; i < MAIN_SERVICES.length; i += perRow) rows.push(MAIN_SERVICES.slice(i, i + perRow));
+  const insets = useSafeAreaInsets();
+  const { colors, isDark } = useApp();
 
   return (
-    <Screen scroll theme={theme} edges={['top', 'start', 'end']} bottomSpace={barHeight + 40}>
-      <View style={{ ...HUB_COLUMN, paddingTop: 7, gap: 16 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <Txt accessibilityRole="header" weight="bold" size={26} style={{ flex: 1, letterSpacing: -0.3 }}>الخدمات</Txt>
-          <Pressable
-            accessibilityRole="link"
-            accessibilityLabel={tr('طلباتي')}
-            onPress={() => router.push('/orders')}
-            style={{ minHeight: 44, paddingHorizontal: 14, borderRadius: 22, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.onGlass, flexDirection: 'row', alignItems: 'center', gap: 6 }}
-          >
-            <Icon name="list" size={17} theme={theme} />
-            <Txt weight="medium" size={13.5}>طلباتي</Txt>
-          </Pressable>
-        </View>
-
-        <Pressable
-          accessibilityRole="search"
-          accessibilityLabel={tr('ابحث عن خدمة أو طبيب أو دواء')}
-          onPress={() => router.push('/search')}
-          style={{ minHeight: 50, borderRadius: 25, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.onGlass, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16 }}
-        >
-          <Icon name="search" size={20} theme={theme} tone="secondary" />
-          <Txt size={15} color={c.text.secondary} style={{ flex: 1 }}>ابحث عن خدمة أو طبيب أو دواء</Txt>
-        </Pressable>
-
-        <View style={{ gap: 10 }}>
-          <SectionHeader title={tr('الخدمات الرئيسية')} theme={theme} />
-          <View style={{ gap: 10 }}>
-            {rows.map((row, r) => (
-              <View key={r} style={{ flexDirection: 'row', gap: 10 }}>
-                {Array.from({ length: perRow }).map((_, i) => {
-                  const item = row[i];
-                  return (
-                    <View key={i} style={{ flex: 1 }}>
-                      {item ? <ServiceTile name={item.service} label={tr(item.title)} badge={item.badge ? tr(item.badge) : undefined} theme={theme} onPress={() => router.push(item.route as never)} /> : null}
-                    </View>
-                  );
-                })}
-              </View>
-            ))}
-          </View>
-        </View>
-
-        <View style={{ gap: 10 }}>
-          <SectionHeader title={tr('خدمات إضافية')} theme={theme} />
-          <ServiceRows items={MORE_SERVICES} />
-        </View>
+    <View style={[st.c, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle="light-content" />
+      <View style={[st.hdr, { paddingTop: insets.top + 12 }]}>
+        <AppText variant="h3" color="#fff">
+          الخدمات
+        </AppText>
+        <AppText variant="bodySM" color="rgba(255,255,255,0.85)">
+          جميع الخدمات الصحية في مكان واحد
+        </AppText>
       </View>
-    </Screen>
+
+      <ScrollView
+        contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: 120 }}
+      >
+        {/* Main services — large cards */}
+        <SectionHeader title="الخدمات الرئيسية" />
+        <View style={{ gap: 10 }}>
+          {MAIN_SERVICES.map((srv, i) => (
+            <Card
+              key={i}
+              onPress={() => router.push(srv.route as any)}
+              style={{
+                flexDirection: "row-reverse",
+                alignItems: "center",
+                gap: 14,
+              }}
+            >
+              <View style={[st.srvIcon, { backgroundColor: srv.color + "18" }]}>
+                <Icon name={srv.icon} size={26} color={srv.color} />
+              </View>
+              <View style={{ flex: 1, alignItems: "flex-end", gap: 3 }}>
+                <View
+                  style={{
+                    flexDirection: "row-reverse",
+                    gap: 6,
+                    alignItems: "center",
+                  }}
+                >
+                  <AppText variant="h6">{srv.title}</AppText>
+                  {srv.badge && (
+                    <View
+                      style={[st.badge, { backgroundColor: colors.success }]}
+                    >
+                      <AppText variant="caption" color="#fff">
+                        {srv.badge}
+                      </AppText>
+                    </View>
+                  )}
+                </View>
+                <AppText variant="caption" color={colors.textTertiary}>
+                  {srv.desc}
+                </AppText>
+              </View>
+              <Icon name="chevronLeft" size={18} color={colors.textTertiary} />
+            </Card>
+          ))}
+        </View>
+
+        {/* More services — grid */}
+        <SectionHeader title="خدمات إضافية" />
+        <View
+          style={{ flexDirection: "row-reverse", flexWrap: "wrap", gap: 10 }}
+        >
+          {MORE_SERVICES.map((srv, i) => (
+            <Card
+              key={i}
+              onPress={() => router.push(srv.route as any)}
+              style={[st.gridCard]}
+            >
+              <View
+                style={[st.gridIcon, { backgroundColor: srv.color + "18" }]}
+              >
+                <Icon name={srv.icon} size={24} color={srv.color} />
+              </View>
+              <AppText variant="labelSM" align="center" numberOfLines={1}>
+                {srv.title}
+              </AppText>
+              <AppText
+                variant="caption"
+                color={colors.textTertiary}
+                align="center"
+                numberOfLines={2}
+              >
+                {srv.desc}
+              </AppText>
+            </Card>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
   );
 }
+
+const st = StyleSheet.create({
+  c: { flex: 1 },
+  hdr: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
+    gap: 4,
+  },
+  srvIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 },
+  gridCard: { width: "47%", alignItems: "center", gap: 6, paddingVertical: 16 },
+  gridIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});

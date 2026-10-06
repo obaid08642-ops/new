@@ -42,7 +42,7 @@ export default async function FamilyPermissionsPage({ params }: Props) {
         <div className={styles.introText}>
           <p className={styles.eyebrow} style={{ color: "#1E332E", overflowWrap: "anywhere" }}><ShieldCheck size={15} aria-hidden="true" />{ar ? "الخصوصية والموافقات" : "Permissions"}</p>
           <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{ar ? "أذونات الأعضاء" : "Member permissions"}</h1>
-          <p style={{ overflowWrap: "anywhere" }}>{ar ? "تحكّم بمن يرى السجل الصحي والوصفات." : "Control who can see health records and prescriptions."}</p>
+          <p style={{ overflowWrap: "anywhere" }}>{ar ? "تحكّم بمن يرى السجل الصحي والوصفات — تُحفظ الأذونات عبر الخادم فقط." : "Control who sees health records — persisted server-side only."}</p>
         </div>
         <div className={styles.introVector}><VectorFamily size={48} aria-hidden="true" /></div>
       </section>

@@ -46,7 +46,7 @@
 }
 .nabd-doctor-card__info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
 .nabd-doctor-card__title { display: flex; align-items: center; gap: 6px; }
-.nabd-doctor-card__name { font-size: var(--nabd-font-size-h4); font-weight: 700; }
+.nabd-doctor-card__name { font-size: 17px; font-weight: 700; }
 .nabd-doctor-card__grade {
   align-self: flex-start;
   height: 24px;
@@ -54,7 +54,7 @@
   border-radius: 12px;
   background: var(--nabd-color-service-blue-bg);
   color: var(--nabd-color-service-blue-fg);
-  font-size: var(--nabd-font-size-meta);
+  font-size: 12px;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
@@ -79,23 +79,21 @@
   padding-inline-start: 12px;
   padding-inline-end: 14px;
   background: linear-gradient(180deg, var(--nabd-color-action-primary-gradient-from) 0%, var(--nabd-color-action-primary-gradient-to) 100%);
-  /* solid fallback under the gradient: what the colour checks and forced-colours see */
-  background-color: var(--nabd-color-action-primary-bg);
   color: var(--nabd-color-action-primary-fg);
   display: flex;
   align-items: center;
   gap: 10px;
 }
 .nabd-doctor-card__slot { display: flex; align-items: center; gap: 4px; font-size: var(--nabd-font-size-caption); }
-.nabd-doctor-card__price { margin-inline-start: auto; font-size: var(--nabd-font-size-input); font-weight: 700; }
-.nabd-doctor-card__currency { font-size: var(--nabd-font-size-tag); font-weight: 400; }
+.nabd-doctor-card__price { margin-inline-start: auto; font-size: 16px; font-weight: 700; }
+.nabd-doctor-card__currency { font-size: 11px; font-weight: 400; }
 .nabd-doctor-card__book {
   height: 40px;
   padding-inline: 18px;
   border-radius: 14px;
   background: var(--nabd-color-bg-surface);
   color: var(--nabd-color-action-primary-bg);
-  font-size: var(--nabd-font-size-body);
+  font-size: 15px;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
@@ -141,18 +139,18 @@
   border-radius: 11px;
   background: var(--nabd-color-action-primary-bg);
   color: var(--nabd-color-action-primary-fg);
-  font-size: var(--nabd-font-size-tag);
+  font-size: 11px;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
 }
-.nabd-product-card__name { font-size: var(--nabd-font-size-control); font-weight: 600; line-height: 1.4; }
-.nabd-product-card__meta { font-size: var(--nabd-font-size-meta); color: var(--nabd-color-text-secondary); }
+.nabd-product-card__name { font-size: 14px; font-weight: 600; line-height: 1.4; }
+.nabd-product-card__meta { font-size: 12px; color: var(--nabd-color-text-secondary); }
 .nabd-product-card__bar { display: flex; justify-content: space-between; align-items: center; }
 .nabd-product-card__prices { display: flex; flex-direction: column; }
-.nabd-product-card__price { font-size: var(--nabd-font-size-input); font-weight: 700; }
-.nabd-product-card__currency { font-size: var(--nabd-font-size-tag); font-weight: 400; }
-.nabd-product-card__rx { font-size: var(--nabd-font-size-tag); font-weight: 600; color: var(--nabd-color-status-warning-fg); }
+.nabd-product-card__price { font-size: 16px; font-weight: 700; }
+.nabd-product-card__currency { font-size: 11px; font-weight: 400; }
+.nabd-product-card__rx { font-size: 11px; font-weight: 600; color: var(--nabd-color-status-warning-fg); }
 /* the add button: 40 to look at, 44 to hit */
 .nabd-product-card__add {
   width: 40px;
@@ -205,18 +203,18 @@
   padding-inline: 9px;
   border-radius: 12px;
   background: var(--nabd-color-bg-surface);
-  font-size: var(--nabd-font-size-tag);
+  font-size: 11px;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
 }
 .nabd-offer-card__body { padding-block: 12px; padding-inline: 14px; display: flex; flex-direction: column; gap: 4px; }
-.nabd-offer-card__title { font-size: var(--nabd-font-size-segment); font-weight: 700; }
-.nabd-offer-card__provider { font-size: var(--nabd-font-size-meta); color: var(--nabd-color-text-secondary); }
+.nabd-offer-card__title { font-size: 14.5px; font-weight: 700; }
+.nabd-offer-card__provider { font-size: 12px; color: var(--nabd-color-text-secondary); }
 .nabd-offer-card__prices { display: flex; align-items: baseline; gap: 6px; margin-block-start: 4px; }
-.nabd-offer-card__price { font-size: var(--nabd-font-size-h4); font-weight: 700; color: var(--nabd-color-text-price); }
-.nabd-offer-card__currency { font-size: var(--nabd-font-size-tag); color: var(--nabd-color-text-secondary); }
-.nabd-offer-card__was { font-size: var(--nabd-font-size-meta); color: var(--nabd-color-text-secondary); text-decoration: line-through; }
+.nabd-offer-card__price { font-size: 17px; font-weight: 700; color: var(--nabd-color-text-price); }
+.nabd-offer-card__currency { font-size: 11px; color: var(--nabd-color-text-secondary); }
+.nabd-offer-card__was { font-size: 12px; color: var(--nabd-color-text-secondary); text-decoration: line-through; }
 
 /* Timeline (canvas/OrderTracking): 14 between the steps (the card's gap), each step
    at least 56 tall, the last one 30 */
@@ -250,7 +248,7 @@
 .nabd-timeline__label { font-size: var(--nabd-font-size-body); font-weight: 500; color: var(--nabd-color-text-primary); }
 .nabd-timeline__label--current { font-weight: 700; }
 .nabd-timeline__label--upcoming { color: var(--nabd-color-text-secondary); }
-.nabd-timeline__time { font-size: var(--nabd-font-size-meta); color: var(--nabd-color-text-secondary); }
+.nabd-timeline__time { font-size: 12px; color: var(--nabd-color-text-secondary); }
 
 /* ProgressRing (canvas/CareHub). The size is free, so the box is the SVG's own
    width/height attributes (r 44 and stroke 10 in a 104 box, scaled with it): the
@@ -271,4 +269,4 @@
   container-type: inline-size;
 }
 .nabd-progress-ring__value { font-size: calc(100cqi * 24 / 104); font-weight: 700; color: var(--nabd-color-text-primary); }
-.nabd-progress-ring__caption { font-size: var(--nabd-font-size-tag); color: var(--nabd-color-text-secondary); }
+.nabd-progress-ring__caption { font-size: 11px; color: var(--nabd-color-text-secondary); }

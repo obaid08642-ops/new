@@ -49,12 +49,9 @@ export function FIcon({ icon, tone, size = 52, chip = 'soft', label, testID, the
           <Rect width={size} height={size} rx={radius} fill={`url(#${gradientId})`} />
         </Svg>
       ) : null}
-      {/* above the gradient: a positioned sibling paints over static content on web */}
-      <View style={{ zIndex: 1 }}>
-        <Svg width={glyph} height={glyph} viewBox={FILL_ICON_VIEWBOX}>
-          <Path d={FILL_ICON_PATHS[icon]} fill={chip === 'solid' ? t.color.icon.onSolid : c.fg} />
-        </Svg>
-      </View>
+      <Svg width={glyph} height={glyph} viewBox={FILL_ICON_VIEWBOX}>
+        <Path d={FILL_ICON_PATHS[icon]} fill={chip === 'solid' ? t.color.icon.onSolid : c.fg} />
+      </Svg>
     </View>
   );
 }

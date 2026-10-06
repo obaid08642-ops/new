@@ -371,66 +371,6 @@ export interface Tokens {
         readonly lineHeight: string;
         readonly weight: number;
       };
-      readonly tag: {
-        readonly size: string;
-        readonly lineHeight: string;
-        readonly weight: number;
-      };
-      readonly meta: {
-        readonly size: string;
-        readonly lineHeight: string;
-        readonly weight: number;
-      };
-      readonly small: {
-        readonly size: string;
-        readonly lineHeight: string;
-        readonly weight: number;
-      };
-      readonly control: {
-        readonly size: string;
-        readonly lineHeight: string;
-        readonly weight: number;
-      };
-      readonly segment: {
-        readonly size: string;
-        readonly lineHeight: string;
-        readonly weight: number;
-      };
-      readonly row: {
-        readonly size: string;
-        readonly lineHeight: string;
-        readonly weight: number;
-      };
-      readonly input: {
-        readonly size: string;
-        readonly lineHeight: string;
-        readonly weight: number;
-      };
-      readonly stat: {
-        readonly size: string;
-        readonly lineHeight: string;
-        readonly weight: number;
-      };
-      readonly avatar: {
-        readonly size: string;
-        readonly lineHeight: string;
-        readonly weight: number;
-      };
-      readonly authTitle: {
-        readonly size: string;
-        readonly lineHeight: string;
-        readonly weight: number;
-      };
-      readonly heroTitle: {
-        readonly size: string;
-        readonly lineHeight: string;
-        readonly weight: number;
-      };
-      readonly authTitleLg: {
-        readonly size: string;
-        readonly lineHeight: string;
-        readonly weight: number;
-      };
     };
     readonly weights: {
       readonly regular: number;
@@ -913,66 +853,6 @@ const lightTree: Tokens = {
         "lineHeight": "1.3",
         "weight": 500,
       },
-      "tag": {
-        "size": "11px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "meta": {
-        "size": "12px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "small": {
-        "size": "13.5px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "control": {
-        "size": "14px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "segment": {
-        "size": "14.5px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "row": {
-        "size": "15.5px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "input": {
-        "size": "16px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "stat": {
-        "size": "22px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "avatar": {
-        "size": "23px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "authTitle": {
-        "size": "28px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "heroTitle": {
-        "size": "34px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "authTitleLg": {
-        "size": "36px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
     },
     "weights": {
       "regular": 400,
@@ -1113,7 +993,7 @@ const darkTree: Tokens = {
       "onBrand": "#0B1B2B",
       "onInverse": "#F5F5F7",
       "onInverseSecondary": "#9AA4B2",
-      "link": "#FF8A91",
+      "link": "#D7FF00",
       "price": "#FF8A91",
       "onAccent": "#0B1B2B",
     },
@@ -1453,66 +1333,6 @@ const darkTree: Tokens = {
       "micro": {
         "size": "11.5px",
         "lineHeight": "1.3",
-        "weight": 500,
-      },
-      "tag": {
-        "size": "11px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "meta": {
-        "size": "12px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "small": {
-        "size": "13.5px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "control": {
-        "size": "14px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "segment": {
-        "size": "14.5px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "row": {
-        "size": "15.5px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "input": {
-        "size": "16px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "stat": {
-        "size": "22px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "avatar": {
-        "size": "23px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "authTitle": {
-        "size": "28px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "heroTitle": {
-        "size": "34px",
-        "lineHeight": "1.4",
-        "weight": 500,
-      },
-      "authTitleLg": {
-        "size": "36px",
-        "lineHeight": "1.4",
         "weight": 500,
       },
     },
@@ -1961,42 +1781,6 @@ export const light: Readonly<Record<string, string | number>> = Object.freeze({
   "font.size.micro.size": "11.5px",
   "font.size.micro.lineHeight": "1.3",
   "font.size.micro.weight": 500,
-  "font.size.tag.size": "11px",
-  "font.size.tag.lineHeight": "1.4",
-  "font.size.tag.weight": 500,
-  "font.size.meta.size": "12px",
-  "font.size.meta.lineHeight": "1.4",
-  "font.size.meta.weight": 500,
-  "font.size.small.size": "13.5px",
-  "font.size.small.lineHeight": "1.4",
-  "font.size.small.weight": 500,
-  "font.size.control.size": "14px",
-  "font.size.control.lineHeight": "1.4",
-  "font.size.control.weight": 500,
-  "font.size.segment.size": "14.5px",
-  "font.size.segment.lineHeight": "1.4",
-  "font.size.segment.weight": 500,
-  "font.size.row.size": "15.5px",
-  "font.size.row.lineHeight": "1.4",
-  "font.size.row.weight": 500,
-  "font.size.input.size": "16px",
-  "font.size.input.lineHeight": "1.4",
-  "font.size.input.weight": 500,
-  "font.size.stat.size": "22px",
-  "font.size.stat.lineHeight": "1.4",
-  "font.size.stat.weight": 500,
-  "font.size.avatar.size": "23px",
-  "font.size.avatar.lineHeight": "1.4",
-  "font.size.avatar.weight": 500,
-  "font.size.authTitle.size": "28px",
-  "font.size.authTitle.lineHeight": "1.4",
-  "font.size.authTitle.weight": 500,
-  "font.size.heroTitle.size": "34px",
-  "font.size.heroTitle.lineHeight": "1.4",
-  "font.size.heroTitle.weight": 500,
-  "font.size.authTitleLg.size": "36px",
-  "font.size.authTitleLg.lineHeight": "1.4",
-  "font.size.authTitleLg.weight": 500,
   "font.weights.regular": 400,
   "font.weights.medium": 500,
   "font.weights.semiBold": 700,
@@ -2074,7 +1858,7 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "color.text.onBrand": "#0B1B2B",
   "color.text.onInverse": "#F5F5F7",
   "color.text.onInverseSecondary": "#9AA4B2",
-  "color.text.link": "#FF8A91",
+  "color.text.link": "#D7FF00",
   "color.text.price": "#FF8A91",
   "color.text.onAccent": "#0B1B2B",
   "color.icon.primary": "#F5F5F7",
@@ -2268,42 +2052,6 @@ export const dark: Readonly<Record<string, string | number>> = Object.freeze({
   "font.size.micro.size": "11.5px",
   "font.size.micro.lineHeight": "1.3",
   "font.size.micro.weight": 500,
-  "font.size.tag.size": "11px",
-  "font.size.tag.lineHeight": "1.4",
-  "font.size.tag.weight": 500,
-  "font.size.meta.size": "12px",
-  "font.size.meta.lineHeight": "1.4",
-  "font.size.meta.weight": 500,
-  "font.size.small.size": "13.5px",
-  "font.size.small.lineHeight": "1.4",
-  "font.size.small.weight": 500,
-  "font.size.control.size": "14px",
-  "font.size.control.lineHeight": "1.4",
-  "font.size.control.weight": 500,
-  "font.size.segment.size": "14.5px",
-  "font.size.segment.lineHeight": "1.4",
-  "font.size.segment.weight": 500,
-  "font.size.row.size": "15.5px",
-  "font.size.row.lineHeight": "1.4",
-  "font.size.row.weight": 500,
-  "font.size.input.size": "16px",
-  "font.size.input.lineHeight": "1.4",
-  "font.size.input.weight": 500,
-  "font.size.stat.size": "22px",
-  "font.size.stat.lineHeight": "1.4",
-  "font.size.stat.weight": 500,
-  "font.size.avatar.size": "23px",
-  "font.size.avatar.lineHeight": "1.4",
-  "font.size.avatar.weight": 500,
-  "font.size.authTitle.size": "28px",
-  "font.size.authTitle.lineHeight": "1.4",
-  "font.size.authTitle.weight": 500,
-  "font.size.heroTitle.size": "34px",
-  "font.size.heroTitle.lineHeight": "1.4",
-  "font.size.heroTitle.weight": 500,
-  "font.size.authTitleLg.size": "36px",
-  "font.size.authTitleLg.lineHeight": "1.4",
-  "font.size.authTitleLg.weight": 500,
   "font.weights.regular": 400,
   "font.weights.medium": 500,
   "font.weights.semiBold": 700,

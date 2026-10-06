@@ -17,8 +17,6 @@ export default defineConfig({
       "@nabd/design-tokens": path.resolve(templateRoot, "../packages/design-tokens/dist/ts/tokens.ts"),
       "@nabd/ui/icons/illustrated": path.resolve(templateRoot, "../packages/ui/icons/illustrated.ts"),
       "@nabd/ui/icons/illustrations": path.resolve(templateRoot, "../packages/ui/icons/illustrations.ts"),
-      "@nabd/ui/icons/line": path.resolve(templateRoot, "../packages/ui/icons/line.ts"),
-      "@nabd/ui/icons/illustrated-names": path.resolve(templateRoot, "../packages/ui/icons/illustrated-names.ts"),
       "@nabd/ui/icons/names": path.resolve(templateRoot, "../packages/ui/icons/names.ts"),
       "@nabd/ui/components/contract": path.resolve(templateRoot, "../packages/ui/components/contract.ts"),
       "@nabd/ui/components/fixtures": path.resolve(templateRoot, "../packages/ui/components/fixtures.ts"),

@@ -107,15 +107,15 @@ export function NutritionBodyTargetClient({ locale }: { locale: string }) {
       </section>
       <section aria-label={ar ? "الجسم" : "Body"}>
         <h2>{ar ? "الجسم" : "Body"}</h2>
-<label>{ar ? "الطول (سم)" : "Height (cm)"} <input inputMode="numeric" value={form.height} onChange={(e) => set("height", e.target.value.replace(/[^\d٠-٩]/g, ""))} autoComplete="off" /></label>{" "}
-        <label>{ar ? "الوزن (كجم)" : "Weight (kg)"} <input inputMode="numeric" value={form.weight} onChange={(e) => set("weight", e.target.value.replace(/[^\d٠-٩]/g, ""))} autoComplete="off" /></label>{" "}
-        <label>{ar ? "الوزن المستهدف (كجم)" : "Target weight (kg)"} <input inputMode="numeric" value={form.targetWeight} onChange={(e) => set("targetWeight", e.target.value.replace(/[^\d٠-٩]/g, ""))} autoComplete="off" /></label>{" "}
+        <label>{ar ? "الطول (سم)" : "Height (cm)"} <input inputMode="decimal" value={form.height} onChange={(e) => set("height", e.target.value)} /></label>{" "}
+        <label>{ar ? "الوزن (كجم)" : "Weight (kg)"} <input inputMode="decimal" value={form.weight} onChange={(e) => set("weight", e.target.value)} /></label>{" "}
+        <label>{ar ? "الوزن المستهدف (كجم)" : "Target weight (kg)"} <input inputMode="decimal" value={form.targetWeight} onChange={(e) => set("targetWeight", e.target.value)} /></label>
         {form.bmi !== null ? <p>BMI: {form.bmi}</p> : null}
       </section>
       <section aria-label={ar ? "الملخص اليومي" : "Daily summary"}>
         <h2>{ar ? "الملخص اليومي" : "Daily summary"}</h2>
-        <label>{ar ? "السعرات اليومية" : "Daily calories"} <input inputMode="numeric" value={form.calorieTarget} onChange={(e) => set("calorieTarget", e.target.value.replace(/[^\d٠-٩]/g, ""))} autoComplete="off" /></label>{" "}
-        <label>{ar ? "الماء اليومي (مل)" : "Daily water (ml)"} <input inputMode="numeric" value={form.waterTarget} onChange={(e) => set("waterTarget", e.target.value.replace(/[^\d٠-٩]/g, ""))} autoComplete="off" /></label>
+        <label>{ar ? "السعرات اليومية" : "Daily calories"} <input inputMode="numeric" value={form.calorieTarget} onChange={(e) => set("calorieTarget", e.target.value)} /></label>{" "}
+        <label>{ar ? "الماء اليومي (مل)" : "Daily water (ml)"} <input inputMode="numeric" value={form.waterTarget} onChange={(e) => set("waterTarget", e.target.value)} /></label>
       </section>
       <section aria-label={ar ? "الإعداد" : "Setup"}>
         <h2>{ar ? "الإعداد" : "Setup"}</h2>

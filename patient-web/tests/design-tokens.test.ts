@@ -61,11 +61,7 @@ describe("Nabd+ typography", () => {
   it("exposes the whole type scale with a line height for Arabic", () => {
     const scale = typeScale();
     expect(Object.keys(scale).sort()).toEqual(
-      [
-        "body", "bodyLg", "bodyStrong", "caption", "display", "h1", "h2", "h3", "h4", "label", "micro",
-        // the handoff boards' component sizes (Batch 0): named here so no screen writes a px size
-        "tag", "meta", "small", "control", "segment", "row", "input", "stat", "avatar", "authTitle", "heroTitle", "authTitleLg",
-      ].sort(),
+      ["body", "bodyLg", "bodyStrong", "caption", "display", "h1", "h2", "h3", "h4", "label", "micro"].sort(),
     );
     for (const [name, step] of Object.entries(scale)) {
       expect(step.size, `${name}.size`).toMatch(/^\d+(\.\d+)?px$/);

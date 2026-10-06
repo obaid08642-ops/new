@@ -4,19 +4,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({ accessToken: "dashboard-server-token-never-in-html", redirect: vi.fn(), profile: vi.fn(), appointment: vi.fn() }));
 
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: (name: string) => (name === "nabd_access" ? { value: state.accessToken } : undefined) }) }));
-vi.mock("next/navigation", () => ({ redirect: state.redirect, useRouter: () => ({ push: vi.fn() }) }));
+vi.mock("next/navigation", () => ({ redirect: state.redirect }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
-vi.mock("@/lib/i18n", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/lib/i18n")>()), isLocale: () => true }));
+vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
 vi.mock("@/lib/api/dashboard-server", () => ({ getPatientDashboardProfile: state.profile, getPatientDashboardUpcomingAppointment: state.appointment }));
 
 import DashboardPage from "./page";
-import { HomeShell } from "@/components-next/home/home-shell";
-
-/** The page returns the async <HomeShell>; resolve it once, then render the tree it returns. */
-async function renderPage(locale: string) {
-  const element = (await DashboardPage({ params: Promise.resolve({ locale }) })) as { props: Parameters<typeof HomeShell>[0] };
-  return renderToStaticMarkup(await HomeShell(element.props));
-}
 
 describe("dashboard SSR boundary", () => {
   beforeEach(() => {
@@ -27,11 +20,11 @@ describe("dashboard SSR boundary", () => {
   });
 
   it("renders the protected feature links without serializing the session token", async () => {
-    const html = await renderPage("en");
+    const html = renderToStaticMarkup(await DashboardPage({ params: Promise.resolve({ locale: "en" }) }));
 
     expect(html).not.toContain(state.accessToken);
     for (const href of ["/en/orders", "/en/appointments", "/en/health", "/en/reminders", "/en/diagnostics", "/en/home-care", "/en/family", "/en/chat", "/en/notifications", "/en/prescriptions", "/en/medicines", "/en/profile"]) expect(html).toContain(href);
-    expect(html).toContain('aria-labelledby="patient-dashboard-title"');
+    expect(html).toContain('aria-label="title"');
   });
 
   it("redirects missing sessions to the locale-specific sign-in route", async () => {

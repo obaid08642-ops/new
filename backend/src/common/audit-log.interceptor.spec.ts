@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
 import { AuditLogInterceptor, AUDITED_KEY, redactAuditBody, redactAuditValue } from './audit-log.interceptor';
 import { getModelToken, InjectConnection } from '@nestjs/mongoose';
-import { AuditService } from '../modules/security/audit.service';
+import { AuditService } from '../modules/security/security.module';
 import { Connection } from 'mongoose';
 import { of } from 'rxjs';
 

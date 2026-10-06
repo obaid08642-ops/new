@@ -67,7 +67,7 @@ export default function Screen() {
       const up = await apiFetch<any>('/media/upload', { method: 'POST', body: formData });
       const url = up?.url || up?.data?.url;
       if (url) setAttachmentUrl(url);
-      else showLocalizedAlert('تعذّر الرفع', 'تعذّر رفع المرفق. حاول مرة أخرى.');
+      else showLocalizedAlert('تعذّر الرفع', 'لم يُرجع الخادم رابطًا للمرفق.');
     } catch (err: any) {
       logError('insurance:submit-claim:upload', err);
       showLocalizedAlert('تعذّر إرفاق الفاتورة', err?.message || 'حاول مرة أخرى.');

@@ -57,7 +57,7 @@ export function PharmacyBarcodeClient({ locale }: { locale: string }) {
       <form onSubmit={(e) => { e.preventDefault(); lookup(code); }}>
         <label>
           <span>{ar ? "أدخل رمز الباركود" : "Enter barcode"}</span>
-          <input value={code} onChange={(e) => setCode(e.target.value.replace(/[^\d٠-٩]/g, ""))} inputMode="numeric" autoComplete="off"
+          <input value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" autoComplete="off"
             placeholder="6281234567890" />
         </label>
         <button type="submit" disabled={looking || !code.trim()}>{looking ? <LoaderCircle size={17} aria-hidden="true" /> : null}{ar ? "بحث" : "Look up"}</button>

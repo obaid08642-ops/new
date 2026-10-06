@@ -1,7 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { staffRoleOf } from '../../../../lib/admin-session';
 import { randomBytes } from 'node:crypto';
-import { upstreamRequest } from '@/lib/http/upstream';
+
+function backendBase() {
+  const value = process.env.ADMIN_BACKEND_URL;
+  if (!value) throw new Error('ADMIN_BACKEND_URL is required');
+  return value.replace(/\/$/, '');
+}
 
 function cookie(name: string, value: string, httpOnly = true) {
   const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
@@ -16,12 +21,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!identifier || !response) return res.status(400).json({ code: 'identifier_and_passkey_response_required' });
 
   try {
-    // 15.1: a WebAuthn assertion cannot be replayed — never retried.
-    const upstream = await upstreamRequest('/api/v1/auth/passkey/login/verify', {
+    const upstream = await fetch(`${backendBase()}/api/v1/auth/passkey/login/verify`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', accept: 'application/json' },
       body: JSON.stringify({ identifier: String(identifier), response }),
-      idempotent: false,
     });
     const payload = await upstream.json().catch(() => ({}));
     if (!upstream.ok) return res.status(upstream.status).json(payload);

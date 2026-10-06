@@ -1,4 +1,17 @@
 /**
+// GENERATED FILE — DO NOT EDIT.
+//
+// Mirrored from packages/ui/icons/illustrations.ts by tools/design/sync-ui-components.mjs.
+//
+// patient-web cannot import from packages/: Turbopack refuses to resolve outside
+// the app root, and the type checker does not, so the failure only appears at
+// `next build`. This file is a copy, not a port — the renderer a screen uses and
+// the renderer the conformance gallery exercises are the same code, so the
+// artwork cannot drift between them. Run the script after changing the package;
+// `--check` in CI fails if this drifts.
+//
+// tests/module-boundary.test.ts enforces the boundary this mirror exists to work
+// around.
  * The illustration set — 12.A6.
  *
  * Seventeen SCENES, on a 64x64 grid, drawn with the same primitives and the same
@@ -25,19 +38,6 @@
  * mark and a badge; the illustrated ICONS stay on 48. `viewBox` is therefore a
  * property of the set, not of the component, and is exported as `GRID`.
  */
-// GENERATED FILE — DO NOT EDIT.
-//
-// Mirrored from packages/ui/icons/illustrations.ts by tools/design/sync-ui-components.mjs.
-//
-// patient-web cannot import from packages/: Turbopack refuses to resolve outside
-// the app root, and the type checker does not, so the failure only appears at
-// `next build`. This file is a copy, not a port — the renderer a screen uses and
-// the renderer the conformance gallery exercises are the same code, so the
-// artwork cannot drift between them. Run the script after changing the package;
-// `--check` in CI fails if this drifts.
-//
-// tests/module-boundary.test.ts enforces the boundary this mirror exists to work
-// around.
 
 import type { Prim } from './illustrated';
 

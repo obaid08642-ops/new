@@ -9,7 +9,7 @@ describe('patient-owned controller contracts', () => {
 
   it('rejects maternity access without a verified patient and never substitutes guest', () => {
     const service = { getProfile: jest.fn() };
-    const controller = new MaternityController(service as any, {} as never);
+    const controller = new MaternityController(service as any);
 
     expect(() => controller.getProfile(missingUserRequest)).toThrow(UnauthorizedException);
     controller.getProfile(patientRequest);

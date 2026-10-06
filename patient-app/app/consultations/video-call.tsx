@@ -75,7 +75,7 @@ export default function VideoCallScreen() {
         }
 
         if (!token) {
-          throw new Error('تعذّر بدء مكالمة الفيديو الآن. حاول مرة أخرى بعد قليل.');
+          throw new Error('تعذر بدء غرفة الفيديو — لم يصل رمز اتصال صالح من الخادم');
         }
 
         // FaceTime-class quality: capture HD 720p, publish with simulcast layers so

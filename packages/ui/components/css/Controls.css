@@ -35,8 +35,8 @@
   opacity: 1;
   transition: background-color 200ms cubic-bezier(.22, 1, .36, 1), box-shadow 200ms cubic-bezier(.22, 1, .36, 1);
 }
-.nabd-segmented--sm .nabd-segmented__pill { height: 38px; font-size: var(--nabd-font-size-small); }
-.nabd-segmented--md .nabd-segmented__pill { height: 44px; font-size: var(--nabd-font-size-segment); }
+.nabd-segmented--sm .nabd-segmented__pill { height: 38px; font-size: 13.5px; }
+.nabd-segmented--md .nabd-segmented__pill { height: 44px; font-size: 14.5px; }
 .nabd-segmented__pill--on { font-weight: 700; background: var(--nabd-color-bg-surface); box-shadow: var(--nabd-shadow-segmented); }
 .nabd-segmented__pill--disabled { opacity: 0.5; }
 
@@ -99,7 +99,7 @@
 .nabd-radio--divider { border-block-end: 1px solid var(--nabd-color-border-subtle); }
 .nabd-radio--inert { cursor: not-allowed; }
 .nabd-radio--disabled { opacity: 0.5; }
-.nabd-radio__label { flex: 1; font-size: var(--nabd-font-size-row); font-weight: 400; }
+.nabd-radio__label { flex: 1; font-size: 15.5px; font-weight: 400; }
 .nabd-radio__label--on { font-weight: 700; }
 .nabd-radio__meta { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); }
 .nabd-radio__ring {
@@ -121,7 +121,7 @@
   display: inline-flex;
   align-items: center;
   white-space: nowrap;
-  font-size: var(--nabd-font-size-meta);
+  font-size: 12px;
   font-weight: 600;
   background: var(--nabd-tone-bg);
   color: var(--nabd-tone-fg);

@@ -149,7 +149,7 @@ const LINE_COMPONENTS = {
   user: 'User', users: 'UsersThree', home: 'House', heart: 'Heart', clock: 'Clock',
   pin: 'MapPin', phone: 'Phone', card: 'CreditCard', star: 'Star', check: 'Check',
   'check-circle': 'CheckCircle', close: 'X', plus: 'Plus', minus: 'Minus',
-  filter: 'Funnel', sliders: 'SlidersHorizontal', eye: 'Eye', 'eye-slash': 'EyeSlash', settings: 'Gear', list: 'List', download: 'DownloadSimple',
+  filter: 'Funnel', sliders: 'SlidersHorizontal', settings: 'Gear', list: 'List', download: 'DownloadSimple',
   trash: 'Trash', warning: 'Warning', signout: 'SignOut',
   'caret-down': 'CaretDown', 'caret-up': 'CaretUp', 'caret-left': 'CaretLeft', 'caret-right': 'CaretRight',
 };

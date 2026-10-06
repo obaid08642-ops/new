@@ -24,7 +24,6 @@ import { logError } from '../../src/utils/logger';
 import { useCart } from '../../src/context/CartContext';
 import { pickLocalized } from '../../src/utils/localize';
 import { ScreenState } from '../../src/components/ScreenStates';
-import { useOptimisticMutation } from '../../src/hooks/useOptimisticMutation';
 
 export default function WishlistScreen() {
   const insets = useSafeAreaInsets();
@@ -35,17 +34,6 @@ export default function WishlistScreen() {
   const [addingId, setAddingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string|null>(null);
-
-  // 15.3: a wishlist removal is safe to apply immediately. If the server refuses,
-  // the row comes back and a toast explains why.
-  const removingIdRef = React.useRef<string | null>(null);
-  const removeMutation = useOptimisticMutation<any[]>({
-    kind: 'wishlist',
-    read: () => items,
-    write: setItems,
-    apply: (current) => current.filter((entry) => entry.id !== removingIdRef.current),
-    locale: 'ar',
-  });
 
   const loadWishlist = async () => {
     setLoading(true);
@@ -63,9 +51,13 @@ export default function WishlistScreen() {
   React.useEffect(() => { loadWishlist(); }, []);
 
   const removeFromWishlist = async (id: string) => {
-    removingIdRef.current = id;
-    await removeMutation.run(() => apiFetch(`/users/me/wishlist/${id}`, { method: 'POST' }).then(() => undefined));
-    removingIdRef.current = null;
+    const prev = items;
+    setItems((p) => p.filter((i) => i.id !== id));
+    try {
+      await apiFetch(`/users/me/wishlist/${id}`, { method: 'POST' });
+    } catch (err) {
+      setItems(prev); // revert on failure
+    }
   };
 
   const addToCart = async (item: any) => {
@@ -131,7 +123,6 @@ export default function WishlistScreen() {
             <View style={styles.wishLeft}>
               <TouchableOpacity
                 onPress={() => removeFromWishlist(item.id)}
-                disabled={removeMutation.pending}
                 style={[styles.removeBtn, { backgroundColor: "#FEE2E2" }]}
                 accessibilityLabel="إزالة من المفضلة"
               >

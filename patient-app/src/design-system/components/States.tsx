@@ -6,7 +6,6 @@ import React from 'react';
 import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { useApp } from '../../context/AppContext';
 import { Spacing, BorderRadius } from '../tokens';
-import { tokens } from '../../../../packages/design-tokens/dist/ts/tokens';
 import { DSText } from './Text';
 import { DSButton } from './Button';
 import { Icon, IconName } from '../Icon';
@@ -131,7 +130,7 @@ const ERROR_CONFIG: Record<
   network:    { icon: 'wifi_off', defaultTitle: 'لا يوجد اتصال', defaultDesc: 'تحقق من اتصالك بالإنترنت وأعد المحاولة' },
   not_found:  { icon: 'search_off', defaultTitle: 'لم يتم العثور على المحتوى', defaultDesc: 'الصفحة التي تبحث عنها غير موجودة' },
   permission: { icon: 'lock', defaultTitle: 'غير مصرح لك', defaultDesc: 'ليس لديك صلاحية الوصول لهذا المحتوى' },
-  server:     { icon: 'dns', defaultTitle: 'حدث خلل مؤقت', defaultDesc: 'نعتذر، يرجى المحاولة بعد قليل' },
+  server:     { icon: 'dns', defaultTitle: 'خطأ في الخادم', defaultDesc: 'نعتذر، يرجى المحاولة بعد قليل' },
 };
 
 export function DSErrorState({
@@ -142,7 +141,7 @@ export function DSErrorState({
   onBack,
   style,
 }: DSErrorStateProps) {
-  const { colors, isDark } = useApp();
+  const { colors } = useApp();
   const config = ERROR_CONFIG[type];
 
   return (
@@ -153,7 +152,7 @@ export function DSErrorState({
       accessibilityLabel={title ?? config.defaultTitle}
     >
       {/* Icon */}
-      <View style={[styles.iconContainer, { backgroundColor: tokens(isDark ? 'dark' : 'light').color.status.danger.bg }]}>
+      <View style={[styles.iconContainer, { backgroundColor: '#FEF2F2' }]}>
         <Icon name={config.icon} size={40} color={colors.error} />
       </View>
 

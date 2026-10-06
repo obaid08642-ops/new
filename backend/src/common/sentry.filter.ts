@@ -2,17 +2,12 @@ import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from
 import { BaseExceptionFilter } from '@nestjs/core';
 import * as Sentry from '@sentry/nestjs';
 import { ERROR_CODES, isErrorCode } from './errors';
-import { generateErrorId, createErrorResponse } from './error-id';
 
 @Catch()
 export class SentryExceptionFilter extends BaseExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse();
     const request = ctx.getRequest();
-
-    // Generate error ID for tracking
-    const errorId = generateErrorId();
 
     // P3.2 (F14): translate driver-level errors to client errors so bad
     // ids/shapes return 4xx instead of 500. HttpExceptions pass through.
@@ -49,21 +44,6 @@ export class SentryExceptionFilter extends BaseExceptionFilter {
     // Report only server-side errors (500+) to keep Sentry clean of validation/auth (4xx) noise
     if (status >= 500) {
       Sentry.captureException(exception);
-    }
-
-    // In production, return generic error with error ID; never expose stack traces or internal details
-    if (process.env.NODE_ENV === 'production') {
-      const errorResponse = createErrorResponse(errorId, status);
-      response.status(status).json(errorResponse);
-      return;
-    }
-
-    // Non-production: pass through with enhanced error info including errorId
-    if (exception instanceof HttpException) {
-      const responseBody = exception.getResponse();
-      if (typeof responseBody === 'object' && responseBody !== null) {
-        (responseBody as Record<string, unknown>).errorId = errorId;
-      }
     }
 
     super.catch(exception, host);

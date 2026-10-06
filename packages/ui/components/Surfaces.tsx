@@ -18,7 +18,7 @@ import type {
   TabItem,
   TabsProps,
 } from './contract';
-import { Icon } from '../src/Icon';
+import { Icon, IllustratedIconView } from '../src/Icon';
 import { FIcon } from './FIcon';
 import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, SERVICE_ICONS } from '../icons/fill';
 

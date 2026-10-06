@@ -4,7 +4,6 @@ import { Connection } from 'mongoose';
 import { JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RedisService } from '../redis/redis.service';
-import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
 
 /**
  * Operations Center — one admin surface answering:
@@ -264,18 +263,6 @@ export class OpsController {
    */
   @Get('live-map')
   async liveMap(@Query('limit') limit?: string) {
-    // F9 (15.12) — live-map kill switch: serve the static degraded answer
-    // (no realtime markers, no collection scans) instead of live positions.
-    if (await isKilled('liveMap', connectionFlagSource(this.conn))) {
-      return {
-        generated_at: new Date().toISOString(),
-        total: 0,
-        with_geo: 0,
-        by_city: {},
-        points: [],
-        live_map_killed: true,
-      };
-    }
     const lim = Math.min(Math.max(parseInt(limit || '200') || 200, 1), 500);
     const geoOf = (doc: any): { lat: number; lng: number } | null => {
       const g = doc.delivery_address?.geo || doc.address || doc.visit_location || doc.gps_tracking;

@@ -89,8 +89,8 @@ export default async function SettingsDataPage({ params }: Props) {
                 ? `الإجمالي: ${storage.used} من ${storage.total}`
                 : `Total: ${storage.used} of ${storage.total}`
               : ar
-                ? "مساحة التخزين المستخدمة في حسابك"
-                : "Storage used by your account"}
+                ? "التخزين يُقرأ من الخلفية المصرح بها فقط"
+                : "Storage is read from the authorized backend only"}
           </p>
         </div>
       </section>
@@ -102,7 +102,7 @@ export default async function SettingsDataPage({ params }: Props) {
           </span>
           <div style={{ minInlineSize: 0 }}>
             <h2>{ar ? "تحميل نسخة من بياناتي" : "Download a copy of my data"}</h2>
-            <p style={{ overflowWrap: "anywhere" } as any}>{ar ? "اطلب نسخة من بياناتك عبر الدعم وتصلك خلال 24 ساعة." : "Request a copy of your data via support; it arrives within 24 hours."}</p>
+            <p style={{ overflowWrap: "anywhere" } as any}>{ar ? "JSON/PDF — اطلبها عبر الدعم وتصلك خلال 24 ساعة." : "JSON/PDF — request via support, delivered within 24 hours."}</p>
             <Link
               href={`/${locale}/support/chat`}
               style={{ display: "inline-flex", marginTop: 8, padding: "8px 14px", borderRadius: 20, background: "#5FD9B3", border: "1px solid #E8EDEE", color: "#1E332E", fontWeight: 800, fontSize: ".84rem", textDecoration: "none" } as any}

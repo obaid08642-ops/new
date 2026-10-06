@@ -1,10 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { upstreamRequest } from '@/lib/http/upstream';
 
 const ACCESS_COOKIE = 'admin_access';
 const CSRF_COOKIE = 'admin_csrf';
 const SUPPORT_COOKIE = 'admin_support_session';
 const WRITE = 'POST';
+function base() {   const value = process.env.ADMIN_BACKEND_URL;
+ if (!value) throw new Error('ADMIN_BACKEND_URL is required'); return value.replace(/\/$/, ''); }
 function cookie(req: NextApiRequest, name: string) { return req.cookies[name] || ''; }
 function parseSetCookie(value: string) { return `${SUPPORT_COOKIE}=${encodeURIComponent(value)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=900${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`; }
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -13,9 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!access) return res.status(401).json({ code: 'admin_session_required' });
   if (!csrf || req.headers['x-admin-csrf'] !== csrf) return res.status(403).json({ code: 'csrf_validation_failed' });
   try {
-    // 15.1: starting a support session is not replayable — a second attempt
-    // would mint a second live support token.
-    const upstream = await upstreamRequest('/api/v1/admin/impersonation/start', { method: WRITE, headers: { authorization: `Bearer ${access}`, 'content-type': 'application/json', 'x-admin-bff': 'support-session' }, body: JSON.stringify(req.body || {}), idempotent: false });
+    const upstream = await fetch(`${base()}/api/v1/admin/impersonation/start`, { method: WRITE, headers: { authorization: `Bearer ${access}`, 'content-type': 'application/json', 'x-admin-bff': 'support-session' }, body: JSON.stringify(req.body || {}) });
     const payload = await upstream.json().catch(() => ({})) as Record<string, unknown>;
     if (!upstream.ok) return res.status(upstream.status).json(payload);
     const token = typeof payload.token === 'string' ? payload.token : '';

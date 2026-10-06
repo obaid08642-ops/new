@@ -42,7 +42,7 @@ export default function BookSampleScreen() {
 
         <Card>
           <SectionHeader title="الخطوة التالية" />
-          <AppText variant="bodySM" color={colors.textSecondary}>اختر مزوّداً متاحاً من السلة، ثم أرسل طلب الحجز. ستظهر لك حالة التوافر وتفاصيل الحجز.</AppText>
+          <AppText variant="bodySM" color={colors.textSecondary}>اختر مزوّداً مفعلاً من السلة، ثم أرسل طلب الحجز. سيُظهر النظام حالة التوافر وتفاصيل الحجز من الخادم.</AppText>
         </Card>
       </ScrollView>
 

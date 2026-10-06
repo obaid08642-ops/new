@@ -26,8 +26,6 @@ const patientReadRoutes = [
   new RegExp(`^/insurance/requests/${orderId}$`, "i"),
   new RegExp("^/users/me/addresses$", "i"),
   new RegExp("^/nutrition/profile$", "i"),
-  // maternity weekly content (reviewed, read-only): backend maternity.controller content/weeks/:week
-  new RegExp("^/maternity/content/weeks/(?:[1-9]|[1-3][0-9]|4[0-2])$"),
   new RegExp("^/support/chat$", "i"),
   new RegExp(`^/orders/${orderId}/tracking$`, "i"),
   new RegExp("^/cart$"),

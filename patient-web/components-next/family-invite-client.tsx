@@ -55,7 +55,7 @@ export function FamilyInviteClient({ locale }: { locale: string }) {
         }}
       >
         <p style={{ margin: 0, color: "#64748B", fontSize: ".9rem", lineHeight: 1.6, overflowWrap: "anywhere" }}>
-          {ar ? "سننشئ لك كودًا يمكنك مشاركته مع فرد العائلة." : "We'll create an invite code you can share."}
+          {ar ? "سيُنشئ الخادم كودًا صالحًا للمشاركة مع فرد العائلة." : "The server will generate a shareable invite code."}
         </p>
         <button
           type="button"

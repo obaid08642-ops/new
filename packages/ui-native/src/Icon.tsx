@@ -83,8 +83,6 @@ const LINE: Record<SharedLineIconName, React.FC<GlyphProps>> = {
   minus: phosphor.MinusIcon,
   filter: phosphor.FunnelIcon,
   sliders: phosphor.SlidersHorizontalIcon,
-  eye: phosphor.EyeIcon,
-  'eye-slash': phosphor.EyeSlashIcon,
   settings: phosphor.GearIcon,
   list: phosphor.ListIcon,
   download: phosphor.DownloadSimpleIcon,

@@ -1,7 +1,4 @@
 /**
- * Web screen shells — DEVICE_STANDARD §1. Import ./shells.css once in the app.
- * Web-only layout, so not part of the cross-platform component contract.
- */
 // GENERATED FILE — DO NOT EDIT.
 //
 // Mirrored from packages/ui/shells/index.ts by tools/design/sync-ui-components.mjs.
@@ -15,5 +12,8 @@
 //
 // tests/module-boundary.test.ts enforces the boundary this mirror exists to work
 // around.
+ * Web screen shells — DEVICE_STANDARD §1. Import ./shells.css once in the app.
+ * Web-only layout, so not part of the cross-platform component contract.
+ */
 export { AppShell, type AppShellProps } from './AppShell';
 export { StickyFooter, type StickyFooterProps } from './StickyFooter';

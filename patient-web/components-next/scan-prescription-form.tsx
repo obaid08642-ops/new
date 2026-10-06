@@ -25,12 +25,6 @@ export function ScanPrescriptionForm({ locale, labels }: Props) {
   const [preview, setPreview] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "analyzing" | "saving" | "success" | "error">("idle");
   const [statusMessage, setStatusMessage] = useState("");
-  /**
-   * P15.4 — an interrupted upload resumes as the SAME logical upload, not a
-   * duplicate: both idempotency keys are minted once per chosen photo and
-   * reused when the user retries after a failure. A new photo resets them.
-   */
-  const submitKeys = useRef<{ ocr: string; save: string } | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -42,7 +36,6 @@ export function ScanPrescriptionForm({ locale, labels }: Props) {
       setPreview(result);
       setStatus("idle");
       setStatusMessage("");
-      submitKeys.current = null;
     };
     reader.readAsDataURL(file);
   };
@@ -53,14 +46,13 @@ export function ScanPrescriptionForm({ locale, labels }: Props) {
     try {
       setStatus("analyzing");
       setStatusMessage(labels.extracting);
-      const keys = (submitKeys.current ??= { ocr: crypto.randomUUID(), save: crypto.randomUUID() });
 
       // 1. Call AI Prescription OCR
       const ocrRes = await fetch("/api/patient/ai/prescription-ocr", {
         method: "POST",
         headers: {
           "content-type": "application/json",
-          "idempotency-key": keys.ocr,
+          "idempotency-key": crypto.randomUUID(),
         },
         body: JSON.stringify({ image_base64: preview }),
       });
@@ -76,7 +68,7 @@ export function ScanPrescriptionForm({ locale, labels }: Props) {
         method: "POST",
         headers: {
           "content-type": "application/json",
-          "idempotency-key": keys.save,
+          "idempotency-key": crypto.randomUUID(),
         },
         body: JSON.stringify({
           upload_image: preview,
@@ -91,7 +83,6 @@ export function ScanPrescriptionForm({ locale, labels }: Props) {
 
       if (!id) throw new Error("missing_prescription_id");
 
-      submitKeys.current = null;
       setStatus("success");
       setStatusMessage(labels.success);
 

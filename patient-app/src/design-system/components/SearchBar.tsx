@@ -8,7 +8,6 @@ import {
   StyleSheet, StyleProp, ViewStyle,
 } from 'react-native';
 import { useApp } from '../../context/AppContext';
-import { useScreenUi } from '../../components/home/homeKit';
 import { BorderRadius, Spacing } from '../tokens';
 import { Icon } from '../Icon';
 import { DSText } from './Text';
@@ -55,7 +54,6 @@ export function DSSearchBar({
   onCancel,
 }: DSSearchBarProps) {
   const { colors, isRTL, lang } = useApp();
-  const { c } = useScreenUi();
   const [isFocused, setIsFocused] = useState(false);
   const [showCancel, setShowCancel] = useState(false);
   const cancelWidth = useRef(new Animated.Value(0)).current;
@@ -209,7 +207,7 @@ export function DSSearchBar({
           <Icon
             name="filter_list"
             size={20}
-            color={filterActive ? c.text.onBrand : colors.textSecondary}
+            color={filterActive ? '#fff' : colors.textSecondary}
           />
         </TouchableOpacity>
       )}

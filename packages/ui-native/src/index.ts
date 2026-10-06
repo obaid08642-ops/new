@@ -17,8 +17,6 @@ export {
   Rating, SectionHeader, ServiceTile, Sidebar, Tabs,
 } from './components/Surfaces';
 export { FIcon } from './components/FIcon';
-export { BrandMark } from './components/BrandMark';
-export type { BrandMarkProps, BrandName } from './components/BrandMark';
 export { FILL_ICON_NAMES, FILL_ICON_PATHS, SERVICE_ICONS, SERVICE_TONES } from '../../ui/icons/fill';
 export type { FillIconName, ServiceName, ServiceTone } from '../../ui/icons/fill';
 export { EmptyState, ErrorState, OfflineState, Modal, Skeleton, Toast } from './components/Feedback';

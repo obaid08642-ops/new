@@ -92,11 +92,11 @@ export function RegisterForm({ locale }: { locale: Locale }) {
     <form className={styles.form} onSubmit={submit} aria-busy={busy}>
       <label className={styles.field}>
         <span>{t.name}</span>
-        <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} autoComplete="name" inputMode="text" />
+        <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} autoComplete="name" />
       </label>
       <label className={styles.field}>
         <span>{t.identifier}</span>
-        <input required value={form.identifier} onChange={(e) => setForm({ ...form, identifier: e.target.value })} autoComplete="username" inputMode="text" />
+        <input required value={form.identifier} onChange={(e) => setForm({ ...form, identifier: e.target.value })} autoComplete="username" />
       </label>
       <label className={styles.field}>
         <span>{t.password}</span>
@@ -111,20 +111,15 @@ export function RegisterForm({ locale }: { locale: Locale }) {
         <span>{t.confirm}</span>
         <input required minLength={8} type={show ? "text" : "password"} value={form.confirm} onChange={(e) => setForm({ ...form, confirm: e.target.value })} autoComplete="new-password" />
       </label>
-<label className={styles.consent}>
-        <input
-          type="checkbox"
-          className={styles.checkbox}
-          checked={agreed}
-          onChange={() => setAgreed((v) => !v)}
-          required
-          aria-describedby="terms-privacy"
-        />
-        <span id="terms-privacy">
+      <label className={styles.consent}>
+        <button type="button" className={`${styles.checkbox} ${agreed ? styles.checked : ""}`} onClick={() => setAgreed((v) => !v)} aria-pressed={agreed}>
+          {agreed ? <Check size={15} /> : null}
+        </button>
+        <span>
           {locale === "ar" ? (
             <>أوافق على <Link className={styles.textLink} href={`/${locale}/terms`}>{t.terms}</Link> و<Link className={styles.textLink} href={`/${locale}/privacy`}>{t.privacy}</Link></>
           ) : (
-            <>{t.terms} & <Link className={styles.textLink} href={`/${locale}/privacy`}>{t.privacy}</Link></>
+            <>{t.terms} &amp; <Link className={styles.textLink} href={`/${locale}/privacy`}>{t.privacy}</Link></>
           )}
         </span>
       </label>

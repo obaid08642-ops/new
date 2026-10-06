@@ -24,7 +24,7 @@ export default async function FamilyScanPage({ params }: Props) {
         <div className={styles.introText}>
           <p className={styles.eyebrow} style={{ color: "#1E332E", overflowWrap: "anywhere" }}><ShieldCheck size={15} aria-hidden="true" />{ar ? "دعوة العائلة" : "Invite"}</p>
           <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{ar ? "مسح دعوة العائلة" : "Scan family invite"}</h1>
-          <p style={{ overflowWrap: "anywhere" }}>{ar ? "الصق كود الدعوة أو رابط QR للانضمام فورًا." : "Paste an invite code or QR link to join right away."}</p>
+          <p style={{ overflowWrap: "anywhere" }}>{ar ? "الصق كود الدعوة أو رابط QR للانضمام الفوري — يتم التحقق عبر الخادم." : "Paste an invite code or QR link — verified server-side."}</p>
         </div>
         <div className={styles.introVector}><VectorFamily size={48} aria-hidden="true" /></div>
       </section>

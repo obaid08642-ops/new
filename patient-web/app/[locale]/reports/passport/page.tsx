@@ -36,13 +36,13 @@ export default async function HealthPassportPage({ params }: Props) {
       <h1>{ar ? "جوازي الصحي" : "My health passport"}</h1>
       {typeof name === "string" ? <p><strong>{name}</strong></p> : null}
       {passportToken ? (
-        <section aria-label={ar ? "رمز المشاركة" : "Share code"}>
-          <p>{ar ? "اعرض هذا الرمز لمقدم الرعاية لمشاركة ملفك:" : "Show this code to your provider to share your file:"}</p>
+        <section aria-label={ar ? "رمز المشاركة" : "Share token"}>
+          <p>{ar ? "اعرض هذا الرمز لمقدم الرعاية لمشاركة ملفك:" : "Show this token to your provider to share your file:"}</p>
           <code dir="ltr" style={{ overflowWrap: "anywhere" }}>{passportToken}</code>
           <CopyTextButton text={passportToken} locale={locale} />
         </section>
       ) : (
-        <p role="alert">{ar ? "تعذر إصدار رمز المشاركة حالياً." : "We couldn't create a share code right now."}</p>
+        <p role="alert">{ar ? "تعذر إصدار رمز المشاركة حالياً." : "Could not issue a share token right now."}</p>
       )}
     </main>
   );

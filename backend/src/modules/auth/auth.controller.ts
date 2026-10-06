@@ -3,12 +3,6 @@ import { AuthLoginDto, AuthVerify2faDto, RefreshDto, RecordConsentDto, SendOtpDt
 import { PresenceService } from '../presence/presence.service';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
-import { TurnstileService } from './turnstile.service';
-import { SmsFraudProtectionService } from './sms-fraud-protection.service';
-import { EmailOtpService } from './email-otp.service';
-import { GuestService } from './guest.service';
-import { AccountLinkingService } from './account-linking.service';
-import { CheckoutContactService } from './checkout-contact.service';
 
 const DEVICE_COOKIE = 'nabd_admin_device';
 const PATIENT_ACCESS_COOKIE = 'nabd_patient_access';
@@ -40,13 +34,16 @@ import { IsString, IsOptional, MinLength } from 'class-validator';
 import { UserRole } from '../../common/enums';
 
 class RegisterDto {
+  // Legacy registration payload.
   @IsOptional() @IsString() full_name?: string;
   @IsOptional() @IsString() phone?: string;
   @IsString() @MinLength(6) password: string;
   @IsOptional() @IsString() email?: string;
   @IsOptional() @IsString() role?: UserRole;
+  /** F63: OTP code proving ownership of the phone/email (else a prior verified marker is required). */
   @IsOptional() @IsString() otp?: string;
-  @IsOptional() @IsString() turnstileToken?: string;
+
+  // Patient Contract V1 payload.
   @IsOptional() @IsString() name?: string;
   @IsOptional() @IsString() identifier?: string;
   @IsOptional() @IsString() locale?: string;
@@ -55,7 +52,6 @@ class RegisterDto {
 class LoginDto {
   @IsString() phone: string;
   @IsString() password: string;
-  @IsOptional() @IsString() turnstileToken?: string;
 }
 class GuestDto {
   @IsOptional() @IsString() phone?: string;
@@ -63,32 +59,27 @@ class GuestDto {
 }
 class PatientOtpRequestDto {
   @IsString() identifier: string;
-  @IsOptional() @IsString() turnstileToken?: string;
 }
 class PatientOtpVerifyDto {
   @IsString() identifier: string;
   @IsString() code: string;
   @IsOptional() @IsString() device_id?: string;
-  @IsOptional() @IsString() turnstileToken?: string;
 }
 class PatientSessionExchangeDto {
   @IsString() exchange_token: string;
 }
 class PatientForgotPasswordDto {
   @IsString() identifier: string;
-  @IsOptional() @IsString() turnstileToken?: string;
 }
 class PatientResetPasswordDto {
   @IsString() reset_token: string;
   @IsString() @MinLength(8) new_password: string;
-  @IsOptional() @IsString() turnstileToken?: string;
 }
 class ConvertGuestDto {
   @IsString() full_name: string;
   @IsString() phone: string;
   @IsString() @MinLength(6) password: string;
   @IsOptional() @IsString() email?: string;
-  @IsOptional() @IsString() turnstileToken?: string;
 }
 
 @Controller('auth')
@@ -96,47 +87,25 @@ class ConvertGuestDto {
 @UseGuards(JwtAuthGuard)
 export class AuthController {
   private readonly log = new Logger(AuthController.name);
-  constructor(
-    private auth: AuthService,
-    private turnstile: TurnstileService,
-    private smsFraud: SmsFraudProtectionService,
-    private emailOtp: EmailOtpService,
-    private guest: GuestService,
-    private accountLinking: AccountLinkingService,
-    private checkoutContact: CheckoutContactService,
-    @Optional() private presence?: PresenceService,
-  ) {}
+  constructor(private auth: AuthService, @Optional() private presence?: PresenceService) {}
 
   /** Patient-web bridge: opaque request response prevents account enumeration. */
   @Public()
   @Throttle({ default: { limit: 3, ttl: 600000 } })
   @Post('otp/request')
-  async patientOtpRequest(@Body() dto: PatientOtpRequestDto, @Req() req: Request) {
-    if (dto.turnstileToken) {
-      const turnstileResult = await this.turnstile.verify(dto.turnstileToken, clientIp(req));
-      if (!turnstileResult.success) throw new BadRequestException('Turnstile verification failed');
-    }
-    const ip = clientIp(req) || 'unknown';
-    // For email identifiers, rate limiting is now handled in EmailOtpService
-    // For phone, keep SMS fraud check
-    if (!dto.identifier.includes('@')) {
-      const smsCheck = await this.smsFraud.checkAndRecord(dto.identifier, ip);
-      if (!smsCheck.allowed) throw new BadRequestException(smsCheck.reason);
-    }
-    return this.auth.sendOtp(dto.identifier, 'signin', ip);
+  patientOtpRequest(@Body() dto: PatientOtpRequestDto) {
+    return this.auth.requestPatientOtp(dto.identifier);
   }
 
+  /** Issues an opaque, single-use, 60-second exchange token; never a session token. */
   @Public()
   @Throttle({ default: { limit: 5, ttl: 900000 } })
   @Post('otp/verify')
-  async patientOtpVerify(@Body() dto: PatientOtpVerifyDto, @Req() req: Request) {
-    if (dto.turnstileToken) {
-      const turnstileResult = await this.turnstile.verify(dto.turnstileToken, clientIp(req));
-      if (!turnstileResult.success) throw new BadRequestException('Turnstile verification failed');
-    }
+  patientOtpVerify(@Body() dto: PatientOtpVerifyDto) {
     return this.auth.verifyPatientOtp(dto.identifier, dto.code, dto.device_id);
   }
 
+  /** Converts the one-time exchange token to HttpOnly cookies without exposing tokens in JSON. */
   @Public()
   @Post('session/exchange')
   async patientSessionExchange(@Body() dto: PatientSessionExchangeDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
@@ -149,28 +118,20 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 3, ttl: 600000 } })
   @Post('password/forgot')
-  async patientForgotPassword(@Body() dto: PatientForgotPasswordDto, @Req() req: Request) {
-    if (dto.turnstileToken) {
-      const turnstileResult = await this.turnstile.verify(dto.turnstileToken, clientIp(req));
-      if (!turnstileResult.success) throw new BadRequestException('Turnstile verification failed');
-    }
-    return this.auth.sendOtp(dto.identifier, 'reset', clientIp(req));
+  patientForgotPassword(@Body() dto: PatientForgotPasswordDto) {
+    return this.auth.forgotPatientPassword(dto.identifier);
   }
 
   @Public()
   @Post('password/reset')
-  async patientResetPassword(@Body() dto: PatientResetPasswordDto, @Req() req: Request) {
-    if (dto.turnstileToken) {
-      const turnstileResult = await this.turnstile.verify(dto.turnstileToken, clientIp(req));
-      if (!turnstileResult.success) throw new BadRequestException('Turnstile verification failed');
-    }
+  patientResetPassword(@Body() dto: PatientResetPasswordDto) {
     return this.auth.resetPatientPassword(dto.reset_token, dto.new_password);
   }
 
   @Public()
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Throttle({ default: { limit: 10, ttl: 60000 } }) // E5-F4 anti brute-force
   @Post('register')
-  async register(@Body() dto: RegisterDto) {
+  register(@Body() dto: RegisterDto) {
     const isPatientContract = dto.name !== undefined || dto.identifier !== undefined || dto.locale !== undefined || dto.consents !== undefined;
     if (isPatientContract) {
       return this.auth.registerPatientContract({
@@ -186,9 +147,10 @@ export class AuthController {
   }
 
   @Public()
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Throttle({ default: { limit: 10, ttl: 60000 } }) // E5-F4 credential brute-force guard
   @Post('login')
   async login(@Body() dto: AuthLoginDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    // Accept email OR phone as a single identifier; backwards-compatible with old { phone }.
     const id = dto?.identifier || dto?.email || dto?.phone || '';
     const result: any = await this.auth.login(id, dto?.password, {
       deviceToken: (req as any).cookies?.[DEVICE_COOKIE],
@@ -204,7 +166,7 @@ export class AuthController {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         path: '/',
-        maxAge: 7 * 24 * 60 * 60 * 1000
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
     }
     return result;
@@ -213,21 +175,17 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @Post('guest')
-  createGuest(@Body() dto: GuestDto, @Headers('x-device-id') deviceId?: string) {
+  guest(@Body() dto: GuestDto, @Headers('x-device-id') deviceId?: string) {
     return this.auth.guest(dto.phone, deviceId);
   }
 
   @Post('convert-guest')
-  async convertGuest(@CurrentUser('id') guestUserId: string, @Body() dto: ConvertGuestDto, @Req() req: Request) {
-    if (dto.turnstileToken) {
-      const turnstileResult = await this.turnstile.verify(dto.turnstileToken, clientIp(req));
-      if (!turnstileResult.success) throw new BadRequestException('Turnstile verification failed');
-    }
-    return this.auth.migrateGuestData(guestUserId, dto);
+  convertGuest(@CurrentUser('id') guestUserId: string, @Body() dto: ConvertGuestDto) {
+    return this.auth.convertGuest(guestUserId, dto);
   }
 
   @Public()
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Throttle({ default: { limit: 10, ttl: 60000 } }) // E5-F4
   @Post('login/verify-2fa')
   async verify2fa(@Body() dto: AuthVerify2faDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const id = dto?.identifier || dto?.email || dto?.phone || '';
@@ -244,7 +202,7 @@ export class AuthController {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         path: '/',
-        maxAge: 7 * 24 * 60 * 60 * 1000
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
     }
     return result;
@@ -255,16 +213,21 @@ export class AuthController {
     return this.auth.me(id);
   }
 
+  // ── Trusted devices & live sessions (admin device management) ──
+
+  /** List this account's trusted (approved) devices. */
   @Get('trusted-devices')
   trustedDevices(@CurrentUser() user: any) {
     return this.auth.listTrustedDevices(user.id);
   }
 
+  /** Revoke a trusted device — it will need full 2FA again on next login. */
   @Delete('trusted-devices/:deviceId')
   revokeTrustedDevice(@CurrentUser() user: any, @Param('deviceId') deviceId: string) {
     return this.auth.revokeTrustedDevice(user.id, deviceId);
   }
 
+  /** Dashboard heartbeat — keeps this device marked as online. */
   @Post('heartbeat')
   heartbeat(@CurrentUser() user: any, @Req() req: Request, @Body() body?: HeartbeatDto) {
     const out = this.auth.deviceHeartbeat(
@@ -273,6 +236,7 @@ export class AuthController {
       req.headers['user-agent'],
       clientIp(req),
     );
+    // Cross-platform online aggregate (admin/analytics/online).
     try {
       const socketId = `http:${(req as any).cookies?.[DEVICE_COOKIE] || 'unknown'}`.slice(0, 48);
       void this.presence?.setOnline?.(user.id, socketId, { platform: body?.client, role: user.role });
@@ -280,6 +244,7 @@ export class AuthController {
     return out;
   }
 
+  /** Devices with a live session right now (heartbeat within 5 minutes). */
   @Get('sessions/online')
   onlineSessions(@CurrentUser() user: any) {
     return this.auth.onlineDevices(user.id);
@@ -303,6 +268,8 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   async recordConsent(@CurrentUser() user: any, @Body() body: RecordConsentDto) {
     if (!body?.document_type || !body?.version) throw new BadRequestException('document_type and version required');
+    // In production this would write to a specialized compliance log DB or collection
+    // We update the user profile meta to reflect the latest accepted version for PDPL.
     await this.auth.recordComplianceConsent(user.id, body.document_type, body.version);
     return { ok: true, message: 'consent_recorded' };
   }
@@ -318,44 +285,34 @@ export class AuthController {
     return { success: true };
   }
 
+  // P5.4: legacy names — distinct generic-OTP flow (not aliases of otp/*);
+  // kept with deprecation headers. Canonical: otp/request, otp/verify, password/reset.
   @Public()
   @Header('Deprecation', 'true')
-  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // E5-F4 SMS-bombing guard
   @Post('send-otp')
-  async sendOtp(@Body() body: SendOtpDto, @Req() req: Request) {
+  sendOtp(@Body() body: SendOtpDto) {
     this.log.warn('deprecated auth alias called: send-otp (canonical: otp/request)');
-    if (body.turnstileToken) {
-      const turnstileResult = await this.turnstile.verify(body.turnstileToken, clientIp(req));
-      if (!turnstileResult.success) throw new BadRequestException('Turnstile verification failed');
-    }
     const id = body.identifier || body.email || body.phone || '';
-    return this.auth.sendOtp(id, body.purpose, clientIp(req));
+    return this.auth.sendOtp(id, body.purpose);
   }
 
   @Public()
   @Header('Deprecation', 'true')
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Throttle({ default: { limit: 10, ttl: 60000 } }) // E5-F4 OTP guessing guard
   @Post('verify-otp')
-  async verifyOtp(@Body() body: VerifyOtpDto, @Req() req: Request) {
+  verifyOtp(@Body() body: VerifyOtpDto) {
     this.log.warn('deprecated auth alias called: verify-otp (canonical: otp/verify)');
-    if (body.turnstileToken) {
-      const turnstileResult = await this.turnstile.verify(body.turnstileToken, clientIp(req));
-      if (!turnstileResult.success) throw new BadRequestException('Turnstile verification failed');
-    }
     const id = body.identifier || body.email || body.phone || '';
     return this.auth.verifyOtp(id, body.code);
   }
 
   @Public()
   @Header('Deprecation', 'true')
-  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // E5-F4
   @Post('reset-password')
-  async resetPassword(@Body() body: ResetPasswordDto, @Req() req: Request) {
+  resetPassword(@Body() body: ResetPasswordDto) {
     this.log.warn('deprecated auth alias called: reset-password (canonical: password/reset)');
-    if (body.turnstileToken) {
-      const turnstileResult = await this.turnstile.verify(body.turnstileToken, clientIp(req));
-      if (!turnstileResult.success) throw new BadRequestException('Turnstile verification failed');
-    }
     const id = body.identifier || body.email || body.phone || '';
     if (!body?.code) throw new BadRequestException('code_required');
     return this.auth.resetPassword(id, body.password, body.code);
@@ -364,36 +321,7 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @Post('social-login')
-  async socialLogin(@Body() body: SocialLoginDto, @Req() req: Request) {
-    if (body.turnstileToken) {
-      const turnstileResult = await this.turnstile.verify(body.turnstileToken, clientIp(req));
-      if (!turnstileResult.success) throw new BadRequestException('Turnstile verification failed');
-    }
+  socialLogin(@Body() body: SocialLoginDto) {
     return this.auth.socialLogin(body);
-  }
-
-  // ==========================================
-  // Phase 21: Account Linking & Guest Management
-  // ==========================================
-
-  @Post('account/link')
-  async linkAccount(@CurrentUser('id') userId: string, @Body() body: { method: 'google' | 'apple' | 'email'; token: string }) {
-    return this.auth.linkAccounts(userId, body.method, body.token);
-  }
-
-  @Post('guest/merge')
-  async mergeGuest(@CurrentUser('id') guestUserId: string, @Body() dto: ConvertGuestDto) {
-    return this.auth.migrateGuestData(guestUserId, dto);
-  }
-
-  @Post('checkout/contact')
-  async storeCheckoutContact(@CurrentUser('id') userId: string, @Body() body: { phone: string; address: any }) {
-    return this.auth.storeCheckoutContact(userId, body.phone, body.address);
-  }
-
-  @Post('guest/cleanup')
-  async cleanupGuests(@Body() body: { months?: number }) {
-    const count = await this.auth.cleanupInactiveGuests(body.months || 12);
-    return { deleted: count };
   }
 }

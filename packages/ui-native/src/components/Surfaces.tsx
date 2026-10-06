@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {
-  I18nManager,
   Image,
   Pressable,
   ScrollView,
@@ -138,7 +137,7 @@ export function Badge({ content, tone = 'danger', max = 99, testID, theme = 'lig
         backgroundColor: tones(theme === 'dark')[tone].fg,
       }}
     >
-      <Text style={{ fontSize: 11, fontFamily: 'ReadexPro-700', color: '#FFFFFF' }}>{shown}</Text>
+      <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFFFFF' }}>{shown}</Text>
     </View>
   );
 }
@@ -223,10 +222,9 @@ export function ListItem({
   disabled = false,
   loading = false,
   leading,
-  onPress,
   testID,
   theme = 'light',
-}: ListItemProps & { theme?: 'light' | 'dark'; onPress?: () => void }) {
+}: ListItemProps & { theme?: 'light' | 'dark' }) {
   const dark = theme === 'dark';
   return (
     <Pressable
@@ -234,7 +232,6 @@ export function ListItem({
       accessibilityLabel={[title, subtitle, meta].filter(Boolean).join(', ')}
       accessibilityState={{ selected, disabled: disabled || loading }}
       disabled={disabled}
-      onPress={onPress}
       testID={testID}
       style={{
         flexDirection: 'row',
@@ -254,19 +251,18 @@ export function ListItem({
         <Icon name={startIcon} size={20} theme={theme} tone="secondary" />
       ) : null}
       <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 15, fontFamily: 'ReadexPro-500', color: selected ? (dark ? '#0B1B2B' : '#F5F5F7') : dark ? '#F5F5F7' : '#0B1B2B' }}>
+        <Text style={{ fontSize: 15, color: selected ? (dark ? '#0B1B2B' : '#F5F5F7') : dark ? '#F5F5F7' : '#0B1B2B' }}>
           {title}
         </Text>
         {subtitle ? (
-          <Text style={{ fontSize: 12, fontFamily: 'ReadexPro-400', color: selected ? (dark ? '#0B1B2B' : '#C2CBD6') : dark ? '#C2CBD6' : '#5B6673' }}>
+          <Text style={{ fontSize: 11, color: selected ? (dark ? '#0B1B2B' : '#C2CBD6') : dark ? '#C2CBD6' : '#5B6673' }}>
             {subtitle}
           </Text>
         ) : null}
       </View>
-      {meta ? <Text style={{ fontSize: 15, fontFamily: 'ReadexPro-400', color: dark ? '#C2CBD6' : '#5B6673' }}>{meta}</Text> : null}
+      {meta ? <Text style={{ fontSize: 15, color: dark ? '#C2CBD6' : '#5B6673' }}>{meta}</Text> : null}
       {endIcon ? <Icon name={endIcon} size={20} theme={theme} tone="secondary" /> : null}
-      {/* the chevron points where the row leads: left when the page reads right to left, right otherwise */}
-      {endContent === 'chevron' ? <Icon name={I18nManager.isRTL ? 'caret-left' : 'caret-right'} size={16} theme={theme} tone="secondary" /> : null}
+      {endContent === 'chevron' ? <Icon name="caret-left" size={16} theme={theme} tone="secondary" /> : null}
       {endContent === 'check' ? <Icon name="check" size={20} theme={theme} /> : null}
       {endContent === 'switch' ? (
         <View
@@ -298,10 +294,9 @@ export function ServiceTile({
   size = 'md',
   badge,
   disabled = false,
-  onPress,
   testID,
   theme = 'light',
-}: ServiceTileProps & { theme?: 'light' | 'dark'; onPress?: () => void }) {
+}: ServiceTileProps & { theme?: 'light' | 'dark' }) {
   const t = tokens(theme);
   const { icon, tone } = SERVICE_ICONS[name];
 
@@ -311,7 +306,6 @@ export function ServiceTile({
       accessibilityLabel={label}
       accessibilityState={{ disabled }}
       disabled={disabled}
-      onPress={onPress}
       testID={testID}
       style={{
         minHeight: 108,
@@ -328,7 +322,7 @@ export function ServiceTile({
       }}
     >
       <FIcon icon={icon} tone={tone} size={TILE_CHIP[size]} theme={theme} />
-      <Text style={{ fontSize: 13, fontFamily: 'ReadexPro-700', color: t.color.text.primary, textAlign: 'center' }}>{label}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '600', color: t.color.text.primary, textAlign: 'center' }}>{label}</Text>
       {badge ? (
         <View style={{ position: 'absolute', top: 8, end: 8 }}>
           <Badge content={badge} theme={theme} />
@@ -343,12 +337,12 @@ export function SectionHeader({ title, actionLabel, testID, theme = 'light', onA
   const t = tokens(theme);
   return (
     <View testID={testID} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 }}>
-      <Text accessibilityRole="header" style={{ fontSize: 18, fontFamily: 'ReadexPro-700', color: t.color.text.primary, flexShrink: 1 }}>
+      <Text accessibilityRole="header" style={{ fontSize: 18, fontWeight: '700', color: t.color.text.primary, flexShrink: 1 }}>
         {title}
       </Text>
       {actionLabel ? (
         <Pressable accessibilityRole="link" accessibilityLabel={actionLabel} onPress={onActionPress} hitSlop={12}>
-          <Text style={{ fontSize: 13, fontFamily: 'ReadexPro-500', color: t.color.text.link }}>{actionLabel}</Text>
+          <Text style={{ fontSize: 13, fontWeight: '500', color: t.color.text.link }}>{actionLabel}</Text>
         </Pressable>
       ) : null}
     </View>

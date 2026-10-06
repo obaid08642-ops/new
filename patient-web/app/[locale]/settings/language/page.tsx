@@ -84,7 +84,7 @@ export default async function SettingsLanguagePage({ params }: Props) {
       </section>
 
       <p className={styles.boundary} style={{ overflowWrap: "anywhere" } as any}>
-        {ar ? "تُحفظ اللغة على هذا الجهاز فقط." : "Your language choice is saved on this device only."}
+        {ar ? "تُحفظ اللغة محلياً فقط ولا تتم مشاركتها مع الخادم." : "Language is stored locally only and is not sent to the server."}
       </p>
     </main>
   );
