@@ -26,6 +26,7 @@ export function AppointmentCard({
   specialty,
   timeLine,
   primary,
+  primaryInk = false,
   secondary,
 }: {
   locale: string;
@@ -40,6 +41,8 @@ export function AppointmentCard({
   /** The time, already written for the reader (client-side), shown beside the specialty. */
   timeLine?: React.ReactNode;
   primary?: CardAction;
+  /** The primary action in the ink fill (the board draws the video visit in the action colour and the clinic and home visits in ink). */
+  primaryInk?: boolean;
   secondary?: CardAction;
 }) {
   const visual = mode ? MODE_VISUAL[mode] : null;
@@ -58,7 +61,7 @@ export function AppointmentCard({
       </Link>
       {primary || secondary ? (
         <div className={styles.apptActions}>
-          {primary ? <ButtonLink href={primary.href} label={primary.label} size="md" /> : null}
+          {primary ? <ButtonLink href={primary.href} label={primary.label} size="md" className={primaryInk ? styles.apptInk : undefined} /> : null}
           {secondary ? <ButtonLink href={secondary.href} label={secondary.label} variant="outline" size="md" /> : null}
         </div>
       ) : null}

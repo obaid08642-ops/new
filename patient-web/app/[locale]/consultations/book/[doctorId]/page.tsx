@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { extractDoctor, parseDoctorId } from "@/lib/api/doctors";
+import { doctorDisplayName, extractDoctor, parseDoctorId } from "@/lib/api/doctors";
 import { getPublicDoctor } from "@/lib/api/doctors-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale, locales } from "@/lib/i18n";
@@ -34,7 +34,7 @@ export default async function BookConsultationPage({ params }: Props) {
   const response = await getPublicDoctor(doctorId);
   if (response?.status === 401) redirect(`/${locale}/login`);
   const doctor = response?.ok ? extractDoctor(await response.json().catch(() => null)) : null;
-  const name = doctor?.name || t("doctorUnavailable");
+  const name = (doctor ? doctorDisplayName(doctor, locale) : undefined) || t("doctorUnavailable");
   return (
     <BookingFlow
       doctorId={doctorId}

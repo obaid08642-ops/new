@@ -83,7 +83,7 @@ export default async function ConsultationClinicConfirmPage({ params, searchPara
     <ConsultPage locale={locale} title={locationView ? c("clinicLocationTitle") : c("clinicConfirmTitle")} backHref={`/${locale}/appointments/${id}`}>
       {!locationView ? (
         <SectionCard id="clinic-code" title={c("bookingCodeTitle")}>
-          <p className={styles.profileTitle}><bdi>{codeText}</bdi></p>
+          <p className={styles.codeText}><bdi>{codeText}</bdi></p>
           {slotStart && hasWhen ? <LocalTimeLine iso={slotStart} locale={locale} className={styles.heroSub} /> : null}
         </SectionCard>
       ) : null}

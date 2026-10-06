@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { specialtyLabel } from "@/lib/specialties";
 import type { ReactNode } from "react";
-import type { DoctorRow } from "@/lib/api/doctors";
+import { doctorDisplayName, type DoctorRow } from "@/lib/api/doctors";
 import type { Locale } from "@/lib/i18n";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Input } from "@/components-next/ui-generated/components/Inputs";
@@ -46,6 +47,8 @@ function newIdempotencyKey(): string {
 
 export function BookingFlow({ doctorId, locale, doctor, top }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode }) {
   const t = useTranslations("BookConsultation");
+  const names = useTranslations("SpecialtyNames");
+  const specialty = specialtyLabel(names, doctor?.specialty);
   const router = useRouter();
   const days = useMemo(() => nextDays(7, locale), [locale]);
   const [visitType, setVisitType] = useState<VisitType>("clinic");
@@ -170,7 +173,7 @@ export function BookingFlow({ doctorId, locale, doctor, top }: { doctorId: strin
       footer={<StickyFooter label={t("title")}><div className={styles.bookBar}>{submitButton}</div></StickyFooter>}
     >
       {top}
-      <Hero title={doctor?.name || t("doctorUnavailable")} sub={doctor?.specialty ? [doctor.specialty, doctor.facility].filter(Boolean).join(" · ") : undefined} />
+      <Hero title={(doctor ? doctorDisplayName(doctor, locale) : undefined) || t("doctorUnavailable")} sub={[specialty, doctor?.facility].filter(Boolean).join(" · ") || undefined} />
       <SectionCard id="book-visit-type" title={t("visitType")}>
         <Segmented
           label={t("visitType")}

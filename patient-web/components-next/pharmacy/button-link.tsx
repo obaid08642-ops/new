@@ -12,15 +12,18 @@ export function ButtonLink({
   variant = "primary",
   size = "lg",
   fullWidth = false,
+  className,
 }: {
   href: string;
   label: string;
   variant?: "primary" | "outline" | "ghost";
   size?: "sm" | "md" | "lg";
   fullWidth?: boolean;
+  /** An extra class from the page (a tone the design system has no variant for). */
+  className?: string;
 }) {
   return (
-    <Link href={href} className={`nabd-button nabd-button--${variant} nabd-button--${size}${fullWidth ? " nabd-button--full" : ""} ${styles.linkButton}`}>
+    <Link href={href} className={`nabd-button nabd-button--${variant} nabd-button--${size}${fullWidth ? " nabd-button--full" : ""} ${styles.linkButton}${className ? ` ${className}` : ""}`}>
       <span className="nabd-button__label">{label}</span>
     </Link>
   );

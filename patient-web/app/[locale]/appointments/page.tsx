@@ -83,6 +83,7 @@ export default async function AppointmentsPage({ params, searchParams }: Props) 
                   specialty={appointment.specialty}
                   timeLine={appointment.slotStart ? <LocalTimeLine iso={appointment.slotStart} locale={locale} /> : undefined}
                   primary={primary}
+                  primaryInk={activeTab === "upcoming" && (mode === "clinic" || mode === "home")}
                   secondary={secondary}
                 />
               );

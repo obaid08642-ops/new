@@ -11,8 +11,8 @@
 .actionsRow > * { flex: 1 1 10rem; min-inline-size: 0; }
 
 /* ---- a hero: the tile, a title and a line (canvas/OrderTracking head, DoctorFull head) ---- */
-.hero { display: flex; align-items: center; gap: 12px; min-inline-size: 0; }
-.heroText { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 3px; }
+.hero { display: flex; flex-direction: column; align-items: center; gap: 12px; min-inline-size: 0; text-align: center; }
+.heroText { min-inline-size: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; }
 .heroTitle { margin: 0; font-size: var(--nabd-font-size-body-lg); font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
 .heroSub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -53,6 +53,7 @@
 .apptMeta bdi { unicode-bidi: isolate; }
 .apptActions { display: flex; flex-wrap: wrap; gap: 8px; }
 .apptActions > * { flex: 1 1 8rem; min-inline-size: 0; }
+.apptActions .apptInk, .apptActions .apptInk:hover { background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); box-shadow: none; }
 .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--nabd-space-sm); }
 
 /* ---- a link row (chat threads, clinic doctors, specialties, call history): the HealthHub row on a white card ---- */
@@ -91,7 +92,7 @@ a.rowCard:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--
 .label { font-size: var(--nabd-font-size-label); font-weight: 600; color: var(--nabd-color-text-primary); overflow-wrap: anywhere; }
 .control {
   inline-size: 100%; box-sizing: border-box; min-block-size: 48px; padding: 12px 14px; font: inherit; font-size: var(--nabd-font-size-body);
-  color: var(--nabd-color-text-primary); background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-default);
+  color: var(--nabd-color-text-primary); background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-strong);
   border-radius: var(--nabd-radius-xl); min-inline-size: 0;
 }
 textarea.control { resize: vertical; line-height: 1.6; overflow-wrap: anywhere; }
@@ -117,7 +118,7 @@ textarea.control { resize: vertical; line-height: 1.6; overflow-wrap: anywhere; 
 .choices { display: flex; flex-wrap: wrap; gap: 8px; }
 .choice {
   display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; min-inline-size: 44px; padding-inline: 16px; box-sizing: border-box; cursor: pointer;
-  border-radius: var(--nabd-radius-xl); border: 1px solid var(--nabd-color-border-default); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary);
+  border-radius: var(--nabd-radius-xl); border: 1px solid var(--nabd-color-border-strong); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary);
   font: inherit; font-size: var(--nabd-font-size-segment); font-weight: 600; text-decoration: none; text-align: center; overflow-wrap: anywhere;
 }
 .choice[aria-pressed="true"], .choice[aria-current="page"] { background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); border-color: var(--nabd-color-action-selected-bg); }
@@ -143,7 +144,7 @@ textarea.control { resize: vertical; line-height: 1.6; overflow-wrap: anywhere; 
 .statValue { margin: 0; font-size: var(--nabd-font-size-row); font-weight: 700; overflow-wrap: anywhere; }
 .statLabel { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
 .cover { display: block; inline-size: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--nabd-radius-3xl); background: var(--nabd-color-bg-sunken); }
-.coverEmpty { display: flex; align-items: center; justify-content: center; }
+.codeText { margin: 0; direction: ltr; text-align: start; unicode-bidi: isolate; font-size: var(--nabd-font-size-h4); font-weight: 700; letter-spacing: 0.04em; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 .tag { display: inline-flex; align-items: center; min-block-size: 26px; padding-inline: 10px; border-radius: var(--nabd-radius-pill); background: var(--nabd-color-bg-sunken); font-size: var(--nabd-font-size-small); font-weight: 600; overflow-wrap: anywhere; }
 .faq { border-block-start: 1px solid var(--nabd-color-border-subtle); padding-block: 4px; }
 .faq:first-of-type { border-block-start: 0; }
