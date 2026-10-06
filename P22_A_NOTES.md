@@ -108,3 +108,18 @@ Files:
 - Proofs: new specs 23/23 green; existing orders specs 21/21 green (service, governed-reorder-tracking,
   idempotency contract); `tsc --noEmit` clean; mutation probe (expiry gate `&& false`) → expired-test RED,
   restored → green. No `any` in new files (grep: only comment words "many"/"any item").
+
+### P22.2 Alerts + shareable wishlists — BUILT-NEW (commit below)
+Files:
+- `backend/src/modules/pharmacy/services/product-alert.service.ts` (new) + `.spec.ts` (8 tests)
+- `backend/src/modules/pharmacy/dto/product-alert.dto.ts` (new)
+- `backend/src/modules/pharmacy/controllers/product-alert.controller.ts` (new)
+- `backend/src/modules/wishlist/` (new module: service + 2 controllers + dto + spec, 5 tests)
+- Edited (owned): `pharmacy.module.ts` (providers/controllers),
+  `pharmacy-inventory-ext.service.ts` (0→positive restock edge → `onRestock`; optional dep, restock
+  never blocked by alert fan-out), `pharmacy-notification.service.ts` (restock/price-drop notifiers).
+- Wiring notes: provider restock path fires automatically; price pipeline calls
+  `POST /pharmacy/alerts/report-price` (no catalog hook — medicines→pharmacy import would risk a
+  module cycle; documented as pipeline contract instead).
+- Proofs: new specs 13/13 green; existing pharmacy specs 7/7 green; `tsc` clean; mutation probe
+  (key-match gate disabled) → ownership test RED (notified 2, wrong user), restored → green.
