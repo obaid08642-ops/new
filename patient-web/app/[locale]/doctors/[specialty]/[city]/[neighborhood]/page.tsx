@@ -8,34 +8,38 @@ import { VectorDoctor } from "@/components-next/vector-illustrations";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { Building2, MapPin, ShieldCheck, Star } from "lucide-react";
+import { readPublicEntity } from "@/lib/api/public-read";
 import styles from "./doctors-neighborhood.module.css";
 
 type Props = { params: Promise<{ locale: string; specialty: string; city: string; neighborhood: string }> };
 
+// F82-3: static/ISR. Public entity data only (no cookie, no header, no search parameter): the same HTML for everyone,
+// generated on the first request for a path, kept for the hour of the read and regenerated in the background. A failed read
+// throws (lib/api/public-read.ts), so Next keeps the last good copy (stale-if-error, #302); a missing entity is a 404.
+export const revalidate = 3600;
+export function generateStaticParams() {
+  return [];
+}
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
 
 async function fetchDoctorsByNeighborhood(specialty: string, city: string, neighborhood: string) {
-  try {
-    const res = await fetch(
-      `${API_BASE}/api/v1/entity-graph/explore?specialty=${encodeURIComponent(specialty)}&city=${encodeURIComponent(city)}`,
-      { next: { revalidate: 3600 } },
-    );
-    if (!res.ok) return null;
-    const json = await res.json();
-    // Filter facilities and doctors in or near the neighborhood
-    const normNeigh = decodeURIComponent(neighborhood).toLowerCase();
-    const filteredFacs = (json.facilities || []).filter((f: any) =>
-      (f.district && f.district.toLowerCase().includes(normNeigh)) ||
-      (f.address && f.address.toLowerCase().includes(normNeigh))
-    );
-    return {
-      ...json,
-      facilities: filteredFacs.length ? filteredFacs : json.facilities,
-      neighborhood: decodeURIComponent(neighborhood),
-    };
-  } catch {
-    return null;
-  }
+  const json = await readPublicEntity<Record<string, any>>(
+    `${API_BASE}/api/v1/entity-graph/explore?specialty=${encodeURIComponent(specialty)}&city=${encodeURIComponent(city)}`,
+    3600,
+  );
+  if (!json) return null;
+  // Filter facilities and doctors in or near the neighborhood
+  const normNeigh = decodeURIComponent(neighborhood).toLowerCase();
+  const filteredFacs = (json.facilities || []).filter((f: any) =>
+    (f.district && f.district.toLowerCase().includes(normNeigh)) ||
+    (f.address && f.address.toLowerCase().includes(normNeigh))
+  );
+  return {
+    ...json,
+    facilities: filteredFacs.length ? filteredFacs : json.facilities,
+    neighborhood: decodeURIComponent(neighborhood),
+  } as Record<string, any>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

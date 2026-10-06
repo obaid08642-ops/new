@@ -8,23 +8,26 @@ import { VectorDoctor } from "@/components-next/vector-illustrations";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { Building2, MapPin, Star } from "lucide-react";
+import { readPublicEntity } from "@/lib/api/public-read";
 import styles from "./doctors-city.module.css";
 
 type Props = { params: Promise<{ locale: string; specialty: string; city: string }> };
 
+// F82-3: static/ISR. Public entity data only (no cookie, no header, no search parameter): the same HTML for everyone,
+// generated on the first request for a path, kept for the hour of the read and regenerated in the background. A failed read
+// throws (lib/api/public-read.ts), so Next keeps the last good copy (stale-if-error, #302); a missing entity is a 404.
+export const revalidate = 3600;
+export function generateStaticParams() {
+  return [];
+}
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
 
 async function fetchDoctorsByLocation(specialty: string, city: string) {
-  try {
-    const res = await fetch(
-      `${API_BASE}/api/v1/entity-graph/explore?specialty=${encodeURIComponent(specialty)}&city=${encodeURIComponent(city)}`,
-      { next: { revalidate: 3600 } },
-    );
-    if (!res.ok) return null;
-    return await res.json();
-  } catch {
-    return null;
-  }
+  return readPublicEntity<Record<string, any>>(
+    `${API_BASE}/api/v1/entity-graph/explore?specialty=${encodeURIComponent(specialty)}&city=${encodeURIComponent(city)}`,
+    3600,
+  );
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

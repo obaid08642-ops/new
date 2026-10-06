@@ -225,7 +225,7 @@
     "patient-web/app/[locale]/appointments/[appointmentId]/page.tsx": 19,
     "patient-web/app/[locale]/appointments/[appointmentId]/summary/page.tsx": 38,
     "patient-web/app/[locale]/articles/[slug]/page.tsx": 2,
-    "patient-web/app/[locale]/c/[[...category]]/page.tsx": 28,
+    "patient-web/app/[locale]/c/[[...category]]/category-view.tsx": 28,
     "patient-web/app/[locale]/cart/checkout/pharmacy-broadcast-submit.tsx": 5,
     "patient-web/app/[locale]/cart/page.tsx": 2,
     "patient-web/app/[locale]/community/[postId]/page.tsx": 12,

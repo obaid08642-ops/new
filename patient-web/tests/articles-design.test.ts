@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const css = readFileSync(resolve(process.cwd(), "app/[locale]/articles/articles.module.css"), "utf8");
-const page = readFileSync(resolve(process.cwd(), "app/[locale]/articles/page.tsx"), "utf8");
+const page = readFileSync(resolve(process.cwd(), "app/[locale]/articles/articles-view.tsx"), "utf8");
 
 describe("articles design", () => {
   it("provides accessible search, category filters, and honest empty states", () => {

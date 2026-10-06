@@ -5,8 +5,10 @@ import { curatedHref, WEB_ROUTE_ROOTS } from "../lib/curated";
 import { allowedImageUrl, IMAGE_HOSTS } from "../lib/image-hosts";
 
 const localeDir = resolve(process.cwd(), "app/[locale]");
-// The auth and onboarding screens are not places a curated banner sends anyone.
-const NOT_LINKABLE = new Set(["forgot-password", "login", "otp", "password-reset", "register", "welcome", "onboarding"]);
+// The auth and onboarding screens are not places a curated banner sends anyone; neither are the two internal routes of
+// F82-3 (`q`: the dynamic twins of the static list pages, reached only through the proxy's rewrite; `unavailable`: the page
+// the nonce server answers with when a public page failed and has no cached copy).
+const NOT_LINKABLE = new Set(["forgot-password", "login", "otp", "password-reset", "register", "welcome", "onboarding", "q", "unavailable"]);
 
 describe("curated home links", () => {
   it("lists exactly the pages that exist under app/[locale] (minus the sign-in screens)", () => {

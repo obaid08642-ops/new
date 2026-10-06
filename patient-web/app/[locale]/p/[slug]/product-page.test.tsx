@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const state = vi.hoisted(() => ({ getPublicProduct: vi.fn() }));
+const state = vi.hoisted(() => ({ getPublicProduct: vi.fn(), failed: false }));
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
@@ -11,6 +11,7 @@ vi.mock("@/lib/i18n", () => ({
 }));
 vi.mock("@/lib/api/public-products-server", () => ({
   getPublicProduct: state.getPublicProduct,
+  readPublicProduct: async (...args: unknown[]) => ({ data: state.failed ? null : await state.getPublicProduct(...args), failed: state.failed }),
   cdnImage: (u?: string | null) => (u ? (u.startsWith("http") ? u : `https://cdn.nabd.plus/${u}`) : null),
 }));
 
@@ -35,7 +36,7 @@ const product = {
 const params = Promise.resolve({ locale: "en", slug: "abilify-aripiprazole-15-mg-28-tablets" });
 
 describe("public product page (catalog v14)", () => {
-  beforeEach(() => state.getPublicProduct.mockReset());
+  beforeEach(() => { state.getPublicProduct.mockReset(); state.failed = false; });
 
   it("renders the localized product with buy-ready price and structured data", async () => {
     state.getPublicProduct.mockResolvedValue(product);
@@ -75,5 +76,12 @@ describe("public product page (catalog v14)", () => {
     state.getPublicProduct.mockResolvedValue(null);
     const metadata = await generateMetadata({ params });
     expect(metadata.robots).toMatchObject({ index: false, follow: false });
+  });
+
+  // F82-3: the page is cached, so a failed read must throw (Next keeps the last good copy) and never become a cached 404.
+  it("throws when the service failed, and still answers not-found for a product that does not exist", async () => {
+    state.failed = true;
+    await expect(PublicProductPage({ params })).rejects.toThrow("public data unavailable");
+    await expect(generateMetadata({ params })).rejects.toThrow("public data unavailable");
   });
 });
