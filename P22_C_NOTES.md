@@ -68,3 +68,15 @@ Proofs: blend removed → `blendReliability` FAIL (1 failed/6 skipped); restored
 BLOCKED: mystery shopping runs need ops staffing + budget (procedure + checklist + template ship now).
 DEFERRED-NEED: support/disputes module (not owned) → feed `POST admin/providers/scorecards/complaints` when a ticket names a provider; no code change needed on their side beyond the call.
 Live journey (other agent): seed requests/attempts/ratings/complaint → recompute → scorecard matches manual counts; snapshot reliability changes ranking order in admin matching preview; breach → quality alert row.
+
+### 22.16 City operations — BUILT service areas + launch switches + coverage API
+Files (owned `location/`, wired into owned `location.module.ts` — no other-module edits):
+- `city-ops.dto.ts` — Create/UpdateServiceAreaDto (polygon ≥3 pts, lat/lng ranges, zone rules incl. allow-listed services), SetLaunchSwitchDto; launchable services: pharmacy_delivery/home_healthcare/lab_collection/telemedicine/cod.
+- `service-area.service.ts` — `service_areas` CRUD (idempotent create, city must exist as Location city, polygon/zone validation incl. unknown-service reject, soft-deactivate) + pure ray-casting `pointInPolygon`.
+- `city-launch.service.ts` — `city_launches` per-city per-service gating; fail-open default (no row ⇒ launched, preserves current behavior); idempotent upsert.
+- `coverage.service.ts` — admin-map coverage from REAL `provider_profiles` rows: matches service_area_cities / city / address.city / geo-in-polygon (duck-types both profile shapes); `byCity` per-area counts + byType, `citySummary` (distinct providers, uncovered areas).
+- `city-ops.controller.ts` — `admin/city-ops` service-areas CRUD + launches + coverage/:cityCode(+/summary) (admin-guarded, validated DTOs).
+Tests: 6 (geometry pure; CRUD incl. city/geometry/zone rejects + idempotency + deactivate; fail-open→gated switches + unknown-service reject; coverage counts 3 (cities+polygon, Jeddah excluded) + summary distinct 2; empty city uncovered).
+Proof: polygon match removed → `coverage by area` FAIL (1 failed/5 skipped); restored identical → 6/6 green. tsc clean.
+DEFERRED-NEED: none (admin UI map rendering is another agent's slice; API ships).
+Live journey (other agent): create area for sa-riyadh → coverage shows seeded providers; disable cod launch → isLaunched false; empty city → uncoveredAreas lists the area.
