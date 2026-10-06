@@ -6,109 +6,332 @@
     {
       "route": "/family",
       "elements": [
-        ["Title and group line (group name, member count)", "GET /family/my-group: name, members[]; falls back to the GET /family/members count", "ok"],
-        ["Add button (plus, 44) in the header row", "link to /family/add", "ok"],
-        ["Hero card: Add member and Join with a code", "links to /family/add?tab=invite and ?tab=join", "ok"],
-        ["Member rows: avatar, name, role, relation, joined date", "GET /family/members: display_name, role, relation, joined_at (Intl date)", "ok"],
-        ["Permission badge 'Access n/4' (the board's per-member badge)", "GET /family/my-group members[].permissions, the four known grants counted; the grant names are never printed", "ok"],
-        ["Member row link", "/family/<opaque ref of the account id>", "ok"],
-        ["Requests section (absorbs /family/permission-requests): requester, what it asks, Approve, Reject", "GET /family/permissions/pending: id, member_name|requester_name, permissions[]; PUT /api/family/permissions/:id/respond {decision}", "ok"],
-        ["Requests count in the heading, empty line, in-place note when the list cannot load", "same call; not ok -> note, the rest of the page works", "ok"],
-        ["Group permissions list (absorbs the group part of /family/permissions)", "now the permissions tab of each member and the badge above", "ok"],
-        ["Board row 'Permissions'", "no separate screen: permissions are per member (merge map B)", "hidden"],
-        ["Rows Calendar, Chat, Emergency contacts", "links to /family/calendar, /family/chat, /health/profile#emergency (Batch 5)", "ok"],
-        ["Emergency contacts count on its row ('[N] جهات')", "the hub makes no call to /family/emergency-contacts; a line of text instead", "hidden"],
-        ["No-family state with Create group", "GET /family/members 404; POST /api/family/create (same as the old CreateFamilyCta)", "ok"],
-        ["Error state with retry", "GET /family/members not ok", "ok"],
-        ["Old gradient hero, VectorFamily, raw colours, inline styles, literal Arabic/English text, link grid", "tokens, FamilyWeb messages, shared cards and rows", "fixed"]
+        [
+          "Title and group line (group name, member count)",
+          "GET /family/my-group: name, members[]; falls back to the GET /family/members count",
+          "ok"
+        ],
+        [
+          "Add button (plus, 44) in the header row",
+          "link to /family/add",
+          "ok"
+        ],
+        [
+          "Hero card: Add member and Join with a code",
+          "links to /family/add?tab=invite and ?tab=join",
+          "ok"
+        ],
+        [
+          "Member rows: avatar, name, role, relation, joined date",
+          "GET /family/members: display_name, role, relation, joined_at (Intl date)",
+          "ok"
+        ],
+        [
+          "Permission badge 'Access n/4' (the board's per-member badge)",
+          "GET /family/my-group members[].permissions, the four known grants counted; the grant names are never printed",
+          "ok"
+        ],
+        [
+          "Member row link",
+          "/family/<opaque ref of the account id>",
+          "ok"
+        ],
+        [
+          "Requests section (absorbs /family/permission-requests): requester, what it asks, Approve, Reject",
+          "GET /family/permissions/pending: id, member_name|requester_name, permissions[]; PUT /api/family/permissions/:id/respond {decision}",
+          "ok"
+        ],
+        [
+          "Requests count in the heading, empty line, in-place note when the list cannot load",
+          "same call; not ok -> note, the rest of the page works",
+          "ok"
+        ],
+        [
+          "Group permissions list (absorbs the group part of /family/permissions)",
+          "now the permissions tab of each member and the badge above",
+          "ok"
+        ],
+        [
+          "Board row 'Permissions'",
+          "no separate screen: permissions are per member (merge map B)",
+          "hidden"
+        ],
+        [
+          "Rows Calendar, Chat, Emergency contacts",
+          "links to /family/calendar, /family/chat, /health/profile#emergency (Batch 5)",
+          "ok"
+        ],
+        [
+          "Emergency contacts count on its row ('[N] جهات')",
+          "the hub makes no call to /family/emergency-contacts; a line of text instead",
+          "hidden"
+        ],
+        [
+          "No-family state with Create group",
+          "GET /family/members 404; POST /api/family/create (same as the old CreateFamilyCta)",
+          "ok"
+        ],
+        [
+          "Error state with retry",
+          "GET /family/members not ok",
+          "ok"
+        ],
+        [
+          "Old gradient hero, VectorFamily, raw colours, inline styles, literal Arabic/English text, link grid",
+          "tokens, FamilyWeb messages, shared cards and rows",
+          "fixed"
+        ]
       ],
-      "notes": ["Absorbs /family/permission-requests and the group part of /family/permissions (both redirect here)."]
+      "notes": [
+        "Absorbs /family/permission-requests (redirect to /family#requests; the hub reads GET /family/permissions/pending and answers with PUT .../respond) and the group part of /family/permissions (redirect to /family; the hub and the member screen read GET /family/my-group)."
+      ]
     },
     {
       "route": "/family/[memberRef]",
       "elements": [
-        ["Header: avatar, name, role, relation", "GET /family/members matched by the opaque ref (unknown ref -> 404)", "ok"],
-        ["Tabs Records | Permissions", "?tab=records|permissions (link tabs)", "ok"],
-        ["Basic details: gender, date of birth, blood type", "GET /family/member-records/:param profile.gender, birth_date, blood_type", "ok"],
-        ["Medications and prescriptions (name, dose; first 20)", "member-records meds[] and prescriptions[]: medicine_name_ar|en, doctor_name, dose", "ok"],
-        ["Appointments (doctor, time; first 20)", "member-records appointments[]: doctor_name, scheduled_at (device time zone)", "ok"],
-        ["Appointment status text used as the time when there is none", "raw backend string, not translatable: not drawn", "hidden"],
-        ["Reports line", "member-records reports present or not", "ok"],
-        ["Permissions checklist (vitals, medications, reports, appointments) and Save", "GET /family/my-group members[].permissions; PATCH /api/family/members/:id/permissions {permissions} (grants not drawn here are sent back unchanged)", "ok"],
-        ["Remove from family (one more press to confirm; was window.confirm)", "DELETE /api/family/members/:id/permissions, then back to /family", "ok"],
-        ["Server error text shown on a failed save or removal", "translated message instead of the backend's English string", "fixed"],
-        ["Records failing with 5xx drew a 404", "in-place error state with retry; 401 login, 403/404 not found as before", "fixed"],
-        ["Back button, raw colours, inline styles, `any`, literal text", "ConsultPage back to /family, tokens, FamilyWeb messages, typed readers", "fixed"]
+        [
+          "Header: avatar, name, role, relation",
+          "GET /family/members matched by the opaque ref (unknown ref -> 404)",
+          "ok"
+        ],
+        [
+          "Tabs Records | Permissions",
+          "?tab=records|permissions (link tabs)",
+          "ok"
+        ],
+        [
+          "Basic details: gender, date of birth, blood type",
+          "GET /family/member-records/:param profile.gender, birth_date, blood_type",
+          "ok"
+        ],
+        [
+          "Medications and prescriptions (name, dose; first 20)",
+          "member-records meds[] and prescriptions[]: medicine_name_ar|en, doctor_name, dose",
+          "ok"
+        ],
+        [
+          "Appointments (doctor, time; first 20)",
+          "member-records appointments[]: doctor_name, scheduled_at (device time zone)",
+          "ok"
+        ],
+        [
+          "Appointment status text used as the time when there is none",
+          "raw backend string, not translatable: not drawn",
+          "hidden"
+        ],
+        [
+          "Reports line",
+          "member-records reports present or not",
+          "ok"
+        ],
+        [
+          "Permissions checklist (vitals, medications, reports, appointments) and Save",
+          "GET /family/my-group members[].permissions; PATCH /api/family/members/:id/permissions {permissions} (grants not drawn here are sent back unchanged)",
+          "ok"
+        ],
+        [
+          "Remove from family (one more press to confirm; was window.confirm)",
+          "DELETE /api/family/members/:id/permissions, then back to /family",
+          "ok"
+        ],
+        [
+          "Server error text shown on a failed save or removal",
+          "translated message instead of the backend's English string",
+          "fixed"
+        ],
+        [
+          "Records failing with 5xx drew a 404",
+          "in-place error state with retry; 401 login, 403/404 not found as before",
+          "fixed"
+        ],
+        [
+          "Back button, raw colours, inline styles, `any`, literal text",
+          "ConsultPage back to /family, tokens, FamilyWeb messages, typed readers",
+          "fixed"
+        ]
       ],
-      "notes": ["Absorbs the per-member part of /family/permissions (redirects to /family)."]
+      "notes": [
+        "Absorbs the per-member part of /family/permissions (redirects to /family)."
+      ]
     },
     {
       "route": "/family/calendar",
       "elements": [
-        ["Event rows: title, member, date and time", "GET /family/calendar: events[]: title, member_name, event_date (Intl, device time zone)", "ok"],
-        ["Empty state (no events, or no family group: 404)", "GET /family/calendar 404 / empty list", "ok"],
-        ["Error state with retry", "GET /family/calendar not ok (was drawn as empty)", "fixed"],
-        ["Back to family", "ConsultPage back button", "ok"],
-        ["Raw colours, inline styles, literal text, VectorFamily hero", "tokens, FamilyWeb messages, shared rows", "fixed"]
+        [
+          "Event rows: title, member, date and time",
+          "GET /family/calendar: events[]: title, member_name, event_date (Intl, device time zone)",
+          "ok"
+        ],
+        [
+          "Empty state (no events, or no family group: 404)",
+          "GET /family/calendar 404 / empty list",
+          "ok"
+        ],
+        [
+          "Error state with retry",
+          "GET /family/calendar not ok (was drawn as empty)",
+          "fixed"
+        ],
+        [
+          "Back to family",
+          "ConsultPage back button",
+          "ok"
+        ],
+        [
+          "Raw colours, inline styles, literal text, VectorFamily hero",
+          "tokens, FamilyWeb messages, shared rows",
+          "fixed"
+        ]
       ]
     },
     {
       "route": "/family/chat",
       "elements": [
-        ["Message list: bubbles, sender, time", "GET /api/patient/family/chat/messages polled every 5 s: text, sender_id, sender_name, created_at (Intl; was the raw ISO text)", "ok"],
-        ["Member count line", "member_count", "ok"],
-        ["Message box and Send (optimistic)", "POST /api/patient/family/chat/messages {text} with its idempotency key; own id from GET /api/patient/users/me/profile", "ok"],
-        ["Failed send: the message is removed", "the text is put back in the box and an error line says so (was silent)", "fixed"],
-        ["No family group state (403 not_active_family_member)", "parseFamilyChatGate; actions Join with a code and Back to family", "ok"],
-        ["Loading and error with retry", "Skeleton; ErrorState", "ok"],
-        ["Call or video button", "family calls are not built (decision 3): none", "hidden"],
-        ["Raw colours, inline styles, literal text, intro hero", "pharmacy chat bubbles and tokens, FamilyWeb messages", "fixed"]
+        [
+          "Message list: bubbles, sender, time",
+          "GET /api/patient/family/chat/messages polled every 5 s: text, sender_id, sender_name, created_at (Intl; was the raw ISO text)",
+          "ok"
+        ],
+        [
+          "Member count line",
+          "member_count",
+          "ok"
+        ],
+        [
+          "Message box and Send (optimistic)",
+          "POST /api/patient/family/chat/messages {text} with its idempotency key; own id from GET /api/patient/users/me/profile",
+          "ok"
+        ],
+        [
+          "Failed send: the message is removed",
+          "the text is put back in the box and an error line says so (was silent)",
+          "fixed"
+        ],
+        [
+          "No family group state (403 not_active_family_member)",
+          "parseFamilyChatGate; actions Join with a code and Back to family",
+          "ok"
+        ],
+        [
+          "Loading and error with retry",
+          "Skeleton; ErrorState",
+          "ok"
+        ],
+        [
+          "Call or video button",
+          "family calls are not built (decision 3): none",
+          "hidden"
+        ],
+        [
+          "Raw colours, inline styles, literal text, intro hero",
+          "pharmacy chat bubbles and tokens, FamilyWeb messages",
+          "fixed"
+        ]
       ]
     },
     {
       "route": "/family/add",
       "elements": [
-        ["Tabs Invite | Join with code | Scan QR", "?tab=invite|join|scan (link tabs); ?code= pre-fills the join tab", "ok"],
-        ["Invite: Create invite code, the code, Copy", "POST /api/family/invite -> invite_code; clipboard", "ok"],
-        ["Join: invite code, relation, Join family", "POST /api/family/join {invite_code, relation}, then /family", "ok"],
-        ["Scan: paste the code or the link, Continue", "no endpoint: takes ?code= / ?invite_code= or the last path segment and opens the join tab filled in", "ok"],
-        ["Back to family", "ConsultPage back button", "ok"],
-        ["Server error text on a failed invite or join", "translated message instead of the backend's English string", "fixed"]
+        [
+          "Tabs Invite | Join with code | Scan QR",
+          "?tab=invite|join|scan (link tabs); ?code= pre-fills the join tab",
+          "ok"
+        ],
+        [
+          "Invite: Create invite code, the code, Copy",
+          "POST /api/family/invite -> invite_code; clipboard",
+          "ok"
+        ],
+        [
+          "Join: invite code, relation, Join family",
+          "POST /api/family/join {invite_code, relation}, then /family",
+          "ok"
+        ],
+        [
+          "Scan: paste the code or the link, Continue",
+          "no endpoint: takes ?code= / ?invite_code= or the last path segment and opens the join tab filled in",
+          "ok"
+        ],
+        [
+          "Back to family",
+          "ConsultPage back button",
+          "ok"
+        ],
+        [
+          "Server error text on a failed invite or join",
+          "translated message instead of the backend's English string",
+          "fixed"
+        ]
       ],
-      "notes": ["New screen: absorbs /family/invite, /family/join, /family/scan and /health/add-family-member."]
-    },
-    {
-      "route": "/family/invite",
-      "elements": [["Whole screen", "redirect to /family/add?tab=invite (next.config)", "ok"]]
-    },
-    {
-      "route": "/family/join",
-      "elements": [["Whole screen, `code` in the query", "redirect to /family/add?tab=join, the source query is forwarded", "ok"]]
-    },
-    {
-      "route": "/family/scan",
-      "elements": [["Whole screen", "redirect to /family/add?tab=scan", "ok"]]
-    },
-    {
-      "route": "/family/permission-requests",
-      "elements": [["Whole screen", "redirect to /family#requests (the hub reads GET /family/permissions/pending and answers with PUT .../respond)", "ok"]]
-    },
-    {
-      "route": "/family/permissions",
-      "elements": [["Whole screen", "redirect to /family (the hub and the member screen read GET /family/my-group; the group part is the hub, the per-member part the member screen)", "ok"]]
-    },
-    {
-      "route": "/health/add-family-member",
-      "elements": [["Whole screen", "redirect to /family/add?tab=invite (next.config; the page file is gone)", "ok"]]
+      "notes": [
+        "New screen: absorbs /family/invite, /family/join, /family/scan and /health/add-family-member; each is a redirect in next.config (the source query, e.g. `code`, is forwarded), checked in tests/family-screens.test.tsx and by curl (307 to /family/add?code=ABC123&tab=join)."
+      ]
     }
   ],
   "needsReview": [
-    { "route": "/family/add", "element": "Scan QR tab", "kind": "client", "note": "The web has no camera scanner (the code or link is pasted), as before; the app scans. Not added: it is a feature, and the camera permission handling stays as it was." },
-    { "route": "/family", "element": "Hero button 'دعوة برابط'", "kind": "owner", "note": "The board says 'invite by link' but the product only has invite codes (POST /family/invite -> code, QR in the app); the second button reads 'Join with a code' (the old hub's own link). Owner to confirm the board copy." },
-    { "route": "/family", "element": "Board row 'الصلاحيات'", "kind": "owner", "note": "Not drawn: permissions are per member (merge map B) and the badge on each member row shows how many of the four grants they have; confirm the board row can go." },
-    { "route": "/family", "element": "Emergency contacts count", "kind": "client", "note": "The board row says '[N] جهات'; the hub does not call GET /family/emergency-contacts (a different list from the member's own), so no number is drawn." },
-    { "route": "/family/[memberRef]", "element": "Permission grants", "kind": "backend", "note": "The old SSR test fixtures carry grant names such as view_health and view_prescriptions while the screens (and the old permissions client) use vitals, meds, reports, appointments; unknown grants are kept on save but not shown. Reviewer to confirm the backend's real grant names." },
-    { "route": "/family/add", "element": "Invite and join errors", "kind": "backend", "note": "The backend's error text is English and was shown as is; the screen now shows a translated generic line, so a specific cause (code expired, already a member) is not told to the patient." },
-    { "route": "/family", "element": "Board frames", "kind": "owner", "note": "Family.dc.html has one mobile frame (the hub) and no web frames; the other four screens follow the closest templates (list, detail with tabs, chat, form with tabs)." }
+    {
+      "route": "/family/add",
+      "element": "Scan QR tab",
+      "kind": "client",
+      "note": "The web has no camera scanner (the code or link is pasted), as before; the app scans. Not added: it is a feature, and the camera permission handling stays as it was.",
+      "file": "patient-web/components-next/family/add-family.tsx",
+      "line": 112
+    },
+    {
+      "route": "/family",
+      "element": "Hero button 'دعوة برابط'",
+      "kind": "owner",
+      "note": "The board says 'invite by link' but the product only has invite codes (POST /family/invite -> code, QR in the app); the second button reads 'Join with a code' (the old hub's own link). Owner to confirm the board copy.",
+      "file": "patient-web/app/[locale]/family/page.tsx",
+      "line": 103
+    },
+    {
+      "route": "/family",
+      "element": "Board row 'الصلاحيات'",
+      "kind": "owner",
+      "note": "Not drawn: permissions are per member (merge map B) and the badge on each member row shows how many of the four grants they have; confirm the board row can go.",
+      "file": "patient-web/app/[locale]/family/page.tsx",
+      "line": 145
+    },
+    {
+      "route": "/family",
+      "element": "Emergency contacts count",
+      "kind": "client",
+      "note": "The board row says '[N] جهات'; the hub does not call GET /family/emergency-contacts (a different list from the member's own), so no number is drawn.",
+      "file": "patient-web/app/[locale]/family/page.tsx",
+      "line": 147
+    },
+    {
+      "route": "/family/[memberRef]",
+      "element": "Permission grants",
+      "kind": "backend",
+      "note": "The old SSR test fixtures carry grant names such as view_health and view_prescriptions while the screens (and the old permissions client) use vitals, meds, reports, appointments; unknown grants are kept on save but not shown. Reviewer to confirm the backend's real grant names.",
+      "file": "patient-web/components-next/family/member-permissions.tsx",
+      "line": 68
+    },
+    {
+      "route": "/family/add",
+      "element": "Invite and join errors",
+      "kind": "backend",
+      "note": "The backend's error text is English and was shown as is; the screen now shows a translated generic line, so a specific cause (code expired, already a member) is not told to the patient.",
+      "file": "patient-web/components-next/family/add-family.tsx",
+      "line": 82
+    },
+    {
+      "route": "/family",
+      "element": "Board frames",
+      "kind": "owner",
+      "note": "Family.dc.html has one mobile frame (the hub) and no web frames; the other four screens follow the closest templates (list, detail with tabs, chat, form with tabs).",
+      "file": "patient-web/app/[locale]/family/page.tsx",
+      "line": 37
+    },
+    {
+      "route": "/family",
+      "element": "Member name",
+      "kind": "backend",
+      "note": "GET /family/members returns no display_name for the seeded group owner (test data), so the row and the avatar fall back to 'Family member'; the backend should send the member's name.",
+      "file": "patient-web/app/[locale]/family/page.tsx",
+      "line": 114
+    }
   ]
 }
