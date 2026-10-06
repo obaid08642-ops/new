@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -37,24 +37,18 @@ export function RxUploadScreen({ locale }: { locale: Locale }) {
   const router = useRouter();
   const cameraRef = useRef<HTMLInputElement>(null);
   const photosRef = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  // the chosen photo, already scaled. A data: URL, because the page's CSP allows data: images and not blob: ones;
+  // it is both the preview and what is sent.
+  const [image, setImage] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
   // the key of the last save attempt: the same request retried keeps its key, so a dropped connection never saves twice
   const attempt = useRef<{ signature: string; key: string } | null>(null);
 
-  useEffect(() => {
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    setPreview(url);
-    return () => URL.revokeObjectURL(url);
-  }, [file]);
-
   const busy = phase.kind === "preparing" || phase.kind === "reading" || phase.kind === "saving";
   const failure = phase.kind === "failed" ? phase.reason : null;
 
-  function pick(event: React.ChangeEvent<HTMLInputElement>) {
+  async function pick(event: React.ChangeEvent<HTMLInputElement>) {
     const chosen = event.target.files?.[0];
     event.target.value = "";
     if (!chosen) return;
@@ -63,26 +57,22 @@ export function RxUploadScreen({ locale }: { locale: Locale }) {
       setPhase({ kind: "failed", reason: check });
       return;
     }
-    setFile(chosen);
-    setPhase({ kind: "idle" });
+    setPhase({ kind: "preparing" });
+    try {
+      setImage(await prepareRxImage(chosen));
+      setPhase({ kind: "idle" });
+    } catch {
+      setPhase({ kind: "failed", reason: "read" });
+    }
   }
 
   function clear() {
-    setFile(null);
-    setPreview(null);
+    setImage(null);
     setPhase({ kind: "idle" });
   }
 
   async function submit() {
-    if (!file || busy) return;
-    setPhase({ kind: "preparing" });
-    let image: string;
-    try {
-      image = await prepareRxImage(file);
-    } catch {
-      return setPhase({ kind: "failed", reason: "read" });
-    }
-
+    if (!image || busy) return;
     setPhase({ kind: "reading" });
     let items;
     try {
@@ -135,7 +125,7 @@ export function RxUploadScreen({ locale }: { locale: Locale }) {
   };
 
   const submitButton = (
-    <Button label={t("submit")} size="lg" fullWidth disabled={!file} loading={busy} onClick={() => void submit()} />
+    <Button label={t("submit")} size="lg" fullWidth disabled={!image} loading={busy} onClick={() => void submit()} />
   );
 
   return (
@@ -150,8 +140,8 @@ export function RxUploadScreen({ locale }: { locale: Locale }) {
       <div className={rx.page}>
         <div className={rx.head}><h1 className={rx.title}>{t("title")}</h1></div>
 
-        <input ref={cameraRef} type="file" accept="image/*" capture="environment" hidden aria-label={t("cameraInput")} onChange={pick} />
-        <input ref={photosRef} type="file" accept="image/*" hidden aria-label={t("photosInput")} onChange={pick} />
+        <input ref={cameraRef} type="file" accept="image/*" capture="environment" hidden aria-label={t("cameraInput")} onChange={(event) => void pick(event)} />
+        <input ref={photosRef} type="file" accept="image/*" hidden aria-label={t("photosInput")} onChange={(event) => void pick(event)} />
 
         <section className={rx.drop}>
           <FIcon icon="prescription" tone={PHARMACY_TONE} size={72} />
@@ -163,13 +153,13 @@ export function RxUploadScreen({ locale }: { locale: Locale }) {
           </div>
         </section>
 
-        {file && preview ? (
+        {image ? (
           <section aria-labelledby="rx-attachment">
             <h2 className={rx.h2} id="rx-attachment">{t("attachment")}</h2>
             <div className={rx.attachments}>
               <div className={rx.thumb}>
-                {/* eslint-disable-next-line @next/next/no-img-element -- a local preview of the chosen file (blob:) */}
-                <img className={rx.thumbImage} src={preview} alt={t("previewAlt")} />
+                {/* eslint-disable-next-line @next/next/no-img-element -- a local preview of the chosen photo (a data: URL) */}
+                <img className={rx.thumbImage} src={image} alt={t("previewAlt")} />
                 <button type="button" className={rx.thumbRemove} aria-label={t("removePhoto")} onClick={clear} disabled={busy}>
                   <Icon name="close" size={16} tone="primary" />
                 </button>

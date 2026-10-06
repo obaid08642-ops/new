@@ -30,7 +30,7 @@
 .cardLabel { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); }
 .cardValue { font-size: var(--nabd-font-size-row); font-weight: 600; overflow-wrap: anywhere; }
 .cardLink {
-  flex: none; display: inline-flex; align-items: center; min-block-size: 44px; padding-inline: 4px;
+  flex: none; display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; min-inline-size: 44px; padding-inline: 4px;
   font-size: var(--nabd-font-size-segment); font-weight: 600; color: var(--nabd-color-text-link); text-decoration: none;
 }
 .cardLink:focus-visible, .rowLink:focus-visible, .textLink:focus-visible {
