@@ -384,9 +384,10 @@
     "callTitle": "Ligtas na video visit",
     "callJoin": "Ihanda ang video visit",
     "callLoading": "Inihahanda ang ligtas na visit…",
-    "callReady": "Handa na ang iyong video visit. Magpatuloy sa video app.",
+    "callReady": "Handa na ang iyong video visit.",
     "callUnavailable": "Hindi available ang video visit ngayon.",
-    "callDiscard": "Isara ang video visit"
+    "callDiscard": "Isara ang video visit",
+    "callOpen": "Sumali sa video visit"
   },
   "Medicines": {
     "eyebrow": "Pribadong katalogo",
@@ -2390,6 +2391,9 @@
     "acceptsInsurance": "Tumatanggap ng insurance",
     "acceptedInsurance": "Mga tinatanggap na kompanya ng insurance",
     "actionBookConsultation": "Mag-book ng konsultasyon",
+    "doctorMetaFallback": "Doktor",
+    "doctorMetaDescription": "{name} - {specialty}. Mag-book ng online o clinic na konsultasyon sa {brand}.",
+    "doctorMetaDescriptionCity": "{name} - {specialty} sa {city}. Mag-book ng online o clinic na konsultasyon sa {brand}.",
     "locationLabel": "Lokasyon",
     "videoCallTitle": "Konsultasyon sa video",
     "videoCallSub": "Ligtas at direktang video call kasama ang iyong doktor",
