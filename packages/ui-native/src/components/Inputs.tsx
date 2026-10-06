@@ -20,6 +20,10 @@ import type {
   SlotPickerProps,
   StepperProps,
 } from '../../../ui/components/contract';
+import Svg, { Path } from 'react-native-svg';
+
+import { tokens, type ThemeName } from '../../../design-tokens/dist/ts/tokens';
+import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX } from '../../../ui/icons/fill';
 import { Icon } from '../Icon';
 
 /**
@@ -288,42 +292,98 @@ export function Otp({ value = '', length, label, error, onChange, onComplete, di
   );
 }
 
+/**
+ * SearchField — canvas/PharmacyHub and Consult (`inline`: 52 tall, radius 18,
+ * hairline ring) and canvas/Search (`page`: a 50 tall pill with the 2px ink
+ * border and soft ring of a focused field). Either variant takes the ink border
+ * while focused. Clear and barcode sit inside; the filter is the 52pt ink square
+ * beside the field. Same props and geometry as the web renderer.
+ */
 export function Search({
   value = '',
   onChange,
   placeholder = '',
+  variant = 'inline',
   onFilterPress,
   filterLabel,
+  onClear,
+  clearLabel,
+  onScanPress,
+  scanLabel,
+  label,
   loading = false,
   disabled = false,
+  invalid = false,
   testID,
   theme = 'light',
-}: SearchProps & { theme?: 'light' | 'dark' }) {
-  const dark = theme === 'dark';
+}: SearchProps & { theme?: ThemeName }) {
+  const t = tokens(theme);
+  const c = t.color;
+  const [focused, setFocused] = React.useState(false);
+  const page = variant === 'page';
+  const active = page || focused;
+
   return (
-    <View style={{ position: 'relative', justifyContent: 'center' }}>
-      <View style={{ position: 'absolute', insetInlineStart: 12 }}>
-        <Icon name="search" size={20} theme={theme} tone="secondary" />
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+      <View
+        style={{
+          flex: 1,
+          minWidth: 0,
+          height: page ? 50 : 52,
+          borderRadius: page ? 25 : 18,
+          backgroundColor: c.bg.surface,
+          borderWidth: active ? 2 : 1,
+          borderColor: active ? c.text.primary : c.border.onGlass,
+          boxShadow: active ? `0 0 0 4px ${c.glass.scrim}` : undefined,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 10,
+          paddingHorizontal: active ? 13 : 14,
+          opacity: disabled ? 0.5 : 1,
+        }}
+      >
+        <Icon name="search" size={20} theme={theme} tone={active ? 'primary' : 'secondary'} />
+        <TextInput
+          value={value}
+          onChangeText={onChange}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          placeholder={placeholder}
+          placeholderTextColor={c.text.secondary}
+          editable={!disabled}
+          accessibilityLabel={label ?? (placeholder || 'Search')}
+          accessibilityState={{ disabled, busy: loading }}
+          aria-invalid={invalid || undefined}
+          testID={testID}
+          style={{ flex: 1, minWidth: 0, height: '100%', padding: 0, fontSize: page ? 16 : 15, fontFamily: 'ReadexPro-400', color: c.text.primary }}
+        />
+        {onClear && value ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={clearLabel ?? 'Clear'}
+            onPress={onClear}
+            hitSlop={8}
+            testID={testID ? `${testID}-clear` : undefined}
+            style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: c.bg.sunken, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <Icon name="close" size={14} theme={theme} tone="secondary" />
+          </Pressable>
+        ) : null}
+        {onScanPress ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={scanLabel ?? 'Scan'}
+            onPress={onScanPress}
+            hitSlop={4}
+            testID={testID ? `${testID}-scan` : undefined}
+            style={{ width: 36, height: 36, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <Svg width={22} height={22} viewBox={FILL_ICON_VIEWBOX}>
+              <Path d={FILL_ICON_PATHS.barcode} fill={c.icon.secondary} />
+            </Svg>
+          </Pressable>
+        ) : null}
       </View>
-      <TextInput
-        value={value}
-        onChangeText={onChange}
-        placeholder={placeholder}
-        placeholderTextColor={dark ? '#8A97A6' : '#8A94A0'}
-        editable={!disabled}
-        accessibilityLabel={placeholder || 'Search'}
-        testID={testID}
-        style={[
-          CONTROL,
-          {
-            borderRadius: 9999,
-            color: dark ? '#F5F5F7' : '#0B1B2B',
-            backgroundColor: dark ? '#12263A' : '#F4F6F8',
-            paddingInlineStart: 44,
-            paddingInlineEnd: onFilterPress ? 56 : 20,
-          },
-        ]}
-      />
       {onFilterPress ? (
         <Pressable
           accessibilityRole="button"
@@ -332,15 +392,19 @@ export function Search({
           accessibilityLabel={filterLabel ?? 'Filter'}
           onPress={onFilterPress}
           testID={testID ? `${testID}-filter` : undefined}
-          style={{ position: 'absolute', insetInlineEnd: 0, width: 48, height: 48, alignItems: 'center', justifyContent: 'center' }}
+          style={{ width: 52, height: 52, borderRadius: 18, backgroundColor: c.action.selected.bg, alignItems: 'center', justifyContent: 'center' }}
         >
-          <Icon name="filter" size={20} theme={theme} tone="secondary" />
+          <Icon name="sliders" size={20} theme={theme} color={c.action.selected.fg} />
         </Pressable>
       ) : null}
     </View>
   );
 }
 
+/**
+ * canvas/Cart: a 36 tall pill in the canvas colour, two 30pt elevated discs and
+ * the value at 14/700 between them. Each disc reaches 44 with hitSlop.
+ */
 export function Stepper({
   value,
   onChange,
@@ -351,53 +415,63 @@ export function Stepper({
   decrementLabel = 'Decrease',
   incrementLabel = 'Increase',
   format,
+  loading = false,
   disabled = false,
   testID,
   theme = 'light',
-}: StepperProps & { theme?: 'light' | 'dark' }) {
+}: StepperProps & { theme?: ThemeName }) {
   const clamp = (n: number) => Math.min(max, Math.max(min, n));
   const shown = format ? format(value) : String(value);
-  const dark = theme === 'dark';
+  const c = tokens(theme).color;
+  const inert = disabled || loading;
+  const disc = { width: 30, height: 30, borderRadius: 15, backgroundColor: c.bg.elevated, alignItems: 'center' as const, justifyContent: 'center' as const };
 
   return (
     <View
       accessibilityRole="none"
+      accessibilityLabel={label}
+      testID={testID}
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: dark ? '#6E8BFF' : '#D5DBE4',
-        borderRadius: 9999,
-        overflow: 'hidden',
+        gap: 4,
+        height: 36,
+        paddingHorizontal: 3,
+        borderRadius: 18,
+        backgroundColor: c.bg.canvas,
         alignSelf: 'flex-start',
+        opacity: disabled ? 0.5 : 1,
       }}
     >
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={decrementLabel}
-        accessibilityState={{ disabled: disabled || value <= min }}
-        disabled={disabled || value <= min}
+        accessibilityState={{ disabled: inert || value <= min }}
+        disabled={inert || value <= min}
         onPress={() => onChange?.(clamp(value - step))}
-        style={{ width: 48, height: 44, alignItems: 'center', justifyContent: 'center' }}
+        hitSlop={7}
+        testID={testID ? `${testID}-dec` : undefined}
+        style={disc}
       >
-        <Icon name="minus" size={18} theme={theme} />
+        <Text style={{ fontSize: 16, color: c.text.primary }}>−</Text>
       </Pressable>
       <Text
         accessibilityLiveRegion="polite"
-        accessibilityLabel={label}
-        style={{ minWidth: 40, textAlign: 'center', fontSize: 15, fontWeight: '700', color: dark ? '#F5F5F7' : '#0B1B2B' }}
+        style={{ minWidth: 20, textAlign: 'center', fontSize: 14, fontFamily: 'ReadexPro-700', color: c.text.primary }}
       >
         {shown}
       </Text>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={incrementLabel}
-        accessibilityState={{ disabled: disabled || value >= max }}
-        disabled={disabled || value >= max}
+        accessibilityState={{ disabled: inert || value >= max }}
+        disabled={inert || value >= max}
         onPress={() => onChange?.(clamp(value + step))}
-        style={{ width: 48, height: 44, alignItems: 'center', justifyContent: 'center' }}
+        hitSlop={7}
+        testID={testID ? `${testID}-inc` : undefined}
+        style={disc}
       >
-        <Icon name="plus" size={18} theme={theme} />
+        <Text style={{ fontSize: 16, color: c.text.primary }}>+</Text>
       </Pressable>
     </View>
   );

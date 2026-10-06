@@ -1,7 +1,7 @@
 {
   "_meta": {
     "purpose": "Phase 5 six-language UI localization additions",
-    "source_count": 2754,
+    "source_count": 2813,
     "languages": [
       "ar",
       "en",
@@ -588,13 +588,13 @@
       "bn": "আপনি কী নিয়ে উদ্বিগ্ন তা নির্বাচন করুন, আমরা আপনার জন্য সেরা স্পেশালিস্ট খুঁজে দেব",
       "fil": "Pumili ng iyong alalahanin at hahanapan ka namin ng pinakamahusay na espesyalista"
     },
-    "اختر مزوّداً مفعلاً من السلة، ثم أرسل طلب الحجز. سيُظهر النظام حالة التوافر وتفاصيل الحجز من الخادم.": {
-      "ar": "اختر مزوّداً مفعلاً من السلة، ثم أرسل طلب الحجز. سيُظهر النظام حالة التوافر وتفاصيل الحجز من الخادم.",
-      "en": "Select an active provider from the cart, then send the booking request. The system will display availability and booking details from the server.",
-      "ur": "کارٹ سے ایک فعال فراہم کنندہ منتخب کریں، پھر بکنگ درخواست بھیجیں۔ سسٹم سرور سے دستیابی کی حالت اور بکنگ کی تفصیلات دکھائے گا.",
-      "hi": "कार्ट से एक सक्रिय प्रदाता चुनें, फिर बुकिंग अनुरोध भेजें। सिस्टम सर्वर से उपलब्धता और बुकिंग विवरण दिखाएगा।",
-      "bn": "কার্ট থেকে একটি সক্রিয় প্রদানকারী নির্বাচন করুন, তারপর বুকিং অনুরোধ পাঠান। সিস্টেম সার্ভার থেকে উপলব্ধতা ও বুকিং বিবরণ দেখাবে।",
-      "fil": "Piliin ang aktibong provider mula sa cart, pagkatapos ipadala ang booking request. Ipapakita ng system ang availability at booking details mula sa server."
+    "اختر مزوّداً متاحاً من السلة، ثم أرسل طلب الحجز. ستظهر لك حالة التوافر وتفاصيل الحجز.": {
+      "ar": "اختر مزوّداً متاحاً من السلة، ثم أرسل طلب الحجز. ستظهر لك حالة التوافر وتفاصيل الحجز.",
+      "en": "Choose an available provider from your cart, then send the booking request. You'll see availability and booking details.",
+      "ur": "اپنی کارٹ سے دستیاب فراہم کنندہ منتخب کریں، پھر بکنگ کی درخواست بھیجیں۔ آپ کو دستیابی اور بکنگ کی تفصیلات نظر آئیں گی۔",
+      "hi": "अपने कार्ट से उपलब्ध प्रदाता चुनें, फिर बुकिंग अनुरोध भेजें। आपको उपलब्धता और बुकिंग का विवरण दिखेगा।",
+      "bn": "আপনার কার্ট থেকে একজন উপলব্ধ সেবাদাতা বেছে নিন, তারপর বুকিং অনুরোধ পাঠান। আপনি প্রাপ্যতা ও বুকিংয়ের বিবরণ দেখতে পাবেন।",
+      "fil": "Pumili ng available na provider mula sa iyong cart, saka ipadala ang booking request. Makikita mo ang availability at detalye ng booking."
     },
     "اختر مصدر الصورة": {
       "ar": "اختر مصدر الصورة",
@@ -4300,13 +4300,13 @@
       "bn": "অ্যাম্বুল্যান্স গাড়ি ট্র্যাক করুন",
       "fil": "Subaybayan ang sasakyan ng ambulansya"
     },
-    "تتم مراجعة الصيدلية والتوفر والعنوان والسعر النهائي وسداد التأمين من الخادم في خطوة إتمام الطلب. لا ينشأ طلب أو دفع من هذه الشاشة.": {
-      "ar": "تتم مراجعة الصيدلية والتوفر والعنوان والسعر النهائي وسداد التأمين من الخادم في خطوة إتمام الطلب. لا ينشأ طلب أو دفع من هذه الشاشة.",
-      "en": "Pharmacy, availability, address, final price and insurance payment are reviewed by the server at order completion. No order or payment is created from this screen.",
-      "ur": "فارمیسی، دستیابی، پتہ، حتمی قیمت اور انشورنس کی ادائیگی سرور کی جانب سے آرڈر مکمل کرنے کے مرحلے میں جانچی جاتی ہیں۔ اس اسکرین سے کوئی آرڈر یا ادائیگی پیدا نہیں ہوتی۔",
-      "hi": "फार्मेसी, उपलब्धता, पता, अंतिम कीमत और बीमा भुगतान को सर्वर द्वारा ऑर्डर पूरा करने के चरण में समीक्षा किया जाता है। इस स्क्रीन से कोई ऑर्डर या भुगतान नहीं बनता।",
-      "bn": "ফার্মেসি, উপলভ্যতা, ঠিকানা, চূড়ান্ত মূল্য এবং বীমা পরিশোধ সার্ভারের দ্বারা অর্ডার সম্পন্নকরণ ধাপে পর্যালোচিত হয়। এই স্ক্রিন থেকে কোনো অর্ডার বা পেমেন্ট তৈরি হয় না।",
-      "fil": "Sinusuri ng server ang botika, availability, address, pangwakas na presyo, at pagbabayad ng insurance sa hakbang ng pag-kompleto ng order. Walang order o bayad na nagagawa mula sa screen na ito."
+    "تتم مراجعة الصيدلية والتوفر والعنوان والسعر النهائي والتأمين في خطوة إتمام الطلب. لا يُنشأ طلب أو دفع من هذه الشاشة.": {
+      "ar": "تتم مراجعة الصيدلية والتوفر والعنوان والسعر النهائي والتأمين في خطوة إتمام الطلب. لا يُنشأ طلب أو دفع من هذه الشاشة.",
+      "en": "Pharmacy, availability, address, final price and insurance are reviewed at checkout. No order or payment is created on this screen.",
+      "ur": "فارمیسی، دستیابی، پتہ، حتمی قیمت اور انشورنس کا جائزہ چیک آؤٹ پر لیا جاتا ہے۔ اس اسکرین سے کوئی آرڈر یا ادائیگی نہیں ہوتی۔",
+      "hi": "फ़ार्मेसी, उपलब्धता, पता, अंतिम कीमत और बीमा की समीक्षा चेकआउट पर होती है। इस स्क्रीन से कोई ऑर्डर या भुगतान नहीं होता।",
+      "bn": "ফার্মেসি, প্রাপ্যতা, ঠিকানা, চূড়ান্ত দাম ও বীমা চেকআউটে যাচাই করা হয়। এই স্ক্রিন থেকে কোনো অর্ডার বা পেমেন্ট হয় না।",
+      "fil": "Sinusuri sa checkout ang botika, availability, address, huling presyo at insurance. Walang order o bayad na nagagawa sa screen na ito."
     },
     "تجديد البوليصة": {
       "ar": "تجديد البوليصة",
@@ -7444,13 +7444,13 @@
       "bn": "এখানে আপনার অ্যাপয়েন্টমেন্ট, ওষুধ ও অফারের অ্যালার্ট দেখা যাবে",
       "fil": "Dito lalabas ang mga alerto para sa iyong mga appointment, gamot, at mga alok"
     },
-    "ستُعاد معالجة الطلب بعنوان وطريقة استلام وطريقة دفع الطلب السابقين. يمكنك تعديلها في الطلب الجديد بعد أن يحدّد الخادم الصيدلية المتاحة.": {
-      "ar": "ستُعاد معالجة الطلب بعنوان وطريقة استلام وطريقة دفع الطلب السابقين. يمكنك تعديلها في الطلب الجديد بعد أن يحدّد الخادم الصيدلية المتاحة.",
-      "en": "The order will be reprocessed using the previous order's address, pickup method, and payment method. You can edit them in the new order after the server selects an available pharmacy.",
-      "ur": "آرڈر کو سابقہ آرڈر کے پتے، وصولی کے طریقہ اور ادائیگی کے طریقے کے ساتھ دوبارہ پروسیس کیا جائے گا۔ جب سرور دستیاب فارمیسی منتخب کرے گا تو آپ نئے آرڈر میں انہیں تبدیل کر سکتے ہیں۔",
-      "hi": "ऑर्डर को पिछले ऑर्डर के पते, प्राप्ति तरीके और भुगतान तरीके के साथ पुनः संसाधित किया जाएगा। जब सर्वर उपलब्ध फार्मेसी चुनता है, तब आप नए ऑर्डर में इन्हें बदल सकते हैं।",
-      "bn": "অর্ডারটি পূর্বের অর্ডারের ঠিকানা, সংগ্রহ পদ্ধতি এবং পেমেন্ট পদ্ধতিতে পুনরায় প্রক্রিয়া করা হবে। সার্ভার উপলব্ধ ফার্মেসি নির্ধারণ করার পর আপনি নতুন অর্ডারে এগুলো পরিবর্তন করতে পারবেন।",
-      "fil": "Ang order ay muling ipoproseso gamit ang address, paraan ng pagkuha, at paraan ng pagbabayad mula sa nakaraang order. Maaari mong baguhin ang mga ito sa bagong order pagkatapos piliin ng server ang available na parmasya."
+    "سنعيد الطلب بعنوان وطريقة استلام وطريقة دفع الطلب السابق. يمكنك تعديلها في الطلب الجديد بعد تحديد الصيدلية المتاحة.": {
+      "ar": "سنعيد الطلب بعنوان وطريقة استلام وطريقة دفع الطلب السابق. يمكنك تعديلها في الطلب الجديد بعد تحديد الصيدلية المتاحة.",
+      "en": "We'll repeat the order with your previous address, pickup method and payment method. You can change them in the new order once an available pharmacy is chosen.",
+      "ur": "ہم آپ کے پچھلے پتے، وصولی کے طریقے اور ادائیگی کے طریقے کے ساتھ آرڈر دہرائیں گے۔ دستیاب فارمیسی منتخب ہونے کے بعد آپ نئے آرڈر میں انہیں بدل سکتے ہیں۔",
+      "hi": "हम आपके पिछले पते, पिकअप तरीके और भुगतान तरीके के साथ ऑर्डर दोहराएँगे। उपलब्ध फ़ार्मेसी चुने जाने के बाद आप नए ऑर्डर में इन्हें बदल सकते हैं।",
+      "bn": "আমরা আপনার আগের ঠিকানা, সংগ্রহের পদ্ধতি ও পেমেন্ট পদ্ধতি দিয়ে অর্ডারটি আবার করব। উপলব্ধ ফার্মেসি বাছাই হলে নতুন অর্ডারে এগুলো বদলাতে পারবেন।",
+      "fil": "Uulitin namin ang order gamit ang dati mong address, paraan ng pagkuha at paraan ng pagbabayad. Mababago mo ang mga ito sa bagong order kapag may napiling available na botika."
     },
     "ستفتح هذه المزايا:": {
       "ar": "ستفتح هذه المزايا:",
@@ -11367,9 +11367,9 @@
     "يُحدد عند الحجز": {
       "ar": "يُحدد عند الحجز",
       "en": "Set at booking",
-      "ur": "بکنگ کے وقت طے ہوگا",
-      "hi": "बुकिंग के समय तय होगा",
-      "bn": "বুকিংয়ের সময় নির্ধারণ করা হবে",
+      "ur": "بکنگ پر طے ہوگا",
+      "hi": "बुकिंग पर तय होगा",
+      "bn": "বুকিংয়ের সময় ঠিক হবে",
       "fil": "Itatakda sa booking"
     },
     "يرجى إدخال اسم الدواء ووقت التذكير": {
@@ -12164,13 +12164,13 @@
       "bn": "প্রদানকারী পর্যালোচনার পর অ্যাপয়েন্টমেন্ট নিশ্চিতকরণ ও কেন্দ্র বিবরণ দেখাবে",
       "fil": "Lilitaw ang kumpirmasyon ng appointment at mga detalye ng sentro sa iyong mga booking pagkatapos ng pagsusuri ng provider"
     },
-    "سحب من المنزل (تُحسب الرسوم من الخادم)": {
-      "ar": "سحب من المنزل (تُحسب الرسوم من الخادم)",
-      "en": "Home collection (fees computed by server)",
-      "ur": "گھر سے نمونہ (فیس سرور سے)",
-      "hi": "घर से संग्रह (शुल्क सर्वर से)",
-      "bn": "বাড়ি থেকে সংগ্রহ (ফি সার্ভার থেকে)",
-      "fil": "Koleksyon mula sa bahay (bayad mula sa server)"
+    "سحب من المنزل (تُحدد الرسوم عند الحجز)": {
+      "ar": "سحب من المنزل (تُحدد الرسوم عند الحجز)",
+      "en": "Home collection (fee set at booking)",
+      "ur": "گھر سے نمونہ (فیس بکنگ پر طے ہوگی)",
+      "hi": "घर से सैंपल (शुल्क बुकिंग पर तय होगा)",
+      "bn": "বাড়ি থেকে নমুনা সংগ্রহ (ফি বুকিংয়ের সময় ঠিক হবে)",
+      "fil": "Home collection (itatakda ang bayad sa booking)"
     },
     "طاقم التمريض": {
       "ar": "طاقم التمريض",
@@ -12419,14 +12419,6 @@
       "hi": "नस",
       "bn": "শিরা",
       "fil": "Ugatan (IV)"
-    },
-    "يحدده الخادم": {
-      "ar": "يحدده الخادم",
-      "en": "Determined by server",
-      "ur": "سرور طے کرتا ہے",
-      "hi": "सर्वर निर्धारित करता है",
-      "bn": "সার্ভার নির্ধারণ করে",
-      "fil": "Tinutukoy ng server"
     },
     "يرجى التوجه إلى نقطة الاستلام الموضحة على الخريطة.": {
       "ar": "يرجى التوجه إلى نقطة الاستلام الموضحة على الخريطة.",
@@ -13132,13 +13124,13 @@
       "bn": "অ্যাপ ও অবকাঠামো উন্নয়ন",
       "fil": "Pagpapaunlad ng app at imprastruktura"
     },
-    "تعذر الاتصال بالخادم. يرجى المحاولة لاحقاً.": {
-      "ar": "تعذر الاتصال بالخادم. يرجى المحاولة لاحقاً.",
-      "en": "Could not reach the server. Please try later.",
-      "ur": "سرور سے رابطہ نہیں ہو سکا۔ بعد میں کوشش کریں۔",
-      "hi": "सर्वर से संपर्क नहीं हो सका। बाद में प्रयास करें।",
-      "bn": "সার্ভারে সংযোগ হয়নি। পরে চেষ্টা করুন।",
-      "fil": "Hindi makakonekta sa server. Subukang muli mamaya."
+    "تعذّر الاتصال الآن. يرجى المحاولة لاحقاً.": {
+      "ar": "تعذّر الاتصال الآن. يرجى المحاولة لاحقاً.",
+      "en": "We can't connect right now. Please try again later.",
+      "ur": "ابھی رابطہ نہیں ہو پا رہا۔ براہ کرم بعد میں کوشش کریں۔",
+      "hi": "अभी कनेक्ट नहीं हो पा रहा है। कृपया बाद में कोशिश करें।",
+      "bn": "এখন সংযোগ করা যাচ্ছে না। অনুগ্রহ করে পরে চেষ্টা করুন।",
+      "fil": "Hindi makakonekta ngayon. Pakisubukang muli mamaya."
     },
     "تفعيل الاهتزاز مع الإشعارات": {
       "ar": "تفعيل الاهتزاز مع الإشعارات",
@@ -14148,13 +14140,13 @@
       "bn": "FHIR R4 / HL7 সামঞ্জস্যপূর্ণ",
       "fil": "FHIR R4 / HL7 compatible"
     },
-    "JSON / PDF — يصل خلال 24 ساعة": {
-      "ar": "JSON / PDF — يصل خلال 24 ساعة",
-      "en": "JSON / PDF — delivered within 24 hours",
-      "ur": "JSON / PDF — 24 گھنٹے میں موصول",
-      "hi": "JSON / PDF — 24 घंटे में वितरित",
-      "bn": "JSON / PDF — ২৪ ঘণ্টায় ডেলিভারি",
-      "fil": "JSON / PDF — ihahatid sa loob ng 24 oras"
+    "نسخة من بياناتك — تصلك خلال 24 ساعة": {
+      "ar": "نسخة من بياناتك — تصلك خلال 24 ساعة",
+      "en": "A copy of your data — arrives within 24 hours",
+      "ur": "آپ کے ڈیٹا کی کاپی — 24 گھنٹوں میں موصول",
+      "hi": "आपके डेटा की कॉपी — 24 घंटे में मिलेगी",
+      "bn": "আপনার তথ্যের একটি কপি — ২৪ ঘণ্টার মধ্যে পৌঁছাবে",
+      "fil": "Kopya ng iyong data — darating sa loob ng 24 oras"
     },
     "الموعد بصيغة 2026-09-01T10:00:00Z": {
       "ar": "الموعد بصيغة 2026-09-01T10:00:00Z",
@@ -17756,13 +17748,13 @@
       "bn": "নিরাপদ পেমেন্ট শুরু ব্যর্থ",
       "fil": "Nabigong simulan ang secure na bayad"
     },
-    "تعذر بدء غرفة الفيديو — لم يصل رمز اتصال صالح من الخادم": {
-      "ar": "تعذر بدء غرفة الفيديو — لم يصل رمز اتصال صالح من الخادم",
-      "en": "Could not start video room — no valid token from server",
-      "ur": "ویڈیو روم شروع ناکام — سرور سے درست ٹوکن نہیں ملا",
-      "hi": "वीडियो रूम शुरू विफल — सर्वर से मान्य टोकन नहीं मिला",
-      "bn": "ভিডিও রুম শুরু ব্যর্থ — সার্ভার থেকে বৈধ টোকেন আসেনি",
-      "fil": "Nabigong simulan ang video room — walang dumating na wastong token mula sa server"
+    "تعذّر بدء مكالمة الفيديو الآن. حاول مرة أخرى بعد قليل.": {
+      "ar": "تعذّر بدء مكالمة الفيديو الآن. حاول مرة أخرى بعد قليل.",
+      "en": "We couldn't start the video call. Try again in a moment.",
+      "ur": "ویڈیو کال شروع نہیں ہو سکی۔ تھوڑی دیر میں دوبارہ کوشش کریں۔",
+      "hi": "वीडियो कॉल शुरू नहीं हो सकी। थोड़ी देर में फिर से कोशिश करें।",
+      "bn": "ভিডিও কল শুরু করা যায়নি। একটু পরে আবার চেষ্টা করুন।",
+      "fil": "Hindi masimulan ang video call. Subukang muli sa ilang sandali."
     },
     "تعذر تأمين الجلسة على هذا الجهاز.": {
       "ar": "تعذر تأمين الجلسة على هذا الجهاز.",
@@ -18108,13 +18100,13 @@
       "bn": "প্রেসক্রিপশনের ছবি পড়া যায়নি।",
       "fil": "Hindi mabasa ang larawan ng reseta."
     },
-    "تعذر متابعة قرار التأمين. لم يُسجّل أي دفع محلياً.": {
-      "ar": "تعذر متابعة قرار التأمين. لم يُسجّل أي دفع محلياً.",
-      "en": "Could not proceed with insurance decision. No local payment recorded.",
-      "ur": "انشورنس فیصلہ آگے نہیں بڑھ سکا۔ کوئی مقامی ادائیگی درج نہیں۔",
-      "hi": "बीमा निर्णय आगे नहीं बढ़ सका। कोई स्थानीय भुगतान दर्ज नहीं।",
-      "bn": "বিমা সিদ্ধান্ত এগোনো যায়নি। কোনো স্থানীয় পেমেন্ট নেই।",
-      "fil": "Hindi makapagpatuloy sa desisyon ng insurance. Walang lokal na bayad na naitala."
+    "تعذّر متابعة قرار التأمين. لم يتم أي دفع.": {
+      "ar": "تعذّر متابعة قرار التأمين. لم يتم أي دفع.",
+      "en": "We couldn't continue with the insurance decision. No payment was made.",
+      "ur": "انشورنس کے فیصلے کو آگے نہیں بڑھایا جا سکا۔ کوئی ادائیگی نہیں ہوئی۔",
+      "hi": "बीमा निर्णय के साथ आगे नहीं बढ़ सके। कोई भुगतान नहीं हुआ।",
+      "bn": "বীমার সিদ্ধান্ত নিয়ে এগোনো যায়নি। কোনো পেমেন্ট হয়নি।",
+      "fil": "Hindi naituloy ang desisyon ng insurance. Walang naganap na bayad."
     },
     "تعذّر تحليل الصورة — تحقق من الاتصال وحاول مجدداً": {
       "ar": "تعذّر تحليل الصورة — تحقق من الاتصال وحاول مجدداً",
@@ -18148,13 +18140,13 @@
       "bn": "ছবি বদলান",
       "fil": "Baguhin ang larawan"
     },
-    "تفاصيل الأصناف من الخادم": {
-      "ar": "تفاصيل الأصناف من الخادم",
-      "en": "Item details from server",
-      "ur": "سرور سے اشیاء کی تفصیل",
-      "hi": "सर्वर से आइटम विवरण",
-      "bn": "সার্ভার থেকে আইটেম বিবরণ",
-      "fil": "Mga detalye ng item mula sa server"
+    "تفاصيل الأصناف": {
+      "ar": "تفاصيل الأصناف",
+      "en": "Item details",
+      "ur": "اشیاء کی تفصیلات",
+      "hi": "आइटम का विवरण",
+      "bn": "আইটেমের বিবরণ",
+      "fil": "Detalye ng mga item"
     },
     "تفاصيل الطلب": {
       "ar": "تفاصيل الطلب",
@@ -19172,13 +19164,13 @@
       "bn": "নিরাপদ পেমেন্ট লিংক এখন নেই",
       "fil": "Hindi available ngayon ang secure na link sa pagbabayad"
     },
-    "راجع حالة البث يدوياً للحصول على آخر بيانات الخادم.": {
-      "ar": "راجع حالة البث يدوياً للحصول على آخر بيانات الخادم.",
-      "en": "Manually refresh broadcast for latest server data.",
-      "ur": "تازہ سرور ڈیٹا کے لیے براڈکاسٹ دستی چیک کریں۔",
-      "hi": "ताज़ा सर्वर डेटा हेतु प्रसारण मैन्युअल जांचें।",
-      "bn": "সর্বশেষ সার্ভার ডেটার জন্য সম্প্রচার ম্যানুয়ালি দেখুন।",
-      "fil": "Suriing manu-mano ang broadcast para sa pinakabagong datos ng server."
+    "حدّث الصفحة لرؤية آخر حالة لطلبك.": {
+      "ar": "حدّث الصفحة لرؤية آخر حالة لطلبك.",
+      "en": "Refresh to see the latest status of your request.",
+      "ur": "اپنی درخواست کی تازہ ترین صورتحال دیکھنے کے لیے ریفریش کریں۔",
+      "hi": "अपने अनुरोध की ताज़ा स्थिति देखने के लिए रीफ़्रेश करें।",
+      "bn": "আপনার অনুরোধের সর্বশেষ অবস্থা দেখতে রিফ্রেশ করুন।",
+      "fil": "I-refresh para makita ang pinakabagong status ng iyong request."
     },
     "ربما انتهت صلاحيته أو اختاره مريض آخر.": {
       "ar": "ربما انتهت صلاحيته أو اختاره مريض آخر.",
@@ -19532,29 +19524,29 @@
       "bn": "বাতিল ও ফেরত নীতি",
       "fil": "Patakaran sa pagkansela at refund"
     },
-    "سيتم فتح بوابة دفع آمنة للمبلغ الذي قبلته خادمياً فقط.": {
-      "ar": "سيتم فتح بوابة دفع آمنة للمبلغ الذي قبلته خادمياً فقط.",
-      "en": "A secure gateway opens only for the server-accepted amount.",
-      "ur": "صرف سرور منظور رقم کے لیے محفوظ گیٹ وے کھلے گا۔",
-      "hi": "केवल सर्वर-स्वीकृत राशि हेतु सुरक्षित गेटवे खुलेगा।",
-      "bn": "শুধু সার্ভার-গৃহীত টাকার জন্য নিরাপদ গেটওয়ে খুলবে।",
-      "fil": "Magbubukas lang ang secure na gateway para sa halagang tinanggap ng server."
+    "ستُفتح صفحة دفع آمنة للمبلغ الذي قبلته فقط.": {
+      "ar": "ستُفتح صفحة دفع آمنة للمبلغ الذي قبلته فقط.",
+      "en": "A secure payment page will open for the amount you accepted only.",
+      "ur": "صرف آپ کی قبول کردہ رقم کے لیے محفوظ ادائیگی کا صفحہ کھلے گا۔",
+      "hi": "सिर्फ़ आपकी स्वीकार की गई राशि के लिए सुरक्षित भुगतान पेज खुलेगा।",
+      "bn": "শুধু আপনার গ্রহণ করা পরিমাণের জন্য নিরাপদ পেমেন্ট পেজ খুলবে।",
+      "fil": "Magbubukas ang secure na payment page para lang sa halagang tinanggap mo."
     },
-    "سيتم فتح بوابة دفع آمنة لمبلغ التحمل الذي أقره الخادم فقط.": {
-      "ar": "سيتم فتح بوابة دفع آمنة لمبلغ التحمل الذي أقره الخادم فقط.",
-      "en": "A secure gateway opens only for the server-approved co-pay.",
-      "ur": "صرف سرور منظور کوپے کے لیے محفوظ گیٹ وے کھلے گا۔",
-      "hi": "केवल सर्वर-अनुमोदित को-पे हेतु सुरक्षित गेटवे खुलेगा।",
-      "bn": "শুধু সার্ভার-অনুমোদিত কো-পের জন্য নিরাপদ গেটওয়ে খুলবে।",
-      "fil": "Magbubukas lang ang secure na gateway para sa co-pay na inaprubahan ng server."
+    "ستُفتح صفحة دفع آمنة لمبلغ التحمّل المعتمد فقط.": {
+      "ar": "ستُفتح صفحة دفع آمنة لمبلغ التحمّل المعتمد فقط.",
+      "en": "A secure payment page will open for the approved co-pay only.",
+      "ur": "صرف منظور شدہ کو-پے کے لیے محفوظ ادائیگی کا صفحہ کھلے گا۔",
+      "hi": "सिर्फ़ स्वीकृत को-पे के लिए सुरक्षित भुगतान पेज खुलेगा।",
+      "bn": "শুধু অনুমোদিত কো-পে-র জন্য নিরাপদ পেমেন্ট পেজ খুলবে।",
+      "fil": "Magbubukas ang secure na payment page para lang sa aprubadong co-pay."
     },
-    "سيقرر الخادم أهلية الإلغاء والاسترداد من مصدر الدفع الموثق. هل تريد المتابعة؟": {
-      "ar": "سيقرر الخادم أهلية الإلغاء والاسترداد من مصدر الدفع الموثق. هل تريد المتابعة؟",
-      "en": "The server decides cancellation/refund eligibility from the verified payment source. Continue?",
-      "ur": "سرور تصدیق شدہ ادائیگی سے منسوخی/واپسی اہلیت طے کرے گا۔ جاری رکھیں؟",
-      "hi": "सर्वर सत्यापित भुगतान स्रोत से रद्दीकरण/वापसी पात्रता तय करेगा। जारी रखें?",
-      "bn": "সার্ভার যাচাইকৃত পেমেন্ট উৎস থেকে বাতিল/ফেরত যোগ্যতা নির্ধারণ করবে। চালিয়ে যাবেন?",
-      "fil": "Tutukuyin ng server ang pagiging karapat-dapat sa pagkansela/refund mula sa beripikadong pinagmulan ng bayad. Magpatuloy?"
+    "سنتحقق من إمكانية الإلغاء واسترداد المبلغ إلى وسيلة الدفع الأصلية. هل تريد المتابعة؟": {
+      "ar": "سنتحقق من إمكانية الإلغاء واسترداد المبلغ إلى وسيلة الدفع الأصلية. هل تريد المتابعة؟",
+      "en": "We'll check whether this booking can be cancelled and refunded to your original payment method. Continue?",
+      "ur": "ہم چیک کریں گے کہ آیا یہ بکنگ منسوخ ہو سکتی ہے اور رقم آپ کے اصل ادائیگی کے طریقے پر واپس ہو سکتی ہے۔ جاری رکھیں؟",
+      "hi": "हम जाँचेंगे कि यह बुकिंग रद्द होकर आपके मूल भुगतान तरीके में रिफ़ंड हो सकती है या नहीं। जारी रखें?",
+      "bn": "এই বুকিং বাতিল করে আপনার মূল পেমেন্ট পদ্ধতিতে টাকা ফেরত দেওয়া যায় কি না আমরা যাচাই করব। চালিয়ে যাবেন?",
+      "fil": "Titingnan namin kung puwedeng i-cancel ang booking at i-refund sa orihinal mong paraan ng pagbabayad. Magpatuloy?"
     },
     "سيكتب الطبيب ملخص الاستشارة بعد انتهاء الموعد": {
       "ar": "سيكتب الطبيب ملخص الاستشارة بعد انتهاء الموعد",
@@ -19572,13 +19564,13 @@
       "bn": "এক্স-রে, এমআরআই, সিটি",
       "fil": "X-ray, MRI, CT"
     },
-    "سيُرسل طلب الإلغاء إلى الخادم. لا يغيّر التطبيق الحالة محلياً قبل قبول الاستجابة.": {
-      "ar": "سيُرسل طلب الإلغاء إلى الخادم. لا يغيّر التطبيق الحالة محلياً قبل قبول الاستجابة.",
-      "en": "Cancellation goes to the server. The app does not change status before acceptance.",
-      "ur": "منسوخی سرور جائے گی۔ قبولیت سے پہلے ایپ حالت نہیں بدلے گی۔",
-      "hi": "रद्दीकरण सर्वर जाएगा। स्वीकृति से पहले ऐप स्थिति नहीं बदलेगा।",
-      "bn": "বাতিলকরণ সার্ভারে যাবে। গ্রহণের আগে অ্যাপ অবস্থা বদলাবে না।",
-      "fil": "Ipapadala ang pagkansela sa server. Hindi babaguhin ng app ang katayuan bago ang pagtanggap."
+    "سنرسل طلب الإلغاء، وتتغير حالة الطلب بعد قبوله.": {
+      "ar": "سنرسل طلب الإلغاء، وتتغير حالة الطلب بعد قبوله.",
+      "en": "We'll send your cancellation request. The order status changes once it's accepted.",
+      "ur": "ہم آپ کی منسوخی کی درخواست بھیجیں گے۔ قبول ہونے پر آرڈر کی صورتحال بدل جائے گی۔",
+      "hi": "हम आपका रद्द करने का अनुरोध भेजेंगे। स्वीकार होने पर ऑर्डर की स्थिति बदलेगी।",
+      "bn": "আমরা আপনার বাতিলের অনুরোধ পাঠাব। গৃহীত হলে অর্ডারের অবস্থা বদলাবে।",
+      "fil": "Ipapadala namin ang iyong cancellation request. Magbabago ang status ng order kapag natanggap ito."
     },
     "سيُزال الاختيار المحلي فقط قبل إنشاء أي طلب.": {
       "ar": "سيُزال الاختيار المحلي فقط قبل إنشاء أي طلب.",
@@ -20580,13 +20572,13 @@
       "bn": "প্রেসক্রিপশনে সম্প্রচারযোগ্য আইটেম নেই।",
       "fil": "Walang maibobrodkast na item ang reseta."
     },
-    "لا تعتبر الخدمة مؤكدة حتى يطابق الخادم سجل الدفع ويحدّث حالتها.": {
-      "ar": "لا تعتبر الخدمة مؤكدة حتى يطابق الخادم سجل الدفع ويحدّث حالتها.",
-      "en": "Service is not confirmed until the server matches payment and updates status.",
-      "ur": "سرور ادائیگی ملائے و حالت اپڈیٹ کرے تبھی خدمت مصدقہ۔",
-      "hi": "सर्वर भुगतान मिलाए व स्थिति अपडेट करे तभी सेवा पुष्ट।",
-      "bn": "সার্ভার পেমেন্ট মিলিয়ে অবস্থা আপডেট করলেই সেবা নিশ্চিত।",
-      "fil": "Kumpirmado lang ang serbisyo kapag itinugma ng server ang bayad at na-update ang katayuan."
+    "تتأكد الخدمة بعد التحقق من إتمام الدفع.": {
+      "ar": "تتأكد الخدمة بعد التحقق من إتمام الدفع.",
+      "en": "The service is confirmed once your payment is verified.",
+      "ur": "ادائیگی کی تصدیق کے بعد سروس کی تصدیق ہو جاتی ہے۔",
+      "hi": "भुगतान की पुष्टि होते ही सेवा पक्की हो जाती है।",
+      "bn": "পেমেন্ট যাচাই হলেই সেবা নিশ্চিত হয়।",
+      "fil": "Kumpirmado ang serbisyo kapag na-verify ang iyong bayad."
     },
     "لا تغلق هذه الشاشة": {
       "ar": "لا تغلق هذه الشاشة",
@@ -20772,13 +20764,13 @@
       "bn": "কোনো বৈধ ঠিকানা নেই",
       "fil": "Walang wastong address"
     },
-    "لا يوجد مبلغ مستحق. حدّث الخادم حالة الخدمة ولا حاجة إلى دفع صوري.": {
-      "ar": "لا يوجد مبلغ مستحق. حدّث الخادم حالة الخدمة ولا حاجة إلى دفع صوري.",
-      "en": "No amount due. The server updates service status; no dummy payment needed.",
-      "ur": "کوئی واجب رقم نہیں۔ سرور حالت اپڈیٹ کرتا ہے؛ فرضی ادائیگی غیر ضروری۔",
-      "hi": "कोई देय राशि नहीं। सर्वर स्थिति अपडेट करता है; डमी भुगतान अनावश्यक।",
-      "bn": "কোনো বকেয়া নেই। সার্ভার অবস্থা আপডেট করে; ডামি পেমেন্ট অপ্রয়োজনীয়।",
-      "fil": "Walang dapat bayaran. Ina-update ng server ang katayuan; hindi kailangan ng huwad na bayad."
+    "لا يوجد مبلغ مستحق، ولا حاجة إلى أي دفع.": {
+      "ar": "لا يوجد مبلغ مستحق، ولا حاجة إلى أي دفع.",
+      "en": "Nothing to pay. No payment is needed.",
+      "ur": "کوئی رقم واجب الادا نہیں، ادائیگی کی ضرورت نہیں۔",
+      "hi": "कोई राशि बकाया नहीं है, भुगतान की ज़रूरत नहीं।",
+      "bn": "কোনো বকেয়া নেই, পেমেন্টের প্রয়োজন নেই।",
+      "fil": "Walang babayaran. Hindi kailangan ng bayad."
     },
     "لا يوجد محتوى للمنشور.": {
       "ar": "لا يوجد محتوى للمنشور.",
@@ -22012,13 +22004,13 @@
       "bn": "আপনার অ্যাপয়েন্টমেন্ট ট্র্যাক করুন ও পরামর্শের প্রস্তুতি নিন",
       "fil": "Maaari mong subaybayan ang iyong appointment at maghanda para sa konsultasyon"
     },
-    "يمكنك قبول الدفع الذاتي للسعر الخادمي كاملاً أو الرجوع دون إنشاء دفع.": {
-      "ar": "يمكنك قبول الدفع الذاتي للسعر الخادمي كاملاً أو الرجوع دون إنشاء دفع.",
-      "en": "You may accept self-pay for the full server price or go back without creating payment.",
-      "ur": "مکمل سرور قیمت پر ذاتی ادائیگی قبول کریں یا بغیر ادائیگی واپس جائیں۔",
-      "hi": "पूर्ण सर्वर मूल्य हेतु स्व-भुगतान स्वीकारें या बिना भुगतान लौटें।",
-      "bn": "সম্পূর্ণ সার্ভার মূল্যে নিজ-পেমেন্ট গ্রহণ করুন বা পেমেন্ট ছাড়াই ফিরুন।",
-      "fil": "Maaari mong tanggapin ang self-pay para sa buong presyo ng server o bumalik nang hindi lumilikha ng bayad."
+    "يمكنك قبول الدفع الذاتي للسعر كاملاً، أو الرجوع دون دفع.": {
+      "ar": "يمكنك قبول الدفع الذاتي للسعر كاملاً، أو الرجوع دون دفع.",
+      "en": "You can accept self-pay for the full price, or go back without paying.",
+      "ur": "آپ پوری قیمت پر خود ادائیگی قبول کر سکتے ہیں، یا ادائیگی کے بغیر واپس جا سکتے ہیں۔",
+      "hi": "आप पूरी कीमत पर स्वयं भुगतान स्वीकार कर सकते हैं, या बिना भुगतान के वापस जा सकते हैं।",
+      "bn": "আপনি পুরো দামে নিজে পরিশোধ গ্রহণ করতে পারেন, অথবা পেমেন্ট ছাড়াই ফিরে যেতে পারেন।",
+      "fil": "Puwede mong tanggapin ang self-pay para sa buong presyo, o bumalik nang hindi nagbabayad."
     },
     "ينتهي في": {
       "ar": "ينتهي في",
@@ -22055,6 +22047,686 @@
     "٠٢:٣٠": {
       "ar": "٠٢:٣٠",
       "en": "02:30"
+    },
+    "إخفاء كلمة المرور": {
+      "ar": "إخفاء كلمة المرور",
+      "en": "Hide password",
+      "ur": "پاس ورڈ چھپائیں",
+      "hi": "पासवर्ड छिपाएं",
+      "bn": "পাসওয়ার্ড লুকান",
+      "fil": "Itago ang password"
+    },
+    "إظهار كلمة المرور": {
+      "ar": "إظهار كلمة المرور",
+      "en": "Show password",
+      "ur": "پاس ورڈ دکھائیں",
+      "hi": "पासवर्ड दिखाएं",
+      "bn": "পাসওয়ার্ড দেখান",
+      "fil": "Ipakita ang password"
+    },
+    "المتابعة مع": {
+      "ar": "المتابعة مع",
+      "en": "Continue with",
+      "ur": "اس کے ساتھ جاری رکھیں:",
+      "hi": "इसके साथ जारी रखें:",
+      "bn": "এর মাধ্যমে চালিয়ে যান:",
+      "fil": "Magpatuloy gamit ang"
+    },
+    "أو تابع عبر": {
+      "ar": "أو تابع عبر",
+      "en": "Or continue with",
+      "ur": "یا اس کے ساتھ جاری رکھیں",
+      "hi": "या इसके साथ जारी रखें",
+      "bn": "অথবা এর মাধ্যমে চালিয়ে যান",
+      "fil": "O magpatuloy gamit ang"
+    },
+    "لحظة…": {
+      "ar": "لحظة…",
+      "en": "One moment…",
+      "ur": "ایک لمحہ…",
+      "hi": "एक पल…",
+      "bn": "এক মুহূর্ত…",
+      "fil": "Sandali…"
+    },
+    "بالبريد الإلكتروني أو رقم الجوال وكلمة المرور": {
+      "ar": "بالبريد الإلكتروني أو رقم الجوال وكلمة المرور",
+      "en": "With your email or mobile number and password",
+      "ur": "اپنے ای میل یا موبائل نمبر اور پاس ورڈ کے ساتھ",
+      "hi": "अपने ईमेल या मोबाइल नंबर और पासवर्ड से",
+      "bn": "আপনার ইমেল বা মোবাইল নম্বর ও পাসওয়ার্ড দিয়ে",
+      "fil": "Gamit ang iyong email o mobile number at password"
+    },
+    "البريد الإلكتروني أو رقم الجوال": {
+      "ar": "البريد الإلكتروني أو رقم الجوال",
+      "en": "Email or mobile number",
+      "ur": "ای میل یا موبائل نمبر",
+      "hi": "ईमेल या मोबाइल नंबर",
+      "bn": "ইমেল বা মোবাইল নম্বর",
+      "fil": "Email o mobile number"
+    },
+    "نسيت كلمة المرور؟": {
+      "ar": "نسيت كلمة المرور؟",
+      "en": "Forgot password?",
+      "ur": "پاس ورڈ بھول گئے؟",
+      "hi": "पासवर्ड भूल गए?",
+      "bn": "পাসওয়ার্ড ভুলে গেছেন?",
+      "fil": "Nakalimutan ang password?"
+    },
+    "تعذّر تسجيل الدخول الآن. حاول مرة أخرى.": {
+      "ar": "تعذّر تسجيل الدخول الآن. حاول مرة أخرى.",
+      "en": "We couldn't sign you in right now. Please try again.",
+      "ur": "ابھی سائن اِن نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
+      "hi": "अभी साइन इन नहीं हो सका। कृपया फिर से कोशिश करें।",
+      "bn": "এখন সাইন ইন করা যায়নি। আবার চেষ্টা করুন।",
+      "fil": "Hindi ka ma-sign in ngayon. Pakisubukang muli."
+    },
+    "تسجيل الدخول عبر Google غير متاح حالياً.": {
+      "ar": "تسجيل الدخول عبر Google غير متاح حالياً.",
+      "en": "Sign-in with Google isn't available right now.",
+      "ur": "Google کے ذریعے سائن اِن ابھی دستیاب نہیں۔",
+      "hi": "Google से साइन इन अभी उपलब्ध नहीं है।",
+      "bn": "Google দিয়ে সাইন ইন এখন উপলব্ধ নয়।",
+      "fil": "Hindi pa available ang pag-sign in gamit ang Google."
+    },
+    "لديك حساب؟": {
+      "ar": "لديك حساب؟",
+      "en": "Have an account?",
+      "ur": "اکاؤنٹ ہے؟",
+      "hi": "खाता है?",
+      "bn": "অ্যাকাউন্ট আছে?",
+      "fil": "May account ka na?"
+    },
+    "دقيقة واحدة، وبعدها تطلب وتحجز بسهولة": {
+      "ar": "دقيقة واحدة، وبعدها تطلب وتحجز بسهولة",
+      "en": "One minute, then ordering and booking are easy",
+      "ur": "بس ایک منٹ، پھر آرڈر اور بکنگ آسان",
+      "hi": "बस एक मिनट, फिर ऑर्डर और बुकिंग आसान",
+      "bn": "মাত্র এক মিনিট, তারপর অর্ডার ও বুকিং সহজ",
+      "fil": "Isang minuto lang, tapos madali nang mag-order at mag-book"
+    },
+    "كما في الهوية": {
+      "ar": "كما في الهوية",
+      "en": "As on your ID",
+      "ur": "جیسا شناختی کارڈ پر ہے",
+      "hi": "जैसा आपकी आईडी पर है",
+      "bn": "আপনার পরিচয়পত্রে যেমন আছে",
+      "fil": "Tulad ng nasa iyong ID"
+    },
+    "نرسل عليه رمز التأكيد وفواتيرك": {
+      "ar": "نرسل عليه رمز التأكيد وفواتيرك",
+      "en": "We send your confirmation code and invoices here",
+      "ur": "ہم اس پر تصدیقی کوڈ اور آپ کی رسیدیں بھیجتے ہیں",
+      "hi": "हम इस पर पुष्टि कोड और आपके बिल भेजते हैं",
+      "bn": "আমরা এখানে নিশ্চিতকরণ কোড ও আপনার ইনভয়েস পাঠাই",
+      "fil": "Dito namin ipinapadala ang confirmation code at mga invoice mo"
+    },
+    "للتواصل بخصوص طلباتك فقط": {
+      "ar": "للتواصل بخصوص طلباتك فقط",
+      "en": "Only to contact you about your orders",
+      "ur": "صرف آپ کے آرڈرز کے بارے میں رابطے کے لیے",
+      "hi": "केवल आपके ऑर्डर के बारे में संपर्क के लिए",
+      "bn": "শুধু আপনার অর্ডার সম্পর্কে যোগাযোগের জন্য",
+      "fil": "Para lang makipag-ugnayan tungkol sa iyong mga order"
+    },
+    "٦ أحرف على الأقل": {
+      "ar": "٦ أحرف على الأقل",
+      "en": "At least 6 characters",
+      "ur": "کم از کم 6 حروف",
+      "hi": "कम से कम 6 अक्षर",
+      "bn": "কমপক্ষে ৬টি অক্ষর",
+      "fil": "Hindi bababa sa 6 na character"
+    },
+    "أوافق على الشروط والأحكام وسياسة الخصوصية": {
+      "ar": "أوافق على الشروط والأحكام وسياسة الخصوصية",
+      "en": "I agree to the Terms and Conditions and the Privacy Policy",
+      "ur": "میں شرائط و ضوابط اور رازداری کی پالیسی سے متفق ہوں",
+      "hi": "मैं नियम और शर्तों तथा गोपनीयता नीति से सहमत हूं",
+      "bn": "আমি শর্তাবলি ও গোপনীয়তা নীতিতে সম্মত",
+      "fil": "Sumasang-ayon ako sa Mga Tuntunin at Kundisyon at sa Patakaran sa Privacy"
+    },
+    "أوافق على": {
+      "ar": "أوافق على",
+      "en": "I agree to the",
+      "ur": "میں متفق ہوں:",
+      "hi": "मैं सहमत हूं:",
+      "bn": "আমি সম্মত:",
+      "fil": "Sumasang-ayon ako sa"
+    },
+    "و": {
+      "ar": "و",
+      "en": " and ",
+      "ur": " اور ",
+      "hi": " और ",
+      "bn": " এবং ",
+      "fil": " at "
+    },
+    "تغيير البريد الإلكتروني": {
+      "ar": "تغيير البريد الإلكتروني",
+      "en": "Change email",
+      "ur": "ای میل تبدیل کریں",
+      "hi": "ईमेल बदलें",
+      "bn": "ইমেল পরিবর্তন করুন",
+      "fil": "Palitan ang email"
+    },
+    "تغيير رقم الجوال": {
+      "ar": "تغيير رقم الجوال",
+      "en": "Change mobile number",
+      "ur": "موبائل نمبر تبدیل کریں",
+      "hi": "मोबाइल नंबर बदलें",
+      "bn": "মোবাইল নম্বর পরিবর্তন করুন",
+      "fil": "Palitan ang mobile number"
+    },
+    "تأكيد البريد الإلكتروني": {
+      "ar": "تأكيد البريد الإلكتروني",
+      "en": "Confirm your email",
+      "ur": "اپنی ای میل کی تصدیق کریں",
+      "hi": "अपना ईमेल पुष्टि करें",
+      "bn": "আপনার ইমেল নিশ্চিত করুন",
+      "fil": "Kumpirmahin ang iyong email"
+    },
+    "تأكيد رقم الجوال": {
+      "ar": "تأكيد رقم الجوال",
+      "en": "Confirm your mobile number",
+      "ur": "اپنے موبائل نمبر کی تصدیق کریں",
+      "hi": "अपना मोबाइल नंबर पुष्टि करें",
+      "bn": "আপনার মোবাইল নম্বর নিশ্চিত করুন",
+      "fil": "Kumpirmahin ang iyong mobile number"
+    },
+    "أرسلنا رمزًا من ٦ أرقام إلى": {
+      "ar": "أرسلنا رمزًا من ٦ أرقام إلى",
+      "en": "We sent a 6-digit code to",
+      "ur": "ہم نے 6 ہندسوں کا کوڈ بھیجا ہے:",
+      "hi": "हमने 6 अंकों का कोड भेजा है:",
+      "bn": "আমরা ৬ সংখ্যার একটি কোড পাঠিয়েছি:",
+      "fil": "Nagpadala kami ng 6-digit na code sa"
+    },
+    "لم يصلك الرمز؟ راجع مجلد الرسائل غير المرغوبة": {
+      "ar": "لم يصلك الرمز؟ راجع مجلد الرسائل غير المرغوبة",
+      "en": "No code? Check your spam folder",
+      "ur": "کوڈ نہیں ملا؟ اسپام فولڈر دیکھیں",
+      "hi": "कोड नहीं मिला? स्पैम फ़ोल्डर देखें",
+      "bn": "কোড পাননি? স্প্যাম ফোল্ডার দেখুন",
+      "fil": "Walang code? Tingnan ang spam folder"
+    },
+    "انتهت مهلة التسجيل. ارجع وأنشئ الحساب من جديد.": {
+      "ar": "انتهت مهلة التسجيل. ارجع وأنشئ الحساب من جديد.",
+      "en": "Sign-up timed out. Go back and create your account again.",
+      "ur": "رجسٹریشن کا وقت ختم ہو گیا۔ واپس جا کر دوبارہ اکاؤنٹ بنائیں۔",
+      "hi": "पंजीकरण का समय समाप्त हो गया। वापस जाकर फिर से खाता बनाएं।",
+      "bn": "নিবন্ধনের সময় শেষ। ফিরে গিয়ে আবার অ্যাকাউন্ট তৈরি করুন।",
+      "fil": "Nag-time out ang sign-up. Bumalik at gumawa muli ng account."
+    },
+    "أنشئ حسابًا أولًا لتكمل الدخول.": {
+      "ar": "أنشئ حسابًا أولًا لتكمل الدخول.",
+      "en": "Create an account first to finish signing in.",
+      "ur": "سائن اِن مکمل کرنے کے لیے پہلے اکاؤنٹ بنائیں۔",
+      "hi": "साइन इन पूरा करने के लिए पहले खाता बनाएं।",
+      "bn": "সাইন ইন শেষ করতে আগে একটি অ্যাকাউন্ট তৈরি করুন।",
+      "fil": "Gumawa muna ng account para matapos ang pag-sign in."
+    },
+    "تعذّر تسجيل الدخول على هذا الجهاز. حاول مرة أخرى.": {
+      "ar": "تعذّر تسجيل الدخول على هذا الجهاز. حاول مرة أخرى.",
+      "en": "We couldn't sign you in on this device. Please try again.",
+      "ur": "اس ڈیوائس پر سائن اِن نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
+      "hi": "इस डिवाइस पर साइन इन नहीं हो सका। फिर से कोशिश करें।",
+      "bn": "এই ডিভাইসে সাইন ইন করা যায়নি। আবার চেষ্টা করুন।",
+      "fil": "Hindi ka ma-sign in sa device na ito. Pakisubukang muli."
+    },
+    "أدخل بريدك الإلكتروني وسنرسل لك رمز التحقق": {
+      "ar": "أدخل بريدك الإلكتروني وسنرسل لك رمز التحقق",
+      "en": "Enter your email and we'll send you a verification code",
+      "ur": "اپنا ای میل درج کریں، ہم آپ کو تصدیقی کوڈ بھیجیں گے",
+      "hi": "अपना ईमेल दर्ज करें, हम आपको सत्यापन कोड भेजेंगे",
+      "bn": "আপনার ইমেল লিখুন, আমরা আপনাকে যাচাইকরণ কোড পাঠাব",
+      "fil": "Ilagay ang iyong email at padadalhan ka namin ng verification code"
+    },
+    "تم تغيير كلمة المرور": {
+      "ar": "تم تغيير كلمة المرور",
+      "en": "Password changed",
+      "ur": "پاس ورڈ تبدیل ہو گیا",
+      "hi": "पासवर्ड बदल गया",
+      "bn": "পাসওয়ার্ড পরিবর্তন হয়েছে",
+      "fil": "Napalitan na ang password"
+    },
+    "يمكنك الآن تسجيل الدخول بكلمة مرورك الجديدة": {
+      "ar": "يمكنك الآن تسجيل الدخول بكلمة مرورك الجديدة",
+      "en": "You can now sign in with your new password",
+      "ur": "اب آپ نئے پاس ورڈ سے سائن اِن کر سکتے ہیں",
+      "hi": "अब आप अपने नए पासवर्ड से साइन इन कर सकते हैं",
+      "bn": "এখন আপনি নতুন পাসওয়ার্ড দিয়ে সাইন ইন করতে পারেন",
+      "fil": "Maaari ka nang mag-sign in gamit ang bagong password"
+    },
+    "أدخل الرمز الذي وصلك، ثم اختر كلمة مرور جديدة": {
+      "ar": "أدخل الرمز الذي وصلك، ثم اختر كلمة مرور جديدة",
+      "en": "Enter the code you received, then choose a new password",
+      "ur": "موصول ہونے والا کوڈ درج کریں، پھر نیا پاس ورڈ منتخب کریں",
+      "hi": "मिला हुआ कोड दर्ज करें, फिर नया पासवर्ड चुनें",
+      "bn": "প্রাপ্ত কোডটি লিখুন, তারপর নতুন পাসওয়ার্ড বেছে নিন",
+      "fil": "Ilagay ang code na natanggap mo, pagkatapos ay pumili ng bagong password"
+    },
+    "٦ أرقام": {
+      "ar": "٦ أرقام",
+      "en": "6 digits",
+      "ur": "6 ہندسے",
+      "hi": "6 अंक",
+      "bn": "৬টি সংখ্যা",
+      "fil": "6 digit"
+    },
+    "تعذّرت المتابعة كضيف الآن. تحقّق من الاتصال وحاول مرة أخرى.": {
+      "ar": "تعذّرت المتابعة كضيف الآن. تحقّق من الاتصال وحاول مرة أخرى.",
+      "en": "Couldn't continue as a guest right now. Check your connection and try again.",
+      "ur": "ابھی بطور مہمان جاری نہیں رکھ سکے۔ کنکشن چیک کر کے دوبارہ کوشش کریں۔",
+      "hi": "अभी अतिथि के रूप में जारी नहीं रख सके। कनेक्शन जांचें और फिर से कोशिश करें।",
+      "bn": "এখন অতিথি হিসেবে চালিয়ে যাওয়া যায়নি। সংযোগ দেখে আবার চেষ্টা করুন।",
+      "fil": "Hindi makapagpatuloy bilang bisita ngayon. Tingnan ang koneksyon at subukang muli."
+    },
+    "المظهر": {
+      "ar": "المظهر",
+      "en": "Appearance",
+      "ur": "ظاہری شکل",
+      "hi": "दिखावट",
+      "bn": "চেহারা",
+      "fil": "Itsura"
+    },
+    "تلقائي": {
+      "ar": "تلقائي",
+      "en": "Automatic",
+      "ur": "خودکار",
+      "hi": "स्वचालित",
+      "bn": "স্বয়ংক্রিয়",
+      "fil": "Awtomatiko"
+    },
+    "فاتح": {
+      "ar": "فاتح",
+      "en": "Light",
+      "ur": "روشن",
+      "hi": "हल्का",
+      "bn": "হালকা",
+      "fil": "Maliwanag"
+    },
+    "غامق": {
+      "ar": "غامق",
+      "en": "Dark",
+      "ur": "گہرا",
+      "hi": "गहरा",
+      "bn": "গাঢ়",
+      "fil": "Madilim"
+    },
+    "رعايتك الصحية المتكاملة": {
+      "ar": "رعايتك الصحية المتكاملة",
+      "en": "Your complete healthcare",
+      "ur": "آپ کی مکمل صحت کی نگہداشت",
+      "hi": "आपकी संपूर्ण स्वास्थ्य देखभाल",
+      "bn": "আপনার সম্পূর্ণ স্বাস্থ্যসেবা",
+      "fil": "Ang kumpleto mong pangangalagang pangkalusugan"
+    },
+    "المتابعة كضيف": {
+      "ar": "المتابعة كضيف",
+      "en": "Continue as guest",
+      "ur": "بطور مہمان جاری رکھیں",
+      "hi": "अतिथि के रूप में जारी रखें",
+      "bn": "অতিথি হিসেবে চালিয়ে যান",
+      "fil": "Magpatuloy bilang bisita"
+    },
+    "فشلت إعادة الإرسال": {
+      "ar": "فشلت إعادة الإرسال",
+      "en": "Couldn't resend the code",
+      "ur": "کوڈ دوبارہ نہیں بھیجا جا سکا",
+      "hi": "कोड फिर से नहीं भेजा जा सका",
+      "bn": "কোড আবার পাঠানো যায়নি",
+      "fil": "Hindi maipadala muli ang code"
+    },
+    "تعذر تحديد الحساب لإعادة الإرسال": {
+      "ar": "تعذر تحديد الحساب لإعادة الإرسال",
+      "en": "We couldn't tell which account to resend the code to",
+      "ur": "کوڈ دوبارہ بھیجنے کے لیے اکاؤنٹ معلوم نہیں ہو سکا",
+      "hi": "कोड फिर भेजने के लिए खाता पता नहीं चल सका",
+      "bn": "কোন অ্যাকাউন্টে কোড আবার পাঠাতে হবে তা বোঝা যায়নি",
+      "fil": "Hindi matukoy kung saang account ipapadala muli ang code"
+    },
+    "هذه الطريقة غير متاحة الآن. استخدم البريد أو رقم الجوال.": {
+      "ar": "هذه الطريقة غير متاحة الآن. استخدم البريد أو رقم الجوال.",
+      "en": "This sign-in option isn't available right now. Use your email or phone number.",
+      "ur": "یہ طریقہ ابھی دستیاب نہیں۔ ای میل یا موبائل نمبر استعمال کریں۔",
+      "hi": "यह तरीका अभी उपलब्ध नहीं है। ईमेल या मोबाइल नंबर इस्तेमाल करें।",
+      "bn": "এই পদ্ধতিটি এখন পাওয়া যাচ্ছে না। ইমেইল বা মোবাইল নম্বর ব্যবহার করুন।",
+      "fil": "Hindi available ang paraang ito ngayon. Gamitin ang email o numero ng telepono."
+    },
+    "ابحث عن خدمة أو طبيب أو دواء": {
+      "ar": "ابحث عن خدمة أو طبيب أو دواء",
+      "en": "Search for a service, doctor or medicine",
+      "ur": "خدمت، ڈاکٹر یا دوا تلاش کریں",
+      "hi": "सेवा, डॉक्टर या दवा खोजें",
+      "bn": "সেবা, ডাক্তার বা ওষুধ খুঁজুন",
+      "fil": "Maghanap ng serbisyo, doktor o gamot"
+    },
+    "الاستشارات": {
+      "ar": "الاستشارات",
+      "en": "Consultations",
+      "ur": "مشورے",
+      "hi": "परामर्श",
+      "bn": "পরামর্শ",
+      "fil": "Mga Konsultasyon"
+    },
+    "التحاليل": {
+      "ar": "التحاليل",
+      "en": "Lab tests",
+      "ur": "ٹیسٹ",
+      "hi": "जांच",
+      "bn": "পরীক্ষা",
+      "fil": "Mga Lab Test"
+    },
+    "التمريض": {
+      "ar": "التمريض",
+      "en": "Nursing",
+      "ur": "نرسنگ",
+      "hi": "नर्सिंग",
+      "bn": "নার্সিং",
+      "fil": "Nursing"
+    },
+    "التنقل الرئيسي": {
+      "ar": "التنقل الرئيسي",
+      "en": "Main navigation",
+      "ur": "مرکزی نیویگیشن",
+      "hi": "मुख्य नेविगेशन",
+      "bn": "প্রধান নেভিগেশন",
+      "fil": "Pangunahing nabigasyon"
+    },
+    "الخدمات": {
+      "ar": "الخدمات",
+      "en": "Services",
+      "ur": "خدمات",
+      "hi": "सेवाएं",
+      "bn": "সেবা",
+      "fil": "Mga Serbisyo"
+    },
+    "الصحة النفسية، العائلة، التأمين، المجتمع، والمزيد": {
+      "ar": "الصحة النفسية، العائلة، التأمين، المجتمع، والمزيد",
+      "en": "Mental health, family, insurance, community and more",
+      "ur": "ذہنی صحت، خاندان، انشورنس، کمیونٹی اور مزید",
+      "hi": "मानसिक स्वास्थ्य, परिवार, बीमा, समुदाय और बहुत कुछ",
+      "bn": "মানসিক স্বাস্থ্য, পরিবার, বিমা, কমিউনিটি এবং আরও",
+      "fil": "Mental health, pamilya, insurance, komunidad at marami pa"
+    },
+    "الوضع الغامق": {
+      "ar": "الوضع الغامق",
+      "en": "Dark mode",
+      "ur": "ڈارک موڈ",
+      "hi": "डार्क मोड",
+      "bn": "ডার্ক মোড",
+      "fil": "Dark mode"
+    },
+    "تخصم حتى ١٠٪ من قيمة طلبك": {
+      "ar": "تخصم حتى ١٠٪ من قيمة طلبك",
+      "en": "Take up to 10% off your order",
+      "ur": "آپ کے آرڈر کی قیمت سے 10٪ تک کم کریں",
+      "hi": "अपने ऑर्डर की कीमत में 10% तक की छूट पाएं",
+      "bn": "আপনার অর্ডারের মূল্য থেকে ১০% পর্যন্ত কমান",
+      "fil": "Ibawas hanggang 10% sa halaga ng iyong order"
+    },
+    "صباح الخير": {
+      "ar": "صباح الخير",
+      "en": "Good morning",
+      "ur": "صبح بخیر",
+      "hi": "सुप्रभात",
+      "bn": "শুভ সকাল",
+      "fil": "Magandang umaga"
+    },
+    "مساء الخير": {
+      "ar": "مساء الخير",
+      "en": "Good evening",
+      "ur": "شام بخیر",
+      "hi": "शुभ संध्या",
+      "bn": "শুভ সন্ধ্যা",
+      "fil": "Magandang gabi"
+    },
+    "صف أعراضك، ونقترح لك التخصص المناسب": {
+      "ar": "صف أعراضك، ونقترح لك التخصص المناسب",
+      "en": "Describe your symptoms and we will suggest the right specialty",
+      "ur": "اپنی علامات بیان کریں، ہم مناسب شعبہ تجویز کریں گے",
+      "hi": "अपने लक्षण बताएं, हम सही विशेषज्ञता सुझाएंगे",
+      "bn": "আপনার লক্ষণ বলুন, আমরা সঠিক বিশেষত্ব প্রস্তাব করব",
+      "fil": "Ilarawan ang iyong mga sintomas at imumungkahi namin ang tamang espesyalidad"
+    },
+    "طبيب افتراضي": {
+      "ar": "طبيب افتراضي",
+      "en": "Virtual doctor",
+      "ur": "ورچوئل ڈاکٹر",
+      "hi": "वर्चुअल डॉक्टर",
+      "bn": "ভার্চুয়াল ডাক্তার",
+      "fil": "Virtual na doktor"
+    },
+    "نقاط نبض+": {
+      "ar": "نقاط نبض+",
+      "en": "Nabd Plus points",
+      "ur": "نبض پلس پوائنٹس",
+      "hi": "नब्ज़ प्लस पॉइंट",
+      "bn": "নবদ প্লাস পয়েন্ট",
+      "fil": "Mga puntos ng Nabd Plus"
+    },
+    "ابحث عن دواء، طبيب، تحليل…": {
+      "ar": "ابحث عن دواء، طبيب، تحليل…",
+      "en": "Search medicine, doctor, test…",
+      "ur": "دوا، ڈاکٹر، ٹیسٹ تلاش کریں…",
+      "hi": "दवा, डॉक्टर, जांच खोजें…",
+      "bn": "ওষুধ, ডাক্তার, পরীক্ষা খুঁজুন…",
+      "fil": "Maghanap ng gamot, doktor, test…"
+    },
+    "مسح": {
+      "ar": "مسح",
+      "en": "Clear",
+      "ur": "صاف کریں",
+      "hi": "साफ़ करें",
+      "bn": "মুছুন",
+      "fil": "I-clear"
+    },
+    "أدوية ومنتجات": {
+      "ar": "أدوية ومنتجات",
+      "en": "Medicines and products",
+      "ur": "ادویات اور مصنوعات",
+      "hi": "दवाइयाँ और उत्पाद",
+      "bn": "ওষুধ ও পণ্য",
+      "fil": "Mga gamot at produkto"
+    },
+    "مقالات ومعلومات": {
+      "ar": "مقالات ومعلومات",
+      "en": "Articles and information",
+      "ur": "مضامین اور معلومات",
+      "hi": "लेख और जानकारी",
+      "bn": "প্রবন্ধ ও তথ্য",
+      "fil": "Mga artikulo at impormasyon"
+    },
+    "إعلان": {
+      "ar": "إعلان",
+      "en": "Ad",
+      "ur": "اشتہار",
+      "hi": "विज्ञापन",
+      "bn": "বিজ্ঞাপন",
+      "fil": "Ad"
+    },
+    "عمليات البحث الأخيرة": {
+      "ar": "عمليات البحث الأخيرة",
+      "en": "Recent searches",
+      "ur": "حالیہ تلاشیں",
+      "hi": "हाल की खोजें",
+      "bn": "সাম্প্রতিক অনুসন্ধান",
+      "fil": "Mga huling hinanap"
+    },
+    "تصفّح حسب القسم": {
+      "ar": "تصفّح حسب القسم",
+      "en": "Browse by section",
+      "ur": "سیکشن کے مطابق دیکھیں",
+      "hi": "अनुभाग के अनुसार देखें",
+      "bn": "বিভাগ অনুযায়ী ব্রাউজ করুন",
+      "fil": "Mag-browse ayon sa seksyon"
+    },
+    "صحة نفسية": {
+      "ar": "صحة نفسية",
+      "en": "Mental health",
+      "ur": "ذہنی صحت",
+      "hi": "मानसिक स्वास्थ्य",
+      "bn": "মানসিক স্বাস্থ্য",
+      "fil": "Kalusugang pangkaisipan"
+    },
+    "تغذية": {
+      "ar": "تغذية",
+      "en": "Nutrition",
+      "ur": "غذائیت",
+      "hi": "पोषण",
+      "bn": "পুষ্টি",
+      "fil": "Nutrisyon"
+    },
+    "لا يوجد اتصال بالإنترنت": {
+      "ar": "لا يوجد اتصال بالإنترنت",
+      "en": "No internet connection",
+      "ur": "انٹرنیٹ کنکشن نہیں ہے",
+      "hi": "इंटरनेट कनेक्शन नहीं है",
+      "bn": "ইন্টারনেট সংযোগ নেই",
+      "fil": "Walang koneksyon sa internet"
+    },
+    "اتصل بالشبكة ثم حاول مرة أخرى.": {
+      "ar": "اتصل بالشبكة ثم حاول مرة أخرى.",
+      "en": "Connect to a network and try again.",
+      "ur": "نیٹ ورک سے جڑیں اور دوبارہ کوشش کریں۔",
+      "hi": "नेटवर्क से जुड़ें और फिर से कोशिश करें।",
+      "bn": "নেটওয়ার্কে সংযুক্ত হয়ে আবার চেষ্টা করুন।",
+      "fil": "Kumonekta sa network at subukan muli."
+    },
+    "تعذر تنفيذ البحث": {
+      "ar": "تعذر تنفيذ البحث",
+      "en": "Couldn't run the search",
+      "ur": "تلاش مکمل نہیں ہو سکی",
+      "hi": "खोज पूरी नहीं हो सकी",
+      "bn": "অনুসন্ধান সম্পন্ন করা যায়নি",
+      "fil": "Hindi naisagawa ang paghahanap"
+    },
+    "تحقق من اتصالك ثم حاول مرة أخرى.": {
+      "ar": "تحقق من اتصالك ثم حاول مرة أخرى.",
+      "en": "Check your connection and try again.",
+      "ur": "اپنا کنکشن چیک کریں اور دوبارہ کوشش کریں۔",
+      "hi": "अपना कनेक्शन जांचें और फिर से कोशिश करें।",
+      "bn": "আপনার সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।",
+      "fil": "Suriin ang iyong koneksyon at subukan muli."
+    },
+    "لا توجد نتائج": {
+      "ar": "لا توجد نتائج",
+      "en": "No results",
+      "ur": "کوئی نتیجہ نہیں",
+      "hi": "कोई परिणाम नहीं",
+      "bn": "কোনো ফলাফল নেই",
+      "fil": "Walang resulta"
+    },
+    "جرّب كلمة أخرى أو تحقق من الإملاء.": {
+      "ar": "جرّب كلمة أخرى أو تحقق من الإملاء.",
+      "en": "Try another word or check the spelling.",
+      "ur": "کوئی اور لفظ آزمائیں یا ہجے چیک کریں۔",
+      "hi": "कोई दूसरा शब्द आज़माएँ या वर्तनी जांचें।",
+      "bn": "অন্য শব্দ চেষ্টা করুন বা বানান পরীক্ষা করুন।",
+      "fil": "Subukan ang ibang salita o suriin ang baybay."
+    },
+    "لم تجد ما تبحث عنه؟ ارفع الوصفة وتبحث الصيدليات عنه لك": {
+      "ar": "لم تجد ما تبحث عنه؟ ارفع الوصفة وتبحث الصيدليات عنه لك",
+      "en": "Can't find what you need? Upload the prescription and pharmacies will search for it",
+      "ur": "جو چاہیے وہ نہیں ملا؟ نسخہ اپ لوڈ کریں، فارمیسیاں آپ کے لیے تلاش کریں گی",
+      "hi": "जो चाहिए वह नहीं मिला? प्रिस्क्रिप्शन अपलोड करें, फार्मेसियाँ आपके लिए खोजेंगी",
+      "bn": "যা খুঁজছেন তা পাননি? প্রেসক্রিপশন আপলোড করুন, ফার্মেসিগুলো আপনার জন্য খুঁজবে",
+      "fil": "Hindi mahanap ang hinahanap mo? I-upload ang reseta at hahanapin ito ng mga parmasya para sa iyo"
+    },
+    "رفع الوصفة": {
+      "ar": "رفع الوصفة",
+      "en": "Upload prescription",
+      "ur": "نسخہ اپ لوڈ کریں",
+      "hi": "प्रिस्क्रिप्शन अपलोड करें",
+      "bn": "প্রেসক্রিপশন আপলোড",
+      "fil": "I-upload ang reseta"
+    },
+    "سابقًا": {
+      "ar": "سابقًا",
+      "en": "Earlier",
+      "ur": "پہلے",
+      "hi": "पहले",
+      "bn": "আগে",
+      "fil": "Mas maaga"
+    },
+    "منذ {n} دقيقة": {
+      "ar": "منذ {n} دقيقة",
+      "en": "{n} min ago",
+      "ur": "{n} منٹ پہلے",
+      "hi": "{n} मिनट पहले",
+      "bn": "{n} মিনিট আগে",
+      "fil": "{n} minuto ang nakalipas"
+    },
+    "منذ {n} ساعة": {
+      "ar": "منذ {n} ساعة",
+      "en": "{n} h ago",
+      "ur": "{n} گھنٹے پہلے",
+      "hi": "{n} घंटे पहले",
+      "bn": "{n} ঘণ্টা আগে",
+      "fil": "{n} oras ang nakalipas"
+    },
+    "منذ {n} يوم": {
+      "ar": "منذ {n} يوم",
+      "en": "{n} d ago",
+      "ur": "{n} دن پہلے",
+      "hi": "{n} दिन पहले",
+      "bn": "{n} দিন আগে",
+      "fil": "{n} araw ang nakalipas"
+    },
+    "يمكنك تغييرها لاحقًا من الإعدادات.": {
+      "ar": "يمكنك تغييرها لاحقًا من الإعدادات.",
+      "en": "You can change it later in Settings.",
+      "ur": "آپ اسے بعد میں ترتیبات سے بدل سکتے ہیں۔",
+      "hi": "आप इसे बाद में सेटिंग्स से बदल सकते हैं।",
+      "bn": "আপনি পরে সেটিংস থেকে এটি বদলাতে পারবেন।",
+      "fil": "Maaari mo itong baguhin sa Settings mamaya."
+    },
+    "نحتاج بعض الأذونات لتقديم أفضل تجربة": {
+      "ar": "نحتاج بعض الأذونات لتقديم أفضل تجربة",
+      "en": "We need a few permissions to give you the best experience",
+      "ur": "بہترین تجربے کے لیے ہمیں چند اجازتیں درکار ہیں",
+      "hi": "बेहतरीन अनुभव के लिए हमें कुछ अनुमतियाँ चाहिए",
+      "bn": "সেরা অভিজ্ঞতার জন্য আমাদের কিছু অনুমতি দরকার",
+      "fil": "Kailangan namin ng ilang pahintulot para sa pinakamahusay na karanasan"
+    },
+    "السماح": {
+      "ar": "السماح",
+      "en": "Allow",
+      "ur": "اجازت دیں",
+      "hi": "अनुमति दें",
+      "bn": "অনুমতি দিন",
+      "fil": "Payagan"
+    },
+    "تم السماح": {
+      "ar": "تم السماح",
+      "en": "Allowed",
+      "ur": "اجازت مل گئی",
+      "hi": "अनुमति दी गई",
+      "bn": "অনুমতি দেওয়া হয়েছে",
+      "fil": "Pinayagan"
+    },
+    "فتح الإعدادات": {
+      "ar": "فتح الإعدادات",
+      "en": "Open settings",
+      "ur": "ترتیبات کھولیں",
+      "hi": "सेटिंग्स खोलें",
+      "bn": "সেটিংস খুলুন",
+      "fil": "Buksan ang settings"
+    },
+    "تخطي الآن": {
+      "ar": "تخطي الآن",
+      "en": "Skip for now",
+      "ur": "ابھی چھوڑ دیں",
+      "hi": "अभी छोड़ें",
+      "bn": "এখন এড়িয়ে যান",
+      "fil": "Laktawan muna"
+    },
+    "تحديثات": {
+      "ar": "تحديثات",
+      "en": "Updates",
+      "ur": "اپڈیٹس",
+      "hi": "अपडेट",
+      "bn": "আপডেট",
+      "fil": "Mga update"
     }
   }
 }

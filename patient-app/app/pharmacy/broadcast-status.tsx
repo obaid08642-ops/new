@@ -114,7 +114,7 @@ export default function BroadcastStatusScreen() {
             disabled={cancelling}
             onPress={() => {
               if (cancelling) return;
-              showLocalizedAlert('إلغاء الطلب', 'سيُرسل طلب الإلغاء إلى الخادم. لا يغيّر التطبيق الحالة محلياً قبل قبول الاستجابة.', [
+              showLocalizedAlert('إلغاء الطلب', 'سنرسل طلب الإلغاء، وتتغير حالة الطلب بعد قبوله.', [
                 { text: 'تراجع', style: 'cancel' },
                 { text: 'تأكيد الإلغاء', style: 'destructive', onPress: () => void (async () => {
                   setCancelling(true);
