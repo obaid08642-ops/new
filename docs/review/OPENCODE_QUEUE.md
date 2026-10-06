@@ -2,6 +2,13 @@
 
 Read this file and `AGENTS.md` at the start of every OpenCode session. This file is the task list; `AGENTS.md` holds the rules. If they disagree, this file's **Git rules** win (they are newer, owner 2026-10-06).
 
+## Where your instructions come from (owner, 2026-10-06)
+
+- **Your only task list is this file on `origin/main`.** Read it with `git fetch origin && git show origin/main:docs/review/OPENCODE_QUEUE.md` at the start of every session and before every new item. Copies on other branches are stale.
+- **The old phase plan is frozen.** Do not start Phase 22 or any other new phase from `docs/audit/02_AGENT_EXECUTION_PLAN.md`. Phases 13–21 are not approved; they come back only as Queue B items, one PR each, when the reviewer says "go".
+- The owner's product decisions (`docs/product/OWNER_DECISIONS_2026-10-06.md`) win over the old plan. Never build or keep anything the decisions remove: community posts, leaderboard, family calls, skin analysis, the ambulance system, mental-health scoring or crisis handling.
+- **Branch names:** only `oc/<item-id>`. Branches named `r12/phase13-*` and direct pushes to `fix/audit-2026-09` are not accepted. The direct push `a0df24b3` (2026-10-06 12:34 UTC) broke rule 3 below and will not be merged as is.
+
 ## Git rules (owner, 2026-10-06), binding
 
 1. **One branch per item:** `oc/<item-id>` (for example `oc/Q-1`). Create it from the base named in the item:
@@ -95,7 +102,7 @@ Order (do not skip ahead):
 | Id | Issue | Item | Waits for |
 |---|---|---|---|
 | D-16 | #335 | Module switches: one flag per module, a public read endpoint, and the server refuses a switched-off module's routes. | spec |
-| D-14 | #333 | Emergency: remove dispatch and tracking. Keep "send my location to my emergency contacts". | spec + owner O-2 |
+| D-14 | #333 | Emergency: remove the whole ambulance system: dispatch, missions, tracking, fleet, the `drivers` module, and the ambulance provider type in the provider app, registration, KYC and admin. Archive the data first. Keep "send my location to my emergency contacts". | spec (owner O-2 answered: remove) |
 | D-10 | #329 | Rx rules on the server: no promo, offer or points on Rx items; an order with an Rx item needs an attached prescription; `controlled` items are never orderable. | spec |
 | D-15 | #334 | AI assistant limits: specialty routing, leaflet mode, the output filter, red flags, the disclaimer, and a 100+ prompt test set in CI. | spec + test set |
 | D-1 | #320 | Community removed (archive first). Doctor articles: verified doctors only, admin approval, no comments, Rx brand-name block. | spec |
@@ -103,7 +110,7 @@ Order (do not skip ahead):
 | D-2 | #321 | Remove the loyalty leaderboard. | spec |
 | D-4 | #323 | Remove AI skin analysis. | spec |
 | D-9 | #328 | Loyalty challenges: health-habit `target_action` only; existing purchase challenges ended and archived. | spec |
-| D-12 | #331 | SFDA price ceiling: `sfda_price` and its source; line mapping; reject offers over the ceiling; unmapped lines go to admin review. | spec + owner O-1 + price import |
+| D-12 | #331 | SFDA price ceiling: `sfda_price` and its source; line mapping; reject offers over the ceiling; unmapped lines go to admin review. | spec (owner O-1 answered: the catalogue `price` in the server DB is the ceiling) |
 | D-13 | #332 | Offers waiting: the final "no pharmacy available" state (with Q-3). | spec, Q-3 |
 | D-17 | #336 | Doctor public view: SCFHS licence and `verified`; never national ID, phone or email. | spec |
 | D-19 | #338 | Lab result push deep link to the result. | spec |
