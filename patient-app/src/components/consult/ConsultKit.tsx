@@ -1,6 +1,7 @@
 import React from 'react';
 import { Animated, FlatList, Modal as RNModal, Pressable, RefreshControl, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
+import Svg, { Path } from 'react-native-svg';
 
 import { AppHeader, Card, EmptyState, ErrorState, FIcon, OfflineState, Screen, SERVICE_ICONS, StickyFooter, type AppHeaderAction, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
 import { COLUMN, step as scale, tint, useScreenUi } from '../screen/ScreenKit';
@@ -32,6 +33,33 @@ export function visitMode(raw: unknown): VisitMode | null {
   if (v === 'home' || v === 'home_visit' || v === 'homevisit') return 'home';
   if (v === 'clinic' || v === 'in_person' || v === 'in-person' || v === 'inperson' || v === 'hospital') return 'clinic';
   return null;
+}
+
+/** The row chevron: points the way the reader goes forward (right in LTR, left in RTL), in the header's own stroke. */
+export function Chevron({ size = 18 }: { size?: number }) {
+  const { c, isRTL } = useScreenUi();
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c.icon.secondary} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" accessibilityElementsHidden importantForAccessibility="no">
+      <Path d={isRTL ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'} />
+    </Svg>
+  );
+}
+
+/** The glyph and tone of a specialty (board Consult's specialty chips), found from the name the server sent. */
+const SPEC_LOOK: Array<[RegExp, FillIconName, ServiceTone]> = [
+  [/أسنان|dent|tooth/i, 'tooth', 'mint'],
+  [/جلد|derma|skin/i, 'hand-heart', 'pink'],
+  [/عيون|عين|eye|ophth/i, 'eye', 'teal'],
+  [/قلب|cardio|heart/i, 'heart', 'coral'],
+  [/أطفال|طفل|pediat|child/i, 'baby', 'amber'],
+  [/عظام|ortho|bone/i, 'bone', 'violet'],
+  [/نساء|ولادة|gyn|obst|matern/i, 'baby-carriage', 'pink'],
+  [/نفس|psych|mental/i, 'brain', 'violet'],
+];
+export function specialtyLook(name: unknown): { icon: FillIconName; tone: ServiceTone } {
+  const text = String(name ?? '');
+  const hit = SPEC_LOOK.find(([re]) => re.test(text));
+  return hit ? { icon: hit[1], tone: hit[2] } : { icon: 'stethoscope', tone: 'blue' };
 }
 
 /** Back, or the consultations hub when there is nothing to go back to (a deep link, a notification). */

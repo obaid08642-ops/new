@@ -1,181 +1,137 @@
-// @ts-nocheck
 /**
- * M4 · شاشة ملخص الاستشارة للمريض
- * GET /care/appointments/:id/summary — تشخيص/ملاحظات/وصفة/توصيات
- * + زر حجز متابعة خلال نافذة الخصم (follow_up_window_days)
+ * Consultation summary — board Consult's card language for the doctor's write-up. GET /care/appointments/:id/summary
+ * returns the diagnosis, the prescription lines, the notes and the recommendations; when the doctor recommended a
+ * follow-up inside a window, the page offers to book it. A part the doctor left empty is not drawn.
  */
-import React, { useEffect, useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, StatusBar, RefreshControl } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../../src/context/AppContext';
-import { Icon } from '../../src/components/Icon';
-import { AppText, Card, Button, Badge } from '../../src/components/ui';
-import { ScreenState } from '../../src/components/ScreenStates';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Text, View } from 'react-native';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
+
+import { Button, Card, FIcon } from '../../../packages/ui-native/src';
+import { ConsultScreen, Gate, Section, StatusTag, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
+import { isOffline } from '../../src/utils/isOffline';
+import { logError } from '../../src/utils/logger';
 
-export default function ConsultationSummaryScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark, lang } = useApp();
-  const AR = lang !== 'en';
-  const { appointmentId } = useLocalSearchParams<{ appointmentId?: string }>();
-
-  const [summary, setSummary] = useState<any>(null);
-  const [appt, setAppt] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [notReady, setNotReady] = useState(false);
-
-  const load = useCallback(async (isRefresh = false) => {
-    if (!appointmentId) { setError(AR ? 'معرّف الموعد مفقود' : 'Missing appointment id'); setLoading(false); return; }
-    if (isRefresh) setRefreshing(true); else setLoading(true);
-    setError(null);
-    setNotReady(false);
-    try {
-      try { setAppt(await apiFetch<any>(`/care/appointments/${appointmentId}`)); } catch {}
-      const s = await apiFetch<any>(`/care/appointments/${appointmentId}/summary`);
-      setSummary(s);
-    } catch (e: any) {
-      const msg = String(e?.message || '');
-      if (msg.includes('404') || msg.includes('not available') || msg.includes('غير موجود')) {
-        setNotReady(true);
-      } else {
-        setError(e?.message || (AR ? 'تعذر تحميل الملخص' : 'Failed to load summary'));
-      }
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [appointmentId, AR]);
-
-  useEffect(() => { load(); }, [load]);
-
-  if (loading) return <ScreenState loading>{null}</ScreenState>;
-  if (error) return <ScreenState error={error} onRetry={() => load()}>{null}</ScreenState>;
-  if (notReady || !summary) {
-    return (
-      <ScreenState
-        empty
-        emptyTitle={AR ? 'لا يوجد ملخص متاح بعد' : 'Summary not available yet'}
-        emptySubtitle={AR ? 'سيكتب الطبيب ملخص الاستشارة بعد انتهاء الموعد' : 'The doctor will write the summary after the appointment ends'}
-        emptyIcon="document"
-        onRetry={() => load()}
-      >{null}</ScreenState>
-    );
-  }
-
-  const followUpActive = !!summary.follow_up_recommended;
-  const windowDays = summary.follow_up_window_days ?? 7;
-
-  const bookFollowUp = () => {
-    router.push({
-      pathname: '/consultations/booking-status',
-      params: {
-        doctorId: appt?.doctor_id || summary.doctor_id || '',
-        followUp: 'true',
-        windowDays: String(windowDays),
-      },
-    });
-  };
-
-  return (
-    <View style={[st.c, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-      <View style={[st.hdr, { paddingTop: insets.top + 8, backgroundColor: colors.surface, borderBottomColor: colors.borderLight }]}>
-        <View style={{ width: 40 }} />
-        <AppText variant="h4">{AR ? 'ملخص الاستشارة' : 'Consultation Summary'}</AppText>
-        <View style={{ width: 40 }} />
-      </View>
-
-      <ScrollView
-        contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: insets.bottom + 32 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor={colors.primary} />}
-      >
-        {followUpActive && (
-          <Card style={{ borderWidth: 1, borderColor: colors.primary, gap: 8 }}>
-            <View style={st.row}>
-              <Badge label={AR ? `نافذة متابعة ${windowDays} يوم` : `${windowDays}-day follow-up window`} />
-              <Icon name="calendar-check" size={18} color={colors.primary} />
-            </View>
-            <AppText variant="bodySM" color={colors.textSecondary} style={{ textAlign: 'right' }}>
-              {AR
-                ? `أوصى الطبيب بمتابعة خلال ${windowDays} أيام — احجز الآن بسعر مخفّض.`
-                : `The doctor recommended a follow-up within ${windowDays} days — book now at a discounted rate.`}
-            </AppText>
-            <Button label={AR ? 'احجز موعد المتابعة' : 'Book follow-up'} onPress={bookFollowUp} style={{ marginTop: 4 }} />
-          </Card>
-        )}
-
-        {!!summary.diagnosis && (
-          <Card style={{ gap: 8 }}>
-            <View style={st.row}>
-              <AppText variant="h5" style={{ flex: 1, textAlign: 'right' }}>{AR ? 'التشخيص' : 'Diagnosis'}</AppText>
-              <Icon name="stethoscope" size={18} color={colors.primary} />
-            </View>
-            <AppText variant="bodyMD" color={colors.textPrimary} style={{ textAlign: 'right', lineHeight: 22 }}>{summary.diagnosis}</AppText>
-          </Card>
-        )}
-
-        {summary.prescription?.length > 0 && (
-          <Card style={{ gap: 10 }}>
-            <View style={st.row}>
-              <AppText variant="h5" style={{ flex: 1, textAlign: 'right' }}>{AR ? 'الوصفة الطبية' : 'Prescription'}</AppText>
-              <Icon name="medication" size={18} color={colors.primary} />
-            </View>
-            {summary.prescription.map((med: any, i: number) => (
-              <View key={i} style={[st.medRow, { borderBottomColor: colors.borderLight }, i === summary.prescription.length - 1 && { borderBottomWidth: 0 }]}>
-                <View style={{ flex: 1, alignItems: 'flex-end' }}>
-                  <AppText variant="labelMD" color={colors.textPrimary}>{med.medicine_name}</AppText>
-                  <AppText variant="caption" color={colors.textSecondary}>
-                    {[med.dose, med.duration].filter(Boolean).join(' · ')}
-                  </AppText>
-                  {!!med.notes && <AppText variant="caption" color={colors.textTertiary}>{med.notes}</AppText>}
-                </View>
-                <Icon name="medication" size={16} color={colors.textTertiary} />
-              </View>
-            ))}
-            <Button
-              variant="outline"
-              label={AR ? 'إرسال الوصفة لصيدلية' : 'Send to pharmacy'}
-              onPress={() => router.push({ pathname: '/consultations/prescription-from-doctor', params: { appointmentId } })}
-            />
-          </Card>
-        )}
-
-        {!!summary.notes && (
-          <Card style={{ gap: 8 }}>
-            <View style={st.row}>
-              <AppText variant="h5" style={{ flex: 1, textAlign: 'right' }}>{AR ? 'ملاحظات الطبيب' : 'Doctor notes'}</AppText>
-              <Icon name="document" size={18} color={colors.primary} />
-            </View>
-            <AppText variant="bodyMD" color={colors.textPrimary} style={{ textAlign: 'right', lineHeight: 22 }}>{summary.notes}</AppText>
-          </Card>
-        )}
-
-        {!!summary.recommendations && (
-          <Card style={{ gap: 8 }}>
-            <View style={st.row}>
-              <AppText variant="h5" style={{ flex: 1, textAlign: 'right' }}>{AR ? 'التوصيات' : 'Recommendations'}</AppText>
-              <Icon name="check_circle" size={18} color={colors.success} />
-            </View>
-            <AppText variant="bodyMD" color={colors.textPrimary} style={{ textAlign: 'right', lineHeight: 22 }}>{summary.recommendations}</AppText>
-          </Card>
-        )}
-
-        <Button
-          variant="outline"
-          label={AR ? 'قيّم الاستشارة' : 'Rate the consultation'}
-          onPress={() => router.push({ pathname: '/consultations/post-call-rating', params: { appointmentId } })}
-        />
-      </ScrollView>
-    </View>
-  );
+interface Med {
+  medicine_name?: string;
+  dose?: string;
+  duration?: string;
+  notes?: string;
+}
+interface Summary {
+  doctor_id?: string;
+  diagnosis?: string;
+  prescription?: Med[];
+  notes?: string;
+  recommendations?: string;
+  follow_up_recommended?: boolean;
+  follow_up_window_days?: number;
 }
 
-const st = StyleSheet.create({
-  c: { flex: 1 },
-  hdr: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1 },
-  row: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8 },
-  medRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 1 },
-});
+export default function ConsultationSummaryScreen() {
+  const { theme, t, c, flow, k, num } = useScreenUi();
+  const { appointmentId } = useLocalSearchParams<{ appointmentId?: string }>();
+
+  const [summary, setSummary] = useState<Summary | null>(null);
+  const [doctorId, setDoctorId] = useState('');
+  const [status, setStatus] = useState<GateStatus>('loading');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const load = useCallback(
+    async (isRefresh = false) => {
+      if (!appointmentId) {
+        setStatus('missing');
+        return;
+      }
+      if (isRefresh) setRefreshing(true);
+      else setStatus('loading');
+      try {
+        try {
+          const appt = await apiFetch<{ doctor_id?: string }>(`/care/appointments/${appointmentId}`);
+          setDoctorId(appt?.doctor_id || '');
+        } catch (e) {
+          logError('consultations:summary:appointment', e);
+        }
+        setSummary(await apiFetch<Summary>(`/care/appointments/${appointmentId}/summary`));
+        setStatus('ready');
+      } catch (e) {
+        const msg = String(e instanceof Error ? e.message : '');
+        if (msg.includes('404') || msg.includes('not available') || msg.includes('غير موجود')) setStatus('missing');
+        else {
+          logError('consultations:summary', e);
+          setStatus((await isOffline()) ? 'offline' : 'error');
+        }
+      } finally {
+        setRefreshing(false);
+      }
+    },
+    [appointmentId],
+  );
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const windowDays = summary?.follow_up_window_days ?? 7;
+  const prescription = Array.isArray(summary?.prescription) ? summary.prescription : [];
+
+  const bookFollowUp = () =>
+    router.push({ pathname: '/consultations/booking-status', params: { doctorId: doctorId || summary?.doctor_id || '', followUp: 'true', windowDays: String(windowDays) } } as unknown as Href);
+
+  const block = (title: string, text: string) => (
+    <Section title={title}>
+      <Card theme={theme}>
+        <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.primary, ...flow }}>{text}</Text>
+      </Card>
+    </Section>
+  );
+
+  return (
+    <ConsultScreen title={k('consult.summary.title')} onRefresh={() => void load(true)} refreshing={refreshing} testID="consultation-summary-screen">
+      <Gate status={status} onRetry={() => void load()} missingTitle={k('consult.summary.notReady')} missingBody={k('consult.summary.notReadyBody')} errorTitle={k('consult.summary.loadError')}>
+        {summary ? (
+          <>
+            {summary.follow_up_recommended ? (
+              <Card theme={theme}>
+                <View style={{ gap: 8 }}>
+                  <StatusTag label={k('consult.summary.window', { n: num(windowDays) })} tone="info" />
+                  <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }}>{k('consult.summary.followUpBody', { n: num(windowDays) })}</Text>
+                  <Button label={k('consult.summary.bookFollowUp')} size="md" fullWidth onPress={bookFollowUp} theme={theme} testID="summary-follow-up" />
+                </View>
+              </Card>
+            ) : null}
+
+            {summary.diagnosis ? block(k('consult.rx.diagnosis'), summary.diagnosis) : null}
+
+            {prescription.length > 0 ? (
+              <Section title={k('consult.summary.prescription')}>
+                <Card theme={theme}>
+                  {prescription.map((med, i) => (
+                    <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8, borderBottomWidth: i === prescription.length - 1 ? 0 : 1, borderBottomColor: c.border.hairline }}>
+                      <FIcon icon="pill" tone="coral" size={40} theme={theme} />
+                      <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                        <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{med.medicine_name}</Text>
+                        {[med.dose, med.duration].filter(Boolean).length > 0 ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{[med.dose, med.duration].filter(Boolean).join(' · ')}</Text> : null}
+                        {med.notes ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.tertiary, ...flow }}>{med.notes}</Text> : null}
+                      </View>
+                    </View>
+                  ))}
+                  <View style={{ marginTop: 10 }}>
+                    <Button label={k('consult.summary.toPharmacy')} variant="outline" size="md" fullWidth onPress={() => router.push({ pathname: '/consultations/prescription-from-doctor', params: { appointmentId } } as unknown as Href)} theme={theme} />
+                  </View>
+                </Card>
+              </Section>
+            ) : null}
+
+            {summary.notes ? block(k('consult.rx.notes'), summary.notes) : null}
+            {summary.recommendations ? block(k('consult.summary.recommendations'), summary.recommendations) : null}
+
+            <Button label={k('consult.summary.rate')} variant="outline" size="md" fullWidth startIcon="star" onPress={() => router.push({ pathname: '/consultations/post-call-rating', params: { appointmentId } } as unknown as Href)} theme={theme} />
+          </>
+        ) : null}
+      </Gate>
+    </ConsultScreen>
+  );
+}
