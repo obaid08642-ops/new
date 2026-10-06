@@ -367,10 +367,16 @@ export class MoyasarService {
     return { ok: true };
   }
 
+  /** Look up a stored payment by its Moyasar id (no gateway call). */
+  async findByMoyasarId(moyasarId: string): Promise<MoyasarPayment | null> {
+    this.assertMoyasarId(moyasarId);
+    return this.paymentModel.findOne({ moyasar_id: { $eq: moyasarId } }, { _id: 0, __v: 0, raw_response: 0 }).lean();
+  }
+
   /** Get all payments for a specific booking */
   async getPaymentsByBooking(bookingId: string): Promise<MoyasarPayment[]> {
     return this.paymentModel
-      .find({ booking_id: bookingId }, { _id: 0, __v: 0 })
+      .find({ booking_id: bookingId }, { _id: 0, __v: 0, raw_response: 0 })
       .sort({ createdAt: -1 })
       .lean();
   }
@@ -385,7 +391,7 @@ export class MoyasarService {
     const [total, payments] = await Promise.all([
       this.paymentModel.countDocuments(filter),
       this.paymentModel
-        .find(filter, { _id: 0, __v: 0 })
+        .find(filter, { _id: 0, __v: 0, raw_response: 0 })
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit)
@@ -396,6 +402,16 @@ export class MoyasarService {
 }
 
 // ── Controller ────────────────────────────────────────────────────────────────
+
+/** Client-facing view of a Moyasar payment: the raw gateway response stays server-side. */
+function publicPayment(p: any): any {
+  if (!p) return p;
+  const o = typeof p.toObject === 'function' ? p.toObject() : { ...p };
+  delete o.raw_response;
+  delete o._id;
+  delete o.__v;
+  return o;
+}
 
 @Controller('moyasar')
 @SelfService()
@@ -418,7 +434,7 @@ export class MoyasarController {
       amount: body.amount,
       description: body.description,
       callbackUrl: body.callback_url,
-    });
+    }).then(publicPayment);
   }
 
   /** Retrieve all payments linked to a booking (owner or admin only) */
@@ -442,8 +458,16 @@ export class MoyasarController {
   /** Pull the latest status from Moyasar and persist it */
   @Get('payments/sync/:moyasarId')
   @UseGuards(JwtAuthGuard)
-  syncStatus(@Param('moyasarId') id: string) {
-    return this.svc.syncPaymentStatus(id);
+  async syncStatus(@CurrentUser() user: any, @Param('moyasarId') id: string) {
+    // Owner check before contacting Moyasar: any signed-in user could otherwise
+    // read (and trigger a write of) another patient's payment by id.
+    const existing = await this.svc.findByMoyasarId(id);
+    if (!existing) throw new NotFoundException('payment_not_found');
+    if (user?.role !== 'admin' && existing.patient_id !== user?.id) {
+      throw new ForbiddenException('not_your_payment');
+    }
+    const synced = await this.svc.syncPaymentStatus(id);
+    return publicPayment(synced);
   }
 
   /**
