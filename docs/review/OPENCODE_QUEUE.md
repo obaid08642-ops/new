@@ -77,6 +77,40 @@ Closed, do not do:
 - **Moyasar sync owner check, verify re-emitting `payment.completed`, raw gateway data in responses:** fixed in #310.
 - **`GET /payments/status/:ref`:** comes with #282 (Q86) on the fix branch.
 
+## Queue C: owner product decisions 2026-10-06 (base `main`)
+
+Source: `docs/product/OWNER_DECISIONS_2026-10-06.md`. Each item is a GitHub issue; put `Closes #<issue>` in the PR body.
+
+**Scope:** backend and logic only, including admin forms that only expose a backend field. Patient-app and patient-web screens belong to the design session: in the PR, list the UI change the design session must make.
+
+**Specs first:** every C item waits for the acceptance spec `backend/acceptance/d-<n>/`, written by the review session. Start an item only when its spec is merged.
+
+**Removal items (A):** deleting the tests of the removed feature is allowed in that PR, and the PR lists every deleted test. Before any data is dropped:
+1. a migration exports the collection to an archive collection or a file;
+2. the PR body shows the archive step;
+3. production data is never touched by a PR (the reviewer runs it through server-ops).
+
+Order (do not skip ahead):
+
+| Id | Issue | Item | Waits for |
+|---|---|---|---|
+| D-16 | #335 | Module switches: one flag per module, a public read endpoint, and the server refuses a switched-off module's routes. | spec |
+| D-14 | #333 | Emergency: remove dispatch and tracking. Keep "send my location to my emergency contacts". | spec + owner O-2 |
+| D-10 | #329 | Rx rules on the server: no promo, offer or points on Rx items; an order with an Rx item needs an attached prescription; `controlled` items are never orderable. | spec |
+| D-15 | #334 | AI assistant limits: specialty routing, leaflet mode, the output filter, red flags, the disclaimer, and a 100+ prompt test set in CI. | spec + test set |
+| D-1 | #320 | Community removed (archive first). Doctor articles: verified doctors only, admin approval, no comments, Rx brand-name block. | spec |
+| D-8 | #327 | Mental health: remove assessment scoring and crisis handling; urgent-help number in admin config. | spec |
+| D-2 | #321 | Remove the loyalty leaderboard. | spec |
+| D-4 | #323 | Remove AI skin analysis. | spec |
+| D-9 | #328 | Loyalty challenges: health-habit `target_action` only; existing purchase challenges ended and archived. | spec |
+| D-12 | #331 | SFDA price ceiling: `sfda_price` and its source; line mapping; reject offers over the ceiling; unmapped lines go to admin review. | spec + owner O-1 + price import |
+| D-13 | #332 | Offers waiting: the final "no pharmacy available" state (with Q-3). | spec, Q-3 |
+| D-17 | #336 | Doctor public view: SCFHS licence and `verified`; never national ID, phone or email. | spec |
+| D-19 | #338 | Lab result push deep link to the result. | spec |
+| D-7 | #326 | One assistant endpoint replacing the seven AI routes. | owner-approved merge map |
+
+Items 3, 5, 6, 11 and 18 are UI only (design session). Items 21–23 are owner tasks. Item 20 is Q-12 / Q-13.
+
 ## Queue B: base `fix/audit-2026-09` (wait for the reviewer's "go")
 
 Do not start until the reviewer says the branch is protected and restored. Items:
