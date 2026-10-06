@@ -1,0 +1,72 @@
+[
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/order-tracking",
+    "element": "Pharmacy name",
+    "file": "",
+    "line": 0,
+    "found": "[backend] The order and its allocations carry only pharmacy_account_id; no name reaches the patient after the offer is chosen, so the tracking card cannot name the pharmacy.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/order-tracking",
+    "element": "Live map and courier",
+    "file": "",
+    "line": 0,
+    "found": "[backend] No courier position, vehicle or photo in the order; delivery has courier_name, courier_phone, courier_eta, dispatched_at only. The board's map and vehicle line are not drawn.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/orders",
+    "element": "Legacy orders (GET /orders/mine)",
+    "file": "",
+    "line": 0,
+    "found": "[backend] These rows have no screen: order-tracking reads the governed endpoint, which answers order_not_found for a legacy id. They are listed without an action.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/orders",
+    "element": "Amounts of appointments and bookings",
+    "file": "",
+    "line": 0,
+    "found": "[backend] total_price / price (appointments), total (labs, radiology), total_price (nursing) are used when positive; no currency field is sent, so SAR is assumed as in the rest of the app.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/orders",
+    "element": "Emergency request status",
+    "file": "",
+    "line": 0,
+    "found": "[backend] GET /emergency/my/active answers 200 with an empty body when there is none and the patient view carries state, not status; the row says 'active' because the endpoint lists only the active one.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/orders",
+    "element": "Kind filter chips",
+    "file": "",
+    "line": 0,
+    "found": "[owner] The old screen filtered by service; the Orders board has only current / previous. Owner to confirm the filter is not wanted.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/reorder",
+    "element": "Earlier prescription and fulfilment",
+    "file": "",
+    "line": 0,
+    "found": "[owner] Order again sends a delivery request without the earlier prescription_id or pickup choice (as before). Owner to say if they should carry over.",
+    "suspect": "Owner decision."
+  }
+]

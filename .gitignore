@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+# also the symlinks worktrees use (a symlink is a file, "node_modules/" does not match it)
+node_modules
 .pnpm-store/
 
 # Build artifacts
