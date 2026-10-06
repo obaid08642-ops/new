@@ -55,6 +55,13 @@ export function AddressPicker({ locale, addresses }: { locale: string; addresses
         if (response.status < 500) attempt.current = null;
         return setFailed(true);
       }
+      // the backend answers 200 with `null` for an address it does not know, and with the address otherwise: only the address,
+      // as the server now holds it, is a saved choice
+      const saved = await response.json().catch(() => null);
+      if (!saved || typeof saved !== "object" || (saved as { is_default?: unknown }).is_default !== true) {
+        attempt.current = null;
+        return setFailed(true);
+      }
       attempt.current = null;
       leave();
     } catch {

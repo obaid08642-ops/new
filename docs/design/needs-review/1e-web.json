@@ -1,0 +1,92 @@
+[
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/orders/[orderId]/tracking",
+    "element": "GET /orders/:id/tracking",
+    "file": "",
+    "line": 0,
+    "found": "[backend] Reads the legacy orders collection only: a pharmacy order (pharmacy_orders) always 404s. The app's deep link orders/:id/tracking and any other client of it need the pharmacy order instead.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/orders/[orderId]/tracking",
+    "element": "Live map, courier position, vehicle",
+    "file": "",
+    "line": 0,
+    "found": "[backend] A pharmacy order carries no courier location or vehicle (only courier name, phone and the eta the pharmacy typed); the board's map is not drawn.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/orders/[orderId]/tracking",
+    "element": "Pharmacy name",
+    "file": "",
+    "line": 0,
+    "found": "[backend] GET /patient/pharmacy/orders/:id has no pharmacy name (allocations hold only pharmacy_account_id; the offers list drops expired offers), so the board's pharmacy row cannot be drawn.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/orders/[orderId]",
+    "element": "Reorder through /orders/:id/reorder",
+    "file": "",
+    "line": 0,
+    "found": "[backend] The legacy reorder and reorder-partial refuse pharmacy orders (503 canonical_pharmacy_flow_required); the web reorders through the cart. The BFF route app/api/orders/[orderId]/reorder is now unused by any screen.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/pharmacy/reorder",
+    "element": "Prescription flag of a line",
+    "file": "",
+    "line": 0,
+    "found": "[backend] Order items carry no rx flag and no price. Lines are marked as needing a prescription when the order has a prescription_id, so checkout asks again; a line-level flag would be exact.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/orders",
+    "element": "Orders of other services",
+    "file": "",
+    "line": 0,
+    "found": "[owner] The board lists any service (home lab test); the app merges appointments, labs, radiology, nursing, claims and returns. The web page lists pharmacy orders only: the owner decides whether the web order centre is unified (needs a unified endpoint or six reads).",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/delivery/address-select",
+    "element": "Entry points",
+    "file": "",
+    "line": 0,
+    "found": "[client] No web screen links here (the cart's address card and checkout go to /profile/addresses); the page is reachable by address only. Link it from the address card's Change, or retire it.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/delivery/address-select",
+    "element": "PATCH /users/me/addresses/:id",
+    "file": "",
+    "line": 0,
+    "found": "[backend] Answers 200 with null for an unknown id and has no ownership error; the client treats only a returned address with is_default true as saved.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/orders",
+    "element": "List has no governed_state",
+    "file": "",
+    "line": 0,
+    "found": "[backend] GET /patient/pharmacy/orders returns raw documents without governed_state; list actions are chosen by status and the order router reads the detail.",
+    "suspect": "Backend gap: reviewer session."
+  }
+]
