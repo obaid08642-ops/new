@@ -27,6 +27,8 @@ Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy
 3. **F82-3 static/ISR** (owner: on top of #301; public routes only, no cookies/headers in them, per-user parts on the client, LCP per route before/after, ratchet `.lighthouserc.json` LCP 2.5 → 1.8 s when met). Decision #302: public pages serve the last good copy during an outage, ErrorState only with no cached copy, no cap.
 4. Per-route client messages: Batch 1 adds ~36 KB of pharmacy namespaces to `CLIENT_NAMESPACES` (shipped on every page); move them to a pharmacy route-group provider.
 
+3. **Owner decisions 2026-10-06** (`docs/product/OWNER_DECISIONS_2026-10-06.md`, issues #320-#342): merge map for health/family/settings/AI/mental health is PR [#345](https://github.com/obaid08642-ops/new/pull/345) (`docs/design/MERGE_MAP.md`): **do not merge/delete/redirect those screens and do not start Batch 5/6 slices until the owner approves it**. Removed features (1-4, 8, 14) are never rebuilt. UI parts of 3, 10, 11, 17, 18 go in the batch that owns the screen; the Rx / online-only badges and the "استشر طبيب" cart button go into the pharmacy templates when the reviewer's backend part lands.
+
 ## Process (owner, 2026-10-06; quality rules unchanged, recording changed)
 - **Lean v2 (Batch 2 on): under 40k tokens per screen.** Design only (wrong logic = one Needs-review line); templates first; no backend reading per screen; one translation pass per slice; read only screen, board, template; slices of 15-25 screens. Rules in `/AGENTS.md`.
 - **No screenshots committed or sent.** A temporary screenshot only to compare with the board while building, then delete it. No before/after/compare images.
@@ -51,8 +53,8 @@ Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy
 
 ## Open blockers (details in `PROGRESS_ARCHIVE.md` and the Needs-review JSON)
 - **Public product catalogue is empty** on the seeded backend (v14 import is the reviewer's): product/category screens are checked with injected TEST data only.
-- **Backend gaps found in Batch 1** (reviewer; in `needs-review/batch-1*.json`): patient chat actions answer 403 (`@Roles(PHARMACY, ADMIN)`); governed states `OFFERS_READY`/`ORDER_BROADCASTING` never produced; offer ETA/`insurance_ready`/`cod_allowed` constants; expiry command has no scheduler; OCR field names not read by the upload endpoint; barcode `$regex` unescaped; prescription lists return base64 photos; no replica set locally so submit/select answer 500.
-- **Endpoints the reviewer will add:** `GET /payments/status/:ref` (web `/payments/result`), `GET /insurance/claims/my` (batch 7), `GET /nutrition/plan` (batch 8); doctor fields `scfhs_license_no`, `years_experience`, `qualifications[]`. Hide the part, never invent data.
+- **Backend gaps** found in Batches 1-3 are in `needs-review/*.json` and the OpenCode queue (`docs/review/OPENCODE_QUEUE.md`); the reviewer owns them.
+- **Endpoints the reviewer will add:** `GET /payments/status/:ref`, `GET /insurance/claims/my` (batch 7), `GET /nutrition/plan` (batch 8), doctor fields; hide the part, never invent data.
 - **Fetal-week images (owner D):** converted to WebP in `cdn-source/`; upload to the CDN and the week endpoint are pending (archive).
 - **Import-rule baseline:** `tools/design/import-rule.baseline.json` is on `fix/audit-2026-09` only; drop its AuthKit line when the rule reaches main.
 - **Owner questions open:** intro/language/permissions screens before Welcome? Which roles may hold a patient session? Chat entry points with no order; compare picker; camera barcode on web; where the insurance choice belongs; native review of ur/hi/bn/tl wording.
