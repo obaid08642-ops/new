@@ -1,5 +1,5 @@
 import React from 'react';
-import { Animated, FlatList, Modal as RNModal, Pressable, RefreshControl, Text, View } from 'react-native';
+import { Animated, FlatList, Modal as RNModal, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
 
@@ -35,12 +35,22 @@ export function visitMode(raw: unknown): VisitMode | null {
   return null;
 }
 
+/** The board's share glyph (DoctorFull header): an up arrow out of a tray, 20 px, the header's stroke. */
+export function ShareGlyph({ size = 20 }: { size?: number }) {
+  const { c } = useScreenUi();
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c.icon.primary} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <Path d="M12 15V3 M7 8l5-5 5 5 M5 13v7h14v-7" />
+    </Svg>
+  );
+}
+
 /** The row chevron: points the way the reader goes forward (right in LTR, left in RTL), in the header's own stroke. */
-export function Chevron({ size = 18 }: { size?: number }) {
+export function Chevron({ size = 18, back = false }: { size?: number; back?: boolean }) {
   const { c, isRTL } = useScreenUi();
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c.icon.secondary} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" accessibilityElementsHidden importantForAccessibility="no">
-      <Path d={isRTL ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'} />
+      <Path d={isRTL === back ? 'M9 6l6 6-6 6' : 'M15 6l-6 6 6 6'} />
     </Svg>
   );
 }
@@ -406,6 +416,31 @@ export function Dialog({ open, icon, title, body, children }: { open: boolean; i
             <View style={{ alignSelf: 'stretch', gap: 8, marginTop: 8 }}>{children}</View>
           </View>
         </Card>
+      </View>
+    </RNModal>
+  );
+}
+
+/** A bottom sheet (the hub's filters and insurance choice): scrim, rounded top, a title row with a close button, scrolling content. */
+export function Sheet({ open, title, onClose, onBack, backLabel, closeLabel, children }: { open: boolean; title: string; onClose: () => void; onBack?: () => void; backLabel?: string; closeLabel: string; children: React.ReactNode }) {
+  const { t, c, dir } = useScreenUi();
+  return (
+    <RNModal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <View accessibilityViewIsModal style={{ flex: 1, backgroundColor: tint(c.bg.inverse, 0.5), justifyContent: 'flex-end' }}>
+        <View style={{ maxHeight: '85%', backgroundColor: c.bg.canvas, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 24, direction: dir }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            {onBack ? (
+              <Pressable accessibilityRole="button" accessibilityLabel={backLabel} onPress={onBack} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
+                <Chevron back />
+              </Pressable>
+            ) : null}
+            <Text accessibilityRole="header" style={{ ...scale(t, 'h3'), color: c.text.primary, flex: 1 }}>{title}</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel={closeLabel} onPress={onClose} style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
+              <Glyph name="x-circle" size={22} color={c.icon.primary} />
+            </Pressable>
+          </View>
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 14, paddingBottom: 8 }}>{children}</ScrollView>
+        </View>
       </View>
     </RNModal>
   );
