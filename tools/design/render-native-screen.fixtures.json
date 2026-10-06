@@ -2664,5 +2664,150 @@
       ],
       "provider_name": "مختبر تجريبي ١"
     }
-  ]
+  ],
+  "/home-care/services": [
+    {
+      "id": "svc-iv",
+      "name_ar": "خدمة تمريض تجريبية ١",
+      "name_en": "خدمة تمريض تجريبية ١",
+      "description_ar": "وصف تجريبي للخدمة الأولى",
+      "description_en": "وصف تجريبي للخدمة الأولى",
+      "price": 150
+    },
+    {
+      "id": "svc-wound",
+      "name_ar": "خدمة تمريض تجريبية ٢",
+      "name_en": "خدمة تمريض تجريبية ٢",
+      "description_ar": "وصف تجريبي للخدمة الثانية",
+      "description_en": "وصف تجريبي للخدمة الثانية",
+      "price": 120
+    },
+    {
+      "id": "test-svc",
+      "name_ar": "خدمة تمريض تجريبية ٣",
+      "name_en": "خدمة تمريض تجريبية ٣",
+      "description_ar": "وصف تجريبي",
+      "description_en": "وصف تجريبي",
+      "price": 90
+    }
+  ],
+  "/home-care/packages": [
+    {
+      "id": "test-nur-pkg",
+      "name_ar": "باقة رعاية تجريبية",
+      "title": "باقة رعاية تجريبية",
+      "type": "monthly"
+    },
+    {
+      "id": "test-nur-pkg-2",
+      "name_ar": "باقة رعاية تجريبية ٢",
+      "title": "باقة رعاية تجريبية ٢",
+      "type": "weekly"
+    }
+  ],
+  "/home-care/services/svc-iv": {
+    "id": "svc-iv",
+    "name_ar": "خدمة تمريض تجريبية ١",
+    "name_en": "خدمة تمريض تجريبية ١",
+    "description_ar": "وصف تجريبي كامل للخدمة يشرح ما تتضمنه الزيارة.",
+    "description_en": "وصف تجريبي كامل للخدمة يشرح ما تتضمنه الزيارة.",
+    "price": 150,
+    "duration_value": 1,
+    "duration": "hour",
+    "insurance_availability": true,
+    "preparation_ar": [
+      "تحضير تجريبي ١",
+      "تحضير تجريبي ٢"
+    ],
+    "preparation_en": [
+      "تحضير تجريبي ١",
+      "تحضير تجريبي ٢"
+    ]
+  },
+  "/home-care/providers": [
+    {
+      "id": "test-nurse",
+      "name_ar": "ممرض تجريبي ١",
+      "facility_name": "منشأة تجريبية",
+      "gender": "male",
+      "available_now": true,
+      "rating": 4.7,
+      "distance_km": 3.2,
+      "price": 150
+    },
+    {
+      "id": "test-nurse-2",
+      "name_ar": "ممرضة تجريبية ٢",
+      "facility_name": "منشأة تجريبية ٢",
+      "gender": "female",
+      "available_now": false,
+      "rating": 4.9,
+      "price": null
+    }
+  ],
+  "/home-care/providers/test-nurse": {
+    "id": "test-nurse",
+    "name": "ممرض تجريبي ١",
+    "facility": "منشأة تجريبية",
+    "rating": 4.7,
+    "reviews_count": 12,
+    "degree": "بكالوريوس تمريض (تجريبي)",
+    "price": 150,
+    "reviews": [
+      {
+        "user": "مريض تجريبي",
+        "text": "تقييم تجريبي"
+      }
+    ],
+    "service_name_ar": "خدمة تمريض تجريبية ١"
+  },
+  "/nursing/bookings/mine": [
+    {
+      "id": "test-visit",
+      "state": "CONFIRMED",
+      "service_name_ar": "خدمة تمريض تجريبية ١",
+      "scheduled_at": "2026-10-08T08:00:00Z"
+    },
+    {
+      "id": "test-visit-2",
+      "state": "COMPLETED",
+      "service_name_ar": "خدمة تمريض تجريبية ٢",
+      "scheduled_at": "2026-10-01T10:30:00Z"
+    },
+    {
+      "id": "test-visit-3",
+      "state": "PENDING_INSURANCE",
+      "service_name_ar": "خدمة تمريض تجريبية ١",
+      "scheduled_at": "2026-10-12T09:00:00Z"
+    }
+  ],
+  "/nursing/visits/test-visit/tracking": {
+    "status": "IN_PROGRESS",
+    "eta_minutes": 12,
+    "nurse_name": "ممرض تجريبي ١",
+    "nurse_title": "ممرض مسجل (تجريبي)",
+    "nurse_phone": "+966500000000",
+    "current_lat": 24.7136,
+    "current_lng": 46.6753,
+    "hospital_lat": 24.72,
+    "hospital_lng": 46.68
+  },
+  "/nursing/visits/test-visit-done/tracking": {
+    "status": "COMPLETED",
+    "nurse_name": "ممرض تجريبي ١",
+    "vitals": {
+      "pulse": 72,
+      "bp": "120/80"
+    },
+    "notes": "ملاحظة تجريبية"
+  },
+  "/home-care/bookings/test-nur-ins": {
+    "id": "test-nur-ins",
+    "state": "APPROVED_PARTIAL",
+    "payment_method": "insurance",
+    "copay_amount": 30,
+    "insurance_decision": {
+      "outcome": "APPROVED_PARTIAL"
+    }
+  }
 }
