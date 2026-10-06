@@ -33,7 +33,7 @@ export default async function DiagnosticsResultsPage({ params }: Props) {
         <div className={styles.introText}>
           <p className={styles.eyebrow}><FlaskConical size={15} aria-hidden="true" />{t("eyebrow")}</p>
           <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" as any }}>{locale === "ar" ? "نتائجي وتقاريري" : "My results & reports"}</h1>
-          <p style={{ overflowWrap: "anywhere" }}>{locale === "ar" ? "نتائج المختبر وتقارير الأشعة من الخادم فقط." : "Lab results and radiology reports from the server only."}</p>
+          <p style={{ overflowWrap: "anywhere" }}>{locale === "ar" ? "نتائج المختبر وتقارير الأشعة الخاصة بك." : "Your lab results and radiology reports."}</p>
         </div>
         <span className={styles.introIcon} aria-hidden="true"><VectorLabs size={48} aria-hidden="true" /></span>
       </section>

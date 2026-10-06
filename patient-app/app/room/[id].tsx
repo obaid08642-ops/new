@@ -1,6 +1,8 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ActivityIndicator, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
+// DEVICE_STANDARD §5: the safe-area-context SafeAreaView (iOS and Android), never react-native's iOS-only one
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router, Stack } from 'expo-router';
 // @livekit/react-native is a NATIVE module — absent in Expo Go. A static
 // import crashes module evaluation so the default export never registers

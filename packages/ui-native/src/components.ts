@@ -19,11 +19,19 @@ import type {
   NativeInputProps,
   NativeSelectProps,
 } from './components/Inputs';
+import type { NativeRadioProps } from './components/Controls';
+import type { NativeEmptyStateProps, NativeErrorStateProps, NativeOfflineStateProps } from './components/Feedback';
+import type { NativeDoctorCardProps, NativeOfferCardProps, NativeProductCardProps } from './components/Cards';
+import type { NativeChipProps } from './components/Surfaces';
 import type * as C from '../../ui/components/contract';
 
 export interface ComponentProps {
   Button: NativeButtonProps;
   IconButton: NativeIconButtonProps;
+  Segmented: C.SegmentedProps;
+  Toggle: C.ToggleProps;
+  Radio: NativeRadioProps;
+  StatusChip: C.StatusChipProps;
 
   Input: NativeInputProps;
   Select: NativeSelectProps;
@@ -32,9 +40,14 @@ export interface ComponentProps {
   Stepper: C.StepperProps;
   SlotPicker: C.SlotPickerProps;
 
-  Chip: C.ChipProps;
+  Chip: NativeChipProps;
   Badge: C.BadgeProps;
   Card: C.CardProps;
+  DoctorCard: NativeDoctorCardProps;
+  ProductCard: NativeProductCardProps;
+  OfferCard: NativeOfferCardProps;
+  Timeline: C.TimelineProps;
+  ProgressRing: C.ProgressRingProps;
   ListItem: C.ListItemProps;
   ServiceTile: C.ServiceTileProps;
   FIcon: C.FIconProps;
@@ -48,8 +61,9 @@ export interface ComponentProps {
   Sidebar: C.SidebarProps;
   MapPinCard: C.MapPinCardProps;
 
-  EmptyState: C.EmptyStateProps;
-  ErrorState: C.ErrorStateProps;
+  EmptyState: NativeEmptyStateProps;
+  ErrorState: NativeErrorStateProps;
+  OfflineState: NativeOfflineStateProps;
   Toast: C.ToastProps;
   Modal: C.ModalProps;
   Skeleton: C.SkeletonProps;

@@ -1,220 +1,117 @@
-// @ts-nocheck
-import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  StatusBar,
-  ScrollView,
-} from "react-native";
-import { router } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { STORAGE_KEYS } from "../../src/constants";
-import { useApp } from "../../src/context/AppContext";
-import { Icon, IconName } from "../../src/components/Icon";
-import { AppText, Card, Button, IconButton } from "../../src/components/ui";
+import React, { useEffect, useState } from 'react';
+import { Linking, Pressable, View } from 'react-native';
+import { router, type Href } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const PERMISSIONS: {
-  id: string;
-  icon: IconName;
-  title: string;
-  desc: string;
-}[] = [
-  {
-    id: "notifications",
-    icon: "notification",
-    title: "الإشعارات",
-    desc: "تذكيرات الأدوية والمواعيد والعروض",
-  },
-  {
-    id: "camera",
-    icon: "camera",
-    title: "الكاميرا",
-    desc: "مسح الوصفات والباركود وتصوير الأدوية",
-  },
-  {
-    id: "location",
-    icon: "location",
-    title: "الموقع",
-    desc: "البحث عن أقرب صيدلية ومختبر وطبيب",
-  },
-  {
-    id: "health",
-    icon: "monitor_heart",
-    title: "البيانات الصحية",
-    desc: "مزامنة المؤشرات الحيوية من الأجهزة",
-  },
+import { Button, Card, FIcon, Screen, SERVICE_ICONS, StatusChip, StickyFooter, type FillIconName, type ServiceTone } from '../../../packages/ui-native/src';
+import { AuthBody, AuthFooter, AuthTitle, AuthTopBar, useAuthUi } from '../../src/components/auth/AuthKit';
+import { LocalizedText } from '../../src/components/LocalizedText';
+import { step as scale } from '../../src/components/screen/ScreenKit';
+import { STORAGE_KEYS } from '../../src/constants';
+import { BELL } from '../../src/utils/notificationsFeed';
+import { permissions, type PermissionKey, type PermissionStatus } from '../../src/services/PermissionsManager';
+
+/**
+ * Onboarding, permissions — the sign-in kit's look; each permission is a card row (its filled icon on a soft tone,
+ * the name, what it is for, and "Allow"). "Allow" asks the phone's own permission dialog through PermissionsManager
+ * (the one place that talks to the OS); the row then shows the answer: "Allowed", or "Open settings" when the phone
+ * has refused (the dialog cannot be shown a second time). The row's state is read from the phone when the screen
+ * opens, so a permission already given shows as allowed.
+ */
+
+type AskedKey = Extract<PermissionKey, 'notifications' | 'camera' | 'location'>;
+
+const PERMS: { key: AskedKey; title: string; desc: string; icon: FillIconName; tone: ServiceTone }[] = [
+  { key: 'notifications', title: 'الإشعارات', desc: 'تذكيرات الأدوية والمواعيد والعروض', ...BELL },
+  { key: 'camera', title: 'الكاميرا', desc: 'مسح الوصفات والباركود وتصوير الأدوية', icon: 'camera', tone: 'violet' },
+  { key: 'location', title: 'الموقع', desc: 'البحث عن أقرب صيدلية ومختبر وطبيب', ...SERVICE_ICONS.map },
 ];
 
-export default function PermissionsScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
-  const [granted, setGranted] = useState<Set<string>>(new Set());
-  const [isLoading, setIsLoading] = useState(false);
+export default function OnboardingPermissions() {
+  const { theme, t, c, tr } = useAuthUi();
+  const [status, setStatus] = useState<Partial<Record<AskedKey, PermissionStatus>>>({});
+  const [asking, setAsking] = useState<AskedKey | null>(null);
+  const [leaving, setLeaving] = useState(false);
 
-  const handleGrant = (id: string) => {
-    setGranted((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
+  // what the phone already says (never asks)
+  useEffect(() => {
+    let live = true;
+    PERMS.forEach(({ key }) => {
+      permissions
+        .check(key)
+        .then((s) => {
+          if (live) setStatus((prev) => ({ ...prev, [key]: s }));
+        })
+        .catch(() => {});
     });
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  const allow = async (key: AskedKey) => {
+    setAsking(key);
+    const answer = await permissions.request(key);
+    setStatus((prev) => ({ ...prev, [key]: answer }));
+    setAsking(null);
   };
 
-  const handleContinue = async () => {
-    setIsLoading(true);
+  const finish = async () => {
+    setLeaving(true);
     try {
-      await AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING_DONE, "true");
-    } catch (_err) {
-      /* handled */
+      await AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING_DONE, 'true');
+    } catch {
+      // storage failure is not worth stopping the user for
     }
-    setIsLoading(false);
-    router.replace("/(auth)/welcome");
+    setLeaving(false);
+    router.replace('/(auth)/welcome' as Href);
   };
+
+  const back = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace('/(onboarding)/language' as Href);
+  };
+
+  const footer = (
+    <StickyFooter theme={theme}>
+      <AuthFooter>
+        <Button label={tr('متابعة')} variant="primary" size="lg" fullWidth loading={leaving} theme={theme} onPress={() => void finish()} testID="permissions-continue" />
+        <Pressable accessibilityRole="button" accessibilityLabel={tr('تخطي الآن')} onPress={() => void finish()} disabled={leaving} testID="permissions-skip" style={{ minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
+          <LocalizedText style={{ ...scale(t, 'body', 'medium'), color: c.text.primary }}>تخطي الآن</LocalizedText>
+        </Pressable>
+      </AuthFooter>
+    </StickyFooter>
+  );
 
   return (
-    <View style={[st.c, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle="light-content" />
-      <View style={[st.hdr, { paddingTop: insets.top + 20 }]}>
-        <View style={st.iconWrap}>
-          <Icon name="shield" size={36} color="#fff" />
-        </View>
-        <AppText variant="h2" color="#fff" align="center">
-          الصلاحيات المطلوبة
-        </AppText>
-        <AppText variant="bodySM" color="rgba(255,255,255,0.85)" align="center">
-          نحتاج بعض الأذونات لتقديم أفضل تجربة
-        </AppText>
-      </View>
-
-      <ScrollView
-        contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 120 }}
-      >
-        {PERMISSIONS.map((perm) => {
-          const isGranted = granted.has(perm.id);
-          return (
-            <TouchableOpacity
-              key={perm.id}
-              activeOpacity={0.85}
-              onPress={() => handleGrant(perm.id)}
-            >
-              <Card
-                style={[
-                  st.permCard,
-                  isGranted && { borderColor: colors.primary, borderWidth: 2 },
-                ]}
-              >
-                <View
-                  style={{
-                    flexDirection: "row-reverse",
-                    gap: 12,
-                    alignItems: "center",
-                  }}
-                >
-                  <View
-                    style={[
-                      st.permIcon,
-                      {
-                        backgroundColor: isGranted
-                          ? colors.primarySurface
-                          : colors.surfaceSecondary,
-                      },
-                    ]}
-                  >
-                    <Icon
-                      name={perm.icon}
-                      size={24}
-                      color={isGranted ? colors.primary : colors.textTertiary}
-                    />
+    <Screen theme={theme} edges={['top', 'start', 'end']} scroll footer={footer} testID="onboarding-permissions">
+      <AuthBody>
+        <AuthTopBar onBack={back} />
+        <AuthTitle title="الصلاحيات المطلوبة" sub="نحتاج بعض الأذونات لتقديم أفضل تجربة" />
+        <View style={{ marginTop: 24, gap: 12 }}>
+          {PERMS.map((p) => {
+            const s = status[p.key] ?? 'undetermined';
+            return (
+              <Card key={p.key} padding="sm" theme={theme}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <FIcon icon={p.icon} tone={p.tone} size={44} theme={theme} />
+                  <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                    <LocalizedText accessibilityRole="header" style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, textAlign: 'auto' }}>{p.title}</LocalizedText>
+                    <LocalizedText style={{ ...scale(t, 'label', 'regular'), color: c.text.secondary, textAlign: 'auto' }}>{p.desc}</LocalizedText>
                   </View>
-                  <View style={{ flex: 1, alignItems: "flex-end", gap: 3 }}>
-                    <AppText variant="h6">{perm.title}</AppText>
-                    <AppText variant="caption" color={colors.textTertiary}>
-                      {perm.desc}
-                    </AppText>
-                  </View>
-                  <View
-                    style={[
-                      st.check,
-                      {
-                        borderColor: isGranted ? colors.primary : colors.border,
-                        backgroundColor: isGranted
-                          ? colors.primary
-                          : "transparent",
-                      },
-                    ]}
-                  >
-                    {isGranted && <Icon name="check" size={14} color="#fff" />}
-                  </View>
+                  {s === 'granted' ? (
+                    <StatusChip label={tr('تم السماح')} tone="mint" theme={theme} />
+                  ) : s === 'denied' || s === 'restricted' ? (
+                    <Button label={tr('فتح الإعدادات')} variant="outline" size="sm" theme={theme} onPress={() => void Linking.openSettings()} testID={`permission-${p.key}-settings`} />
+                  ) : (
+                    <Button label={tr('السماح')} variant="outline" size="sm" loading={asking === p.key} disabled={asking !== null} theme={theme} onPress={() => void allow(p.key)} testID={`permission-${p.key}-allow`} />
+                  )}
                 </View>
               </Card>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
-
-      <View
-        style={[
-          st.bottom,
-          {
-            paddingBottom: insets.bottom + 8,
-            backgroundColor: colors.surface,
-            borderTopColor: colors.borderLight,
-          },
-        ]}
-      >
-        <Button
-          label="متابعة"
-          variant="gradient"
-          size="lg"
-          loading={isLoading}
-          onPress={handleContinue}
-        />
-        <TouchableOpacity onPress={handleContinue} style={{ marginTop: 8 }}>
-          <AppText variant="labelMD" color={colors.textTertiary} align="center">
-            تخطي الآن
-          </AppText>
-        </TouchableOpacity>
-      </View>
-    </View>
+            );
+          })}
+        </View>
+      </AuthBody>
+    </Screen>
   );
 }
-
-const st = StyleSheet.create({
-  c: { flex: 1 },
-  hdr: {
-    alignItems: "center",
-    gap: 12,
-    paddingHorizontal: 24,
-    paddingBottom: 28,
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
-  },
-  iconWrap: {
-    width: 72,
-    height: 72,
-    borderRadius: 24,
-    backgroundColor: "rgba(255,255,255,0.18)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  permCard: { borderWidth: 1, borderColor: "transparent" },
-  permIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 15,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  check: {
-    width: 24,
-    height: 24,
-    borderRadius: 7,
-    borderWidth: 2,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  bottom: { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1 },
-});
