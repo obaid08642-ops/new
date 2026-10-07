@@ -267,14 +267,39 @@ export class ProviderProfile {
   @Prop() rejected_reason?: string;
   @Prop() approved_at?: Date;
   @Prop() approved_by?: string;
+  /** Q-12: GeoJSON mirror of `location`, kept in step so the DB answers "nearest".
+   * No inner defaults: a doc without a location must have NO geoPoint at all —
+   * a half object ({type:'Point'} with no coordinates) would poison the 2dsphere index. */
+  @Prop({ type: { type: { type: String, enum: ['Point'] }, coordinates: { type: [Number] } }, _id: false })
+  geoPoint?: { type: 'Point'; coordinates: [number, number] };
 }
 export type ProviderProfileDocument = ProviderProfile & Document;
 export const ProviderProfileSchema = SchemaFactory.createForClass(ProviderProfile);
+
+/** Q-12: mirror `location: {lat, lng}` into the GeoJSON point for $geoNear. */
+function syncGeoPoint(target: any) {
+  const loc = target?.location;
+  if (loc && typeof loc.lat === 'number' && typeof loc.lng === 'number') {
+    target.geoPoint = { type: 'Point', coordinates: [loc.lng, loc.lat] };
+  }
+}
 
 ProviderProfileSchema.pre('save', function (next) {
   if (this.isModified('name_ar') || this.isModified('name_en') || !this.slug) {
     const name = this.name_ar || this.name_en || 'provider';
     this.slug = buildSlug(name, this.id);
   }
+  syncGeoPoint(this);
   next();
 });
+
+for (const hook of ['updateOne', 'updateMany', 'findOneAndUpdate'] as const) {
+  ProviderProfileSchema.pre(hook, function (next) {
+    const upd: any = (this as any).getUpdate?.() || {};
+    if (upd.location) syncGeoPoint(upd);
+    else if (upd.$set?.location) syncGeoPoint(upd.$set);
+    next();
+  });
+}
+
+ProviderProfileSchema.index({ geoPoint: '2dsphere' });
