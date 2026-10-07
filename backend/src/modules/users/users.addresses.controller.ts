@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, UseGuards, BadRequestException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CurrentUser, JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { v4 as uuid } from 'uuid';
@@ -54,7 +54,7 @@ export class UsersAddressesController {
       await this.users.updatePatientProfile(id, { addresses });
       return addresses[idx];
     }
-    return null;
+    throw new NotFoundException('address_not_found');
   }
 
   @Delete(':addressId')
