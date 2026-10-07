@@ -1,9 +1,9 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { EmergencyService } from './emergency.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { ServiceUnavailableException } from '@nestjs/common';
-import { TriggerDto, TrackDto, ResolveDto, ClaimDto, AssignDto, Escalate997Dto} from './emergency.dto';
+import { TriggerDto, TrackDto, ResolveDto, ClaimDto, AssignDto, Escalate997Dto } from './emergency.dto';
 
 @Controller('emergency')
 @UseGuards(JwtAuthGuard)
@@ -95,5 +95,36 @@ export class EmergencyController {
   @Roles(UserRole.ADMIN)
   resolve(@Param('id') id: string, @CurrentUser() user: any, @Body() body: ResolveDto) {
     return this.svc.resolve(id, user, body?.notes);
+  }
+
+  /** P22.14 Safety — Red-flag symptom check (chat/AI triage integration) */
+  @Post('red-flags/check')
+  checkRedFlags(@Body() body: { text: string; lang?: 'ar' | 'en' }) {
+    const { detectRedFlags, checkAndGenerate997, generate997Response, EMERGENCY_NUMBER, EMERGENCY_NUMBER_LABEL_AR, EMERGENCY_NUMBER_LABEL_EN } = require('./emergency.service');
+    const matches = detectRedFlags(body.text);
+    const response997 = checkAndGenerate997(body.text, body.lang || 'ar');
+    return {
+      has_red_flags: !!matches,
+      red_flags: matches,
+      emergency_number: EMERGENCY_NUMBER,
+      emergency_number_label: body.lang === 'ar' ? EMERGENCY_NUMBER_LABEL_AR : EMERGENCY_NUMBER_LABEL_EN,
+      response997: response997,
+    };
+  }
+
+  /** P22.14 Safety — Monthly SOS drill (admin only) */
+  @Roles(UserRole.ADMIN)
+  @Post('drill/run')
+  async runSosDrill(@CurrentUser() user: any) {
+    const { runSosDrill } = require('./emergency.service');
+    const conn = (this.svc as any).conn;
+    return runSosDrill(this.svc, user, conn);
+  }
+
+  @Roles(UserRole.ADMIN)
+  @Get('drill/reports')
+  async getDrillReports(@Query('limit') limit = 10) {
+    const conn = (this.svc as any).conn;
+    return conn.db.collection('sos_drill_reports').find({}).sort({ started_at: -1 }).limit(Number(limit)).toArray();
   }
 }

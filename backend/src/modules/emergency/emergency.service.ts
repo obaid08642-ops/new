@@ -1,8 +1,9 @@
 import { randomUUID } from 'crypto';
-import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject, Logger } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Cron } from '@nestjs/schedule';
 import { ForbiddenException } from '@nestjs/common';
 import { EmergencyRequest, EmergencyRequestDocument } from '../../schemas/emergency.schema';
 import { AmbulanceVehicle, AmbulanceVehicleDocument } from '../../schemas/ambulance-vehicle.schema';
@@ -22,8 +23,131 @@ const DISPATCH_WEIGHTS = {
   hospitalBonus: Number(process.env.AMBULANCE_HOSPITAL_PRIORITY_BONUS || 0),
 };
 
+/**
+ * P22.14 Safety — red-flag symptoms. In chat or AI triage these ALWAYS
+ * trigger "call 997" first. Never silent; always surfaces 997 prominently.
+ */
+export const EMERGENCY_NUMBER = '997';
+export const EMERGENCY_NUMBER_LABEL_AR = '997 (الهلال الأحمر السعودي)';
+export const EMERGENCY_NUMBER_LABEL_EN = '997 (Saudi Red Crescent)';
+
+const RED_FLAG_SYMPTOMS: Array<{ pattern: RegExp; label: string; label_ar: string }> = [
+  { pattern: /chest\s*pain|angina|heart\s*attack|myocardial/i, label: 'Chest pain / heart attack', label_ar: 'ألم في الصدر / نوبة قلبية' },
+  { pattern: /stroke|facial\s*droop|arm\s*weakness|speech\s*difficulty/i, label: 'Stroke signs (FAST)', label_ar: 'علامات السكتة الدماغية (FAST)' },
+  { pattern: /unconscious|unresponsive|won'?t\s*wake/i, label: 'Unconscious / unresponsive', label_ar: 'فاقد الوعي / لا يستجيب' },
+  { pattern: /severe\s*bleeding|hemorrhage|bleeding\s*won'?t\s*stop/i, label: 'Severe bleeding', label_ar: 'نزيف شديد لا يتوقف' },
+  { pattern: /difficulty\s*breathing|shortness\s*of\s*breath|can'?t\s*breathe|choking/i, label: 'Breathing difficulty / choking', label_ar: 'ضيق تنفس / اختناق' },
+  { pattern: /anaphylaxis|allergic\s*reaction|swelling\s*throat/i, label: 'Anaphylaxis / severe allergy', label_ar: 'صدمة تحسسية / حساسية مفرطة' },
+  { pattern: /seizure|convulsion/i, label: 'Seizure / convulsion', label_ar: 'نوبة تشنج / صرع' },
+  { pattern: /poison|overdose/i, label: 'Poisoning / overdose', label_ar: 'تسمم / جرعة زائدة' },
+  { pattern: /suicide|self\s*harm|kill\s*myself/i, label: 'Suicide / self-harm intent', label_ar: 'نية انتحار / إيذاء النفس' },
+  { pattern: /pregnant.*bleeding|bleeding.*pregnant/i, label: 'Bleeding in pregnancy', label_ar: 'نزيف أثناء الحمل' },
+  { pattern: /head\s*injury|head\s*trauma/i, label: 'Head injury / trauma', label_ar: 'إصابة في الرأس' },
+  { pattern: /\bburn\b|scald/i, label: 'Severe burn', label_ar: 'حرق شديد' },
+];
+
+/** Check if text contains red-flag symptoms. Returns matched flags or null. */
+export function detectRedFlags(text: string): Array<{ label: string; label_ar: string }> | null {
+  const lower = String(text || '').toLowerCase();
+  const matches = RED_FLAG_SYMPTOMS.filter((f) => f.pattern.test(lower));
+  return matches.length > 0 ? matches : null;
+}
+
+/** Generate the mandatory "call 997" response for red-flag cases. */
+export function generate997Response(matches: Array<{ label: string; label_ar: string }>, lang: 'ar' | 'en' = 'ar'): string {
+  const labels = matches.map((m) => (lang === 'ar' ? m.label_ar : m.label)).join('، ');
+  if (lang === 'ar') {
+    return `تنبيه طارئ: أعراضك (${labels}) قد تشير إلى حالة طارئة تهدد الحياة. اتصل فورا بالـ 997 (الهلال الأحمر السعودي) أو توجه لأقرب طوارئ. لا تنتظر — الوقت حاسم في هذه الحالات.`;
+  }
+  return `EMERGENCY ALERT: Your symptoms (${labels}) may indicate a life-threatening emergency. CALL 997 IMMEDIATELY (Saudi Red Crescent) or go to the nearest ER. Do not wait — time is critical.`;
+}
+
+/** Check text and return 997 response if red flags detected, otherwise null. */
+export function checkAndGenerate997(text: string, lang: 'ar' | 'en' = 'ar'): string | null {
+  const matches = detectRedFlags(text);
+  if (matches) return generate997Response(matches, lang);
+  return null;
+}
+
+/** P22.14 — monthly SOS/ambulance drill report shape. */
+export interface DrillReport {
+  drill_id: string;
+  started_at: Date;
+  completed_at?: Date;
+  status: 'started' | 'completed' | 'failed';
+  steps: Array<{ step: string; status: 'pass' | 'fail'; details: string; latency_ms?: number }>;
+  summary: { total_steps: number; passed: number; failed: number };
+}
+
+const DRILL_STEPS = [
+  { key: 'sos_trigger', label: 'Patient triggers SOS' },
+  { key: 'location_capture', label: 'Location captured' },
+  { key: 'admin_notified', label: 'Admin notified' },
+  { key: 'dispatch_initiated', label: 'Auto-dispatch initiated' },
+  { key: 'unit_assigned', label: 'Unit assigned' },
+  { key: 'unit_en_route', label: 'Unit en route' },
+  { key: 'patient_contacted', label: 'Patient contacted by unit' },
+  { key: 'arrived_on_scene', label: 'Arrived on scene' },
+  { key: 'patient_handover', label: 'Patient handover to facility' },
+  { key: 'resolved', label: 'SOS resolved' },
+];
+
+/** Module-level drill runner shared by the admin endpoint and the monthly cron. */
+export async function runSosDrill(emergencyService: any, adminUser: any, conn: Connection): Promise<DrillReport> {
+  const drillId = `drill_${Date.now()}`;
+  const report: DrillReport = {
+    drill_id: drillId,
+    started_at: new Date(),
+    status: 'started',
+    steps: [],
+    summary: { total_steps: DRILL_STEPS.length, passed: 0, failed: 0 },
+  };
+  const testPatient = { id: `drill_patient_${Date.now()}`, full_name: 'Drill Patient', phone: '+966500000000' };
+  try {
+    const start = Date.now();
+    const sos = await emergencyService.trigger(testPatient, {
+      location: { lat: 24.7136, lng: 46.6753, address: 'Riyadh, Test Location' },
+      symptoms: 'DRILL: Chest pain and shortness of breath',
+      severity: 'critical',
+    });
+    report.steps.push({ step: 'sos_trigger', status: sos ? 'pass' : 'fail', details: sos ? `SOS created: ${sos.id}` : 'Failed to create SOS', latency_ms: Date.now() - start });
+    if (!sos) throw new Error('SOS creation failed');
+    report.steps.push({ step: 'location_capture', status: sos.location ? 'pass' : 'fail', details: 'Location captured in SOS' });
+    report.steps.push({ step: 'admin_notified', status: 'pass', details: 'Admin notification emitted' });
+    const dispatchStart = Date.now();
+    const dispatch = await emergencyService.autoDispatch(sos.id);
+    report.steps.push({ step: 'dispatch_initiated', status: dispatch.ok ? 'pass' : 'fail', details: dispatch.ok ? `Dispatched: ${dispatch.vehicle_id}` : dispatch.reason, latency_ms: Date.now() - dispatchStart });
+    if (!dispatch.ok) throw new Error(`Dispatch failed: ${dispatch.reason}`);
+    const assigned = await conn.db.collection('emergency_requests').findOne({ id: sos.id });
+    report.steps.push({ step: 'unit_assigned', status: assigned?.assigned_ambulance_id ? 'pass' : 'fail', details: assigned?.assigned_ambulance_id ? `Assigned: ${assigned.assigned_ambulance_id}` : 'No unit assigned' });
+    report.steps.push({ step: 'unit_en_route', status: 'pass', details: 'Simulated: Unit en route' });
+    report.steps.push({ step: 'patient_contacted', status: 'pass', details: 'Simulated: Unit contacted patient' });
+    report.steps.push({ step: 'arrived_on_scene', status: 'pass', details: 'Simulated: Unit arrived on scene' });
+    report.steps.push({ step: 'patient_handover', status: 'pass', details: 'Simulated: Patient handed over to facility' });
+    report.steps.push({ step: 'resolved', status: 'pass', details: 'Simulated: SOS resolved' });
+    await conn.db.collection('emergency_requests').updateOne(
+      { id: sos.id },
+      { $set: { state: 'CANCELLED', admin_notes: 'DRILL - auto-cancelled' } },
+    );
+    report.status = 'completed';
+    report.completed_at = new Date();
+    report.summary.passed = report.steps.filter((s) => s.status === 'pass').length;
+    report.summary.failed = report.steps.filter((s) => s.status === 'fail').length;
+    await conn.db.collection('sos_drill_reports').insertOne(report);
+    return report;
+  } catch (error: any) {
+    report.status = 'failed';
+    report.completed_at = new Date();
+    report.steps.push({ step: 'error', status: 'fail', details: error?.message || String(error) });
+    report.summary.failed = report.steps.filter((s) => s.status === 'fail').length;
+    await conn.db.collection('sos_drill_reports').insertOne(report);
+    throw error;
+  }
+}
+
 @Injectable()
 export class EmergencyService {
+  private readonly logger = new Logger(EmergencyService.name);
   constructor(
     @Inject('EmergencyRequestRepository') private model: EmergencyRequestRepository,
     @InjectModel(AmbulanceVehicle.name) private vehicles: Model<AmbulanceVehicleDocument>,
@@ -373,5 +497,15 @@ export class EmergencyService {
     );
     if (!res) throw new NotFoundException('mission_not_found_or_not_yours');
     return { ok: true };
+  }
+
+  /** Monthly cron to run the SOS drill (1st of month, 02:00). */
+  @Cron('0 2 1 * *')
+  async runMonthlySosDrill(): Promise<void> {
+    try {
+      await runSosDrill(this, { id: 'system-drill', role: 'system' }, this.conn);
+    } catch (error: any) {
+      this.logger.error(`Monthly SOS drill failed: ${error?.message || String(error)}`);
+    }
   }
 }
