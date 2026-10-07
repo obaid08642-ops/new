@@ -29,6 +29,18 @@ export class ManualRequestDto {
   details?: string;
 }
 
+/** Single prescription attachment (Q-11 one shape, as the readers expect it).
+ * Writer and readers share {type, uri}: broadcast lists and the insurance
+ * prescription check read `uri`; no base64 bytes travel in pharmacy lists. */
+export class PrescriptionAttachmentDto {
+  @IsIn(['image', 'pdf', 'voice', 'text'])
+  type: 'image' | 'pdf' | 'voice' | 'text';
+
+  @IsOptional()
+  @IsString()
+  uri?: string;
+}
+
 export class CreateDto {
   @IsOptional()
   @IsArray()
@@ -46,7 +58,9 @@ export class CreateDto {
 
   @IsOptional()
   @IsArray()
-  prescription_attachments?: unknown[];
+  @ValidateNested({ each: true })
+  @Type(() => PrescriptionAttachmentDto)
+  prescription_attachments?: PrescriptionAttachmentDto[];
 
   @IsOptional()
   @IsString()
