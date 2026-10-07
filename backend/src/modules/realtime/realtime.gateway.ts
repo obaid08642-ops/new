@@ -1,4 +1,5 @@
 import { isAccessTokenPayload, authenticateSocketToken, revalidateOpenSockets, JwtAuthGuard } from '../../common/auth.guard';
+import { resolveRedisRoles } from '../../common/redis-roles';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Logger, Optional } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -7,6 +8,8 @@ import {
   SubscribeMessage, WebSocketGateway, WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { createAdapter } from '@socket.io/redis-adapter';
+import Redis from 'ioredis';
 import { RealtimeService } from './realtime.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -167,11 +170,17 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     this.revalidateTimer = setInterval(() => { this.revalidateSockets().catch((e) => this.logger.warn(`Socket re-check failed: ${e?.message}`)); }, every);
     this.revalidateTimer.unref?.();
     this.logger.log('WebSocket Gateway initialized');
-    // 14.13: Redis adapter intentionally NOT attached — the
-    // `@socket.io/redis-adapter` package is not installed (see note above).
-    // Logged once so operators know horizontal emit fan-out needs the adapter.
-    if (!this.redisLive()) {
-      this.logger.log('Socket.IO Redis adapter skipped (package not installed / Redis unavailable); presence/queues use RedisService with in-memory fallback');
+
+    // 14.13: Redis adapter for cross-worker emit fan-out
+    const { shared, queueUrl, cacheUrl } = resolveRedisRoles(process.env);
+    if (!shared) {
+      const redis = new Redis(queueUrl);
+      const pubClient = redis.duplicate();
+      const subClient = redis.duplicate();
+      server.adapter(createAdapter(pubClient, subClient));
+      this.logger.log(`Socket.IO Redis adapter enabled (queue: ${queueUrl}, cache: ${cacheUrl})`);
+    } else {
+      this.logger.log('Socket.IO Redis adapter skipped (both roles share same Redis deployment)');
     }
   }
 
