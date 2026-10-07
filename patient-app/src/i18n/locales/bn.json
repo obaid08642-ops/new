@@ -1189,6 +1189,7 @@
   "consult.track.homeDoctor": "বাসায় আসা ডাক্তার",
   "consult.track.minutes": "মিনিট",
   "consult.track.confirmed": "অনুরোধ নিশ্চিত হয়েছে",
+  "consult.track.enRoute": "ডাক্তার পথে আছেন",
   "consult.track.arrived": "ডাক্তার পৌঁছেছেন",
   "consult.track.done": "ভিজিট সম্পন্ন",
   "consult.track.message": "ডাক্তারকে বার্তা পাঠান",

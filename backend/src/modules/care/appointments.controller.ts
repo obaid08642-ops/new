@@ -55,6 +55,18 @@ export class AppointmentsController {
     return this.svc.checkIn(id, user);
   }
 
+  @Patch(':id/en-route')
+  @Roles(UserRole.DOCTOR, UserRole.ADMIN)
+  enRoute(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.enRoute(id, user);
+  }
+
+  @Patch(':id/arrive')
+  @Roles(UserRole.DOCTOR, UserRole.ADMIN)
+  arrive(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.arrive(id, user);
+  }
+
   @Patch(':id/start')
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   start(@Param('id') id: string, @CurrentUser() user: any) {

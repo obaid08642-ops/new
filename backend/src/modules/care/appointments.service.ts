@@ -403,6 +403,22 @@ export class AppointmentsService {
     return this.transition(id, APPT_STATES.CHECKED_IN, user);
   }
 
+  /** Q-15: provider start-trip — home visits only. Emits appointment.en_route. */
+  async enRoute(id: string, user: any) {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    if (appt.service_type !== 'home') throw new BadRequestException('en_route is for home visits only');
+    return this.transition(id, APPT_STATES.EN_ROUTE, user, 'doctor-en-route');
+  }
+
+  /** Q-15: provider arrived — home visits only. Emits appointment.arrived. */
+  async arrive(id: string, user: any) {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    if (appt.service_type !== 'home') throw new BadRequestException('arrived is for home visits only');
+    return this.transition(id, APPT_STATES.ARRIVED, user, 'doctor-arrived');
+  }
+
   async start(id: string, user: any) {
     return this.transition(id, APPT_STATES.IN_PROGRESS, user);
   }

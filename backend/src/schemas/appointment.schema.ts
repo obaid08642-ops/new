@@ -8,6 +8,9 @@ import { InsuranceDetails, InsuranceDetailsSchema } from './insurance.schema';
  *   PENDING → CONFIRMED → CHECKED_IN → IN_PROGRESS → COMPLETED
  *           ↘ CANCELLED   ↘ NO_SHOW
  *           ↘ RESCHEDULED → CONFIRMED
+ *   Home visits additionally travel CONFIRMED → EN_ROUTE → ARRIVED → IN_PROGRESS
+ *   (Q-15: the provider app's start-trip / arrived actions; the patient reads
+ *   them from GET /care/appointments/:id and the appointment.* events).
  *
  * NOTE: We keep this enum as plain strings (not importing from common/enums.ts)
  * because the existing AppointmentStatus enum there is a different, simpler model
@@ -19,6 +22,8 @@ export const APPT_STATES = {
   CONFIRMED: 'CONFIRMED',
   RESCHEDULED: 'RESCHEDULED',
   CHECKED_IN: 'CHECKED_IN',
+  EN_ROUTE: 'EN_ROUTE',
+  ARRIVED: 'ARRIVED',
   IN_PROGRESS: 'IN_PROGRESS',
   COMPLETED: 'COMPLETED',
   CANCELLED: 'CANCELLED',
@@ -28,9 +33,11 @@ export type ApptState = typeof APPT_STATES[keyof typeof APPT_STATES];
 
 export const APPT_TRANSITIONS: Record<ApptState, ApptState[]> = {
   PENDING: ['CONFIRMED', 'CANCELLED', 'RESCHEDULED'],
-  CONFIRMED: ['CHECKED_IN', 'CANCELLED', 'RESCHEDULED', 'NO_SHOW'],
+  CONFIRMED: ['CHECKED_IN', 'EN_ROUTE', 'CANCELLED', 'RESCHEDULED', 'NO_SHOW'],
   RESCHEDULED: ['CONFIRMED', 'CANCELLED'],
   CHECKED_IN: ['IN_PROGRESS', 'CANCELLED'],
+  EN_ROUTE: ['ARRIVED', 'CANCELLED'],
+  ARRIVED: ['IN_PROGRESS', 'CANCELLED'],
   IN_PROGRESS: ['COMPLETED', 'CANCELLED'],
   COMPLETED: [],
   CANCELLED: [],
