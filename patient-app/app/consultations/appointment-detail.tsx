@@ -10,6 +10,7 @@ import { apiFetch } from '../../src/utils/api';
 import { dateLocale } from '@/utils/dates';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { ScreenState } from '../../src/components/ScreenStates';
+import { CreateReview } from '../../src/components/reviews/CreateReview';
 
 export default function AppointmentDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -19,6 +20,8 @@ export default function AppointmentDetailScreen() {
   const [appointment, setAppointment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Phase 3.4: provider review composer, opened only after completion.
+  const [showCreateReview, setShowCreateReview] = useState(false);
 
   useEffect(() => {
     if (!params.appointmentId) return;
@@ -141,10 +144,15 @@ export default function AppointmentDetailScreen() {
           </TouchableOpacity>
         )}
 
-        {/* Rate the experience (M4) — only after completion */}
+        {/* Rate the experience (M4) — only after completion.
+            Phase 3.4: attributable provider review opens CreateReview; without a
+            doctor id we keep the honest legacy /reviews flow. */}
         {appointment?.status === 'COMPLETED' && (
           <TouchableOpacity
-            onPress={() => router.push({ pathname: '/reviews', params: { booking_kind: 'appointment', booking_id: appointment?.id, providerName: appointment?.doctor?.name || appointment?.doctor_name || '' } })}
+            onPress={() => {
+              if (appointment?.doctor_id && appointment?.id) setShowCreateReview(true);
+              else router.push({ pathname: '/reviews', params: { booking_kind: 'appointment', booking_id: appointment?.id, providerName: appointment?.doctor?.name || appointment?.doctor_name || '' } });
+            }}
             style={[styles.card, { backgroundColor: colors.surface, borderColor: '#F59E0B', borderWidth: 1, flexDirection: 'row-reverse', alignItems: 'center', gap: 10 }]}
           >
             <Icon name="star" size={20} color="#F59E0B" />
@@ -172,6 +180,22 @@ export default function AppointmentDetailScreen() {
           ))}
         </View>
       </ScrollView>
+
+      {/* Phase 3.4: provider review composer, completed-state gate */}
+      <Modal transparent={false} visible={showCreateReview} animationType="slide" onRequestClose={() => setShowCreateReview(false)}>
+        <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top + 16 }]}>
+          {appointment?.doctor_id && appointment?.id ? (
+            <CreateReview
+              providerId={String(appointment.doctor_id)}
+              providerType="doctor"
+              sourceType="consultation"
+              sourceId={String(appointment.id)}
+              onSuccess={() => setShowCreateReview(false)}
+              onCancel={() => setShowCreateReview(false)}
+            />
+          ) : null}
+        </View>
+      </Modal>
 
       {/* Insurance Co-Pay Lock Modal */}
       {appointment?.status === 'PENDING_COPAY' && (

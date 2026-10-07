@@ -18,6 +18,7 @@ import { brand } from "../../src/theme/brand";
 import { Icon } from "../../src/components/Icon";
 import { ScreenState } from "../../src/components/ScreenStates";
 import BookingConfirmForm from "../../src/components/BookingConfirmForm";
+import { RatingPrompt } from "../../src/components/rating/RatingPrompt";
 
 type Mode = "confirm" | "success" | "pending";
 
@@ -55,6 +56,8 @@ export default function BookingStatusScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [loading, setLoading] = useState(false);
+  // Phase 3.4: post-booking rating overlay on the success screen.
+  const [showRating, setShowRating] = useState(true);
 
   const refresh = useCallback(async () => {
     if (!appointmentId) { setError(AR ? "معرّف الموعد مفقود" : "Missing appointment identifier"); return; }
@@ -111,6 +114,10 @@ export default function BookingStatusScreen() {
         <TouchableOpacity style={styles.secondaryBtn} onPress={() => router.push(!isToday || isInsurance ? "/consultations/appointments" : "/(tabs)/consultations")} activeOpacity={0.8}>
           <AppText style={styles.secondaryBtnText}>{AR ? "مواعيدي" : "My appointments"}</AppText>
         </TouchableOpacity>
+        {/* Phase 3.4: booking-completed rating overlay */}
+        {showRating && (
+          <RatingPrompt trigger="booking_completed" onDismiss={() => setShowRating(false)} />
+        )}
       </View>
     </View>
   );
