@@ -1,0 +1,142 @@
+{
+  "AUTHENTICATION_REQUIRED": {
+    "en": {
+      "message": "You need to sign in to continue.",
+      "nextStep": "Sign in and try again."
+    },
+    "ar": {
+      "message": "يجب تسجيل الدخول للمتابعة.",
+      "nextStep": "سجّل الدخول ثم حاول مرة أخرى."
+    }
+  },
+  "INSUFFICIENT_PERMISSION": {
+    "en": {
+      "message": "You don't have permission to do this.",
+      "nextStep": "Contact support if you think this is a mistake."
+    },
+    "ar": {
+      "message": "ليس لديك صلاحية لتنفيذ هذا الإجراء.",
+      "nextStep": "تواصل مع الدعم إذا كنت تعتقد أن هذا خطأ."
+    }
+  },
+  "PRESCRIPTION_REQUIRED": {
+    "en": {
+      "message": "This item needs a valid prescription.",
+      "nextStep": "Upload your prescription to continue."
+    },
+    "ar": {
+      "message": "هذا الصنف يتطلب وصفة طبية سارية.",
+      "nextStep": "ارفع الوصفة الطبية للمتابعة."
+    }
+  },
+  "NO_AVAILABILITY": {
+    "en": {
+      "message": "No availability right now.",
+      "nextStep": "Try another time or date."
+    },
+    "ar": {
+      "message": "لا يوجد توفر حالياً.",
+      "nextStep": "جرّب وقتاً أو تاريخاً آخر."
+    }
+  },
+  "SERVICE_UNAVAILABLE": {
+    "en": {
+      "message": "This service is temporarily unavailable.",
+      "nextStep": "Please try again in a little while."
+    },
+    "ar": {
+      "message": "هذه الخدمة غير متاحة مؤقتاً.",
+      "nextStep": "يرجى المحاولة مرة أخرى بعد قليل."
+    }
+  },
+  "PROVIDER_NOT_AVAILABLE": {
+    "en": {
+      "message": "No provider is available for this request.",
+      "nextStep": "Try again later or choose another provider."
+    },
+    "ar": {
+      "message": "لا يوجد مقدم خدمة متاح لهذا الطلب.",
+      "nextStep": "حاول لاحقاً أو اختر مقدم خدمة آخر."
+    }
+  },
+  "PRODUCT_OUT_OF_STOCK": {
+    "en": {
+      "message": "This product is out of stock.",
+      "nextStep": "Try an alternative or check back later."
+    },
+    "ar": {
+      "message": "هذا المنتج غير متوفر حالياً.",
+      "nextStep": "جرّب بديلاً أو تحقق لاحقاً."
+    }
+  },
+  "PAYMENT_REQUIRED": {
+    "en": {
+      "message": "Payment is required to complete this.",
+      "nextStep": "Complete the payment to continue."
+    },
+    "ar": {
+      "message": "يلزم الدفع لإتمام هذا الإجراء.",
+      "nextStep": "أكمل الدفع للمتابعة."
+    }
+  },
+  "INSURANCE_NOT_SUPPORTED": {
+    "en": {
+      "message": "Your insurance doesn't cover this.",
+      "nextStep": "Continue with self-payment or contact your insurer."
+    },
+    "ar": {
+      "message": "التأمين الخاص بك لا يغطي هذه الخدمة.",
+      "nextStep": "تابع بالدفع الذاتي أو تواصل مع شركة التأمين."
+    }
+  },
+  "LOCATION_NOT_SUPPORTED": {
+    "en": {
+      "message": "We don't serve this location yet.",
+      "nextStep": "Try another address or pickup instead."
+    },
+    "ar": {
+      "message": "لا نغطي هذا الموقع بعد.",
+      "nextStep": "جرّب عنواناً آخر أو اختر الاستلام."
+    }
+  },
+  "DUPLICATE_TRANSACTION": {
+    "en": {
+      "message": "This was already submitted.",
+      "nextStep": "Check your orders before trying again."
+    },
+    "ar": {
+      "message": "تم إرسال هذا الطلب مسبقاً.",
+      "nextStep": "تحقق من طلباتك قبل إعادة المحاولة."
+    }
+  },
+  "INVALID_INPUT": {
+    "en": {
+      "message": "Some details look incorrect.",
+      "nextStep": "Review the highlighted fields and try again."
+    },
+    "ar": {
+      "message": "بعض البيانات تبدو غير صحيحة.",
+      "nextStep": "راجع الحقول المطلوبة وحاول مرة أخرى."
+    }
+  },
+  "RATE_LIMITED": {
+    "en": {
+      "message": "Too many attempts. Please slow down.",
+      "nextStep": "Wait a moment, then try again."
+    },
+    "ar": {
+      "message": "محاولات كثيرة جداً. يرجى التمهل.",
+      "nextStep": "انتظر قليلاً ثم حاول مرة أخرى."
+    }
+  },
+  "UNKNOWN_ERROR": {
+    "en": {
+      "message": "Something went wrong. Please try again.",
+      "nextStep": "If it keeps happening, contact support."
+    },
+    "ar": {
+      "message": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+      "nextStep": "إذا استمرت المشكلة، تواصل مع الدعم."
+    }
+  }
+}

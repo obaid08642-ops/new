@@ -1,0 +1,67 @@
+.button {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--line, #e2e8f0);
+  border-radius: 50%;
+  background: var(--surface, #fff);
+  color: var(--ink, #1e293b);
+  box-shadow: var(--shadow-lg, 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1));
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(1rem);
+  transition: all 0.3s var(--ease-premium, ease-out);
+}
+
+.button.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.button:hover {
+  border-color: var(--brand, #b8e030);
+  background: var(--brand-soft, #e8f5d6);
+  color: var(--brand-deep, #1e332e);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg, 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1));
+}
+
+.button:focus-visible {
+  outline: 3px solid var(--focus-ring-color, rgba(184, 224, 48, 0.4));
+  outline-offset: 3px;
+}
+
+.button:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 480px) {
+  .button {
+    bottom: 1rem;
+    right: 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+
+  .button.visible {
+    transform: none;
+  }
+
+  .button:hover {
+    transform: none;
+  }
+}
