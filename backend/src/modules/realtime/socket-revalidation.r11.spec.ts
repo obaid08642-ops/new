@@ -126,8 +126,7 @@ describe('socket auth fails closed and is re-checked (R11 second review)', () =>
   });
 
   it('ChatGateway records the authenticated user on the socket for the re-check', async () => {
-    const guard = { canActivate: jest.fn(async (ctx: any) => { ctx.switchToHttp().getRequest().user = { id: 'u7', role: 'patient', tv: 0 }; return true; }) };
-    const gw = new ChatGateway({} as never, guard as never);
+    const gw = new ChatGateway({} as never);
     const s = { id: 'c1', handshake: { auth: { token: jwt.sign({ sub: 'u7', id: 'u7', role: 'patient' }, secret) }, headers: {} }, join: jest.fn(), disconnect: jest.fn(), rooms: new Set<string>() } as any;
     await gw.handleConnection(s);
     expect(s.data.user).toEqual(expect.objectContaining({ id: 'u7', tv: 0 }));
