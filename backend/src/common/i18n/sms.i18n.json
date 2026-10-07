@@ -1,0 +1,98 @@
+{
+  "OTP_CODE": {
+    "ar": "رمز التحقق الخاص بك في نبض بلس: {{code}}. صالح لمدة {{minutes}} دقائق.",
+    "en": "Your Nabd Plus verification code: {{code}}. Valid for {{minutes}} minutes.",
+    "ur": "آپ کا نبض بلس تصدیقی کوڈ: {{code}}. {{minutes}} منٹ تک درست۔",
+    "hi": "आपका नाब्ड प्लस सत्यापन कोड: {{code}}. {{minutes}} मिनट के लिए वैध।",
+    "bn": "আপনার ন্যাবড প্লাস যাচাইকরণ কোড: {{code}}. {{minutes}} মিনিটের জন্য বৈধ।",
+    "fil": "Your Nabd Plus verification code: {{code}}. Valid for {{minutes}} minutes."
+  },
+  "APPOINTMENT_REMINDER": {
+    "ar": "تذكير: موعدك مع {{provider}} غداً في {{time}}. رد بـ 'نعم' للتأكيد أو 'لا' للإلغاء.",
+    "en": "Reminder: Your appointment with {{provider}} tomorrow at {{time}}. Reply 'YES' to confirm or 'NO' to cancel.",
+    "ur": "یاد دہانی: آپ کی ملاقات {{provider}} کل {{time}} بوجے۔ طے کرنے کے لیے 'جی' یا منسوخ کرنے کے لیے 'نہیں' جواب دیں۔",
+    "hi": "रिमाइंडर: {{provider}} के साथ आपका अपॉइंटमेंट कल {{time}} पर। पुष्टि के लिए 'हाँ' या रद्द के लिए 'नहीं' जवाब दें।",
+    "bn": "রিমাইন্ডার: {{provider}} এর সাথে আপনার অ্যাপয়েন্টমেন্ট আগামীকাল {{time}} টায়। নিশ্চিত করতে 'হ্যাঁ' বা বাতিল করতে 'না' جواب দিন।",
+    "fil": "Reminder: Ang appointment mo kay {{provider}} bukas sa {{time}}. Reply 'YES' para confirm o 'NO' para cancel."
+  },
+  "APPOINTMENT_CONFIRMED": {
+    "ar": "تم تأكيد موعدك مع {{provider}} في {{date}} الساعة {{time}}.",
+    "en": "Appointment confirmed with {{provider}} on {{date}} at {{time}}.",
+    "ur": "ملاقات طے ہوئی {{provider}} کے ساتھ {{date}} کو {{time}} پر۔",
+    "hi": "{{provider}} के साथ अपॉइंटमेंट {{date}} को {{time}} कन्फर्म।",
+    "bn": "{{provider}} এর সাথে অ্যাপয়েন্টমেন্ট {{date}} তে {{time}} টায় নিশ্চিত।",
+    "fil": "Confirmed ang appointment kay {{provider}} sa {{date}} ng {{time}}."
+  },
+  "ORDER_CONFIRMED": {
+    "ar": "تم تأكيد طلبك #{{orderNumber}}. المجموع: {{total}}.",
+    "en": "Order #{{orderNumber}} confirmed. Total: {{total}}.",
+    "ur": "آرڈر #{{orderNumber}} طے ہوا۔ کل: {{total}}۔",
+    "hi": "ऑर्डर #{{orderNumber}} कन्फर्म। कुल: {{total}}।",
+    "bn": "অর্ডার #{{orderNumber}} নিশ্চিত। মোট: {{total}}।",
+    "fil": "Order #{{orderNumber}} confirmed. Total: {{total}}."
+  },
+  "ORDER_SHIPPED": {
+    "ar": "تم شحن طلبك #{{orderNumber}}. رقم التتبع: {{tracking}}",
+    "en": "Order #{{orderNumber}} shipped. Tracking: {{tracking}}",
+    "ur": "آرڈر #{{orderNumber}} بھیج دیا گیا۔ ٹریکنگ: {{tracking}}",
+    "hi": "ऑर्डर #{{orderNumber}} शिप्ड। ट्रैकिंग: {{tracking}}",
+    "bn": "অর্ডার #{{orderNumber}} শিপড। ট্র্যাকিং: {{tracking}}",
+    "fil": "Order #{{orderNumber}} shipped. Tracking: {{tracking}}"
+  },
+  "ORDER_DELIVERED": {
+    "ar": "تم تسليم طلبك #{{orderNumber}}. شكراً لاختيارك نبض بلس!",
+    "en": "Order #{{orderNumber}} delivered. Thanks for choosing Nabd Plus!",
+    "ur": "آرڈر #{{orderNumber}} ڈیلیور ہوا۔ نبض بلس کو منتخب کرنے کا شکریہ!",
+    "hi": "ऑर्डर #{{orderNumber}} डिलीवर। नाब्ड प्लस चुनने के लिए धन्यवाद!",
+    "bn": "অর্ডার #{{orderNumber}} ডেলিভার্ড। ন্যাবড প্লাস বেছে নেওয়ার জন্য ধন্যবাদ!",
+    "fil": "Order #{{orderNumber}} delivered. Thanks for choosing Nabd Plus!"
+  },
+  "PRESCRIPTION_APPROVED": {
+    "ar": "تمت الموافقة على وصفتك للطلب #{{orderNumber}}.",
+    "en": "Prescription approved for order #{{orderNumber}}.",
+    "ur": "آرڈر #{{orderNumber}} کے لیے نسخہ منظور ہوا۔",
+    "hi": "ऑर्डर #{{orderNumber}} के लिए प्रिस्क्रिप्शन स्वीकृत।",
+    "bn": "অর্ডার #{{orderNumber}} এর জন্য প্রেসক্রিপশন অনুমোদিত।",
+    "fil": "Prescription approved for order #{{orderNumber}}."
+  },
+  "PRESCRIPTION_REJECTED": {
+    "ar": "تم رفض وصفتك للطلب #{{orderNumber}}. يرجى رفع وصفة صالحة.",
+    "en": "Prescription rejected for order #{{orderNumber}}. Please upload a valid prescription.",
+    "ur": "آرڈر #{{orderNumber}} کے لیے نسخہ مسترد۔ براہ کرم درست نسخہ اپ لوڈ کریں۔",
+    "hi": "ऑर्डर #{{orderNumber}} के लिए प्रिस्क्रिप्शन अस्वीकृत। कृपया वैध प्रिस्क्रिप्शन अपलोड करें।",
+    "bn": "অর্ডার #{{orderNumber}} এর জন্য প্রেসক্রিপশন প্রত্যাখ্যাত। অনুগ্রহ করে বৈধ প্রেসক্রিপশন আপলোড করুন।",
+    "fil": "Prescription rejected for order #{{orderNumber}}. Pakiupload ng valid prescription."
+  },
+  "PAYMENT_SUCCESS": {
+    "ar": "تم الدفع بنجاح لمبلغ {{amount}} للطلب #{{orderNumber}}.",
+    "en": "Payment of {{amount}} successful for order #{{orderNumber}}.",
+    "ur": "آرڈر #{{orderNumber}} کے لیے {{amount}} کی ادائیگی کامیاب۔",
+    "hi": "ऑर्डर #{{orderNumber}} के लिए {{amount}} का भुगतान सफल।",
+    "bn": "অর্ডার #{{orderNumber}} এর জন্য {{amount}} পেমেন্ট সফল।",
+    "fil": "Payment of {{amount}} successful for order #{{orderNumber}}."
+  },
+  "PAYMENT_FAILED": {
+    "ar": "فشل الدفع للطلب #{{orderNumber}}. يرجى المحاولة مرة أخرى.",
+    "en": "Payment failed for order #{{orderNumber}}. Please try again.",
+    "ur": "آرڈر #{{orderNumber}} کی ادائیگی ناکام۔ براہ کرم دوبارہ کوشش کریں۔",
+    "hi": "ऑर्डर #{{orderNumber}} का भुगतान विफल। कृपया पुनः प्रयास करें।",
+    "bn": "অর্ডার #{{orderNumber}} এর পেমেন্ট ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।",
+    "fil": "Payment failed for order #{{orderNumber}}. Pakisubukan muli."
+  },
+  "DELIVERY_OTP": {
+    "ar": "رمز التحقق لتسليم الطلب #{{orderNumber}}: {{code}}. لا تشاركه مع أحد.",
+    "en": "Delivery verification code for order #{{orderNumber}}: {{code}}. Do not share.",
+    "ur": "آرڈر #{{orderNumber}} کی ڈیلیوری کوڈ: {{code}}. کسی سے شیئر نہ کریں۔",
+    "hi": "ऑर्डर #{{orderNumber}} के लिए डिलीवरी कोड: {{code}}. किसी से साझा न करें।",
+    "bn": "অর্ডার #{{orderNumber}} ডেলিভারি যাচাই কোড: {{code}}. কারো সাথে শেয়ার করবেন না।",
+    "fil": "Delivery code para sa order #{{orderNumber}}: {{code}}. Huwag ibahagi."
+  },
+  "WELCOME": {
+    "ar": "أهلاً بك في نبض بلس! تطبيقك الصحي الشامل.",
+    "en": "Welcome to Nabd Plus! Your complete health app.",
+    "ur": "نبض بلس میں خوش آمدید! آپ کا مکمل صحت کا ایپ۔",
+    "hi": "नाब्ड प्लस में आपका स्वागत है! आपका संपूर्ण हेल्थ ऐप।",
+    "bn": "ন্যাবড প্লাস-এ স্বাগতম! আপনার সম্পূর্ণ হেলথ অ্যাপ।",
+    "fil": "Welcome to Nabd Plus! Your complete health app."
+  }
+}

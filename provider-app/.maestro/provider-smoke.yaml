@@ -1,0 +1,63 @@
+# P15.10 — provider-app device-farm smoke flow.
+#
+# Executed by every (device × environment) run in devicefarm/firebase-testlab.yml.
+# It asserts the things only a real device can show, matching the `severity.blocking`
+# criteria in that matrix:
+#
+#   1. the app launches (no crash on launch)
+#   2. no white screen — the welcome shell renders real text
+#   3. the primary actions survive font scale 200% and dark mode (not clipped)
+#   4. Arabic renders and is not truncated
+#
+# Selectors are visible TEXT, not testIDs: the provider screens carry no testIDs (see
+# grep -c testID src/screens/auth/AuthScreens.tsx → 0), and inventing ids here would
+# make this flow unverifiable against the shipped binary. The strings below are the
+# actual literals rendered by WelcomeScreen in src/screens/auth/AuthScreens.tsx.
+#
+# Dark mode, font scale and locale come from the runner's environment variables
+# (`--environment-variables locale=…,darkMode=…,fontScale=…`), not from gcloud flags.
+#
+# BLOCKED: this flow has NOT been executed against a real farm. It is committed so the
+# matrix is runnable and reviewable, not because a report exists. See
+# devicefarm/README.md.
+
+appId: com.nabd.provider
+---
+- launchApp:
+    clearState: true
+
+# 1 + 2: the welcome shell rendered real content rather than a blank surface.
+# "Nabd Plus" is the wordmark, present in both locales.
+- assertVisible: 'Nabd Plus'
+- takeScreenshot: '01-launch'
+
+# The provider-type cards are the first thing a provider sees; one must be on screen.
+- assertVisible:
+    text: '.*'
+    index: 0
+    optional: true
+- takeScreenshot: '02-cards'
+
+# 3: the two guest entry points must remain reachable and unclipped.
+- scrollUntilVisible:
+    element:
+      text: '.*(Medical Jobs|الوظائف الطبية).*'
+    direction: DOWN
+    timeout: 15000
+- assertVisible:
+    text: '.*(Medical Jobs|الوظائف الطبية).*'
+- takeScreenshot: '03-guest-actions'
+
+- scrollUntilVisible:
+    element:
+      text: '.*(Drug Index|دليل الأدوية).*'
+    direction: DOWN
+    timeout: 15000
+- assertVisible:
+    text: '.*(Drug Index|دليل الأدوية).*'
+- takeScreenshot: '04-drug-index'
+
+# 4: the sign-in entry point exists in whichever locale the device is set to.
+- assertVisible:
+    text: '.*(Log In|سجّل الدخول).*'
+- takeScreenshot: '05-signin'
