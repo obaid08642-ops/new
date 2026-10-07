@@ -262,6 +262,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     return this.memSetOf(key)?.has(member) ?? false;
   }
 
+  async scard(key: string): Promise<number> {
+    if (this.ready) { try { return await this.client.scard(key); } catch { /* fall through */ } }
+    return this.memSetOf(key)?.size ?? 0;
+  }
+
   // ── Sorted set operations ─────────────────────────────────────
   private memZsetOf(key: string): { items: { score: number; member: string }[]; exp?: number } | null {
     const z = this.memZset.get(key);

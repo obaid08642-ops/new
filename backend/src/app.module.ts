@@ -136,6 +136,7 @@ import { AdminGateGuard } from './common/admin-gate.guard';
 import { StepUpGuard, StepUpService } from './common/step-up.guard';
 import { ProductRankingModule } from './modules/product-ranking/product-ranking.module';
 import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
+import { ReleaseModule } from './modules/release/release.module';
 
 @Module({
   imports: [
@@ -267,6 +268,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     AdminSpaModule, // admin console SPA REST surface (top-level paths, admin-role guarded)
     CatalogsModule, // unified central catalogs (insurance/labs/radiology/nursing) — single source
     CatalogCqrsModule,
+    ReleaseModule,
   ],
   controllers: [HealthController, HealthDashboardController, ProviderPayoutsController],
   providers: [

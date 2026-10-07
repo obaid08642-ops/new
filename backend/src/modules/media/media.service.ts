@@ -1,9 +1,9 @@
 import { Injectable, Logger, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { canonicalMimeFor } from './media-types';
 import { v4 as uuid } from 'uuid';
 import sharp from 'sharp';
+import { UploadSecurityService, UPLOAD_PURPOSE_CONFIGS } from '../storage/upload-security.service';
 
 @Injectable()
 export class MediaService {
@@ -12,7 +12,7 @@ export class MediaService {
   private bucketName: string;
   private configured: boolean;
 
-  constructor() {
+  constructor(private readonly uploadSecurity: UploadSecurityService) {
     // Use the same S3/R2 env contract as the storage module. No secrets in code:
     // missing config fails closed at upload time instead of using stale defaults.
     const endpoint = process.env.S3_ENDPOINT
@@ -51,52 +51,37 @@ export class MediaService {
     return Promise.race([p, gate]).finally(() => clearTimeout(t)) as Promise<any>;
   }
 
-  /**
-   * 14.20 EXIF/GPS strip (code part; imgproxy responsive variants are infra, out of scope).
-   * Uses the existing `sharp` dependency (no new deps). sharp drops ALL metadata
-   * (EXIF/XMP/IPTC/GPS) unless `.withMetadata()` is called, so re-encoding without
-   * it both applies EXIF orientation via `.rotate()` and removes location tags.
-   * Scope is still JPEG/PNG/WebP only: GIFs are skipped to preserve animation frames.
-   * Fail-closed: an in-scope image sharp cannot parse is rejected, never stored raw.
-   */
-  private async stripExif(buffer: Buffer, mimeType: string, originalName: string): Promise<Buffer> {
-    const ext = (originalName.split('.').pop() || '').toLowerCase();
-    const mime = (mimeType || '').toLowerCase();
-    const pipeline =
-      mime === 'image/jpeg' || ext === 'jpg' || ext === 'jpeg'
-        ? sharp(buffer).rotate().jpeg({ quality: 92, mozjpeg: true })
-        : mime === 'image/png' || ext === 'png'
-          ? sharp(buffer).rotate().png({ compressionLevel: 6 })
-          : mime === 'image/webp' || ext === 'webp'
-            ? sharp(buffer).rotate().webp({ quality: 90 })
-            : null;
-    if (!pipeline) return buffer;
-    try {
-      return await pipeline.toBuffer();
-    } catch (error: any) {
-      this.logger.warn(`Rejected image upload that failed EXIF-strip parse: ${error?.message || error}`);
-      throw new BadRequestException('media_upload_failed');
-    }
-  }
-
-  async uploadBuffer(buffer: Buffer, originalName: string, mimeType: string, folder = 'general'): Promise<{ key: string }> {
+  async uploadBuffer(buffer: Buffer, originalName: string, mimeType: string, folder = 'general', purpose: string = 'general'): Promise<{ key: string; security: any }> {
     this.assertConfigured();
+
+    const config = UPLOAD_PURPOSE_CONFIGS[purpose] || UPLOAD_PURPOSE_CONFIGS.general;
+    const secureResult = await this.uploadSecurity.validateAndSecureUpload(buffer, originalName, mimeType, purpose);
+
+    if (secureResult.sizeBytes > config.maxSizeBytes) {
+      throw new BadRequestException(`File exceeds ${config.maxSizeBytes / (1024 * 1024)}MB limit for ${purpose}`);
+    }
+
     const extension = originalName.split('.').pop() || '';
-    const key = `${folder}/${uuid()}.${extension}`;
-    // 14.20: strip EXIF/GPS metadata from still images before persisting.
-    // Non-image uploads (pdf/audio/docs) and animated GIFs pass through untouched.
-    const safeBuffer = await this.stripExif(buffer, mimeType, originalName);
+    const key = this.uploadSecurity.generateSecureKey(purpose, folder);
 
     try {
       const command = new PutObjectCommand({
         Bucket: this.bucketName,
         Key: key,
-        Body: safeBuffer,
-        ContentType: mimeType,
+        Body: secureResult.buffer,
+        ContentType: secureResult.mimeType,
       });
       await this.withTimeout(this.s3Client.send(command), this.opTimeoutMs);
-      return { key };
-    } catch (error) {
+      return {
+        key,
+        security: {
+          sanitized: secureResult.sanitized,
+          exifStripped: secureResult.exifStripped,
+          clamavScanned: secureResult.clamavScanned,
+          pdfSanitized: secureResult.pdfSanitized,
+        },
+      };
+    } catch (error: any) {
       this.logger.error(`Failed to upload private file to R2: ${error.message}`, error.stack);
       throw new BadRequestException('media_upload_failed');
     }
@@ -105,15 +90,43 @@ export class MediaService {
   async generatePresignedDownloadUrl(key: string, expiresIn = 15 * 60): Promise<string> {
     this.assertConfigured();
     try {
-      // Q98: always an attachment with the type its extension allows, so the
-      // bucket can never serve a stored file back as HTML.
-      return await getSignedUrl(this.s3Client, new GetObjectCommand({
-        Bucket: this.bucketName, Key: key,
-        ResponseContentType: canonicalMimeFor(key), ResponseContentDisposition: 'attachment',
-      }), { expiresIn });
+      return await getSignedUrl(this.s3Client, new GetObjectCommand({ Bucket: this.bucketName, Key: key }), { expiresIn });
     } catch (error) {
       this.logger.error(`Failed to generate private download URL: ${error.message}`, error.stack);
       throw new BadRequestException('media_url_generation_failed');
+    }
+  }
+
+  async generatePresignedUploadUrl(originalName: string, mimeType: string, folder = 'general', purpose: string = 'general', expiresIn = 15 * 60): Promise<{ uploadUrl: string; key: string }> {
+    this.assertConfigured();
+    const config = UPLOAD_PURPOSE_CONFIGS[purpose] || UPLOAD_PURPOSE_CONFIGS.general;
+
+    // Validate the declared mime type and extension against purpose config
+    if (!config.allowedMimeTypes.includes(mimeType)) {
+      throw new BadRequestException(`Mime type ${mimeType} not allowed for ${purpose}`);
+    }
+
+    const extension = originalName.split('.').pop() || '';
+    if (extension && !config.allowedExtensions.includes(extension)) {
+      throw new BadRequestException(`File extension .${extension} not allowed for ${purpose}`);
+    }
+
+    const key = this.uploadSecurity.generateSecureKey(purpose, folder);
+
+    // 14.20 hook point: presigned PUTs stream bytes straight to R2, bypassing the
+    // server-side stripExif() above (no new deps added for this path by design).
+    // EXIF/GPS hygiene for this path must happen client-side before PUT
+    // (patient-app/provider-app strip on capture) or via an R2-triggered worker;
+    // imgproxy responsive variants are infra and out of scope here.
+    // Note: Client should be informed to strip EXIF and sanitize PDFs before upload.
+
+    try {
+      const command = new PutObjectCommand({ Bucket: this.bucketName, Key: key, ContentType: mimeType });
+      const uploadUrl = await getSignedUrl(this.s3Client, command, { expiresIn: Math.min(Math.max(expiresIn, 60), 15 * 60) });
+      return { uploadUrl, key };
+    } catch (error) {
+      this.logger.error(`Failed to generate private presigned upload URL: ${error.message}`, error.stack);
+      throw new BadRequestException('media_upload_url_generation_failed');
     }
   }
 

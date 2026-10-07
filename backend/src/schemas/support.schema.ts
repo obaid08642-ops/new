@@ -16,6 +16,8 @@ export enum SupportCategory {
   TECHNICAL = 'TECHNICAL',
   COMPLAINT = 'COMPLAINT',
   SUGGESTION = 'SUGGESTION',
+  AI_HANDOFF = 'AI_HANDOFF',
+  CALLBACK = 'CALLBACK',
 }
 
 @Schema({ timestamps: true })
@@ -36,10 +38,32 @@ export class SupportRequest extends Document {
   @Prop({ default: [] }) thread: any[]; // [{by, role, message, at}]
   @Prop() resolved_at?: Date;
   @Prop() assigned_to?: string;
+
+  // SLA tracking
+  @Prop() sla_first_response_due?: Date;
+  @Prop() sla_resolution_due?: Date;
+  @Prop() first_agent_reply_at?: Date;
+
+  // Order/booking linkage
+  @Prop() linked_order_id?: string;
+  @Prop() linked_booking_id?: string;
+
+  // Callback / "Call me back"
+  @Prop({ default: false }) callback_requested?: boolean;
+  @Prop() callback_phone?: string;
+  @Prop() callback_preferred_time?: Date;
+  @Prop({ default: 'none', enum: ['none', 'pending', 'scheduled', 'completed', 'failed'] }) callback_status?: string;
+  @Prop() callback_scheduled_at?: Date;
 }
+
 export const SupportRequestSchema = SchemaFactory.createForClass(SupportRequest);
 SupportRequestSchema.index({ user_id: 1, createdAt: -1 });
 SupportRequestSchema.index({ status: 1, createdAt: -1 });
+SupportRequestSchema.index({ sla_first_response_due: 1 });
+SupportRequestSchema.index({ sla_resolution_due: 1 });
+SupportRequestSchema.index({ linked_order_id: 1 });
+SupportRequestSchema.index({ linked_booking_id: 1 });
+SupportRequestSchema.index({ callback_status: 1 });
 
 @Schema({ timestamps: true })
 export class PatientSettings extends Document {

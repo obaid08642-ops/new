@@ -2,16 +2,41 @@ import { JwtAuthGuard, Roles, SelfService, CurrentUser } from '../../common/auth
 import { UserRole } from '../../common/enums';
 import { Controller, Delete, Get, Post, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { SupportService } from './support.service';
-import { CreateDto, CreateTicketDto, ReplyDto, AdminUpdateDto, SupportSettingsDto, FaqUpsertDto } from './support.dto';
+import { CreateDto, CreateTicketDto, CreateSupportDto, ReplyDto, AdminUpdateDto, SupportSettingsDto, FaqUpsertDto, AiAssistDto, CallbackRequestDto } from './support.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('support')
 @SelfService()
 export class SupportController {
   constructor(private readonly svc: SupportService) {}
+
   @Post('requests') create(@CurrentUser() u: any, @Body() b: CreateDto) { return this.svc.create(u, b); }
-  // M2 alias: apps submit support tickets at /support/tickets
+
+  // M2 alias: apps submit support tickets at /support/tickets (simple version)
   @Post('tickets') createTicket(@CurrentUser() u: any, @Body() b: CreateTicketDto) { return this.svc.create(u, b); }
+
+  // Full-featured support request with SLA, order linking, callback
+  @Post('tickets/full') createFull(@CurrentUser() u: any, @Body() b: CreateSupportDto) { 
+    return this.svc.create(u, { 
+      ...b, 
+      callback_preferred_time: b.callback_preferred_time ? new Date(b.callback_preferred_time) : undefined, 
+      linked_order_id: b.linked_order_id, 
+      linked_booking_id: b.linked_booking_id 
+    }); 
+  }
+
+  // AI Assistant - hands off to human when needed
+  @Post('ai/assist') aiAssist(@CurrentUser() u: any, @Body() b: AiAssistDto) { return this.svc.aiAssist(u, b); }
+
+  // "Call me back" feature
+  @Post('callback') requestCallback(@CurrentUser() u: any, @Body() b: CallbackRequestDto) { 
+    return this.svc.requestCallback(u, { 
+      phone: b.phone, 
+      preferred_time: b.preferred_time ? new Date(b.preferred_time) : undefined, 
+      reason: b.reason 
+    }); 
+  }
+
   @Get('requests/mine') mine(@CurrentUser() u: any) { return this.svc.mine(u); }
   @Get('requests/:id') one(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.getOne(u, id); }
   @Post('requests/:id/reply') reply(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ReplyDto) { return this.svc.reply(u, id, b.message); }
@@ -26,7 +51,7 @@ export class SupportController {
     return this.svc.listTickets(id);
   }
 
-  // --- WP 1.6 Settings Endpoints ---
+  // WP 1.6 Settings Endpoints
   @Get('faqs')
   getFaqs() {
     return this.svc.getFaqs();

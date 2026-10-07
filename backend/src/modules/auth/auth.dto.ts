@@ -115,6 +115,9 @@ export class AuthLoginDto {
   @IsString()
   password?: string;
 
+  @IsOptional()
+  @IsString()
+  turnstileToken?: string;
 }
 
 export class AuthVerify2faDto {
@@ -134,6 +137,9 @@ export class AuthVerify2faDto {
   @IsString()
   code?: string;
 
+  @IsOptional()
+  @IsString()
+  turnstileToken?: string;
 }
 
 export class RefreshDto {
@@ -166,6 +172,10 @@ export class SendOtpDto {
   @IsOptional()
   @IsString()
   purpose?: string;
+
+  @IsOptional()
+  @IsString()
+  turnstileToken?: string;
 }
 export class VerifyOtpDto {
   @IsOptional()
@@ -183,6 +193,10 @@ export class VerifyOtpDto {
   @IsDefined()
   @IsString()
   code: string;
+
+  @IsOptional()
+  @IsString()
+  turnstileToken?: string;
 }
 export class ResetPasswordDto {
   @IsOptional()
@@ -204,6 +218,10 @@ export class ResetPasswordDto {
   @IsDefined()
   @IsString()
   code: string;
+
+  @IsOptional()
+  @IsString()
+  turnstileToken?: string;
 }
 export class SocialLoginDto {
   @IsDefined()
@@ -223,6 +241,9 @@ export class SocialLoginDto {
   @IsString()
   name?: string;
 
+  @IsOptional()
+  @IsString()
+  turnstileToken?: string;
 }
 
 export class PasskeyEnrollVerifyDto {
