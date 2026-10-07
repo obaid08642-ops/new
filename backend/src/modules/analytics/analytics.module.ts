@@ -11,6 +11,8 @@ import { UserRole } from '../../common/enums';
 import { AiReferralController } from './ai-referral.controller';
 import { AnalyticsEventService } from './analytics-event.service';
 import { AnalyticsIngestController, AnalyticsPipelineController } from './analytics-event.controller';
+import { MysteryShopperController } from './mystery-shopper.p22.controller';
+import { MysteryShopperService } from './mystery-shopper.p22.service';
 
 @Injectable()
 export class AdminAnalyticsService {
@@ -146,8 +148,8 @@ export class AdminAnalyticsController {
 }
 
 @Module({
-  controllers: [AdminAnalyticsController, AiReferralController, AnalyticsIngestController, AnalyticsPipelineController],
-  providers: [AdminAnalyticsService, AnalyticsEventService],
-  exports: [AnalyticsEventService],
+  controllers: [AdminAnalyticsController, AiReferralController, AnalyticsIngestController, AnalyticsPipelineController, MysteryShopperController],
+  providers: [AdminAnalyticsService, AnalyticsEventService, MysteryShopperService],
+  exports: [AnalyticsEventService, MysteryShopperService],
 })
 export class AnalyticsModule {}

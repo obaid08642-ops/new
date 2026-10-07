@@ -110,6 +110,26 @@ export class ProviderScorecardService {
       .toArray()) as unknown as Array<Record<string, unknown>>;
     const complaintsOpen = complaints.filter((c) => String(c['status'] || 'open') === 'open').length;
 
+    // P22.12/Phase 1.1 — mystery-shopper component: average of submitted
+    // findings for this provider. Same collection the analytics
+    // MysteryShopperService writes; no cross-module import.
+    const findings = (await this.conn
+      .collection('mystery_shop_findings')
+      .find({ provider_account_id: { $eq: pid } })
+      .limit(1000)
+      .toArray()
+      .catch(() => [])) as unknown as Array<Record<string, unknown>>;
+    const findingScores = findings
+      .map((f) => Number(f['score']))
+      .filter((n) => Number.isFinite(n));
+    const mysteryShopper = {
+      avgScore:
+        findingScores.length > 0
+          ? Math.round((findingScores.reduce((a, b) => a + b, 0) / findingScores.length) * 10) / 10
+          : null,
+      visits: findingScores.length,
+    };
+
     const decided = accepted + rejected;
     const acceptanceRate = decided > 0 ? accepted / decided : 0;
     const completionRate = accepted > 0 ? completed / accepted : 0;
@@ -129,6 +149,7 @@ export class ProviderScorecardService {
         ratingsCount: scores.length,
         complaintsOpen,
         complaintsTotal: complaints.length,
+        mysteryShopper,
       },
       base,
     );
@@ -157,6 +178,8 @@ export class ProviderScorecardService {
           complaints_open: card.complaintsOpen,
           complaints_total: card.complaintsTotal,
           reliability_blended: card.reliabilityBlended,
+          mystery_shopper_avg: card.mysteryShopper.avgScore,
+          mystery_shopper_visits: card.mysteryShopper.visits,
           tier: card.tier,
           breached: card.breached,
           breach_reasons: card.breachReasons,
@@ -175,6 +198,8 @@ export class ProviderScorecardService {
           acceptance_rate: card.acceptanceRate,
           avg_rating: card.avgRating,
           complaints_open: card.complaintsOpen,
+          mystery_shopper_avg: card.mysteryShopper.avgScore,
+          mystery_shopper_visits: card.mysteryShopper.visits,
           quality_tier: card.tier,
           last_calculated_at: new Date(),
         },

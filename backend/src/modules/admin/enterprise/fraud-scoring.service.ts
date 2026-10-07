@@ -3,14 +3,17 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import {
   aggregateRisk,
+  deriveThreeDSOutcome,
   gateway3DSCapabilities,
   scoreAccountFarm,
   scoreCodAbuse,
   scoreFakeOrder,
   scorePaymentFraud,
   scorePromoAbuse,
+  scoreThreeDS,
   threeDSHook,
   Scored,
+  ThreeDSOutcome,
 } from './fraud-scoring.math';
 
 export interface UserRiskScores {
@@ -20,6 +23,10 @@ export interface UserRiskScores {
   accountFarm: Scored;
   promoAbuse: Scored;
   paymentFraud: Scored;
+  /** P22.11+/Phase 1.1 — standalone 3-D Secure sub-score (risk dashboard payload). */
+  threeDS: Scored;
+  /** Raw 3DS outcome the sub-score was derived from. */
+  threeDSOutcome: ThreeDSOutcome;
   combined: number;
   action: 'allow' | 'review' | 'block';
 }
@@ -162,15 +169,46 @@ export class FraudScoringService {
       .catch(() => [])) as unknown as Array<Record<string, unknown>>;
     const bookingIds = paidRows.map((p) => String(p['booking_id'] || ''));
     const duplicatePaidForBooking = new Set(bookingIds).size < bookingIds.length && bookingIds.length > 0;
+    // P22.11+/Phase 1.1 — 3DS outcome from the latest stored payment row
+    // (any status; natural/insertion order ≈ chronological). Paymob rows
+    // carry is_3d_secure/is_auth; Moyasar rows carry no 3DS fields today ⇒
+    // 'unavailable' (neutral). Unknown shapes are neutral, never fraud.
+    const recentPayments = (await this.conn
+      .collection('moyasar_payments')
+      .find({ patient_id: { $eq: uid } })
+      .limit(50)
+      .toArray()
+      .catch(() => [])) as unknown as Array<Record<string, unknown>>;
+    const latestPayment =
+      recentPayments.length > 0 ? recentPayments[recentPayments.length - 1] : undefined;
+    const threeDSOutcome = deriveThreeDSOutcome(
+      latestPayment as Record<string, unknown> | undefined,
+    );
+    const threeDS = scoreThreeDS(threeDSOutcome);
     const paymentFraud = scorePaymentFraud({
       failedLast1h: failed1h,
       distinctCardsFailed: 0,
       duplicatePaidForBooking,
       amountVsMedianRatio: 1,
+      threeDS: threeDSOutcome,
     });
 
-    const { score, action } = aggregateRisk([fakeOrder, codAbuse, accountFarm, promoAbuse, paymentFraud]);
-    return { userId: uid, fakeOrder, codAbuse, accountFarm, promoAbuse, paymentFraud, combined: score, action };
+    const { score, action } = aggregateRisk(
+      [fakeOrder, codAbuse, accountFarm, promoAbuse, paymentFraud, threeDS],
+      threeDSOutcome,
+    );
+    return {
+      userId: uid,
+      fakeOrder,
+      codAbuse,
+      accountFarm,
+      promoAbuse,
+      paymentFraud,
+      threeDS,
+      threeDSOutcome,
+      combined: score,
+      action,
+    };
   }
 
   threeDS(input: { paymentMethod: string; riskScore: number; orderTotal: number; provider?: string }) {

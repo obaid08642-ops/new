@@ -17,6 +17,11 @@ export interface ScorecardInput {
   ratingsCount: number;
   complaintsOpen: number;
   complaintsTotal: number;
+  /**
+   * P22.12/Phase 1.1 — mystery-shopper component. Optional for backward
+   * compatibility; absent/null ⇒ no effect on the scorecard.
+   */
+  mysteryShopper?: { avgScore: number | null; visits: number };
 }
 
 export interface Scorecard {
@@ -31,6 +36,8 @@ export interface Scorecard {
   tier: 'excellent' | 'good' | 'watch' | 'probation';
   breached: boolean;
   breachReasons: string[];
+  /** Echo of the mystery-shopper component that fed this scorecard. */
+  mysteryShopper: { avgScore: number | null; visits: number };
 }
 
 const round1 = (v: number): number => Math.round(v * 10) / 10;
@@ -74,18 +81,29 @@ export function computeScorecard(input: ScorecardInput, baseReliability: number)
   const decided = input.accepted + input.rejected;
   const acceptanceRate = decided > 0 ? round1(input.accepted / decided) : 0;
   const cancellationRate = input.totalRequests > 0 ? round1(input.cancelled / input.totalRequests) : 0;
-  const reliabilityBlended = blendReliability(baseReliability, {
+  let reliabilityBlended = blendReliability(baseReliability, {
     avgRating: input.avgRating,
     complaintsOpen: input.complaintsOpen,
     cancelled: input.cancelled,
     totalRequests: input.totalRequests,
   });
+  const mysteryShopper = input.mysteryShopper ?? { avgScore: null, visits: 0 };
   const breachReasons: string[] = [];
   if (reliabilityBlended < ALERT_THRESHOLDS.minReliability) breachReasons.push('reliability_below_50');
   if (input.complaintsOpen >= ALERT_THRESHOLDS.maxComplaintsOpen) breachReasons.push('complaints_open_3_plus');
   if (cancellationRate >= ALERT_THRESHOLDS.maxCancelRate) breachReasons.push('cancel_rate_30pct_plus');
   if (input.avgRating !== null && input.ratingsCount >= 5 && input.avgRating < ALERT_THRESHOLDS.minRating) {
     breachReasons.push('rating_below_3_5');
+  }
+  // Mystery-shopper component: a sub-threshold average penalizes reliability
+  // and breaches on its own; a strong average gives a small bonus (cap 100).
+  if (mysteryShopper.avgScore !== null && mysteryShopper.visits > 0) {
+    if (mysteryShopper.avgScore < 60) {
+      reliabilityBlended = Math.max(0, reliabilityBlended - 15);
+      breachReasons.push('mystery_shopper_below_60');
+    } else if (mysteryShopper.avgScore >= 80) {
+      reliabilityBlended = Math.min(100, reliabilityBlended + 5);
+    }
   }
   const tier =
     breachReasons.length > 0 ? 'probation' : reliabilityBlended >= 80 ? 'excellent' : reliabilityBlended >= 65 ? 'good' : 'watch';
@@ -101,5 +119,6 @@ export function computeScorecard(input: ScorecardInput, baseReliability: number)
     tier,
     breached: breachReasons.length > 0,
     breachReasons,
+    mysteryShopper,
   };
 }
