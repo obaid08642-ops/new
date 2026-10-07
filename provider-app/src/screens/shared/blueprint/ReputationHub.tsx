@@ -18,7 +18,7 @@ import { I, IBg } from '../../../components/icons';
 import { SP, R, FS, FW, C } from '../../../constants';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export function ReputationHub({ onBack }) {
+export function ReputationHub({ onBack, onNavigate }: { onBack: () => void; onNavigate?: (s: string, p?: any) => void }) {
  const { theme } = useTheme();
  const { lang } = useLang();
  const { show } = useToast();
@@ -49,11 +49,17 @@ export function ReputationHub({ onBack }) {
  <Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'نسبة الرد على التقييمات' : 'Review reply rate'}</Text>
  <Text style={{ fontSize: FS.sm, color: theme.success, fontWeight: FW.bold }}>{Math.round((replied / reviews.length) * 100)}%</Text>
  </View>
- <View style={{ height: 8, backgroundColor: theme.surface3, borderRadius: R.full, overflow: 'hidden' }}>
- <View style={{ width: `${Math.round((replied / reviews.length) * 100)}%` as any, height: '100%', backgroundColor: theme.success }} />
- </View>
- </NCard>
- </>)}
+  <View style={{ height: 8, backgroundColor: theme.surface3, borderRadius: R.full, overflow: 'hidden' }}>
+  <View style={{ width: `${Math.round((replied / reviews.length) * 100)}%` as any, height: '100%', backgroundColor: theme.success }} />
+  </View>
+  </NCard>
+  {/* P22.22.7 — the full reply UI (ReviewsSystem, `reviews` route) handles
+      per-review replies; this hub stays read-only. Hidden where the host
+      navigator does not pass onNavigate (other provider types). */}
+  {onNavigate && (
+  <NBtn label={AR ? 'الرد على التقييمات' : 'Reply to reviews'} onPress={() => onNavigate('reviews')} style={{ marginTop: SP.md }} />
+  )}
+  </>)}
  </View>
  </NScroll>
  </View>

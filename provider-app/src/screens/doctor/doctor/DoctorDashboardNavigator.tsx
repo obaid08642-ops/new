@@ -46,6 +46,8 @@ import { DoctorLocationScreen } from './DoctorLocationScreen';
 
 import { DoctorWalletTab } from './DoctorWalletTab';
 import { DoctorSettingsTab } from './DoctorSettingsTab';
+import { ProviderScorecardScreen } from '../../shared/ProviderScorecardScreen';
+import { ReviewsSystem } from '../../shared/SharedScreens';
 import { PatientFileScreen } from './PatientFileScreen';
 import { DoctorProfileEditScreen } from './DoctorProfileEditScreen';
 import { LiveConsultationScreen } from './LiveConsultationScreen';
@@ -115,7 +117,11 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
      <Stack.Screen name="web_config">{({ navigation }: any) => <ProfileWebConfig onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="subscriptions_ads">{({ navigation }: any) => <SubscriptionsAdsScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="affiliate">{({ navigation }: any) => <AffiliatePortal onBack={() => navigation.goBack()} />}</Stack.Screen>
-     <Stack.Screen name="reputation">{({ navigation }: any) => <ReputationHub onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="reputation">{({ navigation }: any) => <ReputationHub onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+      {/* P22.12 scorecard view + P22.22.7 review replies — shared screens, reachable
+          from home modules + settings (fail-open caps gating lives at the entry rows). */}
+      <Stack.Screen name="scorecard">{({ navigation }: any) => <ProviderScorecardScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="reviews">{({ navigation }: any) => <ReviewsSystem onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="crm">{({ navigation }: any) => <CrmHub onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="ai_copilot">{({ navigation }: any) => <AiMedicalCopilot onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="outbound_referral">{({ navigation }: any) => <SmartOutboundReferralNetwork onBack={() => navigation.goBack()} />}</Stack.Screen>

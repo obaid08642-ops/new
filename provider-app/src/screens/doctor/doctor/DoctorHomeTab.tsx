@@ -289,14 +289,32 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
        {AR ? 'الوظائف الطبية' : 'Medical Jobs'}
      </Text>
    </TouchableOpacity>
-   <TouchableOpacity 
-     onPress={() => onNavigate('drug_index')}
-     style={{ flex: 1, backgroundColor: theme.info, borderRadius: R.md, padding: SP.lg, alignItems: 'center' }}>
-     <I name="document" size={32} color="#FFF" />
-     <Text style={{ color: '#FFF', fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
-       {AR ? 'دليل الأدوية' : 'Drug Index'}
-     </Text>
-   </TouchableOpacity>
+    <TouchableOpacity 
+      onPress={() => onNavigate('drug_index')}
+      style={{ flex: 1, backgroundColor: theme.info, borderRadius: R.md, padding: SP.lg, alignItems: 'center' }}>
+      <I name="document" size={32} color="#FFF" />
+      <Text style={{ color: '#FFF', fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
+        {AR ? 'دليل الأدوية' : 'Drug Index'}
+      </Text>
+    </TouchableOpacity>
+    {/* P22.12 scorecard — honest unavailable state until GET /provider/scorecard ships. */}
+    <TouchableOpacity
+      onPress={() => onNavigate('scorecard')}
+      style={{ flex: 1, backgroundColor: theme.warn, borderRadius: R.md, padding: SP.lg, alignItems: 'center' }}>
+      <I name="star" size={32} color="#FFF" />
+      <Text style={{ color: '#FFF', fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
+        {AR ? 'بطاقة الأداء' : 'My Scorecard'}
+      </Text>
+    </TouchableOpacity>
+    {/* P22.22.7 review replies — full reply UI on the `reviews` route. */}
+    <TouchableOpacity
+      onPress={() => onNavigate('reviews')}
+      style={{ flex: 1, backgroundColor: theme.primary, borderRadius: R.md, padding: SP.lg, alignItems: 'center' }}>
+      <I name="chat" size={32} color="#FFF" />
+      <Text style={{ color: '#FFF', fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
+        {AR ? 'التقييمات والردود' : 'Reviews & Replies'}
+      </Text>
+    </TouchableOpacity>
    <TouchableOpacity 
      onPress={() => onNavigate('inbound_reports')}
      style={{ width: '100%', backgroundColor: theme.success, borderRadius: R.md, padding: SP.lg, alignItems: 'center', marginTop: SP.sm }}>
