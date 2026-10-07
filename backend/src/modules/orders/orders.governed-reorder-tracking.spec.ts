@@ -50,19 +50,30 @@ describe('OrdersService governed pharmacy_orders (Q30 tracking / Q16 reorder)', 
       },
     };
     const conn: any = { collection: jest.fn((name: string) => collections[name] || { findOne: jest.fn().mockResolvedValue(null) }) };
+    const events: any = { emit: jest.fn() };
+    const dispatchSvc: any = {};
+    const engine: any = {};
+    const coupons: any = {};
+    const loyaltyRedeem: any = {};
+    const refundExec: any = {};
+    const cancelPolicy: any = {};
+    const abusePrevention: any = {};
+    const rankingEvents: any = {};
     const service = new OrdersService(
       orderModel,
       {} as any,
       delModel,
       {} as any,
-      { emit: jest.fn() } as any,
-      {} as any,
-      {} as any,
+      events,
+      dispatchSvc,
+      engine,
       conn,
-      {} as any,
-      {} as any,
-      {} as any,
-      {} as any,
+      coupons,
+      loyaltyRedeem,
+      refundExec,
+      cancelPolicy,
+      abusePrevention,
+      rankingEvents,
     );
     return { service, orderModel, delModel, conn, collections, inserted };
   }
