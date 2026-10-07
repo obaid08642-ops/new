@@ -164,3 +164,123 @@ export class SplitOrderDto {
   @IsNumber()
   lng?: number;
 }
+
+/** P22.1 — Auto-refill subscription item. */
+export class RefillSubscriptionItemDto {
+  @IsDefined()
+  @IsString()
+  medicine_id: string;
+
+  @IsDefined()
+  @IsString()
+  name: string;
+
+  @IsDefined()
+  @IsInt()
+  @Min(1)
+  qty: number;
+
+  @IsDefined()
+  @IsBoolean()
+  requires_prescription: boolean;
+
+  @IsOptional()
+  @IsString()
+  active_ingredient?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(365)
+  rx_validity_days?: number;
+}
+
+/** P22.1 — Create auto-refill subscription. */
+export class CreateRefillSubscriptionDto {
+  @IsDefined()
+  @IsString()
+  source_order_id: string;
+
+  @IsDefined()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => RefillSubscriptionItemDto)
+  items: RefillSubscriptionItemDto[];
+
+  @IsDefined()
+  @IsEnum(['daily', 'weekly', 'monthly', 'custom'])
+  frequency: 'daily' | 'weekly' | 'monthly' | 'custom';
+
+  @IsDefined()
+  @IsInt()
+  @Min(1)
+  interval_days: number;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => Object)
+  delivery_address?: Record<string, any>;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  start_after_days?: number;
+}
+
+/** P22.2 — Create back-in-stock or price-drop alert. */
+export class CreateAlertDto {
+  @IsDefined()
+  @IsString()
+  medicine_id: string;
+
+  @IsDefined()
+  @IsString()
+  medicine_name: string;
+
+  @IsDefined()
+  @IsEnum(['back_in_stock', 'price_drop'])
+  type: 'back_in_stock' | 'price_drop';
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0.01)
+  target_price?: number;
+}
+
+/** P22.7 — Create review. */
+export class CreateReviewDto {
+  @IsDefined()
+  @IsEnum(['order', 'booking', 'consultation'])
+  source_type: 'order' | 'booking' | 'consultation';
+
+  @IsDefined()
+  @IsString()
+  source_id: string;
+
+  @IsDefined()
+  @IsString()
+  provider_id: string;
+
+  @IsDefined()
+  @IsEnum(['pharmacy', 'doctor', 'lab', 'radiology', 'nurse', 'hospital'])
+  provider_type: 'pharmacy' | 'doctor' | 'lab' | 'radiology' | 'nurse' | 'hospital';
+
+  @IsDefined()
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  rating: number;
+
+  @IsOptional()
+  @IsString()
+  comment?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  photos?: string[];
+}
