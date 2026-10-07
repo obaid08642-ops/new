@@ -4,7 +4,7 @@ import { PharmacyOfferService } from '../pharmacy/services/pharmacy-offer.servic
 import { JwtAuthGuard, CurrentUser, Public, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
-import { RespondToBroadcastDto, ClaimReferralDto, UpdateFlagDto, EnrollProgramDto, CompleteSessionDto, MatchPharmacyDto, MatchNurseDto, VerifyNurseAttendanceDto, VerifyBarcodeDto, VerifyLabResultsDto, EnrollCorporateDto, CreateAdBidDto} from './nabd-extensions.dto';
+import { RespondToBroadcastDto, ClaimReferralDto, UpdateFlagDto, EnrollProgramDto, CompleteSessionDto, MatchPharmacyDto, MatchNurseDto, VerifyNurseAttendanceDto, VerifyBarcodeDto, VerifyLabResultsDto, EnrollCorporateDto, CreateAdBidDto, CreditWalletDto, DebitWalletDto } from './nabd-extensions.dto';
 
 @Controller()
 @UseGuards(JwtAuthGuard)
@@ -49,10 +49,63 @@ export class NabdExtensionsController {
 
   @Roles(UserRole.ADMIN)
   @Put('admin/config/flags')
-  @Roles(UserRole.ADMIN)
   async updateFlag(@CurrentUser() admin: any, @Body() body: UpdateFlagDto) {
     if (!body.flagName) throw new BadRequestException('flagName is required');
     return this.svc.updateFlag(body.flagName, body.isEnabled, admin.id);
+  }
+
+  @Roles(UserRole.ADMIN)
+  @Post('wallet/credit')
+  async creditWallet(@CurrentUser() admin: any, @Body() body: CreditWalletDto) {
+    if (!body.ownerId || !body.amount || body.amount <= 0) throw new BadRequestException('ownerId and positive amount required');
+    const ownerType = (body.ownerType === 'provider' ? 'provider' : 'patient') as 'patient' | 'provider';
+    const referenceType = (body.referenceType || 'booking') as 'booking' | 'refund' | 'referral';
+    const result = await this.svc.processWalletTransaction({
+      ownerId: body.ownerId,
+      ownerType,
+      amount: body.amount,
+      type: 'credit',
+      referenceType,
+      referenceId: body.referenceId || `manual_credit_${Date.now()}`,
+      description: body.description || 'Admin manual credit',
+    });
+    await this.svc.auditAdminWalletAdjustment(admin, {
+      ownerId: body.ownerId,
+      ownerType,
+      amount: body.amount,
+      type: 'credit',
+      referenceType,
+      referenceId: body.referenceId || `manual_credit_${Date.now()}`,
+      description: body.description || 'Admin manual credit',
+    });
+    return { success: true, transaction: result };
+  }
+
+  @Roles(UserRole.ADMIN)
+  @Post('wallet/debit')
+  async debitWallet(@CurrentUser() admin: any, @Body() body: DebitWalletDto) {
+    if (!body.ownerId || !body.amount || body.amount <= 0) throw new BadRequestException('ownerId and positive amount required');
+    const ownerType = (body.ownerType === 'provider' ? 'provider' : 'patient') as 'patient' | 'provider';
+    const referenceType = (body.referenceType || 'booking') as 'booking' | 'refund' | 'referral';
+    const result = await this.svc.processWalletTransaction({
+      ownerId: body.ownerId,
+      ownerType,
+      amount: body.amount,
+      type: 'debit',
+      referenceType,
+      referenceId: body.referenceId || `manual_debit_${Date.now()}`,
+      description: body.description || 'Admin manual debit',
+    });
+    await this.svc.auditAdminWalletAdjustment(admin, {
+      ownerId: body.ownerId,
+      ownerType,
+      amount: body.amount,
+      type: 'debit',
+      referenceType,
+      referenceId: body.referenceId || `manual_debit_${Date.now()}`,
+      description: body.description || 'Admin manual debit',
+    });
+    return { success: true, transaction: result };
   }
 
   // ==========================================
@@ -75,10 +128,6 @@ export class NabdExtensionsController {
     if (!body.programType) throw new BadRequestException('programType is required');
     return this.svc.enrollProgram(user.id, body.programType);
   }
-
-  // R4: GET medical/programs/active removed (dup of medical-programs).
-
-  // R4: POST medical/programs/complete-session removed (dup of medical-programs).
 
   // ==========================================
   // MODULE 3: PROVIDER PERFORMANCE & MATCHING

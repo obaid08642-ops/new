@@ -7,7 +7,13 @@ describe('StorageService private-media contract', () => {
 
   beforeEach(() => {
     model = { findOne: jest.fn() };
-    service = new StorageService(model);
+    const mockUploadSecurity = {
+      validateAndSecureUpload: jest.fn().mockResolvedValue({ buffer: Buffer.from('x'), sanitized: false, exifStripped: false, clamavScanned: false, pdfSanitized: false }),
+      clamavAvailable: false,
+      clamavChecked: true,
+      checkClamavAvailability: jest.fn(),
+    } as any;
+    service = new StorageService(model, mockUploadSecurity);
     service.adapter = { get: jest.fn(async () => ({ mime: 'application/pdf', external_url: 'https://private-origin.example/file.pdf' })) };
   });
 

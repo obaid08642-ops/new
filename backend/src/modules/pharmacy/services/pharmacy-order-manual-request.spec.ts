@@ -22,6 +22,7 @@ describe('PharmacyOrderService.create manual request', () => {
       {} as any,
       { emit: jest.fn() } as any,
       { announceCreated: jest.fn().mockResolvedValue(undefined) } as any,
+      {} as any,
     );
     return { service, orders, created };
   };
