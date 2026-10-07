@@ -24,6 +24,28 @@ export class ReleaseVersion {
   @Prop() crash_free_rate?: number;
   @Prop() anr_rate?: number;
   @Prop() notes?: string;
+  /**
+   * Phase 22.13 (P22.1.2): beta channel track details.
+   * iOS  -> TestFlight (build number + internal/external group).
+   * Android -> Play track (internal/closed) + rollout fraction.
+   */
+  @Prop({ type: Object }) beta_track?: {
+    platform: 'ios' | 'android';
+    testflight_build_number?: string;
+    testflight_group?: 'internal' | 'external';
+    play_track?: 'internal' | 'closed';
+    play_rollout_fraction?: number;
+  };
+  /**
+   * External store sync state. Real App Store Connect / Play Console
+   * uploads are infra-owned (see ReleaseService BLOCKED notes); until the
+   * provider confirms, versions stay `pending_sync` — never fake `synced`.
+   */
+  @Prop({ enum: ['synced', 'pending_sync', 'failed'], default: 'pending_sync' }) sync_status?: string;
+  @Prop() sync_error?: string;
+  @Prop() beta_promoted_at?: Date;
+  @Prop() production_promoted_at?: Date;
+  @Prop({ type: [Object] }) promotion_history?: Array<{ from: string; to: string; at: Date; by?: string }>;
 }
 
 export const ReleaseVersionSchema = SchemaFactory.createForClass(ReleaseVersion);
@@ -63,6 +85,15 @@ export class AppStoreReview {
   @Prop() replied_at?: Date;
   @Prop() replied_by?: string;
   @Prop() fetched_at: Date;
+  /**
+   * Phase 22.13 / C6.1 (P22.1.2): durable reply outbox. Admin replies are
+   * stored first (`queued`); only a real provider confirmation (webhook or
+   * verified sync) may flip to `sent`. Never fake-sent.
+   */
+  @Prop({ enum: ['queued', 'sent', 'failed'] }) reply_status?: 'queued' | 'sent' | 'failed';
+  @Prop() reply_attempts?: number;
+  @Prop() reply_error?: string;
+  @Prop() provider_synced_at?: Date;
 }
 
 export const AppStoreReviewSchema = SchemaFactory.createForClass(AppStoreReview);

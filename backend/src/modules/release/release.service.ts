@@ -22,6 +22,27 @@ interface RolloutConfig {
   anr_threshold: number;
 }
 
+/** Phase 22.13 (P22.1.2): production promotion stability gates. */
+export const CRASH_FREE_MIN = 99.5;
+export const ANR_MAX = 0.47;
+/** C6.1: max reply body length for store reviews. */
+export const REVIEW_REPLY_MAX_LENGTH = 1000;
+
+export interface PromoteBetaOpts {
+  platform: 'ios' | 'android';
+  testflight_build_number?: string;
+  testflight_group?: 'internal' | 'external';
+  play_track?: 'internal' | 'closed';
+  play_rollout_fraction?: number;
+  promoted_by?: string;
+}
+
+export interface PromoteProductionOpts {
+  crash_free_rate?: number;
+  anr_rate?: number;
+  promoted_by?: string;
+}
+
 @Injectable()
 export class ReleaseService {
   private readonly logger = new Logger(ReleaseService.name);
@@ -182,6 +203,124 @@ export class ReleaseService {
   }
 
   /**
+   * Record observed stability metrics onto a version (crash-free %, ANR %).
+   * These recorded values are what the production gate evaluates.
+   */
+  async recordVersionHealth(versionId: string, crashFreeRate: number, anrRate: number): Promise<ReleaseVersionDocument> {
+    const release = await this.versionModel.findById(versionId);
+    if (!release) throw new NotFoundException('release_not_found');
+    assertValidHealth(crashFreeRate, anrRate);
+    release.crash_free_rate = crashFreeRate;
+    release.anr_rate = anrRate;
+    await release.save();
+    return release;
+  }
+
+  /**
+   * Promote internal → beta per app.
+   *
+   * Stores the beta_track (TestFlight build/group for iOS, Play
+   * internal/closed track + rollout fraction for Android) and queues the
+   * external store upload as `pending_sync`.
+   *
+   * BLOCKED (infra-owned): the actual uploads —
+   *   - App Store Connect: POST beta builds / assign TestFlight groups
+   *     (requires ASC API key + issuer; owned by infra, not this module).
+   *   - Play Console: promote to internal/closed track via
+   *     androidpublisher edits API (requires service-account creds).
+   * Until the provider confirms, sync_status stays `pending_sync`.
+   * This method never fabricates a provider response.
+   */
+  async promoteToBeta(versionId: string, opts: PromoteBetaOpts): Promise<ReleaseVersionDocument> {
+    const release = await this.versionModel.findById(versionId);
+    if (!release) throw new NotFoundException('release_not_found');
+    if (release.channel !== 'internal') throw new BadRequestException('only_internal_can_promote_to_beta');
+
+    if (opts.platform === 'ios') {
+      if (!opts.testflight_build_number || !opts.testflight_build_number.trim()) {
+        throw new BadRequestException('testflight_build_number_required');
+      }
+    } else if (opts.platform === 'android') {
+      if (opts.play_track !== 'internal' && opts.play_track !== 'closed') {
+        throw new BadRequestException('play_track_must_be_internal_or_closed');
+      }
+      if (opts.play_rollout_fraction !== undefined) {
+        if (!Number.isFinite(opts.play_rollout_fraction) || opts.play_rollout_fraction <= 0 || opts.play_rollout_fraction > 1) {
+          throw new BadRequestException('play_rollout_fraction_must_be_between_0_and_1');
+        }
+      }
+    } else {
+      throw new BadRequestException('platform_must_be_ios_or_android');
+    }
+
+    const from = release.channel;
+    release.channel = 'beta';
+    release.beta_track = {
+      platform: opts.platform,
+      testflight_build_number: opts.testflight_build_number,
+      testflight_group: opts.testflight_group || 'internal',
+      play_track: opts.play_track,
+      play_rollout_fraction: opts.play_rollout_fraction,
+    };
+    // BLOCKED: real ASC / Play upload is infra-owned; queue honestly.
+    release.sync_status = 'pending_sync';
+    release.sync_error = 'BLOCKED: App Store Connect / Play Console upload is infra-owned (credentials + API wiring pending); queued as pending_sync.';
+    release.beta_promoted_at = new Date();
+    release.promotion_history = [...(release.promotion_history || []), { from, to: 'beta', at: new Date(), by: opts.promoted_by }];
+    await release.save();
+    this.logger.log(`Promoted release ${release.version} (${release.app}) internal → beta [${opts.platform}], pending_sync`);
+    return release;
+  }
+
+  /**
+   * Promote beta → production per app.
+   *
+   * Gate: recorded crash-free ≥ 99.5% AND ANR ≤ 0.47% on the version.
+   * Metrics may be supplied with the call (recorded first) or must already
+   * be recorded via recordVersionHealth; missing metrics → 400.
+   *
+   * BLOCKED (infra-owned): the actual production release / staged-rollout
+   * push to App Store Connect / Play Console. Queued as `pending_sync`,
+   * never fake-synced.
+   */
+  async promoteToProduction(versionId: string, opts: PromoteProductionOpts = {}): Promise<ReleaseVersionDocument> {
+    const release = await this.versionModel.findById(versionId);
+    if (!release) throw new NotFoundException('release_not_found');
+    if (release.channel !== 'beta') throw new BadRequestException('only_beta_can_promote_to_production');
+
+    if (opts.crash_free_rate !== undefined || opts.anr_rate !== undefined) {
+      if (opts.crash_free_rate === undefined || opts.anr_rate === undefined) {
+        throw new BadRequestException('both_crash_free_rate_and_anr_rate_required');
+      }
+      assertValidHealth(opts.crash_free_rate, opts.anr_rate);
+      release.crash_free_rate = opts.crash_free_rate;
+      release.anr_rate = opts.anr_rate;
+    }
+
+    if (release.crash_free_rate === undefined || release.crash_free_rate === null ||
+        release.anr_rate === undefined || release.anr_rate === null) {
+      throw new BadRequestException('health_metrics_required');
+    }
+    if (release.crash_free_rate < CRASH_FREE_MIN) {
+      throw new BadRequestException(`crash_free_rate_${release.crash_free_rate}_below_threshold_${CRASH_FREE_MIN}`);
+    }
+    if (release.anr_rate > ANR_MAX) {
+      throw new BadRequestException(`anr_rate_${release.anr_rate}_above_threshold_${ANR_MAX}`);
+    }
+
+    const from = release.channel;
+    release.channel = 'production';
+    // BLOCKED: real production push is infra-owned; queue honestly.
+    release.sync_status = 'pending_sync';
+    release.sync_error = 'BLOCKED: App Store Connect / Play Console production release is infra-owned (credentials + API wiring pending); queued as pending_sync.';
+    release.production_promoted_at = new Date();
+    release.promotion_history = [...(release.promotion_history || []), { from, to: 'production', at: new Date(), by: opts.promoted_by }];
+    await release.save();
+    this.logger.log(`Promoted release ${release.version} (${release.app}) beta → production, pending_sync`);
+    return release;
+  }
+
+  /**
    * Get release status.
    */
   async getReleaseStatus(app: string, channel?: string): Promise<ReleaseVersionDocument[]> {
@@ -233,22 +372,145 @@ export class ReleaseService {
   }
 
   /**
-   * Reply to an app store review.
+   * List store reviews with a pending reply (outbox depth for the C6.1 queue).
    */
-  async replyToStoreReview(reviewId: string, content: string, repliedBy: string): Promise<AppStoreReviewDocument> {
+  async listPendingReviews(app?: string, platform?: 'ios' | 'android'): Promise<AppStoreReviewDocument[]> {
+    const query: any = { reply_status: { $in: ['queued', 'failed'] } };
+    if (app) query.app = app;
+    if (platform) query.platform = platform;
+    return this.reviewModel.find(query).sort({ createdAt: 1 }).limit(100).lean().exec() as any;
+  }
+
+  /**
+   * List all store reviews (admin browsing).
+   */
+  async listStoreReviews(app?: string, platform?: string): Promise<AppStoreReviewDocument[]> {
+    const query: any = {};
+    if (app) query.app = app;
+    if (platform) query.platform = platform;
+    return this.reviewModel.find(query).sort({ fetched_at: -1 }).limit(100).lean().exec() as any;
+  }
+
+  /**
+   * C6.1 reply pipeline (durable outbox):
+   *   admin submits reply → stored with status `queued` → sync worker stub
+   *   attempts the provider API sync when credentials exist, else the reply
+   *   stays `queued` (honest, never fake-sent). Only a real provider
+   *   confirmation (confirmProviderReplySent) may flip to `sent`.
+   */
+  async submitReviewReply(reviewId: string, content: string, repliedBy: string): Promise<AppStoreReviewDocument> {
     const review = await this.reviewModel.findById(reviewId);
     if (!review) throw new NotFoundException('review_not_found');
-    if (review.replied) throw new BadRequestException('already_replied');
+    const body = (content || '').trim();
+    if (!body) throw new BadRequestException('reply_content_required');
+    if (body.length > REVIEW_REPLY_MAX_LENGTH) {
+      throw new BadRequestException(`reply_content_exceeds_${REVIEW_REPLY_MAX_LENGTH}_chars`);
+    }
+    // Double-reply block: never reply twice to the same review.
+    if (review.reply_status === 'sent' || review.replied === true) throw new BadRequestException('already_replied');
+    if (review.reply_status === 'queued') throw new BadRequestException('reply_already_queued');
 
-    review.replied = true;
-    review.reply_content = content;
-    review.replied_at = new Date();
+    review.reply_content = body;
     review.replied_by = repliedBy;
+    review.replied_at = new Date();
+    review.reply_status = 'queued';
+    review.reply_attempts = 0;
+    review.reply_error = undefined;
     await review.save();
 
-    // TODO: Push reply to App Store Connect / Google Play Console
-    this.logger.log(`Replied to ${review.platform} review ${review.review_id}`);
+    // Best-effort sync attempt; stays queued when provider is unreachable.
+    await this.attemptReplySync(review);
+    this.logger.log(`Queued ${review.platform} review reply ${review.review_id} (attempt ${review.reply_attempts})`);
     return review;
+  }
+
+  /**
+   * Sync worker stub: tries to push one queued reply to the provider.
+   *
+   * BLOCKED (infra-owned): real calls —
+   *   - Apple: App Store Connect API customer-review responses
+   *     (requires ASC API key + issuer; route owned by infra).
+   *   - Google: androidpublisher reviews.reply
+   *     (requires Play service-account; route owned by infra).
+   * When credentials exist we still do NOT fabricate success: the reply is
+   * left `queued` with a BLOCKED note and `pending_sync` semantics until
+   * infra wires the route. This method never marks anything `sent`.
+   */
+  async attemptReplySync(review: AppStoreReviewDocument): Promise<{ synced: boolean; reason: string }> {
+    review.reply_attempts = (review.reply_attempts || 0) + 1;
+    if (!this.hasStoreCredentials(review.platform)) {
+      review.reply_error = 'awaiting_credentials: store API credentials not configured; reply stays queued.';
+      await review.save();
+      return { synced: false, reason: 'missing_credentials' };
+    }
+    // BLOCKED: credentials present but the provider route is infra-owned.
+    review.reply_error = 'BLOCKED: store reply API route is infra-owned (pending_sync); reply stays queued, never fake-sent.';
+    await review.save();
+    return { synced: false, reason: 'provider_route_blocked' };
+  }
+
+  /**
+   * Retry the whole outbox (queued + failed). Returns a summary.
+   */
+  async retryReplyQueue(limit = 50): Promise<{ attempted: number; still_queued: number }> {
+    const pending = await this.reviewModel
+      .find({ reply_status: { $in: ['queued', 'failed'] } })
+      .sort({ createdAt: 1 })
+      .limit(Math.max(1, Math.min(limit, 200)))
+      .exec() as any as AppStoreReviewDocument[];
+    let attempted = 0;
+    for (const review of pending || []) {
+      attempted += 1;
+      try {
+        await this.attemptReplySync(review);
+      } catch (err: any) {
+        review.reply_status = 'failed';
+        review.reply_error = String(err?.message || err);
+        await review.save();
+      }
+    }
+    const still = await this.reviewModel.countDocuments({ reply_status: { $in: ['queued', 'failed'] } }).exec();
+    return { attempted, still_queued: still };
+  }
+
+  /**
+   * Provider-side confirmation hook (infra webhook / verified sync only).
+   * The ONLY path that may mark a reply `sent`.
+   */
+  async confirmProviderReplySent(reviewId: string): Promise<AppStoreReviewDocument> {
+    const review = await this.reviewModel.findById(reviewId);
+    if (!review) throw new NotFoundException('review_not_found');
+    review.reply_status = 'sent';
+    review.replied = true;
+    review.provider_synced_at = new Date();
+    review.reply_error = undefined;
+    await review.save();
+    return review;
+  }
+
+  private hasStoreCredentials(platform: string): boolean {
+    if (platform === 'ios') {
+      return !!(process.env.APP_STORE_CONNECT_KEY_ID && process.env.APP_STORE_CONNECT_ISSUER_ID);
+    }
+    return !!process.env.PLAY_SERVICE_ACCOUNT_JSON;
+  }
+
+  /** Hourly outbox flush for the C6.1 queue. */
+  @Cron(CronExpression.EVERY_HOUR)
+  async flushReplyOutbox(): Promise<void> {
+    try {
+      const res = await this.retryReplyQueue(50);
+      if (res.attempted > 0) this.logger.log(`Reply outbox flush: attempted=${res.attempted} still_queued=${res.still_queued}`);
+    } catch (err: any) {
+      this.logger.warn(`Reply outbox flush failed: ${err?.message || err}`);
+    }
+  }
+
+  /**
+   * Back-compat alias for the pre-outbox API (now durable-queued).
+   */
+  async replyToStoreReview(reviewId: string, content: string, repliedBy: string): Promise<AppStoreReviewDocument> {
+    return this.submitReviewReply(reviewId, content, repliedBy);
   }
 
   /**
@@ -309,5 +571,14 @@ export class ReleaseService {
         break;
     }
     return steps;
+  }
+}
+
+function assertValidHealth(crashFreeRate: number, anrRate: number): void {
+  if (!Number.isFinite(crashFreeRate) || crashFreeRate < 0 || crashFreeRate > 100) {
+    throw new BadRequestException('crash_free_rate_must_be_between_0_and_100');
+  }
+  if (!Number.isFinite(anrRate) || anrRate < 0 || anrRate > 100) {
+    throw new BadRequestException('anr_rate_must_be_between_0_and_100');
   }
 }

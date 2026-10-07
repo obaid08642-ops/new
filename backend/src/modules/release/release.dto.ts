@@ -26,3 +26,80 @@ export class CreateReleaseDto {
   @Max(100, { each: true })
   rollout_percentage?: number[];
 }
+
+export class PromoteBetaDto {
+  @IsDefined()
+  @IsEnum(['ios', 'android'])
+  platform: 'ios' | 'android';
+
+  // TestFlight (iOS)
+  @IsOptional()
+  @IsString()
+  testflight_build_number?: string;
+
+  @IsOptional()
+  @IsEnum(['internal', 'external'])
+  testflight_group?: 'internal' | 'external';
+
+  // Play (Android)
+  @IsOptional()
+  @IsEnum(['internal', 'closed'])
+  play_track?: 'internal' | 'closed';
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0.01)
+  @Max(1)
+  play_rollout_fraction?: number;
+
+  @IsOptional()
+  @IsString()
+  promoted_by?: string;
+}
+
+export class PromoteProductionDto {
+  // Observed health at promotion time; recorded onto the version, then gated.
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  crash_free_rate?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  anr_rate?: number;
+
+  @IsOptional()
+  @IsString()
+  promoted_by?: string;
+}
+
+export class RecordVersionHealthDto {
+  @IsDefined()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  crash_free_rate: number;
+
+  @IsDefined()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  anr_rate: number;
+}
+
+export class SubmitReviewReplyDto {
+  @IsDefined()
+  @IsString()
+  content: string;
+
+  @IsOptional()
+  @IsString()
+  app?: string;
+
+  @IsOptional()
+  @IsEnum(['ios', 'android'])
+  platform?: 'ios' | 'android';
+}
