@@ -269,13 +269,13 @@ export class PharmacyChatController {
   constructor(private chat: PharmacyChatService) {}
   @Get('threads') list(@CurrentUser() u: any, @Query('order_id') oid?: string) { return this.chat.listThreads(u, oid); }
   @Get('threads/:id/messages') msgs(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.listMessages(u, id); }
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  @Roles(UserRole.PATIENT, UserRole.PHARMACY, UserRole.ADMIN)
   @Post('threads/:id/messages') post(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PostDto) { return this.chat.postMessage(u, id, b); }
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  @Roles(UserRole.PATIENT, UserRole.PHARMACY, UserRole.ADMIN)
   @Post('threads/:id/accept-substitute/:msgId') accept(@CurrentUser() u: any, @Param('id') id: string, @Param('msgId') mid: string) { return this.chat.acceptSubstitute(u, id, mid); }
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  @Roles(UserRole.PATIENT, UserRole.PHARMACY, UserRole.ADMIN)
   @Post('threads/:id/reject') reject(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.rejectOrRemove(u, id, 'rejected'); }
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  @Roles(UserRole.PATIENT, UserRole.PHARMACY, UserRole.ADMIN)
   @Post('threads/:id/remove-item') remove(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.rejectOrRemove(u, id, 'removed'); }
 }
 
