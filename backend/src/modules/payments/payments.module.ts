@@ -301,9 +301,17 @@ export class PaymentsService {
     if (order.payment_status === 'paid' && order.transaction_id === t.id) {
       return true;
     }
+    // Q-21: payment also leaves the pending state — otherwise a paid order is
+    // stuck at cash_card_payment_pending / waiting_copay (and the governed view
+    // at FINAL_QUOTE_ACCEPTED) although only payment_status moved. Other states
+    // (e.g. already confirmed, cancelled) are left untouched.
+    const set: any = { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at };
+    if (['cash_card_payment_pending', 'waiting_copay'].includes(String(order.status))) {
+      set.status = 'confirmed';
+    }
     await this.txns.db.collection('pharmacy_orders').updateOne(
       { id: order.id },
-      { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } },
+      { $set: set },
     );
     this.events.emit('moyasar.payment.paid', {
       id: String(t.gateway_charge_id || t.gateway_intent_id || t.id),
