@@ -1,0 +1,190 @@
+# Sentry Configuration for Nabd Platform
+# Covers: Backend, Patient Web, Admin Web, Mobile Apps
+
+projects:
+  - name: "nabd-backend"
+    platform: "node"
+    dsn_env: "SENTRY_DSN_BACKEND"
+    environment: "production"
+    traces_sample_rate: 0.1
+    profiles_sample_rate: 0.1
+    release_tracking: true
+    source_maps: true
+    ignore_errors:
+      - "ValidationError"
+      - "UnauthorizedException"
+      - "NotFoundException"
+      - "BadRequestException"
+    before_send: |
+      (event, hint) => {
+        // Filter out 4xx errors
+        if (event.exception?.values?.[0]?.type?.includes('Exception')) {
+          const statusCode = event.exception.values[0].mechanism?.meta?.statusCode;
+          if (statusCode && statusCode >= 400 && statusCode < 500) {
+            return null;
+          }
+        }
+        return event;
+      }
+
+  - name: "nabd-patient-web"
+    platform: "javascript"
+    dsn_env: "SENTRY_DSN_PATIENT_WEB"
+    environment: "production"
+    traces_sample_rate: 0.1
+    profiles_sample_rate: 0.1
+    release_tracking: true
+    source_maps: true
+    auto_session_tracking: true
+    session_replay:
+      mask_all_text: true
+      block_all_media: true
+      mask_all_inputs: true
+    before_send: |
+      (event) => {
+        // Remove PII from event
+        if (event.user) {
+          event.user = {
+            id: event.user.id,
+            username: event.user.username ? 'REDACTED' : undefined,
+            email: event.user.email ? 'REDACTED' : undefined,
+          };
+        }
+        return event;
+      }
+
+  - name: "nabd-admin-web"
+    platform: "javascript"
+    dsn_env: "SENTRY_DSN_ADMIN_WEB"
+    environment: "production"
+    traces_sample_rate: 0.1
+    profiles_sample_rate: 0.1
+    release_tracking: true
+    source_maps: true
+    auto_session_tracking: true
+
+  - name: "nabd-mobile-patient"
+    platform: "react-native"
+    dsn_env: "SENTRY_DSN_MOBILE_PATIENT"
+    environment: "production"
+    traces_sample_rate: 0.1
+    profiles_sample_rate: 0.1
+    release_tracking: true
+    source_maps: true
+    enable_native_crash_handling: true
+    enable_anr_tracking: true
+    debug: false
+
+  - name: "nabd-mobile-provider"
+    platform: "react-native"
+    dsn_env: "SENTRY_DSN_MOBILE_PROVIDER"
+    environment: "production"
+    traces_sample_rate: 0.1
+    profiles_sample_rate: 0.1
+    release_tracking: true
+    source_maps: true
+    enable_native_crash_handling: true
+    enable_anr_tracking: true
+    debug: false
+
+# Release configuration
+releases:
+  create_deploys: true
+  notify_on_deploy: true
+  deploy_notification_channels:
+    - "slack"
+    - "email"
+
+# Alert rules
+alerts:
+  - name: "High Error Rate - Backend"
+    project: "nabd-backend"
+    condition: "error_rate > 1%"
+    window: "5m"
+    severity: "critical"
+    actions:
+      - "pagerduty"
+      - "slack:#alerts-critical"
+      - "email:oncall@nabd.plus"
+
+  - name: "High Error Rate - Patient Web"
+    project: "nabd-patient-web"
+    condition: "error_rate > 1%"
+    window: "5m"
+    severity: "critical"
+    actions:
+      - "pagerduty"
+      - "slack:#alerts-critical"
+
+  - name: "Crash Free Rate Drop - Mobile"
+    project: "nabd-mobile-patient"
+    condition: "crash_free_rate < 99.5%"
+    window: "1h"
+    severity: "critical"
+    actions:
+      - "pagerduty"
+      - "slack:#alerts-critical"
+
+  - name: "Slow Transaction - Checkout"
+    project: "nabd-backend"
+    condition: "transaction_duration > 5s"
+    transaction: "POST /api/v1/orders/checkout"
+    window: "5m"
+    severity: "warning"
+    actions:
+      - "slack:#alerts-warning"
+
+  - name: "Slow Transaction - Search"
+    project: "nabd-backend"
+    condition: "transaction_duration > 3s"
+    transaction: "GET /api/v1/search"
+    window: "5m"
+    severity: "warning"
+    actions:
+      - "slack:#alerts-warning"
+
+# Integrations
+integrations:
+  - type: "github"
+    repos:
+      - "your-org/nabd-plus"
+    auto_assign: true
+    create_issues: true
+
+  - type: "slack"
+    channels:
+      - name: "#alerts-critical"
+        webhook_url_env: "SLACK_WEBHOOK_CRITICAL"
+      - name: "#alerts-warning"
+        webhook_url_env: "SLACK_WEBHOOK_WARNING"
+
+  - type: "pagerduty"
+    service_key_env: "PAGERDUTY_SERVICE_KEY"
+    severity_mapping:
+      critical: "critical"
+      warning: "warning"
+      info: "info"
+
+# Performance monitoring
+performance:
+  enabled: true
+  sample_rate: 0.1
+  slow_transaction_threshold: 2000  # ms
+  track_long_tasks: true
+  track_interactions: true
+
+# Data scrubbing
+data_scrubbing:
+  enabled: true
+  pii_fields:
+    - "password"
+    - "token"
+    - "authorization"
+    - "cookie"
+    - "email"
+    - "phone"
+    - "nationalId"
+    - "creditCard"
+    - "ssn"
+  scrub_ip_addresses: true
+  scrub_urls: true

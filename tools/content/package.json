@@ -1,0 +1,17 @@
+{
+  "name": "nabd-content-tools",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "brand-check": "tsx brand-check.ts",
+    "claims-check": "tsx claims-check.ts",
+    "length-check": "tsx length-check.ts",
+    "all": "npm run brand-check && npm run claims-check && npm run length-check"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  }
+}

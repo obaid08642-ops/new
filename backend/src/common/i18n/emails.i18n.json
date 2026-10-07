@@ -1,0 +1,66 @@
+{
+  "WELCOME": {
+    "ar": { "subject": "أهلاً بك في نبض بلس", "html": "<h1>مرحباً {{name}}</h1><p>شكراً لتسجيلك في نبض بلس. نحن سعداء بانضمامك إلينا.</p>" },
+    "en": { "subject": "Welcome to Nabd Plus", "html": "<h1>Welcome {{name}}</h1><p>Thank you for registering with Nabd Plus. We're glad to have you.</p>" },
+    "ur": { "subject": "نبض بلس میں خوش آمدید", "html": "<h1>خوش آمدید {{name}}</h1><p>نبض بلس میں رجسٹر کرنے کا شکریہ۔ ہم آپ کے شامل ہونے پر خوش ہیں۔</p>" },
+    "hi": { "subject": "नाब्ड प्लस में आपका स्वागत है", "html": "<h1>स्वागत है {{name}}</h1><p>नाब्ड प्लस के साथ रजिस्टर करने के लिए धन्यवाद। हमें आपका स्वागत करते हुए खुशी हो रही है।</p>" },
+    "bn": { "subject": "ন্যাবড প্লাস-এ স্বাগতম", "html": "<h1>স্বাগতম {{name}}</h1><p>ন্যাবড প্লাস-এ রেজিস্টার করার জন্য ধন্যবাদ। আমরা আপনাকে স্বাগত জানাতে খুশি।</p>" },
+    "fil": { "subject": "Welcome to Nabd Plus", "html": "<h1>Welcome {{name}}</h1><p>Salamat sa pagreregister sa Nabd Plus. Masaya kaming makasama ka.</p>" }
+  },
+  "EMAIL_VERIFICATION": {
+    "ar": { "subject": "تحقق من بريدك الإلكتروني", "html": "<h1>تحقق من بريدك</h1><p>يرجى النقر على الرابط أدناه للتحقق من بريدك الإلكتروني:</p><p><a href=\"{{url}}\">{{url}}</a></p><p>هذا الرابط ينتهي خلال 24 ساعة.</p>" },
+    "en": { "subject": "Verify Your Email", "html": "<h1>Verify Your Email</h1><p>Please click the link below to verify your email:</p><p><a href=\"{{url}}\">{{url}}</a></p><p>This link expires in 24 hours.</p>" },
+    "ur": { "subject": "اپنا ای میل تصدیق کریں", "html": "<h1>ای میل تصدیق کریں</h1><p>براہ کرم نیچے دیے لنک پر کلک کر کے اپنا ای میل تصدیق کریں:</p><p><a href=\"{{url}}\">{{url}}</a></p><p>یہ لنک 24 گھنٹے بعد منقضی ہو جائے گا۔</p>" },
+    "hi": { "subject": "अपना ईमेल सत्यापित करें", "html": "<h1>ईमेल सत्यापित करें</h1><p>कृपया नीचे दिए गए लिंक पर क्लिक करके अपना ईमेल सत्यापित करें:</p><p><a href=\"{{url}}\">{{url}}</a></p><p>यह लिंक 24 घंटे में समाप्त हो जाएगा।</p>" },
+    "bn": { "subject": "আপনার ইমেইল যাচাই করুন", "html": "<h1>ইমেইল যাচাই করুন</h1><p>অনুগ্রহ করে নিচের লিংকে ক্লিক করে আপনার ইমেইল যাচাই করুন:</p><p><a href=\"{{url}}\">{{url}}</a></p><p>এই লিংক ২৪ ঘণ্টা পরে মেয়াদোত্তীর্ণ হবে।</p>" },
+    "fil": { "subject": "Verify Your Email", "html": "<h1>Verify Your Email</h1><p>Pakiclick ang link sa ibaba para i-verify ang email mo:</p><p><a href=\"{{url}}\">{{url}}</a></p><p>Maaaring ma-expire ang link sa 24 hours.</p>" }
+  },
+  "PASSWORD_RESET": {
+    "ar": { "subject": "إعادة تعيين كلمة المرور", "html": "<h1>إعادة تعيين كلمة المرور</h1><p>لقد طلبت إعادة تعيين كلمة المرور. انقر على الرابط أدناه:</p><p><a href=\"{{url}}\">{{url}}</a></p><p>هذا الرابط ينتهي خلال ساعة واحدة.</p>" },
+    "en": { "subject": "Reset Your Password", "html": "<h1>Reset Your Password</h1><p>You requested a password reset. Click the link below:</p><p><a href=\"{{url}}\">{{url}}</a></p><p>This link expires in 1 hour.</p>" },
+    "ur": { "subject": "اپنا پاسورڈ ری سیٹ کریں", "html": "<h1>پاسورڈ ری سیٹ</h1><p>آپ نے پاسورڈ ری سیٹ کی درخوست دی۔ نیچے لنک پر کلک کریں:</p><p><a href=\"{{url}}\">{{url}}</a></p><p>یہ لنک 1 گھنٹے بعد منقضی ہو جائے گا۔</p>" },
+    "hi": { "subject": "अपना पासवर्ड रीसेट करें", "html": "<h1>पासवर्ड रीसेट करें</h1><p>आपने पासवर्ड रीसेट का अनुरोध किया। नीचे दिए लिंक पर क्लिक करें:</p><p><a href=\"{{url}}\">{{url}}</a></p><p>यह लिंक 1 घंटे में समाप्त हो जाएगा।</p>" },
+    "bn": { "subject": "আপনার পাসওয়ার্ড রিসেট করুন", "html": "<h1>পাসওয়ার্ড রিসেট</h1><p>আপনি পাসওয়ার্ড রিসেটের অনুরোধ করেছেন। নিচের লিংকে ক্লিক করুন:</p><p><a href=\"{{url}}\">{{url}}</a></p><p>এই লিংক ১ ঘণ্টা পর মেয়াদোত্তীর্ণ হবে।</p>" },
+    "fil": { "subject": "Reset Your Password", "html": "<h1>Reset Your Password</h1><p>Hiningi mo ang password reset. I-click ang link sa ibaba:</p><p><a href=\"{{url}}\">{{url}}</a></p><p>Ma-expire ang link sa 1 hour.</p>" }
+  },
+  "APPOINTMENT_CONFIRMATION": {
+    "ar": { "subject": "تأكيد الموعد - {{provider}}", "html": "<h1>تم تأكيد موعدك</h1><p>مرحباً {{name}}</p><p>تم تأكيد موعدك مع <strong>{{provider}}</strong> في <strong>{{date}}</strong> الساعة <strong>{{time}}</strong>.</p><p>النوع: {{type}}</p>" },
+    "en": { "subject": "Appointment Confirmed - {{provider}}", "html": "<h1>Appointment Confirmed</h1><p>Hi {{name}}</p><p>Your appointment with <strong>{{provider}}</strong> is confirmed for <strong>{{date}}</strong> at <strong>{{time}}</strong>.</p><p>Type: {{type}}</p>" },
+    "ur": { "subject": "ملاقات طے ہوئی - {{provider}}", "html": "<h1>ملاقات طے ہوئی</h1><p>السلام علیکم {{name}}</p><p>آپ کی ملاقات <strong>{{provider}}</strong> کے ساتھ <strong>{{date}}</strong> کو <strong>{{time}}</strong> طے ہوئی۔</p><p>قسم: {{type}}</p>" },
+    "hi": { "subject": "अपॉइंटमेंट कन्फर्म - {{provider}}", "html": "<h1>अपॉइंटमेंट कन्फर्म</h1><p>नमस्ते {{name}}</p><p><strong>{{provider}}</strong> के साथ आपका अपॉइंटमेंट <strong>{{date}}</strong> को <strong>{{time}}</strong> कन्फर्म है।</p><p>प्रकार: {{type}}</p>" },
+    "bn": { "subject": "অ্যাপয়েন্টমেন্ট নিশ্চিত - {{provider}}", "html": "<h1>অ্যাপয়েন্টমেন্ট নিশ্চিত</h1><p>হ্যালো {{name}}</p><p><strong>{{provider}}</strong> এর সাথে আপনার অ্যাপয়েন্টমেন্ট <strong>{{date}}</strong> তার <strong>{{time}}</strong> টায় নিশ্চিত।</p><p>প্রकार: {{type}}</p>" },
+    "fil": { "subject": "Appointment Confirmed - {{provider}}", "html": "<h1>Appointment Confirmed</h1><p>Hi {{name}}</p><p>Confirmed ang appointment mo kay <strong>{{provider}}</strong> sa <strong>{{date}}</strong> ng <strong>{{time}}</strong>.</p><p>Type: {{type}}</p>" }
+  },
+  "ORDER_CONFIRMATION": {
+    "ar": { "subject": "تأكيد الطلب رقم {{orderNumber}}", "html": "<h1>تم تأكيد طلبك</h1><p>مرحباً {{name}}</p><p>تم تأكيد طلبك رقم <strong>{{orderNumber}}</strong>.</p><p>المجموع: <strong>{{total}}</strong></p>" },
+    "en": { "subject": "Order Confirmation #{{orderNumber}}", "html": "<h1>Order Confirmed</h1><p>Hi {{name}}</p><p>Your order <strong>#{{orderNumber}}</strong> has been confirmed.</p><p>Total: <strong>{{total}}</strong></p>" },
+    "ur": { "subject": "آرڈر طے ہوا #{{orderNumber}}", "html": "<h1>آرڈر طے ہوا</h1><p>السلام علیکم {{name}}</p><p>آپ کا آرڈر <strong>#{{orderNumber}}</strong> طے ہو گیا۔</p><p>کل: <strong>{{total}}</strong></p>" },
+    "hi": { "subject": "ऑर्डर कन्फर्म #{{orderNumber}}", "html": "<h1>ऑर्डर कन्फर्म</h1><p>नमस्ते {{name}}</p><p>आपका ऑर्डर <strong>#{{orderNumber}}</strong> कन्फर्म हो गया है।</p><p>कुल: <strong>{{total}}</strong></p>" },
+    "bn": { "subject": "অর্ডার নিশ্চিত #{{orderNumber}}", "html": "<h1>অর্ডার নিশ্চিত</h1><p>হ্যালো {{name}}</p><p>আপনার অর্ডার <strong>#{{orderNumber}}</strong> নিশ্চিত হয়েছে।</p><p>মোট: <strong>{{total}}</strong></p>" },
+    "fil": { "subject": "Order Confirmation #{{orderNumber}}", "html": "<h1>Order Confirmed</h1><p>Hi {{name}}</p><p>Confirmed ang order <strong>#{{orderNumber}}</strong> mo.</p><p>Total: <strong>{{total}}</strong></p>" }
+  },
+  "PRESCRIPTION_STATUS": {
+    "ar": { "subject": "تحديث حالة الوصفة - الطلب {{orderNumber}}", "html": "<h1>تحديث الوصفة الطبية</h1><p>مرحباً {{name}}</p><p>تم <strong>{{status}}</strong> وصفتك للطلب رقم {{orderNumber}}.</p>{{#if reason}}<p>السبب: {{reason}}</p>{{/if}}" },
+    "en": { "subject": "Prescription Update - Order {{orderNumber}}", "html": "<h1>Prescription Status Update</h1><p>Hi {{name}}</p><p>Your prescription for order #{{orderNumber}} has been <strong>{{status}}</strong>.</p>{{#if reason}}<p>Reason: {{reason}}</p>{{/if}}" },
+    "ur": { "subject": "نسخہ کی حیثیت - آرڈر {{orderNumber}}", "html": "<h1>نسخہ کی حیثیت</h1><p>السلام علیکم {{name}}</p><p>آپ کا نسخہ آرڈر {{orderNumber}} کے لیے <strong>{{status}}</strong> ہوا۔</p>{{#if reason}}<p>وجہ: {{reason}}</p>{{/if}}" },
+    "hi": { "subject": "प्रिस्क्रिप्शन स्टेटस - ऑर्डर {{orderNumber}}", "html": "<h1>प्रिस्क्रिप्शन स्थिति</h1><p>नमस्ते {{name}}</p><p>ऑर्डर #{{orderNumber}} के लिए आपका प्रिस्क्रिप्शन <strong>{{status}}</strong> किया गया है।</p>{{#if reason}}<p>कारण: {{reason}}</p>{{/if}}" },
+    "bn": { "subject": "প্রেসক্রিপশন স্ট্যাটাস - অর্ডার {{orderNumber}}", "html": "<h1>প্রেসক্রিপশন স্ট্যাটাস</h1><p>হ্যালো {{name}}</p><p>অর্ডার #{{orderNumber}} এর জন্য আপনার প্রেসক্রিপশন <strong>{{status}}</strong> করা হয়েছে।</p>{{#if reason}}<p>কারণ: {{reason}}</p>{{/if}}" },
+    "fil": { "subject": "Prescription Update - Order {{orderNumber}}", "html": "<h1>Prescription Status Update</h1><p>Hi {{name}}</p><p>Na-<strong>{{status}}</strong> ang prescription mo para sa order #{{orderNumber}}.</p>{{#if reason}}<p>Dahilan: {{reason}}</p>{{/if}}" }
+  },
+  "PAYMENT_RECEIPT": {
+    "ar": { "subject": "إيصال الدفع - الطلب {{orderNumber}}", "html": "<h1>إيصال الدفع</h1><p>مرحباً {{name}}</p><p>تم استلام دفعتك للطلب رقم {{orderNumber}}.</p><p>المبلغ: <strong>{{amount}}</strong></p><p>طريقة الدفع: {{method}}</p>" },
+    "en": { "subject": "Payment Receipt - Order {{orderNumber}}", "html": "<h1>Payment Receipt</h1><p>Hi {{name}}</p><p>Payment received for order #{{orderNumber}}.</p><p>Amount: <strong>{{amount}}</strong></p><p>Method: {{method}}</p>" },
+    "ur": { "subject": "ادائیگی کی رسید - آرڈر {{orderNumber}}", "html": "<h1>ادائیگی کی رسید</h1><p>السلام علیکم {{name}}</p><p>آرڈر {{orderNumber}} کی ادائیگی موصول ہوئی۔</p><p>رقم: <strong>{{amount}}</strong></p><p>طریقہ: {{method}}</p>" },
+    "hi": { "subject": "भुगतान रसीद - ऑर्डर {{orderNumber}}", "html": "<h1>भुगतान रसीद</h1><p>नमस्ते {{name}}</p><p>ऑर्डर #{{orderNumber}} के लिए भुगतान प्राप्त हुआ।</p><p>राशि: <strong>{{amount}}</strong></p><p>विधि: {{method}}</p>" },
+    "bn": { "subject": "পেমেন্ট রসিড - অর্ডার {{orderNumber}}", "html": "<h1>পেমেন্ট রসিড</h1><p>হ্যালো {{name}}</p><p>অর্ডার #{{orderNumber}} এর জন্য পেমেন্ট পাওয়া গেছে।</p><p>পরিমাণ: <strong>{{amount}}</strong></p><p>পদ্ধতি: {{method}}</p>" },
+    "fil": { "subject": "Payment Receipt - Order {{orderNumber}}", "html": "<h1>Payment Receipt</h1><p>Hi {{name}}</p><p>Nakatanggap ng payment para sa order #{{orderNumber}}.</p><p>Amount: <strong>{{amount}}</strong></p><p>Method: {{method}}</p>" }
+  },
+  "INSURANCE_CLAIM_SUBMITTED": {
+    "ar": { "subject": "تم تقديم مطالبة التأمين - {{claimNumber}}", "html": "<h1>تم تقديم مطالبتك</h1><p>مرحباً {{name}}</p><p>تم تقديم مطالبة التأمين رقم <strong>{{claimNumber}}</strong> بنجاح.</p><p>المبلغ المطالب به: <strong>{{amount}}</strong></p>" },
+    "en": { "subject": "Insurance Claim Submitted - {{claimNumber}}", "html": "<h1>Claim Submitted</h1><p>Hi {{name}}</p><p>Your insurance claim <strong>{{claimNumber}}</strong> has been submitted.</p><p>Claimed Amount: <strong>{{amount}}</strong></p>" },
+    "ur": { "subject": "انشورنس دعوی جمع - {{claimNumber}}", "html": "<h1>دعوی جمع ہوئی</h1><p>السلام علیکم {{name}}</p><p>آپ کی انشورنس دعوی <strong>{{claimNumber}}</strong> کامیابی سے جمع ہوئی۔</p><p>مطالبہ شدہ رقم: <strong>{{amount}}</strong></p>" },
+    "hi": { "subject": "बीमा दावा प्रस्तुत - {{claimNumber}}", "html": "<h1>दावा प्रस्तुत</h1><p>नमस्ते {{name}}</p><p>आपका बीमा दावा <strong>{{claimNumber}}</strong> प्रस्तुत किया गया है।</p><p>दावा राशि: <strong>{{amount}}</strong></p>" },
+    "bn": { "subject": "বীমা দাবি জমা - {{claimNumber}}", "html": "<h1>দাবি জমা</h1><p>হ্যালো {{name}}</p><p>আপনার বীমা দাবি <strong>{{claimNumber}}</strong> সফলভাবে জমা করা হয়েছে।</p><p>দাবি পরিমাণ: <strong>{{amount}}</strong></p>" },
+    "fil": { "subject": "Insurance Claim Submitted - {{claimNumber}}", "html": "<h1>Claim Submitted</h1><p>Hi {{name}}</p><p>Na-submit na ang insurance claim <strong>{{claimNumber}}</strong> mo.</p><p>Claimed Amount: <strong>{{amount}}</strong></p>" }
+  }
+}
