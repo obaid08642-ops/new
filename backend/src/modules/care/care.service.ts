@@ -286,6 +286,8 @@ export class CareService {
       insurance_home: Boolean(d.insurance_home),
       accepted_insurance: Array.isArray(d.accepted_insurance) ? d.accepted_insurance : [],
       clinicPhotos: Array.isArray(d.clinic_images) ? d.clinic_images : [],
+      // Q-20: listed doctors passed admin approval (public filter) — the real source.
+      verified: !d.medical_review_status || d.medical_review_status === 'approved',
       next_available_at: nextAvailableAt,
     };
     if (typeof distanceKm === 'number' && Number.isFinite(distanceKm)) publicDoctor.distance_km = Math.round(distanceKm * 10) / 10;
