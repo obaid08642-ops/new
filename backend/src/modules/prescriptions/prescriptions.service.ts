@@ -160,8 +160,8 @@ export class PrescriptionsService {
     const items: any[] = [];
     let hasManual = false;
     for (const it of data.items || []) {
-      // Normalize the name field — OCR may return any of these keys.
-      const medName = (it.name_ar || it.medicine_name_ar || it.name || it.name_en || '').toString().trim();
+      // Normalize the name field — OCR (/ai/prescription-ocr) returns raw_name_string.
+      const medName = (it.name_ar || it.medicine_name_ar || it.name || it.raw_name_string || it.raw_name || it.medicine_name || it.name_en || '').toString().trim();
       const medNameEn = (it.name_en || it.medicine_name_en || '').toString().trim() || undefined;
       if (!medName) continue; // skip blank items rather than crashing
       let medId = it.medicine_id;
@@ -189,8 +189,8 @@ export class PrescriptionsService {
         frequency_hours: it.frequency_hours,
         times_per_day: it.times_per_day,
         duration_days: it.duration_days,
-        quantity: it.quantity,
-        instructions: it.frequency || it.instructions,
+        quantity: it.quantity ?? it.requested_quantity ?? it.qty ?? undefined,
+        instructions: it.frequency || it.instructions || it.notes || undefined,
         is_manual_entry: !it.medicine_id,
       });
     }
