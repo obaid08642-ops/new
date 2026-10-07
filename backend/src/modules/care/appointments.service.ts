@@ -297,7 +297,8 @@ export class AppointmentsService {
     await this.assertAppointmentAccess(appt, user);
 
     const obj: any = appt.toObject();
-    
+    // Q-17: clients read `consultation_type`; the stored field is `service_type`.
+    if (!obj.consultation_type && obj.service_type) obj.consultation_type = obj.service_type;
     // Fetch doctor info to attach name and specialty
     const doctor: any = await this.providerModel.findOne({ id: obj.doctor_id, type: ProviderType.DOCTOR }, { name_ar: 1, specialty_ar: 1, specialty: 1, name: 1, _id: 0 });
     if (doctor) {
