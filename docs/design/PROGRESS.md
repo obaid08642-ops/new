@@ -30,7 +30,7 @@ Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = we
 ## Next
 
 1. **Batch 7 insurance** (hub + request page, map 2 §6), then 8, 9, 10-13 in order, each in the batch that owns the screens.
-2. **After the patient batches (7-13, Batch 14 merges, Emergency) - owner plan 2026-10-08:** (a) patient journey audit: `docs/journeys/patient.md`, walked on the running app and web, report `docs/design/needs-review/journeys.json` (scenario, step, problem, file:line), no logic fixes; (b) provider app (~130 screens): inventory + merge map sent to the owner BEFORE building (flag: pharmacy has 3 screens; ambulance role goes, D14); wait for the owner's provider boards for the key screens; (c) admin: full on desktop; mobile = daily essentials (today's numbers, approvals queue, problem orders, feature switches, urgent alerts, and the medicine catalogue: search by name/ingredient/camera barcode, quick edit of key fields, add item from the items-to-review queue, confirmation before price/requires_prescription/controlled changes, change log); flag the public directory pages inside admin.
+2. **After the patient batches - owner plan 2026-10-08:** patient journey audit (#733); provider app (#734 audit, build on `design/provider-build`); admin (#735 audit, build on `design/admin-build`). Full plan: `PROGRESS_ARCHIVE.md`.
 2. **Owner decisions 24-27** (`OWNER_DECISIONS_2026-10-06.md`): UI parts in the owning batch (map 2 §9): doctor thread only inside a booking (`/chat` list removed), no cash option for online services, cash on delivery only when the server allows it, cancel/refund text from the server. Pharmacy badges and "استشر طبيب" wait for the reviewer's backend part.
 3. Keep `EXPO_PUBLIC_CONSULT_NEARBY_FILTERS` off until Q-12/Q-13 are live.
 
