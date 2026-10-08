@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
 
 export default function ConfigPortal() {
-  const [activeTab, setActiveTab] = useState<'sla' | 'maintenance' | 'pricing' | 'apps'>('sla');
+  const [activeTab, setActiveTab] = useState<'sla' | 'maintenance' | 'pricing' | 'apps' | 'rxconsult'>('sla');
 
   // SLA State
   const [consultationDuration, setConsultationDuration] = useState(15);
@@ -25,6 +25,25 @@ export default function ConfigPortal() {
 
   const setApp = (app: string, patch: Record<string, unknown>) => {
     setAppVersions((p) => ({ ...p, [app]: { ...(p[app] || {}), ...patch } }));
+  };
+
+  // D-10 (owner decision 10): which specialty "استشر طبيب" opens for a prescription-only item, per category.
+  type RxConsult = { map: Record<string, string>; default: string | null; categories: { key: string; count: number }[]; specialties: { slug: string; name_ar: string }[] };
+  const [rxConsult, setRxConsult] = useState<RxConsult | null>(null);
+  const [rxConsultMsg, setRxConsultMsg] = useState('');
+  const loadRxConsult = async () => {
+    try {
+      const res = await fetchWithAdminGuard('/api/admin/admin/pharmacy/rx-consult-specialties');
+      if (res.ok) setRxConsult(await res.json());
+    } catch { /* optional */ }
+  };
+  const saveRxConsult = async () => {
+    if (!rxConsult) return;
+    setRxConsultMsg('');
+    try {
+      const res = await fetchWithAdminGuard('/api/admin/admin/pharmacy/rx-consult-specialties', { method: 'PUT', body: JSON.stringify({ map: rxConsult.map, default: rxConsult.default }) });
+      setRxConsultMsg(res.ok ? 'تم حفظ ربط التخصصات' : 'فشل الحفظ');
+    } catch { setRxConsultMsg('فشل الحفظ'); }
   };
 
   const saveAppVersions = async () => {
@@ -212,6 +231,12 @@ export default function ConfigPortal() {
         >
           إصدارات التطبيقات
         </button>
+        <button
+          className={`py-3 px-6 font-medium text-lg ${activeTab === 'rxconsult' ? 'border-b-2 border-teal-500 text-teal-600' : 'text-gray-500'}`}
+          onClick={() => { setActiveTab('rxconsult'); void loadRxConsult(); }}
+        >
+          استشر طبيب (أدوية الوصفة)
+        </button>
       </div>
 
       {/* Content */}
@@ -369,6 +394,43 @@ export default function ConfigPortal() {
               ))}
               <button onClick={() => void saveAppVersions()} className="mt-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">حفظ الإصدارات</button>
               {appsMsg && <p className="mt-2 text-sm font-bold">{appsMsg}</p>}
+            </div>
+          </div>
+        )}
+        {activeTab === 'rxconsult' && (
+          <div className="space-y-4">
+            <div className="bg-white p-6 rounded border border-gray-200">
+              <h2 className="text-xl font-bold mb-1">تخصص زر &laquo;استشر طبيب&raquo; لأدوية الوصفة</h2>
+              <p className="text-sm text-gray-500 mb-4">لكل فئة من أدوية الوصفة اختر التخصص الذي تُفتح عليه الاستشارات. الفئات بلا اختيار تستخدم التخصص الافتراضي، وإن لم يُحدَّد تُفتح الاستشارات بلا تصفية.</p>
+              {!rxConsult ? <p className="text-sm">جارٍ التحميل…</p> : (
+                <>
+                  <label className="text-sm block max-w-sm mb-4">التخصص الافتراضي
+                    <select value={rxConsult.default || ''} onChange={(e) => setRxConsult({ ...rxConsult, default: e.target.value || null })} className="mt-1 w-full border rounded p-2">
+                      <option value="">بدون تصفية</option>
+                      {rxConsult.specialties.map((sp) => <option key={sp.slug} value={sp.slug}>{sp.name_ar}</option>)}
+                    </select>
+                  </label>
+                  <table className="w-full text-sm">
+                    <thead><tr className="text-right text-gray-500"><th className="py-2">الفئة</th><th>عدد الأدوية</th><th>التخصص</th></tr></thead>
+                    <tbody>
+                      {rxConsult.categories.map((c) => (
+                        <tr key={c.key} className="border-t">
+                          <td className="py-2">{c.key}</td>
+                          <td>{c.count}</td>
+                          <td>
+                            <select value={rxConsult.map[c.key] || ''} onChange={(e) => setRxConsult({ ...rxConsult, map: { ...rxConsult.map, [c.key]: e.target.value } })} className="border rounded p-1">
+                              <option value="">الافتراضي</option>
+                              {rxConsult.specialties.map((sp) => <option key={sp.slug} value={sp.slug}>{sp.name_ar}</option>)}
+                            </select>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <button onClick={() => void saveRxConsult()} className="mt-4 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">حفظ الربط</button>
+                  {rxConsultMsg && <p className="mt-2 text-sm font-bold">{rxConsultMsg}</p>}
+                </>
+              )}
             </div>
           </div>
         )}
