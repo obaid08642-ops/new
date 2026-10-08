@@ -3,6 +3,7 @@ import createNextIntlPlugin from "next-intl/plugin";
 import { withSentryConfig } from "@sentry/nextjs";
 import { contentSecurityPolicy } from "./csp";
 import { IMAGE_HOSTS } from "./lib/image-hosts";
+import { queryTwinRewrites, unavailablePageRewrite } from "./lib/security/query-twin";
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -34,6 +35,11 @@ const nextConfig: NextConfig = {
       { source: "/:locale/s", destination: "/:locale/search", permanent: false },
       { source: "/:locale/payments", destination: "/:locale/cart/checkout", permanent: false },
     ];
+  },
+  // F82-3: internal rewrites (the address does not change). They run after the proxy has classified and stamped the request by
+  // its original path. See lib/security/query-twin.ts for why they are config rewrites and not rewrites made in proxy.ts.
+  async rewrites() {
+    return { beforeFiles: [...queryTwinRewrites(), unavailablePageRewrite()], afterFiles: [], fallback: [] };
   },
   async headers() {
     return [{ source: "/:path*", headers: [

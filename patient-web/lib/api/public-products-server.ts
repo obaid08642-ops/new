@@ -115,29 +115,49 @@ export function cleanProductName(name?: string | null, officialName?: string | n
   return off || n;
 }
 
-async function getJson<T>(path: string, revalidate = 3600): Promise<T | null> {
+/** What a public read answered: the body (null when there is none) and whether the service FAILED (no answer, or a 5xx), as opposed to answering with nothing (a 404). */
+export type PublicRead<T> = { data: T | null; failed: boolean };
+
+async function readJson<T>(path: string, revalidate = 3600): Promise<PublicRead<T>> {
   try {
     const res = await fetch(patientApiUrl(path), {
       headers: { Accept: "application/json" },
       next: { revalidate },
     } as RequestInit);
-    if (!res.ok) return null;
-    return (await res.json()) as T;
+    if (res.status >= 500) return { data: null, failed: true };
+    if (!res.ok) return { data: null, failed: false };
+    return { data: (await res.json()) as T, failed: false };
   } catch {
-    return null;
+    return { data: null, failed: true };
   }
 }
 
-export async function getPublicProduct(locale: Locale, slug: string): Promise<PublicProduct | null> {
-  const decoded = decodeURIComponent(slug);
-  if (!isLocale(locale) || !slugSchema.test(decoded)) return null;
-  const prod = await getJson<PublicProduct>(`/public/product/${locale}/${encodeURIComponent(decoded)}`);
-  if (!prod) return null;
+async function getJson<T>(path: string, revalidate = 3600): Promise<T | null> {
+  return (await readJson<T>(path, revalidate)).data;
+}
+
+function normalizeProduct(prod: PublicProduct): PublicProduct {
   return {
     ...prod,
     name: cleanProductName(prod.name, prod.official_name),
     images: resolveProductGallery(prod),
   };
+}
+
+export async function getPublicProduct(locale: Locale, slug: string): Promise<PublicProduct | null> {
+  return (await readPublicProduct(locale, slug)).data;
+}
+
+/**
+ * F82-3: the product page is cached (ISR), so it must tell "no such product" (404, a page) from "the service failed"
+ * (it throws, and Next keeps the last good copy). The answer is the same for every visitor.
+ */
+export async function readPublicProduct(locale: Locale, slug: string): Promise<PublicRead<PublicProduct>> {
+  let decoded: string;
+  try { decoded = decodeURIComponent(slug); } catch { return { data: null, failed: false }; }
+  if (!isLocale(locale) || !slugSchema.test(decoded)) return { data: null, failed: false };
+  const read = await readJson<PublicProduct>(`/public/product/${locale}/${encodeURIComponent(decoded)}`);
+  return { data: read.data ? normalizeProduct(read.data) : null, failed: read.failed };
 }
 
 export type CategoryTree = {
@@ -146,8 +166,12 @@ export type CategoryTree = {
 };
 
 export async function getPublicCategories(locale: Locale): Promise<CategoryTree | null> {
-  if (!isLocale(locale)) return null;
-  return getJson<CategoryTree>(`/public/categories/${locale}`);
+  return (await readPublicCategories(locale)).data;
+}
+
+export async function readPublicCategories(locale: Locale): Promise<PublicRead<CategoryTree>> {
+  if (!isLocale(locale)) return { data: null, failed: false };
+  return readJson<CategoryTree>(`/public/categories/${locale}`);
 }
 
 export type CategoryItems = {
@@ -167,20 +191,34 @@ export async function getPublicCategoryProducts(
   page: number,
   q?: string
 ): Promise<CategoryItems | null> {
-  if (!isLocale(locale)) return null;
+  return (await readPublicCategoryProducts(locale, category, sub, page, q)).data;
+}
+
+export async function readPublicCategoryProducts(
+  locale: Locale,
+  category: string | undefined,
+  sub: string | undefined,
+  page: number,
+  q?: string
+): Promise<PublicRead<CategoryItems>> {
+  if (!isLocale(locale)) return { data: null, failed: false };
   const catParam = category && category.trim() ? category : "all";
   const params = new URLSearchParams({ category: catParam, page: String(page) });
   if (sub) params.set("sub", sub);
   if (q && q.trim()) params.set("q", q.trim());
-  const data = await getJson<CategoryItems>(`/public/categories/${locale}/items?${params.toString()}`);
-  if (!data) return null;
+  const read = await readJson<CategoryItems>(`/public/categories/${locale}/items?${params.toString()}`);
+  const data = read.data;
+  if (!data) return { data: null, failed: read.failed };
   return {
-    ...data,
-    items: (data.items || []).map((it) => ({
-      ...it,
-      name: cleanProductName(it.name, it.official_name),
-      image: resolveImageUri(it.image) || (Array.isArray(it.images) && it.images[0] ? resolveImageUri(it.images[0]) : null),
-    })),
+    failed: false,
+    data: {
+      ...data,
+      items: (data.items || []).map((it) => ({
+        ...it,
+        name: cleanProductName(it.name, it.official_name),
+        image: resolveImageUri(it.image) || (Array.isArray(it.images) && it.images[0] ? resolveImageUri(it.images[0]) : null),
+      })),
+    },
   };
 }
 

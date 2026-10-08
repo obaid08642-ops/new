@@ -12,6 +12,7 @@ import { shellSectionHrefs } from "@/components-next/shell-links";
 import { ThemeButton } from "./theme-button";
 import type { Locale } from "@/lib/i18n";
 import { HomeTabBar } from "./home-tab-bar";
+import { HomeAccountTools, HomeNavLink, HomeNotificationsLink } from "./home-identity";
 import styles from "./home.module.css";
 
 /**
@@ -21,6 +22,10 @@ import styles from "./home.module.css";
  *
  * The site header and footer of app/[locale]/layout.tsx are not drawn on these routes
  * (globals.css, `.shell:has(> .nabd-home-shell)`), so nothing renders twice.
+ *
+ * F82-3: `signedIn` is passed only by a page that is rendered per request and already knows it (the dashboard). The public
+ * Home is static and leaves it out: the account parts of the bar then decide in the browser (components-next/home/home-identity.tsx),
+ * so the HTML is the same for everyone.
  */
 export async function HomeShell({
   locale,
@@ -30,7 +35,7 @@ export async function HomeShell({
   children,
 }: {
   locale: Locale;
-  signedIn: boolean;
+  signedIn?: boolean;
   /** The patient's name, for the account avatar; absent when unknown. */
   name?: string | null;
   /** "dashboard" also drops the site footer (the board has none); the public home keeps it for the legal links. */
@@ -49,7 +54,8 @@ export async function HomeShell({
     { id: "labs", href: hrefsOf.labs, label: t("navLabs") },
     { id: "nursing", href: hrefsOf.nursing, label: t("navNursing") },
   ];
-  const home = signedIn ? `${base}/dashboard` : base;
+  const knownSignedIn = signedIn === true;
+  const home = knownSignedIn ? `${base}/dashboard` : base;
   const tabs: BottomTabItem[] = [
     { id: "home", label: t("navHome"), icon: "house" },
     { id: "pharmacy", label: t("navPharmacy"), icon: "pill" },
@@ -68,7 +74,11 @@ export async function HomeShell({
         </span>
       </Link>
       <nav className={styles.nav} aria-label={t("mainNav")}>
-        <Link href={home} className={`${styles.navLink} ${styles.navLinkActive}`} aria-current="page">{t("navHome")}</Link>
+        {signedIn === undefined ? (
+          <HomeNavLink locale={locale} label={t("navHome")} />
+        ) : (
+          <Link href={home} className={`${styles.navLink} ${styles.navLinkActive}`} aria-current="page">{t("navHome")}</Link>
+        )}
         {sections.map((s) => (
           <NavLink key={s.id} href={s.href} className={styles.navLink} prefetch="viewport" signedIn={signedIn}>{s.label}</NavLink>
         ))}
@@ -76,7 +86,8 @@ export async function HomeShell({
       <div className={styles.tools}>
         <LocaleSelector current={locale} label={shared("language")} />
         <ThemeButton label={shared("theme")} />
-        {signedIn ? (
+        {signedIn === undefined ? <HomeNotificationsLink locale={locale} label={t("notifications")} /> : null}
+        {knownSignedIn ? (
           <Link href={`${base}/notifications`} className={styles.iconBtn} aria-label={t("notifications")}>
             <FIcon icon="bell" tone="ink" chip="none" size={20} />
           </Link>
@@ -84,7 +95,9 @@ export async function HomeShell({
         <Link href={`${base}/cart`} className={`${styles.iconBtn} ${styles.cartLink}`} aria-label={t("cart")}>
           <FIcon icon="package" tone="ink" chip="none" size={20} />
         </Link>
-        {signedIn ? (
+        {signedIn === undefined ? (
+          <HomeAccountTools locale={locale} signInLabel={t("signIn")} accountLabel={t("account")} />
+        ) : knownSignedIn ? (
           <>
             <SignOutButton locale={locale} className={styles.iconBtn} />
             <Link href={`${base}/profile`} className={styles.accountLink} aria-label={t("account")}>
@@ -102,7 +115,7 @@ export async function HomeShell({
     <AppShell
       className={`nabd-home-shell ${surface === "dashboard" ? "nabd-home-shell--dashboard" : ""} ${styles.shell}`}
       topBar={topBar}
-      tabBar={<HomeTabBar items={tabs} hrefs={hrefs} value="home" label={t("mainNav")} signedIn={signedIn} />}
+      tabBar={<HomeTabBar items={tabs} hrefs={hrefs} value="home" label={t("mainNav")} signedIn={signedIn} signedInHomeHref={`${base}/dashboard`} />}
       tabBarLabel={t("mainNav")}
     >
       {children}

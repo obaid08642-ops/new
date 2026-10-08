@@ -81,10 +81,16 @@ export function resetSessionIdentityForTests(): void {
   reset(null);
 }
 
-export function useSessionIdentity(): SessionIdentity {
+/**
+ * `enabled: false` reads without asking (F82-3: a component that needs the answer only for some links does not cause
+ * the request on a page where it has no use for it); the state stays "loading", which is also what the server HTML
+ * of a cached public page shows.
+ */
+export function useSessionIdentity({ enabled = true }: { enabled?: boolean } = {}): SessionIdentity {
   const [identity, setIdentity] = useState<SessionIdentity>({ status: "loading" });
 
   useEffect(() => {
+    if (!enabled) return undefined;
     let live = true;
     let generation = 0;
     // an answer that was asked before a sign-in or sign-out event is stale and must not be shown
@@ -106,7 +112,7 @@ export function useSessionIdentity(): SessionIdentity {
       window.removeEventListener(SIGNED_IN_EVENT, ask);
       window.removeEventListener(SIGNED_OUT_EVENT, onSignedOut);
     };
-  }, []);
+  }, [enabled]);
 
   return identity;
 }

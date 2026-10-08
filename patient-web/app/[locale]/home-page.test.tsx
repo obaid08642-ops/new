@@ -2,13 +2,16 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({
-  signedIn: false,
   doctors: vi.fn(),
   config: vi.fn(),
   content: vi.fn(),
 }));
 
-vi.mock("next/headers", () => ({ cookies: async () => ({ get: (name: string) => (state.signedIn && name === "nabd_access" ? { value: "token" } : undefined) }) }));
+// F82-3: the public Home is static/ISR, so it must not read the request at all: any read of cookies() or headers() throws here.
+vi.mock("next/headers", () => ({
+  cookies: async () => { throw new Error("the public Home must not read cookies()"); },
+  headers: async () => { throw new Error("the public Home must not read headers()"); },
+}));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn(), replace: vi.fn() }), usePathname: () => "/en" }));
 vi.mock("next-intl", async () => (await import("@/tests/helpers/intl")).nextIntlMock("en"));
 vi.mock("next-intl/server", async () => {
@@ -25,7 +28,8 @@ vi.mock("@/lib/api/public-config-server", async (importOriginal) => ({
   readHomeContent: state.content,
 }));
 
-import LandingPage from "./page";
+import LandingPage, { generateStaticParams, revalidate } from "./page";
+import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
 import { HomeShell } from "@/components-next/home/home-shell";
 
 async function render(locale = "en") {
@@ -44,7 +48,6 @@ const okJson = (body: unknown) => new Response(JSON.stringify(body), { status: 2
 
 describe("Home", () => {
   beforeEach(() => {
-    state.signedIn = false;
     state.doctors.mockReset().mockResolvedValue(okJson({ items: [careDoctor], total: 1 }));
     state.config.mockReset().mockResolvedValue({ data: {}, failed: false });
     state.content.mockReset().mockResolvedValue({ data: { sections: [] }, failed: false });
@@ -82,23 +85,19 @@ describe("Home", () => {
     expect(html).not.toContain("We can't load this page right now");
   });
 
-  it.each([[500], [502], [503]])("shows the error state with a retry, inside the shell, when the doctors call answers %s", async (status) => {
+  // F82-3: the page is cached, so a failure must not become a page: it throws, Next keeps the last good copy (stale-if-error,
+  // #302), and with no copy the nonce server answers with the unavailable page (tests/nonce-server-fallback.test.ts).
+  it.each([[500], [502], [503]])("throws, instead of rendering a page to cache, when the doctors call answers %s", async (status) => {
     state.doctors.mockResolvedValue(new Response("{}", { status }));
-    const html = await render("en");
-    expect(html).toContain("nabd-home-shell");
-    expect(html).toContain("We can&#x27;t load this page right now");
-    expect(html).toContain("Check your connection and try again.");
-    expect(html).toContain("Try again");
-    expect(html).toContain('role="alert"');
-    expect(html).not.toContain('id="home-title"');
+    await expect(render("en")).rejects.toBeInstanceOf(PublicDataUnavailableError);
   });
 
-  it("shows the error state when the doctors call does not answer, or the public config fails", async () => {
+  it("throws when the doctors call does not answer, or the public config fails", async () => {
     state.doctors.mockResolvedValue(null);
-    expect(await render("en")).toContain("We can&#x27;t load this page right now");
+    await expect(render("en")).rejects.toBeInstanceOf(PublicDataUnavailableError);
     state.doctors.mockResolvedValue(okJson({ items: [careDoctor] }));
     state.config.mockResolvedValue({ data: null, failed: true });
-    expect(await render("en")).toContain("We can&#x27;t load this page right now");
+    await expect(render("en")).rejects.toBeInstanceOf(PublicDataUnavailableError);
   });
 
   it("only hides the curated sections when their call fails (an optional part)", async () => {
@@ -108,10 +107,24 @@ describe("Home", () => {
     expect(html).not.toContain("We can&#x27;t load this page right now");
   });
 
-  it("keeps working for an anonymous visitor: the sign-in link and no sign-out", async () => {
+  it("is static/ISR: a literal revalidate window, no build-time render, and no cookie or header read", async () => {
+    expect(revalidate).toBe(60);
+    expect(generateStaticParams()).toEqual([]);
+    // render() above would have thrown on any cookies()/headers() read (the mock at the top).
+    expect(await render("en")).toContain('id="home-title"');
+  });
+
+  it("holds nothing that depends on who is looking: no sign-in, account, dashboard or sign-out target in the HTML", async () => {
     const html = await render("en");
-    expect(html).toContain('href="/en/login"');
+    expect(html).not.toContain('href="/en/login"');
+    expect(html).not.toContain('href="/en/profile"');
+    expect(html).not.toContain('href="/en/dashboard"');
+    expect(html).not.toContain('href="/en/notifications"');
     expect(html).not.toContain('aria-label="Sign out"');
+    // the neutral stand-in holds the size of the sign-in button, hidden and out of the accessibility tree
+    expect(html).toMatch(/<span class="[^"]*identityPending[^"]*" aria-hidden="true">Sign in<\/span>/);
+    // the Home link of the nav is the public Home for everyone until the browser knows better
+    expect(html).toContain('href="/en"');
   });
 
   it("shows the translated maintenance copy, and the admin's message only in its own language", async () => {

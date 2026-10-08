@@ -63,3 +63,22 @@ export function pickClientMessages<T extends Record<string, unknown>>(messages: 
   }
   return picked;
 }
+
+/**
+ * F82-3: namespaces that only the client components of ONE route group read (the pharmacy screens of Batch 1 bring about
+ * 36 KB of them). They stay out of CLIENT_NAMESPACES, so the first load of every other page does not carry them; the
+ * group's own layout wraps its pages in <RouteMessages group="..."/> (components-next/route-messages.tsx), which hands the
+ * client the base namespaces plus the group's. `paths` are the source folders whose client components may read them
+ * (lib/i18n/client-messages.test.ts fails when a component outside them does, or when a namespace is listed twice).
+ * Empty until a group needs one.
+ */
+export const ROUTE_GROUP_NAMESPACES: Record<string, { paths: readonly string[]; namespaces: readonly string[] }> = {};
+
+/** The base client namespaces plus those of one route group. Does not mutate its input. */
+export function pickRouteMessages<T extends Record<string, unknown>>(messages: T, group: string): Partial<T> {
+  const picked = pickClientMessages(messages);
+  for (const namespace of ROUTE_GROUP_NAMESPACES[group]?.namespaces ?? []) {
+    if (namespace in messages) picked[namespace as keyof T] = messages[namespace as keyof T];
+  }
+  return picked;
+}

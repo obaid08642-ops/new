@@ -40,12 +40,15 @@ describe("isFullPrefetchRoute", () => {
 /** The page files behind the allowed routes: a full prefetch renders them for a visitor, so they must not read the session. */
 const PUBLIC_PAGES = [
   "app/[locale]/consultations/doctors/page.tsx",
+  "app/[locale]/consultations/doctors/doctors-view.tsx",
   "app/[locale]/consultations/doctors/[doctorId]/page.tsx",
   "app/[locale]/c/[[...category]]/page.tsx",
+  "app/[locale]/c/[[...category]]/category-view.tsx",
   "app/[locale]/diagnostics/labs/page.tsx",
   "app/[locale]/nursing/catalog/page.tsx",
   "app/[locale]/map/page.tsx",
   "app/[locale]/articles/page.tsx",
+  "app/[locale]/articles/articles-view.tsx",
   "app/[locale]/articles/[slug]/page.tsx",
   "app/[locale]/p/[slug]/page.tsx",
 ];

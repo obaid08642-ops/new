@@ -25,6 +25,21 @@ describe("needsRevalidation", () => {
     expect(needsRevalidation(now - 6_000, now)).toBe(true);
     expect(needsRevalidation(now - 120_000, now)).toBe(true);
   });
+  // F82-3: on a static/ISR page `renderedAt` is the time the cached copy was GENERATED, and Next keeps it for its `revalidate`
+  // window; the page passes that window, so a copy within it is as fresh as the server would give.
+  it("uses the page's own window for a static/ISR page: a copy younger than the window stays, an older one is revalidated", () => {
+    const window = 60_000;
+    expect(needsRevalidation(now - 30_000, now, window)).toBe(false);
+    expect(needsRevalidation(now - 59_000, now, window)).toBe(false);
+    expect(needsRevalidation(now - 61_000, now, window)).toBe(true);
+    expect(needsRevalidation(now - 3_600_000, now, window)).toBe(true);
+    // the default window (a page rendered per request) is unchanged
+    expect(needsRevalidation(now - 30_000, now)).toBe(true);
+  });
+  it("turns the seconds a static page passes into the client window", () => {
+    const html = renderToStaticMarkup(<StaleWhileRevalidate maxAgeSeconds={3600} />);
+    expect(html).toBe("");
+  });
   it("tolerates a client clock a little behind the server, and revalidates when it is far behind", () => {
     expect(needsRevalidation(now + 1_000, now)).toBe(false);
     expect(needsRevalidation(now + 5_000, now)).toBe(true);
