@@ -133,6 +133,9 @@ Order (do not skip ahead):
 | D-30 | — | Insurance first (decision 30): profile insurance with class; provider networks with companies and classes; list and broadcast filters; final eligibility at checkout. | spec |
 | D-31 | — | Double taps and bad networks (decision 31): close whatever the reviewer's tests show (one charge or booking per key, the same key on retry, a result check instead of a re-pay). | spec |
 
+| D-33 | — | Backups (decision 33): `backup.sh` uploads only to the private backup bucket (`BACKUP_S3_*` settings, never `S3_BUCKET`); a weekly medicine-catalogue export; a monthly restore drill; a backup-status record that the admin page reads. | spec |
+| D-34 | — | Admin "Operations & Security" page (decision 34): backend read endpoints (admin-only, no secret values), the five sections, and the owner alerts. | spec |
+
 Items 3, 5, 6, 11 and 18 are UI only (design session). Items 21–23 are owner tasks. Item 20 is Q-12 / Q-13.
 
 ## Queue B: replaced by the phase audit (owner, 2026-10-06)
