@@ -16,12 +16,22 @@ import { InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { randomUUID } from 'crypto';
-import * as PDFDocument from 'pdfkit';
 import { JwtAuthGuard, Roles, SelfService, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { MailModule, MailService } from '../mail/mail.module';
 
 const VAT_RATE = 0.15;
+
+/** Minimal pdfkit surface used by invoicePdf (chainable, no `any`). */
+interface InvoicePdfDoc {
+  on(e: string, cb: (c: Buffer) => void): void;
+  end(): void;
+  fontSize(n: number): InvoicePdfDoc;
+  fillColor(s: string): InvoicePdfDoc;
+  text(t: string, ...rest: unknown[]): InvoicePdfDoc;
+  moveDown(n?: number): InvoicePdfDoc;
+  image(b: Buffer, o?: unknown): InvoicePdfDoc;
+}
 
 // ── Schema ─────────────────────────────────────────────────────────────────
 @Schema({ timestamps: true })
@@ -141,7 +151,12 @@ export class BillingService {
     })();
 
     return new Promise((resolve, reject) => {
-      const doc = new (PDFDocument as any)({ margin: 50, size: 'A4' });
+      // P22.9 fix: pdfkit is CJS (module.exports = class) — `import *` yields
+      // a namespace object that is not constructable, so the invoice download
+      // threw "PDFDocument is not a constructor". require keeps it working.
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const PDFKit = require('pdfkit') as new (opts: Record<string, unknown>) => InvoicePdfDoc;
+      const doc = new PDFKit({ margin: 50, size: 'A4' });
       const chunks: any[] = [];
       doc.on('data', (c: any) => chunks.push(c));
       doc.on('end', () => resolve(Buffer.concat(chunks)));

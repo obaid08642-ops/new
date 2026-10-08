@@ -164,7 +164,7 @@ describe('AppointmentsService slot-hold integrity (Q36)', () => {
   it('(5) rescheduling into another patient\'s active hold is refused 409 slot_held', async () => {
     const original = makeDoc({
       id: 'appt-0', patient_id: 'pat-B', doctor_id: 'doc-1', doctor_user_id: 'doc-user-1',
-      service_type: 'clinic', status: 'confirmed', duration_minutes: 30, price: 200,
+      service_type: 'clinic', status: 'CONFIRMED', duration_minutes: 30, price: 200,
     });
     apptModel.findOne.mockImplementation(async (q: any) => (q?.id === 'appt-0' ? original : null));
     slotLockFindOne.mockResolvedValue({

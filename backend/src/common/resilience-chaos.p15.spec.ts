@@ -313,10 +313,6 @@ describe('15.7 chaos — S3 / R2 object storage', () => {
     };
     const mockUploadSecurity = {
       validateAndSecureUpload: jest.fn().mockResolvedValue({ buffer: Buffer.from('x'), sanitized: false, exifStripped: false, clamavScanned: false, pdfSanitized: false }),
-      // StorageService.upload reads these two off the security service.
-      // Generous limits: this suite probes timeout/circuit behavior, not quotas.
-      getConfigForPurpose: jest.fn(() => ({ maxSizeBytes: 25 * 1024 * 1024, allowedMimeTypes: [], allowedExtensions: [], stripExif: false, scanWithClamav: false, sanitizePdf: false })),
-      generateSecureKey: jest.fn((purpose: string, owner: string) => `${purpose}/${owner}/k`),
       clamavAvailable: false,
       clamavChecked: true,
       checkClamavAvailability: jest.fn(),
@@ -346,18 +342,11 @@ describe('15.7 chaos — S3 / R2 object storage', () => {
     const breakers = new CircuitBreakerService();
     const mockUploadSecurity = {
       validateAndSecureUpload: jest.fn().mockResolvedValue({ buffer: Buffer.from('x'), sanitized: false, exifStripped: false, clamavScanned: false, pdfSanitized: false }),
-      // StorageService.upload reads these two off the security service.
-      // Generous limits: this suite probes timeout/circuit behavior, not quotas.
-      getConfigForPurpose: jest.fn(() => ({ maxSizeBytes: 25 * 1024 * 1024, allowedMimeTypes: [], allowedExtensions: [], stripExif: false, scanWithClamav: false, sanitizePdf: false })),
-      generateSecureKey: jest.fn((purpose: string, owner: string) => `${purpose}/${owner}/k`),
       clamavAvailable: false,
       clamavChecked: true,
       checkClamavAvailability: jest.fn(),
     } as any;
-    // Same explicit-wiring pattern as the payment/mail/notify/livekit chaos
-    // tests above: the supervised instance is handed to the service, so the
-    // assertion below observes the breaker the uploads actually ran behind.
-    const svc = new StorageService(model, mockUploadSecurity, breakers);
+    const svc = new StorageService(model, mockUploadSecurity);
 
     const aws = require('@aws-sdk/client-s3');
     const sendSpy = jest.spyOn(aws.S3Client.prototype, 'send').mockImplementation(hang as any);

@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsDefined, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, Max, Min, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ServiceType } from '../../schemas/appointment.schema';
 
@@ -85,5 +85,17 @@ export class JoinWaitlistDto {
 
   @IsDefined()
   @IsString()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
   date: string;
+
+  @IsString()
+  @IsNotEmpty()
+  idempotency_key: string;
+}
+
+export class ReportLateDto {
+  @IsInt()
+  @Min(5)
+  @Max(180)
+  delay_minutes: number;
 }

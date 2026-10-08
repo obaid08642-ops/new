@@ -6,7 +6,6 @@ import { ReorderEligibilityService } from './reorder-eligibility.service';
 import { RefillSubscriptionService } from './refill-subscription.service';
 import { AlertService } from './alert.service';
 import { ReviewService } from './review.service';
-import { OrderAmendmentService } from './order-amendment.service';
 import { OrderRepository } from './repositories/order.repository';
 import { MedicineRepository } from './repositories/medicine.repository';
 import { RefillSubscription, RefillSubscriptionSchema } from './schemas/refill-subscription.schema';
@@ -28,7 +27,6 @@ import { Review, ReviewSchema } from './schemas/review.schema';
     RefillSubscriptionService,
     AlertService,
     ReviewService,
-    OrderAmendmentService,
     OrderRepository,
     MedicineRepository,
     { provide: 'RefillSubscriptionModel', useExisting: RefillSubscription.name },
@@ -41,7 +39,6 @@ import { Review, ReviewSchema } from './schemas/review.schema';
     RefillSubscriptionService,
     AlertService,
     ReviewService,
-    OrderAmendmentService,
   ],
 })
 export class OrdersModule {}

@@ -128,6 +128,13 @@ export class Appointment {
   @Prop() transaction_id?: string;
   @Prop() paid_at?: Date;
   @Prop() refund_status?: string;
+  // P22.6: no-show fee (from system_configs:noshow_policy at mark time) + late notices.
+  @Prop({ default: 0 }) noshow_fee: number;
+  @Prop() noshow_at?: Date;
+  @Prop({ default: 0 }) late_delay_minutes: number;
+  @Prop() late_reported_at?: Date;
+  @Prop() late_reported_by?: string;
+  @Prop({ default: false }) late_auto: boolean;
 }
 export type AppointmentDocument = Appointment & Document;
 export const AppointmentSchema = SchemaFactory.createForClass(Appointment);

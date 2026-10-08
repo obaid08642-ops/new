@@ -15,11 +15,48 @@ import { pick } from '../../common/sanitize';
 /** P3.3 (F15): writable catalog fields — LabService model vocabulary (lab.schema).
  * id/_id/is_deleted/governance flags excluded. */
 export const LAB_CATALOG_FIELDS = [
-  'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en', 'category', 'sample_type', 'price', 'old_price', 'fasting_required', 'fasting_hours', 'home_visit_supported', 'facility_visit_supported', 'turnaround_hours', 'preparation_ar', 'preparation_en', 'is_package', 'included_services', 'popularity', 'active', 'unavailable', 'medical_referral_required',
+  'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en', 'category', 'sample_type', 'price', 'old_price', 'fasting_required', 'fasting_hours', 'home_visit_supported', 'facility_visit_supported', 'turnaround_hours', 'preparation_ar', 'preparation_en', 'is_package', 'included_services', 'popularity', 'active', 'unavailable', 'medical_referral_required', 'cold_chain_required',
 ] as const;
 import { getEffectiveRoles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RedisService } from '../redis/redis.service';
+import { VisitSlotsService } from './visit-slots.service';
+
+/**
+ * P22.4 — home-collection ETA minutes by city (same-day courier zones).
+ * Unknown cities fall back to DEFAULT; the map UI reads
+ * `home_collection_eta_minutes` off catalog reads when `?city=` is given.
+ */
+export const LAB_COLLECTION_ETA_DEFAULT_MINUTES = 180;
+export const LAB_COLLECTION_ETA_BY_CITY: Record<string, number> = {
+  riyadh: 90,
+  jeddah: 90,
+  dammam: 75,
+  khobar: 75,
+  dhahran: 75,
+  mecca: 120,
+  medina: 120,
+  taif: 150,
+  buraidah: 150,
+  tabuk: 180,
+  abha: 180,
+};
+
+export function homeCollectionEtaForCity(city: unknown): number | null {
+  const c = String(city ?? '').trim().toLowerCase();
+  if (!c) return null;
+  return LAB_COLLECTION_ETA_BY_CITY[c] ?? LAB_COLLECTION_ETA_DEFAULT_MINUTES;
+}
+
+/** Attach the delivery promise to a catalog row (pure — no DB). */
+export function withDeliveryPromise<T extends { home_visit_supported?: boolean; toObject?: () => T }>(
+  row: T,
+  city: unknown,
+): T & { home_collection_eta_minutes: number | null } {
+  const raw: any = typeof row?.toObject === 'function' ? row.toObject() : row;
+  const eta = raw?.home_visit_supported === false ? null : homeCollectionEtaForCity(city);
+  return { ...raw, home_collection_eta_minutes: eta };
+}
 import { BusinessRulesService } from '../business-rules/business-rules.module';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
@@ -38,9 +75,10 @@ export class LabsService {
     @Optional() private readonly redis?: RedisService,
     @Optional() private readonly pricing?: BusinessRulesService,
     @Optional() private readonly insurance?: InsuranceFlowService,
+    @Optional() private readonly visitSlots?: VisitSlotsService,
   ) {}
 
-  async list(opts: { category?: string; search?: string; home_only?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean }) {
+  async list(opts: { category?: string; search?: string; home_only?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean; city?: string }) {
     const q: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
     if (opts.category) q.category = opts.category;
     if (opts.home_only) q.home_visit_supported = true;
@@ -56,9 +94,13 @@ export class LabsService {
     if (opts.highest_rated) sortObj = { rating: -1, popularity: -1 };
     else if (opts.lowest_price) sortObj = { price: 1, popularity: -1 };
 
-    if (!this.redis?.getWithSWR) return this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120);
+    if (!this.redis?.getWithSWR) {
+      const rows = await this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120);
+      return opts.city ? rows.map((r: any) => withDeliveryPromise(r, opts.city)) : rows;
+    }
     const cacheKey = `cache:lab-services:public:v1:${JSON.stringify(opts)}`;
-    return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120));
+    const rows = await this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120));
+    return opts.city ? (rows as any[]).map((r: any) => withDeliveryPromise(r, opts.city)) : rows;
   }
 
   async categoryCounts() {
@@ -71,10 +113,10 @@ export class LabsService {
     return agg;
   }
 
-  async getById(id: string) {
+  async getById(id: string, city?: string) {
     const s = await this.svcModel.findOne({ id, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, __v: 0 });
     if (!s) throw new NotFoundException();
-    return s;
+    return city ? withDeliveryPromise(s, city) : s;
   }
 
   async compatibleProviders(testIds: string[]) {
@@ -151,7 +193,28 @@ export class LabsService {
       // Default max-per-slot=1 unless provider schedule says more; soft cap at 3 for safety
       if (overlapping >= 3) throw new BadRequestException('slot_taken');
     }
-    const items = services.map((s: any) => ({ service_id: s.id, name_ar: s.name_ar, name_en: s.name_en, price: s.price, sample_type: s.sample_type, fasting_required: s.fasting_required }));
+    // P22.4: optional booked collection window — the patient must hold a live
+    // hold for it, and scheduled_at must fall inside the window. Read-only
+    // check before the write; the hold is consumed right after creation.
+    let slotHold: { slot: Record<string, unknown>; hold: Record<string, unknown> } | null = null;
+    const wantSlot = typeof data.visit_slot_id === 'string' && data.visit_slot_id.trim() !== '';
+    const wantHold = typeof data.visit_slot_hold_id === 'string' && data.visit_slot_hold_id.trim() !== '';
+    if ((wantSlot || wantHold) && data.location_type === 'home') {
+      if (!this.visitSlots) throw new BadRequestException('visit_slots_unavailable');
+      slotHold = await this.visitSlots.assertHoldForBooking(
+        String(user.id),
+        wantSlot ? String(data.visit_slot_id) : undefined,
+        wantHold ? String(data.visit_slot_hold_id) : undefined,
+      );
+      const ws = new Date(String(slotHold.slot['window_start'])).getTime();
+      const we = new Date(String(slotHold.slot['window_end'])).getTime();
+      if (Number.isNaN(ws) || Number.isNaN(we) || slotTime.getTime() < ws || slotTime.getTime() > we) {
+        throw new BadRequestException('scheduled_at_outside_slot_window');
+      }
+    } else if (wantSlot || wantHold) {
+      throw new BadRequestException('visit_slot_requires_home_location');
+    }
+    const items = services.map((s: any) => ({ service_id: s.id, name_ar: s.name_ar, name_en: s.name_en, price: s.price, sample_type: s.sample_type, fasting_required: s.fasting_required, cold_chain_required: s.cold_chain_required === true }));
     // S4 duplicate-booking prevention: a retried/double-tapped submit by the same patient
     // for the same service set within 3 minutes returns the ORIGINAL booking (idempotent)
     // instead of creating a second one.
@@ -183,6 +246,8 @@ export class LabsService {
       provider_account_id: data.provider_account_id,
       address: data.address,
       scheduled_at: new Date(data.scheduled_at),
+      visit_slot_id: slotHold ? String(slotHold.slot['id']) : undefined,
+      visit_slot_hold_id: slotHold ? String(slotHold.hold['id']) : undefined,
       state: LabBookingState.NEW_REQUEST,
       state_history: [{ from: '', to: LabBookingState.NEW_REQUEST, by_user_id: user.id, by_role: user.role, at: new Date() }],
       notes: data.notes,
@@ -193,6 +258,13 @@ export class LabsService {
       documents,
     });
     this.events.emit('lab.booking_created', { booking_id: booking.id, patient_id: user.id, tracking_id: booking.tracking_id });
+    if (slotHold && this.visitSlots) {
+      await this.visitSlots.consumeHoldForBooking(
+        String(slotHold.hold['id']),
+        String(user.id),
+        String(booking.id),
+      );
+    }
     this.events.emit('lab.booking_state_changed', { booking_id: booking.id, patient_id: user.id, state: booking.state, tracking_id: booking.tracking_id });
     await this.engine.announceCreated({ kind: 'lab', entity_id: booking.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { tracking_id: booking.tracking_id, items: items.length, total, location_type: booking.location_type, payment_method: paymentMethod } });
     if (paymentMethod === 'insurance') {

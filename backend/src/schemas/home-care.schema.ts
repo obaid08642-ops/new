@@ -136,6 +136,12 @@ export class HomeCareBooking extends Document {
   @Prop() before_procedure_image?: string;
   @Prop() after_procedure_image?: string;
   @Prop() patient_signature_base64?: string;
+  // P22.4: proof of visit — the handover code is shown to the patient at
+  // booking time; completion requires signature OR photo OR the code.
+  @Prop({ index: true }) visit_code?: string;
+  @Prop() photo_proof_url?: string;
+  @Prop() proof_method?: string; // signature | photo | visit_code
+  @Prop() proof_verified_at?: Date;
 
   // Emergency & Abort (Pillar 5)
   @Prop({ type: Object, default: {} }) emergency_escalation: { reason?: string; refunded_amount?: number; at?: Date };

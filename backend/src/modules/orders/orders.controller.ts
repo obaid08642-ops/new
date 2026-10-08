@@ -4,12 +4,11 @@ import { ReorderEligibilityService } from './reorder-eligibility.service';
 import { RefillSubscriptionService } from './refill-subscription.service';
 import { AlertService } from './alert.service';
 import { ReviewService } from './review.service';
-import { OrderAmendmentService } from './order-amendment.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { OrderState, UserRole, DeliveryState } from '../../common/enums';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { ReorderPartialDto, CancelDto, RejectBasketDto, OptInCashDto, UpdateInsuranceApprovalDto, RejectDto, PartialDto, PlaceBidDto, AssignDto, DeliveryUpdateDto, AdminTransitionDto, EditItemsDto, RefundPartialDto, SplitOrderDto, RefillSubscriptionItemDto, CreateRefillSubscriptionDto, CreateAlertDto } from './orders.dto';
+import { ReorderPartialDto, CancelDto, RejectBasketDto, OptInCashDto, UpdateInsuranceApprovalDto, RejectDto, PartialDto, PlaceBidDto, AssignDto, DeliveryUpdateDto, AdminTransitionDto, RefillSubscriptionItemDto, CreateRefillSubscriptionDto, CreateAlertDto } from './orders.dto';
 
 @Controller('orders')
 @SelfService()
@@ -21,7 +20,6 @@ export class OrdersController {
     private refillSubs: RefillSubscriptionService,
     private alerts: AlertService,
     private reviews: ReviewService,
-    private amendments: OrderAmendmentService,
   ) {}
 
   // Patient only — providers use the read-only Drug Index and can never order
@@ -52,41 +50,6 @@ export class OrdersController {
   @RequireIdempotency()
   cancel(@Param('id') id: string, @CurrentUser() user: any, @Body() body: CancelDto) {
     return this.svc.cancel(id, user, body?.reason || 'patient-cancel');
-  }
-
-  /** P22.5 — edit items before the pharmacy accepts (unpaid only). */
-  @Patch(':id/items')
-  @RequireIdempotency()
-  @Roles(UserRole.PATIENT, UserRole.ADMIN)
-  editItems(@Param('id') id: string, @CurrentUser() user: any, @Body() body: EditItemsDto) {
-    return this.amendments.editItems(id, user, body.items);
-  }
-
-  /** P22.5 — explicit partial refund via the existing refund pipeline. */
-  @Post(':id/refund-partial')
-  @RequireIdempotency()
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
-  refundPartial(@Param('id') id: string, @CurrentUser() user: any, @Body() body: RefundPartialDto) {
-    return this.amendments.refundPartial(id, user, body.amount, body.reason);
-  }
-
-  /** P22.5 — split the shortfall to a second pharmacy (atomic allocation). */
-  @Post(':id/split')
-  @RequireIdempotency()
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
-  split(@Param('id') id: string, @CurrentUser() user: any, @Body() body: SplitOrderDto) {
-    const origin = body?.lat && body?.lng ? { lat: body.lat, lng: body.lng } : undefined;
-    return this.amendments.splitOrder(id, user, origin);
-  }
-
-  // Patient: approve/reject pharmacy basket review
-  @Post(':id/approve-basket')
-  approveBasket(@Param('id') id: string, @CurrentUser() user: any) {
-    return this.svc.patientApproveBasket(user, id);
-  }
-  @Post(':id/reject-basket')
-  rejectBasket(@Param('id') id: string, @CurrentUser() user: any, @Body() body: RejectBasketDto) {
-    return this.svc.patientRejectBasket(user, id, body?.reason);
   }
 
   // Static pharmacy route must be declared before the `:id` wildcard.

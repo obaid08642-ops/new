@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { createHash, createHmac, timingSafeEqual } from 'crypto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Prescription, PrescriptionDocument } from '../../schemas/prescription.schema';
 import { Appointment, AppointmentDocument, APPT_STATES } from '../../schemas/appointment.schema';
@@ -395,5 +396,186 @@ export class PrescriptionsService {
     const isParticipant = [rx.patient_id, rx.doctor_id, rx.pharmacy_id].filter(Boolean).includes(user?.id);
     if (!hasPrivilegedAdminRole && !isParticipant) throw new NotFoundException();
     return this.toPatientWebDto(rx);
+  }
+
+  // ===== P22.9 — prescription PDF with a verifying QR code =====
+  /**
+   * Signed verification tokens. The QR printed on the PDF carries ONLY this
+   * opaque token (no names, no doses) — it leaks nothing beyond what the
+   * public verification endpoint returns. The fingerprint binds the token to
+   * the prescription's immutable core, so editing the lines after issuance
+   * invalidates previously printed QRs.
+   */
+  private qrSecret(): string {
+    const s = String(process.env.PRESCRIPTION_QR_SECRET ?? '').trim();
+    if (!s) throw new BadRequestException('prescription_qr_not_configured');
+    return s;
+  }
+
+  private fingerprint(rx: {
+    id: string; patient_id: string; doctor_id?: string; items: Array<Record<string, unknown>>; createdAt?: Date;
+  }): string {
+    const core = {
+      id: rx.id,
+      patient_id: rx.patient_id,
+      doctor_id: rx.doctor_id ?? null,
+      createdAt: rx.createdAt ? new Date(rx.createdAt).toISOString() : null,
+      items: (rx.items ?? []).map((it) => ({
+        medicine_id: it['medicine_id'] ?? null,
+        ar: it['medicine_name_ar'] ?? null,
+        en: it['medicine_name_en'] ?? null,
+        dose: it['dose'] ?? null,
+        duration_days: it['duration_days'] ?? null,
+      })),
+    };
+    return createHash('sha256').update(JSON.stringify(core)).digest('hex').slice(0, 32);
+  }
+
+  private b64url(buf: Buffer): string {
+    return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  private unb64url(s: string): Buffer {
+    const padded = s.replace(/-/g, '+').replace(/_/g, '/');
+    return Buffer.from(padded, 'base64');
+  }
+
+  /** Mint a verification token (default 2-year validity). */
+  issueVerifyToken(
+    rx: { id: string; patient_id: string; doctor_id?: string; items: Array<Record<string, unknown>>; createdAt?: Date },
+    ttlMs: number = 2 * 365 * 24 * 3600_000,
+  ): string {
+    const payload = { rx: rx.id, iat: Date.now(), exp: Date.now() + ttlMs, h: this.fingerprint(rx) };
+    const body = this.b64url(Buffer.from(JSON.stringify(payload), 'utf8'));
+    const sig = this.b64url(createHmac('sha256', this.qrSecret()).update(body).digest());
+    return `${body}.${sig}`;
+  }
+
+  verifyUrl(token: string): string {
+    const base = String(process.env.PRESCRIPTION_VERIFY_BASE ?? '/prescriptions/verify').replace(/\/$/, '');
+    return `${base}/${token}`;
+  }
+
+  /**
+   * Public verification: recompute the HMAC, enforce expiry, then confirm the
+   * live prescription still matches the fingerprint. Always resolves (never
+   * throws for bad input) so scanners get a verdict, not an error page.
+   */
+  async verifyToken(token: string): Promise<Record<string, unknown>> {
+    const invalid = (reason: string) => ({ authentic: false, reason });
+    const parts = String(token ?? '').split('.');
+    if (parts.length !== 2 || !parts[0] || !parts[1]) return invalid('malformed_token');
+    let payload: { rx?: string; iat?: number; exp?: number; h?: string };
+    try {
+      payload = JSON.parse(this.unb64url(parts[0]).toString('utf8'));
+    } catch {
+      return invalid('malformed_token');
+    }
+    if (!payload || typeof payload.rx !== 'string' || !Number.isFinite(payload.exp) || typeof payload.h !== 'string') {
+      return invalid('malformed_token');
+    }
+    let secret: string;
+    try {
+      secret = this.qrSecret();
+    } catch {
+      return invalid('verifier_not_configured');
+    }
+    const expectSig = this.b64url(createHmac('sha256', secret).update(parts[0]).digest());
+    const a = Buffer.from(expectSig);
+    const b = Buffer.from(parts[1]);
+    if (a.length !== b.length || !timingSafeEqual(a, b)) return invalid('signature_mismatch');
+    if (Number(payload.exp) < Date.now()) return invalid('expired');
+    const rx = await this.model.findOne({ id: payload.rx }, { _id: 0, __v: 0 });
+    if (!rx) return invalid('prescription_not_found');
+    const raw = typeof rx.toObject === 'function' ? rx.toObject() : rx;
+    if (this.fingerprint(raw) !== payload.h) return invalid('content_changed_since_issue');
+    return {
+      authentic: true,
+      prescription: {
+        id: raw.id,
+        state: raw.state,
+        issued_at: raw.createdAt ? new Date(raw.createdAt).toISOString() : null,
+        doctor_id: raw.doctor_id ?? null,
+        diagnosis: raw.diagnosis ?? null,
+        items: (raw.items ?? []).map((it: Record<string, unknown>) => ({
+          name: it['medicine_name_ar'] ?? it['medicine_name_en'] ?? null,
+          dose: it['dose'] ?? null,
+          duration_days: it['duration_days'] ?? null,
+        })),
+      },
+    };
+  }
+
+  private async qrPng(text: string): Promise<Buffer | null> {
+    try {
+      // qrcode is a declared dependency (also used by billing); require keeps
+      // this working even if the ESM/CJS interop shifts under ts-jest.
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const QRCode = require('qrcode') as { toBuffer(s: string, o: unknown): Promise<Buffer> };
+      return await QRCode.toBuffer(text, { type: 'png', width: 220, margin: 1 });
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Participant-only PDF. The QR encodes the verify URL (opaque token only);
+   * the human-readable page mirrors exactly what the endpoint returns.
+   */
+  async prescriptionPdf(user: { id: string; role?: string }, id: string): Promise<Buffer> {
+    const found = await this.model.findOne({ id }, { _id: 0, __v: 0 });
+    if (!found) throw new NotFoundException();
+    const rx = typeof found.toObject === 'function' ? found.toObject() : found;
+    const roles = getEffectiveRoles(user);
+    const privileged = roles.includes(UserRole.ADMIN) || roles.includes(UserRole.SUPER_ADMIN);
+    const participant = [rx.patient_id, rx.doctor_id, rx.pharmacy_id].filter(Boolean).includes(user?.id);
+    if (!privileged && !participant) throw new NotFoundException();
+    const token = this.issueVerifyToken(rx);
+    const url = this.verifyUrl(token);
+    const qr = await this.qrPng(url);
+    const items = Array.isArray(rx.items) ? rx.items : [];
+    interface PdfDoc {
+      on(event: string, cb: (chunk?: Buffer) => void): void;
+      end(): void;
+      fontSize(n: number): PdfDoc;
+      fillColor(c: string): PdfDoc;
+      text(t: string, opts?: Record<string, unknown>): PdfDoc;
+      moveDown(n?: number): PdfDoc;
+      image(b: Buffer, opts?: Record<string, unknown>): PdfDoc;
+    }
+    const Ctor = (() => {
+      // pdfkit is CJS (module.exports = class): require keeps the constructor
+      // intact under ts-jest, where `import *` yields a namespace object.
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      return require('pdfkit') as unknown as new (opts: Record<string, unknown>) => PdfDoc;
+    })();
+    return new Promise((resolve, reject) => {
+      const doc = new Ctor({ margin: 50, size: 'A4' });
+      const chunks: Buffer[] = [];
+      doc.on('data', (c?: Buffer) => { if (c) chunks.push(c); });
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', reject);
+      doc.fontSize(20).fillColor('#0F766E').text('Nabd — Prescription / وصفة طبية', { align: 'center' });
+      doc.moveDown(0.5);
+      doc.fontSize(10).fillColor('#555555').text(`Rx: ${rx.id}`, { align: 'center' });
+      doc.moveDown(1);
+      doc.fontSize(11).fillColor('#111111').text(`Issued: ${rx.createdAt ? new Date(rx.createdAt).toISOString() : '—'}`);
+      doc.fontSize(11).text(`State: ${rx.state ?? '—'}`);
+      if (rx.diagnosis) doc.fontSize(11).text(`Diagnosis: ${rx.diagnosis}`);
+      doc.moveDown(0.5);
+      doc.fontSize(12).text('Medicines:', { underline: true });
+      items.slice(0, 30).forEach((it: Record<string, unknown>) => {
+        doc.fontSize(10).text(
+          `- ${it['medicine_name_ar'] ?? it['medicine_name_en'] ?? '?'} — ${it['dose'] ?? '?'} × ${it['duration_days'] ?? '?'} days`,
+        );
+      });
+      doc.moveDown(1.5);
+      if (qr) {
+        doc.image(qr, { fit: [180, 180], align: 'center' });
+        doc.fontSize(8).fillColor('#555555').text('Scan to verify authenticity', { align: 'center' });
+      }
+      doc.fontSize(8).fillColor('#555555').text(url, { align: 'center' });
+      doc.end();
+    });
   }
 }
