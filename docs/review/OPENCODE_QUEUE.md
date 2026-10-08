@@ -135,6 +135,7 @@ Order (do not skip ahead):
 
 | D-33 | — | Backups (decision 33): `backup.sh` uploads only to the private backup bucket (`BACKUP_S3_*` settings, never `S3_BUCKET`); a weekly medicine-catalogue export; a monthly restore drill; a backup-status record that the admin page reads. | spec |
 | D-34 | — | Admin "Operations & Security" page (decision 34): backend read endpoints (admin-only, no secret values), the five sections, and the owner alerts. | spec |
+| D-35 | — | Admin on two devices (owner): at most 2 active enrolled admin devices per admin (the owner's iPhone and MacBook). A third device is refused until one is revoked. Enrolling a new device needs approval from an already-enrolled device plus email step-up. Every enrolment and revoke is audit-logged and shown on the decision-34 page. | spec |
 
 Items 3, 5, 6, 11 and 18 are UI only (design session). Items 21–23 are owner tasks. Item 20 is Q-12 / Q-13.
 

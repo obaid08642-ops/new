@@ -61,7 +61,6 @@ const patientReadRoutes = [
   new RegExp(`^/pharmacy/chat/threads\\?order_id=${orderId}$`, "i"),
   new RegExp(`^/pharmacy/chat/threads/${threadId}/messages$`, "i"),
   new RegExp("^/mental-health/dashboard$"),
-  new RegExp("^/mental-health/crisis-contacts$"),
   new RegExp("^/mental-health/breathing$"),
   new RegExp("^/mental-health/mood\\?days=30$"),
   new RegExp("^/mental-health/meditation$"),

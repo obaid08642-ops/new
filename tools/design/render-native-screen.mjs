@@ -193,6 +193,17 @@ const BOARD = {
   'f-add': { params: {} },
   'f-add-join': { params: { tab: 'join', code: 'TEST42' } },
   'f-add-scan': { params: { tab: 'scan' } },
+  // Batch 8 (care hubs; merge map). The maternity hub is the CareHub board; nutrition, mental health and programs follow its hero, rows and
+  // form cards and have none. The tab is a route param. `--dir patient-app/app/maternity --screens hub:m-hub,maternity-setup:m-setup` etc.
+  'm-hub': { component: 'CareHub', size: [390, 1100], params: {} },
+  'm-hub-cycle': { component: 'CareHub', size: [390, 1100], params: { tab: 'ovulation' } },
+  'm-setup': { component: 'CareHub', size: [390, 1100], params: {} },
+  'n-hub': { component: 'CareHub', size: [390, 1300], params: {} },
+  'n-hub-target': { component: 'CareHub', size: [390, 1300], params: { tab: 'target' } },
+  'n-log-meal': { component: 'CareHub', size: [390, 1100], params: {} },
+  'mh-hub': { component: 'CareHub', size: [390, 844], params: {} },
+  'mh-mood': { component: 'CareHub', size: [390, 1300], params: {} },
+  'p-active': { component: 'CareHub', size: [390, 1300], params: {} },
   // Batch 3 (labs and radiology / diagnostics, app slice 3-app; 17 screens). Run them per folder: `--dir "patient-app/app/(tabs)" --screens
   // diagnostics:d-hub` and `--dir patient-app/app/diagnostics --screens packages:d-packages,...` (`file[:name]`). The ids select the TEST records
   // of render-native-screen.fixtures.json (`test-lab-pkg`, `test-lab-test`, `test-lab`, `test-lab-order`). The list, detail and result screens

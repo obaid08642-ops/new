@@ -1,5 +1,5 @@
 {
- "commit": "cd0f317e",
+ "commit": "d30c2697",
  "routes": [
   {
    "app": "patient-app",
@@ -4334,13 +4334,13 @@
      "path": "/maternity/profile",
      "target": "backend",
      "query": "",
-     "line": 18,
-     "file": "patient-app/app/maternity/hub.tsx",
+     "line": 60,
+     "file": "patient-app/src/components/care/MaternityViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/maternity/maternity.controller.ts:21"
     }
    ],
-   "files": 16,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -4358,13 +4358,13 @@
      "path": "/maternity/profile",
      "target": "backend",
      "query": "",
-     "line": 16,
-     "file": "patient-app/app/maternity/maternity-setup.tsx",
+     "line": 146,
+     "file": "patient-app/src/components/care/MaternityViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/maternity/maternity.controller.ts:32"
     }
    ],
-   "files": 16,
+   "files": 29,
    "unresolved": 0
   },
   {
@@ -4436,7 +4436,7 @@
    "app": "patient-app",
    "route": "/mental-health/crisis-support",
    "file": "patient-app/app/mental-health/crisis-support.tsx",
-   "redirect": "/emergency?view=crisis…",
+   "redirect": "/mental-health/hub",
    "template": "redirect",
    "board": "— (redirect)",
    "batch": 8,
@@ -4455,7 +4455,7 @@
    "batch": 8,
    "status": "—",
    "calls": [],
-   "files": 9,
+   "files": 20,
    "unresolved": 0
   },
   {
@@ -4486,8 +4486,8 @@
      "path": "/mental-health/mood",
      "target": "backend",
      "query": "?days=30",
-     "line": 50,
-     "file": "patient-app/app/mental-health/mood-journal.tsx",
+     "line": 60,
+     "file": "patient-app/src/components/care/MentalHealthViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/mental-health/mental-health.controller.ts:33"
     },
@@ -4496,13 +4496,13 @@
      "path": "/mental-health/mood",
      "target": "backend",
      "query": "",
-     "line": 72,
-     "file": "patient-app/app/mental-health/mood-journal.tsx",
+     "line": 79,
+     "file": "patient-app/src/components/care/MentalHealthViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/mental-health/mental-health.controller.ts:23"
     }
    ],
-   "files": 18,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -4874,29 +4874,8 @@
    "board": "CareHub",
    "batch": 8,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/nutrition/profile",
-     "target": "backend",
-     "query": "",
-     "line": 21,
-     "file": "patient-app/app/nutrition/body-target.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:24"
-    },
-    {
-     "method": "POST",
-     "path": "/nutrition/profile",
-     "target": "backend",
-     "query": "",
-     "line": 24,
-     "file": "patient-app/app/nutrition/body-target.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:30"
-    }
-   ],
-   "files": 16,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -4921,39 +4900,8 @@
    "board": "CareHub",
    "batch": 8,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/nutrition/daily-summary",
-     "target": "backend",
-     "query": "?date=:param",
-     "line": 25,
-     "file": "patient-app/app/nutrition/daily-tracker.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:50"
-    },
-    {
-     "method": "GET",
-     "path": "/nutrition/meals",
-     "target": "backend",
-     "query": "?date=:param",
-     "line": 25,
-     "file": "patient-app/app/nutrition/daily-tracker.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:43"
-    },
-    {
-     "method": "POST",
-     "path": "/nutrition/water",
-     "target": "backend",
-     "query": "",
-     "line": 31,
-     "file": "patient-app/app/nutrition/daily-tracker.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:57"
-    }
-   ],
-   "files": 13,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -4996,24 +4944,54 @@
      "method": "GET",
      "path": "/nutrition/daily-summary",
      "target": "backend",
-     "query": "",
-     "line": 19,
-     "file": "patient-app/app/nutrition/hub.tsx",
+     "query": "?date=:param",
+     "line": 76,
+     "file": "patient-app/src/components/care/NutritionViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/nutrition/nutrition.controller.ts:50"
+    },
+    {
+     "method": "GET",
+     "path": "/nutrition/meals",
+     "target": "backend",
+     "query": "?date=:param",
+     "line": 76,
+     "file": "patient-app/src/components/care/NutritionViews.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:43"
     },
     {
      "method": "GET",
      "path": "/nutrition/profile",
      "target": "backend",
      "query": "",
-     "line": 19,
-     "file": "patient-app/app/nutrition/hub.tsx",
+     "line": 170,
+     "file": "patient-app/src/components/care/NutritionViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/nutrition/nutrition.controller.ts:24"
+    },
+    {
+     "method": "POST",
+     "path": "/nutrition/profile",
+     "target": "backend",
+     "query": "",
+     "line": 201,
+     "file": "patient-app/src/components/care/NutritionViews.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:30"
+    },
+    {
+     "method": "POST",
+     "path": "/nutrition/water",
+     "target": "backend",
+     "query": "",
+     "line": 91,
+     "file": "patient-app/src/components/care/NutritionViews.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:57"
     }
    ],
-   "files": 16,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -5031,13 +5009,13 @@
      "path": "/nutrition/meals",
      "target": "backend",
      "query": "",
-     "line": 32,
-     "file": "patient-app/app/nutrition/log-meal.tsx",
+     "line": 264,
+     "file": "patient-app/src/components/care/NutritionViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/nutrition/nutrition.controller.ts:37"
     }
    ],
-   "files": 13,
+   "files": 30,
    "unresolved": 0
   },
   {
@@ -6275,8 +6253,8 @@
      "path": "/medical/programs/active",
      "target": "backend",
      "query": "",
-     "line": 32,
-     "file": "patient-app/app/programs/active.tsx",
+     "line": 40,
+     "file": "patient-app/src/components/care/ProgramsView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medical-programs/medical-programs.module.ts:81"
     },
@@ -6285,13 +6263,13 @@
      "path": "/medical/programs/complete-session",
      "target": "backend",
      "query": "",
-     "line": 61,
-     "file": "patient-app/app/programs/active.tsx",
+     "line": 62,
+     "file": "patient-app/src/components/care/ProgramsView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medical-programs/medical-programs.module.ts:85"
     }
    ],
-   "files": 18,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -11839,30 +11817,40 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/maternity/profile",
      "target": "backend",
      "query": "",
-     "line": 19,
+     "line": 58,
      "file": "patient-web/app/[locale]/maternity/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/maternity/maternity.controller.ts:21"
     }
    ],
-   "files": 6,
+   "files": 41,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/maternity/baby-development",
    "file": "patient-web/app/[locale]/maternity/baby-development/page.tsx",
-   "redirect": "/maternity",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "list",
+   "board": "CareHub",
    "batch": 8,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 2,
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -11875,7 +11863,7 @@
    "batch": 8,
    "status": "—",
    "calls": [],
-   "files": 4,
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -11890,16 +11878,26 @@
    "calls": [
     {
      "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "POST",
      "path": "/api/patient/maternity/profile",
      "target": "web-proxy",
      "query": "",
-     "line": 27,
+     "line": 37,
      "file": "patient-web/components-next/maternity-setup-client.tsx",
      "backend": "backend/src/modules/maternity/maternity.controller.ts:32",
      "status": "OK"
     }
    ],
-   "files": 5,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -11912,7 +11910,7 @@
    "batch": 8,
    "status": "—",
    "calls": [],
-   "files": 5,
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -11924,19 +11922,8 @@
    "board": "CareHub",
    "batch": 8,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/maternity/profile",
-     "target": "backend",
-     "query": "",
-     "line": 19,
-     "file": "patient-web/app/[locale]/maternity/tracker/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/maternity/maternity.controller.ts:21"
-    }
-   ],
-   "files": 6,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -12123,17 +12110,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/mental-health/dashboard",
      "target": "backend",
      "query": "",
-     "line": 20,
+     "line": 42,
      "file": "patient-web/app/[locale]/mental-health/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/mental-health/mental-health.controller.ts:95"
     }
    ],
-   "files": 7,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -12145,19 +12142,8 @@
    "board": "CareHub",
    "batch": 8,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/mental-health/breathing",
-     "target": "backend",
-     "query": "",
-     "line": 2,
-     "file": "patient-web/lib/api/breathing-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/mental-health/mental-health.controller.ts:69"
-    }
-   ],
-   "files": 9,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -12169,19 +12155,8 @@
    "board": "CareHub",
    "batch": 8,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/mental-health/crisis-contacts",
-     "target": "backend",
-     "query": "",
-     "line": 2,
-     "file": "patient-web/lib/api/crisis-contacts-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/mental-health/mental-health.controller.ts:77"
-    }
-   ],
-   "files": 9,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -12193,19 +12168,8 @@
    "board": "CareHub",
    "batch": 8,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/mental-health/meditation",
-     "target": "backend",
-     "query": "",
-     "line": 2,
-     "file": "patient-web/lib/api/meditation-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/mental-health/mental-health.controller.ts:51"
-    }
-   ],
-   "files": 9,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -12219,6 +12183,16 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/mental-health/mood",
      "target": "backend",
@@ -12229,7 +12203,51 @@
      "backend": "backend/src/modules/mental-health/mental-health.controller.ts:33"
     }
    ],
-   "files": 9,
+   "files": 38,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
+   "route": "/mental-health/relax",
+   "file": "patient-web/app/[locale]/mental-health/relax/page.tsx",
+   "redirect": null,
+   "template": "list",
+   "board": "CareHub",
+   "batch": 8,
+   "status": "—",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/mental-health/breathing",
+     "target": "backend",
+     "query": "",
+     "line": 2,
+     "file": "patient-web/lib/api/breathing-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/mental-health/mental-health.controller.ts:69"
+    },
+    {
+     "method": "GET",
+     "path": "/mental-health/meditation",
+     "target": "backend",
+     "query": "",
+     "line": 2,
+     "file": "patient-web/lib/api/meditation-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/mental-health/mental-health.controller.ts:51"
+    }
+   ],
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -12242,7 +12260,7 @@
    "batch": 8,
    "status": "—",
    "calls": [],
-   "files": 4,
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -12255,7 +12273,7 @@
    "batch": 8,
    "status": "—",
    "calls": [],
-   "files": 4,
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -12596,11 +12614,41 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/api/patient/nutrition/profile",
+     "target": "web-proxy",
+     "query": "",
+     "line": 40,
+     "file": "patient-web/components-next/nutrition-body-target-client.tsx",
+     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:24",
+     "status": "OK"
+    },
+    {
+     "method": "POST",
+     "path": "/api/patient/nutrition/profile",
+     "target": "web-proxy",
+     "query": "",
+     "line": 79,
+     "file": "patient-web/components-next/nutrition-body-target-client.tsx",
+     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:30",
+     "status": "OK"
+    },
+    {
      "method": "GET",
      "path": "/nutrition/daily-summary",
      "target": "backend",
      "query": "?date=:param",
-     "line": 21,
+     "line": 58,
      "file": "patient-web/app/[locale]/nutrition/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/nutrition/nutrition.controller.ts:50"
@@ -12610,52 +12658,52 @@
      "path": "/nutrition/meals",
      "target": "backend",
      "query": "?date=:param",
-     "line": 22,
+     "line": 59,
      "file": "patient-web/app/[locale]/nutrition/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/nutrition/nutrition.controller.ts:43"
     }
    ],
-   "files": 6,
+   "files": 42,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/nutrition/ai-meal-planner",
    "file": "patient-web/app/[locale]/nutrition/ai-meal-planner/page.tsx",
-   "redirect": "/nutrition/daily-tracker",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "list",
+   "board": "CareHub",
    "batch": 8,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 2,
+   "files": 3,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/nutrition/ai-plan-builder",
    "file": "patient-web/app/[locale]/nutrition/ai-plan-builder/page.tsx",
-   "redirect": "/nutrition",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "list",
+   "board": "CareHub",
    "batch": 8,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 2,
+   "files": 3,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/nutrition/body-composition",
    "file": "patient-web/app/[locale]/nutrition/body-composition/page.tsx",
-   "redirect": "/nutrition/body-target",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "list",
+   "board": "CareHub",
    "batch": 8,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 2,
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -12667,29 +12715,8 @@
    "board": "CareHub",
    "batch": 8,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/api/patient/nutrition/profile",
-     "target": "web-proxy",
-     "query": "",
-     "line": 31,
-     "file": "patient-web/components-next/nutrition-body-target-client.tsx",
-     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:24",
-     "status": "OK"
-    },
-    {
-     "method": "POST",
-     "path": "/api/patient/nutrition/profile",
-     "target": "web-proxy",
-     "query": "",
-     "line": 69,
-     "file": "patient-web/components-next/nutrition-body-target-client.tsx",
-     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:30",
-     "status": "OK"
-    }
-   ],
-   "files": 5,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -12714,32 +12741,21 @@
    "board": "CareHub",
    "batch": 8,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/nutrition/daily-summary",
-     "target": "backend",
-     "query": "?date=:param",
-     "line": 20,
-     "file": "patient-web/app/[locale]/nutrition/daily-tracker/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:50"
-    }
-   ],
-   "files": 6,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/nutrition/exercise-plan",
    "file": "patient-web/app/[locale]/nutrition/exercise-plan/page.tsx",
-   "redirect": "/nutrition/daily-tracker",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "list",
+   "board": "CareHub",
    "batch": 8,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 2,
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -12767,16 +12783,26 @@
    "calls": [
     {
      "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "POST",
      "path": "/api/nutrition/meals",
      "target": "web-bff",
      "query": "",
-     "line": 26,
+     "line": 32,
      "file": "patient-web/components-next/nutrition-log-meal-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/nutrition/meals/route.ts"
     }
    ],
-   "files": 6,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -12788,31 +12814,21 @@
    "board": "CareHub",
    "batch": 8,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/nutrition/plan",
-     "target": "backend",
-     "query": "",
-     "line": 19,
-     "file": "patient-web/app/[locale]/nutrition/plan/page.tsx",
-     "status": "NO_ROUTE"
-    }
-   ],
-   "files": 6,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/nutrition/water-tracker",
    "file": "patient-web/app/[locale]/nutrition/water-tracker/page.tsx",
-   "redirect": "/nutrition/daily-tracker",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "list",
+   "board": "CareHub",
    "batch": 8,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 2,
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -14303,17 +14319,37 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "POST",
+     "path": "/api/patient/medical/programs/complete-session",
+     "target": "web-proxy",
+     "query": "",
+     "line": 57,
+     "file": "patient-web/components-next/programs-active-client.tsx",
+     "backend": "backend/src/modules/medical-programs/medical-programs.module.ts:85",
+     "status": "OK"
+    },
+    {
      "method": "GET",
      "path": "/medical/programs/active",
      "target": "backend",
      "query": "",
-     "line": 39,
+     "line": 37,
      "file": "patient-web/app/[locale]/programs/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medical-programs/medical-programs.module.ts:81"
     }
    ],
-   "files": 5,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -14325,29 +14361,8 @@
    "board": "CareHub",
    "batch": 8,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/patient/medical/programs/complete-session",
-     "target": "web-proxy",
-     "query": "",
-     "line": 29,
-     "file": "patient-web/components-next/programs-active-client.tsx",
-     "backend": "backend/src/modules/medical-programs/medical-programs.module.ts:85",
-     "status": "OK"
-    },
-    {
-     "method": "GET",
-     "path": "/medical/programs/active",
-     "target": "backend",
-     "query": "",
-     "line": 22,
-     "file": "patient-web/app/[locale]/programs/active/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/medical-programs/medical-programs.module.ts:81"
-    }
-   ],
-   "files": 6,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
