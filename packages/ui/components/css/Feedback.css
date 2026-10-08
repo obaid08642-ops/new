@@ -140,14 +140,14 @@
   padding: var(--nabd-space-2xs);
   font-size: var(--nabd-font-size-label);
   color: var(--nabd-color-text-tertiary);
-  border-block-end: 1px solid var(--nabd-color-border-default);
+  border-block-end: 1px solid var(--nabd-color-border-subtle);
   white-space: nowrap;
 }
 .nabd-data-table__th--numeric { text-align: end; }
 .nabd-data-table__td {
   text-align: start;
   padding: var(--nabd-space-2xs);
-  border-block-end: 1px solid var(--nabd-color-border-default);
+  border-block-end: 1px solid var(--nabd-color-border-subtle);
 }
 .nabd-data-table__td--numeric { text-align: end; font-variant-numeric: tabular-nums; }
 

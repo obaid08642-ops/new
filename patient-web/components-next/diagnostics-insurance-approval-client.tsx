@@ -1,8 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LoaderCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { StatusChip } from "@/components-next/ui-generated/components/Controls";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
+import { formatPrice, formatNumber } from "@/lib/format-price";
+import consult from "@/components-next/consult/consult.module.css";
+import rx from "@/components-next/pharmacy/rx.module.css";
+import styles from "@/components-next/diagnostics/diag.module.css";
+import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 
 type Item = { id: string; name: string; price: number; covered: boolean; rejectReason?: string };
 type OrderState = {
@@ -11,6 +19,9 @@ type OrderState = {
 };
 
 const TERMINAL = new Set(["approved", "partial_approval", "rejected"]);
+const INSURANCE = SERVICE_ICONS.insurance;
+/** The message keys of the errors this screen shows (the text is looked up where it is drawn, so the polling callback does not depend on the translator). */
+const ERROR = { load: "approvalLoadFailed", connection: "connectionFailed", choice: "approvalChoiceFailed" } as const;
 
 function parseOrder(payload: unknown): OrderState | null {
   if (!payload || typeof payload !== "object") return null;
@@ -42,25 +53,27 @@ function parseOrder(payload: unknown): OrderState | null {
   };
 }
 
+/** The insurance approval of an order (canvas/OrderTracking): the decision as it arrives (polled every 3 s), what is covered, what the patient may pay in cash instead, the summary and the way on. The polling, the cash choice and the amounts are unchanged; this is its markup and texts. */
 export function DiagnosticsInsuranceApprovalClient({ orderId, labName, visitType, locale }: {
   orderId: string; labName: string; visitType: string; locale: string;
 }) {
-  const ar = locale === "ar";
+  const t = useTranslations("DiagWeb");
   const [order, setOrder] = useState<OrderState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [cashOptIn, setCashOptIn] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const money = (value: number) => formatPrice(locale, value).text;
 
   const load = useCallback(async () => {
     try {
       const res = await fetch(`/api/patient/labs/bookings/${encodeURIComponent(orderId)}`, { cache: "no-store", credentials: "same-origin" });
-      if (!res.ok) { setError(ar ? "تعذر تحميل حالة الموافقة" : "Could not load approval status"); return; }
+      if (!res.ok) { setError(ERROR.load); return; }
       const parsed = parseOrder(await res.json().catch(() => null));
-      if (!parsed) { setError(ar ? "تعذر تحميل حالة الموافقة" : "Could not load approval status"); return; }
+      if (!parsed) { setError(ERROR.load); return; }
       setOrder(parsed); setError(null);
-    } catch { setError(ar ? "تعذر الاتصال" : "Connection unavailable"); }
-  }, [orderId, ar]);
+    } catch { setError(ERROR.connection); }
+  }, [orderId]);
 
   useEffect(() => {
     load();
@@ -82,48 +95,56 @@ export function DiagnosticsInsuranceApprovalClient({ orderId, labName, visitType
         body: JSON.stringify({ optInCash: next }),
         credentials: "same-origin",
       });
-      if (!res.ok) { setCashOptIn((s) => ({ ...s, [item.id]: prev })); setError(ar ? "تعذر تحديث الاختيار" : "Could not update choice"); }
+      if (!res.ok) { setCashOptIn((s) => ({ ...s, [item.id]: prev })); setError(ERROR.choice); }
       else await load();
-    } catch { setCashOptIn((s) => ({ ...s, [item.id]: prev })); setError(ar ? "تعذر الاتصال" : "Connection unavailable"); }
+    } catch { setCashOptIn((s) => ({ ...s, [item.id]: prev })); setError(ERROR.connection); }
     finally { setSaving(null); }
   }
 
-  if (!order && !error) return <p role="status"><LoaderCircle size={18} aria-hidden="true" /> {ar ? "تم إرسال الطلب…" : "Order sent…"}</p>;
-  if (error && !order) return <p role="alert">{error}</p>;
+  if (!order && !error) return <p className={styles.flowNote} role="status">{t("approvalSent")}</p>;
+  if (error && !order) return <p className={consult.error} role="alert">{t(error)}</p>;
   if (!order) return null;
 
   const resolved = TERMINAL.has(order.status);
-  const header = order.status === "approved"
-    ? (ar ? "تمت الموافقة بنجاح!" : "Approved!")
-    : order.status === "partial_approval"
-      ? (ar ? "موافقة جزئية" : "Partial approval")
-      : order.status === "rejected"
-        ? (ar ? "تم الرفض" : "Rejected")
-        : (ar ? "تم إرسال الطلب إلى" : "Order sent to");
+  const headerKey = order.status === "approved" ? "approvalApproved" : order.status === "partial_approval" ? "approvalPartial" : order.status === "rejected" ? "approvalRejected" : "approvalWaiting";
   const hybridCash = order.items.filter((i) => !i.covered && order.status !== "rejected" && (cashOptIn[i.id] ?? false))
     .reduce((s, i) => s + i.price, 0);
   const finalToPay = order.status === "rejected" ? 0 : order.copayAmount + hybridCash + (visitType === "home" ? 50 : 0);
   const checkoutQuery = order.status === "rejected"
     ? `visitType=${encodeURIComponent(visitType)}&isInsurance=false&total=${order.totalAmount + (visitType === "home" ? 50 : 0)}`
     : `visitType=${encodeURIComponent(visitType)}&isInsurance=hybrid&copay=${finalToPay}`;
+  const tone = order.status === "approved" ? DIAG_TONES.good : order.status === "partial_approval" ? DIAG_TONES.warn : order.status === "rejected" ? DIAG_TONES.quiet : DIAG_TONES.info;
 
   return (
-    <div>
-      <h2 role="status">{header} {labName}</h2>
-      {error ? <p role="alert">{error}</p> : null}
-      <section aria-label={ar ? "تفاصيل التغطية" : "Coverage details"}>
-        <ul>
+    <>
+      <section className={rx.card} aria-label={t("approvalStatus")}>
+        <div className={styles.eta}>
+          <FIcon icon={INSURANCE.icon} tone={INSURANCE.tone} size={52} />
+          <div className={styles.etaText} role="status">
+            <span className={styles.etaLabel}>{t(headerKey)}</span>
+            <span className={styles.etaValue}>{labName}</span>
+          </div>
+          <StatusChip label={t(headerKey)} tone={tone} />
+        </div>
+      </section>
+      {error ? <p className={consult.error} role="alert">{t(error)}</p> : null}
+
+      <section className={rx.card} aria-label={t("coverageDetails")}>
+        <h2 className={consult.sectionTitle}>{t("coverageDetails")}</h2>
+        <ul className={styles.coverage}>
           {order.items.map((item) => (
             <li key={item.id}>
-              <span>{item.name} — {item.price} {ar ? "ر.س" : "SAR"}</span>{" "}
-              <span>{item.covered ? (ar ? "مغطى" : "Covered") : (ar ? "مرفوض" : "Rejected")}</span>
+              <div className={styles.coverageRow}>
+                <span className={consult.rowTitle}>{item.name}</span>
+                <span className={styles.price}><bdi>{money(item.price)}</bdi></span>
+                <StatusChip label={item.covered ? t("covered") : t("notCovered")} tone={item.covered ? DIAG_TONES.good : DIAG_TONES.quiet} />
+              </div>
               {!item.covered && order.status !== "rejected" ? (
                 <>
-                  {item.rejectReason ? <p>{ar ? "سبب الرفض:" : "Reject reason:"} {item.rejectReason}</p> : null}
-                  <label>
-                    <input type="checkbox" checked={cashOptIn[item.id] ?? false} disabled={saving === item.id}
-                      onChange={(e) => toggleCash(item, e.target.checked)} />{" "}
-                    {ar ? `أرغب بدفع هذا التحليل نقداً (+ ${item.price} ر.س)` : `Pay cash for this test (+ ${item.price} SAR)`}
+                  {item.rejectReason ? <p className={styles.flowNote}>{t("rejectReason", { reason: item.rejectReason })}</p> : null}
+                  <label className={styles.check}>
+                    <input type="checkbox" checked={cashOptIn[item.id] ?? false} disabled={saving === item.id} onChange={(e) => toggleCash(item, e.target.checked)} />
+                    <span>{t("payCashFor", { price: money(item.price) })}</span>
                   </label>
                 </>
               ) : null}
@@ -131,27 +152,30 @@ export function DiagnosticsInsuranceApprovalClient({ orderId, labName, visitType
           ))}
         </ul>
       </section>
+
       {order.status !== "rejected" && resolved ? (
-        <section aria-label={ar ? "الملخص المالي" : "Financial summary"}>
-          <p>{ar ? "إجمالي التكلفة" : "Total"}: {order.totalAmount}</p>
-          <p>{ar ? `يغطيه التأمين (${order.coveragePercent}%)` : `Covered (${order.coveragePercent}%)`}: {order.coveredAmount}</p>
-          {visitType === "home" ? <p>{ar ? "رسوم الزيارة المنزلية + 50 ر.س" : "Home visit fee + 50 SAR"}</p> : null}
-          {hybridCash > 0 ? <p>{ar ? "تحاليل إضافية (نقداً)" : "Extra tests (cash)"}: {hybridCash}</p> : null}
-          <p><strong>{ar ? "المبلغ المطلوب دفعه" : "Amount due"}: {finalToPay}</strong></p>
+        <section className={rx.card} aria-label={t("financialSummary")}>
+          <h2 className={consult.sectionTitle}>{t("financialSummary")}</h2>
+          <div className={styles.line}><span>{t("summaryTotal")}</span><span className={styles.lineValue}><bdi>{money(order.totalAmount)}</bdi></span></div>
+          <div className={styles.line}><span>{t("summaryCovered", { percent: formatNumber(locale, order.coveragePercent) })}</span><span className={styles.lineValue}><bdi>{money(order.coveredAmount)}</bdi></span></div>
+          {visitType === "home" ? <div className={styles.line}><span>{t("summaryHomeFee")}</span><span className={styles.lineValue}><bdi>{money(50)}</bdi></span></div> : null}
+          {hybridCash > 0 ? <div className={styles.line}><span>{t("summaryExtraCash")}</span><span className={styles.lineValue}><bdi>{money(hybridCash)}</bdi></span></div> : null}
+          <div className={styles.totalLine}><span>{t("summaryDue")}</span><span><bdi>{money(finalToPay)}</bdi></span></div>
         </section>
       ) : null}
-      <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+
+      <div className={consult.actions}>
         {order.status === "rejected" ? (
           <>
-            <Link href={`/${locale}/diagnostics/checkout?${checkoutQuery}`}>{ar ? "تنفيذ الطلب على حسابي الخاص" : "Proceed self-pay"}</Link>
-            <Link href={`/${locale}/consultations`}>{ar ? "اطلب استشارة طبية" : "Request medical consultation"}</Link>
+            <ButtonLink href={`/${locale}/diagnostics/checkout?${checkoutQuery}`} label={t("proceedSelfPay")} />
+            <ButtonLink href={`/${locale}/consultations`} label={t("requestConsultation")} variant="outline" />
           </>
         ) : resolved ? (
-          <Link href={`/${locale}/diagnostics/checkout?${checkoutQuery}`}>{ar ? "المتابعة للدفع وحجز الموعد" : "Continue to payment & booking"}</Link>
+          <ButtonLink href={`/${locale}/diagnostics/checkout?${checkoutQuery}`} label={t("continueToPayment")} />
         ) : (
-          <p role="status">{ar ? "بانتظار قرار التأمين…" : "Waiting for insurance decision…"}</p>
+          <p className={consult.notice} role="status">{t("waitingForDecision")}</p>
         )}
-      </nav>
-    </div>
+      </div>
+    </>
   );
 }

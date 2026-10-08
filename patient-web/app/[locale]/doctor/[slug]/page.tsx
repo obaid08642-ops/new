@@ -1,35 +1,34 @@
 import { JsonLd } from "@/components-next/json-ld";
 import { physician, breadcrumbList } from "@/lib/seo/structured-data";
 import type { Metadata } from "next";
-import { localizedUrl, siteOrigin } from "@/lib/seo";
+import { localizedUrl } from "@/lib/seo";
 import { isLocale, locales, type Locale } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { specialtyLabel } from "@/lib/specialties";
+import { getPublicDoctorEntity } from "@/lib/api/doctors-server";
 import { formatNumber } from "@/lib/format-price";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import styles from "@/components-next/consult/consult.module.css";
 import { ProfileHeader, type ProfileStat } from "@/components-next/consult/profile-header";
 import { ActionLinks, SectionCard } from "@/components-next/consult/consult-parts";
-import { readPublicEntity } from "@/lib/api/public-read";
+import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
 
 type Props = { params: Promise<{ locale: string; slug: string; city?: string }> };
 
 // F82-3: static/ISR. Public entity data only (no cookie, no header, no search parameter): the same HTML for everyone,
 // generated on the first request for a path, kept for the hour of the read and regenerated in the background. A failed read
-// throws (lib/api/public-read.ts), so Next keeps the last good copy (stale-if-error, #302); a missing entity is a 404.
+// throws (PublicDataUnavailableError), so Next keeps the last good copy (stale-if-error, #302); a missing entity is a 404.
 export const revalidate = 3600;
 export function generateStaticParams() {
   return [];
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
-
 async function fetchDoctor(slug: string) {
-  return readPublicEntity<{ entity?: Record<string, any>; relationships?: Record<string, any> } & Record<string, any>>(
-    `${API_BASE}/api/v1/entity-graph/related/doctor/${encodeURIComponent(slug)}`,
-    3600,
-  );
+  const res = await getPublicDoctorEntity(slug);
+  if (!res || res.status >= 500) throw new PublicDataUnavailableError("doctor");
+  if (!res.ok) return null;
+  return await res.json().catch(() => null);
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -41,11 +40,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const name = locale === "ar" ? (data.entity.name_ar || data.entity.name_en) : (data.entity.name_en || data.entity.name_ar);
   const citySuffix = city ? `/${encodeURIComponent(city)}` : "";
   const canonical = localizedUrl(locale as Locale, `/doctor/${encodeURIComponent(slug)}${citySuffix}`);
-  const specialty = data.entity.specialty || "Doctor";
+  // The words come from messages for the page's locale (a locale argument keeps this free of request headers: public ISR page).
+  const [c, names, shared] = await Promise.all([
+    getTranslations({ locale, namespace: "ConsultWeb" }),
+    getTranslations({ locale, namespace: "SpecialtyNames" }),
+    getTranslations({ locale, namespace: "Shared" }),
+  ]);
+  const specialty = specialtyLabel(names, data.entity.specialty) ?? c("doctorMetaFallback");
   const cityName = city ? decodeURIComponent(city) : "";
   const desc = cityName
-    ? `${name} - ${specialty} in ${cityName}. Book appointment online or clinic consultation via Nabd Plus.`
-    : `${name} - ${specialty} in Nabd Plus Saudi Healthcare. Book appointment online or clinic consultation.`;
+    ? c("doctorMetaDescriptionCity", { name, specialty, city: cityName, brand: shared("brand") })
+    : c("doctorMetaDescription", { name, specialty, brand: shared("brand") });
 
   return {
     title: city ? `${name} | ${specialty} | ${decodeURIComponent(city)}` : `${name} | ${specialty}`,

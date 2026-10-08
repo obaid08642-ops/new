@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StatusBar, Vibration, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,7 +23,10 @@ export default function IncomingCallScreen() {
   const sessionId = params.sessionId as string;
   const callType = (params.callType as 'voice' | 'video') || 'video';
 
-  const [, setRingTime] = useState(0);
+  // The ring clock and its one-shot timeout guard live in refs: the reject call must not run inside a state updater
+  // (React may call an updater twice), so it is made from the tick itself, once.
+  const ringTime = useRef(0);
+  const timedOut = useRef(false);
   const [failed, setFailed] = useState(false);
 
   // Vibrate / ring simulator
@@ -33,14 +36,15 @@ export default function IncomingCallScreen() {
     Vibration.vibrate(pattern, true);
 
     const t = setInterval(() => {
-      setRingTime((p) => {
-        if (p >= 35) {
-          // Timeout call after 35 seconds of ringing
+      if (ringTime.current >= 35) {
+        // Timeout call after 35 seconds of ringing
+        if (!timedOut.current) {
+          timedOut.current = true;
           void handleReject();
-          return p;
         }
-        return p + 1;
-      });
+        return;
+      }
+      ringTime.current += 1;
     }, 1000);
 
     return () => {

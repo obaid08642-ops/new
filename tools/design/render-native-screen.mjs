@@ -67,6 +67,8 @@ const API_MODE = arg('--api', 'empty');
 const AUTH = arg('--auth', 'visitor');
 // --cart test fills the local cart with marked TEST lines (one needs a prescription) so a filled cart can be drawn
 const CART = arg('--cart', 'empty');
+// --diag-cart test fills the diagnostics (labs and radiology) cart with marked TEST lines
+const DIAG_CART = arg('--diag-cart', 'empty');
 // --params 'a=b,c=d' overrides the route params of every screen of the run (e.g. prescriptionId=test-rx)
 // --params takes JSON ('{"orderId":"x"}') or a comma list ('a=1,b=2')
 const PARAMS_OVERRIDE = arg('--params') ? (arg('--params').trim().startsWith('{') ? JSON.parse(arg('--params')) : Object.fromEntries(arg('--params').split(',').map((kv) => kv.split('=')))) : null;
@@ -158,6 +160,28 @@ const BOARD = {
   'c-video-call': { params: { appointmentId: 'test-appt-video' } },
   'c-waiting-room': { params: { appointmentId: 'test-appt-video' } },
   'c-room': { params: { id: 'test-room' } },
+  // Batch 3 (labs and radiology / diagnostics, app slice 3-app; 17 screens). Run them per folder: `--dir "patient-app/app/(tabs)" --screens
+  // diagnostics:d-hub` and `--dir patient-app/app/diagnostics --screens packages:d-packages,...` (`file[:name]`). The ids select the TEST records
+  // of render-native-screen.fixtures.json (`test-lab-pkg`, `test-lab-test`, `test-lab`, `test-lab-order`). The list, detail and result screens
+  // draw on the ServiceHub board (cards, rows, chips); the cart and checkout on Cart and CheckoutV2, tracking on OrderTracking.
+  'd-hub': { component: 'ServiceHub', size: [390, 1640], params: {} },
+  'd-packages': { component: 'ServiceHub', size: [390, 1640], params: {} },
+  'd-search': { component: 'Search', size: [390, 844], params: {} },
+  'd-my-results': { component: 'Orders', size: [390, 900], params: {} },
+  'd-orders': { component: 'Orders', size: [390, 900], params: {} },
+  'd-lab-comparison': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab-test', name: 'تحليل تجريبي ١' } },
+  'd-lab': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab' } },
+  'd-package-detail': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab-pkg' } },
+  'd-test-detail': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab-test' } },
+  'd-order': { component: 'OrderTracking', size: [390, 1120], params: { id: 'test-lab-order' } },
+  'd-order-done': { component: 'OrderTracking', size: [390, 1120], params: { id: 'test-lab-done' } },
+  'd-sample-tracking': { component: 'OrderTracking', size: [390, 1120], params: { bookingId: 'test-lab-order' } },
+  'd-technician-tracking': { component: 'OrderTracking', size: [390, 1120], params: { bookingId: 'test-lab-order' } },
+  'd-cart': { component: 'Cart', size: [390, 1260], params: {} },
+  'd-checkout': { component: 'CheckoutV2', size: [390, 1100], params: { serviceType: 'home', labId: 'test-lab', labName: 'مختبر تجريبي ١' } },
+  'd-book-sample': { component: 'BookingConfirm', size: [390, 1180], params: {} },
+  'd-insurance-upload': { component: 'RxUpload', size: [390, 1100], params: { labId: 'test-lab', labName: 'مختبر تجريبي ١', serviceType: 'home' } },
+  'd-insurance-approval': { component: 'ServiceHub', size: [390, 1640], params: { orderId: 'test-ins', labName: 'مختبر تجريبي ١', visitType: 'home' } },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },
@@ -231,6 +255,8 @@ const MOCKS = {
       const answer = (v) => { if (v && typeof v === 'object' && '__error' in v) throw new Error(v.__error); return resolve(v); };
       // a mutation is recorded; a fixture named "POST /path" is its answer (e.g. the result of a payment check), else {}
       if (options && options.method && options.method !== 'GET') { window.__MUTATIONS = (window.__MUTATIONS || []).concat([{ path: key, method: options.method }]); const fk = options.method + ' ' + key; return mode === 'fixture' && fk in fixtures ? answer(fixtures[fk]) : {}; }
+      // a fixture named with its query ("/providers?type=lab") wins over the same path without one
+      if (mode === 'fixture' && String(path) in fixtures) return answer(fixtures[String(path)]);
       if (mode === 'fixture' && key in fixtures) return answer(fixtures[key]);
       return key in EMPTY ? EMPTY[key] : {};
     }
@@ -389,7 +415,7 @@ for (const s of SCREENS) {
       localStorage.setItem('@nabdah_theme_mode', th);
       localStorage.setItem('@nabdah_language', lg);
     }, [theme, LANG]);
-    const cfg = { width: W, height: H, insets: INSETS, params: paramsOf(s), cart: CART, camera: CAMERA, platform: PLATFORM, dir: DIR, lang: LANG, pathname: PATHNAME, api: API_MODE, auth: AUTH, tabbar: Boolean(TABBAR), header: Boolean(HEADER) };
+    const cfg = { width: W, height: H, insets: INSETS, params: paramsOf(s), cart: CART, diagCart: DIAG_CART, camera: CAMERA, platform: PLATFORM, dir: DIR, lang: LANG, pathname: PATHNAME, api: API_MODE, auth: AUTH, tabbar: Boolean(TABBAR), header: Boolean(HEADER) };
     await page.setContent(
       `<!doctype html><html dir="${DIR}" lang="${LANG}"><meta charset="utf-8"><style>${appFaces}html,body{margin:0}*{animation:none!important;transition:none!important}</style>` +
         `<div id="root"></div><script>window.__SCREEN=${JSON.stringify(cfg)}</script><script src="${BASE}/__app-${s}.js"></script></html>`,
