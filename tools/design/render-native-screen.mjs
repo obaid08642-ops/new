@@ -193,6 +193,21 @@ const BOARD = {
   'f-add': { params: {} },
   'f-add-join': { params: { tab: 'join', code: 'TEST42' } },
   'f-add-scan': { params: { tab: 'scan' } },
+  // Batch 7 (insurance; merge map 2, section 6). The hub is the Insurance board; the add-policy, coverage, claim, request and co-pay screens
+  // follow its cards and rows and have none. `--dir patient-app/app/insurance --screens index:i-hub,request:i-request,add-policy:i-add,...`
+  // (`--api fixture`; the ids select the TEST records `test-req`, `test-req-review`, `test-req-rejected` of render-native-screen.fixtures.json).
+  'i-hub': { component: 'Insurance', size: [390, 1040], params: {} },
+  'i-hub-benefits': { params: { tab: 'benefits' } },
+  'i-hub-claims': { params: { tab: 'claims' } },
+  'i-hub-refunds': { params: { tab: 'refunds' } },
+  'i-hub-network': { params: { tab: 'network' } },
+  'i-request': { params: { id: 'test-req' } },
+  'i-request-review': { params: { id: 'test-req-review' } },
+  'i-request-rejected': { params: { id: 'test-req-rejected' } },
+  'i-add': { params: {} },
+  'i-coverage': { params: {} },
+  'i-claim': { params: {} },
+  'i-copay': { params: {} },
   // Batch 8 (care hubs; merge map). The maternity hub is the CareHub board; nutrition, mental health and programs follow its hero, rows and
   // form cards and have none. The tab is a route param. `--dir patient-app/app/maternity --screens hub:m-hub,maternity-setup:m-setup` etc.
   'm-hub': { component: 'CareHub', size: [390, 1100], params: {} },
@@ -344,6 +359,10 @@ const MOCKS = {
     export const requestMediaLibraryPermissionsAsync = async () => ({ granted: false });
     export const launchCameraAsync = async () => ({ canceled: true });
     export const launchImageLibraryAsync = async () => ({ canceled: true });`,
+  // the embedded browser (the insurance portal lookup is a modal that is closed when a screen is drawn): a design render has none
+  'react-native-webview': `
+    export const WebView = () => null;
+    export default WebView;`,
   // the call screens load the native LiveKit modules lazily; a design render draws the screen before any connection, with no media
   'livekit-native': `
     export const VideoView = () => null;
@@ -382,6 +401,7 @@ const mockPlugin = {
     build.onResolve({ filter: /^expo-web-browser$/ }, () => virtual('expo-web-browser'));
     build.onResolve({ filter: /context\/SocketContext$/ }, (a) => (a.importer.startsWith(APP + sep) ? virtual('socket-context') : undefined));
     build.onResolve({ filter: /^@livekit\/react-native(-webrtc)?$/ }, () => virtual('livekit-native'));
+    build.onResolve({ filter: /^react-native-webview$/ }, () => virtual('react-native-webview'));
     build.onResolve({ filter: /^expo-camera$/ }, () => virtual('expo-camera'));
     build.onResolve({ filter: /^expo-image-picker$/ }, () => virtual('expo-image-picker'));
     build.onResolve({ filter: /^expo-apple-authentication$/ }, () => virtual('expo-apple-authentication'));
