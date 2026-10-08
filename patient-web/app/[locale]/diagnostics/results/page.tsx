@@ -12,6 +12,7 @@ import { diagStatus } from "@/components-next/diagnostics/status";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import consult from "@/components-next/consult/consult.module.css";
 import styles from "@/components-next/diagnostics/diag.module.css";
+import { diagnosticBookingHref } from "@/lib/diagnostics-links";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -56,7 +57,7 @@ export default async function DiagnosticsResultsPage({ params }: Props) {
               const status = diagStatus(b.state);
               return (
                 <li key={b.id}>
-                  <RowCard href={`/${locale}/diagnostics/labs/${encodeURIComponent(b.id)}`} icon={LAB.icon} tone={LAB.tone} title={d("labs.label")} sub={b.hasReport ? d("reportReady") : status.key === "unknown" ? d("statusUnavailable") : t(`status_${status.key}`)} caret={caret} />
+                  <RowCard href={diagnosticBookingHref(locale, "labs", b.id)} icon={LAB.icon} tone={LAB.tone} title={d("labs.label")} sub={b.hasReport ? d("reportReady") : status.key === "unknown" ? d("statusUnavailable") : t(`status_${status.key}`)} caret={caret} />
                 </li>
               );
             })}

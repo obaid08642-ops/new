@@ -2,26 +2,6 @@
   {
     "batch": 3,
     "app": "patient-web",
-    "screen": "/diagnostics/[domain]/[bookingId]",
-    "element": "route",
-    "file": "patient-web/app/[locale]/diagnostics/[domain]/[bookingId]/page.tsx",
-    "line": 19,
-    "found": "[client] labs/[labId] and radiology/[serviceId] shadow it: every booking link (/diagnostics/labs/<bookingId>, also after booking and after an insurance upload) opens the lab or service page and 404s; the detail needs another path (folders were not renamed here)",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": 3,
-    "app": "patient-web",
-    "screen": "/diagnostics/checkout",
-    "element": "after the order",
-    "file": "patient-web/components-next/diagnostics-checkout-form.tsx",
-    "line": 138,
-    "found": "[client] pushes to /diagnostics/orders/<id>, which has no page",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": 3,
-    "app": "patient-web",
     "screen": "/diagnostics/insurance-approval",
     "element": "home visit fee",
     "file": "patient-web/components-next/diagnostics-insurance-approval-client.tsx",
@@ -45,8 +25,8 @@
     "screen": "/diagnostics",
     "element": "service-booking-modal.tsx",
     "file": "patient-web/components-next/service-booking-modal.tsx",
-    "line": 97,
-    "found": "[client] no longer used by the diagnostics screens; nursing/catalog still uses it and its confirmation is fake (timer, random reference, default price 250)",
+    "line": 26,
+    "found": "[client] nursing/catalog's Book button now opens a window that says nothing was booked and links to /nursing (the old fake confirmation is gone); a real booking from the catalogue and the screen's own literals are Batch 4's",
     "suspect": "Client-side: later batch."
   },
   {
@@ -78,16 +58,6 @@
     "line": 77,
     "found": "[backend] no link or file for a report: the shape of GET /radiology/reports/mine is not typed in the client",
     "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": 3,
-    "app": "patient-web",
-    "screen": "/diagnostics/sample-tracking",
-    "element": "steps",
-    "file": "patient-web/components-next/diagnostics-sample-tracking-client.tsx",
-    "line": 77,
-    "found": "[client] when the server sends no steps the screen draws a fixed six-step list (only the first two flags come from data)",
-    "suspect": "Client-side: later batch."
   },
   {
     "batch": 3,

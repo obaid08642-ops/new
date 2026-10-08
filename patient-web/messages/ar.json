@@ -2872,12 +2872,7 @@
     "trackingBeforeTitle": "قبل سحب العينة",
     "trackingBeforeBody": "الصيام من 8 إلى 12 ساعة قبل السحب ما لم يخبرك الطبيب بغير ذلك.",
     "trackingStepsTitle": "المراحل",
-    "stepReceived": "تم استلام الطلب",
-    "stepAssigned": "تعيين أخصائي السحب",
-    "stepOnTheWay": "الأخصائي في الطريق",
-    "stepCollected": "تم سحب العينة",
-    "stepAtLab": "العينة في المختبر",
-    "stepResult": "النتيجة جاهزة",
+    "trackingNoSteps": "لا توجد تحديثات تتبع بعد. تظهر الخطوات هنا حين يسجلها المختبر.",
     "searchTests": "ابحث عن تحليل…",
     "noResultsTitle": "لا توجد نتائج",
     "noResultsBody": "جرّب اسمًا أو فئة أخرى.",
@@ -2906,7 +2901,11 @@
     "status_sampled": "تم سحب العينة",
     "status_processing": "قيد التنفيذ",
     "status_report": "التقرير جاهز",
-    "status_cancelled": "ملغي"
+    "status_cancelled": "ملغي",
+    "bookingNotSentTitle": "لم يتم أي حجز",
+    "bookingNotSentBody": "هذه النافذة لا ترسل الحجز بعد، لذلك لم يُنشأ أي موعد ولم يُسحب أي مبلغ. افتح صفحة التمريض لحجز زيارة.",
+    "bookingNotSentCta": "إلى صفحة التمريض",
+    "bookingNotSentClose": "إغلاق"
   },
   "InsuranceWeb": {
     "title": "التأمين الصحي",

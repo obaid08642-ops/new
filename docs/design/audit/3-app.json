@@ -128,6 +128,11 @@
           "Total, continue",
           "sum of price x qty, /diagnostics/checkout",
           "ok"
+        ],
+        [
+          "Lab-lock alert (cart tied to another lab)",
+          "locale keys diag.cart.locked* in six languages (was Arabic literals in DiagnosticsCartContext)",
+          "fixed"
         ]
       ]
     },
@@ -378,6 +383,11 @@
           "Card opens the booking",
           "route /diagnostics/order/[id] (was this list itself)",
           "fixed"
+        ],
+        [
+          "Back with nothing to go back to",
+          "OrderList backFor(endpoints): labs and radiology go to the diagnostics hub (pharmacy list: pharmacy hub; all-services list: home)",
+          "fixed"
         ]
       ],
       "notes": [
@@ -604,18 +614,10 @@
       "line": 68
     },
     {
-      "route": "/diagnostics/orders",
-      "element": "Back button",
-      "kind": "client",
-      "note": "The shared OrderList falls back to the pharmacy hub when there is nothing to go back to.",
-      "file": "patient-app/src/components/orders/OrderList.tsx",
-      "line": 92
-    },
-    {
       "route": "/diagnostics/cart",
       "element": "Cart context",
       "kind": "client",
-      "note": "DiagnosticsCartContext holds Arabic literal text in its lab-lock alert and keeps the cart in memory only (not touched: logic).",
+      "note": "DiagnosticsCartContext keeps the cart in memory only (lost when the app closes); persisting it is a logic change, left for the reviewer.",
       "file": "patient-app/src/context/DiagnosticsCartContext.tsx",
       "line": 54
     },

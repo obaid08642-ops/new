@@ -22,7 +22,7 @@ vi.mock("@/lib/api/radiology-server", () => ({ getPublicRadiologyServices: state
 vi.mock("@/components-next/nav/stale-while-revalidate", () => ({ StaleWhileRevalidate: () => null }));
 
 import DiagnosticsPage from "./page";
-import DiagnosticDetailPage from "./[domain]/[bookingId]/page";
+import DiagnosticDetailPage from "./bookings/[domain]/[bookingId]/page";
 
 const bookingId = "91047ef2-ad36-422a-a184-629693e7c729";
 const serverToken = "server-only-diagnostic-token-never-in-html";
@@ -55,7 +55,7 @@ describe("diagnostics SSR boundary", () => {
     expect(html).not.toContain(serverToken);
     expect(html).not.toContain("private");
     expect(html).not.toContain("500");
-    expect(html).toContain(`/en/diagnostics/labs/${bookingId}`);
+    expect(html).toContain(`/en/diagnostics/bookings/labs/${bookingId}`);
     expect(html).not.toContain("style=");
   });
 

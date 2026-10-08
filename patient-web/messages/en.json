@@ -2872,12 +2872,7 @@
     "trackingBeforeTitle": "Before the sample",
     "trackingBeforeBody": "Fast 8 to 12 hours before the sample unless your doctor says otherwise.",
     "trackingStepsTitle": "Steps",
-    "stepReceived": "Order received",
-    "stepAssigned": "Collector assigned",
-    "stepOnTheWay": "Collector on the way",
-    "stepCollected": "Sample collected",
-    "stepAtLab": "Sample at the lab",
-    "stepResult": "Result ready",
+    "trackingNoSteps": "No tracking updates yet. The steps appear here once the lab logs them.",
     "searchTests": "Search for a test…",
     "noResultsTitle": "No results",
     "noResultsBody": "Try another name or category.",
@@ -2906,7 +2901,11 @@
     "status_sampled": "Sample collected",
     "status_processing": "In progress",
     "status_report": "Report ready",
-    "status_cancelled": "Cancelled"
+    "status_cancelled": "Cancelled",
+    "bookingNotSentTitle": "Nothing was booked",
+    "bookingNotSentBody": "This window does not send a booking yet, so no appointment was made and no payment was taken. Open the nursing page to book a visit.",
+    "bookingNotSentCta": "Go to nursing",
+    "bookingNotSentClose": "Close"
   },
   "InsuranceWeb": {
     "title": "Health insurance",

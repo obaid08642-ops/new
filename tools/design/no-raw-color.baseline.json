@@ -1,7 +1,7 @@
 {
   "note": "Hard-coded colours that predate the design system. Recorded once with --init. 12.A11 rebuilds the screens on tokens and each rebuilt file drops out. --update only ever LOWERS a count; it cannot raise one.",
   "totals": {
-    "patient-web": 2490,
+    "patient-web": 2398,
     "patient-app": 1237,
     "provider-app": 320,
     "admin": 215
@@ -112,8 +112,6 @@
     "patient-web/components-next/premium-health-illustration.tsx": 9,
     "patient-web/components-next/prescription-translator-client.tsx": 11,
     "patient-web/components-next/privacy-toggles.tsx": 16,
-    "patient-web/components-next/service-booking-modal.module.css": 77,
-    "patient-web/components-next/service-booking-modal.tsx": 15,
     "patient-web/components-next/skin-analysis-form.tsx": 11,
     "patient-web/components-next/symptom-timeline-client.tsx": 18,
     "patient-web/components-next/vector-illustrations.tsx": 291,
