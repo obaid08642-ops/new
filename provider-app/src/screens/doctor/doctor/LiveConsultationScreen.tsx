@@ -17,6 +17,7 @@ import { I, IBg } from '../../../components/icons';
 import { SP, R, FS, FW, API_BASE } from '../../../constants';
 import { buildHeaders, Vault, SK } from '../../../security/Security';
 import client from '../../../api/client';
+import { finishVisitSummary } from '../../../api/visit';
 import { useServicesCatalog, getInsuranceCatalog, useSpecialtiesCatalog } from '../../../api/catalogs';
 import { VideoCallRoom } from '../../shared/VideoCallRoom';
 import { InsuranceRequestsScreen } from '../../shared/InsuranceRequestsScreen';
@@ -87,11 +88,12 @@ export function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; 
  };
  const checkIn = () => step(() => client.patch(`/care/appointments/${aptId}/check-in`, {}), AR ? 'تم تسجيل حضور المريض' : 'Patient checked in');
  const startVisit = () => step(() => client.patch(`/care/appointments/${aptId}/start`, {}), AR ? 'بدأت الاستشارة' : 'Consultation started');
- const finishVisit = () => {
-   if (!diagnosis.trim()) return show(AR ? 'اكتب التشخيص قبل إنهاء الزيارة' : 'Enter the diagnosis before finishing', 'warning');
-   step(() => client.post(`/care/appointments/${aptId}/finish`, { diagnosis: diagnosis.trim(), notes: visitNotes.trim() || undefined, recommendations: advice.trim() || undefined }),
-     AR ? 'انتهت الزيارة وأُرسل الملخص للمريض' : 'Visit finished; summary sent to the patient');
- };
+  const finishVisit = () => {
+    if (!diagnosis.trim()) return show(AR ? 'اكتب التشخيص قبل إنهاء الزيارة' : 'Enter the diagnosis before finishing', 'warning');
+    // P22.6 — visit-summary creation: POST /care/appointments/:id/finish (shared helper, same route/body).
+    step(() => finishVisitSummary(aptId, { diagnosis: diagnosis.trim(), notes: visitNotes.trim() || undefined, recommendations: advice.trim() || undefined }),
+      AR ? 'انتهت الزيارة وأُرسل الملخص للمريض' : 'Visit finished; summary sent to the patient');
+  };
 
  const status = String(verified?.status || '').toUpperCase();
  const okStates = ['CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'];

@@ -71,6 +71,16 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
   const grantedPerms: string[] = Array.isArray((user as any)?.permissions) ? (user as any).permissions : [];
   const isPricingLocked = isLinkedToFacility && !grantedPerms.includes('pricing');
 
+  // P22.12/P22.22.7 — scorecard + review replies: every authenticated provider
+  // role may see the entries; hidden only when /provider/me explicitly denies
+  // them (fail-open, same F53 pattern as NursingSettings — a missing/unparseable
+  // capabilities payload never removes the rows).
+  const [caps, setCaps] = useState<any>(null);
+  useEffect(() => {
+    client.get('/provider/me').then((r: any) => setCaps((r?.data || r)?.capabilities ?? null)).catch(() => setCaps(null));
+  }, []);
+  const denied = (k: string) => !!caps && typeof caps === 'object' && (caps as any)[k] === false;
+
   useEffect(() => {
     let active = true;
     client.get('/provider/settings/pricing').then((res) => {
@@ -227,6 +237,12 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
         {/* ── Profile & Configuration ───────────────────────────────── */}
         <NSecHeader title={AR ? 'الملف الشخصي والإعدادات' : 'Profile & Config'} />
         <NSettingsRow icon="user" label={AR ? 'تعديل الملف الشخصي' : 'Edit Profile'} onPress={() => onNavigate('profile_edit')} />
+        {!denied('scorecard') && (
+          <NSettingsRow icon="star" label={AR ? 'بطاقة الأداء' : 'My Scorecard'} onPress={() => onNavigate('scorecard')} />
+        )}
+        {!denied('reviews') && (
+          <NSettingsRow icon="chat" label={AR ? 'التقييمات والردود' : 'Reviews & Replies'} onPress={() => onNavigate('reviews')} />
+        )}
         <NSettingsRow icon="mapPin" label={AR ? 'الموقع ونطاق التغطية' : 'Location & Coverage'} onPress={() => onNavigate('location_config')} />
         <NSettingsRow icon="calendar" label={AR ? 'مواعيد العمل (Scheduler)' : 'Availability Engine'} onPress={() => onNavigate('availability_engine')} />
         <NSettingsRow icon="shield" label={AR ? 'شركات التأمين' : 'Insurance Config'} onPress={() => onNavigate('insurance_config')} />
