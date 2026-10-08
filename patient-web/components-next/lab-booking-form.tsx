@@ -2,9 +2,15 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarClock, LoaderCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import consult from "@/components-next/consult/consult.module.css";
+import rx from "@/components-next/pharmacy/rx.module.css";
+import styles from "@/components-next/diagnostics/diag.module.css";
 
+/** The booking of one lab test (canvas/BookingConfirm): where, when, how to pay, then the booking. The request, its idempotency key and the checks are unchanged; this is its markup and texts. */
 export function LabBookingForm({ locale, serviceId, providerId, serviceName, homeEligible }: { locale: string; serviceId: string; providerId: string; serviceName: string; homeEligible: boolean }) {
+  const t = useTranslations("DiagWeb");
   const router = useRouter();
   const [locationType, setLocationType] = useState<"facility" | "home">("facility");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "card" | "insurance">("card");
@@ -14,8 +20,8 @@ export function LabBookingForm({ locale, serviceId, providerId, serviceName, hom
   const [error, setError] = useState("");
   const key = useRef<string | null>(null);
   async function submit() {
-    if (!scheduledAt || state === "loading") { setError("اختر موعداً صحيحاً"); return; }
-    if (locationType === "home" && paymentMethod === "insurance" && !documentUrl.trim()) { setError("الزيارة المنزلية بالتأمين تتطلب توصية طبية أو موافقة مسبقة"); return; }
+    if (!scheduledAt || state === "loading") { setError(t("errPickTime")); return; }
+    if (locationType === "home" && paymentMethod === "insurance" && !documentUrl.trim()) { setError(t("errHomeInsuranceDoc")); return; }
     key.current ??= crypto.randomUUID(); setState("loading"); setError("");
     const documents = documentUrl.trim() ? [{ kind: "doctor_request", url_or_b64: documentUrl.trim() }] : [];
     try {
@@ -23,15 +29,44 @@ export function LabBookingForm({ locale, serviceId, providerId, serviceName, hom
       const data = await r.json().catch(() => null);
       if (!r.ok || !data?.id) throw new Error(data?.message || "booking_failed");
       router.push(`/${locale}/diagnostics/labs/${data.id}`);
-    } catch (e: any) { setState("error"); setError(e?.message === "slot_taken" ? "الموعد لم يعد متاحاً" : "تعذر إنشاء الحجز — حاول مرة أخرى"); }
+    } catch (e: unknown) { setState("error"); setError(e instanceof Error && e.message === "slot_taken" ? t("errSlotTaken") : t("errBooking")); }
   }
-  return <section style={{ display: "grid", gap: 14, padding: 20, border: "1px solid var(--line)", borderRadius: "var(--radius-xl)", background: "var(--surface)" }}>
-    <h2><CalendarClock size={18} aria-hidden="true" /> حجز {serviceName}</h2>
-    <label>الموقع<select value={locationType} onChange={e => setLocationType(e.target.value as "facility" | "home")}><option value="facility">في المنشأة</option><option value="home" disabled={!homeEligible}>سحب منزلي{!homeEligible ? " — غير متاح" : ""}</option></select></label>
-    <label>الموعد<input type="datetime-local" value={scheduledAt} onChange={e => setScheduledAt(e.target.value)} required /></label>
-    <label>طريقة الدفع<select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value as "cash" | "card" | "insurance")}><option value="card">بطاقة إلكترونية</option><option value="cash" disabled={locationType === "home"}>نقد في المنشأة</option><option value="insurance">تأمين</option></select></label>
-    {paymentMethod === "insurance" ? <label>رابط التوصية/الموافقة الطبية (عند الحاجة)<input value={documentUrl} onChange={e => setDocumentUrl(e.target.value)} placeholder="https://…" /></label> : null}
-    {error ? <p role="alert" style={{ color: "var(--danger, #b42318)" }}>{error}</p> : null}
-    <button type="button" onClick={submit} disabled={state === "loading"}>{state === "loading" ? <LoaderCircle size={17} aria-hidden="true" /> : <CalendarClock size={17} aria-hidden="true" />} {state === "loading" ? "جارٍ الحجز…" : "تأكيد الحجز"}</button>
-  </section>;
+  return (
+    <div className={consult.stack}>
+      <section className={rx.card} aria-labelledby="book-service">
+        <h2 id="book-service" className={consult.sectionTitle}>{serviceName}</h2>
+      </section>
+
+      <section className={rx.card} aria-labelledby="book-where">
+        <h2 id="book-where" className={consult.sectionTitle}>{t("bookWhere")}</h2>
+        <div className={consult.choices} role="group" aria-label={t("bookWhere")}>
+          <button type="button" className={consult.choice} aria-pressed={locationType === "facility"} onClick={() => setLocationType("facility")}>{t("placeLab")}</button>
+          <button type="button" className={consult.choice} aria-pressed={locationType === "home"} disabled={!homeEligible} onClick={() => setLocationType("home")}>{t("placeHomeLab")}</button>
+        </div>
+        {!homeEligible ? <p className={styles.flowNote}>{t("bookHomeUnavailable")}</p> : null}
+        <label className={consult.field}>
+          <span className={consult.label}>{t("bookWhen")}</span>
+          <input className={consult.control} type="datetime-local" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} required />
+        </label>
+      </section>
+
+      <section className={rx.card} aria-labelledby="book-pay">
+        <h2 id="book-pay" className={consult.sectionTitle}>{t("checkoutPay")}</h2>
+        <div className={consult.choices} role="group" aria-label={t("checkoutPay")}>
+          <button type="button" className={consult.choice} aria-pressed={paymentMethod === "card"} onClick={() => setPaymentMethod("card")}>{t("payCard")}</button>
+          <button type="button" className={consult.choice} aria-pressed={paymentMethod === "cash"} disabled={locationType === "home"} onClick={() => setPaymentMethod("cash")}>{t("payCash")}</button>
+          <button type="button" className={consult.choice} aria-pressed={paymentMethod === "insurance"} onClick={() => setPaymentMethod("insurance")}>{t("payInsurance")}</button>
+        </div>
+        {paymentMethod === "insurance" ? (
+          <label className={consult.field}>
+            <span className={consult.label}>{t("bookDocLabel")}</span>
+            <input className={consult.control} value={documentUrl} onChange={(e) => setDocumentUrl(e.target.value)} inputMode="url" dir="ltr" />
+          </label>
+        ) : null}
+      </section>
+
+      {error ? <p className={consult.error} role="alert">{error}</p> : null}
+      <Button label={state === "loading" ? t("bookSaving") : t("bookConfirm")} size="lg" fullWidth loading={state === "loading"} disabled={state === "loading"} onClick={submit} />
+    </div>
+  );
 }

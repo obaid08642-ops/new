@@ -42,11 +42,13 @@ const ALLOWED_SCREENS = new Set([
   '/nursing/insurance-status',
   '/emergency/sos-active',
   '/insurance',
+  '/insurance/request',
   '/returns/hub',
   '/notifications',
   '/loyalty',
   '/offers',
-  '/health/medication-reminder-list',
+  '/health/medications',
+  '/health/medication-reminder-list', // notifications scheduled before the merge still carry it; the route redirects
 ]);
 
 // Legacy type → screen resolver (kept for backward compatibility)
@@ -73,7 +75,7 @@ function resolveLegacyRoute(data: any): { pathname: string; params: Record<strin
       if (data.bookingKind === 'nursing' || data.booking_kind === 'nursing' || data.kind === 'home-care') {
         return { pathname: '/nursing/insurance-status', params: { bookingId: data.bookingId || data.booking_id || '' } };
       }
-      return { pathname: '/insurance', params: { requestId: data.requestId } };
+      return data.requestId ? { pathname: '/insurance/request', params: { id: data.requestId } } : { pathname: '/insurance', params: {} };
     case 'report_ready':
       return { pathname: '/diagnostics/my-results', params: {} };
     case 'emergency_update':

@@ -1,203 +1,108 @@
-// @ts-nocheck
+import React, { useCallback, useEffect, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
+import { router, type Href } from 'expo-router';
+
+import { Card, FIcon } from '../../../packages/ui-native/src';
+import { ConsultList, StatusTag, useConsultFormat } from '../../src/components/consult/ConsultKit';
+import { RAD_TONE, LAB_TONE, diagStatus, goBackDiag } from '../../src/components/diagnostics/DiagKit';
+import { StatusPill } from '../../src/components/orders/OrderKit';
+import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { apiFetch } from '../../src/utils/api';
+import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  StatusBar,
-  ActivityIndicator,
-} from "react-native";
-import { router } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useApp } from "../../src/context/AppContext";
-import { Icon } from "../../src/components/Icon";
-import { AppText, Card, Badge, IconButton } from "../../src/components/ui";
-import { apiFetch } from "../../src/utils/api";
+import { rowsOf } from '../../src/utils/labMappers';
+import { pickLocalized } from '../../src/utils/localize';
 
-export default function MyResultsScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
-  const [bookings, setBookings] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchResults = async () => {
-    try {
-      setLoading(true);
-      // M4: دمج نتائج التحاليل وتقارير الأشعة
-      const [labs, radReports] = await Promise.all([
-        apiFetch<any[]>("/labs/bookings/mine").catch(() => []),
-        apiFetch<any[]>("/radiology/reports/mine").catch(() => []),
-      ]);
-      const radItems = (radReports || []).map((r: any) => ({ ...r, __isRadiology: true }));
-      setBookings([...(labs || []), ...radItems]);
-    } catch (err) {
-      logError('diagnostics:my-results', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchResults();
-  }, []);
-
-  return (
-    <View style={[st.c, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-      <View
-        style={[
-          st.hdr,
-          {
-            paddingTop: insets.top + 8,
-            backgroundColor: colors.surface,
-            borderBottomColor: colors.borderLight,
-          },
-        ]}
-      >
-        <View style={{ width: 40 }} />
-        <AppText variant="h4">نتائجي</AppText>
-        <IconButton icon="back" onPress={() => router.back()} />
-      </View>
-
-      {loading ? (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      ) : bookings.length === 0 ? (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            gap: 12,
-          }}
-        >
-          <Icon name="document" size={48} color={colors.textTertiary} />
-          <AppText variant="h5" color={colors.textSecondary}>
-            لا توجد نتائج تحاليل حالياً
-          </AppText>
-        </View>
-      ) : (
-        <ScrollView
-          contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 100 }}
-        >
-          {bookings.map((b) => {
-            const hasReport = b.reports && b.reports.length > 0;
-            const report = hasReport ? b.reports[0] : null;
-            const title =
-              b.items?.map((i: any) => i.name_ar).join(" + ") ||
-              (b.__isRadiology ? "أشعة وتصوير" : "تحاليل مخبرية");
-            const labName = b.provider_name || (b.__isRadiology ? "مركز أشعة معتمد" : "مختبر معتمد");
-            const dateStr = new Date(b.scheduled_at).toLocaleDateString(
-              "ar-EG",
-              { day: "numeric", month: "long", year: "numeric" },
-            );
-
-            // Map backend state
-            let statusText = "قيد المراجعة";
-            let badgeColor = colors.warning;
-
-            if (b.state === "REPORTED") {
-              statusText = "جاهز";
-              badgeColor = colors.success;
-            } else if (b.state === "CREATED") {
-              statusText = "تم الحجز";
-              badgeColor = colors.primary;
-            } else if (b.state === "CANCELLED") {
-              statusText = "ملغي";
-              badgeColor = colors.error;
-            } else if (b.state === "SAMPLE_COLLECTED") {
-              statusText = "تم سحب العينة";
-              badgeColor = colors.info || "#0284C7";
-            } else if (b.state === "IN_LAB" || b.state === "PROCESSING") {
-              statusText = "في المختبر للتحليل";
-              badgeColor = colors.warning;
-            } else if (b.state === "REPORT_READY") {
-              statusText = "التقرير جاهز";
-              badgeColor = colors.success;
-            } else if (b.state === "PENDING") {
-              statusText = "بانتظار القبول";
-              badgeColor = colors.primary;
-            } else if (b.state === "IN_PROGRESS" || b.state === "SCANNING") {
-              statusText = "جارٍ التصوير";
-              badgeColor = colors.info || "#0284C7";
-            }
-
-            // M4: عناصر الأشعة — التقرير قد يكون PDF موقّعًا على مستوى الحجز
-            const isRad = !!b.__isRadiology;
-            const radHasReport = isRad && (!!b.signed_report_pdf_url || (b.reports && b.reports.length > 0));
-            const radReport = isRad
-              ? (b.reports?.[0] || { id: b.id, url: b.signed_report_pdf_url, name: 'تقرير الأشعة' })
-              : null;
-            const effHasReport = isRad ? radHasReport : hasReport;
-            const effReport = isRad ? radReport : report;
-
-            return (
-              <Card
-                key={b.id}
-                onPress={() => router.push({ pathname: "/diagnostics/order/[id]", params: { id: b.id } })}
-              >
-                <View
-                  style={{
-                    flexDirection: "row-reverse",
-                    gap: 12,
-                    alignItems: "center",
-                  }}
-                >
-                  <View style={[st.icon, { backgroundColor: isRad ? "#0284C718" : "#7A6BEA18" }]}>
-                    <Icon name={isRad ? "radiology-box-outline" : "science"} size={22} color={isRad ? "#0284C7" : "#7A6BEA"} />
-                  </View>
-                  <View style={{ flex: 1, alignItems: "flex-end", gap: 3 }}>
-                    <AppText variant="h6">{title}</AppText>
-                    <AppText variant="caption" color={colors.textTertiary}>
-                      {labName} · {dateStr}
-                    </AppText>
-                    <View
-                      style={{
-                        flexDirection: "row-reverse",
-                        gap: 6,
-                        marginTop: 4,
-                      }}
-                    >
-                      <Badge label={statusText} color={badgeColor} />
-                      {effHasReport && (
-                        <Badge label="تقرير PDF جاهز" color={colors.success} />
-                      )}
-                    </View>
-                  </View>
-                  <Icon
-                    name="chevronLeft"
-                    size={18}
-                    color={colors.textTertiary}
-                  />
-                </View>
-              </Card>
-            );
-          })}
-        </ScrollView>
-      )}
-    </View>
-  );
+interface ResultRow {
+  id: string;
+  radiology: boolean;
+  title: string;
+  provider: string;
+  at: unknown;
+  state: unknown;
+  hasReport: boolean;
 }
 
-const st = StyleSheet.create({
-  c: { flex: 1 },
-  hdr: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-  },
-  icon: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+const text = (v: unknown): string => (typeof v === 'string' ? v.trim() : '');
+
+/** One booking or report of the server as a row; null when it has no id. */
+function toRow(raw: unknown, radiology: boolean): ResultRow | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const b = raw as Record<string, unknown>;
+  const id = text(b.id) || text(b._id);
+  if (!id) return null;
+  const items = Array.isArray(b.items) ? (b.items as Array<Record<string, unknown>>) : [];
+  const reports = Array.isArray(b.reports) ? b.reports : [];
+  return {
+    id,
+    radiology,
+    title: items.map((i) => text(pickLocalized(i.name_ar as string | undefined, i.name_en as string | undefined))).filter(Boolean).join(' + '),
+    provider: text(b.provider_name),
+    at: b.scheduled_at,
+    state: b.state ?? b.status,
+    hasReport: radiology ? Boolean(b.signed_report_pdf_url) || reports.length > 0 : reports.length > 0,
+  };
+}
+
+/** The patient's lab results and radiology reports in one list (board Orders card); the report is opened from the booking. */
+export default function MyResults() {
+  const { theme, t, c, k, flow } = useScreenUi();
+  const fmt = useConsultFormat();
+  const [rows, setRows] = useState<ResultRow[]>([]);
+  const [status, setStatus] = useState<'loading' | 'error' | 'offline' | 'ready'>('loading');
+
+  const load = useCallback(async () => {
+    setStatus('loading');
+    let failures = 0;
+    const miss = (err: unknown) => {
+      failures += 1;
+      logError('diagnostics:my-results', err);
+      return null;
+    };
+    const [labs, rads] = await Promise.all([apiFetch<unknown>('/labs/bookings/mine').catch(miss), apiFetch<unknown>('/radiology/reports/mine').catch(miss)]);
+    const list = [...rowsOf(labs).map((r) => toRow(r, false)), ...rowsOf(rads).map((r) => toRow(r, true))].filter((r): r is ResultRow => r !== null);
+    setRows(list);
+    if (failures === 2) setStatus((await isOffline()) ? 'offline' : 'error');
+    else setStatus('ready');
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  return (
+    <ConsultList
+      testID="diagnostics-my-results"
+      title={k('diag.results.title')}
+      onBack={goBackDiag}
+      data={rows}
+      status={status}
+      onRetry={() => void load()}
+      onRefresh={() => void load()}
+      keyExtractor={(r) => `${r.radiology ? 'r' : 'l'}-${r.id}`}
+      empty={{ icon: 'file-text', title: k('diag.results.empty') }}
+      renderItem={(r) => {
+        const st = diagStatus(r.radiology ? 'radiology' : 'lab', r.state);
+        const title = r.title || (r.radiology ? k('diag.kind.rad') : k('diag.kind.lab'));
+        const meta = [r.provider, fmt.date(r.at)].filter(Boolean).join(' · ');
+        return (
+          <Pressable accessibilityRole="button" accessibilityLabel={[title, meta, k(st.key)].filter(Boolean).join(', ')} onPress={() => router.push({ pathname: '/diagnostics/order/[id]', params: { id: r.id } } as unknown as Href)} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
+            <Card theme={theme} padding="sm">
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <FIcon icon={r.radiology ? 'scan' : 'test-tube'} tone={r.radiology ? RAD_TONE : LAB_TONE} size={44} theme={theme} />
+                <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+                  <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{title}</Text>
+                  {meta ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{meta}</Text> : null}
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                    <StatusPill label={k(st.key)} tone={st.tone} />
+                    {r.hasReport ? <StatusTag label={k('diag.results.reportReady')} tone="success" /> : null}
+                  </View>
+                </View>
+              </View>
+            </Card>
+          </Pressable>
+        );
+      }}
+    />
+  );
+}

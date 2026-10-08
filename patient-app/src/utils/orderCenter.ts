@@ -299,7 +299,7 @@ export function buildRows(src: OrderSources, pick: PickName): OrderRow[] {
         sub: b.visit_type === 'home' ? { key: 'orders.sub.labHome' } : { key: 'orders.sub.labVisit' },
         at: time(b.scheduled_at) ?? time(b.createdAt),
         amount: firstAmount(b, ['total', 'total_price']),
-        route: { pathname: '/diagnostics/orders' },
+        route: idOf(b) ? { pathname: '/diagnostics/order/[id]', params: { id: idOf(b) as string } } : null,
         action: 'details',
       }),
     );
@@ -312,7 +312,7 @@ export function buildRows(src: OrderSources, pick: PickName): OrderRow[] {
         sub: center ? { text: center } : null,
         at: time(b.scheduled_at) ?? time(b.createdAt),
         amount: firstAmount(b, ['total', 'total_price']),
-        route: { pathname: '/diagnostics/orders' },
+        route: idOf(b) ? { pathname: '/diagnostics/order/[id]', params: { id: idOf(b) as string } } : null,
         action: 'details',
       }),
     );
@@ -337,7 +337,7 @@ export function buildRows(src: OrderSources, pick: PickName): OrderRow[] {
         title: text(c.service),
         at: time(c.date) ?? time(c.createdAt),
         amount: firstAmount(c, ['amount']),
-        route: { pathname: '/insurance/hub', params: { tab: 'claims' } },
+        route: { pathname: '/insurance', params: { tab: 'claims' } },
         action: 'details',
       }),
     );

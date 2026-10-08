@@ -109,7 +109,7 @@ export default function HomeScreen() {
 
   // the user record's name from /users/me/display; empty (a guest, or no name yet) hides the name everywhere
   const patientName = typeof display?.display_name === 'string' && display.display_name.trim() ? display.display_name.trim() : null;
-  const goReminders = () => router.push('/health/medication-reminder-list');
+  const goReminders = () => router.push('/health/medications?tab=reminders');
 
   // The reminder card: the next dose, or that today's doses are done; nothing when there are no active reminders.
   const reminder = doseSummary.next
@@ -149,7 +149,7 @@ export default function HomeScreen() {
         {failed > 0 && !loading ? <LoadBanner message={t('error')} retryLabel={t('retry')} onRetry={() => void load(true)} /> : null}
         {loading ? <Skeleton variant="block" theme={theme} /> : reminder ? <ReminderCard label={tr('home.reminder')} title={reminder.title} subtitle={reminder.subtitle} onPress={goReminders} /> : null}
         <ServiceGrid items={HOME_SERVICES} />
-        <AiCard onPress={() => router.push('/ai-assistant')} />
+        <AiCard onPress={() => router.push('/ai')} />
         <ToolsRow tools={HOME_TOOLS} />
         <AllServicesRow onPress={() => router.push('/services')} />
         {hasAppointment && appointment ? (

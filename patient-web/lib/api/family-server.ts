@@ -7,6 +7,9 @@ export function getPatientFamilyMembers(accessToken: string) {
 export function getPatientFamilyGroup(accessToken: string) {
   return callPatientApi("/family/my-group", {}, accessToken);
 }
+export function getPatientFamilyPendingRequests(accessToken: string) {
+  return callPatientApi("/family/permissions/pending", {}, accessToken);
+}
 export function getPatientFamilyMemberRecords(accessToken: string, memberId: string) {
   return callPatientApi(`/family/member-records/${encodeURIComponent(memberId)}`, {}, accessToken);
 }

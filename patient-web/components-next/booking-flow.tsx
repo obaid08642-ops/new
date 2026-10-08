@@ -141,10 +141,10 @@ export function BookingFlow({ doctorId, locale, doctor, top }: { doctorId: strin
       });
       if (res.ok) {
         const data = await res.json().catch(() => null);
-        // Insurance continues to the payment-split flow with the server-issued
+        // Insurance continues to the insurance request page with the server-issued
         // request id (mirrors mobile); card/cash land on the appointment page.
         if (paymentMethod === "insurance" && data?.insurance_request_id) {
-          router.push(`/${locale}/insurance/payment-split?request_id=${encodeURIComponent(data.insurance_request_id)}`);
+          router.push(`/${locale}/insurance/requests/${encodeURIComponent(data.insurance_request_id)}`);
           return;
         }
         router.push(`/${locale}/appointments/${data?.id || ""}`);

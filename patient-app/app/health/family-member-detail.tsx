@@ -1,6 +1,8 @@
-// @ts-nocheck
-// Redirects to the new family member health screen
-import { Redirect } from "expo-router";
+import React from 'react';
+
+import { RedirectKeepingParams } from '../../src/components/health/RedirectKeepingParams';
+
+/** Old route (merge map, Batch 6, row B): the member screen (id, name and relation are kept). */
 export default function FamilyMemberDetailRedirect() {
-  return <Redirect href="/family/member-health" />;
+  return <RedirectKeepingParams to="/family/member-health" />;
 }

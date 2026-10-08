@@ -67,6 +67,8 @@ const API_MODE = arg('--api', 'empty');
 const AUTH = arg('--auth', 'visitor');
 // --cart test fills the local cart with marked TEST lines (one needs a prescription) so a filled cart can be drawn
 const CART = arg('--cart', 'empty');
+// --diag-cart test fills the diagnostics (labs and radiology) cart with marked TEST lines
+const DIAG_CART = arg('--diag-cart', 'empty');
 // --params 'a=b,c=d' overrides the route params of every screen of the run (e.g. prescriptionId=test-rx)
 // --params takes JSON ('{"orderId":"x"}') or a comma list ('a=1,b=2')
 const PARAMS_OVERRIDE = arg('--params') ? (arg('--params').trim().startsWith('{') ? JSON.parse(arg('--params')) : Object.fromEntries(arg('--params').split(',').map((kv) => kv.split('=')))) : null;
@@ -158,6 +160,144 @@ const BOARD = {
   'c-video-call': { params: { appointmentId: 'test-appt-video' } },
   'c-waiting-room': { params: { appointmentId: 'test-appt-video' } },
   'c-room': { params: { id: 'test-room' } },
+  // Batch 5 (health and records; merge map). The hub is the HealthHub board; every other screen follows its card, row and
+  // tile language and has none. The tab of a merged screen is a route param (`tab`), so one file is rendered once per tab:
+  // `--dir patient-app/app/health --screens vitals:h-vitals,vitals:h-vitals-trends,...` (`--dir "patient-app/app/(tabs)" --screens health:h-hub`).
+  // The ids select the TEST records of render-native-screen.fixtures.json (`test-report`).
+  'h-hub': { component: 'HealthHub', size: [390, 1360], params: {} },
+  'h-vitals': { params: {} },
+  'h-vitals-history': { params: { tab: 'history', type: 'bp' } },
+  'h-vitals-trends': { params: { tab: 'trends' } },
+  'h-sleep': { params: {} },
+  'h-meds': { params: {} },
+  'h-meds-reminders': { params: { tab: 'reminders' } },
+  'h-meds-refills': { params: { tab: 'refills' } },
+  'h-meds-chronic': { params: { tab: 'chronic' } },
+  'h-profile': { params: {} },
+  'h-profile-conditions': { params: { tab: 'conditions' } },
+  'h-profile-emergency': { params: { tab: 'emergency' } },
+  'h-records': { params: {} },
+  'h-records-rx': { params: { tab: 'prescriptions' } },
+  'h-records-timeline': { params: { tab: 'timeline' } },
+  'h-wearables': { params: {} },
+  'h-report': { params: { id: 'test-report' } },
+  'h-id': { params: {} },
+  // Batch 6 (family; merge map). The hub is the Family board; the member, calendar, chat and add screens follow its rows and cards and have
+  // none. The tab of a merged screen is a route param. `--dir patient-app/app/family --screens index:f-hub,member-health:f-member,...`
+  // The ids select the TEST records of render-native-screen.fixtures.json (`test-m1`).
+  'f-hub': { component: 'Family', size: [390, 1060], params: {} },
+  'f-member': { params: { id: 'test-m1', name: 'فرد تجريبي ١', relation: 'الزوجة' } },
+  'f-member-perms': { params: { id: 'test-m1', name: 'فرد تجريبي ١', relation: 'الزوجة', tab: 'permissions' } },
+  'f-calendar': { params: {} },
+  'f-chat': { params: {} },
+  'f-add': { params: {} },
+  'f-add-join': { params: { tab: 'join', code: 'TEST42' } },
+  'f-add-scan': { params: { tab: 'scan' } },
+  // Batch 7 (insurance; merge map 2, section 6). The hub is the Insurance board; the add-policy, coverage, claim, request and co-pay screens
+  // follow its cards and rows and have none. `--dir patient-app/app/insurance --screens index:i-hub,request:i-request,add-policy:i-add,...`
+  // (`--api fixture`; the ids select the TEST records `test-req`, `test-req-review`, `test-req-rejected` of render-native-screen.fixtures.json).
+  'i-hub': { component: 'Insurance', size: [390, 1040], params: {} },
+  'i-hub-benefits': { params: { tab: 'benefits' } },
+  'i-hub-claims': { params: { tab: 'claims' } },
+  'i-hub-refunds': { params: { tab: 'refunds' } },
+  'i-hub-network': { params: { tab: 'network' } },
+  'i-request': { params: { id: 'test-req' } },
+  'i-request-review': { params: { id: 'test-req-review' } },
+  'i-request-rejected': { params: { id: 'test-req-rejected' } },
+  'i-add': { params: {} },
+  'i-coverage': { params: {} },
+  'i-claim': { params: {} },
+  'i-copay': { params: {} },
+  // Batch 8 (care hubs; merge map). The maternity hub is the CareHub board; nutrition, mental health and programs follow its hero, rows and
+  // form cards and have none. The tab is a route param. `--dir patient-app/app/maternity --screens hub:m-hub,maternity-setup:m-setup` etc.
+  'm-hub': { component: 'CareHub', size: [390, 1100], params: {} },
+  'm-hub-cycle': { component: 'CareHub', size: [390, 1100], params: { tab: 'ovulation' } },
+  'm-setup': { component: 'CareHub', size: [390, 1100], params: {} },
+  'n-hub': { component: 'CareHub', size: [390, 1300], params: {} },
+  'n-hub-target': { component: 'CareHub', size: [390, 1300], params: { tab: 'target' } },
+  'n-log-meal': { component: 'CareHub', size: [390, 1100], params: {} },
+  'mh-hub': { component: 'CareHub', size: [390, 844], params: {} },
+  'mh-mood': { component: 'CareHub', size: [390, 1300], params: {} },
+  'p-active': { component: 'CareHub', size: [390, 1300], params: {} },
+  // Batch 3 (labs and radiology / diagnostics, app slice 3-app; 17 screens). Run them per folder: `--dir "patient-app/app/(tabs)" --screens
+  // diagnostics:d-hub` and `--dir patient-app/app/diagnostics --screens packages:d-packages,...` (`file[:name]`). The ids select the TEST records
+  // of render-native-screen.fixtures.json (`test-lab-pkg`, `test-lab-test`, `test-lab`, `test-lab-order`). The list, detail and result screens
+  // draw on the ServiceHub board (cards, rows, chips); the cart and checkout on Cart and CheckoutV2, tracking on OrderTracking.
+  'd-hub': { component: 'ServiceHub', size: [390, 1640], params: {} },
+  'd-packages': { component: 'ServiceHub', size: [390, 1640], params: {} },
+  'd-search': { component: 'Search', size: [390, 844], params: {} },
+  'd-my-results': { component: 'Orders', size: [390, 900], params: {} },
+  'd-orders': { component: 'Orders', size: [390, 900], params: {} },
+  'd-lab-comparison': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab-test', name: 'تحليل تجريبي ١' } },
+  'd-lab': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab' } },
+  'd-package-detail': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab-pkg' } },
+  'd-test-detail': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab-test' } },
+  'd-order': { component: 'OrderTracking', size: [390, 1120], params: { id: 'test-lab-order' } },
+  'd-order-done': { component: 'OrderTracking', size: [390, 1120], params: { id: 'test-lab-done' } },
+  'd-sample-tracking': { component: 'OrderTracking', size: [390, 1120], params: { bookingId: 'test-lab-order' } },
+  'd-technician-tracking': { component: 'OrderTracking', size: [390, 1120], params: { bookingId: 'test-lab-order' } },
+  'd-cart': { component: 'Cart', size: [390, 1260], params: {} },
+  'd-checkout': { component: 'CheckoutV2', size: [390, 1100], params: { serviceType: 'home', labId: 'test-lab', labName: 'مختبر تجريبي ١' } },
+  'd-book-sample': { component: 'BookingConfirm', size: [390, 1180], params: {} },
+  'd-insurance-upload': { component: 'RxUpload', size: [390, 1100], params: { labId: 'test-lab', labName: 'مختبر تجريبي ١', serviceType: 'home' } },
+  'd-insurance-approval': { component: 'ServiceHub', size: [390, 1640], params: { orderId: 'test-ins', labName: 'مختبر تجريبي ١', visitType: 'home' } },
+  // Batch 4 (nursing / home care, app slice 4-app; 8 screens). `--dir "patient-app/app/(tabs)" --screens nursing:n-hub` and `--dir patient-app/app/nursing --screens visits:n-visits,...`.
+  // The ids select the TEST records of render-native-screen.fixtures.json (`svc-iv`, `test-nurse`, `test-visit`, `test-nur-ins`). Hub, lists and details draw on the ServiceHub board, visits on Orders, tracking on OrderTracking, the booking page on DoctorFull.
+  'n-hub': { component: 'ServiceHub', size: [390, 1640], params: {} },
+  'n-visits': { component: 'Orders', size: [390, 900], params: {} },
+  'n-service-info': { component: 'ServiceHub', size: [390, 1640], params: { serviceId: 'svc-iv', flow: 'cash' } },
+  'n-service-details': { component: 'ServiceHub', size: [390, 1640], params: { serviceId: 'svc-iv', title: 'خدمة تمريض تجريبية ١', flow: 'cash' } },
+  'n-insurance-status': { component: 'ServiceHub', size: [390, 1640], params: { bookingId: 'test-nur-ins' } },
+  'n-live-tracking': { component: 'OrderTracking', size: [390, 1120], params: { type: 'nurse', bookingId: 'test-visit' } },
+  'n-live-done': { component: 'OrderTracking', size: [390, 1120], params: { type: 'nurse', bookingId: 'test-visit-done' } },
+  'n-nurse-profile': { component: 'DoctorFull', size: [390, 2700], params: { nurseId: 'test-nurse', flow: 'cash', serviceId: 'svc-iv' } },
+  // Batch 10 (articles; community removed). No board: the card and list language of CareHub. The tab is a route param.
+  // `--dir patient-app/app/articles --screens index:a-articles,index:a-articles-saved,[slug]:a-article`. The slug selects the TEST article.
+  'a-articles': { params: {} },
+  'a-articles-saved': { params: { tab: 'saved' } },
+  'a-article': { params: { slug: 'test-article' } },
+  // Batch 9 (one AI assistant; merge map section 4). No board draws the assistant: it follows the chat template and the CareHub cards
+  // (`--dir patient-app/app/ai --screens index:ai-assistant,monthly-report:ai-monthly-report`). The report is the list template.
+  'ai-assistant': { component: 'CareHub', size: [390, 1300], params: {} },
+  'ai-assistant-rx': { component: 'CareHub', size: [390, 700], params: { mode: 'prescription' } },
+  'ai-assistant-report': { component: 'CareHub', size: [390, 700], params: { mode: 'report' } },
+  'ai-monthly-report': { component: 'CareHub', size: [390, 1300], params: {} },
+  // Batch 11 (loyalty hub and offers; merge map section 7). No board draws loyalty: the hub follows the CareHub hero, rows and tabs; the offers
+  // list and detail follow the ServiceHub cards (`--dir patient-app/app/loyalty --screens hub:l-hub` and `--dir patient-app/app/offers --screens index:o-list,[id]:o-detail`).
+  'l-hub': { component: 'CareHub', size: [390, 1500], params: {} },
+  'l-hub-challenges': { component: 'CareHub', size: [390, 1300], params: { tab: 'challenges' } },
+  'l-hub-invite': { component: 'CareHub', size: [390, 1500], params: { tab: 'invite' } },
+  'o-list': { component: 'ServiceHub', size: [390, 844], params: {} },
+  'o-detail': { component: 'ServiceHub', size: [390, 1100], params: { id: 'test-offer1' } },
+  // Batch 12 (settings, account, support, returns, reviews, map; app slice 12-app). Run them per folder: `--dir patient-app/app/settings --screens
+  // index:b12-settings,notifications:b12-notifications,privacy:b12-privacy,security:b12-security,language:b12-language,help:b12-help,about:b12-about`,
+  // `--dir patient-app/app/profile --screens index:b12-profile,addresses:b12-addresses`, `--dir patient-app/app/returns --screens hub:b12-returns,...`,
+  // `--dir patient-app/app/support --screens chat:b12-support-chat,ticket:b12-tickets`, `--dir patient-app/app/reviews --screens index:b12-reviews`,
+  // `--dir patient-app/app/map --screens index:b12-map`, `--dir patient-app/app/shared --screens location-picker:b12-picker`. The profile is the Account board and
+  // the language screen the Settings board; the settings lists, forms and the support screens follow the Account / Settings rows and cards (no board of their own),
+  // the returns follow Orders. The map and the picker have no board. The ids select the TEST records of render-native-screen.fixtures.json.
+  'b12-settings': { component: 'Account', size: [390, 1180], params: {} },
+  'b12-profile': { component: 'Account', size: [390, 1180], params: {} },
+  'b12-addresses': { component: 'Account', size: [390, 1180], params: {} },
+  'b12-addresses-pick': { component: 'Account', size: [390, 1180], params: { select: '1' } },
+  'b12-language': { component: 'Settings', size: [390, 1080], params: {} },
+  'b12-notifications': { component: 'Settings', size: [390, 1080], params: {} },
+  'b12-privacy': { component: 'Settings', size: [390, 1080], params: {} },
+  'b12-privacy-data': { component: 'Settings', size: [390, 1080], params: { tab: 'data' } },
+  'b12-privacy-delete': { component: 'Settings', size: [390, 1080], params: { tab: 'delete' } },
+  'b12-security': { component: 'Settings', size: [390, 1080], params: {} },
+  'b12-help': { component: 'Account', size: [390, 1180], params: {} },
+  'b12-help-feedback': { component: 'Account', size: [390, 1180], params: { tab: 'feedback' } },
+  'b12-about': { component: 'Account', size: [390, 1180], params: {} },
+  'b12-about-legal': { component: 'Account', size: [390, 1180], params: { tab: 'legal' } },
+  'b12-returns': { component: 'Orders', size: [390, 900], params: {} },
+  'b12-return-detail': { component: 'Orders', size: [390, 900], params: { returnId: 'test-return-1' } },
+  'b12-return-new': { component: 'Orders', size: [390, 900], params: {} },
+  'b12-reviews': { component: 'Account', size: [390, 1180], params: { booking_kind: 'appointment', booking_id: 'test-appt', providerName: 'طبيب تجريبي ١' } },
+  'b12-tickets': { component: 'Orders', size: [390, 900], params: {} },
+  'b12-support-chat': { params: {} },
+  'b12-map': { params: {} },
+  'b12-picker': { params: {} },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },
@@ -231,6 +371,8 @@ const MOCKS = {
       const answer = (v) => { if (v && typeof v === 'object' && '__error' in v) throw new Error(v.__error); return resolve(v); };
       // a mutation is recorded; a fixture named "POST /path" is its answer (e.g. the result of a payment check), else {}
       if (options && options.method && options.method !== 'GET') { window.__MUTATIONS = (window.__MUTATIONS || []).concat([{ path: key, method: options.method }]); const fk = options.method + ' ' + key; return mode === 'fixture' && fk in fixtures ? answer(fixtures[fk]) : {}; }
+      // a fixture named with its query ("/providers?type=lab") wins over the same path without one
+      if (mode === 'fixture' && String(path) in fixtures) return answer(fixtures[String(path)]);
       if (mode === 'fixture' && key in fixtures) return answer(fixtures[key]);
       return key in EMPTY ? EMPTY[key] : {};
     }
@@ -258,6 +400,10 @@ const MOCKS = {
     export const requestMediaLibraryPermissionsAsync = async () => ({ granted: false });
     export const launchCameraAsync = async () => ({ canceled: true });
     export const launchImageLibraryAsync = async () => ({ canceled: true });`,
+  // the embedded browser (the insurance portal lookup is a modal that is closed when a screen is drawn): a design render has none
+  'react-native-webview': `
+    export const WebView = () => null;
+    export default WebView;`,
   // the call screens load the native LiveKit modules lazily; a design render draws the screen before any connection, with no media
   'livekit-native': `
     export const VideoView = () => null;
@@ -296,6 +442,7 @@ const mockPlugin = {
     build.onResolve({ filter: /^expo-web-browser$/ }, () => virtual('expo-web-browser'));
     build.onResolve({ filter: /context\/SocketContext$/ }, (a) => (a.importer.startsWith(APP + sep) ? virtual('socket-context') : undefined));
     build.onResolve({ filter: /^@livekit\/react-native(-webrtc)?$/ }, () => virtual('livekit-native'));
+    build.onResolve({ filter: /^react-native-webview$/ }, () => virtual('react-native-webview'));
     build.onResolve({ filter: /^expo-camera$/ }, () => virtual('expo-camera'));
     build.onResolve({ filter: /^expo-image-picker$/ }, () => virtual('expo-image-picker'));
     build.onResolve({ filter: /^expo-apple-authentication$/ }, () => virtual('expo-apple-authentication'));
@@ -389,7 +536,7 @@ for (const s of SCREENS) {
       localStorage.setItem('@nabdah_theme_mode', th);
       localStorage.setItem('@nabdah_language', lg);
     }, [theme, LANG]);
-    const cfg = { width: W, height: H, insets: INSETS, params: paramsOf(s), cart: CART, camera: CAMERA, platform: PLATFORM, dir: DIR, lang: LANG, pathname: PATHNAME, api: API_MODE, auth: AUTH, tabbar: Boolean(TABBAR), header: Boolean(HEADER) };
+    const cfg = { width: W, height: H, insets: INSETS, params: paramsOf(s), cart: CART, diagCart: DIAG_CART, camera: CAMERA, platform: PLATFORM, dir: DIR, lang: LANG, pathname: PATHNAME, api: API_MODE, auth: AUTH, tabbar: Boolean(TABBAR), header: Boolean(HEADER) };
     await page.setContent(
       `<!doctype html><html dir="${DIR}" lang="${LANG}"><meta charset="utf-8"><style>${appFaces}html,body{margin:0}*{animation:none!important;transition:none!important}</style>` +
         `<div id="root"></div><script>window.__SCREEN=${JSON.stringify(cfg)}</script><script src="${BASE}/__app-${s}.js"></script></html>`,

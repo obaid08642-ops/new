@@ -1,231 +1,98 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-  I18nManager,
-} from 'react-native';
-import { AppText } from '../../src/components/ui';
-import { useApp } from '../../src/context/AppContext';
-import Icon from '@expo/vector-icons/MaterialCommunityIcons';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { apiFetch } from '../../src/utils/api';
-import { logError } from '../../src/utils/logger';
-import Animated, { FadeInDown } from 'react-native-reanimated';
-import { ScreenState } from '../../src/components/ScreenStates';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Text, View } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 
+import { ConsultScreen, Gate, InfoRow, StatusTag, useConsultFormat, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { Block, ListCard, Timeline, diagStatus, goBackDiag, type TimelineStep } from '../../src/components/diagnostics/DiagKit';
+import { StatusPill } from '../../src/components/orders/OrderKit';
+import { Notice } from '../../src/components/pharmacy/OfferKit';
+import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { apiFetch } from '../../src/utils/api';
+import { isOffline } from '../../src/utils/isOffline';
+import { logError } from '../../src/utils/logger';
+import { recordOf } from '../../src/utils/labMappers';
+
+type Rec = Record<string, unknown>;
+const str = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' ? String(v) : '');
+
+// What a sample goes through when the server sent no steps of its own: the first is done (the order was received), the second when a technician is assigned.
+const DEFAULT_STEPS = ['diag.track.step1', 'diag.track.step2', 'diag.track.step3', 'diag.track.step4', 'diag.track.step5', 'diag.track.step6'];
+
+/** Tracking of a lab sample: the status, the technician and the time, the preparation note and the steps (board OrderTracking). Refreshes every 15 seconds. */
 export default function SampleTrackingScreen() {
-  const { colors } = useApp();
-  const router = useRouter();
+  const { t, c, k, num, flow } = useScreenUi();
+  const fmt = useConsultFormat();
   const { bookingId } = useLocalSearchParams<{ bookingId?: string }>();
-  const [loading, setLoading] = useState(true);
-  const [tracking, setTracking] = useState<any>(null);
-  const [booking, setBooking] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<GateStatus>('loading');
+  const [tracking, setTracking] = useState<Rec | null>(null);
+  const [booking, setBooking] = useState<Rec | null>(null);
+
+  const fetchTracking = useCallback(
+    async (isStopped: () => boolean) => {
+      try {
+        const [bookingRes, trackRes] = await Promise.all([apiFetch<unknown>(`/labs/bookings/${bookingId}`).catch(() => null), apiFetch<unknown>(`/labs/bookings/${bookingId}/tracking`).catch(() => null)]);
+        if (isStopped()) return;
+        const b = recordOf(bookingRes);
+        const tr = recordOf(trackRes);
+        if (b) setBooking(b);
+        if (tr) setTracking(tr);
+        setStatus((s) => (b || tr ? 'ready' : s === 'ready' ? s : 'error'));
+      } catch (err) {
+        logError('diagnostics:sample-tracking', err);
+        if (!isStopped()) setStatus((await isOffline()) ? 'offline' : 'error');
+      }
+    },
+    [bookingId],
+  );
 
   useEffect(() => {
     if (!bookingId) {
-      setLoading(false);
+      setStatus('missing');
       return;
     }
     let stopped = false;
-    const fetchTracking = async () => {
-      try {
-        const [bookingRes, trackRes] = await Promise.all([
-          apiFetch(`/labs/bookings/${bookingId}`).catch(() => null),
-          apiFetch(`/labs/bookings/${bookingId}/tracking`).catch(() => null),
-        ]);
-        if (stopped) return;
-        if (bookingRes?.data || bookingRes) setBooking(bookingRes?.data || bookingRes);
-        if (trackRes?.data || trackRes) setTracking(trackRes?.data || trackRes);
-      } catch (err) {
-        logError('diagnostics:sample-tracking', err);
-        setError('تعذر تحميل بيانات التتبع');
-      } finally {
-        if (!stopped) setLoading(false);
-      }
-    };
-
-    fetchTracking();
-    const interval = setInterval(fetchTracking, 15000);
+    const stop = () => stopped;
+    void fetchTracking(stop);
+    const interval = setInterval(() => void fetchTracking(stop), 15000);
     return () => {
       stopped = true;
       clearInterval(interval);
     };
-  }, [bookingId]);
+  }, [bookingId, fetchTracking]);
 
-  const steps = tracking?.steps || [
-    { title: 'تم استلام طلب التحليل', done: true },
-    { title: 'جاري تخصيص أخصائي سحب العينة', done: tracking?.techName ? true : false },
-    { title: 'أخصائي السحب في الطريق', done: false },
-    { title: 'تم سحب العينة بنجاح', done: false },
-    { title: 'العينة قيد الفحص بالمختبر', done: false },
-    { title: 'النتائج والتقرير الطبي جاهز', done: false },
-  ];
+  const serverSteps = Array.isArray(tracking?.steps) ? (tracking?.steps as unknown[]) : null;
+  const raw: Array<{ key: string; title: string; time: string; done: boolean }> = serverSteps
+    ? serverSteps.map((s, i) => {
+        const r = (s && typeof s === 'object' ? s : {}) as Rec;
+        return { key: String(i), title: str(r.title), time: str(r.time), done: Boolean(r.done) };
+      })
+    : DEFAULT_STEPS.map((key, i) => ({ key, title: k(key), time: '', done: i === 0 || (i === 1 && Boolean(tracking?.techName)) }));
+  const firstTodo = raw.findIndex((s) => !s.done);
+  const steps: TimelineStep[] = raw.map((s, i) => ({ key: s.key, title: s.title, time: s.time || undefined, state: s.done ? 'done' : i === firstTodo ? 'current' : 'todo' }));
+  const st = diagStatus('lab', booking?.state);
+  const eta = tracking?.eta !== undefined && tracking?.eta !== null ? Number(tracking.eta) : null;
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Header */}
-      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Icon
-            name={I18nManager.isRTL ? 'arrow-right' : 'arrow-left'}
-            size={24}
-            color={colors.textPrimary}
-          />
-        </TouchableOpacity>
-        <AppText variant="h2" style={{ fontSize: 18, fontWeight: 'bold', color: colors.textPrimary }}>
-          تتبع سحب العينة المخبرية
-        </AppText>
-        <View style={{ width: 40 }} />
-      </View>
-
-      <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
-      <ScrollView contentContainerStyle={styles.content}>
-        {loading ? (
-          <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 50 }} />
-        ) : (
-          <>
-            {/* Summary Card */}
-            <Animated.View entering={FadeInDown.duration(400)} style={[styles.summaryCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <View style={styles.badgeRow}>
-                <View style={[styles.statusBadge, { backgroundColor: `${colors.primary}15` }]}>
-                  <AppText style={{ color: colors.primary, fontSize: 13, fontWeight: 'bold' }}>
-                    {booking?.state || 'قيد المتابعة'}
-                  </AppText>
-                </View>
-                {tracking?.eta != null && (
-                  <View style={[styles.statusBadge, { backgroundColor: '#10B98115' }]}>
-                    <AppText style={{ color: '#10B981', fontSize: 13, fontWeight: 'bold' }}>
-                      الوصول خلال {tracking.eta} دقيقة
-                    </AppText>
-                  </View>
-                )}
-              </View>
-
-              {tracking?.techName && (
-                <View style={styles.infoRow}>
-                  <Icon name="account-tie" size={20} color={colors.primary} />
-                  <AppText style={[styles.infoText, { color: colors.textPrimary }]}>
-                    أخصائي السحب: <AppText style={{ fontWeight: 'bold' }}>{tracking.techName}</AppText>
-                  </AppText>
-                </View>
-              )}
-
-              {booking?.scheduled_at && (
-                <View style={styles.infoRow}>
-                  <Icon name="calendar-clock" size={20} color={colors.textSecondary} />
-                  <AppText style={[styles.infoText, { color: colors.textSecondary }]}>
-                    الموعد المحدد: {new Date(booking.scheduled_at).toLocaleString('ar-SA')}
-                  </AppText>
-                </View>
-              )}
-            </Animated.View>
-
-            {/* Preparation Guidelines */}
-            <View style={[styles.guideCard, { backgroundColor: '#EFF6FF', borderColor: '#BFDBFE' }]}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                <Icon name="information-outline" size={20} color="#2563EB" />
-                <AppText style={{ color: '#1E3A8A', fontWeight: 'bold', fontSize: 14 }}>
-                  تعليمات ما قبل سحب العينة
-                </AppText>
-              </View>
-              <AppText style={{ color: '#1E40AF', fontSize: 13, lineHeight: 20 }}>
-                يرجى الالتزام بالصيام التام لمدة 8 إلى 12 ساعة في حال شملت الباقة تحاليل السكر الصائم أو وظائف الدهون، مع إمكانية شرب الماء النقي فقط.
-              </AppText>
+    <ConsultScreen testID="diagnostics-sample-tracking" title={k('diag.track.sampleTitle')} onBack={goBackDiag}>
+      <Gate status={status === 'missing' ? 'error' : status} onRetry={() => void fetchTracking(() => false)}>
+        <Block gap={12}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {booking?.state ? <StatusPill label={k(st.key)} tone={st.tone} /> : null}
+            {eta !== null && Number.isFinite(eta) ? <StatusTag label={k('diag.track.etaMinutes', { n: num(eta) })} tone="success" /> : null}
+          </View>
+          <ListCard>
+            <View style={{ paddingHorizontal: 14 }}>
+              <InfoRow label={k('diag.track.technician')} value={str(tracking?.techName)} />
+              <InfoRow label={k('diag.track.appointment')} value={fmt.dateTime(booking?.scheduled_at)} last />
             </View>
-
-            {/* Timeline */}
-            <View style={[styles.timelineWrap, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <AppText style={{ color: colors.textPrimary, fontWeight: 'bold', fontSize: 16, marginBottom: 16 }}>
-                مراحل تنفيذ الفحص
-              </AppText>
-
-              {steps.map((step: any, index: number) => {
-                const isLast = index === steps.length - 1;
-                return (
-                  <View key={index} style={styles.timelineItem}>
-                    <View style={styles.markerCol}>
-                      <View
-                        style={[
-                          styles.dot,
-                          {
-                            backgroundColor: step.done ? colors.primary : colors.border,
-                            borderColor: step.done ? colors.primary : colors.border,
-                          },
-                        ]}
-                      >
-                        {step.done && <Icon name="check" size={12} color="#fff" />}
-                      </View>
-                      {!isLast && (
-                        <View
-                          style={[
-                            styles.line,
-                            { backgroundColor: step.done ? colors.primary : colors.border },
-                          ]}
-                        />
-                      )}
-                    </View>
-                    <View style={styles.stepContent}>
-                      <AppText
-                        style={{
-                          color: step.done ? colors.textPrimary : colors.textSecondary,
-                          fontWeight: step.done ? 'bold' : 'normal',
-                          fontSize: 14,
-                        }}
-                      >
-                        {step.title}
-                      </AppText>
-                      {step.time && (
-                        <AppText style={{ color: colors.textSecondary, fontSize: 12, marginTop: 2 }}>
-                          {step.time}
-                        </AppText>
-                      )}
-                    </View>
-                  </View>
-                );
-              })}
-            </View>
-          </>
-        )}
-      </ScrollView>
-      </ScreenState>
-    </View>
+          </ListCard>
+        </Block>
+        <Notice tone="info" text={k('diag.track.prep')} />
+        <Block gap={14}>
+          <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('diag.track.stages')}</Text>
+          <Timeline steps={steps} />
+        </Block>
+      </Gate>
+    </ConsultScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 54,
-    paddingBottom: 14,
-    borderBottomWidth: 1,
-  },
-  backBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
-  content: { padding: 16, gap: 16 },
-  summaryCard: { padding: 18, borderRadius: 16, borderWidth: 1, gap: 12 },
-  badgeRow: { flexDirection: 'row', gap: 8 },
-  statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
-  infoRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  infoText: { fontSize: 14 },
-  guideCard: { padding: 14, borderRadius: 12, borderWidth: 1 },
-  timelineWrap: { padding: 18, borderRadius: 16, borderWidth: 1 },
-  timelineItem: { flexDirection: 'row', gap: 14 },
-  markerCol: { alignItems: 'center', width: 20 },
-  dot: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-  },
-  line: { width: 2, flex: 1, minHeight: 32, marginVertical: 4 },
-  stepContent: { flex: 1, paddingBottom: 20 },
-});

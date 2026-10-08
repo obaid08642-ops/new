@@ -1,0 +1,172 @@
+[
+  {
+    "batch": 12,
+    "app": "patient-app",
+    "screen": "/settings/about",
+    "element": "Legal documents in six languages",
+    "file": "patient-app/src/components/account/AboutView.tsx",
+    "line": 52,
+    "found": "[backend] The published documents have Arabic and English text only (title_ar/title_en, content_ar/content_en); the other four languages read the English one.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 12,
+    "app": "patient-app",
+    "screen": "/settings/about",
+    "element": "Cancellation and refund text",
+    "file": "patient-app/src/components/account/PolicyText.tsx",
+    "line": 28,
+    "found": "[backend] Decision 26: /system-config/public sends numbers only; the sentences are templates in the locale files filled with those numbers, not server text.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 12,
+    "app": "patient-app",
+    "screen": "/terms",
+    "element": "App /terms and /privacy not redirected",
+    "file": "patient-app/app/(auth)/terms.tsx",
+    "line": 1,
+    "found": "[owner] They are (auth) screens of Batch 13 and the register screen links to them before sign-in; left untouched. Redirect to /settings/about?tab=legal once the owner confirms the pre-sign-in case.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 12,
+    "app": "patient-app",
+    "screen": "/settings/privacy",
+    "element": "Hidden data actions",
+    "file": "patient-app/src/components/account/PrivacyView.tsx",
+    "line": 71,
+    "found": "[owner] The old 'copy in 24 hours' and 'transfer to another platform (FHIR)' actions had no handler and no endpoint; hidden. Decide if they are wanted.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 12,
+    "app": "patient-app",
+    "screen": "/settings/privacy",
+    "element": "Delete account",
+    "file": "patient-app/src/components/account/PrivacyView.tsx",
+    "line": 149,
+    "found": "[backend] The app signs out with POST /auth/logout after DELETE /users/me, only to drop tokens; the reviewer should confirm the server revokes sessions itself. (backend: backend/src/modules/users/users.controller.ts)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 12,
+    "app": "patient-app",
+    "screen": "/settings/help",
+    "element": "Feedback rating and category",
+    "file": "patient-app/src/components/account/HelpView.tsx",
+    "line": 113,
+    "found": "[client] The old form sent a 1-5 number and an Arabic type; the DTO takes rating positive|neutral|negative and a category. The stars are mapped (4-5 positive, 3 neutral, 1-2 negative); the reviewer should confirm that mapping. (backend: backend/src/modules/support/support.dto.ts:67)",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 12,
+    "app": "patient-app",
+    "screen": "/support/ticket",
+    "element": "Request status",
+    "file": "patient-app/src/components/account/SupportViews.tsx",
+    "line": 136,
+    "found": "[backend] The status text and its colour came from the server in one language; the app shows the text and ignores the colour. A status code would let the app translate it.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 12,
+    "app": "patient-app",
+    "screen": "/support/chat",
+    "element": "Reply of the support team",
+    "file": "patient-app/src/components/account/SupportViews.tsx",
+    "line": 50,
+    "found": "[backend] POST /support/chat answers { reply } at once (a bot-like reply); there is no agent thread or read state to draw.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 12,
+    "app": "patient-app",
+    "screen": "/returns/new-request",
+    "element": "Reason as free text",
+    "file": "patient-app/src/components/account/ReturnsViews.tsx",
+    "line": 259,
+    "found": "[backend] The reason is the sentence in the patient's language, stored as sent; a code list would let the hub translate it.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 12,
+    "app": "patient-app",
+    "screen": "/returns/hub",
+    "element": "Time to refund",
+    "file": "patient-app/src/components/account/ReturnsViews.tsx",
+    "line": 110,
+    "found": "[backend] The old '24-48 hours' line is hidden: the returns answer has no expected-time field.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 12,
+    "app": "patient-app",
+    "screen": "/profile",
+    "element": "Saved payment methods row",
+    "file": "patient-app/src/components/account/AccountView.tsx",
+    "line": 113,
+    "found": "[owner] The Account board has the row but no screen or endpoint exists; not drawn.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 12,
+    "app": "patient-app",
+    "screen": "/profile",
+    "element": "Guest sign-in alert text",
+    "file": "patient-app/src/hooks/useGuestGuard.tsx",
+    "line": 50,
+    "found": "[client] useGuestGuard.requireAuth shows an alert with Arabic text written in the hook (outside this batch's screens).",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 12,
+    "app": "patient-app",
+    "screen": "/reviews",
+    "element": "Aspects sent as codes",
+    "file": "patient-app/src/components/account/ReviewView.tsx",
+    "line": 51,
+    "found": "[backend] aspects is free-form; old reviews hold Arabic sentences as keys, new ones hold codes.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 12,
+    "app": "patient-app",
+    "screen": "/map",
+    "element": "Providers answer",
+    "file": "patient-app/src/components/account/ProvidersMapView.tsx",
+    "line": 108,
+    "found": "[backend] Fields are read under several names (lat/latitude/location.lat, name_ar/name, ...) and the type filter is local; the answer should have one shape.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 12,
+    "app": "patient-app",
+    "screen": "/map",
+    "element": "Hospital booking",
+    "file": "patient-app/src/components/account/ProvidersMapView.tsx",
+    "line": 205,
+    "found": "[owner] A hospital opens the consultations tab and a nurse kind the nursing tab: there is no hospital booking screen.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 12,
+    "app": "patient-app",
+    "screen": "/shared/location-picker",
+    "element": "Saved address kept on the phone",
+    "file": "patient-app/src/components/account/LocationPickerView.tsx",
+    "line": 81,
+    "found": "[client] The old screen shadowed the import with its own state setter, so a saved or confirmed address was never kept; fixed here by using the util.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 12,
+    "app": "patient-app",
+    "screen": "/profile/addresses",
+    "element": "No delete or edit of an address",
+    "file": "patient-app/src/components/account/AddressBookView.tsx",
+    "line": 105,
+    "found": "[owner] The book can add (map) and set the default only; there is no edit or delete in the old screen or the board.",
+    "suspect": "Owner decision."
+  }
+]
