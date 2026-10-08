@@ -2,8 +2,8 @@ import React, { useMemo } from 'react';
 import { View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
-import { EmptyState } from '../../../../packages/ui-native/src';
-import { CARE_TONE, CONSULT_TONE, CardAction, Gate, InfoRow, Section, useConsultFormat } from '../consult/ConsultKit';
+import { EmptyState, SERVICE_ICONS } from '../../../../packages/ui-native/src';
+import { CARE_TONE, CONSULT_TONE, RX_TONE, CardAction, Gate, InfoRow, Section, useConsultFormat } from '../consult/ConsultKit';
 import { MetricGrid, MetricTile, Panel, Pill, Row, useRemote } from '../health/HealthKit';
 import { useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
@@ -18,6 +18,8 @@ import { AiScreen } from './AssistantKit';
  * its block empty; all four failing is the failure state (a response is never turned into an empty report).
  */
 
+const LAB_TONE = SERVICE_ICONS.lab.tone;
+const MAP_TONE = SERVICE_ICONS.map.tone;
 type Item = Record<string, any>;
 const HISTORY = '/health/vitals?tab=trends' as Href;
 
@@ -62,9 +64,9 @@ export function MonthlyReportView() {
           <>
             <MetricGrid>
               <MetricTile label={k('ai.mr.appointments')} value={num(inMonth.length)} icon="stethoscope" tone={CONSULT_TONE} />
-              <MetricTile label={k('ai.mr.completed')} value={num(completed)} icon="check-circle" tone="mint" />
-              <MetricTile label={k('ai.mr.upcoming')} value={num(upcoming)} icon="calendar-dots" tone="amber" />
-              <MetricTile label={k('ai.mr.meds')} value={num(meds.length)} icon="pill" tone="coral" />
+              <MetricTile label={k('ai.mr.completed')} value={num(completed)} icon="check-circle" tone={LAB_TONE} />
+              <MetricTile label={k('ai.mr.upcoming')} value={num(upcoming)} icon="calendar-dots" tone={MAP_TONE} />
+              <MetricTile label={k('ai.mr.meds')} value={num(meds.length)} icon="pill" tone={RX_TONE} />
             </MetricGrid>
             {vitals.length > 0 ? (
               <Section title={k('ai.mr.vitals')}>

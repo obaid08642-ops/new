@@ -4,7 +4,7 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 
 import { Button, Input } from '../../../../packages/ui-native/src';
-import { CardAction, ConsultScreen, goBack, InfoRow, Section } from '../consult/ConsultKit';
+import { CardAction, ConsultScreen, goBack, InfoRow, RX_TONE, Section } from '../consult/ConsultKit';
 import { HealthTabs, Notice, Panel, Pill, Row } from '../health/HealthKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
@@ -197,7 +197,7 @@ function PrescriptionMode() {
             {meds.length === 0 ? <Notice tone="warning" text={k('ai.rx.none')} /> : null}
             {meds.map((m, i) => (
               <AnswerCard key={i} disclaimer={k('ai.disclaimer')} testID={`assistant-med-${i}`}>
-                <Row icon="pill" tone="coral" title={m.translatedName} subtitle={m.originalText} last />
+                <Row icon="pill" tone={RX_TONE} title={m.translatedName} subtitle={m.originalText} last />
                 <Panel>
                   {m.timing ? <InfoRow label={k('ai.rx.timing')} value={m.timing} /> : null}
                   {m.duration ? <InfoRow label={k('ai.rx.duration')} value={m.duration} /> : null}

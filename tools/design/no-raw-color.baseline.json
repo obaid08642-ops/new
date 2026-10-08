@@ -2,7 +2,7 @@
   "note": "Hard-coded colours that predate the design system. Recorded once with --init. 12.A11 rebuilds the screens on tokens and each rebuilt file drops out. --update only ever LOWERS a count; it cannot raise one.",
   "totals": {
     "patient-web": 2021,
-    "patient-app": 1069,
+    "patient-app": 952,
     "provider-app": 320,
     "admin": 215
   },
@@ -109,11 +109,6 @@
     "patient-web/components-next/vector-illustrations.tsx": 269,
     "patient-app/app/(tabs)/consultations/index.tsx": 1,
     "patient-app/app/+not-found.tsx": 5,
-    "patient-app/app/ai/monthly-report.tsx": 17,
-    "patient-app/app/ai/prescription-translator.tsx": 11,
-    "patient-app/app/ai/skin-analysis.tsx": 43,
-    "patient-app/app/ai/triage.tsx": 37,
-    "patient-app/app/ai-assistant.tsx": 3,
     "patient-app/app/articles/index.tsx": 1,
     "patient-app/app/community/hub.tsx": 8,
     "patient-app/app/community/post-detail.tsx": 5,
@@ -157,7 +152,6 @@
     "patient-app/app/settings/security.tsx": 7,
     "patient-app/app/support/chat.tsx": 14,
     "patient-app/app/support/ticket.tsx": 5,
-    "patient-app/app/voice/index.tsx": 6,
     "patient-app/src/components/AppGate.tsx": 6,
     "patient-app/src/components/CategoryVectorIcons.tsx": 60,
     "patient-app/src/components/Header.tsx": 28,

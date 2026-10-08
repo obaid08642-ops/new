@@ -236,6 +236,12 @@ const BOARD = {
   'n-live-tracking': { component: 'OrderTracking', size: [390, 1120], params: { type: 'nurse', bookingId: 'test-visit' } },
   'n-live-done': { component: 'OrderTracking', size: [390, 1120], params: { type: 'nurse', bookingId: 'test-visit-done' } },
   'n-nurse-profile': { component: 'DoctorFull', size: [390, 2700], params: { nurseId: 'test-nurse', flow: 'cash', serviceId: 'svc-iv' } },
+  // Batch 9 (one AI assistant; merge map section 4). No board draws the assistant: it follows the chat template and the CareHub cards
+  // (`--dir patient-app/app/ai --screens index:ai-assistant,monthly-report:ai-monthly-report`). The report is the list template.
+  'ai-assistant': { component: 'CareHub', size: [390, 1300], params: {} },
+  'ai-assistant-rx': { component: 'CareHub', size: [390, 700], params: { mode: 'prescription' } },
+  'ai-assistant-report': { component: 'CareHub', size: [390, 700], params: { mode: 'report' } },
+  'ai-monthly-report': { component: 'CareHub', size: [390, 1300], params: {} },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },
