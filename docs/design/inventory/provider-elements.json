@@ -1,5 +1,5 @@
 {
- "commit": "2863ad00",
+ "commit": "dc2569de",
  "screens": {
   "PendingDashboard": [
    {
@@ -1460,43 +1460,12 @@
     "note": null
    },
    {
-    "kind": "button",
-    "label": "Back to Home",
-    "src": "parent callback onDone",
-    "status": "ok",
-    "file": "provider-app/src/components/SuccessScreen.tsx",
-    "line": 46,
-    "via": "SuccessScreen",
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "List sections",
-    "src": "from sections (prop / derived; not traced)",
-    "status": "ok",
-    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 164,
-    "via": null,
-    "note": null,
-    "untraced": true
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 172,
-    "via": null,
-    "note": null
-   },
-   {
     "kind": "data",
     "label": "Data errs",
     "src": "POST /provider-onboarding/start, POST /auth/login → errs",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 180,
+    "line": 261,
     "via": null,
     "note": null
    },
@@ -1506,7 +1475,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 242,
+    "line": 309,
     "via": null,
     "note": null
    },
@@ -1516,7 +1485,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 246,
+    "line": 313,
     "via": null,
     "note": null
    },
@@ -1526,7 +1495,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 247,
+    "line": 314,
     "via": null,
     "note": null
    },
@@ -1536,7 +1505,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 252,
+    "line": 319,
     "via": null,
     "note": null
    },
@@ -1546,7 +1515,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 253,
+    "line": 320,
     "via": null,
     "note": null
    },
@@ -1556,7 +1525,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 257,
+    "line": 324,
     "via": null,
     "note": null
    },
@@ -1566,7 +1535,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 258,
+    "line": 325,
     "via": null,
     "note": null
    },
@@ -1576,7 +1545,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 261,
+    "line": 328,
     "via": null,
     "note": null
    },
@@ -1586,27 +1555,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 263,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "POST /provider-onboarding/start, POST /auth/login",
-    "status": "ok",
-    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 271,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "[checkCircle] {label}",
-    "src": "parent callback update",
-    "status": "ok",
-    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 329,
+    "line": 330,
     "via": null,
     "note": null
    },
@@ -1632,11 +1581,31 @@
    },
    {
     "kind": "button",
-    "label": "Next",
-    "src": "POST /storage/upload, POST /provider-onboarding/step2",
+    "label": "National ID (Front)",
+    "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 383,
+    "line": 373,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "SCFHS License",
+    "src": "parent callback pick",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
+    "line": 374,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "Additional Documents (Optional)",
+    "src": "parent callback pick",
+    "status": "ok",
+    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
+    "line": 375,
     "via": null,
     "note": null
    },
@@ -1646,7 +1615,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 415,
+    "line": 403,
     "via": null,
     "note": null
    },
@@ -1656,7 +1625,7 @@
     "src": "local state setShowRemoveBg",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 421,
+    "line": 409,
     "via": null,
     "note": null
    },
@@ -1666,7 +1635,7 @@
     "src": "local state setShowRemoveBg",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 434,
+    "line": 422,
     "via": null,
     "note": null
    },
@@ -1676,7 +1645,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 442,
+    "line": 430,
     "via": null,
     "note": null
    },
@@ -1686,7 +1655,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 450,
+    "line": 438,
     "via": null,
     "note": null
    },
@@ -1696,7 +1665,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 458,
+    "line": 446,
     "via": null,
     "note": null
    },
@@ -1706,7 +1675,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 459,
+    "line": 447,
     "via": null,
     "note": null
    },
@@ -1716,19 +1685,20 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 466,
+    "line": 454,
     "via": null,
     "note": null
    },
    {
     "kind": "data",
     "label": "List data.clinicImagesUris",
-    "src": "data: set from user input / local logic",
+    "src": "from data (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 475,
+    "line": 463,
     "via": null,
-    "note": null
+    "note": null,
+    "untraced": true
    },
    {
     "kind": "button",
@@ -1736,17 +1706,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 478,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 493,
+    "line": 466,
     "via": null,
     "note": null
    },
@@ -1756,7 +1716,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 541,
+    "line": 516,
     "via": null,
     "note": null
    },
@@ -1766,7 +1726,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 545,
+    "line": 520,
     "via": null,
     "note": null
    },
@@ -1776,7 +1736,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 546,
+    "line": 521,
     "via": null,
     "note": null
    },
@@ -1786,7 +1746,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 555,
+    "line": 530,
     "via": null,
     "note": null
    },
@@ -1796,7 +1756,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 559,
+    "line": 534,
     "via": null,
     "note": null
    },
@@ -1806,7 +1766,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 560,
+    "line": 535,
     "via": null,
     "note": null
    },
@@ -1816,7 +1776,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 569,
+    "line": 544,
     "via": null,
     "note": null
    },
@@ -1826,7 +1786,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 574,
+    "line": 549,
     "via": null,
     "note": null
    },
@@ -1836,7 +1796,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 575,
+    "line": 550,
     "via": null,
     "note": null
    },
@@ -1846,7 +1806,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 578,
+    "line": 553,
     "via": null,
     "note": null
    },
@@ -1856,7 +1816,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 581,
+    "line": 556,
     "via": null,
     "note": null
    },
@@ -1866,7 +1826,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 589,
+    "line": 564,
     "via": null,
     "note": null
    },
@@ -1876,7 +1836,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 594,
+    "line": 569,
     "via": null,
     "note": null
    },
@@ -1886,7 +1846,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 604,
+    "line": 579,
     "via": null,
     "note": null
    },
@@ -1896,7 +1856,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 615,
+    "line": 590,
     "via": null,
     "note": null
    },
@@ -1906,17 +1866,7 @@
     "src": "local state setShowMap",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 621,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 653,
+    "line": 596,
     "via": null,
     "note": null
    },
@@ -1926,7 +1876,7 @@
     "src": "from WORK_DAYS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 693,
+    "line": 653,
     "via": null,
     "note": null,
     "untraced": true
@@ -1937,7 +1887,7 @@
     "src": "parent callback current.includes, current.filter",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 696,
+    "line": 656,
     "via": null,
     "note": null
    },
@@ -1947,7 +1897,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 703,
+    "line": 663,
     "via": null,
     "note": null
    },
@@ -1957,7 +1907,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 716,
+    "line": 676,
     "via": null,
     "note": null
    },
@@ -1967,7 +1917,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 719,
+    "line": 679,
     "via": null,
     "note": null
    },
@@ -1977,7 +1927,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 728,
+    "line": 688,
     "via": null,
     "note": null
    },
@@ -1987,7 +1937,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 731,
+    "line": 691,
     "via": null,
     "note": null
    },
@@ -1997,7 +1947,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 744,
+    "line": 704,
     "via": null,
     "note": null
    },
@@ -2007,7 +1957,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 747,
+    "line": 707,
     "via": null,
     "note": null
    },
@@ -2017,7 +1967,7 @@
     "src": "from WORK_DAYS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 756,
+    "line": 716,
     "via": null,
     "note": null,
     "untraced": true
@@ -2028,7 +1978,7 @@
     "src": "parent callback current.includes, current.filter",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 759,
+    "line": 719,
     "via": null,
     "note": null
    },
@@ -2038,7 +1988,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 766,
+    "line": 726,
     "via": null,
     "note": null
    },
@@ -2048,7 +1998,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 778,
+    "line": 738,
     "via": null,
     "note": null
    },
@@ -2058,7 +2008,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 781,
+    "line": 741,
     "via": null,
     "note": null
    },
@@ -2068,7 +2018,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 790,
+    "line": 750,
     "via": null,
     "note": null
    },
@@ -2078,7 +2028,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 793,
+    "line": 753,
     "via": null,
     "note": null
    },
@@ -2088,7 +2038,7 @@
     "src": "local state setShowVacationCal",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 808,
+    "line": 768,
     "via": null,
     "note": null
    },
@@ -2098,7 +2048,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 809,
+    "line": 769,
     "via": null,
     "note": null
    },
@@ -2108,17 +2058,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 812,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 827,
+    "line": 772,
     "via": null,
     "note": null
    },
@@ -2128,7 +2068,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 882,
+    "line": 829,
     "via": null,
     "note": null
    },
@@ -2138,7 +2078,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 891,
+    "line": 838,
     "via": null,
     "note": null
    },
@@ -2148,7 +2088,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 897,
+    "line": 844,
     "via": null,
     "note": null
    },
@@ -2158,7 +2098,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 903,
+    "line": 850,
     "via": null,
     "note": null
    },
@@ -2168,7 +2108,7 @@
     "src": "from insuranceCatalog (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 912,
+    "line": 859,
     "via": null,
     "note": null,
     "untraced": true
@@ -2179,7 +2119,7 @@
     "src": "parent callback current.findIndex, update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 918,
+    "line": 865,
     "via": null,
     "note": null
    },
@@ -2189,7 +2129,7 @@
     "src": "from co (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 929,
+    "line": 876,
     "via": null,
     "note": null,
     "untraced": true
@@ -2200,7 +2140,7 @@
     "src": "parent callback current.map, update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 932,
+    "line": 879,
     "via": null,
     "note": null
    },
@@ -2210,7 +2150,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 951,
+    "line": 898,
     "via": null,
     "note": null
    },
@@ -2220,7 +2160,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 952,
+    "line": 899,
     "via": null,
     "note": null
    },
@@ -2230,7 +2170,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 958,
+    "line": 905,
     "via": null,
     "note": null
    },
@@ -2240,18 +2180,49 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 964,
+    "line": 911,
     "via": null,
     "note": null
    },
    {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
+    "kind": "data",
+    "label": "Data data",
+    "src": "data: set from user input / local logic",
     "status": "ok",
-    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 977,
-    "via": null,
+    "file": "provider-app/src/screens/registration/RegistrationWizard.tsx",
+    "line": 27,
+    "via": "RegistrationWizard",
+    "note": null
+   },
+   {
+    "kind": "data",
+    "label": "List rows",
+    "src": "from rows (prop / derived; not traced)",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 120,
+    "via": "ReviewStep",
+    "note": null,
+    "untraced": true
+   },
+   {
+    "kind": "input",
+    "label": "Account Holder Name",
+    "src": "user input → parent callback update",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 136,
+    "via": "ReviewStep",
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "Bank IBAN",
+    "src": "user input → parent callback update",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 138,
+    "via": "ReviewStep",
     "note": null
    },
    {
@@ -2259,79 +2230,29 @@
     "label": "View Contract",
     "src": "local state setShowContract",
     "status": "ok",
-    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 1183,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 145,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
-    "label": "Signer Name",
-    "src": "user input → data → request body",
+    "label": "Full Name",
+    "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 1192,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 152,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
-    "label": "Signer Role",
-    "src": "user input → data → request body",
+    "label": "{label(config.signatoryRoleHint}",
+    "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 1198,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Account Holder Name",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 1212,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Bank IBAN",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 1218,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "View Contract Details",
-    "src": "local state setShowContract",
-    "status": "ok",
-    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 1240,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Signatory Name",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 1245,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Signatory Role",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 1246,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 154,
+    "via": "ReviewStep",
     "note": null
    },
    {
@@ -2339,9 +2260,9 @@
     "label": "Re-sign",
     "src": "local state setShowSigModal",
     "status": "ok",
-    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 1252,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 167,
+    "via": "ReviewStep",
     "note": null
    },
    {
@@ -2349,19 +2270,60 @@
     "label": "Tap to Sign",
     "src": "local state setShowSigModal",
     "status": "ok",
-    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 1255,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 172,
+    "via": "ReviewStep",
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{label(config.agree)}",
+    "src": "user input → agreed (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 182,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "button",
-    "label": "Submit for Admin Approval",
+    "label": "{label(config.submitLabel)}",
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
-    "file": "provider-app/src/screens/doctor/DoctorRegistration.tsx",
-    "line": 1261,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 186,
+    "via": "ReviewStep",
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "[checkCircle] {label}",
+    "src": "parent callback onPress",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/WizardParts.tsx",
+    "line": 80,
+    "via": "DocBtn",
+    "note": null
+   },
+   {
+    "kind": "data",
+    "label": "List page.sections",
+    "src": "from page (prop / derived; not traced)",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/WizardParts.tsx",
+    "line": 146,
+    "via": "MergedPage",
+    "note": null,
+    "untraced": true
+   },
+   {
+    "kind": "button",
+    "label": "Next",
+    "src": "parent callback onNext",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/WizardParts.tsx",
+    "line": 154,
+    "via": "MergedPage",
     "note": null
    },
    {
@@ -2660,32 +2622,11 @@
    },
    {
     "kind": "data",
-    "label": "List sections",
-    "src": "from sections (prop / derived; not traced)",
-    "status": "ok",
-    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 142,
-    "via": null,
-    "note": null,
-    "untraced": true
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 150,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "data",
     "label": "List FACILITY_TYPES",
     "src": "from FACILITY_TYPES (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 219,
+    "line": 196,
     "via": null,
     "note": null,
     "untraced": true
@@ -2696,7 +2637,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 220,
+    "line": 197,
     "via": null,
     "note": null
    },
@@ -2706,7 +2647,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 227,
+    "line": 204,
     "via": null,
     "note": null
    },
@@ -2716,7 +2657,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 228,
+    "line": 205,
     "via": null,
     "note": null
    },
@@ -2726,7 +2667,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 230,
+    "line": 207,
     "via": null,
     "note": null
    },
@@ -2736,7 +2677,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 231,
+    "line": 208,
     "via": null,
     "note": null
    },
@@ -2746,7 +2687,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 232,
+    "line": 209,
     "via": null,
     "note": null
    },
@@ -2756,7 +2697,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 234,
+    "line": 211,
     "via": null,
     "note": null
    },
@@ -2766,7 +2707,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 236,
+    "line": 213,
     "via": null,
     "note": null
    },
@@ -2776,7 +2717,7 @@
     "src": "from LANGS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 240,
+    "line": 217,
     "via": null,
     "note": null,
     "untraced": true
@@ -2787,27 +2728,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 243,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "POST /provider-onboarding/start, POST /auth/login",
-    "status": "ok",
-    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 257,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "[checkCircle] {label}",
-    "src": "parent callback update",
-    "status": "ok",
-    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 316,
+    "line": 220,
     "via": null,
     "note": null
    },
@@ -2817,7 +2738,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 333,
+    "line": 242,
     "via": null,
     "note": null
    },
@@ -2827,7 +2748,37 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 334,
+    "line": 243,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "CR Document",
+    "src": "parent callback pick",
+    "status": "ok",
+    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
+    "line": 246,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "MOH Document",
+    "src": "parent callback pick",
+    "status": "ok",
+    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
+    "line": 247,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "Facility Logo",
+    "src": "parent callback pick",
+    "status": "ok",
+    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
+    "line": 248,
     "via": null,
     "note": null
    },
@@ -2837,7 +2788,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 346,
+    "line": 255,
     "via": null,
     "note": null
    },
@@ -2847,17 +2798,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 358,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 373,
+    "line": 267,
     "via": null,
     "note": null
    },
@@ -2867,7 +2808,7 @@
     "src": "errs: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 384,
+    "line": 283,
     "via": null,
     "note": null
    },
@@ -2877,7 +2818,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 458,
+    "line": 348,
     "via": null,
     "note": null
    },
@@ -2887,17 +2828,7 @@
     "src": "local state setShowLocModal",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 462,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "POST /storage/upload, POST /provider-onboarding/step2",
-    "status": "ok",
-    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 487,
+    "line": 352,
     "via": null,
     "note": null
    },
@@ -2907,7 +2838,7 @@
     "src": "tempSub: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 503,
+    "line": 384,
     "via": null,
     "note": null
    },
@@ -2917,19 +2848,20 @@
     "src": "local state setModalType, setTempSub",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 574,
+    "line": 452,
     "via": null,
     "note": null
    },
    {
     "kind": "data",
     "label": "List data.subProviders",
-    "src": "data: set from user input / local logic",
+    "src": "from data (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 584,
+    "line": 462,
     "via": null,
-    "note": null
+    "note": null,
+    "untraced": true
    },
    {
     "kind": "button",
@@ -2937,17 +2869,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 593,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 601,
+    "line": 471,
     "via": null,
     "note": null
    },
@@ -2957,7 +2879,7 @@
     "src": "local state setModalType",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 611,
+    "line": 488,
     "via": null,
     "note": null
    },
@@ -2967,7 +2889,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 615,
+    "line": 492,
     "via": null,
     "note": null
    },
@@ -2977,7 +2899,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 616,
+    "line": 493,
     "via": null,
     "note": null
    },
@@ -2987,7 +2909,7 @@
     "src": "user input → parent callback v.toLowerCase",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 617,
+    "line": 494,
     "via": null,
     "note": null
    },
@@ -2997,7 +2919,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 618,
+    "line": 495,
     "via": null,
     "note": null
    },
@@ -3007,7 +2929,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 622,
+    "line": 499,
     "via": null,
     "note": null
    },
@@ -3017,7 +2939,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 628,
+    "line": 505,
     "via": null,
     "note": null
    },
@@ -3027,7 +2949,7 @@
     "src": "user input → state (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 647,
+    "line": 524,
     "via": null,
     "note": null
    },
@@ -3037,7 +2959,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 651,
+    "line": 528,
     "via": null,
     "note": null
    },
@@ -3047,7 +2969,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 657,
+    "line": 534,
     "via": null,
     "note": null
    },
@@ -3057,7 +2979,7 @@
     "src": "from WORK_DAYS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 668,
+    "line": 545,
     "via": null,
     "note": null,
     "untraced": true
@@ -3068,7 +2990,7 @@
     "src": "local state setTempSub",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 671,
+    "line": 548,
     "via": null,
     "note": null
    },
@@ -3078,7 +3000,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 680,
+    "line": 557,
     "via": null,
     "note": null
    },
@@ -3088,7 +3010,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 683,
+    "line": 560,
     "via": null,
     "note": null
    },
@@ -3098,7 +3020,7 @@
     "src": "from labCatalog (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 703,
+    "line": 580,
     "via": null,
     "note": null,
     "untraced": true
@@ -3109,7 +3031,7 @@
     "src": "user input → state (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 705,
+    "line": 582,
     "via": null,
     "note": null
    },
@@ -3119,7 +3041,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 707,
+    "line": 584,
     "via": null,
     "note": null
    },
@@ -3129,7 +3051,7 @@
     "src": "user input → state (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 718,
+    "line": 595,
     "via": null,
     "note": null
    },
@@ -3139,7 +3061,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 720,
+    "line": 597,
     "via": null,
     "note": null
    },
@@ -3149,7 +3071,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 724,
+    "line": 601,
     "via": null,
     "note": null
    },
@@ -3159,7 +3081,7 @@
     "src": "from WORK_DAYS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 732,
+    "line": 609,
     "via": null,
     "note": null,
     "untraced": true
@@ -3170,7 +3092,7 @@
     "src": "local state setTempSub",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 735,
+    "line": 612,
     "via": null,
     "note": null
    },
@@ -3180,7 +3102,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 744,
+    "line": 621,
     "via": null,
     "note": null
    },
@@ -3190,7 +3112,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 747,
+    "line": 624,
     "via": null,
     "note": null
    },
@@ -3200,7 +3122,7 @@
     "src": "from radCatalog (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 764,
+    "line": 641,
     "via": null,
     "note": null,
     "untraced": true
@@ -3211,7 +3133,7 @@
     "src": "user input → state (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 766,
+    "line": 643,
     "via": null,
     "note": null
    },
@@ -3221,7 +3143,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 768,
+    "line": 645,
     "via": null,
     "note": null
    },
@@ -3231,7 +3153,7 @@
     "src": "user input → state (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 779,
+    "line": 656,
     "via": null,
     "note": null
    },
@@ -3241,7 +3163,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 781,
+    "line": 658,
     "via": null,
     "note": null
    },
@@ -3251,7 +3173,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 785,
+    "line": 662,
     "via": null,
     "note": null
    },
@@ -3261,7 +3183,7 @@
     "src": "from WORK_DAYS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 793,
+    "line": 670,
     "via": null,
     "note": null,
     "untraced": true
@@ -3272,7 +3194,7 @@
     "src": "local state setTempSub",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 796,
+    "line": 673,
     "via": null,
     "note": null
    },
@@ -3282,7 +3204,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 805,
+    "line": 682,
     "via": null,
     "note": null
    },
@@ -3292,7 +3214,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 808,
+    "line": 685,
     "via": null,
     "note": null
    },
@@ -3302,7 +3224,7 @@
     "src": "from nursingCatalog (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 825,
+    "line": 702,
     "via": null,
     "note": null,
     "untraced": true
@@ -3313,7 +3235,7 @@
     "src": "user input → state (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 827,
+    "line": 704,
     "via": null,
     "note": null
    },
@@ -3323,7 +3245,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 829,
+    "line": 706,
     "via": null,
     "note": null
    },
@@ -3333,7 +3255,7 @@
     "src": "user input → state (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 840,
+    "line": 717,
     "via": null,
     "note": null
    },
@@ -3343,7 +3265,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 842,
+    "line": 719,
     "via": null,
     "note": null
    },
@@ -3353,7 +3275,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 846,
+    "line": 723,
     "via": null,
     "note": null
    },
@@ -3363,7 +3285,7 @@
     "src": "from WORK_DAYS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 854,
+    "line": 731,
     "via": null,
     "note": null,
     "untraced": true
@@ -3374,7 +3296,7 @@
     "src": "local state setTempSub",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 857,
+    "line": 734,
     "via": null,
     "note": null
    },
@@ -3384,7 +3306,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 866,
+    "line": 743,
     "via": null,
     "note": null
    },
@@ -3394,7 +3316,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 869,
+    "line": 746,
     "via": null,
     "note": null
    },
@@ -3404,7 +3326,7 @@
     "src": "user input → state (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 882,
+    "line": 759,
     "via": null,
     "note": null
    },
@@ -3414,7 +3336,7 @@
     "src": "user input → tempSub (local)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 884,
+    "line": 761,
     "via": null,
     "note": null
    },
@@ -3424,7 +3346,7 @@
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 893,
+    "line": 770,
     "via": null,
     "note": null
    },
@@ -3434,7 +3356,7 @@
     "src": "local state setTempSub",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 905,
+    "line": 782,
     "via": null,
     "note": null
    },
@@ -3444,7 +3366,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 913,
+    "line": 790,
     "via": null,
     "note": null
    },
@@ -3454,7 +3376,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 1074,
+    "line": 941,
     "via": null,
     "note": null
    },
@@ -3464,7 +3386,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 1081,
+    "line": 948,
     "via": null,
     "note": null
    },
@@ -3474,7 +3396,7 @@
     "src": "from insuranceCatalog (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 1085,
+    "line": 952,
     "via": null,
     "note": null,
     "untraced": true
@@ -3485,7 +3407,7 @@
     "src": "parent callback current.findIndex, update",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 1091,
+    "line": 958,
     "via": null,
     "note": null
    },
@@ -3495,7 +3417,7 @@
     "src": "from co (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 1102,
+    "line": 969,
     "via": null,
     "note": null,
     "untraced": true
@@ -3506,28 +3428,49 @@
     "src": "parent callback current.map, update",
     "status": "ok",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 1105,
+    "line": 972,
     "via": null,
     "note": null
    },
    {
-    "kind": "button",
-    "label": "Next",
-    "src": "POST /storage/upload, POST /provider-onboarding/step3",
+    "kind": "data",
+    "label": "Data data",
+    "src": "data: set from user input / local logic",
     "status": "ok",
-    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 1126,
-    "via": null,
+    "file": "provider-app/src/screens/registration/RegistrationWizard.tsx",
+    "line": 27,
+    "via": "RegistrationWizard",
     "note": null
    },
    {
-    "kind": "button",
-    "label": "I Understand & Agree",
-    "src": "parent callback onNext",
+    "kind": "data",
+    "label": "List rows",
+    "src": "from rows (prop / derived; not traced)",
     "status": "ok",
-    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 1167,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 120,
+    "via": "ReviewStep",
+    "note": null,
+    "untraced": true
+   },
+   {
+    "kind": "input",
+    "label": "Account Holder Name",
+    "src": "user input → parent callback update",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 136,
+    "via": "ReviewStep",
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "Bank IBAN",
+    "src": "user input → parent callback update",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 138,
+    "via": "ReviewStep",
     "note": null
    },
    {
@@ -3535,49 +3478,29 @@
     "label": "View Contract",
     "src": "local state setShowContract",
     "status": "ok",
-    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 1238,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 145,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "Full Name",
-    "src": "user input → data → request body",
+    "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 1243,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 152,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
-    "label": "e.g. Owner, General Manager",
-    "src": "user input → data → request body",
+    "label": "{label(config.signatoryRoleHint}",
+    "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 1246,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Account Holder Name",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 1257,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Bank IBAN",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 1263,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 154,
+    "via": "ReviewStep",
     "note": null
    },
    {
@@ -3585,9 +3508,9 @@
     "label": "Re-sign",
     "src": "local state setShowSigModal",
     "status": "ok",
-    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 1279,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 167,
+    "via": "ReviewStep",
     "note": null
    },
    {
@@ -3595,19 +3518,60 @@
     "label": "Tap to Sign",
     "src": "local state setShowSigModal",
     "status": "ok",
-    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 1282,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 172,
+    "via": "ReviewStep",
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "{label(config.agree)}",
+    "src": "user input → agreed (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 182,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "button",
-    "label": "Submit Application",
+    "label": "{label(config.submitLabel)}",
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
-    "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
-    "line": 1288,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 186,
+    "via": "ReviewStep",
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "[checkCircle] {label}",
+    "src": "parent callback onPress",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/WizardParts.tsx",
+    "line": 80,
+    "via": "DocBtn",
+    "note": null
+   },
+   {
+    "kind": "data",
+    "label": "List page.sections",
+    "src": "from page (prop / derived; not traced)",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/WizardParts.tsx",
+    "line": 146,
+    "via": "MergedPage",
+    "note": null,
+    "untraced": true
+   },
+   {
+    "kind": "button",
+    "label": "Next",
+    "src": "parent callback onNext",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/WizardParts.tsx",
+    "line": 154,
+    "via": "MergedPage",
     "note": null
    },
    {
@@ -3905,43 +3869,12 @@
     "note": null
    },
    {
-    "kind": "button",
-    "label": "Back to Home",
-    "src": "parent callback onDone",
-    "status": "ok",
-    "file": "provider-app/src/components/SuccessScreen.tsx",
-    "line": 46,
-    "via": "SuccessScreen",
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "List sections",
-    "src": "from sections (prop / derived; not traced)",
-    "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 150,
-    "via": null,
-    "note": null,
-    "untraced": true
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 158,
-    "via": null,
-    "note": null
-   },
-   {
     "kind": "data",
     "label": "List PHARMACY_TYPES",
     "src": "from PHARMACY_TYPES (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 233,
+    "line": 279,
     "via": null,
     "note": null,
     "untraced": true
@@ -3952,7 +3885,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 236,
+    "line": 282,
     "via": null,
     "note": null
    },
@@ -3962,7 +3895,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 244,
+    "line": 290,
     "via": null,
     "note": null
    },
@@ -3972,7 +3905,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 245,
+    "line": 291,
     "via": null,
     "note": null
    },
@@ -3982,7 +3915,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 248,
+    "line": 294,
     "via": null,
     "note": null
    },
@@ -3992,7 +3925,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 251,
+    "line": 297,
     "via": null,
     "note": null
    },
@@ -4002,7 +3935,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 252,
+    "line": 298,
     "via": null,
     "note": null
    },
@@ -4012,7 +3945,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 253,
+    "line": 299,
     "via": null,
     "note": null
    },
@@ -4022,7 +3955,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 254,
+    "line": 300,
     "via": null,
     "note": null
    },
@@ -4032,7 +3965,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 256,
+    "line": 302,
     "via": null,
     "note": null
    },
@@ -4042,7 +3975,7 @@
     "src": "from LANGS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 260,
+    "line": 306,
     "via": null,
     "note": null,
     "untraced": true
@@ -4053,27 +3986,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 263,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "POST /provider-onboarding/start, POST /auth/login",
-    "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 278,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "[checkCircle] {label}",
-    "src": "parent callback update",
-    "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 349,
+    "line": 309,
     "via": null,
     "note": null
    },
@@ -4083,7 +3996,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 386,
+    "line": 363,
     "via": null,
     "note": null
    },
@@ -4093,7 +4006,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 387,
+    "line": 364,
     "via": null,
     "note": null
    },
@@ -4103,7 +4016,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 388,
+    "line": 365,
     "via": null,
     "note": null
    },
@@ -4113,7 +4026,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 389,
+    "line": 366,
     "via": null,
     "note": null
    },
@@ -4123,17 +4036,47 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 390,
+    "line": 367,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Next",
-    "src": "POST /storage/upload, POST /provider-onboarding/step2",
+    "label": "CR Doc",
+    "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 408,
+    "line": 371,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "MOH License",
+    "src": "parent callback pick",
+    "status": "ok",
+    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
+    "line": 372,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "SFDA License",
+    "src": "parent callback pick",
+    "status": "ok",
+    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
+    "line": 373,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "Pharmacy Logo",
+    "src": "parent callback pick",
+    "status": "ok",
+    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
+    "line": 374,
     "via": null,
     "note": null
    },
@@ -4143,7 +4086,7 @@
     "src": "POST /provider-onboarding/start, POST /auth/login → errs",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 417,
+    "line": 384,
     "via": null,
     "note": null
    },
@@ -4153,7 +4096,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 443,
+    "line": 406,
     "via": null,
     "note": null
    },
@@ -4163,7 +4106,7 @@
     "src": "local state setShowMap",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 444,
+    "line": 407,
     "via": null,
     "note": null
    },
@@ -4173,7 +4116,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 449,
+    "line": 412,
     "via": null,
     "note": null
    },
@@ -4183,7 +4126,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 457,
+    "line": 420,
     "via": null,
     "note": null
    },
@@ -4193,7 +4136,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 460,
+    "line": 423,
     "via": null,
     "note": null
    },
@@ -4203,7 +4146,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 469,
+    "line": 432,
     "via": null,
     "note": null
    },
@@ -4213,7 +4156,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 474,
+    "line": 437,
     "via": null,
     "note": null
    },
@@ -4223,7 +4166,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 484,
+    "line": 447,
     "via": null,
     "note": null
    },
@@ -4233,17 +4176,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 494,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 534,
+    "line": 457,
     "via": null,
     "note": null
    },
@@ -4253,7 +4186,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 565,
+    "line": 515,
     "via": null,
     "note": null
    },
@@ -4263,7 +4196,7 @@
     "src": "from WORK_DAYS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 572,
+    "line": 522,
     "via": null,
     "note": null,
     "untraced": true
@@ -4274,7 +4207,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 575,
+    "line": 525,
     "via": null,
     "note": null
    },
@@ -4284,7 +4217,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 589,
+    "line": 539,
     "via": null,
     "note": null
    },
@@ -4294,7 +4227,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 602,
+    "line": 552,
     "via": null,
     "note": null
    },
@@ -4304,7 +4237,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 603,
+    "line": 553,
     "via": null,
     "note": null
    },
@@ -4314,7 +4247,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 612,
+    "line": 562,
     "via": null,
     "note": null
    },
@@ -4324,7 +4257,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 613,
+    "line": 563,
     "via": null,
     "note": null
    },
@@ -4334,7 +4267,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 620,
+    "line": 570,
     "via": null,
     "note": null
    },
@@ -4344,7 +4277,7 @@
     "src": "local state setShowVacationCal",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 625,
+    "line": 575,
     "via": null,
     "note": null
    },
@@ -4354,7 +4287,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 626,
+    "line": 576,
     "via": null,
     "note": null
    },
@@ -4364,17 +4297,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 629,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 645,
+    "line": 579,
     "via": null,
     "note": null
    },
@@ -4384,7 +4307,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 677,
+    "line": 613,
     "via": null,
     "note": null
    },
@@ -4394,7 +4317,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 678,
+    "line": 614,
     "via": null,
     "note": null
    },
@@ -4404,7 +4327,7 @@
     "src": "from PHARMA_CATS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 683,
+    "line": 619,
     "via": null,
     "note": null,
     "untraced": true
@@ -4415,7 +4338,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 686,
+    "line": 622,
     "via": null,
     "note": null
    },
@@ -4425,7 +4348,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 695,
+    "line": 631,
     "via": null,
     "note": null
    },
@@ -4435,17 +4358,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 696,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 707,
+    "line": 632,
     "via": null,
     "note": null
    },
@@ -4455,7 +4368,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 751,
+    "line": 674,
     "via": null,
     "note": null
    },
@@ -4465,7 +4378,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 752,
+    "line": 675,
     "via": null,
     "note": null
    },
@@ -4475,7 +4388,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 753,
+    "line": 676,
     "via": null,
     "note": null
    },
@@ -4485,7 +4398,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 755,
+    "line": 678,
     "via": null,
     "note": null
    },
@@ -4495,7 +4408,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 758,
+    "line": 681,
     "via": null,
     "note": null
    },
@@ -4505,7 +4418,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 759,
+    "line": 682,
     "via": null,
     "note": null
    },
@@ -4515,7 +4428,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 768,
+    "line": 691,
     "via": null,
     "note": null
    },
@@ -4525,7 +4438,7 @@
     "src": "from insuranceCatalog (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 774,
+    "line": 697,
     "via": null,
     "note": null,
     "untraced": true
@@ -4536,7 +4449,7 @@
     "src": "parent callback current.findIndex, update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 780,
+    "line": 703,
     "via": null,
     "note": null
    },
@@ -4546,7 +4459,7 @@
     "src": "from co (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 791,
+    "line": 714,
     "via": null,
     "note": null,
     "untraced": true
@@ -4557,28 +4470,18 @@
     "src": "parent callback current.map, update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 794,
+    "line": 717,
     "via": null,
     "note": null
    },
    {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
+    "kind": "data",
+    "label": "Data data",
+    "src": "data: set from user input / local logic",
     "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 817,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "I Understand & Agree",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 855,
-    "via": null,
+    "file": "provider-app/src/screens/registration/RegistrationWizard.tsx",
+    "line": 27,
+    "via": "RegistrationWizard",
     "note": null
    },
    {
@@ -4586,30 +4489,30 @@
     "label": "List rows",
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 1010,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 120,
+    "via": "ReviewStep",
     "note": null,
     "untraced": true
    },
    {
     "kind": "input",
     "label": "Account Holder Name",
-    "src": "user input → data → request body",
+    "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 1024,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 136,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "Bank IBAN",
-    "src": "user input → data → request body",
+    "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 1030,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 138,
+    "via": "ReviewStep",
     "note": null
    },
    {
@@ -4617,29 +4520,29 @@
     "label": "View Contract",
     "src": "local state setShowContract",
     "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 1046,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 145,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "Full Name",
-    "src": "user input → data → request body",
+    "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 1052,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 152,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
-    "label": "e.g. Owner, CEO",
-    "src": "user input → data → request body",
+    "label": "{label(config.signatoryRoleHint}",
+    "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 1055,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 154,
+    "via": "ReviewStep",
     "note": null
    },
    {
@@ -4647,9 +4550,9 @@
     "label": "Re-sign",
     "src": "local state setShowSigModal",
     "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 1064,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 167,
+    "via": "ReviewStep",
     "note": null
    },
    {
@@ -4657,29 +4560,60 @@
     "label": "Tap to Sign",
     "src": "local state setShowSigModal",
     "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 1067,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 172,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
-    "label": "I agree to terms & conditions.",
+    "label": "{label(config.agree)}",
     "src": "user input → agreed (local)",
     "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 1075,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 182,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "button",
-    "label": "Submit Pharmacy Application",
+    "label": "{label(config.submitLabel)}",
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
-    "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
-    "line": 1078,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 186,
+    "via": "ReviewStep",
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "[check] {label}",
+    "src": "parent callback onPress",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/WizardParts.tsx",
+    "line": 59,
+    "via": "DocCard",
+    "note": null
+   },
+   {
+    "kind": "data",
+    "label": "List page.sections",
+    "src": "from page (prop / derived; not traced)",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/WizardParts.tsx",
+    "line": 146,
+    "via": "MergedPage",
+    "note": null,
+    "untraced": true
+   },
+   {
+    "kind": "button",
+    "label": "Next",
+    "src": "parent callback onNext",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/WizardParts.tsx",
+    "line": 154,
+    "via": "MergedPage",
     "note": null
    },
    {
@@ -4977,53 +4911,12 @@
     "note": null
    },
    {
-    "kind": "button",
-    "label": "Back to Home",
-    "src": "parent callback onDone",
-    "status": "ok",
-    "file": "provider-app/src/components/SuccessScreen.tsx",
-    "line": 46,
-    "via": "SuccessScreen",
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "Data data",
-    "src": "data: set from user input / local logic",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 121,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "List sections",
-    "src": "from sections (prop / derived; not traced)",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 176,
-    "via": null,
-    "note": null,
-    "untraced": true
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 184,
-    "via": null,
-    "note": null
-   },
-   {
     "kind": "input",
     "label": "Center Name (Arabic)",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 265,
+    "line": 343,
     "via": null,
     "note": null
    },
@@ -5033,7 +4926,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 273,
+    "line": 351,
     "via": null,
     "note": null
    },
@@ -5043,7 +4936,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 284,
+    "line": 362,
     "via": null,
     "note": null
    },
@@ -5053,7 +4946,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 292,
+    "line": 370,
     "via": null,
     "note": null
    },
@@ -5063,7 +4956,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 300,
+    "line": 378,
     "via": null,
     "note": null
    },
@@ -5073,7 +4966,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 320,
+    "line": 398,
     "via": null,
     "note": null
    },
@@ -5083,7 +4976,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 328,
+    "line": 406,
     "via": null,
     "note": null
    },
@@ -5093,7 +4986,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 339,
+    "line": 417,
     "via": null,
     "note": null
    },
@@ -5103,7 +4996,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 349,
+    "line": 427,
     "via": null,
     "note": null
    },
@@ -5113,7 +5006,7 @@
     "src": "from LANGS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 360,
+    "line": 438,
     "via": null,
     "note": null,
     "untraced": true
@@ -5124,27 +5017,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 363,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "POST /provider-onboarding/start, POST /auth/login",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 382,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "[check] {label}",
-    "src": "parent callback update",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 475,
+    "line": 441,
     "via": null,
     "note": null
    },
@@ -5154,7 +5027,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 544,
+    "line": 527,
     "via": null,
     "note": null
    },
@@ -5164,7 +5037,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 550,
+    "line": 533,
     "via": null,
     "note": null
    },
@@ -5174,7 +5047,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 559,
+    "line": 542,
     "via": null,
     "note": null
    },
@@ -5184,7 +5057,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 566,
+    "line": 549,
     "via": null,
     "note": null
    },
@@ -5194,7 +5067,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 577,
+    "line": 560,
     "via": null,
     "note": null
    },
@@ -5204,7 +5077,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 584,
+    "line": 567,
     "via": null,
     "note": null
    },
@@ -5214,7 +5087,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 594,
+    "line": 577,
     "via": null,
     "note": null
    },
@@ -5224,17 +5097,37 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 600,
+    "line": 583,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Next",
-    "src": "POST /storage/upload, POST /provider-onboarding/step2",
+    "label": "CR Doc",
+    "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 626,
+    "line": 592,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "MOH License",
+    "src": "parent callback pick",
+    "status": "ok",
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 593,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "Center Logo",
+    "src": "parent callback pick",
+    "status": "ok",
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 594,
     "via": null,
     "note": null
    },
@@ -5244,27 +5137,7 @@
     "src": "POST /provider-onboarding/start, POST /auth/login → errs",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 641,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "{c.ar}",
-    "src": "parent callback update",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 676,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "District / Area",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 695,
+    "line": 608,
     "via": null,
     "note": null
    },
@@ -5274,7 +5147,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 699,
+    "line": 638,
     "via": null,
     "note": null
    },
@@ -5284,7 +5157,7 @@
     "src": "local state setShowLocModal",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 707,
+    "line": 646,
     "via": null,
     "note": null
    },
@@ -5294,7 +5167,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 726,
+    "line": 665,
     "via": null,
     "note": null
    },
@@ -5304,7 +5177,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 743,
+    "line": 682,
     "via": null,
     "note": null
    },
@@ -5314,7 +5187,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 748,
+    "line": 687,
     "via": null,
     "note": null
    },
@@ -5324,7 +5197,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 758,
+    "line": 697,
     "via": null,
     "note": null
    },
@@ -5334,7 +5207,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 768,
+    "line": 707,
     "via": null,
     "note": null
    },
@@ -5344,7 +5217,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 783,
+    "line": 722,
     "via": null,
     "note": null
    },
@@ -5354,7 +5227,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 793,
+    "line": 732,
     "via": null,
     "note": null
    },
@@ -5364,17 +5237,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 801,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 835,
+    "line": 740,
     "via": null,
     "note": null
    },
@@ -5384,7 +5247,7 @@
     "src": "local state setTab",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 930,
+    "line": 849,
     "via": null,
     "note": null
    },
@@ -5394,7 +5257,7 @@
     "src": "local state setTab",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 943,
+    "line": 862,
     "via": null,
     "note": null
    },
@@ -5404,7 +5267,7 @@
     "src": "user input → search (local)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 982,
+    "line": 901,
     "via": null,
     "note": null
    },
@@ -5414,7 +5277,7 @@
     "src": "parent callback update, labCatalog.map",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 990,
+    "line": 909,
     "via": null,
     "note": null
    },
@@ -5424,7 +5287,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 997,
+    "line": 916,
     "via": null,
     "note": null
    },
@@ -5434,7 +5297,7 @@
     "src": "from filteredTests (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1005,
+    "line": 924,
     "via": null,
     "note": null,
     "untraced": true
@@ -5445,7 +5308,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1012,
+    "line": 931,
     "via": null,
     "note": null
    },
@@ -5455,7 +5318,7 @@
     "src": "local state setExpanded",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1043,
+    "line": 962,
     "via": null,
     "note": null
    },
@@ -5465,7 +5328,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1054,
+    "line": 973,
     "via": null,
     "note": null
    },
@@ -5475,7 +5338,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1059,
+    "line": 978,
     "via": null,
     "note": null
    },
@@ -5485,7 +5348,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1067,
+    "line": 986,
     "via": null,
     "note": null
    },
@@ -5495,7 +5358,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1075,
+    "line": 994,
     "via": null,
     "note": null
    },
@@ -5505,7 +5368,7 @@
     "src": "from filteredScans (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1089,
+    "line": 1008,
     "via": null,
     "note": null,
     "untraced": true
@@ -5516,7 +5379,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1095,
+    "line": 1014,
     "via": null,
     "note": null
    },
@@ -5526,19 +5389,19 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1134,
+    "line": 1053,
     "via": null,
     "note": null
    },
    {
-    "kind": "button",
-    "label": "+ Add Custom Test (Requires Approval)",
-    "src": "fake success: toast / Alert only, no request",
-    "status": "not wired",
+    "kind": "input",
+    "label": "Covered by insurance",
+    "src": "user input → data → request body",
+    "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1146,
+    "line": 1057,
     "via": null,
-    "note": "Button \"+ Add Custom Test (Requires Approval)\" shows a success message without sending a request."
+    "note": null
    },
    {
     "kind": "button",
@@ -5546,19 +5409,20 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1166,
+    "line": 1088,
     "via": null,
     "note": null
    },
    {
     "kind": "data",
     "label": "List data.bundles",
-    "src": "data: set from user input / local logic",
+    "src": "from data (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1177,
+    "line": 1099,
     "via": null,
-    "note": null
+    "note": null,
+    "untraced": true
    },
    {
     "kind": "button",
@@ -5566,7 +5430,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1183,
+    "line": 1105,
     "via": null,
     "note": null
    },
@@ -5576,7 +5440,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1190,
+    "line": 1112,
     "via": null,
     "note": null
    },
@@ -5586,7 +5450,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1191,
+    "line": 1113,
     "via": null,
     "note": null
    },
@@ -5596,17 +5460,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1193,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1210,
+    "line": 1115,
     "via": null,
     "note": null
    },
@@ -5616,7 +5470,7 @@
     "src": "from WORK_DAYS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1448,
+    "line": 1188,
     "via": null,
     "note": null,
     "untraced": true
@@ -5627,7 +5481,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1451,
+    "line": 1191,
     "via": null,
     "note": null
    },
@@ -5637,7 +5491,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1468,
+    "line": 1208,
     "via": null,
     "note": null
    },
@@ -5647,7 +5501,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1483,
+    "line": 1223,
     "via": null,
     "note": null
    },
@@ -5657,7 +5511,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1486,
+    "line": 1226,
     "via": null,
     "note": null
    },
@@ -5667,7 +5521,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1494,
+    "line": 1234,
     "via": null,
     "note": null
    },
@@ -5677,7 +5531,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1497,
+    "line": 1237,
     "via": null,
     "note": null
    },
@@ -5687,7 +5541,7 @@
     "src": "from WORK_DAYS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1514,
+    "line": 1254,
     "via": null,
     "note": null,
     "untraced": true
@@ -5698,7 +5552,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1517,
+    "line": 1257,
     "via": null,
     "note": null
    },
@@ -5708,7 +5562,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1530,
+    "line": 1270,
     "via": null,
     "note": null
    },
@@ -5718,7 +5572,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1533,
+    "line": 1273,
     "via": null,
     "note": null
    },
@@ -5728,7 +5582,7 @@
     "src": "local state setShowVacationCal",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1541,
+    "line": 1281,
     "via": null,
     "note": null
    },
@@ -5738,7 +5592,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1542,
+    "line": 1282,
     "via": null,
     "note": null
    },
@@ -5748,7 +5602,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1558,
+    "line": 1298,
     "via": null,
     "note": null
    },
@@ -5758,7 +5612,7 @@
     "src": "from insuranceCatalog (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1569,
+    "line": 1309,
     "via": null,
     "note": null,
     "untraced": true
@@ -5769,7 +5623,7 @@
     "src": "parent callback current.findIndex, update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1575,
+    "line": 1315,
     "via": null,
     "note": null
    },
@@ -5779,7 +5633,7 @@
     "src": "from co (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1597,
+    "line": 1337,
     "via": null,
     "note": null,
     "untraced": true
@@ -5790,28 +5644,18 @@
     "src": "parent callback current.map, update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1600,
+    "line": 1340,
     "via": null,
     "note": null
    },
    {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
+    "kind": "data",
+    "label": "Data data",
+    "src": "data: set from user input / local logic",
     "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1627,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "I Understand & Agree",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1667,
-    "via": null,
+    "file": "provider-app/src/screens/registration/RegistrationWizard.tsx",
+    "line": 27,
+    "via": "RegistrationWizard",
     "note": null
    },
    {
@@ -5819,60 +5663,60 @@
     "label": "List rows",
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1857,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 120,
+    "via": "ReviewStep",
     "note": null,
     "untraced": true
+   },
+   {
+    "kind": "input",
+    "label": "Account Holder Name",
+    "src": "user input → parent callback update",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 136,
+    "via": "ReviewStep",
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "Bank IBAN",
+    "src": "user input → parent callback update",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 138,
+    "via": "ReviewStep",
+    "note": null
    },
    {
     "kind": "button",
     "label": "View Contract",
     "src": "local state setShowContract",
     "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1877,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 145,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "Full Name",
-    "src": "user input → data → request body",
+    "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1882,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 152,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
-    "label": "e.g. Owner, General Manager",
-    "src": "user input → data → request body",
+    "label": "{label(config.signatoryRoleHint}",
+    "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1885,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Account Holder Name",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1897,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Bank IBAN",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1903,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 154,
+    "via": "ReviewStep",
     "note": null
    },
    {
@@ -5880,9 +5724,9 @@
     "label": "Re-sign",
     "src": "local state setShowSigModal",
     "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1920,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 167,
+    "via": "ReviewStep",
     "note": null
    },
    {
@@ -5890,29 +5734,60 @@
     "label": "Tap to Sign",
     "src": "local state setShowSigModal",
     "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1923,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 172,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
-    "label": "I agree to Nabdah Plus Terms & Conditions and Pr",
+    "label": "{label(config.agree)}",
     "src": "user input → agreed (local)",
     "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1931,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 182,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "button",
-    "label": "Submit Center Application",
+    "label": "{label(config.submitLabel)}",
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
-    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-    "line": 1963,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 186,
+    "via": "ReviewStep",
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "[check] {label}",
+    "src": "parent callback onPress",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/WizardParts.tsx",
+    "line": 59,
+    "via": "DocCard",
+    "note": null
+   },
+   {
+    "kind": "data",
+    "label": "List page.sections",
+    "src": "from page (prop / derived; not traced)",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/WizardParts.tsx",
+    "line": 146,
+    "via": "MergedPage",
+    "note": null,
+    "untraced": true
+   },
+   {
+    "kind": "button",
+    "label": "Next",
+    "src": "parent callback onNext",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/WizardParts.tsx",
+    "line": 154,
+    "via": "MergedPage",
     "note": null
    },
    {
@@ -6210,53 +6085,12 @@
     "note": null
    },
    {
-    "kind": "button",
-    "label": "Back to Home",
-    "src": "parent callback onDone",
-    "status": "ok",
-    "file": "provider-app/src/components/SuccessScreen.tsx",
-    "line": 46,
-    "via": "SuccessScreen",
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "Data data",
-    "src": "data: set from user input / local logic",
-    "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 121,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "List sections",
-    "src": "from sections (prop / derived; not traced)",
-    "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 176,
-    "via": null,
-    "note": null,
-    "untraced": true
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 184,
-    "via": null,
-    "note": null
-   },
-   {
     "kind": "input",
     "label": "Center Name (Arabic)",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 265,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 343,
     "via": null,
     "note": null
    },
@@ -6265,8 +6099,8 @@
     "label": "Center Name (English)",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 273,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 351,
     "via": null,
     "note": null
    },
@@ -6275,8 +6109,8 @@
     "label": "Manager Name",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 284,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 362,
     "via": null,
     "note": null
    },
@@ -6285,8 +6119,8 @@
     "label": "Email",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 292,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 370,
     "via": null,
     "note": null
    },
@@ -6295,8 +6129,8 @@
     "label": "Phone",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 300,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 378,
     "via": null,
     "note": null
    },
@@ -6305,8 +6139,8 @@
     "label": "Technical Officer Name",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 320,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 398,
     "via": null,
     "note": null
    },
@@ -6315,8 +6149,8 @@
     "label": "Tech Officer SCFHS License",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 328,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 406,
     "via": null,
     "note": null
    },
@@ -6325,8 +6159,8 @@
     "label": "Password",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 339,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 417,
     "via": null,
     "note": null
    },
@@ -6335,8 +6169,8 @@
     "label": "Confirm Password",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 349,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 427,
     "via": null,
     "note": null
    },
@@ -6345,8 +6179,8 @@
     "label": "List LANGS",
     "src": "from LANGS (prop / derived; not traced)",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 360,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 438,
     "via": null,
     "note": null,
     "untraced": true
@@ -6356,28 +6190,8 @@
     "label": "{l.ar}",
     "src": "parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 363,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "POST /provider-onboarding/start, POST /auth/login",
-    "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 382,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "[check] {label}",
-    "src": "parent callback update",
-    "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 475,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 441,
     "via": null,
     "note": null
    },
@@ -6386,8 +6200,8 @@
     "label": "CR Number",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 544,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 527,
     "via": null,
     "note": null
    },
@@ -6396,28 +6210,28 @@
     "label": "MOH License Number",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 550,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 533,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "MOH Radiology Category",
+    "label": "MOH Lab Category",
     "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 559,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 542,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Radiology Accreditation (e.g. CBAHI, CAP)",
+    "label": "Lab Accreditation (e.g. CBAHI, CAP)",
     "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 566,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 549,
     "via": null,
     "note": null
    },
@@ -6426,8 +6240,8 @@
     "label": "Radiation Safety License (RSO)",
     "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 577,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 560,
     "via": null,
     "note": null
    },
@@ -6436,8 +6250,8 @@
     "label": "Available Equipment (MRI, CT, etc.)",
     "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 584,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 567,
     "via": null,
     "note": null
    },
@@ -6446,8 +6260,8 @@
     "label": "Bank IBAN",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 594,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 577,
     "via": null,
     "note": null
    },
@@ -6456,18 +6270,38 @@
     "label": "VAT Number (Optional)",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 600,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 583,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Next",
-    "src": "POST /storage/upload, POST /provider-onboarding/step2",
+    "label": "CR Doc",
+    "src": "parent callback pick",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 626,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 592,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "MOH License",
+    "src": "parent callback pick",
+    "status": "ok",
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 593,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "Center Logo",
+    "src": "parent callback pick",
+    "status": "ok",
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 594,
     "via": null,
     "note": null
    },
@@ -6476,8 +6310,8 @@
     "label": "Data errs",
     "src": "POST /provider-onboarding/start, POST /auth/login → errs",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 641,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 608,
     "via": null,
     "note": null
    },
@@ -6486,8 +6320,8 @@
     "label": "Full Address",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 675,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 638,
     "via": null,
     "note": null
    },
@@ -6496,8 +6330,8 @@
     "label": "<TouchableOpacity>",
     "src": "local state setShowLocModal",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 683,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 646,
     "via": null,
     "note": null
    },
@@ -6506,8 +6340,8 @@
     "label": "Home Sample Collection",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 702,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 665,
     "via": null,
     "note": null
    },
@@ -6516,8 +6350,8 @@
     "label": "-",
     "src": "parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 719,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 682,
     "via": null,
     "note": null
    },
@@ -6526,8 +6360,8 @@
     "label": "<TextInput>",
     "src": "user input → parent callback v.replace",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 724,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 687,
     "via": null,
     "note": null
    },
@@ -6536,8 +6370,8 @@
     "label": "+",
     "src": "parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 734,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 697,
     "via": null,
     "note": null
    },
@@ -6546,8 +6380,8 @@
     "label": "{r} km",
     "src": "parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 744,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 707,
     "via": null,
     "note": null
    },
@@ -6556,8 +6390,8 @@
     "label": "Home Scan Fee (SAR)",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 759,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 722,
     "via": null,
     "note": null
    },
@@ -6566,8 +6400,8 @@
     "label": "Both",
     "src": "parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 769,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 732,
     "via": null,
     "note": null
    },
@@ -6576,28 +6410,18 @@
     "label": "Available Techs/Machines",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 777,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 740,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 811,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "[test_tube] Radiology Tests",
+    "label": "[test_tube] Lab Tests",
     "src": "local state setTab",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 906,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 849,
     "via": null,
     "note": null
    },
@@ -6606,8 +6430,8 @@
     "label": "[scan] Radiology",
     "src": "local state setTab",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 919,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 862,
     "via": null,
     "note": null
    },
@@ -6616,8 +6440,8 @@
     "label": "Search test/scan...",
     "src": "user input → search (local)",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 958,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 901,
     "via": null,
     "note": null
    },
@@ -6626,8 +6450,8 @@
     "label": "Select All",
     "src": "parent callback update, labCatalog.map",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 966,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 909,
     "via": null,
     "note": null
    },
@@ -6636,8 +6460,8 @@
     "label": "Clear All",
     "src": "parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 973,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 916,
     "via": null,
     "note": null
    },
@@ -6646,8 +6470,8 @@
     "label": "List filteredTests",
     "src": "from filteredTests (prop / derived; not traced)",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 981,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 924,
     "via": null,
     "note": null,
     "untraced": true
@@ -6657,8 +6481,8 @@
     "label": "{test.ar} {…} min",
     "src": "parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 988,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 931,
     "via": null,
     "note": null
    },
@@ -6667,8 +6491,8 @@
     "label": "[close]",
     "src": "local state setExpanded",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1019,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 962,
     "via": null,
     "note": null
    },
@@ -6677,8 +6501,8 @@
     "label": "Price (SAR)",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1030,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 973,
     "via": null,
     "note": null
    },
@@ -6687,8 +6511,8 @@
     "label": "Turnaround",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1035,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 978,
     "via": null,
     "note": null
    },
@@ -6697,8 +6521,18 @@
     "label": "Available for home collection",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1043,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 986,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "Covered by insurance",
+    "src": "user input → data → request body",
+    "status": "ok",
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 994,
     "via": null,
     "note": null
    },
@@ -6707,8 +6541,8 @@
     "label": "List filteredScans",
     "src": "from filteredScans (prop / derived; not traced)",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1057,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1008,
     "via": null,
     "note": null,
     "untraced": true
@@ -6718,8 +6552,8 @@
     "label": "{scan.ar} {…} min",
     "src": "parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1063,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1014,
     "via": null,
     "note": null
    },
@@ -6728,8 +6562,8 @@
     "label": "Price (SAR)",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1102,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1053,
     "via": null,
     "note": null
    },
@@ -6738,48 +6572,39 @@
     "label": "Covered by insurance",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1106,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1057,
     "via": null,
     "note": null
-   },
-   {
-    "kind": "button",
-    "label": "+ Add Custom Test (Requires Approval)",
-    "src": "fake success: toast / Alert only, no request",
-    "status": "not wired",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1122,
-    "via": null,
-    "note": "Button \"+ Add Custom Test (Requires Approval)\" shows a success message without sending a request."
    },
    {
     "kind": "button",
     "label": "+ Add Bundle",
     "src": "parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1142,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1088,
     "via": null,
     "note": null
    },
    {
     "kind": "data",
     "label": "List data.bundles",
-    "src": "data: set from user input / local logic",
+    "src": "from data (prop / derived; not traced)",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1153,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1099,
     "via": null,
-    "note": null
+    "note": null,
+    "untraced": true
    },
    {
     "kind": "button",
     "label": "[close]",
     "src": "parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1159,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1105,
     "via": null,
     "note": null
    },
@@ -6788,8 +6613,8 @@
     "label": "Bundle Name (Ar)",
     "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1166,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1112,
     "via": null,
     "note": null
    },
@@ -6798,8 +6623,8 @@
     "label": "Bundle Name (En)",
     "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1167,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1113,
     "via": null,
     "note": null
    },
@@ -6808,18 +6633,8 @@
     "label": "Final Bundle Price",
     "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1169,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1186,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1115,
     "via": null,
     "note": null
    },
@@ -6828,8 +6643,8 @@
     "label": "List WORK_DAYS",
     "src": "from WORK_DAYS (prop / derived; not traced)",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1424,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1188,
     "via": null,
     "note": null,
     "untraced": true
@@ -6839,8 +6654,8 @@
     "label": "{d.ar}",
     "src": "parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1427,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1191,
     "via": null,
     "note": null
    },
@@ -6849,8 +6664,8 @@
     "label": "Morning",
     "src": "parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1444,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1208,
     "via": null,
     "note": null
    },
@@ -6859,8 +6674,8 @@
     "label": "Morning Open",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1459,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1223,
     "via": null,
     "note": null
    },
@@ -6869,8 +6684,8 @@
     "label": "Morning Close",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1462,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1226,
     "via": null,
     "note": null
    },
@@ -6879,8 +6694,8 @@
     "label": "Evening Open",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1470,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1234,
     "via": null,
     "note": null
    },
@@ -6889,8 +6704,8 @@
     "label": "Evening Close",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1473,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1237,
     "via": null,
     "note": null
    },
@@ -6899,8 +6714,8 @@
     "label": "List WORK_DAYS",
     "src": "from WORK_DAYS (prop / derived; not traced)",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1490,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1254,
     "via": null,
     "note": null,
     "untraced": true
@@ -6910,8 +6725,8 @@
     "label": "{d.ar}",
     "src": "parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1493,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1257,
     "via": null,
     "note": null
    },
@@ -6920,8 +6735,8 @@
     "label": "From",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1506,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1270,
     "via": null,
     "note": null
    },
@@ -6930,8 +6745,8 @@
     "label": "To",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1509,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1273,
     "via": null,
     "note": null
    },
@@ -6940,8 +6755,8 @@
     "label": "<TouchableOpacity>",
     "src": "local state setShowVacationCal",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1517,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1281,
     "via": null,
     "note": null
    },
@@ -6950,8 +6765,8 @@
     "label": "Planned Vacation",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1518,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1282,
     "via": null,
     "note": null
    },
@@ -6960,8 +6775,8 @@
     "label": "Cash Only (No Insurance)",
     "src": "user input → data → request body",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1534,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1298,
     "via": null,
     "note": null
    },
@@ -6970,8 +6785,8 @@
     "label": "List insuranceCatalog",
     "src": "from insuranceCatalog (prop / derived; not traced)",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1545,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1309,
     "via": null,
     "note": null,
     "untraced": true
@@ -6981,8 +6796,8 @@
     "label": "{co.ar}",
     "src": "parent callback current.findIndex, update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1551,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1315,
     "via": null,
     "note": null
    },
@@ -6991,8 +6806,8 @@
     "label": "List co.plans",
     "src": "from co (prop / derived; not traced)",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1573,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1337,
     "via": null,
     "note": null,
     "untraced": true
@@ -7002,29 +6817,19 @@
     "label": "{p}",
     "src": "parent callback current.map, update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1576,
+    "file": "provider-app/src/screens/lab/LabRegistration.tsx",
+    "line": 1340,
     "via": null,
     "note": null
    },
    {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
+    "kind": "data",
+    "label": "Data data",
+    "src": "data: set from user input / local logic",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1603,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "I Understand & Agree",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1643,
-    "via": null,
+    "file": "provider-app/src/screens/registration/RegistrationWizard.tsx",
+    "line": 27,
+    "via": "RegistrationWizard",
     "note": null
    },
    {
@@ -7032,60 +6837,60 @@
     "label": "List rows",
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1827,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 120,
+    "via": "ReviewStep",
     "note": null,
     "untraced": true
+   },
+   {
+    "kind": "input",
+    "label": "Account Holder Name",
+    "src": "user input → parent callback update",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 136,
+    "via": "ReviewStep",
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "Bank IBAN",
+    "src": "user input → parent callback update",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 138,
+    "via": "ReviewStep",
+    "note": null
    },
    {
     "kind": "button",
     "label": "View Contract",
     "src": "local state setShowContract",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1847,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 145,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "Full Name",
-    "src": "user input → data → request body",
+    "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1852,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 152,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
-    "label": "e.g. Owner, General Manager",
-    "src": "user input → data → request body",
+    "label": "{label(config.signatoryRoleHint}",
+    "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1855,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Account Holder Name",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1867,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Bank IBAN",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1873,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 154,
+    "via": "ReviewStep",
     "note": null
    },
    {
@@ -7093,9 +6898,9 @@
     "label": "Re-sign",
     "src": "local state setShowSigModal",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1890,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 167,
+    "via": "ReviewStep",
     "note": null
    },
    {
@@ -7103,29 +6908,60 @@
     "label": "Tap to Sign",
     "src": "local state setShowSigModal",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1893,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 172,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
-    "label": "I agree to Nabdah Plus Terms & Conditions and Pr",
+    "label": "{label(config.agree)}",
     "src": "user input → agreed (local)",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1901,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 182,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "button",
-    "label": "Submit Center Application",
+    "label": "{label(config.submitLabel)}",
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
-    "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-    "line": 1933,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 186,
+    "via": "ReviewStep",
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "[check] {label}",
+    "src": "parent callback onPress",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/WizardParts.tsx",
+    "line": 59,
+    "via": "DocCard",
+    "note": null
+   },
+   {
+    "kind": "data",
+    "label": "List page.sections",
+    "src": "from page (prop / derived; not traced)",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/WizardParts.tsx",
+    "line": 146,
+    "via": "MergedPage",
+    "note": null,
+    "untraced": true
+   },
+   {
+    "kind": "button",
+    "label": "Next",
+    "src": "parent callback onNext",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/WizardParts.tsx",
+    "line": 154,
+    "via": "MergedPage",
     "note": null
    },
    {
@@ -7424,32 +7260,11 @@
    },
    {
     "kind": "data",
-    "label": "List sections",
-    "src": "from sections (prop / derived; not traced)",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 153,
-    "via": null,
-    "note": null,
-    "untraced": true
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 161,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "data",
     "label": "List PROVIDER_MODES",
     "src": "from PROVIDER_MODES (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 231,
+    "line": 286,
     "via": null,
     "note": null,
     "untraced": true
@@ -7460,7 +7275,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 234,
+    "line": 289,
     "via": null,
     "note": null
    },
@@ -7470,7 +7285,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 250,
+    "line": 305,
     "via": null,
     "note": null
    },
@@ -7480,7 +7295,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 251,
+    "line": 306,
     "via": null,
     "note": null
    },
@@ -7490,7 +7305,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 263,
+    "line": 318,
     "via": null,
     "note": null
    },
@@ -7500,7 +7315,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 273,
+    "line": 328,
     "via": null,
     "note": null
    },
@@ -7510,7 +7325,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 274,
+    "line": 329,
     "via": null,
     "note": null
    },
@@ -7520,7 +7335,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 275,
+    "line": 330,
     "via": null,
     "note": null
    },
@@ -7530,7 +7345,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 276,
+    "line": 331,
     "via": null,
     "note": null
    },
@@ -7540,7 +7355,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 278,
+    "line": 333,
     "via": null,
     "note": null
    },
@@ -7550,7 +7365,7 @@
     "src": "from LANGS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 282,
+    "line": 337,
     "via": null,
     "note": null,
     "untraced": true
@@ -7561,17 +7376,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 285,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "POST /provider-onboarding/start, POST /auth/login",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 299,
+    "line": 340,
     "via": null,
     "note": null
    },
@@ -7581,7 +7386,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 420,
+    "line": 418,
     "via": null,
     "note": null
    },
@@ -7591,7 +7396,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 421,
+    "line": 419,
     "via": null,
     "note": null
    },
@@ -7601,7 +7406,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 422,
+    "line": 420,
     "via": null,
     "note": null
    },
@@ -7611,7 +7416,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 426,
+    "line": 424,
     "via": null,
     "note": null
    },
@@ -7621,7 +7426,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 427,
+    "line": 425,
     "via": null,
     "note": null
    },
@@ -7631,67 +7436,47 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 431,
+    "line": 429,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
     "label": "SCFHS License",
-    "src": "parent callback update",
+    "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 437,
+    "line": 435,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
     "label": "Profile Photo",
-    "src": "parent callback update",
+    "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 438,
+    "line": 436,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
     "label": "CR Doc",
-    "src": "parent callback update",
+    "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 442,
+    "line": 440,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
     "label": "MOH License",
-    "src": "parent callback update",
+    "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 443,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "POST /storage/upload, POST /provider-onboarding/step2",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 454,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "[check] {label}",
-    "src": "parent callback onPress",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 462,
+    "line": 441,
     "via": null,
     "note": null
    },
@@ -7701,7 +7486,7 @@
     "src": "parent callback update, nursingCatalog.map",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 505,
+    "line": 480,
     "via": null,
     "note": null
    },
@@ -7711,7 +7496,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 506,
+    "line": 481,
     "via": null,
     "note": null
    },
@@ -7721,7 +7506,7 @@
     "src": "from nursingCatalog (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 515,
+    "line": 490,
     "via": null,
     "note": null,
     "untraced": true
@@ -7732,17 +7517,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 518,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 537,
+    "line": 493,
     "via": null,
     "note": null
    },
@@ -7752,7 +7527,7 @@
     "src": "from PRICING_MODELS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 558,
+    "line": 520,
     "via": null,
     "note": null,
     "untraced": true
@@ -7763,7 +7538,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 569,
+    "line": 531,
     "via": null,
     "note": null
    },
@@ -7773,7 +7548,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 570,
+    "line": 532,
     "via": null,
     "note": null
    },
@@ -7783,17 +7558,7 @@
     "src": "user input → parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 577,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 596,
+    "line": 539,
     "via": null,
     "note": null
    },
@@ -7803,7 +7568,7 @@
     "src": "POST /provider-onboarding/start, POST /auth/login → errs",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 605,
+    "line": 558,
     "via": null,
     "note": null
    },
@@ -7813,7 +7578,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 636,
+    "line": 585,
     "via": null,
     "note": null
    },
@@ -7823,7 +7588,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 644,
+    "line": 593,
     "via": null,
     "note": null
    },
@@ -7833,7 +7598,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 649,
+    "line": 598,
     "via": null,
     "note": null
    },
@@ -7843,7 +7608,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 659,
+    "line": 608,
     "via": null,
     "note": null
    },
@@ -7853,7 +7618,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 669,
+    "line": 618,
     "via": null,
     "note": null
    },
@@ -7863,17 +7628,7 @@
     "src": "local state setShowLocModal",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 676,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 700,
+    "line": 625,
     "via": null,
     "note": null
    },
@@ -7883,7 +7638,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 752,
+    "line": 687,
     "via": null,
     "note": null
    },
@@ -7893,7 +7648,7 @@
     "src": "from WORK_DAYS (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 759,
+    "line": 694,
     "via": null,
     "note": null,
     "untraced": true
@@ -7904,7 +7659,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 762,
+    "line": 697,
     "via": null,
     "note": null
    },
@@ -7914,7 +7669,7 @@
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 775,
+    "line": 710,
     "via": null,
     "note": null
    },
@@ -7924,7 +7679,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 788,
+    "line": 723,
     "via": null,
     "note": null
    },
@@ -7934,7 +7689,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 789,
+    "line": 724,
     "via": null,
     "note": null
    },
@@ -7944,7 +7699,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 798,
+    "line": 733,
     "via": null,
     "note": null
    },
@@ -7954,7 +7709,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 799,
+    "line": 734,
     "via": null,
     "note": null
    },
@@ -7964,7 +7719,7 @@
     "src": "local state setShowVacationCal",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 808,
+    "line": 743,
     "via": null,
     "note": null
    },
@@ -7974,7 +7729,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 809,
+    "line": 744,
     "via": null,
     "note": null
    },
@@ -7984,7 +7739,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 812,
+    "line": 747,
     "via": null,
     "note": null
    },
@@ -7994,7 +7749,7 @@
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 826,
+    "line": 761,
     "via": null,
     "note": null
    },
@@ -8004,7 +7759,7 @@
     "src": "from insuranceCatalog (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 832,
+    "line": 767,
     "via": null,
     "note": null,
     "untraced": true
@@ -8015,7 +7770,7 @@
     "src": "parent callback current.findIndex, update",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 838,
+    "line": 773,
     "via": null,
     "note": null
    },
@@ -8025,7 +7780,7 @@
     "src": "from co (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 849,
+    "line": 784,
     "via": null,
     "note": null,
     "untraced": true
@@ -8036,28 +7791,18 @@
     "src": "parent callback current.map, update",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 852,
+    "line": 787,
     "via": null,
     "note": null
    },
    {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
+    "kind": "data",
+    "label": "Data data",
+    "src": "data: set from user input / local logic",
     "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 874,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "I Understand & Agree",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 915,
-    "via": null,
+    "file": "provider-app/src/screens/registration/RegistrationWizard.tsx",
+    "line": 27,
+    "via": "RegistrationWizard",
     "note": null
    },
    {
@@ -8065,60 +7810,60 @@
     "label": "List rows",
     "src": "from rows (prop / derived; not traced)",
     "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 1089,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 120,
+    "via": "ReviewStep",
     "note": null,
     "untraced": true
+   },
+   {
+    "kind": "input",
+    "label": "Account Holder Name",
+    "src": "user input → parent callback update",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 136,
+    "via": "ReviewStep",
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "Bank IBAN",
+    "src": "user input → parent callback update",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 138,
+    "via": "ReviewStep",
+    "note": null
    },
    {
     "kind": "button",
     "label": "View Contract",
     "src": "local state setShowContract",
     "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 1100,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 145,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
     "label": "Full Name",
-    "src": "user input → data → request body",
+    "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 1105,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 152,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
-    "label": "e.g. Owner, General Manager",
-    "src": "user input → data → request body",
+    "label": "{label(config.signatoryRoleHint}",
+    "src": "user input → parent callback update",
     "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 1108,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Account Holder Name",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 1119,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Bank IBAN",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 1125,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 154,
+    "via": "ReviewStep",
     "note": null
    },
    {
@@ -8126,9 +7871,9 @@
     "label": "Re-sign",
     "src": "local state setShowSigModal",
     "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 1142,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 167,
+    "via": "ReviewStep",
     "note": null
    },
    {
@@ -8136,29 +7881,60 @@
     "label": "Tap to Sign",
     "src": "local state setShowSigModal",
     "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 1145,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 172,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "input",
-    "label": "I agree to Nabdah Plus Terms & Privacy Policy.",
+    "label": "{label(config.agree)}",
     "src": "user input → agreed (local)",
     "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 1153,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 182,
+    "via": "ReviewStep",
     "note": null
    },
    {
     "kind": "button",
-    "label": "Submit Application",
+    "label": "{label(config.submitLabel)}",
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
-    "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
-    "line": 1156,
-    "via": null,
+    "file": "provider-app/src/screens/registration/ReviewStep.tsx",
+    "line": 186,
+    "via": "ReviewStep",
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "[check] {label}",
+    "src": "parent callback onPress",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/WizardParts.tsx",
+    "line": 59,
+    "via": "DocCard",
+    "note": null
+   },
+   {
+    "kind": "data",
+    "label": "List page.sections",
+    "src": "from page (prop / derived; not traced)",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/WizardParts.tsx",
+    "line": 146,
+    "via": "MergedPage",
+    "note": null,
+    "untraced": true
+   },
+   {
+    "kind": "button",
+    "label": "Next",
+    "src": "parent callback onNext",
+    "status": "ok",
+    "file": "provider-app/src/screens/registration/WizardParts.tsx",
+    "line": 154,
+    "via": "MergedPage",
     "note": null
    },
    {

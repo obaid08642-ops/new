@@ -117,16 +117,6 @@
      "ok"
     ],
     [
-     "button: Back to Home (in SuccessScreen)",
-     "parent callback onDone",
-     "ok"
-    ],
-    [
-     "button: Next",
-     "parent callback onNext",
-     "ok"
-    ],
-    [
      "data: Data errs",
      "POST /provider-onboarding/start, POST /auth/login → errs",
      "ok"
@@ -177,16 +167,6 @@
      "ok"
     ],
     [
-     "button: Next",
-     "POST /provider-onboarding/start, POST /auth/login",
-     "ok"
-    ],
-    [
-     "button: [checkCircle] {label}",
-     "parent callback update",
-     "ok"
-    ],
-    [
      "input: National ID",
      "user input → data → request body",
      "ok"
@@ -197,8 +177,18 @@
      "ok"
     ],
     [
-     "button: Next",
-     "POST /storage/upload, POST /provider-onboarding/step2",
+     "button: National ID (Front)",
+     "parent callback pick",
+     "ok"
+    ],
+    [
+     "button: SCFHS License",
+     "parent callback pick",
+     "ok"
+    ],
+    [
+     "button: Additional Documents (Optional)",
+     "parent callback pick",
      "ok"
     ],
     [
@@ -242,18 +232,8 @@
      "ok"
     ],
     [
-     "data: List data.clinicImagesUris",
-     "data: set from user input / local logic",
-     "ok"
-    ],
-    [
      "button: [close]",
      "parent callback update",
-     "ok"
-    ],
-    [
-     "button: Next",
-     "parent callback onNext",
      "ok"
     ],
     [
@@ -334,11 +314,6 @@
     [
      "button: [map] Pick Location on Map",
      "local state setShowMap",
-     "ok"
-    ],
-    [
-     "button: Next",
-     "parent callback onNext",
      "ok"
     ],
     [
@@ -427,11 +402,6 @@
      "ok"
     ],
     [
-     "button: Next",
-     "parent callback onNext",
-     "ok"
-    ],
-    [
      "input: <Switch>",
      "user input → data → request body",
      "ok"
@@ -482,63 +452,63 @@
      "ok"
     ],
     [
-     "button: Next",
-     "parent callback onNext",
+     "data: Data data (in RegistrationWizard)",
+     "data: set from user input / local logic",
      "ok"
     ],
     [
-     "button: View Contract",
+     "input: Account Holder Name (in ReviewStep)",
+     "user input → parent callback update",
+     "ok"
+    ],
+    [
+     "input: Bank IBAN (in ReviewStep)",
+     "user input → parent callback update",
+     "ok"
+    ],
+    [
+     "button: View Contract (in ReviewStep)",
      "local state setShowContract",
      "ok"
     ],
     [
-     "input: Signer Name",
-     "user input → data → request body",
+     "input: Full Name (in ReviewStep)",
+     "user input → parent callback update",
      "ok"
     ],
     [
-     "input: Signer Role",
-     "user input → data → request body",
+     "input: {label(config.signatoryRoleHint} (in ReviewStep)",
+     "user input → parent callback update",
      "ok"
     ],
     [
-     "input: Account Holder Name",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Bank IBAN",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "button: View Contract Details",
-     "local state setShowContract",
-     "ok"
-    ],
-    [
-     "input: Signatory Name",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Signatory Role",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "button: Re-sign",
+     "button: Re-sign (in ReviewStep)",
      "local state setShowSigModal",
      "ok"
     ],
     [
-     "button: Tap to Sign",
+     "button: Tap to Sign (in ReviewStep)",
      "local state setShowSigModal",
      "ok"
     ],
     [
-     "button: Submit for Admin Approval",
+     "input: {label(config.agree)} (in ReviewStep)",
+     "user input → agreed (local)",
+     "ok"
+    ],
+    [
+     "button: {label(config.submitLabel)} (in ReviewStep)",
      "POST /provider/auth/send-otp",
+     "ok"
+    ],
+    [
+     "button: [checkCircle] {label} (in DocBtn)",
+     "parent callback onPress",
+     "ok"
+    ],
+    [
+     "button: Next (in MergedPage)",
+     "parent callback onNext",
      "ok"
     ],
     [
@@ -577,8 +547,8 @@
      "ok"
     ],
     [
-     "data: List sections",
-     "from sections (prop / derived; not traced)",
+     "data: List data.clinicImagesUris",
+     "from data (prop / derived; not traced)",
      "ok"
     ],
     [
@@ -607,6 +577,11 @@
      "ok"
     ],
     [
+     "API: POST /provider-onboarding/step2",
+     "POST /provider-onboarding/step2 (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:497)",
+     "ok"
+    ],
+    [
      "API: POST /provider-onboarding/step3",
      "POST /provider-onboarding/step3 (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:501)",
      "ok"
@@ -625,10 +600,15 @@
      "API: POST /provider/auth/login",
      "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:34)",
      "ok"
+    ],
+    [
+     "API: POST /storage/upload",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:358)",
+     "ok"
     ]
    ],
    "notes": [
-    "7 list(s) fed by a parent prop are not traced across components."
+    "9 list(s) fed by a parent prop are not traced across components."
    ]
   },
   {
@@ -745,11 +725,6 @@
      "ok"
     ],
     [
-     "button: Next",
-     "parent callback onNext",
-     "ok"
-    ],
-    [
      "button: {t.ar}",
      "parent callback update",
      "ok"
@@ -795,16 +770,6 @@
      "ok"
     ],
     [
-     "button: Next",
-     "POST /provider-onboarding/start, POST /auth/login",
-     "ok"
-    ],
-    [
-     "button: [checkCircle] {label}",
-     "parent callback update",
-     "ok"
-    ],
-    [
      "input: CR Number",
      "user input → data → request body",
      "ok"
@@ -815,6 +780,21 @@
      "ok"
     ],
     [
+     "button: CR Document",
+     "parent callback pick",
+     "ok"
+    ],
+    [
+     "button: MOH Document",
+     "parent callback pick",
+     "ok"
+    ],
+    [
+     "button: Facility Logo",
+     "parent callback pick",
+     "ok"
+    ],
+    [
      "button: [addPhotoAlternate]",
      "parent callback update",
      "ok"
@@ -822,11 +802,6 @@
     [
      "button: [close]",
      "parent callback update",
-     "ok"
-    ],
-    [
-     "button: Next",
-     "parent callback onNext",
      "ok"
     ],
     [
@@ -845,11 +820,6 @@
      "ok"
     ],
     [
-     "button: Next",
-     "POST /storage/upload, POST /provider-onboarding/step2",
-     "ok"
-    ],
-    [
      "data: Data tempSub",
      "tempSub: set from user input / local logic",
      "ok"
@@ -860,18 +830,8 @@
      "ok"
     ],
     [
-     "data: List data.subProviders",
-     "data: set from user input / local logic",
-     "ok"
-    ],
-    [
      "button: [close]",
      "parent callback update",
-     "ok"
-    ],
-    [
-     "button: Next",
-     "parent callback onNext",
      "ok"
     ],
     [
@@ -1105,53 +1065,63 @@
      "ok"
     ],
     [
-     "button: Next",
-     "POST /storage/upload, POST /provider-onboarding/step3",
+     "data: Data data (in RegistrationWizard)",
+     "data: set from user input / local logic",
      "ok"
     ],
     [
-     "button: I Understand & Agree",
-     "parent callback onNext",
+     "input: Account Holder Name (in ReviewStep)",
+     "user input → parent callback update",
      "ok"
     ],
     [
-     "button: View Contract",
+     "input: Bank IBAN (in ReviewStep)",
+     "user input → parent callback update",
+     "ok"
+    ],
+    [
+     "button: View Contract (in ReviewStep)",
      "local state setShowContract",
      "ok"
     ],
     [
-     "input: Full Name",
-     "user input → data → request body",
+     "input: Full Name (in ReviewStep)",
+     "user input → parent callback update",
      "ok"
     ],
     [
-     "input: e.g. Owner, General Manager",
-     "user input → data → request body",
+     "input: {label(config.signatoryRoleHint} (in ReviewStep)",
+     "user input → parent callback update",
      "ok"
     ],
     [
-     "input: Account Holder Name",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Bank IBAN",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "button: Re-sign",
+     "button: Re-sign (in ReviewStep)",
      "local state setShowSigModal",
      "ok"
     ],
     [
-     "button: Tap to Sign",
+     "button: Tap to Sign (in ReviewStep)",
      "local state setShowSigModal",
      "ok"
     ],
     [
-     "button: Submit Application",
+     "input: {label(config.agree)} (in ReviewStep)",
+     "user input → agreed (local)",
+     "ok"
+    ],
+    [
+     "button: {label(config.submitLabel)} (in ReviewStep)",
      "POST /provider/auth/send-otp",
+     "ok"
+    ],
+    [
+     "button: [checkCircle] {label} (in DocBtn)",
+     "parent callback onPress",
+     "ok"
+    ],
+    [
+     "button: Next (in MergedPage)",
+     "parent callback onNext",
      "ok"
     ],
     [
@@ -1190,11 +1160,6 @@
      "ok"
     ],
     [
-     "data: List sections",
-     "from sections (prop / derived; not traced)",
-     "ok"
-    ],
-    [
      "data: List FACILITY_TYPES",
      "from FACILITY_TYPES (prop / derived; not traced)",
      "ok"
@@ -1205,8 +1170,18 @@
      "ok"
     ],
     [
+     "data: List data.subProviders",
+     "from data (prop / derived; not traced)",
+     "ok"
+    ],
+    [
      "data: List WORK_DAYS",
      "from WORK_DAYS (prop / derived; not traced)",
+     "ok"
+    ],
+    [
+     "API: POST /auth/login",
+     "POST /auth/login (OK, backend/src/modules/auth/auth.controller.ts:151)",
      "ok"
     ],
     [
@@ -1217,6 +1192,21 @@
     [
      "API: GET /insurance/companies",
      "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:694)",
+     "ok"
+    ],
+    [
+     "API: POST /provider-onboarding/start",
+     "POST /provider-onboarding/start (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:491)",
+     "ok"
+    ],
+    [
+     "API: POST /provider-onboarding/step2",
+     "POST /provider-onboarding/step2 (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:497)",
+     "ok"
+    ],
+    [
+     "API: POST /provider-onboarding/step3",
+     "POST /provider-onboarding/step3 (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:501)",
      "ok"
     ],
     [
@@ -1233,10 +1223,15 @@
      "API: POST /provider/auth/login",
      "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:34)",
      "ok"
+    ],
+    [
+     "API: POST /storage/upload",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:358)",
+     "ok"
     ]
    ],
    "notes": [
-    "14 list(s) fed by a parent prop are not traced across components."
+    "16 list(s) fed by a parent prop are not traced across components."
    ]
   },
   {
@@ -1282,11 +1277,6 @@
   {
    "route": "LabRegistration",
    "elements": [
-    [
-     "button: + Add Custom Test (Requires Approval)",
-     "fake success: toast / Alert only, no request",
-     "not wired"
-    ],
     [
      "data: Data policy (in ContractModal)",
      "GET /legal/policy/provider_agreement → policy",
@@ -1398,21 +1388,6 @@
      "ok"
     ],
     [
-     "button: Back to Home (in SuccessScreen)",
-     "parent callback onDone",
-     "ok"
-    ],
-    [
-     "data: Data data",
-     "data: set from user input / local logic",
-     "ok"
-    ],
-    [
-     "button: Next",
-     "parent callback onNext",
-     "ok"
-    ],
-    [
      "input: Center Name (Arabic)",
      "user input → data → request body",
      "ok"
@@ -1463,16 +1438,6 @@
      "ok"
     ],
     [
-     "button: Next",
-     "POST /provider-onboarding/start, POST /auth/login",
-     "ok"
-    ],
-    [
-     "button: [check] {label}",
-     "parent callback update",
-     "ok"
-    ],
-    [
      "input: CR Number",
      "user input → data → request body",
      "ok"
@@ -1513,23 +1478,23 @@
      "ok"
     ],
     [
-     "button: Next",
-     "POST /storage/upload, POST /provider-onboarding/step2",
+     "button: CR Doc",
+     "parent callback pick",
+     "ok"
+    ],
+    [
+     "button: MOH License",
+     "parent callback pick",
+     "ok"
+    ],
+    [
+     "button: Center Logo",
+     "parent callback pick",
      "ok"
     ],
     [
      "data: Data errs",
      "POST /provider-onboarding/start, POST /auth/login → errs",
-     "ok"
-    ],
-    [
-     "button: {c.ar}",
-     "parent callback update",
-     "ok"
-    ],
-    [
-     "input: District / Area",
-     "user input → data → request body",
      "ok"
     ],
     [
@@ -1580,11 +1545,6 @@
     [
      "input: Available Techs/Machines",
      "user input → data → request body",
-     "ok"
-    ],
-    [
-     "button: Next",
-     "parent callback onNext",
      "ok"
     ],
     [
@@ -1653,13 +1613,13 @@
      "ok"
     ],
     [
-     "button: + Add Bundle",
-     "parent callback update",
+     "input: Covered by insurance",
+     "user input → data → request body",
      "ok"
     ],
     [
-     "data: List data.bundles",
-     "data: set from user input / local logic",
+     "button: + Add Bundle",
+     "parent callback update",
      "ok"
     ],
     [
@@ -1680,11 +1640,6 @@
     [
      "input: Final Bundle Price",
      "user input → parent callback update",
-     "ok"
-    ],
-    [
-     "button: Next",
-     "parent callback onNext",
      "ok"
     ],
     [
@@ -1758,58 +1713,63 @@
      "ok"
     ],
     [
-     "button: Next",
-     "parent callback onNext",
+     "data: Data data (in RegistrationWizard)",
+     "data: set from user input / local logic",
      "ok"
     ],
     [
-     "button: I Understand & Agree",
-     "parent callback onNext",
+     "input: Account Holder Name (in ReviewStep)",
+     "user input → parent callback update",
      "ok"
     ],
     [
-     "button: View Contract",
+     "input: Bank IBAN (in ReviewStep)",
+     "user input → parent callback update",
+     "ok"
+    ],
+    [
+     "button: View Contract (in ReviewStep)",
      "local state setShowContract",
      "ok"
     ],
     [
-     "input: Full Name",
-     "user input → data → request body",
+     "input: Full Name (in ReviewStep)",
+     "user input → parent callback update",
      "ok"
     ],
     [
-     "input: e.g. Owner, General Manager",
-     "user input → data → request body",
+     "input: {label(config.signatoryRoleHint} (in ReviewStep)",
+     "user input → parent callback update",
      "ok"
     ],
     [
-     "input: Account Holder Name",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Bank IBAN",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "button: Re-sign",
+     "button: Re-sign (in ReviewStep)",
      "local state setShowSigModal",
      "ok"
     ],
     [
-     "button: Tap to Sign",
+     "button: Tap to Sign (in ReviewStep)",
      "local state setShowSigModal",
      "ok"
     ],
     [
-     "input: I agree to Nabdah Plus Terms & Conditions and Pr",
+     "input: {label(config.agree)} (in ReviewStep)",
      "user input → agreed (local)",
      "ok"
     ],
     [
-     "button: Submit Center Application",
+     "button: {label(config.submitLabel)} (in ReviewStep)",
      "POST /provider/auth/send-otp",
+     "ok"
+    ],
+    [
+     "button: [check] {label} (in DocCard)",
+     "parent callback onPress",
+     "ok"
+    ],
+    [
+     "button: Next (in MergedPage)",
+     "parent callback onNext",
      "ok"
     ],
     [
@@ -1848,11 +1808,6 @@
      "ok"
     ],
     [
-     "data: List sections",
-     "from sections (prop / derived; not traced)",
-     "ok"
-    ],
-    [
      "data: List LANGS",
      "from LANGS (prop / derived; not traced)",
      "ok"
@@ -1868,8 +1823,18 @@
      "ok"
     ],
     [
+     "data: List data.bundles",
+     "from data (prop / derived; not traced)",
+     "ok"
+    ],
+    [
      "API: GET /insurance/companies",
      "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:694)",
+     "ok"
+    ],
+    [
+     "API: POST /provider-onboarding/step2",
+     "POST /provider-onboarding/step2 (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:497)",
      "ok"
     ],
     [
@@ -1891,10 +1856,15 @@
      "API: POST /provider/auth/login",
      "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:34)",
      "ok"
+    ],
+    [
+     "API: POST /storage/upload",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:358)",
+     "ok"
     ]
    ],
    "notes": [
-    "11 list(s) fed by a parent prop are not traced across components."
+    "12 list(s) fed by a parent prop are not traced across components."
    ]
   },
   {
@@ -2096,11 +2066,6 @@
      "ok"
     ],
     [
-     "button: Next",
-     "parent callback onNext",
-     "ok"
-    ],
-    [
      "button: [nursing] {pm.ar}",
      "parent callback update",
      "ok"
@@ -2151,11 +2116,6 @@
      "ok"
     ],
     [
-     "button: Next",
-     "POST /provider-onboarding/start, POST /auth/login",
-     "ok"
-    ],
-    [
      "input: SCFHS License Number",
      "user input → data → request body",
      "ok"
@@ -2187,32 +2147,22 @@
     ],
     [
      "button: SCFHS License",
-     "parent callback update",
+     "parent callback pick",
      "ok"
     ],
     [
      "button: Profile Photo",
-     "parent callback update",
+     "parent callback pick",
      "ok"
     ],
     [
      "button: CR Doc",
-     "parent callback update",
+     "parent callback pick",
      "ok"
     ],
     [
      "button: MOH License",
-     "parent callback update",
-     "ok"
-    ],
-    [
-     "button: Next",
-     "POST /storage/upload, POST /provider-onboarding/step2",
-     "ok"
-    ],
-    [
-     "button: [check] {label}",
-     "parent callback onPress",
+     "parent callback pick",
      "ok"
     ],
     [
@@ -2231,11 +2181,6 @@
      "ok"
     ],
     [
-     "button: Next",
-     "parent callback onNext",
-     "ok"
-    ],
-    [
      "button: {pm.ar} {pm.hint_ar}",
      "parent callback update",
      "ok"
@@ -2248,11 +2193,6 @@
     [
      "input: {…} Price (SAR)",
      "user input → parent callback update",
-     "ok"
-    ],
-    [
-     "button: Next",
-     "parent callback onNext",
      "ok"
     ],
     [
@@ -2288,11 +2228,6 @@
     [
      "button: <TouchableOpacity>",
      "local state setShowLocModal",
-     "ok"
-    ],
-    [
-     "button: Next",
-     "parent callback onNext",
      "ok"
     ],
     [
@@ -2361,58 +2296,63 @@
      "ok"
     ],
     [
-     "button: Next",
-     "parent callback onNext",
+     "data: Data data (in RegistrationWizard)",
+     "data: set from user input / local logic",
      "ok"
     ],
     [
-     "button: I Understand & Agree",
-     "parent callback onNext",
+     "input: Account Holder Name (in ReviewStep)",
+     "user input → parent callback update",
      "ok"
     ],
     [
-     "button: View Contract",
+     "input: Bank IBAN (in ReviewStep)",
+     "user input → parent callback update",
+     "ok"
+    ],
+    [
+     "button: View Contract (in ReviewStep)",
      "local state setShowContract",
      "ok"
     ],
     [
-     "input: Full Name",
-     "user input → data → request body",
+     "input: Full Name (in ReviewStep)",
+     "user input → parent callback update",
      "ok"
     ],
     [
-     "input: e.g. Owner, General Manager",
-     "user input → data → request body",
+     "input: {label(config.signatoryRoleHint} (in ReviewStep)",
+     "user input → parent callback update",
      "ok"
     ],
     [
-     "input: Account Holder Name",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Bank IBAN",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "button: Re-sign",
+     "button: Re-sign (in ReviewStep)",
      "local state setShowSigModal",
      "ok"
     ],
     [
-     "button: Tap to Sign",
+     "button: Tap to Sign (in ReviewStep)",
      "local state setShowSigModal",
      "ok"
     ],
     [
-     "input: I agree to Nabdah Plus Terms & Privacy Policy.",
+     "input: {label(config.agree)} (in ReviewStep)",
      "user input → agreed (local)",
      "ok"
     ],
     [
-     "button: Submit Application",
+     "button: {label(config.submitLabel)} (in ReviewStep)",
      "POST /provider/auth/send-otp",
+     "ok"
+    ],
+    [
+     "button: [check] {label} (in DocCard)",
+     "parent callback onPress",
+     "ok"
+    ],
+    [
+     "button: Next (in MergedPage)",
+     "parent callback onNext",
      "ok"
     ],
     [
@@ -2451,11 +2391,6 @@
      "ok"
     ],
     [
-     "data: List sections",
-     "from sections (prop / derived; not traced)",
-     "ok"
-    ],
-    [
      "data: List PROVIDER_MODES",
      "from PROVIDER_MODES (prop / derived; not traced)",
      "ok"
@@ -2471,8 +2406,18 @@
      "ok"
     ],
     [
+     "data: List PRICING_MODELS",
+     "from PRICING_MODELS (prop / derived; not traced)",
+     "ok"
+    ],
+    [
      "API: GET /insurance/companies",
      "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:694)",
+     "ok"
+    ],
+    [
+     "API: POST /provider-onboarding/step2",
+     "POST /provider-onboarding/step2 (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:497)",
      "ok"
     ],
     [
@@ -2493,6 +2438,11 @@
     [
      "API: POST /provider/auth/login",
      "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:34)",
+     "ok"
+    ],
+    [
+     "API: POST /storage/upload",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:358)",
      "ok"
     ]
    ],
@@ -2669,16 +2619,6 @@
      "ok"
     ],
     [
-     "button: Back to Home (in SuccessScreen)",
-     "parent callback onDone",
-     "ok"
-    ],
-    [
-     "button: Next",
-     "parent callback onNext",
-     "ok"
-    ],
-    [
      "button: {pt.icon} {pt.ar}",
      "parent callback update",
      "ok"
@@ -2729,16 +2669,6 @@
      "ok"
     ],
     [
-     "button: Next",
-     "POST /provider-onboarding/start, POST /auth/login",
-     "ok"
-    ],
-    [
-     "button: [checkCircle] {label}",
-     "parent callback update",
-     "ok"
-    ],
-    [
      "input: CR Number",
      "user input → data → request body",
      "ok"
@@ -2764,8 +2694,23 @@
      "ok"
     ],
     [
-     "button: Next",
-     "POST /storage/upload, POST /provider-onboarding/step2",
+     "button: CR Doc",
+     "parent callback pick",
+     "ok"
+    ],
+    [
+     "button: MOH License",
+     "parent callback pick",
+     "ok"
+    ],
+    [
+     "button: SFDA License",
+     "parent callback pick",
+     "ok"
+    ],
+    [
+     "button: Pharmacy Logo",
+     "parent callback pick",
      "ok"
     ],
     [
@@ -2816,11 +2761,6 @@
     [
      "button: {r} km",
      "parent callback update",
-     "ok"
-    ],
-    [
-     "button: Next",
-     "parent callback onNext",
      "ok"
     ],
     [
@@ -2879,11 +2819,6 @@
      "ok"
     ],
     [
-     "button: Next",
-     "parent callback onNext",
-     "ok"
-    ],
-    [
      "input: Prescription Dispensing (Rx)",
      "user input → data → request body",
      "ok"
@@ -2906,11 +2841,6 @@
     [
      "button: Clear All",
      "parent callback update",
-     "ok"
-    ],
-    [
-     "button: Next",
-     "parent callback onNext",
      "ok"
     ],
     [
@@ -2959,58 +2889,63 @@
      "ok"
     ],
     [
-     "button: Next",
-     "parent callback onNext",
+     "data: Data data (in RegistrationWizard)",
+     "data: set from user input / local logic",
      "ok"
     ],
     [
-     "button: I Understand & Agree",
-     "parent callback onNext",
+     "input: Account Holder Name (in ReviewStep)",
+     "user input → parent callback update",
      "ok"
     ],
     [
-     "input: Account Holder Name",
-     "user input → data → request body",
+     "input: Bank IBAN (in ReviewStep)",
+     "user input → parent callback update",
      "ok"
     ],
     [
-     "input: Bank IBAN",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "button: View Contract",
+     "button: View Contract (in ReviewStep)",
      "local state setShowContract",
      "ok"
     ],
     [
-     "input: Full Name",
-     "user input → data → request body",
+     "input: Full Name (in ReviewStep)",
+     "user input → parent callback update",
      "ok"
     ],
     [
-     "input: e.g. Owner, CEO",
-     "user input → data → request body",
+     "input: {label(config.signatoryRoleHint} (in ReviewStep)",
+     "user input → parent callback update",
      "ok"
     ],
     [
-     "button: Re-sign",
+     "button: Re-sign (in ReviewStep)",
      "local state setShowSigModal",
      "ok"
     ],
     [
-     "button: Tap to Sign",
+     "button: Tap to Sign (in ReviewStep)",
      "local state setShowSigModal",
      "ok"
     ],
     [
-     "input: I agree to terms & conditions.",
+     "input: {label(config.agree)} (in ReviewStep)",
      "user input → agreed (local)",
      "ok"
     ],
     [
-     "button: Submit Pharmacy Application",
+     "button: {label(config.submitLabel)} (in ReviewStep)",
      "POST /provider/auth/send-otp",
+     "ok"
+    ],
+    [
+     "button: [check] {label} (in DocCard)",
+     "parent callback onPress",
+     "ok"
+    ],
+    [
+     "button: Next (in MergedPage)",
+     "parent callback onNext",
      "ok"
     ],
     [
@@ -3049,11 +2984,6 @@
      "ok"
     ],
     [
-     "data: List sections",
-     "from sections (prop / derived; not traced)",
-     "ok"
-    ],
-    [
      "data: List PHARMACY_TYPES",
      "from PHARMACY_TYPES (prop / derived; not traced)",
      "ok"
@@ -3069,8 +2999,18 @@
      "ok"
     ],
     [
+     "data: List PHARMA_CATS",
+     "from PHARMA_CATS (prop / derived; not traced)",
+     "ok"
+    ],
+    [
      "API: GET /insurance/companies",
      "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:694)",
+     "ok"
+    ],
+    [
+     "API: POST /provider-onboarding/step2",
+     "POST /provider-onboarding/step2 (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:497)",
      "ok"
     ],
     [
@@ -3092,6 +3032,11 @@
      "API: POST /provider/auth/login",
      "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:34)",
      "ok"
+    ],
+    [
+     "API: POST /storage/upload",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:358)",
+     "ok"
     ]
    ],
    "notes": [
@@ -3101,11 +3046,6 @@
   {
    "route": "RadiologyRegistration",
    "elements": [
-    [
-     "button: + Add Custom Test (Requires Approval)",
-     "fake success: toast / Alert only, no request",
-     "not wired"
-    ],
     [
      "data: Data policy (in ContractModal)",
      "GET /legal/policy/provider_agreement → policy",
@@ -3217,21 +3157,6 @@
      "ok"
     ],
     [
-     "button: Back to Home (in SuccessScreen)",
-     "parent callback onDone",
-     "ok"
-    ],
-    [
-     "data: Data data",
-     "data: set from user input / local logic",
-     "ok"
-    ],
-    [
-     "button: Next",
-     "parent callback onNext",
-     "ok"
-    ],
-    [
      "input: Center Name (Arabic)",
      "user input → data → request body",
      "ok"
@@ -3282,16 +3207,6 @@
      "ok"
     ],
     [
-     "button: Next",
-     "POST /provider-onboarding/start, POST /auth/login",
-     "ok"
-    ],
-    [
-     "button: [check] {label}",
-     "parent callback update",
-     "ok"
-    ],
-    [
      "input: CR Number",
      "user input → data → request body",
      "ok"
@@ -3302,12 +3217,12 @@
      "ok"
     ],
     [
-     "input: MOH Radiology Category",
+     "input: MOH Lab Category",
      "user input → parent callback update",
      "ok"
     ],
     [
-     "input: Radiology Accreditation (e.g. CBAHI, CAP)",
+     "input: Lab Accreditation (e.g. CBAHI, CAP)",
      "user input → parent callback update",
      "ok"
     ],
@@ -3332,8 +3247,18 @@
      "ok"
     ],
     [
-     "button: Next",
-     "POST /storage/upload, POST /provider-onboarding/step2",
+     "button: CR Doc",
+     "parent callback pick",
+     "ok"
+    ],
+    [
+     "button: MOH License",
+     "parent callback pick",
+     "ok"
+    ],
+    [
+     "button: Center Logo",
+     "parent callback pick",
      "ok"
     ],
     [
@@ -3392,12 +3317,7 @@
      "ok"
     ],
     [
-     "button: Next",
-     "parent callback onNext",
-     "ok"
-    ],
-    [
-     "button: [test_tube] Radiology Tests",
+     "button: [test_tube] Lab Tests",
      "local state setTab",
      "ok"
     ],
@@ -3447,6 +3367,11 @@
      "ok"
     ],
     [
+     "input: Covered by insurance",
+     "user input → data → request body",
+     "ok"
+    ],
+    [
      "button: {scan.ar} {…} min",
      "parent callback update",
      "ok"
@@ -3467,11 +3392,6 @@
      "ok"
     ],
     [
-     "data: List data.bundles",
-     "data: set from user input / local logic",
-     "ok"
-    ],
-    [
      "button: [close]",
      "parent callback update",
      "ok"
@@ -3489,11 +3409,6 @@
     [
      "input: Final Bundle Price",
      "user input → parent callback update",
-     "ok"
-    ],
-    [
-     "button: Next",
-     "parent callback onNext",
      "ok"
     ],
     [
@@ -3567,58 +3482,63 @@
      "ok"
     ],
     [
-     "button: Next",
-     "parent callback onNext",
+     "data: Data data (in RegistrationWizard)",
+     "data: set from user input / local logic",
      "ok"
     ],
     [
-     "button: I Understand & Agree",
-     "parent callback onNext",
+     "input: Account Holder Name (in ReviewStep)",
+     "user input → parent callback update",
      "ok"
     ],
     [
-     "button: View Contract",
+     "input: Bank IBAN (in ReviewStep)",
+     "user input → parent callback update",
+     "ok"
+    ],
+    [
+     "button: View Contract (in ReviewStep)",
      "local state setShowContract",
      "ok"
     ],
     [
-     "input: Full Name",
-     "user input → data → request body",
+     "input: Full Name (in ReviewStep)",
+     "user input → parent callback update",
      "ok"
     ],
     [
-     "input: e.g. Owner, General Manager",
-     "user input → data → request body",
+     "input: {label(config.signatoryRoleHint} (in ReviewStep)",
+     "user input → parent callback update",
      "ok"
     ],
     [
-     "input: Account Holder Name",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Bank IBAN",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "button: Re-sign",
+     "button: Re-sign (in ReviewStep)",
      "local state setShowSigModal",
      "ok"
     ],
     [
-     "button: Tap to Sign",
+     "button: Tap to Sign (in ReviewStep)",
      "local state setShowSigModal",
      "ok"
     ],
     [
-     "input: I agree to Nabdah Plus Terms & Conditions and Pr",
+     "input: {label(config.agree)} (in ReviewStep)",
      "user input → agreed (local)",
      "ok"
     ],
     [
-     "button: Submit Center Application",
+     "button: {label(config.submitLabel)} (in ReviewStep)",
      "POST /provider/auth/send-otp",
+     "ok"
+    ],
+    [
+     "button: [check] {label} (in DocCard)",
+     "parent callback onPress",
+     "ok"
+    ],
+    [
+     "button: Next (in MergedPage)",
+     "parent callback onNext",
      "ok"
     ],
     [
@@ -3657,11 +3577,6 @@
      "ok"
     ],
     [
-     "data: List sections",
-     "from sections (prop / derived; not traced)",
-     "ok"
-    ],
-    [
      "data: List LANGS",
      "from LANGS (prop / derived; not traced)",
      "ok"
@@ -3677,8 +3592,18 @@
      "ok"
     ],
     [
+     "data: List data.bundles",
+     "from data (prop / derived; not traced)",
+     "ok"
+    ],
+    [
      "API: GET /insurance/companies",
      "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:694)",
+     "ok"
+    ],
+    [
+     "API: POST /provider-onboarding/step2",
+     "POST /provider-onboarding/step2 (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:497)",
      "ok"
     ],
     [
@@ -3700,10 +3625,15 @@
      "API: POST /provider/auth/login",
      "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:34)",
      "ok"
+    ],
+    [
+     "API: POST /storage/upload",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:358)",
+     "ok"
     ]
    ],
    "notes": [
-    "11 list(s) fed by a parent prop are not traced across components."
+    "12 list(s) fed by a parent prop are not traced across components."
    ]
   },
   {
@@ -3764,22 +3694,5 @@
    ]
   }
  ],
- "needsReview": [
-  {
-   "route": "LabRegistration",
-   "element": "+ Add Custom Test (Requires Approval)",
-   "kind": "client",
-   "note": "Button \"+ Add Custom Test (Requires Approval)\" shows a success message without sending a request.",
-   "file": "provider-app/src/screens/lab/LabRegistration.tsx",
-   "line": 1146
-  },
-  {
-   "route": "RadiologyRegistration",
-   "element": "+ Add Custom Test (Requires Approval)",
-   "kind": "client",
-   "note": "Button \"+ Add Custom Test (Requires Approval)\" shows a success message without sending a request.",
-   "file": "provider-app/src/screens/radiology/RadiologyRegistration.tsx",
-   "line": 1122
-  }
- ]
+ "needsReview": []
 }
