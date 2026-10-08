@@ -14,8 +14,7 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { Notice } from "@/components-next/consult/consult-parts";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
-import { HealthTabs } from "@/components-next/health/health-kit";
-import { InsuranceRow, PolicyCard, RowsList, ShortcutGrid, StatusBadge } from "@/components-next/insurance/insurance-kit";
+import { InsuranceRow, InsuranceTabs, PolicyCard, RowsList, ShortcutGrid, StatusBadge } from "@/components-next/insurance/insurance-kit";
 import forms from "@/components-next/consult/consult.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/insurance/insurance.module.css";
@@ -196,7 +195,7 @@ export default async function InsurancePage({ params, searchParams }: Props) {
           { href: `${base}/coverage-check`, label: t("coverageCheck"), icon: "shield-check", tone: "mint" },
         ]}
       />
-      <HealthTabs
+      <InsuranceTabs
         label={t("tabs")}
         base={base}
         active={tab}

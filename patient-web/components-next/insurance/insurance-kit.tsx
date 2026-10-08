@@ -54,6 +54,17 @@ export function ShortcutGrid({ label, items }: { label: string; items: Shortcut[
   );
 }
 
+/** The tabs of the hub: link tabs whose state is the `?tab=` of the URL, scrolling sideways when the labels do not fit. */
+export function InsuranceTabs<T extends string>({ label, base, options, active }: { label: string; base: string; options: Array<{ value: T; label: string }>; active: T }) {
+  return (
+    <nav className={styles.tabs} aria-label={label}>
+      {options.map((option) => (
+        <Link key={option.value} href={`${base}?tab=${option.value}`} aria-current={option.value === active ? "page" : undefined} replace>{option.label}</Link>
+      ))}
+    </nav>
+  );
+}
+
 /** A white card around rows. */
 export function RowsList({ label, children }: { label: string; children: ReactNode }) {
   return (

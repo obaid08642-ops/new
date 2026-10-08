@@ -20,7 +20,7 @@
 
 /* ---- the badge of a status: neutral by default, the status tokens for approved / waiting / declined ---- */
 .badge {
-  flex: none; display: inline-flex; align-items: center; min-block-size: 24px; padding-inline: 9px; border-radius: var(--nabd-radius-pill);
+  flex: none; align-self: flex-start; display: inline-flex; align-items: center; min-block-size: 24px; padding-inline: 9px; border-radius: var(--nabd-radius-pill);
   background: var(--nabd-color-bg-sunken); color: var(--nabd-color-text-secondary); font-size: var(--nabd-font-size-micro); font-weight: 600; white-space: nowrap;
 }
 .badge bdi { unicode-bidi: isolate; }
@@ -62,4 +62,14 @@ a.row:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd
 .amountValue bdi { unicode-bidi: isolate; }
 .methods { display: flex; flex-direction: column; gap: 8px; }
 .waiting { display: flex; align-items: center; gap: 10px; }
+
+/* ---- the five tabs: the board's segmented control, scrolling sideways when the labels do not fit (no word is broken) ---- */
+.tabs { display: flex; padding: 4px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); gap: 2px; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tabs > a {
+  flex: 1 0 auto; display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; padding-inline: 14px; box-sizing: border-box; white-space: nowrap;
+  border-radius: var(--nabd-radius-lg); color: var(--nabd-color-text-primary); text-decoration: none; font-size: var(--nabd-font-size-segment); font-weight: 500;
+}
+.tabs > a[aria-current="page"] { background: var(--nabd-color-bg-surface); font-weight: 700; box-shadow: var(--nabd-shadow-card); }
+.tabs > a:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
 .note { margin: 0; font-size: var(--nabd-font-size-caption); line-height: 1.7; color: var(--nabd-color-text-secondary); text-align: center; overflow-wrap: anywhere; }
