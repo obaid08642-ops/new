@@ -1,6 +1,5 @@
 {
   "$comment": "Recorded debt for tools/design/no-rn-safeareaview.ts: Dimensions.get() calls, per file, when the gate landed. Each moves to useWindowDimensions() (or a shell) as its screen is rebuilt; this file may only shrink. SafeAreaView from react-native has no baseline: it is banned outright.",
-  "total": 21,
   "dimensionsGet": {
     "patient-app/app/loyalty/hub.tsx": 1,
     "patient-app/src/design-system/components/BottomSheet.tsx": 1,
@@ -8,10 +7,10 @@
     "provider-app/src/components/ui.tsx": 1,
     "provider-app/src/constants/index.ts": 1,
     "provider-app/src/screens/auth/AuthScreens.tsx": 1,
-    "provider-app/src/screens/doctor/doctor/_shared.tsx": 1,
     "provider-app/src/screens/doctor/DoctorRegistration.tsx": 1,
-    "provider-app/src/screens/facility/facility/_shared.tsx": 1,
+    "provider-app/src/screens/doctor/doctor/_shared.tsx": 1,
     "provider-app/src/screens/facility/FacilityRegistration.tsx": 1,
+    "provider-app/src/screens/facility/facility/_shared.tsx": 1,
     "provider-app/src/screens/lab/LabDashboard.tsx": 1,
     "provider-app/src/screens/lab/LabRegistration.tsx": 1,
     "provider-app/src/screens/nursing/NursingDashboard.tsx": 1,
@@ -20,7 +19,10 @@
     "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx": 1,
     "provider-app/src/screens/radiology/RadiologyRegistration.tsx": 1,
     "provider-app/src/screens/shared/blueprint/_shared.tsx": 1,
+    "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx": 2,
     "provider-app/src/screens/shared/shared/_shared.tsx": 1,
-    "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx": 2
-  }
+    "patient-app/app/insurance/copay.tsx": 1,
+    "patient-app/app/insurance/hub.tsx": 1
+  },
+  "total": 22
 }

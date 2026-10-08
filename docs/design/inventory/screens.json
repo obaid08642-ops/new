@@ -1,5 +1,5 @@
 {
- "commit": "cb0e77d5",
+ "commit": "90908db7",
  "routes": [
   {
    "app": "patient-app",
@@ -346,33 +346,23 @@
      "path": "/articles",
      "target": "backend",
      "query": "?:param",
-     "line": 107,
-     "file": "patient-app/src/components/articles/ArticlesViews.tsx",
+     "line": 48,
+     "file": "patient-app/app/articles/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/articles/articles.module.ts:115"
-    },
-    {
-     "method": "GET",
-     "path": "/articles/bookmarks/mine",
-     "target": "backend",
-     "query": "",
-     "line": 134,
-     "file": "patient-app/src/components/articles/ArticlesViews.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/articles/articles.module.ts:174"
     },
     {
      "method": "GET",
      "path": "/articles/categories",
      "target": "backend",
      "query": "",
-     "line": 100,
-     "file": "patient-app/src/components/articles/ArticlesViews.tsx",
+     "line": 58,
+     "file": "patient-app/app/articles/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/articles/articles.module.ts:116"
     }
    ],
-   "files": 34,
+   "files": 15,
    "unresolved": 0
   },
   {
@@ -390,8 +380,8 @@
      "path": "/articles",
      "target": "backend",
      "query": "?category=:param&limit=4",
-     "line": 167,
-     "file": "patient-app/src/components/articles/ArticlesViews.tsx",
+     "line": 43,
+     "file": "patient-app/app/articles/[slug].tsx",
      "status": "OK",
      "backend": "backend/src/modules/articles/articles.module.ts:115"
     },
@@ -400,8 +390,8 @@
      "path": "/articles/:param",
      "target": "backend",
      "query": "",
-     "line": 166,
-     "file": "patient-app/src/components/articles/ArticlesViews.tsx",
+     "line": 39,
+     "file": "patient-app/app/articles/[slug].tsx",
      "status": "OK",
      "backend": "backend/src/modules/articles/articles.module.ts:117"
     },
@@ -410,8 +400,8 @@
      "path": "/articles/bookmarks/:param/status",
      "target": "backend",
      "query": "",
-     "line": 169,
-     "file": "patient-app/src/components/articles/ArticlesViews.tsx",
+     "line": 47,
+     "file": "patient-app/app/articles/[slug].tsx",
      "status": "OK",
      "backend": "backend/src/modules/articles/articles.module.ts:184"
     },
@@ -420,13 +410,13 @@
      "path": "/articles/bookmarks/:param/toggle",
      "target": "backend",
      "query": "",
-     "line": 182,
-     "file": "patient-app/src/components/articles/ArticlesViews.tsx",
+     "line": 60,
+     "file": "patient-app/app/articles/[slug].tsx",
      "status": "OK",
      "backend": "backend/src/modules/articles/articles.module.ts:193"
     }
    ],
-   "files": 33,
+   "files": 18,
    "unresolved": 0
   },
   {
@@ -438,34 +428,97 @@
    "board": "CareHub",
    "batch": 10,
    "status": "—",
-   "calls": [],
-   "files": 2,
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/articles/bookmarks/mine",
+     "target": "backend",
+     "query": "",
+     "line": 33,
+     "file": "patient-app/app/articles/bookmarks.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/articles/articles.module.ts:174"
+    }
+   ],
+   "files": 14,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/community/hub",
    "file": "patient-app/app/community/hub.tsx",
-   "redirect": "/articles",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "hub",
+   "board": "CareHub",
    "batch": 10,
-   "status": "n/a",
-   "calls": [],
-   "files": 1,
+   "status": "—",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/community/posts",
+     "target": "backend",
+     "query": "?page=1&limit=20:param",
+     "line": 60,
+     "file": "patient-app/app/community/hub.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/community/community.controller.ts:18"
+    },
+    {
+     "method": "POST",
+     "path": "/community/posts",
+     "target": "backend",
+     "query": "",
+     "line": 75,
+     "file": "patient-app/app/community/hub.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/community/community.controller.ts:29"
+    }
+   ],
+   "files": 16,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/community/post-detail",
    "file": "patient-app/app/community/post-detail.tsx",
-   "redirect": "/articles",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "detail",
+   "board": "CareHub",
    "batch": 10,
-   "status": "n/a",
-   "calls": [],
-   "files": 1,
+   "status": "—",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/community/posts/:param",
+     "target": "backend",
+     "query": "",
+     "line": 54,
+     "file": "patient-app/app/community/post-detail.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/community/community.controller.ts:34"
+    },
+    {
+     "method": "POST",
+     "path": "/community/posts/:param/comment",
+     "target": "backend",
+     "query": "",
+     "line": 88,
+     "file": "patient-app/app/community/post-detail.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/community/community.controller.ts:40"
+    },
+    {
+     "method": "PUT",
+     "path": "/community/posts/:param/vote",
+     "target": "backend",
+     "query": "",
+     "line": 69,
+     "file": "patient-app/app/community/post-detail.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/community/community.controller.ts:46"
+    }
+   ],
+   "files": 16,
    "unresolved": 0
   },
   {
@@ -4005,29 +4058,8 @@
    "board": "Account",
    "batch": 11,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/loyalty/challenges",
-     "target": "backend",
-     "query": "",
-     "line": 34,
-     "file": "patient-app/app/loyalty/challenges.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:40"
-    },
-    {
-     "method": "POST",
-     "path": "/loyalty/challenges/:param/join",
-     "target": "backend",
-     "query": "",
-     "line": 57,
-     "file": "patient-app/app/loyalty/challenges.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:46"
-    }
-   ],
-   "files": 19,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -4045,18 +4077,38 @@
      "path": "/loyalty/account",
      "target": "backend",
      "query": "",
-     "line": 70,
-     "file": "patient-app/app/loyalty/hub.tsx",
+     "line": 74,
+     "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:22"
+    },
+    {
+     "method": "GET",
+     "path": "/loyalty/challenges",
+     "target": "backend",
+     "query": "",
+     "line": 248,
+     "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:40"
+    },
+    {
+     "method": "POST",
+     "path": "/loyalty/challenges/:param/join",
+     "target": "backend",
+     "query": "",
+     "line": 255,
+     "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:46"
     },
     {
      "method": "GET",
      "path": "/loyalty/config",
      "target": "backend",
      "query": "",
-     "line": 80,
-     "file": "patient-app/app/loyalty/hub.tsx",
+     "line": 76,
+     "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:16"
     },
@@ -4065,8 +4117,8 @@
      "path": "/loyalty/rewards",
      "target": "backend",
      "query": "",
-     "line": 89,
-     "file": "patient-app/app/loyalty/hub.tsx",
+     "line": 141,
+     "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:52"
     },
@@ -4075,8 +4127,8 @@
      "path": "/loyalty/rewards/:param/claim",
      "target": "backend",
      "query": "",
-     "line": 324,
-     "file": "patient-app/app/loyalty/hub.tsx",
+     "line": 153,
+     "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:58"
     },
@@ -4085,13 +4137,33 @@
      "path": "/loyalty/transactions",
      "target": "backend",
      "query": "?page=1",
-     "line": 74,
-     "file": "patient-app/app/loyalty/hub.tsx",
+     "line": 75,
+     "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:28"
+    },
+    {
+     "method": "POST",
+     "path": "/referrals/apply",
+     "target": "backend",
+     "query": "",
+     "line": 347,
+     "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/referral/referral.controller.ts:24"
+    },
+    {
+     "method": "GET",
+     "path": "/referrals/my",
+     "target": "backend",
+     "query": "",
+     "line": 324,
+     "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/referral/referral.controller.ts:18"
     }
    ],
-   "files": 16,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -4103,19 +4175,8 @@
    "board": "Account",
    "batch": 11,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/loyalty/leaderboard",
-     "target": "backend",
-     "query": "?limit=50",
-     "line": 36,
-     "file": "patient-app/app/loyalty/leaderboard.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:34"
-    }
-   ],
-   "files": 12,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -4127,29 +4188,8 @@
    "board": "Account",
    "batch": 11,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/referrals/apply",
-     "target": "backend",
-     "query": "",
-     "line": 86,
-     "file": "patient-app/app/loyalty/referrals.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/referral/referral.controller.ts:24"
-    },
-    {
-     "method": "GET",
-     "path": "/referrals/my",
-     "target": "backend",
-     "query": "",
-     "line": 53,
-     "file": "patient-app/app/loyalty/referrals.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/referral/referral.controller.ts:18"
-    }
-   ],
-   "files": 15,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -4161,39 +4201,8 @@
    "board": "Account",
    "batch": 11,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/loyalty/account",
-     "target": "backend",
-     "query": "",
-     "line": 34,
-     "file": "patient-app/app/loyalty/rewards.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:22"
-    },
-    {
-     "method": "GET",
-     "path": "/loyalty/rewards",
-     "target": "backend",
-     "query": "",
-     "line": 37,
-     "file": "patient-app/app/loyalty/rewards.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:52"
-    },
-    {
-     "method": "POST",
-     "path": "/loyalty/rewards/:param/claim",
-     "target": "backend",
-     "query": "",
-     "line": 64,
-     "file": "patient-app/app/loyalty/rewards.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:58"
-    }
-   ],
-   "files": 18,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -4996,13 +5005,13 @@
      "path": "/home/offers",
      "target": "backend",
      "query": "",
-     "line": 23,
-     "file": "patient-app/app/offers/index.tsx",
+     "line": 45,
+     "file": "patient-app/src/components/loyalty/OffersViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home/home.controller.ts:10"
     }
    ],
-   "files": 12,
+   "files": 30,
    "unresolved": 0
   },
   {
@@ -5020,8 +5029,8 @@
      "path": "/offers/:param",
      "target": "backend",
      "query": "",
-     "line": 30,
-     "file": "patient-app/app/offers/[id].tsx",
+     "line": 110,
+     "file": "patient-app/src/components/loyalty/OffersViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/offers-detail.controller.ts:16"
     },
@@ -5030,13 +5039,13 @@
      "path": "/promotions/offers/:param/providers",
      "target": "backend",
      "query": "",
-     "line": 37,
-     "file": "patient-app/app/offers/[id].tsx",
+     "line": 112,
+     "file": "patient-app/src/components/loyalty/OffersViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/promotions-offers.controller.ts:16"
     }
    ],
-   "files": 15,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -7546,16 +7555,6 @@
    "status": "—",
    "calls": [
     {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    },
-    {
      "method": "GET",
      "path": "/articles",
      "target": "backend",
@@ -7564,16 +7563,6 @@
      "file": "patient-web/lib/api/articles-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/articles/articles.module.ts:115"
-    },
-    {
-     "method": "GET",
-     "path": "/articles/bookmarks/mine",
-     "target": "backend",
-     "query": "",
-     "line": 18,
-     "file": "patient-web/lib/api/articles-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/articles/articles.module.ts:174"
     },
     {
      "method": "GET",
@@ -7586,7 +7575,7 @@
      "backend": "backend/src/modules/articles/articles.module.ts:116"
     }
    ],
-   "files": 40,
+   "files": 7,
    "unresolved": 0
   },
   {
@@ -7600,16 +7589,6 @@
    "status": "—",
    "calls": [
     {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    },
-    {
      "method": "GET",
      "path": "/articles/:param",
      "target": "backend",
@@ -7620,20 +7599,31 @@
      "backend": "backend/src/modules/articles/articles.module.ts:117"
     }
    ],
-   "files": 40,
+   "files": 10,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/articles/bookmarks",
    "file": "patient-web/app/[locale]/articles/bookmarks/page.tsx",
-   "redirect": "/articles?tab=saved",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "list",
+   "board": "CareHub",
    "batch": 10,
-   "status": "n/a",
-   "calls": [],
-   "files": 2,
+   "status": "—",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/articles/bookmarks/mine",
+     "target": "backend",
+     "query": "",
+     "line": 18,
+     "file": "patient-web/lib/api/articles-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/articles/articles.module.ts:174"
+    }
+   ],
+   "files": 9,
    "unresolved": 0
   },
   {
@@ -7864,26 +7854,58 @@
    "app": "patient-web",
    "route": "/community",
    "file": "patient-web/app/[locale]/community/page.tsx",
-   "redirect": "/articles",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "hub",
+   "board": "CareHub",
    "batch": 10,
-   "status": "n/a",
-   "calls": [],
-   "files": 2,
+   "status": "—",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/community/posts",
+     "target": "backend",
+     "query": "?page=1&limit=20",
+     "line": 41,
+     "file": "patient-web/app/[locale]/community/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/community/community.controller.ts:18"
+    }
+   ],
+   "files": 6,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/community/[postId]",
    "file": "patient-web/app/[locale]/community/[postId]/page.tsx",
-   "redirect": "/articles",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "detail",
+   "board": "CareHub",
    "batch": 10,
-   "status": "n/a",
-   "calls": [],
-   "files": 2,
+   "status": "—",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/community/posts/:param/comments",
+     "target": "web-bff",
+     "query": "",
+     "line": 22,
+     "file": "patient-web/components-next/community-comment-form.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/community/posts/[postId]/comments/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/community/posts/:param",
+     "target": "backend",
+     "query": "",
+     "line": 42,
+     "file": "patient-web/app/[locale]/community/[postId]/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/community/community.controller.ts:34"
+    }
+   ],
+   "files": 7,
    "unresolved": 0
   },
   {
@@ -11451,12 +11473,42 @@
    "calls": [
     {
      "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "POST",
+     "path": "/api/patient/loyalty/challenges/:param/join",
+     "target": "web-proxy",
+     "query": "",
+     "line": 66,
+     "file": "patient-web/components-next/loyalty/loyalty-actions.tsx",
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:46",
+     "status": "OK"
+    },
+    {
+     "method": "POST",
      "path": "/api/patient/loyalty/rewards/:param/claim",
      "target": "web-proxy",
      "query": "",
-     "line": 17,
-     "file": "patient-web/app/[locale]/loyalty/claim-button.tsx",
+     "line": 29,
+     "file": "patient-web/components-next/loyalty/loyalty-actions.tsx",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:58",
+     "status": "OK"
+    },
+    {
+     "method": "POST",
+     "path": "/api/patient/referrals/apply",
+     "target": "web-proxy",
+     "query": "",
+     "line": 124,
+     "file": "patient-web/components-next/loyalty/loyalty-actions.tsx",
+     "backend": "backend/src/modules/referral/referral.controller.ts:24",
      "status": "OK"
     },
     {
@@ -11464,17 +11516,37 @@
      "path": "/loyalty/account",
      "target": "backend",
      "query": "",
-     "line": 28,
+     "line": 51,
      "file": "patient-web/app/[locale]/loyalty/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:22"
     },
     {
      "method": "GET",
+     "path": "/loyalty/challenges",
+     "target": "backend",
+     "query": "",
+     "line": 121,
+     "file": "patient-web/app/[locale]/loyalty/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:40"
+    },
+    {
+     "method": "GET",
+     "path": "/loyalty/config",
+     "target": "backend",
+     "query": "",
+     "line": 52,
+     "file": "patient-web/app/[locale]/loyalty/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:16"
+    },
+    {
+     "method": "GET",
      "path": "/loyalty/rewards",
      "target": "backend",
      "query": "",
-     "line": 29,
+     "line": 74,
      "file": "patient-web/app/[locale]/loyalty/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:52"
@@ -11484,13 +11556,23 @@
      "path": "/loyalty/transactions",
      "target": "backend",
      "query": "?page=1",
-     "line": 30,
+     "line": 53,
      "file": "patient-web/app/[locale]/loyalty/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:28"
+    },
+    {
+     "method": "GET",
+     "path": "/referrals/my",
+     "target": "backend",
+     "query": "",
+     "line": 156,
+     "file": "patient-web/app/[locale]/loyalty/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/referral/referral.controller.ts:18"
     }
    ],
-   "files": 7,
+   "files": 41,
    "unresolved": 0
   },
   {
@@ -11502,29 +11584,8 @@
    "board": "Account",
    "batch": 11,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/patient/loyalty/challenges/:param/join",
-     "target": "web-proxy",
-     "query": "",
-     "line": 19,
-     "file": "patient-web/components-next/loyalty-challenges-client.tsx",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:46",
-     "status": "OK"
-    },
-    {
-     "method": "GET",
-     "path": "/loyalty/challenges",
-     "target": "backend",
-     "query": "",
-     "line": 23,
-     "file": "patient-web/app/[locale]/loyalty/challenges/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:40"
-    }
-   ],
-   "files": 7,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -11536,19 +11597,8 @@
    "board": "Account",
    "batch": 11,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/loyalty/leaderboard",
-     "target": "backend",
-     "query": "?limit=50",
-     "line": 22,
-     "file": "patient-web/app/[locale]/loyalty/leaderboard/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:34"
-    }
-   ],
-   "files": 6,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -11560,29 +11610,8 @@
    "board": "Account",
    "batch": 11,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/patient/referrals/apply",
-     "target": "web-proxy",
-     "query": "",
-     "line": 42,
-     "file": "patient-web/components-next/loyalty-referrals-client.tsx",
-     "backend": "backend/src/modules/referral/referral.controller.ts:24",
-     "status": "OK"
-    },
-    {
-     "method": "GET",
-     "path": "/referrals/my",
-     "target": "backend",
-     "query": "",
-     "line": 23,
-     "file": "patient-web/app/[locale]/loyalty/referrals/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/referral/referral.controller.ts:18"
-    }
-   ],
-   "files": 7,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -11594,39 +11623,8 @@
    "board": "Account",
    "batch": 11,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/patient/loyalty/rewards/:param/claim",
-     "target": "web-proxy",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/loyalty-rewards-client.tsx",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:58",
-     "status": "OK"
-    },
-    {
-     "method": "GET",
-     "path": "/loyalty/account",
-     "target": "backend",
-     "query": "",
-     "line": 30,
-     "file": "patient-web/app/[locale]/loyalty/rewards/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:22"
-    },
-    {
-     "method": "GET",
-     "path": "/loyalty/rewards",
-     "target": "backend",
-     "query": "",
-     "line": 31,
-     "file": "patient-web/app/[locale]/loyalty/rewards/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:52"
-    }
-   ],
-   "files": 6,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -12689,6 +12687,16 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/home/offers",
      "target": "backend",
@@ -12699,7 +12707,7 @@
      "backend": "backend/src/modules/home/home.controller.ts:10"
     }
    ],
-   "files": 6,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -12712,6 +12720,16 @@
    "batch": 11,
    "status": "—",
    "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
     {
      "method": "GET",
      "path": "/offers/:param",
@@ -12733,7 +12751,7 @@
      "backend": "backend/src/modules/pharmacy/promotions-offers.controller.ts:16"
     }
    ],
-   "files": 6,
+   "files": 38,
    "unresolved": 0
   },
   {
@@ -14565,7 +14583,7 @@
      "path": "/api/patient/home/search",
      "target": "web-proxy",
      "query": "?q=:param",
-     "line": 111,
+     "line": 112,
      "file": "patient-web/app/[locale]/search/search-client.tsx",
      "backend": "backend/src/modules/home/home.controller.ts:20",
      "status": "OK"
@@ -14575,7 +14593,7 @@
      "path": "/api/search/intent",
      "target": "web-bff",
      "query": "",
-     "line": 118,
+     "line": 119,
      "file": "patient-web/app/[locale]/search/search-client.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/search/intent/route.ts"

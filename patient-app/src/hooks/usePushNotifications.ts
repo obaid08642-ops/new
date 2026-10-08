@@ -80,6 +80,11 @@ export function translateBackendRoute(route: string): { pathname: string; params
   ]);
   // The symptom timeline is the conversation of the assistant (merge map section 4, Batch 9)
   if (clean === '/ai/symptom-timeline') return { pathname: '/ai', params: { mode: 'symptoms' } };
+  // The loyalty hub keeps rewards, challenges and invites as tabs (merge map section 7, Batch 11); the leaderboard is removed
+  if (clean === '/loyalty/referrals') return { pathname: '/loyalty/hub', params: { tab: 'invite' } };
+  if (clean === '/loyalty/challenges') return { pathname: '/loyalty/hub', params: { tab: 'challenges' } };
+  if (clean === '/loyalty/rewards') return { pathname: '/loyalty/hub', params: { tab: 'rewards' } };
+  if (clean === '/loyalty/leaderboard') return { pathname: '/loyalty/hub' };
   if (VERBATIM_ROUTES.has(clean)) return { pathname: clean };
 
   return null;

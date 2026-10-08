@@ -6,6 +6,7 @@
     "patient-app/app/drug-scanner/index.tsx": 2,
     "patient-app/app/emergency/sos-active.tsx": 10,
     "patient-app/app/emergency/tracking.tsx": 1,
+    "patient-app/app/insurance/hub.tsx": 5,
     "patient-app/app/loyalty/hub.tsx": 6,
     "patient-app/app/map/index.tsx": 11,
     "patient-app/app/offers/[id].tsx": 4,
@@ -57,8 +58,7 @@
     "provider-app/src/screens/shared/blueprint/SubscriptionsAdsScreen.tsx": 1,
     "provider-app/src/screens/shared/shared/MediaConfigScreen.tsx": 1,
     "provider-app/src/screens/shared/shared/MedicalDrugIndexScreen.tsx": 1,
-    "provider-app/src/screens/shared/shared/MedicalJobsDetail.tsx": 2,
-    "patient-app/app/insurance/hub.tsx": 5
+    "provider-app/src/screens/shared/shared/MedicalJobsDetail.tsx": 2
   },
   "total": 179
 }
