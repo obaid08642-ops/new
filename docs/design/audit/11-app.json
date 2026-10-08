@@ -1,0 +1,49 @@
+{
+  "slice": "11-app", "batch": 11, "app": "patient-app",
+  "screens": [
+    { "route": "/loyalty/hub", "elements": [
+      ["Points balance, tier, progress ring and bar, points to the next tier", "GET /loyalty/account points, tier; GET /loyalty/config tiers (label, minPts)", "ok"],
+      ["Tabs Rewards / Challenges / Invite friends (?tab=)", "route query", "ok"],
+      ["Tier colours and icons from the server", "not drawn: tier look comes from the design tokens (service tones)", "fixed"],
+      ["Cash equivalent line (points / 100 riyals)", "no endpoint sends a rate", "hidden"],
+      ["Tier road map (circles)", "GET /loyalty/config tiers (tabs-level hero shows the current tier and progress)", "hidden"],
+      ["Rewards list, redeem button with confirm sheet, not-enough state", "GET /loyalty/rewards; POST /loyalty/rewards/:id/claim", "ok"],
+      ["Coupon code after redeeming", "POST /loyalty/rewards/:id/claim coupon_code (the fake NAB-FREE fallback is gone)", "fixed"],
+      ["Ways to earn points", "GET /loyalty/config earn_ways", "ok"],
+      ["Current tier perks and next tier perks", "GET /loyalty/config tiers[].perks", "ok"],
+      ["Challenges: stats, rows, join, progress, status", "GET /loyalty/challenges; POST /loyalty/challenges/:id/join", "ok"],
+      ["Challenge default target 7 and end date 30 June", "invented in the old screen", "fixed"],
+      ["Invite: your code, share", "GET /referrals/my code; Share sheet", "ok"],
+      ["Invite: copy code button", "react-native has no Clipboard (RN 0.86); no clipboard package", "hidden"],
+      ["Invite: apply a friend code", "POST /referrals/apply", "ok"],
+      ["Invite: earned points, total invited, invite list with status", "GET /referrals/my stats, invites", "ok"],
+      ["Referral amounts (50 / 100 points) in the copy", "no endpoint sends them", "hidden"],
+      ["Points history", "GET /loyalty/transactions?page=1", "ok"],
+      ["Leaderboard entry in the header", "removed feature (decision 2)", "hidden"]
+    ] },
+    { "route": "/loyalty/rewards", "elements": [["Redirect to the hub, tab rewards, query kept", "RedirectKeepingParams; the hub reads GET /loyalty/rewards", "ok"]] },
+    { "route": "/loyalty/challenges", "elements": [["Redirect to the hub, tab challenges, query kept", "RedirectKeepingParams; the hub reads GET /loyalty/challenges and POST /loyalty/challenges/:id/join", "ok"]] },
+    { "route": "/loyalty/referrals", "elements": [["Redirect to the hub, tab invite, query kept", "RedirectKeepingParams; the hub reads GET /referrals/my and POST /referrals/apply", "ok"]] },
+    { "route": "/loyalty/leaderboard", "elements": [["Screen deleted; redirect to the hub", "RedirectKeepingParams (decision 2); GET /loyalty/leaderboard is no longer called", "ok"]] },
+    { "route": "/offers", "elements": [
+      ["Offer cards: title, provider, discount, price, old price, rating, sponsored", "GET /home/offers t, prov, disc, price, old, rating, sponsored", "ok"],
+      ["Loading, empty, error with retry, offline", "shared Gate / EmptyState", "ok"],
+      ["Open an offer", "route /offers/[id]", "ok"]
+    ] },
+    { "route": "/offers/[id]", "elements": [
+      ["Image, title, provider, sponsored", "GET /offers/:id image, title_ar/en, provider.name, target.sponsored", "ok"],
+      ["Price, old price, saving", "GET /offers/:id discounted_price, original_price (saving = their difference)", "ok"],
+      ["Validity", "GET /offers/:id start_date, end_date", "ok"],
+      ["Inclusions and terms", "GET /offers/:id target.inclusions, target.terms", "ok"],
+      ["Providers to book with", "GET /promotions/offers/:id/providers; opens /consultations/book/[id]", "ok"],
+      ["Share", "Share sheet from the offer fields", "ok"]
+    ] }
+  ],
+  "needsReview": [
+    { "route": "/loyalty/hub", "element": "Purchase-typed challenges", "kind": "backend", "note": "the Challenges tab shows what GET /loyalty/challenges sends and filters nothing; if the server still sends a challenge that asks for buying medicines it must be removed there (decision 9)", "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx", "line": 248 },
+    { "route": "/loyalty/hub", "element": "Referral amounts", "kind": "backend", "note": "the amounts a referral pays (the old copy said 50 and 100 points) are not sent by any endpoint, so the copy states no number; /referrals/my or /loyalty/config should send them", "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx", "line": 363 },
+    { "route": "/loyalty/hub", "element": "Cash equivalent of points", "kind": "backend", "note": "the old hub showed points / 100 as riyals, a rate written in the client; not drawn until /loyalty/config sends the rate", "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx", "line": 82 },
+    { "route": "/loyalty/hub", "element": "Copy referral code", "kind": "client", "note": "the old button used react-native Clipboard, which RN 0.86 no longer has (it would crash); dropped, the Share sheet remains; needs a clipboard package (owner to approve the dependency)", "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx", "line": 368 },
+    { "route": "/loyalty/hub", "element": "Reward and challenge icons", "kind": "client", "note": "the server sends an icon and a colour per reward, tier and challenge as raw strings; the screen uses fixed glyphs and service tones instead (identity rule: tokens only)", "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx", "line": 286 }
+  ]
+}

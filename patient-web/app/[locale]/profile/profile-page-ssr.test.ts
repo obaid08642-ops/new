@@ -6,7 +6,8 @@ const state = vi.hoisted(() => ({ token: "profile-server-token-never-in-html", r
 vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: state.redirect, useRouter: () => ({ refresh: vi.fn() }) }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
-vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
+vi.mock("@/lib/i18n", () => ({ isLocale: () => true, getDirection: () => "ltr" }));
+vi.mock("@/components-next/core/core-shell", () => ({ CoreShell: ({ children }: { children: unknown }) => children }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => state.token }));
 vi.mock("@/lib/api/upstream", () => ({ callPatientApi: async () => state.responses.shift()! }));
 
