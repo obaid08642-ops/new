@@ -79,8 +79,10 @@ export function translateBackendRoute(route: string): { pathname: string; params
   const VERBATIM_ROUTES = new Set([
     '/insurance/hub', '/returns/hub',
     '/loyalty/hub', '/loyalty/referrals', '/loyalty/challenges',
-    '/family', '/ai/symptom-timeline', '/emergency/tracking',
+    '/family', '/emergency/tracking',
   ]);
+  // The symptom timeline is the conversation of the assistant (merge map section 4, Batch 9)
+  if (clean === '/ai/symptom-timeline') return { pathname: '/ai', params: { mode: 'symptoms' } };
   if (VERBATIM_ROUTES.has(clean)) return { pathname: clean };
 
   return null;
