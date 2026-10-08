@@ -126,7 +126,7 @@ Order (do not skip ahead):
 
 | D-26 | — | Cancellation and refund policy (decision 26). One admin-editable policy per service type: consultations, home visit and nursing, pharmacy delivery. Used by every cancel path, returned with each booking or order (the rule plus the refund the patient would get now), refunded to the original payment method. The clients show only the server value; remove the hard-coded copies. | spec #582 |
 | D-25 | — | Payment method by service (decision 25). The server refuses cash for online consultations, home visits and nursing. Pharmacy cash on delivery only under all of its conditions. | spec #583 |
-| D-24 | — | Doctor chat only inside a booking (decision 24). Online: text, voice, images, files and the call. Clinic or home: text, images and files for 72 h after completion. The doctor can close or extend once. Read-only after the window. | spec #604 |
+| D-24 | — | Doctor chat only inside a booking (decision 24). Online: text, voice, images, files and the call. Clinic or home: text, images and files for 72 h after completion. The doctor can close or extend once. Read-only after the window. Includes provider proposal **D1** (owner 2026-10-08: build it): the doctor proposes or books a follow-up for the patient, closes the thread early, extends it once; the follow-up thread survives completion. List the provider-app UI it needs in the PR for the design session. | spec #604 (merged): start now |
 
 | D-28 | — | Security sweep S-1 … S-7 (decision 28): fix whatever the reviewer's S-specs show failing. | specs S-5 #620, S-6 #619, S-7 #618 |
 | D-29 | — | Search (decision 29): self-hosted Meilisearch, index rebuild from MongoDB plus change sync, Arabic normalisation and synonyms, 6 locales, a scoped search per section and a grouped global search. | spec |
@@ -141,6 +141,18 @@ Order (do not skip ahead):
 | D-38 | — | Legal texts live in the apps (decision 36). (1) patient-web `/terms`, `/privacy`, plus new `/refund-policy` and `/telehealth-consent`, read `/legal/policy/:key?lang=` on the server with revalidation and render safe Markdown; delete the hard-coded arrays in `components-next/legal-terms.tsx`. (2) patient-app: the same four screens. (3) Sign-up records acceptance of `patient_terms` and `privacy_policy`; the first online consultation records `telehealth_consent`; provider onboarding already records `provider_agreement`. (4) Keys: `patient_terms`, `privacy_policy`, `provider_agreement`, `telehealth_consent`, `refund_policy`. (5) Bug: `LegalService.pendingAcceptances` matches every policy for every user (`applies_to.includes('provider') || includes('patient')`), so a provider is asked to accept the patient terms; match only `all` or the user's own role, with a test per role. The texts are loaded into `legal_policies` by the reviewer through server-ops. | spec |
 
 Items 3, 5, 6, 11 and 18 are UI only (design session). Items 21–23 are owner tasks. Item 20 is Q-12 / Q-13.
+
+## Queue D: large needs-review issues (owner, 2026-10-08), base `main`
+
+The design session's audit found problems in every app. They are GitHub issues with the label `needs-review`. The owner's routing rule (2026-10-08):
+- **`route:opencode` + `size:large`** are yours: work that needs a new endpoint, a new flow or a state-machine change.
+- **`size:small`** issues go to the review session; **`needs-owner`** waits for the owner. Do not take either.
+
+List yours with `GET /repos/obaid08642-ops/new/issues?labels=route:opencode&state=open`.
+- Do them **after Queue C**, oldest first, **one issue per PR**: branch `oc/NR-<issue>`, title `[OC NR-<issue>] <summary>`, with `Closes #<issue>` in the body.
+- Each issue names the exact client `file:line` and, where known, the backend line. Read only those files.
+- Token budget: keep each item small. If an issue needs more than one module or a product decision, write `BLOCKED: <reason>` in a comment on the issue and move on.
+- An issue that is a removed feature (decision 14 ambulance, community, leaderboard, skin analysis, mental-health scoring) is not built: comment `removed feature` and move on.
 
 ## Queue B: replaced by the phase audit (owner, 2026-10-06)
 
