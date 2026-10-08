@@ -203,19 +203,6 @@
   },
   {
    "m": "GET",
-   "p": "/catalogs/admin/specialties",
-   "src": "backend/src/modules/catalogs/catalogs.controller.ts:117",
-   "guards": {
-    "public": false,
-    "roles": [
-     "ADMIN"
-    ],
-    "perms": [],
-    "useGuards": "JwtAuthGuard"
-   }
-  },
-  {
-   "m": "GET",
    "p": "/insurance/companies",
    "src": "backend/src/modules/insurance-engine/insurance-engine.module.ts:694",
    "guards": {
@@ -265,47 +252,6 @@
    }
   },
   {
-   "m": "POST",
-   "p": "/catalogs/admin/specialties",
-   "src": "backend/src/modules/catalogs/catalogs.controller.ts:124",
-   "guards": {
-    "public": false,
-    "roles": [
-     "ADMIN"
-    ],
-    "perms": [],
-    "useGuards": "JwtAuthGuard"
-   }
-  },
-  {
-   "m": "POST",
-   "p": "/medicines/admin/catalog",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:261",
-   "guards": {
-    "public": false,
-    "roles": [
-     "ADMIN"
-    ],
-    "perms": [
-     "catalog.create"
-    ],
-    "useGuards": "JwtAuthGuard"
-   }
-  },
-  {
-   "m": "POST",
-   "p": "/insurance/companies",
-   "src": "backend/src/modules/insurance/insurance.module.ts:563",
-   "guards": {
-    "public": false,
-    "roles": [
-     "ADMIN"
-    ],
-    "perms": [],
-    "useGuards": "JwtAuthGuard"
-   }
-  },
-  {
    "m": "PUT",
    "p": "/labs/admin/catalog/:param",
    "src": "backend/src/modules/labs/labs.controller.ts:181",
@@ -342,32 +288,6 @@
     ],
     "perms": [],
     "useGuards": "JwtAuthGuard | JwtAuthGuard"
-   }
-  },
-  {
-   "m": "DELETE",
-   "p": "/catalogs/admin/specialties/:param",
-   "src": "backend/src/modules/catalogs/catalogs.controller.ts:145",
-   "guards": {
-    "public": false,
-    "roles": [
-     "ADMIN"
-    ],
-    "perms": [],
-    "useGuards": "JwtAuthGuard"
-   }
-  },
-  {
-   "m": "PATCH",
-   "p": "/insurance/companies/:param",
-   "src": "backend/src/modules/insurance/insurance.module.ts:571",
-   "guards": {
-    "public": false,
-    "roles": [
-     "ADMIN"
-    ],
-    "perms": [],
-    "useGuards": "JwtAuthGuard"
    }
   },
   {
@@ -450,21 +370,6 @@
   },
   {
    "m": "POST",
-   "p": "/medicines/admin/catalog/:param/approve",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:277",
-   "guards": {
-    "public": false,
-    "roles": [
-     "ADMIN"
-    ],
-    "perms": [
-     "catalog.update"
-    ],
-    "useGuards": "JwtAuthGuard"
-   }
-  },
-  {
-   "m": "POST",
    "p": "/labs/admin/catalog/bulk-approve",
    "src": "backend/src/modules/labs/labs.controller.ts:206",
    "guards": {
@@ -504,16 +409,27 @@
   },
   {
    "m": "POST",
-   "p": "/medicines/admin/catalog/bulk-approve",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:285",
+   "p": "/catalogs/admin/specialties",
+   "src": "backend/src/modules/catalogs/catalogs.controller.ts:124",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
-    "perms": [
-     "catalog.update"
+    "perms": [],
+    "useGuards": "JwtAuthGuard"
+   }
+  },
+  {
+   "m": "DELETE",
+   "p": "/catalogs/admin/specialties/:param",
+   "src": "backend/src/modules/catalogs/catalogs.controller.ts:145",
+   "guards": {
+    "public": false,
+    "roles": [
+     "ADMIN"
     ],
+    "perms": [],
     "useGuards": "JwtAuthGuard"
    }
   },
@@ -541,6 +457,21 @@
   },
   {
    "m": "POST",
+   "p": "/medicines/admin/catalog",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:261",
+   "guards": {
+    "public": false,
+    "roles": [
+     "ADMIN"
+    ],
+    "perms": [
+     "catalog.create"
+    ],
+    "useGuards": "JwtAuthGuard"
+   }
+  },
+  {
+   "m": "POST",
    "p": "/medicines/admin/catalog/:param/delete",
    "src": "backend/src/modules/medicines/medicines.controller.ts:269",
    "guards": {
@@ -550,6 +481,21 @@
     ],
     "perms": [
      "catalog.delete_restore"
+    ],
+    "useGuards": "JwtAuthGuard"
+   }
+  },
+  {
+   "m": "POST",
+   "p": "/medicines/admin/catalog/:param/approve",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:277",
+   "guards": {
+    "public": false,
+    "roles": [
+     "ADMIN"
+    ],
+    "perms": [
+     "catalog.update"
     ],
     "useGuards": "JwtAuthGuard"
    }
@@ -576,6 +522,32 @@
     "roles": [
      "ADMIN",
      "SUPER_ADMIN"
+    ],
+    "perms": [],
+    "useGuards": "JwtAuthGuard"
+   }
+  },
+  {
+   "m": "PATCH",
+   "p": "/insurance/companies/:param",
+   "src": "backend/src/modules/insurance/insurance.module.ts:571",
+   "guards": {
+    "public": false,
+    "roles": [
+     "ADMIN"
+    ],
+    "perms": [],
+    "useGuards": "JwtAuthGuard"
+   }
+  },
+  {
+   "m": "POST",
+   "p": "/insurance/companies",
+   "src": "backend/src/modules/insurance/insurance.module.ts:563",
+   "guards": {
+    "public": false,
+    "roles": [
+     "ADMIN"
     ],
     "perms": [],
     "useGuards": "JwtAuthGuard"

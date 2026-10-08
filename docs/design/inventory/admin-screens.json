@@ -1140,7 +1140,7 @@
      "backendPath": "/labs/admin/catalog",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 79,
+     "line": 87,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1164,7 +1164,7 @@
      "backendPath": "/radiology/admin/catalog",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 79,
+     "line": 87,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1188,7 +1188,7 @@
      "backendPath": "/nursing/admin/catalog",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 79,
+     "line": 87,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1205,30 +1205,6 @@
     },
     {
      "method": "GET",
-     "path": "/catalogs/admin/specialties",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:117",
-     "backendPath": "/catalogs/admin/specialties",
-     "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 79,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/catalogs/catalogs.controller.ts",
-     "routeLine": 117,
-     "raw": false
-    },
-    {
-     "method": "GET",
      "path": "/medicines/admin/catalog",
      "target": "backend",
      "status": "OK",
@@ -1236,7 +1212,7 @@
      "backendPath": "/medicines/admin/catalog",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 79,
+     "line": 87,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1262,7 +1238,7 @@
      "backendPath": "/insurance/companies",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 79,
+     "line": 87,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1284,7 +1260,7 @@
      "backendPath": "/labs/admin/catalog",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 117,
+     "line": 125,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1308,7 +1284,7 @@
      "backendPath": "/radiology/admin/catalog",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 117,
+     "line": 125,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1332,7 +1308,7 @@
      "backendPath": "/nursing/admin/catalog",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 117,
+     "line": 125,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1348,80 +1324,6 @@
      "raw": false
     },
     {
-     "method": "POST",
-     "path": "/catalogs/admin/specialties",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:124",
-     "backendPath": "/catalogs/admin/specialties",
-     "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 117,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/catalogs/catalogs.controller.ts",
-     "routeLine": 124,
-     "raw": false
-    },
-    {
-     "method": "POST",
-     "path": "/medicines/admin/catalog",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:261",
-     "backendPath": "/medicines/admin/catalog",
-     "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 117,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [
-       "catalog.create"
-      ],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 261,
-     "raw": false
-    },
-    {
-     "method": "POST",
-     "path": "/insurance/companies",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:563",
-     "backendPath": "/insurance/companies",
-     "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 117,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/insurance/insurance.module.ts",
-     "routeLine": 563,
-     "raw": false
-    },
-    {
      "method": "PUT",
      "path": "/labs/admin/catalog/:param",
      "target": "backend",
@@ -1430,7 +1332,7 @@
      "backendPath": "/labs/admin/catalog/:param",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 119,
+     "line": 127,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1454,7 +1356,7 @@
      "backendPath": "/radiology/admin/catalog/:param",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 119,
+     "line": 127,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1478,7 +1380,7 @@
      "backendPath": "/nursing/admin/catalog/:param",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 119,
+     "line": 127,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1494,81 +1396,6 @@
      "raw": false
     },
     {
-     "method": "PUT",
-     "path": "/catalogs/admin/specialties/:param",
-     "target": "backend",
-     "status": "WRONG_METHOD",
-     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:145",
-     "backendPath": "/catalogs/admin/specialties/:param",
-     "note": "backend has DELETE; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 119,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/catalogs/catalogs.controller.ts",
-     "routeLine": 145,
-     "raw": false
-    },
-    {
-     "method": "PUT",
-     "path": "/medicines/admin/catalog/:param",
-     "target": "backend",
-     "status": "WRONG_METHOD",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:235",
-     "backendPath": "/medicines/admin/catalog/:param",
-     "note": "backend has PATCH, POST; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 119,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [
-       "catalog.update",
-       "catalog.price.write"
-      ],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 235,
-     "raw": false
-    },
-    {
-     "method": "PUT",
-     "path": "/insurance/companies/:param",
-     "target": "backend",
-     "status": "WRONG_METHOD",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:571",
-     "backendPath": "/insurance/companies/:param",
-     "note": "backend has PATCH, GET; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 119,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/insurance/insurance.module.ts",
-     "routeLine": 571,
-     "raw": false
-    },
-    {
      "method": "DELETE",
      "path": "/labs/admin/catalog/:param",
      "target": "backend",
@@ -1577,7 +1404,7 @@
      "backendPath": "/labs/admin/catalog/:param",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 134,
+     "line": 142,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1601,7 +1428,7 @@
      "backendPath": "/radiology/admin/catalog/:param",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 134,
+     "line": 142,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1625,7 +1452,7 @@
      "backendPath": "/nursing/admin/catalog/:param",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 134,
+     "line": 142,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1641,81 +1468,6 @@
      "raw": false
     },
     {
-     "method": "DELETE",
-     "path": "/catalogs/admin/specialties/:param",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:145",
-     "backendPath": "/catalogs/admin/specialties/:param",
-     "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 134,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/catalogs/catalogs.controller.ts",
-     "routeLine": 145,
-     "raw": false
-    },
-    {
-     "method": "DELETE",
-     "path": "/medicines/admin/catalog/:param",
-     "target": "backend",
-     "status": "WRONG_METHOD",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:235",
-     "backendPath": "/medicines/admin/catalog/:param",
-     "note": "backend has PATCH, POST; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 134,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [
-       "catalog.update",
-       "catalog.price.write"
-      ],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 235,
-     "raw": false
-    },
-    {
-     "method": "DELETE",
-     "path": "/insurance/companies/:param",
-     "target": "backend",
-     "status": "WRONG_METHOD",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:571",
-     "backendPath": "/insurance/companies/:param",
-     "note": "backend has PATCH, GET; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 134,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/insurance/insurance.module.ts",
-     "routeLine": 571,
-     "raw": false
-    },
-    {
      "method": "POST",
      "path": "/labs/admin/catalog/:param/approve",
      "target": "backend",
@@ -1724,7 +1476,7 @@
      "backendPath": "/labs/admin/catalog/:param/approve",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 145,
+     "line": 153,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1748,7 +1500,7 @@
      "backendPath": "/radiology/admin/catalog/:param/approve",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 145,
+     "line": 153,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1772,7 +1524,7 @@
      "backendPath": "/nursing/admin/catalog/:param/approve",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 145,
+     "line": 153,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1789,58 +1541,6 @@
     },
     {
      "method": "POST",
-     "path": "/catalogs/admin/specialties/:param/approve",
-     "target": "backend",
-     "status": "NO_ROUTE",
-     "backendPath": "/catalogs/admin/specialties/:param/approve",
-     "note": "no controller declares /catalogs/admin/specialties/:param/approve; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 145,
-     "fn": "apiFetch",
-     "via": null,
-     "raw": false
-    },
-    {
-     "method": "POST",
-     "path": "/medicines/admin/catalog/:param/approve",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:277",
-     "backendPath": "/medicines/admin/catalog/:param/approve",
-     "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 145,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [
-       "catalog.update"
-      ],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 277,
-     "raw": false
-    },
-    {
-     "method": "POST",
-     "path": "/insurance/companies/:param/approve",
-     "target": "backend",
-     "status": "NO_ROUTE",
-     "backendPath": "/insurance/companies/:param/approve",
-     "note": "no controller declares /insurance/companies/:param/approve; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 145,
-     "fn": "apiFetch",
-     "via": null,
-     "raw": false
-    },
-    {
-     "method": "POST",
      "path": "/labs/admin/catalog/bulk-approve",
      "target": "backend",
      "status": "OK",
@@ -1848,7 +1548,7 @@
      "backendPath": "/labs/admin/catalog/bulk-approve",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 157,
+     "line": 165,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1872,7 +1572,7 @@
      "backendPath": "/radiology/admin/catalog/bulk-approve",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 157,
+     "line": 165,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1896,7 +1596,7 @@
      "backendPath": "/nursing/admin/catalog/bulk-approve",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 157,
+     "line": 165,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1913,160 +1613,13 @@
     },
     {
      "method": "POST",
-     "path": "/catalogs/admin/specialties/bulk-approve",
-     "target": "backend",
-     "status": "WRONG_METHOD",
-     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:145",
-     "backendPath": "/catalogs/admin/specialties/bulk-approve",
-     "note": "backend has DELETE; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 157,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/catalogs/catalogs.controller.ts",
-     "routeLine": 145,
-     "raw": false
-    },
-    {
-     "method": "POST",
-     "path": "/medicines/admin/catalog/bulk-approve",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:285",
-     "backendPath": "/medicines/admin/catalog/bulk-approve",
-     "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 157,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [
-       "catalog.update"
-      ],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 285,
-     "raw": false
-    },
-    {
-     "method": "POST",
-     "path": "/insurance/companies/bulk-approve",
-     "target": "backend",
-     "status": "WRONG_METHOD",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:571",
-     "backendPath": "/insurance/companies/bulk-approve",
-     "note": "backend has PATCH; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 157,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/insurance/insurance.module.ts",
-     "routeLine": 571,
-     "raw": false
-    },
-    {
-     "method": "POST",
-     "path": "/labs/admin/catalog",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:173",
-     "backendPath": "/labs/admin/catalog",
-     "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 187,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "require('../../common/auth.guard'"
-     },
-     "routeFile": "backend/src/modules/labs/labs.controller.ts",
-     "routeLine": 173,
-     "raw": false
-    },
-    {
-     "method": "POST",
-     "path": "/radiology/admin/catalog",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:191",
-     "backendPath": "/radiology/admin/catalog",
-     "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 187,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "require('../../common/auth.guard'"
-     },
-     "routeFile": "backend/src/modules/radiology/radiology.controller.ts",
-     "routeLine": 191,
-     "raw": false
-    },
-    {
-     "method": "POST",
-     "path": "/nursing/admin/catalog",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:113",
-     "backendPath": "/nursing/admin/catalog",
-     "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 187,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard | JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/home-care/home-care.controller.ts",
-     "routeLine": 113,
-     "raw": false
-    },
-    {
-     "method": "POST",
      "path": "/catalogs/admin/specialties",
      "target": "backend",
      "status": "OK",
      "backend": "backend/src/modules/catalogs/catalogs.controller.ts:124",
      "backendPath": "/catalogs/admin/specialties",
-     "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 187,
+     "line": 195,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2082,137 +1635,14 @@
      "raw": false
     },
     {
-     "method": "POST",
-     "path": "/medicines/admin/catalog",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:261",
-     "backendPath": "/medicines/admin/catalog",
-     "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 187,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [
-       "catalog.create"
-      ],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 261,
-     "raw": false
-    },
-    {
-     "method": "POST",
-     "path": "/insurance/companies",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:563",
-     "backendPath": "/insurance/companies",
-     "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 187,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/insurance/insurance.module.ts",
-     "routeLine": 563,
-     "raw": false
-    },
-    {
-     "method": "DELETE",
-     "path": "/labs/admin/catalog/:param",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:189",
-     "backendPath": "/labs/admin/catalog/:param",
-     "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 199,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "require('../../common/auth.guard'"
-     },
-     "routeFile": "backend/src/modules/labs/labs.controller.ts",
-     "routeLine": 189,
-     "raw": false
-    },
-    {
-     "method": "DELETE",
-     "path": "/radiology/admin/catalog/:param",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:205",
-     "backendPath": "/radiology/admin/catalog/:param",
-     "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 199,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "require('../../common/auth.guard'"
-     },
-     "routeFile": "backend/src/modules/radiology/radiology.controller.ts",
-     "routeLine": 205,
-     "raw": false
-    },
-    {
-     "method": "DELETE",
-     "path": "/nursing/admin/catalog/:param",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:127",
-     "backendPath": "/nursing/admin/catalog/:param",
-     "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 199,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard | JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/home-care/home-care.controller.ts",
-     "routeLine": 127,
-     "raw": false
-    },
-    {
      "method": "DELETE",
      "path": "/catalogs/admin/specialties/:param",
      "target": "backend",
      "status": "OK",
      "backend": "backend/src/modules/catalogs/catalogs.controller.ts:145",
      "backendPath": "/catalogs/admin/specialties/:param",
-     "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 199,
+     "line": 207,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2228,57 +1658,6 @@
      "raw": false
     },
     {
-     "method": "DELETE",
-     "path": "/medicines/admin/catalog/:param",
-     "target": "backend",
-     "status": "WRONG_METHOD",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:235",
-     "backendPath": "/medicines/admin/catalog/:param",
-     "note": "backend has PATCH, POST; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 199,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [
-       "catalog.update",
-       "catalog.price.write"
-      ],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 235,
-     "raw": false
-    },
-    {
-     "method": "DELETE",
-     "path": "/insurance/companies/:param",
-     "target": "backend",
-     "status": "WRONG_METHOD",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:571",
-     "backendPath": "/insurance/companies/:param",
-     "note": "backend has PATCH, GET; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 199,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/insurance/insurance.module.ts",
-     "routeLine": 571,
-     "raw": false
-    },
-    {
      "method": "GET",
      "path": "/medicines/admin/catalog",
      "target": "backend",
@@ -2286,7 +1665,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:243",
      "backendPath": "/medicines/admin/catalog",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 352,
+     "line": 360,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2311,7 +1690,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:358",
      "backendPath": "/storage/upload",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 369,
+     "line": 377,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2332,7 +1711,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:382",
      "backendPath": "/storage/:param/signed-url",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 373,
+     "line": 381,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2353,7 +1732,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:235",
      "backendPath": "/medicines/admin/catalog/:param",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 397,
+     "line": 405,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2379,7 +1758,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:261",
      "backendPath": "/medicines/admin/catalog",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 398,
+     "line": 406,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2404,7 +1783,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:269",
      "backendPath": "/medicines/admin/catalog/:param/delete",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 411,
+     "line": 419,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2429,7 +1808,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:277",
      "backendPath": "/medicines/admin/catalog/:param/approve",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 420,
+     "line": 428,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2454,7 +1833,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:305",
      "backendPath": "/medicines/admin/catalog/:param/price-history",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 430,
+     "line": 438,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2479,7 +1858,7 @@
      "backend": "backend/src/modules/compat/admin-spa.module.ts:1103",
      "backendPath": "/bulk-upload",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 442,
+     "line": 450,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2502,7 +1881,7 @@
      "backend": "backend/src/modules/insurance/insurance.module.ts:556",
      "backendPath": "/insurance/companies/all",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 528,
+     "line": 536,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2526,7 +1905,7 @@
      "backend": "backend/src/modules/insurance/insurance.module.ts:571",
      "backendPath": "/insurance/companies/:param",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 539,
+     "line": 547,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2549,7 +1928,7 @@
      "backend": "backend/src/modules/insurance/insurance.module.ts:563",
      "backendPath": "/insurance/companies",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 540,
+     "line": 548,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2572,7 +1951,7 @@
      "backend": "backend/src/modules/insurance/insurance.module.ts:571",
      "backendPath": "/insurance/companies/:param",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 550,
+     "line": 558,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2595,7 +1974,7 @@
      "backend": "backend/src/modules/insurance/insurance.module.ts:610",
      "backendPath": "/insurance/companies/:param/networks",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 561,
+     "line": 569,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2618,7 +1997,7 @@
      "backend": "backend/src/modules/insurance/insurance.module.ts:597",
      "backendPath": "/insurance/companies/:param/networks/:param",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 575,
+     "line": 583,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2642,38 +2021,8 @@
      "method": "GET",
      "path": "/insurance/companies",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 79,
+     "line": 87,
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:694"
-    },
-    {
-     "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"catalog.read\" but POST /medicines/admin/catalog requires catalog.create; an admin role with the page permission only gets a 403 on this call.",
-     "severity": "medium",
-     "method": "POST",
-     "path": "/medicines/admin/catalog",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 117,
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:261"
-    },
-    {
-     "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"catalog.read\" but PUT /medicines/admin/catalog/:param requires catalog.update + catalog.price.write; an admin role with the page permission only gets a 403 on this call.",
-     "severity": "medium",
-     "method": "PUT",
-     "path": "/medicines/admin/catalog/:param",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 119,
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:235"
-    },
-    {
-     "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"catalog.read\" but DELETE /medicines/admin/catalog/:param requires catalog.update + catalog.price.write; an admin role with the page permission only gets a 403 on this call.",
-     "severity": "medium",
-     "method": "DELETE",
-     "path": "/medicines/admin/catalog/:param",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 134,
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:235"
     },
     {
      "code": "G-ROLE-ONLY-WRITE",
@@ -2682,7 +2031,7 @@
      "method": "POST",
      "path": "/labs/admin/catalog/:param/approve",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 145,
+     "line": 153,
      "backend": "backend/src/modules/labs/labs.controller.ts:198"
     },
     {
@@ -2692,7 +2041,7 @@
      "method": "POST",
      "path": "/radiology/admin/catalog/:param/approve",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 145,
+     "line": 153,
      "backend": "backend/src/modules/radiology/radiology.controller.ts:213"
     },
     {
@@ -2702,18 +2051,8 @@
      "method": "POST",
      "path": "/nursing/admin/catalog/:param/approve",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 145,
+     "line": 153,
      "backend": "backend/src/modules/home-care/home-care.controller.ts:135"
-    },
-    {
-     "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"catalog.read\" but POST /medicines/admin/catalog/:param/approve requires catalog.update; an admin role with the page permission only gets a 403 on this call.",
-     "severity": "medium",
-     "method": "POST",
-     "path": "/medicines/admin/catalog/:param/approve",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 145,
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:277"
     },
     {
      "code": "G-ROLE-ONLY-WRITE",
@@ -2722,7 +2061,7 @@
      "method": "POST",
      "path": "/labs/admin/catalog/bulk-approve",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 157,
+     "line": 165,
      "backend": "backend/src/modules/labs/labs.controller.ts:206"
     },
     {
@@ -2732,7 +2071,7 @@
      "method": "POST",
      "path": "/radiology/admin/catalog/bulk-approve",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 157,
+     "line": 165,
      "backend": "backend/src/modules/radiology/radiology.controller.ts:220"
     },
     {
@@ -2742,38 +2081,8 @@
      "method": "POST",
      "path": "/nursing/admin/catalog/bulk-approve",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 157,
+     "line": 165,
      "backend": "backend/src/modules/home-care/home-care.controller.ts:142"
-    },
-    {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /catalogs/admin/specialties/bulk-approve is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
-     "severity": "medium",
-     "method": "POST",
-     "path": "/catalogs/admin/specialties/bulk-approve",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 157,
-     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:145"
-    },
-    {
-     "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"catalog.read\" but POST /medicines/admin/catalog/bulk-approve requires catalog.update; an admin role with the page permission only gets a 403 on this call.",
-     "severity": "medium",
-     "method": "POST",
-     "path": "/medicines/admin/catalog/bulk-approve",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 157,
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:285"
-    },
-    {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /insurance/companies/bulk-approve is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
-     "severity": "medium",
-     "method": "POST",
-     "path": "/insurance/companies/bulk-approve",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 157,
-     "backend": "backend/src/modules/insurance/insurance.module.ts:571"
     },
     {
      "code": "G-OPEN",
@@ -2782,7 +2091,7 @@
      "method": "POST",
      "path": "/storage/upload",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 369,
+     "line": 377,
      "backend": "backend/src/modules/storage/storage.module.ts:358"
     },
     {
@@ -2792,7 +2101,7 @@
      "method": "GET",
      "path": "/storage/:param/signed-url",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 373,
+     "line": 381,
      "backend": "backend/src/modules/storage/storage.module.ts:382"
     },
     {
@@ -2802,8 +2111,18 @@
      "method": "PATCH",
      "path": "/medicines/admin/catalog/:param",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 397,
+     "line": 405,
      "backend": "backend/src/modules/medicines/medicines.controller.ts:235"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"catalog.read\" but POST /medicines/admin/catalog requires catalog.create; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "POST",
+     "path": "/medicines/admin/catalog",
+     "file": "admin/src/pages/admin/catalog-manager.tsx",
+     "line": 406,
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:261"
     },
     {
      "code": "G-PERM-MISMATCH",
@@ -2812,8 +2131,18 @@
      "method": "POST",
      "path": "/medicines/admin/catalog/:param/delete",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 411,
+     "line": 419,
      "backend": "backend/src/modules/medicines/medicines.controller.ts:269"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"catalog.read\" but POST /medicines/admin/catalog/:param/approve requires catalog.update; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "POST",
+     "path": "/medicines/admin/catalog/:param/approve",
+     "file": "admin/src/pages/admin/catalog-manager.tsx",
+     "line": 428,
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:277"
     }
    ],
    "orphan": false
@@ -9344,48 +8673,6 @@
     }
    ],
    "orphan": false
-  },
-  {
-   "app": "admin",
-   "route": "/admin/theme-control",
-   "file": "admin/src/pages/admin/theme-control.tsx",
-   "line": 1,
-   "area": "system",
-   "unit": [
-    "admin/src/pages/admin/theme-control.tsx"
-   ],
-   "clientPermission": null,
-   "navPermission": null,
-   "inNav": false,
-   "navLine": null,
-   "publicDirectory": false,
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/admin/theme",
-     "target": "backend",
-     "status": "NO_ROUTE",
-     "backendPath": "/theme",
-     "note": "no controller declares /theme",
-     "file": "admin/src/pages/admin/theme-control.tsx",
-     "line": 41,
-     "fn": "fetch",
-     "via": null,
-     "raw": true
-    }
-   ],
-   "guardFindings": [
-    {
-     "code": "G-RAW-WRITE",
-     "note": "POST /api/admin/theme uses raw fetch() instead of adminFetch/adminMutation, so no x-admin-csrf header is sent and the BFF will answer 403 csrf_validation_failed.",
-     "severity": "medium",
-     "method": "POST",
-     "path": "/api/admin/theme",
-     "file": "admin/src/pages/admin/theme-control.tsx",
-     "line": 41
-    }
-   ],
-   "orphan": true
   },
   {
    "app": "admin",
