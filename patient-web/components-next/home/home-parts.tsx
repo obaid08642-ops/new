@@ -166,7 +166,7 @@ const MORE: Array<{ key: string; href: string; icon: FillIconName; tone: Service
   { key: "orders", href: "orders", icon: "package", tone: TONE.care },
   { key: "health", href: "health", icon: "heartbeat", tone: TONE.rx },
   { key: "homeCare", href: "home-care", icon: "first-aid-kit", tone: TONE.care },
-  { key: "reminders", href: "reminders", icon: "clock-counter-clockwise", tone: "violet" },
+  { key: "reminders", href: "health/medications?tab=all", icon: "clock-counter-clockwise", tone: "violet" },
   { key: "prescriptions", href: "prescriptions", icon: "prescription", tone: TONE.rx },
   { key: "family", href: "family", icon: "users-three", tone: "peach" },
   { key: "chat", href: "chat", icon: "chat-circle-text", tone: "blue" },

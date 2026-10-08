@@ -1,6 +1,8 @@
-// @ts-nocheck
-// Redirects to the new family chat screen
-import { Redirect } from "expo-router";
+import React from 'react';
+
+import { RedirectKeepingParams } from '../../src/components/health/RedirectKeepingParams';
+
+/** Old route (merge map, Batch 6, row D): the family chat. */
 export default function FamilyChatRedirect() {
-  return <Redirect href="/family/chat" />;
+  return <RedirectKeepingParams to="/family/chat" />;
 }

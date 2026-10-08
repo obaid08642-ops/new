@@ -704,10 +704,6 @@ export type ProfileStackParamList = {
   'medications': undefined;
   'prescriptions': undefined;
   'reports': undefined;
-  'family-hub': undefined;
-  'add-family-member': undefined;
-  'family-member-detail': { memberId: string };
-  'family-calendar': undefined;
   'wearables': undefined;
   'chronic-disease': undefined;
   'diabetes-program': undefined;

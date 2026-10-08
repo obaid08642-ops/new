@@ -84,7 +84,7 @@ describe('Home and Services links', () => {
     '/notifications',
     '/loyalty/hub',
     '/consultations/appointments',
-    '/health/medication-reminder-list',
+    '/health/medications',
   ];
 
   it.each([...new Set(routes)])('%s is a screen of the app', (route) => {

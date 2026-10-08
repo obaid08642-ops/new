@@ -64,9 +64,9 @@ export const SERVICE_GROUPS: ServiceGroupData[] = [
     title: 'صحتي',
     items: [
       { title: 'الملف الصحي', desc: 'علاماتك الحيوية وسجلك الطبي', icon: 'heartbeat', tone: tone('health'), route: '/(tabs)/health' },
-      { title: 'التذكيرات الذكية', desc: 'تذكيرات الأدوية والمواعيد', icon: 'bell', tone: 'amber', route: '/health/smart-reminders' },
+      { title: 'التذكيرات الذكية', desc: 'تذكيرات الأدوية والمواعيد', icon: 'bell', tone: 'amber', route: '/health/medications?tab=reminders' },
       { title: 'التقارير الطبية', desc: 'تقاريرك ونتائجك في مكان واحد', icon: 'file-text', tone: 'blue', route: '/reports/view-report' },
-      { title: 'الرعاية المزمنة', desc: 'تذكير ومتابعة', icon: 'heart', tone: tone('health'), route: '/health/medication-reminder-list' },
+      { title: 'الرعاية المزمنة', desc: 'تذكير ومتابعة', icon: 'heart', tone: tone('health'), route: '/health/medications?tab=chronic' },
     ],
   },
   {

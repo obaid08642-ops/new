@@ -160,6 +160,39 @@ const BOARD = {
   'c-video-call': { params: { appointmentId: 'test-appt-video' } },
   'c-waiting-room': { params: { appointmentId: 'test-appt-video' } },
   'c-room': { params: { id: 'test-room' } },
+  // Batch 5 (health and records; merge map). The hub is the HealthHub board; every other screen follows its card, row and
+  // tile language and has none. The tab of a merged screen is a route param (`tab`), so one file is rendered once per tab:
+  // `--dir patient-app/app/health --screens vitals:h-vitals,vitals:h-vitals-trends,...` (`--dir "patient-app/app/(tabs)" --screens health:h-hub`).
+  // The ids select the TEST records of render-native-screen.fixtures.json (`test-report`).
+  'h-hub': { component: 'HealthHub', size: [390, 1360], params: {} },
+  'h-vitals': { params: {} },
+  'h-vitals-history': { params: { tab: 'history', type: 'bp' } },
+  'h-vitals-trends': { params: { tab: 'trends' } },
+  'h-sleep': { params: {} },
+  'h-meds': { params: {} },
+  'h-meds-reminders': { params: { tab: 'reminders' } },
+  'h-meds-refills': { params: { tab: 'refills' } },
+  'h-meds-chronic': { params: { tab: 'chronic' } },
+  'h-profile': { params: {} },
+  'h-profile-conditions': { params: { tab: 'conditions' } },
+  'h-profile-emergency': { params: { tab: 'emergency' } },
+  'h-records': { params: {} },
+  'h-records-rx': { params: { tab: 'prescriptions' } },
+  'h-records-timeline': { params: { tab: 'timeline' } },
+  'h-wearables': { params: {} },
+  'h-report': { params: { id: 'test-report' } },
+  'h-id': { params: {} },
+  // Batch 6 (family; merge map). The hub is the Family board; the member, calendar, chat and add screens follow its rows and cards and have
+  // none. The tab of a merged screen is a route param. `--dir patient-app/app/family --screens index:f-hub,member-health:f-member,...`
+  // The ids select the TEST records of render-native-screen.fixtures.json (`test-m1`).
+  'f-hub': { component: 'Family', size: [390, 1060], params: {} },
+  'f-member': { params: { id: 'test-m1', name: 'فرد تجريبي ١', relation: 'الزوجة' } },
+  'f-member-perms': { params: { id: 'test-m1', name: 'فرد تجريبي ١', relation: 'الزوجة', tab: 'permissions' } },
+  'f-calendar': { params: {} },
+  'f-chat': { params: {} },
+  'f-add': { params: {} },
+  'f-add-join': { params: { tab: 'join', code: 'TEST42' } },
+  'f-add-scan': { params: { tab: 'scan' } },
   // Batch 3 (labs and radiology / diagnostics, app slice 3-app; 17 screens). Run them per folder: `--dir "patient-app/app/(tabs)" --screens
   // diagnostics:d-hub` and `--dir patient-app/app/diagnostics --screens packages:d-packages,...` (`file[:name]`). The ids select the TEST records
   // of render-native-screen.fixtures.json (`test-lab-pkg`, `test-lab-test`, `test-lab`, `test-lab-order`). The list, detail and result screens

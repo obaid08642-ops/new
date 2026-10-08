@@ -58,8 +58,8 @@ function mapPath(path: string): string | null {
   if (parts[0] === 'orders') return `/orders/${parts[1] || ''}`;
   // Chat: /chat/:id
   if (parts[0] === 'chat') return `/chat/${parts[1] || ''}`;
-  // Family join: /family/join
-  if (parts[0] === 'family' && parts[1] === 'join') return `/family/join`;
+  // Family join: the Join tab of /family/add
+  if (parts[0] === 'family' && parts[1] === 'join') return `/family/add?tab=join`;
   // Diagnostics: /diagnostics
   if (parts[0] === 'diagnostics') return `/diagnostics`;
   // Community: /community

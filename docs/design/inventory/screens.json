@@ -1,5 +1,5 @@
 {
- "commit": "074475ae",
+ "commit": "cd0f317e",
  "routes": [
   {
    "app": "patient-app",
@@ -1236,7 +1236,7 @@
      "path": "/health/reminders",
      "target": "backend",
      "query": "",
-     "line": 72,
+     "line": 75,
      "file": "patient-app/app/consultations/prescription-from-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/health.controller.ts:61"
@@ -1246,13 +1246,13 @@
      "path": "/prescriptions/active",
      "target": "backend",
      "query": "",
-     "line": 49,
+     "line": 52,
      "file": "patient-app/app/consultations/prescription-from-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:57"
     }
    ],
-   "files": 32,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -2382,13 +2382,98 @@
    "app": "patient-app",
    "route": "/family",
    "file": "patient-app/app/family/index.tsx",
-   "redirect": "/health/family-hub",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "hub",
+   "board": "Family",
    "batch": 6,
-   "status": "n/a",
-   "calls": [],
-   "files": 1,
+   "status": "—",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/family/create",
+     "target": "backend",
+     "query": "",
+     "line": 65,
+     "file": "patient-app/src/components/family/FamilyHubView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:23"
+    },
+    {
+     "method": "GET",
+     "path": "/family/members",
+     "target": "backend",
+     "query": "",
+     "line": 53,
+     "file": "patient-app/src/components/family/FamilyKit.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:84"
+    },
+    {
+     "method": "GET",
+     "path": "/family/my-group",
+     "target": "backend",
+     "query": "",
+     "line": 47,
+     "file": "patient-app/src/components/family/FamilyKit.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:28"
+    },
+    {
+     "method": "GET",
+     "path": "/family/permissions/pending",
+     "target": "backend",
+     "query": "",
+     "line": 48,
+     "file": "patient-app/src/components/family/FamilyHubView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:121"
+    },
+    {
+     "method": "PUT",
+     "path": "/family/permissions/respond/:param",
+     "target": "backend",
+     "query": "",
+     "line": 87,
+     "file": "patient-app/src/components/family/FamilyHubView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:126"
+    }
+   ],
+   "files": 34,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-app",
+   "route": "/family/add",
+   "file": "patient-app/app/family/add.tsx",
+   "redirect": null,
+   "template": "form",
+   "board": "Family",
+   "batch": 6,
+   "status": "—",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/family/invite",
+     "target": "backend",
+     "query": "",
+     "line": 63,
+     "file": "patient-app/src/components/family/FamilyAddView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:34"
+    },
+    {
+     "method": "POST",
+     "path": "/family/join",
+     "target": "backend",
+     "query": "",
+     "line": 155,
+     "file": "patient-app/src/components/family/FamilyAddView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:39"
+    }
+   ],
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -2406,8 +2491,8 @@
      "path": "/family/calendar",
      "target": "backend",
      "query": "",
-     "line": 62,
-     "file": "patient-app/app/family/calendar.tsx",
+     "line": 36,
+     "file": "patient-app/src/components/family/FamilyCalendarView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:105"
     },
@@ -2416,8 +2501,8 @@
      "path": "/family/calendar/event",
      "target": "backend",
      "query": "",
-     "line": 83,
-     "file": "patient-app/app/family/calendar.tsx",
+     "line": 70,
+     "file": "patient-app/src/components/family/FamilyCalendarView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:100"
     },
@@ -2426,8 +2511,8 @@
      "path": "/family/calendar/event/:param",
      "target": "backend",
      "query": "",
-     "line": 106,
-     "file": "patient-app/app/family/calendar.tsx",
+     "line": 89,
+     "file": "patient-app/src/components/family/FamilyCalendarView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:110"
     },
@@ -2436,13 +2521,13 @@
      "path": "/family/members",
      "target": "backend",
      "query": "",
-     "line": 62,
-     "file": "patient-app/app/family/calendar.tsx",
+     "line": 36,
+     "file": "patient-app/src/components/family/FamilyCalendarView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:84"
     }
    ],
-   "files": 17,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -2460,8 +2545,8 @@
      "path": "/family/chat/messages",
      "target": "backend",
      "query": "",
-     "line": 47,
-     "file": "patient-app/app/family/chat.tsx",
+     "line": 34,
+     "file": "patient-app/src/components/family/FamilyChatView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat-compat.controller.ts:31"
     },
@@ -2470,8 +2555,8 @@
      "path": "/family/chat/messages",
      "target": "backend",
      "query": "",
-     "line": 87,
-     "file": "patient-app/app/family/chat.tsx",
+     "line": 73,
+     "file": "patient-app/src/components/family/FamilyChatView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat-compat.controller.ts:43"
     },
@@ -2480,8 +2565,8 @@
      "path": "/family/members",
      "target": "backend",
      "query": "",
-     "line": 68,
-     "file": "patient-app/app/family/chat.tsx",
+     "line": 53,
+     "file": "patient-app/src/components/family/FamilyChatView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:84"
     },
@@ -2490,13 +2575,13 @@
      "path": "/users/me/profile",
      "target": "backend",
      "query": "",
-     "line": 63,
-     "file": "patient-app/app/family/chat.tsx",
+     "line": 46,
+     "file": "patient-app/src/components/family/FamilyChatView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:34"
     }
    ],
-   "files": 14,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -2508,19 +2593,8 @@
    "board": "Family",
    "batch": 6,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/family/emergency-contacts",
-     "target": "backend",
-     "query": "",
-     "line": 38,
-     "file": "patient-app/app/family/emergency-contacts.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:94"
-    }
-   ],
-   "files": 12,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2532,19 +2606,8 @@
    "board": "Family",
    "batch": 6,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/family/invite",
-     "target": "backend",
-     "query": "",
-     "line": 33,
-     "file": "patient-app/app/family/invite.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:34"
-    }
-   ],
-   "files": 16,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2556,19 +2619,8 @@
    "board": "Family",
    "batch": 6,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/family/join",
-     "target": "backend",
-     "query": "",
-     "line": 46,
-     "file": "patient-app/app/family/join.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:39"
-    }
-   ],
-   "files": 15,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2586,13 +2638,63 @@
      "path": "/family/member-records/:param",
      "target": "backend",
      "query": "",
-     "line": 50,
-     "file": "patient-app/app/family/member-health.tsx",
+     "line": 40,
+     "file": "patient-app/src/components/family/FamilyMemberView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:64"
+    },
+    {
+     "method": "PATCH",
+     "path": "/family/member/:param/permissions",
+     "target": "backend",
+     "query": "",
+     "line": 129,
+     "file": "patient-app/src/components/family/FamilyMemberView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:59"
+    },
+    {
+     "method": "GET",
+     "path": "/family/members",
+     "target": "backend",
+     "query": "",
+     "line": 53,
+     "file": "patient-app/src/components/family/FamilyKit.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:84"
+    },
+    {
+     "method": "GET",
+     "path": "/family/my-group",
+     "target": "backend",
+     "query": "",
+     "line": 47,
+     "file": "patient-app/src/components/family/FamilyKit.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:28"
+    },
+    {
+     "method": "POST",
+     "path": "/family/permissions/request",
+     "target": "backend",
+     "query": "",
+     "line": 133,
+     "file": "patient-app/src/components/family/FamilyMemberView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:116"
+    },
+    {
+     "method": "DELETE",
+     "path": "/family/remove-member/:param",
+     "target": "backend",
+     "query": "",
+     "line": 153,
+     "file": "patient-app/src/components/family/FamilyMemberView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:74"
     }
    ],
-   "files": 16,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -2604,29 +2706,8 @@
    "board": "Family",
    "batch": 6,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/family/permissions/pending",
-     "target": "backend",
-     "query": "",
-     "line": 26,
-     "file": "patient-app/app/family/permission-request.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:121"
-    },
-    {
-     "method": "PUT",
-     "path": "/family/permissions/respond/:param",
-     "target": "backend",
-     "query": "",
-     "line": 54,
-     "file": "patient-app/app/family/permission-request.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:126"
-    }
-   ],
-   "files": 16,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2638,49 +2719,8 @@
    "board": "Family",
    "batch": 6,
    "status": "—",
-   "calls": [
-    {
-     "method": "PATCH",
-     "path": "/family/member/:param/permissions",
-     "target": "backend",
-     "query": "",
-     "line": 149,
-     "file": "patient-app/app/family/permissions.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:59"
-    },
-    {
-     "method": "GET",
-     "path": "/family/my-group",
-     "target": "backend",
-     "query": "",
-     "line": 121,
-     "file": "patient-app/app/family/permissions.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:28"
-    },
-    {
-     "method": "POST",
-     "path": "/family/permissions/request",
-     "target": "backend",
-     "query": "",
-     "line": 155,
-     "file": "patient-app/app/family/permissions.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:116"
-    },
-    {
-     "method": "DELETE",
-     "path": "/family/remove-member/:param",
-     "target": "backend",
-     "query": "",
-     "line": 188,
-     "file": "patient-app/app/family/permissions.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:74"
-    }
-   ],
-   "files": 15,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2693,20 +2733,20 @@
    "batch": 6,
    "status": "—",
    "calls": [],
-   "files": 8,
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/family/shared-calendar",
    "file": "patient-app/app/family/shared-calendar.tsx",
-   "redirect": "/family/calendar",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "list",
+   "board": "Family",
    "batch": 6,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 1,
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2745,10 +2785,20 @@
    "calls": [
     {
      "method": "GET",
+     "path": "/health/reminders",
+     "target": "backend",
+     "query": "",
+     "line": 39,
+     "file": "patient-app/app/(tabs)/health.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:58"
+    },
+    {
+     "method": "GET",
      "path": "/health/score",
      "target": "backend",
      "query": "",
-     "line": 108,
+     "line": 37,
      "file": "patient-app/app/(tabs)/health.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/health.controller.ts:36"
@@ -2758,7 +2808,7 @@
      "path": "/health/vitals/summary",
      "target": "backend",
      "query": "",
-     "line": 107,
+     "line": 36,
      "file": "patient-app/app/(tabs)/health.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/health.controller.ts:33"
@@ -2768,49 +2818,39 @@
      "path": "/home/upcoming-appointment",
      "target": "backend",
      "query": "",
-     "line": 109,
+     "line": 38,
      "file": "patient-app/app/(tabs)/health.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home/home.controller.ts:15"
-    },
-    {
-     "method": "GET",
-     "path": "/nutrition/daily-summary",
-     "target": "backend",
-     "query": "?date=:param",
-     "line": 117,
-     "file": "patient-app/app/(tabs)/health.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:50"
     }
    ],
-   "files": 15,
+   "files": 31,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/health/actionable-order",
    "file": "patient-app/app/health/actionable-order.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "HealthHub",
+   "redirect": "/health/records?tab=prescriptions",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 5,
-   "status": "—",
+   "status": "n/a",
    "calls": [],
-   "files": 8,
+   "files": 1,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/health/add-family-member",
    "file": "patient-app/app/health/add-family-member.tsx",
-   "redirect": "/family/invite",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "form",
+   "board": "Family",
    "batch": 6,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 1,
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2822,29 +2862,8 @@
    "board": "CareHub",
    "batch": 8,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/health/chronic-diseases",
-     "target": "backend",
-     "query": "",
-     "line": 27,
-     "file": "patient-app/app/health/chronic-disease.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:127"
-    },
-    {
-     "method": "GET",
-     "path": "/health/vitals",
-     "target": "backend",
-     "query": "",
-     "line": 28,
-     "file": "patient-app/app/health/chronic-disease.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:15"
-    }
-   ],
-   "files": 13,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2856,29 +2875,8 @@
    "board": "CareHub",
    "batch": 8,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/health/chronic-meds",
-     "target": "backend",
-     "query": "",
-     "line": 25,
-     "file": "patient-app/app/health/chronic-medications.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:132"
-    },
-    {
-     "method": "POST",
-     "path": "/health/reminders/:param/…",
-     "target": "backend",
-     "query": "",
-     "partial": true,
-     "line": 41,
-     "file": "patient-app/app/health/chronic-medications.tsx",
-     "status": "PARTIAL"
-    }
-   ],
-   "files": 14,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2890,39 +2888,8 @@
    "board": "HealthHub",
    "batch": 5,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/medical-profile",
-     "target": "backend",
-     "query": "",
-     "line": 25,
-     "file": "patient-app/app/health/conditions-allergies.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:14"
-    },
-    {
-     "method": "POST",
-     "path": "/medical-profile/:param",
-     "target": "backend",
-     "query": "",
-     "line": 34,
-     "file": "patient-app/app/health/conditions-allergies.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:23"
-    },
-    {
-     "method": "DELETE",
-     "path": "/medical-profile/:param/:param",
-     "target": "backend",
-     "query": "",
-     "line": 40,
-     "file": "patient-app/app/health/conditions-allergies.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:24"
-    }
-   ],
-   "files": 12,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2934,59 +2901,8 @@
    "board": "HealthHub",
    "batch": 5,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/media/upload",
-     "target": "backend",
-     "query": "",
-     "line": 58,
-     "file": "patient-app/app/health/edit-profile.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/media/media.controller.ts:21"
-    },
-    {
-     "method": "GET",
-     "path": "/medical-profile",
-     "target": "backend",
-     "query": "",
-     "line": 26,
-     "file": "patient-app/app/health/edit-profile.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:14"
-    },
-    {
-     "method": "PATCH",
-     "path": "/medical-profile",
-     "target": "backend",
-     "query": "",
-     "line": 41,
-     "file": "patient-app/app/health/edit-profile.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:21"
-    },
-    {
-     "method": "GET",
-     "path": "/users/me/profile",
-     "target": "backend",
-     "query": "",
-     "line": 26,
-     "file": "patient-app/app/health/edit-profile.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/users/users.controller.ts:34"
-    },
-    {
-     "method": "PATCH",
-     "path": "/users/me/profile",
-     "target": "backend",
-     "query": "",
-     "line": 61,
-     "file": "patient-app/app/health/edit-profile.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/users/users.controller.ts:39"
-    }
-   ],
-   "files": 15,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2998,65 +2914,34 @@
    "board": "HealthHub",
    "batch": 5,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/health/emergency-contacts",
-     "target": "backend",
-     "query": "",
-     "line": 39,
-     "file": "patient-app/app/health/emergency-contacts.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:112"
-    },
-    {
-     "method": "POST",
-     "path": "/health/emergency-contacts",
-     "target": "backend",
-     "query": "",
-     "line": 57,
-     "file": "patient-app/app/health/emergency-contacts.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:117"
-    },
-    {
-     "method": "DELETE",
-     "path": "/health/emergency-contacts/:param",
-     "target": "backend",
-     "query": "",
-     "line": 84,
-     "file": "patient-app/app/health/emergency-contacts.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:122"
-    }
-   ],
-   "files": 15,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/health/family-calendar",
    "file": "patient-app/app/health/family-calendar.tsx",
-   "redirect": "/family/shared-calendar",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "list",
+   "board": "Family",
    "batch": 6,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 1,
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/health/family-chat",
    "file": "patient-app/app/health/family-chat.tsx",
-   "redirect": "/family/chat",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "flow step",
+   "board": "none: chat",
    "batch": 6,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 1,
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -3068,96 +2953,34 @@
    "board": "Family",
    "batch": 6,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/family/create",
-     "target": "backend",
-     "query": "",
-     "line": 100,
-     "file": "patient-app/app/health/family-hub.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:23"
-    },
-    {
-     "method": "GET",
-     "path": "/family/members",
-     "target": "backend",
-     "query": "",
-     "line": 83,
-     "file": "patient-app/app/health/family-hub.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:84"
-    },
-    {
-     "method": "GET",
-     "path": "/family/my-group",
-     "target": "backend",
-     "query": "",
-     "line": 81,
-     "file": "patient-app/app/health/family-hub.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:28"
-    }
-   ],
-   "files": 14,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/health/family-member-detail",
    "file": "patient-app/app/health/family-member-detail.tsx",
-   "redirect": "/family/member-health",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "detail",
+   "board": "Family",
    "batch": 6,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 1,
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/health/health-id",
    "file": "patient-app/app/health/health-id.tsx",
-   "redirect": null,
-   "template": "detail",
-   "board": "HealthHub",
+   "redirect": "/reports/passport",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 5,
-   "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/health/chronic-meds",
-     "target": "backend",
-     "query": "",
-     "line": 39,
-     "file": "patient-app/app/health/health-id.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:132"
-    },
-    {
-     "method": "GET",
-     "path": "/health/emergency-contacts",
-     "target": "backend",
-     "query": "",
-     "line": 38,
-     "file": "patient-app/app/health/health-id.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:112"
-    },
-    {
-     "method": "GET",
-     "path": "/users/me/profile",
-     "target": "backend",
-     "query": "",
-     "line": 37,
-     "file": "patient-app/app/health/health-id.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/users/users.controller.ts:34"
-    }
-   ],
-   "files": 13,
+   "status": "n/a",
+   "calls": [],
+   "files": 1,
    "unresolved": 0
   },
   {
@@ -3169,39 +2992,8 @@
    "board": "HealthHub",
    "batch": 5,
    "status": "—",
-   "calls": [
-    {
-     "method": "*",
-     "path": "/health/reminders",
-     "target": "backend",
-     "query": "",
-     "line": 52,
-     "file": "patient-app/app/health/medication-reminder-add.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:58"
-    },
-    {
-     "method": "GET",
-     "path": "/health/reminders",
-     "target": "backend",
-     "query": "",
-     "line": 32,
-     "file": "patient-app/app/health/medication-reminder-add.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:58"
-    },
-    {
-     "method": "*",
-     "path": "/health/reminders/:param",
-     "target": "backend",
-     "query": "",
-     "line": 52,
-     "file": "patient-app/app/health/medication-reminder-add.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:75"
-    }
-   ],
-   "files": 14,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -3213,39 +3005,8 @@
    "board": "HealthHub",
    "batch": 5,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/health/reminders",
-     "target": "backend",
-     "query": "",
-     "line": 36,
-     "file": "patient-app/app/health/medication-reminder-list.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:58"
-    },
-    {
-     "method": "PATCH",
-     "path": "/health/reminders/:param",
-     "target": "backend",
-     "query": "",
-     "line": 50,
-     "file": "patient-app/app/health/medication-reminder-list.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:75"
-    },
-    {
-     "method": "POST",
-     "path": "/health/reminders/:param/log",
-     "target": "backend",
-     "query": "",
-     "line": 44,
-     "file": "patient-app/app/health/medication-reminder-list.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:64"
-    }
-   ],
-   "files": 14,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -3260,16 +3021,86 @@
    "calls": [
     {
      "method": "GET",
+     "path": "/health/chronic-meds",
+     "target": "backend",
+     "query": "",
+     "line": 323,
+     "file": "patient-app/src/components/health/MedicationsView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:132"
+    },
+    {
+     "method": "*",
      "path": "/health/reminders",
      "target": "backend",
      "query": "",
-     "line": 24,
-     "file": "patient-app/app/health/medications.tsx",
+     "line": 447,
+     "file": "patient-app/src/components/health/MedicationsView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/health.controller.ts:58"
+    },
+    {
+     "method": "GET",
+     "path": "/health/reminders",
+     "target": "backend",
+     "query": "",
+     "line": 61,
+     "file": "patient-app/src/components/health/MedicationsView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:58"
+    },
+    {
+     "method": "*",
+     "path": "/health/reminders/:param",
+     "target": "backend",
+     "query": "",
+     "line": 447,
+     "file": "patient-app/src/components/health/MedicationsView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:75"
+    },
+    {
+     "method": "PATCH",
+     "path": "/health/reminders/:param",
+     "target": "backend",
+     "query": "",
+     "line": 78,
+     "file": "patient-app/src/components/health/MedicationsView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:75"
+    },
+    {
+     "method": "POST",
+     "path": "/health/reminders/:param/…",
+     "target": "backend",
+     "query": "",
+     "partial": true,
+     "line": 337,
+     "file": "patient-app/src/components/health/MedicationsView.tsx",
+     "status": "PARTIAL"
+    },
+    {
+     "method": "POST",
+     "path": "/health/reminders/:param/log",
+     "target": "backend",
+     "query": "",
+     "line": 69,
+     "file": "patient-app/src/components/health/MedicationsView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:64"
+    },
+    {
+     "method": "POST",
+     "path": "/health/reminders/:param/refill",
+     "target": "backend",
+     "query": "",
+     "line": 252,
+     "file": "patient-app/src/components/health/MedicationsView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:68"
     }
    ],
-   "files": 16,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -3281,19 +3112,196 @@
    "board": "HealthHub",
    "batch": 5,
    "status": "—",
+   "calls": [],
+   "files": 2,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-app",
+   "route": "/health/profile",
+   "file": "patient-app/app/health/profile.tsx",
+   "redirect": null,
+   "template": "detail",
+   "board": "HealthHub",
+   "batch": 5,
+   "status": "—",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/family/emergency-contacts",
+     "target": "backend",
+     "query": "",
+     "line": 243,
+     "file": "patient-app/src/components/health/ProfileView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:94"
+    },
+    {
+     "method": "GET",
+     "path": "/health/chronic-diseases",
+     "target": "backend",
+     "query": "",
+     "line": 147,
+     "file": "patient-app/src/components/health/ProfileView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:127"
+    },
+    {
+     "method": "GET",
+     "path": "/health/emergency-contacts",
+     "target": "backend",
+     "query": "",
+     "line": 242,
+     "file": "patient-app/src/components/health/ProfileView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:112"
+    },
+    {
+     "method": "POST",
+     "path": "/health/emergency-contacts",
+     "target": "backend",
+     "query": "",
+     "line": 252,
+     "file": "patient-app/src/components/health/ProfileView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:117"
+    },
+    {
+     "method": "DELETE",
+     "path": "/health/emergency-contacts/:param",
+     "target": "backend",
+     "query": "",
+     "line": 266,
+     "file": "patient-app/src/components/health/ProfileView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:122"
+    },
+    {
+     "method": "POST",
+     "path": "/media/upload",
+     "target": "backend",
+     "query": "",
+     "line": 86,
+     "file": "patient-app/src/components/health/ProfileView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/media/media.controller.ts:21"
+    },
+    {
+     "method": "GET",
+     "path": "/medical-profile",
+     "target": "backend",
+     "query": "",
+     "line": 49,
+     "file": "patient-app/src/components/health/ProfileView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:14"
+    },
+    {
+     "method": "PATCH",
+     "path": "/medical-profile",
+     "target": "backend",
+     "query": "",
+     "line": 68,
+     "file": "patient-app/src/components/health/ProfileView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:21"
+    },
+    {
+     "method": "POST",
+     "path": "/medical-profile/:param",
+     "target": "backend",
+     "query": "",
+     "line": 159,
+     "file": "patient-app/src/components/health/ProfileView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:23"
+    },
+    {
+     "method": "DELETE",
+     "path": "/medical-profile/:param/:param",
+     "target": "backend",
+     "query": "",
+     "line": 168,
+     "file": "patient-app/src/components/health/ProfileView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:24"
+    },
+    {
+     "method": "GET",
+     "path": "/users/me/profile",
+     "target": "backend",
+     "query": "",
+     "line": 49,
+     "file": "patient-app/src/components/health/ProfileView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/users/users.controller.ts:34"
+    },
+    {
+     "method": "PATCH",
+     "path": "/users/me/profile",
+     "target": "backend",
+     "query": "",
+     "line": 89,
+     "file": "patient-app/src/components/health/ProfileView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/users/users.controller.ts:39"
+    }
+   ],
+   "files": 35,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-app",
+   "route": "/health/records",
+   "file": "patient-app/app/health/records.tsx",
+   "redirect": null,
+   "template": "list",
+   "board": "HealthHub",
+   "batch": 5,
+   "status": "—",
    "calls": [
     {
      "method": "GET",
      "path": "/health/prescriptions",
      "target": "backend",
      "query": "",
-     "line": 30,
-     "file": "patient-app/app/health/prescriptions.tsx",
+     "line": 114,
+     "file": "patient-app/src/components/health/RecordsView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/health.controller.ts:107"
+    },
+    {
+     "method": "GET",
+     "path": "/health/reports",
+     "target": "backend",
+     "query": "",
+     "line": 54,
+     "file": "patient-app/src/components/health/RecordsView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:97"
+    },
+    {
+     "method": "GET",
+     "path": "/medical-reports/mine",
+     "target": "backend",
+     "query": "?limit=100",
+     "line": 53,
+     "file": "patient-app/src/components/health/RecordsView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/medical-reports/medical-reports.controller.ts:37"
+    },
+    {
+     "method": "GET",
+     "path": "/medical-reports/timeline",
+     "target": "backend",
+     "query": "",
+     "line": 163,
+     "file": "patient-app/src/components/health/RecordsView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/medical-reports/medical-reports.controller.ts:17"
     }
    ],
-   "files": 16,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -3305,42 +3313,21 @@
    "board": "HealthHub",
    "batch": 5,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/health/reminders",
-     "target": "backend",
-     "query": "?active=1",
-     "line": 27,
-     "file": "patient-app/app/health/refills.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:58"
-    },
-    {
-     "method": "POST",
-     "path": "/health/reminders/:param/refill",
-     "target": "backend",
-     "query": "",
-     "line": 68,
-     "file": "patient-app/app/health/refills.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:68"
-    }
-   ],
-   "files": 16,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/health/reminders",
    "file": "patient-app/app/health/reminders.tsx",
-   "redirect": "/health/medication-reminder-list",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "list",
+   "board": "HealthHub",
    "batch": 5,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 1,
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -3352,19 +3339,42 @@
    "board": "HealthHub",
    "batch": 5,
    "status": "—",
+   "calls": [],
+   "files": 2,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-app",
+   "route": "/health/sleep",
+   "file": "patient-app/app/health/sleep.tsx",
+   "redirect": null,
+   "template": "list",
+   "board": "HealthHub",
+   "batch": 5,
+   "status": "—",
    "calls": [
     {
      "method": "GET",
-     "path": "/health/reports",
+     "path": "/health/sleep",
+     "target": "backend",
+     "query": "?limit=30",
+     "line": 33,
+     "file": "patient-app/src/components/health/SleepView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:87"
+    },
+    {
+     "method": "POST",
+     "path": "/health/sleep",
      "target": "backend",
      "query": "",
-     "line": 19,
-     "file": "patient-app/app/health/reports.tsx",
+     "line": 148,
+     "file": "patient-app/src/components/health/SleepView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:97"
+     "backend": "backend/src/modules/health/health.controller.ts:91"
     }
    ],
-   "files": 12,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -3376,19 +3386,8 @@
    "board": "HealthHub",
    "batch": 5,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/health/sleep",
-     "target": "backend",
-     "query": "?limit=30",
-     "line": 34,
-     "file": "patient-app/app/health/sleep-score.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:87"
-    }
-   ],
-   "files": 13,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -3400,42 +3399,21 @@
    "board": "HealthHub",
    "batch": 5,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/health/sleep",
-     "target": "backend",
-     "query": "?limit=30",
-     "line": 36,
-     "file": "patient-app/app/health/sleep-tracker.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:87"
-    },
-    {
-     "method": "POST",
-     "path": "/health/sleep",
-     "target": "backend",
-     "query": "",
-     "line": 71,
-     "file": "patient-app/app/health/sleep-tracker.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:91"
-    }
-   ],
-   "files": 15,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/health/smart-reminders",
    "file": "patient-app/app/health/smart-reminders.tsx",
-   "redirect": "/health/medication-reminder-list",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "list",
+   "board": "HealthHub",
    "batch": 5,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 1,
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -3447,19 +3425,8 @@
    "board": "HealthHub",
    "batch": 5,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/health/trends",
-     "target": "backend",
-     "query": "",
-     "line": 142,
-     "file": "patient-app/app/health/trends.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:137"
-    }
-   ],
-   "files": 14,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -3474,16 +3441,46 @@
    "calls": [
     {
      "method": "GET",
+     "path": "/health/trends",
+     "target": "backend",
+     "query": "",
+     "line": 133,
+     "file": "patient-app/src/components/health/VitalsView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:137"
+    },
+    {
+     "method": "GET",
+     "path": "/health/vitals",
+     "target": "backend",
+     "query": "?type=:param&limit=30",
+     "line": 94,
+     "file": "patient-app/src/components/health/VitalsView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:15"
+    },
+    {
+     "method": "POST",
+     "path": "/health/vitals",
+     "target": "backend",
+     "query": "",
+     "line": 209,
+     "file": "patient-app/src/components/health/VitalsView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:39"
+    },
+    {
+     "method": "GET",
      "path": "/health/vitals/summary",
      "target": "backend",
      "query": "",
-     "line": 27,
-     "file": "patient-app/app/health/vitals.tsx",
+     "line": 58,
+     "file": "patient-app/src/components/health/VitalsView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/health.controller.ts:33"
     }
    ],
-   "files": 12,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -3495,29 +3492,8 @@
    "board": "HealthHub",
    "batch": 5,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/health/vitals",
-     "target": "backend",
-     "query": "?type=:param&limit=30",
-     "line": 35,
-     "file": "patient-app/app/health/vitals-log.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:15"
-    },
-    {
-     "method": "POST",
-     "path": "/health/vitals",
-     "target": "backend",
-     "query": "",
-     "line": 48,
-     "file": "patient-app/app/health/vitals-log.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:39"
-    }
-   ],
-   "files": 12,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -3535,7 +3511,7 @@
      "path": "/wearables/data",
      "target": "backend",
      "query": "",
-     "line": 58,
+     "line": 41,
      "file": "patient-app/app/health/wearables.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/wearables-compat.controller.ts:37"
@@ -3545,7 +3521,7 @@
      "path": "/wearables/devices",
      "target": "backend",
      "query": "",
-     "line": 57,
+     "line": 41,
      "file": "patient-app/app/health/wearables.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/wearables-compat.controller.ts:17"
@@ -3555,13 +3531,13 @@
      "path": "/wearables/devices",
      "target": "backend",
      "query": "",
-     "line": 74,
+     "line": 64,
      "file": "patient-app/app/health/wearables.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/wearables-compat.controller.ts:23"
     }
    ],
-   "files": 17,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -6359,7 +6335,7 @@
    "app": "patient-app",
    "route": "/reports/ai-analysis",
    "file": "patient-app/app/reports/ai-analysis.tsx",
-   "redirect": "/health/reports",
+   "redirect": "/health/records?tab=reports",
    "template": "redirect",
    "board": "— (redirect)",
    "batch": 5,
@@ -6377,19 +6353,8 @@
    "board": "HealthHub",
    "batch": 5,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/medical-reports/mine",
-     "target": "backend",
-     "query": "?limit=100",
-     "line": 72,
-     "file": "patient-app/app/reports/hub.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/medical-reports/medical-reports.controller.ts:37"
-    }
-   ],
-   "files": 16,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -6407,7 +6372,7 @@
      "path": "/medical-profile",
      "target": "backend",
      "query": "",
-     "line": 44,
+     "line": 30,
      "file": "patient-app/app/reports/passport.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:14"
@@ -6417,13 +6382,13 @@
      "path": "/medical-profile/passport-token",
      "target": "backend",
      "query": "",
-     "line": 48,
+     "line": 30,
      "file": "patient-app/app/reports/passport.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:15"
     }
    ],
-   "files": 18,
+   "files": 31,
    "unresolved": 0
   },
   {
@@ -6435,19 +6400,8 @@
    "board": "HealthHub",
    "batch": 5,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/medical-reports/timeline",
-     "target": "backend",
-     "query": "",
-     "line": 44,
-     "file": "patient-app/app/reports/timeline.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/medical-reports/medical-reports.controller.ts:17"
-    }
-   ],
-   "files": 15,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -6465,13 +6419,13 @@
      "path": "/reports/:param",
      "target": "backend",
      "query": "",
-     "line": 71,
+     "line": 32,
      "file": "patient-app/app/reports/view-report.tsx",
      "status": "OK",
      "backend": "backend/src/modules/timeline/timeline-compat.controller.ts:30"
     }
    ],
-   "files": 16,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -7203,19 +7157,8 @@
    "board": "HealthHub",
    "batch": 5,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/health/vitals",
-     "target": "backend",
-     "query": "",
-     "line": 37,
-     "file": "patient-app/app/wearables/hub.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:39"
-    }
-   ],
-   "files": 16,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -10173,13 +10116,33 @@
    "calls": [
     {
      "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "POST",
      "path": "/api/family/create",
      "target": "web-bff",
      "query": "",
-     "line": 14,
-     "file": "patient-web/app/[locale]/family/create-family-cta.tsx",
+     "line": 25,
+     "file": "patient-web/components-next/family/create-family.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/family/create/route.ts"
+    },
+    {
+     "method": "PUT",
+     "path": "/api/family/permissions/:param/respond",
+     "target": "web-bff",
+     "query": "",
+     "line": 32,
+     "file": "patient-web/components-next/family/permission-requests.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/family/permissions/[requestId]/respond/route.ts"
     },
     {
      "method": "GET",
@@ -10196,13 +10159,23 @@
      "path": "/family/my-group",
      "target": "backend",
      "query": "",
-     "line": 2,
-     "file": "patient-web/lib/api/family-group-server.ts",
+     "line": 8,
+     "file": "patient-web/lib/api/family-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:28"
+    },
+    {
+     "method": "GET",
+     "path": "/family/permissions/pending",
+     "target": "backend",
+     "query": "",
+     "line": 11,
+     "file": "patient-web/lib/api/family-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:121"
     }
    ],
-   "files": 13,
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -10216,11 +10189,41 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "DELETE",
+     "path": "/api/family/members/:param/permissions",
+     "target": "web-bff",
+     "query": "",
+     "line": 52,
+     "file": "patient-web/components-next/family/member-permissions.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/family/members/[memberId]/permissions/route.ts"
+    },
+    {
+     "method": "PATCH",
+     "path": "/api/family/members/:param/permissions",
+     "target": "web-bff",
+     "query": "",
+     "line": 37,
+     "file": "patient-web/components-next/family/member-permissions.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/family/members/[memberId]/permissions/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/family/member-records/:param",
      "target": "backend",
      "query": "",
-     "line": 11,
+     "line": 14,
      "file": "patient-web/lib/api/family-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:64"
@@ -10234,9 +10237,63 @@
      "file": "patient-web/lib/api/family-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:84"
+    },
+    {
+     "method": "GET",
+     "path": "/family/my-group",
+     "target": "backend",
+     "query": "",
+     "line": 8,
+     "file": "patient-web/lib/api/family-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:28"
     }
    ],
-   "files": 9,
+   "files": 44,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
+   "route": "/family/add",
+   "file": "patient-web/app/[locale]/family/add/page.tsx",
+   "redirect": null,
+   "template": "form",
+   "board": "Family",
+   "batch": 6,
+   "status": "—",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "POST",
+     "path": "/api/family/invite",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/family/add-family.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/family/invite/route.ts"
+    },
+    {
+     "method": "POST",
+     "path": "/api/family/join",
+     "target": "web-bff",
+     "query": "",
+     "line": 77,
+     "file": "patient-web/components-next/family/add-family.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/family/join/route.ts"
+    }
+   ],
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -10250,17 +10307,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/family/calendar",
      "target": "backend",
      "query": "",
-     "line": 14,
+     "line": 17,
      "file": "patient-web/lib/api/family-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:105"
     }
    ],
-   "files": 7,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -10274,12 +10341,22 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/api/patient/family/chat/messages",
      "target": "web-proxy",
      "query": "",
-     "line": 64,
-     "file": "patient-web/components-next/family-chat-client.tsx",
+     "line": 81,
+     "file": "patient-web/components-next/family/family-chat.tsx",
      "backend": "backend/src/modules/chat/chat-compat.controller.ts:31",
      "status": "OK"
     },
@@ -10288,8 +10365,8 @@
      "path": "/api/patient/family/chat/messages",
      "target": "web-proxy",
      "query": "",
-     "line": 99,
-     "file": "patient-web/components-next/family-chat-client.tsx",
+     "line": 122,
+     "file": "patient-web/components-next/family/family-chat.tsx",
      "backend": "backend/src/modules/chat/chat-compat.controller.ts:43",
      "status": "OK"
     },
@@ -10298,176 +10375,13 @@
      "path": "/api/patient/users/me/profile",
      "target": "web-proxy",
      "query": "",
-     "line": 54,
-     "file": "patient-web/components-next/family-chat-client.tsx",
+     "line": 71,
+     "file": "patient-web/components-next/family/family-chat.tsx",
      "backend": "backend/src/modules/users/users.controller.ts:34",
      "status": "OK"
     }
    ],
-   "files": 6,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/family/emergency-contacts",
-   "file": "patient-web/app/[locale]/family/emergency-contacts/page.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "Family",
-   "batch": 6,
-   "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/family/emergency-contacts",
-     "target": "backend",
-     "query": "",
-     "line": 17,
-     "file": "patient-web/lib/api/family-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:94"
-    }
-   ],
-   "files": 8,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/family/invite",
-   "file": "patient-web/app/[locale]/family/invite/page.tsx",
-   "redirect": null,
-   "template": "form",
-   "board": "Family",
-   "batch": 6,
-   "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/family/invite",
-     "target": "web-bff",
-     "query": "",
-     "line": 17,
-     "file": "patient-web/components-next/family-invite-client.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/family/invite/route.ts"
-    }
-   ],
-   "files": 6,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/family/join",
-   "file": "patient-web/app/[locale]/family/join/page.tsx",
-   "redirect": null,
-   "template": "form",
-   "board": "Family",
-   "batch": 6,
-   "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/family/join",
-     "target": "web-bff",
-     "query": "",
-     "line": 23,
-     "file": "patient-web/components-next/family-join-form.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/family/join/route.ts"
-    }
-   ],
-   "files": 6,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/family/permission-requests",
-   "file": "patient-web/app/[locale]/family/permission-requests/page.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "Family",
-   "batch": 6,
-   "status": "—",
-   "calls": [
-    {
-     "method": "PUT",
-     "path": "/api/family/permissions/:param/respond",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/family-permission-requests-client.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/family/permissions/[requestId]/respond/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/family/permissions/pending",
-     "target": "backend",
-     "query": "",
-     "line": 20,
-     "file": "patient-web/app/[locale]/family/permission-requests/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:121"
-    }
-   ],
-   "files": 7,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/family/permissions",
-   "file": "patient-web/app/[locale]/family/permissions/page.tsx",
-   "redirect": null,
-   "template": "settings",
-   "board": "Family",
-   "batch": 6,
-   "status": "—",
-   "calls": [
-    {
-     "method": "DELETE",
-     "path": "/api/family/members/:param/permissions",
-     "target": "web-bff",
-     "query": "",
-     "line": 57,
-     "file": "patient-web/components-next/family-permissions-client.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/family/members/[memberId]/permissions/route.ts"
-    },
-    {
-     "method": "PATCH",
-     "path": "/api/family/members/:param/permissions",
-     "target": "web-bff",
-     "query": "",
-     "line": 35,
-     "file": "patient-web/components-next/family-permissions-client.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/family/members/[memberId]/permissions/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/family/my-group",
-     "target": "backend",
-     "query": "",
-     "line": 20,
-     "file": "patient-web/app/[locale]/family/permissions/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:28"
-    }
-   ],
-   "files": 7,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/family/scan",
-   "file": "patient-web/app/[locale]/family/scan/page.tsx",
-   "redirect": null,
-   "template": "flow step",
-   "board": "Family",
-   "batch": 6,
-   "status": "—",
-   "calls": [],
-   "files": 6,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -10505,6 +10419,47 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "POST",
+     "path": "/api/health/reminders/:param/log",
+     "target": "web-bff",
+     "query": "",
+     "line": 38,
+     "file": "patient-web/components-next/health/reminder-actions.tsx",
+     "via": "request builder",
+     "status": "OK",
+     "handler": "patient-web/app/api/health/reminders/[reminderId]/log/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/health/reminders",
+     "target": "backend",
+     "query": "",
+     "line": 5,
+     "file": "patient-web/lib/api/reminders-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:58"
+    },
+    {
+     "method": "GET",
+     "path": "/health/score",
+     "target": "backend",
+     "query": "",
+     "line": 13,
+     "file": "patient-web/lib/api/vitals-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:36"
+    },
+    {
      "method": "GET",
      "path": "/health/vitals/summary",
      "target": "backend",
@@ -10515,149 +10470,20 @@
      "backend": "backend/src/modules/health/health.controller.ts:33"
     }
    ],
-   "files": 10,
+   "files": 46,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/health/actionable-order",
    "file": "patient-web/app/[locale]/health/actionable-order/page.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "HealthHub",
-   "batch": 5,
-   "status": "—",
-   "calls": [],
-   "files": 5,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/health/add-family-member",
-   "file": "patient-web/app/[locale]/health/add-family-member/page.tsx",
-   "redirect": "/family/invite",
+   "redirect": "/health/records?tab=prescriptions",
    "template": "redirect",
    "board": "— (redirect)",
-   "batch": 6,
+   "batch": 5,
    "status": "n/a",
    "calls": [],
    "files": 2,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/health/chronic-diseases",
-   "file": "patient-web/app/[locale]/health/chronic-diseases/page.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "CareHub",
-   "batch": 8,
-   "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/health/chronic-diseases",
-     "target": "backend",
-     "query": "",
-     "line": 2,
-     "file": "patient-web/lib/api/chronic-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:127"
-    }
-   ],
-   "files": 9,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/health/chronic-medications",
-   "file": "patient-web/app/[locale]/health/chronic-medications/page.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "CareHub",
-   "batch": 8,
-   "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/health/chronic-meds",
-     "target": "backend",
-     "query": "",
-     "line": 2,
-     "file": "patient-web/lib/api/chronic-meds-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:132"
-    }
-   ],
-   "files": 9,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/health/conditions-allergies",
-   "file": "patient-web/app/[locale]/health/conditions-allergies/page.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "HealthHub",
-   "batch": 5,
-   "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/medical-profile/:param",
-     "target": "web-bff",
-     "query": "",
-     "line": 35,
-     "file": "patient-web/components-next/medical-profile-list-client.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/medical-profile/[list]/route.ts"
-    },
-    {
-     "method": "DELETE",
-     "path": "/api/medical-profile/:param/:param",
-     "target": "web-bff",
-     "query": "",
-     "line": 60,
-     "file": "patient-web/components-next/medical-profile-list-client.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/medical-profile/[list]/[itemId]/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/medical-profile",
-     "target": "backend",
-     "query": "",
-     "line": 30,
-     "file": "patient-web/app/[locale]/health/conditions-allergies/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:14"
-    }
-   ],
-   "files": 7,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/health/emergency-contacts",
-   "file": "patient-web/app/[locale]/health/emergency-contacts/page.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "HealthHub",
-   "batch": 5,
-   "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/health/emergency-contacts",
-     "target": "backend",
-     "query": "",
-     "line": 2,
-     "file": "patient-web/lib/api/emergency-contacts-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:112"
-    }
-   ],
-   "files": 9,
    "unresolved": 0
   },
   {
@@ -10684,38 +10510,75 @@
    "status": "—",
    "calls": [
     {
-     "method": "GET",
-     "path": "/health/reminders",
-     "target": "backend",
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
      "query": "",
-     "line": 5,
-     "file": "patient-web/lib/api/reminders-server.ts",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:58"
-    }
-   ],
-   "files": 8,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/health/refills",
-   "file": "patient-web/app/[locale]/health/refills/page.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "HealthHub",
-   "batch": 5,
-   "status": "—",
-   "calls": [
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "*",
+     "path": "/api/health/reminders",
+     "target": "web-bff",
+     "query": "",
+     "line": 35,
+     "file": "patient-web/components-next/health/reminder-form.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/health/reminders/route.ts"
+    },
+    {
+     "method": "*",
+     "path": "/api/health/reminders/:param",
+     "target": "web-bff",
+     "query": "",
+     "line": 35,
+     "file": "patient-web/components-next/health/reminder-form.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/health/reminders/[reminderId]/route.ts"
+    },
+    {
+     "method": "DELETE",
+     "path": "/api/health/reminders/:param",
+     "target": "web-bff",
+     "query": "",
+     "line": 52,
+     "file": "patient-web/components-next/health/reminder-actions.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/health/reminders/[reminderId]/route.ts"
+    },
+    {
+     "method": "POST",
+     "path": "/api/health/reminders/:param/log",
+     "target": "web-bff",
+     "query": "",
+     "line": 38,
+     "file": "patient-web/components-next/health/reminder-actions.tsx",
+     "via": "request builder",
+     "status": "OK",
+     "handler": "patient-web/app/api/health/reminders/[reminderId]/log/route.ts"
+    },
     {
      "method": "POST",
      "path": "/api/health/reminders/:param/refill",
      "target": "web-bff",
      "query": "",
-     "line": 16,
-     "file": "patient-web/components-next/refill-button.tsx",
+     "line": 65,
+     "file": "patient-web/components-next/health/reminder-actions.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/health/reminders/[reminderId]/refill/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/health/chronic-meds",
+     "target": "backend",
+     "query": "",
+     "line": 2,
+     "file": "patient-web/lib/api/chronic-meds-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:132"
     },
     {
      "method": "GET",
@@ -10728,37 +10591,13 @@
      "backend": "backend/src/modules/health/health.controller.ts:58"
     }
    ],
-   "files": 9,
+   "files": 49,
    "unresolved": 0
   },
   {
    "app": "patient-web",
-   "route": "/health/reports",
-   "file": "patient-web/app/[locale]/health/reports/page.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "HealthHub",
-   "batch": 5,
-   "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/health/reports",
-     "target": "backend",
-     "query": "",
-     "line": 17,
-     "file": "patient-web/lib/api/vitals-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:97"
-    }
-   ],
-   "files": 8,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/health/score",
-   "file": "patient-web/app/[locale]/health/score/page.tsx",
+   "route": "/health/profile",
+   "file": "patient-web/app/[locale]/health/profile/page.tsx",
    "redirect": null,
    "template": "detail",
    "board": "HealthHub",
@@ -10766,17 +10605,141 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "PATCH",
+     "path": "/api/medical-profile",
+     "target": "web-bff",
+     "query": "",
+     "line": 108,
+     "file": "patient-web/components-next/health/profile-forms.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/medical-profile/route.ts"
+    },
+    {
+     "method": "POST",
+     "path": "/api/medical-profile/:param",
+     "target": "web-bff",
+     "query": "",
+     "line": 30,
+     "file": "patient-web/components-next/health/profile-forms.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/medical-profile/[list]/route.ts"
+    },
+    {
+     "method": "DELETE",
+     "path": "/api/medical-profile/:param/:param",
+     "target": "web-bff",
+     "query": "",
+     "line": 47,
+     "file": "patient-web/components-next/health/profile-forms.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/medical-profile/[list]/[itemId]/route.ts"
+    },
+    {
      "method": "GET",
-     "path": "/health/score",
+     "path": "/family/emergency-contacts",
      "target": "backend",
      "query": "",
-     "line": 13,
-     "file": "patient-web/lib/api/vitals-server.ts",
+     "line": 20,
+     "file": "patient-web/lib/api/family-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:36"
+     "backend": "backend/src/modules/family/family.controller.ts:94"
+    },
+    {
+     "method": "GET",
+     "path": "/health/chronic-diseases",
+     "target": "backend",
+     "query": "",
+     "line": 2,
+     "file": "patient-web/lib/api/chronic-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:127"
+    },
+    {
+     "method": "GET",
+     "path": "/health/emergency-contacts",
+     "target": "backend",
+     "query": "",
+     "line": 2,
+     "file": "patient-web/lib/api/emergency-contacts-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:112"
+    },
+    {
+     "method": "GET",
+     "path": "/medical-profile",
+     "target": "backend",
+     "query": "",
+     "line": 51,
+     "file": "patient-web/app/[locale]/health/profile/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:14"
     }
    ],
-   "files": 8,
+   "files": 43,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
+   "route": "/health/records",
+   "file": "patient-web/app/[locale]/health/records/page.tsx",
+   "redirect": null,
+   "template": "list",
+   "board": "HealthHub",
+   "batch": 5,
+   "status": "—",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/medical-reports/mine",
+     "target": "backend",
+     "query": "",
+     "line": 61,
+     "file": "patient-web/app/[locale]/health/records/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/medical-reports/medical-reports.controller.ts:37"
+    },
+    {
+     "method": "GET",
+     "path": "/medical-reports/timeline",
+     "target": "backend",
+     "query": "",
+     "line": 61,
+     "file": "patient-web/app/[locale]/health/records/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/medical-reports/medical-reports.controller.ts:17"
+    },
+    {
+     "method": "GET",
+     "path": "/prescriptions/mine",
+     "target": "backend",
+     "query": "",
+     "line": 5,
+     "file": "patient-web/lib/api/prescriptions-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:60"
+    }
+   ],
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -10790,6 +10753,16 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/health/sleep",
      "target": "backend",
@@ -10800,68 +10773,20 @@
      "backend": "backend/src/modules/health/health.controller.ts:87"
     }
    ],
-   "files": 9,
+   "files": 37,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/health/smart-reminders",
    "file": "patient-web/app/[locale]/health/smart-reminders/page.tsx",
-   "redirect": "/reminders",
+   "redirect": "/health/medications?tab=all",
    "template": "redirect",
    "board": "— (redirect)",
    "batch": 5,
    "status": "n/a",
    "calls": [],
    "files": 2,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/health/timeline",
-   "file": "patient-web/app/[locale]/health/timeline/page.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "HealthHub",
-   "batch": 5,
-   "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/medical-reports/timeline",
-     "target": "backend",
-     "query": "",
-     "line": 19,
-     "file": "patient-web/app/[locale]/health/timeline/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/medical-reports/medical-reports.controller.ts:17"
-    }
-   ],
-   "files": 6,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/health/trends",
-   "file": "patient-web/app/[locale]/health/trends/page.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "HealthHub",
-   "batch": 5,
-   "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/health/trends",
-     "target": "backend",
-     "query": "",
-     "line": 2,
-     "file": "patient-web/lib/api/trends-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:137"
-    }
-   ],
-   "files": 9,
    "unresolved": 0
   },
   {
@@ -10875,6 +10800,36 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "POST",
+     "path": "/api/health/vitals",
+     "target": "web-bff",
+     "query": "",
+     "line": 54,
+     "file": "patient-web/components-next/health/vitals-form.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/health/vitals/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/health/trends",
+     "target": "backend",
+     "query": "",
+     "line": 2,
+     "file": "patient-web/lib/api/trends-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:137"
+    },
+    {
      "method": "GET",
      "path": "/health/vitals",
      "target": "backend",
@@ -10883,33 +10838,19 @@
      "file": "patient-web/lib/api/vitals-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/health/health.controller.ts:15"
-    }
-   ],
-   "files": 9,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/health/vitals/log",
-   "file": "patient-web/app/[locale]/health/vitals/log/page.tsx",
-   "redirect": null,
-   "template": "form",
-   "board": "HealthHub",
-   "batch": 5,
-   "status": "—",
-   "calls": [
+    },
     {
-     "method": "POST",
-     "path": "/api/health/vitals",
-     "target": "web-bff",
+     "method": "GET",
+     "path": "/health/vitals/summary",
+     "target": "backend",
      "query": "",
-     "line": 48,
-     "file": "patient-web/components-next/vitals-log-form.tsx",
+     "line": 5,
+     "file": "patient-web/lib/api/vitals-server.ts",
      "status": "OK",
-     "handler": "patient-web/app/api/health/vitals/route.ts"
+     "backend": "backend/src/modules/health/health.controller.ts:33"
     }
    ],
-   "files": 6,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -10921,8 +10862,19 @@
    "board": "HealthHub",
    "batch": 5,
    "status": "—",
-   "calls": [],
-   "files": 5,
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    }
+   ],
+   "files": 29,
    "unresolved": 0
   },
   {
@@ -14494,109 +14446,6 @@
   },
   {
    "app": "patient-web",
-   "route": "/reminders",
-   "file": "patient-web/app/[locale]/reminders/page.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "HealthHub",
-   "batch": 5,
-   "status": "—",
-   "calls": [
-    {
-     "method": "DELETE",
-     "path": "/api/health/reminders/:param",
-     "target": "web-bff",
-     "query": "",
-     "line": 32,
-     "file": "patient-web/app/[locale]/reminders/reminder-actions.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/health/reminders/[reminderId]/route.ts"
-    },
-    {
-     "method": "POST",
-     "path": "/api/health/reminders/:param/log",
-     "target": "web-bff",
-     "query": "",
-     "line": 17,
-     "file": "patient-web/app/[locale]/reminders/reminder-actions.tsx",
-     "via": "request builder",
-     "status": "OK",
-     "handler": "patient-web/app/api/health/reminders/[reminderId]/log/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/health/reminders",
-     "target": "backend",
-     "query": "",
-     "line": 5,
-     "file": "patient-web/lib/api/reminders-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:58"
-    }
-   ],
-   "files": 11,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/reminders/add",
-   "file": "patient-web/app/[locale]/reminders/add/page.tsx",
-   "redirect": null,
-   "template": "form",
-   "board": "HealthHub",
-   "batch": 5,
-   "status": "—",
-   "calls": [
-    {
-     "method": "*",
-     "path": "/api/health/reminders",
-     "target": "web-bff",
-     "query": "",
-     "line": 27,
-     "file": "patient-web/components-next/medication-reminder-form.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/health/reminders/route.ts"
-    },
-    {
-     "method": "*",
-     "path": "/api/health/reminders/:param",
-     "target": "web-bff",
-     "query": "",
-     "line": 27,
-     "file": "patient-web/components-next/medication-reminder-form.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/health/reminders/[reminderId]/route.ts"
-    }
-   ],
-   "files": 5,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/reports",
-   "file": "patient-web/app/[locale]/reports/page.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "HealthHub",
-   "batch": 5,
-   "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/medical-reports/mine",
-     "target": "backend",
-     "query": "",
-     "line": 37,
-     "file": "patient-web/app/[locale]/reports/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/medical-reports/medical-reports.controller.ts:37"
-    }
-   ],
-   "files": 5,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
    "route": "/reports/[reportId]",
    "file": "patient-web/app/[locale]/reports/[reportId]/page.tsx",
    "redirect": null,
@@ -14606,17 +14455,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/medical-reports/:param",
      "target": "backend",
      "query": "",
-     "line": 16,
+     "line": 31,
      "file": "patient-web/app/[locale]/reports/[reportId]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medical-reports/medical-reports.controller.ts:60"
     }
    ],
-   "files": 5,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -14643,11 +14502,21 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/medical-profile",
      "target": "backend",
      "query": "",
-     "line": 18,
+     "line": 34,
      "file": "patient-web/app/[locale]/reports/passport/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:14"
@@ -14657,37 +14526,13 @@
      "path": "/medical-profile/passport-token",
      "target": "backend",
      "query": "",
-     "line": 19,
+     "line": 35,
      "file": "patient-web/app/[locale]/reports/passport/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:15"
     }
    ],
-   "files": 6,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/reports/timeline",
-   "file": "patient-web/app/[locale]/reports/timeline/page.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "HealthHub",
-   "batch": 5,
-   "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/medical-reports/timeline",
-     "target": "backend",
-     "query": "",
-     "line": 32,
-     "file": "patient-web/app/[locale]/reports/timeline/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/medical-reports/medical-reports.controller.ts:17"
-    }
-   ],
-   "files": 6,
+   "files": 36,
    "unresolved": 0
   },
   {
