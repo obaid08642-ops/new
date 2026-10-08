@@ -26,10 +26,9 @@ Screens per batch (app / web, redirects excluded; Batches 5/6/8/9/12 are reshape
 ## Next
 
 1. **Batch 7 insurance** (hub + request page, map 2 §6), then 8, 9, 10-13 in order, each in the batch that owns the screens.
+2. **After the patient batches (7-13, Batch 14 merges, Emergency) - owner plan 2026-10-08:** (a) patient journey audit: `docs/journeys/patient.md`, walked on the running app and web, report `docs/design/needs-review/journeys.json` (scenario, step, problem, file:line), no logic fixes; (b) provider app (~130 screens): inventory + merge map sent to the owner BEFORE building (flag: pharmacy has 3 screens; ambulance role goes, D14); wait for the owner's provider boards for the key screens; (c) admin: full on desktop; mobile = daily essentials (today's numbers, approvals queue, problem orders, feature switches, urgent alerts, and the medicine catalogue: search by name/ingredient/camera barcode, quick edit of key fields, add item from the items-to-review queue, confirmation before price/requires_prescription/controlled changes, change log); flag the public directory pages inside admin.
 2. **Owner decisions 24-27** (`OWNER_DECISIONS_2026-10-06.md`): UI parts in the owning batch (map 2 §9): doctor thread only inside a booking (`/chat` list removed), no cash option for online services, cash on delivery only when the server allows it, cancel/refund text from the server. Pharmacy badges and "استشر طبيب" wait for the reviewer's backend part.
-3. Keep `EXPO_PUBLIC_CONSULT_NEARBY_FILTERS` off until the owner says Q-12/Q-13 are live.
-4. After #308 merges: move the pharmacy namespaces out of `CLIENT_NAMESPACES` into a route-group provider. After #318/#350 merge: client-fixes PR for Batch 4 Needs-review items.
-5. **Batch 5 leftovers:** emergency routes (decision 14, ambulance removal O-2) not rebuilt: the old pages still carry inline `style=` (CSP console errors in the runtime check), to be replaced by the one Emergency screen after O-2; `/ai/report` (Batch 9) has the same; four app screens (profile, map, AI monthly report, prescription translator) still push old health routes (redirects cover them).
+3. Keep `EXPO_PUBLIC_CONSULT_NEARBY_FILTERS` off until Q-12/Q-13 are live.
 
 ## Process (owner, 2026-10-06; quality rules unchanged, recording changed)
 - **Lean v2 (Batch 2 on): under 40k tokens per screen.** Design only (wrong logic = one Needs-review line); templates first; no backend reading per screen; one translation pass per slice; read only screen, board, template; slices of 15-25 screens. Rules in `/AGENTS.md`.
@@ -37,7 +36,6 @@ Screens per batch (app / web, redirects excluded; Batches 5/6/8/9/12 are reshape
 - **One production build and one runtime check per slice, at the end**; dev server while building. Lighthouse only in F82 PRs and once per batch.
 - **Audit is generated** by `audit-table.mjs` from `audit/<slice>.json`; Needs-review lines carry file:line.
 - **At most 2 agents at a time**, each given only its screen list and the board (not the full docs). Sonnet 5 medium for normal screens; high only for payment, offers, booking, insurance, calls.
-- Binding rules, unchanged: identity fixed (no new colour/logo/pattern; "Identity check" line in every PR); tokens-only colours (zero raw in touched files); translation rule (no UI text in code, six languages, no fallback, layout survives RTL/LTR); real data only; backend gaps reported not fixed; test seeders on the local test DB only.
 
 ## Slice log (tokens are the agents' reported totals, approximate; one agent per app/web)
 
