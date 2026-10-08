@@ -1324,3 +1324,76 @@ Gate evidence (this machine, DEVELOPER_DIR=/Library/Developer/CommandLineTools):
   now skips unless STAGING_BASE is set (V1-V5 staging blocker).
 - Under machine load average >18 the unit suite hits 5000 ms jest timeouts;
   that is contention, not assertion failure (all such tests pass in isolation).
+
+## 2026-10-08 — re-verify session (phase13-21-execution -> fix/audit-2026-09)
+Branch correction: work was on `phase13-21-execution` (not owner-sanctioned).
+Tip was identical to origin/fix/audit-2026-09 (a0df24b3), so switched with
+`git checkout fix/audit-2026-09` (ff-only pull: already up to date). No merge.
+1. REVERTED uncommitted rewrite of backend/src/modules/auth/auth.service.ts
+   (434-line diff). It removed brute-force lockout (isLocked/recordFailedAttempt/
+   clearFailedAttempts), breach/strength validation (validatePasswordStrength),
+   and SmsFraudProtectionService wiring — a security regression. HEAD version
+   (commit 1ae95e8b) retains all of it; verified lines 411,478,547,587,605,632,977,1133.
+2. Kept 2 small uncommitted changes: providers.service.ts (R1: typed-docs-only,
+   NOT_EVIDENCE={rejected,needs_replacement}) and legal.module.ts (R36 @StepUp;
+   StepUpGuard is global APP_GUARD, app.module.ts:281, so the decorator is live).
+   Note: required-documents.ts already implements the same rule via
+   missingRequiredDocuments(); provider-admin.service.ts:144 uses it. The
+   providers.service.ts copy is behaviorally identical but duplicated.
+3. Verify outputs (real):
+   - `npx tsc --noEmit` -> exit 0
+   - `python3 ../tools/audit/dtolint.py` -> all 4 checks 0, exit 0
+   - `npx jest modules/provider/required-documents.q80.spec.ts modules/provider/services/provider-admin.approve.spec.ts --runInBand` -> 2 suites, 9 tests, all pass
+   - `npx jest modules/seo-search/slug-history --runInBand` -> SIGABRT from
+     mongodb-memory-server (same known env blocker as above), 3 tests never ran
+   - `npx jest modules/provider/providers.service.spec.ts` -> 1 failed / 5 passed;
+     failure is `model.findOne is not a function` at createBranchStaffAccount
+     (common/find-by-id.ts:13 <- providers.service.ts:75), a spec-mock gap in
+     code untouched by this session (pre-existing)
+   - `npx jest modules/pharmacy/tests/procurement.service.spec.ts` -> 11 failed /
+     2 passed; same mock gap (`this.model.findOne`, procurement.service.ts:239),
+     pre-existing. Pharmacy suite overall: 3 failed suites (controllers,
+     cod-evidence.mongo, procurement) / 17 passed; price-overrides-csv.r3 passes.
+4. NOT pushed: full gate is red on pre-existing suites (mock gaps + mongo
+   SIGABRT env blocker) and AGENTS.md forbids pushing red; 2 changes span
+   2 tasks (need 2 separate commits per one-task-one-commit).
+
+## 2026-10-08 — fix-red session (on fix/audit-2026-09, no merge)
+Fixed every code-red suite found; remaining reds are the documented
+mongodb-memory-server SIGABRT env blocker only (reproduced again today).
+Real outputs below (backend/):
+- `npx tsc --noEmit` -> exit 0 (after every change batch)
+- `python3 ../tools/audit/dtolint.py` -> 4 checks 0, exit 0
+- providers.service.spec: 6/6 (added findOne to branch mock; completes 81955522)
+- procurement.service.spec: 13/13 (mock `.model` mirror + leak-proof
+  delegation in beforeEach; cancel/complete/feedback restored to the
+  mutate+save contract the tests specify; removed now-dead
+  findByIdAndUpdateByAnyId helper)
+- pharmacy.controllers.spec (F17): 2/2 (restored
+  ServiceUnavailableException('test_seed_disabled'); 81955522 had flipped it
+  to 404)
+- modules/pharmacy scope: 19/20 suites, 90/92 tests; only
+  cod-evidence.mongo fails (SIGABRT env)
+- modules/auth scope: 14/15 suites, 78/80; only revoke.r11.mongo fails (SIGABRT)
+  - auth.service.spec 9/9, guest-takeover.q91 4/4, social-login.q107 7/7,
+    otp-server-clock 4/4(? part of 13/13 file below), patient-web-auth contract,
+    disabled-account-tokens.r11 3/3, admin-alert-email.r11 1/1
+  - Q107 fixed in source: Apple RS256/JWKS verify (was: unsigned accepted),
+    Google via tokeninfo + aud check (was: userinfo, any client), x/snapchat
+    refused 400, staff/provider/banned refused 403, per-provider config gate.
+  - Q91 fixed in source: guest/device/convert-guest never hand out a
+    registered account's session (was: full takeover).
+  - verify2fa now refuses disabled accounts before code check (R11).
+  - admin alert emails escape device/UA/IP/email (R11 XSS).
+  - R7 brand guard green (reset email now says Nabd+).
+- src/common scope: 2278/2278 (resilience-chaos storage mocks completed;
+  S3 put behind shared `storage:s3:put` breaker via established @Optional()
+  DI pattern — a static-registry variant was tried, broke 2 mail/livekit
+  suites via cross-test pollution, and was reverted).
+- modules/payments: 17/17. modules/moyasar+storage+sms: 14/14.
+- modules/home-care: 10/11 suites (only nursing-pool.r11.mongo SIGABRT).
+- REVERTED an uncommitted 434-line auth.service.ts rewrite found in the tree:
+  it deleted brute-force lockout, breach/strength validation and SMS-fraud
+  wiring. HEAD (1ae95e8b) keeps all of it.
+Not fixed (env-only, same SIGABRT as the documented blocker):
+R12 slug-history, revoke.r11.mongo, cod-evidence.mongo, nursing-pool.r11.mongo.
