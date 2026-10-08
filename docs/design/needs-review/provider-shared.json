@@ -1,0 +1,82 @@
+[
+  {
+    "batch": "provider",
+    "app": "provider-app",
+    "screen": "FleetScreen",
+    "element": "Ambulance feature",
+    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
+    "line": 22,
+    "found": "[owner] Owner decision O-2 (2026-10-06) removes the ambulance system and provider type; this screen goes with it.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": "provider",
+    "app": "provider-app",
+    "screen": "InsuranceConfigScreen",
+    "element": "API GET /provider/insurance-matrix",
+    "file": "provider-app/src/screens/shared/shared/InsuranceConfigScreen.tsx",
+    "line": 52,
+    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/legal/legal-enterprise.controller.ts:109)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "provider",
+    "app": "provider-app",
+    "screen": "PharmacyQRMenuScreen",
+    "element": "QR code",
+    "file": "provider-app/src/screens/shared/RealScreensExtended.tsx",
+    "line": 17,
+    "found": "[client] The QR catalog screen draws a fixed QR icon and text; there is no QR value, catalog link or request behind it.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "provider",
+    "app": "provider-app",
+    "screen": "ProviderHome",
+    "element": "fake-number: rating: 5.0",
+    "file": "provider-app/src/screens/shared/ProviderHome.tsx",
+    "line": 24,
+    "found": "[client] fake-number (mock-scan): rating: 5.0",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "provider",
+    "app": "provider-app",
+    "screen": "ProviderWalletScreen",
+    "element": "Request Withdrawal",
+    "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
+    "line": 81,
+    "found": "[client] Button \"Request Withdrawal\" navigates to screen(s) its navigator does not register: withdrawal_workflow (facility/lab/nursing/radiology).",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "provider",
+    "app": "provider-app",
+    "screen": "ReviewsAndRatingsScreen",
+    "element": "API GET /provider/reviews",
+    "file": "provider-app/src/screens/shared/RealScreens.tsx",
+    "line": 20,
+    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provider-ops.module.ts:838)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "provider",
+    "app": "provider-app",
+    "screen": "WithdrawalWorkflow",
+    "element": "API GET /provider/bank-account",
+    "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
+    "line": 51,
+    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider/provider.controllers.ts:97)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "provider",
+    "app": "provider-app",
+    "screen": "WorkingHoursEditorScreen",
+    "element": "API GET /provider/working-hours",
+    "file": "provider-app/src/screens/shared/RealScreens.tsx",
+    "line": 123,
+    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provider-ops.module.ts:848)",
+    "suspect": "Backend gap: reviewer session."
+  }
+]

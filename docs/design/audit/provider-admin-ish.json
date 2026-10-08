@@ -1,0 +1,587 @@
+{
+ "slice": "provider-admin-ish",
+ "batch": "provider",
+ "app": "provider-app",
+ "screens": [
+  {
+   "route": "AffiliatePortal",
+   "elements": [
+    [
+     "data: Data dash",
+     "GET /referrals/my → dash",
+     "ok"
+    ],
+    [
+     "button: Share Code",
+     "native action",
+     "ok"
+    ],
+    [
+     "number: Stat: Total Invites",
+     "value ← String(dash.stats.total ?? 0)",
+     "ok"
+    ],
+    [
+     "number: Stat: Rewarded",
+     "value ← String(dash.stats.rewarded ?? 0)",
+     "ok"
+    ],
+    [
+     "number: Stat: Points",
+     "value ← String(dash.stats.earned_points ?? 0)",
+     "ok"
+    ],
+    [
+     "data: List invites",
+     "from invites (prop / derived; not traced)",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "1 list(s) fed by a parent prop are not traced across components."
+   ]
+  },
+  {
+   "route": "AiMedicalCopilot",
+   "elements": [
+    [
+     "data: Data soap",
+     "soap: set from user input / local logic",
+     "ok"
+    ],
+    [
+     "button: [back]",
+     "parent callback onBack",
+     "ok"
+    ],
+    [
+     "button: Analyzing notes…",
+     "POST /ai/copilot/suggest",
+     "ok"
+    ],
+    [
+     "data: List patients",
+     "GET /provider/jobs/queue → patients",
+     "ok"
+    ],
+    [
+     "button: {name}",
+     "local state setSelectedPatient",
+     "ok"
+    ],
+    [
+     "input: Patient complaint...",
+     "user input → soap (local)",
+     "ok"
+    ],
+    [
+     "input: Vitals, observations...",
+     "user input → soap (local)",
+     "ok"
+    ],
+    [
+     "input: Initial diagnosis...",
+     "user input → soap (local)",
+     "ok"
+    ],
+    [
+     "input: Treatment plan...",
+     "user input → soap (local)",
+     "ok"
+    ],
+    [
+     "button: Save EMR Entry",
+     "POST /nursing/notes",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "CreateCampaignScreen",
+   "elements": [
+    [
+     "input: Campaign Title",
+     "user input → title → request body",
+     "ok"
+    ],
+    [
+     "input: Original Price",
+     "user input → origPrice → request body",
+     "ok"
+    ],
+    [
+     "input: Discounted Price",
+     "user input → discPrice → request body",
+     "ok"
+    ],
+    [
+     "input: Start Date",
+     "user input → startDate → request body",
+     "ok"
+    ],
+    [
+     "input: End Date",
+     "user input → endDate → request body",
+     "ok"
+    ],
+    [
+     "button: Submit for Approval",
+     "POST /provider/promotions",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "CrmHub",
+   "elements": [
+    [
+     "number: Stat: CRM Patients",
+     "value ← String(PATIENTS.length)",
+     "ok"
+    ],
+    [
+     "number: Stat: VIP",
+     "value ← String(PATIENTS.filter(p => p.is_vip).length)",
+     "ok"
+    ],
+    [
+     "data: List PATIENTS",
+     "GET /provider/crm → PATIENTS",
+     "ok"
+    ],
+    [
+     "button: [{pat.name}] {pat.name}",
+     "GET /provider/crm/:param",
+     "ok"
+    ],
+    [
+     "button: CRM Profile",
+     "GET /provider/crm/:param",
+     "ok"
+    ],
+    [
+     "button: Revenue Insights",
+     "navigate → revenue_insights",
+     "ok"
+    ],
+    [
+     "input: Favorite Patient",
+     "user input → isFav → request body",
+     "ok"
+    ],
+    [
+     "input: VIP Customer",
+     "user input → isVip → request body",
+     "ok"
+    ],
+    [
+     "input: Block Patient",
+     "user input → isBlocked → request body",
+     "ok"
+    ],
+    [
+     "input: Block Reason",
+     "user input → blockReason → request body",
+     "ok"
+    ],
+    [
+     "data: List notesList",
+     "GET /provider/crm/:param → notesList",
+     "ok"
+    ],
+    [
+     "input: Add New Note",
+     "user input → noteText (local)",
+     "ok"
+    ],
+    [
+     "button: Save CRM Settings",
+     "PUT /provider/crm/:param",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "GpsRouterScreen",
+   "elements": [
+    [
+     "button: Start Trip",
+     "POST /emergency/:param/track",
+     "ok"
+    ],
+    [
+     "button: Confirm Arrival",
+     "POST /emergency/:param/track",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "InventoryExpiryMonitor",
+   "elements": [
+    [
+     "data: List items",
+     "GET /pharmacy/inventory/expiry → items",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "LabSampleScannerScreen",
+   "elements": [
+    [
+     "input: Enter barcode or sample ID",
+     "user input → barcode (local)",
+     "ok"
+    ],
+    [
+     "button: Start Analysis",
+     "PATCH /labs/samples/:param/stage, GET /labs/samples",
+     "ok"
+    ],
+    [
+     "button: Enter Results",
+     "navigate → sample_tracking",
+     "ok"
+    ],
+    [
+     "data: List matches",
+     "from matches (prop / derived; not traced)",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "1 list(s) fed by a parent prop are not traced across components."
+   ]
+  },
+  {
+   "route": "NurseChecklistConsole",
+   "elements": [
+    [
+     "data: List items",
+     "GET /provider/nursing/checklist → items",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "NurseVisitConsole",
+   "elements": [
+    [
+     "Screen content",
+     "one hard-coded English title and one button; no data",
+     "placeholder"
+    ],
+    [
+     "button: Start Checklist",
+     "navigate → nurse_checklist",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "No API call at all (static screen or all data comes from a parent)."
+   ]
+  },
+  {
+   "route": "PharmacyBroadcastResponse",
+   "elements": [
+    [
+     "data: Data catalog",
+     "GET /provider/inventory/search → catalog",
+     "ok"
+    ],
+    [
+     "data: Data choices",
+     "choices: set from user input / local logic",
+     "ok"
+    ],
+    [
+     "data: Data quote",
+     "POST /provider/pharmacy/broadcasts/:param/offers/preview, POST /provider/pharmacy/broadcasts/:param/offers/draft → quote",
+     "ok"
+    ],
+    [
+     "button: 📄 Open attachment",
+     "native action",
+     "ok"
+    ],
+    [
+     "button: Available",
+     "local state setChoices, setQuote",
+     "ok"
+    ],
+    [
+     "button: {stock.sku} ·",
+     "local state setChoices, setQuote",
+     "ok"
+    ],
+    [
+     "input: Quantity offered",
+     "user input → parent callback options.find",
+     "ok"
+    ],
+    [
+     "input: Custom price (optional)",
+     "user input → state (local)",
+     "ok"
+    ],
+    [
+     "input: Note for patient (optional)",
+     "user input → providerNote → request body",
+     "ok"
+    ],
+    [
+     "button: Working…",
+     "POST /provider/pharmacy/broadcasts/:param/offers/preview",
+     "ok"
+    ],
+    [
+     "button: Save draft",
+     "POST /provider/pharmacy/broadcasts/:param/offers/draft",
+     "ok"
+    ],
+    [
+     "button: Submit for patient selection",
+     "POST /provider/pharmacy/broadcasts/:param/offers/:param/submit",
+     "ok"
+    ],
+    [
+     "data: List attachments",
+     "from attachments (prop / derived; not traced)",
+     "ok"
+    ],
+    [
+     "data: List items",
+     "from items (prop / derived; not traced)",
+     "ok"
+    ],
+    [
+     "data: List options",
+     "from options (prop / derived; not traced)",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "3 list(s) fed by a parent prop are not traced across components."
+   ]
+  },
+  {
+   "route": "ProfileWebConfig",
+   "elements": [
+    [
+     "data: Data publicUrl",
+     "GET /provider/profile, PATCH /provider/profile → publicUrl",
+     "ok"
+    ],
+    [
+     "input: Active Public Website",
+     "user input → active → request body",
+     "ok"
+    ],
+    [
+     "input: Doctor/Clinic Bio",
+     "user input → bio → request body",
+     "ok"
+    ],
+    [
+     "input: Social Media Link",
+     "user input → socials → request body",
+     "ok"
+    ],
+    [
+     "button: Share",
+     "native action",
+     "ok"
+    ],
+    [
+     "button: Save Settings",
+     "PATCH /provider/profile",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "PromotionsDashboard",
+   "elements": [
+    [
+     "button: [back]",
+     "parent callback onBack",
+     "ok"
+    ],
+    [
+     "button: [plus]",
+     "navigate → create_promo",
+     "ok"
+    ],
+    [
+     "data: List promos",
+     "GET /provider/promotions → promos",
+     "ok"
+    ],
+    [
+     "button: Create New Promotion",
+     "navigate → create_promo",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "ReputationHub",
+   "elements": [
+    [
+     "data: Data reviews",
+     "GET /provider/reviews → reviews",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "RevenueInsights",
+   "elements": [
+    [
+     "data: List topServices",
+     "from topServices (prop / derived; not traced)",
+     "ok"
+    ],
+    [
+     "API: GET /provider/ops/wallet/ledger",
+     "GET /provider/ops/wallet/ledger (OK, backend/src/modules/provider-ops/provider-ops.module.ts:783)",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "1 list(s) fed by a parent prop are not traced across components."
+   ]
+  },
+  {
+   "route": "SmartOutboundReferralNetwork",
+   "elements": [
+    [
+     "data: Data refCode",
+     "POST /provider/referrals → refCode",
+     "ok"
+    ],
+    [
+     "input: Patient Name / ID",
+     "user input → patientId → request body",
+     "ok"
+    ],
+    [
+     "input: Search lab networks / radiologies...",
+     "user input → search (local)",
+     "ok"
+    ],
+    [
+     "data: List network.filter((item) => `${item.name // ''} ${i",
+     "GET /provider/referral-network → network",
+     "ok"
+    ],
+    [
+     "button: {item.name_en}",
+     "local state setSelectedProviderId",
+     "ok"
+    ],
+    [
+     "button: {test.label}",
+     "parent callback prev.includes, prev.filter",
+     "ok"
+    ],
+    [
+     "button: Generate Digital Referral",
+     "POST /provider/referrals",
+     "ok"
+    ],
+    [
+     "data: List CATALOGUE",
+     "from CATALOGUE (prop / derived; not traced)",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "1 list(s) fed by a parent prop are not traced across components."
+   ]
+  },
+  {
+   "route": "SosDispatchScreen",
+   "elements": [
+    [
+     "data: Data claiming",
+     "POST /emergency/:param/claim, GET /emergency/active → claiming",
+     "ok"
+    ],
+    [
+     "button: Send SOS Alert",
+     "POST /emergency/trigger",
+     "ok"
+    ],
+    [
+     "data: List activeSos",
+     "GET /emergency/active → activeSos",
+     "ok"
+    ],
+    [
+     "button: Claiming…",
+     "POST /emergency/:param/claim, GET /emergency/active",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "SubscriptionsAdsScreen",
+   "elements": [
+    [
+     "data: Data plan",
+     "GET /provider-onboarding/my-profile → plan",
+     "ok"
+    ],
+    [
+     "input: Ad Budget (SAR)",
+     "user input → budget (local)",
+     "ok"
+    ],
+    [
+     "input: Ad Duration (Days)",
+     "user input → duration (local)",
+     "ok"
+    ],
+    [
+     "button: Pay & Launch Ad",
+     "POST /provider/promotions",
+     "ok"
+    ],
+    [
+     "button: B2B Affiliate Portal",
+     "navigate → affiliate",
+     "ok"
+    ]
+   ]
+  }
+ ],
+ "needsReview": [
+  {
+   "route": "InventoryExpiryMonitor",
+   "element": "API GET /pharmacy/inventory/expiry",
+   "kind": "backend",
+   "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
+   "file": "provider-app/src/screens/shared/blueprint/InventoryExpiryMonitor.tsx",
+   "line": 26,
+   "backend": "backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:200"
+  },
+  {
+   "route": "NurseVisitConsole",
+   "element": "Screen content",
+   "kind": "client",
+   "note": "Stub screen: a hard-coded English title and a single button to the checklist, no visit data.",
+   "file": "provider-app/src/screens/shared/blueprint/NurseVisitConsole.tsx",
+   "line": 26
+  },
+  {
+   "route": "SosDispatchScreen",
+   "element": "Ambulance feature",
+   "kind": "owner",
+   "note": "Owner decision O-2 (2026-10-06) removes the ambulance system and provider type; this screen goes with it.",
+   "file": "provider-app/src/screens/shared/blueprint/SosDispatchScreen.tsx",
+   "line": 21
+  }
+ ]
+}
