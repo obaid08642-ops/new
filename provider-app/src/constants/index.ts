@@ -2,10 +2,9 @@
  * NABDAH PLUS — Design System & All Constants
  * Expo SDK 53 / React Native 0.76
  */
-import { Dimensions, Platform, StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { dark } from './theme.generated';
 
-export const { width: SW, height: SH } = Dimensions.get('window');
 
 // ─── Brand Colors ─────────────────────────────────────────────────────────────
 export const C = {
