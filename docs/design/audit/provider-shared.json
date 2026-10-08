@@ -947,22 +947,22 @@
     ],
     [
      "API: POST /provider-onboarding/start",
-     "POST /provider-onboarding/start (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:491)",
+     "POST /provider-onboarding/start (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:484)",
      "ok"
     ],
     [
      "API: POST /provider-onboarding/step2",
-     "POST /provider-onboarding/step2 (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:497)",
+     "POST /provider-onboarding/step2 (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:490)",
      "ok"
     ],
     [
      "API: POST /provider-onboarding/step3",
-     "POST /provider-onboarding/step3 (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:501)",
+     "POST /provider-onboarding/step3 (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:494)",
      "ok"
     ],
     [
      "API: POST /provider-onboarding/submit",
-     "POST /provider-onboarding/submit (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:505)",
+     "POST /provider-onboarding/submit (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:498)",
      "ok"
     ],
     [
@@ -1196,7 +1196,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
    "line": 49,
-   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:806"
+   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:724"
   },
   {
    "route": "ReviewsAndRatingsScreen",
@@ -1205,7 +1205,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/shared/RealScreens.tsx",
    "line": 20,
-   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:838"
+   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:756"
   },
   {
    "route": "WithdrawalWorkflow",
@@ -1223,7 +1223,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/shared/RealScreens.tsx",
    "line": 123,
-   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:848"
+   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:766"
   }
  ]
 }

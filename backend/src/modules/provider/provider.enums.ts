@@ -1,7 +1,7 @@
 export enum ProviderType {
   PHARMACY = 'pharmacy', HOSPITAL = 'hospital', CLINIC = 'clinic', DOCTOR = 'doctor',
   LABORATORY = 'laboratory', RADIOLOGY = 'radiology', HOME_CARE = 'home_care',
-  NURSING = 'nursing', PHYSIOTHERAPY = 'physiotherapy', AMBULANCE = 'ambulance',
+  NURSING = 'nursing', PHYSIOTHERAPY = 'physiotherapy',
   MEDICAL_SUPPLIER = 'medical_supplier', NUTRITION = 'nutrition',
   MENTAL_HEALTH = 'mental_health', TELEMEDICINE = 'telemedicine',
 }
@@ -25,7 +25,6 @@ export const REQUIRED_DOCS_BY_PROVIDER_TYPE: Record<ProviderType, ProviderDocume
   [ProviderType.HOME_CARE]: [ProviderDocumentType.COMMERCIAL_REGISTRATION, ProviderDocumentType.FACILITY_LICENSE, ProviderDocumentType.IBAN_LETTER],
   [ProviderType.NURSING]: [ProviderDocumentType.NATIONAL_ID, ProviderDocumentType.MEDICAL_LICENSE, ProviderDocumentType.IBAN_LETTER],
   [ProviderType.PHYSIOTHERAPY]: [ProviderDocumentType.COMMERCIAL_REGISTRATION, ProviderDocumentType.FACILITY_LICENSE, ProviderDocumentType.IBAN_LETTER],
-  [ProviderType.AMBULANCE]: [ProviderDocumentType.COMMERCIAL_REGISTRATION, ProviderDocumentType.FACILITY_LICENSE, ProviderDocumentType.IBAN_LETTER],
   [ProviderType.MEDICAL_SUPPLIER]: [ProviderDocumentType.COMMERCIAL_REGISTRATION, ProviderDocumentType.VAT_CERTIFICATE, ProviderDocumentType.IBAN_LETTER],
   [ProviderType.NUTRITION]: [ProviderDocumentType.NATIONAL_ID, ProviderDocumentType.MEDICAL_LICENSE, ProviderDocumentType.IBAN_LETTER],
   [ProviderType.MENTAL_HEALTH]: [ProviderDocumentType.NATIONAL_ID, ProviderDocumentType.MEDICAL_LICENSE, ProviderDocumentType.IBAN_LETTER],

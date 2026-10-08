@@ -1,5 +1,5 @@
 {
- "commit": "dc2569de",
+ "commit": "0a063251",
  "routes": [
   {
    "app": "patient-app",
@@ -2184,8 +2184,7 @@
      "query": "",
      "line": 61,
      "file": "patient-app/app/emergency/sos.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/emergency/emergency.controller.ts:14"
+     "status": "NO_ROUTE"
     }
    ],
    "files": 18,
@@ -2208,8 +2207,7 @@
      "query": "",
      "line": 85,
      "file": "patient-app/app/emergency/sos-active.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/emergency/emergency.controller.ts:27"
+     "status": "NO_ROUTE"
     },
     {
      "method": "GET",
@@ -2218,8 +2216,7 @@
      "query": "",
      "line": 46,
      "file": "patient-app/app/emergency/sos-active.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/emergency/emergency.controller.ts:20"
+     "status": "NO_ROUTE"
     }
    ],
    "files": 19,
@@ -2242,8 +2239,7 @@
      "query": "",
      "line": 33,
      "file": "patient-app/app/emergency/tracking.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/emergency/emergency.controller.ts:46"
+     "status": "NO_ROUTE"
     }
    ],
    "files": 13,
@@ -9686,8 +9682,7 @@
      "query": "",
      "line": 47,
      "file": "patient-web/app/[locale]/emergency/sos-actions.tsx",
-     "backend": "backend/src/modules/emergency/emergency.controller.ts:27",
-     "status": "OK"
+     "status": "NO_ROUTE"
     },
     {
      "method": "POST",
@@ -9696,8 +9691,7 @@
      "query": "",
      "line": 30,
      "file": "patient-web/app/[locale]/emergency/sos-actions.tsx",
-     "backend": "backend/src/modules/emergency/emergency.controller.ts:14",
-     "status": "OK"
+     "status": "NO_ROUTE"
     },
     {
      "method": "GET",
@@ -9706,8 +9700,7 @@
      "query": "",
      "line": 30,
      "file": "patient-web/app/[locale]/emergency/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/emergency/emergency.controller.ts:20"
+     "status": "NO_ROUTE"
     }
    ],
    "files": 7,
@@ -9730,8 +9723,7 @@
      "query": "",
      "line": 33,
      "file": "patient-web/components-next/emergency-sos-client.tsx",
-     "backend": "backend/src/modules/emergency/emergency.controller.ts:14",
-     "status": "OK"
+     "status": "NO_ROUTE"
     }
    ],
    "files": 6,
@@ -9754,8 +9746,7 @@
      "query": "",
      "line": 55,
      "file": "patient-web/components-next/emergency-sos-active-client.tsx",
-     "backend": "backend/src/modules/emergency/emergency.controller.ts:27",
-     "status": "OK"
+     "status": "NO_ROUTE"
     },
     {
      "method": "GET",
@@ -9764,8 +9755,7 @@
      "query": "",
      "line": 36,
      "file": "patient-web/components-next/emergency-sos-active-client.tsx",
-     "backend": "backend/src/modules/emergency/emergency.controller.ts:20",
-     "status": "OK"
+     "status": "NO_ROUTE"
     }
    ],
    "files": 6,
@@ -9788,8 +9778,7 @@
      "query": "",
      "line": 46,
      "file": "patient-web/components-next/emergency-tracking-client.tsx",
-     "backend": "backend/src/modules/emergency/emergency.controller.ts:46",
-     "status": "OK"
+     "status": "NO_ROUTE"
     }
    ],
    "files": 6,

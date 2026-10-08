@@ -50,7 +50,7 @@ export function PreVisitChatScreen({ apt, onBack, onNavigate }: { apt: any, onBa
         {messages.map(m => (
           <NCard key={m.id} style={{ padding: SP.lg, marginBottom: SP.sm, backgroundColor: m.sender === 'doctor' ? theme.primary + '15' : theme.surface2 }}>
             <Text style={{ color: theme.text, textAlign: m.sender === 'doctor' ? (AR ? 'left' : 'right') : (AR ? 'right' : 'left') }}>{m.text}</Text>
-            {m.attachment ? <Text style={{ color: theme.primary, marginTop: SP.xs, textAlign: AR ? 'right' : 'left' }}>📎 {m.attachment}</Text> : null}
+            {m.attachment ? <Text style={{ color: theme.primary, marginTop: SP.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? 'مرفق: ' : 'Attachment: '}{m.attachment}</Text> : null}
           </NCard>
         ))}
       </ScrollView>

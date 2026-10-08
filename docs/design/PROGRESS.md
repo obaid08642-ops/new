@@ -52,3 +52,4 @@ Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = we
 - **Owner questions open:** see `PROGRESS_ARCHIVE.md` (2026-10-08 list).
 - **Provider wiring audit (design/provider-audit, read-only):** 151 screens, 489 endpoint pairs all match backend routes, 2006 elements (1987 ok), 55 Needs-review lines in `needs-review/provider-*.json`; summary `PROVIDER_AUDIT_SUMMARY.md`. Tokens ~330k.
 - **Provider journey audit (same PR #734):** `docs/journeys/provider.md`, `needs-review/provider-journeys.json` (54 lines), `PROVIDER_PROPOSALS.md` (10 merge items, missing screens) sent to owner; build nothing until approved. ~290k tokens.
+- **Provider build (design/provider-build):** slice 1 pharmacy (~240k), slice 2 merges M1/M3/M4/M7/M8 + D2/N2/A1/A2 + ambulance removal (~414k), slice 3 M9 one wizard, payload goldens equal (~400k). D1/N1/P3/P5/P6/P7 backend lines in needs-review. client-token-sync 809 -> 746.

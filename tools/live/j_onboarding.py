@@ -119,7 +119,7 @@ import json as _json, os as _os, subprocess as _sp
 
 SCREENS = {  # provider type -> registration screen (provider-app/src/screens)
     'doctor': 'doctor/DoctorRegistration.tsx', 'lab': 'lab/LabRegistration.tsx', 'radiology': 'radiology/RadiologyRegistration.tsx',
-    'home_care': 'nursing/NursingRegistration.tsx', 'hospital': 'facility/FacilityRegistration.tsx', 'ambulance': 'ambulance/AmbulanceRegistration.tsx',
+    'home_care': 'nursing/NursingRegistration.tsx', 'hospital': 'facility/FacilityRegistration.tsx',
 }
 _CT = []
 
