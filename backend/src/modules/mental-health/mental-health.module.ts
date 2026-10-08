@@ -6,13 +6,11 @@ import {
   MoodEntrySchema,
   MeditationSessionSchema,
   BreathingSessionSchema,
-  CrisisContactSchema,
 } from '../../schemas/mental-health.schema';
 import { BreathingSessionRepository } from './repositories/breathingsession.repository';
-import { CrisisContactRepository } from './repositories/crisiscontact.repository';
 import { MeditationSessionRepository } from './repositories/meditationsession.repository';
 import { MoodEntryRepository } from './repositories/moodentry.repository';
-import { MentalHealthCompatController } from './mental-health-compat.controller';
+import { MentalHealthUrgentHelpController } from './mental-health-urgent-help.controller';
 
 @Module({
   imports: [
@@ -20,14 +18,12 @@ import { MentalHealthCompatController } from './mental-health-compat.controller'
       { name: 'MoodEntry', schema: MoodEntrySchema },
       { name: 'MeditationSession', schema: MeditationSessionSchema },
       { name: 'BreathingSession', schema: BreathingSessionSchema },
-      { name: 'CrisisContact', schema: CrisisContactSchema },
     ]),
   ],
-  controllers: [MentalHealthController, MentalHealthCompatController],
+  controllers: [MentalHealthController, MentalHealthUrgentHelpController],
   providers: [
     MentalHealthService,
     { provide: 'BreathingSessionRepository', useClass: BreathingSessionRepository },
-    { provide: 'CrisisContactRepository', useClass: CrisisContactRepository },
     { provide: 'MeditationSessionRepository', useClass: MeditationSessionRepository },
     { provide: 'MoodEntryRepository', useClass: MoodEntryRepository },
   ],

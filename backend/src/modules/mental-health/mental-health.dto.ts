@@ -54,22 +54,10 @@ export class LogBreathingDto {
 
 }
 
-export class AddCrisisContactDto {
-  @IsDefined()
-  @IsString()
-  contact_name: string;
-
-  // Q2: a crisis contact is dialled from the app in an emergency; free text ("abc") was accepted and stored.
+/** D-8: the "Need urgent help?" number the admin sets; it must be dialable. */
+export class UrgentHelpDto {
   @IsDefined()
   @IsString()
   @Matches(DIALABLE_PHONE, { message: 'phone_invalid' })
   phone: string;
-
-  @IsOptional()
-  @IsString()
-  relationship?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  is_professional?: boolean;
 }

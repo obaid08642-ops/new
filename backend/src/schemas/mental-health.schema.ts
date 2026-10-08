@@ -81,17 +81,3 @@ export class BreathingSession {
 export type BreathingSessionDocument = BreathingSession & Document;
 export const BreathingSessionSchema = SchemaFactory.createForClass(BreathingSession);
 BreathingSessionSchema.index({ patient_id: 1, logged_at: -1 });
-
-@Schema({ timestamps: true, collection: 'crisis_contacts' })
-export class CrisisContact {
-  @Prop({ default: () => uuid() }) id: string;
-  @Prop({ required: true, index: true }) patient_id: string;
-  @Prop({ required: true, trim: true, maxlength: 80 }) contact_name: string;
-  @Prop({ required: true, trim: true, maxlength: 30 }) phone: string;
-  @Prop({ trim: true, maxlength: 80 }) relationship?: string;
-  @Prop({ default: false }) is_professional: boolean;
-}
-
-export type CrisisContactDocument = CrisisContact & Document;
-export const CrisisContactSchema = SchemaFactory.createForClass(CrisisContact);
-CrisisContactSchema.index({ patient_id: 1, createdAt: -1 });
