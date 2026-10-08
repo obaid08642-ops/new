@@ -68,12 +68,12 @@ beforeEach(() => { Object.values(server).forEach((fn) => fn.mockReset()); });
 
 describe("settings hub", () => {
   it("shows the account summary and one row per section, and reads only the profile", async () => {
-    server.api.mockResolvedValue(json({ fullName: "Sara Test", email: "sara@example.com" }));
+    server.api.mockResolvedValue(json({ full_name: "Sara Test", email: "sara@example.com" }));
     const html = render(await SettingsHubPage({ params }));
     expect(html).toContain("Sara Test");
     for (const path of ["notifications", "privacy", "security", "language", "help", "about"]) expect(html).toContain(`href="/en/settings/${path}"`);
     expect(server.api).toHaveBeenCalledTimes(1);
-    expect(server.api.mock.calls[0][0]).toBe("/users/me/profile");
+    expect(server.api.mock.calls[0][0]).toBe("/auth/me");
     expect(html).not.toContain("style=");
   });
 

@@ -34,7 +34,11 @@
 .navCaret { flex: none; color: var(--nabd-color-icon-secondary); display: inline-flex; }
 
 /* ---- the account summary (hub and profile) ---- */
-.summary { display: flex; align-items: center; gap: 14px; min-inline-size: 0; }
+.summary {
+  display: flex; flex-direction: row; align-items: center; gap: 14px; min-inline-size: 0; padding: 14px;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
+  border-radius: var(--nabd-radius-3xl); box-shadow: var(--nabd-shadow-card);
+}
 .summaryText { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
 .summaryName { margin: 0; font-size: var(--nabd-font-size-h3); line-height: 1.25; font-weight: 700; overflow-wrap: anywhere; }
 .summarySub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }

@@ -23,7 +23,7 @@ export default async function SettingsHubPage({ params }: Props) {
   const t = await getTranslations("SettingsWeb");
   const rs = await getTranslations("RouteState");
   const token = await requirePatientAccess(locale);
-  const response = await callPatientApi("/users/me/profile", {}, token);
+  const response = await callPatientApi("/auth/me", {}, token);
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
   const back = `/${locale}/profile`;

@@ -20,7 +20,8 @@ type Domain = { id: string; title: string; fields: ProfileField[]; state: Profil
 
 async function resolveDomain(response: Response, acceptedKeys: string[]): Promise<Pick<Domain, "fields" | "state">> {
   if (!response.ok) return { fields: [], state: profileDomainState(response.status, 0) };
-  const fields = readProfileFields(extractRecord(await response.json().catch(() => null)), acceptedKeys);
+  // the account record names the patient `full_name`; the field labels know it as `fullName`
+  const fields = readProfileFields(extractRecord(await response.json().catch(() => null)), acceptedKeys).map((field) => (field.key === "full_name" ? { ...field, key: "fullName" } : field));
   return { fields, state: profileDomainState(response.status, fields.length) };
 }
 
@@ -37,13 +38,13 @@ export default async function ProfilePage({ params }: Props) {
   const a = await getTranslations("AccountWeb");
   const token = await requirePatientAccess(locale);
   const [profileResponse, medicalResponse, insuranceResponse] = await Promise.all([
-    callPatientApi("/users/me/profile", {}, token),
+    callPatientApi("/auth/me", {}, token),
     callPatientApi("/medical-profile", {}, token),
     callPatientApi("/users/me/insurance", {}, token),
   ]);
   if ([profileResponse, medicalResponse, insuranceResponse].some((response) => response.status === 401)) redirect(`/${locale}/login`);
   const [identity, medical, insurance] = await Promise.all([
-    resolveDomain(profileResponse, ["fullName", "name", "email", "phone", "mobile", "dateOfBirth"]),
+    resolveDomain(profileResponse, ["fullName", "full_name", "name", "email", "phone", "mobile", "dateOfBirth"]),
     resolveDomain(medicalResponse, ["bloodType", "height", "weight", "gender", "is_smoker", "drinks_alcohol", "is_pregnant", "is_breastfeeding"]),
     resolveDomain(insuranceResponse, ["providerName", "companyName", "status"]),
   ]);

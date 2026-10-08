@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { Avatar } from "@/components-next/ui-generated/components/Surfaces";
-import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/settings/settings.module.css";
 
 /**
@@ -9,7 +8,7 @@ import styles from "@/components-next/settings/settings.module.css";
  */
 export function AccountSummary({ name, lines, action, label }: { name: string; lines: string[]; action?: ReactNode; label: string }) {
   return (
-    <section className={`${rx.card} ${styles.summary}`} aria-label={label}>
+    <section className={styles.summary} aria-label={label}>
       <Avatar name={name} size="lg" />
       <div className={styles.summaryText}>
         <h2 className={styles.summaryName}>{name}</h2>
@@ -26,7 +25,7 @@ export function profileIdentity(record: Record<string, unknown> | null): { name:
     const value = record?.[key];
     return typeof value === "string" ? value.trim() : "";
   };
-  const name = text("fullName") || text("name");
+  const name = text("full_name") || text("fullName") || text("name");
   const lines = [text("email"), text("phone") || text("mobile")].filter(Boolean);
   return { name, lines };
 }
