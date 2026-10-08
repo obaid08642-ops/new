@@ -1,21 +1,14 @@
 import { notFound } from "next/navigation";
-import { getTranslations, setRequestLocale } from "next-intl/server";
-import { AddressSelectScreen } from "@/components-next/delivery-address/address-select-screen";
+import { setRequestLocale } from "next-intl/server";
 import { isLocale } from "@/lib/i18n";
+import { redirectKeepingQuery } from "@/lib/redirect-keep-query";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-export async function generateMetadata({ params }: Props) {
-  const { locale } = await params;
-  if (!isLocale(locale)) return {};
-  const t = await getTranslations({ locale, namespace: "DeliveryAddressSelect" });
-  return { title: t("title") };
-}
-
-/** Choose the saved address pharmacy orders are delivered to. */
-export default async function DeliveryAddressSelectPage({ params }: Props) {
+/** Choosing the delivery address is the pick mode of the address book (merge map 2, section 8 Account and addresses). */
+export default async function Page({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  return <AddressSelectScreen locale={locale} />;
+  redirectKeepingQuery(`/${locale}/profile/addresses`, await searchParams, { select: "1" });
 }

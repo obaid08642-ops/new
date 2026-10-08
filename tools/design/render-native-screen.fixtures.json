@@ -1,5 +1,5 @@
 {
-  "_comment": "TEST VALUES for `render-native-screen.mjs --api fixture`: invented, clearly marked as tests, never real patient data. They exist only to draw the data-bound blocks of Home (name, reminder, appointment, records, curated offers) and the pharmacy hub and product screens (a catalogue of marked test products) in a design render. Shipped code never reads this file. Batch 1c adds TEST pharmacy offers and orders (the shape of the backend patient endpoints; names, prices and ids are invented). Batch 1d adds TEST orders for payment, insurance decision and checkout, TEST payment capabilities and TEST payment results (the shape of the backend answers of payments.module.ts and pharmacy-order.service.ts; amounts and ids are invented). Batch 5 adds TEST health data (vitals, score, reminders, sleep, medical profile, contacts, records, wearables) in the shape the health screens read; names, values and ids are invented. Batch 11 adds TEST loyalty (tiers, ways to earn, rewards, challenges, points history, referral code and invites) and TEST offers in the shape the loyalty hub and the offers screens read; names, points and prices are invented.",
+  "_comment": "TEST VALUES for `render-native-screen.mjs --api fixture`: invented, clearly marked as tests, never real patient data. They exist only to draw the data-bound blocks of Home (name, reminder, appointment, records, curated offers) and the pharmacy hub and product screens (a catalogue of marked test products) in a design render. Shipped code never reads this file. Batch 1c adds TEST pharmacy offers and orders (the shape of the backend patient endpoints; names, prices and ids are invented). Batch 1d adds TEST orders for payment, insurance decision and checkout, TEST payment capabilities and TEST payment results (the shape of the backend answers of payments.module.ts and pharmacy-order.service.ts; amounts and ids are invented). Batch 5 adds TEST health data (vitals, score, reminders, sleep, medical profile, contacts, records, wearables) in the shape the health screens read; names, values and ids are invented. Batch 12 adds TEST settings, sessions, storage, FAQ, legal documents, returns, support chat and requests, providers on the map and a TEST insurance.",
   "/users/me/display": {
     "display_name": "مستخدم تجريبي"
   },
@@ -2281,10 +2281,25 @@
       }
     ]
   },
-  "/system-config/public": {},
+  "/system-config/public": {
+    "cancellation_policy": {
+      "full_hours": 24,
+      "full_refund": true,
+      "half_hours": 12,
+      "half_refund_percent": 50,
+      "late_fee_percent": 25,
+      "pharmacy_prep_cancellable": false
+    },
+    "returns_policy": {
+      "unused_days": 7,
+      "intact_packaging_required": true,
+      "wallet_refund_days_min": 3,
+      "wallet_refund_days_max": 5
+    }
+  },
   "/config": {
-    "features": {
-      "video_calls": true
+    "contact": {
+      "support_phone": "+966500000000"
     }
   },
   "/calls/history": {
@@ -2759,32 +2774,12 @@
   },
   "/family/members": [
     {
-      "user_id": "test-owner",
-      "role": "owner",
-      "display_name": "مالك تجريبي",
-      "relation": null,
-      "joined_at": "2026-09-01T10:00:00Z"
+      "id": "test-m1",
+      "name": "فرد تجريبي ١"
     },
     {
-      "user_id": "test-m1",
-      "role": "member",
-      "display_name": "فرد تجريبي ١",
-      "relation": "الزوجة",
-      "joined_at": "2026-09-01T10:00:00Z"
-    },
-    {
-      "user_id": "test-m2",
-      "role": "member",
-      "display_name": "فرد تجريبي ٢",
-      "relation": "الابن",
-      "joined_at": "2026-09-01T10:00:00Z"
-    },
-    {
-      "user_id": "test-m3",
-      "role": "member",
-      "display_name": "فرد تجريبي ٣",
-      "relation": "الأم",
-      "joined_at": "2026-09-01T10:00:00Z"
+      "id": "test-m2",
+      "name": "فرد تجريبي ٢"
     }
   ],
   "/family/permissions/pending": [
@@ -3847,5 +3842,185 @@
       "rating_avg": 4.5,
       "rating_count": 12
     }
-  ]
+  ],
+  "/users/me/notification-settings": {
+    "general": true,
+    "appointments": true,
+    "orders": true,
+    "offers": false,
+    "medications": true,
+    "doctorMessages": true,
+    "emergency": true,
+    "sound": true,
+    "vibration": false
+  },
+  "/users/me/privacy-settings": {
+    "location": true,
+    "analytics": true,
+    "shareData": false,
+    "marketing": false,
+    "thirdParty": false
+  },
+  "/users/me/security-settings": {
+    "biometric": true,
+    "two_factor": false
+  },
+  "/users/me/sessions": [
+    {
+      "id": "test-s1",
+      "device": "جهاز تجريبي ١",
+      "location": "مدينة تجريبية",
+      "time": "الآن",
+      "current": true
+    },
+    {
+      "id": "test-s2",
+      "device": "جهاز تجريبي ٢",
+      "location": "مدينة تجريبية",
+      "time": "أمس"
+    }
+  ],
+  "/users/me/storage": {
+    "items": [
+      {
+        "label": "سجلات تجريبية",
+        "val": "٢ MB",
+        "pct": 20
+      },
+      {
+        "label": "ملفات تجريبية",
+        "val": "٦ MB",
+        "pct": 60
+      }
+    ],
+    "total": "٨ MB"
+  },
+  "/support/faqs": [
+    {
+      "category": "فئة تجريبية ١",
+      "q": "سؤال تجريبي ١؟",
+      "a": "جواب تجريبي ١."
+    },
+    {
+      "category": "فئة تجريبية ٢",
+      "q": "سؤال تجريبي ٢؟",
+      "a": "جواب تجريبي ٢."
+    }
+  ],
+  "/legal/policies": [
+    {
+      "key": "test-terms",
+      "title_ar": "شروط تجريبية",
+      "title_en": "Test terms",
+      "version": "1.0"
+    },
+    {
+      "key": "test-privacy",
+      "title_ar": "خصوصية تجريبية",
+      "title_en": "Test privacy",
+      "version": "1.0"
+    }
+  ],
+  "/legal/policy/test-terms": {
+    "key": "test-terms",
+    "title": "شروط تجريبية",
+    "version": "1.0",
+    "content": "نص تجريبي لوثيقة قانونية.\nسطر تجريبي ثانٍ."
+  },
+  "/pharmacy/returns": [
+    {
+      "id": "test-return-1abcdef",
+      "service_type": "pharmacy",
+      "order_id": "test-order-12345678",
+      "amount": 45,
+      "status": "processing",
+      "createdAt": "2026-10-01T10:00:00Z",
+      "reason": "سبب تجريبي",
+      "refund_method": "original"
+    },
+    {
+      "id": "test-return-2abcdef",
+      "service_type": "consultation",
+      "order_id": "test-appt-12345678",
+      "amount": 120,
+      "status": "completed",
+      "createdAt": "2026-09-20T10:00:00Z",
+      "resolved_at": "2026-09-22T10:00:00Z",
+      "reason": "سبب تجريبي",
+      "refund_method": "original"
+    }
+  ],
+  "/pharmacy/returns/test-return-1": {
+    "id": "test-return-1abcdef",
+    "service_type": "pharmacy",
+    "order_id": "test-order-12345678",
+    "amount": 45,
+    "status": "approved",
+    "createdAt": "2026-10-01T10:00:00Z",
+    "resolved_at": "2026-10-02T10:00:00Z",
+    "reason": "سبب تجريبي",
+    "refund_method": "original"
+  },
+  "/pharmacy/returns/eligible/pharmacy": [
+    {
+      "id": "test-order-12345678",
+      "amount": 45
+    },
+    {
+      "id": "test-order-87654321",
+      "amount": 80
+    }
+  ],
+  "/support/chat": [
+    {
+      "id": "c1",
+      "from": "user",
+      "text": "رسالة تجريبية من المريض",
+      "time": "10:00"
+    },
+    {
+      "id": "c2",
+      "from": "agent",
+      "text": "رد تجريبي من الدعم",
+      "time": "10:05",
+      "isBot": true
+    }
+  ],
+  "/support/requests/mine": [
+    {
+      "id": "test-req-123456",
+      "subject": "طلب دعم تجريبي",
+      "status": "مفتوح",
+      "date": "2026-10-01",
+      "lastUpdate": "2026-10-02"
+    }
+  ],
+  "/providers/map": [
+    {
+      "id": "test-prov-1",
+      "name": "مزود تجريبي ١",
+      "type": "pharmacy",
+      "rating": 4.5,
+      "reviews_count": 12,
+      "distance_km": 1.2,
+      "lat": 24.71,
+      "lng": 46.68,
+      "is_available": true
+    },
+    {
+      "id": "test-prov-2",
+      "name": "مزود تجريبي ٢",
+      "type": "doctor",
+      "distance_km": 3.4,
+      "lat": 24.72,
+      "lng": 46.7,
+      "consultation_fee": 150,
+      "specialties": [
+        "تخصص تجريبي"
+      ]
+    }
+  ],
+  "/user/insurance": {
+    "provider": "تأمين تجريبي"
+  }
 }
