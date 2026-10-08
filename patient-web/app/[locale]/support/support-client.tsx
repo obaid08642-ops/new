@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, ChevronDown, HelpCircle, LifeBuoy, LoaderCircle, MessageSquarePlus, Send } from "lucide-react";
+import { Check, ChevronDown, HelpCircle, LifeBuoy, LoaderCircle, MessageSquarePlus, Package, Search, Send } from "lucide-react";
 import styles from "./support.module.css";
 
 export type SupportFaq = { id: string; question: string; answer: string };
@@ -18,26 +18,50 @@ type Labels = {
   sending: string;
   sent: string;
   error: string;
+  searchPlaceholder: string;
+  noFaqResults: string;
+  orderHelpLabel: string;
+  orderIdPlaceholder: string;
 };
 
-export function SupportClient({ faqs, tickets, labels }: { faqs: SupportFaq[]; tickets: SupportTicket[]; labels: Labels }) {
+/** P22: client-side search over help-center articles (question + answer). */
+export function filterFaqs(faqs: SupportFaq[], query: string): SupportFaq[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return faqs;
+  return faqs.filter(
+    (faq) =>
+      faq.question.toLowerCase().includes(q) || faq.answer.toLowerCase().includes(q),
+  );
+}
+
+export function SupportClient({ faqs, tickets, labels, ordersHref }: { faqs: SupportFaq[]; tickets: SupportTicket[]; labels: Labels; ordersHref: string }) {
   const router = useRouter();
+  const [search, setSearch] = useState("");
+  const [orderId, setOrderId] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [state, setState] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const visibleFaqs = filterFaqs(faqs, search);
 
   async function submit() {
     if (state === "loading" || !subject.trim() || !message.trim()) return;
     setState("loading");
     try {
+      const trimmedOrderId = orderId.trim();
       const response = await fetch("/api/patient/support/requests", {
         method: "POST",
         headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
-        body: JSON.stringify({ subject: subject.trim(), message: message.trim(), category: "GENERAL" }),
+        body: JSON.stringify({
+          subject: subject.trim(),
+          message: message.trim(),
+          category: "GENERAL",
+          ...(trimmedOrderId ? { order_id: trimmedOrderId } : {}),
+        }),
       });
       if (!response.ok) throw new Error("support_request_failed");
       setSubject("");
       setMessage("");
+      setOrderId("");
       setState("success");
       router.refresh();
     } catch {
@@ -55,11 +79,24 @@ export function SupportClient({ faqs, tickets, labels }: { faqs: SupportFaq[]; t
           <HelpCircle size={20} aria-hidden="true" />
           {labels.faqTitle}
         </h2>
-        {faqs.length === 0 ? (
-          <p style={{ color: "var(--muted)", margin: 0 }}>{labels.noTickets}</p>
+        <div style={{ position: "relative" }}>
+          <Search size={16} aria-hidden="true" style={{ position: "absolute", insetInlineStart: 12, top: "50%", transform: "translateY(-50%)", color: "var(--muted)" }} />
+          <input
+            type="search"
+            role="searchbox"
+            className={styles.input}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={labels.searchPlaceholder}
+            aria-label={labels.searchPlaceholder}
+            style={{ paddingInlineStart: 36 }}
+          />
+        </div>
+        {visibleFaqs.length === 0 ? (
+          <p style={{ color: "var(--muted)", margin: 0 }}>{search.trim() ? labels.noFaqResults : labels.noTickets}</p>
         ) : (
           <div style={{ display: "grid", gap: "0.65rem" }}>
-            {faqs.map((faq) => (
+            {visibleFaqs.map((faq) => (
               <details key={faq.id} className={styles.faqDetails}>
                 <summary className={styles.faqSummary}>
                   <span>{faq.question}</span>
@@ -99,6 +136,21 @@ export function SupportClient({ faqs, tickets, labels }: { faqs: SupportFaq[]; t
           {labels.subjectPlaceholder}
         </h2>
         <div style={{ display: "grid", gap: "0.85rem" }}>
+          <a
+            href={ordersHref}
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--brand-deep)", fontWeight: 750, textDecoration: "none" }}
+          >
+            <Package size={16} aria-hidden="true" />
+            {labels.orderHelpLabel}
+          </a>
+          <input
+            className={styles.input}
+            value={orderId}
+            onChange={(e) => setOrderId(e.target.value)}
+            placeholder={labels.orderIdPlaceholder}
+            aria-label={labels.orderIdPlaceholder}
+            inputMode="text"
+          />
           <input
             className={styles.input}
             value={subject}

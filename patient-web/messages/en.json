@@ -296,7 +296,11 @@
     "total": "Total",
     "notAvailable": "Not available",
     "unavailableTitle": "Unable to load the order",
-    "unavailableBody": "Please try again later."
+    "unavailableBody": "Please try again later.",
+    "courierTitle": "Courier",
+    "courierUnknown": "No courier assigned yet",
+    "slotTitle": "Delivery slot",
+    "slotUnknown": "No delivery slot set yet"
   },
   "Cart": {
     "eyebrow": "Private cart",
@@ -1155,7 +1159,11 @@
     "send": "Send request",
     "sending": "Sending…",
     "sent": "Your request was sent",
-    "error": "Could not send the request right now"
+    "error": "Could not send the request right now",
+    "searchPlaceholder": "Search help articles…",
+    "noFaqResults": "No articles match your search",
+    "orderHelpLabel": "Need help with an order? View your orders",
+    "orderIdPlaceholder": "Order ID (optional)"
   },
   "Reports": {
     "title": "Medical reports",

@@ -83,6 +83,7 @@ export default async function SupportPage({ params }: Props) {
       <SupportClient
         faqs={faqs}
         tickets={tickets}
+        ordersHref={`/${locale}/orders`}
         labels={{
           faqTitle: t("faqTitle"),
           ticketsTitle: t("ticketsTitle"),
@@ -93,6 +94,10 @@ export default async function SupportPage({ params }: Props) {
           sending: t("sending"),
           sent: t("sent"),
           error: t("error"),
+          searchPlaceholder: t("searchPlaceholder"),
+          noFaqResults: t("noFaqResults"),
+          orderHelpLabel: t("orderHelpLabel"),
+          orderIdPlaceholder: t("orderIdPlaceholder"),
         }}
       />
     </main>
