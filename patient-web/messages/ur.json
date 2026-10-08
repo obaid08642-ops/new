@@ -2896,12 +2896,7 @@
     "trackingBeforeTitle": "نمونہ لینے سے پہلے",
     "trackingBeforeBody": "جب تک ڈاکٹر کچھ اور نہ کہے، نمونے سے 8 سے 12 گھنٹے پہلے کچھ نہ کھائیں۔",
     "trackingStepsTitle": "مراحل",
-    "stepReceived": "آرڈر موصول ہوا",
-    "stepAssigned": "نمونہ لینے والا مقرر ہوا",
-    "stepOnTheWay": "نمونہ لینے والا راستے میں ہے",
-    "stepCollected": "نمونہ لے لیا گیا",
-    "stepAtLab": "نمونہ لیبارٹری میں ہے",
-    "stepResult": "نتیجہ تیار ہے",
+    "trackingNoSteps": "ابھی تک ٹریکنگ کی کوئی اپ ڈیٹ نہیں ہے۔ لیب جب مراحل درج کرے گی تو وہ یہاں نظر آئیں گے۔",
     "searchTests": "ٹیسٹ تلاش کریں…",
     "noResultsTitle": "کوئی نتیجہ نہیں",
     "noResultsBody": "کوئی اور نام یا زمرہ آزمائیں۔",
@@ -2930,6 +2925,10 @@
     "status_sampled": "نمونہ لے لیا گیا",
     "status_processing": "جاری ہے",
     "status_report": "رپورٹ تیار ہے",
-    "status_cancelled": "منسوخ"
+    "status_cancelled": "منسوخ",
+    "bookingNotSentTitle": "کوئی بکنگ نہیں ہوئی",
+    "bookingNotSentBody": "یہ ونڈو ابھی بکنگ نہیں بھیجتی، اس لیے کوئی ملاقات طے نہیں ہوئی اور کوئی ادائیگی نہیں لی گئی۔ وزٹ بک کرنے کے لیے نرسنگ کا صفحہ کھولیں۔",
+    "bookingNotSentCta": "نرسنگ کے صفحے پر جائیں",
+    "bookingNotSentClose": "بند کریں"
   }
 }

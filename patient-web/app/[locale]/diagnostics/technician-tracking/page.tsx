@@ -4,6 +4,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { DiagnosticsTechnicianTrackingClient } from "@/components-next/diagnostics-technician-tracking-client";
 import { ConsultPage } from "@/components-next/consult/consult-page";
+import { diagnosticBookingHref } from "@/lib/diagnostics-links";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ bookingId?: string; id?: string }> };
 const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -18,7 +19,7 @@ export default async function DiagnosticsTechnicianTrackingPage({ params, search
   const t = await getTranslations("DiagWeb");
   await requirePatientAccess(locale);
   return (
-    <ConsultPage locale={locale} title={t("technicianTrackingTitle")} backHref={`/${locale}/diagnostics/labs/${encodeURIComponent(bookingId)}`}>
+    <ConsultPage locale={locale} title={t("technicianTrackingTitle")} backHref={diagnosticBookingHref(locale, "labs", bookingId)}>
       <DiagnosticsTechnicianTrackingClient bookingId={bookingId} locale={locale} />
     </ConsultPage>
   );

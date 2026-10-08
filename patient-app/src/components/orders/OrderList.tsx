@@ -5,7 +5,8 @@ import { router, useFocusEffect, type Href } from 'expo-router';
 import { AppHeader, EmptyState, ErrorState, OfflineState, Screen, Segmented } from '../../../../packages/ui-native/src';
 import { OrderCard } from './OrderKit';
 import { Notice } from '../pharmacy/OfferKit';
-import { goBack } from '../pharmacy/PharmacyKit';
+import { goBackDiag } from '../diagnostics/DiagKit';
+import { goBack as goBackPharmacy } from '../pharmacy/PharmacyKit';
 import { COLUMN, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { isOffline } from '../../utils/isOffline';
@@ -42,6 +43,17 @@ export const ALL_ORDER_ENDPOINTS: OrderEndpoints = [
 /** The pharmacy order history: the governed pharmacy orders only. */
 export const PHARMACY_ORDER_ENDPOINTS: OrderEndpoints = [['pharmacyOrders', '/patient/pharmacy/orders']];
 
+/** Back, or (when there is nothing to go back to: a deep link, a notification) the hub of the list's own service: the diagnostics hub for labs and radiology, the pharmacy hub for pharmacy orders, home for the all-services list. */
+export function backFor(endpoints: OrderEndpoints): () => void {
+  const keys = endpoints.map(([key]) => key);
+  if (keys.length > 0 && keys.every((key) => key === 'labs' || key === 'radiology')) return goBackDiag;
+  if (keys.length > 0 && keys.every((key) => key === 'pharmacyOrders')) return goBackPharmacy;
+  return () => {
+    if (router.canGoBack()) router.back();
+    else router.replace('/(tabs)' as Href);
+  };
+}
+
 export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEndpoints; titleKey: string; testID: string }) {
   const { theme, dir, k, num, c } = useScreenUi();
   const [rows, setRows] = useState<OrderRow[]>([]);
@@ -51,6 +63,7 @@ export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEnd
   const [offline, setOffline] = useState(false);
   const [bucket, setBucket] = useState<Bucket>('current');
   const seq = useRef(0);
+  const onBack = useMemo(() => backFor(endpoints), [endpoints]);
 
   const load = useCallback(async (mode: 'first' | 'manual') => {
     const mine = ++seq.current;
@@ -89,7 +102,7 @@ export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEnd
 
   const header = (
     <View style={COLUMN}>
-      <AppHeader title={k(titleKey)} onBack={goBack} backLabel={k('pharmacy.back')} theme={theme} direction={dir} />
+      <AppHeader title={k(titleKey)} onBack={onBack} backLabel={k('pharmacy.back')} theme={theme} direction={dir} />
     </View>
   );
   const state = (node: React.ReactNode) => (

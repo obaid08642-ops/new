@@ -25,6 +25,7 @@ import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import styles from "@/components-next/diagnostics/diag.module.css";
 import type { Metadata } from "next";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
+import { diagnosticBookingHref } from "@/lib/diagnostics-links";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string }> };
 
@@ -240,7 +241,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
             return (
               <RowCard
                 key={booking.id}
-                href={`/${locale}/diagnostics/${domain}/${booking.id}`}
+                href={diagnosticBookingHref(locale, domain, booking.id)}
                 icon={domain === "labs" ? LAB.icon : RADIOLOGY.icon}
                 tone={domain === "labs" ? LAB.tone : RADIOLOGY.tone}
                 title={label}
