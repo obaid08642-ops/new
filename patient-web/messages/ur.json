@@ -100,8 +100,6 @@
     "aiStart": "گفتگو شروع کریں",
     "aiSymptoms": "علامات کی جانچ",
     "aiTranslator": "نسخے کا مترجم",
-    "aiSkin": "جلد کا تجزیہ",
-    "aiDoctor": "ورچوئل ڈاکٹر",
     "aiReport": "ماہانہ رپورٹ",
     "offersTitle": "آفرز اور پیکیجز",
     "seeAll": "سب دیکھیں",
@@ -1317,16 +1315,6 @@
     "empty": "ابھی کوئی پوسٹ نہیں",
     "error": "ابھی لوڈ نہیں ہو سکا"
   },
-  "AiTriage": {
-    "title": "AI علامات کی جانچ",
-    "subtitle": "اپنی علامات بیان کریں۔",
-    "placeholder": "مثال: دو دن سے سر درد…",
-    "submit": "تجزیہ کریں",
-    "submitting": "تجزیہ جاری…",
-    "error": "ابھی تجزیہ نہیں ہو سکا",
-    "resultTitle": "ابتدائی جائزہ",
-    "disclaimer": "یہ ابتدائی جائزہ ہے، طبی تشخیص نہیں۔"
-  },
   "PublicProduct": {
     "backToCatalog": "کیٹالاگ پر واپس",
     "home": "ہوم",
@@ -1662,25 +1650,6 @@
     "servicesTitle": "Available Nursing Services",
     "price": "{value} SAR",
     "requestNurse": "Request Nursing Visit"
-  },
-  "VoiceAssistant": {
-    "title": "Quick Assistant",
-    "subtitle": "Fast shortcuts to directly access healthcare services",
-    "voiceNotice": "Select a service for instant navigation",
-    "actionDoctor": "Book Doctor Appointment",
-    "actionPharmacy": "Order Medicine from Pharmacy",
-    "actionLabs": "Book Lab Test",
-    "actionNursing": "Book Home Nurse",
-    "actionAppointments": "View Upcoming Appointments",
-    "actionTriage": "AI Symptom Triage",
-    "actionEmergency": "Emergency — Request Ambulance",
-    "catConsultation": "Medical Consultation",
-    "catPharmacy": "Pharmacy & Medicines",
-    "catLabs": "Labs & Diagnostics",
-    "catNursing": "Nursing & Home Care",
-    "catAppointments": "Appointments",
-    "catAI": "AI Assistant",
-    "catEmergency": "Urgent Emergency"
   },
   "MapExplorer": {
     "title": "Explore Facilities",
@@ -3148,5 +3117,88 @@
     "myPoints": "میرے پوائنٹس اور انعامات",
     "noSessions": "اس پروگرام میں کوئی سیشن نہیں۔",
     "markDone": "مکمل کا نشان لگائیں"
+  },
+  "AssistantWeb": {
+    "title": "اے آئی اسسٹنٹ",
+    "modesLabel": "آپ کیا پوچھنا چاہتے ہیں؟",
+    "mode": {
+      "symptoms": "میری علامات",
+      "prescription": "میرا نسخہ",
+      "report": "میری رپورٹ"
+    },
+    "heroTitle": {
+      "symptoms": "اپنی علامات بیان کریں",
+      "prescription": "میرا نسخہ سمجھائیں",
+      "report": "میری رپورٹ سمجھائیں"
+    },
+    "heroLine": {
+      "symptoms": "ہم اگلا قدم بتاتے ہیں۔ یہ رہنمائی ہے، تشخیص نہیں۔",
+      "prescription": "نسخے کی تصویر لیں تاکہ دوا کے نام پڑھے جا سکیں، پھر کسی بھی دوا کے بارے میں فارماسسٹ سے پوچھیں۔",
+      "report": "اپنی طبی رپورٹس منتخب کریں، ہم ان کا خلاصہ آسان الفاظ میں سمجھائیں گے۔"
+    },
+    "askedLabel": "آپ کا سوال",
+    "examplesLabel": "عام مثالیں",
+    "example1": "دو دن سے سر درد",
+    "example2": "بخار اور خشک کھانسی",
+    "example3": "پیٹ درد اور متلی",
+    "example4": "جلد پر دانے اور خارش",
+    "symptomsLabel": "آپ کی علامات",
+    "symptomsPlaceholder": "مثال: دو دن سے سر درد اور متلی",
+    "flagsLegend": "کیا آپ میں ان میں سے کوئی علامت ہے؟ جو لاگو ہوں وہ منتخب کریں",
+    "flag": {
+      "chest_pain": "سینے میں درد",
+      "breathing_difficulty": "سانس لینے میں دشواری",
+      "fainting_or_unresponsive": "بے ہوشی یا ردعمل نہ دینا",
+      "heavy_bleeding": "شدید خون بہنا",
+      "new_confusion": "اچانک الجھن",
+      "severe_allergic_reaction": "شدید الرجک ردعمل",
+      "severe_injury": "شدید چوٹ"
+    },
+    "submit": "اگلا قدم معلوم کریں",
+    "submitting": "جانچ ہو رہی ہے…",
+    "error": "ابھی رہنمائی نہیں مل سکی۔ کچھ دیر بعد دوبارہ کوشش کریں۔",
+    "emergencyTitle": "ایسی علامات جن کے لیے فوری مدد چاہیے",
+    "emergencyBody": "آپ کی منتخب کردہ علامات کے لیے ابھی مقامی ایمرجنسی سروسز سے رابطہ کریں، اپائنٹمنٹ کا انتظار نہ کریں۔",
+    "consultationTitle": "ہم ڈاکٹر سے مشورے کی تجویز دیتے ہیں",
+    "consultationBody": "آپ نے کوئی ہنگامی علامت منتخب نہیں کی۔ علامات برقرار رہیں یا بڑھ جائیں تو ڈاکٹر سے مشورہ بک کریں۔",
+    "bookConsultation": "مشورہ بک کریں",
+    "askAgain": "نیا سوال پوچھیں",
+    "disclaimer": "یہ عمومی رہنمائی ہے، تشخیص یا علاج نہیں۔ ہنگامی صورت میں ایمرجنسی سروسز کو کال کریں۔",
+    "medicinesTitle": "تصویر سے پڑھی گئی ادویات",
+    "pharmacistNote": "خوراک، استعمال کے طریقے اور انتباہات کے لیے فارماسسٹ سے پوچھیں۔ ہم خوراک طے نہیں کرتے۔",
+    "askPharmacist": "فارماسسٹ سے پوچھیں",
+    "explainAnother": "کچھ اور سمجھائیں",
+    "untitledReport": "طبی رپورٹ",
+    "reportsUnavailable": "آپ کی رپورٹس ابھی لوڈ نہیں ہو سکیں۔ کچھ دیر بعد دوبارہ کوشش کریں۔"
+  },
+  "MonthlyReportWeb": {
+    "title": "آپ کی ماہانہ رپورٹ",
+    "heroLine": "اس مہینے آپ کی اپائنٹمنٹس، پیمائشیں اور دائمی ادویات",
+    "unavailableTitle": "رپورٹ لوڈ نہیں ہو سکی",
+    "unavailable": "کچھ دیر بعد دوبارہ کوشش کریں۔",
+    "notAvailable": "—",
+    "emptyTitle": "ابھی کافی ڈیٹا نہیں",
+    "emptyBody": "کوئی پیمائش درج کریں، آپ کی رپورٹ یہاں نظر آئے گی۔",
+    "logReading": "پیمائش درج کریں",
+    "glance": "اس مہینے ایک نظر میں",
+    "appointments": "اپائنٹمنٹس",
+    "completed": "مکمل",
+    "upcoming": "آنے والی",
+    "chronicMeds": "دائمی ادویات",
+    "vitals": "آپ کی تازہ ترین پیمائشیں",
+    "trends": "آپ کے صحت کے رجحانات",
+    "viewTrends": "تمام رجحانات دیکھیں",
+    "readings": "پیمائشوں کی تعداد: {count}",
+    "firstLast": "پہلی {first}، آخری {last}",
+    "direction": {
+      "rising": "بڑھ رہا ہے",
+      "falling": "کم ہو رہا ہے",
+      "stable": "مستحکم"
+    },
+    "monthAppointments": "اس مہینے کی اپائنٹمنٹس",
+    "appointment": "اپائنٹمنٹ",
+    "done": "مکمل",
+    "scheduled": "طے شدہ",
+    "bookFollowUp": "فالو اپ بک کریں"
   }
 }

@@ -16,9 +16,7 @@ export const HOME_SERVICES: HomeService[] = [
 
 /** The AI tools row of the board. */
 export const HOME_TOOLS: HomeTool[] = [
-  { label: 'فحص الأعراض', icon: 'heartbeat', tone: SERVICE_ICONS.nursing.tone, route: '/ai/symptom-checker' },
-  { label: 'مترجم الروشتات', icon: 'translate', tone: 'violet', route: '/ai/prescription-translator' },
-  { label: 'تحليل البشرة', icon: 'scan', tone: 'pink', route: '/ai/skin-analysis' },
-  { label: 'طبيب افتراضي', icon: 'robot', tone: 'blue', route: '/ai/chat-doctor' },
+  { label: 'فحص الأعراض', icon: 'heartbeat', tone: SERVICE_ICONS.nursing.tone, route: '/ai?mode=symptoms' },
+  { label: 'مترجم الروشتات', icon: 'translate', tone: 'violet', route: '/ai?mode=prescription' },
   { label: 'التقرير الشهري', icon: 'chart-line-up', tone: 'mint', route: '/ai/monthly-report' },
 ];
