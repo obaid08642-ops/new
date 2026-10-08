@@ -53,7 +53,7 @@ Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = we
 
 ## Open blockers (details in `PROGRESS_ARCHIVE.md` and the Needs-review JSON)
 - **Public product catalogue is empty** on the seeded backend (v14 import is the reviewer's): product/category screens are checked with injected TEST data only.
-- **Backend gaps** found in Batches 1-6 are in `needs-review/*.json` (with file:line from Batch 2) and the OpenCode queue; the reviewer owns them.
 - **Endpoints the reviewer will add:** `GET /payments/status/:ref` (web `/payments/result`), `GET /insurance/claims/my` (batch 7), `GET /nutrition/plan` (batch 8); doctor fields `scfhs_license_no`, `years_experience`, `qualifications[]`. Hide the part, never invent data.
 - **Owner questions open:** see `PROGRESS_ARCHIVE.md` (2026-10-08 list).
 - **Provider wiring audit (design/provider-audit, read-only):** 151 screens, 489 endpoint pairs all match backend routes, 2006 elements (1987 ok), 55 Needs-review lines in `needs-review/provider-*.json`; summary `PROVIDER_AUDIT_SUMMARY.md`. Tokens ~330k.
+- **Provider journey audit (same PR #734):** `docs/journeys/provider.md`, `needs-review/provider-journeys.json` (54 lines), `PROVIDER_PROPOSALS.md` (10 merge items, missing screens) sent to owner; build nothing until approved. ~290k tokens.
