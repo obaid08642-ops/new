@@ -281,6 +281,8 @@ function syncGeoPoint(target: any) {
   const loc = target?.location;
   if (loc && typeof loc.lat === 'number' && typeof loc.lng === 'number') {
     target.geoPoint = { type: 'Point', coordinates: [loc.lng, loc.lat] };
+  } else {
+    target.geoPoint = undefined;
   }
 }
 
@@ -302,4 +304,4 @@ for (const hook of ['updateOne', 'updateMany', 'findOneAndUpdate'] as const) {
   });
 }
 
-ProviderProfileSchema.index({ geoPoint: '2dsphere' });
+ProviderProfileSchema.index({ geoPoint: '2dsphere' }, { sparse: true });
