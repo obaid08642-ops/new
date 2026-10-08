@@ -116,9 +116,9 @@ export function extractLab(payload: unknown): LabDetail | null {
     address: typeof item.address === "string" ? item.address : undefined,
     phone: typeof item.phone === "string" ? item.phone : undefined,
     image: typeof item.image === "string" ? item.image : undefined,
-    rating: typeof item.rating === "number" ? item.rating : 4.8,
+    rating: typeof item.rating === "number" ? item.rating : undefined,
     description: typeof item.description === "string" ? item.description : undefined,
-    home_visit: Boolean(item.home_visit ?? true),
+    home_visit: typeof item.home_visit === "boolean" ? item.home_visit : undefined,
     services: Array.isArray(item.services)
       ? item.services.map((s: any) => ({
           id: String(s.id ?? s._id ?? ""),

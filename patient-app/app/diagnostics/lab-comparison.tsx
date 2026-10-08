@@ -1,273 +1,115 @@
-// @ts-nocheck
-import { logError } from '../../src/utils/logger';
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-} from "react-native";
-import { AppText } from "../../src/components/ui";
-import { Colors } from "../../src/theme";
-const theme = { colors: Colors.light };
-import Icon from "@expo/vector-icons/MaterialIcons";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { useDiagnosticsCart } from "../../src/context/DiagnosticsCartContext";
-import { apiFetch } from "../../src/utils/api";
-import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Text, View } from 'react-native';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 
+import { Button } from '../../../packages/ui-native/src';
+import { ConsultList } from '../../src/components/consult/ConsultKit';
+import { LabCard, Price, goBackDiag, useDiagText } from '../../src/components/diagnostics/DiagKit';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
+import { apiFetch } from '../../src/utils/api';
+import { isOffline } from '../../src/utils/isOffline';
+import { logError } from '../../src/utils/logger';
+import { normalizeProviders, recordOf, type LabProvider } from '../../src/utils/labMappers';
+
+/** The labs that can do one test, side by side with the price (board ServiceHub "approved labs"); booking adds it to the cart for that lab. */
 export default function LabComparison() {
-  const router = useRouter();
+  const { theme, t, c, k, num, flow } = useScreenUi();
+  const text = useDiagText();
   const { id, name } = useLocalSearchParams<{ id: string; name: string }>();
   const { addItem } = useDiagnosticsCart();
   const [adding, setAdding] = useState(false);
-
-  const testName = name || "الفحص المختار";
-
-  const [loading, setLoading] = useState(true);
-  const [labs, setLabs] = useState<any[]>([]);
+  const [labs, setLabs] = useState<LabProvider[]>([]);
   const [basePrice, setBasePrice] = useState(0);
+  const [status, setStatus] = useState<'loading' | 'error' | 'offline' | 'ready'>('loading');
 
-  useEffect(() => {
-    if (!id) return;
-    Promise.all([
-      apiFetch(`/labs/services/${id}`),
-      apiFetch(`/labs/compatible-providers?testIds=${id}`)
-    ]).then(([svcRes, labsRes]: any) => {
-      const price = Number((svcRes?.data || svcRes)?.price || 0);
-      setBasePrice(price);
-      setLabs(labsRes?.data || labsRes || []);
-      setLoading(false);
-    }).catch((err) => {
+  const testName = name || k('diag.compare.chosenTest');
+
+  const load = useCallback(async () => {
+    if (!id) {
+      setStatus('ready');
+      return;
+    }
+    setStatus('loading');
+    try {
+      const [svcRes, labsRes] = await Promise.all([apiFetch<unknown>(`/labs/services/${id}`), apiFetch<unknown>(`/labs/compatible-providers?testIds=${id}`)]);
+      setBasePrice(Number(recordOf(svcRes)?.price ?? 0) || 0);
+      setLabs(normalizeProviders(labsRes));
+      setStatus('ready');
+    } catch (err) {
       logError('diagnostics:lab-comparison', err);
-      setLoading(false);
-    });
+      setStatus((await isOffline()) ? 'offline' : 'error');
+    }
   }, [id]);
 
-  const handleBook = async (lab: any) => {
-    setAdding(true);
-    // Ask user if they want Home Visit or Clinic Visit (if home visit is available)
-    if (lab.homeVisitAvailable) {
-      showLocalizedAlert(
-        "تحديد مكان الخدمة",
-        "هل تفضل زيارة فرع المختبر أم إرسال فني لسحب العينة من منزلك؟",
-        [
-          { text: "إلغاء", style: "cancel", onPress: () => setAdding(false) },
-          { text: "زيارة الفرع", onPress: () => processAdd(lab, false) },
-          {
-            text: "سحب من المنزل (تُحدد الرسوم عند الحجز)",
-            onPress: () => processAdd(lab, true),
-          },
-        ],
-      );
-    } else {
-      await processAdd(lab, false);
-    }
-  };
+  useEffect(() => {
+    void load();
+  }, [load]);
 
-  const processAdd = async (lab: any, isHomeVisit: boolean) => {
+  const processAdd = async (lab: LabProvider, isHomeVisit: boolean) => {
     try {
       await addItem({
-        id,
+        id: String(id),
         name: `${testName} - ${lab.name}`,
         price: basePrice,
-        kind: "lab",
+        kind: 'lab',
         provider: lab.name,
         lockedProviderId: lab.id,
         isHomeVisit,
-        icon: "biotech",
-        iconBg: `${theme.colors.primary}15`,
-        iconColor: theme.colors.primary,
       });
-      router.push("/diagnostics/cart");
+      router.push('/diagnostics/cart' as Href);
     } finally {
       setAdding(false);
     }
   };
 
+  const handleBook = async (lab: LabProvider) => {
+    setAdding(true);
+    // Ask the user whether they want a home visit or a visit to the lab (when the lab does home visits)
+    if (lab.homeVisit) {
+      showLocalizedAlert(k('diag.compare.placeTitle'), k('diag.compare.placeBody'), [
+        { text: k('diag.compare.cancel'), style: 'cancel', onPress: () => setAdding(false) },
+        { text: k('diag.compare.visitLab'), onPress: () => void processAdd(lab, false) },
+        { text: k('diag.compare.homeVisit'), onPress: () => void processAdd(lab, true) },
+      ]);
+    } else {
+      await processAdd(lab, false);
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Icon
-            name="arrow-forward"
-            size={24}
-            color={theme.colors.textPrimary}
-          />
-        </TouchableOpacity>
-        <AppText variant="h2" style={styles.headerTitle}>
-          مقارنة المختبرات
-        </AppText>
-      </View>
-
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.infoBox}>
-          <AppText style={{ fontSize: 13, color: theme.colors.textSecondary }}>
-            مقارنة الأسعار لـ:
-          </AppText>
-          <AppText
-            variant="h3"
-            style={{ marginTop: 4, color: theme.colors.primary }}
-          >
-            {testName}
-          </AppText>
+    <ConsultList
+      testID="diagnostics-lab-comparison"
+      title={k('diag.compare.title')}
+      onBack={goBackDiag}
+      top={
+        <View style={{ gap: 2 }}>
+          <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('diag.compare.pricesFor')}</Text>
+          <Text accessibilityRole="header" style={{ ...scale(t, 'h3'), color: c.text.primary, ...flow }}>{testName}</Text>
         </View>
-
-        {loading ? (
-          <AppText style={{ textAlign: 'center', marginTop: 40, color: theme.colors.textSecondary }}>جاري تحميل المختبرات المتوفرة...</AppText>
-        ) : (
-          labs.map((lab) => (
-            <View
-            key={lab.id}
-            style={styles.labCard}
-          >
-            <View style={styles.cardHeader}>
-              <View style={{ flex: 1 }}>
-                <AppText style={{ fontSize: 16, fontWeight: "900" }}>
-                  {lab.name}
-                </AppText>
-                <View style={styles.ratingRow}>
-                  {lab.rating != null && <><Icon name="star" size={14} color="#F5A623" /><AppText style={{ fontSize: 12, color: theme.colors.textSecondary, marginLeft: 4 }}>{lab.rating}</AppText></>}
-                  {lab.homeVisitAvailable && (
-                    <View style={styles.homeBadge}>
-                      <Icon
-                        name="home"
-                        size={10}
-                        color={theme.colors.secondary}
-                      />
-                      <AppText
-                        style={{
-                          fontSize: 9,
-                          color: theme.colors.secondary,
-                          marginLeft: 2,
-                        }}
-                      >
-                        سحب منزلي متاح
-                      </AppText>
-                    </View>
-                  )}
-                </View>
-              </View>
-              <View style={styles.priceCol}>
-                <AppText
-                  style={{
-                    fontSize: 24,
-                    fontWeight: "900",
-                    color: theme.colors.primary,
-                  }}
-                >
-                  {basePrice || '—'}
-                </AppText>
-                <AppText
-                  style={{ fontSize: 10, color: theme.colors.textSecondary }}
-                >
-                  {basePrice ? 'ر.س (أساسي)' : 'يُحدد عند الحجز'}
-                </AppText>
-              </View>
+      }
+      data={labs}
+      status={status}
+      onRetry={() => void load()}
+      keyExtractor={(l) => l.id}
+      empty={{ icon: 'test-tube', title: k('diag.compare.empty') }}
+      renderItem={(lab) => (
+        <LabCard
+          name={lab.name}
+          line={[lab.rating !== null ? k('diag.rating', { n: num(lab.rating, { maximumFractionDigits: 1 }) }) : '', text.distance(lab.distance)].filter(Boolean).join(' · ')}
+          tags={lab.homeVisit ? [{ label: k('diag.tag.home'), tone: 'neutral' }] : undefined}
+          onPress={undefined}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              {basePrice > 0 ? <Price amount={basePrice} size="h4" /> : <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{k('diag.compare.priceAtBooking')}</Text>}
+              <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.secondary, ...flow }}>{k('diag.compare.availability')}</Text>
             </View>
-
-            <View style={styles.cardFooter}>
-              <View style={styles.timeBox}>
-                <AppText
-                  style={{ fontSize: 10, color: theme.colors.textSecondary }}
-                >
-                  التوفر
-                </AppText>
-                <AppText style={{ fontSize: 13, fontWeight: "bold" }}>
-                  بعد تأكيد المزوّد
-                </AppText>
-              </View>
-              <TouchableOpacity
-                style={styles.bookBtn}
-                onPress={() => handleBook(lab)}
-                disabled={adding}
-              >
-                <AppText
-                  style={{ fontSize: 13, fontWeight: "bold", color: "#fff" }}
-                >
-                  احجز الآن
-                </AppText>
-              </TouchableOpacity>
-            </View>
+            <Button theme={theme} size="md" label={k('diag.compare.book')} disabled={adding} onPress={() => void handleBook(lab)} />
           </View>
-        ))) }
-        {!loading && labs.length === 0 && <AppText style={{ textAlign: 'center', marginTop: 40, color: theme.colors.textSecondary }}>لا يوجد مزوّد متوافق ومفعّل لهذا الفحص حالياً.</AppText>}
-      </ScrollView>
-    </View>
+        </LabCard>
+      )}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "transparent" },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 24,
-    paddingTop: 60,
-    backgroundColor: "transparent",
-    borderBottomWidth: 1,
-    borderBottomColor: "transparent",
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "transparent",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerTitle: { flex: 1, textAlign: "center", marginRight: 40 },
-  scrollContent: { padding: 24 },
-  infoBox: {
-    marginBottom: 24,
-    padding: 16,
-    backgroundColor: `${"transparent"}10`,
-    borderRadius: 16,
-  },
-  labCard: {
-    backgroundColor: "transparent",
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 16,
-    borderWidth: 1.5,
-    borderColor: "transparent",
-    position: "relative",
-  },
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 20,
-  },
-  ratingRow: { flexDirection: "row", alignItems: "center", marginTop: 6 },
-  homeBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: `${"transparent"}15`,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
-    marginLeft: 10,
-  },
-  priceCol: { alignItems: "flex-end" },
-  cardFooter: { flexDirection: "row", gap: 12 },
-  timeBox: {
-    flex: 1,
-    backgroundColor: "transparent",
-    borderRadius: 12,
-    padding: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  bookBtn: {
-    backgroundColor: "transparent",
-    borderRadius: 12,
-    paddingHorizontal: 32,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

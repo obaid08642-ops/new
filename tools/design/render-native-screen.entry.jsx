@@ -18,6 +18,7 @@ import authReducer from '@app/src/store/slices/authSlice';
 import { AppProvider } from '@app/src/context/AppContext';
 import { CartProvider, useCart } from '@app/src/context/CartContext';
 import { ConsultationsProvider } from '@app/src/context/ConsultationsContext';
+import { DiagnosticsCartProvider, useDiagnosticsCart } from '@app/src/context/DiagnosticsCartContext';
 import Screen from '@screen';
 import TabBar from '@tabbar';
 import LayoutHeader from '@header';
@@ -43,6 +44,17 @@ function SeedCart() {
   return null;
 }
 
+// --diag-cart test: marked TEST lines in the diagnostics cart (one lab test, one scan), added once on mount
+function SeedDiagCart() {
+  const { addItem } = useDiagnosticsCart();
+  React.useEffect(() => {
+    if (cfg.diagCart !== 'test') return;
+    void addItem({ id: 'test-lab-test', name: 'تحليل تجريبي ١', price: 90, kind: 'lab' });
+    void addItem({ id: 'test-rad', name: 'فحص أشعة تجريبي', price: 250, kind: 'radiology' });
+  }, []);
+  return null;
+}
+
 function Root() {
   return (
     // dir: react-native-web resolves start/end from the writing direction of its context, the
@@ -56,13 +68,16 @@ function Root() {
               {/* the real cart (local state, as in the app root): the pharmacy screens read and write it */}
               <CartProvider>
                <ConsultationsProvider>
+                <DiagnosticsCartProvider>
                 <SeedCart />
+                <SeedDiagCart />
                 {/* what the tabs layout draws: its header above the screen, the tab bar floating over it */}
                 {cfg.header ? <LayoutHeader /> : null}
                 <View style={{ flex: 1 }}>
                   <Screen />
                 </View>
                 {cfg.tabbar ? <TabBar /> : null}
+                </DiagnosticsCartProvider>
                </ConsultationsProvider>
               </CartProvider>
             </AppProvider>
