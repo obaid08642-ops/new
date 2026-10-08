@@ -7,6 +7,7 @@ import { AppHeader, Card, EmptyState, ErrorState, FIcon, OfflineState, Screen, S
 import { COLUMN, step as scale, tint, useScreenUi } from '../screen/ScreenKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
 import { dateLocaleFor } from '../../utils/dates';
+import { statusCode } from '../../utils/statusCase';
 
 /**
  * What the consultation screens share (Batch 2, slice 2-app): the screen frame with its header and sticky footer, the
@@ -275,7 +276,7 @@ type StatusTone = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
 
 /** An appointment's server status as its label key and status tone. */
 export function appointmentStatus(raw: unknown): { key: string; tone: StatusTone } {
-  const s = String(raw ?? '').toLowerCase();
+  const s = statusCode(raw);
   if (s === 'confirmed' || s === 'scheduled' || s === 'accepted') return { key: 'consult.status.confirmed', tone: 'info' };
   if (s === 'completed' || s === 'done') return { key: 'consult.status.completed', tone: 'success' };
   if (s === 'cancelled' || s === 'canceled' || s === 'rejected') return { key: 'consult.status.cancelled', tone: 'danger' };

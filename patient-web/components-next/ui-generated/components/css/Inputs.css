@@ -34,7 +34,7 @@
   font-family: var(--nabd-font-family-body);
   color: var(--nabd-color-text-primary);
   background: var(--nabd-color-bg-surface);
-  border: 1px solid var(--nabd-color-border-default);
+  border: 1px solid var(--nabd-color-border-strong);
   border-radius: var(--nabd-radius-md);
   appearance: none;
 }
@@ -215,7 +215,7 @@
   font-variant-numeric: tabular-nums;
   border-radius: var(--nabd-radius-pill);
   cursor: pointer;
-  border: 1px solid var(--nabd-color-border-default);
+  border: 1px solid var(--nabd-color-border-strong);
   background: var(--nabd-color-bg-surface);
   color: var(--nabd-color-text-primary);
   text-decoration: none;

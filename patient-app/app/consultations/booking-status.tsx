@@ -10,11 +10,12 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button, Card } from '../../../packages/ui-native/src';
 import BookingConfirmForm from '../../src/components/BookingConfirmForm';
-import { ConsultScreen, ResultHero, StatusTag, appointmentStatus } from '../../src/components/consult/ConsultKit';
+import { ConsultScreen, InfoRow, ModePill, ResultHero, StatusTag, appointmentStatus, useConsultFormat, visitMode } from '../../src/components/consult/ConsultKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { apiFetch } from '../../src/utils/api';
 import { consultationMutationHeaders } from '../../src/utils/consultation-payment';
+import { statusIs } from '../../src/utils/statusCase';
 
 type Mode = 'confirm' | 'success' | 'pending';
 
@@ -22,6 +23,10 @@ interface Appointment {
   id?: string;
   status?: string;
   service_type?: string;
+  consultation_type?: string;
+  scheduled_at?: string;
+  doctor_name?: string;
+  doctor?: { name?: string };
 }
 
 function acceptedRoute(appointment: Appointment | null, fallbackType: string): Href {
@@ -30,6 +35,33 @@ function acceptedRoute(appointment: Appointment | null, fallbackType: string): H
   if (type === 'clinic') return { pathname: '/consultations/clinic-confirm', params: { appointmentId } } as unknown as Href;
   if (type === 'home') return { pathname: '/consultations/home-visit-tracking', params: { appointmentId } } as unknown as Href;
   return { pathname: '/consultations/virtual-waiting-room', params: { appointmentId } } as unknown as Href;
+}
+
+/** The success state's summary: who, when and how, from the appointment the screen already reads. */
+function BookingSummary({ appointment, fallbackType }: { appointment: Appointment; fallbackType: string }) {
+  const { theme, t, c, flow, k } = useScreenUi();
+  const { date, clock } = useConsultFormat();
+  const doctor = appointment.doctor?.name || appointment.doctor_name || '';
+  const at = appointment.scheduled_at;
+  const mode = visitMode(appointment.consultation_type || appointment.service_type || fallbackType);
+  if (!doctor && !at && !mode) return null;
+  return (
+    <Card theme={theme}>
+      {doctor ? (
+        <View style={{ paddingVertical: 10, borderBottomWidth: at || mode ? 1 : 0, borderBottomColor: c.border.hairline }}>
+          <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{doctor}</Text>
+        </View>
+      ) : null}
+      <InfoRow label={k('consult.detail.date')} value={at ? date(at, true) : ''} />
+      <InfoRow label={k('consult.detail.time')} value={at ? clock(at) : ''} last={!mode} />
+      {mode ? (
+        <View style={{ paddingVertical: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary }}>{k('consult.detail.visitType')}</Text>
+          <ModePill mode={mode} />
+        </View>
+      ) : null}
+    </Card>
+  );
 }
 
 export default function BookingStatusScreen() {
@@ -71,12 +103,13 @@ export default function BookingStatusScreen() {
   }, [appointmentId, k]);
 
   useEffect(() => {
-    if (mode === 'pending') void refresh();
+    // the success state draws its summary from the same appointment the pending state reads
+    if (mode !== 'confirm') void refresh();
   }, [mode, refresh]);
 
   const status = appointment?.status || 'PENDING';
-  const confirmed = ['CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'].includes(status);
-  const cancelled = ['CANCELLED', 'NO_SHOW'].includes(status);
+  const confirmed = statusIs(status, ['confirmed', 'checked_in', 'in_progress']);
+  const cancelled = statusIs(status, ['cancelled', 'no_show']);
 
   useEffect(() => {
     if (mode === 'pending' && confirmed) router.push(acceptedRoute(appointment, visitType));
@@ -124,6 +157,7 @@ export default function BookingStatusScreen() {
         }
       >
         <ResultHero icon="check-circle" tone="success" title={k('consult.status.placed')} body={isInsurance ? k('consult.status.awaitingInsurance') : k('consult.status.prepare')} pop={pop} />
+        {appointment ? <BookingSummary appointment={appointment} fallbackType={visitType} /> : null}
       </ConsultScreen>
     );
   }
