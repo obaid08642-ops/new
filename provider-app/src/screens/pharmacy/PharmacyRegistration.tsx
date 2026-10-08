@@ -89,9 +89,9 @@ const INIT: PharmacyRegData = {
 };
 
 // ══════════════════════════════════════════════════════════════════════════════
-export function PharmacyRegistration({ onBack, onDone }: { onBack:()=>void; onDone:()=>void }) {
+export function PharmacyRegistration({ onBack, onDone, initialData }: { onBack:()=>void; onDone:()=>void; initialData?: Partial<PharmacyRegData> }) {
   const [step, setStep] = useState(1);
-  const [data, setData] = useState<PharmacyRegData>(INIT);
+  const [data, setData] = useState<PharmacyRegData>({ ...INIT, ...initialData });
   const [showMap, setShowMap] = useState(false);
   const TOTAL = 4;
   const [showSuccess, setShowSuccess] = useState(false);

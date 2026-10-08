@@ -116,9 +116,9 @@ const WORK_DAYS = [
 // ══════════════════════════════════════════════════════════════════════════════
 // LAB REGISTRATION NAVIGATOR
 // ══════════════════════════════════════════════════════════════════════════════
-export function RadiologyRegistration({ onBack, onDone }: { onBack: () => void; onDone: () => void; }) {
+export function RadiologyRegistration({ onBack, onDone, initialData }: { onBack: () => void; onDone: () => void; initialData?: Partial<RadiologyRegData> }) {
   const [step, setStep] = useState(1);
-  const [data, setData] = useState<RadiologyRegData>({ ...INIT, centerType: 'radiology' });
+  const [data, setData] = useState<RadiologyRegData>({ ...INIT, centerType: 'radiology', ...initialData });
   const [showMap, setShowMap] = useState(false);
   const TOTAL = 4;
   const [showSuccess, setShowSuccess] = useState(false);

@@ -93,9 +93,9 @@ const INIT: NurseRegData = {
 };
 
 // ══════════════════════════════════════════════════════════════════════════════
-export function NursingRegistration({ onBack, onDone }: { onBack: () => void; onDone: () => void }) {
+export function NursingRegistration({ onBack, onDone, initialData }: { onBack: () => void; onDone: () => void; initialData?: Partial<NurseRegData> }) {
   const [step, setStep] = useState(1);
-  const [data, setData] = useState<NurseRegData>(INIT);
+  const [data, setData] = useState<NurseRegData>({ ...INIT, ...initialData });
   const [showMap, setShowMap] = useState(false);
   const TOTAL = 4;
   const [submitted, setSub] = useState(false);
@@ -926,6 +926,9 @@ function NS8Signature({ data, update, onDone, onBack, step, total }: any) {
   const sigRef = useRef<any>(null);
   const [hasSigned, setHasSigned] = useState(false);
   const [scrollEnabled, setScrollEnabled] = useState(true);
+  const [showOtp, setShowOtp] = useState(false);
+  const handleVerifyOtp = async (code: string) => verifyEmailOtp(data.managerEmail || data.email, code);
+  const [showSigModal, setShowSigModal] = useState(false);
 
   const validateBeforeSubmit = () => {
     if (!data.nameAr.trim() || !data.nameEn.trim() || !data.managerEmail.trim() || !data.city.trim() || !data.address.trim()) {
@@ -1062,9 +1065,6 @@ function NS8Signature({ data, update, onDone, onBack, step, total }: any) {
     { ar: 'الدفع', en: 'Payment', val: data.cashOnly ? (AR ? 'نقدي فقط' : 'نقدي + تأمين') : (AR ? 'نقدي + تأمين' : 'Cash + Insurance') },
   ];
 
-    const [showOtp, setShowOtp] = useState(false);
-  const handleVerifyOtp = async (code: string) => verifyEmailOtp(data.managerEmail || data.email, code);
-  const [showSigModal, setShowSigModal] = useState(false);
 return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <View style={{ padding: SP.xl, paddingBottom: 0 }}>

@@ -103,9 +103,9 @@ const HOURS = Array.from({ length: 24 }, (_, i) => {
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
-export function DoctorRegistration({ onBack, onDone }: { onBack: () => void; onDone: () => void }) {
+export function DoctorRegistration({ onBack, onDone, initialData }: { onBack: () => void; onDone: () => void; initialData?: Partial<DoctorRegData> }) {
   const [step, setStep] = useState(1);
-  const [data, setData] = useState<DoctorRegData>(INITIAL);
+  const [data, setData] = useState<DoctorRegData>({ ...INITIAL, ...initialData });
   const [showMap, setShowMap] = useState(false);
     const TOTAL = 4;
   const [showSuccess, setShowSuccess] = useState(false);

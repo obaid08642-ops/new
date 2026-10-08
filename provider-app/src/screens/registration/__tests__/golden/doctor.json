@@ -1,0 +1,319 @@
+{
+  "api": [
+    {
+      "fn": "start",
+      "args": [
+        {
+          "phone": "0551234567",
+          "password": "Passw0rd!x",
+          "full_name": "Ahmed Ali Alharbi",
+          "email": "doctor@example.com",
+          "type": "doctor"
+        }
+      ]
+    },
+    {
+      "fn": "onboardingLogin",
+      "args": [
+        "doctor@example.com",
+        "Passw0rd!x",
+        "doctor"
+      ]
+    },
+    {
+      "fn": "step2",
+      "args": [
+        {
+          "license_number": "12345678",
+          "license_documents": [
+            "https://cdn.test/id.jpg",
+            "https://cdn.test/scfhs.jpg",
+            "https://cdn.test/extra.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "fn": "step3",
+      "args": [
+        {
+          "specialty": "cardiology",
+          "academic_degree": "consultant",
+          "years_experience": 12,
+          "consultation_modes": [
+            "clinic",
+            "video",
+            "home"
+          ],
+          "price_clinic": 200,
+          "price_online": 120,
+          "price_home": 350,
+          "home_visit_radius_km": 10,
+          "clinic_duration": 30,
+          "video_duration": 20,
+          "home_duration": 45,
+          "schedule_clinic": [
+            {
+              "day": "SUN",
+              "open": "08:00",
+              "close": "12:00",
+              "open_evening": "16:00",
+              "close_evening": "20:00"
+            },
+            {
+              "day": "MON",
+              "open": "08:00",
+              "close": "12:00",
+              "open_evening": "16:00",
+              "close_evening": "20:00"
+            }
+          ],
+          "home_transport_fee": true,
+          "home_transport_price": 30,
+          "clinic_name": "Heart Clinic",
+          "vacation_date": "2026-11-20",
+          "national_id": "1000000000",
+          "gender": "male",
+          "schedule_video": [
+            {
+              "day": "TUE",
+              "open": "09:00",
+              "close": "11:00"
+            }
+          ],
+          "schedule_home": [
+            {
+              "day": "WED",
+              "open": "13:00",
+              "close": "17:00"
+            },
+            {
+              "day": "THU",
+              "open": "13:00",
+              "close": "17:00"
+            }
+          ],
+          "working_hours": [
+            {
+              "day": "SUN",
+              "open": "08:00",
+              "close": "12:00",
+              "open_evening": "16:00",
+              "close_evening": "20:00"
+            },
+            {
+              "day": "MON",
+              "open": "08:00",
+              "close": "12:00",
+              "open_evening": "16:00",
+              "close_evening": "20:00"
+            }
+          ],
+          "accepts_insurance": true,
+          "accepted_insurance": [
+            "bupa"
+          ],
+          "insurance_plans": {
+            "bupa": [
+              "gold",
+              "silver"
+            ]
+          },
+          "insurance_clinic": true,
+          "insurance_online": false,
+          "insurance_home": true
+        }
+      ]
+    },
+    {
+      "fn": "step2",
+      "args": [
+        {
+          "legal_name": "Ahmed Ali Alharbi",
+          "name_ar": "Ahmed Ali Alharbi",
+          "name_en": "Ahmed Ali Alharbi",
+          "display_name_ar": "د. أحمد",
+          "display_name_en": "Dr. Ahmed",
+          "region": "riyadh",
+          "city": "riyadh_city",
+          "district": "olaya",
+          "location": {
+            "lat": 24.7136,
+            "lng": 46.6753
+          },
+          "address": "King Fahd Road",
+          "accepts_cash": false,
+          "bio": "Cardiologist",
+          "clinic_images": [
+            "https://cdn.test/c0.jpg",
+            "https://cdn.test/old.jpg"
+          ],
+          "profile_photo": "https://cdn.test/me.jpg",
+          "languages": [
+            "ar",
+            "en"
+          ]
+        }
+      ]
+    },
+    {
+      "fn": "uploadSignature",
+      "args": [
+        "data:image/png;base64,SIGNATURE"
+      ]
+    },
+    {
+      "fn": "step2",
+      "args": [
+        {
+          "iban": "SA0380000000608010167519",
+          "bank_account_name": "Ahmed Ali Alharbi"
+        }
+      ]
+    },
+    {
+      "fn": "submit",
+      "args": [
+        {
+          "signer_name": "Ahmed Ali Alharbi",
+          "signer_role": "Doctor",
+          "lat": 24.7,
+          "lng": 46.7,
+          "signature_url": "https://cdn.test/signature.png",
+          "full_data": {
+            "legalName": "Ahmed Ali Alharbi",
+            "nameAr": "د. أحمد",
+            "nameEn": "Dr. Ahmed",
+            "email": "doctor@example.com",
+            "phone": "0551234567",
+            "gender": "male",
+            "scfhsNumber": "12345678",
+            "nationalId": "1000000000",
+            "iban": "SA0380000000608010167519",
+            "accountHolderName": "Ahmed Ali Alharbi",
+            "specialty": "cardiology",
+            "degree": "consultant",
+            "yearsExp": "12",
+            "bio": "Cardiologist",
+            "clinicImagesUris": [
+              "file:///cache/c0.jpg",
+              "https://cdn.test/old.jpg"
+            ],
+            "offersClinic": true,
+            "clinicPrice": "200",
+            "clinicDuration": "30",
+            "offersHome": true,
+            "homePrice": "350",
+            "homeDuration": "45",
+            "homeRadius": 10,
+            "homeTransportFee": true,
+            "homeTransportPrice": "30",
+            "offersVideo": true,
+            "videoPrice": "120",
+            "videoDuration": "20",
+            "lat": 24.7,
+            "lng": 46.7,
+            "scheduleType": "per_service",
+            "unifiedDays": [],
+            "unifiedStart": "",
+            "unifiedEnd": "",
+            "unifiedShift": "both",
+            "clinicDays": [
+              "SUN",
+              "MON"
+            ],
+            "clinicStart": "08:00",
+            "clinicEnd": "12:00",
+            "clinicShift": "both",
+            "videoDays": [
+              "TUE"
+            ],
+            "videoStart": "09:00",
+            "videoEnd": "11:00",
+            "videoShift": "morning",
+            "homeDays": [
+              "WED",
+              "THU"
+            ],
+            "homeStart": "13:00",
+            "homeEnd": "17:00",
+            "homeShift": "evening",
+            "vacationDate": "2026-11-20",
+            "cashOnly": false,
+            "acceptedInsurance": [
+              {
+                "companyId": "bupa",
+                "plans": [
+                  "gold",
+                  "silver"
+                ]
+              }
+            ],
+            "region": "riyadh",
+            "city": "riyadh_city",
+            "district": "olaya",
+            "location": {
+              "lat": 24.7136,
+              "lng": 46.6753
+            },
+            "address": "King Fahd Road",
+            "clinicName": "Heart Clinic",
+            "signerName": "Ahmed Ali Alharbi",
+            "signerRole": "Doctor",
+            "clinicStartEve": "16:00",
+            "clinicEndEve": "20:00",
+            "insuranceClinic": true,
+            "insuranceVideo": false,
+            "insuranceHome": true,
+            "languages": [
+              "ar",
+              "en"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "uploads_before_refactor": [
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/id.jpg",
+        "image/jpeg",
+        "id_front.jpg"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/scfhs.jpg",
+        "image/jpeg",
+        "scfhs.jpg"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/extra.jpg",
+        "application/pdf",
+        "extra.pdf"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/me.jpg",
+        "image/jpeg",
+        "doctor_profile.jpg"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/c0.jpg",
+        "image/jpeg",
+        "clinic_0.jpg"
+      ]
+    }
+  ]
+}

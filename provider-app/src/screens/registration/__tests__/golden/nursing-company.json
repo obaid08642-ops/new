@@ -1,0 +1,246 @@
+{
+  "api": [
+    {
+      "fn": "start",
+      "args": [
+        {
+          "phone": "0571234567",
+          "password": "Passw0rd!x",
+          "full_name": "Huda Salem",
+          "email": "nurse@example.com",
+          "type": "home_care"
+        }
+      ]
+    },
+    {
+      "fn": "onboardingLogin",
+      "args": [
+        "nurse@example.com",
+        "Passw0rd!x",
+        "home_care"
+      ]
+    },
+    {
+      "fn": "step2",
+      "args": [
+        {
+          "license_number": "1010303030",
+          "license_documents": [
+            "https://cdn.test/cr.pdf",
+            "https://cdn.test/moh.jpg"
+          ],
+          "cr_number": "1010303030",
+          "moh_license_number": "MOH-N-5",
+          "gender": "female",
+          "languages": [
+            "ar",
+            "fil"
+          ]
+        }
+      ]
+    },
+    {
+      "fn": "step3",
+      "args": [
+        {
+          "nursing_services": [
+            {
+              "key": "injection",
+              "name_ar": "injection",
+              "price": 0
+            },
+            {
+              "key": "wound_care",
+              "name_ar": "wound_care",
+              "price": 0
+            }
+          ],
+          "home_visit_radius_km": 12,
+          "working_hours": [
+            {
+              "day": "All",
+              "open": "00:00",
+              "close": "23:59",
+              "open_evening": null,
+              "close_evening": null,
+              "closed": false
+            }
+          ],
+          "pricingModel": [
+            "per_visit",
+            "per_hour"
+          ],
+          "priceVisit": 120,
+          "priceHour": 60,
+          "priceDay": 0,
+          "priceMonth": 0,
+          "insurance_plans": {}
+        }
+      ]
+    },
+    {
+      "fn": "step2",
+      "args": [
+        {
+          "name_ar": "تمريض نبض",
+          "name_en": "Nabd Nursing",
+          "city": "riyadh_city",
+          "location": {
+            "lat": 24.7136,
+            "lng": 46.6753
+          },
+          "district": "olaya",
+          "address": "Olaya 5",
+          "accepts_cash": true,
+          "accepts_insurance": false,
+          "accepted_insurance": [],
+          "cr_number": "1010303030",
+          "moh_license_number": "MOH-N-5",
+          "scfhs_license_number": "4455667",
+          "scfhs_expiry": "2027-05-01",
+          "license_documents": [
+            "https://cdn.test/cr.pdf",
+            "https://cdn.test/moh.jpg",
+            "https://cdn.test/scfhs.jpg"
+          ],
+          "profile_photo": "https://cdn.test/photo.jpg"
+        }
+      ]
+    },
+    {
+      "fn": "uploadSignature",
+      "args": [
+        "data:image/png;base64,SIGNATURE"
+      ]
+    },
+    {
+      "fn": "step2",
+      "args": [
+        {
+          "iban": "SA0380000000608010167519",
+          "bank_account_name": "Huda Salem"
+        }
+      ]
+    },
+    {
+      "fn": "submit",
+      "args": [
+        {
+          "signer_name": "Huda Salem",
+          "signer_role": "Owner",
+          "lat": 24.7136,
+          "lng": 46.6753,
+          "signature_url": "https://cdn.test/signature.png",
+          "full_data": {
+            "mode": "company",
+            "nameAr": "تمريض نبض",
+            "nameEn": "Nabd Nursing",
+            "gender": "female",
+            "managerName": "Huda Salem",
+            "managerPhone": "0571234567",
+            "managerEmail": "nurse@example.com",
+            "scfhsNumber": "4455667",
+            "scfhsExpiry": "2027-05-01",
+            "nationalId": "1090000000",
+            "crNumber": "1010303030",
+            "languages": [
+              "ar",
+              "fil"
+            ],
+            "mohLicense": "MOH-N-5",
+            "iban": "SA0380000000608010167519",
+            "accountHolderName": "Huda Salem",
+            "enabledServices": [
+              "injection",
+              "wound_care"
+            ],
+            "pricingModels": [
+              "per_visit",
+              "per_hour"
+            ],
+            "priceVisit": "120",
+            "priceHour": "60",
+            "priceDay": "",
+            "priceMonth": "",
+            "city": "riyadh_city",
+            "location": {
+              "lat": 24.7136,
+              "lng": 46.6753
+            },
+            "district": "olaya",
+            "address": "Olaya 5",
+            "coverageRadius": 12,
+            "workDays": [
+              "SUN",
+              "MON",
+              "WED"
+            ],
+            "shiftType": "both",
+            "openTime": "08:00",
+            "closeTime": "13:00",
+            "eveningOpenTime": "17:00",
+            "eveningCloseTime": "21:00",
+            "is24_7": true,
+            "vacationDate": "",
+            "cashOnly": true,
+            "acceptedInsurance": [],
+            "signerName": "Huda Salem",
+            "signerRole": "Owner",
+            "termsAgreed": true,
+            "region": "riyadh"
+          }
+        }
+      ]
+    }
+  ],
+  "uploads_before_refactor": [
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/cr.pdf",
+        "image/jpeg",
+        "cr.jpg"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/moh.jpg",
+        "image/jpeg",
+        "moh.jpg"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/cr.pdf",
+        "application/pdf",
+        "cr_document"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/moh.jpg",
+        "application/pdf",
+        "moh_license"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/scfhs.jpg",
+        "application/pdf",
+        "scfhs_license"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/photo.jpg",
+        "image/jpeg",
+        "nursing_logo_photo"
+      ]
+    }
+  ]
+}

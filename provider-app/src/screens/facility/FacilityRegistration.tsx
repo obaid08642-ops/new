@@ -77,9 +77,9 @@ const INIT: FacilityRegData = {
   region: '', city: '', district: '', fullAddress: '', location: {lat: 0, lng: 0}, subProviders: [], cashOnly: false, acceptedInsurance: [], hasInsuranceCoordinator: false, signatureData: '', signerName: '', signerRole: '', termsAgreed: false, loading: false
 };
 
-export function FacilityRegistration({ onBack, onDone }: { onBack: () => void; onDone: () => void }) {
+export function FacilityRegistration({ onBack, onDone, initialData }: { onBack: () => void; onDone: () => void; initialData?: Partial<FacilityRegData> }) {
   const [step, setStep] = useState(1);
-  const [data, setData] = useState<FacilityRegData>(INIT);
+  const [data, setData] = useState<FacilityRegData>({ ...INIT, ...initialData });
   const [submitted, setSubmitted] = useState(false);
   const TOTAL = 4;
   const [showSuccess, setShowSuccess] = useState(false);

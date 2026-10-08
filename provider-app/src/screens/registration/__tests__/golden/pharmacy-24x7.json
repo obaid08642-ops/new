@@ -1,0 +1,238 @@
+{
+  "api": [
+    {
+      "fn": "start",
+      "args": [
+        {
+          "phone": "0501234567",
+          "password": "Passw0rd!x",
+          "full_name": "Khalid Omar",
+          "email": "Pharmacy@Example.com",
+          "type": "pharmacy"
+        }
+      ]
+    },
+    {
+      "fn": "onboardingLogin",
+      "args": [
+        "Pharmacy@Example.com",
+        "Passw0rd!x",
+        "pharmacy"
+      ]
+    },
+    {
+      "fn": "step2",
+      "args": [
+        {
+          "license_number": "1010101010",
+          "license_documents": [
+            "https://cdn.test/cr.jpg",
+            "https://cdn.test/moh.jpg",
+            "https://cdn.test/sfda.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "fn": "step3",
+      "args": [
+        {
+          "has_own_drivers": false,
+          "has_own_delivery": false,
+          "delivery_radius_km": 0,
+          "delivery_fee": 10,
+          "free_delivery_above": 150,
+          "min_order_sar": 25,
+          "express_delivery": false,
+          "express_fee": 15,
+          "express_minutes": 45,
+          "working_hours": [
+            {
+              "day": "All",
+              "open": "00:00",
+              "close": "23:59",
+              "open_evening": null,
+              "close_evening": null,
+              "closed": false
+            }
+          ],
+          "accepts_insurance": false,
+          "accepted_insurance": [],
+          "insurance_plans": {},
+          "accepts_cash": true,
+          "rx_dispensing": false,
+          "otc_selling": true,
+          "enabled_categories": [
+            "otc",
+            "rx"
+          ]
+        }
+      ]
+    },
+    {
+      "fn": "step2",
+      "args": [
+        {
+          "name_ar": "صيدلية نبض",
+          "name_en": "Nabd Pharmacy",
+          "pharmacist_name": "Mohamed Ahmed",
+          "city": "riyadh_city",
+          "location": {
+            "lat": 24.7136,
+            "lng": 46.6753
+          },
+          "district": "olaya",
+          "address": "Prince Sultan Road",
+          "pharmacy_type": "hospital",
+          "cr_number": "1010101010",
+          "moh_license_number": "MOH-PHR-12345",
+          "sfda_license_number": "SFDA-998877",
+          "tax_number": "300123456700003",
+          "license_documents": [
+            "https://cdn.test/cr.jpg",
+            "https://cdn.test/moh.jpg",
+            "https://cdn.test/sfda.jpg"
+          ],
+          "languages": [
+            "ar",
+            "en"
+          ]
+        }
+      ]
+    },
+    {
+      "fn": "uploadSignature",
+      "args": [
+        "data:image/png;base64,SIGNATURE"
+      ]
+    },
+    {
+      "fn": "step2",
+      "args": [
+        {
+          "iban": "SA0380000000608010167519",
+          "bank_account_name": "Nabd Pharmacy Co"
+        }
+      ]
+    },
+    {
+      "fn": "submit",
+      "args": [
+        {
+          "signer_name": "Khalid Omar",
+          "signer_role": "Owner",
+          "lat": 24.7136,
+          "lng": 46.6753,
+          "signature_url": "https://cdn.test/signature.png",
+          "full_data": {
+            "nameAr": "صيدلية نبض",
+            "nameEn": "Nabd Pharmacy",
+            "type": "hospital",
+            "languages": [
+              "ar",
+              "en"
+            ],
+            "managerName": "Khalid Omar",
+            "managerPhone": "0501234567",
+            "managerEmail": "Pharmacy@Example.com",
+            "pharmacistName": "Mohamed Ahmed",
+            "crNumber": "1010101010",
+            "mohLicense": "MOH-PHR-12345",
+            "sfdaNumber": "SFDA-998877",
+            "iban": "SA0380000000608010167519",
+            "taxNumber": "300123456700003",
+            "logoUri": "",
+            "city": "riyadh_city",
+            "district": "olaya",
+            "address": "Prince Sultan Road",
+            "deliveryRadius": 0,
+            "hasDelivery": false,
+            "hasOwnDrivers": false,
+            "workDays": [],
+            "is24_7": true,
+            "vacationDate": "",
+            "shiftType": "morning",
+            "openTime": "08:00",
+            "closeTime": "14:00",
+            "eveningOpenTime": "16:00",
+            "eveningCloseTime": "22:00",
+            "enabledCategories": [
+              "otc",
+              "rx"
+            ],
+            "rxDispensing": false,
+            "otcSelling": true,
+            "minOrderSAR": "25",
+            "deliveryFee": "10",
+            "freeDeliveryAbove": "150",
+            "expressDelivery": false,
+            "expressFee": "15",
+            "expressMinutes": "45",
+            "scheduledDelivery": true,
+            "cashOnly": true,
+            "acceptedInsurance": [],
+            "signerName": "Khalid Omar",
+            "signerRole": "Owner",
+            "termsAgreed": true,
+            "location": {
+              "lat": 24.7136,
+              "lng": 46.6753
+            },
+            "accountHolderName": "Nabd Pharmacy Co",
+            "region": "riyadh"
+          }
+        }
+      ]
+    }
+  ],
+  "uploads_before_refactor": [
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/cr.jpg",
+        "image/jpeg",
+        "cr.jpg"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/moh.jpg",
+        "image/jpeg",
+        "moh.jpg"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/sfda.jpg",
+        "image/jpeg",
+        "sfda.jpg"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/cr.jpg",
+        "application/pdf",
+        "cr_document"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/moh.jpg",
+        "application/pdf",
+        "moh_license"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/sfda.jpg",
+        "application/pdf",
+        "sfda_license"
+      ]
+    }
+  ]
+}
