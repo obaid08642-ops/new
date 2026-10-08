@@ -41,6 +41,7 @@ import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
+import { buildProvider } from './provider-inventory.mjs';
 import { scanMock, CATEGORIES as MOCK_CATEGORIES, isScanned } from './mock-scan.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -103,6 +104,12 @@ const APPS = {
       ['@/assets/', 'patient-app/assets/'],
       ['@/', 'patient-app/src/'],
     ],
+    exts: ['.native.tsx', '.native.ts', '.ios.tsx', '.ios.ts', '.tsx', '.ts', '.js', '.jsx'],
+  },
+  'provider-app': {
+    root: join(REPO, 'provider-app'),
+    routesDir: join(REPO, 'provider-app/src/screens'),
+    aliases: [],
     exts: ['.native.tsx', '.native.ts', '.ios.tsx', '.ios.ts', '.tsx', '.ts', '.js', '.jsx'],
   },
   'patient-web': {
@@ -219,8 +226,8 @@ function paramOf(arg, params) {
 }
 const SOURCE_DIRS = ['patient-app/app', 'patient-app/src', 'patient-app/utils', 'patient-web/app', 'patient-web/components-next', 'patient-web/lib'];
 
-function collectWrappers() {
-  const files = SOURCE_DIRS.flatMap((d) => walk(join(REPO, d), (p) => /\.(tsx?|jsx?)$/.test(p) && !/\.(test|spec|d)\.tsx?$/.test(p)));
+function collectWrappers(dirs = SOURCE_DIRS) {
+  const files = dirs.flatMap((d) => walk(join(REPO, d), (p) => /\.(tsx?|jsx?)$/.test(p) && !/\.(test|spec|d)\.tsx?$/.test(p)));
   const parsed = files.map((f) => ts.createSourceFile(f, read(f), ts.ScriptTarget.Latest, true, f.endsWith('x') ? ts.ScriptKind.TSX : ts.ScriptKind.TS));
   PARSED.push(...parsed);
   for (const sf of parsed) {
@@ -603,7 +610,7 @@ function analyseFile(file) {
 
 /* ------------------------------------------------- symbol-level closure */
 
-function closure(appKey, entryFile) {
+function closure(appKey, entryFile, entrySym = '**') {
   const calls = [];
   const seen = new Set();
   const files = new Set();
@@ -674,7 +681,7 @@ function closure(appKey, entryFile) {
     for (const r of inf.refs) local(fa, r);
   };
 
-  want(entryFile, '**');
+  want(entryFile, entrySym);
   const uniq = new Map();
   for (const c of calls) {
     const k = `${c.method} ${c.target} ${c.path}`;
@@ -1527,7 +1534,7 @@ async function main() {
     wrapperSites,
     unresolvedSites,
     statics: loadStaticScreens(),
-    needs: loadNeedsReview(),
+    needs: loadNeedsReview().filter((n) => n.app !== 'provider-app'),
     mock: mockFindings(rows, closureFiles),
   };
 
@@ -1537,6 +1544,13 @@ async function main() {
     'docs/design/WIRING_REPORT.md': renderWiring(rows, meta, foundation(), fieldGaps(), extra) + '\n',
     'docs/design/inventory/screens.json': JSON.stringify({ commit, routes: rows }, null, 1) + '\n',
   };
+
+  // provider-app (React Navigation, not expo-router): own pass after the patient files are done, own output files
+  Object.assign(outputs, buildProvider({
+    ts, REPO, rel, read, walk, analyseFile, resolveSpec, closure, isCallerCallee, WRAPPERS, BUILDERS, REQ_BUILDERS, collectWrappers,
+    matchRoute, be, commit, loadNeedsReview, scanMock,
+    overrides: existsSync(join(REPO, 'docs/design/inventory/provider-audit-overrides.json')) ? JSON.parse(read(join(REPO, 'docs/design/inventory/provider-audit-overrides.json'))) : {}, UNRESOLVED_SITES, WRAPPER_SITES, MANUAL, MANUAL_USED, fileCache, join, existsSync, readdirSync,
+  }));
 
   if (CHECK) {
     // the commit line differs on every commit; compare everything else
