@@ -9,7 +9,7 @@ _Updated 2026-10-06._
 
 | Item | State |
 |---|---|
-| Foundation, Batch 0 (+ fixes), Batch 1 pharmacy (#293), Batch 2 consultations (#313), F82-1/2, F68, #303 | Merged |
+| Foundation, Batch 0 (+ fixes), Batches 1-3 (#293, #313, #318), Needs-review file:line rule (#502), F82-1/2, F68, #303 | Merged |
 | Batch 3 labs/radiology [#318](https://github.com/obaid08642-ops/new/pull/318) (+ client fixes [#347](https://github.com/obaid08642-ops/new/pull/347)), Batch 4 nursing [#350](https://github.com/obaid08642-ops/new/pull/350) (stacked on #318), Batch 2 client fixes [#319](https://github.com/obaid08642-ops/new/pull/319) | Open; reviewer's runtime-contrast and preview fixes pushed |
 | F82-3 static/ISR [#308](https://github.com/obaid08642-ops/new/pull/308) | Open; main merged in (one `session-identity`), `runtime-contrast` job starts the nonce server |
 | Merge map 1 (health, family, settings, AI, mental health) | **Approved and merged** (#345); answers in `MERGE_MAP.md` §7 |
@@ -28,7 +28,7 @@ Screens per batch (app / web, redirects excluded; Batches 5/6/8/9/12 are reshape
 5. **Batch 5 leftovers:** emergency routes (decision 14, ambulance removal O-2) not rebuilt: the old pages still carry inline `style=` (CSP console errors in the runtime check), to be replaced by the one Emergency screen after O-2; `/ai/report` (Batch 9) has the same; four app screens (profile, map, AI monthly report, prescription translator) still push old health routes (redirects cover them).
 
 ## Process (owner, 2026-10-06; quality rules unchanged, recording changed)
-- **Lean v2 (Batch 2 on): under 40k tokens per screen** (Batch 1 cost ~100k). Design only (no business-logic changes, no features; wrong logic = one Needs-review line); templates first, built once with tests, screens converted mechanically; no backend reading per screen (inventory + one runtime check per slice); tests only for new templates and payment/booking; translations extracted in one pass at the end of the slice; read only the screen, its board and the template; slices of 15-25 screens; stop and say why if a slice passes 40k/screen.
+- **Lean v2 (Batch 2 on): under 40k tokens per screen.** Design only (wrong logic = one Needs-review line); templates first; no backend reading per screen; one translation pass per slice; read only screen, board, template; slices of 15-25 screens. Rules in `/AGENTS.md`.
 - **No screenshots committed or sent.** A temporary screenshot only to compare with the board while building, then delete it. No before/after/compare images.
 - **One production build and one runtime check per slice, at the end**; dev server while building. Lighthouse only in F82 PRs and once per batch.
 - **Audit is generated, short:** `node tools/design/audit-table.mjs` from a compact `audit/<slice>.json` (route, element, source, status); notes one line each, only for problems. Needs-review: one line each.

@@ -3,9 +3,15 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import consult from "@/components-next/consult/consult.module.css";
+import rx from "@/components-next/pharmacy/rx.module.css";
+import styles from "@/components-next/diagnostics/diag.module.css";
 
 const TIMES = ["09:00", "10:30", "12:00", "14:00", "15:30", "17:00"];
 
+/** The checkout of the tests order (canvas/CheckoutV2): the day and time, the payment method, the address for a home sample, then the order and, for a card, the payment. The flow is unchanged; this is its markup and texts. */
 export function DiagnosticsCheckoutForm({
   locale,
   items,
@@ -17,31 +23,30 @@ export function DiagnosticsCheckoutForm({
   labId: string;
   initialLocation: "home" | "facility";
 }) {
+  const t = useTranslations("DiagWeb");
   const router = useRouter();
   const days = useMemo(() => {
-    const out: Array<{ iso: string; label: string }> = [];
+    const out: Array<{ iso: string; weekday: string; date: string }> = [];
     // Gregorian by default; Hijri automatically when the device uses it.
     let calendar = "gregory";
     try {
       const deviceCal = Intl.DateTimeFormat().resolvedOptions().calendar || "";
       if (/islamic|hijri/i.test(deviceCal)) calendar = "islamic-umalqura";
     } catch {}
-    const tag = `${locale === "ar" ? "ar-SA" : "en-US"}-u-ca-${calendar}`;
+    const tag = `${locale}-u-ca-${calendar}`;
     const now = new Date();
     for (let i = 0; i < 7; i++) {
       const d = new Date(now);
       d.setDate(now.getDate() + i);
       out.push({
         iso: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
-        label: new Intl.DateTimeFormat(tag, {
-          weekday: "long",
-          day: "numeric",
-          month: "numeric",
-        }).format(d),
+        weekday: new Intl.DateTimeFormat(tag, { weekday: "short" }).format(d),
+        date: new Intl.DateTimeFormat(tag, { day: "numeric", month: "short" }).format(d),
       });
     }
     return out;
   }, [locale]);
+  const timeLabel = (hhmm: string) => new Intl.DateTimeFormat(locale, { timeStyle: "short" }).format(new Date(`2000-01-01T${hhmm}:00`));
   const [day, setDay] = useState(days[0]?.iso || "");
   const [time, setTime] = useState<string | null>(null);
   const [method, setMethod] = useState<"cash" | "card" | "insurance">(initialLocation === "home" ? "card" : "cash");
@@ -49,7 +54,6 @@ export function DiagnosticsCheckoutForm({
   const [insuranceProvider, setInsuranceProvider] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const ar = locale === "ar";
 
   const allowedMethods = initialLocation === "home" ? ["card", "insurance"] : ["cash", "card", "insurance"];
 
@@ -57,20 +61,20 @@ export function DiagnosticsCheckoutForm({
     e.preventDefault();
     setError(null);
     if (!time) {
-      setError(ar ? "اختر اليوم والوقت" : "Select day and time");
+      setError(t("errPickTime"));
       return;
     }
     if (initialLocation === "home" && !address.trim()) {
-      setError(ar ? "أدخل عنوان السحب المنزلي" : "Enter the home collection address");
+      setError(t("errAddress"));
       return;
     }
     if (method === "insurance" && !insuranceProvider.trim()) {
-      setError(ar ? "أدخل شركة التأمين" : "Enter the insurance company");
+      setError(t("errInsurer"));
       return;
     }
     const scheduled = new Date(`${day}T${time}:00`);
     if (Number.isNaN(scheduled.getTime()) || scheduled.getTime() < Date.now()) {
-      setError(ar ? "الموعد في الماضي — اختر وقتاً لاحقاً" : "Time is in the past — choose a later time");
+      setError(t("errPast"));
       return;
     }
     setSaving(true);
@@ -95,13 +99,13 @@ export function DiagnosticsCheckoutForm({
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
-        setError((data as { message?: string })?.message || (ar ? "تعذر إنشاء الطلب" : "Could not create order"));
+        setError((data as { message?: string })?.message || t("errOrder"));
         return;
       }
       const order = (data as { data?: { id?: string }; id?: string })?.data ?? data;
       const orderId = (order as { id?: string })?.id;
       if (!orderId) {
-        setError(ar ? "تعذر إنشاء الطلب" : "Could not create order");
+        setError(t("errOrder"));
         return;
       }
 
@@ -117,7 +121,7 @@ export function DiagnosticsCheckoutForm({
         });
         const payData = await payRes.json().catch(() => null);
         if (!payRes.ok) {
-          setError((payData as { message?: string })?.message || (ar ? "تعذر الدفع" : "Payment failed"));
+          setError((payData as { message?: string })?.message || t("errPay"));
           return;
         }
         const checkoutUrl = (payData as { checkout_url?: string })?.checkout_url;
@@ -134,57 +138,69 @@ export function DiagnosticsCheckoutForm({
       router.push(`/${locale}/diagnostics/orders/${encodeURIComponent(orderId)}`);
       router.refresh();
     } catch {
-      setError(ar ? "تعذر إنشاء الطلب" : "Could not create order");
+      setError(t("errOrder"));
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <form onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-        {days.map((d) => (
-          <button key={d.iso} type="button" onClick={() => setDay(d.iso)} style={{ fontWeight: day === d.iso ? 800 : 400 }}>
-            {d.label}
-          </button>
-        ))}
-      </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-        {TIMES.map((t) => (
-          <button key={t} type="button" onClick={() => setTime(t)} style={{ fontWeight: time === t ? 800 : 400 }}>
-            {t}
-          </button>
-        ))}
-      </div>
-      <div style={{ display: "flex", gap: 8 }}>
-        {allowedMethods.map((m) => (
-          <button key={m} type="button" onClick={() => setMethod(m as "cash" | "card" | "insurance")} style={{ fontWeight: method === m ? 800 : 400 }}>
-            {m === "cash" ? (ar ? "نقدي" : "Cash") : m === "card" ? (ar ? "بطاقة" : "Card") : (ar ? "تأمين" : "Insurance")}
-          </button>
-        ))}
-      </div>
+    <form onSubmit={onSubmit} className={consult.stack} noValidate>
+      <section className={rx.card} aria-labelledby="co-when">
+        <h2 id="co-when" className={consult.sectionTitle}>{t("checkoutWhen")}</h2>
+        <div className={consult.days} role="group" aria-label={t("checkoutDay")}>
+          {days.map((d) => (
+            <button key={d.iso} type="button" className={`${consult.choice} ${consult.day}`} aria-pressed={day === d.iso} onClick={() => setDay(d.iso)}>
+              <span className={consult.dayMeta}>{d.weekday}</span>
+              <span className={consult.dayNum}>{d.date}</span>
+            </button>
+          ))}
+        </div>
+        <div className={consult.slots} role="group" aria-label={t("checkoutTime")}>
+          {TIMES.map((slot) => (
+            <button key={slot} type="button" className={consult.choice} aria-pressed={time === slot} onClick={() => setTime(slot)}>
+              <bdi>{timeLabel(slot)}</bdi>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className={rx.card} aria-labelledby="co-pay">
+        <h2 id="co-pay" className={consult.sectionTitle}>{t("checkoutPay")}</h2>
+        <div className={consult.choices} role="group" aria-label={t("checkoutPay")}>
+          {allowedMethods.map((m) => (
+            <button key={m} type="button" className={consult.choice} aria-pressed={method === m} onClick={() => setMethod(m as "cash" | "card" | "insurance")}>
+              {m === "cash" ? t("payCash") : m === "card" ? t("payCard") : t("payInsurance")}
+            </button>
+          ))}
+        </div>
+        {method === "card" ? <p className={styles.flowNote}>{t("payCardNote")}</p> : null}
+        {method === "insurance" ? (
+          <>
+            <label className={consult.field}>
+              <span className={consult.label}>{t("insurerLabel")}</span>
+              <input className={consult.control} value={insuranceProvider} onChange={(e) => setInsuranceProvider(e.target.value)} maxLength={128} required />
+            </label>
+            <p className={styles.flowNote}>
+              {t("insuranceHint")}{" "}
+              <Link className={rx.textLink} href={`/${locale}/diagnostics/bookings`}>{t("insuranceHintLink")}</Link>
+            </p>
+          </>
+        ) : null}
+      </section>
+
       {initialLocation === "home" ? (
-        <label style={{ display: "grid", gap: 6 }}>
-          <span>{ar ? "عنوان السحب المنزلي" : "Home collection address"}</span>
-          <textarea value={address} onChange={(e) => setAddress(e.target.value)} maxLength={1000} rows={2} required />
-        </label>
-      ) : null}
-      {method === "insurance" ? (
-        <>
-          <label style={{ display: "grid", gap: 6 }}>
-            <span>{ar ? "شركة التأمين" : "Insurance company"}</span>
-            <input value={insuranceProvider} onChange={(e) => setInsuranceProvider(e.target.value)} maxLength={128} required />
+        <section className={rx.card} aria-labelledby="co-address">
+          <h2 id="co-address" className={consult.sectionTitle}>{t("addressTitle")}</h2>
+          <label className={consult.field}>
+            <span className="sr-only">{t("addressTitle")}</span>
+            <textarea className={consult.control} value={address} onChange={(e) => setAddress(e.target.value)} maxLength={1000} rows={3} required />
           </label>
-          <p>
-            <small>
-              {ar ? "لديك حجز قائم؟ " : "Have an existing booking? "}
-              <Link href={`/${locale}/diagnostics/bookings`}>{ar ? "ارفع مستند التأمين من حجوزاتك" : "Upload insurance documents from your bookings"}</Link>
-            </small>
-          </p>
-        </>
+        </section>
       ) : null}
-      {error ? <p role="alert">{error}</p> : null}
-      <button type="submit" disabled={saving}>{saving ? (ar ? "جارٍ الحجز..." : "Booking...") : (ar ? "تأكيد الحجز" : "Confirm booking")}</button>
+
+      {error ? <p className={consult.error} role="alert">{error}</p> : null}
+      <Button type="submit" label={saving ? t("checkoutSaving") : t("checkoutConfirm")} size="lg" fullWidth loading={saving} disabled={saving} />
     </form>
   );
 }
