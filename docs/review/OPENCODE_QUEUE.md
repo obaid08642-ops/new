@@ -113,15 +113,15 @@ Order (do not skip ahead):
 | D-14 | #333 | Emergency: remove the whole ambulance system: dispatch, missions, tracking, fleet, the `drivers` module, and the ambulance provider type in the provider app, registration, KYC and admin. Archive the data first. Keep "send my location to my emergency contacts". | spec #605 |
 | D-10 | #329 | Rx rules on the server: no promo, offer or points on Rx items; an order with an Rx item needs an attached prescription; `controlled` items are never orderable. | spec #353 |
 | D-15 | #334 | AI assistant limits: specialty routing, leaflet mode, the output filter, red flags, the disclaimer, and a 100+ prompt test set in CI. | spec + test set #354 |
-| D-1 | #320 | Community removed (archive first). Doctor articles: verified doctors only, admin approval, no comments, Rx brand-name block. | spec #608 |
-| D-8 | #327 | Mental health: remove assessment scoring and crisis handling; urgent-help number in admin config. | spec #609 |
-| D-2 | #321 | Remove the loyalty leaderboard. | spec #610 |
-| D-4 | #323 | Remove AI skin analysis. | spec #611 |
-| D-9 | #328 | Loyalty challenges: health-habit `target_action` only; existing purchase challenges ended and archived. | spec #613 |
-| D-12 | #331 | SFDA price ceiling: `sfda_price` and its source; line mapping; reject offers over the ceiling; unmapped lines go to admin review. | spec #606 (owner O-1 answered: the catalogue `price` in the server DB is the ceiling) |
-| D-13 | #332 | Offers waiting: the final "no pharmacy available" state (with Q-3). | spec #614, Q-3 |
-| D-17 | #336 | Doctor public view: SCFHS licence and `verified`; never national ID, phone or email. | spec #615 (urgent: `/providers` leaks national id, phone, email, IBAN today) |
-| D-19 | #338 | Lab result push deep link to the result. | spec #616 |
+| D-1 | #320 | Community removed (archive first). Doctor articles: verified doctors only, admin approval, no comments, Rx brand-name block. | spec merged (#608): start now |
+| D-8 | #327 | Mental health: remove assessment scoring and crisis handling; urgent-help number in admin config. | spec merged (#609): start now |
+| D-2 | #321 | Remove the loyalty leaderboard. | spec merged (#610): start now |
+| D-4 | #323 | Remove AI skin analysis. | spec merged (#611): start now |
+| D-9 | #328 | Loyalty challenges: health-habit `target_action` only; existing purchase challenges ended and archived. | spec merged (#613): start now |
+| D-12 | #331 | SFDA price ceiling: `sfda_price` and its source; line mapping; reject offers over the ceiling; unmapped lines go to admin review. | spec merged (#606): start now (owner O-1 answered: the catalogue `price` in the server DB is the ceiling) |
+| D-13 | #332 | Offers waiting: the final "no pharmacy available" state (with Q-3). | spec merged (#614): start now, Q-3 |
+| D-17 | #336 | Doctor public view: SCFHS licence and `verified`; never national ID, phone or email. | spec merged (#615): start now (urgent: `/providers` leaks national id, phone, email, IBAN today) |
+| D-19 | #338 | Lab result push deep link to the result. | spec merged (#616): start now |
 | D-7 | #326 | One assistant endpoint replacing the seven AI routes. | owner-approved merge map |
 
 | D-26 | — | Cancellation and refund policy (decision 26). One admin-editable policy per service type: consultations, home visit and nursing, pharmacy delivery. Used by every cancel path, returned with each booking or order (the rule plus the refund the patient would get now), refunded to the original payment method. The clients show only the server value; remove the hard-coded copies. | spec #582 |
@@ -132,6 +132,13 @@ Order (do not skip ahead):
 | D-29 | — | Search (decision 29): self-hosted Meilisearch, index rebuild from MongoDB plus change sync, Arabic normalisation and synonyms, 6 locales, a scoped search per section and a grouped global search. | spec |
 | D-30 | — | Insurance first (decision 30): profile insurance with class; provider networks with companies and classes; list and broadcast filters; final eligibility at checkout. | spec |
 | D-31 | — | Double taps and bad networks (decision 31): close whatever the reviewer's tests show (one charge or booking per key, the same key on retry, a result check instead of a re-pay). | spec |
+
+| D-33 | — | Backups (decision 33): `backup.sh` uploads only to the private backup bucket (`BACKUP_S3_*` settings, never `S3_BUCKET`); a weekly medicine-catalogue export; a monthly restore drill; a backup-status record that the admin page reads. | spec |
+| D-34 | — | Admin "Operations & Security" page (decision 34): backend read endpoints (admin-only, no secret values), the five sections, and the owner alerts. | spec |
+| D-35 | — | Admin on two devices (owner): at most 2 active enrolled admin devices per admin (the owner's iPhone and MacBook). A third device is refused until one is revoked. Enrolling a new device needs approval from an already-enrolled device plus email step-up. Every enrolment and revoke is audit-logged and shown on the decision-34 page. | spec |
+| D-36 | — | Legal documents in 6 locales: `legal_policies` stores content per locale (ar, en, ur, hi, bn, fil), not only ar/en. New keys: `telehealth_consent` and `refund_policy`. A new major version forces re-acceptance; every acceptance records the version, time and device. The texts come from `docs/legal/*`, published now as version 1.0 (decision 36); the lawyer's review later is a new version. | spec |
+| D-37 | — | Insurance relay-only (decision 35). (1) `DecideDto`: add `approval_ref` (required for `approve_full`/`approve_partial`), `copay_amount` (number, optional, alongside `copay_percent`); `reason` required for `reject`. (2) Notify the patient (push + in-app) on every state change. (3) The same inbox for every provider type: pharmacy, doctor/facility, lab, radiology, nursing; each sees only requests addressed to it. (4) Rename or remove `nphies*` endpoints and fields (`nphies_live`, `nphies_eligible`) so that nothing implies a live insurer check; patient and provider texts say "the facility requests the approval". (5) Tests: decide with and without `approval_ref`, a non-addressed provider gets 403, the patient sees the co-pay. | spec |
+| D-38 | — | Legal texts live in the apps (decision 36). (1) patient-web `/terms`, `/privacy`, plus new `/refund-policy` and `/telehealth-consent`, read `/legal/policy/:key?lang=` on the server with revalidation and render safe Markdown; delete the hard-coded arrays in `components-next/legal-terms.tsx`. (2) patient-app: the same four screens. (3) Sign-up records acceptance of `patient_terms` and `privacy_policy`; the first online consultation records `telehealth_consent`; provider onboarding already records `provider_agreement`. (4) Keys: `patient_terms`, `privacy_policy`, `provider_agreement`, `telehealth_consent`, `refund_policy`. (5) Bug: `LegalService.pendingAcceptances` matches every policy for every user (`applies_to.includes('provider') || includes('patient')`), so a provider is asked to accept the patient terms; match only `all` or the user's own role, with a test per role. The texts are loaded into `legal_policies` by the reviewer through server-ops. | spec |
 
 Items 3, 5, 6, 11 and 18 are UI only (design session). Items 21–23 are owner tasks. Item 20 is Q-12 / Q-13.
 

@@ -65,15 +65,47 @@
   ],
   "/nutrition/daily-summary": {
     "meals_count": 2,
+    "calories": {
+      "consumed": 800,
+      "target": 2000
+    },
+    "macros": {
+      "protein_g": 40,
+      "carbs_g": 90,
+      "fat_g": 20,
+      "fiber_g": 10
+    },
     "water": {
-      "consumed_ml": 600
+      "consumed_ml": 600,
+      "target_ml": 2000
     }
   },
   "/maternity/profile": {
     "profile_ready": true,
-    "is_pregnant": true
+    "is_pregnant": true,
+    "current_week": 22,
+    "due_date": "2027-01-15",
+    "last_period_date": "2026-09-20",
+    "cycle_length": 28,
+    "is_regular": true
   },
-  "/mental-health/mood": [],
+  "/mental-health/mood": [
+    {
+      "id": "test-mood-1",
+      "mood": "good",
+      "logged_at": "2026-10-06T20:00:00Z",
+      "notes": "ملاحظة تجريبية",
+      "tags": [
+        "calm"
+      ]
+    },
+    {
+      "id": "test-mood-2",
+      "mood": "okay",
+      "logged_at": "2026-10-05T20:00:00Z",
+      "tags": []
+    }
+  ],
   "/health/vitals/summary": [
     {
       "type": "test",
@@ -3375,5 +3407,85 @@
   ],
   "POST /family/invite": {
     "invite_code": "TEST42"
-  }
+  },
+  "/nutrition/meals": [
+    {
+      "id": "test-meal-1",
+      "name": "وجبة تجريبية ١",
+      "calories": 350,
+      "meal_type": "breakfast",
+      "protein_g": 20,
+      "logged_at": "2026-10-07T07:30:00Z"
+    },
+    {
+      "id": "test-meal-2",
+      "name": "وجبة تجريبية ٢",
+      "calories": 450,
+      "meal_type": "lunch",
+      "logged_at": "2026-10-07T13:00:00Z"
+    }
+  ],
+  "/nutrition/profile": {
+    "profile_ready": true,
+    "goal": "maintain",
+    "activity_level": "moderate",
+    "height_cm": 170,
+    "weight_kg": 70,
+    "target_weight_kg": 68,
+    "daily_calorie_target": 2000,
+    "daily_water_target_ml": 2000,
+    "dietary_restrictions": [],
+    "allergies": [],
+    "bmi": 24.2
+  },
+  "/medical/programs/active": [
+    {
+      "id": "diabetes",
+      "title": "برنامج تجريبي ١",
+      "duration": "٨ أسابيع",
+      "completedSessions": 1,
+      "totalSessions": 4,
+      "nextSessionTitle": "جلسة تجريبية",
+      "nextSessionDate": "2026-10-12",
+      "nextSessionTime": "10:00",
+      "milestoneReward": "مكافأة تجريبية",
+      "rewardDesc": "وصف تجريبي",
+      "sessionsList": [
+        {
+          "id": 1,
+          "title": "زيارة تجريبية ١",
+          "status": "completed"
+        },
+        {
+          "id": 2,
+          "title": "زيارة تجريبية ٢",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "زيارة تجريبية ٣",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "زيارة تجريبية ٤",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "hypertension",
+      "title": "برنامج تجريبي ٢",
+      "duration": "٦ أسابيع",
+      "completedSessions": 0,
+      "totalSessions": 3,
+      "sessionsList": [
+        {
+          "id": 1,
+          "title": "زيارة تجريبية",
+          "status": "pending"
+        }
+      ]
+    }
+  ]
 }
