@@ -128,6 +128,11 @@ Order (do not skip ahead):
 | D-25 | — | Payment method by service (decision 25). The server refuses cash for online consultations, home visits and nursing. Pharmacy cash on delivery only under all of its conditions. | spec |
 | D-24 | — | Doctor chat only inside a booking (decision 24). Online: text, voice, images, files and the call. Clinic or home: text, images and files for 72 h after completion. The doctor can close or extend once. Read-only after the window. | spec |
 
+| D-28 | — | Security sweep S-1 … S-7 (decision 28): fix whatever the reviewer's S-specs show failing. | spec |
+| D-29 | — | Search (decision 29): self-hosted Meilisearch, index rebuild from MongoDB plus change sync, Arabic normalisation and synonyms, 6 locales, a scoped search per section and a grouped global search. | spec |
+| D-30 | — | Insurance first (decision 30): profile insurance with class; provider networks with companies and classes; list and broadcast filters; final eligibility at checkout. | spec |
+| D-31 | — | Double taps and bad networks (decision 31): close whatever the reviewer's tests show (one charge or booking per key, the same key on retry, a result check instead of a re-pay). | spec |
+
 Items 3, 5, 6, 11 and 18 are UI only (design session). Items 21–23 are owner tasks. Item 20 is Q-12 / Q-13.
 
 ## Queue B: replaced by the phase audit (owner, 2026-10-06)

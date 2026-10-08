@@ -306,6 +306,97 @@ This replaces the earlier Q-14 note.
 
 The core services keep priority: pharmacy, consultations, labs/radiology, nursing. The reviewer approves (delegated by the owner).
 
+## H. Added 2026-10-08 (owner approved the reviewer's proposals)
+
+### 28. Security sweep S-1 … S-7
+
+The review session writes acceptance tests; OpenCode fixes whatever fails.
+
+| Id | What is proved |
+|---|---|
+| S-1 | **Secrets.** An inventory of every env var, marking which reach a browser or app (`NEXT_PUBLIC_*`, `EXPO_PUBLIC_*`): none may be a secret. Every secret that was ever committed (the repo is public) is rotated by the owner through server-ops. gitleaks stays on every PR. |
+| S-2 | **Ownership.** A table of every route and where it checks that the caller owns the id it touches. No route trusts a user id from the body or the query. |
+| S-3 | **Database rules.** MongoDB has no RLS; S-2 plus S-7 replace it. Every query on user data filters by the authenticated owner on the server. |
+| S-4 | **Mass assignment.** A strict DTO on every write route; unknown fields are rejected (`forbidNonWhitelisted`, already on). A list per route of the fields a user may never set: price, amount, status, owner id, role, verified, payment_status. |
+| S-5 | **Payments.** Every amount is looked up on the server from the booking, order or offer, never from the client. Every payment webhook verifies its signature (Moyasar HMAC); `MOYASAR_WEBHOOK_SECRET` is added on the server. |
+| S-6 | **Rate limits.** Login, sign-up, OTP, password reset, and every route that calls a paid service (AI, SMS, email, OCR, maps). The limit per route is documented, and a client that exceeds it gets 429 with `Retry-After`. |
+| S-7 | **Proof.** For every user-owned record type, user A creates a record and user B tries to read, update and delete it. Every attempt answers 403 or 404. The output goes in the PR. |
+
+### 29. Search
+
+**Where search looks**
+- Each section searches its own content: pharmacy → medicines and products; consultations → specialties and doctors; labs/radiology → tests and packages; nursing → services.
+- Home searches everything and shows the results grouped by type.
+
+**Engine:** Meilisearch, self-hosted on our server (about 300 MB of RAM; Elasticsearch is too heavy for the server). It gives:
+- full-text search;
+- relevance ranking;
+- typo tolerance;
+- filters and facets;
+- autocomplete;
+- highlighting.
+
+**Arabic and the 6 languages**
+- Arabic normalisation: أ/إ/آ→ا, ى→ي, ة→ه, diacritics and tatweel removed.
+- Synonyms:
+  - brand ↔ active ingredient;
+  - Arabic ↔ English names;
+  - common misspellings.
+- Every result is searchable in all 6 locales (ar, en, ur, hi, bn, fil); the index has one document per item, with its fields for every locale.
+
+**Rules**
+- Prescription-only items are never promoted or boosted in results.
+- Only active, approved items and providers appear.
+- MongoDB stays the source of truth: the index is rebuilt from it, and every change is pushed to the index.
+
+### 30. Insurance chosen first
+
+1. The patient saves their insurance once in the profile: company, plan class (VIP/A/B/C…) and policy number. Insurance networks already store plan tiers (`tier_level`).
+2. At the start of every service (pharmacy, consultation, labs/radiology, nursing) the patient picks **Insurance** or **Self-pay**.
+3. With **Insurance**, lists show only providers contracted with that company **and that class**. A pharmacy order is broadcast only to in-network pharmacies.
+4. At checkout the final eligibility is checked (approval and co-pay). If it is refused, self-pay is offered.
+5. Every provider records the companies **and classes** it accepts.
+
+### 31. Double taps and bad networks (verify and prove)
+
+**Already built**
+- Payment, booking and order writes use an idempotency key: 64 backend routes, plus the clients' API helpers.
+- A repeated request with the same key returns the first result instead of acting twice.
+- Payment intents also refuse a second live intent for the same booking.
+
+**What has to be proved, as tests**
+- Tapping Pay, Book or Send twice, even with a slow network, charges or books **once**.
+- Every action button is disabled while its request is in flight.
+- On a timeout or lost connection:
+  - the same key is retried, never a new one;
+  - the screen shows a clear state ("checking your payment…") and asks the server for the result, instead of asking the user to pay again.
+- Offline:
+  - browsing shows the cached copy;
+  - the cart works locally;
+  - actions that need the server show a clear error and keep the user's input.
+- Tests run on throttled 3G and on an offline/online flip, on web (Playwright) and app (unit plus Maestro where possible).
+
+### 32. Where data and files live
+
+This becomes a document, `docs/architecture/DATA_MAP.md`, written by the review session.
+
+**Data**
+- All records live in MongoDB on the server:
+  - medicines (`medicines`);
+  - providers (`provider_accounts`, `provider_profiles`, `provider_settings`, `provider_contracts`);
+  - availability (`provideravailability`, `provider_schedule_slots`);
+  - facilities;
+  - insurance (`insurance_networks`, `insuranceservicerequests`);
+  - bookings, orders and payments.
+
+**Files**
+- Files go to object storage (Cloudflare R2, through the S3 API).
+- Each file has a visibility:
+  - **Public:** product, doctor and clinic photos, served through the CDN.
+  - **Private:** licences, KYC documents, prescriptions and reports. They are served only through the authenticated API, after an owner or admin check, and never as a public link.
+
+**Owner question:** none. The document lists, per entity, every field, where it is stored, who can read it and how long it is kept (decision 22, PDPL).
+
 ## Order of work (reviewer's proposal)
 
 1. **Item 16 (module switches) first.** It lets the owner hide a module at once while its removal or merge is still being built.
