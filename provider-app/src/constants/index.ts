@@ -84,7 +84,6 @@ export const PROVIDER_TYPES = [
  { key:'lab', icon:'', color:'#7A5AF0', light:'#EDEBFD', arName:'معمل تحاليل', enName:'Laboratory', arDesc:'تحاليل طبية، نتائج، سحب عينات', enDesc:'Lab tests, results, home collection' },
  { key:'radiology', icon:'', color:'#1F7A5C', light:'#FFE3E5', arName:'مركز أشعة', enName:'Radiology Center', arDesc:'أشعة سينية، رنين، مقطعية', enDesc:'X-Ray, MRI, CT Scan, Ultrasound' },
  { key:'nursing', icon:'', color:'#F4B8E4', light:'#FFE3E5', arName:'تمريض منزلي', enName:'Home Nursing', arDesc:'رعاية منزلية، تمريض، إجراءات طبية', enDesc:'Home care, nursing, procedures' },
- { key:'ambulance', icon:'', color:'#B81E2B', light:'#FFE3E5', arName:'خدمة إسعاف', enName:'Ambulance Service', arDesc:'نقل طبي طارئ، وحدات عناية متنقلة', enDesc:'Emergency medical transport, mobile ICU' },
 ] as const;
 export type ProviderKey = typeof PROVIDER_TYPES[number]['key'];
 

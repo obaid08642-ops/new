@@ -1,7 +1,7 @@
 import { IsDateString, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateManualBoostDto {
-  @IsDefined() @IsIn(['doctor', 'pharmacy', 'lab', 'radiology', 'home_care', 'ambulance']) entity_type: string;
+  @IsDefined() @IsIn(['doctor', 'pharmacy', 'lab', 'radiology', 'home_care']) entity_type: string;
   @IsDefined() @IsString() entity_id: string;
   @IsOptional() @IsNumber() weight?: number;
   @IsOptional() @IsString() reason?: string;

@@ -54,3 +54,4 @@ Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = we
 - **Fetal-week images (owner D):** converted to WebP in `cdn-source/`; upload to the CDN and the week endpoint are pending (archive).
 - **Owner questions open:** intro/language/permissions screens before Welcome? Which roles may hold a patient session? Chat entry points with no order; compare picker; camera barcode on web; where the insurance choice belongs; native review of ur/hi/bn/tl wording.
 - **Admin audit (design/admin-audit, read-only):** 65 pages, 338 calls (3 NO_ROUTE, 9 WRONG_METHOD), 102+20 Needs-review lines, `ADMIN_MOBILE_ESSENTIALS.md`. ~250k tokens.
+- **Admin build (design/admin-build):** 44 tables on DataTable; /admin/today, /admin/approvals, catalogue quick edit + barcode + confirm; Playwright stub check 1276/0. Gaps in needs-review. ~400k tokens.
