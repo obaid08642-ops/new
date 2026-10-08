@@ -1,0 +1,41 @@
+name: Acceptance
+
+# Reviewer-written acceptance specs (backend/acceptance/<id>/). Every item the reviewer approved is
+# listed in backend/acceptance/DONE and runs here on each PR to main (owner, 2026-10-06: the D-15
+# AI-assistant test set runs in CI). Items still open are not run: they fail by design until done.
+# The specs that start the real server need redis-server; MongoDB comes from mongodb-memory-server.
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: acceptance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: redis-server for the specs that start the real backend
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq redis-server && sudo systemctl stop redis-server || true
+
+      - run: npm ci --no-audit --no-fund
+
+      - name: Approved acceptance items (acceptance/DONE)
+        run: node scripts/run-acceptance.mjs --done

@@ -128,14 +128,14 @@ Items marked ✅ are completed; items without marker are pending or in progress.
 ## Design Items (D-10, D-15, D-16)
 
 ### D-10
-- **Title**: [Pending] — Design module switches and route refusal pre-storage
-- **Status**: ⏳ Pending
-- **Related**: `oc/D-10` — Design branch
+- **Title**: [OC D-10] Generate test server JWT secret per run (no fixed secret in the repo)
+- **Status**: ✅ Completed
+- **Related**: `oc/D-10` — JWT secret generation; per-run secret via `randomBytes` in `live-server.ts`
 
 ### D-15
-- **Title**: [Pending] — Design module switches
-- **Status**: ⏳ Pending
-- **Related**: `oc/D-15` — Design branch
+- **Title**: [OC D-15] Per-run secrets; acceptance CI job runs approved items
+- **Status**: ✅ Completed
+- **Related**: `oc/D-15` — Acceptance workflow `.github/workflows/acceptance.yml`; per-run JWT_SECRET and fake provider key; 120-prompt test set in six languages
 
 ### D-16
 - **Title**: [OC D-16] Module switches: public read, admin set, pre-storage route refusal
@@ -149,9 +149,9 @@ Items marked ✅ are completed; items without marker are pending or in progress.
 
 | Category | Total | Completed | Pending | Blocked |
 |----------|-------|-----------|---------|---------|
-| Q-1 to Q-22 | 22 | 21 ✅ (including Q-12 just now) | 1 (Q-5 closed) | 0 |
-| D-10, D-15, D-16 | 3 | 1 ✅ (D-16) | 2 (D-10, D-15) | 0 |
-| **Grand Total** | **25** | **22** | **3** | **0** |
+| Q-1 to Q-22 | 22 | 22 ✅ | 0 | 0 (Q-5 closed by reviewer) |
+| D-10, D-15, D-16 | 3 | 3 ✅ | 0 | 0 |
+| **Grand Total** | **25** | **25** | **0** | **0** |
 
 ---
 
