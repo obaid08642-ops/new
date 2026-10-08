@@ -1,0 +1,162 @@
+[
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance/requests/[requestId]",
+    "element": "Pay-cash link of the old approval wait",
+    "file": "patient-web/components-next/insurance/insurance-request-view.tsx",
+    "line": 118,
+    "found": "[owner] the old page offered cash (with a made-up payments/processing ref) after a decline; owner decision 25 forbids cash for online consultations, so the merged page has only accept self-pay and the secure options. Confirm.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance/requests/[requestId]",
+    "element": "Insurer share computed from the URL amount",
+    "file": "patient-web/components-next/insurance/insurance-request-view.tsx",
+    "line": 87,
+    "found": "[client] the old approval wait computed the insurer share and co-pay from a ?amount= URL param and copay_percent; not rebuilt: the page shows only the server's price/copay_amount/self_pay_amount. If /insurance/requests/:id does not return price, the total row is simply absent.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance/requests/[requestId]",
+    "element": "Strict request state enum",
+    "file": "patient-web/app/[locale]/insurance/requests/[requestId]/page.tsx",
+    "line": 39,
+    "found": "[backend] parseInsuranceRequest accepts only 8 states; the old approval wait also read PENDING/APPROVED/CONFIRMED/DECLINED. A request in any other state shows 'Unable to load insurance'. Confirm the backend states.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance",
+    "element": "Benefits note is Arabic only",
+    "file": "patient-web/app/[locale]/insurance/page.tsx",
+    "line": 98,
+    "found": "[backend] GET /insurance/benefits-summary returns a single manual_review row with note_ar (Arabic text), shown as the server wrote it in every language; no amounts, limits or usage exist to show. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:711)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance/coverage-check",
+    "element": "Coverage note is Arabic only",
+    "file": "patient-web/app/[locale]/insurance/coverage-check/page.tsx",
+    "line": 64,
+    "found": "[backend] GET /insurance/coverage-check returns note_ar (Arabic text) and no coverage percentage or amount; shown as the server wrote it. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:699)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance",
+    "element": "Policy card has no logo, membership number or expiry",
+    "file": "patient-web/components-next/insurance/insurance-kit.tsx",
+    "line": 24,
+    "found": "[backend] the board's card shows them; the policy summary the web parses has only company_name and plan_class, so they are not drawn (never invented).",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance",
+    "element": "Claims with a status outside the four known are dropped",
+    "file": "patient-web/lib/api/claims.ts",
+    "line": 6,
+    "found": "[client] parseClaims uses a strict status enum, so a claim whose status is anything else disappears from the Claims tab instead of showing 'Status unavailable'.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance",
+    "element": "Refund status shown raw",
+    "file": "patient-web/app/[locale]/insurance/page.tsx",
+    "line": 137,
+    "found": "[backend] GET /refunds/my status is a free string; shown as the server sent it (not translated). The list has no hard-coded refund or cancellation copy. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:867)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance",
+    "element": "Provider type shown raw",
+    "file": "patient-web/app/[locale]/insurance/page.tsx",
+    "line": 175,
+    "found": "[backend] GET /providers type is shown as the server sent it (not translated).",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance/submit-claim",
+    "element": "Claimable bookings are collected in the browser",
+    "file": "patient-web/components-next/insurance/submit-claim-form.tsx",
+    "line": 30,
+    "found": "[client] the form reads five list endpoints and keeps rows that look paid (status words) with amount above 0; eligibility is decided here before the server re-checks it. Logic left as is; a single server list of claimable bookings would be safer.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance/add-policy",
+    "element": "No policy-card OCR on web",
+    "file": "patient-web/components-next/insurance/add-policy-form.tsx",
+    "line": 45,
+    "found": "[owner] the brief says the OCR extract stays; the web form never had one (typed fields only). Decide whether web needs it.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance/requests/[requestId]",
+    "element": "Old routes' query values not carried",
+    "file": "patient-web/components-next/booking-flow.tsx",
+    "line": 147,
+    "found": "[client] the redirects of approval-pending/copay/payment-split drop ?amount= and ?approvalCode= on purpose (amounts come from the server); the booking flow now links to the request page directly.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance/coverage-check",
+    "element": "Endpoint answers from stored data but is named like a live check",
+    "file": "patient-web/app/[locale]/insurance/coverage-check/page.tsx",
+    "line": 34,
+    "found": "[backend] Decision 35 item 6 / queue D-37: GET /insurance/coverage-check reads the saved policy only (eligible comes back as a flag); page text now says so; rename the endpoint and field. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:699)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance/requests/[requestId]",
+    "element": "Approval number is stored under two field names",
+    "file": "patient-web/lib/api/insurance-request.ts",
+    "line": 7,
+    "found": "[backend] Insurance engine writes insurer_approval_code, the provider-app controller writes approval_code; the page reads both. The strict state enum also lacks APPROVED_PARTIAL, EXPIRED and APPEAL_PENDING of the schema. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:40)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance/submit-claim",
+    "element": "Claim flow under decision 35?",
+    "file": "patient-web/components-next/insurance/submit-claim-form.tsx",
+    "line": 1,
+    "found": "[owner] Decision 35 defines only the provider relay; the Nabd+ claim form and Claims tab are not covered. The invented review time was removed from the texts; keep, change or remove the flow?",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance",
+    "element": "Other batches still say Nabd+ checks or retrieves insurance automatically",
+    "file": "patient-web/messages/en.json",
+    "line": 407,
+    "found": "[client] Batch 14 text, not changed here: NursingWeb.insuranceTitle, DiagWeb.insuranceSub, DiagWeb.insuranceHintLink, Diagnostics.insuranceNoticeSub, PharmacyCheckout.insuranceBody, PharmacyOffers.insurancePending, Doctors.payInsuranceNote.",
+    "suspect": "Client-side: later batch."
+  }
+]

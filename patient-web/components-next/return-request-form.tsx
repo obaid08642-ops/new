@@ -1,33 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import forms from "@/components-next/consult/consult.module.css";
 
 const TYPES = ["consultation", "diagnostics", "pharmacy", "nursing"] as const;
-const DEFAULT_AMOUNTS: Record<(typeof TYPES)[number], number> = {
+type ServiceType = (typeof TYPES)[number];
+const DEFAULT_AMOUNTS: Record<ServiceType, number> = {
   consultation: 250,
   diagnostics: 120,
   pharmacy: 80,
   nursing: 80,
 };
 
+/** The return request form (POST /api/returns). The payload is the one the old form sent, field for field. */
 export function ReturnRequestForm({ locale }: { locale: string }) {
+  const t = useTranslations("ReturnsWeb");
   const router = useRouter();
-  const [serviceType, setServiceType] = useState<(typeof TYPES)[number]>("consultation");
+  const [serviceType, setServiceType] = useState<ServiceType>("consultation");
   const [reason, setReason] = useState("");
   const [orderId, setOrderId] = useState("");
   const [details, setDetails] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const ar = locale === "ar";
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function onSubmit(event: FormEvent) {
+    event.preventDefault();
     setError(null);
-    if (reason.trim().length < 3) {
-      setError(ar ? "اذكر سبب الإرجاع" : "State the return reason");
-      return;
-    }
+    if (reason.trim().length < 3) { setError(t("reasonRequired")); return; }
     setSaving(true);
     try {
       const res = await fetch("/api/returns", {
@@ -42,42 +44,38 @@ export function ReturnRequestForm({ locale }: { locale: string }) {
           amount: DEFAULT_AMOUNTS[serviceType],
         }),
       });
-      const data = await res.json().catch(() => null);
-      if (!res.ok) {
-        setError((data as { message?: string })?.message || (ar ? "تعذر إرسال الطلب" : "Could not submit request"));
-        return;
-      }
+      if (!res.ok) { setError(t("submitFailed")); return; }
       router.push(`/${locale}/returns`);
       router.refresh();
     } catch {
-      setError(ar ? "تعذر إرسال الطلب" : "Could not submit request");
+      setError(t("submitFailed"));
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <form onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
-      <label style={{ display: "grid", gap: 6 }}>
-        <span>{ar ? "نوع الخدمة" : "Service type"}</span>
-        <select value={serviceType} onChange={(e) => setServiceType(e.target.value as (typeof TYPES)[number])}>
-          {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+    <form onSubmit={onSubmit} className={forms.stack} noValidate>
+      <label className={forms.field}>
+        <span className={forms.label}>{t("serviceType")}</span>
+        <select className={forms.control} value={serviceType} onChange={(event) => setServiceType(event.target.value as ServiceType)}>
+          {TYPES.map((type) => <option key={type} value={type}>{t(`type.${type}`)}</option>)}
         </select>
       </label>
-      <label style={{ display: "grid", gap: 6 }}>
-        <span>{ar ? "السبب" : "Reason"}</span>
-        <textarea value={reason} onChange={(e) => setReason(e.target.value)} maxLength={1000} rows={3} required />
+      <label className={forms.field}>
+        <span className={forms.label}>{t("reason")}</span>
+        <textarea className={forms.control} value={reason} onChange={(event) => setReason(event.target.value)} maxLength={1000} rows={3} required />
       </label>
-      <label style={{ display: "grid", gap: 6 }}>
-        <span>{ar ? "رقم الطلب (اختياري)" : "Order ID (optional)"}</span>
-        <input value={orderId} onChange={(e) => setOrderId(e.target.value)} maxLength={128} />
+      <label className={forms.field}>
+        <span className={forms.label}>{t("orderId")}</span>
+        <input className={forms.control} value={orderId} onChange={(event) => setOrderId(event.target.value)} maxLength={128} dir="ltr" />
       </label>
-      <label style={{ display: "grid", gap: 6 }}>
-        <span>{ar ? "تفاصيل (اختياري)" : "Details (optional)"}</span>
-        <textarea value={details} onChange={(e) => setDetails(e.target.value)} maxLength={2000} rows={3} />
+      <label className={forms.field}>
+        <span className={forms.label}>{t("details")}</span>
+        <textarea className={forms.control} value={details} onChange={(event) => setDetails(event.target.value)} maxLength={2000} rows={3} />
       </label>
-      {error ? <p role="alert">{error}</p> : null}
-      <button type="submit" disabled={saving}>{saving ? (ar ? "جارٍ الإرسال..." : "Sending...") : (ar ? "إرسال طلب الإرجاع" : "Submit return request")}</button>
+      {error ? <p className={forms.error} role="alert">{error}</p> : null}
+      <Button type="submit" label={t("submit")} loading={saving} fullWidth />
     </form>
   );
 }

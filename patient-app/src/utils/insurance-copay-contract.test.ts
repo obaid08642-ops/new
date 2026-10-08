@@ -1,4 +1,4 @@
-import { insurancePaymentAction, insuranceSelfPayHeaders, parseInsuranceCopayRequest } from './insurance-copay-contract';
+import { insuranceDecisionOf, insurancePaymentAction, insuranceSelfPayHeaders, parseInsuranceCopayRequest } from './insurance-copay-contract';
 
 const pending = { id: 'request-1', booking_id: 'appointment-1', booking_kind: 'consultation', state: 'COPAY_PENDING', price: 300, copay_amount: 60 };
 
@@ -20,5 +20,16 @@ describe('insurance copay contract', () => {
     expect(insurancePaymentAction(rejected)).toBe('accept_self_pay');
     expect(insurancePaymentAction(parseInsuranceCopayRequest({ ...rejected, state: 'SELF_PAY_PENDING', self_pay_amount: 300 }))).toBe('checkout_self_pay');
     expect(insuranceSelfPayHeaders(rejected.id)['Idempotency-Key']).toMatch(/^insurance-self-pay-/);
+  });
+});
+
+describe('insurance decision fields (owner decision 35)', () => {
+  it('keeps the approval number, the percent and the reason only when the provider recorded them', () => {
+    expect(parseInsuranceCopayRequest({ ...pending, approval_code: 'TEST-77', copay_percent: 20 })).toMatchObject({ approval_code: 'TEST-77', copay_percent: 20 });
+    expect(parseInsuranceCopayRequest({ ...pending, state: 'REJECTED', rejection_reason: 'TEST reason' }).rejection_reason).toBe('TEST reason');
+    expect(insuranceDecisionOf({ approval_code: null, copay_percent: null })).toEqual({ approval_code: undefined, copay_percent: undefined, rejection_reason: undefined });
+    expect(insuranceDecisionOf({ approval_code: 5, copay_percent: 'x', rejection_reason: ' ' })).toEqual({ approval_code: undefined, copay_percent: undefined, rejection_reason: undefined });
+    expect(insuranceDecisionOf({ insurer_approval_code: 'TEST-ENG-1' }).approval_code).toBe('TEST-ENG-1');
+    expect(insuranceDecisionOf(null).copay_percent).toBeUndefined();
   });
 });

@@ -337,7 +337,7 @@ export function buildRows(src: OrderSources, pick: PickName): OrderRow[] {
         title: text(c.service),
         at: time(c.date) ?? time(c.createdAt),
         amount: firstAmount(c, ['amount']),
-        route: { pathname: '/insurance/hub', params: { tab: 'claims' } },
+        route: { pathname: '/insurance', params: { tab: 'claims' } },
         action: 'details',
       }),
     );

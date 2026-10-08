@@ -1,53 +1,8 @@
-import { VectorInsurance } from "@/components-next/vector-illustrations";
-import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
-import { requirePatientAccess } from "@/lib/auth/session";
-import { isLocale } from "@/lib/i18n";
-import { callPatientApi } from "@/lib/api/upstream";
-import styles from "../insurance.module.css";
+import { redirectToInsuranceTab } from "@/lib/insurance/redirect";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-export default async function InsuranceRefundsPage({ params }: Props) {
-  const { locale } = await params;
-  if (!isLocale(locale)) notFound();
-  setRequestLocale(locale);
-  const ar = locale === "ar";
-  const token = await requirePatientAccess(locale);
-  const response = await callPatientApi("/refunds/my", {}, token);
-  if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
-  const raw = response.ok ? await response.json().catch(() => null) : null;
-  const list = Array.isArray(raw) ? raw : (raw as { data?: unknown })?.data;
-  const refunds = (Array.isArray(list) ? list : []).map((r: unknown) => {
-    const v = r as Record<string, unknown>;
-    return {
-      id: String(v.id ?? v._id ?? ""),
-      amount: typeof v.amount === "number" ? v.amount : undefined,
-      status: typeof v.status === "string" ? v.status : undefined,
-      date: typeof v.createdAt === "string" ? v.createdAt : typeof v.created_at === "string" ? v.created_at : undefined,
-    };
-  }).filter((r) => r.id);
-
-  return (
-    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", display: "grid", gap: 16 }}>
-      <Link href={`/${locale}/insurance`} className={styles.back}>{ar ? "التأمين" : "Insurance"}</Link>
-      <span style={{ inlineSize: 48, blockSize: 48, borderRadius: 16, border: "1px solid #E8EDEE", background: "rgba(95,217,179,.12)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } as React.CSSProperties} aria-hidden="true"><VectorInsurance size={48} aria-hidden="true" /></span><h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{ar ? "حالة الاسترداد" : "Refund status"}</h1>
-      {refunds.length === 0 ? (
-        <p>{ar ? "لا توجد استردادات." : "No refunds."}</p>
-      ) : (
-        <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: 8 }}>
-          {refunds.map((r) => (
-            <li key={r.id}>
-              <strong>{r.amount !== undefined ? r.amount : "—"}</strong>
-              {r.status ? <span> · {r.status}</span> : null}
-              {r.date ? <span> · {r.date}</span> : null}
-            </li>
-          ))}
-        </ul>
-      )}
-    <span style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", display: "none" } as React.CSSProperties} aria-hidden="true" />
-    </main>
-  );
+/** Merge map 2, section 6: this page is now the refunds tab of the insurance hub. */
+export default function InsuranceRefundsRedirect({ params, searchParams }: Props) {
+  return redirectToInsuranceTab(params, searchParams, "refunds");
 }

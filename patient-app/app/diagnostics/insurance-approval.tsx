@@ -151,7 +151,7 @@ export default function InsuranceApproval() {
         onPress={() => {
           // pay the server-computed copay through the insurance engine when the request is linked; otherwise the local checkout
           if (insuranceRequestId) {
-            router.push({ pathname: '/insurance/payment-split', params: { request_id: insuranceRequestId, booking_kind: 'lab' } } as unknown as Href);
+            router.push({ pathname: '/insurance/request', params: { id: insuranceRequestId, booking_kind: 'lab' } } as unknown as Href);
             return;
           }
           router.push({ pathname: '/diagnostics/checkout', params: { visitType, isInsurance: 'hybrid', copay: finalTotalToPay } } as unknown as Href);

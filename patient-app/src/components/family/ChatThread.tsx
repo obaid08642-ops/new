@@ -1,7 +1,7 @@
 import React from 'react';
-import { FlatList, Text, View } from 'react-native';
+import { FlatList, ScrollView, Text, View } from 'react-native';
 
-import { AppHeader, Button, EmptyState, Input, Screen, StickyFooter } from '../../../../packages/ui-native/src';
+import { AppHeader, Button, Chip, EmptyState, Input, Screen, StickyFooter } from '../../../../packages/ui-native/src';
 import { CARE_TONE, Gate, goBack, type GateStatus } from '../consult/ConsultKit';
 import { COLUMN, step as scale, useScreenUi } from '../screen/ScreenKit';
 
@@ -31,6 +31,11 @@ export interface ChatThreadProps {
   messages: ChatMessage[];
   empty: { title: string; body: string };
   composer: { value: string; onChange: (text: string) => void; onSend: () => void; sending: boolean; placeholder: string; sendLabel: string };
+  /** Optional (the support chat): ready-made messages above the composer, and a button that attaches a photo. */
+  quickReplies?: { label: string; onPress: () => void }[];
+  attach?: { label: string; onPress: () => void; busy: boolean };
+  /** A line above the composer (a failed send, for instance). */
+  notice?: React.ReactNode;
   testID?: string;
 }
 
@@ -48,7 +53,7 @@ function Bubble({ message }: { message: ChatMessage }) {
   );
 }
 
-export function ChatThread({ title, subtitle, onBack, status, onRetry, messages, empty, composer, testID }: ChatThreadProps) {
+export function ChatThread({ title, subtitle, onBack, status, onRetry, messages, empty, composer, quickReplies, attach, notice, testID }: ChatThreadProps) {
   const { theme, c, t, dir, k } = useScreenUi();
   const header = (
     <View style={COLUMN}>
@@ -60,11 +65,22 @@ export function ChatThread({ title, subtitle, onBack, status, onRetry, messages,
   const footer =
     status === 'error' || status === 'offline' ? undefined : (
       <StickyFooter theme={theme} direction={dir}>
-        <View style={{ ...COLUMN, flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
-          <View style={{ flex: 1 }}>
-            <Input value={composer.value} onChange={composer.onChange} placeholder={composer.placeholder} theme={theme} testID="chat-input" />
+        <View style={{ ...COLUMN, gap: 8 }}>
+          {notice}
+          {quickReplies && quickReplies.length > 0 ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }} keyboardShouldPersistTaps="handled">
+              {quickReplies.map((reply) => (
+                <Chip key={reply.label} label={reply.label} onPress={reply.onPress} theme={theme} />
+              ))}
+            </ScrollView>
+          ) : null}
+          <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
+            {attach ? <Button label={attach.label} variant="outline" startIcon="image" loading={attach.busy} onPress={attach.onPress} theme={theme} testID="chat-attach" /> : null}
+            <View style={{ flex: 1 }}>
+              <Input value={composer.value} onChange={composer.onChange} placeholder={composer.placeholder} theme={theme} testID="chat-input" />
+            </View>
+            <Button label={composer.sendLabel} disabled={!canSend} loading={composer.sending} onPress={composer.onSend} theme={theme} testID="chat-send" />
           </View>
-          <Button label={composer.sendLabel} disabled={!canSend} loading={composer.sending} onPress={composer.onSend} theme={theme} testID="chat-send" />
         </View>
       </StickyFooter>
     );
