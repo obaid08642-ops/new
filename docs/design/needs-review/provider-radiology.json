@@ -5,7 +5,7 @@
     "screen": "CatalogManagerTab",
     "element": "Edit",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 523,
+    "line": 547,
     "found": "[client] Button \"Edit\" only shows a message without sending a request.",
     "suspect": "Client-side: later batch."
   },
@@ -15,7 +15,7 @@
     "screen": "RadiologyHome",
     "element": "API GET /radiology/provider/inbox",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 97,
+    "line": 105,
     "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/radiology/radiology.controller.ts:84)",
     "suspect": "Backend gap: reviewer session."
   }

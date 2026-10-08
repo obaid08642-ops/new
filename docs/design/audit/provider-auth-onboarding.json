@@ -4,319 +4,6 @@
  "app": "provider-app",
  "screens": [
   {
-   "route": "AmbulanceRegistration",
-   "elements": [
-    [
-     "data: Data regions (in GeoPicker)",
-     "GET /locations/regions, GET /locations/cities → regions",
-     "ok"
-    ],
-    [
-     "data: Data districts (in GeoPicker)",
-     "GET /locations/districts → districts",
-     "ok"
-    ],
-    [
-     "button: {title} {opts.map(o=> ( <TouchableOpaci} (in GeoPicker)",
-     "local state setOpen",
-     "ok"
-    ],
-    [
-     "button: {o.name_ar} (in GeoPicker)",
-     "parent callback onSelect",
-     "ok"
-    ],
-    [
-     "button: {t('المنطقة','Region')} (in GeoPicker)",
-     "local state setOpen",
-     "ok"
-    ],
-    [
-     "button: {t('المدينة','City')} (in GeoPicker)",
-     "local state setOpen",
-     "ok"
-    ],
-    [
-     "button: {t('الحي','District')} (in GeoPicker)",
-     "local state setOpen",
-     "ok"
-    ],
-    [
-     "button: <MapView> (in LocationPickerModal)",
-     "local state setSelected",
-     "ok"
-    ],
-    [
-     "button: My Location (in LocationPickerModal)",
-     "native action",
-     "ok"
-    ],
-    [
-     "button: Cancel (in LocationPickerModal)",
-     "parent callback onClose",
-     "ok"
-    ],
-    [
-     "button: Confirm Location (in LocationPickerModal)",
-     "parent callback onSelectLocation, onClose",
-     "ok"
-    ],
-    [
-     "button: [close] (in OtpModal)",
-     "parent callback onClose",
-     "ok"
-    ],
-    [
-     "data: List otp (in OtpModal)",
-     "otp: set from user input / local logic",
-     "ok"
-    ],
-    [
-     "input: <TextInput> (in OtpModal)",
-     "user input → parent callback digits.replace",
-     "ok"
-    ],
-    [
-     "button: Verifying... (in OtpModal)",
-     "parent callback otp.join, onVerify",
-     "ok"
-    ],
-    [
-     "button: Resend Code (in OtpModal)",
-     "parent callback onResend",
-     "ok"
-    ],
-    [
-     "button: [close] (in SignatureCanvasModal)",
-     "parent callback onClose",
-     "ok"
-    ],
-    [
-     "button: [refresh] Clear (in SignatureCanvasModal)",
-     "local logic",
-     "ok"
-    ],
-    [
-     "button: Save Signature (in SignatureCanvasModal)",
-     "local logic",
-     "ok"
-    ],
-    [
-     "input: Manager name",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Mobile number",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Email (optional)",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Password",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Confirm password",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "button: {l.ar}",
-     "parent callback update",
-     "ok"
-    ],
-    [
-     "button: Next",
-     "POST /provider-onboarding/start, POST /auth/login",
-     "ok"
-    ],
-    [
-     "button: {label} ✓",
-     "parent callback update",
-     "ok"
-    ],
-    [
-     "input: Service name (Arabic)",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Service name (English)",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Address",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "button: Location set",
-     "local state setShowMap",
-     "ok"
-    ],
-    [
-     "input: MOH license number",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Commercial registration",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "button: Next",
-     "parent callback onNext",
-     "ok"
-    ],
-    [
-     "input: Number of ambulances",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Paramedics count",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Coverage radius (km)",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Medical equipment (optional)",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Mobile ICU units",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: 24/7 service",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Accepts cash",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Cash only (no insurance)",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "button: {co.ar}",
-     "parent callback update, cur.filter",
-     "ok"
-    ],
-    [
-     "button: Next",
-     "parent callback onNext",
-     "ok"
-    ],
-    [
-     "data: Data errs",
-     "POST /provider-onboarding/start, POST /auth/login, POST /storage/upload +3 → errs",
-     "ok"
-    ],
-    [
-     "input: IBAN",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "input: Account holder name",
-     "user input → data → request body",
-     "ok"
-    ],
-    [
-     "button: Re-sign",
-     "local state setShowSig",
-     "ok"
-    ],
-    [
-     "button: Submit registration",
-     "POST /storage/upload, POST /provider-onboarding/step2, POST /provider-onboarding/step3 +1",
-     "ok"
-    ],
-    [
-     "button: <TouchableOpacity> (in RegistrationSuccess)",
-     "POST /provider/auth/send-otp",
-     "ok"
-    ],
-    [
-     "input: Enter 6-digit code (in RegistrationSuccess)",
-     "user input → parent callback v.replace",
-     "ok"
-    ],
-    [
-     "button: <TouchableOpacity> (in RegistrationSuccess)",
-     "POST /provider/auth/verify-email",
-     "ok"
-    ],
-    [
-     "button: <TouchableOpacity> (in RegistrationSuccess)",
-     "GET /provider-onboarding/contract",
-     "ok"
-    ],
-    [
-     "button: Return to Home (in RegistrationSuccess)",
-     "parent callback onDone",
-     "ok"
-    ],
-    [
-     "data: List opts (in GeoPicker)",
-     "from opts (prop / derived; not traced)",
-     "ok"
-    ],
-    [
-     "data: List LANGS",
-     "from LANGS (prop / derived; not traced)",
-     "ok"
-    ],
-    [
-     "data: List insuranceCatalog",
-     "from insuranceCatalog (prop / derived; not traced)",
-     "ok"
-    ],
-    [
-     "API: GET /insurance/companies",
-     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:694)",
-     "ok"
-    ],
-    [
-     "API: POST /provider-onboarding/submit",
-     "POST /provider-onboarding/submit (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:505)",
-     "ok"
-    ],
-    [
-     "API: POST /provider/auth/change-password",
-     "POST /provider/auth/change-password (OK, backend/src/modules/provider/provider.controllers.ts:62)",
-     "ok"
-    ],
-    [
-     "API: POST /provider/auth/login",
-     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:34)",
-     "ok"
-    ]
-   ],
-   "notes": [
-    "3 list(s) fed by a parent prop are not traced across components."
-   ]
-  },
-  {
    "route": "DoctorRegistration",
    "elements": [
     [
@@ -2817,6 +2504,26 @@
    "route": "PendingDashboard",
    "elements": [
     [
+     "data: List flaggedDocs",
+     "GET /provider-onboarding/progress, GET /provider/kyc/documents → flaggedDocs",
+     "ok"
+    ],
+    [
+     "button: Update documents",
+     "parent callback onOpenDocuments",
+     "ok"
+    ],
+    [
+     "button: Resubmit for review",
+     "POST /provider/onboarding/submit",
+     "ok"
+    ],
+    [
+     "button: Sign out and sign in again",
+     "parent callback onLogout",
+     "ok"
+    ],
+    [
      "button: Send Verification Code",
      "POST /provider/auth/send-otp",
      "ok"
@@ -2829,6 +2536,11 @@
     [
      "button: Verify",
      "POST /provider/auth/verify-email",
+     "ok"
+    ],
+    [
+     "button: Refresh status",
+     "GET /provider-onboarding/my-profile",
      "ok"
     ],
     [

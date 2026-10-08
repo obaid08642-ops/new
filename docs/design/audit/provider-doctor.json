@@ -54,34 +54,6 @@
    ]
   },
   {
-   "route": "CertificatesConfigScreen (doctor)",
-   "elements": [
-    [
-     "data: List certs",
-     "GET /provider/kyc/documents → certs",
-     "ok"
-    ],
-    [
-     "button: {t}",
-     "local state setDocType",
-     "ok"
-    ],
-    [
-     "button: Pick file & upload",
-     "POST /provider/kyc/documents, GET /provider/kyc/documents",
-     "ok"
-    ],
-    [
-     "data: List DOC_TYPES",
-     "from DOC_TYPES (prop / derived; not traced)",
-     "ok"
-    ]
-   ],
-   "notes": [
-    "1 list(s) fed by a parent prop are not traced across components."
-   ]
-  },
-  {
    "route": "DoctorAvailabilityScreen",
    "elements": [
     [
@@ -370,121 +342,6 @@
    ]
   },
   {
-   "route": "DoctorLocationScreen",
-   "elements": [
-    [
-     "data: Data pin",
-     "GET /provider/profile → pin",
-     "ok"
-    ],
-    [
-     "button: <MapView>",
-     "local state setPin",
-     "ok"
-    ],
-    [
-     "button: Locating…",
-     "parent callback requestForegroundPermissionsAsync, getCurrentPositionAsync",
-     "ok"
-    ],
-    [
-     "input: <NInput>",
-     "user input → radius (local)",
-     "ok"
-    ],
-    [
-     "input: <NInput>",
-     "user input → transportFee → request body",
-     "ok"
-    ],
-    [
-     "button: Save",
-     "PATCH /provider/profile",
-     "ok"
-    ]
-   ]
-  },
-  {
-   "route": "DoctorProfileEditScreen",
-   "elements": [
-    [
-     "data: Data profile",
-     "GET /provider/profile → profile",
-     "ok"
-    ],
-    [
-     "input: Full Name (Arabic)",
-     "user input → nameAr → request body",
-     "ok"
-    ],
-    [
-     "input: Full Name (English)",
-     "user input → nameEn → request body",
-     "ok"
-    ],
-    [
-     "input: Bio (Arabic)",
-     "user input → descAr → request body",
-     "ok"
-    ],
-    [
-     "input: Bio (English)",
-     "user input → descEn → request body",
-     "ok"
-    ],
-    [
-     "input: Years of Experience",
-     "user input → exp → request body",
-     "ok"
-    ],
-    [
-     "input: Website",
-     "user input → web → request body",
-     "ok"
-    ],
-    [
-     "input: Specialty",
-     "user input → specialty → request body",
-     "ok"
-    ],
-    [
-     "input: Degree / Title",
-     "user input → degree → request body",
-     "ok"
-    ],
-    [
-     "button: [plus] Uploading…",
-     "parent callback DocPicker.getDocumentAsync, ProviderApi.uploadFile",
-     "ok"
-    ],
-    [
-     "data: List clinicImages",
-     "GET /provider/profile → clinicImages",
-     "ok"
-    ],
-    [
-     "button: [close]",
-     "parent callback prev.filter",
-     "ok"
-    ],
-    [
-     "button: Save Changes",
-     "PATCH /provider/profile",
-     "ok"
-    ],
-    [
-     "API: GET /provider/profile/image/status",
-     "GET /provider/profile/image/status (OK, backend/src/modules/provider/provider.controllers.ts:111)",
-     "ok"
-    ],
-    [
-     "API: POST /provider/profile/image/upload",
-     "POST /provider/profile/image/upload (OK, backend/src/modules/provider/provider.controllers.ts:100)",
-     "ok"
-    ]
-   ]
-  },
-  {
    "route": "DoctorScheduleTab",
    "elements": [
     [
@@ -738,46 +595,6 @@
     [
      "input: <Switch> (in GlobalSystemSettings)",
      "user input → bioEnabled (local)",
-     "ok"
-    ]
-   ]
-  },
-  {
-   "route": "DoctorWalletTab",
-   "elements": [
-    [
-     "data: Data wallet",
-     "GET /provider/wallet, GET /provider/wallet/transactions → wallet",
-     "ok"
-    ],
-    [
-     "number: Stat: Available for Withdrawal",
-     "value ← `${wallet.available} SAR`",
-     "ok"
-    ],
-    [
-     "number: Stat: Insurance Escrow",
-     "value ← `${wallet.escrow} SAR`",
-     "ok"
-    ],
-    [
-     "number: Stat: Nabdah Dues",
-     "value ← `${wallet.dues} SAR`",
-     "ok"
-    ],
-    [
-     "button: Withdraw Funds",
-     "navigate → withdrawal_workflow",
-     "ok"
-    ],
-    [
-     "button: Revenue Insights & Reports",
-     "navigate → revenue_insights",
-     "ok"
-    ],
-    [
-     "data: List transactions",
-     "GET /provider/wallet, GET /provider/wallet/transactions → transactions",
      "ok"
     ]
    ]
@@ -1293,7 +1110,7 @@
    "kind": "backend",
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-   "line": 143,
+   "line": 142,
    "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:818"
   },
   {
@@ -1326,26 +1143,8 @@
    "kind": "backend",
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
-   "line": 76,
+   "line": 75,
    "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:829"
-  },
-  {
-   "route": "DoctorWalletTab",
-   "element": "API GET /provider/wallet",
-   "kind": "backend",
-   "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
-   "file": "provider-app/src/screens/doctor/doctor/DoctorWalletTab.tsx",
-   "line": 57,
-   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:801"
-  },
-  {
-   "route": "DoctorWalletTab",
-   "element": "API GET /provider/wallet/transactions",
-   "kind": "backend",
-   "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
-   "file": "provider-app/src/screens/doctor/doctor/DoctorWalletTab.tsx",
-   "line": 59,
-   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:806"
   },
   {
    "route": "EPrescriptionScreen",
@@ -1353,7 +1152,7 @@
    "kind": "client",
    "note": "Touchable \"[{opt.icon}] {opt.ar}\" has no onPress handler.",
    "file": "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx",
-   "line": 263
+   "line": 267
   },
   {
    "route": "EPrescriptionScreen",

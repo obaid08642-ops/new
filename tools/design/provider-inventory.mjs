@@ -785,7 +785,7 @@ export function buildProvider(h) {
   /* ------------------------------------------------------------ render */
   const esc = (s) => String(s ?? '').replace(/\\/g, '\\\\').replace(/\|/g, '\\|').replace(/\s*\n\s*/g, ' ');
   const code = (s) => '`' + String(s).replace(/`/g, "'") + '`';
-  const AREAS = ['auth-onboarding', 'doctor', 'pharmacy', 'lab', 'radiology', 'nursing', 'facility', 'shared', 'admin-ish', 'ambulance'];
+  const AREAS = ['auth-onboarding', 'doctor', 'pharmacy', 'lab', 'radiology', 'nursing', 'facility', 'shared', 'admin-ish'];
   const nm = (calls, s) => calls.filter((c) => c.status === s).length;
 
   const inv = [];

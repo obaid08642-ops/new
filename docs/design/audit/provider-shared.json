@@ -4,7 +4,7 @@
  "app": "provider-app",
  "screens": [
   {
-   "route": "CertificatesConfigScreen (shared)",
+   "route": "CertificatesConfigScreen",
    "elements": [
     [
      "data: Data pendingDocType",
@@ -112,91 +112,6 @@
     [
      "data: List patients",
      "GET /pharmacy/orders/refills → patients",
-     "ok"
-    ]
-   ]
-  },
-  {
-   "route": "FleetScreen",
-   "elements": [
-    [
-     "button: Add Vehicle",
-     "local state setShowForm",
-     "ok"
-    ],
-    [
-     "button: Retry",
-     "GET /provider/ambulance/fleet",
-     "ok"
-    ],
-    [
-     "data: List vehicles",
-     "GET /provider/ambulance/fleet, PATCH /provider/ambulance/fleet/:param, DELETE /provider/ambulance/fleet/:param → vehicle",
-     "ok"
-    ],
-    [
-     "input: Available for missions",
-     "user input → PATCH /provider/ambulance/fleet/:param",
-     "ok"
-    ],
-    [
-     "button: Remove",
-     "DELETE /provider/ambulance/fleet/:param",
-     "ok"
-    ],
-    [
-     "data: Data f",
-     "f: set from user input / local logic",
-     "ok"
-    ],
-    [
-     "data: Data errs",
-     "POST /provider/ambulance/fleet → errs",
-     "ok"
-    ],
-    [
-     "input: Plate number",
-     "user input → f → request body",
-     "ok"
-    ],
-    [
-     "input: Model",
-     "user input → f → request body",
-     "ok"
-    ],
-    [
-     "input: Year",
-     "user input → f → request body",
-     "ok"
-    ],
-    [
-     "input: Paramedics",
-     "user input → f → request body",
-     "ok"
-    ],
-    [
-     "input: Base city",
-     "user input → f → request body",
-     "ok"
-    ],
-    [
-     "input: Equipment (comma separated)",
-     "user input → f → request body",
-     "ok"
-    ],
-    [
-     "input: Mobile ICU unit",
-     "user input → f → request body",
-     "ok"
-    ],
-    [
-     "button: Save",
-     "POST /provider/ambulance/fleet",
-     "ok"
-    ],
-    [
-     "button: Cancel",
-     "parent callback onCancel",
      "ok"
     ]
    ]
@@ -800,6 +715,129 @@
    ]
   },
   {
+   "route": "ProviderProfileEditor",
+   "elements": [
+    [
+     "input: Full Name (Arabic)",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: Full Name (English)",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: Bio (Arabic)",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: Bio (English)",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: Years of Experience",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: Website",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: Specialty",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: Degree / Title",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "button: [plus] Uploading…",
+     "parent callback DocPicker.getDocumentAsync, ProviderApi.uploadFile",
+     "ok"
+    ],
+    [
+     "data: List form.clinicImages",
+     "GET /provider/profile → form",
+     "ok"
+    ],
+    [
+     "button: [close]",
+     "local state setForm",
+     "ok"
+    ],
+    [
+     "button: <MapView>",
+     "local state setForm",
+     "ok"
+    ],
+    [
+     "button: Locating…",
+     "parent callback requestForegroundPermissionsAsync, getCurrentPositionAsync",
+     "ok"
+    ],
+    [
+     "input: <NInput>",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: <NInput>",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: Active Public Website",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: Social Media Link",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "button: Share",
+     "native action",
+     "ok"
+    ],
+    [
+     "button: {sectionLabel[s]}",
+     "local state setSection",
+     "ok"
+    ],
+    [
+     "button: Save Changes",
+     "PATCH /provider/profile",
+     "ok"
+    ],
+    [
+     "data: List sections",
+     "from sections (prop / derived; not traced)",
+     "ok"
+    ],
+    [
+     "API: GET /provider/profile/image/status",
+     "GET /provider/profile/image/status (OK, backend/src/modules/provider/provider.controllers.ts:111)",
+     "ok"
+    ],
+    [
+     "API: POST /provider/profile/image/upload",
+     "POST /provider/profile/image/upload (OK, backend/src/modules/provider/provider.controllers.ts:100)",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "1 list(s) fed by a parent prop are not traced across components."
+   ]
+  },
+  {
    "route": "ProviderWalletScreen",
    "elements": [
     [
@@ -830,6 +868,11 @@
     [
      "button: Request Withdrawal",
      "navigate → withdrawal_workflow",
+     "ok"
+    ],
+    [
+     "button: Revenue Insights & Reports",
+     "navigate (back / dynamic target)",
      "ok"
     ],
     [
@@ -1122,14 +1165,6 @@
  ],
  "needsReview": [
   {
-   "route": "FleetScreen",
-   "element": "Ambulance feature",
-   "kind": "owner",
-   "note": "Owner decision O-2 (2026-10-06) removes the ambulance system and provider type; this screen goes with it.",
-   "file": "provider-app/src/screens/shared/FleetScreen.tsx",
-   "line": 22
-  },
-  {
    "route": "InsuranceConfigScreen",
    "element": "API GET /provider/insurance-matrix",
    "kind": "backend",
@@ -1153,6 +1188,15 @@
    "note": "fake-number (mock-scan): rating: 5.0",
    "file": "provider-app/src/screens/shared/ProviderHome.tsx",
    "line": 24
+  },
+  {
+   "route": "ProviderWalletScreen",
+   "element": "API GET /provider/wallet/transactions",
+   "kind": "backend",
+   "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
+   "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
+   "line": 49,
+   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:806"
   },
   {
    "route": "ReviewsAndRatingsScreen",
