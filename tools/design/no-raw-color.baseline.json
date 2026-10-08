@@ -4,7 +4,7 @@
     "patient-web": 717,
     "patient-app": 386,
     "provider-app": 315,
-    "admin": 215
+    "admin": 185
   },
   "files": {
     "patient-web/app/[locale]/ai/monthly-report/page.tsx": 2,
@@ -135,9 +135,7 @@
     "admin/src/pages/admin/payouts.tsx": 1,
     "admin/src/pages/admin/reports.tsx": 1,
     "admin/src/pages/admin/security.tsx": 39,
-    "admin/src/pages/admin/sos-monitor.tsx": 1,
     "admin/src/pages/admin/support-tickets.tsx": 1,
-    "admin/src/pages/admin/theme-control.tsx": 29,
     "admin/src/pages/index.tsx": 1,
     "admin/src/pages/s/[type]/[slug].tsx": 1,
     "admin/src/styles/globals.css": 11

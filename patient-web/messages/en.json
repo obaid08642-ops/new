@@ -2070,8 +2070,8 @@
     "processing": "Working…",
     "status": {
       "draft": "Not sent yet",
-      "intake_processing": "Being prepared",
-      "ready_for_split": "Being prepared",
+      "intake_processing": "Reviewing your request",
+      "ready_for_split": "Waiting for pharmacy offers",
       "broadcasting": "Sent to pharmacies",
       "awaiting_full_acceptance": "Waiting for pharmacies",
       "negotiating_substitutes": "Discussing substitutes",
@@ -2173,6 +2173,7 @@
     "sending": "Sending…",
     "errorSend": "The request could not be sent. Nothing was charged. Try again.",
     "errorNetwork": "The service could not be reached. Check your connection and try again; the request will not be sent twice.",
+    "errorServer": "Something went wrong on our side while sending. Try again in a moment; the request will not be sent twice and nothing was charged.",
     "errorForbidden": "Your account cannot send a pharmacy request.",
     "paymentTitle": "Payment",
     "howInsurance": "Through insurance",

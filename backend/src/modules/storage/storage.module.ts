@@ -110,6 +110,9 @@ class S3R2Adapter implements StorageAdapter {
 const ALLOWED_MIME = new Set(['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf']);
 const MAX_BYTES = 25 * 1024 * 1024; // 25 MB hard cap per file at base64 layer
 
+/** Staff who review private documents (licences, KYC) besides their owner. super_admin was refused before. */
+const STAFF_READERS = new Set(['admin', 'super_admin']);
+
 @Injectable()
 export class StorageService {
   private readonly logger = new Logger('StorageService');
@@ -227,7 +230,7 @@ export class StorageService {
   async read(id: string, requester: { id: string; role?: string }) {
     const o = await this.model.findOne({ id, deleted: false });
     if (!o) throw new NotFoundException();
-    if (o.visibility !== 'public_read' && o.owner_account_id !== requester.id && requester.role !== 'admin') throw new ForbiddenException();
+    if (o.visibility !== 'public_read' && o.owner_account_id !== requester.id && !STAFF_READERS.has(String(requester.role || '').toLowerCase())) throw new ForbiddenException();
     const data = await this.adapter.get(o);
     if (o.visibility !== 'public_read') delete (data as any).external_url;
     return { id: o.id, mime: o.mime, original_name: o.original_name, size_bytes: o.size_bytes, ...data };
@@ -238,7 +241,7 @@ export class StorageService {
   async signedUrl(id: string, requester: { id: string; role?: string }) {
     const o: any = await this.model.findOne({ id, deleted: false });
     if (!o) throw new NotFoundException();
-    if (o.visibility !== 'public_read' && o.owner_account_id !== requester.id && requester.role !== 'admin') throw new ForbiddenException();
+    if (o.visibility !== 'public_read' && o.owner_account_id !== requester.id && !STAFF_READERS.has(String(requester.role || '').toLowerCase())) throw new ForbiddenException();
 
     // Cloudinary-hosted: build signed delivery URL
     if (o.backend === 'cloudinary' && o.external_key) {
@@ -349,6 +352,7 @@ export class StorageService {
     return { id: obj.id, mime: obj.mime, size_bytes: obj.size_bytes, url: `/api/v1/storage/${obj.id}`, meta };
   }
 }
+
 
 @Controller('storage')
 @SelfService()

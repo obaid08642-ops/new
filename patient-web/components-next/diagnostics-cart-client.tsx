@@ -20,7 +20,8 @@ function readCart(): DiagCartItem[] {
   try {
     const raw = localStorage.getItem(KEY);
     const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed.filter((i) => i && typeof i.id === "string") : [];
+    // A price saved by an older version came from the URL: drop it (the server prices the order).
+    return Array.isArray(parsed) ? parsed.filter((i) => i && typeof i.id === "string").map((i) => ({ id: i.id, name: typeof i.name === "string" ? i.name : i.id })) : [];
   } catch {
     return [];
   }
@@ -40,10 +41,10 @@ export function DiagnosticsCartClient({ locale }: { locale: string }) {
   useEffect(() => {
     const addId = searchParams.get("add");
     const addName = searchParams.get("name") || "";
-    const addPrice = Number(searchParams.get("price") || NaN);
     let cart = readCart();
     if (addId && !cart.some((i) => i.id === addId)) {
-      cart = [...cart, { id: addId, name: addName || addId, price: Number.isFinite(addPrice) ? addPrice : undefined }];
+      // Journey 5: the price is never taken from the URL (anyone can write one); the server prices the order at checkout.
+      cart = [...cart, { id: addId, name: addName || addId }];
       try {
         localStorage.setItem(KEY, JSON.stringify(cart));
       } catch {}

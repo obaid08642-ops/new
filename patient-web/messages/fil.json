@@ -2070,8 +2070,8 @@
     "processing": "Isinasagawa…",
     "status": {
       "draft": "Hindi pa naipapadala",
-      "intake_processing": "Inihahanda",
-      "ready_for_split": "Inihahanda",
+      "intake_processing": "Sinusuri ang iyong kahilingan",
+      "ready_for_split": "Naghihintay ng alok ng mga parmasya",
       "broadcasting": "Naipadala sa mga parmasya",
       "awaiting_full_acceptance": "Naghihintay sa mga parmasya",
       "negotiating_substitutes": "Pinag-uusapan ang kapalit",
@@ -2173,6 +2173,7 @@
     "sending": "Ipinapadala…",
     "errorSend": "Hindi naipadala ang kahilingan. Walang siningil. Subukan muli.",
     "errorNetwork": "Hindi maabot ang serbisyo. Suriin ang koneksyon mo at subukan muli; hindi dalawang beses ipapadala ang kahilingan.",
+    "errorServer": "May nangyaring mali sa aming panig habang ipinapadala. Subukang muli maya-maya; hindi maipapadala nang dalawang beses ang kahilingan at walang siningil.",
     "errorForbidden": "Hindi makakapagpadala ng kahilingan sa parmasya ang account mo.",
     "paymentTitle": "Pagbabayad",
     "howInsurance": "Sa pamamagitan ng insurance",

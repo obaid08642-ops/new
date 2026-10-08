@@ -126,4 +126,28 @@ describe('nurse booking page', () => {
     await waitFor(() => expect(showLocalizedAlert).toHaveBeenCalledWith(k('nur.book.failTitle'), 'Test failure'));
     expect(screen.queryByText(k('nur.book.inReview'))).toBeNull();
   });
+
+  it('journey 6: a failed payment keeps the patient on the page; the retry pays the SAME booking, never a second one, and never opens tracking', async () => {
+    mockParams.current = { nurseId: 'nurse-1', flow: 'cash', serviceId: 'svc-1' };
+    let intents = 0;
+    answer({}, (path) => {
+      if (path === '/nursing/bookings') return { id: 'bk-1' };
+      if (path.startsWith('/payments/intent/nursing/')) {
+        intents += 1;
+        if (intents === 1) throw new Error('gateway down');
+        return { id: 'pay-1', checkout_url: 'https://pay.example.test/x', amount: 100 };
+      }
+      return {};
+    });
+    await render(wrap(<NurseBookingScreen />));
+    await screen.findByText('Test Nurse');
+    const confirm = () => screen.getByLabelText(new RegExp(`^${k('nur.book.confirm')}`));
+    await tap(confirm());
+    expect(posts().filter(([path]) => path === '/nursing/bookings')).toHaveLength(1);
+    expect(mockRouter.replace).not.toHaveBeenCalled(); // not to live-tracking of an unpaid booking
+    await tap(confirm());
+    expect(posts().filter(([path]) => path === '/nursing/bookings')).toHaveLength(1); // still one booking
+    expect(posts().filter(([path]) => String(path) === '/payments/intent/nursing/bk-1')).toHaveLength(2);
+    expect(mockRouter.replace).toHaveBeenCalledWith(expect.objectContaining({ pathname: '/payments/result', params: expect.objectContaining({ bookingId: 'bk-1' }) }));
+  });
 });

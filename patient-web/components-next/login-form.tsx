@@ -8,6 +8,7 @@ import { Button } from "@/components-next/ui-generated/components/Button";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { authErrorKind } from "@/lib/auth/auth-errors";
 import { announceSignedIn } from "@/lib/auth/session-identity";
+import { safeNextPath } from "@/lib/auth/safe-next";
 import type { Locale } from "@/lib/i18n";
 import { SocialLoginButtons } from "./social-login-buttons";
 import styles from "./auth/auth.module.css";
@@ -47,7 +48,9 @@ export function LoginForm({ locale, guestBlocked = false }: { locale: Locale; gu
       if (!response.ok) { setMessage(loginErrorMessage(t, response.status, twoFactor)); return; }
       if (!twoFactor && payload.requires2fa) { setTwoFactor(true); setPassword(""); setMessage(null); return; }
       announceSignedIn();
-      router.replace(`/${locale}/dashboard`); router.refresh();
+      // Back to the page that asked for a sign-in (for example the checkout), never outside this site.
+      const next = safeNextPath(new URLSearchParams(window.location.search).get("next"));
+      router.replace(next ?? `/${locale}/dashboard`); router.refresh();
     } catch { setMessage(twoFactor ? t("twoFactorUnavailable") : t("unavailable")); }
     finally { setSubmitting(false); }
   }

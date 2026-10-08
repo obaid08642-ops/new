@@ -19,7 +19,6 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/analytics-suite', label: 'التحليلات', permission: 'analytics.read' },
       { href: '/admin/reports', label: 'التقارير التشغيلية', permission: 'analytics.read' },
       { href: '/admin/search', label: 'البحث الشامل', permission: 'users.view' },
-      { href: '/admin/sos-monitor', label: 'مراقبة الطوارئ SOS' },
       { href: '/admin/fraud-monitoring', label: 'مراقبة الاحتيال' },
     ],
   },
@@ -30,7 +29,6 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/provider-audits', label: 'سجلات تدقيق المزودين' },
       { href: '/admin/insurance-queue', label: 'طابور الموافقات التأمينية' },
       { href: '/admin/insurance-companies', label: 'شركات التأمين المعتمدة' },
-      { href: '/admin/ambulance-fleet', label: 'أسطول مركبات الإسعاف' },
       { href: '/admin/pharmacy-procurement', label: 'توريدات ومخازن الأدوية' },
       { href: '/admin/nursing-portal', label: 'بوابة وإدارة التمريض' },
       { href: '/admin/support-tickets', label: 'تذاكر الدعم والشكاوى' },
@@ -95,7 +93,6 @@ function permitted(item: NavItem, permissions: Set<string>) {
 // granted by the backend and previously locked those pages for every admin.
 const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/command-center': 'command.center.view',
-  '/admin/sos-monitor': 'command.center.view',
   '/admin/fraud-monitoring': 'command.center.view',
   '/admin/health-dashboard': 'command.center.view',
   '/admin/orders': 'order.read',
@@ -115,7 +112,6 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/provider-audits': 'doctor.read',
   '/admin/insurance-queue': 'order.read',
   '/admin/insurance-companies': 'order.read',
-  '/admin/ambulance-fleet': 'facility.read',
   '/admin/nursing-portal': 'appointment.read',
   '/admin/pharmacy-procurement': 'pharmacy.inventory.read',
   '/admin/medicines-catalog': 'catalog.read',
