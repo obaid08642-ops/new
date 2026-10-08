@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { HttpClient } from '@/services/HttpClient';
 import { useAppSelector } from '@/store/hooks';
 import { IconButton } from '../src/components/ui';
+import { SosRedFlagBanner } from '../src/components/safety/SosRedFlag';
 import { useThemeColors } from '../src/context/AppContext';
 import { ScreenState } from '../src/components/ScreenStates';
 
@@ -32,6 +33,10 @@ export default function AIAssistantScreen() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string|null>(null);
+  // Phase 3.4: which draft the user already dismissed the SOS banner for.
+  // The banner re-arms on every keystroke (SosRedFlagBanner returns null
+  // itself when the text has no red flags).
+  const [sosDismissedFor, setSosDismissedFor] = useState<string | null>(null);
   const flatListRef = useRef<FlatList>(null);
   const user = useAppSelector(state => state.auth.user);
 
@@ -139,6 +144,9 @@ export default function AIAssistantScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
+        {sosDismissedFor !== input && input.trim().length > 0 && (
+          <SosRedFlagBanner text={input} onClose={() => setSosDismissedFor(input)} />
+        )}
         <View style={[styles.inputContainer, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
           <IconButton
             icon="camera"

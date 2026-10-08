@@ -35,6 +35,7 @@ const ITEMS: SettingsItem[][] = [
     { icon: "user", label: "الملف الشخصي", route: "/profile" },
     { icon: "lock", label: "الأمان", route: "/settings/security" },
     { icon: "lock", label: "الخصوصية", route: "/settings/privacy" },
+    { icon: "emergency", label: "الطوارئ والسلامة", route: "/emergency/safety" },
   ],
   [
     { icon: "moon", label: "الوضع الليلي", toggle: true },
@@ -48,6 +49,7 @@ const ITEMS: SettingsItem[][] = [
   ],
   [
     { icon: "help", label: "المساعدة", route: "/settings/support-chat" },
+    { icon: "help", label: "مركز المساعدة", route: "/support/help-center" },
     { icon: "chat", label: "تواصل معنا", route: "/support/chat" },
     { icon: "document", label: "الشروط والأحكام", route: "/settings/terms" },
     { icon: "info", label: "عن التطبيق", route: "/settings/about" },

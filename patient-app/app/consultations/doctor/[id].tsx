@@ -12,6 +12,7 @@ import { apiFetch } from '../../../src/utils/api';
 import { pickLocalized } from '../../../src/utils/localize';
 import { dateLocale } from '@/utils/dates';
 import { LocalizedText } from '../../../src/components/LocalizedText';
+import { ReviewList } from '../../../src/components/reviews/ReviewList';
 
 const { width } = Dimensions.get('window');
 
@@ -498,6 +499,20 @@ export default function DoctorProfile() {
             </View>
           </View>
           )}
+
+          {/* Phase 3.4: live published reviews (helpful votes + provider replies).
+              Fixed height because ReviewList owns a FlatList and this screen
+              already scrolls. Honest empty state comes from the component. */}
+          {doc?.id ? (
+          <View style={styles.section}>
+            <LocalizedText style={{ fontSize: 15.5, fontWeight: '700', color: colors.n, marginBottom: 10, textAlign: isRTL ? 'right' : 'left' }}>
+              {lang === 'ar' ? 'جميع التقييمات المنشورة' : 'All published reviews'}
+            </LocalizedText>
+            <View style={{ height: 420 }}>
+              <ReviewList providerId={String(doc.id)} providerType="doctor" />
+            </View>
+          </View>
+          ) : null}
 
           {/* FAQs */}
           <View style={styles.section}>
