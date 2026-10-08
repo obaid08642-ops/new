@@ -12,6 +12,13 @@ import { NURSING } from "@/components-next/nursing/nursing-parts";
 
 type Props = { params: Promise<{ locale: string; citySlug: string }> };
 
+// F82-3: static/ISR. Public catalogue data only (no cookie, no header, no search parameter): the same HTML for everyone,
+// kept for the hour of the read. A failed read throws (lib/api/public-read.ts), so Next keeps the last good copy; a missing entity is a 404.
+export const revalidate = 3600;
+export function generateStaticParams() {
+  return [];
+}
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
 
 type CatalogService = { service_id?: string; name?: string; description?: string; service_mode?: string };

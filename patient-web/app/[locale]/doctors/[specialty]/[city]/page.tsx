@@ -14,6 +14,14 @@ import { pickText } from "@/components-next/diagnostics/diag-parts";
 
 type Props = { params: Promise<{ locale: string; specialty: string; city: string }> };
 
+// F82-3: static/ISR. Public entity data only (no cookie, no header, no search parameter): the same HTML for everyone,
+// generated on the first request for a path, kept for the hour of the read and regenerated in the background. A failed read
+// throws (lib/api/public-read.ts), so Next keeps the last good copy (stale-if-error, #302); a missing entity is a 404.
+export const revalidate = 3600;
+export function generateStaticParams() {
+  return [];
+}
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
 
 async function fetchDoctorsByLocation(specialty: string, city: string) {

@@ -14,6 +14,13 @@ import { RADIOLOGY, money, pickText } from "@/components-next/diagnostics/diag-p
 
 type Props = { params: Promise<{ locale: string; serviceSlug: string; citySlug: string }> };
 
+// F82-3: static/ISR. Public catalogue data only (no cookie, no header, no search parameter): the same HTML for everyone,
+// kept for the hour of the read. A failed read throws (lib/api/public-read.ts), so Next keeps the last good copy.
+export const revalidate = 3600;
+export function generateStaticParams() {
+  return [];
+}
+
 async function fetchRadiologyData(serviceSlug: string, citySlug: string) {
   const search = readSegment(serviceSlug).slice(0, 120).trim();
   const params = new URLSearchParams();

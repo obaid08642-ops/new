@@ -1,0 +1,132 @@
+[
+  {
+    "batch": 13,
+    "app": "patient-web",
+    "screen": "/labs/[testSlug]/[citySlug]",
+    "element": "Partner laboratories list",
+    "file": "patient-web/app/[locale]/labs/[testSlug]/[citySlug]/page.tsx",
+    "line": 26,
+    "found": "[backend] Lists every facility of the city (explore has no facility-type or test filter), so a lab page can show a clinic and the test in the URL is not used; same for /pharmacies/[citySlug]. (backend: backend/src/modules/entity-graph/entity-graph.service.ts:265)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 13,
+    "app": "patient-web",
+    "screen": "/pharmacies/[citySlug]",
+    "element": "Pharmacies list",
+    "file": "patient-web/app/[locale]/pharmacies/[citySlug]/page.tsx",
+    "line": 28,
+    "found": "[backend] Explore returns every facility type of the city, so non-pharmacies can be listed as pharmacies. (backend: backend/src/modules/entity-graph/entity-graph.service.ts:265)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 13,
+    "app": "patient-web",
+    "screen": "/radiology/[serviceSlug]/[citySlug]",
+    "element": "City of the service list",
+    "file": "patient-web/app/[locale]/radiology/[serviceSlug]/[citySlug]/page.tsx",
+    "line": 28,
+    "found": "[backend] The radiology catalogue has no city or centre, so the page lists services matching the search text and the city is only in the URL and the title.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 13,
+    "app": "patient-web",
+    "screen": "/home-nursing/[citySlug]",
+    "element": "Fallback list",
+    "file": "patient-web/app/[locale]/home-nursing/[citySlug]/page.tsx",
+    "line": 40,
+    "found": "[client] When no service looks like nursing, the first five services of the city are shown as home nursing.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 13,
+    "app": "patient-web",
+    "screen": "/doctors/[specialty]/[city]",
+    "element": "Rating on the doctor card",
+    "file": "patient-web/app/[locale]/doctors/[specialty]/[city]/page.tsx",
+    "line": 110,
+    "found": "[backend] Explore sends a rating but no review count, and the design-system card draws a rating only with a count; add reviews_count to the explore doctors to show it. (backend: backend/src/modules/entity-graph/entity-graph.service.ts:292)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 13,
+    "app": "patient-web",
+    "screen": "/doctors/[specialty]/[city]/[neighborhood]",
+    "element": "Facilities of the neighbourhood",
+    "file": "patient-web/app/[locale]/doctors/[specialty]/[city]/[neighborhood]/page.tsx",
+    "line": 39,
+    "found": "[client] The page filters the facilities by district or address, and shows the whole city when none match while the page says they are near the neighbourhood; the explore call ignores the district. (backend: backend/src/modules/entity-graph/entity-graph.controller.ts:19)",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 13,
+    "app": "patient-web",
+    "screen": "/services/[serviceSlug]/[citySlug]",
+    "element": "Request this service button",
+    "file": "patient-web/app/[locale]/services/[serviceSlug]/[citySlug]/page.tsx",
+    "line": 131,
+    "found": "[client] Goes to /services, which redirects to the home page; there is no services list page to open.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 13,
+    "app": "patient-web",
+    "screen": "/labs/[testSlug]/[citySlug]",
+    "element": "Register as a provider button (also radiology and pharmacies)",
+    "file": "patient-web/app/[locale]/labs/[testSlug]/[citySlug]/page.tsx",
+    "line": 125,
+    "found": "[client] Goes to /consultations/doctors (the doctors list), not to /provider-info; kept as it was.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 13,
+    "app": "patient-web",
+    "screen": "/facility/[slug]",
+    "element": "Breadcrumb in the JSON-LD",
+    "file": "patient-web/app/[locale]/facility/[slug]/page.tsx",
+    "line": 75,
+    "found": "[client] The structured data lists /consultations/clinics, a route that has no list page (404); left as published (SEO scope).",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 13,
+    "app": "patient-web",
+    "screen": "/pharmacies/[citySlug]",
+    "element": "Claims in the title, meta and JSON-LD",
+    "file": "patient-web/app/[locale]/pharmacies/[citySlug]/page.tsx",
+    "line": 94,
+    "found": "[owner] 'Verified pharmacies', 'licensed 24/7' nursing and 'accredited' texts stay in titles, meta and JSON-LD (SEO scope, same text in Arabic and English) though no field verifies them; owner to confirm or reword.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 13,
+    "app": "patient-web",
+    "screen": "/home-nursing/[citySlug]",
+    "element": "JSON-LD description",
+    "file": "patient-web/app/[locale]/home-nursing/[citySlug]/page.tsx",
+    "line": 119,
+    "found": "[owner] The structured-data descriptions are English text written in code (kept exactly, marked i18n-ok); moving them into the message files would change the published SEO text.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 13,
+    "app": "patient-web",
+    "screen": "/privacy",
+    "element": "Language of the policy",
+    "file": "patient-web/lib/api/legal-policy.ts",
+    "line": 13,
+    "found": "[backend] The legal service has Arabic and English only; the Urdu, Hindi, Bengali and Filipino pages show the English policy (marked lang=en, ltr).",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 13,
+    "app": "patient-web",
+    "screen": "/medicine-catalog",
+    "element": "Page text and static rules",
+    "file": "patient-web/app/[locale]/medicine-catalog/page.tsx",
+    "line": 102,
+    "found": "[owner] The intro says the page gives no pricing while the cards show prices and add to cart; and the page reads ?q= and ?page= so it is dynamic: the F82-3 query twin (not on this base) would make it static.",
+    "suspect": "Owner decision."
+  }
+]

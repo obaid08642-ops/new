@@ -6,6 +6,12 @@ import DoctorCanonicalPage, { generateMetadata as doctorMetadata } from "../page
 
 type Props = { params: Promise<{ locale: string; slug: string; city: string }> };
 
+// F82-3: static/ISR like the doctor page it renders (the segment config is read from this file, not from the page it calls).
+export const revalidate = 3600;
+export function generateStaticParams() {
+  return [];
+}
+
 // GEO variant: same doctor with city-enriched canonical + Physician address.
 // City param flows through so /doctor/{slug}/{city} is its own indexable entity.
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

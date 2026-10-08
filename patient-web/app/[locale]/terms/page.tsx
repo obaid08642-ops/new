@@ -8,6 +8,13 @@ import { hubMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string }> };
 
+// F82-3: static/ISR. The policy text is public and the same for everyone: no cookie, no header, no search parameter. A failed
+// read throws (lib/api/public-read.ts), so Next keeps the last good copy; a missing policy is a 404.
+export const revalidate = 3600;
+export function generateStaticParams() {
+  return [];
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};

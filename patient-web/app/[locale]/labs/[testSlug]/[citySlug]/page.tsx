@@ -12,6 +12,13 @@ import { LAB, pickText } from "@/components-next/diagnostics/diag-parts";
 
 type Props = { params: Promise<{ locale: string; testSlug: string; citySlug: string }> };
 
+// F82-3: static/ISR. Public entity data only (no cookie, no header, no search parameter): the same HTML for everyone,
+// kept for the hour of the read. A failed read throws (lib/api/public-read.ts), so Next keeps the last good copy.
+export const revalidate = 3600;
+export function generateStaticParams() {
+  return [];
+}
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
 
 async function fetchLabTestData(testSlug: string, citySlug: string) {

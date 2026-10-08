@@ -8,6 +8,12 @@ import { ActionLinks } from "@/components-next/consult/consult-parts";
 
 type Props = { params: Promise<{ locale: string }> };
 
+// F82-3: static. No data and nothing of the reader in the page: the same HTML for everyone.
+export const revalidate = 3600;
+export function generateStaticParams() {
+  return [];
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};

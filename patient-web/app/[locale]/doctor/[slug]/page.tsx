@@ -12,12 +12,22 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import styles from "@/components-next/consult/consult.module.css";
 import { ProfileHeader, type ProfileStat } from "@/components-next/consult/profile-header";
 import { ActionLinks, SectionCard } from "@/components-next/consult/consult-parts";
+import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
 
 type Props = { params: Promise<{ locale: string; slug: string; city?: string }> };
 
+// F82-3: static/ISR. Public entity data only (no cookie, no header, no search parameter): the same HTML for everyone,
+// generated on the first request for a path, kept for the hour of the read and regenerated in the background. A failed read
+// throws (PublicDataUnavailableError), so Next keeps the last good copy (stale-if-error, #302); a missing entity is a 404.
+export const revalidate = 3600;
+export function generateStaticParams() {
+  return [];
+}
+
 async function fetchDoctor(slug: string) {
   const res = await getPublicDoctorEntity(slug);
-  if (!res?.ok) return null;
+  if (!res || res.status >= 500) throw new PublicDataUnavailableError("doctor");
+  if (!res.ok) return null;
   return await res.json().catch(() => null);
 }
 

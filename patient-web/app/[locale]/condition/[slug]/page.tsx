@@ -16,6 +16,13 @@ import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
+// F82-3: static/ISR. Public entity data only (no cookie, no header, no search parameter): the same HTML for everyone,
+// kept for the hour of the read. A failed read throws (lib/api/public-read.ts), so Next keeps the last good copy; a missing entity is a 404.
+export const revalidate = 3600;
+export function generateStaticParams() {
+  return [];
+}
+
 type ConditionAnswer = {
   entity?: {
     name_ar?: string | null;

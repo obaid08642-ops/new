@@ -14,6 +14,12 @@ import { pickText } from "@/components-next/diagnostics/diag-parts";
 
 type Props = { params: Promise<{ locale: string; specialty: string; city: string; neighborhood: string }> };
 
+// F82-3: static/ISR (see the city page): public entity data only, a failed read throws, a missing entity is a 404.
+export const revalidate = 3600;
+export function generateStaticParams() {
+  return [];
+}
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
 
 async function fetchDoctorsByNeighborhood(specialty: string, city: string, neighborhood: string) {
