@@ -35,4 +35,10 @@ describe('StorageService private-media contract', () => {
     await expect(service.signedUrl('lic-1', { id: 'adm-1', role: 'super_admin' })).resolves.toBeTruthy();
     await expect(service.read('lic-1', { id: 'patient-2', role: 'patient' })).rejects.toBeInstanceOf(ForbiddenException);
   });
+  it('lets the patient a file was shared with read it (a nurse visit attachment); other patients are refused', async () => {
+    model.findOne.mockResolvedValue({ id: 'res-1', owner_account_id: 'nurse-1', shared_with: ['patient-1'], visibility: 'private', deleted: false, mime: 'application/pdf', original_name: 'result.pdf', size_bytes: 10 });
+    await expect(service.read('res-1', { id: 'patient-1', role: 'patient' })).resolves.toEqual(expect.objectContaining({ id: 'res-1' }));
+    await expect(service.signedUrl('res-1', { id: 'patient-1', role: 'patient' })).resolves.toBeTruthy();
+    await expect(service.read('res-1', { id: 'patient-2', role: 'patient' })).rejects.toBeInstanceOf(ForbiddenException);
+  });
 });
