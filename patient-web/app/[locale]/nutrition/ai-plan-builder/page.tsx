@@ -1,13 +1,14 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { isLocale } from "@/lib/i18n";
+import { redirectKeepingQuery } from "@/lib/redirect-keep-query";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-/** Parity with app nutrition/ai-plan-builder: legacy route, use the nutrition hub. */
-export default async function NutritionAiPlanBuilderPage({ params }: Props) {
+/** Removed AI plan builder: the hub. */
+export default async function Page({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  redirect(`/${locale}/nutrition`);
+  redirectKeepingQuery(`/${locale}/nutrition`, await searchParams);
 }

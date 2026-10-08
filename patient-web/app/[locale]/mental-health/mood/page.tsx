@@ -1,85 +1,69 @@
-import Link from "next/link";
+import type { ReactNode } from "react";
 import { notFound, redirect } from "next/navigation";
-import { CalendarDays, ChevronLeft, HeartPulse, ShieldCheck } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { parseMoodHistory } from "@/lib/api/mood";
 import { getPatientMoodHistory } from "@/lib/api/mood-server";
 import { requirePatientAccess } from "@/lib/auth/session";
+import { formatDate } from "@/lib/format-date";
 import { isLocale } from "@/lib/i18n";
-import { RetryButton } from "@/components-next/retry-button";
-import { VectorMentalHealth } from "@/components-next/vector-illustrations";
-import styles from "../mental-health.module.css";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { CareHero, RecordRow } from "@/components-next/care/care-kit";
+import { RowsCard } from "@/components-next/health/health-kit";
 
 type Props = { params: Promise<{ locale: string }> };
 
-export default async function MoodHistoryPage({ params }: Props) {
+/**
+ * Mood journal (canvas/CareHub list): the entries of the last 30 days (GET /mental-health/mood?days=30), each with its mood, energy,
+ * stress, sleep hours and date. The web has no form to log a mood (the old page was read-only too): see Needs review.
+ */
+export default async function MoodJournalPage({ params }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  const t = await getTranslations("MentalHealth");
+  const t = await getTranslations("MentalWeb");
+  const rs = await getTranslations("RouteState");
   const token = await requirePatientAccess(locale);
-  const response = await getPatientMoodHistory(token);
+  const frame = (body: ReactNode) => (
+    <ConsultPage locale={locale} title={t("moodTitle")} backHref={`/${locale}/mental-health`}>
+      {body}
+    </ConsultPage>
+  );
+
+  let response: Response;
+  try {
+    response = await getPatientMoodHistory(token);
+  } catch {
+    return frame(<ConsultState kind="error" title={t("moodUnavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
+  }
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
-  if (!response.ok)
-    return (
-      <main className={`main ${styles.page}`}>
-        <section className={styles.state} role="alert">
-          <VectorMentalHealth size={48} aria-hidden="true" />
-          <h1>{t("moodHistoryUnavailableTitle")}</h1>
-          <p>{t("unavailable")}</p>
-          <RetryButton />
-        </section>
-      </main>
-    );
+  if (!response.ok) return frame(<ConsultState kind="error" title={t("moodUnavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
 
   const entries = parseMoodHistory(await response.json().catch(() => null));
+  if (entries.length === 0) return frame(<ConsultState kind="empty" icon="heart" tone="pink" title={t("moodTitle")} body={t("moodEmpty")} />);
+  const number = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
 
-  return (
-    <main className={`main ${styles.page}`}>
-      <Link className={styles.back} href={`/${locale}/mental-health`}>
-        <ChevronLeft size={17} aria-hidden="true" />
-        {t("moodBack")}
-      </Link>
-      <section className={styles.hero}>
-        <div>
-          <p className={styles.eyebrow}>
-            <ShieldCheck size={15} aria-hidden="true" />
-            {t("moodEyebrow")}
-          </p>
-          <h1>{t("moodHistoryTitle")}</h1>
-          <p>{t("moodHistoryNotice")}</p>
-        </div>
-        <span className={styles.heroVector}>
-          <VectorMentalHealth size={48} aria-hidden="true" />
-        </span>
-      </section>
-
-      {entries.length ? (
-        <section className={styles.grid} aria-label={t("moodHistoryTitle")}>
-          {entries.map((entry) => (
-            <article className={styles.card} key={entry.id}>
-              <span className={styles.cardIcon} aria-hidden="true">
-                <HeartPulse size={20} />
-              </span>
-              <strong>{entry.mood || t("moodUnavailable")}</strong>
-              {entry.energy !== undefined ? <span>{t("energy")}: {entry.energy}</span> : null}
-              {entry.stress !== undefined ? <span>{t("stress")}: {entry.stress}</span> : null}
-              {entry.sleepHours !== undefined ? <span>{t("sleepHours")}: {entry.sleepHours}</span> : null}
-              {entry.loggedAt ? (
-                <span>
-                  <CalendarDays size={13} aria-hidden="true" style={{ display: "inline", verticalAlign: "middle" }} /> {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(entry.loggedAt))}
-                </span>
-              ) : null}
-            </article>
-          ))}
-        </section>
-      ) : (
-        <section className={styles.state}>
-          <VectorMentalHealth size={48} aria-hidden="true" />
-          <p>{t("moodHistoryEmpty")}</p>
-        </section>
-      )}
-    </main>
+  return frame(
+    <>
+      <CareHero tone="pink" icon="heart" label={t("moodTitle")} title={t("moodTitle")} lines={[t("moodNotice")]} />
+      <RowsCard label={t("moodTitle")}>
+        {entries.map((entry) => (
+          <li key={entry.id}>
+            <RecordRow
+              icon="heart"
+              tone="pink"
+              title={entry.mood || t("moodUnavailable")}
+              sub={[
+                entry.energy !== undefined ? t("energy", { value: number.format(entry.energy) }) : null,
+                entry.stress !== undefined ? t("stress", { value: number.format(entry.stress) }) : null,
+                entry.sleepHours !== undefined ? t("sleepHours", { value: number.format(entry.sleepHours) }) : null,
+                formatDate(locale, entry.loggedAt),
+              ].filter((line): line is string => line !== null)}
+            />
+          </li>
+        ))}
+      </RowsCard>
+    </>,
   );
 }
