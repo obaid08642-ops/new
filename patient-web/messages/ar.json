@@ -100,8 +100,6 @@
     "aiStart": "ابدأ المحادثة",
     "aiSymptoms": "فحص الأعراض",
     "aiTranslator": "مترجم الروشتات",
-    "aiSkin": "تحليل البشرة",
-    "aiDoctor": "طبيب افتراضي",
     "aiReport": "التقرير الشهري",
     "offersTitle": "عروض وباقات",
     "seeAll": "عرض الكل",
@@ -1293,16 +1291,6 @@
     "empty": "لا توجد منشورات بعد",
     "error": "تعذر تحميل المجتمع الآن"
   },
-  "AiTriage": {
-    "title": "الفرز الذكي للأعراض",
-    "subtitle": "صف أعراضك وسيقترح النظام الخطوة المناسبة.",
-    "placeholder": "مثال: صداع مستمر منذ يومين مع غثيان…",
-    "submit": "تحليل الأعراض",
-    "submitting": "جارٍ التحليل…",
-    "error": "تعذر تحليل الأعراض الآن",
-    "resultTitle": "التقييم المبدئي",
-    "disclaimer": "هذا تقييم مبدئي وليس تشخيصاً طبياً. في الحالات الطارئة استخدم صفحة الطوارئ."
-  },
   "PublicProduct": {
     "backToCatalog": "العودة إلى الكتالوج",
     "home": "الرئيسية",
@@ -1638,25 +1626,6 @@
     "servicesTitle": "الخدمات التمريضية المتاحة",
     "price": "{value} ر.س",
     "requestNurse": "طلب زيارة تمريض"
-  },
-  "VoiceAssistant": {
-    "title": "المساعد السريع",
-    "subtitle": "أوامر سريعة للوصول المباشر إلى كافة الخدمات الطبية",
-    "voiceNotice": "اختر الخدمة للانتقال الفوري إليها",
-    "actionDoctor": "احجز موعد مع طبيب",
-    "actionPharmacy": "اطلب دواء من الصيدلية",
-    "actionLabs": "احجز تحليل مخبري",
-    "actionNursing": "احجز ممرض منزلي",
-    "actionAppointments": "عرض مواعيدي القادمة",
-    "actionTriage": "الفرز الطبي الذكي (AI)",
-    "actionEmergency": "طوارئ — طلب إسعاف فوري",
-    "catConsultation": "استشارة طبية",
-    "catPharmacy": "صيدلية وأدوية",
-    "catLabs": "مختبرات وتحاليل",
-    "catNursing": "تمريض ورعاية منزلية",
-    "catAppointments": "إدارة المواعيد",
-    "catAI": "ذكاء اصطناعي",
-    "catEmergency": "طوارئ عاجلة"
   },
   "MapExplorer": {
     "title": "استكشاف المنشآت",
@@ -3276,5 +3245,88 @@
     "myPoints": "نقاطي ومكافآتي",
     "noSessions": "لا توجد جلسات في هذا البرنامج.",
     "markDone": "تأكيد الإكمال"
+  },
+  "AssistantWeb": {
+    "title": "المساعد الذكي",
+    "modesLabel": "ماذا تريد أن تسأل؟",
+    "mode": {
+      "symptoms": "أعراضي",
+      "prescription": "وصفتي ودوائي",
+      "report": "تقريري"
+    },
+    "heroTitle": {
+      "symptoms": "صف أعراضك",
+      "prescription": "اشرح وصفتي أو دوائي",
+      "report": "اشرح تقريري الطبي"
+    },
+    "heroLine": {
+      "symptoms": "نرشدك إلى الخطوة التالية. هذا إرشاد وليس تشخيصاً.",
+      "prescription": "صوّر الوصفة لنقرأ أسماء الأدوية، واسأل الصيدلي عن أي دواء.",
+      "report": "اختر تقاريرك الطبية ونشرح لك ملخصها بلغة بسيطة."
+    },
+    "askedLabel": "سؤالك",
+    "examplesLabel": "أمثلة شائعة",
+    "example1": "صداع مستمر منذ يومين",
+    "example2": "حمى وسعال جاف",
+    "example3": "ألم في المعدة وغثيان",
+    "example4": "طفح جلدي وحكة",
+    "symptomsLabel": "أعراضك",
+    "symptomsPlaceholder": "مثال: صداع مستمر منذ يومين مع غثيان",
+    "flagsLegend": "هل عندك واحدة من هذه العلامات؟ اختر كل ما ينطبق",
+    "flag": {
+      "chest_pain": "ألم في الصدر",
+      "breathing_difficulty": "صعوبة في التنفس",
+      "fainting_or_unresponsive": "إغماء أو عدم استجابة",
+      "heavy_bleeding": "نزيف شديد",
+      "new_confusion": "ارتباك مفاجئ",
+      "severe_allergic_reaction": "حساسية شديدة",
+      "severe_injury": "إصابة بليغة"
+    },
+    "submit": "اعرف الخطوة التالية",
+    "submitting": "جارٍ التحليل…",
+    "error": "تعذر الحصول على إرشاد الآن. حاول مرة أخرى بعد قليل.",
+    "emergencyTitle": "علامات تحتاج مساعدة عاجلة",
+    "emergencyBody": "العلامات التي اخترتها تستدعي الاتصال بخدمات الطوارئ المحلية الآن، وليس انتظار موعد.",
+    "consultationTitle": "ننصحك باستشارة طبيب",
+    "consultationBody": "لم تختر علامات طارئة. إذا استمرت الأعراض أو ازدادت سوءاً فاحجز استشارة مع طبيب.",
+    "bookConsultation": "احجز استشارة",
+    "askAgain": "سؤال جديد",
+    "disclaimer": "هذا إرشاد عام وليس تشخيصاً ولا وصفة علاج. عند الطوارئ اتصل بالإسعاف.",
+    "medicinesTitle": "الأدوية المقروءة من الصورة",
+    "pharmacistNote": "للجرعة وطريقة الاستعمال والتحذيرات اسأل الصيدلي، فنحن لا نحدد جرعات.",
+    "askPharmacist": "اسأل الصيدلي",
+    "explainAnother": "اشرح شيئاً آخر",
+    "untitledReport": "تقرير طبي",
+    "reportsUnavailable": "تعذر تحميل تقاريرك الآن. أعد المحاولة بعد قليل."
+  },
+  "MonthlyReportWeb": {
+    "title": "تقريرك الشهري",
+    "heroLine": "مواعيدك وقياساتك وأدويتك المزمنة هذا الشهر",
+    "unavailableTitle": "تعذر تحميل التقرير",
+    "unavailable": "حاول مرة أخرى بعد قليل.",
+    "notAvailable": "—",
+    "emptyTitle": "لا توجد بيانات كافية بعد",
+    "emptyBody": "سجّل قياساً وسيظهر تقريرك هنا.",
+    "logReading": "سجّل قياساً",
+    "glance": "هذا الشهر بنظرة",
+    "appointments": "المواعيد",
+    "completed": "المكتملة",
+    "upcoming": "القادمة",
+    "chronicMeds": "الأدوية المزمنة",
+    "vitals": "آخر قياساتك الحيوية",
+    "trends": "اتجاهاتك الصحية",
+    "viewTrends": "عرض كل المؤشرات",
+    "readings": "عدد القراءات: {count}",
+    "firstLast": "الأولى {first} والأخيرة {last}",
+    "direction": {
+      "rising": "ارتفاع",
+      "falling": "انخفاض",
+      "stable": "مستقر"
+    },
+    "monthAppointments": "مواعيد هذا الشهر",
+    "appointment": "موعد طبي",
+    "done": "مكتمل",
+    "scheduled": "مجدول",
+    "bookFollowUp": "احجز متابعة مع الطبيب"
   }
 }

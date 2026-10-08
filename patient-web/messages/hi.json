@@ -100,8 +100,6 @@
     "aiStart": "चैट शुरू करें",
     "aiSymptoms": "लक्षण जाँच",
     "aiTranslator": "पर्चे का अनुवादक",
-    "aiSkin": "त्वचा विश्लेषण",
-    "aiDoctor": "वर्चुअल डॉक्टर",
     "aiReport": "मासिक रिपोर्ट",
     "offersTitle": "ऑफ़र और पैकेज",
     "seeAll": "सभी देखें",
@@ -1293,16 +1291,6 @@
     "empty": "अभी कोई पोस्ट नहीं",
     "error": "अभी लोड नहीं हो सका"
   },
-  "AiTriage": {
-    "title": "AI लक्षण ट्रायाज",
-    "subtitle": "अपने लक्षण बताएं।",
-    "placeholder": "उदाहरण: दो दिन से सिरदर्द…",
-    "submit": "विश्लेषण करें",
-    "submitting": "विश्लेषण जारी…",
-    "error": "अभी विश्लेषण नहीं हो सका",
-    "resultTitle": "प्रारंभिक आकलन",
-    "disclaimer": "यह प्रारंभिक आकलन है, चिकित्सा निदान नहीं।"
-  },
   "PublicProduct": {
     "backToCatalog": "कैटलॉग पर वापस",
     "home": "होम",
@@ -1638,25 +1626,6 @@
     "servicesTitle": "Available Nursing Services",
     "price": "{value} SAR",
     "requestNurse": "Request Nursing Visit"
-  },
-  "VoiceAssistant": {
-    "title": "Quick Assistant",
-    "subtitle": "Fast shortcuts to directly access healthcare services",
-    "voiceNotice": "Select a service for instant navigation",
-    "actionDoctor": "Book Doctor Appointment",
-    "actionPharmacy": "Order Medicine from Pharmacy",
-    "actionLabs": "Book Lab Test",
-    "actionNursing": "Book Home Nurse",
-    "actionAppointments": "View Upcoming Appointments",
-    "actionTriage": "AI Symptom Triage",
-    "actionEmergency": "Emergency — Request Ambulance",
-    "catConsultation": "Medical Consultation",
-    "catPharmacy": "Pharmacy & Medicines",
-    "catLabs": "Labs & Diagnostics",
-    "catNursing": "Nursing & Home Care",
-    "catAppointments": "Appointments",
-    "catAI": "AI Assistant",
-    "catEmergency": "Urgent Emergency"
   },
   "MapExplorer": {
     "title": "Explore Facilities",
@@ -3276,5 +3245,88 @@
     "myPoints": "मेरे पॉइंट और इनाम",
     "noSessions": "इस कार्यक्रम में कोई सत्र नहीं।",
     "markDone": "पूरा हुआ चिह्नित करें"
+  },
+  "AssistantWeb": {
+    "title": "एआई सहायक",
+    "modesLabel": "आप क्या पूछना चाहते हैं?",
+    "mode": {
+      "symptoms": "मेरे लक्षण",
+      "prescription": "मेरा पर्चा",
+      "report": "मेरी रिपोर्ट"
+    },
+    "heroTitle": {
+      "symptoms": "अपने लक्षण बताएं",
+      "prescription": "मेरा पर्चा समझाएं",
+      "report": "मेरी रिपोर्ट समझाएं"
+    },
+    "heroLine": {
+      "symptoms": "हम अगला कदम बताते हैं। यह मार्गदर्शन है, निदान नहीं।",
+      "prescription": "पर्चे की फोटो लें ताकि दवाओं के नाम पढ़े जा सकें, फिर किसी भी दवा के बारे में फार्मासिस्ट से पूछें।",
+      "report": "अपनी मेडिकल रिपोर्ट चुनें, हम उनका सार आसान शब्दों में समझाएंगे।"
+    },
+    "askedLabel": "आपका सवाल",
+    "examplesLabel": "आम उदाहरण",
+    "example1": "दो दिन से सिरदर्द",
+    "example2": "बुखार और सूखी खांसी",
+    "example3": "पेट दर्द और मितली",
+    "example4": "त्वचा पर चकत्ते और खुजली",
+    "symptomsLabel": "आपके लक्षण",
+    "symptomsPlaceholder": "उदाहरण: दो दिन से सिरदर्द और मितली",
+    "flagsLegend": "क्या इनमें से कोई संकेत है? जो लागू हों वे चुनें",
+    "flag": {
+      "chest_pain": "सीने में दर्द",
+      "breathing_difficulty": "सांस लेने में तकलीफ",
+      "fainting_or_unresponsive": "बेहोशी या प्रतिक्रिया न देना",
+      "heavy_bleeding": "भारी रक्तस्राव",
+      "new_confusion": "अचानक भ्रम",
+      "severe_allergic_reaction": "गंभीर एलर्जी प्रतिक्रिया",
+      "severe_injury": "गंभीर चोट"
+    },
+    "submit": "अगला कदम जानें",
+    "submitting": "जांच हो रही है…",
+    "error": "अभी मार्गदर्शन नहीं मिल सका। थोड़ी देर बाद फिर कोशिश करें।",
+    "emergencyTitle": "ऐसे संकेत जिनमें तुरंत मदद चाहिए",
+    "emergencyBody": "आपके चुने संकेतों के लिए अभी स्थानीय आपातकालीन सेवाओं से संपर्क करें, अपॉइंटमेंट का इंतज़ार न करें।",
+    "consultationTitle": "हम डॉक्टर से मिलने की सलाह देते हैं",
+    "consultationBody": "आपने कोई आपातकालीन संकेत नहीं चुना। लक्षण बने रहें या बढ़ें तो डॉक्टर से परामर्श बुक करें।",
+    "bookConsultation": "परामर्श बुक करें",
+    "askAgain": "नया सवाल पूछें",
+    "disclaimer": "यह सामान्य मार्गदर्शन है, निदान या इलाज नहीं। आपात स्थिति में आपातकालीन सेवाओं को कॉल करें।",
+    "medicinesTitle": "फोटो से पढ़ी गई दवाएं",
+    "pharmacistNote": "खुराक, उपयोग के तरीके और चेतावनियों के लिए फार्मासिस्ट से पूछें। हम खुराक तय नहीं करते।",
+    "askPharmacist": "फार्मासिस्ट से पूछें",
+    "explainAnother": "कुछ और समझाएं",
+    "untitledReport": "मेडिकल रिपोर्ट",
+    "reportsUnavailable": "आपकी रिपोर्ट अभी लोड नहीं हो सकीं। थोड़ी देर बाद फिर कोशिश करें।"
+  },
+  "MonthlyReportWeb": {
+    "title": "आपकी मासिक रिपोर्ट",
+    "heroLine": "इस महीने आपकी अपॉइंटमेंट, माप और पुरानी दवाएं",
+    "unavailableTitle": "रिपोर्ट लोड नहीं हो सकी",
+    "unavailable": "थोड़ी देर बाद फिर कोशिश करें।",
+    "notAvailable": "—",
+    "emptyTitle": "अभी पर्याप्त डेटा नहीं",
+    "emptyBody": "कोई माप दर्ज करें, आपकी रिपोर्ट यहां दिखेगी।",
+    "logReading": "माप दर्ज करें",
+    "glance": "इस महीने एक नज़र में",
+    "appointments": "अपॉइंटमेंट",
+    "completed": "पूरी हुईं",
+    "upcoming": "आगामी",
+    "chronicMeds": "पुरानी दवाएं",
+    "vitals": "आपके नवीनतम माप",
+    "trends": "आपके स्वास्थ्य रुझान",
+    "viewTrends": "सभी रुझान देखें",
+    "readings": "माप की संख्या: {count}",
+    "firstLast": "पहला {first}, आखिरी {last}",
+    "direction": {
+      "rising": "बढ़ रहा है",
+      "falling": "घट रहा है",
+      "stable": "स्थिर"
+    },
+    "monthAppointments": "इस महीने की अपॉइंटमेंट",
+    "appointment": "अपॉइंटमेंट",
+    "done": "पूरी हुई",
+    "scheduled": "निर्धारित",
+    "bookFollowUp": "फॉलो-अप बुक करें"
   }
 }

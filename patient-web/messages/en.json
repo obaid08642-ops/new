@@ -100,8 +100,6 @@
     "aiStart": "Start chat",
     "aiSymptoms": "Symptom check",
     "aiTranslator": "Prescription translator",
-    "aiSkin": "Skin analysis",
-    "aiDoctor": "Virtual doctor",
     "aiReport": "Monthly report",
     "offersTitle": "Offers & packages",
     "seeAll": "See all",
@@ -1293,16 +1291,6 @@
     "empty": "No posts yet",
     "error": "Could not load the community right now"
   },
-  "AiTriage": {
-    "title": "AI symptom triage",
-    "subtitle": "Describe your symptoms and the system will suggest the right next step.",
-    "placeholder": "Example: persistent headache for two days with nausea…",
-    "submit": "Analyze symptoms",
-    "submitting": "Analyzing…",
-    "error": "Could not analyze symptoms right now",
-    "resultTitle": "Preliminary assessment",
-    "disclaimer": "This is a preliminary assessment, not a medical diagnosis. In emergencies use the emergency page."
-  },
   "PublicProduct": {
     "backToCatalog": "Back to catalog",
     "home": "Home",
@@ -1638,25 +1626,6 @@
     "servicesTitle": "Available Nursing Services",
     "price": "{value} SAR",
     "requestNurse": "Request Nursing Visit"
-  },
-  "VoiceAssistant": {
-    "title": "Quick Assistant",
-    "subtitle": "Fast shortcuts to directly access healthcare services",
-    "voiceNotice": "Select a service for instant navigation",
-    "actionDoctor": "Book Doctor Appointment",
-    "actionPharmacy": "Order Medicine from Pharmacy",
-    "actionLabs": "Book Lab Test",
-    "actionNursing": "Book Home Nurse",
-    "actionAppointments": "View Upcoming Appointments",
-    "actionTriage": "AI Symptom Triage",
-    "actionEmergency": "Emergency — Request Ambulance",
-    "catConsultation": "Medical Consultation",
-    "catPharmacy": "Pharmacy & Medicines",
-    "catLabs": "Labs & Diagnostics",
-    "catNursing": "Nursing & Home Care",
-    "catAppointments": "Appointments",
-    "catAI": "AI Assistant",
-    "catEmergency": "Urgent Emergency"
   },
   "MapExplorer": {
     "title": "Explore Facilities",
@@ -3276,5 +3245,88 @@
     "myPoints": "My points and rewards",
     "noSessions": "This program has no sessions.",
     "markDone": "Mark completed"
+  },
+  "AssistantWeb": {
+    "title": "AI assistant",
+    "modesLabel": "What would you like to ask?",
+    "mode": {
+      "symptoms": "My symptoms",
+      "prescription": "My prescription",
+      "report": "My report"
+    },
+    "heroTitle": {
+      "symptoms": "Describe your symptoms",
+      "prescription": "Explain my prescription",
+      "report": "Explain my report"
+    },
+    "heroLine": {
+      "symptoms": "We point you to the next step. This is guidance, not a diagnosis.",
+      "prescription": "Photograph the prescription to read the medicine names, then ask the pharmacist about any of them.",
+      "report": "Pick your medical reports and we explain their summary in plain words."
+    },
+    "askedLabel": "What you asked",
+    "examplesLabel": "Common examples",
+    "example1": "Headache for two days",
+    "example2": "Fever and dry cough",
+    "example3": "Stomach pain and nausea",
+    "example4": "Skin rash and itching",
+    "symptomsLabel": "Your symptoms",
+    "symptomsPlaceholder": "For example: a headache for two days with nausea",
+    "flagsLegend": "Do you have any of these signs? Pick all that apply",
+    "flag": {
+      "chest_pain": "Chest pain",
+      "breathing_difficulty": "Trouble breathing",
+      "fainting_or_unresponsive": "Fainting or not responding",
+      "heavy_bleeding": "Heavy bleeding",
+      "new_confusion": "Sudden confusion",
+      "severe_allergic_reaction": "Severe allergic reaction",
+      "severe_injury": "Serious injury"
+    },
+    "submit": "Find the next step",
+    "submitting": "Checking…",
+    "error": "We could not get guidance right now. Try again in a moment.",
+    "emergencyTitle": "Signs that need urgent help",
+    "emergencyBody": "The signs you picked call for contacting your local emergency services now, not waiting for an appointment.",
+    "consultationTitle": "We suggest seeing a doctor",
+    "consultationBody": "You did not pick any emergency signs. If the symptoms last or get worse, book a consultation with a doctor.",
+    "bookConsultation": "Book a consultation",
+    "askAgain": "Ask something else",
+    "disclaimer": "This is general guidance, not a diagnosis or a treatment. In an emergency, call the emergency services.",
+    "medicinesTitle": "Medicines read from the photo",
+    "pharmacistNote": "For the dose, how to use it and warnings, ask the pharmacist. We do not set doses.",
+    "askPharmacist": "Ask the pharmacist",
+    "explainAnother": "Explain something else",
+    "untitledReport": "Medical report",
+    "reportsUnavailable": "Your reports could not be loaded now. Try again in a moment."
+  },
+  "MonthlyReportWeb": {
+    "title": "Your monthly report",
+    "heroLine": "Your appointments, readings and chronic medicines this month",
+    "unavailableTitle": "The report could not be loaded",
+    "unavailable": "Try again in a moment.",
+    "notAvailable": "—",
+    "emptyTitle": "Not enough data yet",
+    "emptyBody": "Log a reading and your report appears here.",
+    "logReading": "Log a reading",
+    "glance": "This month at a glance",
+    "appointments": "Appointments",
+    "completed": "Completed",
+    "upcoming": "Upcoming",
+    "chronicMeds": "Chronic medicines",
+    "vitals": "Your latest vitals",
+    "trends": "Your health trends",
+    "viewTrends": "View all trends",
+    "readings": "Readings: {count}",
+    "firstLast": "First {first}, last {last}",
+    "direction": {
+      "rising": "Rising",
+      "falling": "Falling",
+      "stable": "Stable"
+    },
+    "monthAppointments": "This month's appointments",
+    "appointment": "Appointment",
+    "done": "Done",
+    "scheduled": "Scheduled",
+    "bookFollowUp": "Book a follow-up"
   }
 }

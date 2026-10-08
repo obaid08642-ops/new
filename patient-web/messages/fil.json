@@ -100,8 +100,6 @@
     "aiStart": "Simulan ang chat",
     "aiSymptoms": "Pagsusuri ng sintomas",
     "aiTranslator": "Tagasalin ng reseta",
-    "aiSkin": "Pagsusuri ng balat",
-    "aiDoctor": "Virtual na doktor",
     "aiReport": "Buwanang ulat",
     "offersTitle": "Mga alok at package",
     "seeAll": "Tingnan lahat",
@@ -1293,16 +1291,6 @@
     "empty": "Wala pang mga post",
     "error": "Hindi ma-load ngayon"
   },
-  "AiTriage": {
-    "title": "AI symptom triage",
-    "subtitle": "Ilarawan ang iyong mga sintomas.",
-    "placeholder": "Halimbawa: sakit ng ulo…",
-    "submit": "Suriin",
-    "submitting": "Sinusuri…",
-    "error": "Hindi masuri ngayon",
-    "resultTitle": "Paunang pagtatasa",
-    "disclaimer": "Ito ay paunang pagtatasa lamang, hindi medikal na dyagnosis."
-  },
   "PublicProduct": {
     "backToCatalog": "Bumalik sa katalogo",
     "home": "Home",
@@ -1638,25 +1626,6 @@
     "servicesTitle": "Available Nursing Services",
     "price": "{value} SAR",
     "requestNurse": "Request Nursing Visit"
-  },
-  "VoiceAssistant": {
-    "title": "Quick Assistant",
-    "subtitle": "Fast shortcuts to directly access healthcare services",
-    "voiceNotice": "Select a service for instant navigation",
-    "actionDoctor": "Book Doctor Appointment",
-    "actionPharmacy": "Order Medicine from Pharmacy",
-    "actionLabs": "Book Lab Test",
-    "actionNursing": "Book Home Nurse",
-    "actionAppointments": "View Upcoming Appointments",
-    "actionTriage": "AI Symptom Triage",
-    "actionEmergency": "Emergency — Request Ambulance",
-    "catConsultation": "Medical Consultation",
-    "catPharmacy": "Pharmacy & Medicines",
-    "catLabs": "Labs & Diagnostics",
-    "catNursing": "Nursing & Home Care",
-    "catAppointments": "Appointments",
-    "catAI": "AI Assistant",
-    "catEmergency": "Urgent Emergency"
   },
   "MapExplorer": {
     "title": "Explore Facilities",
@@ -3276,5 +3245,88 @@
     "myPoints": "Aking points at gantimpala",
     "noSessions": "Walang session ang programang ito.",
     "markDone": "Markahang tapos"
+  },
+  "AssistantWeb": {
+    "title": "Katulong na AI",
+    "modesLabel": "Ano ang gusto mong itanong?",
+    "mode": {
+      "symptoms": "Aking mga sintomas",
+      "prescription": "Aking reseta",
+      "report": "Aking ulat"
+    },
+    "heroTitle": {
+      "symptoms": "Ilarawan ang iyong mga sintomas",
+      "prescription": "Ipaliwanag ang aking reseta",
+      "report": "Ipaliwanag ang aking ulat"
+    },
+    "heroLine": {
+      "symptoms": "Itinuturo namin ang susunod na hakbang. Gabay ito, hindi diagnosis.",
+      "prescription": "Kunan ng litrato ang reseta para mabasa ang mga pangalan ng gamot, saka magtanong sa parmasyutiko.",
+      "report": "Piliin ang iyong mga ulat na medikal at ipapaliwanag namin ang buod sa simpleng salita."
+    },
+    "askedLabel": "Ang iyong tanong",
+    "examplesLabel": "Mga karaniwang halimbawa",
+    "example1": "Sakit ng ulo sa loob ng dalawang araw",
+    "example2": "Lagnat at tuyong ubo",
+    "example3": "Sakit ng tiyan at pagduduwal",
+    "example4": "Pantal at pangangati ng balat",
+    "symptomsLabel": "Iyong mga sintomas",
+    "symptomsPlaceholder": "Halimbawa: sakit ng ulo sa loob ng dalawang araw na may pagduduwal",
+    "flagsLegend": "May alinman ka ba sa mga senyales na ito? Piliin ang lahat ng naaangkop",
+    "flag": {
+      "chest_pain": "Pananakit ng dibdib",
+      "breathing_difficulty": "Hirap sa paghinga",
+      "fainting_or_unresponsive": "Pagkawala ng malay o hindi tumutugon",
+      "heavy_bleeding": "Matinding pagdurugo",
+      "new_confusion": "Biglaang pagkalito",
+      "severe_allergic_reaction": "Matinding allergic reaction",
+      "severe_injury": "Malubhang pinsala"
+    },
+    "submit": "Alamin ang susunod na hakbang",
+    "submitting": "Sinusuri…",
+    "error": "Hindi makakuha ng gabay ngayon. Subukan muli mamaya.",
+    "emergencyTitle": "Mga senyales na nangangailangan ng agarang tulong",
+    "emergencyBody": "Ang mga senyales na napili mo ay nangangailangang kontakin agad ang lokal na serbisyong pang-emerhensiya, huwag nang maghintay ng appointment.",
+    "consultationTitle": "Iminumungkahi naming kumonsulta sa doktor",
+    "consultationBody": "Wala kang napiling senyales ng emerhensiya. Kung tumagal o lumala ang sintomas, mag-book ng konsultasyon sa doktor.",
+    "bookConsultation": "Mag-book ng konsultasyon",
+    "askAgain": "Magtanong ng iba",
+    "disclaimer": "Pangkalahatang gabay ito, hindi diagnosis o paggamot. Sa emerhensiya, tumawag sa mga serbisyong pang-emerhensiya.",
+    "medicinesTitle": "Mga gamot na nabasa mula sa larawan",
+    "pharmacistNote": "Para sa dosis, paraan ng paggamit at babala, magtanong sa parmasyutiko. Hindi kami nagtatakda ng dosis.",
+    "askPharmacist": "Magtanong sa parmasyutiko",
+    "explainAnother": "Magpaliwanag ng iba",
+    "untitledReport": "Ulat na medikal",
+    "reportsUnavailable": "Hindi ma-load ang iyong mga ulat ngayon. Subukan muli mamaya."
+  },
+  "MonthlyReportWeb": {
+    "title": "Iyong buwanang ulat",
+    "heroLine": "Iyong mga appointment, sukat at pangmatagalang gamot ngayong buwan",
+    "unavailableTitle": "Hindi ma-load ang ulat",
+    "unavailable": "Subukan muli mamaya.",
+    "notAvailable": "—",
+    "emptyTitle": "Wala pang sapat na datos",
+    "emptyBody": "Magtala ng sukat at lalabas dito ang iyong ulat.",
+    "logReading": "Magtala ng sukat",
+    "glance": "Ang buwang ito sa isang tingin",
+    "appointments": "Mga appointment",
+    "completed": "Natapos",
+    "upcoming": "Paparating",
+    "chronicMeds": "Pangmatagalang gamot",
+    "vitals": "Iyong pinakabagong sukat",
+    "trends": "Iyong mga trend sa kalusugan",
+    "viewTrends": "Tingnan ang lahat ng trend",
+    "readings": "Bilang ng sukat: {count}",
+    "firstLast": "Una {first}, huli {last}",
+    "direction": {
+      "rising": "Tumataas",
+      "falling": "Bumababa",
+      "stable": "Matatag"
+    },
+    "monthAppointments": "Mga appointment ngayong buwan",
+    "appointment": "Iskedyul ng doktor",
+    "done": "Tapos na",
+    "scheduled": "Naka-iskedyul",
+    "bookFollowUp": "Mag-book ng follow-up"
   }
 }

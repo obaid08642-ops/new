@@ -76,6 +76,7 @@ describe('Home and Services links', () => {
     ...MAIN_SERVICES.map((item) => item.route),
     ...MORE_SERVICES.map((item) => item.route),
     ...SERVICE_GROUPS.flatMap((group) => group.items.map((item) => item.route)),
+    '/ai',
     '/ai-assistant',
     '/services',
     '/orders',
