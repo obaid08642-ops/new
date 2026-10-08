@@ -24,17 +24,6 @@ def run(hosp, admin, patient_id=None, emergency_id=None, invitee_email=None, inv
         r = hosp.get(path)
         step(f'GET {path}', r.ok, r)
 
-    if emergency_id:
-        journey('hospital: the ambulance handover reaches the facility')
-        r = hosp.get('/facility/inbox')
-        notes = [n for n in rows(r) if n.get('kind') == 'ambulance_handover']
-        step('handover notice in the facility inbox', r.ok and notes, r)
-        if notes:
-            r = hosp.post(f"/facility/inbox/{notes[0]['id']}/read", {})
-            step('mark the notice read', r.ok, r)
-            r = hosp.get('/facility/inbox')
-            step('it shows as read', r.ok and any(n.get('id') == notes[0]['id'] and n.get('read') for n in rows(r)), r)
-
     journey('hospital: ward -> bed -> admission -> discharge summary')
     r = hosp.post('/facility/beds/wards', {'name': f'جناح الباطنة {random.randint(1, 999)}', 'total_beds': 4})
     step('create a ward with 4 beds', r.ok, r)
@@ -225,12 +214,9 @@ def facility_calendar(hosp, doctor, pat, admin):
 
 
 if __name__ == '__main__':
-    import j_admin, j_accounts, j_onboarding, j_ambulance
+    import j_admin, j_accounts, j_onboarding
     from lib import summary
     admin, _ = j_admin.login()
-    amb = j_onboarding.register_type('ambulance')
-    j_onboarding.admin_review(admin, amb)
-    j_onboarding.provider_after_approval(amb)
     hosp = j_onboarding.register_type('hospital')
     j_onboarding.admin_review(admin, hosp)
     j_onboarding.provider_after_approval(hosp)
@@ -238,9 +224,7 @@ if __name__ == '__main__':
     hid = h.get('/provider/me').get('account', 'id')
     pat = j_accounts.app_signup(label='hospital-patient')
     p = Client(pat['token'], 'patient')
-    a = Client(amb['token'], 'ambulance')
-    j_ambulance.fleet_setup(a, admin)
-    eid = j_ambulance.run(p, a, hid, admin)
+    eid = None  # D-14: the ambulance system (and its hand-over to a facility) is removed
     pid = p.get('/users/me').get('id') or p.get('/auth/me').get('id')
     specs = Client(None, 'anon').get('/catalogs/specialties')
     spec = next((x.get('code') or x.get('id') for x in (specs.body if isinstance(specs.body, list) else specs.items())), 'cardiology')
