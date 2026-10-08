@@ -34,7 +34,13 @@ const ITEMS: SettingsItem[][] = [
   [
     { icon: "user", label: "الملف الشخصي", route: "/profile" },
     { icon: "lock", label: "الأمان", route: "/settings/security" },
+    // 23.6 user-facing history: active sessions + login/device history.
+    { icon: "shield", label: "الجلسات النشطة", route: "/settings/sessions" },
+    // 23.6 user-facing history: own audit events for PDPL.
+    { icon: "clock", label: "سجل النشاط", route: "/settings/history-events" },
     { icon: "lock", label: "الخصوصية", route: "/settings/privacy" },
+    // 23.6 user-facing history: own order/booking status history.
+    { icon: "receipt", label: "سجل حالات الطلبات", route: "/orders/history" },
   ],
   [
     { icon: "moon", label: "الوضع الليلي", toggle: true },

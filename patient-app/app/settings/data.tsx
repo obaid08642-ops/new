@@ -39,13 +39,41 @@ export default function DataManagementScreen() {
   };
 
   React.useEffect(() => { loadStorage(); }, []);
+  // 23.6 PDPL export: real server export, with own audit events merged in when
+  // GET /api/v1/patient/history/events is deployed. Never mocked, never static.
+  const [exporting, setExporting] = React.useState(false);
+  const onExportData = async () => {
+    setExporting(true);
+    try {
+      const payload = await apiFetch<any>('/users/me/data-export');
+      try {
+        const audit = await apiFetch<any>('/patient/history/events?limit=500');
+        const list = Array.isArray(audit) ? audit : audit?.events || audit?.data || audit?.items || null;
+        if (list) (payload as any).audit_events = list;
+      } catch {
+        /* audit endpoint not deployed yet — export proceeds without it */
+      }
+      const FS = await import('expo-file-system/legacy');
+      const { shareAsync } = await import('expo-sharing');
+      const fileName = `nabd-data-export-${new Date().toISOString().slice(0, 10)}.json`;
+      const file = new FS.File(FS.Paths.cache, fileName);
+      if (file.exists) file.delete();
+      file.create();
+      file.write(JSON.stringify(payload, null, 2));
+      await shareAsync(file.uri, { mimeType: 'application/json', dialogTitle: fileName });
+    } catch {
+      setError('تعذّر تجهيز نسخة البيانات — حاول مرة أخرى');
+    } finally {
+      setExporting(false);
+    }
+  };
   const DATA_ACTIONS = [
     {
       icon: "download",
       label: "تحميل نسخة من بياناتي",
-      sub: "نسخة من بياناتك — تصلك خلال 24 ساعة",
+      sub: exporting ? "جاري تجهيز الملف…" : "نسخة من بياناتك — تشمل سجل نشاطك عند توفره",
       color: "#23B5CE",
-      action: () => {},
+      action: onExportData,
     },
     {
       icon: "refresh",

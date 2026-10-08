@@ -62,6 +62,16 @@ export default function PrivacySettingsScreen() {
     setExporting(true);
     try {
       const payload = await apiFetch<any>("/users/me/data-export");
+      // 23.6: the PDPL export includes the user's own audit events when the
+      // server exposes them (GET /api/v1/patient/history/events). A 404 (route
+      // not deployed yet) leaves the export without them — never mocked.
+      try {
+        const audit = await apiFetch<any>("/patient/history/events?limit=500");
+        const list = Array.isArray(audit) ? audit : audit?.events || audit?.data || audit?.items || null;
+        if (list) (payload as any).audit_events = list;
+      } catch {
+        /* audit endpoint not deployed yet — export proceeds without it */
+      }
       const FS = await import("expo-file-system/legacy");
       const { shareAsync } = await import("expo-sharing");
       const fileName = `nabd-data-export-${new Date().toISOString().slice(0, 10)}.json`;
@@ -235,6 +245,16 @@ export default function PrivacySettingsScreen() {
           >
             <AppText variant="bodySM" style={{ color: colors.primary }}>
               {exporting ? "جارٍ تجهيز الملف…" : "تصدير كل بياناتي"}
+            </AppText>
+          </TouchableOpacity>
+
+          {/* 23.6: own audit events view (GET /api/v1/patient/history/events). */}
+          <TouchableOpacity
+            style={[styles.dataAction, { borderColor: colors.primary }]}
+            onPress={() => router.push("/settings/history-events" as any)}
+          >
+            <AppText variant="bodySM" style={{ color: colors.primary }}>
+              عرض سجل نشاطي
             </AppText>
           </TouchableOpacity>
 
