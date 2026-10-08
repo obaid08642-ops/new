@@ -78,6 +78,8 @@ export async function proxy(request: NextRequest) {
   const policy = contentSecurityPolicy(nonce);
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
+  // The page a gated route came from, so the sign-in can send the patient back to it (lib/auth/session.ts).
+  requestHeaders.set("x-nabd-path", `${pathname}${request.nextUrl.search}`);
   requestHeaders.set("Content-Security-Policy", policy);
 
   const requestWithNonce = new NextRequest(request, { headers: requestHeaders });

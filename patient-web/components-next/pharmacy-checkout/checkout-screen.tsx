@@ -215,7 +215,7 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
 
         {failure ? (
           <div className={rx.error} role="alert">
-            {failure === "session" ? flow("sessionEnded") : failure === "forbidden" ? t("errorForbidden") : failure === "network" ? t("errorNetwork") : t("errorSend")}
+            {failure === "session" ? flow("sessionEnded") : failure === "forbidden" ? t("errorForbidden") : failure === "network" ? t("errorNetwork") : failure === "server" ? t("errorServer") : t("errorSend")}
             {failure === "session" ? <div className={rx.errorActions}><Link className={rx.textLink} href={`/${locale}/login`}>{flow("signIn")}</Link></div> : null}
           </div>
         ) : null}

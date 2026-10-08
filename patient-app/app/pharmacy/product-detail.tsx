@@ -296,8 +296,9 @@ export default function ProductDetailScreen() {
     if (!med) return null;
     const name = medName(med);
     const price = medPrice(med);
-    const pct = discountPercent(med);
     const rx = needsRx(med);
+    // Decision 10: no discount on prescription-only items.
+    const pct = rx ? 0 : discountPercent(med);
     const lastReviewed = med.last_reviewed ? new Date(med.last_reviewed) : null;
     const stock = med.pharmacies_count ?? med.stock_status?.pharmacies_count ?? 0;
     const storage = textOf(medField(med, 'storage_conditions'));

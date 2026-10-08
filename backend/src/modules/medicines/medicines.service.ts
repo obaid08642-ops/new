@@ -942,12 +942,22 @@ export class MedicinesService {
       raw.image,
     ].filter((u: any, i: number, arr: any[]) => typeof u === 'string' && u.length > 4 && arr.indexOf(u) === i);
 
-    // Dynamic discount — old_price is the pre-discount price
+    // Dynamic discount — old_price is the pre-discount price. D-10: never on prescription-only items.
+    const rx = raw.requires_prescription === true;
     const price = raw.price || 0;
-    const old = raw.old_price || 0;
+    const old = rx ? 0 : (raw.old_price || 0);
     const discount_percent = old > price && price > 0 ? Math.round((1 - price / old) * 100) : 0;
 
-    const localizedRaw = localizeMedicineStructured(raw, lang);
+    const localizedRaw: any = localizeMedicineStructured(raw, lang);
+    if (rx) delete localizedRaw.old_price;
+    // Alternatives follow the same rule (each one is checked on its own flag).
+    const altsOut = Array.isArray(alts)
+      ? alts.map((a: any) => {
+        if (a?.requires_prescription !== true) return a;
+        const { old_price: _hidden, ...rest } = a?.toObject ? a.toObject() : a;
+        return { ...rest, discount_percent: 0, has_discount: false };
+      })
+      : alts;
 
     return {
       ...localizedRaw,
@@ -959,7 +969,7 @@ export class MedicinesService {
       potentially_unavailable: raw.availability_status === 'availability_may_be_limited' || raw.availability_status === 'admin_flagged_shortage',
       discontinued: raw.availability_status === 'discontinued',
       available: raw.availability_status === 'none' || !raw.availability_status,
-      alternatives: alts,
+      alternatives: altsOut,
       stock_status: stock,
     };
   }
