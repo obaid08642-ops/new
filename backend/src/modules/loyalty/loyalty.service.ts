@@ -236,7 +236,19 @@ export class LoyaltyService {
     // emitters send patient_id (orders/drivers); user_id kept for older callers
     const uid = payload?.user_id || payload?.patient_id;
     if (!uid) return;
+    if (await this.isPrescriptionOnlyOrder(payload.order_id)) return; // D-10: no points for Rx items
     await this.awardPoints(uid, 'order_delivered', 'order', payload.order_id);
+  }
+
+  /**
+   * D-10 (owner decision 10): prescription-only items earn no loyalty points. A pharmacy order whose every
+   * line is Rx (flag stamped from the catalogue at submit) earns nothing; an order with any OTC line still does.
+   */
+  private async isPrescriptionOnlyOrder(orderId?: string): Promise<boolean> {
+    if (!orderId || !this.conn) return false;
+    const order: any = await this.conn.collection('pharmacy_orders').findOne({ id: orderId }, { projection: { _id: 0, items: 1 } }).catch(() => null);
+    const items: any[] = Array.isArray(order?.items) ? order.items : [];
+    return items.length > 0 && items.every((it) => it?.requires_prescription === true);
   }
 
   /** The workflow engine emits service.completed for every domain (pharmacy, lab, radiology, nursing,
@@ -244,7 +256,10 @@ export class LoyaltyService {
   @OnEvent('service.completed')
   async onServiceCompleted(p: { patient_account_id?: string; entity_type?: string; entity_id?: string }) {
     if (!p?.patient_account_id || !p?.entity_id) return;
-    if (p.entity_type === 'order') await this.awardPoints(p.patient_account_id, 'order_delivered', 'order', p.entity_id);
+    if (p.entity_type === 'order') {
+      if (await this.isPrescriptionOnlyOrder(p.entity_id)) return; // D-10: no points for Rx items
+      await this.awardPoints(p.patient_account_id, 'order_delivered', 'order', p.entity_id);
+    }
     else await this.awardPoints(p.patient_account_id, 'booking_completed', 'appointment', p.entity_id);
   }
 
