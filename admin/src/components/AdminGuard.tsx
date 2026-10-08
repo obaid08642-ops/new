@@ -69,7 +69,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/impersonation', label: 'جلسات الدعم المقيّدة', permission: 'user.impersonate' },
     ],
   },
-  {
+{
     title: 'النظام',
     items: [
       { href: '/admin/rbac', label: 'الأدوار والصلاحيات', permission: 'rbac.manage' },
