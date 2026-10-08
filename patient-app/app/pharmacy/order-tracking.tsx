@@ -6,7 +6,7 @@
  * - Does not infer a payment, negotiation, or fulfillment state from a client timer.
  */
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
@@ -14,6 +14,9 @@ import { lightColors, darkColors } from '../../src/theme/colors';
 import { apiFetch } from '../../src/utils/api';
 import { dateLocale } from '@/utils/dates';
 import { LocalizedText } from '../../src/components/LocalizedText';
+import { ReviewList } from '../../src/components/reviews/ReviewList';
+import { CreateReview } from '../../src/components/reviews/CreateReview';
+import { RatingPrompt } from '../../src/components/rating/RatingPrompt';
 
 type TrackingStep = {
   id: string;
@@ -70,6 +73,9 @@ export default function OrderTrackingScreen() {
   const [orderData, setOrderData] = useState<any>(null);
   const [fetchError, setFetchError] = useState(false);
   const [loading, setLoading] = useState(true);
+  // Phase 3.4 wiring: post-delivery rating + provider reviews.
+  const [showRating, setShowRating] = useState(true);
+  const [showCreateReview, setShowCreateReview] = useState(false);
 
   const orderIdStr = Array.isArray(orderId) ? orderId[0] : orderId;
 
@@ -93,6 +99,15 @@ export default function OrderTrackingScreen() {
   const etaMinutes = Number(orderData?.delivery?.eta_minutes);
   const total = Number(orderData?.accepted_quote_snapshot?.totals?.total ?? orderData?.totals?.total);
   const governedState = orderData?.governed_state || orderData?.effective_status || orderData?.status;
+  const delivered = governedState === 'DELIVERED' || governedState === 'COMPLETED';
+  // Governed order payloads carry the pharmacy name but not always an id —
+  // resolve defensively and hide provider-scoped UI when unattributable.
+  const pharmacyId: string | null = orderData?.accepted_quote_snapshot?.pharmacy_id
+    || orderData?.selected_offer_snapshot?.pharmacy_id
+    || orderData?.selected_pharmacy_id
+    || orderData?.pharmacy_id
+    || orderData?.pharmacy?.id
+    || null;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top + 16 } ]}>
@@ -214,10 +229,15 @@ export default function OrderTrackingScreen() {
           ))}
         </View>
 
-        {/* Rate the experience — only after delivery (governed state, not legacy key) */}
+        {/* Rate the experience — only after delivery (governed state, not legacy key).
+            Phase 3.4: attributable provider review opens CreateReview; without a
+            pharmacy id we keep the honest legacy /reviews flow. */}
         {(governedState === 'DELIVERED' || governedState === 'COMPLETED') && (
           <TouchableOpacity
-            onPress={() => router.push({ pathname: '/reviews', params: { booking_kind: 'pharmacy', booking_id: orderIdStr, providerName: orderData?.pharmacy_name || '' } })}
+            onPress={() => {
+              if (pharmacyId && orderIdStr) setShowCreateReview(true);
+              else router.push({ pathname: '/reviews', params: { booking_kind: 'pharmacy', booking_id: orderIdStr, providerName: orderData?.pharmacy_name || '' } });
+            }}
             activeOpacity={0.85}
             style={{ marginTop: 16, backgroundColor: colors.s, borderWidth: 1, borderColor: '#F59E0B', borderRadius: 20, padding: 16, flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 10 }}
           >
@@ -229,7 +249,38 @@ export default function OrderTrackingScreen() {
             <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#F59E0B', fontSize: 22 }}>{isRTL ? 'chevron_left' : 'chevron_right'}</LocalizedText>
           </TouchableOpacity>
         )}
+
+        {/* Phase 3.4: published pharmacy reviews — only when attributable. */}
+        {pharmacyId ? (
+          <View style={{ marginTop: 16 }}>
+            <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 15, color: colors.n, textAlign: isRTL ? 'right' : 'left', marginBottom: 8 }}>تقييمات الصيدلية</LocalizedText>
+            <View style={{ height: 420 }}>
+              <ReviewList providerId={String(pharmacyId)} providerType="pharmacy" />
+            </View>
+          </View>
+        ) : null}
       </ScrollView>
+
+      {/* Phase 3.4: post-delivery rating overlay */}
+      {delivered && showRating && (
+        <RatingPrompt trigger="order_delivered" onDismiss={() => setShowRating(false)} />
+      )}
+
+      {/* Phase 3.4: provider review composer, completed-state gate */}
+      <Modal visible={showCreateReview} animationType="slide" onRequestClose={() => setShowCreateReview(false)}>
+        <View style={{ flex: 1, backgroundColor: colors.bg, paddingTop: insets.top + 16 }}>
+          {pharmacyId && orderIdStr ? (
+            <CreateReview
+              providerId={String(pharmacyId)}
+              providerType="pharmacy"
+              sourceType="order"
+              sourceId={orderIdStr}
+              onSuccess={() => { setShowCreateReview(false); void load(); }}
+              onCancel={() => setShowCreateReview(false)}
+            />
+          ) : null}
+        </View>
+      </Modal>
     </View>
   );
 }
