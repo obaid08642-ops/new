@@ -207,21 +207,27 @@ export class ProvidersService {
   }
 
   /** F4/R1: refuse approval unless every required document exists (typed record
-   * or an uploaded onboarding file). The admin override lives on the canonical
-   * admin route, which requires step-up. */
+   * only). URL strings on the profile are not evidence. The admin override
+   * lives on the canonical admin route, which requires step-up. */
   private async assertRequiredDocuments(profile: any): Promise<void> {
     const { REQUIRED_DOCS_BY_PROVIDER_TYPE } = await import('./provider.enums');
+    const { DocumentReviewStatus } = await import('./schemas');
     const required = REQUIRED_DOCS_BY_PROVIDER_TYPE[(profile?.type || profile?.provider_type) as any] || [];
     if (!required.length) return;
     const col: any = (this.providerModel as any).model?.db?.collection?.('provider_documents');
     let typed = new Set<string>();
     if (col) {
       const rows: any[] = await col.find({ $or: [{ account_id: profile.account_id }, { profile_id: profile.id }, { user_id: profile.user_id }] }).toArray().catch(() => []);
-      typed = new Set(rows.filter((d: any) => d.review_status !== 'REJECTED').map((d: any) => d.doc_type));
+      // Only documents that are not rejected or flagged for replacement count as evidence
+      const NOT_EVIDENCE = new Set(['rejected', 'needs_replacement']);
+      typed = new Set(
+        rows
+          .filter((d: any) => !NOT_EVIDENCE.has(String(d.review_status || '').toLowerCase()))
+          .map((d: any) => d.doc_type)
+      );
     }
-    // Onboarding uploads licence files as URLs on the profile.
-    const urls = Array.isArray(profile.license_documents) ? profile.license_documents.filter((u: any) => typeof u === 'string' && u.length > 0).length : 0;
-    const missing = (urls >= required.length) ? [] : required.filter((r: string) => !typed.has(r));
+    // URL strings on the profile are NOT evidence — only typed provider_documents rows count
+    const missing = required.filter((r: string) => !typed.has(r));
     if (missing.length) throw new BadRequestException(`required_documents_missing: ${missing.join(', ')}`);
   }
 
