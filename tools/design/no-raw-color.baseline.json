@@ -1,7 +1,7 @@
 {
   "note": "Hard-coded colours that predate the design system. Recorded once with --init. 12.A11 rebuilds the screens on tokens and each rebuilt file drops out. --update only ever LOWERS a count; it cannot raise one.",
   "totals": {
-    "patient-web": 1764,
+    "patient-web": 1635,
     "patient-app": 873,
     "provider-app": 318,
     "admin": 215
@@ -46,18 +46,9 @@
     "patient-web/app/[locale]/insurance/requests/[requestId]/page.tsx": 11,
     "patient-web/app/[locale]/insurance/submit-claim/page.tsx": 9,
     "patient-web/app/[locale]/labs/[testSlug]/[citySlug]/page.tsx": 26,
-    "patient-web/app/[locale]/loyalty/challenges/page.tsx": 10,
-    "patient-web/app/[locale]/loyalty/claim-button.tsx": 7,
-    "patient-web/app/[locale]/loyalty/leaderboard/page.tsx": 10,
-    "patient-web/app/[locale]/loyalty/loyalty.module.css": 26,
-    "patient-web/app/[locale]/loyalty/page.tsx": 9,
-    "patient-web/app/[locale]/loyalty/referrals/page.tsx": 11,
     "patient-web/app/[locale]/map/page.tsx": 1,
     "patient-web/app/[locale]/medicine-catalog/medicine-catalog.module.css": 44,
     "patient-web/app/[locale]/medicines/[medicineId]/medicine-detail.module.css": 30,
-    "patient-web/app/[locale]/offers/[offerId]/offer-detail.module.css": 24,
-    "patient-web/app/[locale]/offers/[offerId]/page.tsx": 4,
-    "patient-web/app/[locale]/offers/offers.module.css": 28,
     "patient-web/app/[locale]/pharmacies/[citySlug]/page.tsx": 21,
     "patient-web/app/[locale]/profile/page.tsx": 12,
     "patient-web/app/[locale]/profile/profile.module.css": 30,

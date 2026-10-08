@@ -26,6 +26,7 @@ export const CLIENT_NAMESPACES = [
   "HealthWeb",
   "HomeWeb",
   "Login",
+  "LoyaltyHubWeb",
   "MaternityWeb",
   "NotificationSettings",
   "Notifications",
