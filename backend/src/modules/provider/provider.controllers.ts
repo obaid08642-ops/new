@@ -1,3 +1,4 @@
+import { PROVIDER_ROLES } from '../../common/enums';
 import { isProviderRole } from '../../common/enums';
 import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
 import { ServiceUnavailableException } from '@nestjs/common';
@@ -94,6 +95,7 @@ export class ProviderProfileController {
 
   @SelfService()
   @Post('bank-account') upsertBank(@CurrentUser() u: any, @Body() body: UpsertBankDto) { return this.svc.upsertBank(u, body); }
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('bank-account') getBank(@CurrentUser() u: any) { return this.svc.getBank(u); }
   @Public() @Get('banks') banks() { return this.svc.banks_list(); }
 

@@ -27,7 +27,7 @@ const nextConfig: NextConfig = {
       { source: "/:locale/nursing", destination: "/:locale/nursing/catalog", permanent: false },
       { source: "/:locale/nursing/booking", destination: "/:locale/nursing/catalog", permanent: false },
       { source: "/:locale/home-nursing", destination: "/:locale/nursing/catalog", permanent: false },
-      { source: "/:locale/medicine", destination: "/:locale/medicines", permanent: false },
+      { source: "/:locale/medicine", destination: "/:locale/c", permanent: true },
       { source: "/:locale/pharmacies", destination: "/:locale/c", permanent: false },
       { source: "/:locale/services", destination: "/:locale", permanent: false },
       { source: "/:locale/p", destination: "/:locale/c", permanent: false },

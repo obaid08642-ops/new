@@ -13,7 +13,7 @@ export default class AdminDocument extends Document<Props> {
   render() {
     const { nonce } = this.props;
     return (
-      <Html lang="en">
+      <Html lang="ar">
         <Head nonce={nonce} />
         <body className="antialiased">
           <Main />

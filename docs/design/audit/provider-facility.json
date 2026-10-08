@@ -759,7 +759,7 @@
     ],
     [
      "API: GET /insurance/requests/provider/queue",
-     "GET /insurance/requests/provider/queue (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:734)",
+     "GET /insurance/requests/provider/queue (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:736)",
      "ok"
     ]
    ],
@@ -1071,7 +1071,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/facility/FacilityAuditLogScreen.tsx",
    "line": 16,
-   "backend": "backend/src/modules/provider/provider-facility.controller.ts:27"
+   "backend": "backend/src/modules/provider/provider-facility.controller.ts:29"
   },
   {
    "route": "FacilityLeaveRequestsScreen",
@@ -1080,7 +1080,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/facility/FacilityLeaveRequestsScreen.tsx",
    "line": 33,
-   "backend": "backend/src/modules/provider/leave-requests.controller.ts:16"
+   "backend": "backend/src/modules/provider/leave-requests.controller.ts:18"
   },
   {
    "route": "FacilityPatientTrackerScreen",
@@ -1089,7 +1089,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/facility/FacilityPatientTrackerScreen.tsx",
    "line": 16,
-   "backend": "backend/src/modules/provider/provider-facility.controller.ts:58"
+   "backend": "backend/src/modules/provider/provider-facility.controller.ts:62"
   },
   {
    "route": "FacilityUnifiedCalendarScreen",
@@ -1098,7 +1098,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/facility/FacilityUnifiedCalendarScreen.tsx",
    "line": 18,
-   "backend": "backend/src/modules/provider/provider-facility.controller.ts:39"
+   "backend": "backend/src/modules/provider/provider-facility.controller.ts:42"
   },
   {
    "route": "HospitalDispatchScreen",
@@ -1115,7 +1115,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx",
    "line": 54,
-   "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:734"
+   "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:736"
   },
   {
    "route": "ShiftManagementScreen",
@@ -1124,7 +1124,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/facility/facility/ShiftManagementScreen.tsx",
    "line": 83,
-   "backend": "backend/src/modules/provider/provider-facility.controller.ts:76"
+   "backend": "backend/src/modules/provider/provider-facility.controller.ts:81"
   },
   {
    "route": "SubAccountsScreen",

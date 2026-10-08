@@ -141,7 +141,7 @@ export default function AdminLogin() {
   return (
     <>
       <Head><title>نبض — دخول الإدارة</title><meta name="robots" content="noindex,nofollow" /></Head>
-      <main dir="rtl" className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-slate-100">
+      <main dir="rtl" className="flex min-h-dvh items-center justify-center bg-slate-950 px-4 text-slate-100">
         <section className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900/70 p-8 shadow-2xl">
           <header className="mb-8 text-center"><h1 className="text-3xl font-black text-teal-300">نبض</h1><p className="mt-2 text-slate-400">دخول الإدارة المحمي</p></header>
           {error ? <p role="alert" className="mb-4 rounded-lg border border-rose-500/40 bg-rose-500/10 p-3 text-sm text-rose-200">{error}</p> : null}

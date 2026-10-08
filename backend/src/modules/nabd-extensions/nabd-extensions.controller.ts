@@ -1,3 +1,4 @@
+import { PROVIDER_ROLES } from '../../common/enums';
 import { Body, Controller, Get, Param, Patch, Post, Put, Query, UseGuards, BadRequestException, UseInterceptors } from '@nestjs/common';
 import { NabdExtensionsService } from './nabd-extensions.service';
 import { PharmacyOfferService } from '../pharmacy/services/pharmacy-offer.service';
@@ -197,6 +198,7 @@ export class NabdExtensionsController {
     });
   }
 
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('pharmacy/inventory/expiry')
   async getExpiringInventory(@CurrentUser() provider: any) {
     return this.svc.getExpiringInventory(provider.id);

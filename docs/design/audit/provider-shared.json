@@ -151,7 +151,7 @@
     ],
     [
      "API: GET /insurance/companies",
-     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:694)",
+     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:695)",
      "ok"
     ]
    ],
@@ -379,12 +379,12 @@
     ],
     [
      "API: POST /storage/upload",
-     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:358)",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:362)",
      "ok"
     ],
     [
      "API: POST /storage/upload-suggestion-image",
-     "POST /storage/upload-suggestion-image (OK, backend/src/modules/storage/storage.module.ts:393)",
+     "POST /storage/upload-suggestion-image (OK, backend/src/modules/storage/storage.module.ts:397)",
      "ok"
     ]
    ],
@@ -824,12 +824,12 @@
     ],
     [
      "API: GET /provider/profile/image/status",
-     "GET /provider/profile/image/status (OK, backend/src/modules/provider/provider.controllers.ts:111)",
+     "GET /provider/profile/image/status (OK, backend/src/modules/provider/provider.controllers.ts:113)",
      "ok"
     ],
     [
      "API: POST /provider/profile/image/upload",
-     "POST /provider/profile/image/upload (OK, backend/src/modules/provider/provider.controllers.ts:100)",
+     "POST /provider/profile/image/upload (OK, backend/src/modules/provider/provider.controllers.ts:102)",
      "ok"
     ]
    ],
@@ -967,12 +967,12 @@
     ],
     [
      "API: POST /provider/auth/login",
-     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:34)",
+     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:35)",
      "ok"
     ],
     [
      "API: POST /storage/upload",
-     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:358)",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:362)",
      "ok"
     ]
    ]
@@ -1122,7 +1122,7 @@
     ],
     [
      "API: GET /provider/banks",
-     "GET /provider/banks (OK, backend/src/modules/provider/provider.controllers.ts:98)",
+     "GET /provider/banks (OK, backend/src/modules/provider/provider.controllers.ts:100)",
      "ok"
     ],
     [
@@ -1171,7 +1171,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/shared/shared/InsuranceConfigScreen.tsx",
    "line": 52,
-   "backend": "backend/src/modules/legal/legal-enterprise.controller.ts:109"
+   "backend": "backend/src/modules/legal/legal-enterprise.controller.ts:111"
   },
   {
    "route": "PharmacyQRMenuScreen",
@@ -1196,7 +1196,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
    "line": 49,
-   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:724"
+   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:730"
   },
   {
    "route": "ReviewsAndRatingsScreen",
@@ -1205,7 +1205,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/shared/RealScreens.tsx",
    "line": 20,
-   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:756"
+   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:765"
   },
   {
    "route": "WithdrawalWorkflow",
@@ -1214,7 +1214,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
    "line": 54,
-   "backend": "backend/src/modules/provider/provider.controllers.ts:97"
+   "backend": "backend/src/modules/provider/provider.controllers.ts:99"
   },
   {
    "route": "WorkingHoursEditorScreen",
@@ -1223,7 +1223,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/shared/RealScreens.tsx",
    "line": 123,
-   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:766"
+   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:776"
   }
  ]
 }

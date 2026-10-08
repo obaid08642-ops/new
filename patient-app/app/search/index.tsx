@@ -199,7 +199,7 @@ function UploadCard() {
   return (
     <Pressable
       accessibilityRole="link"
-      onPress={() => router.push('/pharmacy/scan-prescription' as Href)}
+      onPress={() => router.push('/pharmacy/rx-order?via=photo' as Href)}
       style={{ flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 44, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 22, borderWidth: 1, borderStyle: 'dashed', borderColor: c.border.strong }}
     >
       <FIcon icon="prescription" tone="ink" chip="none" size={24} theme={theme} />

@@ -6,7 +6,7 @@
     "element": "API GET /pharmacy/inventory/expiry",
     "file": "provider-app/src/screens/shared/blueprint/InventoryExpiryMonitor.tsx",
     "line": 26,
-    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:200)",
+    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:202)",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -26,7 +26,7 @@
     "element": "API GET /provider/ops/wallet/ledger",
     "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
     "line": 38,
-    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provider-ops.module.ts:701)",
+    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provider-ops.module.ts:705)",
     "suspect": "Backend gap: reviewer session."
   }
 ]

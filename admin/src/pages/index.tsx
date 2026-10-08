@@ -45,7 +45,7 @@ export default function Home() {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       </Head>
 
-      <div dir="rtl" className="min-h-screen bg-gradient-to-b from-teal-50 to-white">
+      <div dir="rtl" className="min-h-dvh bg-gradient-to-b from-teal-50 to-white">
         <header className="max-w-6xl mx-auto flex items-center justify-between px-6 py-5">
           <div className="text-2xl font-black text-teal-700">نبض</div>
           <div className="flex items-center gap-3">

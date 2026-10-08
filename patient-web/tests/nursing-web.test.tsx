@@ -92,14 +92,14 @@ describe("the nurse booking form", () => {
 
   it("posts the booking once, with an idempotency key and the fields it always sent", async () => {
     const send = vi.fn().mockResolvedValue(json({ data: { id: "b-1" } }, 201));
-    const result = await createNursingBooking({ serviceId: "svc-1", scheduledAt: "2026-10-08T09:00:00.000Z", addressId: "a1", notes: "  ring twice  ", method: "cash" }, send as unknown as typeof fetch);
+    const result = await createNursingBooking({ serviceId: "svc-1", scheduledAt: "2026-10-08T09:00:00.000Z", addressId: "a1", notes: "  ring twice  ", method: "card" }, send as unknown as typeof fetch);
     expect(result).toEqual({ ok: true, bookingId: "b-1" });
     expect(send).toHaveBeenCalledTimes(1);
     const [url, init] = send.mock.calls[0];
     expect(url).toBe("/api/nursing/bookings");
     expect(init.method).toBe("POST");
     expect(init.headers["idempotency-key"]).toMatch(/^web-nursing-/);
-    expect(JSON.parse(init.body)).toEqual({ service_id: "svc-1", scheduled_at: "2026-10-08T09:00:00.000Z", address_id: "a1", notes: "ring twice", payment_method: "cash" });
+    expect(JSON.parse(init.body)).toEqual({ service_id: "svc-1", scheduled_at: "2026-10-08T09:00:00.000Z", address_id: "a1", notes: "ring twice", payment_method: "card" });
   });
 
   it("answers no booking when the server refused, and carries its message", async () => {

@@ -101,7 +101,7 @@ export default async function PharmacyCanonicalPage({ params }: Props) {
   if (delivery) facts.push({ icon: "moped", tone: "peach", label: t("pharmacyDelivery"), value: delivery });
   const license = text(ph.sfda_license_number) || text(ph.license_number);
   if (license) facts.push({ icon: "shield-check", tone: "blue", label: t("pharmacyLicense"), value: license });
-  const rxHref = ph.id ? `/${locale}/pharmacy/scan-prescription?pharmacyId=${encodeURIComponent(String(ph.id))}` : `/${locale}/pharmacy/scan-prescription`;
+  const rxHref = ph.id ? `/${locale}/pharmacy/rx-order?via=photo&pharmacyId=${encodeURIComponent(String(ph.id))}` : `/${locale}/pharmacy/rx-order?via=photo`;
 
   return (
     <CoreShell locale={locale as Locale} title={name} backHref={`/${locale}/pharmacies`} width="narrow">

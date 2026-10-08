@@ -1,0 +1,345 @@
+{
+ "slice": "admin-public-directories",
+ "batch": "admin",
+ "app": "admin",
+ "screens": [
+  {
+   "route": "/articles",
+   "elements": [
+    [
+     "link: نبض (in PublicDirectory)",
+     "link /",
+     "ok"
+    ],
+    [
+     "link: التطبيق (in PublicDirectory)",
+     "link /",
+     "ok"
+    ],
+    [
+     "input: input (in PublicDirectory)",
+     "state q used by logic/request",
+     "ok"
+    ],
+    [
+     "link: (link) (in PublicDirectory)",
+     "link /s/:param/:param",
+     "ok"
+    ],
+    [
+     "API: GET /articles",
+     "GET /articles (BAD_URL, backend/src/modules/articles/articles.module.ts:115)",
+     "broken"
+    ]
+   ]
+  },
+  {
+   "route": "/doctors",
+   "elements": [
+    [
+     "link: نبض (in PublicDirectory)",
+     "link /",
+     "ok"
+    ],
+    [
+     "link: التطبيق (in PublicDirectory)",
+     "link /",
+     "ok"
+    ],
+    [
+     "input: input (in PublicDirectory)",
+     "state q used by logic/request",
+     "ok"
+    ],
+    [
+     "link: (link) (in PublicDirectory)",
+     "link /s/:param/:param",
+     "ok"
+    ],
+    [
+     "API: GET /care/doctors",
+     "GET /care/doctors (BAD_URL, backend/src/modules/care/care.controller.ts:29)",
+     "broken"
+    ]
+   ]
+  },
+  {
+   "route": "/facilities",
+   "elements": [
+    [
+     "link: نبض (in PublicDirectory)",
+     "link /",
+     "ok"
+    ],
+    [
+     "link: التطبيق (in PublicDirectory)",
+     "link /",
+     "ok"
+    ],
+    [
+     "input: input (in PublicDirectory)",
+     "state q used by logic/request",
+     "ok"
+    ],
+    [
+     "link: (link) (in PublicDirectory)",
+     "link /s/:param/:param",
+     "ok"
+    ],
+    [
+     "API: GET /care/facilities",
+     "GET /care/facilities (BAD_URL, backend/src/modules/care/care.controller.ts:90)",
+     "broken"
+    ]
+   ]
+  },
+  {
+   "route": "/home-care-services",
+   "elements": [
+    [
+     "link: نبض (in PublicDirectory)",
+     "link /",
+     "ok"
+    ],
+    [
+     "link: التطبيق (in PublicDirectory)",
+     "link /",
+     "ok"
+    ],
+    [
+     "input: input (in PublicDirectory)",
+     "state q used by logic/request",
+     "ok"
+    ],
+    [
+     "link: (link) (in PublicDirectory)",
+     "link /s/:param/:param",
+     "ok"
+    ],
+    [
+     "API: GET /home-care/services",
+     "GET /home-care/services (BAD_URL, backend/src/modules/home-care/home-care-compat.module.ts:47)",
+     "broken"
+    ]
+   ]
+  },
+  {
+   "route": "/",
+   "elements": [
+    [
+     "link: دخول المزودين والإدارة",
+     "link /login",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "No API call in the page or its local components (static, or all data comes from props)."
+   ]
+  },
+  {
+   "route": "/lab-services",
+   "elements": [
+    [
+     "link: نبض (in PublicDirectory)",
+     "link /",
+     "ok"
+    ],
+    [
+     "link: التطبيق (in PublicDirectory)",
+     "link /",
+     "ok"
+    ],
+    [
+     "input: input (in PublicDirectory)",
+     "state q used by logic/request",
+     "ok"
+    ],
+    [
+     "link: (link) (in PublicDirectory)",
+     "link /s/:param/:param",
+     "ok"
+    ],
+    [
+     "API: GET /labs/services",
+     "GET /labs/services (BAD_URL, backend/src/modules/labs/labs.controller.ts:12)",
+     "broken"
+    ]
+   ]
+  },
+  {
+   "route": "/medicines",
+   "elements": [
+    [
+     "link: نبض (in PublicDirectory)",
+     "link /",
+     "ok"
+    ],
+    [
+     "link: التطبيق (in PublicDirectory)",
+     "link /",
+     "ok"
+    ],
+    [
+     "input: input (in PublicDirectory)",
+     "state q used by logic/request",
+     "ok"
+    ],
+    [
+     "link: (link) (in PublicDirectory)",
+     "link /s/:param/:param",
+     "ok"
+    ],
+    [
+     "API: GET /medicines",
+     "GET /medicines (BAD_URL, backend/src/modules/medicines/medicines.controller.ts:15)",
+     "broken"
+    ]
+   ]
+  },
+  {
+   "route": "/s/[type]/[slug]",
+   "elements": [
+    [
+     "link: العودة للرئيسية",
+     "link /",
+     "ok"
+    ],
+    [
+     "link: نبض",
+     "link /",
+     "ok"
+    ],
+    [
+     "link: الرئيسية",
+     "link /",
+     "ok"
+    ],
+    [
+     "API: GET :param/api/v1/seo/meta/:param/:param",
+     "GET :param/api/v1/seo/meta/:param/:param (OK, backend/src/modules/seo-search/seo.controller.ts:41)",
+     "ok"
+    ]
+   ]
+  }
+ ],
+ "needsReview": [
+  {
+   "route": "/articles",
+   "element": "API GET /articles",
+   "kind": "client",
+   "note": "fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/articles\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty",
+   "file": "admin/src/pages/articles/index.tsx",
+   "line": 20,
+   "backend": "backend/src/modules/articles/articles.module.ts:115"
+  },
+  {
+   "route": "/articles",
+   "element": "Public page inside admin",
+   "kind": "owner",
+   "note": "Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
+   "file": "admin/src/pages/articles/index.tsx",
+   "line": 1
+  },
+  {
+   "route": "/doctors",
+   "element": "API GET /care/doctors",
+   "kind": "client",
+   "note": "fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/care/doctors\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty",
+   "file": "admin/src/pages/doctors/index.tsx",
+   "line": 20,
+   "backend": "backend/src/modules/care/care.controller.ts:29"
+  },
+  {
+   "route": "/doctors",
+   "element": "Public page inside admin",
+   "kind": "owner",
+   "note": "Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
+   "file": "admin/src/pages/doctors/index.tsx",
+   "line": 1
+  },
+  {
+   "route": "/facilities",
+   "element": "API GET /care/facilities",
+   "kind": "client",
+   "note": "fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/care/facilities\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty",
+   "file": "admin/src/pages/facilities/index.tsx",
+   "line": 20,
+   "backend": "backend/src/modules/care/care.controller.ts:90"
+  },
+  {
+   "route": "/facilities",
+   "element": "Public page inside admin",
+   "kind": "owner",
+   "note": "Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
+   "file": "admin/src/pages/facilities/index.tsx",
+   "line": 1
+  },
+  {
+   "route": "/home-care-services",
+   "element": "API GET /home-care/services",
+   "kind": "client",
+   "note": "fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/home-care/services\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty",
+   "file": "admin/src/pages/home-care-services/index.tsx",
+   "line": 20,
+   "backend": "backend/src/modules/home-care/home-care-compat.module.ts:47"
+  },
+  {
+   "route": "/home-care-services",
+   "element": "Public page inside admin",
+   "kind": "owner",
+   "note": "Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
+   "file": "admin/src/pages/home-care-services/index.tsx",
+   "line": 1
+  },
+  {
+   "route": "/",
+   "element": "Public page inside admin",
+   "kind": "owner",
+   "note": "Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
+   "file": "admin/src/pages/index.tsx",
+   "line": 1
+  },
+  {
+   "route": "/lab-services",
+   "element": "API GET /labs/services",
+   "kind": "client",
+   "note": "fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/labs/services\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty",
+   "file": "admin/src/pages/lab-services/index.tsx",
+   "line": 20,
+   "backend": "backend/src/modules/labs/labs.controller.ts:12"
+  },
+  {
+   "route": "/lab-services",
+   "element": "Public page inside admin",
+   "kind": "owner",
+   "note": "Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
+   "file": "admin/src/pages/lab-services/index.tsx",
+   "line": 1
+  },
+  {
+   "route": "/medicines",
+   "element": "API GET /medicines",
+   "kind": "client",
+   "note": "fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/medicines\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty",
+   "file": "admin/src/pages/medicines/index.tsx",
+   "line": 20,
+   "backend": "backend/src/modules/medicines/medicines.controller.ts:15"
+  },
+  {
+   "route": "/medicines",
+   "element": "Public page inside admin",
+   "kind": "owner",
+   "note": "Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
+   "file": "admin/src/pages/medicines/index.tsx",
+   "line": 1
+  },
+  {
+   "route": "/s/[type]/[slug]",
+   "element": "Public page inside admin",
+   "kind": "owner",
+   "note": "Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
+   "file": "admin/src/pages/s/[type]/[slug].tsx",
+   "line": 1
+  }
+ ]
+}

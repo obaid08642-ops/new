@@ -89,7 +89,7 @@ export default function NursingPortalPage() {
                 <div className="flex flex-wrap items-end gap-3 border-t pt-4">
                   <label className="text-sm">ممرض مؤهل:
                     <select
-                      className="ml-2 rounded border p-2"
+                      className="me-2 rounded border p-2"
                       value={selected[req.id] || ''}
                       onFocus={() => { if (!eligible[req.id]) void loadEligible(req.id); }}
                       onChange={(e) => setSelected((prev) => ({ ...prev, [req.id]: e.target.value }))}

@@ -25,26 +25,6 @@ export class ProviderAdminService {
   ) {}
 
 
-  /** Physically delete a provider's stored images (Cloudinary/R2) so rejected or
-   *  replaced assets never linger. Accepts storage IDs or raw URLs. */
-  private async purgeImages(values: any[]) {
-    const flat: string[] = [];
-    for (const v of values) {
-      if (Array.isArray(v)) flat.push(...v.map(String));
-      else if (v) flat.push(String(v));
-    }
-    for (const s of flat) {
-      try {
-        let url = s.startsWith('http') ? s : null;
-        if (!url) {
-          const obj = await (this.accounts.model.db.collection('storage_objects') as any).findOne({ id: s });
-          url = obj?.external_url || null;
-        }
-        if (url) this.events.emit('storage.delete_by_url', { url });
-      } catch { /* best-effort cleanup */ }
-    }
-  }
-
   private assertAdmin(user: any) {
     if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) {
       throw new ForbiddenException('admin only');
@@ -210,7 +190,9 @@ export class ProviderAdminService {
       { $set: { status: 'rejected', rejected_reason: a.rejection_reason, public_eligibility: false, indexing_eligibility: false } },
     );
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_rejected', after: { reason: a.rejection_reason } });
-    // Free storage: rejected provider's images are physically deleted (Cloudinary/R2)
+    // The rejected application's images and licence documents are KEPT (private, owner/admin only): a rejection is
+    // usually 'fix and resubmit', and the reviewed files are the record of what was rejected and why. Their
+    // retention is the data map's (decision 32), not a side effect of the rejection.
     const prof: any = await this.accounts.model.db.collection('provider_profiles').findOne({ account_id: id });
     if (prof) {
       const pType = (prof.type || (a as any).provider_type || 'doctor') as any;
@@ -221,11 +203,6 @@ export class ProviderAdminService {
         action: 'deactivate',
       }).catch(() => {});
 
-      const docs: any[] = await this.accounts.model.db.collection('provider_documents').find({ account_id: id }).toArray();
-      await this.purgeImages([
-        prof.profile_photo, prof.logo, prof.clinic_images, prof.license_documents,
-        ...docs.map((d: any) => d.storage_object_id || d.file_url || d.storage_id || d.url),
-      ]);
     }
     return a.toObject();
   }

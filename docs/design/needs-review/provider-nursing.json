@@ -6,7 +6,7 @@
     "element": "API GET /provider/nursing/supplies",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
     "line": 644,
-    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/home-care/home-care-compat.module.ts:350)",
+    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/home-care/home-care-compat.module.ts:353)",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -26,7 +26,7 @@
     "element": "API GET /provider/nursing/checklist",
     "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
     "line": 422,
-    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/home-care/home-care-compat.module.ts:347)",
+    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/home-care/home-care-compat.module.ts:349)",
     "suspect": "Backend gap: reviewer session."
   }
 ]

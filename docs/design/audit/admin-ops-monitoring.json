@@ -1,0 +1,487 @@
+{
+ "slice": "admin-ops-monitoring",
+ "batch": "admin",
+ "app": "admin",
+ "screens": [
+  {
+   "route": "/admin/appointments-oversight",
+   "elements": [
+    [
+     "button: تحديث",
+     "GET /api/admin/admin/appointments",
+     "ok"
+    ],
+    [
+     "button: إلغاء",
+     "POST /api/admin/admin/appointments/:param/cancel; GET /api/admin/admin/appointments; confirm()",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/broadcast-monitor",
+   "elements": [
+    [
+     "button: تحديث",
+     "GET /api/admin/admin/pharmacy/broadcasts",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/command-center",
+   "elements": [
+    [
+     "button: تحديث فوري",
+     "GET /api/admin/admin/command-center-v2; GET /api/admin/admin/analytics-suite/online; GET /api/admin/admin/ops/overview; ",
+     "ok"
+    ],
+    [
+     "link: فتح",
+     "link /admin/orders",
+     "ok"
+    ],
+    [
+     "link: فتح",
+     "link /admin/finance-suite",
+     "ok"
+    ],
+    [
+     "link: إدارة دورة الطلبات",
+     "link /admin/orders",
+     "ok"
+    ],
+    [
+     "link: التسوية والدفعات",
+     "link /admin/finance-suite",
+     "ok"
+    ],
+    [
+     "link: الطوابير والتشغيل",
+     "link /admin/system-ops",
+     "ok"
+    ],
+    [
+     "link: النزاعات المالية",
+     "link /admin/disputes",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/ops/domain-metrics",
+     "GET /api/admin/admin/ops/domain-metrics (OK, backend/src/modules/ops/ops.controller.ts:206)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/ops/live-map",
+     "GET /api/admin/admin/ops/live-map (OK, backend/src/modules/ops/ops.controller.ts:264)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/ops/alerts",
+     "GET /api/admin/admin/ops/alerts (OK, backend/src/modules/ops/ops.controller.ts:40)",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/dashboard",
+   "elements": [
+    [
+     "action: ر.س اتصال تفاصيل",
+     "navigation",
+     "ok"
+    ],
+    [
+     "action: اتصال تفاصيل",
+     "",
+     "ok"
+    ],
+    [
+     "link: تفاصيل",
+     "link /admin/order-detail",
+     "ok"
+    ],
+    [
+     "button: -",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: تفاصيل بؤرة الطلب ✕ المنطقة: نوع الطلب: عدد الطلبات: كثافة ا",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: تفاصيل بؤرة الطلب ✕ المنطقة: نوع الطلب: عدد الطلبات: كثافة ا",
+     "",
+     "ok"
+    ],
+    [
+     "button: ✕",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق",
+     "local state",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/system-health/liveness",
+     "GET /api/admin/system-health/liveness (OK, backend/src/modules/admin/web-core/controllers/system-health.controller.ts:6)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/system-health/readiness",
+     "GET /api/admin/system-health/readiness (OK, backend/src/modules/admin/web-core/controllers/system-health.controller.ts:19)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/nabd-extensions/admin/analytics/heatmaps",
+     "GET /api/admin/nabd-extensions/admin/analytics/heatmaps (OK, backend/src/modules/admin/web-core/controllers/analytics.controller.ts:39)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/command-center",
+     "GET /api/admin/admin/command-center (OK, backend/src/modules/admin/command-center/admin-command-center.module.ts:177)",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/fraud-monitoring",
+   "elements": [
+    [
+     "input: بحث في التنبيهات والسجلات",
+     "state query used by logic/request",
+     "ok"
+    ],
+    [
+     "input: كل درجات الخطورة high medium low",
+     "state severity used by logic/request",
+     "ok"
+    ],
+    [
+     "button: السابق",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: التالي",
+     "local state",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/governance/fraud-alerts",
+     "GET /api/admin/admin/governance/fraud-alerts (OK, backend/src/modules/admin/web-core/controllers/admin-governance.controller.ts:34)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/governance/audit-logs",
+     "GET /api/admin/admin/governance/audit-logs (OK, backend/src/modules/admin/web-core/controllers/admin-governance.controller.ts:82)",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/health-dashboard",
+   "elements": [
+    [
+     "API: GET /api/admin/admin/health-dashboard",
+     "GET /api/admin/admin/health-dashboard (OK, backend/src/modules/health/health-dashboard.controller.ts:32)",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/live-chat-console",
+   "elements": [
+    [
+     "API: GET /chat/admin/threads",
+     "GET /chat/admin/threads (OK, backend/src/modules/chat/chat.module.ts:147)",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/order-detail",
+   "elements": [
+    [
+     "button: → عودة لمركز القيادة",
+     "navigation",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/command-center/order/:param/:param",
+     "GET /api/admin/admin/command-center/order/:param/:param (OK, backend/src/modules/admin/command-center/admin-command-center.module.ts:178)",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/orders/[kind]/[id]",
+   "elements": [
+    [
+     "link: العودة إلى الطلبات",
+     "link /admin/orders",
+     "ok"
+    ],
+    [
+     "button: تحديث",
+     "GET /api/admin/admin/orders/:param/:param",
+     "ok"
+    ],
+    [
+     "button: <button> onClick",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: number",
+     "state amount used by logic/request",
+     "ok"
+    ],
+    [
+     "input: input",
+     "state providerId used by logic/request",
+     "ok"
+    ],
+    [
+     "input: number",
+     "state hours used by logic/request",
+     "ok"
+    ],
+    [
+     "input: textarea",
+     "state note used by logic/request",
+     "ok"
+    ],
+    [
+     "input: textarea",
+     "state reason used by logic/request",
+     "ok"
+    ],
+    [
+     "button: إلغاء",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: جارٍ التنفيذ… تأكيد وتدقيق",
+     "POST /api/admin/admin/orders/:param/:param/:param; GET /api/admin/admin/orders/:param/:param; confirm()",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/orders",
+   "elements": [
+    [
+     "input: بحث بالمعرّف أو العميل",
+     "state filters used by logic/request",
+     "ok"
+    ],
+    [
+     "input: select",
+     "state filters used by logic/request",
+     "ok"
+    ],
+    [
+     "input: الحالة",
+     "state filters used by logic/request",
+     "ok"
+    ],
+    [
+     "input: date",
+     "state filters used by logic/request",
+     "ok"
+    ],
+    [
+     "input: الأحدث أولاً الأقدم أولاً القيمة تصاعدياً القيمة تنازلياً",
+     "state filters used by logic/request",
+     "ok"
+    ],
+    [
+     "link: فتح التفاصيل",
+     "link /admin/orders/:param/:param",
+     "ok"
+    ],
+    [
+     "button: السابق",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: التالي",
+     "local state",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/orders",
+     "GET /api/admin/admin/orders (OK, backend/src/modules/admin/enterprise/admin-orders.controller.ts:20)",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/search",
+   "elements": [
+    [
+     "input: id / جوال / اسم…",
+     "state q used by logic/request",
+     "ok"
+    ],
+    [
+     "button: بحث",
+     "GET /api/admin/admin/search",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/sos-monitor",
+   "elements": [
+    [
+     "button: تحديث الآن",
+     "GET /emergency/active",
+     "ok"
+    ],
+    [
+     "button: إعادة المحاولة",
+     "GET /emergency/active",
+     "ok"
+    ],
+    [
+     "input: معرّف المستشفى المستقبِل",
+     "state hospitalFor used by logic/request",
+     "ok"
+    ],
+    [
+     "button: إسناد مستشفى",
+     "POST /emergency/:param/assign; GET /emergency/active",
+     "ok"
+    ],
+    [
+     "button: تصعيد إلى 997 (الهلال الأحمر)",
+     "POST /emergency/:param/escalate-997; GET /emergency/active; confirm(); prompt()",
+     "ok"
+    ],
+    [
+     "input: ملاحظات الإنهاء (ماذا تم مع الحالة؟)",
+     "state resolveNotes used by logic/request",
+     "ok"
+    ],
+    [
+     "button: تأكيد إنهاء الحالة",
+     "POST /emergency/:param/resolve; GET /emergency/active",
+     "ok"
+    ],
+    [
+     "button: تراجع",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: إنهاء الحالة (تمت المعالجة)",
+     "local state",
+     "ok"
+    ]
+   ]
+  }
+ ],
+ "needsReview": [
+  {
+   "route": "/admin/appointments-oversight",
+   "element": "Guard G-ROLE-ONLY-WRITE (1)",
+   "kind": "backend",
+   "note": "1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/appointments/:param/cancel): every admin role, including a custom restricted one, can run them.",
+   "file": "admin/src/pages/admin/appointments-oversight.tsx",
+   "line": 16,
+   "backend": "backend/src/modules/care/appointments.controller.ts:98"
+  },
+  {
+   "route": "/admin/command-center",
+   "element": "Guard G-PERM-MISMATCH (1)",
+   "kind": "backend",
+   "note": "1 call(s): Page requires \"command.center.view\" but GET /admin/analytics-suite/online requires analytics.read; an admin role with the page permission only gets a 403 on thi",
+   "file": "admin/src/pages/admin/command-center.tsx",
+   "line": 30,
+   "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:28"
+  },
+  {
+   "route": "/admin/dashboard",
+   "element": "Guard G-OPEN (2)",
+   "kind": "backend",
+   "note": "2 call(s) hit backend routes with no role/permission guard (GET /api/admin/system-health/liveness; GET /api/admin/system-health/readiness): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/pages/admin/dashboard.tsx",
+   "line": 33,
+   "backend": "backend/src/modules/admin/web-core/controllers/system-health.controller.ts:6"
+  },
+  {
+   "route": "/admin/dashboard",
+   "element": "No nav link",
+   "kind": "client",
+   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
+   "file": "admin/src/pages/admin/dashboard.tsx",
+   "line": 1
+  },
+  {
+   "route": "/admin/health-dashboard",
+   "element": "No nav link",
+   "kind": "client",
+   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
+   "file": "admin/src/pages/admin/health-dashboard.tsx",
+   "line": 1
+  },
+  {
+   "route": "/admin/order-detail",
+   "element": "No nav link",
+   "kind": "client",
+   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
+   "file": "admin/src/pages/admin/order-detail.tsx",
+   "line": 1
+  },
+  {
+   "route": "/admin/orders/[kind]/[id]",
+   "element": "Guard G-PERM-MISMATCH (1)",
+   "kind": "backend",
+   "note": "1 call(s): Page requires \"order.read\" but POST /admin/orders/:param/:param/:param requires order.cancel; an admin role with the page permission only gets a 403 on this cal",
+   "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
+   "line": 50,
+   "backend": "backend/src/modules/admin/enterprise/admin-orders.controller.ts:62"
+  },
+  {
+   "route": "/admin/search",
+   "element": "Permission G-VOCAB-FE",
+   "kind": "client",
+   "note": "client permission \"users.view\" is not in backend Permission enum: the page/nav link is hidden or locked for every role.",
+   "file": "admin/src/components/AdminGuard.tsx",
+   "line": 21
+  },
+  {
+   "route": "/admin/sos-monitor",
+   "element": "تأكيد إنهاء الحالة",
+   "kind": "client",
+   "note": "Sensitive action (POST /emergency/:param/resolve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/sos-monitor.tsx",
+   "line": 189
+  },
+  {
+   "route": "/admin/sos-monitor",
+   "element": "Guard G-ROLE-ONLY-WRITE (1)",
+   "kind": "backend",
+   "note": "1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /emergency/:param/resolve): every admin role, including a custom restricted one, can run them.",
+   "file": "admin/src/pages/admin/sos-monitor.tsx",
+   "line": 73,
+   "backend": "backend/src/modules/emergency/emergency.controller.ts:94"
+  },
+  {
+   "route": "/admin/sos-monitor",
+   "element": "Removed feature",
+   "kind": "owner",
+   "note": "Owner decision 14 / O-2 (2026-10-06): no ambulance dispatch, assign, claim or tracking from our side (the 997 dial button stays); the assign / escalate-997 actions of this page go with the removal.",
+   "file": "admin/src/pages/admin/sos-monitor.tsx",
+   "line": 1
+  }
+ ]
+}

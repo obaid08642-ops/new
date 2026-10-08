@@ -6,7 +6,7 @@
     "element": "API GET /provider/insurance-matrix",
     "file": "provider-app/src/screens/shared/shared/InsuranceConfigScreen.tsx",
     "line": 52,
-    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/legal/legal-enterprise.controller.ts:109)",
+    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/legal/legal-enterprise.controller.ts:111)",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -36,7 +36,7 @@
     "element": "API GET /provider/wallet/transactions",
     "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
     "line": 49,
-    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provider-ops.module.ts:806)",
+    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provider-ops.module.ts:730)",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -46,7 +46,7 @@
     "element": "API GET /provider/reviews",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
     "line": 20,
-    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provider-ops.module.ts:838)",
+    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provider-ops.module.ts:765)",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -56,7 +56,7 @@
     "element": "API GET /provider/bank-account",
     "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
     "line": 54,
-    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider/provider.controllers.ts:97)",
+    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider/provider.controllers.ts:99)",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -66,7 +66,7 @@
     "element": "API GET /provider/working-hours",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
     "line": 123,
-    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provider-ops.module.ts:848)",
+    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provider-ops.module.ts:776)",
     "suspect": "Backend gap: reviewer session."
   }
 ]

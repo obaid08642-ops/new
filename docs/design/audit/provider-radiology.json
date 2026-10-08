@@ -264,7 +264,7 @@
     ],
     [
      "API: PATCH /radiology/bookings/:param/state",
-     "PATCH /radiology/bookings/:param/state (OK, backend/src/modules/radiology/radiology.controller.ts:58)",
+     "PATCH /radiology/bookings/:param/state (OK, backend/src/modules/radiology/radiology.controller.ts:59)",
      "ok"
     ]
    ],
@@ -438,12 +438,12 @@
     ],
     [
      "API: POST /provider/auth/change-password",
-     "POST /provider/auth/change-password (OK, backend/src/modules/provider/provider.controllers.ts:62)",
+     "POST /provider/auth/change-password (OK, backend/src/modules/provider/provider.controllers.ts:63)",
      "ok"
     ],
     [
      "API: POST /provider/auth/login",
-     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:34)",
+     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:35)",
      "ok"
     ]
    ],
@@ -468,7 +468,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
    "line": 105,
-   "backend": "backend/src/modules/radiology/radiology.controller.ts:84"
+   "backend": "backend/src/modules/radiology/radiology.controller.ts:86"
   }
  ]
 }

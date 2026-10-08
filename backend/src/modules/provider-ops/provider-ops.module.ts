@@ -1,3 +1,4 @@
+import { PROVIDER_ROLES } from '../../common/enums';
 /**
  * Provider Operations module — fills the remaining workflow gaps per provider type:
  *
@@ -662,6 +663,7 @@ export class ProviderOpsController {
   // Doctor: templates/diagnoses/blacklist
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Post('doctor/templates') saveTemplate(@CurrentUser() u: any, @Body() b: SaveTemplateDto) { return this.svc.saveTemplate(u.id, b); }
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('doctor/templates') templates(@CurrentUser() u: any): Promise<any[]> { return this.svc.myTemplates(u.id); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Delete('doctor/templates/:id') delTemplate(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deleteTemplate(u.id, id); }
@@ -672,6 +674,7 @@ export class ProviderOpsController {
   @Post('doctor/blacklist/:patientId') block(@CurrentUser() u: any, @Param('patientId') p: string, @Body() b: BlockDto) { return this.svc.blacklistPatient(u.id, p, b?.reason); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Delete('doctor/blacklist/:patientId') unblock(@CurrentUser() u: any, @Param('patientId') p: string) { return this.svc.unblacklistPatient(u.id, p); }
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('doctor/blacklist') blacklist(@CurrentUser() u: any): Promise<any[]> { return this.svc.myBlacklist(u.id); }
   @Get('doctor/patient-crm/:patientId') getCrm(@CurrentUser() u: any, @Param('patientId') p: string) { return this.svc.getPatientCrm(u.id, p); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
@@ -698,6 +701,7 @@ export class ProviderOpsController {
     const { Readable } = require('stream');
     return new StreamableFile(Readable.from(pdf));
   }
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('wallet/ledger') wallet(@CurrentUser() u: any, @Query('limit') l?: string): Promise<any> { return this.svc.walletLedger(u.id, l ? parseInt(l) : 100); }
 }
 
@@ -716,11 +720,13 @@ export class ProviderCompatController {
   }
 
   /** Wallet summary — shape the app expects: { available, escrow, dues, earned } */
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('wallet') async wallet(@CurrentUser() u: any) {
     const l = await this.svc.walletLedger(u.id, 500);
     return { available: l.summary.balance, escrow: l.summary.pending, dues: l.summary.earned - l.summary.paid - l.summary.pending, earned: l.summary.earned };
   }
 
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('wallet/transactions') async walletTx(@CurrentUser() u: any) {
     const l = await this.svc.walletLedger(u.id, 100);
     return l.transactions.map((t: any) => ({
@@ -733,6 +739,7 @@ export class ProviderCompatController {
   }
 
   /** Today's stats — shape: { todayCount, revenue, pendingCount } */
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('stats/today') async statsToday(@CurrentUser() u: any): Promise<any> {
     return this.svc.statsToday(u.id);
   }
@@ -744,6 +751,7 @@ export class ProviderCompatController {
   }
 
   /** Doctor pricing settings (clinic/online/home) — persisted server-side. */
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('settings/pricing') async getPricing(@CurrentUser() u: any) {
     return { pricing: await this.svc.getProviderSetting(u.id, 'pricing', null) };
   }
@@ -753,6 +761,7 @@ export class ProviderCompatController {
   }
 
   /** Reviews received by this provider */
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('reviews') async myReviews(@CurrentUser() u: any): Promise<any[]> {
     return this.svc.providerReviews(u.id);
   }
@@ -763,6 +772,7 @@ export class ProviderCompatController {
   }
 
   /** Working hours get/set */
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('working-hours') async getHours(@CurrentUser() u: any) {
     return this.svc.getProviderSetting(u.id, 'working_hours', null);
   }

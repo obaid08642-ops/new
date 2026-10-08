@@ -401,7 +401,7 @@
     "bookNow": "Book Appointment Now",
     "sar": "SAR",
     "insuranceNotice": "Do you have medical insurance or a prescription?",
-    "insuranceNoticeSub": "Upload your prescription to verify insurance coverage and confirm your slot immediately",
+    "insuranceNoticeSub": "Upload your prescription. The lab asks your insurer for the approval and you see its decision before you pay.",
     "filterAll": "All",
     "filterVitaminD": "Vitamin D",
     "filterSugar": "Blood Sugar & HbA1c",
@@ -702,20 +702,6 @@
     "notOrderable": "This prescription can no longer be ordered from.",
     "back": "Back to prescriptions"
   },
-  "Chat": {
-    "eyebrow": "Private chats",
-    "title": "Chats",
-    "empty": "There are currently no chats available.",
-    "activityUnavailable": "Last activity unavailable",
-    "unavailableTitle": "Unable to load chats",
-    "unavailable": "Please try again later.",
-    "notice": "Only basic chat details are shown. Names, message previews and attachments aren't shown, and you can't open chats or send messages from here.",
-    "types": {
-      "direct": "Direct chat",
-      "group": "Group chat",
-      "booking": "Booking-related chat"
-    }
-  },
   "Reminders": {
     "eyebrow": "Private reminders",
     "title": "Medication reminders",
@@ -911,7 +897,11 @@
       "voice": "Voice message",
       "file": "File message",
       "system": "System message"
-    }
+    },
+    "emergency": "In an emergency, call 997 now. This chat is not for emergencies.",
+    "emergencyCall": "Call 997",
+    "closed": "This conversation is closed. You can read it but not reply.",
+    "bookFollowUp": "Book a follow-up"
   },
   "Sleep": {
     "eyebrow": "Sleep history",
@@ -1004,7 +994,7 @@
       },
       "2": {
         "q": "Can I use insurance?",
-        "a": "Yes — the insurance decision is recorded before payment; you pay only the copay."
+        "a": "Yes, where the facility accepts your insurance. The facility asks the insurer for approval and you see its decision before you pay; you pay only the co-pay it states."
       },
       "3": {
         "q": "Can I cancel or reschedule?",
@@ -1081,7 +1071,7 @@
     "payCash": "Cash at the clinic",
     "payCard": "Card",
     "payInsurance": "Approved insurance",
-    "payInsuranceNote": "The insurance request is sent for review and approval.",
+    "payInsuranceNote": "The facility asks the insurer for approval, and you will see its decision here.",
     "payCardNote": "Secure, encrypted payment.",
     "connectionFailed": "Connection unavailable. Try again.",
     "confirmedTitle": "Your appointment is booked",
@@ -1670,7 +1660,11 @@
     "sendOffers": "Request pharmacy offers",
     "sending": "Sending the request…",
     "sendNote": "Your request goes to nearby pharmacies and their offers come back to you. No price or payment is set at this step.",
-    "sendFailed": "The request could not be sent. Try again."
+    "sendFailed": "The request could not be sent. Try again.",
+    "waysLabel": "Ways to order with a prescription",
+    "viaPhoto": "Photograph",
+    "viaUpload": "Upload",
+    "viaType": "Type names"
   },
   "HubSeo": {
     "privacy": {
@@ -1963,7 +1957,6 @@
     "backToConversations": "Back to the conversations",
     "offersTitle": "Pharmacy offers",
     "quoteTitle": "Final price",
-    "waitingTitle": "Waiting for pharmacies",
     "negotiationTitle": "Pharmacy conversations",
     "threadTitle": "Conversation with the pharmacy",
     "heroTitleWaiting": "Nearby pharmacies are reviewing your request",
@@ -2031,7 +2024,7 @@
     "noRedirect": "This payment method is not available on the web yet. Choose another one.",
     "paymentError": "The payment could not be started. No payment was recorded.",
     "loadingMethods": "Loading the payment methods…",
-    "insurancePending": "Your insurer is reviewing this order. Nothing is due before its decision.",
+    "insurancePending": "The pharmacy has asked your insurer for approval. Nothing is due before the insurer's decision.",
     "insuranceCovered": "Insurance covers this order in full. Nothing is due.",
     "insuranceDecisionTitle": "Insurance decision for each item",
     "coveredLabel": "Covered by insurance",
@@ -2045,7 +2038,6 @@
     "negotiationHint": "A pharmacy is discussing a substitute for an item in your order.",
     "waitingLead": "Your request is with the pharmacies. Offers appear when they reply.",
     "waitingDraft": "This request has not been sent to the pharmacies yet.",
-    "waitingManual": "The status does not refresh by itself. Use the button to check again.",
     "refreshStatus": "Refresh the status",
     "viewOffers": "See the offers",
     "offersReady": "{count, plural, one {# offer is ready} other {# offers are ready}}",
@@ -2078,8 +2070,8 @@
     "processing": "Working…",
     "status": {
       "draft": "Not sent yet",
-      "intake_processing": "Being prepared",
-      "ready_for_split": "Being prepared",
+      "intake_processing": "Reviewing your request",
+      "ready_for_split": "Waiting for pharmacy offers",
       "broadcasting": "Sent to pharmacies",
       "awaiting_full_acceptance": "Waiting for pharmacies",
       "negotiating_substitutes": "Discussing substitutes",
@@ -2165,7 +2157,7 @@
     "insuranceLoading": "Loading your insurance",
     "insuranceCardTitle": "Your insurance",
     "insuranceClass": "Class: {class}",
-    "insuranceBody": "The pharmacy asks your insurer for approval, and you pay only your share.",
+    "insuranceBody": "The pharmacy asks your insurer for the approval. You see the insurer's decision before you pay, and pay only your share.",
     "insuranceNone": "No insurance policy saved",
     "insuranceNoneBody": "Add your policy to ask for insurance coverage.",
     "insuranceAdd": "Add a policy",
@@ -2181,10 +2173,11 @@
     "sending": "Sending…",
     "errorSend": "The request could not be sent. Nothing was charged. Try again.",
     "errorNetwork": "The service could not be reached. Check your connection and try again; the request will not be sent twice.",
+    "errorServer": "Something went wrong on our side while sending. Try again in a moment; the request will not be sent twice and nothing was charged.",
     "errorForbidden": "Your account cannot send a pharmacy request.",
     "paymentTitle": "Payment",
     "howInsurance": "Through insurance",
-    "howInsuranceBody": "Your insurer covers its part. You pay only your share.",
+    "howInsuranceBody": "The pharmacy asks your insurer for the approval. Once the insurer decides, you pay only your share.",
     "methodsLegend": "Payment method",
     "amountsTitle": "Amounts",
     "rowItems": "Items",
@@ -2225,7 +2218,7 @@
     "unavailableErrorTitle": "The payment details could not be loaded",
     "unavailableErrorBody": "Check your connection and try again. Nothing was charged.",
     "insuranceTitle": "Insurance decision",
-    "insuranceChecking": "Waiting for the insurer's decision",
+    "insuranceChecking": "The pharmacy is waiting for the insurer's decision",
     "nextCheck": "Next check in {time}",
     "refreshNow": "Refresh now",
     "insurancePaid": "This order is already paid.",
@@ -2311,20 +2304,17 @@
       "cancelled": "Cancelled",
       "no_show": "Missed"
     },
-    "insurancePendingTitle": "Insurance request under review",
+    "insurancePendingTitle": "The facility is asking the insurer for approval",
     "insuranceDecidedTitle": "Insurance decision recorded",
     "insurancePendingBody": "There is no payment or confirmation until the provider decides and any copay is confirmed.",
     "insuranceDecidedBody": "The payment or confirmation step depends on the insurance decision. This page is not a payment confirmation.",
     "insuranceView": "View insurance decision",
     "actionBookingStatus": "Booking status",
     "actionSummary": "Visit summary",
-    "actionPrescriptions": "My prescriptions",
     "summaryTitle": "Consultation summary",
     "summaryPendingTitle": "Summary not ready yet",
     "summaryPendingBody": "The doctor writes it after the visit.",
     "backToAppointment": "Back to the appointment",
-    "summarySub": "What the doctor wrote after the visit",
-    "summaryEmpty": "The summary is not available yet.",
     "summaryDiagnosis": "Diagnosis",
     "summaryNotes": "Doctor notes",
     "summaryPrescription": "Prescription",
@@ -2344,12 +2334,6 @@
     "cancelTitle": "Cancel or reschedule appointment",
     "expectedRefund": "Expected refund: {percent}%",
     "policyTitle": "Cancellation and refund policy",
-    "policy24": "24 hours or more before: 100% refund",
-    "policy12": "12 to 24 hours before: 50% refund",
-    "policyNone": "Less than 12 hours before: no refund",
-    "clinicPolicy24": "More than 24 hours before: 100% refund",
-    "clinicPolicy4": "4 to 24 hours before: 50% refund",
-    "clinicPolicyNone": "Less than 4 hours before: non-refundable",
     "clinicDefaultName": "Clinic",
     "clinicNameLabel": "Clinic",
     "clinicAddressLabel": "Address",
@@ -2365,12 +2349,8 @@
     "prep2": "Bring your ID and insurance card",
     "prep3": "Bring your reports and current medications",
     "prep4": "Show the booking code at reception",
-    "followUpTitle": "Consultation follow-up",
     "doctorFallback": "Treating doctor",
     "patientNotesTitle": "Your notes for the doctor",
-    "prescribedTitle": "Prescribed medications",
-    "noMedsDone": "No medications were prescribed in this visit",
-    "noMedsPending": "Medications appear here after the visit is completed",
     "historyTitle": "Status history",
     "historyEmpty": "No history yet",
     "ratingGroup": "Rating",
@@ -2403,7 +2383,11 @@
     "roomTitle": "Consultation room",
     "roomPreparing": "Preparing the consultation room…",
     "waitingRoomTitle": "Virtual waiting room",
-    "waitingRoomNotYet": "The call opens once the appointment is confirmed and due."
+    "waitingRoomNotYet": "The call opens once the appointment is confirmed and due.",
+    "policyFull": "{hours} hours or more before: 100% refund",
+    "policyHalf": "{half} to {full} hours before: {percent}% refund",
+    "policyLess": "Less than {half} hours before: no refund",
+    "policyUnavailable": "The cancellation and refund policy is not available right now."
   },
   "ConsultClient": {
     "payHeading": "Complete the payment through a secure gateway",
@@ -2428,7 +2412,8 @@
     "rxMedicines": "Medicines",
     "rxInReminders": "In reminders",
     "rxAddReminder": "Add reminder",
-    "rxOrder": "Order these medicines"
+    "rxOrder": "Order these medicines",
+    "rxDays": "{n} days"
   },
   "FamilyWeb": {
     "title": "Family",
@@ -2542,7 +2527,6 @@
     "locationHome": "Home visit",
     "locationFacility": "At the facility",
     "trackSample": "Track the sample",
-    "trackCollector": "Collector location",
     "uploadInsurance": "Upload insurance document",
     "bookingDetails": "Booking details",
     "sampleSteps": "Sample steps",
@@ -2612,7 +2596,7 @@
     "quickResults": "My results",
     "quickCompare": "Compare prices",
     "insuranceTitle": "Use your insurance",
-    "insuranceSub": "Upload your insurance card and the lab asks for approval for you",
+    "insuranceSub": "Upload your insurance card. The lab requests the approval from your insurer for you.",
     "catalogErrorTitle": "The catalogue is unavailable",
     "catalogErrorBody": "Labs and radiology could not be loaded. Try again in a moment.",
     "packagesTitle": "Test packages",
@@ -2650,7 +2634,6 @@
     "searchTitle": "Search tests",
     "searchErrorTitle": "The tests could not be loaded",
     "searchErrorBody": "Try again in a moment.",
-    "technicianTrackingTitle": "Collector location",
     "testFacts": "Test details",
     "bookTest": "Book this test",
     "cartEmptyTitle": "Your cart is empty",
@@ -2717,7 +2700,7 @@
     "proceedSelfPay": "Continue and pay myself",
     "requestConsultation": "Ask for a medical consultation",
     "continueToPayment": "Continue to payment and booking",
-    "waitingForDecision": "Waiting for the insurer's decision…",
+    "waitingForDecision": "The lab is waiting for your insurer's decision…",
     "approvalApproved": "Approved",
     "approvalPartial": "Partly approved",
     "approvalRejected": "Rejected",
@@ -2730,7 +2713,6 @@
     "trackingArriving": "Arriving in",
     "trackingStatus": "Status",
     "trackingInProgress": "In progress",
-    "trackingCollector": "Collector: {name}",
     "trackingScheduled": "Scheduled: {when}",
     "trackingBeforeTitle": "Before the sample",
     "trackingBeforeBody": "Fast 8 to 12 hours before the sample unless your doctor says otherwise.",
@@ -2740,8 +2722,6 @@
     "noResultsTitle": "No results",
     "noResultsBody": "Try another name or category.",
     "searchResults": "Search results",
-    "collectorArrival": "Expected arrival",
-    "collectorNearby": "Near you",
     "collectorLabel": "Collector",
     "collectorCall": "Call the collector",
     "collectorTipsTitle": "When the collector arrives",
@@ -2770,158 +2750,6 @@
     "bookingNotSentCta": "Go to nursing",
     "bookingNotSentClose": "Close"
   },
-  "InsuranceWeb": {
-    "title": "Health insurance",
-    "unavailableTitle": "Unable to load insurance",
-    "unavailable": "Please try again in a moment.",
-    "partUnavailable": "This part could not load right now. The rest of the page works.",
-    "tabs": "Insurance sections",
-    "tabPolicy": "Policy",
-    "tabBenefits": "Benefits",
-    "tabClaims": "Claims",
-    "tabRefunds": "Refunds",
-    "tabNetwork": "Network",
-    "shortcuts": "Insurance shortcuts",
-    "addPolicy": "Add policy",
-    "changePolicy": "Change policy",
-    "submitClaim": "Submit a claim",
-    "coverageCheck": "What my policy covers",
-    "noPolicyTitle": "No policy recorded",
-    "planLine": "Class {plan}",
-    "active": "Policy recorded",
-    "none": "No policy",
-    "requestsTitle": "Approval requests",
-    "requestsEmpty": "No approval requests yet.",
-    "requestTitle": "Insurance approval request",
-    "requestState": {
-      "PENDING_PROVIDER_REVIEW": "Awaiting review",
-      "APPROVED_FULL": "Approved in full",
-      "COPAY_PENDING": "Approved in part",
-      "COPAY_PAID": "Co-pay paid",
-      "REJECTED": "Rejected",
-      "SELF_PAY_PENDING": "Self-pay due",
-      "SELF_PAY_PAID": "Self-pay paid",
-      "CANCELLED": "Cancelled",
-      "unknown": "Status unavailable"
-    },
-    "disclaimer": "Nabd+ does not contact your insurer. The facility requests the approval from your insurer in its own systems and records the decision here. You pay only your co-pay.",
-    "benefitsEmpty": "No benefits to show.",
-    "benefitTitle": "Insurance benefit",
-    "claimsEmpty": "No claims yet.",
-    "claimServiceUnknown": "Insurance service",
-    "claimStatus": {
-      "approved": "Approved",
-      "reimbursed": "Reimbursed",
-      "pending": "Pending",
-      "rejected": "Rejected",
-      "unknown": "Status unavailable"
-    },
-    "refundsEmpty": "No refunds.",
-    "refundTitle": "Refund",
-    "networkNoPolicy": "No saved policy. Add your policy first to see network providers.",
-    "networkSearch": "Search by provider name",
-    "networkEmpty": "No network providers to show.",
-    "search": "Search",
-    "add": {
-      "title": "Add a policy",
-      "lead": "Choose your insurer and enter your policy details. They are saved to your account as you enter them. Nabd+ does not check them with your insurer.",
-      "companiesFailed": "Insurance companies could not load. Reload the page.",
-      "company": "Insurance company",
-      "companyPlaceholder": "Select a company",
-      "policyNumber": "Policy number",
-      "memberId": "Member ID (optional)",
-      "memberName": "Member name (optional)",
-      "expiry": "Expiry date (optional)",
-      "submit": "Save policy",
-      "invalid": "Select a company and enter a valid policy number (at least 3 characters).",
-      "failed": "Could not save the policy."
-    },
-    "claim": {
-      "title": "Submit a claim",
-      "lead": "Pick a paid booking to claim.",
-      "booking": "Paid booking",
-      "loading": "Loading…",
-      "none": "No paid bookings are eligible for a claim.",
-      "placeholder": "Pick…",
-      "note": "Note (optional)",
-      "submit": "Submit claim",
-      "pick": "Pick a paid booking to claim.",
-      "failed": "Could not submit the claim.",
-      "done": "Claim submitted.",
-      "viewClaims": "View claims",
-      "kind": {
-        "consultation": "Medical consultation",
-        "pharmacy": "Medicines",
-        "lab": "Lab tests",
-        "radiology": "Radiology",
-        "nursing": "Home nursing"
-      }
-    },
-    "coverage": {
-      "title": "What my policy covers",
-      "lead": "Based on the policy details saved on your account. This is not an approval and not a check with your insurer. The facility requests the approval.",
-      "service": "Service type",
-      "svc": {
-        "consultation": "Medical consultation",
-        "pharmacy": "Medicines",
-        "lab": "Lab tests"
-      },
-      "check": "Show coverage",
-      "result": "Coverage on file",
-      "eligible": "Listed as covered on your saved policy",
-      "notEligible": "Not listed as covered on your saved policy",
-      "forService": "Service: {service}"
-    },
-    "request": {
-      "pageTitle": "Insurance request",
-      "title": {
-        "PENDING_PROVIDER_REVIEW": "Approval requested",
-        "APPROVED_FULL": "Approved in full",
-        "COPAY_PENDING": "Approved in part: pay your co-pay",
-        "COPAY_PAID": "Co-pay paid",
-        "REJECTED": "Rejected",
-        "SELF_PAY_PENDING": "Self-pay due",
-        "SELF_PAY_PAID": "Self-pay paid",
-        "CANCELLED": "Request cancelled"
-      },
-      "lead": {
-        "PENDING_PROVIDER_REVIEW": "The facility is requesting the approval from your insurer. You will see its decision here. Nothing is charged before it.",
-        "APPROVED_FULL": "The facility recorded your insurer's approval in full. No payment is needed.",
-        "COPAY_PENDING": "This is the co-pay you owe. View the secure payment options to continue.",
-        "COPAY_PAID": "Your co-pay was received. Waiting for the payment to be verified.",
-        "REJECTED": "The facility recorded that your insurer rejected the request. You can accept self-pay to continue.",
-        "SELF_PAY_PENDING": "This is the self-pay amount you owe. View the secure payment options to continue.",
-        "SELF_PAY_PAID": "Your payment was received. Waiting for the payment to be verified.",
-        "CANCELLED": "This request was cancelled. No action is needed."
-      },
-      "checking": "Waiting for the facility to record its decision. This page refreshes by itself.",
-      "amounts": "Amounts",
-      "total": "Service total",
-      "copay": "Your co-pay",
-      "selfPay": "Self-pay",
-      "reason": "Reason: {reason}",
-      "noReason": "The provider did not give a reason.",
-      "approvalNumber": "Approval number",
-      "copayPercent": "Co-pay percent",
-      "decision": "Decision recorded by the facility",
-      "acceptSelfPay": "Accept self-pay",
-      "showOptions": "View secure payment options",
-      "methods": "Payment methods",
-      "due": "Amount due: {amount}",
-      "noMethods": "No online payment method is enabled for this gateway and device.",
-      "methodCard": "Card",
-      "methodApple": "Apple Pay",
-      "methodGoogle": "Google Pay",
-      "viewBooking": "View appointment status",
-      "refresh": "Refresh status",
-      "noOnline": "No online payment is available for this request right now.",
-      "optionsFailed": "Payment options could not load. Refresh the status.",
-      "acceptFailed": "Self-pay could not be recorded. No payment was created.",
-      "acceptRetry": "Self-pay could not be recorded. Try again.",
-      "payFailed": "Secure online payment could not start. No payment was confirmed.",
-      "payRetry": "Online payment could not start. No payment was confirmed."
-    }
-  },
   "NursingWeb": {
     "hubTitle": "Home care",
     "hubLinks": "Home care shortcuts",
@@ -2942,10 +2770,9 @@
     "formSelectTime": "Choose a day and a time",
     "formPast": "That time has passed. Choose a later time",
     "formFailed": "The booking could not be created",
-    "method_cash": "Cash",
     "method_card": "Card",
     "method_insurance": "Insurance",
-    "insuranceTitle": "Insurance approval",
+    "insuranceTitle": "Insurance decision from the provider",
     "decisionLabel": "Decision",
     "copayLabel": "Your share (co-pay)",
     "insuranceNote": "You will get a notification when the decision is issued, and you can follow the visit live once it is confirmed.",
@@ -2961,7 +2788,7 @@
       "waitingCopay": "Waiting for you to accept the co-pay",
       "approvedFull": "Fully covered",
       "approvedPartial": "Partly covered",
-      "rejected": "Rejected by the insurer",
+      "rejected": "Insurance request rejected",
       "cancelled": "Cancelled",
       "requested": "Request received",
       "confirmed": "Confirmed",
@@ -3307,6 +3134,298 @@
     "done": "Done",
     "scheduled": "Scheduled",
     "bookFollowUp": "Book a follow-up"
+  },
+  "PublicLanding": {
+    "doctorsCity": {
+      "title": "{specialty} Doctors in {city}",
+      "intro": "Doctors and clinics listed for {specialty} in {city}.",
+      "doctors": "Doctors",
+      "facilities": "Hospitals and clinics",
+      "book": "Book appointment"
+    },
+    "doctorsNeighborhood": {
+      "title": "{specialty} Doctors in {neighborhood}, {city}",
+      "intro": "Doctors and clinics listed for {specialty} in {neighborhood}, {city}.",
+      "doctors": "Doctors",
+      "facilities": "Clinics and hospitals nearby"
+    },
+    "condition": {
+      "back": "Home",
+      "symptoms": "Common symptoms",
+      "doctors": "Doctors for this condition",
+      "medicines": "Related medicines",
+      "book": "Book a consultation"
+    },
+    "facility": {
+      "back": "Hospitals and clinics",
+      "departments": "Departments and specialties",
+      "insurance": "Accepted insurance",
+      "phone": "Phone",
+      "location": "Location",
+      "book": "Book appointment"
+    },
+    "homeNursing": {
+      "title": "Home Nursing Services in {city}",
+      "intro": "Home nursing services listed for {city}.",
+      "services": "Services",
+      "request": "Request a visit"
+    },
+    "labs": {
+      "title": "{test} Lab Test in {city}",
+      "intro": "Laboratories listed for {city}.",
+      "partners": "Partner laboratories",
+      "book": "Book this test",
+      "emptyTitle": "No partner laboratory in {city} yet",
+      "emptyBody": "No laboratory offering {test} is listed for {city} yet.",
+      "register": "Register as a provider"
+    },
+    "radiology": {
+      "title": "{service} Imaging in {city}",
+      "intro": "Imaging services listed for {service}.",
+      "centers": "Imaging services",
+      "book": "Book imaging",
+      "emptyTitle": "No imaging service yet",
+      "emptyBody": "No imaging service for {service} is listed yet.",
+      "register": "Register as a provider"
+    },
+    "services": {
+      "title": "{service} Services in {city}",
+      "intro": "Healthcare services listed in {city}.",
+      "list": "Services",
+      "book": "Request this service",
+      "insurance": "Insurance: {list}"
+    },
+    "pharmacies": {
+      "title": "Verified Pharmacies in {city}",
+      "intro": "Pharmacies and medical centres listed in {city}.",
+      "notice": "Your medicine order is sent to nearby pharmacies, and they answer with offers.",
+      "list": "Pharmacies and medical centres",
+      "order": "Order medicines",
+      "emptyTitle": "No partner pharmacy in {city} yet",
+      "emptyBody": "No pharmacy is listed for {city} yet.",
+      "register": "Register as a provider"
+    },
+    "catalog": {
+      "interactions": "Drug interaction checker"
+    },
+    "legal": {
+      "terms": "Terms of use",
+      "privacy": "Privacy policy",
+      "version": "Version {version} · Effective {date}",
+      "versionOnly": "Version {version}",
+      "back": "Back"
+    },
+    "provider": {
+      "title": "Join as a provider",
+      "body": "Doctors, pharmacies, labs and nurses: register through the Nabd Plus provider app to manage your services and receive orders.",
+      "continue": "Continue as a patient",
+      "contact": "Contact us to register as a provider"
+    },
+    "common": {
+      "listing": "Listing"
+    },
+    "meta": {
+      "doctorsCity": {
+        "title": "{specialty} Doctors in {city} | Book Appointment",
+        "description": "Verified {specialty} doctors and clinics in {city}. Book in-clinic or online consultation via Nabd Plus."
+      },
+      "doctorsNeighborhood": {
+        "title": "{specialty} Doctors in {neighborhood}, {city} | Book Appointment",
+        "description": "Verified {specialty} doctors in {neighborhood}, {city}. Book consultations via Nabd Plus."
+      },
+      "homeNursing": {
+        "title": "Home Nursing Services in {city} | Licensed Care 24/7",
+        "description": "Verified and licensed home nursing care in {city}. Senior care, post-op, and daily assistance via Nabd Plus."
+      },
+      "labs": {
+        "title": "{test} Lab Test in {city} | Home Sample Collection",
+        "description": "Book verified {test} lab test in {city} with home collection and fast results via Nabd Plus."
+      },
+      "labsEmpty": {
+        "title": "{test} in {city} — Be first provider | Nabd",
+        "description": "{test} in {city} — no provider yet. Register as partner lab."
+      },
+      "radiology": {
+        "title": "{service} Radiology in {city} | Diagnostic Imaging Centers",
+        "description": "Book verified {service} imaging appointments in {city} with accredited medical centers via Nabd Plus."
+      },
+      "radiologyEmpty": {
+        "title": "{service} in {city} — Be first center | Nabd",
+        "description": "{service} in {city} — no center yet. Register."
+      },
+      "services": {
+        "title": "{service} Services in {city} | Instant Healthcare Booking",
+        "description": "Verified {service} healthcare services in {city}. In-clinic and home care via Nabd Plus."
+      },
+      "pharmacies": {
+        "title": "Verified Pharmacies in {city} | Fast Medicine Delivery",
+        "description": "Find prescription and OTC medicines in {city} with instant geo-broadcast delivery via Nabd Plus."
+      },
+      "pharmaciesEmpty": {
+        "title": "Pharmacies in {city} — Be first partner | Nabd",
+        "description": "No partner pharmacy in {city} yet. Register yours."
+      },
+      "condition": {
+        "title": "{name} | Nabd Plus Health Guide"
+      },
+      "facility": {
+        "title": "{name} | Nabd Plus Healthcare",
+        "description": "{name} in {city}. Specialized healthcare services, accepted insurances, and verified physicians.",
+        "country": "Saudi Arabia"
+      }
+    }
+  },
+  "InsuranceWeb": {
+    "title": "Health insurance",
+    "unavailableTitle": "Unable to load insurance",
+    "unavailable": "Please try again in a moment.",
+    "partUnavailable": "This part could not load right now. The rest of the page works.",
+    "tabs": "Insurance sections",
+    "tabPolicy": "Policy",
+    "tabBenefits": "Benefits",
+    "tabClaims": "Claims",
+    "tabRefunds": "Refunds",
+    "tabNetwork": "Network",
+    "shortcuts": "Insurance shortcuts",
+    "addPolicy": "Add policy",
+    "changePolicy": "Change policy",
+    "submitClaim": "Submit a claim",
+    "coverageCheck": "What my policy covers",
+    "noPolicyTitle": "No policy recorded",
+    "planLine": "Class {plan}",
+    "active": "Policy recorded",
+    "none": "No policy",
+    "requestsTitle": "Approval requests",
+    "requestsEmpty": "No approval requests yet.",
+    "requestTitle": "Insurance approval request",
+    "requestState": {
+      "PENDING_PROVIDER_REVIEW": "Awaiting review",
+      "APPROVED_FULL": "Approved in full",
+      "COPAY_PENDING": "Approved in part",
+      "COPAY_PAID": "Co-pay paid",
+      "REJECTED": "Rejected",
+      "SELF_PAY_PENDING": "Self-pay due",
+      "SELF_PAY_PAID": "Self-pay paid",
+      "CANCELLED": "Cancelled",
+      "unknown": "Status unavailable"
+    },
+    "disclaimer": "Nabd+ does not contact your insurer. The facility requests the approval from your insurer in its own systems and records the decision here. You pay only your co-pay.",
+    "benefitsEmpty": "No benefits to show.",
+    "benefitTitle": "Insurance benefit",
+    "claimsEmpty": "No claims yet.",
+    "claimServiceUnknown": "Insurance service",
+    "claimStatus": {
+      "approved": "Approved",
+      "reimbursed": "Reimbursed",
+      "pending": "Pending",
+      "rejected": "Rejected",
+      "unknown": "Status unavailable"
+    },
+    "refundsEmpty": "No refunds.",
+    "refundTitle": "Refund",
+    "networkNoPolicy": "No saved policy. Add your policy first to see network providers.",
+    "networkSearch": "Search by provider name",
+    "networkEmpty": "No network providers to show.",
+    "search": "Search",
+    "add": {
+      "title": "Add a policy",
+      "lead": "Choose your insurer and enter your policy details. They are saved to your account as you enter them. Nabd+ does not check them with your insurer.",
+      "companiesFailed": "Insurance companies could not load. Reload the page.",
+      "company": "Insurance company",
+      "companyPlaceholder": "Select a company",
+      "policyNumber": "Policy number",
+      "memberId": "Member ID (optional)",
+      "memberName": "Member name (optional)",
+      "expiry": "Expiry date (optional)",
+      "submit": "Save policy",
+      "invalid": "Select a company and enter a valid policy number (at least 3 characters).",
+      "failed": "Could not save the policy."
+    },
+    "claim": {
+      "title": "Submit a claim",
+      "lead": "Pick a paid booking to claim.",
+      "booking": "Paid booking",
+      "loading": "Loading…",
+      "none": "No paid bookings are eligible for a claim.",
+      "placeholder": "Pick…",
+      "note": "Note (optional)",
+      "submit": "Submit claim",
+      "pick": "Pick a paid booking to claim.",
+      "failed": "Could not submit the claim.",
+      "done": "Claim submitted.",
+      "viewClaims": "View claims",
+      "kind": {
+        "consultation": "Medical consultation",
+        "pharmacy": "Medicines",
+        "lab": "Lab tests",
+        "radiology": "Radiology",
+        "nursing": "Home nursing"
+      }
+    },
+    "coverage": {
+      "title": "What my policy covers",
+      "lead": "Based on the policy details saved on your account. This is not an approval and not a check with your insurer. The facility requests the approval.",
+      "service": "Service type",
+      "svc": {
+        "consultation": "Medical consultation",
+        "pharmacy": "Medicines",
+        "lab": "Lab tests"
+      },
+      "check": "Show coverage",
+      "result": "Coverage on file",
+      "eligible": "Listed as covered on your saved policy",
+      "notEligible": "Not listed as covered on your saved policy",
+      "forService": "Service: {service}"
+    },
+    "request": {
+      "pageTitle": "Insurance request",
+      "title": {
+        "PENDING_PROVIDER_REVIEW": "Approval requested",
+        "APPROVED_FULL": "Approved in full",
+        "COPAY_PENDING": "Approved in part: pay your co-pay",
+        "COPAY_PAID": "Co-pay paid",
+        "REJECTED": "Rejected",
+        "SELF_PAY_PENDING": "Self-pay due",
+        "SELF_PAY_PAID": "Self-pay paid",
+        "CANCELLED": "Request cancelled"
+      },
+      "lead": {
+        "PENDING_PROVIDER_REVIEW": "The facility is requesting the approval from your insurer. You will see its decision here. Nothing is charged before it.",
+        "APPROVED_FULL": "The facility recorded your insurer's approval in full. No payment is needed.",
+        "COPAY_PENDING": "This is the co-pay you owe. View the secure payment options to continue.",
+        "COPAY_PAID": "Your co-pay was received. Waiting for the payment to be verified.",
+        "REJECTED": "The facility recorded that your insurer rejected the request. You can accept self-pay to continue.",
+        "SELF_PAY_PENDING": "This is the self-pay amount you owe. View the secure payment options to continue.",
+        "SELF_PAY_PAID": "Your payment was received. Waiting for the payment to be verified.",
+        "CANCELLED": "This request was cancelled. No action is needed."
+      },
+      "checking": "Waiting for the facility to record its decision. This page refreshes by itself.",
+      "amounts": "Amounts",
+      "total": "Service total",
+      "copay": "Your co-pay",
+      "selfPay": "Self-pay",
+      "reason": "Reason: {reason}",
+      "noReason": "The provider did not give a reason.",
+      "approvalNumber": "Approval number",
+      "copayPercent": "Co-pay percent",
+      "decision": "Decision recorded by the facility",
+      "acceptSelfPay": "Accept self-pay",
+      "showOptions": "View secure payment options",
+      "methods": "Payment methods",
+      "due": "Amount due: {amount}",
+      "noMethods": "No online payment method is enabled for this gateway and device.",
+      "methodCard": "Card",
+      "methodApple": "Apple Pay",
+      "methodGoogle": "Google Pay",
+      "viewBooking": "View appointment status",
+      "refresh": "Refresh status",
+      "noOnline": "No online payment is available for this request right now.",
+      "optionsFailed": "Payment options could not load. Refresh the status.",
+      "acceptFailed": "Self-pay could not be recorded. No payment was created.",
+      "acceptRetry": "Self-pay could not be recorded. Try again.",
+      "payFailed": "Secure online payment could not start. No payment was confirmed.",
+      "payRetry": "Online payment could not start. No payment was confirmed."
+    }
   },
   "LoyaltyHubWeb": {
     "title": "Nabd points",

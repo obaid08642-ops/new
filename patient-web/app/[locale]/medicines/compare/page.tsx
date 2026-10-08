@@ -42,7 +42,7 @@ export default async function MedicineComparePage({ params, searchParams }: Prop
   };
   // a row that no medicine has data for is not drawn
   const fields = (["active_ingredient", "price", "dosage_form", "manufacturer"] as const).filter((f) => items.some((m) => value(m, f) !== null));
-  const back = `/${locale}/medicines`;
+  const back = `/${locale}/c`;
   const caret = getDirection(locale) === "rtl" ? "caret-right" : "caret-left";
 
   return (

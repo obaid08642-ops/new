@@ -16,7 +16,7 @@
     "element": "API GET /radiology/provider/inbox",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
     "line": 105,
-    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/radiology/radiology.controller.ts:84)",
+    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/radiology/radiology.controller.ts:86)",
     "suspect": "Backend gap: reviewer session."
   }
 ]

@@ -915,7 +915,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
    "line": 1514,
-   "backend": "backend/src/modules/service-catalog/service-catalog-compat.controller.ts:11"
+   "backend": "backend/src/modules/service-catalog/service-catalog-compat.controller.ts:15"
   },
   {
    "route": "QRSampleLabel",

@@ -1111,7 +1111,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
    "line": 142,
-   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:736"
+   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:743"
   },
   {
    "route": "DoctorServiceManagementScreen",
@@ -1144,7 +1144,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
    "line": 75,
-   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:747"
+   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:755"
   },
   {
    "route": "EPrescriptionScreen",
@@ -1161,7 +1161,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx",
    "line": 59,
-   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:665"
+   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:667"
   },
   {
    "route": "PatientFileScreen",
@@ -1170,7 +1170,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/doctor/doctor/PatientFileScreen.tsx",
    "line": 68,
-   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:675"
+   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:678"
   },
   {
    "route": "VirtualWaitingRoomScreen",
@@ -1179,7 +1179,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/doctor/doctor/_shared.tsx",
    "line": 48,
-   "backend": "backend/src/modules/livekit/livekit.controller.ts:13"
+   "backend": "backend/src/modules/livekit/livekit.controller.ts:15"
   }
  ]
 }

@@ -125,7 +125,7 @@ export function MapExplorerClient({ locale, labels }: { locale: string; labels: 
         ? `/${locale}/diagnostics/labs/${prov.id}`
         : prov.type === "doctor"
           ? `/${locale}/consultations/doctors/${prov.id}`
-          : `/${locale}/medicines`;
+          : `/${locale}/c`;
 
   return (
     <div className={styles.layout}>

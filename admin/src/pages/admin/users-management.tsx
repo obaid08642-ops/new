@@ -275,7 +275,7 @@ export default function UsersManagementPage() {
                   <tr key={id}>
                     <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
                       {u.full_name || u.name || 'مستخدم'}
-                      {u.is_guest && <span className="mr-2 text-xs text-gray-400">(زائر)</span>}
+                      {u.is_guest && <span className="ms-2 text-xs text-gray-400">(زائر)</span>}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-500" dir="ltr">
                       {u.phone || u.email || '-'}
@@ -342,11 +342,11 @@ export default function UsersManagementPage() {
       {/* ═══ User / Provider full-file modal ═══ */}
       {viewUser && (
         <div className="fixed inset-0 bg-white z-[100] overflow-y-auto">
-          <div className="min-h-screen w-full">
+          <div className="min-h-dvh w-full">
             <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-slate-900 text-white">
               <h2 className="text-lg font-bold">
                 ملف المستخدم: {viewUser.full_name || viewUser.name || viewUser.phone || viewUser.email || '—'}
-                <span className="mr-3 text-xs bg-slate-700 px-2 py-1 rounded">{ROLE_LABELS[String(viewUser.role || 'patient').toLowerCase()] || viewUser.role}</span>
+                <span className="ms-3 text-xs bg-slate-700 px-2 py-1 rounded">{ROLE_LABELS[String(viewUser.role || 'patient').toLowerCase()] || viewUser.role}</span>
               </h2>
               <div className="flex items-center gap-2">
                 <button onClick={() => setViewUser(null)} className="bg-slate-700 hover:bg-slate-600 text-white text-sm font-bold px-4 py-2 rounded-lg">← عودة لإدارة المستخدمين</button>
@@ -472,7 +472,7 @@ export default function UsersManagementPage() {
               {!viewLoading && providerFile && (
                 <>
                   <div className="sticky top-[72px] z-10 flex flex-wrap items-center gap-2 bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
-                    <span className="text-sm font-bold text-gray-500 ml-2">إجراءات الاعتماد:</span>
+                    <span className="text-sm font-bold text-gray-500 me-2">إجراءات الاعتماد:</span>
                     <button onClick={() => handleProviderAction('approve')} disabled={!!actionBusy}
                       className="bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-5 py-2 rounded-lg disabled:opacity-50">✓ اعتماد</button>
                     <button onClick={() => handleProviderAction('reject')} disabled={!!actionBusy}
