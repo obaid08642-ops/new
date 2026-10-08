@@ -111,7 +111,6 @@
     "admin/src/pages/admin/payouts.tsx": 1,
     "admin/src/pages/admin/reports.tsx": 1,
     "admin/src/pages/admin/security.tsx": 37,
-    "admin/src/pages/admin/sos-monitor.tsx": 1,
     "admin/src/pages/admin/support-tickets.tsx": 1,
     "admin/src/pages/s/[type]/[slug].tsx": 1
   }
