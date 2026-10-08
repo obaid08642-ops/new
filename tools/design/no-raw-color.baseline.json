@@ -2,7 +2,7 @@
   "note": "Hard-coded colours that predate the design system. Recorded once with --init. 12.A11 rebuilds the screens on tokens and each rebuilt file drops out. --update only ever LOWERS a count; it cannot raise one.",
   "totals": {
     "patient-web": 1764,
-    "patient-app": 952,
+    "patient-app": 918,
     "provider-app": 318,
     "admin": 215
   },
@@ -147,7 +147,6 @@
     "patient-app/src/components/insurance/refund-status.tsx": 9,
     "patient-app/src/components/livekit-view.tsx": 8,
     "patient-app/src/components/ui.tsx": 19,
-    "patient-app/src/components/views/CrisisContactsView.tsx": 34,
     "patient-app/src/components/views/InsuranceBenefitsView.tsx": 27,
     "patient-app/src/constants/index.ts": 11,
     "patient-app/src/core/domain/entities/Commerce.ts": 1,
