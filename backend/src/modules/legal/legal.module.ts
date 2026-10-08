@@ -5,6 +5,7 @@
  * finance_config: commissions per service type + per provider + payout rules (DB-driven)
  */
 import { Module, Injectable, Controller, Get, Post, Put, Body, Param, Query, Req, UseGuards, BadRequestException } from '@nestjs/common';
+import { StepUp } from '../../common/step-up.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Request } from 'express';
@@ -195,6 +196,7 @@ export class LegalController {
   @Roles(UserRole.ADMIN)
   commissions() { return this.svc.getCommissions(); }
 
+  @StepUp()
   @Put('admin/legal/commissions-policy')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
