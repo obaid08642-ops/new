@@ -19,6 +19,9 @@ export const ERROR_CODES = {
   INVALID_INPUT: 'INVALID_INPUT',
   RATE_LIMITED: 'RATE_LIMITED',
   INTERNAL_ERROR: 'INTERNAL_ERROR',
+  // R5/D28: unknown routes and missing resources map to a catalog code
+  // instead of UNKNOWN_ERROR so clients can handle "not found" uniformly.
+  NOT_FOUND: 'NOT_FOUND',
   // R65: booking/slot/lock codes — message strings asserted by specs
   // (slot-locks.service.spec.ts) and consumed by clients; registered here
   // as the single catalog so no per-client inventions diverge.
@@ -51,6 +54,7 @@ export const R5_ERROR_CODES = [
   ERROR_CODES.DUPLICATE_TRANSACTION,
   ERROR_CODES.INVALID_INPUT,
   ERROR_CODES.RATE_LIMITED,
+  ERROR_CODES.NOT_FOUND,
 ] as const;
 
 export type R5ErrorCode = (typeof R5_ERROR_CODES)[number];

@@ -2,6 +2,7 @@ import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from
 import { BaseExceptionFilter } from '@nestjs/core';
 import * as Sentry from '@sentry/nestjs';
 import { ERROR_CODES, isErrorCode } from './errors';
+import { lookupError } from './error-catalog';
 import { generateErrorId, createErrorResponse } from './error-id';
 
 @Catch()
@@ -23,9 +24,15 @@ export class SentryExceptionFilter extends BaseExceptionFilter {
 
     // 13.R5: normalize every HttpException body to the platform {code,message}
     // envelope so clients never see raw {status,error} shapes or bare strings.
-    // Throw sites are untouched — normalization happens here, once.
+    // Throw sites are untouched — normalization happens here, once. The
+    // request locale (set by LocaleMiddleware) localizes catalog messages
+    // only when the throw site left no message at all.
     if (exception instanceof HttpException) {
-      const normalized = normalizeHttpExceptionBody(exception.getStatus(), exception.getResponse());
+      const normalized = normalizeHttpExceptionBody(
+        exception.getStatus(),
+        exception.getResponse(),
+        (request as { locale?: unknown } | undefined)?.locale,
+      );
       if (normalized) {
         exception = new HttpException(normalized, exception.getStatus());
       }
@@ -80,6 +87,7 @@ const STATUS_TO_CODE: Record<number, string> = {
   [HttpStatus.UNAUTHORIZED]: ERROR_CODES.AUTHENTICATION_REQUIRED,
   [HttpStatus.FORBIDDEN]: ERROR_CODES.INSUFFICIENT_PERMISSION,
   [HttpStatus.CONFLICT]: ERROR_CODES.DUPLICATE_TRANSACTION,
+  [HttpStatus.NOT_FOUND]: ERROR_CODES.NOT_FOUND,
   [HttpStatus.TOO_MANY_REQUESTS]: ERROR_CODES.RATE_LIMITED,
   [HttpStatus.BAD_GATEWAY]: ERROR_CODES.SERVICE_UNAVAILABLE,
   [HttpStatus.SERVICE_UNAVAILABLE]: ERROR_CODES.SERVICE_UNAVAILABLE,
@@ -94,32 +102,45 @@ const STATUS_TO_CODE: Record<number, string> = {
  *   the status to a catalog code and keeps the string as the message.
  * - object bodies: ValidationPipe `{message: string[]}` arrays are joined;
  *   legacy `{status, error}` shapes keep `error` as the message with a
- *   status-mapped code.
+ *   status-mapped code. Every other original field (details, kind,
+ *   domain_state, statusCode, …) is preserved verbatim — the normalizer
+ *   only guarantees `code`, `message` and `statusCode` (D28).
+ * - when the throw site left no message, the catalog provides the localized
+ *   one for the resolved code (D28; `locale` comes from the request).
  */
+const GENERIC_MESSAGES = new Set(['Unknown error', 'Unknown Error', 'Not Found', 'Bad Request', 'Conflict']);
+
 export function normalizeHttpExceptionBody(
   status: number,
   response: unknown,
-): { code: string; message: string } | null {
+  locale: unknown = undefined,
+): Record<string, unknown> | null {
   if (typeof response === 'string') {
-    if (isErrorCode(response)) return { code: response, message: response };
-    return { code: STATUS_TO_CODE[status] ?? 'UNKNOWN_ERROR', message: response };
+    if (isErrorCode(response)) return { code: response, message: response, statusCode: status };
+    return { code: STATUS_TO_CODE[status] ?? 'UNKNOWN_ERROR', message: response, statusCode: status };
   }
   if (response && typeof response === 'object') {
     const body = response as Record<string, unknown>;
     const rawMessage = Array.isArray(body.message)
       ? (body.message as unknown[]).map(String).join('; ')
       : body.message ?? body.error;
-    if (typeof body.code === 'string' && typeof rawMessage === 'string') return null;
-    const message = typeof rawMessage === 'string' ? rawMessage : 'Unknown error';
+    if (typeof body.code === 'string' && typeof rawMessage === 'string') {
+      if (body.statusCode === status) return null;
+      return { ...body, statusCode: status };
+    }
+    let message = typeof rawMessage === 'string' ? rawMessage : 'Unknown error';
     const code =
       typeof body.code === 'string'
         ? body.code
         : isErrorCode(message)
           ? message
           : (STATUS_TO_CODE[status] ?? 'UNKNOWN_ERROR');
-    return { code, message };
+    if ((message === 'Unknown error' || GENERIC_MESSAGES.has(message)) && code !== 'UNKNOWN_ERROR') {
+      message = lookupError(code, locale).message;
+    }
+    return { ...body, code, message, statusCode: status };
   }
-  return { code: STATUS_TO_CODE[status] ?? 'UNKNOWN_ERROR', message: 'Unknown error' };
+  return { code: STATUS_TO_CODE[status] ?? 'UNKNOWN_ERROR', message: 'Unknown error', statusCode: status };
 }
 
 /**

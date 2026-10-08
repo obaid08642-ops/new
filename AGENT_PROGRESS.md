@@ -1413,3 +1413,23 @@ decorator fails exactly that case (1 failed, 16 passed); restored after.
 Real outputs: tsc exit 0; q66 spec 17/17.
 Open remainder of the same item: admin step-up UI (admin app flow) so the
 live harness and admins can pass step-up (j_loyalty) — needs admin-app work.
+
+## 2026-10-08 — Round 10 item: R5/D28 error filter + catalog (filter/MCP wired)
+- errors.ts: new NOT_FOUND catalog code, added to R5_ERROR_CODES (now 14).
+- errors.i18n.json: NOT_FOUND x6 locales (file already had 6 locales for all
+  14 codes; the review's ar/en-only claim is outdated).
+- error-catalog.ts: SUPPORTED_LOCALES widened to the 6 platform locales;
+  normalizeLocale aliases backend 'tl' <-> catalog 'fil' (Q90; backend
+  i18n.service already aliased fil->tl and fil-alias.q90 passes).
+- sentry.filter.ts: 404 maps to NOT_FOUND (never UNKNOWN_ERROR); the
+  normalizer preserves every original body field and adds statusCode;
+  a missing/generic message resolves from the catalog in the request locale
+  (LocaleMiddleware req.locale). lookupError now used by the filter (was: 0
+  callers outside the catalog).
+- mcp.service.ts toPlatformError rewired to catalog codes via new exported
+  pure mcpErrorCode(): not-found -> NOT_FOUND (was: NO_AVAILABILITY),
+  unknown -> UNKNOWN_ERROR fallback (was: SERVICE_UNAVAILABLE claim).
+- Tests: sentry.filter.spec +4 normalizer cases; error-catalog.spec extended
+  (14 codes, 6-locale contract incl. distinct messages, tl alias);
+  mcp.service.spec +8 mapping cases (all assert isCatalogCode).
+Real outputs: tsc exit 0; sentry+error-catalog+error-id 25/25; mcp.service 16/16.

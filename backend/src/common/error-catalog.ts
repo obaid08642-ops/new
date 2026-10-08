@@ -13,7 +13,8 @@ import MESSAGES from './errors.i18n.json';
 
 export const FALLBACK_CODE = 'UNKNOWN_ERROR' as const;
 export const DEFAULT_LOCALE = 'en' as const;
-export const SUPPORTED_LOCALES = ['ar', 'en'] as const;
+// R5/D28: the full platform locale set (mirrors @nabd/i18n SUPPORTED_LOCALES).
+export const SUPPORTED_LOCALES = ['ar', 'en', 'ur', 'hi', 'bn', 'fil'] as const;
 
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 export type CatalogCode = (typeof R5_ERROR_CODES)[number] | typeof FALLBACK_CODE;
@@ -28,7 +29,13 @@ type CatalogTable = Record<string, Partial<Record<SupportedLocale, LocalizedEntr
 const TABLE = MESSAGES as unknown as CatalogTable;
 
 function normalizeLocale(locale: unknown): SupportedLocale {
-  return locale === 'ar' ? 'ar' : 'en';
+  // The backend i18n service historically uses 'tl'; the platform catalog
+  // and @nabd/i18n use 'fil'. Accept both spellings (Q90).
+  const raw = String(locale || '').trim().toLowerCase();
+  const aliased = raw === 'tl' || raw === 'fil' ? 'fil' : raw;
+  return (SUPPORTED_LOCALES as readonly string[]).includes(aliased)
+    ? (aliased as SupportedLocale)
+    : DEFAULT_LOCALE;
 }
 
 export function isCatalogCode(code: unknown): code is CatalogCode {

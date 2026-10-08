@@ -212,3 +212,24 @@ describe('McpService', () => {
     });
   });
 });
+
+describe('D28 mcpErrorCode uses only catalog codes', () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { mcpErrorCode } = require('./mcp.service') as typeof import('./mcp.service');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { isCatalogCode, FALLBACK_CODE } = require('../../common/error-catalog');
+
+  it.each([
+    [undefined, 'Prescription required for Rx', 'PRESCRIPTION_REQUIRED'],
+    [undefined, 'Entity not found', 'NOT_FOUND'],
+    [401, 'nope', 'AUTHENTICATION_REQUIRED'],
+    [403, 'nope', 'INSUFFICIENT_PERMISSION'],
+    [429, 'nope', 'RATE_LIMITED'],
+    [undefined, 'already exists', 'DUPLICATE_TRANSACTION'],
+    [undefined, 'weird failure', FALLBACK_CODE],
+    [500, 'weird failure', FALLBACK_CODE],
+  ])('status=%s msg=%s -> %s', (status, msg, code) => {
+    expect(mcpErrorCode(status, msg as string)).toBe(code);
+    expect(isCatalogCode(mcpErrorCode(status, msg as string))).toBe(true);
+  });
+});

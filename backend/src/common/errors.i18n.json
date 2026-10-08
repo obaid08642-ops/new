@@ -362,5 +362,31 @@
       "message": "Nagkaroon ng error. Pakisubukan muli.",
       "nextStep": "Kung patuloy, makipag-ugnayan sa support."
     }
+  },
+  "NOT_FOUND": {
+    "en": {
+      "message": "Not found.",
+      "nextStep": "Check the link or ID and try again."
+    },
+    "ar": {
+      "message": "غير موجود.",
+      "nextStep": "تحقق من الرابط أو المعرف وحاول مجددًا."
+    },
+    "ur": {
+      "message": "نہیں ملا۔",
+      "nextStep": "لنک یا ID چیک کریں اور دوبارہ کوشش کریں۔"
+    },
+    "hi": {
+      "message": "नहीं मिला।",
+      "nextStep": "लिंक या ID जांचें और पुनः प्रयास करें।"
+    },
+    "bn": {
+      "message": "পাওয়া যায়নি।",
+      "nextStep": "লিংক বা ID পরীক্ষা করে আবার চেষ্টা করুন।"
+    },
+    "fil": {
+      "message": "Hindi nahanap.",
+      "nextStep": "Suriin ang link o ID at subukang muli."
+    }
   }
 }

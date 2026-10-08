@@ -1,4 +1,6 @@
 import { Injectable, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
+import { ERROR_CODES } from '../../common/errors';
+import { FALLBACK_CODE } from '../../common/error-catalog';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { SearchIntentService } from '../search-intent/search-intent.service';
@@ -14,6 +16,21 @@ export interface McpToolDefinition {
     properties: Record<string, any>;
     required?: string[];
   };
+}
+
+/**
+ * D28: pure MCP error mapping. Every emitted code is a member of the
+ * platform catalog (ERROR_CODES); unknown failures fall back to
+ * UNKNOWN_ERROR rather than a fabricated service status.
+ */
+export function mcpErrorCode(status: unknown, msg: string): string {
+  if (/prescription/i.test(msg)) return ERROR_CODES.PRESCRIPTION_REQUIRED;
+  if (/not found/i.test(msg)) return ERROR_CODES.NOT_FOUND;
+  if (status === 401) return ERROR_CODES.AUTHENTICATION_REQUIRED;
+  if (status === 403) return ERROR_CODES.INSUFFICIENT_PERMISSION;
+  if (status === 429) return ERROR_CODES.RATE_LIMITED;
+  if (/duplicate|already exists/i.test(msg)) return ERROR_CODES.DUPLICATE_TRANSACTION;
+  return FALLBACK_CODE;
 }
 
 export const MCP_TOOLS: McpToolDefinition[] = [
@@ -246,17 +263,13 @@ export class McpService {
   /**
    * Map backend exceptions to the central platform error catalog
    * (backend/src/common/errors.ts) so AI clients get structured codes.
+   * D28: every code emitted here is a catalog code; unknown failures use
+   * the catalog fallback instead of claiming the service is unavailable.
    */
   private toPlatformError(e: any): { error_code: string; message: string } {
     const status = e?.status || e?.statusCode;
     const msg = String(e?.message || 'tool_failed');
-    if (/prescription/i.test(msg)) return { error_code: 'PRESCRIPTION_REQUIRED', message: msg };
-    if (/not found/i.test(msg)) return { error_code: 'NO_AVAILABILITY', message: msg };
-    if (status === 401) return { error_code: 'AUTHENTICATION_REQUIRED', message: msg };
-    if (status === 403) return { error_code: 'INSUFFICIENT_PERMISSION', message: msg };
-    if (status === 429) return { error_code: 'RATE_LIMITED', message: msg };
-    if (/duplicate|already exists/i.test(msg)) return { error_code: 'DUPLICATE_TRANSACTION', message: msg };
-    return { error_code: 'SERVICE_UNAVAILABLE', message: msg };
+    return { error_code: mcpErrorCode(status, msg), message: msg };
   }
 
   /**

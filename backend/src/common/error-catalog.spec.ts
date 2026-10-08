@@ -3,7 +3,7 @@ import { buildPlatformError, lookupError } from './error-catalog';
 
 describe('13.R5 error catalog', () => {
   it('resolves every R5 code to ar + en messages with a next step', () => {
-    expect(R5_ERROR_CODES).toHaveLength(13);
+    expect(R5_ERROR_CODES).toHaveLength(14);
     for (const code of R5_ERROR_CODES) {
       const en = lookupError(code, 'en');
       const ar = lookupError(code, 'ar');
@@ -15,6 +15,25 @@ describe('13.R5 error catalog', () => {
       expect(en.nextStep.length).toBeGreaterThan(0);
       expect(ar.nextStep.length).toBeGreaterThan(0);
     }
+  });
+
+  it('resolves every R5 code in all 6 platform locales (D28)', () => {
+    for (const code of R5_ERROR_CODES) {
+      const seen = new Set<string>();
+      for (const locale of ['ar', 'en', 'ur', 'hi', 'bn', 'fil'] as const) {
+        const r = lookupError(code, locale);
+        expect(r.code).toBe(code);
+        expect(r.message.length).toBeGreaterThan(0);
+        expect(r.nextStep.length).toBeGreaterThan(0);
+        seen.add(r.message);
+      }
+      // every locale carries its own message (no silent English everywhere)
+      expect(seen.size).toBeGreaterThan(1);
+    }
+  });
+
+  it("aliases the backend 'tl' spelling to the catalog 'fil' (Q90)", () => {
+    expect(lookupError('NOT_FOUND', 'tl')).toEqual(lookupError('NOT_FOUND', 'fil'));
   });
 
   it('falls back for unknown codes and unknown locales without throwing', () => {
