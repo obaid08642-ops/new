@@ -3,15 +3,18 @@ import { medicalWebPage, breadcrumbList } from "@/lib/seo/structured-data";
 import type { Metadata } from "next";
 import { localizedUrl } from "@/lib/seo";
 import { isLocale, locales } from "@/lib/i18n";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, FileText, ShieldCheck } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPublicArticle } from "@/lib/api/articles-server";
 import { articleSlug, parseArticle } from "@/lib/api/articles";
-import { RetryButton } from "@/components-next/retry-button";
+import { formatDate } from "@/lib/format-date";
 import { CiteThis } from "@/components-next/cite-this";
-import styles from "../articles.module.css";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { Actions, CONSULT, Facts, Notice, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { ARTICLE_TONE, CategoryPill, articleExcerpt, articleTitle } from "@/components-next/articles/article-kit";
+import styles from "@/components-next/articles/articles.module.css";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -36,39 +39,42 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+/**
+ * One article (GET /articles/:slug): category, title, author and date, the summary, and the notice that the full text is not shown
+ * here yet. The author is the name and title the article carries (it has no doctor id today, so no link to a profile or to booking).
+ * No comments (owner decision 1).
+ */
 export default async function ArticlePage({ params }: Props) {
   const { locale, slug } = await params;
   if (!isLocale(locale) || !articleSlug(slug)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("Articles");
+  const rs = await getTranslations("RouteState");
+  const back = `/${locale}/articles`;
   const response = await getPublicArticle(slug);
   if (response?.status === 404) notFound();
-  if (!response || !response.ok)
+  if (!response || !response.ok) {
     return (
-      <main className="main">
-        <section className={styles.state} role="alert">
-          <h1>{t("unavailableTitle")}</h1>
-          <p>{t("unavailable")}</p>
-          <RetryButton />
-        </section>
-      </main>
+      <ConsultPage locale={locale} title={t("title")} backHref={back}>
+        <ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />
+      </ConsultPage>
     );
+  }
   const article = parseArticle(await response.json().catch(() => null));
   if (!article) notFound();
-  const title =
-    locale === "ar"
-      ? article.titleAr || article.titleEn || t("untitled")
-      : article.titleEn || article.titleAr || t("untitled");
-  const excerpt =
-    locale === "ar"
-      ? article.excerptAr || article.excerptEn
-      : article.excerptEn || article.excerptAr;
+  const title = articleTitle(locale, article, t("untitled"));
+  const excerpt = articleExcerpt(locale, article);
   const path = `/articles/${encodeURIComponent(slug)}`;
   const publishedAt = article.publishedAt || null;
   const authorName = article.authorName || null;
   const authorTitle = article.authorTitle || null;
+  const published = formatDate(locale, publishedAt);
+  const facts: FactRow[] = [];
+  if (authorName) facts.push({ label: t("author"), value: <bdi>{authorTitle ? `${authorName} — ${authorTitle}` : authorName}</bdi>, icon: CONSULT.icon, tone: CONSULT.tone });
+  if (published) facts.push({ label: t("published"), value: <time dateTime={publishedAt ?? undefined}>{published}</time>, icon: "calendar-dots", tone: ARTICLE_TONE });
+
   return (
-    <main className={`main ${styles.page}`}>
+    <ConsultPage locale={locale} title={title} backHref={back}>
       <JsonLd
         data={[
           {
@@ -88,30 +94,13 @@ export default async function ArticlePage({ params }: Props) {
           ]),
         ]}
       />
-      <Link className={styles.back} href={`/${locale}/articles`}>
-        <ChevronLeft size={48} aria-hidden="true" style={{ width: 17, height: 17 }} />
-        {t("back")}
-      </Link>
-      <section className={styles.hero}>
-        <p className={styles.eyebrow}>
-          <ShieldCheck size={48} aria-hidden="true" style={{ width: 16, height: 16 }} />
-          {t("eyebrow")}
-        </p>
-        <h1>{title}</h1>
-        {(authorName || publishedAt) && (
-          <p className={styles.meta}>
-            {authorName && <span dir="auto">{authorTitle ? `${authorName} — ${authorTitle}` : authorName}</span>}
-            {authorName && publishedAt && <span> · </span>}
-            {publishedAt && <time dateTime={publishedAt}>{new Date(publishedAt).toLocaleDateString(locale === "ar" ? "ar-SA" : "en-US")}</time>}
-          </p>
-        )}
-        <p>{excerpt || t("excerptUnavailable")}</p>
-        <p className={styles.disclaimer}>
-          {locale === "ar"
-            ? "محتوى تثقيفي عام — لا يغني عن استشارة الطبيب."
-            : "General educational content — not a substitute for medical advice."}
-        </p>
-      </section>
+      {article.category ? <CategoryPill>{article.category}</CategoryPill> : null}
+      {facts.length ? <SectionCard id="article-facts"><Facts rows={facts} label={title} /></SectionCard> : null}
+      <SectionCard id="article-summary" title={t("summary")}>
+        <p className={styles.summary} dir="auto">{excerpt || t("excerptUnavailable")}</p>
+      </SectionCard>
+      <Notice>{t("bodyHidden")}</Notice>
+      <Notice>{t("disclaimer")}</Notice>
       <CiteThis
         title={title}
         uri={`https://www.nabd.plus/${locale}/articles/${encodeURIComponent(slug)}`}
@@ -120,10 +109,9 @@ export default async function ArticlePage({ params }: Props) {
         publishedAt={publishedAt}
         locale={locale}
       />
-      <section className={styles.notice}>
-        <FileText size={48} aria-hidden="true" style={{ width: 20, height: 20, flexShrink: 0, color: "#1E332E" }} />
-        <p>{t("bodyHidden")}</p>
-      </section>
-    </main>
+      <Actions>
+        <ButtonLink href={back} label={t("back")} variant="outline" size="lg" fullWidth />
+      </Actions>
+    </ConsultPage>
   );
 }

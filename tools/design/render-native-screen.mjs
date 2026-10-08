@@ -195,6 +195,21 @@ const BOARD = {
   'f-add': { params: {} },
   'f-add-join': { params: { tab: 'join', code: 'TEST42' } },
   'f-add-scan': { params: { tab: 'scan' } },
+  // Batch 7 (insurance; merge map 2, section 6). The hub is the Insurance board; the add-policy, coverage, claim, request and co-pay screens
+  // follow its cards and rows and have none. `--dir patient-app/app/insurance --screens index:i-hub,request:i-request,add-policy:i-add,...`
+  // (`--api fixture`; the ids select the TEST records `test-req`, `test-req-review`, `test-req-rejected` of render-native-screen.fixtures.json).
+  'i-hub': { component: 'Insurance', size: [390, 1040], params: {} },
+  'i-hub-benefits': { params: { tab: 'benefits' } },
+  'i-hub-claims': { params: { tab: 'claims' } },
+  'i-hub-refunds': { params: { tab: 'refunds' } },
+  'i-hub-network': { params: { tab: 'network' } },
+  'i-request': { params: { id: 'test-req' } },
+  'i-request-review': { params: { id: 'test-req-review' } },
+  'i-request-rejected': { params: { id: 'test-req-rejected' } },
+  'i-add': { params: {} },
+  'i-coverage': { params: {} },
+  'i-claim': { params: {} },
+  'i-copay': { params: {} },
   // Batch 8 (care hubs; merge map). The maternity hub is the CareHub board; nutrition, mental health and programs follow its hero, rows and
   // form cards and have none. The tab is a route param. `--dir patient-app/app/maternity --screens hub:m-hub,maternity-setup:m-setup` etc.
   'm-hub': { component: 'CareHub', size: [390, 1100], params: {} },
@@ -238,12 +253,53 @@ const BOARD = {
   'n-live-tracking': { component: 'OrderTracking', size: [390, 1120], params: { type: 'nurse', bookingId: 'test-visit' } },
   'n-live-done': { component: 'OrderTracking', size: [390, 1120], params: { type: 'nurse', bookingId: 'test-visit-done' } },
   'n-nurse-profile': { component: 'DoctorFull', size: [390, 2700], params: { nurseId: 'test-nurse', flow: 'cash', serviceId: 'svc-iv' } },
+  // Batch 10 (articles; community removed). No board: the card and list language of CareHub. The tab is a route param.
+  // `--dir patient-app/app/articles --screens index:a-articles,index:a-articles-saved,[slug]:a-article`. The slug selects the TEST article.
+  'a-articles': { params: {} },
+  'a-articles-saved': { params: { tab: 'saved' } },
+  'a-article': { params: { slug: 'test-article' } },
   // Batch 9 (one AI assistant; merge map section 4). No board draws the assistant: it follows the chat template and the CareHub cards
   // (`--dir patient-app/app/ai --screens index:ai-assistant,monthly-report:ai-monthly-report`). The report is the list template.
   'ai-assistant': { component: 'CareHub', size: [390, 1300], params: {} },
   'ai-assistant-rx': { component: 'CareHub', size: [390, 700], params: { mode: 'prescription' } },
   'ai-assistant-report': { component: 'CareHub', size: [390, 700], params: { mode: 'report' } },
   'ai-monthly-report': { component: 'CareHub', size: [390, 1300], params: {} },
+  // Batch 11 (loyalty hub and offers; merge map section 7). No board draws loyalty: the hub follows the CareHub hero, rows and tabs; the offers
+  // list and detail follow the ServiceHub cards (`--dir patient-app/app/loyalty --screens hub:l-hub` and `--dir patient-app/app/offers --screens index:o-list,[id]:o-detail`).
+  'l-hub': { component: 'CareHub', size: [390, 1500], params: {} },
+  'l-hub-challenges': { component: 'CareHub', size: [390, 1300], params: { tab: 'challenges' } },
+  'l-hub-invite': { component: 'CareHub', size: [390, 1500], params: { tab: 'invite' } },
+  'o-list': { component: 'ServiceHub', size: [390, 844], params: {} },
+  'o-detail': { component: 'ServiceHub', size: [390, 1100], params: { id: 'test-offer1' } },
+  // Batch 12 (settings, account, support, returns, reviews, map; app slice 12-app). Run them per folder: `--dir patient-app/app/settings --screens
+  // index:b12-settings,notifications:b12-notifications,privacy:b12-privacy,security:b12-security,language:b12-language,help:b12-help,about:b12-about`,
+  // `--dir patient-app/app/profile --screens index:b12-profile,addresses:b12-addresses`, `--dir patient-app/app/returns --screens hub:b12-returns,...`,
+  // `--dir patient-app/app/support --screens chat:b12-support-chat,ticket:b12-tickets`, `--dir patient-app/app/reviews --screens index:b12-reviews`,
+  // `--dir patient-app/app/map --screens index:b12-map`, `--dir patient-app/app/shared --screens location-picker:b12-picker`. The profile is the Account board and
+  // the language screen the Settings board; the settings lists, forms and the support screens follow the Account / Settings rows and cards (no board of their own),
+  // the returns follow Orders. The map and the picker have no board. The ids select the TEST records of render-native-screen.fixtures.json.
+  'b12-settings': { component: 'Account', size: [390, 1180], params: {} },
+  'b12-profile': { component: 'Account', size: [390, 1180], params: {} },
+  'b12-addresses': { component: 'Account', size: [390, 1180], params: {} },
+  'b12-addresses-pick': { component: 'Account', size: [390, 1180], params: { select: '1' } },
+  'b12-language': { component: 'Settings', size: [390, 1080], params: {} },
+  'b12-notifications': { component: 'Settings', size: [390, 1080], params: {} },
+  'b12-privacy': { component: 'Settings', size: [390, 1080], params: {} },
+  'b12-privacy-data': { component: 'Settings', size: [390, 1080], params: { tab: 'data' } },
+  'b12-privacy-delete': { component: 'Settings', size: [390, 1080], params: { tab: 'delete' } },
+  'b12-security': { component: 'Settings', size: [390, 1080], params: {} },
+  'b12-help': { component: 'Account', size: [390, 1180], params: {} },
+  'b12-help-feedback': { component: 'Account', size: [390, 1180], params: { tab: 'feedback' } },
+  'b12-about': { component: 'Account', size: [390, 1180], params: {} },
+  'b12-about-legal': { component: 'Account', size: [390, 1180], params: { tab: 'legal' } },
+  'b12-returns': { component: 'Orders', size: [390, 900], params: {} },
+  'b12-return-detail': { component: 'Orders', size: [390, 900], params: { returnId: 'test-return-1' } },
+  'b12-return-new': { component: 'Orders', size: [390, 900], params: {} },
+  'b12-reviews': { component: 'Account', size: [390, 1180], params: { booking_kind: 'appointment', booking_id: 'test-appt', providerName: 'طبيب تجريبي ١' } },
+  'b12-tickets': { component: 'Orders', size: [390, 900], params: {} },
+  'b12-support-chat': { params: {} },
+  'b12-map': { params: {} },
+  'b12-picker': { params: {} },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },
@@ -346,6 +402,10 @@ const MOCKS = {
     export const requestMediaLibraryPermissionsAsync = async () => ({ granted: false });
     export const launchCameraAsync = async () => ({ canceled: true });
     export const launchImageLibraryAsync = async () => ({ canceled: true });`,
+  // the embedded browser (the insurance portal lookup is a modal that is closed when a screen is drawn): a design render has none
+  'react-native-webview': `
+    export const WebView = () => null;
+    export default WebView;`,
   // the call screens load the native LiveKit modules lazily; a design render draws the screen before any connection, with no media
   'livekit-native': `
     export const VideoView = () => null;
@@ -384,6 +444,7 @@ const mockPlugin = {
     build.onResolve({ filter: /^expo-web-browser$/ }, () => virtual('expo-web-browser'));
     build.onResolve({ filter: /context\/SocketContext$/ }, (a) => (a.importer.startsWith(APP + sep) ? virtual('socket-context') : undefined));
     build.onResolve({ filter: /^@livekit\/react-native(-webrtc)?$/ }, () => virtual('livekit-native'));
+    build.onResolve({ filter: /^react-native-webview$/ }, () => virtual('react-native-webview'));
     build.onResolve({ filter: /^expo-camera$/ }, () => virtual('expo-camera'));
     build.onResolve({ filter: /^expo-image-picker$/ }, () => virtual('expo-image-picker'));
     build.onResolve({ filter: /^expo-apple-authentication$/ }, () => virtual('expo-apple-authentication'));

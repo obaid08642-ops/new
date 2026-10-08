@@ -32,7 +32,6 @@ const KINDS: Record<string, { group: Exclude<Tab, "all">; icon: FillIconName; to
   Article: { group: "other", icon: "file-text", tone: toneOf("nutrition"), href: (id, l) => `/${l}/articles/${encodeURIComponent(id)}` },
   Disease: { group: "other", icon: "heartbeat", tone: toneOf("health"), href: (id, l) => `/${l}/articles/${encodeURIComponent(id)}` },
   Insurance: { group: "other", icon: "shield-check", tone: toneOf("insurance") },
-  Community: { group: "other", icon: "users-three", tone: toneOf("family"), href: (id, l) => `/${l}/community/${encodeURIComponent(id)}` },
   Family: { group: "other", icon: "users", tone: toneOf("maternity") },
 };
 const FALLBACK = { group: "other" as const, icon: "magnifying-glass" as FillIconName, tone: toneOf("consult") };

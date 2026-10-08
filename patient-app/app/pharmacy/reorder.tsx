@@ -221,7 +221,7 @@ export default function PharmacyReorderScreen() {
             </View>
           </View>
           {!loadingAddress && !hasPoint ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.status.warning.fg, ...flow }}>{k('pharmacy.request.addressMissing')}</Text> : null}
-          <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.request.changeLocation')} onPress={() => router.push('/delivery/address-select' as Href)} style={{ minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start' }}>
+          <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.request.changeLocation')} onPress={() => router.push('/profile/addresses?select=1' as Href)} style={{ minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start' }}>
             <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.link, ...flow }}>{k('pharmacy.request.changeLocation')}</Text>
           </Pressable>
         </Card>
@@ -229,7 +229,7 @@ export default function PharmacyReorderScreen() {
         <Text style={{ ...scale(t, 'caption'), lineHeight: 24, color: c.text.secondary, textAlign: 'center' }}>{k('orders.reorder.note')}</Text>
 
         {!chosen.length ? <Notice tone="warning" text={k('orders.reorder.pickOne')} /> : null}
-        {needsLocation ? <Notice tone="warning" text={k('pharmacy.checkout.err.location')} actionLabel={k('pharmacy.request.changeLocation')} onAction={() => router.push('/delivery/address-select' as Href)} /> : null}
+        {needsLocation ? <Notice tone="warning" text={k('pharmacy.checkout.err.location')} actionLabel={k('pharmacy.request.changeLocation')} onAction={() => router.push('/profile/addresses?select=1' as Href)} /> : null}
         {problemKey ? (
           <Notice
             tone="danger"
