@@ -1,5 +1,5 @@
 {
- "commit": "af48a5f1",
+ "commit": "a338f108",
  "routes": [
   {
    "app": "patient-app",
@@ -1457,19 +1457,8 @@
    "board": "Account",
    "batch": 1,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/users/me/addresses",
-     "target": "backend",
-     "query": "",
-     "line": 35,
-     "file": "patient-app/app/delivery/address-select.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/users/users.addresses.controller.ts:13"
-    }
-   ],
-   "files": 30,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2571,7 +2560,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:34"
     }
    ],
-   "files": 33,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -4264,8 +4253,8 @@
      "path": "/providers/map",
      "target": "backend",
      "query": "?:param",
-     "line": 176,
-     "file": "patient-app/app/map/index.tsx",
+     "line": 108,
+     "file": "patient-app/src/components/account/ProvidersMapView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/providers.controller.ts:35"
     },
@@ -4274,13 +4263,13 @@
      "path": "/user/insurance",
      "target": "backend",
      "query": "",
-     "line": 221,
-     "file": "patient-app/app/map/index.tsx",
+     "line": 123,
+     "file": "patient-app/src/components/account/ProvidersMapView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/user.insurance.controller.ts:21"
     }
    ],
-   "files": 18,
+   "files": 30,
    "unresolved": 0
   },
   {
@@ -6128,16 +6117,46 @@
    "calls": [
     {
      "method": "GET",
+     "path": "/family/members",
+     "target": "backend",
+     "query": "",
+     "line": 39,
+     "file": "patient-app/src/components/account/AccountView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/family/family.controller.ts:84"
+    },
+    {
+     "method": "GET",
      "path": "/loyalty/account",
      "target": "backend",
      "query": "",
-     "line": 48,
-     "file": "patient-app/app/profile/index.tsx",
+     "line": 39,
+     "file": "patient-app/src/components/account/AccountView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:22"
+    },
+    {
+     "method": "GET",
+     "path": "/user/insurance",
+     "target": "backend",
+     "query": "",
+     "line": 39,
+     "file": "patient-app/src/components/account/AccountView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/users/user.insurance.controller.ts:21"
+    },
+    {
+     "method": "GET",
+     "path": "/users/me/addresses",
+     "target": "backend",
+     "query": "",
+     "line": 39,
+     "file": "patient-app/src/components/account/AccountView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/users/users.addresses.controller.ts:13"
     }
    ],
-   "files": 18,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -6156,7 +6175,7 @@
      "target": "backend",
      "query": "",
      "line": 34,
-     "file": "patient-app/app/profile/addresses.tsx",
+     "file": "patient-app/src/components/account/AddressBookView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.addresses.controller.ts:13"
     },
@@ -6165,13 +6184,13 @@
      "path": "/users/me/addresses/:param",
      "target": "backend",
      "query": "",
-     "line": 52,
-     "file": "patient-app/app/profile/addresses.tsx",
+     "line": 61,
+     "file": "patient-app/src/components/account/AddressBookView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.addresses.controller.ts:41"
     }
    ],
-   "files": 17,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -6435,13 +6454,13 @@
      "path": "/pharmacy/returns/:param",
      "target": "backend",
      "query": "",
-     "line": 59,
-     "file": "patient-app/app/returns/detail.tsx",
+     "line": 134,
+     "file": "patient-app/src/components/account/ReturnsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/returns/returns.controller.ts:40"
     }
    ],
-   "files": 15,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -6459,13 +6478,23 @@
      "path": "/pharmacy/returns",
      "target": "backend",
      "query": "",
-     "line": 68,
-     "file": "patient-app/app/returns/hub.tsx",
+     "line": 67,
+     "file": "patient-app/src/components/account/ReturnsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/returns/returns.controller.ts:18"
+    },
+    {
+     "method": "GET",
+     "path": "/system-config/public",
+     "target": "backend",
+     "query": "",
+     "line": 42,
+     "file": "patient-app/src/components/account/PolicyText.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/governance/system-config.controller.ts:51"
     }
    ],
-   "files": 12,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -6483,8 +6512,8 @@
      "path": "/media/upload",
      "target": "backend",
      "query": "",
-     "line": 85,
-     "file": "patient-app/app/returns/new-request.tsx",
+     "line": 242,
+     "file": "patient-app/src/components/account/ReturnsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/media/media.controller.ts:21"
     },
@@ -6493,8 +6522,8 @@
      "path": "/pharmacy/returns",
      "target": "backend",
      "query": "",
-     "line": 100,
-     "file": "patient-app/app/returns/new-request.tsx",
+     "line": 259,
+     "file": "patient-app/src/components/account/ReturnsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/returns/returns.controller.ts:13"
     },
@@ -6503,13 +6532,23 @@
      "path": "/pharmacy/returns/eligible/:param",
      "target": "backend",
      "query": "",
-     "line": 57,
-     "file": "patient-app/app/returns/new-request.tsx",
+     "line": 206,
+     "file": "patient-app/src/components/account/ReturnsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/returns/returns.controller.ts:35"
+    },
+    {
+     "method": "GET",
+     "path": "/system-config/public",
+     "target": "backend",
+     "query": "",
+     "line": 42,
+     "file": "patient-app/src/components/account/PolicyText.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/governance/system-config.controller.ts:51"
     }
    ],
-   "files": 14,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -6527,13 +6566,13 @@
      "path": "/patient-ux/review",
      "target": "backend",
      "query": "",
-     "line": 65,
-     "file": "patient-app/app/reviews/index.tsx",
+     "line": 51,
+     "file": "patient-app/src/components/account/ReviewView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/patient-ux/patient-ux.module.ts:170"
     }
    ],
-   "files": 14,
+   "files": 31,
    "unresolved": 0
   },
   {
@@ -6654,7 +6693,7 @@
    "batch": 12,
    "status": "—",
    "calls": [],
-   "files": 11,
+   "files": 26,
    "unresolved": 0
   },
   {
@@ -6666,8 +6705,39 @@
    "board": "Settings",
    "batch": 12,
    "status": "—",
-   "calls": [],
-   "files": 8,
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/legal/policies",
+     "target": "backend",
+     "query": "",
+     "line": 52,
+     "file": "patient-app/src/components/account/AboutView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/legal/legal.module.ts:166"
+    },
+    {
+     "method": "GET",
+     "path": "/legal/policy/:param",
+     "target": "backend",
+     "query": "?lang=:param",
+     "line": 65,
+     "file": "patient-app/src/components/account/AboutView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/legal/legal.module.ts:170"
+    },
+    {
+     "method": "GET",
+     "path": "/system-config/public",
+     "target": "backend",
+     "query": "",
+     "line": 42,
+     "file": "patient-app/src/components/account/PolicyText.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/governance/system-config.controller.ts:51"
+    }
+   ],
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -6679,19 +6749,8 @@
    "board": "Settings",
    "batch": 12,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/users/me/storage",
-     "target": "backend",
-     "query": "",
-     "line": 30,
-     "file": "patient-app/app/settings/data.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/users/users.controller.ts:66"
-    }
-   ],
-   "files": 15,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -6703,19 +6762,8 @@
    "board": "Settings",
    "batch": 12,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/support/feedback",
-     "target": "backend",
-     "query": "",
-     "line": 35,
-     "file": "patient-app/app/settings/feedback.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/support/support.controller.ts:40"
-    }
-   ],
-   "files": 15,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -6733,8 +6781,8 @@
      "path": "/config",
      "target": "backend",
      "query": "",
-     "line": 44,
-     "file": "patient-app/app/settings/help.tsx",
+     "line": 41,
+     "file": "patient-app/src/components/account/HelpView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/config/config.controller.ts:10"
     },
@@ -6743,13 +6791,23 @@
      "path": "/support/faqs",
      "target": "backend",
      "query": "",
-     "line": 40,
-     "file": "patient-app/app/settings/help.tsx",
+     "line": 38,
+     "file": "patient-app/src/components/account/HelpView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/support/support.controller.ts:30"
+    },
+    {
+     "method": "POST",
+     "path": "/support/feedback",
+     "target": "backend",
+     "query": "",
+     "line": 113,
+     "file": "patient-app/src/components/account/HelpView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/support/support.controller.ts:40"
     }
    ],
-   "files": 12,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -6762,26 +6820,13 @@
    "batch": 12,
    "status": "—",
    "calls": [],
-   "files": 8,
+   "files": 19,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/settings/notifications",
    "file": "patient-app/app/settings/notifications.tsx",
-   "redirect": "/settings/notifications-settings",
-   "template": "redirect",
-   "board": "— (redirect)",
-   "batch": 12,
-   "status": "n/a",
-   "calls": [],
-   "files": 1,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-app",
-   "route": "/settings/notifications-settings",
-   "file": "patient-app/app/settings/notifications-settings.tsx",
    "redirect": null,
    "template": "settings",
    "board": "Settings",
@@ -6793,23 +6838,26 @@
      "path": "/users/me/notification-settings",
      "target": "backend",
      "query": "",
-     "line": 105,
-     "file": "patient-app/app/settings/notifications-settings.tsx",
+     "line": 74,
+     "file": "patient-app/src/components/account/SettingsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:55"
-    },
-    {
-     "method": "PATCH",
-     "path": "/users/me/notification-settings",
-     "target": "backend",
-     "query": "",
-     "line": 117,
-     "file": "patient-app/app/settings/notifications-settings.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/users/users.controller.ts:60"
     }
    ],
-   "files": 15,
+   "files": 32,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-app",
+   "route": "/settings/notifications-settings",
+   "file": "patient-app/app/settings/notifications-settings.tsx",
+   "redirect": null,
+   "template": "settings",
+   "board": "Settings",
+   "batch": 12,
+   "status": "—",
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -6827,8 +6875,8 @@
      "path": "/auth/logout",
      "target": "backend",
      "query": "",
-     "line": 106,
-     "file": "patient-app/app/settings/privacy.tsx",
+     "line": 152,
+     "file": "patient-app/src/components/account/PrivacyView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:277"
     },
@@ -6837,8 +6885,8 @@
      "path": "/users/me",
      "target": "backend",
      "query": "",
-     "line": 99,
-     "file": "patient-app/app/settings/privacy.tsx",
+     "line": 149,
+     "file": "patient-app/src/components/account/PrivacyView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:110"
     },
@@ -6847,8 +6895,8 @@
      "path": "/users/me/data-export",
      "target": "backend",
      "query": "",
-     "line": 64,
-     "file": "patient-app/app/settings/privacy.tsx",
+     "line": 71,
+     "file": "patient-app/src/components/account/PrivacyView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:104"
     },
@@ -6857,23 +6905,23 @@
      "path": "/users/me/privacy-settings",
      "target": "backend",
      "query": "",
-     "line": 46,
-     "file": "patient-app/app/settings/privacy.tsx",
+     "line": 43,
+     "file": "patient-app/src/components/account/PrivacyView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:71"
     },
     {
-     "method": "PATCH",
-     "path": "/users/me/privacy-settings",
+     "method": "GET",
+     "path": "/users/me/storage",
      "target": "backend",
      "query": "",
-     "line": 118,
-     "file": "patient-app/app/settings/privacy.tsx",
+     "line": 61,
+     "file": "patient-app/src/components/account/PrivacyView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/users/users.controller.ts:76"
+     "backend": "backend/src/modules/users/users.controller.ts:66"
     }
    ],
-   "files": 17,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -6891,8 +6939,8 @@
      "path": "/users/me/change-password",
      "target": "backend",
      "query": "",
-     "line": 68,
-     "file": "patient-app/app/settings/security.tsx",
+     "line": 172,
+     "file": "patient-app/src/components/account/SettingsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:91"
     },
@@ -6901,28 +6949,18 @@
      "path": "/users/me/security-settings",
      "target": "backend",
      "query": "",
-     "line": 41,
-     "file": "patient-app/app/settings/security.tsx",
+     "line": 136,
+     "file": "patient-app/src/components/account/SettingsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:81"
-    },
-    {
-     "method": "PATCH",
-     "path": "/users/me/security-settings",
-     "target": "backend",
-     "query": "",
-     "line": 53,
-     "file": "patient-app/app/settings/security.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/users/users.controller.ts:86"
     },
     {
      "method": "GET",
      "path": "/users/me/sessions",
      "target": "backend",
      "query": "",
-     "line": 89,
-     "file": "patient-app/app/settings/security.tsx",
+     "line": 137,
+     "file": "patient-app/src/components/account/SettingsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:96"
     },
@@ -6931,13 +6969,13 @@
      "path": "/users/me/sessions/:param",
      "target": "backend",
      "query": "",
-     "line": 106,
-     "file": "patient-app/app/settings/security.tsx",
+     "line": 187,
+     "file": "patient-app/src/components/account/SettingsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:125"
     }
    ],
-   "files": 14,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -6962,19 +7000,8 @@
    "board": "Settings",
    "batch": 12,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/system-config/public",
-     "target": "backend",
-     "query": "",
-     "line": 95,
-     "file": "patient-app/app/settings/terms.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/admin/governance/system-config.controller.ts:51"
-    }
-   ],
-   "files": 15,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -6988,27 +7015,17 @@
    "status": "—",
    "calls": [
     {
-     "method": "GET",
-     "path": "/users/me/addresses",
-     "target": "backend",
-     "query": "",
-     "line": 82,
-     "file": "patient-app/app/shared/location-picker.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/users/users.addresses.controller.ts:13"
-    },
-    {
      "method": "POST",
      "path": "/users/me/addresses",
      "target": "backend",
      "query": "",
-     "line": 170,
-     "file": "patient-app/app/shared/location-picker.tsx",
+     "line": 79,
+     "file": "patient-app/src/components/account/LocationPickerView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.addresses.controller.ts:19"
     }
    ],
-   "files": 16,
+   "files": 31,
    "unresolved": 0
   },
   {
@@ -7026,8 +7043,8 @@
      "path": "/media/upload",
      "target": "backend",
      "query": "",
-     "line": 277,
-     "file": "patient-app/app/support/chat.tsx",
+     "line": 79,
+     "file": "patient-app/src/components/account/SupportViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/media/media.controller.ts:21"
     },
@@ -7036,8 +7053,8 @@
      "path": "/support/chat",
      "target": "backend",
      "query": "",
-     "line": 55,
-     "file": "patient-app/app/support/chat.tsx",
+     "line": 34,
+     "file": "patient-app/src/components/account/SupportViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/support/support-chat.controller.ts:22"
     },
@@ -7046,13 +7063,13 @@
      "path": "/support/chat",
      "target": "backend",
      "query": "",
-     "line": 90,
-     "file": "patient-app/app/support/chat.tsx",
+     "line": 50,
+     "file": "patient-app/src/components/account/SupportViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/support/support-chat.controller.ts:32"
     }
    ],
-   "files": 17,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -7070,13 +7087,13 @@
      "path": "/support/requests/mine",
      "target": "backend",
      "query": "",
-     "line": 26,
-     "file": "patient-app/app/support/ticket.tsx",
+     "line": 113,
+     "file": "patient-app/src/components/account/SupportViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/support/support.controller.ts:15"
     }
    ],
-   "files": 12,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -8795,39 +8812,8 @@
    "board": "Account",
    "batch": 1,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    },
-    {
-     "method": "PATCH",
-     "path": "/api/patient/users/me/addresses/:param",
-     "target": "web-proxy",
-     "query": "",
-     "line": 46,
-     "file": "patient-web/components-next/delivery-address/address-picker.tsx",
-     "backend": "backend/src/modules/users/users.addresses.controller.ts:41",
-     "status": "OK"
-    },
-    {
-     "method": "GET",
-     "path": "/users/me/addresses",
-     "target": "backend",
-     "query": "",
-     "line": 17,
-     "file": "patient-web/lib/api/addresses-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/users/users.addresses.controller.ts:13"
-    }
-   ],
-   "files": 41,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -11706,17 +11692,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/api/patient/providers/map",
      "target": "web-proxy",
      "query": "?radius=25",
-     "line": 70,
+     "line": 69,
      "file": "patient-web/components-next/map-explorer-client.tsx",
      "backend": "backend/src/modules/provider/providers.controller.ts:35",
      "status": "OK"
     }
    ],
-   "files": 5,
+   "files": 28,
    "unresolved": 0
   },
   {
@@ -12242,39 +12238,8 @@
    "board": "Settings",
    "batch": 0,
    "status": "done (#285)",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    },
-    {
-     "method": "PATCH",
-     "path": "/api/patient/users/me/notification-settings",
-     "target": "web-proxy",
-     "query": "",
-     "line": 68,
-     "file": "patient-web/app/[locale]/notifications/settings/notification-settings-client.tsx",
-     "backend": "backend/src/modules/users/users.controller.ts:60",
-     "status": "OK"
-    },
-    {
-     "method": "GET",
-     "path": "/users/me/notification-settings",
-     "target": "backend",
-     "query": "",
-     "line": 5,
-     "file": "patient-web/lib/api/notification-settings-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/users/users.controller.ts:55"
-    }
-   ],
-   "files": 35,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -14067,11 +14032,31 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/auth/me",
+     "target": "backend",
+     "query": "",
+     "line": 41,
+     "file": "patient-web/app/[locale]/profile/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/auth/auth.controller.ts:211"
+    },
+    {
      "method": "GET",
      "path": "/medical-profile",
      "target": "backend",
      "query": "",
-     "line": 31,
+     "line": 42,
      "file": "patient-web/app/[locale]/profile/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:14"
@@ -14081,23 +14066,13 @@
      "path": "/users/me/insurance",
      "target": "backend",
      "query": "",
-     "line": 32,
+     "line": 43,
      "file": "patient-web/app/[locale]/profile/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.insurance.controller.ts:42"
-    },
-    {
-     "method": "GET",
-     "path": "/users/me/profile",
-     "target": "backend",
-     "query": "",
-     "line": 30,
-     "file": "patient-web/app/[locale]/profile/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/users/users.controller.ts:34"
     }
    ],
-   "files": 8,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -14112,11 +14087,21 @@
    "calls": [
     {
      "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "POST",
      "path": "/api/patient/users/me/addresses",
      "target": "web-proxy",
      "query": "",
      "line": 95,
-     "file": "patient-web/components-next/addresses.tsx",
+     "file": "patient-web/components-next/account/address-book.tsx",
      "backend": "backend/src/modules/users/users.addresses.controller.ts:19",
      "status": "OK"
     },
@@ -14125,9 +14110,19 @@
      "path": "/api/patient/users/me/addresses/:param",
      "target": "web-proxy",
      "query": "",
-     "line": 34,
-     "file": "patient-web/components-next/addresses.tsx",
+     "line": 42,
+     "file": "patient-web/components-next/account/address-book.tsx",
      "backend": "backend/src/modules/users/users.addresses.controller.ts:60",
+     "status": "OK"
+    },
+    {
+     "method": "PATCH",
+     "path": "/api/patient/users/me/addresses/:param",
+     "target": "web-proxy",
+     "query": "",
+     "line": 46,
+     "file": "patient-web/components-next/delivery-address/address-picker.tsx",
+     "backend": "backend/src/modules/users/users.addresses.controller.ts:41",
      "status": "OK"
     },
     {
@@ -14135,8 +14130,8 @@
      "path": "/locations/cities",
      "target": "backend",
      "query": "",
-     "line": 26,
-     "file": "patient-web/components-next/geo-picker.tsx",
+     "line": 40,
+     "file": "patient-web/components-next/account/geo-select.tsx",
      "status": "OK",
      "backend": "backend/src/modules/location/location.controller.ts:17"
     },
@@ -14145,8 +14140,8 @@
      "path": "/locations/districts",
      "target": "backend",
      "query": "?city=:param",
-     "line": 42,
-     "file": "patient-web/components-next/geo-picker.tsx",
+     "line": 45,
+     "file": "patient-web/components-next/account/geo-select.tsx",
      "status": "OK",
      "backend": "backend/src/modules/location/location.controller.ts:23"
     },
@@ -14155,8 +14150,8 @@
      "path": "/locations/regions",
      "target": "backend",
      "query": "",
-     "line": 21,
-     "file": "patient-web/components-next/geo-picker.tsx",
+     "line": 39,
+     "file": "patient-web/components-next/account/geo-select.tsx",
      "status": "OK",
      "backend": "backend/src/modules/location/location.controller.ts:11"
     },
@@ -14171,7 +14166,7 @@
      "backend": "backend/src/modules/users/users.addresses.controller.ts:13"
     }
    ],
-   "files": 10,
+   "files": 47,
    "unresolved": 0
   },
   {
@@ -14183,29 +14178,8 @@
    "board": "Account",
    "batch": 12,
    "status": "—",
-   "calls": [
-    {
-     "method": "PATCH",
-     "path": "/api/medical-profile",
-     "target": "web-bff",
-     "query": "",
-     "line": 42,
-     "file": "patient-web/components-next/profile-edit-form.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/medical-profile/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/medical-profile",
-     "target": "backend",
-     "query": "",
-     "line": 17,
-     "file": "patient-web/app/[locale]/profile/edit/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:14"
-    }
-   ],
-   "files": 6,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -14474,17 +14448,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/pharmacy/returns",
      "target": "backend",
      "query": "",
-     "line": 35,
+     "line": 45,
      "file": "patient-web/app/[locale]/returns/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/returns/returns.controller.ts:18"
     }
    ],
-   "files": 5,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -14498,17 +14482,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/pharmacy/returns/:param",
      "target": "backend",
      "query": "",
-     "line": 16,
+     "line": 25,
      "file": "patient-web/app/[locale]/returns/[returnId]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/returns/returns.controller.ts:40"
     }
    ],
-   "files": 5,
+   "files": 39,
    "unresolved": 0
   },
   {
@@ -14523,16 +14517,26 @@
    "calls": [
     {
      "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "POST",
      "path": "/api/returns",
      "target": "web-bff",
      "query": "",
-     "line": 33,
+     "line": 35,
      "file": "patient-web/components-next/return-request-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/returns/route.ts"
     }
    ],
-   "files": 5,
+   "files": 31,
    "unresolved": 0
   },
   {
@@ -14546,17 +14550,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/patient-ux/reviews/…",
      "target": "backend",
      "query": "",
      "partial": true,
-     "line": 19,
+     "line": 41,
      "file": "patient-web/app/[locale]/reviews/page.tsx",
      "status": "PARTIAL"
     }
    ],
-   "files": 5,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -14698,6 +14712,292 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/auth/me",
+     "target": "backend",
+     "query": "",
+     "line": 26,
+     "file": "patient-web/app/[locale]/settings/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/auth/auth.controller.ts:211"
+    }
+   ],
+   "files": 36,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
+   "route": "/settings/about",
+   "file": "patient-web/app/[locale]/settings/about/page.tsx",
+   "redirect": null,
+   "template": "settings",
+   "board": "Settings",
+   "batch": 12,
+   "status": "—",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/system-config/public",
+     "target": "backend",
+     "query": "",
+     "line": 29,
+     "file": "patient-web/app/[locale]/settings/about/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/governance/system-config.controller.ts:51"
+    }
+   ],
+   "files": 29,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
+   "route": "/settings/data",
+   "file": "patient-web/app/[locale]/settings/data/page.tsx",
+   "redirect": null,
+   "template": "settings",
+   "board": "Settings",
+   "batch": 12,
+   "status": "—",
+   "calls": [],
+   "files": 3,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
+   "route": "/settings/feedback",
+   "file": "patient-web/app/[locale]/settings/feedback/page.tsx",
+   "redirect": null,
+   "template": "settings",
+   "board": "Settings",
+   "batch": 12,
+   "status": "—",
+   "calls": [],
+   "files": 3,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
+   "route": "/settings/help",
+   "file": "patient-web/app/[locale]/settings/help/page.tsx",
+   "redirect": null,
+   "template": "settings",
+   "board": "Settings",
+   "batch": 12,
+   "status": "—",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "POST",
+     "path": "/api/patient/support/requests",
+     "target": "web-proxy",
+     "query": "",
+     "line": 25,
+     "file": "patient-web/components-next/settings/help-forms.tsx",
+     "backend": "backend/src/modules/support/support.controller.ts:12",
+     "status": "OK"
+    },
+    {
+     "method": "POST",
+     "path": "/api/support/feedback",
+     "target": "web-bff",
+     "query": "",
+     "line": 82,
+     "file": "patient-web/components-next/settings/help-forms.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/support/feedback/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/support/faqs",
+     "target": "backend",
+     "query": "",
+     "line": 105,
+     "file": "patient-web/app/[locale]/settings/help/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/support/support.controller.ts:30"
+    },
+    {
+     "method": "GET",
+     "path": "/support/requests/mine",
+     "target": "backend",
+     "query": "",
+     "line": 81,
+     "file": "patient-web/app/[locale]/settings/help/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/support/support.controller.ts:15"
+    }
+   ],
+   "files": 38,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
+   "route": "/settings/language",
+   "file": "patient-web/app/[locale]/settings/language/page.tsx",
+   "redirect": null,
+   "template": "settings",
+   "board": "Settings",
+   "batch": 12,
+   "status": "—",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    }
+   ],
+   "files": 28,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
+   "route": "/settings/notifications",
+   "file": "patient-web/app/[locale]/settings/notifications/page.tsx",
+   "redirect": null,
+   "template": "settings",
+   "board": "Settings",
+   "batch": 12,
+   "status": "—",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "PATCH",
+     "path": "/api/patient/users/me/notification-settings",
+     "target": "web-proxy",
+     "query": "",
+     "line": 18,
+     "file": "patient-web/components-next/settings/switch-list.tsx",
+     "backend": "backend/src/modules/users/users.controller.ts:60",
+     "status": "OK"
+    },
+    {
+     "method": "PATCH",
+     "path": "/api/settings/privacy",
+     "target": "web-bff",
+     "query": "",
+     "line": 25,
+     "file": "patient-web/components-next/settings/switch-list.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/settings/privacy/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/users/me/notification-settings",
+     "target": "backend",
+     "query": "",
+     "line": 5,
+     "file": "patient-web/lib/api/notification-settings-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/users/users.controller.ts:55"
+    }
+   ],
+   "files": 37,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
+   "route": "/settings/privacy",
+   "file": "patient-web/app/[locale]/settings/privacy/page.tsx",
+   "redirect": null,
+   "template": "settings",
+   "board": "Settings",
+   "batch": 12,
+   "status": "—",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "PATCH",
+     "path": "/api/patient/users/me/notification-settings",
+     "target": "web-proxy",
+     "query": "",
+     "line": 18,
+     "file": "patient-web/components-next/settings/switch-list.tsx",
+     "backend": "backend/src/modules/users/users.controller.ts:60",
+     "status": "OK"
+    },
+    {
+     "method": "DELETE",
+     "path": "/api/privacy/data-export",
+     "target": "web-bff",
+     "query": "",
+     "line": 68,
+     "file": "patient-web/components-next/settings/data-rights.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/privacy/data-export/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/api/privacy/data-export",
+     "target": "web-bff",
+     "query": "",
+     "line": 23,
+     "file": "patient-web/components-next/settings/data-rights.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/privacy/data-export/route.ts"
+    },
+    {
+     "method": "PATCH",
+     "path": "/api/settings/privacy",
+     "target": "web-bff",
+     "query": "",
+     "line": 25,
+     "file": "patient-web/components-next/settings/switch-list.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/settings/privacy/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/users/me/privacy-settings",
      "target": "backend",
@@ -14706,6 +15006,50 @@
      "file": "patient-web/lib/api/settings-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:71"
+    },
+    {
+     "method": "GET",
+     "path": "/users/me/storage",
+     "target": "backend",
+     "query": "",
+     "line": 12,
+     "file": "patient-web/lib/api/settings-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/users/users.controller.ts:66"
+    }
+   ],
+   "files": 42,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
+   "route": "/settings/security",
+   "file": "patient-web/app/[locale]/settings/security/page.tsx",
+   "redirect": null,
+   "template": "settings",
+   "board": "Settings",
+   "batch": 12,
+   "status": "—",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "DELETE",
+     "path": "/api/settings/sessions/:param",
+     "target": "web-bff",
+     "query": "",
+     "line": 29,
+     "file": "patient-web/components-next/settings/session-list.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/settings/sessions/[jti]/route.ts"
     },
     {
      "method": "GET",
@@ -14726,218 +15070,9 @@
      "file": "patient-web/lib/api/settings-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:96"
-    },
-    {
-     "method": "GET",
-     "path": "/users/me/storage",
-     "target": "backend",
-     "query": "",
-     "line": 12,
-     "file": "patient-web/lib/api/settings-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/users/users.controller.ts:66"
     }
    ],
-   "files": 7,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/settings/about",
-   "file": "patient-web/app/[locale]/settings/about/page.tsx",
-   "redirect": null,
-   "template": "settings",
-   "board": "Settings",
-   "batch": 12,
-   "status": "—",
-   "calls": [],
-   "files": 2,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/settings/data",
-   "file": "patient-web/app/[locale]/settings/data/page.tsx",
-   "redirect": null,
-   "template": "settings",
-   "board": "Settings",
-   "batch": 12,
-   "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/users/me/storage",
-     "target": "backend",
-     "query": "",
-     "line": 12,
-     "file": "patient-web/lib/api/settings-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/users/users.controller.ts:66"
-    }
-   ],
-   "files": 7,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/settings/feedback",
-   "file": "patient-web/app/[locale]/settings/feedback/page.tsx",
-   "redirect": null,
-   "template": "settings",
-   "board": "Settings",
-   "batch": 12,
-   "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/support/feedback",
-     "target": "web-bff",
-     "query": "",
-     "line": 26,
-     "file": "patient-web/components-next/feedback-form.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/support/feedback/route.ts"
-    }
-   ],
-   "files": 5,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/settings/help",
-   "file": "patient-web/app/[locale]/settings/help/page.tsx",
-   "redirect": null,
-   "template": "settings",
-   "board": "Settings",
-   "batch": 12,
-   "status": "—",
-   "calls": [],
-   "files": 2,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/settings/language",
-   "file": "patient-web/app/[locale]/settings/language/page.tsx",
-   "redirect": null,
-   "template": "settings",
-   "board": "Settings",
-   "batch": 12,
-   "status": "—",
-   "calls": [],
-   "files": 4,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/settings/notifications",
-   "file": "patient-web/app/[locale]/settings/notifications/page.tsx",
-   "redirect": null,
-   "template": "settings",
-   "board": "Settings",
-   "batch": 12,
-   "status": "—",
-   "calls": [
-    {
-     "method": "PATCH",
-     "path": "/api/patient/users/me/notification-settings",
-     "target": "web-proxy",
-     "query": "",
-     "line": 15,
-     "file": "patient-web/app/[locale]/settings/notifications/notification-toggle.tsx",
-     "backend": "backend/src/modules/users/users.controller.ts:60",
-     "status": "OK"
-    },
-    {
-     "method": "GET",
-     "path": "/users/me/notification-settings",
-     "target": "backend",
-     "query": "",
-     "line": 5,
-     "file": "patient-web/lib/api/notification-settings-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/users/users.controller.ts:55"
-    }
-   ],
-   "files": 8,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/settings/privacy",
-   "file": "patient-web/app/[locale]/settings/privacy/page.tsx",
-   "redirect": null,
-   "template": "settings",
-   "board": "Settings",
-   "batch": 12,
-   "status": "—",
-   "calls": [
-    {
-     "method": "DELETE",
-     "path": "/api/privacy/data-export",
-     "target": "web-bff",
-     "query": "",
-     "line": 79,
-     "file": "patient-web/app/[locale]/settings/privacy/pdpl-rights.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/privacy/data-export/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/api/privacy/data-export",
-     "target": "web-bff",
-     "query": "",
-     "line": 53,
-     "file": "patient-web/app/[locale]/settings/privacy/pdpl-rights.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/privacy/data-export/route.ts"
-    },
-    {
-     "method": "PATCH",
-     "path": "/api/settings/privacy",
-     "target": "web-bff",
-     "query": "",
-     "line": 32,
-     "file": "patient-web/components-next/privacy-toggles.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/settings/privacy/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/users/me/privacy-settings",
-     "target": "backend",
-     "query": "",
-     "line": 31,
-     "file": "patient-web/app/[locale]/settings/privacy/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/users/users.controller.ts:71"
-    }
-   ],
-   "files": 7,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/settings/security",
-   "file": "patient-web/app/[locale]/settings/security/page.tsx",
-   "redirect": null,
-   "template": "settings",
-   "board": "Settings",
-   "batch": 12,
-   "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/users/me/security-settings",
-     "target": "backend",
-     "query": "",
-     "line": 8,
-     "file": "patient-web/lib/api/settings-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/users/users.controller.ts:81"
-    }
-   ],
-   "files": 7,
+   "files": 39,
    "unresolved": 0
   },
   {
@@ -14949,39 +15084,8 @@
    "board": "Account",
    "batch": 12,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/patient/support/requests",
-     "target": "web-proxy",
-     "query": "",
-     "line": 33,
-     "file": "patient-web/app/[locale]/support/support-client.tsx",
-     "backend": "backend/src/modules/support/support.controller.ts:12",
-     "status": "OK"
-    },
-    {
-     "method": "GET",
-     "path": "/support/faqs",
-     "target": "backend",
-     "query": "",
-     "line": 56,
-     "file": "patient-web/app/[locale]/support/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/support/support.controller.ts:30"
-    },
-    {
-     "method": "GET",
-     "path": "/support/requests/mine",
-     "target": "backend",
-     "query": "",
-     "line": 57,
-     "file": "patient-web/app/[locale]/support/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/support/support.controller.ts:15"
-    }
-   ],
-   "files": 7,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -14995,11 +15099,21 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/api/patient/support/chat",
      "target": "web-proxy",
      "query": "",
-     "line": 41,
+     "line": 52,
      "file": "patient-web/components-next/support-chat-client.tsx",
      "backend": "backend/src/modules/support/support-chat.controller.ts:22",
      "status": "OK"
@@ -15009,7 +15123,7 @@
      "path": "/api/patient/support/chat",
      "target": "web-proxy",
      "query": "",
-     "line": 72,
+     "line": 71,
      "file": "patient-web/components-next/support-chat-client.tsx",
      "backend": "backend/src/modules/support/support-chat.controller.ts:32",
      "status": "OK"
@@ -15019,13 +15133,13 @@
      "path": "/api/support/upload",
      "target": "web-bff",
      "query": "",
-     "line": 100,
+     "line": 96,
      "file": "patient-web/components-next/support-chat-client.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/support/upload/route.ts"
     }
    ],
-   "files": 5,
+   "files": 30,
    "unresolved": 0
   },
   {
@@ -15039,17 +15153,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/support/requests/mine",
      "target": "backend",
      "query": "",
-     "line": 19,
+     "line": 41,
      "file": "patient-web/app/[locale]/support/ticket/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/support/support.controller.ts:15"
     }
    ],
-   "files": 6,
+   "files": 35,
    "unresolved": 0
   },
   {

@@ -19,9 +19,10 @@ _Updated 2026-10-06._
 | Needs-review `file:line` rule (owner) [#502](https://github.com/obaid08642-ops/new/pull/502) | Tool enforces it from Batch 2; Batch 2 backfilled in #502, 3/4/5/6 on their own branches |
 | **Batch 8 maternity, nutrition, mental health, programs**, `design/batch-8` (from main) | 9 app + 9 web screens (merge maps 1 §5, 2 §8); decision 8: no self-assessment/crisis screens, urgent-help button hidden until the config number exists; app 30 routes / 0 failures, web 90 runs / 0 issues; PR open |
 | **Batch 9 AI assistant**, `design/batch-9` (from main) | one `/ai` (modes symptoms/prescription/report) + monthly report on both clients; skin analysis and `/voice` removed; app 11 routes / 0 failures, web 33 runs / 0 issues; PR open |
-| Gates (baselines only go down) | `no-literal-ui-string` 2097, `no-raw-color` 3251, `no-left-right` 180, `client-token-sync` 887, `locale-parity` 482 |
+| **Batch 12 settings, account, support, returns**, `design/batch-12` (from main) | app 21 routes + web 20 routes (7 settings screens, address book with pick mode, support, returns, reviews, map); app 22 routes / 0 failures, web 81 runs (2 env cert errors on addresses); PR open |
+| Gates (baselines only go down) | see `tools/design/*.baseline.json` (all lowered in this PR) |
 
-Screens per batch (app / web, redirects excluded; Batches 5/6/8/9/12 are reshaped by the merge maps): 0: 15/14 done; 1: 23/34 done; 2: 22/24 done; 3: 17/22; 4: 7/9; 5 health+records: done (see above); 6 family: done (5/5); 7 insurance 10/13 -> 5/5; 8 maternity, nutrition, mental health, chronic care; 9 AI 7/10 -> 2/2; 10 articles (community removed); 11 loyalty 7/7 -> 1/1; 12 account, settings 20/20 -> 7/7; 13 web-only static pages.
+Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = web-only static pages; 14 = second-pass merges of Batches 1-4 + Emergency.
 
 ## Next
 
