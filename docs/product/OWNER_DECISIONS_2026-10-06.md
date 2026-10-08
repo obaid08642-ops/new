@@ -397,6 +397,37 @@ This becomes a document, `docs/architecture/DATA_MAP.md`, written by the review 
 
 **Owner question:** none. The document lists, per entity, every field, where it is stored, who can read it and how long it is kept (decision 22, PDPL).
 
+## I. Added 2026-10-08 (delegated to the reviewer: "take the best decision")
+
+### 33. Backups and secrets after the 2026-10-08 incident
+
+Background: `docs/review/INCIDENT_2026-10-08_PUBLIC_BACKUPS.md`.
+
+**Backups**
+- The nightly `mongodump` (whole database) stays on the server for 14 days.
+- An off-server copy goes **only** to a separate, private bucket (`nabd-backups`): no public domain, its own API token limited to that bucket, and old copies expire after 30 days.
+- The medicine catalogue also gets a weekly separate export: JSON plus the image list. It is the most valuable data.
+- A monthly restore test proves the backups work, using `restore-drill.sh` on a scratch database.
+
+**Secrets**
+- `JWT_SECRET` is rotated during the next deploy: everyone signs in again, and today that is only test accounts.
+- Any secret stored inside the database (system config, provider integrations) is listed and rotated.
+- The secrets list (S-1, decision 28) records each secret's last rotation date.
+
+**Test data:** test accounts may be deleted before launch (owner). The medicine catalogue is never touched.
+
+### 34. An "Operations & Security" page in admin (read-only for most admins)
+
+| Section | What it shows |
+|---|---|
+| Backups | Time and size of the last local and off-server backup, the last restore-test result, red when older than 26 h. |
+| Security | Failed sign-ins, rate-limit hits, blocked requests, new admin devices, step-up failures (24 h / 7 d). |
+| Secrets | Name, last rotation date and owner of each secret, with a reminder when one is older than 180 days. **Never the values.** |
+| PDPL | Data export and erasure requests with their status; who accessed which health records (decision 22). |
+| Incidents | A list of incidents with their status, linked to the incident notes. |
+
+This page reports what happened. It does not replace the alerts: a backup failure or an error spike also sends an email or push to the owner.
+
 ## Order of work (reviewer's proposal)
 
 1. **Item 16 (module switches) first.** It lets the owner hide a module at once while its removal or merge is still being built.
