@@ -1,5 +1,5 @@
 {
- "commit": "022d6854",
+ "commit": "3d0162ae",
  "routes": [
   {
    "app": "patient-app",
@@ -597,7 +597,7 @@
      "line": 74,
      "file": "patient-app/app/consultations/book/[id].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:64"
+     "backend": "backend/src/modules/care/care.controller.ts:67"
     },
     {
      "method": "GET",
@@ -607,7 +607,7 @@
      "line": 106,
      "file": "patient-app/app/consultations/book/[id].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:70"
+     "backend": "backend/src/modules/care/care.controller.ts:73"
     },
     {
      "method": "GET",
@@ -697,7 +697,7 @@
      "line": 63,
      "file": "patient-app/src/components/BookingConfirmForm.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:64"
+     "backend": "backend/src/modules/care/care.controller.ts:67"
     },
     {
      "method": "GET",
@@ -828,7 +828,7 @@
      "line": 106,
      "file": "patient-app/app/consultations/cancel-reschedule.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:70"
+     "backend": "backend/src/modules/care/care.controller.ts:73"
     },
     {
      "method": "GET",
@@ -862,7 +862,7 @@
      "line": 84,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:64"
+     "backend": "backend/src/modules/care/care.controller.ts:67"
     },
     {
      "method": "GET",
@@ -926,7 +926,7 @@
      "line": 72,
      "file": "patient-app/app/consultations/clinic-confirm.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:64"
+     "backend": "backend/src/modules/care/care.controller.ts:67"
     }
    ],
    "files": 34,
@@ -963,7 +963,7 @@
      "line": 51,
      "file": "patient-app/app/consultations/clinic/[id].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:99"
+     "backend": "backend/src/modules/care/care.controller.ts:102"
     }
    ],
    "files": 31,
@@ -1013,7 +1013,7 @@
      "line": 95,
      "file": "patient-app/app/consultations/doctor/[id].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:64"
+     "backend": "backend/src/modules/care/care.controller.ts:67"
     },
     {
      "method": "GET",
@@ -1023,7 +1023,7 @@
      "line": 141,
      "file": "patient-app/app/consultations/doctor/[id].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:70"
+     "backend": "backend/src/modules/care/care.controller.ts:73"
     },
     {
      "method": "GET",
@@ -1067,7 +1067,7 @@
      "line": 61,
      "file": "patient-app/app/consultations/follow-up.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:64"
+     "backend": "backend/src/modules/care/care.controller.ts:67"
     }
    ],
    "files": 32,
@@ -2163,39 +2163,8 @@
    "board": "— (redirect)",
    "batch": 5,
    "status": "n/a",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/mental-health/crisis-contacts",
-     "target": "backend",
-     "query": "",
-     "line": 30,
-     "file": "patient-app/src/components/views/CrisisContactsView.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/mental-health/mental-health.controller.ts:77"
-    },
-    {
-     "method": "POST",
-     "path": "/mental-health/crisis-contacts",
-     "target": "backend",
-     "query": "",
-     "line": 47,
-     "file": "patient-app/src/components/views/CrisisContactsView.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/mental-health/mental-health.controller.ts:83"
-    },
-    {
-     "method": "DELETE",
-     "path": "/mental-health/crisis-contacts/:param",
-     "target": "backend",
-     "query": "",
-     "line": 54,
-     "file": "patient-app/src/components/views/CrisisContactsView.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/mental-health/mental-health.controller.ts:89"
-    }
-   ],
-   "files": 14,
+   "calls": [],
+   "files": 1,
    "unresolved": 0
   },
   {
@@ -7942,7 +7911,7 @@
      "line": 16,
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:64"
+     "backend": "backend/src/modules/care/care.controller.ts:67"
     }
    ],
    "files": 42,
@@ -8098,7 +8067,7 @@
      "line": 25,
      "file": "patient-web/app/[locale]/consultations/chat/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:64"
+     "backend": "backend/src/modules/care/care.controller.ts:67"
     },
     {
      "method": "POST",
@@ -8152,7 +8121,7 @@
      "line": 49,
      "file": "patient-web/app/[locale]/consultations/clinic-confirm/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:64"
+     "backend": "backend/src/modules/care/care.controller.ts:67"
     }
    ],
    "files": 32,
@@ -8199,7 +8168,7 @@
      "line": 28,
      "file": "patient-web/lib/api/clinics-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:99"
+     "backend": "backend/src/modules/care/care.controller.ts:102"
     }
    ],
    "files": 36,
@@ -8290,7 +8259,7 @@
      "line": 16,
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:64"
+     "backend": "backend/src/modules/care/care.controller.ts:67"
     },
     {
      "method": "GET",
@@ -8300,7 +8269,7 @@
      "line": 30,
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:70"
+     "backend": "backend/src/modules/care/care.controller.ts:73"
     }
    ],
    "files": 42,
@@ -11834,7 +11803,7 @@
      "line": 42,
      "file": "patient-web/app/[locale]/mental-health/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/mental-health/mental-health.controller.ts:95"
+     "backend": "backend/src/modules/mental-health/mental-health.controller.ts:80"
     }
    ],
    "files": 37,
