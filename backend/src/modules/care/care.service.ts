@@ -465,6 +465,7 @@ export class CareService {
   /** Public discovery must return an allowlisted card/detail model, never raw provider records. */
   private toPublicDoctor(raw: any, nextAvailableAt: string | null = null, distanceKm?: number) {
     const d = raw?.toObject ? raw.toObject() : raw;
+    const verified = d.medical_review_status === 'approved' && d.license_verified === true;
     const publicDoctor: any = {
       id: d.id,
       slug: d.slug ?? null,
@@ -493,6 +494,8 @@ export class CareService {
       insurance_home: Boolean(d.insurance_home),
       accepted_insurance: Array.isArray(d.accepted_insurance) ? d.accepted_insurance : [],
       clinicPhotos: Array.isArray(d.clinic_images) ? d.clinic_images : [],
+      scfhs_license_no: d.scfhs_license_number || null,
+      verified,
       next_available_at: nextAvailableAt,
     };
     if (typeof distanceKm === 'number' && Number.isFinite(distanceKm)) publicDoctor.distance_km = Math.round(distanceKm * 10) / 10;

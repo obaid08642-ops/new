@@ -332,7 +332,8 @@ export class ProvidersService {
       q.insurance_contracts = { $elemMatch: elemMatch };
     }
 
-    return this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1, createdAt: -1 }).limit(200).lean();
+    const rows = await this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1, createdAt: -1 }).limit(200).lean();
+    return rows.map((r: any) => this.toPublicProvider(r));
   }
   /** Map providers: ACTIVE only, must have real stored coordinates. */
   async mapProviders(type?: string, lat?: number, lng?: number, radiusKm?: number) {
@@ -345,16 +346,17 @@ export class ProvidersService {
       return 2 * R * Math.asin(Math.sqrt(a));
     };
     let out = rows.map((r: any) => {
+      const base = this.toPublicProvider(r);
       const o = r.toObject ? r.toObject() : r;
       const loc = o.location || {};
-      const item: any = {
-        id: o.id || o.user_id, type: o.type, name_ar: o.name_ar, name_en: o.name_en,
-        city: o.city, district: o.district, rating: o.rating ?? null,
-        lat: loc.lat, lng: loc.lng,
-        distance_km: (lat != null && lng != null && isFinite(lat) && isFinite(lng))
-          ? Math.round(hav(lat, lng, loc.lat, loc.lng) * 10) / 10 : null,
-      };
-      return item;
+      base.lat = loc.lat;
+      base.lng = loc.lng;
+      if (lat != null && lng != null && isFinite(lat) && isFinite(lng)) {
+        const R = 6371, dLa = (loc.lat - lat) * Math.PI / 180, dLn = (loc.lng - lng) * Math.PI / 180;
+        const a = Math.sin(dLa / 2) ** 2 + Math.cos(lat * Math.PI / 180) * Math.cos(loc.lat * Math.PI / 180) * Math.sin(dLn / 2) ** 2;
+        base.distance_km = Math.round(2 * R * Math.asin(Math.sqrt(a)) * 10) / 10;
+      }
+      return base;
     });
     if (radiusKm && lat != null && lng != null) out = out.filter((x: any) => x.distance_km != null && x.distance_km <= radiusKm);
     if (lat != null && lng != null) out.sort((a: any, b: any) => (a.distance_km ?? 9e9) - (b.distance_km ?? 9e9));
@@ -367,10 +369,38 @@ export class ProvidersService {
     return p;
   }
 
+  /** D-17: public provider view — only allow-listed fields, never PII. */
+  private toPublicProvider(raw: any): any {
+    const p = raw?.toObject ? raw.toObject() : raw;
+    const verified = p.medical_review_status === 'approved' && p.license_verified === true;
+    return {
+      id: p.id,
+      name_ar: p.name_ar || null,
+      name_en: p.name_en || null,
+      type: p.type || null,
+      specialty: p.specialty || null,
+      sub_specialties: Array.isArray(p.sub_specialties) ? p.sub_specialties : [],
+      consultation_modes: Array.isArray(p.consultation_modes) ? p.consultation_modes : [],
+      city: p.city || null,
+      district: p.district || null,
+      rating: p.rating_avg ?? p.rating ?? null,
+      reviews_count: p.rating_count ?? p.reviews_count ?? 0,
+      bio: p.bio || null,
+      languages: Array.isArray(p.languages) ? p.languages : [],
+      accepts_insurance: Boolean(p.accepts_insurance),
+      insurance_clinic: Boolean(p.insurance_clinic),
+      insurance_online: Boolean(p.insurance_online),
+      insurance_home: Boolean(p.insurance_home),
+      accepted_insurance: Array.isArray(p.accepted_insurance) ? p.accepted_insurance : [],
+      scfhs_license_no: p.scfhs_license_number || null,
+      verified,
+    };
+  }
+
   async getPublicById(id: string) {
     const p = await this.providerModel.findOne({ id, ...this.publicDiscoveryFilter() }, { _id: 0, __v: 0 });
     if (!p) throw new NotFoundException();
-    return p;
+    return this.toPublicProvider(p);
   }
   async myProfile(actor: any) {
     const identifiers = [
