@@ -1,2 +1,2 @@
-# 2026-10-08 decision 36: REHEARSAL (APPLY=0) of loading the five legal texts into legal_policies. Writes nothing.
+# 2026-10-08 decision 36: APPLY=1 — load the five legal texts into legal_policies (rehearsal 37769283979: 4 updates to 2.0 + insert telehealth_consent, nothing deleted). Owner OK in chat 2026-10-08.
 40-legal-policies
