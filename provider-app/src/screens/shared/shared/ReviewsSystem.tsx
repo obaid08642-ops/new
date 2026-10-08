@@ -9,7 +9,7 @@ import {
  Animated, FlatList, Alert, Dimensions, Switch, TextInput,
  KeyboardAvoidingView, Platform, Linking, ActivityIndicator, Image
 } from 'react-native';
-import client from '../../../api/client';
+import { getMyReviews, replyToReview } from '../../../api/reviews';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../../context';
 import {
@@ -34,19 +34,21 @@ export function ReviewsSystem({ onBack }: { onBack: () => void }) {
  const [replyingTo, setReplyingTo] = useState<string | null>(null);
  const [replyText, setReplyText] = useState('');
 
- useEffect(() => {
- client.get('/provider/reviews')
- .then(res => setReviews(Array.isArray(res.data) ? res.data : (res.data?.items || [])))
- .catch(() => setReviews([]))
- .finally(() => setLoadingReviews(false));
- }, []);
+  useEffect(() => {
+  // P22.7 — verified surface: GET /provider/reviews (shared helper, same route/shape).
+  getMyReviews()
+  .then(rows => setReviews(rows))
+  .catch(() => setReviews([]))
+  .finally(() => setLoadingReviews(false));
+  }, []);
 
- const handleReply = async (id: string) => {
- const text = replyText.trim();
- if (!text) return;
- try {
- await client.post(`/provider/reviews/${id}/reply`, { reply: text });
- setReviews(rs => rs.map(r => r.id === id ? { ...r, reply: text } : r));
+  const handleReply = async (id: string) => {
+  const text = replyText.trim();
+  if (!text) return;
+  try {
+  // P22.7 — verified surface: POST /provider/reviews/:id/reply { reply } (shared helper, same route/body).
+  await replyToReview(id, text);
+  setReviews(rs => rs.map(r => r.id === id ? { ...r, reply: text } : r));
  setReplyingTo(null); setReplyText('');
  show(AR ? 'تم إرسال الرد' : 'Reply sent', 'success');
  } catch {
