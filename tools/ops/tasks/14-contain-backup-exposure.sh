@@ -8,7 +8,9 @@
 set -uo pipefail
 D=/opt/nabdah/deploy
 cd $D || { echo "cleanup: no deploy dir"; exit 1; }
-set -a; source .env.production; set +a
+# .env.production is root-only (600): read just the S3 lines through sudo
+set -a; source <(sudo -n grep -E '^S3_[A-Z_]+=' .env.production); set +a
+[ -n "${S3_ACCESS_KEY_ID:-}" ] && [ -n "${S3_BUCKET:-}" ] && [ -n "${S3_ENDPOINT:-}" ] || { echo "cleanup: S3 settings not readable, nothing changed"; exit 1; }
 export AWS_ACCESS_KEY_ID="$S3_ACCESS_KEY_ID" AWS_SECRET_ACCESS_KEY="$S3_SECRET_ACCESS_KEY"
 A="aws --endpoint-url $S3_ENDPOINT --region auto"
 command -v aws >/dev/null || { echo "cleanup: aws cli missing, nothing changed"; exit 1; }
