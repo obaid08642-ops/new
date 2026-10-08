@@ -191,7 +191,6 @@
     "programs": "Mga Programa",
     "offers": "Mga Offer",
     "returns": "Mga Return",
-    "community": "Komunidad",
     "nutrition": "Nutrisyon",
     "maternity": "Maternity",
     "aiTriage": "AI triage"
@@ -889,17 +888,13 @@
     "unavailableTitle": "Hindi ma-load ang mga setting"
   },
   "Articles": {
-    "eyebrow": "Library ng kalusugan",
     "title": "Mga artikulo tungkol sa kalusugan",
     "notice": "Basahin ang mga nailathalang artikulong pangkalusugan at buod.",
-    "bookmarksTitle": "Mga naka-save na artikulo",
-    "bookmarksNotice": "Ang iyong mga naka-save na artikulo. Hindi pa available ang pagbabago ng bookmark.",
     "emptyTitle": "Walang naka-save na artikulo",
     "empty": "Walang published article na available.",
     "browse": "Mag-browse ng articles",
     "back": "Bumalik sa articles",
     "untitled": "Article",
-    "categoryUnavailable": "Hindi available ang category",
     "excerptUnavailable": "Walang available na buod.",
     "bodyHidden": "Hindi pa available dito ang buong artikulo.",
     "unavailableTitle": "Hindi ma-load ang articles",
@@ -909,7 +904,15 @@
     "categories": "Mga category",
     "noResultsTitle": "Walang katugmang article",
     "noResults": "Subukan ang ibang search o category.",
-    "subtitle": "Mga pinagkakatiwalaang artikulo pangkalusugan mula sa Nabd Plus"
+    "subtitle": "Mga pinagkakatiwalaang artikulo pangkalusugan mula sa Nabd Plus",
+    "tabAll": "Lahat",
+    "tabSaved": "Naka-save",
+    "allCategories": "Lahat ng kategorya",
+    "savedEmptyBody": "Lalabas dito ang mga artikulong sine-save mo sa app.",
+    "author": "May-akda",
+    "published": "Petsa ng paglalathala",
+    "summary": "Buod",
+    "disclaimer": "Pangkalahatang nilalamang pang-edukasyon, hindi kapalit ng payo ng doktor."
   },
   "ChatDetail": {
     "eyebrow": "Pribadong conversation",
@@ -1311,11 +1314,6 @@
     "empty": "Walang mga return request",
     "error": "Hindi ma-load ngayon",
     "sar": "SAR"
-  },
-  "Community": {
-    "title": "Komunidad",
-    "empty": "Wala pang mga post",
-    "error": "Hindi ma-load ngayon"
   },
   "AiTriage": {
     "title": "AI symptom triage",

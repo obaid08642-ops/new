@@ -175,7 +175,6 @@ const MORE: Array<{ key: string; href: string; icon: FillIconName; tone: Service
   { key: "offers", href: "offers", icon: "gift", tone: "pink" },
   { key: "programs", href: "programs", icon: "heart", tone: "mint" },
   { key: "returns", href: "returns", icon: "arrows-left-right", tone: "amber" },
-  { key: "community", href: "community", icon: "users", tone: "violet" },
   { key: "nutrition", href: "nutrition", icon: "bowl-food", tone: TONE.food },
   { key: "maternity", href: "maternity", icon: "baby", tone: "pink" },
   { key: "aiTriage", href: "ai", icon: "sparkle", tone: "violet" },

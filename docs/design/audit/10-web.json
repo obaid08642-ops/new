@@ -1,0 +1,40 @@
+{
+  "slice": "10-web", "batch": 10, "app": "patient-web",
+  "screens": [
+    { "route": "/articles", "elements": [
+      ["Tabs All / Saved (?tab=)", "route query", "ok"],
+      ["Search form (?q=)", "GET /articles?q= (user input, plain GET form)", "ok"],
+      ["Category chips (?category=) and All categories", "GET /articles/categories; GET /articles?category=", "ok"],
+      ["Article rows: glyph, title, category, author name, date, caret", "GET /articles title_ar/en, category, author_name, published_at", "ok"],
+      ["Saved list, empty state with Browse button, sign-in redirect", "GET /articles/bookmarks/mine (session token, server side)", "ok"],
+      ["Error state with retry, empty and no-match states", "shared ConsultState", "ok"],
+      ["Old hero, eyebrow, cover-less cards, inline styles and raw colours", "replaced by the shared kit and tokens", "fixed"],
+      ["Author link to the doctor profile and Book link", "no doctor id on the article", "hidden"]
+    ] },
+    { "route": "/articles/[slug]", "elements": [
+      ["Title, category, summary", "GET /articles/:slug title_ar/en, category, excerpt_ar/en", "ok"],
+      ["Author name and title (text), published date", "GET /articles/:slug author_name, author_title, published_at", "ok"],
+      ["Author link to the doctor profile, Book button", "no doctor id on the article", "hidden"],
+      ["Full article text", "not drawn: the body is HTML and the page never read it", "hidden"],
+      ["Bookmark button", "no web route for POST /articles/bookmarks/:slug/toggle", "hidden"],
+      ["Cite this, structured data, back to the articles", "article fields; static link", "ok"],
+      ["Disclaimer line (was a literal in the page)", "message key Articles.disclaimer, six languages", "fixed"],
+      ["Comments", "removed (owner decision 1): no UI", "hidden"]
+    ] },
+    { "route": "/articles/bookmarks", "elements": [
+      ["Redirect to /articles?tab=saved", "redirect()", "ok"]
+    ] },
+    { "route": "/community", "elements": [
+      ["Posts list, API call, messages, sitemap entry, home card", "removed (owner decision 1); the route redirects to /articles", "fixed"]
+    ] },
+    { "route": "/community/[postId]", "elements": [
+      ["Post, comments, comment form, BFF route /api/community/posts/:id/comments", "removed (owner decision 1); the route redirects to /articles", "fixed"]
+    ] }
+  ],
+  "needsReview": [
+    { "route": "/articles/[slug]", "element": "Author link and Book button", "kind": "backend", "note": "The article has author_name and author_title only, no doctor id, so the author cannot link to the doctor profile or to booking (decision 1). Add the doctor id to the article answer; the page draws the link then.", "file": "patient-web/app/[locale]/articles/[slug]/page.tsx", "line": 73, "backend": "backend/src/schemas/article.schema.ts:21" },
+    { "route": "/articles/[slug]", "element": "Bookmark button", "kind": "client", "note": "The web has no way to save or unsave an article (no BFF route for POST /articles/bookmarks/:slug/toggle, no button); the Saved tab only lists what the app saved. Add the route and the button (a feature, not done in this design batch).", "file": "patient-web/app/[locale]/articles/[slug]/page.tsx", "line": 112 },
+    { "route": "/articles/[slug]", "element": "Article body", "kind": "client", "note": "The page shows the summary and a notice that the full text is not available here; the body is HTML and the parser drops it on purpose. Decide how to show it safely (sanitiser) before doctor-authored articles go live.", "file": "patient-web/app/[locale]/articles/[slug]/page.tsx", "line": 102 },
+    { "route": "/search", "element": "Search results of type Community", "kind": "backend", "note": "The home search still returns community posts (typeEn Community); the web drops them since the pages are gone. Remove them from the search answer when the community module is deleted.", "file": "patient-web/lib/api/search.ts", "line": 61, "backend": "backend/src/modules/home/home.service.ts:249" }
+  ]
+}

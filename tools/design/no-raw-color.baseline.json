@@ -1,7 +1,7 @@
 {
   "note": "Hard-coded colours that predate the design system. Recorded once with --init. 12.A11 rebuilds the screens on tokens and each rebuilt file drops out. --update only ever LOWERS a count; it cannot raise one.",
   "totals": {
-    "patient-web": 2021,
+    "patient-web": 1870,
     "patient-app": 1055,
     "provider-app": 318,
     "admin": 215
@@ -18,12 +18,6 @@
     "patient-web/app/[locale]/ai/triage/page.tsx": 18,
     "patient-web/app/[locale]/ai/triage-form.tsx": 3,
     "patient-web/app/[locale]/ai/triage.module.css": 46,
-    "patient-web/app/[locale]/articles/[slug]/page.tsx": 1,
-    "patient-web/app/[locale]/articles/articles.module.css": 40,
-    "patient-web/app/[locale]/articles/bookmarks/page.tsx": 25,
-    "patient-web/app/[locale]/articles/page.tsx": 25,
-    "patient-web/app/[locale]/community/[postId]/page.tsx": 31,
-    "patient-web/app/[locale]/community/page.tsx": 29,
     "patient-web/app/[locale]/condition/[slug]/page.tsx": 32,
     "patient-web/app/[locale]/consultations/specialties/specialties.module.css": 34,
     "patient-web/app/[locale]/doctors/[specialty]/[city]/[neighborhood]/doctors-neighborhood.module.css": 30,
