@@ -6,31 +6,85 @@
     {
       "route": "/terms",
       "elements": [
-        ["Header (round back button, title)", "static keys legal.terms.title, consult.back; back = history else /(auth)/login", "ok"],
-        ["Policy text (headings, paragraphs, bullets)", "GET /legal/policy/patient_terms?lang= content", "ok"],
-        ["Version and effective date line", "GET /legal/policy/patient_terms version, effective_date (Intl date)", "ok"],
-        ["Loading, failure with retry", "request state of the same call (shared Gate)", "ok"],
-        ["Hard-coded fallback policy text (ar/en, shown when the service was unreachable)", "removed: no legal text is written in the app", "fixed"]
+        [
+          "Header (round back button, title)",
+          "static keys legal.terms.title, consult.back; back = history else /(auth)/login",
+          "ok"
+        ],
+        [
+          "Policy text (headings, paragraphs, bullets)",
+          "GET /legal/policy/patient_terms?lang= content",
+          "ok"
+        ],
+        [
+          "Version and effective date line",
+          "GET /legal/policy/patient_terms version, effective_date (Intl date)",
+          "ok"
+        ],
+        [
+          "Loading, failure with retry",
+          "request state of the same call (shared Gate)",
+          "ok"
+        ],
+        [
+          "Hard-coded fallback policy text (ar/en, shown when the service was unreachable)",
+          "removed: no legal text is written in the app",
+          "fixed"
+        ]
       ]
     },
     {
       "route": "/privacy",
       "elements": [
-        ["Header (round back button, title)", "static keys legal.privacy.title, consult.back; back = history else /(auth)/login", "ok"],
-        ["Policy text (headings, paragraphs, bullets)", "GET /legal/policy/privacy_policy?lang= content", "ok"],
-        ["Version and effective date line", "GET /legal/policy/privacy_policy version, effective_date (Intl date)", "ok"],
-        ["Loading, failure with retry", "request state of the same call (shared Gate)", "ok"],
-        ["Hard-coded fallback policy text (ar/en, shown when the service was unreachable)", "removed: no legal text is written in the app", "fixed"]
+        [
+          "Header (round back button, title)",
+          "static keys legal.privacy.title, consult.back; back = history else /(auth)/login",
+          "ok"
+        ],
+        [
+          "Policy text (headings, paragraphs, bullets)",
+          "GET /legal/policy/privacy_policy?lang= content",
+          "ok"
+        ],
+        [
+          "Version and effective date line",
+          "GET /legal/policy/privacy_policy version, effective_date (Intl date)",
+          "ok"
+        ],
+        [
+          "Loading, failure with retry",
+          "request state of the same call (shared Gate)",
+          "ok"
+        ],
+        [
+          "Hard-coded fallback policy text (ar/en, shown when the service was unreachable)",
+          "removed: no legal text is written in the app",
+          "fixed"
+        ]
       ]
     },
     {
       "route": "/provider-info",
       "elements": [
-        ["Glyph, headline, explanation (names the provider app)", "static keys legal.provider.*", "ok"],
-        ["Continue as a patient button", "route /(tabs) (replace)", "ok"],
-        ["Sign out button", "route /(auth)/login (replace), no session call", "gap"]
+        [
+          "Glyph, headline, explanation (names the provider app)",
+          "static keys legal.provider.*",
+          "ok"
+        ],
+        [
+          "Continue as a patient button",
+          "route /(tabs) (replace)",
+          "ok"
+        ],
+        [
+          "Sign out button",
+          "route /(auth)/login (replace), no session call",
+          "gap"
+        ]
       ],
-      "notes": ["Sign out only navigates to the sign-in; it does not end the session (unchanged behaviour)."]
+      "notes": [
+        "Sign out only navigates to the sign-in; it does not end the session (unchanged behaviour)."
+      ]
     }
   ],
   "needsReview": [
@@ -54,9 +108,9 @@
       "route": "/terms",
       "element": "Link from /settings/about",
       "kind": "client",
-      "note": "The about screen (rebuilt in Batch 12, not on this base) links to /settings/terms and /settings/privacy, not to the signed-out /terms and /privacy; left for Batch 12's AboutView, which absorbs both.",
-      "file": "patient-app/app/settings/about.tsx",
-      "line": 221
+      "note": "The about screen (Batch 12 AboutView) opens the published policy documents from /legal/policies inside the app and does not link to the signed-out /terms and /privacy screens; both read the same legal service.",
+      "file": "patient-app/src/components/account/AboutView.tsx",
+      "line": 80
     }
   ]
 }

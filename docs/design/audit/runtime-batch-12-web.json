@@ -1,0 +1,3017 @@
+[
+ {
+  "route": "/map",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/map",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "GET",
+    "path": "/api/patient/providers/map",
+    "status": 200,
+    "shape": "array(0)"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 288
+ },
+ {
+  "route": "/map",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/map",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/patient/providers/map",
+    "status": 200,
+    "shape": "array(0)"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 288
+ },
+ {
+  "route": "/map",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/map",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "GET",
+    "path": "/api/patient/providers/map",
+    "status": 500,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 288
+ },
+ {
+  "route": "/profile",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/profile",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/health/profile net::ERR_ABORTED",
+   "GET /ar/orders net::ERR_ABORTED",
+   "GET /ar/appointments net::ERR_ABORTED",
+   "GET /ar/loyalty net::ERR_ABORTED",
+   "GET /ar/profile/addresses net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/insurance net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/prescriptions net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/orders net::ERR_ABORTED",
+   "GET /ar/health/profile net::ERR_ABORTED",
+   "GET /ar/appointments net::ERR_ABORTED",
+   "GET /ar/loyalty net::ERR_ABORTED",
+   "GET /ar/profile/addresses net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/insurance net::ERR_ABORTED",
+   "GET /ar/prescriptions net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 336
+ },
+ {
+  "route": "/profile",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/profile",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders net::ERR_ABORTED",
+   "GET /ar/appointments net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/health/profile net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/loyalty net::ERR_ABORTED",
+   "GET /ar/profile/addresses net::ERR_ABORTED",
+   "GET /ar/prescriptions net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/health/profile net::ERR_ABORTED",
+   "GET /ar/orders net::ERR_ABORTED",
+   "GET /ar/appointments net::ERR_ABORTED",
+   "GET /ar/loyalty net::ERR_ABORTED",
+   "GET /ar/profile/addresses net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/insurance net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/prescriptions net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 324
+ },
+ {
+  "route": "/profile",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/profile",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders net::ERR_ABORTED",
+   "GET /ar/appointments net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/health/profile net::ERR_ABORTED",
+   "GET /ar/loyalty net::ERR_ABORTED",
+   "GET /ar/profile/addresses net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/insurance net::ERR_ABORTED",
+   "GET /ar/prescriptions net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/health/profile net::ERR_ABORTED",
+   "GET /ar/orders net::ERR_ABORTED",
+   "GET /ar/appointments net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/loyalty net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/profile/addresses net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/prescriptions net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 416
+ },
+ {
+  "route": "/profile/addresses",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/profile/addresses",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "Failed to load resource: net::ERR_CERT_AUTHORITY_INVALID",
+   "Failed to load resource: net::ERR_CERT_AUTHORITY_INVALID"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /api/v1/locations/regions net::ERR_CERT_AUTHORITY_INVALID",
+   "GET /api/v1/locations/cities net::ERR_CERT_AUTHORITY_INVALID"
+  ],
+  "overlay": 0,
+  "textLen": 188
+ },
+ {
+  "route": "/profile/addresses",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/profile/addresses",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "Failed to load resource: net::ERR_CERT_AUTHORITY_INVALID",
+   "Failed to load resource: net::ERR_CERT_AUTHORITY_INVALID"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /api/v1/locations/regions net::ERR_CERT_AUTHORITY_INVALID",
+   "GET /api/v1/locations/cities net::ERR_CERT_AUTHORITY_INVALID"
+  ],
+  "overlay": 0,
+  "textLen": 188
+ },
+ {
+  "route": "/profile/addresses",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/profile/addresses",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/profile net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 81
+ },
+ {
+  "route": "/profile/edit",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/profile",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 759
+ },
+ {
+  "route": "/profile/edit",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/profile",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 759
+ },
+ {
+  "route": "/profile/edit",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/profile",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 74
+ },
+ {
+  "route": "/returns",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/returns",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders net::ERR_ABORTED",
+   "GET /ar/returns/new-request net::ERR_ABORTED",
+   "GET /ar/orders net::ERR_ABORTED",
+   "GET /ar/returns/new-request net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 48
+ },
+ {
+  "route": "/returns",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/returns",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders net::ERR_ABORTED",
+   "GET /ar/returns/new-request net::ERR_ABORTED",
+   "GET /ar/returns/new-request net::ERR_ABORTED",
+   "GET /ar/orders net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 48
+ },
+ {
+  "route": "/returns",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/returns",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/orders net::ERR_ABORTED",
+   "GET /ar/orders net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 58
+ },
+ {
+  "route": "/returns/new-request",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/returns/new-request",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/returns net::ERR_ABORTED",
+   "GET /ar/returns net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 120
+ },
+ {
+  "route": "/returns/new-request",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/returns/new-request",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/returns net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 120
+ },
+ {
+  "route": "/returns/new-request",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/returns/new-request",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/returns net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 120
+ },
+ {
+  "route": "/reviews",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/reviews",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/dashboard net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 30
+ },
+ {
+  "route": "/reviews",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/reviews",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/dashboard net::ERR_ABORTED",
+   "GET /ar/dashboard net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 30
+ },
+ {
+  "route": "/reviews",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/reviews",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/dashboard net::ERR_ABORTED",
+   "GET /ar/dashboard net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 78
+ },
+ {
+  "route": "/settings",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings/security net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/settings/notifications net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/language net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/settings/about net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/notifications net::ERR_ABORTED",
+   "GET /ar/settings/language net::ERR_ABORTED",
+   "GET /ar/settings/security net::ERR_ABORTED",
+   "GET /ar/settings/about net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 309
+ },
+ {
+  "route": "/settings",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/settings/notifications net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/security net::ERR_ABORTED",
+   "GET /ar/settings/language net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/settings/about net::ERR_ABORTED",
+   "GET /ar/settings/notifications net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/security net::ERR_ABORTED",
+   "GET /ar/settings/language net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/about net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 309
+ },
+ {
+  "route": "/settings",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/settings/notifications net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/security net::ERR_ABORTED",
+   "GET /ar/settings/about net::ERR_ABORTED",
+   "GET /ar/settings/language net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/security net::ERR_ABORTED",
+   "GET /ar/settings/language net::ERR_ABORTED",
+   "GET /ar/settings/notifications net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/about net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 309
+ },
+ {
+  "route": "/settings/about",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/about",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 364
+ },
+ {
+  "route": "/settings/about",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/about",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 193
+ },
+ {
+  "route": "/settings/about",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/about",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 193
+ },
+ {
+  "route": "/settings/data",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/privacy",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 246
+ },
+ {
+  "route": "/settings/data",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/privacy",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 210
+ },
+ {
+  "route": "/settings/data",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/privacy",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 150
+ },
+ {
+  "route": "/settings/feedback",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/help",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 124
+ },
+ {
+  "route": "/settings/feedback",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/help",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 124
+ },
+ {
+  "route": "/settings/feedback",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/help",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 124
+ },
+ {
+  "route": "/settings/help",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/help",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/support/chat net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/support/chat net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 154
+ },
+ {
+  "route": "/settings/help",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/help",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/support/chat net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 142
+ },
+ {
+  "route": "/settings/help",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/help",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 102
+ },
+ {
+  "route": "/settings/language",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/language",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 158
+ },
+ {
+  "route": "/settings/language",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/language",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 158
+ },
+ {
+  "route": "/settings/language",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/language",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 158
+ },
+ {
+  "route": "/settings/notifications",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/notifications",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/settings/notifications",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/notifications",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 34
+ },
+ {
+  "route": "/settings/notifications",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/notifications",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 71
+ },
+ {
+  "route": "/settings/privacy",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/privacy",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 324
+ },
+ {
+  "route": "/settings/privacy",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/privacy",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 324
+ },
+ {
+  "route": "/settings/privacy",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/privacy",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 104
+ },
+ {
+  "route": "/settings/security",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/security",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 597
+ },
+ {
+  "route": "/settings/security",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/security",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 227
+ },
+ {
+  "route": "/settings/security",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/security",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 65
+ },
+ {
+  "route": "/support",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/help",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/support/chat net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 154
+ },
+ {
+  "route": "/support",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/help",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/support/chat net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/support/chat net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 142
+ },
+ {
+  "route": "/support",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/help",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 102
+ },
+ {
+  "route": "/support/chat",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/support/chat",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "GET",
+    "path": "/api/patient/support/chat",
+    "status": 200,
+    "shape": "array(0)"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 135
+ },
+ {
+  "route": "/support/chat",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/support/chat",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "GET",
+    "path": "/api/patient/support/chat",
+    "status": 200,
+    "shape": "array(0)"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings/help net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 135
+ },
+ {
+  "route": "/support/chat",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/support/chat",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/patient/support/chat",
+    "status": 500,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings/help net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 135
+ },
+ {
+  "route": "/support/ticket",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/support/ticket",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings/help net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 31
+ },
+ {
+  "route": "/support/ticket",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/support/ticket",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 31
+ },
+ {
+  "route": "/support/ticket",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/support/ticket",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 77
+ },
+ {
+  "route": "/notifications/settings",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/notifications",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/notifications/settings",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/notifications",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 34
+ },
+ {
+  "route": "/notifications/settings",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/notifications",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 71
+ },
+ {
+  "route": "/delivery/address-select",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/profile/addresses",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/cart net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 106
+ },
+ {
+  "route": "/delivery/address-select",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/profile/addresses",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/cart net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 106
+ },
+ {
+  "route": "/delivery/address-select",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/profile/addresses",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/cart net::ERR_ABORTED",
+   "GET /ar/cart net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 83
+ },
+ {
+  "route": "/profile/addresses?select=1",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/profile/addresses",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/cart net::ERR_ABORTED",
+   "GET /ar/cart net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 106
+ },
+ {
+  "route": "/profile/addresses?select=1",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/profile/addresses",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/cart net::ERR_ABORTED",
+   "GET /ar/cart net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 106
+ },
+ {
+  "route": "/profile/addresses?select=1",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/profile/addresses",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/cart net::ERR_ABORTED",
+   "GET /ar/cart net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 83
+ },
+ {
+  "route": "/settings/privacy?tab=data",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/privacy",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 246
+ },
+ {
+  "route": "/settings/privacy?tab=data",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/privacy",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 210
+ },
+ {
+  "route": "/settings/privacy?tab=data",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/privacy",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 150
+ },
+ {
+  "route": "/settings/privacy?tab=delete",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/privacy",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 161
+ },
+ {
+  "route": "/settings/privacy?tab=delete",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/privacy",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 161
+ },
+ {
+  "route": "/settings/privacy?tab=delete",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/privacy",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings/privacy net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 161
+ },
+ {
+  "route": "/settings/help?tab=requests",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/help",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/support/ticket net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/support/ticket net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 164
+ },
+ {
+  "route": "/settings/help?tab=requests",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/help",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/support/ticket net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/support/ticket net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 164
+ },
+ {
+  "route": "/settings/help?tab=requests",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/help",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 102
+ },
+ {
+  "route": "/settings/help?tab=feedback",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/help",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 124
+ },
+ {
+  "route": "/settings/help?tab=feedback",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/help",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 124
+ },
+ {
+  "route": "/settings/help?tab=feedback",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/settings/help",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/settings net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/settings net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 124
+ },
+ {
+  "route": "/returns/zz-none",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/returns/zz-none",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/settings/help net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/returns/zz-none",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/returns/zz-none",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/returns net::ERR_ABORTED",
+   "GET /ar/returns net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 19
+ },
+ {
+  "route": "/returns/zz-none",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/returns/zz-none",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/returns net::ERR_ABORTED",
+   "GET /ar/returns net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 56
+ }
+]
