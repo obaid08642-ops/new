@@ -34,7 +34,7 @@ export const MAIN_SERVICES: MainService[] = [
   { service: 'lab', title: 'التحاليل المخبرية', route: '/(tabs)/diagnostics' },
   { service: 'nursing', title: 'التمريض المنزلي', route: '/(tabs)/nursing', badge: 'جديد' },
   { service: 'radiology', title: 'الأشعة التشخيصية', route: '/diagnostics/packages' },
-  { service: 'maternity', title: 'رعاية الأمومة', route: '/maternity/pregnancy-tracker' },
+  { service: 'maternity', title: 'رعاية الأمومة', route: '/maternity/hub' },
 ];
 
 /** The rest of the Services tab, as rows. */
