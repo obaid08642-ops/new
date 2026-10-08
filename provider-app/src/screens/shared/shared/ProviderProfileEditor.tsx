@@ -202,7 +202,7 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
               {form.clinicImages.map((id) => (
                 <View key={id} style={{ width: 100, height: 100, borderRadius: R.md, backgroundColor: theme.surface2, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
                   <TouchableOpacity onPress={() => set('clinicImages', form.clinicImages.filter((x) => x !== id))} style={{ position: 'absolute', top: 4, right: 4, zIndex: 10, width: 24, height: 24, borderRadius: 12, backgroundColor: theme.danger, alignItems: 'center', justifyContent: 'center' }}>
-                    <I name="close" size={12} color="#FFF" />
+                    <I name="close" size={12} color={theme.textInv} />
                   </TouchableOpacity>
                   <IBg name="image" size={32} color={theme.textSub} bg="transparent" />
                 </View>
@@ -280,7 +280,7 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
           {sections.map((s) => (
             <TouchableOpacity key={s} onPress={() => setSection(s)}
               style={{ flex: 1, paddingVertical: SP.sm, borderRadius: R.lg, borderWidth: 1.5, alignItems: 'center', backgroundColor: section === s ? theme.primary : theme.surface2, borderColor: section === s ? theme.primary : theme.border }}>
-              <Text style={{ fontSize: FS.xs, fontWeight: FW.semi, color: section === s ? '#FFF' : theme.text }}>{sectionLabel[s]}</Text>
+              <Text style={{ fontSize: FS.xs, fontWeight: FW.semi, color: section === s ? theme.textInv : theme.text }}>{sectionLabel[s]}</Text>
             </TouchableOpacity>
           ))}
         </View>

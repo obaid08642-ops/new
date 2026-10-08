@@ -71,16 +71,16 @@ export function InboundMedicalReportsScreen({ onBack }: { onBack: () => void }) 
                     <TouchableOpacity 
                       onPress={() => Linking.openURL(report.dicomViewerUrl).catch(() => show(AR ? 'فشل فتح العارض' : 'Failed to open viewer', 'error'))}
                       style={{ flex: 1, backgroundColor: theme.info, padding: 8, borderRadius: 8, alignItems: 'center', flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'center', gap: 4 }}>
-                      <I name="eye" size={16} color="#FFF" />
-                      <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 14 }}>{AR ? 'عرض صور الأشعة' : 'DICOM Viewer'}</Text>
+                      <I name="eye" size={16} color={theme.textInv} />
+                      <Text style={{ color: theme.textInv, fontWeight: 'bold', fontSize: 14 }}>{AR ? 'عرض صور الأشعة' : 'DICOM Viewer'}</Text>
                     </TouchableOpacity>
                   )}
                   {report.pdfUrl && (
                     <TouchableOpacity 
                       onPress={() => Linking.openURL(report.pdfUrl).catch(() => show(AR ? 'فشل فتح التقرير' : 'Failed to open report', 'error'))}
                       style={{ flex: 1, backgroundColor: theme.primary, padding: 8, borderRadius: 8, alignItems: 'center', flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'center', gap: 4 }}>
-                      <I name="fileText" size={16} color="#FFF" />
-                      <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 14 }}>{AR ? 'تقرير PDF' : 'PDF Report'}</Text>
+                      <I name="fileText" size={16} color={theme.textInv} />
+                      <Text style={{ color: theme.textInv, fontWeight: 'bold', fontSize: 14 }}>{AR ? 'تقرير PDF' : 'PDF Report'}</Text>
                     </TouchableOpacity>
                   )}
                 </View>

@@ -92,33 +92,33 @@ export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => v
  <TouchableOpacity key={k} onPress={() => setPeriod(k)}
  style={{ flex: 1, paddingVertical: SP.md, borderRadius: R.lg, borderWidth: 1.5, alignItems: 'center',
  backgroundColor: period === k ? theme.primary : theme.surface2, borderColor: period === k ? theme.primary : theme.border }}>
- <Text style={{ color: period === k ? '#FFF' : theme.text, fontWeight: FW.semi }}>{l}</Text>
+ <Text style={{ color: period === k ? theme.textInv : theme.text, fontWeight: FW.semi }}>{l}</Text>
  </TouchableOpacity>
  ))}
  </View>
 
  <NCard style={{ backgroundColor: theme.primary, alignItems: 'center' }}>
- <Text style={{ color: '#FFF', opacity: 0.8, fontSize: FS.sm }}>{AR ? 'صافي الإيرادات' : 'Net earnings'}</Text>
- <Text style={{ color: '#FFF', fontSize: FS['3xl'], fontWeight: '800', marginVertical: SP.xs }}>
+ <Text style={{ color: theme.textInv, opacity: 0.8, fontSize: FS.sm }}>{AR ? 'صافي الإيرادات' : 'Net earnings'}</Text>
+ <Text style={{ color: theme.textInv, fontSize: FS['3xl'], fontWeight: '800', marginVertical: SP.xs }}>
  {loading ? '…' : `${periodRev.toLocaleString()} ${AR ? 'ريال' : 'SAR'}`}
  </Text>
  {delta !== null && (
- <Text style={{ color: '#FFF', opacity: 0.85, fontSize: FS.xs }}>
+ <Text style={{ color: theme.textInv, opacity: 0.85, fontSize: FS.xs }}>
  {delta >= 0 ? '↗' : '↘'} {Math.abs(delta)}% {AR ? 'مقارنة بالفترة السابقة' : 'vs previous period'}
  </Text>
  )}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.xxl, marginTop: SP.lg }}>
  <View style={{ alignItems: 'center' }}>
- <Text style={{ color: '#FFF', fontSize: FS.lg, fontWeight: FW.bold }}>{loading ? '…' : periodEarnings.length}</Text>
- <Text style={{ color: '#FFF', opacity: 0.7, fontSize: FS.xs }}>{AR ? 'عملية' : 'Operations'}</Text>
+ <Text style={{ color: theme.textInv, fontSize: FS.lg, fontWeight: FW.bold }}>{loading ? '…' : periodEarnings.length}</Text>
+ <Text style={{ color: theme.textInv, opacity: 0.7, fontSize: FS.xs }}>{AR ? 'عملية' : 'Operations'}</Text>
  </View>
  <View style={{ alignItems: 'center' }}>
- <Text style={{ color: '#FFF', fontSize: FS.lg, fontWeight: FW.bold }}>{summary ? summary.pending.toLocaleString() : dash}</Text>
- <Text style={{ color: '#FFF', opacity: 0.7, fontSize: FS.xs }}>{AR ? 'معلّق' : 'Pending'}</Text>
+ <Text style={{ color: theme.textInv, fontSize: FS.lg, fontWeight: FW.bold }}>{summary ? summary.pending.toLocaleString() : dash}</Text>
+ <Text style={{ color: theme.textInv, opacity: 0.7, fontSize: FS.xs }}>{AR ? 'معلّق' : 'Pending'}</Text>
  </View>
  <View style={{ alignItems: 'center' }}>
- <Text style={{ color: '#FFF', fontSize: FS.lg, fontWeight: FW.bold }}>{summary ? summary.balance.toLocaleString() : dash}</Text>
- <Text style={{ color: '#FFF', opacity: 0.7, fontSize: FS.xs }}>{AR ? 'الرصيد' : 'Balance'}</Text>
+ <Text style={{ color: theme.textInv, fontSize: FS.lg, fontWeight: FW.bold }}>{summary ? summary.balance.toLocaleString() : dash}</Text>
+ <Text style={{ color: theme.textInv, opacity: 0.7, fontSize: FS.xs }}>{AR ? 'الرصيد' : 'Balance'}</Text>
  </View>
  </View>
  </NCard>

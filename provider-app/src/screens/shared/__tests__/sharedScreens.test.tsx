@@ -1,6 +1,6 @@
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }) }));
 jest.mock('../../../context', () => {
-  const theme = new Proxy({}, { get: () => '#123456' });
+  const theme = new Proxy({}, { get: () => 'transparent' });
   return {
     useTheme: () => ({ theme, isDark: false }),
     useLang: () => ({ lang: 'en', isRTL: false, t: (k: string) => k }),

@@ -1,5 +1,5 @@
 jest.mock('../../../context', () => ({
-  useTheme: () => ({ theme: new Proxy({}, { get: () => '#123456' }) }),
+  useTheme: () => ({ theme: new Proxy({}, { get: () => 'transparent' }) }),
   useLang: () => ({ lang: 'en', isRTL: false, t: (k: string) => k }),
   useAuth: () => ({ user: { isOnline: false } }),
   useToast: () => ({ show: jest.fn() }),
