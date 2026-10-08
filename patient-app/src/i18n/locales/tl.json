@@ -2444,5 +2444,13 @@
   "ai.mr.followUp": "Mag-book ng follow-up sa doktor",
   "ai.mr.emptyTitle": "Wala pang sapat na datos",
   "ai.mr.emptyBody": "Itala ang iyong vitals at mag-book ng appointment sa app, at mabubuo ang buwanang ulat mula sa sarili mong datos.",
-  "ai.mr.emptyAction": "Magtala ng sukat ngayon"
+  "ai.mr.emptyAction": "Magtala ng sukat ngayon",
+  "legal.terms.title": "Mga Tuntunin ng Paggamit",
+  "legal.privacy.title": "Patakaran sa Privacy",
+  "legal.version": "Bersyon {version} · Epektibo mula {date}",
+  "legal.versionOnly": "Bersyon {version}",
+  "legal.provider.title": "Account ng tagapagbigay ng serbisyong pangkalusugan",
+  "legal.provider.body": "Nag-sign in ka gamit ang account na konektado sa isang tagapagbigay ng serbisyo, doktor o klinika. Para pamahalaan ang iyong mga appointment, kahilingan ng pasyente at serbisyong medikal, gamitin ang nakalaang provider app ng Nabd Plus.",
+  "legal.provider.continue": "Magpatuloy bilang pasyente",
+  "legal.provider.logout": "Mag-sign out"
 }

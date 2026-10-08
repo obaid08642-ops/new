@@ -2480,5 +2480,13 @@
   "ai.mr.followUp": "Book a follow-up with the doctor",
   "ai.mr.emptyTitle": "Not enough data yet",
   "ai.mr.emptyBody": "Record your vitals and book appointments in the app and your monthly report is built from your own data.",
-  "ai.mr.emptyAction": "Record a measurement"
+  "ai.mr.emptyAction": "Record a measurement",
+  "legal.terms.title": "Terms of Use",
+  "legal.privacy.title": "Privacy Policy",
+  "legal.version": "Version {version} · Effective {date}",
+  "legal.versionOnly": "Version {version}",
+  "legal.provider.title": "Healthcare provider account",
+  "legal.provider.body": "You signed in with an account linked to a provider, doctor or clinic. To manage your appointments, patient requests and medical services, please use the dedicated Nabd Plus provider app.",
+  "legal.provider.continue": "Continue as a patient",
+  "legal.provider.logout": "Sign out"
 }

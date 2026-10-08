@@ -242,6 +242,11 @@ const BOARD = {
   'ai-assistant-rx': { component: 'CareHub', size: [390, 700], params: { mode: 'prescription' } },
   'ai-assistant-report': { component: 'CareHub', size: [390, 700], params: { mode: 'report' } },
   'ai-monthly-report': { component: 'CareHub', size: [390, 1300], params: {} },
+  // Batch 13 (the three legal and notice screens of app/(auth)): the Settings board's header and section cards; no board of their own.
+  // The policy text comes from the legal service (a design render has none, so it draws the failure state; the document is in the unit test).
+  terms: { params: {} },
+  privacy: { params: {} },
+  'provider-info': { params: {} },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },

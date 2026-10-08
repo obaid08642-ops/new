@@ -2480,5 +2480,13 @@
   "ai.mr.followUp": "احجز متابعة مع الطبيب",
   "ai.mr.emptyTitle": "لا توجد بيانات كافية بعد",
   "ai.mr.emptyBody": "سجّل قياساتك الحيوية واحجز مواعيدك من التطبيق، وسيُبنى تقريرك الشهري تلقائياً من بياناتك.",
-  "ai.mr.emptyAction": "تسجيل قياس الآن"
+  "ai.mr.emptyAction": "تسجيل قياس الآن",
+  "legal.terms.title": "الشروط والأحكام",
+  "legal.privacy.title": "سياسة الخصوصية",
+  "legal.version": "الإصدار {version} · ساري من {date}",
+  "legal.versionOnly": "الإصدار {version}",
+  "legal.provider.title": "حساب مقدم خدمة صحية",
+  "legal.provider.body": "تم تسجيل دخولك بحساب مرتبط بمقدم خدمة أو طبيب أو عيادة. لإدارة مواعيدك وطلبات المرضى والخدمات الطبية، يرجى استخدام تطبيق مقدمي الخدمة المخصص من نبض بلس.",
+  "legal.provider.continue": "الاستمرار كمريض",
+  "legal.provider.logout": "تسجيل الخروج"
 }

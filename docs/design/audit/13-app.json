@@ -1,0 +1,62 @@
+{
+  "slice": "13-app",
+  "batch": 13,
+  "app": "patient-app",
+  "screens": [
+    {
+      "route": "/terms",
+      "elements": [
+        ["Header (round back button, title)", "static keys legal.terms.title, consult.back; back = history else /(auth)/login", "ok"],
+        ["Policy text (headings, paragraphs, bullets)", "GET /legal/policy/patient_terms?lang= content", "ok"],
+        ["Version and effective date line", "GET /legal/policy/patient_terms version, effective_date (Intl date)", "ok"],
+        ["Loading, failure with retry", "request state of the same call (shared Gate)", "ok"],
+        ["Hard-coded fallback policy text (ar/en, shown when the service was unreachable)", "removed: no legal text is written in the app", "fixed"]
+      ]
+    },
+    {
+      "route": "/privacy",
+      "elements": [
+        ["Header (round back button, title)", "static keys legal.privacy.title, consult.back; back = history else /(auth)/login", "ok"],
+        ["Policy text (headings, paragraphs, bullets)", "GET /legal/policy/privacy_policy?lang= content", "ok"],
+        ["Version and effective date line", "GET /legal/policy/privacy_policy version, effective_date (Intl date)", "ok"],
+        ["Loading, failure with retry", "request state of the same call (shared Gate)", "ok"],
+        ["Hard-coded fallback policy text (ar/en, shown when the service was unreachable)", "removed: no legal text is written in the app", "fixed"]
+      ]
+    },
+    {
+      "route": "/provider-info",
+      "elements": [
+        ["Glyph, headline, explanation (names the provider app)", "static keys legal.provider.*", "ok"],
+        ["Continue as a patient button", "route /(tabs) (replace)", "ok"],
+        ["Sign out button", "route /(auth)/login (replace), no session call", "gap"]
+      ],
+      "notes": ["Sign out only navigates to the sign-in; it does not end the session (unchanged behaviour)."]
+    }
+  ],
+  "needsReview": [
+    {
+      "route": "/provider-info",
+      "element": "Sign out button",
+      "kind": "client",
+      "note": "Only replaces the route with the sign-in; the provider session and token stay stored, so the account is still signed in. Kept as it was (logic is out of scope).",
+      "file": "patient-app/app/(auth)/provider-info.tsx",
+      "line": 16
+    },
+    {
+      "route": "/terms",
+      "element": "Offline first open",
+      "kind": "owner",
+      "note": "The hard-coded ar/en fallback text was removed (the policy must come from the legal service); with the service down the screen shows the failure state with retry, also before sign-in. Owner to confirm, or to supply a bundled approved text.",
+      "file": "patient-app/src/components/legal/LegalKit.tsx",
+      "line": 66
+    },
+    {
+      "route": "/terms",
+      "element": "Link from /settings/about",
+      "kind": "client",
+      "note": "The about screen (rebuilt in Batch 12, not on this base) links to /settings/terms and /settings/privacy, not to the signed-out /terms and /privacy; left for Batch 12's AboutView, which absorbs both.",
+      "file": "patient-app/app/settings/about.tsx",
+      "line": 221
+    }
+  ]
+}

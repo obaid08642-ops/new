@@ -1,0 +1,32 @@
+[
+  {
+    "batch": 13,
+    "app": "patient-app",
+    "screen": "/provider-info",
+    "element": "Sign out button",
+    "file": "patient-app/app/(auth)/provider-info.tsx",
+    "line": 16,
+    "found": "[client] Only replaces the route with the sign-in; the provider session and token stay stored, so the account is still signed in. Kept as it was (logic is out of scope).",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 13,
+    "app": "patient-app",
+    "screen": "/terms",
+    "element": "Offline first open",
+    "file": "patient-app/src/components/legal/LegalKit.tsx",
+    "line": 66,
+    "found": "[owner] The hard-coded ar/en fallback text was removed (the policy must come from the legal service); with the service down the screen shows the failure state with retry, also before sign-in. Owner to confirm, or to supply a bundled approved text.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 13,
+    "app": "patient-app",
+    "screen": "/terms",
+    "element": "Link from /settings/about",
+    "file": "patient-app/app/settings/about.tsx",
+    "line": 221,
+    "found": "[client] The about screen (rebuilt in Batch 12, not on this base) links to /settings/terms and /settings/privacy, not to the signed-out /terms and /privacy; left for Batch 12's AboutView, which absorbs both.",
+    "suspect": "Client-side: later batch."
+  }
+]
