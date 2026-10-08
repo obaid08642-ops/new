@@ -1,4 +1,5 @@
-import { IsArray, IsBoolean, IsDefined, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsIn, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateDto {
   @IsDefined()
@@ -46,6 +47,73 @@ export class CreateTicketDto {
   @IsOptional()
   @IsArray()
   attachments?: unknown[];
+}
+
+export class CreateSupportDto {
+  @IsDefined()
+  @IsString()
+  subject: string;
+
+  @IsDefined()
+  @IsString()
+  message: string;
+
+  @IsOptional()
+  @IsString()
+  category?: string;
+
+  @IsOptional()
+  @IsString()
+  priority?: string;
+
+  @IsOptional()
+  @IsArray()
+  attachments?: unknown[];
+
+  @IsOptional()
+  @IsString()
+  linked_order_id?: string;
+
+  @IsOptional()
+  @IsString()
+  linked_booking_id?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  callback_requested?: boolean;
+
+  @IsOptional()
+  @IsString()
+  callback_phone?: string;
+
+  @IsOptional()
+  @IsString()
+  callback_preferred_time?: string;
+}
+
+export class AiAssistDto {
+  @IsDefined()
+  @IsString()
+  query: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => Object)
+  context?: Record<string, any>;
+}
+
+export class CallbackRequestDto {
+  @IsDefined()
+  @IsString()
+  phone: string;
+
+  @IsOptional()
+  @IsString()
+  preferred_time?: string;
+
+  @IsOptional()
+  @IsString()
+  reason?: string;
 }
 
 export class ReplyDto {

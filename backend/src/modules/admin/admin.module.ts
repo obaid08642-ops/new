@@ -73,6 +73,8 @@ import { FinanceController } from './web-core/controllers/finance.controller';
 import { AdminConfigController } from './web-core/controllers/admin-config.controller';
 import { AdminGovernanceController as WebCoreGovernanceController } from './web-core/controllers/admin-governance.controller';
 import { AdminExtendedOperationsController } from './web-core/controllers/admin-extended-operations.controller';
+import { RiskDashboardController } from './enterprise/risk-dashboard.controller';
+import { FraudScoringService } from './enterprise/fraud-scoring.service';
 import { HeatmapData, HeatmapDataSchema } from './web-core/schemas/heatmap-data.schema';
 import { CommissionLedger, CommissionLedgerSchema } from './web-core/schemas/commission-ledger.schema';
 import { FraudAlert, FraudAlertSchema } from './web-core/schemas/fraud-alert.schema';
@@ -163,7 +165,8 @@ import { AuditIngestController } from './admin-audit-ingest.controller';
     AdminConfigController,
     WebCoreGovernanceController,
     AdminExtendedOperationsController,
-    AuditIngestController
+    AuditIngestController,
+    RiskDashboardController
 ],
   providers: [
     // P5.3: merged from AdminAuthorityModule
@@ -176,6 +179,7 @@ import { AuditIngestController } from './admin-audit-ingest.controller';
     FinanceSuiteService,
     AnalyticsSuiteService,
     ScheduledReportsRunner,
+    FraudScoringService,
     // P5.3: merged from AdminGovernanceModule
     AdminGovernanceService,
     // P5.3: merged from AdminNotificationCenterModule

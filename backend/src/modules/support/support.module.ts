@@ -6,12 +6,16 @@ import { SupportRequestSchema, PatientSettingsSchema } from '../../schemas/suppo
 import { PatientSettingsRepository } from "./repositories/patientsettings.repository";
 import { SupportRequestRepository } from "./repositories/supportrequest.repository";
 import { SupportChatController } from './support-chat.controller';
+import { AiModule } from '../ai/ai.module';
 
 @Module({
   imports: [MongooseModule.forFeature([
     { name: 'SupportRequest', schema: SupportRequestSchema },
     { name: 'PatientSettings', schema: PatientSettingsSchema },
-  ])],
+  ]),
+  // AiModule has no imports back into SupportModule → no circular dependency,
+  // so a plain import (no forwardRef) is safe.
+  AiModule],
   controllers: [SupportController, SupportChatController],
   providers: [SupportService, { provide: 'PatientSettingsRepository', useClass: PatientSettingsRepository }, { provide: 'SupportRequestRepository', useClass: SupportRequestRepository }],
 })

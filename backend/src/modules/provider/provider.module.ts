@@ -30,6 +30,8 @@ import { ServiceCapabilityService } from './services/service-capability.service'
 import { GeoEngineService } from './services/geo-engine.service';
 import { SchedulingEngineService } from './services/scheduling-engine.service';
 import { ProviderScoringService } from './services/provider-scoring.service';
+import { ProviderScorecardService } from './services/provider-scorecard.service';
+import { AdminScorecardController } from './services/provider-scorecard.controller';
 import { ProviderMatchingService } from './services/provider-matching.service';
 import { AssignmentStrategyService } from './services/assignment-strategy.service';
 import { StepUpService } from '../../common/step-up.guard';
@@ -158,6 +160,7 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
     ProviderZonesController,
     ProviderScheduleSlotsController,
     ProviderScoreController,
+    AdminScorecardController,
     AdminMatchingController,
     // P5.3: merged from ProvidersModule (providers/ → provider/)
     ProvidersController,
@@ -187,6 +190,7 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
     GeoEngineService,
     SchedulingEngineService,
     ProviderScoringService,
+    ProviderScorecardService,
     ProviderMatchingService,
     AssignmentStrategyService,
     { provide: "DoctorSessionTypeRepository", useClass: DoctorSessionTypeRepository },
@@ -219,7 +223,7 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
   ],
   exports: [
     ProviderAuthService, ProviderOtpService, ProviderRequestEngineService, ProviderNotificationsService,
-    ProviderMatchingService, AssignmentStrategyService, ServiceCapabilityService, ProviderScoringService,
+    ProviderMatchingService, AssignmentStrategyService, ServiceCapabilityService, ProviderScoringService, ProviderScorecardService,
     // P5.3: merged from ProvidersModule (providers/ → provider/)
     ProvidersService,
   ],
