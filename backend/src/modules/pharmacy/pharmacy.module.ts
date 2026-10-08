@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AiModule } from '../ai/ai.module';
-import { AnalyticsModule } from '../analytics/analytics.module';
 import {
   PharmacyOrderSchema, PharmacyAllocationSchema, PrescriptionIntakeSchema,
   PharmacySubstituteMapSchema, PharmacyLowStockAlertSchema,
@@ -37,6 +36,12 @@ import {
 } from './pharmacy.controllers';
 import { PharmacyOrdersProviderService } from './services/pharmacy-orders-provider.service';
 import { PharmacyOfferService } from './services/pharmacy-offer.service';
+import { RefillSubscriptionService } from './services/refill-subscription.service';
+import { ProductAlertService } from './services/product-alert.service';
+import { BundlesService } from './bundles/bundles.service';
+import { BundlesController, MedicineAlternativesController } from './bundles/bundles.controller';
+import { RefillController } from './controllers/refill.controller';
+import { ProductAlertController } from './controllers/product-alert.controller';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
 import { PharmacyExpiryScheduler } from './services/pharmacy-expiry.scheduler';
@@ -60,6 +65,7 @@ import { PharmacyOrderRepository } from "./services/repositories/pharmacyorder.r
 import { ProcurementRequestRepository } from "./services/repositories/procurementrequest.repository";
 import { ProviderAccountRepository } from "./services/repositories/provideraccount.repository";
 import { ProviderAccountProfileRepository } from "./services/repositories/provideraccountprofile.repository";
+// P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)
 import { PharmacyOpsController, ProviderPharmacyAliasController } from './pharmacy_ops.controller';
 import { PharmacyOpsService } from './pharmacy_ops.service';
 import { OrdersModule } from '../orders/orders.module';
@@ -81,7 +87,6 @@ import { PharmacyIndexesService } from './pharmacy-indexes';
     BusinessRulesModule,
     RealtimeModule,
     AiModule,
-    AnalyticsModule,
     // P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)
     OrdersModule,
     MongooseModule.forFeature([
@@ -123,6 +128,9 @@ import { PharmacyIndexesService } from './pharmacy-indexes';
     PharmacyShortageService,
     PharmacyOrdersProviderService,
     PharmacyOfferService,
+    RefillSubscriptionService,
+    ProductAlertService,
+    BundlesService,
     PharmacyInsuranceDecisionService,
     PharmacyExpiryCommandService,
     PharmacyExpiryScheduler,
@@ -166,6 +174,10 @@ import { PharmacyIndexesService } from './pharmacy-indexes';
     ProviderPharmacyAliasController,
     OffersDetailController,
     PromotionsOffersController,
+    RefillController,
+    ProductAlertController,
+    BundlesController,
+    MedicineAlternativesController,
     PharmacyCompatController,
     B2BVoiceController
 ],

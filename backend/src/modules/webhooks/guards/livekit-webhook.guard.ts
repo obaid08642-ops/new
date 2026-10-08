@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { WebhookReceiver } from 'livekit-server-sdk';
 
 @Injectable()
@@ -9,7 +9,7 @@ export class LiveKitWebhookGuard implements CanActivate {
     const apiKey = process.env.LIVEKIT_API_KEY;
     const apiSecret = process.env.LIVEKIT_API_SECRET;
     if (!apiKey || !apiSecret) {
-      throw new InternalServerErrorException('FATAL: LIVEKIT_API_KEY and LIVEKIT_API_SECRET are required — webhook verification must not run against fake defaults');
+      throw new Error('FATAL: LIVEKIT_API_KEY and LIVEKIT_API_SECRET are required — webhook verification must not run against fake defaults');
     }
     this.receiver = new WebhookReceiver(apiKey, apiSecret);
   }

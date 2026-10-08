@@ -1,9 +1,7 @@
-import { Injectable, Logger, Optional } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { InjectConnection } from '@nestjs/mongoose';
-import { Connection, Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { RedisService } from '../redis/redis.service';
-import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
 import {
   ProductRankingMetrics,
   ProductRankingMetricsDocument,
@@ -45,9 +43,6 @@ export class ProductRankingService {
     @InjectModel(ProductRankingMetrics.name)
     private readonly metricsModel: Model<ProductRankingMetricsDocument>,
     private readonly redisService: RedisService,
-    // F9 — optional so existing direct constructions (specs) keep working;
-    // absent connection fails open (recommendations stay on).
-    @Optional() @InjectConnection() private readonly conn?: Connection,
   ) {}
 
   /**
@@ -288,13 +283,6 @@ export class ProductRankingService {
    */
   async getRankedDrugIds(scope: RankingScope): Promise<{ drugIds: string[]; total: number }> {
     const isTrending = scope.sort === 'trending';
-    // F9 (15.12) — recommendations kill switch: serve the non-personalized
-    // default list (deterministic catalog order, no behavior signals) and
-    // never hydrate the Redis ZSets with degraded reads.
-    if (await isKilled('recommendations', connectionFlagSource(this.conn))) {
-      const { docs, count } = await this.mongoRanked(scope, { drug_id: 1 });
-      return { drugIds: docs.map((d: any) => d.drug_id), total: count };
-    }
     const key = this.getZSetKey({
       pharmacyId: scope.pharmacyId,
       category: scope.category,
@@ -313,28 +301,6 @@ export class ProductRankingService {
     }
 
     // Fallback: Query MongoDB metrics and hydrate ZSet
-    const sortField: any = isTrending ? { trending_score: -1 } : { composite_score: -1 };
-    const { docs, count } = await this.mongoRanked(scope, sortField, offset, limit);
-
-    // Hydrate Redis ZSet asynchronously
-    for (const d of docs) {
-      const score = isTrending ? d.trending_score : d.composite_score;
-      await this.redisService.zadd(key, score, d.drug_id);
-    }
-
-    return {
-      drugIds: docs.map((d: any) => d.drug_id),
-      total: count,
-    };
-  }
-
-  /** Shared Mongo fallback query (scope filter + sort + page). Never touches Redis. */
-  private async mongoRanked(
-    scope: RankingScope,
-    sort: any,
-    offset?: number,
-    limit?: number,
-  ): Promise<{ docs: any[]; count: number }> {
     const query: any = {};
     if (scope.pharmacyId && scope.pharmacyId !== 'global') {
       query.pharmacy_id = scope.pharmacyId;
@@ -346,11 +312,20 @@ export class ProductRankingService {
       query.category = scope.category.trim().toLowerCase();
     }
 
-    const off = offset ?? scope.offset ?? 0;
-    const lim = limit ?? scope.limit ?? 20;
-    const docs = await this.metricsModel.find(query).sort(sort).skip(off).limit(lim).exec();
+    const sortField: any = isTrending ? { trending_score: -1 } : { composite_score: -1 };
+    const docs = await this.metricsModel.find(query).sort(sortField).skip(offset).limit(limit).exec();
     const count = await this.metricsModel.countDocuments(query).exec();
-    return { docs, count };
+
+    // Hydrate Redis ZSet asynchronously
+    for (const d of docs) {
+      const score = isTrending ? d.trending_score : d.composite_score;
+      await this.redisService.zadd(key, score, d.drug_id);
+    }
+
+    return {
+      drugIds: docs.map((d: any) => d.drug_id),
+      total: count,
+    };
   }
 
   /**

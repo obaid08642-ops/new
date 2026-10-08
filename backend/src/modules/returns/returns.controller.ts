@@ -38,12 +38,6 @@ export class ReturnsController {
     return this.returnsService.eligibleBookings(user.id, serviceType);
   }
 
-  /** F23: returns timeline from order.state_history */
-  @Get('timeline/:orderId')
-  async timeline(@Param('orderId') orderId: string, @CurrentUser() user: any) {
-    return this.returnsService.getReturnTimeline(user.id, orderId);
-  }
-
   @Get(':id')
   async getDetails(@Param('id') id: string, @CurrentUser() user: any) {
     return this.returnsService.getById(id, user.id, user.role);

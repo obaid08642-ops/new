@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException, NotFoundException, Inject } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException, Inject, Optional } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { PharmacyInventoryItem } from '../../provider/schemas/capabilities.schema';
@@ -6,6 +6,7 @@ import { PharmacyLowStockAlert } from '../schemas/pharmacy.schema';
 import { PharmacyInventoryItemRepository } from "./repositories/pharmacyinventoryitem.repository";
 import { PharmacyLowStockAlertRepository } from "./repositories/pharmacylowstockalert.repository";
 import { isProviderRole } from '../../../common/enums';
+import { ProductAlertService } from './product-alert.service';
 
 function assertProvider(u: any) { if (!u || !isProviderRole(u.role)) throw new ForbiddenException('provider_scope_required'); }
 
@@ -14,6 +15,7 @@ export class PharmacyInventoryExtService {
   constructor(
     @Inject('PharmacyInventoryItemRepository') private inv: PharmacyInventoryItemRepository,
     @Inject('PharmacyLowStockAlertRepository') private alerts: PharmacyLowStockAlertRepository,
+    @Optional() private productAlerts?: ProductAlertService,
   ) {}
 
   async search(user: any, q?: string, barcode?: string) {
@@ -34,6 +36,8 @@ export class PharmacyInventoryExtService {
   async restock(user: any, id: string, qty: number) {
     assertProvider(user);
     if (!qty || qty <= 0) throw new ForbiddenException('positive_qty_required');
+    const before = await this.inv.findOne({ id, provider_account_id: user.id });
+    const wasOut = before ? Number((before as unknown as { stock?: number }).stock ?? 0) <= 0 : false;
     const updated = await this.inv.findOneAndUpdate(
       { id, provider_account_id: user.id },
       { $inc: { stock: qty }, $set: { last_restocked_at: new Date() } },
@@ -43,6 +47,16 @@ export class PharmacyInventoryExtService {
     // Auto-resolve any open alerts for this item
     if (updated.min_stock_alert <= 0 || updated.stock > updated.min_stock_alert) {
       await this.alerts.updateMany({ inventory_item_id: id, status: 'open' }, { $set: { status: 'restocked', resolved_at: new Date() } });
+    }
+    // P22.2 — 0 → positive edge fires patient back-in-stock alerts (never blocks restock).
+    const nowOut = Number((updated as unknown as { stock?: number }).stock ?? 0) <= 0;
+    if (wasOut && !nowOut && this.productAlerts) {
+      const item = updated as unknown as { sku?: string; generic_name?: string };
+      try {
+        await this.productAlerts.onRestock({ sku: item.sku, generic_name: item.generic_name });
+      } catch {
+        // alert fan-out must never fail the restock write itself.
+      }
     }
     return updated.toObject();
   }

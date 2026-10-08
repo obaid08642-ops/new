@@ -8,12 +8,6 @@ export async function requirePatientAccess(locale: string) {
   return accessToken;
 }
 
-export async function requireAdminAccess(locale: string) {
-  const accessToken = await requirePatientAccess(locale);
-  // The backend will validate the admin role; this just ensures they're authenticated
-  return accessToken;
-}
-
 export async function getOptionalPatientAccessToken(): Promise<string | undefined> {
   return (await cookies()).get(authCookieNames.access)?.value;
 }

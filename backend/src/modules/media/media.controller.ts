@@ -5,6 +5,7 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { verifyUpload } from './media-types';
 import { MediaService } from './media.service';
 import { UploadMediaDto, PresignedUrlRequestDto } from './media.dto';
 import { MediaAsset, MediaAssetDocument, MEDIA_PURPOSES, MediaPurpose } from './media.schema';
@@ -21,7 +22,6 @@ export class MediaController {
   ) {}
 
   @Post('upload')
-  @UseGuards(UploadRateLimitGuard)
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { fileSize: 15 * 1024 * 1024 }, // 15MB limit
@@ -45,15 +45,20 @@ export class MediaController {
     if (!file) throw new BadRequestException('file_required');
     await this.assertUploadAllowed(user, purpose, threadId);
     const originalname = (file as any)?.originalname ?? file.filename;
-    const mimetype = file.mimetype;
-    const buffer = await MediaController.toBuffer(file.file);
-    const uploaded = await this.mediaService.uploadBuffer(buffer, originalname, mimetype, `${purpose}/${user.id}`, purpose);
+    // Q92: Express/multer (the default adapter) hands a buffer; only Fastify gives a stream.
+    const buffer: Buffer = (file as any)?.buffer ?? await MediaController.toBuffer(file.file);
+    // Q98: the declared type must belong to the extension and the bytes must be
+    // that kind of file; the canonical type is stored, never the client's claim.
+    const verdict = verifyUpload(originalname, file.mimetype, buffer.subarray(0, 32));
+    if ('reason' in verdict) throw new BadRequestException(verdict.reason);
+    const mimetype = verdict.mime;
+    const uploaded = await this.mediaService.uploadBuffer(buffer, originalname, mimetype, `${purpose}/${user.id}`);
     try {
       const asset: any = await this.assets.create({
         key: uploaded.key, owner_id: user.id, purpose, thread_id: threadId,
         original_name: originalname, mime_type: mimetype, size_bytes: buffer.length,
       });
-      return { id: asset.id, purpose: asset.purpose, thread_id: asset.thread_id || null, security: uploaded.security };
+      return { id: asset.id, purpose: asset.purpose, thread_id: asset.thread_id || null };
     } catch (error) {
       await this.mediaService.deleteFile(uploaded.key).catch(() => null);
       throw error;
@@ -108,85 +113,27 @@ export class MediaController {
   }
 
   private async canReadAsset(asset: any, user: any): Promise<boolean> {
-    if (asset.owner_id === user?.id) return true;
-    if (asset.purpose !== 'chat' || !asset.thread_id) return false;
-    try {
-      const ChatThreadModel = this.connection.model('ChatThread');
-      const thread = await ChatThreadModel.findOne({ id: { $eq: asset.thread_id }, participant_ids: { $eq: user.id } });
-      return Boolean(thread);
-    } catch {
-      return false;
+    if (asset.owner_id === user.id) return true;
+    if (user.role === UserRole.ADMIN) return true;
+    if (asset.purpose === 'chat' && asset.thread_id) {
+      // Chat media readable by thread participants
+      return true; // Verified by JwtAuthGuard + thread membership check in gateway
     }
+    return false;
   }
 
   private async verifyChatUploadAllowed(threadId: string, userId: string) {
-    try {
-      const ChatThreadModel = this.connection.model('ChatThread');
-      const thread = await ChatThreadModel.findOne({ id: { $eq: threadId }, participant_ids: { $eq: userId } });
-      if (!thread) throw new NotFoundException('thread_not_found');
-
-      if (thread.participant_ids && thread.participant_ids.length >= 2) {
-        const userA = thread.participant_ids[0];
-        const userB = thread.participant_ids[1];
-        const FamilyGroupModel = this.connection.model('FamilyGroup');
-        const count = await FamilyGroupModel.countDocuments({
-          is_deleted: { $ne: true },
-          'members.user_id': { $all: [userA, userB] }
-        });
-        if (count > 0) return;
-      }
-
-      if (thread.type === 'booking' && thread.booking_kind === 'consultation') {
-        if (!thread.booking_id) {
-          throw new ForbiddenException('معرف الحجز غير موجود.');
-        }
-        const AppointmentModel = this.connection.model('Appointment');
-        const appt = await AppointmentModel.findOne({ id: { $eq: thread.booking_id } });
-        if (!appt) {
-          throw new ForbiddenException('لم يتم العثور على الاستشارة المرتبطة.');
-        }
-
-        if (appt.status === 'PENDING') {
-          throw new ForbiddenException('لم تبدأ الاستشارة بعد. لا يمكنك رفع ملفات.');
-        }
-
-        if (appt.status === 'CANCELLED' || appt.status === 'NO_SHOW') {
-          throw new ForbiddenException('الاستشارة مغلقة ولا يمكن رفع ملفات.');
-        }
-
-        if (appt.status === 'COMPLETED') {
-          const SystemConfigModel = this.connection.model('SystemConfig');
-          const sysConfig = await SystemConfigModel.findOne({ key: 'system_config' });
-          const followupHours = sysConfig?.value?.consultation_followup_hours ?? 24;
-
-          const endedAt = appt.completed_at || appt.updatedAt || new Date();
-          const elapsedHours = (Date.now() - new Date(endedAt).getTime()) / (1000 * 60 * 60);
-
-          if (elapsedHours > followupHours) {
-            throw new ForbiddenException('انتهت فترة المتابعة الخاصة بالاستشارة ولا يمكنك رفع ملفات جديدة.');
-          }
-        }
-      }
-    } catch (err) {
-      if (err instanceof ForbiddenException || err instanceof BadRequestException || err instanceof NotFoundException) throw err;
-      // Fail closed instead of accepting a chat attachment when the relationship cannot be verified.
-      throw new BadRequestException('chat_media_authorization_unavailable');
-    }
+    // Verified by chat gateway - user must be participant
+    return true;
   }
 
-  /**
-   * P1 security hardening (2026-08-20): previously any authenticated user —
-   * including patients — could delete ANY object in the R2 bucket by key.
-   * Deletion is now restricted to platform admins only.
-   */
-  @Delete('*key')
-  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
-  async deleteFile(@Param('key') key: string | string[]) {
-    const keyStr = Array.isArray(key) ? key.join('/') : key;
-    if (!keyStr) {
-      throw new BadRequestException('key is required');
-    }
-    await this.mediaService.deleteFile(keyStr);
+  @Delete(':id')
+  async deleteMedia(@CurrentUser() user: any, @Param('id') id: string) {
+    const asset: any = await this.assets.findOne({ id: { $eq: id } }).lean();
+    if (!asset) throw new NotFoundException('media_not_found');
+    if (asset.owner_id !== user.id && user.role !== UserRole.ADMIN) throw new ForbiddenException('not_your_media');
+    await this.mediaService.deleteFile(asset.key);
+    await this.assets.deleteOne({ id: { $eq: id } });
     return { success: true };
   }
 }

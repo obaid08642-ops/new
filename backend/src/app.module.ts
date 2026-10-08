@@ -130,14 +130,12 @@ import { BillingModule } from './modules/billing/billing.module';
 import { ArticlesModule } from './modules/articles/articles.module';
 
 import { CorrelationMiddleware } from './common/correlation.middleware';
-import { LocaleMiddleware } from './common/locale.middleware';
 import { DoctorsModule } from './modules/doctors/doctors.module';
 import { WriteGuard } from './common/write-guard';
 import { AdminGateGuard } from './common/admin-gate.guard';
 import { StepUpGuard, StepUpService } from './common/step-up.guard';
 import { ProductRankingModule } from './modules/product-ranking/product-ranking.module';
 import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
-import { ObservabilityModule } from './modules/observability/observability.module';
 
 @Module({
   imports: [
@@ -261,7 +259,7 @@ import { ObservabilityModule } from './modules/observability/observability.modul
     BansModule,
     HomeCareModule,
     BillingModule,
-ArticlesModule,
+    ArticlesModule,
     InsuranceEngineModule,
     AdminModule,
     EngagementModule,
@@ -269,7 +267,6 @@ ArticlesModule,
     AdminSpaModule, // admin console SPA REST surface (top-level paths, admin-role guarded)
     CatalogsModule, // unified central catalogs (insurance/labs/radiology/nursing) — single source
     CatalogCqrsModule,
-    ObservabilityModule,
   ],
   controllers: [HealthController, HealthDashboardController, ProviderPayoutsController],
   providers: [
@@ -288,6 +285,6 @@ ArticlesModule,
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(BansMiddleware, CorrelationMiddleware, LocaleMiddleware).forRoutes('*');
+    consumer.apply(BansMiddleware, CorrelationMiddleware).forRoutes('*');
   }
 }

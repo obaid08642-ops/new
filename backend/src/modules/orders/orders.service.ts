@@ -12,6 +12,7 @@ import { Delivery, DeliveryDocument } from '../../schemas/delivery.schema';
 import { OrderState, ORDER_TRANSITIONS, UserRole, DeliveryState } from '../../common/enums';
 import { EVENTS } from '../../common/events';
 import { DispatchService } from './dispatch.service';
+import { ReorderEligibilityService } from './reorder-eligibility.service';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { OrderRepository } from "./repositories/order.repository";
 import { MedicineRepository } from "./repositories/medicine.repository";
@@ -19,9 +20,40 @@ import { DeliveryRepository } from "./repositories/delivery.repository";
 import { PharmacyBidRepository } from "./repositories/pharmacybid.repository";
 import { CouponService, LoyaltyRedeemService, RefundExecutor, CancellationPolicy } from '../finance-engine/finance-engine.module';
 import { ProductRankingEventService } from '../product-ranking/product-ranking-event.service';
-import { AbusePreventionService } from '../security/abuse-prevention.service';
 
 const round2 = (n: number) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+
+/** P22.5 — shared with OrderAmendmentService: legacy mutations must never touch canonical pharmacy orders. */
+export function isCanonicalPharmacyOrder(order: any): boolean {  return Boolean(
+    order?.service_kind === 'pharmacy' ||
+    order?.order_type === 'pharmacy' ||
+    order?.type === 'pharmacy' ||
+    order?.pharmacy_id ||
+    (order?.basket_review_status && order.basket_review_status !== 'none') ||
+    order?.insurance_details ||
+    (Array.isArray(order?.items) && order.items.some((item: any) => item?.is_manual_entry || item?.is_substitute)),
+  );
+}
+
+/**
+ * P22.5 — amendment-surface guard. The shared `isCanonicalPharmacyOrder`
+ * treats a bare `pharmacy_id` as canonical, which is correct for the
+ * create/transition surface. The amendment surface (`OrderAmendmentService`)
+ * exclusively serves `orders`-collection rows: there a `pharmacy_id` is the
+ * legacy geo-dispatch assignment (the canonical flow persists to
+ * `pharmacy_orders`, never here), and those rows are exactly the amendable
+ * population. Governed-flow markers still block.
+ */
+export function isGovernedPharmacyFlow(order: any): boolean {
+  return Boolean(
+    order?.service_kind === 'pharmacy' ||
+    order?.order_type === 'pharmacy' ||
+    order?.type === 'pharmacy' ||
+    (order?.basket_review_status && order.basket_review_status !== 'none') ||
+    order?.insurance_details ||
+    (Array.isArray(order?.items) && order.items.some((item: any) => item?.is_manual_entry || item?.is_substitute)),
+  );
+}
 
 @Injectable()
 export class OrdersService {
@@ -38,22 +70,13 @@ export class OrdersService {
     private readonly loyaltyRedeem: LoyaltyRedeemService,
     private readonly refundExec: RefundExecutor,
     private readonly cancelPolicy: CancellationPolicy,
-    private readonly abusePrevention: AbusePreventionService,
     @Optional() private readonly rankingEvents?: ProductRankingEventService,
+    @Optional() private readonly reorderEligibility?: ReorderEligibilityService,
   ) {}
 
   /** Legacy /orders mutations must never operate on a pharmacy order. */
   private async assertNotCanonicalPharmacyOrder(order: any): Promise<void> {
-    const isPharmacy = Boolean(
-      order?.service_kind === 'pharmacy' ||
-      order?.order_type === 'pharmacy' ||
-      order?.type === 'pharmacy' ||
-      order?.pharmacy_id ||
-      (order?.basket_review_status && order.basket_review_status !== 'none') ||
-      order?.insurance_details ||
-      (Array.isArray(order?.items) && order.items.some((item: any) => item?.is_manual_entry || item?.is_substitute)),
-    );
-    if (isPharmacy) throw new ServiceUnavailableException('canonical_pharmacy_flow_required');
+    if (isCanonicalPharmacyOrder(order)) throw new ServiceUnavailableException('canonical_pharmacy_flow_required');
   }
 
   // ============ CREATE ============
@@ -158,42 +181,15 @@ export class OrdersService {
     let loyaltyPointsUsed = 0;
     const categories = items.map((i: any) => i.category).filter(Boolean);
 
-    // Coupon abuse prevention: max 3 attempts per order per hour per user
     if (data.coupon_code) {
-      const couponAttempt = await this.abusePrevention.checkCouponAttempt(patient.id, order.id, data.coupon_code);
-      if (!couponAttempt.allowed) {
-        throw new BadRequestException(`coupon_abuse_limit: max 3 attempts per hour. Retry after ${couponAttempt.retryAfterSeconds}s`);
-      }
-
       const v = await this.coupons.validate(patient.id, String(data.coupon_code), { order_total: preTotal, categories });
       if (!v.valid) throw new BadRequestException(`coupon_invalid: ${v.reason}`);
       couponDiscount = v.discount;
-
-      // Reset coupon attempts on successful validation
-      await this.abusePrevention.resetCouponAttempts(patient.id, order.id);
     }
-
-    // Loyalty points expiry check
     if (Number(data.loyalty_points) > 0) {
-      const loyaltyCheck = await this.abusePrevention.checkLoyaltyPointsExpiry(patient.id);
-      if (!loyaltyCheck.allowed) {
-        throw new BadRequestException(`loyalty_points_expired: ${loyaltyCheck.pointsExpiring} points expired`);
-      }
-
       const q = await this.loyaltyRedeem.quote(patient.id, preTotal - couponDiscount);
       loyaltyPointsUsed = Math.min(Math.floor(Number(data.loyalty_points)), q.max_points_for_order);
       loyaltyDiscount = round2(loyaltyPointsUsed * q.point_value_sar);
-
-      // Update loyalty activity timestamp
-      await this.abusePrevention.updateLoyaltyActivity(patient.id);
-    }
-
-    // Stacking prevention: only one coupon + one loyalty per order
-    const stackingCheck = await this.abusePrevention.validateDiscountStacking(
-      patient.id, order.id, couponDiscount, loyaltyPointsUsed
-    );
-    if (!stackingCheck.allowed) {
-      throw new BadRequestException(`discount_stacking_blocked: ${stackingCheck.reason}`);
     }
 
     order.total = Math.max(0, round2(preTotal - couponDiscount - loyaltyDiscount));
@@ -470,6 +466,21 @@ export class OrdersService {
     await this.assertNotCanonicalPharmacyOrder(order);
     this.assertOrderAccess(order, by);
 
+    // P22.5 — configurable patient cancellation window (minutes since creation).
+    // Admins/providers keep the stage-based policy below; patients self-cancel
+    // only inside the window, afterwards they go through support (admin cancel).
+    if (String(by.role || '').toLowerCase() === UserRole.PATIENT) {
+      const windowMinutes = await this.cancelWindowMinutes();
+      const createdAt = order.createdAt
+        ? new Date(order.createdAt).getTime()
+        : Date.now();
+      if (Date.now() - createdAt > windowMinutes * 60 * 1000) {
+        throw new BadRequestException(
+          `cancel_window_expired: patient self-cancel is allowed within ${windowMinutes} minutes of ordering`,
+        );
+      }
+    }
+
     const policy = await this.cancelPolicy.forOrder(order.state as string, by.role, order.delivery_fee || 0);
     if (!policy.allowed) {
       throw new BadRequestException(`Cannot cancel order at this stage (${policy.block_reason || 'not_allowed'})`);
@@ -632,9 +643,20 @@ export class OrdersService {
     return del;
   }
 
+  /**
+   * P22.5 — patient self-cancel window (minutes), admin-configurable via
+   * `finance_config { key: 'cancel_policy', cancel_window_minutes }`.
+   */
+  async cancelWindowMinutes(): Promise<number> {
+    const cfg: any = await this.conn
+      .collection('finance_config')
+      .findOne({ key: 'cancel_policy' } as any);
+    const n = Number(cfg?.cancel_window_minutes ?? 30);
+    return Number.isFinite(n) && n > 0 ? Math.floor(n) : 30;
+  }
+
   // Reorder — keep items, re-dispatch via geo
-  async reorder(orderId: string, patient: any) {
-    const o = await this.orderModel.findOne({ id: orderId, patient_id: patient.id });
+  async reorder(orderId: string, patient: any) {    const o = await this.orderModel.findOne({ id: orderId, patient_id: patient.id });
     if (o) {
       await this.assertNotCanonicalPharmacyOrder(o);
       return this.create(patient, {
@@ -648,7 +670,23 @@ export class OrdersService {
     // opening a fresh patient draft with the previous order's items.
     const governed: any = await this.conn.collection('pharmacy_orders').findOne({ id: orderId, patient_account_id: patient.id } as any);
     if (!governed) throw new NotFoundException();
-    return this.createGovernedDraftFromPrevious(governed);
+    const draft = await this.createGovernedDraftFromPrevious(governed);
+    return this.withReorderEligibility(draft, orderId, patient.id);
+  }
+
+  /**
+   * P22.1 — attach the Rx/stock eligibility of the SOURCE order to a reorder
+   * draft (response-only, never persisted). A failed lookup must not fail the
+   * reorder itself: the draft is already stored at this point.
+   */
+  private async withReorderEligibility(draft: any, sourceOrderId: string, patientId: string) {
+    if (!this.reorderEligibility) return draft;
+    try {
+      draft.reorder_eligibility = await this.reorderEligibility.forOrder(sourceOrderId, patientId);
+    } catch {
+      draft.reorder_eligibility = null;
+    }
+    return draft;
   }
 
   /**
@@ -725,7 +763,7 @@ export class OrdersService {
     const governed: any = await this.conn.collection('pharmacy_orders').findOne({ id: orderId, patient_account_id: patient.id } as any);
     if (!governed) throw new NotFoundException();
     if (!Array.isArray(body.items) || body.items.length === 0) throw new BadRequestException('items_required');
-    return this.createGovernedDraftFromPrevious(governed, {
+    const draft = await this.createGovernedDraftFromPrevious(governed, {
       items: body.items.map((it: any) => ({
         raw_name: it.raw_name || it.name || it.name_ar || it.name_en,
         name_ar: it.name_ar,
@@ -744,6 +782,7 @@ export class OrdersService {
       delivery_address: body.delivery_address || governed.delivery_address,
       patient_notes: body.notes ?? governed.patient_notes,
     });
+    return this.withReorderEligibility(draft, orderId, patient.id);
   }
 
   // ============ Basket Review (patient side) ============

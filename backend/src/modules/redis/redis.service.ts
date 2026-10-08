@@ -274,8 +274,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
   async scard(key: string): Promise<number> {
     if (this.ready) { try { return await this.client.scard(key); } catch { /* fall through */ } }
-    const s = this.memSetOf(key);
-    return s ? s.size : 0;
+    return this.memSetOf(key)?.size ?? 0;
   }
 
   // ── Sorted set operations ─────────────────────────────────────

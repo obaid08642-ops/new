@@ -12,9 +12,6 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "res.cloudinary.com", pathname: "/**" },
     ],
     formats: ["image/avif", "image/webp"],
-    // P15.4: AdaptiveImage serves 75 normally and 50 on slow links. Next.js
-    // refuses unlisted qualities (warns and falls back), so both are declared.
-    qualities: [50, 75],
   },
   outputFileTracingIncludes: {
     "/*": ["./node_modules/@swc/helpers/**/*"],

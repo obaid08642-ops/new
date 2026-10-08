@@ -137,4 +137,66 @@ export class PharmacyNotificationService {
     const o = await this.orders.findOne({ id: orderId }, { id: 1, patient_account_id: 1 }).lean();
     return o ? { id: o.id, patient_account_id: o.patient_account_id } : null;
   }
+
+  // ============ P22.1: refill subscription lifecycle (patient commerce) ============
+  async notifyRefillReminder(userId: string, params: { subscription_id: string; next_refill_at: string; items_count: number }) {
+    await this.notif.create({
+      user_id: userId,
+      title_key: 'pharmacy.refill_reminder.title',
+      body_key: 'pharmacy.refill_reminder.body',
+      params,
+      type: NotificationType.MEDICATION,
+      priority: NotificationPriority.HIGH,
+      action: { type: 'open_refill_subscription', subscription_id: params.subscription_id },
+    }).catch(() => null);
+  }
+
+  async notifyRefillOrderCreated(userId: string, params: { subscription_id: string; order_id: string }) {
+    await this.notif.create({
+      user_id: userId,
+      title_key: 'pharmacy.refill_created.title',
+      body_key: 'pharmacy.refill_created.body',
+      params,
+      type: NotificationType.ORDER,
+      priority: NotificationPriority.HIGH,
+      action: { type: 'open_pharmacy_order', order_id: params.order_id },
+    }).catch(() => null);
+  }
+
+  async notifyRefillExpired(userId: string, params: { subscription_id: string }) {
+    await this.notif.create({
+      user_id: userId,
+      title_key: 'pharmacy.refill_expired.title',
+      body_key: 'pharmacy.refill_expired.body',
+      params,
+      type: NotificationType.ALERT,
+      priority: NotificationPriority.HIGH,
+      action: { type: 'open_refill_subscription', subscription_id: params.subscription_id },
+    }).catch(() => null);
+  }
+
+  // ============ P22.2: patient product alerts (restock / price drop) ============
+  async notifyProductRestock(userId: string, params: { medicine_id: string; medicine_name: string }) {
+    await this.notif.create({
+      user_id: userId,
+      title_key: 'pharmacy.restock_alert.title',
+      body_key: 'pharmacy.restock_alert.body',
+      params,
+      type: NotificationType.ALERT,
+      priority: NotificationPriority.NORMAL,
+      action: { type: 'open_medicine', medicine_id: params.medicine_id },
+    }).catch(() => null);
+  }
+
+  async notifyPriceDrop(userId: string, params: { medicine_id: string; medicine_name: string; old_price: number; new_price: number }) {
+    await this.notif.create({
+      user_id: userId,
+      title_key: 'pharmacy.price_drop.title',
+      body_key: 'pharmacy.price_drop.body',
+      params,
+      type: NotificationType.PROMO,
+      priority: NotificationPriority.NORMAL,
+      action: { type: 'open_medicine', medicine_id: params.medicine_id },
+    }).catch(() => null);
+  }
 }

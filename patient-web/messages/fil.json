@@ -57,42 +57,6 @@
       "nextStep": "Kung paulit-ulit itong nangyayari, makipag-ugnayan sa support."
     }
   },
-  "Network": {
-    "dismiss": "Isara",
-    "offline": "Mukhang offline ka.",
-    "oldBrowser": {
-      "title": "Luma na ang iyong browser",
-      "body": "Kailangan ng Nabd Plus ang Safari 16.4+, Chrome 109+, Samsung Internet 20+, Firefox 109+, o iOS 16.4+ / Android 7+. Mangyaring mag-update upang magpatuloy."
-    },
-    "queuedTitle": "Nai-save sa device",
-    "timeout": "Masyadong tumagal ang server na sumagot.",
-    "serverError": "Pansamantalaang hindi available ang serbisyo.",
-    "banner": {
-      "offline": "Offline ka. Ipinapakita ang pinakahuling datos na na-load sa device na ito.",
-      "reconnecting": "Bumalik ang koneksyon. Ina-update."
-    },
-    "lastUpdated": "Huling update",
-    "nextStep": {
-      "retry": "Subukan muli.",
-      "check_connection": "Suriin ang iyong koneksyon sa internet at subukan muli.",
-      "contact_support": "Makipag-ugnayan sa suporta at ibahagi ang reference sa ibaba.",
-      "sign_in": "Mag-sign in at subukan muli.",
-      "wait": "Maghintay nang kaunti, pagkatapos ay subukan muli."
-    },
-    "queued": "Nai-save sa device na ito. Ise-send kapag bumalik ang koneksyon.",
-    "replayed": "Naipadala na ang iyong nai-save na mga pagbabago.",
-    "outboxFailed": "Hindi mailipadala ang ilang nai-save na pagbabago. Buksan ang screen na ito muli upang subukan.",
-    "rollback": {
-      "title": "Hindi nai-save ang pagbabago",
-      "message": "Hindi na-save ang pagbabago iyon, kaya ibinabalik namin ito."
-    },
-    "processing": "Pinoproseso. Mangyaring manatili sa pahinang ito hanggang matapos.",
-    "unsupportedDevice": {
-      "title": "Hindi suportado ang device na ito",
-      "body": "Kailangan ng Nabd Plus ang iOS 16.4 o mas bago, o Android 7 o mas bago. Gumagana ang website sa kahit anong modern na browser.",
-      "cta": "Magpatuloy sa website"
-    }
-  },
   "Shared": {
     "brand": "Nabd Plus",
     "patientSignIn": "Mag-sign in ang pasyente",
@@ -278,7 +242,6 @@
     "returnHome": "Bumalik sa home"
   },
   "RouteState": {
-    "contactSupport": "Makipag-ugnayan sa suporta",
     "loadingCode": "Nilo-load",
     "loadingTitle": "Inihahanda ang pahina",
     "loadingBody": "Sandali lang habang nilo-load ang pahina.",
@@ -763,19 +726,6 @@
     "deviceUnknown": "Hindi kilalang device",
     "expiresIn": "Mag-e-expire sa loob ng {value} araw",
     "sessionsSummary": "Ipinapakita ang unang {shown} sa {total} aktibong session."
-  },
-  "Appearance": {
-    "eyebrow": "Itsura",
-    "title": "Mga setting ng itsura",
-    "description": "Pumili kung paano mukha ang Nabd Plus sa device mo. Nasa-save at na-sync ang gusto mo sa mga session.",
-    "themeTitle": "Tema",
-    "light": "Maliwanag",
-    "dark": "Madilim",
-    "system": "Sistema",
-    "hint": "Agad na nangyayari ang pagbabago. Sinusunod ng sistema ang setting ng OS mo.",
-    "reducedMotionTitle": "Binabawas na galaw",
-    "reducedMotionDescription": "Kapag naka-enable sa system settings, binabawasan o pinapawalan ang mga animation at transition.",
-    "reducedMotionNotice": "Kontrolado ng operating system's accessibility preferences ang setting na ito."
   },
   "NotificationSettings": {
     "title": "Mga setting ng notification",
@@ -1616,89 +1566,5 @@
     "subtitle": "Ang iyong mga nursing visit at ang status ng bawat isa.",
     "empty": "Wala pang nursing visit.",
     "visit": "Nursing visit"
-  },
-  "AdminAnalytics": {
-    "title": "Admin Analytics",
-    "campaign_attribution": "Campaign Attribution",
-    "campaign_attribution_desc": "Track marketing campaign performance",
-    "filters": "Filters",
-    "date_from": "Date From",
-    "date_to": "Date To",
-    "source": "Source",
-    "medium": "Medium",
-    "campaign": "Campaign",
-    "all_sources": "All Sources",
-    "all_mediums": "All Mediums",
-    "apply": "Apply",
-    "export_csv": "Export CSV",
-    "total_orders": "Total Orders",
-    "total_revenue": "Total Revenue",
-    "conversion_rate": "Conversion Rate",
-    "campaigns": "Campaigns",
-    "by_source": "By Source",
-    "by_medium": "By Medium",
-    "no_data": "No Data",
-    "failed_to_load_report": "Failed to Load Report",
-    "export_success": "Export Successful",
-    "export_failed": "Export Failed",
-    "select_date": "Select Date"
-  },
-  "Errors": {
-    "AUTHENTICATION_REQUIRED": {
-      "message": "Kailangan mo mag-sign in para magpatuloy.",
-      "nextStep": "Mag-sign in at subukan muli."
-    },
-    "INSUFFICIENT_PERMISSION": {
-      "message": "Wala kang permission gawin ito.",
-      "nextStep": "Makipag-ugnayan sa support kung sa tingin mo ay mali ito."
-    },
-    "PRESCRIPTION_REQUIRED": {
-      "message": "Kailangan ng valid prescription ang item na ito.",
-      "nextStep": "I-upload mo ang prescription mo."
-    },
-    "NO_AVAILABILITY": {
-      "message": "Walang availability ngayon.",
-      "nextStep": "Subukan ibang oras o petsa."
-    },
-    "SERVICE_UNAVAILABLE": {
-      "message": "Pansamantalang unavailable ang serbisyong ito.",
-      "nextStep": "Pakisubukan muli pagkatapos ng kaunting oras."
-    },
-    "PROVIDER_NOT_AVAILABLE": {
-      "message": "Walang available na provider para sa request na ito.",
-      "nextStep": "Subukan muli mamaya o piliin ibang provider."
-    },
-    "PRODUCT_OUT_OF_STOCK": {
-      "message": "Out of stock ang product na ito.",
-      "nextStep": "Subukan alternative o check back later."
-    },
-    "PAYMENT_REQUIRED": {
-      "message": "Kailangan ang payment para tapusin ito.",
-      "nextStep": "Kumpletuhin ang payment."
-    },
-    "INSURANCE_NOT_SUPPORTED": {
-      "message": "Hindi cover ng insurance mo ito.",
-      "nextStep": "Magpatuloy sa self-payment o makipag-ugnayan sa insurer mo."
-    },
-    "LOCATION_NOT_SUPPORTED": {
-      "message": "Hindi pa namin serbisyuhan ang location na ito.",
-      "nextStep": "Subukan ibang address o piliin ang pickup."
-    },
-    "DUPLICATE_TRANSACTION": {
-      "message": "Na-submit na ito noon.",
-      "nextStep": "Check mo orders mo bago subukan muli."
-    },
-    "INVALID_INPUT": {
-      "message": "Mukhang mali ang ilang details.",
-      "nextStep": "Review highlighted fields at subukan muli."
-    },
-    "RATE_LIMITED": {
-      "message": "Sobrang daming attempts. Magslow down ka.",
-      "nextStep": "Maghintay sandali, tapos subukan muli."
-    },
-    "UNKNOWN_ERROR": {
-      "message": "Nagkaroon ng error. Pakisubukan muli.",
-      "nextStep": "Kung patuloy, makipag-ugnayan sa support."
-    }
   }
 }

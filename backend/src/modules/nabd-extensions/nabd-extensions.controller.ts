@@ -49,7 +49,6 @@ export class NabdExtensionsController {
 
   @Roles(UserRole.ADMIN)
   @Put('admin/config/flags')
-  @Roles(UserRole.ADMIN)
   async updateFlag(@CurrentUser() admin: any, @Body() body: UpdateFlagDto) {
     if (!body.flagName) throw new BadRequestException('flagName is required');
     return this.svc.updateFlag(body.flagName, body.isEnabled, admin.id);
@@ -129,10 +128,6 @@ export class NabdExtensionsController {
     if (!body.programType) throw new BadRequestException('programType is required');
     return this.svc.enrollProgram(user.id, body.programType);
   }
-
-  // R4: GET medical/programs/active removed (dup of medical-programs).
-
-  // R4: POST medical/programs/complete-session removed (dup of medical-programs).
 
   // ==========================================
   // MODULE 3: PROVIDER PERFORMANCE & MATCHING

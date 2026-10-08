@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { Module, Injectable, BadRequestException, NotFoundException, ForbiddenException, ServiceUnavailableException, Controller, Post, Get, Body, Param, UseGuards, Optional } from '@nestjs/common';
+import { Module, Injectable, BadRequestException, NotFoundException, ForbiddenException, ServiceUnavailableException, Controller, Post, Get, Body, Param, UseGuards } from '@nestjs/common';
 import { MongooseModule, InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as crypto from 'crypto';
@@ -9,8 +9,6 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { Logger } from '@nestjs/common';
 import { CurrentUser, Public, JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { UploadDto, UploadSuggestionImageDto } from './storage.dto';
-import { UploadSecurityService, UploadPurposeConfig, UPLOAD_PURPOSE_CONFIGS } from './upload-security.service';
-import { CircuitBreakerService } from '../../common/circuit-breaker.service';
 
 export enum StorageBackend { BASE64 = 'base64', S3 = 's3', CLOUDINARY = 'cloudinary', SUPABASE = 'supabase' }
 
@@ -136,12 +134,7 @@ export class StorageService {
    * document flows (KYC, images) keep working in dev/staging without object storage.
    */
   private adapter: StorageAdapter = S3R2Adapter.configured() ? new S3R2Adapter() : new Base64Adapter();
-  private breakerSvc: CircuitBreakerService | null = null;
-  constructor(
-    @InjectModel('StorageObject') private readonly model: Model<StorageObject>,
-    private readonly uploadSecurity: UploadSecurityService,
-    @Optional() private readonly breakers?: CircuitBreakerService,
-  ) {
+  constructor(@InjectModel('StorageObject') private readonly model: Model<StorageObject>) {
     if (!S3R2Adapter.configured()) {
       // eslint-disable-next-line no-console
       console.warn('S3 storage not configured (S3_BUCKET/S3_ENDPOINT/keys) — falling back to inline base64 storage');
@@ -217,59 +210,31 @@ export class StorageService {
    *  target='cloudinary' routes provider/user content (profile images, clinic
    *  galleries, KYC documents) to Cloudinary; the default stays R2 so the
    *  medicine catalogue is never affected. */
-  async upload(input: { owner_account_id: string; owner_kind?: string; mime: string; data_base64: string; original_name?: string; visibility?: 'private' | 'public_read'; customKey?: string; target?: 'r2' | 'cloudinary'; purpose?: string }) {
-    const purpose = input.purpose || 'general';
-    const config = this.uploadSecurity.getConfigForPurpose(purpose);
-
-    const buffer = Buffer.from(input.data_base64, 'base64');
-    const secureResult = await this.uploadSecurity.validateAndSecureUpload(
-      buffer,
-      input.original_name || 'file',
-      input.mime,
-      purpose,
-    );
-
-    if (secureResult.sizeBytes > config.maxSizeBytes) {
-      throw new BadRequestException(`File exceeds ${config.maxSizeBytes / (1024 * 1024)}MB limit for ${purpose}`);
-    }
-
+  async upload(input: { owner_account_id: string; owner_kind?: string; mime: string; data_base64: string; original_name?: string; visibility?: 'private' | 'public_read'; customKey?: string; target?: 'r2' | 'cloudinary' }) {
+    if (!ALLOWED_MIME.has(input.mime)) throw new BadRequestException('unsupported mime: ' + input.mime);
+    const approxBytes = Math.floor((input.data_base64?.length || 0) * 0.75);
+    if (approxBytes > MAX_BYTES) throw new BadRequestException('file exceeds 8MB limit');
     if (input.target === 'cloudinary') {
       if (!this.cloudinaryConfigured()) throw new BadRequestException('CLOUDINARY_NOT_CONFIGURED');
-      return this.uploadCloudinary(input, secureResult);
+      return this.uploadCloudinary(input);
     }
-
+    // Authenticated uploads have no client-selectable public visibility. A
+    // separate reviewed publication workflow is required for catalogue media.
     if (!S3R2Adapter.configured()) throw new ServiceUnavailableException('PRIVATE_OBJECT_STORAGE_REQUIRED');
-
-    const customKey = input.customKey || this.uploadSecurity.generateSecureKey(purpose, input.owner_account_id);
-    // 15.7: S3/R2 puts run behind the shared `storage:s3:put` breaker so a
-    // dead object store stops being retried per upload. The breaker registry
-    // is shared per name, so supervision sees it from any instance.
-    if (!this.breakerSvc) this.breakerSvc = this.breakers ?? new CircuitBreakerService();
+    const checksum = crypto.createHash('sha256').update(input.data_base64).digest('hex');
     let adapterRes;
     try {
-      adapterRes = await this.breakerSvc.fire(
-        'storage:s3:put',
-        (p: { mime: string; data_base64?: string; original_name: string; customKey?: string }) => this.adapter.put(p),
-        [{
-          mime: secureResult.mimeType,
-          data_base64: secureResult.buffer.toString('base64'),
-          original_name: input.original_name || 'file',
-          customKey,
-        }],
-        undefined,
-        { timeout: Math.max(s3TimeoutMs(), 1000), errorThresholdPercentage: 50, resetTimeout: 30000 },
-      );
+      adapterRes = await this.adapter.put({ mime: input.mime, data_base64: input.data_base64, original_name: input.original_name || 'file', customKey: input.customKey });
     } catch (e: any) {
       this.logger.error(`S3/R2 put failed (${e.message}) — private upload refused`);
       throw new ServiceUnavailableException('PRIVATE_OBJECT_STORAGE_UNAVAILABLE');
     }
-
     const obj = await this.model.create({
       backend: adapterRes.backend,
-      mime: secureResult.mimeType,
+      mime: input.mime,
       original_name: input.original_name || 'file',
-      size_bytes: secureResult.sizeBytes,
-      checksum_sha256: secureResult.checksumSha256,
+      size_bytes: approxBytes,
+      checksum_sha256: checksum,
       data_base64: adapterRes.data_base64,
       external_url: adapterRes.external_url,
       external_key: adapterRes.external_key,
@@ -277,18 +242,7 @@ export class StorageService {
       owner_kind: input.owner_kind || 'provider_account',
       visibility: 'private',
     });
-    return {
-      id: obj.id,
-      mime: obj.mime,
-      size_bytes: obj.size_bytes,
-      url: `/api/v1/storage/${obj.id}`,
-      security: {
-        sanitized: secureResult.sanitized,
-        exifStripped: secureResult.exifStripped,
-        clamavScanned: secureResult.clamavScanned,
-        pdfSanitized: secureResult.pdfSanitized,
-      },
-    };
+    return { id: obj.id, mime: obj.mime, size_bytes: obj.size_bytes, url: `/api/v1/storage/${obj.id}` };
   }
 
   /** Fetch object — enforces owner_account_id privacy unless visibility=public_read. */
@@ -360,19 +314,10 @@ export class StorageService {
    * validate → (virus-scan hook point) → auto WebP/AVIF (f_auto) → auto quality
    * (q_auto) → responsive thumbnail → store FULL metadata (never bare URL).
    */
-  async uploadCloudinary(input: { owner_account_id: string; owner_kind?: string; mime: string; data_base64: string; original_name?: string; visibility?: 'private' | 'public_read'; customKey?: string }, secureResult?: Awaited<ReturnType<typeof this.uploadSecurity.validateAndSecureUpload>>) {
-    const purpose = 'general';
-    const config = this.uploadSecurity.getConfigForPurpose(purpose);
-
-    const buffer = secureResult?.buffer || Buffer.from(input.data_base64, 'base64');
-    const finalMime = secureResult?.mimeType || input.mime;
-    const finalSize = secureResult?.sizeBytes || Math.floor((input.data_base64?.length || 0) * 0.75);
-    const checksum = secureResult?.checksumSha256 || crypto.createHash('sha256').update(input.data_base64).digest('hex');
-
-    if (finalSize > config.maxSizeBytes) {
-      throw new BadRequestException(`File exceeds ${config.maxSizeBytes / (1024 * 1024)}MB limit`);
-    }
-
+  async uploadCloudinary(input: { owner_account_id: string; owner_kind?: string; mime: string; data_base64: string; original_name?: string; visibility?: 'private' | 'public_read'; customKey?: string }) {
+    if (!ALLOWED_MIME.has(input.mime)) throw new BadRequestException('unsupported mime: ' + input.mime);
+    const approxBytes = Math.floor((input.data_base64?.length || 0) * 0.75);
+    if (approxBytes > MAX_BYTES) throw new BadRequestException('file exceeds 8MB limit');
     if (!this.cloudinaryConfigured()) throw new BadRequestException('CLOUDINARY_NOT_CONFIGURED');
 
     const cloudinary = require('cloudinary').v2;
@@ -388,7 +333,7 @@ export class StorageService {
     const publicId = input.customKey
       ? `nabd/${input.customKey}`
       : `nabd/${input.owner_kind || 'user'}/${input.owner_account_id}/${crypto.randomUUID()}`;
-    const result = await withTimeout(cloudinary.uploader.upload(`data:${finalMime};base64,${buffer.toString('base64')}`, {
+    const result = await withTimeout(cloudinary.uploader.upload(`data:${input.mime};base64,${input.data_base64}`, {
       public_id: publicId,
       resource_type: 'image',
       type: 'authenticated',
@@ -411,10 +356,10 @@ export class StorageService {
 
     const obj = await this.model.create({
       backend: 'cloudinary' as any,
-      mime: finalMime,
+      mime: input.mime,
       original_name: input.original_name || 'file',
-      size_bytes: finalSize,
-      checksum_sha256: checksum,
+      size_bytes: approxBytes,
+      checksum_sha256: crypto.createHash('sha256').update(input.data_base64).digest('hex'),
       external_url: meta.secureUrl,
       external_key: meta.publicId,
       owner_account_id: input.owner_account_id,
@@ -423,19 +368,7 @@ export class StorageService {
       cloudinary: meta,
     } as any);
 
-    return {
-      id: obj.id,
-      mime: obj.mime,
-      size_bytes: obj.size_bytes,
-      url: `/api/v1/storage/${obj.id}`,
-      meta,
-      security: {
-        sanitized: secureResult?.sanitized ?? false,
-        exifStripped: secureResult?.exifStripped ?? false,
-        clamavScanned: secureResult?.clamavScanned ?? false,
-        pdfSanitized: secureResult?.pdfSanitized ?? false,
-      },
-    };
+    return { id: obj.id, mime: obj.mime, size_bytes: obj.size_bytes, url: `/api/v1/storage/${obj.id}`, meta };
   }
 }
 
@@ -456,7 +389,6 @@ export class StorageController {
       data_base64: body.data_base64,
       original_name: body.original_name,
       target: 'r2',
-      purpose: body.purpose || 'general',
     });
   }
   @Get(':id')
@@ -493,7 +425,6 @@ export class StorageController {
       data_base64: body.data_base64,
       original_name: body.original_name || 'suggestion',
       target: 'r2',
-      purpose: body.purpose || 'suggestion',
     });
   }
 
@@ -507,7 +438,7 @@ export class StorageController {
 @Module({
   imports: [MongooseModule.forFeature([{ name: 'StorageObject', schema: StorageObjectSchema }])],
   controllers: [StorageController],
-  providers: [StorageService, UploadSecurityService],
-  exports: [StorageService, UploadSecurityService, MongooseModule],
+  providers: [StorageService],
+  exports: [StorageService, MongooseModule],
 })
 export class StorageModule {}

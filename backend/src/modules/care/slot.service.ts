@@ -5,7 +5,6 @@ import { Appointment, AppointmentDocument } from '../../schemas/appointment.sche
 import { LeaveRequest, LeaveRequestDocument } from '../../schemas/leave-request.schema';
 import { ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { AppointmentRepository } from "./repositories/appointment.repository";
-import { isRamadan, riyadhParts } from '../../common/riyadh-clock';
 
 /**
  * Slot generation engine.
@@ -35,13 +34,10 @@ export class SlotService {
       return { date: dateStr, service_type, slots: [], reason: 'service_not_supported' };
     }
 
-    // 2. Opening windows for that day (see hoursFor). The date is parsed as
-    // UTC midnight, whose weekday ALWAYS equals the Riyadh calendar day's
-    // weekday (00:00Z is 03:00 in Riyadh — same day, no DST in Saudi Arabia),
-    // so `dow` below is already the provider-local weekday per 15.9.
+    // 2. Opening windows for that day (see hoursFor).
     const date = new Date(dateStr + 'T00:00:00Z');
     if (isNaN(date.getTime())) return { date: dateStr, service_type, slots: [], reason: 'invalid_date' };
-    const windows = await this.hoursFor(doctor, date.getUTCDay(), service_type, dateStr);
+    const windows = await this.hoursFor(doctor, date.getUTCDay(), service_type);
     if (!windows.length) {
       return { date: dateStr, service_type, slots: [], reason: 'closed' };
     }
@@ -133,71 +129,37 @@ export class SlotService {
   /**
    * Opening windows ('HH:MM' open/close) for a weekday (0=Sunday) and consultation mode, from the first source
    * the doctor has:
-   *  0. per-date special hours (holidays, Eid closures — `special_hours`,
-   *     exact YYYY-MM-DD match; a `closed` entry closes the day),
    *  1. weekly slots approved by admin (provider_schedule_slots, DoctorDashboard "schedule" screen),
-   *  2. Ramadan weekly hours (`ramadan_hours`, same shape as working_hours)
-   *     while the date falls in Ramadan (Umm al-Qura, Asia/Riyadh),
-   *  3. the per-mode schedule entered at registration (schedule_clinic / schedule_video / schedule_home),
-   *  4. legacy working_hours.
+   *  2. the per-mode schedule entered at registration (schedule_clinic / schedule_video / schedule_home),
+   *  3. legacy working_hours.
    * Day keys are accepted as 'sun', 'sunday', a 0-6 number or 'all'.
    */
-  private async hoursFor(doctor: any, dow: number, mode: 'clinic' | 'video' | 'home', dateStr?: string): Promise<{ open: string; close: string }[]> {
+  private async hoursFor(doctor: any, dow: number, mode: 'clinic' | 'video' | 'home'): Promise<{ open: string; close: string }[]> {
     const HHMM = /^\d{2}:\d{2}$/;
-    // 15.9 (0): a malformed special entry must never strand a provider —
-    // fall through to the normal sources instead of closing/opening wrongly.
-    const special = dateStr && Array.isArray(doctor.special_hours)
-      ? doctor.special_hours.find((s: any) => s && s.date === dateStr)
-      : undefined;
-    if (special) {
-      if (special.closed) return [];
-      if (HHMM.test(special.open || '') && HHMM.test(special.close || '')) {
-        return [{ open: special.open, close: special.close }];
-      }
-    }
     const slotsCol = (this.leaves as any).db?.collection('provider_schedule_slots');
     const approved = doctor.account_id && slotsCol ? await slotsCol.find({
       provider_account_id: doctor.account_id, day_of_week: dow, active: { $ne: false }, service_type: { $in: [mode, 'all'] },
     }).toArray().catch(() => []) : [];
     const fromApproved = (approved as any[]).filter((x) => HHMM.test(x.start_time) && HHMM.test(x.end_time)).map((x) => ({ open: x.start_time, close: x.end_time }));
     if (fromApproved.length) return fromApproved;
-    // 15.9 (2): Ramadan reduced hours — weekly shape, same day-key matching.
-    if (dateStr && isRamadan(new Date(dateStr + 'T12:00:00Z'))) {
-      const ramadan = this.entriesFor(doctor.ramadan_hours, dow, HHMM);
-      if (ramadan.length) return ramadan;
-    }
-    const perMode = this.entriesFor(doctor[`schedule_${mode}`], dow, HHMM);
-    if (perMode.length) return perMode;
-    return this.entriesFor(doctor.working_hours, dow, HHMM);
-  }
-
-  /**
-   * Weekly-shape window extraction shared by the per-mode schedule, legacy
-   * working_hours and Ramadan hours: skips `closed` days, matches 'sun' /
-   * 'sunday' / 0-6 / 'all' keys, keeps morning + evening windows.
-   */
-  private entriesFor(
-    rows: any[],
-    dow: number,
-    HHMM: RegExp,
-  ): { open: string; close: string }[] {
-    const matches = (d: any) => {
+    const dayMatches = (d: any) => {
       const v = String(d ?? '').toLowerCase();
       return v === 'all' || v === String(dow) || v === this.DAY_KEYS[dow] || v === FULL_DAYS[dow];
     };
-    return (rows || []).filter((w) => w && !w.closed && matches(w.day)).flatMap((w) => [
+    const fromEntries = (rows: any[]) => (rows || []).filter((w) => w && !w.closed && dayMatches(w.day)).flatMap((w) => [
       ...(HHMM.test(w.open || '') && HHMM.test(w.close || '') ? [{ open: w.open, close: w.close }] : []),
       ...(HHMM.test(w.open_evening || '') && HHMM.test(w.close_evening || '') ? [{ open: w.open_evening, close: w.close_evening }] : []),
     ]);
+    const perMode = fromEntries(doctor[`schedule_${mode}`]);
+    if (perMode.length) return perMode;
+    return fromEntries(doctor.working_hours);
   }
 
   /**
    * "Available today" check — quick scan: does the doctor have at least one bookable slot today?
    */
   async hasSlotsToday(doctor: ProviderProfileDocument): Promise<boolean> {
-    // 15.9: "today" is the Riyadh calendar day — near Riyadh midnight the UTC
-    // date is still yesterday, which would scan the wrong day's hours.
-    const today = riyadhParts(new Date()).ymd;
+    const today = new Date().toISOString().substring(0, 10);
     // try the first supported mode
     const mode = (doctor.consultation_modes && doctor.consultation_modes[0]) as any;
     if (!mode) return false;
@@ -209,12 +171,9 @@ export class SlotService {
   async nextAvailable(doctor: ProviderProfileDocument): Promise<string | null> {
     const mode = (doctor.consultation_modes && doctor.consultation_modes[0]) as any;
     if (!mode) return null;
-    // 15.9: anchor the 14-day scan on the Riyadh calendar day (see hasSlotsToday).
-    const anchor = riyadhParts(new Date());
-    const [ay, am, ad] = anchor.ymd.split('-').map(Number);
-    const base = Date.UTC(ay, am - 1, ad);
+    const today = new Date();
     for (let i = 0; i < 14; i++) {
-      const d = new Date(base + i * 24 * 3600_000);
+      const d = new Date(today.getTime() + i * 24 * 3600_000);
       const dateStr = d.toISOString().substring(0, 10);
       const r = await this.slotsForDate(doctor, dateStr, mode);
       const slot = r.slots.find((s) => s.available);
