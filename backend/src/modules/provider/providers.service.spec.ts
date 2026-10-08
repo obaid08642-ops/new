@@ -83,7 +83,8 @@ describe('REVIEW-P3: generated provider passwords are unguessable', () => {
       findOne: jest.fn(async () => ({ id: 'adm', role: 'hospital_admin', parent_provider_account_id: 'h1' })),
       create: jest.fn(async (u: any) => { created.push(u); return { ...u, id: 'staff1' }; }),
     };
-    const branchModel = { findById: jest.fn(async () => ({ _id: 'b1', doctors_roster: [], save: jest.fn() })) };
+    const branch = { _id: 'b1', doctors_roster: [], save: jest.fn() };
+    const branchModel = { findById: jest.fn(async () => branch), findOne: jest.fn(async () => branch) };
     const service = new ProvidersService(userRepository as any, { create: jest.fn() } as any, branchModel as any, {} as any, { refresh: jest.fn() } as any);
     const r: any = await service.createBranchStaffAccount('adm', 'b1', { fullName: 'S', role: 'receptionist' });
     expect(await bcrypt.compare('Temp123!', created[0].password_hash)).toBe(false);
