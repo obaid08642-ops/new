@@ -1,0 +1,285 @@
+{
+  "slice": "4-web",
+  "batch": 4,
+  "app": "patient-web",
+  "screens": [
+    {
+      "route": "/home-care",
+      "elements": [
+        [
+          "Links: services, providers, my visits",
+          "static; existing routes",
+          "ok"
+        ],
+        [
+          "Booking rows: service, time, sessions, duration",
+          "GET /unified-bookings/mine (service_name_*, scheduled_at, sessions_count, duration)",
+          "ok"
+        ],
+        [
+          "State chip",
+          "booking.state through nursingStatus (phrase, never the raw code)",
+          "fixed"
+        ],
+        [
+          "Empty / error with retry",
+          "call above",
+          "ok"
+        ],
+        [
+          "Inline styles and raw colours on the page",
+          "removed (kit and tokens)",
+          "fixed"
+        ]
+      ]
+    },
+    {
+      "route": "/home-care/providers",
+      "elements": [
+        [
+          "Provider rows: name, city, verified chip",
+          "GET /home-care/providers (name_*, city, approval_status)",
+          "ok"
+        ],
+        [
+          "Empty / error",
+          "call above",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/home-care/services",
+      "elements": [
+        [
+          "Search",
+          "GET form (q), filtered on the loaded list",
+          "ok"
+        ],
+        [
+          "Service rows: name, description, price, duration, insurance chip",
+          "GET /home-care/services (public catalogue as fallback)",
+          "ok"
+        ],
+        [
+          "Empty / no match",
+          "call above",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/home-care/services/[serviceId]",
+      "elements": [
+        [
+          "Name, about, price, duration, insurance chip",
+          "GET /home-care/services/:param",
+          "ok"
+        ],
+        [
+          "Read-only notice",
+          "static key (no booking is made from this page)",
+          "ok"
+        ],
+        [
+          "Unavailable state with way back",
+          "call above",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/nursing/catalog",
+      "elements": [
+        [
+          "Service rows linking to the service page",
+          "GET /nursing/catalog",
+          "ok"
+        ],
+        [
+          "Price, duration, insurance chip",
+          "catalogue fields; none invented",
+          "ok"
+        ],
+        [
+          "Book Now window (fake confirmation, reference and 180 SAR default)",
+          "removed; the row opens the service page",
+          "fixed"
+        ],
+        [
+          "Empty state",
+          "call above",
+          "ok"
+        ],
+        [
+          "Insurance catalogue call of the old window (* /catalogs/insurance)",
+          "removed with the window",
+          "hidden"
+        ]
+      ]
+    },
+    {
+      "route": "/nursing/insurance-status",
+      "elements": [
+        [
+          "State headline",
+          "GET /home-care/bookings/:param or /home-care/bookings/my",
+          "ok"
+        ],
+        [
+          "Decision and co-pay rows",
+          "booking.decision, copay_amount | patient_share",
+          "ok"
+        ],
+        [
+          "Live tracking link",
+          "only when CONFIRMED / IN_PROGRESS / APPROVED_FULL",
+          "ok"
+        ],
+        [
+          "List answer as a bare array",
+          "now read (it ended in not-found before)",
+          "fixed"
+        ]
+      ]
+    },
+    {
+      "route": "/nursing/nurses/[nurseId]",
+      "elements": [
+        [
+          "Name, specialty, city",
+          "GET /nursing/nurses/:param",
+          "ok"
+        ],
+        [
+          "Experience and rating figures",
+          "experience_years, rating; drawn only when sent",
+          "fixed"
+        ],
+        [
+          "About",
+          "nurse.bio; the generic default bio was removed",
+          "fixed"
+        ],
+        [
+          "Services list",
+          "nurse.services (name, price, duration)",
+          "ok"
+        ],
+        [
+          "Booking form: service, day, time, address, notes, payment method",
+          "GET /users/me/addresses; POST /api/nursing/bookings (unchanged)",
+          "ok"
+        ],
+        [
+          "'24/7 home care' stat, 'Licensed and verified' badge, request link to /nursing/booking",
+          "removed: no source / pointed back to the catalogue",
+          "hidden"
+        ]
+      ]
+    },
+    {
+      "route": "/nursing/visits",
+      "elements": [
+        [
+          "Visit rows: service, nurse, time, state",
+          "GET /nursing/visits",
+          "ok"
+        ],
+        [
+          "State chip",
+          "nursingStatus (phrase)",
+          "fixed"
+        ],
+        [
+          "Empty state with way to the catalogue",
+          "call above",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/nursing/visits/[visitId]",
+      "elements": [
+        [
+          "Minutes to arrival and nurse",
+          "GET /nursing/visits/:param/tracking (eta_minutes), visit.nurse_name",
+          "ok"
+        ],
+        [
+          "Steps timeline",
+          "visit.status against the six known steps",
+          "ok"
+        ],
+        [
+          "Clinical report: pulse, blood pressure, notes",
+          "tracking.vitals, tracking.notes (visit as fallback)",
+          "ok"
+        ],
+        [
+          "Raw status code on unknown state",
+          "no longer printed",
+          "fixed"
+        ]
+      ]
+    }
+  ],
+  "needsReview": [
+    {
+      "route": "/nursing/nurses/[nurseId]",
+      "element": "Public nurse profile",
+      "kind": "backend",
+      "note": "GET /nursing/nurses/:param answers 401 without a token, so a visitor sees the unavailable state; and no screen links to this page (the providers list rows are not links; the ids may differ).",
+      "file": "patient-web/app/[locale]/nursing/nurses/[nurseId]/page.tsx",
+      "line": 90
+    },
+    {
+      "route": "/nursing/catalog",
+      "element": "service-booking-modal.tsx",
+      "kind": "client",
+      "note": "The fake confirmation (timer, random reference, insurance estimate) is gone from the catalogue; the component is still in the repo and only components-next/diagnostics-hub-client.tsx (not imported by any page) uses it. Delete both.",
+      "file": "patient-web/components-next/service-booking-modal.tsx",
+      "line": 33
+    },
+    {
+      "route": "/nursing/catalog",
+      "element": "Row link needs a session",
+      "kind": "owner",
+      "note": "The catalogue is public but the service page it links to asks for sign-in; a visitor is sent to the login page.",
+      "file": "patient-web/app/[locale]/nursing/catalog/page.tsx",
+      "line": 68
+    },
+    {
+      "route": "/nursing/visits",
+      "element": "Token read",
+      "kind": "client",
+      "note": "Reads the auth cookie itself and shows the empty state when there is none, instead of redirecting to login like the other screens.",
+      "file": "patient-web/app/[locale]/nursing/visits/page.tsx",
+      "line": 25
+    },
+    {
+      "route": "/nursing/visits/[visitId]",
+      "element": "Status vocabulary",
+      "kind": "backend",
+      "note": "The page knows REQUESTED to COMPLETED; the app and the insurance flow use NEW_REQUEST, IN_PROGRESS, WAITING_COPAY: the timeline shows no current step for those.",
+      "file": "patient-web/app/[locale]/nursing/visits/[visitId]/page.tsx",
+      "line": 38
+    },
+    {
+      "route": "/nursing/nurses/[nurseId]",
+      "element": "Booking form",
+      "kind": "backend",
+      "note": "Posts no address coordinates and offers fixed daily times (09:00 to 17:00), not the nurse's availability; a card payment gets no payment intent after the booking (the app starts one).",
+      "file": "patient-web/components-next/nursing-booking-form.tsx",
+      "line": 111
+    },
+    {
+      "route": "/home-care",
+      "element": "Duration text",
+      "kind": "backend",
+      "note": "booking.duration and service.duration are drawn as the server wrote them ('1 hour'), in English, in every language.",
+      "file": "patient-web/app/[locale]/home-care/page.tsx",
+      "line": 58
+    }
+  ]
+}

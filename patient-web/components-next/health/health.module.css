@@ -1,0 +1,83 @@
+/* The health screens (Batch 5, merge map section 1): the hub (canvas/HealthHub), vitals, sleep, medications, medical profile,
+   records and wearables. The shell and the cards come from components-next/core and pharmacy/rx.module.css, the fields,
+   tabs, rows and notes from consult/consult.module.css; this file only adds what the health board draws that those do not
+   (the vital tiles, the dose rows, the score card, the sheet). Tokens only, logical properties only, no inline styles. */
+
+.stack { display: flex; flex-direction: column; gap: var(--nabd-space-sm); min-inline-size: 0; }
+.sectionHead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; min-inline-size: 0; }
+.sectionTitle { margin: 0; font-size: var(--nabd-font-size-h4); line-height: var(--nabd-font-size-h4-lineHeight); font-weight: 700; overflow-wrap: anywhere; }
+.sectionLink {
+  display: inline-flex; align-items: center; min-block-size: 44px; font-size: var(--nabd-font-size-control); font-weight: 500;
+  color: var(--nabd-color-text-link); text-decoration: none; text-align: end;
+}
+.sectionLink:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-sm); }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.toolbar > * { min-inline-size: 0; }
+
+/* ---- the vital tiles (canvas/HealthHub: a white card, the label and the glyph, the value and the unit, the time) ---- */
+.tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.tile {
+  display: flex; flex-direction: column; gap: 8px; padding: 14px; box-sizing: border-box; min-inline-size: 0; min-block-size: 44px;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
+  border-radius: var(--nabd-radius-2xl); color: inherit; text-decoration: none;
+}
+a.tile:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.tileTop { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tileLabel { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.tileValue { font-size: var(--nabd-font-size-h3); font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+.tileValue bdi { unicode-bidi: isolate; }
+.tileUnit { font-size: var(--nabd-font-size-small); font-weight: 400; color: var(--nabd-color-text-secondary); }
+.tileWhen { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+
+/* ---- the score card on the hub (the old score page, one GET /health/score) ---- */
+.score { display: flex; align-items: center; gap: 14px; }
+.scoreValue { margin: 0; font-size: var(--nabd-font-size-h1); line-height: 1.1; font-weight: 700; font-variant-numeric: tabular-nums; }
+.scoreBody { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
+.parts { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); gap: 8px; }
+.part { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); min-inline-size: 0; }
+.partValue { font-weight: 700; font-size: var(--nabd-font-size-row); }
+
+/* ---- the dose rows and the reminder cards ---- */
+.rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.rows > li { border-block-end: 1px solid var(--nabd-color-border-subtle); min-inline-size: 0; }
+.rows > li:last-child { border-block-end: 0; }
+.row { display: flex; align-items: center; gap: 12px; padding-block: 12px; min-inline-size: 0; }
+.rowBody { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.rowTitle { font-size: var(--nabd-font-size-row); font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+.rowSub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.rowSub bdi, .rowTitle bdi { unicode-bidi: isolate; }
+.rowActions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px; flex: none; }
+.times { display: flex; flex-wrap: wrap; gap: 6px; }
+.time {
+  display: inline-flex; align-items: center; min-block-size: 26px; padding-inline: 10px; border-radius: var(--nabd-radius-pill);
+  background: var(--nabd-color-bg-sunken); font-size: var(--nabd-font-size-small); font-weight: 600; font-variant-numeric: tabular-nums;
+}
+.iconButton {
+  display: inline-flex; align-items: center; justify-content: center; inline-size: 44px; block-size: 44px; padding: 0; cursor: pointer;
+  border: 0; border-radius: var(--nabd-radius-pill); background: transparent; color: var(--nabd-color-icon-secondary); text-decoration: none;
+}
+.iconButton:hover { background: var(--nabd-color-bg-sunken); }
+.iconButton:disabled { cursor: not-allowed; opacity: 0.55; }
+.iconButton:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.inline { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+
+/* ---- the sections of the medical profile: a jump bar, then one card per section ---- */
+.jump { display: flex; gap: 8px; overflow-x: auto; padding-block-end: 4px; }
+.jump > a {
+  flex: none; display: inline-flex; align-items: center; min-block-size: 44px; padding-inline: 16px; box-sizing: border-box;
+  border-radius: var(--nabd-radius-xl); border: 1px solid var(--nabd-color-border-strong); background: var(--nabd-color-bg-surface);
+  color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-segment); font-weight: 600; text-decoration: none;
+}
+.jump > a:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.anchor { scroll-margin-block-start: 72px; }
+.addRow { display: flex; gap: 8px; align-items: flex-end; }
+.addRow > :first-child { flex: 1; min-inline-size: 0; }
+
+/* ---- the sheet: the design system's modal frame, from the bottom on a phone (Feedback.css) ---- */
+.sheetHead { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.sheetTitle { margin: 0; font-size: var(--nabd-font-size-h4); font-weight: 700; overflow-wrap: anywhere; }
+.sheetBody { display: flex; flex-direction: column; gap: 12px; min-inline-size: 0; }
+
+@media (min-width: 768px) {
+  .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

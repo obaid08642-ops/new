@@ -1,167 +1,109 @@
-// @ts-nocheck
-// Nursing service PROFILE — hero image + full description + preparations +
-// price/duration, and a prominent "احجز الآن" that continues to nurse selection.
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Dimensions, Image, I18nManager } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../../src/context/AppContext';
-import Icon from '@expo/vector-icons/MaterialCommunityIcons';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Text, View } from 'react-native';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
+
+import { Button } from '../../../packages/ui-native/src';
+import { ConsultScreen, Gate, Section, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { Block, DetailHead, Price, Tag, goBackDiag } from '../../src/components/diagnostics/DiagKit';
+import { serviceGlyph } from '../../src/components/nursing/NursingKit';
+import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
+import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { pickDbField, pickLocalized } from '../../src/utils/localize';
-import { LocalizedText } from '../../src/components/LocalizedText';
-import { ScreenState } from '../../src/components/ScreenStates';
 
-const { width } = Dimensions.get('window');
+type Rec = Record<string, unknown>;
+const text = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' ? String(v) : '');
+const list = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string' && x !== '') : []);
 
+/** One nursing service: what it is, how long, whether insurance covers it, the preparation and the price with the way to book (board ServiceHub detail). */
 export default function NursingServiceInfo() {
-  const router = useRouter();
-  const params = useLocalSearchParams();
-  const { colors } = useApp();
-  const insets = useSafeAreaInsets();
-  const { serviceId, flow, gender, availability, nationality, search } = params;
+  const { theme, t, c, k, num, flow } = useScreenUi();
+  const params = useLocalSearchParams<{ serviceId?: string; flow?: string; gender?: string; availability?: string; nationality?: string; search?: string }>();
+  const { serviceId, flow: payFlow, gender, availability, nationality, search } = params;
+  const [svc, setSvc] = useState<Rec | null>(null);
+  const [status, setStatus] = useState<GateStatus>('loading');
 
-  const [svc, setSvc] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string|null>(null);
-
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-    apiFetch(`/home-care/services/${serviceId}`)
-      .then((res: any) => setSvc(res?.data || res))
-      .catch((e) => {
-        logError('nursing:service-info', e);
-        setError('تعذر تحميل تفاصيل الخدمة');
-      })
-      .finally(() => setLoading(false));
+  const load = useCallback(async () => {
+    setStatus('loading');
+    try {
+      const res = await apiFetch<Rec | { data?: Rec }>(`/home-care/services/${serviceId}`);
+      const one = ((res as { data?: Rec } | null)?.data ?? res) as Rec | null;
+      setSvc(one);
+      setStatus(one ? 'ready' : 'error');
+    } catch (err) {
+      logError('nursing:service-info', err);
+      setStatus((await isOffline()) ? 'offline' : 'error');
+    }
   }, [serviceId]);
 
-  if (loading) {
-    return <View style={[styles.center, { backgroundColor: colors.background }]}><ActivityIndicator size="large" color="#23B5CE" /></View>;
-  }
-  if (!svc) {
-    return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 16, color: colors.textSecondary }}>تعذر تحميل تفاصيل الخدمة</LocalizedText>
-        <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 16 }}>
-          <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#23B5CE' }}>رجوع</LocalizedText>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+  useEffect(() => {
+    void load();
+  }, [load]);
 
-  const title = pickDbField(svc, 'name') || svc.name_ar || svc.name_en;
-  const desc = pickDbField(svc, 'description');
-  const prep = pickLocalized(
-    Array.isArray(svc.preparation_ar) ? svc.preparation_ar.filter(Boolean) : [],
-    Array.isArray(svc.preparation_en) ? svc.preparation_en.filter(Boolean) : [],
-  ) || [];
-  const img = svc.image_url || svc.image || null;
+  const title = text(pickDbField(svc, 'name') ?? svc?.name_ar ?? svc?.name_en);
+  const desc = text(pickDbField(svc, 'description'));
+  const prep = pickLocalized(list(svc?.preparation_ar), list(svc?.preparation_en)) ?? [];
+  const image = text(svc?.image_url ?? svc?.image);
+  const price = svc?.price !== undefined && svc?.price !== null && Number.isFinite(Number(svc.price)) ? Number(svc.price) : null;
+  const durationValue = Number(svc?.duration_value);
+  const unit = text(svc?.duration);
+  const duration = durationValue > 0 ? (unit === 'hour' ? k('nur.hours', { n: num(durationValue) }) : unit === 'day' ? k('nur.days', { n: num(durationValue) }) : `${num(durationValue)} ${unit}`.trim()) : '';
+  const look = serviceGlyph(svc?.id);
 
-  const goBook = () => router.push({
-    pathname: '/nursing/service-details',
-    params: { serviceId, title, flow: flow || 'cash', gender: gender || 'any', availability: availability || 'any', nationality: nationality || 'any', search: search || '' },
-  });
+  const goBook = () =>
+    router.push({
+      pathname: '/nursing/service-details',
+      params: { serviceId, title, flow: payFlow || 'cash', gender: gender || 'any', availability: availability || 'any', nationality: nationality || 'any', search: search || '' },
+    } as unknown as Href);
+
+  const footer =
+    svc && status === 'ready' ? (
+      <>
+        {price !== null ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+            <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary }}>{k('nur.info.price')}</Text>
+            <Price amount={price} size="h3" />
+          </View>
+        ) : null}
+        <Button theme={theme} size="lg" fullWidth label={k('nur.info.book')} onPress={goBook} />
+      </>
+    ) : undefined;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
-        {/* Hero image */}
-        <View>
-          {img ? (
-            <Image source={{ uri: img }} style={{ width, height: width * 0.62, backgroundColor: '#fff' }} resizeMode="cover" />
-          ) : (
-            <View style={{ width, height: width * 0.62, backgroundColor: '#E8F8FA', alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="mother-nurse" size={90} color="#23B5CE" />
-            </View>
-          )}
-          <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { top: insets.top + 8 }]}>
-            <Icon name={I18nManager.isRTL ? 'arrow-right' : 'arrow-left'} size={24} color="#141A2A" />
-          </TouchableOpacity>
-        </View>
-
-        <View style={{ padding: 20 }}>
-          <LocalizedText style={[styles.title, { color: colors.textPrimary }]}>{title}</LocalizedText>
-
-          {/* Facts row */}
-          <View style={styles.factsRow}>
-            {svc.price != null && (
-              <View style={[styles.factChip, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                <Icon name="cash-multiple" size={18} color="#10B981" />
-                <LocalizedText style={styles.factText}>{svc.price} ر.س</LocalizedText>
-              </View>
-            )}
-            {svc.duration_value ? (
-              <View style={[styles.factChip, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                <Icon name="clock-outline" size={18} color="#23B5CE" />
-                <LocalizedText style={styles.factText}>{svc.duration_value} {svc.duration === 'hour' ? 'ساعة' : svc.duration || ''}</LocalizedText>
+    <ConsultScreen testID="nursing-service-info" title={k('nur.info.title')} onBack={goBackDiag} footer={footer} onRefresh={() => void load()}>
+      <Gate status={status} onRetry={() => void load()}>
+        {svc ? (
+          <>
+            <DetailHead icon={look.icon} tone={look.tone} image={image || undefined} title={title} />
+            {duration || svc.insurance_availability ? (
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                {duration ? <Tag label={duration} tone="neutral" /> : null}
+                {svc.insurance_availability ? <Tag label={k('nur.info.insurance')} tone="blue" /> : null}
               </View>
             ) : null}
-            {svc.insurance_availability ? (
-              <View style={[styles.factChip, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                <Icon name="shield-check" size={18} color="#2563EB" />
-                <LocalizedText style={styles.factText}>يقبل التأمين</LocalizedText>
-              </View>
+            {desc ? (
+              <Section title={k('nur.info.about')}>
+                <Block>
+                  <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 24, color: c.text.secondary, ...flow }}>{desc}</Text>
+                </Block>
+              </Section>
             ) : null}
-          </View>
-
-          {/* Description — same data shown on the card, in full */}
-          {desc ? (
-            <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <LocalizedText style={[styles.cardTitle, { color: colors.textPrimary }]}>وصف الخدمة</LocalizedText>
-              <LocalizedText style={[styles.cardBody, { color: colors.textSecondary }]}>{desc}</LocalizedText>
-            </View>
-          ) : null}
-
-          {/* Preparations */}
-          {prep.length > 0 && (
-            <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, marginTop: 14 }]}>
-              <View style={{ flexDirection: 'row-reverse', alignItems: 'center', marginBottom: 10 }}>
-                <View style={styles.prepIconWrap}><Icon name="alert-circle-outline" size={20} color="#FF9800" /></View>
-                <LocalizedText style={[styles.cardTitle, { color: colors.textPrimary, marginBottom: 0 }]}>التحضيرات والاحتياطات</LocalizedText>
-              </View>
-              {prep.map((p: string, i: number) => (
-                <View key={i} style={{ flexDirection: 'row-reverse', marginBottom: 6 }}>
-                  <LocalizedText style={{ color: '#23B5CE', marginHorizontal: 6 }}>•</LocalizedText>
-                  <LocalizedText style={[styles.cardBody, { color: colors.textSecondary, flex: 1 }]}>{p}</LocalizedText>
-                </View>
-              ))}
-            </View>
-          )}
-        </View>
-      </ScrollView>
-      </ScreenState>
-
-      {/* Bottom CTA */}
-      <View style={[styles.bottomBar, { backgroundColor: colors.surface, borderTopColor: colors.border, paddingBottom: insets.bottom + 16 }]}>
-        <View style={{ alignItems: 'flex-end' }}>
-          <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 12, color: colors.textSecondary }}>سعر الخدمة</LocalizedText>
-          <LocalizedText style={{ fontFamily: 'Cairo-Black', fontSize: 22, color: '#23B5CE' }}>{svc.price} <LocalizedText style={{ fontSize: 13 }}>ر.س</LocalizedText></LocalizedText>
-        </View>
-        <TouchableOpacity style={styles.bookBtn} onPress={goBook} activeOpacity={0.9}>
-          <Icon name="calendar-check" size={20} color="#fff" />
-          <LocalizedText style={styles.bookBtnText}>احجز الآن</LocalizedText>
-        </TouchableOpacity>
-      </View>
-    </View>
+            {prep.length > 0 ? (
+              <Section title={k('nur.info.prep')}>
+                <Block gap={8}>
+                  {prep.map((p, i) => (
+                    <View key={`${p}-${i}`} style={{ flexDirection: 'row', gap: 8 }}>
+                      <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.link }}>•</Text>
+                      <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }}>{p}</Text>
+                    </View>
+                  ))}
+                </Block>
+              </Section>
+            ) : null}
+          </>
+        ) : null}
+      </Gate>
+    </ConsultScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  backBtn: { position: 'absolute', right: 16, width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(255,255,255,0.92)', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 8, elevation: 4 },
-  title: { fontFamily: 'Cairo-Black', fontSize: 24, textAlign: 'right' },
-  factsRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 10, marginTop: 14 },
-  factChip: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 100, borderWidth: 1 },
-  factText: { fontFamily: 'Cairo-Bold', fontSize: 13, color: '#141A2A' },
-  card: { borderRadius: 18, borderWidth: 1, padding: 16, marginTop: 16 },
-  cardTitle: { fontFamily: 'Cairo-Black', fontSize: 16, textAlign: 'right', marginBottom: 8 },
-  cardBody: { fontFamily: 'Cairo-Regular', fontSize: 14, lineHeight: 24, textAlign: 'right' },
-  prepIconWrap: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#FF980015', alignItems: 'center', justifyContent: 'center', marginLeft: 8 },
-  bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', padding: 20, borderTopWidth: 1, borderTopLeftRadius: 24, borderTopRightRadius: 24 },
-  bookBtn: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8, backgroundColor: '#23B5CE', paddingVertical: 14, paddingHorizontal: 32, borderRadius: 16 },
-  bookBtnText: { fontFamily: 'Cairo-Black', fontSize: 16, color: '#fff' },
-});

@@ -46,7 +46,8 @@ const ALLOWED_SCREENS = new Set([
   '/notifications',
   '/loyalty',
   '/offers',
-  '/health/medication-reminder-list',
+  '/health/medications',
+  '/health/medication-reminder-list', // notifications scheduled before the merge still carry it; the route redirects
 ]);
 
 // Legacy type → screen resolver (kept for backward compatibility)

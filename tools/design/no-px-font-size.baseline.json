@@ -1,36 +1,16 @@
 {
   "$comment": "Recorded debt for tools/design/no-px-font-size.ts. Every entry is a hard-coded font size that predates the design system. 12.A11 removes entries as screens are rebuilt on the stamps. This file may only shrink.",
-  "total": 221,
+  "total": 57,
   "files": {
     "patient-web/app/[locale]/ai/triage.module.css": 10,
-    "patient-web/app/[locale]/cart/cart.module.css": 10,
-    "patient-web/app/[locale]/consultations/book/[doctorId]/book.module.css": 3,
-    "patient-web/app/[locale]/consultations/call-history/call-history.module.css": 1,
-    "patient-web/app/[locale]/consultations/clinics/[clinicId]/clinic.module.css": 8,
-    "patient-web/app/[locale]/consultations/doctors/doctors.module.css": 20,
-    "patient-web/app/[locale]/consultations/post-call-rating/rating.module.css": 1,
     "patient-web/app/[locale]/consultations/specialties/specialties.module.css": 1,
-    "patient-web/app/[locale]/delivery/address-select/address-select.module.css": 3,
-    "patient-web/app/[locale]/diagnostics/labs/[labId]/lab-detail.module.css": 9,
     "patient-web/app/[locale]/doctors/[specialty]/[city]/[neighborhood]/doctors-neighborhood.module.css": 7,
     "patient-web/app/[locale]/doctors/[specialty]/[city]/doctors-city.module.css": 8,
     "patient-web/app/[locale]/emergency/emergency.module.css": 9,
-    "patient-web/app/[locale]/home-care/services/services.module.css": 1,
     "patient-web/app/[locale]/medicine-catalog/medicine-catalog.module.css": 4,
-    "patient-web/app/[locale]/nursing/catalog/catalog.module.css": 10,
-    "patient-web/app/[locale]/nursing/nurses/[nurseId]/nurse-detail.module.css": 13,
-    "patient-web/app/[locale]/nursing/visits/visits.module.css": 5,
     "patient-web/app/[locale]/offers/[offerId]/offer-detail.module.css": 3,
     "patient-web/app/[locale]/offers/offers.module.css": 4,
-    "patient-web/app/[locale]/payments/result/payment-result.module.css": 1,
-    "patient-web/app/[locale]/pharmacy/request/request.module.css": 6,
-    "patient-web/app/[locale]/pharmacy/scan-prescription/scan.module.css": 2,
-    "patient-web/app/[locale]/voice/voice.module.css": 5,
-    "patient-web/components-next/booking-flow.module.css": 6,
-    "patient-web/components-next/cart-view.module.css": 16,
-    "patient-web/components-next/checkout-flow.module.css": 26,
     "patient-web/components-next/header-cart-badge.module.css": 1,
-    "patient-web/components-next/map-explorer.module.css": 10,
-    "patient-web/components-next/service-booking-modal.module.css": 18
+    "patient-web/components-next/map-explorer.module.css": 10
   }
 }

@@ -1,0 +1,102 @@
+[
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics",
+    "element": "Payment filter (cash / insurance) drawn on ServiceHub",
+    "file": "patient-app/app/(tabs)/diagnostics.tsx",
+    "line": 37,
+    "found": "[owner] The board has it; no field says which test or lab takes insurance, so it is not drawn.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics",
+    "element": "Filter 'nearest'",
+    "file": "patient-app/app/(tabs)/diagnostics.tsx",
+    "line": 37,
+    "found": "[backend] No distance on the catalogue lists; the option was dropped.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics",
+    "element": "Approved labs carousel",
+    "file": "patient-app/app/(tabs)/diagnostics.tsx",
+    "line": 274,
+    "found": "[backend] GET /providers?type=lab returns an empty list on the seeded database, so the carousel is hidden; the board's 'accepts insurance' tag has no field.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics",
+    "element": "Compare prices shortcut",
+    "file": "patient-app/app/(tabs)/diagnostics.tsx",
+    "line": 206,
+    "found": "[owner] Opens the test search (lab-comparison needs a test); confirm that is the intended entry.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics/insurance-approval",
+    "element": "Home visit fee 50",
+    "file": "patient-app/app/diagnostics/insurance-approval.tsx",
+    "line": 34,
+    "found": "[backend] A constant added in the screen to the amount to pay; the server sends no such fee.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics/checkout",
+    "element": "Times and days",
+    "file": "patient-app/app/diagnostics/checkout.tsx",
+    "line": 15,
+    "found": "[backend] Six fixed times and seven days, no availability from the server.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics/sample-tracking",
+    "element": "Preparation text, six default steps",
+    "file": "patient-app/app/diagnostics/sample-tracking.tsx",
+    "line": 90,
+    "found": "[owner] Static medical text and a fixed step list, not from the booking; confirm the wording.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics/technician-tracking",
+    "element": "Tips",
+    "file": "patient-app/app/diagnostics/technician-tracking.tsx",
+    "line": 68,
+    "found": "[owner] Static text; the old third tip (samples sent in cold containers) was dropped as an unverified claim.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics/cart",
+    "element": "Cart context",
+    "file": "patient-app/src/context/DiagnosticsCartContext.tsx",
+    "line": 54,
+    "found": "[client] DiagnosticsCartContext keeps the cart in memory only (lost when the app closes); persisting it is a logic change, left for the reviewer.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics/lab-comparison",
+    "element": "Price of every lab",
+    "file": "patient-app/app/diagnostics/lab-comparison.tsx",
+    "line": 106,
+    "found": "[backend] Every lab shows the same base price of the service; the compatible-providers answer carries no per-lab price.",
+    "suspect": "Backend gap: reviewer session."
+  }
+]

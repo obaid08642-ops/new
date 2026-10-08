@@ -1,317 +1,211 @@
-// @ts-nocheck
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList, TextInput, Image, ActivityIndicator, Platform, Alert, StatusBar, KeyboardAvoidingView, Modal, I18nManager, Dimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppText } from '../../src/components/ui';
-import { useApp } from '../../src/context/AppContext';
-import Icon from '@expo/vector-icons/MaterialCommunityIcons';
-import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
-import Animated, { FadeIn, ZoomIn, SlideInUp } from 'react-native-reanimated';
-import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
+import { Text, View } from 'react-native';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
+
+import { Button, Toggle } from '../../../packages/ui-native/src';
+import { ConsultScreen, Gate, ResultHero, Section, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { AmountLine, Block, ListCard, Tag, goBackDiag } from '../../src/components/diagnostics/DiagKit';
+import { Notice } from '../../src/components/pharmacy/OfferKit';
+import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
-import { ScreenState } from '../../src/components/ScreenStates';
-
-const { width } = Dimensions.get('window');
+import { recordOf } from '../../src/utils/labMappers';
 
 type ApprovalState = 'pending' | 'full' | 'partial' | 'rejected';
+type Rec = Record<string, unknown>;
 
+interface ApprovalItem {
+  id: string;
+  name: string;
+  price: number;
+  covered: boolean;
+  rejectReason: string;
+}
+interface ApprovalDetails {
+  totalAmount: number;
+  coveragePercent: number;
+  coveredAmount: number;
+  copayAmount: number;
+  items: ApprovalItem[];
+}
+
+const str = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' ? String(v) : '');
+// The home-visit fee the screen has always added to the amount to pay (not sent by the server; see Needs review).
+const HOME_VISIT_FEE = 50;
+
+/** The lab's answer to an insurance request: waiting, then what is covered and what the patient pays (board CheckoutV2 totals). Polls every 3 seconds until answered. */
 export default function InsuranceApproval() {
-  const router = useRouter();
-  const params = useLocalSearchParams();
-  const labName = (params.labName as string) || 'المختبر المختار';
-  const visitType = (params.visitType as string) || 'clinic';
-  
-  const { colors } = useApp();
-  
+  const { theme, t, c, k, num, flow, money } = useScreenUi();
+  const params = useLocalSearchParams<{ labName?: string; visitType?: string; orderId?: string }>();
+  const labName = params.labName || k('diag.checkout.chosenLab');
+  const visitType = params.visitType || 'clinic';
+  const orderId = params.orderId;
   const [status, setStatus] = useState<ApprovalState>('pending');
-  const [approvalDetails, setApprovalDetails] = useState<any>(null);
-  const [optedInCashItems, setOptedInCashItems] = useState<string[]>([]); // Array of item IDs that user opted to pay cash for
+  const [details, setDetails] = useState<ApprovalDetails | null>(null);
+  const [optedInCashItems, setOptedInCashItems] = useState<string[]>([]); // ids of the items the patient chose to pay cash for
   const [insuranceRequestId, setInsuranceRequestId] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const orderId = params.orderId as string;
+  const [gate, setGate] = useState<GateStatus>('loading');
 
   useEffect(() => {
     if (!orderId) return;
-
-    let intervalId: any;
+    let intervalId: ReturnType<typeof setInterval> | undefined;
     let first = true;
-
     const fetchOrder = async () => {
       try {
-        const res = await apiFetch(`/labs/bookings/${orderId}`);
-        const data = res?.data || res;
-
-        if (data.insurance_status === 'approved' || data.insurance_status === 'partial_approval' || data.insurance_status === 'rejected') {
-          let newStatus = 'full';
+        const data = recordOf(await apiFetch<unknown>(`/labs/bookings/${orderId}`));
+        if (data && (data.insurance_status === 'approved' || data.insurance_status === 'partial_approval' || data.insurance_status === 'rejected')) {
+          let newStatus: ApprovalState = 'full';
           if (data.insurance_status === 'partial_approval') newStatus = 'partial';
           if (data.insurance_status === 'rejected') newStatus = 'rejected';
-
-          const items = Array.isArray(data.items) ? data.items : [];
-          const totalAmount = items.reduce((s: number, it: any) => s + (Number(it.price) || 0), 0);
+          const rows = (Array.isArray(data.items) ? data.items : []) as Rec[];
+          const totalAmount = rows.reduce((s, it) => s + (Number(it.price) || 0), 0);
           const copayAmount = Number(data.insurance_copay) || 0;
           const coveredAmount = Math.max(0, totalAmount - copayAmount);
           const coveragePercent = totalAmount > 0 ? Math.round((coveredAmount / totalAmount) * 100) : 0;
-
           if (data.insurance_request_id) setInsuranceRequestId(String(data.insurance_request_id));
-          setStatus(newStatus as ApprovalState);
-          setApprovalDetails({
+          setStatus(newStatus);
+          setDetails({
             totalAmount,
             coveragePercent,
             coveredAmount,
             copayAmount,
-            items: items.map((it: any) => ({
-              id: it.service_id || it.id,
-              name: it.name_ar || it.name_en || it.name,
-              price: it.cashPrice ?? it.price ?? 0,
-              status: it.isCovered ? 'مغطى' : 'مرفوض',
-              rejectReason: it.rejectReason,
+            items: rows.map((it) => ({
+              id: str(it.service_id ?? it.id),
+              name: str(it.name_ar ?? it.name_en ?? it.name),
+              price: Number(it.cashPrice ?? it.price ?? 0) || 0,
+              covered: Boolean(it.isCovered),
+              rejectReason: str(it.rejectReason),
             })),
           });
           clearInterval(intervalId);
         }
+        if (first) setGate('ready');
       } catch (err) {
         logError('diagnostics:insurance-approval', err);
-        setError('تعذر تحميل حالة الموافقة');
+        if (first) setGate('error');
       } finally {
-        if (first) { first = false; setLoading(false); }
+        first = false;
       }
     };
-
     intervalId = setInterval(() => {
-      fetchOrder();
+      void fetchOrder();
     }, 3000);
-
     return () => clearInterval(intervalId);
   }, [orderId]);
 
-  const toggleCashItem = async (item: any) => {
-    const isOptedIn = optedInCashItems.includes(item.id || item.name);
-    const newOptIn = !isOptedIn;
-    const identifier = item.id || item.name;
-    
-    setOptedInCashItems(prev => 
-      newOptIn ? [...prev, identifier] : prev.filter(i => i !== identifier)
-    );
+  useEffect(() => {
+    // the first answer arrives with the first poll; with no order there is nothing to wait for
+    if (!orderId) setGate('ready');
+  }, [orderId]);
 
+  const toggleCashItem = async (item: ApprovalItem) => {
+    const identifier = item.id || item.name;
+    const newOptIn = !optedInCashItems.includes(identifier);
+    setOptedInCashItems((prev) => (newOptIn ? [...prev, identifier] : prev.filter((i) => i !== identifier)));
     try {
       if (orderId && item.id) {
-        await apiFetch(`/labs/bookings/${orderId}/items/${item.id}/opt-in-cash`, {
-          method: 'PATCH',
-          body: JSON.stringify({ optInCash: newOptIn })
-        });
+        await apiFetch(`/labs/bookings/${orderId}/items/${item.id}/opt-in-cash`, { method: 'PATCH', body: JSON.stringify({ optInCash: newOptIn }) });
       }
     } catch (e) {
       logError('diagnostics:insurance-approval:opt-in', e);
-      setOptedInCashItems(prev => 
-        !newOptIn ? [...prev, identifier] : prev.filter(i => i !== identifier)
-      );
+      setOptedInCashItems((prev) => (!newOptIn ? [...prev, identifier] : prev.filter((i) => i !== identifier)));
     }
   };
 
-  const getStatusConfig = () => {
-    switch (status) {
-      case 'full': return { icon: 'check-decagram', color: '#4CAF50', title: 'تمت الموافقة بنجاح!', desc: `من قبل ${labName}` };
-      case 'partial': return { icon: 'shield-half-full', color: '#FF9800', title: 'موافقة جزئية', desc: 'تمت الموافقة على بعض التحاليل فقط' };
-      case 'rejected': return { icon: 'close-octagon', color: '#F44336', title: 'تم الرفض', desc: 'عذراً، التغطية التأمينية لا تشمل هذه التحاليل' };
-      default: return null;
-    }
-  };
-
-  const config = getStatusConfig();
-  
-  // Calculate Hybrid Total
+  // The hybrid total: the co-pay, the items the patient pays cash for, and the home-visit fee
   let hybridCashAdditions = 0;
-  if (approvalDetails) {
-    approvalDetails.items.forEach((item: any) => {
-      const identifier = item.id || item.name;
-      if (item.status === 'مرفوض' && optedInCashItems.includes(identifier)) {
-        hybridCashAdditions += item.price;
-      }
-    });
+  if (details) {
+    for (const item of details.items) {
+      if (!item.covered && optedInCashItems.includes(item.id || item.name)) hybridCashAdditions += item.price;
+    }
   }
+  const finalTotalToPay = details ? details.copayAmount + hybridCashAdditions + (visitType === 'home' ? HOME_VISIT_FEE : 0) : 0;
 
-  const finalTotalToPay = approvalDetails ? (approvalDetails.copayAmount + hybridCashAdditions + (visitType === 'home' ? 50 : 0)) : 0;
+  const hero =
+    status === 'full'
+      ? { icon: 'check-circle' as const, tone: 'success' as const, title: k('diag.ins.approved'), body: k('diag.ins.approvedBy', { lab: labName }) }
+      : status === 'partial'
+        ? { icon: 'shield-check' as const, tone: 'warning' as const, title: k('diag.ins.partial'), body: k('diag.ins.partialBody') }
+        : status === 'rejected'
+          ? { icon: 'x-circle' as const, tone: 'danger' as const, title: k('diag.ins.rejected'), body: k('diag.ins.rejectedBody') }
+          : null;
+
+  const footer =
+    status === 'pending' ? undefined : status === 'rejected' ? (
+      <>
+        <Button
+          theme={theme}
+          size="lg"
+          fullWidth
+          label={k('diag.ins.payOwn')}
+          onPress={() => router.push({ pathname: '/diagnostics/checkout', params: { visitType, isInsurance: 'false', total: (details?.totalAmount ?? 0) + (visitType === 'home' ? HOME_VISIT_FEE : 0) } } as unknown as Href)}
+        />
+        <Button theme={theme} size="lg" fullWidth variant="outline" label={k('diag.ins.consult')} onPress={() => router.push('/consultations' as Href)} />
+      </>
+    ) : (
+      <Button
+        theme={theme}
+        size="lg"
+        fullWidth
+        label={k('diag.ins.continue')}
+        onPress={() => {
+          // pay the server-computed copay through the insurance engine when the request is linked; otherwise the local checkout
+          if (insuranceRequestId) {
+            router.push({ pathname: '/insurance/payment-split', params: { request_id: insuranceRequestId, booking_kind: 'lab' } } as unknown as Href);
+            return;
+          }
+          router.push({ pathname: '/diagnostics/checkout', params: { visitType, isInsurance: 'hybrid', copay: finalTotalToPay } } as unknown as Href);
+        }}
+      />
+    );
 
   return (
-    <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background } ]}>
-      <Stack.Screen options={{ headerShown: false }} />
-      
-      <View style={[styles.topHeader, { backgroundColor: colors.background } ]}>
-        <View style={{ width: 40 }}/>
-        <AppText style={{ fontSize: 18, fontWeight: 'bold', color: colors.textPrimary }}>حالة الموافقة</AppText>
-        <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
-          <Icon name={I18nManager.isRTL ? 'arrow-right' : 'arrow-left'} size={24} color={colors.textPrimary} />
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        
-        {status === 'pending' && (
-          <Animated.View entering={FadeIn} style={styles.centerContainer}>
-            <View style={[styles.pulseCircle, { borderColor: colors.primary, backgroundColor: `${colors.primary}15` }]} >
-              <Icon name="file-clock" size={48} color={colors.primary} />
-            </View>
-            <AppText style={{ fontSize: 20, fontWeight: 'bold', color: colors.textPrimary, marginTop: 24, textAlign: 'center' }}>
-              تم إرسال الطلب إلى {labName}
-            </AppText>
-            <AppText style={{ fontSize: 14, color: colors.textSecondary, marginTop: 12, textAlign: 'center', lineHeight: 22 }}>
-              يقوم المختبر الآن بمراجعة الوصفة المرفوعة وإصدار الموافقة وتحديد نسبة التحمل.
-            </AppText>
-          </Animated.View>
-        )}
-
-        {status !== 'pending' && config && approvalDetails && (
-          <Animated.View entering={SlideInUp.duration(500)}>
-            
-            <View style={{ alignItems: 'center', marginBottom: 24 }}>
-              <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: `${config.color}15`, alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-                <Icon name={config.icon as any} size={48} color={config.color} />
-              </View>
-              <AppText style={{ fontSize: 22, fontWeight: 'bold', color: config.color }}>{config.title}</AppText>
-              <AppText style={{ fontSize: 14, color: colors.textSecondary, marginTop: 8 }}>{config.desc}</AppText>
-            </View>
-
-            {/* Items */}
-            <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border } ]}>
-              <AppText variant="h3" style={{ marginBottom: 16, textAlign: I18nManager.isRTL ? 'right' : 'left' }}>تفاصيل التغطية</AppText>
-              
-              {approvalDetails.items.map((item: any, idx: number) => {
-                const isCovered = item.status === 'مغطى';
-                const isOptedIn = optedInCashItems.includes(item.id || item.name);
-                
-                return (
-                  <View key={idx} style={{ paddingVertical: 12, borderBottomWidth: idx < approvalDetails.items.length - 1 ? 1 : 0, borderBottomColor: colors.border }}>
-                    <View style={{ flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', justifyContent: 'space-between' }}>
-                      <View style={{ flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center', flex: 1 }}>
-                        <Icon name={isCovered ? "shield-check" : "shield-remove"} size={18} color={isCovered ? "#4CAF50" : "#F44336"} style={{ marginRight: I18nManager.isRTL ? 0 : 8, marginLeft: I18nManager.isRTL ? 8 : 0 }}/>
-                        <AppText style={{ fontWeight: 'bold', flexShrink: 1, textAlign: I18nManager.isRTL ? 'left' : 'right' }}>{item.name}</AppText>
+    <ConsultScreen testID="diagnostics-insurance-approval" title={k('diag.ins.title')} onBack={goBackDiag} footer={footer}>
+      <Gate status={gate} onRetry={() => setGate('ready')}>
+        {status === 'pending' ? <ResultHero icon="clipboard-text" tone="info" title={k('diag.ins.sent', { lab: labName })} body={k('diag.ins.reviewing')} /> : null}
+        {status !== 'pending' && hero && details ? (
+          <>
+            <ResultHero icon={hero.icon} tone={hero.tone} title={hero.title} body={hero.body} />
+            <Section title={k('diag.ins.details')}>
+              <Block gap={0}>
+                {details.items.map((item, idx) => {
+                  const optedIn = optedInCashItems.includes(item.id || item.name);
+                  return (
+                    <View key={`${item.id}-${idx}`} style={{ paddingVertical: 12, gap: 8, borderBottomWidth: idx < details.items.length - 1 ? 1 : 0, borderBottomColor: c.border.hairline }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                        <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{item.name}</Text>
+                        <Tag label={item.covered ? k('diag.ins.covered') : k('diag.ins.notCovered')} tone={item.covered ? 'mint' : 'neutral'} />
+                        <Text style={{ ...scale(t, 'small', 'medium'), color: c.text.secondary }}>{money(item.price)} {k('pharmacy.currency')}</Text>
                       </View>
-                      <AppText style={{ color: colors.textSecondary }}>{item.price} ر.س</AppText>
+                      {!item.covered && status !== 'rejected' ? (
+                        <View style={{ gap: 8 }}>
+                          {item.rejectReason ? <Notice tone="danger" text={k('diag.ins.reason', { reason: item.rejectReason })} /> : null}
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                            <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'meta', 'regular'), color: c.text.primary, ...flow }}>{k('diag.ins.payCash', { amount: `${money(item.price)} ${k('pharmacy.currency')}` })}</Text>
+                            <Toggle theme={theme} value={optedIn} label={k('diag.ins.payCash', { amount: `${money(item.price)} ${k('pharmacy.currency')}` })} onChange={() => void toggleCashItem(item)} />
+                          </View>
+                        </View>
+                      ) : null}
                     </View>
-                    
-                    {/* Rejection / Hybrid Billing Option */}
-                    {!isCovered && status !== 'rejected' && (
-                      <View style={{ marginTop: 8, padding: 12, backgroundColor: '#FFEBEE', borderRadius: 12 }}>
-                        <AppText style={{ fontSize: 12, color: '#D32F2F', textAlign: I18nManager.isRTL ? 'right' : 'left', marginBottom: 8 }}>
-                          سبب الرفض: {item.rejectReason}
-                        </AppText>
-                        
-                        {/* Checkbox for Hybrid Billing */}
-                        <TouchableOpacity 
-                          style={{ flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center' }} onPress={() => toggleCashItem(item)}
-                        >
-                          <Icon name={isOptedIn ? "checkbox-marked" : "checkbox-blank-outline"} size={20} color={isOptedIn ? colors.primary : colors.textSecondary} />
-                          <AppText style={{ fontSize: 13, color: colors.textPrimary, marginLeft: I18nManager.isRTL ? 0 : 8, marginRight: I18nManager.isRTL ? 8 : 0 }}>
-                            أرغب بدفع هذا التحليل نقداً (+ {item.price} ر.س)
-                          </AppText>
-                        </TouchableOpacity>
-                      </View>
-                    )}
-                  </View>
-                );
-              })}
-            </View>
-
-            {/* Financial Summary */}
-            {status !== 'rejected' && (
-              <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, marginTop: 16 } ]}>
-                <View style={styles.finRow}>
-                  <AppText style={{ color: colors.textSecondary }}>إجمالي التكلفة</AppText>
-                  <AppText style={{ fontWeight: 'bold' }}>{approvalDetails.totalAmount} ر.س</AppText>
+                  );
+                })}
+              </Block>
+            </Section>
+            {status !== 'rejected' ? (
+              <ListCard>
+                <View style={{ padding: 14, gap: 10 }}>
+                  <AmountLine label={k('diag.ins.totalCost')} amount={details.totalAmount} />
+                  <AmountLine label={k('diag.ins.covers', { pct: num(details.coveragePercent) })} amount={details.coveredAmount} success minus />
+                  {visitType === 'home' ? <AmountLine label={k('diag.ins.homeFee')} amount={HOME_VISIT_FEE} /> : null}
+                  {hybridCashAdditions > 0 ? <AmountLine label={k('diag.ins.extraCash')} amount={hybridCashAdditions} /> : null}
+                  <View style={{ height: 1, backgroundColor: c.border.hairline }} />
+                  <AmountLine label={k('diag.ins.toPay')} amount={finalTotalToPay} strong />
                 </View>
-                <View style={styles.finRow}>
-                  <AppText style={{ color: '#4CAF50' }}>يغطيه التأمين ({approvalDetails.coveragePercent}%)</AppText>
-                  <AppText style={{ fontWeight: 'bold', color: '#4CAF50' }}>- {approvalDetails.coveredAmount} ر.س</AppText>
-                </View>
-                
-                {visitType === 'home' && (
-                  <View style={styles.finRow}>
-                    <AppText style={{ color: colors.textSecondary }}>رسوم الزيارة المنزلية</AppText>
-                    <AppText style={{ fontWeight: 'bold' }}>+ 50 ر.س</AppText>
-                  </View>
-                )}
-                
-                {hybridCashAdditions > 0 && (
-                  <View style={styles.finRow}>
-                    <AppText style={{ color: colors.primary }}>تحاليل إضافية (نقداً)</AppText>
-                    <AppText style={{ fontWeight: 'bold', color: colors.primary }}>+ {hybridCashAdditions} ر.س</AppText>
-                  </View>
-                )}
-
-                <View style={[styles.finRow, { marginTop: 16, paddingTop: 16, borderTopWidth: 1, borderTopColor: colors.border } ]}>
-                  <AppText style={{ fontSize: 18, fontWeight: 'bold', color: colors.primary }}>المبلغ المطلوب دفعه</AppText>
-                  <AppText style={{ fontSize: 18, fontWeight: 'bold', color: colors.primary }}>{finalTotalToPay} ر.س</AppText>
-                </View>
-              </View>
-            )}
-
-          </Animated.View>
-        )}
-
-      </ScrollView>
-
-      {status !== 'pending' && (
-        <Animated.View entering={SlideInUp.duration(400)} style={[styles.floatingBottom, { backgroundColor: colors.surface, borderTopColor: colors.border } ]}>
-          {status === 'rejected' ? (
-            <View style={{ flexDirection: 'column', gap: 12 }}>
-              <TouchableOpacity 
-                style={[styles.confirmBtn, { backgroundColor: colors.primary }]} 
-                onPress={() => {
-                  (router.push as any)({ 
-                    pathname: '/diagnostics/checkout',
-                    params: { visitType, isInsurance: 'false', total: approvalDetails.totalAmount + (visitType === 'home' ? 50 : 0) }
-                  });
-                }}
-              >
-                <AppText style={{ color: '#fff', fontSize: 15, fontWeight: 'bold' }}>تنفيذ الطلب على حسابي الخاص</AppText>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={[styles.confirmBtn, { backgroundColor: colors.background, borderWidth: 1, borderColor: colors.primary }]} 
-                onPress={() => (router.push as any)('/consultations')}
-              >
-                <AppText style={{ color: colors.primary, fontSize: 15, fontWeight: 'bold' }}>اطلب استشارة طبية</AppText>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity 
-              style={[styles.confirmBtn, { backgroundColor: colors.primary }]} 
-              onPress={() => {
-                // LJ-03: pay the server-computed copay through the insurance engine
-                // when the request is linked; otherwise fall back to the local checkout.
-                if (insuranceRequestId) {
-                  (router.push as any)({ pathname: '/insurance/payment-split', params: { request_id: insuranceRequestId, booking_kind: 'lab' } });
-                  return;
-                }
-                (router.push as any)({
-                  pathname: '/diagnostics/checkout',
-                  params: { visitType, isInsurance: 'hybrid', copay: finalTotalToPay }
-                });
-              }}
-            >
-              <AppText style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>المتابعة للدفع وحجز الموعد</AppText>
-              <Icon name="arrow-left" size={20} color="#fff" style={{ marginLeft: I18nManager.isRTL ? 0 : 8, marginRight: I18nManager.isRTL ? 8 : 0 }}/>
-            </TouchableOpacity>
-          )}
-        </Animated.View>
-      )}
-
-    </SafeAreaView>
-    </ScreenState>
+              </ListCard>
+            ) : null}
+          </>
+        ) : null}
+      </Gate>
+    </ConsultScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: { flex: 1 },
-  topHeader: { flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 12, borderBottomWidth: 1 },
-  headerBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
-  scrollContent: { padding: 20, paddingBottom: 150 },
-  centerContainer: { alignItems: 'center', justifyContent: 'center', marginTop: 80 },
-  pulseCircle: { width: 120, height: 120, borderRadius: 60, borderWidth: 4, alignItems: 'center', justifyContent: 'center' },
-  card: { padding: 20, borderRadius: 16, borderWidth: 1 },
-  finRow: { flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', justifyContent: 'space-between', marginBottom: 12 },
-  floatingBottom: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 20, paddingBottom: 40, borderTopWidth: 1, borderTopLeftRadius: 24, borderTopRightRadius: 24, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 20, elevation: 10 },
-  confirmBtn: { flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center', justifyContent: 'center', paddingVertical: 16, borderRadius: 16 },
-});

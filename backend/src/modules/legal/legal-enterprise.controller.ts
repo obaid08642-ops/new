@@ -44,8 +44,8 @@ export class LegalEnterpriseController {
   // ── Acceptance archive: snapshot + verify ──────────────────────────────
   @Get('legal/archive/:id/pdf')
   @UseGuards(JwtAuthGuard)
-  async archivePdf(@Param('id') id: string, @Res() res: Response) {
-    const result = await this.svc.acceptancePdf(id);
+  async archivePdf(@Param('id') id: string, @CurrentUser() user: any, @Res() res: Response) {
+    const result = await this.svc.acceptancePdf(id, user);
     if (!result) return res.status(404).json({ error: 'archive_not_found' });
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="acceptance-${id.slice(0, 8)}.pdf"`);

@@ -73,12 +73,16 @@ export function translateBackendRoute(route: string): { pathname: string; params
   // Routes that already exist verbatim in the app
   if (clean === '/consultations/appointments') return { pathname: clean };
   if (clean === '/diagnostics/results-history') return { pathname: clean };
+  // The family hub is /family (merge map, Batch 6); the backend still sends the old hub route and the permission request route
+  if (clean === '/health/family-hub' || clean === '/family/permission-request') return { pathname: '/family' };
   // Verbatim app routes used by backend notification action.route (EPIC4/EPIC5 listeners)
   const VERBATIM_ROUTES = new Set([
     '/insurance/hub', '/returns/hub',
     '/loyalty/hub', '/loyalty/referrals', '/loyalty/challenges',
-    '/health/family-hub', '/ai/symptom-timeline', '/emergency/tracking', '/family/permission-request',
+    '/family', '/emergency/tracking',
   ]);
+  // The symptom timeline is the conversation of the assistant (merge map section 4, Batch 9)
+  if (clean === '/ai/symptom-timeline') return { pathname: '/ai', params: { mode: 'symptoms' } };
   if (VERBATIM_ROUTES.has(clean)) return { pathname: clean };
 
   return null;
@@ -145,7 +149,7 @@ export function routeFromNotificationData(data: any): void {
         router.push('/insurance/hub' as any);
         break;
       case 'family':
-        router.push('/health/family-hub' as any);
+        router.push('/family' as any);
         break;
       case 'wallet':
       case 'topup':
@@ -153,7 +157,7 @@ export function routeFromNotificationData(data: any): void {
         break;
       case 'medication':
       case 'medication_reminder':
-        router.push('/health/medication-reminder-list' as any);
+        router.push('/health/medications?tab=reminders' as any);
         break;
       case 'loyalty':
       case 'promotion':

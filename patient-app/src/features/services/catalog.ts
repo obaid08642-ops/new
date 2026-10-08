@@ -34,7 +34,7 @@ export const MAIN_SERVICES: MainService[] = [
   { service: 'lab', title: 'التحاليل المخبرية', route: '/(tabs)/diagnostics' },
   { service: 'nursing', title: 'التمريض المنزلي', route: '/(tabs)/nursing', badge: 'جديد' },
   { service: 'radiology', title: 'الأشعة التشخيصية', route: '/diagnostics/packages' },
-  { service: 'maternity', title: 'رعاية الأمومة', route: '/maternity/pregnancy-tracker' },
+  { service: 'maternity', title: 'رعاية الأمومة', route: '/maternity/hub' },
 ];
 
 /** The rest of the Services tab, as rows. */
@@ -64,16 +64,16 @@ export const SERVICE_GROUPS: ServiceGroupData[] = [
     title: 'صحتي',
     items: [
       { title: 'الملف الصحي', desc: 'علاماتك الحيوية وسجلك الطبي', icon: 'heartbeat', tone: tone('health'), route: '/(tabs)/health' },
-      { title: 'التذكيرات الذكية', desc: 'تذكيرات الأدوية والمواعيد', icon: 'bell', tone: 'amber', route: '/health/smart-reminders' },
+      { title: 'التذكيرات الذكية', desc: 'تذكيرات الأدوية والمواعيد', icon: 'bell', tone: 'amber', route: '/health/medications?tab=reminders' },
       { title: 'التقارير الطبية', desc: 'تقاريرك ونتائجك في مكان واحد', icon: 'file-text', tone: 'blue', route: '/reports/view-report' },
-      { title: 'الرعاية المزمنة', desc: 'تذكير ومتابعة', icon: 'heart', tone: tone('health'), route: '/health/medication-reminder-list' },
+      { title: 'الرعاية المزمنة', desc: 'تذكير ومتابعة', icon: 'heart', tone: tone('health'), route: '/health/medications?tab=chronic' },
     ],
   },
   {
     title: 'أدوات الذكاء الاصطناعي',
     items: [
-      { title: 'المساعد الطبي الذكي', desc: 'فرز الأعراض وإرشاد أولي', icon: 'robot', tone: 'violet', route: '/ai-assistant' },
-      { title: 'مترجم الروشتات', desc: 'فهم وصفتك الطبية بسهولة', icon: 'translate', tone: 'violet', route: '/ai/prescription-translator' },
+      { title: 'المساعد الطبي الذكي', desc: 'فرز الأعراض وإرشاد أولي', icon: 'robot', tone: 'violet', route: '/ai' },
+      { title: 'مترجم الروشتات', desc: 'فهم وصفتك الطبية بسهولة', icon: 'translate', tone: 'violet', route: '/ai?mode=prescription' },
       { title: 'التقرير الشهري', desc: 'ملخص صحتك خلال الشهر', icon: 'chart-line-up', tone: 'mint', route: '/ai/monthly-report' },
     ],
   },
