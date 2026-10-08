@@ -1,0 +1,802 @@
+{
+ "slice": "admin-system",
+ "batch": "admin",
+ "app": "admin",
+ "screens": [
+  {
+   "route": "/admin/ai-control",
+   "elements": [
+    [
+     "button: تلقائي (Fallback + Round Robin)",
+     "POST /ai/admin/gateway/mode; GET /ai/admin/gateway; GET /ai/admin/usage",
+     "ok"
+    ],
+    [
+     "input: يدوي — تثبيت مزود... تثبيت:",
+     "onChange sends POST /ai/admin/gateway/mode; GET /ai/admin/gateway; GET /ai/admin/usage",
+     "ok"
+    ],
+    [
+     "input: تلقائي",
+     "onChange sends POST /ai/admin/gateway/purpose; GET /ai/admin/gateway; GET /ai/admin/usage",
+     "ok"
+    ],
+    [
+     "button: تعطيل تفعيل",
+     "POST /ai/admin/gateway/provider/:param; GET /ai/admin/gateway; GET /ai/admin/usage",
+     "ok"
+    ],
+    [
+     "input: 24 ساعة 7 أيام 30 يوم",
+     "state days used by logic/request",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/audit-logs",
+   "elements": [
+    [
+     "input: تصفية باسم الإجراء",
+     "state action used by logic/request",
+     "ok"
+    ],
+    [
+     "input: معرّف المنفّذ",
+     "state adminId used by logic/request",
+     "ok"
+    ],
+    [
+     "input: نوع المورد",
+     "state targetType used by logic/request",
+     "ok"
+    ],
+    [
+     "input: معرّف المورد",
+     "state targetId used by logic/request",
+     "ok"
+    ],
+    [
+     "input: date",
+     "state from used by logic/request",
+     "ok"
+    ],
+    [
+     "input: date",
+     "state to used by logic/request",
+     "ok"
+    ],
+    [
+     "button: تحديث",
+     "GET /api/admin/admin/audit",
+     "ok"
+    ],
+    [
+     "button: تصدير CSV (الصفحة الحالية)",
+     "exportCsv; helper/browser call",
+     "ok"
+    ],
+    [
+     "button: السابق",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: التالي",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: <button> onClick (in FilterSheet)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in FilterSheet)",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: <button> onClick (in FilterSheet)",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: <button> onClick (in FilterSheet)",
+     "local state",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/config-portal",
+   "elements": [
+    [
+     "button: تعديلات الـ SLA",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: مفتاح الإيقاف الطارئ",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: التسعير والذروة",
+     "GET /api/admin/business-rules/config/pricing",
+     "ok"
+    ],
+    [
+     "button: إصدارات التطبيقات",
+     "GET /api/admin/admin/config/app-versions",
+     "ok"
+    ],
+    [
+     "button: رقم المساعدة العاجلة",
+     "GET /api/admin/mental-health/urgent-help",
+     "ok"
+    ],
+    [
+     "button: استشر طبيب (أدوية الوصفة)",
+     "GET /api/admin/admin/pharmacy/rx-consult-specialties",
+     "ok"
+    ],
+    [
+     "input: number",
+     "state consultationDuration used by logic/request",
+     "ok"
+    ],
+    [
+     "input: number",
+     "state callRingingDuration used by logic/request",
+     "ok"
+    ],
+    [
+     "input: number",
+     "state jwtExpiry used by logic/request",
+     "ok"
+    ],
+    [
+     "button: مُفعّل موقوف",
+     "toggleCod; PUT /api/admin/admin/pharmacy/fulfillment-policies/cod",
+     "ok"
+    ],
+    [
+     "button: حفظ التعديلات (Override Globally)",
+     "handleUpdateSLA; PUT /api/admin/admin/config/sla; prompt()",
+     "ok"
+    ],
+    [
+     "input: checkbox",
+     "state killSwitchChecked1 used by logic/request",
+     "ok"
+    ],
+    [
+     "input: checkbox",
+     "state killSwitchChecked2 used by logic/request",
+     "ok"
+    ],
+    [
+     "button: Trigger System Kill-Switch (معطّل — يتطلب إعداد الخادم)",
+     "disabled button, no handler",
+     "dead"
+    ],
+    [
+     "button: إلغاء وضع الصيانة (Restore Systems)",
+     "PUT /api/admin/admin/governance/trigger-emergency-maintenance",
+     "ok"
+    ],
+    [
+     "input: number",
+     "state surgeStart used by logic/request",
+     "ok"
+    ],
+    [
+     "input: number",
+     "state surgeEnd used by logic/request",
+     "ok"
+    ],
+    [
+     "input: number",
+     "state surgeMult used by logic/request",
+     "ok"
+    ],
+    [
+     "input: number",
+     "state deliveryFee used by logic/request",
+     "ok"
+    ],
+    [
+     "input: number",
+     "state serviceFee used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ التسعير",
+     "POST /api/admin/business-rules/config/surge; POST /api/admin/business-rules/config/fees",
+     "ok"
+    ],
+    [
+     "input: 1.0.0",
+     "state appVersions used by logic/request",
+     "ok"
+    ],
+    [
+     "input: 1.2.0",
+     "state appVersions used by logic/request",
+     "ok"
+    ],
+    [
+     "input: checkbox",
+     "value",
+     "ok"
+    ],
+    [
+     "input: رسالة الصيانة (عربي)",
+     "state appVersions used by logic/request",
+     "ok"
+    ],
+    [
+     "input: Maintenance message",
+     "state appVersions used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ الإصدارات",
+     "PUT /api/admin/admin/config/app-versions",
+     "ok"
+    ],
+    [
+     "input: input",
+     "state urgentPhone used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ الرقم",
+     "PUT /api/admin/admin/mental-health/urgent-help",
+     "ok"
+    ],
+    [
+     "input: بدون تصفية",
+     "state rxConsult used by logic/request",
+     "ok"
+    ],
+    [
+     "input: الافتراضي",
+     "state rxConsult used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ الربط",
+     "PUT /api/admin/admin/pharmacy/rx-consult-specialties",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "1 handler(s) are passed as props (parent callbacks) and are not traced."
+   ]
+  },
+  {
+   "route": "/admin/legal-policies",
+   "elements": [
+    [
+     "button: تحرير المحتوى (يرفع الإصدار)",
+     "GET /legal/policy/:param",
+     "ok"
+    ],
+    [
+     "action: تحرير: ⚠️ الحفظ يرفع رقم الإصدار تلقائياً ويجبر المستخدمين ع",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: تحرير: ⚠️ الحفظ يرفع رقم الإصدار تلقائياً ويجبر المستخدمين ع",
+     "",
+     "ok"
+    ],
+    [
+     "input: textarea",
+     "state editContent used by logic/request",
+     "ok"
+    ],
+    [
+     "button: جارٍ الحفظ... حفظ وإصدار جديد",
+     "save; PUT /api/admin/admin/legal/policy/:param; GET /legal/policies; GET /api/admin/admin/finance/commissions",
+     "ok"
+    ],
+    [
+     "button: إلغاء",
+     "local state",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/rbac",
+   "elements": [
+    [
+     "form: إنشاء دور مخصص سيُسجل الإنشاء في audit ولا تقبل مفاتيح الصلا",
+     "createRole; POST /api/admin/admin/rbac/roles; GET /api/admin/admin/rbac/catalog; GET /api/admin/admin/rbac/roles",
+     "ok"
+    ],
+    [
+     "input: support_ops",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "input: input",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "input: checkbox",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "input: textarea",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "button: جارٍ الحفظ… إنشاء الدور وتدقيقه",
+     "submits the enclosing form",
+     "ok"
+    ],
+    [
+     "form: إسناد أدوار لموظف للموظفين (admin/super_admin/support_agent)",
+     "assignRoles; POST /api/admin/admin/rbac/users/:param/roles",
+     "ok"
+    ],
+    [
+     "input: user id",
+     "state assignUser used by logic/request",
+     "ok"
+    ],
+    [
+     "input: textarea",
+     "state assignReason used by logic/request",
+     "ok"
+    ],
+    [
+     "input: checkbox",
+     "state assignKeys used by logic/request",
+     "ok"
+    ],
+    [
+     "button: جارٍ الحفظ… حفظ الإسناد وتدقيقه",
+     "submits the enclosing form",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/scheduled-reports",
+   "elements": [
+    [
+     "form: التقرير التواتر يومي أسبوعي شهري الساعة UTC الصيغة CSV JSON",
+     "create; POST /api/admin/admin/scheduled-reports; GET /api/admin/admin/scheduled-reports",
+     "ok"
+    ],
+    [
+     "input: select",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "input: يومي أسبوعي شهري",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "input: number",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "input: CSV JSON",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "input: ops@example.com, finance@example.com",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "button: إضافة الجدولة",
+     "submits the enclosing form",
+     "ok"
+    ],
+    [
+     "button: تشغيل الآن",
+     "POST /api/admin/admin/scheduled-reports/:param/run; GET /api/admin/admin/scheduled-reports/:param/runs; GET /api/admin/a",
+     "ok"
+    ],
+    [
+     "button: إيقاف تفعيل",
+     "PATCH /api/admin/admin/scheduled-reports/:param; GET /api/admin/admin/scheduled-reports",
+     "ok"
+    ],
+    [
+     "button: سجل التسليم",
+     "GET /api/admin/admin/scheduled-reports/:param/runs",
+     "ok"
+    ],
+    [
+     "button: حذف",
+     "DELETE /api/admin/admin/scheduled-reports/:param; GET /api/admin/admin/scheduled-reports; confirm(); prompt()",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/security",
+   "elements": [
+    [
+     "input: اسم الجهاز (مثال: iPhone 15 / MacBook)",
+     "state deviceName used by logic/request",
+     "ok"
+    ],
+    [
+     "button: بانتظار البصمة... 🔐 تسجيل بمفتاح أمان",
+     "enroll; POST /auth/passkey/enroll/options; POST /auth/passkey/enroll/verify; GET /auth/passkey/eligibility; GET /auth/pa",
+     "ok"
+    ],
+    [
+     "button: حذف",
+     "DELETE /auth/passkey/devices/:param; GET /auth/passkey/eligibility; GET /auth/passkey/devices; GET /api/admin/admin/devi",
+     "ok"
+    ],
+    [
+     "button: إيقاف القفل تفعيل القفل على هذا المتصفح",
+     "POST /api/admin/admin/devices/lock; GET /auth/passkey/eligibility; GET /auth/passkey/devices; GET /api/admin/admin/devic",
+     "ok"
+    ],
+    [
+     "API: GET /auth/me",
+     "GET /auth/me (OK, backend/src/modules/auth/auth.controller.ts:211)",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/system-ops",
+   "elements": [
+    [
+     "button: الطوابير الترجمات SEO Feature Flags",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: إعادة المحاولات الفاشلة",
+     "POST /api/admin/admin/ops/queues/:param/retry-failed; GET /api/admin/admin/ops/queues; GET /api/admin/admin/ops/translat",
+     "ok"
+    ],
+    [
+     "button: إعادة المحاولة",
+     "POST /api/admin/admin/ops/queues/:param/jobs/:param/retry; GET /api/admin/admin/ops/queues; GET /api/admin/admin/ops/tra",
+     "ok"
+    ],
+    [
+     "input: العربية English Urdu",
+     "state lang used by logic/request",
+     "ok"
+    ],
+    [
+     "form: تعديل ترجمة حفظ الترجمة",
+     "saveTranslation; POST /api/admin/admin/ops/translations; GET /api/admin/admin/ops/queues; GET /api/admin/admin/ops/trans",
+     "ok"
+    ],
+    [
+     "input: المفتاح",
+     "state translationKey used by logic/request",
+     "ok"
+    ],
+    [
+     "input: القيمة الجديدة",
+     "state translationValue used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ الترجمة",
+     "submits the enclosing form",
+     "ok"
+    ],
+    [
+     "button: حجب إتاحة",
+     "POST /api/admin/admin/ops/seo/controls; GET /api/admin/admin/ops/queues; GET /api/admin/admin/ops/translations; GET /api",
+     "ok"
+    ],
+    [
+     "form: تعديل راية مفعلة نسبة rollout حفظ وتدقيق",
+     "saveFlag; POST /api/admin/admin/governance-controls/feature-flags; GET /api/admin/admin/ops/queues; GET /api/admin/admin",
+     "ok"
+    ],
+    [
+     "input: feature.key",
+     "state flag used by logic/request",
+     "ok"
+    ],
+    [
+     "input: checkbox",
+     "state flag used by logic/request",
+     "ok"
+    ],
+    [
+     "input: number",
+     "state flag used by logic/request",
+     "ok"
+    ],
+    [
+     "input: سبب التغيير",
+     "state flag used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ وتدقيق",
+     "submits the enclosing form",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/theme-control",
+   "elements": [
+    [
+     "data: fake delay",
+     "setTimeout → success state",
+     "mock"
+    ],
+    [
+     "input: color",
+     "state tokens used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ وتطبيق على كل الشاشات",
+     "save; POST /api/admin/theme",
+     "ok"
+    ],
+    [
+     "button: إعادة الافتراضي",
+     "reset; local state",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/login",
+   "elements": [
+    [
+     "form: رقم الجوال أو البريد الإلكتروني كلمة المرور جارٍ التحقق… تسج",
+     "submitCredentials; POST /api/admin/auth/login; navigation",
+     "ok"
+    ],
+    [
+     "input: input",
+     "state identifier used by logic/request",
+     "ok"
+    ],
+    [
+     "input: password",
+     "state password used by logic/request",
+     "ok"
+    ],
+    [
+     "button: جارٍ التحقق… تسجيل الدخول",
+     "submits the enclosing form",
+     "ok"
+    ],
+    [
+     "button: نسيت كلمة المرور؟",
+     "local state",
+     "ok"
+    ],
+    [
+     "form: أدخل رمز التحقق المكوّن من 6 أرقام. جارٍ التحقق… تأكيد الرمز",
+     "submitOtp; POST /api/admin/auth/verify-2fa; navigation",
+     "ok"
+    ],
+    [
+     "input: input",
+     "state otp used by logic/request",
+     "ok"
+    ],
+    [
+     "button: جارٍ التحقق… تأكيد الرمز",
+     "submits the enclosing form",
+     "ok"
+    ],
+    [
+     "button: رجوع",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: بانتظار المفتاح… تأكيد بمفتاح الأمان",
+     "submitPasskey; POST /api/admin/auth/passkey-verify; navigation",
+     "ok"
+    ],
+    [
+     "button: رجوع",
+     "local state",
+     "ok"
+    ],
+    [
+     "form: أدخل بريدك أو رقمك المسجل لإرسال رمز الاستعادة. جارٍ الإرسال",
+     "requestReset; POST /api/admin/auth/public/:param",
+     "ok"
+    ],
+    [
+     "input: input",
+     "state identifier used by logic/request",
+     "ok"
+    ],
+    [
+     "button: جارٍ الإرسال… إرسال الرمز",
+     "submits the enclosing form",
+     "ok"
+    ],
+    [
+     "button: رجوع",
+     "local state",
+     "ok"
+    ],
+    [
+     "form: جارٍ الحفظ… تعيين كلمة المرور رجوع",
+     "confirmReset; POST /api/admin/auth/public/:param",
+     "ok"
+    ],
+    [
+     "input: رمز التحقق",
+     "state resetCode used by logic/request",
+     "ok"
+    ],
+    [
+     "input: كلمة المرور الجديدة",
+     "state newPassword used by logic/request",
+     "ok"
+    ],
+    [
+     "button: جارٍ الحفظ… تعيين كلمة المرور",
+     "submits the enclosing form",
+     "ok"
+    ],
+    [
+     "button: رجوع",
+     "local state",
+     "ok"
+    ]
+   ]
+  }
+ ],
+ "needsReview": [
+  {
+   "route": "/admin/ai-control",
+   "element": "No nav link",
+   "kind": "client",
+   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
+   "file": "admin/src/pages/admin/ai-control.tsx",
+   "line": 1
+  },
+  {
+   "route": "/admin/config-portal",
+   "element": "Trigger System Kill-Switch (معطّل — يتطلب إعداد الخادم)",
+   "kind": "client",
+   "note": "Button is disabled with no handler.",
+   "file": "admin/src/pages/admin/config-portal.tsx",
+   "line": 344
+  },
+  {
+   "route": "/admin/legal-policies",
+   "element": "Guard G-PERM-MISMATCH (1)",
+   "kind": "backend",
+   "note": "1 call(s): Page requires \"gdpr.manage\" but GET /admin/finance/commissions requires finance.read; an admin role with the page permission only gets a 403 on this call.",
+   "file": "admin/src/pages/admin/legal-policies.tsx",
+   "line": 15,
+   "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:29"
+  },
+  {
+   "route": "/admin/legal-policies",
+   "element": "No nav link",
+   "kind": "client",
+   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
+   "file": "admin/src/pages/admin/legal-policies.tsx",
+   "line": 1
+  },
+  {
+   "route": "/admin/rbac",
+   "element": "إنشاء دور مخصص سيُسجل الإنشاء في audit ولا تقبل مفاتيح الصلا",
+   "kind": "client",
+   "note": "Sensitive action (POST /api/admin/admin/rbac/roles) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/rbac.tsx",
+   "line": 79
+  },
+  {
+   "route": "/admin/rbac",
+   "element": "إسناد أدوار لموظف للموظفين (admin/super_admin/support_agent)",
+   "kind": "client",
+   "note": "Sensitive action (POST /api/admin/admin/rbac/users/:param/roles) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/rbac.tsx",
+   "line": 80
+  },
+  {
+   "route": "/admin/scheduled-reports",
+   "element": "Guard G-PERM-MISMATCH (1)",
+   "kind": "backend",
+   "note": "1 call(s): Page requires \"reports.schedule.manage\" but POST /admin/scheduled-reports/:param/run requires ops.crons.run; an admin role with the page permission only gets a ",
+   "file": "admin/src/pages/admin/scheduled-reports.tsx",
+   "line": 15,
+   "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:182"
+  },
+  {
+   "route": "/admin/security",
+   "element": "Guard G-OPEN (6)",
+   "kind": "backend",
+   "note": "6 call(s) hit backend routes with no role/permission guard (GET /auth/passkey/eligibility; GET /auth/passkey/devices; GET /auth/me; …): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/pages/admin/security.tsx",
+   "line": 35,
+   "backend": "backend/src/modules/auth/passkey.controller.ts:21"
+  },
+  {
+   "route": "/admin/system-ops",
+   "element": "تعديل راية مفعلة نسبة rollout حفظ وتدقيق",
+   "kind": "client",
+   "note": "Sensitive action (POST /api/admin/admin/governance-controls/feature-flags) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/system-ops.tsx",
+   "line": 19
+  },
+  {
+   "route": "/admin/system-ops",
+   "element": "Guard G-PERM-MISMATCH (2)",
+   "kind": "backend",
+   "note": "2 call(s): Page requires \"ops.queues.manage\" but GET /admin/ops/translations requires translations.edit; an admin role with the page permission only gets a 403 on this cal",
+   "file": "admin/src/pages/admin/system-ops.tsx",
+   "line": 12,
+   "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:102"
+  },
+  {
+   "route": "/admin/theme-control",
+   "element": "fake delay",
+   "kind": "client",
+   "note": "setTimeout stands in for a request and reports success.",
+   "file": "admin/src/pages/admin/theme-control.tsx",
+   "line": 47
+  },
+  {
+   "route": "/admin/theme-control",
+   "element": "API POST /api/admin/theme",
+   "kind": "backend",
+   "note": "Endpoint is NO_ROUTE (no controller declares /theme): the call fails or hits nothing.",
+   "file": "admin/src/pages/admin/theme-control.tsx",
+   "line": 41
+  },
+  {
+   "route": "/admin/theme-control",
+   "element": "Guard G-RAW-WRITE (1)",
+   "kind": "backend",
+   "note": "1 call(s): POST /api/admin/theme uses raw fetch() instead of adminFetch/adminMutation, so no x-admin-csrf header is sent and the BFF will answer 403 csrf_validation_failed",
+   "file": "admin/src/pages/admin/theme-control.tsx",
+   "line": 41
+  },
+  {
+   "route": "/admin/theme-control",
+   "element": "No nav link",
+   "kind": "client",
+   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
+   "file": "admin/src/pages/admin/theme-control.tsx",
+   "line": 1
+  },
+  {
+   "route": "/login",
+   "element": "Guard G-RAW-WRITE (4)",
+   "kind": "backend",
+   "note": "4 call(s): POST /api/admin/auth/public/:param uses raw fetch() instead of adminFetch/adminMutation, so no x-admin-csrf header is sent and the BFF will answer 403 csrf_vali",
+   "file": "admin/src/pages/login.tsx",
+   "line": 10,
+   "backend": "admin/src/pages/api/admin/auth/public/[action].ts"
+  }
+ ]
+}
