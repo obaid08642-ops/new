@@ -1,9 +1,23 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 import { ProviderType, ProviderStatus } from '../common/enums';
 import { v4 as uuid } from 'uuid';
 import { InsuranceNetworkContract, InsuranceNetworkContractSchema } from './insurance.schema';
 import { buildSlug } from '../common/slug.util';
+
+/**
+ * Q-12: GeoJSON point as its own sub-schema. Declared inline, Mongoose reads the inner `type` key as a type
+ * declaration and gives `coordinates` a default of [], so a profile without a location got
+ * `geoPoint: { type: { coordinates: [] } }` and the 2dsphere index refused the insert ("Can't extract geo keys").
+ * Here nothing has a default: no location means no geoPoint at all (2dsphere v2 indexes skip such docs).
+ */
+const GeoPointSchema = new MongooseSchema(
+  {
+    type: { type: String, enum: ['Point'], required: true },
+    coordinates: { type: [Number], required: true, default: undefined },
+  },
+  { _id: false },
+);
 
 @Schema({ timestamps: true, collection: 'provider_profiles' })
 export class ProviderProfile {
@@ -270,7 +284,7 @@ export class ProviderProfile {
   /** Q-12: GeoJSON mirror of `location`, kept in step so the DB answers "nearest".
    * No inner defaults: a doc without a location must have NO geoPoint at all —
    * a half object ({type:'Point'} with no coordinates) would poison the 2dsphere index. */
-  @Prop({ type: { type: { type: String, enum: ['Point'] }, coordinates: { type: [Number] } }, _id: false })
+  @Prop({ type: GeoPointSchema, default: undefined })
   geoPoint?: { type: 'Point'; coordinates: [number, number] };
 }
 export type ProviderProfileDocument = ProviderProfile & Document;
