@@ -183,3 +183,6 @@ Same strictness as colours; full text in `QUALITY_STANDARDS.md` §8 and `AGENTS.
 
 ## Open owner questions (2026-10-08)
 - **Owner questions open:** intro/language/permissions screens before Welcome? Which roles may hold a patient session? Chat entry points with no order; compare picker; camera barcode on web; where the insurance choice belongs; native review of ur/hi/bn/tl wording.
+
+## Owner plan 2026-10-08 (full)
+Patient journey audit: docs/journeys/patient.md, walked on running app/web, needs-review/journeys.json (scenario, step, problem, file:line), no logic fixes. Provider app (~130 screens): inventory + merge map to owner BEFORE building; wait for provider boards for key screens. Admin: full on desktop; mobile = today's numbers, approvals queue, problem orders, feature switches, urgent alerts, medicine catalogue (search by name/ingredient/camera barcode, quick edit of key fields, add from items-to-review queue, confirmation before price/requires_prescription/controlled changes, change log); flag public directory pages inside admin.
