@@ -1,2 +1,2 @@
-# URGENT 2026-10-08: remove public DB backups from the CDN bucket and stop uploading them there
-14-contain-backup-exposure
+# 2026-10-08 decision 36: REHEARSAL (APPLY=0) of loading the five legal texts into legal_policies. Writes nothing.
+40-legal-policies
