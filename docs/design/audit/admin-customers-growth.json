@@ -73,7 +73,7 @@
     ],
     [
      "API: GET /api/admin/admin/analytics/:param",
-     "GET /api/admin/admin/analytics/:param (OK, backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:229)",
+     "GET /api/admin/admin/analytics/:param (OK, backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:231)",
      "ok"
     ]
    ]
@@ -1164,17 +1164,17 @@
     ],
     [
      "API: POST /api/admin/admin/providers/:param/reactivate",
-     "POST /api/admin/admin/providers/:param/reactivate (OK, backend/src/modules/provider/provider.controllers.ts:180)",
+     "POST /api/admin/admin/providers/:param/reactivate (OK, backend/src/modules/provider/provider.controllers.ts:182)",
      "ok"
     ],
     [
      "API: GET /api/admin/storage/:param/signed-url",
-     "GET /api/admin/storage/:param/signed-url (OK, backend/src/modules/storage/storage.module.ts:382)",
+     "GET /api/admin/storage/:param/signed-url (OK, backend/src/modules/storage/storage.module.ts:386)",
      "ok"
     ],
     [
      "API: GET /api/admin/storage/:param",
-     "GET /api/admin/storage/:param (OK, backend/src/modules/storage/storage.module.ts:372)",
+     "GET /api/admin/storage/:param (OK, backend/src/modules/storage/storage.module.ts:376)",
      "ok"
     ],
     [
@@ -1315,7 +1315,7 @@
    "note": "3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; GET /api/admin/provider-onboarding/admin/contracts/:param): any signed-in user passes JwtAuthGuard.",
    "file": "admin/src/components/ProviderFullDetail.tsx",
    "line": 19,
-   "backend": "backend/src/modules/storage/storage.module.ts:382"
+   "backend": "backend/src/modules/storage/storage.module.ts:386"
   }
  ]
 }

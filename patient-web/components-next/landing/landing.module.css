@@ -1,0 +1,27 @@
+/* The public directory and detail pages (Batch 13). Tokens only, logical properties only, no inline styles (the CSP refuses them). */
+
+.section { display: flex; flex-direction: column; gap: var(--nabd-space-sm); min-inline-size: 0; }
+
+.grid {
+  list-style: none; margin: 0; padding: 0; display: grid; gap: var(--nabd-space-sm);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+}
+.grid > li { min-inline-size: 0; display: flex; flex-direction: column; }
+.grid > li > * { flex: 1; }
+
+.chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.chips > li { min-inline-size: 0; }
+
+/* a listed service: tile and text on one row, the chips, the action at the foot */
+.card { justify-content: space-between; }
+.cardHead { display: flex; align-items: center; gap: 12px; min-inline-size: 0; }
+.cardText { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
+.cardTitle { margin: 0; font-size: var(--nabd-font-size-row); line-height: 1.4; font-weight: 600; overflow-wrap: anywhere; }
+.cardSub { margin: 0; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+
+/* the policy text of a legal page */
+.legal { gap: 12px; padding: 16px; }
+.legalText { margin: 0; font-size: var(--nabd-font-size-control); line-height: 1.8; color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.legalBullets { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.legalBullets > li { display: flex; gap: 8px; font-size: var(--nabd-font-size-control); line-height: 1.7; color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; min-inline-size: 0; }
+.legalBullets > li::before { content: ""; flex: none; inline-size: 6px; block-size: 6px; margin-block-start: 0.7em; border-radius: var(--nabd-radius-pill); background: var(--nabd-color-icon-secondary); }

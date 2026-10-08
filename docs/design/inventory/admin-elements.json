@@ -58,68 +58,6 @@
     "via": "DataTable"
    }
   ],
-  "/admin/ambulance-fleet": [
-   {
-    "kind": "button",
-    "label": "<button> onClick",
-    "src": "local state",
-    "status": "ok",
-    "mutation": false,
-    "confirm": false,
-    "file": "admin/src/pages/admin/ambulance-fleet.tsx",
-    "line": 97
-   },
-   {
-    "kind": "button",
-    "label": "إعادة المحاولة",
-    "src": "load; GET /api/admin/admin/ambulance/fleet",
-    "status": "ok",
-    "mutation": false,
-    "confirm": false,
-    "file": "admin/src/pages/admin/ambulance-fleet.tsx",
-    "line": 108
-   },
-   {
-    "kind": "button",
-    "label": "اعتماد",
-    "src": "POST /api/admin/admin/ambulance/fleet/:param/approve",
-    "status": "ok",
-    "warn": "Sensitive action (POST /api/admin/admin/ambulance/fleet/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "mutation": true,
-    "confirm": false,
-    "file": "admin/src/pages/admin/ambulance-fleet.tsx",
-    "line": 145
-   },
-   {
-    "kind": "button",
-    "label": "رفض",
-    "src": "local state",
-    "status": "ok",
-    "mutation": false,
-    "confirm": false,
-    "file": "admin/src/pages/admin/ambulance-fleet.tsx",
-    "line": 149
-   },
-   {
-    "kind": "input",
-    "label": "سبب الرفض (يظهر للمزود)",
-    "src": "state rejectReason used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/ambulance-fleet.tsx",
-    "line": 158
-   },
-   {
-    "kind": "button",
-    "label": "تأكيد الرفض",
-    "src": "POST /api/admin/admin/ambulance/fleet/:param/reject",
-    "status": "ok",
-    "warn": "Sensitive action (POST /api/admin/admin/ambulance/fleet/:param/reject) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "mutation": true,
-    "confirm": false,
-    "file": "admin/src/pages/admin/ambulance-fleet.tsx",
-    "line": 161
-   }
-  ],
   "/admin/analytics-suite": [
    {
     "kind": "input",
@@ -505,7 +443,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 215
+    "line": 223
    },
    {
     "kind": "button",
@@ -515,7 +453,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 223
+    "line": 231
    },
    {
     "kind": "input",
@@ -523,7 +461,7 @@
     "src": "state search used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 230
+    "line": 238
    },
    {
     "kind": "input",
@@ -531,7 +469,7 @@
     "src": "state specNameAr used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 243
+    "line": 251
    },
    {
     "kind": "input",
@@ -539,49 +477,49 @@
     "src": "state specNameEn used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 244
+    "line": 252
    },
    {
     "kind": "button",
     "label": "حفظ التخصص",
-    "src": "POST \u0001adminBase\u0001; GET \u0001adminBase\u0001",
+    "src": "POST /catalogs/admin/specialties; GET \u0001adminBase\u0001",
     "status": "ok",
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 245
+    "line": 253
    },
    {
     "kind": "button",
     "label": "تعطيل",
-    "src": "DELETE \u0001adminBase\u0001/:param; GET \u0001adminBase\u0001; confirm()",
+    "src": "DELETE /catalogs/admin/specialties/:param; GET \u0001adminBase\u0001; confirm()",
     "status": "ok",
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 251
+    "line": 259
    },
    {
     "kind": "button",
     "label": "اعتماد المحدد",
-    "src": "POST \u0001adminBase\u0001/bulk-approve; GET \u0001adminBase\u0001",
+    "src": "POST \u0001crudBase\u0001/bulk-approve; GET \u0001adminBase\u0001",
     "status": "ok",
-    "warn": "Sensitive action (POST \u0001adminBase\u0001/bulk-approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "warn": "Sensitive action (POST \u0001crudBase\u0001/bulk-approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 263
+    "line": 271
    },
    {
     "kind": "button",
     "label": "رفض المحدد",
-    "src": "POST \u0001adminBase\u0001/bulk-approve; GET \u0001adminBase\u0001",
+    "src": "POST \u0001crudBase\u0001/bulk-approve; GET \u0001adminBase\u0001",
     "status": "ok",
-    "warn": "Sensitive action (POST \u0001adminBase\u0001/bulk-approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "warn": "Sensitive action (POST \u0001crudBase\u0001/bulk-approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 264
+    "line": 272
    },
    {
     "kind": "button",
@@ -591,7 +529,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 265
+    "line": 273
    },
    {
     "kind": "input",
@@ -599,29 +537,29 @@
     "src": "state selected used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 272
+    "line": 280
    },
    {
     "kind": "button",
     "label": "اعتماد",
-    "src": "POST \u0001adminBase\u0001/:param/approve; GET \u0001adminBase\u0001",
+    "src": "POST \u0001crudBase\u0001/:param/approve; GET \u0001adminBase\u0001",
     "status": "ok",
-    "warn": "Sensitive action (POST \u0001adminBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "warn": "Sensitive action (POST \u0001crudBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 281
+    "line": 289
    },
    {
     "kind": "button",
     "label": "رفض",
-    "src": "POST \u0001adminBase\u0001/:param/approve; GET \u0001adminBase\u0001",
+    "src": "POST \u0001crudBase\u0001/:param/approve; GET \u0001adminBase\u0001",
     "status": "ok",
-    "warn": "Sensitive action (POST \u0001adminBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "warn": "Sensitive action (POST \u0001crudBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 282
+    "line": 290
    },
    {
     "kind": "button",
@@ -631,17 +569,17 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 283
+    "line": 291
    },
    {
     "kind": "button",
     "label": "حذف",
-    "src": "DELETE \u0001adminBase\u0001/:param; GET \u0001adminBase\u0001; confirm()",
+    "src": "DELETE \u0001crudBase\u0001/:param; GET \u0001adminBase\u0001; confirm()",
     "status": "ok",
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 284
+    "line": 292
    },
    {
     "kind": "action",
@@ -651,7 +589,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 293
+    "line": 301
    },
    {
     "kind": "action",
@@ -661,7 +599,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 295
+    "line": 303
    },
    {
     "kind": "input",
@@ -669,7 +607,7 @@
     "src": "state editing used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 301
+    "line": 309
    },
    {
     "kind": "input",
@@ -677,7 +615,7 @@
     "src": "state editing used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 310
+    "line": 318
    },
    {
     "kind": "input",
@@ -685,7 +623,7 @@
     "src": "state editing used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 313
+    "line": 321
    },
    {
     "kind": "input",
@@ -693,7 +631,7 @@
     "src": "state editing used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 315
+    "line": 323
    },
    {
     "kind": "button",
@@ -703,17 +641,17 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 323
+    "line": 331
    },
    {
     "kind": "button",
     "label": "جارٍ الحفظ… حفظ",
-    "src": "save; POST \u0001adminBase\u0001; PUT \u0001adminBase\u0001/:param; GET \u0001adminBase\u0001",
+    "src": "save; POST \u0001crudBase\u0001; PUT \u0001crudBase\u0001/:param; GET \u0001adminBase\u0001",
     "status": "ok",
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 324
+    "line": 332
    },
    {
     "kind": "input",
@@ -721,7 +659,7 @@
     "src": "state q used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 458
+    "line": 466
    },
    {
     "kind": "button",
@@ -731,7 +669,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 459
+    "line": 467
    },
    {
     "kind": "input",
@@ -739,7 +677,7 @@
     "src": "POST /api/admin/bulk-upload; GET \u0001adminBase\u0001",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 462
+    "line": 470
    },
    {
     "kind": "button",
@@ -749,18 +687,18 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 473
+    "line": 481
    },
    {
     "kind": "button",
     "label": "اعتماد",
-    "src": "POST \u0001adminBase\u0001/:param/approve; GET \u0001adminBase\u0001",
+    "src": "POST \u0001crudBase\u0001/:param/approve; GET \u0001adminBase\u0001",
     "status": "ok",
-    "warn": "Sensitive action (POST \u0001adminBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "warn": "Sensitive action (POST \u0001crudBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 474
+    "line": 482
    },
    {
     "kind": "button",
@@ -771,7 +709,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 475
+    "line": 483
    },
    {
     "kind": "button",
@@ -781,27 +719,27 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 476
+    "line": 484
    },
    {
     "kind": "action",
-    "label": "تعديل دواء دواء جديد يتطلب وصفة صورة: جارٍ رفع الصورة… إلغاء",
+    "label": "تعديل دواء دواء جديد يتطلب وصفة دواء خاضع للرقابة (لا يُطلب",
     "src": "local state",
     "status": "ok",
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 490
+    "line": 498
    },
    {
     "kind": "action",
-    "label": "تعديل دواء دواء جديد يتطلب وصفة صورة: جارٍ رفع الصورة… إلغاء",
+    "label": "تعديل دواء دواء جديد يتطلب وصفة دواء خاضع للرقابة (لا يُطلب",
     "src": "",
     "status": "ok",
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 491
+    "line": 499
    },
    {
     "kind": "input",
@@ -809,7 +747,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 494
+    "line": 502
    },
    {
     "kind": "input",
@@ -817,7 +755,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 495
+    "line": 503
    },
    {
     "kind": "input",
@@ -825,7 +763,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 496
+    "line": 504
    },
    {
     "kind": "input",
@@ -833,7 +771,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 497
+    "line": 505
    },
    {
     "kind": "input",
@@ -841,7 +779,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 498
+    "line": 506
    },
    {
     "kind": "input",
@@ -849,7 +787,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 499
+    "line": 507
    },
    {
     "kind": "input",
@@ -858,7 +796,25 @@
     "status": "ok",
     "untraced": true,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 500
+    "line": 508
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "value",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 509
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "value",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 510
    },
    {
     "kind": "input",
@@ -866,7 +822,7 @@
     "src": "POST /storage/upload; GET /storage/:param/signed-url",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 501
+    "line": 511
    },
    {
     "kind": "button",
@@ -876,17 +832,17 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 506
+    "line": 516
    },
    {
     "kind": "button",
     "label": "جارٍ الحفظ… حفظ",
-    "src": "save; POST \u0001adminBase\u0001; PUT \u0001adminBase\u0001/:param; GET \u0001adminBase\u0001",
+    "src": "save; POST \u0001crudBase\u0001; PUT \u0001crudBase\u0001/:param; GET \u0001adminBase\u0001",
     "status": "ok",
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 507
+    "line": 517
    },
    {
     "kind": "button",
@@ -896,7 +852,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 586
+    "line": 596
    },
    {
     "kind": "button",
@@ -906,7 +862,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 587
+    "line": 597
    },
    {
     "kind": "link",
@@ -915,7 +871,7 @@
     "status": "ok",
     "link": "/admin/insurance-companies",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 588
+    "line": 598
    },
    {
     "kind": "button",
@@ -925,7 +881,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 598
+    "line": 608
    },
    {
     "kind": "button",
@@ -936,7 +892,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 599
+    "line": 609
    },
    {
     "kind": "button",
@@ -946,7 +902,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 600
+    "line": 610
    },
    {
     "kind": "button",
@@ -956,7 +912,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 605
+    "line": 615
    },
    {
     "kind": "action",
@@ -966,7 +922,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 613
+    "line": 623
    },
    {
     "kind": "action",
@@ -976,7 +932,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 614
+    "line": 624
    },
    {
     "kind": "input",
@@ -984,7 +940,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 616
+    "line": 626
    },
    {
     "kind": "input",
@@ -992,7 +948,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 617
+    "line": 627
    },
    {
     "kind": "input",
@@ -1000,7 +956,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 618
+    "line": 628
    },
    {
     "kind": "button",
@@ -1010,7 +966,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 620
+    "line": 630
    },
    {
     "kind": "button",
@@ -1020,7 +976,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 621
+    "line": 631
    },
    {
     "kind": "action",
@@ -1030,7 +986,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 627
+    "line": 637
    },
    {
     "kind": "action",
@@ -1040,7 +996,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 628
+    "line": 638
    },
    {
     "kind": "input",
@@ -1048,7 +1004,7 @@
     "src": "state netForm used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 630
+    "line": 640
    },
    {
     "kind": "input",
@@ -1056,7 +1012,7 @@
     "src": "state netForm used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 634
+    "line": 644
    },
    {
     "kind": "input",
@@ -1064,7 +1020,7 @@
     "src": "state netForm used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 635
+    "line": 645
    },
    {
     "kind": "button",
@@ -1074,7 +1030,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 637
+    "line": 647
    },
    {
     "kind": "button",
@@ -1084,7 +1040,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 638
+    "line": 648
    }
   ],
   "/admin/command-center": [
@@ -5621,95 +5577,6 @@
     "via": "DataTable"
    }
   ],
-  "/admin/sos-monitor": [
-   {
-    "kind": "button",
-    "label": "تحديث الآن",
-    "src": "GET /emergency/active",
-    "status": "ok",
-    "mutation": false,
-    "confirm": false,
-    "file": "admin/src/pages/admin/sos-monitor.tsx",
-    "line": 103
-   },
-   {
-    "kind": "button",
-    "label": "إعادة المحاولة",
-    "src": "GET /emergency/active",
-    "status": "ok",
-    "mutation": false,
-    "confirm": false,
-    "file": "admin/src/pages/admin/sos-monitor.tsx",
-    "line": 111
-   },
-   {
-    "kind": "input",
-    "label": "معرّف المستشفى المستقبِل",
-    "src": "state hospitalFor used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/sos-monitor.tsx",
-    "line": 163
-   },
-   {
-    "kind": "button",
-    "label": "إسناد مستشفى",
-    "src": "POST /emergency/:param/assign; GET /emergency/active",
-    "status": "ok",
-    "mutation": true,
-    "confirm": false,
-    "file": "admin/src/pages/admin/sos-monitor.tsx",
-    "line": 169
-   },
-   {
-    "kind": "button",
-    "label": "تصعيد إلى 997 (الهلال الأحمر)",
-    "src": "POST /emergency/:param/escalate-997; GET /emergency/active; confirm(); prompt()",
-    "status": "ok",
-    "mutation": true,
-    "confirm": true,
-    "file": "admin/src/pages/admin/sos-monitor.tsx",
-    "line": 176
-   },
-   {
-    "kind": "input",
-    "label": "ملاحظات الإنهاء (ماذا تم مع الحالة؟)",
-    "src": "state resolveNotes used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/sos-monitor.tsx",
-    "line": 182
-   },
-   {
-    "kind": "button",
-    "label": "تأكيد إنهاء الحالة",
-    "src": "POST /emergency/:param/resolve; GET /emergency/active",
-    "status": "ok",
-    "warn": "Sensitive action (POST /emergency/:param/resolve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "mutation": true,
-    "confirm": false,
-    "file": "admin/src/pages/admin/sos-monitor.tsx",
-    "line": 189
-   },
-   {
-    "kind": "button",
-    "label": "تراجع",
-    "src": "local state",
-    "status": "ok",
-    "mutation": false,
-    "confirm": false,
-    "file": "admin/src/pages/admin/sos-monitor.tsx",
-    "line": 190
-   },
-   {
-    "kind": "button",
-    "label": "إنهاء الحالة (تمت المعالجة)",
-    "src": "local state",
-    "status": "ok",
-    "mutation": false,
-    "confirm": false,
-    "file": "admin/src/pages/admin/sos-monitor.tsx",
-    "line": 194
-   }
-  ],
   "/admin/support-tickets": [
    {
     "kind": "button",
@@ -5946,45 +5813,6 @@
     "file": "admin/src/components/DataTable.tsx",
     "line": 66,
     "via": "DataTable"
-   }
-  ],
-  "/admin/theme-control": [
-   {
-    "kind": "data",
-    "label": "fake delay",
-    "src": "setTimeout → success state",
-    "status": "mock",
-    "note": "setTimeout stands in for a request and reports success.",
-    "file": "admin/src/pages/admin/theme-control.tsx",
-    "line": 47
-   },
-   {
-    "kind": "input",
-    "label": "color",
-    "src": "state tokens used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/theme-control.tsx",
-    "line": 69
-   },
-   {
-    "kind": "button",
-    "label": "حفظ وتطبيق على كل الشاشات",
-    "src": "save; POST /api/admin/theme",
-    "status": "ok",
-    "mutation": true,
-    "confirm": false,
-    "file": "admin/src/pages/admin/theme-control.tsx",
-    "line": 84
-   },
-   {
-    "kind": "button",
-    "label": "إعادة الافتراضي",
-    "src": "reset; local state",
-    "status": "ok",
-    "mutation": false,
-    "confirm": false,
-    "file": "admin/src/pages/admin/theme-control.tsx",
-    "line": 87
    }
   ],
   "/admin/today": [

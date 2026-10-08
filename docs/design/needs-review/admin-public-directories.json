@@ -66,7 +66,7 @@
     "element": "API GET /home-care/services",
     "file": "admin/src/pages/home-care-services/index.tsx",
     "line": 20,
-    "found": "[client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/home-care/services\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/home-care/home-care-compat.module.ts:47)",
+    "found": "[client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/home-care/services\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/home-care/home-care-compat.module.ts:48)",
     "suspect": "Client-side: later batch."
   },
   {

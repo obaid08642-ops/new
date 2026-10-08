@@ -40,6 +40,9 @@ export default function NursingMegaProfile() {
   const [status, setStatus] = useState<GateStatus>('loading');
   const [processing, setProcessing] = useState(false);
   const [insuranceSent, setInsuranceSent] = useState<string | boolean>(false);
+  // Journey 6: a booking created whose payment did not start. The next tap retries the payment for THIS booking
+  // (never a second booking), and the patient is never sent to tracking while it is unpaid.
+  const [unpaidBookingId, setUnpaidBookingId] = useState<string | null>(null);
   const [dayIndex, setDayIndex] = useState(0);
   const [selectedTime, setSelectedTime] = useState(TIMES[0]);
   const [daysCount, setDaysCount] = useState(1);
@@ -97,7 +100,45 @@ export default function NursingMegaProfile() {
   const priced = Number.isFinite(basePrice) && nurse?.price !== null && nurse?.price !== undefined;
   const totalServiceFee = basePrice * daysCount; // an estimate shown to the patient
 
+  /** Starts the card payment of a created booking; true when the patient was sent to the payment page. */
+  const startPayment = async (bookingId: string): Promise<boolean> => {
+    try {
+      const intent = await apiFetch<Rec>(`/payments/intent/nursing/${bookingId}`, {
+        method: 'POST',
+        headers: paymentIntentHeaders('nursing', String(bookingId)),
+        body: JSON.stringify({}),
+      });
+      const txn = ((intent as { data?: Rec } | null)?.data ?? intent) as Rec | null;
+      if (txn?.id) {
+        router.replace({
+          pathname: '/payments/result',
+          params: {
+            moyasarId: String(txn.id),
+            paymentUrl: str(txn.checkout_url),
+            bookingId: String(bookingId),
+            bookingKind: 'nursing',
+            amount: String(txn.amount ?? ''),
+          },
+        } as unknown as Href);
+        return true;
+      }
+      showLocalizedAlert(k('nur.book.payFailTitle'), k('nur.book.payFailBody'));
+    } catch (payErr) {
+      showLocalizedAlert(k('nur.book.payFailTitle'), (payErr as { message?: string } | null)?.message || k('nur.book.payFailBody'));
+    }
+    return false;
+  };
+
   const handleSubmit = async () => {
+    if (unpaidBookingId) {
+      setProcessing(true);
+      try {
+        if (await startPayment(unpaidBookingId)) setUnpaidBookingId(null);
+      } finally {
+        setProcessing(false);
+      }
+      return;
+    }
     if (!addressObj) {
       showLocalizedAlert(k('nur.book.addressTitle'), k('nur.book.addressBody'));
       return;
@@ -146,30 +187,7 @@ export default function NursingMegaProfile() {
       if (flow === 'insurance') {
         setInsuranceSent(bookingId ? String(bookingId) : true);
       } else if (bookingId) {
-        try {
-          const intent = await apiFetch<Rec>(`/payments/intent/nursing/${bookingId}`, {
-            method: 'POST',
-            headers: paymentIntentHeaders('nursing', String(bookingId)),
-            body: JSON.stringify({}),
-          });
-          const txn = ((intent as { data?: Rec } | null)?.data ?? intent) as Rec | null;
-          if (txn?.id) {
-            router.replace({
-              pathname: '/payments/result',
-              params: {
-                moyasarId: String(txn.id),
-                paymentUrl: str(txn.checkout_url),
-                bookingId: String(bookingId),
-                bookingKind: 'nursing',
-                amount: String(txn.amount ?? ''),
-              },
-            } as unknown as Href);
-            return;
-          }
-        } catch (payErr) {
-          showLocalizedAlert(k('nur.book.payFailTitle'), (payErr as { message?: string } | null)?.message || k('nur.book.payFailBody'));
-        }
-        router.replace({ pathname: '/nursing/live-tracking', params: { type: transportMode, bookingId } } as unknown as Href);
+        if (!(await startPayment(String(bookingId)))) setUnpaidBookingId(String(bookingId));
       } else {
         showLocalizedAlert(k('nur.book.sentTitle'), k('nur.book.sentBody'), [{ text: k('nur.ok'), onPress: () => router.back() }]);
       }

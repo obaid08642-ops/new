@@ -195,7 +195,7 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
       })}
       <div className={styles.rx}>
         <span className={styles.rxText}>{t("rxHelp")}</span>
-        <Link href={`/${locale}/pharmacy/scan-prescription`} className={styles.rxAction}>{t("rxAction")}</Link>
+        <Link href={`/${locale}/pharmacy/rx-order?via=photo`} className={styles.rxAction}>{t("rxAction")}</Link>
       </div>
     </>;
   }

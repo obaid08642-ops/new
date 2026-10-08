@@ -10,6 +10,8 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button, Card } from '../../../packages/ui-native/src';
 import BookingConfirmForm from '../../src/components/BookingConfirmForm';
+import ClinicConfirmation from '../../src/components/consult/ClinicConfirmation';
+import ClinicLocationView from '../../src/components/views/ClinicLocationView';
 import { ConsultScreen, InfoRow, ModePill, ResultHero, StatusTag, appointmentStatus, useConsultFormat, visitMode } from '../../src/components/consult/ConsultKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
@@ -29,10 +31,11 @@ interface Appointment {
   doctor?: { name?: string };
 }
 
-function acceptedRoute(appointment: Appointment | null, fallbackType: string): Href {
+/** Where an accepted booking goes. A clinic booking stays on this screen (its confirmation is the confirmed state). */
+function acceptedRoute(appointment: Appointment | null, fallbackType: string): Href | null {
   const appointmentId = appointment?.id;
   const type = appointment?.service_type || fallbackType;
-  if (type === 'clinic') return { pathname: '/consultations/clinic-confirm', params: { appointmentId } } as unknown as Href;
+  if (type === 'clinic') return null;
   if (type === 'home') return { pathname: '/consultations/home-visit-tracking', params: { appointmentId } } as unknown as Href;
   return { pathname: '/consultations/virtual-waiting-room', params: { appointmentId } } as unknown as Href;
 }
@@ -71,7 +74,7 @@ export default function BookingStatusScreen() {
   const visitType = String(params.visitType || 'video');
   const isInsurance = params.isInsurance === 'true';
   const isToday = params.isToday !== 'false';
-  const [mode, setMode] = useState<Mode>(params.payment_pending === 'true' ? 'pending' : appointmentId ? 'success' : 'confirm');
+  const [mode, setMode] = useState<Mode>(params.payment_pending === 'true' || params.state === 'confirmed' ? 'pending' : appointmentId ? 'success' : 'confirm');
 
   /* ── success: the same spring ── */
   const pop = useRef(new Animated.Value(0)).current;
@@ -86,9 +89,12 @@ export default function BookingStatusScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [cancelling, setCancelling] = useState(false);
 
+  // `k` is a new function on every render; the refresh must not depend on it, or the effect below asks again after every answer.
+  const kRef = useRef(k);
+  kRef.current = k;
   const refresh = useCallback(async () => {
     if (!appointmentId) {
-      setError(k('consult.status.missingId'));
+      setError(kRef.current('consult.status.missingId'));
       return;
     }
     setRefreshing(true);
@@ -96,11 +102,11 @@ export default function BookingStatusScreen() {
     try {
       setAppointment(await apiFetch<Appointment>(`/care/appointments/${encodeURIComponent(appointmentId)}`));
     } catch (reason) {
-      setError((reason instanceof Error && reason.message) || k('consult.status.refreshFailed'));
+      setError((reason instanceof Error && reason.message) || kRef.current('consult.status.refreshFailed'));
     } finally {
       setRefreshing(false);
     }
-  }, [appointmentId, k]);
+  }, [appointmentId]);
 
   useEffect(() => {
     // the success state draws its summary from the same appointment the pending state reads
@@ -112,7 +118,8 @@ export default function BookingStatusScreen() {
   const cancelled = statusIs(status, ['cancelled', 'no_show']);
 
   useEffect(() => {
-    if (mode === 'pending' && confirmed) router.push(acceptedRoute(appointment, visitType));
+    const next = mode === 'pending' && confirmed ? acceptedRoute(appointment, visitType) : null;
+    if (next) router.push(next);
   }, [mode, confirmed]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const cancel = () =>
@@ -142,6 +149,12 @@ export default function BookingStatusScreen() {
 
   /* ── 1: confirm and pay (the original logic, as it was) ── */
   if (mode === 'confirm') return <BookingConfirmForm />;
+
+  /* ── clinic location (the old clinic-confirm?view=location) ── */
+  if (params.view === 'location') return <ClinicLocationView />;
+
+  /* ── confirmed clinic booking: its confirmation (QR, place, preparation) ── */
+  if (mode === 'pending' && confirmed && (appointment?.service_type || visitType) === 'clinic') return <ClinicConfirmation appointmentId={appointmentId} />;
 
   /* ── 2: the booking was placed ── */
   if (mode === 'success') {

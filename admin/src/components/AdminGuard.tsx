@@ -14,14 +14,11 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: 'القيادة والمراقبة',
     items: [
-      { href: '/admin/today', label: 'اليوم' },
-      { href: '/admin/approvals', label: 'بانتظار موافقتي' },
       { href: '/admin/command-center', label: 'مركز القيادة الحي', permission: 'command.center.view' },
       { href: '/admin/orders', label: 'دورة الطلبات', permission: 'order.read' },
       { href: '/admin/analytics-suite', label: 'التحليلات', permission: 'analytics.read' },
       { href: '/admin/reports', label: 'التقارير التشغيلية', permission: 'analytics.read' },
       { href: '/admin/search', label: 'البحث الشامل', permission: 'users.view' },
-      { href: '/admin/sos-monitor', label: 'مراقبة الطوارئ SOS' },
       { href: '/admin/fraud-monitoring', label: 'مراقبة الاحتيال' },
     ],
   },
@@ -32,7 +29,6 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/provider-audits', label: 'سجلات تدقيق المزودين' },
       { href: '/admin/insurance-queue', label: 'طابور الموافقات التأمينية' },
       { href: '/admin/insurance-companies', label: 'شركات التأمين المعتمدة' },
-      { href: '/admin/ambulance-fleet', label: 'أسطول مركبات الإسعاف' },
       { href: '/admin/pharmacy-procurement', label: 'توريدات ومخازن الأدوية' },
       { href: '/admin/nursing-portal', label: 'بوابة وإدارة التمريض' },
       { href: '/admin/support-tickets', label: 'تذاكر الدعم والشكاوى' },
@@ -97,7 +93,6 @@ function permitted(item: NavItem, permissions: Set<string>) {
 // granted by the backend and previously locked those pages for every admin.
 const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/command-center': 'command.center.view',
-  '/admin/sos-monitor': 'command.center.view',
   '/admin/fraud-monitoring': 'command.center.view',
   '/admin/health-dashboard': 'command.center.view',
   '/admin/orders': 'order.read',
@@ -117,7 +112,6 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/provider-audits': 'doctor.read',
   '/admin/insurance-queue': 'order.read',
   '/admin/insurance-companies': 'order.read',
-  '/admin/ambulance-fleet': 'facility.read',
   '/admin/nursing-portal': 'appointment.read',
   '/admin/pharmacy-procurement': 'pharmacy.inventory.read',
   '/admin/medicines-catalog': 'catalog.read',
@@ -275,8 +269,9 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
         aria-modal={drawerOpen ? true : undefined}
         aria-label="القائمة الرئيسية"
         // Below 1024 px the closed drawer is out of the tab order and the accessibility tree.
+        // Its slide-out offset is max-lg only: an `ltr:` offset outranks `lg:translate-x-0` and shifted the desktop sidebar over the page.
         inert={!desktop && !drawerOpen}
-        className={`fixed inset-y-0 start-0 z-50 flex h-dvh w-72 max-w-[85vw] shrink-0 flex-col bg-slate-950 text-white ${drawerOpen ? 'shadow-2xl' : 'max-lg:shadow-none lg:shadow-2xl'} transition-transform duration-200 motion-reduce:transition-none lg:sticky lg:top-0 lg:z-auto lg:max-w-none lg:translate-x-0 ${drawerOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}
+        className={`fixed inset-y-0 start-0 z-50 flex h-dvh w-72 max-w-[85vw] shrink-0 flex-col bg-slate-950 text-white ${drawerOpen ? 'shadow-2xl' : 'max-lg:shadow-none lg:shadow-2xl'} transition-transform duration-200 motion-reduce:transition-none lg:sticky lg:top-0 lg:z-auto lg:max-w-none ${drawerOpen ? 'translate-x-0' : 'max-lg:translate-x-full max-lg:ltr:-translate-x-full'}`}
       >
         <div className="flex items-start justify-between border-b border-slate-800 px-6 pb-6 pt-[max(24px,env(safe-area-inset-top))]">
           <div className="min-w-0">

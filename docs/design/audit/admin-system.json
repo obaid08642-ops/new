@@ -582,31 +582,6 @@
    ]
   },
   {
-   "route": "/admin/theme-control",
-   "elements": [
-    [
-     "data: fake delay",
-     "setTimeout → success state",
-     "mock"
-    ],
-    [
-     "input: color",
-     "state tokens used by logic/request",
-     "ok"
-    ],
-    [
-     "button: حفظ وتطبيق على كل الشاشات",
-     "save; POST /api/admin/theme",
-     "ok"
-    ],
-    [
-     "button: إعادة الافتراضي",
-     "reset; local state",
-     "ok"
-    ]
-   ]
-  },
-  {
    "route": "/login",
    "elements": [
     [
@@ -805,38 +780,6 @@
    "file": "admin/src/pages/admin/system-ops.tsx",
    "line": 54,
    "backend": "backend/src/modules/sms/sms.service.ts:28"
-  },
-  {
-   "route": "/admin/theme-control",
-   "element": "fake delay",
-   "kind": "client",
-   "note": "setTimeout stands in for a request and reports success.",
-   "file": "admin/src/pages/admin/theme-control.tsx",
-   "line": 47
-  },
-  {
-   "route": "/admin/theme-control",
-   "element": "API POST /api/admin/theme",
-   "kind": "backend",
-   "note": "Endpoint is NO_ROUTE (no controller declares /theme): the call fails or hits nothing.",
-   "file": "admin/src/pages/admin/theme-control.tsx",
-   "line": 41
-  },
-  {
-   "route": "/admin/theme-control",
-   "element": "Guard G-RAW-WRITE (1)",
-   "kind": "backend",
-   "note": "1 call(s): POST /api/admin/theme uses raw fetch() instead of adminFetch/adminMutation, so no x-admin-csrf header is sent and the BFF will answer 403 csrf_validation_failed",
-   "file": "admin/src/pages/admin/theme-control.tsx",
-   "line": 41
-  },
-  {
-   "route": "/admin/theme-control",
-   "element": "No nav link",
-   "kind": "client",
-   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-   "file": "admin/src/pages/admin/theme-control.tsx",
-   "line": 1
   },
   {
    "route": "/login",

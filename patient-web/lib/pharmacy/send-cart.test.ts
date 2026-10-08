@@ -57,10 +57,10 @@ describe("sending the cart is the only step that needs the backend", () => {
     expect(fetchSpy).toHaveBeenCalledTimes(1); // one send, and it was the create call: nothing was asked for the items
   });
 
-  it("a 5xx at creation is a network-class failure and the cart is exactly as it was", async () => {
+  it("a 5xx at creation is a server failure (not 'check your connection') and the cart is exactly as it was", async () => {
     fetchSpy.mockResolvedValue(json({ message: "boom" }, 503));
     const s = setup();
-    expect(await s.send()).toEqual({ status: "failed", failure: "network" });
+    expect(await s.send()).toEqual({ status: "failed", failure: "server" });
     unchanged(s);
   });
 
@@ -89,8 +89,8 @@ describe("sending the cart is the only step that needs the backend", () => {
       .mockResolvedValueOnce(json({ id: ORDER }, 200))
       .mockResolvedValueOnce(json({}, 200));
     const s = setup();
-    expect(await s.send()).toEqual({ status: "failed", failure: "network" });
-    expect(await s.send()).toEqual({ status: "failed", failure: "network" });
+    expect(await s.send()).toEqual({ status: "failed", failure: "server" }); // create 201, submit 502
+    expect(await s.send()).toEqual({ status: "failed", failure: "network" }); // no answer
     unchanged(s);
     const createKeys = fetchSpy.mock.calls.filter(([url]) => !String(url).endsWith("/submit")).map(([, init]) => (init as RequestInit).headers as Record<string, string>);
     expect(new Set(createKeys.map((headers) => headers["idempotency-key"])).size).toBe(1); // same key until the server answered

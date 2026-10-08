@@ -50,7 +50,7 @@ function priceFor(doc: Doctor | null, vt: string): number | null {
 export default function BookAppointmentScreen() {
   const { theme, t, c, flow, k, money } = useScreenUi();
   const { clock } = useConsultFormat();
-  const { id, visit_type } = useLocalSearchParams<{ id: string; visit_type?: string }>();
+  const { id, visit_type, followUp } = useLocalSearchParams<{ id: string; visit_type?: string; followUp?: string }>();
 
   const [doctor, setDoctor] = useState<Doctor | null>(null);
   const [status, setStatus] = useState<GateStatus>('loading');
@@ -150,6 +150,8 @@ export default function BookAppointmentScreen() {
         slot_start: selectedSlot,
         visitType,
         notes: notes.trim(),
+        // a follow-up is this booking with the original appointment attached to the URL; the booking request itself is unchanged
+        ...(followUp ? { followUp: String(followUp) } : {}),
         ...(visitType === 'home' && homeAddress ? { visit_lat: String(homeAddress.lat ?? ''), visit_lng: String(homeAddress.lng ?? ''), visit_address: formatAddressLine(homeAddress) } : {}),
       },
     } as unknown as Href);

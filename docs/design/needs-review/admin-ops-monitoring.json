@@ -33,6 +33,16 @@
     "batch": "admin",
     "app": "admin",
     "screen": "/admin/approvals",
+    "element": "No nav link",
+    "file": "admin/src/pages/admin/approvals.tsx",
+    "line": 1,
+    "found": "[client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/approvals",
     "element": "One approvals endpoint with counts",
     "file": "admin/src/pages/admin/approvals.tsx",
     "line": 18,
@@ -105,39 +115,9 @@
     "screen": "/admin/search",
     "element": "Permission G-VOCAB-FE",
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 23,
+    "line": 21,
     "found": "[client] client permission \"users.view\" is not in backend Permission enum: the page/nav link is hidden or locked for every role.",
     "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/sos-monitor",
-    "element": "تأكيد إنهاء الحالة",
-    "file": "admin/src/pages/admin/sos-monitor.tsx",
-    "line": 189,
-    "found": "[client] Sensitive action (POST /emergency/:param/resolve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/sos-monitor",
-    "element": "Guard G-ROLE-ONLY-WRITE (1)",
-    "file": "admin/src/pages/admin/sos-monitor.tsx",
-    "line": 73,
-    "found": "[backend] 1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /emergency/:param/resolve): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/emergency/emergency.controller.ts:94)",
-    "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/sos-monitor",
-    "element": "Removed feature",
-    "file": "admin/src/pages/admin/sos-monitor.tsx",
-    "line": 1,
-    "found": "[owner] Owner decision 14 / O-2 (2026-10-06): no ambulance dispatch, assign, claim or tracking from our side (the 997 dial button stays); the assign / escalate-997 actions of this page go with the removal.",
-    "suspect": "Owner decision."
   },
   {
     "batch": "admin",
@@ -147,6 +127,16 @@
     "file": "admin/src/pages/admin/today.tsx",
     "line": 49,
     "found": "[client] Page has no client permission (AdminGuard ROUTE_PERMISSIONS) but 1 call(s) need permissions the backend checks (GET /api/admin/admin/command-center-v2); any admin sees the page and gets 403s inside it. (backend: backend/src/modules/admin/enterprise/command-center-v2.controller.ts:70)",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/today",
+    "element": "No nav link",
+    "file": "admin/src/pages/admin/today.tsx",
+    "line": 1,
+    "found": "[client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
     "suspect": "Client-side: later batch."
   },
   {

@@ -1,3 +1,4 @@
+import { PROVIDER_ROLES } from '../../common/enums';
 /** Legal Enterprise Controller — endpoints for the enterprise legal features. */
 import { Controller, Get, Post, Put, Body, Param, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
@@ -106,6 +107,7 @@ export class LegalEnterpriseController {
   licenseRun() { return this.svc.licenseMonitorRun(); }
 
   // ── Provider insurance matrix ──────────────────────────────────────────
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('provider/insurance-matrix')
   @UseGuards(JwtAuthGuard)
   getMatrix(@CurrentUser() user: any) { return this.svc.getProviderInsurance(user.id); }

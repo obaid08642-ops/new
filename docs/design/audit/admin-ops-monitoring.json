@@ -33,12 +33,12 @@
     ],
     [
      "API: GET /api/admin/admin/providers",
-     "GET /api/admin/admin/providers (OK, backend/src/modules/provider/provider.controllers.ts:147)",
+     "GET /api/admin/admin/providers (OK, backend/src/modules/provider/provider.controllers.ts:149)",
      "ok"
     ],
     [
      "API: GET /api/admin/admin/providers/provider-deltas",
-     "GET /api/admin/admin/providers/provider-deltas (OK, backend/src/modules/provider/provider.controllers.ts:151)",
+     "GET /api/admin/admin/providers/provider-deltas (OK, backend/src/modules/provider/provider.controllers.ts:153)",
      "ok"
     ],
     [
@@ -48,12 +48,12 @@
     ],
     [
      "API: GET /api/admin/admin/finance/refunds/queue",
-     "GET /api/admin/admin/finance/refunds/queue (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:883)",
+     "GET /api/admin/admin/finance/refunds/queue (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:885)",
      "ok"
     ],
     [
      "API: GET /api/admin/admin/returns",
-     "GET /api/admin/admin/returns (OK, backend/src/modules/returns/returns.controller.ts:62)",
+     "GET /api/admin/admin/returns (OK, backend/src/modules/returns/returns.controller.ts:64)",
      "ok"
     ],
     [
@@ -439,56 +439,6 @@
    ]
   },
   {
-   "route": "/admin/sos-monitor",
-   "elements": [
-    [
-     "button: تحديث الآن",
-     "GET /emergency/active",
-     "ok"
-    ],
-    [
-     "button: إعادة المحاولة",
-     "GET /emergency/active",
-     "ok"
-    ],
-    [
-     "input: معرّف المستشفى المستقبِل",
-     "state hospitalFor used by logic/request",
-     "ok"
-    ],
-    [
-     "button: إسناد مستشفى",
-     "POST /emergency/:param/assign; GET /emergency/active",
-     "ok"
-    ],
-    [
-     "button: تصعيد إلى 997 (الهلال الأحمر)",
-     "POST /emergency/:param/escalate-997; GET /emergency/active; confirm(); prompt()",
-     "ok"
-    ],
-    [
-     "input: ملاحظات الإنهاء (ماذا تم مع الحالة؟)",
-     "state resolveNotes used by logic/request",
-     "ok"
-    ],
-    [
-     "button: تأكيد إنهاء الحالة",
-     "POST /emergency/:param/resolve; GET /emergency/active",
-     "ok"
-    ],
-    [
-     "button: تراجع",
-     "local state",
-     "ok"
-    ],
-    [
-     "button: إنهاء الحالة (تمت المعالجة)",
-     "local state",
-     "ok"
-    ]
-   ]
-  },
-  {
    "route": "/admin/today",
    "elements": [
     [
@@ -558,6 +508,14 @@
   },
   {
    "route": "/admin/approvals",
+   "element": "No nav link",
+   "kind": "client",
+   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
+   "file": "admin/src/pages/admin/approvals.tsx",
+   "line": 1
+  },
+  {
+   "route": "/admin/approvals",
    "element": "One approvals endpoint with counts",
    "kind": "backend",
    "note": "No endpoint returns all pending approvals with counts, so the page asks nine existing list endpoints (providers, provider edits, withdrawals, refunds, returns, medicine change requests, shortage reports, image suggestions, catalogue medical review) and shows each count or a retry. The maker-checker lists GET /admin/finance-engine/approvals and GET /approval-workflow/requests/pending are not included (no page uses them yet).",
@@ -622,32 +580,7 @@
    "kind": "client",
    "note": "client permission \"users.view\" is not in backend Permission enum: the page/nav link is hidden or locked for every role.",
    "file": "admin/src/components/AdminGuard.tsx",
-   "line": 23
-  },
-  {
-   "route": "/admin/sos-monitor",
-   "element": "تأكيد إنهاء الحالة",
-   "kind": "client",
-   "note": "Sensitive action (POST /emergency/:param/resolve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-   "file": "admin/src/pages/admin/sos-monitor.tsx",
-   "line": 189
-  },
-  {
-   "route": "/admin/sos-monitor",
-   "element": "Guard G-ROLE-ONLY-WRITE (1)",
-   "kind": "backend",
-   "note": "1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /emergency/:param/resolve): every admin role, including a custom restricted one, can run them.",
-   "file": "admin/src/pages/admin/sos-monitor.tsx",
-   "line": 73,
-   "backend": "backend/src/modules/emergency/emergency.controller.ts:94"
-  },
-  {
-   "route": "/admin/sos-monitor",
-   "element": "Removed feature",
-   "kind": "owner",
-   "note": "Owner decision 14 / O-2 (2026-10-06): no ambulance dispatch, assign, claim or tracking from our side (the 997 dial button stays); the assign / escalate-997 actions of this page go with the removal.",
-   "file": "admin/src/pages/admin/sos-monitor.tsx",
-   "line": 1
+   "line": 21
   },
   {
    "route": "/admin/today",
@@ -657,6 +590,14 @@
    "file": "admin/src/pages/admin/today.tsx",
    "line": 49,
    "backend": "backend/src/modules/admin/enterprise/command-center-v2.controller.ts:70"
+  },
+  {
+   "route": "/admin/today",
+   "element": "No nav link",
+   "kind": "client",
+   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
+   "file": "admin/src/pages/admin/today.tsx",
+   "line": 1
   },
   {
    "route": "/admin/today",

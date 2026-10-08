@@ -2,46 +2,6 @@
   {
     "batch": "admin",
     "app": "admin",
-    "screen": "/admin/ambulance-fleet",
-    "element": "اعتماد",
-    "file": "admin/src/pages/admin/ambulance-fleet.tsx",
-    "line": 145,
-    "found": "[client] Sensitive action (POST /api/admin/admin/ambulance/fleet/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/ambulance-fleet",
-    "element": "تأكيد الرفض",
-    "file": "admin/src/pages/admin/ambulance-fleet.tsx",
-    "line": 161,
-    "found": "[client] Sensitive action (POST /api/admin/admin/ambulance/fleet/:param/reject) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/ambulance-fleet",
-    "element": "Guard G-ROLE-ONLY-WRITE (2)",
-    "file": "admin/src/pages/admin/ambulance-fleet.tsx",
-    "line": 57,
-    "found": "[backend] 2 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/ambulance/fleet/:param/approve; POST /api/admin/admin/ambulance/fleet/:param/reject): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/emergency/ambulance-fleet.controller.ts:135)",
-    "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/ambulance-fleet",
-    "element": "Removed feature",
-    "file": "admin/src/pages/admin/ambulance-fleet.tsx",
-    "line": 1,
-    "found": "[owner] Owner decision O-2 (2026-10-06, item 14) removes the whole ambulance system including the admin fleet; this page goes with it.",
-    "suspect": "Owner decision."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
     "screen": "/admin/insurance-queue",
     "element": "اعتماد الاسترداد",
     "file": "admin/src/pages/admin/insurance-queue.tsx",
@@ -66,7 +26,7 @@
     "element": "Guard G-ROLE-ONLY-WRITE (1)",
     "file": "admin/src/pages/admin/insurance-queue.tsx",
     "line": 56,
-    "found": "[backend] 1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/finance/refunds/:param/decide): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:885)",
+    "found": "[backend] 1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/finance/refunds/:param/decide): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:887)",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -86,7 +46,7 @@
     "element": "Guard G-ROLE-ONLY-WRITE (2)",
     "file": "admin/src/pages/admin/provider-audits.tsx",
     "line": 30,
-    "found": "[backend] 2 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/providers/provider-deltas/:param/approve; POST /api/admin/admin/providers/provider-deltas/:param/reject): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/provider/provider.controllers.ts:152)",
+    "found": "[backend] 2 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/providers/provider-deltas/:param/approve; POST /api/admin/admin/providers/provider-deltas/:param/reject): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/provider/provider.controllers.ts:154)",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -106,7 +66,7 @@
     "element": "Guard G-ROLE-ONLY-WRITE (5)",
     "file": "admin/src/pages/admin/provider-moderation.tsx",
     "line": 117,
-    "found": "[backend] 5 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/providers/:param/approve; POST /api/admin/admin/providers/:param/reactivate; POST /api/admin/admin/providers/:param/suspend; …): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/provider/provider.controllers.ts:155)",
+    "found": "[backend] 5 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/providers/:param/approve; POST /api/admin/admin/providers/:param/reactivate; POST /api/admin/admin/providers/:param/suspend; …): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/provider/provider.controllers.ts:157)",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -116,7 +76,7 @@
     "element": "Guard G-OPEN (3)",
     "file": "admin/src/components/ProviderFullDetail.tsx",
     "line": 19,
-    "found": "[backend] 3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; GET /api/admin/provider-onboarding/admin/contracts/:param): any signed-in user passes JwtAuthGuard. (backend: backend/src/modules/storage/storage.module.ts:382)",
+    "found": "[backend] 3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; GET /api/admin/provider-onboarding/admin/contracts/:param): any signed-in user passes JwtAuthGuard. (backend: backend/src/modules/storage/storage.module.ts:386)",
     "suspect": "Backend gap: reviewer session."
   }
 ]

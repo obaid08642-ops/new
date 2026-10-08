@@ -215,7 +215,7 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
 
         {failure ? (
           <div className={rx.error} role="alert">
-            {failure === "session" ? flow("sessionEnded") : failure === "forbidden" ? t("errorForbidden") : failure === "network" ? t("errorNetwork") : t("errorSend")}
+            {failure === "session" ? flow("sessionEnded") : failure === "forbidden" ? t("errorForbidden") : failure === "network" ? t("errorNetwork") : failure === "server" ? t("errorServer") : t("errorSend")}
             {failure === "session" ? <div className={rx.errorActions}><Link className={rx.textLink} href={`/${locale}/login`}>{flow("signIn")}</Link></div> : null}
           </div>
         ) : null}
@@ -255,7 +255,7 @@ function PrescriptionNotice({ state, locale }: { state: PrescriptionState; local
         <span className={rx.bannerTitle}>{t("rxMissingTitle")}</span>
         <span className={rx.bannerText}>{t("rxMissingBody")}</span>
       </div>
-      <Link className={rx.bannerAction} href={`/${locale}/pharmacy/scan-prescription`}>{t("rxUpload")}</Link>
+      <Link className={rx.bannerAction} href={`/${locale}/pharmacy/rx-order?via=photo`}>{t("rxUpload")}</Link>
     </div>
   );
 }

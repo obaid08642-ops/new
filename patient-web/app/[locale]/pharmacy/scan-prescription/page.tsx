@@ -1,23 +1,12 @@
 import { notFound } from "next/navigation";
-import { getTranslations, setRequestLocale } from "next-intl/server";
-import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { RxUploadScreen } from "@/components-next/pharmacy/rx-upload-screen";
+import { redirectKeepingQuery } from "@/lib/redirect-keep-query";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-export async function generateMetadata({ params }: Props) {
-  const { locale } = await params;
-  if (!isLocale(locale)) return {};
-  const t = await getTranslations({ locale, namespace: "RxUpload" });
-  return { title: t("title") };
-}
-
-/** canvas/RxUpload: a patient session is needed (the photo and its medicines are saved to the patient's own record). */
-export default async function ScanPrescriptionPage({ params }: Props) {
+/** Merged into the one "order with a prescription" screen (second pass, section 11): this is its photo way in. The query is kept. */
+export default async function ScanPrescriptionPage({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  setRequestLocale(locale);
-  await requirePatientAccess(locale);
-  return <RxUploadScreen locale={locale} />;
+  redirectKeepingQuery(`/${locale}/pharmacy/rx-order`, await searchParams, { via: "photo" });
 }

@@ -98,22 +98,22 @@
     ],
     [
      "button: حفظ التخصص",
-     "POST \u0001adminBase\u0001; GET \u0001adminBase\u0001",
+     "POST /catalogs/admin/specialties; GET \u0001adminBase\u0001",
      "ok"
     ],
     [
      "button: تعطيل",
-     "DELETE \u0001adminBase\u0001/:param; GET \u0001adminBase\u0001; confirm()",
+     "DELETE /catalogs/admin/specialties/:param; GET \u0001adminBase\u0001; confirm()",
      "ok"
     ],
     [
      "button: اعتماد المحدد",
-     "POST \u0001adminBase\u0001/bulk-approve; GET \u0001adminBase\u0001",
+     "POST \u0001crudBase\u0001/bulk-approve; GET \u0001adminBase\u0001",
      "ok"
     ],
     [
      "button: رفض المحدد",
-     "POST \u0001adminBase\u0001/bulk-approve; GET \u0001adminBase\u0001",
+     "POST \u0001crudBase\u0001/bulk-approve; GET \u0001adminBase\u0001",
      "ok"
     ],
     [
@@ -128,12 +128,12 @@
     ],
     [
      "button: اعتماد",
-     "POST \u0001adminBase\u0001/:param/approve; GET \u0001adminBase\u0001",
+     "POST \u0001crudBase\u0001/:param/approve; GET \u0001adminBase\u0001",
      "ok"
     ],
     [
      "button: رفض",
-     "POST \u0001adminBase\u0001/:param/approve; GET \u0001adminBase\u0001",
+     "POST \u0001crudBase\u0001/:param/approve; GET \u0001adminBase\u0001",
      "ok"
     ],
     [
@@ -143,7 +143,7 @@
     ],
     [
      "button: حذف",
-     "DELETE \u0001adminBase\u0001/:param; GET \u0001adminBase\u0001; confirm()",
+     "DELETE \u0001crudBase\u0001/:param; GET \u0001adminBase\u0001; confirm()",
      "ok"
     ],
     [
@@ -183,7 +183,7 @@
     ],
     [
      "button: جارٍ الحفظ… حفظ",
-     "save; POST \u0001adminBase\u0001; PUT \u0001adminBase\u0001/:param; GET \u0001adminBase\u0001",
+     "save; POST \u0001crudBase\u0001; PUT \u0001crudBase\u0001/:param; GET \u0001adminBase\u0001",
      "ok"
     ],
     [
@@ -208,7 +208,7 @@
     ],
     [
      "button: اعتماد",
-     "POST \u0001adminBase\u0001/:param/approve; GET \u0001adminBase\u0001",
+     "POST \u0001crudBase\u0001/:param/approve; GET \u0001adminBase\u0001",
      "ok"
     ],
     [
@@ -222,12 +222,12 @@
      "ok"
     ],
     [
-     "action: تعديل دواء دواء جديد يتطلب وصفة صورة: جارٍ رفع الصورة… إلغاء",
+     "action: تعديل دواء دواء جديد يتطلب وصفة دواء خاضع للرقابة (لا يُطلب",
      "local state",
      "ok"
     ],
     [
-     "action: تعديل دواء دواء جديد يتطلب وصفة صورة: جارٍ رفع الصورة… إلغاء",
+     "action: تعديل دواء دواء جديد يتطلب وصفة دواء خاضع للرقابة (لا يُطلب",
      "",
      "ok"
     ],
@@ -267,6 +267,16 @@
      "ok"
     ],
     [
+     "input: checkbox",
+     "value",
+     "ok"
+    ],
+    [
+     "input: checkbox",
+     "value",
+     "ok"
+    ],
+    [
      "input: file",
      "POST /storage/upload; GET /storage/:param/signed-url",
      "ok"
@@ -278,7 +288,7 @@
     ],
     [
      "button: جارٍ الحفظ… حفظ",
-     "save; POST \u0001adminBase\u0001; PUT \u0001adminBase\u0001/:param; GET \u0001adminBase\u0001",
+     "save; POST \u0001crudBase\u0001; PUT \u0001crudBase\u0001/:param; GET \u0001adminBase\u0001",
      "ok"
     ],
     [
@@ -393,17 +403,12 @@
     ],
     [
      "API: GET /radiology/admin/catalog",
-     "GET /radiology/admin/catalog (OK, backend/src/modules/radiology/radiology.controller.ts:187)",
+     "GET /radiology/admin/catalog (OK, backend/src/modules/radiology/radiology.controller.ts:189)",
      "ok"
     ],
     [
      "API: GET /nursing/admin/catalog",
      "GET /nursing/admin/catalog (OK, backend/src/modules/home-care/home-care.controller.ts:108)",
-     "ok"
-    ],
-    [
-     "API: GET /catalogs/admin/specialties",
-     "GET /catalogs/admin/specialties (OK, backend/src/modules/catalogs/catalogs.controller.ts:117)",
      "ok"
     ],
     [
@@ -413,17 +418,12 @@
     ],
     [
      "API: POST /radiology/admin/catalog",
-     "POST /radiology/admin/catalog (OK, backend/src/modules/radiology/radiology.controller.ts:191)",
+     "POST /radiology/admin/catalog (OK, backend/src/modules/radiology/radiology.controller.ts:193)",
      "ok"
     ],
     [
      "API: POST /nursing/admin/catalog",
      "POST /nursing/admin/catalog (OK, backend/src/modules/home-care/home-care.controller.ts:113)",
-     "ok"
-    ],
-    [
-     "API: POST /catalogs/admin/specialties",
-     "POST /catalogs/admin/specialties (OK, backend/src/modules/catalogs/catalogs.controller.ts:124)",
      "ok"
     ],
     [
@@ -433,7 +433,7 @@
     ],
     [
      "API: PUT /radiology/admin/catalog/:param",
-     "PUT /radiology/admin/catalog/:param (OK, backend/src/modules/radiology/radiology.controller.ts:198)",
+     "PUT /radiology/admin/catalog/:param (OK, backend/src/modules/radiology/radiology.controller.ts:200)",
      "ok"
     ],
     [
@@ -442,28 +442,18 @@
      "ok"
     ],
     [
-     "API: PUT /catalogs/admin/specialties/:param",
-     "PUT /catalogs/admin/specialties/:param (WRONG_METHOD, backend/src/modules/catalogs/catalogs.controller.ts:145)",
-     "broken"
-    ],
-    [
      "API: DELETE /labs/admin/catalog/:param",
      "DELETE /labs/admin/catalog/:param (OK, backend/src/modules/labs/labs.controller.ts:189)",
      "ok"
     ],
     [
      "API: DELETE /radiology/admin/catalog/:param",
-     "DELETE /radiology/admin/catalog/:param (OK, backend/src/modules/radiology/radiology.controller.ts:205)",
+     "DELETE /radiology/admin/catalog/:param (OK, backend/src/modules/radiology/radiology.controller.ts:207)",
      "ok"
     ],
     [
      "API: DELETE /nursing/admin/catalog/:param",
      "DELETE /nursing/admin/catalog/:param (OK, backend/src/modules/home-care/home-care.controller.ts:127)",
-     "ok"
-    ],
-    [
-     "API: DELETE /catalogs/admin/specialties/:param",
-     "DELETE /catalogs/admin/specialties/:param (OK, backend/src/modules/catalogs/catalogs.controller.ts:145)",
      "ok"
     ],
     [
@@ -473,7 +463,7 @@
     ],
     [
      "API: POST /radiology/admin/catalog/:param/approve",
-     "POST /radiology/admin/catalog/:param/approve (OK, backend/src/modules/radiology/radiology.controller.ts:213)",
+     "POST /radiology/admin/catalog/:param/approve (OK, backend/src/modules/radiology/radiology.controller.ts:215)",
      "ok"
     ],
     [
@@ -482,88 +472,18 @@
      "ok"
     ],
     [
-     "API: POST /catalogs/admin/specialties/:param/approve",
-     "POST /catalogs/admin/specialties/:param/approve (NO_ROUTE)",
-     "broken"
-    ],
-    [
-     "API: POST /medicines/admin/catalog/:param/approve",
-     "POST /medicines/admin/catalog/:param/approve (OK, backend/src/modules/medicines/medicines.controller.ts:277)",
-     "ok"
-    ],
-    [
-     "API: POST /insurance/companies/:param/approve",
-     "POST /insurance/companies/:param/approve (NO_ROUTE)",
-     "broken"
-    ],
-    [
      "API: POST /labs/admin/catalog/bulk-approve",
      "POST /labs/admin/catalog/bulk-approve (OK, backend/src/modules/labs/labs.controller.ts:206)",
      "ok"
     ],
     [
      "API: POST /radiology/admin/catalog/bulk-approve",
-     "POST /radiology/admin/catalog/bulk-approve (OK, backend/src/modules/radiology/radiology.controller.ts:220)",
+     "POST /radiology/admin/catalog/bulk-approve (OK, backend/src/modules/radiology/radiology.controller.ts:222)",
      "ok"
     ],
     [
      "API: POST /nursing/admin/catalog/bulk-approve",
      "POST /nursing/admin/catalog/bulk-approve (OK, backend/src/modules/home-care/home-care.controller.ts:142)",
-     "ok"
-    ],
-    [
-     "API: POST /catalogs/admin/specialties/bulk-approve",
-     "POST /catalogs/admin/specialties/bulk-approve (WRONG_METHOD, backend/src/modules/catalogs/catalogs.controller.ts:145)",
-     "broken"
-    ],
-    [
-     "API: POST /medicines/admin/catalog/bulk-approve",
-     "POST /medicines/admin/catalog/bulk-approve (OK, backend/src/modules/medicines/medicines.controller.ts:285)",
-     "ok"
-    ],
-    [
-     "API: POST /insurance/companies/bulk-approve",
-     "POST /insurance/companies/bulk-approve (WRONG_METHOD, backend/src/modules/insurance/insurance.module.ts:571)",
-     "broken"
-    ],
-    [
-     "API: POST /labs/admin/catalog",
-     "POST /labs/admin/catalog (OK, backend/src/modules/labs/labs.controller.ts:173)",
-     "ok"
-    ],
-    [
-     "API: POST /radiology/admin/catalog",
-     "POST /radiology/admin/catalog (OK, backend/src/modules/radiology/radiology.controller.ts:191)",
-     "ok"
-    ],
-    [
-     "API: POST /nursing/admin/catalog",
-     "POST /nursing/admin/catalog (OK, backend/src/modules/home-care/home-care.controller.ts:113)",
-     "ok"
-    ],
-    [
-     "API: POST /catalogs/admin/specialties",
-     "POST /catalogs/admin/specialties (OK, backend/src/modules/catalogs/catalogs.controller.ts:124)",
-     "ok"
-    ],
-    [
-     "API: DELETE /labs/admin/catalog/:param",
-     "DELETE /labs/admin/catalog/:param (OK, backend/src/modules/labs/labs.controller.ts:189)",
-     "ok"
-    ],
-    [
-     "API: DELETE /radiology/admin/catalog/:param",
-     "DELETE /radiology/admin/catalog/:param (OK, backend/src/modules/radiology/radiology.controller.ts:205)",
-     "ok"
-    ],
-    [
-     "API: DELETE /nursing/admin/catalog/:param",
-     "DELETE /nursing/admin/catalog/:param (OK, backend/src/modules/home-care/home-care.controller.ts:127)",
-     "ok"
-    ],
-    [
-     "API: DELETE /catalogs/admin/specialties/:param",
-     "DELETE /catalogs/admin/specialties/:param (OK, backend/src/modules/catalogs/catalogs.controller.ts:145)",
      "ok"
     ],
     [
@@ -578,7 +498,7 @@
     ]
    ],
    "notes": [
-    "1 handler(s) are passed as props (parent callbacks) and are not traced."
+    "3 handler(s) are passed as props (parent callbacks) and are not traced."
    ]
   },
   {
@@ -626,12 +546,12 @@
     ],
     [
      "API: GET /api/admin/storage/:param/signed-url",
-     "GET /api/admin/storage/:param/signed-url (OK, backend/src/modules/storage/storage.module.ts:382)",
+     "GET /api/admin/storage/:param/signed-url (OK, backend/src/modules/storage/storage.module.ts:386)",
      "ok"
     ],
     [
      "API: GET /api/admin/storage/:param",
-     "GET /api/admin/storage/:param (OK, backend/src/modules/storage/storage.module.ts:372)",
+     "GET /api/admin/storage/:param (OK, backend/src/modules/storage/storage.module.ts:376)",
      "ok"
     ]
    ]
@@ -1019,41 +939,41 @@
    "route": "/admin/catalog-manager",
    "element": "اعتماد المحدد",
    "kind": "client",
-   "note": "Sensitive action (POST \u0001adminBase\u0001/bulk-approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "note": "Sensitive action (POST \u0001crudBase\u0001/bulk-approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 263
+   "line": 271
   },
   {
    "route": "/admin/catalog-manager",
    "element": "رفض المحدد",
    "kind": "client",
-   "note": "Sensitive action (POST \u0001adminBase\u0001/bulk-approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "note": "Sensitive action (POST \u0001crudBase\u0001/bulk-approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 264
+   "line": 272
   },
   {
    "route": "/admin/catalog-manager",
    "element": "اعتماد",
    "kind": "client",
-   "note": "Sensitive action (POST \u0001adminBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "note": "Sensitive action (POST \u0001crudBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 281
+   "line": 289
   },
   {
    "route": "/admin/catalog-manager",
    "element": "رفض",
    "kind": "client",
-   "note": "Sensitive action (POST \u0001adminBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "note": "Sensitive action (POST \u0001crudBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 282
+   "line": 290
   },
   {
    "route": "/admin/catalog-manager",
    "element": "اعتماد",
    "kind": "client",
-   "note": "Sensitive action (POST \u0001adminBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "note": "Sensitive action (POST \u0001crudBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 474
+   "line": 482
   },
   {
    "route": "/admin/catalog-manager",
@@ -1061,7 +981,7 @@
    "kind": "client",
    "note": "Sensitive action (POST /medicines/admin/catalog/:param/delete) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 475
+   "line": 483
   },
   {
    "route": "/admin/catalog-manager",
@@ -1069,104 +989,7 @@
    "kind": "client",
    "note": "Sensitive action (POST /medicines/admin/catalog/:param/delete) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 599
-  },
-  {
-   "route": "/admin/catalog-manager",
-   "element": "API PUT /catalogs/admin/specialties/:param",
-   "kind": "backend",
-   "note": "Endpoint is WRONG_METHOD (backend has DELETE; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 119,
-   "backend": "backend/src/modules/catalogs/catalogs.controller.ts:145"
-  },
-  {
-   "route": "/admin/catalog-manager",
-   "element": "API PUT /medicines/admin/catalog/:param",
-   "kind": "backend",
-   "note": "Endpoint is WRONG_METHOD (backend has PATCH, POST; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 119,
-   "backend": "backend/src/modules/medicines/medicines.controller.ts:235"
-  },
-  {
-   "route": "/admin/catalog-manager",
-   "element": "API PUT /insurance/companies/:param",
-   "kind": "backend",
-   "note": "Endpoint is WRONG_METHOD (backend has PATCH, GET; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 119,
-   "backend": "backend/src/modules/insurance/insurance.module.ts:571"
-  },
-  {
-   "route": "/admin/catalog-manager",
-   "element": "API DELETE /medicines/admin/catalog/:param",
-   "kind": "backend",
-   "note": "Endpoint is WRONG_METHOD (backend has PATCH, POST; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 134,
-   "backend": "backend/src/modules/medicines/medicines.controller.ts:235"
-  },
-  {
-   "route": "/admin/catalog-manager",
-   "element": "API DELETE /insurance/companies/:param",
-   "kind": "backend",
-   "note": "Endpoint is WRONG_METHOD (backend has PATCH, GET; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 134,
-   "backend": "backend/src/modules/insurance/insurance.module.ts:571"
-  },
-  {
-   "route": "/admin/catalog-manager",
-   "element": "API POST /catalogs/admin/specialties/:param/approve",
-   "kind": "backend",
-   "note": "Endpoint is NO_ROUTE (no controller declares /catalogs/admin/specialties/:param/approve; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 145
-  },
-  {
-   "route": "/admin/catalog-manager",
-   "element": "API POST /insurance/companies/:param/approve",
-   "kind": "backend",
-   "note": "Endpoint is NO_ROUTE (no controller declares /insurance/companies/:param/approve; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 145
-  },
-  {
-   "route": "/admin/catalog-manager",
-   "element": "API POST /catalogs/admin/specialties/bulk-approve",
-   "kind": "backend",
-   "note": "Endpoint is WRONG_METHOD (backend has DELETE; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 157,
-   "backend": "backend/src/modules/catalogs/catalogs.controller.ts:145"
-  },
-  {
-   "route": "/admin/catalog-manager",
-   "element": "API POST /insurance/companies/bulk-approve",
-   "kind": "backend",
-   "note": "Endpoint is WRONG_METHOD (backend has PATCH; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 157,
-   "backend": "backend/src/modules/insurance/insurance.module.ts:571"
-  },
-  {
-   "route": "/admin/catalog-manager",
-   "element": "API DELETE /medicines/admin/catalog/:param",
-   "kind": "backend",
-   "note": "Endpoint is WRONG_METHOD (backend has PATCH, POST; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 199,
-   "backend": "backend/src/modules/medicines/medicines.controller.ts:235"
-  },
-  {
-   "route": "/admin/catalog-manager",
-   "element": "API DELETE /insurance/companies/:param",
-   "kind": "backend",
-   "note": "Endpoint is WRONG_METHOD (backend has PATCH, GET; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 199,
-   "backend": "backend/src/modules/insurance/insurance.module.ts:571"
+   "line": 609
   },
   {
    "route": "/admin/catalog-manager",
@@ -1174,26 +997,26 @@
    "kind": "backend",
    "note": "3 call(s) hit backend routes with no role/permission guard (GET /insurance/companies; POST /storage/upload; GET /storage/:param/signed-url): any signed-in user passes JwtAuthGuard.",
    "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 79,
-   "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:694"
+   "line": 87,
+   "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:695"
   },
   {
    "route": "/admin/catalog-manager",
-   "element": "Guard G-PERM-MISMATCH (7)",
+   "element": "Guard G-ROLE-ONLY-WRITE (6)",
    "kind": "backend",
-   "note": "7 call(s): Page requires \"catalog.read\" but POST /medicines/admin/catalog requires catalog.create; an admin role with the page permission only gets a 403 on this call. | P",
+   "note": "6 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /labs/admin/catalog/:param/approve; POST /radiology/admin/catalog/:param/approve; POST /nursing/admin/catalog/:param/approve; …): every admin role, including a custom restricted one, can run them.",
    "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 117,
-   "backend": "backend/src/modules/medicines/medicines.controller.ts:261"
-  },
-  {
-   "route": "/admin/catalog-manager",
-   "element": "Guard G-ROLE-ONLY-WRITE (8)",
-   "kind": "backend",
-   "note": "8 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /labs/admin/catalog/:param/approve; POST /radiology/admin/catalog/:param/approve; POST /nursing/admin/catalog/:param/approve; …): every admin role, including a custom restricted one, can run them.",
-   "file": "admin/src/pages/admin/catalog-manager.tsx",
-   "line": 145,
+   "line": 153,
    "backend": "backend/src/modules/labs/labs.controller.ts:198"
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "Guard G-PERM-MISMATCH (4)",
+   "kind": "backend",
+   "note": "4 call(s): Page requires \"catalog.read\" but PATCH /medicines/admin/catalog/:param requires catalog.update + catalog.price.write; an admin role with the page permission onl",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 405,
+   "backend": "backend/src/modules/medicines/medicines.controller.ts:235"
   },
   {
    "route": "/admin/image-suggestions",
@@ -1202,7 +1025,7 @@
    "note": "3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; GET /api/admin/provider-onboarding/admin/contracts/:param): any signed-in user passes JwtAuthGuard.",
    "file": "admin/src/components/ProviderFullDetail.tsx",
    "line": 19,
-   "backend": "backend/src/modules/storage/storage.module.ts:382"
+   "backend": "backend/src/modules/storage/storage.module.ts:386"
   },
   {
    "route": "/admin/image-suggestions",
@@ -1244,7 +1067,7 @@
    "note": "2 call(s) hit backend routes with no role/permission guard (POST /storage/upload; GET /storage/:param/signed-url): any signed-in user passes JwtAuthGuard.",
    "file": "admin/src/pages/admin/medicines-catalog.tsx",
    "line": 50,
-   "backend": "backend/src/modules/storage/storage.module.ts:358"
+   "backend": "backend/src/modules/storage/storage.module.ts:362"
   },
   {
    "route": "/admin/medicines-catalog",

@@ -1,3 +1,4 @@
+import { PROVIDER_ROLES } from '../../common/enums';
 import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ReturnsService } from './returns.service';
 import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
@@ -20,6 +21,7 @@ export class ReturnsController {
     return this.returnsService.myReturns(user.id);
   }
 
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('provider/list')
   async providerList(@CurrentUser() user: any) {
     return this.returnsService.providerReturns(user.id);
