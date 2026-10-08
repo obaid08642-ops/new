@@ -40,3 +40,46 @@ body {
 /* 8pt grid, glass 16px, radius 20 enforced via utilities + cards */
 :where(.rounded-xl) { border-radius: 20px; }
 :where(.backdrop-blur) { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+
+/* ---- Mobile (device standard 1/3): no horizontal page scroll, 44px targets, 16px inputs ---- */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { min-height: 100dvh; max-inline-size: 100%; overflow-x: clip; }
+img, video, svg { max-inline-size: 100%; }
+
+@media (max-width: 1023.98px) {
+  main { min-inline-size: 0; }
+}
+
+@media (max-width: 767.98px) {
+  /* Inputs at 16px stop iOS Safari zooming on focus; 44px touch targets. */
+  main input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]),
+  main select,
+  main textarea { font-size: 16px; min-block-size: 44px; max-inline-size: 100%; }
+  main button, main [role="button"], main select, main summary { min-block-size: 44px; }
+  main button { min-inline-size: 44px; }
+  main label:has(> input[type="checkbox"]), main label:has(> input[type="radio"]) { min-block-size: 44px; }
+  /* Forms use the full width on phones. */
+  main form input:not([type="checkbox"]):not([type="radio"]), main form select, main form textarea { inline-size: 100%; }
+
+  /* Modals/dialogs fit the viewport and scroll inside. */
+  .fixed.inset-0.items-center > div { max-block-size: 90dvh; overflow-y: auto; max-inline-size: 100%; }
+  .fixed.inset-0.justify-end > div { max-inline-size: 100%; }
+
+  /* Tables become cards: <DataTable> and any plain table with one header row (see useLegacyTableCards). */
+  table[data-cards], table[data-cards] tbody, table[data-cards] tr, table[data-cards] td { display: block; inline-size: 100%; min-inline-size: 0; }
+  table[data-cards] thead { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  table[data-cards] tr { margin: 0; padding: 12px 16px; border-block-start: 1px solid var(--line); }
+  table[data-cards] tr:first-child { border-block-start: 0; }
+  table[data-cards] td { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 6px 0; border: 0; text-align: start; }
+  table[data-cards] td[data-label]::before { content: attr(data-label); flex: none; max-inline-size: 45%; font-size: 12px; font-weight: 600; color: var(--muted); }
+  table[data-cards] td[data-label] { text-align: end; }
+  /* First column = card title. */
+  table[data-cards] tr:not([data-cards-note]) > td:first-child { display: block; padding-block-end: 8px; font-weight: 700; text-align: start; }
+  table[data-cards] tr:not([data-cards-note]) > td:first-child::before { display: none; }
+  /* Actions come last, full width. */
+  table[data-cards] td[data-actions] { justify-content: flex-start; flex-wrap: wrap; padding-block-start: 10px; }
+  table[data-cards] tr[data-cards-note] { padding: 0; }
+  table[data-cards] tr[data-cards-note] > td { display: block; text-align: center; }
+  /* Tables that cannot be cards scroll inside their own box. */
+  table:not([data-cards]) { display: block; max-inline-size: 100%; overflow-x: auto; }
+}
