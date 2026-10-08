@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ChevronLeft, Hash, MapPinned, PackageCheck, ShieldCheck } from "lucide-react";
+import { ChevronLeft, Clock3, Hash, MapPinned, PackageCheck, ShieldCheck, Truck } from "lucide-react";
 import { callPatientApi } from "@/lib/api/upstream";
 import { extractOrderTracking, parseOrderId } from "@/lib/api/orders";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -88,6 +88,31 @@ export default async function OrderTrackingPage({ params, searchParams }: Props)
       </dl>
       <p className={styles.notice}>{t("detailNotice")}</p>
       {paid ? <p className={styles.notice} role="status">{ar ? "تم استلام قرار التأمين — هذه حالة طلبك الحالية." : "Insurance decision received — here is your order's current status."}</p> : null}
+      <section aria-label={t("courierTitle")} style={{ display: "grid", gap: 8, marginTop: 12 }}>
+        <h2 style={{ margin: 0, fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: 8 }}><Truck size={16} aria-hidden="true" />{t("courierTitle")}</h2>
+        {tracking.courier ? (
+          <dl className={styles.grid}>
+            {tracking.courier.name ? <div className={styles.item}><dt>{t("courierTitle")}</dt><dd>{tracking.courier.name}</dd></div> : null}
+            {tracking.courier.phoneMasked ? <div className={styles.item}><dt>{t("secureId")}</dt><dd dir="ltr">{tracking.courier.phoneMasked}</dd></div> : null}
+            {tracking.courier.lat !== undefined && tracking.courier.lng !== undefined ? (
+              <div className={styles.item}><dt><MapPinned size={15} aria-hidden="true" />{t("courierTitle")}</dt><dd dir="ltr">{tracking.courier.lat.toFixed(4)}, {tracking.courier.lng.toFixed(4)}</dd></div>
+            ) : null}
+          </dl>
+        ) : (
+          <p role="status" style={{ margin: 0 }}>{t("courierUnknown")}</p>
+        )}
+      </section>
+      <section aria-label={t("slotTitle")} style={{ display: "grid", gap: 8, marginTop: 12 }}>
+        <h2 style={{ margin: 0, fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: 8 }}><Clock3 size={16} aria-hidden="true" />{t("slotTitle")}</h2>
+        {tracking.slot ? (
+          <p role="status" style={{ margin: 0 }}>
+            {tracking.slot.label ? <strong>{tracking.slot.label}</strong> : null}
+            {tracking.slot.start || tracking.slot.end ? <span> — {[tracking.slot.start, tracking.slot.end].filter(Boolean).join(" – ")}</span> : null}
+          </p>
+        ) : (
+          <p role="status" style={{ margin: 0 }}>{t("slotUnknown")}</p>
+        )}
+      </section>
       <section aria-label={ar ? "الجدول الزمني للطلب" : "Order timeline"} style={{ display: "grid", gap: 8, marginTop: 12 }}>
         <h2 style={{ margin: 0, fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: 8 }}><MapPinned size={16} aria-hidden="true" />{ar ? "الجدول الزمني للطلب" : "Order timeline"}</h2>
         {timeline.length === 0 ? (
