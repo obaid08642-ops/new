@@ -1,5 +1,5 @@
 {
- "commit": "cab1124e",
+ "commit": "4429611f",
  "routes": [
   {
    "app": "patient-app",
@@ -1497,7 +1497,7 @@
      "path": "/labs/packages",
      "target": "backend",
      "query": "",
-     "line": 63,
+     "line": 96,
      "file": "patient-app/app/(tabs)/diagnostics.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:32"
@@ -1507,7 +1507,7 @@
      "path": "/labs/services",
      "target": "backend",
      "query": "",
-     "line": 64,
+     "line": 97,
      "file": "patient-app/app/(tabs)/diagnostics.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:12"
@@ -1517,7 +1517,7 @@
      "path": "/providers",
      "target": "backend",
      "query": "?type=lab",
-     "line": 66,
+     "line": 99,
      "file": "patient-app/app/(tabs)/diagnostics.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/providers.controller.ts:22"
@@ -1527,7 +1527,7 @@
      "path": "/radiology/services",
      "target": "backend",
      "query": "",
-     "line": 65,
+     "line": 98,
      "file": "patient-app/app/(tabs)/diagnostics.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:12"
@@ -1543,7 +1543,7 @@
      "backend": "backend/src/modules/users/users.addresses.controller.ts:13"
     }
    ],
-   "files": 21,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -1556,7 +1556,7 @@
    "batch": 3,
    "status": "—",
    "calls": [],
-   "files": 9,
+   "files": 23,
    "unresolved": 0
   },
   {
@@ -1600,7 +1600,7 @@
      "path": "/labs/compatible-providers",
      "target": "backend",
      "query": "?testIds=:param",
-     "line": 35,
+     "line": 32,
      "file": "patient-app/app/diagnostics/cart.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:227"
@@ -1610,13 +1610,13 @@
      "path": "/radiology/compatible-providers",
      "target": "backend",
      "query": "?serviceIds=:param",
-     "line": 36,
+     "line": 33,
      "file": "patient-app/app/diagnostics/cart.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:34"
     }
    ],
-   "files": 11,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -1634,7 +1634,7 @@
      "path": "/labs/bookings",
      "target": "backend",
      "query": "",
-     "line": 86,
+     "line": 87,
      "file": "patient-app/app/diagnostics/checkout.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:42"
@@ -1644,7 +1644,7 @@
      "path": "/payments/intent/:param/:param",
      "target": "backend",
      "query": "",
-     "line": 117,
+     "line": 118,
      "file": "patient-app/app/diagnostics/checkout.tsx",
      "status": "OK",
      "backend": "backend/src/modules/payments/payments.module.ts:580"
@@ -1654,13 +1654,13 @@
      "path": "/radiology/bookings",
      "target": "backend",
      "query": "",
-     "line": 99,
+     "line": 100,
      "file": "patient-app/app/diagnostics/checkout.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:44"
     }
    ],
-   "files": 15,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -1678,7 +1678,7 @@
      "path": "/labs/bookings/:param",
      "target": "backend",
      "query": "",
-     "line": 43,
+     "line": 55,
      "file": "patient-app/app/diagnostics/insurance-approval.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:48"
@@ -1688,13 +1688,13 @@
      "path": "/labs/bookings/:param/items/:param/opt-in-cash",
      "target": "backend",
      "query": "",
-     "line": 100,
+     "line": 107,
      "file": "patient-app/app/diagnostics/insurance-approval.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:74"
     }
    ],
-   "files": 16,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -1712,7 +1712,7 @@
      "path": "/ai/ocr-translate",
      "target": "backend",
      "query": "",
-     "line": 155,
+     "line": 138,
      "file": "patient-app/app/diagnostics/insurance-upload.tsx",
      "status": "OK",
      "backend": "backend/src/modules/ai/ai.controller.ts:123"
@@ -1722,7 +1722,7 @@
      "path": "/insurance/companies",
      "target": "backend",
      "query": "",
-     "line": 66,
+     "line": 65,
      "file": "patient-app/app/diagnostics/insurance-upload.tsx",
      "status": "OK",
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:694"
@@ -1742,7 +1742,7 @@
      "path": "/labs/bookings",
      "target": "backend",
      "query": "",
-     "line": 408,
+     "line": 185,
      "file": "patient-app/app/diagnostics/insurance-upload.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:42"
@@ -1752,7 +1752,7 @@
      "path": "/labs/bookings/:param/documents",
      "target": "backend",
      "query": "",
-     "line": 438,
+     "line": 214,
      "file": "patient-app/app/diagnostics/insurance-upload.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:62"
@@ -1772,7 +1772,7 @@
      "path": "/radiology/bookings",
      "target": "backend",
      "query": "",
-     "line": 421,
+     "line": 198,
      "file": "patient-app/app/diagnostics/insurance-upload.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:44"
@@ -1782,13 +1782,13 @@
      "path": "/users/me/profile",
      "target": "backend",
      "query": "",
-     "line": 78,
+     "line": 76,
      "file": "patient-app/app/diagnostics/insurance-upload.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:34"
     }
    ],
-   "files": 14,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -1816,13 +1816,13 @@
      "path": "/labs/services/:param",
      "target": "backend",
      "query": "",
-     "line": 35,
+     "line": 36,
      "file": "patient-app/app/diagnostics/lab-comparison.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:38"
     }
    ],
-   "files": 13,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -1840,7 +1840,7 @@
      "path": "/labs/services",
      "target": "backend",
      "query": "?providerId=:param",
-     "line": 33,
+     "line": 30,
      "file": "patient-app/app/diagnostics/lab/[id].tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:12"
@@ -1850,13 +1850,13 @@
      "path": "/providers/:param",
      "target": "backend",
      "query": "",
-     "line": 32,
+     "line": 30,
      "file": "patient-app/app/diagnostics/lab/[id].tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/providers.controller.ts:41"
     }
    ],
-   "files": 19,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -1874,7 +1874,7 @@
      "path": "/labs/bookings/mine",
      "target": "backend",
      "query": "",
-     "line": 29,
+     "line": 62,
      "file": "patient-app/app/diagnostics/my-results.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:45"
@@ -1884,13 +1884,13 @@
      "path": "/radiology/reports/mine",
      "target": "backend",
      "query": "",
-     "line": 30,
+     "line": 62,
      "file": "patient-app/app/diagnostics/my-results.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:69"
     }
    ],
-   "files": 13,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -1908,7 +1908,7 @@
      "path": "/labs/bookings/:param",
      "target": "backend",
      "query": "",
-     "line": 43,
+     "line": 69,
      "file": "patient-app/app/diagnostics/order/[id].tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:48"
@@ -1918,7 +1918,7 @@
      "path": "/labs/bookings/:param/cancel",
      "target": "backend",
      "query": "",
-     "line": 65,
+     "line": 95,
      "file": "patient-app/app/diagnostics/order/[id].tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:52"
@@ -1928,7 +1928,7 @@
      "path": "/radiology/bookings/:param",
      "target": "backend",
      "query": "",
-     "line": 38,
+     "line": 63,
      "file": "patient-app/app/diagnostics/order/[id].tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:50"
@@ -1938,13 +1938,13 @@
      "path": "/radiology/bookings/:param/cancel",
      "target": "backend",
      "query": "",
-     "line": 65,
+     "line": 95,
      "file": "patient-app/app/diagnostics/order/[id].tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:54"
     }
    ],
-   "files": 17,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -1956,30 +1956,9 @@
    "board": "Orders",
    "batch": 3,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/labs/bookings/mine",
-     "target": "backend",
-     "query": "",
-     "line": 32,
-     "file": "patient-app/app/diagnostics/orders.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:45"
-    },
-    {
-     "method": "GET",
-     "path": "/radiology/bookings/mine",
-     "target": "backend",
-     "query": "",
-     "line": 33,
-     "file": "patient-app/app/diagnostics/orders.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:47"
-    }
-   ],
-   "files": 12,
-   "unresolved": 0
+   "calls": [],
+   "files": 37,
+   "unresolved": 1
   },
   {
    "app": "patient-app",
@@ -1996,13 +1975,13 @@
      "path": "/labs/packages/:param",
      "target": "backend",
      "query": "",
-     "line": 32,
+     "line": 29,
      "file": "patient-app/app/diagnostics/package-detail.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:222"
     }
    ],
-   "files": 20,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -2020,7 +1999,7 @@
      "path": "/labs/categories",
      "target": "backend",
      "query": "",
-     "line": 34,
+     "line": 32,
      "file": "patient-app/app/diagnostics/packages.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:35"
@@ -2030,13 +2009,13 @@
      "path": "/labs/packages",
      "target": "backend",
      "query": "",
-     "line": 33,
+     "line": 32,
      "file": "patient-app/app/diagnostics/packages.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:32"
     }
    ],
-   "files": 18,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -2067,7 +2046,7 @@
      "path": "/labs/bookings/:param",
      "target": "backend",
      "query": "",
-     "line": 37,
+     "line": 33,
      "file": "patient-app/app/diagnostics/sample-tracking.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:48"
@@ -2077,13 +2056,13 @@
      "path": "/labs/bookings/:param/tracking",
      "target": "backend",
      "query": "",
-     "line": 38,
+     "line": 33,
      "file": "patient-app/app/diagnostics/sample-tracking.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:116"
     }
    ],
-   "files": 16,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -2101,13 +2080,13 @@
      "path": "/labs/services",
      "target": "backend",
      "query": "",
-     "line": 30,
+     "line": 23,
      "file": "patient-app/app/diagnostics/search.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:12"
     }
    ],
-   "files": 14,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -2125,7 +2104,7 @@
      "path": "/labs/bookings/:param",
      "target": "backend",
      "query": "",
-     "line": 38,
+     "line": 26,
      "file": "patient-app/app/diagnostics/technician-tracking.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:48"
@@ -2135,13 +2114,13 @@
      "path": "/labs/bookings/:param/tracking",
      "target": "backend",
      "query": "",
-     "line": 39,
+     "line": 26,
      "file": "patient-app/app/diagnostics/technician-tracking.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:116"
     }
    ],
-   "files": 16,
+   "files": 31,
    "unresolved": 0
   },
   {
@@ -2159,7 +2138,7 @@
      "path": "/labs/services/:param",
      "target": "backend",
      "query": "",
-     "line": 40,
+     "line": 32,
      "file": "patient-app/app/diagnostics/test-detail.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:38"
@@ -2169,13 +2148,13 @@
      "path": "/radiology/services/:param",
      "target": "backend",
      "query": "",
-     "line": 40,
+     "line": 32,
      "file": "patient-app/app/diagnostics/test-detail.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:40"
     }
    ],
-   "files": 14,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -8981,21 +8960,21 @@
      "backend": "backend/src/modules/home-care/home-care.controller.ts:155"
     },
     {
-     "method": "*",
-     "path": "/catalogs/insurance",
-     "target": "backend",
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
      "query": "",
-     "line": 17,
-     "file": "patient-web/lib/data/use-central-insurance.ts",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:44"
+     "handler": "patient-web/app/api/auth/logout/route.ts"
     },
     {
      "method": "GET",
      "path": "/labs/packages",
      "target": "backend",
      "query": "",
-     "line": 78,
+     "line": 86,
      "file": "patient-web/app/[locale]/diagnostics/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:32"
@@ -9021,7 +9000,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:12"
     }
    ],
-   "files": 19,
+   "files": 51,
    "unresolved": 0
   },
   {
@@ -9053,9 +9032,19 @@
      "file": "patient-web/lib/api/diagnostics-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:151"
+    },
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
     }
    ],
-   "files": 9,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -9086,13 +9075,23 @@
      "path": "/:param/bookings/:param",
      "target": "backend",
      "query": "",
-     "line": 22,
+     "line": 25,
      "file": "patient-web/app/[locale]/diagnostics/booking-success/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home-care/home-care.controller.ts:440"
+    },
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
     }
    ],
-   "files": 6,
+   "files": 31,
    "unresolved": 0
   },
   {
@@ -9107,16 +9106,26 @@
    "calls": [
     {
      "method": "GET",
-     "path": "/labs/bookings/mine",
+     "path": "/:param/bookings/mine",
      "target": "backend",
      "query": "",
-     "line": 18,
-     "file": "patient-web/app/[locale]/diagnostics/bookings/page.tsx",
+     "line": 6,
+     "file": "patient-web/lib/api/diagnostics-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:45"
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:155"
+    },
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
     }
    ],
-   "files": 6,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -9130,17 +9139,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/api/diagnostics/compatible-labs",
      "target": "web-bff",
      "query": "?testIds=:param",
-     "line": 51,
+     "line": 63,
      "file": "patient-web/components-next/diagnostics-cart-client.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/diagnostics/compatible-labs/route.ts"
     }
    ],
-   "files": 6,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -9154,11 +9173,21 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "DELETE",
      "path": "/api/diagnostics/cart",
      "target": "web-bff",
      "query": "",
-     "line": 131,
+     "line": 135,
      "file": "patient-web/components-next/diagnostics-checkout-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/diagnostics/cart/route.ts"
@@ -9168,7 +9197,7 @@
      "path": "/api/diagnostics/orders",
      "target": "web-bff",
      "query": "",
-     "line": 79,
+     "line": 83,
      "file": "patient-web/components-next/diagnostics-checkout-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/diagnostics/orders/route.ts"
@@ -9178,13 +9207,13 @@
      "path": "/api/payments/intent/diagnostics",
      "target": "web-bff",
      "query": "",
-     "line": 110,
+     "line": 114,
      "file": "patient-web/components-next/diagnostics-checkout-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/payments/intent/diagnostics/route.ts"
     }
    ],
-   "files": 6,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -9198,11 +9227,21 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/api/patient/labs/bookings/:param",
      "target": "web-proxy",
      "query": "",
-     "line": 57,
+     "line": 70,
      "file": "patient-web/components-next/diagnostics-insurance-approval-client.tsx",
      "backend": "backend/src/modules/labs/labs.controller.ts:48",
      "status": "OK"
@@ -9212,13 +9251,13 @@
      "path": "/api/patient/labs/bookings/:param/items/:param/opt-in-cash",
      "target": "web-proxy",
      "query": "",
-     "line": 79,
+     "line": 92,
      "file": "patient-web/components-next/diagnostics-insurance-approval-client.tsx",
      "backend": "backend/src/modules/labs/labs.controller.ts:74",
      "status": "OK"
     }
    ],
-   "files": 6,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -9233,16 +9272,26 @@
    "calls": [
     {
      "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "POST",
      "path": "/api/diagnostics/bookings/:param/documents",
      "target": "web-bff",
      "query": "",
-     "line": 31,
+     "line": 39,
      "file": "patient-web/components-next/diagnostics-document-upload.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/diagnostics/bookings/[bookingId]/documents/route.ts"
     }
    ],
-   "files": 6,
+   "files": 29,
    "unresolved": 0
   },
   {
@@ -9256,17 +9305,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/labs/compatible-providers",
      "target": "backend",
      "query": "?testIds=:param",
-     "line": 21,
+     "line": 26,
      "file": "patient-web/app/[locale]/diagnostics/lab-comparison/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:227"
     }
    ],
-   "files": 6,
+   "files": 38,
    "unresolved": 0
   },
   {
@@ -9280,6 +9339,16 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/labs/services",
      "target": "backend",
@@ -9290,7 +9359,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:12"
     }
    ],
-   "files": 9,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -9304,6 +9373,16 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/labs/:param",
      "target": "backend",
@@ -9314,7 +9393,7 @@
      "backend": "backend/src/modules/labs/labs-compat.controller.ts:12"
     }
    ],
-   "files": 6,
+   "files": 39,
    "unresolved": 0
   },
   {
@@ -9329,10 +9408,20 @@
    "calls": [
     {
      "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "POST",
      "path": "/api/patient/labs/bookings",
      "target": "web-proxy",
      "query": "",
-     "line": 22,
+     "line": 28,
      "file": "patient-web/components-next/lab-booking-form.tsx",
      "backend": "backend/src/modules/labs/labs.controller.ts:42",
      "status": "OK"
@@ -9358,7 +9447,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:38"
     }
    ],
-   "files": 10,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -9372,6 +9461,16 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/labs/services",
      "target": "backend",
@@ -9382,7 +9481,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:12"
     }
    ],
-   "files": 7,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -9396,14 +9495,14 @@
    "status": "—",
    "calls": [
     {
-     "method": "*",
-     "path": "/catalogs/insurance",
-     "target": "backend",
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
      "query": "",
-     "line": 17,
-     "file": "patient-web/lib/data/use-central-insurance.ts",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:44"
+     "handler": "patient-web/app/api/auth/logout/route.ts"
     },
     {
      "method": "GET",
@@ -9416,7 +9515,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:222"
     }
    ],
-   "files": 11,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -9429,6 +9528,16 @@
    "batch": 3,
    "status": "—",
    "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
     {
      "method": "GET",
      "path": "/radiology/modalities",
@@ -9450,7 +9559,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:12"
     }
    ],
-   "files": 7,
+   "files": 39,
    "unresolved": 0
   },
   {
@@ -9464,14 +9573,14 @@
    "status": "—",
    "calls": [
     {
-     "method": "*",
-     "path": "/catalogs/insurance",
-     "target": "backend",
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
      "query": "",
-     "line": 17,
-     "file": "patient-web/lib/data/use-central-insurance.ts",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/catalogs/catalogs.controller.ts:44"
+     "handler": "patient-web/app/api/auth/logout/route.ts"
     },
     {
      "method": "GET",
@@ -9484,7 +9593,7 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:40"
     }
    ],
-   "files": 12,
+   "files": 41,
    "unresolved": 0
   },
   {
@@ -9498,11 +9607,21 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/labs/bookings/mine",
      "target": "backend",
      "query": "",
-     "line": 20,
+     "line": 32,
      "file": "patient-web/app/[locale]/diagnostics/results/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:45"
@@ -9512,13 +9631,13 @@
      "path": "/radiology/reports/mine",
      "target": "backend",
      "query": "",
-     "line": 21,
+     "line": 32,
      "file": "patient-web/app/[locale]/diagnostics/results/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:69"
     }
    ],
-   "files": 6,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -9532,11 +9651,21 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/api/patient/labs/bookings/:param",
      "target": "web-proxy",
      "query": "",
-     "line": 49,
+     "line": 53,
      "file": "patient-web/components-next/diagnostics-sample-tracking-client.tsx",
      "backend": "backend/src/modules/labs/labs.controller.ts:48",
      "status": "OK"
@@ -9546,13 +9675,13 @@
      "path": "/api/patient/labs/bookings/:param/tracking",
      "target": "web-proxy",
      "query": "",
-     "line": 50,
+     "line": 54,
      "file": "patient-web/components-next/diagnostics-sample-tracking-client.tsx",
      "backend": "backend/src/modules/labs/labs.controller.ts:116",
      "status": "OK"
     }
    ],
-   "files": 6,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -9566,17 +9695,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/labs/services",
      "target": "backend",
      "query": "",
-     "line": 42,
+     "line": 41,
      "file": "patient-web/app/[locale]/diagnostics/search/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:12"
     }
    ],
-   "files": 7,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -9590,17 +9729,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/api/patient/labs/bookings/:param/tracking",
      "target": "web-proxy",
      "query": "",
-     "line": 28,
+     "line": 35,
      "file": "patient-web/components-next/diagnostics-technician-tracking-client.tsx",
      "backend": "backend/src/modules/labs/labs.controller.ts:116",
      "status": "OK"
     }
    ],
-   "files": 6,
+   "files": 30,
    "unresolved": 0
   },
   {
@@ -9614,17 +9763,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/labs/services",
      "target": "backend",
      "query": "",
-     "line": 20,
+     "line": 21,
      "file": "patient-web/app/[locale]/diagnostics/test-detail/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:12"
     }
    ],
-   "files": 6,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -11314,6 +11473,16 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/labs/services",
      "target": "backend",
@@ -11324,7 +11493,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:12"
     }
    ],
-   "files": 7,
+   "files": 40,
    "unresolved": 0
   },
   {

@@ -1,15 +1,18 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { CheckCircle2 } from "lucide-react";
-import { VectorLabs } from "@/components-next/vector-illustrations";
+import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { callPatientApi } from "@/lib/api/upstream";
-import styles from "../diagnostics.module.css";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ActionLinks } from "@/components-next/consult/consult-parts";
+import { LAB, RADIOLOGY } from "@/components-next/diagnostics/diag-parts";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import rx from "@/components-next/pharmacy/rx.module.css";
+import consult from "@/components-next/consult/consult.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ bookingId?: string; domain?: string }> };
 
+/** The booking is registered (canvas/BookingConfirm, the result): the check, the line, the booking number the server holds, and the ways on. */
 export default async function DiagnosticsBookingSuccessPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const sp = await searchParams;
@@ -17,54 +20,35 @@ export default async function DiagnosticsBookingSuccessPage({ params, searchPara
   const domain = sp.domain === "radiology" ? "radiology" : "labs";
   if (!isLocale(locale) || !bookingId) notFound();
   setRequestLocale(locale);
-  const t = await getTranslations("Diagnostics");
+  const t = await getTranslations("DiagWeb");
   const token = await requirePatientAccess(locale);
   const response = await callPatientApi(`/${domain}/bookings/${encodeURIComponent(bookingId)}`, {}, token);
   if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
   if (!response.ok) notFound();
-  const ar = locale === "ar";
+  const visual = domain === "labs" ? LAB : RADIOLOGY;
 
   return (
-    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
-      <section className={styles.intro} style={{ background: "rgba(255,255,255,.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid #E8EDEE", borderRadius: 20 }}>
-        <div className={styles.introText} style={{ display: "grid", gap: 8 }}>
-          <p className={styles.eyebrow} style={{ color: "#1E332E" }}>{ar ? "تم بنجاح" : "Success"}</p>
-          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
-            {ar ? "تم الحجز بنجاح" : "Booking confirmed"}
-          </h1>
-          <p style={{ color: "#6B7C6E", lineHeight: 1.7, overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
-            {ar ? "حجزك مسجل. تابع حالته من حجوزاتك." : "Your booking is registered. Track it from your bookings."}
-          </p>
+    <ConsultPage locale={locale} title={t("successTitle")} backHref={`/${locale}/diagnostics/bookings`}>
+      <section className={`${rx.card} ${consult.hero}`} role="status">
+        <FIcon icon="check-circle" tone={visual.tone} size={72} />
+        <div className={consult.heroText}>
+          <h2 className={consult.heroTitle}>{t("successHeading")}</h2>
+          <span className={consult.heroSub}>{t("successBody")}</span>
         </div>
-        <span className={styles.introIcon} style={{ inlineSize: 48, blockSize: 48, borderRadius: 20, border: "1px solid #E8EDEE", background: "rgba(255,255,255,.9)", backdropFilter: "blur(16px)" }} aria-hidden="true">
-          <VectorLabs size={48} aria-hidden="true" />
-        </span>
+        <div className={consult.fact}>
+          <span className={consult.factText}>
+            <span className={consult.factLabel}>{t("bookingNumber")}</span>
+            <span className={consult.codeText}>{bookingId}</span>
+          </span>
+        </div>
       </section>
-
-      <section style={{ display: "grid", gap: 16, padding: 16, border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", boxShadow: "0 8px 24px rgba(30,51,46,.07)" }}>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#1E332E", fontWeight: 760, fontSize: ".9rem" }}>
-          <CheckCircle2 size={20} color="#1E332E" aria-hidden="true" />
-          {ar ? `معرف الحجز: ${bookingId}` : `Booking ID: ${bookingId}`}
-        </span>
-        <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <Link
-            href={`/${locale}/diagnostics/${domain}/${encodeURIComponent(bookingId)}`}
-            style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minHeight: 40, padding: "8px 16px", borderRadius: 20, background: "#5FD9B3", color: "#1E332E", fontWeight: 760, textDecoration: "none", border: "1px solid #5FD9B3" }}
-          >
-            {ar ? "تفاصيل الحجز" : "Booking details"}
-          </Link>
-          <Link
-            href={`/${locale}/diagnostics/bookings`}
-            style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minHeight: 40, padding: "8px 16px", borderRadius: 20, background: "rgba(255,255,255,.82)", color: "#1E332E", fontWeight: 700, textDecoration: "none", border: "1px solid #E8EDEE" }}
-          >
-            {ar ? "حجوزاتي" : "My bookings"}
-          </Link>
-          <Link href={`/${locale}/diagnostics`} style={{ color: "#1E332E", fontWeight: 760, textDecoration: "none", alignSelf: "center", padding: "8px 12px" }}>
-            {t("back")}
-          </Link>
-        </nav>
-      </section>
-    </main>
+      <ActionLinks
+        actions={[
+          { href: `/${locale}/diagnostics/${domain}/${encodeURIComponent(bookingId)}`, label: t("bookingDetailsCta") },
+          { href: `/${locale}/diagnostics/bookings`, label: t("myRequests"), variant: "outline" },
+          { href: `/${locale}/diagnostics`, label: t("backToHub"), variant: "ghost" },
+        ]}
+      />
+    </ConsultPage>
   );
 }

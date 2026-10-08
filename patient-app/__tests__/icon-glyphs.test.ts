@@ -31,8 +31,8 @@ function literalNames(): Map<string, string> {
 describe('Icon glyphs', () => {
   it('every literal icon name in the app has a MaterialCommunityIcons glyph', () => {
     const names = literalNames();
-    // a sanity floor that the scan found the app's icons: it was 100 until Batch 5 rebuilt the health screens on the shared kit (no <Icon name> left in them)
-    expect(names.size).toBeGreaterThan(80);
+    // a floor that proves the scan finds names at all; it falls as screens move to the fill icon set (Batch 3 removed 18 files' worth, Batches 5-6 the health and family screens)
+    expect(names.size).toBeGreaterThan(30);
     const missing = [...names].filter(([n]) => !(resolveIconName(n) in glyphMap)).map(([n, f]) => `${n} (${f.replace(ROOT, '')})`);
     expect(missing).toEqual([]);
   });
