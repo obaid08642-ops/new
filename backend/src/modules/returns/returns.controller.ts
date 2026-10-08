@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ReturnsService } from './returns.service';
 import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
+import { StepUp } from '../../common/step-up.guard';
 import { UserRole } from '../../common/enums';
 import { CreateDto, DecideDto} from './returns.dto';
 
@@ -48,6 +49,8 @@ export class ReturnsController {
     return this.returnsService.getById(id, user.id, user.role);
   }
 
+  // Q89: money decision — requires fresh step-up authentication.
+  @StepUp()
   @Post(':id/decide')
   @Roles(UserRole.ADMIN)
   async decide(
@@ -70,6 +73,8 @@ export class AdminReturnsController {
     return this.returnsService.adminList(status);
   }
 
+  // Q89: money decision — requires fresh step-up authentication.
+  @StepUp()
   @Post(':id/decide')
   decide(@Param('id') id: string, @Body() body: DecideDto, @CurrentUser() adminUser: any) {
     return this.returnsService.adminDecide(id, body.decision, body.note || '', adminUser);

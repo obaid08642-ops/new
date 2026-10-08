@@ -34,6 +34,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import type { MultipartFile } from '@fastify/multipart';
 import { v4 as uuid } from 'uuid';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { StepUp } from '../../common/step-up.guard';
 import { UserRole } from '../../common/enums';
 import { CreateDtoGen2, CreateDto2Gen2, CreateDto3, CreateDto4, CreateDto5, UploadDto } from './admin-spa.generated.dto';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
@@ -1205,12 +1206,16 @@ class AdminSystemController extends AdminController {
   }
 
   @Get('theme') theme() { return this.getConfig('theme', DEFAULT_THEME); }
+  // Q89: system-config writes are privilege changes — step-up required.
+  @StepUp()
   @Put('theme') putTheme(@CurrentUser() u: any, @Body() b: ThemeConfigDto) { return this.putConfig('theme', b, u); }
 
   @Get('permissions') permissions() { return this.getConfig('permissions', DEFAULT_PERMISSIONS); }
+  @StepUp()
   @Put('permissions') putPermissions(@CurrentUser() u: any, @Body(new ParseArrayPipe({ items: PermissionEntryDto })) b: PermissionEntryDto[]) { return this.putConfig('permissions', b, u); }
 
   @Get('workflows') workflows() { return this.getConfig('workflows', DEFAULT_WORKFLOWS); }
+  @StepUp()
   @Put('workflows') putWorkflows(@CurrentUser() u: any, @Body(new ParseArrayPipe({ items: WorkflowEntryDto })) b: WorkflowEntryDto[]) { return this.putConfig('workflows', b, u); }
 
   @Get('ai-config') aiConfig() { return this.getConfig('ai-config', DEFAULT_AI_CONFIG); }

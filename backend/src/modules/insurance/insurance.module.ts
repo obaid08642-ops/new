@@ -16,6 +16,7 @@ import { Optional } from '@nestjs/common';
 import { RefundExecutor } from '../finance-engine/finance-engine.module';
 import { FinanceEngineModule } from '../finance-engine/finance-engine.module';
 import { JwtAuthGuard, Roles, CurrentUser, Public, SelfService, NoGuestsGuard } from '../../common/auth.guard';
+import { StepUp } from '../../common/step-up.guard';
 import { AiUserQuotaGuard } from '../ai/ai-user-quota.guard';
 import { UserRole } from '../../common/enums';
 import {
@@ -534,6 +535,8 @@ export class AdminInsuranceClaimsController {
 
   @Get() list(@Query('status') status?: string) { return this.svc.adminClaims(status); }
 
+  // Q89: money decision — requires fresh step-up authentication.
+  @StepUp()
   @Post(':id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() body: InsuranceDecideDto) {
     return this.svc.decideClaim(u, id, body?.approve === true, body?.note);
   }
@@ -625,6 +628,8 @@ export class InsuranceController {
     return this.svc.listAllCompaniesWithNetworks();
   }
 
+  // Q89: insurer registry writes — requires fresh step-up authentication.
+  @StepUp()
   @Roles(UserRole.ADMIN)
   @Post('companies')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
@@ -633,6 +638,7 @@ export class InsuranceController {
   }
 
   /** Admin edit (whitelist): rename, logo, enable/disable. */
+  @StepUp()
   @Roles(UserRole.ADMIN)
   @Patch('companies/:id')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
@@ -659,6 +665,7 @@ export class InsuranceController {
   }
 
   /** R12: admin deactivate (soft-delete) a company — hidden from patients, kept for history. */
+  @StepUp()
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @Delete('companies/:id')
   deleteCompany(@Param('id') id: string) {
@@ -666,6 +673,7 @@ export class InsuranceController {
   }
 
   /** R12: admin reactivate a disabled company. */
+  @StepUp()
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @Post('companies/:id/reactivate')
   reactivateCompany(@Param('id') id: string) {
@@ -673,6 +681,7 @@ export class InsuranceController {
   }
 
   /** Admin: delete a tier (network) from a company. */
+  @StepUp()
   @Roles(UserRole.ADMIN)
   @Delete('companies/:companyId/networks/:networkId')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
@@ -686,6 +695,7 @@ export class InsuranceController {
     return this.svc.listNetworks(companyId);
   }
 
+  @StepUp()
   @Roles(UserRole.ADMIN)
   @Post('companies/:companyId/networks')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
@@ -699,6 +709,7 @@ export class InsuranceController {
     return this.svc.listRules(networkId);
   }
 
+  @StepUp()
   @Roles(UserRole.ADMIN)
   @Post('networks/:networkId/rules')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)

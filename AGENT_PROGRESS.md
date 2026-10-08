@@ -1397,3 +1397,19 @@ Real outputs below (backend/):
   wiring. HEAD (1ae95e8b) keeps all of it.
 Not fixed (env-only, same SIGABRT as the documented blocker):
 R12 slug-history, revoke.r11.mongo, cod-evidence.mongo, nursing-pool.r11.mongo.
+
+## 2026-10-08 — Round 10 item: Q89+R23 backend step-up (admin step-up UI still open)
+Added @StepUp() to every remaining money/privilege route named in the item:
+returns decide x2 (user + admin controllers), admin/refunds decide,
+admin/insurance/claims decide, insurer writes (companies POST/PATCH/DELETE/
+reactivate, networks POST/DELETE, rules POST), system PUT
+theme/permissions/workflows. Impersonation needs nothing: only a disabled
+legacy route exists (it always throws Gone). StepUpGuard is global
+(APP_GUARD), verified live semantics in code (missing token -> 403
+step_up_required). New guard spec src/common/step-up.routes.q66.spec.ts
+(17 cases, source-grep technique like brand-name.r7): every listed route
+must carry @StepUp on every occurrence. Mutation proof: removing one
+decorator fails exactly that case (1 failed, 16 passed); restored after.
+Real outputs: tsc exit 0; q66 spec 17/17.
+Open remainder of the same item: admin step-up UI (admin app flow) so the
+live harness and admins can pass step-up (j_loyalty) — needs admin-app work.
