@@ -1,6 +1,6 @@
 {
  "backend": {
-  "adminRoutes": 319,
+  "adminRoutes": 316,
   "uncalled": 170,
   "noGuard": [],
   "public": []
@@ -557,7 +557,7 @@
   {
    "m": "POST",
    "p": "/bulk-upload",
-   "src": "backend/src/modules/compat/admin-spa.module.ts:1103",
+   "src": "backend/src/modules/compat/admin-spa.module.ts:1080",
    "guards": {
     "public": false,
     "roles": [
@@ -797,7 +797,7 @@
   {
    "m": "GET",
    "p": "/provider-onboarding/admin/contracts/:param",
-   "src": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:520",
+   "src": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513",
    "guards": {
     "public": false,
     "roles": [],
@@ -808,7 +808,7 @@
   {
    "m": "POST",
    "p": "/provider-onboarding/admin/contracts/:param/visibility",
-   "src": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:528",
+   "src": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:521",
    "guards": {
     "public": false,
     "roles": [
@@ -1153,58 +1153,6 @@
     "perms": [
      "catalog.shortage.decide"
     ],
-    "useGuards": "JwtAuthGuard"
-   }
-  },
-  {
-   "m": "GET",
-   "p": "/emergency/active",
-   "src": "backend/src/modules/emergency/emergency.controller.ts:58",
-   "guards": {
-    "public": false,
-    "roles": [
-     "ADMIN"
-    ],
-    "perms": [],
-    "useGuards": "JwtAuthGuard"
-   }
-  },
-  {
-   "m": "POST",
-   "p": "/emergency/:param/assign",
-   "src": "backend/src/modules/emergency/emergency.controller.ts:71",
-   "guards": {
-    "public": false,
-    "roles": [
-     "ADMIN"
-    ],
-    "perms": [],
-    "useGuards": "JwtAuthGuard"
-   }
-  },
-  {
-   "m": "POST",
-   "p": "/emergency/:param/resolve",
-   "src": "backend/src/modules/emergency/emergency.controller.ts:94",
-   "guards": {
-    "public": false,
-    "roles": [
-     "ADMIN"
-    ],
-    "perms": [],
-    "useGuards": "JwtAuthGuard"
-   }
-  },
-  {
-   "m": "POST",
-   "p": "/emergency/:param/escalate-997",
-   "src": "backend/src/modules/emergency/emergency.controller.ts:79",
-   "guards": {
-    "public": false,
-    "roles": [
-     "ADMIN"
-    ],
-    "perms": [],
     "useGuards": "JwtAuthGuard"
    }
   },

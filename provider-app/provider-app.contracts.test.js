@@ -17,7 +17,6 @@ describe('Provider App release contracts', () => {
   const facilityDashboard = readSplit('screens/facility/facility');
   const nursingDashboard = read('screens/nursing/NursingDashboard.tsx');
   const nursingFieldOps = read('screens/nursing/NursingFieldOps.tsx');
-  const ambulanceDashboard = read('screens/ambulance/AmbulanceDashboard.tsx');
   const sharedBlueprint = readSplit('screens/shared/blueprint');
   const sharedScreens = readSplit('screens/shared/shared');
   const app = fs.readFileSync(path.join(root, 'App.tsx'), 'utf8');
@@ -123,7 +122,8 @@ describe('Provider App release contracts', () => {
     expect(sharedBlueprint).toContain("client.patch('/provider/profile'");
     expect(sharedBlueprint).not.toContain('/provider/features/');
     expect(facilityDashboard).toContain("client.get('/facility/shifts')");
-    expect(app).toContain('AmbulanceDashboardNavigator');
+    // D-14: the ambulance provider type is removed (owner decision 14, O-2).
+    expect(app).not.toContain('AmbulanceDashboardNavigator');
   });
 
   it('uses server-backed availability rather than a locally online provider or pharmacy', () => {
@@ -145,7 +145,7 @@ describe('Provider App release contracts', () => {
     expect(dashboard).toContain('setError(true);');
   });
 
-  it('fails closed for ungoverned nursing field operations and unavailable ambulance missions', () => {
+  it('fails closed for ungoverned nursing field operations', () => {
     expect(nursingDashboard).not.toContain('/home-care/bookings/${order.id}/respond');
     expect(nursingDashboard).not.toContain('Cash only — no insurance');
     // Field ops run only through verified server commands (no local
@@ -154,8 +154,6 @@ describe('Provider App release contracts', () => {
     expect(nursingFieldOps).toContain('/nursing/visits/${visitId}');
     expect(nursingFieldOps).toContain("import('expo-location')");
     expect(nursingFieldOps).not.toContain("lat: 24.71, lng: 46.67");
-    expect(ambulanceDashboard).not.toContain('setMission({ id })');
-    expect(ambulanceDashboard).toContain('hospital_provider_account_id');
   });
 
   it('isolates native maps behind a web-safe component', () => {
@@ -180,7 +178,7 @@ describe('Provider App release contracts', () => {
 
   it('registration wizards sign in as the onboarding identity (a provider account exists only after submit + review)', () => {
     const all = ['doctor/DoctorRegistration.tsx', 'pharmacy/PharmacyRegistration.tsx', 'lab/LabRegistration.tsx', 'radiology/RadiologyRegistration.tsx',
-      'nursing/NursingRegistration.tsx', 'facility/FacilityRegistration.tsx', 'ambulance/AmbulanceRegistration.tsx'];
+      'nursing/NursingRegistration.tsx', 'facility/FacilityRegistration.tsx'];
     for (const file of all) {
       const src = read(`screens/${file}`);
       expect(src).toMatch(/ProviderApi\.onboardingLogin\(data\.(managerEmail|email), data\.password/);

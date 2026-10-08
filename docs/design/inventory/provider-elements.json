@@ -1,5 +1,5 @@
 {
- "commit": "53c84ea7",
+ "commit": "28c428b9",
  "screens": {
   "PendingDashboard": [
    {
@@ -8090,1180 +8090,6 @@
     "note": null
    }
   ],
-  "AmbulanceRegistration": [
-   {
-    "kind": "data",
-    "label": "Data regions",
-    "src": "GET /locations/regions, GET /locations/cities → regions",
-    "status": "ok",
-    "file": "provider-app/src/components/GeoPicker.tsx",
-    "line": 13,
-    "via": "GeoPicker",
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "Data districts",
-    "src": "GET /locations/districts → districts",
-    "status": "ok",
-    "file": "provider-app/src/components/GeoPicker.tsx",
-    "line": 15,
-    "via": "GeoPicker",
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "{title} {opts.map(o=> ( <TouchableOpaci}",
-    "src": "local state setOpen",
-    "status": "ok",
-    "file": "provider-app/src/components/GeoPicker.tsx",
-    "line": 38,
-    "via": "GeoPicker",
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "List opts",
-    "src": "from opts (prop / derived; not traced)",
-    "status": "ok",
-    "file": "provider-app/src/components/GeoPicker.tsx",
-    "line": 42,
-    "via": "GeoPicker",
-    "note": null,
-    "untraced": true
-   },
-   {
-    "kind": "button",
-    "label": "{o.name_ar}",
-    "src": "parent callback onSelect",
-    "status": "ok",
-    "file": "provider-app/src/components/GeoPicker.tsx",
-    "line": 43,
-    "via": "GeoPicker",
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "{t('المنطقة','Region')}",
-    "src": "local state setOpen",
-    "status": "ok",
-    "file": "provider-app/src/components/GeoPicker.tsx",
-    "line": 55,
-    "via": "GeoPicker",
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "{t('المدينة','City')}",
-    "src": "local state setOpen",
-    "status": "ok",
-    "file": "provider-app/src/components/GeoPicker.tsx",
-    "line": 56,
-    "via": "GeoPicker",
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "{t('الحي','District')}",
-    "src": "local state setOpen",
-    "status": "ok",
-    "file": "provider-app/src/components/GeoPicker.tsx",
-    "line": 57,
-    "via": "GeoPicker",
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "<MapView>",
-    "src": "local state setSelected",
-    "status": "ok",
-    "file": "provider-app/src/components/LocationPickerModal.tsx",
-    "line": 90,
-    "via": "LocationPickerModal",
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "My Location",
-    "src": "native action",
-    "status": "ok",
-    "file": "provider-app/src/components/LocationPickerModal.tsx",
-    "line": 100,
-    "via": "LocationPickerModal",
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Cancel",
-    "src": "parent callback onClose",
-    "status": "ok",
-    "file": "provider-app/src/components/LocationPickerModal.tsx",
-    "line": 116,
-    "via": "LocationPickerModal",
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Confirm Location",
-    "src": "parent callback onSelectLocation, onClose",
-    "status": "ok",
-    "file": "provider-app/src/components/LocationPickerModal.tsx",
-    "line": 119,
-    "via": "LocationPickerModal",
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "[close]",
-    "src": "parent callback onClose",
-    "status": "ok",
-    "file": "provider-app/src/components/OtpModal.tsx",
-    "line": 113,
-    "via": "OtpModal",
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "List otp",
-    "src": "otp: set from user input / local logic",
-    "status": "ok",
-    "file": "provider-app/src/components/OtpModal.tsx",
-    "line": 133,
-    "via": "OtpModal",
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "<TextInput>",
-    "src": "user input → parent callback digits.replace",
-    "status": "ok",
-    "file": "provider-app/src/components/OtpModal.tsx",
-    "line": 134,
-    "via": "OtpModal",
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Verifying...",
-    "src": "parent callback otp.join, onVerify",
-    "status": "ok",
-    "file": "provider-app/src/components/OtpModal.tsx",
-    "line": 172,
-    "via": "OtpModal",
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Resend Code",
-    "src": "parent callback onResend",
-    "status": "ok",
-    "file": "provider-app/src/components/OtpModal.tsx",
-    "line": 176,
-    "via": "OtpModal",
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "[close]",
-    "src": "parent callback onClose",
-    "status": "ok",
-    "file": "provider-app/src/components/SignatureCanvasModal.tsx",
-    "line": 47,
-    "via": "SignatureCanvasModal",
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "[refresh] Clear",
-    "src": "local logic",
-    "status": "ok",
-    "file": "provider-app/src/components/SignatureCanvasModal.tsx",
-    "line": 73,
-    "via": "SignatureCanvasModal",
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Save Signature",
-    "src": "local logic",
-    "status": "ok",
-    "file": "provider-app/src/components/SignatureCanvasModal.tsx",
-    "line": 81,
-    "via": "SignatureCanvasModal",
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Manager name",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 113,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Mobile number",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 114,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Email (optional)",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 115,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Password",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 116,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Confirm password",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 117,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "List LANGS",
-    "src": "from LANGS (prop / derived; not traced)",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 121,
-    "via": null,
-    "note": null,
-    "untraced": true
-   },
-   {
-    "kind": "button",
-    "label": "{l.ar}",
-    "src": "parent callback update",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 124,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "POST /provider-onboarding/start, POST /auth/login",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 131,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "{label} ✓",
-    "src": "parent callback update",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 152,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Service name (Arabic)",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 174,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Service name (English)",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 175,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Address",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 179,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Location set",
-    "src": "local state setShowMap",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 182,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "MOH license number",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 188,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Commercial registration",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 189,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 191,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Number of ambulances",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 214,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Paramedics count",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 215,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Coverage radius (km)",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 216,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Medical equipment (optional)",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 217,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Mobile ICU units",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 220,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "24/7 service",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 221,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Accepts cash",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 222,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Cash only (no insurance)",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 223,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "List insuranceCatalog",
-    "src": "from insuranceCatalog (prop / derived; not traced)",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 228,
-    "via": null,
-    "note": null,
-    "untraced": true
-   },
-   {
-    "kind": "button",
-    "label": "{co.ar}",
-    "src": "parent callback update, cur.filter",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 231,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Next",
-    "src": "parent callback onNext",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 242,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "Data errs",
-    "src": "POST /provider-onboarding/start, POST /auth/login, POST /storage/upload +3 → errs",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 250,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "IBAN",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 328,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Account holder name",
-    "src": "user input → data → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 329,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Re-sign",
-    "src": "local state setShowSig",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 339,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Submit registration",
-    "src": "POST /storage/upload, POST /provider-onboarding/step2, POST /provider-onboarding/step3 +1",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceRegistration.tsx",
-    "line": 340,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "<TouchableOpacity>",
-    "src": "POST /provider/auth/send-otp",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 106,
-    "via": "RegistrationSuccess",
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Enter 6-digit code",
-    "src": "user input → parent callback v.replace",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 120,
-    "via": "RegistrationSuccess",
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "<TouchableOpacity>",
-    "src": "POST /provider/auth/verify-email",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 132,
-    "via": "RegistrationSuccess",
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "<TouchableOpacity>",
-    "src": "GET /provider-onboarding/contract",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 154,
-    "via": "RegistrationSuccess",
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Return to Home",
-    "src": "parent callback onDone",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 168,
-    "via": "RegistrationSuccess",
-    "note": null
-   }
-  ],
-  "AmbulanceHomeScreen": [
-   {
-    "kind": "data",
-    "label": "Data claiming",
-    "src": "POST /emergency/:param/claim, GET /emergency/driver/missions → claiming",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 39,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "<NOnlineToggle>",
-    "src": "user input → POST /provider/ops/availability/toggle-instant",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 85,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "List mine",
-    "src": "GET /emergency/driver/missions → mine",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 93,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "[ambulance] Patient",
-    "src": "navigate → mission",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 94,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "List pool",
-    "src": "GET /emergency/driver/missions → pool",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 124,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "…",
-    "src": "POST /emergency/:param/claim, GET /emergency/driver/missions",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 141,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Ambulance Fleet",
-    "src": "navigate → fleet",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 148,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Insurance Requests",
-    "src": "navigate → insurance_requests",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 153,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Profile & Coverage",
-    "src": "navigate → profile",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 158,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Instant Availability",
-    "src": "navigate → availability",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 163,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Completed Missions History",
-    "src": "navigate → history",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 168,
-    "via": null,
-    "note": null
-   }
-  ],
-  "ActiveMissionLoader": [
-   {
-    "kind": "data",
-    "label": "Data eta",
-    "src": "GET /provider/ops/ambulance/:param/eta → eta",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 184,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Stop Live Tracking",
-    "src": "local state setTracking",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 251,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Hospital Handover",
-    "src": "navigate → handover",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 256,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Complete Mission + Report",
-    "src": "navigate → complete",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 262,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "Data mission",
-    "src": "GET /emergency/driver/missions → mission",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 422,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Back to mission list",
-    "src": "navigate (back / dynamic target)",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 440,
-    "via": null,
-    "note": null
-   }
-  ],
-  "HandoverScreen": [
-   {
-    "kind": "input",
-    "label": "Approved hospital account ID *",
-    "src": "user input → hospitalProviderAccountId → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 304,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Handover notes",
-    "src": "user input → notes → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 306,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Confirm Handover",
-    "src": "POST /provider/ops/ambulance/:param/handover",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 308,
-    "via": null,
-    "note": null
-   }
-  ],
-  "CompletionReportScreen": [
-   {
-    "kind": "data",
-    "label": "List OUTCOMES",
-    "src": "from OUTCOMES (prop / derived; not traced)",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 355,
-    "via": null,
-    "note": null,
-    "untraced": true
-   },
-   {
-    "kind": "button",
-    "label": "{o}",
-    "src": "local state setOutcome",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 356,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Condition & procedures summary *",
-    "src": "user input → summary → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 363,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "BP",
-    "src": "user input → bp → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 368,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "HR",
-    "src": "user input → hr → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 369,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "SpO2",
-    "src": "user input → spo2 → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 370,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Complete Mission & Submit",
-    "src": "POST /provider/ops/ambulance/:param/complete",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 373,
-    "via": null,
-    "note": null
-   }
-  ],
-  "AmbulanceHistoryScreen": [
-   {
-    "kind": "data",
-    "label": "List rows",
-    "src": "GET /emergency/driver/missions → rows",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 406,
-    "via": null,
-    "note": null
-   }
-  ],
-  "FleetScreen": [
-   {
-    "kind": "button",
-    "label": "Add Vehicle",
-    "src": "local state setShowForm",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
-    "line": 91,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Retry",
-    "src": "GET /provider/ambulance/fleet",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
-    "line": 104,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "List vehicles",
-    "src": "GET /provider/ambulance/fleet, PATCH /provider/ambulance/fleet/:param, DELETE /provider/ambulance/fleet/:param → vehicles",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
-    "line": 111,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Available for missions",
-    "src": "user input → PATCH /provider/ambulance/fleet/:param",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
-    "line": 134,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Remove",
-    "src": "DELETE /provider/ambulance/fleet/:param",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
-    "line": 136,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "Data f",
-    "src": "f: set from user input / local logic",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
-    "line": 150,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "Data errs",
-    "src": "POST /provider/ambulance/fleet → errs",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
-    "line": 151,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Plate number",
-    "src": "user input → f → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
-    "line": 188,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Model",
-    "src": "user input → f → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
-    "line": 189,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Year",
-    "src": "user input → f → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
-    "line": 190,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Paramedics",
-    "src": "user input → f → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
-    "line": 191,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Base city",
-    "src": "user input → f → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
-    "line": 192,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Equipment (comma separated)",
-    "src": "user input → f → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
-    "line": 193,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Mobile ICU unit",
-    "src": "user input → f → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
-    "line": 194,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Save",
-    "src": "POST /provider/ambulance/fleet",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
-    "line": 196,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Cancel",
-    "src": "parent callback onCancel",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
-    "line": 197,
-    "via": null,
-    "note": null
-   }
-  ],
-  "InsuranceRequestsScreen": [
-   {
-    "kind": "data",
-    "label": "Data target",
-    "src": "POST /insurance/requests/:param/decide → target",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
-    "line": 39,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "List items",
-    "src": "GET /insurance/requests/provider/queue, POST /insurance/requests/:param/decide → items",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
-    "line": 139,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Make Decision",
-    "src": "local state setTarget, setMode",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
-    "line": 177,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "{opt.ar}",
-    "src": "local state setMode",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
-    "line": 207,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "20",
-    "src": "user input → copayPct (local)",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
-    "line": 226,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "e.g. Service not covered by your policy",
-    "src": "user input → reason (local)",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
-    "line": 250,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Submitting…",
-    "src": "POST /insurance/requests/:param/decide",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
-    "line": 267,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Cancel",
-    "src": "local state setTarget",
-    "status": "ok",
-    "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
-    "line": 274,
-    "via": null,
-    "note": null
-   }
-  ],
-  "AmbulanceProfileScreen": [
-   {
-    "kind": "input",
-    "label": "Contact phone",
-    "src": "user input → phone → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 499,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Coverage cities (comma separated)",
-    "src": "user input → coverage → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 500,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Save profile",
-    "src": "PATCH /provider/profile",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 501,
-    "via": null,
-    "note": null
-   }
-  ],
-  "AmbulanceAvailabilityScreen": [
-   {
-    "kind": "button",
-    "label": "Instantly available for calls 🟢",
-    "src": "local state setPulse",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 551,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "input",
-    "label": "Response window (minutes)",
-    "src": "user input → minutes → request body",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 555,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Save availability",
-    "src": "PATCH /provider/profile/availability",
-    "status": "ok",
-    "file": "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx",
-    "line": 556,
-    "via": null,
-    "note": null
-   }
-  ],
   "DoctorHomeTab": [
    {
     "kind": "data",
@@ -12036,41 +10862,41 @@
     "kind": "data",
     "label": "Data claiming",
     "src": "POST /emergency/:param/claim, GET /emergency/active → claiming",
-    "status": "ok",
+    "status": "broken",
     "file": "provider-app/src/screens/shared/blueprint/SosDispatchScreen.tsx",
     "line": 29,
     "via": null,
-    "note": null
+    "note": "Data claiming is filled from POST /emergency/:param/claim (NO_ROUTE)."
    },
    {
     "kind": "button",
     "label": "Send SOS Alert",
     "src": "POST /emergency/trigger",
-    "status": "ok",
+    "status": "broken",
     "file": "provider-app/src/screens/shared/blueprint/SosDispatchScreen.tsx",
     "line": 83,
     "via": null,
-    "note": null
+    "note": "Button \"Send SOS Alert\" sends POST /emergency/trigger (NO_ROUTE)."
    },
    {
     "kind": "data",
     "label": "List activeSos",
     "src": "GET /emergency/active → activeSos",
-    "status": "ok",
+    "status": "broken",
     "file": "provider-app/src/screens/shared/blueprint/SosDispatchScreen.tsx",
     "line": 95,
     "via": null,
-    "note": null
+    "note": "List activeSos is filled from GET /emergency/active (NO_ROUTE)."
    },
    {
     "kind": "button",
     "label": "Claiming…",
     "src": "POST /emergency/:param/claim, GET /emergency/active",
-    "status": "ok",
+    "status": "broken",
     "file": "provider-app/src/screens/shared/blueprint/SosDispatchScreen.tsx",
     "line": 104,
     "via": null,
-    "note": null
+    "note": "Button \"Claiming…\" sends POST /emergency/:param/claim (NO_ROUTE)."
    }
   ],
   "GpsRouterScreen": [
@@ -12078,21 +10904,21 @@
     "kind": "button",
     "label": "Start Trip",
     "src": "POST /emergency/:param/track",
-    "status": "ok",
+    "status": "broken",
     "file": "provider-app/src/screens/shared/blueprint/GpsRouterScreen.tsx",
     "line": 120,
     "via": null,
-    "note": null
+    "note": "Button \"Start Trip\" sends POST /emergency/:param/track (NO_ROUTE)."
    },
    {
     "kind": "button",
     "label": "Confirm Arrival",
     "src": "POST /emergency/:param/track",
-    "status": "ok",
+    "status": "broken",
     "file": "provider-app/src/screens/shared/blueprint/GpsRouterScreen.tsx",
     "line": 122,
     "via": null,
-    "note": null
+    "note": "Button \"Confirm Arrival\" sends POST /emergency/:param/track (NO_ROUTE)."
    }
   ],
   "DoctorProfileEditScreen": [
@@ -12286,6 +11112,88 @@
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/InsuranceConfigScreen.tsx",
     "line": 169,
+    "via": null,
+    "note": null
+   }
+  ],
+  "InsuranceRequestsScreen": [
+   {
+    "kind": "data",
+    "label": "Data target",
+    "src": "POST /insurance/requests/:param/decide → target",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
+    "line": 39,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "data",
+    "label": "List items",
+    "src": "GET /insurance/requests/provider/queue, POST /insurance/requests/:param/decide → items",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
+    "line": 139,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "Make Decision",
+    "src": "local state setTarget, setMode",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
+    "line": 177,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "{opt.ar}",
+    "src": "local state setMode",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
+    "line": 207,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "20",
+    "src": "user input → copayPct (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
+    "line": 226,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "e.g. Service not covered by your policy",
+    "src": "user input → reason (local)",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
+    "line": 250,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "Submitting…",
+    "src": "POST /insurance/requests/:param/decide",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
+    "line": 267,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "Cancel",
+    "src": "local state setTarget",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",
+    "line": 274,
     "via": null,
     "note": null
    }
@@ -14642,6 +13550,168 @@
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
     "line": 113,
+    "via": null,
+    "note": null
+   }
+  ],
+  "FleetScreen": [
+   {
+    "kind": "button",
+    "label": "Add Vehicle",
+    "src": "local state setShowForm",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
+    "line": 91,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "Retry",
+    "src": "GET /provider/ambulance/fleet",
+    "status": "broken",
+    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
+    "line": 104,
+    "via": null,
+    "note": "Button \"Retry\" sends GET /provider/ambulance/fleet (NO_ROUTE)."
+   },
+   {
+    "kind": "data",
+    "label": "List vehicles",
+    "src": "GET /provider/ambulance/fleet, PATCH /provider/ambulance/fleet/:param, DELETE /provider/ambulance/fleet/:param → vehicles",
+    "status": "broken",
+    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
+    "line": 111,
+    "via": null,
+    "note": "List vehicles is filled from GET /provider/ambulance/fleet (NO_ROUTE)."
+   },
+   {
+    "kind": "input",
+    "label": "Available for missions",
+    "src": "user input → PATCH /provider/ambulance/fleet/:param",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
+    "line": 134,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "Remove",
+    "src": "DELETE /provider/ambulance/fleet/:param",
+    "status": "broken",
+    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
+    "line": 136,
+    "via": null,
+    "note": "Button \"Remove\" sends DELETE /provider/ambulance/fleet/:param (NO_ROUTE)."
+   },
+   {
+    "kind": "data",
+    "label": "Data f",
+    "src": "f: set from user input / local logic",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
+    "line": 150,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "data",
+    "label": "Data errs",
+    "src": "POST /provider/ambulance/fleet → errs",
+    "status": "broken",
+    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
+    "line": 151,
+    "via": null,
+    "note": "Data errs is filled from POST /provider/ambulance/fleet (NO_ROUTE)."
+   },
+   {
+    "kind": "input",
+    "label": "Plate number",
+    "src": "user input → f → request body",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
+    "line": 188,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "Model",
+    "src": "user input → f → request body",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
+    "line": 189,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "Year",
+    "src": "user input → f → request body",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
+    "line": 190,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "Paramedics",
+    "src": "user input → f → request body",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
+    "line": 191,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "Base city",
+    "src": "user input → f → request body",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
+    "line": 192,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "Equipment (comma separated)",
+    "src": "user input → f → request body",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
+    "line": 193,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "input",
+    "label": "Mobile ICU unit",
+    "src": "user input → f → request body",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
+    "line": 194,
+    "via": null,
+    "note": null
+   },
+   {
+    "kind": "button",
+    "label": "Save",
+    "src": "POST /provider/ambulance/fleet",
+    "status": "broken",
+    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
+    "line": 196,
+    "via": null,
+    "note": "Button \"Save\" sends POST /provider/ambulance/fleet (NO_ROUTE)."
+   },
+   {
+    "kind": "button",
+    "label": "Cancel",
+    "src": "parent callback onCancel",
+    "status": "ok",
+    "file": "provider-app/src/screens/shared/FleetScreen.tsx",
+    "line": 197,
     "via": null,
     "note": null
    }

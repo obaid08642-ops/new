@@ -48,7 +48,7 @@ SKIP = [
      'system-wide admin action: needs an isolated targeted test (would disrupt every later test)'),
 ]
 PROVIDER_DIRS = {'doctor': 'doctor', 'pharmacy': 'pharmacy', 'lab': 'lab', 'radiology': 'radiology', 'nursing': 'home_care',
-                 'facility': 'hospital', 'ambulance': 'ambulance'}
+                 'facility': 'hospital'}
 
 
 def mongo(js):
@@ -203,7 +203,7 @@ def actors():
     web, _ = j_admin.login()
     pat = Client(j_accounts.app_signup(label='formtrace')['token'], 'patient')
     provs = {}
-    for ptype in ('pharmacy', 'doctor', 'lab', 'radiology', 'home_care', 'hospital', 'ambulance'):
+    for ptype in ('pharmacy', 'doctor', 'lab', 'radiology', 'home_care', 'hospital'):
         p = J.register_pharmacy() if ptype == 'pharmacy' else J.register_type(ptype)
         J.admin_review(web, p)
         provs[ptype] = Actor(f'provider:{ptype}', Client(J.provider_after_approval(p), 'provider'))

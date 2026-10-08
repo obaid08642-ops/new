@@ -154,7 +154,7 @@ describe('D-14: the ambulance system is removed; "share my location" stays', () 
       await db.collection('emergency_requests').insertMany([{ id: 'e-1', patient_id: 'pat-1', state: 'RESOLVED' }, { id: 'e-2', patient_id: 'pat-2', state: 'CANCELLED' }]);
       await db.collection('ambulance_vehicles').insertOne({ id: 'v-1', plate: 'ABC 123', provider_account_id: 'amb-acc' });
       await db.collection('drivershifts').insertOne({ driver_id: 'drv-1', started_at: new Date() });
-      await db.collection('provider_accounts').insertMany([{ id: 'amb-acc', provider_type: 'ambulance', status: 'approved' }, { id: 'ph-acc', provider_type: 'pharmacy', status: 'approved' }]);
+      await db.collection('provider_accounts').insertMany([{ id: 'amb-acc', email: 'amb-acc@example.test', provider_type: 'ambulance', status: 'approved' }, { id: 'ph-acc', email: 'ph-acc@example.test', provider_type: 'pharmacy', status: 'approved' }]);
       await db.collection('provider_profiles').insertMany([{ id: 'amb-prof', account_id: 'amb-acc', type: 'ambulance', provider_type: 'ambulance' }, { id: 'ph-prof', account_id: 'ph-acc', type: 'pharmacy', provider_type: 'pharmacy' }]);
     });
 

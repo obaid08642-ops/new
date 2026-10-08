@@ -4,7 +4,7 @@
  */
 import { ValidationPipe } from '@nestjs/common';
 import { Step2Dto, Step3Dto } from '../modules/provider-onboarding/provider-onboarding.dto';
-import { CompleteDto, PutHoursDto, ScheduleSettingsDto } from '../modules/provider-ops/provider-ops.dto';
+import { PutHoursDto, ScheduleSettingsDto } from '../modules/provider-ops/provider-ops.dto';
 import { CreateCarePlanDto } from '../modules/home-care/home-care-compat.dto';
 import { CreateNoteDto } from '../modules/home-care/home-care.dto';
 import { CreateDto as PharmacyOrderCreateDto } from '../modules/pharmacy/pharmacy.controllers.dto';
@@ -49,8 +49,6 @@ describe('live journeys: provider operations payloads', () => {
     expect((await errors(PutHoursDto, { hours: [{ day: 'sunday', open: '8am', close: '22:00' }] })).length).toBeGreaterThan(0));
   it('nursing shifts toggles', async () =>
     expect(await errors(ScheduleSettingsDto, { shifts: { morning: true, evening: true, night: false }, maxVisits: 8, emergencyReady: false })).toEqual([]));
-  it('ambulance completion vitals', async () =>
-    expect(await errors(CompleteDto, { summary: 's', outcome: 'Stable', vitals: { bp: '120/80', hr: '88', spo2: '97' } })).toEqual([]));
   it('care plan tasks are lines of text', async () =>
     expect(await errors(CreateCarePlanDto, { title: 't', tasks: ['قياس الضغط', 'تغيير الضماد'] })).toEqual([]));
   it('nursing note vitals object', async () =>

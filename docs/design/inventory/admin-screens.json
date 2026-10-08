@@ -399,97 +399,43 @@
      "method": "GET",
      "path": "/api/admin/admin/ambulance/fleet",
      "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/emergency/ambulance-fleet.controller.ts:129",
+     "status": "NO_ROUTE",
      "backendPath": "/admin/ambulance/fleet",
+     "note": "no controller declares /admin/ambulance/fleet",
      "file": "admin/src/pages/admin/ambulance-fleet.tsx",
      "line": 40,
      "fn": "fetchWithAdminGuard",
      "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN",
-       "SUPER_ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/emergency/ambulance-fleet.controller.ts",
-     "routeLine": 129,
      "raw": false
     },
     {
      "method": "POST",
      "path": "/api/admin/admin/ambulance/fleet/:param/approve",
      "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/emergency/ambulance-fleet.controller.ts:135",
+     "status": "NO_ROUTE",
      "backendPath": "/admin/ambulance/fleet/:param/approve",
+     "note": "no controller declares /admin/ambulance/fleet/:param/approve",
      "file": "admin/src/pages/admin/ambulance-fleet.tsx",
      "line": 57,
      "fn": "fetchWithAdminGuard",
      "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN",
-       "SUPER_ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/emergency/ambulance-fleet.controller.ts",
-     "routeLine": 135,
      "raw": false
     },
     {
      "method": "POST",
      "path": "/api/admin/admin/ambulance/fleet/:param/reject",
      "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/emergency/ambulance-fleet.controller.ts:141",
+     "status": "NO_ROUTE",
      "backendPath": "/admin/ambulance/fleet/:param/reject",
+     "note": "no controller declares /admin/ambulance/fleet/:param/reject",
      "file": "admin/src/pages/admin/ambulance-fleet.tsx",
      "line": 72,
      "fn": "fetchWithAdminGuard",
      "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN",
-       "SUPER_ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/emergency/ambulance-fleet.controller.ts",
-     "routeLine": 141,
      "raw": false
     }
    ],
-   "guardFindings": [
-    {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /admin/ambulance/fleet/:param/approve is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
-     "severity": "medium",
-     "method": "POST",
-     "path": "/api/admin/admin/ambulance/fleet/:param/approve",
-     "file": "admin/src/pages/admin/ambulance-fleet.tsx",
-     "line": 57,
-     "backend": "backend/src/modules/emergency/ambulance-fleet.controller.ts:135"
-    },
-    {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /admin/ambulance/fleet/:param/reject is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
-     "severity": "medium",
-     "method": "POST",
-     "path": "/api/admin/admin/ambulance/fleet/:param/reject",
-     "file": "admin/src/pages/admin/ambulance-fleet.tsx",
-     "line": 72,
-     "backend": "backend/src/modules/emergency/ambulance-fleet.controller.ts:141"
-    }
-   ],
+   "guardFindings": [],
    "orphan": false
   },
   {
@@ -2476,7 +2422,7 @@
      "path": "/api/admin/bulk-upload",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/compat/admin-spa.module.ts:1103",
+     "backend": "backend/src/modules/compat/admin-spa.module.ts:1080",
      "backendPath": "/bulk-upload",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
      "line": 442,
@@ -2491,7 +2437,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/compat/admin-spa.module.ts",
-     "routeLine": 1103,
+     "routeLine": 1080,
      "raw": false
     },
     {
@@ -4995,7 +4941,7 @@
      "path": "/api/admin/provider-onboarding/admin/contracts/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:520",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513",
      "backendPath": "/provider-onboarding/admin/contracts/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
      "line": 157,
@@ -5008,7 +4954,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts",
-     "routeLine": 520,
+     "routeLine": 513,
      "raw": false
     },
     {
@@ -5016,7 +4962,7 @@
      "path": "/api/admin/provider-onboarding/admin/contracts/:param/visibility",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:528",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:521",
      "backendPath": "/provider-onboarding/admin/contracts/:param/visibility",
      "file": "admin/src/components/ProviderFullDetail.tsx",
      "line": 556,
@@ -5031,7 +4977,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts",
-     "routeLine": 528,
+     "routeLine": 521,
      "raw": false
     }
    ],
@@ -5064,7 +5010,7 @@
      "path": "/api/admin/provider-onboarding/admin/contracts/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
      "line": 157,
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:520"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513"
     }
    ],
    "orphan": true
@@ -6775,7 +6721,7 @@
      "path": "/api/admin/admin/nursing/requests",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/compat/admin-spa.module.ts:1311",
+     "backend": "backend/src/modules/compat/admin-spa.module.ts:1288",
      "backendPath": "/admin/nursing/requests",
      "file": "admin/src/pages/admin/nursing-portal.tsx",
      "line": 24,
@@ -6790,7 +6736,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/compat/admin-spa.module.ts",
-     "routeLine": 1311,
+     "routeLine": 1288,
      "raw": false
     },
     {
@@ -6798,7 +6744,7 @@
      "path": "/api/admin/admin/nursing/requests/:param/eligible-providers",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/compat/admin-spa.module.ts:1345",
+     "backend": "backend/src/modules/compat/admin-spa.module.ts:1322",
      "backendPath": "/admin/nursing/requests/:param/eligible-providers",
      "file": "admin/src/pages/admin/nursing-portal.tsx",
      "line": 38,
@@ -6813,7 +6759,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/compat/admin-spa.module.ts",
-     "routeLine": 1345,
+     "routeLine": 1322,
      "raw": false
     },
     {
@@ -6821,7 +6767,7 @@
      "path": "/api/admin/admin/nursing/requests/:param/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/compat/admin-spa.module.ts:1358",
+     "backend": "backend/src/modules/compat/admin-spa.module.ts:1335",
      "backendPath": "/admin/nursing/requests/:param/:param",
      "file": "admin/src/pages/admin/nursing-portal.tsx",
      "line": 54,
@@ -6836,7 +6782,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/compat/admin-spa.module.ts",
-     "routeLine": 1358,
+     "routeLine": 1335,
      "raw": false
     }
    ],
@@ -7586,7 +7532,7 @@
      "path": "/api/admin/provider-onboarding/admin/contracts/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:520",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513",
      "backendPath": "/provider-onboarding/admin/contracts/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
      "line": 157,
@@ -7599,7 +7545,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts",
-     "routeLine": 520,
+     "routeLine": 513,
      "raw": false
     },
     {
@@ -7607,7 +7553,7 @@
      "path": "/api/admin/provider-onboarding/admin/contracts/:param/visibility",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:528",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:521",
      "backendPath": "/provider-onboarding/admin/contracts/:param/visibility",
      "file": "admin/src/components/ProviderFullDetail.tsx",
      "line": 556,
@@ -7622,7 +7568,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts",
-     "routeLine": 528,
+     "routeLine": 521,
      "raw": false
     },
     {
@@ -7768,7 +7714,7 @@
      "path": "/api/admin/provider-onboarding/admin/contracts/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
      "line": 157,
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:520"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513"
     }
    ],
    "orphan": false
@@ -8873,107 +8819,56 @@
      "method": "GET",
      "path": "/emergency/active",
      "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/emergency/emergency.controller.ts:58",
+     "status": "NO_ROUTE",
      "backendPath": "/emergency/active",
+     "note": "no controller declares /emergency/active",
      "file": "admin/src/pages/admin/sos-monitor.tsx",
      "line": 45,
      "fn": "apiFetch",
      "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/emergency/emergency.controller.ts",
-     "routeLine": 58,
      "raw": false
     },
     {
      "method": "POST",
      "path": "/emergency/:param/assign",
      "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/emergency/emergency.controller.ts:71",
+     "status": "NO_ROUTE",
      "backendPath": "/emergency/:param/assign",
+     "note": "no controller declares /emergency/:param/assign",
      "file": "admin/src/pages/admin/sos-monitor.tsx",
      "line": 66,
      "fn": "apiFetch",
      "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/emergency/emergency.controller.ts",
-     "routeLine": 71,
      "raw": false
     },
     {
      "method": "POST",
      "path": "/emergency/:param/resolve",
      "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/emergency/emergency.controller.ts:94",
+     "status": "NO_ROUTE",
      "backendPath": "/emergency/:param/resolve",
+     "note": "no controller declares /emergency/:param/resolve",
      "file": "admin/src/pages/admin/sos-monitor.tsx",
      "line": 73,
      "fn": "apiFetch",
      "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/emergency/emergency.controller.ts",
-     "routeLine": 94,
      "raw": false
     },
     {
      "method": "POST",
      "path": "/emergency/:param/escalate-997",
      "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/emergency/emergency.controller.ts:79",
+     "status": "NO_ROUTE",
      "backendPath": "/emergency/:param/escalate-997",
+     "note": "no controller declares /emergency/:param/escalate-997",
      "file": "admin/src/pages/admin/sos-monitor.tsx",
      "line": 85,
      "fn": "apiFetch",
      "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/emergency/emergency.controller.ts",
-     "routeLine": 79,
      "raw": false
     }
    ],
-   "guardFindings": [
-    {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /emergency/:param/resolve is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
-     "severity": "medium",
-     "method": "POST",
-     "path": "/emergency/:param/resolve",
-     "file": "admin/src/pages/admin/sos-monitor.tsx",
-     "line": 73,
-     "backend": "backend/src/modules/emergency/emergency.controller.ts:94"
-    }
-   ],
+   "guardFindings": [],
    "orphan": false
   },
   {
@@ -9681,7 +9576,7 @@
      "path": "/api/admin/provider-onboarding/admin/contracts/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:520",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513",
      "backendPath": "/provider-onboarding/admin/contracts/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
      "line": 157,
@@ -9694,7 +9589,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts",
-     "routeLine": 520,
+     "routeLine": 513,
      "raw": false
     },
     {
@@ -9702,7 +9597,7 @@
      "path": "/api/admin/provider-onboarding/admin/contracts/:param/visibility",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:528",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:521",
      "backendPath": "/provider-onboarding/admin/contracts/:param/visibility",
      "file": "admin/src/components/ProviderFullDetail.tsx",
      "line": 556,
@@ -9717,7 +9612,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts",
-     "routeLine": 528,
+     "routeLine": 521,
      "raw": false
     },
     {
@@ -9843,7 +9738,7 @@
      "path": "/api/admin/provider-onboarding/admin/contracts/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
      "line": 157,
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:520"
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513"
     }
    ],
    "orphan": false
