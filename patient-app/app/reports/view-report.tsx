@@ -1,263 +1,104 @@
-// @ts-nocheck
-import { logError } from '../../src/utils/logger';
-// view-report.tsx — REAL medical report viewer (/reports/:id → medicalreports).
-// EPIC4/S21: the previous version expected a lab-results shape that medical
-// reports don't have (so it rendered empty), and its PDF/share buttons were
-// setTimeout + Alert simulations. Now: real fields, honest states, real Share.
-import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  StatusBar,
-  ActivityIndicator,
-  Share,
-} from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useApp } from "../../src/context/AppContext";
-import { Icon } from "../../src/components/Icon";
-import {
-  AppText,
-  Card,
-  Badge,
-  Button,
-  IconButton,
-} from "../../src/components/ui";
-import { apiFetch } from "../../src/utils/api";
+import React from 'react';
+import { Share, Text, View } from 'react-native';
+import { useLocalSearchParams, type Href } from 'expo-router';
+
+import { Card, EmptyState, FIcon } from '../../../packages/ui-native/src';
+import { CARE_TONE, Gate, InfoRow, Section, ShareGlyph, goBack, useConsultFormat } from '../../src/components/consult/ConsultKit';
+import { HealthScreen, Pill, bodyOf, useRemote } from '../../src/components/health/HealthKit';
+import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { apiFetch } from '../../src/utils/api';
 import { pickLocalized } from '../../src/utils/localize';
-import { dateLocale } from '@/utils/dates';
 
-function fmtDate(d: any): string {
-  if (!d) return "";
-  try {
-    return new Date(d).toLocaleDateString(dateLocale(), {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  } catch {
-    return "";
-  }
+/**
+ * A medical report (restyle only): GET /reports/:id with the real fields of the report, the title, the facility, the date, the
+ * doctor, the summary, the diagnosis, the body, the recommendations and the lab categories. A part the report does not have is
+ * not drawn. "Share" shares the text of the report. The old "analyse with AI" button is gone (no governed workflow exists).
+ */
+
+const TYPES = ['clinic_note', 'discharge_summary', 'surgery_report', 'consultation_note', 'second_opinion', 'medical_certificate', 'referral', 'other'];
+
+interface Report {
+  id?: string; title_ar?: string; title_en?: string; facility_name?: string; lab?: string; issued_at?: string; createdAt?: string; date?: string;
+  doctor_name?: string; doctor?: string; report_type?: string; critical?: boolean; summary?: string; diagnosis?: string; body?: string; recommendations?: string;
+  categories?: Array<{ name?: string; tests?: Array<{ name?: string; value?: string | number; unit?: string; status?: string }> }>;
 }
-
-const TYPE_LABELS: Record<string, string> = {
-  clinic_note: "ملاحظة طبية",
-  discharge_summary: "ملخص خروج",
-  surgery_report: "تقرير عملية",
-  consultation_note: "ملاحظة استشارة",
-  second_opinion: "رأي طبي ثانٍ",
-  medical_certificate: "شهادة طبية",
-  referral: "خطاب تحويل",
-  other: "تقرير طبي",
-};
 
 export default function ViewReportScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
-  const params = useLocalSearchParams();
-  const [report, setReport] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const { k, theme, t, c, flow } = useScreenUi();
+  const fmt = useConsultFormat();
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { status, data, reload } = useRemote(async () => {
+    if (!id) throw new Error('missing_id');
+    return bodyOf<Report>(await apiFetch(`/reports/${id}`));
+  }, [id], 'reports:view-report');
+  const report = data;
+  const title = report ? pickLocalized(report.title_ar, report.title_en) || k('health.records.report') : '';
+  const text = (label: string, value?: string) => (value ? (
+    <Section title={label}>
+      <Card theme={theme}>
+        <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }}>{value}</Text>
+      </Card>
+    </Section>
+  ) : null);
 
-  React.useEffect(() => {
-    async function load() {
-      if (!params?.id) {
-        setError(true);
-        setLoading(false);
-        return;
-      }
-      try {
-        const res = await apiFetch(`/reports/${params.id}`);
-        setReport(res?.data || res);
-      } catch (err) {
-        logError('reports:view-report', err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, [params?.id]);
-
-  const handleShare = async () => {
+  const share = () => {
     if (!report) return;
-    try {
-      const lines = [
-        pickLocalized(report.title_ar, report.title_en) || "تقرير طبي",
-        report.facility_name || report.doctor_name || "",
-        report.summary ? `\nالملخص: ${report.summary}` : "",
-        report.diagnosis ? `\nالتشخيص: ${report.diagnosis}` : "",
-        report.recommendations ? `\nالتوصيات: ${report.recommendations}` : "",
-        "\n— عبر تطبيق نبض",
-      ];
-      await Share.share({ message: lines.filter(Boolean).join("\n") });
-    } catch {}
+    const lines = [title, report.facility_name || report.doctor_name || '', report.summary ? `\n${k('health.report.summary')}: ${report.summary}` : '', report.diagnosis ? `\n${k('health.report.diagnosis')}: ${report.diagnosis}` : '', report.recommendations ? `\n${k('health.report.recommendations')}: ${report.recommendations}` : ''];
+    Share.share({ message: lines.filter(Boolean).join('\n') }).catch(() => undefined);
   };
 
-  if (loading) {
-    return (
-      <View style={[st.c, { backgroundColor: colors.background, alignItems: "center", justifyContent: "center" }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
-  }
-
-  if (error || !report) {
-    return (
-      <View style={[st.c, { backgroundColor: colors.background, alignItems: "center", justifyContent: "center", gap: 12, padding: 24 }]}>
-        <Icon name="warning" size={40} color={colors.warning} />
-        <AppText variant="h6">تعذر تحميل التقرير</AppText>
-        <Button label="رجوع" size="sm" full={false} onPress={() => router.back()} />
-      </View>
-    );
-  }
-
-  const hasLabTable = Array.isArray(report.categories) && report.categories.length > 0;
+  const hasLab = Array.isArray(report?.categories) && (report?.categories?.length ?? 0) > 0;
+  const empty = report && !report.summary && !report.diagnosis && !report.body && !hasLab;
 
   return (
-    <View style={[st.c, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle="light-content" />
-      <View
-        style={{
-          paddingTop: insets.top + 16,
-          paddingBottom: 8,
-          paddingHorizontal: 16,
-        }}
-      >
-        <View style={st.hdrRow}>
-          <IconButton
-            icon="share"
-            bg="rgba(255,255,255,0.18)"
-            color="#fff"
-            onPress={handleShare}
-          />
-          <AppText variant="h4" color="#fff">
-            التقرير
-          </AppText>
-          <IconButton
-            icon="back"
-            bg="rgba(255,255,255,0.18)"
-            color="#fff"
-            onPress={() => router.back()}
-          />
-        </View>
-
-        <View style={st.reportMeta}>
-          <AppText variant="h5" color="#fff">
-            {pickLocalized(report.title_ar, report.title_en) || "تقرير طبي"}
-          </AppText>
-          <View style={{ flexDirection: "row-reverse", gap: 12, marginTop: 8, flexWrap: "wrap" }}>
-            {!!(report.facility_name || report.lab) && (
-              <View style={{ flexDirection: "row-reverse", gap: 4, alignItems: "center" }}>
-                <Icon name="hospital" size={14} color="rgba(255,255,255,0.8)" />
-                <AppText variant="caption" color="rgba(255,255,255,0.8)">
-                  {report.facility_name || report.lab}
-                </AppText>
+    <HealthScreen
+      title={k('health.report.title')}
+      onBack={() => goBack('/health/records?tab=reports' as Href)}
+      actions={report ? [{ key: 'share', label: k('health.records.share'), icon: <ShareGlyph />, onPress: share }] : undefined}
+      testID="view-report-screen"
+    >
+      <Gate status={status} onRetry={() => void reload()} errorTitle={k('health.report.error')}>
+        {report ? (
+          <>
+            <Card theme={theme}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <FIcon icon="file-text" tone={CARE_TONE} size={48} theme={theme} />
+                <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+                  <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{title}</Text>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                    <Pill label={TYPES.includes(String(report.report_type)) ? k(`health.report.type.${report.report_type}`) : k('health.records.report')} tone="neutral" />
+                    {report.critical ? <Pill label={k('health.report.critical')} tone="danger" /> : null}
+                  </View>
+                </View>
               </View>
-            )}
-            {!!fmtDate(report.issued_at || report.createdAt || report.date) && (
-              <View style={{ flexDirection: "row-reverse", gap: 4, alignItems: "center" }}>
-                <Icon name="calendar" size={14} color="rgba(255,255,255,0.8)" />
-                <AppText variant="caption" color="rgba(255,255,255,0.8)">
-                  {fmtDate(report.issued_at || report.createdAt || report.date)}
-                </AppText>
+              <View>
+                <InfoRow label={k('health.report.facility')} value={report.facility_name || report.lab || ''} />
+                <InfoRow label={k('health.report.date')} value={fmt.date(report.issued_at || report.createdAt || report.date, true)} />
+                <InfoRow label={k('health.report.doctor')} value={report.doctor_name || report.doctor || ''} last />
               </View>
-            )}
-          </View>
-          {!!(report.doctor_name || report.doctor) && (
-            <View style={{ flexDirection: "row-reverse", gap: 4, alignItems: "center", marginTop: 4 }}>
-              <Icon name="doctor" size={14} color="rgba(255,255,255,0.8)" />
-              <AppText variant="caption" color="rgba(255,255,255,0.8)">
-                {report.doctor_name || report.doctor}
-              </AppText>
-            </View>
-          )}
-          <View style={{ flexDirection: "row-reverse", gap: 6, marginTop: 8 }}>
-            <Badge
-              label={TYPE_LABELS[report.report_type] || "تقرير طبي"}
-              color="rgba(255,255,255,0.9)"
-            />
-            {!!report.critical && (
-              <Badge label="مهم — يحتاج متابعة" color="#FFD3D6" />
-            )}
-          </View>
-        </View>
-      </View>
-
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 100 }}>
-        {!!report.summary && (
-          <Card>
-            <AppText variant="h6" style={{ marginBottom: 6 }}>الملخص</AppText>
-            <AppText variant="body" color={colors.textSecondary}>{report.summary}</AppText>
-          </Card>
-        )}
-
-        {!!report.diagnosis && (
-          <Card>
-            <AppText variant="h6" style={{ marginBottom: 6 }}>التشخيص</AppText>
-            <AppText variant="body" color={colors.textSecondary}>{report.diagnosis}</AppText>
-          </Card>
-        )}
-
-        {!!report.body && (
-          <Card>
-            <AppText variant="h6" style={{ marginBottom: 6 }}>تفاصيل التقرير</AppText>
-            <AppText variant="body" color={colors.textSecondary}>{report.body}</AppText>
-          </Card>
-        )}
-
-        {!!report.recommendations && (
-          <Card>
-            <AppText variant="h6" style={{ marginBottom: 6 }}>التوصيات</AppText>
-            <AppText variant="body" color={colors.textSecondary}>{report.recommendations}</AppText>
-          </Card>
-        )}
-
-        {hasLabTable && report.categories.map((cat: any, ci: number) => (
-          <Card key={ci}>
-            <AppText variant="h6" style={{ marginBottom: 8 }}>{cat.name}</AppText>
-            {(cat.tests || []).map((t: any, ti: number) => (
-              <View key={ti} style={{ flexDirection: "row-reverse", justifyContent: "space-between", paddingVertical: 6, borderTopWidth: ti ? 1 : 0, borderTopColor: colors.border }}>
-                <AppText variant="bodySM">{t.name}</AppText>
-                <AppText
-                  variant="bodySM"
-                  color={t.status === "normal" ? colors.success : colors.error}
-                >
-                  {t.value} {t.unit || ""}
-                </AppText>
-              </View>
-            ))}
-          </Card>
-        ))}
-
-        {!report.summary && !report.diagnosis && !report.body && !hasLabTable && (
-          <Card style={{ alignItems: "center", paddingVertical: 24, gap: 8 }}>
-            <Icon name="document" size={36} color={colors.textTertiary} />
-            <AppText variant="body" color={colors.textTertiary}>
-              لا توجد تفاصيل إضافية في هذا التقرير
-            </AppText>
-          </Card>
-        )}
-
-        <Button
-          label="تحليل التقرير بالذكاء الاصطناعي"
-          icon="robot"
-          onPress={() =>
-            router.push({ pathname: "/reports/ai-analysis", params: { id: report.id } })
-          }
-        />
-      </ScrollView>
-    </View>
+            </Card>
+            {text(k('health.report.summary'), report.summary)}
+            {text(k('health.report.diagnosis'), report.diagnosis)}
+            {text(k('health.report.body'), report.body)}
+            {text(k('health.report.recommendations'), report.recommendations)}
+            {hasLab ? report.categories?.map((cat, ci) => (
+              <Section key={ci} title={cat.name ?? ''}>
+                <Card theme={theme}>
+                  <View>
+                    {(cat.tests ?? []).map((test, ti, all) => (
+                      <View key={ti} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingVertical: 8, borderBottomWidth: ti === all.length - 1 ? 0 : 1, borderBottomColor: c.border.hairline }}>
+                        <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.primary, flex: 1, minWidth: 0, ...flow }}>{test.name}</Text>
+                        <Text style={{ ...scale(t, 'small', 'bold'), color: test.status === 'normal' ? c.status.success.fg : c.status.danger.fg }}>{`${test.value ?? ''} ${test.unit ?? ''}`.trim()}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </Card>
+              </Section>
+            )) : null}
+            {empty ? <EmptyState icon="file-text" tone={CARE_TONE} title={k('health.report.empty')} theme={theme} /> : null}
+          </>
+        ) : null}
+      </Gate>
+    </HealthScreen>
   );
 }
-
-const st = StyleSheet.create({
-  c: { flex: 1 },
-  hdrRow: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  reportMeta: { marginTop: 16, alignItems: "flex-end" },
-});

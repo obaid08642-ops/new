@@ -1,21 +1,22 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LoaderCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Timeline } from "@/components-next/ui-generated/components/Cards";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { StatusChip } from "@/components-next/ui-generated/components/Controls";
+import { LAB } from "@/components-next/diagnostics/diag-parts";
+import { diagStatus } from "@/components-next/diagnostics/status";
+import { minutesText } from "@/components-next/diagnostics/diag-parts";
+import { formatWhen } from "@/components-next/pharmacy-offers/format";
+import consult from "@/components-next/consult/consult.module.css";
+import rx from "@/components-next/pharmacy/rx.module.css";
+import styles from "@/components-next/diagnostics/diag.module.css";
 
 type Step = { title: string; time?: string; done?: boolean };
 type Tracking = { state?: string; eta?: number | null; techName?: string; scheduledAt?: string; steps: Step[] };
 
-const FALLBACK_STEPS = (techAssigned: boolean, ar: boolean): Step[] => [
-  { title: ar ? "تم استلام الطلب" : "Order received", done: true },
-  { title: ar ? "تعيين أخصائي السحب" : "Collector assigned", done: techAssigned },
-  { title: ar ? "الأخصائي في الطريق" : "Collector on the way" },
-  { title: ar ? "تم سحب العينة" : "Sample collected" },
-  { title: ar ? "العينة في المختبر" : "Sample at lab" },
-  { title: ar ? "النتيجة جاهزة" : "Result ready" },
-];
-
-function parseTracking(payload: unknown, ar: boolean): Tracking {
+function parseTracking(payload: unknown): Tracking {
   const root = (payload && typeof payload === "object" ? payload : {}) as Record<string, unknown>;
   const t = (root.tracking && typeof root.tracking === "object" ? root.tracking : root) as Record<string, unknown>;
   const b = (root.booking && typeof root.booking === "object" ? root.booking : null) as Record<string, unknown> | null;
@@ -33,12 +34,32 @@ function parseTracking(payload: unknown, ar: boolean): Tracking {
     eta: typeof t.eta === "number" ? t.eta : typeof t.eta_minutes === "number" ? t.eta_minutes : null,
     techName,
     scheduledAt: b && typeof b.scheduled_at === "string" ? b.scheduled_at : undefined,
-    steps: steps.length > 0 ? steps : FALLBACK_STEPS(!!techName, ar),
+    steps,
   };
 }
 
+/** The steps exactly as the server logged them; when it sent none, a plain "no tracking yet" line (no invented steps). */
+export function TrackingSteps({ steps }: { steps: Step[] }) {
+  const t = useTranslations("DiagWeb");
+  const current = steps.findIndex((step) => !step.done);
+  return (
+    <section className={rx.card} aria-labelledby="trk-steps">
+      <h2 id="trk-steps" className={consult.sectionTitle}>{t("trackingStepsTitle")}</h2>
+      {steps.length > 0 ? (
+        <Timeline
+          label={t("trackingStepsTitle")}
+          steps={steps.map((step, i) => ({ id: `${i}`, label: step.title, time: step.time, state: step.done ? "done" : i === current ? "current" : "upcoming" }))}
+        />
+      ) : (
+        <p className={styles.flowNote} role="status">{t("trackingNoSteps")}</p>
+      )}
+    </section>
+  );
+}
+
+/** The sample tracking of a booking (canvas/OrderTracking): the status, the arrival time and the collector, what to do before the sample, and the steps as the server logged them (polled every 15 s). The polling and the parsing are unchanged; this is its markup and texts. */
 export function DiagnosticsSampleTrackingClient({ bookingId, locale }: { bookingId: string; locale: string }) {
-  const ar = locale === "ar";
+  const t = useTranslations("DiagWeb");
   const [tracking, setTracking] = useState<Tracking | null>(null);
   const [error, setError] = useState(false);
   const stopped = useRef(false);
@@ -51,10 +72,10 @@ export function DiagnosticsSampleTrackingClient({ bookingId, locale }: { booking
       ]);
       const booking = bookingRes.ok ? await bookingRes.json().catch(() => null) : null;
       const trackingJson = trackingRes.ok ? await trackingRes.json().catch(() => null) : null;
-      setTracking(parseTracking({ booking, tracking: trackingJson }, ar));
+      setTracking(parseTracking({ booking, tracking: trackingJson }));
       setError(false);
     } catch { setError(true); }
-  }, [bookingId, ar]);
+  }, [bookingId]);
 
   useEffect(() => {
     stopped.current = false;
@@ -63,29 +84,34 @@ export function DiagnosticsSampleTrackingClient({ bookingId, locale }: { booking
     return () => { stopped.current = true; clearInterval(timer); };
   }, [load]);
 
-  if (!tracking && !error) return <p role="status"><LoaderCircle size={18} aria-hidden="true" /> {ar ? "جارٍ التحميل…" : "Loading…"}</p>;
-  if (error && !tracking) return <p role="alert">{ar ? "تعذر تحميل التتبع" : "Could not load tracking"}</p>;
+  if (!tracking && !error) return <p className={styles.flowNote} role="status">{t("loading")}</p>;
+  if (error && !tracking) return <p className={consult.error} role="alert">{t("trackingFailed")}</p>;
   if (!tracking) return null;
+
+  const status = diagStatus(tracking.state);
+  const when = tracking.scheduledAt ? formatWhen(locale, tracking.scheduledAt) : null;
+
   return (
-    <div>
-      <section aria-label={ar ? "الملخص" : "Summary"}>
-        <p role="status">{ar ? "الحالة:" : "Status:"} {tracking.state || (ar ? "قيد المتابعة" : "In progress")}</p>
-        {tracking.eta !== null && tracking.eta !== undefined ? <p>{ar ? `الوصول خلال ${tracking.eta} دقيقة` : `Arriving in ${tracking.eta} min`}</p> : null}
-        {tracking.techName ? <p>{ar ? `أخصائي السحب: ${tracking.techName}` : `Collector: ${tracking.techName}`}</p> : null}
-        {tracking.scheduledAt ? <p>{ar ? "الموعد المحدد:" : "Scheduled:"} {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(tracking.scheduledAt))}</p> : null}
+    <>
+      <section className={rx.card} aria-label={t("trackingSummary")}>
+        <div className={styles.eta}>
+          <FIcon icon={LAB.icon} tone={LAB.tone} size={52} />
+          <div className={styles.etaText} role="status">
+            <span className={styles.etaLabel}>{tracking.eta !== null && tracking.eta !== undefined ? t("trackingArriving") : t("trackingStatus")}</span>
+            <span className={styles.etaValue}>{tracking.eta !== null && tracking.eta !== undefined ? minutesText(locale, tracking.eta) : status.key === "unknown" ? t("trackingInProgress") : t(`status_${status.key}`)}</span>
+          </div>
+          {status.key !== "unknown" ? <StatusChip label={t(`status_${status.key}`)} tone={status.tone} /> : null}
+        </div>
+        {tracking.techName ? <p className={styles.flowNote}>{t("trackingCollector", { name: tracking.techName })}</p> : null}
+        {when ? <p className={styles.flowNote}>{t("trackingScheduled", { when })}</p> : null}
       </section>
-      <section aria-label={ar ? "تعليمات ما قبل سحب العينة" : "Before sample collection"}>
-        <h2>{ar ? "تعليمات ما قبل سحب العينة" : "Before sample collection"}</h2>
-        <p>{ar ? "الصيام 8–12 ساعة قبل السحب ما لم يخبرك الطبيب بغير ذلك." : "Fast 8–12 hours before collection unless your doctor says otherwise."}</p>
+
+      <section className={rx.card} aria-labelledby="trk-before">
+        <h2 id="trk-before" className={consult.sectionTitle}>{t("trackingBeforeTitle")}</h2>
+        <p className={styles.flowNote}>{t("trackingBeforeBody")}</p>
       </section>
-      <section aria-label={ar ? "مراحل تنفيذ الفحص" : "Test progress"}>
-        <h2>{ar ? "مراحل تنفيذ الفحص" : "Test progress"}</h2>
-        <ol>
-          {tracking.steps.map((step, i) => (
-            <li key={i}>{step.done ? "✓ " : ""}{step.title}{step.time ? ` — ${step.time}` : ""}</li>
-          ))}
-        </ol>
-      </section>
-    </div>
+
+      <TrackingSteps steps={tracking.steps} />
+    </>
   );
 }

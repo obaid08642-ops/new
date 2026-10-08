@@ -1,161 +1,73 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-  I18nManager,
-  Linking,
-} from 'react-native';
-import { AppText } from '../../src/components/ui';
-import { useApp } from '../../src/context/AppContext';
-import Icon from '@expo/vector-icons/MaterialCommunityIcons';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { apiFetch } from '../../src/utils/api';
-import { logError } from '../../src/utils/logger';
-import Animated, { FadeInDown } from 'react-native-reanimated';
-import { ScreenState } from '../../src/components/ScreenStates';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Linking, Text } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 
+import { CARE_TONE, ConsultScreen, Gate, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { Block, PersonRow, TrackHead, goBackDiag } from '../../src/components/diagnostics/DiagKit';
+import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { apiFetch } from '../../src/utils/api';
+import { isOffline } from '../../src/utils/isOffline';
+import { logError } from '../../src/utils/logger';
+import { recordOf } from '../../src/utils/labMappers';
+
+type Rec = Record<string, unknown>;
+const str = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' ? String(v) : '');
+
+/** Where the sample technician is: the arrival time, who it is with the call button, and what to prepare (board OrderTracking). Refreshes every 15 seconds. */
 export default function TechnicianTrackingScreen() {
-  const { colors } = useApp();
-  const router = useRouter();
+  const { t, c, k, num, flow } = useScreenUi();
   const { bookingId } = useLocalSearchParams<{ bookingId?: string }>();
-  const [loading, setLoading] = useState(true);
-  const [tracking, setTracking] = useState<any>(null);
-  const [booking, setBooking] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<GateStatus>('loading');
+  const [tracking, setTracking] = useState<Rec | null>(null);
+
+  const fetchTracking = useCallback(
+    async (isStopped: () => boolean) => {
+      try {
+        const [bookingRes, trackRes] = await Promise.all([apiFetch<unknown>(`/labs/bookings/${bookingId}`).catch(() => null), apiFetch<unknown>(`/labs/bookings/${bookingId}/tracking`).catch(() => null)]);
+        if (isStopped()) return;
+        const tr = recordOf(trackRes);
+        if (tr) setTracking(tr);
+        setStatus((s) => (tr || recordOf(bookingRes) ? 'ready' : s === 'ready' ? s : 'error'));
+      } catch (err) {
+        logError('diagnostics:technician-tracking', err);
+        if (!isStopped()) setStatus((await isOffline()) ? 'offline' : 'error');
+      }
+    },
+    [bookingId],
+  );
 
   useEffect(() => {
     if (!bookingId) {
-      setLoading(false);
+      setStatus('error');
       return;
     }
     let stopped = false;
-    const fetchTracking = async () => {
-      try {
-        const [bookingRes, trackRes] = await Promise.all([
-          apiFetch(`/labs/bookings/${bookingId}`).catch(() => null),
-          apiFetch(`/labs/bookings/${bookingId}/tracking`).catch(() => null),
-        ]);
-        if (stopped) return;
-        if (bookingRes?.data || bookingRes) setBooking(bookingRes?.data || bookingRes);
-        if (trackRes?.data || trackRes) setTracking(trackRes?.data || trackRes);
-      } catch (err) {
-        logError('diagnostics:technician-tracking', err);
-        setError('تعذر تحميل بيانات التتبع');
-      } finally {
-        if (!stopped) setLoading(false);
-      }
-    };
-
-    fetchTracking();
-    const interval = setInterval(fetchTracking, 15000);
+    const stop = () => stopped;
+    void fetchTracking(stop);
+    const interval = setInterval(() => void fetchTracking(stop), 15000);
     return () => {
       stopped = true;
       clearInterval(interval);
     };
-  }, [bookingId]);
+  }, [bookingId, fetchTracking]);
 
-  const callTechnician = () => {
-    if (tracking?.techPhone) {
-      Linking.openURL(`tel:${tracking.techPhone}`);
-    }
-  };
+  const eta = tracking?.eta !== undefined && tracking?.eta !== null && tracking?.eta !== '' ? Number(tracking.eta) : null;
+  const phone = str(tracking?.techPhone);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Header */}
-      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Icon
-            name={I18nManager.isRTL ? 'arrow-right' : 'arrow-left'}
-            size={24}
-            color={colors.textPrimary}
-          />
-        </TouchableOpacity>
-        <AppText variant="h2" style={{ fontSize: 18, fontWeight: 'bold', color: colors.textPrimary }}>
-          موقع أخصائي السحب
-        </AppText>
-        <View style={{ width: 40 }} />
-      </View>
-
-      <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
-      <ScrollView contentContainerStyle={styles.content}>
-        {loading ? (
-          <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 50 }} />
-        ) : (
-          <>
-            {/* ETA Card */}
-            <Animated.View entering={FadeInDown.duration(400)} style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <View style={styles.etaHeader}>
-                <View>
-                  <AppText style={{ color: colors.textSecondary, fontSize: 13 }}>الوقت المقدر للوصول</AppText>
-                  <AppText style={{ color: colors.primary, fontSize: 26, fontWeight: 'bold' }}>
-                    {tracking?.eta ? `${tracking.eta} دقيقة` : 'قريب منك'}
-                  </AppText>
-                </View>
-                <View style={[styles.iconBox, { backgroundColor: `${colors.primary}15` }]}>
-                  <Icon name="moped" size={32} color={colors.primary} />
-                </View>
-              </View>
-
-              {tracking?.techName && (
-                <View style={styles.techRow}>
-                  <View style={styles.techInfo}>
-                    <Icon name="account-circle" size={40} color={colors.primary} />
-                    <View>
-                      <AppText style={{ fontWeight: 'bold', fontSize: 15, color: colors.textPrimary }}>
-                        {tracking.techName}
-                      </AppText>
-                      <AppText style={{ color: colors.textSecondary, fontSize: 12 }}>أخصائي سحب معتمد</AppText>
-                    </View>
-                  </View>
-                  {tracking?.techPhone && (
-                    <TouchableOpacity style={[styles.callBtn, { backgroundColor: colors.primary }]} onPress={callTechnician}>
-                      <Icon name="phone" size={18} color="#fff" />
-                    </TouchableOpacity>
-                  )}
-                </View>
-              )}
-            </Animated.View>
-
-            {/* Preparation Guidance */}
-            <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, gap: 8 }]}>
-              <AppText style={{ fontWeight: 'bold', fontSize: 15, color: colors.textPrimary }}>
-                نصائح استقبال الأخصائي
-              </AppText>
-              <AppText style={{ color: colors.textSecondary, fontSize: 13, lineHeight: 20 }}>
-                • يرجى تجهيز مكان مريح وجيد الإضاءة لعملية سحب العينة.
-                {"\n"}• تأكد من إبراز الهوية الوطنية أو الإقامة عند وصول الأخصائي.
-                {"\n"}• سيتم إرسال العينات مباشرة في حاويات مبردة ومخصصة للمختبر المعتمد.
-              </AppText>
-            </View>
-          </>
-        )}
-      </ScrollView>
-      </ScreenState>
-    </View>
+    <ConsultScreen testID="diagnostics-technician-tracking" title={k('diag.tech.title')} onBack={goBackDiag}>
+      <Gate status={status} onRetry={() => void fetchTracking(() => false)}>
+        <Block gap={16}>
+          <TrackHead label={k('diag.tech.eta')} value={eta !== null && Number.isFinite(eta) ? k('diag.track.minutes', { n: num(eta) }) : k('diag.tech.noEta')} />
+          {str(tracking?.techName) ? (
+            <PersonRow icon="user-circle" tone={CARE_TONE} title={str(tracking?.techName)} line={k('diag.tech.role')} actionIcon={phone ? 'headset' : undefined} actionLabel={k('diag.order.call')} onAction={() => void Linking.openURL(`tel:${phone}`)} />
+          ) : null}
+        </Block>
+        <Block gap={8}>
+          <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{k('diag.tech.tipsTitle')}</Text>
+          <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }}>{k('diag.tech.tips')}</Text>
+        </Block>
+      </Gate>
+    </ConsultScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 54,
-    paddingBottom: 14,
-    borderBottomWidth: 1,
-  },
-  backBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
-  content: { padding: 16, gap: 16 },
-  card: { padding: 18, borderRadius: 16, borderWidth: 1 },
-  etaHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  iconBox: { width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center' },
-  techRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 14, borderTopWidth: 1, borderTopColor: '#F1F5F9' },
-  techInfo: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  callBtn: { width: 42, height: 42, borderRadius: 21, justifyContent: 'center', alignItems: 'center' },
-});

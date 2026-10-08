@@ -1,6 +1,8 @@
-import { Redirect } from 'expo-router';
+import React from 'react';
 
-/** This legacy route now uses the canonical medication timeline with local alerts and duplicate-safe dose actions. */
+import { RedirectKeepingParams } from '../../src/components/health/RedirectKeepingParams';
+
+/** This legacy route is the "All reminders" tab of the medications screen. */
 export default function RemindersRedirect() {
-  return <Redirect href="/health/medication-reminder-list" />;
+  return <RedirectKeepingParams to="/health/medications" params={{ tab: 'reminders' }} />;
 }

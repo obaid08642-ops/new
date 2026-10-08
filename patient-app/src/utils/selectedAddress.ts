@@ -15,7 +15,7 @@ export interface SelectedAddress {
   is_default?: boolean;
 }
 
-/** Persist the address the user picked (delivery/address-select or shared/location-picker). */
+/** Persist the address the user picked (the address book in pick mode or shared/location-picker). */
 export async function setSelectedAddress(addr: SelectedAddress | null): Promise<void> {
   try {
     if (addr) {

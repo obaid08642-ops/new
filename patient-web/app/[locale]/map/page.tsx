@@ -3,6 +3,8 @@ import { localizedUrl } from "@/lib/seo";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import rx from "@/components-next/pharmacy/rx.module.css";
 import { MapExplorerClient } from "@/components-next/map-explorer-client";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -27,6 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+/** `/map`: the facilities explorer (public page; the list is GET /providers/map). */
 export default async function MapExplorerPage({ params }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
@@ -35,12 +38,11 @@ export default async function MapExplorerPage({ params }: Props) {
   const t = await getTranslations("MapExplorer");
 
   return (
-    <main style={{ minHeight: "calc(100dvh - 80px)", position: "relative", background: "#FDFDFC" }}>
+    <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}`} width="wide">
+      <p className={rx.lead}>{t("subtitle")}</p>
       <MapExplorerClient
         locale={locale}
         labels={{
-          title: t("title"),
-          subtitle: t("subtitle"),
           searchPh: t("searchPh"),
           filterAll: t("filterAll"),
           filterDoctors: t("filterDoctors"),
@@ -50,11 +52,9 @@ export default async function MapExplorerPage({ params }: Props) {
           filterNursing: t("filterNursing"),
           directions: t("directions"),
           book: t("book"),
-          rating: t("rating"),
-          distance: t("distance"),
           noProviders: t("noProviders"),
         }}
       />
-    </main>
+    </ConsultPage>
   );
 }

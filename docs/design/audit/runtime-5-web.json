@@ -1,0 +1,2114 @@
+[
+ {
+  "route": "/emergency",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/emergency",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 296
+ },
+ {
+  "route": "/emergency",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/emergency",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 296
+ },
+ {
+  "route": "/emergency",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/emergency",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency:9"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 296
+ },
+ {
+  "route": "/emergency/sos",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/emergency/sos",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/emergency/tracking net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/emergency/tracking net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 212
+ },
+ {
+  "route": "/emergency/sos",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/emergency/sos",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/emergency/tracking net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar/emergency/tracking net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 212
+ },
+ {
+  "route": "/emergency/sos",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/emergency/sos",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos:9"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/emergency/tracking net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar/emergency/tracking net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 212
+ },
+ {
+  "route": "/emergency/sos-active",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/emergency/sos-active",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "GET",
+    "path": "/api/patient/emergency/my/active",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 353
+ },
+ {
+  "route": "/emergency/sos-active",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/emergency/sos-active",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "GET",
+    "path": "/api/patient/emergency/my/active",
+    "status": 200,
+    "shape": "array(0)"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 353
+ },
+ {
+  "route": "/emergency/sos-active",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/emergency/sos-active",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "GET",
+    "path": "/api/patient/emergency/my/active",
+    "status": 500,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/sos-active:9"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 120
+ },
+ {
+  "route": "/emergency/tracking",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/emergency/tracking",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "GET",
+    "path": "/api/patient/emergency/tracking",
+    "status": 200,
+    "shape": "object{active}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/emergency/sos net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/emergency/sos net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 137
+ },
+ {
+  "route": "/emergency/tracking",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/emergency/tracking",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/patient/emergency/tracking",
+    "status": 200,
+    "shape": "array(0)"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 201
+ },
+ {
+  "route": "/emergency/tracking",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/emergency/tracking",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "GET",
+    "path": "/api/patient/emergency/tracking",
+    "status": 500,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9",
+   "CSP: style-src-attr http://localhost:3210/ar/emergency/tracking:9"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/emergency net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 123
+ },
+ {
+  "route": "/health",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health/profile net::ERR_ABORTED",
+   "GET /ar/health/vitals net::ERR_ABORTED",
+   "GET /ar/health/vitals net::ERR_ABORTED",
+   "GET /ar/health/medications net::ERR_ABORTED",
+   "GET /ar/reports/passport net::ERR_ABORTED",
+   "GET /ar/health/vitals net::ERR_ABORTED",
+   "GET /ar/health/profile net::ERR_ABORTED",
+   "GET /ar/health/vitals net::ERR_ABORTED",
+   "GET /ar/health/medications net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 507
+ },
+ {
+  "route": "/health",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health/medications net::ERR_ABORTED",
+   "GET /ar/reports/passport net::ERR_ABORTED",
+   "GET /ar/health/profile net::ERR_ABORTED",
+   "GET /ar/health/vitals net::ERR_ABORTED",
+   "GET /ar/health/vitals net::ERR_ABORTED",
+   "GET /ar/health/medications net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED",
+   "GET /ar/health/vitals net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 507
+ },
+ {
+  "route": "/health",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health/medications net::ERR_ABORTED",
+   "GET /ar/health/profile net::ERR_ABORTED",
+   "GET /ar/reports/passport net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED",
+   "GET /ar/health/medications net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED",
+   "GET /ar/health/vitals net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 507
+ },
+ {
+  "route": "/health/actionable-order",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/records",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 116
+ },
+ {
+  "route": "/health/actionable-order",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/records",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 116
+ },
+ {
+  "route": "/health/actionable-order",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/records",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 100
+ },
+ {
+  "route": "/health/health-id",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/reports/passport",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/health/profile net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 343
+ },
+ {
+  "route": "/health/health-id",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/reports/passport",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/health/profile net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 73
+ },
+ {
+  "route": "/health/health-id",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/reports/passport",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 83
+ },
+ {
+  "route": "/health/medications",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/medications",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/health/medications net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 101
+ },
+ {
+  "route": "/health/medications",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/medications",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/health/medications net::ERR_ABORTED",
+   "GET /ar/health/medications net::ERR_ABORTED",
+   "GET /ar/health/medications net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 101
+ },
+ {
+  "route": "/health/medications",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/medications",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/health/medications net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 101
+ },
+ {
+  "route": "/health/profile",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/profile",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [],
+  "overlay": 0,
+  "textLen": 759
+ },
+ {
+  "route": "/health/profile",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/profile",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [],
+  "overlay": 0,
+  "textLen": 759
+ },
+ {
+  "route": "/health/profile",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/profile",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 74
+ },
+ {
+  "route": "/health/records",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/records",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 70
+ },
+ {
+  "route": "/health/records",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/records",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 70
+ },
+ {
+  "route": "/health/records",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/records",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED",
+   "GET /ar/health/records net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 100
+ },
+ {
+  "route": "/health/sleep",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/sleep",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [],
+  "overlay": 0,
+  "textLen": 36
+ },
+ {
+  "route": "/health/sleep",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/sleep",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 36
+ },
+ {
+  "route": "/health/sleep",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/sleep",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 36
+ },
+ {
+  "route": "/health/smart-reminders",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/medications",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/health/medications net::ERR_ABORTED",
+   "GET /ar/health/medications net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 100
+ },
+ {
+  "route": "/health/smart-reminders",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/medications",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/health/medications net::ERR_ABORTED",
+   "GET /ar/health/medications net::ERR_ABORTED",
+   "GET /ar/health/medications net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 100
+ },
+ {
+  "route": "/health/smart-reminders",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/medications",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/health/medications net::ERR_ABORTED",
+   "GET /ar/health/medications net::ERR_ABORTED",
+   "GET /ar/health/medications net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 100
+ },
+ {
+  "route": "/health/vitals",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/vitals",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/health/vitals net::ERR_ABORTED",
+   "GET /ar/health/vitals net::ERR_ABORTED",
+   "GET /ar/health/vitals net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 273
+ },
+ {
+  "route": "/health/vitals",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/vitals",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/health/vitals net::ERR_ABORTED",
+   "GET /ar/health/vitals net::ERR_ABORTED",
+   "GET /ar/health/vitals net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 273
+ },
+ {
+  "route": "/health/vitals",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/vitals",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health net::ERR_ABORTED",
+   "GET /ar/health net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 273
+ },
+ {
+  "route": "/health/wearables",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/wearables",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/health/wearables",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/wearables",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/health/wearables",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/health/wearables",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 166
+ },
+ {
+  "route": "/reports/ai-analysis",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/ai/report",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 213
+ },
+ {
+  "route": "/reports/ai-analysis",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/ai/report",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 213
+ },
+ {
+  "route": "/reports/ai-analysis",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/ai/report",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9",
+   "CSP: style-src-attr http://localhost:3210/ar/ai/report:9"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/terms net::ERR_ABORTED",
+   "GET /ar/privacy net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "POST /api/auth/heartbeat net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED",
+   "GET /ar net::ERR_ABORTED",
+   "GET /ar/profile net::ERR_ABORTED",
+   "GET /ar/support net::ERR_ABORTED",
+   "GET /ar/articles net::ERR_ABORTED",
+   "GET /ar/map net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 213
+ },
+ {
+  "route": "/reports/passport",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/reports/passport",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health/profile net::ERR_ABORTED",
+   "GET /ar/health/profile net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 343
+ },
+ {
+  "route": "/reports/passport",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/reports/passport",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [],
+  "overlay": 0,
+  "textLen": 73
+ },
+ {
+  "route": "/reports/passport",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/reports/passport",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/health/profile net::ERR_ABORTED",
+   "GET /ar/health/profile net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 83
+ }
+]

@@ -16,8 +16,13 @@
  *                     ["Total", "order.pricing.total (server)", "ok"],
  *                     ["Points row", "no endpoint", "hidden"] ],
  *       "notes": ["one line, only for a problem"] } ],
- *   "needsReview": [ { "route": "/x", "element": "Y", "kind": "backend|client|owner", "note": "one line" } ]
+ *   "needsReview": [ { "route": "/x", "element": "Y", "kind": "backend|client|owner", "note": "one line",
+ *                      "file": "patient-app/app/x.tsx", "line": 42, "backend": "backend/src/x.controller.ts:10 (optional)" } ]
  * }
+ * Needs-review lines (owner, 2026-10-06; every batch from 2 on): "file" and "line" are REQUIRED = the exact file:line of the
+ * element in the client (the JSX/handler/call that draws or does the thing), so the reviewer goes straight to it; the tool
+ * checks that the file exists and the line is inside it. "backend" is optional (the controller/service line, when known).
+ * The [client]/[backend]/[owner] tag (kind) stays on every line.
  * element = [element, source (API field / user input / static key), status]; status: ok | fixed | hidden | gap | todo.
  *   ok = drawn from the source; fixed = an old defect fixed here; hidden = not drawn because no data/action exists;
  *   gap = drawn but the backend is wrong (also add a needsReview line); todo = unfinished (fails --check).
@@ -59,9 +64,21 @@ for (const s of a.screens ?? []) {
     if (!text.includes(tail)) warnings.push(`${s.route}: backend call ${c.method} ${c.path} is in the inventory but no element names it`);
   }
 }
+const WHERE_REQUIRED = Number(a.batch) >= 2;
+const lineCount = new Map();
+const linesOf = (f) => {
+  if (!lineCount.has(f)) lineCount.set(f, existsSync(join(REPO, f)) ? readFileSync(join(REPO, f), 'utf8').split('\n').length : -1);
+  return lineCount.get(f);
+};
 for (const n of a.needsReview ?? []) {
   if (!KIND.has(n.kind)) problems.push(`needsReview "${n.element}": kind must be backend|client|owner`);
   if (!routeOf.has(n.route)) problems.push(`needsReview: unknown route ${n.route}`);
+  if (WHERE_REQUIRED || n.file || n.line) {
+    if (typeof n.file !== 'string' || !n.file) problems.push(`needsReview "${n.element}" (${n.route}): "file" is required (exact file of the element)`);
+    else if (linesOf(n.file) < 0) problems.push(`needsReview "${n.element}": file ${n.file} does not exist`);
+    if (!Number.isInteger(n.line) || n.line < 1) problems.push(`needsReview "${n.element}" (${n.route}): "line" is required (exact line of the element, a positive integer)`);
+    else if (typeof n.file === 'string' && linesOf(n.file) > 0 && n.line > linesOf(n.file)) problems.push(`needsReview "${n.element}": line ${n.line} is past the end of ${n.file} (${linesOf(n.file)} lines)`);
+  }
 }
 
 const esc = (t) => String(t).replace(/\\/g, '\\\\').replace(/\|/g, '\\|').replace(/\n/g, ' ');
@@ -76,8 +93,8 @@ for (const s of a.screens ?? []) {
   L.push('');
 }
 if ((a.needsReview ?? []).length) {
-  L.push('## Needs review', '', '| Route | Element | Kind | Note |', '|---|---|---|---|');
-  for (const n of a.needsReview) L.push(`| \`${n.route}\` | ${esc(n.element)} | ${n.kind} | ${esc(n.note)} |`);
+  L.push('## Needs review', '', '| Route | Element | Kind | Where | Note |', '|---|---|---|---|---|');
+  for (const n of a.needsReview) L.push(`| \`${n.route}\` | ${esc(n.element)} | ${n.kind} | ${n.file ? `\`${n.file}:${n.line}\`` : ''}${n.backend ? ` (backend \`${esc(n.backend)}\`)` : ''} | ${esc(n.note)} |`);
   L.push('');
 }
 L.push(`_${(a.screens ?? []).length} screen(s): ${count.ok} ok, ${count.fixed} fixed, ${count.hidden} hidden, ${count.gap} gap; ${(a.needsReview ?? []).length} Needs-review line(s)._`, '');
@@ -85,7 +102,7 @@ const md = L.join('\n');
 
 const needs = (a.needsReview ?? []).map((n) => ({
   batch: a.batch, app: a.app, screen: n.route, element: n.element,
-  file: n.file ?? '', line: n.line ?? 0, found: `[${n.kind}] ${n.note}`, suspect: n.kind === 'backend' ? 'Backend gap: reviewer session.' : n.kind === 'owner' ? 'Owner decision.' : 'Client-side: later batch.',
+  file: n.file ?? '', line: n.line ?? 0, found: `[${n.kind}] ${n.note}${n.backend ? ` (backend: ${n.backend})` : ''}`, suspect: n.kind === 'backend' ? 'Backend gap: reviewer session.' : n.kind === 'owner' ? 'Owner decision.' : 'Client-side: later batch.',
 }));
 const needsJson = JSON.stringify(needs, null, 2) + '\n';
 
