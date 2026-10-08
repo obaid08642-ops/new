@@ -1,0 +1,142 @@
+[
+  {
+    "batch": 7,
+    "app": "patient-app",
+    "screen": "/insurance",
+    "element": "Refunds tab",
+    "file": "patient-app/src/components/insurance/InsuranceKit.tsx",
+    "line": 32,
+    "found": "[owner] Map 2 says Refunds is web only; the old app hub had it and claims link to it, so it is kept. Remove or keep?",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 7,
+    "app": "patient-app",
+    "screen": "/insurance/copay",
+    "element": "Co-pay screen not merged",
+    "file": "patient-app/app/insurance/copay.tsx",
+    "line": 37,
+    "found": "[client] Picks the newest COPAY_PENDING from /requests/my and posts the intent with no method; the request page reads one id and asks capabilities. Different payment paths, so kept separate (map 2 rule).",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 7,
+    "app": "patient-app",
+    "screen": "/insurance/payment-split",
+    "element": "Cash payment button removed",
+    "file": "patient-app/src/components/insurance/InsuranceRequestView.tsx",
+    "line": 184,
+    "found": "[owner] Old approval-pending offered pay cash to /payments/processing with no params; removed per decision 25.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 7,
+    "app": "patient-app",
+    "screen": "/insurance/payment-split",
+    "element": "Poll while waiting",
+    "file": "patient-app/src/components/insurance/InsuranceRequestView.tsx",
+    "line": 94,
+    "found": "[client] 6 s re-read while the provider has not decided kept as before; no stop after a time limit.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 7,
+    "app": "patient-app",
+    "screen": "/insurance",
+    "element": "Claims totals and benefits totals",
+    "file": "patient-app/src/components/insurance/InsuranceHubTabs.tsx",
+    "line": 97,
+    "found": "[backend] Old UI summed claims and used a fixed 500000 annual limit; not shown. Backend could return totals and the policy limit.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 7,
+    "app": "patient-app",
+    "screen": "/insurance",
+    "element": "Insurer save sends class A",
+    "file": "patient-app/src/components/insurance/InsuranceHubView.tsx",
+    "line": 222,
+    "found": "[client] The old profile form always sent class: 'A'; kept unchanged, the real class is unknown to the patient.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 7,
+    "app": "patient-app",
+    "screen": "/insurance/coverage-check",
+    "element": "Company share not shown",
+    "file": "patient-app/app/insurance/coverage-check.tsx",
+    "line": 85,
+    "found": "[backend] Old UI showed 100 - copay_percent as the insurer share (computed); only the server copay percent and cap are shown.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 7,
+    "app": "patient-app",
+    "screen": "/insurance/benefits-summary",
+    "element": "Benefits list",
+    "file": "patient-app/src/components/insurance/InsuranceHubTabs.tsx",
+    "line": 40,
+    "found": "[backend] No policy renewal date or total limit comes from the API, so none is shown.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 7,
+    "app": "patient-app",
+    "screen": "/profile/insurance",
+    "element": "Profile and nurse screens still link the old route",
+    "file": "patient-app/app/profile/index.tsx",
+    "line": 23,
+    "found": "[client] Redirect works; these files hold old Arabic literals so were left for the batch that owns them.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 7,
+    "app": "patient-app",
+    "screen": "/insurance/submit-claim",
+    "element": "Receipt upload",
+    "file": "patient-app/app/insurance/submit-claim.tsx",
+    "line": 71,
+    "found": "[client] Uploaded image is stored by URL only; no size or type check on the device.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 7,
+    "app": "patient-app",
+    "screen": "/insurance/coverage-check",
+    "element": "Endpoint answers from stored data but is named like a live check",
+    "file": "patient-app/app/insurance/coverage-check.tsx",
+    "line": 56,
+    "found": "[backend] Decision 35 item 6 / queue D-37: GET /insurance/coverage-check (and nphies* services) read the saved policy only; screen text now says so; rename or remove the endpoint names. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:699)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 7,
+    "app": "patient-app",
+    "screen": "/insurance/payment-split",
+    "element": "Approval number is stored under two field names",
+    "file": "patient-app/src/utils/insurance-copay-contract.ts",
+    "line": 22,
+    "found": "[backend] Insurance engine writes insurer_approval_code, the provider-app controller writes approval_code; the app reads both. One name would be safer; states APPROVED_PARTIAL / APPEAL_PENDING of the schema are not mapped on the client. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:40)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 7,
+    "app": "patient-app",
+    "screen": "/insurance",
+    "element": "Claims tab and Submit a claim: keep under decision 35?",
+    "file": "patient-app/src/components/insurance/InsuranceHubTabs.tsx",
+    "line": 92,
+    "found": "[owner] Decision 35 defines only the provider relay; the claims and refunds tabs and the claim form (Nabd+ side reimbursement) are not covered by it. Keep, change or remove?",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 7,
+    "app": "patient-app",
+    "screen": "/insurance",
+    "element": "Other batches still say Nabd+ checks or retrieves insurance automatically",
+    "file": "patient-app/src/i18n/locales/en.json",
+    "line": 2337,
+    "found": "[client] Batch 14 text, not changed here: nur.book.insFetched, nur.book.inReviewBody, nur.book.insNote, diag.upload.readFailed, pharmacy.ins.processingTitle, consult.confirm.insuranceReady (same keys on web: DiagWeb.insuranceSub, PharmacyCheckout.insuranceBody and others).",
+    "suspect": "Client-side: later batch."
+  }
+]

@@ -19,17 +19,19 @@ _Updated 2026-10-06._
 | Needs-review `file:line` rule (owner) [#502](https://github.com/obaid08642-ops/new/pull/502) | Tool enforces it from Batch 2; Batch 2 backfilled in #502, 3/4/5/6 on their own branches |
 | **Batch 8 maternity, nutrition, mental health, programs**, `design/batch-8` (from main) | 9 app + 9 web screens (merge maps 1 §5, 2 §8); decision 8: no self-assessment/crisis screens, urgent-help button hidden until the config number exists; app 30 routes / 0 failures, web 90 runs / 0 issues; PR open |
 | **Batch 9 AI assistant**, `design/batch-9` (from main) | one `/ai` (modes symptoms/prescription/report) + monthly report on both clients; skin analysis and `/voice` removed; app 11 routes / 0 failures, web 33 runs / 0 issues; PR open |
-| Gates (baselines only go down) | `no-literal-ui-string` 2097, `no-raw-color` 3251, `no-left-right` 180, `client-token-sync` 887, `locale-parity` 482 |
+| **Batch 10 articles + community removal**, `design/batch-10` (from main) | articles list (All/Saved) + detail on both clients; community removed (decision 1); app 5 routes / 0 failures, web 9 runs / 0 issues; PR open |
+| **Batch 11 loyalty hub + offers**, `design/batch-11` (from main) | hub with tabs Rewards/Challenges/Invite + offers list/detail on both clients; leaderboard removed (decision 2); app 7 routes / 0 failures, web 18 runs / 0 issues; PR open |
+| **Batch 12 settings, account, support, returns**, `design/batch-12` (from main) | app 21 routes + web 20 routes (7 settings screens, address book with pick mode, support, returns, reviews, map); app 22 routes / 0 failures, web 81 runs (2 env cert errors on addresses); PR open |
+| Gates (baselines only go down) | see `tools/design/*.baseline.json` (regenerated after merging Batches 7, 10, 11 and 12) |
 
-Screens per batch (app / web, redirects excluded; Batches 5/6/8/9/12 are reshaped by the merge maps): 0: 15/14 done; 1: 23/34 done; 2: 22/24 done; 3: 17/22; 4: 7/9; 5 health+records: done (see above); 6 family: done (5/5); 7 insurance 10/13 -> 5/5; 8 maternity, nutrition, mental health, chronic care; 9 AI 7/10 -> 2/2; 10 articles (community removed); 11 loyalty 7/7 -> 1/1; 12 account, settings 20/20 -> 7/7; 13 web-only static pages.
+Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = web-only static pages; 14 = second-pass merges of Batches 1-4 + Emergency.
 
 ## Next
 
 1. **Batch 7 insurance** (hub + request page, map 2 §6), then 8, 9, 10-13 in order, each in the batch that owns the screens.
+2. **After the patient batches (7-13, Batch 14 merges, Emergency) - owner plan 2026-10-08:** (a) patient journey audit: `docs/journeys/patient.md`, walked on the running app and web, report `docs/design/needs-review/journeys.json` (scenario, step, problem, file:line), no logic fixes; (b) provider app (~130 screens): inventory + merge map sent to the owner BEFORE building (flag: pharmacy has 3 screens; ambulance role goes, D14); wait for the owner's provider boards for the key screens; (c) admin: full on desktop; mobile = daily essentials (today's numbers, approvals queue, problem orders, feature switches, urgent alerts, and the medicine catalogue: search by name/ingredient/camera barcode, quick edit of key fields, add item from the items-to-review queue, confirmation before price/requires_prescription/controlled changes, change log); flag the public directory pages inside admin.
 2. **Owner decisions 24-27** (`OWNER_DECISIONS_2026-10-06.md`): UI parts in the owning batch (map 2 §9): doctor thread only inside a booking (`/chat` list removed), no cash option for online services, cash on delivery only when the server allows it, cancel/refund text from the server. Pharmacy badges and "استشر طبيب" wait for the reviewer's backend part.
-3. Keep `EXPO_PUBLIC_CONSULT_NEARBY_FILTERS` off until the owner says Q-12/Q-13 are live.
-4. After #308 merges: move the pharmacy namespaces out of `CLIENT_NAMESPACES` into a route-group provider. After #318/#350 merge: client-fixes PR for Batch 4 Needs-review items.
-5. **Batch 5 leftovers:** emergency routes (decision 14, ambulance removal O-2) not rebuilt: the old pages still carry inline `style=` (CSP console errors in the runtime check), to be replaced by the one Emergency screen after O-2; `/ai/report` (Batch 9) has the same; four app screens (profile, map, AI monthly report, prescription translator) still push old health routes (redirects cover them).
+3. Keep `EXPO_PUBLIC_CONSULT_NEARBY_FILTERS` off until Q-12/Q-13 are live.
 
 ## Process (owner, 2026-10-06; quality rules unchanged, recording changed)
 - **Lean v2 (Batch 2 on): under 40k tokens per screen.** Design only (wrong logic = one Needs-review line); templates first; no backend reading per screen; one translation pass per slice; read only screen, board, template; slices of 15-25 screens. Rules in `/AGENTS.md`.
@@ -37,7 +39,6 @@ Screens per batch (app / web, redirects excluded; Batches 5/6/8/9/12 are reshape
 - **One production build and one runtime check per slice, at the end**; dev server while building. Lighthouse only in F82 PRs and once per batch.
 - **Audit is generated** by `audit-table.mjs` from `audit/<slice>.json`; Needs-review lines carry file:line.
 - **At most 2 agents at a time**, each given only its screen list and the board (not the full docs). Sonnet 5 medium for normal screens; high only for payment, offers, booking, insurance, calls.
-- Binding rules, unchanged: identity fixed (no new colour/logo/pattern; "Identity check" line in every PR); tokens-only colours (zero raw in touched files); translation rule (no UI text in code, six languages, no fallback, layout survives RTL/LTR); real data only; backend gaps reported not fixed; test seeders on the local test DB only.
 
 ## Slice log (tokens are the agents' reported totals, approximate; one agent per app/web)
 

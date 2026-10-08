@@ -1,97 +1,73 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ShieldCheck, LockKeyhole, Fingerprint } from "lucide-react";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { getPatientSecuritySettings } from "@/lib/api/settings-server";
-import { parseSecuritySettings } from "@/lib/api/settings";
-import styles from "./security.module.css";
+import { getPatientSecuritySettings, getPatientSessions } from "@/lib/api/settings-server";
+import { parseOwnSessions, parseSecuritySettings } from "@/lib/api/settings";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { Notice } from "@/components-next/consult/consult-parts";
+import { FlushCard, Group } from "@/components-next/settings/settings-kit";
+import { SessionList } from "@/components-next/settings/session-list";
+import { StatusChip } from "@/components-next/ui-generated/components/Controls";
+import { OFFER_TONES } from "@/components-next/pharmacy-offers/tones";
+import styles from "@/components-next/settings/settings.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
 
+/**
+ * `/settings/security` (merge map section 3): the security settings the server reports (biometric sign-in, two-factor;
+ * read-only here) and the active sessions, each with a sign-out. A failed sessions read is said in place; the screen needs
+ * the settings themselves.
+ */
 export default async function SettingsSecurityPage({ params }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  const ar = locale === "ar";
-  const t = await getTranslations("Settings");
+  const t = await getTranslations("SettingsWeb");
+  const rs = await getTranslations("RouteState");
   const token = await requirePatientAccess(locale);
-  // Backend binding: real upstream via getPatientSecuritySettings → callPatientApi, no mock
-  const response = await getPatientSecuritySettings(token);
-  if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
-  if (!response.ok) {
+  const [securityResponse, sessionsResponse] = await Promise.all([getPatientSecuritySettings(token), getPatientSessions(token)]);
+  if (securityResponse.status === 401 || sessionsResponse.status === 401) redirect(`/${locale}/login`);
+  if (securityResponse.status === 403 || securityResponse.status === 404) notFound();
+  const back = `/${locale}/settings`;
+  if (!securityResponse.ok) {
     return (
-      <main className={`main ${styles.page}`}>
-        <section className={styles.state} role="alert">
-          <ShieldCheck size={20} aria-hidden="true" style={{ color: "#1E332E" }} />
-          <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
-            {t("unavailableTitle")}
-          </h1>
-          <p style={{ overflowWrap: "anywhere" } as any}>{t("unavailable")}</p>
-        </section>
-      </main>
+      <ConsultPage locale={locale} title={t("securityTitle")} backHref={back}>
+        <ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />
+      </ConsultPage>
     );
   }
-  const security = parseSecuritySettings(await response.json().catch(() => null));
-  const badge = (v?: boolean) => {
-    if (v === undefined) return { label: t("notAvailable"), cls: styles.badgeOff };
-    return v ? { label: t("enabled"), cls: styles.badgeOn } : { label: t("disabled"), cls: styles.badgeOff };
-  };
-  const bio = badge(security.biometric);
-  const two = badge(security.twoFactor);
+  const security = parseSecuritySettings(await securityResponse.json().catch(() => null));
+  const sessions = sessionsResponse.ok ? parseOwnSessions(await sessionsResponse.json().catch(() => null)) : null;
+  const chip = (value?: boolean) => value === undefined
+    ? <StatusChip label={t("notAvailable")} tone="ink" />
+    : <StatusChip label={value ? t("enabled") : t("disabled")} tone={value ? OFFER_TONES.good : "ink"} />;
 
   return (
-    <main className={`main ${styles.page}`}>
-      <Link href={`/${locale}/settings`} style={{ color: "#1E332E", fontWeight: 760, textDecoration: "none", overflowWrap: "anywhere" as any }}>
-        {ar ? "الإعدادات" : "Settings"}
-      </Link>
-      <section className={styles.hero}>
-        <p className={styles.eyebrow}>
-          <ShieldCheck size={15} aria-hidden="true" />
-          {ar ? "الأمان" : "Security"}
-        </p>
-        <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
-          {t("securityTitle")}
-        </h1>
-        <p style={{ overflowWrap: "anywhere" } as any}>{t("notice")}</p>
-        <span className={styles.icon} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any} aria-hidden="true">
-          <ShieldCheck size={22} color="#1E332E" />
-        </span>
-      </section>
-
-      <section className={styles.grid}>
-        <article className={styles.card}>
-          <span className={styles.icon} aria-hidden="true">
-            <Fingerprint size={20} />
+    <ConsultPage locale={locale} title={t("securityTitle")} backHref={back}>
+      <FlushCard label={t("securityTitle")}>
+        <div className={styles.itemRow}>
+          <span className={styles.itemText}>
+            <span className={styles.itemTitle}>{t("biometric")}</span>
+            <span className={styles.itemSub}>{t("biometricSub")}</span>
           </span>
-          <div style={{ minInlineSize: 0 }}>
-            <h2>{t("biometric")}</h2>
-            <p style={{ overflowWrap: "anywhere" } as any}>{ar ? "تسجيل الدخول بالبصمة أو الوجه حسب جهازك" : "Biometric sign-in on supported devices"}</p>
-          </div>
-          <strong className={`${styles.badge} ${bio.cls}`} style={{ marginInlineStart: "auto", alignSelf: "center" }}>
-            {bio.label}
-          </strong>
-        </article>
-
-        <article className={styles.card}>
-          <span className={styles.icon} aria-hidden="true">
-            <LockKeyhole size={20} />
+          {chip(security.biometric)}
+        </div>
+        <div className={styles.itemRow}>
+          <span className={styles.itemText}>
+            <span className={styles.itemTitle}>{t("twoFactor")}</span>
+            <span className={styles.itemSub}>{t("twoFactorSub")}</span>
           </span>
-          <div style={{ minInlineSize: 0 }}>
-            <h2>{t("twoFactor")}</h2>
-            <p style={{ overflowWrap: "anywhere" } as any}>{ar ? "طبقة تحقق إضافية لحماية حسابك" : "Extra verification layer for your account"}</p>
-          </div>
-          <strong className={`${styles.badge} ${two.cls}`} style={{ marginInlineStart: "auto", alignSelf: "center" }}>
-            {two.label}
-          </strong>
-        </article>
-      </section>
-
-      <p className={styles.boundary} style={{ overflowWrap: "anywhere" } as any}>
-        {t("readOnlyBoundary")}
-      </p>
-    </main>
+          {chip(security.twoFactor)}
+        </div>
+      </FlushCard>
+      <Notice>{t("securityNote")}</Notice>
+      <Group id="sessions" title={t("sessionsTitle")}>
+        {sessions === null ? <Notice warn>{t("sessionsUnavailable")}</Notice>
+          : sessions.length === 0 ? <p className={styles.hint} role="status">{t("sessionsEmpty")}</p>
+          : <SessionList sessions={sessions} />}
+      </Group>
+    </ConsultPage>
   );
 }

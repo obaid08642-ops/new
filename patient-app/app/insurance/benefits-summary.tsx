@@ -1,12 +1,8 @@
-import { Redirect, useLocalSearchParams } from "expo-router";
+import React from 'react';
 
-/** @deprecated unified screen (Phase 2) — deep-link-safe redirect with params passthrough. */
-export default function UnifiedRedirect() {
-  const params = useLocalSearchParams();
-  const q = Object.entries(params as Record<string, unknown>)
-    .filter(([k]) => k !== "view")
-    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
-    .join("&");
-  const sep = "/insurance/coverage-check?view=benefits".includes("?") ? "&" : "?";
-  return <Redirect href={`/insurance/coverage-check?view=benefits${q ? `${sep}${q}` : ""}`} />;
+import { RedirectKeepingParams } from '../../src/components/health/RedirectKeepingParams';
+
+/** Old route (merge map 2, section 6): the benefits summary is the Benefits tab of the hub. */
+export default function BenefitsSummaryRedirect() {
+  return <RedirectKeepingParams to="/insurance" params={{ tab: 'benefits' }} />;
 }
