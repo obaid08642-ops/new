@@ -29,6 +29,13 @@ describe('notification routes the backend writes, translated to screens that exi
     expect(translateBackendRoute('/health/family-hub')).toEqual({ pathname: '/family' });
   });
 
+  it('the old loyalty routes open their tab of the loyalty hub; the removed leaderboard opens the hub (Batch 11)', () => {
+    expect(translateBackendRoute('/loyalty/hub')).toEqual({ pathname: '/loyalty/hub' });
+    expect(translateBackendRoute('/loyalty/referrals')).toEqual({ pathname: '/loyalty/hub', params: { tab: 'invite' } });
+    expect(translateBackendRoute('/loyalty/challenges')).toEqual({ pathname: '/loyalty/hub', params: { tab: 'challenges' } });
+    expect(translateBackendRoute('/loyalty/leaderboard')).toEqual({ pathname: '/loyalty/hub' });
+  });
+
   it('routes the app has no screen for stay untranslated (the wallet is not a product: no wallet screen)', () => {
     expect(translateBackendRoute('/wallet/hub')).toBeNull();
     expect(translateBackendRoute('/offers-of-the-week/o1')).toBeNull();

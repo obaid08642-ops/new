@@ -1,5 +1,5 @@
 {
-  "_comment": "TEST VALUES for `render-native-screen.mjs --api fixture`: invented, clearly marked as tests, never real patient data. They exist only to draw the data-bound blocks of Home (name, reminder, appointment, records, curated offers) and the pharmacy hub and product screens (a catalogue of marked test products) in a design render. Shipped code never reads this file. Batch 1c adds TEST pharmacy offers and orders (the shape of the backend patient endpoints; names, prices and ids are invented). Batch 1d adds TEST orders for payment, insurance decision and checkout, TEST payment capabilities and TEST payment results (the shape of the backend answers of payments.module.ts and pharmacy-order.service.ts; amounts and ids are invented). Batch 5 adds TEST health data (vitals, score, reminders, sleep, medical profile, contacts, records, wearables) in the shape the health screens read; names, values and ids are invented.",
+  "_comment": "TEST VALUES for `render-native-screen.mjs --api fixture`: invented, clearly marked as tests, never real patient data. They exist only to draw the data-bound blocks of Home (name, reminder, appointment, records, curated offers) and the pharmacy hub and product screens (a catalogue of marked test products) in a design render. Shipped code never reads this file. Batch 1c adds TEST pharmacy offers and orders (the shape of the backend patient endpoints; names, prices and ids are invented). Batch 1d adds TEST orders for payment, insurance decision and checkout, TEST payment capabilities and TEST payment results (the shape of the backend answers of payments.module.ts and pharmacy-order.service.ts; amounts and ids are invented). Batch 5 adds TEST health data (vitals, score, reminders, sleep, medical profile, contacts, records, wearables) in the shape the health screens read; names, values and ids are invented. Batch 11 adds TEST loyalty (tiers, ways to earn, rewards, challenges, points history, referral code and invites) and TEST offers in the shape the loyalty hub and the offers screens read; names, points and prices are invented.",
   "/users/me/display": {
     "display_name": "مستخدم تجريبي"
   },
@@ -2023,7 +2023,26 @@
       "count": 3
     }
   ],
-  "/home/offers": [],
+  "/home/offers": [
+    {
+      "id": "test-offer1",
+      "t": "عرض تجريبي ١",
+      "prov": "مقدم تجريبي",
+      "disc": "20%",
+      "price": 80,
+      "old": 100,
+      "rating": 4.5
+    },
+    {
+      "id": "test-offer2",
+      "t": "عرض تجريبي ٢",
+      "prov": "مقدم تجريبي",
+      "disc": "10%",
+      "price": 90,
+      "old": 100,
+      "sponsored": true
+    }
+  ],
   "/insurance/companies": [],
   "/care/appointments/test-appt": {
     "id": "test-appt",
@@ -3486,6 +3505,148 @@
           "status": "pending"
         }
       ]
+    }
+  ],
+  "/loyalty/config": {
+    "tiers": [
+      {
+        "id": "bronze",
+        "label": "مستوى تجريبي ١",
+        "minPts": 0,
+        "perks": [
+          "ميزة تجريبية ١"
+        ]
+      },
+      {
+        "id": "silver",
+        "label": "مستوى تجريبي ٢",
+        "minPts": 1000,
+        "perks": [
+          "ميزة تجريبية ٢",
+          "ميزة تجريبية ٣"
+        ]
+      },
+      {
+        "id": "gold",
+        "label": "مستوى تجريبي ٣",
+        "minPts": 3000,
+        "perks": [
+          "ميزة تجريبية ٤"
+        ]
+      }
+    ],
+    "earn_ways": [
+      {
+        "action": "طريقة تجريبية ١",
+        "pts": 50
+      },
+      {
+        "action": "طريقة تجريبية ٢",
+        "pts": 20
+      }
+    ]
+  },
+  "/loyalty/transactions?page=1": {
+    "transactions": [
+      {
+        "id": "test-tx1",
+        "points_delta": 50,
+        "reason": "booking_completed",
+        "createdAt": "2026-10-01T10:00:00.000Z"
+      },
+      {
+        "id": "test-tx2",
+        "points_delta": -300,
+        "reason": "reward_claimed",
+        "createdAt": "2026-10-03T10:00:00.000Z"
+      }
+    ]
+  },
+  "/loyalty/rewards": [
+    {
+      "id": "test-rw1",
+      "title": "مكافأة تجريبية ١",
+      "description": "وصف تجريبي",
+      "points_required": 300,
+      "reward_type": "coupon"
+    },
+    {
+      "id": "test-rw2",
+      "title": "مكافأة تجريبية ٢",
+      "description": "وصف تجريبي",
+      "points_required": 5000,
+      "reward_type": "service"
+    }
+  ],
+  "/loyalty/challenges": [
+    {
+      "id": "test-ch1",
+      "title": "تحدٍّ تجريبي ١",
+      "desc": "وصف تجريبي",
+      "reward_points": 50,
+      "target_count": 7,
+      "user_progress": 3,
+      "joined": true,
+      "end_date": "2026-12-31T00:00:00.000Z"
+    },
+    {
+      "id": "test-ch2",
+      "title": "تحدٍّ تجريبي ٢",
+      "desc": "وصف تجريبي",
+      "reward_points": 30
+    }
+  ],
+  "/referrals/my": {
+    "code": "TEST42",
+    "stats": {
+      "total": 2,
+      "registered": 1,
+      "rewarded": 1,
+      "earned_points": 100
+    },
+    "invites": [
+      {
+        "id": "test-inv1",
+        "name": "صديق تجريبي ١",
+        "status": "rewarded",
+        "created_at": "2026-09-20T10:00:00.000Z"
+      },
+      {
+        "id": "test-inv2",
+        "name": "صديق تجريبي ٢",
+        "status": "registered",
+        "created_at": "2026-10-02T10:00:00.000Z"
+      }
+    ]
+  },
+  "/offers/test-offer1": {
+    "id": "test-offer1",
+    "title_ar": "عرض تجريبي ١",
+    "title_en": "Test offer 1",
+    "provider": {
+      "name": "مقدم تجريبي"
+    },
+    "original_price": 100,
+    "discounted_price": 80,
+    "end_date": "2026-12-31T00:00:00.000Z",
+    "target": {
+      "inclusions": [
+        "بند تجريبي ١",
+        "بند تجريبي ٢"
+      ],
+      "terms": [
+        "شرط تجريبي ١"
+      ]
+    }
+  },
+  "/promotions/offers/test-offer1/providers": [
+    {
+      "id": "test-prov1",
+      "name": "مقدم تجريبي ١",
+      "specialty": "تخصص تجريبي",
+      "city": "مدينة تجريبية",
+      "rating_avg": 4.5,
+      "rating_count": 12
     }
   ]
 }

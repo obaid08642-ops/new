@@ -242,6 +242,13 @@ const BOARD = {
   'ai-assistant-rx': { component: 'CareHub', size: [390, 700], params: { mode: 'prescription' } },
   'ai-assistant-report': { component: 'CareHub', size: [390, 700], params: { mode: 'report' } },
   'ai-monthly-report': { component: 'CareHub', size: [390, 1300], params: {} },
+  // Batch 11 (loyalty hub and offers; merge map section 7). No board draws loyalty: the hub follows the CareHub hero, rows and tabs; the offers
+  // list and detail follow the ServiceHub cards (`--dir patient-app/app/loyalty --screens hub:l-hub` and `--dir patient-app/app/offers --screens index:o-list,[id]:o-detail`).
+  'l-hub': { component: 'CareHub', size: [390, 1500], params: {} },
+  'l-hub-challenges': { component: 'CareHub', size: [390, 1300], params: { tab: 'challenges' } },
+  'l-hub-invite': { component: 'CareHub', size: [390, 1500], params: { tab: 'invite' } },
+  'o-list': { component: 'ServiceHub', size: [390, 844], params: {} },
+  'o-detail': { component: 'ServiceHub', size: [390, 1100], params: { id: 'test-offer1' } },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },
