@@ -1,6 +1,8 @@
-import { Redirect } from 'expo-router';
+import React from 'react';
 
-/** Canonical medication reminders include local-device alert synchronisation and duplicate-safe dose logging. */
+import { RedirectKeepingParams } from '../../src/components/health/RedirectKeepingParams';
+
+/** The smart reminders are the "All reminders" tab of the medications screen. */
 export default function SmartRemindersRedirect() {
-  return <Redirect href="/health/medication-reminder-list" />;
+  return <RedirectKeepingParams to="/health/medications" params={{ tab: 'reminders' }} />;
 }

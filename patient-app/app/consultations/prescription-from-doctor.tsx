@@ -6,6 +6,7 @@ import { Button, Card, FIcon } from '../../../packages/ui-native/src';
 import { RX_TONE, ConsultScreen, Gate, InfoRow, Section, useConsultFormat, type GateStatus } from '../../src/components/consult/ConsultKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { useCart } from '../../src/context/CartContext';
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
@@ -38,7 +39,9 @@ export default function PrescriptionFromDoctorScreen() {
   const { theme, t, c, flow, k, num } = useScreenUi();
   const { date } = useConsultFormat();
   const { appointmentId } = useLocalSearchParams<{ appointmentId?: string }>();
+  const { addItem } = useCart();
   const [added, setAdded] = useState<string[]>([]);
+  const [ordering, setOrdering] = useState(false);
   const [prescription, setPrescription] = useState<Prescription | null>(null);
   const [status, setStatus] = useState<GateStatus>('loading');
 
@@ -89,11 +92,24 @@ export default function PrescriptionFromDoctorScreen() {
     if (failed) showLocalizedAlert(k('consult.rx.someFailedTitle'), k('consult.rx.someFailedBody', { n: num(failed), total: num(pending.length) }));
   };
 
+  // Decision 18: "اطلب الأدوية دي" puts the prescribed medicines that are in the catalogue into the (local) cart and opens it.
+  // A line written by hand has no product, so it is not added; with no catalogue line the button is not drawn.
+  const orderable = medications.filter((m) => m.medicine_id);
+  const orderThese = async () => {
+    setOrdering(true);
+    try {
+      for (const med of orderable) await addItem({ id: String(med.medicine_id), name: med.name, rx: true });
+      router.push('/pharmacy/cart' as Href);
+    } finally {
+      setOrdering(false);
+    }
+  };
+
   const labs = Array.isArray(prescription?.labs) ? prescription.labs : [];
   const ready = status === 'ready' && prescription;
   const footer = ready ? (
     <>
-      {prescription.id ? <Button label={k('consult.rx.order')} size="lg" fullWidth startIcon="package" onPress={() => router.push({ pathname: '/pharmacy/rx-order', params: { prescriptionId: String(prescription.id) } } as unknown as Href)} theme={theme} testID="rx-order" /> : null}
+      {orderable.length > 0 ? <Button label={k('consult.rx.orderThese')} size="lg" fullWidth startIcon="package" loading={ordering} onPress={() => void orderThese()} theme={theme} testID="prescription-order-these" /> : prescription.id ? <Button label={k('consult.rx.order')} size="lg" fullWidth startIcon="package" onPress={() => router.push({ pathname: '/pharmacy/rx-order', params: { prescriptionId: String(prescription.id) } } as unknown as Href)} theme={theme} testID="rx-order" /> : null}
       {labs.length > 0 ? <Button label={k('consult.rx.bookLab')} variant="outline" size="md" fullWidth onPress={() => router.push('/diagnostics/search' as Href)} theme={theme} /> : null}
     </>
   ) : undefined;

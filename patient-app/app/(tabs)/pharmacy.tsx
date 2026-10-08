@@ -62,7 +62,7 @@ const go = (href: string) => router.push(href as Href);
 const QUICK: { key: string; label: string; icon: FillIconName; tone: ServiceTone; route: string }[] = [
   { key: 'chat', label: 'pharmacy.hub.chat', icon: 'chat-circle-text', tone: 'mint', route: '/pharmacy/pharmacist-chat' },
   { key: 'favorites', label: 'pharmacy.favorites', icon: 'heart', tone: PHARMACY_TONE, route: '/pharmacy/wishlist' },
-  { key: 'reminders', label: 'pharmacy.hub.reminders', icon: 'bell', tone: 'violet', route: '/health/medication-reminder-list' },
+  { key: 'reminders', label: 'pharmacy.hub.reminders', icon: 'bell', tone: 'violet', route: '/health/medications?tab=reminders' },
 ];
 
 function ProductSkeleton({ cols }: { cols: number }) {

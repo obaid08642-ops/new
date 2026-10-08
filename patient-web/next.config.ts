@@ -33,6 +33,23 @@ const nextConfig: NextConfig = {
       { source: "/:locale/p", destination: "/:locale/c", permanent: false },
       { source: "/:locale/s", destination: "/:locale/search", permanent: false },
       { source: "/:locale/payments", destination: "/:locale/cart/checkout", permanent: false },
+      // Batch 5 (merge map, section 1): the old health screens are tabs and sections of the new ones. The source query is forwarded,
+      // so a stale link keeps its `type` filter and an edit link its `edit` id; the screens read no health data from the URL.
+      { source: "/:locale/health/score", destination: "/:locale/health", permanent: false },
+      { source: "/:locale/health/vitals/log", destination: "/:locale/health/vitals?tab=today&add=1", permanent: false },
+      { source: "/:locale/health/trends", destination: "/:locale/health/vitals?tab=trends", permanent: false },
+      { source: "/:locale/health/refills", destination: "/:locale/health/medications?tab=refills", permanent: false },
+      { source: "/:locale/health/chronic-medications", destination: "/:locale/health/medications?tab=chronic", permanent: false },
+      { source: "/:locale/reminders", destination: "/:locale/health/medications?tab=all", permanent: false },
+      { source: "/:locale/reminders/add", destination: "/:locale/health/medications?tab=all&add=1", permanent: false },
+      { source: "/:locale/health/conditions-allergies", destination: "/:locale/health/profile#conditions", permanent: false },
+      { source: "/:locale/health/chronic-diseases", destination: "/:locale/health/profile#chronic", permanent: false },
+      { source: "/:locale/health/emergency-contacts", destination: "/:locale/health/profile#emergency", permanent: false },
+      { source: "/:locale/family/emergency-contacts", destination: "/:locale/health/profile#emergency", permanent: false },
+      { source: "/:locale/health/reports", destination: "/:locale/health/records?tab=reports", permanent: false },
+      { source: "/:locale/reports", destination: "/:locale/health/records?tab=reports", permanent: false },
+      { source: "/:locale/health/timeline", destination: "/:locale/health/records?tab=timeline", permanent: false },
+      { source: "/:locale/reports/timeline", destination: "/:locale/health/records?tab=timeline", permanent: false },
     ];
   },
   async headers() {

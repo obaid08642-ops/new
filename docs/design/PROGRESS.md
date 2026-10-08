@@ -9,23 +9,23 @@ _Updated 2026-10-06._
 
 | Item | State |
 |---|---|
-| Foundation (tokens, Readex Pro, shells, 40 components, lint gates, CSP by class) | Merged |
-| Batch 0 (29 screens) + fixes | Merged (#285, #291, #292) |
-| Batch 2 consultations (46 screens), PR [#313](https://github.com/obaid08642-ops/new/pull/313) | **Merged into main.** Backend Needs-review lines are OpenCode queue items Q-14..Q-20; hub "Nearest"/"Available now" = Q-12/Q-13 (`docs/review/OPENCODE_QUEUE.md`): **keep `EXPO_PUBLIC_CONSULT_NEARBY_FILTERS` off until the owner says Q-12/Q-13 are live**. Batch 2 client-only Needs-review items: branch `design/batch-2-client-fixes` (in progress) |
-| **Batch 3 labs, radiology**, `design/batch-3` (main merged in) | 39 screens (17 app + 22 web) rebuilt; web runtime check 63 runs / 0 issues, app endpoints 21 routes / 0 failures; PR to main |
-| **Batch 1 pharmacy**, `design/batch-1`, draft PR [#293](https://github.com/obaid08642-ops/new/pull/293) | **Complete and ready for review** (all slices 1a-1e + local-first cart; batch-end build, runtime check 129 runs / 2 known flags, Lighthouse done). Baselines: literals 5234, raw colour 7273, left/right 476, client-token-sync 897, parity 663 |
-| F82-3 static/ISR for public pages, [#308](https://github.com/obaid08642-ops/new/pull/308) | Open (PR to main): pages cached, per-user parts on the client; LCP unchanged (JS-bound), `.lighthouserc.json` not ratcheted; finding: nonce server serves uncompressed |
-| F82-1 [#297](https://github.com/obaid08642-ops/new/pull/297), F82-2 [#295](https://github.com/obaid08642-ops/new/pull/295), F68 CSP [#301](https://github.com/obaid08642-ops/new/pull/301) | Merged into main (and into `design/batch-1`). Merged into main and into `design/batch-1` |
-| Gates (baselines only go down) | `no-literal-ui-string` 3891, `no-raw-color` 5562, `no-left-right` 267, `client-token-sync` 889, `locale-parity` 663 |
+| Foundation, Batch 0 (+ fixes), Batches 1-3 (#293, #313, #318), Needs-review file:line rule (#502), F82-1/2, F68, #303 | Merged |
+| Batch 3 labs/radiology [#318](https://github.com/obaid08642-ops/new/pull/318) (+ client fixes [#347](https://github.com/obaid08642-ops/new/pull/347)), Batch 4 nursing [#350](https://github.com/obaid08642-ops/new/pull/350) (stacked on #318), Batch 2 client fixes [#319](https://github.com/obaid08642-ops/new/pull/319) | Open; reviewer's runtime-contrast and preview fixes pushed |
+| F82-3 static/ISR [#308](https://github.com/obaid08642-ops/new/pull/308) | Open; main merged in (one `session-identity`), `runtime-contrast` job starts the nonce server |
+| Merge map 1 (health, family, settings, AI, mental health) | **Approved and merged** (#345); answers in `MERGE_MAP.md` §7 |
+| Merge map 2, all sections (decision 27) [#359](https://github.com/obaid08642-ops/new/pull/359) | Proposed; merges of Batches 1-4 screens go in one "Batch 14" PR after they merge |
+| **Batch 5 health + records**, `design/batch-5` (from main) | 8 app + 9 web screens rebuilt on the merge map (7 merged screens + passport + report); app endpoints 30 routes / 0 failures; web 48 runs, health screens 0 issues; PR open |
+| Gates (baselines only go down) | `no-literal-ui-string` 3957, `no-raw-color` 5619, `no-left-right` 331, `client-token-sync` 897, `locale-parity` 663 |
 
-Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy: 23/34 (done: app 23, web 34 = all); 2 consultations 22/24; 3 labs 17/22; 4 nursing 7/9; 5 records 26/24; 6 family 10/10; 7 insurance 10/13; 8 maternity etc. 11/21; 9 AI 7/10; 10 community 5/5; 11 loyalty 7/7; 12 account 20/20; 13 web-only 3/14.
+Screens per batch (app / web, redirects excluded; Batches 5/6/8/9/12 are reshaped by the merge maps): 0: 15/14 done; 1: 23/34 done; 2: 22/24 done; 3: 17/22; 4: 7/9; 5 health+records: done (see above); 6 family: 10/10 -> 5/5; 7 insurance 10/13 -> 5/5; 8 maternity, nutrition, mental health, chronic care; 9 AI 7/10 -> 2/2; 10 articles (community removed); 11 loyalty 7/7 -> 1/1; 12 account, settings 20/20 -> 7/7; 13 web-only static pages.
 
 ## Next
 
-1. Batch 1 (#293) is ready for review. When it merges: Batch 2 (consultations and video, high effort for calls) on its own `design/batch-2` from `main`. Open items for the reviewer: nonce-server drops compression (CI Lighthouse sees uncompressed bytes), merge #303 (committed node_modules symlinks).
-2. **Owner 2026-10-06, cart is local-first (Batch 1):** add/remove/change without the backend (web localStorage per user or guest; app persisted per owner), only "send the order" calls the backend (failure: clear error, cart unchanged), no prices or stock in the cart, clear on sign-out, merge guest cart into the account on sign-in; tests incl. backend-down (task file for the agent: scratchpad `task-cart-local.md`; branch `wip-b1-cart`).
-3. **F82-3 static/ISR** (owner: on top of #301; public routes only, no cookies/headers in them, per-user parts on the client, LCP per route before/after, ratchet `.lighthouserc.json` LCP 2.5 → 1.8 s when met). Decision #302: public pages serve the last good copy during an outage, ErrorState only with no cached copy, no cap.
-4. Per-route client messages: Batch 1 adds ~36 KB of pharmacy namespaces to `CLIENT_NAMESPACES` (shipped on every page); move them to a pharmacy route-group provider.
+1. **Batch 6 family** (merge map 1 section 2: hub with requests, member, calendar, chat without call, add/join; `/family/emergency-contacts` already redirects to the profile). Then 7 insurance (hub + request page, map 2 §6), 8, 9, 10-13 in order, each in the batch that owns the screens.
+2. **Owner decisions 24-27** (`OWNER_DECISIONS_2026-10-06.md`): UI parts in the owning batch (map 2 §9): doctor thread only inside a booking (`/chat` list removed), no cash option for online services, cash on delivery only when the server allows it, cancel/refund text from the server. Pharmacy badges and "استشر طبيب" wait for the reviewer's backend part.
+3. Keep `EXPO_PUBLIC_CONSULT_NEARBY_FILTERS` off until the owner says Q-12/Q-13 are live.
+4. After #308 merges: move the pharmacy namespaces out of `CLIENT_NAMESPACES` into a route-group provider. After #318/#350 merge: client-fixes PR for Batch 4 Needs-review items.
+5. **Batch 5 leftovers:** emergency routes (decision 14, ambulance removal O-2) not rebuilt: the old pages still carry inline `style=` (CSP console errors in the runtime check), to be replaced by the one Emergency screen after O-2; `/ai/report` (Batch 9) has the same; four app screens (profile, map, AI monthly report, prescription translator) still push old health routes (redirects cover them).
 
 ## Process (owner, 2026-10-06; quality rules unchanged, recording changed)
 - **Lean v2 (Batch 2 on): under 40k tokens per screen.** Design only (wrong logic = one Needs-review line); templates first; no backend reading per screen; one translation pass per slice; read only screen, board, template; slices of 15-25 screens. Rules in `/AGENTS.md`.
@@ -41,13 +41,11 @@ Screens per batch (app / web, redirects excluded): 0: 15/14 **done**; 1 pharmacy
 
 | Slice | Screens finished | Tokens | Notes |
 |---|---|---|---|
-| 1a pharmacy browse/product | app 5, web 9 | 700k / 644k | |
-| 1b cart, prescription | app 6, web 9 | 439k / 736k | web includes an API cut-off and resume |
-| 1c offers (high) | app 2 (+1 redirect), web 6 | 514k / 607k | no live offer seedable locally |
-| 1d checkout, payment (high) | app 5, web 5 (+redirects) | 582k / 673k | lean process; no gateway key/replica set locally |
-| 2 consultations (lean v2) | app 22, web 24 | 585k / 470k (**26.6k / 19.6k per screen**, target 40k) | templates built once (`consult/` kits), mechanical conversion, one translation pass: 418 app keys, 145 web keys |
-| 3 labs, radiology (lean v2 + visual check) | app 17, web 22 | 492k / 565k (**29k / 26k per screen**) | `DiagKit` (app) and `components-next/diagnostics` (web) on the Batch 2 kits |
-| 1e orders, tracking | app 5, web 5 | 439k / 473k | first slices under the lean process: fewer tokens per screen than 1a/1b |
+| 1a-1e pharmacy (before lean v2) | app 23, web 34 | 2.7M / 3.1M | 1a/1b/1c/1d ~100k per screen, 1e fewer |
+| 2 consultations (lean v2) | app 22, web 24 | 585k / 470k (**27k / 20k per screen**) | templates once (`consult/` kits) |
+| 3 labs, radiology | app 17, web 22 | 492k / 565k (**29k / 26k**) | `DiagKit`, `components-next/diagnostics` |
+| 4 nursing | app 7, web 9 | 500k total (**31k**) | `NursingKit`, `components-next/nursing` |
+| 5 health + records (merge map) | app 8, web 9 (absorbing ~26 / ~24 old routes) | 473k / 435k (**~50k / ~45k per new screen**, over 40k: each absorbs 3-6 old screens and the app migrated 104 medication words) | `HealthKit`, `components-next/health`, 330 + 134 keys |
 
 ## Open blockers (details in `PROGRESS_ARCHIVE.md` and the Needs-review JSON)
 - **Public product catalogue is empty** on the seeded backend (v14 import is the reviewer's): product/category screens are checked with injected TEST data only.

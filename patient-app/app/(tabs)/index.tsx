@@ -109,7 +109,7 @@ export default function HomeScreen() {
 
   // the user record's name from /users/me/display; empty (a guest, or no name yet) hides the name everywhere
   const patientName = typeof display?.display_name === 'string' && display.display_name.trim() ? display.display_name.trim() : null;
-  const goReminders = () => router.push('/health/medication-reminder-list');
+  const goReminders = () => router.push('/health/medications?tab=reminders');
 
   // The reminder card: the next dose, or that today's doses are done; nothing when there are no active reminders.
   const reminder = doseSummary.next

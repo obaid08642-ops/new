@@ -31,7 +31,7 @@ describe("dashboard SSR boundary", () => {
     const html = await renderPage("en");
 
     expect(html).not.toContain(state.accessToken);
-    for (const href of ["/en/orders", "/en/appointments", "/en/health", "/en/reminders", "/en/diagnostics", "/en/home-care", "/en/family", "/en/chat", "/en/notifications", "/en/prescriptions", "/en/medicines", "/en/profile"]) expect(html).toContain(href);
+    for (const href of ["/en/orders", "/en/appointments", "/en/health", "/en/health/medications?tab=all", "/en/diagnostics", "/en/home-care", "/en/family", "/en/chat", "/en/notifications", "/en/prescriptions", "/en/medicines", "/en/profile"]) expect(html).toContain(href);
     expect(html).toContain('aria-labelledby="patient-dashboard-title"');
   });
 
