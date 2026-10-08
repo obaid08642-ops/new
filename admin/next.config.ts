@@ -25,7 +25,12 @@ const nextConfig: NextConfig = {
       { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
       { key: "Content-Security-Policy", value: "frame-ancestors 'none'; object-src 'none'; base-uri 'self'" },
       ...(process.env.NODE_ENV === "production" ? [{ key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" }] : []),
-    ] }];
+    ] }, {
+      // Barcode scan on the medicine catalogue is the only screen that opens the camera (same origin only).
+      // Listed after the global entry, so this Permissions-Policy replaces it for this one path.
+      source: "/admin/medicines-catalog",
+      headers: [{ key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=()" }],
+    }];
   },
 };
 

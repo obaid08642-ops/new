@@ -14,6 +14,8 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: 'القيادة والمراقبة',
     items: [
+      { href: '/admin/today', label: 'اليوم' },
+      { href: '/admin/approvals', label: 'بانتظار موافقتي' },
       { href: '/admin/command-center', label: 'مركز القيادة الحي', permission: 'command.center.view' },
       { href: '/admin/orders', label: 'دورة الطلبات', permission: 'order.read' },
       { href: '/admin/analytics-suite', label: 'التحليلات', permission: 'analytics.read' },

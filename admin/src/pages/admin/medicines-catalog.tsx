@@ -3,6 +3,9 @@ import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
 import { dateLocale } from '../../utils/dates';
 import { DataTable, type LooseRow, type LooseValue } from '@/components/DataTable';
+import { BarcodeScanner, canScanWithCamera } from '@/components/BarcodeScanner';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { MedicineQuickEdit, SensitiveChangeList, isPublished, sensitiveChanges, type SensitiveChange } from '@/components/MedicineQuickEdit';
 
 /**
  * Unified medicines catalog manager:
@@ -76,6 +79,12 @@ export default function MedicinesCatalogPage() {
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [imgBusy, setImgBusy] = useState(false);
 
+  // quick edit sheet, barcode scan, confirmation of sensitive changes made in the full form
+  const [quickItem, setQuickItem] = useState<LooseRow | null>(null);
+  const [scanOpen, setScanOpen] = useState(false);
+  const [scanNote, setScanNote] = useState('');
+  const [formConfirm, setFormConfirm] = useState<{ changes: SensitiveChange[]; published: boolean; run: () => Promise<void> } | null>(null);
+
   // change requests
   const [requests, setRequests] = useState<any[]>([]);
   const [reqStatus, setReqStatus] = useState('pending');
@@ -124,6 +133,27 @@ export default function MedicinesCatalogPage() {
     if (tab === 'reports') loadReports();
   }, [tab, loadCatalog, loadRequests, loadReports]);
 
+  // Camera scan: the public lookup route normalises the scanned code (GS1 strings...); the admin catalogue search
+  // (name, ingredient, barcode...) then finds the item, published or not.
+  const handleScanned = useCallback(async (code: string) => {
+    setScanOpen(false);
+    setScanNote('');
+    let candidates = [code];
+    try {
+      const looked = await apiFetch('/medicines/lookup-barcode', { method: 'POST', body: JSON.stringify({ code }) });
+      if (Array.isArray(looked?.codes_tried)) candidates = [code, ...looked.codes_tried.filter((c: string) => c !== code)];
+    } catch { /* the typed code is still searched as it is */ }
+    for (const candidate of candidates) {
+      try {
+        const res = await apiFetch(`/medicines/admin/catalog?q=${encodeURIComponent(candidate)}&page=1&limit=1&include_deleted=1`);
+        if ((res?.data || []).length) { setQ(candidate); setPage(1); return; }
+      } catch { /* try the next candidate */ }
+    }
+    setQ(code);
+    setPage(1);
+    setScanNote(`لا يوجد صنف بالباركود ${code}.`);
+  }, []);
+
   const openCreate = () => { setForm(EMPTY_FORM); setImageUrls([]); setEditId(null); setFormMode('create'); };
   const openEdit = (m: any) => {
     setForm({
@@ -155,26 +185,35 @@ export default function MedicinesCatalogPage() {
     // Backend requires `reason` (>=5 chars) when price changes on PATCH; for POST it logs price history.
     if (form.reason && String(form.reason).trim()) payload.reason = String(form.reason).trim();
     else if (formMode === 'create') payload.reason = 'إنشاء صنف جديد عبر واجهة الإدارة';
-    setBusy('form');
-    try {
-      if (formMode === 'create') {
-        await apiFetch('/medicines/admin/catalog', { method: 'POST', body: JSON.stringify(payload) });
-      } else if (editId) {
-        // Enforce reason when price differs to avoid 400 price_change_reason_required
-        const original = items.find((x: any) => x.id === editId);
-        const priceChanged = original && Number(original.price || 0) !== Number(payload.price || 0);
-        if (priceChanged && (!payload.reason || String(payload.reason).trim().length < 5)) {
-          alert('سبب تغيير السعر مطلوب (5 أحرف على الأقل) — يلزم لتدقيق حوكمة الأسعار.');
-          setBusy(null);
-          return;
+    const commit = async () => {
+      setBusy('form');
+      try {
+        if (formMode === 'create') {
+          await apiFetch('/medicines/admin/catalog', { method: 'POST', body: JSON.stringify(payload) });
+        } else if (editId) {
+          await apiFetch(`/medicines/admin/catalog/${editId}`, { method: 'PATCH', body: JSON.stringify(payload) });
         }
-        await apiFetch(`/medicines/admin/catalog/${editId}`, { method: 'PATCH', body: JSON.stringify(payload) });
+        setFormMode('closed');
+        setFormConfirm(null);
+        await loadCatalog();
+      } catch (e: any) {
+        setFormConfirm(null);
+        alert(`فشل الحفظ: ${e?.message || ''}`);
+      } finally { setBusy(null); }
+    };
+    if (formMode === 'edit' && editId) {
+      const original = items.find((x: any) => x.id === editId);
+      // Enforce reason when price differs to avoid 400 price_change_reason_required
+      const priceChanged = original && Number(original.price || 0) !== Number(payload.price || 0);
+      if (priceChanged && (!payload.reason || String(payload.reason).trim().length < 5)) {
+        alert('سبب تغيير السعر مطلوب (5 أحرف على الأقل) — يلزم لتدقيق حوكمة الأسعار.');
+        return;
       }
-      setFormMode('closed');
-      await loadCatalog();
-    } catch (e: any) {
-      alert(`فشل الحفظ: ${e?.message || ''}`);
-    } finally { setBusy(null); }
+      // Price / prescription changes ask for confirmation (old -> new) before they are saved.
+      const changes = original ? sensitiveChanges(original, { price: payload.price, requires_prescription: !!payload.requires_prescription }) : [];
+      if (changes.length) { setFormConfirm({ changes, published: isPublished(original), run: commit }); return; }
+    }
+    await commit();
   };
 
   const softDelete = async (m: any, restore = false) => {
@@ -268,13 +307,18 @@ export default function MedicinesCatalogPage() {
         {tab === 'catalog' && (
           <>
             <div className="flex flex-wrap gap-3 items-center">
-              <input value={q} onChange={e => { setQ(e.target.value); setPage(1); }} placeholder="بحث بالاسم / المادة الفعالة / الباركود / الشركة..." className="border rounded px-4 py-2 w-80" />
+              <input value={q} onChange={e => { setQ(e.target.value); setPage(1); setScanNote(''); }} placeholder="بحث بالاسم / المادة الفعالة / الباركود / الشركة..." className="border rounded px-4 py-2 w-80 max-w-full" />
+              <button type="button" onClick={() => setScanOpen(true)} className="border border-slate-300 bg-white rounded-lg px-4 py-2 text-sm font-bold text-slate-700" aria-label={canScanWithCamera() ? 'مسح الباركود بالكاميرا' : 'إدخال الباركود'}>
+                {canScanWithCamera() ? 'مسح الباركود' : 'إدخال باركود'}
+              </button>
               <input value={category} onChange={e => { setCategory(e.target.value); setPage(1); }} placeholder="الفئة (اختياري)" className="border rounded px-3 py-2 w-48" />
               <label className="flex items-center gap-2 text-sm text-slate-600">
                 <input type="checkbox" checked={includeDeleted} onChange={e => setIncludeDeleted(e.target.checked)} /> إظهار المحذوفة
               </label>
               <button onClick={openCreate} className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-5 py-2 rounded-lg ms-auto">+ إضافة صنف جديد</button>
             </div>
+
+            {scanNote && <p role="status" className="text-sm text-amber-700">{scanNote}</p>}
 
             {formMode !== 'closed' && (
               <div className="bg-white rounded-xl border-2 border-teal-500 p-5 space-y-4">
@@ -392,6 +436,7 @@ export default function MedicinesCatalogPage() {
                       const deleted = !!m.is_deleted;
                       return (
                         <div className="flex gap-2">
+                          <button onClick={() => setQuickItem(m)} className="text-teal-700 font-bold text-xs">تعديل سريع</button>
                           <button onClick={() => openEdit(m)} className="text-teal-700 font-bold text-xs">تعديل</button>
                           {m.medical_review_status === 'approved' ? (
                             <button onClick={() => decideItem(m, false)} disabled={busy === m.id} className="text-amber-700 font-bold text-xs">رفض</button>
@@ -543,6 +588,19 @@ export default function MedicinesCatalogPage() {
           )
         )}
       </div>
+
+      {scanOpen && <BarcodeScanner onCode={handleScanned} onClose={() => setScanOpen(false)} />}
+      {quickItem && <MedicineQuickEdit medicine={quickItem} onClose={() => setQuickItem(null)} onSaved={loadCatalog} />}
+      <ConfirmDialog
+        open={!!formConfirm}
+        title="تأكيد التغيير"
+        confirmLabel="نعم، احفظ"
+        busy={busy === 'form'}
+        onConfirm={() => void formConfirm?.run()}
+        onCancel={() => setFormConfirm(null)}
+      >
+        {formConfirm && <SensitiveChangeList changes={formConfirm.changes} published={formConfirm.published} />}
+      </ConfirmDialog>
     </>
   );
 }
