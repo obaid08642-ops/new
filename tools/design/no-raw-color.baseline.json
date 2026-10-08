@@ -1,7 +1,7 @@
 {
   "note": "Hard-coded colours that predate the design system. Recorded once with --init. 12.A11 rebuilds the screens on tokens and each rebuilt file drops out. --update only ever LOWERS a count; it cannot raise one.",
   "totals": {
-    "patient-web": 1764,
+    "patient-web": 1720,
     "patient-app": 917,
     "provider-app": 318,
     "admin": 215
@@ -53,7 +53,6 @@
     "patient-web/app/[locale]/loyalty/page.tsx": 9,
     "patient-web/app/[locale]/loyalty/referrals/page.tsx": 11,
     "patient-web/app/[locale]/map/page.tsx": 1,
-    "patient-web/app/[locale]/medicine-catalog/medicine-catalog.module.css": 44,
     "patient-web/app/[locale]/medicines/[medicineId]/medicine-detail.module.css": 30,
     "patient-web/app/[locale]/offers/[offerId]/offer-detail.module.css": 24,
     "patient-web/app/[locale]/offers/[offerId]/page.tsx": 4,

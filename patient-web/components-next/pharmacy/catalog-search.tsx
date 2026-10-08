@@ -7,7 +7,7 @@ import { Search } from "@/components-next/ui-generated/components/Inputs";
 
 /**
  * The hub's search field (canvas/PharmacyHub: the 52 tall field, the ink filter square and the barcode button inside).
- * Submitting goes to the catalogue's own search URL; the filter and the barcode button go to their pages.
+ * Submitting goes to the catalogue's own search URL; the barcode button opens "scan a medicine". The categories are the chips under the field (the old filters page is a redirect to them).
  */
 export function CatalogSearch({
   locale,
@@ -19,7 +19,7 @@ export function CatalogSearch({
   /** The listing the query is sent to: the public catalogue (`c`) or the medicines list. */
   target?: "c" | "medicines";
   initial?: string;
-  /** The filter and barcode buttons (the hub's); the top bar's field has neither. */
+  /** The barcode button (the hub's); the top bar's field has none. */
   tools?: boolean;
 }) {
   const t = useTranslations("PharmacyBrowse");
@@ -44,8 +44,6 @@ export function CatalogSearch({
         label={t("searchLabel")}
         onClear={() => setValue("")}
         clearLabel={t("clear")}
-        onFilterPress={tools ? () => router.push(`/${locale}/pharmacy/filters`) : undefined}
-        filterLabel={t("filter")}
         onScanPress={tools ? () => router.push(`/${locale}/pharmacy/barcode`) : undefined}
         scanLabel={t("scan")}
       />

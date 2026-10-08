@@ -46,7 +46,7 @@ export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boo
   const address = useDeliveryAddress(signedIn && ready && items.length > 0);
 
   const checkout = `/${locale}/cart/checkout`;
-  const upload = `/${locale}/pharmacy/scan-prescription`;
+  const upload = `/${locale}/pharmacy/rx-order?via=photo`;
 
   const changeQty = (item: CartItem, next: number) => {
     if (next < 1) {

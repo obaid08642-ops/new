@@ -211,7 +211,7 @@ export function MapExplorerClient({
                           ? `/${locale}/diagnostics/labs/${prov.id}`
                           : prov.type === "doctor"
                           ? `/${locale}/consultations/doctors/${prov.id}`
-                          : `/${locale}/medicines`
+                          : `/${locale}/c`
                       }
                       className={styles.bookBtn}
                       onClick={(e) => e.stopPropagation()}

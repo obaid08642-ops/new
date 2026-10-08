@@ -124,7 +124,6 @@
     "patient-web/app/[locale]/loyalty/page.tsx": 4,
     "patient-web/app/[locale]/loyalty/referrals/page.tsx": 10,
     "patient-web/app/[locale]/loyalty/rewards/page.tsx": 4,
-    "patient-web/app/[locale]/medicine-catalog/page.tsx": 3,
     "patient-web/app/[locale]/not-found.tsx": 4,
     "patient-web/app/[locale]/offers/[offerId]/page.tsx": 28,
     "patient-web/app/[locale]/pharmacies/[citySlug]/page.tsx": 22,

@@ -45,7 +45,7 @@ export default async function ProfilePage({ params }: Props) {
     { key: "appointments", href: `/${locale}/appointments`, Icon: CalendarDays, accent: "#0284C7" },
     { key: "orders", href: `/${locale}/orders`, Icon: ShoppingBag, accent: "#D97706" },
     { key: "prescriptions", href: `/${locale}/prescriptions`, Icon: FileText, accent: "#7A6BEA" },
-    { key: "medicines", href: `/${locale}/medicines`, Icon: Pill, accent: "#16A34A" },
+    { key: "medicines", href: `/${locale}/c`, Icon: Pill, accent: "#16A34A" },
     { key: "family", href: `/${locale}/family`, Icon: UsersRound, accent: "#0D9488" },
     { key: "notifications", href: `/${locale}/notifications`, Icon: Bell, accent: "#64748B" },
     { key: "settings", href: `/${locale}/settings`, Icon: Settings, accent: "#475569" },

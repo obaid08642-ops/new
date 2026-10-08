@@ -38,7 +38,7 @@ export default async function PrescriptionsPage({ params }: Props) {
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
   const back = `/${locale}/health`;
-  const upload = `/${locale}/pharmacy/scan-prescription`;
+  const upload = `/${locale}/pharmacy/rx-order?via=photo`;
 
   if (!response.ok) {
     return (
