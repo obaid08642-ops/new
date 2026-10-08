@@ -1,10 +1,8 @@
 {
   "$comment": "Recorded debt for tools/design/no-rn-safeareaview.ts: Dimensions.get() calls, per file, when the gate landed. Each moves to useWindowDimensions() (or a shell) as its screen is rebuilt; this file may only shrink. SafeAreaView from react-native has no baseline: it is banned outright.",
-  "total": 28,
+  "total": 26,
   "dimensionsGet": {
     "patient-app/app/(tabs)/nursing.tsx": 1,
-    "patient-app/app/insurance/copay.tsx": 1,
-    "patient-app/app/insurance/hub.tsx": 1,
     "patient-app/app/loyalty/hub.tsx": 1,
     "patient-app/app/nursing/live-tracking.tsx": 1,
     "patient-app/app/nursing/nurse-profile.tsx": 1,
