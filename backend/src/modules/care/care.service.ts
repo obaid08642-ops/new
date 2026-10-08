@@ -87,7 +87,9 @@ export class CareService {
     accepts_insurance?: boolean;
     lat?: number;
     lng?: number;
-    sort?: 'rating' | 'price_asc' | 'price_desc' | 'experience' | 'distance_asc' | 'distance_desc';
+    sort?: 'rating' | 'price_asc' | 'price_desc' | 'experience' | 'distance' | 'distance_asc' | 'distance_desc';
+    nearest_type?: 'clinic' | 'video' | 'home_visit';
+    user?: any;
     available_type?: 'clinic' | 'video' | 'home_visit';
     available_within?: number;
     page?: number;
@@ -111,6 +113,9 @@ export class CareService {
     // approved leave, bookings) plus the 5-minute buffer and active slot holds.
     // No second slot engine: candidate slots come from slotsForDate.
     if (opts.available_within !== undefined) return this.listAvailable(q, opts);
+    // Q-12 "Nearest": sort=distance is answered by the DB (2dsphere $geoNear),
+    // clinic and home-visit only; video has no meaningful "near".
+    if (opts.sort === 'distance') return this.listNearest(q, opts);
     const sort: any = {};
     const needDistance = opts.sort === 'distance_asc' || opts.sort === 'distance_desc';
     if (opts.sort === 'price_asc') sort.price_clinic = 1;
@@ -296,6 +301,75 @@ export class CareService {
       db.collection('provideravailability').findOne({ provider_id: { $in: ids }, instant_available: true }, { projection: { _id: 1 } }).catch(() => null),
     ]);
     return !!(a || b);
+  }
+
+  /**
+   * Q-12 "Nearest": DB-answered nearest doctors (2dsphere $geoNear, never a
+   * capped in-memory sort). Clinic and home-visit only. Without a location the
+   * signed-in patient's city is the fallback (distance_km then null).
+   */
+  private async listNearest(baseFilter: any, opts: any) {
+    const mode = opts.nearest_type;
+    if (mode === 'video') throw new BadRequestException('nearest_not_for_video');
+    const q: any = { ...baseFilter };
+    if (mode === 'home_visit') q.consultation_modes = { $in: ['home'] };
+    else if (mode === 'clinic') q.consultation_modes = { $in: ['clinic'] };
+    const page = Math.max(1, opts.page || 1);
+    const limit = Math.min(50, Math.max(1, opts.limit || 20));
+    const offset = (page - 1) * limit;
+
+    const latOk = typeof opts.lat === 'number' && Number.isFinite(opts.lat) && Math.abs(opts.lat) <= 90;
+    const lngOk = typeof opts.lng === 'number' && Number.isFinite(opts.lng) && Math.abs(opts.lng) <= 180;
+    if (latOk && lngOk) {
+      const extra = opts.available_today ? 100 : 1;
+      const pipe: any[] = [
+        {
+          $geoNear: {
+            near: { type: 'Point', coordinates: [opts.lng, opts.lat] },
+            distanceField: '_dist_m',
+            spherical: true,
+            query: q,
+          },
+        },
+        { $skip: offset },
+        { $limit: limit + extra },
+      ];
+      let docs: any[] = await this.providerModel.aggregate(pipe);
+      if (opts.available_today) {
+        const filtered: any[] = [];
+        for (const d of docs) {
+          if (await this.slots.hasSlotsToday(d as any)) filtered.push(d);
+          if (filtered.length >= limit + 1) break;
+        }
+        docs = filtered;
+      }
+      const hasMore = docs.length > limit;
+      const slice = docs.slice(0, limit);
+      const out: any[] = [];
+      for (let i = 0; i < slice.length; i++) {
+        const d: any = slice[i];
+        let nextAvailableAt: string | null = null;
+        if (i < 10) nextAvailableAt = await this.slots.nextAvailable(d as any);
+        out.push(this.toPublicDoctor(d, nextAvailableAt, (d._dist_m ?? 0) / 1000));
+      }
+      return { page, limit, total: null, total_is_exact: false, has_more: hasMore, items: out };
+    }
+
+    // No usable location: fall back to the signed-in patient's city.
+    const me: any = opts.user?.id ? await this.userModel.findOne({ id: opts.user.id }) : null;
+    const city = (me?.toObject ? me.toObject() : me)?.city;
+    if (!city) throw new BadRequestException('location_required');
+    const cityDocs: any[] = await this.providerModel.find(
+      { ...q, city }, { _id: 0, __v: 0 },
+    ).sort({ rating: -1 }).skip(offset).limit(limit + 1);
+    const hasMore = cityDocs.length > limit;
+    const out: any[] = [];
+    for (let i = 0; i < Math.min(cityDocs.length, limit); i++) {
+      const dRaw: any = cityDocs[i];
+      const d: any = dRaw?.toObject ? dRaw.toObject() : dRaw;
+      out.push(this.toPublicDoctor(d, i < 10 ? await this.slots.nextAvailable(dRaw as any) : null));
+    }
+    return { page, limit, total: null, total_is_exact: false, has_more: hasMore, items: out };
   }
 
   /** ===== Doctor detail (with facility join) ===== */

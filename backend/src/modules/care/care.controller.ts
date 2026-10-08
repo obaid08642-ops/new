@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { CareService } from './care.service';
-import { JwtAuthGuard, Public } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, Public } from '../../common/auth.guard';
 
 @Controller('care')
 @UseGuards(JwtAuthGuard)
@@ -39,14 +39,16 @@ export class CareController {
     @Query('accepts_insurance') accepts_insurance?: string,
     @Query('lat') lat?: string,
     @Query('lng') lng?: string,
-    @Query('sort') sort?: 'rating' | 'price_asc' | 'price_desc' | 'experience' | 'distance_asc' | 'distance_desc',
+    @Query('sort') sort?: 'rating' | 'price_asc' | 'price_desc' | 'experience' | 'distance' | 'distance_asc' | 'distance_desc',
     @Query('type') type?: 'clinic' | 'video' | 'home_visit',
     @Query('available_within') available_within?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @CurrentUser() user?: any,
   ) {
     return this.svc.listDoctors({
       specialty, service_type: service_type ?? (type === 'home_visit' ? 'home' : type as any) ?? undefined,
+      nearest_type: type,
       available_today: available_today === 'true' || available_today === '1',
       q, city, facility_id, degree, insurance,
       accepts_insurance: accepts_insurance === 'true' ? true : accepts_insurance === 'false' ? false : undefined,
@@ -57,6 +59,7 @@ export class CareController {
       available_within: available_within !== undefined ? Number(available_within) : undefined,
       page: page ? parseInt(page, 10) : 1,
       limit: limit ? parseInt(limit, 10) : 20,
+      user,
     });
   }
 
