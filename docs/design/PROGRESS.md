@@ -56,4 +56,5 @@ Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = we
 - **Backend gaps** found in Batches 1-6 are in `needs-review/*.json` (with file:line from Batch 2) and the OpenCode queue; the reviewer owns them.
 - **Endpoints the reviewer will add:** `GET /payments/status/:ref` (web `/payments/result`), `GET /insurance/claims/my` (batch 7), `GET /nutrition/plan` (batch 8); doctor fields `scfhs_license_no`, `years_experience`, `qualifications[]`. Hide the part, never invent data.
 - **Fetal-week images (owner D):** converted to WebP in `cdn-source/`; upload to the CDN and the week endpoint are pending (archive).
-- **Owner questions open:** intro/language/permissions screens before Welcome? Which roles may hold a patient session? Chat entry points with no order; compare picker; camera barcode on web; where the insurance choice belongs; native review of ur/hi/bn/tl wording.
+- **Owner questions open:** see `PROGRESS_ARCHIVE.md` (2026-10-08 list).
+- **Provider wiring audit (design/provider-audit, read-only):** 151 screens, 489 endpoint pairs all match backend routes, 2006 elements (1987 ok), 55 Needs-review lines in `needs-review/provider-*.json`; summary `PROVIDER_AUDIT_SUMMARY.md`. Tokens ~330k.
