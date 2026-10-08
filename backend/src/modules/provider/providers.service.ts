@@ -399,7 +399,6 @@ export class ProvidersService {
       [ProviderType.RADIOLOGY]: UserRole.RADIOLOGY,
       [ProviderType.HOME_CARE]: UserRole.HOME_CARE,
       [ProviderType.NURSING]: UserRole.NURSING,
-      [ProviderType.AMBULANCE]: UserRole.AMBULANCE,
     }[type];
   }
   private publicUser(u: any) {

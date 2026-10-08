@@ -18,7 +18,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { randomUUID } from 'crypto';
 import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, HandoverDto, CompleteDto, PutPricingDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto } from './provider-ops.dto';
+import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto } from './provider-ops.dto';
 
 /** Provider withdrawal requests (consumed by admin-web-core finance controller). */
 export const ProviderWithdrawalSchema = new Schema(
@@ -353,81 +353,6 @@ export class ProviderOpsService {
       data: { booking_id: bookingId, reason }, createdAt: new Date(), updatedAt: new Date(),
     }).catch(() => {});
     return { ok: true, escalated: true };
-  }
-
-  // ═══ AMBULANCE: ETA / tracking / handover / completion report ═════════════
-  private async ownedAmbulanceMission(user: any, bookingId: string) {
-    const role = String(user?.role || '').toLowerCase();
-    const admin = role === 'admin' || role === 'super_admin';
-    if (!user?.id || (!admin && !hasEffectiveRole(user, 'ambulance', 'paramedic', 'ems'))) throw new ForbiddenException('ambulance_provider_role_required');
-    if (!admin) {
-      const account: any = await this.conn.collection('provider_accounts').findOne({
-        id: user.id, provider_type: { $in: ['ambulance', 'ems'] }, status: { $in: ['approved', 'active'] },
-      });
-      if (!account) throw new ForbiddenException('approved_ambulance_account_required');
-    }
-    const mission: any = await this.conn.collection('emergency_requests').findOne({ id: bookingId } as any);
-    if (!mission) throw new NotFoundException('emergency_not_found');
-    // claim() stores the vehicle in assigned_ambulance_id and the ambulance provider in assigned_provider_id
-    if (!admin && String(mission.assigned_provider_id || '') !== String(user.id)) throw new ForbiddenException('mission_not_assigned_to_ambulance');
-    return mission;
-  }
-
-  async ambulanceEta(user: any, bookingId: string, fromLat: number, fromLng: number) {
-    if (!Number.isFinite(fromLat) || !Number.isFinite(fromLng) || fromLat < -90 || fromLat > 90 || fromLng < -180 || fromLng > 180) throw new BadRequestException('valid_current_location_required');
-    const b: any = await this.ownedAmbulanceMission(user, bookingId);
-    const dest = b.location || b.patient_location;
-    if (!dest?.lat) return { eta_minutes: null, note: 'no destination coordinates' };
-    const R = 6371;
-    const dLat = (dest.lat - fromLat) * Math.PI / 180;
-    const dLng = (dest.lng - fromLng) * Math.PI / 180;
-    const a = Math.sin(dLat / 2) ** 2 + Math.cos(fromLat * Math.PI / 180) * Math.cos(dest.lat * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
-    const km = 2 * R * Math.asin(Math.sqrt(a));
-    const eta = Math.max(1, Math.round((km / 40) * 60)); // avg 40km/h urban
-    return { eta_minutes: eta, distance_km: Math.round(km * 10) / 10 };
-  }
-
-  async ambulanceHandover(user: any, bookingId: string, body: { hospital_provider_account_id: string; notes?: string }) {
-    const mission = await this.ownedAmbulanceMission(user, bookingId);
-    // DISPATCH_INITIATED is what claim() sets (EmergencyState); the others are legacy dispatch states
-    if (!['DISPATCH_INITIATED', 'DISPATCHED', 'IN_TRANSIT', 'ON_SCENE', 'AT_HOSPITAL'].includes(String(mission.state))) throw new BadRequestException(`invalid_mission_state:${mission.state}`);
-    const hospitalId = String(body?.hospital_provider_account_id || '').trim();
-    if (!hospitalId) throw new BadRequestException('hospital_provider_account_id_required');
-    const hospital: any = await this.conn.collection('provider_accounts').findOne({ id: hospitalId, provider_type: { $in: ['hospital', 'facility'] }, status: { $in: ['approved', 'active'] } });
-    if (!hospital) throw new BadRequestException('receiving_hospital_not_approved');
-    const now = new Date();
-    const handover = { hospital_provider_account_id: hospitalId, notes: String(body?.notes || '').trim() || null, by: user.id, at: now, mission_state_before: mission.state };
-    const update = await this.conn.collection('emergency_requests').updateOne(
-      { id: bookingId, state: mission.state } as any,
-      { $set: { handover, state: 'HANDED_OVER', updatedAt: now }, $push: { state_history: { from: mission.state, to: 'HANDED_OVER', by_user_id: user.id, at: now, reason: 'hospital_handover' } } } as any,
-    );
-    if (update.modifiedCount !== 1) throw new BadRequestException('mission_transition_conflict');
-    // The receiving hospital sees the incoming patient in its inbox (FacilityDashboard reads facilityinbox by facility id).
-    await this.conn.collection('facilityinbox').insertOne({
-      facility_id: hospital.facility_id || hospital.id, kind: 'ambulance_handover', emergency_id: bookingId,
-      title: 'استلام مريض من الإسعاف', body: handover.notes || 'تم تسليم مريض طوارئ إلى المنشأة', read: false, createdAt: now,
-    } as any);
-    await this.conn.collection('audit_logs').insertOne({ id: `ambulance_handover_${bookingId}_${now.getTime()}`, action: 'ambulance_handover', resource_kind: 'emergency_request', resource_id: bookingId, actor_account_id: user.id, purpose: 'clinical_handover', metadata: { hospital_provider_account_id: hospitalId }, createdAt: now });
-    return { ok: true, state: 'HANDED_OVER', handover_reference: `handover:${bookingId}:${now.getTime()}` };
-  }
-
-  async ambulanceComplete(user: any, bookingId: string, body: { summary: string; outcome: string; vitals?: any }) {
-    const mission = await this.ownedAmbulanceMission(user, bookingId);
-    if (mission.state !== 'HANDED_OVER') throw new BadRequestException(`invalid_mission_state:${mission.state}`);
-    if (!body?.summary || !body?.outcome) throw new BadRequestException('summary_and_outcome_required');
-    const now = new Date();
-    const update = await this.conn.collection('emergency_requests').updateOne(
-      { id: bookingId, state: 'HANDED_OVER' } as any,
-      // RESOLVED is the emergency's final state (EmergencyState): the patient's SOS closes and the unit is freed
-      { $set: { completion_report: { summary: String(body.summary).trim(), outcome: String(body.outcome).trim(), vitals: body.vitals || {}, by: user.id, at: now }, state: 'RESOLVED', resolved_at: now, updatedAt: now }, $push: { state_history: { from: 'HANDED_OVER', to: 'RESOLVED', by_user_id: user.id, at: now, reason: 'mission_completion' } } } as any,
-    );
-    if (update.modifiedCount !== 1) throw new BadRequestException('mission_transition_conflict');
-    // Credit only the server-resolved mission fare; the completion request never supplies an amount.
-    const fare = Number(mission.fare ?? mission.amount ?? 0);
-    if (!Number.isFinite(fare) || fare < 0) throw new BadRequestException('server_fare_required');
-    await this.creditEarning(mission.assigned_provider_id || user.id, 'ambulance', fare, 'emergency', bookingId);
-    await this.conn.collection('audit_logs').insertOne({ id: `ambulance_complete_${bookingId}_${now.getTime()}`, action: 'ambulance_complete', resource_kind: 'emergency_request', resource_id: bookingId, actor_account_id: user.id, purpose: 'clinical_mission_completion', createdAt: now });
-    return { ok: true, state: 'RESOLVED' };
   }
 
   // ═══ FINANCE: invoice PDF + wallet ledger ═════════════════════════════════
@@ -765,13 +690,6 @@ export class ProviderOpsController {
   @Post('nursing/bookings/:id/track') track(@CurrentUser() u: any, @Param('id') id: string, @Body() b: TrackDto) { return this.svc.nursingTrack(u, id, b?.lat, b?.lng); }
   @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('nursing/bookings/:id/escalate') escalate(@CurrentUser() u: any, @Param('id') id: string, @Body() b: EscalateDto) { return this.svc.nursingEscalate(u, id, b?.reason); }
-
-  // Ambulance
-  @Get('ambulance/:id/eta') eta(@CurrentUser() u: any, @Param('id') id: string, @Query('lat') lat: string, @Query('lng') lng: string) { return this.svc.ambulanceEta(u, id, parseFloat(lat), parseFloat(lng)); }
-  @Roles(UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
-  @Post('ambulance/:id/handover') handover(@CurrentUser() u: any, @Param('id') id: string, @Body() b: HandoverDto) { return this.svc.ambulanceHandover(u, id, b); }
-  @Roles(UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
-  @Post('ambulance/:id/complete') complete(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CompleteDto) { return this.svc.ambulanceComplete(u, id, b); }
 
   // Finance
   @Get('invoice/:orderId/pdf') async invoice(@CurrentUser() u: any, @Param('orderId') id: string, @Res({ passthrough: true }) res: any) {

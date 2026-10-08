@@ -3,7 +3,7 @@
   "totals": {
     "patient-web": 1013,
     "patient-app": 455,
-    "provider-app": 318,
+    "provider-app": 315,
     "admin": 215
   },
   "files": {
@@ -96,9 +96,8 @@
     "provider-app/src/components/SuccessScreen.tsx": 1,
     "provider-app/src/components/icons.tsx": 3,
     "provider-app/src/components/ui.tsx": 21,
-    "provider-app/src/constants/index.ts": 93,
+    "provider-app/src/constants/index.ts": 91,
     "provider-app/src/context/index.tsx": 6,
-    "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx": 1,
     "provider-app/src/screens/auth/AuthScreens.tsx": 8,
     "provider-app/src/screens/auth/PendingDashboard.tsx": 1,
     "provider-app/src/screens/doctor/DoctorOpsScreens.tsx": 1,
