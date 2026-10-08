@@ -1,3 +1,2 @@
-# Read-only facts for the main deploy task (2026-10-06)
-10-inspect-deep
-12-inspect-deploy
+# URGENT 2026-10-08: remove public DB backups from the CDN bucket and stop uploading them there
+14-contain-backup-exposure
