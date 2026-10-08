@@ -133,6 +133,8 @@ Order (do not skip ahead):
 | D-30 | — | Insurance first (decision 30): profile insurance with class; provider networks with companies and classes; list and broadcast filters; final eligibility at checkout. | spec |
 | D-31 | — | Double taps and bad networks (decision 31): close whatever the reviewer's tests show (one charge or booking per key, the same key on retry, a result check instead of a re-pay). | spec |
 
+| D-36 | — | Legal documents in 6 locales: `legal_policies` stores content per locale (ar, en, ur, hi, bn, fil), not only ar/en. New keys: `telehealth_consent` and `refund_policy`. A new major version forces re-acceptance; every acceptance records the version, time and device. The texts come from `docs/legal/*` after the lawyer approves them. | spec |
+
 Items 3, 5, 6, 11 and 18 are UI only (design session). Items 21–23 are owner tasks. Item 20 is Q-12 / Q-13.
 
 ## Queue B: replaced by the phase audit (owner, 2026-10-06)
