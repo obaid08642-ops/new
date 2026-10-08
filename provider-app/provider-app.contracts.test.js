@@ -26,7 +26,6 @@ describe('Provider App release contracts', () => {
     'doctor/DoctorRegistration.tsx',
     'pharmacy/PharmacyRegistration.tsx',
     'lab/LabRegistration.tsx',
-    'radiology/RadiologyRegistration.tsx',
     'nursing/NursingRegistration.tsx',
   ].map(file => read(`screens/${file}`)).join('\n');
   const config = JSON.parse(fs.readFileSync(path.join(root, 'app.json'), 'utf8')).expo;
@@ -182,13 +181,17 @@ describe('Provider App release contracts', () => {
   });
 
   it('registration wizards sign in as the onboarding identity (a provider account exists only after submit + review)', () => {
-    const all = ['doctor/DoctorRegistration.tsx', 'pharmacy/PharmacyRegistration.tsx', 'lab/LabRegistration.tsx', 'radiology/RadiologyRegistration.tsx',
+    // M9: one shared helper creates the identity and signs in as it; every type's first step goes through it.
+    const all = ['doctor/DoctorRegistration.tsx', 'pharmacy/PharmacyRegistration.tsx', 'lab/LabRegistration.tsx',
       'nursing/NursingRegistration.tsx', 'facility/FacilityRegistration.tsx'];
     for (const file of all) {
       const src = read(`screens/${file}`);
-      expect(src).toMatch(/ProviderApi\.onboardingLogin\(data\.(managerEmail|email), data\.password/);
+      expect(src).toMatch(/startOnboardingAccount\(\{[\s\S]*?password: data\.password/);
       expect(src).not.toMatch(/ProviderApi\.login\(/);
     }
+    const kit = read('screens/registration/kit.ts');
+    expect(kit).toMatch(/ProviderApi\.onboardingLogin\(params\.email, params\.password, loginType\)/);
+    expect(kit).not.toMatch(/ProviderApi\.login\(/);
     expect(read('api/provider.ts')).toMatch(/onboardingLogin[\s\S]*client\.post\('\/auth\/login'/);
   });
 

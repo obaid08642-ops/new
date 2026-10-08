@@ -1,3 +1,4 @@
+import { withAlpha } from '../../theme/tokens';
 import { startOnboardingAccount, useStepSaver } from '../registration/kit';
 import type { StepProps, Uploader } from '../registration/kit';
 import { DocBtn, useDocumentPicker } from '../registration/WizardParts';
@@ -93,8 +94,6 @@ const HOURS = Array.from({ length: 24 }, (_, i) => {
   const h = i.toString().padStart(2, '0');
   return { val: `${h}:00`, label: `${h}:00` };
 });
-
-// ══════════════════════════════════════════════════════════════════════════════
 
 // ─── What the doctor sends when the application is submitted (same fields as before the shared wizard) ───
 async function sendDoctor(data: DoctorRegData, uploads: Uploader): Promise<void> {
@@ -256,8 +255,6 @@ export function DoctorRegistration(props: RegistrationProps<DoctorRegData>) {
   return <RegistrationWizard config={DOCTOR_WIZARD} {...props} />;
 }
 
-// ─── Merged screen shell: stacks child steps inline and runs their savers in order ──
-
 // ══════════════════════════════════════════════════════════════════════════════
 function Step1Basic({ data, update, submitRef }: StepProps<DoctorRegData>) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
@@ -410,8 +407,8 @@ function Step3Profile({ data, update, submitRef }: StepProps<DoctorRegData>) {
       </View>
       <View style={{ alignItems: 'center', marginBottom: SP.xl, paddingHorizontal: SP.md }}>
         <TouchableOpacity onPress={() => setShowRemoveBg(true)} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 8, backgroundColor: theme.primary, paddingHorizontal: SP.xl, paddingVertical: SP.md, borderRadius: R.full, elevation: 2, shadowColor: theme.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, marginBottom: SP.sm }}>
-          <I name="image" size={20} color="#fff" />
-          <Text style={{ fontSize: FS.md, color: '#fff', fontWeight: FW.bold }}>{AR ? 'تحسين جودة الصورة (إزالة الخلفية)' : 'Improve Quality (Remove BG)'}</Text>
+          <I name="image" size={20} color={theme.textInv} />
+          <Text style={{ fontSize: FS.md, color: theme.textInv, fontWeight: FW.bold }}>{AR ? 'تحسين جودة الصورة (إزالة الخلفية)' : 'Improve Quality (Remove BG)'}</Text>
         </TouchableOpacity>
         <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center', lineHeight: 22, marginTop: SP.xs }}>
           {AR ? 'عند الضغط على هذا الزر ستفتح صفحة.. قم برفع صورتك وانتظر حتى يتم تحليلها وتحسينها وإزالة الخلفية، ثم قم بتحميلها وإعادة رفعها هنا' : 'Clicking this button will open a page.. upload your photo, wait for it to be analyzed and background removed, then download it and re-upload it here.'}
@@ -419,9 +416,9 @@ function Step3Profile({ data, update, submitRef }: StepProps<DoctorRegData>) {
       </View>
 
       <Modal visible={showRemoveBg} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setShowRemoveBg(false)}>
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
-          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', padding: SP.md, backgroundColor: '#111' }}>
-            <Text style={{ color: '#FFF', fontWeight: FW.bold }}>{AR ? 'أداة إزالة الخلفية' : 'Background Removal Tool'}</Text>
+        <SafeAreaView style={{ flex: 1, backgroundColor: theme.bg }}>
+          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', padding: SP.md, backgroundColor: theme.surface2 }}>
+            <Text style={{ color: theme.textInv, fontWeight: FW.bold }}>{AR ? 'أداة إزالة الخلفية' : 'Background Removal Tool'}</Text>
             <TouchableOpacity onPress={() => setShowRemoveBg(false)} style={{ padding: SP.xs }}>
               <Text style={{ color: theme.danger, fontWeight: FW.bold }}>{AR ? 'إغلاق' : 'Close'}</Text>
             </TouchableOpacity>
@@ -466,8 +463,8 @@ function Step3Profile({ data, update, submitRef }: StepProps<DoctorRegData>) {
           {data.clinicImagesUris.map((uri: string, i: number) => (
             <View key={i} style={{ width: 80, height: 80, borderRadius: R.md, overflow: 'hidden' }}>
               <Image source={{ uri }} style={{ width: '100%', height: '100%' }} />
-              <TouchableOpacity onPress={() => update({ clinicImagesUris: data.clinicImagesUris.filter((_:any, idx:number) => idx !== i) })} style={{ position: 'absolute', top: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 12, padding: 2 }}>
-                <I name="close" size={16} color="#fff" />
+              <TouchableOpacity onPress={() => update({ clinicImagesUris: data.clinicImagesUris.filter((_:any, idx:number) => idx !== i) })} style={{ position: 'absolute', top: 4, right: 4, backgroundColor: withAlpha(theme.text, 0.5), borderRadius: 12, padding: 2 }}>
+                <I name="close" size={16} color={theme.textInv} />
               </TouchableOpacity>
             </View>
           ))}
@@ -868,7 +865,7 @@ function Step6Insurance({ data, update, submitRef }: StepProps<DoctorRegData>) {
                 <TouchableOpacity onPress={() => toggleCompany(co.id)} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text style={{ fontSize: FS.md, color: theme.text, fontWeight: FW.bold }}>{AR ? co.ar : co.en}</Text>
                   <View style={{ width: 22, height: 22, borderRadius: R.sm, borderWidth: 2, borderColor: isAccepted ? theme.primary : theme.border, backgroundColor: isAccepted ? theme.primary : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
-                    {isAccepted && <I name="check" size={12} color="#FFF" />}
+                    {isAccepted && <I name="check" size={12} color={theme.textInv} />}
                   </View>
                 </TouchableOpacity>
 
@@ -910,7 +907,7 @@ function Step6Insurance({ data, update, submitRef }: StepProps<DoctorRegData>) {
           {data.location && <Marker coordinate={data.location} />}
         </MapView>
         <TouchableOpacity 
-          style={{ position: 'absolute', bottom: SP.md, right: SP.md, backgroundColor: theme.card, padding: SP.sm, borderRadius: R.full, elevation: 4, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: {width:0, height:2} }}
+          style={{ position: 'absolute', bottom: SP.md, right: SP.md, backgroundColor: theme.card, padding: SP.sm, borderRadius: R.full, elevation: 4, shadowColor: theme.text, shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: {width:0, height:2} }}
           onPress={() => update({ location: { latitude: 24.7136, longitude: 46.6753 } })} // Simulating My Location
         >
           <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.primary }}>{AR ? 'موقعي الحالي' : 'My Location'}</Text>
@@ -919,6 +916,4 @@ function Step6Insurance({ data, update, submitRef }: StepProps<DoctorRegData>) {
     </View>
   );
 }
-
-// ══════════════════════════════════════════════════════════════════════════════
 

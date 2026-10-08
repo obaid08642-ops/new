@@ -17,7 +17,7 @@ import { GeoPicker } from '../../components/GeoPicker';
 import * as ImagePicker from 'expo-image-picker';
 import { ProviderApi } from '../../api/provider';
 import { useInsuranceCatalog, useServicesCatalog, useSpecialtiesCatalog } from '../../api/catalogs';
-import { tokens } from '../../theme/tokens';
+import { tokens, withAlpha } from '../../theme/tokens';
 
 const { width: W } = Dimensions.get('window');
 
@@ -66,7 +66,6 @@ const INIT: FacilityRegData = {
   region: '', city: '', district: '', fullAddress: '', location: {lat: 0, lng: 0}, subProviders: [], cashOnly: false, acceptedInsurance: [], hasInsuranceCoordinator: false, signatureData: '', signerName: '', signerRole: '', termsAgreed: false, loading: false
 };
 
-
 const NOTICE: NoticeText = {
   titleAr: 'هام جداً', titleEn: 'IMPORTANT',
   p1Ar: 'البيانات التي قمت بإدخالها، وأي حسابات فرعية (أطباء، مختبرات) قمت بإضافتها، لن تكون مرئية لجمهور المرضى فور التسجيل.',
@@ -75,6 +74,19 @@ const NOTICE: NoticeText = {
   p2En: 'In the future, any changes to prices, schedules, or new departments must pass through Admin Approval first.',
 };
 const FacilityNotice = (p: StepProps<FacilityRegData>) => <NoticeSection<FacilityRegData> text={NOTICE} submitRef={p.submitRef} />;
+
+function ProcessingOverlay({ visible }: { visible: boolean }) {
+  const { theme } = useTheme();
+  return (
+    <Modal visible={visible} transparent animationType="fade">
+      <View style={{ flex: 1, backgroundColor: withAlpha(theme.text, 0.5), justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ padding: 20, backgroundColor: theme.surface, borderRadius: 12, alignItems: 'center' }}>
+          <Text style={{ marginTop: 10, fontSize: 16, color: theme.text }}>جاري معالجة البيانات...</Text>
+        </View>
+      </View>
+    </Modal>
+  );
+}
 
 const FACILITY_WIZARD: WizardConfig<FacilityRegData> = {
   init: INIT,
@@ -121,22 +133,12 @@ const FACILITY_WIZARD: WizardConfig<FacilityRegData> = {
     coords: (d) => ({ lat: d.location?.lat || 0, lng: d.location?.lng || 0 }),
   },
   // The facility steps raise `loading` in their data while they save.
-  overlay: (d) => (
-    <Modal visible={!!d.loading} transparent animationType="fade">
-      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
-        <View style={{ padding: 20, backgroundColor: '#FFF', borderRadius: 12, alignItems: 'center' }}>
-          <Text style={{ marginTop: 10, fontSize: 16 }}>جاري معالجة البيانات...</Text>
-        </View>
-      </View>
-    </Modal>
-  ),
+  overlay: (d) => <ProcessingOverlay visible={!!d.loading} />,
 };
 
 export function FacilityRegistration(props: RegistrationProps<FacilityRegData>) {
   return <RegistrationWizard config={FACILITY_WIZARD} {...props} />;
 }
-
-// ══════════════════════════════════════════════════════════════════════════════
 
 function Step1Basic({ data, update, submitRef }: StepProps<FacilityRegData>) {
   const { show } = useToast();
@@ -262,8 +264,8 @@ return (
           {(data.facilityImagesUris||[]).map((uri: string, i: number) => (
             <View key={i} style={{ width: 80, height: 80, borderRadius: R.md, overflow: 'hidden' }}>
               <Image source={{ uri }} style={{ width: '100%', height: '100%' }} />
-              <TouchableOpacity onPress={() => update({ facilityImagesUris: data.facilityImagesUris.filter((_:any, idx:number) => idx !== i) })} style={{ position: 'absolute', top: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 12, padding: 2 }}>
-                <I name="close" size={16} color="#fff" />
+              <TouchableOpacity onPress={() => update({ facilityImagesUris: data.facilityImagesUris.filter((_:any, idx:number) => idx !== i) })} style={{ position: 'absolute', top: 4, right: 4, backgroundColor: withAlpha(theme.text, 0.5), borderRadius: 12, padding: 2 }}>
+                <I name="close" size={16} color={theme.textInv} />
               </TouchableOpacity>
             </View>
           ))}
@@ -393,7 +395,7 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
     doctor: { ar: 'طبيب', en: 'Doctor', color: tokens.success },
     lab: { ar: 'مختبر', en: 'Laboratory', color: tokens.purple },
     pharmacy: { ar: 'صيدلية', en: 'Pharmacy', color: tokens.warning },
-    radiology: { ar: 'أشعة', en: 'Radiology', color: '#03A9F4' },
+    radiology: { ar: 'أشعة', en: 'Radiology', color: tokens.mintDeep },
     nursing: { ar: 'تمريض', en: 'Nursing', color: tokens.pink }
   };
 
@@ -777,8 +779,8 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
                 {(tempSub.clinicImagesUris||[]).map((uri: string, i: number) => (
                   <View key={i} style={{ width: 80, height: 80, borderRadius: R.md, overflow: 'hidden' }}>
                     <Image source={{ uri }} style={{ width: '100%', height: '100%' }} />
-                    <TouchableOpacity onPress={() => setTempSub({ ...tempSub, clinicImagesUris: tempSub.clinicImagesUris.filter((_:any, idx:number) => idx !== i) })} style={{ position: 'absolute', top: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 12, padding: 2 }}>
-                      <I name="close" size={16} color="#fff" />
+                    <TouchableOpacity onPress={() => setTempSub({ ...tempSub, clinicImagesUris: tempSub.clinicImagesUris.filter((_:any, idx:number) => idx !== i) })} style={{ position: 'absolute', top: 4, right: 4, backgroundColor: withAlpha(theme.text, 0.5), borderRadius: 12, padding: 2 }}>
+                      <I name="close" size={16} color={theme.textInv} />
                     </TouchableOpacity>
                   </View>
                 ))}
@@ -956,7 +958,7 @@ function Step5Insurance({ data, update, submitRef, uploads }: StepProps<Facility
                 <TouchableOpacity onPress={() => toggleCompany(co.id)} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text style={{ fontSize: FS.md, color: theme.text, fontWeight: FW.bold }}>{AR ? co.ar : co.en}</Text>
                   <View style={{ width: 22, height: 22, borderRadius: R.sm, borderWidth: 2, borderColor: isAccepted ? theme.primary : theme.border, backgroundColor: isAccepted ? theme.primary : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
-                    {isAccepted && <I name="check" size={12} color="#FFF" />}
+                    {isAccepted && <I name="check" size={12} color={theme.textInv} />}
                   </View>
                 </TouchableOpacity>
 
@@ -1008,6 +1010,4 @@ return (
     </View>
   );
 }
-
-// ══════════════════════════════════════════════════════════════════════════════
 

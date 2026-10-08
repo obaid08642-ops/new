@@ -23,9 +23,8 @@ import { FacilityRegistration }       from './src/screens/facility/FacilityRegis
 import { FacilityDashboardNavigator } from './src/screens/facility/FacilityDashboard';
 import { PharmacyRegistration }       from './src/screens/pharmacy/PharmacyRegistration';
 import { PharmacyDashboardNavigator } from './src/screens/pharmacy/PharmacyDashboard';
-import { LabRegistration }           from './src/screens/lab/LabRegistration';
+import { LabRegistration, RadiologyRegistration } from './src/screens/lab/LabRegistration';
 import { LabDashboardNavigator }     from './src/screens/lab/LabDashboard';
-import { RadiologyRegistration }     from './src/screens/radiology/RadiologyRegistration';
 import { RadiologyDashboardNavigator } from './src/screens/radiology/RadiologyDashboard';
 import { NursingRegistration }       from './src/screens/nursing/NursingRegistration';
 import { NursingDashboardNavigator } from './src/screens/nursing/NursingDashboard';

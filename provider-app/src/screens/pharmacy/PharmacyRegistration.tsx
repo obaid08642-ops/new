@@ -10,6 +10,7 @@ import MapView, { Circle, Marker } from '../../components/PlatformMap';
 import { ProviderApi } from '../../api/provider';
 import { useInsuranceCatalog } from '../../api/catalogs';
 import { useTheme, useLang, useToast } from '../../context';
+import { tokens, withAlpha } from '../../theme/tokens';
 import { NBtn, NCard, NInput, NPhoneInput, NPassStrength, NToggle, NDivider, NPriceInput, NDropdown, NDatePickerSheet } from '../../components/ui';
 import { GeoPicker } from '../../components/GeoPicker';
 import { Validate } from '../../security/Security';
@@ -77,8 +78,6 @@ const INIT: PharmacyRegData = {
   scheduledDelivery: false, cashOnly: false, acceptedInsurance: [],
   signatureData: '', signerName: '', signerRole: '',   termsAgreed: false, location: {lat: 0, lng: 0}, accountHolderName: ''
 };
-
-// ══════════════════════════════════════════════════════════════════════════════
 
 // ─── What the pharmacy sends when the application is submitted (same fields as before the shared wizard) ───
 async function sendPharmacy(data: PharmacyRegData, uploads: Uploader): Promise<void> {
@@ -222,8 +221,6 @@ export function PharmacyRegistration(props: RegistrationProps<PharmacyRegData>) 
   return <RegistrationWizard config={PHARMACY_WIZARD} {...props} />;
 }
 
-// ─── Merged screen shell: stacks child steps inline and runs their savers in order ──
-
 // ══════════════════════════════════════════════════════════════════════════════
 function PStep1Basic({ data, update, submitRef }: StepProps<PharmacyRegData>) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
@@ -273,7 +270,6 @@ function PStep1Basic({ data, update, submitRef }: StepProps<PharmacyRegData>) {
     }
   };
   useStepSaver(submitRef, handleNext);
-
 
   return (
     <View>
@@ -361,7 +357,6 @@ function PStep2Legal({ data, update, submitRef, uploads }: StepProps<PharmacyReg
     }
   };
   useStepSaver(submitRef, handleNext);
-
 
   return (
     <View>
@@ -460,7 +455,7 @@ function PStep3Location({ data, update, submitRef }: StepProps<PharmacyRegData>)
             <View style={{ flexDirection:'row', flexWrap:'wrap', gap:SP.sm, marginBottom:SP.md }}>
               {[2, 4, 6, 8, 10, 15, 20, 50].map(r => (
                 <TouchableOpacity key={r} onPress={() => update({ deliveryRadius:r })} style={[s.radiusChip, { backgroundColor: data.deliveryRadius===r ? theme.primary : theme.surface2, borderColor: data.deliveryRadius===r ? theme.primary : theme.border }]}>
-                  <Text style={{ color:data.deliveryRadius===r?'#FFF':theme.text, fontWeight:FW.semi }}>{r} {AR?'كم':'km'}</Text>
+                  <Text style={{ color:data.deliveryRadius===r?theme.textInv:theme.text, fontWeight:FW.semi }}>{r} {AR?'كم':'km'}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -475,7 +470,7 @@ function PStep3Location({ data, update, submitRef }: StepProps<PharmacyRegData>)
                   center={{ latitude: 24.7136, longitude: 46.6753 }}
                   radius={data.deliveryRadius * 1000}
                   strokeColor={theme.primary}
-                  fillColor="rgba(255, 152, 0, 0.2)"
+                  fillColor={withAlpha(tokens.warning, 0.2)}
                 />
               </MapView>
             </View>
@@ -528,7 +523,7 @@ function PStep4Hours({ data, update, submitRef }: StepProps<PharmacyRegData>) {
               const active = data.workDays.includes(d.k);
               return (
                 <TouchableOpacity key={d.k} onPress={() => toggleDay(d.k)} style={[s.dayChip, { backgroundColor: active ? theme.primary : theme.surface2, borderColor: active ? theme.primary : theme.border }]}>
-                  <Text style={{ color:active?'#FFF':theme.text, fontSize:FS.sm, fontWeight:FW.semi }}>{AR?d.ar:d.k}</Text>
+                  <Text style={{ color:active?theme.textInv:theme.text, fontSize:FS.sm, fontWeight:FW.semi }}>{AR?d.ar:d.k}</Text>
                 </TouchableOpacity>
               );
             })}
@@ -708,7 +703,7 @@ function PStep6Delivery({ data, update, submitRef }: StepProps<PharmacyRegData>)
                   <TouchableOpacity onPress={() => toggleCompany(co.id)} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Text style={{ fontSize: FS.md, color: theme.text, fontWeight: FW.bold }}>{AR ? co.ar : co.en}</Text>
                     <View style={{ width: 22, height: 22, borderRadius: R.sm, borderWidth: 2, borderColor: isAccepted ? theme.primary : theme.border, backgroundColor: isAccepted ? theme.primary : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
-                      {isAccepted && <I name="check" size={12} color="#FFF" />}
+                      {isAccepted && <I name="check" size={12} color={theme.textInv} />}
                     </View>
                   </TouchableOpacity>
 
@@ -736,8 +731,6 @@ function PStep6Delivery({ data, update, submitRef }: StepProps<PharmacyRegData>)
     </View>
   );
 }
-
-// ══════════════════════════════════════════════════════════════════════════════
 
 // ══════════════════════════════════════════════════════════════════════════════
 

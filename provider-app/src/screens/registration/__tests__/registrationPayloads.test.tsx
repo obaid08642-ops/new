@@ -6,6 +6,7 @@ import React from 'react';
 import fs from 'fs';
 import path from 'path';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { fileKind } from '../kit';
 import { pharmacyFixture, doctorFixture, doctorUnifiedFixture, facilityFixture, nursingIndividualFixture, nursingCompanyFixture, labFixture, radiologyFixture, pharmacy24Fixture, labNoHomeFixture } from './fixtures';
 
 type Call = { fn: string; args: unknown[] };
@@ -69,8 +70,7 @@ jest.mock('../../../components/SuccessScreen', () => ({ SuccessScreen: () => nul
 import { PharmacyRegistration } from '../../pharmacy/PharmacyRegistration';
 import { FacilityRegistration } from '../../facility/FacilityRegistration';
 import { NursingRegistration } from '../../nursing/NursingRegistration';
-import { LabRegistration } from '../../lab/LabRegistration';
-import { RadiologyRegistration } from '../../radiology/RadiologyRegistration';
+import { LabRegistration, RadiologyRegistration } from '../../lab/LabRegistration';
 import { DoctorRegistration } from '../../doctor/DoctorRegistration';
 
 interface Case {
@@ -130,5 +130,22 @@ describe.each(CASES)('registration payloads: $name', (c) => {
     }
     const golden = JSON.parse(fs.readFileSync(goldenFile(c.name), 'utf8'));
     expect(api).toEqual(golden.api);
+    // every picked file is uploaded exactly once, as what it is (the old wizards sent licences twice with two mime types)
+    const uris = uploads.map((u) => u.args[0] as string);
+    expect(new Set(uris).size).toBe(uris.length);
+    expect(new Set(uris)).toEqual(new Set((golden.uploads_before_refactor as Call[]).map((u) => u.args[0] as string)));
+    for (const u of uploads) expect(u.args[1]).toBe(fileKind(u.args[0] as string).mime);
+  });
+});
+
+describe('registration: a required file that was not picked', () => {
+  it('stops the licences step before anything is uploaded or sent', async () => {
+    mockCalls.length = 0; mockToasts.length = 0;
+    await render(<PharmacyRegistration onBack={noop} onDone={noop} initialData={{ ...pharmacyFixture, sfdaUri: '' }} />);
+    await fireEvent.press(screen.getAllByText('Next').slice(-1)[0]);
+    await settle();
+    expect(mockToasts).toContain('Attach the SFDA licence');
+    expect(mockCalls.filter((c) => c.fn === 'uploadFile' || c.fn === 'step2')).toEqual([]);
+    expect(screen.getAllByText('Next').length).toBeGreaterThan(0); // still on the first page
   });
 });
