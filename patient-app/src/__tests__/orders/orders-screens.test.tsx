@@ -4,7 +4,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import OrderCenterScreen from '../../../app/orders/index';
-import PharmacyOrderHistoryScreen from '../../../app/pharmacy/order-history';
+import PharmacyOrderHistoryScreen from '../../../app/orders/index';
 import OrderTrackingScreen from '../../../app/pharmacy/order-tracking';
 import PharmacyReorderScreen from '../../../app/pharmacy/reorder';
 import AddressSelectScreen from '../../../app/delivery/address-select';
@@ -85,7 +85,7 @@ beforeEach(() => {
   mockAddress.current = { id: 'a1', label: 'Test home', street: 'Test street', city: 'Test city', lat: 24.7, lng: 46.6 };
 });
 
-describe('pharmacy order history', () => {
+describe('pharmacy orders in the orders list (the old pharmacy order history is a redirect to /orders)', () => {
   it('opens the offers for an order still looking for them, and the order again screen for a delivered one', async () => {
     answer({
       '/patient/pharmacy/orders': [
@@ -107,7 +107,7 @@ describe('pharmacy order history', () => {
   it('says so when the list cannot be loaded, and loads it again on retry', async () => {
     answer({ '/patient/pharmacy/orders': new Error('server_error') });
     await render(wrap(<PharmacyOrderHistoryScreen />));
-    await screen.findByText(k('orders.loadError'));
+    await screen.findByText(k('orders.partial', { n: 1 }));
     answer({ '/patient/pharmacy/orders': [stored('ord-aaaaaa111111', 'confirmed', { selected_offer_id: 'o1' })] });
     await tap(screen.getByLabelText(k('pharmacy.retry')));
     await screen.findByLabelText(new RegExp(k('orders.status.confirmed')));

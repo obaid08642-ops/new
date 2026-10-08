@@ -7,7 +7,7 @@ describe('Patient unified insurance catalog contract', () => {
 
   const consultations = read('app/(tabs)/consultations/index.tsx');
   const bookingConfirmation = read('src/components/BookingConfirmForm.tsx');
-  const insuranceUpload = read('app/diagnostics/insurance-upload.tsx');
+  const insuranceUpload = read('src/components/diagnostics/InsuranceUploadForm.tsx');
   const profileInsurance = read('app/profile/insurance.tsx');
   const addPolicy = read('app/insurance/add-policy.tsx');
 

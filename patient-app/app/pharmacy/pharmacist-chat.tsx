@@ -131,7 +131,7 @@ export default function PharmacistChatScreen() {
     return (
       <Screen theme={theme} direction={dir} header={header} testID="pharmacist-chat-screen">
         <View style={{ ...COLUMN, flex: 1, justifyContent: 'center', paddingHorizontal: 16 }}>
-          <EmptyState icon="chat-circle-text" tone={PHARMACY_TONE} title={k('pharmacy.chat.noOrderTitle')} body={k('pharmacy.chat.noOrderBody')} actionLabel={k('pharmacy.hub.orders')} onAction={() => router.replace('/pharmacy/order-history')} theme={theme} />
+          <EmptyState icon="chat-circle-text" tone={PHARMACY_TONE} title={k('pharmacy.chat.noOrderTitle')} body={k('pharmacy.chat.noOrderBody')} actionLabel={k('pharmacy.hub.orders')} onAction={() => router.replace('/orders')} theme={theme} />
         </View>
       </Screen>
     );

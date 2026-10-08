@@ -135,7 +135,7 @@ export default function PharmacyReorderScreen() {
   );
 
   if (!id) {
-    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('pharmacy.offers.noOrder')} body={k('pharmacy.offers.noOrderBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/pharmacy/order-history' as Href)} theme={theme} />);
+    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('pharmacy.offers.noOrder')} body={k('pharmacy.offers.noOrderBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/orders' as Href)} theme={theme} />);
   }
   if (loading) {
     return (
@@ -154,7 +154,7 @@ export default function PharmacyReorderScreen() {
     return state(<ErrorState title={k('orders.reorder.loadError')} body={k('pharmacy.error.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void load()} theme={theme} />);
   }
   if (!lines.length) {
-    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('orders.reorder.noLines')} body={k('orders.reorder.noLinesBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/pharmacy/order-history' as Href)} theme={theme} />);
+    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('orders.reorder.noLines')} body={k('orders.reorder.noLinesBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/orders' as Href)} theme={theme} />);
   }
 
   const addressLine = address ? [address.street || address.address, address.city].filter(Boolean).join(', ') : '';

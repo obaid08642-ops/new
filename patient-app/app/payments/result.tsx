@@ -102,7 +102,7 @@ export default function PaymentResultRoute() {
   };
   const home = () => router.replace('/(tabs)' as Href);
   const toOrder = () => router.replace({ pathname: '/pharmacy/order-tracking', params: { orderId: p.bookingId } });
-  const toOrders = () => router.replace('/pharmacy/order-history' as Href);
+  const toOrders = () => router.replace('/orders' as Href);
   const retryPay = () => (pharmacy ? router.replace({ pathname: '/pharmacy/payment', params: { orderId: p.bookingId } }) : router.back());
 
   const visit = (() => {

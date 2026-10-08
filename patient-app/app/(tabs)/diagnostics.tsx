@@ -211,7 +211,7 @@ export default function DiagnosticsHub() {
               {place === 'home' ? <PlaceRow text={addressLine} actionLabel={address ? k('diag.addr.change') : k('diag.addr.choose')} onAction={() => router.push('/delivery/address-select' as Href)} /> : null}
             </View>
 
-            <LinkCard icon="shield-check" tone={INSURANCE_TONE} title={k('diag.hub.insTitle')} body={k('diag.hub.insBody')} onPress={() => router.push('/diagnostics/insurance-upload' as Href)} />
+            <LinkCard icon="shield-check" tone={INSURANCE_TONE} title={k('diag.hub.insTitle')} body={k('diag.hub.insBody')} onPress={() => router.push('/diagnostics/insurance-approval' as Href)} />
           </>
         )}
 

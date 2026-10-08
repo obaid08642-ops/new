@@ -16,7 +16,6 @@
     "patient-app/app/community/post-detail.tsx": 12,
     "patient-app/app/consultations/doctor-profile.tsx": 1,
     "patient-app/app/doctor/[slug].tsx": 3,
-    "patient-app/app/drug-scanner/index.tsx": 17,
     "patient-app/app/emergency/sos-active.tsx": 19,
     "patient-app/app/emergency/sos.tsx": 15,
     "patient-app/app/emergency/tracking.tsx": 18,
