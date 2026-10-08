@@ -399,10 +399,12 @@ export class MedicinesService {
   /** Compute list badges so catalog rows can render RX/discount/shortage chips. */
   private withBadges(m: any) {
     const price = m.price || 0;
-    const old = m.old_price || 0;
+    // D-10: no discount or offer is shown on prescription-only items.
+    const old = m.requires_prescription === true ? 0 : (m.old_price || 0);
     const discount_percent = old > price && price > 0 ? Math.round((1 - price / old) * 100) : 0;
+    const { old_price: _hiddenOldPrice, ...rest } = m;
     return {
-      ...m,
+      ...(m.requires_prescription === true ? rest : m),
       discount_percent,
       has_discount: discount_percent > 0,
       potentially_unavailable: m.availability_status === 'availability_may_be_limited' || m.availability_status === 'admin_flagged_shortage',
