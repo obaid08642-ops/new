@@ -1,41 +1,72 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
-import { Gift } from "lucide-react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
-import { isLocale } from "@/lib/i18n";
 import { getOffers } from "@/lib/api/offers-server";
-import s from "./offers.module.css";
+import { isLocale } from "@/lib/i18n";
+import { parseOffers } from "@/lib/loyalty/view";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { StatusChip } from "@/components-next/ui-generated/components/Controls";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
+import rx from "@/components-next/pharmacy/rx.module.css";
+import consult from "@/components-next/consult/consult.module.css";
+import styles from "@/components-next/loyalty/loyalty.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
-type Offer = { id: string; title: string; description?: string; price?: string; originalPrice?: string; provider?: string };
-function extractOffers(payload: unknown, locale: string): Offer[] {
-  const root = payload && typeof payload === "object" && !Array.isArray(payload) ? payload as Record<string, unknown> : null;
-  const values = Array.isArray(payload) ? payload : [root?.data, root?.offers, root?.items].find(Array.isArray);
-  if (!Array.isArray(values)) return [];
-  const isAr = locale === "ar";
-  return values.flatMap((value) => {
-    const r = value && typeof value === "object" ? value as Record<string, unknown> : null;
-    if (!r) return [];
-    const id = String(r.id ?? r._id ?? "");
-    if (!id) return [];
-    const title = String((isAr ? r.title_ar : r.title_en) ?? r.title_ar ?? r.title_en ?? r.title ?? "");
-    if (!title) return [];
-    const price = r.discounted_price ?? r.price;
-    const original = r.original_price;
-    return [{ id, title, description: typeof r.description_ar === "string" && isAr ? r.description_ar : typeof r.description_en === "string" && !isAr ? r.description_en : typeof r.description === "string" ? r.description : undefined, price: price != null ? String(price) : undefined, originalPrice: original != null ? String(original) : undefined, provider: typeof r.provider_name === "string" ? r.provider_name : undefined }];
-  });
-}
+
+const OFFER = SERVICE_ICONS.points;
+
+/**
+ * Offers (merge map 2, section 7: the list and the detail stay): the live campaigns of GET /home/offers as cards with the
+ * server's title, provider, discount, price and old price. No discount or price is computed or invented here.
+ */
 export default async function OffersPage({ params }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const token = await requirePatientAccess(locale);
-  const t = await getTranslations("Offers");
-  const response = await getOffers(token);
-  const offers = response.ok ? extractOffers(await response.json().catch(() => null), locale) : [];
-  return <main className={`main ${s.page}`}>
-    <div className={s.hero}><div><p className={s.eyebrow}>{t("title")}</p><h1>{t("title")}</h1><p>{t.has("subtitle") ? t("subtitle") : ""}</p></div><span className={s.heroIcon} aria-hidden="true"><Gift size={48} aria-hidden="true" /></span></div>
-    {!response.ok ? <p role="alert" className={s.meta}>{t("error")}</p> : offers.length === 0 ? <div className={s.state}><span className={s.heroIcon}><Gift size={48} aria-hidden="true" /></span><p>{t("empty")}</p></div> : <ul className={s.grid} style={{ listStyle: "none", padding: 0, margin: 0 }}>{offers.map((o) => <li key={o.id} className={s.card}><Link href={`/${locale}/offers/${encodeURIComponent(o.id)}`} style={{ display: "grid", gap: 6, textDecoration: "none", color: "inherit" }}><strong>{o.title}</strong>{o.description ? <p>{o.description}</p> : null}<span className={s.meta}>{[o.price ? `${o.price} ${t("sar")}` : null, o.originalPrice && o.originalPrice !== o.price ? o.originalPrice : null, o.provider ?? null].filter(Boolean).join(" · ")}</span></Link></li>)}</ul>}
-  </main>;
+  const t = await getTranslations("OffersWeb");
+  const rs = await getTranslations("RouteState");
+  const frame = (body: ReactNode) => (
+    <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/dashboard`}>
+      {body}
+    </ConsultPage>
+  );
+  const failed = () => frame(<ConsultState kind="error" title={t("errorTitle")} body={t("error")} retryLabel={rs("retry")} />);
+
+  let response: Response;
+  try {
+    response = await getOffers(token);
+  } catch {
+    return failed();
+  }
+  if (response.status === 401) redirect(`/${locale}/login`);
+  if (!response.ok) return failed();
+  const offers = parseOffers(await response.json().catch(() => null));
+  if (offers.length === 0) return frame(<ConsultState kind="empty" icon={OFFER.icon} tone={OFFER.tone} title={t("emptyTitle")} body={t("empty")} />);
+
+  const price = (n: number) => t("price", { amount: new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(n) });
+  return frame(
+    <ul className={consult.list}>
+      {offers.map((o) => (
+        <li key={o.id} className={rx.card}>
+          <Link href={`/${locale}/offers/${encodeURIComponent(o.id)}`} className={styles.cardLink}>
+            <span className={styles.pillRow}>
+              <span className={consult.rowTitle}>{o.title}</span>
+              {o.discount ? <StatusChip label={t("discount", { value: o.discount })} tone={SERVICE_ICONS.pharmacy.tone} /> : null}
+            </span>
+            {o.provider ? <span className={consult.rowSub}>{o.provider}</span> : null}
+            <span className={styles.prices}>
+              {o.price !== undefined ? <strong className={styles.price}><bdi>{price(o.price)}</bdi></strong> : null}
+              {o.oldPrice !== undefined && o.oldPrice !== o.price ? <s className={styles.was}><bdi>{price(o.oldPrice)}</bdi></s> : null}
+              {o.rating !== undefined ? <span className={consult.rowSub}><bdi>{`★ ${new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(o.rating)}`}</bdi></span> : null}
+            </span>
+            {o.sponsored ? <span className={consult.rowSub}>{t("sponsored")}</span> : null}
+          </Link>
+        </li>
+      ))}
+    </ul>,
+  );
 }

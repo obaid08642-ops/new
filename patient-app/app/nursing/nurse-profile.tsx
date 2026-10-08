@@ -242,7 +242,7 @@ export default function NursingMegaProfile() {
 
         <Section title={k('nur.book.where')}>
           <Block gap={4}>
-            <PlaceRow text={gpsLocation ?? k('nur.book.noAddress')} actionLabel={gpsLocation ? k('nur.book.change') : k('nur.book.choose')} onAction={() => router.push('/delivery/address-select' as Href)} />
+            <PlaceRow text={gpsLocation ?? k('nur.book.noAddress')} actionLabel={gpsLocation ? k('nur.book.change') : k('nur.book.choose')} onAction={() => router.push('/profile/addresses?select=1' as Href)} />
             <View>
               <Radio theme={theme} label={k('nur.book.nurseTransport')} selected={transportMode === 'nurse'} divider onChange={() => setTransportMode('nurse')} />
               <Radio theme={theme} label={k('nur.book.myTransport')} selected={transportMode === 'patient'} onChange={() => setTransportMode('patient')} />

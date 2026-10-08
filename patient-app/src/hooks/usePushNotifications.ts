@@ -33,7 +33,7 @@ Notifications.setNotificationHandler({
  */
 export function translateBackendRoute(route: string): { pathname: string; params?: Record<string, string> } | null {
   if (!route) return null;
-  const [clean, query = ''] = String(route).split('?');
+  const [clean] = String(route).split('?');
 
   let m = clean.match(/^\/orders\/([^/]+)\/tracking$/) || clean.match(/^\/orders\/([^/]+)$/);
   if (m) return { pathname: '/pharmacy/order-tracking', params: { orderId: m[1] } };
@@ -64,11 +64,8 @@ export function translateBackendRoute(route: string): { pathname: string; params
   m = clean.match(/^\/health\/results\/(.+)$/) || clean.match(/^\/health\/reports\/(.+)$/) || clean.match(/^\/reports\/([^/]+)$/);
   if (m) return { pathname: '/reports/view-report', params: { id: m[1] } };
 
-  // community notifications carry the post in the query: /community/post-detail?id=...
-  if (clean === '/community/post-detail') {
-    const id = new URLSearchParams(query).get('id');
-    return id ? { pathname: clean, params: { id } } : null;
-  }
+  // Community is removed (owner decision 1): an old community notification opens the articles
+  if (clean === '/community' || clean.startsWith('/community/')) return { pathname: '/articles' };
 
   // Routes that already exist verbatim in the app
   if (clean === '/consultations/appointments') return { pathname: clean };
@@ -77,10 +74,17 @@ export function translateBackendRoute(route: string): { pathname: string; params
   if (clean === '/health/family-hub' || clean === '/family/permission-request') return { pathname: '/family' };
   // Verbatim app routes used by backend notification action.route (EPIC4/EPIC5 listeners)
   const VERBATIM_ROUTES = new Set([
-    '/insurance/hub', '/returns/hub',
+    '/insurance', '/insurance/hub', '/returns/hub',
     '/loyalty/hub', '/loyalty/referrals', '/loyalty/challenges',
-    '/family', '/ai/symptom-timeline', '/emergency/tracking',
+    '/family', '/emergency/tracking',
   ]);
+  // The symptom timeline is the conversation of the assistant (merge map section 4, Batch 9)
+  if (clean === '/ai/symptom-timeline') return { pathname: '/ai', params: { mode: 'symptoms' } };
+  // The loyalty hub keeps rewards, challenges and invites as tabs (merge map section 7, Batch 11); the leaderboard is removed
+  if (clean === '/loyalty/referrals') return { pathname: '/loyalty/hub', params: { tab: 'invite' } };
+  if (clean === '/loyalty/challenges') return { pathname: '/loyalty/hub', params: { tab: 'challenges' } };
+  if (clean === '/loyalty/rewards') return { pathname: '/loyalty/hub', params: { tab: 'rewards' } };
+  if (clean === '/loyalty/leaderboard') return { pathname: '/loyalty/hub' };
   if (VERBATIM_ROUTES.has(clean)) return { pathname: clean };
 
   return null;
@@ -144,7 +148,7 @@ export function routeFromNotificationData(data: any): void {
         router.push('/returns/hub' as any);
         break;
       case 'insurance':
-        router.push('/insurance/hub' as any);
+        router.push('/insurance' as any);
         break;
       case 'family':
         router.push('/family' as any);

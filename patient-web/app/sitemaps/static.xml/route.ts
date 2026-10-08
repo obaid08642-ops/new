@@ -23,7 +23,6 @@ export function GET() {
     { path: "/mental-health", changefreq: "weekly", priority: "0.6" },
     { path: "/family", changefreq: "weekly", priority: "0.6" },
     { path: "/health", changefreq: "weekly", priority: "0.7" },
-    { path: "/community", changefreq: "daily", priority: "0.6" },
   ];
   const urls = locales.flatMap((locale) =>
     rows.map(

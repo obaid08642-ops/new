@@ -1,0 +1,52 @@
+[
+  {
+    "batch": 11,
+    "app": "patient-app",
+    "screen": "/loyalty/hub",
+    "element": "Purchase-typed challenges",
+    "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
+    "line": 248,
+    "found": "[backend] the Challenges tab shows what GET /loyalty/challenges sends and filters nothing; if the server still sends a challenge that asks for buying medicines it must be removed there (decision 9)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 11,
+    "app": "patient-app",
+    "screen": "/loyalty/hub",
+    "element": "Referral amounts",
+    "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
+    "line": 363,
+    "found": "[backend] the amounts a referral pays (the old copy said 50 and 100 points) are not sent by any endpoint, so the copy states no number; /referrals/my or /loyalty/config should send them",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 11,
+    "app": "patient-app",
+    "screen": "/loyalty/hub",
+    "element": "Cash equivalent of points",
+    "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
+    "line": 82,
+    "found": "[backend] the old hub showed points / 100 as riyals, a rate written in the client; not drawn until /loyalty/config sends the rate",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 11,
+    "app": "patient-app",
+    "screen": "/loyalty/hub",
+    "element": "Copy referral code",
+    "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
+    "line": 368,
+    "found": "[client] the old button used react-native Clipboard, which RN 0.86 no longer has (it would crash); dropped, the Share sheet remains; needs a clipboard package (owner to approve the dependency)",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 11,
+    "app": "patient-app",
+    "screen": "/loyalty/hub",
+    "element": "Reward and challenge icons",
+    "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
+    "line": 286,
+    "found": "[client] the server sends an icon and a colour per reward, tier and challenge as raw strings; the screen uses fixed glyphs and service tones instead (identity rule: tokens only)",
+    "suspect": "Client-side: later batch."
+  }
+]

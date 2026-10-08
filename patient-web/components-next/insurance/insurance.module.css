@@ -1,0 +1,75 @@
+/* The insurance screens (Batch 7, merge map 2 section 6): the hub with its tabs (canvas/Insurance), the forms, the coverage
+   check and the one page of an insurance request. The shell and the cards come from components-next/core, pharmacy/rx.module.css
+   and consult/consult.module.css, the tabs and rows from health/health-kit and consult/consult-parts; this file only adds what
+   the board draws that those do not (the policy card, the shortcut tiles, the status badge, the amount lines).
+   Tokens only, logical properties only, no inline styles (the CSP refuses them). */
+
+.stack { display: flex; flex-direction: column; gap: var(--nabd-space-sm); min-inline-size: 0; }
+.toolbar { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+.iconButton {
+  display: inline-flex; align-items: center; justify-content: center; inline-size: 44px; block-size: 44px; border-radius: var(--nabd-radius-pill);
+  border: 1px solid var(--nabd-color-border-hairline); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary); text-decoration: none;
+}
+.iconButton:focus-visible, a.shortcut:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+
+/* ---- the policy card of the board: the company, the plan, the status ---- */
+.policy { gap: 14px; }
+.policyTop { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.policyName { margin: 0; font-size: var(--nabd-font-size-body-lg); font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.policySub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+
+/* ---- the badge of a status: neutral by default, the status tokens for approved / waiting / declined ---- */
+.badge {
+  flex: none; align-self: flex-start; display: inline-flex; align-items: center; min-block-size: 24px; padding-inline: 9px; border-radius: var(--nabd-radius-pill);
+  background: var(--nabd-color-bg-sunken); color: var(--nabd-color-text-secondary); font-size: var(--nabd-font-size-micro); font-weight: 600; white-space: nowrap;
+}
+.badge bdi { unicode-bidi: isolate; }
+.badgeGood { background: var(--nabd-color-status-success-bg); color: var(--nabd-color-status-success-fg); }
+.badgeWait { background: var(--nabd-color-status-warning-bg); color: var(--nabd-color-status-warning-fg); }
+.badgeBad { background: var(--nabd-color-status-danger-bg); color: var(--nabd-color-status-danger-fg); }
+
+/* ---- the three shortcut tiles under the card ---- */
+.shortcuts { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.shortcuts > li { min-inline-size: 0; display: flex; }
+a.shortcut {
+  flex: 1; min-block-size: 96px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 8px; box-sizing: border-box;
+  border-radius: var(--nabd-radius-3xl); background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); color: var(--nabd-color-text-primary);
+  text-decoration: none; text-align: center; font-size: var(--nabd-font-size-label); font-weight: 600; overflow-wrap: anywhere;
+}
+
+/* ---- rows (requests, claims, refunds, providers) ---- */
+.rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.rows > li { border-block-end: 1px solid var(--nabd-color-border-subtle); min-inline-size: 0; }
+.rows > li:last-child { border-block-end: 0; }
+.row { display: flex; align-items: center; gap: 12px; padding-block: 12px; min-inline-size: 0; color: inherit; text-decoration: none; min-block-size: 44px; }
+a.row:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-lg); }
+.rowBody { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.rowTitle { font-size: var(--nabd-font-size-row); font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+.rowSub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.rowSub bdi { unicode-bidi: isolate; }
+.caret { flex: none; display: inline-flex; color: var(--nabd-color-icon-secondary); }
+
+/* ---- search (network, coverage check): the field and the button side by side ---- */
+.search { display: flex; align-items: flex-end; gap: 8px; }
+.searchField { flex: 1; min-inline-size: 0; }
+
+/* ---- an insurance request: the amount lines and the payment methods ---- */
+.amounts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.amounts > li { display: flex; justify-content: space-between; gap: 12px; padding-block: 10px; border-block-end: 1px solid var(--nabd-color-border-subtle); }
+.amounts > li:last-child { border-block-end: 0; }
+.amountLabel { color: var(--nabd-color-text-secondary); font-size: var(--nabd-font-size-body); overflow-wrap: anywhere; }
+.amountValue { font-weight: 700; font-size: var(--nabd-font-size-body); }
+.amountValue bdi { unicode-bidi: isolate; }
+.methods { display: flex; flex-direction: column; gap: 8px; }
+.waiting { display: flex; align-items: center; gap: 10px; }
+
+/* ---- the five tabs: the board's segmented control, scrolling sideways when the labels do not fit (no word is broken) ---- */
+.tabs { display: flex; padding: 4px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); gap: 2px; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tabs > a {
+  flex: 1 0 auto; display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; padding-inline: 14px; box-sizing: border-box; white-space: nowrap;
+  border-radius: var(--nabd-radius-lg); color: var(--nabd-color-text-primary); text-decoration: none; font-size: var(--nabd-font-size-segment); font-weight: 500;
+}
+.tabs > a[aria-current="page"] { background: var(--nabd-color-bg-surface); font-weight: 700; box-shadow: var(--nabd-shadow-card); }
+.tabs > a:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.note { margin: 0; font-size: var(--nabd-font-size-caption); line-height: 1.7; color: var(--nabd-color-text-secondary); text-align: center; overflow-wrap: anywhere; }

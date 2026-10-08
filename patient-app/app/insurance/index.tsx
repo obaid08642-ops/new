@@ -1,7 +1,8 @@
-// @ts-nocheck
-import React from "react";
-import { Redirect } from "expo-router";
+import React from 'react';
 
-export default function Index() {
-  return <Redirect href="/insurance/hub" />;
+import { InsuranceHubView } from '../../src/components/insurance/InsuranceHubView';
+
+/** The insurance hub: policy, benefits, claims, refunds and network as tabs of `?tab=` (merge map 2, section 6). */
+export default function InsuranceHubScreen() {
+  return <InsuranceHubView />;
 }
