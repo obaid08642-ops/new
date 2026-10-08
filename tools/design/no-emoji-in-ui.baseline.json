@@ -1,6 +1,6 @@
 {
   "$comment": "Recorded debt for tools/design/no-emoji-in-ui.ts. Every entry is an emoji being used as an icon somewhere in a client, before the design system existed. 12.A11 replaces them with the illustrated or line icon set and this file shrinks to zero. It may only shrink.",
-  "total": 46,
+  "total": 45,
   "files": {
     "admin/src/pages/admin/ai-control.tsx": 1,
     "admin/src/pages/admin/command-center.tsx": 1,
@@ -13,7 +13,6 @@
     "admin/src/pages/admin/shortage-reports.tsx": 1,
     "admin/src/pages/admin/theme-control.tsx": 1,
     "admin/src/pages/admin/users-management.tsx": 3,
-    "provider-app/src/screens/ambulance/AmbulanceDashboard.tsx": 1,
     "provider-app/src/screens/doctor/doctor/AvailabilityExceptions.tsx": 1,
     "provider-app/src/screens/doctor/doctor/CertificatesConfigScreen.tsx": 1,
     "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx": 2,

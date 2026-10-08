@@ -66,7 +66,6 @@ export enum ProviderType {
   RADIOLOGY = 'radiology',
   HOME_CARE = 'home_care',
   NURSING = 'nursing',
-  AMBULANCE = 'ambulance',
 }
 
 export enum ProviderStatus {
