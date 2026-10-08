@@ -215,6 +215,16 @@ const BOARD = {
   'd-book-sample': { component: 'BookingConfirm', size: [390, 1180], params: {} },
   'd-insurance-upload': { component: 'RxUpload', size: [390, 1100], params: { labId: 'test-lab', labName: 'مختبر تجريبي ١', serviceType: 'home' } },
   'd-insurance-approval': { component: 'ServiceHub', size: [390, 1640], params: { orderId: 'test-ins', labName: 'مختبر تجريبي ١', visitType: 'home' } },
+  // Batch 4 (nursing / home care, app slice 4-app; 8 screens). `--dir "patient-app/app/(tabs)" --screens nursing:n-hub` and `--dir patient-app/app/nursing --screens visits:n-visits,...`.
+  // The ids select the TEST records of render-native-screen.fixtures.json (`svc-iv`, `test-nurse`, `test-visit`, `test-nur-ins`). Hub, lists and details draw on the ServiceHub board, visits on Orders, tracking on OrderTracking, the booking page on DoctorFull.
+  'n-hub': { component: 'ServiceHub', size: [390, 1640], params: {} },
+  'n-visits': { component: 'Orders', size: [390, 900], params: {} },
+  'n-service-info': { component: 'ServiceHub', size: [390, 1640], params: { serviceId: 'svc-iv', flow: 'cash' } },
+  'n-service-details': { component: 'ServiceHub', size: [390, 1640], params: { serviceId: 'svc-iv', title: 'خدمة تمريض تجريبية ١', flow: 'cash' } },
+  'n-insurance-status': { component: 'ServiceHub', size: [390, 1640], params: { bookingId: 'test-nur-ins' } },
+  'n-live-tracking': { component: 'OrderTracking', size: [390, 1120], params: { type: 'nurse', bookingId: 'test-visit' } },
+  'n-live-done': { component: 'OrderTracking', size: [390, 1120], params: { type: 'nurse', bookingId: 'test-visit-done' } },
+  'n-nurse-profile': { component: 'DoctorFull', size: [390, 2700], params: { nurseId: 'test-nurse', flow: 'cash', serviceId: 'svc-iv' } },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },
