@@ -216,7 +216,7 @@ export class AdminPharmacySeedController {
   constructor(private seedSvc: PharmacySeedService) {}
   private assertTestSeedAllowed() {
     if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
-      throw new NotFoundException();
+      throw new ServiceUnavailableException('test_seed_disabled');
     }
   }
 
