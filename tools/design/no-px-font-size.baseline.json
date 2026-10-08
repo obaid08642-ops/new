@@ -1,13 +1,10 @@
 {
   "$comment": "Recorded debt for tools/design/no-px-font-size.ts. Every entry is a hard-coded font size that predates the design system. 12.A11 removes entries as screens are rebuilt on the stamps. This file may only shrink.",
-  "total": 40,
+  "total": 21,
   "files": {
     "patient-web/app/[locale]/ai/triage.module.css": 10,
     "patient-web/app/[locale]/consultations/specialties/specialties.module.css": 1,
-    "patient-web/app/[locale]/doctors/[specialty]/[city]/[neighborhood]/doctors-neighborhood.module.css": 7,
-    "patient-web/app/[locale]/doctors/[specialty]/[city]/doctors-city.module.css": 8,
     "patient-web/app/[locale]/emergency/emergency.module.css": 9,
-    "patient-web/app/[locale]/medicine-catalog/medicine-catalog.module.css": 4,
     "patient-web/components-next/header-cart-badge.module.css": 1
   }
 }

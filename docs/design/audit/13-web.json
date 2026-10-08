@@ -1,0 +1,253 @@
+{
+  "slice": "13-web",
+  "batch": 13,
+  "app": "patient-web",
+  "screens": [
+    {
+      "route": "/doctors/[specialty]/[city]",
+      "elements": [
+        ["Title, intro, back link", "static keys PublicLanding.doctorsCity.*, route params", "ok"],
+        ["Doctor cards (name, specialty, city, whole card links to the doctor page)", "GET /entity-graph/explore doctors[].name_ar/name_en/specialty/city/slug", "ok"],
+        ["Book label on the card", "static key PublicLanding.doctorsCity.book (the card is the link)", "ok"],
+        ["Rating on the card", "explore sends a rating but no review count; the card needs both", "hidden"],
+        ["Hospitals and clinics rows", "GET /entity-graph/explore facilities[].name/city/district/slug", "ok"],
+        ["Thin page rule (nobody listed is a 404, an outage throws)", "explore total_doctors/total_facilities, PublicDataUnavailableError", "ok"],
+        ["JSON-LD, hreflang, canonical, robots", "unchanged", "ok"]
+      ]
+    },
+    {
+      "route": "/doctors/[specialty]/[city]/[neighborhood]",
+      "elements": [
+        ["Title, intro, back link", "static keys PublicLanding.doctorsNeighborhood.*, route params", "ok"],
+        ["Doctor cards", "GET /entity-graph/explore doctors[]", "ok"],
+        ["Invented rating (4.9 when the doctor had none)", "removed", "fixed"],
+        ["Facility rows filtered by district or address, all of the city when none match", "explore facilities[].district/address (client filter, as before)", "gap"],
+        ["Facility rows link to the facility page", "facilities[].slug or id", "fixed"],
+        ["JSON-LD, hreflang, canonical, robots", "unchanged", "ok"]
+      ]
+    },
+    {
+      "route": "/doctor/[slug]/[city]",
+      "elements": [
+        ["The page (same doctor page as /doctor/[slug] with the city in its canonical)", "delegates to the doctor page (GET /entity-graph/related/doctor/:param)", "ok"],
+        ["Static/ISR opt-in (revalidate, generateStaticParams) and the proxy's public-page mark", "segment config of this file, proxy.ts PUBLIC_INDEXABLE", "fixed"]
+      ]
+    },
+    {
+      "route": "/condition/[slug]",
+      "elements": [
+        ["Name (title) and overview (intro)", "GET /entity-graph/related/condition/:param entity.name_*/overview_*", "ok"],
+        ["Symptom chips", "entity.symptoms[]", "ok"],
+        ["Doctor cards", "relationships.doctors[]", "ok"],
+        ["Related medicine rows with price, linking /p/:slug", "relationships.relevant_medicines[].name/active_ingredient/price/slug", "ok"],
+        ["Book a consultation button", "route /consultations", "ok"],
+        ["Verified Health Guide badge (a claim with no field behind it)", "removed", "hidden"],
+        ["Price shown as '{price} SAR' text", "Intl price format (formatPrice)", "fixed"]
+      ]
+    },
+    {
+      "route": "/facility/[slug]",
+      "elements": [
+        ["Name (title), location and phone facts", "GET /entity-graph/related/facility/:param entity.name_*/city/district/phone", "ok"],
+        ["Departments chips", "relationships.departments[]", "ok"],
+        ["Accepted insurance chips", "entity.accepted_insurance[]", "ok"],
+        ["Book appointment button", "route /consultations", "ok"],
+        ["Back link (pointed to /consultations/clinics, a route that has no list page)", "route /consultations", "fixed"],
+        ["JSON-LD hospital or clinic, breadcrumbs", "unchanged", "ok"]
+      ]
+    },
+    {
+      "route": "/home-nursing/[citySlug]",
+      "elements": [
+        ["Title, intro", "static keys PublicLanding.homeNursing.*, route param", "ok"],
+        ["Service cards (name, description)", "GET /public/ai-catalog/services?city= items[].name/description (filter as before)", "ok"],
+        ["Request a visit button", "route /home-care/services", "ok"],
+        ["'Licensed Staff' line on every card", "removed (no field says so)", "hidden"],
+        ["Ministry-licensed claim in the subtitle", "replaced by a neutral line", "fixed"]
+      ]
+    },
+    {
+      "route": "/labs/[testSlug]/[citySlug]",
+      "elements": [
+        ["Title, intro", "static keys PublicLanding.labs.*, route params", "ok"],
+        ["Partner laboratory cards (name, city)", "GET /entity-graph/explore?city= facilities[].name/city", "gap"],
+        ["Book this test button", "route /diagnostics/labs", "ok"],
+        ["Empty state with the provider sign-up button", "no facility listed; route /consultations/doctors (as before)", "gap"],
+        ["'Home collection available' banner and 'Accredited Lab' line", "removed (no field says so)", "hidden"]
+      ]
+    },
+    {
+      "route": "/radiology/[serviceSlug]/[citySlug]",
+      "elements": [
+        ["Title, intro", "static keys PublicLanding.radiology.*, route params", "ok"],
+        ["Imaging service cards (name, modality, price)", "GET /radiology/services?search= name_*/modality/price", "ok"],
+        ["City written on each card (it was the city of the URL, not the service's)", "removed", "fixed"],
+        ["Book imaging button", "route /diagnostics/radiology", "ok"],
+        ["Empty state with the provider sign-up button", "no service listed; route /consultations/doctors (as before)", "gap"]
+      ]
+    },
+    {
+      "route": "/services/[serviceSlug]/[citySlug]",
+      "elements": [
+        ["Title, intro", "static keys PublicLanding.services.*, route params", "ok"],
+        ["Service cards (name, description, mode, insurance)", "GET /public/ai-catalog/services?city= items[].name/description/service_mode/insurance_accepted", "ok"],
+        ["Request this service button", "route /services (redirects to the home page)", "gap"]
+      ]
+    },
+    {
+      "route": "/pharmacies/[citySlug]",
+      "elements": [
+        ["Title, intro", "static keys PublicLanding.pharmacies.*, route param", "ok"],
+        ["Order notice (the order goes to nearby pharmacies, which answer with offers)", "static key; replaces the 'in-stock guarantee' banner", "fixed"],
+        ["Pharmacy and centre cards (name, city)", "GET /entity-graph/explore?city= facilities[].name/city", "gap"],
+        ["Order medicines button", "route /c", "ok"],
+        ["'Official pricing' line on every card", "removed (no field says so)", "hidden"],
+        ["Empty state with the provider sign-up button", "no facility listed; route /consultations/doctors (as before)", "gap"]
+      ]
+    },
+    {
+      "route": "/medicine-catalog",
+      "elements": [
+        ["Title, intro, search field (GET ?q=)", "keys PublicMedicines.*, CatalogSearch target medicine-catalog", "ok"],
+        ["Product cards (name, form, strength, price, image, Rx mark, add to cart)", "GET /public/products/search items[] (shared ProductGrid)", "ok"],
+        ["Pager", "total, page (PharmacyBrowse keys)", "ok"],
+        ["Drug interaction checker link", "route /pharmacy/interactions", "ok"],
+        ["Failure and empty states", "answer of the same call (RetryErrorState, LandingEmpty)", "ok"]
+      ]
+    },
+    {
+      "route": "/privacy",
+      "elements": [
+        ["Policy text (headings, paragraphs, bullets)", "GET /legal/policy/privacy_policy?lang= content", "fixed"],
+        ["Version and date it applies from", "version, effective_date", "ok"],
+        ["Hard-coded Arabic policy text shown in every language", "removed", "fixed"]
+      ]
+    },
+    {
+      "route": "/terms",
+      "elements": [
+        ["Policy text (headings, paragraphs, bullets)", "GET /legal/policy/patient_terms?lang= content", "fixed"],
+        ["Version and date it applies from", "version, effective_date", "ok"],
+        ["Hard-coded Arabic terms shown in every language", "removed", "fixed"]
+      ]
+    },
+    {
+      "route": "/provider-info",
+      "elements": [
+        ["Title and explanation", "static keys PublicLanding.provider.*", "ok"],
+        ["Continue as a patient button", "route /login", "ok"],
+        ["Contact us button", "route /support", "ok"]
+      ]
+    }
+  ],
+  "needsReview": [
+    {
+      "route": "/labs/[testSlug]/[citySlug]",
+      "element": "Partner laboratories list",
+      "kind": "backend",
+      "note": "Lists every facility of the city (explore has no facility-type or test filter), so a lab page can show a clinic and the test in the URL is not used; same for /pharmacies/[citySlug].",
+      "file": "patient-web/app/[locale]/labs/[testSlug]/[citySlug]/page.tsx",
+      "line": 26,
+      "backend": "backend/src/modules/entity-graph/entity-graph.service.ts:265"
+    },
+    {
+      "route": "/pharmacies/[citySlug]",
+      "element": "Pharmacies list",
+      "kind": "backend",
+      "note": "Explore returns every facility type of the city, so non-pharmacies can be listed as pharmacies.",
+      "file": "patient-web/app/[locale]/pharmacies/[citySlug]/page.tsx",
+      "line": 28,
+      "backend": "backend/src/modules/entity-graph/entity-graph.service.ts:265"
+    },
+    {
+      "route": "/radiology/[serviceSlug]/[citySlug]",
+      "element": "City of the service list",
+      "kind": "backend",
+      "note": "The radiology catalogue has no city or centre, so the page lists services matching the search text and the city is only in the URL and the title.",
+      "file": "patient-web/app/[locale]/radiology/[serviceSlug]/[citySlug]/page.tsx",
+      "line": 28
+    },
+    {
+      "route": "/home-nursing/[citySlug]",
+      "element": "Fallback list",
+      "kind": "client",
+      "note": "When no service looks like nursing, the first five services of the city are shown as home nursing.",
+      "file": "patient-web/app/[locale]/home-nursing/[citySlug]/page.tsx",
+      "line": 40
+    },
+    {
+      "route": "/doctors/[specialty]/[city]",
+      "element": "Rating on the doctor card",
+      "kind": "backend",
+      "note": "Explore sends a rating but no review count, and the design-system card draws a rating only with a count; add reviews_count to the explore doctors to show it.",
+      "file": "patient-web/app/[locale]/doctors/[specialty]/[city]/page.tsx",
+      "line": 110,
+      "backend": "backend/src/modules/entity-graph/entity-graph.service.ts:292"
+    },
+    {
+      "route": "/doctors/[specialty]/[city]/[neighborhood]",
+      "element": "Facilities of the neighbourhood",
+      "kind": "client",
+      "note": "The page filters the facilities by district or address, and shows the whole city when none match while the page says they are near the neighbourhood; the explore call ignores the district.",
+      "file": "patient-web/app/[locale]/doctors/[specialty]/[city]/[neighborhood]/page.tsx",
+      "line": 39,
+      "backend": "backend/src/modules/entity-graph/entity-graph.controller.ts:19"
+    },
+    {
+      "route": "/services/[serviceSlug]/[citySlug]",
+      "element": "Request this service button",
+      "kind": "client",
+      "note": "Goes to /services, which redirects to the home page; there is no services list page to open.",
+      "file": "patient-web/app/[locale]/services/[serviceSlug]/[citySlug]/page.tsx",
+      "line": 131
+    },
+    {
+      "route": "/labs/[testSlug]/[citySlug]",
+      "element": "Register as a provider button (also radiology and pharmacies)",
+      "kind": "client",
+      "note": "Goes to /consultations/doctors (the doctors list), not to /provider-info; kept as it was.",
+      "file": "patient-web/app/[locale]/labs/[testSlug]/[citySlug]/page.tsx",
+      "line": 125
+    },
+    {
+      "route": "/facility/[slug]",
+      "element": "Breadcrumb in the JSON-LD",
+      "kind": "client",
+      "note": "The structured data lists /consultations/clinics, a route that has no list page (404); left as published (SEO scope).",
+      "file": "patient-web/app/[locale]/facility/[slug]/page.tsx",
+      "line": 75
+    },
+    {
+      "route": "/pharmacies/[citySlug]",
+      "element": "Claims in the title, meta and JSON-LD",
+      "kind": "owner",
+      "note": "'Verified pharmacies', 'licensed 24/7' nursing and 'accredited' texts stay in titles, meta and JSON-LD (SEO scope, same text in Arabic and English) though no field verifies them; owner to confirm or reword.",
+      "file": "patient-web/app/[locale]/pharmacies/[citySlug]/page.tsx",
+      "line": 94
+    },
+    {
+      "route": "/home-nursing/[citySlug]",
+      "element": "JSON-LD description",
+      "kind": "owner",
+      "note": "The structured-data descriptions are English text written in code (kept exactly, marked i18n-ok); moving them into the message files would change the published SEO text.",
+      "file": "patient-web/app/[locale]/home-nursing/[citySlug]/page.tsx",
+      "line": 119
+    },
+    {
+      "route": "/privacy",
+      "element": "Language of the policy",
+      "kind": "backend",
+      "note": "The legal service has Arabic and English only; the Urdu, Hindi, Bengali and Filipino pages show the English policy (marked lang=en, ltr).",
+      "file": "patient-web/lib/api/legal-policy.ts",
+      "line": 13
+    },
+    {
+      "route": "/medicine-catalog",
+      "element": "Page text and static rules",
+      "kind": "owner",
+      "note": "The intro says the page gives no pricing while the cards show prices and add to cart; and the page reads ?q= and ?page= so it is dynamic: the F82-3 query twin (not on this base) would make it static.",
+      "file": "patient-web/app/[locale]/medicine-catalog/page.tsx",
+      "line": 102
+    }
+  ]
+}

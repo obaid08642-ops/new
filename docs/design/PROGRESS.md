@@ -22,7 +22,8 @@ _Updated 2026-10-06._
 | **Batch 10 articles + community removal**, `design/batch-10` (from main) | articles list (All/Saved) + detail on both clients; community removed (decision 1); app 5 routes / 0 failures, web 9 runs / 0 issues; PR open |
 | **Batch 11 loyalty hub + offers**, `design/batch-11` (from main) | hub with tabs Rewards/Challenges/Invite + offers list/detail on both clients; leaderboard removed (decision 2); app 7 routes / 0 failures, web 18 runs / 0 issues; PR open |
 | **Batch 12 settings, account, support, returns**, `design/batch-12` (from main) | app 21 routes + web 20 routes (7 settings screens, address book with pick mode, support, returns, reviews, map); app 22 routes / 0 failures, web 81 runs (2 env cert errors on addresses); PR open |
-| Gates (baselines only go down) | see `tools/design/*.baseline.json` (regenerated after merging Batches 7, 10, 11 and 12) |
+| **Batch 13 public pages + legal**, `design/batch-13` (from main) | 14 web public pages on one landing frame + app terms/privacy/provider-info; the F82-3 static opt-ins are a separate commit/branch (`design/batch-13-f82-optins`) for after #308; PR open |
+| Gates (baselines only go down) | see `tools/design/*.baseline.json` |
 
 Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = web-only static pages; 14 = second-pass merges of Batches 1-4 + Emergency.
 
@@ -44,16 +45,13 @@ Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = we
 
 | Slice | Screens finished | Tokens | Notes |
 |---|---|---|---|
-| 1a-1e pharmacy (before lean v2) | app 23, web 34 | 2.7M / 3.1M | ~100k per screen |
-| 2-4 consultations, labs, nursing | app 46, web 55 | ~1.6M / ~1.5M (**20-31k per screen**) | `consult/`, `DiagKit`, `NursingKit` |
+| 1-4 pharmacy, consultations, labs, nursing | see `PROGRESS_ARCHIVE.md` | | |
 | 9 AI assistant | app 2, web 2 (absorbing ~8 / ~9 old routes) | 231k / 241k | `ai/AssistantKit`, `components-next/assistant` |
 | 8 care (maternity, nutrition, mental health, programs) | app 9, web 9 | 250k / 356k (**~28k / ~40k per screen**; web agent ~500k reported) | `care/` kits (app and web) |
 | 6 family (merge map) | app 5, web 5 (absorbing ~11 / ~6 old routes) | 323k / 335k (**~65k / ~67k per new screen**, over 40k: five old inline-styled screens read in full, a chat template built, no seeded family data, translations redone after the parity gate) | `family/` kit (app), `components-next/family` (web), 151 + 102 keys |
 | 5 health + records (merge map) | app 8, web 9 (absorbing ~26 / ~24 old routes) | 473k / 435k (**~50k / ~45k per new screen**, over 40k: each absorbs 3-6 old screens and the app migrated 104 medication words) | `HealthKit`, `components-next/health`, 330 + 134 keys |
 
 ## Open blockers (details in `PROGRESS_ARCHIVE.md` and the Needs-review JSON)
-- **Public product catalogue is empty** on the seeded backend (v14 import is the reviewer's): product/category screens are checked with injected TEST data only.
 - **Backend gaps** found in Batches 1-6 are in `needs-review/*.json` (with file:line from Batch 2) and the OpenCode queue; the reviewer owns them.
-- **Endpoints the reviewer will add:** `GET /payments/status/:ref` (web `/payments/result`), `GET /insurance/claims/my` (batch 7), `GET /nutrition/plan` (batch 8); doctor fields `scfhs_license_no`, `years_experience`, `qualifications[]`. Hide the part, never invent data.
 - **Fetal-week images (owner D):** converted to WebP in `cdn-source/`; upload to the CDN and the week endpoint are pending (archive).
 - **Owner questions open:** intro/language/permissions screens before Welcome? Which roles may hold a patient session? Chat entry points with no order; compare picker; camera barcode on web; where the insurance choice belongs; native review of ur/hi/bn/tl wording.

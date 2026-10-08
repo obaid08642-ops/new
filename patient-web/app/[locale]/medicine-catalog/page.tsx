@@ -1,5 +1,4 @@
 import Link from "next/link";
-import NextImage from "next/image";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { parseMedicineSearch } from "@/lib/api/medicines";
@@ -8,9 +7,13 @@ import { cdnImage, cleanProductName } from "@/lib/api/public-products-server";
 import { JsonLd } from "@/components-next/json-ld";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
-import { RetryButton } from "@/components-next/retry-button";
-import { ArrowUpLeft, Pill, Search, ShieldCheck } from "lucide-react";
-import styles from "./medicine-catalog.module.css";
+import { RetryErrorState } from "@/components-next/core/core-states";
+import { CatalogSearch } from "@/components-next/pharmacy/catalog-search";
+import { ProductGrid } from "@/components-next/pharmacy/product-grid";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { LandingEmpty, LandingPage } from "@/components-next/landing/landing-kit";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
+import pharmacy from "@/components-next/pharmacy/pharmacy.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ q?: string | string[]; page?: string | string[] }> };
 
@@ -70,94 +73,75 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   };
 }
 
+const PHARMACY = SERVICE_ICONS.pharmacy;
+const PAGE_SIZE = 24;
+
 export default async function PublicMedicineCatalogPage({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) return null;
   setRequestLocale(locale);
   const t = await getTranslations("PublicMedicines");
+  const landing = await getTranslations("PublicLanding");
+  const browse = await getTranslations("PharmacyBrowse");
   const search = parseMedicineSearch(await searchParams);
   const result = await searchPublicProducts(locale, search.q, search.page);
-  if (!result) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><span className={styles.stateIcon}><Pill size={24} aria-hidden="true" /></span><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton /></section></main>;
+  if (!result) {
+    return (
+      <LandingPage locale={locale} title={t("title")}>
+        <div className={pharmacy.state} role="alert"><RetryErrorState title={t("unavailableTitle")} body={t("unavailable")} retryLabel={(await getTranslations("RouteState"))("retry")} /></div>
+      </LandingPage>
+    );
+  }
   const medicines = result.items;
   const canonical = localizedUrl(locale, "/medicine-catalog");
   const itemList = medicines.map((medicine, index) => ({ "@type": "ListItem", position: index + 1, url: localizedUrl(locale, `/p/${encodeURIComponent(medicine.slug)}`), name: medicine.name || t("untitled") }));
+  const pages = Math.ceil(result.total / PAGE_SIZE);
+  const qParam = search.q ? `&q=${encodeURIComponent(search.q)}` : "";
 
-  return <main className={`main ${styles.page}`}>
-    <JsonLd data={{ "@context": "https://schema.org", "@type": "WebPage", url: canonical, inLanguage: locale, name: t("title"), mainEntity: { "@type": "ItemList", itemListElement: itemList } }} />
-    <section className={styles.hero}>
-      <div>
-        <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
-        <h1>{t("title")}</h1>
-        <p>{t("body")}</p>
-        <p>
-          <Link href={`/${locale}/pharmacy/interactions`}>
-            {locale === "ar" ? "فاحص تفاعلات الأدوية" : "Drug interaction checker"}
-          </Link>
-        </p>
+  return (
+    <LandingPage locale={locale} title={t("title")} intro={t("body")}>
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "WebPage", url: canonical, inLanguage: locale, name: t("title"), mainEntity: { "@type": "ItemList", itemListElement: itemList } }} />
+      <ButtonLink href={`/${locale}/pharmacy/interactions`} label={landing("catalog.interactions")} variant="outline" size="md" />
+      <div className={pharmacy.searchWrap}>
+        <CatalogSearch locale={locale} target="medicine-catalog" initial={search.q ?? ""} tools={false} />
       </div>
-      <span className={styles.heroIcon}><Pill size={27} aria-hidden="true" /></span>
-    </section>
-    <form className={styles.search} action={`/${locale}/medicine-catalog`} method="get">
-      <label className={styles.field}>
-        <span>{t("searchLabel")}</span>
-        <span className={styles.fieldInput}>
-          <Search size={18} aria-hidden="true" />
-          <input name="q" maxLength={80} defaultValue={search.q} autoComplete="off" />
-        </span>
-      </label>
-      <button className={`button button-primary ${styles.submit}`} type="submit">
-        <Search size={17} aria-hidden="true" />
-        {t("search")}
-      </button>
-    </form>
-    {medicines.length === 0 ? <section className={styles.state}><span className={styles.stateIcon}><Pill size={24} aria-hidden="true" /></span><p>{t("empty")}</p></section> : <>
-      <section className={styles.grid} aria-label={t("title")}>
-        {medicines.map((medicine) => (
-          <Link className={styles.card} key={medicine.id} href={`/${locale}/p/${encodeURIComponent(medicine.slug)}`}>
-            <span className={styles.cardTop}>
-              <span className={styles.medicineIcon}>
-                {medicine.image ? (
-                  <NextImage src={medicine.image} alt={medicine.name || ""} className={styles.cardImg} width={56} height={56} />
-                ) : (
-                  <Pill size={20} aria-hidden="true" />
-                )}
-              </span>
-              <ArrowUpLeft className={styles.openIcon} size={17} aria-hidden="true" />
-            </span>
-            <strong className={styles.name}>{medicine.name}</strong>
-            {medicine.active_ingredient ? <span className={styles.detail}>{medicine.active_ingredient}</span> : null}
-            {medicine.form || medicine.strength ? <span className={styles.detail}>{[medicine.form, medicine.strength, medicine.package_size].filter(Boolean).join(" · ")}</span> : null}
-            <div className={styles.cardPriceRow}>
-              <strong className={styles.cardPrice}>{medicine.price.toFixed(2)} {medicine.currency}</strong>
-              {medicine.is_rx === true ? <span className={styles.prescription}><ShieldCheck size={13} aria-hidden="true" />{t("prescriptionRequired")}</span> : null}
-            </div>
-            <span className={styles.open}>{t("open")}<ArrowUpLeft size={14} aria-hidden="true" /></span>
-          </Link>
-        ))}
-      </section>
-      {result.total > 24 ? (
-        <nav className={styles.pagination} aria-label="Catalog pagination">
-          {search.page > 1 ? (
-            <Link
-              className={styles.pageBtn}
-              href={`/${locale}/medicine-catalog?${new URLSearchParams({ ...(search.q ? { q: search.q } : {}), page: String(search.page - 1) }).toString()}`}
-            >
-              ←
-            </Link>
+      {medicines.length === 0 ? (
+        <LandingEmpty icon={PHARMACY.icon} tone={PHARMACY.tone} title={t("empty")} />
+      ) : (
+        <>
+          <ProductGrid
+            locale={locale}
+            priorityCount={2}
+            items={medicines.map((medicine) => ({
+              id: medicine.id,
+              slug: medicine.slug,
+              name: medicine.name || t("untitled"),
+              price: medicine.price || 0,
+              oldPrice: null,
+              image: medicine.image ?? null,
+              form: medicine.form,
+              strength: medicine.strength,
+              packageSize: medicine.package_size,
+              rx: medicine.is_rx === true,
+            }))}
+          />
+          {pages > 1 ? (
+            <nav className={pharmacy.pager} aria-label={browse("pagination")}>
+              {search.page > 1 ? (
+                <Link rel="prev" href={`/${locale}/medicine-catalog?page=${search.page - 1}${qParam}`} className={`nabd-button nabd-button--outline nabd-button--md ${pharmacy.linkButton}`}>
+                  <span className="nabd-button__label">{browse("previous")}</span>
+                </Link>
+              ) : null}
+              <span className={pharmacy.pagerInfo}>{browse("pageOf", { page: search.page, pages })}</span>
+              {search.page < pages ? (
+                <Link rel="next" href={`/${locale}/medicine-catalog?page=${search.page + 1}${qParam}`} className={`nabd-button nabd-button--outline nabd-button--md ${pharmacy.linkButton}`}>
+                  <span className="nabd-button__label">{browse("next")}</span>
+                </Link>
+              ) : null}
+            </nav>
           ) : null}
-          <span className={styles.pageInfo}>
-            {search.page} / {Math.ceil(result.total / 24)} ({result.total})
-          </span>
-          {search.page < Math.ceil(result.total / 24) ? (
-            <Link
-              className={styles.pageBtn}
-              href={`/${locale}/medicine-catalog?${new URLSearchParams({ ...(search.q ? { q: search.q } : {}), page: String(search.page + 1) }).toString()}`}
-            >
-              →
-            </Link>
-          ) : null}
-        </nav>
-      ) : null}
-    </>}
-  </main>;
+        </>
+      )}
+    </LandingPage>
+  );
 }

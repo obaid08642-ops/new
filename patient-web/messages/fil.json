@@ -2770,158 +2770,6 @@
     "bookingNotSentCta": "Pumunta sa nursing",
     "bookingNotSentClose": "Isara"
   },
-  "InsuranceWeb": {
-    "title": "Segurong pangkalusugan",
-    "unavailableTitle": "Hindi ma-load ang insurance",
-    "unavailable": "Pakisubukang muli sa ilang sandali.",
-    "partUnavailable": "Hindi ma-load ang bahaging ito ngayon. Gumagana ang iba pang bahagi ng pahina.",
-    "tabs": "Mga seksyon ng insurance",
-    "tabPolicy": "Polisiya",
-    "tabBenefits": "Mga benepisyo",
-    "tabClaims": "Mga claim",
-    "tabRefunds": "Mga refund",
-    "tabNetwork": "Mga kasaping provider",
-    "shortcuts": "Mga shortcut ng insurance",
-    "addPolicy": "Magdagdag ng polisiya",
-    "changePolicy": "Palitan ang polisiya",
-    "submitClaim": "Magsumite ng claim",
-    "coverageCheck": "Ano ang saklaw ng polisiya ko",
-    "noPolicyTitle": "Walang naitalang polisiya",
-    "planLine": "Klase {plan}",
-    "active": "May naitalang polisiya",
-    "none": "Walang polisiya",
-    "requestsTitle": "Mga kahilingan sa pag-apruba",
-    "requestsEmpty": "Wala pang kahilingan sa pag-apruba.",
-    "requestTitle": "Kahilingan sa pag-apruba ng insurance",
-    "requestState": {
-      "PENDING_PROVIDER_REVIEW": "Naghihintay ng review",
-      "APPROVED_FULL": "Aprubado nang buo",
-      "COPAY_PENDING": "Bahagyang aprubado",
-      "COPAY_PAID": "Bayad na ang co-pay",
-      "REJECTED": "Tinanggihan",
-      "SELF_PAY_PENDING": "May babayarang self-pay",
-      "SELF_PAY_PAID": "Bayad na ang self-pay",
-      "CANCELLED": "Nakansela",
-      "unknown": "Hindi available ang status"
-    },
-    "disclaimer": "Hindi nakikipag-ugnayan ang Nabd+ sa iyong insurer. Ang pasilidad ang humihingi ng pag-apruba sa iyong insurer sa sarili nitong mga sistema at itinatala ang desisyon dito. Ang co-pay mo lang ang babayaran mo.",
-    "benefitsEmpty": "Walang benepisyong maipapakita.",
-    "benefitTitle": "Benepisyo ng insurance",
-    "claimsEmpty": "Wala pang claim.",
-    "claimServiceUnknown": "Serbisyo ng insurance",
-    "claimStatus": {
-      "approved": "Naaprubahan",
-      "reimbursed": "Na-reimburse",
-      "pending": "Nakabinbin",
-      "rejected": "Tinanggihan",
-      "unknown": "Hindi available ang status"
-    },
-    "refundsEmpty": "Walang refund.",
-    "refundTitle": "Ibinalik na bayad",
-    "networkNoPolicy": "Walang naka-save na polisiya. Magdagdag muna ng polisiya para makita ang mga provider sa network.",
-    "networkSearch": "Hanapin ayon sa pangalan ng provider",
-    "networkEmpty": "Walang provider sa network na maipapakita.",
-    "search": "Hanapin",
-    "add": {
-      "title": "Magdagdag ng polisiya",
-      "lead": "Piliin ang iyong insurer at ilagay ang detalye ng polisiya. Ise-save ito sa account mo ayon sa inilagay mo. Hindi ito sinusuri ng Nabd+ sa iyong insurer.",
-      "companiesFailed": "Hindi ma-load ang mga insurance company. I-reload ang pahina.",
-      "company": "Kumpanya ng insurance",
-      "companyPlaceholder": "Pumili ng kumpanya",
-      "policyNumber": "Numero ng polisiya",
-      "memberId": "Member ID (opsyonal)",
-      "memberName": "Pangalan ng miyembro (opsyonal)",
-      "expiry": "Petsa ng pag-expire (opsyonal)",
-      "submit": "I-save ang polisiya",
-      "invalid": "Pumili ng kumpanya at maglagay ng wastong numero ng polisiya (hindi bababa sa 3 karakter).",
-      "failed": "Hindi na-save ang polisiya."
-    },
-    "claim": {
-      "title": "Magsumite ng claim",
-      "lead": "Pumili ng bayad na booking na iki-claim.",
-      "booking": "Bayad na booking",
-      "loading": "Naglo-load…",
-      "none": "Walang bayad na booking na kwalipikado sa claim.",
-      "placeholder": "Pumili…",
-      "note": "Tala (opsyonal)",
-      "submit": "Isumite ang claim",
-      "pick": "Pumili ng bayad na booking na iki-claim.",
-      "failed": "Hindi naisumite ang claim.",
-      "done": "Naisumite na ang claim.",
-      "viewClaims": "Tingnan ang mga claim",
-      "kind": {
-        "consultation": "Konsultasyong medikal",
-        "pharmacy": "Mga gamot",
-        "lab": "Mga lab test",
-        "radiology": "Radyolohiya",
-        "nursing": "Nars sa bahay"
-      }
-    },
-    "coverage": {
-      "title": "Ano ang saklaw ng polisiya ko",
-      "lead": "Batay sa mga detalye ng polisiya na naka-save sa account mo. Hindi ito pag-apruba at hindi rin pagsusuri sa iyong insurer; ang pasilidad ang humihingi ng pag-apruba.",
-      "service": "Uri ng serbisyo",
-      "svc": {
-        "consultation": "Konsultasyong medikal",
-        "pharmacy": "Mga gamot",
-        "lab": "Mga lab test"
-      },
-      "check": "Ipakita ang saklaw",
-      "result": "Saklaw na nakatala",
-      "eligible": "Nakalista bilang sakop sa naka-save mong polisiya",
-      "notEligible": "Hindi nakalista bilang sakop sa naka-save mong polisiya",
-      "forService": "Serbisyo: {service}"
-    },
-    "request": {
-      "pageTitle": "Kahilingan sa insurance",
-      "title": {
-        "PENDING_PROVIDER_REVIEW": "Hiniling ang pag-apruba",
-        "APPROVED_FULL": "Aprubado nang buo",
-        "COPAY_PENDING": "Bahagyang aprubado: bayaran ang co-pay mo",
-        "COPAY_PAID": "Bayad na ang co-pay",
-        "REJECTED": "Tinanggihan",
-        "SELF_PAY_PENDING": "May babayarang self-pay",
-        "SELF_PAY_PAID": "Bayad na ang self-pay",
-        "CANCELLED": "Nakansela ang kahilingan"
-      },
-      "lead": {
-        "PENDING_PROVIDER_REVIEW": "Humihingi ang pasilidad ng pag-apruba sa iyong insurer. Makikita mo ang desisyon nito rito. Walang sisingilin bago iyon.",
-        "APPROVED_FULL": "Itinala ng pasilidad ang buong pag-apruba ng iyong insurer. Hindi kailangan ng bayad.",
-        "COPAY_PENDING": "Ito ang co-pay na babayaran mo. Tingnan ang mga ligtas na paraan ng pagbabayad para magpatuloy.",
-        "COPAY_PAID": "Natanggap na ang co-pay mo. Hinihintay ang pag-verify ng bayad.",
-        "REJECTED": "Itinala ng pasilidad na tinanggihan ng iyong insurer ang kahilingan. Maaari mong tanggapin ang self-pay para magpatuloy.",
-        "SELF_PAY_PENDING": "Ito ang halaga ng self-pay na babayaran mo. Tingnan ang mga ligtas na paraan ng pagbabayad para magpatuloy.",
-        "SELF_PAY_PAID": "Natanggap na ang bayad mo. Hinihintay ang pag-verify ng bayad.",
-        "CANCELLED": "Nakansela ang kahilingang ito. Walang kailangang gawin."
-      },
-      "checking": "Hinihintay na itala ng pasilidad ang desisyon nito. Kusang nagre-refresh ang pahinang ito.",
-      "amounts": "Mga halaga",
-      "total": "Kabuuang halaga ng serbisyo",
-      "copay": "Iyong co-pay",
-      "selfPay": "Sariling bayad",
-      "reason": "Dahilan: {reason}",
-      "noReason": "Walang ibinigay na dahilan ang provider.",
-      "approvalNumber": "Numero ng pag-apruba",
-      "copayPercent": "Porsiyento ng co-pay",
-      "decision": "Desisyong itinala ng pasilidad",
-      "acceptSelfPay": "Tanggapin ang self-pay",
-      "showOptions": "Tingnan ang mga ligtas na paraan ng pagbabayad",
-      "methods": "Mga paraan ng pagbabayad",
-      "due": "Halagang babayaran: {amount}",
-      "noMethods": "Walang naka-enable na online na paraan ng pagbabayad para sa gateway at device na ito.",
-      "methodCard": "Kard",
-      "methodApple": "Apple Pay",
-      "methodGoogle": "Google Pay",
-      "viewBooking": "Tingnan ang status ng appointment",
-      "refresh": "I-refresh ang status",
-      "noOnline": "Walang available na online na pagbabayad para sa kahilingang ito ngayon.",
-      "optionsFailed": "Hindi ma-load ang mga opsyon sa pagbabayad. I-refresh ang status.",
-      "acceptFailed": "Hindi naitala ang self-pay. Walang nalikhang bayad.",
-      "acceptRetry": "Hindi naitala ang self-pay. Subukan muli.",
-      "payFailed": "Hindi nasimulan ang ligtas na online na pagbabayad. Walang nakumpirmang bayad.",
-      "payRetry": "Hindi nasimulan ang online na pagbabayad. Walang nakumpirmang bayad."
-    }
-  },
   "NursingWeb": {
     "hubTitle": "Pangangalaga sa bahay",
     "hubLinks": "Mga shortcut ng pangangalaga sa bahay",
@@ -3307,6 +3155,298 @@
     "done": "Tapos na",
     "scheduled": "Naka-iskedyul",
     "bookFollowUp": "Mag-book ng follow-up"
+  },
+  "PublicLanding": {
+    "doctorsCity": {
+      "title": "Mga doktor sa {specialty} sa {city}",
+      "intro": "Mga doktor at klinika na nakalista para sa {specialty} sa {city}.",
+      "doctors": "Mga doktor",
+      "facilities": "Mga ospital at klinika",
+      "book": "Mag-book ng appointment"
+    },
+    "doctorsNeighborhood": {
+      "title": "Mga doktor sa {specialty} sa {neighborhood}, {city}",
+      "intro": "Mga doktor at klinika na nakalista para sa {specialty} sa {neighborhood}, {city}.",
+      "doctors": "Mga doktor",
+      "facilities": "Mga klinika at ospital sa malapit"
+    },
+    "condition": {
+      "back": "Pangunahing pahina",
+      "symptoms": "Karaniwang sintomas",
+      "doctors": "Mga doktor para sa kondisyong ito",
+      "medicines": "Mga kaugnay na gamot",
+      "book": "Mag-book ng konsultasyon"
+    },
+    "facility": {
+      "back": "Mga ospital at klinika",
+      "departments": "Mga departamento at espesyalidad",
+      "insurance": "Tinatanggap na insurance",
+      "phone": "Telepono",
+      "location": "Lokasyon",
+      "book": "Mag-book ng appointment"
+    },
+    "homeNursing": {
+      "title": "Home nursing sa {city}",
+      "intro": "Mga serbisyo ng home nursing na nakalista para sa {city}.",
+      "services": "Mga serbisyo",
+      "request": "Humiling ng pagbisita"
+    },
+    "labs": {
+      "title": "Lab test na {test} sa {city}",
+      "intro": "Mga laboratoryo na nakalista para sa {city}.",
+      "partners": "Mga katuwang na laboratoryo",
+      "book": "I-book ang test na ito",
+      "emptyTitle": "Wala pang katuwang na laboratoryo sa {city}",
+      "emptyBody": "Wala pang laboratoryong nag-aalok ng {test} na nakalista para sa {city}.",
+      "register": "Magparehistro bilang provider"
+    },
+    "radiology": {
+      "title": "Imaging na {service} sa {city}",
+      "intro": "Mga serbisyo ng imaging na nakalista para sa {service}.",
+      "centers": "Mga serbisyo ng imaging",
+      "book": "Mag-book ng imaging",
+      "emptyTitle": "Wala pang serbisyo ng imaging",
+      "emptyBody": "Wala pang serbisyo ng imaging para sa {service} na nakalista.",
+      "register": "Magparehistro bilang provider"
+    },
+    "services": {
+      "title": "Mga serbisyong {service} sa {city}",
+      "intro": "Mga serbisyong pangkalusugan na nakalista sa {city}.",
+      "list": "Mga serbisyo",
+      "book": "Hilingin ang serbisyong ito",
+      "insurance": "Seguro: {list}"
+    },
+    "pharmacies": {
+      "title": "Mga na-verify na botika sa {city}",
+      "intro": "Mga botika at medical center na nakalista sa {city}.",
+      "notice": "Ipinapadala ang order mo ng gamot sa mga kalapit na botika, at sumasagot sila ng mga alok.",
+      "list": "Mga botika at medical center",
+      "order": "Mag-order ng gamot",
+      "emptyTitle": "Wala pang katuwang na botika sa {city}",
+      "emptyBody": "Wala pang botikang nakalista para sa {city}.",
+      "register": "Magparehistro bilang provider"
+    },
+    "catalog": {
+      "interactions": "Pangsuri ng interaksyon ng gamot"
+    },
+    "legal": {
+      "terms": "Mga tuntunin ng paggamit",
+      "privacy": "Patakaran sa privacy",
+      "version": "Bersyon {version} · Epektibo mula {date}",
+      "versionOnly": "Bersyon {version}",
+      "back": "Bumalik"
+    },
+    "provider": {
+      "title": "Sumali bilang provider",
+      "body": "Mga doktor, botika, laboratoryo at nars: magparehistro sa pamamagitan ng Nabd Plus provider app para pamahalaan ang iyong mga serbisyo at tumanggap ng mga order.",
+      "continue": "Magpatuloy bilang pasyente",
+      "contact": "Makipag-ugnayan sa amin para magparehistro bilang provider"
+    },
+    "common": {
+      "listing": "Listahan"
+    },
+    "meta": {
+      "doctorsCity": {
+        "title": "Mga doktor sa {specialty} sa {city} | Mag-book ng appointment",
+        "description": "Mga na-verify na doktor at klinika sa {specialty} sa {city}. Mag-book ng konsultasyon sa klinika o online sa Nabd Plus."
+      },
+      "doctorsNeighborhood": {
+        "title": "Mga doktor sa {specialty} sa {neighborhood}, {city} | Mag-book ng appointment",
+        "description": "Mga na-verify na doktor sa {specialty} sa {neighborhood}, {city}. Mag-book ng konsultasyon sa Nabd Plus."
+      },
+      "homeNursing": {
+        "title": "Mga serbisyo ng home nursing sa {city} | May lisensyang pangangalaga 24/7",
+        "description": "Na-verify at may lisensyang home nursing sa {city}. Pangangalaga sa nakatatanda, pagkatapos ng operasyon at pang-araw-araw na tulong sa Nabd Plus."
+      },
+      "labs": {
+        "title": "Lab test na {test} sa {city} | Koleksyon ng sample sa bahay",
+        "description": "Mag-book ng lab test na {test} sa {city} na may koleksyon sa bahay at mabilis na resulta sa Nabd Plus."
+      },
+      "labsEmpty": {
+        "title": "{test} sa {city} — Maging unang provider | Nabd",
+        "description": "{test} sa {city} — wala pang provider. Magparehistro bilang katuwang na lab."
+      },
+      "radiology": {
+        "title": "Radiology na {service} sa {city} | Mga diagnostic imaging center",
+        "description": "Mag-book ng imaging appointment na {service} sa {city} sa mga akreditadong center sa Nabd Plus."
+      },
+      "radiologyEmpty": {
+        "title": "{service} sa {city} — Maging unang center | Nabd",
+        "description": "{service} sa {city} — wala pang center. Magparehistro."
+      },
+      "services": {
+        "title": "Mga serbisyong {service} sa {city} | Agarang booking",
+        "description": "Mga na-verify na serbisyong pangkalusugan na {service} sa {city}. Pangangalaga sa klinika at sa bahay sa Nabd Plus."
+      },
+      "pharmacies": {
+        "title": "Mga na-verify na botika sa {city} | Mabilis na paghahatid ng gamot",
+        "description": "Maghanap ng reseta at OTC na gamot sa {city} na may instant geo-broadcast na paghahatid sa Nabd Plus."
+      },
+      "pharmaciesEmpty": {
+        "title": "Mga botika sa {city} — Maging unang katuwang | Nabd",
+        "description": "Wala pang katuwang na botika sa {city}. Iparehistro ang iyo."
+      },
+      "condition": {
+        "title": "{name} | Gabay sa Kalusugan ng Nabd Plus"
+      },
+      "facility": {
+        "title": "{name} | Nabd Plus Pangangalagang Pangkalusugan",
+        "description": "{name} sa {city}. Mga espesyalisadong serbisyong pangkalusugan, tinatanggap na insurance at mga na-verify na doktor.",
+        "country": "Kaharian ng Arabyang Saudita"
+      }
+    }
+  },
+  "InsuranceWeb": {
+    "title": "Segurong pangkalusugan",
+    "unavailableTitle": "Hindi ma-load ang insurance",
+    "unavailable": "Pakisubukang muli sa ilang sandali.",
+    "partUnavailable": "Hindi ma-load ang bahaging ito ngayon. Gumagana ang iba pang bahagi ng pahina.",
+    "tabs": "Mga seksyon ng insurance",
+    "tabPolicy": "Polisiya",
+    "tabBenefits": "Mga benepisyo",
+    "tabClaims": "Mga claim",
+    "tabRefunds": "Mga refund",
+    "tabNetwork": "Mga kasaping provider",
+    "shortcuts": "Mga shortcut ng insurance",
+    "addPolicy": "Magdagdag ng polisiya",
+    "changePolicy": "Palitan ang polisiya",
+    "submitClaim": "Magsumite ng claim",
+    "coverageCheck": "Ano ang saklaw ng polisiya ko",
+    "noPolicyTitle": "Walang naitalang polisiya",
+    "planLine": "Klase {plan}",
+    "active": "May naitalang polisiya",
+    "none": "Walang polisiya",
+    "requestsTitle": "Mga kahilingan sa pag-apruba",
+    "requestsEmpty": "Wala pang kahilingan sa pag-apruba.",
+    "requestTitle": "Kahilingan sa pag-apruba ng insurance",
+    "requestState": {
+      "PENDING_PROVIDER_REVIEW": "Naghihintay ng review",
+      "APPROVED_FULL": "Aprubado nang buo",
+      "COPAY_PENDING": "Bahagyang aprubado",
+      "COPAY_PAID": "Bayad na ang co-pay",
+      "REJECTED": "Tinanggihan",
+      "SELF_PAY_PENDING": "May babayarang self-pay",
+      "SELF_PAY_PAID": "Bayad na ang self-pay",
+      "CANCELLED": "Nakansela",
+      "unknown": "Hindi available ang status"
+    },
+    "disclaimer": "Hindi nakikipag-ugnayan ang Nabd+ sa iyong insurer. Ang pasilidad ang humihingi ng pag-apruba sa iyong insurer sa sarili nitong mga sistema at itinatala ang desisyon dito. Ang co-pay mo lang ang babayaran mo.",
+    "benefitsEmpty": "Walang benepisyong maipapakita.",
+    "benefitTitle": "Benepisyo ng insurance",
+    "claimsEmpty": "Wala pang claim.",
+    "claimServiceUnknown": "Serbisyo ng insurance",
+    "claimStatus": {
+      "approved": "Naaprubahan",
+      "reimbursed": "Na-reimburse",
+      "pending": "Nakabinbin",
+      "rejected": "Tinanggihan",
+      "unknown": "Hindi available ang status"
+    },
+    "refundsEmpty": "Walang refund.",
+    "refundTitle": "Ibinalik na bayad",
+    "networkNoPolicy": "Walang naka-save na polisiya. Magdagdag muna ng polisiya para makita ang mga provider sa network.",
+    "networkSearch": "Hanapin ayon sa pangalan ng provider",
+    "networkEmpty": "Walang provider sa network na maipapakita.",
+    "search": "Hanapin",
+    "add": {
+      "title": "Magdagdag ng polisiya",
+      "lead": "Piliin ang iyong insurer at ilagay ang detalye ng polisiya. Ise-save ito sa account mo ayon sa inilagay mo. Hindi ito sinusuri ng Nabd+ sa iyong insurer.",
+      "companiesFailed": "Hindi ma-load ang mga insurance company. I-reload ang pahina.",
+      "company": "Kumpanya ng insurance",
+      "companyPlaceholder": "Pumili ng kumpanya",
+      "policyNumber": "Numero ng polisiya",
+      "memberId": "Member ID (opsyonal)",
+      "memberName": "Pangalan ng miyembro (opsyonal)",
+      "expiry": "Petsa ng pag-expire (opsyonal)",
+      "submit": "I-save ang polisiya",
+      "invalid": "Pumili ng kumpanya at maglagay ng wastong numero ng polisiya (hindi bababa sa 3 karakter).",
+      "failed": "Hindi na-save ang polisiya."
+    },
+    "claim": {
+      "title": "Magsumite ng claim",
+      "lead": "Pumili ng bayad na booking na iki-claim.",
+      "booking": "Bayad na booking",
+      "loading": "Naglo-load…",
+      "none": "Walang bayad na booking na kwalipikado sa claim.",
+      "placeholder": "Pumili…",
+      "note": "Tala (opsyonal)",
+      "submit": "Isumite ang claim",
+      "pick": "Pumili ng bayad na booking na iki-claim.",
+      "failed": "Hindi naisumite ang claim.",
+      "done": "Naisumite na ang claim.",
+      "viewClaims": "Tingnan ang mga claim",
+      "kind": {
+        "consultation": "Konsultasyong medikal",
+        "pharmacy": "Mga gamot",
+        "lab": "Mga lab test",
+        "radiology": "Radyolohiya",
+        "nursing": "Nars sa bahay"
+      }
+    },
+    "coverage": {
+      "title": "Ano ang saklaw ng polisiya ko",
+      "lead": "Batay sa mga detalye ng polisiya na naka-save sa account mo. Hindi ito pag-apruba at hindi rin pagsusuri sa iyong insurer; ang pasilidad ang humihingi ng pag-apruba.",
+      "service": "Uri ng serbisyo",
+      "svc": {
+        "consultation": "Konsultasyong medikal",
+        "pharmacy": "Mga gamot",
+        "lab": "Mga lab test"
+      },
+      "check": "Ipakita ang saklaw",
+      "result": "Saklaw na nakatala",
+      "eligible": "Nakalista bilang sakop sa naka-save mong polisiya",
+      "notEligible": "Hindi nakalista bilang sakop sa naka-save mong polisiya",
+      "forService": "Serbisyo: {service}"
+    },
+    "request": {
+      "pageTitle": "Kahilingan sa insurance",
+      "title": {
+        "PENDING_PROVIDER_REVIEW": "Hiniling ang pag-apruba",
+        "APPROVED_FULL": "Aprubado nang buo",
+        "COPAY_PENDING": "Bahagyang aprubado: bayaran ang co-pay mo",
+        "COPAY_PAID": "Bayad na ang co-pay",
+        "REJECTED": "Tinanggihan",
+        "SELF_PAY_PENDING": "May babayarang self-pay",
+        "SELF_PAY_PAID": "Bayad na ang self-pay",
+        "CANCELLED": "Nakansela ang kahilingan"
+      },
+      "lead": {
+        "PENDING_PROVIDER_REVIEW": "Humihingi ang pasilidad ng pag-apruba sa iyong insurer. Makikita mo ang desisyon nito rito. Walang sisingilin bago iyon.",
+        "APPROVED_FULL": "Itinala ng pasilidad ang buong pag-apruba ng iyong insurer. Hindi kailangan ng bayad.",
+        "COPAY_PENDING": "Ito ang co-pay na babayaran mo. Tingnan ang mga ligtas na paraan ng pagbabayad para magpatuloy.",
+        "COPAY_PAID": "Natanggap na ang co-pay mo. Hinihintay ang pag-verify ng bayad.",
+        "REJECTED": "Itinala ng pasilidad na tinanggihan ng iyong insurer ang kahilingan. Maaari mong tanggapin ang self-pay para magpatuloy.",
+        "SELF_PAY_PENDING": "Ito ang halaga ng self-pay na babayaran mo. Tingnan ang mga ligtas na paraan ng pagbabayad para magpatuloy.",
+        "SELF_PAY_PAID": "Natanggap na ang bayad mo. Hinihintay ang pag-verify ng bayad.",
+        "CANCELLED": "Nakansela ang kahilingang ito. Walang kailangang gawin."
+      },
+      "checking": "Hinihintay na itala ng pasilidad ang desisyon nito. Kusang nagre-refresh ang pahinang ito.",
+      "amounts": "Mga halaga",
+      "total": "Kabuuang halaga ng serbisyo",
+      "copay": "Iyong co-pay",
+      "selfPay": "Sariling bayad",
+      "reason": "Dahilan: {reason}",
+      "noReason": "Walang ibinigay na dahilan ang provider.",
+      "approvalNumber": "Numero ng pag-apruba",
+      "copayPercent": "Porsiyento ng co-pay",
+      "decision": "Desisyong itinala ng pasilidad",
+      "acceptSelfPay": "Tanggapin ang self-pay",
+      "showOptions": "Tingnan ang mga ligtas na paraan ng pagbabayad",
+      "methods": "Mga paraan ng pagbabayad",
+      "due": "Halagang babayaran: {amount}",
+      "noMethods": "Walang naka-enable na online na paraan ng pagbabayad para sa gateway at device na ito.",
+      "methodCard": "Kard",
+      "methodApple": "Apple Pay",
+      "methodGoogle": "Google Pay",
+      "viewBooking": "Tingnan ang status ng appointment",
+      "refresh": "I-refresh ang status",
+      "noOnline": "Walang available na online na pagbabayad para sa kahilingang ito ngayon.",
+      "optionsFailed": "Hindi ma-load ang mga opsyon sa pagbabayad. I-refresh ang status.",
+      "acceptFailed": "Hindi naitala ang self-pay. Walang nalikhang bayad.",
+      "acceptRetry": "Hindi naitala ang self-pay. Subukan muli.",
+      "payFailed": "Hindi nasimulan ang ligtas na online na pagbabayad. Walang nakumpirmang bayad.",
+      "payRetry": "Hindi nasimulan ang online na pagbabayad. Walang nakumpirmang bayad."
+    }
   },
   "LoyaltyHubWeb": {
     "title": "Mga puntos ng Nabd",
