@@ -2524,7 +2524,7 @@
   "set.delete.final": "স্থায়ীভাবে মুছুন",
   "set.delete.failed": "অ্যাকাউন্ট মোছা হয়নি। পাসওয়ার্ড পরীক্ষা করে আবার চেষ্টা করুন।",
   "set.security.signIn": "সাইন-ইন",
-  "set.security.biometric": "আঙুলের ছাপ / Face ID",
+  "set.security.biometric": "আঙুলের ছাপ বা মুখের শনাক্তকরণ",
   "set.security.biometricHint": "দ্রুত ও নিরাপদ সাইন-ইন",
   "set.security.twoFactor": "দ্বি-ধাপ যাচাইকরণ",
   "set.security.twoFactorHint": "প্রতিবার সাইন-ইনে ইমেইলে কোড",

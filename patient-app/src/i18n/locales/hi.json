@@ -2524,7 +2524,7 @@
   "set.delete.final": "हमेशा के लिए हटाएं",
   "set.delete.failed": "खाता नहीं हटाया गया। अपना पासवर्ड जाँचें और फिर से कोशिश करें।",
   "set.security.signIn": "साइन-इन",
-  "set.security.biometric": "फ़िंगरप्रिंट / Face ID",
+  "set.security.biometric": "फ़िंगरप्रिंट या चेहरे की पहचान",
   "set.security.biometricHint": "तेज़ और सुरक्षित साइन-इन",
   "set.security.twoFactor": "दो-चरण सत्यापन",
   "set.security.twoFactorHint": "हर साइन-इन पर ईमेल से कोड",

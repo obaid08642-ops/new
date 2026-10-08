@@ -54,6 +54,7 @@ export function AddressBookView() {
     if (picking || address.is_default) return;
     // The book: the chosen address becomes the default; the list goes back if the save fails.
     const before = addresses;
+    const was = selected;
     setFailed(false);
     setAddresses((rows) => rows.map((row) => ({ ...row, is_default: row.id === address.id })));
     try {
@@ -61,6 +62,8 @@ export function AddressBookView() {
     } catch (e) {
       logError('account:address-default', e);
       setAddresses(before);
+      choice.current = was;
+      setSelected(was);
       setFailed(true);
     }
   };

@@ -2560,7 +2560,7 @@
   "set.delete.final": "حذف نهائي",
   "set.delete.failed": "لم يُحذف الحساب. تحقق من كلمة المرور وحاول مرة أخرى.",
   "set.security.signIn": "تسجيل الدخول",
-  "set.security.biometric": "البصمة / Face ID",
+  "set.security.biometric": "البصمة أو بصمة الوجه",
   "set.security.biometricHint": "تسجيل دخول سريع وآمن",
   "set.security.twoFactor": "التحقق بخطوتين",
   "set.security.twoFactorHint": "رمز تحقق عبر البريد عند كل تسجيل دخول",

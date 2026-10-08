@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button, Chip, FIcon, Search, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
 import MapView, { Marker, PROVIDER_DEFAULT } from '../MapPrimitives';
-import { Chevron, Sheet, goBack } from '../consult/ConsultKit';
+import { Chevron, Sheet, goBack, RX_TONE, CARE_TONE } from '../consult/ConsultKit';
 import { Notice } from '../health/HealthKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
 import { step as scale, tint, useScreenUi } from '../screen/ScreenKit';
@@ -26,9 +26,9 @@ const KINDS: Kind[] = ['doctor', 'hospital', 'pharmacy', 'lab', 'nursing'];
 const LOOK: Record<Kind, { icon: FillIconName; tone: ServiceTone }> = {
   doctor: { icon: 'stethoscope', tone: 'blue' },
   hospital: { icon: 'hospital', tone: 'violet' },
-  pharmacy: { icon: 'pill', tone: 'coral' },
+  pharmacy: { icon: 'pill', tone: RX_TONE },
   lab: { icon: 'test-tube', tone: 'mint' },
-  nursing: { icon: 'first-aid-kit', tone: 'teal' },
+  nursing: { icon: 'first-aid-kit', tone: CARE_TONE },
 };
 /** The centre of Riyadh until the phone gives its position (the map has to open somewhere). */
 const START = { latitude: 24.7136, longitude: 46.6753, latitudeDelta: 0.05, longitudeDelta: 0.05 };

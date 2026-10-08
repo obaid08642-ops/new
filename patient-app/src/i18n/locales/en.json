@@ -2560,7 +2560,7 @@
   "set.delete.final": "Delete permanently",
   "set.delete.failed": "The account was not deleted. Check your password and try again.",
   "set.security.signIn": "Sign-in",
-  "set.security.biometric": "Fingerprint / Face ID",
+  "set.security.biometric": "Fingerprint or face recognition",
   "set.security.biometricHint": "Sign in quickly and safely",
   "set.security.twoFactor": "Two-step verification",
   "set.security.twoFactorHint": "A code by email at every sign-in",

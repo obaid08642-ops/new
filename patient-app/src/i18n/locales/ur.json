@@ -2524,7 +2524,7 @@
   "set.delete.final": "مستقل حذف کریں",
   "set.delete.failed": "اکاؤنٹ حذف نہیں ہوا۔ اپنا پاس ورڈ چیک کریں اور دوبارہ کوشش کریں۔",
   "set.security.signIn": "سائن اِن",
-  "set.security.biometric": "فنگر پرنٹ / Face ID",
+  "set.security.biometric": "فنگر پرنٹ یا چہرے کی شناخت",
   "set.security.biometricHint": "تیز اور محفوظ سائن اِن",
   "set.security.twoFactor": "دو مرحلہ تصدیق",
   "set.security.twoFactorHint": "ہر سائن اِن پر ای میل سے کوڈ",

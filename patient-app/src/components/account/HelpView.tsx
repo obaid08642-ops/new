@@ -3,7 +3,7 @@ import { Linking, Pressable, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
 import { Button, Card, Chip, EmptyState, Input } from '../../../../packages/ui-native/src';
-import { Chevron, Gate, ResultHero, Section, goBack } from '../consult/ConsultKit';
+import { Chevron, Gate, ResultHero, Section, goBack, RX_TONE } from '../consult/ConsultKit';
 import { HealthTabs, Notice, Panel, Row, bodyOf, rowsOf, useRemote, useTab } from '../health/HealthKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
@@ -54,7 +54,7 @@ function HelpTab() {
       <Panel testID="help-contact">
         <Row icon="chat-circle-text" tone="mint" title={k('set.help.chat')} subtitle={k('set.help.chatHint')} onPress={() => router.push('/support/chat' as Href)} testID="help-chat" />
         <Row icon="clipboard-text" tone="blue" title={k('set.help.requests')} subtitle={k('set.help.requestsHint')} onPress={() => router.push('/support/ticket' as Href)} last={!phone} testID="help-requests" />
-        {phone ? <Row icon="headset" tone="coral" title={k('set.help.call')} subtitle={phone} onPress={() => void Linking.openURL(`tel:${phone}`).catch(() => undefined)} last testID="help-call" /> : null}
+        {phone ? <Row icon="headset" tone={RX_TONE} title={k('set.help.call')} subtitle={phone} onPress={() => void Linking.openURL(`tel:${phone}`).catch(() => undefined)} last testID="help-call" /> : null}
       </Panel>
       <Section title={k('set.help.faq')}>
         <Gate status={faqs.status} onRetry={() => void faqs.reload()}>

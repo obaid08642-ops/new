@@ -3,7 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button, Card, Chip, EmptyState, FIcon, Input, Timeline, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
-import { Gate, InfoRow, ResultHero, Section, StatusTag, goBack, useConsultFormat, type GateStatus } from '../consult/ConsultKit';
+import { Gate, InfoRow, ResultHero, Section, StatusTag, goBack, useConsultFormat, type GateStatus, RX_TONE, CARE_TONE } from '../consult/ConsultKit';
 import { MetricGrid, MetricTile, Notice, Panel, bodyOf, rowsOf, useRemote } from '../health/HealthKit';
 import { Money } from '../pharmacy/OfferKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
@@ -24,10 +24,10 @@ const RETURNS_HOME = '/returns/hub' as Href;
 const TYPES = ['pharmacy', 'consultation', 'diagnostics', 'nursing', 'insurance'] as const;
 type ServiceType = (typeof TYPES)[number];
 const TYPE_LOOK: Record<ServiceType, { icon: FillIconName; tone: ServiceTone }> = {
-  pharmacy: { icon: 'pill', tone: 'coral' },
+  pharmacy: { icon: 'pill', tone: RX_TONE },
   consultation: { icon: 'stethoscope', tone: 'blue' },
   diagnostics: { icon: 'test-tube', tone: 'mint' },
-  nursing: { icon: 'first-aid-kit', tone: 'teal' },
+  nursing: { icon: 'first-aid-kit', tone: CARE_TONE },
   insurance: { icon: 'shield-check', tone: 'blue' },
 };
 const REASONS: Record<ServiceType, readonly string[]> = {
@@ -79,7 +79,7 @@ export function ReturnsHubView() {
     >
       <Gate status={list.status} errorTitle={k('returns.loadError')} onRetry={() => void list.reload()}>
         <MetricGrid>
-          <MetricTile label={k('returns.summary.count')} value={num(rows.length)} icon="receipt" tone="coral" />
+          <MetricTile label={k('returns.summary.count')} value={num(rows.length)} icon="receipt" tone={RX_TONE} />
           <MetricTile label={k('returns.summary.pending')} value={num(pending)} unit={k('pharmacy.currency')} icon="clock-counter-clockwise" tone="amber" />
           <MetricTile label={k('returns.summary.done')} value={num(rows.filter((row) => row.status === 'completed').length)} icon="check-circle" tone="mint" />
         </MetricGrid>
@@ -91,11 +91,11 @@ export function ReturnsHubView() {
           ))}
         </View>
         {shown.length === 0 ? (
-          <EmptyState icon="receipt" tone="coral" title={k('returns.empty')} body={k('returns.emptyBody')} theme={theme} />
+          <EmptyState icon="receipt" tone={RX_TONE} title={k('returns.empty')} body={k('returns.emptyBody')} theme={theme} />
         ) : (
           shown.map((row) => {
             const type = typeOf(row.service_type);
-            const look = type ? TYPE_LOOK[type] : { icon: 'receipt' as FillIconName, tone: 'coral' as ServiceTone };
+            const look = type ? TYPE_LOOK[type] : { icon: 'receipt' as FillIconName, tone: RX_TONE };
             const status = returnStatus(row.status);
             const title = type === 'pharmacy' ? k('returns.pharmacyOrder', { ref: shortRef(row.order_id) }) : k('returns.request', { ref: shortRef(row.id) });
             const meta = [type ? k(`returns.type.${type}`) : '', date(row.createdAt)].filter(Boolean).join(' · ');

@@ -5,7 +5,7 @@ import Constants from 'expo-constants';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Avatar, Button, Card, Radio, Segmented } from '../../../../packages/ui-native/src';
-import { Dialog, Gate, Section } from '../consult/ConsultKit';
+import { Dialog, Gate, Section, RX_TONE, CARE_TONE } from '../consult/ConsultKit';
 import { AuthField } from '../auth/AuthKit';
 import { Notice, Panel, Row, SheetForm, rowsOf, useRemote } from '../health/HealthKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
@@ -49,9 +49,9 @@ export function SettingsHubView() {
         </View>
       </Card>
       <Panel testID="settings-sections">
-        <Row icon="bell" tone="coral" title={k('set.notifications')} subtitle={k('set.notificationsHint')} onPress={go('/settings/notifications')} testID="settings-notifications" />
+        <Row icon="bell" tone={RX_TONE} title={k('set.notifications')} subtitle={k('set.notificationsHint')} onPress={go('/settings/notifications')} testID="settings-notifications" />
         <Row icon="lock" tone="violet" title={k('set.privacy')} subtitle={k('set.privacyHint')} onPress={go('/settings/privacy')} testID="settings-privacy" />
-        <Row icon="shield-check" tone="teal" title={k('set.security')} subtitle={k('set.securityHint')} onPress={go('/settings/security')} testID="settings-security" />
+        <Row icon="shield-check" tone={CARE_TONE} title={k('set.security')} subtitle={k('set.securityHint')} onPress={go('/settings/security')} testID="settings-security" />
         <Row icon="globe" tone="blue" title={k('set.language')} subtitle={k('set.languageHint')} onPress={go('/settings/language')} testID="settings-language" />
         <Row icon="headset" tone="mint" title={k('set.help')} subtitle={k('set.helpHint')} onPress={go('/settings/help')} testID="settings-help" />
         <Row icon="info" tone="ink" title={k('set.about')} subtitle={k('set.aboutHint')} onPress={go('/settings/about')} last testID="settings-about" />

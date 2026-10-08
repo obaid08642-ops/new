@@ -11,6 +11,7 @@ import { logout } from '../../store/slices/authSlice';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { AccountScreen } from './AccountKit';
+import { RX_TONE, CARE_TONE } from '../consult/ConsultKit';
 
 /**
  * Profile (board Account): the account summary with "Edit" (the medical profile), the three quick links (orders, appointments, points),
@@ -66,7 +67,7 @@ export function AccountView() {
   };
 
   const quick: { icon: FillIconName; tone: ServiceTone; label: string; value?: string; route: string; testID: string }[] = [
-    { icon: 'receipt', tone: 'coral', label: k('account.orders'), route: '/orders', testID: 'account-orders' },
+    { icon: 'receipt', tone: RX_TONE, label: k('account.orders'), route: '/orders', testID: 'account-orders' },
     { icon: 'calendar-dots', tone: 'blue', label: k('account.appointments'), route: '/consultations/appointments', testID: 'account-appointments' },
     { icon: 'star', tone: 'amber', label: k('account.points'), value: counts.points === null ? undefined : num(counts.points), route: '/loyalty/hub', testID: 'account-points' },
   ];
@@ -110,9 +111,9 @@ export function AccountView() {
       </View>
 
       <Panel testID="account-rows">
-        <Row icon="map-pin-line" tone="coral" title={k('account.addresses')} subtitle={counts.addresses === null ? undefined : k('account.addressCount', { n: counts.addresses })} onPress={go('/profile/addresses')} testID="account-addresses" />
+        <Row icon="map-pin-line" tone={RX_TONE} title={k('account.addresses')} subtitle={counts.addresses === null ? undefined : k('account.addressCount', { n: counts.addresses })} onPress={go('/profile/addresses')} testID="account-addresses" />
         <Row icon="users-three" tone="peach" title={k('account.family')} subtitle={counts.family === null ? undefined : k('account.familyCount', { n: counts.family })} onPress={guarded('/family', 'family')} testID="account-family" />
-        <Row icon="shield-check" tone="teal" title={k('account.insurance')} subtitle={counts.insurance ?? undefined} onPress={guarded('/profile/insurance', 'insurance')} last testID="account-insurance" />
+        <Row icon="shield-check" tone={CARE_TONE} title={k('account.insurance')} subtitle={counts.insurance ?? undefined} onPress={guarded('/profile/insurance', 'insurance')} last testID="account-insurance" />
       </Panel>
       <Panel testID="account-settings-rows">
         <Row icon="gear" tone="ink" title={k('account.settings')} subtitle={k('account.settingsHint')} onPress={go('/settings')} testID="account-settings" />
