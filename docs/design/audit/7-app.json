@@ -1,0 +1,74 @@
+{
+  "slice": "7-app", "batch": 7, "app": "patient-app",
+  "screens": [
+    { "route": "/insurance",
+      "elements": [
+        ["Tabs Policy/Benefits/Claims/Refunds/Network (?tab=)", "route query", "ok"],
+        ["Policy card, details, verified pill", "GET /users/me/insurance", "ok"],
+        ["Change insurer sheet (company, network, policy no, member id)", "GET /insurance/companies, /companies/:id/networks, POST /users/me/insurance", "ok"],
+        ["CHI portal lookup (WebView, save)", "POST /insurance/save-policy", "ok"],
+        ["Approval requests list", "GET /insurance/requests/my", "ok"],
+        ["Shortcuts coverage / claim / network", "routes", "ok"],
+        ["Benefits rows (limit, used, remaining, coverage %)", "GET /insurance/benefits-summary", "ok"],
+        ["Claims rows, rejected reason, appeal, refund link", "GET /insurance/claims", "ok"],
+        ["Refunds rows", "GET /refunds/my", "ok"],
+        ["Network providers, filters, search, call", "GET /users/me/profile + GET /providers?insurance_*", "ok"],
+        ["Old hub coverage-summary %, annual limit 500k, deductible 50, renewal 31 Dec 2024, claim totals", "hard-coded or summed on the device", "hidden"]
+      ],
+      "notes": ["Old fake numbers (coverage %, 500000 limit, deductible, renewal date) are not drawn: no source."] },
+    { "route": "/insurance/payment-split",
+      "elements": [
+        ["New page /insurance/request (old payment-split + approval-pending): state hero and text", "GET /insurance/requests/:id state", "ok"],
+        ["Amounts price / copay / self-pay", "GET /insurance/requests/:id", "ok"],
+        ["Company and policy number", "request.policy.company_name, GET /users/me/insurance", "ok"],
+        ["Pay co-pay / self-pay button", "capabilities + POST /payments/intent/insurance/:id", "ok"],
+        ["Accept self-pay", "POST /insurance/requests/:id/accept-self-pay", "ok"],
+        ["View service status", "GET /care/appointments/:id", "ok"],
+        ["Cash payment button (old approval-pending)", "none", "hidden"],
+        ["Insurer share and VIP card (old approval-pending)", "computed on device", "hidden"]
+      ],
+      "notes": [] },
+    { "route": "/insurance/add-policy",
+      "elements": [
+        ["Insurer chips", "GET /insurance/companies", "ok"],
+        ["Scan card", "POST /insurance/ocr-extract", "ok"],
+        ["Policy fields", "user input", "ok"],
+        ["Save", "POST /insurance/save-policy", "ok"]
+      ], "notes": [] },
+    { "route": "/insurance/coverage-check",
+      "elements": [
+        ["Service type chips, provider name", "user input", "ok"],
+        ["Result: covered, copay %, cap, pre-auth", "GET /insurance/coverage-check", "ok"],
+        ["Fake 3-step checking screen, company-pays %", "none", "hidden"]
+      ], "notes": [] },
+    { "route": "/insurance/submit-claim",
+      "elements": [
+        ["Paid bookings list", "GET /care/appointments, /orders/mine, /patient/pharmacy/orders, /labs|radiology|home-care bookings", "ok"],
+        ["Receipt upload", "POST /media/upload", "ok"],
+        ["Submit", "POST /insurance/claims/submit", "ok"]
+      ], "notes": ["Hard-coded 2-5 day review promise removed."] },
+    { "route": "/insurance/copay",
+      "elements": [
+        ["Pending co-pay request", "GET /insurance/requests/my (COPAY_PENDING)", "ok"],
+        ["Pay", "POST /payments/intent/insurance/:id", "ok"]
+      ], "notes": [] },
+    { "route": "/insurance/hub", "elements": [["Redirect to /insurance keeping query", "route", "ok"]], "notes": [] },
+    { "route": "/insurance/policy-detail", "elements": [["Redirect to /insurance?tab=policy", "route", "ok"]], "notes": [] },
+    { "route": "/insurance/network-providers", "elements": [["Redirect to /insurance?tab=network", "route", "ok"]], "notes": [] },
+    { "route": "/insurance/benefits-summary", "elements": [["Redirect to /insurance?tab=benefits", "route", "ok"]], "notes": [] },
+    { "route": "/insurance/approval-pending", "elements": [["Redirect to /insurance/request keeping requestId, bookingId", "route", "ok"]], "notes": [] },
+    { "route": "/profile/insurance", "elements": [["Redirect to /insurance?tab=policy; insurer choice moved to the Policy tab sheet", "GET /insurance/companies, GET /insurance/companies/:id/networks, GET /users/me/insurance, POST /users/me/insurance", "ok"]], "notes": [] }
+  ],
+  "needsReview": [
+    { "route": "/insurance", "element": "Refunds tab", "kind": "owner", "note": "Map 2 says Refunds is web only; the old app hub had it and claims link to it, so it is kept. Remove or keep?", "file": "patient-app/src/components/insurance/InsuranceKit.tsx", "line": 32 },
+    { "route": "/insurance/copay", "element": "Co-pay screen not merged", "kind": "client", "note": "Picks the newest COPAY_PENDING from /requests/my and posts the intent with no method; the request page reads one id and asks capabilities. Different payment paths, so kept separate (map 2 rule).", "file": "patient-app/app/insurance/copay.tsx", "line": 36 },
+    { "route": "/insurance/payment-split", "element": "Cash payment button removed", "kind": "owner", "note": "Old approval-pending offered pay cash to /payments/processing with no params; removed per decision 25.", "file": "patient-app/src/components/insurance/InsuranceRequestView.tsx", "line": 179 },
+    { "route": "/insurance/payment-split", "element": "Poll while waiting", "kind": "client", "note": "6 s re-read while the provider has not decided kept as before; no stop after a time limit.", "file": "patient-app/src/components/insurance/InsuranceRequestView.tsx", "line": 94 },
+    { "route": "/insurance", "element": "Claims totals and benefits totals", "kind": "backend", "note": "Old UI summed claims and used a fixed 500000 annual limit; not shown. Backend could return totals and the policy limit.", "file": "patient-app/src/components/insurance/InsuranceHubTabs.tsx", "line": 97 },
+    { "route": "/insurance", "element": "Insurer save sends class A", "kind": "client", "note": "The old profile form always sent class: 'A'; kept unchanged, the real class is unknown to the patient.", "file": "patient-app/src/components/insurance/InsuranceHubView.tsx", "line": 222 },
+    { "route": "/insurance/coverage-check", "element": "Company share not shown", "kind": "backend", "note": "Old UI showed 100 - copay_percent as the insurer share (computed); only the server copay percent and cap are shown.", "file": "patient-app/app/insurance/coverage-check.tsx", "line": 80 },
+    { "route": "/insurance/benefits-summary", "element": "Benefits list", "kind": "backend", "note": "No policy renewal date or total limit comes from the API, so none is shown.", "file": "patient-app/src/components/insurance/InsuranceHubTabs.tsx", "line": 40 },
+    { "route": "/profile/insurance", "element": "Profile and nurse screens still link the old route", "kind": "client", "note": "Redirect works; these files hold old Arabic literals so were left for the batch that owns them.", "file": "patient-app/app/profile/index.tsx", "line": 23 },
+    { "route": "/insurance/submit-claim", "element": "Receipt upload", "kind": "client", "note": "Uploaded image is stored by URL only; no size or type check on the device.", "file": "patient-app/app/insurance/submit-claim.tsx", "line": 71 }
+  ]
+}
