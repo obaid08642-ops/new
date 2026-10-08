@@ -1,5 +1,5 @@
 {
- "commit": "cd0f317e",
+ "commit": "a9817417",
  "routes": [
   {
    "app": "patient-app",
@@ -4334,13 +4334,13 @@
      "path": "/maternity/profile",
      "target": "backend",
      "query": "",
-     "line": 18,
-     "file": "patient-app/app/maternity/hub.tsx",
+     "line": 60,
+     "file": "patient-app/src/components/care/MaternityViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/maternity/maternity.controller.ts:21"
     }
    ],
-   "files": 16,
+   "files": 33,
    "unresolved": 0
   },
   {
@@ -4358,13 +4358,13 @@
      "path": "/maternity/profile",
      "target": "backend",
      "query": "",
-     "line": 16,
-     "file": "patient-app/app/maternity/maternity-setup.tsx",
+     "line": 146,
+     "file": "patient-app/src/components/care/MaternityViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/maternity/maternity.controller.ts:32"
     }
    ],
-   "files": 16,
+   "files": 29,
    "unresolved": 0
   },
   {
@@ -4436,7 +4436,7 @@
    "app": "patient-app",
    "route": "/mental-health/crisis-support",
    "file": "patient-app/app/mental-health/crisis-support.tsx",
-   "redirect": "/emergency?view=crisis…",
+   "redirect": "/mental-health/hub",
    "template": "redirect",
    "board": "— (redirect)",
    "batch": 8,
@@ -4455,7 +4455,7 @@
    "batch": 8,
    "status": "—",
    "calls": [],
-   "files": 9,
+   "files": 20,
    "unresolved": 0
   },
   {
@@ -4486,8 +4486,8 @@
      "path": "/mental-health/mood",
      "target": "backend",
      "query": "?days=30",
-     "line": 50,
-     "file": "patient-app/app/mental-health/mood-journal.tsx",
+     "line": 60,
+     "file": "patient-app/src/components/care/MentalHealthViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/mental-health/mental-health.controller.ts:33"
     },
@@ -4496,13 +4496,13 @@
      "path": "/mental-health/mood",
      "target": "backend",
      "query": "",
-     "line": 72,
-     "file": "patient-app/app/mental-health/mood-journal.tsx",
+     "line": 79,
+     "file": "patient-app/src/components/care/MentalHealthViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/mental-health/mental-health.controller.ts:23"
     }
    ],
-   "files": 18,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -4874,29 +4874,8 @@
    "board": "CareHub",
    "batch": 8,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/nutrition/profile",
-     "target": "backend",
-     "query": "",
-     "line": 21,
-     "file": "patient-app/app/nutrition/body-target.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:24"
-    },
-    {
-     "method": "POST",
-     "path": "/nutrition/profile",
-     "target": "backend",
-     "query": "",
-     "line": 24,
-     "file": "patient-app/app/nutrition/body-target.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:30"
-    }
-   ],
-   "files": 16,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -4921,39 +4900,8 @@
    "board": "CareHub",
    "batch": 8,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/nutrition/daily-summary",
-     "target": "backend",
-     "query": "?date=:param",
-     "line": 25,
-     "file": "patient-app/app/nutrition/daily-tracker.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:50"
-    },
-    {
-     "method": "GET",
-     "path": "/nutrition/meals",
-     "target": "backend",
-     "query": "?date=:param",
-     "line": 25,
-     "file": "patient-app/app/nutrition/daily-tracker.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:43"
-    },
-    {
-     "method": "POST",
-     "path": "/nutrition/water",
-     "target": "backend",
-     "query": "",
-     "line": 31,
-     "file": "patient-app/app/nutrition/daily-tracker.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:57"
-    }
-   ],
-   "files": 13,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -4996,24 +4944,54 @@
      "method": "GET",
      "path": "/nutrition/daily-summary",
      "target": "backend",
-     "query": "",
-     "line": 19,
-     "file": "patient-app/app/nutrition/hub.tsx",
+     "query": "?date=:param",
+     "line": 76,
+     "file": "patient-app/src/components/care/NutritionViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/nutrition/nutrition.controller.ts:50"
+    },
+    {
+     "method": "GET",
+     "path": "/nutrition/meals",
+     "target": "backend",
+     "query": "?date=:param",
+     "line": 76,
+     "file": "patient-app/src/components/care/NutritionViews.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:43"
     },
     {
      "method": "GET",
      "path": "/nutrition/profile",
      "target": "backend",
      "query": "",
-     "line": 19,
-     "file": "patient-app/app/nutrition/hub.tsx",
+     "line": 170,
+     "file": "patient-app/src/components/care/NutritionViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/nutrition/nutrition.controller.ts:24"
+    },
+    {
+     "method": "POST",
+     "path": "/nutrition/profile",
+     "target": "backend",
+     "query": "",
+     "line": 201,
+     "file": "patient-app/src/components/care/NutritionViews.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:30"
+    },
+    {
+     "method": "POST",
+     "path": "/nutrition/water",
+     "target": "backend",
+     "query": "",
+     "line": 91,
+     "file": "patient-app/src/components/care/NutritionViews.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/nutrition/nutrition.controller.ts:57"
     }
    ],
-   "files": 16,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -5031,13 +5009,13 @@
      "path": "/nutrition/meals",
      "target": "backend",
      "query": "",
-     "line": 32,
-     "file": "patient-app/app/nutrition/log-meal.tsx",
+     "line": 264,
+     "file": "patient-app/src/components/care/NutritionViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/nutrition/nutrition.controller.ts:37"
     }
    ],
-   "files": 13,
+   "files": 30,
    "unresolved": 0
   },
   {
@@ -6275,8 +6253,8 @@
      "path": "/medical/programs/active",
      "target": "backend",
      "query": "",
-     "line": 32,
-     "file": "patient-app/app/programs/active.tsx",
+     "line": 40,
+     "file": "patient-app/src/components/care/ProgramsView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medical-programs/medical-programs.module.ts:81"
     },
@@ -6285,13 +6263,13 @@
      "path": "/medical/programs/complete-session",
      "target": "backend",
      "query": "",
-     "line": 61,
-     "file": "patient-app/app/programs/active.tsx",
+     "line": 62,
+     "file": "patient-app/src/components/care/ProgramsView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medical-programs/medical-programs.module.ts:85"
     }
    ],
-   "files": 18,
+   "files": 33,
    "unresolved": 0
   },
   {
