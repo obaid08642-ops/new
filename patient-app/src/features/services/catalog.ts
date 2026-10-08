@@ -72,18 +72,17 @@ export const SERVICE_GROUPS: ServiceGroupData[] = [
   {
     title: 'أدوات الذكاء الاصطناعي',
     items: [
-      { title: 'المساعد الطبي الذكي', desc: 'فرز الأعراض وإرشاد أولي', icon: 'robot', tone: 'violet', route: '/ai-assistant' },
-      { title: 'مترجم الروشتات', desc: 'فهم وصفتك الطبية بسهولة', icon: 'translate', tone: 'violet', route: '/ai/prescription-translator' },
+      { title: 'المساعد الطبي الذكي', desc: 'فرز الأعراض وإرشاد أولي', icon: 'robot', tone: 'violet', route: '/ai' },
+      { title: 'مترجم الروشتات', desc: 'فهم وصفتك الطبية بسهولة', icon: 'translate', tone: 'violet', route: '/ai?mode=prescription' },
       { title: 'التقرير الشهري', desc: 'ملخص صحتك خلال الشهر', icon: 'chart-line-up', tone: 'mint', route: '/ai/monthly-report' },
     ],
   },
   {
-    title: 'العائلة والمجتمع',
+    title: 'العائلة',
     items: [
       { title: 'التغذية', desc: 'خطط وجبات وإرشاد غذائي', icon: 'bowl-food', tone: tone('nutrition'), route: '/nutrition/hub' },
       { title: 'الأمومة', desc: 'متابعة الحمل والأمومة', icon: 'baby', tone: tone('maternity'), route: '/maternity/hub' },
       { title: 'الصحة النفسية', desc: 'دعم وموارد الصحة النفسية', icon: 'brain', tone: 'violet', route: '/mental-health' },
-      { title: 'مجتمع نبض', desc: 'تجارب ونقاشات صحية', icon: 'users', tone: 'blue', route: '/community/hub' },
       { title: 'عائلتي', desc: 'إدارة أفراد العائلة', icon: 'users-three', tone: tone('family'), route: '/family' },
     ],
   },

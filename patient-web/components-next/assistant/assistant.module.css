@@ -1,0 +1,34 @@
+/* The AI assistant (Batch 9): the conversation, an answer card and the pickers. The shell, cards, fields, chips and bubbles come
+   from core, pharmacy/rx.module.css and consult/consult.module.css; this file adds only what they lack. Tokens only, logical
+   properties only, no inline styles (the CSP refuses them). */
+
+.thread { display: flex; flex-direction: column; gap: 12px; min-inline-size: 0; }
+.answer {
+  display: flex; flex-direction: column; gap: 12px; padding: 16px; min-inline-size: 0; box-sizing: border-box;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
+  border-radius: var(--nabd-radius-3xl); box-shadow: var(--nabd-shadow-card);
+}
+.answerUrgent { border-color: var(--nabd-color-status-danger-fg); background: var(--nabd-color-status-danger-bg); }
+.answerHead { display: flex; align-items: center; gap: 12px; min-inline-size: 0; }
+.answerTitle { margin: 0; flex: 1; min-inline-size: 0; font-size: var(--nabd-font-size-body-lg); font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.answerBody { margin: 0; font-size: var(--nabd-font-size-body); line-height: 1.7; overflow-wrap: anywhere; white-space: pre-line; }
+.disclaimer {
+  margin: 0; padding: 10px 12px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-status-warning-bg);
+  color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-small); line-height: 1.6; overflow-wrap: anywhere;
+}
+.answerActions { display: flex; flex-direction: column; gap: 8px; }
+.picks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.pick {
+  display: flex; align-items: center; gap: 12px; min-block-size: 56px; padding: 8px 14px; box-sizing: border-box; cursor: pointer;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-2xl);
+}
+.pick:has(input:checked) { border-color: var(--nabd-color-action-selected-bg); }
+.pickBox { flex: none; inline-size: 24px; block-size: 24px; margin: 0; accent-color: var(--nabd-color-action-primary-bg); }
+.pickBody { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
+.pickTitle { font-size: var(--nabd-font-size-row); font-weight: 600; overflow-wrap: anywhere; }
+.pickSub { font-size: var(--nabd-font-size-small); color: var(--nabd-color-text-secondary); }
+.medicines { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.medicine { display: flex; align-items: center; gap: 12px; justify-content: space-between; min-inline-size: 0; }
+.medicineName { min-inline-size: 0; font-weight: 600; overflow-wrap: anywhere; }
+.medicineQty { flex: none; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); }
+.medicineQty bdi { unicode-bidi: isolate; }

@@ -109,26 +109,26 @@ Order (do not skip ahead):
 
 | Id | Issue | Item | Waits for |
 |---|---|---|---|
-| D-16 | #335 | Module switches: one flag per module, a public read endpoint, and the server refuses a switched-off module's routes. | Spec merged (#348): `backend/acceptance/d-16/` — **start now**. |
-| D-14 | #333 | Emergency: remove the whole ambulance system: dispatch, missions, tracking, fleet, the `drivers` module, and the ambulance provider type in the provider app, registration, KYC and admin. Archive the data first. Keep "send my location to my emergency contacts". | spec (owner O-2 answered: remove) |
-| D-10 | #329 | Rx rules on the server: no promo, offer or points on Rx items; an order with an Rx item needs an attached prescription; `controlled` items are never orderable. | Spec: #353 `backend/acceptance/d-10/` (start once merged). |
-| D-15 | #334 | AI assistant limits: specialty routing, leaflet mode, the output filter, red flags, the disclaimer, and a 100+ prompt test set in CI. | Spec: #354 `backend/acceptance/d-15/` with the 120-prompt set (start once merged; translations to be checked by a native speaker). |
-| D-1 | #320 | Community removed (archive first). Doctor articles: verified doctors only, admin approval, no comments, Rx brand-name block. | spec |
-| D-8 | #327 | Mental health: remove assessment scoring and crisis handling; urgent-help number in admin config. | spec |
-| D-2 | #321 | Remove the loyalty leaderboard. | spec |
-| D-4 | #323 | Remove AI skin analysis. | spec |
-| D-9 | #328 | Loyalty challenges: health-habit `target_action` only; existing purchase challenges ended and archived. | spec |
-| D-12 | #331 | SFDA price ceiling: `sfda_price` and its source; line mapping; reject offers over the ceiling; unmapped lines go to admin review. | spec (owner O-1 answered: the catalogue `price` in the server DB is the ceiling) |
-| D-13 | #332 | Offers waiting: the final "no pharmacy available" state (with Q-3). | spec, Q-3 |
-| D-17 | #336 | Doctor public view: SCFHS licence and `verified`; never national ID, phone or email. | spec |
-| D-19 | #338 | Lab result push deep link to the result. | spec |
+| D-16 | #335 | Module switches: one flag per module, a public read endpoint, and the server refuses a switched-off module's routes. | spec merged (`backend/acceptance/d-16`) |
+| D-14 | #333 | Emergency: remove the whole ambulance system: dispatch, missions, tracking, fleet, the `drivers` module, and the ambulance provider type in the provider app, registration, KYC and admin. Archive the data first. Keep "send my location to my emergency contacts". | spec #605 |
+| D-10 | #329 | Rx rules on the server: no promo, offer or points on Rx items; an order with an Rx item needs an attached prescription; `controlled` items are never orderable. | spec #353 |
+| D-15 | #334 | AI assistant limits: specialty routing, leaflet mode, the output filter, red flags, the disclaimer, and a 100+ prompt test set in CI. | spec + test set #354 |
+| D-1 | #320 | Community removed (archive first). Doctor articles: verified doctors only, admin approval, no comments, Rx brand-name block. | spec merged (#608): start now |
+| D-8 | #327 | Mental health: remove assessment scoring and crisis handling; urgent-help number in admin config. | spec merged (#609): start now |
+| D-2 | #321 | Remove the loyalty leaderboard. | spec merged (#610): start now |
+| D-4 | #323 | Remove AI skin analysis. | spec merged (#611): start now |
+| D-9 | #328 | Loyalty challenges: health-habit `target_action` only; existing purchase challenges ended and archived. | spec merged (#613): start now |
+| D-12 | #331 | SFDA price ceiling: `sfda_price` and its source; line mapping; reject offers over the ceiling; unmapped lines go to admin review. | spec merged (#606): start now (owner O-1 answered: the catalogue `price` in the server DB is the ceiling) |
+| D-13 | #332 | Offers waiting: the final "no pharmacy available" state (with Q-3). | spec merged (#614): start now, Q-3 |
+| D-17 | #336 | Doctor public view: SCFHS licence and `verified`; never national ID, phone or email. | spec merged (#615): start now (urgent: `/providers` leaks national id, phone, email, IBAN today) |
+| D-19 | #338 | Lab result push deep link to the result. | spec merged (#616): start now |
 | D-7 | #326 | One assistant endpoint replacing the seven AI routes. | owner-approved merge map |
 
-| D-26 | — | Cancellation and refund policy (decision 26). One admin-editable policy per service type: consultations, home visit and nursing, pharmacy delivery. Used by every cancel path, returned with each booking or order (the rule plus the refund the patient would get now), refunded to the original payment method. The clients show only the server value; remove the hard-coded copies. | spec |
-| D-25 | — | Payment method by service (decision 25). The server refuses cash for online consultations, home visits and nursing. Pharmacy cash on delivery only under all of its conditions. | spec |
-| D-24 | — | Doctor chat only inside a booking (decision 24). Online: text, voice, images, files and the call. Clinic or home: text, images and files for 72 h after completion. The doctor can close or extend once. Read-only after the window. | spec |
+| D-26 | — | Cancellation and refund policy (decision 26). One admin-editable policy per service type: consultations, home visit and nursing, pharmacy delivery. Used by every cancel path, returned with each booking or order (the rule plus the refund the patient would get now), refunded to the original payment method. The clients show only the server value; remove the hard-coded copies. | spec #582 |
+| D-25 | — | Payment method by service (decision 25). The server refuses cash for online consultations, home visits and nursing. Pharmacy cash on delivery only under all of its conditions. | spec #583 |
+| D-24 | — | Doctor chat only inside a booking (decision 24). Online: text, voice, images, files and the call. Clinic or home: text, images and files for 72 h after completion. The doctor can close or extend once. Read-only after the window. | spec #604 |
 
-| D-28 | — | Security sweep S-1 … S-7 (decision 28): fix whatever the reviewer's S-specs show failing. | spec |
+| D-28 | — | Security sweep S-1 … S-7 (decision 28): fix whatever the reviewer's S-specs show failing. | specs S-5 #620, S-6 #619, S-7 #618 |
 | D-29 | — | Search (decision 29): self-hosted Meilisearch, index rebuild from MongoDB plus change sync, Arabic normalisation and synonyms, 6 locales, a scoped search per section and a grouped global search. | spec |
 | D-30 | — | Insurance first (decision 30): profile insurance with class; provider networks with companies and classes; list and broadcast filters; final eligibility at checkout. | spec |
 | D-31 | — | Double taps and bad networks (decision 31): close whatever the reviewer's tests show (one charge or booking per key, the same key on retry, a result check instead of a re-pay). | spec |

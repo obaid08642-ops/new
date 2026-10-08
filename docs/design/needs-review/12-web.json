@@ -1,0 +1,122 @@
+[
+  {
+    "batch": 12,
+    "app": "patient-web",
+    "screen": "/profile",
+    "element": "Identity and medical summary cards",
+    "file": "patient-web/app/[locale]/profile/page.tsx",
+    "line": 42,
+    "found": "[client] GET /users/me/profile was read for name/email/phone but holds none of them (patient record); identity now comes from GET /auth/me. The medical card still shows booleans as 'No' when the server only has defaults, and the blood type key does not match /medical-profile (blood_type).",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 12,
+    "app": "patient-web",
+    "screen": "/profile",
+    "element": "Saved payment methods row",
+    "file": "patient-web/app/[locale]/profile/page.tsx",
+    "line": 89,
+    "found": "[owner] the board has a 'saved cards' row; there is no web screen or endpoint for it, not drawn.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 12,
+    "app": "patient-web",
+    "screen": "/settings/privacy",
+    "element": "Privacy switches",
+    "file": "patient-web/app/[locale]/settings/privacy/page.tsx",
+    "line": 26,
+    "found": "[backend] the server fields (profile_visible, share_data) do not match the five keys the BFF sends (shareData, analytics, location...); a missing field falls back to a made-up default.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 12,
+    "app": "patient-web",
+    "screen": "/settings/security",
+    "element": "End session",
+    "file": "patient-web/app/[locale]/settings/security/page.tsx",
+    "line": 69,
+    "found": "[backend] the sessions list has no 'current session' flag, so ending the session in use signs the patient out at the next refresh; session ids now reach the client (parseOwnSessions), reviewer to confirm. (backend: backend/src/modules/users/users.service.ts:355)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 12,
+    "app": "patient-web",
+    "screen": "/settings/help",
+    "element": "Request status",
+    "file": "patient-web/app/[locale]/settings/help/page.tsx",
+    "line": 93,
+    "found": "[backend] status codes of support requests are shown as the server sends them (untranslated); no list of codes to translate.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 12,
+    "app": "patient-web",
+    "screen": "/support/ticket",
+    "element": "Request status",
+    "file": "patient-web/app/[locale]/support/ticket/page.tsx",
+    "line": 68,
+    "found": "[backend] same: raw status string.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 12,
+    "app": "patient-web",
+    "screen": "/returns/new-request",
+    "element": "Amount sent with the request",
+    "file": "patient-web/components-next/return-request-form.tsx",
+    "line": 44,
+    "found": "[backend] the form sends a fixed amount per service type (250, 120, 80, 80) that no server data supports; the backend should price the return from the order.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 12,
+    "app": "patient-web",
+    "screen": "/map",
+    "element": "Map pane",
+    "file": "patient-web/components-next/map-explorer-client.tsx",
+    "line": 191,
+    "found": "[owner] the OpenStreetMap embed is blocked by the CSP (frame-src has no openstreetmap.org); the pane only shows once the owner allows the host.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 12,
+    "app": "patient-web",
+    "screen": "/support/chat",
+    "element": "Greeting bubble",
+    "file": "patient-web/components-next/support-chat-client.tsx",
+    "line": 55,
+    "found": "[client] the first agent bubble is a local greeting, not a server message; the old 'online, replies within a minute' claim was removed.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 12,
+    "app": "patient-web",
+    "screen": "/reviews",
+    "element": "Reviews list",
+    "file": "patient-web/app/[locale]/reviews/page.tsx",
+    "line": 40,
+    "found": "[backend] GET /patient-ux/reviews is a partial route with no reviewer name or target shown; only stars and comment exist.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 12,
+    "app": "patient-web",
+    "screen": "/profile/addresses",
+    "element": "Region, city, district selects",
+    "file": "patient-web/components-next/account/geo-select.tsx",
+    "line": 10,
+    "found": "[client] the selects call the API origin from the browser (NEXT_PUBLIC_API_URL) instead of the web proxy; names exist in Arabic and English only. Runtime check: with NEXT_PUBLIC_API_URL unset the call goes to https://api.nabd.plus (ERR_CERT_AUTHORITY_INVALID in the sandbox, the only console error of the batch); the patient proxy allowlist has no /locations routes.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 12,
+    "app": "patient-web",
+    "screen": "/settings/about",
+    "element": "Cancellation rules",
+    "file": "patient-web/app/[locale]/settings/about/page.tsx",
+    "line": 29,
+    "found": "[owner] the server also publishes a half-refund tier (half_hours, half_refund_percent) that the app terms do not mention; only full_hours and late_fee_percent are written.",
+    "suspect": "Owner decision."
+  }
+]

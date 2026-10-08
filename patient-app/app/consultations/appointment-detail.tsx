@@ -90,7 +90,7 @@ export default function AppointmentDetailScreen() {
       .then((requests) => {
         const request = (requests || []).find((item) => item.booking_kind === 'consultation' && item.booking_id === a?.id && OPEN_STATES.includes(String(item.state)));
         if (!request?.id) throw new Error('insurance_request_not_found');
-        router.push({ pathname: '/insurance/payment-split', params: { request_id: request.id } } as unknown as Href);
+        router.push({ pathname: '/insurance/request', params: { id: request.id } } as unknown as Href);
       })
       .catch(() => showLocalizedAlert(k('consult.detail.insuranceUnavailable'), k('consult.detail.insuranceUnavailableBody')));
   };
