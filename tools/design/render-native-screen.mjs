@@ -101,17 +101,20 @@ const BOARD = {
   'pharmacy-hub': { component: 'PharmacyHub', size: [390, 1420], params: {} },
   'product-detail': { component: 'ProductFull', size: [390, 3380], params: { id: 'test-med' } },
   wishlist: { params: {} },
-  filters: { params: {} },
+  // Batch 14 (14b): the filters are a sheet on the catalogue (pharmacy-hub), not a screen.
   'medicine-compare': { params: { ids: 'test-med,test-alt' } },
   // Batch 1b (cart and prescription). The cart and the prescription upload have boards; the prescription list
   // (rx-order), the barcode scanner, the manual request and the negotiation chat follow the RxUpload / PharmacyHub
   // templates and have none. The cart is filled with --cart test (marked test lines), the chat opens an order id.
   cart: { component: 'Cart', size: [390, 1260], params: {} },
-  'scan-prescription': { component: 'RxUpload', size: [390, 1100], params: {} },
+  // Batch 14 (14b): scan-prescription, request and the prescription list are the three ways in of rx-order
+  // (`rx-order:rx-order-photo`, `rx-order:rx-order-upload`, `rx-order:rx-order-type`); the old routes redirect.
+  'rx-order-photo': { component: 'RxUpload', size: [390, 1100], params: {} },
+  'rx-order-upload': { component: 'RxUpload', size: [390, 1100], params: { via: 'upload' } },
+  'rx-order-type': { params: { via: 'type' } },
   'rx-order': { params: {} },
   'rx-order-detail': { params: { prescriptionId: 'test-rx' } },
   'barcode-scanner': { params: {} },
-  request: { params: {} },
   'pharmacist-chat': { params: { orderId: 'test-order' } },
   // Batch 1c (pharmacy offers, high effort). broadcast-status is the PharmacyOffers board; final-quote follows the same
   // template with no board of its own. The order ids select the TEST order of render-native-screen.fixtures.json
@@ -129,7 +132,6 @@ const BOARD = {
   // Batch 1e (orders and tracking). Orders and OrderTracking are boards; the pharmacy order history is the Orders board for the
   // governed orders only, order-again and the delivery address follow its card and the Account board's rows (no board of their own).
   orders: { component: 'Orders', size: [390, 900], params: {} },
-  'order-history': { component: 'Orders', size: [390, 900], params: {} },
   'order-tracking': { component: 'OrderTracking', size: [390, 1120], params: { orderId: 'test-track' } },
   reorder: { params: { orderId: 'test-delivered' } },
   'address-select': { params: {} },
@@ -143,15 +145,15 @@ const BOARD = {
   'c-appointments': { component: 'Appointments', size: [390, 960], params: {} },
   'c-call-history': { component: 'Appointments', size: [390, 960], params: {} },
   'c-appointment-detail': { component: 'Consult', size: [390, 1660], params: { appointmentId: 'test-appt' } },
+  // Batch 14: the summary, the prescription and the follow-up are sections of the finished appointment's page, and the clinic
+  // confirmation is the confirmed state of booking-status (`appointment-detail:c-appointment-done`, `booking-status:c-booking-clinic`).
+  'c-appointment-done': { component: 'Consult', size: [390, 3000], params: { appointmentId: 'test-appt-done' } },
+  'c-booking-clinic': { component: 'BookingConfirm', size: [390, 1180], params: { appointmentId: 'test-appt', state: 'confirmed', visitType: 'clinic' } },
   'c-cancel-reschedule': { component: 'Consult', size: [390, 1660], params: { appointmentId: 'test-appt' } },
-  'c-follow-up': { component: 'Consult', size: [390, 1660], params: { appointmentId: 'test-appt' } },
   'c-post-call-rating': { component: 'Consult', size: [390, 1660], params: { appointmentId: 'test-appt-done' } },
-  'c-prescription-from-doctor': { component: 'Consult', size: [390, 1660], params: {} },
   'c-share-report': { component: 'Consult', size: [390, 1660], params: {} },
-  'c-summary': { component: 'Consult', size: [390, 1660], params: { appointmentId: 'test-appt-done' } },
   'c-book': { component: 'BookingConfirm', size: [390, 1180], params: { id: 'test-doc', visit_type: 'clinic' } },
   'c-booking-status': { component: 'BookingConfirm', size: [390, 1180], params: { appointmentId: 'test-appt', visitType: 'clinic' } },
-  'c-clinic-confirm': { component: 'BookingConfirm', size: [390, 1180], params: { appointmentId: 'test-appt' } },
   'c-clinic': { component: 'DoctorFull', size: [390, 2700], params: { id: 'test-clinic' } },
   'c-doctor': { component: 'DoctorFull', size: [390, 2700], params: { id: 'test-doc' } },
   'c-home-visit-tracking': { component: 'OrderTracking', size: [390, 1120], params: { appointmentId: 'test-appt-home' } },
@@ -235,10 +237,10 @@ const BOARD = {
   'd-order': { component: 'OrderTracking', size: [390, 1120], params: { id: 'test-lab-order' } },
   'd-order-done': { component: 'OrderTracking', size: [390, 1120], params: { id: 'test-lab-done' } },
   'd-sample-tracking': { component: 'OrderTracking', size: [390, 1120], params: { bookingId: 'test-lab-order' } },
-  'd-technician-tracking': { component: 'OrderTracking', size: [390, 1120], params: { bookingId: 'test-lab-order' } },
   'd-cart': { component: 'Cart', size: [390, 1260], params: {} },
   'd-checkout': { component: 'CheckoutV2', size: [390, 1100], params: { serviceType: 'home', labId: 'test-lab', labName: 'مختبر تجريبي ١' } },
   'd-book-sample': { component: 'BookingConfirm', size: [390, 1180], params: {} },
+  // Batch 14 (14b): insurance-upload is the first state of insurance-approval (no orderId); the second state is `d-insurance-approval`.
   'd-insurance-upload': { component: 'RxUpload', size: [390, 1100], params: { labId: 'test-lab', labName: 'مختبر تجريبي ١', serviceType: 'home' } },
   'd-insurance-approval': { component: 'ServiceHub', size: [390, 1640], params: { orderId: 'test-ins', labName: 'مختبر تجريبي ١', visitType: 'home' } },
   // Batch 4 (nursing / home care, app slice 4-app; 8 screens). `--dir "patient-app/app/(tabs)" --screens nursing:n-hub` and `--dir patient-app/app/nursing --screens visits:n-visits,...`.

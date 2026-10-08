@@ -109,7 +109,9 @@ export function routeFromNotificationData(data: any): void {
     // 2) Type-based fallbacks (event-driven notifications) — real app routes only
     switch (data.type) {
       case 'chat':
-        router.push({ pathname: '/consultations/chat-with-doctor', params: { doctorId: data.senderId, doctorName: data.senderName } } as any);
+        // Decision 24: the doctor thread belongs to a booking; without one the bookings list opens.
+        if (data.appointmentId || data.bookingId) router.push({ pathname: '/consultations/chat-with-doctor', params: { doctorId: data.senderId, doctorName: data.senderName, appointmentId: data.appointmentId || data.bookingId } } as any);
+        else router.push('/consultations/appointments' as any);
         break;
       case 'call':
       case 'call_missed':

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { CoreShell } from "@/components-next/core/core-shell";
+import { DrugInteractionChecker } from "@/components-next/drug-interaction-checker";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
@@ -23,13 +24,14 @@ type Outcome =
   | { kind: "failed"; reason: "lookup" | "session" };
 
 /**
- * Find a medicine by the barcode on its package (the app's barcode scanner, typed in: the web has no camera scan, so this
+ * Scan a medicine (second pass, section 3: the old barcode and drug-interaction pages in one screen). Find a medicine by the barcode on its package (the app's barcode scanner, typed in: the web has no camera scan, so this
  * screen does not promise one). An exact match is shown as found; a name match on the typed text is shown as the closest
  * match, never as a recognised barcode.
  */
 export function BarcodeScreen({ locale }: { locale: Locale }) {
   const t = useTranslations("PharmacyBarcode");
   const flow = useTranslations("PharmacyFlow");
+  const browse = useTranslations("PharmacyBrowse");
   const [code, setCode] = useState("");
   const [outcome, setOutcome] = useState<Outcome>({ kind: "idle" });
   const looking = outcome.kind === "looking";
@@ -112,11 +114,16 @@ export function BarcodeScreen({ locale }: { locale: Locale }) {
             <h2 className={rx.h2}>{t("notFoundTitle")}</h2>
             <p className={rx.note} role="status">{t("notFoundBody", { code: outcome.code })}</p>
             <div className={rx.actionsStack}>
-              <ButtonLink href={`/${locale}/pharmacy/request`} label={t("requestByName")} fullWidth />
+              <ButtonLink href={`/${locale}/pharmacy/rx-order?via=type`} label={t("requestByName")} fullWidth />
               <Button label={t("another")} variant="outline" size="lg" fullWidth onClick={reset} />
             </div>
           </section>
         ) : null}
+
+        <section className={rx.card} aria-labelledby="scan-ix">
+          <h2 className={rx.h2} id="scan-ix">{browse("ixTitle")}</h2>
+          <DrugInteractionChecker key={product?.id ?? "none"} locale={locale} initialDrugs={product?.name ? [product.name] : []} />
+        </section>
       </div>
     </CoreShell>
   );

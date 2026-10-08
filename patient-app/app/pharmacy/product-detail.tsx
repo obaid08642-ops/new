@@ -611,7 +611,7 @@ export default function ProductDetailScreen() {
 
             {/* a prescription medicine: the upload sits above the buy buttons */}
             {view.rx && !view.discontinued ? (
-              <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.uploadRx')} onPress={() => go('/pharmacy/scan-prescription' as Href)}>
+              <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.uploadRx')} onPress={() => go('/pharmacy/rx-order?via=photo' as Href)}>
                 <Card padding="sm" elevation="flat" theme={theme}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                     <FIcon icon="prescription" tone={PHARMACY_TONE} size={40} theme={theme} />

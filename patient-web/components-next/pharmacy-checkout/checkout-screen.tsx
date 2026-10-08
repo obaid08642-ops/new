@@ -255,7 +255,7 @@ function PrescriptionNotice({ state, locale }: { state: PrescriptionState; local
         <span className={rx.bannerTitle}>{t("rxMissingTitle")}</span>
         <span className={rx.bannerText}>{t("rxMissingBody")}</span>
       </div>
-      <Link className={rx.bannerAction} href={`/${locale}/pharmacy/scan-prescription`}>{t("rxUpload")}</Link>
+      <Link className={rx.bannerAction} href={`/${locale}/pharmacy/rx-order?via=photo`}>{t("rxUpload")}</Link>
     </div>
   );
 }

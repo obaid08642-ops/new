@@ -325,6 +325,6 @@ describe('waiting-for-pharmacy redirect', () => {
   it('with no order id it opens the order list, not an offers screen with nothing to show', async () => {
     mockParams.current = {};
     await render(<WaitingRedirect />);
-    expect(mockRedirect).toHaveBeenLastCalledWith('/pharmacy/order-history');
+    expect(mockRedirect).toHaveBeenLastCalledWith('/orders');
   });
 });

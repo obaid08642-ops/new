@@ -1,0 +1,42 @@
+[
+  {
+    "batch": 14,
+    "app": "patient-app",
+    "screen": "/pharmacy/barcode-scanner",
+    "element": "Interaction notes",
+    "file": "patient-app/app/pharmacy/barcode-scanner.tsx",
+    "line": 221,
+    "found": "[backend] POST /ai/drug-interactions returns the note only in Arabic (note_ar); non-Arabic screens show the severity label without a note, no Arabic fallback. (backend: backend/src/modules/ai/ai-compat.controller.ts:10)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-app",
+    "screen": "/pharmacy/broadcast-status",
+    "element": "Cancel / returns text (decision 26)",
+    "file": "patient-app/app/pharmacy/broadcast-status.tsx",
+    "line": 208,
+    "found": "[client] No hard-coded 12/24 h or 4/24 h copy exists in the pharmacy or lab screens; the order cancel dialog shows no cancellation or returns rule either. GET /system-config/public has cancellation_policy and returns_policy: show them here in the batch that adds order-policy text.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 14,
+    "app": "patient-app",
+    "screen": "/diagnostics/insurance-approval",
+    "element": "Home-visit fee",
+    "file": "patient-app/app/diagnostics/insurance-approval.tsx",
+    "line": 35,
+    "found": "[backend] HOME_VISIT_FEE = 50 is a client constant added to the amount to pay; the server does not send it.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-app",
+    "screen": "/diagnostics/sample-tracking",
+    "element": "Home collection flag",
+    "file": "patient-app/app/diagnostics/sample-tracking.tsx",
+    "line": 77,
+    "found": "[backend] Confirm that GET /labs/bookings/:id sends location_type; until then the technician block also shows when a technician is assigned.",
+    "suspect": "Backend gap: reviewer session."
+  }
+]

@@ -31,6 +31,7 @@ const ALLOWED_SCREENS = new Set([
   '/consultations/booking-status',
   '/consultations/chat-with-doctor',
   '/consultations/virtual-waiting-room',
+  // merged into appointment-detail / booking-status (batch 14); notifications sent before the merge still carry them and the routes redirect
   '/consultations/summary',
   '/consultations/clinic-confirm',
   '/consultations/prescription-from-doctor',
@@ -55,17 +56,23 @@ const ALLOWED_SCREENS = new Set([
 function resolveLegacyRoute(data: any): { pathname: string; params: Record<string, any> } | null {
   switch (data?.type) {
     case 'chat':
-      return {
-        pathname: '/consultations/chat-with-doctor',
-        params: { doctorId: data.doctorId || data.senderId, doctorName: data.senderName, appointmentId: data.appointmentId || data.bookingId },
-      };
+      // Decision 24: the doctor thread belongs to a booking; a chat notification without one opens the bookings list.
+      return data.appointmentId || data.bookingId
+        ? {
+            pathname: '/consultations/chat-with-doctor',
+            params: { doctorId: data.doctorId || data.senderId, doctorName: data.senderName, appointmentId: data.appointmentId || data.bookingId },
+          }
+        : { pathname: '/consultations/appointments', params: {} };
     case 'prescription':
-      return { pathname: '/consultations/prescription-from-doctor', params: { prescriptionId: data.prescriptionId, doctorId: data.doctorId } };
+      // The prescription is a section of its appointment's page.
+      return data.appointmentId || data.bookingId
+        ? { pathname: '/consultations/appointment-detail', params: { appointmentId: data.appointmentId || data.bookingId } }
+        : { pathname: '/consultations/appointments', params: {} };
     case 'order':
       return { pathname: '/pharmacy/order-tracking', params: { orderId: data.orderId } };
     case 'consultation':
       return data.bookingId
-        ? { pathname: '/consultations/appointment-detail', params: { id: data.bookingId } }
+        ? { pathname: '/consultations/appointment-detail', params: { appointmentId: data.bookingId } }
         : { pathname: '/consultations/appointments', params: {} };
     // M6 additions
     case 'booking_accepted':

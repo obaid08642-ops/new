@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { callPatientApi } from "@/lib/api/upstream";
 import { parseOrderId } from "@/lib/api/orders";
-import { extractPatientPharmacyOffers, extractPatientPharmacyOrderProgress } from "@/lib/api/pharmacy-offers";
+import { extractPatientPharmacyOrderProgress } from "@/lib/api/pharmacy-offers";
 import { extractPatientPharmacyThreadDetail, extractPatientPharmacyThreads } from "@/lib/api/pharmacy-negotiation";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { RetryErrorState } from "@/components-next/core/core-states";
@@ -17,14 +17,11 @@ import { formatMoney, pickName } from "./format";
 import { LocalTime } from "./local-time";
 import { NegotiationActions } from "./negotiation-actions";
 import { QuoteSection } from "./quote-section";
-import { statusKey } from "./status";
-import { WaitingActions } from "./waiting-actions";
 import { OFFER_TONES } from "./tones";
 import styles from "./offers.module.css";
 
 const UUID = /^[0-9a-f-]{36}$/i;
 /** An order in one of these statuses can no longer be cancelled. */
-const NOT_CANCELLABLE = new Set(["cancelled", "delivered", "completed"]);
 
 /** Server reads shared by the screens: a signed-out patient goes to sign-in, someone else's or a missing order is a 404. */
 async function readOrder(locale: Locale, orderId: string, token: string) {
@@ -56,49 +53,6 @@ export async function FinalQuoteScreen({ locale, orderId }: { locale: Locale; or
         <div className={styles.head}><h1 className={styles.title}>{t("quoteTitle")}</h1></div>
         <Link className={styles.backLink} href={orderHref}>{t("backToOrder")}</Link>
         <QuoteSection locale={locale} orderId={orderId} progress={progress} screen="final" />
-      </div>
-    </CoreShell>
-  );
-}
-
-/** `/pharmacy/waiting-for-pharmacy`: where the order stands while pharmacies reply; manual refresh and a confirmed cancel. */
-export async function WaitingScreen({ locale, orderId }: { locale: Locale; orderId: string }) {
-  if (!parseOrderId(orderId).success) notFound();
-  const t = await getTranslations({ locale, namespace: "PharmacyOffers" });
-  const routeState = await getTranslations({ locale, namespace: "RouteState" });
-  const token = await requirePatientAccess(locale);
-  const [response, offersResponse] = await Promise.all([readOrder(locale, orderId, token), callPatientApi(`/patient/pharmacy/orders/${orderId}/offers`, {}, token)]);
-  const orderHref = `/${locale}/orders/${orderId}`;
-  if (!response.ok) {
-    return (
-      <CoreShell locale={locale} title={t("waitingTitle")} backHref={orderHref} width="narrow">
-        <div className={styles.state}><RetryErrorState title={t("loadErrorTitle")} body={t("loadErrorBody")} retryLabel={routeState("retry")} /></div>
-      </CoreShell>
-    );
-  }
-  const progress = extractPatientPharmacyOrderProgress(await response.json().catch(() => null)) ?? {};
-  const offers = offersResponse.ok ? extractPatientPharmacyOffers(await offersResponse.json().catch(() => null)) : [];
-  const status = (progress.status ?? "").toLowerCase();
-  // Offers have arrived and nothing is selected yet: that is what the "offers ready" state of the order means for the patient.
-  if (offers.length > 0 && !progress.governedState && !NOT_CANCELLABLE.has(status)) redirect(`/${locale}/pharmacy/broadcast-status?orderId=${encodeURIComponent(orderId)}`);
-  return (
-    <CoreShell locale={locale} title={t("waitingTitle")} backHref={orderHref} width="narrow">
-      <div className={styles.page}>
-        <div className={styles.head}><h1 className={styles.title}>{t("waitingTitle")}</h1></div>
-        <Link className={styles.backLink} href={orderHref}>{t("backToOrder")}</Link>
-        <div className={styles.hero}>
-          <div className={styles.pulse}>
-            {status === "broadcasting" || status === "awaiting_full_acceptance" ? (<><span className={styles.ring} aria-hidden="true" /><span className={styles.ring} aria-hidden="true" /></>) : null}
-            <FIcon icon="storefront" tone={OFFER_TONES.pharmacy} size={56} chip="solid" />
-          </div>
-          <div className={styles.heroText}>
-            <h2 className={styles.heroTitle}>{t("heroTitleWaiting")}</h2>
-            <p className={styles.heroSub}>{status === "draft" ? t("waitingDraft") : t("waitingLead")}</p>
-            {progress.status ? <div className={styles.chips}><StatusChip label={t(`status.${statusKey(progress.status)}`)} tone={OFFER_TONES.pharmacy} /></div> : null}
-          </div>
-        </div>
-        <p className={styles.lead}>{t("waitingManual")}</p>
-        <WaitingActions orderId={orderId} canCancel={Boolean(progress.status) && !NOT_CANCELLABLE.has(status)} />
       </div>
     </CoreShell>
   );
