@@ -2264,17 +2264,17 @@
   "care.mat.cycleNotice": "توقعات الدورة والخصوبة تقديرية بناءً على مدخلاتك، وقد لا تناسب الدورة غير المنتظمة. لا تستخدميها لمنع الحمل.",
   "care.mat.cycleRegularity": "انتظام الدورة",
   "care.mat.cycleSetup": "أدخلِي تاريخ آخر دورة وطول دورتك المسجل",
-  "care.mat.dateFormat": "صيغة التاريخ: YYYY-MM-DD",
+  "care.mat.dateFormat": "الصيغة: سنة-شهر-يوم، مثال 2026-09-20",
   "care.mat.dayLabel": "اليوم {day} من دورة {total} يومًا",
   "care.mat.dayOfCycle": "يوم الدورة",
   "care.mat.days": "{count} أيام",
-  "care.mat.dueDate": "موعد الولادة المتوقع (YYYY-MM-DD، اختياري)",
+  "care.mat.dueDate": "موعد الولادة المتوقع (اختياري)",
   "care.mat.estimate": "تقدير",
   "care.mat.estimatedDueDate": "موعد ولادة تقديري",
   "care.mat.estimatedOvulation": "إباضة تقديرية",
   "care.mat.fertileWindow": "نافذة خصوبة تقديرية",
   "care.mat.irregular": "الدورة غير منتظمة",
-  "care.mat.lmp": "أول يوم من آخر دورة (YYYY-MM-DD)",
+  "care.mat.lmp": "أول يوم من آخر دورة",
   "care.mat.nextPeriod": "الدورة التالية تقديرياً",
   "care.mat.noCycleBody": "أدخلي تاريخ آخر دورة وطول دورتك لعرض التبويض وفترة الخصوبة.",
   "care.mat.noCycleTitle": "لا توجد متابعة دورة",
@@ -2406,5 +2406,6 @@
   "care.prog.progress": "نسبة الإنجاز",
   "care.prog.progressLabel": "{done} من {total} جلسات مكتملة",
   "care.prog.sessionNo": "الجلسة رقم {n}",
-  "care.prog.title": "البرامج العلاجية النشطة"
+  "care.prog.title": "البرامج العلاجية النشطة",
+  "care.nut.addMl": "+{amount} مل"
 }

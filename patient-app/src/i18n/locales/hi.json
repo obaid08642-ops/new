@@ -2228,17 +2228,17 @@
   "care.mat.cycleNotice": "चक्र और प्रजनन अनुमान आपके डेटा पर आधारित हैं। इन्हें गर्भनिरोध के लिए उपयोग न करें।",
   "care.mat.cycleRegularity": "चक्र की नियमितता",
   "care.mat.cycleSetup": "अंतिम मासिक धर्म और दर्ज चक्र लंबाई लिखें",
-  "care.mat.dateFormat": "तारीख प्रारूप: YYYY-MM-DD",
+  "care.mat.dateFormat": "प्रारूप: वर्ष-माह-दिन, जैसे 2026-09-20",
   "care.mat.dayLabel": "{total} दिन के चक्र का दिन {day}",
   "care.mat.dayOfCycle": "चक्र का दिन",
   "care.mat.days": "{count} दिन",
-  "care.mat.dueDate": "अनुमानित नियत तारीख (YYYY-MM-DD, वैकल्पिक)",
+  "care.mat.dueDate": "अनुमानित डिलीवरी तिथि (वैकल्पिक)",
   "care.mat.estimate": "अनुमान",
   "care.mat.estimatedDueDate": "अनुमानित नियत तारीख",
   "care.mat.estimatedOvulation": "अनुमानित ओव्यूलेशन",
   "care.mat.fertileWindow": "अनुमानित उपजाऊ अवधि",
   "care.mat.irregular": "चक्र अनियमित है",
-  "care.mat.lmp": "अंतिम मासिक धर्म का पहला दिन (YYYY-MM-DD)",
+  "care.mat.lmp": "आख़िरी पीरियड का पहला दिन",
   "care.mat.nextPeriod": "अनुमानित अगला मासिक धर्म",
   "care.mat.noCycleBody": "ओव्यूलेशन और फर्टाइल विंडो देखने के लिए आख़िरी पीरियड की तारीख़ और चक्र की लंबाई डालें।",
   "care.mat.noCycleTitle": "चक्र ट्रैकिंग नहीं है",
@@ -2370,5 +2370,6 @@
   "care.prog.progress": "प्रगति",
   "care.prog.progressLabel": "{total} में से {done} सत्र पूरे",
   "care.prog.sessionNo": "सत्र {n}",
-  "care.prog.title": "सक्रिय उपचार कार्यक्रम"
+  "care.prog.title": "सक्रिय उपचार कार्यक्रम",
+  "care.nut.addMl": "+{amount} मिली"
 }

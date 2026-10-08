@@ -2228,17 +2228,17 @@
   "care.mat.cycleNotice": "سائیکل اور زرخیزی کے اندازے آپ کی معلومات پر مبنی ہیں اور مانع حمل کے لیے استعمال نہ کریں۔",
   "care.mat.cycleRegularity": "ماہواری کی باقاعدگی",
   "care.mat.cycleSetup": "آخری ماہواری اور درج شدہ سائیکل کی مدت درج کریں",
-  "care.mat.dateFormat": "تاریخ کی شکل: YYYY-MM-DD",
+  "care.mat.dateFormat": "ترتیب: سال-مہینہ-دن، مثلاً 2026-09-20",
   "care.mat.dayLabel": "{total} دن کے سائیکل کا دن {day}",
   "care.mat.dayOfCycle": "سائیکل کا دن",
   "care.mat.days": "{count} دن",
-  "care.mat.dueDate": "متوقع تاریخ ولادت (YYYY-MM-DD، اختیاری)",
+  "care.mat.dueDate": "متوقع تاریخِ پیدائش (اختیاری)",
   "care.mat.estimate": "اندازہ",
   "care.mat.estimatedDueDate": "تخمینی تاریخ ولادت",
   "care.mat.estimatedOvulation": "تخمینی بیضہ دانی",
   "care.mat.fertileWindow": "تخمینی زرخیز مدت",
   "care.mat.irregular": "سائیکل بے قاعدہ ہے",
-  "care.mat.lmp": "آخری ماہواری کا پہلا دن (YYYY-MM-DD)",
+  "care.mat.lmp": "آخری ماہواری کا پہلا دن",
   "care.mat.nextPeriod": "تخمینی اگلی ماہواری",
   "care.mat.noCycleBody": "بیضہ ریزی اور زرخیزی کی مدت دیکھنے کے لیے آخری ماہواری کی تاریخ اور سائیکل کی لمبائی درج کریں۔",
   "care.mat.noCycleTitle": "ماہواری کی ٹریکنگ نہیں ہے",
@@ -2370,5 +2370,6 @@
   "care.prog.progress": "پیش رفت",
   "care.prog.progressLabel": "{total} میں سے {done} سیشن مکمل",
   "care.prog.sessionNo": "سیشن نمبر {n}",
-  "care.prog.title": "فعال علاجی پروگرام"
+  "care.prog.title": "فعال علاجی پروگرام",
+  "care.nut.addMl": "+{amount} ملی لیٹر"
 }

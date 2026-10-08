@@ -2264,17 +2264,17 @@
   "care.mat.cycleNotice": "Cycle and fertility estimates are based on your entries and may not suit irregular cycles. Do not use them for contraception.",
   "care.mat.cycleRegularity": "Cycle regularity",
   "care.mat.cycleSetup": "Enter the last period date and your recorded cycle length",
-  "care.mat.dateFormat": "Date format: YYYY-MM-DD",
+  "care.mat.dateFormat": "Format: year-month-day, e.g. 2026-09-20",
   "care.mat.dayLabel": "Day {day} of a {total}-day cycle",
   "care.mat.dayOfCycle": "Cycle day",
   "care.mat.days": "{count} days",
-  "care.mat.dueDate": "Estimated due date (YYYY-MM-DD, optional)",
+  "care.mat.dueDate": "Estimated due date (optional)",
   "care.mat.estimate": "Estimate",
   "care.mat.estimatedDueDate": "Estimated due date",
   "care.mat.estimatedOvulation": "Estimated ovulation",
   "care.mat.fertileWindow": "Estimated fertile window",
   "care.mat.irregular": "Cycle is irregular",
-  "care.mat.lmp": "First day of last period (YYYY-MM-DD)",
+  "care.mat.lmp": "First day of last period",
   "care.mat.nextPeriod": "Estimated next period",
   "care.mat.noCycleBody": "Enter your last period date and cycle length to see ovulation and the fertile window.",
   "care.mat.noCycleTitle": "No cycle tracking",
@@ -2406,5 +2406,6 @@
   "care.prog.progress": "Progress",
   "care.prog.progressLabel": "{done} of {total} sessions completed",
   "care.prog.sessionNo": "Session {n}",
-  "care.prog.title": "Active programs"
+  "care.prog.title": "Active programs",
+  "care.nut.addMl": "+{amount} ml"
 }

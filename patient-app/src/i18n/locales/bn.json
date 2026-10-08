@@ -2228,17 +2228,17 @@
   "care.mat.cycleNotice": "চক্র ও উর্বরতার অনুমান আপনার তথ্যের উপর নির্ভর করে। গর্ভনিরোধে ব্যবহার করবেন না।",
   "care.mat.cycleRegularity": "চক্রের নিয়মিততা",
   "care.mat.cycleSetup": "শেষ মাসিক ও নথিভুক্ত চক্রের দৈর্ঘ্য দিন",
-  "care.mat.dateFormat": "তারিখের বিন্যাস: YYYY-MM-DD",
+  "care.mat.dateFormat": "বিন্যাস: বছর-মাস-দিন, যেমন 2026-09-20",
   "care.mat.dayLabel": "{total} দিনের চক্রের {day} নম্বর দিন",
   "care.mat.dayOfCycle": "চক্রের দিন",
   "care.mat.days": "{count} দিন",
-  "care.mat.dueDate": "অনুমানিত প্রসবের তারিখ (YYYY-MM-DD, ঐচ্ছিক)",
+  "care.mat.dueDate": "সম্ভাব্য প্রসবের তারিখ (ঐচ্ছিক)",
   "care.mat.estimate": "অনুমান",
   "care.mat.estimatedDueDate": "অনুমানিত প্রসবের তারিখ",
   "care.mat.estimatedOvulation": "অনুমানিত ডিম্বস্ফোটন",
   "care.mat.fertileWindow": "অনুমানিত উর্বর সময়",
   "care.mat.irregular": "চক্র অনিয়মিত",
-  "care.mat.lmp": "শেষ মাসিকের প্রথম দিন (YYYY-MM-DD)",
+  "care.mat.lmp": "শেষ মাসিকের প্রথম দিন",
   "care.mat.nextPeriod": "অনুমানিত পরবর্তী মাসিক",
   "care.mat.noCycleBody": "ডিম্বস্ফোটন ও উর্বর সময় দেখতে শেষ মাসিকের তারিখ ও চক্রের দৈর্ঘ্য দিন।",
   "care.mat.noCycleTitle": "চক্র ট্র্যাকিং নেই",
@@ -2370,5 +2370,6 @@
   "care.prog.progress": "অগ্রগতি",
   "care.prog.progressLabel": "{total} টির মধ্যে {done} টি সেশন সম্পন্ন",
   "care.prog.sessionNo": "সেশন {n}",
-  "care.prog.title": "সক্রিয় চিকিৎসা প্রোগ্রাম"
+  "care.prog.title": "সক্রিয় চিকিৎসা প্রোগ্রাম",
+  "care.nut.addMl": "+{amount} মি.লি."
 }

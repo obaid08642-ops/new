@@ -111,7 +111,7 @@ describe('nutrition today tab', () => {
     mockApiFetch.mockImplementation(route);
     await render(wrap(<NutritionHubView />));
     expect(await screen.findByText('Test soup')).toBeTruthy();
-    expect(screen.getByText('800 / 2,000 kcal')).toBeTruthy();
+    expect(screen.getByText('\u2066800 / 2,000 kcal\u2069')).toBeTruthy();
     await act(async () => {
       fireEvent.press(screen.getByTestId('nutrition-water-250'));
     });

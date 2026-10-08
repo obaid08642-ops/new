@@ -8,7 +8,7 @@ import { HealthTabs, MetricGrid, MetricTile, Notice, Panel, Pill, Row, bodyOf, r
 import { useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
-import { CareBar, CareHero, CareScreen, FormCard, PrimaryAction, localDateKey, numberOrUndefined } from './CareKit';
+import { CareBar, ltr, CareHero, CareScreen, FormCard, PrimaryAction, localDateKey, numberOrUndefined, LIME_TONE } from './CareKit';
 
 /**
  * Nutrition (board CareHub, merge map section 5): one hub with the tabs Today (calories, macros, water, meals) and Target
@@ -109,10 +109,10 @@ function TodayTab({ onSetTarget }: { onSetTarget: () => void }) {
         <>
           <CareHero
             testID="nutrition-summary"
-            tone="lime"
+            tone={LIME_TONE}
             ring={{ value: target ? consumed / target : 0, label: k('care.nut.calories'), valueText: target ? `${num(Math.min(100, Math.round((consumed / target) * 100)))}%` : '—', caption: k('care.nut.calories') }}
             title={k('care.nut.summary')}
-            lines={target ? [`${num(consumed)} / ${num(target)} kcal`, `${k('care.nut.remaining')}: ${num(Math.max(0, target - consumed))}`] : [`${num(consumed)} kcal ${k('care.nut.consumed')}`, k('care.nut.noTarget')]}
+            lines={target ? [ltr(`${num(consumed)} / ${num(target)} kcal`), `${k('care.nut.remaining')}: ${num(Math.max(0, target - consumed))}`] : [`${ltr(`${num(consumed)} kcal`)} ${k('care.nut.consumed')}`, k('care.nut.noTarget')]}
           >
             {!target ? <Button label={k('care.nut.setup')} size="md" variant="outline" onPress={onSetTarget} theme={theme} testID="nutrition-set-target" /> : null}
           </CareHero>
@@ -123,13 +123,13 @@ function TodayTab({ onSetTarget }: { onSetTarget: () => void }) {
           </MetricGrid>
           <FormCard title={k('care.nut.waterLog')}>
             <CareBar value={waterTarget ? waterNow / waterTarget : 0} tone="blue" label={k('care.nut.waterLog')} />
-            <Pill tone="info" label={waterTarget ? `${num(waterNow)} / ${num(waterTarget)} ml` : k('care.nut.waterProgress', { value: num(waterNow) })} />
+            <Pill tone="info" label={waterTarget ? ltr(`${num(waterNow)} / ${num(waterTarget)} ml`) : k('care.nut.waterProgress', { value: num(waterNow) })} />
             <View style={{ flexDirection: 'row', gap: 8 }}>
               <View style={{ flex: 1 }}>
-                <Button label="+250 ml" size="md" variant="outline" fullWidth loading={busy === 250} disabled={busy !== null} onPress={() => void addWater(250)} theme={theme} testID="nutrition-water-250" />
+                <Button label={k('care.nut.addMl', { amount: num(250) })} size="md" variant="outline" fullWidth loading={busy === 250} disabled={busy !== null} onPress={() => void addWater(250)} theme={theme} testID="nutrition-water-250" />
               </View>
               <View style={{ flex: 1 }}>
-                <Button label="+500 ml" size="md" fullWidth loading={busy === 500} disabled={busy !== null} onPress={() => void addWater(500)} theme={theme} testID="nutrition-water-500" />
+                <Button label={k('care.nut.addMl', { amount: num(500) })} size="md" fullWidth loading={busy === 500} disabled={busy !== null} onPress={() => void addWater(500)} theme={theme} testID="nutrition-water-500" />
               </View>
             </View>
             {error ? <Notice tone="danger" text={error} /> : null}
@@ -143,9 +143,9 @@ function TodayTab({ onSetTarget }: { onSetTarget: () => void }) {
                   <Row
                     key={meal.id ?? meal._id ?? `${meal.name}-${meal.logged_at}`}
                     icon={MEAL_ICON[meal.meal_type] ?? 'bowl-food'}
-                    tone="lime"
+                    tone={LIME_TONE}
                     title={meal.name}
-                    subtitle={`${num(meal.calories)} kcal${meal.protein_g ? ` · ${num(meal.protein_g)} g ${k('care.nut.protein')}` : ''}`}
+                    subtitle={`${ltr(`${num(meal.calories)} kcal`)}${meal.protein_g ? ` · ${ltr(`${num(meal.protein_g)} g`)} ${k('care.nut.protein')}` : ''}`}
                     trailing={<Pill tone="neutral" label={k(`care.nut.${meal.meal_type}`)} />}
                     last={i === meals.length - 1}
                   />

@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { type Href } from 'expo-router';
 
-import { Button, Card, ProgressRing, type ServiceTone } from '../../../../packages/ui-native/src';
+import { Button, Card, ProgressRing, SERVICE_TONES, type ServiceTone } from '../../../../packages/ui-native/src';
 import { goBack } from '../consult/ConsultKit';
 import { HealthScreen } from '../health/HealthKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
@@ -108,3 +108,11 @@ export function localDateKey(now = new Date()): string {
 
 /** A number from a text field: undefined when empty, NaN when not a number. */
 export const numberOrUndefined = (value: string): number | undefined => (value.trim() === '' ? undefined : Number(value));
+
+/** A figure with its unit kept in reading order inside right-to-left text ("800 / 2,000 kcal"): a left-to-right isolate. */
+export const ltr = (text: string): string => `\u2066${text}\u2069`;
+
+/** Service tones by position in the token list (color.service.*), so a screen names no colour. */
+export const CORAL_TONE: ServiceTone = SERVICE_TONES[0];
+export const LIME_TONE: ServiceTone = SERVICE_TONES[6];
+export const TEAL_TONE: ServiceTone = SERVICE_TONES[8];

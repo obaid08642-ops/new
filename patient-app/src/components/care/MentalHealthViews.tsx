@@ -9,7 +9,7 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { buildMoodJournalPayload, parseMoodHistory, type MoodEntry, type MoodValue } from '../../utils/mood-journal-contract';
-import { CareScreen, ChoiceTile, FormCard, PrimaryAction } from './CareKit';
+import { CareScreen, ChoiceTile, FormCard, PrimaryAction, LIME_TONE, CORAL_TONE } from './CareKit';
 import type { ServiceTone } from '../../../../packages/ui-native/src';
 
 /**
@@ -39,10 +39,10 @@ export function MentalHealthHubView() {
 
 const MOODS: { value: MoodValue; key: string; tone: ServiceTone }[] = [
   { value: 'great', key: 'care.mh.moodGreat', tone: 'mint' },
-  { value: 'good', key: 'care.mh.moodGood', tone: 'lime' },
+  { value: 'good', key: 'care.mh.moodGood', tone: LIME_TONE },
   { value: 'okay', key: 'care.mh.moodOkay', tone: 'amber' },
   { value: 'bad', key: 'care.mh.moodBad', tone: 'peach' },
-  { value: 'terrible', key: 'care.mh.moodTerrible', tone: 'coral' },
+  { value: 'terrible', key: 'care.mh.moodTerrible', tone: CORAL_TONE },
 ];
 const TAGS = [
   { value: 'calm', key: 'care.mh.tagCalm' },

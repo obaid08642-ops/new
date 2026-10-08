@@ -7,7 +7,7 @@ import { DoseMark, HealthTabs, Notice, Panel, Pill, Row, rowsOf, useRemote } fro
 import { useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
-import { CareBar, CareHero, CareScreen } from './CareKit';
+import { CareBar, CareHero, CareScreen, TEAL_TONE } from './CareKit';
 
 /**
  * The active medical programs (board CareHub, merge map section 8): one tab per program, its progress, the next session,
@@ -75,22 +75,22 @@ export function ProgramsActiveView() {
     <CareScreen title={k('care.prog.title')} testID="programs-active">
       <Gate status={remote.status} onRetry={() => void remote.reload()}>
         {!selected ? (
-          <EmptyState icon="clipboard-text" tone="teal" title={k('care.prog.emptyTitle')} body={k('care.prog.emptyBody')} />
+          <EmptyState icon="clipboard-text" tone={TEAL_TONE} title={k('care.prog.emptyTitle')} body={k('care.prog.emptyBody')} />
         ) : (
           <>
             <HealthTabs testID="programs-tabs" tabs={programs.map((p) => ({ key: p.id, label: p.title }))} value={selected.id} onChange={setActive} />
             <CareHero
               testID="programs-progress"
-              tone="teal"
+              tone={TEAL_TONE}
               ring={{ value: selected.totalSessions ? selected.completedSessions / selected.totalSessions : 0, label: k('care.prog.progressLabel', { done: num(selected.completedSessions), total: num(selected.totalSessions) }), valueText: num(selected.completedSessions), caption: k('care.prog.ofSessions', { total: num(selected.totalSessions) }) }}
               title={selected.title}
               lines={selected.duration ? [`${k('care.prog.duration')}: ${selected.duration}`] : []}
             >
-              <CareBar value={selected.totalSessions ? selected.completedSessions / selected.totalSessions : 0} tone="teal" label={k('care.prog.progress')} />
+              <CareBar value={selected.totalSessions ? selected.completedSessions / selected.totalSessions : 0} tone={TEAL_TONE} label={k('care.prog.progress')} />
             </CareHero>
             {reward ? <Notice tone="success" text={k('care.prog.congrats', { reward })} testID="programs-reward-won" /> : null}
             <Panel>
-              {selected.nextSessionTitle ? <Row icon="calendar-dots" tone="teal" title={k('care.prog.nextSession')} subtitle={selected.nextSessionTitle} caption={[selected.nextSessionDate, selected.nextSessionTime].filter(Boolean).join(' · ') || undefined} last={!selected.milestoneReward} /> : null}
+              {selected.nextSessionTitle ? <Row icon="calendar-dots" tone={TEAL_TONE} title={k('care.prog.nextSession')} subtitle={selected.nextSessionTitle} caption={[selected.nextSessionDate, selected.nextSessionTime].filter(Boolean).join(' · ') || undefined} last={!selected.milestoneReward} /> : null}
               {selected.milestoneReward ? <Row icon="gift" tone="amber" title={k('care.prog.nextReward')} subtitle={selected.milestoneReward} caption={selected.rewardDesc} last /> : null}
             </Panel>
             <Panel>
@@ -100,7 +100,7 @@ export function ProgramsActiveView() {
                   <Row
                     key={String(session.id)}
                     icon="clipboard-text"
-                    tone="teal"
+                    tone={TEAL_TONE}
                     title={session.title}
                     subtitle={k('care.prog.sessionNo', { n: num(Number(session.id)) })}
                     trailing={done ? <Pill tone="success" label={k('care.prog.done')} /> : <DoseMark taken={false} />}
