@@ -236,6 +236,11 @@ const BOARD = {
   'n-live-tracking': { component: 'OrderTracking', size: [390, 1120], params: { type: 'nurse', bookingId: 'test-visit' } },
   'n-live-done': { component: 'OrderTracking', size: [390, 1120], params: { type: 'nurse', bookingId: 'test-visit-done' } },
   'n-nurse-profile': { component: 'DoctorFull', size: [390, 2700], params: { nurseId: 'test-nurse', flow: 'cash', serviceId: 'svc-iv' } },
+  // Batch 10 (articles; community removed). No board: the card and list language of CareHub. The tab is a route param.
+  // `--dir patient-app/app/articles --screens index:a-articles,index:a-articles-saved,[slug]:a-article`. The slug selects the TEST article.
+  'a-articles': { params: {} },
+  'a-articles-saved': { params: { tab: 'saved' } },
+  'a-article': { params: { slug: 'test-article' } },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },

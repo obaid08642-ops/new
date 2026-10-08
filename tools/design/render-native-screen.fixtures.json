@@ -3487,5 +3487,79 @@
         }
       ]
     }
-  ]
+  ],
+  "/articles": {
+    "data": [
+      {
+        "id": "test-article",
+        "slug": "test-article",
+        "title_ar": "مقال تجريبي عن النوم الصحي",
+        "title_en": "Test article about healthy sleep",
+        "excerpt_ar": "ملخص تجريبي للمقال، يظهر سطرين كحد أقصى في القائمة.",
+        "body_ar": "نص تجريبي للمقال. فقرة أولى عن النوم المنتظم.\n\nفقرة ثانية تجريبية عن تقليل الشاشات قبل النوم.",
+        "category": "نصائح تجريبية",
+        "author_name": "د. طبيب تجريبي",
+        "author_title": "طبيب باطنة",
+        "views": 1280,
+        "published_at": "2026-09-20T09:00:00Z",
+        "tags": [
+          "نوم",
+          "تجريبي"
+        ]
+      },
+      {
+        "id": "test-article-2",
+        "slug": "test-article-2",
+        "title_ar": "مقال تجريبي ثانٍ",
+        "excerpt_ar": "ملخص تجريبي ثانٍ.",
+        "category": "نصائح تجريبية",
+        "author_name": "د. طبيب تجريبي",
+        "views": 42,
+        "published_at": "2026-09-10T09:00:00Z"
+      }
+    ]
+  },
+  "/articles/categories": [
+    "نصائح تجريبية",
+    "تغذية تجريبية"
+  ],
+  "/articles/bookmarks/mine": [
+    {
+      "id": "test-article",
+      "slug": "test-article",
+      "title_ar": "مقال تجريبي عن النوم الصحي",
+      "title_en": "Test article about healthy sleep",
+      "excerpt_ar": "ملخص تجريبي للمقال، يظهر سطرين كحد أقصى في القائمة.",
+      "body_ar": "نص تجريبي للمقال. فقرة أولى عن النوم المنتظم.\n\nفقرة ثانية تجريبية عن تقليل الشاشات قبل النوم.",
+      "category": "نصائح تجريبية",
+      "author_name": "د. طبيب تجريبي",
+      "author_title": "طبيب باطنة",
+      "views": 1280,
+      "published_at": "2026-09-20T09:00:00Z",
+      "tags": [
+        "نوم",
+        "تجريبي"
+      ]
+    }
+  ],
+  "/articles/test-article": {
+    "id": "test-article",
+    "slug": "test-article",
+    "title_ar": "مقال تجريبي عن النوم الصحي",
+    "title_en": "Test article about healthy sleep",
+    "excerpt_ar": "ملخص تجريبي للمقال، يظهر سطرين كحد أقصى في القائمة.",
+    "body_ar": "نص تجريبي للمقال. فقرة أولى عن النوم المنتظم.\n\nفقرة ثانية تجريبية عن تقليل الشاشات قبل النوم.",
+    "category": "نصائح تجريبية",
+    "author_name": "د. طبيب تجريبي",
+    "author_title": "طبيب باطنة",
+    "views": 1280,
+    "published_at": "2026-09-20T09:00:00Z",
+    "tags": [
+      "نوم",
+      "تجريبي"
+    ]
+  },
+  "/articles/bookmarks/test-article/status": {
+    "bookmarked": false
+  }
 }

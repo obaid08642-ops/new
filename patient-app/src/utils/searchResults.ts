@@ -10,7 +10,7 @@ import { SERVICE_ICONS, type FillIconName, type ServiceTone } from '../../../pac
 export interface SearchResult {
   id?: string;
   slug?: string;
-  /** Arabic type name, the backend's key: دكتور، دواء، تحليل، أشعة، باقة، مقال، مرض، تأمين، مجتمع، عائلة. */
+  /** Arabic type name, the backend's key: دكتور، دواء، تحليل، أشعة، باقة، مقال، مرض، تأمين، عائلة. */
   type: string;
   typeEn?: string;
   name?: string;
@@ -31,7 +31,6 @@ export const TYPE_ICON: Record<string, { icon: FillIconName; tone: ServiceTone }
   'مقال': { icon: 'file-text', tone: 'violet' },
   'مرض': { icon: 'thermometer', tone: 'peach' },
   'تأمين': SERVICE_ICONS.insurance,
-  'مجتمع': { icon: 'chat-circle-text', tone: 'pink' },
   'عائلة': SERVICE_ICONS.family,
 };
 const FALLBACK_ICON: { icon: FillIconName; tone: ServiceTone } = { icon: 'magnifying-glass', tone: 'ink' };
@@ -54,7 +53,6 @@ export const FILTERS: SearchFilter[] = [
   { key: 'articles', label: 'مقالات', types: ['مقال'] },
   { key: 'diseases', label: 'أمراض', types: ['مرض'] },
   { key: 'insurance', label: 'تأمين', types: ['تأمين'] },
-  { key: 'community', label: 'مجتمع', types: ['مجتمع'] },
   { key: 'family', label: 'عائلة', types: ['عائلة'] },
 ];
 
@@ -76,7 +74,6 @@ export const SECTIONS: SearchSection[] = [
   { key: 'offers', title: 'عروض', types: ['باقة'], layout: 'list', preview: 3 },
   { key: 'articles', title: 'مقالات ومعلومات', types: ['مقال', 'مرض'], layout: 'list', preview: 3 },
   { key: 'insurance', title: 'تأمين', types: ['تأمين'], layout: 'list', preview: 3 },
-  { key: 'community', title: 'مجتمع', types: ['مجتمع'], layout: 'list', preview: 3 },
   { key: 'family', title: 'عائلة', types: ['عائلة'], layout: 'list', preview: 3 },
 ];
 
@@ -122,7 +119,6 @@ export function routeFor(r: SearchResult): { pathname: string; params?: Record<s
     case 'مقال':
     case 'مرض': return `/articles/${r.slug || id}`;
     case 'تأمين': return '/insurance/hub';
-    case 'مجتمع': return { pathname: '/community/post-detail', params: { id } };
     case 'عائلة': return { pathname: '/family/member-health', params: { id } };
     default: return null;
   }
