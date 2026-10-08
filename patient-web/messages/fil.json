@@ -3200,5 +3200,145 @@
     "done": "Tapos na",
     "scheduled": "Naka-iskedyul",
     "bookFollowUp": "Mag-book ng follow-up"
+  },
+  "PublicLanding": {
+    "doctorsCity": {
+      "title": "Mga doktor sa {specialty} sa {city}",
+      "intro": "Mga doktor at klinika na nakalista para sa {specialty} sa {city}.",
+      "doctors": "Mga doktor",
+      "facilities": "Mga ospital at klinika",
+      "book": "Mag-book ng appointment"
+    },
+    "doctorsNeighborhood": {
+      "title": "Mga doktor sa {specialty} sa {neighborhood}, {city}",
+      "intro": "Mga doktor at klinika na nakalista para sa {specialty} sa {neighborhood}, {city}.",
+      "doctors": "Mga doktor",
+      "facilities": "Mga klinika at ospital sa malapit"
+    },
+    "condition": {
+      "back": "Pangunahing pahina",
+      "symptoms": "Karaniwang sintomas",
+      "doctors": "Mga doktor para sa kondisyong ito",
+      "medicines": "Mga kaugnay na gamot",
+      "book": "Mag-book ng konsultasyon"
+    },
+    "facility": {
+      "back": "Mga ospital at klinika",
+      "departments": "Mga departamento at espesyalidad",
+      "insurance": "Tinatanggap na insurance",
+      "phone": "Telepono",
+      "location": "Lokasyon",
+      "book": "Mag-book ng appointment"
+    },
+    "homeNursing": {
+      "title": "Home nursing sa {city}",
+      "intro": "Mga serbisyo ng home nursing na nakalista para sa {city}.",
+      "services": "Mga serbisyo",
+      "request": "Humiling ng pagbisita"
+    },
+    "labs": {
+      "title": "Lab test na {test} sa {city}",
+      "intro": "Mga laboratoryo na nakalista para sa {city}.",
+      "partners": "Mga katuwang na laboratoryo",
+      "book": "I-book ang test na ito",
+      "emptyTitle": "Wala pang katuwang na laboratoryo sa {city}",
+      "emptyBody": "Wala pang laboratoryong nag-aalok ng {test} na nakalista para sa {city}.",
+      "register": "Magparehistro bilang provider"
+    },
+    "radiology": {
+      "title": "Imaging na {service} sa {city}",
+      "intro": "Mga serbisyo ng imaging na nakalista para sa {service}.",
+      "centers": "Mga serbisyo ng imaging",
+      "book": "Mag-book ng imaging",
+      "emptyTitle": "Wala pang serbisyo ng imaging",
+      "emptyBody": "Wala pang serbisyo ng imaging para sa {service} na nakalista.",
+      "register": "Magparehistro bilang provider"
+    },
+    "services": {
+      "title": "Mga serbisyong {service} sa {city}",
+      "intro": "Mga serbisyong pangkalusugan na nakalista sa {city}.",
+      "list": "Mga serbisyo",
+      "book": "Hilingin ang serbisyong ito",
+      "insurance": "Seguro: {list}"
+    },
+    "pharmacies": {
+      "title": "Mga na-verify na botika sa {city}",
+      "intro": "Mga botika at medical center na nakalista sa {city}.",
+      "notice": "Ipinapadala ang order mo ng gamot sa mga kalapit na botika, at sumasagot sila ng mga alok.",
+      "list": "Mga botika at medical center",
+      "order": "Mag-order ng gamot",
+      "emptyTitle": "Wala pang katuwang na botika sa {city}",
+      "emptyBody": "Wala pang botikang nakalista para sa {city}.",
+      "register": "Magparehistro bilang provider"
+    },
+    "catalog": {
+      "interactions": "Pangsuri ng interaksyon ng gamot"
+    },
+    "legal": {
+      "terms": "Mga tuntunin ng paggamit",
+      "privacy": "Patakaran sa privacy",
+      "version": "Bersyon {version} · Epektibo mula {date}",
+      "versionOnly": "Bersyon {version}",
+      "back": "Bumalik"
+    },
+    "provider": {
+      "title": "Sumali bilang provider",
+      "body": "Mga doktor, botika, laboratoryo at nars: magparehistro sa pamamagitan ng Nabd Plus provider app para pamahalaan ang iyong mga serbisyo at tumanggap ng mga order.",
+      "continue": "Magpatuloy bilang pasyente",
+      "contact": "Makipag-ugnayan sa amin para magparehistro bilang provider"
+    },
+    "common": {
+      "listing": "Listahan"
+    },
+    "meta": {
+      "doctorsCity": {
+        "title": "Mga doktor sa {specialty} sa {city} | Mag-book ng appointment",
+        "description": "Mga na-verify na doktor at klinika sa {specialty} sa {city}. Mag-book ng konsultasyon sa klinika o online sa Nabd Plus."
+      },
+      "doctorsNeighborhood": {
+        "title": "Mga doktor sa {specialty} sa {neighborhood}, {city} | Mag-book ng appointment",
+        "description": "Mga na-verify na doktor sa {specialty} sa {neighborhood}, {city}. Mag-book ng konsultasyon sa Nabd Plus."
+      },
+      "homeNursing": {
+        "title": "Mga serbisyo ng home nursing sa {city} | May lisensyang pangangalaga 24/7",
+        "description": "Na-verify at may lisensyang home nursing sa {city}. Pangangalaga sa nakatatanda, pagkatapos ng operasyon at pang-araw-araw na tulong sa Nabd Plus."
+      },
+      "labs": {
+        "title": "Lab test na {test} sa {city} | Koleksyon ng sample sa bahay",
+        "description": "Mag-book ng lab test na {test} sa {city} na may koleksyon sa bahay at mabilis na resulta sa Nabd Plus."
+      },
+      "labsEmpty": {
+        "title": "{test} sa {city} — Maging unang provider | Nabd",
+        "description": "{test} sa {city} — wala pang provider. Magparehistro bilang katuwang na lab."
+      },
+      "radiology": {
+        "title": "Radiology na {service} sa {city} | Mga diagnostic imaging center",
+        "description": "Mag-book ng imaging appointment na {service} sa {city} sa mga akreditadong center sa Nabd Plus."
+      },
+      "radiologyEmpty": {
+        "title": "{service} sa {city} — Maging unang center | Nabd",
+        "description": "{service} sa {city} — wala pang center. Magparehistro."
+      },
+      "services": {
+        "title": "Mga serbisyong {service} sa {city} | Agarang booking",
+        "description": "Mga na-verify na serbisyong pangkalusugan na {service} sa {city}. Pangangalaga sa klinika at sa bahay sa Nabd Plus."
+      },
+      "pharmacies": {
+        "title": "Mga na-verify na botika sa {city} | Mabilis na paghahatid ng gamot",
+        "description": "Maghanap ng reseta at OTC na gamot sa {city} na may instant geo-broadcast na paghahatid sa Nabd Plus."
+      },
+      "pharmaciesEmpty": {
+        "title": "Mga botika sa {city} — Maging unang katuwang | Nabd",
+        "description": "Wala pang katuwang na botika sa {city}. Iparehistro ang iyo."
+      },
+      "condition": {
+        "title": "{name} | Gabay sa Kalusugan ng Nabd Plus"
+      },
+      "facility": {
+        "title": "{name} | Nabd Plus Pangangalagang Pangkalusugan",
+        "description": "{name} sa {city}. Mga espesyalisadong serbisyong pangkalusugan, tinatanggap na insurance at mga na-verify na doktor.",
+        "country": "Kaharian ng Arabyang Saudita"
+      }
+    }
   }
 }

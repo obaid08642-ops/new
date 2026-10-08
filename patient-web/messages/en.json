@@ -3200,5 +3200,145 @@
     "done": "Done",
     "scheduled": "Scheduled",
     "bookFollowUp": "Book a follow-up"
+  },
+  "PublicLanding": {
+    "doctorsCity": {
+      "title": "{specialty} Doctors in {city}",
+      "intro": "Doctors and clinics listed for {specialty} in {city}.",
+      "doctors": "Doctors",
+      "facilities": "Hospitals and clinics",
+      "book": "Book appointment"
+    },
+    "doctorsNeighborhood": {
+      "title": "{specialty} Doctors in {neighborhood}, {city}",
+      "intro": "Doctors and clinics listed for {specialty} in {neighborhood}, {city}.",
+      "doctors": "Doctors",
+      "facilities": "Clinics and hospitals nearby"
+    },
+    "condition": {
+      "back": "Home",
+      "symptoms": "Common symptoms",
+      "doctors": "Doctors for this condition",
+      "medicines": "Related medicines",
+      "book": "Book a consultation"
+    },
+    "facility": {
+      "back": "Hospitals and clinics",
+      "departments": "Departments and specialties",
+      "insurance": "Accepted insurance",
+      "phone": "Phone",
+      "location": "Location",
+      "book": "Book appointment"
+    },
+    "homeNursing": {
+      "title": "Home Nursing Services in {city}",
+      "intro": "Home nursing services listed for {city}.",
+      "services": "Services",
+      "request": "Request a visit"
+    },
+    "labs": {
+      "title": "{test} Lab Test in {city}",
+      "intro": "Laboratories listed for {city}.",
+      "partners": "Partner laboratories",
+      "book": "Book this test",
+      "emptyTitle": "No partner laboratory in {city} yet",
+      "emptyBody": "No laboratory offering {test} is listed for {city} yet.",
+      "register": "Register as a provider"
+    },
+    "radiology": {
+      "title": "{service} Imaging in {city}",
+      "intro": "Imaging services listed for {service}.",
+      "centers": "Imaging services",
+      "book": "Book imaging",
+      "emptyTitle": "No imaging service yet",
+      "emptyBody": "No imaging service for {service} is listed yet.",
+      "register": "Register as a provider"
+    },
+    "services": {
+      "title": "{service} Services in {city}",
+      "intro": "Healthcare services listed in {city}.",
+      "list": "Services",
+      "book": "Request this service",
+      "insurance": "Insurance: {list}"
+    },
+    "pharmacies": {
+      "title": "Verified Pharmacies in {city}",
+      "intro": "Pharmacies and medical centres listed in {city}.",
+      "notice": "Your medicine order is sent to nearby pharmacies, and they answer with offers.",
+      "list": "Pharmacies and medical centres",
+      "order": "Order medicines",
+      "emptyTitle": "No partner pharmacy in {city} yet",
+      "emptyBody": "No pharmacy is listed for {city} yet.",
+      "register": "Register as a provider"
+    },
+    "catalog": {
+      "interactions": "Drug interaction checker"
+    },
+    "legal": {
+      "terms": "Terms of use",
+      "privacy": "Privacy policy",
+      "version": "Version {version} · Effective {date}",
+      "versionOnly": "Version {version}",
+      "back": "Back"
+    },
+    "provider": {
+      "title": "Join as a provider",
+      "body": "Doctors, pharmacies, labs and nurses: register through the Nabd Plus provider app to manage your services and receive orders.",
+      "continue": "Continue as a patient",
+      "contact": "Contact us to register as a provider"
+    },
+    "common": {
+      "listing": "Listing"
+    },
+    "meta": {
+      "doctorsCity": {
+        "title": "{specialty} Doctors in {city} | Book Appointment",
+        "description": "Verified {specialty} doctors and clinics in {city}. Book in-clinic or online consultation via Nabd Plus."
+      },
+      "doctorsNeighborhood": {
+        "title": "{specialty} Doctors in {neighborhood}, {city} | Book Appointment",
+        "description": "Verified {specialty} doctors in {neighborhood}, {city}. Book consultations via Nabd Plus."
+      },
+      "homeNursing": {
+        "title": "Home Nursing Services in {city} | Licensed Care 24/7",
+        "description": "Verified and licensed home nursing care in {city}. Senior care, post-op, and daily assistance via Nabd Plus."
+      },
+      "labs": {
+        "title": "{test} Lab Test in {city} | Home Sample Collection",
+        "description": "Book verified {test} lab test in {city} with home collection and fast results via Nabd Plus."
+      },
+      "labsEmpty": {
+        "title": "{test} in {city} — Be first provider | Nabd",
+        "description": "{test} in {city} — no provider yet. Register as partner lab."
+      },
+      "radiology": {
+        "title": "{service} Radiology in {city} | Diagnostic Imaging Centers",
+        "description": "Book verified {service} imaging appointments in {city} with accredited medical centers via Nabd Plus."
+      },
+      "radiologyEmpty": {
+        "title": "{service} in {city} — Be first center | Nabd",
+        "description": "{service} in {city} — no center yet. Register."
+      },
+      "services": {
+        "title": "{service} Services in {city} | Instant Healthcare Booking",
+        "description": "Verified {service} healthcare services in {city}. In-clinic and home care via Nabd Plus."
+      },
+      "pharmacies": {
+        "title": "Verified Pharmacies in {city} | Fast Medicine Delivery",
+        "description": "Find prescription and OTC medicines in {city} with instant geo-broadcast delivery via Nabd Plus."
+      },
+      "pharmaciesEmpty": {
+        "title": "Pharmacies in {city} — Be first partner | Nabd",
+        "description": "No partner pharmacy in {city} yet. Register yours."
+      },
+      "condition": {
+        "title": "{name} | Nabd Plus Health Guide"
+      },
+      "facility": {
+        "title": "{name} | Nabd Plus Healthcare",
+        "description": "{name} in {city}. Specialized healthcare services, accepted insurances, and verified physicians.",
+        "country": "Saudi Arabia"
+      }
+    }
   }
 }

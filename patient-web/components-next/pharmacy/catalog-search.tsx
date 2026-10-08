@@ -16,8 +16,8 @@ export function CatalogSearch({
   tools = true,
 }: {
   locale: string;
-  /** The listing the query is sent to: the public catalogue (`c`) or the medicines list. */
-  target?: "c" | "medicines";
+  /** The listing the query is sent to: the public catalogue (`c`), the medicines list or the published catalogue (`medicine-catalog`). */
+  target?: "c" | "medicines" | "medicine-catalog";
   initial?: string;
   /** The filter and barcode buttons (the hub's); the top bar's field has neither. */
   tools?: boolean;

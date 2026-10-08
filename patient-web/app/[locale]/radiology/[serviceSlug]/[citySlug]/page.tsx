@@ -3,69 +3,53 @@ import { medicalWebPage, breadcrumbList, radiologyService } from "@/lib/seo/stru
 import type { Metadata } from "next";
 import { localizedUrl } from "@/lib/seo";
 import { isLocale, locales, type Locale } from "@/lib/i18n";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
-import { MapPin } from "lucide-react";
-import { VectorRadiology } from "@/components-next/vector-illustrations";
-import { getPublicRadiologyServices } from "@/lib/api/radiology-server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { patientApiUrl } from "@/lib/api/upstream";
+import { readPublicEntity } from "@/lib/api/public-read";
+import { readSegment } from "@/lib/api/entity-explore";
 import { extractRadiologyServices } from "@/lib/api/radiology";
+import { CardGrid, LandingEmpty, LandingPage, LandingSection, ServiceCard } from "@/components-next/landing/landing-kit";
+import { RADIOLOGY, money, pickText } from "@/components-next/diagnostics/diag-parts";
 
 type Props = { params: Promise<{ locale: string; serviceSlug: string; citySlug: string }> };
 
 async function fetchRadiologyData(serviceSlug: string, citySlug: string) {
-  try {
-    const res = await getPublicRadiologyServices({ search: decodeURIComponent(serviceSlug).slice(0, 120) });
-    if (!res || !("ok" in res) || !res.ok) return null;
-    const json = await (res as Response).json().catch(() => null);
-    const services = extractRadiologyServices(json);
-    return {
-      facilities: services.map((s) => ({
-        id: s.id,
-        name_ar: s.nameAr,
-        name_en: s.nameEn,
-        city: decodeURIComponent(citySlug),
-        price: s.price,
-        modality: s.modality,
-      })),
-      city: decodeURIComponent(citySlug),
-      service: decodeURIComponent(serviceSlug),
-    };
-  } catch {
-    return null;
-  }
+  const search = readSegment(serviceSlug).slice(0, 120).trim();
+  const params = new URLSearchParams();
+  if (search) params.set("search", search);
+  const json = await readPublicEntity<unknown>(patientApiUrl(`/radiology/services${params.toString() ? `?${params}` : ""}`), 3600);
+  if (!json) return null;
+  return {
+    services: extractRadiologyServices(json),
+    city: readSegment(citySlug),
+    service: readSegment(serviceSlug),
+  };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, serviceSlug, citySlug } = await params;
   if (!isLocale(locale)) return {};
   const data = await fetchRadiologyData(serviceSlug, citySlug);
-  const hasFacilities = Boolean(data && data.facilities.length > 0);
-  if (!hasFacilities) {
-    const decService = decodeURIComponent(serviceSlug);
-    const decCity = decodeURIComponent(citySlug);
+  const hasServices = Boolean(data && data.services.length > 0);
+  const t = await getTranslations({ locale, namespace: "PublicLanding" });
+  const vars = { service: readSegment(serviceSlug), city: readSegment(citySlug) };
+  if (!hasServices) {
     const canonical = localizedUrl(locale as Locale, `/radiology/${encodeURIComponent(serviceSlug)}/${encodeURIComponent(citySlug)}`);
     return {
-      title: locale === "ar" ? `أشعة ${decService} في ${decCity} — كن أول مركز | نبض` : `${decService} in ${decCity} — Be first center | Nabd`,
-      description: locale === "ar" ? `أشعة ${decService} في ${decCity} — لا يوجد مركز حالياً. سجل كمركز أشعة وكن أول من يقدم الخدمة.` : `${decService} in ${decCity} — no center yet. Register.`,
+      title: t("meta.radiologyEmpty.title", vars),
+      description: t("meta.radiologyEmpty.description", vars),
       alternates: { canonical, languages: Object.fromEntries(locales.map((l) => [l, localizedUrl(l, `/radiology/${encodeURIComponent(serviceSlug)}/${encodeURIComponent(citySlug)}`)])) },
       robots: { index: true, follow: true },
     };
   }
 
-  const decService = decodeURIComponent(serviceSlug);
-  const decCity = decodeURIComponent(citySlug);
-
   const canonical = localizedUrl(
     locale as Locale,
     `/radiology/${encodeURIComponent(serviceSlug)}/${encodeURIComponent(citySlug)}`,
   );
-  const title = locale === "ar"
-    ? `أشعة ${decService} في ${decCity} | حجز فوري بمراكز الأشعة المعتمدة`
-    : `${decService} Radiology in ${decCity} | Diagnostic Imaging Centers`;
-  const desc = locale === "ar"
-    ? `احجز موعد أشعة ${decService} (رنين مغناطيسي، أشعة مقطعية، موجات صوتية) في ${decCity} عبر مراكز معتمدة وبأسعار شفافة.`
-    : `Book verified ${decService} imaging appointments in ${decCity} with accredited medical centers via Nabd Plus.`;
+  const title = t("meta.radiology.title", vars);
+  const desc = t("meta.radiology.description", vars);
 
   return {
     title,
@@ -93,19 +77,18 @@ export default async function RadiologyCityPage({ params }: Props) {
   setRequestLocale(locale);
 
   const data = await fetchRadiologyData(serviceSlug, citySlug);
-  const hasFacilities = Boolean(data && data.facilities.length > 0);
   if (!data) notFound();
+  const hasServices = data.services.length > 0;
 
-  const decService = decodeURIComponent(serviceSlug);
-  const decCity = decodeURIComponent(citySlug);
-  const facilities = data.facilities;
-
-  const pageTitle = locale === "ar"
-    ? `أشعة وتصوير ${decService} في ${decCity}`
-    : `${decService} Imaging in ${decCity}`;
+  const t = await getTranslations("PublicLanding");
+  const decService = readSegment(serviceSlug);
+  const decCity = readSegment(citySlug);
+  const vars = { service: decService, city: decCity };
+  const pageTitle = t("radiology.title", vars);
 
   return (
-    <main className="main" style={{ maxWidth: "960px", margin: "0 auto", padding: "2rem 1rem", background: "#FDFDFC" }}>
+    <LandingPage locale={locale} title={pageTitle} intro={t("radiology.intro", vars)} backHref={`/${locale}/diagnostics/radiology`}>
+      {/* // i18n-ok: structured data is kept exactly as published (SEO) */}
       <JsonLd
         data={[
           medicalWebPage({
@@ -123,87 +106,32 @@ export default async function RadiologyCityPage({ params }: Props) {
             name: decService,
             path: `/radiology/${serviceSlug}/${citySlug}`,
             locale: locale as Locale,
+            // i18n-ok: structured data is kept exactly as published (SEO)
             description: `Verified ${decService} diagnostic imaging procedure in ${decCity}`,
           }),
         ]}
       />
 
-      <header style={{ marginBottom: "2rem", display: "flex", alignItems: "flex-start", gap: "1rem" }}>
-        <span style={{ display: "grid", placeItems: "center", width: 56, height: 56, borderRadius: 16, background: "rgba(95,217,179,0.12)", border: "1px solid #E8EDEE", flexShrink: 0 }}>
-          <VectorRadiology size={48} aria-hidden="true" />
-        </span>
-        <div style={{ minWidth: 0 }}>
-          <h1 style={{ fontSize: "1.875rem", fontWeight: 700, margin: "0 0 0.5rem 0", color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{pageTitle}</h1>
-          <p style={{ color: "#6B7C6E", fontSize: "1rem", margin: 0, overflowWrap: "anywhere" }}>
-            {locale === "ar"
-              ? `مراكز أشعة وتصوير طبي مجهزة بأحدث التقنيات في ${decCity} مع تقارير فورية معتمدة.`
-              : `State-of-the-art diagnostic imaging centers in ${decCity} with instant reporting.`}
-          </p>
-        </div>
-      </header>
-
-      {!hasFacilities ? (
-        <section style={{ textAlign: "center", padding: "3rem 1rem", background: "rgba(255,255,255,0.76)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderRadius: 20, border: "1px dashed #E8EDEE" }}>
-          <VectorRadiology size={48} aria-hidden="true" />
-          <p style={{ fontSize: "1.1rem", color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{locale === "ar" ? `لا يوجد مركز أشعة يقدم ${decService} في ${decCity} حالياً.` : `No imaging center for ${decService} in ${decCity} yet.`}</p>
-          <p style={{ color: "#6B7C6E", marginTop: "0.5rem", overflowWrap: "anywhere" }}>{locale === "ar" ? "كن أول مركز — سجل الآن وستظهر خدمتك أوتوماتيك." : "Be the first — register and appear automatically."}</p>
-          <Link href={`/${locale}/consultations/doctors`} style={{ display: "inline-block", marginTop: "16px", background: "#5FD9B3", color: "#1E332E", padding: "16px 24px", borderRadius: 20, textDecoration: "none", fontWeight: 700, border: "1px solid #E8EDEE" }}>{locale === "ar" ? "سجل كمركز" : "Register"}</Link>
-        </section>
+      {!hasServices ? (
+        <LandingEmpty icon={RADIOLOGY.icon} tone={RADIOLOGY.tone} title={t("radiology.emptyTitle")} body={t("radiology.emptyBody", vars)} actionLabel={t("radiology.register")} actionHref={`/${locale}/consultations/doctors`} />
       ) : (
-        <section>
-          <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem", color: "#1E332E", overflowWrap: "anywhere" }}>
-            {locale === "ar" ? "مراكز الأشعة والمستشفيات المتاحة" : "Available Imaging Centers"}
-          </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
-            {facilities.map((fac: any) => (
-              <article
-                key={fac.id}
-                style={{
-                  border: "1px solid #E8EDEE",
-                  borderRadius: 20,
-                  padding: "24px",
-                  background: "rgba(255,255,255,0.76)",
-                  backdropFilter: "blur(16px)",
-                  WebkitBackdropFilter: "blur(16px)",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  gap: "16px",
-                }}
-              >
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                    <VectorRadiology size={24} aria-hidden="true" />
-                    <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 600, color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{fac.name_ar || fac.name_en}</h3>
-                  </div>
-                  <p style={{ margin: "0.25rem 0", color: "#6B7C6E", fontSize: "0.875rem", display: "flex", alignItems: "center", gap: "0.25rem", overflowWrap: "anywhere" }}>
-                    <MapPin size={14} />
-                    <span style={{ overflowWrap: "anywhere" }}>{fac.city}</span>
-                  </p>
-                </div>
-                <Link
-                  href={`/${locale}/diagnostics/radiology`}
-                  style={{
-                    display: "inline-block",
-                    textAlign: "center",
-                    backgroundColor: "#5FD9B3",
-                    color: "#1E332E",
-                    padding: "0.5rem 1rem",
-                    borderRadius: 20,
-                    textDecoration: "none",
-                    fontWeight: 700,
-                    marginTop: "1rem",
-                    fontSize: "0.875rem",
-                    border: "1px solid #E8EDEE",
-                  }}
-                >
-                  {locale === "ar" ? "حجز موعد فحص" : "Book Imaging"}
-                </Link>
-              </article>
+        <LandingSection id="centers" title={t("radiology.centers")}>
+          <CardGrid label={t("radiology.centers")}>
+            {data.services.map((service) => (
+              <li key={service.id}>
+                <ServiceCard
+                  icon={RADIOLOGY.icon}
+                  tone={RADIOLOGY.tone}
+                  title={pickText(locale, service.nameAr, service.nameEn) ?? ""}
+                  chips={[service.modality, service.price !== undefined ? money(locale, service.price) : undefined].filter((chip): chip is string => Boolean(chip))}
+                  actionHref={`/${locale}/diagnostics/radiology`}
+                  actionLabel={t("radiology.book")}
+                />
+              </li>
             ))}
-          </div>
-        </section>
+          </CardGrid>
+        </LandingSection>
       )}
-    </main>
+    </LandingPage>
   );
 }

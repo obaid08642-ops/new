@@ -3200,5 +3200,145 @@
     "done": "مکمل",
     "scheduled": "طے شدہ",
     "bookFollowUp": "فالو اپ بک کریں"
+  },
+  "PublicLanding": {
+    "doctorsCity": {
+      "title": "{city} میں {specialty} کے ڈاکٹر",
+      "intro": "{city} میں {specialty} کے لیے درج ڈاکٹر اور کلینک۔",
+      "doctors": "ڈاکٹر",
+      "facilities": "ہسپتال اور کلینک",
+      "book": "اپائنٹمنٹ بک کریں"
+    },
+    "doctorsNeighborhood": {
+      "title": "{neighborhood}، {city} میں {specialty} کے ڈاکٹر",
+      "intro": "{neighborhood}، {city} میں {specialty} کے لیے درج ڈاکٹر اور کلینک۔",
+      "doctors": "ڈاکٹر",
+      "facilities": "قریبی کلینک اور ہسپتال"
+    },
+    "condition": {
+      "back": "ہوم",
+      "symptoms": "عام علامات",
+      "doctors": "اس بیماری کے ڈاکٹر",
+      "medicines": "متعلقہ ادویات",
+      "book": "مشاورت بک کریں"
+    },
+    "facility": {
+      "back": "ہسپتال اور کلینک",
+      "departments": "شعبے اور ماہرین",
+      "insurance": "قبول شدہ انشورنس",
+      "phone": "فون",
+      "location": "مقام",
+      "book": "اپائنٹمنٹ بک کریں"
+    },
+    "homeNursing": {
+      "title": "{city} میں گھریلو نرسنگ",
+      "intro": "{city} کے لیے درج گھریلو نرسنگ خدمات۔",
+      "services": "خدمات",
+      "request": "وزٹ کی درخواست کریں"
+    },
+    "labs": {
+      "title": "{city} میں {test} لیب ٹیسٹ",
+      "intro": "{city} کے لیے درج لیبارٹریاں۔",
+      "partners": "شراکت دار لیبارٹریاں",
+      "book": "یہ ٹیسٹ بک کریں",
+      "emptyTitle": "{city} میں ابھی کوئی شراکت دار لیبارٹری نہیں",
+      "emptyBody": "{city} کے لیے {test} فراہم کرنے والی کوئی لیبارٹری ابھی درج نہیں۔",
+      "register": "خدمت فراہم کنندہ کے طور پر رجسٹر کریں"
+    },
+    "radiology": {
+      "title": "{city} میں {service} امیجنگ",
+      "intro": "{service} کے لیے درج امیجنگ خدمات۔",
+      "centers": "امیجنگ خدمات",
+      "book": "امیجنگ بک کریں",
+      "emptyTitle": "ابھی کوئی امیجنگ خدمت نہیں",
+      "emptyBody": "{service} کے لیے کوئی امیجنگ خدمت ابھی درج نہیں۔",
+      "register": "خدمت فراہم کنندہ کے طور پر رجسٹر کریں"
+    },
+    "services": {
+      "title": "{city} میں {service} کی خدمات",
+      "intro": "{city} میں درج طبی خدمات۔",
+      "list": "خدمات",
+      "book": "یہ خدمت طلب کریں",
+      "insurance": "انشورنس: {list}"
+    },
+    "pharmacies": {
+      "title": "{city} میں تصدیق شدہ فارمیسیاں",
+      "intro": "{city} میں درج فارمیسیاں اور طبی مراکز۔",
+      "notice": "آپ کی دوا کا آرڈر قریبی فارمیسیوں کو بھیجا جاتا ہے اور وہ پیشکشوں کے ساتھ جواب دیتی ہیں۔",
+      "list": "فارمیسیاں اور طبی مراکز",
+      "order": "ادویات آرڈر کریں",
+      "emptyTitle": "{city} میں ابھی کوئی شراکت دار فارمیسی نہیں",
+      "emptyBody": "{city} کے لیے کوئی فارمیسی ابھی درج نہیں۔",
+      "register": "خدمت فراہم کنندہ کے طور پر رجسٹر کریں"
+    },
+    "catalog": {
+      "interactions": "ادویات کے باہمی اثرات کی جانچ"
+    },
+    "legal": {
+      "terms": "شرائط استعمال",
+      "privacy": "رازداری کی پالیسی",
+      "version": "ورژن {version} · نافذ العمل از {date}",
+      "versionOnly": "ورژن {version}",
+      "back": "واپس"
+    },
+    "provider": {
+      "title": "خدمت فراہم کنندہ کے طور پر شامل ہوں",
+      "body": "ڈاکٹر، فارمیسیاں، لیبارٹریاں اور نرسیں: اپنی خدمات سنبھالنے اور آرڈر وصول کرنے کے لیے Nabd Plus پرووائیڈر ایپ کے ذریعے رجسٹر کریں۔",
+      "continue": "مریض کے طور پر جاری رکھیں",
+      "contact": "خدمت فراہم کنندہ کے طور پر رجسٹریشن کے لیے ہم سے رابطہ کریں"
+    },
+    "common": {
+      "listing": "فہرست"
+    },
+    "meta": {
+      "doctorsCity": {
+        "title": "{city} میں {specialty} کے ڈاکٹر | اپائنٹمنٹ بک کریں",
+        "description": "{city} میں {specialty} کے تصدیق شدہ ڈاکٹر اور کلینک۔ Nabd Plus کے ذریعے کلینک یا آن لائن مشاورت بک کریں۔"
+      },
+      "doctorsNeighborhood": {
+        "title": "{neighborhood}، {city} میں {specialty} کے ڈاکٹر | اپائنٹمنٹ بک کریں",
+        "description": "{neighborhood}، {city} میں {specialty} کے تصدیق شدہ ڈاکٹر۔ Nabd Plus کے ذریعے مشاورت بک کریں۔"
+      },
+      "homeNursing": {
+        "title": "{city} میں گھریلو نرسنگ خدمات | لائسنس یافتہ نگہداشت 24/7",
+        "description": "{city} میں تصدیق شدہ اور لائسنس یافتہ گھریلو نرسنگ۔ بزرگوں کی دیکھ بھال، آپریشن کے بعد کی نگہداشت اور روزمرہ مدد Nabd Plus کے ذریعے۔"
+      },
+      "labs": {
+        "title": "{city} میں {test} لیب ٹیسٹ | گھر سے نمونہ",
+        "description": "{city} میں {test} لیب ٹیسٹ بک کریں، گھر سے نمونے اور تیز نتائج کے ساتھ، Nabd Plus کے ذریعے۔"
+      },
+      "labsEmpty": {
+        "title": "{city} میں {test} — پہلے فراہم کنندہ بنیں | Nabd",
+        "description": "{city} میں {test} — ابھی کوئی فراہم کنندہ نہیں۔ شراکت دار لیب کے طور پر رجسٹر کریں۔"
+      },
+      "radiology": {
+        "title": "{city} میں {service} ریڈیالوجی | امیجنگ سینٹر",
+        "description": "{city} میں تصدیق شدہ مراکز پر {service} امیجنگ اپائنٹمنٹ Nabd Plus کے ذریعے بک کریں۔"
+      },
+      "radiologyEmpty": {
+        "title": "{city} میں {service} — پہلے مرکز بنیں | Nabd",
+        "description": "{city} میں {service} — ابھی کوئی مرکز نہیں۔ رجسٹر کریں۔"
+      },
+      "services": {
+        "title": "{city} میں {service} خدمات | فوری بکنگ",
+        "description": "{city} میں {service} کی تصدیق شدہ طبی خدمات۔ کلینک اور گھر پر نگہداشت Nabd Plus کے ذریعے۔"
+      },
+      "pharmacies": {
+        "title": "{city} کی فارمیسیاں | ادویات کی تیز ڈیلیوری",
+        "description": "{city} میں نسخے اور بغیر نسخے کی ادویات تلاش کریں، Nabd Plus کے ذریعے جغرافیائی نشریاتی ڈیلیوری کے ساتھ۔"
+      },
+      "pharmaciesEmpty": {
+        "title": "{city} کی فارمیسیاں — پہلے شراکت دار بنیں | Nabd",
+        "description": "{city} میں ابھی کوئی شراکت دار فارمیسی نہیں۔ اپنی فارمیسی رجسٹر کریں۔"
+      },
+      "condition": {
+        "title": "{name} | Nabd Plus طبی گائیڈ"
+      },
+      "facility": {
+        "title": "{name} | Nabd Plus صحت کی دیکھ بھال",
+        "description": "{city} میں {name}۔ خصوصی طبی خدمات، قبول شدہ انشورنس اور تصدیق شدہ ڈاکٹر۔",
+        "country": "سعودی عرب"
+      }
+    }
   }
 }
