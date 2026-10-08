@@ -15,7 +15,7 @@
     "screen": "/insurance/copay",
     "element": "Co-pay screen not merged",
     "file": "patient-app/app/insurance/copay.tsx",
-    "line": 36,
+    "line": 37,
     "found": "[client] Picks the newest COPAY_PENDING from /requests/my and posts the intent with no method; the request page reads one id and asks capabilities. Different payment paths, so kept separate (map 2 rule).",
     "suspect": "Client-side: later batch."
   },
@@ -25,7 +25,7 @@
     "screen": "/insurance/payment-split",
     "element": "Cash payment button removed",
     "file": "patient-app/src/components/insurance/InsuranceRequestView.tsx",
-    "line": 179,
+    "line": 184,
     "found": "[owner] Old approval-pending offered pay cash to /payments/processing with no params; removed per decision 25.",
     "suspect": "Owner decision."
   },
@@ -65,7 +65,7 @@
     "screen": "/insurance/coverage-check",
     "element": "Company share not shown",
     "file": "patient-app/app/insurance/coverage-check.tsx",
-    "line": 80,
+    "line": 85,
     "found": "[backend] Old UI showed 100 - copay_percent as the insurer share (computed); only the server copay percent and cap are shown.",
     "suspect": "Backend gap: reviewer session."
   },
@@ -97,6 +97,46 @@
     "file": "patient-app/app/insurance/submit-claim.tsx",
     "line": 71,
     "found": "[client] Uploaded image is stored by URL only; no size or type check on the device.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 7,
+    "app": "patient-app",
+    "screen": "/insurance/coverage-check",
+    "element": "Endpoint answers from stored data but is named like a live check",
+    "file": "patient-app/app/insurance/coverage-check.tsx",
+    "line": 56,
+    "found": "[backend] Decision 35 item 6 / queue D-37: GET /insurance/coverage-check (and nphies* services) read the saved policy only; screen text now says so; rename or remove the endpoint names. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:699)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 7,
+    "app": "patient-app",
+    "screen": "/insurance/payment-split",
+    "element": "Approval number is stored under two field names",
+    "file": "patient-app/src/utils/insurance-copay-contract.ts",
+    "line": 22,
+    "found": "[backend] Insurance engine writes insurer_approval_code, the provider-app controller writes approval_code; the app reads both. One name would be safer; states APPROVED_PARTIAL / APPEAL_PENDING of the schema are not mapped on the client. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:40)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 7,
+    "app": "patient-app",
+    "screen": "/insurance",
+    "element": "Claims tab and Submit a claim: keep under decision 35?",
+    "file": "patient-app/src/components/insurance/InsuranceHubTabs.tsx",
+    "line": 92,
+    "found": "[owner] Decision 35 defines only the provider relay; the claims and refunds tabs and the claim form (Nabd+ side reimbursement) are not covered by it. Keep, change or remove?",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 7,
+    "app": "patient-app",
+    "screen": "/insurance",
+    "element": "Other batches still say Nabd+ checks or retrieves insurance automatically",
+    "file": "patient-app/src/i18n/locales/en.json",
+    "line": 2337,
+    "found": "[client] Batch 14 text, not changed here: nur.book.insFetched, nur.book.inReviewBody, nur.book.insNote, diag.upload.readFailed, pharmacy.ins.processingTitle, consult.confirm.insuranceReady (same keys on web: DiagWeb.insuranceSub, PharmacyCheckout.insuranceBody and others).",
     "suspect": "Client-side: later batch."
   }
 ]

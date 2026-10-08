@@ -28,9 +28,11 @@ interface CoverageResult {
 }
 
 /**
- * Does my insurance cover this? (board Insurance, merge map 2 keeps this screen and sends the old benefits view to the
- * Benefits tab). GET /insurance/coverage-check?service_type=&service_key= answers; the percentages, the cap and the
- * pre-authorisation flag are the coverage engine's, the final amount is the provider's price at booking.
+ * What my policy covers (board Insurance, merge map 2 keeps this screen and sends the old benefits view to the
+ * Benefits tab). GET /insurance/coverage-check?service_type=&service_key= answers from the policy stored on the account:
+ * Nabd+ never contacts the insurer (owner decision 35), so this is not a live check and not an approval; the facility
+ * requests the approval. The percentages, the cap and the pre-authorisation flag are the stored coverage rules', the
+ * final amount is the provider's price at booking.
  */
 export default function CoverageCheckScreen() {
   const params = useLocalSearchParams<{ view?: string }>();
@@ -69,6 +71,7 @@ function CoverageCheck() {
     const sub = [result.provider_name, result.network_name_ar, result.company_name_ar, result.class ? k('insurance.policy.classValue', { value: result.class }) : null].filter(Boolean).join(' · ');
     return (
       <InsuranceScreen title={k('insurance.coverage.resultTitle')} onBack={() => setResult(null)} testID="coverage-result">
+        <Notice tone="info" text={k('insurance.coverage.basis')} testID="coverage-basis" />
         <ResultHero
           icon={covered ? 'check-circle' : 'warning'}
           tone={covered ? 'success' : 'danger'}
@@ -103,6 +106,7 @@ function CoverageCheck() {
       footer={<Button label={k('insurance.coverage.check')} size="lg" fullWidth loading={checking} disabled={!serviceType} onPress={() => void check()} theme={theme} testID="coverage-check" />}
       testID="insurance-coverage"
     >
+      <Notice tone="info" text={k('insurance.coverage.basis')} testID="coverage-basis" />
       <Section title={k('insurance.coverage.serviceType')}>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
           {SERVICE_TYPES.map((id) => (

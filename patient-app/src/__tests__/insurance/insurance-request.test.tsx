@@ -112,6 +112,44 @@ describe('InsuranceRequestView', () => {
     expect(Object.keys(posts[0][1].headers)).toContain('Idempotency-Key');
   });
 
+  it('shows the provider decision as recorded: approval number, co-pay amount and percent', async () => {
+    serve(request({ state: 'COPAY_PENDING', price: 200, copay_amount: 40, approval_code: 'TEST-AP-778', copay_percent: 20 }));
+    await render(wrap(<InsuranceRequestView />));
+    expect(await screen.findByText('TEST-AP-778')).toBeTruthy();
+    expect(screen.getByText(k('insurance.request.approvalNumber'))).toBeTruthy();
+    expect(screen.getByText('20%')).toBeTruthy();
+    expect(screen.getAllByText('40.00 SAR').length).toBeGreaterThan(0);
+    expect(screen.getByText(k('insurance.request.checkout_copay.title'))).toBeTruthy();
+  });
+
+  it('draws no approval number and no percent row when the server did not send them', async () => {
+    serve(request({ state: 'COPAY_PENDING', approval_code: null, copay_percent: null }));
+    await render(wrap(<InsuranceRequestView />));
+    expect(await screen.findByTestId('request-amounts')).toBeTruthy();
+    expect(screen.queryByText(k('insurance.request.approvalNumber'))).toBeNull();
+    expect(screen.queryByText(k('insurance.request.copayPercent'))).toBeNull();
+  });
+
+  it('shows the reason of a rejection when the provider gave one', async () => {
+    serve(request({ state: 'REJECTED', self_pay_amount: 200, rejection_reason: 'TEST reason: service excluded' }));
+    await render(wrap(<InsuranceRequestView />));
+    expect(await screen.findByText(k('insurance.claims.rejectedReason', { reason: 'TEST reason: service excluded' }))).toBeTruthy();
+  });
+
+  it('draws no reason row when a rejection came without one', async () => {
+    serve(request({ state: 'REJECTED', self_pay_amount: 200 }));
+    await render(wrap(<InsuranceRequestView />));
+    expect(await screen.findByTestId('request-amounts')).toBeTruthy();
+    expect(screen.queryByTestId('request-reason')).toBeNull();
+  });
+
+  it('says the facility requests the approval while the request is pending', async () => {
+    serve(request({}));
+    await render(wrap(<InsuranceRequestView />));
+    expect(await screen.findByText(k('insurance.request.provider_review.body'))).toBeTruthy();
+    expect(k('insurance.request.provider_review.body')).toMatch(/facility is requesting the approval from your insurer/i);
+  });
+
   it('shows the failure state with a retry when the request cannot be read', async () => {
     serve(request({}), { '/insurance/requests/req-1': new Error('boom') });
     await render(wrap(<InsuranceRequestView />));

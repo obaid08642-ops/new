@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { router, useLocalSearchParams, type Href } from 'expo-router';
+import { router, type Href } from 'expo-router';
 
 import { Button } from '../../../packages/ui-native/src';
 import { Gate, InfoRow, ResultHero, useConsultFormat, type GateStatus } from '../../src/components/consult/ConsultKit';
@@ -10,9 +10,10 @@ import { useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
+import { insuranceDecisionOf, type InsuranceCopayRequest } from '../../src/utils/insurance-copay-contract';
 import { paymentIntentHeaders } from '../../src/utils/payment-idempotency';
 
-interface CopayRequest { id?: string; state?: string; copay_amount?: number; createdAt?: string }
+interface CopayRequest extends Pick<InsuranceCopayRequest, 'approval_code' | 'copay_percent'> { id?: string; state?: string; copay_amount?: number; createdAt?: string }
 
 /**
  * Pay the co-pay (board Insurance; payment screen, owner decision 25). It reads the newest COPAY_PENDING request of
@@ -22,7 +23,6 @@ interface CopayRequest { id?: string; state?: string; copay_amount?: number; cre
  * Needs-review line). The amount is the request's own; nothing is marked paid here.
  */
 export default function InsuranceCopayScreen() {
-  const { approvalCode } = useLocalSearchParams<{ approvalCode?: string }>();
   const { k, theme } = useScreenUi();
   const fmt = useConsultFormat();
   const [status, setStatus] = useState<GateStatus>('loading');
@@ -36,7 +36,7 @@ export default function InsuranceCopayScreen() {
       const pending = rowsOf<CopayRequest>(await apiFetch('/insurance/requests/my'))
         .filter((r) => r.state === 'COPAY_PENDING')
         .sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime());
-      setRequest(pending[0] ?? null);
+      setRequest(pending[0] ? { ...pending[0], ...insuranceDecisionOf(pending[0]) } : null);
       setStatus(pending.length ? 'ready' : 'missing');
     } catch (e) {
       logError('insurance:copay', e);
@@ -71,7 +71,8 @@ export default function InsuranceCopayScreen() {
             <ResultHero icon="credit-card" tone="warning" title={k('insurance.copay.required')} body={k('insurance.copay.body')} />
             <Panel testID="copay-amount">
               <View style={{ paddingHorizontal: 14 }}>
-                <InfoRow label={k('insurance.copay.approvalCode')} value={typeof approvalCode === 'string' ? approvalCode : ''} />
+                <InfoRow label={k('insurance.request.approvalNumber')} value={request.approval_code ?? ''} />
+                <InfoRow label={k('insurance.request.copayPercent')} value={request.copay_percent !== undefined ? `${fmt.num(request.copay_percent)}%` : ''} />
                 <InfoRow label={k('insurance.copay.amount')} value={typeof request.copay_amount === 'number' ? `${fmt.money(request.copay_amount)} ${k('consult.currency')}` : ''} strong last />
               </View>
             </Panel>

@@ -156,11 +156,14 @@ export function InsuranceRequestView() {
           <>
             <ResultHero icon={hero.icon} tone={hero.tone} title={k(`insurance.request.${action}.title`)} body={k(`insurance.request.${action}.body`)} />
             {error ? <Notice tone="danger" text={error} testID="request-error" /> : null}
+            {request.state === 'REJECTED' && request.rejection_reason ? <Notice tone="danger" text={k('insurance.claims.rejectedReason', { reason: request.rejection_reason })} testID="request-reason" /> : null}
             <Section title={k('insurance.request.amounts')}>
               <Panel testID="request-amounts">
                 <View style={{ paddingHorizontal: 14 }}>
+                  {request.approval_code ? <InfoRow label={k('insurance.request.approvalNumber')} value={request.approval_code} /> : null}
                   <InfoRow label={k('insurance.request.price')} value={money(request.price)} />
                   <InfoRow label={k('insurance.request.copay')} value={money(request.copay_amount)} strong={action === 'checkout_copay'} />
+                  {request.copay_percent !== undefined ? <InfoRow label={k('insurance.request.copayPercent')} value={`${fmt.num(request.copay_percent)}%`} /> : null}
                   <InfoRow label={k('insurance.request.selfPay')} value={money(request.self_pay_amount)} strong={action === 'checkout_self_pay'} last />
                 </View>
               </Panel>

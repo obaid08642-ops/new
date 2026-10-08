@@ -83,7 +83,7 @@ describe("the insurance hub", () => {
     for (const href of ["/en/insurance/add-policy", "/en/insurance/submit-claim", "/en/insurance/coverage-check"]) expect(html).toContain(`href="${href}"`);
     expect(html.indexOf(`/en/insurance/requests/${ID2}`)).toBeGreaterThan(-1);
     expect(html.indexOf(`/en/insurance/requests/${ID2}`)).toBeLessThan(html.indexOf(`/en/insurance/requests/${ID}`));
-    expect(html).toContain("Co-pay due");
+    expect(html).toContain("Approved in part");
     expect(html).toContain("Awaiting review");
     expect(html).not.toContain(TOKEN);
   });
@@ -143,14 +143,17 @@ describe("the page of one insurance request", () => {
 
   it("pending review: waits, polls by itself, shows no payment button", async () => {
     const html = await open({ state: "PENDING_PROVIDER_REVIEW" });
-    expect(html).toContain("Reviewing your insurance");
-    expect(html).toContain("This page updates by itself");
+    expect(html).toContain("Approval requested");
+    expect(html).toContain("The facility is requesting the approval from your insurer");
+    expect(html).toContain("Nothing is charged before it");
+    expect(html).toContain("This page refreshes by itself");
+    expect(html.toLowerCase()).not.toMatch(/checking coverage|nphies|instant|live check/);
     expect(html).not.toContain("View secure payment options");
   });
 
   it("co-pay: the server's amount and the way to the secure payment options, never a cash option", async () => {
     const html = await open({ state: "COPAY_PENDING", copay_amount: 12.5, price: 80 });
-    expect(html).toContain("Approved, pay your co-pay");
+    expect(html).toContain("Approved in part: pay your co-pay");
     expect(html).toContain("SAR");
     expect(html).toContain("12.50");
     expect(html).toContain("80.00");
@@ -167,9 +170,26 @@ describe("the page of one insurance request", () => {
 
   it("covered in full: no payment, a way to the booking when the server names one", async () => {
     const html = await open({ state: "APPROVED_FULL", booking_id: ID2 });
-    expect(html).toContain("Fully covered");
+    expect(html).toContain("Approved in full");
     expect(html).toContain(`/en/consultations/booking-status?appointmentId=${ID2}`);
     expect(html).not.toContain("View secure payment options");
+  });
+
+  it("shows the provider's record: the approval number and the co-pay percent next to the amount", async () => {
+    const html = await open({ state: "COPAY_PENDING", copay_amount: 16, price: 80, approval_code: "TEST-AP-4471", copay_percent: 20 });
+    expect(html).toContain("Approval number");
+    expect(html).toContain("TEST-AP-4471");
+    expect(html).toContain("Co-pay percent");
+    expect(html).toContain("20%");
+    expect(html).toContain("16.00");
+    expect(html).toContain("Approved in part");
+  });
+
+  it("draws no approval number and no percent row when the provider did not send them", async () => {
+    const html = await open({ state: "COPAY_PENDING", copay_amount: 16, price: 80, approval_code: null });
+    expect(html).not.toContain("Approval number");
+    expect(html).not.toContain("Co-pay percent");
+    expect(html).toContain("16.00");
   });
 
   it("self-pay due shows the options button; an unknown state or a bad id is not a page", async () => {
@@ -184,10 +204,13 @@ describe("the coverage check", () => {
 
   it("asks for a service and shows the server's answer as it came", async () => {
     backend({});
-    expect(await run({})).toContain("Coverage check");
+    const first = await run({});
+    expect(first).toContain("What my policy covers");
+    expect(first).toContain("Based on the policy details saved on your account");
+    expect(first).toContain("not a check with your insurer");
     backend({ "/insurance/coverage-check?service_type=lab": { eligible: true, policy: {}, service_type: "lab", note_ar: "التغطية النهائية يحددها مزود الخدمة" } });
     const html = await run({ service_type: "lab" });
-    expect(html).toContain("Eligible for coverage");
+    expect(html).toContain("Listed as covered on your saved policy");
     expect(html).toContain("التغطية النهائية يحددها مزود الخدمة");
   });
 });

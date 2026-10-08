@@ -118,5 +118,45 @@
     "line": 147,
     "found": "[client] the redirects of approval-pending/copay/payment-split drop ?amount= and ?approvalCode= on purpose (amounts come from the server); the booking flow now links to the request page directly.",
     "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance/coverage-check",
+    "element": "Endpoint answers from stored data but is named like a live check",
+    "file": "patient-web/app/[locale]/insurance/coverage-check/page.tsx",
+    "line": 34,
+    "found": "[backend] Decision 35 item 6 / queue D-37: GET /insurance/coverage-check reads the saved policy only (eligible comes back as a flag); page text now says so; rename the endpoint and field. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:699)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance/requests/[requestId]",
+    "element": "Approval number is stored under two field names",
+    "file": "patient-web/lib/api/insurance-request.ts",
+    "line": 7,
+    "found": "[backend] Insurance engine writes insurer_approval_code, the provider-app controller writes approval_code; the page reads both. The strict state enum also lacks APPROVED_PARTIAL, EXPIRED and APPEAL_PENDING of the schema. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:40)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance/submit-claim",
+    "element": "Claim flow under decision 35?",
+    "file": "patient-web/components-next/insurance/submit-claim-form.tsx",
+    "line": 1,
+    "found": "[owner] Decision 35 defines only the provider relay; the Nabd+ claim form and Claims tab are not covered. The invented review time was removed from the texts; keep, change or remove the flow?",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 7,
+    "app": "patient-web",
+    "screen": "/insurance",
+    "element": "Other batches still say Nabd+ checks or retrieves insurance automatically",
+    "file": "patient-web/messages/en.json",
+    "line": 407,
+    "found": "[client] Batch 14 text, not changed here: NursingWeb.insuranceTitle, DiagWeb.insuranceSub, DiagWeb.insuranceHintLink, Diagnostics.insuranceNoticeSub, PharmacyCheckout.insuranceBody, PharmacyOffers.insurancePending, Doctors.payInsuranceNote.",
+    "suspect": "Client-side: later batch."
   }
 ]

@@ -87,6 +87,10 @@ export function InsuranceRequestView({ request, price, bookingStatusHref }: { re
   if (price !== undefined) amounts.push({ label: t("request.total"), value: price });
   if (request.copayAmount !== undefined) amounts.push({ label: t("request.copay"), value: request.copayAmount });
   if (request.selfPayAmount !== undefined) amounts.push({ label: t("request.selfPay"), value: request.selfPayAmount });
+  // The facility's record, drawn only when it sent it (never invented): the insurer's approval number and the co-pay percent.
+  const decision: Array<{ label: string; value: string }> = [];
+  if (request.approvalCode) decision.push({ label: t("request.approvalNumber"), value: request.approvalCode });
+  if (request.copayPercent !== undefined) decision.push({ label: t("request.copayPercent"), value: new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 2 }).format(request.copayPercent / 100) });
 
   return (
     <div className={styles.stack}>
@@ -101,6 +105,16 @@ export function InsuranceRequestView({ request, price, bookingStatusHref }: { re
         </div>
         {state === "PENDING_PROVIDER_REVIEW" ? <p className={styles.waiting} role="status"><Spinner size={20} /><span>{t("request.checking")}</span></p> : null}
       </section>
+
+      {decision.length > 0 ? (
+        <section className={rx.card} aria-label={t("request.decision")}>
+          <ul className={styles.amounts}>
+            {decision.map((row) => (
+              <li key={row.label}><span className={styles.amountLabel}>{row.label}</span><span className={styles.amountValue}><bdi>{row.value}</bdi></span></li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {amounts.length > 0 ? (
         <section className={rx.card} aria-label={t("request.amounts")}>
