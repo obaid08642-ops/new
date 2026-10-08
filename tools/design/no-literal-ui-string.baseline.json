@@ -83,7 +83,6 @@
     "patient-app/src/design-system/components/SearchBar.tsx": 10,
     "patient-app/src/design-system/components/States.tsx": 2,
     "patient-app/src/design-system/components/Toast.tsx": 1,
-    "patient-app/src/features/consultation/InsuranceCopayScreen.tsx": 4,
     "patient-app/src/features/medical-orders/ActionableOrderScreen.tsx": 5,
     "patient-app/src/guided-tour/ui/SpotlightRenderer.tsx": 4,
     "patient-app/src/hooks/useGuestGuard.tsx": 9,

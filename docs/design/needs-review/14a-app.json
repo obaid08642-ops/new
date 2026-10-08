@@ -1,0 +1,72 @@
+[
+  {
+    "batch": 14,
+    "app": "patient-app",
+    "screen": "/consultations/chat-with-doctor",
+    "element": "Window, read-only flag and allowed composer parts",
+    "file": "patient-app/app/consultations/chat-with-doctor.tsx",
+    "line": 127,
+    "found": "[backend] The thread answer has no window, read-only flag or allowed-parts field (the server only refuses a send after consultation_followup_hours, 24 h by default, not 72 h); the screen follows is_active and the 403 and the booking type. (backend: backend/src/modules/chat/chat.service.ts:234)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-app",
+    "screen": "/consultations/chat-with-doctor",
+    "element": "Voice note",
+    "file": "patient-app/app/consultations/chat-with-doctor.tsx",
+    "line": 298,
+    "found": "[owner] Online consultations should offer a voice note (decision 24) but the app has no recording flow; not built in a design batch.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 14,
+    "app": "patient-app",
+    "screen": "/consultations/chat-with-doctor",
+    "element": "Call camera and microphone on/off",
+    "file": "patient-app/app/consultations/chat-with-doctor.tsx",
+    "line": 300,
+    "found": "[owner] The camera and microphone switch belongs to the calls decision; the button only opens the existing waiting room.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 14,
+    "app": "patient-app",
+    "screen": "/consultations/prescription-from-doctor",
+    "element": "Prescription notification without an appointment id",
+    "file": "patient-app/src/components/NotificationHandler.tsx",
+    "line": 65,
+    "found": "[backend] The prescription notification carries only prescriptionId, so it opens the bookings list; it should carry the appointment id.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-app",
+    "screen": "/consultations/book/[id]",
+    "element": "Follow-up link to the original appointment",
+    "file": "patient-app/app/consultations/book/[id].tsx",
+    "line": 154,
+    "found": "[backend] POST /care/appointments takes no field for the original appointment, so a follow-up is only a normal booking with the doctor pre-selected.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-app",
+    "screen": "/consultations/appointment-detail",
+    "element": "Follow-up window and reduced price text",
+    "file": "patient-app/src/components/consult/AppointmentSections.tsx",
+    "line": 130,
+    "found": "[client] The window shows 7 days when the server sends none, and the text promises a reduced price that no field states.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 14,
+    "app": "patient-app",
+    "screen": "/consultations/cancel-reschedule",
+    "element": "Cancel and refund text (decision 26)",
+    "file": "patient-app/app/consultations/cancel-reschedule.tsx",
+    "line": 91,
+    "found": "[owner] The consultation cancel screen already reads cancellation_policy from /system-config/public and no screen has a hard-coded 12/24 h copy; nothing to remove.",
+    "suspect": "Owner decision."
+  }
+]

@@ -109,7 +109,7 @@ export default function PaymentResultRoute() {
     if (!p.visitType) return null;
     const appointment = p.bookingId;
     if (appointment) return { label: p.visitType === 'clinic' ? k('payments.result.clinicLocation') : p.visitType === 'home' ? k('payments.result.trackDoctor') : k('payments.result.waitingRoom'), go: () => router.push({ pathname: '/consultations/booking-status', params: { appointmentId: appointment, visitType: p.visitType } }) };
-    if (p.visitType === 'clinic') return { label: k('payments.result.clinicLocation'), go: () => router.push('/consultations/clinic-location' as Href) };
+    if (p.visitType === 'clinic') return { label: k('payments.result.clinicLocation'), go: () => router.push({ pathname: '/consultations/booking-status', params: { view: 'location' } } as unknown as Href) };
     if (p.visitType === 'home') return { label: k('payments.result.trackDoctor'), go: () => router.push('/consultations/home-visit-tracking' as Href) };
     return { label: k('payments.result.waitingRoom'), go: () => router.push({ pathname: '/consultations/booking-status', params: { visitType: p.visitType } }) };
   })();

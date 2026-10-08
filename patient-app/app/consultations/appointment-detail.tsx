@@ -5,6 +5,7 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { Button, Card, FIcon } from '../../../packages/ui-native/src';
 import { ConsultScreen, Dialog, Gate, InfoRow, ModePill, Section, StatusTag, appointmentStatus, useConsultFormat, visitMode, type GateStatus } from '../../src/components/consult/ConsultKit';
 import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
+import { HistorySection, PrescriptionSection, SummarySection, openFollowUp, type HistoryRow, type Summary } from '../../src/components/consult/AppointmentSections';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { apiFetch } from '../../src/utils/api';
@@ -13,7 +14,9 @@ import { logError } from '../../src/utils/logger';
 import { statusIs } from '../../src/utils/statusCase';
 
 /**
- * Appointment details — board Consult's card language. Everything is GET /care/appointments/:id: the status and the
+ * Appointment details — board Consult's card language. One page for the whole booking (merge map 2, section 1): status,
+ * the doctor's summary, the prescription and the follow-up, which were three more screens reading the same appointment.
+ * Everything is GET /care/appointments/:id: the status and the
  * date, the doctor, the visit type, the payment method, the booking number and the amount when the server states
  * one. What the page offers depends on the visit type and status, as before: cancel or reschedule, the waiting room,
  * the clinic's place or the visit tracking, the summary and the rating after a finished visit, and the insurance
@@ -25,6 +28,9 @@ interface Appointment {
   status?: string;
   scheduled_at?: string;
   consultation_type?: string;
+  service_type?: string;
+  patient_notes?: string;
+  state_history?: HistoryRow[];
   payment_method?: string;
   doctor_id?: string;
   doctor_name?: string;
@@ -50,6 +56,7 @@ export default function AppointmentDetailScreen() {
   const params = useLocalSearchParams<{ appointmentId?: string }>();
   const [appointment, setAppointment] = useState<Appointment | null>(null);
   const [status, setStatus] = useState<GateStatus>('loading');
+  const [summary, setSummary] = useState<Summary | null>(null);
 
   const load = useCallback(async () => {
     if (!params.appointmentId) {
@@ -73,7 +80,7 @@ export default function AppointmentDetailScreen() {
   }, [load]);
 
   const a = appointment;
-  const mode = visitMode(a?.consultation_type);
+  const mode = visitMode(a?.consultation_type || a?.service_type);
   const st = appointmentStatus(a?.status);
   const done = statusIs(a?.status, ['completed']);
   const doctorName = a?.doctor?.name || a?.doctor_name || '';
@@ -99,7 +106,7 @@ export default function AppointmentDetailScreen() {
     mode === 'online'
       ? { label: k('consult.detail.waitingRoom'), onPress: () => go('/consultations/virtual-waiting-room') }
       : mode === 'clinic'
-        ? { label: k('consult.detail.clinicPlace'), onPress: () => go('/consultations/clinic-location') }
+        ? { label: k('consult.detail.clinicPlace'), onPress: () => go('/consultations/booking-status', { state: 'confirmed', view: 'location' }) }
         : mode === 'home'
           ? { label: k('consult.detail.trackDoctor'), onPress: () => go('/consultations/home-visit-tracking') }
           : null;
@@ -153,17 +160,6 @@ export default function AppointmentDetailScreen() {
 
             {done ? (
               <>
-                <Pressable accessibilityRole="button" accessibilityLabel={k('consult.detail.summary')} onPress={() => go('/consultations/summary')} style={{ minHeight: 44 }}>
-                  <Card theme={theme} padding="sm">
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                      <FIcon icon="file-text" tone="blue" size={44} theme={theme} />
-                      <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-                        <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{k('consult.detail.summary')}</Text>
-                        <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.detail.summaryBody')}</Text>
-                      </View>
-                    </View>
-                  </Card>
-                </Pressable>
                 <Pressable accessibilityRole="button" accessibilityLabel={k('consult.detail.rate')} onPress={() => router.push({ pathname: '/reviews', params: { booking_kind: 'appointment', booking_id: a.id, providerName: doctorName } } as unknown as Href)} style={{ minHeight: 44 }}>
                   <Card theme={theme} padding="sm">
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -177,6 +173,15 @@ export default function AppointmentDetailScreen() {
                 </Pressable>
               </>
             ) : null}
+
+            {a.doctor_id ? (
+              <Button label={k('consult.follow.chat')} variant="outline" size="md" fullWidth startIcon="chat-circle-text" onPress={() => router.push({ pathname: '/consultations/chat-with-doctor', params: { doctorId: a.doctor_id, appointmentId: id } } as unknown as Href)} theme={theme} testID="detail-chat" />
+            ) : null}
+
+            {done ? <SummarySection appointmentId={id} doctorId={a.doctor_id || ''} onSummary={setSummary} /> : null}
+            {done ? <PrescriptionSection appointmentId={id} fallback={summary?.prescription} /> : null}
+            <HistorySection notes={a.patient_notes} history={a.state_history} />
+            {done && a.doctor_id ? <Button label={k('consult.rx.followUp')} variant="outline" size="md" fullWidth startIcon="calendar-dots" onPress={() => openFollowUp(a.doctor_id || '', id)} theme={theme} testID="detail-follow-up" /> : null}
 
             <Section title={k('consult.detail.prepare')}>
               <Card theme={theme}>
