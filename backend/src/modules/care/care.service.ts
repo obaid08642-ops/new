@@ -197,7 +197,7 @@ export class CareService {
     const SLOT_MIN = 30;
 
     const dayStr = (t: number) => new Date(t).toISOString().substring(0, 10);
-    const blockers = await this.availabilityBlockers();
+    const blockers = await this.availabilityBlockers(now, end);
     const out: Array<{ doc: any; at: number }> = [];
     // No capped batch: every mode-matching public doctor is scanned, otherwise
     // doctors created later (or lower-rated) would never be found. The mode
@@ -265,15 +265,22 @@ export class CareService {
     return false;
   }
 
-  private async availabilityBlockers(): Promise<{ bookings: any[]; holds: any[] }> {
+  /** Only what can overlap the search window [from, to + one slot]: not every active booking on the platform. */
+  private async availabilityBlockers(from: number, to: number): Promise<{ bookings: any[]; holds: any[] }> {
     const db = (this.providerModel as any).db;
+    const windowStart = new Date(from - 5 * 60_000);
+    const windowEnd = new Date(to + 2 * 60 * 60_000);
     const [bookings, holds] = await Promise.all([
       db.collection('appointments').find(
-        { status: { $in: ['PENDING', 'CONFIRMED', 'RESCHEDULED', 'CHECKED_IN', 'IN_PROGRESS'] } },
+        {
+          status: { $in: ['PENDING', 'CONFIRMED', 'RESCHEDULED', 'CHECKED_IN', 'IN_PROGRESS'] },
+          slot_end: { $gte: windowStart },
+          slot_start: { $lte: windowEnd },
+        },
         { projection: { _id: 0, doctor_id: 1, slot_start: 1, slot_end: 1 } },
       ).toArray().catch(() => []),
       db.collection('slotlocks').find(
-        { status: 'held', expires_at: { $gt: new Date() } },
+        { status: 'held', expires_at: { $gt: new Date() }, slot_end: { $gte: windowStart }, slot_start: { $lte: windowEnd } },
         { projection: { _id: 0, provider_id: 1, provider_account_id: 1, account_id: 1, slot_start: 1, slot_end: 1, status: 1, expires_at: 1 } },
       ).toArray().catch(() => []),
     ]);
