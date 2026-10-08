@@ -30,16 +30,16 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 
-import authReducer from '../../src/store/slices/authSlice';
-import { listenerMiddleware } from '../../src/store/middleware/listenerMiddleware';
-import { CartProvider, useCart } from '../../src/context/CartContext';
-import { DEVICE_CART_KEY } from '../../src/utils/pharmacyCartStore';
+import authReducer from '../../../src/store/slices/authSlice';
+import { listenerMiddleware } from '../../../src/store/middleware/listenerMiddleware';
+import { CartProvider, useCart } from '../../../src/context/CartContext';
+import { DEVICE_CART_KEY } from '../../../src/utils/pharmacyCartStore';
 
 const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn(), canGoBack: jest.fn(() => true) };
 let mockParams: Record<string, string> = {};
 jest.mock('react-native-localize', () => require('react-native-localize/mock'));
 jest.mock('@react-native-community/netinfo', () => require('@react-native-community/netinfo/jest/netinfo-mock.js'));
-jest.mock('../../src/utils/logger', () => ({ logError: jest.fn(), logger: { error: jest.fn(), warn: jest.fn(), info: jest.fn(), debug: jest.fn() } }));
+jest.mock('../../../src/utils/logger', () => ({ logError: jest.fn(), logger: { error: jest.fn(), warn: jest.fn(), info: jest.fn(), debug: jest.fn() } }));
 jest.mock('expo-linking', () => ({ openURL: jest.fn(async () => true), createURL: jest.fn((p: string) => p) }));
 jest.mock('expo-router', () => {
   const R = require('react');
@@ -56,15 +56,15 @@ jest.mock('expo-router', () => {
     },
   };
 });
-jest.mock('../../src/context/AppContext', () => ({ useApp: () => ({ isDark: false, lang: 'ar', isRTL: true }) }));
+jest.mock('../../../src/context/AppContext', () => ({ useApp: () => ({ isDark: false, lang: 'ar', isRTL: true }) }));
 
-import PharmacyPayment from '../../app/pharmacy/payment';
-import PharmacyCheckout from '../../app/pharmacy/checkout';
-import PharmacyCart from '../../app/pharmacy/cart';
-import BookingConfirm from '../../src/components/BookingConfirmForm';
-import InsuranceCopay from '../../app/insurance/copay';
+import PharmacyPayment from '../../../app/pharmacy/payment';
+import PharmacyCheckout from '../../../app/pharmacy/checkout';
+import PharmacyCart from '../../../app/pharmacy/cart';
+import BookingConfirm from '../../../src/components/BookingConfirmForm';
+import InsuranceCopay from '../../../app/insurance/copay';
 
-const AR = require('../../src/i18n/locales/ar.json') as Record<string, string>;
+const AR = require('../../../src/i18n/locales/ar.json') as Record<string, string>;
 const ar = (key: string, values: Record<string, string> = {}) => AR[key].replace(/\{\{?(\w+)\}?\}/g, (_, n: string) => values[n] ?? '');
 
 /* ---------------------------------------------------------------------------------------------------------------- */
