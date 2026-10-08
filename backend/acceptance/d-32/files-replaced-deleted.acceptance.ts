@@ -133,7 +133,7 @@ class FakeS3 {
           return;
         }
         if (req.method === 'POST' && url.searchParams.has('delete')) {
-          const keys = [...body.toString('utf8').matchAll(/<Key>([^<]+)<\/Key>/g)].map((x) => x[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'"));
+          const keys = [...body.toString('utf8').matchAll(/<Key>([^<]+)<\/Key>/g)].map((x) => x[1].replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&')); // &amp; last: no double unescaping
           for (const k of keys) { this.objects.delete(k); this.deleted.push(k); }
           res.writeHead(200, { 'content-type': 'application/xml' });
           res.end(`<?xml version="1.0" encoding="UTF-8"?><DeleteResult>${keys.map((k) => `<Deleted><Key>${k}</Key></Deleted>`).join('')}</DeleteResult>`);
