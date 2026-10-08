@@ -1,0 +1,142 @@
+[
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/provider-moderation",
+    "element": "Journey 1 / Suspend button as the only reject path",
+    "file": "admin/src/pages/admin/provider-moderation.tsx", "line": 285,
+    "found": "[client] The only way to turn a pending provider down is the 'Suspend' button and its modal (reject / reason codes). It calls POST /admin/providers/:id/suspend, but the backend state machine does not allow PENDING_ADMIN_APPROVAL -> SUSPENDED (only UNDER_REVIEW, APPROVED, REJECTED, NEEDS_CHANGES), so the call returns 400 'invalid transition' and the provider cannot be rejected from this screen. (backend: backend/src/modules/provider/provider.enums.ts:46, backend/src/modules/provider/services/provider-admin.service.ts:262)",
+    "suspect": "Client-side: later batch. Use POST /admin/providers/:id/reject."
+  },
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/provider-moderation",
+    "element": "Journey 1 / Reject, request-changes and bank approval have no UI",
+    "file": "admin/src/pages/admin/provider-moderation.tsx", "line": 117,
+    "found": "[client] The screen calls only approve and suspend. The backend also has POST /admin/providers/:id/reject, /request-changes (status NEEDS_CHANGES, asks the provider to fix named documents) and /approve-bank; no admin page calls them, so 'send back for corrections' and payout bank approval cannot be done from admin. (backend: backend/src/modules/provider/provider.controllers.ts:156,157,178)",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/provider-moderation",
+    "element": "Journey 1 / Provider is not notified of approval or rejection",
+    "file": "admin/src/pages/admin/provider-moderation.tsx", "line": 117,
+    "found": "[backend] ProviderAdminService.approve / reject / requestChanges / suspend write an audit row and change status but emit no notification event. The 'provider.approved' event that creates the notification is emitted only by the older providers.service.ts, which this screen does not call. The provider learns the result only by logging in again (approve bumps token_version and revokes sessions). (backend: backend/src/modules/provider/services/provider-admin.service.ts:185, backend/src/modules/provider/providers.service.ts:223, backend/src/modules/notifications/notifications.service.ts:677)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/provider-moderation",
+    "element": "Journey 1 / Licence review is a manual look, approval verifies it automatically",
+    "file": "admin/src/components/ProviderFullDetail.tsx", "line": 519,
+    "found": "[backend] The licence documents are only displayed as links/images; there is no per-document approve/reject and no licence number/expiry check. Approving the account sets license_verified=true, medical_review_status='approved' and marks every pending document and bank account approved in bulk, so 'licence verified' means 'the admin clicked approve'. (backend: backend/src/modules/provider/services/provider-admin.service.ts:160,173)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/provider-moderation",
+    "element": "Journey 1 / Approve is three window.prompt dialogs",
+    "file": "admin/src/pages/admin/provider-moderation.tsx", "line": 105,
+    "found": "[client] Approval asks for the reason, the cash commission % and the insurance commission % with three window.prompt calls and reports with alert(); no summary/confirm step shows what will be approved, and prompts are unusable in a mobile web app. Approve and every other provider write are role-only on the backend (class-level @Roles(ADMIN), no @RequirePermissions) while the page asks for doctor.read. (backend: backend/src/modules/provider/provider.controllers.ts:155)",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/provider-moderation",
+    "element": "Journey 1 / Rejection deletes the provider's files",
+    "file": "admin/src/pages/admin/provider-moderation.tsx", "line": 117,
+    "found": "[backend] Rejecting an account physically deletes the profile photo, logo, clinic images, licence documents and every provider document from storage (purgeImages) while REJECTED -> PENDING_ADMIN_APPROVAL stays an allowed transition, so a provider who re-submits has lost the originals. (backend: backend/src/modules/provider/services/provider-admin.service.ts:224, backend/src/modules/provider/provider.enums.ts:51)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/medicines-catalog",
+    "element": "Journey 2 / 'controlled' cannot be set by admin",
+    "file": "admin/src/pages/admin/medicines-catalog.tsx", "line": 297,
+    "found": "[backend] The medicine schema has controlled (narcotics) but it is not in MedicinesService.EDITABLE_FIELDS nor in CatalogMedicineFieldsDto, so neither the admin form nor the API can set or change it (forbidNonWhitelisted rejects the field). Owner decision 10 (controlled drugs never orderable) needs admin to flag them. (backend: backend/src/schemas/medicine.schema.ts:56, backend/src/modules/medicines/medicines.service.ts:1439)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/medicines-catalog",
+    "element": "Journey 2 / requires_prescription changes with no confirmation or reason",
+    "file": "admin/src/pages/admin/medicines-catalog.tsx", "line": 297,
+    "found": "[client] The requires_prescription checkbox is saved with the rest of the form by PATCH (line 170) with no confirm step; a reason is demanded only when the price differs (line 165) and the backend enforces a reason only for price (>=5 chars). Flipping Rx on/off is therefore unconfirmed and carries no reason. The price change also has no 'old -> new' confirmation. (backend: backend/src/modules/medicines/medicines.service.ts:1732)",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/medicines-catalog",
+    "element": "Journey 2 / Change log covers price only",
+    "file": "admin/src/pages/admin/catalog-governance.tsx", "line": 63,
+    "found": "[backend] Only price changes write a row to the price history (medicine_price_history, shown by catalog-governance and price-override-audit). requires_prescription and other field edits are written only to the generic audit log (before/after), with no per-item change-log endpoint or screen, so 'who made this item Rx and when' cannot be answered from admin. (backend: backend/src/modules/medicines/medicines.service.ts:1762,1782)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/medicines-catalog",
+    "element": "Journey 2 / A price correction un-publishes the item",
+    "file": "admin/src/pages/admin/catalog-governance.tsx", "line": 78,
+    "found": "[backend] adminUpdateCatalog resets verified=false, public_eligibility=false, indexing_eligibility=false and medical_review_status='pending' on ANY edit of an approved item (including a price-only fix), so the item leaves the public catalogue until a second medical approval. The screen does not warn the admin. (backend: backend/src/modules/medicines/medicines.service.ts:1749,1752)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/catalog-manager",
+    "element": "Journey 2 / No items-to-review queue for unmapped pharmacy lines (decision 12)",
+    "file": "admin/src/pages/admin/catalog-manager.tsx", "line": 79,
+    "found": "[backend] Owner decision 12 (sfda_price ceiling, 'price not verified' lines go to admin review, admin adds the item) has no backend or admin queue: sfda_price / sfda_price_source do not exist anywhere in backend/src, and GET /medicines/admin/pending-review answers 410 Gone. The queues that do exist are change-requests (suggestions from users), the medical-review list (medical_review_status pending), shortage reports and image suggestions. (backend: backend/src/modules/medicines/medicines.controller.ts:413,214)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/catalog-manager",
+    "element": "Journey 2 / Medicines, insurance and specialties tabs use the wrong methods",
+    "file": "admin/src/pages/admin/catalog-manager.tsx", "line": 119,
+    "found": "[client] The generic editor saves with PUT <base>/:id and deletes with DELETE <base>/:id for every tab. The medicines backend has PATCH /medicines/admin/catalog/:id and POST .../:id/delete, insurance companies have PATCH, specialties only DELETE, so edit and delete in those tabs return 404/405; bulk-approve for insurance and specialties is also missing. Only labs, radiology and nursing match. (backend: backend/src/modules/medicines/medicines.controller.ts:235,269)",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/catalog-governance",
+    "element": "Journey 2 / Three overlapping medicine editors",
+    "file": "admin/src/pages/admin/catalog-governance.tsx", "line": 78,
+    "found": "[owner] Medicines can be edited from medicines-catalog (full form), catalog-manager (tab 'medicines', broken methods) and catalog-governance (price only, reason always required). Same PATCH, three different validations and three nav entries; the mobile catalogue should be one screen. Merge map is the owner's call (decision 27).",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/insurance-queue",
+    "element": "Journey 3 / Refund approval moves no money and nothing executes it",
+    "file": "admin/src/pages/admin/insurance-queue.tsx", "line": 55,
+    "found": "[backend] 'Approve refund' calls POST /admin/finance/refunds/:id/decide, which only sets the request to APPROVED/REJECTED (no ledger entry, no gateway refund, no patient notification). Execution is a separate POST /admin/finance-engine/refunds/:id/execute (maker-checker above the large-refund threshold) that no admin page calls, so an approved refund stays APPROVED. The buttons also have no confirm step. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:850, backend/src/modules/finance-engine/finance-engine.module.ts:1096)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/orders/[kind]/[id]",
+    "element": "Journey 3 / Refund action is labelled 'to wallet' but refunds to the original method",
+    "file": "admin/src/pages/admin/orders/[kind]/[id].tsx", "line": 10,
+    "found": "[client] The refund action is labelled 'استرداد إلى المحفظة' (refund to wallet), but RefundExecutor refunds through Moyasar to the original payment method ('There is no patient-wallet branch anymore'), cash is a ledger record only. The action itself is sound: reason >=10 chars, amount <= refundable_max, confirm dialog, audit, payment status mirrored, patient notified. (backend: backend/src/modules/finance-engine/finance-engine.module.ts:538)",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/returns",
+    "element": "Journey 3 / Four refund paths, two with no admin screen",
+    "file": "admin/src/pages/admin/returns.tsx", "line": 52,
+    "found": "[owner] Refunds can start in: admin returns (approve executes the refund, returns.service.ts:380), the refund queue on insurance-queue (decide only), order console (execute at once), and unused routes with no UI: POST /admin/refunds/:id/decide (patient-ux), POST /payments/refund/:txn and POST /moyasar/payments/:id/refund. One refund journey and one status vocabulary are needed before the mobile approvals queue. (backend: backend/src/modules/patient-ux/patient-ux.module.ts:184, backend/src/modules/payments/payments.module.ts:596)",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/system-ops",
+    "element": "Journey 4 / Feature switch has no effect on clients",
+    "file": "admin/src/pages/admin/system-ops.tsx", "line": 18,
+    "found": "[backend] The page writes feature_flags and featureflags (POST /admin/governance-controls/feature-flags, audited, reason required, rollout %). Nothing reads them: no backend module checks a flag (only the AI gateway reads the featureflags collection), and patient-app, patient-web and provider-app never call GET /feature-flags (patient-app FeatureFlags.ts has an update hook but no fetch, and its keys are not the module keys). Owner decision 16 (instant module switches) is not built. (backend: backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:82, backend/src/modules/feature-flags/feature-flags.controller.ts:15)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/system-ops",
+    "element": "Journey 4 / Flag key is free text",
+    "file": "admin/src/pages/admin/system-ops.tsx", "line": 18,
+    "found": "[client] The flag form takes a free-text key, enabled and rollout %; there is no list of the module keys of decision 16 (pharmacy, consultations, labs, nursing, nutrition, maternity, mental health, family, insurance, loyalty, AI, articles), so a typo silently creates a new flag. There are also four overlapping stores/endpoints (GET /feature-flags + /admin/feature-flags, /admin/governance-controls/feature-flags, /config/flags + PUT /admin/config/flags, /kill-switches); the admin uses only the governance one. (backend: backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:101, backend/src/modules/admin/governance/admin-governance.module.ts:279)",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/config-portal",
+    "element": "Journey 4 / Emergency maintenance switch is disabled and the kill-switch routes have no UI",
+    "file": "admin/src/pages/admin/config-portal.tsx", "line": 344,
+    "found": "[client] The 'Trigger System Kill-Switch' button is permanently disabled ('requires server set-up'), although the handler at line 183 and PUT /admin/governance/trigger-emergency-maintenance exist. GET/POST /kill-switches(/:key) have no admin screen. Confirmation uses two checkboxes and alert(). (backend: backend/src/modules/admin/web-core/controllers/admin-governance.controller.ts:26)",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "admin-journeys", "app": "admin", "screen": "/admin/theme-control",
+    "element": "Journey 4 / Theme 'save' only writes the browser's localStorage",
+    "file": "admin/src/pages/admin/theme-control.tsx", "line": 41,
+    "found": "[backend] Save writes localStorage and fires a raw fetch POST /api/admin/theme (no CSRF header, errors swallowed) to a route no controller declares, then shows 'saved' after a timer. Nothing reaches the apps. The page is also not in the nav. Identity tokens are fixed by owner decision A, so this page should not exist. (backend: none, route missing)",
+    "suspect": "Owner decision."
+  }
+]

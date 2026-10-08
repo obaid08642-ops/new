@@ -229,7 +229,7 @@ export default function BroadcastStatusScreen() {
   );
 
   if (!orderId) {
-    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('pharmacy.offers.noOrder')} body={k('pharmacy.offers.noOrderBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/pharmacy/order-history' as Href)} theme={theme} />);
+    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('pharmacy.offers.noOrder')} body={k('pharmacy.offers.noOrderBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/orders' as Href)} theme={theme} />);
   }
   if (loading) {
     return (
@@ -256,7 +256,7 @@ export default function BroadcastStatusScreen() {
     return state(<EmptyState icon="check-circle" tone="mint" title={k('pharmacy.offers.alreadyChosen')} body={k('pharmacy.offers.alreadyChosenBody')} actionLabel={k('pharmacy.offers.continueOrder')} onAction={() => router.replace({ pathname: postSelectionRoute(order), params: { orderId } } as Href)} theme={theme} />);
   }
   if (phase === 'draft') {
-    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('pharmacy.offers.notSent')} body={k('pharmacy.offers.notSentBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/pharmacy/order-history' as Href)} theme={theme} />);
+    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('pharmacy.offers.notSent')} body={k('pharmacy.offers.notSentBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/orders' as Href)} theme={theme} />);
   }
 
   const open = offers.filter((o) => o.open);

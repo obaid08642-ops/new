@@ -1,0 +1,4 @@
+[
+ { "route": "PharmacyQRMenuScreen", "element": "QR code", "src": "fixed qr icon and text; no QR value, link or request", "status": "placeholder", "note": "The QR catalog screen draws a fixed QR icon and text; there is no QR value, catalog link or request behind it.", "file": "provider-app/src/screens/shared/RealScreensExtended.tsx", "line": 17 },
+ { "route": "NurseVisitConsole", "element": "Screen content", "src": "one hard-coded English title and one button; no data", "status": "placeholder", "note": "Stub screen: a hard-coded English title and a single button to the checklist, no visit data.", "file": "provider-app/src/screens/shared/blueprint/NurseVisitConsole.tsx", "line": 26 }
+]

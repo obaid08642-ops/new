@@ -1,0 +1,73 @@
+{
+  "slice": "14b-app", "batch": 14, "app": "patient-app",
+  "screens": [
+    { "route": "/diagnostics/insurance-approval",
+      "elements": [
+        ["First state (no orderId): prescription upload, what was read, insurance, visit, lab, send", "POST /ai/ocr-translate, GET /providers?type=lab, /insurance/companies(/:id/networks), /users/me/profile, POST /labs/bookings or /radiology/bookings, POST /labs/bookings/:id/documents; was /diagnostics/insurance-upload (now InsuranceUploadForm, logic unchanged)", "ok"],
+        ["Second state (orderId): the facility's answer, items, co-pay, cash opt-in, continue / pay own", "GET /labs/bookings/:id (polled), PATCH /labs/bookings/:id/items/:itemId/opt-in-cash; unchanged", "ok"],
+        ["Wording (decision 35): the lab asks the insurer, the patient sees the provider's decision", "keys diag.upload.hint, diag.upload.readFailed, diag.ins.reviewing, diag.hub.insBody rewritten in six languages", "fixed"],
+        ["Old route insurance-upload", "redirect keeping the query; checkout and the diagnostics hub link to insurance-approval", "ok"]
+      ],
+      "notes": [] },
+    { "route": "/diagnostics/sample-tracking",
+      "elements": [
+        ["Status, appointment time, steps", "GET /labs/bookings/:id and /tracking (15 s refresh), unchanged", "ok"],
+        ["Technician block: arrival, name, call button, tips", "tracking.eta, techName, techPhone; was /diagnostics/technician-tracking, which read the same two endpoints; shown for location_type home or when a technician is assigned", "ok"],
+        ["Old route technician-tracking", "redirect keeping the query", "ok"]
+      ],
+      "notes": [] },
+    { "route": "/pharmacy/rx-order",
+      "elements": [
+        ["Three ways in: photograph, upload, type the names (URL ?via=photo|upload|type)", "UI state in the URL; was scan-prescription and request", "ok"],
+        ["Photo / upload: read, save, open the prescription", "POST /ai/prescription-ocr, POST /prescriptions/upload (unchanged), then ?prescriptionId=", "ok"],
+        ["Type the names: name, details, address, send", "POST /patient/pharmacy/orders then /submit with the same idempotency keys (unchanged), then broadcast-status", "ok"],
+        ["Active prescriptions list under photo and upload", "GET /prescriptions/active", "ok"],
+        ["Prescription detail and continue to checkout", "GET /prescriptions/:id (unchanged)", "ok"],
+        ["Old routes scan-prescription, request, manual-order, custom-item, drug-not-found", "redirects keeping the query; every in-code link updated", "ok"]
+      ],
+      "notes": [] },
+    { "route": "/pharmacy/barcode-scanner",
+      "elements": [
+        ["Scan, photograph the pack, found / not found / failed", "GET /medicines/by-barcode/:code, POST /ai/medicine-image-search (unchanged)", "ok"],
+        ["Type a barcode", "same GET /medicines/by-barcode/:code", "ok"],
+        ["Check interactions section on a found medicine", "POST /ai/drug-interactions {drugs:[name]} (the server adds the saved medicines); verdict and hits as the server sent them; was /drug-scanner, whose old screen read fields the server never sends", "ok"],
+        ["Old route drug-scanner", "redirect to this screen", "ok"]
+      ],
+      "notes": [] },
+    { "route": "/pharmacy",
+      "elements": [
+        ["Filter sheet (sort, category, Rx only, price, form, maker)", "GET /medicines/filters; Apply writes filter_* to the URL (router.setParams); was /pharmacy/filters", "ok"],
+        ["My orders button", "now /orders (was /pharmacy/order-history)", "ok"]
+      ],
+      "notes": [] },
+    { "route": "/orders",
+      "elements": [
+        ["Pharmacy orders", "GET /patient/pharmacy/orders is already one of the sources; /pharmacy/order-history is a redirect here", "ok"]
+      ],
+      "notes": [] },
+    { "route": "/pharmacy/final-quote",
+      "elements": [
+        ["Cash on delivery button (decision 25)", "shown only when accepted_quote_snapshot.cod_allowed is true and the coverage is cash (server field); no client rule; unchanged", "ok"]
+      ],
+      "notes": [] },
+    { "route": "/pharmacy/waiting-for-pharmacy",
+      "elements": [
+        ["Redirect to broadcast-status (same order, same state); with no order id to /orders", "unchanged apart from the list route", "ok"]
+      ],
+      "notes": [] }
+  ],
+  "needsReview": [
+    { "route": "/pharmacy/barcode-scanner", "element": "Interaction notes", "kind": "backend",
+      "note": "POST /ai/drug-interactions returns the note only in Arabic (note_ar); non-Arabic screens show the severity label without a note, no Arabic fallback.",
+      "file": "patient-app/app/pharmacy/barcode-scanner.tsx", "line": 221, "backend": "backend/src/modules/ai/ai-compat.controller.ts:10" },
+    { "route": "/pharmacy/broadcast-status", "element": "Cancel / returns text (decision 26)", "kind": "client",
+      "note": "No hard-coded 12/24 h or 4/24 h copy exists in the pharmacy or lab screens; the order cancel dialog shows no cancellation or returns rule either. GET /system-config/public has cancellation_policy and returns_policy: show them here in the batch that adds order-policy text.",
+      "file": "patient-app/app/pharmacy/broadcast-status.tsx", "line": 208 },
+    { "route": "/diagnostics/insurance-approval", "element": "Home-visit fee", "kind": "backend",
+      "note": "HOME_VISIT_FEE = 50 is a client constant added to the amount to pay; the server does not send it.",
+      "file": "patient-app/app/diagnostics/insurance-approval.tsx", "line": 35 },
+    { "route": "/diagnostics/sample-tracking", "element": "Home collection flag", "kind": "backend",
+      "note": "Confirm that GET /labs/bookings/:id sends location_type; until then the technician block also shows when a technician is assigned.",
+      "file": "patient-app/app/diagnostics/sample-tracking.tsx", "line": 77 }
+  ]
+}

@@ -1,0 +1,1092 @@
+{
+ "slice": "admin-catalogue",
+ "batch": "admin",
+ "app": "admin",
+ "screens": [
+  {
+   "route": "/admin/catalog-governance",
+   "elements": [
+    [
+     "button: الكتالوج والنواقص",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: تدقيق تجاوز الأسعار ( )",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: الاسم أو المادة الفعالة",
+     "state search used by logic/request",
+     "ok"
+    ],
+    [
+     "input: file",
+     "POST /medicines/admin/import-csv; GET /medicines/admin/catalog; GET /medicines/admin/shortage-reports; GET /api/admin/ad",
+     "ok"
+    ],
+    [
+     "button: السعر والتاريخ",
+     "GET /medicines/admin/catalog/:param/price-history",
+     "ok"
+    ],
+    [
+     "button: اعتماد",
+     "POST /medicines/admin/shortage-reports/:param/:param; GET /medicines/admin/catalog; GET /medicines/admin/shortage-report",
+     "ok"
+    ],
+    [
+     "button: رفض",
+     "POST /medicines/admin/shortage-reports/:param/:param; GET /medicines/admin/catalog; GET /medicines/admin/shortage-report",
+     "ok"
+    ],
+    [
+     "input: number",
+     "state price used by logic/request",
+     "ok"
+    ],
+    [
+     "input: textarea",
+     "state reason used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ وتوثيق السعر",
+     "PATCH /medicines/admin/catalog/:param; GET /medicines/admin/catalog; GET /medicines/admin/shortage-reports; GET /api/adm",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/pharmacy/price-overrides",
+     "GET /api/admin/admin/pharmacy/price-overrides (OK, backend/src/modules/pharmacy/pharmacy.controllers.ts:155)",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "elements": [
+    [
+     "button: <button> onClick",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: + إضافة صنف جديد",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: بحث بالاسم أو الكود أو الفئة…",
+     "state search used by logic/request",
+     "ok"
+    ],
+    [
+     "input: الاسم (عربي)",
+     "state specNameAr used by logic/request",
+     "ok"
+    ],
+    [
+     "input: Name (en)",
+     "state specNameEn used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ التخصص",
+     "POST \u0001adminBase\u0001; GET \u0001adminBase\u0001",
+     "ok"
+    ],
+    [
+     "button: تعطيل",
+     "DELETE \u0001adminBase\u0001/:param; GET \u0001adminBase\u0001; confirm()",
+     "ok"
+    ],
+    [
+     "button: اعتماد المحدد",
+     "POST \u0001adminBase\u0001/bulk-approve; GET \u0001adminBase\u0001",
+     "ok"
+    ],
+    [
+     "button: رفض المحدد",
+     "POST \u0001adminBase\u0001/bulk-approve; GET \u0001adminBase\u0001",
+     "ok"
+    ],
+    [
+     "button: إلغاء التحديد",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: تحديد للاعتماد الجماعي",
+     "state selected used by logic/request",
+     "ok"
+    ],
+    [
+     "button: اعتماد",
+     "POST \u0001adminBase\u0001/:param/approve; GET \u0001adminBase\u0001",
+     "ok"
+    ],
+    [
+     "button: رفض",
+     "POST \u0001adminBase\u0001/:param/approve; GET \u0001adminBase\u0001",
+     "ok"
+    ],
+    [
+     "button: تعديل",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: حذف",
+     "DELETE \u0001adminBase\u0001/:param; GET \u0001adminBase\u0001; confirm()",
+     "ok"
+    ],
+    [
+     "action: تعديل الصنف إضافة صنف جديد — المراجعة الطبية والنشر إلغاء جا",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: تعديل الصنف إضافة صنف جديد — المراجعة الطبية والنشر إلغاء جا",
+     "",
+     "ok"
+    ],
+    [
+     "input: select",
+     "state editing used by logic/request",
+     "ok"
+    ],
+    [
+     "input: textarea",
+     "state editing used by logic/request",
+     "ok"
+    ],
+    [
+     "input: checkbox",
+     "state editing used by logic/request",
+     "ok"
+    ],
+    [
+     "input: input",
+     "state editing used by logic/request",
+     "ok"
+    ],
+    [
+     "button: إلغاء",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: جارٍ الحفظ… حفظ",
+     "save; POST \u0001adminBase\u0001; PUT \u0001adminBase\u0001/:param; GET \u0001adminBase\u0001",
+     "ok"
+    ],
+    [
+     "input: بحث…",
+     "state q used by logic/request",
+     "ok"
+    ],
+    [
+     "button: + دواء جديد",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: file",
+     "POST /api/admin/bulk-upload; GET \u0001adminBase\u0001",
+     "ok"
+    ],
+    [
+     "button: تعديل",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: اعتماد",
+     "POST \u0001adminBase\u0001/:param/approve; GET \u0001adminBase\u0001",
+     "ok"
+    ],
+    [
+     "button: استرجاع تعطيل",
+     "POST /medicines/admin/catalog/:param/delete; GET \u0001adminBase\u0001",
+     "ok"
+    ],
+    [
+     "button: السجل السعري",
+     "GET /medicines/admin/catalog/:param/price-history",
+     "ok"
+    ],
+    [
+     "action: تعديل دواء دواء جديد يتطلب وصفة صورة: جارٍ رفع الصورة… إلغاء",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: تعديل دواء دواء جديد يتطلب وصفة صورة: جارٍ رفع الصورة… إلغاء",
+     "",
+     "ok"
+    ],
+    [
+     "input: الاسم (عربي)",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "input: Name (en)",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "input: المادة الفعالة",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "input: الفئة",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "input: السعر",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "input: سبب الإنشاء/التغيير",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "input: checkbox",
+     "value",
+     "ok"
+    ],
+    [
+     "input: file",
+     "POST /storage/upload; GET /storage/:param/signed-url",
+     "ok"
+    ],
+    [
+     "button: إلغاء",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: جارٍ الحفظ… حفظ",
+     "save; POST \u0001adminBase\u0001; PUT \u0001adminBase\u0001/:param; GET \u0001adminBase\u0001",
+     "ok"
+    ],
+    [
+     "button: + شركة جديدة",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: + شبكة/فئة",
+     "local state",
+     "ok"
+    ],
+    [
+     "link: قواعد التغطية التفصيلية ←",
+     "link /admin/insurance-companies",
+     "ok"
+    ],
+    [
+     "button: تعديل",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: تفعيل تعطيل",
+     "POST /medicines/admin/catalog/:param/delete; GET \u0001adminBase\u0001",
+     "ok"
+    ],
+    [
+     "button: + شبكة",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: حذف",
+     "DELETE /insurance/companies/:param/networks/:param; GET \u0001adminBase\u0001; confirm()",
+     "ok"
+    ],
+    [
+     "action: تعديل شركة شركة جديدة إلغاء حفظ",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: تعديل شركة شركة جديدة إلغاء حفظ",
+     "",
+     "ok"
+    ],
+    [
+     "input: الاسم (عربي)",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "input: Name (en)",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "input: الكود",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "button: إلغاء",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: حفظ",
+     "saveCompany; PATCH /insurance/companies/:param; POST /insurance/companies; GET \u0001adminBase\u0001",
+     "ok"
+    ],
+    [
+     "action: شبكة/فئة جديدة — الشركة — إلغاء حفظ",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: شبكة/فئة جديدة — الشركة — إلغاء حفظ",
+     "",
+     "ok"
+    ],
+    [
+     "input: — الشركة —",
+     "state netForm used by logic/request",
+     "ok"
+    ],
+    [
+     "input: الكود",
+     "state netForm used by logic/request",
+     "ok"
+    ],
+    [
+     "input: الاسم (عربي)",
+     "state netForm used by logic/request",
+     "ok"
+    ],
+    [
+     "button: إلغاء",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: حفظ",
+     "saveNetwork; POST /insurance/companies/:param/networks; GET \u0001adminBase\u0001",
+     "ok"
+    ],
+    [
+     "API: GET /labs/admin/catalog",
+     "GET /labs/admin/catalog (OK, backend/src/modules/labs/labs.controller.ts:170)",
+     "ok"
+    ],
+    [
+     "API: GET /radiology/admin/catalog",
+     "GET /radiology/admin/catalog (OK, backend/src/modules/radiology/radiology.controller.ts:187)",
+     "ok"
+    ],
+    [
+     "API: GET /nursing/admin/catalog",
+     "GET /nursing/admin/catalog (OK, backend/src/modules/home-care/home-care.controller.ts:108)",
+     "ok"
+    ],
+    [
+     "API: GET /catalogs/admin/specialties",
+     "GET /catalogs/admin/specialties (OK, backend/src/modules/catalogs/catalogs.controller.ts:117)",
+     "ok"
+    ],
+    [
+     "API: POST /labs/admin/catalog",
+     "POST /labs/admin/catalog (OK, backend/src/modules/labs/labs.controller.ts:173)",
+     "ok"
+    ],
+    [
+     "API: POST /radiology/admin/catalog",
+     "POST /radiology/admin/catalog (OK, backend/src/modules/radiology/radiology.controller.ts:191)",
+     "ok"
+    ],
+    [
+     "API: POST /nursing/admin/catalog",
+     "POST /nursing/admin/catalog (OK, backend/src/modules/home-care/home-care.controller.ts:113)",
+     "ok"
+    ],
+    [
+     "API: POST /catalogs/admin/specialties",
+     "POST /catalogs/admin/specialties (OK, backend/src/modules/catalogs/catalogs.controller.ts:124)",
+     "ok"
+    ],
+    [
+     "API: PUT /labs/admin/catalog/:param",
+     "PUT /labs/admin/catalog/:param (OK, backend/src/modules/labs/labs.controller.ts:181)",
+     "ok"
+    ],
+    [
+     "API: PUT /radiology/admin/catalog/:param",
+     "PUT /radiology/admin/catalog/:param (OK, backend/src/modules/radiology/radiology.controller.ts:198)",
+     "ok"
+    ],
+    [
+     "API: PUT /nursing/admin/catalog/:param",
+     "PUT /nursing/admin/catalog/:param (OK, backend/src/modules/home-care/home-care.controller.ts:120)",
+     "ok"
+    ],
+    [
+     "API: PUT /catalogs/admin/specialties/:param",
+     "PUT /catalogs/admin/specialties/:param (WRONG_METHOD, backend/src/modules/catalogs/catalogs.controller.ts:145)",
+     "broken"
+    ],
+    [
+     "API: DELETE /labs/admin/catalog/:param",
+     "DELETE /labs/admin/catalog/:param (OK, backend/src/modules/labs/labs.controller.ts:189)",
+     "ok"
+    ],
+    [
+     "API: DELETE /radiology/admin/catalog/:param",
+     "DELETE /radiology/admin/catalog/:param (OK, backend/src/modules/radiology/radiology.controller.ts:205)",
+     "ok"
+    ],
+    [
+     "API: DELETE /nursing/admin/catalog/:param",
+     "DELETE /nursing/admin/catalog/:param (OK, backend/src/modules/home-care/home-care.controller.ts:127)",
+     "ok"
+    ],
+    [
+     "API: DELETE /catalogs/admin/specialties/:param",
+     "DELETE /catalogs/admin/specialties/:param (OK, backend/src/modules/catalogs/catalogs.controller.ts:145)",
+     "ok"
+    ],
+    [
+     "API: POST /labs/admin/catalog/:param/approve",
+     "POST /labs/admin/catalog/:param/approve (OK, backend/src/modules/labs/labs.controller.ts:198)",
+     "ok"
+    ],
+    [
+     "API: POST /radiology/admin/catalog/:param/approve",
+     "POST /radiology/admin/catalog/:param/approve (OK, backend/src/modules/radiology/radiology.controller.ts:213)",
+     "ok"
+    ],
+    [
+     "API: POST /nursing/admin/catalog/:param/approve",
+     "POST /nursing/admin/catalog/:param/approve (OK, backend/src/modules/home-care/home-care.controller.ts:135)",
+     "ok"
+    ],
+    [
+     "API: POST /catalogs/admin/specialties/:param/approve",
+     "POST /catalogs/admin/specialties/:param/approve (NO_ROUTE)",
+     "broken"
+    ],
+    [
+     "API: POST /medicines/admin/catalog/:param/approve",
+     "POST /medicines/admin/catalog/:param/approve (OK, backend/src/modules/medicines/medicines.controller.ts:277)",
+     "ok"
+    ],
+    [
+     "API: POST /insurance/companies/:param/approve",
+     "POST /insurance/companies/:param/approve (NO_ROUTE)",
+     "broken"
+    ],
+    [
+     "API: POST /labs/admin/catalog/bulk-approve",
+     "POST /labs/admin/catalog/bulk-approve (OK, backend/src/modules/labs/labs.controller.ts:206)",
+     "ok"
+    ],
+    [
+     "API: POST /radiology/admin/catalog/bulk-approve",
+     "POST /radiology/admin/catalog/bulk-approve (OK, backend/src/modules/radiology/radiology.controller.ts:220)",
+     "ok"
+    ],
+    [
+     "API: POST /nursing/admin/catalog/bulk-approve",
+     "POST /nursing/admin/catalog/bulk-approve (OK, backend/src/modules/home-care/home-care.controller.ts:142)",
+     "ok"
+    ],
+    [
+     "API: POST /catalogs/admin/specialties/bulk-approve",
+     "POST /catalogs/admin/specialties/bulk-approve (WRONG_METHOD, backend/src/modules/catalogs/catalogs.controller.ts:145)",
+     "broken"
+    ],
+    [
+     "API: POST /medicines/admin/catalog/bulk-approve",
+     "POST /medicines/admin/catalog/bulk-approve (OK, backend/src/modules/medicines/medicines.controller.ts:285)",
+     "ok"
+    ],
+    [
+     "API: POST /insurance/companies/bulk-approve",
+     "POST /insurance/companies/bulk-approve (WRONG_METHOD, backend/src/modules/insurance/insurance.module.ts:571)",
+     "broken"
+    ],
+    [
+     "API: POST /labs/admin/catalog",
+     "POST /labs/admin/catalog (OK, backend/src/modules/labs/labs.controller.ts:173)",
+     "ok"
+    ],
+    [
+     "API: POST /radiology/admin/catalog",
+     "POST /radiology/admin/catalog (OK, backend/src/modules/radiology/radiology.controller.ts:191)",
+     "ok"
+    ],
+    [
+     "API: POST /nursing/admin/catalog",
+     "POST /nursing/admin/catalog (OK, backend/src/modules/home-care/home-care.controller.ts:113)",
+     "ok"
+    ],
+    [
+     "API: POST /catalogs/admin/specialties",
+     "POST /catalogs/admin/specialties (OK, backend/src/modules/catalogs/catalogs.controller.ts:124)",
+     "ok"
+    ],
+    [
+     "API: DELETE /labs/admin/catalog/:param",
+     "DELETE /labs/admin/catalog/:param (OK, backend/src/modules/labs/labs.controller.ts:189)",
+     "ok"
+    ],
+    [
+     "API: DELETE /radiology/admin/catalog/:param",
+     "DELETE /radiology/admin/catalog/:param (OK, backend/src/modules/radiology/radiology.controller.ts:205)",
+     "ok"
+    ],
+    [
+     "API: DELETE /nursing/admin/catalog/:param",
+     "DELETE /nursing/admin/catalog/:param (OK, backend/src/modules/home-care/home-care.controller.ts:127)",
+     "ok"
+    ],
+    [
+     "API: DELETE /catalogs/admin/specialties/:param",
+     "DELETE /catalogs/admin/specialties/:param (OK, backend/src/modules/catalogs/catalogs.controller.ts:145)",
+     "ok"
+    ],
+    [
+     "API: POST /medicines/admin/catalog/:param/approve",
+     "POST /medicines/admin/catalog/:param/approve (OK, backend/src/modules/medicines/medicines.controller.ts:277)",
+     "ok"
+    ],
+    [
+     "API: GET /insurance/companies/all",
+     "GET /insurance/companies/all (OK, backend/src/modules/insurance/insurance.module.ts:556)",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "1 handler(s) are passed as props (parent callbacks) and are not traced."
+   ]
+  },
+  {
+   "route": "/admin/image-suggestions",
+   "elements": [
+    [
+     "button: <button> onClick",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: اعتماد",
+     "POST /medicines/admin/image-suggestions/:param/:param; GET /medicines/admin/image-suggestions; confirm(); prompt()",
+     "ok"
+    ],
+    [
+     "button: رفض",
+     "POST /medicines/admin/image-suggestions/:param/:param; GET /medicines/admin/image-suggestions; confirm(); prompt()",
+     "ok"
+    ],
+    [
+     "button: السابق",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: التالي",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: جاري التحميل… تحميل العقد PDF (in ProviderFullDetail)",
+     "downloadContract; GET /api/admin/provider-onboarding/admin/contracts/:param",
+     "ok"
+    ],
+    [
+     "input: checkbox (in ProviderFullDetail)",
+     "onChange sends POST /api/admin/provider-onboarding/admin/contracts/:param/visibility",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/storage/:param/signed-url",
+     "GET /api/admin/storage/:param/signed-url (OK, backend/src/modules/storage/storage.module.ts:382)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/storage/:param",
+     "GET /api/admin/storage/:param (OK, backend/src/modules/storage/storage.module.ts:372)",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/medicines-catalog",
+   "elements": [
+    [
+     "input: textarea",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "input: input",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "button: الكتالوج طلبات التغيير التقارير",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: بحث بالاسم / المادة الفعالة / الباركود / الشركة...",
+     "state q used by logic/request",
+     "ok"
+    ],
+    [
+     "input: الفئة (اختياري)",
+     "state category used by logic/request",
+     "ok"
+    ],
+    [
+     "input: checkbox",
+     "state includeDeleted used by logic/request",
+     "ok"
+    ],
+    [
+     "button: + إضافة صنف جديد",
+     "openCreate; local state",
+     "ok"
+    ],
+    [
+     "input: checkbox",
+     "value",
+     "ok"
+    ],
+    [
+     "button: ×",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: file",
+     "POST /storage/upload; GET /storage/:param/signed-url",
+     "ok"
+    ],
+    [
+     "input: مثال: تحديث تسعيرة المورد / عرض ترويجي",
+     "state form used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ",
+     "saveForm; POST /medicines/admin/catalog; PATCH /medicines/admin/catalog/:param; GET /medicines/admin/catalog",
+     "ok"
+    ],
+    [
+     "button: إلغاء",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: قد يكون غير متوفر ✓ تفعيل شعار النقص",
+     "POST /medicines/admin/catalog/:param/availability; GET /medicines/admin/catalog",
+     "ok"
+    ],
+    [
+     "button: تعديل",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: رفض",
+     "POST /medicines/admin/catalog/:param/approve; GET /medicines/admin/catalog",
+     "ok"
+    ],
+    [
+     "button: اعتماد",
+     "POST /medicines/admin/catalog/:param/approve; GET /medicines/admin/catalog",
+     "ok"
+    ],
+    [
+     "button: استرجاع",
+     "POST /medicines/admin/catalog/:param/delete; GET /medicines/admin/catalog; confirm()",
+     "ok"
+    ],
+    [
+     "button: حذف",
+     "POST /medicines/admin/catalog/:param/delete; GET /medicines/admin/catalog; confirm()",
+     "ok"
+    ],
+    [
+     "button: السابق",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: التالي",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: بانتظار المراجعة معتمدة partially_approved معتمدة جزئياً مرف",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: checkbox",
+     "value checked",
+     "ok"
+    ],
+    [
+     "input: input",
+     "value ov",
+     "ok"
+    ],
+    [
+     "button: اعتماد",
+     "POST /medicines/admin/change-requests/:param/:param; GET /medicines/admin/change-requests",
+     "ok"
+    ],
+    [
+     "button: رفض",
+     "POST /medicines/admin/change-requests/:param/:param; GET /medicines/admin/change-requests",
+     "ok"
+    ],
+    [
+     "API: GET /medicines/admin/reports",
+     "GET /medicines/admin/reports (OK, backend/src/modules/medicines/medicines.controller.ts:313)",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "3 handler(s) are passed as props (parent callbacks) and are not traced."
+   ]
+  },
+  {
+   "route": "/admin/price-override-audit",
+   "elements": [
+    [
+     "input: بحث بالدواء أو الصيدلية…",
+     "state search used by logic/request",
+     "ok"
+    ],
+    [
+     "button: تحديث",
+     "GET /api/admin/admin/governance-controls/medicine-price-history",
+     "ok"
+    ],
+    [
+     "button: السابق",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: التالي",
+     "local state",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/shortage-reports",
+   "elements": [
+    [
+     "button: <button> onClick",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: اعتماد (إظهار الشارة)",
+     "POST /medicines/admin/shortage-reports/:param/:param; GET /medicines/admin/shortage-reports; prompt()",
+     "ok"
+    ],
+    [
+     "button: رفض",
+     "POST /medicines/admin/shortage-reports/:param/:param; GET /medicines/admin/shortage-reports; prompt()",
+     "ok"
+    ],
+    [
+     "button: إزالة الشارة (توفر المخزون)",
+     "POST /medicines/admin/catalog/:param/clear-shortage-badge; GET /medicines/admin/shortage-reports; confirm()",
+     "ok"
+    ],
+    [
+     "button: السابق",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: التالي",
+     "local state",
+     "ok"
+    ]
+   ]
+  }
+ ],
+ "needsReview": [
+  {
+   "route": "/admin/catalog-governance",
+   "element": "Guard G-PERM-MISMATCH (3)",
+   "kind": "backend",
+   "note": "3 call(s): Page requires \"catalog.read\" but PATCH /medicines/admin/catalog/:param requires catalog.update + catalog.price.write; an admin role with the page permission onl",
+   "file": "admin/src/pages/admin/catalog-governance.tsx",
+   "line": 78,
+   "backend": "backend/src/modules/medicines/medicines.controller.ts:235"
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "اعتماد المحدد",
+   "kind": "client",
+   "note": "Sensitive action (POST \u0001adminBase\u0001/bulk-approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 263
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "رفض المحدد",
+   "kind": "client",
+   "note": "Sensitive action (POST \u0001adminBase\u0001/bulk-approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 264
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "اعتماد",
+   "kind": "client",
+   "note": "Sensitive action (POST \u0001adminBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 281
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "رفض",
+   "kind": "client",
+   "note": "Sensitive action (POST \u0001adminBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 282
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "اعتماد",
+   "kind": "client",
+   "note": "Sensitive action (POST \u0001adminBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 474
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "استرجاع تعطيل",
+   "kind": "client",
+   "note": "Sensitive action (POST /medicines/admin/catalog/:param/delete) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 475
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "تفعيل تعطيل",
+   "kind": "client",
+   "note": "Sensitive action (POST /medicines/admin/catalog/:param/delete) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 599
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "API PUT /catalogs/admin/specialties/:param",
+   "kind": "backend",
+   "note": "Endpoint is WRONG_METHOD (backend has DELETE; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 119,
+   "backend": "backend/src/modules/catalogs/catalogs.controller.ts:145"
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "API PUT /medicines/admin/catalog/:param",
+   "kind": "backend",
+   "note": "Endpoint is WRONG_METHOD (backend has PATCH, POST; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 119,
+   "backend": "backend/src/modules/medicines/medicines.controller.ts:235"
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "API PUT /insurance/companies/:param",
+   "kind": "backend",
+   "note": "Endpoint is WRONG_METHOD (backend has PATCH, GET; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 119,
+   "backend": "backend/src/modules/insurance/insurance.module.ts:571"
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "API DELETE /medicines/admin/catalog/:param",
+   "kind": "backend",
+   "note": "Endpoint is WRONG_METHOD (backend has PATCH, POST; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 134,
+   "backend": "backend/src/modules/medicines/medicines.controller.ts:235"
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "API DELETE /insurance/companies/:param",
+   "kind": "backend",
+   "note": "Endpoint is WRONG_METHOD (backend has PATCH, GET; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 134,
+   "backend": "backend/src/modules/insurance/insurance.module.ts:571"
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "API POST /catalogs/admin/specialties/:param/approve",
+   "kind": "backend",
+   "note": "Endpoint is NO_ROUTE (no controller declares /catalogs/admin/specialties/:param/approve; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 145
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "API POST /insurance/companies/:param/approve",
+   "kind": "backend",
+   "note": "Endpoint is NO_ROUTE (no controller declares /insurance/companies/:param/approve; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 145
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "API POST /catalogs/admin/specialties/bulk-approve",
+   "kind": "backend",
+   "note": "Endpoint is WRONG_METHOD (backend has DELETE; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 157,
+   "backend": "backend/src/modules/catalogs/catalogs.controller.ts:145"
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "API POST /insurance/companies/bulk-approve",
+   "kind": "backend",
+   "note": "Endpoint is WRONG_METHOD (backend has PATCH; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 157,
+   "backend": "backend/src/modules/insurance/insurance.module.ts:571"
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "API DELETE /medicines/admin/catalog/:param",
+   "kind": "backend",
+   "note": "Endpoint is WRONG_METHOD (backend has PATCH, POST; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 199,
+   "backend": "backend/src/modules/medicines/medicines.controller.ts:235"
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "API DELETE /insurance/companies/:param",
+   "kind": "backend",
+   "note": "Endpoint is WRONG_METHOD (backend has PATCH, GET; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 199,
+   "backend": "backend/src/modules/insurance/insurance.module.ts:571"
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "Guard G-OPEN (3)",
+   "kind": "backend",
+   "note": "3 call(s) hit backend routes with no role/permission guard (GET /insurance/companies; POST /storage/upload; GET /storage/:param/signed-url): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 79,
+   "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:694"
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "Guard G-PERM-MISMATCH (7)",
+   "kind": "backend",
+   "note": "7 call(s): Page requires \"catalog.read\" but POST /medicines/admin/catalog requires catalog.create; an admin role with the page permission only gets a 403 on this call. | P",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 117,
+   "backend": "backend/src/modules/medicines/medicines.controller.ts:261"
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "element": "Guard G-ROLE-ONLY-WRITE (8)",
+   "kind": "backend",
+   "note": "8 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /labs/admin/catalog/:param/approve; POST /radiology/admin/catalog/:param/approve; POST /nursing/admin/catalog/:param/approve; …): every admin role, including a custom restricted one, can run them.",
+   "file": "admin/src/pages/admin/catalog-manager.tsx",
+   "line": 145,
+   "backend": "backend/src/modules/labs/labs.controller.ts:198"
+  },
+  {
+   "route": "/admin/image-suggestions",
+   "element": "Guard G-OPEN (3)",
+   "kind": "backend",
+   "note": "3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; GET /api/admin/provider-onboarding/admin/contracts/:param): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/components/ProviderFullDetail.tsx",
+   "line": 18,
+   "backend": "backend/src/modules/storage/storage.module.ts:382"
+  },
+  {
+   "route": "/admin/image-suggestions",
+   "element": "No nav link",
+   "kind": "client",
+   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
+   "file": "admin/src/pages/admin/image-suggestions.tsx",
+   "line": 1
+  },
+  {
+   "route": "/admin/medicines-catalog",
+   "element": "رفض",
+   "kind": "client",
+   "note": "Sensitive action (POST /medicines/admin/catalog/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/medicines-catalog.tsx",
+   "line": 398
+  },
+  {
+   "route": "/admin/medicines-catalog",
+   "element": "اعتماد",
+   "kind": "client",
+   "note": "Sensitive action (POST /medicines/admin/catalog/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/medicines-catalog.tsx",
+   "line": 400
+  },
+  {
+   "route": "/admin/medicines-catalog",
+   "element": "Guard G-OPEN (2)",
+   "kind": "backend",
+   "note": "2 call(s) hit backend routes with no role/permission guard (POST /storage/upload; GET /storage/:param/signed-url): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/pages/admin/medicines-catalog.tsx",
+   "line": 46,
+   "backend": "backend/src/modules/storage/storage.module.ts:358"
+  },
+  {
+   "route": "/admin/medicines-catalog",
+   "element": "Guard G-PERM-MISMATCH (5)",
+   "kind": "backend",
+   "note": "5 call(s): Page requires \"catalog.read\" but POST /medicines/admin/catalog requires catalog.create; an admin role with the page permission only gets a 403 on this call. | P",
+   "file": "admin/src/pages/admin/medicines-catalog.tsx",
+   "line": 160,
+   "backend": "backend/src/modules/medicines/medicines.controller.ts:261"
+  },
+  {
+   "route": "/admin/shortage-reports",
+   "element": "Guard G-PERM-MISMATCH (2)",
+   "kind": "backend",
+   "note": "2 call(s): Page requires \"catalog.read\" but POST /medicines/admin/shortage-reports/:param/:param requires catalog.shortage.decide; an admin role with the page permission o",
+   "file": "admin/src/pages/admin/shortage-reports.tsx",
+   "line": 41,
+   "backend": "backend/src/modules/medicines/medicines.controller.ts:139"
+  },
+  {
+   "route": "/admin/shortage-reports",
+   "element": "No nav link",
+   "kind": "client",
+   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
+   "file": "admin/src/pages/admin/shortage-reports.tsx",
+   "line": 1
+  }
+ ]
+}

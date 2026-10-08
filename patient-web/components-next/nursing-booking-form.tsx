@@ -34,7 +34,7 @@ function nextDays(count: number, locale: string): Array<{ iso: string; label: st
   return out;
 }
 
-export type NursingBookingInput = { serviceId: string; scheduledAt: string; addressId?: string; notes?: string; method: "cash" | "card" | "insurance" };
+export type NursingBookingInput = { serviceId: string; scheduledAt: string; addressId?: string; notes?: string; method: "card" | "insurance" };
 export type NursingBookingResult = { ok: true; bookingId?: string } | { ok: false; message?: string };
 
 /** The booking call, as it always was: one POST with an idempotency key; a booking exists only when the answer is a success. */
@@ -60,7 +60,8 @@ export async function createNursingBooking(input: NursingBookingInput, send: typ
 }
 
 const TIMES = ["09:00", "10:30", "12:00", "14:00", "15:30", "17:00"];
-const METHODS = ["cash", "card", "insurance"] as const;
+// Decision 25: a home nursing visit is paid online (card) or through insurance; there is no cash option.
+const METHODS = ["card", "insurance"] as const;
 
 /**
  * The booking form of the nurse's page (canvas/DoctorFull, "choose the time"). HIGH care: the call, its body, the
@@ -84,7 +85,7 @@ export function NursingBookingForm({
   const [time, setTime] = useState<string | null>(null);
   const [addressId, setAddressId] = useState(addresses.find((a) => a)?.id || "");
   const [notes, setNotes] = useState("");
-  const [method, setMethod] = useState<"cash" | "card" | "insurance">("cash");
+  const [method, setMethod] = useState<"card" | "insurance">("card");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const money = useMemo(() => new Intl.NumberFormat(locale, { style: "currency", currency: "SAR" }), [locale]);

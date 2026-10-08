@@ -339,7 +339,7 @@ export default async function PublicProductPage({ params }: Props) {
                     <div className={styles.rxBody}>
                       <p className={styles.rxTitle}>{b("rxCardTitle")}</p>
                       <p className={styles.rxText}>{b("rxCardBody")}</p>
-                      <Link className={styles.rxLink} href={`/${locale}/pharmacy/scan-prescription`}>{b("rxCardAction")}</Link>
+                      <Link className={styles.rxLink} href={`/${locale}/pharmacy/rx-order?via=photo`}>{b("rxCardAction")}</Link>
                     </div>
                   </div>
                 ) : null}

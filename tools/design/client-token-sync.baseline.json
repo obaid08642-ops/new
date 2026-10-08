@@ -91,7 +91,6 @@
     "patient-app/src/design-system/components/Button.tsx": 6,
     "patient-app/src/design-system/components/Toast.tsx": 4,
     "patient-app/src/design-system/tokens.ts": 2,
-    "patient-app/src/features/consultation/InsuranceCopayScreen.tsx": 8,
     "patient-app/src/features/medical-orders/ActionableOrderScreen.tsx": 7,
     "patient-app/src/guided-tour/ui/SpotlightRenderer.tsx": 7,
     "patient-app/src/navigation/guards/AdminGuard.tsx": 2,

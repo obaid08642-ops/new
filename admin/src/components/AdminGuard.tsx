@@ -1,7 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { AdminApiError, adminFetch, adminMutation, type AdminSession } from '@/lib/admin-client';
+import { useDrawer } from './useDrawer';
+import { useMediaQuery } from './useMediaQuery';
+import { useLegacyTableCards } from './useLegacyTableCards';
 import { getAdminCalendar, setAdminCalendar, type AdminCalendar } from '../utils/dates';
 
 type NavItem = { href: string; label: string; permission?: string };
@@ -161,6 +164,21 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [calendar, setCalendar] = useState<AdminCalendar>('gregory');
   const router = useRouter();
+  const desktop = useMediaQuery('(min-width: 1024px)', true);
+  const [navOpen, setNavOpen] = useState(false);
+  const drawerOpen = navOpen && !desktop;
+  const drawerRef = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
+  const closeNav = React.useCallback(() => setNavOpen(false), []);
+  useDrawer(drawerOpen, closeNav, drawerRef);
+  useLegacyTableCards(mainRef, !loading && !!session);
+
+  useEffect(() => {
+    // Close the drawer after navigating.
+    const close = () => setNavOpen(false);
+    router.events.on('routeChangeComplete', close);
+    return () => router.events.off('routeChangeComplete', close);
+  }, [router.events]);
 
   useEffect(() => {
     setCalendar(getAdminCalendar());
@@ -214,14 +232,14 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">جاري التحقق من جلسة الإدارة…</div>;
+    return <div className="min-h-dvh flex items-center justify-center bg-slate-950 text-white">جاري التحقق من جلسة الإدارة…</div>;
   }
   if (!session) return null;
 
   const requiredPermission = requiredPermissionFor(router.pathname);
   if (requiredPermission && !permissionSet.has(requiredPermission)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50" dir="rtl">
+      <div className="min-h-dvh flex items-center justify-center bg-slate-50" dir="rtl">
         <div className="max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow">
           <h1 className="text-xl font-bold text-slate-900">غير مصرح لك بعرض هذه الصفحة</h1>
           <p className="mt-2 text-sm text-slate-500">الصلاحية المطلوبة: {requiredPermission}</p>
@@ -232,14 +250,42 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-900 font-sans" dir="rtl">
-      <aside className="sticky top-0 h-screen w-72 shrink-0 bg-slate-950 text-white shadow-2xl">
-        <div className="border-b border-slate-800 px-6 py-6">
-          <h1 className="text-2xl font-bold tracking-wide text-teal-300">نبض</h1>
-          <p className="mt-1 text-sm text-slate-400">مركز التحكم المؤسسي</p>
-          <p className="mt-3 truncate text-xs text-slate-500">{session.user.full_name || session.user.email || session.user.id}</p>
+    <div className="flex min-h-dvh flex-col bg-slate-50 font-sans text-slate-900 lg:flex-row" dir="rtl">
+      <header className="sticky top-0 z-30 flex items-center gap-3 bg-slate-950 pe-[max(12px,env(safe-area-inset-right))] ps-[max(12px,env(safe-area-inset-left))] pt-[env(safe-area-inset-top)] text-white shadow lg:hidden">
+        <button
+          type="button"
+          onClick={() => setNavOpen(true)}
+          aria-label="فتح القائمة"
+          aria-expanded={drawerOpen}
+          aria-controls="admin-nav"
+          className="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-slate-800"
+        >
+          <span aria-hidden="true" className="flex flex-col gap-1.5"><i className="block h-0.5 w-5 bg-current" /><i className="block h-0.5 w-5 bg-current" /><i className="block h-0.5 w-5 bg-current" /></span>
+        </button>
+        <span className="py-3 text-lg font-bold text-teal-300">نبض</span>
+      </header>
+      {drawerOpen ? <div className="fixed inset-0 z-40 bg-slate-950/60 lg:hidden" aria-hidden="true" data-testid="nav-backdrop" onClick={closeNav} /> : null}
+      <aside
+        id="admin-nav"
+        ref={drawerRef}
+        tabIndex={-1}
+        role={drawerOpen ? 'dialog' : undefined}
+        aria-modal={drawerOpen ? true : undefined}
+        aria-label="القائمة الرئيسية"
+        // Below 1024 px the closed drawer is out of the tab order and the accessibility tree.
+        // Its slide-out offset is max-lg only: an `ltr:` offset outranks `lg:translate-x-0` and shifted the desktop sidebar over the page.
+        inert={!desktop && !drawerOpen}
+        className={`fixed inset-y-0 start-0 z-50 flex h-dvh w-72 max-w-[85vw] shrink-0 flex-col bg-slate-950 text-white ${drawerOpen ? 'shadow-2xl' : 'max-lg:shadow-none lg:shadow-2xl'} transition-transform duration-200 motion-reduce:transition-none lg:sticky lg:top-0 lg:z-auto lg:max-w-none ${drawerOpen ? 'translate-x-0' : 'max-lg:translate-x-full max-lg:ltr:-translate-x-full'}`}
+      >
+        <div className="flex items-start justify-between border-b border-slate-800 px-6 pb-6 pt-[max(24px,env(safe-area-inset-top))]">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold tracking-wide text-teal-300">نبض</h1>
+            <p className="mt-1 text-sm text-slate-400">مركز التحكم المؤسسي</p>
+            <p className="mt-3 truncate text-xs text-slate-500">{session.user.full_name || session.user.email || session.user.id}</p>
+          </div>
+          <button type="button" onClick={closeNav} aria-label="إغلاق القائمة" className="-me-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-xl hover:bg-slate-800 lg:hidden"><span aria-hidden="true">×</span></button>
         </div>
-        <nav className="h-[calc(100dvh-180px)] overflow-y-auto px-3 py-4">
+        <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4">
           {sections.map((section) => (
             <section key={section.title} className="mb-5">
               <h2 className="mb-1 px-3 text-[11px] font-bold tracking-wide text-slate-500">{section.title}</h2>
@@ -249,7 +295,7 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`mb-1 flex rounded-lg px-3 py-2.5 text-sm transition-colors ${active ? 'border-r-4 border-teal-300 bg-slate-800 font-bold text-teal-200' : 'text-slate-300 hover:bg-slate-900 hover:text-white'}`}
+                    className={`mb-1 flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm transition-colors ${active ? 'border-s-4 border-teal-300 bg-slate-800 font-bold text-teal-200' : 'text-slate-300 hover:bg-slate-900 hover:text-white'}`}
                   >
                     {item.label}
                   </Link>
@@ -258,7 +304,7 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
             </section>
           ))}
         </nav>
-        <div className="border-t border-slate-800 p-4 space-y-2">
+        <div className="space-y-2 border-t border-slate-800 p-4 pb-[max(16px,env(safe-area-inset-bottom))]">
           <div className="flex items-center justify-between px-1">
             <span className="text-xs text-slate-400">التقويم</span>
             <div className="flex gap-1 text-xs" role="group" aria-label="التقويم">
@@ -267,19 +313,19 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
                   key={cal}
                   onClick={() => { setAdminCalendar(cal); setCalendar(cal); router.reload(); }}
                   aria-pressed={calendar === cal}
-                  className={`rounded px-2 py-1 ${calendar === cal ? 'bg-teal-600 text-white font-bold' : 'text-slate-400 hover:text-white'}`}
+                  className={`min-h-11 min-w-11 rounded px-2 py-1 ${calendar === cal ? 'bg-teal-600 text-white font-bold' : 'text-slate-400 hover:text-white'}`}
                 >
                   {cal === 'gregory' ? 'ميلادي' : 'هجري'}
                 </button>
               ))}
             </div>
           </div>
-          <button onClick={logout} className="w-full rounded-lg px-3 py-2 text-right text-sm text-red-200 hover:bg-slate-900">
+          <button onClick={logout} className="min-h-11 w-full rounded-lg px-3 py-2 text-start text-sm text-red-200 hover:bg-slate-900">
             تسجيل الخروج
           </button>
         </div>
       </aside>
-      <main className="min-w-0 flex-1 bg-slate-50">{children}</main>
+      <main ref={mainRef} className="min-w-0 flex-1 bg-slate-50">{children}</main>
     </div>
   );
 };

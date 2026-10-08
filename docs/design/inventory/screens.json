@@ -1,5 +1,5 @@
 {
- "commit": "3d0162ae",
+ "commit": "28c428b9",
  "routes": [
   {
    "app": "patient-app",
@@ -547,23 +547,53 @@
      "path": "/care/appointments/:param",
      "target": "backend",
      "query": "",
-     "line": 61,
+     "line": 68,
      "file": "patient-app/app/consultations/appointment-detail.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:25"
     },
     {
      "method": "GET",
+     "path": "/care/appointments/:param/summary",
+     "target": "backend",
+     "query": "",
+     "line": 125,
+     "file": "patient-app/src/components/consult/AppointmentSections.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/care/appointments.controller.ts:76"
+    },
+    {
+     "method": "POST",
+     "path": "/health/reminders",
+     "target": "backend",
+     "query": "",
+     "line": 180,
+     "file": "patient-app/src/components/consult/AppointmentSections.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/health/health.controller.ts:61"
+    },
+    {
+     "method": "GET",
      "path": "/insurance/requests/my",
      "target": "backend",
      "query": "",
-     "line": 89,
+     "line": 96,
      "file": "patient-app/app/consultations/appointment-detail.tsx",
      "status": "OK",
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:718"
+    },
+    {
+     "method": "GET",
+     "path": "/prescriptions/active",
+     "target": "backend",
+     "query": "",
+     "line": 173,
+     "file": "patient-app/src/components/consult/AppointmentSections.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:57"
     }
    ],
-   "files": 33,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -674,7 +704,7 @@
      "path": "/care/appointments/:param",
      "target": "backend",
      "query": "",
-     "line": 97,
+     "line": 103,
      "file": "patient-app/app/consultations/booking-status.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:25"
@@ -684,7 +714,7 @@
      "path": "/care/appointments/:param/cancel",
      "target": "backend",
      "query": "",
-     "line": 128,
+     "line": 135,
      "file": "patient-app/app/consultations/booking-status.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:35"
@@ -740,7 +770,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:34"
     }
    ],
-   "files": 37,
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -856,10 +886,20 @@
    "calls": [
     {
      "method": "GET",
+     "path": "/care/appointments/:param",
+     "target": "backend",
+     "query": "",
+     "line": 114,
+     "file": "patient-app/app/consultations/chat-with-doctor.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/care/appointments.controller.ts:25"
+    },
+    {
+     "method": "GET",
      "path": "/care/doctors/:param",
      "target": "backend",
      "query": "",
-     "line": 84,
+     "line": 106,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:67"
@@ -869,7 +909,7 @@
      "path": "/chat/threads/:param/messages",
      "target": "backend",
      "query": "",
-     "line": 100,
+     "line": 130,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:173"
@@ -879,7 +919,7 @@
      "path": "/chat/threads/:param/messages",
      "target": "backend",
      "query": "",
-     "line": 161,
+     "line": 192,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:184"
@@ -889,54 +929,53 @@
      "path": "/chat/threads/booking",
      "target": "backend",
      "query": "",
-     "line": 93,
+     "line": 122,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:163"
+    },
+    {
+     "method": "GET",
+     "path": "/media/:param/url",
+     "target": "backend",
+     "query": "",
+     "line": 267,
+     "file": "patient-app/app/consultations/chat-with-doctor.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/media/media.controller.ts:74"
+    },
+    {
+     "method": "POST",
+     "path": "/media/upload",
+     "target": "backend",
+     "query": "",
+     "line": 248,
+     "file": "patient-app/app/consultations/chat-with-doctor.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/media/media.controller.ts:21"
     }
    ],
-   "files": 29,
+   "files": 31,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/consultations/clinic-confirm",
    "file": "patient-app/app/consultations/clinic-confirm.tsx",
-   "redirect": null,
-   "template": "flow step",
-   "board": "BookingConfirm",
+   "redirect": "/consultations/booking-status?state=confirmed…",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 2,
-   "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/care/appointments/:param",
-     "target": "backend",
-     "query": "",
-     "line": 68,
-     "file": "patient-app/app/consultations/clinic-confirm.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:25"
-    },
-    {
-     "method": "GET",
-     "path": "/care/doctors/:param",
-     "target": "backend",
-     "query": "",
-     "line": 72,
-     "file": "patient-app/app/consultations/clinic-confirm.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:67"
-    }
-   ],
-   "files": 34,
+   "status": "n/a",
+   "calls": [],
+   "files": 1,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/consultations/clinic-location",
    "file": "patient-app/app/consultations/clinic-location.tsx",
-   "redirect": "/consultations/clinic-confirm?view=location…",
+   "redirect": "/consultations/booking-status?view=location…",
    "template": "redirect",
    "board": "— (redirect)",
    "batch": 2,
@@ -1043,34 +1082,13 @@
    "app": "patient-app",
    "route": "/consultations/follow-up",
    "file": "patient-app/app/consultations/follow-up.tsx",
-   "redirect": null,
-   "template": "form",
-   "board": "Consult",
+   "redirect": "/consultations/appointment-detail?…",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 2,
-   "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/care/appointments/:param",
-     "target": "backend",
-     "query": "",
-     "line": 51,
-     "file": "patient-app/app/consultations/follow-up.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:25"
-    },
-    {
-     "method": "GET",
-     "path": "/care/doctors/:param",
-     "target": "backend",
-     "query": "",
-     "line": 61,
-     "file": "patient-app/app/consultations/follow-up.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:67"
-    }
-   ],
-   "files": 32,
+   "status": "n/a",
+   "calls": [],
+   "files": 1,
    "unresolved": 0
   },
   {
@@ -1162,34 +1180,13 @@
    "app": "patient-app",
    "route": "/consultations/prescription-from-doctor",
    "file": "patient-app/app/consultations/prescription-from-doctor.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "Consult",
+   "redirect": "/consultations/appointment-detail?…",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 2,
-   "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/health/reminders",
-     "target": "backend",
-     "query": "",
-     "line": 75,
-     "file": "patient-app/app/consultations/prescription-from-doctor.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:61"
-    },
-    {
-     "method": "GET",
-     "path": "/prescriptions/active",
-     "target": "backend",
-     "query": "",
-     "line": 52,
-     "file": "patient-app/app/consultations/prescription-from-doctor.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:57"
-    }
-   ],
-   "files": 33,
+   "status": "n/a",
+   "calls": [],
+   "files": 1,
    "unresolved": 0
   },
   {
@@ -1284,34 +1281,13 @@
    "app": "patient-app",
    "route": "/consultations/summary",
    "file": "patient-app/app/consultations/summary.tsx",
-   "redirect": null,
-   "template": "result",
-   "board": "Consult",
+   "redirect": "/consultations/appointment-detail?…",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 2,
-   "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/care/appointments/:param",
-     "target": "backend",
-     "query": "",
-     "line": 52,
-     "file": "patient-app/app/consultations/summary.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:25"
-    },
-    {
-     "method": "GET",
-     "path": "/care/appointments/:param/summary",
-     "target": "backend",
-     "query": "",
-     "line": 57,
-     "file": "patient-app/app/consultations/summary.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:76"
-    }
-   ],
-   "files": 28,
+   "status": "n/a",
+   "calls": [],
+   "files": 1,
    "unresolved": 0
   },
   {
@@ -1600,27 +1576,107 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/ai/ocr-translate",
+     "target": "backend",
+     "query": "",
+     "line": 138,
+     "file": "patient-app/src/components/diagnostics/InsuranceUploadForm.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/ai/ai.controller.ts:123"
+    },
+    {
+     "method": "GET",
+     "path": "/insurance/companies",
+     "target": "backend",
+     "query": "",
+     "line": 65,
+     "file": "patient-app/src/components/diagnostics/InsuranceUploadForm.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:694"
+    },
+    {
+     "method": "GET",
+     "path": "/insurance/companies/:param/networks",
+     "target": "backend",
+     "query": "",
+     "line": 103,
+     "file": "patient-app/src/components/diagnostics/InsuranceUploadForm.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/insurance/insurance.module.ts:604"
+    },
+    {
+     "method": "POST",
+     "path": "/labs/bookings",
+     "target": "backend",
+     "query": "",
+     "line": 185,
+     "file": "patient-app/src/components/diagnostics/InsuranceUploadForm.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/labs/labs.controller.ts:42"
+    },
+    {
      "method": "GET",
      "path": "/labs/bookings/:param",
      "target": "backend",
      "query": "",
-     "line": 55,
+     "line": 65,
      "file": "patient-app/app/diagnostics/insurance-approval.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:48"
+    },
+    {
+     "method": "POST",
+     "path": "/labs/bookings/:param/documents",
+     "target": "backend",
+     "query": "",
+     "line": 214,
+     "file": "patient-app/src/components/diagnostics/InsuranceUploadForm.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/labs/labs.controller.ts:62"
     },
     {
      "method": "PATCH",
      "path": "/labs/bookings/:param/items/:param/opt-in-cash",
      "target": "backend",
      "query": "",
-     "line": 107,
+     "line": 117,
      "file": "patient-app/app/diagnostics/insurance-approval.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:74"
+    },
+    {
+     "method": "GET",
+     "path": "/providers",
+     "target": "backend",
+     "query": "?type=lab",
+     "line": 58,
+     "file": "patient-app/src/components/diagnostics/InsuranceUploadForm.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/providers.controller.ts:22"
+    },
+    {
+     "method": "POST",
+     "path": "/radiology/bookings",
+     "target": "backend",
+     "query": "",
+     "line": 198,
+     "file": "patient-app/src/components/diagnostics/InsuranceUploadForm.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:44"
+    },
+    {
+     "method": "GET",
+     "path": "/users/me/profile",
+     "target": "backend",
+     "query": "",
+     "line": 76,
+     "file": "patient-app/src/components/diagnostics/InsuranceUploadForm.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/users/users.controller.ts:34"
     }
    ],
-   "files": 32,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -1632,89 +1688,8 @@
    "board": "RxUpload",
    "batch": 3,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/ai/ocr-translate",
-     "target": "backend",
-     "query": "",
-     "line": 138,
-     "file": "patient-app/app/diagnostics/insurance-upload.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/ai/ai.controller.ts:123"
-    },
-    {
-     "method": "GET",
-     "path": "/insurance/companies",
-     "target": "backend",
-     "query": "",
-     "line": 65,
-     "file": "patient-app/app/diagnostics/insurance-upload.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:694"
-    },
-    {
-     "method": "GET",
-     "path": "/insurance/companies/:param/networks",
-     "target": "backend",
-     "query": "",
-     "line": 103,
-     "file": "patient-app/app/diagnostics/insurance-upload.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/insurance/insurance.module.ts:604"
-    },
-    {
-     "method": "POST",
-     "path": "/labs/bookings",
-     "target": "backend",
-     "query": "",
-     "line": 185,
-     "file": "patient-app/app/diagnostics/insurance-upload.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:42"
-    },
-    {
-     "method": "POST",
-     "path": "/labs/bookings/:param/documents",
-     "target": "backend",
-     "query": "",
-     "line": 214,
-     "file": "patient-app/app/diagnostics/insurance-upload.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:62"
-    },
-    {
-     "method": "GET",
-     "path": "/providers",
-     "target": "backend",
-     "query": "?type=lab",
-     "line": 58,
-     "file": "patient-app/app/diagnostics/insurance-upload.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/provider/providers.controller.ts:22"
-    },
-    {
-     "method": "POST",
-     "path": "/radiology/bookings",
-     "target": "backend",
-     "query": "",
-     "line": 198,
-     "file": "patient-app/app/diagnostics/insurance-upload.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:44"
-    },
-    {
-     "method": "GET",
-     "path": "/users/me/profile",
-     "target": "backend",
-     "query": "",
-     "line": 76,
-     "file": "patient-app/app/diagnostics/insurance-upload.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/users/users.controller.ts:34"
-    }
-   ],
-   "files": 35,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -1988,7 +1963,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:116"
     }
    ],
-   "files": 34,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -2024,29 +1999,8 @@
    "board": "OrderTracking",
    "batch": 3,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/labs/bookings/:param",
-     "target": "backend",
-     "query": "",
-     "line": 26,
-     "file": "patient-app/app/diagnostics/technician-tracking.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:48"
-    },
-    {
-     "method": "GET",
-     "path": "/labs/bookings/:param/tracking",
-     "target": "backend",
-     "query": "",
-     "line": 26,
-     "file": "patient-app/app/diagnostics/technician-tracking.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:116"
-    }
-   ],
-   "files": 31,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -2087,7 +2041,7 @@
    "app": "patient-app",
    "route": "/diagnostics/upload-rx",
    "file": "patient-app/app/diagnostics/upload-rx.tsx",
-   "redirect": "/pharmacy/scan-prescription",
+   "redirect": "/pharmacy/rx-order?via=photo",
    "template": "redirect",
    "board": "— (redirect)",
    "batch": 3,
@@ -2129,29 +2083,8 @@
    "board": "CareHub",
    "batch": 9,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/ai/drug-interactions",
-     "target": "backend",
-     "query": "",
-     "line": 48,
-     "file": "patient-app/app/drug-scanner/index.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/ai/ai-compat.controller.ts:23"
-    },
-    {
-     "method": "GET",
-     "path": "/health/medications",
-     "target": "backend",
-     "query": "",
-     "line": 36,
-     "file": "patient-app/app/drug-scanner/index.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health-meds.controller.ts:17"
-    }
-   ],
-   "files": 13,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -5151,7 +5084,7 @@
      "path": "/medicines",
      "target": "backend",
      "query": "?:param",
-     "line": 147,
+     "line": 149,
      "file": "patient-app/app/(tabs)/pharmacy.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medicines/medicines.controller.ts:15"
@@ -5161,23 +5094,33 @@
      "path": "/medicines/events",
      "target": "backend",
      "query": "",
-     "line": 201,
+     "line": 203,
      "file": "patient-app/app/(tabs)/pharmacy.tsx",
      "status": "OK",
      "backend": "backend/src/modules/product-ranking/product-ranking.controller.ts:58"
     },
     {
      "method": "GET",
+     "path": "/medicines/filters",
+     "target": "backend",
+     "query": "",
+     "line": 88,
+     "file": "patient-app/src/components/pharmacy/FilterSheet.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:74"
+    },
+    {
+     "method": "GET",
      "path": "/patient/pharmacy/orders",
      "target": "backend",
      "query": "",
-     "line": 171,
+     "line": 173,
      "file": "patient-app/app/(tabs)/pharmacy.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:35"
     }
    ],
-   "files": 40,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -5192,10 +5135,20 @@
    "calls": [
     {
      "method": "POST",
+     "path": "/ai/drug-interactions",
+     "target": "backend",
+     "query": "",
+     "line": 96,
+     "file": "patient-app/app/pharmacy/barcode-scanner.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/ai/ai-compat.controller.ts:23"
+    },
+    {
+     "method": "POST",
      "path": "/ai/medicine-image-search",
      "target": "backend",
      "query": "",
-     "line": 87,
+     "line": 122,
      "file": "patient-app/app/pharmacy/barcode-scanner.tsx",
      "status": "OK",
      "backend": "backend/src/modules/ai/ai.controller.ts:134"
@@ -5205,7 +5158,7 @@
      "path": "/medicines",
      "target": "backend",
      "query": "?search=:param&limit=5",
-     "line": 93,
+     "line": 128,
      "file": "patient-app/app/pharmacy/barcode-scanner.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medicines/medicines.controller.ts:15"
@@ -5215,13 +5168,13 @@
      "path": "/medicines/by-barcode/:param",
      "target": "backend",
      "query": "",
-     "line": 51,
+     "line": 66,
      "file": "patient-app/app/pharmacy/barcode-scanner.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medicines/medicines.controller.ts:62"
     }
    ],
-   "files": 30,
+   "files": 31,
    "unresolved": 0
   },
   {
@@ -5349,26 +5302,26 @@
    "app": "patient-app",
    "route": "/pharmacy/custom-item",
    "file": "patient-app/app/pharmacy/custom-item.tsx",
-   "redirect": "/pharmacy/request…",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "form",
+   "board": "PharmacyHub",
    "batch": 1,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 1,
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/pharmacy/drug-not-found",
    "file": "patient-app/app/pharmacy/drug-not-found.tsx",
-   "redirect": "/pharmacy/request…",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "state",
+   "board": "States",
    "batch": 1,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 1,
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -5380,19 +5333,8 @@
    "board": "PharmacyHub",
    "batch": 1,
    "status": "rebuilt on design/batch-1 (slice 1a, PR pending)",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/medicines/filters",
-     "target": "backend",
-     "query": "",
-     "line": 62,
-     "file": "patient-app/app/pharmacy/filters.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:74"
-    }
-   ],
-   "files": 30,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -5477,13 +5419,13 @@
    "app": "patient-app",
    "route": "/pharmacy/manual-order",
    "file": "patient-app/app/pharmacy/manual-order.tsx",
-   "redirect": "/pharmacy/request…",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "form",
+   "board": "PharmacyHub",
    "batch": 1,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 1,
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -5544,8 +5486,8 @@
    "batch": 1,
    "status": "—",
    "calls": [],
-   "files": 38,
-   "unresolved": 1
+   "files": 2,
+   "unresolved": 0
   },
   {
    "app": "patient-app",
@@ -5819,39 +5761,8 @@
    "board": "PharmacyHub",
    "batch": 1,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/patient/pharmacy/orders",
-     "target": "backend",
-     "query": "",
-     "line": 73,
-     "file": "patient-app/app/pharmacy/request.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:34"
-    },
-    {
-     "method": "POST",
-     "path": "/patient/pharmacy/orders/:param/submit",
-     "target": "backend",
-     "query": "",
-     "line": 76,
-     "file": "patient-app/app/pharmacy/request.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:38"
-    },
-    {
-     "method": "GET",
-     "path": "/users/me/addresses",
-     "target": "backend",
-     "query": "",
-     "line": 86,
-     "file": "patient-app/src/utils/selectedAddress.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/users/users.addresses.controller.ts:13"
-    }
-   ],
-   "files": 29,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -5865,11 +5776,41 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/ai/prescription-ocr",
+     "target": "backend",
+     "query": "",
+     "line": 66,
+     "file": "patient-app/src/components/pharmacy/RxIntake.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/ai/ai.controller.ts:94"
+    },
+    {
+     "method": "POST",
+     "path": "/patient/pharmacy/orders",
+     "target": "backend",
+     "query": "",
+     "line": 71,
+     "file": "patient-app/src/components/pharmacy/ManualRequest.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:34"
+    },
+    {
+     "method": "POST",
+     "path": "/patient/pharmacy/orders/:param/submit",
+     "target": "backend",
+     "query": "",
+     "line": 74,
+     "file": "patient-app/src/components/pharmacy/ManualRequest.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:38"
+    },
+    {
      "method": "GET",
      "path": "/prescriptions/:param",
      "target": "backend",
      "query": "",
-     "line": 57,
+     "line": 70,
      "file": "patient-app/app/pharmacy/rx-order.tsx",
      "status": "OK",
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:77"
@@ -5879,13 +5820,33 @@
      "path": "/prescriptions/active",
      "target": "backend",
      "query": "",
-     "line": 61,
+     "line": 74,
      "file": "patient-app/app/pharmacy/rx-order.tsx",
      "status": "OK",
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:57"
+    },
+    {
+     "method": "POST",
+     "path": "/prescriptions/upload",
+     "target": "backend",
+     "query": "",
+     "line": 68,
+     "file": "patient-app/src/components/pharmacy/RxIntake.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:19"
+    },
+    {
+     "method": "GET",
+     "path": "/users/me/addresses",
+     "target": "backend",
+     "query": "",
+     "line": 86,
+     "file": "patient-app/src/utils/selectedAddress.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/users/users.addresses.controller.ts:13"
     }
    ],
-   "files": 29,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -5897,36 +5858,15 @@
    "board": "RxUpload",
    "batch": 1,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/ai/prescription-ocr",
-     "target": "backend",
-     "query": "",
-     "line": 67,
-     "file": "patient-app/app/pharmacy/scan-prescription.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/ai/ai.controller.ts:94"
-    },
-    {
-     "method": "POST",
-     "path": "/prescriptions/upload",
-     "target": "backend",
-     "query": "",
-     "line": 69,
-     "file": "patient-app/app/pharmacy/scan-prescription.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:19"
-    }
-   ],
-   "files": 26,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/pharmacy/waiting-for-pharmacy",
    "file": "patient-app/app/pharmacy/waiting-for-pharmacy.tsx",
-   "redirect": "/pharmacy/order-history",
+   "redirect": "/orders",
    "template": "redirect",
    "board": "— (redirect)",
    "batch": 1,
@@ -5981,16 +5921,16 @@
    "calls": [
     {
      "method": "GET",
-     "path": "/legal/policy/privacy_policy",
+     "path": "/legal/policy/:param",
      "target": "backend",
      "query": "?lang=:param",
-     "line": 74,
-     "file": "patient-app/app/(auth)/privacy.tsx",
+     "line": 66,
+     "file": "patient-app/src/components/legal/LegalKit.tsx",
      "status": "OK",
      "backend": "backend/src/modules/legal/legal.module.ts:170"
     }
    ],
-   "files": 15,
+   "files": 27,
    "unresolved": 0
   },
   {
@@ -6132,13 +6072,13 @@
    "app": "patient-app",
    "route": "/provider-info",
    "file": "patient-app/app/(auth)/provider-info.tsx",
-   "redirect": null,
-   "template": "detail",
-   "board": "Settings",
+   "redirect": "/(tabs)",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 13,
-   "status": "—",
+   "status": "n/a",
    "calls": [],
-   "files": 8,
+   "files": 17,
    "unresolved": 0
   },
   {
@@ -6955,16 +6895,16 @@
    "calls": [
     {
      "method": "GET",
-     "path": "/legal/policy/patient_terms",
+     "path": "/legal/policy/:param",
      "target": "backend",
      "query": "?lang=:param",
-     "line": 70,
-     "file": "patient-app/app/(auth)/terms.tsx",
+     "line": 66,
+     "file": "patient-app/src/components/legal/LegalKit.tsx",
      "status": "OK",
      "backend": "backend/src/modules/legal/legal.module.ts:170"
     }
    ],
-   "files": 15,
+   "files": 27,
    "unresolved": 0
   },
   {
@@ -7405,6 +7345,26 @@
      "handler": "patient-web/app/api/auth/logout/route.ts"
     },
     {
+     "method": "POST",
+     "path": "/api/patient/health/reminders",
+     "target": "web-proxy",
+     "query": "",
+     "line": 58,
+     "file": "patient-web/components-next/prescription-client.tsx",
+     "backend": "backend/src/modules/health/health.controller.ts:61",
+     "status": "OK"
+    },
+    {
+     "method": "GET",
+     "path": "/api/patient/prescriptions/active",
+     "target": "web-proxy",
+     "query": "",
+     "line": 39,
+     "file": "patient-web/components-next/prescription-client.tsx",
+     "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:57",
+     "status": "OK"
+    },
+    {
      "method": "GET",
      "path": "/care/appointments/:param",
      "target": "backend",
@@ -7413,18 +7373,28 @@
      "file": "patient-web/lib/api/appointments-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:25"
+    },
+    {
+     "method": "GET",
+     "path": "/care/appointments/:param/summary",
+     "target": "backend",
+     "query": "",
+     "line": 80,
+     "file": "patient-web/app/[locale]/appointments/[appointmentId]/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/care/appointments.controller.ts:76"
     }
    ],
-   "files": 46,
+   "files": 49,
    "unresolved": 0
   },
   {
    "app": "patient-web",
-   "route": "/appointments/[appointmentId]/summary",
-   "file": "patient-web/app/[locale]/appointments/[appointmentId]/summary/page.tsx",
+   "route": "/appointments/[appointmentId]/chat",
+   "file": "patient-web/app/[locale]/appointments/[appointmentId]/chat/page.tsx",
    "redirect": null,
-   "template": "result",
-   "board": "Appointments",
+   "template": "flow step",
+   "board": "none: chat",
    "batch": 2,
    "status": "—",
    "calls": [
@@ -7439,17 +7409,30 @@
      "handler": "patient-web/app/api/auth/logout/route.ts"
     },
     {
-     "method": "GET",
-     "path": "/care/appointments/:param/summary",
+     "method": "POST",
+     "path": "/chat/threads/booking",
      "target": "backend",
      "query": "",
-     "line": 21,
-     "file": "patient-web/app/[locale]/appointments/[appointmentId]/summary/page.tsx",
+     "line": 26,
+     "file": "patient-web/app/[locale]/appointments/[appointmentId]/chat/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:76"
+     "backend": "backend/src/modules/chat/chat.module.ts:163"
     }
    ],
-   "files": 35,
+   "files": 33,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
+   "route": "/appointments/[appointmentId]/summary",
+   "file": "patient-web/app/[locale]/appointments/[appointmentId]/summary/page.tsx",
+   "redirect": "/appointments/…",
+   "template": "redirect",
+   "board": "— (redirect)",
+   "batch": 2,
+   "status": "n/a",
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -7703,34 +7686,13 @@
    "app": "patient-web",
    "route": "/chat",
    "file": "patient-web/app/[locale]/chat/page.tsx",
-   "redirect": null,
-   "template": "flow step",
-   "board": "none: chat",
+   "redirect": "/appointments",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 2,
-   "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/chat/threads",
-     "target": "backend",
-     "query": "",
-     "line": 5,
-     "file": "patient-web/lib/api/chat-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:141"
-    }
-   ],
-   "files": 36,
+   "status": "n/a",
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -7755,10 +7717,20 @@
     },
     {
      "method": "GET",
+     "path": "/care/appointments/:param",
+     "target": "backend",
+     "query": "",
+     "line": 57,
+     "file": "patient-web/app/[locale]/chat/[threadId]/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/care/appointments.controller.ts:25"
+    },
+    {
+     "method": "GET",
      "path": "/chat/threads/:param",
      "target": "backend",
      "query": "",
-     "line": 9,
+     "line": 6,
      "file": "patient-web/lib/api/chat-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:168"
@@ -7768,13 +7740,13 @@
      "path": "/chat/threads/:param/messages",
      "target": "backend",
      "query": "?limit=50",
-     "line": 13,
+     "line": 10,
      "file": "patient-web/lib/api/chat-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:173"
     }
    ],
-   "files": 36,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -7814,17 +7786,27 @@
    "status": "—",
    "calls": [
     {
-     "method": "*",
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "GET",
      "path": "/entity-graph/related/condition/:param",
      "target": "backend",
      "query": "",
-     "line": 15,
+     "line": 34,
      "file": "patient-web/app/[locale]/condition/[slug]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/entity-graph/entity-graph.controller.ts:10"
     }
    ],
-   "files": 6,
+   "files": 41,
    "unresolved": 0
   },
   {
@@ -7942,13 +7924,33 @@
      "path": "/care/appointments/:param",
      "target": "backend",
      "query": "",
-     "line": 23,
+     "line": 32,
      "file": "patient-web/app/[locale]/consultations/booking-status/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:25"
+    },
+    {
+     "method": "GET",
+     "path": "/care/doctors/:param",
+     "target": "backend",
+     "query": "",
+     "line": 33,
+     "file": "patient-web/components-next/consult/clinic-confirmation.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/care/care.controller.ts:67"
+    },
+    {
+     "method": "GET",
+     "path": "/system-config/public",
+     "target": "backend",
+     "query": "",
+     "line": 30,
+     "file": "patient-web/lib/consult/cancellation-policy.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/governance/system-config.controller.ts:51"
     }
    ],
-   "files": 32,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -8030,108 +8032,56 @@
      "path": "/care/appointments/:param",
      "target": "backend",
      "query": "",
-     "line": 27,
+     "line": 29,
      "file": "patient-web/app/[locale]/consultations/cancel-reschedule/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:25"
+    },
+    {
+     "method": "GET",
+     "path": "/system-config/public",
+     "target": "backend",
+     "query": "",
+     "line": 30,
+     "file": "patient-web/lib/consult/cancellation-policy.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/governance/system-config.controller.ts:51"
     }
    ],
-   "files": 36,
+   "files": 38,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/consultations/chat",
    "file": "patient-web/app/[locale]/consultations/chat/page.tsx",
-   "redirect": null,
-   "template": "flow step",
-   "board": "none: chat",
+   "redirect": "/appointments",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 2,
-   "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/care/doctors/:param",
-     "target": "backend",
-     "query": "",
-     "line": 25,
-     "file": "patient-web/app/[locale]/consultations/chat/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:67"
-    },
-    {
-     "method": "POST",
-     "path": "/chat/threads/direct",
-     "target": "backend",
-     "query": "",
-     "line": 41,
-     "file": "patient-web/app/[locale]/consultations/chat/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:153"
-    }
-   ],
-   "files": 32,
+   "status": "n/a",
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/consultations/clinic-confirm",
    "file": "patient-web/app/[locale]/consultations/clinic-confirm/page.tsx",
-   "redirect": null,
-   "template": "flow step",
-   "board": "BookingConfirm",
+   "redirect": "/consultations/booking-status…",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 2,
-   "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/care/appointments/:param",
-     "target": "backend",
-     "query": "",
-     "line": 39,
-     "file": "patient-web/app/[locale]/consultations/clinic-confirm/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:25"
-    },
-    {
-     "method": "GET",
-     "path": "/care/doctors/:param",
-     "target": "backend",
-     "query": "",
-     "line": 49,
-     "file": "patient-web/app/[locale]/consultations/clinic-confirm/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/care/care.controller.ts:67"
-    }
-   ],
-   "files": 32,
+   "status": "n/a",
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/consultations/clinic-location",
    "file": "patient-web/app/[locale]/consultations/clinic-location/page.tsx",
-   "redirect": "/consultations/clinic-confirm?view=location…",
+   "redirect": "/consultations/booking-status?view=location…",
    "template": "redirect",
    "board": "— (redirect)",
    "batch": 2,
@@ -8279,34 +8229,13 @@
    "app": "patient-web",
    "route": "/consultations/follow-up",
    "file": "patient-web/app/[locale]/consultations/follow-up/page.tsx",
-   "redirect": null,
-   "template": "form",
-   "board": "Consult",
+   "redirect": "/appointments/…",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 2,
-   "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/care/appointments/:param",
-     "target": "backend",
-     "query": "",
-     "line": 36,
-     "file": "patient-web/app/[locale]/consultations/follow-up/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:25"
-    }
-   ],
-   "files": 33,
+   "status": "n/a",
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -8394,44 +8323,13 @@
    "app": "patient-web",
    "route": "/consultations/prescription",
    "file": "patient-web/app/[locale]/consultations/prescription/page.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "Consult",
+   "redirect": "/appointments/…",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 2,
-   "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    },
-    {
-     "method": "POST",
-     "path": "/api/patient/health/reminders",
-     "target": "web-proxy",
-     "query": "",
-     "line": 54,
-     "file": "patient-web/components-next/prescription-client.tsx",
-     "backend": "backend/src/modules/health/health.controller.ts:61",
-     "status": "OK"
-    },
-    {
-     "method": "GET",
-     "path": "/api/patient/prescriptions/active",
-     "target": "web-proxy",
-     "query": "",
-     "line": 31,
-     "file": "patient-web/components-next/prescription-client.tsx",
-     "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:57",
-     "status": "OK"
-    }
-   ],
-   "files": 33,
+   "status": "n/a",
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -8948,6 +8846,16 @@
      "handler": "patient-web/app/api/auth/logout/route.ts"
     },
     {
+     "method": "POST",
+     "path": "/api/diagnostics/bookings/:param/documents",
+     "target": "web-bff",
+     "query": "",
+     "line": 40,
+     "file": "patient-web/components-next/diagnostics-document-upload.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/diagnostics/bookings/[bookingId]/documents/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/api/patient/labs/bookings/:param",
      "target": "web-proxy",
@@ -8968,7 +8876,7 @@
      "status": "OK"
     }
    ],
-   "files": 32,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -8980,29 +8888,8 @@
    "board": "RxUpload",
    "batch": 3,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    },
-    {
-     "method": "POST",
-     "path": "/api/diagnostics/bookings/:param/documents",
-     "target": "web-bff",
-     "query": "",
-     "line": 40,
-     "file": "patient-web/components-next/diagnostics-document-upload.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/diagnostics/bookings/[bookingId]/documents/route.ts"
-    }
-   ],
-   "files": 30,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -9376,7 +9263,7 @@
      "path": "/api/patient/labs/bookings/:param",
      "target": "web-proxy",
      "query": "",
-     "line": 70,
+     "line": 73,
      "file": "patient-web/components-next/diagnostics-sample-tracking-client.tsx",
      "backend": "backend/src/modules/labs/labs.controller.ts:48",
      "status": "OK"
@@ -9386,13 +9273,13 @@
      "path": "/api/patient/labs/bookings/:param/tracking",
      "target": "web-proxy",
      "query": "",
-     "line": 71,
+     "line": 74,
      "file": "patient-web/components-next/diagnostics-sample-tracking-client.tsx",
      "backend": "backend/src/modules/labs/labs.controller.ts:116",
      "status": "OK"
     }
    ],
-   "files": 35,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -9438,29 +9325,8 @@
    "board": "OrderTracking",
    "batch": 3,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/api/patient/labs/bookings/:param/tracking",
-     "target": "web-proxy",
-     "query": "",
-     "line": 35,
-     "file": "patient-web/components-next/diagnostics-technician-tracking-client.tsx",
-     "backend": "backend/src/modules/labs/labs.controller.ts:116",
-     "status": "OK"
-    }
-   ],
-   "files": 31,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -9501,13 +9367,13 @@
    "app": "patient-web",
    "route": "/diagnostics/upload-rx",
    "file": "patient-web/app/[locale]/diagnostics/upload-rx/page.tsx",
-   "redirect": "/pharmacy/scan-prescription",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "flow step",
+   "board": "RxUpload",
    "batch": 3,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 2,
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -9615,17 +9481,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/entity-graph/explore",
      "target": "backend",
      "query": "?specialty=:param&city=:param",
-     "line": 19,
+     "line": 20,
      "file": "patient-web/app/[locale]/doctors/[specialty]/[city]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/entity-graph/entity-graph.controller.ts:19"
     }
    ],
-   "files": 6,
+   "files": 39,
    "unresolved": 0
   },
   {
@@ -9639,30 +9515,40 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/entity-graph/explore",
      "target": "backend",
      "query": "?specialty=:param&city=:param",
-     "line": 19,
+     "line": 20,
      "file": "patient-web/app/[locale]/doctors/[specialty]/[city]/[neighborhood]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/entity-graph/entity-graph.controller.ts:19"
     }
    ],
-   "files": 6,
+   "files": 39,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/drug-scanner",
    "file": "patient-web/app/[locale]/drug-scanner/page.tsx",
-   "redirect": "/pharmacy/interactions",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "flow step",
+   "board": "CareHub",
    "batch": 9,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 2,
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -9795,17 +9681,27 @@
    "status": "—",
    "calls": [
     {
-     "method": "*",
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "GET",
      "path": "/entity-graph/related/facility/:param",
      "target": "backend",
      "query": "",
-     "line": 15,
+     "line": 31,
      "file": "patient-web/app/[locale]/facility/[slug]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/entity-graph/entity-graph.controller.ts:10"
     }
    ],
-   "files": 6,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -10751,17 +10647,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/public/ai-catalog/services",
      "target": "backend",
      "query": "?city=:param",
-     "line": 18,
+     "line": 20,
      "file": "patient-web/app/[locale]/home-nursing/[citySlug]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/ai-commerce/ai-commerce.controller.ts:17"
     }
    ],
-   "files": 6,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -11215,6 +11121,16 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/entity-graph/explore",
      "target": "backend",
@@ -11225,7 +11141,7 @@
      "backend": "backend/src/modules/entity-graph/entity-graph.controller.ts:19"
     }
    ],
-   "files": 6,
+   "files": 39,
    "unresolved": 0
   },
   {
@@ -11606,115 +11522,52 @@
    "app": "patient-web",
    "route": "/medicine",
    "file": "patient-web/app/[locale]/medicine/page.tsx",
-   "redirect": "/medicines",
+   "redirect": "?",
    "template": "redirect",
    "board": "— (redirect)",
    "batch": 1,
    "status": "n/a",
    "calls": [],
-   "files": 1,
+   "files": 3,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/medicine-catalog",
    "file": "patient-web/app/[locale]/medicine-catalog/page.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "PharmacyHub",
+   "redirect": "?",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 13,
-   "status": "—",
-   "calls": [
-    {
-     "method": "*",
-     "path": "/public/products/search",
-     "target": "backend",
-     "query": "?:param",
-     "line": 28,
-     "file": "patient-web/app/[locale]/medicine-catalog/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1049"
-    }
-   ],
-   "files": 8,
+   "status": "n/a",
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/medicine/[slug]",
    "file": "patient-web/app/[locale]/medicine/[slug]/page.tsx",
-   "redirect": null,
-   "template": "detail",
-   "board": "ProductWeb",
+   "redirect": "/p/…",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 1,
-   "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/public/product/:param/:param",
-     "target": "backend",
-     "query": "",
-     "line": 134,
-     "file": "patient-web/lib/api/public-products-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1041"
-    },
-    {
-     "method": "GET",
-     "path": "/public/products/search",
-     "target": "backend",
-     "query": "?:param",
-     "line": 200,
-     "file": "patient-web/lib/api/public-products-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1049"
-    }
-   ],
-   "files": 49,
+   "status": "n/a",
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/medicines",
    "file": "patient-web/app/[locale]/medicines/page.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "PharmacyHub",
+   "redirect": "?",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 1,
-   "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/medicines",
-     "target": "backend",
-     "query": "?:param",
-     "line": 14,
-     "file": "patient-web/lib/api/public-medicines-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:15"
-    }
-   ],
-   "files": 35,
+   "status": "n/a",
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -12696,7 +12549,7 @@
      "path": "/patient/pharmacy/orders/:param",
      "target": "backend",
      "query": "",
-     "line": 44,
+     "line": 45,
      "file": "patient-web/components-next/pharmacy-offers/offers-screen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
@@ -12706,13 +12559,13 @@
      "path": "/patient/pharmacy/orders/:param/offers",
      "target": "backend",
      "query": "",
-     "line": 43,
+     "line": 44,
      "file": "patient-web/components-next/pharmacy-offers/offers-screen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:42"
     }
    ],
-   "files": 49,
+   "files": 50,
    "unresolved": 0
   },
   {
@@ -12740,7 +12593,7 @@
      "path": "/patient/pharmacy/orders/:param",
      "target": "backend",
      "query": "",
-     "line": 115,
+     "line": 69,
      "file": "patient-web/components-next/pharmacy-offers/order-screens.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
@@ -12750,7 +12603,7 @@
      "path": "/pharmacy/chat/threads",
      "target": "backend",
      "query": "?order_id=:param",
-     "line": 114,
+     "line": 68,
      "file": "patient-web/components-next/pharmacy-offers/order-screens.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:270"
@@ -12784,7 +12637,7 @@
      "path": "/patient/pharmacy/orders/:param",
      "target": "backend",
      "query": "",
-     "line": 176,
+     "line": 130,
      "file": "patient-web/components-next/pharmacy-offers/order-screens.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
@@ -12794,7 +12647,7 @@
      "path": "/pharmacy/chat/threads/:param/messages",
      "target": "backend",
      "query": "",
-     "line": 175,
+     "line": 129,
      "file": "patient-web/components-next/pharmacy-offers/order-screens.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:271"
@@ -13062,17 +12915,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/entity-graph/explore",
      "target": "backend",
      "query": "?city=:param",
-     "line": 17,
+     "line": 20,
      "file": "patient-web/app/[locale]/pharmacies/[citySlug]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/entity-graph/entity-graph.controller.ts:19"
     }
    ],
-   "files": 5,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -13144,6 +13007,16 @@
    "calls": [
     {
      "method": "POST",
+     "path": "/api/ai/drug-interactions",
+     "target": "web-bff",
+     "query": "",
+     "line": 51,
+     "file": "patient-web/components-next/drug-interaction-checker.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/ai/drug-interactions/route.ts"
+    },
+    {
+     "method": "POST",
      "path": "/api/auth/logout",
      "target": "web-bff",
      "query": "",
@@ -13157,13 +13030,13 @@
      "path": "/api/patient/medicines/by-barcode/:param",
      "target": "web-proxy",
      "query": "",
-     "line": 42,
+     "line": 44,
      "file": "patient-web/components-next/pharmacy/barcode-screen.tsx",
      "backend": "backend/src/modules/medicines/medicines.controller.ts:62",
      "status": "OK"
     }
    ],
-   "files": 35,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -13201,7 +13074,7 @@
      "path": "/patient/pharmacy/orders/:param",
      "target": "backend",
      "query": "",
-     "line": 44,
+     "line": 45,
      "file": "patient-web/components-next/pharmacy-offers/offers-screen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
@@ -13211,13 +13084,13 @@
      "path": "/patient/pharmacy/orders/:param/offers",
      "target": "backend",
      "query": "",
-     "line": 43,
+     "line": 44,
      "file": "patient-web/components-next/pharmacy-offers/offers-screen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:42"
     }
    ],
-   "files": 49,
+   "files": 50,
    "unresolved": 0
   },
   {
@@ -13278,60 +13151,39 @@
    "app": "patient-web",
    "route": "/pharmacy/custom-item",
    "file": "patient-web/app/[locale]/pharmacy/custom-item/page.tsx",
-   "redirect": "/pharmacy/request",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "form",
+   "board": "PharmacyHub",
    "batch": 1,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 2,
+   "files": 3,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/pharmacy/drug-not-found",
    "file": "patient-web/app/[locale]/pharmacy/drug-not-found/page.tsx",
-   "redirect": "/pharmacy/request",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "state",
+   "board": "States",
    "batch": 1,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 2,
+   "files": 3,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/pharmacy/filters",
    "file": "patient-web/app/[locale]/pharmacy/filters/page.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "PharmacyHub",
+   "redirect": "?",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 1,
-   "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/medicines/filters",
-     "target": "backend",
-     "query": "",
-     "line": 29,
-     "file": "patient-web/app/[locale]/pharmacy/filters/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:74"
-    }
-   ],
-   "files": 33,
+   "status": "n/a",
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -13369,7 +13221,7 @@
      "path": "/patient/pharmacy/orders/:param",
      "target": "backend",
      "query": "",
-     "line": 31,
+     "line": 28,
      "file": "patient-web/components-next/pharmacy-offers/order-screens.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
@@ -13431,42 +13283,21 @@
    "board": "PharmacyHub",
    "batch": 1,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/ai/drug-interactions",
-     "target": "web-bff",
-     "query": "",
-     "line": 51,
-     "file": "patient-web/components-next/drug-interaction-checker.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/ai/drug-interactions/route.ts"
-    },
-    {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    }
-   ],
-   "files": 32,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/pharmacy/manual-order",
    "file": "patient-web/app/[locale]/pharmacy/manual-order/page.tsx",
-   "redirect": "/pharmacy/request",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "form",
+   "board": "PharmacyHub",
    "batch": 1,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 2,
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -13590,19 +13421,8 @@
    "board": "PharmacyHub",
    "batch": 1,
    "status": "rebuilt on wip-b1b-web (slice 1b, not merged yet)",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    }
-   ],
-   "files": 37,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -13626,11 +13446,21 @@
      "handler": "patient-web/app/api/auth/logout/route.ts"
     },
     {
+     "method": "POST",
+     "path": "/api/patient/ai/prescription-ocr",
+     "target": "web-proxy",
+     "query": "",
+     "line": 81,
+     "file": "patient-web/components-next/pharmacy/rx-upload-screen.tsx",
+     "backend": "backend/src/modules/ai/ai.controller.ts:94",
+     "status": "OK"
+    },
+    {
      "method": "GET",
      "path": "/prescriptions/:param",
      "target": "backend",
      "query": "",
-     "line": 50,
+     "line": 56,
      "file": "patient-web/app/[locale]/pharmacy/rx-order/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:77"
@@ -13640,13 +13470,13 @@
      "path": "/prescriptions/active",
      "target": "backend",
      "query": "",
-     "line": 65,
+     "line": 77,
      "file": "patient-web/app/[locale]/pharmacy/rx-order/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:57"
     }
    ],
-   "files": 45,
+   "files": 51,
    "unresolved": 0
   },
   {
@@ -13658,29 +13488,8 @@
    "board": "RxUpload",
    "batch": 1,
    "status": "rebuilt on wip-b1b-web (slice 1b, not merged yet)",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    },
-    {
-     "method": "POST",
-     "path": "/api/patient/ai/prescription-ocr",
-     "target": "web-proxy",
-     "query": "",
-     "line": 79,
-     "file": "patient-web/components-next/pharmacy/rx-upload-screen.tsx",
-     "backend": "backend/src/modules/ai/ai.controller.ts:94",
-     "status": "OK"
-    }
-   ],
-   "files": 34,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -13692,39 +13501,8 @@
    "board": "PharmacyOffers",
    "batch": 1,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/patient/pharmacy/orders/:param",
-     "target": "backend",
-     "query": "",
-     "line": 31,
-     "file": "patient-web/components-next/pharmacy-offers/order-screens.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
-    },
-    {
-     "method": "GET",
-     "path": "/patient/pharmacy/orders/:param/offers",
-     "target": "backend",
-     "query": "",
-     "line": 70,
-     "file": "patient-web/components-next/pharmacy-offers/order-screens.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:42"
-    }
-   ],
-   "files": 39,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -13804,8 +13582,29 @@
    "board": "Settings",
    "batch": 13,
    "status": "—",
-   "calls": [],
-   "files": 4,
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/legal/policy/:param",
+     "target": "backend",
+     "query": "?lang=:param",
+     "line": 14,
+     "file": "patient-web/lib/api/legal-policy.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/legal/legal.module.ts:170"
+    }
+   ],
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -14048,8 +13847,19 @@
    "board": "Settings",
    "batch": 13,
    "status": "—",
-   "calls": [],
-   "files": 3,
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    }
+   ],
+   "files": 29,
    "unresolved": 0
   },
   {
@@ -14076,17 +13886,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/radiology/services",
      "target": "backend",
      "query": "",
-     "line": 19,
-     "file": "patient-web/lib/api/radiology-server.ts",
+     "line": 21,
+     "file": "patient-web/app/[locale]/radiology/[serviceSlug]/[citySlug]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:12"
     }
    ],
-   "files": 9,
+   "files": 42,
    "unresolved": 0
   },
   {
@@ -14475,17 +14295,27 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/public/ai-catalog/services",
      "target": "backend",
      "query": "?city=:param",
-     "line": 17,
+     "line": 20,
      "file": "patient-web/app/[locale]/services/[serviceSlug]/[citySlug]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/ai-commerce/ai-commerce.controller.ts:17"
     }
    ],
-   "files": 5,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -14972,8 +14802,29 @@
    "board": "Settings",
    "batch": 13,
    "status": "—",
-   "calls": [],
-   "files": 4,
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/legal/policy/:param",
+     "target": "backend",
+     "query": "?lang=:param",
+     "line": 14,
+     "file": "patient-web/lib/api/legal-policy.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/legal/legal.module.ts:170"
+    }
+   ],
+   "files": 32,
    "unresolved": 0
   },
   {

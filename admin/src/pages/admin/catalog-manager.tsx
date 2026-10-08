@@ -292,7 +292,7 @@ export default function CatalogManagerPage() {
       {editing && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}
           onClick={() => setEditing(null)}>
-          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(640px, 92vw)', maxHeight: '86vh', overflowY: 'auto' }}
+          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(640px, 92%)', maxHeight: '86dvh', overflowY: 'auto' }}
             onClick={(e) => e.stopPropagation()}>
             <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>{editing.id ? 'تعديل الصنف' : 'إضافة صنف جديد'} — {tabCfg.label}</h2>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -488,7 +488,7 @@ function MedicinesPanel() {
       </div>
       {form && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }} onClick={() => setForm(null)}>
-          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(560px, 92vw)', maxHeight: '86vh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(560px, 92%)', maxHeight: '86dvh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
             <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 12 }}>{form.id ? 'تعديل دواء' : 'دواء جديد'}</h2>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               <input value={form.name_ar || ''} onChange={(e) => set('name_ar', e.target.value)} placeholder="الاسم (عربي)" style={fld} />
@@ -611,7 +611,7 @@ function InsurancePanel() {
       </div>
       {form && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }} onClick={() => setForm(null)}>
-          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(480px, 92vw)' }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(480px, 92%)', maxHeight: '90dvh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
             <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 12 }}>{form.id || form._id ? 'تعديل شركة' : 'شركة جديدة'}</h2>
             <input value={form.name_ar || ''} onChange={(e) => setForm({ ...form, name_ar: e.target.value })} placeholder="الاسم (عربي)" style={{ width: '100%', padding: 10, borderRadius: 10, border: '1px solid #E2E8F0', marginBottom: 8, fontFamily: 'inherit' }} />
             <input value={form.name_en || ''} onChange={(e) => setForm({ ...form, name_en: e.target.value })} placeholder="Name (en)" style={{ width: '100%', padding: 10, borderRadius: 10, border: '1px solid #E2E8F0', marginBottom: 8, fontFamily: 'inherit' }} />
@@ -625,7 +625,7 @@ function InsurancePanel() {
       )}
       {netForm && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }} onClick={() => setNetForm(null)}>
-          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(480px, 92vw)' }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(480px, 92%)', maxHeight: '90dvh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
             <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 12 }}>شبكة/فئة جديدة</h2>
             <select value={netForm.companyId} onChange={(e) => setNetForm({ ...netForm, companyId: e.target.value })} style={{ width: '100%', padding: 10, borderRadius: 10, border: '1px solid #E2E8F0', marginBottom: 8, fontFamily: 'inherit' }}>
               <option value="">— الشركة —</option>
