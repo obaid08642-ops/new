@@ -1,7 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import { ChoiceGroup } from "@/components-next/care/care-fields";
+import { CareHero, RecordRow } from "@/components-next/care/care-kit";
+import { Notice, RowCard } from "@/components-next/consult/consult-parts";
+import { RowsCard, SectionHead } from "@/components-next/health/health-kit";
+import { formatDate } from "@/lib/format-date";
+import forms from "@/components-next/consult/consult.module.css";
 
 export type Program = {
   id: string; title: string; duration?: string;
@@ -11,20 +18,30 @@ export type Program = {
   sessions: { id: string | number; title: string; completed: boolean }[];
 };
 
+/**
+ * The programs screen's body (canvas/CareHub): the program chooser, the progress ring, the next session, the milestone reward and
+ * the sessions with "Mark completed". Marking a session is the same POST as before (/api/patient/medical/programs/complete-session,
+ * with its idempotency key); the screen shows what the server answers.
+ */
 export function ProgramsActiveClient({ initial, locale }: { initial: Program[]; locale: string }) {
-  const ar = locale === "ar";
+  const t = useTranslations("ProgramsWeb");
   const [programs, setPrograms] = useState(initial);
-  const [activeTab, setActiveTab] = useState(initial[0]?.id ?? "diabetes");
+  const [activeTab, setActiveTab] = useState(initial[0]?.id ?? "");
   const [busy, setBusy] = useState<string | number | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const selected = programs.find((p) => p.id === activeTab) ?? programs[0];
-  if (!selected) return <p role="status">{ar ? "لا توجد برامج نشطة" : "No active programs"}</p>;
-  const pct = selected.totalSessions > 0 ? Math.round((selected.completedSessions / selected.totalSessions) * 100) : 0;
+  if (!selected) return <p role="status" className={forms.body}>{t("empty")}</p>;
+  const ratio = selected.totalSessions > 0 ? selected.completedSessions / selected.totalSessions : 0;
+  const number = new Intl.NumberFormat(locale);
+  const percent = new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 0 });
+  const nextDate = selected.nextDate ? formatDate(locale, selected.nextDate) ?? selected.nextDate : null;
 
   async function complete(sessionId: string | number) {
-    if (!window.confirm(ar ? "تأكيد إكمال الجلسة؟" : "Confirm session completion?")) return;
-    setBusy(sessionId); setMessage(null); setError(null);
+    if (!window.confirm(t("confirmComplete"))) return;
+    setBusy(sessionId);
+    setMessage(null);
+    setError(null);
     try {
       const res = await fetch("/api/patient/medical/programs/complete-session", {
         method: "POST",
@@ -33,7 +50,10 @@ export function ProgramsActiveClient({ initial, locale }: { initial: Program[]; 
         credentials: "same-origin",
       });
       const data = await res.json().catch(() => null);
-      if (!res.ok) { setError(ar ? "تعذر إكمال الجلسة" : "Could not complete session"); return; }
+      if (!res.ok) {
+        setError(t("completeFailed"));
+        return;
+      }
       const root = (data && typeof data === "object" ? data : {}) as Record<string, unknown>;
       const list = [root.data, root.programs].find(Array.isArray);
       if (Array.isArray(list)) {
@@ -63,55 +83,54 @@ export function ProgramsActiveClient({ initial, locale }: { initial: Program[]; 
           }];
         }));
       }
-      if (String(sessionId) === "4") setMessage(ar ? "مبروك إكمال الجلسة الرابعة!" : "Congrats on completing session 4!");
-    } catch { setError(ar ? "تعذر الاتصال" : "Connection unavailable"); }
-    finally { setBusy(null); }
+      if (String(sessionId) === "4") setMessage(t("congrats"));
+    } catch {
+      setError(t("connectionFailed"));
+    } finally {
+      setBusy(null);
+    }
   }
 
   return (
-    <div>
-      {message ? <p role="status">{message}</p> : null}
-      {error ? <p role="alert">{error}</p> : null}
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }} role="tablist" aria-label={ar ? "البرامج" : "Programs"}>
-        {programs.map((p) => (
-          <button key={p.id} type="button" role="tab" aria-selected={activeTab === p.id} onClick={() => setActiveTab(p.id)}>
-            {p.title.replace(ar ? "برنامج " : "Program ", "")}
-          </button>
-        ))}
-      </div>
-      <section aria-label={ar ? "التقدم" : "Progress"}>
-        <h2>{selected.title}</h2>
-        {selected.duration ? <p>{ar ? "المدة:" : "Duration:"} {selected.duration}</p> : null}
-        <p role="status">{ar ? "نسبة الإنجاز:" : "Completion:"} {selected.completedSessions} {ar ? "من أصل" : "of"} {selected.totalSessions} ({pct}%)</p>
-      </section>
+    <div className={forms.stack}>
+      {message ? <p role="status" className={forms.notice}>{message}</p> : null}
+      {error ? <p role="alert" className={forms.error}>{error}</p> : null}
+      {programs.length > 1 ? <ChoiceGroup label={t("programs")} value={selected.id} onChange={setActiveTab} options={programs.map((p) => ({ value: p.id, label: p.title }))} /> : null}
+      <CareHero
+        tone="blue"
+        icon="clipboard-text"
+        label={t("progress")}
+        ring={{ value: ratio, label: t("ringLabel", { done: number.format(selected.completedSessions), total: number.format(selected.totalSessions) }), valueText: percent.format(ratio) }}
+        title={selected.title}
+        lines={[
+          t("sessionsDone", { done: number.format(selected.completedSessions), total: number.format(selected.totalSessions) }),
+          selected.duration ? t("duration", { value: selected.duration }) : null,
+        ].filter((line): line is string => line !== null)}
+      />
       {selected.nextTitle ? (
-        <section aria-label={ar ? "الجلسة القادمة" : "Next session"}>
-          <h3>{ar ? "الجلسة القادمة المجدولة" : "Next scheduled session"}</h3>
-          <p>{selected.nextTitle}{selected.nextDate ? ` — ${selected.nextDate}` : ""}{selected.nextTime ? ` ${selected.nextTime}` : ""}</p>
-        </section>
+        <RowCard icon="calendar-dots" tone="violet" title={t("nextSession")} sub={[selected.nextTitle, nextDate, selected.nextTime].filter(Boolean).join(" · ")} />
       ) : null}
       {selected.milestoneReward ? (
-        <section aria-label={ar ? "المكافأة" : "Reward"}>
-          <h3>{ar ? "مكافأة الإنجاز القادم" : "Next milestone reward"}</h3>
-          <p><strong>{selected.milestoneReward}</strong>{selected.rewardDesc ? ` — ${selected.rewardDesc}` : ""}</p>
-        </section>
+        <RowCard icon="gift" tone="amber" title={t("rewardTitle")} sub={[selected.milestoneReward, selected.rewardDesc].filter(Boolean).join(" - ")} />
       ) : null}
-      <h3>{ar ? "جدول الجلسات والزيارات" : "Sessions schedule"}</h3>
-      <ul>
-        {selected.sessions.map((s) => (
-          <li key={String(s.id)} style={s.completed ? { textDecoration: "line-through", opacity: 0.6 } : undefined}>
-            #{String(s.id)} {s.title}{" "}
-            {!s.completed ? (
-              <button type="button" onClick={() => complete(s.id)} disabled={busy !== null}>
-                {ar ? "تأكيد إكمال الجلسة" : "Mark session completed"}
-              </button>
-            ) : (
-              <span role="status">✓</span>
-            )}
-          </li>
-        ))}
-      </ul>
-      <Link href={`/${locale}/loyalty`}>{ar ? "نقاطي ومكافآتي" : "My points & rewards"}</Link>
+      <SectionHead id="sessions" title={t("sessions")} action={{ href: `/${locale}/loyalty`, label: t("myPoints") }} />
+      {selected.sessions.length === 0 ? (
+        <Notice>{t("noSessions")}</Notice>
+      ) : (
+        <RowsCard label={t("sessions")}>
+          {selected.sessions.map((s) => (
+            <li key={String(s.id)}>
+              <RecordRow
+                icon={s.completed ? "check-circle" : "clipboard-text"}
+                tone={s.completed ? "mint" : "blue"}
+                muted={s.completed}
+                title={<><bdi>#{String(s.id)}</bdi> {s.title}</>}
+                end={s.completed ? undefined : <Button label={t("markDone")} size="sm" variant="outline" loading={busy === s.id} disabled={busy !== null} onClick={() => complete(s.id)} />}
+              />
+            </li>
+          ))}
+        </RowsCard>
+      )}
     </div>
   );
 }

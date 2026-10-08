@@ -1,13 +1,14 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { isLocale } from "@/lib/i18n";
+import { redirectKeepingQuery } from "@/lib/redirect-keep-query";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-/** Parity with app maternity/baby-development: curated content pending clinical review, use the hub. */
-export default async function MaternityBabyDevelopmentPage({ params }: Props) {
+/** Curated content pending clinical review: the hub. */
+export default async function Page({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  redirect(`/${locale}/maternity`);
+  redirectKeepingQuery(`/${locale}/maternity`, await searchParams);
 }
