@@ -22,6 +22,7 @@ _Updated 2026-10-06._
 | **Batch 10 articles + community removal**, `design/batch-10` (from main) | articles list (All/Saved) + detail on both clients; community removed (decision 1); app 5 routes / 0 failures, web 9 runs / 0 issues; PR open |
 | **Batch 11 loyalty hub + offers**, `design/batch-11` (from main) | hub with tabs Rewards/Challenges/Invite + offers list/detail on both clients; leaderboard removed (decision 2); app 7 routes / 0 failures, web 18 runs / 0 issues; PR open |
 | **Batch 12 settings, account, support, returns**, `design/batch-12` (from main) | app 21 routes + web 20 routes (7 settings screens, address book with pick mode, support, returns, reviews, map); app 22 routes / 0 failures, web 81 runs (2 env cert errors on addresses); PR open |
+| **Admin mobile central PR** (no redesign), `design/admin-mobile` | drawer sidebar < 1024 px, shared `DataTable` (cards on phones; 4 pages migrated, ~44 tables left: single-header tables get cards via a fallback, the rest scroll in their box), `FilterSheet`, dvh, logical properties; Playwright 280/280 on 15 pages at 6 widths with a STUBBED session; ~130k of the 1M admin budget |
 | Gates (baselines only go down) | see `tools/design/*.baseline.json` (regenerated after merging Batches 7, 10, 11 and 12) |
 
 Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = web-only static pages; 14 = second-pass merges of Batches 1-4 + Emergency.
@@ -33,12 +34,8 @@ Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = we
 2. **Owner decisions 24-27** (`OWNER_DECISIONS_2026-10-06.md`): UI parts in the owning batch (map 2 §9): doctor thread only inside a booking (`/chat` list removed), no cash option for online services, cash on delivery only when the server allows it, cancel/refund text from the server. Pharmacy badges and "استشر طبيب" wait for the reviewer's backend part.
 3. Keep `EXPO_PUBLIC_CONSULT_NEARBY_FILTERS` off until Q-12/Q-13 are live.
 
-## Process (owner, 2026-10-06; quality rules unchanged, recording changed)
-- **Lean v2 (Batch 2 on): under 40k tokens per screen.** Design only (wrong logic = one Needs-review line); templates first; no backend reading per screen; one translation pass per slice; read only screen, board, template; slices of 15-25 screens. Rules in `/AGENTS.md`.
-- **No screenshots committed or sent.** A temporary screenshot only to compare with the board while building, then delete it. No before/after/compare images.
-- **One production build and one runtime check per slice, at the end**; dev server while building. Lighthouse only in F82 PRs and once per batch.
-- **Audit is generated** by `audit-table.mjs` from `audit/<slice>.json`; Needs-review lines carry file:line.
-- **At most 2 agents at a time**, each given only its screen list and the board (not the full docs). Sonnet 5 medium for normal screens; high only for payment, offers, booking, insurance, calls.
+## Process
+- Lean v2 (rules in `/AGENTS.md`): design only, templates first, under 40k tokens per screen, audit via `audit-table.mjs`, Needs-review with file:line, no committed screenshots. Binding: identity, tokens-only colours, six languages, real data only.
 
 ## Slice log (tokens are the agents' reported totals, approximate; one agent per app/web)
 
