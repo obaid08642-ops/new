@@ -41,6 +41,9 @@ export function InsuranceClaimScreen({ apt, onBack }: { apt: any; onBack: () => 
  const { show } = useToast();
  const AR = lang === 'ar';
  const [company, setCompany] = useState('');
+ // Insurance companies come from the admin-managed catalog (single source), never a hard-coded list.
+ const [companies, setCompanies] = useState<{ id: string; ar: string; en: string }[]>([]);
+ useEffect(() => { getInsuranceCatalog().then(setCompanies); }, []);
  const [plan, setPlan] = useState('');
  const [diagCode, setDiagCode] = useState('');
  const [policyNumber, setPolicyNumber] = useState(apt?.patient?.insurance?.policy_number || '');
@@ -71,13 +74,13 @@ export function InsuranceClaimScreen({ apt, onBack }: { apt: any; onBack: () => 
  </Text>
  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
  <View style={{ flexDirection: 'row', gap: SP.sm }}>
- {['Bupa','Tawuniya','MedGulf','Malath','AXA'].map(c => (
+ {companies.map(({ id: c, ar, en }) => (
  <TouchableOpacity key={c} onPress={() => setCompany(c)}
  style={[styles.insChip, {
  backgroundColor: company === c ? theme.primary : theme.surface2,
  borderColor: company === c ? theme.primary : theme.border,
  }]}>
- <Text style={{ color: company === c ? '#FFF' : theme.text, fontSize: FS.sm }}>{c}</Text>
+ <Text style={{ color: company === c ? '#FFF' : theme.text, fontSize: FS.sm }}>{AR ? ar : en}</Text>
  </TouchableOpacity>
  ))}
  </View>
