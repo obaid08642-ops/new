@@ -399,7 +399,7 @@ function MedicinesPanel() {
       const payload: any = {
         name_ar: form.name_ar, name_en: form.name_en || undefined, generic_name: form.generic_name || undefined,
         category: form.category || undefined, price: Number(form.price) || 0,
-        requires_prescription: !!form.requires_prescription, image: form.image || undefined,
+        requires_prescription: !!form.requires_prescription, controlled: !!form.controlled, online_exclusive: !!form.online_exclusive, image: form.image || undefined,
         reason: form.reason,
       };
       if (form.id) await apiFetch(`/medicines/admin/catalog/${form.id}`, { method: 'PATCH', body: JSON.stringify(payload) });
@@ -506,6 +506,8 @@ function MedicinesPanel() {
               <input type="number" value={form.price ?? ''} onChange={(e) => set('price', e.target.value)} placeholder="السعر" style={fld} />
               <input value={form.reason || ''} onChange={(e) => set('reason', e.target.value)} placeholder="سبب الإنشاء/التغيير" style={fld} />
               <label style={{ fontSize: 13 }}><input type="checkbox" checked={!!form.requires_prescription} onChange={(e) => set('requires_prescription', e.target.checked)} /> يتطلب وصفة</label>
+              <label style={{ fontSize: 13 }}><input type="checkbox" checked={!!form.controlled} onChange={(e) => set('controlled', e.target.checked)} /> دواء خاضع للرقابة (لا يُطلب أونلاين)</label>
+              <label style={{ fontSize: 13 }}><input type="checkbox" checked={!!form.online_exclusive} onChange={(e) => set('online_exclusive', e.target.checked)} /> أونلاين فقط</label>
               <label style={{ fontSize: 13 }}>صورة: <input type="file" accept="image/*" onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; setImgBusy(true); try { set('image', await uploadImage(f)); } catch (err: any) { setMsg(`فشل الرفع: ${err.message}`); } finally { setImgBusy(false); } }} /></label>
             </div>
             {imgBusy && <p>جارٍ رفع الصورة…</p>}

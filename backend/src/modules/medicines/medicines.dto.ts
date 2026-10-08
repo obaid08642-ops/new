@@ -74,6 +74,10 @@ export class CatalogMedicineFieldsDto {
   @IsOptional() @IsString() @MaxLength(5000) usage_instructions_en?: string;
   @IsOptional() @IsString() @MaxLength(2000) image?: string;
   @IsOptional() @IsBoolean() requires_prescription?: boolean;
+  /** Decision 10: a controlled (narcotic) item is never orderable online; the admin sets it. */
+  @IsOptional() @IsBoolean() controlled?: boolean;
+  /** Decision 11: the "online only" badge. */
+  @IsOptional() @IsBoolean() online_exclusive?: boolean;
   @IsOptional() @IsNumber() @Min(0) price?: number;
   @IsOptional() @IsArray() @IsString({ each: true }) images?: string[];
   @IsOptional() @IsArray() @IsString({ each: true }) indications_ar?: string[];

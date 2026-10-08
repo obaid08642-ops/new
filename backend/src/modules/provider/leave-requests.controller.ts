@@ -1,3 +1,4 @@
+import { PROVIDER_ROLES } from '../../common/enums';
 import { Body, Controller, Get, Post, UseGuards, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -13,6 +14,7 @@ export class LeaveRequestsController {
     @InjectModel('LeaveRequest') private readonly leaveModel: Model<LeaveRequestDocument>,
   ) {}
 
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get()
   async getLeaveRequests(@CurrentUser() facility: any) {
     return this.leaveModel

@@ -1,3 +1,4 @@
+import { PROVIDER_ROLES } from '../../common/enums';
 /**
  * M2 — Home-care compatibility layer + nursing ops reference data + chat aliases.
  *
@@ -344,9 +345,11 @@ const NURSING_SUPPLIES: any[] = [
 @Controller('provider/nursing')
 @UseGuards(JwtAuthGuard)
 export class NursingOpsController {
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('checklist') checklist(@Query('category') category?: string) {
     return { category: category || 'default', items: NURSING_CHECKLISTS[category || 'default'] || NURSING_CHECKLISTS.default };
   }
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('supplies') supplies() { return { items: NURSING_SUPPLIES }; }
 }
 
