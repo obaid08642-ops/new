@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
 
 export default function ConfigPortal() {
-  const [activeTab, setActiveTab] = useState<'sla' | 'maintenance' | 'pricing' | 'apps'>('sla');
+  const [activeTab, setActiveTab] = useState<'sla' | 'maintenance' | 'pricing' | 'apps' | 'urgent'>('sla');
 
   // SLA State
   const [consultationDuration, setConsultationDuration] = useState(15);
@@ -25,6 +25,25 @@ export default function ConfigPortal() {
 
   const setApp = (app: string, patch: Record<string, unknown>) => {
     setAppVersions((p) => ({ ...p, [app]: { ...(p[app] || {}), ...patch } }));
+  };
+
+  // D-8 (owner decision 8): the one "Need urgent help?" number the apps dial. Never hard-coded.
+  const [urgentPhone, setUrgentPhone] = useState('');
+  const [urgentMsg, setUrgentMsg] = useState('');
+  const loadUrgentHelp = async () => {
+    try {
+      const res = await fetchWithAdminGuard('/api/admin/mental-health/urgent-help');
+      if (!res.ok) return;
+      const data = await res.json();
+      setUrgentPhone(typeof data?.phone === 'string' ? data.phone : '');
+    } catch { /* optional */ }
+  };
+  const saveUrgentHelp = async () => {
+    setUrgentMsg('');
+    try {
+      const res = await fetchWithAdminGuard('/api/admin/admin/mental-health/urgent-help', { method: 'PUT', body: JSON.stringify({ phone: urgentPhone.trim() }) });
+      setUrgentMsg(res.ok ? 'تم حفظ رقم المساعدة العاجلة' : res.status === 400 ? 'الرقم غير صالح: أرقام فقط، ويمكن أن يبدأ بـ +' : 'فشل الحفظ');
+    } catch { setUrgentMsg('فشل الحفظ'); }
   };
 
   const saveAppVersions = async () => {
@@ -212,6 +231,12 @@ export default function ConfigPortal() {
         >
           إصدارات التطبيقات
         </button>
+        <button
+          className={`py-3 px-6 font-medium text-lg ${activeTab === 'urgent' ? 'border-b-2 border-teal-500 text-teal-600' : 'text-gray-500'}`}
+          onClick={() => { setActiveTab('urgent'); void loadUrgentHelp(); }}
+        >
+          رقم المساعدة العاجلة
+        </button>
       </div>
 
       {/* Content */}
@@ -369,6 +394,19 @@ export default function ConfigPortal() {
               ))}
               <button onClick={() => void saveAppVersions()} className="mt-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">حفظ الإصدارات</button>
               {appsMsg && <p className="mt-2 text-sm font-bold">{appsMsg}</p>}
+            </div>
+          </div>
+        )}
+        {activeTab === 'urgent' && (
+          <div className="space-y-4">
+            <div className="bg-white p-6 rounded border border-gray-200">
+              <h2 className="text-xl font-bold mb-1">رقم &laquo;تحتاج مساعدة عاجلة؟&raquo; في الصحة النفسية</h2>
+              <p className="text-sm text-gray-500 mb-4">الرقم الرسمي الذي يفتحه زر المساعدة العاجلة في التطبيقات. لا يظهر الزر حتى يُحفظ رقم.</p>
+              <label className="text-sm block max-w-sm">رقم الهاتف
+                <input value={urgentPhone} onChange={(e) => setUrgentPhone(e.target.value)} dir="ltr" inputMode="tel" className="mt-1 w-full border rounded p-2" />
+              </label>
+              <button onClick={() => void saveUrgentHelp()} className="mt-4 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">حفظ الرقم</button>
+              {urgentMsg && <p className="mt-2 text-sm font-bold">{urgentMsg}</p>}
             </div>
           </div>
         )}

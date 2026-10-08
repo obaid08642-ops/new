@@ -1,5 +1,5 @@
 {
- "commit": "50bff8a6",
+ "commit": "acc948cb",
  "routes": [
   {
    "app": "patient-app",
@@ -2163,39 +2163,8 @@
    "board": "— (redirect)",
    "batch": 5,
    "status": "n/a",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/mental-health/crisis-contacts",
-     "target": "backend",
-     "query": "",
-     "line": 30,
-     "file": "patient-app/src/components/views/CrisisContactsView.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/mental-health/mental-health.controller.ts:77"
-    },
-    {
-     "method": "POST",
-     "path": "/mental-health/crisis-contacts",
-     "target": "backend",
-     "query": "",
-     "line": 47,
-     "file": "patient-app/src/components/views/CrisisContactsView.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/mental-health/mental-health.controller.ts:83"
-    },
-    {
-     "method": "DELETE",
-     "path": "/mental-health/crisis-contacts/:param",
-     "target": "backend",
-     "query": "",
-     "line": 54,
-     "file": "patient-app/src/components/views/CrisisContactsView.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/mental-health/mental-health.controller.ts:89"
-    }
-   ],
-   "files": 14,
+   "calls": [],
+   "files": 1,
    "unresolved": 0
   },
   {
@@ -11845,7 +11814,7 @@
      "line": 42,
      "file": "patient-web/app/[locale]/mental-health/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/mental-health/mental-health.controller.ts:95"
+     "backend": "backend/src/modules/mental-health/mental-health.controller.ts:80"
     }
    ],
    "files": 37,
