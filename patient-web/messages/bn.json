@@ -2806,12 +2806,7 @@
     "trackingBeforeTitle": "নমুনার আগে",
     "trackingBeforeBody": "ডাক্তার অন্য কিছু না বললে নমুনার ৮ থেকে ১২ ঘণ্টা আগে কিছু খাবেন না।",
     "trackingStepsTitle": "ধাপ",
-    "stepReceived": "অর্ডার পাওয়া গেছে",
-    "stepAssigned": "নমুনা সংগ্রহকারী নিযুক্ত",
-    "stepOnTheWay": "নমুনা সংগ্রহকারী পথে আছেন",
-    "stepCollected": "নমুনা নেওয়া হয়েছে",
-    "stepAtLab": "নমুনা ল্যাবে",
-    "stepResult": "ফলাফল প্রস্তুত",
+    "trackingNoSteps": "এখনও ট্র্যাকিংয়ের কোনো আপডেট নেই। ল্যাব ধাপগুলো নথিভুক্ত করলে সেগুলো এখানে দেখা যাবে।",
     "searchTests": "পরীক্ষা খুঁজুন…",
     "noResultsTitle": "কোনো ফলাফল নেই",
     "noResultsBody": "অন্য কোনো নাম বা বিভাগ চেষ্টা করুন।",
@@ -2840,6 +2835,10 @@
     "status_sampled": "নমুনা নেওয়া হয়েছে",
     "status_processing": "চলছে",
     "status_report": "রিপোর্ট প্রস্তুত",
-    "status_cancelled": "বাতিল"
+    "status_cancelled": "বাতিল",
+    "bookingNotSentTitle": "কোনো বুকিং হয়নি",
+    "bookingNotSentBody": "এই উইন্ডো এখনও বুকিং পাঠায় না, তাই কোনো অ্যাপয়েন্টমেন্ট তৈরি হয়নি এবং কোনো পেমেন্ট নেওয়া হয়নি। ভিজিট বুক করতে নার্সিং পেজ খুলুন।",
+    "bookingNotSentCta": "নার্সিং পেজে যান",
+    "bookingNotSentClose": "বন্ধ করুন"
   }
 }

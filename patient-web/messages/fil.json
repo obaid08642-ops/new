@@ -2806,12 +2806,7 @@
     "trackingBeforeTitle": "Bago ang sample",
     "trackingBeforeBody": "Huwag kumain 8 hanggang 12 oras bago ang sample maliban kung iba ang sabi ng iyong doktor.",
     "trackingStepsTitle": "Mga hakbang",
-    "stepReceived": "Natanggap ang order",
-    "stepAssigned": "Naitalaga ang kukuha ng sample",
-    "stepOnTheWay": "Papunta na ang kukuha ng sample",
-    "stepCollected": "Nakuha na ang sample",
-    "stepAtLab": "Nasa lab na ang sample",
-    "stepResult": "Handa na ang resulta",
+    "trackingNoSteps": "Wala pang update sa tracking. Lalabas dito ang mga hakbang kapag naitala na ng lab.",
     "searchTests": "Maghanap ng test…",
     "noResultsTitle": "Walang resulta",
     "noResultsBody": "Subukan ang ibang pangalan o kategorya.",
@@ -2840,6 +2835,10 @@
     "status_sampled": "Nakuha na ang sample",
     "status_processing": "Isinasagawa",
     "status_report": "Handa na ang ulat",
-    "status_cancelled": "Kanselado"
+    "status_cancelled": "Kanselado",
+    "bookingNotSentTitle": "Walang na-book",
+    "bookingNotSentBody": "Hindi pa nagpapadala ng booking ang window na ito, kaya walang appointment na ginawa at walang bayad na kinuha. Buksan ang pahina ng nursing para mag-book ng pagbisita.",
+    "bookingNotSentCta": "Pumunta sa nursing",
+    "bookingNotSentClose": "Isara"
   }
 }
