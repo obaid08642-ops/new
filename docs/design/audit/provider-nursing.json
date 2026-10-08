@@ -775,7 +775,7 @@
    "kind": "backend",
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-   "line": 981,
+   "line": 982,
    "backend": "backend/src/modules/home-care/home-care-compat.module.ts:350"
   },
   {
@@ -784,7 +784,7 @@
    "kind": "client",
    "note": "Touchable \"[bell]\" has no onPress handler.",
    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-   "line": 257
+   "line": 258
   },
   {
    "route": "VisitChecklist",
@@ -792,7 +792,7 @@
    "kind": "backend",
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
-   "line": 526,
+   "line": 527,
    "backend": "backend/src/modules/home-care/home-care-compat.module.ts:347"
   }
  ]

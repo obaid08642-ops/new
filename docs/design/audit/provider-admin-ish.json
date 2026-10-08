@@ -292,12 +292,27 @@
     ],
     [
      "data: Data choices",
-     "choices: set from user input / local logic",
+     "GET /provider/inventory/search → choices",
      "ok"
     ],
     [
      "data: Data quote",
-     "POST /provider/pharmacy/broadcasts/:param/offers/preview, POST /provider/pharmacy/broadcasts/:param/offers/draft → quote",
+     "POST /provider/pharmacy/broadcasts/:param/offers/preview, POST /provider/pharmacy/broadcasts/:param/offers/draft, GET /p",
+     "ok"
+    ],
+    [
+     "data: Data terms",
+     "GET /provider/inventory/search → terms",
+     "ok"
+    ],
+    [
+     "data: Data searching",
+     "GET /provider/inventory/search → searching",
+     "ok"
+    ],
+    [
+     "data: Data searched",
+     "GET /provider/inventory/search → searched",
      "ok"
     ],
     [
@@ -308,6 +323,16 @@
     [
      "button: Available",
      "local state setChoices, setQuote",
+     "ok"
+    ],
+    [
+     "input: Search by name or barcode",
+     "user input → terms (local)",
+     "ok"
+    ],
+    [
+     "button: Search",
+     "GET /provider/inventory/search",
      "ok"
     ],
     [

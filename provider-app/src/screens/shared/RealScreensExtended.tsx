@@ -309,30 +309,50 @@ export function ExpiryTrackingScreen({ onBack }: { onBack: () => void }) {
   );
 }
 
-// 8. SHORTAGE REPORT SCREEN
+// 8. SHORTAGE REPORT SCREEN (POST/GET /provider/pharmacy/shortage-flags)
 export function ShortageReportScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [drug, setDrug] = useState('');
   const [details, setDetails] = useState('');
   const [sending, setSending] = useState(false);
+  const [flags, setFlags] = useState<any[]>([]);
+
+  const loadFlags = useCallback(async () => {
+    try {
+      const res = await client.get('/provider/pharmacy/shortage-flags');
+      setFlags(Array.isArray(res.data) ? res.data : []);
+    } catch { setFlags([]); }
+  }, []);
+  useEffect(() => { loadFlags(); }, [loadFlags]);
 
   const handleReport = async () => {
-    if (!drug.trim()) return show(AR ? 'حدد اسم الدواء الناقص' : 'Enter the shortage drug name', 'error');
+    const name = drug.trim();
+    if (!name) return show(AR ? 'حدد اسم الدواء الناقص' : 'Enter the shortage drug name', 'error');
     setSending(true);
     try {
-      await client.post('/support/tickets', {
-        subject: AR ? `بلاغ نقص دواء: ${drug.trim()}` : `Drug shortage report: ${drug.trim()}`,
-        message: (AR ? `الدواء: ${drug.trim()}\n` : `Drug: ${drug.trim()}\n`) + (details.trim() || (AR ? 'لا توجد تفاصيل إضافية' : 'No additional details')),
-        category: 'DRUG_SHORTAGE',
-        priority: 'high',
+      // The endpoint needs at least one identifier; Arabic names go in name_ar, others in generic_name.
+      const hasArabic = /[\u0600-\u06FF]/.test(name);
+      await client.post('/provider/pharmacy/shortage-flags', {
+        ...(hasArabic ? { name_ar: name } : { generic_name: name }),
+        ...(details.trim() ? { reason: details.trim() } : {}),
       });
-      show(AR ? 'تم إرسال البلاغ للإدارة — سيصلك الرد عبر الدعم' : 'Report sent to admin — you will be answered via support', 'success');
-      onBack();
+      show(AR ? 'تم إرسال البلاغ للإدارة للمراجعة' : 'Report sent to admin for review', 'success');
+      setDrug(''); setDetails('');
+      loadFlags();
     } catch (e: any) {
       const msg = e?.response?.data?.message;
       show(typeof msg === 'string' ? msg : (AR ? 'تعذر إرسال البلاغ — تحقق من الاتصال وحاول مجدداً' : 'Could not send report — check connection and retry'), 'error');
     } finally {
       setSending(false);
+    }
+  };
+
+  const flagStatus = (st: string) => {
+    switch (String(st)) {
+      case 'pending': return { label: AR ? 'قيد المراجعة' : 'Under review', variant: 'warning' as const };
+      case 'approved': return { label: AR ? 'معتمد' : 'Approved', variant: 'success' as const };
+      case 'rejected': return { label: AR ? 'مرفوض' : 'Rejected', variant: 'danger' as const };
+      default: return { label: st || '—', variant: 'default' as const };
     }
   };
 
@@ -346,6 +366,19 @@ export function ShortageReportScreen({ onBack }: { onBack: () => void }) {
           <NInput placeholder={AR ? 'تفاصيل إضافية (الكمية المطلوبة، آخر موعد توفر...)' : 'Additional details (quantity needed, last available date...)'} value={details} onChange={setDetails} multiline />
           <NBtn label={AR ? 'إرسال بلاغ النقص' : 'Send Shortage Report'} onPress={handleReport} loading={sending} disabled={sending} style={{ marginTop: SP.md }} />
         </NCard>
+        {flags.length > 0 && <NSecHeader title={AR ? 'بلاغاتك' : 'Your reports'} />}
+        {flags.map((f: any, i: number) => {
+          const st = flagStatus(f.status);
+          return (
+            <NCard key={f.id || i} style={{ marginBottom: SP.sm }}>
+              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={{ flex: 1, color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>{f.name_ar || f.generic_name || f.sku || '—'}</Text>
+                <NBadge label={st.label} variant={st.variant} size="xs" />
+              </View>
+              {!!f.reason && <Text style={{ color: theme.textSub, fontSize: FS.xs, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>{f.reason}</Text>}
+            </NCard>
+          );
+        })}
       </NScroll>
     </View>
   );

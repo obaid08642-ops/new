@@ -8,7 +8,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { NBtn, NCard, NInput, NStatCard, NAvatar, NBadge, NHeader, NScroll, NSecHeader, NBottomNav, NSheet, NPriceInput, NEmpty } from '../../components/ui';
 import { IBg, I } from '../../components/icons';
 import { SP, R, FS, FW } from '../../constants';
-import { ProviderWalletScreen, MedicalJobsScreen, MedicalDrugIndexScreen } from '../shared/SharedScreens';
+import { ProviderWalletScreen, WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen } from '../shared/SharedScreens';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
 import { GpsRouterScreen } from '../shared/BlueprintScreens';
 
@@ -78,6 +78,7 @@ export function RadiologyDashboardNavigator({ onLogout }: { onLogout: () => void
       <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="home_visit">{({ navigation, route }: any) => <GpsRouterScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="wallet">{({ navigation }: any) => <ProviderWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+      <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
     </Stack.Navigator>
   );

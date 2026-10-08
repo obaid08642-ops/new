@@ -117,21 +117,6 @@
    ]
   },
   {
-   "route": "DeliveryTrackingScreen",
-   "elements": [
-    [
-     "button: Call Driver",
-     "native action",
-     "ok"
-    ],
-    [
-     "API: GET /provider/pharmacy/allocations",
-     "GET /provider/pharmacy/allocations (OK, backend/src/modules/pharmacy/pharmacy.controllers.ts:74)",
-     "ok"
-    ]
-   ]
-  },
-  {
    "route": "FleetScreen",
    "elements": [
     [
@@ -818,28 +803,33 @@
    "route": "ProviderWalletScreen",
    "elements": [
     [
-     "button: Request Withdrawal",
-     "navigate → withdrawal_workflow",
-     "broken"
-    ],
-    [
      "data: Data balance",
-     "GET /provider/wallet, GET /provider/wallet/transactions, GET /provider/me → balance",
+     "GET /provider/payouts/balance, GET /provider/wallet/transactions, GET /provider/me → balance",
      "ok"
     ],
     [
      "data: Data totalRevenue",
-     "GET /provider/wallet, GET /provider/wallet/transactions, GET /provider/me → totalRevenue",
+     "GET /provider/payouts/balance, GET /provider/wallet/transactions, GET /provider/me → totalRevenue",
+     "ok"
+    ],
+    [
+     "data: Data lockedAmount",
+     "GET /provider/payouts/balance, GET /provider/wallet/transactions, GET /provider/me → lockedAmount",
      "ok"
     ],
     [
      "data: Data commissionCash",
-     "GET /provider/wallet, GET /provider/wallet/transactions, GET /provider/me → commissionCash",
+     "GET /provider/payouts/balance, GET /provider/wallet/transactions, GET /provider/me → commissionCash",
      "ok"
     ],
     [
      "data: Data commissionIns",
-     "GET /provider/wallet, GET /provider/wallet/transactions, GET /provider/me → commissionIns",
+     "GET /provider/payouts/balance, GET /provider/wallet/transactions, GET /provider/me → commissionIns",
+     "ok"
+    ],
+    [
+     "button: Request Withdrawal",
+     "navigate → withdrawal_workflow",
      "ok"
     ],
     [
@@ -854,7 +844,7 @@
     ],
     [
      "data: List transactions",
-     "GET /provider/wallet, GET /provider/wallet/transactions, GET /provider/me → transactions",
+     "GET /provider/payouts/balance, GET /provider/wallet/transactions, GET /provider/me → transactions",
      "ok"
     ]
    ]
@@ -949,7 +939,7 @@
    "elements": [
     [
      "input: Shortage Drug Name",
-     "user input → drug → request body",
+     "user input → drug (local)",
      "ok"
     ],
     [
@@ -959,7 +949,12 @@
     ],
     [
      "button: Send Shortage Report",
-     "POST /support/tickets",
+     "POST /provider/pharmacy/shortage-flags, GET /provider/pharmacy/shortage-flags",
+     "ok"
+    ],
+    [
+     "data: List flags",
+     "GET /provider/pharmacy/shortage-flags → flags",
      "ok"
     ]
    ]
@@ -1160,14 +1155,6 @@
    "line": 24
   },
   {
-   "route": "ProviderWalletScreen",
-   "element": "Request Withdrawal",
-   "kind": "client",
-   "note": "Button \"Request Withdrawal\" navigates to screen(s) its navigator does not register: withdrawal_workflow (facility/lab/nursing/radiology).",
-   "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
-   "line": 81
-  },
-  {
    "route": "ReviewsAndRatingsScreen",
    "element": "API GET /provider/reviews",
    "kind": "backend",
@@ -1182,7 +1169,7 @@
    "kind": "backend",
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
-   "line": 51,
+   "line": 54,
    "backend": "backend/src/modules/provider/provider.controllers.ts:97"
   },
   {

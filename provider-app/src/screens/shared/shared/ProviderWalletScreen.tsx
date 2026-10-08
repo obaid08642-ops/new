@@ -32,6 +32,7 @@ export function ProviderWalletScreen({ onBack, onNavigate }: { onBack: () => voi
   const [balance, setBalance] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [pendingEscrow, setPendingEscrow] = useState(0);
+  const [lockedAmount, setLockedAmount] = useState(0);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [commission, setCommission] = useState<number | null>(null);
   const [commissionCash, setCommissionCash] = useState<number | null>(null);
@@ -42,7 +43,7 @@ export function ProviderWalletScreen({ onBack, onNavigate }: { onBack: () => voi
     const fetchWallet = async () => {
       try {
         const [wRes, txRes] = await Promise.all([
-          client.get('/provider/wallet'),
+          client.get('/provider/payouts/balance'),
           client.get('/provider/wallet/transactions').catch(() => ({ data: [] })),
         ]);
         // Real per-provider commission rates set by the admin (cash % + insurance %)
@@ -54,9 +55,11 @@ export function ProviderWalletScreen({ onBack, onNavigate }: { onBack: () => voi
           if (cash !== undefined && cash !== null) { setCommissionCash(Number(cash)); setCommission(Number(cash)); }
           if (ins !== undefined && ins !== null) setCommissionIns(Number(ins));
         }).catch(() => {});
-        setBalance(wRes.data?.available || 0);
-        setPendingEscrow(wRes.data?.escrow || 0);
-        setTotalRevenue(wRes.data?.earned || 0);
+        // Single balance source (same ledger the withdrawal check uses): available, pending, locked, lifetime earned.
+        setBalance(Number(wRes.data?.available || 0));
+        setPendingEscrow(Number(wRes.data?.pending || 0));
+        setLockedAmount(Number(wRes.data?.locked || 0));
+        setTotalRevenue(Number(wRes.data?.lifetime_earned || 0));
         setTransactions(Array.isArray(txRes.data) ? txRes.data : []);
       } catch (err) {
         console.warn('Failed to fetch wallet', err);
@@ -88,6 +91,14 @@ export function ProviderWalletScreen({ onBack, onNavigate }: { onBack: () => voi
           <NStatCard icon="trendingUp" label={AR ? 'إجمالي الإيرادات' : 'Total Revenue'} value={String(totalRevenue)} unit={AR ? 'ر' : 'SAR'} color={theme.success} style={{ flex: 1 }} />
           <NStatCard icon="clock" label={AR ? 'أرصدة معلقة (Escrow)' : 'Pending (Escrow)'} value={String(pendingEscrow)} unit={AR ? 'ر' : 'SAR'} color={theme.warn} style={{ flex: 1 }} />
         </View>
+
+        {lockedAmount > 0 && (
+          <NCard style={{ marginBottom: SP.md }}>
+            <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
+              {AR ? `محجوز لطلبات سحب قيد المعالجة: ${lockedAmount} ر.س` : `Reserved for withdrawals in progress: ${lockedAmount} SAR`}
+            </Text>
+          </NCard>
+        )}
 
         <NCard style={{ marginBottom: SP.lg, flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
           <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: theme.info + '20', justifyContent: 'center', alignItems: 'center' }}>

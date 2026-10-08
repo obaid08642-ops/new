@@ -31,7 +31,7 @@ import {
  ReputationHub, LiveOrderAlarmModal, CrmHub, RevenueInsights,
  LabSampleScannerScreen
 } from '../shared/BlueprintScreens';
-import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderHomeStats, GlobalSystemSettings, ChatSystem } from '../shared/SharedScreens';
+import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, WithdrawalWorkflow, ProviderHomeStats, GlobalSystemSettings, ChatSystem } from '../shared/SharedScreens';
 import { WorkingHoursEditorScreen, SecurityManagementScreen } from '../shared/RealScreens';
 import { LabBundlesScreen, LabHomeServiceScreen } from '../shared/RealScreensExtended';
 
@@ -224,6 +224,7 @@ export function LabDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
      <Stack.Screen name="home_collection">{({ navigation, route }: any) => <HomeCollection order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="qr_label">{({ navigation, route }: any) => <QRSampleLabel sample={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="wallet">{({ navigation }: any) => <ProviderWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+     <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="chat">{({ navigation }: any) => <ChatSystem onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="tat_tracker">{({ navigation }: any) => <TATTracker onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="insurance">{({ navigation }: any) => <LabInsurance onBack={() => navigation.goBack()} />}</Stack.Screen>

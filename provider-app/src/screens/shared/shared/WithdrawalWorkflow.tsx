@@ -27,6 +27,9 @@ import { useInsuranceCatalog } from '../../../api/catalogs';
 import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
 
+// Same two states the server treats as an open request (provider-payouts.controller.ts:78).
+const PENDING_STATES = ['PENDING_ADMIN_APPROVAL', 'APPROVED_FOR_PAYOUT'];
+
 export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [loading, setLoading] = useState(true);
@@ -73,7 +76,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
   const cleanIban = iban.replace(/\s+/g, '').toUpperCase();
   const ibanValid = /^SA\d{22}$/.test(cleanIban);
   const amt = parseFloat(amount);
-  const hasPending = history.some((h: any) => h.status === 'pending');
+  const hasPending = history.some((h: any) => PENDING_STATES.includes(String(h.state)));
   const needsBankSetup = !bank;
   const bankApproved = bank?.review_status === 'approved';
   const awaitingBankApproval = !!bank && !bankApproved;
@@ -108,15 +111,25 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
     }
   };
 
+  // Payout status comes from the server `state` (PENDING_ADMIN_APPROVAL, AWAITING_SECOND_APPROVAL, APPROVED_FOR_PAYOUT, COMPLETED, REJECTED).
   const statusLabel = (st: string) => {
-    switch (st) {
-      case 'pending': return AR ? 'قيد المراجعة' : 'Pending review';
-      case 'approved': case 'processed': case 'paid': return AR ? 'تم التحويل' : 'Paid';
-      case 'rejected': return AR ? 'مرفوض' : 'Rejected';
-      default: return st;
+    switch (String(st)) {
+      case 'PENDING_ADMIN_APPROVAL': return AR ? 'بانتظار اعتماد الإدارة' : 'Pending admin approval';
+      case 'AWAITING_SECOND_APPROVAL': return AR ? 'بانتظار الاعتماد الثاني' : 'Awaiting second approval';
+      case 'APPROVED_FOR_PAYOUT': return AR ? 'معتمد وجارٍ التحويل' : 'Approved, transfer in progress';
+      case 'COMPLETED': return AR ? 'تم التحويل' : 'Paid';
+      case 'REJECTED': return AR ? 'مرفوض' : 'Rejected';
+      default: return st || '—';
     }
   };
-  const statusVariant = (st: string) => st === 'pending' ? 'warning' : (st === 'rejected' ? 'danger' : 'success');
+  const statusVariant = (st: string) => {
+    switch (String(st)) {
+      case 'COMPLETED': return 'success';
+      case 'REJECTED': return 'danger';
+      case 'APPROVED_FOR_PAYOUT': return 'info';
+      default: return 'warning';
+    }
+  };
 
   if (loading) {
     return (
@@ -297,11 +310,11 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
                       {h.createdAt ? new Date(h.createdAt).toLocaleDateString(AR ? 'ar-SA-u-ca-gregory' : 'en-GB') : ''}{h.iban ? ` · ${String(h.iban).slice(0, 6)}…${String(h.iban).slice(-4)}` : ''}
                     </Text>
                   </View>
-                  <NBadge label={statusLabel(h.status)} variant={statusVariant(h.status) as any} />
+                  <NBadge label={statusLabel(h.state)} variant={statusVariant(h.state) as any} />
                 </View>
-                {h.status === 'rejected' && !!h.admin_note && (
+                {h.state === 'REJECTED' && !!h.rejection_reason && (
                   <Text style={{ fontSize: FS.xs, color: theme.danger, textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>
-                    {AR ? `سبب الرفض: ${h.admin_note}` : `Rejection reason: ${h.admin_note}`}
+                    {AR ? `سبب الرفض: ${h.rejection_reason}` : `Rejection reason: ${h.rejection_reason}`}
                   </Text>
                 )}
               </NCard>

@@ -43,13 +43,14 @@ import {
 import { SP, R, FS, FW, PHARMA_CATS, LIMITS, C, API_BASE } from '../../constants';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
 import { PharmacyInsuranceQueueScreen } from './PharmacyInsuranceDecision';
+import { PharmacyMoreScreen, SetupChecklist } from './PharmacyMore';
 import { buildHeaders, Biometric, SK, Vault } from '../../security/Security';
 import client from '../../api/client';
 import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderHomeStats, GlobalSystemSettings } from '../shared/SharedScreens';
 import {
  PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
- LiveOrderAlarmModal, CrmHub, RevenueInsights,
+ CrmHub, RevenueInsights,
  PharmacyBroadcastResponse, InventoryExpiryMonitor
 } from '../shared/BlueprintScreens';
 
@@ -62,7 +63,7 @@ import {
   NotificationsCenterScreen, TechnicalSupportTicketsScreen 
 } from '../shared/RealScreens';
 import { 
-  PharmacyQRMenuScreen, ChronicDiseaseProgramScreen, DeliveryTrackingScreen, 
+  PharmacyQRMenuScreen, ChronicDiseaseProgramScreen, 
   MedicationRefillsScreen, AddProductScreen, 
   ExpiryTrackingScreen, ShortageReportScreen 
 } from '../shared/RealScreensExtended';
@@ -78,7 +79,7 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
  const { theme } = useTheme();
  const { lang } = useLang();
  const AR = lang === 'ar';
- const [alarmVisible, setAlarmVisible] = useState(false);
+ const { toggleOnline } = useAuth();
 
   const [unlocked, setUnlocked] = useState(false);
   const [bioError, setBioError] = useState('');
@@ -99,10 +100,10 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
   }, []);
 
   const tabs = [
-    { key: 'orders', icon: 'document', label: AR ? 'الطلبات' : 'Orders Hub' },
+    { key: 'orders', icon: 'radar', label: AR ? 'الرادار' : 'Radar' },
     { key: 'b2b', icon: 'activity', label: AR ? 'النواقص' : 'B2B Procurement' },
-    { key: 'dispatch', icon: 'truck', label: AR ? 'التوصيل' : 'Dispatch' },
-    { key: 'settings', icon: 'settings', label: AR ? 'الإعدادات' : 'Settings' },
+    { key: 'dispatch', icon: 'truck', label: AR ? 'الطلبات' : 'Orders' },
+    { key: 'settings', icon: 'settings', label: AR ? 'المزيد' : 'More' },
   ];
 
  return (
@@ -121,18 +122,13 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
                 </View>
              ) : (
                 <>
-                 {(activeTab === 'home' || activeTab === 'orders') && <PharmacyHomeTab onNavigate={go} onSwitchTab={setTab} />}
+                 {(activeTab === 'home' || activeTab === 'orders') && <PharmacyHomeTab onNavigate={go} onSwitchTab={setTab} onToggleOnline={() => { void toggleOnline(); }} />}
                  {activeTab === 'b2b' && <B2BSupplyRequestScreen onBack={() => setTab('orders')} />}
                  {activeTab === 'dispatch' && <DispatchWorkflowScreen onBack={() => setTab('orders')} onNavigate={go} />}
-                 {activeTab === 'settings' && <SettingsScreen onBack={() => setTab('orders')} onNavigate={go} />}
+                 {activeTab === 'settings' && <PharmacyMoreScreen onNavigate={go} onToggleOnline={() => { void toggleOnline(); }} />}
                  <NBottomNav tabs={tabs} active={activeTab === 'home' ? 'orders' : activeTab} onPress={setTab} />
                 </>
              )}
-             <LiveOrderAlarmModal
-               visible={alarmVisible}
-               onAccept={() => { setAlarmVisible(false); go('delivery_track'); }}
-               onDecline={() => setAlarmVisible(false)}
-             />
            </View>
          );
        }}
@@ -141,11 +137,11 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
      <Stack.Screen name="shortage">{({ navigation }: any) => <ShortageReportScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="b2b_supply">{({ navigation }: any) => <B2BSupplyRequestScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="scanner">{({ navigation }: any) => <SmartBarcodeScannerScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-     <Stack.Screen name="wallet">{({ navigation }: any) => <PharmacyWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+     <Stack.Screen name="wallet">{({ navigation }: any) => <ProviderWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
-     <Stack.Screen name="order_history">{({ navigation }: any) => <OrderHistoryScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+     <Stack.Screen name="order_history">{({ navigation }: any) => <DispatchWorkflowScreen initialSection="done" onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+     <Stack.Screen name="pharmacy_settings">{({ navigation }: any) => <SettingsScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="returns_rma">{({ navigation }: any) => <ReturnsRMAScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-     <Stack.Screen name="delivery_track">{({ navigation, route }: any) => <DeliveryTrackingScreen order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
     <Stack.Screen name="pharmacy_chat">{({ navigation, route }: any) => <PharmacyChatScreen onBack={() => navigation.goBack()} orderId={route.params?.param?.order_id || route.params?.param?.orderId} />}</Stack.Screen>
      <Stack.Screen name="qr_menu">{({ navigation }: any) => <PharmacyQRMenuScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="reviews">{({ navigation }: any) => <ReviewsAndRatingsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -165,10 +161,9 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
      <Stack.Screen name="insurance_config">{({ navigation }: any) => <InsuranceConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="certificates_config">{({ navigation }: any) => <CertificatesConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="media_config">{({ navigation }: any) => <MediaConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-     <Stack.Screen name="pharmacy_info">{({ navigation }: any) => <PharmacyQRMenuScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
     <Stack.Screen name="insurance_decisions">{({ navigation }: any) => <PharmacyInsuranceQueueScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-     <Stack.Screen name="product_catalog">{({ navigation }: any) => <ActiveInventoryScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="product_catalog">{({ navigation }: any) => <ActiveInventoryScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="working_hours">{({ navigation }: any) => <WorkingHoursEditorScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="support">{({ navigation }: any) => <TechnicalSupportTicketsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -189,7 +184,7 @@ const s = StyleSheet.create({
 // RESTORED COMPONENTS
 // ══════════════════════════════════════════════════════════════════════════════
 
-function PharmacyHomeTab({ onNavigate, onSwitchTab }: any) {
+function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
   const { theme } = useTheme();
   const { lang } = useLang();
   const AR = lang === 'ar';
@@ -300,10 +295,13 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab }: any) {
   const confirmReject = async (reasonId: string) => {
     try {
       await client.post(`/provider/pharmacy/broadcasts/${rejectOrderId}/reject`, { reason: reasonId });
-      setBroadcasts(prev => prev.filter(b => b.id !== rejectOrderId));
+      setBroadcasts(prev => prev.filter(b => b.order_id !== rejectOrderId));
       show(AR ? 'تم رفض الطلب' : 'Order rejected', 'info');
-    } catch(e) {}
-    setShowRejectModal(false);
+      setShowRejectModal(false);
+    } catch (e: any) {
+      const msg = e?.response?.data?.message;
+      show(typeof msg === 'string' ? msg : (AR ? 'تعذر رفض الطلب، حاول مجدداً' : 'Could not reject the order, try again'), 'error');
+    }
   };
 
   return (
@@ -320,6 +318,8 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab }: any) {
         <Switch value={isOnline} onValueChange={() => { void toggleOnline(); }} trackColor={{ true: theme.primary }} />
       </View>
       
+      <SetupChecklist compact onNavigate={onNavigate} onToggleOnline={onToggleOnline} onOpenMore={() => onSwitchTab('settings')} />
+
       {!isOnline ? (
         <NEmpty icon="moon" title={AR ? 'أنت غير متصل' : 'You are offline'} sub={AR ? 'قم بتفعيل الاتصال لاستقبال الطلبات' : 'Go online to receive orders'} />
       ) : (
@@ -795,10 +795,6 @@ function B2BSupplyRequestScreen({ onBack }: any) {
     </View>
   );
 }
-function PharmacyWalletScreen({ onBack, onNavigate }: any) {
-  // Real server-backed wallet (ledger balance, transactions) + governed withdrawal flow.
-  return <ProviderWalletScreen onBack={onBack} onNavigate={onNavigate} />;
-}
 function ReturnsRMAScreen({ onBack }: any) {
   const { theme } = useTheme();
   const { lang } = useLang();
@@ -866,7 +862,15 @@ function ReturnsRMAScreen({ onBack }: any) {
 // ══════════════════════════════════════════════════════════════════════════════
 // DISPATCH & DELIVERY SCREEN (Screen 3 - Workflows)
 // ══════════════════════════════════════════════════════════════════════════════
-function DispatchWorkflowScreen({ onBack, onNavigate }: any) {
+// Order sections over GET /provider/pharmacy/allocations (M6): one screen replaces dispatch, history and delivery tracking.
+type OrderSection = 'new' | 'preparing' | 'ontheway' | 'done';
+const ORDER_SECTION_STATUSES: Record<OrderSection, string[]> = {
+  new: ['pending_review', 'partially_confirmed', 'confirmed'],
+  preparing: ['preparing', 'ready_for_pickup'],
+  ontheway: ['out_for_delivery'],
+  done: ['delivered', 'cancelled', 'rejected', 'expired'],
+};
+function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: { onBack: () => void; onNavigate?: (s: string, p?: any) => void; initialSection?: OrderSection }) {
   const { theme } = useTheme();
   const { lang } = useLang();
   const { show } = useToast();
@@ -874,6 +878,8 @@ function DispatchWorkflowScreen({ onBack, onNavigate }: any) {
 
   const [allocations, setAllocations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [section, setSection] = useState<OrderSection>(initialSection);
   const [actionId, setActionId] = useState<string | null>(null);
   const [details, setDetails] = useState<Record<string, any>>({});
 
@@ -887,17 +893,23 @@ function DispatchWorkflowScreen({ onBack, onNavigate }: any) {
   const [collectMethod, setCollectMethod] = useState<'cash' | 'card_terminal'>('cash');
   const [collectAmount, setCollectAmount] = useState('');
 
-  const load = async () => {
+  const load = async (quiet = false) => {
     try {
       const res = await client.get('/provider/pharmacy/allocations');
       setAllocations(Array.isArray(res.data) ? res.data : []);
     } catch {
-      show(AR ? 'تعذر تحميل الطلبات' : 'Unable to load orders', 'error');
+      if (!quiet) show(AR ? 'تعذر تحميل الطلبات' : 'Unable to load orders', 'error');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
-  useEffect(() => { load(); }, []);
+  // A newly selected offer shows up without leaving the tab: poll quietly while the screen is open.
+  useEffect(() => {
+    load();
+    const t = setInterval(() => { void load(true); }, 20000);
+    return () => clearInterval(t);
+  }, []);
 
   const loadDetail = async (id: string) => {
     try {
@@ -942,13 +954,20 @@ function DispatchWorkflowScreen({ onBack, onNavigate }: any) {
       delivered: { ar: 'تم التسليم', en: 'Delivered', variant: 'success' },
       cancelled: { ar: 'ملغي', en: 'Cancelled', variant: 'danger' },
       rejected: { ar: 'مرفوض', en: 'Rejected', variant: 'danger' },
+      expired: { ar: 'منتهي الصلاحية', en: 'Expired', variant: 'default' },
     };
     const m = map[k] || { ar: st, en: st, variant: 'default' };
     return { label: AR ? m.ar : m.en, variant: m.variant };
   };
 
-  const active = allocations.filter((a) => !['delivered', 'cancelled', 'rejected'].includes(String(a.status)));
-  const done = allocations.filter((a) => ['delivered', 'cancelled', 'rejected'].includes(String(a.status)));
+  const inSection = (sec: OrderSection) => allocations.filter((a) => ORDER_SECTION_STATUSES[sec].includes(String(a.status)));
+  const shown = inSection(section);
+  const sectionTabs: { key: OrderSection; ar: string; en: string }[] = [
+    { key: 'new', ar: 'جديدة', en: 'New' },
+    { key: 'preparing', ar: 'قيد التجهيز', en: 'Preparing' },
+    { key: 'ontheway', ar: 'في الطريق', en: 'On the way' },
+    { key: 'done', ar: 'منتهية', en: 'Done' },
+  ];
 
   const renderCard = (a: any) => {
     const meta = statusMeta(a.status);
@@ -1048,31 +1067,27 @@ function DispatchWorkflowScreen({ onBack, onNavigate }: any) {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'التوصيل والتسليم' : 'Dispatch & delivery'} onBack={onBack} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 60 }}>
+      <NHeader title={AR ? 'الطلبات' : 'Orders'} onBack={onBack} right={onNavigate ? <TouchableOpacity onPress={() => onNavigate('insurance_decisions')} style={{ padding: SP.sm }}><I name="shield" size={22} color={theme.primary} /></TouchableOpacity> : undefined} />
+      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 8, paddingHorizontal: 16, paddingBottom: 8, flexWrap: 'wrap' }}>
+        {sectionTabs.map((t) => {
+          const count = inSection(t.key).length;
+          const on = section === t.key;
+          return (
+            <TouchableOpacity key={t.key} onPress={() => setSection(t.key)}
+              style={{ paddingVertical: 8, paddingHorizontal: 14, borderRadius: 20, borderWidth: 1.5, backgroundColor: on ? theme.primary : theme.surface2, borderColor: on ? theme.primary : theme.border }}>
+              <Text style={{ color: on ? theme.textInv : theme.text, fontWeight: '600', fontSize: 13 }}>{(AR ? t.ar : t.en) + (count ? ` (${count})` : '')}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 60 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void load(); }} tintColor={theme.primary} />}>
         {loading ? (
           <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} />
-        ) : allocations.length === 0 ? (
-          <NEmpty icon="moon" title={AR ? 'لا توجد طلبات' : 'No orders'} sub={AR ? 'ستظهر الطلبات المختارة هنا بعد اختيار المريض لعرضك' : 'Selected orders will appear here once a patient picks your offer'} />
+        ) : shown.length === 0 ? (
+          <NEmpty icon="moon" title={AR ? 'لا توجد طلبات هنا' : 'No orders here'} sub={section === 'new' ? (AR ? 'ستظهر الطلبات المختارة هنا بعد اختيار المريض لعرضك' : 'Selected orders will appear here once a patient picks your offer') : (AR ? 'لا توجد طلبات في هذا القسم' : 'No orders in this section')} />
         ) : (
-          <>
-            {active.length > 0 && (
-              <>
-                <Text style={{ fontWeight: 'bold', fontSize: 15, color: theme.text, marginBottom: 8, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? 'طلبات نشطة' : 'Active orders'}
-                </Text>
-                {active.map(renderCard)}
-              </>
-            )}
-            {done.length > 0 && (
-              <>
-                <Text style={{ fontWeight: 'bold', fontSize: 15, color: theme.textSub, marginTop: 8, marginBottom: 8, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? 'طلبات منتهية' : 'Completed orders'}
-                </Text>
-                {done.slice(0, 20).map(renderCard)}
-              </>
-            )}
-          </>
+          (section === 'done' ? shown.slice(0, 50) : shown).map(renderCard)
         )}
       </ScrollView>
     </View>
@@ -1426,53 +1441,12 @@ function BroadcastOrderScreen({ onBack }: any) {
   );
 }
 
-function OrderHistoryScreen({ onBack }: any) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
-  // Real completed/delivered orders — no demo history.
-  const [history, setHistory] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    client.get('/provider/pharmacy/allocations', { params: { status: 'completed' } })
-      .then(r => setHistory(Array.isArray(r.data) ? r.data : (r.data?.items || [])))
-      .catch(() => setHistory([]))
-      .finally(() => setLoading(false));
-  }, []);
-  return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'سجل الطلبات السابقة' : 'Order History'} onBack={onBack} />
-      <NScroll pad>
-        {loading ? (
-          <ActivityIndicator color={theme.primary} />
-        ) : history.length === 0 ? (
-          <NCard>
-            <Text style={{ color: theme.textSub, textAlign: 'center' }}>{AR ? 'لا توجد طلبات مكتملة بعد.' : 'No completed orders yet.'}</Text>
-          </NCard>
-        ) : history.map((o: any) => {
-          const oid = o.id || o._id;
-          const patient = o.patient_name || o.patient || '—';
-          const total = o.total ?? o.total_amount ?? 0;
-          const date = o.updatedAt || o.createdAt ? new Date(o.updatedAt || o.createdAt).toISOString().slice(0, 10) : '';
-          return (
-          <NCard key={oid} style={{ marginBottom: SP.sm }}>
-            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{patient} ({oid})</Text>
-              <NBadge label={AR ? 'مكتمل' : 'Completed'} variant="success" />
-            </View>
-            <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? `الإجمالي: ${total} ر.س · التاريخ: ${date}` : `Total: ${total} SAR · Date: ${date}`}
-            </Text>
-          </NCard>
-          );
-        })}
-      </NScroll>
-    </View>
-  );
-}
-
 // ══════════════════════════════════════════════════════════════════════════════
 // ACTIVE INVENTORY SCREEN (Module 8)
 // ══════════════════════════════════════════════════════════════════════════════
-function ActiveInventoryScreen({ onBack }: any) {
+type LowStockAlert = { id: string; inventory_item_id: string; sku: string; name: string; current_stock: number; threshold: number; status: 'open' | 'acknowledged' | 'restocked' };
+
+function ActiveInventoryScreen({ onBack, onNavigate }: { onBack: () => void; onNavigate?: (s: string, p?: any) => void }) {
   const { theme } = useTheme();
   const { lang } = useLang();
   const { show } = useToast();
@@ -1494,6 +1468,42 @@ function ActiveInventoryScreen({ onBack }: any) {
   }, []);
 
   useEffect(() => { fetchInventory(); }, [fetchInventory]);
+
+  // Low-stock alerts (GET /provider/inventory/low-stock-alerts, ack, restock).
+  const [alerts, setAlerts] = useState<LowStockAlert[]>([]);
+  const [restockQty, setRestockQty] = useState<Record<string, string>>({});
+  const [alertBusy, setAlertBusy] = useState<string | null>(null);
+  const fetchAlerts = useCallback(async () => {
+    try {
+      const res = await client.get('/provider/inventory/low-stock-alerts');
+      setAlerts(Array.isArray(res.data) ? res.data : []);
+    } catch {
+      setAlerts([]);
+    }
+  }, []);
+  useEffect(() => { fetchAlerts(); }, [fetchAlerts]);
+  const ackAlert = async (id: string) => {
+    setAlertBusy(id);
+    try {
+      await client.post(`/provider/inventory/low-stock-alerts/${id}/ack`);
+      await fetchAlerts();
+    } catch {
+      show(AR ? 'تعذر تأكيد التنبيه' : 'Could not acknowledge the alert', 'error');
+    } finally { setAlertBusy(null); }
+  };
+  const restockAlert = async (a: LowStockAlert) => {
+    const qty = Math.floor(Number(restockQty[a.id]));
+    if (!Number.isFinite(qty) || qty <= 0) { show(AR ? 'أدخل كمية أكبر من صفر' : 'Enter a quantity above zero', 'error'); return; }
+    setAlertBusy(a.id);
+    try {
+      await client.post(`/provider/inventory/${a.inventory_item_id}/restock`, { qty });
+      setRestockQty(prev => ({ ...prev, [a.id]: '' }));
+      show(AR ? 'تمت إضافة الكمية للمخزون' : 'Stock added', 'success');
+      await Promise.all([fetchAlerts(), fetchInventory()]);
+    } catch {
+      show(AR ? 'تعذر تحديث المخزون' : 'Could not update stock', 'error');
+    } finally { setAlertBusy(null); }
+  };
 
   // Only the fields a pharmacy may set: the server rejects unknown fields (and owns id/timestamps).
   const EDITABLE = ['sku', 'name_ar', 'name_en', 'barcode', 'category', 'generic_name', 'form', 'dosage', 'pack_size', 'price', 'currency',
@@ -1578,8 +1588,30 @@ function ActiveInventoryScreen({ onBack }: any) {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'إدارة المخزون' : 'Active Inventory'} onBack={onBack} />
+      <NHeader title={AR ? 'إدارة المخزون' : 'Active Inventory'} onBack={onBack}
+        right={onNavigate ? <TouchableOpacity onPress={() => onNavigate('scanner')} style={{ padding: SP.sm }}><I name="scan" size={22} color={theme.primary} /></TouchableOpacity> : undefined} />
       <View style={{ padding: 16 }}>
+        {alerts.length > 0 && (
+          <NCard style={{ marginBottom: 12, borderColor: theme.warn, borderWidth: 1 }}>
+            <Text style={{ fontWeight: 'bold', color: theme.warn, textAlign: AR ? 'right' : 'left', marginBottom: 8 }}>
+              {AR ? `تنبيهات انخفاض المخزون (${alerts.length})` : `Low-stock alerts (${alerts.length})`}
+            </Text>
+            {alerts.map((a) => (
+              <View key={a.id} style={{ paddingVertical: 8, borderTopWidth: 1, borderTopColor: theme.surface2 }}>
+                <Text style={{ color: theme.text, textAlign: AR ? 'right' : 'left' }}>
+                  {a.name} · {AR ? `المتبقي ${a.current_stock} من حد ${a.threshold}` : `${a.current_stock} left, minimum ${a.threshold}`}
+                </Text>
+                <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 8, alignItems: 'center', marginTop: 6 }}>
+                  <View style={{ width: 90 }}>
+                    <NInput placeholder={AR ? 'الكمية' : 'Qty'} value={restockQty[a.id] || ''} onChange={(v: string) => setRestockQty(prev => ({ ...prev, [a.id]: v }))} kbType="numeric" />
+                  </View>
+                  <NBtn label={AR ? 'إضافة للمخزون' : 'Restock'} size="sm" loading={alertBusy === a.id} onPress={() => restockAlert(a)} />
+                  {a.status === 'open' && <NBtn label={AR ? 'تم الاطلاع' : 'Acknowledge'} size="sm" variant="outline" disabled={alertBusy === a.id} onPress={() => ackAlert(a.id)} />}
+                </View>
+              </View>
+            ))}
+          </NCard>
+        )}
         <NInput placeholder={AR ? 'ابحث عن منتج...' : 'Search product...'} value={search} onChange={(v: string) => setSearch(v)} />
         <NCard style={{ marginTop: 12 }}>
           <Text style={{ fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: 8 }}>

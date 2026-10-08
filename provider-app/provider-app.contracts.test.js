@@ -82,7 +82,11 @@ describe('Provider App release contracts', () => {
     // Pharmacy chat is server-backed (governed threads), not a disabled stub:
     // negotiation goes through /pharmacy/chat/threads with server decisions.
     expect(pharmacyDashboard).toContain("client.get('/pharmacy/chat/threads'");
-    expect(pharmacyDashboard).toContain("client.get('/provider/pharmacy/allocations', { params: { status: 'completed' } })");
+    // M6: one Orders screen over all allocations; history is the "done" section (delivered/cancelled/rejected/expired),
+    // not the non-existent allocation status "completed".
+    expect(pharmacyDashboard).toContain("client.get('/provider/pharmacy/allocations')");
+    expect(pharmacyDashboard).toContain("done: ['delivered', 'cancelled', 'rejected', 'expired']");
+    expect(pharmacyDashboard).not.toContain("status: 'completed'");
   });
 
   it('uses structured lab data and private radiology uploads rather than terminal placeholders', () => {
@@ -187,5 +191,28 @@ describe('Provider App release contracts', () => {
       expect(src).not.toMatch(/ProviderApi\.login\(/);
     }
     expect(read('api/provider.ts')).toMatch(/onboardingLogin[\s\S]*client\.post\('\/auth\/login'/);
+  });
+
+  it('withdrawal is reachable in every wallet role and payouts use the server state (E1, E2, E3)', () => {
+    for (const src of [pharmacyDashboard, labDashboard, radiologyDashboard, facilityDashboard, nursingDashboard, dashboard]) {
+      expect(src).toContain('name="withdrawal_workflow"');
+    }
+    expect(sharedScreens).toContain("client.get('/provider/payouts/balance')");
+    expect(sharedScreens).toContain('lifetime_earned');
+    expect(sharedScreens).toContain('h.rejection_reason');
+    expect(sharedScreens).toContain("'PENDING_ADMIN_APPROVAL'");
+    expect(sharedScreens).not.toContain('h.admin_note');
+    expect(sharedScreens).not.toContain("h.status === 'pending'");
+  });
+
+  it('pharmacy More menu rows all open registered routes; qr_menu/pharmacy_info are one route; wallet wrapper removed (P1, M2, M5)', () => {
+    const more = read('screens/pharmacy/PharmacyMore.tsx');
+    const registered = new Set([...pharmacyDashboard.matchAll(/<Stack\.Screen name="([a-z_]+)"/g)].map(m => m[1]));
+    const routes = [...more.matchAll(/route: '([a-z_]+)'/g)].map(m => m[1]);
+    expect(routes.length).toBeGreaterThan(30);
+    expect(routes.filter(r => !registered.has(r))).toEqual([]);
+    expect(pharmacyDashboard).not.toContain('name="pharmacy_info"');
+    expect(pharmacyDashboard).not.toContain('function PharmacyWalletScreen');
+    expect(pharmacyDashboard).toContain('<ProviderWalletScreen');
   });
 });

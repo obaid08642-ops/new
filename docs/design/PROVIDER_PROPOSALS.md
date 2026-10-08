@@ -64,3 +64,8 @@ Pharmacy has 11 screens in the inventory and 40 registered names; of these the U
 ### Removal (decision 14, O-2)
 
 Ambulance provider type: `AmbulanceRegistration` (offered at sign-up, `App.tsx:147`), `AmbulanceDashboardNavigator` (`App.tsx:124`), `ambulance/*` (7 screens, 13 endpoint pairs, the 7 owner lines in `needs-review/provider-ambulance.json`), the `Welcome` type picker entry, and the backend `emergency`, `ambulance-fleet` and `drivers` modules per the decision. Also remove `sos_dispatch` (`SosDispatchScreen`: `POST /emergency/trigger`, `GET /emergency/active`, `POST /emergency/:id/claim`) and `gps_router` (`POST /emergency/:id/track`) from the doctor, nursing and other navigators: both call the emergency dispatch API that decision 14 removes, and the doctor/nursing home alarm bell opens them.
+
+## Build status, slice 1 (pharmacy first), branch `wip-prov-build1`
+
+Done: P1 (More tab with 40 rows grouped Stock / Orders and insurance / Finance / Pharmacy / Growth, every row a registered route), P2 (inventory reachable, scanner button, low-stock alerts with acknowledge and restock), P4 (per-line name/barcode re-search in the composer), P8 (shortage report posts `POST /provider/pharmacy/shortage-flags`, lists own reports), P9 (setup checklist on the radar and in More), M2, M5, M6 (Orders: New / Preparing / On the way / Done; `order_history` opens the Done section; `delivery_track` unregistered), E1, E2, E3.
+Not done (stay as Needs-review): P3 (backend list route), P5 (backend notification), P6 and P7 (owner / role guard), M1, M3, M4, M7 to M10, D*, N*, A*, removal of the ambulance role.

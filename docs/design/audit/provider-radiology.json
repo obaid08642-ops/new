@@ -474,7 +474,7 @@
    "kind": "client",
    "note": "Button \"Edit\" only shows a message without sending a request.",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 522
+   "line": 523
   },
   {
    "route": "RadiologyHome",
@@ -482,7 +482,7 @@
    "kind": "backend",
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 96,
+   "line": 97,
    "backend": "backend/src/modules/radiology/radiology.controller.ts:84"
   }
  ]

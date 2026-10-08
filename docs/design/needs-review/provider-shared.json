@@ -42,16 +42,6 @@
   {
     "batch": "provider",
     "app": "provider-app",
-    "screen": "ProviderWalletScreen",
-    "element": "Request Withdrawal",
-    "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
-    "line": 81,
-    "found": "[client] Button \"Request Withdrawal\" navigates to screen(s) its navigator does not register: withdrawal_workflow (facility/lab/nursing/radiology).",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": "provider",
-    "app": "provider-app",
     "screen": "ReviewsAndRatingsScreen",
     "element": "API GET /provider/reviews",
     "file": "provider-app/src/screens/shared/RealScreens.tsx",
@@ -65,7 +55,7 @@
     "screen": "WithdrawalWorkflow",
     "element": "API GET /provider/bank-account",
     "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
-    "line": 51,
+    "line": 54,
     "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider/provider.controllers.ts:97)",
     "suspect": "Backend gap: reviewer session."
   },
