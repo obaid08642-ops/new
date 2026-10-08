@@ -3,13 +3,7 @@ import {
   NotFoundException,
   BadRequestException, Inject } from '@nestjs/common';
 import { Model, Document } from 'mongoose';
-import { findByAnyId, findOneByAnyId } from '../../../common/find-by-id';
-import { Types } from 'mongoose';
-
-function findByIdAndUpdateByAnyId(model: any, id: string, update: any, options: any = { new: true }): any {
-  const filter = Types.ObjectId.isValid(id) ? { _id: new Types.ObjectId(id) } : { id };
-  return model.findOneAndUpdate(filter, update, options).exec();
-}
+import { findByAnyId } from '../../../common/find-by-id';
 import { ProcurementStatus } from '../enums/procurement-status.enum';
 import { ProcurementRequest } from '../schemas/procurement-request.schema';
 import { Quotation } from '../schemas/quotation.schema';
@@ -92,12 +86,12 @@ export class ProcurementService {
       throw new BadRequestException('Invalid status transition');
     }
 
-    // Use the model directly for updating
-    await findByIdAndUpdateByAnyId(this.model, requestId, {
-      status: dto.status,
-      pharmacyFeedback: dto.pharmacyFeedback,
-    });
-    
+    // Persist on the fetched document (same mutate+save contract the
+    // request lifecycle tests observe).
+    req.status = dto.status;
+    (req as any).pharmacyFeedback = dto.pharmacyFeedback;
+    await req.save();
+
     // Mirror status to the linked quotation
     await this.quotationModel.updateOne(
       { procurementRequestId: requestId },
@@ -229,7 +223,11 @@ export class ProcurementService {
       );
     }
 
-    await findByIdAndUpdateByAnyId(this.model, requestId, { status: ProcurementStatus.CANCELLED });
+    // Persist on the fetched document (same mutate+save contract as the other
+    // admin transitions in this service, and what the request lifecycle
+    // tests observe).
+    req.status = ProcurementStatus.CANCELLED;
+    await req.save();
     return { success: true };
   }
 
@@ -245,7 +243,11 @@ export class ProcurementService {
       );
     }
 
-    await findByIdAndUpdateByAnyId(this.model, requestId, { status: ProcurementStatus.COMPLETED });
+    // Persist on the fetched document (same mutate+save contract as the other
+    // admin transitions in this service, and what the request lifecycle
+    // tests observe).
+    req.status = ProcurementStatus.COMPLETED;
+    await req.save();
     return { success: true };
   }
 }
