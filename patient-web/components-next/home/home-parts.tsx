@@ -125,14 +125,12 @@ export function ServiceGrid({ locale, t, signedIn = false }: { locale: Locale; t
   );
 }
 
-/** The smart assistant card with its five tools. */
+/** The smart assistant card: two modes of the assistant and the monthly report (owner decisions 4 and 7: no skin analysis, no chat entry). */
 export function AiCard({ locale, t }: { locale: Locale; t: T }) {
   const base = `/${locale}/ai`;
   const tools: Array<{ icon: FillIconName; tone: ServiceTone; label: string; href: string }> = [
-    { icon: "heartbeat", tone: TONE.care, label: t("aiSymptoms"), href: `${base}/symptom-checker` },
-    { icon: "translate", tone: "violet", label: t("aiTranslator"), href: `${base}/prescription-translator` },
-    { icon: "scan", tone: "pink", label: t("aiSkin"), href: `${base}/skin-analysis` },
-    { icon: "robot", tone: "blue", label: t("aiDoctor"), href: `${base}/chat-doctor` },
+    { icon: "heartbeat", tone: TONE.care, label: t("aiSymptoms"), href: `${base}?mode=symptoms` },
+    { icon: "translate", tone: "violet", label: t("aiTranslator"), href: `${base}?mode=prescription` },
     { icon: "chart-line-up", tone: "mint", label: t("aiReport"), href: `${base}/monthly-report` },
   ];
   return (
@@ -143,7 +141,7 @@ export function AiCard({ locale, t }: { locale: Locale; t: T }) {
           <h2 id="home-ai-title" className={styles.aiTitle}>{t("aiTitle")}</h2>
           <span className={styles.aiSub}>{t("aiSub")}</span>
         </div>
-        <Link href={`${base}/triage`} className={styles.aiStart}>{t("aiStart")}</Link>
+        <Link href={base} className={styles.aiStart}>{t("aiStart")}</Link>
       </div>
       <ul className={styles.aiTools}>
         {tools.map((tool) => (

@@ -241,6 +241,12 @@ const BOARD = {
   'a-articles': { params: {} },
   'a-articles-saved': { params: { tab: 'saved' } },
   'a-article': { params: { slug: 'test-article' } },
+  // Batch 9 (one AI assistant; merge map section 4). No board draws the assistant: it follows the chat template and the CareHub cards
+  // (`--dir patient-app/app/ai --screens index:ai-assistant,monthly-report:ai-monthly-report`). The report is the list template.
+  'ai-assistant': { component: 'CareHub', size: [390, 1300], params: {} },
+  'ai-assistant-rx': { component: 'CareHub', size: [390, 700], params: { mode: 'prescription' } },
+  'ai-assistant-report': { component: 'CareHub', size: [390, 700], params: { mode: 'report' } },
+  'ai-monthly-report': { component: 'CareHub', size: [390, 1300], params: {} },
   welcome: { board: 'welcome', params: {} },
   login: { board: 'login', params: {} },
   register: { board: 'register', params: {} },

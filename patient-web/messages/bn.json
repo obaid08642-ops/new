@@ -100,8 +100,6 @@
     "aiStart": "চ্যাট শুরু করুন",
     "aiSymptoms": "উপসর্গ পরীক্ষা",
     "aiTranslator": "প্রেসক্রিপশন অনুবাদক",
-    "aiSkin": "ত্বক বিশ্লেষণ",
-    "aiDoctor": "ভার্চুয়াল ডাক্তার",
     "aiReport": "মাসিক রিপোর্ট",
     "offersTitle": "অফার ও প্যাকেজ",
     "seeAll": "সব দেখুন",
@@ -1315,16 +1313,6 @@
     "error": "এখন লোড করা যায়নি",
     "sar": "SAR"
   },
-  "AiTriage": {
-    "title": "এআই লক্ষণ ট্রায়াজ",
-    "subtitle": "আপনার লক্ষণ বর্ণনা করুন।",
-    "placeholder": "উদাহরণ: দুই দিন ধরে মাথাব্যথা…",
-    "submit": "বিশ্লেষণ করুন",
-    "submitting": "বিশ্লেষণ চলছে…",
-    "error": "এখন বিশ্লেষণ করা যায়নি",
-    "resultTitle": "প্রাথমিক মূল্যায়ন",
-    "disclaimer": "এটি প্রাথমিক মূল্যায়ন, চিকিৎসা রোগনির্ণয় নয়।"
-  },
   "PublicProduct": {
     "backToCatalog": "ক্যাটালগে ফিরুন",
     "home": "হোম",
@@ -1660,25 +1648,6 @@
     "servicesTitle": "Available Nursing Services",
     "price": "{value} SAR",
     "requestNurse": "Request Nursing Visit"
-  },
-  "VoiceAssistant": {
-    "title": "Quick Assistant",
-    "subtitle": "Fast shortcuts to directly access healthcare services",
-    "voiceNotice": "Select a service for instant navigation",
-    "actionDoctor": "Book Doctor Appointment",
-    "actionPharmacy": "Order Medicine from Pharmacy",
-    "actionLabs": "Book Lab Test",
-    "actionNursing": "Book Home Nurse",
-    "actionAppointments": "View Upcoming Appointments",
-    "actionTriage": "AI Symptom Triage",
-    "actionEmergency": "Emergency — Request Ambulance",
-    "catConsultation": "Medical Consultation",
-    "catPharmacy": "Pharmacy & Medicines",
-    "catLabs": "Labs & Diagnostics",
-    "catNursing": "Nursing & Home Care",
-    "catAppointments": "Appointments",
-    "catAI": "AI Assistant",
-    "catEmergency": "Urgent Emergency"
   },
   "MapExplorer": {
     "title": "Explore Facilities",
@@ -3146,5 +3115,88 @@
     "myPoints": "আমার পয়েন্ট ও পুরস্কার",
     "noSessions": "এই প্রোগ্রামে কোনো সেশন নেই।",
     "markDone": "সম্পন্ন চিহ্নিত করুন"
+  },
+  "AssistantWeb": {
+    "title": "এআই সহকারী",
+    "modesLabel": "আপনি কী জানতে চান?",
+    "mode": {
+      "symptoms": "আমার উপসর্গ",
+      "prescription": "আমার প্রেসক্রিপশন",
+      "report": "আমার রিপোর্ট"
+    },
+    "heroTitle": {
+      "symptoms": "আপনার উপসর্গ বর্ণনা করুন",
+      "prescription": "আমার প্রেসক্রিপশন বুঝিয়ে দিন",
+      "report": "আমার রিপোর্ট বুঝিয়ে দিন"
+    },
+    "heroLine": {
+      "symptoms": "আমরা পরবর্তী ধাপ দেখাই। এটি নির্দেশনা, রোগ নির্ণয় নয়।",
+      "prescription": "ওষুধের নাম পড়তে প্রেসক্রিপশনের ছবি তুলুন, তারপর যেকোনো ওষুধ সম্পর্কে ফার্মাসিস্টকে জিজ্ঞেস করুন।",
+      "report": "আপনার মেডিকেল রিপোর্ট বেছে নিন, আমরা সহজ ভাষায় সারাংশ বুঝিয়ে দেব।"
+    },
+    "askedLabel": "আপনার প্রশ্ন",
+    "examplesLabel": "সাধারণ উদাহরণ",
+    "example1": "দুই দিন ধরে মাথাব্যথা",
+    "example2": "জ্বর ও শুকনো কাশি",
+    "example3": "পেটব্যথা ও বমি বমি ভাব",
+    "example4": "ত্বকে ফুসকুড়ি ও চুলকানি",
+    "symptomsLabel": "আপনার উপসর্গ",
+    "symptomsPlaceholder": "যেমন: দুই দিন ধরে মাথাব্যথা ও বমি বমি ভাব",
+    "flagsLegend": "এর মধ্যে কোনো লক্ষণ আছে কি? যেগুলো প্রযোজ্য সব বেছে নিন",
+    "flag": {
+      "chest_pain": "বুকে ব্যথা",
+      "breathing_difficulty": "শ্বাস নিতে কষ্ট",
+      "fainting_or_unresponsive": "অজ্ঞান হওয়া বা সাড়া না দেওয়া",
+      "heavy_bleeding": "প্রচণ্ড রক্তপাত",
+      "new_confusion": "হঠাৎ বিভ্রান্তি",
+      "severe_allergic_reaction": "গুরুতর অ্যালার্জির প্রতিক্রিয়া",
+      "severe_injury": "গুরুতর আঘাত"
+    },
+    "submit": "পরবর্তী ধাপ জানুন",
+    "submitting": "যাচাই হচ্ছে…",
+    "error": "এখন নির্দেশনা পাওয়া যায়নি। কিছুক্ষণ পরে আবার চেষ্টা করুন।",
+    "emergencyTitle": "যে লক্ষণে জরুরি সহায়তা দরকার",
+    "emergencyBody": "আপনার বেছে নেওয়া লক্ষণে এখনই স্থানীয় জরুরি সেবায় যোগাযোগ করুন, অ্যাপয়েন্টমেন্টের অপেক্ষা করবেন না।",
+    "consultationTitle": "আমরা ডাক্তার দেখানোর পরামর্শ দিই",
+    "consultationBody": "আপনি কোনো জরুরি লক্ষণ বাছেননি। উপসর্গ থাকলে বা বাড়লে ডাক্তারের পরামর্শ বুক করুন।",
+    "bookConsultation": "পরামর্শ বুক করুন",
+    "askAgain": "নতুন প্রশ্ন করুন",
+    "disclaimer": "এটি সাধারণ নির্দেশনা, রোগ নির্ণয় বা চিকিৎসা নয়। জরুরি অবস্থায় জরুরি সেবায় কল করুন।",
+    "medicinesTitle": "ছবি থেকে পড়া ওষুধ",
+    "pharmacistNote": "মাত্রা, ব্যবহারবিধি ও সতর্কতার জন্য ফার্মাসিস্টকে জিজ্ঞেস করুন। আমরা মাত্রা ঠিক করি না।",
+    "askPharmacist": "ফার্মাসিস্টকে জিজ্ঞেস করুন",
+    "explainAnother": "অন্য কিছু বুঝিয়ে দিন",
+    "untitledReport": "মেডিকেল রিপোর্ট",
+    "reportsUnavailable": "আপনার রিপোর্ট এখন লোড করা যায়নি। কিছুক্ষণ পরে আবার চেষ্টা করুন।"
+  },
+  "MonthlyReportWeb": {
+    "title": "আপনার মাসিক রিপোর্ট",
+    "heroLine": "এই মাসে আপনার অ্যাপয়েন্টমেন্ট, পরিমাপ ও দীর্ঘমেয়াদি ওষুধ",
+    "unavailableTitle": "রিপোর্ট লোড করা যায়নি",
+    "unavailable": "কিছুক্ষণ পরে আবার চেষ্টা করুন।",
+    "notAvailable": "—",
+    "emptyTitle": "এখনও পর্যাপ্ত তথ্য নেই",
+    "emptyBody": "একটি পরিমাপ লিখুন, আপনার রিপোর্ট এখানে দেখা যাবে।",
+    "logReading": "পরিমাপ লিখুন",
+    "glance": "এই মাস এক নজরে",
+    "appointments": "অ্যাপয়েন্টমেন্ট",
+    "completed": "সম্পন্ন",
+    "upcoming": "আসন্ন",
+    "chronicMeds": "দীর্ঘমেয়াদি ওষুধ",
+    "vitals": "আপনার সর্বশেষ পরিমাপ",
+    "trends": "আপনার স্বাস্থ্যের প্রবণতা",
+    "viewTrends": "সব প্রবণতা দেখুন",
+    "readings": "পরিমাপের সংখ্যা: {count}",
+    "firstLast": "প্রথম {first}, শেষ {last}",
+    "direction": {
+      "rising": "বাড়ছে",
+      "falling": "কমছে",
+      "stable": "স্থিতিশীল"
+    },
+    "monthAppointments": "এই মাসের অ্যাপয়েন্টমেন্ট",
+    "appointment": "অ্যাপয়েন্টমেন্ট",
+    "done": "সম্পন্ন",
+    "scheduled": "নির্ধারিত",
+    "bookFollowUp": "ফলো-আপ বুক করুন"
   }
 }
