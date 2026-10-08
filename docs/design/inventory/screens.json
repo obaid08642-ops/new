@@ -1,5 +1,5 @@
 {
- "commit": "d30c2697",
+ "commit": "af48a5f1",
  "routes": [
   {
    "app": "patient-app",
@@ -154,6 +154,40 @@
   },
   {
    "app": "patient-app",
+   "route": "/ai",
+   "file": "patient-app/app/ai/index.tsx",
+   "redirect": null,
+   "template": "hub",
+   "board": "CareHub",
+   "batch": 9,
+   "status": "—",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/ai/ocr-translate",
+     "target": "backend",
+     "query": "",
+     "line": 148,
+     "file": "patient-app/src/components/ai/AssistantView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/ai/ai.controller.ts:123"
+    },
+    {
+     "method": "POST",
+     "path": "/ai/triage",
+     "target": "backend",
+     "query": "",
+     "line": 79,
+     "file": "patient-app/src/components/ai/AssistantView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/ai/ai.controller.ts:65"
+    }
+   ],
+   "files": 33,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-app",
    "route": "/ai-assistant",
    "file": "patient-app/app/ai-assistant.tsx",
    "redirect": null,
@@ -161,32 +195,21 @@
    "board": "CareHub",
    "batch": 9,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/ai/triage",
-     "target": "backend",
-     "query": "",
-     "line": 54,
-     "file": "patient-app/app/ai-assistant.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/ai/ai.controller.ts:65"
-    }
-   ],
-   "files": 21,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/ai/chat-doctor",
    "file": "patient-app/app/ai/chat-doctor.tsx",
-   "redirect": "/ai/triage",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "flow step",
+   "board": "none: chat",
    "batch": 9,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 1,
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -204,8 +227,8 @@
      "path": "/care/appointments",
      "target": "backend",
      "query": "",
-     "line": 39,
-     "file": "patient-app/app/ai/monthly-report.tsx",
+     "line": 31,
+     "file": "patient-app/src/components/ai/MonthlyReportView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:20"
     },
@@ -214,8 +237,8 @@
      "path": "/health/chronic-meds",
      "target": "backend",
      "query": "",
-     "line": 41,
-     "file": "patient-app/app/ai/monthly-report.tsx",
+     "line": 33,
+     "file": "patient-app/src/components/ai/MonthlyReportView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/health.controller.ts:132"
     },
@@ -224,8 +247,8 @@
      "path": "/health/trends",
      "target": "backend",
      "query": "",
-     "line": 42,
-     "file": "patient-app/app/ai/monthly-report.tsx",
+     "line": 34,
+     "file": "patient-app/src/components/ai/MonthlyReportView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/health.controller.ts:137"
     },
@@ -234,13 +257,13 @@
      "path": "/health/vitals/summary",
      "target": "backend",
      "query": "",
-     "line": 40,
-     "file": "patient-app/app/ai/monthly-report.tsx",
+     "line": 32,
+     "file": "patient-app/src/components/ai/MonthlyReportView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/health.controller.ts:33"
     }
    ],
-   "files": 16,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -252,19 +275,8 @@
    "board": "CareHub",
    "batch": 9,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/ai/ocr-translate",
-     "target": "backend",
-     "query": "",
-     "line": 90,
-     "file": "patient-app/app/ai/prescription-translator.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/ai/ai.controller.ts:123"
-    }
-   ],
-   "files": 19,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -276,45 +288,34 @@
    "board": "CareHub",
    "batch": 9,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/ai/skin-analysis",
-     "target": "backend",
-     "query": "",
-     "line": 37,
-     "file": "patient-app/app/ai/skin-analysis.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/ai/ai.controller.ts:129"
-    }
-   ],
-   "files": 13,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/ai/symptom-checker",
    "file": "patient-app/app/ai/symptom-checker.tsx",
-   "redirect": "/ai/triage",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "flow step",
+   "board": "CareHub",
    "batch": 9,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 1,
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/ai/symptom-timeline",
    "file": "patient-app/app/ai/symptom-timeline.tsx",
-   "redirect": "/ai/triage",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "flow step",
+   "board": "CareHub",
    "batch": 9,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 1,
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -326,19 +327,8 @@
    "board": "CareHub",
    "batch": 9,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/ai/triage",
-     "target": "backend",
-     "query": "",
-     "line": 42,
-     "file": "patient-app/app/ai/triage.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/ai/ai.controller.ts:65"
-    }
-   ],
-   "files": 16,
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -7123,7 +7113,7 @@
    "batch": 9,
    "status": "—",
    "calls": [],
-   "files": 8,
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -7239,16 +7229,56 @@
    "calls": [
     {
      "method": "POST",
+     "path": "/api/ai/analyze-report",
+     "target": "web-bff",
+     "query": "",
+     "line": 37,
+     "file": "patient-web/components-next/assistant/report-client.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/ai/analyze-report/route.ts"
+    },
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
+     "method": "POST",
+     "path": "/api/patient/ai/prescription-ocr",
+     "target": "web-proxy",
+     "query": "",
+     "line": 53,
+     "file": "patient-web/components-next/assistant/prescription-client.tsx",
+     "backend": "backend/src/modules/ai/ai.controller.ts:94",
+     "status": "OK"
+    },
+    {
+     "method": "POST",
      "path": "/api/patient/ai/triage",
      "target": "web-bff",
      "query": "",
-     "line": 34,
-     "file": "patient-web/app/[locale]/ai/triage-form.tsx",
+     "line": 42,
+     "file": "patient-web/components-next/assistant/symptoms-client.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/patient/ai/triage/route.ts"
+    },
+    {
+     "method": "GET",
+     "path": "/medical-reports/mine",
+     "target": "backend",
+     "query": "?limit=100",
+     "line": 19,
+     "file": "patient-web/app/[locale]/ai/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/medical-reports/medical-reports.controller.ts:37"
     }
    ],
-   "files": 6,
+   "files": 45,
    "unresolved": 0
   },
   {
@@ -7260,29 +7290,8 @@
    "board": "none: chat",
    "batch": 9,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/patient/ai/triage",
-     "target": "web-bff",
-     "query": "",
-     "line": 37,
-     "file": "patient-web/components-next/chat-doctor-client.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/patient/ai/triage/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/chat/threads",
-     "target": "backend",
-     "query": "",
-     "line": 44,
-     "file": "patient-web/app/[locale]/ai/chat-doctor/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:141"
-    }
-   ],
-   "files": 7,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -7296,11 +7305,21 @@
    "status": "—",
    "calls": [
     {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    },
+    {
      "method": "GET",
      "path": "/care/appointments",
      "target": "backend",
      "query": "",
-     "line": 38,
+     "line": 52,
      "file": "patient-web/app/[locale]/ai/monthly-report/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:20"
@@ -7310,7 +7329,7 @@
      "path": "/health/chronic-meds",
      "target": "backend",
      "query": "",
-     "line": 40,
+     "line": 54,
      "file": "patient-web/app/[locale]/ai/monthly-report/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/health.controller.ts:132"
@@ -7320,7 +7339,7 @@
      "path": "/health/trends",
      "target": "backend",
      "query": "",
-     "line": 41,
+     "line": 55,
      "file": "patient-web/app/[locale]/ai/monthly-report/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/health.controller.ts:137"
@@ -7330,13 +7349,13 @@
      "path": "/health/vitals/summary",
      "target": "backend",
      "query": "",
-     "line": 39,
+     "line": 53,
      "file": "patient-web/app/[locale]/ai/monthly-report/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/health.controller.ts:33"
     }
    ],
-   "files": 6,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -7348,19 +7367,8 @@
    "board": "CareHub",
    "batch": 9,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/patient/ai/prescription-ocr",
-     "target": "web-proxy",
-     "query": "",
-     "line": 30,
-     "file": "patient-web/components-next/prescription-translator-client.tsx",
-     "backend": "backend/src/modules/ai/ai.controller.ts:94",
-     "status": "OK"
-    }
-   ],
-   "files": 6,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -7372,29 +7380,8 @@
    "board": "CareHub",
    "batch": 9,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/ai/analyze-report",
-     "target": "web-bff",
-     "query": "",
-     "line": 26,
-     "file": "patient-web/components-next/ai-report-client.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/ai/analyze-report/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/medical-reports/mine",
-     "target": "backend",
-     "query": "?limit=100",
-     "line": 21,
-     "file": "patient-web/app/[locale]/ai/report/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/medical-reports/medical-reports.controller.ts:37"
-    }
-   ],
-   "files": 7,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -7406,19 +7393,8 @@
    "board": "CareHub",
    "batch": 9,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/patient/ai/skin-analysis",
-     "target": "web-bff",
-     "query": "",
-     "line": 53,
-     "file": "patient-web/components-next/skin-analysis-form.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/patient/ai/skin-analysis/route.ts"
-    }
-   ],
-   "files": 6,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -7430,19 +7406,8 @@
    "board": "CareHub",
    "batch": 9,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/patient/ai/triage",
-     "target": "web-bff",
-     "query": "",
-     "line": 34,
-     "file": "patient-web/app/[locale]/ai/triage-form.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/patient/ai/triage/route.ts"
-    }
-   ],
-   "files": 6,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -7454,49 +7419,8 @@
    "board": "CareHub",
    "batch": 9,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/patient/ai/triage",
-     "target": "web-bff",
-     "query": "",
-     "line": 46,
-     "file": "patient-web/components-next/symptom-timeline-client.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/patient/ai/triage/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/health/reports",
-     "target": "backend",
-     "query": "",
-     "line": 70,
-     "file": "patient-web/app/[locale]/ai/symptom-timeline/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:97"
-    },
-    {
-     "method": "GET",
-     "path": "/health/trends",
-     "target": "backend",
-     "query": "",
-     "line": 62,
-     "file": "patient-web/app/[locale]/ai/symptom-timeline/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:137"
-    },
-    {
-     "method": "GET",
-     "path": "/health/vitals",
-     "target": "backend",
-     "query": "?limit=100",
-     "line": 61,
-     "file": "patient-web/app/[locale]/ai/symptom-timeline/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/health/health.controller.ts:15"
-    }
-   ],
-   "files": 7,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -7508,19 +7432,8 @@
    "board": "CareHub",
    "batch": 9,
    "status": "—",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/patient/ai/triage",
-     "target": "web-bff",
-     "query": "",
-     "line": 34,
-     "file": "patient-web/app/[locale]/ai/triage-form.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/patient/ai/triage/route.ts"
-    }
-   ],
-   "files": 6,
+   "calls": [],
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -14497,13 +14410,13 @@
    "app": "patient-web",
    "route": "/reports/ai-analysis",
    "file": "patient-web/app/[locale]/reports/ai-analysis/page.tsx",
-   "redirect": "/ai/report",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "list",
+   "board": "HealthHub",
    "batch": 5,
-   "status": "n/a",
+   "status": "—",
    "calls": [],
-   "files": 4,
+   "files": 3,
    "unresolved": 0
   },
   {
@@ -15162,7 +15075,7 @@
    "batch": 9,
    "status": "—",
    "calls": [],
-   "files": 4,
+   "files": 3,
    "unresolved": 0
   },
   {
