@@ -12,6 +12,7 @@
  */
 export const CLIENT_NAMESPACES = [
   "Addresses",
+  "AccountWeb",
   "AiHealthReport",
   "AssistantWeb",
   "BookConsultation",
@@ -51,12 +52,15 @@ export const CLIENT_NAMESPACES = [
   "ProgramsWeb",
   "PublicProduct",
   "Register",
+  "ReturnsWeb",
   "RouteState",
   "RxUpload",
   "Search",
+  "SettingsWeb",
   "ShareReport",
   "Shared",
   "SpecialtyNames",
+  "SupportChatWeb",
   "Welcome",
 ] as const;
 

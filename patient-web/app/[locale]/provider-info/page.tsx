@@ -32,7 +32,7 @@ export default async function ProviderInfoPage({ params }: Props) {
       </p>
       <nav style={{ display: "flex", gap: 8 }}>
         <Link href={`/${locale}/login`}>{ar ? "الاستمرار كمريض" : "Continue as patient"}</Link>
-        <Link href={`/${locale}/support`}>{ar ? "تواصل للتسجيل كمقدم خدمة" : "Contact us to register as a provider"}</Link>
+        <Link href={`/${locale}/settings/help`}>{ar ? "تواصل للتسجيل كمقدم خدمة" : "Contact us to register as a provider"}</Link>
       </nav>
     </main>
   );

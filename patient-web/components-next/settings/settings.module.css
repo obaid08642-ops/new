@@ -1,0 +1,83 @@
+/* The settings screens (Batch 12, merge map section 3) and the account screens that share their rows (canvas/Account,
+   canvas/Settings): link rows on a white card, switch rows, sessions, storage, the delete box. The frame (top bar, tab bar,
+   title) is consult/consult-page; cards, notes and fields come from pharmacy/rx.module.css and consult/consult.module.css.
+   Tokens only, logical properties only, no inline styles (the CSP refuses them). */
+
+.section { display: flex; flex-direction: column; gap: var(--nabd-space-2xs); min-inline-size: 0; }
+.list { list-style: none; margin: 0; padding: 0; }
+.stack { display: flex; flex-direction: column; gap: var(--nabd-space-sm); min-inline-size: 0; }
+.hint { margin: 0; font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.error { margin: 0; font-size: var(--nabd-font-size-control); font-weight: 600; color: var(--nabd-color-status-danger-fg); overflow-wrap: anywhere; }
+
+.flush {
+  display: flex; flex-direction: column; min-inline-size: 0; overflow: hidden;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
+  border-radius: var(--nabd-radius-3xl); box-shadow: var(--nabd-shadow-card);
+}
+
+/* ---- link rows on one card (canvas/Account) ---- */
+.navCard {
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
+  border-radius: var(--nabd-radius-3xl); box-shadow: var(--nabd-shadow-card); overflow: hidden;
+}
+.navList { list-style: none; margin: 0; padding: 0; }
+.navRow {
+  display: flex; align-items: center; gap: 12px; padding: 12px 14px; min-block-size: 44px; box-sizing: border-box; min-inline-size: 0;
+  color: inherit; text-decoration: none;
+}
+.navList > li + li > .navRow { border-block-start: 1px solid var(--nabd-color-border-subtle); }
+.navRow:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: -2px; }
+.navText { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
+.navTitle { font-size: var(--nabd-font-size-row); font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+.navSub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.navSub bdi { unicode-bidi: isolate; }
+.navCaret { flex: none; color: var(--nabd-color-icon-secondary); display: inline-flex; }
+
+/* ---- the account summary (hub and profile) ---- */
+.summary { display: flex; align-items: center; gap: 14px; min-inline-size: 0; }
+.summaryText { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
+.summaryName { margin: 0; font-size: var(--nabd-font-size-h3); line-height: 1.25; font-weight: 700; overflow-wrap: anywhere; }
+.summarySub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.summarySub bdi { unicode-bidi: isolate; direction: ltr; }
+.tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.tile {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-block-size: 92px; padding: 8px;
+  box-sizing: border-box; min-inline-size: 0; text-align: center; color: inherit; text-decoration: none;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-2xl);
+}
+.tile:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.tileLabel { font-size: var(--nabd-font-size-label); font-weight: 600; overflow-wrap: anywhere; }
+
+/* ---- switch rows (canvas/Settings) ---- */
+.switchRow { display: flex; align-items: center; justify-content: space-between; gap: var(--nabd-space-sm); min-block-size: 54px; padding-inline: 16px; padding-block: 5px; }
+.switchRow + .switchRow { border-block-start: 1px solid var(--nabd-color-border-subtle); }
+.switchText { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
+.switchLabel { font-size: var(--nabd-font-size-row); font-weight: 500; overflow-wrap: anywhere; }
+
+/* ---- sessions, storage ---- */
+.itemRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 12px; padding-inline: 16px; min-inline-size: 0; }
+.itemRow + .itemRow { border-block-start: 1px solid var(--nabd-color-border-subtle); }
+.itemText { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
+.itemTitle { font-size: var(--nabd-font-size-row); font-weight: 600; overflow-wrap: anywhere; }
+.itemSub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.itemSub bdi, .itemEnd bdi { unicode-bidi: isolate; }
+.itemEnd { flex: none; font-size: var(--nabd-font-size-control); font-weight: 600; }
+
+/* ---- delete account ---- */
+.dangerBox { display: flex; flex-direction: column; gap: 12px; }
+.dangerTitle { margin: 0; font-size: var(--nabd-font-size-body-lg); font-weight: 700; color: var(--nabd-color-status-danger-fg); }
+
+/* ---- help: faq, feedback rating ---- */
+.faq { border-block-end: 1px solid var(--nabd-color-border-subtle); }
+.faq:last-child { border-block-end: 0; }
+.faq > summary {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; min-block-size: 48px; padding-block: 10px; cursor: pointer;
+  font-size: var(--nabd-font-size-row); font-weight: 600; list-style: none;
+}
+.faq > summary::-webkit-details-marker { display: none; }
+.faq > summary:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.faqAnswer { margin: 0 0 12px; font-size: var(--nabd-font-size-control); line-height: 1.7; color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+
+.stars { display: inline-flex; gap: 2px; }
+.actionsRow { display: flex; flex-wrap: wrap; gap: 8px; }
+.actionsRow > * { flex: 1 1 8rem; min-inline-size: 0; }
