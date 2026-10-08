@@ -703,20 +703,6 @@
     "notOrderable": "This prescription can no longer be ordered from.",
     "back": "Back to prescriptions"
   },
-  "Chat": {
-    "eyebrow": "Private chats",
-    "title": "Chats",
-    "empty": "There are currently no chats available.",
-    "activityUnavailable": "Last activity unavailable",
-    "unavailableTitle": "Unable to load chats",
-    "unavailable": "Please try again later.",
-    "notice": "Only basic chat details are shown. Names, message previews and attachments aren't shown, and you can't open chats or send messages from here.",
-    "types": {
-      "direct": "Direct chat",
-      "group": "Group chat",
-      "booking": "Booking-related chat"
-    }
-  },
   "Reminders": {
     "eyebrow": "Private reminders",
     "title": "Medication reminders",
@@ -932,7 +918,11 @@
       "voice": "Voice message",
       "file": "File message",
       "system": "System message"
-    }
+    },
+    "emergency": "In an emergency, call 997 now. This chat is not for emergencies.",
+    "emergencyCall": "Call 997",
+    "closed": "This conversation is closed. You can read it but not reply.",
+    "bookFollowUp": "Book a follow-up"
   },
   "Sleep": {
     "eyebrow": "Sleep history",
@@ -1025,7 +1015,7 @@
       },
       "2": {
         "q": "Can I use insurance?",
-        "a": "Yes — the insurance decision is recorded before payment; you pay only the copay."
+        "a": "Yes, where the facility accepts your insurance. The facility asks the insurer for approval and you see its decision before you pay; you pay only the co-pay it states."
       },
       "3": {
         "q": "Can I cancel or reschedule?",
@@ -1102,7 +1092,7 @@
     "payCash": "Cash at the clinic",
     "payCard": "Card",
     "payInsurance": "Approved insurance",
-    "payInsuranceNote": "The insurance request is sent for review and approval.",
+    "payInsuranceNote": "The facility asks the insurer for approval, and you will see its decision here.",
     "payCardNote": "Secure, encrypted payment.",
     "connectionFailed": "Connection unavailable. Try again.",
     "confirmedTitle": "Your appointment is booked",
@@ -2356,20 +2346,17 @@
       "cancelled": "Cancelled",
       "no_show": "Missed"
     },
-    "insurancePendingTitle": "Insurance request under review",
+    "insurancePendingTitle": "The facility is asking the insurer for approval",
     "insuranceDecidedTitle": "Insurance decision recorded",
     "insurancePendingBody": "There is no payment or confirmation until the provider decides and any copay is confirmed.",
     "insuranceDecidedBody": "The payment or confirmation step depends on the insurance decision. This page is not a payment confirmation.",
     "insuranceView": "View insurance decision",
     "actionBookingStatus": "Booking status",
     "actionSummary": "Visit summary",
-    "actionPrescriptions": "My prescriptions",
     "summaryTitle": "Consultation summary",
     "summaryPendingTitle": "Summary not ready yet",
     "summaryPendingBody": "The doctor writes it after the visit.",
     "backToAppointment": "Back to the appointment",
-    "summarySub": "What the doctor wrote after the visit",
-    "summaryEmpty": "The summary is not available yet.",
     "summaryDiagnosis": "Diagnosis",
     "summaryNotes": "Doctor notes",
     "summaryPrescription": "Prescription",
@@ -2389,12 +2376,6 @@
     "cancelTitle": "Cancel or reschedule appointment",
     "expectedRefund": "Expected refund: {percent}%",
     "policyTitle": "Cancellation and refund policy",
-    "policy24": "24 hours or more before: 100% refund",
-    "policy12": "12 to 24 hours before: 50% refund",
-    "policyNone": "Less than 12 hours before: no refund",
-    "clinicPolicy24": "More than 24 hours before: 100% refund",
-    "clinicPolicy4": "4 to 24 hours before: 50% refund",
-    "clinicPolicyNone": "Less than 4 hours before: non-refundable",
     "clinicDefaultName": "Clinic",
     "clinicNameLabel": "Clinic",
     "clinicAddressLabel": "Address",
@@ -2410,12 +2391,8 @@
     "prep2": "Bring your ID and insurance card",
     "prep3": "Bring your reports and current medications",
     "prep4": "Show the booking code at reception",
-    "followUpTitle": "Consultation follow-up",
     "doctorFallback": "Treating doctor",
     "patientNotesTitle": "Your notes for the doctor",
-    "prescribedTitle": "Prescribed medications",
-    "noMedsDone": "No medications were prescribed in this visit",
-    "noMedsPending": "Medications appear here after the visit is completed",
     "historyTitle": "Status history",
     "historyEmpty": "No history yet",
     "ratingGroup": "Rating",
@@ -2448,7 +2425,11 @@
     "roomTitle": "Consultation room",
     "roomPreparing": "Preparing the consultation room…",
     "waitingRoomTitle": "Virtual waiting room",
-    "waitingRoomNotYet": "The call opens once the appointment is confirmed and due."
+    "waitingRoomNotYet": "The call opens once the appointment is confirmed and due.",
+    "policyFull": "{hours} hours or more before: 100% refund",
+    "policyHalf": "{half} to {full} hours before: {percent}% refund",
+    "policyLess": "Less than {half} hours before: no refund",
+    "policyUnavailable": "The cancellation and refund policy is not available right now."
   },
   "ConsultClient": {
     "payHeading": "Complete the payment through a secure gateway",
@@ -2473,7 +2454,8 @@
     "rxMedicines": "Medicines",
     "rxInReminders": "In reminders",
     "rxAddReminder": "Add reminder",
-    "rxOrder": "Order these medicines"
+    "rxOrder": "Order these medicines",
+    "rxDays": "{n} days"
   },
   "FamilyWeb": {
     "title": "Family",
@@ -2835,10 +2817,9 @@
     "formSelectTime": "Choose a day and a time",
     "formPast": "That time has passed. Choose a later time",
     "formFailed": "The booking could not be created",
-    "method_cash": "Cash",
     "method_card": "Card",
     "method_insurance": "Insurance",
-    "insuranceTitle": "Insurance approval",
+    "insuranceTitle": "Insurance decision from the provider",
     "decisionLabel": "Decision",
     "copayLabel": "Your share (co-pay)",
     "insuranceNote": "You will get a notification when the decision is issued, and you can follow the visit live once it is confirmed.",
@@ -2854,7 +2835,7 @@
       "waitingCopay": "Waiting for you to accept the co-pay",
       "approvedFull": "Fully covered",
       "approvedPartial": "Partly covered",
-      "rejected": "Rejected by the insurer",
+      "rejected": "Insurance request rejected",
       "cancelled": "Cancelled",
       "requested": "Request received",
       "confirmed": "Confirmed",

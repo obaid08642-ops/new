@@ -753,20 +753,6 @@
     "notOrderable": "Hindi na maaaring mag-order mula sa resetang ito.",
     "back": "Bumalik sa mga reseta"
   },
-  "Chat": {
-    "eyebrow": "Pribadong chat",
-    "title": "Mga chat",
-    "empty": "Walang chat na kasalukuyang magagamit.",
-    "activityUnavailable": "Hindi magagamit ang huling aktibidad",
-    "unavailableTitle": "Hindi na-load ang chat",
-    "unavailable": "Pakisubukang muli mamaya.",
-    "notice": "Mga pangunahing detalye lang ng chat ang makikita. Hindi makikita ang mga pangalan, preview ng mensahe at attachment, at hindi ka makakapagbukas ng chat o makakapagpadala ng mensahe dito.",
-    "types": {
-      "direct": "Direktang chat",
-      "group": "Pangkatang chat",
-      "booking": "Chat na kaugnay ng booking"
-    }
-  },
   "Reminders": {
     "eyebrow": "Pribadong mga paalala",
     "title": "Mga paalala sa gamot",
@@ -932,7 +918,11 @@
       "voice": "Voice message",
       "file": "File message",
       "system": "System message"
-    }
+    },
+    "emergency": "Sa emergency, tumawag agad sa 997. Hindi para sa emergency ang chat na ito.",
+    "emergencyCall": "Tawagan ang 997",
+    "closed": "Sarado na ang usapang ito. Mababasa mo ito pero hindi ka na makakasagot.",
+    "bookFollowUp": "Mag-book ng follow-up"
   },
   "Sleep": {
     "eyebrow": "Sleep history",
@@ -1025,7 +1015,7 @@
       },
       "2": {
         "q": "Puwede ba ang insurance?",
-        "a": "Oo — naitatala ang desisyon bago magbayad."
+        "a": "Oo, kung tinatanggap ng facility ang insurance mo. Ang facility ang humihingi ng approval sa insurer at makikita mo ang desisyon nito bago magbayad; ang co-pay lang na nakasaad ang babayaran mo."
       },
       "3": {
         "q": "Puwede bang kanselahin?",
@@ -1102,7 +1092,7 @@
     "payCash": "Cash sa klinika",
     "payCard": "Kard",
     "payInsurance": "Aprubadong insurance",
-    "payInsuranceNote": "Ipapadala ang kahilingan sa insurance para sa pagsusuri at pag-apruba.",
+    "payInsuranceNote": "Ang facility ang humihingi ng approval sa insurer, at makikita mo rito ang desisyon nito.",
     "payCardNote": "Ligtas at naka-encrypt na bayad.",
     "connectionFailed": "Hindi available ang koneksyon. Subukan muli.",
     "confirmedTitle": "Na-book ang iyong appointment",
@@ -2356,20 +2346,17 @@
       "cancelled": "Kinansela",
       "no_show": "Hindi sumipot"
     },
-    "insurancePendingTitle": "Sinusuri ang kahilingan sa insurance",
+    "insurancePendingTitle": "Humihingi ng approval ang facility sa insurer",
     "insuranceDecidedTitle": "Naitala na ang desisyon ng insurance",
     "insurancePendingBody": "Walang bayad o kumpirmasyon hangga't hindi nagpapasya ang provider at nakukumpirma ang copay, kung mayroon.",
     "insuranceDecidedBody": "Ang hakbang ng bayad o kumpirmasyon ay depende sa desisyon ng insurance. Hindi ito patunay ng bayad.",
     "insuranceView": "Tingnan ang desisyon ng insurance",
     "actionBookingStatus": "Katayuan ng booking",
     "actionSummary": "Buod ng pagbisita",
-    "actionPrescriptions": "Aking mga reseta",
     "summaryTitle": "Buod ng konsultasyon",
     "summaryPendingTitle": "Hindi pa handa ang buod",
     "summaryPendingBody": "Isinusulat ito ng doktor pagkatapos ng pagbisita.",
     "backToAppointment": "Bumalik sa appointment",
-    "summarySub": "Isinulat ng doktor pagkatapos ng pagbisita",
-    "summaryEmpty": "Wala pang available na buod.",
     "summaryDiagnosis": "Diyagnosis",
     "summaryNotes": "Mga tala ng doktor",
     "summaryPrescription": "Reseta",
@@ -2389,12 +2376,6 @@
     "cancelTitle": "Kanselahin o i-reschedule ang appointment",
     "expectedRefund": "Inaasahang refund: {percent}%",
     "policyTitle": "Patakaran sa pagkansela at refund",
-    "policy24": "24 oras o higit pa bago ang oras: 100% refund",
-    "policy12": "12 hanggang 24 oras bago ang oras: 50% refund",
-    "policyNone": "Wala pang 12 oras bago ang oras: walang refund",
-    "clinicPolicy24": "Mahigit 24 oras bago ang oras: 100% refund",
-    "clinicPolicy4": "4 hanggang 24 oras bago ang oras: 50% refund",
-    "clinicPolicyNone": "Wala pang 4 oras bago ang oras: hindi refundable",
     "clinicDefaultName": "Klinika",
     "clinicNameLabel": "Klinika",
     "clinicAddressLabel": "Tirahan",
@@ -2410,12 +2391,8 @@
     "prep2": "Dalhin ang iyong ID at insurance card",
     "prep3": "Dalhin ang iyong mga ulat at kasalukuyang gamot",
     "prep4": "Ipakita ang booking code sa reception",
-    "followUpTitle": "Follow-up ng konsultasyon",
     "doctorFallback": "Doktor na gumagamot",
     "patientNotesTitle": "Mga tala mo para sa doktor",
-    "prescribedTitle": "Mga inireresetang gamot",
-    "noMedsDone": "Walang inireseta na gamot sa konsultasyong ito",
-    "noMedsPending": "Lalabas dito ang mga gamot pagkatapos makumpleto ang konsultasyon",
     "historyTitle": "Kasaysayan ng katayuan",
     "historyEmpty": "Wala pang kasaysayan",
     "ratingGroup": "Marka",
@@ -2448,7 +2425,11 @@
     "roomTitle": "Silid ng konsultasyon",
     "roomPreparing": "Inihahanda ang silid ng konsultasyon…",
     "waitingRoomTitle": "Virtual na waiting room",
-    "waitingRoomNotYet": "Magbubukas ang tawag kapag kumpirmado na ang appointment at malapit na ang oras."
+    "waitingRoomNotYet": "Magbubukas ang tawag kapag kumpirmado na ang appointment at malapit na ang oras.",
+    "policyFull": "{hours} oras o higit pa bago ang oras: 100% refund",
+    "policyHalf": "{half} hanggang {full} oras bago ang oras: {percent}% refund",
+    "policyLess": "Wala pang {half} oras bago ang oras: walang refund",
+    "policyUnavailable": "Hindi available ngayon ang patakaran sa pagkansela at refund."
   },
   "ConsultClient": {
     "payHeading": "Kumpletuhin ang bayad sa pamamagitan ng ligtas na gateway",
@@ -2473,7 +2454,8 @@
     "rxMedicines": "Mga gamot",
     "rxInReminders": "Nasa mga paalala",
     "rxAddReminder": "Magdagdag ng paalala",
-    "rxOrder": "I-order ang mga gamot na ito"
+    "rxOrder": "I-order ang mga gamot na ito",
+    "rxDays": "{n} araw"
   },
   "FamilyWeb": {
     "title": "Pamilya",
@@ -2835,10 +2817,9 @@
     "formSelectTime": "Pumili ng araw at oras",
     "formPast": "Lumipas na ang oras na iyon. Pumili ng mas huling oras",
     "formFailed": "Hindi nagawa ang booking",
-    "method_cash": "Pera",
     "method_card": "Kard",
     "method_insurance": "Seguro",
-    "insuranceTitle": "Pag-apruba ng insurance",
+    "insuranceTitle": "Desisyon sa insurance mula sa provider",
     "decisionLabel": "Desisyon",
     "copayLabel": "Bahagi mo (co-pay)",
     "insuranceNote": "Makakatanggap ka ng notification kapag lumabas ang desisyon, at masusundan mo nang live ang pagbisita kapag nakumpirma na.",
@@ -2854,7 +2835,7 @@
       "waitingCopay": "Naghihintay na tanggapin mo ang co-pay",
       "approvedFull": "Ganap na saklaw",
       "approvedPartial": "Bahagyang saklaw",
-      "rejected": "Tinanggihan ng insurer",
+      "rejected": "Tinanggihan ang insurance request",
       "cancelled": "Kanselado",
       "requested": "Natanggap ang request",
       "confirmed": "Nakumpirma",
