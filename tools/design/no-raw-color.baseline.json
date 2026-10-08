@@ -3,7 +3,7 @@
   "totals": {
     "patient-web": 2021,
     "patient-app": 1069,
-    "provider-app": 320,
+    "provider-app": 318,
     "admin": 215
   },
   "files": {
@@ -214,7 +214,6 @@
     "provider-app/src/screens/doctor/doctor/DoctorScheduleTab.tsx": 2,
     "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx": 1,
     "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx": 2,
-    "provider-app/src/screens/doctor/doctor/InsuranceClaimScreen.tsx": 2,
     "provider-app/src/screens/doctor/doctor/NotificationsScreen.tsx": 1,
     "provider-app/src/screens/doctor/doctor/PatientFileScreen.tsx": 2,
     "provider-app/src/screens/doctor/doctor/RequestTestScreen.tsx": 2,
