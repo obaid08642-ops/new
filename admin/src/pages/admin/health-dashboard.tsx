@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../../utils/api';
 import { dateLocale } from '../../utils/dates';
+import { DataTable, type LooseRow } from '@/components/DataTable';
 
 export default function HealthDashboardPage() {
   const [d, setD] = useState<any>(null);
@@ -89,18 +90,17 @@ export default function HealthDashboardPage() {
 
       <h2 className="font-bold mb-3 text-gray-700">المهام المجدولة (Cron)</h2>
       <div className="bg-white rounded-lg shadow border mb-8">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50"><tr><th className="p-3 text-right">المهمة</th><th className="p-3 text-right">الجدول</th><th className="p-3 text-right">الحالة</th></tr></thead>
-          <tbody>
-            {(d.crons || []).map((c: any) => (
-              <tr key={c.name} className="border-t">
-                <td className="p-3 font-bold" dir="ltr">{c.name}</td>
-                <td className="p-3" dir="ltr">{c.schedule}</td>
-                <td className="p-3"><span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">{c.status}</span></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable
+          bare
+          dense
+          rows={(d.crons || []) as LooseRow[]}
+          getRowKey={(c: LooseRow) => String(c.name)}
+          columns={[
+            { key: 'name', header: 'المهمة', className: 'font-bold', render: (c: LooseRow) => <span dir="ltr">{c.name}</span> },
+            { key: 'schedule', header: 'الجدول', render: (c: LooseRow) => <span dir="ltr">{c.schedule}</span> },
+            { key: 'status', header: 'الحالة', render: (c: LooseRow) => <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">{c.status}</span> },
+          ]}
+        />
       </div>
 
       <h2 className="font-bold mb-3 text-gray-700">آخر الأخطاء</h2>
@@ -108,16 +108,16 @@ export default function HealthDashboardPage() {
         {(d.recent_errors || []).length === 0 ? (
           <div className="p-6 text-center text-green-600 font-bold">لا أخطاء مسجلة 🎉</div>
         ) : (
-          <table className="w-full text-sm">
-            <tbody>
-              {d.recent_errors.map((e: any, i: number) => (
-                <tr key={i} className="border-t">
-                  <td className="p-3 text-red-600" dir="ltr">{e.type}</td>
-                  <td className="p-3 text-gray-400 text-xs">{e.createdAt ? new Date(e.createdAt).toLocaleString(dateLocale()) : ''}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+          bare
+          dense
+          rows={d.recent_errors.map((e: LooseRow, i: number) => ({ e, i })) as { e: LooseRow; i: number }[]}
+          getRowKey={({ i }) => String(i)}
+          columns={[
+            { key: 'type', header: 'النوع', className: 'text-red-600', render: ({ e }) => <span dir="ltr">{e.type}</span> },
+            { key: 'time', header: 'الوقت', className: 'text-gray-400 text-xs', render: ({ e }) => (e.createdAt ? new Date(e.createdAt).toLocaleString(dateLocale()) : '') },
+          ]}
+        />
         )}
       </div>
     </div>

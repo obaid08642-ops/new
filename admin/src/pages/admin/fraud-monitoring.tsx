@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
 import { dateLocale } from '../../utils/dates';
+import { DataTable, type LooseRow } from '@/components/DataTable';
 
 interface FraudAlert {
   id: string;
@@ -138,44 +139,35 @@ export default function FraudMonitoring() {
             <span className="text-xs text-slate-500 font-normal">Tracking Absolute Historical Mutations</span>
           </div>
           <div className="flex-1 overflow-auto bg-white p-0">
-            <table className="w-full text-sm text-left whitespace-nowrap" dir="ltr">
-              <thead className="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200 sticky top-0">
-                <tr>
-                  <th className="px-6 py-3 font-medium">Timestamp</th>
-                  <th className="px-6 py-3 font-medium">Actor (Who)</th>
-                  <th className="px-6 py-3 font-medium">Role</th>
-                  <th className="px-6 py-3 font-medium">Action & Endpoint</th>
-                  <th className="px-6 py-3 font-medium">Payload Hash</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {logs.map((log: any, idx: number) => {
-                  const logId = log.id || log._id || `log-${idx}`;
+            <DataTable
+              bare
+              dir="ltr"
+              rows={logs.map((log: LooseRow, idx: number) => ({ log, logId: log.id || log._id || `log-${idx}` })) as { log: LooseRow; logId: string }[]}
+              getRowKey={({ logId }) => String(logId)}
+              rowClassName={() => 'hover:bg-slate-50 transition-colors'}
+              columns={[
+                { key: 'ts', header: 'Timestamp', className: 'text-slate-500 text-xs', render: ({ log }) => {
                   const dateStr = log.timestamp || log.createdAt || log.updatedAt;
-                  const formattedDate = dateStr ? new Date(dateStr).toLocaleString('en-US') : '—';
+                  return dateStr ? new Date(dateStr).toLocaleString('en-US') : '—';
+                } },
+                { key: 'actor', header: 'Actor (Who)', className: 'font-bold text-slate-700', render: ({ log }) => String(log.actorId || log.user_id || '—') },
+                { key: 'role', header: 'Role', render: ({ log }) => {
                   const role = log.actorRole || log.role || 'ADMIN';
-                  const actor = log.actorId || log.user_id || '—';
                   return (
-                    <tr key={logId} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-4 text-slate-500 text-xs">{formattedDate}</td>
-                      <td className="px-6 py-4 font-bold text-slate-700">{String(actor)}</td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2 py-1 rounded text-xs font-bold tracking-wider ${role === 'SUPER_ADMIN' ? 'bg-purple-100 text-purple-700' : 'bg-slate-200 text-slate-700'}`}>
-                          {role}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-slate-900 font-medium">{log.action || '—'}</div>
-                        <div className="text-slate-400 text-xs font-mono mt-1">{log.endpoint || log.resource_kind || '—'}</div>
-                      </td>
-                      <td className="px-6 py-4 font-mono text-xs text-slate-400 bg-slate-50 border-l border-slate-100">
-                        {log.payloadHash || log.resource_id || '—'}
-                      </td>
-                    </tr>
+                    <span className={`px-2 py-1 rounded text-xs font-bold tracking-wider ${role === 'SUPER_ADMIN' ? 'bg-purple-100 text-purple-700' : 'bg-slate-200 text-slate-700'}`}>
+                      {role}
+                    </span>
                   );
-                })}
-              </tbody>
-            </table>
+                } },
+                { key: 'action', header: 'Action & Endpoint', render: ({ log }) => (
+                  <>
+                    <div className="text-slate-900 font-medium">{log.action || '—'}</div>
+                    <div className="text-slate-400 text-xs font-mono mt-1">{log.endpoint || log.resource_kind || '—'}</div>
+                  </>
+                ) },
+                { key: 'hash', header: 'Payload Hash', className: 'font-mono text-xs text-slate-400 bg-slate-50', render: ({ log }) => log.payloadHash || log.resource_id || '—' },
+              ]}
+            />
             {logs.length === 0 && <p className="text-center text-gray-500 mt-10">No logs match the current search</p>}
           </div>
         </div>

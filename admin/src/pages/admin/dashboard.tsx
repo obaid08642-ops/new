@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
+import { DataTable, type LooseRow } from '@/components/DataTable';
+
+const KIND_AR: Record<string, string> = { pharmacy: 'صيدلية', lab: 'تحاليل', radiology: 'أشعة', nursing: 'تمريض', consultation: 'استشارة' };
+const STATE_AR: Record<string, string> = { REQUESTED: 'مطلوب', MATCHING: 'جاري المطابقة', ASSIGNED: 'تم الإسناد', CONFIRMED: 'مؤكد', IN_PROGRESS: 'قيد التنفيذ', ESCALATED_TO_ADMIN: 'متأخر — تصعيد' };
 
 interface HealthData {
   status: 'ok' | 'error' | 'maintenance';
@@ -162,45 +166,36 @@ export default function MasterDashboard() {
           {liveOrders.length === 0 ? (
             <div className="p-8 text-center text-slate-400">لا توجد طلبات نشطة حالياً — تُحدَّث هذه القائمة كل 30 ثانية.</div>
           ) : (
-            <table className="w-full text-right text-sm">
-              <thead className="bg-slate-50 text-xs text-slate-500 sticky top-0">
-                <tr>
-                  <th className="p-3">رقم التتبع</th>
-                  <th className="p-3">المريض / المزود</th>
-                  <th className="p-3">النوع</th>
-                  <th className="p-3">الحالة</th>
-                  <th className="p-3">المنقضي</th>
-                  <th className="p-3">القيمة</th>
-                  <th className="p-3">تواصل</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {liveOrders.slice(0, 50).map((o: any, i: number) => {
-                  const KIND_AR: Record<string, string> = { pharmacy: 'صيدلية', lab: 'تحاليل', radiology: 'أشعة', nursing: 'تمريض', consultation: 'استشارة' };
-                  const STATE_AR: Record<string, string> = { REQUESTED: 'مطلوب', MATCHING: 'جاري المطابقة', ASSIGNED: 'تم الإسناد', CONFIRMED: 'مؤكد', IN_PROGRESS: 'قيد التنفيذ', ESCALATED_TO_ADMIN: 'متأخر — تصعيد' };
-                  const elapsedMin = o.createdAt ? Math.floor((Date.now() - new Date(o.createdAt).getTime()) / 60000) : 0;
-                  const isDelayed = Boolean(o.is_delayed) || (elapsedMin > 3 && !['DELIVERED','CANCELLED','COMPLETED','RESOLVED','ESCALATED_TO_ADMIN'].includes(String(o.universal_state||o.domain_state||'').toUpperCase()));
-                  const elapsedLabel = elapsedMin < 1 ? 'الآن' : elapsedMin < 60 ? `${elapsedMin} د` : `${Math.floor(elapsedMin/60)} س ${elapsedMin%60} د`;
-                  return (
-                    <tr key={`${o.kind}-${o.id || i}`} className={`hover:bg-teal-50 cursor-pointer ${isDelayed ? 'bg-red-50/40' : ''}`} onClick={() => { if (o.kind && o.id) window.location.href = `/admin/order-detail?kind=${encodeURIComponent(o.kind)}&id=${encodeURIComponent(o.id)}`; }}>
-                      <td className="p-3 font-mono text-teal-700">{o.tracking_id || o.id}</td>
-                      <td className="p-3 text-xs"><div className="font-bold text-slate-800 truncate max-w-[140px]">{o.patient_name || o.patient_id?.slice(0,8) || '—'}</div><div className="text-slate-400 truncate max-w-[140px]">{o.provider_name || o.provider_id?.slice(0,8) || '—'}</div></td>
-                      <td className="p-3 font-bold">{KIND_AR[o.kind] || o.kind}</td>
-                      <td className="p-3">
-                        <span className={`px-2 py-1 border rounded-full text-xs font-bold ${isDelayed ? 'bg-red-100 text-red-700 border-red-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
-                          {STATE_AR[o.universal_state] || o.universal_state || o.domain_state} {isDelayed ? '⚠️' : ''}
-                        </span>
-                      </td>
-                      <td className={`p-3 font-bold ${isDelayed ? 'text-red-600' : 'text-slate-500'}`}>{elapsedLabel}</td>
-                      <td className="p-3 font-bold">{Math.round(Number(o.total) || 0)} ر.س</td>
-                      <td className="p-3" onClick={e=>e.stopPropagation()}>
-                        {o.provider_phone ? <a href={`tel:${o.provider_phone}`} className="text-xs bg-teal-600 text-white px-2 py-1 rounded-lg">اتصال</a> : <a href={o.kind && o.id ? `/admin/order-detail?kind=${encodeURIComponent(o.kind)}&id=${encodeURIComponent(o.id)}` : '#'} className="text-xs bg-slate-100 border px-2 py-1 rounded-lg">تفاصيل</a>}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <DataTable
+              bare
+              dense
+              rows={liveOrders.slice(0, 50).map((o: LooseRow, i: number) => {
+                const elapsedMin = o.createdAt ? Math.floor((Date.now() - new Date(o.createdAt).getTime()) / 60000) : 0;
+                const isDelayed = Boolean(o.is_delayed) || (elapsedMin > 3 && !['DELIVERED','CANCELLED','COMPLETED','RESOLVED','ESCALATED_TO_ADMIN'].includes(String(o.universal_state||o.domain_state||'').toUpperCase()));
+                const elapsedLabel = elapsedMin < 1 ? 'الآن' : elapsedMin < 60 ? `${elapsedMin} د` : `${Math.floor(elapsedMin/60)} س ${elapsedMin%60} د`;
+                return { o, i, isDelayed, elapsedLabel };
+              })}
+              getRowKey={({ o, i }) => `${o.kind}-${o.id || i}`}
+              rowClassName={({ isDelayed }) => `hover:bg-teal-50 ${isDelayed ? 'bg-red-50/40' : ''}`}
+              onRowClick={({ o }) => { if (o.kind && o.id) window.location.href = `/admin/order-detail?kind=${encodeURIComponent(o.kind)}&id=${encodeURIComponent(o.id)}`; }}
+              columns={[
+                { key: 'track', header: 'رقم التتبع', className: 'font-mono text-teal-700', render: ({ o }) => o.tracking_id || o.id },
+                { key: 'who', header: 'المريض / المزود', className: 'text-xs', render: ({ o }) => <><div className="font-bold text-slate-800 truncate max-w-[140px]">{o.patient_name || o.patient_id?.slice(0,8) || '—'}</div><div className="text-slate-400 truncate max-w-[140px]">{o.provider_name || o.provider_id?.slice(0,8) || '—'}</div></> },
+                { key: 'kind', header: 'النوع', className: 'font-bold', render: ({ o }) => KIND_AR[o.kind] || o.kind },
+                { key: 'state', header: 'الحالة', render: ({ o, isDelayed }) => (
+                  <span className={`px-2 py-1 border rounded-full text-xs font-bold ${isDelayed ? 'bg-red-100 text-red-700 border-red-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
+                    {STATE_AR[o.universal_state] || o.universal_state || o.domain_state} {isDelayed ? '⚠️' : ''}
+                  </span>
+                ) },
+                { key: 'elapsed', header: 'المنقضي', render: ({ isDelayed, elapsedLabel }) => <span className={`font-bold ${isDelayed ? 'text-red-600' : 'text-slate-500'}`}>{elapsedLabel}</span> },
+                { key: 'total', header: 'القيمة', className: 'font-bold', render: ({ o }) => `${Math.round(Number(o.total) || 0)} ر.س` },
+                { key: 'actions', header: 'تواصل', actions: true, render: ({ o }) => (
+                  <div onClick={e => e.stopPropagation()}>
+                    {o.provider_phone ? <a href={`tel:${o.provider_phone}`} className="text-xs bg-teal-600 text-white px-2 py-1 rounded-lg">اتصال</a> : <a href={o.kind && o.id ? `/admin/order-detail?kind=${encodeURIComponent(o.kind)}&id=${encodeURIComponent(o.id)}` : '#'} className="text-xs bg-slate-100 border px-2 py-1 rounded-lg">تفاصيل</a>}
+                  </div>
+                ) },
+              ]}
+            />
           )}
         </div>
       </div>

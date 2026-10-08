@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Head from 'next/head';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { adminFetch, apiErrorMessage, toQuery } from '@/lib/admin-client';
+import { DataTable } from '@/components/DataTable';
 
 const today = new Date().toISOString().slice(0, 10);
 const monthAgo = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
@@ -134,32 +135,19 @@ export default function ReportsPage() {
             </article>
             <article className="rounded-2xl border bg-white p-6 shadow-sm">
               <div className="overflow-x-auto">
-                <table className="min-w-full text-right text-sm">
-                  <thead><tr className="border-b text-slate-500">
-                    {rows.some((r) => r.kind !== undefined || r.type !== undefined) && <th className="p-2">النوع</th>}
-                    <th className="p-2">الفئة</th>
-                    {rows.some((r) => r.count !== undefined) && <th className="p-2">العدد</th>}
-                    {rows.some((r) => r.gross !== undefined) && <th className="p-2">الإجمالي</th>}
-                    {rows.some((r) => r.refunded !== undefined) && <th className="p-2">المسترد</th>}
-                    {rows.some((r) => r.net !== undefined) && <th className="p-2">الصافي</th>}
-                    {rows.some((r) => r.total !== undefined) && <th className="p-2">المجموع</th>}
-                    {rows.some((r) => r.copay !== undefined) && <th className="p-2">كوباي</th>}
-                  </tr></thead>
-                  <tbody>
-                    {rows.map((r, i) => (
-                      <tr key={i} className="border-b">
-                        {rows.some((x) => x.kind !== undefined || x.type !== undefined) && <td className="p-2">{r.kind || r.type || '—'}</td>}
-                        <td className="p-2">{r.bucket || '—'}</td>
-                        {rows.some((x) => x.count !== undefined) && <td className="p-2">{r.count ?? '—'}</td>}
-                        {rows.some((x) => x.gross !== undefined) && <td className="p-2">{r.gross ?? '—'}</td>}
-                        {rows.some((x) => x.refunded !== undefined) && <td className="p-2">{r.refunded ?? '—'}</td>}
-                        {rows.some((x) => x.net !== undefined) && <td className="p-2">{r.net ?? '—'}</td>}
-                        {rows.some((x) => x.total !== undefined) && <td className="p-2">{r.total ?? '—'}</td>}
-                        {rows.some((x) => x.copay !== undefined) && <td className="p-2">{r.copay ?? '—'}</td>}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <DataTable
+                  bare
+                  dense
+                  rows={rows.map((r, i) => ({ r, i }))}
+                  getRowKey={({ i }) => String(i)}
+                  columns={[
+                    ...(rows.some((r) => r.kind !== undefined || r.type !== undefined) ? [{ key: 'kind', header: 'النوع', render: ({ r }: { r: Row }) => r.kind || r.type || '—' }] : []),
+                    { key: 'bucket', header: 'الفئة', render: ({ r }: { r: Row }) => r.bucket || '—' },
+                    ...([['count', 'العدد'], ['gross', 'الإجمالي'], ['refunded', 'المسترد'], ['net', 'الصافي'], ['total', 'المجموع'], ['copay', 'كوباي']] as const)
+                      .filter(([k]) => rows.some((x) => x[k] !== undefined))
+                      .map(([k, h]) => ({ key: k, header: h, render: ({ r }: { r: Row }) => r[k] ?? '—' })),
+                  ]}
+                />
               </div>
             </article>
           </>

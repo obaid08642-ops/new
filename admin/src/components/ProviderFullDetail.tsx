@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
+import { DataTable, type LooseRow } from '@/components/DataTable';
 
 const DAY_AR: Record<string, string> = {
   SUN: 'الأحد', MON: 'الاثنين', TUE: 'الثلاثاء', WED: 'الأربعاء',
@@ -137,6 +138,23 @@ function genericValue(v: any): string {
   if (Array.isArray(v)) return v.length ? v.map(x => (typeof x === 'object' && x !== null) ? JSON.stringify(x) : String(x)).join('، ') : '—';
   if (typeof v === 'object') return JSON.stringify(v);
   return String(v);
+}
+
+function HoursTable({ rows }: { rows: LooseRow[] }) {
+  return (
+    <DataTable
+      dense
+      className="rounded-lg shadow-none"
+      rows={rows.map((h, i) => ({ h, i }))}
+      getRowKey={({ i }) => String(i)}
+      columns={[
+        { key: 'day', header: 'اليوم', className: 'font-bold text-gray-700', render: ({ h }) => DAY_AR[String(h.day || '').toUpperCase()] || h.day },
+        { key: 'am', header: 'الفترة الصباحية', className: 'font-mono text-gray-600', render: ({ h }) => <span dir="ltr">{h.closed ? '—' : `${h.open || ''} - ${h.close || ''}`}</span> },
+        { key: 'pm', header: 'الفترة المسائية', className: 'font-mono text-gray-600', render: ({ h }) => <span dir="ltr">{!h.closed && (h.open_evening || h.close_evening) ? `${h.open_evening || ''} - ${h.close_evening || ''}` : '—'}</span> },
+        { key: 'state', header: 'الحالة', render: ({ h }) => (h.closed ? <span className="text-red-500 text-xs font-bold">مغلق</span> : <span className="text-green-600 text-xs font-bold">مفتوح</span>) },
+      ]}
+    />
+  );
 }
 
 export default function ProviderFullDetail({ detail, accountId }: { detail: any; accountId?: string }) {
@@ -330,26 +348,7 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
           {hours.length > 0 && (
             <Section title="مواعيد العمل — العيادة / المنشأة" tone="teal">
               <div className="overflow-x-auto">
-                <table className="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
-                  <thead className="bg-slate-50 text-slate-600">
-                    <tr>
-                      <th className="px-3 py-2 text-right font-bold">اليوم</th>
-                      <th className="px-3 py-2 text-right font-bold">الفترة الصباحية</th>
-                      <th className="px-3 py-2 text-right font-bold">الفترة المسائية</th>
-                      <th className="px-3 py-2 text-right font-bold">الحالة</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {hours.map((h: any, i: number) => (
-                      <tr key={i}>
-                        <td className="px-3 py-2 font-bold text-gray-700">{DAY_AR[String(h.day || '').toUpperCase()] || h.day}</td>
-                        <td className="px-3 py-2 font-mono text-gray-600" dir="ltr">{h.closed ? '—' : `${h.open || ''} - ${h.close || ''}`}</td>
-                        <td className="px-3 py-2 font-mono text-gray-600" dir="ltr">{!h.closed && (h.open_evening || h.close_evening) ? `${h.open_evening || ''} - ${h.close_evening || ''}` : '—'}</td>
-                        <td className="px-3 py-2">{h.closed ? <span className="text-red-500 text-xs font-bold">مغلق</span> : <span className="text-green-600 text-xs font-bold">مفتوح</span>}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <HoursTable rows={hours} />
               </div>
             </Section>
           )}
@@ -360,26 +359,7 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
             return (
               <Section key={key} title={title as string} tone="teal">
                 <div className="overflow-x-auto">
-                  <table className="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
-                    <thead className="bg-slate-50 text-slate-600">
-                      <tr>
-                        <th className="px-3 py-2 text-right font-bold">اليوم</th>
-                        <th className="px-3 py-2 text-right font-bold">الفترة الصباحية</th>
-                        <th className="px-3 py-2 text-right font-bold">الفترة المسائية</th>
-                        <th className="px-3 py-2 text-right font-bold">الحالة</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {rows.map((h: any, i: number) => (
-                        <tr key={i}>
-                          <td className="px-3 py-2 font-bold text-gray-700">{DAY_AR[String(h.day || '').toUpperCase()] || h.day}</td>
-                          <td className="px-3 py-2 font-mono text-gray-600" dir="ltr">{h.closed ? '—' : `${h.open || ''} - ${h.close || ''}`}</td>
-                          <td className="px-3 py-2 font-mono text-gray-600" dir="ltr">{!h.closed && (h.open_evening || h.close_evening) ? `${h.open_evening || ''} - ${h.close_evening || ''}` : '—'}</td>
-                          <td className="px-3 py-2">{h.closed ? <span className="text-red-500 text-xs font-bold">مغلق</span> : <span className="text-green-600 text-xs font-bold">مفتوح</span>}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <HoursTable rows={rows} />
                 </div>
               </Section>
             );

@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { apiFetch } from '@/utils/api';
 import { dateLocale } from '../../utils/dates';
+import { DataTable, type LooseRow } from '@/components/DataTable';
 
 const KIND_AR: Record<string, string> = { pharmacy: 'صيدلية', lab: 'تحاليل مخبرية', radiology: 'أشعة', nursing: 'تمريض منزلي', consultation: 'استشارة طبية' };
 
@@ -83,18 +84,17 @@ export default function OrderDetailPage() {
           {Array.isArray(data.items) && data.items.length > 0 && (
             <div className="bg-white rounded-2xl border border-slate-200 p-6 overflow-x-auto">
               <h2 className="font-bold text-slate-800 mb-4">محتويات الطلب</h2>
-              <table className="w-full text-right text-sm">
-                <thead><tr className="bg-slate-50 text-xs text-slate-500"><th className="p-2">البند</th><th className="p-2">الكمية</th><th className="p-2">السعر</th></tr></thead>
-                <tbody className="divide-y divide-slate-100">
-                  {data.items.map((it: any, i: number) => (
-                    <tr key={i}>
-                      <td className="p-2 font-medium">{it.name_ar || it.test_name_ar || it.name || it.service_name || it.title || `#${i + 1}`}</td>
-                      <td className="p-2">{it.quantity ?? it.qty ?? 1}</td>
-                      <td className="p-2 font-bold">{it.price ?? it.cashPrice ?? '—'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <DataTable
+                bare
+                dense
+                rows={data.items.map((it: LooseRow, i: number) => ({ it, i })) as { it: LooseRow; i: number }[]}
+                getRowKey={({ i }) => String(i)}
+                columns={[
+                  { key: 'name', header: 'البند', className: 'font-medium', render: ({ it, i }) => it.name_ar || it.test_name_ar || it.name || it.service_name || it.title || `#${i + 1}` },
+                  { key: 'qty', header: 'الكمية', render: ({ it }) => it.quantity ?? it.qty ?? 1 },
+                  { key: 'price', header: 'السعر', className: 'font-bold', render: ({ it }) => it.price ?? it.cashPrice ?? '—' },
+                ]}
+              />
             </div>
           )}
 

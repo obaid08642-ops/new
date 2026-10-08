@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Head from 'next/head';
 import { adminFetch, apiErrorMessage } from '@/lib/admin-client';
+import { DataTable } from '@/components/DataTable';
 
 type QueryStat = {
   raw_query: string;
@@ -172,36 +173,25 @@ export default function SearchIntelligencePage() {
               <h2 className="font-bold text-slate-900 text-sm">أعلى استعلامات البحث (Top Queries)</h2>
               <span className="text-xs text-slate-500">حسب التكرار</span>
             </div>
-            <table className="min-w-full text-right text-sm">
-              <thead className="bg-slate-50 text-xs text-slate-600">
-                <tr>
-                  <th className="p-3">الاستعلام</th>
-                  <th className="p-3">اللغة</th>
-                  <th className="p-3">النية</th>
-                  <th className="p-3">التكرار</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr><td colSpan={4} className="p-6 text-center text-slate-500">جارٍ التحميل…</td></tr>
-                ) : data?.top_queries?.length ? (
-                  data.top_queries.map((q, i) => (
-                    <tr key={i} className="border-t hover:bg-slate-50">
-                      <td className="p-3 font-medium text-slate-900">{q.raw_query}</td>
-                      <td className="p-3 text-xs uppercase text-slate-500">{q.locale}</td>
-                      <td className="p-3">
-                        <span className="rounded-md bg-teal-50 px-2 py-0.5 text-xs text-teal-700 border border-teal-200">
-                          {q.intent_type || 'discovery'}
-                        </span>
-                      </td>
-                      <td className="p-3 font-semibold text-slate-700">{q.count || 1}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr><td colSpan={4} className="p-6 text-center text-slate-500">لا توجد استعلامات مسجلة بعد.</td></tr>
-                )}
-              </tbody>
-            </table>
+            <DataTable
+              bare
+              dense
+              rows={data?.top_queries ?? []}
+              getRowKey={(q) => `${q.raw_query}|${q.locale}|${q.intent_type}`}
+              loading={loading}
+              emptyText="لا توجد استعلامات مسجلة بعد."
+              rowClassName={() => 'hover:bg-slate-50'}
+              columns={[
+                { key: 'q', header: 'الاستعلام', className: 'font-medium text-slate-900', render: (q) => q.raw_query },
+                { key: 'locale', header: 'اللغة', className: 'text-xs uppercase text-slate-500', render: (q) => q.locale },
+                { key: 'intent', header: 'النية', render: (q) => (
+                  <span className="rounded-md bg-teal-50 px-2 py-0.5 text-xs text-teal-700 border border-teal-200">
+                    {q.intent_type || 'discovery'}
+                  </span>
+                ) },
+                { key: 'count', header: 'التكرار', className: 'font-semibold text-slate-700', render: (q) => q.count || 1 },
+              ]}
+            />
           </div>
 
           {/* Zero-Result Queries Table */}
@@ -210,30 +200,20 @@ export default function SearchIntelligencePage() {
               <h2 className="font-bold text-rose-900 text-sm">استعلامات بدون نتائج (Zero-Result Queries)</h2>
               <span className="text-xs text-rose-600">تحتاج إضافة مرادفات أو منتجات</span>
             </div>
-            <table className="min-w-full text-right text-sm">
-              <thead className="bg-slate-50 text-xs text-slate-600">
-                <tr>
-                  <th className="p-3">الاستعلام المفقود</th>
-                  <th className="p-3">اللغة</th>
-                  <th className="p-3">عدد مرات البحث</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr><td colSpan={3} className="p-6 text-center text-slate-500">جارٍ التحميل…</td></tr>
-                ) : data?.zero_result_queries?.length ? (
-                  data.zero_result_queries.map((zq, i) => (
-                    <tr key={i} className="border-t hover:bg-rose-50/40">
-                      <td className="p-3 font-medium text-rose-800">{zq.raw_query}</td>
-                      <td className="p-3 text-xs uppercase text-slate-500">{zq.locale}</td>
-                      <td className="p-3 font-semibold text-rose-700">{zq.count}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr><td colSpan={3} className="p-6 text-center text-slate-500">لا توجد استعلامات مفقودة حالياً.</td></tr>
-                )}
-              </tbody>
-            </table>
+            <DataTable
+              bare
+              dense
+              rows={data?.zero_result_queries ?? []}
+              getRowKey={(zq) => `${zq.raw_query}|${zq.locale}`}
+              loading={loading}
+              emptyText="لا توجد استعلامات مفقودة حالياً."
+              rowClassName={() => 'hover:bg-rose-50/40'}
+              columns={[
+                { key: 'q', header: 'الاستعلام المفقود', className: 'font-medium text-rose-800', render: (zq) => zq.raw_query },
+                { key: 'locale', header: 'اللغة', className: 'text-xs uppercase text-slate-500', render: (zq) => zq.locale },
+                { key: 'count', header: 'عدد مرات البحث', className: 'font-semibold text-rose-700', render: (zq) => zq.count },
+              ]}
+            />
           </div>
         </div>
       </section>
