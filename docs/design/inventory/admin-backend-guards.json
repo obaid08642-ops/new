@@ -73,8 +73,21 @@
   },
   {
    "m": "GET",
-   "p": "/medicines/admin/catalog",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:243",
+   "p": "/medicines/admin/change-requests",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:214",
+   "guards": {
+    "public": false,
+    "roles": [
+     "ADMIN"
+    ],
+    "perms": [],
+    "useGuards": "JwtAuthGuard"
+   }
+  },
+  {
+   "m": "GET",
+   "p": "/medicines/admin/shortage-reports",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:131",
    "guards": {
     "public": false,
     "roles": [
@@ -88,8 +101,21 @@
   },
   {
    "m": "GET",
-   "p": "/medicines/admin/shortage-reports",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:131",
+   "p": "/medicines/admin/image-suggestions",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:179",
+   "guards": {
+    "public": false,
+    "roles": [
+     "ADMIN"
+    ],
+    "perms": [],
+    "useGuards": "JwtAuthGuard"
+   }
+  },
+  {
+   "m": "GET",
+   "p": "/medicines/admin/catalog",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:243",
    "guards": {
     "public": false,
     "roles": [
@@ -758,19 +784,6 @@
    }
   },
   {
-   "m": "GET",
-   "p": "/medicines/admin/image-suggestions",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:179",
-   "guards": {
-    "public": false,
-    "roles": [
-     "ADMIN"
-    ],
-    "perms": [],
-    "useGuards": "JwtAuthGuard"
-   }
-  },
-  {
    "m": "POST",
    "p": "/medicines/admin/image-suggestions/:param/:param",
    "src": "backend/src/modules/medicines/medicines.controller.ts:186",
@@ -927,8 +940,8 @@
   },
   {
    "m": "GET",
-   "p": "/medicines/admin/change-requests",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:214",
+   "p": "/medicines/admin/reports",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:313",
    "guards": {
     "public": false,
     "roles": [
@@ -939,11 +952,11 @@
    }
   },
   {
-   "m": "GET",
-   "p": "/medicines/admin/reports",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:313",
+   "m": "POST",
+   "p": "/medicines/lookup-barcode",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:56",
    "guards": {
-    "public": false,
+    "public": true,
     "roles": [
      "ADMIN"
     ],

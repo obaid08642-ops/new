@@ -30,6 +30,11 @@
      "input: 24 ساعة 7 أيام 30 يوم",
      "state days used by logic/request",
      "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
     ]
    ]
   },
@@ -84,6 +89,11 @@
     [
      "button: التالي",
      "local state",
+     "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
      "ok"
     ],
     [
@@ -270,6 +280,11 @@
      "button: حفظ الربط",
      "PUT /api/admin/admin/pharmacy/rx-consult-specialties",
      "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
     ]
    ],
    "notes": [
@@ -368,6 +383,11 @@
      "button: جارٍ الحفظ… حفظ الإسناد وتدقيقه",
      "submits the enclosing form",
      "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
     ]
    ]
   },
@@ -427,6 +447,11 @@
     [
      "button: حذف",
      "DELETE /api/admin/admin/scheduled-reports/:param; GET /api/admin/admin/scheduled-reports; confirm(); prompt()",
+     "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
      "ok"
     ]
    ]
@@ -510,6 +535,11 @@
      "ok"
     ],
     [
+     "button: تعطيل تفعيل",
+     "local state",
+     "ok"
+    ],
+    [
      "form: تعديل راية مفعلة نسبة rollout حفظ وتدقيق",
      "saveFlag; POST /api/admin/admin/governance-controls/feature-flags; GET /api/admin/admin/ops/queues; GET /api/admin/admin",
      "ok"
@@ -538,6 +568,16 @@
      "button: حفظ وتدقيق",
      "submits the enclosing form",
      "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
+    ],
+    [
+     "Feature switch effect",
+     "POST feature flag (write path exists)",
+     "not wired"
     ]
    ]
   },
@@ -687,7 +727,7 @@
    "kind": "client",
    "note": "Button is disabled with no handler.",
    "file": "admin/src/pages/admin/config-portal.tsx",
-   "line": 344
+   "line": 345
   },
   {
    "route": "/admin/legal-policies",
@@ -728,7 +768,7 @@
    "kind": "backend",
    "note": "1 call(s): Page requires \"reports.schedule.manage\" but POST /admin/scheduled-reports/:param/run requires ops.crons.run; an admin role with the page permission only gets a ",
    "file": "admin/src/pages/admin/scheduled-reports.tsx",
-   "line": 15,
+   "line": 16,
    "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:182"
   },
   {
@@ -746,7 +786,7 @@
    "kind": "client",
    "note": "Sensitive action (POST /api/admin/admin/governance-controls/feature-flags) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/system-ops.tsx",
-   "line": 19
+   "line": 54
   },
   {
    "route": "/admin/system-ops",
@@ -754,8 +794,17 @@
    "kind": "backend",
    "note": "2 call(s): Page requires \"ops.queues.manage\" but GET /admin/ops/translations requires translations.edit; an admin role with the page permission only gets a 403 on this cal",
    "file": "admin/src/pages/admin/system-ops.tsx",
-   "line": 12,
+   "line": 13,
    "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:102"
+  },
+  {
+   "route": "/admin/system-ops",
+   "element": "Feature switch effect",
+   "kind": "backend",
+   "note": "The switch writes and audits (reason required), but backend code reads only `sms_enabled` (sms.service.ts) and ConfigService hands the flags to clients; there is no per-module list and no kill-switch UI/route. Flipping any other flag changes nothing until a module checks it.",
+   "file": "admin/src/pages/admin/system-ops.tsx",
+   "line": 54,
+   "backend": "backend/src/modules/sms/sms.service.ts:28"
   },
   {
    "route": "/admin/theme-control",

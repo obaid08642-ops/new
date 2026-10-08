@@ -57,6 +57,8 @@ img, video, svg { max-inline-size: 100%; }
   main textarea { font-size: 16px; min-block-size: 44px; max-inline-size: 100%; }
   main button, main [role="button"], main select, main summary { min-block-size: 44px; }
   main button { min-inline-size: 44px; }
+  /* Links drawn as buttons (rounded + padded) get the same 44px target as buttons. */
+  main a[class*="rounded"][class*="px-"] { display: inline-flex; align-items: center; min-block-size: 44px; }
   main label:has(> input[type="checkbox"]), main label:has(> input[type="radio"]) { min-block-size: 44px; }
   /* Forms use the full width on phones. */
   main form input:not([type="checkbox"]):not([type="radio"]), main form select, main form textarea { inline-size: 100%; }

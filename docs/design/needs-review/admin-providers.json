@@ -45,7 +45,7 @@
     "screen": "/admin/insurance-queue",
     "element": "اعتماد الاسترداد",
     "file": "admin/src/pages/admin/insurance-queue.tsx",
-    "line": 169,
+    "line": 166,
     "found": "[client] Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "suspect": "Client-side: later batch."
   },
@@ -55,7 +55,7 @@
     "screen": "/admin/insurance-queue",
     "element": "رفض",
     "file": "admin/src/pages/admin/insurance-queue.tsx",
-    "line": 170,
+    "line": 167,
     "found": "[client] Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "suspect": "Client-side: later batch."
   },
@@ -65,7 +65,7 @@
     "screen": "/admin/insurance-queue",
     "element": "Guard G-ROLE-ONLY-WRITE (1)",
     "file": "admin/src/pages/admin/insurance-queue.tsx",
-    "line": 55,
+    "line": 56,
     "found": "[backend] 1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/finance/refunds/:param/decide): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:885)",
     "suspect": "Backend gap: reviewer session."
   },
@@ -95,7 +95,7 @@
     "screen": "/admin/provider-moderation",
     "element": "تأكيد الإيقاف الحرج",
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 355,
+    "line": 392,
     "found": "[client] Sensitive action (POST /api/admin/admin/providers/:param/suspend) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "suspect": "Client-side: later batch."
   },
@@ -115,7 +115,7 @@
     "screen": "/admin/provider-moderation",
     "element": "Guard G-OPEN (3)",
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 18,
+    "line": 19,
     "found": "[backend] 3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; GET /api/admin/provider-onboarding/admin/contracts/:param): any signed-in user passes JwtAuthGuard. (backend: backend/src/modules/storage/storage.module.ts:382)",
     "suspect": "Backend gap: reviewer session."
   }

@@ -192,7 +192,7 @@
      "ok"
     ],
     [
-     "action: · ر.س",
+     "action: <DataTable> onRowClick",
      "local state",
      "ok"
     ],
@@ -239,6 +239,11 @@
     [
      "button: إغلاق",
      "local state",
+     "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
      "ok"
     ],
     [
@@ -300,6 +305,11 @@
      "button: إصدار عرض السعر للصيدلية",
      "issueQuote; PATCH /api/admin/admin/extended-operations/issue-quote/:param; GET /api/admin/admin/extended-operations/proc",
      "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
     ]
    ]
   },
@@ -344,6 +354,16 @@
     [
      "button: Approve Provider (اعتماد)",
      "POST /api/admin/admin/providers/:param/approve; prompt()",
+     "ok"
+    ],
+    [
+     "button: Request changes (طلب تعديلات)",
+     "POST /api/admin/admin/providers/:param/:param; prompt()",
+     "ok"
+    ],
+    [
+     "button: Reject (رفض)",
+     "POST /api/admin/admin/providers/:param/:param; prompt()",
      "ok"
     ],
     [
@@ -404,6 +424,11 @@
     [
      "input: الحي (in GeoPicker)",
      "state district used by logic/request",
+     "ok"
+    ],
+    [
+     "action: <tr> onClick (in ProviderFullDetail)",
+     "",
      "ok"
     ],
     [
@@ -474,7 +499,7 @@
    "kind": "client",
    "note": "Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/insurance-queue.tsx",
-   "line": 169
+   "line": 166
   },
   {
    "route": "/admin/insurance-queue",
@@ -482,7 +507,7 @@
    "kind": "client",
    "note": "Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/insurance-queue.tsx",
-   "line": 170
+   "line": 167
   },
   {
    "route": "/admin/insurance-queue",
@@ -490,7 +515,7 @@
    "kind": "backend",
    "note": "1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/finance/refunds/:param/decide): every admin role, including a custom restricted one, can run them.",
    "file": "admin/src/pages/admin/insurance-queue.tsx",
-   "line": 55,
+   "line": 56,
    "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:885"
   },
   {
@@ -516,7 +541,7 @@
    "kind": "client",
    "note": "Sensitive action (POST /api/admin/admin/providers/:param/suspend) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/provider-moderation.tsx",
-   "line": 355
+   "line": 392
   },
   {
    "route": "/admin/provider-moderation",
@@ -533,7 +558,7 @@
    "kind": "backend",
    "note": "3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; GET /api/admin/provider-onboarding/admin/contracts/:param): any signed-in user passes JwtAuthGuard.",
    "file": "admin/src/components/ProviderFullDetail.tsx",
-   "line": 18,
+   "line": 19,
    "backend": "backend/src/modules/storage/storage.module.ts:382"
   }
  ]

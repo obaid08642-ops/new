@@ -19,6 +19,71 @@
    ]
   },
   {
+   "route": "/admin/approvals",
+   "elements": [
+    [
+     "button: تحديث",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: تعذر التحميل — إعادة",
+     "local state",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/providers",
+     "GET /api/admin/admin/providers (OK, backend/src/modules/provider/provider.controllers.ts:147)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/providers/provider-deltas",
+     "GET /api/admin/admin/providers/provider-deltas (OK, backend/src/modules/provider/provider.controllers.ts:151)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/finance/withdrawals/pending",
+     "GET /api/admin/admin/finance/withdrawals/pending (OK, backend/src/modules/admin/web-core/controllers/finance.controller.ts:41)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/finance/refunds/queue",
+     "GET /api/admin/admin/finance/refunds/queue (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:883)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/returns",
+     "GET /api/admin/admin/returns (OK, backend/src/modules/returns/returns.controller.ts:62)",
+     "ok"
+    ],
+    [
+     "API: GET /medicines/admin/change-requests",
+     "GET /medicines/admin/change-requests (OK, backend/src/modules/medicines/medicines.controller.ts:214)",
+     "ok"
+    ],
+    [
+     "API: GET /medicines/admin/shortage-reports",
+     "GET /medicines/admin/shortage-reports (OK, backend/src/modules/medicines/medicines.controller.ts:131)",
+     "ok"
+    ],
+    [
+     "API: GET /medicines/admin/image-suggestions",
+     "GET /medicines/admin/image-suggestions (OK, backend/src/modules/medicines/medicines.controller.ts:179)",
+     "ok"
+    ],
+    [
+     "API: GET (unresolved)",
+     "GET (unresolved) (UNRESOLVED)",
+     "broken"
+    ],
+    [
+     "One approvals endpoint with counts",
+     "9 list endpoints counted by the client",
+     "not wired"
+    ]
+   ]
+  },
+  {
    "route": "/admin/broadcast-monitor",
    "elements": [
     [
@@ -67,6 +132,11 @@
      "ok"
     ],
     [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
+    ],
+    [
      "API: GET /api/admin/admin/ops/domain-metrics",
      "GET /api/admin/admin/ops/domain-metrics (OK, backend/src/modules/ops/ops.controller.ts:206)",
      "ok"
@@ -87,7 +157,7 @@
    "route": "/admin/dashboard",
    "elements": [
     [
-     "action: ر.س اتصال تفاصيل",
+     "action: <DataTable> onRowClick",
      "navigation",
      "ok"
     ],
@@ -124,6 +194,11 @@
     [
      "button: إغلاق",
      "local state",
+     "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
      "ok"
     ],
     [
@@ -172,6 +247,11 @@
      "ok"
     ],
     [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
+    ],
+    [
      "API: GET /api/admin/admin/governance/fraud-alerts",
      "GET /api/admin/admin/governance/fraud-alerts (OK, backend/src/modules/admin/web-core/controllers/admin-governance.controller.ts:34)",
      "ok"
@@ -186,6 +266,11 @@
   {
    "route": "/admin/health-dashboard",
    "elements": [
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
+    ],
     [
      "API: GET /api/admin/admin/health-dashboard",
      "GET /api/admin/admin/health-dashboard (OK, backend/src/modules/health/health-dashboard.controller.ts:32)",
@@ -209,6 +294,11 @@
     [
      "button: → عودة لمركز القيادة",
      "navigation",
+     "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
      "ok"
     ],
     [
@@ -270,6 +360,11 @@
      "button: جارٍ التنفيذ… تأكيد وتدقيق",
      "POST /api/admin/admin/orders/:param/:param/:param; GET /api/admin/admin/orders/:param/:param; confirm()",
      "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
     ]
    ]
   },
@@ -314,6 +409,11 @@
     [
      "button: التالي",
      "local state",
+     "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
      "ok"
     ],
     [
@@ -387,6 +487,46 @@
      "ok"
     ]
    ]
+  },
+  {
+   "route": "/admin/today",
+   "elements": [
+    [
+     "link: بانتظار موافقتي",
+     "link /admin/approvals",
+     "ok"
+    ],
+    [
+     "button: تحديث",
+     "load; GET /api/admin/admin/command-center-v2; GET /api/admin/admin/ops/alerts; GET /api/admin/admin/ops/overview; GET /a",
+     "ok"
+    ],
+    [
+     "link: فتح",
+     "link /admin/orders/:param/:param",
+     "ok"
+    ],
+    [
+     "link: فتح",
+     "link /admin/finance-suite",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/ops/domain-metrics",
+     "GET /api/admin/admin/ops/domain-metrics (OK, backend/src/modules/ops/ops.controller.ts:206)",
+     "ok"
+    ],
+    [
+     "Urgent alerts: inbox, push, alert rules",
+     "GET /admin/ops/alerts + tiles (no inbox)",
+     "not wired"
+    ],
+    [
+     "Problem orders filter on the orders list",
+     "GET /admin/ops/alerts (stuck orders, max 50 per kind)",
+     "not wired"
+    ]
+   ]
   }
  ],
  "needsReview": [
@@ -400,12 +540,38 @@
    "backend": "backend/src/modules/care/appointments.controller.ts:98"
   },
   {
+   "route": "/admin/approvals",
+   "element": "API GET (unresolved)",
+   "kind": "client",
+   "note": "Endpoint is UNRESOLVED (path is not a literal the tool can resolve): the call fails or hits nothing.",
+   "file": "admin/src/pages/admin/approvals.tsx",
+   "line": 37
+  },
+  {
+   "route": "/admin/approvals",
+   "element": "Guard G-PAGE-NOPERM (1)",
+   "kind": "client",
+   "note": "Page has no client permission (AdminGuard ROUTE_PERMISSIONS) but 1 call(s) need permissions the backend checks (GET /medicines/admin/shortage-reports); any admin sees the page and gets 403s inside it.",
+   "file": "admin/src/pages/admin/approvals.tsx",
+   "line": 32,
+   "backend": "backend/src/modules/medicines/medicines.controller.ts:131"
+  },
+  {
+   "route": "/admin/approvals",
+   "element": "One approvals endpoint with counts",
+   "kind": "backend",
+   "note": "No endpoint returns all pending approvals with counts, so the page asks nine existing list endpoints (providers, provider edits, withdrawals, refunds, returns, medicine change requests, shortage reports, image suggestions, catalogue medical review) and shows each count or a retry. The maker-checker lists GET /admin/finance-engine/approvals and GET /approval-workflow/requests/pending are not included (no page uses them yet).",
+   "file": "admin/src/pages/admin/approvals.tsx",
+   "line": 18,
+   "backend": "backend/src/modules/finance-engine/finance-engine.module.ts:1058"
+  },
+  {
    "route": "/admin/command-center",
    "element": "Guard G-PERM-MISMATCH (1)",
    "kind": "backend",
    "note": "1 call(s): Page requires \"command.center.view\" but GET /admin/analytics-suite/online requires analytics.read; an admin role with the page permission only gets a 403 on thi",
    "file": "admin/src/pages/admin/command-center.tsx",
-   "line": 30,
+   "line": 31,
    "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:28"
   },
   {
@@ -414,7 +580,7 @@
    "kind": "backend",
    "note": "2 call(s) hit backend routes with no role/permission guard (GET /api/admin/system-health/liveness; GET /api/admin/system-health/readiness): any signed-in user passes JwtAuthGuard.",
    "file": "admin/src/pages/admin/dashboard.tsx",
-   "line": 33,
+   "line": 37,
    "backend": "backend/src/modules/admin/web-core/controllers/system-health.controller.ts:6"
   },
   {
@@ -447,7 +613,7 @@
    "kind": "backend",
    "note": "1 call(s): Page requires \"order.read\" but POST /admin/orders/:param/:param/:param requires order.cancel; an admin role with the page permission only gets a 403 on this cal",
    "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
-   "line": 50,
+   "line": 51,
    "backend": "backend/src/modules/admin/enterprise/admin-orders.controller.ts:62"
   },
   {
@@ -456,7 +622,7 @@
    "kind": "client",
    "note": "client permission \"users.view\" is not in backend Permission enum: the page/nav link is hidden or locked for every role.",
    "file": "admin/src/components/AdminGuard.tsx",
-   "line": 21
+   "line": 23
   },
   {
    "route": "/admin/sos-monitor",
@@ -482,6 +648,33 @@
    "note": "Owner decision 14 / O-2 (2026-10-06): no ambulance dispatch, assign, claim or tracking from our side (the 997 dial button stays); the assign / escalate-997 actions of this page go with the removal.",
    "file": "admin/src/pages/admin/sos-monitor.tsx",
    "line": 1
+  },
+  {
+   "route": "/admin/today",
+   "element": "Guard G-PAGE-NOPERM (1)",
+   "kind": "client",
+   "note": "Page has no client permission (AdminGuard ROUTE_PERMISSIONS) but 1 call(s) need permissions the backend checks (GET /api/admin/admin/command-center-v2); any admin sees the page and gets 403s inside it.",
+   "file": "admin/src/pages/admin/today.tsx",
+   "line": 49,
+   "backend": "backend/src/modules/admin/enterprise/command-center-v2.controller.ts:70"
+  },
+  {
+   "route": "/admin/today",
+   "element": "Urgent alerts: inbox, push, alert rules",
+   "kind": "backend",
+   "note": "The screen shows what the existing endpoints can say (SLA breaches, stuck orders, failed payments). There is no admin notification inbox or bell, no push to the admin's phone (devices are enrolled for security only) and no rule for what is urgent, so nothing reaches an admin who has the screen closed. SOS is left out on purpose (ambulance removal, decision 14).",
+   "file": "admin/src/pages/admin/today.tsx",
+   "line": 101,
+   "backend": "backend/src/modules/ops/ops.controller.ts:39"
+  },
+  {
+   "route": "/admin/today",
+   "element": "Problem orders filter on the orders list",
+   "kind": "backend",
+   "note": "The orders list has no stuck / failed-payment / SLA-breach / refund-pending filter, so this screen lists only the stuck orders from ops/alerts (5 kinds, 30 minute threshold) and links each to its order page; failed payments link to finance because transactions carry a booking_kind that is not always an order kind.",
+   "file": "admin/src/pages/admin/today.tsx",
+   "line": 144,
+   "backend": "backend/src/modules/admin/enterprise/admin-orders.controller.ts:20"
   }
  ]
 }

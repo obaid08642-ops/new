@@ -276,7 +276,7 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
         aria-label="القائمة الرئيسية"
         // Below 1024 px the closed drawer is out of the tab order and the accessibility tree.
         inert={!desktop && !drawerOpen}
-        className={`fixed inset-y-0 start-0 z-50 flex h-dvh w-72 max-w-[85vw] shrink-0 flex-col bg-slate-950 text-white ${drawerOpen ? 'shadow-2xl' : 'max-lg:shadow-none lg:shadow-2xl'} transition-transform duration-200 motion-reduce:transition-none lg:sticky lg:top-0 lg:z-auto lg:max-w-none lg:translate-x-0 ${drawerOpen ? 'translate-x-0' : 'translate-x-full ltr:-translate-x-full lg:translate-x-0'}`}
+        className={`fixed inset-y-0 start-0 z-50 flex h-dvh w-72 max-w-[85vw] shrink-0 flex-col bg-slate-950 text-white ${drawerOpen ? 'shadow-2xl' : 'max-lg:shadow-none lg:shadow-2xl'} transition-transform duration-200 motion-reduce:transition-none lg:sticky lg:top-0 lg:z-auto lg:max-w-none lg:translate-x-0 ${drawerOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}
       >
         <div className="flex items-start justify-between border-b border-slate-800 px-6 pb-6 pt-[max(24px,env(safe-area-inset-top))]">
           <div className="min-w-0">

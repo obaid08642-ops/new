@@ -82,7 +82,7 @@ export default function ApprovalsPage() {
             return (
               <li key={row.key}>
                 <div className="flex items-center justify-between gap-3 rounded-2xl border bg-white p-4 shadow-sm">
-                  <Link href={row.href} className="min-w-0 flex-1">
+                  <Link href={row.href} className="block min-h-11 min-w-0 flex-1">
                     <p className="font-bold">{row.label}</p>
                     <p className="mt-0.5 text-xs text-slate-500">{row.hint}</p>
                   </Link>

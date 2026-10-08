@@ -2,6 +2,14 @@
  "generated": "tools/design/admin-inventory.mjs",
  "nav": [
   {
+   "href": "/admin/today",
+   "label": "اليوم"
+  },
+  {
+   "href": "/admin/approvals",
+   "label": "بانتظار موافقتي"
+  },
+  {
    "href": "/admin/command-center",
    "label": "مركز القيادة الحي",
    "permission": "command.center.view"
@@ -253,7 +261,8 @@
    "line": 1,
    "area": "system",
    "unit": [
-    "admin/src/pages/admin/ai-control.tsx"
+    "admin/src/pages/admin/ai-control.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "ops.queues.manage",
    "navPermission": null,
@@ -269,7 +278,7 @@
      "backend": "backend/src/modules/ai/ai.controller.ts:30",
      "backendPath": "/ai/admin/gateway",
      "file": "admin/src/pages/admin/ai-control.tsx",
-     "line": 23,
+     "line": 24,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -292,7 +301,7 @@
      "backend": "backend/src/modules/ai/ai.controller.ts:58",
      "backendPath": "/ai/admin/usage",
      "file": "admin/src/pages/admin/ai-control.tsx",
-     "line": 24,
+     "line": 25,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -315,7 +324,7 @@
      "backend": "backend/src/modules/ai/ai.controller.ts:37",
      "backendPath": "/ai/admin/gateway/provider/:param",
      "file": "admin/src/pages/admin/ai-control.tsx",
-     "line": 33,
+     "line": 34,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -338,7 +347,7 @@
      "backend": "backend/src/modules/ai/ai.controller.ts:44",
      "backendPath": "/ai/admin/gateway/mode",
      "file": "admin/src/pages/admin/ai-control.tsx",
-     "line": 39,
+     "line": 40,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -361,7 +370,7 @@
      "backend": "backend/src/modules/ai/ai.controller.ts:51",
      "backendPath": "/ai/admin/gateway/purpose",
      "file": "admin/src/pages/admin/ai-control.tsx",
-     "line": 46,
+     "line": 47,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -392,7 +401,7 @@
    "clientPermission": "facility.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 33,
+   "navLine": 35,
    "publicDirectory": false,
    "calls": [
     {
@@ -499,12 +508,13 @@
    "line": 1,
    "area": "customers-growth",
    "unit": [
-    "admin/src/pages/admin/analytics-suite.tsx"
+    "admin/src/pages/admin/analytics-suite.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "analytics.read",
    "navPermission": "analytics.read",
    "inNav": true,
-   "navLine": 19,
+   "navLine": 21,
    "publicDirectory": false,
    "calls": [
     {
@@ -515,7 +525,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:82",
      "backendPath": "/admin/analytics-suite/funnels",
      "file": "admin/src/pages/admin/analytics-suite.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -540,7 +550,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:88",
      "backendPath": "/admin/analytics-suite/cohorts",
      "file": "admin/src/pages/admin/analytics-suite.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -565,7 +575,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:94",
      "backendPath": "/admin/analytics-suite/provider-league",
      "file": "admin/src/pages/admin/analytics-suite.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -590,7 +600,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:100",
      "backendPath": "/admin/analytics-suite/search",
      "file": "admin/src/pages/admin/analytics-suite.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -615,7 +625,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:106",
      "backendPath": "/admin/analytics-suite/nps",
      "file": "admin/src/pages/admin/analytics-suite.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -640,7 +650,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:112",
      "backendPath": "/admin/analytics-suite/anomalies",
      "file": "admin/src/pages/admin/analytics-suite.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -668,7 +678,8 @@
    "line": 1,
    "area": "customers-growth",
    "unit": [
-    "admin/src/pages/admin/analytics.tsx"
+    "admin/src/pages/admin/analytics.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "analytics.read",
    "navPermission": null,
@@ -684,7 +695,7 @@
      "backend": "backend/src/modules/analytics/analytics.module.ts:126",
      "backendPath": "/admin/analytics/overview",
      "file": "admin/src/pages/admin/analytics.tsx",
-     "line": 19,
+     "line": 20,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -707,7 +718,7 @@
      "backend": "backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:229",
      "backendPath": "/admin/analytics/:param",
      "file": "admin/src/pages/admin/analytics.tsx",
-     "line": 24,
+     "line": 25,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -738,7 +749,7 @@
    "clientPermission": "appointment.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 66,
+   "navLine": 68,
    "publicDirectory": false,
    "calls": [
     {
@@ -804,6 +815,233 @@
   },
   {
    "app": "admin",
+   "route": "/admin/approvals",
+   "file": "admin/src/pages/admin/approvals.tsx",
+   "line": 1,
+   "area": "ops-monitoring",
+   "unit": [
+    "admin/src/pages/admin/approvals.tsx"
+   ],
+   "clientPermission": null,
+   "navPermission": null,
+   "inNav": true,
+   "navLine": 18,
+   "publicDirectory": false,
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/providers",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:147",
+     "backendPath": "/admin/providers",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 20,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": ""
+     },
+     "routeFile": "backend/src/modules/provider/provider.controllers.ts",
+     "routeLine": 147,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/providers/provider-deltas",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:151",
+     "backendPath": "/admin/providers/provider-deltas",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 22,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": ""
+     },
+     "routeFile": "backend/src/modules/provider/provider.controllers.ts",
+     "routeLine": 151,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/finance/withdrawals/pending",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:41",
+     "backendPath": "/admin/finance/withdrawals/pending",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 24,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": ""
+     },
+     "routeFile": "backend/src/modules/admin/web-core/controllers/finance.controller.ts",
+     "routeLine": 41,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/finance/refunds/queue",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:883",
+     "backendPath": "/admin/finance/refunds/queue",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 26,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard | JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/insurance-engine/insurance-engine.module.ts",
+     "routeLine": 883,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/returns",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/returns/returns.controller.ts:62",
+     "backendPath": "/admin/returns",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 28,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/returns/returns.controller.ts",
+     "routeLine": 62,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/medicines/admin/change-requests",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:214",
+     "backendPath": "/medicines/admin/change-requests",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 30,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
+     "routeLine": 214,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/medicines/admin/shortage-reports",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:131",
+     "backendPath": "/medicines/admin/shortage-reports",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 32,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "catalog.read"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
+     "routeLine": 131,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/medicines/admin/image-suggestions",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:179",
+     "backendPath": "/medicines/admin/image-suggestions",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 34,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
+     "routeLine": 179,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "(unresolved)",
+     "target": "backend",
+     "status": "UNRESOLVED",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 37,
+     "fn": "adminFetch",
+     "via": null,
+     "note": "path is not a literal the tool can resolve"
+    }
+   ],
+   "guardFindings": [
+    {
+     "code": "G-PAGE-NOPERM",
+     "note": "Page has no client permission (any admin sees it) but GET /medicines/admin/shortage-reports requires catalog.read; roles without it get a 403 inside the page.",
+     "severity": "low",
+     "method": "GET",
+     "path": "/medicines/admin/shortage-reports",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 32,
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:131"
+    }
+   ],
+   "orphan": false
+  },
+  {
+   "app": "admin",
    "route": "/admin/audit-logs",
    "file": "admin/src/pages/admin/audit-logs.tsx",
    "line": 1,
@@ -818,7 +1056,7 @@
    "clientPermission": "data.export",
    "navPermission": null,
    "inNav": true,
-   "navLine": 79,
+   "navLine": 81,
    "publicDirectory": false,
    "calls": [
     {
@@ -862,7 +1100,7 @@
    "clientPermission": "order.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 67,
+   "navLine": 69,
    "publicDirectory": false,
    "calls": [
     {
@@ -899,12 +1137,13 @@
    "line": 1,
    "area": "catalogue",
    "unit": [
-    "admin/src/pages/admin/catalog-governance.tsx"
+    "admin/src/pages/admin/catalog-governance.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "catalog.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 59,
+   "navLine": 61,
    "publicDirectory": false,
    "calls": [
     {
@@ -915,7 +1154,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:243",
      "backendPath": "/medicines/admin/catalog",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 40,
+     "line": 41,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -940,7 +1179,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:131",
      "backendPath": "/medicines/admin/shortage-reports",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 41,
+     "line": 42,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -965,7 +1204,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:155",
      "backendPath": "/admin/pharmacy/price-overrides",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 42,
+     "line": 43,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -988,7 +1227,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:305",
      "backendPath": "/medicines/admin/catalog/:param/price-history",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 63,
+     "line": 64,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1013,7 +1252,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:235",
      "backendPath": "/medicines/admin/catalog/:param",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 78,
+     "line": 79,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1039,7 +1278,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:458",
      "backendPath": "/medicines/admin/import-csv",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 101,
+     "line": 102,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1064,7 +1303,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:139",
      "backendPath": "/medicines/admin/shortage-reports/:param/:param",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 122,
+     "line": 123,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1090,7 +1329,7 @@
      "method": "PATCH",
      "path": "/medicines/admin/catalog/:param",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 78,
+     "line": 79,
      "backend": "backend/src/modules/medicines/medicines.controller.ts:235"
     },
     {
@@ -1100,7 +1339,7 @@
      "method": "POST",
      "path": "/medicines/admin/import-csv",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 101,
+     "line": 102,
      "backend": "backend/src/modules/medicines/medicines.controller.ts:458"
     },
     {
@@ -1110,7 +1349,7 @@
      "method": "POST",
      "path": "/medicines/admin/shortage-reports/:param/:param",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 122,
+     "line": 123,
      "backend": "backend/src/modules/medicines/medicines.controller.ts:139"
     }
    ],
@@ -1128,7 +1367,7 @@
    "clientPermission": "catalog.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 61,
+   "navLine": 63,
    "publicDirectory": false,
    "calls": [
     {
@@ -2825,12 +3064,13 @@
    "line": 1,
    "area": "ops-monitoring",
    "unit": [
-    "admin/src/pages/admin/command-center.tsx"
+    "admin/src/pages/admin/command-center.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "command.center.view",
    "navPermission": "command.center.view",
    "inNav": true,
-   "navLine": 17,
+   "navLine": 19,
    "publicDirectory": false,
    "calls": [
     {
@@ -2841,7 +3081,7 @@
      "backend": "backend/src/modules/admin/enterprise/command-center-v2.controller.ts:70",
      "backendPath": "/admin/command-center-v2",
      "file": "admin/src/pages/admin/command-center.tsx",
-     "line": 30,
+     "line": 31,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -2866,7 +3106,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:28",
      "backendPath": "/admin/analytics-suite/online",
      "file": "admin/src/pages/admin/command-center.tsx",
-     "line": 30,
+     "line": 31,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -2891,7 +3131,7 @@
      "backend": "backend/src/modules/ops/ops.controller.ts:72",
      "backendPath": "/admin/ops/overview",
      "file": "admin/src/pages/admin/command-center.tsx",
-     "line": 30,
+     "line": 31,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -2915,7 +3155,7 @@
      "backend": "backend/src/modules/ops/ops.controller.ts:206",
      "backendPath": "/admin/ops/domain-metrics",
      "file": "admin/src/pages/admin/command-center.tsx",
-     "line": 30,
+     "line": 31,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -2939,7 +3179,7 @@
      "backend": "backend/src/modules/ops/ops.controller.ts:264",
      "backendPath": "/admin/ops/live-map",
      "file": "admin/src/pages/admin/command-center.tsx",
-     "line": 30,
+     "line": 31,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -2963,7 +3203,7 @@
      "backend": "backend/src/modules/ops/ops.controller.ts:40",
      "backendPath": "/admin/ops/alerts",
      "file": "admin/src/pages/admin/command-center.tsx",
-     "line": 30,
+     "line": 31,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -2988,7 +3228,7 @@
      "method": "GET",
      "path": "/api/admin/admin/analytics-suite/online",
      "file": "admin/src/pages/admin/command-center.tsx",
-     "line": 30,
+     "line": 31,
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:28"
     }
    ],
@@ -3001,7 +3241,8 @@
    "line": 1,
    "area": "finance",
    "unit": [
-    "admin/src/pages/admin/commissions.tsx"
+    "admin/src/pages/admin/commissions.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "finance.read",
    "navPermission": null,
@@ -3017,7 +3258,7 @@
      "backend": "backend/src/modules/finance-engine/finance-engine.module.ts:1045",
      "backendPath": "/admin/finance-engine/commission-rules/history",
      "file": "admin/src/pages/admin/commissions.tsx",
-     "line": 31,
+     "line": 32,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -3040,7 +3281,7 @@
      "backend": "backend/src/modules/finance-engine/finance-engine.module.ts:1040",
      "backendPath": "/admin/finance-engine/commission-rules",
      "file": "admin/src/pages/admin/commissions.tsx",
-     "line": 41,
+     "line": 42,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -3063,7 +3304,7 @@
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:882",
      "backendPath": "/admin/finance/ledger/summary",
      "file": "admin/src/pages/admin/commissions.tsx",
-     "line": 60,
+     "line": 61,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -3086,7 +3327,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:29",
      "backendPath": "/admin/finance/commissions",
      "file": "admin/src/pages/admin/commissions.tsx",
-     "line": 61,
+     "line": 62,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -3119,7 +3360,7 @@
    "clientPermission": "cms.edit",
    "navPermission": null,
    "inNav": true,
-   "navLine": 63,
+   "navLine": 65,
    "publicDirectory": false,
    "calls": [
     {
@@ -3179,12 +3420,13 @@
    "line": 1,
    "area": "system",
    "unit": [
-    "admin/src/pages/admin/config-portal.tsx"
+    "admin/src/pages/admin/config-portal.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "ops.queues.manage",
    "navPermission": null,
    "inNav": true,
-   "navLine": 37,
+   "navLine": 39,
    "publicDirectory": false,
    "calls": [
     {
@@ -3195,7 +3437,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:127",
      "backendPath": "/admin/config/app-versions",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 19,
+     "line": 20,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3218,7 +3460,7 @@
      "backend": "backend/src/modules/mental-health/mental-health-urgent-help.controller.ts:25",
      "backendPath": "/mental-health/urgent-help",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 35,
+     "line": 36,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3239,7 +3481,7 @@
      "backend": "backend/src/modules/mental-health/mental-health-urgent-help.controller.ts:32",
      "backendPath": "/admin/mental-health/urgent-help",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 44,
+     "line": 45,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3262,7 +3504,7 @@
      "backend": "backend/src/modules/medicines/rx-consult.controller.ts:72",
      "backendPath": "/admin/pharmacy/rx-consult-specialties",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 55,
+     "line": 56,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3285,7 +3527,7 @@
      "backend": "backend/src/modules/medicines/rx-consult.controller.ts:91",
      "backendPath": "/admin/pharmacy/rx-consult-specialties",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 63,
+     "line": 64,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3308,7 +3550,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:135",
      "backendPath": "/admin/config/app-versions",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 71,
+     "line": 72,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3331,7 +3573,7 @@
      "backend": "backend/src/modules/business-rules/business-rules.module.ts:296",
      "backendPath": "/business-rules/config/pricing",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 85,
+     "line": 86,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3354,7 +3596,7 @@
      "backend": "backend/src/modules/business-rules/business-rules.module.ts:291",
      "backendPath": "/business-rules/config/surge",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 103,
+     "line": 104,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3377,7 +3619,7 @@
      "backend": "backend/src/modules/business-rules/business-rules.module.ts:300",
      "backendPath": "/business-rules/config/fees",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 106,
+     "line": 107,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3400,7 +3642,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:225",
      "backendPath": "/admin/pharmacy/fulfillment-policies",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 120,
+     "line": 121,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3423,7 +3665,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:226",
      "backendPath": "/admin/pharmacy/fulfillment-policies/cod",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 129,
+     "line": 130,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3446,7 +3688,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:24",
      "backendPath": "/admin/config/sla",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 137,
+     "line": 138,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3469,7 +3711,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:32",
      "backendPath": "/admin/config/sla",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 170,
+     "line": 171,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3492,7 +3734,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-governance.controller.ts:26",
      "backendPath": "/admin/governance/trigger-emergency-maintenance",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 191,
+     "line": 192,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3523,7 +3765,7 @@
    "clientPermission": "cms.edit",
    "navPermission": "cms.edit",
    "inNav": true,
-   "navLine": 56,
+   "navLine": 58,
    "publicDirectory": false,
    "calls": [
     {
@@ -3945,7 +4187,7 @@
    "clientPermission": "crm.read",
    "navPermission": "crm.read",
    "inNav": true,
-   "navLine": 53,
+   "navLine": 55,
    "publicDirectory": false,
    "calls": [
     {
@@ -4043,7 +4285,8 @@
    "line": 1,
    "area": "ops-monitoring",
    "unit": [
-    "admin/src/pages/admin/dashboard.tsx"
+    "admin/src/pages/admin/dashboard.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": null,
    "navPermission": null,
@@ -4059,7 +4302,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/system-health.controller.ts:6",
      "backendPath": "/system-health/liveness",
      "file": "admin/src/pages/admin/dashboard.tsx",
-     "line": 33,
+     "line": 37,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -4080,7 +4323,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/system-health.controller.ts:19",
      "backendPath": "/system-health/readiness",
      "file": "admin/src/pages/admin/dashboard.tsx",
-     "line": 34,
+     "line": 38,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -4101,7 +4344,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/analytics.controller.ts:39",
      "backendPath": "/nabd-extensions/admin/analytics/heatmaps",
      "file": "admin/src/pages/admin/dashboard.tsx",
-     "line": 58,
+     "line": 62,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -4124,7 +4367,7 @@
      "backend": "backend/src/modules/admin/command-center/admin-command-center.module.ts:177",
      "backendPath": "/admin/command-center",
      "file": "admin/src/pages/admin/dashboard.tsx",
-     "line": 87,
+     "line": 91,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -4148,7 +4391,7 @@
      "method": "GET",
      "path": "/api/admin/system-health/liveness",
      "file": "admin/src/pages/admin/dashboard.tsx",
-     "line": 33,
+     "line": 37,
      "backend": "backend/src/modules/admin/web-core/controllers/system-health.controller.ts:6"
     },
     {
@@ -4158,7 +4401,7 @@
      "method": "GET",
      "path": "/api/admin/system-health/readiness",
      "file": "admin/src/pages/admin/dashboard.tsx",
-     "line": 34,
+     "line": 38,
      "backend": "backend/src/modules/admin/web-core/controllers/system-health.controller.ts:19"
     }
    ],
@@ -4171,12 +4414,13 @@
    "line": 1,
    "area": "finance",
    "unit": [
-    "admin/src/pages/admin/disputes.tsx"
+    "admin/src/pages/admin/disputes.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "disputes.resolve",
    "navPermission": "disputes.resolve",
    "inNav": true,
-   "navLine": 44,
+   "navLine": 46,
    "publicDirectory": false,
    "calls": [
     {
@@ -4187,7 +4431,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-disputes.controller.ts:42",
      "backendPath": "/admin/disputes",
      "file": "admin/src/pages/admin/disputes.tsx",
-     "line": 23,
+     "line": 24,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -4210,7 +4454,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-disputes.controller.ts:132",
      "backendPath": "/admin/disputes/:param/resolve",
      "file": "admin/src/pages/admin/disputes.tsx",
-     "line": 37,
+     "line": 38,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -4238,12 +4482,13 @@
    "line": 1,
    "area": "finance",
    "unit": [
-    "admin/src/pages/admin/finance-suite.tsx"
+    "admin/src/pages/admin/finance-suite.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "finance.read",
    "navPermission": "finance.read",
    "inNav": true,
-   "navLine": 43,
+   "navLine": 45,
    "publicDirectory": false,
    "calls": [
     {
@@ -4254,7 +4499,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:18",
      "backendPath": "/admin/finance/revenue",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 22,
+     "line": 23,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -4279,7 +4524,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:29",
      "backendPath": "/admin/finance/commissions",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 22,
+     "line": 23,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -4304,7 +4549,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:41",
      "backendPath": "/admin/finance/reconciliation",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 22,
+     "line": 23,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -4329,7 +4574,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:47",
      "backendPath": "/admin/finance/payouts",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 22,
+     "line": 23,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -4354,7 +4599,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:35",
      "backendPath": "/admin/finance/commissions/config",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 26,
+     "line": 27,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -4379,7 +4624,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:53",
      "backendPath": "/admin/finance/payouts/:param/:param",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 27,
+     "line": 28,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -4404,7 +4649,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:65",
      "backendPath": "/admin/finance/providers/:param/statement",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 28,
+     "line": 29,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -4430,7 +4675,7 @@
      "method": "POST",
      "path": "/api/admin/admin/finance/commissions/config",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 26,
+     "line": 27,
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:35"
     },
     {
@@ -4440,7 +4685,7 @@
      "method": "POST",
      "path": "/api/admin/admin/finance/payouts/:param/:param",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 27,
+     "line": 28,
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:53"
     }
    ],
@@ -4453,12 +4698,13 @@
    "line": 1,
    "area": "finance",
    "unit": [
-    "admin/src/pages/admin/financial-ledger.tsx"
+    "admin/src/pages/admin/financial-ledger.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "finance.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 47,
+   "navLine": 49,
    "publicDirectory": false,
    "calls": [
     {
@@ -4469,7 +4715,7 @@
      "backend": "backend/src/modules/finance-engine/finance-engine.module.ts:1033",
      "backendPath": "/admin/finance-engine/reports/summary",
      "file": "admin/src/pages/admin/financial-ledger.tsx",
-     "line": 53,
+     "line": 54,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -4492,7 +4738,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:29",
      "backendPath": "/admin/finance/commissions",
      "file": "admin/src/pages/admin/financial-ledger.tsx",
-     "line": 61,
+     "line": 62,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -4517,7 +4763,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:41",
      "backendPath": "/admin/finance/withdrawals/pending",
      "file": "admin/src/pages/admin/financial-ledger.tsx",
-     "line": 68,
+     "line": 69,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -4540,7 +4786,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-extended-operations.controller.ts:16",
      "backendPath": "/admin/extended-operations/procurement/pending",
      "file": "admin/src/pages/admin/financial-ledger.tsx",
-     "line": 79,
+     "line": 80,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -4563,7 +4809,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:74",
      "backendPath": "/admin/finance/withdrawals/:param/execute",
      "file": "admin/src/pages/admin/financial-ledger.tsx",
-     "line": 111,
+     "line": 112,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -4586,7 +4832,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-extended-operations.controller.ts:26",
      "backendPath": "/admin/extended-operations/issue-quote/:param",
      "file": "admin/src/pages/admin/financial-ledger.tsx",
-     "line": 137,
+     "line": 138,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -4610,7 +4856,7 @@
      "method": "POST",
      "path": "/api/admin/admin/finance/withdrawals/:param/execute",
      "file": "admin/src/pages/admin/financial-ledger.tsx",
-     "line": 111,
+     "line": 112,
      "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:74"
     }
    ],
@@ -4623,12 +4869,13 @@
    "line": 1,
    "area": "ops-monitoring",
    "unit": [
-    "admin/src/pages/admin/fraud-monitoring.tsx"
+    "admin/src/pages/admin/fraud-monitoring.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "command.center.view",
    "navPermission": null,
    "inNav": true,
-   "navLine": 23,
+   "navLine": 25,
    "publicDirectory": false,
    "calls": [
     {
@@ -4639,7 +4886,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-governance.controller.ts:34",
      "backendPath": "/admin/governance/fraud-alerts",
      "file": "admin/src/pages/admin/fraud-monitoring.tsx",
-     "line": 47,
+     "line": 48,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -4662,7 +4909,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-governance.controller.ts:82",
      "backendPath": "/admin/governance/audit-logs",
      "file": "admin/src/pages/admin/fraud-monitoring.tsx",
-     "line": 55,
+     "line": 56,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -4688,12 +4935,13 @@
    "line": 1,
    "area": "customers-growth",
    "unit": [
-    "admin/src/pages/admin/gdpr.tsx"
+    "admin/src/pages/admin/gdpr.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "gdpr.manage",
    "navPermission": "gdpr.manage",
    "inNav": true,
-   "navLine": 55,
+   "navLine": 57,
    "publicDirectory": false,
    "calls": [
     {
@@ -4704,7 +4952,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-crm.controller.ts:153",
      "backendPath": "/admin/gdpr/requests",
      "file": "admin/src/pages/admin/gdpr.tsx",
-     "line": 10,
+     "line": 11,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -4729,7 +4977,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-crm.controller.ts:168",
      "backendPath": "/admin/gdpr/requests",
      "file": "admin/src/pages/admin/gdpr.tsx",
-     "line": 12,
+     "line": 13,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -4754,7 +5002,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-crm.controller.ts:198",
      "backendPath": "/admin/gdpr/:param/:param",
      "file": "admin/src/pages/admin/gdpr.tsx",
-     "line": 13,
+     "line": 14,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -4782,7 +5030,8 @@
    "line": 1,
    "area": "ops-monitoring",
    "unit": [
-    "admin/src/pages/admin/health-dashboard.tsx"
+    "admin/src/pages/admin/health-dashboard.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "command.center.view",
    "navPermission": null,
@@ -4798,7 +5047,7 @@
      "backend": "backend/src/modules/health/health-dashboard.controller.ts:32",
      "backendPath": "/admin/health-dashboard",
      "file": "admin/src/pages/admin/health-dashboard.tsx",
-     "line": 10,
+     "line": 11,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -4829,7 +5078,7 @@
    "clientPermission": "cms.edit",
    "navPermission": "cms.edit",
    "inNav": true,
-   "navLine": 57,
+   "navLine": 59,
    "publicDirectory": false,
    "calls": [
     {
@@ -4894,7 +5143,8 @@
    "area": "catalogue",
    "unit": [
     "admin/src/pages/admin/image-suggestions.tsx",
-    "admin/src/components/ProviderFullDetail.tsx"
+    "admin/src/components/ProviderFullDetail.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": null,
    "navPermission": null,
@@ -4956,7 +5206,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:382",
      "backendPath": "/storage/:param/signed-url",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -4977,7 +5227,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:372",
      "backendPath": "/storage/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 23,
+     "line": 24,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -4998,7 +5248,7 @@
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:520",
      "backendPath": "/provider-onboarding/admin/contracts/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 157,
+     "line": 175,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -5019,7 +5269,7 @@
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:528",
      "backendPath": "/provider-onboarding/admin/contracts/:param/visibility",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 556,
+     "line": 536,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -5043,7 +5293,7 @@
      "method": "GET",
      "path": "/api/admin/storage/:param/signed-url",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 18,
+     "line": 19,
      "backend": "backend/src/modules/storage/storage.module.ts:382"
     },
     {
@@ -5053,7 +5303,7 @@
      "method": "GET",
      "path": "/api/admin/storage/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 23,
+     "line": 24,
      "backend": "backend/src/modules/storage/storage.module.ts:372"
     },
     {
@@ -5063,7 +5313,7 @@
      "method": "GET",
      "path": "/api/admin/provider-onboarding/admin/contracts/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 157,
+     "line": 175,
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:520"
     }
    ],
@@ -5081,7 +5331,7 @@
    "clientPermission": "user.impersonate",
    "navPermission": "user.impersonate",
    "inNav": true,
-   "navLine": 70,
+   "navLine": 72,
    "publicDirectory": false,
    "calls": [
     {
@@ -5230,7 +5480,7 @@
    "clientPermission": "order.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 32,
+   "navLine": 34,
    "publicDirectory": false,
    "calls": [
     {
@@ -5428,12 +5678,13 @@
    "area": "providers",
    "unit": [
     "admin/src/pages/admin/insurance-queue.tsx",
-    "admin/src/components/EmptyIcon.tsx"
+    "admin/src/components/EmptyIcon.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "order.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 31,
+   "navLine": 33,
    "publicDirectory": false,
    "calls": [
     {
@@ -5444,7 +5695,7 @@
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:895",
      "backendPath": "/admin/insurance/stats",
      "file": "admin/src/pages/admin/insurance-queue.tsx",
-     "line": 37,
+     "line": 38,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5467,7 +5718,7 @@
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:894",
      "backendPath": "/admin/insurance/requests",
      "file": "admin/src/pages/admin/insurance-queue.tsx",
-     "line": 38,
+     "line": 39,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5490,7 +5741,7 @@
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:883",
      "backendPath": "/admin/finance/refunds/queue",
      "file": "admin/src/pages/admin/insurance-queue.tsx",
-     "line": 39,
+     "line": 40,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5513,7 +5764,7 @@
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:885",
      "backendPath": "/admin/finance/refunds/:param/decide",
      "file": "admin/src/pages/admin/insurance-queue.tsx",
-     "line": 55,
+     "line": 56,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5537,7 +5788,7 @@
      "method": "POST",
      "path": "/api/admin/admin/finance/refunds/:param/decide",
      "file": "admin/src/pages/admin/insurance-queue.tsx",
-     "line": 55,
+     "line": 56,
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:885"
     }
    ],
@@ -5725,7 +5976,7 @@
    "clientPermission": "crm.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 65,
+   "navLine": 67,
    "publicDirectory": false,
    "calls": [
     {
@@ -5768,7 +6019,7 @@
    "clientPermission": null,
    "navPermission": null,
    "inNav": true,
-   "navLine": 69,
+   "navLine": 71,
    "publicDirectory": false,
    "calls": [
     {
@@ -5856,7 +6107,7 @@
    "clientPermission": "coupons.manage",
    "navPermission": null,
    "inNav": true,
-   "navLine": 64,
+   "navLine": 66,
    "publicDirectory": false,
    "calls": [
     {
@@ -6079,12 +6330,16 @@
    "line": 1,
    "area": "catalogue",
    "unit": [
-    "admin/src/pages/admin/medicines-catalog.tsx"
+    "admin/src/pages/admin/medicines-catalog.tsx",
+    "admin/src/components/DataTable.tsx",
+    "admin/src/components/BarcodeScanner.tsx",
+    "admin/src/components/ConfirmDialog.tsx",
+    "admin/src/components/MedicineQuickEdit.tsx"
    ],
    "clientPermission": "catalog.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 60,
+   "navLine": 62,
    "publicDirectory": false,
    "calls": [
     {
@@ -6095,7 +6350,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:358",
      "backendPath": "/storage/upload",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 46,
+     "line": 50,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6116,7 +6371,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:382",
      "backendPath": "/storage/:param/signed-url",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 50,
+     "line": 54,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6137,7 +6392,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:243",
      "backendPath": "/medicines/admin/catalog",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 96,
+     "line": 106,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6162,7 +6417,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:214",
      "backendPath": "/medicines/admin/change-requests",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 109,
+     "line": 119,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6185,7 +6440,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:313",
      "backendPath": "/medicines/admin/reports",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 116,
+     "line": 126,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6202,13 +6457,61 @@
     },
     {
      "method": "POST",
+     "path": "/medicines/lookup-barcode",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:56",
+     "backendPath": "/medicines/lookup-barcode",
+     "file": "admin/src/pages/admin/medicines-catalog.tsx",
+     "line": 143,
+     "fn": "apiFetch",
+     "via": null,
+     "guards": {
+      "public": true,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
+     "routeLine": 56,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/medicines/admin/catalog",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:243",
+     "backendPath": "/medicines/admin/catalog",
+     "file": "admin/src/pages/admin/medicines-catalog.tsx",
+     "line": 148,
+     "fn": "apiFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "catalog.read"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
+     "routeLine": 243,
+     "raw": false
+    },
+    {
+     "method": "POST",
      "path": "/medicines/admin/catalog",
      "target": "backend",
      "status": "OK",
      "backend": "backend/src/modules/medicines/medicines.controller.ts:261",
      "backendPath": "/medicines/admin/catalog",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 160,
+     "line": 192,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6233,7 +6536,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:235",
      "backendPath": "/medicines/admin/catalog/:param",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 170,
+     "line": 194,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6259,7 +6562,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:269",
      "backendPath": "/medicines/admin/catalog/:param/delete",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 183,
+     "line": 223,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6284,7 +6587,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:277",
      "backendPath": "/medicines/admin/catalog/:param/approve",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 192,
+     "line": 232,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6309,7 +6612,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:163",
      "backendPath": "/medicines/admin/catalog/:param/availability",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 200,
+     "line": 240,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6334,7 +6637,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:221",
      "backendPath": "/medicines/admin/change-requests/:param/:param",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 225,
+     "line": 265,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6348,6 +6651,82 @@
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
      "routeLine": 221,
      "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/medicines/admin/catalog/:param/price-history",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:305",
+     "backendPath": "/medicines/admin/catalog/:param/price-history",
+     "file": "admin/src/components/MedicineQuickEdit.tsx",
+     "line": 70,
+     "fn": "apiFetch",
+     "via": "MedicineQuickEdit",
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "catalog.read"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
+     "routeLine": 305,
+     "raw": false
+    },
+    {
+     "method": "PATCH",
+     "path": "/medicines/admin/catalog/:param",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:235",
+     "backendPath": "/medicines/admin/catalog/:param",
+     "file": "admin/src/components/MedicineQuickEdit.tsx",
+     "line": 91,
+     "fn": "apiFetch",
+     "via": "MedicineQuickEdit",
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "catalog.update",
+       "catalog.price.write"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
+     "routeLine": 235,
+     "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/medicines/admin/catalog/:param/availability",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:163",
+     "backendPath": "/medicines/admin/catalog/:param/availability",
+     "file": "admin/src/components/MedicineQuickEdit.tsx",
+     "line": 94,
+     "fn": "apiFetch",
+     "via": "MedicineQuickEdit",
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "catalog.shortage.decide"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
+     "routeLine": 163,
+     "raw": false
     }
    ],
    "guardFindings": [
@@ -6358,7 +6737,7 @@
      "method": "POST",
      "path": "/storage/upload",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 46,
+     "line": 50,
      "backend": "backend/src/modules/storage/storage.module.ts:358"
     },
     {
@@ -6368,8 +6747,18 @@
      "method": "GET",
      "path": "/storage/:param/signed-url",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 50,
+     "line": 54,
      "backend": "backend/src/modules/storage/storage.module.ts:382"
+    },
+    {
+     "code": "G-PUBLIC",
+     "note": "POST /medicines/lookup-barcode is @Public (no auth at all) but the admin page uses it for a write.",
+     "severity": "high",
+     "method": "POST",
+     "path": "/medicines/lookup-barcode",
+     "file": "admin/src/pages/admin/medicines-catalog.tsx",
+     "line": 143,
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:56"
     },
     {
      "code": "G-PERM-MISMATCH",
@@ -6378,7 +6767,7 @@
      "method": "POST",
      "path": "/medicines/admin/catalog",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 160,
+     "line": 192,
      "backend": "backend/src/modules/medicines/medicines.controller.ts:261"
     },
     {
@@ -6388,7 +6777,7 @@
      "method": "PATCH",
      "path": "/medicines/admin/catalog/:param",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 170,
+     "line": 194,
      "backend": "backend/src/modules/medicines/medicines.controller.ts:235"
     },
     {
@@ -6398,7 +6787,7 @@
      "method": "POST",
      "path": "/medicines/admin/catalog/:param/delete",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 183,
+     "line": 223,
      "backend": "backend/src/modules/medicines/medicines.controller.ts:269"
     },
     {
@@ -6408,7 +6797,7 @@
      "method": "POST",
      "path": "/medicines/admin/catalog/:param/approve",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 192,
+     "line": 232,
      "backend": "backend/src/modules/medicines/medicines.controller.ts:277"
     },
     {
@@ -6418,7 +6807,7 @@
      "method": "POST",
      "path": "/medicines/admin/catalog/:param/availability",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 200,
+     "line": 240,
      "backend": "backend/src/modules/medicines/medicines.controller.ts:163"
     }
    ],
@@ -6431,7 +6820,8 @@
    "line": 1,
    "area": "customers-growth",
    "unit": [
-    "admin/src/pages/admin/notification-center.tsx"
+    "admin/src/pages/admin/notification-center.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "ops.queues.manage",
    "navPermission": null,
@@ -6447,7 +6837,7 @@
      "backend": "backend/src/modules/notifications/notifications.controller.ts:74",
      "backendPath": "/notifications/admin/templates",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 49,
+     "line": 50,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6470,7 +6860,7 @@
      "backend": "backend/src/modules/notifications/notifications.controller.ts:80",
      "backendPath": "/notifications/admin/templates",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 57,
+     "line": 58,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6493,7 +6883,7 @@
      "backend": "backend/src/modules/notifications/notifications.controller.ts:86",
      "backendPath": "/notifications/admin/templates/:param/preview",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 69,
+     "line": 70,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6516,7 +6906,7 @@
      "backend": "backend/src/modules/notifications/notifications.controller.ts:92",
      "backendPath": "/notifications/admin/templates/:param/test-send",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 80,
+     "line": 81,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6539,7 +6929,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:412",
      "backendPath": "/admin/notification-center/stats/overview",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 91,
+     "line": 92,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6562,7 +6952,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:408",
      "backendPath": "/admin/notification-center/segments",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 92,
+     "line": 93,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6585,7 +6975,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:424",
      "backendPath": "/admin/notification-center/campaigns",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 93,
+     "line": 94,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6608,7 +6998,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:49",
      "backendPath": "/admin/analytics-suite/email-usage",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 94,
+     "line": 95,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6633,7 +7023,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:420",
      "backendPath": "/admin/notification-center/campaigns",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 129,
+     "line": 130,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6656,7 +7046,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:416",
      "backendPath": "/admin/notification-center/broadcasts",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 132,
+     "line": 133,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6679,7 +7069,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:434",
      "backendPath": "/admin/notification-center/campaigns/:param/send",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 146,
+     "line": 147,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6702,7 +7092,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:438",
      "backendPath": "/admin/notification-center/campaigns/:param",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 152,
+     "line": 153,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6725,7 +7115,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:442",
      "backendPath": "/admin/notification-center/retarget/run",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 157,
+     "line": 158,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6749,7 +7139,7 @@
      "method": "GET",
      "path": "/api/admin/admin/analytics-suite/email-usage",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 94,
+     "line": 95,
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:49"
     }
    ],
@@ -6767,7 +7157,7 @@
    "clientPermission": "appointment.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 35,
+   "navLine": 37,
    "publicDirectory": false,
    "calls": [
     {
@@ -6850,7 +7240,8 @@
    "line": 1,
    "area": "ops-monitoring",
    "unit": [
-    "admin/src/pages/admin/order-detail.tsx"
+    "admin/src/pages/admin/order-detail.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "order.read",
    "navPermission": null,
@@ -6866,7 +7257,7 @@
      "backend": "backend/src/modules/admin/command-center/admin-command-center.module.ts:178",
      "backendPath": "/admin/command-center/order/:param/:param",
      "file": "admin/src/pages/admin/order-detail.tsx",
-     "line": 19,
+     "line": 20,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6892,7 +7283,8 @@
    "line": 1,
    "area": "ops-monitoring",
    "unit": [
-    "admin/src/pages/admin/orders/[kind]/[id].tsx"
+    "admin/src/pages/admin/orders/[kind]/[id].tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "order.read",
    "navPermission": null,
@@ -6908,7 +7300,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-orders.controller.ts:56",
      "backendPath": "/admin/orders/:param/:param",
      "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
-     "line": 30,
+     "line": 31,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -6933,7 +7325,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-orders.controller.ts:62",
      "backendPath": "/admin/orders/:param/:param/:param",
      "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
-     "line": 50,
+     "line": 51,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -6959,7 +7351,7 @@
      "method": "POST",
      "path": "/api/admin/admin/orders/:param/:param/:param",
      "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
-     "line": 50,
+     "line": 51,
      "backend": "backend/src/modules/admin/enterprise/admin-orders.controller.ts:62"
     }
    ],
@@ -6972,12 +7364,13 @@
    "line": 1,
    "area": "ops-monitoring",
    "unit": [
-    "admin/src/pages/admin/orders/index.tsx"
+    "admin/src/pages/admin/orders/index.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "order.read",
    "navPermission": "order.read",
    "inNav": true,
-   "navLine": 18,
+   "navLine": 20,
    "publicDirectory": false,
    "calls": [
     {
@@ -6988,7 +7381,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-orders.controller.ts:20",
      "backendPath": "/admin/orders",
      "file": "admin/src/pages/admin/orders/index.tsx",
-     "line": 29,
+     "line": 30,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -7017,12 +7410,13 @@
    "area": "finance",
    "unit": [
     "admin/src/pages/admin/payouts.tsx",
-    "admin/src/components/EmptyIcon.tsx"
+    "admin/src/components/EmptyIcon.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "finance.payout.approve",
    "navPermission": null,
    "inNav": true,
-   "navLine": 45,
+   "navLine": 47,
    "publicDirectory": false,
    "calls": [
     {
@@ -7033,7 +7427,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:41",
      "backendPath": "/admin/finance/withdrawals/pending",
      "file": "admin/src/pages/admin/payouts.tsx",
-     "line": 35,
+     "line": 36,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -7056,7 +7450,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:74",
      "backendPath": "/admin/finance/withdrawals/:param/execute",
      "file": "admin/src/pages/admin/payouts.tsx",
-     "line": 49,
+     "line": 50,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -7079,7 +7473,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:137",
      "backendPath": "/admin/finance/withdrawals/:param/reject",
      "file": "admin/src/pages/admin/payouts.tsx",
-     "line": 63,
+     "line": 64,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -7103,7 +7497,7 @@
      "method": "POST",
      "path": "/api/admin/admin/finance/withdrawals/:param/execute",
      "file": "admin/src/pages/admin/payouts.tsx",
-     "line": 49,
+     "line": 50,
      "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:74"
     },
     {
@@ -7113,7 +7507,7 @@
      "method": "POST",
      "path": "/api/admin/admin/finance/withdrawals/:param/reject",
      "file": "admin/src/pages/admin/payouts.tsx",
-     "line": 63,
+     "line": 64,
      "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:137"
     }
    ],
@@ -7126,12 +7520,13 @@
    "line": 1,
    "area": "providers",
    "unit": [
-    "admin/src/pages/admin/pharmacy-procurement.tsx"
+    "admin/src/pages/admin/pharmacy-procurement.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "pharmacy.inventory.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 34,
+   "navLine": 36,
    "publicDirectory": false,
    "calls": [
     {
@@ -7142,7 +7537,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-extended-operations.controller.ts:16",
      "backendPath": "/admin/extended-operations/procurement/pending",
      "file": "admin/src/pages/admin/pharmacy-procurement.tsx",
-     "line": 47,
+     "line": 48,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -7165,7 +7560,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-extended-operations.controller.ts:26",
      "backendPath": "/admin/extended-operations/issue-quote/:param",
      "file": "admin/src/pages/admin/pharmacy-procurement.tsx",
-     "line": 77,
+     "line": 78,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -7197,7 +7592,7 @@
    "clientPermission": "catalog.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 62,
+   "navLine": 64,
    "publicDirectory": false,
    "calls": [
     {
@@ -7241,7 +7636,7 @@
    "clientPermission": "doctor.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 30,
+   "navLine": 32,
    "publicDirectory": false,
    "calls": [
     {
@@ -7347,12 +7742,13 @@
    "unit": [
     "admin/src/pages/admin/provider-moderation.tsx",
     "admin/src/components/ProviderFullDetail.tsx",
-    "admin/src/components/GeoPicker.tsx"
+    "admin/src/components/GeoPicker.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "doctor.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 29,
+   "navLine": 31,
    "publicDirectory": false,
    "calls": [
     {
@@ -7472,13 +7868,36 @@
     },
     {
      "method": "POST",
+     "path": "/api/admin/admin/providers/:param/:param",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:155",
+     "backendPath": "/admin/providers/:param/:param",
+     "file": "admin/src/pages/admin/provider-moderation.tsx",
+     "line": 160,
+     "fn": "fetchWithAdminGuard",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": ""
+     },
+     "routeFile": "backend/src/modules/provider/provider.controllers.ts",
+     "routeLine": 155,
+     "raw": false
+    },
+    {
+     "method": "POST",
      "path": "/api/admin/admin/providers/:param/suspend",
      "target": "backend",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:179",
      "backendPath": "/admin/providers/:param/suspend",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 150,
+     "line": 181,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -7501,7 +7920,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:152",
      "backendPath": "/admin/providers/provider-deltas/:param/approve",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 175,
+     "line": 206,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -7524,7 +7943,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:153",
      "backendPath": "/admin/providers/provider-deltas/:param/reject",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 195,
+     "line": 226,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -7547,7 +7966,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:382",
      "backendPath": "/storage/:param/signed-url",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -7568,7 +7987,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:372",
      "backendPath": "/storage/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 23,
+     "line": 24,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -7589,7 +8008,7 @@
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:520",
      "backendPath": "/provider-onboarding/admin/contracts/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 157,
+     "line": 175,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -7610,7 +8029,7 @@
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:528",
      "backendPath": "/provider-onboarding/admin/contracts/:param/visibility",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 556,
+     "line": 536,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -7717,7 +8136,7 @@
      "method": "POST",
      "path": "/api/admin/admin/providers/:param/suspend",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 150,
+     "line": 181,
      "backend": "backend/src/modules/provider/provider.controllers.ts:179"
     },
     {
@@ -7727,7 +8146,7 @@
      "method": "POST",
      "path": "/api/admin/admin/providers/provider-deltas/:param/approve",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 175,
+     "line": 206,
      "backend": "backend/src/modules/provider/provider.controllers.ts:152"
     },
     {
@@ -7737,7 +8156,7 @@
      "method": "POST",
      "path": "/api/admin/admin/providers/provider-deltas/:param/reject",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 195,
+     "line": 226,
      "backend": "backend/src/modules/provider/provider.controllers.ts:153"
     },
     {
@@ -7747,7 +8166,7 @@
      "method": "GET",
      "path": "/api/admin/storage/:param/signed-url",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 18,
+     "line": 19,
      "backend": "backend/src/modules/storage/storage.module.ts:382"
     },
     {
@@ -7757,7 +8176,7 @@
      "method": "GET",
      "path": "/api/admin/storage/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 23,
+     "line": 24,
      "backend": "backend/src/modules/storage/storage.module.ts:372"
     },
     {
@@ -7767,7 +8186,7 @@
      "method": "GET",
      "path": "/api/admin/provider-onboarding/admin/contracts/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 157,
+     "line": 175,
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:520"
     }
    ],
@@ -7786,7 +8205,7 @@
    "clientPermission": "rbac.manage",
    "navPermission": "rbac.manage",
    "inNav": true,
-   "navLine": 76,
+   "navLine": 78,
    "publicDirectory": false,
    "calls": [
     {
@@ -7901,12 +8320,13 @@
    "line": 1,
    "area": "customers-growth",
    "unit": [
-    "admin/src/pages/admin/reports.tsx"
+    "admin/src/pages/admin/reports.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": null,
    "navPermission": "analytics.read",
    "inNav": true,
-   "navLine": 20,
+   "navLine": 22,
    "publicDirectory": false,
    "calls": [
     {
@@ -7917,7 +8337,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-reports.controller.ts:116",
      "backendPath": "/admin/reports/:param",
      "file": "admin/src/pages/admin/reports.tsx",
-     "line": 74,
+     "line": 75,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -7940,7 +8360,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-reports.controller.ts:116",
      "note": "download link",
      "file": "admin/src/pages/admin/reports.tsx",
-     "line": 100,
+     "line": 101,
      "fn": "href",
      "via": null,
      "guards": {
@@ -7960,7 +8380,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-reports.controller.ts:116",
      "note": "download link",
      "file": "admin/src/pages/admin/reports.tsx",
-     "line": 101,
+     "line": 102,
      "fn": "href",
      "via": null,
      "guards": {
@@ -7988,7 +8408,7 @@
    "clientPermission": "finance.payout.approve",
    "navPermission": null,
    "inNav": true,
-   "navLine": 46,
+   "navLine": 48,
    "publicDirectory": false,
    "calls": [
     {
@@ -8048,12 +8468,13 @@
    "line": 1,
    "area": "system",
    "unit": [
-    "admin/src/pages/admin/scheduled-reports.tsx"
+    "admin/src/pages/admin/scheduled-reports.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "reports.schedule.manage",
    "navPermission": "reports.schedule.manage",
    "inNav": true,
-   "navLine": 78,
+   "navLine": 80,
    "publicDirectory": false,
    "calls": [
     {
@@ -8064,7 +8485,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:131",
      "backendPath": "/admin/scheduled-reports",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 11,
+     "line": 12,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -8089,7 +8510,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:138",
      "backendPath": "/admin/scheduled-reports",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 13,
+     "line": 14,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -8114,7 +8535,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:166",
      "backendPath": "/admin/scheduled-reports/:param",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 14,
+     "line": 15,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -8139,7 +8560,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:182",
      "backendPath": "/admin/scheduled-reports/:param/run",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 15,
+     "line": 16,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -8164,7 +8585,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:194",
      "backendPath": "/admin/scheduled-reports/:param/runs",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 16,
+     "line": 17,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -8189,7 +8610,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:202",
      "backendPath": "/admin/scheduled-reports/:param",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 17,
+     "line": 18,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -8215,7 +8636,7 @@
      "method": "POST",
      "path": "/api/admin/admin/scheduled-reports/:param/run",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 15,
+     "line": 16,
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:182"
     }
    ],
@@ -8228,12 +8649,13 @@
    "line": 1,
    "area": "customers-growth",
    "unit": [
-    "admin/src/pages/admin/search-intelligence.tsx"
+    "admin/src/pages/admin/search-intelligence.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "analytics.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 58,
+   "navLine": 60,
    "publicDirectory": false,
    "calls": [
     {
@@ -8244,7 +8666,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:107",
      "backendPath": "/admin/governance-controls/search-intent-analytics",
      "file": "admin/src/pages/admin/search-intelligence.tsx",
-     "line": 40,
+     "line": 41,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -8269,7 +8691,7 @@
      "backend": "backend/src/modules/search-intent/search-intent.controller.ts:12",
      "backendPath": "/search/intent",
      "file": "admin/src/pages/admin/search-intelligence.tsx",
-     "line": 60,
+     "line": 61,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -8291,7 +8713,7 @@
      "method": "POST",
      "path": "/search/intent",
      "file": "admin/src/pages/admin/search-intelligence.tsx",
-     "line": 60,
+     "line": 61,
      "backend": "backend/src/modules/search-intent/search-intent.controller.ts:12"
     }
    ],
@@ -8309,7 +8731,7 @@
    "clientPermission": null,
    "navPermission": "users.view",
    "inNav": true,
-   "navLine": 21,
+   "navLine": 23,
    "publicDirectory": false,
    "calls": [
     {
@@ -8358,7 +8780,7 @@
    "clientPermission": null,
    "navPermission": null,
    "inNav": true,
-   "navLine": 80,
+   "navLine": 82,
    "publicDirectory": false,
    "calls": [
     {
@@ -8610,7 +9032,7 @@
    "clientPermission": "crm.read",
    "navPermission": "crm.read",
    "inNav": true,
-   "navLine": 54,
+   "navLine": 56,
    "publicDirectory": false,
    "calls": [
     {
@@ -8745,7 +9167,8 @@
    "line": 1,
    "area": "catalogue",
    "unit": [
-    "admin/src/pages/admin/shortage-reports.tsx"
+    "admin/src/pages/admin/shortage-reports.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "catalog.read",
    "navPermission": null,
@@ -8761,7 +9184,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:131",
      "backendPath": "/medicines/admin/shortage-reports",
      "file": "admin/src/pages/admin/shortage-reports.tsx",
-     "line": 24,
+     "line": 25,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -8786,7 +9209,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:139",
      "backendPath": "/medicines/admin/shortage-reports/:param/:param",
      "file": "admin/src/pages/admin/shortage-reports.tsx",
-     "line": 41,
+     "line": 42,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -8811,7 +9234,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:155",
      "backendPath": "/medicines/admin/catalog/:param/clear-shortage-badge",
      "file": "admin/src/pages/admin/shortage-reports.tsx",
-     "line": 55,
+     "line": 56,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -8837,7 +9260,7 @@
      "method": "POST",
      "path": "/medicines/admin/shortage-reports/:param/:param",
      "file": "admin/src/pages/admin/shortage-reports.tsx",
-     "line": 41,
+     "line": 42,
      "backend": "backend/src/modules/medicines/medicines.controller.ts:139"
     },
     {
@@ -8847,7 +9270,7 @@
      "method": "POST",
      "path": "/medicines/admin/catalog/:param/clear-shortage-badge",
      "file": "admin/src/pages/admin/shortage-reports.tsx",
-     "line": 55,
+     "line": 56,
      "backend": "backend/src/modules/medicines/medicines.controller.ts:155"
     }
    ],
@@ -8866,7 +9289,7 @@
    "clientPermission": "command.center.view",
    "navPermission": null,
    "inNav": true,
-   "navLine": 22,
+   "navLine": 24,
    "publicDirectory": false,
    "calls": [
     {
@@ -8989,7 +9412,7 @@
    "clientPermission": "crm.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 36,
+   "navLine": 38,
    "publicDirectory": false,
    "calls": [
     {
@@ -9072,12 +9495,13 @@
    "line": 1,
    "area": "system",
    "unit": [
-    "admin/src/pages/admin/system-ops.tsx"
+    "admin/src/pages/admin/system-ops.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "ops.queues.manage",
    "navPermission": "ops.queues.manage",
    "inNav": true,
-   "navLine": 77,
+   "navLine": 79,
    "publicDirectory": false,
    "calls": [
     {
@@ -9088,7 +9512,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:33",
      "backendPath": "/admin/ops/queues",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 12,
+     "line": 13,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -9113,7 +9537,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:102",
      "backendPath": "/admin/ops/translations",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 12,
+     "line": 13,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -9138,7 +9562,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:146",
      "backendPath": "/admin/ops/seo/controls",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 12,
+     "line": 13,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -9163,7 +9587,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:63",
      "backendPath": "/admin/governance-controls/feature-flags",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 12,
+     "line": 13,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -9188,7 +9612,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:48",
      "backendPath": "/admin/ops/queues/:param/jobs",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 12,
+     "line": 13,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -9211,7 +9635,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:81",
      "backendPath": "/admin/ops/queues/:param/retry-failed",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 14,
+     "line": 15,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -9234,7 +9658,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:67",
      "backendPath": "/admin/ops/queues/:param/jobs/:param/retry",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 15,
+     "line": 16,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -9257,7 +9681,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:120",
      "backendPath": "/admin/ops/translations",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 16,
+     "line": 17,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -9280,7 +9704,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:153",
      "backendPath": "/admin/ops/seo/controls",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 17,
+     "line": 18,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -9303,7 +9727,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:82",
      "backendPath": "/admin/governance-controls/feature-flags",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -9329,7 +9753,7 @@
      "method": "GET",
      "path": "/api/admin/admin/ops/translations",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 12,
+     "line": 13,
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:102"
     },
     {
@@ -9339,7 +9763,7 @@
      "method": "GET",
      "path": "/api/admin/admin/ops/seo/controls",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 12,
+     "line": 13,
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:146"
     }
    ],
@@ -9389,6 +9813,133 @@
   },
   {
    "app": "admin",
+   "route": "/admin/today",
+   "file": "admin/src/pages/admin/today.tsx",
+   "line": 1,
+   "area": "ops-monitoring",
+   "unit": [
+    "admin/src/pages/admin/today.tsx"
+   ],
+   "clientPermission": null,
+   "navPermission": null,
+   "inNav": true,
+   "navLine": 17,
+   "publicDirectory": false,
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/command-center-v2",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/enterprise/command-center-v2.controller.ts:70",
+     "backendPath": "/admin/command-center-v2",
+     "file": "admin/src/pages/admin/today.tsx",
+     "line": 49,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "command.center.view"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/admin/enterprise/command-center-v2.controller.ts",
+     "routeLine": 70,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/ops/alerts",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/ops/ops.controller.ts:40",
+     "backendPath": "/admin/ops/alerts",
+     "file": "admin/src/pages/admin/today.tsx",
+     "line": 50,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN",
+       "SUPER_ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/ops/ops.controller.ts",
+     "routeLine": 40,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/ops/overview",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/ops/ops.controller.ts:72",
+     "backendPath": "/admin/ops/overview",
+     "file": "admin/src/pages/admin/today.tsx",
+     "line": 51,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN",
+       "SUPER_ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/ops/ops.controller.ts",
+     "routeLine": 72,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/ops/domain-metrics",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/ops/ops.controller.ts:206",
+     "backendPath": "/admin/ops/domain-metrics",
+     "file": "admin/src/pages/admin/today.tsx",
+     "line": 52,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN",
+       "SUPER_ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/ops/ops.controller.ts",
+     "routeLine": 206,
+     "raw": false
+    }
+   ],
+   "guardFindings": [
+    {
+     "code": "G-PAGE-NOPERM",
+     "note": "Page has no client permission (any admin sees it) but GET /admin/command-center-v2 requires command.center.view; roles without it get a 403 inside the page.",
+     "severity": "low",
+     "method": "GET",
+     "path": "/api/admin/admin/command-center-v2",
+     "file": "admin/src/pages/admin/today.tsx",
+     "line": 49,
+     "backend": "backend/src/modules/admin/enterprise/command-center-v2.controller.ts:70"
+    }
+   ],
+   "orphan": false
+  },
+  {
+   "app": "admin",
    "route": "/admin/users-management",
    "file": "admin/src/pages/admin/users-management.tsx",
    "line": 1,
@@ -9396,12 +9947,13 @@
    "unit": [
     "admin/src/pages/admin/users-management.tsx",
     "admin/src/components/ProviderFullDetail.tsx",
-    "admin/src/components/GeoPicker.tsx"
+    "admin/src/components/GeoPicker.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "user.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 68,
+   "navLine": 70,
    "publicDirectory": false,
    "calls": [
     {
@@ -9412,7 +9964,7 @@
      "backend": "backend/src/modules/admin/admin.controller.ts:141",
      "backendPath": "/admin/users/:param/overview",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 60,
+     "line": 61,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -9435,7 +9987,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:150",
      "backendPath": "/admin/providers/by-user/:param",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 66,
+     "line": 67,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -9458,7 +10010,7 @@
      "backend": "backend/src/modules/admin/admin.controller.ts:141",
      "backendPath": "/admin/users/:param/overview",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 77,
+     "line": 78,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -9481,7 +10033,7 @@
      "backend": "backend/src/modules/admin/admin.controller.ts:250",
      "backendPath": "/admin/users",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 91,
+     "line": 92,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -9504,7 +10056,7 @@
      "backend": "backend/src/modules/admin/admin.controller.ts:460",
      "backendPath": "/admin/users/:param/ban",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 114,
+     "line": 115,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -9527,7 +10079,7 @@
      "backend": "backend/src/modules/admin/admin.controller.ts:484",
      "backendPath": "/admin/users/:param/unban",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 128,
+     "line": 129,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -9550,7 +10102,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:150",
      "backendPath": "/admin/providers/by-user/:param",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 135,
+     "line": 136,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -9573,7 +10125,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:180",
      "backendPath": "/admin/providers/:param/reactivate",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 137,
+     "line": 138,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -9596,7 +10148,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:155",
      "backendPath": "/admin/providers/:param/:param",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 166,
+     "line": 167,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -9619,7 +10171,7 @@
      "backend": "backend/src/modules/admin/admin.controller.ts:517",
      "backendPath": "/admin/users/:param",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 184,
+     "line": 185,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -9642,7 +10194,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:382",
      "backendPath": "/storage/:param/signed-url",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -9663,7 +10215,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:372",
      "backendPath": "/storage/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 23,
+     "line": 24,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -9684,7 +10236,7 @@
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:520",
      "backendPath": "/provider-onboarding/admin/contracts/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 157,
+     "line": 175,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -9705,7 +10257,7 @@
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:528",
      "backendPath": "/provider-onboarding/admin/contracts/:param/visibility",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 556,
+     "line": 536,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -9792,7 +10344,7 @@
      "method": "POST",
      "path": "/api/admin/admin/users/:param/ban",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 114,
+     "line": 115,
      "backend": "backend/src/modules/admin/admin.controller.ts:460"
     },
     {
@@ -9802,7 +10354,7 @@
      "method": "POST",
      "path": "/api/admin/admin/users/:param/unban",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 128,
+     "line": 129,
      "backend": "backend/src/modules/admin/admin.controller.ts:484"
     },
     {
@@ -9812,7 +10364,7 @@
      "method": "POST",
      "path": "/api/admin/admin/providers/:param/reactivate",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 137,
+     "line": 138,
      "backend": "backend/src/modules/provider/provider.controllers.ts:180"
     },
     {
@@ -9822,7 +10374,7 @@
      "method": "GET",
      "path": "/api/admin/storage/:param/signed-url",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 18,
+     "line": 19,
      "backend": "backend/src/modules/storage/storage.module.ts:382"
     },
     {
@@ -9832,7 +10384,7 @@
      "method": "GET",
      "path": "/api/admin/storage/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 23,
+     "line": 24,
      "backend": "backend/src/modules/storage/storage.module.ts:372"
     },
     {
@@ -9842,7 +10394,7 @@
      "method": "GET",
      "path": "/api/admin/provider-onboarding/admin/contracts/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 157,
+     "line": 175,
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:520"
     }
    ],

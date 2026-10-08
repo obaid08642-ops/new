@@ -57,6 +57,11 @@
      "ok"
     ],
     [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
+    ],
+    [
      "API: GET /api/admin/admin/pharmacy/price-overrides",
      "GET /api/admin/admin/pharmacy/price-overrides (OK, backend/src/modules/pharmacy/pharmacy.controllers.ts:155)",
      "ok"
@@ -615,6 +620,11 @@
      "ok"
     ],
     [
+     "action: <tr> onClick (in ProviderFullDetail)",
+     "",
+     "ok"
+    ],
+    [
      "API: GET /api/admin/storage/:param/signed-url",
      "GET /api/admin/storage/:param/signed-url (OK, backend/src/modules/storage/storage.module.ts:382)",
      "ok"
@@ -647,6 +657,11 @@
     [
      "input: بحث بالاسم / المادة الفعالة / الباركود / الشركة...",
      "state q used by logic/request",
+     "ok"
+    ],
+    [
+     "button: مسح الباركود إدخال باركود",
+     "local state",
      "ok"
     ],
     [
@@ -697,6 +712,11 @@
     [
      "button: قد يكون غير متوفر ✓ تفعيل شعار النقص",
      "POST /medicines/admin/catalog/:param/availability; GET /medicines/admin/catalog",
+     "ok"
+    ],
+    [
+     "button: تعديل سريع",
+     "local state",
      "ok"
     ],
     [
@@ -760,13 +780,158 @@
      "ok"
     ],
     [
+     "action: تأكيد التغيير",
+     "",
+     "ok"
+    ],
+    [
+     "action: تأكيد التغيير",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
+    ],
+    [
+     "action: مسح الباركود (in BarcodeScanner)",
+     "onClick -> parent/prop callback onClose",
+     "ok"
+    ],
+    [
+     "action: مسح الباركود إغلاق جارٍ فتح الكاميرا… بحث (in BarcodeScanner)",
+     "",
+     "ok"
+    ],
+    [
+     "button: إغلاق (in BarcodeScanner)",
+     "onClick -> parent/prop callback onClose",
+     "ok"
+    ],
+    [
+     "form: بحث (in BarcodeScanner)",
+     "",
+     "ok"
+    ],
+    [
+     "input: رمز الباركود (in BarcodeScanner)",
+     "state typed used by logic/request",
+     "ok"
+    ],
+    [
+     "button: بحث (in BarcodeScanner)",
+     "submits the enclosing form",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in ConfirmDialog)",
+     "onClick -> parent/prop callback onCancel",
+     "ok"
+    ],
+    [
+     "action: <div> onClick (in ConfirmDialog)",
+     "",
+     "ok"
+    ],
+    [
+     "button: <button> onClick (in ConfirmDialog)",
+     "onClick -> parent/prop callback onConfirm",
+     "ok"
+    ],
+    [
+     "button: <button> onClick (in ConfirmDialog)",
+     "onClick -> parent/prop callback onCancel",
+     "ok"
+    ],
+    [
+     "action: تعديل سريع السعر (ر.س) سبب تغيير السعر (يُسجَّل في سجل الأسع (in MedicineQuickEdit)",
+     "onClick -> parent/prop callback onClose",
+     "ok"
+    ],
+    [
+     "form: تعديل سريع (in MedicineQuickEdit)",
+     "",
+     "ok"
+    ],
+    [
+     "form: تعديل سريع (in MedicineQuickEdit)",
+     "submit; PATCH /medicines/admin/catalog/:param; POST /medicines/admin/catalog/:param/availability",
+     "ok"
+    ],
+    [
+     "input: input (in MedicineQuickEdit)",
+     "state price used by logic/request",
+     "ok"
+    ],
+    [
+     "input: input (in MedicineQuickEdit)",
+     "state reason used by logic/request",
+     "ok"
+    ],
+    [
+     "input: checkbox (in MedicineQuickEdit)",
+     "state rx used by logic/request",
+     "ok"
+    ],
+    [
+     "input: select (in MedicineQuickEdit)",
+     "state availability used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ (in MedicineQuickEdit)",
+     "submits the enclosing form",
+     "ok"
+    ],
+    [
+     "button: إغلاق (in MedicineQuickEdit)",
+     "onClick -> parent/prop callback onClose",
+     "ok"
+    ],
+    [
+     "action: تأكيد التغيير (in MedicineQuickEdit)",
+     "PATCH /medicines/admin/catalog/:param; POST /medicines/admin/catalog/:param/availability",
+     "ok"
+    ],
+    [
+     "action: تأكيد التغيير (in MedicineQuickEdit)",
+     "local state",
+     "ok"
+    ],
+    [
      "API: GET /medicines/admin/reports",
      "GET /medicines/admin/reports (OK, backend/src/modules/medicines/medicines.controller.ts:313)",
      "ok"
+    ],
+    [
+     "API: POST /medicines/lookup-barcode",
+     "POST /medicines/lookup-barcode (OK, backend/src/modules/medicines/medicines.controller.ts:56)",
+     "ok"
+    ],
+    [
+     "API: GET /medicines/admin/catalog/:param/price-history",
+     "GET /medicines/admin/catalog/:param/price-history (OK, backend/src/modules/medicines/medicines.controller.ts:305)",
+     "ok"
+    ],
+    [
+     "Controlled flag (quick edit)",
+     "hidden: the backend does not accept `controlled`",
+     "not wired"
+    ],
+    [
+     "Add item from the items-to-review queue",
+     "hidden: no endpoint",
+     "not wired"
+    ],
+    [
+     "Change log for prescription flag and availability",
+     "price history only",
+     "not wired"
     ]
    ],
    "notes": [
-    "3 handler(s) are passed as props (parent callbacks) and are not traced."
+    "10 handler(s) are passed as props (parent callbacks) and are not traced."
    ]
   },
   {
@@ -790,6 +955,11 @@
     [
      "button: التالي",
      "local state",
+     "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
      "ok"
     ]
    ]
@@ -826,6 +996,11 @@
      "button: التالي",
      "local state",
      "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
     ]
    ]
   }
@@ -837,7 +1012,7 @@
    "kind": "backend",
    "note": "3 call(s): Page requires \"catalog.read\" but PATCH /medicines/admin/catalog/:param requires catalog.update + catalog.price.write; an admin role with the page permission onl",
    "file": "admin/src/pages/admin/catalog-governance.tsx",
-   "line": 78,
+   "line": 79,
    "backend": "backend/src/modules/medicines/medicines.controller.ts:235"
   },
   {
@@ -1026,7 +1201,7 @@
    "kind": "backend",
    "note": "3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; GET /api/admin/provider-onboarding/admin/contracts/:param): any signed-in user passes JwtAuthGuard.",
    "file": "admin/src/components/ProviderFullDetail.tsx",
-   "line": 18,
+   "line": 19,
    "backend": "backend/src/modules/storage/storage.module.ts:382"
   },
   {
@@ -1043,7 +1218,7 @@
    "kind": "client",
    "note": "Sensitive action (POST /medicines/admin/catalog/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/medicines-catalog.tsx",
-   "line": 398
+   "line": 442
   },
   {
    "route": "/admin/medicines-catalog",
@@ -1051,7 +1226,16 @@
    "kind": "client",
    "note": "Sensitive action (POST /medicines/admin/catalog/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/medicines-catalog.tsx",
-   "line": 400
+   "line": 444
+  },
+  {
+   "route": "/admin/medicines-catalog",
+   "element": "Guard G-PUBLIC: POST /medicines/lookup-barcode",
+   "kind": "backend",
+   "note": "POST /medicines/lookup-barcode is @Public (no auth at all) but the admin page uses it for a write.",
+   "file": "admin/src/pages/admin/medicines-catalog.tsx",
+   "line": 143,
+   "backend": "backend/src/modules/medicines/medicines.controller.ts:56"
   },
   {
    "route": "/admin/medicines-catalog",
@@ -1059,7 +1243,7 @@
    "kind": "backend",
    "note": "2 call(s) hit backend routes with no role/permission guard (POST /storage/upload; GET /storage/:param/signed-url): any signed-in user passes JwtAuthGuard.",
    "file": "admin/src/pages/admin/medicines-catalog.tsx",
-   "line": 46,
+   "line": 50,
    "backend": "backend/src/modules/storage/storage.module.ts:358"
   },
   {
@@ -1068,8 +1252,35 @@
    "kind": "backend",
    "note": "5 call(s): Page requires \"catalog.read\" but POST /medicines/admin/catalog requires catalog.create; an admin role with the page permission only gets a 403 on this call. | P",
    "file": "admin/src/pages/admin/medicines-catalog.tsx",
-   "line": 160,
+   "line": 192,
    "backend": "backend/src/modules/medicines/medicines.controller.ts:261"
+  },
+  {
+   "route": "/admin/medicines-catalog",
+   "element": "Controlled flag (quick edit)",
+   "kind": "backend",
+   "note": "Owner decision 10 needs `controlled` editable by admin, but it is not in MedicinesService.EDITABLE_FIELDS nor in AdminUpdateCatalogDto, so a PATCH would drop it. The control is not drawn in the quick edit or the full form; add it to the whitelist and the DTO, then show it behind the same confirmation as price and prescription.",
+   "file": "admin/src/components/MedicineQuickEdit.tsx",
+   "line": 135,
+   "backend": "backend/src/modules/medicines/medicines.service.ts:1439"
+  },
+  {
+   "route": "/admin/medicines-catalog",
+   "element": "Add item from the items-to-review queue",
+   "kind": "backend",
+   "note": "Decision 12 queue (pharmacy lines with no catalogue match, price not verified) does not exist: no sfda_price fields, GET /medicines/admin/pending-review answers 410 Gone, and there is no create-from-line action. Not built; the existing queues (change requests, shortage reports, image suggestions, medical review) are in the approvals list.",
+   "file": "admin/src/pages/admin/medicines-catalog.tsx",
+   "line": 318,
+   "backend": "backend/src/modules/medicines/medicines.controller.ts:413"
+  },
+  {
+   "route": "/admin/medicines-catalog",
+   "element": "Change log for prescription flag and availability",
+   "kind": "backend",
+   "note": "Only price changes write a history row (medicine price history, shown in the quick edit); a prescription-flag or availability change goes to the generic audit log with no reason, so 'who made this Rx' has no per-item view. An edit of a published item also resets it to pending medical review (the confirm dialog says so).",
+   "file": "admin/src/components/MedicineQuickEdit.tsx",
+   "line": 145,
+   "backend": "backend/src/modules/medicines/medicines.service.ts:1761"
   },
   {
    "route": "/admin/shortage-reports",
@@ -1077,7 +1288,7 @@
    "kind": "backend",
    "note": "2 call(s): Page requires \"catalog.read\" but POST /medicines/admin/shortage-reports/:param/:param requires catalog.shortage.decide; an admin role with the page permission o",
    "file": "admin/src/pages/admin/shortage-reports.tsx",
-   "line": 41,
+   "line": 42,
    "backend": "backend/src/modules/medicines/medicines.controller.ts:139"
   },
   {

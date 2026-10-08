@@ -27,6 +27,11 @@
      "ok"
     ],
     [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
+    ],
+    [
      "API: GET /api/admin/admin/analytics-suite/provider-league",
      "GET /api/admin/admin/analytics-suite/provider-league (OK, backend/src/modules/admin/enterprise/admin-analytics.controller.ts:94)",
      "ok"
@@ -54,6 +59,11 @@
     [
      "button: <button> onClick",
      "local state",
+     "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
      "ok"
     ],
     [
@@ -415,6 +425,11 @@
      "button: التالي",
      "local state",
      "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
     ]
    ]
   },
@@ -592,6 +607,11 @@
     [
      "button: تعطيل",
      "DELETE /api/admin/admin/locations/:param; GET /api/admin/admin/locations; confirm()",
+     "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
      "ok"
     ]
    ]
@@ -825,6 +845,11 @@
      "ok"
     ],
     [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
+    ],
+    [
      "API: GET /api/admin/admin/notification-center/segments",
      "GET /api/admin/admin/notification-center/segments (OK, backend/src/modules/admin/notification-center/admin-notification-center.module.ts:408)",
      "ok"
@@ -873,6 +898,11 @@
      "button: تحديث",
      "GET /api/admin/admin/reports/:param",
      "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
     ]
    ]
   },
@@ -902,6 +932,11 @@
     [
      "button: جارٍ التحليل… تحليل النية",
      "submits the enclosing form",
+     "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
      "ok"
     ]
    ]
@@ -1123,6 +1158,11 @@
      "ok"
     ],
     [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
+    ],
+    [
      "API: POST /api/admin/admin/providers/:param/reactivate",
      "POST /api/admin/admin/providers/:param/reactivate (OK, backend/src/modules/provider/provider.controllers.ts:180)",
      "ok"
@@ -1231,7 +1271,7 @@
    "kind": "backend",
    "note": "1 call(s): Page requires \"ops.queues.manage\" but GET /admin/analytics-suite/email-usage requires analytics.read; an admin role with the page permission only gets a 403 on ",
    "file": "admin/src/pages/admin/notification-center.tsx",
-   "line": 94,
+   "line": 95,
    "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:49"
   },
   {
@@ -1248,7 +1288,7 @@
    "kind": "backend",
    "note": "POST /search/intent is @Public (no auth at all) but the admin page uses it for a write.",
    "file": "admin/src/pages/admin/search-intelligence.tsx",
-   "line": 60,
+   "line": 61,
    "backend": "backend/src/modules/search-intent/search-intent.controller.ts:12"
   },
   {
@@ -1257,7 +1297,7 @@
    "kind": "client",
    "note": "Sensitive action (POST /api/admin/admin/users/:param/unban) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/users-management.tsx",
-   "line": 303
+   "line": 296
   },
   {
    "route": "/admin/users-management",
@@ -1265,7 +1305,7 @@
    "kind": "backend",
    "note": "3 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/users/:param/ban; POST /api/admin/admin/users/:param/unban; POST /api/admin/admin/providers/:param/reactivate): every admin role, including a custom restricted one, can run them.",
    "file": "admin/src/pages/admin/users-management.tsx",
-   "line": 114,
+   "line": 115,
    "backend": "backend/src/modules/admin/admin.controller.ts:460"
   },
   {
@@ -1274,7 +1314,7 @@
    "kind": "backend",
    "note": "3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; GET /api/admin/provider-onboarding/admin/contracts/:param): any signed-in user passes JwtAuthGuard.",
    "file": "admin/src/components/ProviderFullDetail.tsx",
-   "line": 18,
+   "line": 19,
    "backend": "backend/src/modules/storage/storage.module.ts:382"
   }
  ]

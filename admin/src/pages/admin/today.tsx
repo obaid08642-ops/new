@@ -149,7 +149,7 @@ export default function TodayPage() {
                 <div key={`${s.kind}:${s.id}`} className="flex items-center justify-between gap-3 border-b py-2 text-sm">
                   <span className="min-w-0 truncate">{s.kind} · {String(s.id).slice(0, 8)} · {s.state}</span>
                   {s.kind && s.id
-                    ? <Link href={`/admin/orders/${encodeURIComponent(s.kind)}/${encodeURIComponent(s.id)}`} className="shrink-0 rounded border px-3 py-1 text-xs font-bold text-teal-700">فتح</Link>
+                    ? <Link href={`/admin/orders/${encodeURIComponent(s.kind)}/${encodeURIComponent(s.id)}`} className="inline-flex min-h-11 shrink-0 items-center rounded border px-3 text-xs font-bold text-teal-700">فتح</Link>
                     : null}
                 </div>
               ))}
@@ -160,7 +160,7 @@ export default function TodayPage() {
               {failed.slice(0, 20).map((f, index) => (
                 <div key={f.id ?? index} className="flex items-center justify-between gap-3 border-b py-2 text-sm">
                   <span className="min-w-0 truncate">{f.booking_kind} · {Number(f.amount || 0)} ر.س · {f.status}</span>
-                  <Link href="/admin/finance-suite" className="shrink-0 rounded border px-3 py-1 text-xs font-bold text-teal-700">فتح</Link>
+                  <Link href="/admin/finance-suite" className="inline-flex min-h-11 shrink-0 items-center rounded border px-3 text-xs font-bold text-teal-700">فتح</Link>
                 </div>
               ))}
               {failed.length === 0 ? <p className="text-sm text-slate-400">لا مدفوعات فاشلة.</p> : null}

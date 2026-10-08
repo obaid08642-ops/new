@@ -151,7 +151,7 @@ function requiredPermissionFor(pathname) {
 
 /* ------------------------------------------------------------------ pages */
 const AREA_OF = {
-  'ops-monitoring': ['command-center', 'dashboard', 'orders', 'order-detail', 'sos-monitor', 'fraud-monitoring', 'health-dashboard', 'broadcast-monitor', 'appointments-oversight', 'live-chat-console', 'search'],
+  'ops-monitoring': ['today', 'approvals', 'command-center', 'dashboard', 'orders', 'order-detail', 'sos-monitor', 'fraud-monitoring', 'health-dashboard', 'broadcast-monitor', 'appointments-oversight', 'live-chat-console', 'search'],
   providers: ['provider-moderation', 'provider-audits', 'insurance-queue', 'insurance-companies', 'ambulance-fleet', 'pharmacy-procurement', 'nursing-portal'],
   finance: ['finance-suite', 'disputes', 'payouts', 'returns', 'financial-ledger', 'commissions'],
   catalogue: ['medicines-catalog', 'catalog-manager', 'catalog-governance', 'price-override-audit', 'shortage-reports', 'image-suggestions'],
