@@ -251,6 +251,11 @@ const BOARD = {
   'n-live-tracking': { component: 'OrderTracking', size: [390, 1120], params: { type: 'nurse', bookingId: 'test-visit' } },
   'n-live-done': { component: 'OrderTracking', size: [390, 1120], params: { type: 'nurse', bookingId: 'test-visit-done' } },
   'n-nurse-profile': { component: 'DoctorFull', size: [390, 2700], params: { nurseId: 'test-nurse', flow: 'cash', serviceId: 'svc-iv' } },
+  // Batch 10 (articles; community removed). No board: the card and list language of CareHub. The tab is a route param.
+  // `--dir patient-app/app/articles --screens index:a-articles,index:a-articles-saved,[slug]:a-article`. The slug selects the TEST article.
+  'a-articles': { params: {} },
+  'a-articles-saved': { params: { tab: 'saved' } },
+  'a-article': { params: { slug: 'test-article' } },
   // Batch 9 (one AI assistant; merge map section 4). No board draws the assistant: it follows the chat template and the CareHub cards
   // (`--dir patient-app/app/ai --screens index:ai-assistant,monthly-report:ai-monthly-report`). The report is the list template.
   'ai-assistant': { component: 'CareHub', size: [390, 1300], params: {} },

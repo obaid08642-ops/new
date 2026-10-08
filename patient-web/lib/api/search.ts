@@ -58,7 +58,8 @@ export function extractSearchResults(payload: unknown, locale: string): SearchRe
   const isAr = locale === "ar";
   return values.flatMap((value) => {
     const r = parseRow(value);
-    if (!r) return [];
+    // Community is removed (owner decision 1): the search answer may still carry posts, which have no page any more
+    if (!r || r.typeEn === "Community") return [];
     return [{
       ...r,
       name: (isAr ? r.name : r.nameEn || r.name) || r.name,

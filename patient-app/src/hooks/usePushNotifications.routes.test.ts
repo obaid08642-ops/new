@@ -19,9 +19,10 @@ describe('notification routes the backend writes, translated to screens that exi
     }
   });
 
-  it('a community notification keeps the post id from its query', () => {
-    expect(translateBackendRoute('/community/post-detail?id=p42')).toEqual({ pathname: '/community/post-detail', params: { id: 'p42' } });
-    expect(translateBackendRoute('/community/post-detail')).toBeNull();
+  it('a community notification opens the articles (community is removed, owner decision 1)', () => {
+    expect(translateBackendRoute('/community/post-detail?id=p42')).toEqual({ pathname: '/articles' });
+    expect(translateBackendRoute('/community/post-detail')).toEqual({ pathname: '/articles' });
+    expect(translateBackendRoute('/community')).toEqual({ pathname: '/articles' });
   });
 
   it('the family permission request opens the Requests section of the family hub (Batch 6)', () => {

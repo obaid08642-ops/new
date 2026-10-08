@@ -201,7 +201,6 @@
     "programs": "Programs",
     "offers": "Offers",
     "returns": "Returns",
-    "community": "Community",
     "nutrition": "Nutrition",
     "maternity": "Maternity",
     "aiTriage": "AI triage"
@@ -863,17 +862,13 @@
     "unavailableTitle": "Couldn't load the settings"
   },
   "Articles": {
-    "eyebrow": "Health library",
     "title": "Health articles",
     "notice": "Read published health articles and summaries.",
-    "bookmarksTitle": "Saved articles",
-    "bookmarksNotice": "Your saved articles. Changing bookmarks isn't available yet.",
     "emptyTitle": "No saved articles",
     "empty": "No published articles are available.",
     "browse": "Browse articles",
     "back": "Back to articles",
     "untitled": "Article",
-    "categoryUnavailable": "Category unavailable",
     "excerptUnavailable": "No summary available.",
     "bodyHidden": "The full article isn't available here yet.",
     "unavailableTitle": "Unable to load articles",
@@ -883,7 +878,15 @@
     "categories": "Categories",
     "noResultsTitle": "No matching articles",
     "noResults": "Try another search or category.",
-    "subtitle": "Trusted health articles from Nabd Plus"
+    "subtitle": "Trusted health articles from Nabd Plus",
+    "tabAll": "All",
+    "tabSaved": "Saved",
+    "allCategories": "All categories",
+    "savedEmptyBody": "Articles you save in the app appear here.",
+    "author": "Author",
+    "published": "Published",
+    "summary": "Summary",
+    "disclaimer": "General educational content, not a substitute for medical advice."
   },
   "ChatDetail": {
     "eyebrow": "Private conversation",
@@ -1285,11 +1288,6 @@
     "empty": "No return requests",
     "error": "Could not load return requests right now",
     "sar": "SAR"
-  },
-  "Community": {
-    "title": "Community",
-    "empty": "No posts yet",
-    "error": "Could not load the community right now"
   },
   "PublicProduct": {
     "backToCatalog": "Back to catalog",
