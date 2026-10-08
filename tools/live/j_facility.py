@@ -11,7 +11,7 @@ FACILITY_SCREEN_GETS = ['/facility/beds/wards', '/facility/beds/admissions', '/f
                         '/provider/jobs/queue?status=incoming', '/provider/jobs/queue?status=active', '/provider/ops/wallet/ledger',
                         '/provider/stats/today', '/facility/announcements', '/provider/facility/audit-logs', '/facility/resources',
                         '/provider/leave-requests', '/provider/profile', '/provider/facility/calendar', '/chat/threads',
-                        '/home-care/providers?availability=now', '/provider/notifications', '/provider/ambulance/fleet']
+                        '/home-care/providers?availability=now', '/provider/notifications']
 
 
 def rows(r):
