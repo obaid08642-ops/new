@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { ChoiceGroup } from "@/components-next/care/care-fields";
@@ -8,7 +8,18 @@ import { CareHero, RecordRow } from "@/components-next/care/care-kit";
 import { Notice, RowCard } from "@/components-next/consult/consult-parts";
 import { RowsCard, SectionHead } from "@/components-next/health/health-kit";
 import { formatDate } from "@/lib/format-date";
+import { isolate } from "@/lib/bidi";
 import forms from "@/components-next/consult/consult.module.css";
+
+/** Server texts of a row, each isolated so a Latin title next to a date does not reorder inside a right-to-left line. */
+function Parts({ items, separator }: { items: Array<string | null | undefined>; separator: string }) {
+  const shown = items.filter((item): item is string => Boolean(item));
+  return (
+    <span className={forms.rowSub}>
+      {shown.map((item, index) => <Fragment key={index}>{index > 0 ? separator : null}<bdi>{item}</bdi></Fragment>)}
+    </span>
+  );
+}
 
 export type Program = {
   id: string; title: string; duration?: string;
@@ -104,14 +115,14 @@ export function ProgramsActiveClient({ initial, locale }: { initial: Program[]; 
         title={selected.title}
         lines={[
           t("sessionsDone", { done: number.format(selected.completedSessions), total: number.format(selected.totalSessions) }),
-          selected.duration ? t("duration", { value: selected.duration }) : null,
+          selected.duration ? t("duration", { value: isolate(selected.duration) }) : null,
         ].filter((line): line is string => line !== null)}
       />
       {selected.nextTitle ? (
-        <RowCard icon="calendar-dots" tone="violet" title={t("nextSession")} sub={[selected.nextTitle, nextDate, selected.nextTime].filter(Boolean).join(" · ")} />
+        <RowCard icon="calendar-dots" tone="violet" title={t("nextSession")} extra={<Parts items={[selected.nextTitle, nextDate, selected.nextTime]} separator=" · " />} />
       ) : null}
       {selected.milestoneReward ? (
-        <RowCard icon="gift" tone="amber" title={t("rewardTitle")} sub={[selected.milestoneReward, selected.rewardDesc].filter(Boolean).join(" - ")} />
+        <RowCard icon="gift" tone="amber" title={t("rewardTitle")} extra={<Parts items={[selected.milestoneReward, selected.rewardDesc]} separator=" - " />} />
       ) : null}
       <SectionHead id="sessions" title={t("sessions")} action={{ href: `/${locale}/loyalty`, label: t("myPoints") }} />
       {selected.sessions.length === 0 ? (
