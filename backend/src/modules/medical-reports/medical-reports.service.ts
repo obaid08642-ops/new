@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException, ForbiddenException,
 import { Model, Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { emitAudit } from '../audit-trail/audit-emitter';
 import { MedicalReport, MedicalReportType } from '../../schemas/medical-report.schema';
 import { MedicalReportRepository } from "./repositories/medicalreport.repository";
 import { hasEffectiveRole } from '../../common/auth.guard';
@@ -33,6 +34,13 @@ export class MedicalReportsService {
       if (!pid || !(r.shared_with_doctor_ids || []).includes(pid)) throw new NotFoundException();
     }
     if (!r.viewed_by_patient && r.patient_id === user.id) { r.viewed_by_patient = true; r.patient_viewed_at = new Date(); await r.save(); }
+    // Phase 23.2 — reports viewed/downloaded in the audit trail (16.9, fire-and-forget).
+    emitAudit(this.events, {
+      action: 'report.viewed',
+      actor: { id: user?.id, role: String(user?.role || 'unknown') },
+      entity: { type: 'medical_report', id: r.id },
+      category: 'clinical',
+    });
     return r.toObject();
   }
 
@@ -125,6 +133,13 @@ export class MedicalReportsService {
       issued_at: body.issued_at ? new Date(body.issued_at) : new Date(),
     });
     this.events.emit('medical_report.created', { id: r.id, patient_id: r.patient_id, critical: r.critical, tracking_id: r.tracking_id });
+    // Phase 23.2 — reports issued in the audit trail (fire-and-forget).
+    emitAudit(this.events, {
+      action: 'report.issued',
+      actor: { id: user?.id, role: String(user?.role || 'unknown') },
+      entity: { type: 'medical_report', id: r.id },
+      category: 'clinical',
+    });
     return r.toObject();
   }
 

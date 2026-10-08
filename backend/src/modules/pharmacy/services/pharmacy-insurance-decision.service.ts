@@ -1,8 +1,10 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { v4 as uuidv4 } from 'uuid';
 import { PharmacyAllocationState, PharmacyOrderState } from '../schemas/pharmacy.schema';
+import { emitAudit } from '../../audit-trail/audit-emitter';
 
 const ACTIVE_PHARMACY_STATUSES = ['approved', 'active'];
 const ITEM_OUTCOMES = new Set(['approved', 'partial', 'rejected']);
@@ -21,6 +23,7 @@ export class PharmacyInsuranceDecisionService {
     @InjectModel('PharmacyAllocation') private readonly allocations: Model<any>,
     @InjectModel('PharmacyInventoryItem') private readonly inventory: Model<any>,
     @InjectModel('ProviderAccount') private readonly accounts: Model<any>,
+    @Optional() private readonly events?: EventEmitter2,
   ) {}
 
   private async assertSelectedPharmacy(user: any, order: any, session?: any) {
@@ -103,6 +106,14 @@ export class PharmacyInsuranceDecisionService {
       );
       if (!this.modified(update)) throw new BadRequestException('insurance_decision_conflict');
       await this.connection.collection('provider_audit_logs').insertOne({ id: uuidv4(), provider_account_id: pharmacy.id, actor_id: pharmacy.id, actor_role: 'pharmacy', action: 'pharmacy.insurance_decision.recorded', target: { collection: 'pharmacy_orders', id: order.id }, after: { outcome, offer_id: offer.id, offer_version: offer.version, allocation_id: allocation.id }, createdAt: now, updatedAt: now }, { session });
+      // Phase 23.2 — insurance decisions in the unified trail (via service, never raw inserts).
+      emitAudit(this.events, {
+        action: 'insurance.decision.recorded',
+        actor: { id: pharmacy.id, role: 'pharmacy' },
+        entity: { type: 'insurance_decision', id: order.id },
+        diff: { after: { outcome, insurer_share: insurerShare, patient_share: patientShare } },
+        category: 'insurance',
+      });
       try {
         await this.connection.collection('domain_outbox').updateOne(
           { aggregate_type: 'pharmacy_order', aggregate_id: order.id, event_type: 'pharmacy.insurance.decision_recorded', idempotency_key: idempotencyKey },

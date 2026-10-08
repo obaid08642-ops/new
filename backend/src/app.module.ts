@@ -138,6 +138,7 @@ import { StepUpGuard, StepUpService } from './common/step-up.guard';
 import { ProductRankingModule } from './modules/product-ranking/product-ranking.module';
 import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
 import { ObservabilityModule } from './modules/observability/observability.module';
+import { AuditTrailModule } from './modules/audit-trail/audit-trail.module';
 
 @Module({
   imports: [
@@ -270,6 +271,7 @@ ArticlesModule,
     CatalogsModule, // unified central catalogs (insurance/labs/radiology/nursing) — single source
     CatalogCqrsModule,
     ObservabilityModule,
+    AuditTrailModule, // Phase 23: one audit trail for every actor (self-contained, no circulars)
   ],
   controllers: [HealthController, HealthDashboardController, ProviderPayoutsController],
   providers: [

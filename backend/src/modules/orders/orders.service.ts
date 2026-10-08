@@ -11,6 +11,7 @@ import { Medicine, MedicineDocument } from '../../schemas/medicine.schema';
 import { Delivery, DeliveryDocument } from '../../schemas/delivery.schema';
 import { OrderState, ORDER_TRANSITIONS, UserRole, DeliveryState } from '../../common/enums';
 import { EVENTS } from '../../common/events';
+import { emitAudit } from '../audit-trail/audit-emitter';
 import { DispatchService } from './dispatch.service';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { OrderRepository } from "./repositories/order.repository";
@@ -348,6 +349,14 @@ export class OrdersService {
         if (to === OrderState.PARTIALLY_FULFILLED) this.events.emit(EVENTS.ORDER_PARTIAL, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
         if (to === OrderState.PHARMACY_RECEIVED) this.events.emit(EVENTS.ORDER_RECEIVED_BY_PHARMACY, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
         await order.save();
+        // Phase 23.2 — full order lifecycle in the audit trail (fire-and-forget).
+        emitAudit(this.events, {
+          action: `order.${String(to).toLowerCase()}`,
+          actor: { id: by?.id, role: String(by?.role || 'unknown') },
+          entity: { type: 'order', id: order.id },
+          diff: { before: { state: from }, after: { state: to } },
+          category: 'order',
+        });
         return order.toObject();
       },
     });
