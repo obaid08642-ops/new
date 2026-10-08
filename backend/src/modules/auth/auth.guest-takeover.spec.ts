@@ -5,6 +5,10 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AuthService } from './auth.service';
 import { RedisService } from '../redis/redis.service';
 import { MailService } from '../mail/mail.module';
+import { PasswordSecurityService } from './password-security.service';
+import { HttpService } from '@nestjs/axios';
+import { SmsFraudProtectionService } from './sms-fraud-protection.service';
+import * as bcrypt from 'bcryptjs';
 
 /**
  * Q91: POST /auth/guest and POST /auth/convert-guest must never hand out a
@@ -35,6 +39,20 @@ describe('AuthService guest flows cannot take over a registered account (Q91)', 
         { provide: EventEmitter2, useValue: { emit: jest.fn() } },
         { provide: RedisService, useValue: { getClient: () => redisClient, setJson: jest.fn(), getJson: jest.fn(), del: jest.fn() } },
         { provide: MailService, useValue: { sendOtp: jest.fn() } },
+        // AuthService requires these at DI time; permissive mocks isolate
+        // the guest-takeover assertions. No test assertion is changed.
+        { provide: PasswordSecurityService, useValue: {
+          validatePasswordStrength: jest.fn(async () => ({ valid: true, errors: [] })),
+          hashPassword: jest.fn(async (p: string) => bcrypt.hash(p, 4)),
+          verifyPassword: jest.fn(async (p: string, h: string) => bcrypt.compare(p, h)),
+          isLocked: jest.fn(async () => ({ locked: false })),
+          recordFailedAttempt: jest.fn(async () => ({ attempts: 1, locked: false })),
+          clearFailedAttempts: jest.fn(async () => undefined),
+          getLockoutConfig: jest.fn(() => ({ maxAttempts: 5, lockoutDurationSeconds: 900 })),
+          calculateProgressiveDelay: jest.fn(() => 0),
+        } },
+        { provide: HttpService, useValue: { get: jest.fn(), post: jest.fn(), axiosRef: {} } },
+        { provide: SmsFraudProtectionService, useValue: { checkAndRecord: jest.fn(async () => ({ allowed: true })) } },
       ],
     }).compile();
     service = module.get(AuthService);

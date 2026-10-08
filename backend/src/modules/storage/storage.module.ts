@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { Module, Injectable, BadRequestException, NotFoundException, ForbiddenException, ServiceUnavailableException, Controller, Post, Get, Body, Param, UseGuards } from '@nestjs/common';
+import { Module, Injectable, BadRequestException, NotFoundException, ForbiddenException, ServiceUnavailableException, Controller, Post, Get, Body, Param, UseGuards, Optional } from '@nestjs/common';
 import { MongooseModule, InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as crypto from 'crypto';
@@ -10,6 +10,7 @@ import { Logger } from '@nestjs/common';
 import { CurrentUser, Public, JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { UploadDto, UploadSuggestionImageDto } from './storage.dto';
 import { UploadSecurityService, UploadPurposeConfig, UPLOAD_PURPOSE_CONFIGS } from './upload-security.service';
+import { CircuitBreakerService } from '../../common/circuit-breaker.service';
 
 export enum StorageBackend { BASE64 = 'base64', S3 = 's3', CLOUDINARY = 'cloudinary', SUPABASE = 'supabase' }
 
@@ -135,9 +136,11 @@ export class StorageService {
    * document flows (KYC, images) keep working in dev/staging without object storage.
    */
   private adapter: StorageAdapter = S3R2Adapter.configured() ? new S3R2Adapter() : new Base64Adapter();
+  private breakerSvc: CircuitBreakerService | null = null;
   constructor(
     @InjectModel('StorageObject') private readonly model: Model<StorageObject>,
     private readonly uploadSecurity: UploadSecurityService,
+    @Optional() private readonly breakers?: CircuitBreakerService,
   ) {
     if (!S3R2Adapter.configured()) {
       // eslint-disable-next-line no-console
@@ -238,14 +241,24 @@ export class StorageService {
     if (!S3R2Adapter.configured()) throw new ServiceUnavailableException('PRIVATE_OBJECT_STORAGE_REQUIRED');
 
     const customKey = input.customKey || this.uploadSecurity.generateSecureKey(purpose, input.owner_account_id);
+    // 15.7: S3/R2 puts run behind the shared `storage:s3:put` breaker so a
+    // dead object store stops being retried per upload. The breaker registry
+    // is shared per name, so supervision sees it from any instance.
+    if (!this.breakerSvc) this.breakerSvc = this.breakers ?? new CircuitBreakerService();
     let adapterRes;
     try {
-      adapterRes = await this.adapter.put({
-        mime: secureResult.mimeType,
-        data_base64: secureResult.buffer.toString('base64'),
-        original_name: input.original_name || 'file',
-        customKey,
-      });
+      adapterRes = await this.breakerSvc.fire(
+        'storage:s3:put',
+        (p: { mime: string; data_base64?: string; original_name: string; customKey?: string }) => this.adapter.put(p),
+        [{
+          mime: secureResult.mimeType,
+          data_base64: secureResult.buffer.toString('base64'),
+          original_name: input.original_name || 'file',
+          customKey,
+        }],
+        undefined,
+        { timeout: Math.max(s3TimeoutMs(), 1000), errorThresholdPercentage: 50, resetTimeout: 30000 },
+      );
     } catch (e: any) {
       this.logger.error(`S3/R2 put failed (${e.message}) — private upload refused`);
       throw new ServiceUnavailableException('PRIVATE_OBJECT_STORAGE_UNAVAILABLE');

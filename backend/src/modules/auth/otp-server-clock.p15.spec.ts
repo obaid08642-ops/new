@@ -17,6 +17,21 @@ import { GoneException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { AuthService } from './auth.service';
 
+// Constructor slots 6-7 are the required PasswordSecurityService/HttpService
+// (all later slots are @Optional). Permissive stand-ins; assertions untouched.
+const passwordSecurityStub = {
+  validatePasswordStrength: async () => ({ valid: true, errors: [] }),
+  hashPassword: async (p: string) => bcrypt.hash(p, 4),
+  verifyPassword: async (p: string, h: string) => bcrypt.compare(p, h),
+  isLocked: async () => ({ locked: false }),
+  recordFailedAttempt: async () => ({ attempts: 1, locked: false }),
+  clearFailedAttempts: async () => undefined,
+  getLockoutConfig: () => ({ maxAttempts: 5, lockoutDurationSeconds: 900 }),
+  calculateProgressiveDelay: () => 0,
+};
+const httpStub = { get: async () => ({}), post: async () => ({}) };
+const smsFraudStub = { checkAndRecord: async () => ({ allowed: true }) };
+
 const OTP_TTL_SECONDS = 300;
 
 function ttlRedis() {
@@ -59,8 +74,12 @@ const build = () => {
     { sign: jest.fn() } as any,
     { emit: jest.fn() } as any,
     redis as any,
+    passwordSecurityStub as any,
+    httpStub as any,
     undefined, undefined, undefined, undefined, undefined,
     { sendOtp: jest.fn(async () => ({ ok: true })) } as any,
+    undefined,
+    smsFraudStub as any,
   );
   return { redis, service };
 };
@@ -125,8 +144,11 @@ describe('15.9 OTP expiry follows the server clock (mocked Redis EX TTL)', () =>
     const redis = ttlRedis();
     const service = new AuthService(
       userModel as any, {} as any, { sign: jest.fn() } as any, { emit: jest.fn() } as any,
-      redis as any, undefined, undefined, undefined, undefined, undefined,
+      redis as any, passwordSecurityStub as any, httpStub as any,
+      undefined, undefined, undefined, undefined, undefined,
       { sendOtp: jest.fn(async () => ({ ok: true })) } as any,
+      undefined,
+      smsFraudStub as any,
     );
     await service.requestPatientOtp('patient@example.test');
     expect(redis.setJson).toHaveBeenCalledWith(OTP_KEY, expect.objectContaining({ user_id: 'patient-1' }), 300);

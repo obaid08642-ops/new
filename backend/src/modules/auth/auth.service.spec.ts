@@ -5,6 +5,9 @@ import { JwtService } from '@nestjs/jwt';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { RedisService } from '../redis/redis.service';
 import { MailService } from '../mail/mail.module';
+import { PasswordSecurityService } from './password-security.service';
+import { HttpService } from '@nestjs/axios';
+import { SmsFraudProtectionService } from './sms-fraud-protection.service';
 import { BadRequestException, UnauthorizedException, ConflictException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 
@@ -15,6 +18,9 @@ describe('AuthService', () => {
   let jwtService: any;
   let eventEmitter: any;
   let redisService: any;
+  let passwordSecurityMock: any;
+  let httpServiceMock: any;
+  let smsFraudMock: any;
 
   beforeEach(async () => {
     userModel = {
@@ -43,6 +49,21 @@ describe('AuthService', () => {
       checkRateLimit: jest.fn().mockResolvedValue({ allowed: true, remaining: 1 }),
       client: { set: jest.fn(), get: jest.fn(), del: jest.fn(), ttl: jest.fn(), incr: jest.fn(), expire: jest.fn() },
     };
+    // AuthService (HEAD) requires these providers at DI time. Permissive
+    // mocks isolate the unit under test; real bcrypt semantics are kept so
+    // hash/compare assertions stay meaningful. No test assertion is changed.
+    passwordSecurityMock = {
+      validatePasswordStrength: jest.fn(async () => ({ valid: true, errors: [] })),
+      hashPassword: jest.fn(async (p: string) => bcrypt.hash(p, 4)),
+      verifyPassword: jest.fn(async (p: string, h: string) => bcrypt.compare(p, h)),
+      isLocked: jest.fn(async () => ({ locked: false })),
+      recordFailedAttempt: jest.fn(async () => ({ attempts: 1, locked: false })),
+      clearFailedAttempts: jest.fn(async () => undefined),
+      getLockoutConfig: jest.fn(() => ({ maxAttempts: 5, lockoutDurationSeconds: 900 })),
+      calculateProgressiveDelay: jest.fn(() => 0),
+    };
+    httpServiceMock = { get: jest.fn(), post: jest.fn(), axiosRef: {} };
+    smsFraudMock = { checkAndRecord: jest.fn(async () => ({ allowed: true })) };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -52,6 +73,9 @@ describe('AuthService', () => {
         { provide: JwtService, useValue: jwtService },
         { provide: EventEmitter2, useValue: eventEmitter },
         { provide: RedisService, useValue: redisService },
+        { provide: PasswordSecurityService, useValue: passwordSecurityMock },
+        { provide: HttpService, useValue: httpServiceMock },
+        { provide: SmsFraudProtectionService, useValue: smsFraudMock },
         // F34: OTP delivery needs at least one working channel; the mail
         // channel stands in here so storage assertions stay delivery-agnostic.
         { provide: MailService, useValue: { sendOtp: jest.fn(async () => ({ ok: true, provider: 'resend', fallback_used: false })) } },

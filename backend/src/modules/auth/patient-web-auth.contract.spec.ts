@@ -2,6 +2,21 @@ import { GoneException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { AuthService } from './auth.service';
 
+// Constructor slots 6-7 are the required PasswordSecurityService/HttpService
+// (all later slots are @Optional). Permissive stand-ins; assertions untouched.
+const passwordSecurityStub = {
+  validatePasswordStrength: async () => ({ valid: true, errors: [] }),
+  hashPassword: async (p: string) => bcrypt.hash(p, 4),
+  verifyPassword: async (p: string, h: string) => bcrypt.compare(p, h),
+  isLocked: async () => ({ locked: false }),
+  recordFailedAttempt: async () => ({ attempts: 1, locked: false }),
+  clearFailedAttempts: async () => undefined,
+  getLockoutConfig: () => ({ maxAttempts: 5, lockoutDurationSeconds: 900 }),
+  calculateProgressiveDelay: () => 0,
+};
+const httpStub = { get: async () => ({}), post: async () => ({}) };
+const smsFraudStub = { checkAndRecord: async () => ({ allowed: true }) };
+
 describe('patient web auth contract', () => {
   const build = () => {
     const data = new Map<string, any>();
@@ -27,11 +42,12 @@ describe('patient web auth contract', () => {
     };
     const jwt = { sign: jest.fn().mockReturnValueOnce('access-token').mockReturnValueOnce('refresh-token') };
     // F34: OTP delivery needs a working channel; the mail channel stands in so
-    // contract assertions stay delivery-agnostic. `mail` is the 11th constructor
-    // slot (after userModel, patientModel, jwt, events, redisService, passkeys,
-    // deviceTrust, adminDevices, adminSession, push). Passing it one or two slots
-    // early lands it on adminSession/push, this.mail stays undefined, and the
-    // per-channel catch in deliverOtp turns the missing mailer into an opaque
+    // contract assertions stay delivery-agnostic. `mail` is the 13th constructor
+    // slot (after userModel, patientModel, jwt, events, redisService,
+    // passwordSecurity, httpService, passkeys, deviceTrust, adminDevices,
+    // adminSession, push). Passing it in the wrong slot lands it on
+    // adminSession/push, this.mail stays undefined, and the per-channel catch
+    // in deliverOtp turns the missing mailer into an opaque
     // `otp_channel_unavailable` instead of an obvious wiring mistake.
     const mail = { sendOtp: jest.fn(async () => ({ ok: true, provider: 'resend', fallback_used: false })) };
     const service = new AuthService(
@@ -40,12 +56,16 @@ describe('patient web auth contract', () => {
       jwt as any,
       { emit: jest.fn() } as any,
       redis as any,
+      passwordSecurityStub as any,
+      httpStub as any,
       undefined, // passkeys
       undefined, // deviceTrust
       undefined, // adminDevices
       undefined, // adminSession
       undefined, // push
       mail as any,
+      undefined, // sms
+      smsFraudStub as any,
     );
     return { data, userModel, patientModel, redis, jwt, service };
   };

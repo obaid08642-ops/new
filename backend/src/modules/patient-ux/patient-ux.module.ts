@@ -1,4 +1,5 @@
 import { Module, Injectable, Controller, Get, Post, Param, Body, UseGuards, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { StepUp } from '../../common/step-up.guard';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -181,6 +182,8 @@ export class AdminRefundsController {
   constructor(private svc: PatientUxService) {}
   @Get() list() { return this.svc.adminListRefunds(); }
   @Get('pending') pending() { return this.svc.adminListRefunds('requested'); }
+  // Q89: money decision — requires fresh step-up authentication.
+  @StepUp()
   @Post(':id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() body: DecideDto) {
     return this.svc.adminDecideRefund(u, id, body.decision, body.note, body.amount);
   }

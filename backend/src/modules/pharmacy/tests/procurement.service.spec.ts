@@ -45,6 +45,16 @@ describe('ProcurementService', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    // Repository shape: ProcurementService reaches the query surface through
+    // `repository.model` (see `private get model()`), and looks up by
+    // `findOne(findByAnyId(...))`. Re-apply AFTER clearAllMocks (which runs
+    // before every test) so a direct findOne stub from one test can never
+    // leak into the next: each test's own stubs always win. No assertion
+    // below is touched.
+    (mockProcurementModel as any).model = mockProcurementModel;
+    mockProcurementModel.findOne.mockImplementation((...args: any[]) =>
+      (mockProcurementModel.findById as jest.Mock)(...args),
+    );
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
