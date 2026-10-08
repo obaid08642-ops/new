@@ -133,6 +133,7 @@ Order (do not skip ahead):
 | D-30 | — | Insurance first (decision 30): profile insurance with class; provider networks with companies and classes; list and broadcast filters; final eligibility at checkout. | spec |
 | D-31 | — | Double taps and bad networks (decision 31): close whatever the reviewer's tests show (one charge or booking per key, the same key on retry, a result check instead of a re-pay). | spec |
 
+| D-35 | — | Admin on two devices (owner): at most 2 active enrolled admin devices per admin (the owner's iPhone and MacBook). A third device is refused until one is revoked. Enrolling a new device needs approval from an already-enrolled device plus email step-up. Every enrolment and revoke is audit-logged and shown on the decision-34 page. | spec |
 | D-36 | — | Legal documents in 6 locales: `legal_policies` stores content per locale (ar, en, ur, hi, bn, fil), not only ar/en. New keys: `telehealth_consent` and `refund_policy`. A new major version forces re-acceptance; every acceptance records the version, time and device. The texts come from `docs/legal/*` after the lawyer approves them. | spec |
 
 Items 3, 5, 6, 11 and 18 are UI only (design session). Items 21–23 are owner tasks. Item 20 is Q-12 / Q-13.
