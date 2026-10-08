@@ -28,6 +28,7 @@ export const CLIENT_NAMESPACES = [
   "Login",
   "NotificationSettings",
   "Notifications",
+  "NursingWeb",
   "Onboarding",
   "OrderReorder",
   "OrderTracking",
