@@ -43,7 +43,6 @@ import { AiModule } from './modules/ai/ai.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { EventsModule } from './modules/events/events.module';
 import { SeedModule } from './modules/seed/seed.module';
-import { DriversModule } from './modules/drivers/drivers.module';
 import { CareModule } from './modules/care/care.module';
 import { LabsModule } from './modules/labs/labs.module';
 import { HomeCareModule } from './modules/home-care/home-care.module';
@@ -198,7 +197,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     EventsModule,
     RealtimeModule,
     SeedModule,
-    DriversModule,
     CareModule,
     DoctorsModule,
     LabsModule,
