@@ -31,7 +31,9 @@
   background: var(--nabd-color-bg-sunken); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-3xl);
 }
 .frame { inline-size: 100%; block-size: 100%; min-block-size: 280px; border: 0; }
-.idle { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: var(--nabd-space-lg); text-align: center; max-inline-size: 420px; }
+.idle { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: var(--nabd-space-lg); text-align: center; max-inline-size: 420px;
+  /* On the sunken pane, secondary text is 4.15:1; the idle note sits on a surface card like the list rows, which gives it 4.5:1+. */
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-2xl); }
 .idleTitle { margin: 0; font-size: var(--nabd-font-size-body-lg); font-weight: 700; }
 .idleBody { margin: 0; font-size: var(--nabd-font-size-control); line-height: 1.6; color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
 .idleNote { margin: 0; font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-tertiary); }
