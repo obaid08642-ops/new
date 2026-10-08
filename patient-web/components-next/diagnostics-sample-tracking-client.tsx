@@ -16,8 +16,6 @@ import styles from "@/components-next/diagnostics/diag.module.css";
 type Step = { title: string; time?: string; done?: boolean };
 type Tracking = { state?: string; eta?: number | null; techName?: string; scheduledAt?: string; steps: Step[] };
 
-const FALLBACK = ["stepReceived", "stepAssigned", "stepOnTheWay", "stepCollected", "stepAtLab", "stepResult"] as const;
-
 function parseTracking(payload: unknown): Tracking {
   const root = (payload && typeof payload === "object" ? payload : {}) as Record<string, unknown>;
   const t = (root.tracking && typeof root.tracking === "object" ? root.tracking : root) as Record<string, unknown>;
@@ -38,6 +36,25 @@ function parseTracking(payload: unknown): Tracking {
     scheduledAt: b && typeof b.scheduled_at === "string" ? b.scheduled_at : undefined,
     steps,
   };
+}
+
+/** The steps exactly as the server logged them; when it sent none, a plain "no tracking yet" line (no invented steps). */
+export function TrackingSteps({ steps }: { steps: Step[] }) {
+  const t = useTranslations("DiagWeb");
+  const current = steps.findIndex((step) => !step.done);
+  return (
+    <section className={rx.card} aria-labelledby="trk-steps">
+      <h2 id="trk-steps" className={consult.sectionTitle}>{t("trackingStepsTitle")}</h2>
+      {steps.length > 0 ? (
+        <Timeline
+          label={t("trackingStepsTitle")}
+          steps={steps.map((step, i) => ({ id: `${i}`, label: step.title, time: step.time, state: step.done ? "done" : i === current ? "current" : "upcoming" }))}
+        />
+      ) : (
+        <p className={styles.flowNote} role="status">{t("trackingNoSteps")}</p>
+      )}
+    </section>
+  );
 }
 
 /** The sample tracking of a booking (canvas/OrderTracking): the status, the arrival time and the collector, what to do before the sample, and the steps as the server logged them (polled every 15 s). The polling and the parsing are unchanged; this is its markup and texts. */
@@ -72,10 +89,6 @@ export function DiagnosticsSampleTrackingClient({ bookingId, locale }: { booking
   if (!tracking) return null;
 
   const status = diagStatus(tracking.state);
-  const steps: Step[] = tracking.steps.length > 0
-    ? tracking.steps
-    : FALLBACK.map((key, i) => ({ title: t(key), done: i === 0 || (i === 1 && Boolean(tracking.techName)) }));
-  const current = steps.findIndex((step) => !step.done);
   const when = tracking.scheduledAt ? formatWhen(locale, tracking.scheduledAt) : null;
 
   return (
@@ -98,13 +111,7 @@ export function DiagnosticsSampleTrackingClient({ bookingId, locale }: { booking
         <p className={styles.flowNote}>{t("trackingBeforeBody")}</p>
       </section>
 
-      <section className={rx.card} aria-labelledby="trk-steps">
-        <h2 id="trk-steps" className={consult.sectionTitle}>{t("trackingStepsTitle")}</h2>
-        <Timeline
-          label={t("trackingStepsTitle")}
-          steps={steps.map((step, i) => ({ id: `${i}`, label: step.title, time: step.time, state: step.done ? "done" : i === current ? "current" : "upcoming" }))}
-        />
-      </section>
+      <TrackingSteps steps={tracking.steps} />
     </>
   );
 }

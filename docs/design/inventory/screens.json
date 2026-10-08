@@ -1,5 +1,5 @@
 {
- "commit": "087278a3",
+ "commit": "074475ae",
  "routes": [
   {
    "app": "patient-app",
@@ -1957,7 +1957,7 @@
    "batch": 3,
    "status": "—",
    "calls": [],
-   "files": 37,
+   "files": 38,
    "unresolved": 1
   },
   {
@@ -5158,7 +5158,7 @@
    "batch": 1,
    "status": "—",
    "calls": [],
-   "files": 37,
+   "files": 38,
    "unresolved": 1
   },
   {
@@ -5723,7 +5723,7 @@
    "batch": 1,
    "status": "—",
    "calls": [],
-   "files": 37,
+   "files": 38,
    "unresolved": 1
   },
   {
@@ -9031,7 +9031,7 @@
      "path": "/labs/packages",
      "target": "backend",
      "query": "",
-     "line": 86,
+     "line": 87,
      "file": "patient-web/app/[locale]/diagnostics/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:32"
@@ -9057,13 +9057,94 @@
      "backend": "backend/src/modules/radiology/radiology.controller.ts:12"
     }
    ],
-   "files": 51,
+   "files": 52,
    "unresolved": 0
   },
   {
    "app": "patient-web",
-   "route": "/diagnostics/[domain]/[bookingId]",
-   "file": "patient-web/app/[locale]/diagnostics/[domain]/[bookingId]/page.tsx",
+   "route": "/diagnostics/book-sample",
+   "file": "patient-web/app/[locale]/diagnostics/book-sample/page.tsx",
+   "redirect": "/diagnostics/cart",
+   "template": "redirect",
+   "board": "— (redirect)",
+   "batch": 3,
+   "status": "n/a",
+   "calls": [],
+   "files": 2,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
+   "route": "/diagnostics/booking-success",
+   "file": "patient-web/app/[locale]/diagnostics/booking-success/page.tsx",
+   "redirect": null,
+   "template": "result",
+   "board": "BookingConfirm",
+   "batch": 3,
+   "status": "—",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/:param/bookings/:param",
+     "target": "backend",
+     "query": "",
+     "line": 26,
+     "file": "patient-web/app/[locale]/diagnostics/booking-success/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:440"
+    },
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    }
+   ],
+   "files": 32,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
+   "route": "/diagnostics/bookings",
+   "file": "patient-web/app/[locale]/diagnostics/bookings/page.tsx",
+   "redirect": null,
+   "template": "list",
+   "board": "Orders",
+   "batch": 3,
+   "status": "—",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/:param/bookings/mine",
+     "target": "backend",
+     "query": "",
+     "line": 6,
+     "file": "patient-web/lib/api/diagnostics-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:155"
+    },
+    {
+     "method": "POST",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
+     "query": "",
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
+    }
+   ],
+   "files": 41,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-web",
+   "route": "/diagnostics/bookings/[domain]/[bookingId]",
+   "file": "patient-web/app/[locale]/diagnostics/bookings/[domain]/[bookingId]/page.tsx",
    "redirect": null,
    "template": "detail",
    "board": "ServiceHub",
@@ -9102,87 +9183,6 @@
     }
    ],
    "files": 42,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/diagnostics/book-sample",
-   "file": "patient-web/app/[locale]/diagnostics/book-sample/page.tsx",
-   "redirect": "/diagnostics/cart",
-   "template": "redirect",
-   "board": "— (redirect)",
-   "batch": 3,
-   "status": "n/a",
-   "calls": [],
-   "files": 2,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/diagnostics/booking-success",
-   "file": "patient-web/app/[locale]/diagnostics/booking-success/page.tsx",
-   "redirect": null,
-   "template": "result",
-   "board": "BookingConfirm",
-   "batch": 3,
-   "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/:param/bookings/:param",
-     "target": "backend",
-     "query": "",
-     "line": 25,
-     "file": "patient-web/app/[locale]/diagnostics/booking-success/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:440"
-    },
-    {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    }
-   ],
-   "files": 31,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-web",
-   "route": "/diagnostics/bookings",
-   "file": "patient-web/app/[locale]/diagnostics/bookings/page.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "Orders",
-   "batch": 3,
-   "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/:param/bookings/mine",
-     "target": "backend",
-     "query": "",
-     "line": 6,
-     "file": "patient-web/lib/api/diagnostics-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:155"
-    },
-    {
-     "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
-     "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
-    }
-   ],
-   "files": 40,
    "unresolved": 0
   },
   {
@@ -9244,7 +9244,7 @@
      "path": "/api/diagnostics/cart",
      "target": "web-bff",
      "query": "",
-     "line": 135,
+     "line": 136,
      "file": "patient-web/components-next/diagnostics-checkout-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/diagnostics/cart/route.ts"
@@ -9254,7 +9254,7 @@
      "path": "/api/diagnostics/orders",
      "target": "web-bff",
      "query": "",
-     "line": 83,
+     "line": 84,
      "file": "patient-web/components-next/diagnostics-checkout-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/diagnostics/orders/route.ts"
@@ -9264,13 +9264,13 @@
      "path": "/api/payments/intent/diagnostics",
      "target": "web-bff",
      "query": "",
-     "line": 114,
+     "line": 115,
      "file": "patient-web/components-next/diagnostics-checkout-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/payments/intent/diagnostics/route.ts"
     }
    ],
-   "files": 33,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -9342,13 +9342,13 @@
      "path": "/api/diagnostics/bookings/:param/documents",
      "target": "web-bff",
      "query": "",
-     "line": 39,
+     "line": 40,
      "file": "patient-web/components-next/diagnostics-document-upload.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/diagnostics/bookings/[bookingId]/documents/route.ts"
     }
    ],
-   "files": 29,
+   "files": 30,
    "unresolved": 0
   },
   {
@@ -9678,7 +9678,7 @@
      "path": "/labs/bookings/mine",
      "target": "backend",
      "query": "",
-     "line": 32,
+     "line": 33,
      "file": "patient-web/app/[locale]/diagnostics/results/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:45"
@@ -9688,13 +9688,13 @@
      "path": "/radiology/reports/mine",
      "target": "backend",
      "query": "",
-     "line": 32,
+     "line": 33,
      "file": "patient-web/app/[locale]/diagnostics/results/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:69"
     }
    ],
-   "files": 37,
+   "files": 38,
    "unresolved": 0
   },
   {
@@ -9722,7 +9722,7 @@
      "path": "/api/patient/labs/bookings/:param",
      "target": "web-proxy",
      "query": "",
-     "line": 53,
+     "line": 70,
      "file": "patient-web/components-next/diagnostics-sample-tracking-client.tsx",
      "backend": "backend/src/modules/labs/labs.controller.ts:48",
      "status": "OK"
@@ -9732,13 +9732,13 @@
      "path": "/api/patient/labs/bookings/:param/tracking",
      "target": "web-proxy",
      "query": "",
-     "line": 54,
+     "line": 71,
      "file": "patient-web/components-next/diagnostics-sample-tracking-client.tsx",
      "backend": "backend/src/modules/labs/labs.controller.ts:116",
      "status": "OK"
     }
    ],
-   "files": 34,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -9806,7 +9806,7 @@
      "status": "OK"
     }
    ],
-   "files": 30,
+   "files": 31,
    "unresolved": 0
   },
   {
