@@ -77,7 +77,7 @@ export function translateBackendRoute(route: string): { pathname: string; params
   if (clean === '/health/family-hub' || clean === '/family/permission-request') return { pathname: '/family' };
   // Verbatim app routes used by backend notification action.route (EPIC4/EPIC5 listeners)
   const VERBATIM_ROUTES = new Set([
-    '/insurance/hub', '/returns/hub',
+    '/insurance', '/insurance/hub', '/returns/hub',
     '/loyalty/hub', '/loyalty/referrals', '/loyalty/challenges',
     '/family', '/ai/symptom-timeline', '/emergency/tracking',
   ]);
@@ -144,7 +144,7 @@ export function routeFromNotificationData(data: any): void {
         router.push('/returns/hub' as any);
         break;
       case 'insurance':
-        router.push('/insurance/hub' as any);
+        router.push('/insurance' as any);
         break;
       case 'family':
         router.push('/family' as any);

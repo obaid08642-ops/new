@@ -2299,7 +2299,38 @@
     ],
     "total": 1
   },
-  "/insurance/requests/my": [],
+  "/insurance/requests/my": [
+    {
+      "id": "test-req",
+      "booking_id": "test-b",
+      "booking_kind": "lab",
+      "state": "COPAY_PENDING",
+      "price": 200,
+      "copay_amount": 40,
+      "self_pay_amount": 0,
+      "createdAt": "2026-10-01T09:00:00.000Z"
+    },
+    {
+      "id": "test-req-review",
+      "booking_id": "test-b",
+      "booking_kind": "consultation",
+      "state": "PENDING_PROVIDER_REVIEW",
+      "price": 200,
+      "copay_amount": 0,
+      "self_pay_amount": 0,
+      "createdAt": "2026-10-01T09:00:00.000Z"
+    },
+    {
+      "id": "test-req-rejected",
+      "booking_id": "test-b",
+      "booking_kind": "radiology",
+      "state": "REJECTED",
+      "price": 200,
+      "copay_amount": 0,
+      "self_pay_amount": 200,
+      "createdAt": "2026-10-01T09:00:00.000Z"
+    }
+  ],
   "/chat/threads/booking": {
     "id": "test-thread"
   },
@@ -2320,7 +2351,13 @@
   "/users/me/profile": {
     "id": "test-user",
     "full_name": "مستخدم تجريبي",
-    "user_id": "test-user"
+    "user_id": "test-user",
+    "insurance": {
+      "provider": "TEST",
+      "company_id": "TEST",
+      "network": "NET",
+      "class": "A"
+    }
   },
   "/payments/consultation/test-appt/capabilities": {
     "methods": []
@@ -3230,5 +3267,124 @@
         "rejectReason": "سبب رفض تجريبي"
       }
     ]
+  },
+  "/users/me/insurance": {
+    "provider": "TEST",
+    "provider_name": "شركة تأمين تجريبية",
+    "policy_number": "TEST-123456",
+    "national_id": "1000000000",
+    "member_name": "مستخدم تجريبي",
+    "network": "شبكة تجريبية",
+    "class": "A",
+    "expiry_date": "2027-12-31",
+    "verified": true
+  },
+  "/insurance/requests/test-req": {
+    "id": "test-req",
+    "booking_id": "test-b",
+    "booking_kind": "lab",
+    "state": "COPAY_PENDING",
+    "price": 200,
+    "copay_amount": 40,
+    "self_pay_amount": 0,
+    "createdAt": "2026-10-01T09:00:00.000Z"
+  },
+  "/insurance/requests/test-req-review": {
+    "id": "test-req-review",
+    "booking_id": "test-b",
+    "booking_kind": "consultation",
+    "state": "PENDING_PROVIDER_REVIEW",
+    "price": 200,
+    "copay_amount": 0,
+    "self_pay_amount": 0,
+    "createdAt": "2026-10-01T09:00:00.000Z"
+  },
+  "/insurance/requests/test-req-rejected": {
+    "id": "test-req-rejected",
+    "booking_id": "test-b",
+    "booking_kind": "radiology",
+    "state": "REJECTED",
+    "price": 200,
+    "copay_amount": 0,
+    "self_pay_amount": 200,
+    "createdAt": "2026-10-01T09:00:00.000Z"
+  },
+  "/insurance/benefits-summary": [
+    {
+      "service": "استشارات (بيانات تجريبية)",
+      "coverage": 80,
+      "remaining": 4000,
+      "annualLimit": 5000,
+      "usedAmount": 1000,
+      "usedCount": 2,
+      "limitCount": 10
+    },
+    {
+      "service": "تحاليل (بيانات تجريبية)",
+      "coverage": 60,
+      "remaining": 1500,
+      "annualLimit": 2000,
+      "usedAmount": 500
+    }
+  ],
+  "/insurance/claims": [
+    {
+      "id": "test-c1",
+      "service": "استشارة (بيانات تجريبية)",
+      "provider": "مزود تجريبي",
+      "date": "2026-09-20T10:00:00.000Z",
+      "amount": 300,
+      "covered": 240,
+      "patient": 60,
+      "status": "approved"
+    },
+    {
+      "id": "test-c2",
+      "service": "تحاليل (بيانات تجريبية)",
+      "provider": "مختبر تجريبي",
+      "date": "2026-09-10T10:00:00.000Z",
+      "amount": 150,
+      "covered": 0,
+      "patient": 150,
+      "status": "rejected",
+      "rejectionReason": "سبب تجريبي"
+    }
+  ],
+  "/refunds/my": [
+    {
+      "id": "test-r1",
+      "reason": "استرداد تجريبي",
+      "refund_amount": 120,
+      "state": "REQUESTED",
+      "createdAt": "2026-09-25T10:00:00.000Z"
+    }
+  ],
+  "/providers?insurance_company=TEST&insurance_network=NET&insurance_class=A": [
+    {
+      "id": "test-p1",
+      "type": "hospital",
+      "name_ar": "مستشفى تجريبي",
+      "name_en": "TEST hospital",
+      "city": "الرياض",
+      "phone": "+966500000000",
+      "specialties": [
+        "باطنة"
+      ]
+    },
+    {
+      "id": "test-p2",
+      "type": "pharmacy",
+      "name_ar": "صيدلية تجريبية",
+      "name_en": "TEST pharmacy",
+      "city": "جدة"
+    }
+  ],
+  "/insurance/coverage-check?service_type=consultation": {
+    "covered": true,
+    "copay_percent": 20,
+    "copay_flat": 50,
+    "requires_preauth": false,
+    "company_name_ar": "شركة تجريبية",
+    "class": "A"
   }
 }

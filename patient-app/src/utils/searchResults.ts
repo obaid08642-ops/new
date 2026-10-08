@@ -121,7 +121,7 @@ export function routeFor(r: SearchResult): { pathname: string; params?: Record<s
     case 'أشعة': return { pathname: '/diagnostics/test-detail', params: { id, type: 'radiology' } };
     case 'مقال':
     case 'مرض': return `/articles/${r.slug || id}`;
-    case 'تأمين': return '/insurance/hub';
+    case 'تأمين': return '/insurance';
     case 'مجتمع': return { pathname: '/community/post-detail', params: { id } };
     case 'عائلة': return { pathname: '/family/member-health', params: { id } };
     default: return null;
