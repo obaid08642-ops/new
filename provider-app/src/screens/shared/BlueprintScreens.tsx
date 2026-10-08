@@ -1,7 +1,6 @@
 // F51: split into ./blueprint/ — one file per screen. Re-exports keep existing imports working.
 export { PromotionsDashboard } from './blueprint/PromotionsDashboard';
 export { CreateCampaignScreen } from './blueprint/CreateCampaignScreen';
-export { ProfileWebConfig } from './blueprint/ProfileWebConfig';
 export { SubscriptionsAdsScreen } from './blueprint/SubscriptionsAdsScreen';
 export { AffiliatePortal } from './blueprint/AffiliatePortal';
 export { ReputationHub } from './blueprint/ReputationHub';

@@ -26,7 +26,7 @@ import { DoctorUrgentRequests } from '../components/DoctorUrgentRequests';
 import { DoctorQueueList } from '../components/DoctorQueueList';
 import { FacilityInvitationsScreen } from '../FacilityInvitationsScreen';
 import {
- PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
+ PromotionsDashboard, CreateCampaignScreen, 
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
  LiveOrderAlarmModal, CrmHub, RevenueInsights, AiMedicalCopilot,
  SmartOutboundReferralNetwork, SosDispatchScreen, GpsRouterScreen
@@ -41,13 +41,12 @@ import { MedicalReportScreen } from './MedicalReportScreen';
 import { ReferralScreen } from './ReferralScreen';
 import { DoctorAvailabilityScreen } from './DoctorAvailabilityScreen';
 import { DoctorServiceManagementScreen } from './DoctorServiceManagementScreen';
-import { CertificatesConfigScreen, PreVisitChatScreen, InboundMedicalReportsScreen } from './CertificatesConfigScreen';
-import { DoctorLocationScreen } from './DoctorLocationScreen';
+import { CertificatesConfigScreen, ProviderWalletScreen, ProviderProfileEditor } from '../../shared/SharedScreens';
+import { PreVisitChatScreen } from './PreVisitChatScreen';
+import { InboundMedicalReportsScreen } from './InboundMedicalReportsScreen';
 
-import { DoctorWalletTab } from './DoctorWalletTab';
 import { DoctorSettingsTab } from './DoctorSettingsTab';
 import { PatientFileScreen } from './PatientFileScreen';
-import { DoctorProfileEditScreen } from './DoctorProfileEditScreen';
 import { LiveConsultationScreen } from './LiveConsultationScreen';
 import { AppointmentDetailScreen } from './AppointmentDetailScreen';
 import { DoctorScheduleTab } from './DoctorScheduleTab';
@@ -83,7 +82,7 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
              {activeTab === 'home' && <DoctorHomeTab onNavigate={navigateTo} onTriggerAlarm={() => setAlarmVisible(true)} />}
              {activeTab === 'schedule' && <DoctorScheduleTab onNavigate={navigateTo} />}
              {activeTab === 'chat' && <ChatSystem onBack={() => setActiveTab('home')} />}
-             {activeTab === 'wallet' && <DoctorWalletTab onNavigate={navigateTo} />}
+             {activeTab === 'wallet' && <ProviderWalletScreen embedded revenueRoute="revenue_insights" onNavigate={navigateTo} />}
              {activeTab === 'settings' && <DoctorSettingsTab onLogout={onLogout} onNavigate={navigateTo} />}
              {activeTab === 'drugs' && <MedicalDrugIndexScreen onBack={() => setActiveTab('home')} />}
              {activeTab === 'jobs' && <MedicalJobsScreen onBack={() => setActiveTab('home')} />}
@@ -112,7 +111,7 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
      <Stack.Screen name="service_management">{({ navigation }: any) => <DoctorServiceManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="promotions">{({ navigation }: any) => <PromotionsDashboard onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="create_promo">{({ navigation }: any) => <CreateCampaignScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-     <Stack.Screen name="web_config">{({ navigation }: any) => <ProfileWebConfig onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="web_config">{({ navigation }: any) => <ProviderProfileEditor role="doctor" initialSection="public" onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="subscriptions_ads">{({ navigation }: any) => <SubscriptionsAdsScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="affiliate">{({ navigation }: any) => <AffiliatePortal onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="reputation">{({ navigation }: any) => <ReputationHub onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -121,7 +120,7 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
      <Stack.Screen name="outbound_referral">{({ navigation }: any) => <SmartOutboundReferralNetwork onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="sos_dispatch">{({ navigation }: any) => <SosDispatchScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="gps_router">{({ navigation, route }: any) => <GpsRouterScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
-     <Stack.Screen name="profile_edit">{({ navigation }: any) => <DoctorProfileEditScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="profile_edit">{({ navigation }: any) => <ProviderProfileEditor role="doctor" onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="insurance_config">{({ navigation }: any) => <InsuranceConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
     <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="certificates_config">{({ navigation }: any) => <CertificatesConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -131,7 +130,7 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
      <Stack.Screen name="medical_jobs">{({ navigation }: any) => <MedicalJobsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="facility_invitations">{({ navigation }: any) => <FacilityInvitationsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-     <Stack.Screen name="location_config">{({ navigation }: any) => <DoctorLocationScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="location_config">{({ navigation }: any) => <ProviderProfileEditor role="doctor" initialSection="location" onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="inbound_reports">{({ navigation }: any) => <InboundMedicalReportsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="video_call">{({ navigation, route }: any) => {
        const appointment = route.params?.param || {};

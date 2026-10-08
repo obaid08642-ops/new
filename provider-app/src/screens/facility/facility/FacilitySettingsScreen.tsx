@@ -23,7 +23,7 @@ import { InsuranceRequestsScreen } from '../../shared/InsuranceRequestsScreen';
 import { EPrescriptionScreen } from '../../doctor/DoctorDashboard';
 import { FleetScreen } from '../../shared/FleetScreen';
 import {
- PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
+ PromotionsDashboard, CreateCampaignScreen, 
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
  LiveOrderAlarmModal, CrmHub, RevenueInsights,
  SosDispatchScreen, GpsRouterScreen

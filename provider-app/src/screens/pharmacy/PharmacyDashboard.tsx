@@ -46,9 +46,9 @@ import { PharmacyInsuranceQueueScreen } from './PharmacyInsuranceDecision';
 import { PharmacyMoreScreen, SetupChecklist } from './PharmacyMore';
 import { buildHeaders, Biometric, SK, Vault } from '../../security/Security';
 import client from '../../api/client';
-import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderHomeStats, GlobalSystemSettings } from '../shared/SharedScreens';
+import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderProfileEditor, ProviderHomeStats, GlobalSystemSettings } from '../shared/SharedScreens';
 import {
- PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
+ PromotionsDashboard, CreateCampaignScreen, 
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
  CrmHub, RevenueInsights,
  PharmacyBroadcastResponse, InventoryExpiryMonitor
@@ -148,7 +148,7 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
      <Stack.Screen name="chronic">{({ navigation }: any) => <ChronicDiseaseProgramScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="promotions">{({ navigation }: any) => <PromotionsDashboard onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="create_promo">{({ navigation }: any) => <CreateCampaignScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-     <Stack.Screen name="web_config">{({ navigation }: any) => <ProfileWebConfig onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="web_config">{({ navigation }: any) => <ProviderProfileEditor role="other" onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="subscriptions_ads">{({ navigation }: any) => <SubscriptionsAdsScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="affiliate">{({ navigation }: any) => <AffiliatePortal onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="reputation">{({ navigation }: any) => <ReputationHub onBack={() => navigation.goBack()} />}</Stack.Screen>

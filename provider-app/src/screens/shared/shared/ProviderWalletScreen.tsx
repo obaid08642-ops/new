@@ -27,7 +27,9 @@ import { useInsuranceCatalog } from '../../../api/catalogs';
 import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
 
-export function ProviderWalletScreen({ onBack, onNavigate }: { onBack: () => void; onNavigate?: (s: string) => void }) {
+// One wallet for every provider role. Used as a stack route (with a back button) and as the doctor's Wallet tab
+// (`embedded`, no back button). `revenueRoute` adds a link to the role's revenue report when the navigator has one.
+export function ProviderWalletScreen({ onBack, onNavigate, embedded, revenueRoute }: { onBack?: () => void; onNavigate?: (s: string) => void; embedded?: boolean; revenueRoute?: string }) {
   const { theme } = useTheme(); const { lang } = useLang(); const { user } = useAuth(); const AR = lang === 'ar';
   const [balance, setBalance] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
@@ -72,7 +74,7 @@ export function ProviderWalletScreen({ onBack, onNavigate }: { onBack: () => voi
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'المحفظة والإيرادات' : 'Wallet & Revenue'} onBack={onBack} />
+      <NHeader title={AR ? 'المحفظة والإيرادات' : 'Wallet & Revenue'} onBack={embedded ? undefined : onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.lg }}>
         <NCard style={{ backgroundColor: theme.primary, alignItems: 'center', padding: SP.xxl, marginBottom: SP.lg }}>
           <Text style={{ color: '#fff', opacity: 0.8, fontSize: FS.sm }}>{AR ? 'الرصيد المتاح للسحب' : 'Available Balance'}</Text>
@@ -86,6 +88,10 @@ export function ProviderWalletScreen({ onBack, onNavigate }: { onBack: () => voi
             labelStyle={{ color: theme.primary }} 
           />
         </NCard>
+
+        {revenueRoute && onNavigate ? (
+          <NBtn label={AR ? 'التقارير والإحصائيات' : 'Revenue Insights & Reports'} variant="outline" onPress={() => onNavigate(revenueRoute)} style={{ marginBottom: SP.lg }} />
+        ) : null}
 
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.md }}>
           <NStatCard icon="trendingUp" label={AR ? 'إجمالي الإيرادات' : 'Total Revenue'} value={String(totalRevenue)} unit={AR ? 'ر' : 'SAR'} color={theme.success} style={{ flex: 1 }} />

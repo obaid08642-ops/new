@@ -36,13 +36,13 @@ import { SP, R, FS, FW, C } from '../../constants';
 import { useServicesCatalog } from '../../api/catalogs';
 
 import {
- PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
+ PromotionsDashboard, CreateCampaignScreen, 
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
  LiveOrderAlarmModal, CrmHub, RevenueInsights,
  SosDispatchScreen, GpsRouterScreen,
  NurseVisitConsole, NurseChecklistConsole
 } from '../shared/BlueprintScreens';
-import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, WithdrawalWorkflow, ProviderHomeStats, GlobalSystemSettings } from '../shared/SharedScreens';
+import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderProfileEditor, WithdrawalWorkflow, ProviderHomeStats, GlobalSystemSettings } from '../shared/SharedScreens';
 import { NotificationsCenterScreen, SecurityManagementScreen } from '../shared/RealScreens';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -191,7 +191,7 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
 
       <Stack.Screen name="promotions">{({ navigation }: any) => <PromotionsDashboard onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="create_promo">{({ navigation }: any) => <CreateCampaignScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-      <Stack.Screen name="web_config">{({ navigation }: any) => <ProfileWebConfig onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="web_config">{({ navigation }: any) => <ProviderProfileEditor role="nursing" initialSection="public" onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="subscriptions_ads">{({ navigation }: any) => <SubscriptionsAdsScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="affiliate">{({ navigation }: any) => <AffiliatePortal onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="reputation">{({ navigation }: any) => <ReputationHub onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -201,7 +201,7 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
       <Stack.Screen name="gps_router">{({ navigation, route }: any) => <GpsRouterScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="nurse_visit">{({ navigation }: any) => <NurseVisitConsole onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="nurse_checklist">{({ navigation }: any) => <NurseChecklistConsole onBack={() => navigation.goBack()} />}</Stack.Screen>
-      <Stack.Screen name="profile_edit">{({ navigation }: any) => <NursingProfileEditScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="profile_edit">{({ navigation }: any) => <ProviderProfileEditor role="nursing" onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="medical_jobs">{({ navigation }: any) => <MedicalJobsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="insurance_config">{({ navigation }: any) => <InsuranceConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -1445,98 +1445,6 @@ const st = StyleSheet.create({
  chip:{paddingHorizontal:SP.lg,paddingVertical:SP.sm,borderRadius:R.full,borderWidth:1.5},
  checkRow:{borderRadius:R.lg,borderWidth:1.5,padding:SP.lg,gap:SP.md,alignItems:'center',marginBottom:SP.sm},
 });
-
-function NursingProfileEditScreen({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme();
- const { lang } = useLang();
- const { show } = useToast();
- const { user } = useAuth();
- const AR = lang === 'ar';
-
- const [loading, setLoading] = useState(false);
- const [profile, setProfile] = useState<any>(null);
- const [nameAr, setNameAr] = useState('');
- const [nameEn, setNameEn] = useState('');
- const [descAr, setDescAr] = useState('');
- const [descEn, setDescEn] = useState('');
- const [web, setWeb] = useState('');
- const [avatarUrl, setAvatarUrl] = useState('');
-
- useEffect(() => {
- fetchProfile();
- }, []);
-
- const fetchProfile = async () => {
- setLoading(true);
- try {
- const res = await client.get('/provider/profile');
- setProfile(res.data);
- setNameAr(res.data.display_name_ar || '');
- setNameEn(res.data.display_name_en || '');
- setDescAr(res.data.description_ar || '');
- setDescEn(res.data.description_en || '');
- setWeb(res.data.website || '');
- setAvatarUrl(res.data.profile_image_id || '');
- } catch (err) {
- show(AR ? 'فشل تحميل الملف الشخصي' : 'Failed to load profile', 'error');
- } finally {
- setLoading(false);
- }
- };
-
- const handleSave = async () => {
- setLoading(true);
- try {
- await client.patch('/provider/profile', {
- display_name_ar: nameAr,
- display_name_en: nameEn,
- description_ar: descAr,
- description_en: descEn,
- website: web,
- ...(avatarUrl ? { profile_image_id: avatarUrl } : {}),
- });
- show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
- onBack();
- } catch (err) {
- show(AR ? 'فشل حفظ الملف الشخصي' : 'Failed to save profile', 'error');
- } finally {
- setLoading(false);
- }
- };
-
- return (
- <View style={{ flex: 1, backgroundColor: theme.bg }}>
- <NScroll>
- <NHeader title={AR ? 'معلومات الحساب' : 'Account Info'} onBack={onBack} />
- {loading && !profile ? (
- <ActivityIndicator color={theme.primary} style={{ marginTop: SP.xl }} />
- ) : (
- <View style={{ padding: SP.xl, gap: SP.lg }}>
- <NCard style={{ alignItems: 'center', paddingVertical: SP.xl }}>
- <NAvatar name={nameEn || user?.displayName} size={80} />
- 
- <NProfileImageUploader 
- ownerType="nurse" 
- onProcessComplete={(urls) => {
- setAvatarUrl(urls.processed);
- show(AR ? 'تم تحديث الصورة الشخصية' : 'Profile picture updated', 'success');
- }}
- />
- </NCard>
-
- <NInput label={AR ? 'الاسم بالكامل (العربية)' : 'Full Name (Arabic)'} value={nameAr} onChange={setNameAr} required />
- <NInput label={AR ? 'الاسم بالكامل (الإنجليزية)' : 'Full Name (English)'} value={nameEn} onChange={setNameEn} required />
- <NInput label={AR ? 'النبذة التعريفية (العربية)' : 'Bio (Arabic)'} value={descAr} onChange={setDescAr} multi lines={3} />
- <NInput label={AR ? 'النبذة التعريفية (الإنجليزية)' : 'Bio (English)'} value={descEn} onChange={setDescEn} multi lines={3} />
- <NInput label={AR ? 'الموقع الإلكتروني' : 'Website'} value={web} onChange={setWeb} />
-
- <NBtn label={AR ? ' حفظ التعديلات' : ' Save Changes'} onPress={handleSave} loading={loading} style={{ marginTop: SP.lg }} />
- </View>
- )}
-  </NScroll>
-  </View>
-  );
-}
 
 // ══════════════════════════════════════════════════════════════════
 // PRE-VISIT CHAT
