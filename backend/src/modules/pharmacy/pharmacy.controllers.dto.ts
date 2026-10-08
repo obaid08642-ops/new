@@ -85,6 +85,15 @@ export class UpdateDto {
   @IsArray()
   items: any[];
 
+  /** D-10: a prescription attached after the draft was created. */
+  @IsOptional()
+  @IsArray()
+  prescription_attachments?: unknown[];
+
+  @IsOptional()
+  @IsString()
+  prescription_id?: string;
+
   @IsOptional()
   @IsObject()
   @ValidateNested()
