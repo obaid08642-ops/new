@@ -428,6 +428,38 @@ Background: `docs/review/INCIDENT_2026-10-08_PUBLIC_BACKUPS.md`.
 
 This page reports what happened. It does not replace the alerts: a backup failure or an error spike also sends an email or push to the owner.
 
+## I. Added 2026-10-08 (owner)
+
+### 35. Insurance is relay-only
+
+1. Nabd+ has **no integration with any insurer** and never contacts one. There is no NPHIES or insurer-portal connection, now or planned.
+2. When the patient picks **Insurance**, the request and the data the provider needs (company, class, policy number, card image, the order or booking) go **only to the provider contracted with that company and class** (decision 30).
+3. The provider requests the approval **in its own systems** (NPHIES or the insurer portal), then updates the request in the provider app:
+   - approved in full, approved in part, or rejected;
+   - the approval number, and the co-pay (percentage or amount);
+   - the reason, when rejected.
+4. The patient is notified at every change. On a partial approval they pay the co-pay; on a rejection they pay themselves or cancel at no charge.
+5. The provider-app inbox is the shared `InsuranceRequestsScreen` (`/insurance/requests/provider/queue`, `/insurance/requests/:id/decide`). The old doctor `InsuranceClaimScreen` (unrouted, sent a hard-coded "APPROVED" and an invented 80 %) is removed (#712).
+6. Backend endpoints named `nphies*` answer from data stored on file. They are renamed or removed so that nothing implies a live check (queue D-37).
+
+### 36. Legal documents are published now
+
+1. The five texts in `docs/legal/` (patient terms, privacy policy, provider agreement, telehealth consent, cancellation and refund) are published in the apps now, as version 1.0. There are no real users yet.
+2. A lawyer reviews them later. Any change after that is a new version; a new major version forces re-acceptance.
+3. Every app screen that shows a legal text reads it from `legal_policies` (`/legal/policy/:key`). Nothing is hard-coded in a screen (queue D-38).
+4. The placeholders (trade name, CR number, address, email) are filled from admin before launch.
+
+### 37. Licensing model: a pure marketplace
+
+1. Every provider is a **licensed facility**, or a licensed practitioner listed **under** a licensed facility: doctors, nurses, lab and radiology staff, pharmacists.
+   - SCFHS registration for each practitioner.
+   - A MOH (or SFDA, for pharmacies) facility licence that is valid on the day of every order.
+2. Nabd+ employs nobody who provides care. It does not sell medicine or hold stock.
+3. Online consultations only go through a facility licensed for telehealth. Home visits, nursing, labs, radiology and pharmacy go through facilities licensed for that service.
+4. Expired licences block the provider automatically (licence expiry date stored and checked).
+5. The legal entity for Nabd+ is a **commercial registration** (an individual establishment is enough to start), not a freelance document (see `LEGAL_RESEARCH_2026-10-08.md` §6–7).
+6. Patient payments are **not held** by Nabd+. The payment gateway settles each provider's share directly (marketplace/split settlement), and Nabd+ receives only its commission. This avoids the need for a SAMA payment licence.
+
 ## Order of work (reviewer's proposal)
 
 1. **Item 16 (module switches) first.** It lets the owner hide a module at once while its removal or merge is still being built.
