@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import Head from 'next/head';
+import { DataTable } from '@/components/DataTable';
 import { adminFetch, apiErrorMessage, toQuery } from '@/lib/admin-client';
 
 type PriceAuditRecord = {
@@ -115,64 +116,42 @@ export default function PriceOverrideAuditPage() {
         </div>
 
         {/* Audit Table */}
-        <div className="overflow-x-auto rounded-2xl border bg-white shadow-sm">
-          <table className="min-w-full text-right text-sm">
-            <thead className="bg-slate-50 text-xs text-slate-600">
-              <tr>
-                <th className="p-4">الوقت</th>
-                <th className="p-4">الصيدلية</th>
-                <th className="p-4">الدواء (SKU)</th>
-                <th className="p-4">السعر الرسمي (SFDA)</th>
-                <th className="p-4">السعر المعدل</th>
-                <th className="p-4">نسبة الفرق</th>
-                <th className="p-4">المبرر / المنفّذ</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={7} className="p-10 text-center text-slate-500">جارٍ تحميل سجل التدقيق السعري…</td>
-                </tr>
-              ) : data?.data?.length ? (
-                data.data.map((row) => (
-                  <tr key={row.id} className="border-t hover:bg-slate-50">
-                    <td className="p-4 text-xs text-slate-500">
-                      {row.created_at ? new Date(row.created_at).toLocaleString('ar-SA-u-ca-gregory') : '—'}
-                    </td>
-                    <td className="p-4 font-medium text-slate-900">{row.pharmacy_name || row.pharmacy_id}</td>
-                    <td className="p-4">
-                      <div>{row.medicine_name || row.medicine_sku}</div>
-                      <div className="text-xs text-slate-400">{row.medicine_sku}</div>
-                    </td>
-                    <td className="p-4 font-semibold text-slate-700">{row.official_sfda_price.toFixed(2)} ر.س</td>
-                    <td className="p-4 font-semibold text-slate-900">{row.override_price.toFixed(2)} ر.س</td>
-                    <td className="p-4">
-                      <span
-                        className={`rounded-md px-2 py-0.5 text-xs font-semibold ${
-                          row.difference_pct > 0
-                            ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                            : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                        }`}
-                      >
-                        {row.difference_pct > 0 ? `+${row.difference_pct}%` : `${row.difference_pct}%`}
-                      </span>
-                    </td>
-                    <td className="p-4 text-xs text-slate-600">
-                      <div>{row.reason || 'تحديث دوري من المورد'}</div>
-                      <div className="text-slate-400 mt-0.5">{row.updated_by || 'النظام التلقائي'}</div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={7} className="p-10 text-center text-slate-500">
-                    لا توجد سجلات تعديل أسعار مطابقة.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          rows={data?.data ?? []}
+          getRowKey={(row) => row.id}
+          loading={loading}
+          loadingText="جارٍ تحميل سجل التدقيق السعري…"
+          emptyText="لا توجد سجلات تعديل أسعار مطابقة."
+          columns={[
+            { key: 'time', header: 'الوقت', className: 'text-xs text-slate-500', render: (row) => (row.created_at ? new Date(row.created_at).toLocaleString('ar-SA-u-ca-gregory') : '—') },
+            { key: 'pharmacy', header: 'الصيدلية', className: 'font-medium text-slate-900', render: (row) => row.pharmacy_name || row.pharmacy_id },
+            { key: 'medicine', header: 'الدواء (SKU)', render: (row) => (
+              <>
+                <div>{row.medicine_name || row.medicine_sku}</div>
+                <div className="text-xs text-slate-400">{row.medicine_sku}</div>
+              </>
+            ) },
+            { key: 'official', header: 'السعر الرسمي (SFDA)', className: 'font-semibold text-slate-700', render: (row) => `${row.official_sfda_price.toFixed(2)} ر.س` },
+            { key: 'override', header: 'السعر المعدل', className: 'font-semibold text-slate-900', render: (row) => `${row.override_price.toFixed(2)} ر.س` },
+            { key: 'diff', header: 'نسبة الفرق', render: (row) => (
+              <span
+                className={`rounded-md px-2 py-0.5 text-xs font-semibold ${
+                  row.difference_pct > 0
+                    ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                    : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                }`}
+              >
+                {row.difference_pct > 0 ? `+${row.difference_pct}%` : `${row.difference_pct}%`}
+              </span>
+            ) },
+            { key: 'reason', header: 'المبرر / المنفّذ', className: 'text-xs text-slate-600', render: (row) => (
+              <>
+                <div>{row.reason || 'تحديث دوري من المورد'}</div>
+                <div className="text-slate-400 mt-0.5">{row.updated_by || 'النظام التلقائي'}</div>
+              </>
+            ) },
+          ]}
+        />
 
         {/* Pagination */}
         <div className="mt-4 flex items-center justify-between text-sm text-slate-600">

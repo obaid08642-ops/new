@@ -180,19 +180,19 @@ export default function FinancialLedger() {
             </div>
           )}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-blue-500">
+            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm border-e-4 border-e-blue-500">
               <p className="text-sm text-gray-500 font-bold mb-1">Total Out-of-Pocket Balance</p>
               <h3 className="text-2xl font-bold text-gray-900">{money(summary?.gross_revenue)}</h3>
             </div>
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-amber-500">
+            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm border-e-4 border-e-amber-500">
               <p className="text-sm text-gray-500 font-bold mb-1">Escrow Cash Holding Pool</p>
               <h3 className="text-2xl font-bold text-gray-900">{money(summary?.provider_pending_escrow)}</h3>
             </div>
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-teal-500">
+            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm border-e-4 border-e-teal-500">
               <p className="text-sm text-gray-500 font-bold mb-1">Commission Wallet Revenue Ledger</p>
               <h3 className="text-2xl font-bold text-gray-900">{money(summary ? summary.commission + summary.vat_on_commission : null)}</h3>
             </div>
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-purple-500">
+            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm border-e-4 border-e-purple-500">
               <p className="text-sm text-gray-500 font-bold mb-1">Payout Request Queue</p>
               <h3 className="text-2xl font-bold text-gray-900">{money(payoutQueueTotal)}</h3>
             </div>

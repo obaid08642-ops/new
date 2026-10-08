@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Head from 'next/head';
+import { DataTable } from '@/components/DataTable';
+import { FilterSheet } from '@/components/FilterSheet';
 import { adminFetch, apiErrorMessage, toQuery } from '@/lib/admin-client';
 
 type AuditLog = {
@@ -67,7 +69,7 @@ export default function AuditLogsPage() {
     <section dir="rtl" className="p-6 md:p-8">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div><h1 className="text-3xl font-bold">سجل التدقيق</h1><p className="mt-1 text-sm text-slate-500">سجل خادمي غير قابل للتلاعب لعمليات الإدارة المؤثرة.</p></div>
-        <div className="flex flex-wrap gap-2">
+        <FilterSheet className="flex flex-wrap gap-2">
           <input className="rounded-lg border px-3 py-2 text-sm" value={action} onChange={(e) => { setAction(e.target.value); setPage(1); }} placeholder="تصفية باسم الإجراء" />
           <input className="rounded-lg border px-3 py-2 text-sm" value={adminId} onChange={(e) => { setAdminId(e.target.value); setPage(1); }} placeholder="معرّف المنفّذ" />
           <input className="rounded-lg border px-3 py-2 text-sm" value={targetType} onChange={(e) => { setTargetType(e.target.value); setPage(1); }} placeholder="نوع المورد" />
@@ -76,14 +78,23 @@ export default function AuditLogsPage() {
           <label className="text-xs text-slate-500">إلى<input type="date" value={to} onChange={(e) => { setTo(e.target.value); setPage(1); }} className="mt-1 w-full rounded-lg border px-3 py-2 text-sm" /></label>
           <button onClick={() => void load()} className="rounded-lg bg-teal-700 px-4 py-2 text-sm font-bold text-white">تحديث</button>
           <button onClick={exportCsv} disabled={!data.data.length} className="rounded-lg border border-teal-700 px-4 py-2 text-sm font-bold text-teal-800 disabled:opacity-40">تصدير CSV (الصفحة الحالية)</button>
-        </div>
+        </FilterSheet>
       </div>
       {error ? <p role="alert" className="mb-4 rounded-lg bg-rose-50 p-3 text-rose-700">{error}</p> : null}
-      <div className="overflow-x-auto rounded-2xl border bg-white shadow-sm">
-        <table className="min-w-full text-right text-sm"><thead className="bg-slate-50 text-xs text-slate-600"><tr><th className="p-4">الوقت</th><th className="p-4">المنفّذ</th><th className="p-4">الإجراء</th><th className="p-4">المورد</th><th className="p-4">السبب</th></tr></thead>
-          <tbody>{loading ? <tr><td colSpan={5} className="p-10 text-center text-slate-500">جارٍ تحميل السجل…</td></tr> : data.data.length ? data.data.map((row) => <tr key={row.id} className="border-t"><td className="p-4 text-xs text-slate-500">{row.createdAt ? new Date(row.createdAt).toLocaleString('ar-SA-u-ca-gregory') : '—'}</td><td className="p-4">{row.actor?.full_name || row.actor?.email || row.actor?.id || '—'}</td><td className="p-4 font-medium">{row.action}</td><td className="p-4">{row.target_type || '—'} {row.target_id || ''}</td><td className="p-4 text-slate-600">{row.reason || '—'}</td></tr>) : <tr><td colSpan={5} className="p-10 text-center text-slate-500">لا توجد نتائج مطابقة.</td></tr>}</tbody>
-        </table>
-      </div>
+      <DataTable
+        rows={data.data}
+        getRowKey={(row) => row.id}
+        loading={loading}
+        loadingText="جارٍ تحميل السجل…"
+        emptyText="لا توجد نتائج مطابقة."
+        columns={[
+          { key: 'time', header: 'الوقت', className: 'text-xs text-slate-500', render: (row) => (row.createdAt ? new Date(row.createdAt).toLocaleString('ar-SA-u-ca-gregory') : '—') },
+          { key: 'actor', header: 'المنفّذ', render: (row) => row.actor?.full_name || row.actor?.email || row.actor?.id || '—' },
+          { key: 'action', header: 'الإجراء', className: 'font-medium', render: (row) => row.action },
+          { key: 'resource', header: 'المورد', render: (row) => <>{row.target_type || '—'} {row.target_id || ''}</> },
+          { key: 'reason', header: 'السبب', className: 'text-slate-600', render: (row) => row.reason || '—' },
+        ]}
+      />
       <div className="mt-4 flex items-center justify-between text-sm"><span>إجمالي السجلات: {data.total}</span><div className="flex gap-2"><button disabled={page <= 1 || loading} onClick={() => setPage((value) => value - 1)} className="rounded border px-3 py-1 disabled:opacity-40">السابق</button><span className="px-2">{data.page} / {data.pages || 1}</span><button disabled={page >= (data.pages || 1) || loading} onClick={() => setPage((value) => value + 1)} className="rounded border px-3 py-1 disabled:opacity-40">التالي</button></div></div>
     </section>
   </>;
