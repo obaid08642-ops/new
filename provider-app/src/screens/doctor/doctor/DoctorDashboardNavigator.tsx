@@ -29,7 +29,7 @@ import {
  PromotionsDashboard, CreateCampaignScreen, 
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
  LiveOrderAlarmModal, CrmHub, RevenueInsights, AiMedicalCopilot,
- SmartOutboundReferralNetwork, SosDispatchScreen, GpsRouterScreen
+ SmartOutboundReferralNetwork
 } from '../../shared/BlueprintScreens';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
@@ -89,7 +89,7 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
              <NBottomNav tabs={tabs} active={activeTab} onPress={setActiveTab} />
              <LiveOrderAlarmModal
                visible={alarmVisible}
-               onAccept={() => { setAlarmVisible(false); navigateTo('sos_dispatch'); }}
+               onAccept={() => { setAlarmVisible(false); setActiveTab('home'); }}
                onDecline={() => setAlarmVisible(false)}
              />
            </View>
@@ -118,8 +118,6 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
      <Stack.Screen name="crm">{({ navigation }: any) => <CrmHub onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="ai_copilot">{({ navigation }: any) => <AiMedicalCopilot onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="outbound_referral">{({ navigation }: any) => <SmartOutboundReferralNetwork onBack={() => navigation.goBack()} />}</Stack.Screen>
-     <Stack.Screen name="sos_dispatch">{({ navigation }: any) => <SosDispatchScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
-     <Stack.Screen name="gps_router">{({ navigation, route }: any) => <GpsRouterScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="profile_edit">{({ navigation }: any) => <ProviderProfileEditor role="doctor" onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="insurance_config">{({ navigation }: any) => <InsuranceConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
     <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>

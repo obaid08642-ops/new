@@ -10,7 +10,6 @@ import { IBg, I } from '../../components/icons';
 import { SP, R, FS, FW } from '../../constants';
 import { ProviderWalletScreen, WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen } from '../shared/SharedScreens';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
-import { GpsRouterScreen } from '../shared/BlueprintScreens';
 
 // ══════ PILLAR 1: STATE MACHINE LABELS ══════
 const STATE_LABELS: Record<string, { ar: string; en: string; color: string }> = {
@@ -76,7 +75,6 @@ export function RadiologyDashboardNavigator({ onLogout }: { onLogout: () => void
       <Stack.Screen name="order_detail">{({ navigation, route }: any) => <OrderDetailScreen order={route.params?.param} onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="reporting">{({ navigation, route }: any) => <ReportingScreen order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-     <Stack.Screen name="home_visit">{({ navigation, route }: any) => <GpsRouterScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="wallet">{({ navigation }: any) => <ProviderWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -339,7 +337,6 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
         </>)}
         {currentOrder.state === 'IN_SCANNING' && (<>
           <NBtn label={AR?' رفع التقرير والنتائج':' Upload Report & Results'} onPress={() => onNav('reporting', currentOrder)} />
-          <NBtn label={AR?' زيارة منزلية (تتبع GPS)':' Home visit (GPS tracking)'} variant="outline" onPress={() => onNav('home_visit', currentOrder)} />
           <NBtn label={AR?' إلغاء الفحص طارئ':' Emergency Abort Scan'} variant="danger" onPress={() => setShowAbort(true)} />
         </>)}
         {currentOrder.state ==='REPORT_DRAFT' && <NBtn label={AR?' إرسال للمراجعة الطبية':' Submit for Radiologist Review'} loading={loading} onPress={() => doAction('submit-report-for-review')} />}

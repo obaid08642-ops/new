@@ -9,8 +9,6 @@ export { CrmHub } from './blueprint/CrmHub';
 export { RevenueInsights } from './blueprint/RevenueInsights';
 export { AiMedicalCopilot } from './blueprint/AiMedicalCopilot';
 export { SmartOutboundReferralNetwork } from './blueprint/SmartOutboundReferralNetwork';
-export { SosDispatchScreen } from './blueprint/SosDispatchScreen';
-export { GpsRouterScreen } from './blueprint/GpsRouterScreen';
 export { NurseVisitConsole } from './blueprint/NurseVisitConsole';
 export { NurseChecklistConsole } from './blueprint/NurseChecklistConsole';
 export { PharmacyBroadcastResponse } from './blueprint/PharmacyBroadcastResponse';

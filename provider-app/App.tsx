@@ -16,6 +16,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { RootProvider, useAuth, useTheme } from './src/context';
 import { SplashScreen, WelcomeScreen, LoginScreen, ForgotPasswordScreen } from './src/screens/auth/AuthScreens';
 import { PendingDashboard } from './src/screens/auth/PendingDashboard';
+import type { BlockedAccountState } from './src/utils/accountStatus';
 import { DoctorRegistration }         from './src/screens/doctor/DoctorRegistration';
 import { DoctorDashboardNavigator }   from './src/screens/doctor/DoctorDashboard';
 import { FacilityRegistration }       from './src/screens/facility/FacilityRegistration';
@@ -28,9 +29,7 @@ import { RadiologyRegistration }     from './src/screens/radiology/RadiologyRegi
 import { RadiologyDashboardNavigator } from './src/screens/radiology/RadiologyDashboard';
 import { NursingRegistration }       from './src/screens/nursing/NursingRegistration';
 import { NursingDashboardNavigator } from './src/screens/nursing/NursingDashboard';
-import { AmbulanceDashboardNavigator } from './src/screens/ambulance/AmbulanceDashboard';
-import { AmbulanceRegistration } from './src/screens/ambulance/AmbulanceRegistration';
-import { MedicalJobsScreen, MedicalDrugIndexScreen } from './src/screens/shared/SharedScreens';
+import { MedicalJobsScreen, MedicalDrugIndexScreen, CertificatesConfigScreen } from './src/screens/shared/SharedScreens';
 
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 
@@ -89,12 +88,17 @@ function AppNavigator() {
     return <SplashScreen onDone={() => {}} />;
   }
 
-  if (appState === 'pending' || appState === 'suspended' || appState === 'rejected' || appState === 'offline') {
+  if (appState === 'pending' || appState === 'needs_changes' || appState === 'suspended' || appState === 'rejected' || appState === 'offline') {
+    // every account that is not approved yet: the screen says which state (reason + resubmit for needs_changes / rejected)
+    const blocked: BlockedAccountState = appState === 'offline' ? 'pending' : appState;
     return (
       <NavigationContainer ref={navigationRef}>
         <Stack.Navigator id={undefined as any} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bg } }}>
           <Stack.Screen name="Pending">
-            {({ navigation }) => <PendingDashboard providerType={pType} onExplore={() => navigation.navigate('GuestJobs' as never)} onLogout={async () => { await logout(); }} />}
+            {({ navigation }) => <PendingDashboard status={blocked} providerType={pType} onExplore={() => navigation.navigate('GuestJobs' as never)} onOpenDocuments={() => navigation.navigate('Documents' as never)} onLogout={async () => { await logout(); }} />}
+          </Stack.Screen>
+          <Stack.Screen name="Documents">
+            {({ navigation }) => <CertificatesConfigScreen onBack={() => navigation.goBack()} />}
           </Stack.Screen>
           <Stack.Screen name="GuestJobs">
             {({ navigation }) => <MedicalJobsScreen onBack={() => navigation.goBack()} />}
@@ -121,7 +125,6 @@ function AppNavigator() {
               if (t === 'home_care' || t === 'nursing' || t === 'nurse') return <NursingDashboardNavigator onLogout={doLogout} />;
               if (t === 'lab' || t === 'laboratory') return <LabDashboardNavigator onLogout={doLogout} />;
               if (t === 'radiology' || t === 'radiologist' || t === 'scan_center') return <RadiologyDashboardNavigator onLogout={doLogout} />;
-              if (t === 'ambulance' || t === 'paramedic' || t === 'emt') return <AmbulanceDashboardNavigator onLogout={doLogout} />;
               return <ProviderHome onLogout={doLogout} />;
             }}
           </Stack.Screen>
@@ -144,7 +147,6 @@ function AppNavigator() {
                 if (pType === 'lab') return <LabRegistration providerType={pType} onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
                 if (pType === 'radiology') return <RadiologyRegistration onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
                 if (pType === 'nursing')  return <NursingRegistration  onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
-                if (pType === 'ambulance') return <AmbulanceRegistration onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
                 return <PendingDashboard providerType={pType} onExplore={() => {}} onLogout={() => navigation.goBack()} />;
               }}
             </Stack.Screen>

@@ -17,7 +17,6 @@ describe('Provider App release contracts', () => {
   const facilityDashboard = readSplit('screens/facility/facility');
   const nursingDashboard = read('screens/nursing/NursingDashboard.tsx');
   const nursingFieldOps = read('screens/nursing/NursingFieldOps.tsx');
-  const ambulanceDashboard = read('screens/ambulance/AmbulanceDashboard.tsx');
   const sharedBlueprint = readSplit('screens/shared/blueprint');
   const sharedScreens = readSplit('screens/shared/shared');
   const app = fs.readFileSync(path.join(root, 'App.tsx'), 'utf8');
@@ -123,11 +122,13 @@ describe('Provider App release contracts', () => {
     expect(sharedBlueprint).toContain('/provider/referral-network');
     expect(sharedBlueprint).toContain('/provider/referrals');
     expect(sharedBlueprint).toContain('/provider/promotions');
-    expect(sharedBlueprint).toContain("client.get('/provider/profile')");
-    expect(sharedBlueprint).toContain("client.patch('/provider/profile'");
+    // M8: one profile editor (shared/shared/ProviderProfileEditor) for the profile, location and public-page sections
+    expect(sharedScreens).toContain("client.get('/provider/profile')");
+    expect(sharedScreens).toContain("client.patch('/provider/profile'");
     expect(sharedBlueprint).not.toContain('/provider/features/');
     expect(facilityDashboard).toContain("client.get('/facility/shifts')");
-    expect(app).toContain('AmbulanceDashboardNavigator');
+    // decision 14: the ambulance provider type is gone from the app
+    expect(app).not.toContain('Ambulance');
   });
 
   it('uses server-backed availability rather than a locally online provider or pharmacy', () => {
@@ -149,7 +150,7 @@ describe('Provider App release contracts', () => {
     expect(dashboard).toContain('setError(true);');
   });
 
-  it('fails closed for ungoverned nursing field operations and unavailable ambulance missions', () => {
+  it('fails closed for ungoverned nursing field operations', () => {
     expect(nursingDashboard).not.toContain('/home-care/bookings/${order.id}/respond');
     expect(nursingDashboard).not.toContain('Cash only — no insurance');
     // Field ops run only through verified server commands (no local
@@ -158,8 +159,6 @@ describe('Provider App release contracts', () => {
     expect(nursingFieldOps).toContain('/nursing/visits/${visitId}');
     expect(nursingFieldOps).toContain("import('expo-location')");
     expect(nursingFieldOps).not.toContain("lat: 24.71, lng: 46.67");
-    expect(ambulanceDashboard).not.toContain('setMission({ id })');
-    expect(ambulanceDashboard).toContain('hospital_provider_account_id');
   });
 
   it('isolates native maps behind a web-safe component', () => {
@@ -184,7 +183,7 @@ describe('Provider App release contracts', () => {
 
   it('registration wizards sign in as the onboarding identity (a provider account exists only after submit + review)', () => {
     const all = ['doctor/DoctorRegistration.tsx', 'pharmacy/PharmacyRegistration.tsx', 'lab/LabRegistration.tsx', 'radiology/RadiologyRegistration.tsx',
-      'nursing/NursingRegistration.tsx', 'facility/FacilityRegistration.tsx', 'ambulance/AmbulanceRegistration.tsx'];
+      'nursing/NursingRegistration.tsx', 'facility/FacilityRegistration.tsx'];
     for (const file of all) {
       const src = read(`screens/${file}`);
       expect(src).toMatch(/ProviderApi\.onboardingLogin\(data\.(managerEmail|email), data\.password/);
@@ -214,5 +213,92 @@ describe('Provider App release contracts', () => {
     expect(pharmacyDashboard).not.toContain('name="pharmacy_info"');
     expect(pharmacyDashboard).not.toContain('function PharmacyWalletScreen');
     expect(pharmacyDashboard).toContain('<ProviderWalletScreen');
+  });
+
+  describe('build slice 2: merges, flows and removal', () => {
+    const exists = rel => fs.existsSync(path.join(root, 'src', rel));
+    const doctorNavigator = read('screens/doctor/doctor/DoctorDashboardNavigator.tsx');
+    const facilityNavigator = read('screens/facility/facility/FacilityDashboardNavigator.tsx');
+    const registered = src => new Set([...src.matchAll(/<Stack\.Screen name="([a-zA-Z0-9_]+)"/g)].map(m => m[1]));
+
+    it('M1 one CertificatesConfigScreen; the booking chat and inbound reports have their own files', () => {
+      expect(exists('screens/doctor/doctor/CertificatesConfigScreen.tsx')).toBe(false);
+      expect(exists('screens/doctor/doctor/PreVisitChatScreen.tsx')).toBe(true);
+      expect(exists('screens/doctor/doctor/InboundMedicalReportsScreen.tsx')).toBe(true);
+      expect(doctorNavigator).toMatch(/import \{ CertificatesConfigScreen[^}]*\} from '\.\.\/\.\.\/shared\/SharedScreens'/);
+      for (const r of ['certificates_config', 'pre_visit_chat', 'inbound_reports']) expect(registered(doctorNavigator).has(r)).toBe(true);
+    });
+
+    it('M3 the doctor Wallet tab renders the shared wallet; M4 every revenue route renders RevenueInsights', () => {
+      expect(exists('screens/doctor/doctor/DoctorWalletTab.tsx')).toBe(false);
+      expect(doctorNavigator).toContain('<ProviderWalletScreen embedded');
+      expect(exists('screens/facility/facility/FacilityFinancialScreen.tsx')).toBe(false);
+      for (const r of ['financial', 'auto_reports', 'revenue_insights']) {
+        expect(facilityNavigator).toMatch(new RegExp(`name="${r}">[^\\n]*<RevenueInsights role="facility"`));
+      }
+    });
+
+    it('M7 radiology home and orders tab read one inbox hook', () => {
+      expect((radiologyDashboard.match(/= useRadiologyInbox\(\)/g) || []).length).toBe(2);
+      expect((radiologyDashboard.match(/client\.get\('\/radiology\/provider\/inbox'\)/g) || []).length).toBe(1);
+    });
+
+    it('M8 one profile editor: profile, location and public page are sections of it', () => {
+      for (const f of ['screens/doctor/doctor/DoctorProfileEditScreen.tsx', 'screens/doctor/doctor/DoctorLocationScreen.tsx', 'screens/shared/blueprint/ProfileWebConfig.tsx']) {
+        expect(exists(f)).toBe(false);
+      }
+      expect(nursingDashboard).not.toContain('function NursingProfileEditScreen');
+      expect(doctorNavigator).toContain('name="profile_edit">{({ navigation }: any) => <ProviderProfileEditor role="doctor"');
+      expect(doctorNavigator).toContain('initialSection="location"');
+      expect(nursingDashboard).toContain('<ProviderProfileEditor role="nursing"');
+      expect(sharedScreens).toContain("client.patch('/provider/profile', patch)");
+    });
+
+    it('D2 the doctor keeps the post-visit tools after Finish and prescribes only while IN_PROGRESS', () => {
+      const live = read('screens/doctor/doctor/LiveConsultationScreen.tsx');
+      expect(live).toContain("'IN_PROGRESS', 'COMPLETED'");
+      expect(live).toContain("const canPrescribe = status === 'IN_PROGRESS'");
+      expect(live).toContain('disabled={!canPrescribe}');
+      expect(read('screens/doctor/doctor/EPrescriptionScreen.tsx')).toMatch(/in-progress appointment/);
+    });
+
+    it('N2 every nursing entry point opens the single /nursing/visits flow', () => {
+      const names = registered(nursingDashboard);
+      expect(names.has('order_detail')).toBe(true);
+      expect(names.has('checkin')).toBe(false);
+      expect(names.has('visit_report')).toBe(false);
+      expect(nursingDashboard).not.toMatch(/onNav\('(checkin|visit_report)'/);
+      expect(nursingDashboard).not.toMatch(/screen:'(checkin|visit_report)'/);
+      expect(nursingFieldOps).not.toContain("act('respond'");
+      expect(nursingFieldOps).toContain('/provider/jobs/nursing/${visitId}/${kind}');
+      expect(nursingFieldOps).toContain("act('transit'");
+      expect(nursingFieldOps).toContain("act('start-care'");
+      expect(nursingFieldOps).toContain("act('complete'");
+      // every screen the dashboard navigates to by name is registered (tabs excluded)
+      const tabs = new Set(['home', 'orders', 'jobs', 'drugs', 'settings']);
+      const targets = [...nursingDashboard.matchAll(/\bon(?:Nav|Navigate)\('([a-z_0-9]+)'/g)].map(m => m[1]).filter(n => !tabs.has(n));
+      const quick = [...nursingDashboard.matchAll(/screen:'([a-z_0-9]+)'/g)].map(m => m[1]);
+      for (const t of [...targets, ...quick]) expect({ t, ok: names.has(t) }).toEqual({ t, ok: true });
+    });
+
+    it('A1/A2 not-approved states keep the provider on the status screen with a reason and a refresh', () => {
+      expect(authContext).toContain('mapAccountStatus(status)');
+      expect(authContext).toContain("'needs_changes'");
+      expect(app).toContain("appState === 'needs_changes'");
+      expect(app).toContain('status={blocked}');
+      const pending = read('screens/auth/PendingDashboard.tsx');
+      expect(pending).toContain("client.get('/provider-onboarding/my-profile')");
+      expect(pending).toContain("client.get('/provider-onboarding/progress')");
+      expect(pending).toContain("client.post('/provider/onboarding/submit'");
+    });
+
+    it('decision 14 the ambulance provider type, SOS dispatch and GPS router are gone from the app', () => {
+      expect(exists('screens/ambulance')).toBe(false);
+      for (const f of ['screens/shared/blueprint/SosDispatchScreen.tsx', 'screens/shared/blueprint/GpsRouterScreen.tsx', 'screens/shared/FleetScreen.tsx']) expect(exists(f)).toBe(false);
+      expect(read('constants/index.ts')).not.toContain("key:'ambulance'");
+      for (const src of [doctorNavigator, facilityNavigator, nursingDashboard, radiologyDashboard, pharmacyDashboard, labDashboard]) {
+        expect(src).not.toMatch(/sos_dispatch|gps_router|ambulance_fleet|SosDispatchScreen|GpsRouterScreen|FleetScreen/);
+      }
+    });
   });
 });

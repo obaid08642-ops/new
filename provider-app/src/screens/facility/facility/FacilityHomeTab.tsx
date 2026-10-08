@@ -21,12 +21,10 @@ import client from '../../../api/client';
 import { s } from './_shared';
 import { InsuranceRequestsScreen } from '../../shared/InsuranceRequestsScreen';
 import { EPrescriptionScreen } from '../../doctor/DoctorDashboard';
-import { FleetScreen } from '../../shared/FleetScreen';
 import {
  PromotionsDashboard, CreateCampaignScreen, 
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
- LiveOrderAlarmModal, CrmHub, RevenueInsights,
- SosDispatchScreen, GpsRouterScreen
+ LiveOrderAlarmModal, CrmHub, RevenueInsights
 } from '../../shared/BlueprintScreens';
 import { FacilityProfileConfigScreen } from '../FacilityProfileConfigScreen';
 import { FacilityInvitationScreen } from '../FacilityInvitationScreen';

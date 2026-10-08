@@ -29,7 +29,7 @@ import {
  PromotionsDashboard, CreateCampaignScreen, 
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
  LiveOrderAlarmModal, CrmHub, RevenueInsights, AiMedicalCopilot,
- SmartOutboundReferralNetwork, SosDispatchScreen, GpsRouterScreen
+ SmartOutboundReferralNetwork
 } from '../../shared/BlueprintScreens';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';

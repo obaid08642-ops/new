@@ -37,7 +37,7 @@ import {
  PromotionsDashboard, CreateCampaignScreen, 
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
  LiveOrderAlarmModal, CrmHub, RevenueInsights,
- SosDispatchScreen, GpsRouterScreen,
+ 
  NurseVisitConsole, NurseChecklistConsole
 } from '../shared/BlueprintScreens';
 import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderProfileEditor, WithdrawalWorkflow, ProviderHomeStats, GlobalSystemSettings } from '../shared/SharedScreens';
@@ -168,7 +168,7 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
 
                <LiveOrderAlarmModal
                visible={alarmVisible}
-               onAccept={() => { setAlarmVisible(false); go('sos_dispatch'); }}
+               onAccept={() => { setAlarmVisible(false); setTab('orders'); }}
                onDecline={() => setAlarmVisible(false)}
                />
             </View>
@@ -193,8 +193,6 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
       <Stack.Screen name="reputation">{({ navigation }: any) => <ReputationHub onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="crm">{({ navigation }: any) => <CrmHub onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="revenue_insights">{({ navigation }: any) => <RevenueInsights onBack={() => navigation.goBack()} />}</Stack.Screen>
-      <Stack.Screen name="sos_dispatch">{({ navigation }: any) => <SosDispatchScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
-      <Stack.Screen name="gps_router">{({ navigation, route }: any) => <GpsRouterScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="nurse_visit">{({ navigation }: any) => <NurseVisitConsole onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="nurse_checklist">{({ navigation }: any) => <NurseChecklistConsole onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="profile_edit">{({ navigation }: any) => <ProviderProfileEditor role="nursing" onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -782,7 +780,6 @@ return (
  ...((caps && caps.crm === false) ? [] : [
  { icon:'chart', ar:'إدارة العملاء والأرباح', en:'CRM & Business Insights', action:()=>onNav('crm') },
  ]),
- { icon:'shield', ar:'مراقبة حالات الطوارئ', en:'SOS Dispatch Control', action:()=>onNav('sos_dispatch') },
  { icon:'scan', ar:'وحدة تتبع زيارات التمريض (GPS)', en:'Nurse Visit Tracker (GPS)', action:()=>onNav('nurse_visit') },
  { icon:'document', ar:'قائمة مهام العلامات الحيوية والرعاية', en:'Clinical Vitals Checklist', action:()=>onNav('nurse_checklist') },
  ].map((row, i) => (
