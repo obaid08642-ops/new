@@ -1,5 +1,5 @@
 {
- "commit": "982a2f21",
+ "commit": "53c84ea7",
  "routes": [
   {
    "app": "provider-app",
@@ -1312,7 +1312,7 @@
      "path": "/provider-onboarding/contract",
      "target": "backend",
      "query": "",
-     "line": 56,
+     "line": 58,
      "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513"
@@ -1517,7 +1517,7 @@
      "path": "/provider-onboarding/contract",
      "target": "backend",
      "query": "",
-     "line": 56,
+     "line": 58,
      "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513"
@@ -1722,7 +1722,7 @@
      "path": "/provider-onboarding/contract",
      "target": "backend",
      "query": "",
-     "line": 56,
+     "line": 58,
      "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513"
@@ -1828,7 +1828,7 @@
    "component": "ForgotPasswordScreen",
    "area": "auth-onboarding",
    "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-   "line": 572,
+   "line": 571,
    "registrations": [
     {
      "role": "app",
@@ -1983,7 +1983,7 @@
      "path": "/provider-onboarding/contract",
      "target": "backend",
      "query": "",
-     "line": 56,
+     "line": 58,
      "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513"
@@ -2089,7 +2089,7 @@
    "component": "LoginScreen",
    "area": "auth-onboarding",
    "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-   "line": 343,
+   "line": 342,
    "registrations": [
     {
      "role": "app",
@@ -2214,7 +2214,7 @@
      "path": "/provider-onboarding/contract",
      "target": "backend",
      "query": "",
-     "line": 56,
+     "line": 58,
      "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513"
@@ -2466,7 +2466,7 @@
      "path": "/provider-onboarding/contract",
      "target": "backend",
      "query": "",
-     "line": 56,
+     "line": 58,
      "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513"
@@ -2661,7 +2661,7 @@
      "path": "/provider-onboarding/contract",
      "target": "backend",
      "query": "",
-     "line": 56,
+     "line": 58,
      "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513"
@@ -2767,7 +2767,7 @@
    "component": "SplashScreen",
    "area": "auth-onboarding",
    "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-   "line": 29,
+   "line": 28,
    "registrations": [
     {
      "role": "app",
@@ -2791,7 +2791,7 @@
    "component": "WelcomeScreen",
    "area": "auth-onboarding",
    "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-   "line": 73,
+   "line": 72,
    "registrations": [
     {
      "role": "app",
@@ -3150,7 +3150,7 @@
      "path": "/provider/profile/image/status",
      "target": "backend",
      "query": "",
-     "line": 849,
+     "line": 875,
      "file": "provider-app/src/components/ui.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:111"
@@ -3160,7 +3160,7 @@
      "path": "/provider/profile/image/upload",
      "target": "backend",
      "query": "",
-     "line": 933,
+     "line": 959,
      "file": "provider-app/src/components/ui.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:100"
@@ -6378,7 +6378,7 @@
      "path": "/provider/profile/image/status",
      "target": "backend",
      "query": "",
-     "line": 849,
+     "line": 875,
      "file": "provider-app/src/components/ui.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:111"
@@ -6388,7 +6388,7 @@
      "path": "/provider/profile/image/upload",
      "target": "backend",
      "query": "",
-     "line": 933,
+     "line": 959,
      "file": "provider-app/src/components/ui.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:100"

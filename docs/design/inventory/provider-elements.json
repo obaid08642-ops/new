@@ -1,5 +1,5 @@
 {
- "commit": "982a2f21",
+ "commit": "53c84ea7",
  "screens": {
   "PendingDashboard": [
    {
@@ -794,7 +794,7 @@
     "src": "parent callback toggleLang",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 146,
+    "line": 145,
     "via": null,
     "note": null
    },
@@ -804,7 +804,7 @@
     "src": "from PROVIDER_TYPES (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 193,
+    "line": 192,
     "via": null,
     "note": null,
     "untraced": true
@@ -815,7 +815,7 @@
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 196,
+    "line": 195,
     "via": null,
     "note": null
    },
@@ -825,7 +825,7 @@
     "src": "parent callback onGuestJobs",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 241,
+    "line": 240,
     "via": null,
     "note": null
    },
@@ -835,7 +835,7 @@
     "src": "parent callback onGuestDrugIndex",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 255,
+    "line": 254,
     "via": null,
     "note": null
    },
@@ -845,7 +845,7 @@
     "src": "parent callback onLogin",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 273,
+    "line": 272,
     "via": null,
     "note": null
    },
@@ -855,7 +855,7 @@
     "src": "parent callback onLogin",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 320,
+    "line": 319,
     "via": null,
     "note": null
    },
@@ -865,7 +865,7 @@
     "src": "parent callback onSelectType",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 328,
+    "line": 327,
     "via": null,
     "note": null
    }
@@ -877,7 +877,7 @@
     "src": "errs: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 360,
+    "line": 359,
     "via": null,
     "note": null
    },
@@ -887,7 +887,7 @@
     "src": "parent callback onBack",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 436,
+    "line": 435,
     "via": null,
     "note": null
    },
@@ -897,7 +897,7 @@
     "src": "user input → id (local)",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 455,
+    "line": 454,
     "via": null,
     "note": null
    },
@@ -907,7 +907,7 @@
     "src": "user input → pass (local)",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 461,
+    "line": 460,
     "via": null,
     "note": null
    },
@@ -917,7 +917,7 @@
     "src": "user input → rem (local)",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 467,
+    "line": 466,
     "via": null,
     "note": null
    },
@@ -927,7 +927,7 @@
     "src": "parent callback bioLogin, onSuccess",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 472,
+    "line": 471,
     "via": null,
     "note": null
    },
@@ -937,7 +937,7 @@
     "src": "POST /provider/auth/login",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 487,
+    "line": 486,
     "via": null,
     "note": null
    },
@@ -947,7 +947,7 @@
     "src": "parent callback onForgot",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 491,
+    "line": 490,
     "via": null,
     "note": null
    },
@@ -957,7 +957,7 @@
     "src": "parent callback onRegister",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 500,
+    "line": 499,
     "via": null,
     "note": null
    },
@@ -967,7 +967,7 @@
     "src": "parent callback enableBiometric, onSuccess",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 523,
+    "line": 522,
     "via": null,
     "note": null
    },
@@ -977,7 +977,7 @@
     "src": "parent callback onSuccess",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 524,
+    "line": 523,
     "via": null,
     "note": null
    },
@@ -987,7 +987,7 @@
     "src": "local state setShowIpModal",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 529,
+    "line": 528,
     "via": null,
     "note": null
    },
@@ -997,7 +997,7 @@
     "src": "user input → customIp → request body",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 544,
+    "line": 543,
     "via": null,
     "note": null
    },
@@ -1007,7 +1007,7 @@
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 552,
+    "line": 551,
     "via": null,
     "note": null
    },
@@ -1017,7 +1017,7 @@
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 555,
+    "line": 554,
     "via": null,
     "note": null
    },
@@ -1027,7 +1027,7 @@
     "src": "local state setShowIpModal",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 559,
+    "line": 558,
     "via": null,
     "note": null
    }
@@ -1343,7 +1343,7 @@
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/components/SuccessScreen.tsx",
-    "line": 47,
+    "line": 46,
     "via": "SuccessScreen",
     "note": null
    },
@@ -2248,7 +2248,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 103,
+    "line": 106,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -2258,7 +2258,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 117,
+    "line": 120,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -2268,7 +2268,7 @@
     "src": "POST /provider/auth/verify-email",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 129,
+    "line": 132,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -2278,7 +2278,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 151,
+    "line": 154,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -2288,7 +2288,7 @@
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 165,
+    "line": 168,
     "via": "RegistrationSuccess",
     "note": null
    }
@@ -3494,7 +3494,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 103,
+    "line": 106,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -3504,7 +3504,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 117,
+    "line": 120,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -3514,7 +3514,7 @@
     "src": "POST /provider/auth/verify-email",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 129,
+    "line": 132,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -3524,7 +3524,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 151,
+    "line": 154,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -3534,7 +3534,7 @@
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 165,
+    "line": 168,
     "via": "RegistrationSuccess",
     "note": null
    }
@@ -3788,7 +3788,7 @@
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/components/SuccessScreen.tsx",
-    "line": 47,
+    "line": 46,
     "via": "SuccessScreen",
     "note": null
    },
@@ -4566,7 +4566,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 103,
+    "line": 106,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -4576,7 +4576,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 117,
+    "line": 120,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -4586,7 +4586,7 @@
     "src": "POST /provider/auth/verify-email",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 129,
+    "line": 132,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -4596,7 +4596,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 151,
+    "line": 154,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -4606,7 +4606,7 @@
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 165,
+    "line": 168,
     "via": "RegistrationSuccess",
     "note": null
    }
@@ -4860,7 +4860,7 @@
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/components/SuccessScreen.tsx",
-    "line": 47,
+    "line": 46,
     "via": "SuccessScreen",
     "note": null
    },
@@ -5799,7 +5799,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 103,
+    "line": 106,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -5809,7 +5809,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 117,
+    "line": 120,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -5819,7 +5819,7 @@
     "src": "POST /provider/auth/verify-email",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 129,
+    "line": 132,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -5829,7 +5829,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 151,
+    "line": 154,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -5839,7 +5839,7 @@
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 165,
+    "line": 168,
     "via": "RegistrationSuccess",
     "note": null
    }
@@ -6093,7 +6093,7 @@
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/components/SuccessScreen.tsx",
-    "line": 47,
+    "line": 46,
     "via": "SuccessScreen",
     "note": null
    },
@@ -7012,7 +7012,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 103,
+    "line": 106,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -7022,7 +7022,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 117,
+    "line": 120,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -7032,7 +7032,7 @@
     "src": "POST /provider/auth/verify-email",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 129,
+    "line": 132,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -7042,7 +7042,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 151,
+    "line": 154,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -7052,7 +7052,7 @@
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 165,
+    "line": 168,
     "via": "RegistrationSuccess",
     "note": null
    }
@@ -8045,7 +8045,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 103,
+    "line": 106,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -8055,7 +8055,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 117,
+    "line": 120,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -8065,7 +8065,7 @@
     "src": "POST /provider/auth/verify-email",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 129,
+    "line": 132,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -8075,7 +8075,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 151,
+    "line": 154,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -8085,7 +8085,7 @@
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 165,
+    "line": 168,
     "via": "RegistrationSuccess",
     "note": null
    }
@@ -8620,7 +8620,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 103,
+    "line": 106,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -8630,7 +8630,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 117,
+    "line": 120,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -8640,7 +8640,7 @@
     "src": "POST /provider/auth/verify-email",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 129,
+    "line": 132,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -8650,7 +8650,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 151,
+    "line": 154,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -8660,7 +8660,7 @@
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 165,
+    "line": 168,
     "via": "RegistrationSuccess",
     "note": null
    }

@@ -1233,8 +1233,12 @@ function loadNeedsReview() {
       fail(`${f}: invalid JSON (${e.message})`);
     }
     if (!Array.isArray(arr)) fail(`${f}: must be a JSON array`);
-    arr.forEach((o, i) => {
-      if (!o || typeof o !== 'object') fail(`${f}[${i}]: must be an object`);
+    arr.forEach((raw, i) => {
+      if (!raw || typeof raw !== 'object') fail(`${f}[${i}]: must be an object`);
+      // Journey audits (needs-review/journeys*.json) use { scenario, step, problem, kind, file, line }; map them to the slice shape.
+      const o = 'scenario' in raw && !('batch' in raw)
+        ? { batch: 'journeys', app: String(raw.file || '').startsWith('patient-web/') ? 'web' : 'app', screen: `scenario ${raw.scenario}: ${raw.step}`, element: raw.kind, file: raw.file, line: raw.line, found: raw.problem, suspect: raw.kind }
+        : raw;
       for (const k of NEEDS_REVIEW_KEYS) if (!(k in o)) fail(`${f}[${i}]: missing "${k}"`);
       out.push({ ...o, src: f });
     });
