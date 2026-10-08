@@ -17,7 +17,8 @@ _Updated 2026-10-06._
 | **Batch 5 health + records**, [#360](https://github.com/obaid08642-ops/new/pull/360) (`design/batch-5`, from main) | 8 app + 9 web screens rebuilt on the merge map; app endpoints 30 routes / 0 failures; web 48 runs, health screens 0 issues; PR open |
 | **Batch 6 family**, `design/batch-6` (stacked on `design/batch-5`) | 5 app + 5 web screens on the merge map (hub with requests, member, calendar, chat without call, add/join); 11 + 6 old routes redirect; app 17 routes, web 36 runs; PR open |
 | Needs-review `file:line` rule (owner) [#502](https://github.com/obaid08642-ops/new/pull/502) | Tool enforces it from Batch 2; Batch 2 backfilled in #502, 3/4/5/6 on their own branches |
-| Gates (baselines only go down) | `no-literal-ui-string` 3612, `no-raw-color` 5314, `no-left-right` 318, `client-token-sync` 897, `locale-parity` 662 |
+| **Batch 8 maternity, nutrition, mental health, programs**, `design/batch-8` (from main) | 9 app + 9 web screens (merge maps 1 §5, 2 §8); decision 8: no self-assessment/crisis screens, urgent-help button hidden until the config number exists; app 30 routes / 0 failures, web 90 runs / 0 issues; PR open |
+| Gates (baselines only go down) | `no-literal-ui-string` 2375, `no-raw-color` 3625, `no-left-right` 181, `client-token-sync` 887, `locale-parity` 551 |
 
 Screens per batch (app / web, redirects excluded; Batches 5/6/8/9/12 are reshaped by the merge maps): 0: 15/14 done; 1: 23/34 done; 2: 22/24 done; 3: 17/22; 4: 7/9; 5 health+records: done (see above); 6 family: done (5/5); 7 insurance 10/13 -> 5/5; 8 maternity, nutrition, mental health, chronic care; 9 AI 7/10 -> 2/2; 10 articles (community removed); 11 loyalty 7/7 -> 1/1; 12 account, settings 20/20 -> 7/7; 13 web-only static pages.
 
@@ -47,6 +48,7 @@ Screens per batch (app / web, redirects excluded; Batches 5/6/8/9/12 are reshape
 | 2 consultations (lean v2) | app 22, web 24 | 585k / 470k (**27k / 20k per screen**) | |
 | 3 labs, radiology | app 17, web 22 | 492k / 565k (**29k / 26k**) | |
 | 4 nursing | app 7, web 9 | 500k total (**31k**) | |
+| 8 care (maternity, nutrition, mental health, programs) | app 9, web 9 | 250k / 356k (**~28k / ~40k per screen**; web agent ~500k reported) | `care/` kits (app and web) |
 | 6 family (merge map) | app 5, web 5 (absorbing ~11 / ~6 old routes) | 323k / 335k (**~65k / ~67k per new screen**, over 40k: five old inline-styled screens read in full, a chat template built, no seeded family data, translations redone after the parity gate) | `family/` kit (app), `components-next/family` (web), 151 + 102 keys |
 | 5 health + records (merge map) | app 8, web 9 (absorbing ~26 / ~24 old routes) | 473k / 435k (**~50k / ~45k per new screen**, over 40k: each absorbs 3-6 old screens and the app migrated 104 medication words) | `HealthKit`, `components-next/health`, 330 + 134 keys |
 

@@ -1,169 +1,116 @@
-import Link from "next/link";
+import type { ReactNode } from "react";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ChevronLeft, Droplets, Flame, Salad, Sparkles, Target, Utensils } from "lucide-react";
 import { requirePatientAccess } from "@/lib/auth/session";
-import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
-import { VectorNutrition } from "@/components-next/vector-illustrations";
-import styles from "./nutrition.module.css";
+import { isLocale } from "@/lib/i18n";
+import { pickTab } from "@/lib/health/view";
+import { parseMeals, parseNutritionSummary } from "@/lib/nutrition/view";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { CareHero, RecordRow } from "@/components-next/care/care-kit";
+import { HealthTabs, RowsCard, SectionHead, VitalTile } from "@/components-next/health/health-kit";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { NutritionBodyTargetClient } from "@/components-next/nutrition-body-target-client";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
+import styles from "@/components-next/health/health.module.css";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string | string[] }> };
 
-export default async function NutritionPage({ params }: Props) {
+/** The Plan tab is not here: GET /nutrition/plan does not exist yet (Needs review), so there is nothing to show and nothing is invented. */
+const TABS = ["today", "target"] as const;
+const NUTRITION = SERVICE_ICONS.nutrition;
+const MEAL_TYPES = ["breakfast", "lunch", "dinner", "snack"];
+
+/**
+ * Nutrition (canvas/CareHub; merge map 2, section 8): tabs `?tab=today|target`. Today is the day's summary
+ * (GET /nutrition/daily-summary: calories against the target, water) and the meals of the day (GET /nutrition/meals), with "Log a meal"
+ * (the form stays its own screen). Target is the body-target form (GET and POST /nutrition/profile), absorbing the old body-target page.
+ */
+export default async function NutritionPage({ params, searchParams }: Props) {
   const { locale } = await params;
+  const query = await searchParams;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
+  const t = await getTranslations("NutritionWeb");
+  const rs = await getTranslations("RouteState");
   const token = await requirePatientAccess(locale);
-  const t = await getTranslations("Nutrition");
+  const tab = pickTab(query.tab, TABS, "today");
+  const base = `/${locale}/nutrition`;
+
+  const frame = (body: ReactNode) => (
+    <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/dashboard`}>
+      <HealthTabs label={t("tabsLabel")} base={base} active={tab} options={[
+        { value: "today", label: t("tabToday") },
+        { value: "target", label: t("tabTarget") },
+      ]} />
+      {body}
+    </ConsultPage>
+  );
+
+  if (tab === "target") return frame(<NutritionBodyTargetClient locale={locale} />);
+
   const today = new Date().toISOString().slice(0, 10);
-  const [summaryRes, mealsRes] = await Promise.all([
-    callPatientApi(`/nutrition/daily-summary?date=${today}`, {}, token),
-    callPatientApi(`/nutrition/meals?date=${today}`, {}, token),
-  ]);
+  let summaryRes: Response;
+  let mealsRes: Response;
+  try {
+    [summaryRes, mealsRes] = await Promise.all([
+      callPatientApi(`/nutrition/daily-summary?date=${today}`, {}, token),
+      callPatientApi(`/nutrition/meals?date=${today}`, {}, token),
+    ]);
+  } catch {
+    return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
+  }
   if (summaryRes.status === 401 || mealsRes.status === 401) redirect(`/${locale}/login`);
-  const summaryRaw = summaryRes.ok ? await summaryRes.json().catch(() => null) : null;
-  const summary = summaryRaw && typeof summaryRaw === "object" && !Array.isArray(summaryRaw)
-    ? (typeof (summaryRaw as Record<string, unknown>).data === "object" ? (summaryRaw as Record<string, unknown>).data : summaryRaw) as Record<string, unknown>
-    : null;
-  const calories = Number(summary?.calories ?? summary?.total_calories ?? NaN);
-  const target = Number(summary?.target_calories ?? summary?.calorie_target ?? NaN);
-  const water = Number(summary?.water_ml ?? summary?.water ?? NaN);
-  const mealsRaw = mealsRes.ok ? await mealsRes.json().catch(() => null) : null;
-  const mealsRoot = mealsRaw && typeof mealsRaw === "object" && !Array.isArray(mealsRaw) ? (mealsRaw as Record<string, unknown>) : null;
-  const mealsList = (Array.isArray(mealsRaw) ? mealsRaw : [mealsRoot?.data, mealsRoot?.meals, mealsRoot?.items].find(Array.isArray)) ?? [];
-  const meals = mealsList.flatMap((value: unknown) => {
-    const r = value && typeof value === "object" ? (value as Record<string, unknown>) : null;
-    if (!r) return [];
-    const name = String(r.name ?? r.title ?? r.meal_type ?? "");
-    if (!name) return [];
-    return [
-      {
-        id: String(r.id ?? name),
-        name,
-        calories: Number(r.calories ?? NaN) || undefined,
-        type: typeof r.meal_type === "string" ? r.meal_type : undefined,
-      },
-    ];
-  });
+  if (!summaryRes.ok) return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
 
-  return (
-    <main className={`main ${styles.page}`}>
-      <Link href={`/${locale}/dashboard`} className={styles.back}>
-        <ChevronLeft size={17} aria-hidden="true" />
-        {locale === "ar" ? "لوحة التحكم" : "Dashboard"}
-      </Link>
+  const summary = parseNutritionSummary(await summaryRes.json().catch(() => null));
+  const meals = mealsRes.ok ? parseMeals(await mealsRes.json().catch(() => null)) : null;
+  const number = new Intl.NumberFormat(locale);
+  const kcal = (value: number) => t("kcalValue", { value: number.format(value) });
+  const ratio = summary.target && summary.target > 0 ? Math.min(summary.calories / summary.target, 1) : 0;
 
-      <section className={styles.hero}>
-        <div>
-          <p className={styles.eyebrow}>
-            <Sparkles size={15} aria-hidden="true" />
-            {locale === "ar" ? "التغذية العلاجية واللياقة" : "Clinical Nutrition & Wellness"}
-          </p>
-          <h1>{t("title")}</h1>
-          <p className={styles.dateTitle}>
-            {new Intl.DateTimeFormat(locale, { dateStyle: "full" }).format(new Date())}
-          </p>
-        </div>
-        <span className={styles.heroVector}>
-          <VectorNutrition size={48} aria-hidden="true" />
-        </span>
-      </section>
-
-      {!summaryRes.ok ? (
-        <section className={styles.state} role="alert">
-          <VectorNutrition size={42} aria-hidden="true" />
-          <p>{t("error")}</p>
-        </section>
+  return frame(
+    <>
+      <div className={styles.toolbar}>
+        <span />
+        <ButtonLink href={`${base}/log-meal`} label={t("logMeal")} size="md" />
+      </div>
+      <CareHero
+        tone={NUTRITION.tone}
+        icon={NUTRITION.icon}
+        label={t("todayTitle")}
+        ring={{ value: ratio, label: t("ringLabel", { calories: number.format(summary.calories), target: summary.target === null ? "-" : number.format(summary.target) }), valueText: number.format(summary.calories), caption: t("kcal") }}
+        title={t("todayTitle")}
+        lines={[
+          new Intl.DateTimeFormat(locale, { dateStyle: "full" }).format(new Date()),
+          summary.target !== null ? t("targetLine", { value: kcal(summary.target) }) : t("noTarget"),
+        ]}
+      />
+      <ul className={styles.tiles} aria-label={t("todayTitle")}>
+        <li><VitalTile label={t("calories")} value={number.format(summary.calories)} unit={t("kcal")} icon="bowl-food" tone={NUTRITION.tone} /></li>
+        <li><VitalTile label={t("water")} value={number.format(summary.waterMl)} unit={t("ml")} icon="drop" tone="blue" /></li>
+      </ul>
+      <SectionHead id="meals" title={t("meals")} />
+      {meals === null ? (
+        <ConsultState kind="error" title={t("mealsUnavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />
+      ) : meals.length === 0 ? (
+        <ConsultState kind="empty" icon={NUTRITION.icon} tone={NUTRITION.tone} title={t("meals")} body={t("noMeals")} actionLabel={t("logMeal")} actionHref={`${base}/log-meal`} />
       ) : (
-        <section className={styles.statsGrid} aria-label={t("title")}>
-          <article className={styles.statCard}>
-            <div className={styles.statTop}>
-              <span>{t("calories")}</span>
-              <span className={styles.statGlyph}>
-                <Flame size={18} aria-hidden="true" />
-              </span>
-            </div>
-            <p className={styles.statValue}>
-              {Number.isFinite(calories) ? calories.toLocaleString(locale) : "0"}
-              <span style={{ fontSize: "0.82rem", fontWeight: 600, marginInlineStart: 4 }}>{t("kcal")}</span>
-            </p>
-          </article>
-
-          <article className={styles.statCard}>
-            <div className={styles.statTop}>
-              <span>{t("target")}</span>
-              <span className={styles.statGlyph}>
-                <Target size={18} aria-hidden="true" />
-              </span>
-            </div>
-            <p className={styles.statValue}>
-              {Number.isFinite(target) ? target.toLocaleString(locale) : "—"}
-              <span style={{ fontSize: "0.82rem", fontWeight: 600, marginInlineStart: 4 }}>{t("kcal")}</span>
-            </p>
-          </article>
-
-          <article className={styles.statCard}>
-            <div className={styles.statTop}>
-              <span>{t("water")}</span>
-              <span className={styles.statGlyph}>
-                <Droplets size={18} aria-hidden="true" />
-              </span>
-            </div>
-            <p className={styles.statValue}>
-              {Number.isFinite(water) ? water.toLocaleString(locale) : "0"}
-              <span style={{ fontSize: "0.82rem", fontWeight: 600, marginInlineStart: 4 }}>{t("ml")}</span>
-            </p>
-          </article>
-        </section>
+        <RowsCard label={t("meals")}>
+          {meals.map((meal) => (
+            <li key={meal.id}>
+              <RecordRow
+                icon="bowl-food"
+                tone={NUTRITION.tone}
+                title={meal.name}
+                sub={meal.type && MEAL_TYPES.includes(meal.type) ? [t(`mealType.${meal.type}`)] : []}
+                end={meal.calories !== undefined ? <bdi>{kcal(meal.calories)}</bdi> : undefined}
+              />
+            </li>
+          ))}
+        </RowsCard>
       )}
-
-      <section className={styles.mealsSection}>
-        <div className={styles.sectionHeader}>
-          <h2>{t("meals")}</h2>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <Link href={`/${locale}/nutrition/log-meal`} className={styles.quickBtnPrimary}>{locale === "ar" ? "تسجيل وجبة" : "Log meal"}</Link>
-            <Link href={`/${locale}/nutrition/daily-tracker`} className={styles.quickBtn}>{locale === "ar" ? "المتتبع اليومي" : "Daily tracker"}</Link>
-            <Link href={`/${locale}/nutrition/plan`} className={styles.quickBtn}>
-              <Salad size={17} aria-hidden="true" />
-              {locale === "ar" ? "خطة الوجبات الصحية" : "Diet Plan"}
-            </Link>
-          </div>
-        </div>
-
-        {meals.length === 0 ? (
-          <div className={styles.state}>
-            <VectorNutrition size={40} aria-hidden="true" />
-            <p>{t("noMeals")}</p>
-          </div>
-        ) : (
-          <ul className={styles.mealsList}>
-            {meals.map((meal) => (
-              <li key={meal.id} className={styles.mealCard}>
-                <div className={styles.mealInfo}>
-                  <span className={styles.mealIcon}>
-                    <Utensils size={18} aria-hidden="true" />
-                  </span>
-                  <div>
-                    <span className={styles.mealName}>{meal.name}</span>
-                    {meal.type ? (
-                      <span style={{ display: "block", fontSize: "0.8rem", color: "var(--muted)" }}>
-                        {meal.type}
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
-                {meal.calories !== undefined ? (
-                  <span className={styles.calBadge}>
-                    <Flame size={13} aria-hidden="true" />
-                    {meal.calories.toLocaleString(locale)} {t("kcal")}
-                  </span>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-    </main>
+    </>,
   );
 }
