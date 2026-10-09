@@ -277,8 +277,10 @@ export class PharmacyOfferService {
       const d = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       if (Number.isFinite(d)) approx = Math.round(d * 2) / 2; // 0.5km rounding — approximate only
     }
-    const pharmacyNameAr = profile?.display_name_ar || profile?.name_ar || null;
-    const pharmacyNameEn = profile?.display_name_en || profile?.name_en || null;
+    // Needs-review #509: registered pharmacies carry business_name / legal_name (provider schema).
+    const registeredName = profile?.business_name || profile?.legal_name || null;
+    const pharmacyNameAr = profile?.display_name_ar || profile?.name_ar || registeredName;
+    const pharmacyNameEn = profile?.display_name_en || profile?.name_en || registeredName;
     return {
       ...base,
       // Shared governed contract: patient-app reads `lines` + status 'open'.

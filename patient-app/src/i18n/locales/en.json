@@ -1209,7 +1209,7 @@
   "consult.summary.notReadyBody": "The doctor writes the summary after the appointment ends.",
   "consult.summary.loadError": "Could not load the summary",
   "consult.summary.window": "{n}-day follow-up window",
-  "consult.summary.followUpBody": "The doctor recommended a follow-up within {n} days. Book now at a reduced price.",
+  "consult.summary.followUpBody": "The doctor recommended a follow-up within {n} days.",
   "consult.summary.bookFollowUp": "Book the follow-up",
   "consult.summary.prescription": "Prescription",
   "consult.summary.toPharmacy": "Send the prescription to a pharmacy",
@@ -3162,5 +3162,7 @@
   "pharmacy.rx.zonePhoto": "Photograph the prescription",
   "pharmacy.rx.zoneUpload": "Choose the prescription from your photos",
   "consult.calls.videoCall": "Video call",
-  "consult.calls.voiceCall": "Voice call"
+  "consult.calls.voiceCall": "Voice call",
+  "guest.loginRequiredTitle": "Sign-in required",
+  "guest.loginRequiredBody": "Sign in to use this feature."
 }

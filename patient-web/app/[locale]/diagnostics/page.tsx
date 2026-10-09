@@ -156,7 +156,8 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
         <QuickLink href={`/${locale}/diagnostics/results`} icon="chart-line-up" tone={DIAG_TONES.good} label={t("quickResults")} />
         <QuickLink href={`/${locale}/diagnostics/lab-comparison`} icon="arrows-left-right" tone={DIAG_TONES.facility} label={t("quickCompare")} />
       </div>
-      <RowCard href={`/${locale}/diagnostics/bookings`} icon={SERVICE_ICONS.insurance.icon} tone={SERVICE_ICONS.insurance.tone} title={t("insuranceTitle")} sub={t("insuranceSub")} caret={caret} />
+      {/* "Use your insurance / upload your card" opens the policy form, not the bookings list (needs-review issue 1062). */}
+      <RowCard href={`/${locale}/insurance/add-policy`} icon={SERVICE_ICONS.insurance.icon} tone={SERVICE_ICONS.insurance.tone} title={t("insuranceTitle")} sub={t("insuranceSub")} caret={caret} />
 
       {catalogFailed ? (
         <ConsultState kind="error" title={t("catalogErrorTitle")} body={t("catalogErrorBody")} retryLabel={t("retry")} />

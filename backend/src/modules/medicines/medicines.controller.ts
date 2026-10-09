@@ -183,6 +183,7 @@ export class MedicinesController {
   }
 
   /** Admin: approve → image goes live, old R2 image deleted */
+  @RequirePermissions(Permission.CATALOG_UPDATE)
   @Post('admin/image-suggestions/:suggestionId/approve')
   @Roles(UserRole.ADMIN)
   approveImage(@Param('suggestionId') suggestionId: string, @CurrentUser('id') by: string) {
@@ -190,6 +191,7 @@ export class MedicinesController {
   }
 
   /** Admin: reject image suggestion */
+  @RequirePermissions(Permission.CATALOG_UPDATE)
   @Post('admin/image-suggestions/:suggestionId/reject')
   @Roles(UserRole.ADMIN)
   rejectImage(@Param('suggestionId') suggestionId: string, @CurrentUser('id') by: string, @Body() body: RejectImageDto) {
@@ -218,6 +220,7 @@ export class MedicinesController {
   }
 
   /** Admin: approve → change applied to the live catalog immediately */
+  @RequirePermissions(Permission.CATALOG_UPDATE)
   @Post('admin/change-requests/:requestId/approve')
   @Roles(UserRole.ADMIN)
   approveChange(@Param('requestId') requestId: string, @CurrentUser('id') by: string, @Body() body?: ApproveChangeDto) {
@@ -225,6 +228,7 @@ export class MedicinesController {
   }
 
   /** Admin: reject with reason */
+  @RequirePermissions(Permission.CATALOG_UPDATE)
   @Post('admin/change-requests/:requestId/reject')
   @Roles(UserRole.ADMIN)
   rejectChange(@Param('requestId') requestId: string, @CurrentUser('id') by: string, @Body() body: RejectChangeDto) {

@@ -16,6 +16,7 @@ import { UserRole } from '../../common/enums';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { EventsModule } from '../events/events.module';
 import { FamilyChatController } from './chat-compat.controller';
+import { CONSULTATION_FOLLOWUP_HOURS_DEFAULT } from './followup-window';
 
 // ─── Controller ────────────────────────────────────────────────────────────
 
@@ -90,7 +91,7 @@ export class ChatController {
     if (appt.status === 'COMPLETED') {
       const SystemConfigModel = this.svc.getModel('SystemConfig');
       const sysConfig = await SystemConfigModel.findOne({ key: 'system_config' });
-      const followupHours = sysConfig?.value?.consultation_followup_hours ?? 24;
+      const followupHours = sysConfig?.value?.consultation_followup_hours ?? CONSULTATION_FOLLOWUP_HOURS_DEFAULT;
 
       const endedAt = appt.completed_at || appt.updatedAt || new Date();
       const elapsedHours = (Date.now() - new Date(endedAt).getTime()) / (1000 * 60 * 60);

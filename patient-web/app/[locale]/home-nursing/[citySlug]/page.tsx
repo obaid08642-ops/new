@@ -30,7 +30,8 @@ async function fetchNursingData(citySlug: string) {
     item.name?.includes("منزل")
   );
   return {
-    services: nursingItems.length > 0 ? nursingItems : items.slice(0, 5),
+    // Only services that are nursing; never relabel other services as nursing (needs-review issue 788).
+    services: nursingItems,
     city: json.city || readSegment(citySlug),
   };
 }

@@ -1173,7 +1173,7 @@
   "consult.summary.notReadyBody": "অ্যাপয়েন্টমেন্ট শেষ হলে ডাক্তার সারাংশ লিখবেন।",
   "consult.summary.loadError": "সারাংশ লোড করা যায়নি",
   "consult.summary.window": "{n} দিনের ফলো-আপ সময়",
-  "consult.summary.followUpBody": "ডাক্তার {n} দিনের মধ্যে ফলো-আপের পরামর্শ দিয়েছেন। এখনই কম দামে বুক করুন।",
+  "consult.summary.followUpBody": "ডাক্তার {n} দিনের মধ্যে ফলো-আপের পরামর্শ দিয়েছেন।",
   "consult.summary.bookFollowUp": "ফলো-আপ বুক করুন",
   "consult.summary.prescription": "প্রেসক্রিপশন",
   "consult.summary.toPharmacy": "প্রেসক্রিপশন ফার্মেসিতে পাঠান",
@@ -3126,5 +3126,7 @@
   "pharmacy.rx.zonePhoto": "প্রেসক্রিপশনের ছবি তুলুন",
   "pharmacy.rx.zoneUpload": "আপনার ছবি থেকে প্রেসক্রিপশন বেছে নিন",
   "consult.calls.videoCall": "ভিডিও কল",
-  "consult.calls.voiceCall": "ভয়েস কল"
+  "consult.calls.voiceCall": "ভয়েস কল",
+  "guest.loginRequiredTitle": "সাইন ইন প্রয়োজন",
+  "guest.loginRequiredBody": "এই সুবিধা ব্যবহার করতে সাইন ইন করুন।"
 }

@@ -202,7 +202,8 @@ export class HomeCareCompatController {
     if (!this.isAdmin(u) && !this.isNursingProvider(u)) throw new ForbiddenException('provider_role_required');
     const allowed: Record<string, string[]> = {
       PROVIDER_ASSIGNED: ['NEW_REQUEST'],
-      ARRIVED: ['PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE'],
+      // A job accepted in the provider app is CONFIRMED (IN_TRANSIT once the nurse sets off).
+      ARRIVED: ['PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'CONFIRMED', 'IN_TRANSIT'],
       CARE_IN_PROGRESS: ['ARRIVED'],
       COMPLETED: ['CARE_IN_PROGRESS', 'ARRIVED'],
       CANCELLED: ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'CARE_IN_PROGRESS'],

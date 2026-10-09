@@ -49,11 +49,12 @@ export function extractNurse(payload: unknown): NurseDetail | null {
     name_en: typeof item.name_en === "string" ? item.name_en : undefined,
     city: typeof item.city === "string" ? item.city : undefined,
     avatar: typeof item.avatar === "string" ? item.avatar : undefined,
-    rating: typeof item.rating === "number" ? item.rating : 4.9,
-    specialty: String(item.specialty_ar ?? item.specialty ?? item.specialty_en ?? "تمريض عام ورعاية منزلية"),
+    // Needs-review #565: only what the backend sent; no invented rating, specialty or experience.
+    rating: typeof item.rating === "number" ? item.rating : undefined,
+    specialty: typeof (item.specialty_ar ?? item.specialty ?? item.specialty_en) === "string" ? String(item.specialty_ar ?? item.specialty ?? item.specialty_en) : undefined,
     specialty_ar: typeof item.specialty_ar === "string" ? item.specialty_ar : undefined,
     specialty_en: typeof item.specialty_en === "string" ? item.specialty_en : undefined,
-    experience_years: typeof item.experience_years === "number" ? item.experience_years : 5,
+    experience_years: typeof item.experience_years === "number" ? item.experience_years : undefined,
     bio: typeof item.bio === "string" ? item.bio : undefined,
     services: Array.isArray(item.services)
       ? item.services.map((s: any) => ({

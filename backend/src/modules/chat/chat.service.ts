@@ -4,6 +4,7 @@ import { Model, Types } from 'mongoose';
 import { EventBusService } from '../events/event-bus.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ChatThread, ChatThreadDocument, ChatMessage, ChatMessageDocument } from './chat.schemas';
+import { CONSULTATION_FOLLOWUP_HOURS_DEFAULT } from './followup-window';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const jwt = require('jsonwebtoken');
 
@@ -231,7 +232,7 @@ export class ChatService {
         if (appt.status === 'COMPLETED') {
           const SystemConfigModel = this.getModel('SystemConfig');
           const sysConfig = await SystemConfigModel.findOne({ key: 'system_config' });
-          const followupHours = sysConfig?.value?.consultation_followup_hours ?? 24;
+          const followupHours = sysConfig?.value?.consultation_followup_hours ?? CONSULTATION_FOLLOWUP_HOURS_DEFAULT;
 
           const endedAt = appt.completed_at || appt.updatedAt || new Date();
           const elapsedHours = (Date.now() - new Date(endedAt).getTime()) / (1000 * 60 * 60);

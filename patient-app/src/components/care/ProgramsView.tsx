@@ -61,7 +61,10 @@ export function ProgramsActiveView() {
     try {
       const res = await apiFetch<Program[]>('/medical/programs/complete-session', { method: 'POST', body: JSON.stringify({ programType: selected.id, sessionId: String(confirm.id) }) });
       if (Array.isArray(res)) setPrograms(res);
-      if (String(confirm.id) === '4' && selected.milestoneReward) setReward(selected.milestoneReward);
+      // The milestone is reached when the server's answer shows every session of the programme done,
+      // not at a fixed session id (needs-review issue 854).
+      const after = Array.isArray(res) ? res.find((p) => p.id === selected.id) : undefined;
+      if (after && after.totalSessions > 0 && after.completedSessions >= after.totalSessions && after.milestoneReward) setReward(after.milestoneReward);
       setConfirm(null);
     } catch (e) {
       logError('programs:complete', e);

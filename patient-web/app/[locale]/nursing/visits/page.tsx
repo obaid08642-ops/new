@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractNursingVisits } from "@/lib/api/nursing-visits";
 import { getPatientNursingVisits } from "@/lib/api/nursing-visits-server";
+import { requirePatientAccess } from "@/lib/auth/session";
 import { getDirection, isLocale } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
@@ -18,16 +19,13 @@ export default async function NursingVisitsPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("NursingWeb");
 
+  // Signed-out visitors go to login, like the other account screens (needs-review issue 651).
+  const token = await requirePatientAccess(locale);
   let visits: ReturnType<typeof extractNursingVisits> = [];
   try {
-    const { cookies } = await import("next/headers");
-    const { authCookieNames } = await import("@/lib/auth/cookies");
-    const token = (await cookies()).get(authCookieNames.access)?.value;
-    if (token) {
-      const response = await getPatientNursingVisits(token);
-      if (response.ok) {
-        visits = extractNursingVisits(await response.json().catch(() => null));
-      }
+    const response = await getPatientNursingVisits(token);
+    if (response.ok) {
+      visits = extractNursingVisits(await response.json().catch(() => null));
     }
   } catch {}
   const caret = <Caret rtl={getDirection(locale) === "rtl"} />;
