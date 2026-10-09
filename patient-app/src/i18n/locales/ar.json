@@ -2208,6 +2208,8 @@
   "nur.live.noEta": "تقدير غير متاح",
   "nur.live.noLocation": "لم يبدأ مشاركة الموقع الحي بعد — سيظهر المسار هنا فور انطلاقه.",
   "nur.live.noReport": "لم يُرفق الممرض تقريرًا سريريًا لهذه الزيارة.",
+  "nur.live.files": "ملفات نتائج الزيارة",
+  "nur.live.fileError": "تعذر فتح الملف",
   "nur.live.notes": "ملاحظات الممرض",
   "nur.live.onTheWay": "الممرض في الطريق إليك",
   "nur.live.pinHome": "منزلك (الوجهة)",

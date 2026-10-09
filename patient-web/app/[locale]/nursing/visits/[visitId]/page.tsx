@@ -52,6 +52,14 @@ export default async function NursingVisitTrackingPage({ params }: Props) {
   const pulse = vitals?.pulse;
   const bp = vitals?.bp;
   const look = nursingStatus(status);
+  // N1: result files the nurse attached at the end of the visit ({storage_id, name, mime, at}); each opens through the signed-URL route.
+  type VisitFile = { storage_id: string; name?: string; at?: string };
+  const attachments: unknown[] = Array.isArray(visit?.attachments) ? visit.attachments : [];
+  const files = attachments.filter((f): f is VisitFile => typeof (f as { storage_id?: unknown })?.storage_id === "string").slice(0, 10);
+  const dateText = (v: unknown): string => {
+    const d = typeof v === "string" ? new Date(v) : null;
+    return d && !Number.isNaN(d.getTime()) ? new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(d) : "";
+  };
   const reportRows: FactRow[] = [
     ...(pulse ? [{ label: t("pulse"), value: text(pulse), icon: "heartbeat" as const, tone: NURSING.tone }] : []),
     ...(bp ? [{ label: t("bloodPressure"), value: text(bp), icon: "drop" as const, tone: NURSING.tone }] : []),
@@ -77,6 +85,24 @@ export default async function NursingVisitTrackingPage({ params }: Props) {
       {reportRows.length > 0 ? (
         <SectionCard id="visit-report" title={t("reportTitle")}>
           <Facts rows={reportRows} label={t("reportTitle")} />
+        </SectionCard>
+      ) : null}
+      {files.length > 0 ? (
+        <SectionCard id="visit-files" title={t("resultFilesTitle")}>
+          <ul className={styles.fileList}>
+            {files.map((f) => {
+              const name = text(f.name) || f.storage_id;
+              const when = dateText(f.at);
+              return (
+                <li key={f.storage_id}>
+                  <a className={styles.fileLink} href={`/api/nursing/files/${encodeURIComponent(f.storage_id)}`} target="_blank" rel="noopener noreferrer" aria-label={t("openFile", { name })}>
+                    <span className={styles.fileName}>{name}</span>
+                    {when ? <span className={styles.meta}>{when}</span> : null}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
         </SectionCard>
       ) : null}
     </ConsultPage>

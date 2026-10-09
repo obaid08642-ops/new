@@ -1,5 +1,5 @@
 {
- "commit": "3c3392c1",
+ "commit": "c3e6bd42",
  "routes": [
   {
    "app": "patient-app",
@@ -4455,13 +4455,33 @@
    "calls": [
     {
      "method": "GET",
+     "path": "/nursing/visits/:param",
+     "target": "backend",
+     "query": "",
+     "line": 73,
+     "file": "patient-app/app/nursing/live-tracking.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:176"
+    },
+    {
+     "method": "GET",
      "path": "/nursing/visits/:param/tracking",
      "target": "backend",
      "query": "",
-     "line": 34,
+     "line": 36,
      "file": "patient-app/app/nursing/live-tracking.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home-care/home-care.controller.ts:185"
+    },
+    {
+     "method": "GET",
+     "path": "/storage/:param/signed-url",
+     "target": "backend",
+     "query": "",
+     "line": 90,
+     "file": "patient-app/app/nursing/live-tracking.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/storage/storage.module.ts:394"
     }
    ],
    "files": 31,

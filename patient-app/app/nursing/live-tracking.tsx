@@ -27,6 +27,8 @@ export default function NursingLiveTracking() {
   const [tracking, setTracking] = useState<Rec | null>(null);
   const [eta, setEta] = useState<number | null>(null);
   const [status, setStatus] = useState<GateStatus>('loading');
+  const [files, setFiles] = useState<Array<{ id: string; name: string }>>([]);
+  const [fileError, setFileError] = useState(false);
 
   const fetchTracking = useCallback(
     async (isStopped: () => boolean) => {
@@ -60,6 +62,40 @@ export default function NursingLiveTracking() {
       clearInterval(interval);
     };
   }, [bookingId, fetchTracking]);
+
+  const visitDone = tracking?.status === 'COMPLETED';
+  // N1: once the visit is done, the result files the nurse attached ({storage_id, name, mime, at}) come with the visit record.
+  useEffect(() => {
+    if (!visitDone || !bookingId) return;
+    let stopped = false;
+    void (async () => {
+      try {
+        const res = await apiFetch<Rec>(`/nursing/visits/${bookingId}`);
+        const list = Array.isArray(res?.attachments) ? (res.attachments as Rec[]) : [];
+        const next = list
+          .filter((f) => typeof f?.storage_id === 'string')
+          .slice(0, 10)
+          .map((f) => ({ id: String(f.storage_id), name: str(f.name) || String(f.storage_id) }));
+        if (!stopped) setFiles(next);
+      } catch (err) {
+        logError('nursing:visit-files', err);
+      }
+    })();
+    return () => { stopped = true; };
+  }, [visitDone, bookingId]);
+
+  const openFile = async (id: string) => {
+    setFileError(false);
+    try {
+      const res = await apiFetch<Rec>(`/storage/${encodeURIComponent(id)}/signed-url`);
+      const url = str(res?.url);
+      if (!url.startsWith('https://')) throw new Error('no_url');
+      await Linking.openURL(url);
+    } catch (err) {
+      logError('nursing:open-file', err);
+      setFileError(true);
+    }
+  };
 
   const nurseComing = type === 'nurse';
   const phone = str(tracking?.nurse_phone);
@@ -97,6 +133,15 @@ export default function NursingLiveTracking() {
             <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary }}>{k('nur.live.noReport')}</Text>
           )}
         </Block>
+        {files.length > 0 ? (
+          <Block gap={8}>
+            <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary }}>{k('nur.live.files')}</Text>
+            {files.map((f) => (
+              <Button key={f.id} theme={theme} size="lg" fullWidth variant="secondary" label={f.name} onPress={() => void openFile(f.id)} />
+            ))}
+            {fileError ? <Text accessibilityRole="alert" style={{ ...scale(t, 'small', 'regular'), color: c.status.danger.fg }}>{k('nur.live.fileError')}</Text> : null}
+          </Block>
+        ) : null}
       </ConsultScreen>
     );
   }

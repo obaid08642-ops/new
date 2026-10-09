@@ -2208,6 +2208,8 @@
   "nur.live.noEta": "Estimate not available",
   "nur.live.noLocation": "Live location sharing has not started yet. The route will appear here as soon as the nurse sets off.",
   "nur.live.noReport": "The nurse did not attach a clinical report for this visit.",
+  "nur.live.files": "Result files from your nurse",
+  "nur.live.fileError": "Could not open the file",
   "nur.live.notes": "Nurse notes",
   "nur.live.onTheWay": "The nurse is on the way",
   "nur.live.pinHome": "Your home (destination)",

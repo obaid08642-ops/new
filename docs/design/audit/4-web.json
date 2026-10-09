@@ -220,6 +220,11 @@
           "Raw status code on unknown state",
           "no longer printed",
           "fixed"
+        ],
+        [
+          "Nurse result files (N1): list + open link",
+          "GET /nursing/visits/:param (attachments[]), BFF GET /api/nursing/files/:id -> /storage/:id/signed-url (302)",
+          "ok"
         ]
       ]
     }

@@ -115,6 +115,11 @@
           "Pin colours, glass sheet, raw colours",
           "removed (tokens only)",
           "fixed"
+        ],
+        [
+          "Nurse result files (N1): list + open",
+          "GET /nursing/visits/:param (attachments[]), GET /storage/:param/signed-url -> Linking.openURL",
+          "ok"
         ]
       ],
       "notes": [

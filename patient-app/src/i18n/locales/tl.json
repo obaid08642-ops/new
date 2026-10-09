@@ -2172,6 +2172,8 @@
   "nur.live.noEta": "Walang tantiya",
   "nur.live.noLocation": "Hindi pa nagsisimula ang live location. Lalabas dito ang ruta kapag umalis na ang nurse.",
   "nur.live.noReport": "Walang inilakip na clinical report ang nurse para sa pagbisitang ito.",
+  "nur.live.files": "Mga file ng resulta mula sa nars",
+  "nur.live.fileError": "Hindi mabuksan ang file",
   "nur.live.notes": "Mga tala ng nurse",
   "nur.live.onTheWay": "Papunta na sa iyo ang nurse",
   "nur.live.pinHome": "Bahay mo (destinasyon)",

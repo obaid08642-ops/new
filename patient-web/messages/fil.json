@@ -2780,6 +2780,8 @@
     "reportTitle": "Clinical report ng pagbisita",
     "bloodPressure": "Presyon ng dugo",
     "nurseNotes": "Mga tala ng nurse",
+    "resultFilesTitle": "Mga file ng resulta mula sa nars",
+    "openFile": "Buksan ang {name}",
     "formDay": "Araw",
     "formConfirm": "Kumpirmahin ang booking",
     "formMethod": "Paraan ng pagbabayad",

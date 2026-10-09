@@ -2780,6 +2780,8 @@
     "reportTitle": "التقرير السريري للزيارة",
     "bloodPressure": "ضغط الدم",
     "nurseNotes": "ملاحظات الممرض",
+    "resultFilesTitle": "ملفات نتائج الزيارة",
+    "openFile": "فتح {name}",
     "formDay": "اليوم",
     "formConfirm": "تأكيد الحجز",
     "formMethod": "طريقة الدفع",
