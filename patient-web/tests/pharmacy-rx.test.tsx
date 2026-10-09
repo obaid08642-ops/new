@@ -124,7 +124,7 @@ describe("the delivery address card", () => {
     expect(ready).toContain("Deliver to");
     expect(ready).toContain("Home");
     expect(ready).toContain("12 King Fahd Rd, Olaya, Riyadh");
-    expect(ready).toContain('href="/en/profile/addresses"');
+    expect(ready).toContain('href="/en/profile/addresses?select=1"');
     expect(renderToStaticMarkup(<AddressCard locale="en" state={{ status: "none" }} />)).toContain("Add a delivery address");
     expect(renderToStaticMarkup(<AddressCard locale="en" state={{ status: "nolocation", address: { ...located, lat: null, lng: null } }} />)).toContain("This address has no location");
     expect(renderToStaticMarkup(<AddressCard locale="en" state={{ status: "error" }} />)).toContain("could not be loaded");

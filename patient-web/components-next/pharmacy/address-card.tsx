@@ -9,8 +9,9 @@ import type { AddressState } from "./use-delivery-address";
 import { PHARMACY_TONE } from "./tones";
 import styles from "./rx.module.css";
 
-/** Where the saved addresses are managed. */
+/** Where the saved addresses are managed (add or remove), and the pick mode of the same page that "Change" opens. */
 const ADDRESSES = "profile/addresses";
+const PICK_ADDRESS = `${ADDRESSES}?select=1`;
 
 /**
  * "Deliver to [saved address] Change" of canvas/Cart, for every screen that sends a request to the pharmacies.
@@ -49,7 +50,7 @@ export function AddressCard({ locale, state }: { locale: string; state: AddressS
             <span className={styles.cardValue}>{address.label ?? line}</span>
             {address.label && line ? <span className={styles.cardLabel}>{line}</span> : null}
           </div>
-          <Link className={styles.cardLink} href={`/${locale}/${ADDRESSES}`}>{t("change")}</Link>
+          <Link className={styles.cardLink} href={`/${locale}/${PICK_ADDRESS}`}>{t("change")}</Link>
         </div>
       </section>
     );

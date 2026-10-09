@@ -271,7 +271,7 @@ export default async function PublicProductPage({ params }: Props) {
           </nav>
 
           <section className={styles.hero}>
-            <ProductGallery name={name} images={images} badge={percent > 0 ? t("discount", { percent: formatNumber(locale, percent) }) : undefined} />
+            <ProductGallery name={name} images={images} itemId={product.id} locale={locale} badge={percent > 0 ? t("discount", { percent: formatNumber(locale, percent) }) : undefined} />
 
             <div className={styles.info}>
               <div className={styles.chipsRow}>
