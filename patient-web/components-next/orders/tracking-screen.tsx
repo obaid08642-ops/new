@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { CancelOrder } from "@/components-next/pharmacy-offers/cancel-order";
+import { routeForOrder } from "@/lib/pharmacy/order-route";
 import { RetryLinkErrorState } from "@/components-next/pharmacy-checkout/state-views";
 import { formatMoney } from "@/components-next/pharmacy-offers/format";
 import { LocalArrival } from "./local-date";
@@ -12,7 +15,7 @@ import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { parseOrderId } from "@/lib/api/orders";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { getDirection, type Locale } from "@/lib/i18n";
-import { dialable, isMoving, orderNumber, trackingSteps } from "@/lib/pharmacy/order-view";
+import { canCancelOrder, dialable, isMoving, orderNumber, trackingSteps } from "@/lib/pharmacy/order-view";
 import { readOrderDetail } from "./read-orders";
 import { TrackingRefresh } from "./tracking-refresh";
 import { TrackingTimeline } from "./tracking-timeline";
@@ -55,6 +58,10 @@ export async function TrackingScreen({ locale, orderId }: { locale: Locale; orde
   const phone = dialable(detail.courier?.phone);
   const summary = [detail.lines.length > 0 ? orders("itemsCount", { count: detail.lines.length }) : undefined, detail.totals ? formatMoney(locale, detail.totals.total, detail.totals.currency) : undefined]
     .filter((part): part is string => Boolean(part));
+  // an order whose offer was just selected is not yet in fulfilment: its next step (final price, payment, insurance) is
+  // where the order router sends it, and the cancel stays possible until the order is dispatched
+  const trackingHref = `/${locale}/orders/${encodeURIComponent(orderId)}/tracking`;
+  const next = routeForOrder({ status: detail.status, governedState: detail.governedState, paymentStatus: detail.paymentStatus }, orderId, locale);
   const caret = getDirection(locale) === "rtl" ? "caret-left" : "caret-right";
 
   return frame(
@@ -78,6 +85,12 @@ export async function TrackingScreen({ locale, orderId }: { locale: Locale; orde
       </section>
 
       {moving ? <TrackingRefresh /> : null}
+
+      {next !== trackingHref && status !== "cancelled" ? (
+        <div className={styles.actions}>
+          <ButtonLink href={next} label={orders("action.continue")} fullWidth />
+        </div>
+      ) : null}
 
       {detail.courier?.name || phone ? (
         <section className={rx.card} aria-label={t("courierLabel")}>
@@ -103,6 +116,8 @@ export async function TrackingScreen({ locale, orderId }: { locale: Locale; orde
           <span className={styles.summaryEnd}><Icon name={caret} size={18} tone="secondary" /></span>
         </Link>
       </section>
+
+      {canCancelOrder(detail.status) ? <div className={styles.actions}><CancelOrder orderId={orderId} after="refresh" /></div> : null}
     </>,
   );
 }

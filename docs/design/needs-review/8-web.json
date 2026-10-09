@@ -96,7 +96,7 @@
     "element": "Psychiatry filter value",
     "file": "patient-web/app/[locale]/mental-health/therapist-match/page.tsx",
     "line": 13,
-    "found": "[client] specialty=psychiatry goes into the doctor list's free-text search (doctorQuery); the seeded backend has no doctors, so the match with the specialty slug is not verified.",
+    "found": "[client] specialty=psychiatry goes into the doctor list's free-text search (doctorQuery); FIXED: doctorQuery now sends q (the only text param GET /care/doctors reads; it regex-matches the specialty slug), previously it sent search, which the backend ignored.",
     "suspect": "Client-side: later batch."
   },
   {

@@ -18,6 +18,7 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { FormSheet } from "@/components-next/health/form-sheet";
 import { PartUnavailable } from "@/components-next/health/health-kit";
 import { BasicsForm, ProfileList } from "@/components-next/health/profile-forms";
+import { EmergencyContactsEditor } from "@/components-next/health/emergency-contacts-editor";
 import styles from "@/components-next/health/health.module.css";
 import forms from "@/components-next/consult/consult.module.css";
 import { CORAL, TEAL } from "@/lib/health/view";
@@ -134,23 +135,7 @@ export default async function HealthProfilePage({ params }: Props) {
         <SectionCard id="profile-emergency" title={t("secEmergency")}>
           <div className={forms.section}>
             <h3 className={forms.sectionTitle}>{t("emergencyMine")}</h3>
-            {mine === null ? <PartUnavailable>{t("partUnavailable")}</PartUnavailable> : mine.length === 0 ? (
-              <p className={`${forms.body} ${forms.muted}`}>{t("emergencyMineEmpty")}</p>
-            ) : (
-              <ul className={styles.rows} aria-label={t("emergencyMine")}>
-                {mine.map((contact, index) => (
-                  <li key={contact.id || `${contact.name}-${index}`}>
-                    <div className={styles.row}>
-                      <FIcon icon="user" tone="peach" size={40} />
-                      <span className={styles.rowBody}>
-                        <span className={styles.rowTitle}>{contact.name}{contact.isPrimary ? ` · ${t("emergencyPrimary")}` : ""}</span>
-                        <span className={styles.rowSub}>{contact.relation}{contact.relation ? " · " : ""}<bdi>{contact.maskedPhone}</bdi></span>
-                      </span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {mine === null ? <PartUnavailable>{t("partUnavailable")}</PartUnavailable> : <EmergencyContactsEditor contacts={mine} />}
           </div>
           <div className={forms.section}>
             <h3 className={forms.sectionTitle}>{t("emergencyFamily")}</h3>

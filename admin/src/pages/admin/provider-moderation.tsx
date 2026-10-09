@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
 import ProviderFullDetail from '@/components/ProviderFullDetail';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { GeoPicker } from "../../components/GeoPicker";
 
 
@@ -47,8 +48,14 @@ export default function ProviderModeration() {
       .finally(() => setDetailLoading(false));
   }, [selectedProvider?.id]);
 
-  const [suspendReason, setSuspendReason] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // Approve form (replaces the three window.prompt dialogs): reason + commissions + summary + confirm.
+  const [approveFor, setApproveFor] = useState<Provider | null>(null);
+  const [approveReason, setApproveReason] = useState('');
+  const [approveCash, setApproveCash] = useState('');
+  const [approveIns, setApproveIns] = useState('');
+  const [approveBusy, setApproveBusy] = useState(false);
+  const [approveError, setApproveError] = useState('');
+  const [bankBusy, setBankBusy] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [geo, setGeo] = useState<{ region?: string; city?: string; district?: string }>({});
 
@@ -101,31 +108,63 @@ export default function ProviderModeration() {
     fetchModerationData();
   }, [geo.region, geo.city, geo.district]);
 
-  const handleApprove = async (id: string, fallbackType?: string) => {
-    const reason = window.prompt('سبب الاعتماد (يُحفظ في سجل التدقيق — 5 أحرف على الأقل):', '');
-    if (reason === null) return;
-    if (reason.trim().length < 5) { alert('يرجى إدخال سبب اعتماد لا يقل عن 5 أحرف'); return; }
+  const openApprove = (provider: Provider) => {
     const defaults: Record<string, number> = { pharmacy: 5, lab: 8, radiology: 10, home_care: 15 };
-    const def = defaults[fallbackType || ''] ?? 10;
-    const cashRaw = window.prompt(`نسبة عمولة الكاش % لهذا المزود (الافتراضي ${def}%):`, String(def));
-    if (cashRaw === null) return;
-    const insRaw = window.prompt(`نسبة عمولة التأمين % لهذا المزود (الافتراضي ${def}%):`, String(def));
-    if (insRaw === null) return;
-    const commission_cash = Math.min(100, Math.max(0, parseFloat(cashRaw) || 0));
-    const commission_insurance = Math.min(100, Math.max(0, parseFloat(insRaw) || 0));
+    const def = defaults[provider.type] ?? 10;
+    setApproveReason('');
+    setApproveCash(String(def));
+    setApproveIns(String(def));
+    setApproveError('');
+    setApproveFor(provider);
+  };
+
+  const submitApprove = async () => {
+    if (!approveFor) return;
+    const reason = approveReason.trim();
+    if (reason.length < 5) { setApproveError('يرجى إدخال سبب اعتماد لا يقل عن 5 أحرف'); return; }
+    const cash = Number(approveCash);
+    const ins = Number(approveIns);
+    if (!Number.isFinite(cash) || !Number.isFinite(ins) || cash < 0 || cash > 100 || ins < 0 || ins > 100) {
+      setApproveError('نسبة العمولة يجب أن تكون بين 0 و100');
+      return;
+    }
+    setApproveBusy(true);
+    setApproveError('');
     try {
-        const res = await fetchWithAdminGuard(`/api/admin/admin/providers/${id}/approve`, { method: 'POST', body: JSON.stringify({ reason: reason.trim(), commission_cash, commission_insurance }) });
+      const res = await fetchWithAdminGuard(`/api/admin/admin/providers/${approveFor.id}/approve`, { method: 'POST', body: JSON.stringify({ reason, commission_cash: cash, commission_insurance: ins }) });
       if (res.ok) {
-        alert('تم اعتماد المزود — أصبح حسابه فعالاً ويظهر الآن في دليل المرضى.');
-        setPendingProviders(prev => prev.filter(p => p.id !== id));
+        const approvedId = approveFor.id;
+        setPendingProviders(prev => prev.filter(p => p.id !== approvedId));
         setSelectedProvider(null);
+        setApproveFor(null);
       } else {
         const err = await res.json().catch(() => null);
-        alert('فشل الاعتماد: ' + (err?.message || res.status));
+        setApproveError('فشل الاعتماد: ' + (err?.message || res.status));
       }
     } catch (e) {
       console.error(e);
-      alert('خطأ في الاعتماد');
+      setApproveError('خطأ في الاعتماد');
+    } finally {
+      setApproveBusy(false);
+    }
+  };
+
+  // Payout bank account approval: POST /admin/providers/:id/approve-bank (404 no_pending_bank_account when nothing is pending).
+  const handleApproveBank = async (id: string) => {
+    setBankBusy(true);
+    try {
+      const res = await fetchWithAdminGuard(`/api/admin/admin/providers/${id}/approve-bank`, { method: 'POST' });
+      if (res.ok) {
+        setProviderDetail((prev: { bank?: Record<string, unknown> } | null) => (prev ? { ...prev, bank: { ...(prev.bank || {}), review_status: 'approved' } } : prev));
+      } else {
+        const err = await res.json().catch(() => null);
+        alert('فشل اعتماد الحساب البنكي: ' + (err?.message || res.status));
+      }
+    } catch (e) {
+      console.error(e);
+      alert('خطأ في اعتماد الحساب البنكي');
+    } finally {
+      setBankBusy(false);
     }
   };
 
@@ -172,29 +211,6 @@ export default function ProviderModeration() {
     } catch (e) {
       console.error(e);
       alert(reject ? 'خطأ في الرفض' : 'خطأ في طلب التعديلات');
-    }
-  };
-
-  const handleSuspend = async () => {
-    if (!suspendReason) return alert('يرجى إدخال سبب الإيقاف');
-    try {
-        const res = await fetchWithAdminGuard(`/api/admin/admin/providers/${selectedProvider?.id}/suspend`, {
-        method: 'POST',
-        body: JSON.stringify({ reason: suspendReason })
-      });
-      if (res.ok) {
-        alert('تم إيقاف الحساب — لن يظهر المزود للمرضى ولن يستقبل طلبات جديدة.');
-        setPendingProviders(prev => prev.filter(p => p.id !== selectedProvider?.id));
-        setSelectedProvider(null);
-        setIsModalOpen(false);
-        setSuspendReason('');
-      } else {
-        const err = await res.json().catch(() => null);
-        alert('فشل الإيقاف: ' + (err?.message || res.status));
-      }
-    } catch (e) {
-      console.error(e);
-      alert('خطأ في الإيقاف');
     }
   };
 
@@ -307,7 +323,7 @@ export default function ProviderModeration() {
               </div>
 
               <div className="p-6 border-t border-gray-200 bg-slate-50 flex flex-wrap gap-4">
-                <button onClick={() => handleApprove(selectedProvider.id, selectedProvider.type)} className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg shadow transition text-lg">
+                <button onClick={() => openApprove(selectedProvider)} className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg shadow transition text-lg">
                   Approve Provider (اعتماد)
                 </button>
                 <button onClick={() => handleDecision(selectedProvider.id, 'request-changes')} className="flex-1 bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold py-3 rounded-lg shadow-sm border border-amber-200 transition text-lg">
@@ -319,9 +335,11 @@ export default function ProviderModeration() {
                 <button onClick={() => handleReactivate(selectedProvider.id)} className="flex-1 bg-green-100 hover:bg-green-200 text-green-700 font-bold py-3 rounded-lg shadow-sm border border-green-200 transition text-lg">
                   Reactivate (إعادة تفعيل)
                 </button>
-                <button onClick={() => setIsModalOpen(true)} className="flex-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold py-3 rounded-lg shadow-sm border border-red-200 transition text-lg">
-                  Suspend Provider (إيقاف)
-                </button>
+                {['pending', 'under_review'].includes(String(providerDetail?.bank?.review_status)) && (
+                  <button onClick={() => handleApproveBank(selectedProvider.id)} disabled={bankBusy} className="flex-1 bg-white hover:bg-slate-100 text-slate-700 font-bold py-3 rounded-lg shadow-sm border border-slate-300 transition text-lg disabled:opacity-50">
+                    Approve bank account (اعتماد الحساب البنكي)
+                  </button>
+                )}
               </div>
             </div>
           ) : activeTab === 'deltas' && selectedDelta ? (
@@ -376,25 +394,38 @@ export default function ProviderModeration() {
         </div>
       </div>
 
-      {/* Suspend Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]">
-          <div className="bg-white p-6 rounded-xl w-96 shadow-2xl">
-            <h3 className="text-xl font-bold text-red-600 mb-4">تأكيد إيقاف المزود</h3>
-            <p className="text-sm text-gray-600 mb-4">هذا الإجراء سيقوم بقطع جلسات الـ Socket وإخفاء المزود فوراً من البحث.</p>
-            <textarea
-              className="w-full border border-gray-300 rounded p-3 mb-4 h-24"
-              placeholder="الرجاء إدخال سبب الإيقاف أو أكواد الرفض (Reason Codes)..."
-              value={suspendReason}
-              onChange={(e) => setSuspendReason(e.target.value)}
-            />
-            <div className="flex gap-3">
-              <button onClick={handleSuspend} className="flex-1 bg-red-600 text-white font-bold py-2 rounded">تأكيد الإيقاف الحرج</button>
-              <button onClick={() => setIsModalOpen(false)} className="flex-1 bg-gray-200 text-gray-800 font-bold py-2 rounded">تراجع</button>
+      {/* Approve form */}
+      <ConfirmDialog
+        open={!!approveFor}
+        title="اعتماد المزود"
+        confirmLabel="تأكيد الاعتماد"
+        busy={approveBusy}
+        onConfirm={submitApprove}
+        onCancel={() => setApproveFor(null)}
+      >
+        {approveFor && (
+          <>
+            <dl className="rounded-lg bg-slate-50 p-3 text-sm space-y-1">
+              <div className="flex justify-between gap-3"><dt className="text-slate-500">المزود</dt><dd className="font-bold">{approveFor.name}</dd></div>
+              <div className="flex justify-between gap-3"><dt className="text-slate-500">النوع</dt><dd className="font-bold uppercase">{approveFor.type}</dd></div>
+              {approveFor.email && <div className="flex justify-between gap-3"><dt className="text-slate-500">البريد</dt><dd className="font-bold" dir="ltr">{approveFor.email}</dd></div>}
+            </dl>
+            <p className="text-xs text-slate-500">عند الاعتماد يصبح الحساب فعالاً ويظهر في دليل المرضى، وتُعتمد الوثائق والحساب البنكي المعلّقة.</p>
+            <label className="block text-sm font-bold">سبب الاعتماد (يُحفظ في سجل التدقيق — 5 أحرف على الأقل)
+              <textarea value={approveReason} onChange={(e) => setApproveReason(e.target.value)} className="mt-1 w-full border border-gray-300 rounded p-2 h-20 font-normal" />
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block text-sm font-bold">عمولة الكاش %
+                <input type="number" min="0" max="100" value={approveCash} onChange={(e) => setApproveCash(e.target.value)} className="mt-1 w-full border border-gray-300 rounded p-2 font-normal" />
+              </label>
+              <label className="block text-sm font-bold">عمولة التأمين %
+                <input type="number" min="0" max="100" value={approveIns} onChange={(e) => setApproveIns(e.target.value)} className="mt-1 w-full border border-gray-300 rounded p-2 font-normal" />
+              </label>
             </div>
-          </div>
-        </div>
-      )}
+            {approveError && <p role="alert" className="rounded bg-rose-50 p-2 text-sm text-rose-700">{approveError}</p>}
+          </>
+        )}
+      </ConfirmDialog>
     </div>
   );
 }

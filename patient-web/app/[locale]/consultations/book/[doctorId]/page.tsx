@@ -8,6 +8,10 @@ import { localizedUrl } from "@/lib/seo";
 import { JsonLd } from "@/components-next/json-ld";
 import { physician } from "@/lib/seo/structured-data";
 import { BookingFlow } from "@/components-next/booking-flow";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { policyLines } from "@/components-next/consult/policy-lines";
+import { getCancellationPolicy } from "@/lib/consult/cancellation-policy";
 import type { Metadata } from "next";
 
 type Props = { params: Promise<{ locale: string; doctorId: string }> };
@@ -30,16 +34,30 @@ export default async function BookConsultationPage({ params }: Props) {
   if (!isLocale(locale) || !parseDoctorId(doctorId).success) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("BookConsultation");
-  await requirePatientAccess(locale);
+  const token = await requirePatientAccess(locale);
   const response = await getPublicDoctor(doctorId);
   if (response?.status === 401) redirect(`/${locale}/login`);
+  if (response?.status === 404) notFound();
   const doctor = response?.ok ? extractDoctor(await response.json().catch(() => null)) : null;
-  const name = (doctor ? doctorDisplayName(doctor, locale) : undefined) || t("doctorUnavailable");
+  if (!doctor) {
+    // no form under "doctor unavailable": say so, with a retry and the way back to the doctors list
+    const rs = await getTranslations("RouteState");
+    return (
+      <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations/doctors`} hideTabs>
+        <ConsultState kind="error" title={t("doctorUnavailable")} body={t("doctorUnavailableBody")} retryLabel={rs("retry")} actionLabel={t("backToDoctors")} actionHref={`/${locale}/consultations/doctors`} />
+      </ConsultPage>
+    );
+  }
+  // decision 26: the cancellation and refund terms are shown before payment, from the server's numbers
+  const c = await getTranslations("ConsultWeb");
+  const policy = { title: c("policyTitle"), lines: policyLines(c, await getCancellationPolicy(token)) };
+  const name = doctorDisplayName(doctor, locale) || t("doctorUnavailable");
   return (
     <BookingFlow
       doctorId={doctorId}
       locale={locale}
       doctor={doctor}
+      policy={policy}
       top={<JsonLd data={physician({ name, locale, path: `/consultations/doctors/${encodeURIComponent(doctorId)}`, specialty: doctor?.specialty })} />}
     />
   );

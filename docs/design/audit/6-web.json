@@ -63,8 +63,8 @@
         ],
         [
           "Emergency contacts count on its row ('[N] جهات')",
-          "the hub makes no call to /family/emergency-contacts; a line of text instead",
-          "hidden"
+          "GET /family/emergency-contacts (family members on Nabd+) -> '[N] contacts'; the hint line when the call fails or there are none",
+          "fixed"
         ],
         [
           "No-family state with Create group",
@@ -297,7 +297,7 @@
       "route": "/family",
       "element": "Emergency contacts count",
       "kind": "client",
-      "note": "The board row says '[N] جهات'; the hub does not call GET /family/emergency-contacts (a different list from the member's own), so no number is drawn.",
+      "note": "Fixed on design/oc-patient-other-1: the hub reads GET /family/emergency-contacts and draws '[N] contacts' on the row (the hint when the call fails or the list is empty).",
       "file": "patient-web/app/[locale]/family/page.tsx",
       "line": 147
     },

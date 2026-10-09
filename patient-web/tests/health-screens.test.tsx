@@ -137,6 +137,18 @@ describe("sleep", () => {
     expect(html.indexOf("88")).toBeLessThan(html.indexOf("Score 60"));
     expect(html).toContain("8 hours");
   });
+
+  it("has the form to add a night (hours and score), also when there are no readings yet", async () => {
+    backend({ "/health/sleep": [{ id: "a", sleep_score: 60, duration_hours: 6, measured_at: "2026-08-18T06:00:00.000Z" }] });
+    const filled = render(await SleepPage({ params }));
+    expect(filled).toContain("Add sleep");
+    expect(filled).toContain("Hours slept");
+    expect(filled).toContain("Quality score (0 to 100)");
+    backend({ "/health/sleep": [] });
+    const empty = render(await SleepPage({ params }));
+    expect(empty).toContain("No sleep readings yet.");
+    expect(empty).toContain("Hours slept");
+  });
 });
 
 describe("medications: four tabs and a sheet", () => {
@@ -195,6 +207,11 @@ describe("the medical profile", () => {
     expect(html).not.toContain("+966501234567");
     expect(html).not.toContain("+966507654321");
     expect(html).toContain("/en/reports/passport");
+    // my contacts are editable: a Remove button on the contact and the add form (name, mobile number, relationship)
+    expect(html).toContain("Remove");
+    expect(html).toContain("Mobile number");
+    expect(html).toContain("Relationship (optional)");
+    expect(html).not.toContain("available yet");
   });
 
   it("says in place when one section cannot load, and fails as a page only without the profile itself", async () => {

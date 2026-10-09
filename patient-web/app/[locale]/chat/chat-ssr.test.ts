@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const state = vi.hoisted(() => ({ thread: vi.fn(), messages: vi.fn(), api: vi.fn(), requirePatientAccess: vi.fn() }));
+const state = vi.hoisted(() => ({ thread: vi.fn(), messages: vi.fn(), permissions: vi.fn(), api: vi.fn(), requirePatientAccess: vi.fn() }));
 
 vi.mock("next/navigation", () => ({
   notFound: () => { throw new Error("not-found"); },
@@ -11,7 +11,7 @@ vi.mock("next/navigation", () => ({
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
 vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatientAccess }));
-vi.mock("@/lib/api/chat-server", () => ({ getPatientChatThread: state.thread, getPatientChatMessages: state.messages }));
+vi.mock("@/lib/api/chat-server", () => ({ getPatientChatThread: state.thread, getPatientChatMessages: state.messages, getPatientChatPermissions: state.permissions }));
 vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.api }));
 
 vi.mock("@/components-next/core/core-shell", async () => {
@@ -32,6 +32,7 @@ describe("the doctor thread of a booking (decision 24)", () => {
   beforeEach(() => {
     state.thread.mockReset();
     state.messages.mockReset();
+    state.permissions.mockReset().mockResolvedValue(json({}, 404));
     state.api.mockReset();
     state.requirePatientAccess.mockReset().mockResolvedValue(serverToken);
   });
@@ -59,5 +60,28 @@ describe("the doctor thread of a booking (decision 24)", () => {
     expect(html).toContain("closed");
     expect(html).toContain(`/en/consultations/book/doc-1?followUp=${bookingId}`);
     expect(html).toContain('href="tel:997"');
+  });
+
+  it("the server's permissions drive the banner, the read-only notice and the follow-up (ids only in the link)", async () => {
+    state.thread.mockResolvedValue(json({ id: threadId, type: "booking", booking_kind: "consultation", booking_id: bookingId, is_active: true }));
+    state.messages.mockResolvedValue(json({ messages: [] }));
+    state.permissions.mockResolvedValue(json({ status_code: "closed", can_chat: false, can_call: false, can_upload: false, can_voice: false, online: true, emergency_line: "997", read_only: true, remaining_hours: 0, book_follow_up: { action: "book_follow_up", doctor_id: "doc-9", doctor_user_id: "u-9", specialty: "cardiology" } }));
+    const html = renderToStaticMarkup(await ChatThreadPage({ params: Promise.resolve({ locale: "en", threadId }) }));
+    expect(html).toContain("window.closed");
+    expect(html).toContain("closed");
+    expect(html).toContain(`/en/consultations/book/doc-9?followUp=${bookingId}`);
+    expect(html).not.toContain("cardiology");
+    expect(state.api).not.toHaveBeenCalled();
+    expect(html).toContain('href="tel:997"');
+  });
+
+  it("a follow-up window shows its state and the time left, and no follow-up button while chat is open", async () => {
+    state.thread.mockResolvedValue(json({ id: threadId, type: "booking", booking_kind: "consultation", booking_id: bookingId, is_active: true }));
+    state.messages.mockResolvedValue(json({ messages: [] }));
+    state.permissions.mockResolvedValue(json({ status_code: "follow_up", can_chat: true, can_call: false, can_upload: true, can_voice: true, online: true, remaining_hours: 5.2 }));
+    const html = renderToStaticMarkup(await ChatThreadPage({ params: Promise.resolve({ locale: "en", threadId }) }));
+    expect(html).toContain("window.follow_up");
+    expect(html).toContain("window.hoursLeft");
+    expect(html).not.toContain("bookFollowUp");
   });
 });

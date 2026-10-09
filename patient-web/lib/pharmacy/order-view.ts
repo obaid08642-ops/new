@@ -185,6 +185,15 @@ export function trackingSteps(detail: Pick<OrderDetail, "status" | "fulfillment"
   });
 }
 
+/**
+ * Whether the patient may still cancel the order: it is not finished, not cancelled, and not yet on its way (decision 26:
+ * a cancel before dispatch refunds in full). The server has the last word and refuses a cancel it cannot do.
+ */
+export function canCancelOrder(status: string | undefined): boolean {
+  const key = (status ?? "").toLowerCase();
+  return key !== "" && key !== "delivered" && key !== "completed" && key !== "cancelled" && key !== "out_for_delivery";
+}
+
 /** Whether the order can still change on its own (so the tracking page keeps asking the server). */
 export function isMoving(status: string | undefined): boolean {
   const key = (status ?? "").toLowerCase();
