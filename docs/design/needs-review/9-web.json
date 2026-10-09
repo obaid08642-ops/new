@@ -66,7 +66,7 @@
     "element": "Partial source failure",
     "file": "patient-web/app/[locale]/ai/monthly-report/page.tsx",
     "line": 61,
-    "found": "[client] A source that fails while others answer is read as an empty list (zero tiles), not as unavailable (logic left as it was, design only).",
+    "found": "[client] A source that fails while others answer is read as an empty list (zero tiles), not as unavailable FIXED: failed sources now show a dash tile and a PartUnavailable notice naming them.",
     "suspect": "Client-side: later batch."
   },
   {

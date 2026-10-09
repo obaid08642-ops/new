@@ -202,6 +202,9 @@ export function PrescriptionSection({ appointmentId, fallback }: { appointmentId
     setOrdering(true);
     try {
       for (const med of orderable) await addItem({ id: String(med.medicine_id), name: med.name, rx: true });
+      // lines the doctor wrote by hand have no catalogue id: say how many were left out instead of skipping them silently
+      const left = medications.length - orderable.length;
+      if (left > 0) showLocalizedAlert(k('consult.rx.notInCartTitle'), k('consult.rx.notInCartBody', { n: num(left), total: num(medications.length) }));
       router.push('/pharmacy/cart' as Href);
     } finally {
       setOrdering(false);

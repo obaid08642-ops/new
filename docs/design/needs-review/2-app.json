@@ -46,7 +46,7 @@
     "element": "Refund policy",
     "file": "patient-app/app/consultations/cancel-reschedule.tsx",
     "line": 100,
-    "found": "[client] Online appointments (type 'online') ask for clinic slots when rescheduling (the refund figures now come from /system-config/public).",
+    "found": "[client] Fixed on design/oc-patient-other-1: the screen read consultation_type, which the appointment does not have (the field is service_type: clinic, video or home), so every appointment asked for clinic slots; it now reads service_type (and the list context too).",
     "suspect": "Client-side: later batch."
   },
   {
@@ -55,8 +55,8 @@
     "screen": "/consultations/prescription-from-doctor",
     "element": "Prescription fields",
     "file": "patient-app/app/consultations/prescription-from-doctor.tsx",
-    "line": 110,
-    "found": "[backend] The seeded patient has no active prescription, so the doctor, spec, date, diagnosis, labs and notes fields were not seen at runtime.",
+    "line": 4,
+    "found": "[backend] [screen is now a redirect (merge map 2 s.1); kept so issue indices stay stable] The seeded patient has no active prescription, so the doctor, spec, date, diagnosis, labs and notes fields were not seen at runtime.",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -145,8 +145,8 @@
     "screen": "/consultations/clinic-confirm",
     "element": "Header",
     "file": "patient-app/app/consultations/clinic-confirm.tsx",
-    "line": 125,
-    "found": "[owner] The header has a close button next to the back button (two exits); the board has only back.",
+    "line": 4,
+    "found": "[owner] [screen is now a redirect (merge map 2 s.1); kept so issue indices stay stable] The header has a close button next to the back button (two exits); the board has only back.",
     "suspect": "Owner decision."
   },
   {

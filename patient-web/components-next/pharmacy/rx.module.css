@@ -64,6 +64,7 @@
   border-radius: var(--nabd-radius-lg); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary);
   font-size: var(--nabd-font-size-segment); font-weight: 600; text-decoration: none;
 }
+.bannerActions { flex: none; display: flex; flex-direction: column; gap: 6px; }
 .bannerAction:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
 
 /* ---- the upload zone and the attachment (canvas/RxUpload) ---- */

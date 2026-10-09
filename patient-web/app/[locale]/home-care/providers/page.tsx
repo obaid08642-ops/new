@@ -30,7 +30,7 @@ export default async function HomeCareProvidersPage({ params }: Props) {
   );
   if (!response.ok) return frame(<ConsultState kind="error" title={t("providersUnavailable")} body={t("providersUnavailableBody")} retryLabel={t("retry")} />);
   const providers = extractHomeCareProviders(await response.json().catch(() => null));
-  if (providers.length === 0) return frame(<ConsultState kind="empty" icon={NURSING.icon} tone={NURSING.tone} title={t("providersEmpty")} />);
+  if (providers.length === 0) return frame(<ConsultState kind="empty" icon={NURSING.icon} tone={NURSING.tone} title={t("providersEmpty")} actionLabel={t("browseServices")} actionHref={`/${locale}/home-care/services`} />);
   return frame(
     <RowList label={t("providersTitle")}>
       {providers.map((provider) => (

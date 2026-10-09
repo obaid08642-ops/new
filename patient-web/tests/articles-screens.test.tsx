@@ -104,7 +104,7 @@ describe("the Saved tab", () => {
     server.bookmarks.mockResolvedValue(json([]));
     const html = render(await ArticlesPage(page({ tab: "saved" })));
     expect(html).toContain("No saved articles");
-    expect(html).toContain("Articles you save in the app appear here.");
+    expect(html).toContain("Articles you save appear here.");
     server.bookmarks.mockResolvedValue(json({}, 401));
     await expect(ArticlesPage(page({ tab: "saved" }))).rejects.toThrow("redirect:/en/login");
   });
@@ -121,6 +121,14 @@ describe("the article", () => {
     expect(html).toContain("/en/articles");
     expect(html).not.toMatch(/<textarea|comment/i);
     expect(html).not.toContain("/consultations/doctors");
+  });
+  it("leaves the save button to the browser: the page stays public and reads no session for it", async () => {
+    server.article.mockResolvedValue(json(first));
+    const html = render(await ArticlePage({ params: Promise.resolve({ locale: "en", slug: "healthy-sleep" }) }));
+    // the button draws nothing on the server (its status needs the session cookie); the back link stays
+    expect(html).not.toContain("Save article");
+    expect(html).toContain("Back to articles");
+    expect(server.bookmarks).not.toHaveBeenCalled();
   });
 
   it("is a not-found for an article the server does not have", async () => {

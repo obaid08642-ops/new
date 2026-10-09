@@ -12,6 +12,7 @@ import { Input } from "@/components-next/ui-generated/components/Inputs";
 import { Segmented } from "@/components-next/ui-generated/components/Controls";
 import { StickyFooter } from "@/components-next/ui-generated/shells/StickyFooter";
 import { ConsultPage } from "@/components-next/consult/consult-page";
+import { PolicyCard } from "@/components-next/consult/policy-lines";
 import { Hero, SectionCard } from "@/components-next/consult/consult-parts";
 import { formatPrice } from "@/lib/format-price";
 import rx from "@/components-next/pharmacy/rx.module.css";
@@ -45,7 +46,7 @@ function newIdempotencyKey(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-export function BookingFlow({ doctorId, locale, doctor, top }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode }) {
+export function BookingFlow({ doctorId, locale, doctor, top, policy }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode; policy?: { title: string; lines: string[] } }) {
   const t = useTranslations("BookConsultation");
   const names = useTranslations("SpecialtyNames");
   const specialty = specialtyLabel(names, doctor?.specialty);
@@ -234,6 +235,7 @@ export function BookingFlow({ doctorId, locale, doctor, top }: { doctorId: strin
         />
         {visitType !== "clinic" ? <p className={`${styles.body} ${styles.muted}`}>{t("cashClinicOnly")}</p> : null}
       </SectionCard>
+      {policy ? <PolicyCard title={policy.title} lines={policy.lines} /> : null}
       {price ? (
         <section className={`${rx.card} ${styles.priceCard}`} aria-label={t("fee")}>
           <div className={styles.totalRow}><span>{t("fee")}</span><span>{price.text}</span></div>

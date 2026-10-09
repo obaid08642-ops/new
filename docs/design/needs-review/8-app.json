@@ -35,8 +35,8 @@
     "screen": "/emergency",
     "element": "view=crisis still renders the crisis contacts view",
     "file": "patient-app/app/emergency/index.tsx",
-    "line": 12,
-    "found": "[client] removed feature (owner decision 8); emergency belongs to another batch, the mental-health entry now redirects to the hub",
+    "line": 5,
+    "found": "[client] FIXED: the crisis view is gone, /emergency now redirects to /emergency/sos (index.tsx:5); the remaining SOS screens go with the removal PR (#1089/#1090)",
     "suspect": "Client-side: later batch."
   },
   {
@@ -76,7 +76,7 @@
     "element": "No entry point",
     "file": "patient-app/app/programs/active.tsx",
     "line": 7,
-    "found": "[client] no screen or notification in the app links to /programs/active",
+    "found": "[client] FIXED: the health hub now has a My programs row linking to /programs/active (was: no screen or notification linked to it)",
     "suspect": "Client-side: later batch."
   },
   {

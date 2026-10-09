@@ -75,8 +75,8 @@
     "screen": "/diagnostics/technician-tracking",
     "element": "Tips",
     "file": "patient-app/app/diagnostics/technician-tracking.tsx",
-    "line": 68,
-    "found": "[owner] Static text; the old third tip (samples sent in cold containers) was dropped as an unverified claim.",
+    "line": 4,
+    "found": "[owner] [screen is now a redirect; kept so issue indices stay stable] Static text; the old third tip (samples sent in cold containers) was dropped as an unverified claim.",
     "suspect": "Owner decision."
   },
   {
@@ -86,7 +86,7 @@
     "element": "Cart context",
     "file": "patient-app/src/context/DiagnosticsCartContext.tsx",
     "line": 54,
-    "found": "[client] DiagnosticsCartContext keeps the cart in memory only (lost when the app closes); persisting it is a logic change, left for the reviewer.",
+    "found": "[client] Fixed on design/oc-patient-other-1: the cart is now kept on the device per signed-in patient (AsyncStorage key @nabd_diag_cart:v1:<user id>), restored on the next start and removed when the cart is emptied or the patient signs out.",
     "suspect": "Client-side: later batch."
   },
   {

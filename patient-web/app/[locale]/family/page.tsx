@@ -3,7 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractFamilyMembers } from "@/lib/api/family";
 import { parseFamilyGroup } from "@/lib/api/family-group";
-import { getPatientFamilyGroup, getPatientFamilyMembers, getPatientFamilyPendingRequests } from "@/lib/api/family-server";
+import { getPatientFamilyEmergencyContacts, getPatientFamilyGroup, getPatientFamilyMembers, getPatientFamilyPendingRequests } from "@/lib/api/family-server";
+import { familyContacts } from "@/lib/health/profile";
 import { familyMemberRef } from "@/lib/api/family-member-ref";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { formatDate } from "@/lib/format-date";
@@ -78,6 +79,13 @@ export default async function FamilyPage({ params }: Props) {
     if (pending.ok) requests = parsePermissionRequests(await pending.json().catch(() => null));
   } catch { /* said in place below */ }
 
+  // the board row counts the family's emergency contacts (GET /family/emergency-contacts); without the count the row keeps its hint
+  let emergencyCount: number | null = null;
+  try {
+    const contacts = await getPatientFamilyEmergencyContacts(token);
+    if (contacts.ok) emergencyCount = familyContacts(await contacts.json().catch(() => null)).length;
+  } catch { /* the row keeps its hint */ }
+
   const caret = getDirection(locale) === "rtl" ? "caret-left" : "caret-right";
   const count = group?.memberCount ?? members.length;
 
@@ -144,7 +152,7 @@ export default async function FamilyPage({ params }: Props) {
 
       <RowCard href={`${base}/calendar`} icon="calendar-dots" tone="coral" title={t("calendarTitle")} sub={t("calendarSub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
       <RowCard href={`${base}/chat`} icon="chat-circle-text" tone="blue" title={t("chatTitle")} sub={t("chatSub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
-      <RowCard href={`/${locale}/health/profile#emergency`} icon="users" tone="amber" title={t("emergencyTitle")} sub={t("emergencySub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
+      <RowCard href={`/${locale}/health/profile#emergency`} icon="users" tone="amber" title={t("emergencyTitle")} sub={emergencyCount ? t("emergencyCount", { count: emergencyCount }) : t("emergencySub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
     </ConsultPage>
   );
 }

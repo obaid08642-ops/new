@@ -11,6 +11,7 @@ import { LocalTimeLine } from "@/components-next/consult/local-time-line";
 import { Notice } from "@/components-next/consult/consult-parts";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { RowsCard, SectionHead } from "@/components-next/health/health-kit";
+import { SleepAddForm } from "@/components-next/health/sleep-add-form";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/health/health.module.css";
 
@@ -20,7 +21,7 @@ const when = (reading: SleepReading) => (reading.measuredAt ? new Date(reading.m
 
 /**
  * Sleep (merge map, section 1; restyled on the health template): the last night's score and hours as the lead card, then
- * every saved reading (GET /health/sleep). The web has no way to add a night (the old page was read-only too): see Needs review.
+ * every saved reading (GET /health/sleep), and the form to add a night (POST /health/sleep through the proxy, as the app does).
  */
 export default async function SleepPage({ params }: Props) {
   const { locale } = await params;
@@ -38,7 +39,13 @@ export default async function SleepPage({ params }: Props) {
   if (!response.ok) return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
 
   const readings = parseSleepReadings(await response.json().catch(() => null)).sort((a, b) => when(b) - when(a));
-  if (readings.length === 0) return frame(<ConsultState kind="empty" icon="moon" title={t("sleepTitle")} body={t("sleepEmpty")} />);
+  const addNight = (
+    <>
+      <SectionHead id="sleep-add" title={t("sleepAdd")} />
+      <SleepAddForm />
+    </>
+  );
+  if (readings.length === 0) return frame(<><ConsultState kind="empty" icon="moon" title={t("sleepTitle")} body={t("sleepEmpty")} />{addNight}</>);
   const last = readings[0];
 
   return frame(
@@ -57,6 +64,7 @@ export default async function SleepPage({ params }: Props) {
           <li className={styles.part}><span className={rx.cardLabel}>{t("sleepDuration")}</span><span className={styles.partValue}>{last.durationHours !== undefined ? t("sleepHours", { hours: last.durationHours }) : "—"}</span></li>
         </ul>
       </section>
+      {addNight}
       <SectionHead id="sleep-log" title={t("sleepLog")} />
       <RowsCard label={t("sleepLog")}>
         {readings.map((reading, index) => (
