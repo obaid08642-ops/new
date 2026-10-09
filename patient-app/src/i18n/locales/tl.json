@@ -1173,7 +1173,7 @@
   "consult.summary.notReadyBody": "Isusulat ng doktor ang buod pagkatapos ng appointment.",
   "consult.summary.loadError": "Hindi ma-load ang buod",
   "consult.summary.window": "{n}-araw na follow-up window",
-  "consult.summary.followUpBody": "Inirekomenda ng doktor ang follow-up sa loob ng {n} araw. Mag-book na sa mas mababang presyo.",
+  "consult.summary.followUpBody": "Inirekomenda ng doktor ang follow-up sa loob ng {n} araw.",
   "consult.summary.bookFollowUp": "Mag-book ng follow-up",
   "consult.summary.prescription": "Reseta",
   "consult.summary.toPharmacy": "Ipadala ang reseta sa botika",
@@ -3124,5 +3124,7 @@
   "pharmacy.rx.viaUpload": "I-upload",
   "pharmacy.rx.viaType": "I-type ang pangalan",
   "pharmacy.rx.zonePhoto": "Kunan ng larawan ang reseta",
-  "pharmacy.rx.zoneUpload": "Piliin ang reseta mula sa iyong mga larawan"
+  "pharmacy.rx.zoneUpload": "Piliin ang reseta mula sa iyong mga larawan",
+  "guest.loginRequiredTitle": "Kailangang mag-sign in",
+  "guest.loginRequiredBody": "Mag-sign in para magamit ang feature na ito."
 }

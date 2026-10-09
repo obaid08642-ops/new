@@ -1173,7 +1173,7 @@
   "consult.summary.notReadyBody": "ڈاکٹر ملاقات ختم ہونے کے بعد خلاصہ لکھے گا۔",
   "consult.summary.loadError": "خلاصہ لوڈ نہیں ہو سکا",
   "consult.summary.window": "{n} دن کی فالو اپ مدت",
-  "consult.summary.followUpBody": "ڈاکٹر نے {n} دن کے اندر فالو اپ کی سفارش کی ہے۔ ابھی کم قیمت پر بک کریں۔",
+  "consult.summary.followUpBody": "ڈاکٹر نے {n} دن کے اندر فالو اپ کی سفارش کی ہے۔",
   "consult.summary.bookFollowUp": "فالو اپ بک کریں",
   "consult.summary.prescription": "نسخہ",
   "consult.summary.toPharmacy": "نسخہ فارمیسی کو بھیجیں",
@@ -3124,5 +3124,7 @@
   "pharmacy.rx.viaUpload": "اپ لوڈ",
   "pharmacy.rx.viaType": "نام لکھیں",
   "pharmacy.rx.zonePhoto": "نسخے کی تصویر لیں",
-  "pharmacy.rx.zoneUpload": "اپنی تصاویر میں سے نسخہ چنیں"
+  "pharmacy.rx.zoneUpload": "اپنی تصاویر میں سے نسخہ چنیں",
+  "guest.loginRequiredTitle": "سائن اِن ضروری ہے",
+  "guest.loginRequiredBody": "یہ فیچر استعمال کرنے کے لیے سائن اِن کریں۔"
 }

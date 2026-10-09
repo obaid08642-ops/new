@@ -1173,7 +1173,7 @@
   "consult.summary.notReadyBody": "डॉक्टर अपॉइंटमेंट खत्म होने के बाद सारांश लिखेंगे।",
   "consult.summary.loadError": "सारांश लोड नहीं हो सका",
   "consult.summary.window": "{n} दिन की फॉलो-अप अवधि",
-  "consult.summary.followUpBody": "डॉक्टर ने {n} दिनों में फॉलो-अप की सलाह दी है। अभी कम कीमत पर बुक करें।",
+  "consult.summary.followUpBody": "डॉक्टर ने {n} दिनों के भीतर फ़ॉलो-अप की सलाह दी है।",
   "consult.summary.bookFollowUp": "फॉलो-अप बुक करें",
   "consult.summary.prescription": "पर्चा",
   "consult.summary.toPharmacy": "पर्चा फ़ार्मेसी को भेजें",
@@ -3124,5 +3124,7 @@
   "pharmacy.rx.viaUpload": "अपलोड",
   "pharmacy.rx.viaType": "नाम लिखें",
   "pharmacy.rx.zonePhoto": "पर्चे की फ़ोटो लें",
-  "pharmacy.rx.zoneUpload": "अपनी फ़ोटो में से पर्चा चुनें"
+  "pharmacy.rx.zoneUpload": "अपनी फ़ोटो में से पर्चा चुनें",
+  "guest.loginRequiredTitle": "साइन इन ज़रूरी है",
+  "guest.loginRequiredBody": "इस सुविधा का उपयोग करने के लिए साइन इन करें।"
 }
