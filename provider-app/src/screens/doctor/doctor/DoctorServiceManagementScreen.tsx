@@ -32,7 +32,7 @@ import {
  SmartOutboundReferralNetwork
 } from '../../shared/BlueprintScreens';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { tokens } from '../../../theme/tokens';
+import { tokens, withAlpha } from '../../../theme/tokens';
 import { MODE_MAP } from './AvailabilityPulseScreen';
 
 export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }) {
@@ -45,12 +45,11 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  const [services, setServices] = useState<any[]>([]);
 
  const [showAddSheet, setShowAddSheet] = useState(false);
- const [newTitleAr, setNewTitleAr] = useState('');
- const [newTitleEn, setNewTitleEn] = useState('');
+ // The server identifies a doctor session by consultation_type (+ specialty), so the add form picks the type
+ // instead of taking free-text names and descriptions that the server has no field for.
+ const [newType, setNewType] = useState<string>('video');
  const [newPrice, setNewPrice] = useState('');
  const [newDuration, setNewDuration] = useState('30');
- const [newDescAr, setNewDescAr] = useState('');
- const [newDescEn, setNewDescEn] = useState('');
 
  const [editingService, setEditingService] = useState<any | null>(null);
  const [editPrice, setEditPrice] = useState('');
@@ -140,14 +139,8 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  return;
  }
  try {
- const rawType = newTitleEn.toLowerCase().includes('video') ? 'video'
- : newTitleEn.toLowerCase().includes('voice') || newTitleEn.toLowerCase().includes('audio') ? 'voice'
- : newTitleEn.toLowerCase().includes('clinic') ? 'clinic'
- : newTitleEn.toLowerCase().includes('home') ? 'home'
- : 'chat';
- 
  const payload = {
- consultation_type: rawType,
+ consultation_type: newType,
  specialty: 'General Medicine',
  price: parseFloat(newPrice) || 0,
  duration_minutes: parseInt(newDuration) || 30,
@@ -157,8 +150,7 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  await client.post('/provider/capabilities/doctor-sessions', payload);
  fetchServices();
  setShowAddSheet(false);
- setNewTitleAr('');
- setNewTitleEn('');
+ setNewType('video');
  setNewPrice('');
  setNewDuration('30');
  show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
@@ -271,14 +263,20 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  </NSheet>
 
  {/* Add Service Sheet */}
- <NSheet visible={showAddSheet} onClose={() => setShowAddSheet(false)} title={AR ? ' إضافة خدمة جديدة' : ' Add Custom Service'} height={580}>
+ <NSheet visible={showAddSheet} onClose={() => setShowAddSheet(false)} title={AR ? ' إضافة خدمة جديدة' : ' Add Custom Service'} height={520}>
  <ScrollView contentContainerStyle={{ padding: SP.md }}>
- <NInput label={AR ? 'اسم الخدمة (عربي)' : 'Service Name (Arabic)'} value={newTitleAr} onChange={setNewTitleAr} required />
- <NInput label={AR ? 'اسم الخدمة (إنجليزي)' : 'Service Name (English)'} value={newTitleEn} onChange={setNewTitleEn} required />
+ <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>{AR ? 'نوع الخدمة' : 'Service type'}</Text>
+ <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.sm, marginBottom: SP.md }}>
+ {Object.keys(MODE_MAP).map(k => (
+ <TouchableOpacity key={k} accessibilityRole="button" accessibilityState={{ selected: newType === k }} onPress={() => setNewType(k)}
+ style={{ paddingHorizontal: SP.md, paddingVertical: SP.sm, borderRadius: R.full, borderWidth: 1, borderColor: newType === k ? theme.primary : theme.border, backgroundColor: newType === k ? withAlpha(theme.primary, 0.12) : theme.surface }}>
+ <Text style={{ color: newType === k ? theme.primary : theme.text, fontSize: FS.sm }}>{AR ? MODE_MAP[k].nameAr : MODE_MAP[k].nameEn}</Text>
+ </TouchableOpacity>
+ ))}
+ </View>
+ <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? MODE_MAP[newType]?.descAr : MODE_MAP[newType]?.descEn}</Text>
  <NPriceInput label={AR ? 'سعر الخدمة (SAR)' : 'Service Price (SAR)'} value={newPrice} onChange={setNewPrice} required />
  <NInput label={AR ? 'المدة بالدقائق' : 'Duration (min)'} kbType="numeric" value={newDuration} onChange={setNewDuration} />
- <NInput label={AR ? 'الوصف (عربي)' : 'Description (Arabic)'} value={newDescAr} onChange={setNewDescAr} multi />
- <NInput label={AR ? 'الوصف (إنجليزي)' : 'Description (English)'} value={newDescEn} onChange={setNewDescEn} multi />
  <NBtn label={AR ? ' إضافة الخدمة' : ' Add Service'} onPress={handleAddService} style={{ marginTop: SP.md }} />
  </ScrollView>
  </NSheet>
