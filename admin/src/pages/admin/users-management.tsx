@@ -123,6 +123,7 @@ export default function UsersManagementPage() {
 
   /** Reactivate a suspended account. */
   const handleReactivate = async (u: any) => {
+    if (!confirm(`إعادة تفعيل حساب «${u.full_name || u.phone}»؟`)) return;
     const id = u.id || u._id;
     setActionBusy(id);
     try {

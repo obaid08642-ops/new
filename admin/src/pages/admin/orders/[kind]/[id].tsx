@@ -8,7 +8,7 @@ import { DataTable } from '@/components/DataTable';
 type Detail = { kind: string; kind_label_ar?: string; order: Record<string, any>; timeline: Array<{ at?: string; from?: string; to?: string; note?: string; by_user_id?: string }>; payments: Array<Record<string, any>>; financials: { gross_paid: number; refunded_total: number; refundable_max: number }; refunds: Array<{ amount: number; description?: string; createdAt?: string }> };
 type Action = 'cancel' | 'refund' | 'compensate' | 'reassign' | 'sla-extend' | 'note';
 
-const labels: Record<Action, string> = { cancel: 'إلغاء الطلب', refund: 'استرداد إلى المحفظة', compensate: 'تعويض محفظة', reassign: 'إعادة إسناد مزوّد', 'sla-extend': 'تمديد SLA', note: 'إضافة ملاحظة داخلية' };
+const labels: Record<Action, string> = { cancel: 'إلغاء الطلب', refund: 'استرداد إلى وسيلة الدفع الأصلية', compensate: 'تعويض محفظة', reassign: 'إعادة إسناد مزوّد', 'sla-extend': 'تمديد SLA', note: 'إضافة ملاحظة داخلية' };
 
 export default function OrderDetailPage() {
   const router = useRouter();

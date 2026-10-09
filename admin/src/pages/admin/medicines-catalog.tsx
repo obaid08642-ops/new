@@ -227,6 +227,7 @@ export default function MedicinesCatalogPage() {
 
   // P6.0: direct medical-review decision on the catalog item.
   const decideItem = async (m: any, approve: boolean) => {
+    if (!confirm(`${approve ? 'اعتماد' : 'رفض'} «${m.name_ar || m.name_en}»؟${approve ? ' سيظهر في الكتالوج العام.' : ''}`)) return;
     setBusy(m.id);
     try {
       await apiFetch(`/medicines/admin/catalog/${m.id}/approve`, { method: 'POST', body: JSON.stringify({ approve }) });
