@@ -258,25 +258,13 @@
      "fixed"
     ],
     [
-     "button: Retry",
-     "GET /provider/jobs/queue",
-     "ok"
-    ],
-    [
-     "data: List rows",
-     "GET /provider/jobs/queue → rows",
-     "ok"
-    ],
-    [
-     "button: Patient",
-     "navigate → order_detail",
-     "ok"
-    ],
-    [
-     "button: Checklist",
+     "button: Start Checklist",
      "navigate → nurse_checklist",
      "ok"
     ]
+   ],
+   "notes": [
+    "No API call at all (static screen or all data comes from a parent)."
    ]
   },
   {
