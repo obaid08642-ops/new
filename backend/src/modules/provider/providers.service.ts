@@ -332,7 +332,8 @@ export class ProvidersService {
       q.insurance_contracts = { $elemMatch: elemMatch };
     }
 
-    return this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1, createdAt: -1 }).limit(200).lean();
+    const rows = await this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1, createdAt: -1 }).limit(200).lean();
+    return rows.map((r: any) => this.toPublicProvider(r));
   }
   /** Map providers: ACTIVE only, must have real stored coordinates. */
   async mapProviders(type?: string, lat?: number, lng?: number, radiusKm?: number) {
@@ -370,8 +371,37 @@ export class ProvidersService {
   async getPublicById(id: string) {
     const p = await this.providerModel.findOne({ id, ...this.publicDiscoveryFilter() }, { _id: 0, __v: 0 });
     if (!p) throw new NotFoundException();
-    return p;
+    return this.toPublicProvider(p);
   }
+
+  /** D-17: public provider view — only allow-listed fields, never PII. */
+  private toPublicProvider(raw: any): any {
+    const p = raw?.toObject ? raw.toObject() : raw;
+    const verified = p.medical_review_status === 'approved' && p.license_verified === true;
+    return {
+      id: p.id,
+      name_ar: p.name_ar || null,
+      name_en: p.name_en || null,
+      type: p.type || null,
+      specialty: p.specialty || null,
+      sub_specialties: Array.isArray(p.sub_specialties) ? p.sub_specialties : [],
+      consultation_modes: Array.isArray(p.consultation_modes) ? p.consultation_modes : [],
+      city: p.city || null,
+      district: p.district || null,
+      rating: p.rating_avg ?? p.rating ?? null,
+      reviews_count: p.rating_count ?? p.reviews_count ?? 0,
+      bio: p.bio || null,
+      languages: Array.isArray(p.languages) ? p.languages : [],
+      accepts_insurance: Boolean(p.accepts_insurance),
+      insurance_clinic: Boolean(p.insurance_clinic),
+      insurance_online: Boolean(p.insurance_online),
+      insurance_home: Boolean(p.insurance_home),
+      accepted_insurance: Array.isArray(p.accepted_insurance) ? p.accepted_insurance : [],
+      scfhs_license_no: p.scfhs_license_number || null,
+      verified: Boolean(p.license_verified && p.medical_review_status === 'approved'),
+    };
+  }
+
   async myProfile(actor: any) {
     const identifiers = [
       actor?.id,

@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Query, ForbiddenException, BadRequestException, UseGuards } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { CurrentUser, JwtAuthGuard, SelfService } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, Public, SelfService } from '../../common/auth.guard';
 import { BookDto } from '../compat/compat.dto';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { HomeCareSvc } from './home-care.service';
@@ -17,6 +17,9 @@ export class PatientHomeCareController {
     private readonly homeSvc: HomeCareSvc,
   ) {}
 
+  // Q88: service catalog is browsable anonymously like /nursing/catalog
+  // and /care/specialties — only approved, public-eligible rows are served.
+  @Public()
   @Get('services')
   async services(@Query('limit') limit = '50') {
     const lim = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 200);

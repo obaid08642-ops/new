@@ -100,6 +100,24 @@ export class PharmacyChatService {
     return m.toObject();
   }
 
+  /**
+   * Recompute an order's stored totals from its items (same rounding as the
+   * offer engine). Delivery fee is preserved; only the merchandise subtotal
+   * is re-derived. R2: substitution accept / item removal must move totals.
+   */
+  private async refreshOrderTotals(order: any): Promise<void> {
+    const items = Array.isArray(order?.items) ? order.items : [];
+    const round2 = (n: number) => Math.round(n * 100) / 100;
+    const subtotal = round2(
+      items.reduce((s: number, it: any) => s + (Number(it.unit_price) || 0) * (Number(it.qty) || 0), 0),
+    );
+    const delivery = Number(order.totals?.delivery_fee) || 0;
+    order.totals = { subtotal, delivery_fee: delivery, total: round2(subtotal + delivery), currency: 'SAR' };
+    order.markModified?.('items');
+    order.markModified?.('totals');
+    await order.save();
+  }
+
   /** Patient: accept a substitute offered in a chat thread. Updates allocation item. */
   async acceptSubstitute(user: any, thread_id: string, message_id: string): Promise<any> {
     const t = await this.threads.findOne({ id: thread_id });
@@ -124,6 +142,17 @@ export class PharmacyChatService {
         await alloc.save();
       }
     }
+    // R2: the order itself must move too — swap the order item to the
+    // substitute price/sku and recompute stored totals.
+    const order = await this.orders.findOne({ id: t.order_id });
+    if (order && Array.isArray(order.items)) {
+      const oi = order.items.find((i: any) => i.id === t.order_item_id);
+      if (oi) {
+        if (msg.substitute_offer.sku) oi.matched_sku = msg.substitute_offer.sku;
+        if (msg.substitute_offer.price) oi.unit_price = msg.substitute_offer.price;
+      }
+      await this.refreshOrderTotals(order);
+    }
     t.status = 'closed';
     t.resolution = 'accepted';
     await t.save();
@@ -141,13 +170,13 @@ export class PharmacyChatService {
     t.resolution = action;
     await t.save();
     if (action === 'removed') {
-      // Remove item from order
+      // Remove item from order and recompute totals (R2).
       const order = await this.orders.findOne({ id: t.order_id });
       if (order) {
         order.items = order.items.filter((it: any) => it.id !== t.order_item_id);
         order.markModified('items');
         order.timeline.push({ ts: new Date(), event: 'item_removed_from_order', meta: { order_item_id: t.order_item_id } });
-        await order.save();
+        await this.refreshOrderTotals(order);
       }
     }
     await this.messages.create({ id: uuidv4(), thread_id, sender_account_id: 'system', sender_role: 'system', text: action === 'rejected' ? `المريض رفض البديل.` : `تم حذف الصنف من الطلب.` });
