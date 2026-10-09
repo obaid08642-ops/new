@@ -8,12 +8,13 @@ import { formatMoney } from "@/components-next/pharmacy-offers/format";
 import { LocalDate } from "./local-date";
 import { statusKey } from "@/components-next/pharmacy-offers/status";
 import { OFFER_TONES } from "@/components-next/pharmacy-offers/tones";
+import { CancelOrder } from "@/components-next/pharmacy-offers/cancel-order";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { parseOrderId } from "@/lib/api/orders";
 import { requirePatientAccess } from "@/lib/auth/session";
 import type { Locale } from "@/lib/i18n";
-import { orderAction, orderNumber } from "@/lib/pharmacy/order-view";
+import { canCancelOrder, orderAction, orderNumber } from "@/lib/pharmacy/order-view";
 import { routeForOrder } from "@/lib/pharmacy/order-route";
 import { readOrderDetail } from "./read-orders";
 import { statusTone } from "./status-tone";
@@ -119,6 +120,7 @@ export async function OrderDetailScreen({ locale, orderId }: { locale: Locale; o
         ) : (
           <ButtonLink href={next} label={next === tracking ? t("action.track") : t("action.continue")} fullWidth />
         )}
+        {canCancelOrder(detail.status) ? <CancelOrder orderId={orderId} after="refresh" /> : null}
       </div>
     </>,
   );
