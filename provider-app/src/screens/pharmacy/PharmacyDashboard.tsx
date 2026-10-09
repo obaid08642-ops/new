@@ -44,6 +44,8 @@ import { SP, R, FS, FW, PHARMA_CATS, LIMITS, C, API_BASE } from '../../constants
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
 import { PharmacyInsuranceQueueScreen } from './PharmacyInsuranceDecision';
 import { PharmacyMoreScreen, SetupChecklist } from './PharmacyMore';
+import { PharmacyMyOffers } from './PharmacyMyOffers';
+import { PharmacyReturnDetail } from './PharmacyReturnDetail';
 import { buildHeaders, Biometric, SK, Vault } from '../../security/Security';
 import client from '../../api/client';
 import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderProfileEditor, ProviderHomeStats, GlobalSystemSettings } from '../shared/SharedScreens';
@@ -141,6 +143,7 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
      <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="order_history">{({ navigation }: any) => <DispatchWorkflowScreen initialSection="done" onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="pharmacy_settings">{({ navigation }: any) => <SettingsScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+     <Stack.Screen name="my_offers">{({ navigation }: any) => <PharmacyMyOffers onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="returns_rma">{({ navigation }: any) => <ReturnsRMAScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
     <Stack.Screen name="pharmacy_chat">{({ navigation, route }: any) => <PharmacyChatScreen onBack={() => navigation.goBack()} orderId={route.params?.param?.order_id || route.params?.param?.orderId} />}</Stack.Screen>
      <Stack.Screen name="qr_menu">{({ navigation }: any) => <PharmacyQRMenuScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -803,6 +806,7 @@ function ReturnsRMAScreen({ onBack }: any) {
 
   const [returns, setReturns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [openId, setOpenId] = useState('');
 
   const statusMeta = (s: string) => {
     const k = (s || '').toLowerCase();
@@ -811,12 +815,15 @@ function ReturnsRMAScreen({ onBack }: any) {
     return { label: AR ? 'قيد المعالجة' : 'Processing', variant: 'warning' as any };
   };
 
-  useEffect(() => {
+  const loadReturns = () => {
     client.get('/pharmacy/returns/provider/list')
       .then((res: any) => setReturns(res.data || []))
       .catch(() => { setReturns([]); show(AR ? 'تعذر جلب المرتجعات' : 'Failed to load returns', 'error'); })
       .finally(() => setLoading(false));
-  }, []);
+  };
+  useEffect(() => { loadReturns(); }, []);
+
+  if (openId) return <PharmacyReturnDetail id={openId} onBack={() => setOpenId('')} onAnswered={loadReturns} />;
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
@@ -829,7 +836,7 @@ function ReturnsRMAScreen({ onBack }: any) {
         {!loading && returns.map((r: any) => {
           const meta = statusMeta(r.status);
           return (
-            <NCard key={r.id || r._id} style={{ marginBottom: 12, padding: 16 }}>
+            <NCard key={r.id || r._id} onPress={() => setOpenId(String(r.id || ''))} style={{ marginBottom: 12, padding: 16 }}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                 <Text style={{ fontWeight: 'bold', fontSize: 15, color: theme.text }}>
                   {AR ? `طلب إرجاع ${r.order_id || ''}` : `Return ${r.order_id || ''}`}
@@ -849,7 +856,7 @@ function ReturnsRMAScreen({ onBack }: any) {
                 <Text style={{ color: theme.textSub, fontSize: 12 }}>{(r.createdAt || '').slice(0, 10)}</Text>
               </View>
               <Text style={{ color: theme.textSub, fontSize: 11, marginTop: 6, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? 'قرار القبول/الرفض والاسترداد يتم من إدارة المنصة' : 'Approval and refund decisions are handled by platform admin'}
+                {AR ? 'اضغط للتفاصيل والرد. قرار القبول/الرفض والاسترداد يتم من إدارة المنصة' : 'Tap for details and to answer. Approval and refund decisions are handled by platform admin'}
               </Text>
             </NCard>
           );

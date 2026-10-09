@@ -90,16 +90,6 @@
    "route": "CredentialingScreen",
    "elements": [
     [
-     "button: Docs",
-     "Alert / toast only, no request",
-     "not wired"
-    ],
-    [
-     "button: Renew",
-     "Alert / toast only, no request",
-     "not wired"
-    ],
-    [
      "number: Stat: Valid",
      "value ← String(CREDS.filter(c=>c.status==='valid').lengt",
      "ok"
@@ -703,11 +693,6 @@
    "route": "HospitalDispatchScreen",
    "elements": [
     [
-     "dummy-value: +966500000000",
-     "mock-scan dummy-value",
-     "mock"
-    ],
-    [
      "data: List bookings",
      "GET /home-care/bookings/nursing/all, GET /home-care/providers → bookings",
      "ok"
@@ -919,11 +904,6 @@
    "route": "SubAccountsScreen",
    "elements": [
     [
-     "button: [document] Professional Credential Card",
-     "Alert / toast only, no request",
-     "not wired"
-    ],
-    [
      "data: Data staffList",
      "GET /hospital/staff, DELETE /hospital/staff/:param → staffList",
      "ok"
@@ -1049,22 +1029,6 @@
  ],
  "needsReview": [
   {
-   "route": "CredentialingScreen",
-   "element": "Docs",
-   "kind": "client",
-   "note": "Button \"Docs\" only shows a message without sending a request.",
-   "file": "provider-app/src/screens/facility/facility/CredentialingScreen.tsx",
-   "line": 113
-  },
-  {
-   "route": "CredentialingScreen",
-   "element": "Renew",
-   "kind": "client",
-   "note": "Button \"Renew\" only shows a message without sending a request.",
-   "file": "provider-app/src/screens/facility/facility/CredentialingScreen.tsx",
-   "line": 116
-  },
-  {
    "route": "FacilityAuditLogScreen",
    "element": "API GET /provider/facility/audit-logs",
    "kind": "backend",
@@ -1101,14 +1065,6 @@
    "backend": "backend/src/modules/provider/provider-facility.controller.ts:42"
   },
   {
-   "route": "HospitalDispatchScreen",
-   "element": "dummy-value: +966500000000",
-   "kind": "client",
-   "note": "dummy-value (mock-scan): +966500000000",
-   "file": "provider-app/src/screens/facility/facility/HospitalDispatchScreen.tsx",
-   "line": 81
-  },
-  {
    "route": "InsuranceClaimsHubScreen",
    "element": "API GET /insurance/requests/provider/queue",
    "kind": "backend",
@@ -1125,14 +1081,6 @@
    "file": "provider-app/src/screens/facility/facility/ShiftManagementScreen.tsx",
    "line": 83,
    "backend": "backend/src/modules/provider/provider-facility.controller.ts:81"
-  },
-  {
-   "route": "SubAccountsScreen",
-   "element": "[document] Professional Credential Card",
-   "kind": "client",
-   "note": "Button \"[document] Professional Credential Card\" only shows a message without sending a request.",
-   "file": "provider-app/src/screens/facility/facility/SubAccountsScreen.tsx",
-   "line": 206
   }
  ]
 }

@@ -51,23 +51,6 @@
   {
     "scenario": 1,
     "scenario_name": "Pharmacy: request to hand over",
-    "step": "send offer",
-    "status": "missing step",
-    "tag": "[backend]",
-    "problem": "[P3] No \"my offers\" list: the provider can read offers per order only; a list route (GET /provider/pharmacy/offers: draft, sent, chosen, not chosen, expired, quote expiry) does not exist. After sending, the composer just goes back.",
-    "file": "backend/src/modules/pharmacy/pharmacy.controllers.ts",
-    "line": 206,
-    "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:206",
-    "batch": "provider",
-    "app": "provider-app",
-    "screen": "pharmacy.controllers",
-    "element": "send offer",
-    "found": "[backend] [P3] No \"my offers\" list: the provider can read offers per order only; a list route (GET /provider/pharmacy/offers: draft, sent, chosen, not chosen, expired, quote expiry) does not exist. After sending, the composer just goes back.",
-    "suspect": "missing step"
-  },
-  {
-    "scenario": 1,
-    "scenario_name": "Pharmacy: request to hand over",
     "step": "patient accepts",
     "status": "broken",
     "tag": "[backend]",
@@ -196,38 +179,6 @@
     "element": "prescription",
     "found": "[owner] The client never calls POST /prescriptions/:id/send and offers no pharmacy to send to (the \"Pharmacy on Nabd Plus\" row has no handler); with decision 18 (patient orders the medicines) confirm that create alone is the intended end of the doctor's part.",
     "suspect": "missing step"
-  },
-  {
-    "scenario": 2,
-    "scenario_name": "Doctor: schedule to follow-up",
-    "step": "chat / video in the booking",
-    "status": "broken",
-    "tag": "[client]",
-    "problem": "Hard-coded sentence \"Opens 15 mins early for document uploads\" contradicts decision 24 (chat from confirmation until the end of the follow-up window).",
-    "file": "provider-app/src/screens/doctor/doctor/PreVisitChatScreen.tsx",
-    "line": 47,
-    "batch": "provider",
-    "app": "provider-app",
-    "screen": "PreVisitChatScreen",
-    "element": "chat / video in the booking",
-    "found": "[client] Hard-coded sentence \"Opens 15 mins early for document uploads\" contradicts decision 24 (chat from confirmation until the end of the follow-up window).",
-    "suspect": "broken"
-  },
-  {
-    "scenario": 2,
-    "scenario_name": "Doctor: schedule to follow-up",
-    "step": "follow-up",
-    "status": "broken",
-    "tag": "[backend]",
-    "problem": "Follow-up window defaults to 24 h (system config consultation_followup_hours), decision 24 says 72 h for every consultation type.",
-    "file": "backend/src/modules/chat/chat.service.ts",
-    "line": 234,
-    "batch": "provider",
-    "app": "provider-app",
-    "screen": "chat.service",
-    "element": "follow-up",
-    "found": "[backend] Follow-up window defaults to 24 h (system config consultation_followup_hours), decision 24 says 72 h for every consultation type.",
-    "suspect": "broken"
   },
   {
     "scenario": 2,
@@ -597,7 +548,7 @@
     "step": "result upload",
     "status": "works",
     "tag": "[backend]",
-    "problem": "With result files the visit is completed through POST /home-care/bookings/:id/visit-report (the only route that stores attachments); that handler does not store the patient signature (the DTO accepts `signature`, the handler ignores it) and sends no `patient.notify` like /nursing/visits/:id/complete does. Visits without files still complete through /nursing/visits/:id/complete.",
+    "problem": "With result files the visit is completed through POST /home-care/bookings/:id/visit-report (the only route that stores attachments); that handler sends no `patient.notify` like /nursing/visits/:id/complete does (the patient signature is stored now). Visits without files still complete through /nursing/visits/:id/complete.",
     "file": "provider-app/src/screens/nursing/NursingFieldOps.tsx",
     "line": 128,
     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:261",
@@ -605,7 +556,7 @@
     "app": "provider-app",
     "screen": "NursingFieldOps",
     "element": "result upload",
-    "found": "[backend] With result files the visit is completed through POST /home-care/bookings/:id/visit-report (the only route that stores attachments); that handler does not store the patient signature (the DTO accepts `signature`, the handler ignores it) and sends no `patient.notify` like /nursing/visits/:id/complete does. Visits without files still complete through /nursing/visits/:id/complete.",
+    "found": "[backend] With result files the visit is completed through POST /home-care/bookings/:id/visit-report (the only route that stores attachments); that handler sends no `patient.notify` like /nursing/visits/:id/complete does (the patient signature is stored now). Visits without files still complete through /nursing/visits/:id/complete.",
     "suspect": "backend gap"
   }
 ]

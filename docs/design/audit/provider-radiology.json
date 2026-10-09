@@ -60,11 +60,6 @@
    "route": "CatalogManagerTab",
    "elements": [
     [
-     "button: Edit",
-     "Alert / toast only, no request",
-     "not wired"
-    ],
-    [
      "data: Data prepItems",
      "prepItems: set from user input / local logic",
      "ok"
@@ -453,14 +448,6 @@
   }
  ],
  "needsReview": [
-  {
-   "route": "CatalogManagerTab",
-   "element": "Edit",
-   "kind": "client",
-   "note": "Button \"Edit\" only shows a message without sending a request.",
-   "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-   "line": 547
-  },
   {
    "route": "RadiologyHome",
    "element": "API GET /radiology/provider/inbox",

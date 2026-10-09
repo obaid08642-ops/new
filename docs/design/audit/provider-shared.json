@@ -98,7 +98,7 @@
     ],
     [
      "API: GET /chats/threads",
-     "GET /chats/threads (OK, backend/src/modules/chat/chat.module.ts:142)",
+     "GET /chats/threads (OK, backend/src/modules/chat/chat.module.ts:84)",
      "ok"
     ]
    ],
@@ -683,11 +683,6 @@
    "route": "ProviderHome",
    "elements": [
     [
-     "fake-number: rating: 5.0",
-     "mock-scan fake-number",
-     "mock"
-    ],
-    [
      "data: List sections (in HomeSections)",
      "GET /content/home → sections",
      "ok"
@@ -1180,14 +1175,6 @@
    "note": "The QR catalog screen draws a fixed QR icon and text; there is no QR value, catalog link or request behind it.",
    "file": "provider-app/src/screens/shared/RealScreensExtended.tsx",
    "line": 17
-  },
-  {
-   "route": "ProviderHome",
-   "element": "fake-number: rating: 5.0",
-   "kind": "client",
-   "note": "fake-number (mock-scan): rating: 5.0",
-   "file": "provider-app/src/screens/shared/ProviderHome.tsx",
-   "line": 24
   },
   {
    "route": "ProviderWalletScreen",
