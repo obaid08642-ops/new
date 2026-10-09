@@ -1038,6 +1038,8 @@
     "retry": "Retry",
     "emptyTitle": "No results",
     "emptyBody": "No doctors match your search.",
+    "clearSearch": "Clear search",
+    "backToConsultations": "Back to consultations",
     "nameUnavailable": "Doctor name unavailable",
     "rating": "Rating {value}",
     "price": "{value} SAR",
@@ -1377,6 +1379,8 @@
     "submitting": "Booking…",
     "currency": "SAR",
     "doctorUnavailable": "Doctor unavailable",
+    "doctorUnavailableBody": "We could not load this doctor right now. Try again or choose another doctor.",
+    "backToDoctors": "Back to doctors",
     "bookingFailed": "Booking failed. Check the slot and the payment method.",
     "fee": "Consultation fee"
   },

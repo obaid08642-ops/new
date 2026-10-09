@@ -248,4 +248,11 @@ describe("the booking screen", () => {
     expect(html).toContain("Home visit");
     expect(html).not.toContain("booking_failed");
   });
+
+  it("shows the cancellation and refund terms before the payment card when the page passes them (decision 26)", () => {
+    const html = render(<BookingFlow doctorId="doc-1" locale="en" doctor={null} policy={{ title: "Cancellation and refund policy", lines: ["24 hours or more before: 100% refund"] }} />);
+    expect(html).toContain("Cancellation and refund policy");
+    expect(html).toContain("24 hours or more before: 100% refund");
+    expect(html.indexOf("Cancellation and refund policy")).toBeGreaterThan(html.indexOf("book-payment"));
+  });
 });

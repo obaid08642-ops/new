@@ -922,6 +922,8 @@
   "consult.rx.tryAgain": "حاول مرة أخرى بعد قليل.",
   "consult.rx.someFailedTitle": "تعذّرت إضافة بعض التذكيرات",
   "consult.rx.someFailedBody": "لم يُضف {n} من {total}. حاول مرة أخرى.",
+  "consult.rx.notInCartTitle": "لم تُضف بعض الأدوية إلى السلة",
+  "consult.rx.notInCartBody": "كتب الطبيب {n} من {total} أدوية يدويًا وليست في الكتالوج، فلم تُضف إلى السلة.",
   "consult.share.title": "مشاركة تقارير مع الطبيب",
   "consult.share.intro": "شارك تقاريرك مع طبيبك عبر أي تطبيق، وأنت من يختار المستلم.",
   "consult.share.empty": "لا توجد تقارير لمشاركتها بعد",

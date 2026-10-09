@@ -922,6 +922,8 @@
   "consult.rx.tryAgain": "Try again in a moment.",
   "consult.rx.someFailedTitle": "Some reminders could not be added",
   "consult.rx.someFailedBody": "{n} of {total} were not added. Try again.",
+  "consult.rx.notInCartTitle": "Some medicines were not added to the cart",
+  "consult.rx.notInCartBody": "{n} of {total} medicines were written by hand by the doctor and are not in the catalogue, so they were not added to the cart.",
   "consult.share.title": "Share reports with the doctor",
   "consult.share.intro": "Share your reports with your doctor through any app. You choose who receives them.",
   "consult.share.empty": "No reports to share yet",

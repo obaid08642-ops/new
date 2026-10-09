@@ -210,7 +210,7 @@
  {
   "scenario": 3,
   "step": "doctor list",
-  "problem": "The doctors list ends in \"no results\" with no action when nothing matches (seed has 0 published doctors).",
+  "problem": "Fixed on design/oc-journeys-2: the empty list now offers clear search (or back to consultations). The doctors list ends in \"no results\" with no action when nothing matches (seed has 0 published doctors).",
   "kind": "dead-end",
   "file": "patient-web/app/[locale]/consultations/doctors/page.tsx",
   "line": 76
@@ -218,7 +218,7 @@
  {
   "scenario": 3,
   "step": "booking",
-  "problem": "When the doctor cannot be loaded the booking page still draws the whole form under the title \"الطبيب غير متاح\" (visit type, days, payment, confirm).",
+  "problem": "Fixed on design/oc-journeys-2: an unloadable doctor shows the error state with retry instead of the form. When the doctor cannot be loaded the booking page still draws the whole form under the title \"الطبيب غير متاح\" (visit type, days, payment, confirm).",
   "kind": "wrong-state",
   "file": "patient-web/app/[locale]/consultations/book/[doctorId]/page.tsx",
   "line": 37
@@ -250,7 +250,7 @@
  {
   "scenario": 3,
   "step": "booking",
-  "problem": "No cancellation/refund terms are shown before payment on the booking page (decision 26: the table is shown before payment).",
+  "problem": "Fixed on design/oc-journeys-2: the booking page shows the cancellation and refund terms before the payment card. No cancellation/refund terms are shown before payment on the booking page (decision 26: the table is shown before payment).",
   "kind": "missing-state",
   "file": "patient-web/components-next/booking-flow.tsx",
   "line": 221
@@ -282,7 +282,7 @@
  {
   "scenario": 3,
   "step": "prescription -> cart",
-  "problem": "App \"اطلب الأدوية دي\" silently skips lines without a catalogue id (hand-written lines), so the cart can hold fewer medicines than the prescription with no message.",
+  "problem": "Fixed on design/oc-journeys-2: the app tells the patient how many hand-written lines were not added to the cart. App \"اطلب الأدوية دي\" silently skips lines without a catalogue id (hand-written lines), so the cart can hold fewer medicines than the prescription with no message.",
   "kind": "missing-field",
   "file": "patient-app/app/consultations/prescription-from-doctor.tsx",
   "line": 97

@@ -1038,6 +1038,8 @@
     "retry": "إعادة المحاولة",
     "emptyTitle": "لا توجد نتائج",
     "emptyBody": "لا يوجد أطباء مطابقون لبحثك.",
+    "clearSearch": "مسح البحث",
+    "backToConsultations": "العودة إلى الاستشارات",
     "nameUnavailable": "اسم الطبيب غير متاح",
     "rating": "التقييم {value}",
     "price": "{value} ر.س",
@@ -1377,6 +1379,8 @@
     "submitting": "جارٍ الحجز…",
     "currency": "ر.س",
     "doctorUnavailable": "الطبيب غير متاح",
+    "doctorUnavailableBody": "تعذّر تحميل بيانات الطبيب الآن. حاول مرة أخرى أو اختر طبيبًا آخر.",
+    "backToDoctors": "العودة إلى الأطباء",
     "bookingFailed": "تعذر إتمام الحجز — تحقق من الموعد وطريقة الدفع",
     "fee": "رسوم الاستشارة"
   },

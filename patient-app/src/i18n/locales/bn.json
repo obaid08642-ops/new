@@ -886,6 +886,8 @@
   "consult.rx.tryAgain": "একটু পরে আবার চেষ্টা করুন।",
   "consult.rx.someFailedTitle": "কিছু রিমাইন্ডার যোগ করা যায়নি",
   "consult.rx.someFailedBody": "{total}-এর মধ্যে {n}টি যোগ হয়নি। আবার চেষ্টা করুন।",
+  "consult.rx.notInCartTitle": "কিছু ওষুধ কার্টে যোগ হয়নি",
+  "consult.rx.notInCartBody": "{total}-এর মধ্যে {n}টি ওষুধ ডাক্তার হাতে লিখেছেন এবং ক্যাটালগে নেই, তাই কার্টে যোগ হয়নি।",
   "consult.share.title": "ডাক্তারের সঙ্গে রিপোর্ট শেয়ার করুন",
   "consult.share.intro": "যেকোনো অ্যাপের মাধ্যমে আপনার রিপোর্ট ডাক্তারের সঙ্গে শেয়ার করুন। কে পাবে তা আপনি ঠিক করেন।",
   "consult.share.empty": "শেয়ার করার মতো কোনো রিপোর্ট এখনও নেই",

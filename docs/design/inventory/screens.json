@@ -1,5 +1,5 @@
 {
- "commit": "c3e6bd42",
+ "commit": "1540abe9",
  "routes": [
   {
    "app": "patient-app",
@@ -912,7 +912,7 @@
      "line": 130,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:174"
+     "backend": "backend/src/modules/chat/chat.module.ts:116"
     },
     {
      "method": "POST",
@@ -922,7 +922,7 @@
      "line": 192,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:185"
+     "backend": "backend/src/modules/chat/chat.module.ts:127"
     },
     {
      "method": "POST",
@@ -932,7 +932,7 @@
      "line": 122,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:164"
+     "backend": "backend/src/modules/chat/chat.module.ts:106"
     },
     {
      "method": "GET",
@@ -5595,7 +5595,7 @@
      "line": 56,
      "file": "patient-app/app/pharmacy/pharmacist-chat.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:270"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:277"
     },
     {
      "method": "POST",
@@ -5615,7 +5615,7 @@
      "line": 45,
      "file": "patient-app/app/pharmacy/pharmacist-chat.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:271"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:278"
     }
    ],
    "files": 28,
@@ -6264,7 +6264,7 @@
      "line": 134,
      "file": "patient-app/src/components/account/ReturnsViews.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/returns/returns.controller.ts:42"
+     "backend": "backend/src/modules/returns/returns.controller.ts:54"
     }
    ],
    "files": 34,
@@ -6342,7 +6342,7 @@
      "line": 206,
      "file": "patient-app/src/components/account/ReturnsViews.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/returns/returns.controller.ts:37"
+     "backend": "backend/src/modules/returns/returns.controller.ts:49"
     },
     {
      "method": "GET",
@@ -7436,7 +7436,7 @@
      "line": 26,
      "file": "patient-web/app/[locale]/appointments/[appointmentId]/chat/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:164"
+     "backend": "backend/src/modules/chat/chat.module.ts:106"
     }
    ],
    "files": 34,
@@ -7753,7 +7753,7 @@
      "line": 6,
      "file": "patient-web/lib/api/chat-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:169"
+     "backend": "backend/src/modules/chat/chat.module.ts:111"
     },
     {
      "method": "GET",
@@ -7763,7 +7763,7 @@
      "line": 10,
      "file": "patient-web/lib/api/chat-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:174"
+     "backend": "backend/src/modules/chat/chat.module.ts:116"
     }
    ],
    "files": 38,
@@ -7870,7 +7870,7 @@
      "path": "/api/appointments/book",
      "target": "web-bff",
      "query": "",
-     "line": 135,
+     "line": 136,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/appointments/book/route.ts"
@@ -7890,7 +7890,7 @@
      "path": "/api/consultations/doctors/:param/slots",
      "target": "web-bff",
      "query": "?date=:param&service_type=:param",
-     "line": 90,
+     "line": 91,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/consultations/doctors/[doctorId]/slots/route.ts"
@@ -7900,7 +7900,7 @@
      "path": "/api/slot-locks/reserve",
      "target": "web-bff",
      "query": "",
-     "line": 122,
+     "line": 123,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/slot-locks/reserve/route.ts"
@@ -7914,9 +7914,19 @@
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:67"
+    },
+    {
+     "method": "GET",
+     "path": "/system-config/public",
+     "target": "backend",
+     "query": "",
+     "line": 30,
+     "file": "patient-web/lib/consult/cancellation-policy.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/governance/system-config.controller.ts:51"
     }
    ],
-   "files": 43,
+   "files": 47,
    "unresolved": 0
   },
   {
@@ -12626,7 +12636,7 @@
      "line": 68,
      "file": "patient-web/components-next/pharmacy-offers/order-screens.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:270"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:277"
     }
    ],
    "files": 38,
@@ -12670,7 +12680,7 @@
      "line": 129,
      "file": "patient-web/components-next/pharmacy-offers/order-screens.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:271"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:278"
     }
    ],
    "files": 42,
@@ -13140,7 +13150,7 @@
      "query": "?order_id=:param",
      "line": 57,
      "file": "patient-web/components-next/pharmacy/chat-screen.tsx",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:270",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:277",
      "status": "OK"
     },
     {
@@ -13160,7 +13170,7 @@
      "query": "",
      "line": 41,
      "file": "patient-web/components-next/pharmacy/chat-screen.tsx",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:271",
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:278",
      "status": "OK"
     }
    ],
@@ -14126,7 +14136,7 @@
      "line": 25,
      "file": "patient-web/app/[locale]/returns/[returnId]/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/returns/returns.controller.ts:42"
+     "backend": "backend/src/modules/returns/returns.controller.ts:54"
     }
    ],
    "files": 40,

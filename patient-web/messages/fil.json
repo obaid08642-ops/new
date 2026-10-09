@@ -1038,6 +1038,8 @@
     "retry": "Subukan muli",
     "emptyTitle": "Walang resulta",
     "emptyBody": "Walang doktor na tugma sa iyong paghahanap.",
+    "clearSearch": "I-clear ang paghahanap",
+    "backToConsultations": "Bumalik sa mga konsultasyon",
     "nameUnavailable": "Hindi available ang pangalan",
     "rating": "Rating {value}",
     "price": "{value} SAR",
@@ -1377,6 +1379,8 @@
     "submitting": "Nagbo-book…",
     "currency": "SAR",
     "doctorUnavailable": "Hindi available ang doktor",
+    "doctorUnavailableBody": "Hindi ma-load ang doktor ngayon. Subukan muli o pumili ng ibang doktor.",
+    "backToDoctors": "Bumalik sa mga doktor",
     "bookingFailed": "Hindi natapos ang booking. Suriin ang oras at paraan ng pagbabayad.",
     "fee": "Bayad sa konsultasyon"
   },
