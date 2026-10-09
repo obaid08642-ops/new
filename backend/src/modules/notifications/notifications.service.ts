@@ -664,7 +664,7 @@ export class NotificationsService {
   }
   @OnEvent('report.ready')
   async onReportReady(p: any) {
-    if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.report_ready.title', body_key: 'notif.report_ready.body', type: NotificationType.INFO, action: { route: `/reports/${p.report_id}` } });
+    if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.report_ready.title', body_key: 'notif.report_ready.body', type: NotificationType.LABS, action: { route: `/reports/${p.report_id}` } });
   }
   @OnEvent('refund.requested')
   async onRefundRequested(p: any) {
@@ -691,29 +691,29 @@ export class NotificationsService {
   async onApptCreated(p: any) {
     const uid = p.patient_account_id || p.patient_id;
     if (!uid) return;
-    await this.create({ user_id: uid, title_key: 'notif.appt_created.title', body_key: 'notif.appt_created.body', type: NotificationType.INFO, action: { route: `/consultations/appointments` } });
+    await this.create({ user_id: uid, title_key: 'notif.appt_created.title', body_key: 'notif.appt_created.body', type: NotificationType.APPOINTMENT, action: { route: `/consultations/appointments` } });
     // Notify the doctor about the new booking
     if (p.meta?.doctor_id) {
-      await this.create({ user_id: p.meta.doctor_id, title_key: 'notif.appt_new_for_doctor.title', body_key: 'notif.appt_new_for_doctor.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH });
+      await this.create({ user_id: p.meta.doctor_id, title_key: 'notif.appt_new_for_doctor.title', body_key: 'notif.appt_new_for_doctor.body', type: NotificationType.APPOINTMENT, priority: NotificationPriority.HIGH });
     }
   }
   @OnEvent('doctor_appointment.confirmed')
   async onApptConfirmed(p: any) {
     const uid = p.patient_account_id || p.patient_id;
     if (!uid) return;
-    await this.create({ user_id: uid, title_key: 'notif.appt_confirmed.title', body_key: 'notif.appt_confirmed.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH, action: { route: `/consultations/appointments` } });
+    await this.create({ user_id: uid, title_key: 'notif.appt_confirmed.title', body_key: 'notif.appt_confirmed.body', type: NotificationType.APPOINTMENT, priority: NotificationPriority.HIGH, action: { route: `/consultations/appointments` } });
   }
   @OnEvent('doctor_appointment.cancelled')
   async onApptCancelled(p: any) {
     const uid = p.patient_account_id || p.patient_id;
     if (!uid) return;
-    await this.create({ user_id: uid, title_key: 'notif.appt_cancelled.title', body_key: 'notif.appt_cancelled.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH });
+    await this.create({ user_id: uid, title_key: 'notif.appt_cancelled.title', body_key: 'notif.appt_cancelled.body', type: NotificationType.APPOINTMENT, priority: NotificationPriority.HIGH });
   }
   @OnEvent('doctor_appointment.completed')
   async onApptCompleted(p: any) {
     const uid = p.patient_account_id || p.patient_id;
     if (!uid) return;
-    await this.create({ user_id: uid, title_key: 'notif.appt_completed.title', body_key: 'notif.appt_completed.body', type: NotificationType.INFO, action: { route: `/consultations/appointments` } });
+    await this.create({ user_id: uid, title_key: 'notif.appt_completed.title', body_key: 'notif.appt_completed.body', type: NotificationType.APPOINTMENT, action: { route: `/consultations/appointments` } });
   }
 
   // ============ HOME NURSING Lifecycle ============

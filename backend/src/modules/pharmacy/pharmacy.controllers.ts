@@ -38,7 +38,7 @@ export class PatientPharmacyController {
   @Post('orders/:id/submit') @RequireIdempotency() submit(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.submit(u, id); }
   @Post('orders/:id/cancel') @RequireIdempotency() cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelDto) { return this.orders.cancel(u, id, b?.reason || ''); }
   @Post('orders/:id/payment-intent') paymentIntent(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PaymentIntentDto) { return this.payments.createPaymentIntent(u, id, b?.idempotency_key); }
-  @Post('orders/:id/insurance-rejection/cancel') cancelRejectedInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelRejectedInsuranceDto) { return this.insurance.cancelRejectedByPatient(u, id, b?.idempotency_key); }
+  @Post('orders/:id/insurance-rejection/cancel') cancelRejectedInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelRejectedInsuranceDto, @Headers('idempotency-key') idemHeader?: string) { return this.insurance.cancelRejectedByPatient(u, id, b?.idempotency_key || idemHeader); }
   @Get('orders/:id/offers') listOffers(@CurrentUser() u: any, @Param('id') id: string) { return this.offers.listForPatient(u, id); }
   @Post('orders/:id/offers/:offerId/select') selectOffer(@CurrentUser() u: any, @Param('id') id: string, @Param('offerId') offerId: string, @Body() b: SelectOfferDto, @Headers('idempotency-key') idemHeader?: string) {
     return this.offers.selectByPatient(u, id, offerId, b?.idempotency_key || idemHeader, b?.coverage_mode);

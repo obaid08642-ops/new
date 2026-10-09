@@ -376,7 +376,7 @@ export class SeedService implements OnModuleInit {
       await this.configModel.create({
         key: mainKey,
         value: {
-          consultation_followup_hours: 24
+          consultation_followup_hours: 72
         }
       });
       this.logger.log('Seeded default system config (follow-up hours)');

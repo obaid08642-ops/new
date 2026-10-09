@@ -7,6 +7,7 @@ import { UserRole } from '../../common/enums';
 import { MediaService } from './media.service';
 import { UploadMediaDto, PresignedUrlDto } from './media.dto';
 import { MediaAsset, MediaAssetDocument, MEDIA_PURPOSES, MediaPurpose } from './media.schema';
+import { CONSULTATION_FOLLOWUP_HOURS_DEFAULT } from '../chat/followup-window';
 
 @Controller('media')
 @SelfService()
@@ -139,7 +140,7 @@ export class MediaController {
         if (appt.status === 'COMPLETED') {
           const SystemConfigModel = this.connection.model('SystemConfig');
           const sysConfig = await SystemConfigModel.findOne({ key: 'system_config' });
-          const followupHours = sysConfig?.value?.consultation_followup_hours ?? 24;
+          const followupHours = sysConfig?.value?.consultation_followup_hours ?? CONSULTATION_FOLLOWUP_HOURS_DEFAULT;
 
           const endedAt = appt.completed_at || appt.updatedAt || new Date();
           const elapsedHours = (Date.now() - new Date(endedAt).getTime()) / (1000 * 60 * 60);

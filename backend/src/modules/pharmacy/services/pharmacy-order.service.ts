@@ -29,6 +29,26 @@ export class PharmacyOrderService {
     @InjectConnection() private readonly conn: Connection,
   ) {}
 
+  /**
+   * Needs-review #494: a prescription id or attachment on an order must be the patient's own
+   * (their prescription, or a file they uploaded); a foreign id is answered as not found.
+   */
+  private async assertOwnPrescriptionRefs(user: any, body: any) {
+    const rxId = typeof body?.prescription_id === 'string' ? body.prescription_id : null;
+    const attachments: string[] = Array.isArray(body?.prescription_attachments)
+      ? body.prescription_attachments.filter((a: unknown): a is string => typeof a === 'string') : [];
+    if (!rxId && !attachments.length) return;
+    const ownRx = await this.conn.collection('prescriptions')
+      .find({ id: { $in: [...new Set([rxId, ...attachments].filter(Boolean))] }, patient_id: { $eq: user.id } }, { projection: { _id: 0, id: 1 } }).toArray();
+    const rxIds = new Set(ownRx.map((r: any) => r.id));
+    if (rxId && !rxIds.has(rxId)) throw new NotFoundException('prescription_not_found');
+    const files = attachments.filter((a) => !rxIds.has(a));
+    if (!files.length) return;
+    const owned = await this.conn.collection('storage_objects')
+      .countDocuments({ id: { $in: files }, owner_account_id: { $eq: user.id }, deleted: { $ne: true } });
+    if (owned !== new Set(files).size) throw new NotFoundException('prescription_attachment_not_found');
+  }
+
   async create(user: any, body: any) {
     assertPatient(user);
     const sanitize = (str: any) => String(str || '').replace(/[<>]/g, '').trim();
@@ -58,6 +78,7 @@ export class PharmacyOrderService {
       });
     }
     if (!items.length && !body.prescription_id) throw new BadRequestException('items_required');
+    await this.assertOwnPrescriptionRefs(user, body);
     const addr = body.delivery_address || {};
     const geo = addr.geo || (addr.lat && addr.lng ? { lat: Number(addr.lat), lng: Number(addr.lng) } : null);
     const normalizedAddress = { ...addr, ...(geo ? { geo } : {}) };
@@ -264,6 +285,7 @@ export class PharmacyOrderService {
     if (body.delivery_address) order.delivery_address = body.delivery_address;
     if (body.patient_notes !== undefined) order.patient_notes = body.patient_notes;
     // D-10: a prescription can be attached after the draft was created (the cart adds an Rx item later).
+    await this.assertOwnPrescriptionRefs(user, body);
     if (Array.isArray(body.prescription_attachments)) order.prescription_attachments = body.prescription_attachments;
     if (typeof body.prescription_id === 'string') order.prescription_id = body.prescription_id;
     order.timeline.push({ ts: new Date(), event: 'edited' });
