@@ -3,7 +3,7 @@ import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Transaction, TransactionSchema } from '../../schemas/transaction.schema';
-import { RefundPaymentDto } from './payments.dto';
+import { DiagnosticsIntentDto, IntentMethodDto, RefundPaymentDto } from './payments.dto';
 import { OrderSchema } from '../../schemas/order.schema';
 import { LabBookingSchema } from '../../schemas/lab.schema';
 import { DiagnosticOrder, DiagnosticOrderSchema } from '../../schemas/diagnostic-order.schema';
@@ -373,16 +373,19 @@ export class PaymentsService {
       amount = Math.max(0, Math.round((amount - Number(booking.wallet_applied)) * 100) / 100);
     }
     if (amount <= 0) throw new BadRequestException('invalid_amount');
-    const effectiveMethod = method || (booking.payment_method || 'card');
-    const normalizedMethod = effectiveMethod.toLowerCase();
-    // Validate the method against allowed values
-    if (!['cash', 'cod', 'card', 'insurance'].includes(normalizedMethod)) {
-      throw new BadRequestException('invalid_payment_method');
-    }
-    // Return existing active intent if already created (idempotency guard).
+    // Q-6: the patient's chosen method is read and checked against what this booking allows. A gateway intent charges a
+    // card (or a card wallet: apple-pay, google-pay, as the web checkout sends); an insurance booking's co-pay keeps its own method. Cash / COD never reach the gateway (owner decision 25).
+    const storedMethod = String(booking.payment_method || 'card').toLowerCase();
+    const CARD_METHODS = ['card', 'apple-pay', 'google-pay'];
+    const normalizedMethod = method ? String(method).toLowerCase() : storedMethod;
+    const allowedMethods = new Set([...CARD_METHODS, ...(storedMethod === 'insurance' ? ['insurance'] : [])]);
+    if (!allowedMethods.has(normalizedMethod)) throw new BadRequestException('invalid_payment_method');
     const existing: any = await this.txns.findOne({ booking_kind: kind, booking_id: id, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
     if (existing) return this.publicTxn(existing);
-    // Persist the chosen method on the transaction for auditing/logging.
+
+    // Persist an active reservation before calling the PSP. The partial unique
+    // index is the cross-process guard: a second request cannot create another
+    // live gateway intent for the same booking during an in-flight request.
     let txn: any;
     try {
       txn = await this.txns.create({ booking_kind: kind, booking_id: id, patient_id: booking.patient_id || booking.patient_account_id, amount, gateway: this.adapter.name, method: normalizedMethod, status: 'initiating', idempotency_key: requestKey });
@@ -591,11 +594,11 @@ export class PaymentsController {
   @SelfService()
   @Post('intent/:type/:id')
   @UseInterceptors(IdempotencyInterceptor)
-  intent(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: { method?: string }, @Headers('idempotency-key') key: string) { return this.svc.createPaymentIntent(u, t, id, key, b.method); }
+  intent(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: IntentMethodDto, @Headers('idempotency-key') key: string) { return this.svc.createPaymentIntent(u, t, id, key, b?.method); }
   @SelfService()
   @Post('intent/diagnostics')
   @UseInterceptors(IdempotencyInterceptor)
-  diagnosticsIntent(@CurrentUser() u: any, @Body() b: { order_id?: string; method?: string }, @Headers('idempotency-key') key: string) {
+  diagnosticsIntent(@CurrentUser() u: any, @Body() b: DiagnosticsIntentDto, @Headers('idempotency-key') key: string) {
     return this.svc.createPaymentIntent(u, 'diagnostics', b.order_id, key, b.method);
   }
   @SelfService()

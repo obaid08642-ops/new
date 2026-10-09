@@ -1,6 +1,8 @@
 /** D-16: module switches — mapping, admin bypass, validation, default ON. */
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { ForbiddenException } from '@nestjs/common';
 import { ModuleSwitchesService } from './module-switches.service';
+import { ModuleSwitchesMiddleware } from './module-switches.middleware';
 
 const svcWith = (rows: any[] = []) => {
   const coll = {
@@ -44,5 +46,15 @@ describe('D-16 module switches', () => {
     await expect(svc.set('no_such_module', false, 'reason here')).rejects.toBeInstanceOf(NotFoundException);
     await expect(svc.set('loyalty', false, 'no')).rejects.toBeInstanceOf(BadRequestException);
     await expect(svc.set('loyalty', 'x' as any, 'valid reason')).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('the middleware refuses a switched-off module from the full URL, and lets admin and other routes through', async () => {
+    const mw = new ModuleSwitchesMiddleware(svcWith([{ key: 'loyalty', enabled: false }]));
+    const next = jest.fn();
+    // a '*' mount can leave req.path as '/'; the original URL is what counts
+    await expect(mw.use({ originalUrl: '/api/v1/loyalty/points?x=1', path: '/' }, {}, next)).rejects.toBeInstanceOf(ForbiddenException);
+    await mw.use({ originalUrl: '/api/v1/admin/modules/loyalty', path: '/' }, {}, next);
+    await mw.use({ originalUrl: '/api/v1/articles', path: '/' }, {}, next);
+    expect(next).toHaveBeenCalledTimes(2);
   });
 });

@@ -119,7 +119,7 @@ export class PaymentIntentDto {
   idempotency_key?: string;
 
   @IsOptional()
-  @IsIn(['cash', 'cod', 'card', 'insurance'])
+  @IsIn(['card', 'apple-pay', 'google-pay', 'insurance'])
   @IsString()
   method?: string;
 

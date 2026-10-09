@@ -14,5 +14,8 @@ describe('Q-17 consultation_type alias', () => {
     const svc = new (AppointmentsService as any)(apptModel, providerModel, {}, { emit: () => undefined }, engine, {}, undefined);
     const out: any = await svc.one({ id: 'pat-1', role: 'patient' }, 'a1');
     expect(out.consultation_type).toBe('video');
+    // no invented queue or wait (they were constants)
+    expect(out.queue_position).toBeUndefined();
+    expect(out.wait_time).toBeUndefined();
   });
 });

@@ -319,9 +319,7 @@ export class AppointmentsService {
     }
 
     
-    obj.queue_position = '٣';
-    obj.ahead_count = '٢';
-    obj.wait_time = '١٥';
+    // No queue or wait-time source exists: nothing is invented here (the waiting room shows the wait only when sent).
 
     return obj;
   }
