@@ -89,11 +89,11 @@ export function RegisterForm({ locale }: { locale: Locale }) {
       });
       if (!response.ok) {
         setMessageOk(false);
-          setMessage(registerErrorMessage(t, response.status));
+        setMessage(registerErrorMessage(t, response.status));
         return;
       }
       setMessageOk(true);
-        setMessage(t("success"));
+      setMessage(t("success"));
       router.push(`/${locale}/otp`);
     } catch {
       setMessageOk(false);
