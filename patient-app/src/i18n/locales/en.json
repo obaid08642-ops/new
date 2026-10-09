@@ -3161,5 +3161,5 @@
   "pharmacy.rx.viaType": "Type names",
   "pharmacy.rx.zonePhoto": "Photograph the prescription",
   "pharmacy.rx.zoneUpload": "Choose the prescription from your photos",
-  "insurance.claim.fileInvalid": "Choose a JPG, PNG, HEIC or WebP image of 10 MB or less."
+  "insurance.claim.fileInvalid": "Choose an image of 10 MB or less."
 }

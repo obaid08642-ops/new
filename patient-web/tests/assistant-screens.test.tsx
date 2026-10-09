@@ -191,7 +191,7 @@ describe("the monthly report", () => {
     });
     const out = await html(MonthlyReportPage({ params }));
     for (const text of ["Dr Hind", "Cardiology", "Heart rate", "72 bpm", "Weight", "Falling", "Readings: 2"]) expect(out).toContain(text);
-    expect(out).toContain("/en/health/trends");
+    expect(out).toContain("/en/health/vitals?tab=trends"); // the trends tab itself, not the old redirecting route (needs-review issue 681)
     expect(out).not.toMatch(/style=/);
   });
 

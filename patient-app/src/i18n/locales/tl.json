@@ -3125,5 +3125,5 @@
   "pharmacy.rx.viaType": "I-type ang pangalan",
   "pharmacy.rx.zonePhoto": "Kunan ng larawan ang reseta",
   "pharmacy.rx.zoneUpload": "Piliin ang reseta mula sa iyong mga larawan",
-  "insurance.claim.fileInvalid": "Pumili ng larawang JPG, PNG, HEIC o WebP na 10 MB pababa."
+  "insurance.claim.fileInvalid": "Pumili ng larawang 10 megabyte pababa."
 }

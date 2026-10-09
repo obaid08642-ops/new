@@ -3161,5 +3161,5 @@
   "pharmacy.rx.viaType": "كتابة الأسماء",
   "pharmacy.rx.zonePhoto": "صوّر الوصفة",
   "pharmacy.rx.zoneUpload": "اختر الوصفة من صورك",
-  "insurance.claim.fileInvalid": "اختر صورة JPG أو PNG أو HEIC أو WebP لا يزيد حجمها عن 10 ميجابايت."
+  "insurance.claim.fileInvalid": "اختر صورة لا يزيد حجمها عن 10 ميجابايت."
 }

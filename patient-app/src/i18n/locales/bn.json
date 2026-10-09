@@ -3125,5 +3125,5 @@
   "pharmacy.rx.viaType": "নাম লিখুন",
   "pharmacy.rx.zonePhoto": "প্রেসক্রিপশনের ছবি তুলুন",
   "pharmacy.rx.zoneUpload": "আপনার ছবি থেকে প্রেসক্রিপশন বেছে নিন",
-  "insurance.claim.fileInvalid": "১০ MB বা তার কম আকারের JPG, PNG, HEIC বা WebP ছবি বেছে নিন।"
+  "insurance.claim.fileInvalid": "১০ মেগাবাইট বা তার কম আকারের ছবি বেছে নিন।"
 }
