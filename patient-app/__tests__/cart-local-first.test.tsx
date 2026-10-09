@@ -6,7 +6,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import authReducer, { guestLogin, loginSuccess, logout } from '../src/store/slices/authSlice';
+import authReducer, { guestLogin, loginSuccess, logout, offlineUnauthenticated } from '../src/store/slices/authSlice';
 import { listenerMiddleware } from '../src/store/middleware/listenerMiddleware';
 import { CartProvider, useCart } from '../src/context/CartContext';
 import { CART_OWNER_KEY, DEVICE_CART_KEY, userCartKey } from '../src/utils/pharmacyCartStore';
@@ -157,6 +157,18 @@ describe('the cart follows the signed-in patient', () => {
     await waitFor(async () => expect(await cartKeys()).toEqual([]));
     await render(tree(makeStore()));
     await waitFor(() => expect(screen.getAllByTestId('probe').pop()!.props.children).toBe('ready:'));
+  });
+
+  it('a session that ends offline (offlineUnauthenticated) clears the cart like a sign-out (needs-review issue 361)', async () => {
+    const store = makeStore();
+    await render(tree(store));
+    await waitFor(() => expect(probe()).toBe('ready:'));
+    await act(async () => { store.dispatch(loginSuccess({ user: user('u1'), token: 't' })); });
+    await act(async () => { await api.addItem(med('m1', 'دواء أ')); });
+    expect(probe()).toBe('ready:m1x1');
+    await act(async () => { store.dispatch(offlineUnauthenticated()); });
+    await waitFor(() => expect(probe()).toBe('ready:'));
+    await waitFor(async () => expect(await cartKeys()).toEqual([]));
   });
 });
 

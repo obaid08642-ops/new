@@ -8,12 +8,6 @@ import forms from "@/components-next/consult/consult.module.css";
 
 const TYPES = ["consultation", "diagnostics", "pharmacy", "nursing"] as const;
 type ServiceType = (typeof TYPES)[number];
-const DEFAULT_AMOUNTS: Record<ServiceType, number> = {
-  consultation: 250,
-  diagnostics: 120,
-  pharmacy: 80,
-  nursing: 80,
-};
 
 /** The return request form (POST /api/returns). The payload is the one the old form sent, field for field. */
 export function ReturnRequestForm({ locale }: { locale: string }) {
@@ -41,7 +35,7 @@ export function ReturnRequestForm({ locale }: { locale: string }) {
           orderId: orderId.trim(),
           details: details.trim(),
           refundMethod: "original",
-          amount: DEFAULT_AMOUNTS[serviceType],
+          // No client-side amount: the server prices the return from the order (needs-review issue 776).
         }),
       });
       if (!res.ok) { setError(t("submitFailed")); return; }

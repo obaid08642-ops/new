@@ -3125,6 +3125,8 @@
   "pharmacy.rx.viaType": "নাম লিখুন",
   "pharmacy.rx.zonePhoto": "প্রেসক্রিপশনের ছবি তুলুন",
   "pharmacy.rx.zoneUpload": "আপনার ছবি থেকে প্রেসক্রিপশন বেছে নিন",
+  "consult.calls.videoCall": "ভিডিও কল",
+  "consult.calls.voiceCall": "ভয়েস কল",
   "guest.loginRequiredTitle": "সাইন ইন প্রয়োজন",
   "guest.loginRequiredBody": "এই সুবিধা ব্যবহার করতে সাইন ইন করুন।"
 }

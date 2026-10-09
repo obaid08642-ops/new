@@ -3161,6 +3161,8 @@
   "pharmacy.rx.viaType": "كتابة الأسماء",
   "pharmacy.rx.zonePhoto": "صوّر الوصفة",
   "pharmacy.rx.zoneUpload": "اختر الوصفة من صورك",
+  "consult.calls.videoCall": "مكالمة فيديو",
+  "consult.calls.voiceCall": "مكالمة صوتية",
   "guest.loginRequiredTitle": "مطلوب تسجيل الدخول",
   "guest.loginRequiredBody": "سجّل الدخول لاستخدام هذه الميزة."
 }
