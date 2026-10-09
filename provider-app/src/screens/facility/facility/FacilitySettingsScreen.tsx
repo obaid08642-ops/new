@@ -21,7 +21,6 @@ import client from '../../../api/client';
 import { s } from './_shared';
 import { InsuranceRequestsScreen } from '../../shared/InsuranceRequestsScreen';
 import { EPrescriptionScreen } from '../../doctor/DoctorDashboard';
-import { FleetScreen } from '../../shared/FleetScreen';
 import {
  PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
@@ -140,7 +139,6 @@ return (
  { icon:'star', ar:'مستوى السمعة والتقييمات',en:'Reputation & Ratings', action:()=>onNavigate('reputation') },
  { icon:'chart', ar:'إدارة العملاء والأرباح', en:'CRM & Business Insights', action:()=>onNavigate('crm') },
  { icon:'shield', ar:'مراقبة الطوارئ وسيارات الإسعاف',en:'SOS Dispatch Control', action:()=>onNavigate('sos_dispatch') },
- { icon:'emergency', ar:'أسطول إسعاف المنشأة',en:'Facility Ambulance Fleet', action:()=>onNavigate('ambulance_fleet') },
  ].map((row, i) => (
  <NSettingsRow key={i} icon={row.icon} label={AR ? row.ar : row.en} onPress={row.action} />
  ))}

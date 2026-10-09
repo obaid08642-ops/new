@@ -1,3 +1,4 @@
+import { PROVIDER_ROLES } from '../../common/enums';
 /**
  * M2 — Home-care compatibility layer + nursing ops reference data + chat aliases.
  *
@@ -173,6 +174,27 @@ export class HomeCareCompatController {
     return this.bookings.find(filter, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean();
   }
 
+  /**
+   * N1: the nurse attaches result files to the visit report. Each file must be one the caller uploaded;
+   * it is then shared with this booking's patient only, so the patient can open it.
+   */
+  private async shareVisitAttachments(u: any, id: string, files: { storage_id: string; name?: string }[]) {
+    const b: any = await this.getBookingForAccess(u, id);
+    if (!this.isAdmin(u) && !this.isNursingProvider(u)) throw new ForbiddenException('provider_role_required');
+    if (!this.conn) throw new BadRequestException('storage_unavailable');
+    const ids = [...new Set(files.map((f) => f.storage_id))];
+    const col = this.conn.collection('storage_objects');
+    const owned = await col.find({ id: { $in: ids }, owner_account_id: { $eq: u.id }, deleted: { $ne: true } }, { projection: { _id: 0, id: 1, mime: 1, original_name: 1 } }).toArray();
+    if (owned.length !== ids.length) throw new ForbiddenException('attachment_not_owned');
+    await col.updateMany({ id: { $in: ids }, owner_account_id: { $eq: u.id } }, { $addToSet: { shared_with: b.patient_id } });
+    const byId = new Map(owned.map((o: any) => [o.id, o]));
+    return ids.map((sid) => {
+      const o: any = byId.get(sid);
+      const name = files.find((f) => f.storage_id === sid)?.name;
+      return { storage_id: sid, name: name || o.original_name, mime: o.mime, uploaded_by: u.id, at: new Date() };
+    });
+  }
+
   private async transition(u: any, id: string, newState: string, extra: Record<string, any> = {}) {
     const allowUnassigned = newState === 'PROVIDER_ASSIGNED' || newState === 'CANCELLED';
     const b = await this.getBookingForAccess(u, id, allowUnassigned);
@@ -235,9 +257,11 @@ export class HomeCareCompatController {
   }
 
   @SelfService()
-  @Post('bookings/:id/visit-report') visitReport(@CurrentUser() u: any, @Param('id') id: string, @Body() body: VisitReportDto) {
+  @Post('bookings/:id/visit-report') async visitReport(@CurrentUser() u: any, @Param('id') id: string, @Body() body: VisitReportDto) {
+    const attachments = body?.attachments?.length ? await this.shareVisitAttachments(u, id, body.attachments) : undefined;
     return this.transition(u, id, body?.complete ? 'COMPLETED' : 'CARE_IN_PROGRESS', {
       fields: {
+        ...(attachments ? { attachments } : {}),
         vitals: body?.vitals, clinical_notes: body?.clinical_notes,
         procedure_notes: body?.procedure_notes, medication_administered: body?.medication_administered,
         consumables_used: body?.consumables_used, recommendations: body?.recommendations,
@@ -344,9 +368,11 @@ const NURSING_SUPPLIES: any[] = [
 @Controller('provider/nursing')
 @UseGuards(JwtAuthGuard)
 export class NursingOpsController {
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('checklist') checklist(@Query('category') category?: string) {
     return { category: category || 'default', items: NURSING_CHECKLISTS[category || 'default'] || NURSING_CHECKLISTS.default };
   }
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('supplies') supplies() { return { items: NURSING_SUPPLIES }; }
 }
 

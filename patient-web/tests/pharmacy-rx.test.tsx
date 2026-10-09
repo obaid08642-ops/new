@@ -68,7 +68,7 @@ describe("the cart screen (canvas/Cart)", () => {
     expect(html).toContain('href="/en/p/paracetamol-500"');
     expect(html).toContain("Needs a prescription");
     expect(html).toContain("An item needs a prescription");
-    expect(html).toContain('href="/en/pharmacy/scan-prescription"');
+    expect(html).toContain('href="/en/pharmacy/rx-order?via=photo"');
     expect(html).toContain('href="/en/cart/checkout"');
     expect(html).toContain("Set by the pharmacy&#x27;s offer"); // the delivery fee is not invented
     expect(html).toContain("Shown with each offer"); // nor the final price
@@ -134,13 +134,16 @@ describe("the delivery address card", () => {
 });
 
 describe("the prescription upload screen (canvas/RxUpload)", () => {
-  it("names both file inputs, offers camera and photos, and cannot be submitted without a photo", () => {
-    const html = renderToStaticMarkup(<RxUploadScreen locale="en" />);
+  it("names both file inputs, offers the picker of the chosen way (camera or photos), and cannot be submitted without a photo", () => {
+    const html = renderToStaticMarkup(<RxUploadScreen locale="en" via="photo" />);
+    const upload = renderToStaticMarkup(<RxUploadScreen locale="en" via="upload" />);
+    expect(upload).toContain("Photos");
+    expect(upload).not.toContain(">Camera<");
+    expect(html).not.toContain(">Photos<");
     expect(html).toContain('aria-label="Take a photo of the prescription"');
     expect(html).toContain('aria-label="Choose a prescription photo from this device"');
     expect(html).toContain('capture="environment"');
     expect(html).toContain("Camera");
-    expect(html).toContain("Photos");
     expect(html).toMatch(/<button[^>]*disabled[^>]*>(?:(?!<\/button>).)*Save prescription and continue/s);
     expect(html).not.toContain("style=");
     expect(html).not.toContain("<progress");

@@ -1,0 +1,80 @@
+{
+  "slice": "14a-web", "batch": 14, "app": "patient-web",
+  "screens": [
+    { "route": "/appointments/[appointmentId]",
+      "elements": [
+        ["Hero, facts, insurance card, payment action, cancel, reschedule, call launcher", "unchanged: GET /care/appointments/:id and the existing /api/appointments/:id/* routes", "ok"],
+        ["Summary section (diagnosis, notes, recommendations, medicines, follow-up)", "GET /care/appointments/:id/summary, only after a finished visit; was /appointments/[id]/summary", "ok"],
+        ["Follow-up window text", "summary.follow_up_window_days, drawn only when the server states it (the old page assumed 7)", "fixed"],
+        ["Book follow-up", "link to /consultations/book/[doctorId]?followUp=<appointmentId>; the booking request is unchanged (the old link went to booking-status and never opened a booking)", "fixed"],
+        ["Prescription section: medicines, reminders, order", "GET /api/patient/prescriptions/active matched by appointment id, POST /api/patient/health/reminders; was /consultations/prescription", "ok"],
+        ["Prescription medicines read from `items`", "the API returns items; the old screen read `medications` and drew none, and its reminder body lacked times and time zone", "fixed"],
+        ["Order these medicines (decision 18)", "items with medicine_id go into the local cart and open /cart; with none, the pharmacy prescription order as before", "ok"],
+        ["Patient notes and status history", "appointment.patient_notes, state_history; was /consultations/follow-up", "ok"],
+        ["Chat with the doctor", "link to the new /appointments/[id]/chat, which calls POST /chat/threads/booking and redirects to /chat/[threadId]", "ok"],
+        ["Book tests, rate", "links to /diagnostics/labs and post-call-rating, as the summary page had", "ok"]
+      ], "notes": [] },
+    { "route": "/appointments/[appointmentId]/summary",
+      "elements": [["Redirect", "-> /appointments/[id]", "ok"]], "notes": [] },
+    { "route": "/consultations/prescription",
+      "elements": [["Redirect", "-> /appointments/[id] (no id: /appointments)", "ok"]], "notes": [] },
+    { "route": "/consultations/follow-up",
+      "elements": [["Redirect", "-> /appointments/[id]", "ok"],
+        ["Book again", "now ?followUp= on the booking page; the old follow-up page read GET /care/appointments/:id and posted nothing of its own", "ok"]],
+      "notes": ["Merge confirmed: no separate follow-up endpoint exists, so the payload is the normal booking's."] },
+    { "route": "/consultations/booking-status",
+      "elements": [
+        ["Status hero and next-step links", "GET /care/appointments/:id", "ok"],
+        ["Clinic confirmation for a confirmed clinic booking (reception code, place, directions, call, chat, preparation, cancel card)", "the same GET /care/appointments/:id plus GET /care/doctors/:id; was clinic-confirm", "ok"],
+        ["Location view", "?view=location (was clinic-confirm?view=location)", "ok"],
+        ["Cancel and refund sentences", "GET /system-config/public cancellation_policy; the hard-coded 24 h and 4 h copy is removed (decision 26)", "fixed"]
+      ], "notes": ["Merge confirmed: clinic-confirm and booking-status read the same appointment through GET /care/appointments/:id. A pending clinic booking shows its status only."] },
+    { "route": "/consultations/clinic-confirm",
+      "elements": [["Redirect", "-> /consultations/booking-status with the query kept", "ok"]], "notes": [] },
+    { "route": "/consultations/clinic-location",
+      "elements": [["Redirect", "-> /consultations/booking-status?view=location", "ok"]], "notes": [] },
+    { "route": "/consultations/cancel-reschedule",
+      "elements": [
+        ["Policy sentences", "GET /system-config/public cancellation_policy (full_hours, half_hours, half_refund_percent); the 24/12 h copy is removed", "fixed"],
+        ["Expected refund line", "the share by the server's numbers; shown only when the policy is known", "gap"],
+        ["Reschedule form and cancel action", "unchanged: /api/appointments/:id/reschedule and /cancel", "ok"]
+      ], "notes": [] },
+    { "route": "/chat",
+      "elements": [["Chat list", "removed (decision 24): redirect to /appointments", "ok"]], "notes": [] },
+    { "route": "/consultations/chat",
+      "elements": [["Free doctor chat by doctor id", "removed (decision 24): redirect to /appointments", "ok"]], "notes": [] },
+    { "route": "/chat/[threadId]",
+      "elements": [
+        ["Message activity (type and time only)", "GET /chat/threads/:id and /messages, unchanged privacy rule: no text, names or attachments", "ok"],
+        ["Emergency line", "tel:997 on every thread", "ok"],
+        ["Read-only with the follow-up button", "thread.is_active false from the server; the doctor id comes from GET /care/appointments/:booking_id", "gap"],
+        ["Composer by booking type", "the web page shows activity only and has no composer", "hidden"],
+        ["Back link", "to the booking (or the bookings list)", "ok"]
+      ], "notes": [] },
+    { "route": "/nursing/nurses/[nurseId]",
+      "elements": [["Payment method", "card or insurance only: the cash option and the cash default are removed (decision 25)", "fixed"],
+        ["Insurance wording (NursingWeb.insuranceTitle, status.rejected)", "the provider asks the insurer, the patient sees the decision; six languages", "fixed"]], "notes": [] },
+    { "route": "/appointments",
+      "elements": [["Directions button for a clinic visit", "now opens booking-status?view=location", "ok"]], "notes": [] }
+  ],
+  "needsReview": [
+    { "route": "/chat/[threadId]", "element": "Window, read-only flag and allowed composer parts", "kind": "backend",
+      "note": "The thread answer has no window, read-only flag or allowed-parts field (the server only refuses a send after consultation_followup_hours, 24 h by default, not 72 h); the page follows is_active.",
+      "file": "patient-web/app/[locale]/chat/[threadId]/page.tsx", "line": 52, "backend": "backend/src/modules/chat/chat.service.ts:234" },
+    { "route": "/chat/[threadId]", "element": "No composer on the web thread", "kind": "owner",
+      "note": "The web thread shows message activity only (no text, no sending) by an earlier privacy decision, so text, photo, file, voice note and the call of decision 24 cannot be offered here; the app has the composer.",
+      "file": "patient-web/app/[locale]/chat/[threadId]/page.tsx", "line": 67 },
+    { "route": "/appointments/[appointmentId]", "element": "Follow-up link to the original appointment", "kind": "backend",
+      "note": "POST /care/appointments takes no field for the original appointment, so a follow-up is only a normal booking with the doctor pre-selected; the booking page ignores ?followUp=.",
+      "file": "patient-web/app/[locale]/appointments/[appointmentId]/page.tsx", "line": 94 },
+    { "route": "/appointments/[appointmentId]", "element": "Discounted follow-up text", "kind": "owner",
+      "note": "summaryFollowUpBody promises a discounted rate that no server field states.",
+      "file": "patient-web/app/[locale]/appointments/[appointmentId]/page.tsx", "line": 146 },
+    { "route": "/consultations/cancel-reschedule", "element": "Expected refund", "kind": "backend",
+      "note": "The percentage is derived from the policy numbers and the slot time on the server render; no endpoint states the refund for this appointment now (decision 26).",
+      "file": "patient-web/app/[locale]/consultations/cancel-reschedule/page.tsx", "line": 39 },
+    { "route": "/appointments/[appointmentId]", "element": "Prescription order from the doctor's items", "kind": "backend",
+      "note": "Decision 18 is wired for items that carry medicine_id; an item written by hand has no product, so a prescription of only such lines opens the pharmacy prescription order instead.",
+      "file": "patient-web/components-next/prescription-client.tsx", "line": 86 }
+  ]
+}

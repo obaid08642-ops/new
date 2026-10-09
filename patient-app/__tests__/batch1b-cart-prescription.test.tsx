@@ -13,7 +13,7 @@ import { CartProvider, useCart } from '../src/context/CartContext';
 
 // Boundaries only: the API, the router, the app context, the camera and the picker. Fixtures live in this test.
 const mockApiFetch = jest.fn();
-const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn(), canGoBack: jest.fn(() => true) };
+const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn(), canGoBack: jest.fn(() => true), setParams: jest.fn() };
 let mockParams: Record<string, string> = {};
 let mockCamera: { granted: boolean; canAskAgain: boolean } | null = { granted: true, canAskAgain: true };
 let mockScan: ((e: { data: string }) => void) | undefined;
@@ -58,8 +58,6 @@ jest.mock('../src/components/LocalizedAlert', () => ({ showLocalizedAlert: (...a
 
 import Cart from '../app/pharmacy/cart';
 import RxOrder from '../app/pharmacy/rx-order';
-import ScanPrescription from '../app/pharmacy/scan-prescription';
-import Request from '../app/pharmacy/request';
 import BarcodeScanner from '../app/pharmacy/barcode-scanner';
 import PharmacistChat from '../app/pharmacy/pharmacist-chat';
 
@@ -111,9 +109,9 @@ describe('Batch 1b translations (owner rule: every key in all six languages, rea
   });
 
   it('every key a screen of this slice asks for exists in the files (no key shown to the patient)', () => {
-    const screens = ['cart', 'rx-order', 'scan-prescription', 'barcode-scanner', 'request', 'pharmacist-chat'];
+    const screens = ['app/pharmacy/cart.tsx', 'app/pharmacy/rx-order.tsx', 'src/components/pharmacy/RxIntake.tsx', 'src/components/pharmacy/ManualRequest.tsx', 'src/components/pharmacy/FilterSheet.tsx', 'app/pharmacy/barcode-scanner.tsx', 'app/pharmacy/pharmacist-chat.tsx'];
     for (const name of screens) {
-      const src = fs.readFileSync(path.join(__dirname, '..', 'app', 'pharmacy', `${name}.tsx`), 'utf8');
+      const src = fs.readFileSync(path.join(__dirname, '..', name), 'utf8');
       for (const m of src.matchAll(/\bk\(\s*'([\w.]+)'/g)) expect(LOCALES.ar[m[1]]).toBeDefined();
     }
     // the prescription states and chat resolutions are asked for by a computed key
@@ -151,7 +149,7 @@ describe('Cart (board Cart)', () => {
     await render(wrap(<Cart />, [{ id: 'r', name: 'دواء ر', rx: true, qty: 1 }]));
     await waitFor(() => expect(screen.getByText(T('pharmacy.cart.rxBannerTitle'))).toBeTruthy());
     await fireEvent.press(screen.getByLabelText(T('pharmacy.cart.rxBannerAction')));
-    expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/scan-prescription');
+    expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/rx-order?via=photo');
     await fireEvent.press(screen.getByLabelText(T('pharmacy.cart.ctaRx')));
     expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/rx-order');
   });
@@ -180,12 +178,22 @@ describe('Prescription order (RxUpload family)', () => {
     expect(mockRouter.replace).toHaveBeenCalledWith({ pathname: '/pharmacy/rx-order', params: { prescriptionId: 'rx-abcdef' } });
   });
 
-  it('no active prescription: an empty state that leads to the upload', async () => {
+  it('without a prescription it offers the three ways in; the one in the URL decides which form is shown', async () => {
     mockApiFetch.mockResolvedValue([]);
-    await render(wrap(<RxOrder />));
-    await waitFor(() => expect(screen.getByText(T('pharmacy.rx.empty'))).toBeTruthy());
-    await fireEvent.press(screen.getByLabelText(T('pharmacy.rx.uploadNew')));
-    expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/scan-prescription');
+    const view = await render(wrap(<RxOrder />));
+    expect(screen.getByLabelText(T('pharmacy.rx.ways'))).toBeTruthy();
+    expect(screen.getByLabelText(T('pharmacy.scan.camera'))).toBeTruthy();
+    expect(screen.queryByTestId('request-name')).toBeNull();
+    mockParams = { via: 'upload' };
+    await view.rerender(wrap(<RxOrder />));
+    expect(screen.getByLabelText(T('pharmacy.scan.photos'))).toBeTruthy();
+    expect(screen.queryByLabelText(T('pharmacy.scan.camera'))).toBeNull();
+    mockParams = { via: 'type' };
+    await view.rerender(wrap(<RxOrder />));
+    expect(screen.getByTestId('request-name')).toBeTruthy();
+    // choosing a way writes it to the URL
+    await fireEvent.press(screen.getByLabelText(T('pharmacy.rx.viaPhoto')));
+    expect(mockRouter.setParams).toHaveBeenCalledWith({ via: 'photo' });
   });
 
   it('a prescription shows its medicines without a quantity the API did not send, and continues to the checkout', async () => {
@@ -212,28 +220,29 @@ describe('Prescription order (RxUpload family)', () => {
     await render(wrap(<RxOrder />));
     await waitFor(() => expect(screen.getByText(T('pharmacy.rx.listError'))).toBeTruthy());
     await fireEvent.press(screen.getByLabelText(T('pharmacy.retry')));
-    await waitFor(() => expect(screen.getByText(T('pharmacy.rx.empty'))).toBeTruthy());
+    await waitFor(() => expect(screen.queryByText(T('pharmacy.rx.listError'))).toBeNull());
   });
 });
 
-describe('Prescription upload (board RxUpload)', () => {
+describe('Order with a prescription: the photo and upload ways in (board RxUpload)', () => {
   it('a refused permission shows a translated notice with the way to the settings, and nothing is uploaded', async () => {
     mockPickerPermission.mockResolvedValue({ granted: false });
-    await render(wrap(<ScanPrescription />));
+    await render(wrap(<RxOrder />));
     await fireEvent.press(screen.getByLabelText(T('pharmacy.scan.camera')));
     await waitFor(() => expect(screen.getByText(T('pharmacy.scan.permCameraTitle'))).toBeTruthy());
     expect(screen.getByLabelText(T('pharmacy.openSettings'))).toBeTruthy();
-    expect(mockApiFetch).not.toHaveBeenCalled();
+    expect(mockApiFetch.mock.calls.filter(([p]) => p !== '/prescriptions/active')).toEqual([]);
   });
 
   it('nothing is sent until the photo is chosen and the button is pressed; then it reads, saves and opens the prescription', async () => {
     mockPickerPermission.mockResolvedValue({ granted: true });
     mockLaunchLibrary.mockResolvedValue({ canceled: false, assets: [{ uri: 'file://rx.jpg', base64: 'QUJD' }] });
-    mockApiFetch.mockImplementation(async (p: string) => (p === '/ai/prescription-ocr' ? { items: [{ name: 'دواء' }] } : p === '/prescriptions/upload' ? { id: 'rx-new' } : {}));
-    await render(wrap(<ScanPrescription />));
+    mockApiFetch.mockImplementation(async (p: string) => (p === '/ai/prescription-ocr' ? { items: [{ name: 'دواء' }] } : p === '/prescriptions/upload' ? { id: 'rx-new' } : p === '/prescriptions/active' ? [] : {}));
+    mockParams = { via: 'upload' };
+    await render(wrap(<RxOrder />));
     await fireEvent.press(screen.getByLabelText(T('pharmacy.scan.photos')));
     await waitFor(() => expect(screen.getByLabelText(T('pharmacy.scan.remove'))).toBeTruthy());
-    expect(mockApiFetch).not.toHaveBeenCalled();
+    expect(mockApiFetch.mock.calls.filter(([p]) => p !== '/prescriptions/active')).toEqual([]);
     await fireEvent.changeText(screen.getByTestId('scan-note'), 'بديل أرخص');
     await fireEvent.press(screen.getByTestId('scan-save'));
     await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith({ pathname: '/pharmacy/rx-order', params: { prescriptionId: 'rx-new' } }));
@@ -248,7 +257,8 @@ describe('Prescription upload (board RxUpload)', () => {
     mockPickerPermission.mockResolvedValue({ granted: true });
     mockLaunchLibrary.mockResolvedValue({ canceled: false, assets: [{ uri: 'file://rx.jpg', base64: 'QUJD' }] });
     mockApiFetch.mockRejectedValue(new Error('OFFLINE_ERROR'));
-    await render(wrap(<ScanPrescription />));
+    mockParams = { via: 'upload' };
+    await render(wrap(<RxOrder />));
     await fireEvent.press(screen.getByLabelText(T('pharmacy.scan.photos')));
     await waitFor(() => expect(screen.getByTestId('scan-save')).toBeTruthy());
     await fireEvent.press(screen.getByTestId('scan-save'));
@@ -258,13 +268,14 @@ describe('Prescription upload (board RxUpload)', () => {
   });
 });
 
-describe('Manual request (PharmacyHub family)', () => {
+describe('Order with a prescription: type the names (the old manual request)', () => {
   const address = { id: 'addr', label: 'المنزل', street: 'شارع', city: 'الرياض', lat: 24.7, lng: 46.7 };
 
   it('needs three letters, shows the address it will use, and broadcasts with the same idempotency key on both calls', async () => {
     mockResolveAddress.mockResolvedValue(address);
     mockApiFetch.mockImplementation(async (p: string) => (p === '/patient/pharmacy/orders' ? { id: 'order-1' } : {}));
-    await render(wrap(<Request />));
+    mockParams = { via: 'type' };
+    await render(wrap(<RxOrder />));
     await waitFor(() => expect(screen.getByText('المنزل')).toBeTruthy());
     await fireEvent.changeText(screen.getByTestId('request-name'), 'بن');
     expect(screen.getByText(T('pharmacy.request.nameHint'))).toBeTruthy();
@@ -282,7 +293,8 @@ describe('Manual request (PharmacyHub family)', () => {
 
   it('an address with no map point explains instead of sending', async () => {
     mockResolveAddress.mockResolvedValue({ id: 'addr', label: 'بلا موقع' });
-    await render(wrap(<Request />));
+    mockParams = { via: 'type' };
+    await render(wrap(<RxOrder />));
     await waitFor(() => expect(screen.getByText('بلا موقع')).toBeTruthy());
     await fireEvent.changeText(screen.getByTestId('request-name'), 'بنادول');
     await fireEvent.press(screen.getByTestId('request-submit'));
@@ -293,7 +305,8 @@ describe('Manual request (PharmacyHub family)', () => {
   it('a refused request says nothing was created, in the screen, not in a system alert', async () => {
     mockResolveAddress.mockResolvedValue(address);
     mockApiFetch.mockRejectedValue(new Error('x'));
-    await render(wrap(<Request />));
+    mockParams = { via: 'type' };
+    await render(wrap(<RxOrder />));
     await waitFor(() => expect(screen.getByText('المنزل')).toBeTruthy());
     await fireEvent.changeText(screen.getByTestId('request-name'), 'بنادول');
     await fireEvent.press(screen.getByTestId('request-submit'));
@@ -317,7 +330,7 @@ describe('Barcode scanner', () => {
     expect(screen.getByText(T('pharmacy.barcode.permBlocked'))).toBeTruthy();
     expect(screen.getByLabelText(T('pharmacy.openSettings'))).toBeTruthy();
     await fireEvent.press(screen.getByLabelText(T('pharmacy.barcode.manual')));
-    expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/request');
+    expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/rx-order?via=type');
   });
 });
 
@@ -335,6 +348,32 @@ describe('Barcode lookup', () => {
     await fireEvent.press(screen.getByLabelText(T('pharmacy.addToCart')));
     await waitFor(() => expect(screen.getByText('in-cart:m1:1')).toBeTruthy());
     expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/cart');
+  });
+
+  it('a found medicine can be checked for interactions: its name goes to the server, the verdict and hits are the server\'s', async () => {
+    mockApiFetch.mockImplementation(async (p: string) => {
+      if (p.startsWith('/medicines/by-barcode/')) return { found: true, medicine: { id: 'm1', name_ar: 'دواء ١', price: 5 } };
+      if (p === '/ai/drug-interactions') return { checked: 2, safe: false, interactions: [{ severity: 'high', note_ar: 'ملاحظة اختبار' }] };
+      return {};
+    });
+    await render(wrap(<BarcodeScanner />));
+    await waitFor(() => expect(mockScan).toBeDefined());
+    await mockScan?.({ data: '6281234567890' });
+    await waitFor(() => expect(screen.getByText('دواء ١')).toBeTruthy());
+    await fireEvent.press(screen.getByLabelText(T('pharmacy.scan.ixCheck')));
+    await waitFor(() => expect(screen.getByText(T('pharmacy.scan.ixAttention'))).toBeTruthy());
+    const call = mockApiFetch.mock.calls.find(([p]) => p === '/ai/drug-interactions');
+    expect(JSON.parse((call?.[1] as { body: string }).body)).toEqual({ drugs: ['دواء ١'] });
+    expect(screen.getByText(T('pharmacy.scan.ixHigh'))).toBeTruthy();
+    expect(screen.getByText('ملاحظة اختبار')).toBeTruthy();
+  });
+
+  it('a barcode can be typed: it goes through the same lookup', async () => {
+    mockApiFetch.mockResolvedValue({ found: false });
+    await render(wrap(<BarcodeScanner />));
+    await fireEvent.changeText(screen.getByLabelText(T('pharmacy.scan.typeCode')), '12345');
+    await fireEvent.press(screen.getByLabelText(T('pharmacy.scan.typeGo')));
+    await waitFor(() => expect(mockApiFetch).toHaveBeenCalledWith('/medicines/by-barcode/12345'));
   });
 
   it('a code that is not in the directory and a failed lookup are different states; the failed one can be retried', async () => {
@@ -359,7 +398,7 @@ describe('Pharmacist chat (no board)', () => {
     await render(wrap(<PharmacistChat />));
     expect(screen.getByText(T('pharmacy.chat.noOrderTitle'))).toBeTruthy();
     await fireEvent.press(screen.getByLabelText(T('pharmacy.hub.orders')));
-    expect(mockRouter.replace).toHaveBeenCalledWith('/pharmacy/order-history');
+    expect(mockRouter.replace).toHaveBeenCalledWith('/orders');
     expect(mockApiFetch).not.toHaveBeenCalled();
   });
 

@@ -69,7 +69,7 @@ export default async function WishlistPage({ params }: Props) {
         ) : (
           <div className={styles.state}>
             <EmptyState icon="heart" tone={PHARMACY_TONE} title={t("empty")} />
-            <Link href={`/${locale}/medicine-catalog`} className={`nabd-button nabd-button--primary nabd-button--lg nabd-button--full ${styles.linkButton}`}>
+            <Link href={`/${locale}/c`} className={`nabd-button nabd-button--primary nabd-button--lg nabd-button--full ${styles.linkButton}`}>
               <span className="nabd-button__label">{t("shop")}</span>
             </Link>
           </div>

@@ -1,11 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import { ChoiceGroup, TextField } from "@/components-next/care/care-fields";
+import forms from "@/components-next/consult/consult.module.css";
 
 const TYPES = ["breakfast", "lunch", "dinner", "snack"] as const;
 
+/** "Log a meal" (form): POST /api/nutrition/meals with the same payload as before; on success back to the hub, which reloads. */
 export function NutritionLogMealForm({ locale }: { locale: string }) {
+  const t = useTranslations("NutritionWeb");
   const router = useRouter();
   const [mealType, setMealType] = useState<(typeof TYPES)[number]>("snack");
   const [name, setName] = useState("");
@@ -13,12 +19,12 @@ export function NutritionLogMealForm({ locale }: { locale: string }) {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  async function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
     const kcal = Number(calories);
-    if (!name.trim() || !Number.isFinite(kcal) || kcal < 0) {
-      setError(locale === "ar" ? "أدخل اسم الوجبة وسعرات صحيحة" : "Enter a meal name and valid calories");
+    if (!name.trim() || !calories.trim() || !Number.isFinite(kcal) || kcal < 0) {
+      setError(t("mealInvalid"));
       return;
     }
     setSaving(true);
@@ -28,38 +34,26 @@ export function NutritionLogMealForm({ locale }: { locale: string }) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ name: name.trim(), calories: kcal, meal_type: mealType }),
       });
-      const data = await res.json().catch(() => null);
       if (!res.ok) {
-        setError((data as { message?: string })?.message || (locale === "ar" ? "تعذر حفظ الوجبة" : "Could not save meal"));
+        setError(t("mealFailed"));
         return;
       }
       router.push(`/${locale}/nutrition`);
       router.refresh();
     } catch {
-      setError(locale === "ar" ? "تعذر حفظ الوجبة" : "Could not save meal");
+      setError(t("mealFailed"));
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <form onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
-      <label style={{ display: "grid", gap: 6 }}>
-        <span>{locale === "ar" ? "نوع الوجبة" : "Meal type"}</span>
-        <select value={mealType} onChange={(e) => setMealType(e.target.value as (typeof TYPES)[number])}>
-          {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-        </select>
-      </label>
-      <label style={{ display: "grid", gap: 6 }}>
-        <span>{locale === "ar" ? "اسم الوجبة" : "Meal name"}</span>
-        <input value={name} onChange={(e) => setName(e.target.value)} required maxLength={200} />
-      </label>
-      <label style={{ display: "grid", gap: 6 }}>
-        <span>{locale === "ar" ? "السعرات (kcal)" : "Calories (kcal)"}</span>
-        <input value={calories} onChange={(e) => setCalories(e.target.value)} required inputMode="decimal" placeholder="250" />
-      </label>
-      {error ? <p role="alert">{error}</p> : null}
-      <button type="submit" disabled={saving}>{saving ? (locale === "ar" ? "جارٍ الحفظ…" : "Saving…") : (locale === "ar" ? "حفظ الوجبة" : "Save meal")}</button>
+    <form onSubmit={onSubmit} className={forms.stack} noValidate>
+      <ChoiceGroup label={t("mealTypeLabel")} value={mealType} onChange={setMealType} options={TYPES.map((value) => ({ value, label: t(`mealType.${value}`) }))} />
+      <TextField label={t("mealName")} value={name} onChange={setName} required maxLength={200} />
+      <TextField label={t("mealCalories")} value={calories} onChange={setCalories} required inputMode="decimal" />
+      {error ? <p className={forms.error} role="alert">{error}</p> : null}
+      <Button type="submit" label={t("saveMeal")} loading={saving} fullWidth />
     </form>
   );
 }

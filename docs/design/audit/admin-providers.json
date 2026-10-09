@@ -1,0 +1,540 @@
+{
+ "slice": "admin-providers",
+ "batch": "admin",
+ "app": "admin",
+ "screens": [
+  {
+   "route": "/admin/ambulance-fleet",
+   "elements": [
+    [
+     "button: <button> onClick",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: إعادة المحاولة",
+     "load; GET /api/admin/admin/ambulance/fleet",
+     "ok"
+    ],
+    [
+     "button: اعتماد",
+     "POST /api/admin/admin/ambulance/fleet/:param/approve",
+     "ok"
+    ],
+    [
+     "button: رفض",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: سبب الرفض (يظهر للمزود)",
+     "state rejectReason used by logic/request",
+     "ok"
+    ],
+    [
+     "button: تأكيد الرفض",
+     "POST /api/admin/admin/ambulance/fleet/:param/reject",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/insurance-companies",
+   "elements": [
+    [
+     "button: إلغاء + إضافة شركة",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: مثال: cigna",
+     "state newCode used by logic/request",
+     "ok"
+    ],
+    [
+     "input: سيجنا",
+     "state newNameAr used by logic/request",
+     "ok"
+    ],
+    [
+     "input: Cigna",
+     "state newNameEn used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ الشركة",
+     "addCompany; POST /insurance/companies; GET /insurance/companies/all",
+     "ok"
+    ],
+    [
+     "button: <button> onClick",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: input",
+     "state editNameAr used by logic/request",
+     "ok"
+    ],
+    [
+     "input: input",
+     "state editNameEn used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ",
+     "saveEdit; PATCH /insurance/companies/:param; GET /insurance/companies/all",
+     "ok"
+    ],
+    [
+     "button: إلغاء",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: تعديل",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: تعطيل تفعيل",
+     "PATCH /insurance/companies/:param; GET /insurance/companies/all",
+     "ok"
+    ],
+    [
+     "button: إلغاء + إضافة فئة",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: الكود: vip",
+     "state tierCode used by logic/request",
+     "ok"
+    ],
+    [
+     "input: الاسم: VIP",
+     "state tierNameAr used by logic/request",
+     "ok"
+    ],
+    [
+     "input: Name: VIP",
+     "state tierNameEn used by logic/request",
+     "ok"
+    ],
+    [
+     "input: المستوى",
+     "state tierLevel used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ الفئة",
+     "addTier; POST /insurance/companies/:param/networks; GET /insurance/companies/all",
+     "ok"
+    ],
+    [
+     "button: قواعد التحمل",
+     "GET /insurance/networks/:param/rules",
+     "ok"
+    ],
+    [
+     "button: ×",
+     "DELETE /insurance/companies/:param/networks/:param; GET /insurance/companies/all; confirm()",
+     "ok"
+    ],
+    [
+     "input: service_type",
+     "state ruleForm used by logic/request",
+     "ok"
+    ],
+    [
+     "input: service_key?",
+     "state ruleForm used by logic/request",
+     "ok"
+    ],
+    [
+     "input: copay%",
+     "state ruleForm used by logic/request",
+     "ok"
+    ],
+    [
+     "input: cap?",
+     "state ruleForm used by logic/request",
+     "ok"
+    ],
+    [
+     "input: checkbox",
+     "state ruleForm used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ القاعدة",
+     "POST /insurance/networks/:param/rules; GET /insurance/networks/:param/rules",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/insurance-queue",
+   "elements": [
+    [
+     "button: ر.س إجمالي",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: <button> onClick",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: تحديث",
+     "load; GET /api/admin/admin/insurance/stats; GET /api/admin/admin/insurance/requests; GET /api/admin/admin/finance/refund",
+     "ok"
+    ],
+    [
+     "action: · ر.س",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: ملاحظة (اختياري)",
+     "state decideNote used by logic/request",
+     "ok"
+    ],
+    [
+     "button: اعتماد الاسترداد",
+     "POST /api/admin/admin/finance/refunds/:param/decide; GET /api/admin/admin/insurance/stats; GET /api/admin/admin/insuranc",
+     "ok"
+    ],
+    [
+     "button: رفض",
+     "POST /api/admin/admin/finance/refunds/:param/decide; GET /api/admin/admin/insurance/stats; GET /api/admin/admin/insuranc",
+     "ok"
+    ],
+    [
+     "button: تراجع",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: اتخاذ القرار",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: تفاصيل طلب التأمين ✕ المريض الخدمة القناة المزود السعر نسبة",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: تفاصيل طلب التأمين ✕ المريض الخدمة القناة المزود السعر نسبة",
+     "",
+     "ok"
+    ],
+    [
+     "button: ✕",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: إغلاق",
+     "local state",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/finance/refunds/queue",
+     "GET /api/admin/admin/finance/refunds/queue (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:883)",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/nursing-portal",
+   "elements": [
+    [
+     "input: — اختر —",
+     "state selected used by logic/request",
+     "ok"
+    ],
+    [
+     "button: إعادة تعيين تعيين",
+     "POST /api/admin/admin/nursing/requests/:param/:param; GET /api/admin/admin/nursing/requests/:param/eligible-providers; G",
+     "ok"
+    ],
+    [
+     "button: إلغاء",
+     "POST /api/admin/admin/nursing/requests/:param/:param; GET /api/admin/admin/nursing/requests/:param/eligible-providers; G",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/pharmacy-procurement",
+   "elements": [
+    [
+     "button: تحديث",
+     "load; GET /api/admin/admin/extended-operations/procurement/pending",
+     "ok"
+    ],
+    [
+     "button: إغلاق مراجعة وإصدار عرض",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: 1",
+     "state itemQties used by logic/request",
+     "ok"
+    ],
+    [
+     "input: 0.00",
+     "state itemPrices used by logic/request",
+     "ok"
+    ],
+    [
+     "input: 0",
+     "state itemDiscounts used by logic/request",
+     "ok"
+    ],
+    [
+     "button: إصدار عرض السعر للصيدلية",
+     "issueQuote; PATCH /api/admin/admin/extended-operations/issue-quote/:param; GET /api/admin/admin/extended-operations/proc",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/provider-audits",
+   "elements": [
+    [
+     "button: اعتماد التعديل وتطبيقه",
+     "POST /api/admin/admin/providers/provider-deltas/:param/approve",
+     "ok"
+    ],
+    [
+     "button: رفض التعديل",
+     "POST /api/admin/admin/providers/provider-deltas/:param/reject; prompt()",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/provider-moderation",
+   "elements": [
+    [
+     "button: توثيق التسجيل (Onboarding)",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: تعديلات الحسابات (Delta Mutations)",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: <div> onClick",
+     "local state",
+     "ok"
+    ],
+    [
+     "action: طلب تعديل ملف المزود",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: Approve Provider (اعتماد)",
+     "POST /api/admin/admin/providers/:param/approve; prompt()",
+     "ok"
+    ],
+    [
+     "button: Reactivate (إعادة تفعيل)",
+     "POST /api/admin/admin/providers/:param/reactivate; prompt()",
+     "ok"
+    ],
+    [
+     "button: Suspend Provider (إيقاف)",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: تأكيد واعتماد التعديلات",
+     "POST /api/admin/admin/providers/provider-deltas/:param/approve; prompt()",
+     "ok"
+    ],
+    [
+     "button: رفض التعديلات",
+     "POST /api/admin/admin/providers/provider-deltas/:param/reject; prompt()",
+     "ok"
+    ],
+    [
+     "input: الرجاء إدخال سبب الإيقاف أو أكواد الرفض (Reason Codes)...",
+     "state suspendReason used by logic/request",
+     "ok"
+    ],
+    [
+     "button: تأكيد الإيقاف الحرج",
+     "handleSuspend; POST /api/admin/admin/providers/:param/suspend",
+     "ok"
+    ],
+    [
+     "button: تراجع",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: جاري التحميل… تحميل العقد PDF (in ProviderFullDetail)",
+     "downloadContract; GET /api/admin/provider-onboarding/admin/contracts/:param",
+     "ok"
+    ],
+    [
+     "input: checkbox (in ProviderFullDetail)",
+     "onChange sends POST /api/admin/provider-onboarding/admin/contracts/:param/visibility",
+     "ok"
+    ],
+    [
+     "input: المنطقة (in GeoPicker)",
+     "state region used by logic/request",
+     "ok"
+    ],
+    [
+     "input: المدينة (in GeoPicker)",
+     "state city used by logic/request",
+     "ok"
+    ],
+    [
+     "input: الحي (in GeoPicker)",
+     "state district used by logic/request",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/storage/:param/signed-url",
+     "GET /api/admin/storage/:param/signed-url (OK, backend/src/modules/storage/storage.module.ts:382)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/storage/:param",
+     "GET /api/admin/storage/:param (OK, backend/src/modules/storage/storage.module.ts:372)",
+     "ok"
+    ],
+    [
+     "API: GET /locations/regions",
+     "GET /locations/regions (OK, backend/src/modules/location/location.controller.ts:11)",
+     "ok"
+    ],
+    [
+     "API: GET /locations/cities",
+     "GET /locations/cities (OK, backend/src/modules/location/location.controller.ts:17)",
+     "ok"
+    ],
+    [
+     "API: GET /locations/districts",
+     "GET /locations/districts (OK, backend/src/modules/location/location.controller.ts:23)",
+     "ok"
+    ]
+   ]
+  }
+ ],
+ "needsReview": [
+  {
+   "route": "/admin/ambulance-fleet",
+   "element": "اعتماد",
+   "kind": "client",
+   "note": "Sensitive action (POST /api/admin/admin/ambulance/fleet/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/ambulance-fleet.tsx",
+   "line": 145
+  },
+  {
+   "route": "/admin/ambulance-fleet",
+   "element": "تأكيد الرفض",
+   "kind": "client",
+   "note": "Sensitive action (POST /api/admin/admin/ambulance/fleet/:param/reject) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/ambulance-fleet.tsx",
+   "line": 161
+  },
+  {
+   "route": "/admin/ambulance-fleet",
+   "element": "Guard G-ROLE-ONLY-WRITE (2)",
+   "kind": "backend",
+   "note": "2 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/ambulance/fleet/:param/approve; POST /api/admin/admin/ambulance/fleet/:param/reject): every admin role, including a custom restricted one, can run them.",
+   "file": "admin/src/pages/admin/ambulance-fleet.tsx",
+   "line": 57,
+   "backend": "backend/src/modules/emergency/ambulance-fleet.controller.ts:135"
+  },
+  {
+   "route": "/admin/ambulance-fleet",
+   "element": "Removed feature",
+   "kind": "owner",
+   "note": "Owner decision O-2 (2026-10-06, item 14) removes the whole ambulance system including the admin fleet; this page goes with it.",
+   "file": "admin/src/pages/admin/ambulance-fleet.tsx",
+   "line": 1
+  },
+  {
+   "route": "/admin/insurance-queue",
+   "element": "اعتماد الاسترداد",
+   "kind": "client",
+   "note": "Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/insurance-queue.tsx",
+   "line": 169
+  },
+  {
+   "route": "/admin/insurance-queue",
+   "element": "رفض",
+   "kind": "client",
+   "note": "Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/insurance-queue.tsx",
+   "line": 170
+  },
+  {
+   "route": "/admin/insurance-queue",
+   "element": "Guard G-ROLE-ONLY-WRITE (1)",
+   "kind": "backend",
+   "note": "1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/finance/refunds/:param/decide): every admin role, including a custom restricted one, can run them.",
+   "file": "admin/src/pages/admin/insurance-queue.tsx",
+   "line": 55,
+   "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:885"
+  },
+  {
+   "route": "/admin/provider-audits",
+   "element": "اعتماد التعديل وتطبيقه",
+   "kind": "client",
+   "note": "Sensitive action (POST /api/admin/admin/providers/provider-deltas/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/provider-audits.tsx",
+   "line": 115
+  },
+  {
+   "route": "/admin/provider-audits",
+   "element": "Guard G-ROLE-ONLY-WRITE (2)",
+   "kind": "backend",
+   "note": "2 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/providers/provider-deltas/:param/approve; POST /api/admin/admin/providers/provider-deltas/:param/reject): every admin role, including a custom restricted one, can run them.",
+   "file": "admin/src/pages/admin/provider-audits.tsx",
+   "line": 30,
+   "backend": "backend/src/modules/provider/provider.controllers.ts:152"
+  },
+  {
+   "route": "/admin/provider-moderation",
+   "element": "تأكيد الإيقاف الحرج",
+   "kind": "client",
+   "note": "Sensitive action (POST /api/admin/admin/providers/:param/suspend) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/provider-moderation.tsx",
+   "line": 355
+  },
+  {
+   "route": "/admin/provider-moderation",
+   "element": "Guard G-ROLE-ONLY-WRITE (5)",
+   "kind": "backend",
+   "note": "5 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/providers/:param/approve; POST /api/admin/admin/providers/:param/reactivate; POST /api/admin/admin/providers/:param/suspend; …): every admin role, including a custom restricted one, can run them.",
+   "file": "admin/src/pages/admin/provider-moderation.tsx",
+   "line": 117,
+   "backend": "backend/src/modules/provider/provider.controllers.ts:155"
+  },
+  {
+   "route": "/admin/provider-moderation",
+   "element": "Guard G-OPEN (3)",
+   "kind": "backend",
+   "note": "3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; GET /api/admin/provider-onboarding/admin/contracts/:param): any signed-in user passes JwtAuthGuard.",
+   "file": "admin/src/components/ProviderFullDetail.tsx",
+   "line": 18,
+   "backend": "backend/src/modules/storage/storage.module.ts:382"
+  }
+ ]
+}

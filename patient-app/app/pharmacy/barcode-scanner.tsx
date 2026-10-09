@@ -3,7 +3,7 @@ import { ActivityIndicator, Linking, Pressable, StatusBar, Text, View } from 're
 import { router, type Href } from 'expo-router';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 
-import { Button, Card, FIcon, Icon, Screen } from '../../../packages/ui-native/src';
+import { Button, Card, FIcon, Icon, Input, Screen } from '../../../packages/ui-native/src';
 import { Pill, goBack, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
@@ -11,13 +11,15 @@ import { logError } from '../../src/utils/logger';
 import { medMeta, medName, medPrice, needsRx, type Med } from '../../src/utils/pharmacyCatalog';
 
 /**
- * Barcode scanner — the PharmacyHub family (no board of its own; the hub's search field opens it).
+ * Scan a medicine (second pass, section 3: the old barcode scanner and drug scanner in one screen) — the PharmacyHub family (no board of its own; the hub's search field opens it).
  *
  * A camera on the ink surface of the tokens with a scan frame; a barcode is looked up with
  * GET /medicines/by-barcode/:code. A pack can also be photographed (POST /ai/medicine-image-search), and a manual
  * request is always one tap away. States: asking for the camera, camera refused (ask again, or open the phone's
  * settings), looking up, found, not in the directory, and lookup failed (retry). What a found medicine shows is what the
- * directory sends: no availability or price is drawn that the response does not carry.
+ * directory sends: no availability or price is drawn that the response does not carry. A barcode can also be typed. On a found
+ * medicine, "check interactions" posts its name to POST /ai/drug-interactions (the server adds the medicines saved in the
+ * account) and shows the verdict and the hits the server returns, as the web checker does.
  */
 
 const BARCODE_TYPES = ['qr', 'code128', 'code39', 'code93', 'ean13', 'ean8', 'upc_a', 'upc_e', 'datamatrix', 'pdf417', 'itf14'] as const;
@@ -25,12 +27,23 @@ const FRAME = 250;
 const CORNER = 40;
 
 type Found = { code: string; med: Med };
+type IxHit = { severity?: string; note_ar?: string; note?: string };
+type IxResult = { checked?: number; safe?: boolean; interactions?: IxHit[] };
+
+/** The three levels the checker states; any other word from the server is not drawn as a label. */
+function ixLevel(value?: string): { key: string; tone: 'danger' | 'warning' | 'success' } | null {
+  const v = (value || '').toLowerCase();
+  if (['high', 'severe', 'major', 'critical', 'contraindicated'].includes(v)) return { key: 'pharmacy.scan.ixHigh', tone: 'danger' };
+  if (['moderate', 'medium'].includes(v)) return { key: 'pharmacy.scan.ixMedium', tone: 'warning' };
+  if (['low', 'minor', 'mild'].includes(v)) return { key: 'pharmacy.scan.ixLow', tone: 'success' };
+  return null;
+}
 
 /** A route that is a screen of the app (the typed router only knows the generated list). */
 const go = (href: string) => router.push(href as Href);
 
 export default function BarcodeScannerScreen() {
-  const { theme, t, c, dir, flow, k, money } = useScreenUi();
+  const { theme, t, c, dir, flow, k, money, lang } = useScreenUi();
   const addToCart = useAddMedToCart();
   const [permission, requestPermission] = useCameraPermissions();
   const [found, setFound] = useState<Found | null>(null);
@@ -39,6 +52,8 @@ export default function BarcodeScannerScreen() {
   const [lookingUp, setLookingUp] = useState(false);
   const [aiBusy, setAiBusy] = useState(false);
   const [aiProblem, setAiProblem] = useState<'unknown' | 'error' | null>(null);
+  const [typed, setTyped] = useState('');
+  const [ix, setIx] = useState<{ state: 'idle' | 'busy' | 'error' | 'done'; result?: IxResult }>({ state: 'idle' });
   const busyRef = useRef(false);
   const cameraRef = useRef<CameraView | null>(null);
 
@@ -68,7 +83,27 @@ export default function BarcodeScannerScreen() {
     void lookup(code);
   };
 
+  const lookupTyped = () => {
+    const code = typed.trim();
+    if (!code || busyRef.current || lookingUp) return;
+    busyRef.current = true;
+    void lookup(code);
+  };
+
+  const checkInteractions = async (med: Med) => {
+    setIx({ state: 'busy' });
+    try {
+      const result = await apiFetch<IxResult>('/ai/drug-interactions', { method: 'POST', body: JSON.stringify({ drugs: [medName(med)] }) });
+      setIx({ state: 'done', result });
+    } catch (e) {
+      logError('pharmacy:barcode-scanner:interactions', e);
+      setIx({ state: 'error' });
+    }
+  };
+
   const reset = () => {
+    setIx({ state: 'idle' });
+    setTyped('');
     setFound(null);
     setNotFound(null);
     setLookupFailed(null);
@@ -134,7 +169,7 @@ export default function BarcodeScannerScreen() {
   });
 
   const manual = (
-    <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.barcode.manual')} onPress={() => go('/pharmacy/request')} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}>
+    <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.barcode.manual')} onPress={() => go('/pharmacy/rx-order?via=type')} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}>
       <Text style={{ ...scale(t, 'label', 'medium'), color: onInverse, textAlign: 'center', textDecorationLine: 'underline' }}>{k('pharmacy.barcode.manual')}</Text>
     </Pressable>
   );
@@ -172,8 +207,28 @@ export default function BarcodeScannerScreen() {
             theme={theme}
           />
           <Button label={k('pharmacy.barcode.details')} variant="outline" fullWidth onPress={() => router.push({ pathname: '/pharmacy/product-detail', params: { id: found.med.id, name: medName(found.med) } })} theme={theme} />
+          <Button label={ix.state === 'busy' ? k('pharmacy.scan.ixChecking') : k('pharmacy.scan.ixCheck')} variant="outline" fullWidth loading={ix.state === 'busy'} onPress={() => void checkInteractions(found.med)} theme={theme} />
           <Button label={k('pharmacy.barcode.scanAnother')} variant="secondary" fullWidth onPress={reset} theme={theme} />
         </View>
+        {ix.state === 'error' ? (
+          <Text accessibilityRole="alert" style={{ ...scale(t, 'meta', 'regular'), color: c.status.danger.fg, textAlign: 'center' }}>{k('pharmacy.scan.ixFailed')}</Text>
+        ) : null}
+        {ix.state === 'done' && ix.result ? (
+          <View accessibilityLiveRegion="polite" style={{ gap: 8, paddingTop: 12, borderTopWidth: 1, borderColor: c.border.subtle }}>
+            <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{ix.result.safe ? k('pharmacy.scan.ixSafe') : k('pharmacy.scan.ixAttention')}</Text>
+            {(ix.result.interactions || []).map((h, i) => {
+              const level = ixLevel(h.severity);
+              const note = lang === 'ar' ? h.note_ar || h.note : h.note;
+              return (
+                <View key={`${h.severity}-${i}`} style={{ gap: 4 }}>
+                  {level ? <Pill label={k(level.key)} tone={level.tone} /> : null}
+                  {note ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{note}</Text> : null}
+                </View>
+              );
+            })}
+            <Text style={{ ...scale(t, 'caption', 'regular'), color: c.text.secondary, ...flow }}>{k('pharmacy.scan.ixAdvisory')}</Text>
+          </View>
+        ) : null}
       </Card>
     );
   } else if (notFound) {
@@ -186,7 +241,7 @@ export default function BarcodeScannerScreen() {
         </View>
         <View style={{ gap: 8 }}>
           <Button label={k('pharmacy.barcode.photo')} size="lg" fullWidth onPress={reset} theme={theme} />
-          <Button label={k('pharmacy.hub.manualRequest')} variant="outline" fullWidth onPress={() => go('/pharmacy/request')} theme={theme} />
+          <Button label={k('pharmacy.hub.manualRequest')} variant="outline" fullWidth onPress={() => go('/pharmacy/rx-order?via=type')} theme={theme} />
           <Button label={k('pharmacy.barcode.scanAnotherCode')} variant="secondary" fullWidth onPress={reset} theme={theme} />
         </View>
       </Card>
@@ -249,6 +304,12 @@ export default function BarcodeScannerScreen() {
             {aiProblem === 'unknown' ? k('pharmacy.barcode.photoUnknown') : k('pharmacy.barcode.photoError')}
           </Text>
         ) : null}
+        <View style={{ alignSelf: 'stretch', flexDirection: 'row', gap: 8, alignItems: 'flex-end' }}>
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Input label={k('pharmacy.scan.typeCode')} value={typed} onChange={setTyped} keyboardType="number" theme={theme} />
+          </View>
+          <Button label={k('pharmacy.scan.typeGo')} variant="secondary" loading={lookingUp} onPress={lookupTyped} theme={theme} />
+        </View>
         {manual}
       </View>
     );

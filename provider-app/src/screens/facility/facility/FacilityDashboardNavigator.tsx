@@ -20,7 +20,6 @@ import { Validate, Vault } from '../../../security/Security';
 import client from '../../../api/client';
 import { InsuranceRequestsScreen } from '../../shared/InsuranceRequestsScreen';
 import { EPrescriptionScreen } from '../../doctor/DoctorDashboard';
-import { FleetScreen } from '../../shared/FleetScreen';
 import {
  PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
@@ -173,7 +172,6 @@ export function FacilityDashboardNavigator({ onLogout }: { onLogout: () => void 
       <Stack.Screen name="crm">{({ navigation }: any) => <CrmHub onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="revenue_insights">{({ navigation }: any) => <RevenueInsights onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="sos_dispatch">{({ navigation }: any) => <SosDispatchScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
-      <Stack.Screen name="ambulance_fleet">{({ navigation }: any) => <FleetScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="gps_router">{({ navigation, route }: any) => <GpsRouterScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="medical_jobs">{({ navigation }: any) => <MedicalJobsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>

@@ -1,4 +1,5 @@
-import { ArrayMaxSize, IsArray, IsBoolean, IsDateString, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsBoolean, IsDateString, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateBookingDto {
   @IsOptional()
@@ -90,7 +91,26 @@ export class GpsDto {
 
 }
 
+/** N1: a file the nurse uploaded with POST /storage/upload and attaches to the visit report. */
+export class VisitAttachmentDto {
+  @IsString()
+  @MaxLength(64)
+  storage_id!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  name?: string;
+}
+
 export class VisitReportDto {
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(10)
+  @ValidateNested({ each: true })
+  @Type(() => VisitAttachmentDto)
+  attachments?: VisitAttachmentDto[];
+
   @IsOptional()
   @IsBoolean()
   complete?: boolean;

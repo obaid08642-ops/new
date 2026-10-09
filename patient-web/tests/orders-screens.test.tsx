@@ -312,7 +312,7 @@ describe("/pharmacy/reorder", () => {
     const html = render(<ReorderPicker locale="en" orderId={ORDER} lines={addable} skipped={skipped} needsPrescription={false} />);
     expect(html).toContain("Paracetamol 500 mg");
     expect(html).toContain("Add to cart");
-    expect(html).toContain('href="/en/pharmacy/request"');
+    expect(html).toContain('href="/en/pharmacy/rx-order?via=type"');
     expect(html).not.toContain("prescription: it is needed again");
     expect(render(<ReorderPicker locale="en" orderId={ORDER} lines={addable} skipped={0} needsPrescription />)).toContain("prescription");
     expect(html).not.toContain("style=");

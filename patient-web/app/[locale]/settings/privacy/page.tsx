@@ -1,80 +1,109 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Lock, ShieldCheck } from "lucide-react";
 import { requirePatientAccess } from "@/lib/auth/session";
-import { isLocale } from "@/lib/i18n";
-import { callPatientApi } from "@/lib/api/upstream";
-import { PrivacyToggles, type PrivacyState } from "@/components-next/privacy-toggles";
-import { PdplRights } from "./pdpl-rights";
-import styles from "../settings.module.css";
+import { isLocale, type Locale } from "@/lib/i18n";
+import { getPatientPrivacySettings, getPatientStorage } from "@/lib/api/settings-server";
+import { parseStorageSummary } from "@/lib/api/settings";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { SectionCard } from "@/components-next/consult/consult-parts";
+import { HealthTabs } from "@/components-next/health/health-kit";
+import { DataExport, DeleteAccount } from "@/components-next/settings/data-rights";
+import { SwitchList, type SwitchRow } from "@/components-next/settings/switch-list";
+import { FlushCard } from "@/components-next/settings/settings-kit";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import rx from "@/components-next/pharmacy/rx.module.css";
+import forms from "@/components-next/consult/consult.module.css";
+import styles from "@/components-next/settings/settings.module.css";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string }> };
 
-const DEFAULTS: PrivacyState = { shareData: false, analytics: true, location: true, marketing: false, thirdParty: false };
+const TABS = ["privacy", "data", "delete"] as const;
+type Tab = (typeof TABS)[number];
 
-function extract(payload: unknown): PrivacyState {
+const PRIVACY_KEYS = ["location", "analytics", "shareData", "marketing", "thirdParty"] as const;
+type PrivacyKey = (typeof PRIVACY_KEYS)[number];
+const DEFAULTS: Record<PrivacyKey, boolean> = { shareData: false, analytics: true, location: true, marketing: false, thirdParty: false };
+
+function extract(payload: unknown): Record<PrivacyKey, boolean> {
   const root = payload && typeof payload === "object" && !Array.isArray(payload) ? (payload as Record<string, unknown>) : null;
   const src = (root && typeof root.data === "object" ? (root.data as Record<string, unknown>) : root) || {};
-  const pick = (k: keyof PrivacyState) => (typeof src[k] === "boolean" ? (src[k] as boolean) : DEFAULTS[k]);
+  const pick = (key: PrivacyKey) => (typeof src[key] === "boolean" ? (src[key] as boolean) : DEFAULTS[key]);
   return { shareData: pick("shareData"), analytics: pick("analytics"), location: pick("location"), marketing: pick("marketing"), thirdParty: pick("thirdParty") };
 }
 
-export default async function SettingsPrivacyPage({ params }: Props) {
+/**
+ * `/settings/privacy` (merge map section 3): three tabs, `?tab=privacy|data|delete`. Privacy is the five switches
+ * (/users/me/privacy-settings), My data is the storage summary (/users/me/storage) and the PDPL export, Delete account is the
+ * password-confirmed erasure. `/settings/data` redirects to `?tab=data`.
+ */
+export default async function SettingsPrivacyPage({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  const ar = locale === "ar";
-  await getTranslations("Settings");
+  const { tab: rawTab } = await searchParams;
+  const tab: Tab = TABS.find((item) => item === rawTab) ?? "privacy";
+  const t = await getTranslations("SettingsWeb");
+  const rs = await getTranslations("RouteState");
   const token = await requirePatientAccess(locale);
-  // Backend binding: real upstream — no mock
-  const response = await callPatientApi("/users/me/privacy-settings", {}, token);
+  const base = `/${locale}/settings/privacy`;
+  const frame = (body: React.ReactNode) => (
+    <ConsultPage locale={locale} title={t("privacyTitle")} backHref={`/${locale}/settings`}>
+      <HealthTabs label={t("privacyTabs")} base={base} active={tab} options={[
+        { value: "privacy", label: t("tabPrivacy") }, { value: "data", label: t("tabData") }, { value: "delete", label: t("tabDelete") },
+      ]} />
+      {body}
+    </ConsultPage>
+  );
+  const failed = frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
+
+  if (tab === "delete") {
+    return frame(<SectionCard id="delete"><DeleteAccount locale={locale} /></SectionCard>);
+  }
+  if (tab === "data") return frame(await dataTab(locale, token, failed, t));
+
+  const response = await getPatientPrivacySettings(token);
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
-  if (!response.ok) {
-    return (
-      <main className={`main ${styles.page}`}>
-        <section className={styles.state} role="alert">
-          <ShieldCheck size={20} aria-hidden="true" style={{ color: "#1E332E" }} />
-          <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "تعذر تحميل إعدادات الخصوصية" : "Could not load privacy settings"}</h1>
-        </section>
-      </main>
-    );
-  }
+  if (!response.ok) return failed;
   const initial = extract(await response.json().catch(() => null));
-  const names = {
-    location: { label: ar ? "مشاركة الموقع" : "Location sharing", sub: ar ? "لإيجاد أقرب المزودين الصحيين" : "To find nearby providers" },
-    analytics: { label: ar ? "تحليلات الاستخدام" : "Usage analytics", sub: ar ? "مساعدتنا في تحسين التطبيق" : "Help us improve the app" },
-    shareData: { label: ar ? "مشاركة البيانات الصحية" : "Health data sharing", sub: ar ? "مشاركة بيانات صحية مجهولة للأبحاث" : "Share anonymized data for research" },
-    marketing: { label: ar ? "التواصل التسويقي" : "Marketing contact", sub: ar ? "إرسال عروض مخصصة" : "Receive tailored offers" },
-    thirdParty: { label: ar ? "مشاركة مع أطراف ثالثة" : "Third-party sharing", sub: ar ? "شركاء التأمين والصيدليات" : "Insurance and pharmacy partners" },
-  } as const;
+  const rows: SwitchRow[] = PRIVACY_KEYS.map((key) => ({ id: key, key, label: t(`pv.${key}`), sub: t(`pv.${key}Sub`), value: initial[key] }));
+  return frame(
+    <>
+      <p className={forms.body}>{t("privacyIntro")}</p>
+      <SwitchList kind="privacy" label={t("tabPrivacy")} rows={rows} />
+    </>,
+  );
+}
 
+async function dataTab(locale: Locale, token: string, failed: React.ReactNode, t: Awaited<ReturnType<typeof getTranslations>>) {
+  const response = await getPatientStorage(token);
+  if (response.status === 401) redirect(`/${locale}/login`);
+  if (response.status === 403 || response.status === 404) notFound();
+  if (!response.ok) return failed;
+  const storage = parseStorageSummary(await response.json().catch(() => null));
   return (
-    <main className={`main ${styles.page}`}>
-      <Link href={`/${locale}/settings`} style={{ color: "#1E332E", fontWeight: 760, textDecoration: "none", overflowWrap: "anywhere" as any }}>{ar ? "الإعدادات" : "Settings"}</Link>
-      <section className={styles.hero}>
-        <p className={styles.eyebrow}>
-          <Lock size={15} aria-hidden="true" />
-          {ar ? "الخصوصية" : "Privacy"}
-        </p>
-        <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "إعدادات الخصوصية" : "Privacy settings"}</h1>
-        <p style={{ overflowWrap: "anywhere" } as any}>{ar ? "بياناتك محمية ومشفرة. لا نبيع بياناتك لأي طرف خارجي." : "Your data is protected and encrypted. We never sell it."}</p>
-        <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(255,255,255,.82)", border: "1px solid #E8EDEE", flexShrink: 0, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}><Lock size={22} color="#1E332E" aria-hidden="true" /></span>
+    <>
+      <section className={styles.section} aria-labelledby="storage">
+        <h2 id="storage" className={rx.srOnly}>{t("storageTitle")}</h2>
+        <FlushCard label={t("storageTitle")}>
+          <div className={styles.itemRow}>
+            <span className={styles.itemText}>
+              <span className={styles.itemTitle}>{t("storageTitle")}</span>
+              <span className={styles.itemSub}>{storage.used && storage.total ? <bdi>{storage.used} / {storage.total}</bdi> : t("notAvailable")}</span>
+            </span>
+          </div>
+          {storage.items.map((item) => (
+            <div className={styles.itemRow} key={item.label}>
+              <span className={styles.itemText}><span className={styles.itemTitle} dir="auto">{item.label}</span></span>
+              <span className={styles.itemEnd}><bdi>{item.value} · {item.percent}%</bdi></span>
+            </div>
+          ))}
+          {storage.items.length === 0 ? <div className={styles.itemRow}><span className={styles.itemSub}>{t("storageEmpty")}</span></div> : null}
+        </FlushCard>
       </section>
-      <PrivacyToggles
-        initial={initial}
-        names={names}
-        labels={{
-          saveFailed: ar ? "تعذر الحفظ — حاول مرة أخرى" : "Could not save — try again",
-          unavailable: ar ? "الخدمة غير متاحة حالياً" : "Service unavailable",
-          saving: ar ? "جارٍ الحفظ…" : "Saving…",
-        }}
-      />
-      {/* PDPL Art. 20/23: the subject acts here. The previous link pointed at
-          /support to "request" deletion within 72 hours, which is a ticket, not
-          a right — and the web client had no export at all. */}
-      <PdplRights locale={locale} />
-    </main>
+      <SectionCard id="export" title={t("exportTitle")}><DataExport /></SectionCard>
+      <ButtonLink href={`/${locale}/privacy`} label={t("policyLink")} variant="outline" fullWidth />
+    </>
   );
 }

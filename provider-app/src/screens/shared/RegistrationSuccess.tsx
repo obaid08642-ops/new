@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as LegacyFS from 'expo-file-system/legacy';
 import client from '../../api/client';
@@ -11,6 +12,7 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
   const { lang } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
+  const insets = useSafeAreaInsets();
   
   const [loading, setLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
@@ -75,7 +77,8 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: theme.bg }}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+      <ScrollView keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets
+        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', padding: 24, paddingTop: 24 + insets.top, paddingBottom: 24 + insets.bottom, paddingLeft: 24 + insets.left, paddingRight: 24 + insets.right }}>
         
         <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: theme.primary + '20', justifyContent: 'center', alignItems: 'center', marginBottom: 24 }}>
           <Ionicons name={verified ? "checkmark-circle" : "mail-unread"} size={48} color={theme.primary} />
@@ -105,7 +108,7 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
                 style={{ backgroundColor: theme.primary, padding: 14, borderRadius: 12, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
                 {loading ? <ActivityIndicator color="#fff" /> : (
                   <>
-                    <Ionicons name="send" size={20} color="#fff" style={{ marginRight: 8 }} />
+                    <Ionicons name="send" size={20} color="#fff" style={{ marginEnd: 8 }} />
                     <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>
                       {AR ? 'إرسال رمز التفعيل' : 'Send Verification Code'}
                     </Text>
@@ -140,7 +143,7 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
           </View>
         ) : (
           <View style={{ width: '100%', backgroundColor: theme.card, padding: 16, borderRadius: 12, borderWidth: 1, borderColor: theme.border, marginBottom: 24, flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="checkmark-circle" size={24} color={theme.success} style={{ marginRight: 12 }} />
+            <Ionicons name="checkmark-circle" size={24} color={theme.success} style={{ marginEnd: 12 }} />
             <Text style={{ fontSize: 14, color: theme.success, fontWeight: '600' }}>
               {AR ? 'البريد الإلكتروني مؤكد' : 'Email Verified'}
             </Text>
@@ -153,7 +156,7 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
           style={{ width: '100%', backgroundColor: theme.primary, padding: 16, borderRadius: 12, alignItems: 'center', marginBottom: 12, flexDirection: 'row', justifyContent: 'center' }}>
           {contractLoading ? <ActivityIndicator color="#fff" /> : (
             <>
-              <Ionicons name="document-text" size={20} color="#fff" style={{ marginRight: 8 }} />
+              <Ionicons name="document-text" size={20} color="#fff" style={{ marginEnd: 8 }} />
               <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>
                 {AR ? 'تحميل عقد الشراكة الموقّع' : 'Download Signed Partnership Contract'}
               </Text>

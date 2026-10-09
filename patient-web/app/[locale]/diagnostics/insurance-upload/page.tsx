@@ -1,27 +1,15 @@
 import { notFound } from "next/navigation";
-import { getTranslations, setRequestLocale } from "next-intl/server";
-import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { DiagnosticsDocumentUpload } from "@/components-next/diagnostics-document-upload";
-import { ConsultPage } from "@/components-next/consult/consult-page";
-import styles from "@/components-next/diagnostics/diag.module.css";
+import { redirectKeepingQuery } from "@/lib/redirect-keep-query";
 
-type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ bookingId?: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-/** Upload an insurance document for a booking (canvas/RxUpload): the frame and the line about home collection; the upload is DiagnosticsDocumentUpload. */
+/** Merged into diagnostics/insurance-approval (second pass, section 2): the document upload is a section of the booking's insurance step. `bookingId` becomes `orderId`; the rest of the query is kept. */
 export default async function DiagnosticsInsuranceUploadPage({ params, searchParams }: Props) {
   const { locale } = await params;
+  if (!isLocale(locale)) notFound();
   const sp = await searchParams;
-  const bookingId = (sp.bookingId || "").trim();
-  if (!isLocale(locale) || !bookingId) notFound();
-  setRequestLocale(locale);
-  await requirePatientAccess(locale);
-  const t = await getTranslations("DiagWeb");
-
-  return (
-    <ConsultPage locale={locale} title={t("uploadTitle")} backHref={`/${locale}/diagnostics/bookings`}>
-      <p className={styles.flowNote}>{t("uploadSub")}</p>
-      <DiagnosticsDocumentUpload locale={locale} bookingId={bookingId} />
-    </ConsultPage>
-  );
+  const { bookingId, ...rest } = sp;
+  const id = Array.isArray(bookingId) ? bookingId[0] : bookingId;
+  redirectKeepingQuery(`/${locale}/diagnostics/insurance-approval`, rest, id ? { orderId: id } : {});
 }

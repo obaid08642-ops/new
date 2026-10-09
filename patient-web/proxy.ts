@@ -13,9 +13,9 @@ function isPublicLocaleHome(pathname: string) {
 // Indexable public surfaces: locale homes, articles, the v14 product pages
 // /{lang}/p/{slug}, category clusters /{lang}/c…, catalogue landing, plus the
 // public SEO detail surfaces that already emit index:true metadata
-// (doctor/facility/condition/pharmacies/labs/radiology/services/doctors-specialty/voice).
+// (doctor/facility/condition/pharmacies/labs/radiology/services/doctors-specialty).
 const LOCALE = "(?:ar|en|ur|hi|bn|fil)";
-const PUBLIC_INDEXABLE = new RegExp(`^\\/${LOCALE}(?:\\/(?:articles(?:\\/[^/]+)?|p\\/[^/]+|c(?:\\/.*)?|medicine-catalog|consultations\\/doctors(?:\\/[^/]+)?|diagnostics\\/labs(?:\\/[^/]+)?|diagnostics\\/radiology(?:\\/[^/]+)?|nursing\\/catalog|map|doctor\\/[^/]+|facility\\/[^/]+|condition\\/[^/]+|pharmacies(?:\\/[^/]+)?|labs(?:\\/[^/]+(?:\\/[^/]+)?)?|radiology(?:\\/[^/]+(?:\\/[^/]+)?)?|services(?:\\/[^/]+(?:\\/[^/]+)?)?|doctors\\/[^/]+(?:\\/[^/]+(?:\\/[^/]+)?)?|home-nursing(?:\\/[^/]+)?|voice))?\\/?$`);
+const PUBLIC_INDEXABLE = new RegExp(`^\\/${LOCALE}(?:\\/(?:articles(?:\\/[^/]+)?|p\\/[^/]+|c(?:\\/.*)?|medicine-catalog|consultations\\/doctors(?:\\/[^/]+)?|diagnostics\\/labs(?:\\/[^/]+)?|diagnostics\\/radiology(?:\\/[^/]+)?|nursing\\/catalog|map|doctor\\/[^/]+|facility\\/[^/]+|condition\\/[^/]+|pharmacies(?:\\/[^/]+)?|labs(?:\\/[^/]+(?:\\/[^/]+)?)?|radiology(?:\\/[^/]+(?:\\/[^/]+)?)?|services(?:\\/[^/]+(?:\\/[^/]+)?)?|doctors\\/[^/]+(?:\\/[^/]+(?:\\/[^/]+)?)?|home-nursing(?:\\/[^/]+)?))?\\/?$`);
 
 function isPublicIndexable(pathname: string) {
   return isPublicLocaleHome(pathname) || PUBLIC_INDEXABLE.test(pathname);
@@ -78,6 +78,8 @@ export async function proxy(request: NextRequest) {
   const policy = contentSecurityPolicy(nonce);
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
+  // The page a gated route came from, so the sign-in can send the patient back to it (lib/auth/session.ts).
+  requestHeaders.set("x-nabd-path", `${pathname}${request.nextUrl.search}`);
   requestHeaders.set("Content-Security-Policy", policy);
 
   const requestWithNonce = new NextRequest(request, { headers: requestHeaders });

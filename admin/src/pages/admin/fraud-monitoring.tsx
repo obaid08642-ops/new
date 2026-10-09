@@ -110,7 +110,7 @@ export default function FraudMonitoring() {
               const formattedDate = dateStr ? new Date(dateStr).toLocaleString(dateLocale()) : '—';
               const severity = alert.severity || 'medium';
               return (
-                <div key={alertId} className="bg-white border-l-4 border-l-red-500 border-y border-r border-gray-200 rounded p-4 shadow-sm">
+                <div key={alertId} className="bg-white border-e-4 border-e-red-500 border-y border-s border-gray-200 rounded p-4 shadow-sm">
                   <div className="flex justify-between items-start">
                     <h3 className="font-bold text-gray-900">{alert.entityName || 'جهة غير محددة'}</h3>
                     <span className={`text-xs px-2 py-1 rounded uppercase tracking-wider font-bold ${severity === 'high' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>

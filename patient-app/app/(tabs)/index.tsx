@@ -149,7 +149,7 @@ export default function HomeScreen() {
         {failed > 0 && !loading ? <LoadBanner message={t('error')} retryLabel={t('retry')} onRetry={() => void load(true)} /> : null}
         {loading ? <Skeleton variant="block" theme={theme} /> : reminder ? <ReminderCard label={tr('home.reminder')} title={reminder.title} subtitle={reminder.subtitle} onPress={goReminders} /> : null}
         <ServiceGrid items={HOME_SERVICES} />
-        <AiCard onPress={() => router.push('/ai-assistant')} />
+        <AiCard onPress={() => router.push('/ai')} />
         <ToolsRow tools={HOME_TOOLS} />
         <AllServicesRow onPress={() => router.push('/services')} />
         {hasAppointment && appointment ? (

@@ -28,8 +28,6 @@ import { RadiologyRegistration }     from './src/screens/radiology/RadiologyRegi
 import { RadiologyDashboardNavigator } from './src/screens/radiology/RadiologyDashboard';
 import { NursingRegistration }       from './src/screens/nursing/NursingRegistration';
 import { NursingDashboardNavigator } from './src/screens/nursing/NursingDashboard';
-import { AmbulanceDashboardNavigator } from './src/screens/ambulance/AmbulanceDashboard';
-import { AmbulanceRegistration } from './src/screens/ambulance/AmbulanceRegistration';
 import { MedicalJobsScreen, MedicalDrugIndexScreen } from './src/screens/shared/SharedScreens';
 
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
@@ -121,7 +119,6 @@ function AppNavigator() {
               if (t === 'home_care' || t === 'nursing' || t === 'nurse') return <NursingDashboardNavigator onLogout={doLogout} />;
               if (t === 'lab' || t === 'laboratory') return <LabDashboardNavigator onLogout={doLogout} />;
               if (t === 'radiology' || t === 'radiologist' || t === 'scan_center') return <RadiologyDashboardNavigator onLogout={doLogout} />;
-              if (t === 'ambulance' || t === 'paramedic' || t === 'emt') return <AmbulanceDashboardNavigator onLogout={doLogout} />;
               return <ProviderHome onLogout={doLogout} />;
             }}
           </Stack.Screen>
@@ -144,7 +141,6 @@ function AppNavigator() {
                 if (pType === 'lab') return <LabRegistration providerType={pType} onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
                 if (pType === 'radiology') return <RadiologyRegistration onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
                 if (pType === 'nursing')  return <NursingRegistration  onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
-                if (pType === 'ambulance') return <AmbulanceRegistration onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
                 return <PendingDashboard providerType={pType} onExplore={() => {}} onLogout={() => navigation.goBack()} />;
               }}
             </Stack.Screen>

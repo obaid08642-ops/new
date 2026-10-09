@@ -1,0 +1,82 @@
+[
+  {
+    "batch": 9,
+    "app": "patient-web",
+    "screen": "/ai",
+    "element": "Specialty for the booking button",
+    "file": "patient-web/components-next/assistant/symptoms-client.tsx",
+    "line": 76,
+    "found": "[backend] POST /ai/triage answers care_level, selected_red_flags and notice only, no specialty: the book button opens the unfiltered doctors list; with a specialty field it can pass ?specialty=. (backend: backend/src/modules/ai/ai.service.ts:103)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 9,
+    "app": "patient-web",
+    "screen": "/ai",
+    "element": "Need urgent help? button (tel:)",
+    "file": "patient-web/components-next/assistant/symptoms-client.tsx",
+    "line": 73,
+    "found": "[backend] urgent-help number config missing: GET /system-config/public has no number field; the button stays hidden for emergency answers and no number is hard-coded (same item as Batch 8). (backend: backend/src/modules/admin/governance/system-config.controller.ts:53)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 9,
+    "app": "patient-web",
+    "screen": "/ai",
+    "element": "Medicine leaflet text",
+    "file": "patient-web/components-next/assistant/prescription-client.tsx",
+    "line": 121,
+    "found": "[backend] POST /ai/prescription-ocr returns names and quantities only (items[].raw_name_string, requested_quantity), so no leaflet information can be drawn; the screen lists the medicines and sends the question to the pharmacist. (backend: backend/src/modules/ai/ai.service.ts:222)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 9,
+    "app": "patient-web",
+    "screen": "/ai/symptom-timeline",
+    "element": "Conversation history",
+    "file": "patient-web/app/[locale]/ai/symptom-timeline/page.tsx",
+    "line": 9,
+    "found": "[backend] No endpoint returns past assistant conversations (triage sessions are only written); the old timeline listed vitals, trends and reports, which belong to health; the assistant starts empty each visit. (backend: backend/src/modules/ai/ai.service.ts:114)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 9,
+    "app": "patient-web",
+    "screen": "/voice",
+    "element": "Mic button on the assistant",
+    "file": "patient-web/app/[locale]/voice/page.tsx",
+    "line": 9,
+    "found": "[owner] The old voice screen only matched keywords of a browser SpeechRecognition result to page links (no endpoint, no text capture); there is nothing to move, so no mic is drawn; the owner decides whether dictation is wanted.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 9,
+    "app": "patient-web",
+    "screen": "/ai",
+    "element": "Home AI card subtitle",
+    "file": "patient-web/components-next/home/home-parts.tsx",
+    "line": 142,
+    "found": "[client] HomeWeb.aiSub says the assistant suggests the right specialty, which the triage answer does not do today; reword in the Home batch or after the backend adds a specialty.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 9,
+    "app": "patient-web",
+    "screen": "/ai/monthly-report",
+    "element": "Partial source failure",
+    "file": "patient-web/app/[locale]/ai/monthly-report/page.tsx",
+    "line": 61,
+    "found": "[client] A source that fails while others answer is read as an empty list (zero tiles), not as unavailable (logic left as it was, design only).",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 9,
+    "app": "patient-web",
+    "screen": "/ai",
+    "element": "Report analysis answer shape",
+    "file": "patient-web/components-next/assistant/report-client.tsx",
+    "line": 37,
+    "found": "[backend] The analyze-report answer is read from summary | result | data.summary (three guesses); one documented field would remove them.",
+    "suspect": "Backend gap: reviewer session."
+  }
+]
