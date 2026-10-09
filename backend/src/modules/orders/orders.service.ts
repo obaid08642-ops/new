@@ -752,10 +752,19 @@ export class OrdersService {
   }
 
   async getTracking(id: string, user: any) {
+    // Try regular orders first (repository returns a Mongoose query).
     const qOrder = this.orderModel.findOne({ id });
-    const order = typeof (qOrder as any)?.lean === 'function' ? await (qOrder as any).lean() : await qOrder;
+    let order: any = typeof (qOrder as any)?.lean === 'function' ? await (qOrder as any).lean() : await qOrder;
+    // Fallback to pharmacy_orders (native collection: no lean, different owner fields).
+    if (!order) {
+      order = await this.conn.collection('pharmacy_orders').findOne({ id });
+    }
     if (!order) throw new NotFoundException();
-    const isOwner = order.patient_id === user?.id || order.pharmacy_id === user?.id;
+    const ownerId = user?.id;
+    const isOwner =
+      order.patient_id === ownerId ||
+      order.patient_account_id === ownerId ||
+      order.pharmacy_id === ownerId;
     if (!isOwner && !['admin', 'super_admin'].includes(user?.role)) {
       throw new ForbiddenException();
     }
@@ -774,15 +783,31 @@ export class OrdersService {
       }
     }
 
+    // Pharmacy orders shape their own fields (status, embedded delivery); map them
+    // onto the tracking view instead of returning nulls.
+    if (!delivery && order.delivery && typeof order.delivery === 'object') {
+      const d = order.delivery;
+      delivery = {
+        state: order.status,
+        eta_minutes: null,
+        driver_id: null,
+        courier_name: d.courier_name ?? null,
+        courier_phone: d.courier_phone ?? null,
+        courier_eta: d.courier_eta ?? null,
+        dispatched_at: d.dispatched_at ?? null,
+        delivered_at: d.delivered_at ?? null,
+      };
+    }
+
     const pharmacy = order.pharmacy_id
       ? await this.conn.collection('provider_profiles').findOne({ id: order.pharmacy_id }, { projection: { name_ar: 1, name_en: 1 } })
       : null;
     return {
       order_id: order.id,
-      state: order.state,
+      state: order.state ?? order.status ?? null,
       updated_at: order.updatedAt,
-      delivery_mode: order.delivery_mode || 'DELIVERY',
-      total: order.total,
+      delivery_mode: order.delivery_mode || order.fulfillment || 'DELIVERY',
+      total: order.total ?? order.totals?.total ?? null,
       pharmacy_name: pharmacy?.name_ar || pharmacy?.name_en || null,
       delivery,
     };
