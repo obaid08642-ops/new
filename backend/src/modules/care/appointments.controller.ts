@@ -23,6 +23,11 @@ export class AppointmentsController {
     return this.svc.listMine(user, status);
   }
 
+  @Get('calls/mine')
+  myCalls(@CurrentUser() user: any) {
+    return this.svc.callsFor(user);
+  }
+
   @Get(':id')
   one(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.one(user, id);
@@ -56,6 +61,18 @@ export class AppointmentsController {
     return this.svc.checkIn(id, user);
   }
 
+  @Patch(':id/en-route')
+  @Roles(UserRole.DOCTOR, UserRole.ADMIN)
+  enRoute(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.enRoute(id, user);
+  }
+
+  @Patch(':id/arrive')
+  @Roles(UserRole.DOCTOR, UserRole.ADMIN)
+  arrive(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.arrive(id, user);
+  }
+
   @Patch(':id/start')
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   start(@Param('id') id: string, @CurrentUser() user: any) {
@@ -77,6 +94,11 @@ export class AppointmentsController {
   @Get(':id/summary')
   summary(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.getSummary(id, user);
+  }
+
+  @Get(':id/call')
+  call(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.callJoin(id, user);
   }
 
 }

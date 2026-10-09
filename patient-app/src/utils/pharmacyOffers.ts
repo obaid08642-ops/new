@@ -160,7 +160,7 @@ export function parseOrder(response: unknown): OrderState | null {
   if (!status) return null;
   return {
     status,
-    governedState: text(o.governed_state),
+    governedState: governedStep(o.governed_state),
     selectedOfferId: text(o.selected_offer_id),
     selectedAllocationId: text(o.selected_allocation_id),
     coverageMode: text(o.coverage_mode),
@@ -301,7 +301,7 @@ export function quoteView(response: unknown): QuoteView | null {
   const raw = response && typeof response === 'object' ? ((response as { data?: unknown }).data ?? response) : null;
   if (!raw || typeof raw !== 'object') return null;
   const o = raw as Record<string, unknown>;
-  const state = text(o.governed_state);
+  const state = governedStep(o.governed_state);
   const pending = state === 'FINAL_QUOTE_READY';
   const snap = (pending ? o.pending_final_quote_snapshot : o.selected_offer_snapshot) as Record<string, unknown> | undefined;
   const accepted = o.accepted_quote_snapshot as Record<string, unknown> | undefined;
@@ -318,4 +318,13 @@ export function quoteView(response: unknown): QuoteView | null {
   else if (state === 'FINAL_QUOTE_ACCEPTED') kind = 'accepted';
   else if (state === 'COD_REGISTERED') kind = 'cod';
   return { kind, totals, hash, revision, governedState: state, codAllowed, cashCoverage };
+}
+
+/**
+ * The server's governed step, as the screens route it. Q-21: PAYMENT_PENDING (an accepted quote with a payment under way)
+ * is still the pay step: the payment screen resumes the same transaction.
+ */
+export function governedStep(value: unknown): string | null {
+  const state = typeof value === 'string' && value.trim() ? value.trim() : null;
+  return state === 'PAYMENT_PENDING' ? 'FINAL_QUOTE_ACCEPTED' : state;
 }

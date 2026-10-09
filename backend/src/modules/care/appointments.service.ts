@@ -4,7 +4,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Appointment, AppointmentDocument, APPT_STATES, APPT_TRANSITIONS, ApptState, ServiceType } from '../../schemas/appointment.schema';
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
-import { UserRole, ProviderType, ProviderStatus } from '../../common/enums';
+import { UserRole, ProviderType, ProviderStatus, SPECIALTY_MASTER } from '../../common/enums';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 import { SlotLocksService } from '../slot-locks/slot-locks.module';
@@ -298,17 +298,28 @@ export class AppointmentsService {
 
     const obj: any = appt.toObject();
     
-    // Fetch doctor info to attach name and specialty
+    // Q-16: video appointments carry what the call screen needs (room route).
+    if (obj.service_type === 'video') {
+      const joinable = [APPT_STATES.CONFIRMED, APPT_STATES.CHECKED_IN, APPT_STATES.IN_PROGRESS].includes(obj.status);
+      obj.call = { room: `appt_${obj.id}`, join_path: `/care/appointments/${obj.id}/call`, joinable };
+    }
+    // Q-17: clients read `consultation_type`; the stored field is `service_type`.
+    if (!obj.consultation_type && obj.service_type) obj.consultation_type = obj.service_type;
+    // Fetch doctor info to attach name and specialty (Q-19: id + every locale
+    // from SPECIALTY_MASTER, the single source — specialty_ar kept for compat).
     const doctor: any = await this.providerModel.findOne({ id: obj.doctor_id, type: ProviderType.DOCTOR }, { name_ar: 1, specialty_ar: 1, specialty: 1, name: 1, _id: 0 });
     if (doctor) {
       obj.doctor_name = doctor.name_ar || doctor.name;
-      obj.specialty_ar = doctor.specialty_ar || doctor.specialty;
+      const slug = doctor.specialty || doctor.specialty_ar;
+      const entry = SPECIALTY_MASTER.find((s) => s.slug === slug);
+      obj.specialty_id = slug || null;
+      obj.specialty_ar = (entry?.name_ar || doctor.specialty_ar || doctor.specialty) ?? null;
+      obj.specialty_name_ar = entry?.name_ar ?? obj.specialty_ar;
+      obj.specialty_name_en = entry?.name_en ?? null;
     }
 
     
-    obj.queue_position = '٣';
-    obj.ahead_count = '٢';
-    obj.wait_time = '١٥';
+    // No queue or wait-time source exists: nothing is invented here (the waiting room shows the wait only when sent).
 
     return obj;
   }
@@ -403,6 +414,22 @@ export class AppointmentsService {
     return this.transition(id, APPT_STATES.CHECKED_IN, user);
   }
 
+  /** Q-15: provider start-trip — home visits only. Emits appointment.en_route. */
+  async enRoute(id: string, user: any) {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    if (appt.service_type !== 'home') throw new BadRequestException('en_route is for home visits only');
+    return this.transition(id, APPT_STATES.EN_ROUTE, user, 'doctor-en-route');
+  }
+
+  /** Q-15: provider arrived — home visits only. Emits appointment.arrived. */
+  async arrive(id: string, user: any) {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    if (appt.service_type !== 'home') throw new BadRequestException('arrived is for home visits only');
+    return this.transition(id, APPT_STATES.ARRIVED, user, 'doctor-arrived');
+  }
+
   async start(id: string, user: any) {
     return this.transition(id, APPT_STATES.IN_PROGRESS, user);
   }
@@ -428,6 +455,34 @@ export class AppointmentsService {
     }
     const done = await this.transition(id, APPT_STATES.COMPLETED, user);
     return { success: true, appointment: done };
+  }
+
+  /** Q-16: the patient's call records — their video appointments, owner-checked. */
+  async callsFor(user: any) {
+    const q: any = { service_type: 'video' };
+    if (user?.role === UserRole.ADMIN || user?.role === UserRole.SUPER_ADMIN) {
+      // no additional filter
+    } else {
+      q.patient_id = user?.id;
+    }
+    const rows: any[] = await this.apptModel.find(q, { _id: 0, __v: 0 }).sort({ slot_start: -1 }).limit(100);
+    return rows.map((r: any) => {
+      const o = r?.toObject ? r.toObject() : r;
+      return {
+        appointment_id: o.id, doctor_id: o.doctor_id, slot_start: o.slot_start,
+        status: o.status, room: `appt_${o.id}`,
+      };
+    });
+  }
+
+  /** Q-16: join info for a video appointment's room — owner-checked, no invented tokens. */
+  async callJoin(id: string, user: any) {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    await this.assertAppointmentAccess(appt, user);
+    if (appt.service_type !== 'video') throw new BadRequestException('not_a_video_appointment');
+    const joinable = [APPT_STATES.CONFIRMED, APPT_STATES.CHECKED_IN, APPT_STATES.IN_PROGRESS].includes(appt.status);
+    return { appointment_id: appt.id, room: `appt_${appt.id}`, joinable, status: appt.status };
   }
 
   /** Patient (or the doctor/admin) reads the consultation summary. 404 → screen shows honest not-ready. */

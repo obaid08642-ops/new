@@ -74,6 +74,11 @@ export class PrescriptionsController {
     return this.svc.listForPharmacy(id);
   }
 
+  @Get(':id/image')
+  image(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.getImageForUser(id, user);
+  }
+
   @Get(':id')
   one(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.getByIdForUser(id, user);

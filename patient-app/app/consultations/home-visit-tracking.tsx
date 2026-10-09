@@ -27,8 +27,9 @@ interface Appt {
 }
 
 const REACHED = {
-  confirmed: ['CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS', 'COMPLETED'],
-  arrived: ['CHECKED_IN', 'IN_PROGRESS', 'COMPLETED'],
+  confirmed: ['CONFIRMED', 'EN_ROUTE', 'CHECKED_IN', 'ARRIVED', 'IN_PROGRESS', 'COMPLETED'],
+  enRoute: ['EN_ROUTE', 'ARRIVED', 'IN_PROGRESS', 'COMPLETED'],
+  arrived: ['CHECKED_IN', 'ARRIVED', 'IN_PROGRESS', 'COMPLETED'],
   done: ['COMPLETED'],
 } as const;
 
@@ -66,11 +67,12 @@ export default function HomeVisitTrackingScreen() {
     const hit = data?.state_history?.find((h) => String(h.state).toUpperCase() === state);
     return hit?.at ? clock(hit.at) : undefined;
   };
-  const flags = [REACHED.confirmed.includes(current as never), REACHED.arrived.includes(current as never), REACHED.done.includes(current as never)];
+  const flags = [REACHED.confirmed.includes(current as never), REACHED.enRoute.includes(current as never), REACHED.arrived.includes(current as never), REACHED.done.includes(current as never)];
   const firstOpen = flags.findIndex((f) => !f);
   const steps = [
     { id: 'confirmed', label: k('consult.track.confirmed'), time: at('CONFIRMED') },
-    { id: 'arrived', label: k('consult.track.arrived'), time: at('CHECKED_IN') },
+    { id: 'en-route', label: k('consult.track.enRoute'), time: at('EN_ROUTE') },
+    { id: 'arrived', label: k('consult.track.arrived'), time: at('ARRIVED') ?? at('CHECKED_IN') },
     { id: 'done', label: k('consult.track.done'), time: at('COMPLETED') },
   ].map((s, i) => ({ ...s, state: (flags[i] ? 'done' : i === firstOpen ? 'current' : 'upcoming') as 'done' | 'current' | 'upcoming' }));
   const st = appointmentStatus(data?.status);

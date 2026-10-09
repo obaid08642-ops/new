@@ -130,7 +130,48 @@ export class PharmacyOrderService {
       else if (anyOOD) effective_status = 'out_for_delivery' as any;
       else if (anyPreparing) effective_status = 'in_fulfillment' as any;
     }
-    return { ...order, effective_status, allocations_detail: allocs, ...this.governedView(order) };
+    const view: any = this.governedView(order);
+    // Q-3: unselected broadcasting orders derive ORDER_BROADCASTING / OFFERS_READY
+    // from live offers (submitted, quote not expired). Draft/expired/cancelled and
+    // other orders' offers never count; an expired offer flips back to BROADCASTING.
+    if (!view.governed_state && String(order.status) === PharmacyOrderState.BROADCASTING) {
+      view.governed_state = (await this.hasLiveOffer(id)) ? 'OFFERS_READY' : 'ORDER_BROADCASTING';
+    }
+    // Q-21: an accepted quote with a gateway payment under way reads PAYMENT_PENDING (the clients keep the pay screen,
+    // and POST /payments/intent hands back the same active transaction, so the patient can resume it).
+    if (view.governed_state === 'FINAL_QUOTE_ACCEPTED' && String(order.payment_status || '').toLowerCase() !== 'paid' && await this.hasActivePayment(id)) {
+      view.governed_state = 'PAYMENT_PENDING';
+    }
+    return { ...order, effective_status, allocations_detail: allocs, ...view };
+  }
+
+  /** True when a gateway transaction for this order is still open (initiating, pending or authorized). */
+  private async hasActivePayment(orderId: string): Promise<boolean> {
+    try {
+      const txn = await this.conn?.collection('transactions').findOne(
+        { booking_kind: 'pharmacy', booking_id: orderId, status: { $in: ['initiating', 'pending', 'authorized'] } },
+        { projection: { _id: 0, id: 1 } },
+      );
+      return !!txn;
+    } catch {
+      return false;
+    }
+  }
+
+  /** True when >= 1 live offer (submitted, quote_expires_at in the future) exists for this order. */
+  private async hasLiveOffer(orderId: string): Promise<boolean> {
+    try {
+      const coll = this.conn?.collection('pharmacy_offers');
+      if (!coll) return false;
+      const live = await coll.findOne({
+        order_id: orderId,
+        status: 'submitted',
+        quote_expires_at: { $gt: new Date() },
+      }, { projection: { _id: 0, id: 1 } });
+      return !!live;
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -155,6 +196,8 @@ export class PharmacyOrderService {
       if (method === 'insurance') {
         if (!decision) governed_state = 'INSURANCE_PROCESSING';
         else if (decision.outcome === 'full') governed_state = 'CONFIRMED';
+        else if (decision?.patient_acceptance?.kind === 'co-pay' && String(order.payment_status).toLowerCase() === 'paid') governed_state = 'CONFIRMED';
+        else if (decision?.patient_acceptance?.kind === 'co-pay') governed_state = 'CO_PAY_PENDING';
         else governed_state = 'INSURANCE_DECISION_READY';
       } else if (codRegistered) governed_state = 'COD_REGISTERED';
       else if (order.pending_final_quote_snapshot?.hash) governed_state = 'FINAL_QUOTE_READY';

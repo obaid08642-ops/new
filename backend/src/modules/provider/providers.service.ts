@@ -40,6 +40,15 @@ function generateTempPassword(): string {
   return randomBytes(18).toString('base64url');
 }
 
+/** D-17: fields no public provider read returns (identity, banking, KYC, commissions, audit, internal ids). */
+const PUBLIC_PROVIDER_HIDDEN = [
+  'national_id', 'iqama', 'passport', 'iban', 'bank_account_name', 'bank', 'bank_name', 'bank_account',
+  'license_documents', 'documents', 'kyc', 'kyc_documents', 'signature_url', 'signer_name', 'signer_role',
+  'tax_number', 'commission_rate', 'commission_cash_pct', 'commission_insurance_pct', 'approved_by', 'rejected_reason',
+  'provenance', 'registration_steps', 'onboarding_step', 'user_id', 'account_id', 'email', 'password', 'password_hash',
+  'pharmacy_roster', 'ambulance_roster', 'vehicle_plates', 'tech_officer_scfhs',
+] as const;
+
 @Injectable()
 export class ProvidersService {
   constructor(
@@ -332,7 +341,8 @@ export class ProvidersService {
       q.insurance_contracts = { $elemMatch: elemMatch };
     }
 
-    return this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1, createdAt: -1 }).limit(200).lean();
+    const rows = await this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1, createdAt: -1 }).limit(200).lean();
+    return rows.map((r: any) => this.toPublicProvider(r));
   }
   /** Map providers: ACTIVE only, must have real stored coordinates. */
   async mapProviders(type?: string, lat?: number, lng?: number, radiusKm?: number) {
@@ -370,6 +380,23 @@ export class ProvidersService {
   async getPublicById(id: string) {
     const p = await this.providerModel.findOne({ id, ...this.publicDiscoveryFilter() }, { _id: 0, __v: 0 });
     if (!p) throw new NotFoundException();
+    return this.toPublicProvider(p);
+  }
+
+  /**
+   * D-17: what a public provider read may carry. Never identity, banking, KYC files, commissions or internal ids; an
+   * individual (doctor, nurse) also never shows a personal phone or email, and a nurse no home address or location
+   * (rule N7). Facilities keep their business contact and address. Adds the SCFHS licence number and `verified`
+   * (admin approval plus a verified licence).
+   */
+  private toPublicProvider(raw: any): any {
+    const p = raw?.toObject ? raw.toObject() : { ...(raw || {}) };
+    for (const k of PUBLIC_PROVIDER_HIDDEN) delete p[k];
+    const type = String(p.type || p.provider_type || '').toLowerCase();
+    if (type === 'doctor' || type === 'nurse') { delete p.phone; delete p.mobile; delete p.whatsapp; delete p.email; }
+    if (type === 'nurse') { delete p.address; delete p.lat; delete p.lng; delete p.geo; delete p.location; }
+    p.scfhs_license_no = p.scfhs_license_number || null;
+    p.verified = p.medical_review_status === 'approved' && p.license_verified === true;
     return p;
   }
   async myProfile(actor: any) {
