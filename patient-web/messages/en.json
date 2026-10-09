@@ -2780,6 +2780,8 @@
     "reportTitle": "Clinical report of the visit",
     "bloodPressure": "Blood pressure",
     "nurseNotes": "Nurse notes",
+    "resultFilesTitle": "Result files from your nurse",
+    "openFile": "Open {name}",
     "formDay": "Day",
     "formConfirm": "Confirm booking",
     "formMethod": "How you pay",

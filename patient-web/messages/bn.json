@@ -2780,6 +2780,8 @@
     "reportTitle": "ভিজিটের ক্লিনিক্যাল রিপোর্ট",
     "bloodPressure": "রক্তচাপ",
     "nurseNotes": "নার্সের নোট",
+    "resultFilesTitle": "নার্সের পাঠানো ফলাফলের ফাইল",
+    "openFile": "{name} খুলুন",
     "formDay": "দিন",
     "formConfirm": "বুকিং নিশ্চিত করুন",
     "formMethod": "পরিশোধের উপায়",

@@ -2780,6 +2780,8 @@
     "reportTitle": "विज़िट की क्लिनिकल रिपोर्ट",
     "bloodPressure": "रक्तचाप",
     "nurseNotes": "नर्स के नोट्स",
+    "resultFilesTitle": "नर्स की ओर से नतीजों की फ़ाइलें",
+    "openFile": "{name} खोलें",
     "formDay": "दिन",
     "formConfirm": "बुकिंग की पुष्टि करें",
     "formMethod": "भुगतान का तरीका",

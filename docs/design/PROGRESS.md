@@ -14,7 +14,6 @@ _Updated 2026-10-06._
 | Merge map 1 (health, family, settings, AI, mental health) | **Approved and merged** (#345); answers in `MERGE_MAP.md` §7 |
 | Merge map 2, all sections (decision 27) [#359](https://github.com/obaid08642-ops/new/pull/359) | Proposed; merges of Batches 1-4 screens go in one "Batch 14" PR after they merge |
 | Needs-review `file:line` rule (owner) [#502](https://github.com/obaid08642-ops/new/pull/502) | Tool enforces it from Batch 2; Batch 2 backfilled in #502, 3/4/5/6 on their own branches |
-| **Batch 8 maternity, nutrition, mental health, programs**, `design/batch-8` (from main) | 9 app + 9 web screens (merge maps 1 §5, 2 §8); decision 8: no self-assessment/crisis screens, urgent-help button hidden until the config number exists; app 30 routes / 0 failures, web 90 runs / 0 issues; PR open |
 | **Batch 9 AI assistant**, `design/batch-9` (from main) | one `/ai` (modes symptoms/prescription/report) + monthly report on both clients; skin analysis and `/voice` removed; app 11 routes / 0 failures, web 33 runs / 0 issues; PR open |
 | **Batch 10 articles + community removal**, `design/batch-10` (from main) | articles list (All/Saved) + detail on both clients; community removed (decision 1); app 5 routes / 0 failures, web 9 runs / 0 issues; PR open |
 | **Batch 11 loyalty hub + offers**, `design/batch-11` (from main) | hub with tabs Rewards/Challenges/Invite + offers list/detail on both clients; leaderboard removed (decision 2); app 7 routes / 0 failures, web 18 runs / 0 issues; PR open |
@@ -59,3 +58,5 @@ Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = we
 - **Admin audit (design/admin-audit, read-only):** 65 pages, 338 calls (3 NO_ROUTE, 9 WRONG_METHOD), 102+20 Needs-review lines, `ADMIN_MOBILE_ESSENTIALS.md`. ~250k tokens.
 - **Admin build (#1204) / provider build (#1205), 2026-10-08:** 44 tables on DataTable + /admin/today, /admin/approvals, catalogue quick edit/scan/confirm (~400k); pharmacy, merges, missing screens, ambulance removal, M9 wizard (~1.05M). Gaps in needs-review. Owner plan and decisions 24-27: `PROGRESS_ARCHIVE.md`.
 - **N1 nurse result upload (design/n1-nurse-upload):** files picked at visit end -> POST /storage/upload -> visit-report {complete, attachments}; without files the old complete route is kept. Backend gap: visit-report ignores the signature. ~60k tokens.
+- **N1 patient side (design/n1-patient-files):** nurse result files shown on the visit screen (app: live-tracking done state; web: /nursing/visits/[id]); open via signed URL (web BFF 302). 3 new keys x 6 locales. ~70k tokens.
+
