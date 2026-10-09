@@ -32,6 +32,8 @@ export const PHARMACY_MENU: MenuSection[] = [
   {
     ar: 'الطلبات والتأمين', en: 'Orders & insurance',
     rows: [
+      { icon: 'fileText', route: 'my_offers', ar: 'عروضي', en: 'My offers' },
+      { icon: 'pill', route: 'prescription_review', ar: 'مراجعة الوصفات', en: 'Prescription review' },
       { icon: 'list', route: 'order_history', ar: 'سجل الطلبات المنتهية', en: 'Order history' },
       { icon: 'inbox', route: 'returns_rma', ar: 'المرتجعات', en: 'Returns' },
       { icon: 'shield', route: 'insurance_decisions', ar: 'قرارات التأمين على الطلبات', en: 'Insurance decisions' },

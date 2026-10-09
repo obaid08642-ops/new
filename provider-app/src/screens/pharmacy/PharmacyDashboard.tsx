@@ -44,6 +44,8 @@ import { SP, R, FS, FW, PHARMA_CATS, LIMITS, C, API_BASE } from '../../constants
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
 import { PharmacyInsuranceQueueScreen } from './PharmacyInsuranceDecision';
 import { PharmacyMoreScreen, SetupChecklist } from './PharmacyMore';
+import { PharmacyMyOffersScreen } from './PharmacyMyOffers';
+import { PharmacyPrescriptionReviewScreen } from './PharmacyPrescriptionReview';
 import { buildHeaders, Biometric, SK, Vault } from '../../security/Security';
 import client from '../../api/client';
 import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderProfileEditor, ProviderHomeStats, GlobalSystemSettings } from '../shared/SharedScreens';
@@ -134,6 +136,8 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
        }}
      </Stack.Screen>
 
+     <Stack.Screen name="my_offers">{({ navigation }: any) => <PharmacyMyOffersScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="prescription_review">{({ navigation }: any) => <PharmacyPrescriptionReviewScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="shortage">{({ navigation }: any) => <ShortageReportScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="b2b_supply">{({ navigation }: any) => <B2BSupplyRequestScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="scanner">{({ navigation }: any) => <SmartBarcodeScannerScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
