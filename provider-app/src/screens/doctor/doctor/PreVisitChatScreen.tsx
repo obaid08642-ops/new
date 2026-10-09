@@ -44,7 +44,8 @@ export function PreVisitChatScreen({ apt, onBack, onNavigate }: { apt: any, onBa
       <NHeader title={AR ? 'محادثة ما قبل الموعد' : 'Pre-visit Chat'} onBack={onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.lg }}>
         <Text style={{ textAlign: 'center', color: theme.textSub, marginBottom: SP.lg }}>
-          {AR ? 'يُفتح هذا الشات قبل 15 دقيقة لرفع المستندات' : 'Opens 15 mins early for document uploads'}
+          {/* Needs-review issue 1157: decision 24, chat runs from confirmation to the end of the follow-up window */}
+          {AR ? 'المحادثة متاحة من تأكيد الحجز حتى نهاية فترة المتابعة' : 'Chat is open from booking confirmation until the follow-up window ends'}
         </Text>
         
         {messages.map(m => (

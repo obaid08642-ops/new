@@ -87,7 +87,16 @@ export function DoctorScheduleTab({ onNavigate }: { onNavigate: (s: string, p?: 
  });
  }, [AR]);
 
- const filtered = filter === 'all' ? apts : apts.filter(a => a.type === filter);
+ // Needs-review issue 1149: Day shows today's visits, Week the next 7 days, List everything.
+ const inView = (a: any) => {
+  if (view === 'list') return true;
+  const at = a.raw?.scheduled_at ? new Date(a.raw.scheduled_at) : null;
+  if (!at) return false;
+  const start = new Date(); start.setHours(0, 0, 0, 0);
+  const end = new Date(start); end.setDate(end.getDate() + (view === 'day' ? 1 : 7));
+  return at >= start && at < end;
+ };
+ const filtered = apts.filter(a => (filter === 'all' || a.type === filter) && inView(a));
 
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>

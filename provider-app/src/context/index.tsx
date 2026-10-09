@@ -182,6 +182,7 @@ interface User {
  email: string; phone: string; providerType: string;
  status: string; avatar?: string; isOnline: boolean;
  subId?: string; role?: string; permissions?: string[];
+ emailVerified?: boolean;
 }
 interface AuthCtxType {
  user: User | null; isLoading: boolean; isLoggedIn: boolean; appState: AppStateStatusType;
@@ -244,6 +245,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     name: data.profile?.display_name_en || data.profile?.display_name_ar || data.account?.email || 'Nabd Provider',
     displayName: data.profile?.display_name_en || data.profile?.display_name_ar || data.account?.email || 'Nabd Provider',
     email: data.account?.email || '',
+    // Needs-review issue 1175: the server says whether the email is verified; having an email does not.
+    emailVerified: data.account?.email_verified === true,
     phone: data.profile?.phones?.[0]?.number || '',
     providerType: data.provider_type,
     status: data.profile_status,

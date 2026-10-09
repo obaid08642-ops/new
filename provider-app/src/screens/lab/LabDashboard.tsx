@@ -32,7 +32,7 @@ import {
  LabSampleScannerScreen
 } from '../shared/BlueprintScreens';
 import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderProfileEditor, WithdrawalWorkflow, ProviderHomeStats, GlobalSystemSettings, ChatSystem } from '../shared/SharedScreens';
-import { WorkingHoursEditorScreen, SecurityManagementScreen } from '../shared/RealScreens';
+import { WorkingHoursEditorScreen, SecurityManagementScreen, NotificationsCenterScreen } from '../shared/RealScreens';
 import { LabBundlesScreen, LabHomeServiceScreen } from '../shared/RealScreensExtended';
 
 const { width: W } = Dimensions.get('window');
@@ -249,6 +249,7 @@ export function LabDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
      <Stack.Screen name="password">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="2fa">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="devices">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
    </Stack.Navigator>
  );
 }
@@ -312,7 +313,8 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
  </View>
  <View style={{flexDirection:'row',gap:SP.sm,alignItems:'center'}}>
  <NOnlineToggle value={user?.isOnline??true} onToggle={toggleOnline} />
- <TouchableOpacity style={[s.iconBtn,{backgroundColor:theme.surface2}]}><I name="bell" size={20} color={theme.text} /></TouchableOpacity>
+ {/* Needs-review issue 1185: the bell opens the notifications center */}
+ <TouchableOpacity onPress={()=>onNav('notifications')} accessibilityRole="button" accessibilityLabel={AR?'الإشعارات':'Notifications'} style={[s.iconBtn,{backgroundColor:theme.surface2}]}><I name="bell" size={20} color={theme.text} /></TouchableOpacity>
  </View>
  </View>
 
@@ -1150,7 +1152,7 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
 // QR SAMPLE LABEL
 // ══════════════════════════════════════════════════════════════════
 function QRSampleLabel({ sample, onBack }:{ sample:any; onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang } = useLang(); const AR = lang==='ar';
  return (
  <NScroll>
  <NHeader title={AR?'ملصق QR للعينة':'QR Sample Label'} onBack={onBack} />
@@ -1158,15 +1160,15 @@ function QRSampleLabel({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  <View style={{width:160,height:160,borderRadius:R.xl,borderWidth:3,borderColor:tokens.purple,alignItems:'center',justifyContent:'center'}}>
  <I name="qr" size={60} color={tokens.purple} />
  </View>
- <Text style={{fontSize:FS.lg,fontWeight:FW.bold,color:theme.text,marginTop:SP.xl}}>{sample?.barcode??'SMP-2025-XXX'}</Text>
+ <Text style={{fontSize:FS.lg,fontWeight:FW.bold,color:theme.text,marginTop:SP.xl}}>{/* Needs-review issue 1187: no made-up sample number */}{sample?.barcode??'—'}</Text>
  <Text style={{fontSize:FS.sm,color:theme.textSub,marginTop:SP.xs}}>{sample?.patient??'—'}</Text>
  <View style={{flexDirection:'row',flexWrap:'wrap',gap:SP.xs,justifyContent:'center',marginTop:SP.md}}>
- {(sample?.tests??['cbc']).map((tid:string)=>{const t=lookupTest(tid);return <View key={tid} style={{backgroundColor:withAlpha(tokens.purple, 0.10),paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:withAlpha(tokens.purple, 0.30)}}><Text style={{fontSize:FS.xs,color:tokens.purple}}>{t?(AR?t.ar:t.en):tid}</Text></View>;})}
+ {(sample?.tests??[]).map((tid:string)=>{const t=lookupTest(tid);return <View key={tid} style={{backgroundColor:withAlpha(tokens.purple, 0.10),paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:withAlpha(tokens.purple, 0.30)}}><Text style={{fontSize:FS.xs,color:tokens.purple}}>{t?(AR?t.ar:t.en):tid}</Text></View>;})}
  </View>
  </NCard>
  <View style={{gap:SP.md}}>
  <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'اطبع الملصق من جهاز الباركود المرتبط برقم العينة' : 'Print the label from the barcode device linked to the sample number'}</Text>
- <NBtn label={AR?'حفظ كصورة':'Save as Image'} variant="outline" onPress={()=>show(AR?'تم الحفظ':'Saved','success')} />
+ {/* Needs-review issue 1188: "Save as Image" claimed success without saving anything; removed. */}
  </View>
  </NScroll>
  );

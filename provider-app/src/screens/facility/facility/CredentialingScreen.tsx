@@ -108,14 +108,7 @@ export function CredentialingScreen({ onBack }: { onBack: () => void }) {
  </Text>
  )}
  </View>
- <View style={{ flexDirection:AR?'row-reverse':'row', gap: SP.sm, marginTop: SP.md }}>
- <NBtn label={AR?' الوثائق':'Docs'} size="xs" variant="outline" full={false}
- style={{ paddingHorizontal: SP.lg }} onPress={() => show(AR?'عرض الوثائق':'View docs','info')} />
- {cred.status !== 'valid' && (
- <NBtn label={AR?'↑ تجديد':'Renew'} size="xs" full={false}
- style={{ paddingHorizontal: SP.lg }} onPress={() => show(AR?'فتح نموذج التجديد':'Renewal form','info')} />
- )}
- </View>
+ {/* Needs-review issues 1119 and 1120: "Docs" and "Renew" only showed a toast; removed until a documents/renewal flow exists. */}
  </NCard>
  ))}
  </NScroll>
