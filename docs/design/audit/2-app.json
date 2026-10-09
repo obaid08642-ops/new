@@ -53,7 +53,7 @@
       "elements": [
         [
           "Appointment cards, tabs by status",
-          "GET /care/appointments through ConsultationsContext: doctor_name, specialty, appointment_date, start_time, consultation_type, status, consultation_fee",
+          "GET /care/appointments through ConsultationsContext (the call lives in the context, so the inventory lists none for this route): doctor_name, specialty, appointment_date, start_time, service_type, status, consultation_fee",
           "ok"
         ],
         [
@@ -521,7 +521,7 @@
       "route": "/consultations/cancel-reschedule",
       "element": "Refund policy",
       "kind": "client",
-      "note": "Online appointments (type 'online') ask for clinic slots when rescheduling (the refund figures now come from /system-config/public).",
+      "note": "Fixed on design/oc-patient-other-1: the screen read consultation_type, which the appointment does not have (the field is service_type: clinic, video or home), so every appointment asked for clinic slots; it now reads service_type (and the list context too).",
       "file": "patient-app/app/consultations/cancel-reschedule.tsx",
       "line": 100
     },

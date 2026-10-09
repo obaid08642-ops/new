@@ -617,7 +617,7 @@
       "route": "/diagnostics/cart",
       "element": "Cart context",
       "kind": "client",
-      "note": "DiagnosticsCartContext keeps the cart in memory only (lost when the app closes); persisting it is a logic change, left for the reviewer.",
+      "note": "Fixed on design/oc-patient-other-1: the cart is now kept on the device per signed-in patient (AsyncStorage key @nabd_diag_cart:v1:<user id>), restored on the next start and removed when the cart is emptied or the patient signs out.",
       "file": "patient-app/src/context/DiagnosticsCartContext.tsx",
       "line": 54
     },
