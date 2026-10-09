@@ -5,6 +5,7 @@
 import { ChatGateway } from './chat.gateway';
 import { SendMessageDto, CreateDirectDto, CreateGroupDto, CreateBookingDto, MarkReadDto, EditMessageDto, AddReactionDto, AddParticipantDto} from './chat.dto';
 import { ChatService } from './chat.service';
+import { EMERGENCY_LINE } from './consultation-window';
 import { ChatThreadSchema, ChatMessageSchema } from './chat.schemas';
 import {
   Module, Controller, Get, Post, Patch, Delete, Param, Body, Query,
@@ -45,98 +46,39 @@ export class ChatController {
       };
     }
 
-    const AppointmentModel = this.svc.getModel('Appointment');
-    const appt = await AppointmentModel.findOne({ id: { $eq: thread.booking_id } });
-    if (!appt) {
-      return {
-        status_code: 'closed',
-        status_text_ar: 'الاستشارة مغلقة',
-        status_text_en: 'Consultation Closed',
-        can_chat: false,
-        can_call: false,
-        can_upload: false,
-        message_ar: 'لم يتم العثور على استشارة مرتبطة بهذه المحادثة.',
-        message_en: 'No consultation associated with this conversation.',
-      };
+    // Decision 24: one rule set for sending, calling and this answer (consultation-window.ts).
+    const { appt, state } = (await this.svc.consultationThreadState(thread))!;
+    const base = { booking_id: thread.booking_id, emergency_line: EMERGENCY_LINE, can_chat: state.can_chat, can_call: state.can_call, can_upload: state.can_upload, can_voice: state.can_voice, online: state.online };
+    const followUp = appt ? { action: 'book_follow_up', doctor_id: appt.doctor_id || null, doctor_user_id: appt.doctor_user_id || null, specialty: appt.specialty || appt.specialty_id || null } : null;
+    switch (state.phase) {
+      case 'missing':
+        return { ...base, status_code: 'closed', status_text_ar: 'الاستشارة مغلقة', status_text_en: 'Consultation Closed', message_ar: 'لم يتم العثور على استشارة مرتبطة بهذه المحادثة.', message_en: 'No consultation associated with this conversation.' };
+      case 'cancelled':
+        return { ...base, status_code: 'closed', status_text_ar: 'الاستشارة مغلقة', status_text_en: 'Consultation Closed', message_ar: appt?.status === 'NO_SHOW' ? 'تم تسجيل عدم حضور للاستشارة.' : 'تم إلغاء هذه الاستشارة.', message_en: appt?.status === 'NO_SHOW' ? 'No-show was recorded for this consultation.' : 'This consultation was cancelled.' };
+      case 'upcoming':
+        return state.online
+          ? { ...base, status_code: 'upcoming', status_text_ar: 'حجز قادم', status_text_en: 'Upcoming Consultation', message_ar: 'لم تبدأ الاستشارة بعد. ستتمكن من التواصل مع الطبيب بمجرد تأكيد الحجز وبدء الموعد.', message_en: 'Consultation has not started yet. You can communicate once the booking is confirmed.' }
+          : { ...base, status_code: 'upcoming', status_text_ar: 'زيارة قادمة', status_text_en: 'Upcoming Visit', message_ar: 'تُفتح المحادثة بعد أن يُنهي الطبيب الزيارة.', message_en: 'The chat opens after the doctor completes the visit.' };
+      case 'follow_up':
+        return { ...base, status_code: 'follow_up', status_text_ar: 'فترة المتابعة', status_text_en: 'Follow-up Period', message_ar: state.online ? 'فترة المتابعة نشطة. يمكنك إرسال الرسائل والصور والملفات والرسائل الصوتية. المكالمات غير متاحة.' : 'فترة المتابعة نشطة. يمكنك إرسال الرسائل والصور والملفات فقط.', message_en: state.online ? 'Follow-up period: messages, images, files and voice notes. Calls are off.' : 'Follow-up period: messages, images and files only.', remaining_hours: state.remaining_hours, window_ends_at: state.window_ends_at, extended: !!(thread as any).extension_count };
+      case 'expired':
+      case 'closed':
+        return { ...base, status_code: 'closed', status_text_ar: 'المحادثة للقراءة فقط', status_text_en: 'Read-only', message_ar: state.phase === 'closed' ? 'أغلق الطبيب هذه المحادثة. يمكنك حجز موعد متابعة.' : 'انتهت فترة المتابعة. يمكنك حجز موعد متابعة.', message_en: state.phase === 'closed' ? 'The doctor closed this conversation. You can book a follow-up.' : 'The follow-up period has ended. You can book a follow-up.', remaining_hours: 0, read_only: true, book_follow_up: followUp };
+      default:
+        return { ...base, status_code: 'active', status_text_ar: 'استشارة نشطة', status_text_en: 'Active Consultation', message_ar: 'الاستشارة نشطة الآن. يمكنك التحدث وإرسال الملفات وإجراء المكالمات.', message_en: 'Consultation is active. Chat, call, and uploads are enabled.' };
     }
+  }
 
-    if (appt.status === 'PENDING') {
-      return {
-        status_code: 'upcoming',
-        status_text_ar: 'حجز قادم',
-        status_text_en: 'Upcoming Consultation',
-        can_chat: false,
-        can_call: false,
-        can_upload: false,
-        message_ar: 'لم تبدأ الاستشارة بعد. ستتمكن من التواصل مع الطبيب بمجرد تأكيد الحجز وبدء الموعد.',
-        message_en: 'Consultation has not started yet. You can communicate once the booking is confirmed.',
-        booking_id: thread.booking_id,
-      };
-    }
+  /** Decision 24: the consultation's doctor closes the thread early (the patient can still read). */
+  @Post('threads/:threadId/close')
+  closeThread(@CurrentUser() u: any, @Param('threadId') threadId: string) {
+    return this.svc.closeConsultationThread(threadId, u.id);
+  }
 
-    if (appt.status === 'CANCELLED' || appt.status === 'NO_SHOW') {
-      return {
-        status_code: 'closed',
-        status_text_ar: 'الاستشارة مغلقة',
-        status_text_en: 'Consultation Closed',
-        can_chat: false,
-        can_call: false,
-        can_upload: false,
-        message_ar: appt.status === 'CANCELLED' ? 'تم إلغاء هذه الاستشارة.' : 'تم تسجيل عدم حضور للاستشارة.',
-        message_en: appt.status === 'CANCELLED' ? 'This consultation was cancelled.' : 'No-show was recorded for this consultation.',
-        booking_id: thread.booking_id,
-      };
-    }
-
-    if (appt.status === 'COMPLETED') {
-      const SystemConfigModel = this.svc.getModel('SystemConfig');
-      const sysConfig = await SystemConfigModel.findOne({ key: 'system_config' });
-      const followupHours = sysConfig?.value?.consultation_followup_hours ?? CONSULTATION_FOLLOWUP_HOURS_DEFAULT;
-
-      const endedAt = appt.completed_at || appt.updatedAt || new Date();
-      const elapsedHours = (Date.now() - new Date(endedAt).getTime()) / (1000 * 60 * 60);
-      const remainingHours = Math.max(0, followupHours - elapsedHours);
-
-      if (remainingHours > 0) {
-        return {
-          status_code: 'follow_up',
-          status_text_ar: 'فترة المتابعة',
-          status_text_en: 'Follow-up Period',
-          can_chat: true,
-          can_call: false,
-          can_upload: true,
-          message_ar: 'فترة المتابعة نشطة. يمكنك إرسال الرسائل والملفات فقط. المكالمات غير متاحة.',
-          message_en: 'Follow-up period is active. Chat and uploads are enabled. Voice/video calls are disabled.',
-          remaining_hours: remainingHours,
-          booking_id: thread.booking_id,
-        };
-      } else {
-        return {
-          status_code: 'closed',
-          status_text_ar: 'الاستشارة مغلقة',
-          status_text_en: 'Consultation Closed',
-          can_chat: false,
-          can_call: false,
-          can_upload: false,
-          message_ar: 'انتهت فترة المتابعة الخاصة بالاستشارة.',
-          message_en: 'Consultation follow-up period has ended.',
-          remaining_hours: 0,
-          booking_id: thread.booking_id,
-        };
-      }
-    }
-
-    return {
-      status_code: 'active',
-      status_text_ar: 'استشارة نشطة',
-      status_text_en: 'Active Consultation',
-      can_chat: true,
-      can_call: true,
-      can_upload: true,
-      message_ar: 'الاستشارة نشطة الآن. يمكنك التحدث وإرسال الملفات وإجراء المكالمات.',
-      message_en: 'Consultation is active. Chat, call, and uploads are enabled.',
-      booking_id: thread.booking_id,
-    };
+  /** Decision 24: the consultation's doctor extends the follow-up window once. */
+  @Post('threads/:threadId/extend')
+  extendThread(@CurrentUser() u: any, @Param('threadId') threadId: string) {
+    return this.svc.extendConsultationThread(threadId, u.id);
   }
 
   @Get('threads')

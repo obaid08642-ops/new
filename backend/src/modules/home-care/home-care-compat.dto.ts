@@ -156,6 +156,7 @@ export class VisitReportDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(400000)
   signature?: string;
 }
 

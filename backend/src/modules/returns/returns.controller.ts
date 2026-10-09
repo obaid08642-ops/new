@@ -3,7 +3,7 @@ import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/co
 import { ReturnsService } from './returns.service';
 import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { CreateDto, DecideDto} from './returns.dto';
+import { CreateDto, DecideDto, ProviderRespondDto } from './returns.dto';
 
 @Controller('pharmacy/returns')
 @SelfService()
@@ -25,6 +25,18 @@ export class ReturnsController {
   @Get('provider/list')
   async providerList(@CurrentUser() user: any) {
     return this.returnsService.providerReturns(user.id);
+  }
+
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // P7: the pharmacy reads one of its returns
+  @Get('provider/:id')
+  async providerDetail(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.returnsService.providerReturnDetail(id, user.id);
+  }
+
+  @Roles(...PROVIDER_ROLES, 'provider') // P7: the pharmacy agrees or disputes; the admin decides the refund
+  @Post('provider/:id/respond')
+  async providerRespond(@Param('id') id: string, @Body() body: ProviderRespondDto, @CurrentUser() user: any) {
+    return this.returnsService.providerRespond(id, user.id, body.agree, body.note);
   }
 
   /** E1 S5: pre-flight return eligibility for an order (window, categories). */

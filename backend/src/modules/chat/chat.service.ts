@@ -5,6 +5,7 @@ import { EventBusService } from '../events/event-bus.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ChatThread, ChatThreadDocument, ChatMessage, ChatMessageDocument } from './chat.schemas';
 import { CONSULTATION_FOLLOWUP_HOURS_DEFAULT } from './followup-window';
+import { consultationState, isAppointmentDoctor, isVoiceMessage, ConsultState } from './consultation-window';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const jwt = require('jsonwebtoken');
 
@@ -43,7 +44,7 @@ export class ChatService {
   async hasDirectRelationship(userA: string, userB: string): Promise<boolean> {
     if (await this.checkIfFamily([userA, userB])) return true;
     const bookings: Array<{ model: string; patient: string[]; provider: string[] }> = [
-      { model: 'Appointment', patient: ['patient_id', 'user_id'], provider: ['doctor_user_id', 'provider_id', 'provider_account_id'] },
+      // Decision 24: a doctor appointment never opens a direct thread; the doctor is reached only in the booking thread.
       { model: 'LabBooking', patient: ['patient_id', 'user_id'], provider: ['provider_id', 'provider_account_id', 'lab_id', 'facility_id'] },
       { model: 'RadiologyBooking', patient: ['patient_id', 'user_id'], provider: ['provider_id', 'provider_account_id', 'radiology_center_id'] },
       { model: 'HomeCareBooking', patient: ['patient_id', 'user_id'], provider: ['provider_id', 'provider_account_id', 'nurse_id'] },
@@ -71,6 +72,8 @@ export class ChatService {
 
   async createGroupThread(creatorId: string, name: string, participantIds: string[]): Promise<ChatThread> {
     const all = [...new Set([creatorId, ...participantIds])];
+    // Decision 24: no group chat with a doctor either.
+    if (await this.anyDoctor(all.filter((id) => id !== creatorId))) throw new ForbiddenException('doctor_chat_only_in_booking');
     const counts: Record<string, number> = {};
     all.forEach(id => counts[id] = 0);
     const thread = await this.threads.create({ type: 'group', participant_ids: all, name, created_by: creatorId, unread_counts: counts });
@@ -207,7 +210,56 @@ export class ChatService {
     }
   }
 
-  async verifyCommunicationAllowed(threadId: string, senderId: string): Promise<{ allowed: boolean; message?: string }> {
+  /** True when one of the accounts is a doctor (users.role, or a doctor provider profile). */
+  async anyDoctor(ids: string[]): Promise<boolean> {
+    if (!ids.length) return false;
+    const db: any = (this.threads as any).db;
+    const user = await db.collection('users').findOne({ id: { $in: ids }, role: 'doctor' }, { projection: { _id: 1 } });
+    if (user) return true;
+    const prof = await db.collection('provider_profiles').findOne({ type: 'doctor', $or: [{ user_id: { $in: ids } }, { account_id: { $in: ids } }] }, { projection: { _id: 1 } });
+    return !!prof;
+  }
+
+  private async followupHours(): Promise<number> {
+    const sysConfig = await this.getModel('SystemConfig').findOne({ key: 'system_config' });
+    return sysConfig?.value?.consultation_followup_hours ?? CONSULTATION_FOLLOWUP_HOURS_DEFAULT;
+  }
+
+  /** Decision 24 state of a consultation thread (null for any other thread). */
+  async consultationThreadState(thread: any): Promise<{ appt: any; state: ConsultState } | null> {
+    if (!thread || thread.type !== 'booking' || thread.booking_kind !== 'consultation') return null;
+    const appt = thread.booking_id ? await this.getModel('Appointment').findOne({ id: { $eq: thread.booking_id } }) : null;
+    return { appt, state: consultationState(appt, thread, await this.followupHours()) };
+  }
+
+  private async doctorThread(threadId: string, userId: string): Promise<{ thread: any; appt: any }> {
+    const thread: any = await this.threads.findOne({ id: { $eq: threadId } });
+    if (!thread) throw new NotFoundException('thread_not_found');
+    if (thread.type !== 'booking' || thread.booking_kind !== 'consultation') throw new BadRequestException('not_a_consultation_thread');
+    const appt = thread.booking_id ? await this.getModel('Appointment').findOne({ id: { $eq: thread.booking_id } }) : null;
+    if (!isAppointmentDoctor(appt, userId)) throw new ForbiddenException('only_the_consultation_doctor');
+    return { thread, appt };
+  }
+
+  /** Decision 24: the doctor closes the thread early; the patient can read but not write. */
+  async closeConsultationThread(threadId: string, userId: string) {
+    const { thread } = await this.doctorThread(threadId, userId);
+    const now = new Date();
+    await this.threads.updateOne({ id: thread.id }, { $set: { closed_at: now, closed_by: userId } });
+    return { ok: true, id: thread.id, closed_at: now };
+  }
+
+  /** Decision 24: the doctor extends a completed consultation's thread once, by another follow-up window. */
+  async extendConsultationThread(threadId: string, userId: string) {
+    const { thread, appt } = await this.doctorThread(threadId, userId);
+    if (Number(thread.extension_count || 0) >= 1) throw new BadRequestException('thread_already_extended');
+    if (String(appt?.status || '').toUpperCase() !== 'COMPLETED') throw new BadRequestException('extend_only_after_completion');
+    const until = new Date(Date.now() + (await this.followupHours()) * 3_600_000);
+    await this.threads.updateOne({ id: thread.id }, { $set: { extended_until: until, extension_count: 1, extended_by: userId }, $unset: { closed_at: '', closed_by: '' } });
+    return { ok: true, id: thread.id, extended_until: until };
+  }
+
+  async verifyCommunicationAllowed(threadId: string, senderId: string, messageType?: string): Promise<{ allowed: boolean; message?: string }> {
     const thread = await this.threads.findOne({ id: { $eq: threadId } });
     if (!thread) return { allowed: true };
 
@@ -217,32 +269,17 @@ export class ChatService {
     if (thread.type === 'booking' && thread.booking_kind === 'consultation') {
       if (!thread.booking_id) return { allowed: false, message: 'معرف الحجز غير موجود.' };
       try {
-        const AppointmentModel = this.getModel('Appointment');
-        const appt = await AppointmentModel.findOne({ id: { $eq: thread.booking_id } });
-        if (!appt) return { allowed: false, message: 'لم يتم العثور على الاستشارة المرتبطة.' };
-
-        if (appt.status === 'PENDING') {
-          return { allowed: false, message: 'لم تبدأ الاستشارة بعد. ستتمكن من التواصل مع الطبيب بمجرد تأكيد الحجز وبدء الموعد.' };
-        }
-
-        if (appt.status === 'CANCELLED' || appt.status === 'NO_SHOW') {
+        const cs = await this.consultationThreadState(thread);
+        const state = cs!.state;
+        if (state.phase === 'missing') return { allowed: false, message: 'لم يتم العثور على الاستشارة المرتبطة.' };
+        if (!state.can_chat) {
+          if (state.phase === 'upcoming') return { allowed: false, message: state.online ? 'لم تبدأ الاستشارة بعد. ستتمكن من التواصل مع الطبيب بمجرد تأكيد الحجز وبدء الموعد.' : 'تُفتح المحادثة بعد أن يُنهي الطبيب الزيارة.' };
+          if (state.phase === 'closed') return { allowed: false, message: 'أغلق الطبيب هذه المحادثة.' };
           return { allowed: false, message: 'انتهت فترة المتابعة الخاصة بالاستشارة.' };
         }
-
-        if (appt.status === 'COMPLETED') {
-          const SystemConfigModel = this.getModel('SystemConfig');
-          const sysConfig = await SystemConfigModel.findOne({ key: 'system_config' });
-          const followupHours = sysConfig?.value?.consultation_followup_hours ?? CONSULTATION_FOLLOWUP_HOURS_DEFAULT;
-
-          const endedAt = appt.completed_at || appt.updatedAt || new Date();
-          const elapsedHours = (Date.now() - new Date(endedAt).getTime()) / (1000 * 60 * 60);
-
-          if (elapsedHours > followupHours) {
-            return { allowed: false, message: 'انتهت فترة المتابعة الخاصة بالاستشارة.' };
-          }
-        }
+        if (isVoiceMessage(messageType) && !state.can_voice) return { allowed: false, message: 'الرسائل الصوتية غير متاحة بعد زيارة العيادة أو المنزل.' };
       } catch (err) {
-        this.logger.warn(`Appointment validation failed: ${err.message}`);
+        this.logger.warn(`Appointment validation failed: ${(err as Error).message}`);
       }
     }
     return { allowed: true };
@@ -259,7 +296,7 @@ export class ChatService {
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, senderId);
 
-    const check = await this.verifyCommunicationAllowed(threadId, senderId);
+    const check = await this.verifyCommunicationAllowed(threadId, senderId, body?.type);
     if (!check.allowed) throw new ForbiddenException(check.message);
 
     const mediaIds = await this.validateChatMediaIds(threadId, senderId, body?.media_ids);

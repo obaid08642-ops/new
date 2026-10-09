@@ -280,6 +280,33 @@ export class ReturnsService {
     return this.withEvidenceUrlsAll(await this.returnModel.find({ order_id: { $in: ids } } as any).sort({ createdAt: -1 }).lean() as any[]);
   }
 
+  /** P7: true when the return's order went to this pharmacy (legacy order or a governed allocation). */
+  private async isPharmacyOfReturn(request: any, providerId: string): Promise<boolean> {
+    const db: any = this.returnModel.db;
+    const [legacy, alloc] = await Promise.all([
+      db.collection('orders').findOne({ id: request.order_id, pharmacy_id: providerId }, { projection: { _id: 1 } }),
+      db.collection('pharmacy_allocations').findOne({ order_id: request.order_id, pharmacy_account_id: providerId }, { projection: { _id: 1 } }),
+    ]);
+    return !!(legacy || alloc);
+  }
+
+  /** P7: one return of this pharmacy's orders, with the evidence photos. */
+  async providerReturnDetail(id: string, providerId: string) {
+    const request: any = await this.returnModel.findOne({ id }).lean();
+    if (!request || !(await this.isPharmacyOfReturn(request, providerId))) throw new NotFoundException('Return request not found');
+    return this.withEvidenceUrls(request);
+  }
+
+  /** P7: the pharmacy agrees with or disputes a return that is still being processed. The admin decides the money. */
+  async providerRespond(id: string, providerId: string, agree: boolean, note?: string) {
+    const request: any = await this.returnModel.findOne({ id }).lean();
+    if (!request || !(await this.isPharmacyOfReturn(request, providerId))) throw new NotFoundException('Return request not found');
+    if (request.status !== 'processing') throw new BadRequestException('return_already_decided');
+    const pharmacy_response = { agree, note: typeof note === 'string' ? note.trim().slice(0, 500) : undefined, at: new Date(), by: providerId };
+    await (this.returnModel as any).updateOne({ id }, { $set: { pharmacy_response } });
+    return { ok: true, id, pharmacy_response };
+  }
+
   async getById(id: string, userId: string, userRole: string) {
     const request = await this.returnModel.findOne({ id }).lean();
     if (!request) throw new NotFoundException('Return request not found');

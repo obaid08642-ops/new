@@ -1,7 +1,7 @@
 """Journey: pharmacy order, patient-app -> pharmacy (provider-app) -> patient -> delivery -> admin.
 Payloads copied from patient-app app/pharmacy/{checkout,broadcast-status,final-quote}.tsx,
 src/utils/pharmacy-draft.ts and provider-app screens/pharmacy/PharmacyDashboard.tsx."""
-import uuid, urllib.parse
+import json, uuid, urllib.parse
 from lib import Client, journey, step
 
 KEY = lambda tag: f'mobile-{tag}-{uuid.uuid4()}'
@@ -113,6 +113,16 @@ def run(pat, pharm, admin=None, meds=None):
     of = offers[0]
     r = pat.post(f"/patient/pharmacy/orders/{oid}/offers/{of.get('id') or of.get('offer_id')}/select", {'coverage_mode': 'cash'}, headers={'Idempotency-Key': KEY('offer')})
     step('select offer (cash)', r.ok, r)
+    # P3: the pharmacy's "My offers" shows this offer as chosen.
+    oid_offer = of.get('id') or of.get('offer_id')
+    r = pharm.get('/provider/pharmacy/offers')
+    mine = [x for x in r.items() if x.get('id') == oid_offer]
+    step('pharmacy "my offers" shows the offer as chosen', r.ok and mine and mine[0].get('view_status') == 'chosen', r)
+    r = pharm.get('/provider/pharmacy/offers?status=chosen')
+    step('"my offers" filters by status', r.ok and all(x.get('view_status') == 'chosen' for x in r.items()) and any(x.get('id') == oid_offer for x in r.items()), r)
+    # P5: the chosen pharmacy is notified at once.
+    r = pharm.get('/notifications')
+    step('pharmacy notified that its offer was chosen', r.ok and 'new_allocation' in json.dumps(r.body, ensure_ascii=False) and oid in json.dumps(r.body, ensure_ascii=False), r)
     o = pat.get(f'/patient/pharmacy/orders/{oid}')
     order = o.body.get('data', o.body) if isinstance(o.body, dict) else {}
     state = order.get('governed_state')

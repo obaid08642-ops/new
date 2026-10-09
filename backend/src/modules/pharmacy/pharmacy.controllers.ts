@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException, Optional } from '@nestjs/common';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -69,7 +69,14 @@ export class ProviderPharmacyController {
     private inv: PharmacyInventoryExtService,
     private providerOrders: PharmacyOrdersProviderService,
     private insurance: PharmacyInsuranceDecisionService,
+    @Optional() private offersSvc?: PharmacyOfferService,
   ) {}
+
+  /** P3 "My offers": ?status=draft|sent|chosen|not_chosen|expired|cancelled */
+  @Get('offers') myOffers(@CurrentUser() u: any, @Query('status') status?: string) {
+    if (!isProviderRole(u?.role)) throw new ForbiddenException();
+    return this.offersSvc!.listForPharmacy(u, status);
+  }
 
   @Get('allocations') list(@CurrentUser() u: any, @Query('status') status?: string) {
     if (!isProviderRole(u?.role)) throw new ForbiddenException();
