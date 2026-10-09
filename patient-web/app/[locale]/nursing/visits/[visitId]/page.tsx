@@ -14,6 +14,14 @@ import styles from "@/components-next/nursing/nursing.module.css";
 type Props = { params: Promise<{ locale: string; visitId: string }> };
 
 const STEPS = ["REQUESTED", "CONFIRMED", "NURSE_EN_ROUTE", "NURSE_ARRIVED", "CARE_IN_PROGRESS", "COMPLETED"] as const;
+/** Backend nursing states (NursingBookingState) → the timeline step they belong to (needs-review issue 652). */
+const STEP_OF: Record<string, (typeof STEPS)[number]> = {
+  NEW_REQUEST: "REQUESTED", PENDING_INSURANCE: "REQUESTED", WAITING_COPAY: "REQUESTED",
+  PROVIDER_ASSIGNED: "CONFIRMED", ACCEPTED: "CONFIRMED",
+  IN_TRANSIT: "NURSE_EN_ROUTE", EN_ROUTE: "NURSE_EN_ROUTE",
+  ARRIVED: "NURSE_ARRIVED",
+  IN_PROGRESS: "CARE_IN_PROGRESS", CARE_STARTED: "CARE_IN_PROGRESS",
+};
 const text = (v: unknown): string => (typeof v === "string" || typeof v === "number" ? String(v) : "");
 
 /** Where one nursing visit is (canvas/OrderTracking): the status and the minutes to arrival, the nurse, the steps and, once there, the clinical report. */
@@ -34,8 +42,8 @@ export default async function NursingVisitTrackingPage({ params }: Props) {
   const trackPayload = trackRes.ok ? await trackRes.json().catch(() => null) : null;
   const visit = visitPayload?.data ?? visitPayload ?? null;
   const track = trackPayload?.data ?? trackPayload ?? null;
-  const status = String(visit?.status ?? track?.status ?? "PENDING");
-  const idx = STEPS.findIndex((s) => s === status);
+  const status = String(visit?.status ?? visit?.state ?? track?.status ?? track?.state ?? "PENDING");
+  const idx = STEPS.findIndex((s) => s === (STEP_OF[status] ?? status));
   const eta = track?.eta_minutes ?? track?.eta ?? null;
   const etaMinutes = eta != null && Number.isFinite(Number(eta)) ? Number(eta) : null;
   const nurseName = visit?.nurse_name ?? visit?.nurse?.name ?? track?.nurse_name ?? null;

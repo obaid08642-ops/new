@@ -51,7 +51,13 @@ export function BookingFlow({ doctorId, locale, doctor, top }: { doctorId: strin
   const specialty = specialtyLabel(names, doctor?.specialty);
   const router = useRouter();
   const days = useMemo(() => nextDays(7, locale), [locale]);
-  const [visitType, setVisitType] = useState<VisitType>("clinic");
+  // Only the visit types this doctor offers (consultation_modes → clinic / online / home) (needs-review issue 1037).
+  const offered = useMemo<VisitType[]>(() => {
+    if (!doctor) return [...VISIT_TYPES];
+    const modes = VISIT_TYPES.filter((type) => (type === "clinic" ? doctor.clinic : type === "video" ? doctor.online : doctor.home));
+    return modes.length ? modes : [...VISIT_TYPES];
+  }, [doctor]);
+  const [visitType, setVisitType] = useState<VisitType>(offered[0]);
   const [dayIndex, setDayIndex] = useState(0);
   const [slots, setSlots] = useState<Array<{ start: string; end: string; label: string; available: boolean }>>([]);
   const [slotsReason, setSlotsReason] = useState<string | null>(null);
@@ -151,7 +157,8 @@ export function BookingFlow({ doctorId, locale, doctor, top }: { doctorId: strin
         return;
       }
       const data = await res.json().catch(() => null);
-      setError(typeof data?.message === "string" ? data.message : "booking_failed");
+      // Never show the server's raw message (English/codes) to the patient (needs-review issue 1039).
+      setError(String(data?.message ?? "").includes("slot_taken") ? t("slotTaken") : "booking_failed");
     } catch {
       setError("booking_failed");
     } finally {
@@ -179,7 +186,7 @@ export function BookingFlow({ doctorId, locale, doctor, top }: { doctorId: strin
           label={t("visitType")}
           value={visitType}
           onChange={(value) => pickVisitType(value === "video" ? "video" : value === "home" ? "home" : "clinic")}
-          options={VISIT_TYPES.map((type) => ({ value: type, label: t(`types.${type}`) }))}
+          options={offered.map((type) => ({ value: type, label: t(`types.${type}`) }))}
         />
       </SectionCard>
       <SectionCard id="book-day" title={t("selectDay")}>

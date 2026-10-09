@@ -26,6 +26,8 @@ export class StorageObject extends Document {
   @Prop({ required: true, index: true }) owner_account_id: string;
   @Prop({ default: 'provider_account' }) owner_kind: string;
   @Prop({ default: 'private', enum: ['private', 'public_read'] }) visibility: string;
+  /** Accounts the owner shared this file with (e.g. a nurse's visit attachments -> that booking's patient). */
+  @Prop({ type: [String], default: undefined, index: true }) shared_with?: string[];
   @Prop() expires_at?: Date;
   @Prop({ type: Object }) cloudinary?: {
     publicId: string; secureUrl: string; thumbnailUrl: string;
@@ -112,6 +114,12 @@ const MAX_BYTES = 25 * 1024 * 1024; // 25 MB hard cap per file at base64 layer
 
 /** Staff who review private documents (licences, KYC) besides their owner. super_admin was refused before. */
 const STAFF_READERS = new Set(['admin', 'super_admin']);
+function canRead(o: { visibility?: string; owner_account_id: string; shared_with?: string[] }, requester: { id: string; role?: string }) {
+  return o.visibility === 'public_read'
+    || o.owner_account_id === requester.id
+    || (Array.isArray(o.shared_with) && o.shared_with.includes(requester.id))
+    || STAFF_READERS.has(String(requester.role || '').toLowerCase());
+}
 
 @Injectable()
 export class StorageService {
@@ -230,7 +238,7 @@ export class StorageService {
   async read(id: string, requester: { id: string; role?: string }) {
     const o = await this.model.findOne({ id, deleted: false });
     if (!o) throw new NotFoundException();
-    if (o.visibility !== 'public_read' && o.owner_account_id !== requester.id && !STAFF_READERS.has(String(requester.role || '').toLowerCase())) throw new ForbiddenException();
+    if (!canRead(o, requester)) throw new ForbiddenException();
     const data = await this.adapter.get(o);
     if (o.visibility !== 'public_read') delete (data as any).external_url;
     return { id: o.id, mime: o.mime, original_name: o.original_name, size_bytes: o.size_bytes, ...data };
@@ -241,7 +249,7 @@ export class StorageService {
   async signedUrl(id: string, requester: { id: string; role?: string }) {
     const o: any = await this.model.findOne({ id, deleted: false });
     if (!o) throw new NotFoundException();
-    if (o.visibility !== 'public_read' && o.owner_account_id !== requester.id && !STAFF_READERS.has(String(requester.role || '').toLowerCase())) throw new ForbiddenException();
+    if (!canRead(o, requester)) throw new ForbiddenException();
 
     // Cloudinary-hosted: build signed delivery URL
     if (o.backend === 'cloudinary' && o.external_key) {

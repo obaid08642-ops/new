@@ -353,16 +353,16 @@ export class Step3Dto {
   hospital?: string;
 
   @IsOptional()
-  @IsString()
-  insurance_clinic?: string;
+  @IsBoolean()
+  insurance_clinic?: boolean;
 
   @IsOptional()
-  @IsString()
-  insurance_home?: string;
+  @IsBoolean()
+  insurance_home?: boolean;
 
   @IsOptional()
-  @IsString()
-  insurance_online?: string;
+  @IsBoolean()
+  insurance_online?: boolean;
 
   // free-form: {companyId: [planIds]} map from the wizard's insurance picker
   @IsOptional()

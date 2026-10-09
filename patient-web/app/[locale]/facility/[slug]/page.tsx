@@ -64,8 +64,8 @@ export default async function FacilityCanonicalPage({ params }: Props) {
 
   return (
     <LandingPage locale={locale} title={name} backHref={`/${locale}/consultations`}>
-      {/* // i18n-ok: structured data is kept exactly as published (SEO) */}
-      <JsonLd data={[schemaBuilder({ name, path: `/facility/${slug}`, locale: locale as Locale, city: fac.city, district: fac.district }), breadcrumbList([{ name: "Nabd Plus", locale: locale as Locale, path: "/" }, { name: locale === "ar" ? "المراكز والمستشفيات" : "Hospitals & Clinics", locale: locale as Locale, path: "/consultations/clinics" }, { name, locale: locale as Locale, path: `/facility/${slug}` }])]} />
+      {/* // i18n-ok: structured data is kept exactly as published (SEO); the breadcrumb points at /consultations, /consultations/clinics has no list page (needs-review issue 793) */}
+      <JsonLd data={[schemaBuilder({ name, path: `/facility/${slug}`, locale: locale as Locale, city: fac.city, district: fac.district }), breadcrumbList([{ name: "Nabd Plus", locale: locale as Locale, path: "/" }, { name: locale === "ar" ? "المراكز والمستشفيات" : "Hospitals & Clinics", locale: locale as Locale, path: "/consultations" }, { name, locale: locale as Locale, path: `/facility/${slug}` }])]} />
 
       {facts.length ? (
         <SectionCard id="facility-facts">

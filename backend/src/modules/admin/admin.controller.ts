@@ -10,6 +10,7 @@ import { UserRole } from '../../common/enums';
 import { User, UserDocument } from '../../schemas/user.schema';
 import { ProviderDelta } from '../provider/schemas/provider-delta.schema';
 import { CreateSubAdminDto, UpdateSubAdminDto, CreateProviderDto, CleanupOrphansDto } from './admin.dto';
+import { Permission, RequirePermissions } from '../../common/permissions';
 
 /** Provider roles an admin may create accounts for (never staff/admin roles). */
 const PROVIDER_CREATABLE_ROLES = [
@@ -457,6 +458,7 @@ export class AdminController {
 
   /** Ban/deactivate a user account (blocks login via active=false). */
   @StepUp()
+  @RequirePermissions(Permission.USER_EDIT)
   @Post('users/:userId/ban')
   async banUser(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
@@ -481,6 +483,7 @@ export class AdminController {
 
   /** Lift a ban / reactivate an account. */
   @StepUp()
+  @RequirePermissions(Permission.USER_EDIT)
   @Post('users/:userId/unban')
   async unbanUser(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).

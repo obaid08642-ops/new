@@ -213,9 +213,11 @@ describe("the appointment screens", () => {
   });
 
   it("the home visit steps follow the server's status, and an unknown status marks none", async () => {
-    server.one.mockResolvedValueOnce(json(row({ service_type: "home", status: "PROVIDER_EN_ROUTE" })));
+    // The backend has no en-route state; CHECKED_IN (doctor at the door) is the "arrived" step (needs-review issue 406).
+    server.one.mockResolvedValueOnce(json(row({ service_type: "home", status: "CHECKED_IN" })));
     const html = render(await HomeVisitTrackingPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }));
-    expect(html).toContain("Provider on the way");
+    expect(html).toContain("Provider arrived");
+    expect(html).not.toContain("Provider on the way");
     expect(html).toContain('aria-current="step"');
     server.one.mockResolvedValueOnce(json(row({ status: "MYSTERY" })));
     expect(render(await HomeVisitTrackingPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }))).toContain("Unknown status");

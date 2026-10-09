@@ -833,7 +833,7 @@ export class MedicinesService {
 
     // 2) Fuzzy match on name / active_ingredient (in case scanner read a textual code)
     const fuzzy = await this.model.findOne(
-      { $or: [{ name_en: { $regex: c, $options: 'i' } }, { active_ingredient: { $regex: c, $options: 'i' } }], ...this.publicCatalogFilter() },
+      { $or: [{ name_en: { $regex: escapeRegex(c), $options: 'i' } }, { active_ingredient: { $regex: escapeRegex(c), $options: 'i' } }], ...this.publicCatalogFilter() },
       { _id: 0, __v: 0 },
     ).lean();
     if (fuzzy) return { found: true, source: 'fuzzy', medicine: fuzzy, codes_tried: candidates };
@@ -887,7 +887,8 @@ export class MedicinesService {
     return {
       categories: categories.filter(Boolean),
       brands: brands.filter(Boolean),
-      forms: forms.length ? forms.filter(Boolean) : ['أقراص', 'كبسولات', 'شراب', 'حقن', 'كريم / مرهم', 'نقط'],
+      // Needs-review #449: only forms that exist in the public catalogue (no invented fallback list).
+      forms: forms.filter(Boolean),
       sortOptions: ['الأكثر مبيعاً', 'السعر: من الأقل للأعلى', 'السعر: من الأعلى للأقل', 'الأحدث']
     };
   }
@@ -924,7 +925,12 @@ export class MedicinesService {
       med.active_ingredient
         ? this.model.find(
             { active_ingredient: med.active_ingredient, id: { $ne: id }, ...this.publicCatalogFilter() },
-            { _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, manufacturer: 1, requires_prescription: 1 },
+            // Needs-review issue 460: the alternative cards also need a picture, the pack and the name in every language.
+            {
+              _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, manufacturer: 1, requires_prescription: 1,
+              image_1: 1, images: { $slice: 1 }, package_size: 1,
+              ...Object.fromEntries((['ur', 'hi', 'bn', 'tl'] as const).map((lang) => [`translations.${lang}.name`, 1])),
+            },
           ).limit(8)
         : [],
       this.aggregateStock(id),

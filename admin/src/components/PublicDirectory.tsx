@@ -117,9 +117,12 @@ export function PublicDirectory({ config, items }: { config: DirectoryConfig; it
   );
 }
 
+/** Server-side only (getServerSideProps): Node fetch needs an absolute backend URL. */
 export async function fetchDirectory(endpoint: string): Promise<any[]> {
+  const base = (process.env.ADMIN_BACKEND_URL || '').replace(/\/$/, '');
+  if (!base) return [];
   try {
-    const r = await fetch(endpoint, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+    const r = await fetch(`${base}/api/v1${endpoint}`, { headers: { Accept: 'application/json' } });
     if (!r.ok) return [];
     const data = await r.json();
     return Array.isArray(data) ? data : data?.data || data?.items || [];

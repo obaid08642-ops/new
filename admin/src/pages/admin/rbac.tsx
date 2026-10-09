@@ -37,6 +37,7 @@ export default function RbacPage() {
   }
   async function createRole(event: React.FormEvent) {    event.preventDefault();
     if (!form.key.trim() || !form.name_ar.trim() || form.reason.trim().length < 5) { setError('المعرّف والاسم وسبب لا يقل عن خمسة أحرف مطلوبة.'); return; }
+    if (!window.confirm(`إنشاء الدور «${form.name_ar.trim()}» بـ ${form.permissions.length} صلاحية؟`)) return;
     setCreating(true); setError('');
     try {
       await adminMutation('/api/admin/admin/rbac/roles', 'POST', { key: form.key.trim(), name_ar: form.name_ar.trim(), permissions: form.permissions, reason: form.reason.trim() });
@@ -49,6 +50,7 @@ export default function RbacPage() {
   async function assignRoles(event: React.FormEvent) {
     event.preventDefault();
     if (!assignUser.trim() || assignReason.trim().length < 5) { setError('معرّف الموظف وسبب لا يقل عن خمسة أحرف مطلوبان.'); return; }
+    if (!window.confirm(`تغيير أدوار الموظف ${assignUser.trim()} إلى: ${assignKeys.join('، ') || 'بدون أدوار مخصصة'}؟`)) return;
     setAssigning(true); setError('');
     try {
       await adminMutation(`/api/admin/admin/rbac/users/${encodeURIComponent(assignUser.trim())}/roles`, 'POST', { custom_role_keys: assignKeys, reason: assignReason.trim() });

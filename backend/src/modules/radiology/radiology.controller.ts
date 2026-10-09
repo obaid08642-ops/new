@@ -6,6 +6,7 @@ import { UserRole } from '../../common/enums';
 import { BookDto, TransitionDto, UpdateInsDto, AssignTechDto, UploadReportDto, ForceStateDto, AbortScanDto, InsuranceApprovalDto, RescheduleDto, SubmitReportForReviewDto, RadiologyDocumentDto, CatalogDeltaRequestDto} from './radiology.dto';
 import { CreateRadiologyCatalogDto, UpdateRadiologyCatalogDto, ApproveCatalogDto, BulkApproveCatalogDto } from './radiology.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller('radiology')
 export class RadiologyController {
   constructor(private readonly svc: RadiologyOpsService) {}
@@ -190,6 +191,7 @@ export class RadiologyController {
   adminCatalog(@CurrentUser() u: any) { return this.svc.adminCatalog(u); }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_CREATE)
   @Post('admin/catalog')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   createCatalog(@CurrentUser() u: any, @Body() b: CreateRadiologyCatalogDto) {
@@ -197,6 +199,7 @@ export class RadiologyController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_UPDATE)
   @Put('admin/catalog/:id')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   updateCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateRadiologyCatalogDto) {
@@ -204,6 +207,7 @@ export class RadiologyController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_DELETE_RESTORE)
   @Delete('admin/catalog/:id')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   deleteCatalog(@CurrentUser() u: any, @Param('id') id: string) {
@@ -212,6 +216,7 @@ export class RadiologyController {
 
   // P6.0: medical-review decision (approve surfaces the item publicly).
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_UPDATE)
   @Post('admin/catalog/:id/approve')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   approveCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ApproveCatalogDto) {
@@ -219,6 +224,7 @@ export class RadiologyController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_UPDATE)
   @Post('admin/catalog/bulk-approve')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   bulkApproveCatalog(@CurrentUser() u: any, @Body() b: BulkApproveCatalogDto) {
