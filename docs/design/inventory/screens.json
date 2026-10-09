@@ -1,5 +1,5 @@
 {
- "commit": "a43ee0d0",
+ "commit": "9cdc28ce",
  "routes": [
   {
    "app": "patient-app",
@@ -7399,13 +7399,23 @@
      "path": "/care/appointments/:param/summary",
      "target": "backend",
      "query": "",
-     "line": 80,
+     "line": 82,
      "file": "patient-web/app/[locale]/appointments/[appointmentId]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:77"
+    },
+    {
+     "method": "GET",
+     "path": "/system-config/public",
+     "target": "backend",
+     "query": "",
+     "line": 30,
+     "file": "patient-web/lib/consult/cancellation-policy.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/governance/system-config.controller.ts:51"
     }
    ],
-   "files": 50,
+   "files": 52,
    "unresolved": 0
   },
   {
@@ -7870,7 +7880,7 @@
      "path": "/api/appointments/book",
      "target": "web-bff",
      "query": "",
-     "line": 136,
+     "line": 135,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/appointments/book/route.ts"
@@ -7890,7 +7900,7 @@
      "path": "/api/consultations/doctors/:param/slots",
      "target": "web-bff",
      "query": "?date=:param&service_type=:param",
-     "line": 91,
+     "line": 90,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/consultations/doctors/[doctorId]/slots/route.ts"
@@ -7900,7 +7910,7 @@
      "path": "/api/slot-locks/reserve",
      "target": "web-bff",
      "query": "",
-     "line": 123,
+     "line": 122,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/slot-locks/reserve/route.ts"
@@ -7914,19 +7924,9 @@
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:67"
-    },
-    {
-     "method": "GET",
-     "path": "/system-config/public",
-     "target": "backend",
-     "query": "",
-     "line": 30,
-     "file": "patient-web/lib/consult/cancellation-policy.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/admin/governance/system-config.controller.ts:51"
     }
    ],
-   "files": 47,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -10154,7 +10154,7 @@
      "path": "/api/health/reminders",
      "target": "web-bff",
      "query": "",
-     "line": 35,
+     "line": 40,
      "file": "patient-web/components-next/health/reminder-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/health/reminders/route.ts"
@@ -10164,7 +10164,7 @@
      "path": "/api/health/reminders/:param",
      "target": "web-bff",
      "query": "",
-     "line": 35,
+     "line": 40,
      "file": "patient-web/components-next/health/reminder-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/health/reminders/[reminderId]/route.ts"

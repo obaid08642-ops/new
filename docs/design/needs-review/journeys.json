@@ -378,7 +378,7 @@
  {
   "scenario": 4,
   "step": "pay card",
-  "problem": "The consultation payment block has no cancel or refund note.",
+  "problem": "Fixed on design/oc-journeys-3: the appointment page shows the server cancellation policy card above the payment block. The consultation payment block has no cancel or refund note.",
   "kind": "missing-state",
   "file": "patient-web/components-next/consultation-payment-action.tsx",
   "line": 24
@@ -514,7 +514,7 @@
  {
   "scenario": 6,
   "step": "providers",
-  "problem": "/home-care/providers shows an empty state with no action.",
+  "problem": "Fixed on design/oc-journeys-3: the empty state links to the home-care services. /home-care/providers shows an empty state with no action.",
   "kind": "dead-end",
   "file": "patient-web/app/[locale]/home-care/providers/page.tsx",
   "line": 33

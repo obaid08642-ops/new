@@ -70,4 +70,5 @@ Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = we
 - **UI issues admin (6):** #937 #938 #941 fixed (provider-moderation: no dead Suspend, bank approval, approve form); #954 #955 #995 wait on backend module switches / kill-switch stub. ~140k tokens.
 - **UI issues journeys chunk 1 (15):** 8 fixed + 1 partial (#1014 #1015 #1017 #1023 part #1024 #1025 #1026 #1028 #1029 #1030), #1012 #1020 already fixed, rest decisions/D-13/D-30. ~150k tokens.
 - **UI issues journeys chunk 2 (15):** 4 fixed (#1035 #1036 #1040 #1044), 11 skipped (decisions 10/18/24/30 flow changes, new features). ~90k tokens.
+- **UI issues journeys chunk 3 (15):** 3 fixed (#1056 #1073 #1076 part), #1058 already fixed; rest flows/backend. ~120k tokens.
 
