@@ -279,7 +279,7 @@ describe('final quote', () => {
   });
 });
 
-describe('#512: the countdown runs on the server clock', () => {
+describe('issue 512: the countdown runs on the server clock', () => {
   it('moves the expiry onto this phone clock using server_time', () => {
     const realNow = Date.now;
     Date.now = () => Date.parse('2026-10-09T10:00:00.000Z'); // the phone is 5 minutes behind the server

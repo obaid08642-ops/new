@@ -26,7 +26,7 @@ export type PatientPharmacyOffer = {
   preparationMinutes?: number;
   /** When the pharmacy's price stops being valid (server field `expires_at`, else `quote_expires_at`). */
   expiresAt?: string;
-  /** #512: the server's clock when it answered, so the countdown does not depend on the viewer's clock. */
+  /** issue 512: the server's clock when it answered, so the countdown does not depend on the viewer's clock. */
   serverTime?: string;
   insuranceReady?: boolean;
   codAllowed?: boolean;

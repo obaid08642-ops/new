@@ -71,7 +71,7 @@ export function OfferList({ orderId, offers, after }: Props & { offers: OfferVie
   const action = usePharmacyAction();
   const [failedOffer, setFailedOffer] = useState<string | null>(null);
 
-  // The countdown runs on the server's clock (#512: its `server_time` corrects a viewer clock that is off); it only ever
+  // The countdown runs on the server's clock (issue 512: its `server_time` corrects a viewer clock that is off); it only ever
   // disables a button, the server decides.
   useEffect(() => {
     if (!offers.some((offer) => offer.expiresAt)) return;
