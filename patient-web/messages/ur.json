@@ -716,8 +716,22 @@
     "medicineUnavailable": "دوا کا نام دستیاب نہیں",
     "medicineUnnamed": "نامعلوم دوا",
     "emergencyMineEmpty": "ابھی کوئی ہنگامی رابطہ نہیں ہے۔",
-    "emergencyNotice": "فون نمبر جزوی طور پر چھپے ہوئے ہیں۔ رابطے شامل کرنا اور حذف کرنا ابھی دستیاب نہیں۔",
-    "sourceUnknown": "نامعلوم"
+    "emergencyNotice": "فون نمبر جزوی طور پر چھپے ہوئے ہیں۔",
+    "sourceUnknown": "نامعلوم",
+    "sleepAdd": "نیند شامل کریں",
+    "sleepHoursField": "نیند کے گھنٹے",
+    "sleepScoreField": "معیار کا اسکور (0 سے 100)",
+    "sleepSave": "محفوظ کریں",
+    "sleepBadHours": "درست نیند کے گھنٹے درج کریں (0 سے 24)۔",
+    "sleepBadScore": "0 سے 100 کے درمیان معیار کا اسکور درج کریں۔",
+    "sleepSaveError": "ریڈنگ محفوظ نہیں ہو سکی۔ دوبارہ کوشش کریں۔",
+    "emergencyAdd": "ہنگامی رابطہ شامل کریں",
+    "emergencyName": "نام",
+    "emergencyRelation": "رشتہ (اختیاری)",
+    "emergencyPhone": "موبائل نمبر",
+    "emergencyRequired": "نام اور موبائل نمبر درج کریں۔",
+    "emergencySaveError": "رابطہ محفوظ نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
+    "emergencySave": "محفوظ کریں"
   },
   "Prescriptions": {
     "title": "نسخے",
@@ -868,11 +882,15 @@
     "tabAll": "سب",
     "tabSaved": "محفوظ شدہ",
     "allCategories": "تمام زمرے",
-    "savedEmptyBody": "ایپ میں آپ کے محفوظ کیے ہوئے مضامین یہاں نظر آئیں گے۔",
+    "savedEmptyBody": "آپ کے محفوظ کردہ مضامین یہاں نظر آئیں گے۔",
     "author": "مصنف",
     "published": "اشاعت کی تاریخ",
     "summary": "خلاصہ",
-    "disclaimer": "عمومی تعلیمی مواد، یہ ڈاکٹر کے مشورے کا متبادل نہیں ہے۔"
+    "disclaimer": "عمومی تعلیمی مواد، یہ ڈاکٹر کے مشورے کا متبادل نہیں ہے۔",
+    "save": "مضمون محفوظ کریں",
+    "unsave": "محفوظ شدہ سے ہٹائیں",
+    "saveFailed": "محفوظ کردہ مضامین اپ ڈیٹ نہیں ہو سکے۔ دوبارہ کوشش کریں۔",
+    "signInToSave": "مضامین محفوظ کرنے کے لیے سائن اِن کریں"
   },
   "ChatDetail": {
     "eyebrow": "نجی گفتگو",
@@ -2531,7 +2549,8 @@
     "chatSendFailed": "پیغام نہیں بھیجا جا سکا۔ دوبارہ کوشش کریں۔",
     "chatNoGroupTitle": "آپ ابھی کسی فیملی گروپ میں نہیں ہیں",
     "chatNoGroupBody": "چیٹ شروع کرنے کے لیے فیملی گروپ بنائیں یا دعوت سے شامل ہوں۔",
-    "chatJoin": "کوڈ سے شامل ہوں"
+    "chatJoin": "کوڈ سے شامل ہوں",
+    "emergencyCount": "{count} رابطے"
   },
   "DiagWeb": {
     "retry": "دوبارہ کوشش کریں",

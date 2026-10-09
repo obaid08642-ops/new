@@ -666,8 +666,22 @@
     "medicineUnavailable": "اسم الدواء غير متاح",
     "medicineUnnamed": "دواء غير مسمى",
     "emergencyMineEmpty": "لا توجد جهات اتصال للطوارئ بعد.",
-    "emergencyNotice": "أرقام الهواتف مخفية جزئيًا. إضافة جهات الاتصال وحذفها غير متاحة بعد.",
-    "sourceUnknown": "غير معروف"
+    "emergencyNotice": "أرقام الهواتف مخفية جزئيًا.",
+    "sourceUnknown": "غير معروف",
+    "sleepAdd": "إضافة نوم",
+    "sleepHoursField": "ساعات النوم",
+    "sleepScoreField": "تقييم الجودة (٠ إلى ١٠٠)",
+    "sleepSave": "حفظ",
+    "sleepBadHours": "أدخل ساعات نوم صحيحة (من ٠ إلى ٢٤).",
+    "sleepBadScore": "أدخل تقييم جودة بين ٠ و١٠٠.",
+    "sleepSaveError": "تعذر حفظ القراءة. حاول مجدداً.",
+    "emergencyAdd": "إضافة جهة طوارئ",
+    "emergencyName": "الاسم",
+    "emergencyRelation": "صلة القرابة (اختياري)",
+    "emergencyPhone": "رقم الجوال",
+    "emergencyRequired": "يرجى إدخال الاسم ورقم الجوال.",
+    "emergencySaveError": "تعذّر حفظ جهة الاتصال. حاول مجدداً.",
+    "emergencySave": "حفظ"
   },
   "Prescriptions": {
     "title": "الوصفات الطبية",
@@ -868,11 +882,15 @@
     "tabAll": "الكل",
     "tabSaved": "المحفوظة",
     "allCategories": "كل التصنيفات",
-    "savedEmptyBody": "المقالات التي تحفظها في التطبيق تظهر هنا.",
+    "savedEmptyBody": "المقالات التي تحفظها تظهر هنا.",
     "author": "الكاتب",
     "published": "تاريخ النشر",
     "summary": "ملخص المقال",
-    "disclaimer": "محتوى تثقيفي عام، ولا يغني عن استشارة الطبيب."
+    "disclaimer": "محتوى تثقيفي عام، ولا يغني عن استشارة الطبيب.",
+    "save": "حفظ المقال",
+    "unsave": "إزالة من المحفوظات",
+    "saveFailed": "تعذر تحديث المقالات المحفوظة. حاول مجددًا.",
+    "signInToSave": "سجّل الدخول لحفظ المقالات"
   },
   "ChatDetail": {
     "eyebrow": "محادثة خاصة",
@@ -2531,7 +2549,8 @@
     "chatSendFailed": "تعذر إرسال الرسالة. حاول مرة أخرى.",
     "chatNoGroupTitle": "لست عضوًا في مجموعة عائلية بعد",
     "chatNoGroupBody": "أنشئ مجموعة عائلية أو انضم بدعوة لبدء المحادثة.",
-    "chatJoin": "انضمام بكود"
+    "chatJoin": "انضمام بكود",
+    "emergencyCount": "{count} جهات"
   },
   "DiagWeb": {
     "retry": "حاول مرة أخرى",

@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiFetch } from '../utils/api';
 import { Alert } from 'react-native';
 import { useApp } from './AppContext';
@@ -39,6 +41,33 @@ interface DiagnosticsCartContextType {
   hasHomeVisit: boolean;
 }
 
+type AuthSlice = { isAuthenticated?: boolean; isGuest?: boolean; user?: { id?: string } | null };
+
+/** One key per signed-in patient: a different patient on the same device never sees this cart. */
+export const diagnosticsCartKey = (userId: string) => `@nabd_diag_cart:v1:${userId}`;
+
+interface StoredDiagnosticsCart { items: DiagnosticsCartItem[]; lockedProviderId: string | null }
+
+function isStoredItem(i: unknown): i is DiagnosticsCartItem {
+  if (!i || typeof i !== 'object') return false;
+  const x = i as Partial<DiagnosticsCartItem>;
+  return typeof x.id === 'string' && (x.kind === 'lab' || x.kind === 'radiology')
+    && typeof x.price === 'number' && typeof x.qty === 'number' && x.qty > 0;
+}
+
+export function parseStoredDiagnosticsCart(raw: string | null): StoredDiagnosticsCart | null {
+  if (!raw) return null;
+  try {
+    const data: unknown = JSON.parse(raw);
+    if (!data || typeof data !== 'object') return null;
+    const { items, lockedProviderId } = data as { items?: unknown; lockedProviderId?: unknown };
+    if (!Array.isArray(items)) return null;
+    return { items: items.filter(isStoredItem), lockedProviderId: typeof lockedProviderId === 'string' ? lockedProviderId : null };
+  } catch {
+    return null;
+  }
+}
+
 const DiagnosticsCartContext = createContext<DiagnosticsCartContextType | null>(null);
 
 export function DiagnosticsCartProvider({ children }: { children: React.ReactNode }) {
@@ -48,6 +77,45 @@ export function DiagnosticsCartProvider({ children }: { children: React.ReactNod
   const [paymentType, setPaymentType] = useState<'cash' | 'insurance'>('cash');
   const [homeVisitFeeState, setHomeVisitFee] = useState<number>(0);
   const { lang } = useApp();
+  const userId = useSelector((state: { auth?: AuthSlice }) => {
+    const auth = state.auth;
+    return auth?.isAuthenticated && !auth.isGuest && typeof auth.user?.id === 'string' && auth.user.id ? auth.user.id : null;
+  });
+  // the patient whose stored cart is already in memory; saving starts only after that, so an empty start never wipes it
+  const hydratedFor = useRef<string | null>(null);
+
+  useEffect(() => {
+    let live = true;
+    if (!userId) {
+      // signed out (or a guest): the cart of the last patient must not stay in memory
+      if (hydratedFor.current) {
+        hydratedFor.current = null;
+        setItems([]);
+        setLockedProviderId(null);
+        setPrescriptionUrl(null);
+      }
+      return undefined;
+    }
+    AsyncStorage.getItem(diagnosticsCartKey(userId)).then((raw) => {
+      if (!live) return;
+      const stored = parseStoredDiagnosticsCart(raw);
+      if (stored && stored.items.length > 0) {
+        setItems((current) => (current.length > 0 ? current : stored.items));
+        setLockedProviderId((current) => current ?? stored.lockedProviderId);
+      }
+      hydratedFor.current = userId;
+    }).catch(() => { hydratedFor.current = userId; });
+    return () => { live = false; };
+  }, [userId]);
+
+  useEffect(() => {
+    if (!userId || hydratedFor.current !== userId) return;
+    const key = diagnosticsCartKey(userId);
+    const write = items.length === 0
+      ? AsyncStorage.removeItem(key)
+      : AsyncStorage.setItem(key, JSON.stringify({ items, lockedProviderId }));
+    write.catch(() => undefined);
+  }, [items, lockedProviderId, userId]);
 
   const addItem = useCallback(async (item: Omit<DiagnosticsCartItem, 'qty'> & { qty?: number }) => {
     

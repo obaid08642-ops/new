@@ -716,8 +716,22 @@
     "medicineUnavailable": "Hindi magagamit ang pangalan ng gamot",
     "medicineUnnamed": "Hindi pinangalanang gamot",
     "emergencyMineEmpty": "Wala pang emergency contact.",
-    "emergencyNotice": "Bahagyang nakatago ang mga numero ng telepono. Hindi pa available ang pagdagdag at pagbura ng contact.",
-    "sourceUnknown": "Hindi alam"
+    "emergencyNotice": "Bahagyang nakatago ang mga numero ng telepono.",
+    "sourceUnknown": "Hindi alam",
+    "sleepAdd": "Magdagdag ng tulog",
+    "sleepHoursField": "Oras ng tulog",
+    "sleepScoreField": "Quality score (0 hanggang 100)",
+    "sleepSave": "I-save",
+    "sleepBadHours": "Maglagay ng wastong oras ng tulog (0 hanggang 24).",
+    "sleepBadScore": "Maglagay ng quality score sa pagitan ng 0 at 100.",
+    "sleepSaveError": "Hindi na-save ang reading. Subukan muli.",
+    "emergencyAdd": "Magdagdag ng emergency contact",
+    "emergencyName": "Pangalan",
+    "emergencyRelation": "Relasyon (opsyonal)",
+    "emergencyPhone": "Numero ng mobile",
+    "emergencyRequired": "Ilagay ang pangalan at numero ng mobile.",
+    "emergencySaveError": "Hindi na-save ang contact. Subukan muli.",
+    "emergencySave": "I-save"
   },
   "Prescriptions": {
     "title": "Mga reseta",
@@ -868,11 +882,15 @@
     "tabAll": "Lahat",
     "tabSaved": "Naka-save",
     "allCategories": "Lahat ng kategorya",
-    "savedEmptyBody": "Lalabas dito ang mga artikulong sine-save mo sa app.",
+    "savedEmptyBody": "Lalabas dito ang mga artikulong sine-save mo.",
     "author": "May-akda",
     "published": "Petsa ng paglalathala",
     "summary": "Buod",
-    "disclaimer": "Pangkalahatang nilalamang pang-edukasyon, hindi kapalit ng payo ng doktor."
+    "disclaimer": "Pangkalahatang nilalamang pang-edukasyon, hindi kapalit ng payo ng doktor.",
+    "save": "I-save ang artikulo",
+    "unsave": "Alisin sa naka-save",
+    "saveFailed": "Hindi ma-update ang mga naka-save na artikulo. Subukan muli.",
+    "signInToSave": "Mag-sign in para mag-save ng mga artikulo"
   },
   "ChatDetail": {
     "eyebrow": "Pribadong conversation",
@@ -2531,7 +2549,8 @@
     "chatSendFailed": "Hindi naipadala ang mensahe. Subukan muli.",
     "chatNoGroupTitle": "Wala ka pa sa grupo ng pamilya",
     "chatNoGroupBody": "Gumawa ng grupo ng pamilya o sumali gamit ang imbitasyon para makapag-chat.",
-    "chatJoin": "Sumali gamit ang code"
+    "chatJoin": "Sumali gamit ang code",
+    "emergencyCount": "{count} contact"
   },
   "DiagWeb": {
     "retry": "Subukan muli",

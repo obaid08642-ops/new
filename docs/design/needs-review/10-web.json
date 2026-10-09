@@ -16,7 +16,7 @@
     "element": "Bookmark button",
     "file": "patient-web/app/[locale]/articles/[slug]/page.tsx",
     "line": 112,
-    "found": "[client] The web has no way to save or unsave an article (no BFF route for POST /articles/bookmarks/:slug/toggle, no button); the Saved tab only lists what the app saved. Add the route and the button (a feature, not done in this design batch).",
+    "found": "[client] Fixed on design/oc-patient-other-1: the article page has a Save / Remove from saved button (status from GET /articles/bookmarks/:slug/status, change by POST .../toggle through the /api/patient proxy); a signed-out reader gets a sign-in link.",
     "suspect": "Client-side: later batch."
   },
   {

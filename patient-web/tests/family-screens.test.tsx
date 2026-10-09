@@ -79,9 +79,24 @@ describe("the family hub", () => {
     expect(html).toContain("/en/family/calendar");
     expect(html).toContain("/en/family/chat");
     expect(html).toContain("/en/health/profile#emergency");
+    // GET /family/emergency-contacts is not answered here (503): the row keeps its hint instead of a number
+    expect(html).toContain("Who to reach in an emergency");
     // the old permission screens' key names, the account id and the token never reach the markup; no call entry
     for (const secret of [TOKEN, MEMBER, "view_health", "unknown_grant"]) expect(html).not.toContain(secret);
     expect(html.toLowerCase()).not.toContain("call");
+  });
+
+  it("counts the family's emergency contacts on the emergency row", async () => {
+    backend({
+      "/family/members": members,
+      "/family/my-group": group,
+      "/family/permissions/pending": pending,
+      "/family/emergency-contacts": [{ user_id: "u1", display_name: "Omar", relation: "Brother", phone: "+966507654321" }, { user_id: "u2", display_name: "Lina", relation: "Sister", phone: "+966507654322" }],
+    });
+    const html = render(await FamilyPage({ params }));
+    expect(html).toContain("2 contacts");
+    expect(html).not.toContain("Who to reach in an emergency");
+    expect(html).not.toContain("+966507654321");
   });
 
   it("says in place when the requests cannot be read, and offers to create a group when there is none", async () => {

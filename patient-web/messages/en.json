@@ -666,8 +666,22 @@
     "medicineUnavailable": "Medicine name unavailable",
     "medicineUnnamed": "Unnamed medicine",
     "emergencyMineEmpty": "No emergency contacts yet.",
-    "emergencyNotice": "Phone numbers are partly hidden. Adding and deleting contacts isn't available yet.",
-    "sourceUnknown": "Unknown"
+    "emergencyNotice": "Phone numbers are partly hidden.",
+    "sourceUnknown": "Unknown",
+    "sleepAdd": "Add sleep",
+    "sleepHoursField": "Hours slept",
+    "sleepScoreField": "Quality score (0 to 100)",
+    "sleepSave": "Save",
+    "sleepBadHours": "Enter valid sleep hours (0 to 24).",
+    "sleepBadScore": "Enter a quality score between 0 and 100.",
+    "sleepSaveError": "The reading could not be saved. Try again.",
+    "emergencyAdd": "Add an emergency contact",
+    "emergencyName": "Name",
+    "emergencyRelation": "Relationship (optional)",
+    "emergencyPhone": "Mobile number",
+    "emergencyRequired": "Enter the name and mobile number.",
+    "emergencySaveError": "The contact could not be saved. Try again.",
+    "emergencySave": "Save"
   },
   "Prescriptions": {
     "title": "Prescriptions",
@@ -868,11 +882,15 @@
     "tabAll": "All",
     "tabSaved": "Saved",
     "allCategories": "All categories",
-    "savedEmptyBody": "Articles you save in the app appear here.",
+    "savedEmptyBody": "Articles you save appear here.",
     "author": "Author",
     "published": "Published",
     "summary": "Summary",
-    "disclaimer": "General educational content, not a substitute for medical advice."
+    "disclaimer": "General educational content, not a substitute for medical advice.",
+    "save": "Save article",
+    "unsave": "Remove from saved",
+    "saveFailed": "Couldn't update your saved articles. Try again.",
+    "signInToSave": "Sign in to save articles"
   },
   "ChatDetail": {
     "eyebrow": "Private conversation",
@@ -2531,7 +2549,8 @@
     "chatSendFailed": "Couldn't send the message. Try again.",
     "chatNoGroupTitle": "You are not in a family group yet",
     "chatNoGroupBody": "Create a family group or join with an invite to start chatting.",
-    "chatJoin": "Join with a code"
+    "chatJoin": "Join with a code",
+    "emergencyCount": "{count} contacts"
   },
   "DiagWeb": {
     "retry": "Try again",
