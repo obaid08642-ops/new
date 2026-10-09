@@ -15,8 +15,8 @@
     "screen": "NurseVisitConsole",
     "element": "Screen content",
     "file": "provider-app/src/screens/shared/blueprint/NurseVisitConsole.tsx",
-    "line": 26,
-    "found": "[client] Stub screen: a hard-coded English title and a single button to the checklist, no visit data.",
+    "line": 35,
+    "found": "[client] Fixed on design/oc-provider: now lists the active visits and opens the field-ops screen (was a stub).",
     "suspect": "Client-side: later batch."
   },
   {

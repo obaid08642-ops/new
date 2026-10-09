@@ -129,7 +129,7 @@
     "app": "provider-app",
     "screen": "PharmacyDashboard",
     "element": "hand over / delivery",
-    "found": "[client] No client call for the prescription queue, verify, substitute or manual-review routes (lines typed by a doctor are PENDING_REVIEW); the pharmacy cannot review a doctor prescription.",
+    "found": "[client] Fixed on design/oc-provider: new Prescription review screen (PharmacyPrescriptionReview.tsx): both queues, verify, and an approved substitute for hand-typed lines. Before: No client call for the prescription queue, verify, substitute or manual-review routes (lines typed by a doctor are PENDING_REVIEW); the pharmacy cannot review a doctor prescription.",
     "suspect": "missing screen"
   },
   {
@@ -177,7 +177,7 @@
     "app": "provider-app",
     "screen": "AppointmentDetailScreen",
     "element": "consultation",
-    "found": "[client] Reschedule asks the doctor to type date and time as text (YYYY-MM-DD, HH:mm); no picker or slot list.",
+    "found": "[client] Fixed on design/oc-provider: reschedule uses a date picker and a time picker (AppointmentDetailScreen.tsx). No endpoint lists free slots of an existing appointment. Before: Reschedule asks the doctor to type date and time as text (YYYY-MM-DD, HH:mm); no picker or slot list.",
     "suspect": "works"
   },
   {

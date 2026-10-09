@@ -2,16 +2,6 @@
   {
     "batch": "provider",
     "app": "provider-app",
-    "screen": "CatalogManagerTab",
-    "element": "Edit",
-    "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
-    "line": 547,
-    "found": "[client] Button \"Edit\" only shows a message without sending a request.",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": "provider",
-    "app": "provider-app",
     "screen": "RadiologyHome",
     "element": "API GET /radiology/provider/inbox",
     "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
