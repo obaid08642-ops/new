@@ -3039,7 +3039,7 @@
     "confirmComplete": "Confirm that this session is completed?",
     "completeFailed": "The session could not be completed.",
     "connectionFailed": "Could not connect. Please try again.",
-    "congrats": "Congratulations on completing session 4!",
+    "congrats": "Session completed. Well done!",
     "programs": "Programs",
     "progress": "Progress",
     "ringLabel": "{done} of {total} sessions",

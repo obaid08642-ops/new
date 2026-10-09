@@ -15,6 +15,9 @@ export type DiagnosticBooking = {
   locationType?: string;
   scanNameAr?: string;
   scanNameEn?: string;
+  /** The first test of a lab booking (items[0].name_ar / name_en). */
+  testNameAr?: string;
+  testNameEn?: string;
   medicalReferralRequired?: boolean;
   hasReport?: boolean;
 };
@@ -49,6 +52,8 @@ function bookingFrom(value: unknown): DiagnosticBooking | null {
     locationType: text(record, ["location_type", "delivery_mode"]),
     scanNameAr: text(record, ["scan_name_ar"]),
     scanNameEn: text(record, ["scan_name_en"]),
+    testNameAr: text(asRecord(Array.isArray(record.items) ? record.items[0] : null) ?? {}, ["name_ar"]),
+    testNameEn: text(asRecord(Array.isArray(record.items) ? record.items[0] : null) ?? {}, ["name_en"]),
     medicalReferralRequired: typeof record.medical_referral_required === "boolean" ? record.medical_referral_required : undefined,
     hasReport: (Array.isArray(record.reports) && record.reports.length > 0) || (typeof record.signed_report_pdf_url === "string" && record.signed_report_pdf_url.trim().length > 0),
   };
