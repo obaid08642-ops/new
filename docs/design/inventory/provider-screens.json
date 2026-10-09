@@ -1,5 +1,5 @@
 {
- "commit": "c3e6bd42",
+ "commit": "8662db4d",
  "routes": [
   {
    "app": "provider-app",
@@ -355,7 +355,7 @@
      "line": 26,
      "file": "provider-app/src/screens/shared/blueprint/NurseChecklistConsole.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:373"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:375"
     }
    ],
    "files": 9,
@@ -414,7 +414,7 @@
      "line": 46,
      "file": "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:130"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:137"
     },
     {
      "method": "POST",
@@ -424,7 +424,7 @@
      "line": 127,
      "file": "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:211"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:218"
     },
     {
      "method": "POST",
@@ -434,7 +434,7 @@
      "line": 112,
      "file": "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:210"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:217"
     },
     {
      "method": "POST",
@@ -444,7 +444,7 @@
      "line": 96,
      "file": "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:209"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:216"
     }
    ],
    "files": 9,
@@ -2930,7 +2930,7 @@
      "line": 21,
      "file": "provider-app/src/screens/doctor/doctor/PreVisitChatScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:423"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:425"
     },
     {
      "method": "POST",
@@ -2940,7 +2940,7 @@
      "line": 32,
      "file": "provider-app/src/screens/doctor/doctor/PreVisitChatScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:411"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:413"
     }
    ],
    "files": 9,
@@ -3480,7 +3480,7 @@
      "line": 22,
      "file": "provider-app/src/screens/facility/FacilityInternalChatScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:142"
+     "backend": "backend/src/modules/chat/chat.module.ts:84"
     },
     {
      "method": "GET",
@@ -3490,7 +3490,7 @@
      "line": 37,
      "file": "provider-app/src/screens/facility/FacilityInternalChatScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:174"
+     "backend": "backend/src/modules/chat/chat.module.ts:116"
     },
     {
      "method": "POST",
@@ -3500,7 +3500,7 @@
      "line": 55,
      "file": "provider-app/src/screens/facility/FacilityInternalChatScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:185"
+     "backend": "backend/src/modules/chat/chat.module.ts:127"
     }
    ],
    "files": 9,
@@ -5096,7 +5096,7 @@
      "line": 507,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:276"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:278"
     },
     {
      "method": "POST",
@@ -5106,7 +5106,7 @@
      "line": 518,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:283"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:285"
     }
    ],
    "files": 9,
@@ -5141,7 +5141,7 @@
      "line": 666,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:311"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:313"
     },
     {
      "method": "GET",
@@ -5151,7 +5151,7 @@
      "line": 656,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:377"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:379"
     }
    ],
    "files": 9,
@@ -5186,7 +5186,7 @@
      "line": 1153,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:174"
+     "backend": "backend/src/modules/chat/chat.module.ts:116"
     },
     {
      "method": "POST",
@@ -5196,7 +5196,7 @@
      "line": 1168,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:185"
+     "backend": "backend/src/modules/chat/chat.module.ts:127"
     },
     {
      "method": "POST",
@@ -5206,7 +5206,7 @@
      "line": 1140,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:164"
+     "backend": "backend/src/modules/chat/chat.module.ts:106"
     }
    ],
    "files": 9,
@@ -5371,7 +5371,7 @@
      "line": 231,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:304"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:306"
     },
     {
      "method": "POST",
@@ -5647,7 +5647,7 @@
      "line": 434,
      "file": "provider-app/src/screens/nursing/NursingDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:373"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:375"
     },
     {
      "method": "POST",
@@ -5722,7 +5722,7 @@
      "line": 1499,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:131"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:138"
     },
     {
      "method": "GET",
@@ -5732,7 +5732,7 @@
      "line": 1478,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:132"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:139"
     },
     {
      "method": "POST",
@@ -5742,7 +5742,7 @@
      "line": 1488,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:133"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:140"
     }
    ],
    "files": 9,
@@ -5854,7 +5854,7 @@
      "line": 898,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:74"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:81"
     },
     {
      "method": "GET",
@@ -5864,7 +5864,7 @@
      "line": 916,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:78"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:85"
     },
     {
      "method": "POST",
@@ -5874,7 +5874,7 @@
      "line": 925,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:85"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:92"
     }
    ],
    "files": 9,
@@ -5909,7 +5909,7 @@
      "line": 1715,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:270"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:277"
     },
     {
      "method": "GET",
@@ -5919,7 +5919,7 @@
      "line": 1720,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:271"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:278"
     },
     {
      "method": "POST",
@@ -5929,7 +5929,7 @@
      "line": 1737,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:274"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:281"
     }
    ],
    "files": 9,
@@ -5975,7 +5975,7 @@
      "line": 242,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:207"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:214"
     },
     {
      "method": "POST",
@@ -5985,7 +5985,7 @@
      "line": 297,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:215"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:222"
     }
    ],
    "files": 10,
@@ -6020,7 +6020,7 @@
      "line": 38,
      "file": "provider-app/src/screens/pharmacy/PharmacyInsuranceDecision.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:74"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:81"
     },
     {
      "method": "GET",
@@ -6030,7 +6030,7 @@
      "line": 44,
      "file": "provider-app/src/screens/pharmacy/PharmacyInsuranceDecision.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:78"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:85"
     },
     {
      "method": "POST",
@@ -6040,7 +6040,7 @@
      "line": 158,
      "file": "provider-app/src/screens/pharmacy/PharmacyInsuranceDecision.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:91"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:98"
     }
    ],
    "files": 9,
@@ -6134,7 +6134,7 @@
      "line": 1781,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:95"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:102"
     },
     {
      "method": "PUT",
@@ -6144,7 +6144,7 @@
      "line": 1820,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:96"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:103"
     },
     {
      "method": "POST",
@@ -6189,7 +6189,7 @@
      "line": 1265,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:130"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:137"
     }
    ],
    "files": 9,
@@ -6699,7 +6699,7 @@
      "line": 128,
      "file": "provider-app/src/screens/shared/shared/ChatSystem.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:396"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:398"
     },
     {
      "method": "POST",
@@ -6709,7 +6709,7 @@
      "line": 147,
      "file": "provider-app/src/screens/shared/shared/ChatSystem.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:400"
+     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:402"
     },
     {
      "method": "GET",
@@ -6719,7 +6719,7 @@
      "line": 42,
      "file": "provider-app/src/screens/shared/shared/ChatSystem.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:142"
+     "backend": "backend/src/modules/chat/chat.module.ts:84"
     },
     {
      "method": "POST",
@@ -8000,7 +8000,7 @@
      "line": 322,
      "file": "provider-app/src/screens/shared/RealScreensExtended.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:298"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:305"
     },
     {
      "method": "POST",
@@ -8010,7 +8010,7 @@
      "line": 335,
      "file": "provider-app/src/screens/shared/RealScreensExtended.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:297"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:304"
     }
    ],
    "files": 9,
