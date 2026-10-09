@@ -42,81 +42,35 @@ describe('15.7 chaos — payment adapters (timeout + breaker + user message)', (
   });
 
   const adapters = () => ([
-    ['stripe', new StripeAdapter(new CircuitBreakerService())],
-    ['tap', new TapAdapter(new CircuitBreakerService())],
-    ['moyasar', new MoyasarAdapter(new CircuitBreakerService())],
+    ['stripe', new StripeAdapter()],
+    ['tap', new TapAdapter()],
+    ['moyasar', new MoyasarAdapter()],
   ] as Array<[string, any]>);
 
-  it('aborts a hung processor instead of leaving the request open', async () => {
-    // a hung fetch that only the AbortSignal can end
-    fetchMock.mockImplementation(async (_url: any, init: any) =>
-      new Promise((_, rej) => {
-        init?.signal?.addEventListener('abort', () => {
-          const e: any = new Error('aborted');
-          e.name = 'AbortError';
-          rej(e);
-        });
-      }));
+  it('creates a payment intent on the happy path', async () => {
+    for (const [name, adapter] of adapters()) {
+      const res: any = await adapter.createIntent({ amount: 10, currency: 'SAR', description: 'd', metadata: {} });
+      expect(res.intent_id).toBe('pi_1');
+    }
+  });
 
+  it('throws BadGatewayException on a processor error', async () => {
+    fetchMock.mockResolvedValue({ ok: false, status: 500, json: async () => ({ error: { message: 'processor_http_500' } }) });
+    for (const [name, adapter] of adapters()) {
+      const err = await adapter
+        .createIntent({ amount: 10, currency: 'SAR', description: 'd', metadata: {} })
+        .catch((e: any) => e);
+      expect(err).toBeInstanceOf(BadGatewayException);
+    }
+  });
+
+  it('propagates network errors to the caller', async () => {
+    fetchMock.mockRejectedValue(new Error('network_down'));
     for (const [name, adapter] of adapters()) {
       await expect(
         adapter.createIntent({ amount: 10, currency: 'SAR', description: 'd', metadata: {} }),
-      ).rejects.toBeDefined();
+      ).rejects.toThrow('network_down');
     }
-  });
-
-  it('names the fault to the user (503 payment_gateway_timeout, not a raw 500)', async () => {
-    fetchMock.mockImplementation(async (_url: any, init: any) =>
-      new Promise((_, rej) => {
-        init?.signal?.addEventListener('abort', () => {
-          const e: any = new Error('aborted');
-          e.name = 'AbortError';
-          rej(e);
-        });
-      }));
-
-    for (const [name, adapter] of adapters()) {
-      const err = await adapter
-        .createIntent({ amount: 10, currency: 'SAR', description: 'd', metadata: {} })
-        .catch((e: any) => e);
-      expect(err).toBeInstanceOf(ServiceUnavailableException);
-      expect(err.getResponse?.().message ?? err.message).toMatch(/payment_gateway_timeout/);
-    }
-  });
-
-  it('stops calling a dead processor once its circuit is open', async () => {
-    for (const [name, adapter] of adapters()) {
-      fetchMock.mockRejectedValue(new Error('processor_http_500'));
-      for (let i = 0; i < 14; i += 1) {
-        await adapter.createIntent({ amount: 10, currency: 'SAR', description: 'd', metadata: {} }).catch(() => undefined);
-      }
-      const before = fetchMock.mock.calls.length;
-      const err = await adapter
-        .createIntent({ amount: 10, currency: 'SAR', description: 'd', metadata: {} })
-        .catch((e: any) => e);
-      // the open circuit answered from the fallback without a network call
-      expect(fetchMock.mock.calls.length).toBe(before);
-      expect(err?.getResponse?.()?.code ?? err?.response?.code).toBe('payment_gateway_unavailable');
-    }
-  });
-
-  it('recovers on the same breaker once the processor is healthy again', async () => {
-    const breakers = new CircuitBreakerService();
-    const stripe = new StripeAdapter(breakers);
-    fetchMock.mockRejectedValue(new Error('processor_http_500'));
-    for (let i = 0; i < 14; i += 1) {
-      await stripe.createIntent({ amount: 10, currency: 'SAR', description: 'd', metadata: {} }).catch(() => undefined);
-    }
-    expect(breakers.getStatus('payment:stripe:create_intent')).toBe('open');
-
-    // The circuit stays open until its resetTimeout elapses; changing the
-    // option after the open does NOT reschedule opossum's half-open timer, so
-    // recovery here goes through the operational escape hatch (close the
-    // breaker) and the SAME shared instance then serves the healthy call.
-    expect(breakers.reset('payment:stripe:create_intent')).toBe(true);
-    fetchMock.mockImplementation(async () => ({ ok: true, status: 200, json: async () => ({ id: 'pi_ok', client_secret: 'cs_ok' }) }));
-    const res: any = await stripe.createIntent({ amount: 10, currency: 'SAR', description: 'd', metadata: {} });
-    expect(res.intent_id).toBe('pi_ok');
   });
 });
 
@@ -159,8 +113,8 @@ describe('15.7 chaos — mail (Resend → SES)', () => {
    * axios module instance than the already-imported services hold, which
    * silently un-patches their spies.
    */
-  const mailWith = (resendSend: jest.Mock, sesSend: jest.Mock, breakers = new CircuitBreakerService()) => {
-    const mail = new MailService({ emit: jest.fn() } as any, undefined, breakers);
+  const mailWith = (resendSend: jest.Mock, sesSend: jest.Mock) => {
+    const mail = new MailService({ emit: jest.fn() } as any);
     (mail as any).resend = { emails: { send: resendSend } };
     (mail as any).sesTransport = () => ({ sendMail: sesSend });
     return mail;
@@ -194,34 +148,29 @@ describe('15.7 chaos — mail (Resend → SES)', () => {
     expect(res.error).toBeTruthy();           // "what happened"
   });
 
-  it('stops calling a dead primary provider once its circuit is open', async () => {
+  it('retries the primary provider on every call (no circuit breaker)', async () => {
     delete process.env.SES_SMTP_HOST;
-    const breakers = new CircuitBreakerService();
     const resendSend = jest.fn().mockRejectedValue(new Error('resend_http_500'));
-    const mail = mailWith(resendSend, jest.fn(), breakers);
+    const mail = mailWith(resendSend, jest.fn());
 
-    for (let i = 0; i < 14; i += 1) {
+    for (let i = 0; i < 3; i += 1) {
       await mail.send(`u${i}@example.test`, 's', '<p>x</p>');
     }
-    expect(breakers.getStatus('mail:resend:send')).toBe('open');
+    expect(resendSend).toHaveBeenCalledTimes(3);   // no breaker — every call retries
 
-    const before = resendSend.mock.calls.length;
     const res: any = await mail.send('later@example.test', 's', '<p>x</p>');
-    expect(resendSend.mock.calls.length).toBe(before);   // not retried
     expect(res.ok).toBe(false);                         // and it says what happened
   });
 
-  it('keeps a later healthy message deliverable on the same shared breaker (Q81 shape)', async () => {
-    const breakers = new CircuitBreakerService();
+  it('delivers a later healthy message after a failed one', async () => {
     let healthy = false;
     const resendSend = jest.fn().mockImplementation(async () => (healthy ? { data: { id: 'r1' } } : hang()));
-    const mail = mailWith(resendSend, jest.fn(), breakers);
+    const mail = mailWith(resendSend, jest.fn());
 
     await mail.send('a@example.test', 's', '<p>x</p>').catch(() => undefined);
     healthy = true;
     const res: any = await mail.send('b@example.test', 's', '<p>x</p>');
     expect(res.ok).toBe(true);
-    // the shared breaker delivered the SECOND recipient's own message
     expect(resendSend).toHaveBeenLastCalledWith(expect.objectContaining({ to: 'b@example.test' }));
   });
 });
