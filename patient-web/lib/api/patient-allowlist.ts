@@ -75,6 +75,7 @@ const patientReadRoutes = [
   new RegExp("^/chat/threads$"),
   new RegExp(`^/chat/threads/${threadId}$`, "i"),
   new RegExp(`^/chat/threads/${threadId}/messages\\?limit=50$`, "i"),
+  new RegExp(`^/chat/threads/${threadId}/permissions$`, "i"),
   // The proxy tests the percent-encoded query: a 120-character query is at most 1440 encoded characters (12 per astral character).
   new RegExp("^/home/search\\?q=[^&]{1,1440}$", "i"),
   new RegExp("^/support/faqs$", "i"),

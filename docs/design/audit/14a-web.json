@@ -47,7 +47,9 @@
       "elements": [
         ["Message activity (type and time only)", "GET /chat/threads/:id and /messages, unchanged privacy rule: no text, names or attachments", "ok"],
         ["Emergency line", "tel:997 on every thread", "ok"],
-        ["Read-only with the follow-up button", "thread.is_active false from the server; the doctor id comes from GET /care/appointments/:booking_id", "gap"],
+        ["Window banner (state + time left)", "GET /chat/threads/:id/permissions status_code, remaining_hours (server-side, allowlisted)", "ok"],
+        ["Emergency line link", "tel: from permissions emergency_line (digits only), else 997", "ok"],
+        ["Read-only notice and follow-up button", "permissions read_only + book_follow_up.doctor_id into /consultations/book/[id]?followUp=<booking id>; ids only; falls back to is_active and GET /care/appointments/:id when permissions fails", "ok"],
         ["Composer by booking type", "the web page shows activity only and has no composer", "hidden"],
         ["Back link", "to the booking (or the bookings list)", "ok"]
       ], "notes": [] },
@@ -58,12 +60,9 @@
       "elements": [["Directions button for a clinic visit", "now opens booking-status?view=location", "ok"]], "notes": [] }
   ],
   "needsReview": [
-    { "route": "/chat/[threadId]", "element": "Window, read-only flag and allowed composer parts", "kind": "backend",
-      "note": "The thread answer has no window, read-only flag or allowed-parts field (the server only refuses a send after consultation_followup_hours, 24 h by default, not 72 h); the page follows is_active.",
-      "file": "patient-web/app/[locale]/chat/[threadId]/page.tsx", "line": 52, "backend": "backend/src/modules/chat/chat.service.ts:234" },
     { "route": "/chat/[threadId]", "element": "No composer on the web thread", "kind": "owner",
       "note": "The web thread shows message activity only (no text, no sending) by an earlier privacy decision, so text, photo, file, voice note and the call of decision 24 cannot be offered here; the app has the composer.",
-      "file": "patient-web/app/[locale]/chat/[threadId]/page.tsx", "line": 67 },
+      "file": "patient-web/app/[locale]/chat/[threadId]/page.tsx", "line": 99 },
     { "route": "/appointments/[appointmentId]", "element": "Follow-up link to the original appointment", "kind": "backend",
       "note": "POST /care/appointments takes no field for the original appointment, so a follow-up is only a normal booking with the doctor pre-selected; the booking page ignores ?followUp=.",
       "file": "patient-web/app/[locale]/appointments/[appointmentId]/page.tsx", "line": 94 },

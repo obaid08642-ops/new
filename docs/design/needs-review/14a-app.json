@@ -3,19 +3,9 @@
     "batch": 14,
     "app": "patient-app",
     "screen": "/consultations/chat-with-doctor",
-    "element": "Window, read-only flag and allowed composer parts",
-    "file": "patient-app/app/consultations/chat-with-doctor.tsx",
-    "line": 127,
-    "found": "[backend] The thread answer has no window, read-only flag or allowed-parts field (the server only refuses a send after consultation_followup_hours, 24 h by default, not 72 h); the screen follows is_active and the 403 and the booking type. (backend: backend/src/modules/chat/chat.service.ts:234)",
-    "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": 14,
-    "app": "patient-app",
-    "screen": "/consultations/chat-with-doctor",
     "element": "Voice note",
     "file": "patient-app/app/consultations/chat-with-doctor.tsx",
-    "line": 298,
+    "line": 318,
     "found": "[owner] Online consultations should offer a voice note (decision 24) but the app has no recording flow; not built in a design batch.",
     "suspect": "Owner decision."
   },
@@ -25,7 +15,7 @@
     "screen": "/consultations/chat-with-doctor",
     "element": "Call camera and microphone on/off",
     "file": "patient-app/app/consultations/chat-with-doctor.tsx",
-    "line": 300,
+    "line": 320,
     "found": "[owner] The camera and microphone switch belongs to the calls decision; the button only opens the existing waiting room.",
     "suspect": "Owner decision."
   },

@@ -5,6 +5,7 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { AppHeader, Avatar, Button, Screen, StickyFooter } from '../../../packages/ui-native/src';
 import { goBack, visitMode, type VisitMode } from '../../src/components/consult/ConsultKit';
 import { openFollowUp } from '../../src/components/consult/AppointmentSections';
+import { composerRules, followUpTarget, parseThreadPermissions, windowBanner, type ThreadPermissions } from '../../src/components/consult/chatPermissions';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { useSocket } from '../../src/context/SocketContext';
@@ -66,7 +67,7 @@ const kindOf = (type?: string): ChatMsg['kind'] => (type === 'image' || type ===
 
 export default function ChatWithDoctorScreen() {
   const { doctorId, appointmentId } = useLocalSearchParams();
-  const { theme, t, c, flow, lang, dir, k } = useScreenUi();
+  const { theme, t, c, flow, lang, dir, k, num } = useScreenUi();
   const locale = dateLocaleFor(lang);
   const stamp = (at?: string | number | Date) => new Date(at ?? Date.now()).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
 
@@ -81,6 +82,8 @@ export default function ChatWithDoctorScreen() {
   const [mode, setMode] = useState<VisitMode | null>(null);
   const [readOnly, setReadOnly] = useState(false);
   const [attaching, setAttaching] = useState(false);
+  // GET /chat/threads/:id/permissions: the server's rules for this thread (decision 24); null until it answers or if it fails.
+  const [perms, setPerms] = useState<ThreadPermissions | null>(null);
   const scroller = useRef<ScrollView>(null);
 
   // LJ-06: chat is always per booking — the appointment's booking thread, not a
@@ -91,6 +94,7 @@ export default function ChatWithDoctorScreen() {
     let cancelled = false;
     setBlocked('');
     setReadOnly(false);
+    setPerms(null);
     if (!appointmentId) {
       setDocData(null);
       setMessages([]);
@@ -127,6 +131,12 @@ export default function ChatWithDoctorScreen() {
         if (thread?.is_active === false) setReadOnly(true);
         setThreadId(tid);
         joinThread(tid);
+        apiFetch<unknown>(`/chat/threads/${encodeURIComponent(tid)}/permissions`)
+          .then((p) => {
+            const parsed = parseThreadPermissions(p);
+            if (!cancelled && parsed) setPerms(parsed);
+          })
+          .catch((e) => logError('consultations:chat:permissions', e));
         return apiFetch<{ data?: ServerMsg[] } | ServerMsg[]>(`/chat/threads/${tid}/messages`);
       })
       .then((mres) => {
@@ -184,6 +194,11 @@ export default function ChatWithDoctorScreen() {
     const text = String(e instanceof Error ? e.message : '');
     if (!text.startsWith('AUTH_ERROR_403')) return false;
     setReadOnly(true);
+    if (threadId) {
+      apiFetch<unknown>(`/chat/threads/${encodeURIComponent(threadId)}/permissions`)
+        .then((p) => setPerms(parseThreadPermissions(p)))
+        .catch((e) => logError('consultations:chat:permissions', e));
+    }
     setBlocked(text.replace(/^AUTH_ERROR_403:\s*/, ''));
     return true;
   };
@@ -275,6 +290,11 @@ export default function ChatWithDoctorScreen() {
   const name = pickLocalized(docData?.name_ar, docData?.name_en) || docData?.name || '';
   const doctorRef = String(doctorId || '');
   const apptRef = String(appointmentId || '');
+  const rules = composerRules(perms, mode === 'online');
+  const isReadOnly = readOnly || rules.readOnly;
+  const followUp = followUpTarget(perms, doctorRef, apptRef);
+  const banner = windowBanner(perms);
+  const emergencyHref = `tel:${perms?.emergencyLine ?? '997'}`;
 
   const header = (
     <View style={COLUMN}>
@@ -287,17 +307,17 @@ export default function ChatWithDoctorScreen() {
   const footer = (
     <StickyFooter theme={theme} direction={dir}>
       <View style={{ ...COLUMN, gap: 8 }}>
-        {readOnly ? (
+        {isReadOnly ? (
           <>
             <Text accessibilityRole="alert" style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.chat.readOnly')}</Text>
-            {doctorRef && apptRef ? <Button label={k('consult.rx.followUp')} size="md" fullWidth startIcon="calendar-dots" onPress={() => openFollowUp(doctorRef, apptRef)} theme={theme} testID="chat-follow-up" /> : null}
+            {followUp ? <Button label={k('consult.rx.followUp')} size="md" fullWidth startIcon="calendar-dots" onPress={() => openFollowUp(followUp.doctorId, followUp.appointmentId)} theme={theme} testID="chat-follow-up" /> : null}
           </>
         ) : (
           <>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              {iconBtn(k('consult.chat.photo'), 'image', () => void attach('image'), 'chat-attach-image')}
-              {iconBtn(k('consult.chat.file'), 'file-text', () => void attach('file'), 'chat-attach-file')}
-              {mode === 'online' ? iconBtn(k('consult.chat.callDoctor'), 'headset', () => router.push({ pathname: '/consultations/virtual-waiting-room', params: { appointmentId: apptRef } } as unknown as Href), 'chat-call') : null}
+              {rules.canAttach ? iconBtn(k('consult.chat.photo'), 'image', () => void attach('image'), 'chat-attach-image') : null}
+              {rules.canAttach ? iconBtn(k('consult.chat.file'), 'file-text', () => void attach('file'), 'chat-attach-file') : null}
+              {rules.canCall ? iconBtn(k('consult.chat.callDoctor'), 'headset', () => router.push({ pathname: '/consultations/virtual-waiting-room', params: { appointmentId: apptRef } } as unknown as Href), 'chat-call') : null}
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <TextInput
@@ -306,12 +326,12 @@ export default function ChatWithDoctorScreen() {
                 placeholder={k('consult.chat.placeholder')}
                 placeholderTextColor={c.text.tertiary}
                 value={msg}
-                editable={!blocked}
+                editable={!blocked && rules.canType}
                 onChangeText={handleTyping}
                 onSubmitEditing={() => void send()}
                 returnKeyType="send"
               />
-              <Button label={k('consult.chat.send')} size="md" disabled={Boolean(blocked) || !msg.trim()} onPress={() => void send()} theme={theme} testID="chat-send" />
+              <Button label={k('consult.chat.send')} size="md" disabled={Boolean(blocked) || !rules.canType || !msg.trim()} onPress={() => void send()} theme={theme} testID="chat-send" />
             </View>
           </>
         )}
@@ -332,12 +352,18 @@ export default function ChatWithDoctorScreen() {
         <Pressable
           accessibilityRole="link"
           accessibilityLabel={k('consult.chat.emergencyCall')}
-          onPress={() => void Linking.openURL('tel:997')}
+          onPress={() => void Linking.openURL(emergencyHref)}
           testID="chat-emergency"
-          style={{ minHeight: 44, marginHorizontal: 16, marginBottom: 8, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 16, backgroundColor: c.status.danger.bg, justifyContent: 'center' }}
+          style={{ minHeight: 44, marginHorizontal: 16, marginBottom: 8, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 16, backgroundColor: c.status.info.bg, justifyContent: 'center' }}
         >
-          <Text style={{ ...scale(t, 'meta', 'bold'), color: c.status.danger.fg, ...flow }}>{k('consult.chat.emergency')}</Text>
+          <Text style={{ ...scale(t, 'meta', 'bold'), color: c.status.info.fg, ...flow }}>{k('consult.chat.emergency')}</Text>
         </Pressable>
+        {banner ? (
+          <Text accessibilityRole="summary" testID="chat-window-banner" style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, marginHorizontal: 16, marginBottom: 8, ...flow }}>
+            {k(banner.statusKey)}
+            {banner.remaining ? ` · ${k(banner.remaining.key, { count: num(banner.remaining.count) })}` : ''}
+          </Text>
+        ) : null}
         {blocked ? (
           <View accessibilityRole="alert" style={{ marginHorizontal: 16, padding: 12, borderRadius: 16, backgroundColor: c.status.warning.bg }}>
             <Text style={{ ...scale(t, 'meta', 'regular'), color: c.status.warning.fg, ...flow }}>{blocked}</Text>

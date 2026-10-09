@@ -901,7 +901,15 @@
     "emergency": "Sa emergency, tumawag agad sa 997. Hindi para sa emergency ang chat na ito.",
     "emergencyCall": "Tawagan ang 997",
     "closed": "Sarado na ang usapang ito. Mababasa mo ito pero hindi ka na makakasagot.",
-    "bookFollowUp": "Mag-book ng follow-up"
+    "bookFollowUp": "Mag-book ng follow-up",
+    "window": {
+      "upcoming": "Hindi pa nagsisimula ang konsultasyon",
+      "active": "Aktibo ang konsultasyon",
+      "follow_up": "Panahon ng follow-up",
+      "closed": "Pagbasa lamang",
+      "hoursLeft": "{count} oras na natitira",
+      "minutesLeft": "{count} minuto na natitira"
+    }
   },
   "Sleep": {
     "eyebrow": "Sleep history",
