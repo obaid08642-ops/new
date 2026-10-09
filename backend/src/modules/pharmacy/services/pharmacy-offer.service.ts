@@ -6,6 +6,7 @@ import * as crypto from 'crypto';
 import { PharmacyAllocationState, PharmacyOrderState } from '../schemas/pharmacy.schema';
 import { EventBusService } from '../../events/event-bus.service';
 import { BusinessRulesService } from '../../business-rules/business-rules.module';
+import { PharmacyNotificationService } from './pharmacy-notification.service';
 
 const OFFER_TTL_MS = 10 * 60_000;
 const ACTIVE_PHARMACY_STATUSES = ['approved', 'active'];
@@ -41,6 +42,7 @@ export class PharmacyOfferService {
     @InjectModel('ProviderAccount') private readonly accounts: Model<any>,
     private readonly bus: EventBusService,
     @Optional() private readonly pricing?: BusinessRulesService,
+    @Optional() private readonly pharmacyNotif?: PharmacyNotificationService,
   ) {}
 
   private async assertActivePharmacy(user: any) {
@@ -52,6 +54,40 @@ export class PharmacyOfferService {
     }).lean();
     if (!account) throw new ForbiddenException('approved_pharmacy_account_required');
     return account;
+  }
+
+  /**
+   * P3 "My offers": this pharmacy's offers with the state it sees: draft, sent, chosen, not_chosen
+   * (the patient picked another pharmacy), expired or cancelled, and the quote expiry.
+   */
+  async listForPharmacy(user: any, status?: string) {
+    await this.assertActivePharmacy(user);
+    const rows: any[] = await this.offers.find({ pharmacy_account_id: { $eq: user.id } }, { _id: 0, __v: 0, expiry_claim: 0 })
+      .sort({ updatedAt: -1 }).limit(200).lean();
+    const orderIds = [...new Set(rows.map((o) => o.order_id))];
+    const orders: any[] = orderIds.length
+      ? await this.orders.find({ id: { $in: orderIds } }, { _id: 0, id: 1, selected_offer_id: 1, status: 1 }).lean()
+      : [];
+    const byId = new Map(orders.map((o) => [o.id, o]));
+    const now = Date.now();
+    const view = (o: any) => {
+      const order = byId.get(o.order_id);
+      if (o.status === 'draft') return 'draft';
+      if (o.status === 'selected') return 'chosen';
+      if (o.status === 'cancelled') return 'cancelled';
+      if (o.status === 'expired') return 'expired';
+      if (order?.selected_offer_id && order.selected_offer_id !== o.id) return 'not_chosen';
+      if (o.quote_expires_at && new Date(o.quote_expires_at).getTime() <= now) return 'expired';
+      return 'sent';
+    };
+    const out = rows.map((o) => ({
+      id: o.id, order_id: o.order_id, version: o.version, status: o.status, view_status: view(o),
+      totals: o.totals, items_count: Array.isArray(o.items) ? o.items.length : 0,
+      quote_expires_at: o.quote_expires_at, estimated_preparation_minutes: o.estimated_preparation_minutes ?? null,
+      allocation_id: o.allocation_id ?? null, created_at: o.createdAt, updated_at: o.updatedAt,
+    }));
+    const wanted = typeof status === 'string' && status.trim() ? status.trim() : null;
+    return wanted ? out.filter((o) => o.view_status === wanted) : out;
   }
 
   private async loadBroadcastForPharmacy(user: any, orderId: string) {
@@ -347,7 +383,7 @@ export class PharmacyOfferService {
             const replayOffer: any = await this.offers.findOne({ id: offerId }).session(session);
             const replayAllocation: any = await this.allocations.findOne({ id: order.selected_allocation_id }).session(session);
             if (!replayOffer || !replayAllocation) throw new BadRequestException('selection_replay_incomplete');
-            selected = { offer: replayOffer, allocation: replayAllocation, next_status: order.status };
+            selected = { offer: replayOffer, allocation: replayAllocation, next_status: order.status, replay: true };
             return;
           }
           throw new BadRequestException('another_offer_already_selected');
@@ -416,6 +452,8 @@ export class PharmacyOfferService {
         type: 'pharmacy.offer.selected', entity_type: 'pharmacy_offer', entity_id: offerId,
         actor_account_id: user.id, actor_role: 'patient', reason_code: 'patient_explicit_selection', meta: { order_id: orderId },
       });
+      // P5: tell the chosen pharmacy at once (push + in-app); best effort, never blocks the patient's choice.
+      if (!selected.replay) await this.pharmacyNotif?.notifyPharmacyNewAllocation(selected.allocation);
       return { offer: this.patientDto(selected.offer), allocation_id: selected.allocation.id, next_status: selected.next_status };
     } finally {
       await session.endSession();

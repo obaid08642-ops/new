@@ -1,3 +1,4 @@
+import { isOnlineConsultation } from '../chat/consultation-window';
 import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { AccessToken } from 'livekit-server-sdk';
 import { randomUUID } from 'crypto';
@@ -179,6 +180,8 @@ export class LiveKitService {
     if (['CANCELLED', 'COMPLETED', 'RESCHEDULED', 'NO_SHOW'].includes(String(appt.status))) {
       throw new BadRequestException('appointment_not_active');
     }
+    // Decision 24: calls belong to online consultations only; a clinic or home visit has none.
+    if (!isOnlineConsultation(appt)) throw new BadRequestException('calls_only_for_online_consultations');
     const patientId = String(appt.patient_id || appt.user_id || '');
     // doctor_user_id is the account id doctors authenticate with; profile ids
     // (doctor_id) never match a caller id — it must come after account ids.

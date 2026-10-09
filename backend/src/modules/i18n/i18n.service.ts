@@ -299,6 +299,8 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'notif.order_created.title': { ar: 'تم إنشاء طلبك', en: 'Order Created', ur: 'آرڈر بن گیا' },
   'notif.order_created.body': { ar: 'جاري إرساله للصيدلية', en: 'Sending to pharmacy', ur: 'فارمیسی بھیج رہے ہیں' },
   'notif.new_order.title': { ar: 'طلب جديد', en: 'New Order', ur: 'نیا آرڈر' },
+  'pharmacy.new_allocation.title': { ar: 'تم اختيار عرضك', en: 'Your offer was chosen', ur: 'آپ کی پیشکش منتخب ہو گئی' },
+  'pharmacy.new_allocation.body': { ar: 'اختار المريض عرضك ({items_count} صنف). جهّز الطلب.', en: 'The patient chose your offer ({items_count} items). Prepare the order.', ur: 'مریض نے آپ کی پیشکش منتخب کی ({items_count} اشیاء)۔ آرڈر تیار کریں۔' },
   'notif.new_order.body': { ar: 'اضغط للعرض', en: 'Tap to view', ur: 'تھپکائیں' },
   'notif.order_accepted.title': { ar: 'تم قبول طلبك', en: 'Order Accepted', ur: 'آرڈر منظور' },
   'notif.order_accepted.body': { ar: 'الصيدلية تقوم بالتجهيز', en: 'Pharmacy is preparing', ur: 'تیار کر رہی ہے' },

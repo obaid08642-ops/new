@@ -267,6 +267,8 @@ export class HomeCareCompatController {
         procedure_notes: body?.procedure_notes, medication_administered: body?.medication_administered,
         consumables_used: body?.consumables_used, recommendations: body?.recommendations,
         follow_up_instructions: body?.follow_up_instructions,
+        // The patient's drawn signature (the provider app requires it to complete the visit); it was accepted but dropped.
+        ...(typeof body?.signature === 'string' && body.signature ? { patient_signature_base64: body.signature } : {}),
         ...(body?.complete ? { 'timers.completed_at': new Date() } : { 'timers.care_started_at': new Date() }),
       },
     });

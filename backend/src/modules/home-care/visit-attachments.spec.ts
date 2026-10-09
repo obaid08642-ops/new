@@ -41,4 +41,10 @@ describe('HomeCareCompatController visit-report attachments (N1)', () => {
       .rejects.toBeInstanceOf(ForbiddenException);
     expect(col.updateMany).not.toHaveBeenCalled();
   });
+
+  it('keeps the patient signature sent with the report', async () => {
+    const { controller, booking } = make([]);
+    await controller.visitReport(nurse, 'visit-1', { complete: true, signature: 'data:image/png;base64,AAAA' });
+    expect(booking.patient_signature_base64).toBe('data:image/png;base64,AAAA');
+  });
 });
