@@ -3160,5 +3160,7 @@
   "pharmacy.rx.viaUpload": "رفع",
   "pharmacy.rx.viaType": "كتابة الأسماء",
   "pharmacy.rx.zonePhoto": "صوّر الوصفة",
-  "pharmacy.rx.zoneUpload": "اختر الوصفة من صورك"
+  "pharmacy.rx.zoneUpload": "اختر الوصفة من صورك",
+  "consult.calls.videoCall": "مكالمة فيديو",
+  "consult.calls.voiceCall": "مكالمة صوتية"
 }

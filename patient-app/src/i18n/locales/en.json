@@ -3160,5 +3160,7 @@
   "pharmacy.rx.viaUpload": "Upload",
   "pharmacy.rx.viaType": "Type names",
   "pharmacy.rx.zonePhoto": "Photograph the prescription",
-  "pharmacy.rx.zoneUpload": "Choose the prescription from your photos"
+  "pharmacy.rx.zoneUpload": "Choose the prescription from your photos",
+  "consult.calls.videoCall": "Video call",
+  "consult.calls.voiceCall": "Voice call"
 }

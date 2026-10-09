@@ -32,7 +32,6 @@ interface ApprovalDetails {
 
 const str = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' ? String(v) : '');
 // The home-visit fee the screen has always added to the amount to pay (not sent by the server; see Needs review).
-const HOME_VISIT_FEE = 50;
 
 /**
  * The insurance step of a lab / radiology booking, two states of one screen: without `orderId` the upload form (prescription,
@@ -129,7 +128,7 @@ function ApprovalStatus() {
       if (!item.covered && optedInCashItems.includes(item.id || item.name)) hybridCashAdditions += item.price;
     }
   }
-  const finalTotalToPay = details ? details.copayAmount + hybridCashAdditions + (visitType === 'home' ? HOME_VISIT_FEE : 0) : 0;
+  const finalTotalToPay = details ? details.copayAmount + hybridCashAdditions : 0; // only server amounts, no invented home fee (needs-review issues 813, 626)
 
   const hero =
     status === 'full'
@@ -148,7 +147,7 @@ function ApprovalStatus() {
           size="lg"
           fullWidth
           label={k('diag.ins.payOwn')}
-          onPress={() => router.push({ pathname: '/diagnostics/checkout', params: { visitType, isInsurance: 'false', total: (details?.totalAmount ?? 0) + (visitType === 'home' ? HOME_VISIT_FEE : 0) } } as unknown as Href)}
+          onPress={() => router.push({ pathname: '/diagnostics/checkout', params: { visitType, isInsurance: 'false', total: details?.totalAmount ?? 0 } } as unknown as Href)}
         />
         <Button theme={theme} size="lg" fullWidth variant="outline" label={k('diag.ins.consult')} onPress={() => router.push('/consultations' as Href)} />
       </>
@@ -206,7 +205,6 @@ function ApprovalStatus() {
                 <View style={{ padding: 14, gap: 10 }}>
                   <AmountLine label={k('diag.ins.totalCost')} amount={details.totalAmount} />
                   <AmountLine label={k('diag.ins.covers', { pct: num(details.coveragePercent) })} amount={details.coveredAmount} success minus />
-                  {visitType === 'home' ? <AmountLine label={k('diag.ins.homeFee')} amount={HOME_VISIT_FEE} /> : null}
                   {hybridCashAdditions > 0 ? <AmountLine label={k('diag.ins.extraCash')} amount={hybridCashAdditions} /> : null}
                   <View style={{ height: 1, backgroundColor: c.border.hairline }} />
                   <AmountLine label={k('diag.ins.toPay')} amount={finalTotalToPay} strong />

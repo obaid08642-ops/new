@@ -3124,5 +3124,7 @@
   "pharmacy.rx.viaUpload": "اپ لوڈ",
   "pharmacy.rx.viaType": "نام لکھیں",
   "pharmacy.rx.zonePhoto": "نسخے کی تصویر لیں",
-  "pharmacy.rx.zoneUpload": "اپنی تصاویر میں سے نسخہ چنیں"
+  "pharmacy.rx.zoneUpload": "اپنی تصاویر میں سے نسخہ چنیں",
+  "consult.calls.videoCall": "ویڈیو کال",
+  "consult.calls.voiceCall": "وائس کال"
 }
