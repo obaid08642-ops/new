@@ -15,10 +15,12 @@ const NAV_SECTIONS: NavSection[] = [
     title: 'القيادة والمراقبة',
     items: [
       { href: '/admin/command-center', label: 'مركز القيادة الحي', permission: 'command.center.view' },
+      { href: '/admin/health-dashboard', label: 'لوحة صحة النظام', permission: 'command.center.view' },
       { href: '/admin/orders', label: 'دورة الطلبات', permission: 'order.read' },
       { href: '/admin/analytics-suite', label: 'التحليلات', permission: 'analytics.read' },
+      { href: '/admin/analytics', label: 'التحليلات الداخلية', permission: 'analytics.read' },
       { href: '/admin/reports', label: 'التقارير التشغيلية', permission: 'analytics.read' },
-      { href: '/admin/search', label: 'البحث الشامل', permission: 'users.view' },
+      { href: '/admin/search', label: 'البحث الشامل', permission: 'user.read' },
       { href: '/admin/fraud-monitoring', label: 'مراقبة الاحتيال' },
     ],
   },
@@ -43,6 +45,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/payouts', label: 'اعتمادات السحب' },
       { href: '/admin/returns', label: 'طلبات الإرجاع والاسترداد' },
       { href: '/admin/financial-ledger', label: 'دفتر الأستاذ المالي' },
+      { href: '/admin/commissions', label: 'العمولات والأستاذ', permission: 'finance.read' },
     ],
   },
   {
@@ -57,6 +60,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/search-intelligence', label: 'ذكاء وتحليلات البحث' },
       { href: '/admin/catalog-governance', label: 'حوكمة الكتالوج' },
       { href: '/admin/medicines-catalog', label: 'كتالوج الأدوية' },
+      { href: '/admin/shortage-reports', label: 'بلاغات نقص الأدوية', permission: 'catalog.read' },
       { href: '/admin/image-suggestions', label: 'اقتراحات صور الأدوية', permission: 'catalog.read' },
       { href: '/admin/catalog-manager', label: 'كتالوج الأشعة والتحاليل والتمريض' },
       { href: '/admin/price-override-audit', label: 'تدقيق أسعار الأدوية' },
@@ -75,6 +79,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: '/admin/rbac', label: 'الأدوار والصلاحيات', permission: 'rbac.manage' },
       { href: '/admin/system-ops', label: 'تشغيل النظام', permission: 'ops.queues.manage' },
+      { href: '/admin/notification-center', label: 'مركز الإشعارات والحملات', permission: 'ops.queues.manage' },
       { href: '/admin/scheduled-reports', label: 'التقارير المجدولة', permission: 'reports.schedule.manage' },
       { href: '/admin/audit-logs', label: 'سجل التدقيق' },
       { href: '/admin/security', label: 'الأمان ومفاتيح الدخول' },
