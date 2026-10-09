@@ -330,6 +330,8 @@ export class PaymentsService {
   }
 
   async createPaymentIntent(user: any, type: string, id: string, idempotencyKey: string, method?: string) {
+    // The booking id reaches queries as a plain string ($eq below), never an operator object from a request body.
+    if (typeof id !== 'string' || !id.trim()) throw new BadRequestException('booking_id_required');
     const requestKey = String(idempotencyKey || '').trim();
     if (!requestKey || requestKey.length > 128) throw new BadRequestException('idempotency_key_required');
     // Fail fast when no gateway is configured: never create a transaction record.
@@ -344,7 +346,7 @@ export class PaymentsService {
     }
     if (!booking) {
       const M = this.modelFor(type);
-      booking = await M.findOne({ id }).lean();
+      booking = await M.findOne({ id: { $eq: id } }).lean();
     }
     if (!booking) throw new NotFoundException('booking_not_found');
     if (governedPharmacy) {
@@ -380,7 +382,7 @@ export class PaymentsService {
     const normalizedMethod = method ? String(method).toLowerCase() : storedMethod;
     const allowedMethods = new Set([...CARD_METHODS, ...(storedMethod === 'insurance' ? ['insurance'] : [])]);
     if (!allowedMethods.has(normalizedMethod)) throw new BadRequestException('invalid_payment_method');
-    const existing: any = await this.txns.findOne({ booking_kind: kind, booking_id: id, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
+    const existing: any = await this.txns.findOne({ booking_kind: kind, booking_id: { $eq: id }, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
     if (existing) return this.publicTxn(existing);
 
     // Persist an active reservation before calling the PSP. The partial unique
@@ -391,7 +393,7 @@ export class PaymentsService {
       txn = await this.txns.create({ booking_kind: kind, booking_id: id, patient_id: booking.patient_id || booking.patient_account_id, amount, gateway: this.adapter.name, method: normalizedMethod, status: 'initiating', idempotency_key: requestKey });
     } catch (error: any) {
       if (error?.code === 11000) {
-        const active: any = await this.txns.findOne({ booking_kind: kind, booking_id: id, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
+        const active: any = await this.txns.findOne({ booking_kind: kind, booking_id: { $eq: id }, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
         if (active) return this.publicTxn(active);
       }
       throw error;
