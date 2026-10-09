@@ -10,7 +10,6 @@ export { BedManagementScreen } from './facility/BedManagementScreen';
 export { UnifiedScheduleScreen } from './facility/UnifiedScheduleScreen';
 export { QRCheckinScreen } from './facility/QRCheckinScreen';
 export { InsuranceClaimsHubScreen } from './facility/InsuranceClaimsHubScreen';
-export { FacilityFinancialScreen } from './facility/FacilityFinancialScreen';
 export { StaffAttendanceScreen } from './facility/StaffAttendanceScreen';
 export { SurgeryScheduleScreen } from './facility/SurgeryScheduleScreen';
 export { CredentialingScreen } from './facility/CredentialingScreen';

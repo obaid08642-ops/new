@@ -3,12 +3,10 @@
  *
  * 01. NursingDashboardNavigator — main navigator
  * 02. NursingHomeTab — stats + active visits + incoming orders
- * 03. NursingOrderDetail — accept/reject + patient info
+ * 03. NursingFieldOps (own file) — THE single home-visit flow: accept, transit, arrive, care, sign, complete
  * 04. VisitChecklist — per-visit tasks checklist
- * 05. DigitalCheckin — GPS + QR + Timer (start/end visit)
  * 06. CarePlan — long-term care plan for chronic patients
  * 07. ProgressNotes — daily nursing notes per patient
- * 08. VisitReport — generate post-visit report
  * 09. MedicalSupplies — request/track medical supplies
  * 10. Wallet via shared ProviderWalletScreen (governed withdrawals)
  * 11. NursingSettings — profile + schedule + services
@@ -36,13 +34,13 @@ import { SP, R, FS, FW, C } from '../../constants';
 import { useServicesCatalog } from '../../api/catalogs';
 
 import {
- PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
+ PromotionsDashboard, CreateCampaignScreen, 
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
  LiveOrderAlarmModal, CrmHub, RevenueInsights,
- SosDispatchScreen, GpsRouterScreen,
+ 
  NurseVisitConsole, NurseChecklistConsole
 } from '../shared/BlueprintScreens';
-import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderHomeStats, GlobalSystemSettings } from '../shared/SharedScreens';
+import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderProfileEditor, WithdrawalWorkflow, ProviderHomeStats, GlobalSystemSettings } from '../shared/SharedScreens';
 import { NotificationsCenterScreen, SecurityManagementScreen } from '../shared/RealScreens';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -170,7 +168,7 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
 
                <LiveOrderAlarmModal
                visible={alarmVisible}
-               onAccept={() => { setAlarmVisible(false); go('sos_dispatch'); }}
+               onAccept={() => { setAlarmVisible(false); setTab('orders'); }}
                onDecline={() => setAlarmVisible(false)}
                />
             </View>
@@ -178,12 +176,10 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
         }}
       </Stack.Screen>
 
-      <Stack.Screen name="order_detail">{({ navigation, route }: any) => <NursingFieldOps order={route.params?.param} onBack={() => navigation.goBack()} onRefresh={fetchJobs} />}</Stack.Screen>
+      <Stack.Screen name="order_detail">{({ navigation, route }: any) => <NursingFieldOps order={route.params?.param} onBack={() => navigation.goBack()} onRefresh={fetchJobs} onNavigate={(s: string, p?: unknown) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="checklist">{({ navigation, route }: any) => <VisitChecklist order={route.params?.param} onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
-      <Stack.Screen name="checkin">{({ navigation, route }: any) => <DigitalCheckin order={route.params?.param} onBack={() => navigation.goBack()} onRefresh={fetchJobs} />}</Stack.Screen>
       <Stack.Screen name="care_plan">{({ navigation, route }: any) => <CarePlan patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="progress">{({ navigation, route }: any) => <ProgressNotes patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
-      <Stack.Screen name="visit_report">{({ navigation, route }: any) => <VisitReport order={route.params?.param} onBack={() => navigation.goBack()} onRefresh={fetchJobs} />}</Stack.Screen>
       <Stack.Screen name="supplies">{({ navigation }: any) => <MedicalSupplies onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="nursing_services">{({ navigation }: any) => <NursingServicesSettings onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="nursing_pricing">{({ navigation }: any) => <NursingPricingSettings onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -191,23 +187,22 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
 
       <Stack.Screen name="promotions">{({ navigation }: any) => <PromotionsDashboard onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="create_promo">{({ navigation }: any) => <CreateCampaignScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-      <Stack.Screen name="web_config">{({ navigation }: any) => <ProfileWebConfig onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="web_config">{({ navigation }: any) => <ProviderProfileEditor role="nursing" initialSection="public" onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="subscriptions_ads">{({ navigation }: any) => <SubscriptionsAdsScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="affiliate">{({ navigation }: any) => <AffiliatePortal onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="reputation">{({ navigation }: any) => <ReputationHub onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="crm">{({ navigation }: any) => <CrmHub onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="revenue_insights">{({ navigation }: any) => <RevenueInsights onBack={() => navigation.goBack()} />}</Stack.Screen>
-      <Stack.Screen name="sos_dispatch">{({ navigation }: any) => <SosDispatchScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
-      <Stack.Screen name="gps_router">{({ navigation, route }: any) => <GpsRouterScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="nurse_visit">{({ navigation }: any) => <NurseVisitConsole onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="nurse_checklist">{({ navigation }: any) => <NurseChecklistConsole onBack={() => navigation.goBack()} />}</Stack.Screen>
-      <Stack.Screen name="profile_edit">{({ navigation }: any) => <NursingProfileEditScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="profile_edit">{({ navigation }: any) => <ProviderProfileEditor role="nursing" onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="medical_jobs">{({ navigation }: any) => <MedicalJobsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="insurance_config">{({ navigation }: any) => <InsuranceConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="certificates_config">{({ navigation }: any) => <CertificatesConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="media_config">{({ navigation }: any) => <MediaConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="wallet">{({ navigation }: any) => <ProviderWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+      <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="chat">{({ navigation, route }: any) => <NursingChatScreen order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="working_hours">{({ navigation }: any) => <NursingScheduleScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -275,11 +270,10 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  <View style={{flexDirection:'row',gap:SP.md}}>
 		{[
 			{ar:'المحفظة\nوالإيرادات',en:'Wallet &\nRevenue',screen:'wallet',color:tokens.pink},
-			{ar:'تسجيل\nوصول GPS',en:'GPS\nCheck-in',screen:'checkin',color:tokens.success},
+			{ar:'الزيارة\nالحالية',en:'Current\nVisit',screen:'order_detail',color:tokens.success},
 			{ar:'قائمة\nالمهام',en:'Visit\nChecklist',screen:'checklist',color:tokens.info},
 			{ar:'خطة\nالرعاية',en:'Care\nPlan',screen:'care_plan',color:tokens.purple},
 			{ar:'ملاحظات\nيومية',en:'Progress\nNotes',screen:'progress',color:tokens.warning},
-			{ar:'تقرير\nالزيارة',en:'Visit\nReport',screen:'visit_report',color:tokens.mintDeep},
 			{ar:'مستلزمات\nطبية',en:'Medical\nSupplies',screen:'supplies',color:tokens.error},
 		].map(qa=>(
  <TouchableOpacity key={qa.screen} onPress={()=>onNav(qa.screen, jobs.find(o=>o.status==='active') || jobs[0])}
@@ -344,7 +338,7 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  </View>
  </View>
  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.sm}}>
- <NBtn label={AR?'تسجيل وصول':'Check-in'} size="xs" full={false} style={{flex:1}} onPress={()=>onNav('checkin',order)} />
+ <NBtn label={AR?'فتح الزيارة':'Open visit'} size="xs" full={false} style={{flex:1}} onPress={()=>onNav('order_detail',order)} />
  <NBtn label={AR?'قائمة المهام':'Checklist'} size="xs" variant="outline" full={false} style={{flex:1}} onPress={()=>onNav('checklist',order)} />
  </View>
  </NCard>
@@ -420,104 +414,6 @@ function NursingOrdersTab({ onNavigate }: any) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// ORDER DETAIL
-// ══════════════════════════════════════════════════════════════════
- function NursingOrderDetail({ order, onBack, onNav, onRefresh }:{ order:any; onBack:()=>void; onNav:(s:string,p?:any)=>void; onRefresh:()=>void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
-  const nursingSvcs = useServicesCatalog('nursing');
-  const [acting, setActing] = useState(false);
-
-  const handleAccept = async () => {
-    if (!order?.id) return;
-    setActing(true);
-    try {
-      await client.post(`/provider/jobs/nursing/${order.id}/accept`, {});
-      show(AR ? 'تم قبول الزيارة بنجاح وإضافتها لجدول العمل' : 'Visit accepted successfully', 'success');
-      onRefresh?.();
-      onBack();
-    } catch (err: any) {
-      show(err?.response?.data?.message || (AR ? 'فشل قبول الزيارة — تحقق من الاتصال' : 'Failed to accept visit'), 'error');
-    } finally {
-      setActing(false);
-    }
-  };
-
-  const handleReject = async () => {
-    if (!order?.id) return;
-    setActing(true);
-    try {
-      await client.post(`/provider/jobs/nursing/${order.id}/reject`, { reason: 'unavailable_capacity' });
-      show(AR ? 'تم الاعتذار عن الزيارة بنجاح' : 'Visit declined with recorded audit', 'info');
-      onRefresh?.();
-      onBack();
-    } catch (err: any) {
-      show(err?.response?.data?.message || (AR ? 'فشل رفض الزيارة' : 'Failed to decline visit'), 'error');
-    } finally {
-      setActing(false);
-    }
-  };
-
-  return (
-  <NScroll>
-  <NHeader title={AR?'تفاصيل الطلب':'Order Details'} onBack={onBack} />
-  {/* Patient Card */}
-  <NCard style={{marginBottom:SP.xl}}>
-  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.lg,marginBottom:SP.lg}}>
-  <NAvatar name={order?.patient_name || order?.patient || '—'} size={56} />
-  <View style={{flex:1}}>
-  <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{order?.patient_name || order?.patient || '—'}</Text>
-  <Text style={{fontSize:FS.sm,color:theme.textSub}}>{order?.age ?? '—'} {AR?'سنة':'yrs'} | {order?.gender || '—'}</Text>
-  <Text style={{fontSize:FS.sm,color:theme.textSub}}>{order?.address?.address || order?.address || '—'}</Text>
-  {order?.chronic && <NBadge label={AR?'مريض مزمن':'Chronic'} variant="danger" size="xs" style={{marginTop:SP.xs}} />}
-  </View>
-  </View>
-  {/* Services */}
-  <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text,marginBottom:SP.md,textAlign:AR?'right':'left'}}>{AR?'الخدمات المطلوبة':'Requested Services'}</Text>
-  {Array.isArray(order?.services) ? (order.services.map((sid:string)=>{
-  const svc=nursingSvcs.find(x=>x.id===sid);
-  return svc?<View key={sid} style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md,paddingVertical:SP.sm,borderBottomWidth:StyleSheet.hairlineWidth,borderBottomColor:theme.border}}>
-  <IBg name="heart" size={12} color={tokens.pink} bg={withAlpha(tokens.pink, 0.12)} />
-  <Text style={{flex:1,fontSize:FS.md,color:theme.text,textAlign:AR?'right':'left'}}>{AR?svc.ar:svc.en}</Text>
-  </View>:null;
-  })) : (
-  <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md,paddingVertical:SP.sm,borderBottomWidth:StyleSheet.hairlineWidth,borderBottomColor:theme.border}}>
-  <IBg name="heart" size={12} color={tokens.pink} bg={withAlpha(tokens.pink, 0.12)} />
-  <Text style={{flex:1,fontSize:FS.md,color:theme.text,textAlign:AR?'right':'left'}}>{order?.title_ar || order?.title_en || (AR ? 'تمريض منزلي' : 'Home Nursing')}</Text>
-  </View>
-  )}
-
-  {/* Pricing */}
-  <View style={{flexDirection:AR?'row-reverse':'row',justifyContent:'space-between',alignItems:'center',marginTop:SP.lg,paddingTop:SP.md,borderTopWidth:1,borderTopColor:theme.border}}>
-  <Text style={{fontSize:FS.md,color:theme.textSub}}>{AR?'السعر':'Price'}</Text>
-  <Text style={{fontSize:FS.xl,fontWeight:FW.xbold,color:tokens.pink}}>{order?.price ?? '—'} {AR?'ريال':'SAR'}</Text>
-  </View>
-  <Text style={{fontSize:FS.xs,color:theme.textSub,textAlign:AR?'right':'left',marginTop:2}}>
-  {AR?'التغطية والدفع يحددان من قرار خادمي موثق؛ لا يمكن اعتمادهما محلياً.':'Coverage and payment are determined by a recorded server decision; this screen cannot approve either locally.'}
-  </Text>
-  {/* Notes */}
-  {order?.notes && <NCard style={{backgroundColor:theme.surface2,marginTop:SP.lg,padding:SP.md}}>
-  <Text style={{fontSize:FS.sm,color:theme.text,textAlign:AR?'right':'left',lineHeight:20}}>{order.notes}</Text>
-  </NCard>}
-  </NCard>
-
-  {/* Actions */}
-  {order?.status==='pending' && <View style={{gap:SP.md}}>
-  <NBtn label={AR?'قبول الزيارة':'Accept Visit'} variant="primary" loading={acting} onPress={handleAccept} />
-  <NBtn label={AR?'اعتذار عن الزيارة':'Decline Visit'} variant="danger" loading={acting} onPress={handleReject} />
-  </View>}
- {order?.status==='active' && <View style={{gap:SP.md}}>
- <NBtn label={AR?'تسجيل الوصول GPS':'GPS Check-in'} onPress={()=>onNav('checkin',order)} />
- <NBtn label={AR?'قائمة مهام الزيارة':'Visit Checklist'} variant="outline" onPress={()=>onNav('checklist',order)} />
- <NBtn label={AR?'ملاحظات يومية':'Progress Notes'} variant="outline" onPress={()=>onNav('progress',order)} />
- {order?.chronic && <NBtn label={AR?'خطة الرعاية المستمرة':'Care Plan'} variant="outline" onPress={()=>onNav('care_plan',order)} />}
- <NBtn label={AR?'إنهاء الزيارة وكتابة التقرير':'End Visit & Write Report'} variant="secondary" onPress={()=>onNav('visit_report',order)} />
- </View>}
- {order?.status===AppointmentStatus.COMPLETED && <NBtn label={AR?'عرض التقرير':'View Report'} variant="outline" onPress={()=>onNav('visit_report',order)} />}
- </NScroll>
- );
-}
-
-// ══════════════════════════════════════════════════════════════════
 // VISIT CHECKLIST
 // ══════════════════════════════════════════════════════════════════
 function VisitChecklist({ order, onBack, onNav }:{ order:any; onBack:()=>void; onNav?:(s:string,p?:any)=>void }) {
@@ -575,139 +471,8 @@ function VisitChecklist({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
  <View style={{height:SP.xl}} />
  {pct===100 && <NBtn label={AR?'إكمال الزيارة':'Complete Visit'} onPress={()=>{
  const doneTasks = items.filter(i=>i.done).map(i=>i.title_ar || i.title || i.name_ar || i.id);
- onNav ? onNav('visit_report', { ...order, checklist_done: doneTasks }) : onBack();
+ onNav ? onNav('order_detail', order) : onBack();
  }} />}
- </NScroll>
- );
-}
-
-// ══════════════════════════════════════════════════════════════════
-// DIGITAL CHECK-IN — GPS + QR + Timer
-// ══════════════════════════════════════════════════════════════════
-function DigitalCheckin({ order, onBack, onRefresh }:{ order:any; onBack:()=>void; onRefresh:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
- const [checkedIn, setCheckedIn] = useState(order?.raw?.state === 'IN_PROGRESS');
- const [inTransit, setInTransit] = useState(order?.raw?.state === 'EN_ROUTE');
- const [elapsed, setElapsed] = useState(0);
- const [ending, setEnding] = useState(false);
- const timerRef = useRef<any>(null);
- const gpsIntervalRef = useRef<any>(null);
-
- const getRealPosition = async (): Promise<{ lat: number; lng: number } | null> => {
- try {
- const Location = require('expo-location');
- const { status } = await Location.requestForegroundPermissionsAsync();
- if (status !== 'granted') return null;
- const pos = await Location.getCurrentPositionAsync({});
- return { lat: pos.coords.latitude, lng: pos.coords.longitude };
- } catch { return null; }
- };
-
- useEffect(() => {
- if (inTransit) {
- gpsIntervalRef.current = setInterval(async () => {
- try {
- const p = await getRealPosition();
- if (p) await client.post(`/home-care/bookings/${order.id}/gps`, p);
- } catch (e) {}
- }, 5000);
- }
- return () => {
- if (gpsIntervalRef.current) clearInterval(gpsIntervalRef.current);
- };
- }, [inTransit]);
-
- useEffect(()=>{
- if(checkedIn){timerRef.current=setInterval(()=>setElapsed(p=>p+1),1000);}
- return()=>{if(timerRef.current)clearInterval(timerRef.current);};
- },[checkedIn]);
-
- const fmt=(sec:number)=>{const m=Math.floor(sec/60);const s=sec%60;return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;};
- const pulseAnim = useRef(new Animated.Value(1)).current;
- useEffect(()=>{if(checkedIn || inTransit){Animated.loop(Animated.sequence([Animated.timing(pulseAnim,{toValue:1.05,duration:1000,useNativeDriver:true}),Animated.timing(pulseAnim,{toValue:1,duration:1000,useNativeDriver:true})])).start();}},[checkedIn, inTransit]);
-
- const handleStartTransit = async () => {
- try {
- const p = await getRealPosition();
- if (!p) { show(AR ? 'تعذر الحصول على موقع GPS — فعّل صلاحية الموقع' : 'Could not get GPS location — enable location permission', 'error'); return; }
- await client.post(`/home-care/bookings/${order.id}/gps`, p);
- setInTransit(true);
- show(AR ? 'بدأت الرحلة — تتبع الـ GPS نشط' : 'Trip started — GPS tracking active', 'success');
- onRefresh();
- } catch (err: any) {
- show(err.message || 'Failed to start transit', 'error');
- }
- };
-
- const handleCheckin = async () => {
- try {
- const p = await getRealPosition();
- if (!p) { show(AR ? 'تعذر الحصول على موقع GPS — فعّل صلاحية الموقع' : 'Could not get GPS location — enable location permission', 'error'); return; }
- const res = await client.post(`/home-care/bookings/${order.id}/check-in`, p);
- if (res.data && res.data.id) {
- order.reportId = res.data.id;
- }
- setInTransit(false);
- setCheckedIn(true);
- show(AR ? 'تم تسجيل الوصول — الموقع مؤكد' : 'Checked in — location verified', 'success');
- onRefresh();
- } catch (err: any) {
- show(err.message || 'Check-in failed', 'error');
- }
- };
-
- return (
- <NScroll>
- <NHeader title={AR?'تتبع الرحلة والوصول':'Trip Tracker & Check-in'} onBack={onBack} />
- <NCard style={{marginBottom:SP.xl,flexDirection:AR?'row-reverse':'row',gap:SP.md,alignItems:'center'}}>
- <NAvatar name={order?.patient_name || order?.patient || '—'} size={44} />
- <View><Text style={{fontWeight:FW.bold,color:theme.text}}>{order?.patient_name || order?.patient || '—'}</Text><Text style={{fontSize:FS.xs,color:theme.textSub}}>{order?.address?.address || order?.address || '—'}</Text></View>
- </NCard>
-
- <NCard style={{alignItems:'center',padding:SP.xxl,marginBottom:SP.xl}}>
- <Animated.View style={{transform:[{scale:pulseAnim}]}}>
- <View style={{width:120,height:120,borderRadius:60,backgroundColor:checkedIn?withAlpha(tokens.success, 0.15):inTransit?withAlpha(tokens.warning, 0.15):withAlpha(tokens.pink, 0.15),borderWidth:3,borderColor:checkedIn?tokens.success:inTransit?tokens.warning:tokens.pink,alignItems:'center',justifyContent:'center'}}>
- <I name={checkedIn?'check':inTransit?'scan':'pin'} size={40} color={checkedIn?tokens.success:inTransit?tokens.warning:tokens.pink} />
- </View>
- </Animated.View>
- <Text style={{fontSize:FS.lg,fontWeight:FW.bold,color:theme.text,marginTop:SP.xl}}>
- {checkedIn?(AR?'في الزيارة الطبية':'In Visit'):inTransit?(AR?'جاري الانتقال للمريض':'Transit to Patient'):(AR?'بانتظار بدء الرحلة':'Awaiting Start')}
- </Text>
- {checkedIn && <Text style={{fontSize:FS['2xl'],fontWeight:FW.xbold,color:tokens.success,marginTop:SP.md}}>{fmt(elapsed)}</Text>}
- {checkedIn && <Text style={{fontSize:FS.sm,color:theme.textSub}}>{AR?'مدة الزيارة':'Visit Duration'}</Text>}
- </NCard>
-
- <NCard style={{backgroundColor:theme.infoBg,marginBottom:SP.xl}}>
- <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'flex-start',gap:SP.md}}>
- <I name="info" size={14} color={theme.info} />
- <Text style={{flex:1,fontSize:FS.sm,color:theme.info,lineHeight:20,textAlign:AR?'right':'left'}}>
- {AR?'يتم تحديث موقع الـ GPS الخاص بك تلقائياً لتغذية خريطة المريض أثناء الطريق.'
- :'Your GPS location is auto-tracked to update the patient navigation map.'}
- </Text>
- </View>
- </NCard>
-
- {!inTransit && !checkedIn && (
- <NBtn label={AR?'بدء الرحلة (Start Trip)':'Start Trip'} onPress={handleStartTransit} />
- )}
- {inTransit && (
- <NBtn label={AR?'تسجيل الوصول GPS (Arrived)':'Confirm Arrival'} onPress={handleCheckin} />
- )}
- {checkedIn && (
- <NBtn label={AR?'إنهاء الزيارة':'End Visit'} variant="danger" loading={ending}
- onPress={async ()=>{
- setEnding(true);
- try {
- await client.post(`/home-care/bookings/${order.id}/visit-report`, { complete: true });
- clearInterval(timerRef.current);
- show(AR?`انتهت الزيارة — المدة: ${fmt(elapsed)}`:`Visit ended — Duration: ${fmt(elapsed)}`,'success');
- onRefresh();
- onBack();
- } catch (err: any) {
- show(err?.response?.data?.message || err.message || (AR?'فشل إنهاء الزيارة':'Failed to end visit'), 'error');
- } finally { setEnding(false); }
- }} />
- )}
  </NScroll>
  );
 }
@@ -869,108 +634,6 @@ function ProgressNotes({ patient, onBack }:{ patient:any; onBack:()=>void }) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// VISIT REPORT — Post-visit report
-// ══════════════════════════════════════════════════════════════════
-function VisitReport({ order, onBack, onRefresh }:{ order:any; onBack:()=>void; onRefresh:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
- const [summary, setSummary] = useState('');
- const [followUp, setFollowUp] = useState('');
- const [bp, setBp] = useState('');
- const [glucose, setGlucose] = useState('');
- const [pulse, setPulse] = useState('');
- const [temp, setTemp] = useState('');
- const [signed, setSigned] = useState(false);
- const [signatureBase64, setSignatureBase64] = useState<string>('');
- const [sigModal, setSigModal] = useState(false);
- const [loading, setLoading] = useState(false);
-
- const handleSubmit = async () => {
- if (!signed) {
- show(AR ? 'يرجى الحصول على توقيع المريض أولاً' : 'Please get patient signature first', 'warning');
- return;
- }
- setLoading(true);
- try {
- const vitalTasks = [
- bp && (AR ? 'قياس الضغط' : 'BP check'),
- glucose && (AR ? 'قياس السكر' : 'Glucose check'),
- pulse && (AR ? 'قياس النبض' : 'Pulse check'),
- temp && (AR ? 'قياس الحرارة' : 'Temperature check'),
- ].filter(Boolean) as string[];
- const doneTasks = [...(Array.isArray(order?.checklist_done) ? order.checklist_done : []), ...vitalTasks];
- await client.post(`/home-care/bookings/${order.id}/visit-report`, {
- complete: true,
- completed_tasks: doneTasks,
- vitals_logged: { bp: bp || undefined, pulse: pulse ? parseInt(pulse, 10) : undefined, temp: temp ? parseFloat(temp) : undefined, glucose: glucose ? parseInt(glucose, 10) : undefined },
- notes: `${summary}. Follow-up: ${followUp}`,
- signature: signatureBase64
- });
- show(AR ? 'تم إرسال تقرير الزيارة بنجاح وإنهاء الحجز' : 'Visit report submitted and booking closed', 'success');
- onRefresh();
- onBack();
- } catch (err: any) {
- show(err.message || 'Error submitting report', 'error');
- } finally {
- setLoading(false);
- }
- };
-
- return (
- <NScroll>
- <NHeader title={AR?'تقرير الزيارة والعلامات الحيوية':'Visit Report & Vitals'} onBack={onBack} />
- <NCard style={{marginBottom:SP.xl,flexDirection:AR?'row-reverse':'row',gap:SP.md,alignItems:'center'}}>
- <NAvatar name={order?.patient_name || order?.patient || '—'} size={44} />
- <View><Text style={{fontWeight:FW.bold,color:theme.text}}>{order?.patient_name || order?.patient || '—'}</Text><Text style={{fontSize:FS.xs,color:theme.textSub}}>{order?.date || new Date().toLocaleDateString()}</Text></View>
- </NCard>
-
- <NSecHeader title={AR ? 'تسجيل العلامات الحيوية' : 'Log Vital Metrics'} />
- <NCard style={{ gap: SP.md, marginBottom: SP.xl }}>
- <NInput label={AR ? 'ضغط الدم (BP)' : 'Blood Pressure (BP)'} value={bp} onChange={setBp} />
- <NInput label={AR ? 'مستوى السكر (Glucose)' : 'Blood Glucose'} value={glucose} onChange={setGlucose} kbType="numeric" />
- <NInput label={AR ? 'درجة الحرارة (Temp)' : 'Temperature (C)'} value={temp} onChange={setTemp} kbType="numeric" />
- <NInput label={AR ? 'النبض (Pulse)' : 'Pulse Rate'} value={pulse} onChange={setPulse} kbType="numeric" />
- </NCard>
-
- <NSecHeader title={AR ? 'التقرير الطبي للزيارة' : 'Clinical Summary'} />
- <NInput label={AR?'ملخص الزيارة':'Visit Summary'} placeholder={AR?'ملخص ما تم خلال الزيارة...':'Summary of visit activities...'} value={summary} onChange={setSummary} multi lines={6} required />
- <NInput label={AR?'التوصيات والمتابعة':'Recommendations & Follow-up'} placeholder={AR?'تعليمات المتابعة والزيارة القادمة...':'Follow-up instructions and next visit...'} value={followUp} onChange={setFollowUp} multi lines={4} />
-
- <NSecHeader title={AR ? 'توقيع المريض الرقمي' : 'Patient Signature Canvas'} />
- <NCard style={{ alignItems: 'center', justifyContent: 'center', padding: SP.xl, marginBottom: SP.xl, minHeight: 120, borderStyle: 'dashed', borderWidth: 2, borderColor: theme.border }}>
- {signed ? (
- <View style={{ alignItems: 'center' }}>
- <I name="check" size={44} color={tokens.success} />
- <Text style={{ color: tokens.success, fontWeight: FW.bold }}>{AR ? 'تم التوقيع بنجاح' : 'Patient Signed'}</Text>
- <TouchableOpacity onPress={() => setSigModal(true)} style={{ marginTop: SP.sm }}>
- <Text style={{ color: theme.primary }}>{AR ? 'إعادة التوقيع' : 'Re-sign'}</Text>
- </TouchableOpacity>
- </View>
- ) : (
- <TouchableOpacity onPress={() => setSigModal(true)} style={{ alignItems: 'center' }}>
-<I name="edit" size={24} color={theme.textSub} />
- <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{AR ? 'انقر هنا لتوقيع المريض' : 'Click here to sign'}</Text>
- </TouchableOpacity>
- )}
- </NCard>
-
- <NBtn label={AR?'تأكيد وإنهاء الزيارة':'Confirm & End Visit'} loading={loading} disabled={!summary.trim() || !signed}
- onPress={handleSubmit} />
-
- <SignatureCanvasModal
- visible={sigModal}
- onClose={() => setSigModal(false)}
- onOK={(base64) => {
- setSignatureBase64(base64);
- setSigned(true);
- setSigModal(false);
- show(AR?'تم حفظ التوقيع بنجاح':'Signature saved successfully', 'success');
- }}
- />
- </NScroll>
- );
-}
-
-// ══════════════════════════════════════════════════════════════════
 // MEDICAL SUPPLIES
 // ══════════════════════════════════════════════════════════════════
 function MedicalSupplies({ onBack }:{ onBack:()=>void }) {
@@ -1117,7 +780,6 @@ return (
  ...((caps && caps.crm === false) ? [] : [
  { icon:'chart', ar:'إدارة العملاء والأرباح', en:'CRM & Business Insights', action:()=>onNav('crm') },
  ]),
- { icon:'shield', ar:'مراقبة حالات الطوارئ', en:'SOS Dispatch Control', action:()=>onNav('sos_dispatch') },
  { icon:'scan', ar:'وحدة تتبع زيارات التمريض (GPS)', en:'Nurse Visit Tracker (GPS)', action:()=>onNav('nurse_visit') },
  { icon:'document', ar:'قائمة مهام العلامات الحيوية والرعاية', en:'Clinical Vitals Checklist', action:()=>onNav('nurse_checklist') },
  ].map((row, i) => (
@@ -1444,98 +1106,6 @@ const st = StyleSheet.create({
  chip:{paddingHorizontal:SP.lg,paddingVertical:SP.sm,borderRadius:R.full,borderWidth:1.5},
  checkRow:{borderRadius:R.lg,borderWidth:1.5,padding:SP.lg,gap:SP.md,alignItems:'center',marginBottom:SP.sm},
 });
-
-function NursingProfileEditScreen({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme();
- const { lang } = useLang();
- const { show } = useToast();
- const { user } = useAuth();
- const AR = lang === 'ar';
-
- const [loading, setLoading] = useState(false);
- const [profile, setProfile] = useState<any>(null);
- const [nameAr, setNameAr] = useState('');
- const [nameEn, setNameEn] = useState('');
- const [descAr, setDescAr] = useState('');
- const [descEn, setDescEn] = useState('');
- const [web, setWeb] = useState('');
- const [avatarUrl, setAvatarUrl] = useState('');
-
- useEffect(() => {
- fetchProfile();
- }, []);
-
- const fetchProfile = async () => {
- setLoading(true);
- try {
- const res = await client.get('/provider/profile');
- setProfile(res.data);
- setNameAr(res.data.display_name_ar || '');
- setNameEn(res.data.display_name_en || '');
- setDescAr(res.data.description_ar || '');
- setDescEn(res.data.description_en || '');
- setWeb(res.data.website || '');
- setAvatarUrl(res.data.profile_image_id || '');
- } catch (err) {
- show(AR ? 'فشل تحميل الملف الشخصي' : 'Failed to load profile', 'error');
- } finally {
- setLoading(false);
- }
- };
-
- const handleSave = async () => {
- setLoading(true);
- try {
- await client.patch('/provider/profile', {
- display_name_ar: nameAr,
- display_name_en: nameEn,
- description_ar: descAr,
- description_en: descEn,
- website: web,
- ...(avatarUrl ? { profile_image_id: avatarUrl } : {}),
- });
- show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
- onBack();
- } catch (err) {
- show(AR ? 'فشل حفظ الملف الشخصي' : 'Failed to save profile', 'error');
- } finally {
- setLoading(false);
- }
- };
-
- return (
- <View style={{ flex: 1, backgroundColor: theme.bg }}>
- <NScroll>
- <NHeader title={AR ? 'معلومات الحساب' : 'Account Info'} onBack={onBack} />
- {loading && !profile ? (
- <ActivityIndicator color={theme.primary} style={{ marginTop: SP.xl }} />
- ) : (
- <View style={{ padding: SP.xl, gap: SP.lg }}>
- <NCard style={{ alignItems: 'center', paddingVertical: SP.xl }}>
- <NAvatar name={nameEn || user?.displayName} size={80} />
- 
- <NProfileImageUploader 
- ownerType="nurse" 
- onProcessComplete={(urls) => {
- setAvatarUrl(urls.processed);
- show(AR ? 'تم تحديث الصورة الشخصية' : 'Profile picture updated', 'success');
- }}
- />
- </NCard>
-
- <NInput label={AR ? 'الاسم بالكامل (العربية)' : 'Full Name (Arabic)'} value={nameAr} onChange={setNameAr} required />
- <NInput label={AR ? 'الاسم بالكامل (الإنجليزية)' : 'Full Name (English)'} value={nameEn} onChange={setNameEn} required />
- <NInput label={AR ? 'النبذة التعريفية (العربية)' : 'Bio (Arabic)'} value={descAr} onChange={setDescAr} multi lines={3} />
- <NInput label={AR ? 'النبذة التعريفية (الإنجليزية)' : 'Bio (English)'} value={descEn} onChange={setDescEn} multi lines={3} />
- <NInput label={AR ? 'الموقع الإلكتروني' : 'Website'} value={web} onChange={setWeb} />
-
- <NBtn label={AR ? ' حفظ التعديلات' : ' Save Changes'} onPress={handleSave} loading={loading} style={{ marginTop: SP.lg }} />
- </View>
- )}
-  </NScroll>
-  </View>
-  );
-}
 
 // ══════════════════════════════════════════════════════════════════
 // PRE-VISIT CHAT

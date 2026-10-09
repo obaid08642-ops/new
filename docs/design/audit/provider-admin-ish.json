@@ -202,21 +202,6 @@
    ]
   },
   {
-   "route": "GpsRouterScreen",
-   "elements": [
-    [
-     "button: Start Trip",
-     "POST /emergency/:param/track",
-     "ok"
-    ],
-    [
-     "button: Confirm Arrival",
-     "POST /emergency/:param/track",
-     "ok"
-    ]
-   ]
-  },
-  {
    "route": "InventoryExpiryMonitor",
    "elements": [
     [
@@ -292,12 +277,27 @@
     ],
     [
      "data: Data choices",
-     "choices: set from user input / local logic",
+     "GET /provider/inventory/search → choices",
      "ok"
     ],
     [
      "data: Data quote",
-     "POST /provider/pharmacy/broadcasts/:param/offers/preview, POST /provider/pharmacy/broadcasts/:param/offers/draft → quote",
+     "POST /provider/pharmacy/broadcasts/:param/offers/preview, POST /provider/pharmacy/broadcasts/:param/offers/draft, GET /p",
+     "ok"
+    ],
+    [
+     "data: Data terms",
+     "GET /provider/inventory/search → terms",
+     "ok"
+    ],
+    [
+     "data: Data searching",
+     "GET /provider/inventory/search → searching",
+     "ok"
+    ],
+    [
+     "data: Data searched",
+     "GET /provider/inventory/search → searched",
      "ok"
     ],
     [
@@ -308,6 +308,16 @@
     [
      "button: Available",
      "local state setChoices, setQuote",
+     "ok"
+    ],
+    [
+     "input: Search by name or barcode",
+     "user input → terms (local)",
+     "ok"
+    ],
+    [
+     "button: Search",
+     "GET /provider/inventory/search",
      "ok"
     ],
     [
@@ -366,41 +376,6 @@
    ]
   },
   {
-   "route": "ProfileWebConfig",
-   "elements": [
-    [
-     "data: Data publicUrl",
-     "GET /provider/profile, PATCH /provider/profile → publicUrl",
-     "ok"
-    ],
-    [
-     "input: Active Public Website",
-     "user input → active → request body",
-     "ok"
-    ],
-    [
-     "input: Doctor/Clinic Bio",
-     "user input → bio → request body",
-     "ok"
-    ],
-    [
-     "input: Social Media Link",
-     "user input → socials → request body",
-     "ok"
-    ],
-    [
-     "button: Share",
-     "native action",
-     "ok"
-    ],
-    [
-     "button: Save Settings",
-     "PATCH /provider/profile",
-     "ok"
-    ]
-   ]
-  },
-  {
    "route": "PromotionsDashboard",
    "elements": [
     [
@@ -439,18 +414,38 @@
    "route": "RevenueInsights",
    "elements": [
     [
+     "button: {l}",
+     "local state setPeriod",
+     "ok"
+    ],
+    [
+     "data: List periods",
+     "from periods (prop / derived; not traced)",
+     "ok"
+    ],
+    [
+     "data: List monthly",
+     "from monthly (prop / derived; not traced)",
+     "ok"
+    ],
+    [
      "data: List topServices",
      "from topServices (prop / derived; not traced)",
      "ok"
     ],
     [
+     "data: List Object.entries(sums).sort((a, b) => b[1] - a[1])",
+     "from Object (prop / derived; not traced)",
+     "ok"
+    ],
+    [
      "API: GET /provider/ops/wallet/ledger",
-     "GET /provider/ops/wallet/ledger (OK, backend/src/modules/provider-ops/provider-ops.module.ts:783)",
+     "GET /provider/ops/wallet/ledger (OK, backend/src/modules/provider-ops/provider-ops.module.ts:705)",
      "ok"
     ]
    ],
    "notes": [
-    "1 list(s) fed by a parent prop are not traced across components."
+    "4 list(s) fed by a parent prop are not traced across components."
    ]
   },
   {
@@ -502,31 +497,6 @@
    ]
   },
   {
-   "route": "SosDispatchScreen",
-   "elements": [
-    [
-     "data: Data claiming",
-     "POST /emergency/:param/claim, GET /emergency/active → claiming",
-     "ok"
-    ],
-    [
-     "button: Send SOS Alert",
-     "POST /emergency/trigger",
-     "ok"
-    ],
-    [
-     "data: List activeSos",
-     "GET /emergency/active → activeSos",
-     "ok"
-    ],
-    [
-     "button: Claiming…",
-     "POST /emergency/:param/claim, GET /emergency/active",
-     "ok"
-    ]
-   ]
-  },
-  {
    "route": "SubscriptionsAdsScreen",
    "elements": [
     [
@@ -565,7 +535,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/shared/blueprint/InventoryExpiryMonitor.tsx",
    "line": 26,
-   "backend": "backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:200"
+   "backend": "backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:202"
   },
   {
    "route": "NurseVisitConsole",
@@ -576,12 +546,13 @@
    "line": 26
   },
   {
-   "route": "SosDispatchScreen",
-   "element": "Ambulance feature",
-   "kind": "owner",
-   "note": "Owner decision O-2 (2026-10-06) removes the ambulance system and provider type; this screen goes with it.",
-   "file": "provider-app/src/screens/shared/blueprint/SosDispatchScreen.tsx",
-   "line": 21
+   "route": "RevenueInsights",
+   "element": "API GET /provider/ops/wallet/ledger",
+   "kind": "backend",
+   "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
+   "file": "provider-app/src/screens/shared/blueprint/RevenueInsights.tsx",
+   "line": 38,
+   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:705"
   }
  ]
 }

@@ -1,31 +1,24 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
-import {
-  View, Text, TouchableOpacity, ScrollView, StyleSheet,
-  Switch, Dimensions, Alert, Image, TextInput, Modal } from 'react-native';
+import { withAlpha } from '../../theme/tokens';
+import { startOnboardingAccount, useStepSaver } from '../registration/kit';
+import type { StepProps, Uploader } from '../registration/kit';
+import { DocBtn, useDocumentPicker } from '../registration/WizardParts';
+import type { NoticeText } from '../registration/WizardParts';
+import { RegistrationWizard } from '../registration/RegistrationWizard';
+import type { RegistrationProps, WizardConfig } from '../registration/RegistrationWizard';
+import React, { useState, useRef } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Switch, Dimensions, Image, TextInput, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 import { useTheme, useLang, useToast } from '../../context';
-import {
-  NBtn, NInput, NPhoneInput, NPassStrength,
-  NCheckbox, NHeader, NScroll, NDropdown, NDatePickerSheet, NDivider, WizardSection
-} from '../../components/ui';
+import { NInput, NPhoneInput, NPassStrength, NDropdown, NDatePickerSheet, NDivider } from '../../components/ui';
 import { Validate } from '../../security/Security';
 import { SP, R, FS, FW, DEGREES } from '../../constants';
-
 import { I, I as NIcon } from '../../components/icons';
-import { RegistrationSuccess } from '../shared/SharedScreens';
-import { ContractModal } from '../../components/ContractModal';
 import { LocationPickerModal } from '../../components/LocationPickerModal';
 import { GeoPicker } from '../../components/GeoPicker';
-import { OtpModal } from '../../components/OtpModal';
-import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
-import { SuccessScreen } from '../../components/SuccessScreen';
-import { SignatureCanvasModal } from '../../components/SignatureCanvasModal';
 import * as ImagePicker from 'expo-image-picker';
-import * as DocumentPicker from 'expo-document-picker';
-import MapView, { Circle, Marker } from '../../components/PlatformMap';
-import SignatureCanvas from 'react-native-signature-canvas';
-import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+import MapView, { Marker } from '../../components/PlatformMap';
+import { ProviderApi } from '../../api/provider';
 import { useInsuranceCatalog, useSpecialtiesCatalog } from '../../api/catalogs';
 
 const { width: W } = Dimensions.get('window');
@@ -51,15 +44,15 @@ interface DoctorRegData {
   lat: number; lng: number;
   // Step 5 - Schedule
   scheduleType: 'unified' | 'per_service';
-  unifiedDays: string[]; unifiedStart: string; unifiedEnd: string; unifiedShift: string;
+  unifiedDays: string[]; unifiedStart: string; unifiedEnd: string; unifiedShift: string; unifiedStartEve?: string; unifiedEndEve?: string;
   clinicDays: string[]; clinicStart: string; clinicEnd: string; clinicShift: string;
   videoDays: string[]; videoStart: string; videoEnd: string; videoShift: string;
   homeDays: string[]; homeStart: string; homeEnd: string; homeShift: string;
   vacationDate: string;
   // Step 6 - Insurance & Location
-  cashOnly: boolean;
+  cashOnly: boolean; insuranceClinic?: boolean; insuranceVideo?: boolean; insuranceHome?: boolean; languages?: string[];
   acceptedInsurance: { companyId: string; plans: string[] }[];
-  region: string; city: string; district: string; location: {lat: number; lng: number}; address: string; clinicName: string;
+  region: string; city: string; district: string; location: any; /* {lat,lng} from the picker, {latitude,longitude} from the inline map: see needs-review */ address: string; clinicName: string;
   // Step 8 - Signature
   signatureData: string; signerName: string; signerRole: string;
 }
@@ -102,80 +95,168 @@ const HOURS = Array.from({ length: 24 }, (_, i) => {
   return { val: `${h}:00`, label: `${h}:00` };
 });
 
-// ══════════════════════════════════════════════════════════════════════════════
-export function DoctorRegistration({ onBack, onDone }: { onBack: () => void; onDone: () => void }) {
-  const [step, setStep] = useState(1);
-  const [data, setData] = useState<DoctorRegData>(INITIAL);
-  const [showMap, setShowMap] = useState(false);
-    const TOTAL = 4;
-  const [showSuccess, setShowSuccess] = useState(false);
+// ─── What the doctor sends when the application is submitted (same fields as before the shared wizard) ───
+async function sendDoctor(data: DoctorRegData, uploads: Uploader): Promise<void> {
+  let wh: any[] = [];
+  if (data.scheduleType === 'unified') {
+    wh = data.unifiedDays.map((d: string) => ({
+      day: d,
+      open: data.unifiedStart || '08:00',
+      close: data.unifiedEnd || '14:00',
+      open_evening: data.unifiedShift === 'both' ? data.unifiedStartEve : undefined,
+      close_evening: data.unifiedShift === 'both' ? data.unifiedEndEve : undefined
+    }));
+  } else {
+    // NOTE: per-service schedule is stored in flat fields (clinicDays/clinicStart/…),
+    // there is no `perService` object — reading it crashed with
+    // "Cannot read property 'clinic' of undefined" on final submit.
+    wh = ((data.clinicDays as string[]) || []).map((d: string) => ({
+      day: d,
+      open: (data as any).clinicStart || '',
+      close: (data as any).clinicEnd || '',
+      open_evening: (data as any).clinicShift === 'both' ? (data as any).clinicStartEve : undefined,
+      close_evening: (data as any).clinicShift === 'both' ? (data as any).clinicEndEve : undefined
+    }));
+  }
+  await ProviderApi.step3({
+    specialty: data.specialty,
+    academic_degree: data.degree,
+    years_experience: parseInt(data.yearsExp) || 0,
+    consultation_modes: [
+      ...(data.offersClinic ? ['clinic'] : []),
+      ...(data.offersVideo ? ['video'] : []),
+      ...(data.offersHome ? ['home'] : [])
+    ],
+    price_clinic: parseFloat(data.clinicPrice) || 0,
+    price_online: parseFloat(data.videoPrice) || 0,
+    price_home: parseFloat(data.homePrice) || 0,
+    home_visit_radius_km: data.homeRadius,
+    clinic_duration: parseInt(data.clinicDuration) || 0,
+    video_duration: parseInt(data.videoDuration) || 0,
+    home_duration: parseInt((data as any).homeDuration) || 0,
+    schedule_clinic: ((data.clinicDays as string[]) || []).map((d: string) => ({
+      day: d,
+      open: (data as any).clinicStart || '',
+      close: (data as any).clinicEnd || '',
+      open_evening: (data as any).clinicShift === 'both' ? (data as any).clinicStartEve : undefined,
+      close_evening: (data as any).clinicShift === 'both' ? (data as any).clinicEndEve : undefined
+    })),
+    home_transport_fee: !!data.homeTransportFee,
+    home_transport_price: parseFloat(data.homeTransportPrice) || 0,
+    clinic_name: data.clinicName || undefined,
+    vacation_date: data.vacationDate || undefined,
+    national_id: data.nationalId || undefined,
+    gender: data.gender || undefined,
+    schedule_video: ((data.videoDays as string[]) || []).map((d: string) => ({
+      day: d,
+      open: (data as any).videoStart || '',
+      close: (data as any).videoEnd || '',
+      open_evening: (data as any).videoShift === 'both' ? (data as any).videoStartEve : undefined,
+      close_evening: (data as any).videoShift === 'both' ? (data as any).videoEndEve : undefined
+    })),
+    schedule_home: ((data.homeDays as string[]) || []).map((d: string) => ({
+      day: d,
+      open: (data as any).homeStart || '',
+      close: (data as any).homeEnd || '',
+      open_evening: (data as any).homeShift === 'both' ? (data as any).homeStartEve : undefined,
+      close_evening: (data as any).homeShift === 'both' ? (data as any).homeEndEve : undefined
+    })),
+    working_hours: wh,
+    accepts_insurance: !data.cashOnly && (data.acceptedInsurance || []).length > 0,
+    accepted_insurance: (data.acceptedInsurance || []).map((i: any) => i.companyId),
+    insurance_plans: Object.fromEntries((data.acceptedInsurance || []).filter((i: any) => Array.isArray(i.plans) && i.plans.length).map((i: any) => [i.companyId, i.plans])),
+    insurance_clinic: data.insuranceClinic,
+    insurance_online: data.insuranceVideo,
+    insurance_home: data.insuranceHome,
+  });
 
-  const update = useCallback((patch: Partial<DoctorRegData>) => setData(p => ({ ...p, ...patch })), []);
-  const next = () => { if (step < TOTAL) setStep(s => s + 1); else setStep(5); };
-  const back = () => { if (step === 1) onBack(); else setStep(s => s - 1); };
+  // The personal photo goes to its OWN field (provider card / booking profile), never into the clinic gallery.
+  let profilePhoto: string | undefined;
+  if (data.profilePhotoUri) profilePhoto = await uploads.file(data.profilePhotoUri, 'doctor_profile');
+  const images: string[] = [];
+  for (let i = 0; i < (data.clinicImagesUris || []).length; i++) {
+    images.push(await uploads.file(data.clinicImagesUris[i], `clinic_${i}`));
+  }
 
-  // 4 merged screens (was 7): related few-field steps now live on ONE page.
-  const screens: Record<number, React.ReactElement> = {
-    5: <SuccessScreen onDone={() => { setShowSuccess(false); onDone(); }} />,
-    1: <MergedDoctorStep step={step} onBack={back} onNext={next} data={data} update={update}
-         titleAr="الحساب والتوثيق" titleEn="Account & Licensing"
-         subAr="بيانات الدخول والاسم الرسمي والمستندات" subEn="Login, official name & documents"
-         sections={[
-           { comp: Step1Basic, titleAr: 'المعلومات الأساسية', titleEn: 'Basic Info' },
-           { comp: Step2KYC, titleAr: 'التوثيق والمستندات', titleEn: 'KYC & Documents' },
-         ]} />,
-    2: <MergedDoctorStep step={step} onBack={back} onNext={next} data={data} update={update}
-         titleAr="الملف المهني والخدمات" titleEn="Profile & Services"
-         subAr="التخصص والصور وخدماتك وأسعارها" subEn="Specialty, photos, services & pricing"
-         sections={[
-           { comp: Step3Profile, titleAr: 'الملف الشخصي المهني', titleEn: 'Professional Profile' },
-           { comp: Step4PricingAndLocation, titleAr: 'الخدمات والأسعار', titleEn: 'Services & Pricing' },
-         ]} />,
-    3: <MergedDoctorStep step={step} onBack={back} onNext={next} data={data} update={update}
-         titleAr="الجدولة والتأمين والعنوان" titleEn="Schedule, Insurance & Address"
-         subAr="مواعيد العمل وشركات التأمين وموقع العيادة" subEn="Working hours, insurance & clinic address"
-         sections={[
-           { comp: Step5Schedule, titleAr: 'مواعيد العمل والجدولة', titleEn: 'Working Hours' },
-           { comp: Step6Insurance, titleAr: 'التأمين وموقع تقديم الخدمة', titleEn: 'Insurance & Clinic Info' },
-         ]} />,
-    4: <Step7Signature data={data} update={update} onDone={onDone} onBack={back} step={step} total={TOTAL} />,
-  };
-  return screens[step] ?? null;
+  await ProviderApi.step2({
+    // Official identity (contracts/verification) + patient-facing display names.
+    legal_name: data.legalName,
+    name_ar: data.legalName,
+    name_en: data.legalName,
+    display_name_ar: data.nameAr,
+    display_name_en: data.nameEn,
+    region: (data as any).region,
+    city: data.city,
+    district: (data as any).district,
+    location: data.location,
+    address: data.address,
+    accepts_cash: data.cashOnly,
+    bio: data.bio,
+    clinic_images: images,
+    profile_photo: profilePhoto,
+    languages: data.languages,
+  });
 }
 
-// ─── Merged screen shell: stacks child steps inline and runs their savers in order ──
-function MergedDoctorStep({ titleAr, titleEn, subAr, subEn, step, onBack, onNext, data, update, sections }: any) {
-  const { lang } = useLang(); const AR = lang === 'ar';
-  const refs = useRef<any[]>([]);
-  const [busy, setBusy] = useState(false);
-  const go = async () => {
-    if (busy) return; setBusy(true);
-    try {
-      for (let i = 0; i < sections.length; i++) {
-        const ok = await refs.current[i]?.();
-        if (ok === false) return; // child already surfaced the validation error
-      }
-      onNext();
-    } finally { setBusy(false); }
-  };
-  return (
-    <NScroll>
-      <NHeader title={AR ? titleAr : titleEn} sub={AR ? subAr : subEn} step={step} total={4} onBack={onBack} />
-      {sections.map((s: any, idx: number) => {
-        const Comp = s.comp;
-        return (
-          <WizardSection key={idx} title={AR ? s.titleAr : s.titleEn}>
-            <Comp bare submitRef={(fn: any) => { refs.current[idx] = fn; }} data={data} update={update} onNext={() => {}} onBack={onBack} step={step} total={4} />
-          </WizardSection>
-        );
-      })}
-      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={go} loading={busy} style={{ marginTop: SP.sm }} />
-    </NScroll>
-  );
+const NOTICE: NoticeText = {
+  titleAr: 'نظام الموافقات', titleEn: 'Approval System',
+  p1Ar: 'البيانات التي قمت بإدخالها تخضع لمراجعة الإدارة (الأدمن) ولن تنشر لجمهور المرضى حتى تتم الموافقة عليها. كذلك أي تعديلات مستقبلية على الأسعار والخدمات تخضع لنفس النظام.',
+  p1En: 'Data entered is subject to Admin review and will not go live until approved. Future updates to pricing/services also follow this system.',
+  p2Ar: '', p2En: '',
+};
+
+const DOCTOR_WIZARD: WizardConfig<DoctorRegData> = {
+  init: INITIAL,
+  pages: [
+    {
+      titleAr: 'الحساب والتوثيق', titleEn: 'Account & Licensing', subAr: 'بيانات الدخول والاسم الرسمي والمستندات', subEn: 'Login, official name & documents',
+      sections: [
+        { comp: Step1Basic, titleAr: 'المعلومات الأساسية', titleEn: 'Basic Info' },
+        { comp: Step2KYC, titleAr: 'التوثيق والمستندات', titleEn: 'KYC & Documents' },
+      ],
+    },
+    {
+      titleAr: 'الملف المهني والخدمات', titleEn: 'Profile & Services', subAr: 'التخصص والصور وخدماتك وأسعارها', subEn: 'Specialty, photos, services & pricing',
+      sections: [
+        { comp: Step3Profile, titleAr: 'الملف الشخصي المهني', titleEn: 'Professional Profile' },
+        { comp: Step4PricingAndLocation, titleAr: 'الخدمات والأسعار', titleEn: 'Services & Pricing' },
+      ],
+    },
+    {
+      titleAr: 'الجدولة والتأمين والعنوان', titleEn: 'Schedule, Insurance & Address', subAr: 'مواعيد العمل وشركات التأمين وموقع العيادة', subEn: 'Working hours, insurance & clinic address',
+      sections: [
+        { comp: Step5Schedule, titleAr: 'مواعيد العمل والجدولة', titleEn: 'Working Hours' },
+        { comp: Step6Insurance, titleAr: 'التأمين وموقع تقديم الخدمة', titleEn: 'Insurance & Clinic Info' },
+      ],
+    },
+  ],
+  review: {
+    providerType: 'doctor',
+    headerAr: 'مراجعة وتوقيع العقد', headerEn: 'Review & Sign Contract',
+    notice: NOTICE,
+    signatoryRoleHint: { ar: 'مثل: مالك، مدير عام', en: 'e.g., Owner, General Manager' },
+    declaration: {
+      ar: 'بالتوقيع أدناه، أقر بأن جميع البيانات المدخلة صحيحة وأتحمل مسؤوليتها القانونية، وأوافق على شروط نبض بلس لاستخدام المنصة.',
+      en: 'By signing below, I acknowledge that all provided data is correct, and I agree to Nabdah Plus terms of use.',
+    },
+    signatureTitle: { ar: 'التوقيع', en: 'Signature' },
+    submitLabel: { ar: 'تأكيد وإرسال الطلب للإدارة', en: 'Submit for Admin Approval' },
+    contractPricing: (d) => [
+      { labelAr: 'كشف في العيادة', labelEn: 'Clinic Visit', price: d.clinicPrice || '0' },
+      { labelAr: 'استشارة أونلاين', labelEn: 'Online Consultation', price: d.videoPrice || '0' },
+      { labelAr: 'زيارة منزلية', labelEn: 'Home Visit', price: d.homePrice || '0' },
+    ],
+    run: sendDoctor,
+    coords: (d) => ({ lat: d.lat, lng: d.lng }),
+  },
+};
+
+export function DoctorRegistration(props: RegistrationProps<DoctorRegData>) {
+  return <RegistrationWizard config={DOCTOR_WIZARD} {...props} />;
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function Step1Basic({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
+function Step1Basic({ data, update, submitRef }: StepProps<DoctorRegData>) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
   const [errs, setErrs] = useState<any>({});
 
@@ -205,40 +286,26 @@ function Step1Basic({ data, update, onNext, onBack, step, total, bare = false, s
 
   const handleNext = async (): Promise<boolean> => {
     if (!validate()) return false;
-
     setLoading(true);
     try {
-      await ProviderApi.start({
+      const r = await startOnboardingAccount({
         phone: data.phone,
         password: data.password,
         // Account carries the OFFICIAL name; patients see display_name_ar/en instead.
         full_name: data.legalName,
         email: data.email,
         type: 'doctor',
-      });
-      await ProviderApi.onboardingLogin(data.email, data.password, 'doctor');
-      if (!bare) onNext();
-      return true;
-    } catch (e: any) {
-      try {
-        await ProviderApi.onboardingLogin(data.email, data.password, 'doctor');
-        if (!bare) onNext();
-        return true;
-      } catch (loginErr: any) {
-        setErrs({ phone: e.message || 'Error' });
-        return false;
-      }
+      }, 'doctor');
+      if (!r.ok) setErrs({ phone: r.message || 'Error' });
+      return r.ok;
     } finally {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  useStepSaver(submitRef, handleNext);
 
-  const body = (
-    <>
+  return (
+    <View>
       <NInput innerRef={legalNameRef} label={AR ? 'الاسم الكامل كما في الأوراق الرسمية' : 'Full Name (as in official documents)'} value={data.legalName} onChange={v => update({ legalName: v })} required error={errs.legalName} returnKey="next" onSubmit={() => nameArRef.current?.focus()} />
       <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: -SP.sm, marginBottom: SP.md, textAlign: AR ? 'right' : 'left', lineHeight: 18 }}>
         {AR ? 'يُستخدم في العقد والتوثيق الرسمي — لا يظهر للمرضى.' : 'Used for the contract & official verification — patients never see it.'}
@@ -261,77 +328,15 @@ function Step1Basic({ data, update, onNext, onBack, step, total, bare = false, s
       <NInput innerRef={passwordRef} label={AR ? 'كلمة المرور' : 'Password'} value={data.password} onChange={v => update({ password: v })} secure error={errs.password} required returnKey="next" onSubmit={() => confirmPassRef.current?.focus()} />
       <NPassStrength password={data.password} />
       <NInput innerRef={confirmPassRef} label={AR ? 'تأكيد كلمة المرور' : 'Confirm Password'} value={data.confirmPass} onChange={v => update({ confirmPass: v })} secure error={errs.confirmPass} required returnKey="done" onSubmit={handleNext} />
-    </>
-  );
-  if (bare) return <View>{body}</View>;
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'المعلومات الأساسية' : 'Basic Info'} sub={AR ? 'الاسم وبيانات الدخول' : 'Name & Login Info'} step={step} total={total} onBack={onBack} />
-      {body}
-      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={handleNext} loading={loading} style={{ marginTop: SP.xl }} />
-    </NScroll>
+    </View>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function Step2KYC({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
+function Step2KYC({ data, update, submitRef, uploads }: StepProps<DoctorRegData>) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   
-  const pickDocument = (field: string) => {
-    Alert.alert(
-      AR ? 'إرفاق مستند' : 'Attach Document',
-      AR ? 'اختر طريقة الرفع' : 'Choose upload method',
-      [
-        {
-          text: AR ? 'الكاميرا' : 'Camera',
-          onPress: async () => {
-            const { status } = await ImagePicker.requestCameraPermissionsAsync();
-            if (status !== 'granted') {
-              show(AR ? 'صلاحية الكاميرا مطلوبة' : 'Camera permission required', 'error');
-              return;
-            }
-            let result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.8 });
-            if (!result.canceled) {
-              update({ [field]: result.assets[0].uri });
-              show(AR ? 'تم إرفاق المستند' : 'Document attached', 'success');
-            }
-          }
-        },
-        {
-          text: AR ? 'معرض الصور' : 'Photo Gallery',
-          onPress: async () => {
-            let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
-            if (!result.canceled) {
-              update({ [field]: result.assets[0].uri });
-              show(AR ? 'تم إرفاق المستند' : 'Document attached', 'success');
-            }
-          }
-        },
-        {
-          text: AR ? 'ملفات / PDF' : 'Files / PDF',
-          onPress: async () => {
-            let result = await DocumentPicker.getDocumentAsync({ type: '*/*', copyToCacheDirectory: true });
-            if (!result.canceled && result.assets && result.assets.length > 0) {
-              update({ [field]: result.assets[0].uri });
-              show(AR ? 'تم إرفاق المستند' : 'Document attached', 'success');
-            }
-          }
-        },
-        {
-          text: AR ? 'إلغاء' : 'Cancel',
-          style: 'cancel'
-        }
-      ]
-    );
-  };
-
-  const DocBtn = ({ label, field, desc }: any) => (
-    <TouchableOpacity onPress={() => pickDocument(field)} style={{ padding: SP.lg, borderWidth: 2, borderStyle: 'dashed', borderColor: data[field] ? theme.success : theme.border, backgroundColor: data[field] ? theme.successBg : theme.surface2, borderRadius: R.lg, marginBottom: SP.md, alignItems: 'center' }}>
-      <I name={data[field] ? 'checkCircle' : 'upload'} size={24} color={data[field] ? theme.success : theme.primary} />
-      <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: data[field] ? theme.success : theme.text, marginTop: SP.sm }}>{label}</Text>
-      {desc && <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4 }}>{desc}</Text>}
-    </TouchableOpacity>
-  );
+  const pick = useDocumentPicker<DoctorRegData>(update);
 
   const [loading, setLoading] = useState(false);
   const handleNext = async (): Promise<boolean> => {
@@ -341,16 +346,14 @@ function Step2KYC({ data, update, onNext, onBack, step, total, bare = false, sub
     }
     setLoading(true);
     try {
-      const idFrontUrl = await ProviderApi.uploadFile(data.idFrontUri, 'image/jpeg', 'id_front.jpg');
-      const scfhsUrl = await ProviderApi.uploadFile(data.scfhsDocUri, 'image/jpeg', 'scfhs.jpg');
-      let extraUrl = data.extraDocUri;
-      if (extraUrl) extraUrl = await ProviderApi.uploadFile(extraUrl, 'application/pdf', 'extra.pdf');
+      const idFrontUrl = await uploads.file(data.idFrontUri, 'id_front');
+      const scfhsUrl = await uploads.file(data.scfhsDocUri, 'scfhs');
+      const extraUrl = data.extraDocUri ? await uploads.file(data.extraDocUri, 'extra') : data.extraDocUri;
 
       await ProviderApi.step2({
         license_number: data.scfhsNumber,
         license_documents: [idFrontUrl, scfhsUrl, extraUrl].filter(Boolean),
       });
-      if (!bare) onNext();
       return true;
     } catch (e: any) {
       show(AR ? 'فشل رفع المستندات' : 'Failed to upload documents', 'error');
@@ -359,34 +362,23 @@ function Step2KYC({ data, update, onNext, onBack, step, total, bare = false, sub
       setLoading(false);
     }
   };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  useStepSaver(submitRef, handleNext);
 
-  const body = (
-    <>
+  return (
+    <View>
       <NInput label={AR ? 'رقم الهوية الوطنية / الإقامة' : 'National ID'} value={data.nationalId} onChange={v=>update({nationalId:v})} kbType="numeric" required />
       <NInput label={AR ? 'رقم تصنيف الهيئة (SCFHS)' : 'SCFHS Number'} value={data.scfhsNumber} onChange={v=>update({scfhsNumber:v})} kbType="numeric" required />
       
       <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.md, marginBottom: SP.sm, textAlign: AR ? 'right':'left' }}>{AR ? 'المرفقات' : 'Attachments'}</Text>
-      <DocBtn label={AR ? 'الهوية الوطنية (الوجه الأمامي)' : 'National ID (Front)'} field="idFrontUri" />
-      <DocBtn label={AR ? 'بطاقة تصنيف الهيئة' : 'SCFHS License'} field="scfhsDocUri" />
-      <DocBtn label={AR ? 'شهادات أو مستندات إضافية (اختياري)' : 'Additional Documents (Optional)'} field="extraDocUri" desc={AR ? 'مثل البورد، شهادات الزمالة...' : 'Fellowships, Board...'} />
-    </>
-  );
-  if (bare) return <View>{body}</View>;
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'التوثيق والمستندات' : 'KYC & Documents'} step={step} total={total} onBack={onBack} />
-      {body}
-      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={handleNext} loading={loading} disabled={!data.nationalId || !data.scfhsNumber || !data.idFrontUri || !data.scfhsDocUri} style={{ marginTop: SP.lg }} />
-    </NScroll>
+      <DocBtn label={AR ? 'الهوية الوطنية (الوجه الأمامي)' : 'National ID (Front)'} done={!!data.idFrontUri} onPress={() => pick('idFrontUri')} />
+      <DocBtn label={AR ? 'بطاقة تصنيف الهيئة' : 'SCFHS License'} done={!!data.scfhsDocUri} onPress={() => pick('scfhsDocUri')} />
+      <DocBtn label={AR ? 'شهادات أو مستندات إضافية (اختياري)' : 'Additional Documents (Optional)'} done={!!data.extraDocUri} onPress={() => pick('extraDocUri')} desc={AR ? 'مثل البورد، شهادات الزمالة...' : 'Fellowships, Board...'} />
+    </View>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function Step3Profile({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
+function Step3Profile({ data, update, submitRef }: StepProps<DoctorRegData>) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const specialties = useSpecialtiesCatalog();
   const [showRemoveBg, setShowRemoveBg] = useState(false);
@@ -396,21 +388,17 @@ function Step3Profile({ data, update, onNext, onBack, step, total, bare = false,
       show(AR ? 'اختر التخصص والدرجة العلمية' : 'Select specialty and degree', 'error');
       return false;
     }
-    if (!bare) onNext();
     return true;
   };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  useStepSaver(submitRef, handleNext);
 
   const pickPhoto = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.8 });
     if (!result.canceled) update({ profilePhotoUri: result.assets[0].uri });
   };
 
-  const body = (
-    <>
+  return (
+    <View>
       <View style={{ alignItems: 'center', marginBottom: SP.md }}>
         <TouchableOpacity onPress={pickPhoto} style={{ width: 100, height: 100, borderRadius: 50, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderWidth: 2, borderColor: theme.primary }}>
           {data.profilePhotoUri ? <Image source={{ uri: data.profilePhotoUri }} style={{ width: 100, height: 100 }} /> : <I name="camera" size={32} color={theme.textSub} />}
@@ -419,8 +407,8 @@ function Step3Profile({ data, update, onNext, onBack, step, total, bare = false,
       </View>
       <View style={{ alignItems: 'center', marginBottom: SP.xl, paddingHorizontal: SP.md }}>
         <TouchableOpacity onPress={() => setShowRemoveBg(true)} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 8, backgroundColor: theme.primary, paddingHorizontal: SP.xl, paddingVertical: SP.md, borderRadius: R.full, elevation: 2, shadowColor: theme.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, marginBottom: SP.sm }}>
-          <I name="image" size={20} color="#fff" />
-          <Text style={{ fontSize: FS.md, color: '#fff', fontWeight: FW.bold }}>{AR ? 'تحسين جودة الصورة (إزالة الخلفية)' : 'Improve Quality (Remove BG)'}</Text>
+          <I name="image" size={20} color={theme.textInv} />
+          <Text style={{ fontSize: FS.md, color: theme.textInv, fontWeight: FW.bold }}>{AR ? 'تحسين جودة الصورة (إزالة الخلفية)' : 'Improve Quality (Remove BG)'}</Text>
         </TouchableOpacity>
         <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center', lineHeight: 22, marginTop: SP.xs }}>
           {AR ? 'عند الضغط على هذا الزر ستفتح صفحة.. قم برفع صورتك وانتظر حتى يتم تحليلها وتحسينها وإزالة الخلفية، ثم قم بتحميلها وإعادة رفعها هنا' : 'Clicking this button will open a page.. upload your photo, wait for it to be analyzed and background removed, then download it and re-upload it here.'}
@@ -428,9 +416,9 @@ function Step3Profile({ data, update, onNext, onBack, step, total, bare = false,
       </View>
 
       <Modal visible={showRemoveBg} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setShowRemoveBg(false)}>
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
-          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', padding: SP.md, backgroundColor: '#111' }}>
-            <Text style={{ color: '#FFF', fontWeight: FW.bold }}>{AR ? 'أداة إزالة الخلفية' : 'Background Removal Tool'}</Text>
+        <SafeAreaView style={{ flex: 1, backgroundColor: theme.bg }}>
+          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', padding: SP.md, backgroundColor: theme.surface2 }}>
+            <Text style={{ color: theme.textInv, fontWeight: FW.bold }}>{AR ? 'أداة إزالة الخلفية' : 'Background Removal Tool'}</Text>
             <TouchableOpacity onPress={() => setShowRemoveBg(false)} style={{ padding: SP.xs }}>
               <Text style={{ color: theme.danger, fontWeight: FW.bold }}>{AR ? 'إغلاق' : 'Close'}</Text>
             </TouchableOpacity>
@@ -475,28 +463,19 @@ function Step3Profile({ data, update, onNext, onBack, step, total, bare = false,
           {data.clinicImagesUris.map((uri: string, i: number) => (
             <View key={i} style={{ width: 80, height: 80, borderRadius: R.md, overflow: 'hidden' }}>
               <Image source={{ uri }} style={{ width: '100%', height: '100%' }} />
-              <TouchableOpacity onPress={() => update({ clinicImagesUris: data.clinicImagesUris.filter((_:any, idx:number) => idx !== i) })} style={{ position: 'absolute', top: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 12, padding: 2 }}>
-                <I name="close" size={16} color="#fff" />
+              <TouchableOpacity onPress={() => update({ clinicImagesUris: data.clinicImagesUris.filter((_:any, idx:number) => idx !== i) })} style={{ position: 'absolute', top: 4, right: 4, backgroundColor: withAlpha(theme.text, 0.5), borderRadius: 12, padding: 2 }}>
+                <I name="close" size={16} color={theme.textInv} />
               </TouchableOpacity>
             </View>
           ))}
         </ScrollView>
       </View>
-      
-    </>
-  );
-  if (bare) return <View>{body}</View>;
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'الملف الشخصي' : 'Professional Profile'} step={step} total={total} onBack={onBack} />
-      {body}
-      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={handleNext} disabled={!data.specialty || !data.degree} style={{ marginTop: SP.lg }} />
-    </NScroll>
+    </View>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function Step4PricingAndLocation({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
+function Step4PricingAndLocation({ data, update, submitRef }: StepProps<DoctorRegData>) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [showMap, setShowMap] = useState(false);
 
@@ -524,15 +503,11 @@ function Step4PricingAndLocation({ data, update, onNext, onBack, step, total, ba
 
   const handleNext = (): boolean => {
     if (!validate()) return false;
-    if (!bare) onNext();
     return true;
   };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  useStepSaver(submitRef, handleNext);
 
-  const body = (
+  return (
       <View>
         {/* Clinic */}
         <View style={{ backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, marginBottom: SP.md }}>
@@ -642,30 +617,15 @@ function Step4PricingAndLocation({ data, update, onNext, onBack, step, total, ba
 
       </View>
   );
-  if (bare) return body;
-  return (
-    <NScroll pad={false}>
-      <View style={{ padding: SP.xl, paddingBottom: 0 }}>
-        <NHeader title={AR ? 'الخدمات والأسعار' : 'Services & Pricing'} step={step} total={total} onBack={onBack} />
-      </View>
-      <View style={{ paddingHorizontal: SP.xl }}>
-        {body}
-        <NBtn label={AR ? 'متابعة' : 'Next'} onPress={handleNext} style={{ marginTop: SP.lg, marginBottom: 50 }} />
-      </View>
-    </NScroll>
-  );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function Step5Schedule({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
+function Step5Schedule({ data, update, submitRef }: StepProps<DoctorRegData>) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
   const [showVacationCal, setShowVacationCal] = useState(false);
 
-  const handleNext = (): boolean => { if (!bare) onNext(); return true; };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  const handleNext = (): boolean => { return true; };
+  useStepSaver(submitRef, handleNext);
 
   const toggleDay = (day: string, service: 'unified' | 'clinic' | 'video' | 'home') => {
     let daysKey = `${service}Days` as keyof DoctorRegData;
@@ -738,8 +698,8 @@ function Step5Schedule({ data, update, onNext, onBack, step, total, bare = false
     );
   };
 
-  const body = (
-    <>
+  return (
+    <View>
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.lg }}>
         <TouchableOpacity onPress={() => update({ scheduleType: 'unified' })} style={{ flex: 1, padding: SP.md, borderWidth: 1, borderColor: data.scheduleType === 'unified' ? theme.primary : theme.border, backgroundColor: data.scheduleType === 'unified' ? theme.primaryLight : theme.bg, borderRadius: R.md, alignItems: 'center' }}>
           <Text style={{ color: data.scheduleType === 'unified' ? theme.primary : theme.text, fontWeight: FW.bold }}>{AR ? 'جدول موحد' : 'Unified'}</Text>
@@ -816,21 +776,12 @@ function Step5Schedule({ data, update, onNext, onBack, step, total, bare = false
         onClose={() => setShowVacationCal(false)}
         title={AR ? 'اختر تاريخ إجازتك' : 'Select Vacation Date'}
       />
-
-    </>
-  );
-  if (bare) return <View>{body}</View>;
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'مواعيد العمل والجدولة' : 'Working Hours'} step={step} total={total} onBack={onBack} />
-      {body}
-      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={handleNext} style={{ marginTop: SP.lg }} />
-    </NScroll>
+    </View>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function Step6Insurance({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
+function Step6Insurance({ data, update, submitRef }: StepProps<DoctorRegData>) {
  const insuranceCatalog = useInsuranceCatalog();
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
 
@@ -867,16 +818,12 @@ function Step6Insurance({ data, update, onNext, onBack, step, total, bare = fals
       show(AR ? 'يرجى اختيار شركة تأمين واحدة على الأقل أو تفعيل الدفع النقدي فقط' : 'Please select at least one insurance company or enable Cash Only', 'error');
       return false;
     }
-    if (!bare) onNext();
     return true;
   };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  useStepSaver(submitRef, handleNext);
 
-  const body = (
-    <>
+  return (
+    <View>
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: theme.surface2, padding: SP.lg, borderRadius: R.md, marginBottom: SP.sm }}>
         <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? 'الدفع نقداً فقط (لا أقبل التأمين)' : 'Cash Only (No Insurance)'}</Text>
         <Switch value={data.cashOnly} onValueChange={v=>update({cashOnly:v})} />
@@ -918,7 +865,7 @@ function Step6Insurance({ data, update, onNext, onBack, step, total, bare = fals
                 <TouchableOpacity onPress={() => toggleCompany(co.id)} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text style={{ fontSize: FS.md, color: theme.text, fontWeight: FW.bold }}>{AR ? co.ar : co.en}</Text>
                   <View style={{ width: 22, height: 22, borderRadius: R.sm, borderWidth: 2, borderColor: isAccepted ? theme.primary : theme.border, backgroundColor: isAccepted ? theme.primary : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
-                    {isAccepted && <I name="check" size={12} color="#FFF" />}
+                    {isAccepted && <I name="check" size={12} color={theme.textInv} />}
                   </View>
                 </TouchableOpacity>
 
@@ -960,317 +907,13 @@ function Step6Insurance({ data, update, onNext, onBack, step, total, bare = fals
           {data.location && <Marker coordinate={data.location} />}
         </MapView>
         <TouchableOpacity 
-          style={{ position: 'absolute', bottom: SP.md, right: SP.md, backgroundColor: theme.card, padding: SP.sm, borderRadius: R.full, elevation: 4, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: {width:0, height:2} }}
+          style={{ position: 'absolute', bottom: SP.md, right: SP.md, backgroundColor: theme.card, padding: SP.sm, borderRadius: R.full, elevation: 4, shadowColor: theme.text, shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: {width:0, height:2} }}
           onPress={() => update({ location: { latitude: 24.7136, longitude: 46.6753 } })} // Simulating My Location
         >
           <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.primary }}>{AR ? 'موقعي الحالي' : 'My Location'}</Text>
         </TouchableOpacity>
       </View>
-
-    </>
-  );
-  if (bare) return <View>{body}</View>;
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'التأمين وموقع تقديم الخدمة' : 'Insurance & Clinic Info'} step={step} total={total} onBack={onBack} />
-      {body}
-      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={handleNext} style={{ marginTop: SP.lg }} />
-    </NScroll>
-  );
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
-  const [showContract, setShowContract] = useState(false);
-  const [showSigModal, setShowSigModal] = useState(false);
-  const [showOtp, setShowOtp] = useState(false);
-  const handleVerifyOtp = async (code: string) => verifyEmailOtp(data.managerEmail || data.email, code);
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
-  const sigRef = useRef<any>(null);
-  const [scrollEnabled, setScrollEnabled] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleSignature = async (signature: string) => {
-    setLoading(true);
-    try {
-      let wh: any[] = [];
-      if (data.scheduleType === 'unified') {
-        wh = data.unifiedDays.map((d: string) => ({
-          day: d,
-          open: data.unifiedStart || '08:00',
-          close: data.unifiedEnd || '14:00',
-          open_evening: data.unifiedShift === 'both' ? data.unifiedStartEve : undefined,
-          close_evening: data.unifiedShift === 'both' ? data.unifiedEndEve : undefined
-        }));
-      } else {
-        // NOTE: per-service schedule is stored in flat fields (clinicDays/clinicStart/…),
-        // there is no `perService` object — reading it crashed with
-        // "Cannot read property 'clinic' of undefined" on final submit.
-        wh = ((data.clinicDays as string[]) || []).map((d: string) => ({
-          day: d,
-          open: (data as any).clinicStart || '',
-          close: (data as any).clinicEnd || '',
-          open_evening: (data as any).clinicShift === 'both' ? (data as any).clinicStartEve : undefined,
-          close_evening: (data as any).clinicShift === 'both' ? (data as any).clinicEndEve : undefined
-        }));
-      }
-
-      // 1. Send all Step 3 data (Services, Schedule, Location, Insurance)
-      //    — plus the fields that were collected but never sent (durations,
-      //    transport fee, clinic name, vacation, per-mode schedules, IDs).
-      await ProviderApi.step3({
-        specialty: data.specialty,
-        academic_degree: data.degree,
-        years_experience: parseInt(data.yearsExp) || 0,
-        consultation_modes: [
-          ...(data.offersClinic ? ['clinic'] : []),
-          ...(data.offersVideo ? ['video'] : []),
-          ...(data.offersHome ? ['home'] : [])
-        ],
-        price_clinic: parseFloat(data.clinicPrice) || 0,
-        price_online: parseFloat(data.videoPrice) || 0,
-        price_home: parseFloat(data.homePrice) || 0,
-        home_visit_radius_km: data.homeRadius,
-        clinic_duration: parseInt(data.clinicDuration) || 0,
-        video_duration: parseInt(data.videoDuration) || 0,
-        home_duration: parseInt((data as any).homeDuration) || 0,
-        schedule_clinic: ((data.clinicDays as string[]) || []).map((d: string) => ({
-          day: d,
-          open: (data as any).clinicStart || '',
-          close: (data as any).clinicEnd || '',
-          open_evening: (data as any).clinicShift === 'both' ? (data as any).clinicStartEve : undefined,
-          close_evening: (data as any).clinicShift === 'both' ? (data as any).clinicEndEve : undefined
-        })),
-        home_transport_fee: !!data.homeTransportFee,
-        home_transport_price: parseFloat(data.homeTransportPrice) || 0,
-        clinic_name: data.clinicName || undefined,
-        vacation_date: data.vacationDate || undefined,
-        national_id: data.nationalId || undefined,
-        gender: data.gender || undefined,
-        schedule_video: ((data.videoDays as string[]) || []).map((d: string) => ({
-          day: d,
-          open: (data as any).videoStart || '',
-          close: (data as any).videoEnd || '',
-          open_evening: (data as any).videoShift === 'both' ? (data as any).videoStartEve : undefined,
-          close_evening: (data as any).videoShift === 'both' ? (data as any).videoEndEve : undefined
-        })),
-        schedule_home: ((data.homeDays as string[]) || []).map((d: string) => ({
-          day: d,
-          open: (data as any).homeStart || '',
-          close: (data as any).homeEnd || '',
-          open_evening: (data as any).homeShift === 'both' ? (data as any).homeStartEve : undefined,
-          close_evening: (data as any).homeShift === 'both' ? (data as any).homeEndEve : undefined
-        })),
-        working_hours: wh,
-        accepts_insurance: !data.cashOnly && (data.acceptedInsurance || []).length > 0,
-        accepted_insurance: (data.acceptedInsurance || []).map((i: any) => i.companyId),
-        insurance_plans: Object.fromEntries((data.acceptedInsurance || []).filter((i: any) => Array.isArray(i.plans) && i.plans.length).map((i: any) => [i.companyId, i.plans])),
-        insurance_clinic: data.insuranceClinic,
-        insurance_online: data.insuranceVideo,
-        insurance_home: data.insuranceHome,
-      });
-
-      // 2. Step 2 Data that was deferred (City, Address, Cash, Bio, Photo, Clinic Images)
-      // The personal photo goes to its OWN field (provider card / booking profile) —
-      // never mixed into the clinic gallery.
-      let profilePhoto: string | undefined;
-      if (data.profilePhotoUri && !data.profilePhotoUri.startsWith('http')) {
-        profilePhoto = await ProviderApi.uploadFile(data.profilePhotoUri, 'image/jpeg', 'doctor_profile.jpg');
-      } else if (data.profilePhotoUri) {
-        profilePhoto = data.profilePhotoUri;
-      }
-      const images: string[] = [];
-      if (data.clinicImagesUris && data.clinicImagesUris.length > 0) {
-        for (let i = 0; i < data.clinicImagesUris.length; i++) {
-          const uri = data.clinicImagesUris[i];
-          if (!uri.startsWith('http')) {
-            images.push(await ProviderApi.uploadFile(uri, 'image/jpeg', `clinic_${i}.jpg`));
-          } else {
-            images.push(uri);
-          }
-        }
-      }
-
-      await ProviderApi.step2({
-        // Official identity (contracts/verification) + patient-facing display names.
-        legal_name: data.legalName,
-        name_ar: data.legalName,
-        name_en: data.legalName,
-        display_name_ar: data.nameAr,
-        display_name_en: data.nameEn,
-        region: (data as any).region,
-        city: data.city,
-        district: (data as any).district,
-        location: data.location,
-        address: data.address,
-        accepts_cash: data.cashOnly,
-        bio: data.bio,
-        clinic_images: images,
-        profile_photo: profilePhoto,
-        languages: data.languages,
-      });
-
-      // 3. Upload signature
-      const sigUrl = await ProviderApi.uploadSignature(signature);
-      update({ signatureData: sigUrl });
-
-      // 4. Submit
-      await ProviderApi.step2({
-        iban: data.iban,
-        bank_account_name: data.accountHolderName
-      });
-      await ProviderApi.submit({ signer_name: data.signerName, signer_role: data.signerRole, lat: data.lat, lng: data.lng , signature_url: sigUrl, full_data: sanitizeWizardData(data) });
-
-      show(AR ? 'تم إرسال الطلب بنجاح!' : 'Submitted successfully!', 'success');
-      setSubmitted(true);
-    } catch (e: any) {
-      show(e.message || (AR ? 'حدث خطأ' : 'Error submitting'), 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const submit = () => {
-    if (!data.signatureData) {
-      show(AR ? 'الرجاء توقيع العقد أولاً' : 'Please sign the contract first', 'error');
-      return;
-    }
-    // Send the REAL email OTP via the backend mailer before opening the modal
-    sendEmailOtp(data.managerEmail || data.email)
-      .then(() => show(AR ? 'تم إرسال رمز التحقق إلى بريدك الإلكتروني' : 'Verification code sent to your email', 'success'))
-      .catch(() => show(AR ? 'تعذر إرسال الرمز — تحقق من البريد أو أعد المحاولة' : 'Could not send the code — check the email or retry', 'error'));
-    setShowOtp(true);
-  };
-  const finishSubmit = () => {
-    handleSignature(data.signatureData);
-  };
-
-  const clearSig = () => {
-    sigRef.current?.clearSignature();
-    update({ signatureData: '' });
-  };
-
-  if (submitted) {
-    return <RegistrationSuccess onDone={onDone} email={data.email} providerType="doctor" />;
-  }
-
-  return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <View style={{ padding: SP.xl, paddingBottom: 0 }}>
-        <NHeader title={AR ? 'مراجعة وتوقيع العقد' : 'Review & Sign Contract'} step={step} total={total} onBack={onBack} />
-      </View>
-      
-      <ScrollView scrollEnabled={scrollEnabled} style={{ flex: 1, paddingHorizontal: SP.xl }} keyboardShouldPersistTaps="handled">
-        <View style={{ backgroundColor: theme.surface2, padding: SP.lg, borderRadius: R.lg, marginBottom: SP.lg }}>
-          
-          {/* Admin Warning Section */}
-          <View style={{ backgroundColor: theme.dangerBg, padding: SP.md, borderRadius: 8, borderWidth: 1, borderColor: theme.danger, marginBottom: SP.lg }}>
-            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', marginBottom: SP.sm }}>
-              <NIcon name="info" size={24} color={theme.danger} />
-              <Text style={{ fontSize: FS.md, fontWeight: 'bold', color: theme.danger, marginHorizontal: SP.sm }}>
-                {AR ? 'نظام الموافقات' : 'Approval System'}
-              </Text>
-            </View>
-            <Text style={{ fontSize: FS.sm, color: theme.text, textAlign: AR ? 'right' : 'left', lineHeight: 22 }}>
-              {AR ? 'البيانات التي قمت بإدخالها تخضع لمراجعة الإدارة (الأدمن) ولن تنشر لجمهور المرضى حتى تتم الموافقة عليها. كذلك أي تعديلات مستقبلية على الأسعار والخدمات تخضع لنفس النظام.' : 'Data entered is subject to Admin review and will not go live until approved. Future updates to pricing/services also follow this system.'}
-            </Text>
-          </View>
-
-          {/* Contract Modal & Button */}
-          
-      
-          <TouchableOpacity style={{ backgroundColor: theme.surface, padding: SP.md, borderRadius: 8, borderWidth: 1, borderColor: theme.primary, alignItems: 'center', marginBottom: SP.lg }} onPress={() => setShowContract(true)}>
-            <Text style={{ color: theme.primary, fontWeight: 'bold', fontSize: FS.md }}>{AR ? 'الاطلاع على العقد' : 'View Contract'}</Text>
-          </TouchableOpacity>
-
-          {/* Signer Info */}
-          <View style={{ marginBottom: SP.lg }}>
-            <Text style={{ fontSize: FS.md, fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
-              {AR ? 'بيانات الطرف الثاني (مقدم الخدمة)' : 'Second Party Data'}
-            </Text>
-            <NInput
-              label={AR ? 'اسم المُوقّع' : 'Signer Name'}
-              value={data.signerName}
-              onChange={v => update({ signerName: v })}
-              placeholder={AR ? 'الاسم الثلاثي' : 'Full Name'}
-            />
-            <NInput
-              label={AR ? 'صفة المُوقّع' : 'Signer Role'}
-              value={data.signerRole}
-              onChange={v => update({ signerRole: v })}
-              placeholder={AR ? 'مثل: مالك، مدير عام' : 'e.g., Owner, General Manager'}
-            />
-          </View>
-
-          
-          {/* Bank Info */}
-          <View style={{ marginBottom: SP.lg }}>
-            <Text style={{ fontSize: FS.md, fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
-              {AR ? 'الحساب البنكي' : 'Bank Account'}
-            </Text>
-            <NInput
-              label={AR ? 'اسم صاحب الحساب' : 'Account Holder Name'}
-              value={data.accountHolderName}
-              onChange={v => update({ accountHolderName: v })}
-              placeholder={AR ? 'اسم مطابق للهوية/السجل التجاري' : 'Name matching ID/CR'}
-            />
-            <NInput
-              label={AR ? 'رقم الآيبان IBAN' : 'Bank IBAN'}
-              value={data.iban}
-              onChange={v => update({ iban: v.toUpperCase().replace(/\s/g, '') })}
-              placeholder="SA0000000000000000000000"
-              maxLen={24}
-            />
-            <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'ملاحظة: سيتم تحويل مستحقاتك إلى هذا الحساب.' : 'Note: Your earnings will be transferred to this account.'}
-            </Text>
-          </View>
-
-          <Text style={{ fontSize: FS.md, fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>{AR ? 'إقرار وتوقيع' : 'Declaration & Signature'}</Text>
-          <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', lineHeight: 22 }}>
-            {AR ? 'بالتوقيع أدناه، أقر بأن جميع البيانات المدخلة صحيحة وأتحمل مسؤوليتها القانونية، وأوافق على شروط نبض بلس لاستخدام المنصة.' : 'By signing below, I acknowledge that all provided data is correct, and I agree to Nabdah Plus terms of use.'}
-          </Text>
-        </View>
-
-        
-
-        
-        <View style={{ marginBottom: SP.lg, gap: SP.md }}>
-          <TouchableOpacity onPress={() => setShowContract(true)} style={{ padding: SP.md, backgroundColor: theme.surface2, borderRadius: R.md, alignItems: 'center' }}>
-            <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{AR ? 'الاطلاع على تفاصيل العقد' : 'View Contract Details'}</Text>
-          </TouchableOpacity>
-
-          <View style={{ gap: SP.sm }}>
-            <NInput label={AR ? 'اسم المُوقّع' : 'Signatory Name'} value={data.signerName} onChange={(v) => update({signerName: v})} />
-            <NInput label={AR ? 'صفة المُوقّع (مثال: طبيب مستقل)' : 'Signatory Role'} value={data.signerRole} onChange={(v) => update({signerRole: v})} />
-          </View>
-
-          {data.signatureData ? (
-             <View style={{ alignItems: 'center', marginVertical: SP.md }}>
-               <Image source={{ uri: data.signatureData }} style={{ width: 200, height: 100, resizeMode: 'contain', backgroundColor: '#fff' }} />
-               <TouchableOpacity onPress={() => setShowSigModal(true)} style={{ marginTop: SP.sm }}><Text style={{ color: theme.primary }}>{AR ? 'إعادة التوقيع' : 'Re-sign'}</Text></TouchableOpacity>
-             </View>
-          ) : (
-            <TouchableOpacity onPress={() => setShowSigModal(true)} style={{ padding: SP.md, borderWidth: 1, borderColor: theme.primary, borderRadius: R.md, alignItems: 'center', borderStyle: 'dashed' }}>
-              <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{AR ? 'اضغط للتوقيع' : 'Tap to Sign'}</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-  
-        <NBtn label={AR ? 'تأكيد وإرسال الطلب للإدارة' : 'Submit for Admin Approval'} onPress={submit} loading={loading} style={{ marginTop: SP.sm, marginBottom: 50, backgroundColor: theme.success }} />
-      </ScrollView>
-      <ContractModal 
-        visible={showContract} 
-        onClose={() => setShowContract(false)}
-        pricingDetails={[
-          { labelAr: 'كشف في العيادة', labelEn: 'Clinic Visit', price: data.clinicPrice || '0' },
-          { labelAr: 'استشارة أونلاين', labelEn: 'Online Consultation', price: data.videoPrice || '0' },
-          { labelAr: 'زيارة منزلية', labelEn: 'Home Visit', price: data.homePrice || '0' }
-        ]} 
-      />
-      <SignatureCanvasModal visible={showSigModal} onClose={() => setShowSigModal(false)} onOK={(sig) => update({ signatureData: sig })} />
-      <OtpModal visible={showOtp} onClose={() => setShowOtp(false)} target={data.managerEmail || data.email} onVerify={async (code) => { const ok = await handleVerifyOtp(code); if(ok) { setShowOtp(false); finishSubmit(); return true; } return false; }} onResend={() => sendEmailOtp(data.managerEmail || data.email).then(() => show(AR ? 'أُعيد إرسال الرمز' : 'Code resent', 'success')).catch(() => show(AR ? 'تعذر الإرسال — انتظر قليلاً' : 'Could not resend — wait a moment', 'error'))} />
     </View>
   );
 }
+

@@ -230,29 +230,6 @@
    ]
   },
   {
-   "route": "FacilityFinancialScreen",
-   "elements": [
-    [
-     "button: {l}",
-     "local state setPeriod",
-     "ok"
-    ],
-    [
-     "data: List monthly",
-     "from monthly (prop / derived; not traced)",
-     "ok"
-    ],
-    [
-     "API: GET /provider/ops/wallet/ledger",
-     "GET /provider/ops/wallet/ledger (OK, backend/src/modules/provider-ops/provider-ops.module.ts:783)",
-     "ok"
-    ]
-   ],
-   "notes": [
-    "1 list(s) fed by a parent prop are not traced across components."
-   ]
-  },
-  {
    "route": "FacilityHomeTab",
    "elements": [
     [
@@ -782,7 +759,7 @@
     ],
     [
      "API: GET /insurance/requests/provider/queue",
-     "GET /insurance/requests/provider/queue (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:734)",
+     "GET /insurance/requests/provider/queue (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:736)",
      "ok"
     ]
    ],
@@ -1077,7 +1054,7 @@
    "kind": "client",
    "note": "Button \"Docs\" only shows a message without sending a request.",
    "file": "provider-app/src/screens/facility/facility/CredentialingScreen.tsx",
-   "line": 115
+   "line": 113
   },
   {
    "route": "CredentialingScreen",
@@ -1085,7 +1062,7 @@
    "kind": "client",
    "note": "Button \"Renew\" only shows a message without sending a request.",
    "file": "provider-app/src/screens/facility/facility/CredentialingScreen.tsx",
-   "line": 118
+   "line": 116
   },
   {
    "route": "FacilityAuditLogScreen",
@@ -1094,16 +1071,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/facility/FacilityAuditLogScreen.tsx",
    "line": 16,
-   "backend": "backend/src/modules/provider/provider-facility.controller.ts:27"
-  },
-  {
-   "route": "FacilityFinancialScreen",
-   "element": "API GET /provider/ops/wallet/ledger",
-   "kind": "backend",
-   "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
-   "file": "provider-app/src/screens/facility/facility/FacilityFinancialScreen.tsx",
-   "line": 57,
-   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:783"
+   "backend": "backend/src/modules/provider/provider-facility.controller.ts:29"
   },
   {
    "route": "FacilityLeaveRequestsScreen",
@@ -1112,7 +1080,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/facility/FacilityLeaveRequestsScreen.tsx",
    "line": 33,
-   "backend": "backend/src/modules/provider/leave-requests.controller.ts:16"
+   "backend": "backend/src/modules/provider/leave-requests.controller.ts:18"
   },
   {
    "route": "FacilityPatientTrackerScreen",
@@ -1121,7 +1089,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/facility/FacilityPatientTrackerScreen.tsx",
    "line": 16,
-   "backend": "backend/src/modules/provider/provider-facility.controller.ts:58"
+   "backend": "backend/src/modules/provider/provider-facility.controller.ts:62"
   },
   {
    "route": "FacilityUnifiedCalendarScreen",
@@ -1130,7 +1098,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/facility/FacilityUnifiedCalendarScreen.tsx",
    "line": 18,
-   "backend": "backend/src/modules/provider/provider-facility.controller.ts:39"
+   "backend": "backend/src/modules/provider/provider-facility.controller.ts:42"
   },
   {
    "route": "HospitalDispatchScreen",
@@ -1138,15 +1106,7 @@
    "kind": "client",
    "note": "dummy-value (mock-scan): +966500000000",
    "file": "provider-app/src/screens/facility/facility/HospitalDispatchScreen.tsx",
-   "line": 83
-  },
-  {
-   "route": "HospitalDispatchScreen",
-   "element": "Ambulance feature",
-   "kind": "owner",
-   "note": "Owner decision O-2 (2026-10-06) removes the ambulance system and provider type; this screen goes with it.",
-   "file": "provider-app/src/screens/facility/facility/HospitalDispatchScreen.tsx",
-   "line": 45
+   "line": 81
   },
   {
    "route": "InsuranceClaimsHubScreen",
@@ -1154,8 +1114,8 @@
    "kind": "backend",
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx",
-   "line": 56,
-   "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:734"
+   "line": 54,
+   "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:736"
   },
   {
    "route": "ShiftManagementScreen",
@@ -1163,8 +1123,8 @@
    "kind": "backend",
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/facility/facility/ShiftManagementScreen.tsx",
-   "line": 85,
-   "backend": "backend/src/modules/provider/provider-facility.controller.ts:76"
+   "line": 83,
+   "backend": "backend/src/modules/provider/provider-facility.controller.ts:81"
   },
   {
    "route": "SubAccountsScreen",
@@ -1172,7 +1132,7 @@
    "kind": "client",
    "note": "Button \"[document] Professional Credential Card\" only shows a message without sending a request.",
    "file": "provider-app/src/screens/facility/facility/SubAccountsScreen.tsx",
-   "line": 208
+   "line": 206
   }
  ]
 }

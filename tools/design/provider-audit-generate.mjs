@@ -11,7 +11,7 @@
  * The element rows are produced by the static analysis in provider-inventory.mjs (buttons, inputs, lists, numbers; what each one
  * does) and are NOT hand-written; reviewed false positives live in docs/design/inventory/provider-audit-overrides.json, so a
  * regenerated file keeps the human verdicts. Every non-ok row becomes one Needs-review line with file:line.
- * Ambulance screens get an `owner` line: the owner decided to remove the ambulance system (OWNER_DECISIONS_2026-10-06.md, O-2).
+ * The ambulance system was removed from the app (OWNER_DECISIONS_2026-10-06.md, O-2; provider-app build slice 2), so there is no ambulance area any more.
  */
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -21,8 +21,7 @@ const REPO = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const CHECK = process.argv.includes('--check');
 const rows = JSON.parse(readFileSync(join(REPO, 'docs/design/inventory/provider-screens.json'), 'utf8')).routes;
 const els = JSON.parse(readFileSync(join(REPO, 'docs/design/inventory/provider-elements.json'), 'utf8')).screens;
-const AREAS = ['auth-onboarding', 'doctor', 'pharmacy', 'lab', 'radiology', 'nursing', 'facility', 'shared', 'admin-ish', 'ambulance'];
-const OWNER_REMOVED = (r) => r.area === 'ambulance' || /^(FleetScreen|HospitalDispatchScreen|SosDispatchScreen)$/.test(r.component);
+const AREAS = ['auth-onboarding', 'doctor', 'pharmacy', 'lab', 'radiology', 'nursing', 'facility', 'shared', 'admin-ish'];
 const MAX_OK = 100000;
 // hand-verified findings the static analysis cannot see (read the file, confirmed the line): docs/design/inventory/provider-audit-manual.json
 const manual = existsSync(join(REPO, 'docs/design/inventory/provider-audit-manual.json')) ? JSON.parse(readFileSync(join(REPO, 'docs/design/inventory/provider-audit-manual.json'), 'utf8')) : [];
@@ -62,11 +61,6 @@ for (const area of AREAS) {
       if (c.method !== 'GET' || !guardPaths.has(c.path) || guardDone.has(c.path)) continue;
       guardDone.add(c.path);
       needs.push({ route: r.route, element: `API GET ${c.path}`, kind: 'backend', note: 'Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).', file: c.file, line: c.line, backend: c.backend });
-    }
-    if (OWNER_REMOVED(r)) {
-      const reg = r.registrations[0];
-      needs.push({ route: r.route, element: 'Ambulance feature', kind: 'owner', note: 'Owner decision O-2 (2026-10-06) removes the ambulance system and provider type; this screen goes with it.', file: r.file, line: r.line });
-      void reg;
     }
     const notes = [];
     if (!r.calls.length) notes.push('No API call at all (static screen or all data comes from a parent).');

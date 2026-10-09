@@ -4,7 +4,7 @@
  "app": "provider-app",
  "screens": [
   {
-   "route": "CertificatesConfigScreen (shared)",
+   "route": "CertificatesConfigScreen",
    "elements": [
     [
      "data: Data pendingDocType",
@@ -117,106 +117,6 @@
    ]
   },
   {
-   "route": "DeliveryTrackingScreen",
-   "elements": [
-    [
-     "button: Call Driver",
-     "native action",
-     "ok"
-    ],
-    [
-     "API: GET /provider/pharmacy/allocations",
-     "GET /provider/pharmacy/allocations (OK, backend/src/modules/pharmacy/pharmacy.controllers.ts:74)",
-     "ok"
-    ]
-   ]
-  },
-  {
-   "route": "FleetScreen",
-   "elements": [
-    [
-     "button: Add Vehicle",
-     "local state setShowForm",
-     "ok"
-    ],
-    [
-     "button: Retry",
-     "GET /provider/ambulance/fleet",
-     "ok"
-    ],
-    [
-     "data: List vehicles",
-     "GET /provider/ambulance/fleet, PATCH /provider/ambulance/fleet/:param, DELETE /provider/ambulance/fleet/:param → vehicle",
-     "ok"
-    ],
-    [
-     "input: Available for missions",
-     "user input → PATCH /provider/ambulance/fleet/:param",
-     "ok"
-    ],
-    [
-     "button: Remove",
-     "DELETE /provider/ambulance/fleet/:param",
-     "ok"
-    ],
-    [
-     "data: Data f",
-     "f: set from user input / local logic",
-     "ok"
-    ],
-    [
-     "data: Data errs",
-     "POST /provider/ambulance/fleet → errs",
-     "ok"
-    ],
-    [
-     "input: Plate number",
-     "user input → f → request body",
-     "ok"
-    ],
-    [
-     "input: Model",
-     "user input → f → request body",
-     "ok"
-    ],
-    [
-     "input: Year",
-     "user input → f → request body",
-     "ok"
-    ],
-    [
-     "input: Paramedics",
-     "user input → f → request body",
-     "ok"
-    ],
-    [
-     "input: Base city",
-     "user input → f → request body",
-     "ok"
-    ],
-    [
-     "input: Equipment (comma separated)",
-     "user input → f → request body",
-     "ok"
-    ],
-    [
-     "input: Mobile ICU unit",
-     "user input → f → request body",
-     "ok"
-    ],
-    [
-     "button: Save",
-     "POST /provider/ambulance/fleet",
-     "ok"
-    ],
-    [
-     "button: Cancel",
-     "parent callback onCancel",
-     "ok"
-    ]
-   ]
-  },
-  {
    "route": "InsuranceConfigScreen",
    "elements": [
     [
@@ -251,7 +151,7 @@
     ],
     [
      "API: GET /insurance/companies",
-     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:694)",
+     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:695)",
      "ok"
     ]
    ],
@@ -479,12 +379,12 @@
     ],
     [
      "API: POST /storage/upload",
-     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:358)",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:362)",
      "ok"
     ],
     [
      "API: POST /storage/upload-suggestion-image",
-     "POST /storage/upload-suggestion-image (OK, backend/src/modules/storage/storage.module.ts:393)",
+     "POST /storage/upload-suggestion-image (OK, backend/src/modules/storage/storage.module.ts:397)",
      "ok"
     ]
    ],
@@ -815,31 +715,164 @@
    ]
   },
   {
+   "route": "ProviderProfileEditor",
+   "elements": [
+    [
+     "input: Full Name (Arabic)",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: Full Name (English)",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: Bio (Arabic)",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: Bio (English)",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: Years of Experience",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: Website",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: Specialty",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: Degree / Title",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "button: [plus] Uploading…",
+     "parent callback DocPicker.getDocumentAsync, ProviderApi.uploadFile",
+     "ok"
+    ],
+    [
+     "data: List form.clinicImages",
+     "GET /provider/profile → form",
+     "ok"
+    ],
+    [
+     "button: [close]",
+     "local state setForm",
+     "ok"
+    ],
+    [
+     "button: <MapView>",
+     "local state setForm",
+     "ok"
+    ],
+    [
+     "button: Locating…",
+     "parent callback requestForegroundPermissionsAsync, getCurrentPositionAsync",
+     "ok"
+    ],
+    [
+     "input: <NInput>",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: <NInput>",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: Active Public Website",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "input: Social Media Link",
+     "user input → form (local)",
+     "ok"
+    ],
+    [
+     "button: Share",
+     "native action",
+     "ok"
+    ],
+    [
+     "button: {sectionLabel[s]}",
+     "local state setSection",
+     "ok"
+    ],
+    [
+     "button: Save Changes",
+     "PATCH /provider/profile",
+     "ok"
+    ],
+    [
+     "data: List sections",
+     "from sections (prop / derived; not traced)",
+     "ok"
+    ],
+    [
+     "API: GET /provider/profile/image/status",
+     "GET /provider/profile/image/status (OK, backend/src/modules/provider/provider.controllers.ts:113)",
+     "ok"
+    ],
+    [
+     "API: POST /provider/profile/image/upload",
+     "POST /provider/profile/image/upload (OK, backend/src/modules/provider/provider.controllers.ts:102)",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "1 list(s) fed by a parent prop are not traced across components."
+   ]
+  },
+  {
    "route": "ProviderWalletScreen",
    "elements": [
     [
-     "button: Request Withdrawal",
-     "navigate → withdrawal_workflow",
-     "broken"
-    ],
-    [
      "data: Data balance",
-     "GET /provider/wallet, GET /provider/wallet/transactions, GET /provider/me → balance",
+     "GET /provider/payouts/balance, GET /provider/wallet/transactions, GET /provider/me → balance",
      "ok"
     ],
     [
      "data: Data totalRevenue",
-     "GET /provider/wallet, GET /provider/wallet/transactions, GET /provider/me → totalRevenue",
+     "GET /provider/payouts/balance, GET /provider/wallet/transactions, GET /provider/me → totalRevenue",
+     "ok"
+    ],
+    [
+     "data: Data lockedAmount",
+     "GET /provider/payouts/balance, GET /provider/wallet/transactions, GET /provider/me → lockedAmount",
      "ok"
     ],
     [
      "data: Data commissionCash",
-     "GET /provider/wallet, GET /provider/wallet/transactions, GET /provider/me → commissionCash",
+     "GET /provider/payouts/balance, GET /provider/wallet/transactions, GET /provider/me → commissionCash",
      "ok"
     ],
     [
      "data: Data commissionIns",
-     "GET /provider/wallet, GET /provider/wallet/transactions, GET /provider/me → commissionIns",
+     "GET /provider/payouts/balance, GET /provider/wallet/transactions, GET /provider/me → commissionIns",
+     "ok"
+    ],
+    [
+     "button: Request Withdrawal",
+     "navigate → withdrawal_workflow",
+     "ok"
+    ],
+    [
+     "button: Revenue Insights & Reports",
+     "navigate (back / dynamic target)",
      "ok"
     ],
     [
@@ -854,7 +887,7 @@
     ],
     [
      "data: List transactions",
-     "GET /provider/wallet, GET /provider/wallet/transactions, GET /provider/me → transactions",
+     "GET /provider/payouts/balance, GET /provider/wallet/transactions, GET /provider/me → transactions",
      "ok"
     ]
    ]
@@ -914,32 +947,32 @@
     ],
     [
      "API: POST /provider-onboarding/start",
-     "POST /provider-onboarding/start (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:491)",
+     "POST /provider-onboarding/start (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:484)",
      "ok"
     ],
     [
      "API: POST /provider-onboarding/step2",
-     "POST /provider-onboarding/step2 (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:497)",
+     "POST /provider-onboarding/step2 (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:490)",
      "ok"
     ],
     [
      "API: POST /provider-onboarding/step3",
-     "POST /provider-onboarding/step3 (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:501)",
+     "POST /provider-onboarding/step3 (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:494)",
      "ok"
     ],
     [
      "API: POST /provider-onboarding/submit",
-     "POST /provider-onboarding/submit (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:505)",
+     "POST /provider-onboarding/submit (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:498)",
      "ok"
     ],
     [
      "API: POST /provider/auth/login",
-     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:34)",
+     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:35)",
      "ok"
     ],
     [
      "API: POST /storage/upload",
-     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:358)",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:362)",
      "ok"
     ]
    ]
@@ -949,7 +982,7 @@
    "elements": [
     [
      "input: Shortage Drug Name",
-     "user input → drug → request body",
+     "user input → drug (local)",
      "ok"
     ],
     [
@@ -959,7 +992,12 @@
     ],
     [
      "button: Send Shortage Report",
-     "POST /support/tickets",
+     "POST /provider/pharmacy/shortage-flags, GET /provider/pharmacy/shortage-flags",
+     "ok"
+    ],
+    [
+     "data: List flags",
+     "GET /provider/pharmacy/shortage-flags → flags",
      "ok"
     ]
    ]
@@ -1084,7 +1122,7 @@
     ],
     [
      "API: GET /provider/banks",
-     "GET /provider/banks (OK, backend/src/modules/provider/provider.controllers.ts:98)",
+     "GET /provider/banks (OK, backend/src/modules/provider/provider.controllers.ts:100)",
      "ok"
     ],
     [
@@ -1127,21 +1165,13 @@
  ],
  "needsReview": [
   {
-   "route": "FleetScreen",
-   "element": "Ambulance feature",
-   "kind": "owner",
-   "note": "Owner decision O-2 (2026-10-06) removes the ambulance system and provider type; this screen goes with it.",
-   "file": "provider-app/src/screens/shared/FleetScreen.tsx",
-   "line": 22
-  },
-  {
    "route": "InsuranceConfigScreen",
    "element": "API GET /provider/insurance-matrix",
    "kind": "backend",
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/shared/shared/InsuranceConfigScreen.tsx",
    "line": 52,
-   "backend": "backend/src/modules/legal/legal-enterprise.controller.ts:109"
+   "backend": "backend/src/modules/legal/legal-enterprise.controller.ts:111"
   },
   {
    "route": "PharmacyQRMenuScreen",
@@ -1161,11 +1191,12 @@
   },
   {
    "route": "ProviderWalletScreen",
-   "element": "Request Withdrawal",
-   "kind": "client",
-   "note": "Button \"Request Withdrawal\" navigates to screen(s) its navigator does not register: withdrawal_workflow (facility/lab/nursing/radiology).",
+   "element": "API GET /provider/wallet/transactions",
+   "kind": "backend",
+   "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
-   "line": 81
+   "line": 49,
+   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:730"
   },
   {
    "route": "ReviewsAndRatingsScreen",
@@ -1174,7 +1205,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/shared/RealScreens.tsx",
    "line": 20,
-   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:838"
+   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:765"
   },
   {
    "route": "WithdrawalWorkflow",
@@ -1182,8 +1213,8 @@
    "kind": "backend",
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
-   "line": 51,
-   "backend": "backend/src/modules/provider/provider.controllers.ts:97"
+   "line": 54,
+   "backend": "backend/src/modules/provider/provider.controllers.ts:99"
   },
   {
    "route": "WorkingHoursEditorScreen",
@@ -1192,7 +1223,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/shared/RealScreens.tsx",
    "line": 123,
-   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:848"
+   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:776"
   }
  ]
 }

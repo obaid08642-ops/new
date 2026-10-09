@@ -1,6 +1,5 @@
 {
   "$comment": "Recorded debt for tools/design/no-emoji-in-ui.ts. Every entry is an emoji being used as an icon somewhere in a client, before the design system existed. 12.A11 replaces them with the illustrated or line icon set and this file shrinks to zero. It may only shrink.",
-  "total": 44,
   "files": {
     "admin/src/pages/admin/ai-control.tsx": 1,
     "admin/src/pages/admin/command-center.tsx": 1,
@@ -13,7 +12,6 @@
     "admin/src/pages/admin/shortage-reports.tsx": 1,
     "admin/src/pages/admin/users-management.tsx": 3,
     "provider-app/src/screens/doctor/doctor/AvailabilityExceptions.tsx": 1,
-    "provider-app/src/screens/doctor/doctor/CertificatesConfigScreen.tsx": 1,
     "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx": 2,
     "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx": 2,
     "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx": 4,
@@ -22,9 +20,11 @@
     "provider-app/src/screens/doctor/doctor/PatientFileScreen.tsx": 2,
     "provider-app/src/screens/doctor/doctor/RequestTestScreen.tsx": 1,
     "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx": 3,
-    "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx": 1,
     "provider-app/src/screens/shared/RealScreens.tsx": 1,
     "provider-app/src/screens/shared/RealScreensExtended.tsx": 6,
-    "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx": 1
-  }
+    "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx": 1,
+    "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx": 1,
+    "provider-app/src/screens/doctor/doctor/CertificatesConfigScreen.tsx": 1
+  },
+  "total": 44
 }

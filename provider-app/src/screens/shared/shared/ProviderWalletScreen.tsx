@@ -27,11 +27,14 @@ import { useInsuranceCatalog } from '../../../api/catalogs';
 import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
 
-export function ProviderWalletScreen({ onBack, onNavigate }: { onBack: () => void; onNavigate?: (s: string) => void }) {
+// One wallet for every provider role. Used as a stack route (with a back button) and as the doctor's Wallet tab
+// (`embedded`, no back button). `revenueRoute` adds a link to the role's revenue report when the navigator has one.
+export function ProviderWalletScreen({ onBack, onNavigate, embedded, revenueRoute }: { onBack?: () => void; onNavigate?: (s: string) => void; embedded?: boolean; revenueRoute?: string }) {
   const { theme } = useTheme(); const { lang } = useLang(); const { user } = useAuth(); const AR = lang === 'ar';
   const [balance, setBalance] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [pendingEscrow, setPendingEscrow] = useState(0);
+  const [lockedAmount, setLockedAmount] = useState(0);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [commission, setCommission] = useState<number | null>(null);
   const [commissionCash, setCommissionCash] = useState<number | null>(null);
@@ -42,7 +45,7 @@ export function ProviderWalletScreen({ onBack, onNavigate }: { onBack: () => voi
     const fetchWallet = async () => {
       try {
         const [wRes, txRes] = await Promise.all([
-          client.get('/provider/wallet'),
+          client.get('/provider/payouts/balance'),
           client.get('/provider/wallet/transactions').catch(() => ({ data: [] })),
         ]);
         // Real per-provider commission rates set by the admin (cash % + insurance %)
@@ -54,9 +57,11 @@ export function ProviderWalletScreen({ onBack, onNavigate }: { onBack: () => voi
           if (cash !== undefined && cash !== null) { setCommissionCash(Number(cash)); setCommission(Number(cash)); }
           if (ins !== undefined && ins !== null) setCommissionIns(Number(ins));
         }).catch(() => {});
-        setBalance(wRes.data?.available || 0);
-        setPendingEscrow(wRes.data?.escrow || 0);
-        setTotalRevenue(wRes.data?.earned || 0);
+        // Single balance source (same ledger the withdrawal check uses): available, pending, locked, lifetime earned.
+        setBalance(Number(wRes.data?.available || 0));
+        setPendingEscrow(Number(wRes.data?.pending || 0));
+        setLockedAmount(Number(wRes.data?.locked || 0));
+        setTotalRevenue(Number(wRes.data?.lifetime_earned || 0));
         setTransactions(Array.isArray(txRes.data) ? txRes.data : []);
       } catch (err) {
         console.warn('Failed to fetch wallet', err);
@@ -69,7 +74,7 @@ export function ProviderWalletScreen({ onBack, onNavigate }: { onBack: () => voi
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'المحفظة والإيرادات' : 'Wallet & Revenue'} onBack={onBack} />
+      <NHeader title={AR ? 'المحفظة والإيرادات' : 'Wallet & Revenue'} onBack={embedded ? undefined : onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.lg }}>
         <NCard style={{ backgroundColor: theme.primary, alignItems: 'center', padding: SP.xxl, marginBottom: SP.lg }}>
           <Text style={{ color: '#fff', opacity: 0.8, fontSize: FS.sm }}>{AR ? 'الرصيد المتاح للسحب' : 'Available Balance'}</Text>
@@ -84,10 +89,22 @@ export function ProviderWalletScreen({ onBack, onNavigate }: { onBack: () => voi
           />
         </NCard>
 
+        {revenueRoute && onNavigate ? (
+          <NBtn label={AR ? 'التقارير والإحصائيات' : 'Revenue Insights & Reports'} variant="outline" onPress={() => onNavigate(revenueRoute)} style={{ marginBottom: SP.lg }} />
+        ) : null}
+
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.md }}>
           <NStatCard icon="trendingUp" label={AR ? 'إجمالي الإيرادات' : 'Total Revenue'} value={String(totalRevenue)} unit={AR ? 'ر' : 'SAR'} color={theme.success} style={{ flex: 1 }} />
           <NStatCard icon="clock" label={AR ? 'أرصدة معلقة (Escrow)' : 'Pending (Escrow)'} value={String(pendingEscrow)} unit={AR ? 'ر' : 'SAR'} color={theme.warn} style={{ flex: 1 }} />
         </View>
+
+        {lockedAmount > 0 && (
+          <NCard style={{ marginBottom: SP.md }}>
+            <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
+              {AR ? `محجوز لطلبات سحب قيد المعالجة: ${lockedAmount} ر.س` : `Reserved for withdrawals in progress: ${lockedAmount} SAR`}
+            </Text>
+          </NCard>
+        )}
 
         <NCard style={{ marginBottom: SP.lg, flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
           <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: theme.info + '20', justifyContent: 'center', alignItems: 'center' }}>

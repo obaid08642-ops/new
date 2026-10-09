@@ -26,10 +26,10 @@ import { DoctorUrgentRequests } from '../components/DoctorUrgentRequests';
 import { DoctorQueueList } from '../components/DoctorQueueList';
 import { FacilityInvitationsScreen } from '../FacilityInvitationsScreen';
 import {
- PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
+ PromotionsDashboard, CreateCampaignScreen, 
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
  LiveOrderAlarmModal, CrmHub, RevenueInsights, AiMedicalCopilot,
- SmartOutboundReferralNetwork, SosDispatchScreen, GpsRouterScreen
+ SmartOutboundReferralNetwork
 } from '../../shared/BlueprintScreens';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
@@ -140,8 +140,12 @@ export function EPrescriptionScreen({ apt, onBack }:
   await client.post('/prescriptions/create', payload);
   show(AR ? 'تم إصدار الوصفة الطبية وإرسالها للمريض ' : 'Prescription issued and sent to patient ', 'success');
   onBack();
-  } catch (err: any) {
-  show(AR ? 'حدث خطأ أثناء إرسال الوصفة' : 'Error sending prescription', 'error');
+  } catch (err) {
+  const raw = String((err as { response?: { data?: { message?: unknown } } })?.response?.data?.message || '');
+  // server rule: only an IN_PROGRESS appointment of this doctor accepts a prescription
+  show(/in-progress appointment/i.test(raw)
+    ? (AR ? 'لا يمكن إصدار الوصفة: يجب أن تكون الاستشارة جارية (ابدأها أولاً، ولا تُنهِها قبل الوصفة).' : 'Cannot issue the prescription: the consultation must be in progress (start it first, and do not finish it before prescribing).')
+    : (raw || (AR ? 'حدث خطأ أثناء إرسال الوصفة' : 'Error sending prescription')), 'error');
   } finally {
   setLoading(false);
   }

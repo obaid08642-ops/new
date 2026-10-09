@@ -118,7 +118,9 @@ def provider_after_approval(prov):
 import json as _json, os as _os, subprocess as _sp
 
 SCREENS = {  # provider type -> registration screen (provider-app/src/screens)
-    'doctor': 'doctor/DoctorRegistration.tsx', 'lab': 'lab/LabRegistration.tsx', 'radiology': 'radiology/RadiologyRegistration.tsx',
+    'doctor': 'doctor/DoctorRegistration.tsx', 'lab': 'lab/LabRegistration.tsx',
+    # The laboratory and the radiology centre share one wizard since #1205 (the centre type picks the body).
+    'radiology': 'lab/LabRegistration.tsx',
     'home_care': 'nursing/NursingRegistration.tsx', 'hospital': 'facility/FacilityRegistration.tsx',
 }
 _CT = []
@@ -154,6 +156,8 @@ def _value(key, kind):
             return 'SA0380000000608010167519'
         if k in ('specialty',):
             return 'cardiology'
+        if k == 'academic_degree':
+            return 'consultant'  # one of the DEGREES ids the wizard offers (provider-profile enum)
         if 'city' in k:
             return 'الرياض'
         return 'قيمة اختبار'
@@ -161,6 +165,9 @@ def _value(key, kind):
         return 10
     if kind == 'boolean':
         return True
+    if key == 'nursing_services':
+        # NursingRegistration sends one entry per enabled service: {key, name_ar, price}.
+        return [{'key': 'wound_care', 'name_ar': 'العناية بالجروح', 'price': 0}]
     if kind.startswith('array<object>'):
         if 'schedule' in k or 'hours' in k:
             return [{'day': 'sunday', 'open': '09:00', 'close': '17:00', 'closed': False}]

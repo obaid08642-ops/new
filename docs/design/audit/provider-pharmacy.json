@@ -7,6 +7,11 @@
    "route": "ActiveInventoryScreen",
    "elements": [
     [
+     "data: Data restockQty",
+     "POST /provider/inventory/:param/restock, GET /provider/inventory/low-stock-alerts, GET /provider/capabilities/pharmacy +",
+     "ok"
+    ],
+    [
      "data: Data picked",
      "POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy → picked",
      "ok"
@@ -14,6 +19,31 @@
     [
      "data: Data newPrice",
      "POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy → newPrice",
+     "ok"
+    ],
+    [
+     "button: [scan]",
+     "navigate → scanner",
+     "ok"
+    ],
+    [
+     "data: List alerts",
+     "GET /provider/inventory/low-stock-alerts → alerts",
+     "ok"
+    ],
+    [
+     "input: Qty",
+     "user input → restockQty (local)",
+     "ok"
+    ],
+    [
+     "button: Restock",
+     "POST /provider/inventory/:param/restock, GET /provider/inventory/low-stock-alerts, GET /provider/capabilities/pharmacy",
+     "ok"
+    ],
+    [
+     "button: Acknowledge",
+     "POST /provider/inventory/low-stock-alerts/:param/ack, GET /provider/inventory/low-stock-alerts",
      "ok"
     ],
     [
@@ -198,11 +228,6 @@
    "route": "DispatchWorkflowScreen",
    "elements": [
     [
-     "data: Data allocations",
-     "GET /provider/pharmacy/allocations → allocations",
-     "ok"
-    ],
-    [
      "data: Data actionId",
      "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations → actionId",
      "ok"
@@ -311,17 +336,25 @@
      "button: Details",
      "GET /provider/pharmacy/allocations/:param",
      "ok"
-    ]
-   ]
-  },
-  {
-   "route": "OrderHistoryScreen",
-   "elements": [
+    ],
     [
-     "data: List history",
-     "GET /provider/pharmacy/allocations → history",
+     "button: [shield]",
+     "navigate → insurance_decisions",
+     "ok"
+    ],
+    [
+     "button: {t.ar} ({…})",
+     "local state setSection",
+     "ok"
+    ],
+    [
+     "data: List sectionTabs",
+     "from sectionTabs (prop / derived; not traced)",
      "ok"
     ]
+   ],
+   "notes": [
+    "1 list(s) fed by a parent prop are not traced across components."
    ]
   },
   {
@@ -355,7 +388,7 @@
     [
      "placeholder-text: الصيدلية ستغلق قريباً",
      "mock-scan placeholder-text",
-     "ok"
+     "placeholder"
     ],
     [
      "input: <Switch>",
@@ -385,6 +418,31 @@
     [
      "button: {r.label}",
      "POST /provider/pharmacy/broadcasts/:param/reject",
+     "ok"
+    ],
+    [
+     "data: Data items (in SetupChecklist)",
+     "items: set from user input / local logic",
+     "ok"
+    ],
+    [
+     "button: Finish setting up ({…}/{…}) {remaining[0].ar} (in SetupChecklist)",
+     "parent callback onOpenMore",
+     "ok"
+    ],
+    [
+     "data: List items (in SetupChecklist)",
+     "items: set from user input / local logic",
+     "ok"
+    ],
+    [
+     "button: [check] {item.ar} (in SetupChecklist)",
+     "navigate (back / dynamic target)",
+     "ok"
+    ],
+    [
+     "button: Refresh (in SetupChecklist)",
+     "parent callback reload",
      "ok"
     ],
     [
@@ -461,26 +519,52 @@
    ]
   },
   {
-   "route": "PharmacyWalletScreen",
+   "route": "PharmacyMoreScreen",
    "elements": [
     [
-     "API: GET /provider/me",
-     "GET /provider/me (OK, backend/src/modules/provider/provider.controllers.ts:462)",
+     "data: Data items",
+     "items: set from user input / local logic",
      "ok"
     ],
     [
-     "API: GET /provider/wallet",
-     "GET /provider/wallet (OK, backend/src/modules/provider-ops/provider-ops.module.ts:801)",
+     "button: Finish setting up ({…}/{…}) {remaining[0].ar}",
+     "parent callback onOpenMore",
      "ok"
     ],
     [
-     "API: GET /provider/wallet/transactions",
-     "GET /provider/wallet/transactions (OK, backend/src/modules/provider-ops/provider-ops.module.ts:806)",
+     "data: List items",
+     "items: set from user input / local logic",
+     "ok"
+    ],
+    [
+     "button: [check] {item.ar}",
+     "navigate (back / dynamic target)",
+     "ok"
+    ],
+    [
+     "button: Refresh",
+     "parent callback reload",
+     "ok"
+    ],
+    [
+     "button: {row.ar}",
+     "navigate (back / dynamic target)",
+     "ok"
+    ],
+    [
+     "data: List PHARMACY_MENU",
+     "from PHARMACY_MENU (prop / derived; not traced)",
+     "ok"
+    ],
+    [
+     "data: List section.rows",
+     "from section (prop / derived; not traced)",
      "ok"
     ]
    ],
    "notes": [
-    "No tracked elements: thin wrapper or purely static layout."
+    "No API call at all (static screen or all data comes from a parent).",
+    "2 list(s) fed by a parent prop are not traced across components."
    ]
   },
   {
@@ -587,7 +671,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
    "line": 555,
-   "backend": "backend/src/modules/returns/returns.controller.ts:23"
+   "backend": "backend/src/modules/returns/returns.controller.ts:25"
   },
   {
    "route": "PharmacyChatScreen",
@@ -595,8 +679,16 @@
    "kind": "backend",
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-   "line": 1683,
+   "line": 1715,
    "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:270"
+  },
+  {
+   "route": "PharmacyHomeTab",
+   "element": "placeholder-text: الصيدلية ستغلق قريباً",
+   "kind": "client",
+   "note": "placeholder-text (mock-scan): الصيدلية ستغلق قريباً",
+   "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
+   "line": 287
   }
  ]
 }

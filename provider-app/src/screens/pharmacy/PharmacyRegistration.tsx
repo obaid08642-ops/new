@@ -1,30 +1,21 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
-import {
-  View, Text, TouchableOpacity, ScrollView, StyleSheet,
-  Switch, Dimensions, Alert, Image, TextInput
-} from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import * as DocumentPicker from 'expo-document-picker';
-import SignatureCanvas from 'react-native-signature-canvas';
+import { startOnboardingAccount, firstMissingDoc, useStepSaver } from '../registration/kit';
+import type { StepProps, Uploader, RequiredDoc } from '../registration/kit';
+import { DocCard, NoticeSection, useDocumentPicker } from '../registration/WizardParts';
+import type { NoticeText } from '../registration/WizardParts';
+import { RegistrationWizard } from '../registration/RegistrationWizard';
+import type { RegistrationProps, WizardConfig } from '../registration/RegistrationWizard';
+import React, { useState, useRef } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Switch, Dimensions, TextInput } from 'react-native';
 import MapView, { Circle, Marker } from '../../components/PlatformMap';
-import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+import { ProviderApi } from '../../api/provider';
 import { useInsuranceCatalog } from '../../api/catalogs';
 import { useTheme, useLang, useToast } from '../../context';
-import {
-  NBtn, NCard, NInput, NPhoneInput, NPassStrength,
-  NCheckbox, NToggle, NBadge, NDivider,
-  NHeader, NScroll, NSuccess, NPriceInput, NSearch, NDropdown, NDatePickerSheet, WizardSection
-} from '../../components/ui';
+import { tokens, withAlpha } from '../../theme/tokens';
+import { NBtn, NCard, NInput, NPhoneInput, NPassStrength, NToggle, NDivider, NPriceInput, NDropdown, NDatePickerSheet } from '../../components/ui';
 import { GeoPicker } from '../../components/GeoPicker';
 import { Validate } from '../../security/Security';
-import { SP, R, FS, FW, PHARMA_CATS, LIMITS, C , LANGS } from '../../constants';
-import { RegistrationSuccess } from '../shared/SharedScreens';
+import { SP, R, FS, FW, PHARMA_CATS, C, LANGS } from '../../constants';
 import { LocationPickerModal } from '../../components/LocationPickerModal';
-import { ContractModal } from '../../components/ContractModal';
-import { OtpModal } from '../../components/OtpModal';
-import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
-import { SuccessScreen } from '../../components/SuccessScreen';
-import { SignatureCanvasModal } from '../../components/SignatureCanvasModal';
 import { I } from '../../components/icons';
 
 const { width: W } = Dimensions.get('window');
@@ -50,10 +41,10 @@ interface PharmacyRegData {
   iban: string; accountHolderName: string; taxNumber: string;
   crUri: string; mohUri: string; sfdaUri: string; logoUri: string;
   // Step 3
-  city: string; location: {lat: number; lng: number}; district: string; address: string;
+  region: string; city: string; location: {lat: number; lng: number}; district: string; address: string;
   deliveryRadius: number; hasDelivery: boolean; hasOwnDrivers: boolean;
   // Step 4
-  workDays: string[]; is24_7: boolean; vacationDate: string;
+  workDays: string[]; hasNightShift?: boolean; is24_7: boolean; vacationDate: string;
   shiftType: 'morning' | 'evening' | 'both';
   openTime: string; closeTime: string;
   eveningOpenTime: string; eveningCloseTime: string;
@@ -77,7 +68,7 @@ const INIT: PharmacyRegData = {
   managerEmail:'', password:'', confirmPass:'', pharmacistName:'',
   crNumber:'', mohLicense:'', sfdaNumber:'', iban:'', taxNumber:'',
   crUri:'', mohUri:'', sfdaUri:'', logoUri:'',
-  city:'', district:'', address:'', deliveryRadius: 0, hasDelivery: false, hasOwnDrivers: false,
+  region:'', city:'', district:'', address:'', deliveryRadius: 0, hasDelivery: false, hasOwnDrivers: false,
   workDays:[], is24_7: false, vacationDate: '',
   shiftType: 'morning', openTime:'', closeTime:'',
   eveningOpenTime:'', eveningCloseTime:'',
@@ -88,80 +79,150 @@ const INIT: PharmacyRegData = {
   signatureData: '', signerName: '', signerRole: '',   termsAgreed: false, location: {lat: 0, lng: 0}, accountHolderName: ''
 };
 
-// ══════════════════════════════════════════════════════════════════════════════
-export function PharmacyRegistration({ onBack, onDone }: { onBack:()=>void; onDone:()=>void }) {
-  const [step, setStep] = useState(1);
-  const [data, setData] = useState<PharmacyRegData>(INIT);
-  const [showMap, setShowMap] = useState(false);
-  const TOTAL = 4;
-  const [showSuccess, setShowSuccess] = useState(false);
-  const update = useCallback((p: Partial<PharmacyRegData>) => setData(prev => ({ ...prev, ...p })), []);
-  const next = () => { if (step < TOTAL) setStep(s => s+1); else setStep(5); };
-  const back = () => { if (step === 1) onBack(); else setStep(s => s-1); };
+// ─── What the pharmacy sends when the application is submitted (same fields as before the shared wizard) ───
+async function sendPharmacy(data: PharmacyRegData, uploads: Uploader): Promise<void> {
+  const workingHours = data.is24_7 ? [
+    { day: 'All', open: '00:00', close: '23:59', open_evening: null, close_evening: null, closed: false }
+  ] : data.workDays.map((d: string) => ({
+    day: d,
+    open: data.shiftType === 'morning' || data.shiftType === 'both' ? data.openTime : null,
+    close: data.shiftType === 'morning' || data.shiftType === 'both' ? data.closeTime : null,
+    open_evening: data.shiftType === 'evening' || data.shiftType === 'both' ? data.eveningOpenTime : null,
+    close_evening: data.shiftType === 'evening' || data.shiftType === 'both' ? data.eveningCloseTime : null,
+    closed: false
+  }));
 
-  // 4 merged screens (was 8): related few-field steps now live on ONE page.
-  const screens: Record<number, React.ReactElement> = {
-    5: <SuccessScreen onDone={() => { setShowSuccess(false); onDone(); }} />,
-    1: <MergedPharmacyStep step={step} onBack={back} onNext={next} data={data} update={update}
-         titleAr="بيانات الصيدلية والتراخيص" titleEn="Pharmacy & Licenses"
-         subAr="بيانات الدخول والسجل والتراخيص" subEn="Login, CR & licenses"
-         sections={[
-           { comp: PStep1Basic, titleAr: 'بيانات الصيدلية', titleEn: 'Pharmacy Basic Info' },
-           { comp: PStep2Legal, titleAr: 'التراخيص والوثائق', titleEn: 'Licenses & Documents' },
-         ]} />,
-    2: <MergedPharmacyStep step={step} onBack={back} onNext={next} data={data} update={update}
-         titleAr="الموقع وأوقات العمل" titleEn="Location & Working Hours"
-         subAr="موقع الصيدلية ونطاق التوصيل والدوام" subEn="Location, delivery zone & schedule"
-         sections={[
-           { comp: PStep3Location, titleAr: 'الموقع ونطاق التوصيل', titleEn: 'Location & Delivery Zone' },
-           { comp: PStep4Hours, titleAr: 'أوقات العمل والجدولة', titleEn: 'Working Hours' },
-         ]} />,
-    3: <MergedPharmacyStep step={step} onBack={back} onNext={next} data={data} update={update}
-         titleAr="الكتالوج والتوصيل والتأمين" titleEn="Catalog, Delivery & Insurance"
-         subAr="فئات المنتجات وشروط التوصيل" subEn="Product categories & delivery terms"
-         sections={[
-           { comp: PStep5Catalog, titleAr: 'كتالوج المنتجات', titleEn: 'Product Catalog' },
-           { comp: PStep6Delivery, titleAr: 'شروط التوصيل والتأمين', titleEn: 'Delivery & Insurance' },
-           { comp: PStep7AdminWarning, titleAr: 'نظام الموافقات', titleEn: 'Approval System' },
-         ]} />,
-    4: <PStep7Submit data={data} update={update} onDone={onDone} onBack={back} step={step} total={TOTAL} />,
-  };
-  return screens[step] ?? null;
+  await ProviderApi.step3({
+    has_own_drivers: data.hasDelivery && data.hasOwnDrivers,
+    has_own_delivery: data.hasDelivery,
+    delivery_radius_km: data.deliveryRadius,
+    delivery_fee: parseFloat(data.deliveryFee) || 0,
+    free_delivery_above: parseFloat(data.freeDeliveryAbove) || 0,
+    min_order_sar: parseFloat(data.minOrderSAR) || 0,
+    express_delivery: data.expressDelivery || false,
+    express_fee: parseFloat(data.expressFee) || 0,
+    express_minutes: parseInt(data.expressMinutes, 10) || 0,
+    working_hours: workingHours,
+    vacation_date: data.vacationDate || undefined,
+    accepts_insurance: !data.cashOnly,
+    accepted_insurance: data.acceptedInsurance ? data.acceptedInsurance.map((ins: any) => ins.companyId) : [],
+    insurance_plans: Object.fromEntries((data.acceptedInsurance || []).filter((ins: any) => Array.isArray(ins.plans) && ins.plans.length).map((ins: any) => [ins.companyId, ins.plans])),
+    accepts_cash: true,
+    rx_dispensing: data.rxDispensing || false,
+    otc_selling: data.otcSelling || false,
+    enabled_categories: data.enabledCategories || []
+  });
+
+  const docs: string[] = [];
+  if (data.crUri) docs.push(await uploads.file(data.crUri, 'cr'));
+  if (data.mohUri) docs.push(await uploads.file(data.mohUri, 'moh'));
+  if (data.sfdaUri) docs.push(await uploads.file(data.sfdaUri, 'sfda'));
+
+  // The pharmacy logo goes to its OWN field: it is the brand mark, not a gallery photo.
+  let logo: string | undefined;
+  if (data.logoUri) logo = await uploads.file(data.logoUri, 'logo');
+
+  await ProviderApi.step2({
+      name_ar: data.nameAr,
+      name_en: data.nameEn,
+      pharmacist_name: data.pharmacistName,
+      city: data.city,
+      location: data.location,
+      district: data.district,
+      address: data.address,
+      pharmacy_type: data.type,
+      cr_number: data.crNumber,
+      moh_license_number: data.mohLicense,
+      sfda_license_number: data.sfdaNumber,
+      tax_number: data.taxNumber,
+      license_documents: docs,
+      logo,
+      languages: data.languages,
+    });
 }
 
-// ─── Merged screen shell: stacks child steps inline and runs their savers in order ──
-function MergedPharmacyStep({ titleAr, titleEn, subAr, subEn, step, onBack, onNext, data, update, sections }: any) {
-  const { lang } = useLang(); const AR = lang === 'ar';
-  const refs = useRef<any[]>([]);
-  const [busy, setBusy] = useState(false);
-  const go = async () => {
-    if (busy) return; setBusy(true);
-    try {
-      for (let i = 0; i < sections.length; i++) {
-        const ok = await refs.current[i]?.();
-        if (ok === false) return; // child already surfaced the validation error
+const REQUIRED_DOCS: RequiredDoc<PharmacyRegData>[] = [
+  { field: 'crUri', ar: 'السجل التجاري', en: 'CR document' },
+  { field: 'mohUri', ar: 'ترخيص MOH', en: 'MOH licence' },
+  { field: 'sfdaUri', ar: 'ترخيص SFDA', en: 'SFDA licence' },
+];
+
+const NOTICE: NoticeText = {
+  titleAr: 'تنبيه هام جداً', titleEn: 'IMPORTANT NOTICE',
+  p1Ar: 'يرجى العلم أن حساب الصيدلية، وفئات المنتجات، وأسعار التوصيل، لن تظهر فوراً للجمهور بعد استكمال التسجيل.',
+  p1En: 'Your pharmacy profile, delivery terms, and product categories will NOT go live immediately.',
+  p2Ar: 'أي تعديل مستقبلي للمخزون أو الأسعار أو الحدود المالية يخضع لمراجعة الأدمن للموافقة عليه لضمان الجودة ومطابقة لوائح هيئة الغذاء والدواء SFDA.',
+  p2En: 'Any future updates to inventory, delivery parameters, or listings must be approved by the Admin first.',
+};
+
+const PharmacyNotice = (p: StepProps<PharmacyRegData>) => <NoticeSection<PharmacyRegData> text={NOTICE} submitRef={p.submitRef} />;
+
+const PHARMACY_WIZARD: WizardConfig<PharmacyRegData> = {
+  init: INIT,
+  pages: [
+    {
+      titleAr: 'بيانات الصيدلية والتراخيص', titleEn: 'Pharmacy & Licenses', subAr: 'بيانات الدخول والسجل والتراخيص', subEn: 'Login, CR & licenses',
+      sections: [
+        { comp: PStep1Basic, titleAr: 'بيانات الصيدلية', titleEn: 'Pharmacy Basic Info' },
+        { comp: PStep2Legal, titleAr: 'التراخيص والوثائق', titleEn: 'Licenses & Documents' },
+      ],
+    },
+    {
+      titleAr: 'الموقع وأوقات العمل', titleEn: 'Location & Working Hours', subAr: 'موقع الصيدلية ونطاق التوصيل والدوام', subEn: 'Location, delivery zone & schedule',
+      sections: [
+        { comp: PStep3Location, titleAr: 'الموقع ونطاق التوصيل', titleEn: 'Location & Delivery Zone' },
+        { comp: PStep4Hours, titleAr: 'أوقات العمل والجدولة', titleEn: 'Working Hours' },
+      ],
+    },
+    {
+      titleAr: 'الكتالوج والتوصيل والتأمين', titleEn: 'Catalog, Delivery & Insurance', subAr: 'فئات المنتجات وشروط التوصيل', subEn: 'Product categories & delivery terms',
+      sections: [
+        { comp: PStep5Catalog, titleAr: 'كتالوج المنتجات', titleEn: 'Product Catalog' },
+        { comp: PStep6Delivery, titleAr: 'شروط التوصيل والتأمين', titleEn: 'Delivery & Insurance' },
+        { comp: PharmacyNotice, titleAr: 'نظام الموافقات', titleEn: 'Approval System' },
+      ],
+    },
+  ],
+  review: {
+    providerType: 'pharmacy',
+    headerAr: 'مراجعة وإرسال', headerEn: 'Review & Submit',
+    summary: {
+      titleAr: 'ملخص ملف الصيدلية', titleEn: 'Pharmacy Summary',
+      rows: (d, AR) => [
+        { label: AR ? 'اسم الصيدلية' : 'Pharmacy Name', value: d.nameAr || '—' },
+        { label: AR ? 'النوع' : 'Type', value: d.type },
+        { label: AR ? 'المدينة' : 'City', value: d.city },
+        { label: AR ? 'نطاق التوصيل' : 'Delivery Radius', value: d.hasDelivery ? `${d.deliveryRadius} كم` : (AR ? 'بدون توصيل' : 'No delivery') },
+      ],
+    },
+    signatoryRoleHint: { ar: 'مثال: المالك، المدير التنفيذي', en: 'e.g. Owner, CEO' },
+    signatureTitle: { ar: 'توقيع الممثل المفوض', en: 'Authorized Signature' },
+    agree: { ar: 'أوافق على شروط وأحكام نبضة بلس وسياسة الخصوصية، وأقر بصحة البيانات.', en: 'I agree to terms & conditions.' },
+    submitLabel: { ar: 'إرسال ملف الصيدلية للمراجعة', en: 'Submit Pharmacy Application' },
+    precheck: (d, AR) => {
+      if (!d.nameAr.trim() || !d.nameEn.trim() || !d.type || !d.city.trim() || !d.address.trim()) {
+        return AR ? 'أكمل بيانات الصيدلية والموقع والعنوان' : 'Complete pharmacy identity, location, and address';
       }
-      onNext();
-    } finally { setBusy(false); }
-  };
-  return (
-    <NScroll>
-      <NHeader title={AR ? titleAr : titleEn} sub={AR ? subAr : subEn} step={step} total={4} onBack={onBack} />
-      {sections.map((s: any, idx: number) => {
-        const Comp = s.comp;
-        return (
-          <WizardSection key={idx} title={AR ? s.titleAr : s.titleEn}>
-            <Comp bare submitRef={(fn: any) => { refs.current[idx] = fn; }} data={data} update={update} onNext={() => {}} onBack={onBack} step={step} total={4} />
-          </WizardSection>
-        );
-      })}
-      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={go} loading={busy} style={{ marginTop: SP.sm }} />
-    </NScroll>
-  );
+      if (!d.location?.lat || !d.location?.lng) return AR ? 'حدد موقع الصيدلية على الخريطة' : 'Pick the pharmacy location on the map';
+      if (!d.enabledCategories.length || (!d.rxDispensing && !d.otcSelling)) {
+        return AR ? 'اختر فئة دوائية وطريقة صرف واحدة على الأقل' : 'Select at least one medicine category and dispensing mode';
+      }
+      if (d.hasDelivery && (!Number(d.deliveryRadius) || d.deliveryRadius <= 0 || !d.workDays.length || !d.openTime || !d.closeTime)) {
+        return AR ? 'أكمل نطاق التوصيل وأيام وساعات العمل' : 'Complete delivery radius and working days/hours';
+      }
+      return null;
+    },
+    run: sendPharmacy,
+    coords: (d) => ({ lat: d.location?.lat || 0, lng: d.location?.lng || 0 }),
+  },
+};
+
+export function PharmacyRegistration(props: RegistrationProps<PharmacyRegData>) {
+  return <RegistrationWizard config={PHARMACY_WIZARD} {...props} />;
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function PStep1Basic({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
+function PStep1Basic({ data, update, submitRef }: StepProps<PharmacyRegData>) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
   const [errs, setErrs] = useState<Record<string,string>>({});
 
@@ -193,40 +254,25 @@ function PStep1Basic({ data, update, onNext, onBack, step, total, bare = false, 
   
     const handleNext = async (): Promise<boolean> => {
     if (!validate()) return false;
-
     setLoading(true);
     try {
-      await ProviderApi.start({
+      const r = await startOnboardingAccount({
         phone: data.managerPhone,
         password: data.password,
         full_name: data.managerName,
         email: data.managerEmail,
         type: 'pharmacy',
-      });
-      await ProviderApi.onboardingLogin(data.managerEmail, data.password, 'pharmacy');
-      if (!bare) onNext();
-      return true;
-    } catch (e: any) {
-      try {
-        await ProviderApi.onboardingLogin(data.managerEmail, data.password, 'pharmacy');
-        if (!bare) onNext();
-        return true;
-      } catch (loginErr: any) {
-        setErrs({ phone: e.message || 'Error' });
-        return false;
-      }
+      }, 'pharmacy');
+      if (!r.ok) setErrs({ phone: r.message || 'Error' });
+      return r.ok;
     } finally {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  useStepSaver(submitRef, handleNext);
 
-
-  const body = (
-    <>
+  return (
+    <View>
 
       <Text style={[s.label, { color:theme.text, textAlign:AR?'right':'left' }]}>{AR?'نوع الصيدلية':'Pharmacy Type'} *</Text>
       <View style={{ gap:SP.sm, marginBottom:SP.xl }}>
@@ -267,21 +313,12 @@ function PStep1Basic({ data, update, onNext, onBack, step, total, bare = false, 
           );
         })}
       </View>
-          </>
-  );
-  if (bare) return <View>{body}</View>;
-
-  return (
-    <NScroll>
-      <NHeader title={AR?'بيانات الصيدلية':'Pharmacy Basic Info'} sub={AR?'أدخل بيانات صيدليتك':'Enter your pharmacy details'} step={step} total={total} onBack={onBack} />
-      {body}
-      <NBtn label={AR?'التالي':'Next'} onPress={handleNext} loading={loading} />
-    </NScroll>
+    </View>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function PStep2Legal({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
+function PStep2Legal({ data, update, submitRef, uploads }: StepProps<PharmacyRegData>) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [errs, setErrs] = useState<Record<string,string>>({});
   const [loading, setLoading] = useState(false);
@@ -295,78 +332,22 @@ function PStep2Legal({ data, update, onNext, onBack, step, total, bare = false, 
     setErrs(e); return Object.keys(e).length === 0;
   };
 
-  const pickDocument = (field: string) => {
-    Alert.alert(
-      AR ? 'إرفاق مستند' : 'Attach Document',
-      AR ? 'اختر طريقة الرفع' : 'Choose upload method',
-      [
-        {
-          text: AR ? 'الكاميرا' : 'Camera',
-          onPress: async () => {
-            const { status } = await ImagePicker.requestCameraPermissionsAsync();
-            if (status !== 'granted') {
-              show(AR ? 'صلاحية الكاميرا مطلوبة' : 'Camera permission required', 'error');
-              return;
-            }
-            let result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.8 });
-            if (!result.canceled) {
-              update({ [field]: result.assets[0].uri });
-              show(AR ? 'تم إرفاق المستند' : 'Document attached', 'success');
-            }
-          }
-        },
-        {
-          text: AR ? 'معرض الصور' : 'Photo Gallery',
-          onPress: async () => {
-            let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
-            if (!result.canceled) {
-              update({ [field]: result.assets[0].uri });
-              show(AR ? 'تم إرفاق المستند' : 'Document attached', 'success');
-            }
-          }
-        },
-        {
-          text: AR ? 'ملفات / PDF' : 'Files / PDF',
-          onPress: async () => {
-            let result = await DocumentPicker.getDocumentAsync({ type: '*/*', copyToCacheDirectory: true });
-            if (!result.canceled && result.assets && result.assets.length > 0) {
-              update({ [field]: result.assets[0].uri });
-              show(AR ? 'تم إرفاق المستند' : 'Document attached', 'success');
-            }
-          }
-        },
-        {
-          text: AR ? 'إلغاء' : 'Cancel',
-          style: 'cancel'
-        }
-      ]
-    );
-  };
-
-  const DocCard = ({ label, field, req }: any) => {
-    const done = !!(data[field] as string);
-    return (
-      <TouchableOpacity onPress={() => pickDocument(field)} style={[s.docCard, { backgroundColor: done ? theme.successBg : theme.surface2, borderColor: done ? theme.success : theme.border, borderStyle: done ? 'solid' : 'dashed' }]}>
-        <I name={done ? 'checkCircle' : 'upload'} size={24} color={done ? theme.success : theme.primary} />
-        <Text style={{ fontSize:FS.sm, color:done?theme.success:theme.text, fontWeight:FW.semi, textAlign:'center', marginTop: SP.xs }}>{label}{req&&<Text style={{ color:theme.danger }}> *</Text>}</Text>
-        <Text style={{ fontSize:FS.xs, color:done?theme.success:theme.textSub }}>{done?(AR?'تم الرفع':'Uploaded'):(AR?'اضغط للرفع':'Tap to upload')}</Text>
-      </TouchableOpacity>
-    );
-  };
+  const pick = useDocumentPicker<PharmacyRegData>(update);
 
   const handleNext = async (): Promise<boolean> => {
     if (!validate()) return false;
+    const missing = firstMissingDoc(data, REQUIRED_DOCS);
+    if (missing) { show(AR ? `أرفق ${missing.ar}` : `Attach the ${missing.en}`, 'error'); return false; }
     setLoading(true);
     try {
-      const crUrl = await ProviderApi.uploadFile(data.crUri, 'image/jpeg', 'cr.jpg');
-      const mohUrl = await ProviderApi.uploadFile(data.mohUri, 'image/jpeg', 'moh.jpg');
-      const sfdaUrl = await ProviderApi.uploadFile(data.sfdaUri, 'image/jpeg', 'sfda.jpg');
+      const crUrl = await uploads.file(data.crUri, 'cr');
+      const mohUrl = await uploads.file(data.mohUri, 'moh');
+      const sfdaUrl = await uploads.file(data.sfdaUri, 'sfda');
 
       await ProviderApi.step2({
         license_number: data.crNumber,
         license_documents: [crUrl, mohUrl, sfdaUrl],
       });
-      if (!bare) onNext();
       return true;
     } catch (e: any) {
       show(AR ? 'فشل رفع المستندات' : 'Failed to upload documents', 'error');
@@ -375,14 +356,10 @@ function PStep2Legal({ data, update, onNext, onBack, step, total, bare = false, 
       setLoading(false);
     }
   };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  useStepSaver(submitRef, handleNext);
 
-
-  const body = (
-    <>
+  return (
+    <View>
       <NInput label={AR?'رقم السجل التجاري CR':'CR Number'} placeholder="1234567890" value={data.crNumber} onChange={v=>update({crNumber:v.replace(/\D/g,'')})} required error={errs.cr} kbType="numeric" maxLen={10} />
       <NInput label={AR?'رقم ترخيص وزارة الصحة MOH':'MOH License Number'} placeholder="MOH-PHR-XXXXX" value={data.mohLicense} onChange={v=>update({mohLicense:v})} required error={errs.moh} hint={AR?'ترخيص الصيدلية من وزارة الصحة السعودية':'Saudi Ministry of Health pharmacy license'} />
       <NInput label={AR?'رقم ترخيص SFDA (هيئة الغذاء والدواء)':'SFDA License Number'} placeholder="SFDA-XXXXX" value={data.sfdaNumber} onChange={v=>update({sfdaNumber:v})} required error={errs.sfda} hint={AR?'ترخيص صرف الأدوية من هيئة الغذاء والدواء':'Saudi Food and Drug Authority license'} />
@@ -391,27 +368,17 @@ function PStep2Legal({ data, update, onNext, onBack, step, total, bare = false, 
 
       <Text style={[s.sectionTitle, { color:theme.text, textAlign:AR?'right':'left', marginTop: SP.md }]}>{AR?'رفع الوثائق الرسمية':'Upload Official Documents'}</Text>
       <View style={s.docGrid}>
-        <DocCard label={AR?'السجل التجاري':'CR Doc'} field="crUri" req />
-        <DocCard label={AR?'ترخيص MOH':'MOH License'} field="mohUri" req />
-        <DocCard label={AR?'ترخيص SFDA':'SFDA License'} field="sfdaUri" req />
-        <DocCard label={AR?'شعار الصيدلية':'Pharmacy Logo'} field="logoUri" />
+        <DocCard label={AR?'السجل التجاري':'CR Doc'} done={!!data.crUri} onPress={() => pick('crUri')} required />
+        <DocCard label={AR?'ترخيص MOH':'MOH License'} done={!!data.mohUri} onPress={() => pick('mohUri')} required />
+        <DocCard label={AR?'ترخيص SFDA':'SFDA License'} done={!!data.sfdaUri} onPress={() => pick('sfdaUri')} required />
+        <DocCard label={AR?'شعار الصيدلية':'Pharmacy Logo'} done={!!data.logoUri} onPress={() => pick('logoUri')} />
       </View>
-
-          </>
-  );
-  if (bare) return <View>{body}</View>;
-
-  return (
-    <NScroll>
-      <NHeader title={AR?'التراخيص والوثائق':'Licenses & Documents'} sub={AR?'جميع البيانات مشفّرة ومحمية':'All data encrypted & protected'} step={step} total={total} onBack={onBack} />
-      {body}
-      <NBtn label={AR?'التالي':'Next'} onPress={handleNext} loading={loading} style={{ marginTop:SP.lg }} />
-    </NScroll>
+    </View>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function PStep3Location({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
+function PStep3Location({ data, update, submitRef }: StepProps<PharmacyRegData>) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
   const [showMap, setShowMap] = useState(false);
   const [errs, setErrs] = useState<Record<string,string>>({});
@@ -427,16 +394,12 @@ function PStep3Location({ data, update, onNext, onBack, step, total, bare = fals
 
   const handleNext = (): boolean => {
     if (!validate()) return false;
-    if (!bare) onNext();
     return true;
   };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  useStepSaver(submitRef, handleNext);
 
-  const body = (
-    <>
+  return (
+    <View>
       <Text style={[s.label, { color:theme.text, textAlign:AR?'right':'left' }]}>{AR?'المنطقة / المدينة / الحي':'Region / City / District'} *</Text>
       <GeoPicker value={{ region: data.region, city: data.city, district: data.district }} onChange={v=>update({ region: v.region, city: v.city, district: v.district })} locale={lang} />
       {errs.city && <Text style={s.err}>{errs.city}</Text>}
@@ -492,7 +455,7 @@ function PStep3Location({ data, update, onNext, onBack, step, total, bare = fals
             <View style={{ flexDirection:'row', flexWrap:'wrap', gap:SP.sm, marginBottom:SP.md }}>
               {[2, 4, 6, 8, 10, 15, 20, 50].map(r => (
                 <TouchableOpacity key={r} onPress={() => update({ deliveryRadius:r })} style={[s.radiusChip, { backgroundColor: data.deliveryRadius===r ? theme.primary : theme.surface2, borderColor: data.deliveryRadius===r ? theme.primary : theme.border }]}>
-                  <Text style={{ color:data.deliveryRadius===r?'#FFF':theme.text, fontWeight:FW.semi }}>{r} {AR?'كم':'km'}</Text>
+                  <Text style={{ color:data.deliveryRadius===r?theme.textInv:theme.text, fontWeight:FW.semi }}>{r} {AR?'كم':'km'}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -507,7 +470,7 @@ function PStep3Location({ data, update, onNext, onBack, step, total, bare = fals
                   center={{ latitude: 24.7136, longitude: 46.6753 }}
                   radius={data.deliveryRadius * 1000}
                   strokeColor={theme.primary}
-                  fillColor="rgba(255, 152, 0, 0.2)"
+                  fillColor={withAlpha(tokens.warning, 0.2)}
                 />
               </MapView>
             </View>
@@ -522,22 +485,12 @@ function PStep3Location({ data, update, onNext, onBack, step, total, bare = fals
           </View>
         )}
       </NCard>
-
-          </>
-  );
-  if (bare) return <View>{body}</View>;
-
-  return (
-    <NScroll>
-      <NHeader title={AR?'الموقع ونطاق التوصيل':'Location & Delivery Zone'} sub={AR?'حدد موقع الصيدلية ونطاق التوصيل':'Set pharmacy location and delivery coverage'} step={step} total={total} onBack={onBack} />
-      {body}
-      <NBtn label={AR?'التالي':'Next'} onPress={() => { if(validate()) onNext(); }} />
-    </NScroll>
+    </View>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function PStep4Hours({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
+function PStep4Hours({ data, update, submitRef }: StepProps<PharmacyRegData>) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
   const [showVacationCal, setShowVacationCal] = useState(false);
 
@@ -552,14 +505,11 @@ function PStep4Hours({ data, update, onNext, onBack, step, total, bare = false, 
     update({ workDays:days });
   };
 
-  const handleNext = (): boolean => { if (!bare) onNext(); return true; };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  const handleNext = (): boolean => { return true; };
+  useStepSaver(submitRef, handleNext);
 
-  const body = (
-    <>
+  return (
+    <View>
 
       <NCard style={{ marginBottom:SP.xl }}>
         <NToggle label={AR?' مفتوح 24/7':' Open 24/7'} sub={AR?'الصيدلية مفتوحة طوال اليوم والأسبوع':'Open around the clock every day'} value={data.is24_7} onChange={v => update({ is24_7:v, workDays: v? ['SUN','MON','TUE','WED','THU','FRI','SAT']: data.workDays })} />
@@ -573,7 +523,7 @@ function PStep4Hours({ data, update, onNext, onBack, step, total, bare = false, 
               const active = data.workDays.includes(d.k);
               return (
                 <TouchableOpacity key={d.k} onPress={() => toggleDay(d.k)} style={[s.dayChip, { backgroundColor: active ? theme.primary : theme.surface2, borderColor: active ? theme.primary : theme.border }]}>
-                  <Text style={{ color:active?'#FFF':theme.text, fontSize:FS.sm, fontWeight:FW.semi }}>{AR?d.ar:d.k}</Text>
+                  <Text style={{ color:active?theme.textInv:theme.text, fontSize:FS.sm, fontWeight:FW.semi }}>{AR?d.ar:d.k}</Text>
                 </TouchableOpacity>
               );
             })}
@@ -633,22 +583,12 @@ function PStep4Hours({ data, update, onNext, onBack, step, total, bare = false, 
         onClose={() => setShowVacationCal(false)}
         title={AR ? 'اختر تاريخ الإجازة' : 'Select Vacation Date'}
       />
-
-          </>
-  );
-  if (bare) return <View>{body}</View>;
-
-  return (
-    <NScroll>
-      <NHeader title={AR?'أوقات العمل والجدولة':'Working Hours'} sub={AR?'حدد أيام وساعات عمل صيدليتك':'Set your pharmacy working days and hours'} step={step} total={total} onBack={onBack} />
-      {body}
-      <NBtn label={AR?'التالي':'Next'} onPress={onNext} style={{ marginTop: SP.md }} />
-    </NScroll>
+    </View>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function PStep5Catalog({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
+function PStep5Catalog({ data, update, submitRef }: StepProps<PharmacyRegData>) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
 
   const toggleCat = (id:string) => {
@@ -661,16 +601,12 @@ function PStep5Catalog({ data, update, onNext, onBack, step, total, bare = false
       show(AR ? 'حدد فئة واحدة على الأقل من الكتالوج' : 'Select at least one catalog category', 'error');
       return false;
     }
-    if (!bare) onNext();
     return true;
   };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  useStepSaver(submitRef, handleNext);
 
-  const body = (
-    <>
+  return (
+    <View>
 
       <NCard style={{ marginBottom:SP.xl }}>
         <Text style={[s.sectionTitle, { color:theme.text, textAlign:AR?'right':'left', marginBottom:SP.lg }]}>{AR?'الخدمات الأساسية':'Core Services'}</Text>
@@ -695,22 +631,12 @@ function PStep5Catalog({ data, update, onNext, onBack, step, total, bare = false
         <View style={{ flex:1 }}><NBtn label={AR?'تحديد الكل':'Select All'} variant="outline" size="sm" onPress={() => update({ enabledCategories: PHARMA_CATS.map(c=>c.id) })} /></View>
         <View style={{ flex:1 }}><NBtn label={AR?'إلغاء الكل':'Clear All'} variant="secondary" size="sm" onPress={() => update({ enabledCategories:[] })} /></View>
       </View>
-
-          </>
-  );
-  if (bare) return <View>{body}</View>;
-
-  return (
-    <NScroll>
-      <NHeader title={AR?'كتالوج المنتجات الفئات':'Product Catalog'} sub={AR?'حدد فئات المنتجات التي تدعمها صيدليتك':'Select product categories supported'} step={step} total={total} onBack={onBack} />
-      {body}
-      <NBtn label={AR?'التالي':'Next'} onPress={onNext} disabled={data.enabledCategories.length === 0} />
-    </NScroll>
+    </View>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function PStep6Delivery({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
+function PStep6Delivery({ data, update, submitRef }: StepProps<PharmacyRegData>) {
  const insuranceCatalog = useInsuranceCatalog();
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
 
@@ -736,14 +662,11 @@ function PStep6Delivery({ data, update, onNext, onBack, step, total, bare = fals
     update({ acceptedInsurance: updated });
   };
 
-  const handleNext = (): boolean => { if (!bare) onNext(); return true; };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  const handleNext = (): boolean => { return true; };
+  useStepSaver(submitRef, handleNext);
 
-  const body = (
-    <>
+  return (
+    <View>
 
       {data.hasDelivery && (
         <NCard style={{ marginBottom:SP.xl }}>
@@ -780,7 +703,7 @@ function PStep6Delivery({ data, update, onNext, onBack, step, total, bare = fals
                   <TouchableOpacity onPress={() => toggleCompany(co.id)} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Text style={{ fontSize: FS.md, color: theme.text, fontWeight: FW.bold }}>{AR ? co.ar : co.en}</Text>
                     <View style={{ width: 22, height: 22, borderRadius: R.sm, borderWidth: 2, borderColor: isAccepted ? theme.primary : theme.border, backgroundColor: isAccepted ? theme.primary : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
-                      {isAccepted && <I name="check" size={12} color="#FFF" />}
+                      {isAccepted && <I name="check" size={12} color={theme.textInv} />}
                     </View>
                   </TouchableOpacity>
 
@@ -805,284 +728,11 @@ function PStep6Delivery({ data, update, onNext, onBack, step, total, bare = fals
           </View>
         )}
       </NCard>
-
-          </>
-  );
-  if (bare) return <View>{body}</View>;
-
-  return (
-    <NScroll>
-      <NHeader title={AR?'شروط التوصيل والتأمين':'Delivery & Insurance'} sub={AR?'حدد رسوم التوصيل وشركات التأمين المقبولة':'Configure delivery terms & insurance tiers'} step={step} total={total} onBack={onBack} />
-      {body}
-      <NBtn label={AR?'التالي':'Next'} onPress={onNext} />
-    </NScroll>
-  );
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-function PStep7AdminWarning({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
-  const handleNext = (): boolean => { if (!bare) onNext(); return true; };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
-
-  const body = (
-    <>
-      
-      <View style={{ backgroundColor: theme.dangerBg, padding: SP.xl, borderRadius: R.lg, borderWidth: 1, borderColor: theme.danger, marginTop: SP.lg }}>
-        <View style={{ alignSelf: 'center', marginBottom: SP.md }}><I name="info" size={40} color={theme.danger} /></View>
-        <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.danger, textAlign: 'center', marginBottom: SP.md }}>
-          {AR ? 'تنبيه هام جداً' : 'IMPORTANT NOTICE'}
-        </Text>
-        <Text style={{ fontSize: FS.md, color: theme.text, textAlign: AR ? 'right' : 'left', lineHeight: 24, marginBottom: SP.md }}>
-          {AR ? 'يرجى العلم أن حساب الصيدلية، وفئات المنتجات، وأسعار التوصيل، لن تظهر فوراً للجمهور بعد استكمال التسجيل.' : 'Your pharmacy profile, delivery terms, and product categories will NOT go live immediately.'}
-        </Text>
-        <Text style={{ fontSize: FS.md, color: theme.text, textAlign: AR ? 'right' : 'left', lineHeight: 24 }}>
-          {AR ? 'أي تعديل مستقبلي للمخزون أو الأسعار أو الحدود المالية يخضع لمراجعة الأدمن للموافقة عليه لضمان الجودة ومطابقة لوائح هيئة الغذاء والدواء SFDA.' : 'Any future updates to inventory, delivery parameters, or listings must be approved by the Admin first.'}
-        </Text>
-      </View>
-
-          </>
-  );
-  if (bare) return <View>{body}</View>;
-
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'نظام الموافقات' : 'Approval System'} step={step} total={total} onBack={onBack} />
-      {body}
-      <NBtn label={AR ? 'أوافق وأتفهم ذلك' : 'I Understand & Agree'} onPress={onNext} style={{ marginTop: SP.xl }} />
-    </NScroll>
-  );
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-function PStep7Submit({ data, update, onDone, onBack, step, total }: any) {
-  const [showContract, setShowContract] = useState(false);
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
-  const sigRef = useRef<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [showSigModal, setShowSigModal] = useState(false);
-  const [showOtp, setShowOtp] = useState(false);
-  const handleVerifyOtp = async (code: string) => verifyEmailOtp(data.managerEmail || data.email, code);
-  const [submitted, setSubmitted] = useState(false);
-  const [agreed, setAgreed] = useState(false);
-  const [scrollEnabled, setScrollEnabled] = useState(true);
-
-  const handleSignature = async (signature: string) => {
-    setLoading(true);
-    try {
-      const workingHours = data.is24_7 ? [
-        { day: 'All', open: '00:00', close: '23:59', open_evening: null, close_evening: null, closed: false }
-      ] : data.workDays.map((d: string) => ({
-        day: d,
-        open: data.shiftType === 'morning' || data.shiftType === 'both' ? data.openTime : null,
-        close: data.shiftType === 'morning' || data.shiftType === 'both' ? data.closeTime : null,
-        open_evening: data.shiftType === 'evening' || data.shiftType === 'both' ? data.eveningOpenTime : null,
-        close_evening: data.shiftType === 'evening' || data.shiftType === 'both' ? data.eveningCloseTime : null,
-        closed: false
-      }));
-
-      await ProviderApi.step3({
-        has_own_drivers: data.hasDelivery && data.hasOwnDrivers,
-        has_own_delivery: data.hasDelivery,
-        delivery_radius_km: data.deliveryRadius,
-        delivery_fee: parseFloat(data.deliveryFee) || 0,
-        free_delivery_above: parseFloat(data.freeDeliveryAbove) || 0,
-        min_order_sar: parseFloat(data.minOrderSAR) || 0,
-        express_delivery: data.expressDelivery || false,
-        express_fee: parseFloat(data.expressFee) || 0,
-        express_minutes: parseInt(data.expressMinutes, 10) || 0,
-        working_hours: workingHours,
-        vacation_date: data.vacationDate || undefined,
-        accepts_insurance: !data.cashOnly,
-        accepted_insurance: data.acceptedInsurance ? data.acceptedInsurance.map((ins: any) => ins.companyId) : [],
-        insurance_plans: Object.fromEntries((data.acceptedInsurance || []).filter((ins: any) => Array.isArray(ins.plans) && ins.plans.length).map((ins: any) => [ins.companyId, ins.plans])),
-        accepts_cash: true,
-        rx_dispensing: data.rxDispensing || false,
-        otc_selling: data.otcSelling || false,
-        enabled_categories: data.enabledCategories || []
-      });
-
-        const docs: string[] = [];
-        if (data.crUri) docs.push(await ProviderApi.uploadFile(data.crUri, 'application/pdf', 'cr_document'));
-        if (data.mohUri) docs.push(await ProviderApi.uploadFile(data.mohUri, 'application/pdf', 'moh_license'));
-        if (data.sfdaUri) docs.push(await ProviderApi.uploadFile(data.sfdaUri, 'application/pdf', 'sfda_license'));
-        
-        // The pharmacy logo goes to its OWN field — it is the brand mark, not a gallery photo.
-        let logo: string | undefined;
-        if (data.logoUri) logo = await ProviderApi.uploadFile(data.logoUri, 'image/jpeg', 'pharmacy_logo');
-
-        await ProviderApi.step2({
-          name_ar: data.nameAr,
-          name_en: data.nameEn,
-          pharmacist_name: data.pharmacistName,
-          city: data.city,
-          location: data.location,
-          district: data.district,
-          address: data.address,
-          pharmacy_type: data.type,
-          cr_number: data.crNumber,
-          moh_license_number: data.mohLicense,
-          sfda_license_number: data.sfdaNumber,
-          tax_number: data.taxNumber,
-          license_documents: docs,
-          logo,
-          languages: data.languages,
-        });
-
-      const sigUrl = await ProviderApi.uploadSignature(signature);
-      update({ signatureData: sigUrl });
-
-      await ProviderApi.step2({
-        iban: data.iban,
-        bank_account_name: data.accountHolderName
-      });
-      await ProviderApi.submit({ signer_name: data.signerName, signer_role: data.signerRole, lat: data.location?.lat || 0, lng: data.location?.lng || 0 , signature_url: sigUrl, full_data: sanitizeWizardData(data) });
-
-      show(AR ? 'تم إرسال الطلب وملحقاته بنجاح!' : 'Registration Submitted!', 'success');
-      setSubmitted(true);
-    } catch (e: any) {
-      show(e.message || (AR ? 'حدث خطأ' : 'Error submitting'), 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const validateBeforeSubmit = () => {
-    if (!data.nameAr.trim() || !data.nameEn.trim() || !data.type || !data.city.trim() || !data.address.trim()) {
-      show(AR ? 'أكمل بيانات الصيدلية والموقع والعنوان' : 'Complete pharmacy identity, location, and address', 'error');
-      return false;
-    }
-    if (!data.location?.lat || !data.location?.lng) {
-      show(AR ? 'حدد موقع الصيدلية على الخريطة' : 'Pick the pharmacy location on the map', 'error');
-      return false;
-    }
-    if (!data.enabledCategories.length || (!data.rxDispensing && !data.otcSelling)) {
-      show(AR ? 'اختر فئة دوائية وطريقة صرف واحدة على الأقل' : 'Select at least one medicine category and dispensing mode', 'error');
-      return false;
-    }
-    if (data.hasDelivery && (!Number(data.deliveryRadius) || data.deliveryRadius <= 0 || !data.workDays.length || !data.openTime || !data.closeTime)) {
-      show(AR ? 'أكمل نطاق التوصيل وأيام وساعات العمل' : 'Complete delivery radius and working days/hours', 'error');
-      return false;
-    }
-    return true;
-  };
-
-  const submit = () => {
-    if (!validateBeforeSubmit()) return;
-    if (!agreed) { show(AR ? 'يرجى الموافقة على الشروط' : 'Please agree to terms', 'warning'); return; }
-    if (!data.signatureData) {
-      show(AR ? 'الرجاء توقيع العقد أولاً' : 'Please sign the contract first', 'error');
-      return;
-    }
-    // Send the REAL email OTP via the backend mailer before opening the modal
-    sendEmailOtp(data.managerEmail || data.email)
-      .then(() => show(AR ? 'تم إرسال رمز التحقق إلى بريدك الإلكتروني' : 'Verification code sent to your email', 'success'))
-      .catch(() => show(AR ? 'تعذر إرسال الرمز — تحقق من البريد أو أعد المحاولة' : 'Could not send the code — check the email or retry', 'error'));
-    setShowOtp(true);
-  };
-  const finishSubmit = () => {
-    handleSignature(data.signatureData);
-  };
-
-  if (submitted) {
-    return <RegistrationSuccess onDone={onDone} email={data.email} providerType="pharmacy" />;
-  }
-
-  const rows = [
-    { ar:'اسم الصيدلية', en:'Pharmacy Name', val:data.nameAr||'—' },
-    { ar:'النوع', en:'Type', val:data.type },
-    { ar:'المدينة', en:'City', val:data.city },
-    { ar:'نطاق التوصيل', en:'Delivery Radius',val:data.hasDelivery?`${data.deliveryRadius} كم`:(AR?'بدون توصيل':'No delivery') },
-  ];
-
-  return (
-    <View style={{ flex:1, backgroundColor: theme.bg }}>
-      <View style={{ padding: SP.xl, paddingBottom: 0 }}>
-        <NHeader title={AR?'مراجعة وإرسال':'Review & Submit'} onBack={onBack} step={step} total={total} />
-      </View>
-
-      <ScrollView scrollEnabled={scrollEnabled} style={{ flex: 1, paddingHorizontal: SP.xl }} keyboardShouldPersistTaps="handled">
-        <NCard style={{ marginBottom:SP.lg }}>
-          <Text style={[s.sectionTitle, { color:theme.text, textAlign:AR?'right':'left', marginBottom:SP.lg }]}>{AR?'ملخص ملف الصيدلية':'Pharmacy Summary'}</Text>
-          {rows.map((row,i) => (
-            <View key={i} style={[s.sumRow, { flexDirection:AR?'row-reverse':'row' }]}>
-              <Text style={{ flex:1, color:theme.textSub, fontSize:FS.sm, textAlign:AR?'right':'left' }}>{AR?row.ar:row.en}</Text>
-              <Text style={{ color:theme.text, fontWeight:FW.semi, fontSize:FS.sm }}>{row.val}</Text>
-            </View>
-          ))}
-        </NCard>
-
-        
-          {/* Bank Info */}
-          <View style={{ marginBottom: SP.lg }}>
-            <Text style={{ fontSize: FS.md, fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
-              {AR ? 'الحساب البنكي' : 'Bank Account'}
-            </Text>
-            <NInput
-              label={AR ? 'اسم صاحب الحساب' : 'Account Holder Name'}
-              value={data.accountHolderName}
-              onChange={v => update({ accountHolderName: v })}
-              placeholder={AR ? 'اسم مطابق للهوية/السجل التجاري' : 'Name matching ID/CR'}
-            />
-            <NInput
-              label={AR ? 'رقم الآيبان IBAN' : 'Bank IBAN'}
-              value={data.iban}
-              onChange={v => update({ iban: v.toUpperCase().replace(/\s/g, '') })}
-              placeholder="SA0000000000000000000000"
-              maxLen={24}
-            />
-            <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'ملاحظة: سيتم تحويل مستحقاتك إلى هذا الحساب.' : 'Note: Your earnings will be transferred to this account.'}
-            </Text>
-          </View>
-
-
-
-          {/* Contract Modal & Button */}
-          
-          <TouchableOpacity style={{ backgroundColor: theme.surface, padding: SP.md, borderRadius: 8, borderWidth: 1, borderColor: theme.primary, alignItems: 'center', marginBottom: SP.lg }} onPress={() => setShowContract(true)}>
-            <Text style={{ color: theme.primary, fontWeight: 'bold', fontSize: FS.md }}>{AR ? 'الاطلاع على العقد' : 'View Contract'}</Text>
-          </TouchableOpacity>
-
-<Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm, marginTop: SP.xl }}>{AR ? 'اسم الموقّع' : 'Signatory Name'}</Text>
-
-<NInput value={data.signerName} onChange={v => update({ signerName: v })} placeholder={AR ? 'الاسم الثلاثي' : 'Full Name'} />
-
-<Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm, marginTop: SP.md }}>{AR ? 'صفة الموقّع / المسمى الوظيفي' : 'Signatory Role'}</Text>
-<NInput value={data.signerRole} onChange={v => update({ signerRole: v })} placeholder={AR ? 'مثال: المالك، المدير التنفيذي' : 'e.g. Owner, CEO'} />
-
-<Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm, marginTop: SP.xl }}>{AR ? 'توقيع الممثل المفوض' : 'Authorized Signature'}</Text>
-
-        
-        <View style={{ marginBottom: 20, gap: 10 }}>
-          {data.signatureData ? (
-             <View style={{ alignItems: 'center', marginVertical: 10 }}>
-               <Image source={{ uri: data.signatureData }} style={{ width: 200, height: 100, resizeMode: 'contain', backgroundColor: '#fff' }} />
-               <TouchableOpacity onPress={() => setShowSigModal(true)} style={{ marginTop: 8 }}><Text style={{ color: theme.primary }}>{AR ? 'إعادة التوقيع' : 'Re-sign'}</Text></TouchableOpacity>
-             </View>
-          ) : (
-            <TouchableOpacity onPress={() => setShowSigModal(true)} style={{ padding: 15, borderWidth: 1, borderColor: theme.primary, borderRadius: 8, alignItems: 'center', borderStyle: 'dashed', marginVertical: 10 }}>
-              <Text style={{ color: theme.primary, fontWeight: 'bold' }}>{AR ? 'اضغط للتوقيع' : 'Tap to Sign'}</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-
-
-        <NCard style={{ marginBottom:SP.lg, backgroundColor:theme.surface2 }}>
-          <NCheckbox label={AR?'أوافق على شروط وأحكام نبضة بلس وسياسة الخصوصية، وأقر بصحة البيانات.':'I agree to terms & conditions.'} value={agreed} onChange={setAgreed} />
-        </NCard>
-
-        <NBtn label={AR?' إرسال ملف الصيدلية للمراجعة':' Submit Pharmacy Application'} onPress={submit} loading={loading} style={{ marginBottom: 50, backgroundColor: theme.success }} />
-      </ScrollView>
-      <ContractModal visible={showContract} onClose={() => setShowContract(false)} />
-      <SignatureCanvasModal visible={showSigModal} onClose={() => setShowSigModal(false)} onOK={(sig) => update({ signatureData: sig })} />
-      <OtpModal visible={showOtp} onClose={() => setShowOtp(false)} target={data.managerEmail || data.email} onVerify={async (code) => { const ok = await handleVerifyOtp(code); if(ok) { setShowOtp(false); finishSubmit(); return true; } return false; }} onResend={() => sendEmailOtp(data.managerEmail || data.email).then(() => show(AR ? 'أُعيد إرسال الرمز' : 'Code resent', 'success')).catch(() => show(AR ? 'تعذر الإرسال — انتظر قليلاً' : 'Could not resend — wait a moment', 'error'))} />
     </View>
   );
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({

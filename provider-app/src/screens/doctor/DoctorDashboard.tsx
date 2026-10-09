@@ -10,6 +10,5 @@ export { AvailabilityPulseScreen } from './doctor/AvailabilityPulseScreen';
 export { DoctorServiceManagementScreen } from './doctor/DoctorServiceManagementScreen';
 export { StatisticsScreen } from './doctor/StatisticsScreen';
 export { DoctorAvailabilityScreen } from './doctor/DoctorAvailabilityScreen';
-export { DoctorLocationScreen } from './doctor/DoctorLocationScreen';
-export { CertificatesConfigScreen } from './doctor/CertificatesConfigScreen';
+export { CertificatesConfigScreen } from '../shared/shared/CertificatesConfigScreen';
 export * from './doctor/_shared';

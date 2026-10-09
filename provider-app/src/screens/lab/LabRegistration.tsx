@@ -1,31 +1,21 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import {
-  View, Text, TouchableOpacity, ScrollView, StyleSheet,
-  Switch, Dimensions, Alert, TextInput, Image
-} from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import * as DocumentPicker from 'expo-document-picker';
-import SignatureCanvas from 'react-native-signature-canvas';
-import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+import { startOnboardingAccount, firstMissingDoc, insurancePlansOf, useStepSaver } from '../registration/kit';
+import type { StepProps, Uploader, RequiredDoc } from '../registration/kit';
+import { DocCard, NoticeSection, useDocumentPicker } from '../registration/WizardParts';
+import type { NoticeText } from '../registration/WizardParts';
+import { RegistrationWizard } from '../registration/RegistrationWizard';
+import type { RegistrationProps, WizardConfig } from '../registration/RegistrationWizard';
+import React, { useState, useRef } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Alert, TextInput } from 'react-native';
+import { ProviderApi } from '../../api/provider';
 import { useInsuranceCatalog, useServicesCatalog } from '../../api/catalogs';
 import { useTheme, useLang, useToast } from '../../context';
-import {
-  NBtn, NCard, NInput, NPhoneInput, NPassStrength,
-  NCheckbox, NToggle, NBadge, NDivider,
-  NHeader, NScroll, NPriceInput, NSearch, NDropdown, NDatePickerSheet, WizardSection
-} from '../../components/ui';
-import { I as Icon, IBg as IconBg, ProviderIcon } from '../../components/icons';
+import { NBtn, NCard, NInput, NPhoneInput, NPassStrength, NToggle, NDivider, NPriceInput, NSearch } from '../../components/ui';
+import { I as Icon } from '../../components/icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Validate } from '../../security/Security';
-import { SP, R, FS, FW, C, RAD_SCANS, LIMITS , LANGS } from '../../constants';
+import { SP, R, FS, FW, C, LANGS } from '../../constants';
 import { GeoPicker } from '../../components/GeoPicker';
-import { RegistrationSuccess } from '../shared/SharedScreens';
 import { LocationPickerModal } from '../../components/LocationPickerModal';
-import { ContractModal } from '../../components/ContractModal';
-import { OtpModal } from '../../components/OtpModal';
-import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
-import { SuccessScreen } from '../../components/SuccessScreen';
-import { SignatureCanvasModal } from '../../components/SignatureCanvasModal';
 import { tokens, withAlpha } from '../../theme/tokens';
 
 const { width: W } = Dimensions.get('window');
@@ -37,7 +27,7 @@ const CENTER_TYPES = [
   { id: 'both', color: tokens.navy, label_ar: 'معمل تحاليل + أشعة', label_en: 'Lab + Radiology' },
 ] as const;
 
-interface LabRegData {
+interface DiagnosticsRegData {
   // Step 1
   nameAr: string; nameEn: string; centerType: string;
   managerName: string; managerPhone: string; managerEmail: string;
@@ -49,7 +39,9 @@ interface LabRegData {
   languages: string[];
   crUri: string; mohUri: string; logoUri: string;
   // Step 3
-  city: string; location: {lat: number; lng: number}; district: string; address: string;
+  region?: string; city: string; location: {lat: number; lng: number}; district: string; address: string;
+  // Lab: MOH category and accreditation. Radiology: radiation-safety licence and equipment.
+  labCategory?: string; labAccreditation?: string; radSafetyLicense?: string; radEquipment?: string;
   hasHomeSvc: boolean; homeRadius: number;
   homeCollectorCount: string;
   homeCollectionFee: string;
@@ -81,7 +73,7 @@ interface LabRegData {
   termsAgreed: boolean;
 }
 
-const INIT: LabRegData = {
+const INIT: DiagnosticsRegData = {
   nameAr: '', nameEn: '', centerType: '',
   managerName: '', managerPhone: '', managerEmail: '',
   techOfficerName: '', techOfficerScfhs: '',
@@ -113,85 +105,184 @@ const WORK_DAYS = [
   { k: 'SAT', ar: 'السبت', en: 'Sat' },
 ] as const;
 
-// ══════════════════════════════════════════════════════════════════════════════
-// LAB REGISTRATION NAVIGATOR
-// ══════════════════════════════════════════════════════════════════════════════
-export function LabRegistration({ onBack, onDone, providerType }: { onBack: () => void; onDone: () => void; providerType: string }) {
-  const [step, setStep] = useState(1);
-  const [data, setData] = useState<LabRegData>({ ...INIT, centerType: providerType });
-  const [showMap, setShowMap] = useState(false);
-  const TOTAL = 4;
-  const [showSuccess, setShowSuccess] = useState(false);
-  const update = useCallback((p: Partial<LabRegData>) => setData(prev => ({ ...prev, ...p })), []);
-  const next = () => { if (step < TOTAL) setStep(s => s + 1); else setStep(5); };
-  const back = () => { if (step === 1) onBack(); else setStep(s => s - 1); };
+// ─── What the lab / radiology centre sends when the application is submitted (same fields as before) ───
+// The lab and the radiology centre sent slightly different step3 / step2 bodies; each keeps its own.
+async function sendDiagnostics(data: DiagnosticsRegData, uploads: Uploader): Promise<void> {
+  const isRadiology = data.centerType === 'radiology';
+  const docs: string[] = [];
+  if (data.crUri) docs.push(await uploads.file(data.crUri, 'cr'));
+  if (data.mohUri) docs.push(await uploads.file(data.mohUri, 'moh'));
 
-  // 4 merged screens (was 7): related few-field steps now live on ONE page.
-  const screens: Record<number, React.ReactElement> = {
-    5: <SuccessScreen onDone={() => { setShowSuccess(false); onDone(); }} />,
-    1: <MergedDiagnosticsStep step={step} onBack={back} onNext={next} data={data} update={update}
-         titleAr="الحساب والتراخيص" titleEn="Account & Licenses"
-         subAr="بيانات الدخول والسجل والتراخيص" subEn="Login, CR & licenses"
-         sections={[
-           { comp: LStep1, titleAr: 'بيانات المركز الأساسية', titleEn: 'Center Basic Info' },
-           { comp: LStep2, titleAr: 'التراخيص والوثائق القانونية', titleEn: 'Licenses & Legal Documents' },
-         ]} />,
-    2: <MergedDiagnosticsStep step={step} onBack={back} onNext={next} data={data} update={update}
-         titleAr="الموقع وقائمة الفحوصات" titleEn="Location & Test Menu"
-         subAr="موقع المعمل والفحوصات وأسعارها" subEn="Location, tests & pricing"
-         sections={[
-           { comp: LStep3, titleAr: 'الموقع والخدمة المنزلية', titleEn: 'Location & Home Service' },
-           { comp: LStep4, titleAr: 'قائمة الفحوصات والأسعار', titleEn: 'Test/Scan Menu & Pricing' },
-         ]} />,
-    3: <MergedDiagnosticsStep step={step} onBack={back} onNext={next} data={data} update={update}
-         titleAr="المواعيد والتأمين" titleEn="Schedule & Insurance"
-         subAr="أوقات العمل وشركات التأمين المعتمدة" subEn="Working hours & accepted insurers"
-         sections={[
-           { comp: LStep6, titleAr: 'المواعيد والتأمين', titleEn: 'Schedule & Insurance' },
-           { comp: LStep7AdminWarning, titleAr: 'نظام الموافقات', titleEn: 'Approval System' },
-         ]} />,
-    4: <LStep8Signature data={data} update={update} onDone={onDone} onBack={back} step={step} total={TOTAL} />,
-  };
-  return screens[step] ?? null;
+  // Logo goes to its OWN field: it is the brand mark, not a gallery photo.
+  let logo: string | undefined;
+  if (data.logoUri) logo = await uploads.file(data.logoUri, 'logo');
+
+  const modes = ['clinic'];
+  if (data.hasHomeSvc) modes.push('home');
+
+  const workingHours = data.workDays.map((d: string) => ({
+    day: d,
+    open: data.shiftType === 'morning' || data.shiftType === 'both' ? data.openTime : null,
+    close: data.shiftType === 'morning' || data.shiftType === 'both' ? data.closeTime : null,
+    open_evening: data.shiftType === 'evening' || data.shiftType === 'both' ? data.eveningOpenTime : null,
+    close_evening: data.shiftType === 'evening' || data.shiftType === 'both' ? data.eveningCloseTime : null,
+    closed: false
+  }));
+
+  await ProviderApi.step3({
+    test_categories: data.enabledTests,
+    test_prices: data.testPrices,
+    ...(isRadiology ? {} : {
+      test_insurance_map: data.testInsuranceCov || {},
+      test_turnaround_map: data.testTurnaround || {},
+      test_home_map: data.testHomeAvail || {},
+      home_collector_count: parseInt(data.homeCollectorCount) || undefined,
+      home_collector_gender: data.homeCollectorGender || undefined,
+    }),
+    equipment_list: data.enabledScans,
+    scan_prices: data.scanPrices,
+    consultation_modes: modes,
+    home_visit_supported: data.hasHomeSvc,
+    home_visit_radius_km: data.homeRadius,
+    home_collection_fee: parseFloat(data.homeCollectionFee) || 0,
+    target_genders: data.targetGenders,
+    working_hours: workingHours,
+    schedule_home: data.hasHomeSvc ? (data.homeWorkDays || []).map((d: string) => ({
+      day: d,
+      open: data.homeShiftType === 'morning' || data.homeShiftType === 'both' ? data.homeOpenTime : null,
+      close: data.homeShiftType === 'morning' || data.homeShiftType === 'both' ? data.homeCloseTime : null,
+      open_evening: data.homeShiftType === 'evening' || data.homeShiftType === 'both' ? data.homeEveningOpenTime : null,
+      close_evening: data.homeShiftType === 'evening' || data.homeShiftType === 'both' ? data.homeEveningCloseTime : null,
+      closed: false,
+    })) : [],
+    radiation_safety_license: data.radSafetyLicense || undefined,
+    available_equipment_text: data.radEquipment || undefined,
+    ...(isRadiology ? { scan_insurance_map: data.scanInsuranceCov || {} } : {}),
+    vacation_date: data.vacationDate || undefined,
+  });
+
+  await ProviderApi.step2({
+    name_ar: data.nameAr,
+    name_en: data.nameEn,
+    tech_officer_name: data.techOfficerName || undefined,
+    tech_officer_scfhs: data.techOfficerScfhs || undefined,
+    ...(isRadiology ? {} : { lab_category: data.labCategory || undefined, lab_accreditation: data.labAccreditation || undefined }),
+    city: data.city,
+    location: data.location,
+    address: data.address,
+    district: data.district,
+    accepts_insurance: !data.cashOnly && data.acceptedInsurance.length > 0,
+    accepted_insurance: data.acceptedInsurance ? data.acceptedInsurance.map((ins) => ins.companyId) : [],
+    insurance_plans: insurancePlansOf(data.acceptedInsurance),
+    cr_number: data.crNumber,
+    moh_license_number: data.mohLicense,
+    tax_number: data.taxNumber,
+    license_documents: docs,
+    logo,
+    languages: data.languages,
+  });
 }
 
-// ─── Merged screen shell: stacks child steps inline and runs their savers in order ──
-function MergedDiagnosticsStep({ titleAr, titleEn, subAr, subEn, step, onBack, onNext, data, update, sections }: any) {
-  const { lang } = useLang(); const AR = lang === 'ar';
-  const refs = useRef<any[]>([]);
-  const [busy, setBusy] = useState(false);
-  const go = async () => {
-    if (busy) return; setBusy(true);
-    try {
-      for (let i = 0; i < sections.length; i++) {
-        const ok = await refs.current[i]?.();
-        if (ok === false) return; // child already surfaced the validation error
+const REQUIRED_DOCS: RequiredDoc<DiagnosticsRegData>[] = [
+  { field: 'crUri', ar: 'السجل التجاري', en: 'CR document' },
+  { field: 'mohUri', ar: 'ترخيص MOH', en: 'MOH licence' },
+];
+
+const NOTICE: NoticeText = {
+  titleAr: 'تنبيه هام جداً', titleEn: 'IMPORTANT NOTICE',
+  p1Ar: 'جميع الفحوصات، الأسعار، الحزم، ومواعيد العمل التي قمت بإدخالها، لن تظهر فوراً للمرضى في التطبيق بعد إتمام التسجيل.',
+  p1En: 'All tests, scans, packages, and schedules you entered will NOT be visible immediately.',
+  p2Ar: 'عند تحديث قائمة الفحوصات الطبية أو تعديل الأسعار مستقبلاً، سيتطلب الأمر أيضاً موافقة الإدارة (الأدمن) لضمان توافقها مع التراخيص الطبية قبل النشر.',
+  p2En: 'Any future updates to your test catalog or pricing must clear Admin Approval first before going live.',
+};
+const DiagnosticsNotice = (p: StepProps<DiagnosticsRegData>) => <NoticeSection<DiagnosticsRegData> text={NOTICE} submitRef={p.submitRef} />;
+
+/** One wizard for the laboratory and the radiology centre; the centre type picks the labels and the body that is sent. */
+const DIAGNOSTICS_WIZARD: WizardConfig<DiagnosticsRegData> = {
+  init: INIT,
+  pages: [
+    {
+      titleAr: 'الحساب والتراخيص', titleEn: 'Account & Licenses', subAr: 'بيانات الدخول والسجل والتراخيص', subEn: 'Login, CR & licenses',
+      sections: [
+        { comp: LStep1, titleAr: 'بيانات المركز الأساسية', titleEn: 'Center Basic Info' },
+        { comp: LStep2, titleAr: 'التراخيص والوثائق القانونية', titleEn: 'Licenses & Legal Documents' },
+      ],
+    },
+    {
+      titleAr: 'الموقع وقائمة الفحوصات', titleEn: 'Location & Test Menu', subAr: 'موقع المركز والفحوصات وأسعارها', subEn: 'Location, tests & pricing',
+      sections: [
+        { comp: LStep3, titleAr: 'الموقع والخدمة المنزلية', titleEn: 'Location & Home Service' },
+        { comp: LStep4, titleAr: 'قائمة الفحوصات والأسعار', titleEn: 'Test/Scan Menu & Pricing' },
+      ],
+    },
+    {
+      titleAr: 'المواعيد والتأمين', titleEn: 'Schedule & Insurance', subAr: 'أوقات العمل وشركات التأمين المعتمدة', subEn: 'Working hours & accepted insurers',
+      sections: [
+        { comp: LStep6, titleAr: 'المواعيد والتأمين', titleEn: 'Schedule & Insurance' },
+        { comp: DiagnosticsNotice, titleAr: 'نظام الموافقات', titleEn: 'Approval System' },
+      ],
+    },
+  ],
+  review: {
+    providerType: 'lab',
+    headerAr: 'مراجعة وإرسال', headerEn: 'Review & Submit',
+    summary: {
+      titleAr: 'ملخص ملف المركز', titleEn: 'Center Summary',
+      rows: (d, AR) => {
+        const ct = CENTER_TYPES.find((c) => c.id === d.centerType);
+        return [
+          { label: AR ? 'اسم المركز' : 'Center Name', value: d.nameAr || '—' },
+          { label: AR ? 'النوع' : 'Type', value: AR ? (ct?.label_ar ?? '—') : (ct?.label_en ?? '—') },
+          { label: AR ? 'المنطقة / المدينة / الحي' : 'Region / City / District', value: [d.region, d.city, d.district].filter(Boolean).join(' / ') || '—' },
+          ...(d.centerType === 'radiology' ? [] : [{ label: AR ? 'التحاليل' : 'Lab Tests', value: `${d.enabledTests.length}` }]),
+          ...(d.centerType === 'lab' ? [] : [{ label: AR ? 'الأشعة' : 'Scans', value: `${d.enabledScans.length}` }]),
+          { label: AR ? 'خدمة منزلية' : 'Home Svc', value: d.hasHomeSvc ? `${d.homeRadius} km` : (AR ? 'لا' : 'No') },
+          { label: AR ? 'التأمين' : 'Insurance', value: d.cashOnly ? (AR ? 'نقدي' : 'Cash') : `${d.acceptedInsurance.length}` },
+        ];
+      },
+    },
+    signatoryRoleHint: { ar: 'مثال: المالك، المدير العام', en: 'e.g. Owner, General Manager' },
+    signatureTitle: { ar: 'توقيع الممثل النظامي للمركز', en: 'Authorized Representative Signature' },
+    agree: {
+      ar: 'أوافق على شروط وأحكام نبضة بلس وسياسة الخصوصية، وأؤكد صحة جميع البيانات المدخلة.',
+      en: 'I agree to Nabdah Plus Terms & Conditions and Privacy Policy, and confirm all data is accurate.',
+    },
+    submitLabel: { ar: 'إرسال ملف المركز للمراجعة', en: 'Submit Center Application' },
+    precheck: (data, AR) => {
+      if (!data.nameAr.trim() || !data.nameEn.trim() || !data.managerEmail.trim() || !data.city.trim() || !data.address.trim()) {
+        return AR ? 'أكمل بيانات المركز والموقع والعنوان والبريد' : 'Complete center identity, location, address, and email';
       }
-      onNext();
-    } finally { setBusy(false); }
-  };
-  return (
-    <NScroll>
-      <NHeader title={AR ? titleAr : titleEn} sub={AR ? subAr : subEn} step={step} total={4} onBack={onBack} />
-      {sections.map((s: any, idx: number) => {
-        const Comp = s.comp;
-        return (
-          <WizardSection key={idx} title={AR ? s.titleAr : s.titleEn}>
-            <Comp bare submitRef={(fn: any) => { refs.current[idx] = fn; }} data={data} update={update} onNext={() => {}} onBack={onBack} step={step} total={4} />
-          </WizardSection>
-        );
-      })}
-      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={go} loading={busy} style={{ marginTop: SP.sm }} />
-    </NScroll>
-  );
+      if (!data.location?.lat || !data.location?.lng) {
+        return AR ? 'حدد موقع المركز على الخريطة' : 'Pick the center location on the map';
+      }
+      if (!data.enabledTests.length && !data.enabledScans.length) {
+        return AR ? 'اختر تحليلاً أو فحصاً واحداً على الأقل' : 'Select at least one laboratory test or scan';
+      }
+      if (!data.workDays.length || !data.openTime || !data.closeTime) {
+        return AR ? 'أكمل أيام وساعات عمل المركز' : 'Complete center working days and hours';
+      }
+      if (data.hasHomeSvc && (!data.homeWorkDays.length || !Number(data.homeRadius) || data.homeRadius <= 0 || !data.homeOpenTime || !data.homeCloseTime)) {
+        return AR ? 'أكمل نطاق وأيام وساعات الخدمة المنزلية' : 'Complete home-service radius, days, and hours';
+      }
+      return null;
+    },
+    run: sendDiagnostics,
+    coords: (d) => ({ lat: d.location?.lat || 0, lng: d.location?.lng || 0 }),
+  },
+};
+
+export function LabRegistration({ providerType, ...props }: RegistrationProps<DiagnosticsRegData> & { providerType: string }) {
+  return <RegistrationWizard config={{ ...DIAGNOSTICS_WIZARD, init: { ...INIT, centerType: providerType } }} {...props} />;
+}
+
+export function RadiologyRegistration(props: RegistrationProps<DiagnosticsRegData>) {
+  return <RegistrationWizard config={{ ...DIAGNOSTICS_WIZARD, init: { ...INIT, centerType: 'radiology' }, review: { ...DIAGNOSTICS_WIZARD.review, providerType: 'radiology' } }} {...props} />;
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
 // STEP 1 — BASIC INFO
 // ══════════════════════════════════════════════════════════════════════════════
-function LStep1({ data, update, onNext, onBack, step, total, bare = false, submitRef }: {
-  data: LabRegData; update: (p: Partial<LabRegData>) => void;
-  onNext: () => void; onBack: () => void; step: number; total: number; bare?: boolean; submitRef?: any;}) {
+function LStep1({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
   const { theme } = useTheme();
   const { lang } = useLang();
   const AR = lang === 'ar';
@@ -228,37 +319,24 @@ function LStep1({ data, update, onNext, onBack, step, total, bare = false, submi
     if (!validate()) return false;
     setLoading(true);
     try {
-      await ProviderApi.start({
+      const type = data.centerType === 'lab' ? 'lab' : 'radiology';
+      const r = await startOnboardingAccount({
         phone: data.managerPhone,
         password: data.password,
         full_name: data.managerName,
         email: data.managerEmail,
-        type: data.centerType === 'lab' ? 'lab' : 'radiology',
-      });
-      await ProviderApi.onboardingLogin(data.managerEmail, data.password, data.centerType === 'lab' ? 'lab' : 'radiology');
-      if (!bare) onNext();
-      return true;
-    } catch (e: any) {
-      try {
-        await ProviderApi.onboardingLogin(data.managerEmail, data.password, data.centerType === 'lab' ? 'lab' : 'radiology');
-        if (!bare) onNext();
-        return true;
-      } catch (loginErr: any) {
-        setErrs({ phone: e.message || 'Error' });
-        return false;
-      }
+        type,
+      }, type);
+      if (!r.ok) setErrs({ phone: r.message || 'Error' });
+      return r.ok;
     } finally {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  useStepSaver(submitRef, handleNext);
 
-
-  const body = (
-    <>
+  return (
+    <View>
 
       {/* Center Type Removed (Auto-detected from Welcome Screen) */}
 
@@ -367,29 +445,14 @@ function LStep1({ data, update, onNext, onBack, step, total, bare = false, submi
           );
         })}
       </View>
-          </>
-  );
-  if (bare) return <View>{body}</View>;
-
-  return (
-    <NScroll>
-      <NHeader
-        title={AR ? 'بيانات المركز الأساسية' : 'Center Basic Info'}
-        sub={AR ? 'أدخل بيانات معملك أو مركز الأشعة' : 'Enter your lab or radiology center details'}
-        step={step} total={total} onBack={onBack}
-      />
-      {body}
-      <NBtn label={AR ? 'التالي' : 'Next'} onPress={handleNext} loading={loading} />
-    </NScroll>
+    </View>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
 // STEP 2 — KYC & LICENSES
 // ══════════════════════════════════════════════════════════════════════════════
-function LStep2({ data, update, onNext, onBack, step, total, bare = false, submitRef }: {
-  data: LabRegData; update: (p: Partial<LabRegData>) => void;
-  onNext: () => void; onBack: () => void; step: number; total: number; bare?: boolean; submitRef?: any;}) {
+function LStep2({ data, update, submitRef, uploads }: StepProps<DiagnosticsRegData>) {
   const { theme } = useTheme();
   const { lang } = useLang();
   const { show } = useToast();
@@ -421,98 +484,22 @@ function LStep2({ data, update, onNext, onBack, step, total, bare = false, submi
     return Object.keys(e).length === 0;
   };
 
-  const pickDocument = (field: keyof LabRegData) => {
-    Alert.alert(
-      AR ? 'إرفاق مستند' : 'Attach Document',
-      AR ? 'اختر طريقة الرفع' : 'Choose upload method',
-      [
-        {
-          text: AR ? 'الكاميرا' : 'Camera',
-          onPress: async () => {
-            const { status } = await ImagePicker.requestCameraPermissionsAsync();
-            if (status !== 'granted') {
-              show(AR ? 'صلاحية الكاميرا مطلوبة' : 'Camera permission required', 'error');
-              return;
-            }
-            let result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.8 });
-            if (!result.canceled) {
-              update({ [field]: result.assets[0].uri } as any);
-              show(AR ? 'تم إرفاق المستند' : 'Document attached', 'success');
-            }
-          }
-        },
-        {
-          text: AR ? 'معرض الصور' : 'Photo Gallery',
-          onPress: async () => {
-            let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
-            if (!result.canceled) {
-              update({ [field]: result.assets[0].uri } as any);
-              show(AR ? 'تم إرفاق المستند' : 'Document attached', 'success');
-            }
-          }
-        },
-        {
-          text: AR ? 'ملفات / PDF' : 'Files / PDF',
-          onPress: async () => {
-            let result = await DocumentPicker.getDocumentAsync({ type: '*/*', copyToCacheDirectory: true });
-            if (!result.canceled && result.assets && result.assets.length > 0) {
-              update({ [field]: result.assets[0].uri } as any);
-              show(AR ? 'تم إرفاق المستند' : 'Document attached', 'success');
-            }
-          }
-        },
-        {
-          text: AR ? 'إلغاء' : 'Cancel',
-          style: 'cancel'
-        }
-      ]
-    );
-  };
-
-  const DocCard = ({ label, field, req }: { label: string; field: keyof LabRegData; req?: boolean }) => {
-    const done = !!(data[field] as string);
-    return (
-      <TouchableOpacity onPress={() => pickDocument(field)}
-        style={[st.docCard, {
-          backgroundColor: done ? theme.successBg : theme.surface2,
-          borderColor: done ? theme.success : theme.border,
-          borderStyle: done ? 'solid' : 'dashed',
-        }]}>
-        <IconBg
-          name={done ? 'check' : 'upload'}
-          size={16}
-          color={done ? theme.success : theme.textSub}
-          bg={done ? theme.successBg : theme.surface3}
-        />
-        <Text style={{
-          fontSize: FS.sm, color: done ? theme.success : theme.text,
-          fontWeight: FW.semi, textAlign: 'center', marginTop: SP.xs,
-        }}>
-          {label}{req && !done && <Text style={{ color: theme.danger }}> *</Text>}
-        </Text>
-        <Text style={{ fontSize: FS.xs, color: done ? theme.success : theme.textSub, marginTop: 2 }}>
-          {done ? (AR ? 'تم الرفع' : 'Uploaded') : (AR ? 'اضغط للرفع' : 'Tap to upload')}
-        </Text>
-      </TouchableOpacity>
-    );
-  };
+  const pick = useDocumentPicker<DiagnosticsRegData>(update);
 
   const [loading, setLoading] = useState(false);
   const handleNext = async (): Promise<boolean> => {
     if (!validate()) return false;
+    const missing = firstMissingDoc(data, REQUIRED_DOCS);
+    if (missing) { show(AR ? `أرفق ${missing.ar}` : `Attach the ${missing.en}`, 'error'); return false; }
     setLoading(true);
     try {
-      const crUrl = await ProviderApi.uploadFile(data.crUri, 'image/jpeg', 'cr.jpg');
-      const mohUrl = await ProviderApi.uploadFile(data.mohUri, 'image/jpeg', 'moh.jpg');
-      
-      let radUrl: string | undefined = undefined;
-      // if (radUrl) radUrl = await ProviderApi.uploadFile(radUrl, 'application/pdf', 'rad.pdf');
+      const crUrl = await uploads.file(data.crUri, 'cr');
+      const mohUrl = await uploads.file(data.mohUri, 'moh');
 
       await ProviderApi.step2({
         license_number: data.crNumber,
-        license_documents: [crUrl, mohUrl, radUrl].filter(Boolean) as string[],
+        license_documents: [crUrl, mohUrl],
       });
-      if (!bare) onNext();
       return true;
     } catch (e: any) {
       show(AR ? 'فشل رفع المستندات' : 'Failed to upload documents', 'error');
@@ -521,14 +508,10 @@ function LStep2({ data, update, onNext, onBack, step, total, bare = false, submi
       setLoading(false);
     }
   };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  useStepSaver(submitRef, handleNext);
 
-
-  const body = (
-    <>
+  return (
+    <View>
 
       <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
@@ -606,34 +589,18 @@ function LStep2({ data, update, onNext, onBack, step, total, bare = false, submi
         {AR ? 'رفع الوثائق الرسمية' : 'Upload Official Documents'}
       </Text>
       <View style={st.docGrid}>
-        <DocCard label={AR ? 'السجل\nالتجاري' : 'CR\nDoc'} field="crUri" req />
-        <DocCard label={AR ? 'ترخيص\nMOH' : 'MOH\nLicense'} field="mohUri" req />
-        <DocCard label={AR ? 'شعار\nالمركز' : 'Center\nLogo'} field="logoUri" />
+        <DocCard label={AR ? 'السجل\nالتجاري' : 'CR\nDoc'} done={!!data.crUri} onPress={() => pick('crUri')} required />
+        <DocCard label={AR ? 'ترخيص\nMOH' : 'MOH\nLicense'} done={!!data.mohUri} onPress={() => pick('mohUri')} required />
+        <DocCard label={AR ? 'شعار\nالمركز' : 'Center\nLogo'} done={!!data.logoUri} onPress={() => pick('logoUri')} />
       </View>
-
-          </>
-  );
-  if (bare) return <View>{body}</View>;
-
-  return (
-    <NScroll>
-      <NHeader
-        title={AR ? 'التراخيص والوثائق القانونية' : 'Licenses & Legal Documents'}
-        sub={AR ? 'جميع البيانات مشفّرة ومحمية' : 'All data is encrypted & protected'}
-        step={step} total={total} onBack={onBack}
-      />
-      {body}
-      <NBtn label={AR ? 'التالي' : 'Next'} onPress={handleNext} loading={loading} style={{ marginTop: SP.lg }} />
-    </NScroll>
+    </View>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
 // STEP 3 — LOCATION & HOME COLLECTION
 // ══════════════════════════════════════════════════════════════════════════════
-function LStep3({ data, update, onNext, onBack, step, total, bare = false, submitRef }: {
-  data: LabRegData; update: (p: Partial<LabRegData>) => void;
-  onNext: () => void; onBack: () => void; step: number; total: number; bare?: boolean; submitRef?: any;}) {
+function LStep3({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
   const { theme } = useTheme();
   const { lang } = useLang();
   const { show } = useToast();
@@ -643,7 +610,9 @@ function LStep3({ data, update, onNext, onBack, step, total, bare = false, submi
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!data.city) e.city = AR ? 'اختر المدينة' : 'Choose city';
+    if (!data.region) e.city = AR ? 'اختر المنطقة' : 'Choose region';
+    else if (!data.city) e.city = AR ? 'اختر المدينة' : 'Choose city';
+    else if (!data.district) e.city = AR ? 'اختر الحي' : 'Choose district';
     if (!data.address.trim()) e.address = AR ? 'العنوان مطلوب' : 'Address required';
     setErrs(e);
     return Object.keys(e).length === 0;
@@ -651,50 +620,20 @@ function LStep3({ data, update, onNext, onBack, step, total, bare = false, submi
 
   const handleNext = (): boolean => {
     if (!validate()) return false;
-    if (!bare) onNext();
     return true;
   };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  useStepSaver(submitRef, handleNext);
 
-  const body = (
-    <>
+  return (
+    <View>
 
-      {/* Region/City/District — unified GeoPicker (150/2000) */}
       <View style={{ marginBottom: SP.lg }}>
         <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
           {AR ? 'المنطقة / المدينة / الحي' : 'Region / City / District'}<Text style={{ color: theme.danger }}> *</Text>
         </Text>
-        <GeoPicker value={{ region: (data as any).region, city: data.city, district: (data as any).district }} onChange={v=>update({ region: v.region, city: v.city, district: v.district } as any)} locale={lang} />
-      </View>
-      <View style={{ display: 'none' }}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View style={{ flexDirection: 'row', gap: SP.sm }}>
-            {[].map((c: any) => (
-              <TouchableOpacity key={c.id} onPress={() => update({ city: c.id })}
-                style={[st.chip, {
-                  backgroundColor: data.city === c.id ? theme.primary : theme.surface2,
-                  borderColor: data.city === c.id ? theme.primary : theme.border,
-                }]}>
-                <Text style={{
-                  color: data.city === c.id ? '#FFF' : theme.text,
-                  fontSize: FS.sm, fontWeight: FW.med,
-                }}>
-                  {AR ? c.ar : c.en}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </ScrollView>
-      
+        <GeoPicker value={{ region: data.region, city: data.city, district: data.district }} onChange={v => update({ region: v.region, city: v.city, district: v.district })} locale={lang} />
         {errs.city && <Text style={[st.err, { color: theme.danger }]}>{errs.city}</Text>}
       </View>
-
-      <NInput label={AR ? 'الحي / المنطقة' : 'District / Area'}
-        placeholder={AR ? 'حي الورود' : 'Al-Wurud'}
-        value={data.district} onChange={v => update({ district: v })} caps="words" />
 
       <NInput label={AR ? 'العنوان الكامل' : 'Full Address'}
         placeholder={AR ? 'شارع الأمير سلطان، الرياض' : 'Prince Sultan Road, Riyadh'}
@@ -771,7 +710,7 @@ function LStep3({ data, update, onNext, onBack, step, total, bare = false, submi
                     borderColor: data.homeRadius === r ? theme.primary : theme.border,
                   }]}>
                   <Text style={{
-                    color: data.homeRadius === r ? '#FFF' : theme.text,
+                    color: data.homeRadius === r ? theme.textInv : theme.text,
                     fontWeight: FW.semi, fontSize: FS.sm,
                   }}>
                     {r} {AR ? 'كم' : 'km'}
@@ -819,30 +758,14 @@ function LStep3({ data, update, onNext, onBack, step, total, bare = false, submi
           </View>
         )}
       </NCard>
-
-          </>
-  );
-  if (bare) return <View>{body}</View>;
-
-  return (
-    <NScroll>
-      <NHeader
-        title={AR ? (data.centerType === 'radiology' ? 'الموقع والتصوير المنزلي' : 'الموقع وخدمة السحب المنزلي') : (data.centerType === 'radiology' ? 'Location & Home Scan' : 'Location & Home Collection')}
-        sub={AR ? (data.centerType === 'radiology' ? 'حدد موقع المركز ونطاق التصوير المنزلي' : 'حدد موقع المركز ونطاق الخدمة المنزلية') : 'Set center location and home service coverage'}
-        step={step} total={total} onBack={onBack}
-      />
-      {body}
-      <NBtn label={AR ? 'التالي' : 'Next'} onPress={() => { if (validate()) onNext(); }} />
-    </NScroll>
+    </View>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
 // STEP 4 — TEST/SCAN MENU BUILDER
 // ══════════════════════════════════════════════════════════════════════════════
-function LStep4({ data, update, onNext, onBack, step, total, bare = false, submitRef }: {
-  data: LabRegData; update: (p: Partial<LabRegData>) => void;
-  onNext: () => void; onBack: () => void; step: number; total: number; bare?: boolean; submitRef?: any;}) {
+function LStep4({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
   const { theme } = useTheme();
   const { lang } = useLang();
   const { show } = useToast();
@@ -912,16 +835,12 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
 
   const handleNext = (): boolean => {
     if (!validate()) return false;
-    if (!bare) onNext();
     return true;
   };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  useStepSaver(submitRef, handleNext);
 
-  const body = (
-    <>
+  return (
+    <View>
 
       {/* Tab selector */}
       {data.centerType === 'both' && (
@@ -933,8 +852,8 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
                 borderColor: tab === 'lab' ? tokens.purple : theme.border,
                 flex: 1,
               }]}>
-              <Icon name="test_tube" size={16} color={tab === 'lab' ? '#FFF' : theme.text} />
-              <Text style={{ color: tab === 'lab' ? '#FFF' : theme.text, fontWeight: FW.semi }}>
+              <Icon name="test_tube" size={16} color={tab === 'lab' ? theme.textInv : theme.text} />
+              <Text style={{ color: tab === 'lab' ? theme.textInv : theme.text, fontWeight: FW.semi }}>
                 {AR ? 'التحاليل' : 'Lab Tests'}
               </Text>
             </TouchableOpacity>
@@ -946,8 +865,8 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
                 borderColor: tab === 'rad' ? tokens.mintDeep : theme.border,
                 flex: 1,
               }]}>
-              <Icon name="scan" size={16} color={tab === 'rad' ? '#FFF' : theme.text} />
-              <Text style={{ color: tab === 'rad' ? '#FFF' : theme.text, fontWeight: FW.semi }}>
+              <Icon name="scan" size={16} color={tab === 'rad' ? theme.textInv : theme.text} />
+              <Text style={{ color: tab === 'rad' ? theme.textInv : theme.text, fontWeight: FW.semi }}>
                 {AR ? 'الأشعة' : 'Radiology'}
               </Text>
             </TouchableOpacity>
@@ -1018,7 +937,7 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
                 backgroundColor: enabled ? tokens.purple : 'transparent',
                 borderColor: enabled ? tokens.purple : theme.border,
               }]}>
-                {enabled && <Icon name="check" size={10} color="#FFF" />}
+                {enabled && <Icon name="check" size={10} color={theme.textInv} />}
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{
@@ -1101,7 +1020,7 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
                 backgroundColor: enabled ? tokens.mintDeep : 'transparent',
                 borderColor: enabled ? tokens.mintDeep : theme.border,
               }]}>
-                {enabled && <Icon name="check" size={10} color="#FFF" />}
+                {enabled && <Icon name="check" size={10} color={theme.textInv} />}
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{
@@ -1134,16 +1053,19 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
                 <NPriceInput label={AR ? 'السعر (ريال)' : 'Price (SAR)'}
                   value={data.scanPrices[scan.id] ?? ''}
                   onChange={v => setScanPrice(scan.id, v)} required />
+                {!data.cashOnly && (
+                  <NToggle
+                    label={AR ? 'يُغطى بالتأمين' : 'Covered by insurance'}
+                    value={data.scanInsuranceCov[scan.id] ?? false}
+                    onChange={v => setScanInsurance(scan.id, v)}
+                    style={{ marginTop: SP.sm }}
+                  />
+                )}
               </View>
             )}
           </NCard>
         );
       })}
-
-      {/* Add custom test */}
-      <NBtn label={AR ? '+ إضافة فحص مخصص (يتطلب موافقة)' : '+ Add Custom Test (Requires Approval)'}
-        variant="outline" style={{ marginTop: SP.lg }}
-        onPress={() => show(AR ? 'سيُرسل للإدارة للموافقة' : 'Will be sent to admin for approval', 'info')} />
 
       <View style={{ height: SP.xl }} />
       
@@ -1195,195 +1117,16 @@ function LStep4({ data, update, onNext, onBack, step, total, bare = false, submi
       ))}
 
       <View style={{ height: SP.xl }} />
-          </>
-  );
-  if (bare) return <View>{body}</View>;
-
-  return (
-    <NScroll>
-      <NHeader
-        title={AR ? 'قائمة الفحوصات والأسعار' : 'Test/Scan Menu & Pricing'}
-        sub={AR ? 'حدد الفحوصات المتاحة وأسعارها' : 'Select available tests/scans and set pricing'}
-        step={step} total={total} onBack={onBack}
-      />
-      {body}
-      <NBtn label={AR ? 'التالي' : 'Next'} onPress={() => { if (validate()) onNext(); }} />
-    </NScroll>
+    </View>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
 // STEP 5 — BUNDLE BUILDER
 // ══════════════════════════════════════════════════════════════════════════════
-function LStep5({ data, update, onNext, onBack, step, total }: {
-  data: LabRegData; update: (p: Partial<LabRegData>) => void;
-  onNext: () => void; onBack: () => void; step: number; total: number;
-}) {
-  const { theme } = useTheme();
-  const { lang } = useLang();
-  const { show } = useToast();
-  const AR = lang === 'ar';
-  const labCatalog = useServicesCatalog('lab');
-  const radCatalog = useServicesCatalog('radiology');
-
-  const addBundle = () => {
-    const bundles = [...data.bundles, {
-      id: Date.now().toString(),
-      nameAr: '', nameEn: '', tests: [], price: '', discount: '20',
-    }];
-    update({ bundles });
-  };
-
-  const updateBundle = (id: string, patch: Partial<typeof data.bundles[0]>) => {
-    update({ bundles: data.bundles.map(b => b.id === id ? { ...b, ...patch } : b) });
-  };
-
-  const removeBundle = (id: string) => {
-    update({ bundles: data.bundles.filter(b => b.id !== id) });
-  };
-
-  const toggleBundleTest = (bundleId: string, testId: string) => {
-    const bundle = data.bundles.find(b => b.id === bundleId);
-    if (!bundle) return;
-    const tests = bundle.tests.includes(testId)
-      ? bundle.tests.filter(t => t !== testId)
-      : [...bundle.tests, testId];
-    updateBundle(bundleId, { tests });
-  };
-
-  // All available tests/scans that are enabled
-  const allItems = [
-    ...data.enabledTests.map(id => {
-      const test = labCatalog.find(t => t.id === id);
-      return test ? { id: test.id, nameAr: test.ar, nameEn: test.en, type: 'lab' } : null;
-    }),
-    ...data.enabledScans.map(id => {
-      const scan = radCatalog.find(s => s.id === id);
-      return scan ? { id: scan.id, nameAr: scan.ar, nameEn: scan.en, type: 'rad' } : null;
-    }),
-  ].filter(Boolean) as { id: string; nameAr: string; nameEn: string; type: string }[];
-
-  return (
-    <NScroll>
-      <NHeader
-        title={AR ? 'إنشاء حزم مخفّضة' : 'Bundle Builder'}
-        sub={AR ? 'أنشئ حزم فحوصات بسعر مخفّض لزيادة الطلبات' : 'Create discounted test bundles to boost orders'}
-        step={step} total={total} onBack={onBack}
-      />
-
-      <NCard style={{ backgroundColor: theme.primaryLight, marginBottom: SP.xl }}>
-        <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'flex-start', gap: SP.md }}>
-          <Icon name="trending_up" size={18} color={theme.primary} />
-          <Text style={{ flex: 1, fontSize: FS.sm, color: theme.primary, lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
-            {AR
-              ? 'الحزم المخفّضة تزيد متوسط قيمة الطلب بنسبة 35% وتجذب المرضى الباحثين عن الفحوصات الشاملة.'
-              : 'Discounted bundles increase average order value by 35% and attract patients seeking comprehensive checkups.'}
-          </Text>
-        </View>
-      </NCard>
-
-      {/* Suggested bundles */}
-      {data.bundles.length === 0 && (
-        <NCard style={{ alignItems: 'center', padding: SP.xxl, marginBottom: SP.xl }}>
-          <IconBg name="add" size={22} color={theme.primary} bg={theme.primaryLight} />
-          <Text style={{ fontSize: FS.md, color: theme.text, fontWeight: FW.semi, marginTop: SP.lg, textAlign: 'center' }}>
-            {AR ? 'لم تنشئ أي حزمة بعد' : 'No bundles created yet'}
-          </Text>
-          <Text style={{ fontSize: FS.sm, color: theme.textSub, marginTop: SP.xs, textAlign: 'center' }}>
-            {AR ? 'اضغط "+ إنشاء حزمة" للبدء' : 'Tap "+ Create Bundle" to start'}
-          </Text>
-        </NCard>
-      )}
-
-      {/* Existing bundles */}
-      {data.bundles.map(bundle => (
-        <NCard key={bundle.id} style={{ marginBottom: SP.lg }} accent={theme.primary}>
-          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.md }}>
-            <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
-              {AR ? 'حزمة جديدة' : 'New Bundle'}
-            </Text>
-            <TouchableOpacity onPress={() => removeBundle(bundle.id)}>
-              <Icon name="close" size={16} color={theme.danger} />
-            </TouchableOpacity>
-          </View>
-
-          <NInput
-            label={AR ? 'اسم الحزمة بالعربي' : 'Bundle Name (Arabic)'}
-            placeholder={AR ? 'باقة الفحص الشامل' : 'Full Checkup Package'}
-            value={bundle.nameAr}
-            onChange={v => updateBundle(bundle.id, { nameAr: v })}
-            caps="words" style={{ marginBottom: SP.sm }}
-          />
-          <NInput
-            label={AR ? 'اسم الحزمة بالإنجليزي' : 'Bundle Name (English)'}
-            placeholder="Full Checkup Package"
-            value={bundle.nameEn}
-            onChange={v => updateBundle(bundle.id, { nameEn: v })}
-            caps="words" style={{ marginBottom: SP.sm }}
-          />
-
-          {/* Test selection */}
-          <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left', marginTop: SP.md }]}>
-            {AR ? 'الفحوصات المشمولة' : 'Included Tests'}
-            <Text style={{ fontSize: FS.xs, color: theme.textSub }}> ({bundle.tests.length})</Text>
-          </Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.xs, marginBottom: SP.md }}>
-            {allItems.map(item => {
-              const active = bundle.tests.includes(item.id);
-              return (
-                <TouchableOpacity key={item.id} onPress={() => toggleBundleTest(bundle.id, item.id)}
-                  style={[st.testChip, {
-                    backgroundColor: active ? theme.primary : theme.surface2,
-                    borderColor: active ? theme.primary : theme.border,
-                  }]}>
-                  <Text style={{ fontSize: FS.xs, color: active ? '#FFF' : theme.text }}>
-                    {AR ? item.nameAr : item.nameEn}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-
-          {/* Price & discount */}
-          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
-            <View style={{ flex: 1 }}>
-              <NPriceInput label={AR ? 'سعر الحزمة' : 'Bundle Price'}
-                value={bundle.price} onChange={v => updateBundle(bundle.id, { price: v })} required />
-            </View>
-            <View style={{ flex: 1 }}>
-              <NInput label={AR ? 'نسبة الخصم %' : 'Discount %'}
-                placeholder="20" value={bundle.discount}
-                onChange={v => updateBundle(bundle.id, { discount: v.replace(/\D/g, '') })}
-                kbType="numeric" maxLen={2} style={{ marginBottom: 0 }} />
-            </View>
-          </View>
-
-          {bundle.tests.length > 0 && bundle.price && (
-            <NCard style={{ backgroundColor: theme.successBg, padding: SP.md, marginTop: SP.sm }}>
-              <Text style={{ fontSize: FS.sm, color: theme.success, textAlign: AR ? 'right' : 'left' }}>
-                {AR
-                  ? `${bundle.tests.length} فحص بسعر ${bundle.price} ريال (خصم ${bundle.discount}%)`
-                  : `${bundle.tests.length} tests for ${bundle.price} SAR (${bundle.discount}% off)`}
-              </Text>
-            </NCard>
-          )}
-        </NCard>
-      ))}
-
-      <NBtn label={AR ? '+ إنشاء حزمة جديدة' : '+ Create New Bundle'}
-        variant="outline" onPress={addBundle} style={{ marginBottom: SP.xl }} />
-
-      <NBtn label={AR ? 'التالي' : 'Next'} onPress={onNext} />
-    </NScroll>
-  );
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
 // STEP 6 — SCHEDULE + INSURANCE
 // ══════════════════════════════════════════════════════════════════════════════
-function LStep6({ data, update, onNext, onBack, step, total, bare = false, submitRef }: {
-  data: LabRegData; update: (p: Partial<LabRegData>) => void;
-  onNext: () => void; onBack: () => void; step: number; total: number; bare?: boolean; submitRef?: any;}) {
+function LStep6({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
  const insuranceCatalog = useInsuranceCatalog();
   const { theme } = useTheme();
   const { lang } = useLang();
@@ -1425,14 +1168,11 @@ function LStep6({ data, update, onNext, onBack, step, total, bare = false, submi
     update({ acceptedInsurance: updated });
   };
 
-  const handleNext = (): boolean => { if (!bare) onNext(); return true; };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  const handleNext = (): boolean => { return true; };
+  useStepSaver(submitRef, handleNext);
 
-  const body = (
-    <>
+  return (
+    <View>
 
       {/* Center Working Hours */}
       <NCard style={{ marginBottom: SP.xl }}>
@@ -1453,7 +1193,7 @@ function LStep6({ data, update, onNext, onBack, step, total, bare = false, submi
                   backgroundColor: active ? theme.primary : theme.surface2,
                   borderColor: active ? theme.primary : theme.border,
                 }]}>
-                <Text style={{ color: active ? '#FFF' : theme.text, fontSize: FS.sm, fontWeight: FW.semi }}>
+                <Text style={{ color: active ? theme.textInv : theme.text, fontSize: FS.sm, fontWeight: FW.semi }}>
                   {AR ? d.ar : d.en}
                 </Text>
               </TouchableOpacity>
@@ -1519,7 +1259,7 @@ function LStep6({ data, update, onNext, onBack, step, total, bare = false, submi
                     backgroundColor: active ? theme.primary : theme.surface2,
                     borderColor: active ? theme.primary : theme.border,
                   }]}>
-                  <Text style={{ color: active ? '#FFF' : theme.text, fontSize: FS.sm, fontWeight: FW.semi }}>
+                  <Text style={{ color: active ? theme.textInv : theme.text, fontSize: FS.sm, fontWeight: FW.semi }}>
                     {AR ? d.ar : d.en}
                   </Text>
                 </TouchableOpacity>
@@ -1582,7 +1322,7 @@ function LStep6({ data, update, onNext, onBack, step, total, bare = false, submi
                       backgroundColor: isAccepted ? theme.primary : 'transparent',
                       borderColor: isAccepted ? theme.primary : theme.border,
                     }]}>
-                      {isAccepted && <Icon name="check" size={10} color="#FFF" />}
+                      {isAccepted && <Icon name="check" size={10} color={theme.textInv} />}
                     </View>
                     <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
                       {AR ? co.ar : co.en}
@@ -1612,359 +1352,6 @@ function LStep6({ data, update, onNext, onBack, step, total, bare = false, submi
       )}
 
       <View style={{ height: SP.xl }} />
-          </>
-  );
-  if (bare) return <View>{body}</View>;
-
-  return (
-    <NScroll>
-      <NHeader
-        title={AR ? 'المواعيد والتأمين' : 'Schedule & Insurance'}
-        sub={AR ? 'حدد أوقات العمل وشركات التأمين المقبولة' : 'Set working hours and accepted insurance companies'}
-        step={step} total={total} onBack={onBack}
-      />
-      {body}
-      <NBtn label={AR ? 'التالي' : 'Next'} onPress={onNext} />
-    </NScroll>
-  );
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// STEP 7 — ADMIN APPROVAL WARNING
-// ══════════════════════════════════════════════════════════════════════════════
-function LStep7AdminWarning({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
-  const handleNext = (): boolean => { if (!bare) onNext(); return true; };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
-
-  const body = (
-    <>
-      
-      <View style={{ backgroundColor: theme.dangerBg, padding: SP.xl, borderRadius: R.lg, borderWidth: 1, borderColor: theme.danger, marginTop: SP.lg }}>
-        <View style={{ alignSelf: 'center', marginBottom: SP.md }}><Icon name="info" size={40} color={theme.danger} /></View>
-        <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.danger, textAlign: 'center', marginBottom: SP.md }}>
-          {AR ? 'تنبيه هام جداً' : 'IMPORTANT NOTICE'}
-        </Text>
-        <Text style={{ fontSize: FS.md, color: theme.text, textAlign: AR ? 'right' : 'left', lineHeight: 24, marginBottom: SP.md }}>
-          {AR ? 'جميع الفحوصات، الأسعار، الحزم، ومواعيد العمل التي قمت بإدخالها، لن تظهر فوراً للمرضى في التطبيق بعد إتمام التسجيل.' : 'All tests, scans, packages, and schedules you entered will NOT be visible immediately.'}
-        </Text>
-        <Text style={{ fontSize: FS.md, color: theme.text, textAlign: AR ? 'right' : 'left', lineHeight: 24 }}>
-          {AR ? 'عند تحديث قائمة الفحوصات الطبية أو تعديل الأسعار مستقبلاً، سيتطلب الأمر أيضاً موافقة الإدارة (الأدمن) لضمان توافقها مع التراخيص الطبية قبل النشر.' : 'Any future updates to your test catalog or pricing must clear Admin Approval first before going live.'}
-        </Text>
-      </View>
-
-          </>
-  );
-  if (bare) return <View>{body}</View>;
-
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'نظام الموافقات' : 'Approval System'} step={step} total={total} onBack={onBack} />
-      {body}
-      <NBtn label={AR ? 'أوافق وأتفهم ذلك' : 'I Understand & Agree'} onPress={onNext} style={{ marginTop: SP.xl }} />
-    </NScroll>
-  );
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// STEP 8 — REVIEW & SIGNATURE
-// ══════════════════════════════════════════════════════════════════════════════
-function LStep8Signature({ data, update, onDone, onBack, step, total }: {
-  data: LabRegData; update: (p: Partial<LabRegData>) => void;
-  onDone: () => void; onBack: () => void; step: number; total: number;
-}) {
-  const { theme } = useTheme();
-  const { lang } = useLang();
-  const { show } = useToast();
-  const AR = lang === 'ar';
-  const [showContract, setShowContract] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [showSigModal, setShowSigModal] = useState(false);
-  const [showOtp, setShowOtp] = useState(false);
-  const handleVerifyOtp = async (code: string) => verifyEmailOtp(data.managerEmail, code);
-  const [submitted, setSub] = useState(false);
-  const [agreed, setAgreed] = useState(false);
-  const sigRef = useRef<any>(null);
-  const [scrollEnabled, setScrollEnabled] = useState(true);
-
-  const validateBeforeSubmit = () => {
-    if (!data.nameAr.trim() || !data.nameEn.trim() || !data.managerEmail.trim() || !data.city.trim() || !data.address.trim()) {
-      show(AR ? 'أكمل بيانات المركز والموقع والعنوان والبريد' : 'Complete center identity, location, address, and email', 'error');
-      return false;
-    }
-    if (!data.location?.lat || !data.location?.lng) {
-      show(AR ? 'حدد موقع المركز على الخريطة' : 'Pick the center location on the map', 'error');
-      return false;
-    }
-    if (!data.enabledTests.length && !data.enabledScans.length) {
-      show(AR ? 'اختر تحليلاً أو فحصاً واحداً على الأقل' : 'Select at least one laboratory test or scan', 'error');
-      return false;
-    }
-    if (!data.workDays.length || !data.openTime || !data.closeTime) {
-      show(AR ? 'أكمل أيام وساعات عمل المركز' : 'Complete center working days and hours', 'error');
-      return false;
-    }
-    if (data.hasHomeSvc && (!data.homeWorkDays.length || !Number(data.homeRadius) || data.homeRadius <= 0 || !data.homeOpenTime || !data.homeCloseTime)) {
-      show(AR ? 'أكمل نطاق وأيام وساعات الخدمة المنزلية' : 'Complete home-service radius, days, and hours', 'error');
-      return false;
-    }
-    return true;
-  };
-
-  const submit = () => {
-    if (!validateBeforeSubmit()) return;
-    if (!agreed) { show(AR ? 'يجب الموافقة على الشروط' : 'Must agree to terms', 'warning'); return; }
-    if (!data.signatureData) {
-      show(AR ? 'الرجاء توقيع العقد أولاً' : 'Please sign the contract first', 'error');
-      return;
-    }
-    // Send the REAL email OTP via the backend mailer before opening the modal
-    sendEmailOtp(data.managerEmail)
-      .then(() => show(AR ? 'تم إرسال رمز التحقق إلى بريدك الإلكتروني' : 'Verification code sent to your email', 'success'))
-      .catch(() => show(AR ? 'تعذر إرسال الرمز — تحقق من البريد أو أعد المحاولة' : 'Could not send the code — check the email or retry', 'error'));
-    setShowOtp(true);
-  };
-
-  const finishSubmit = () => {
-    handleSignature(data.signatureData);
-  };
-
-  const handleSignature = async (signature: string) => {
-    setLoading(true);
-    try {
-      const docs: string[] = [];
-      if (data.crUri) docs.push(await ProviderApi.uploadFile(data.crUri, 'application/pdf', 'cr_document'));
-      if (data.mohUri) docs.push(await ProviderApi.uploadFile(data.mohUri, 'application/pdf', 'moh_license'));
-      
-      // Logo goes to its OWN field — it is the brand mark, not a gallery photo.
-      let logo: string | undefined;
-      if (data.logoUri) logo = await ProviderApi.uploadFile(data.logoUri, 'image/jpeg', 'lab_logo');
-
-      const modes = ['clinic'];
-      if (data.hasHomeSvc) modes.push('home');
-
-      const workingHours = data.workDays.map((d: string) => ({
-        day: d,
-        open: data.shiftType === 'morning' || data.shiftType === 'both' ? data.openTime : null,
-        close: data.shiftType === 'morning' || data.shiftType === 'both' ? data.closeTime : null,
-        open_evening: data.shiftType === 'evening' || data.shiftType === 'both' ? data.eveningOpenTime : null,
-        close_evening: data.shiftType === 'evening' || data.shiftType === 'both' ? data.eveningCloseTime : null,
-        closed: false
-      }));
-
-      await ProviderApi.step3({
-        test_categories: data.enabledTests,
-        test_prices: data.testPrices,
-        test_insurance_map: data.testInsuranceCov || {},
-        test_turnaround_map: data.testTurnaround || {},
-        test_home_map: data.testHomeAvail || {},
-        home_collector_count: parseInt(data.homeCollectorCount) || undefined,
-        home_collector_gender: data.homeCollectorGender || undefined,
-        vacation_date: data.vacationDate || undefined,
-        equipment_list: data.enabledScans,
-        scan_prices: data.scanPrices,
-        consultation_modes: modes,
-        home_visit_supported: data.hasHomeSvc,
-        home_visit_radius_km: data.homeRadius,
-        home_collection_fee: parseFloat(data.homeCollectionFee) || 0,
-        target_genders: data.targetGenders,
-        working_hours: workingHours,
-        schedule_home: data.hasHomeSvc ? (data.homeWorkDays || []).map((d: string) => ({
-          day: d,
-          open: data.homeShiftType === 'morning' || data.homeShiftType === 'both' ? data.homeOpenTime : null,
-          close: data.homeShiftType === 'morning' || data.homeShiftType === 'both' ? data.homeCloseTime : null,
-          open_evening: data.homeShiftType === 'evening' || data.homeShiftType === 'both' ? data.homeEveningOpenTime : null,
-          close_evening: data.homeShiftType === 'evening' || data.homeShiftType === 'both' ? data.homeEveningCloseTime : null,
-          closed: false,
-        })) : [],
-        radiation_safety_license: (data as any).radSafetyLicense || undefined,
-        available_equipment_text: (data as any).radEquipment || undefined,
-      });
-
-      await ProviderApi.step2({
-        name_ar: data.nameAr,
-        name_en: data.nameEn,
-        tech_officer_name: data.techOfficerName || undefined,
-        tech_officer_scfhs: data.techOfficerScfhs || undefined,
-        lab_category: (data as any).labCategory || undefined,
-        lab_accreditation: (data as any).labAccreditation || undefined,
-        city: data.city,
-        location: data.location,
-        address: data.address,
-        district: data.district,
-        accepts_insurance: !data.cashOnly && data.acceptedInsurance.length > 0,
-        accepted_insurance: data.acceptedInsurance ? data.acceptedInsurance.map((ins: any) => ins.companyId) : [],
-        insurance_plans: Object.fromEntries((data.acceptedInsurance || []).filter((ins: any) => Array.isArray(ins.plans) && ins.plans.length).map((ins: any) => [ins.companyId, ins.plans])),
-        cr_number: data.crNumber,
-        moh_license_number: data.mohLicense,
-        tax_number: data.taxNumber,
-        license_documents: docs,
-        logo,
-        languages: data.languages,
-      });
-
-      const sigUrl = await ProviderApi.uploadSignature(signature);
-      update({ signatureData: sigUrl });
-
-      await ProviderApi.step2({
-        iban: data.iban,
-        bank_account_name: data.accountHolderName
-      });
-      await ProviderApi.submit({ signer_name: data.signerName, signer_role: data.signerRole, lat: data.location?.lat || 0, lng: data.location?.lng || 0 , signature_url: sigUrl, full_data: sanitizeWizardData(data) });
-
-      show(AR ? 'تم إرسال الطلب وملحقاته بنجاح!' : 'Registration Submitted!', 'success');
-      setSub(true);
-    } catch (e: any) {
-      show(e.message || (AR ? 'حدث خطأ' : 'Error submitting'), 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const clearSig = () => {
-    sigRef.current?.clearSignature();
-    update({ signatureData: '' });
-  };
-
-  if (submitted) return <RegistrationSuccess onDone={onDone} email={data.managerEmail} providerType={data.centerType === 'radiology' ? 'radiology' : 'lab'} />;
-
-  const ct = CENTER_TYPES.find(c => c.id === data.centerType);
-  const rows = [
-    { label_ar: 'اسم المركز', label_en: 'Center Name', val: data.nameAr || '—' },
-    { label_ar: 'النوع', label_en: 'Type', val: AR ? (ct?.label_ar ?? '—') : (ct?.label_en ?? '—') },
-    { label_ar: 'المنطقة / المدينة / الحي', label_en: 'Region / City / District', val: [(data as any).region, data.city, (data as any).district].filter(Boolean).join(' / ') || '—' },
-    { label_ar: 'التحاليل', label_en: 'Lab Tests', val: `${data.enabledTests.length}` },
-    { label_ar: 'الأشعة', label_en: 'Scans', val: `${data.enabledScans.length}` },
-    { label_ar: 'الحزم', label_en: 'Bundles', val: `${data.bundles.length}` },
-    { label_ar: 'خدمة منزلية', label_en: 'Home Svc', val: data.hasHomeSvc ? `${data.homeRadius} km` : (AR ? 'لا' : 'No') },
-    { label_ar: 'التأمين', label_en: 'Insurance', val: data.cashOnly ? (AR ? 'نقدي' : 'Cash') : `${data.acceptedInsurance.length}` },
-  ];
-
-  return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <View style={{ padding: SP.xl, paddingBottom: 0 }}>
-        <NHeader title={AR ? 'مراجعة وإرسال' : 'Review & Submit'} onBack={onBack} step={step} total={total} />
-      </View>
-
-      <ScrollView scrollEnabled={scrollEnabled} style={{ flex: 1, paddingHorizontal: SP.xl }} keyboardShouldPersistTaps="handled">
-        <NCard style={{ marginBottom: SP.lg }}>
-          <Text style={[st.sectionTitle, { color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.lg }]}>
-            {AR ? 'ملخص ملف المركز' : 'Center Summary'}
-          </Text>
-          {rows.map((row, i) => (
-            <View key={i} style={[st.sumRow, {
-              flexDirection: AR ? 'row-reverse' : 'row',
-              borderBottomWidth: i < rows.length - 1 ? StyleSheet.hairlineWidth : 0,
-              borderBottomColor: theme.border,
-            }]}>
-              <Text style={{ flex: 1, color: theme.textSub, fontSize: FS.sm, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? row.label_ar : row.label_en}
-              </Text>
-              <Text style={{ color: theme.text, fontWeight: FW.semi, fontSize: FS.sm }}>
-                {row.val}
-              </Text>
-            </View>
-          ))}
-        </NCard>
-
-        {/* Signature pad */}
-        
-          {/* Contract Modal & Button */}
-          <ContractModal visible={showContract} onClose={() => setShowContract(false)} />
-          <TouchableOpacity style={{ backgroundColor: theme.surface, padding: SP.md, borderRadius: 8, borderWidth: 1, borderColor: theme.primary, alignItems: 'center', marginBottom: SP.lg }} onPress={() => setShowContract(true)}>
-            <Text style={{ color: theme.primary, fontWeight: 'bold', fontSize: FS.md }}>{AR ? 'الاطلاع على العقد' : 'View Contract'}</Text>
-          </TouchableOpacity>
-
-<Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm, marginTop: SP.xl }}>{AR ? 'اسم الموقّع' : 'Signatory Name'}</Text>
-<NInput value={data.signerName} onChange={v => update({ signerName: v })} placeholder={AR ? 'الاسم الثلاثي' : 'Full Name'} />
-
-<Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm, marginTop: SP.md }}>{AR ? 'صفة الموقّع / المسمى الوظيفي' : 'Signatory Role'}</Text>
-<NInput value={data.signerRole} onChange={v => update({ signerRole: v })} placeholder={AR ? 'مثال: المالك، المدير العام' : 'e.g. Owner, General Manager'} />
-
-<Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm, marginTop: SP.xl }}>
-  {AR ? 'توقيع الممثل النظامي للمركز' : 'Authorized Representative Signature'}
-</Text>
-
-        
-          {/* Bank Info */}
-          <View style={{ marginBottom: SP.lg }}>
-            <Text style={{ fontSize: FS.md, fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
-              {AR ? 'الحساب البنكي' : 'Bank Account'}
-            </Text>
-            <NInput
-              label={AR ? 'اسم صاحب الحساب' : 'Account Holder Name'}
-              value={data.accountHolderName}
-              onChange={v => update({ accountHolderName: v })}
-              placeholder={AR ? 'اسم مطابق للهوية/السجل التجاري' : 'Name matching ID/CR'}
-            />
-            <NInput
-              label={AR ? 'رقم الآيبان IBAN' : 'Bank IBAN'}
-              value={data.iban}
-              onChange={v => update({ iban: v.toUpperCase().replace(/\s/g, '') })}
-              placeholder="SA0000000000000000000000"
-              maxLen={24}
-            />
-            <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'ملاحظة: سيتم تحويل مستحقاتك إلى هذا الحساب.' : 'Note: Your earnings will be transferred to this account.'}
-            </Text>
-          </View>
-
-
-        <View style={{ marginBottom: 20, gap: 10 }}>
-          {data.signatureData ? (
-             <View style={{ alignItems: 'center', marginVertical: 10 }}>
-               <Image source={{ uri: data.signatureData }} style={{ width: 200, height: 100, resizeMode: 'contain', backgroundColor: '#fff' }} />
-               <TouchableOpacity onPress={() => setShowSigModal(true)} style={{ marginTop: 8 }}><Text style={{ color: theme.primary }}>{AR ? 'إعادة التوقيع' : 'Re-sign'}</Text></TouchableOpacity>
-             </View>
-          ) : (
-            <TouchableOpacity onPress={() => setShowSigModal(true)} style={{ padding: 15, borderWidth: 1, borderColor: theme.primary, borderRadius: 8, alignItems: 'center', borderStyle: 'dashed', marginVertical: 10 }}>
-              <Text style={{ color: theme.primary, fontWeight: 'bold' }}>{AR ? 'اضغط للتوقيع' : 'Tap to Sign'}</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-
-
-        <NCard style={{ marginBottom: SP.lg, backgroundColor: theme.surface2 }}>
-          <NCheckbox
-            label={AR
-              ? 'أوافق على شروط وأحكام نبضة بلس وسياسة الخصوصية، وأؤكد صحة جميع البيانات المدخلة.'
-              : 'I agree to Nabdah Plus Terms & Conditions and Privacy Policy, and confirm all data is accurate.'}
-            value={agreed} onChange={setAgreed}
-          />
-        </NCard>
-
-        <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
-          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.info, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>
-            {AR ? 'ما الذي يحدث بعد الإرسال؟' : "What's next?"}
-          </Text>
-          {[
-            { n: '1', ar: 'مراجعة الوثائق والتراخيص خلال 24-48 ساعة', en: 'Document review within 24-48 hours' },
-            { n: '2', ar: 'تفعيل الحساب وبدء استقبال الطلبات', en: 'Account activation & start receiving orders' },
-            { n: '3', ar: 'يمكنك تحديث قائمة الفحوصات والأسعار فوراً', en: 'Update test menu and pricing immediately' },
-          ].map(s => (
-            <View key={s.n} style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.xs, alignItems: 'flex-start' }}>
-              <View style={{
-                width: 20, height: 20, borderRadius: 10, backgroundColor: theme.info,
-                alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Text style={{ color: '#FFF', fontSize: FS.xs, fontWeight: FW.bold }}>{s.n}</Text>
-              </View>
-              <Text style={{ flex: 1, fontSize: FS.sm, color: theme.info, lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? s.ar : s.en}
-              </Text>
-            </View>
-          ))}
-        </NCard>
-
-        <NBtn label={AR ? 'إرسال ملف المركز للمراجعة' : 'Submit Center Application'}
-          onPress={submit} loading={loading} disabled={!agreed} style={{ marginBottom: 50, backgroundColor: theme.success }} />
-      </ScrollView>
-      <ContractModal visible={showContract} onClose={() => setShowContract(false)} />
-      <SignatureCanvasModal visible={showSigModal} onClose={() => setShowSigModal(false)} onOK={(sig) => update({ signatureData: sig })} />
-      <OtpModal visible={showOtp} onClose={() => setShowOtp(false)} target={data.managerEmail} onVerify={async (code) => { const ok = await handleVerifyOtp(code); if(ok) { setShowOtp(false); finishSubmit(); return true; } return false; }} onResend={() => sendEmailOtp(data.managerEmail).then(() => show(AR ? 'أُعيد إرسال الرمز' : 'Code resent', 'success')).catch(() => show(AR ? 'تعذر الإرسال — انتظر قليلاً' : 'Could not resend — wait a moment', 'error'))} />
     </View>
   );
 }

@@ -8,9 +8,8 @@ import * as DocumentPicker from 'expo-document-picker';
 import { NBtn, NCard, NInput, NStatCard, NAvatar, NBadge, NHeader, NScroll, NSecHeader, NBottomNav, NSheet, NPriceInput, NEmpty } from '../../components/ui';
 import { IBg, I } from '../../components/icons';
 import { SP, R, FS, FW } from '../../constants';
-import { ProviderWalletScreen, MedicalJobsScreen, MedicalDrugIndexScreen } from '../shared/SharedScreens';
+import { ProviderWalletScreen, WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen } from '../shared/SharedScreens';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
-import { GpsRouterScreen } from '../shared/BlueprintScreens';
 
 // ══════ PILLAR 1: STATE MACHINE LABELS ══════
 const STATE_LABELS: Record<string, { ar: string; en: string; color: string }> = {
@@ -76,32 +75,99 @@ export function RadiologyDashboardNavigator({ onLogout }: { onLogout: () => void
       <Stack.Screen name="order_detail">{({ navigation, route }: any) => <OrderDetailScreen order={route.params?.param} onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="reporting">{({ navigation, route }: any) => <ReportingScreen order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-     <Stack.Screen name="home_visit">{({ navigation, route }: any) => <GpsRouterScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="wallet">{({ navigation }: any) => <ProviderWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+      <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
     </Stack.Navigator>
   );
 }
 
-// ══════ HOME TAB ══════
-function RadiologyHome({ onNav }: { onNav: (s: string, p?: any) => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast();
-  const AR = lang === 'ar';
-  const [orders, setOrders] = useState<any[]>([]);
+// ══════ SHARED INBOX (home + orders tab) ══════
+// One list for both tabs: same call (GET /radiology/provider/inbox), same card. Home shows the first rows, Orders filters them.
+interface RadiologyInboxOrder {
+  id: string;
+  state: string;
+  patient_name?: string;
+  scan_name_ar?: string;
+  scan_name_en?: string;
+  total?: number;
+  scheduled_at?: string;
+  preparation_confirmed?: boolean;
+  safety_questionnaire?: { is_pregnant?: boolean; has_pacemaker?: boolean; has_contrast_allergy?: boolean };
+}
+
+function useRadiologyInbox() {
+  const [orders, setOrders] = useState<RadiologyInboxOrder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ todayCount: 0, inScanCount: 0, completedCount: 0, revenue: 0 });
-  const fetchOrders = useCallback(async () => {
+  const reload = useCallback(async () => {
     try {
       setLoading(true);
       const res = await client.get('/radiology/provider/inbox');
-      const data: any[] = res.data || [];
-      setOrders(data);
-      setStats({ todayCount: data.length, inScanCount: data.filter(o => o.state === 'IN_SCANNING').length, completedCount: data.filter(o => o.state === 'REPORT_READY').length, revenue: data.reduce((acc, cur) => acc + (cur.total || 0), 0) });
-    } catch { setOrders([]); setStats({ todayCount: 0, inScanCount: 0, completedCount: 0, revenue: 0 }); } finally { setLoading(false); }
+      setOrders(Array.isArray(res.data) ? res.data : []);
+    } catch { setOrders([]); } finally { setLoading(false); }
   }, []);
-  useEffect(() => { fetchOrders(); }, [fetchOrders]);
+  useEffect(() => { reload(); }, [reload]);
+  return { orders, loading, reload };
+}
+
+function SafetyChip({ label, on }: { label: string; on: boolean }) {
   return (
-    <NScroll refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchOrders} tintColor={tokens.mintDeep} />}>
+    <View style={{ backgroundColor: on ? withAlpha(tokens.error, 0.20) : withAlpha(tokens.success, 0.20), borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}>
+      <Text style={{ fontSize: 9, color: on ? tokens.error : tokens.success }}>{label}</Text>
+    </View>
+  );
+}
+
+function RadiologyInboxList({ orders, loading, emptyTitle, onOpen }: { orders: RadiologyInboxOrder[]; loading: boolean; emptyTitle: string; onOpen: (o: RadiologyInboxOrder) => void }) {
+  const { theme } = useTheme(); const { lang } = useLang();
+  const AR = lang === 'ar';
+  const yes = AR ? 'نعم' : 'YES'; const no = AR ? 'لا' : 'NO';
+  return (
+    <>
+      {loading && orders.length === 0 && <ActivityIndicator size="large" color={tokens.mintDeep} />}
+      {!loading && orders.length === 0 && <NEmpty title={emptyTitle} icon="document" />}
+      {orders.map(order => {
+        const meta = STATE_LABELS[order.state] || STATE_LABELS.NEW_REQUEST;
+        const sq = order.safety_questionnaire || {};
+        return (
+          <NCard key={order.id} style={{ marginBottom: SP.md }} accent={meta.color} onPress={() => onOpen(order)}>
+            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}>
+              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm }}>
+                <IBg name="scan" size={16} color={tokens.mintDeep} bg={withAlpha(tokens.mintDeep, 0.12)} />
+                <View><Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.patient_name || '—'}</Text><Text style={{ fontSize: FS.xs, color: theme.textSub }}>{order.scan_name_ar || order.scan_name_en || 'Scan'}</Text></View>
+              </View>
+              <NBadge label={AR ? meta.ar : meta.en} style={{ backgroundColor: meta.color + '22' }} labelStyle={{ color: meta.color }} size="xs" />
+            </View>
+            <View style={{ flexDirection: 'row', gap: SP.sm, flexWrap: 'wrap', marginBottom: SP.sm }}>
+              {sq.is_pregnant !== undefined && <SafetyChip on={!!sq.is_pregnant} label={AR ? `حمل: ${sq.is_pregnant ? yes : no}` : `Pregnant: ${sq.is_pregnant ? yes : no}`} />}
+              {sq.has_pacemaker !== undefined && <SafetyChip on={!!sq.has_pacemaker} label={AR ? `منظم: ${sq.has_pacemaker ? yes : no}` : `Pacemaker: ${sq.has_pacemaker ? yes : no}`} />}
+              {sq.has_contrast_allergy !== undefined && <SafetyChip on={!!sq.has_contrast_allergy} label={AR ? `صبغة: ${sq.has_contrast_allergy ? yes : no}` : `Contrast: ${sq.has_contrast_allergy ? yes : no}`} />}
+              {!order.preparation_confirmed && order.state === 'CONFIRMED' && <View style={{ backgroundColor: withAlpha(tokens.warning, 0.20), borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}><Text style={{ fontSize: 9, color: tokens.warning }}>{AR ? 'التحضير: غير مؤكد' : 'Prep: Not Confirmed'}</Text></View>}
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{order.scheduled_at ? new Date(order.scheduled_at).toLocaleString('ar-SA-u-ca-gregory') : '—'}</Text>
+              <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: tokens.mintDeep }}>{order.total || 0} {AR ? 'ر.س' : 'SAR'}</Text>
+            </View>
+          </NCard>
+        );
+      })}
+    </>
+  );
+}
+
+// ══════ HOME TAB ══════
+function RadiologyHome({ onNav }: { onNav: (s: string, p?: any) => void }) {
+  const { theme } = useTheme(); const { lang } = useLang();
+  const AR = lang === 'ar';
+  const { orders, loading, reload } = useRadiologyInbox();
+  const stats = {
+    todayCount: orders.length,
+    inScanCount: orders.filter(o => o.state === 'IN_SCANNING').length,
+    completedCount: orders.filter(o => o.state === 'REPORT_READY').length,
+    revenue: orders.reduce((acc, cur) => acc + (cur.total || 0), 0),
+  };
+  return (
+    <NScroll refreshControl={<RefreshControl refreshing={loading} onRefresh={reload} tintColor={tokens.mintDeep} />}>
       <NHeader title={AR?'لوحة الأشعة':'Radiology Dashboard'} right={<TouchableOpacity onPress={() => onNav('wallet')} style={{ padding: SP.sm }}><I name="wallet" size={24} color={theme.primary} /></TouchableOpacity>} />
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.xl }}>
         <NStatCard icon="◎" label={AR ? 'فحوصات اليوم' : "Today's Scans"} value={String(stats.todayCount)} color={tokens.mintDeep} style={{ width: '47%' }} />
@@ -110,28 +176,7 @@ function RadiologyHome({ onNav }: { onNav: (s: string, p?: any) => void }) {
         <NStatCard icon="◈" label={AR ? 'الإيرادات' : 'Revenue'} value={String(stats.revenue)} unit={AR ? 'ر' : 'SAR'} color={tokens.mintDeep} style={{ width: '47%' }} />
       </View>
       <NSecHeader title={AR ? 'طلبات اليوم' : "Today's Orders"} />
-      {orders.length === 0 && !loading && <NEmpty title={AR ? 'لا توجد طلبات اليوم' : 'No orders today'} icon="document" />}
-      {orders.slice(0, 6).map(order => {
-        const meta = STATE_LABELS[order.state] || STATE_LABELS.NEW_REQUEST;
-        const sq = order.safety_questionnaire || {};
-        return (
-          <NCard key={order.id} style={{ marginBottom: SP.md }} accent={meta.color} onPress={() => onNav('order_detail', order)}>
-            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.sm }}>
-              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm }}>
-                <IBg name="scan" size={16} color={tokens.mintDeep} bg={withAlpha(tokens.mintDeep, 0.12)} />
-                <View><Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.patient_name || '—'}</Text><Text style={{ fontSize: FS.xs, color: theme.textSub }}>{order.scan_name_ar || order.scan_name_en || 'Scan'}</Text></View>
-              </View>
-              <NBadge label={AR ? meta.ar : meta.en} style={{ backgroundColor: meta.color + '22' }} labelStyle={{ color: meta.color }} size="xs" />
-            </View>
-            <View style={{ flexDirection: 'row', gap: SP.sm, flexWrap: 'wrap' }}>
-              {sq.is_pregnant!== undefined && <View style={{ backgroundColor: sq.is_pregnant?withAlpha(tokens.error, 0.20):withAlpha(tokens.success, 0.20), borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}><Text style={{ fontSize: 9, color: sq.is_pregnant?tokens.error:tokens.success }}>{AR?`حمل: ${sq.is_pregnant?'نعم':'لا'}`:`Pregnant: ${sq.is_pregnant?'YES':'NO'}`}</Text></View>}
-              {sq.has_pacemaker!== undefined && <View style={{ backgroundColor: sq.has_pacemaker?withAlpha(tokens.error, 0.20):withAlpha(tokens.success, 0.20), borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}><Text style={{ fontSize: 9, color: sq.has_pacemaker?tokens.error:tokens.success }}>{AR?`منظم: ${sq.has_pacemaker?'نعم':'لا'}`:`Pacemaker: ${sq.has_pacemaker?'YES':'NO'}`}</Text></View>}
-              {sq.has_contrast_allergy!== undefined && <View style={{ backgroundColor: sq.has_contrast_allergy?withAlpha(tokens.error, 0.20):withAlpha(tokens.success, 0.20), borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}><Text style={{ fontSize: 9, color: sq.has_contrast_allergy?tokens.error:tokens.success }}>{AR?`صبغة: ${sq.has_contrast_allergy?'نعم':'لا'}`:`Contrast: ${sq.has_contrast_allergy?'YES':'NO'}`}</Text></View>}
-              {!order.preparation_confirmed && order.state ==='CONFIRMED' && <View style={{ backgroundColor:withAlpha(tokens.warning, 0.20), borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}><Text style={{ fontSize: 9, color:tokens.warning }}>{AR?'التحضير: غير مؤكد':'Prep: Not Confirmed'}</Text></View>}
-            </View>
-          </NCard>
-        );
-      })}
+      <RadiologyInboxList orders={orders.slice(0, 6)} loading={loading} emptyTitle={AR ? 'لا توجد طلبات اليوم' : 'No orders today'} onOpen={(o) => onNav('order_detail', o)} />
     </NScroll>
   );
 }
@@ -141,10 +186,7 @@ function RadiologyOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) 
   const { theme } = useTheme(); const { lang } = useLang();
   const AR = lang === 'ar';
   const [tab, setTab] = useState<'new'|'insurance'|'confirmed'|'inScan'>('new');
-  const [orders, setOrders] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const fetch = useCallback(async () => { try { setLoading(true); const res = await client.get('/radiology/provider/inbox'); setOrders(res.data || []); } catch {} finally { setLoading(false); } }, []);
-  useEffect(() => { fetch(); }, [fetch]);
+  const { orders, loading } = useRadiologyInbox();
   const filtered = orders.filter(o => {
     if (tab === 'new')       return o.state === 'NEW_REQUEST';
     if (tab === 'insurance') return ['PENDING_INSURANCE', 'WAITING_COPAY'].includes(o.state);
@@ -160,23 +202,7 @@ function RadiologyOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) 
         {subTabs.map(t => <TouchableOpacity key={t.key} style={{ flex: 1, padding: SP.sm, alignItems: 'center', borderBottomWidth: tab === t.key ? 2 : 0, borderColor: tokens.mintDeep }} onPress={() => setTab(t.key as any)}><Text style={{ fontSize: FS.xs, color: tab === t.key ? tokens.mintDeep : theme.textSub, fontWeight: tab === t.key ? FW.bold : FW.normal }}>{t.label}</Text></TouchableOpacity>)}
       </View>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
-        {loading && <ActivityIndicator size="large" color={tokens.mintDeep} />}
-        {!loading && filtered.length === 0 && <NEmpty title={AR ? 'لا توجد طلبات' : 'No orders'} icon="document" />}
-        {filtered.map(order => {
-          const meta = STATE_LABELS[order.state] || STATE_LABELS.NEW_REQUEST;
-          return (
-            <NCard key={order.id} style={{ marginBottom: SP.md }} accent={meta.color} onPress={() => onNav('order_detail', order)}>
-              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}>
-                <View><Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.patient_name || '—'}</Text><Text style={{ fontSize: FS.xs, color: theme.textSub }}>{order.scan_name_ar || order.scan_name_en || 'Scan'}</Text></View>
-                <NBadge label={AR ? meta.ar : meta.en} style={{ backgroundColor: meta.color + '22' }} labelStyle={{ color: meta.color }} size="xs" />
-              </View>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{order.scheduled_at ? new Date(order.scheduled_at).toLocaleString('ar-SA-u-ca-gregory') : '—'}</Text>
-                <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: tokens.mintDeep }}>{order.total || 0} {AR ? 'ر.س' : 'SAR'}</Text>
-              </View>
-            </NCard>
-          );
-        })}
+        <RadiologyInboxList orders={filtered} loading={loading} emptyTitle={AR ? 'لا توجد طلبات' : 'No orders'} onOpen={(o) => onNav('order_detail', o)} />
       </ScrollView>
     </View>
   );
@@ -311,7 +337,6 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
         </>)}
         {currentOrder.state === 'IN_SCANNING' && (<>
           <NBtn label={AR?' رفع التقرير والنتائج':' Upload Report & Results'} onPress={() => onNav('reporting', currentOrder)} />
-          <NBtn label={AR?' زيارة منزلية (تتبع GPS)':' Home visit (GPS tracking)'} variant="outline" onPress={() => onNav('home_visit', currentOrder)} />
           <NBtn label={AR?' إلغاء الفحص طارئ':' Emergency Abort Scan'} variant="danger" onPress={() => setShowAbort(true)} />
         </>)}
         {currentOrder.state ==='REPORT_DRAFT' && <NBtn label={AR?' إرسال للمراجعة الطبية':' Submit for Radiologist Review'} loading={loading} onPress={() => doAction('submit-report-for-review')} />}

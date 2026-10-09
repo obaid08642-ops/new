@@ -21,10 +21,9 @@ import client from '../../../api/client';
 import { InsuranceRequestsScreen } from '../../shared/InsuranceRequestsScreen';
 import { EPrescriptionScreen } from '../../doctor/DoctorDashboard';
 import {
- PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
+ PromotionsDashboard, CreateCampaignScreen, 
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
- LiveOrderAlarmModal, CrmHub, RevenueInsights,
- SosDispatchScreen, GpsRouterScreen
+ LiveOrderAlarmModal, CrmHub, RevenueInsights
 } from '../../shared/BlueprintScreens';
 import { FacilityProfileConfigScreen } from '../FacilityProfileConfigScreen';
 import { FacilityInvitationScreen } from '../FacilityInvitationScreen';
@@ -36,7 +35,7 @@ import { FacilityAuditLogScreen } from '../FacilityAuditLogScreen';
 import { FacilityAnnouncementsScreen } from '../FacilityAnnouncementsScreen';
 import { FacilityPatientTrackerScreen } from '../FacilityPatientTrackerScreen';
 import { DischargeSummaryScreen } from '../DischargeSummaryScreen';
-import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderHomeStats, GlobalSystemSettings } from '../../shared/SharedScreens';
+import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderProfileEditor, WithdrawalWorkflow, ProviderHomeStats, GlobalSystemSettings } from '../../shared/SharedScreens';
 import { NotificationsCenterScreen, TechnicalSupportTicketsScreen, SecurityManagementScreen } from '../../shared/RealScreens';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
@@ -49,7 +48,6 @@ import { ShiftManagementScreen } from './ShiftManagementScreen';
 import { BedManagementScreen } from './BedManagementScreen';
 import { QRCheckinScreen } from './QRCheckinScreen';
 import { InsuranceClaimsHubScreen } from './InsuranceClaimsHubScreen';
-import { FacilityFinancialScreen } from './FacilityFinancialScreen';
 import { StaffAttendanceScreen } from './StaffAttendanceScreen';
 import { SurgeryScheduleScreen } from './SurgeryScheduleScreen';
 import { CredentialingScreen } from './CredentialingScreen';
@@ -127,7 +125,7 @@ export function FacilityDashboardNavigator({ onLogout }: { onLogout: () => void 
               <NBottomNav tabs={tabs} active={activeTab} onPress={setActiveTab} />
               <LiveOrderAlarmModal
                 visible={alarmVisible}
-                onAccept={() => { setAlarmVisible(false); go('sos_dispatch'); }}
+                onAccept={() => { setAlarmVisible(false); setActiveTab('orders'); }}
                 onDecline={() => setAlarmVisible(false)}
               />
             </View>
@@ -145,7 +143,7 @@ export function FacilityDashboardNavigator({ onLogout }: { onLogout: () => void 
       <Stack.Screen name="beds">{({ navigation }: any) => <BedManagementScreen onBack={() => navigation.goBack()} wards={wards} onRefresh={fetchWardsAndSurgeries} />}</Stack.Screen>
       <Stack.Screen name="qr_checkin">{({ navigation }: any) => <QRCheckinScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="insurance_hub">{({ navigation }: any) => <InsuranceClaimsHubScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-      <Stack.Screen name="financial">{({ navigation }: any) => <FacilityFinancialScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="financial">{({ navigation }: any) => <RevenueInsights role="facility" onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="internal_chat">{({ navigation }: any) => <FacilityInternalChatScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="audit_logs">{({ navigation }: any) => <FacilityAuditLogScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="announcements">{({ navigation }: any) => <FacilityAnnouncementsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -157,22 +155,21 @@ export function FacilityDashboardNavigator({ onLogout }: { onLogout: () => void 
       <Stack.Screen name="credentialing">{({ navigation }: any) => <CredentialingScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="hospital_dispatch">{({ navigation }: any) => <HospitalDispatchScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="facility_info">{({ navigation }: any) => <FacilityProfileConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-      <Stack.Screen name="auto_reports">{({ navigation }: any) => <RevenueInsights onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="auto_reports">{({ navigation }: any) => <RevenueInsights role="facility" onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="support">{({ navigation }: any) => <TechnicalSupportTicketsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="security">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="order_detail">{({ navigation, route }: any) => <FacilityOrderDetail order={route.params?.param} onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="wallet">{({ navigation }: any) => <ProviderWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+      <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="promotions">{({ navigation }: any) => <PromotionsDashboard onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="create_promo">{({ navigation }: any) => <CreateCampaignScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-      <Stack.Screen name="web_config">{({ navigation }: any) => <ProfileWebConfig onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="web_config">{({ navigation }: any) => <ProviderProfileEditor role="other" onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="subscriptions_ads">{({ navigation }: any) => <SubscriptionsAdsScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="affiliate">{({ navigation }: any) => <AffiliatePortal onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="reputation">{({ navigation }: any) => <ReputationHub onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="crm">{({ navigation }: any) => <CrmHub onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
-      <Stack.Screen name="revenue_insights">{({ navigation }: any) => <RevenueInsights onBack={() => navigation.goBack()} />}</Stack.Screen>
-      <Stack.Screen name="sos_dispatch">{({ navigation }: any) => <SosDispatchScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
-      <Stack.Screen name="gps_router">{({ navigation, route }: any) => <GpsRouterScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="revenue_insights">{({ navigation }: any) => <RevenueInsights role="facility" onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="medical_jobs">{({ navigation }: any) => <MedicalJobsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>

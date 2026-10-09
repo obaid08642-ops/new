@@ -13,6 +13,7 @@ import {
 import * as LocalAuth from 'expo-local-authentication';
 import { getTheme, TR, type ThemeMode, type Theme, type Lang, type TKey, API_BASE } from '../constants';
 import { Vault, Tokens, SessionMgr, RateLimiter, Audit, SK, Validate, Biometric, buildHeaders, DeviceId } from '../security/Security';
+import { mapAccountStatus } from '../utils/accountStatus';
 
 // ═══════════════════════════════════════
 // THEME
@@ -174,7 +175,7 @@ export const useToast = (): ToastCtxType => {
 // ═══════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════
-export type AppStateStatusType = 'checking' | 'logged_out' | 'logged_in' | 'suspended' | 'pending' | 'rejected' | 'offline';
+export type AppStateStatusType = 'checking' | 'logged_out' | 'logged_in' | 'suspended' | 'pending' | 'needs_changes' | 'rejected' | 'offline';
 
 interface User {
  id: string; name: string; displayName: string;
@@ -254,12 +255,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const checkAppStatus = (status: string) => {
-    const s = String(status || '').toLowerCase();
-    if (s === 'suspended') { setAppState('suspended'); return false; }
-    if (s === 'rejected') { setAppState('rejected'); return false; }
-    if (s === 'pending' || s === 'under_review' || s === 'submitted') { setAppState('pending'); return false; }
-    setAppState('logged_in');
-    return true;
+    // server statuses: pending_admin_approval, under_review, needs_changes, rejected, suspended, approved (see utils/accountStatus)
+    const next = mapAccountStatus(status);
+    setAppState(next);
+    return next === 'logged_in';
   };
 
   const tryRefresh = async (): Promise<boolean> => {
@@ -280,8 +279,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await res.json();
       await Tokens.save(data.access_token, data.refresh_token, sessionId, data.provider_id, data.provider_type);
       const u = mapBackendResponseToUser(data);
-      if (!checkAppStatus(u.status)) return false;
       setUser(u);
+      if (!checkAppStatus(u.status)) return false;
       return true;
     } catch { 
       return false; 
@@ -309,8 +308,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       await Tokens.save(data.access_token, data.refresh_token, data.session_id, data.provider_id, data.provider_type);
       const u = mapBackendResponseToUser(data);
-      if (!checkAppStatus(u.status)) return { ok: false, err: 'الحساب موقوف' };
       setUser(u);
+      if (!checkAppStatus(u.status)) return { ok: false, err: mapAccountStatus(u.status) === 'suspended' ? 'الحساب موقوف' : 'الحساب غير معتمد بعد' };
       RateLimiter.reset(key);
       Audit.log('login', true, { provider: u.providerType });
       return { ok: true };

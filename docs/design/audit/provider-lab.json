@@ -267,7 +267,7 @@
     [
      "mock-name: openSampleForResults = async () => {",
      "mock-scan mock-name",
-     "ok"
+     "mock"
     ],
     [
      "button: Request NPHIES Approval",
@@ -613,6 +613,11 @@
    "route": "LabTestMenuScreen",
    "elements": [
     [
+     "dummy-value: Test Name (Arabic)",
+     "mock-scan dummy-value",
+     "mock"
+    ],
+    [
      "data: Data newPrice",
      "POST /approval-workflow/requests → newPrice",
      "ok"
@@ -665,11 +670,6 @@
     [
      "input: Test Name (Arabic)",
      "user input → newTitleAr → request body",
-     "ok"
-    ],
-    [
-     "dummy-value: Test Name (Arabic)",
-     "mock-scan dummy-value",
      "ok"
     ],
     [
@@ -890,7 +890,23 @@
    "kind": "client",
    "note": "Touchable \"[bell]\" has no onPress handler.",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 314
+   "line": 315
+  },
+  {
+   "route": "LabOrderDetail",
+   "element": "mock-name: openSampleForResults = async () => {",
+   "kind": "client",
+   "note": "mock-name (mock-scan): openSampleForResults = async () => {",
+   "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+   "line": 507
+  },
+  {
+   "route": "LabTestMenuScreen",
+   "element": "dummy-value: Test Name (Arabic)",
+   "kind": "client",
+   "note": "dummy-value (mock-scan): Test Name (Arabic)",
+   "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+   "line": 1616
   },
   {
    "route": "LabTestMenuScreen",
@@ -898,8 +914,8 @@
    "kind": "backend",
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1513,
-   "backend": "backend/src/modules/service-catalog/service-catalog-compat.controller.ts:11"
+   "line": 1514,
+   "backend": "backend/src/modules/service-catalog/service-catalog-compat.controller.ts:15"
   },
   {
    "route": "QRSampleLabel",
@@ -907,7 +923,7 @@
    "kind": "client",
    "note": "placeholder-text (mock-scan): SMP-2025-XXX",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1160
+   "line": 1161
   },
   {
    "route": "QRSampleLabel",
@@ -915,7 +931,7 @@
    "kind": "client",
    "note": "Button \"Save as Image\" shows a success message without sending a request.",
    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
-   "line": 1168
+   "line": 1169
   }
  ]
 }
