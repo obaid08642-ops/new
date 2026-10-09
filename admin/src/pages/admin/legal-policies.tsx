@@ -4,18 +4,15 @@ import { dateLocale } from '../../utils/dates';
 
 export default function LegalPoliciesPage() {
   const [policies, setPolicies] = useState<any[]>([]);
-  const [commissions, setCommissions] = useState<any>(null);
   const [editing, setEditing] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
-    const [p, c] = await Promise.all([
-      apiFetch('/legal/policies').catch(() => []),
-      apiFetch('/api/admin/admin/finance/commissions').catch(() => null),
-    ]);
+    // #996: commissions are edited in finance-suite (POST /admin/finance/commissions/config, finance permissions); the
+    // copy that lived here sent a PUT the server does not have and read the earnings report as if it were the config.
+    const p = await apiFetch('/legal/policies').catch(() => []);
     setPolicies(Array.isArray(p) ? p : []);
-    setCommissions(c);
   };
   useEffect(() => { load(); }, []);
 
@@ -36,58 +33,10 @@ export default function LegalPoliciesPage() {
     load();
   };
 
-  const setPercent = async (type: string, value: number) => {
-    const next = { ...commissions.service_types, [type]: { ...commissions.service_types[type], percent: value } };
-    await apiFetch('/api/admin/admin/finance/commissions', { method: 'PUT', body: JSON.stringify({ service_types: next }) }).catch(() => null);
-    load();
-  };
-
-  const setMinimum = async (value: number) => {
-    await apiFetch('/api/admin/admin/finance/commissions', { method: 'PUT', body: JSON.stringify({ payout_schedule: { ...commissions.payout_schedule, minimum_payout_sar: value } }) }).catch(() => null);
-    load();
-  };
-
   return (
     <div className="p-8" dir="rtl">
-      <h1 className="text-2xl font-bold mb-2">السياسات القانونية والعمولات</h1>
+      <h1 className="text-2xl font-bold mb-2">السياسات القانونية</h1>
       <p className="text-sm text-gray-500 mb-6">تحرير كامل بدون كود — كل تعديل يرفع الإصدار تلقائياً ويجبر إعادة القبول.</p>
-
-      {/* Commissions */}
-      {commissions && (
-        <div className="bg-white p-5 rounded-lg shadow border mb-8">
-          <h2 className="font-bold mb-4">العمولات والتحويلات</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-            {Object.entries(commissions.service_types || {}).map(([type, cfg]: any) => (
-              <div key={type} className="border rounded-lg p-3">
-                <div className="text-sm text-gray-500">{type}</div>
-                <div className="flex items-center gap-2 mt-1">
-                  <input
-                    type="number" min="0" max="50" step="0.5" defaultValue={cfg.percent}
-                    onBlur={e => setPercent(type, parseFloat(e.target.value))}
-                    className="w-20 border rounded p-1 text-center font-bold"
-                  />
-                  <span className="text-sm font-bold text-teal-600">%</span>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="flex gap-6 items-center flex-wrap">
-            <div>
-              <span className="text-sm text-gray-500 me-2">الحد الأدنى للسحب:</span>
-              <input
-                type="number" min="0" defaultValue={commissions.payout_schedule?.minimum_payout_sar}
-                onBlur={e => setMinimum(parseFloat(e.target.value))}
-                className="w-24 border rounded p-1 text-center font-bold"
-              />
-              <span className="text-sm font-bold"> ر.س</span>
-            </div>
-            <div className="text-sm text-gray-500">
-              الجدول: {commissions.payout_schedule?.frequency} ({commissions.payout_schedule?.day}) · معالجة {commissions.payout_schedule?.processing_days} أيام
-            </div>
-            <div className="text-sm text-amber-700 bg-amber-50 px-3 py-1 rounded">VAT {commissions.tax?.vat_percent}% على العمولة</div>
-          </div>
-        </div>
-      )}
 
       {/* Policies */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

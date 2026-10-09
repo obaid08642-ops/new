@@ -108,6 +108,9 @@ export default function FinancialLedger() {
   };
 
   const handleExecutePayout = async (id: string) => {
+    // #933: money leaves the platform on this tap; ask once, with the amount and the provider.
+    const w = withdrawals.find((x) => x.id === id);
+    if (!window.confirm(`تنفيذ تحويل ${w?.amount ?? ''} ر.س إلى ${w?.providerName || 'المزود'}؟ لا يمكن التراجع بعد الإرسال.`)) return;
     try {
       const res: any = await fetchWithAdminGuard(`/api/admin/admin/finance/withdrawals/${id}/execute`, { method: 'POST' });
       if (res?.routed_to_approval) {

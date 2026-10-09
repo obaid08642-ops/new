@@ -67,7 +67,6 @@ import { FinanceEngineModule } from '../finance-engine/finance-engine.module';
 import { ProviderWithdrawalSchema } from '../provider-ops/provider-ops.module';
 import { AnalyticsController } from './web-core/controllers/analytics.controller';
 import { FinanceController } from './web-core/controllers/finance.controller';
-import { SystemHealthController } from './web-core/controllers/system-health.controller';
 import { AdminConfigController } from './web-core/controllers/admin-config.controller';
 import { AdminGovernanceController as WebCoreGovernanceController } from './web-core/controllers/admin-governance.controller';
 import { AdminExtendedOperationsController } from './web-core/controllers/admin-extended-operations.controller';
@@ -157,7 +156,6 @@ import { AuditIngestController } from './admin-audit-ingest.controller';
     // P5.3: merged from AdminWebCoreModule
     AnalyticsController,
     FinanceController,
-    SystemHealthController,
     AdminConfigController,
     WebCoreGovernanceController,
     AdminExtendedOperationsController,

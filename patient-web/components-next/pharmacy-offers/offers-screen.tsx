@@ -75,6 +75,7 @@ export async function OffersScreen({ locale, orderId, variant }: Props) {
     currency: offer.currency,
     preparationMinutes: offer.preparationMinutes,
     expiresAt: offer.expiresAt,
+    serverTime: offer.serverTime,
     insuranceReady: offer.insuranceReady,
     codAllowed: offer.codAllowed,
     distanceKm: offer.approxDistanceKm,

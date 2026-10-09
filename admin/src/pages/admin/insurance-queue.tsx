@@ -52,6 +52,8 @@ export default function InsuranceQueuePage() {
   useEffect(() => { load(); }, [load]);
 
   const decideRefund = async (id: string, approve: boolean) => {
+    // #972/#973: a refund decision is final; ask once before sending it.
+    if (!window.confirm(approve ? 'اعتماد هذا الاسترداد؟ سيُعاد المبلغ للمريض.' : 'رفض هذا الاسترداد؟')) return;
     try {
       await apiFetch(`/api/admin/admin/finance/refunds/${id}/decide`, {
         method: 'POST',

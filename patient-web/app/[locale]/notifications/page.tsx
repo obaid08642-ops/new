@@ -56,7 +56,7 @@ export default async function NotificationsPage({ params }: Props) {
   const t = await getTranslations("Notifications");
   const routeState = await getTranslations("RouteState");
   const token = await requirePatientAccess(locale);
-  const response = await getPatientNotifications(token);
+  const response = await getPatientNotifications(token, locale);
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
   const back = `/${locale}`;

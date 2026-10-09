@@ -26,6 +26,8 @@ export type PatientPharmacyOffer = {
   preparationMinutes?: number;
   /** When the pharmacy's price stops being valid (server field `expires_at`, else `quote_expires_at`). */
   expiresAt?: string;
+  /** #512: the server's clock when it answered, so the countdown does not depend on the viewer's clock. */
+  serverTime?: string;
   insuranceReady?: boolean;
   codAllowed?: boolean;
   quoteHash?: string;
@@ -135,6 +137,7 @@ export function extractPatientPharmacyOffers(payload: unknown): PatientPharmacyO
       currency: stringValue(totals ?? source, ["currency"]),
       preparationMinutes: numberValue(source, ["preparation_minutes", "preparationMinutes", "estimated_preparation_minutes"]),
       expiresAt: stringValue(source, ["expires_at", "expiresAt", "quote_expires_at"]),
+      serverTime: stringValue(source, ["server_time"]),
       insuranceReady: booleanValue(source, ["insurance_ready", "insuranceReady"]),
       codAllowed: booleanValue(source, ["cod_allowed", "codAllowed"]),
       quoteHash: stringValue(source, ["snapshot_hash", "quote_hash", "quoteHash"]),

@@ -163,6 +163,8 @@ export class ProviderAdminService {
       } }] as any,
     );
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_approved', after: { note: body?.note || body?.reason, commission: body?.commission, commission_cash: body?.commission_cash, commission_insurance: body?.commission_insurance } });
+    // #939: the provider hears the result (the bell and push), not only at the next sign-in.
+    this.events.emit('provider.approved', { provider_id: id });
 
     // Trigger Automatic SEO / Content / Discovery Pipeline
     const prof: any = await this.accounts.model.db.collection('provider_profiles').findOne({ account_id: id });
@@ -190,6 +192,7 @@ export class ProviderAdminService {
       { $set: { status: 'rejected', rejected_reason: a.rejection_reason, public_eligibility: false, indexing_eligibility: false } },
     );
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_rejected', after: { reason: a.rejection_reason } });
+    this.events.emit('provider.rejected', { provider_id: id, reason: a.rejection_reason });
     // The rejected application's images and licence documents are KEPT (private, owner/admin only): a rejection is
     // usually 'fix and resubmit', and the reviewed files are the record of what was rejected and why. Their
     // retention is the data map's (decision 32), not a side effect of the rejection.
@@ -230,6 +233,7 @@ export class ProviderAdminService {
       await this.docs.updateMany({ account_id: id, doc_type: { $in: body.docs_needing_replacement } }, { $set: { review_status: DocumentReviewStatus.NEEDS_REPLACEMENT, reviewer_id: user.id, reviewer_note: body?.note, reviewed_at: new Date() } });
     }
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_needs_changes', after: { note: body?.note, docs: body?.docs_needing_replacement } });
+    this.events.emit('provider.changes_requested', { provider_id: id });
     return a.toObject();
   }
 

@@ -103,7 +103,7 @@ function FeedSkeleton() {
 }
 
 export default function NotificationsScreen() {
-  const { theme, t, c, dir, tr } = useScreenUi();
+  const { theme, t, c, dir, tr, lang } = useScreenUi();
   const dispatch = useDispatch();
   const [filter, setFilter] = useState<NotifGroup | 'all'>('all');
   const [notifs, setNotifs] = useState<Notif[]>([]);
@@ -115,7 +115,8 @@ export default function NotificationsScreen() {
     if (!silent) setLoading(true);
     setFailed(null);
     try {
-      const rows = await apiFetch<RawNotification[]>('/notifications');
+      // #417: the server writes the texts in the app's language
+      const rows = await apiFetch<RawNotification[]>(`/notifications?lang=${encodeURIComponent(lang)}`);
       setNotifs((Array.isArray(rows) ? rows : []).map(mapNotification));
     } catch {
       setFailed((await isOffline()) ? 'offline' : 'error');
@@ -123,7 +124,7 @@ export default function NotificationsScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [lang]);
 
   useEffect(() => {
     void load();

@@ -88,6 +88,9 @@ export function parseOffer(raw: unknown): OfferView | null {
   const lines = readLines(o.lines);
   const availableCount = lines.filter((l) => l.available).length;
   const expires = typeof o.expires_at === 'string' || typeof o.expires_at === 'number' ? new Date(o.expires_at as string | number).getTime() : NaN;
+  // #512: the server sends its clock; the expiry is moved onto this phone's clock so a wrong phone time does not skew the countdown.
+  const serverNow = typeof o.server_time === 'string' ? new Date(o.server_time).getTime() : NaN;
+  const localExpires = Number.isFinite(expires) && Number.isFinite(serverNow) ? Date.now() + (expires - serverNow) : expires;
   const status = text(o.status) ?? 'open';
   return {
     id,
@@ -97,7 +100,7 @@ export function parseOffer(raw: unknown): OfferView | null {
     nameEn: text(o.pharmacy_name_en) ?? null,
     distanceKm: num(o.approx_distance_km),
     prepMinutes: num(o.preparation_minutes),
-    expiresAt: Number.isFinite(expires) ? expires : null,
+    expiresAt: Number.isFinite(localExpires) ? localExpires : null,
     totals: readTotals(o.totals),
     lines,
     availableCount,

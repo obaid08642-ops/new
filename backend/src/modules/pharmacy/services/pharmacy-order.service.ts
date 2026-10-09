@@ -130,7 +130,29 @@ export class PharmacyOrderService {
       else if (anyOOD) effective_status = 'out_for_delivery' as any;
       else if (anyPreparing) effective_status = 'in_fulfillment' as any;
     }
-    return { ...order, effective_status, allocations_detail: allocs, ...this.governedView(order) };
+    // #366/#375/#514: the patient sees which pharmacy is filling the order (its public display name only).
+    const names = await this.pharmacyNames(allocs.map((a: any) => a.pharmacy_account_id));
+    const allocationsDetail = allocs.map((a: any) => ({ ...a, ...(names.get(a.pharmacy_account_id) ?? { pharmacy_name_ar: null, pharmacy_name_en: null }) }));
+    const pharmacies = [...new Set(allocs.map((a: any) => a.pharmacy_account_id).filter(Boolean))];
+    const single = pharmacies.length === 1 ? names.get(pharmacies[0] as string) : undefined;
+    return { ...order, effective_status, allocations_detail: allocationsDetail, pharmacy_name_ar: single?.pharmacy_name_ar ?? null, pharmacy_name_en: single?.pharmacy_name_en ?? null, ...this.governedView(order) };
+  }
+
+  /** Display names of pharmacies by account id, from their profile (the same names the offers list shows). */
+  private async pharmacyNames(accountIds: unknown[]): Promise<Map<string, { pharmacy_name_ar: string | null; pharmacy_name_en: string | null }>> {
+    const ids = [...new Set(accountIds.filter((x): x is string => typeof x === 'string' && x.length > 0))];
+    const out = new Map<string, { pharmacy_name_ar: string | null; pharmacy_name_en: string | null }>();
+    if (!ids.length) return out;
+    const rows: any[] = await this.conn.collection('provider_profiles')
+      .find({ account_id: { $in: ids } }, { projection: { _id: 0, account_id: 1, display_name_ar: 1, display_name_en: 1, name_ar: 1, name_en: 1, business_name: 1, legal_name: 1 } })
+      .toArray().catch(() => []);
+    for (const p of rows) {
+      const registered = p.business_name || p.legal_name || null;
+      const ar = p.display_name_ar || p.name_ar || registered;
+      const en = p.display_name_en || p.name_en || registered;
+      out.set(p.account_id, { pharmacy_name_ar: ar ?? en ?? null, pharmacy_name_en: en ?? ar ?? null });
+    }
+    return out;
   }
 
   /**

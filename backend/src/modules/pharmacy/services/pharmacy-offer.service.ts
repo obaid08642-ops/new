@@ -337,6 +337,8 @@ export class PharmacyOfferService {
       pharmacy_name: pharmacyNameAr || pharmacyNameEn,
       preparation_minutes: offer.estimated_preparation_minutes ?? null,
       expires_at: offer.quote_expires_at || null,
+      // #512: the server's clock with the expiry, so a client with a wrong clock can still count down correctly.
+      server_time: new Date().toISOString(),
       insurance_ready: true,
       cod_allowed: true,
       quote_revision: Number(offer.version || 1),
