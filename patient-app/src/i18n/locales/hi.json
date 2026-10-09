@@ -1185,6 +1185,7 @@
   "consult.track.homeDoctor": "घर आने वाले डॉक्टर",
   "consult.track.minutes": "मिनट",
   "consult.track.confirmed": "अनुरोध की पुष्टि हो गई",
+  "consult.track.enRoute": "डॉक्टर रास्ते में है",
   "consult.track.arrived": "डॉक्टर पहुँच गए",
   "consult.track.done": "विज़िट पूरी हुई",
   "consult.track.message": "डॉक्टर को संदेश भेजें",

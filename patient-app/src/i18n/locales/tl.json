@@ -1185,6 +1185,7 @@
   "consult.track.homeDoctor": "Doktor sa pagbisita sa bahay",
   "consult.track.minutes": "minuto",
   "consult.track.confirmed": "Nakumpirma ang kahilingan",
+  "consult.track.enRoute": "Papunta na ang doktor",
   "consult.track.arrived": "Dumating na ang doktor",
   "consult.track.done": "Tapos na ang pagbisita",
   "consult.track.message": "Magmensahe sa doktor",

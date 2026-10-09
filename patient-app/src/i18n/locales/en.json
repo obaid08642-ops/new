@@ -1221,6 +1221,7 @@
   "consult.track.homeDoctor": "Home-visit doctor",
   "consult.track.minutes": "min",
   "consult.track.confirmed": "Booking confirmed",
+  "consult.track.enRoute": "The doctor is on the way",
   "consult.track.arrived": "The doctor arrived",
   "consult.track.done": "Visit completed",
   "consult.track.message": "Message the doctor",
