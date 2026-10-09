@@ -1,5 +1,5 @@
 {
- "commit": "8662db4d",
+ "commit": "cda2ec15",
  "routes": [
   {
    "app": "patient-app",
@@ -889,7 +889,7 @@
      "path": "/care/appointments/:param",
      "target": "backend",
      "query": "",
-     "line": 118,
+     "line": 114,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:26"
@@ -899,7 +899,7 @@
      "path": "/care/doctors/:param",
      "target": "backend",
      "query": "",
-     "line": 110,
+     "line": 106,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:67"
@@ -909,7 +909,7 @@
      "path": "/chat/threads/:param/messages",
      "target": "backend",
      "query": "",
-     "line": 140,
+     "line": 130,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:116"
@@ -919,27 +919,17 @@
      "path": "/chat/threads/:param/messages",
      "target": "backend",
      "query": "",
-     "line": 207,
+     "line": 192,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:127"
-    },
-    {
-     "method": "GET",
-     "path": "/chat/threads/:param/permissions",
-     "target": "backend",
-     "query": "",
-     "line": 134,
-     "file": "patient-app/app/consultations/chat-with-doctor.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:30"
     },
     {
      "method": "POST",
      "path": "/chat/threads/booking",
      "target": "backend",
      "query": "",
-     "line": 126,
+     "line": 122,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:106"
@@ -949,7 +939,7 @@
      "path": "/media/:param/url",
      "target": "backend",
      "query": "",
-     "line": 282,
+     "line": 267,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/media/media.controller.ts:75"
@@ -959,13 +949,13 @@
      "path": "/media/upload",
      "target": "backend",
      "query": "",
-     "line": 263,
+     "line": 248,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/media/media.controller.ts:22"
     }
    ],
-   "files": 32,
+   "files": 31,
    "unresolved": 0
   },
   {
@@ -7750,7 +7740,7 @@
      "path": "/care/appointments/:param",
      "target": "backend",
      "query": "",
-     "line": 63,
+     "line": 57,
      "file": "patient-web/app/[locale]/chat/[threadId]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:26"
@@ -7770,23 +7760,13 @@
      "path": "/chat/threads/:param/messages",
      "target": "backend",
      "query": "?limit=50",
-     "line": 15,
+     "line": 10,
      "file": "patient-web/lib/api/chat-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:116"
-    },
-    {
-     "method": "GET",
-     "path": "/chat/threads/:param/permissions",
-     "target": "backend",
-     "query": "",
-     "line": 11,
-     "file": "patient-web/lib/api/chat-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:30"
     }
    ],
-   "files": 39,
+   "files": 38,
    "unresolved": 0
   },
   {
@@ -13964,7 +13944,7 @@
      "path": "/api/auth/convert-guest",
      "target": "web-bff",
      "query": "",
-     "line": 66,
+     "line": 69,
      "file": "patient-web/components-next/register-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/convert-guest/route.ts"
@@ -13974,7 +13954,7 @@
      "path": "/api/auth/register",
      "target": "web-bff",
      "query": "",
-     "line": 80,
+     "line": 85,
      "file": "patient-web/components-next/register-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/register/route.ts"
@@ -13984,7 +13964,7 @@
      "path": "/api/auth/session",
      "target": "web-bff",
      "query": "",
-     "line": 42,
+     "line": 43,
      "file": "patient-web/components-next/register-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/session/route.ts"

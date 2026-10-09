@@ -63,4 +63,5 @@ Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = we
 - **N1 nurse result upload (design/n1-nurse-upload):** files picked at visit end -> POST /storage/upload -> visit-report {complete, attachments}; without files the old complete route is kept. Backend gap: visit-report ignores the signature. ~60k tokens.
 - **N1 patient side (design/n1-patient-files):** nurse result files shown on the visit screen (app: live-tracking done state; web: /nursing/visits/[id]); open via signed URL (web BFF 302). 3 new keys x 6 locales. ~70k tokens.
 - **Patient D1 (design/d1-patient):** consultation thread: permissions (can_chat/upload/call), window banner, tel 997 from emergency_line, read-only + Book a follow-up (app + web); 6 keys x 6 locales per client. Voice-note control: none exists in the app. ~135k tokens.
+- **UI needs-review (plan 2026-10-09 s.10):** patient-core 29 issues walked: 1 partial fix (#433 client), 6 already fixed on main (#421 #422 #560 #566 #568 #569), rest owner decisions / waits for OC-C / not UI. Details in PR. ~170k tokens.
 
