@@ -70,13 +70,15 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/impersonation', label: 'جلسات الدعم المقيّدة', permission: 'user.impersonate' },
     ],
   },
-  {
+{
     title: 'النظام',
     items: [
       { href: '/admin/rbac', label: 'الأدوار والصلاحيات', permission: 'rbac.manage' },
       { href: '/admin/system-ops', label: 'تشغيل النظام', permission: 'ops.queues.manage' },
       { href: '/admin/scheduled-reports', label: 'التقارير المجدولة', permission: 'reports.schedule.manage' },
       { href: '/admin/audit-logs', label: 'سجل التدقيق' },
+      { href: '/admin/audit-search', label: 'بحث سجل التدقيق' },
+      { href: '/admin/audit-timeline', label: 'الخط الزمني للتدقيق' },
       { href: '/admin/security', label: 'الأمان ومفاتيح الدخول' },
     ],
   },
@@ -142,6 +144,8 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/release-discipline': 'ops.queues.manage',
   '/admin/ai-control': 'ops.queues.manage',
   '/admin/audit-logs': 'data.export',
+  '/admin/audit-search': 'data.export',
+  '/admin/audit-timeline': 'data.export',
   '/admin/rbac': 'rbac.manage',
   '/admin/scheduled-reports': 'reports.schedule.manage',
   '/admin/impersonation': 'user.impersonate',
