@@ -15,7 +15,7 @@
  * `null` and the screen does not draw it. Payment is "paid" only when the order's `payment_status` or the transaction's
  * `status` says `paid`; a redirect, a query string or a flag held by the client never is.
  */
-import { num, type OfferTotals } from './pharmacyOffers';
+import { governedStep, num, type OfferTotals } from './pharmacyOffers';
 import type { DraftLine } from './pharmacy-draft';
 
 const text = (value: unknown): string | null => (typeof value === 'string' && value.trim() !== '' ? value.trim() : null);
@@ -220,7 +220,7 @@ export function readPayOrder(response: unknown): PayOrder | null {
   return {
     id,
     status,
-    governedState: text(o.governed_state),
+    governedState: governedStep(o.governed_state),
     paymentStatus: text(o.payment_status),
     paymentMethod: text(o.payment_method),
     selectedOfferId: text(o.selected_offer_id),
@@ -408,7 +408,7 @@ const BEFORE_SELECTION = new Set(['draft', 'intake_processing', 'ready_for_split
  */
 export function orderRoute(order: { id: string; status?: string | null; governed_state?: string | null; payment_status?: string | null; selected_offer_id?: string | null; payment_method?: string | null }): OrderRoute {
   const orderId = order.id;
-  const state = order.governed_state ?? '';
+  const state = governedStep(order.governed_state) ?? '';
   const status = String(order.status ?? '');
   const paid = order.payment_status === 'paid';
   if (state === 'INSURANCE_PROCESSING' || state === 'INSURANCE_DECISION_READY' || state === 'CO_PAY_PENDING') return { pathname: '/pharmacy/insurance-decision', params: { orderId } };

@@ -2,6 +2,7 @@
 // GET /patient/pharmacy/orders/:id (the detail) send, and nothing else: an order's status, its lines, the price the
 // server stored for the selected offer, the courier the pharmacy named and the events the server logged. Nothing is
 // computed, guessed or filled in; a field the API did not send is left out and the screens do not draw it.
+import { governedStep } from "./governed-step";
 
 function record(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
@@ -121,7 +122,7 @@ export function parseOrderDetail(payload: unknown, locale: string): OrderDetail 
   return {
     id,
     status: text(source.effective_status) ?? text(source.status),
-    governedState: text(source.governed_state),
+    governedState: governedStep(source.governed_state),
     paymentStatus: text(source.payment_status),
     coverageMode: coverage === "cash" || coverage === "insurance" ? coverage : undefined,
     createdAt: text(source.createdAt) ?? text(source.created_at),

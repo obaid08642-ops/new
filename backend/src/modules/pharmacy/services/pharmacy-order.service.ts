@@ -137,7 +137,25 @@ export class PharmacyOrderService {
     if (!view.governed_state && String(order.status) === PharmacyOrderState.BROADCASTING) {
       view.governed_state = (await this.hasLiveOffer(id)) ? 'OFFERS_READY' : 'ORDER_BROADCASTING';
     }
+    // Q-21: an accepted quote with a gateway payment under way reads PAYMENT_PENDING (the clients keep the pay screen,
+    // and POST /payments/intent hands back the same active transaction, so the patient can resume it).
+    if (view.governed_state === 'FINAL_QUOTE_ACCEPTED' && String(order.payment_status || '').toLowerCase() !== 'paid' && await this.hasActivePayment(id)) {
+      view.governed_state = 'PAYMENT_PENDING';
+    }
     return { ...order, effective_status, allocations_detail: allocs, ...view };
+  }
+
+  /** True when a gateway transaction for this order is still open (initiating, pending or authorized). */
+  private async hasActivePayment(orderId: string): Promise<boolean> {
+    try {
+      const txn = await this.conn?.collection('transactions').findOne(
+        { booking_kind: 'pharmacy', booking_id: orderId, status: { $in: ['initiating', 'pending', 'authorized'] } },
+        { projection: { _id: 0, id: 1 } },
+      );
+      return !!txn;
+    } catch {
+      return false;
+    }
   }
 
   /** True when >= 1 live offer (submitted, quote_expires_at in the future) exists for this order. */
