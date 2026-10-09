@@ -33,3 +33,22 @@ Findings:
 - All six directory list pages call `fetchDirectory('/care/doctors?limit=300')`-style relative URLs from `getServerSideProps`. Node `fetch` rejects a relative URL and the `catch` returns `[]`, so on the server these pages render empty lists (status BAD_URL in the audit). The endpoints themselves exist and are `@Public`.
 - `/s/[type]/[slug]` calls the backend directly with `${API_BASE}/api/v1/seo/meta/...` (works, public route).
 - Owner/reviewer question: should public pages be part of `patient-web` instead? They duplicate patient-web's job (doctors, medicines, articles) and put public traffic and its CSP on the admin host, whose gate is meant for admins only.
+
+## Build status (2026-10-08, branch `wip-admin-build`; existing endpoints only)
+
+| # | Essential | Status now | Where |
+|---|---|---|---|
+| 1 | Today's numbers | **done** (new phone screen) | `/admin/today`: tiles from `command-center-v2`, `ops/overview`, `ops/domain-metrics` |
+| 2 | Approvals queue | **done** (client fan-out) + **backend gap** (no aggregate endpoint, maker-checker lists not included) | `/admin/approvals`: 9 existing list endpoints, each row a count or a retry |
+| 3 | Problem orders | **done** for stuck orders and failed payments; **backend gap**: no "problem" filter on the orders list | `/admin/today` (from `ops/alerts`) |
+| 4 | Feature switches | **UI done** (a flip button per flag that fills the audited form); **backend gap**: only `sms_enabled` is read | `/admin/system-ops` flags tab |
+| 5 | Urgent alerts | **done** for SLA / stuck / failed payment; **hidden**: inbox, push, rules (backend gap); SOS left out (decision 14) | `/admin/today` |
+| 6 | Search + camera barcode | **done**: camera scan (BarcodeDetector, typed-code fallback), public lookup normalises the code, admin search finds it | `/admin/medicines-catalog` |
+| 7 | Quick edit | **done**: price, prescription flag, availability | `MedicineQuickEdit` |
+| 8 | Items-to-review queue | **hidden**: backend gap (410 Gone, no sfda_price) | needs-review line |
+| 9 | Confirm before sensitive change | **done** for price and prescription (old -> new, "published item goes back to review"); `controlled` **hidden**: backend does not accept it | quick edit and full form |
+| 10 | Change log | price log shown in the quick edit; other fields: backend gap | needs-review line |
+
+Client fixes: provider reject and request-changes buttons added (`POST /admin/providers/:id/reject` with `reason`, `:id/request-changes` with `note`). `catalog-manager` PUT / DELETE are correct for labs, radiology and nursing (the controllers define `PUT` and `DELETE`); the medicines tab already uses `PATCH` and `POST :id/delete`, so the WRONG_METHOD lines of the inventory for this page come from the tab-config call sites, not from a failing call.
+Also fixed (found while testing): the closed drawer and the desktop sidebar were shifted by `ltr:-translate-x-full` (matches `lang="en"`), so on a phone 100 px of the closed drawer showed and at 1024 px and up the sidebar covered the page.
+Check: `tools/design/admin-mobile-check.mjs` (stubbed session, 1276 checks).

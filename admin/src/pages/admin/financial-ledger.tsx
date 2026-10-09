@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
+import { DataTable } from '@/components/DataTable';
 
 interface CommissionRow {
   id: string;
@@ -203,35 +204,22 @@ export default function FinancialLedger() {
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
               <div className="p-4 bg-slate-900 text-white font-bold">محرك مراجعة العمولات الأساسي (Core Commission Auditing)</div>
               <div className="p-4 overflow-x-auto">
-                <table className="w-full text-sm text-left" dir="ltr">
-                  <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b">
-                    <tr>
-                      <th className="px-4 py-3">Provider</th>
-                      <th className="px-4 py-3">Type</th>
-                      <th className="px-4 py-3">Base Bill</th>
-                      <th className="px-4 py-3">Sys Comm</th>
-                      <th className="px-4 py-3">VAT (on Comm)</th>
-                      <th className="px-4 py-3 bg-green-50 text-green-700">Provider Earning</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {commissions.map(c => {
-                      const net = calculateNet(c.baseBill, c.type);
-                      return (
-                        <tr key={c.id} className="border-b">
-                          <td className="px-4 py-3 font-medium text-gray-900">{c.providerName}</td>
-                          <td className="px-4 py-3">
-                            <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">{c.type} ({(getCommissionRate(c.type) * 100)}%)</span>
-                          </td>
-                          <td className="px-4 py-3">{c.baseBill} SAR</td>
-                          <td className="px-4 py-3 text-red-600">-{net.systemCommission} SAR</td>
-                          <td className="px-4 py-3 text-amber-600">+{net.vatOnCommission.toFixed(2)} SAR</td>
-                          <td className="px-4 py-3 font-bold text-green-600 bg-green-50">{net.providerEarning.toFixed(2)} SAR</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                <DataTable
+                  bare
+                  dir="ltr"
+                  rows={commissions}
+                  getRowKey={(c) => String(c.id)}
+                  columns={[
+                    { key: 'provider', header: 'Provider', className: 'font-medium text-gray-900', render: (c) => c.providerName },
+                    { key: 'type', header: 'Type', render: (c) => (
+                      <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">{c.type} ({(getCommissionRate(c.type) * 100)}%)</span>
+                    ) },
+                    { key: 'base', header: 'Base Bill', render: (c) => `${c.baseBill} SAR` },
+                    { key: 'comm', header: 'Sys Comm', className: 'text-red-600', render: (c) => `-${calculateNet(c.baseBill, c.type).systemCommission} SAR` },
+                    { key: 'vat', header: 'VAT (on Comm)', className: 'text-amber-600', render: (c) => `+${calculateNet(c.baseBill, c.type).vatOnCommission.toFixed(2)} SAR` },
+                    { key: 'earn', header: 'Provider Earning', headerClassName: 'bg-green-50 text-green-700', className: 'font-bold text-green-600 bg-green-50', render: (c) => `${calculateNet(c.baseBill, c.type).providerEarning.toFixed(2)} SAR` },
+                  ]}
+                />
               </div>
               <div className="p-4 bg-gray-50 border-t border-gray-200 text-xs text-gray-500 font-mono">
                 Provider Earning = (Base Bill - System Commission) + VAT 15% applied strictly to Platform Commission
@@ -294,42 +282,34 @@ export default function FinancialLedger() {
                   </div>
 
                   <div className="p-0">
-                    <table className="w-full text-left" dir="ltr">
-                      <thead className="bg-gray-50 border-b text-sm text-gray-500 uppercase">
-                        <tr>
-                          <th className="p-4">Item Name</th>
-                          <th className="p-4 w-32">Quantity</th>
-                          <th className="p-4 w-64 bg-amber-50 text-amber-800">Warehouse Cost Unit Price (SAR)</th>
-                          <th className="p-4 w-32 bg-slate-50">Total</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {order.items.map((item, idx) => (
-                          <tr key={idx} className="border-b border-gray-100">
-                            <td className="p-4 font-medium text-gray-800">{item.name}</td>
-                            <td className="p-4">{item.quantity}</td>
-                            <td className="p-4 bg-amber-50">
-                              <input
-                                type="number"
-                                min={0}
-                                disabled={order.status !== 'PENDING_ADMIN_REVIEW'}
-                                value={item.unitPrice || ''}
-                                onChange={(e) => handleUpdateWarehousePrice(order.id, idx, Number(e.target.value))}
-                                className="w-full border border-gray-300 rounded px-3 py-2 disabled:bg-gray-100"
-                                placeholder="0.00"
-                              />
-                            </td>
-                            <td className="p-4 font-bold text-slate-800 bg-slate-50">{(item.quantity * item.unitPrice).toFixed(2)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                      <tfoot>
-                        <tr className="bg-slate-900 text-white font-bold text-lg">
-                          <td colSpan={3} className="p-4 text-right border-r border-slate-700">total_warehouse_quotation_price:</td>
-                          <td className="p-4 text-teal-400">{totalQuotation.toFixed(2)} SAR</td>
-                        </tr>
-                      </tfoot>
-                    </table>
+                    <DataTable
+                      bare
+                      dir="ltr"
+                      rows={order.items.map((item, idx) => ({ item, idx }))}
+                      getRowKey={({ idx }) => String(idx)}
+                      columns={[
+                        { key: 'name', header: 'Item Name', className: 'font-medium text-gray-800', render: ({ item }) => item.name },
+                        { key: 'qty', header: 'Quantity', render: ({ item }) => item.quantity },
+                        { key: 'price', header: 'Warehouse Cost Unit Price (SAR)', headerClassName: 'bg-amber-50 text-amber-800', className: 'bg-amber-50', render: ({ item, idx }) => (
+                          <input
+                            type="number"
+                            min={0}
+                            disabled={order.status !== 'PENDING_ADMIN_REVIEW'}
+                            value={item.unitPrice || ''}
+                            onChange={(e) => handleUpdateWarehousePrice(order.id, idx, Number(e.target.value))}
+                            className="w-full border border-gray-300 rounded px-3 py-2 disabled:bg-gray-100"
+                            placeholder="0.00"
+                          />
+                        ) },
+                        { key: 'total', header: 'Total', headerClassName: 'bg-slate-50', className: 'font-bold text-slate-800 bg-slate-50', render: ({ item }) => (item.quantity * item.unitPrice).toFixed(2) },
+                      ]}
+                      footerRow={(
+                        <div className="flex items-center justify-between gap-4 bg-slate-900 p-4 text-lg font-bold text-white">
+                          <span>total_warehouse_quotation_price:</span>
+                          <span className="text-teal-400">{totalQuotation.toFixed(2)} SAR</span>
+                        </div>
+                      )}
+                    />
                   </div>
                 </div>
               );

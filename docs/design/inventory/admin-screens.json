@@ -100,6 +100,11 @@
    "permission": "gdpr.manage"
   },
   {
+   "href": "/admin/legal-policies",
+   "label": "السياسات القانونية",
+   "permission": "gdpr.manage"
+  },
+  {
    "href": "/admin/content-growth",
    "label": "المحتوى والنمو",
    "permission": "cms.edit"
@@ -120,6 +125,11 @@
   {
    "href": "/admin/medicines-catalog",
    "label": "كتالوج الأدوية"
+  },
+  {
+   "href": "/admin/image-suggestions",
+   "label": "اقتراحات صور الأدوية",
+   "permission": "catalog.read"
   },
   {
    "href": "/admin/catalog-manager",
@@ -243,7 +253,8 @@
    "line": 1,
    "area": "system",
    "unit": [
-    "admin/src/pages/admin/ai-control.tsx"
+    "admin/src/pages/admin/ai-control.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "ops.queues.manage",
    "navPermission": null,
@@ -259,7 +270,7 @@
      "backend": "backend/src/modules/ai/ai.controller.ts:30",
      "backendPath": "/ai/admin/gateway",
      "file": "admin/src/pages/admin/ai-control.tsx",
-     "line": 23,
+     "line": 24,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -282,7 +293,7 @@
      "backend": "backend/src/modules/ai/ai.controller.ts:58",
      "backendPath": "/ai/admin/usage",
      "file": "admin/src/pages/admin/ai-control.tsx",
-     "line": 24,
+     "line": 25,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -305,7 +316,7 @@
      "backend": "backend/src/modules/ai/ai.controller.ts:37",
      "backendPath": "/ai/admin/gateway/provider/:param",
      "file": "admin/src/pages/admin/ai-control.tsx",
-     "line": 33,
+     "line": 34,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -328,7 +339,7 @@
      "backend": "backend/src/modules/ai/ai.controller.ts:44",
      "backendPath": "/ai/admin/gateway/mode",
      "file": "admin/src/pages/admin/ai-control.tsx",
-     "line": 39,
+     "line": 40,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -351,7 +362,7 @@
      "backend": "backend/src/modules/ai/ai.controller.ts:51",
      "backendPath": "/ai/admin/gateway/purpose",
      "file": "admin/src/pages/admin/ai-control.tsx",
-     "line": 46,
+     "line": 47,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -377,7 +388,8 @@
    "line": 1,
    "area": "customers-growth",
    "unit": [
-    "admin/src/pages/admin/analytics-suite.tsx"
+    "admin/src/pages/admin/analytics-suite.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "analytics.read",
    "navPermission": "analytics.read",
@@ -393,7 +405,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:82",
      "backendPath": "/admin/analytics-suite/funnels",
      "file": "admin/src/pages/admin/analytics-suite.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -418,7 +430,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:88",
      "backendPath": "/admin/analytics-suite/cohorts",
      "file": "admin/src/pages/admin/analytics-suite.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -443,7 +455,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:94",
      "backendPath": "/admin/analytics-suite/provider-league",
      "file": "admin/src/pages/admin/analytics-suite.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -468,7 +480,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:100",
      "backendPath": "/admin/analytics-suite/search",
      "file": "admin/src/pages/admin/analytics-suite.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -493,7 +505,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:106",
      "backendPath": "/admin/analytics-suite/nps",
      "file": "admin/src/pages/admin/analytics-suite.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -518,7 +530,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:112",
      "backendPath": "/admin/analytics-suite/anomalies",
      "file": "admin/src/pages/admin/analytics-suite.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -546,7 +558,8 @@
    "line": 1,
    "area": "customers-growth",
    "unit": [
-    "admin/src/pages/admin/analytics.tsx"
+    "admin/src/pages/admin/analytics.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "analytics.read",
    "navPermission": null,
@@ -562,7 +575,7 @@
      "backend": "backend/src/modules/analytics/analytics.module.ts:126",
      "backendPath": "/admin/analytics/overview",
      "file": "admin/src/pages/admin/analytics.tsx",
-     "line": 19,
+     "line": 20,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -585,7 +598,7 @@
      "backend": "backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:231",
      "backendPath": "/admin/analytics/:param",
      "file": "admin/src/pages/admin/analytics.tsx",
-     "line": 24,
+     "line": 25,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -616,7 +629,7 @@
    "clientPermission": "appointment.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 64,
+   "navLine": 66,
    "publicDirectory": false,
    "calls": [
     {
@@ -624,7 +637,7 @@
      "path": "/api/admin/admin/appointments",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:93",
+     "backend": "backend/src/modules/care/appointments.controller.ts:94",
      "backendPath": "/admin/appointments",
      "file": "admin/src/pages/admin/appointments-oversight.tsx",
      "line": 10,
@@ -639,7 +652,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/care/appointments.controller.ts",
-     "routeLine": 93,
+     "routeLine": 94,
      "raw": false
     },
     {
@@ -647,7 +660,7 @@
      "path": "/api/admin/admin/appointments/:param/cancel",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:98",
+     "backend": "backend/src/modules/care/appointments.controller.ts:100",
      "backendPath": "/admin/appointments/:param/cancel",
      "file": "admin/src/pages/admin/appointments-oversight.tsx",
      "line": 16,
@@ -658,27 +671,292 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "order.cancel"
+      ],
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/care/appointments.controller.ts",
-     "routeLine": 98,
+     "routeLine": 100,
      "raw": false
     }
    ],
    "guardFindings": [
     {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /admin/appointments/:param/cancel is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"appointment.read\" but POST /admin/appointments/:param/cancel requires order.cancel; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/api/admin/admin/appointments/:param/cancel",
      "file": "admin/src/pages/admin/appointments-oversight.tsx",
      "line": 16,
-     "backend": "backend/src/modules/care/appointments.controller.ts:98"
+     "backend": "backend/src/modules/care/appointments.controller.ts:100"
     }
    ],
    "orphan": false
+  },
+  {
+   "app": "admin",
+   "route": "/admin/approvals",
+   "file": "admin/src/pages/admin/approvals.tsx",
+   "line": 1,
+   "area": "ops-monitoring",
+   "unit": [
+    "admin/src/pages/admin/approvals.tsx"
+   ],
+   "clientPermission": null,
+   "navPermission": null,
+   "inNav": false,
+   "navLine": null,
+   "publicDirectory": false,
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/providers",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:150",
+     "backendPath": "/admin/providers",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 20,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "facility.edit"
+      ],
+      "useGuards": ""
+     },
+     "routeFile": "backend/src/modules/provider/provider.controllers.ts",
+     "routeLine": 150,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/providers/provider-deltas",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:154",
+     "backendPath": "/admin/providers/provider-deltas",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 22,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "facility.edit"
+      ],
+      "useGuards": ""
+     },
+     "routeFile": "backend/src/modules/provider/provider.controllers.ts",
+     "routeLine": 154,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/finance/withdrawals/pending",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:42",
+     "backendPath": "/admin/finance/withdrawals/pending",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 24,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": ""
+     },
+     "routeFile": "backend/src/modules/admin/web-core/controllers/finance.controller.ts",
+     "routeLine": 42,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/finance/refunds/queue",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:886",
+     "backendPath": "/admin/finance/refunds/queue",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 26,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "order.refund"
+      ],
+      "useGuards": "JwtAuthGuard | JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/insurance-engine/insurance-engine.module.ts",
+     "routeLine": 886,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/returns",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/returns/returns.controller.ts:64",
+     "backendPath": "/admin/returns",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 28,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/returns/returns.controller.ts",
+     "routeLine": 64,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/medicines/admin/change-requests",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:216",
+     "backendPath": "/medicines/admin/change-requests",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 30,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
+     "routeLine": 216,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/medicines/admin/shortage-reports",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:131",
+     "backendPath": "/medicines/admin/shortage-reports",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 32,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "catalog.read"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
+     "routeLine": 131,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/medicines/admin/image-suggestions",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:179",
+     "backendPath": "/medicines/admin/image-suggestions",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 34,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
+     "routeLine": 179,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "(unresolved)",
+     "target": "backend",
+     "status": "UNRESOLVED",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 37,
+     "fn": "adminFetch",
+     "via": null,
+     "note": "path is not a literal the tool can resolve"
+    }
+   ],
+   "guardFindings": [
+    {
+     "code": "G-PAGE-NOPERM",
+     "note": "Page has no client permission (any admin sees it) but GET /admin/providers requires facility.edit; roles without it get a 403 inside the page.",
+     "severity": "low",
+     "method": "GET",
+     "path": "/api/admin/admin/providers",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 20,
+     "backend": "backend/src/modules/provider/provider.controllers.ts:150"
+    },
+    {
+     "code": "G-PAGE-NOPERM",
+     "note": "Page has no client permission (any admin sees it) but GET /admin/providers/provider-deltas requires facility.edit; roles without it get a 403 inside the page.",
+     "severity": "low",
+     "method": "GET",
+     "path": "/api/admin/admin/providers/provider-deltas",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 22,
+     "backend": "backend/src/modules/provider/provider.controllers.ts:154"
+    },
+    {
+     "code": "G-PAGE-NOPERM",
+     "note": "Page has no client permission (any admin sees it) but GET /admin/finance/refunds/queue requires order.refund; roles without it get a 403 inside the page.",
+     "severity": "low",
+     "method": "GET",
+     "path": "/api/admin/admin/finance/refunds/queue",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 26,
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:886"
+    },
+    {
+     "code": "G-PAGE-NOPERM",
+     "note": "Page has no client permission (any admin sees it) but GET /medicines/admin/shortage-reports requires catalog.read; roles without it get a 403 inside the page.",
+     "severity": "low",
+     "method": "GET",
+     "path": "/medicines/admin/shortage-reports",
+     "file": "admin/src/pages/admin/approvals.tsx",
+     "line": 32,
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:131"
+    }
+   ],
+   "orphan": true
   },
   {
    "app": "admin",
@@ -696,7 +974,7 @@
    "clientPermission": "data.export",
    "navPermission": null,
    "inNav": true,
-   "navLine": 77,
+   "navLine": 79,
    "publicDirectory": false,
    "calls": [
     {
@@ -740,7 +1018,7 @@
    "clientPermission": "order.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 65,
+   "navLine": 67,
    "publicDirectory": false,
    "calls": [
     {
@@ -777,12 +1055,13 @@
    "line": 1,
    "area": "catalogue",
    "unit": [
-    "admin/src/pages/admin/catalog-governance.tsx"
+    "admin/src/pages/admin/catalog-governance.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "catalog.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 57,
+   "navLine": 58,
    "publicDirectory": false,
    "calls": [
     {
@@ -790,10 +1069,10 @@
      "path": "/medicines/admin/catalog",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:243",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:247",
      "backendPath": "/medicines/admin/catalog",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 40,
+     "line": 41,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -807,7 +1086,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 243,
+     "routeLine": 247,
      "raw": false
     },
     {
@@ -818,7 +1097,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:131",
      "backendPath": "/medicines/admin/shortage-reports",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 41,
+     "line": 42,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -843,7 +1122,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:155",
      "backendPath": "/admin/pharmacy/price-overrides",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 42,
+     "line": 43,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -863,10 +1142,10 @@
      "path": "/medicines/admin/catalog/:param/price-history",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:305",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:309",
      "backendPath": "/medicines/admin/catalog/:param/price-history",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 63,
+     "line": 64,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -880,7 +1159,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 305,
+     "routeLine": 309,
      "raw": false
     },
     {
@@ -888,10 +1167,10 @@
      "path": "/medicines/admin/catalog/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:235",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:239",
      "backendPath": "/medicines/admin/catalog/:param",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 78,
+     "line": 79,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -906,7 +1185,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 235,
+     "routeLine": 239,
      "raw": false
     },
     {
@@ -914,10 +1193,10 @@
      "path": "/medicines/admin/import-csv",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:458",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:462",
      "backendPath": "/medicines/admin/import-csv",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 101,
+     "line": 102,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -931,7 +1210,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 458,
+     "routeLine": 462,
      "raw": false
     },
     {
@@ -942,7 +1221,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:139",
      "backendPath": "/medicines/admin/shortage-reports/:param/:param",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 122,
+     "line": 123,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -968,8 +1247,8 @@
      "method": "PATCH",
      "path": "/medicines/admin/catalog/:param",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 78,
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:235"
+     "line": 79,
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:239"
     },
     {
      "code": "G-PERM-MISMATCH",
@@ -978,8 +1257,8 @@
      "method": "POST",
      "path": "/medicines/admin/import-csv",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 101,
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:458"
+     "line": 102,
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:462"
     },
     {
      "code": "G-PERM-MISMATCH",
@@ -988,7 +1267,7 @@
      "method": "POST",
      "path": "/medicines/admin/shortage-reports/:param/:param",
      "file": "admin/src/pages/admin/catalog-governance.tsx",
-     "line": 122,
+     "line": 123,
      "backend": "backend/src/modules/medicines/medicines.controller.ts:139"
     }
    ],
@@ -1006,7 +1285,7 @@
    "clientPermission": "catalog.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 59,
+   "navLine": 61,
    "publicDirectory": false,
    "calls": [
     {
@@ -1014,7 +1293,7 @@
      "path": "/labs/admin/catalog",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:170",
+     "backend": "backend/src/modules/labs/labs.controller.ts:171",
      "backendPath": "/labs/admin/catalog",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
@@ -1030,7 +1309,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/labs/labs.controller.ts",
-     "routeLine": 170,
+     "routeLine": 171,
      "raw": false
     },
     {
@@ -1038,7 +1317,7 @@
      "path": "/radiology/admin/catalog",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:189",
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:190",
      "backendPath": "/radiology/admin/catalog",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
@@ -1054,7 +1333,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/radiology/radiology.controller.ts",
-     "routeLine": 189,
+     "routeLine": 190,
      "raw": false
     },
     {
@@ -1062,7 +1341,7 @@
      "path": "/nursing/admin/catalog",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:108",
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:109",
      "backendPath": "/nursing/admin/catalog",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
@@ -1078,7 +1357,7 @@
       "useGuards": "JwtAuthGuard | JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/home-care/home-care.controller.ts",
-     "routeLine": 108,
+     "routeLine": 109,
      "raw": false
     },
     {
@@ -1086,7 +1365,7 @@
      "path": "/medicines/admin/catalog",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:243",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:247",
      "backendPath": "/medicines/admin/catalog",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
@@ -1104,7 +1383,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 243,
+     "routeLine": 247,
      "raw": false
     },
     {
@@ -1112,7 +1391,7 @@
      "path": "/insurance/companies",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:695",
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:696",
      "backendPath": "/insurance/companies",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
@@ -1126,7 +1405,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/insurance-engine/insurance-engine.module.ts",
-     "routeLine": 695,
+     "routeLine": 696,
      "raw": false
     },
     {
@@ -1134,7 +1413,7 @@
      "path": "/labs/admin/catalog",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:173",
+     "backend": "backend/src/modules/labs/labs.controller.ts:175",
      "backendPath": "/labs/admin/catalog",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
@@ -1146,11 +1425,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "catalog.create"
+      ],
       "useGuards": "require('../../common/auth.guard'"
      },
      "routeFile": "backend/src/modules/labs/labs.controller.ts",
-     "routeLine": 173,
+     "routeLine": 175,
      "raw": false
     },
     {
@@ -1158,7 +1439,7 @@
      "path": "/radiology/admin/catalog",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:193",
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:195",
      "backendPath": "/radiology/admin/catalog",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
@@ -1170,11 +1451,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "catalog.create"
+      ],
       "useGuards": "require('../../common/auth.guard'"
      },
      "routeFile": "backend/src/modules/radiology/radiology.controller.ts",
-     "routeLine": 193,
+     "routeLine": 195,
      "raw": false
     },
     {
@@ -1182,7 +1465,7 @@
      "path": "/nursing/admin/catalog",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:113",
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:115",
      "backendPath": "/nursing/admin/catalog",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
@@ -1194,11 +1477,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "catalog.create"
+      ],
       "useGuards": "JwtAuthGuard | JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/home-care/home-care.controller.ts",
-     "routeLine": 113,
+     "routeLine": 115,
      "raw": false
     },
     {
@@ -1206,7 +1491,7 @@
      "path": "/labs/admin/catalog/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:181",
+     "backend": "backend/src/modules/labs/labs.controller.ts:184",
      "backendPath": "/labs/admin/catalog/:param",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
@@ -1218,11 +1503,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "catalog.update"
+      ],
       "useGuards": "require('../../common/auth.guard'"
      },
      "routeFile": "backend/src/modules/labs/labs.controller.ts",
-     "routeLine": 181,
+     "routeLine": 184,
      "raw": false
     },
     {
@@ -1230,7 +1517,7 @@
      "path": "/radiology/admin/catalog/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:200",
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:203",
      "backendPath": "/radiology/admin/catalog/:param",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
@@ -1242,11 +1529,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "catalog.update"
+      ],
       "useGuards": "require('../../common/auth.guard'"
      },
      "routeFile": "backend/src/modules/radiology/radiology.controller.ts",
-     "routeLine": 200,
+     "routeLine": 203,
      "raw": false
     },
     {
@@ -1254,7 +1543,7 @@
      "path": "/nursing/admin/catalog/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:120",
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:123",
      "backendPath": "/nursing/admin/catalog/:param",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
@@ -1266,11 +1555,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "catalog.update"
+      ],
       "useGuards": "JwtAuthGuard | JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/home-care/home-care.controller.ts",
-     "routeLine": 120,
+     "routeLine": 123,
      "raw": false
     },
     {
@@ -1278,7 +1569,7 @@
      "path": "/labs/admin/catalog/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:189",
+     "backend": "backend/src/modules/labs/labs.controller.ts:193",
      "backendPath": "/labs/admin/catalog/:param",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
@@ -1290,11 +1581,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "catalog.delete_restore"
+      ],
       "useGuards": "require('../../common/auth.guard'"
      },
      "routeFile": "backend/src/modules/labs/labs.controller.ts",
-     "routeLine": 189,
+     "routeLine": 193,
      "raw": false
     },
     {
@@ -1302,7 +1595,7 @@
      "path": "/radiology/admin/catalog/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:207",
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:211",
      "backendPath": "/radiology/admin/catalog/:param",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
@@ -1314,11 +1607,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "catalog.delete_restore"
+      ],
       "useGuards": "require('../../common/auth.guard'"
      },
      "routeFile": "backend/src/modules/radiology/radiology.controller.ts",
-     "routeLine": 207,
+     "routeLine": 211,
      "raw": false
     },
     {
@@ -1326,7 +1621,7 @@
      "path": "/nursing/admin/catalog/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:127",
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:131",
      "backendPath": "/nursing/admin/catalog/:param",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
@@ -1338,11 +1633,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "catalog.delete_restore"
+      ],
       "useGuards": "JwtAuthGuard | JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/home-care/home-care.controller.ts",
-     "routeLine": 127,
+     "routeLine": 131,
      "raw": false
     },
     {
@@ -1350,11 +1647,11 @@
      "path": "/labs/admin/catalog/:param/approve",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:198",
+     "backend": "backend/src/modules/labs/labs.controller.ts:203",
      "backendPath": "/labs/admin/catalog/:param/approve",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 153,
+     "line": 154,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1362,11 +1659,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "catalog.update"
+      ],
       "useGuards": "require('../../common/auth.guard'"
      },
      "routeFile": "backend/src/modules/labs/labs.controller.ts",
-     "routeLine": 198,
+     "routeLine": 203,
      "raw": false
     },
     {
@@ -1374,11 +1673,11 @@
      "path": "/radiology/admin/catalog/:param/approve",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:215",
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:220",
      "backendPath": "/radiology/admin/catalog/:param/approve",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 153,
+     "line": 154,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1386,11 +1685,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "catalog.update"
+      ],
       "useGuards": "require('../../common/auth.guard'"
      },
      "routeFile": "backend/src/modules/radiology/radiology.controller.ts",
-     "routeLine": 215,
+     "routeLine": 220,
      "raw": false
     },
     {
@@ -1398,11 +1699,11 @@
      "path": "/nursing/admin/catalog/:param/approve",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:135",
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:140",
      "backendPath": "/nursing/admin/catalog/:param/approve",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 153,
+     "line": 154,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1410,11 +1711,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "catalog.update"
+      ],
       "useGuards": "JwtAuthGuard | JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/home-care/home-care.controller.ts",
-     "routeLine": 135,
+     "routeLine": 140,
      "raw": false
     },
     {
@@ -1422,11 +1725,11 @@
      "path": "/labs/admin/catalog/bulk-approve",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:206",
+     "backend": "backend/src/modules/labs/labs.controller.ts:212",
      "backendPath": "/labs/admin/catalog/bulk-approve",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 165,
+     "line": 167,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1434,11 +1737,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "catalog.update"
+      ],
       "useGuards": "require('../../common/auth.guard'"
      },
      "routeFile": "backend/src/modules/labs/labs.controller.ts",
-     "routeLine": 206,
+     "routeLine": 212,
      "raw": false
     },
     {
@@ -1446,11 +1751,11 @@
      "path": "/radiology/admin/catalog/bulk-approve",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:222",
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:228",
      "backendPath": "/radiology/admin/catalog/bulk-approve",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 165,
+     "line": 167,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1458,11 +1763,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "catalog.update"
+      ],
       "useGuards": "require('../../common/auth.guard'"
      },
      "routeFile": "backend/src/modules/radiology/radiology.controller.ts",
-     "routeLine": 222,
+     "routeLine": 228,
      "raw": false
     },
     {
@@ -1470,11 +1777,11 @@
      "path": "/nursing/admin/catalog/bulk-approve",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:142",
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:148",
      "backendPath": "/nursing/admin/catalog/bulk-approve",
      "note": "one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 165,
+     "line": 167,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1482,11 +1789,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "catalog.update"
+      ],
       "useGuards": "JwtAuthGuard | JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/home-care/home-care.controller.ts",
-     "routeLine": 142,
+     "routeLine": 148,
      "raw": false
     },
     {
@@ -1497,7 +1806,7 @@
      "backend": "backend/src/modules/catalogs/catalogs.controller.ts:124",
      "backendPath": "/catalogs/admin/specialties",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 195,
+     "line": 197,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1520,7 +1829,7 @@
      "backend": "backend/src/modules/catalogs/catalogs.controller.ts:145",
      "backendPath": "/catalogs/admin/specialties/:param",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 207,
+     "line": 209,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1540,10 +1849,10 @@
      "path": "/medicines/admin/catalog",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:243",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:247",
      "backendPath": "/medicines/admin/catalog",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 360,
+     "line": 362,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1557,7 +1866,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 243,
+     "routeLine": 247,
      "raw": false
     },
     {
@@ -1565,10 +1874,10 @@
      "path": "/storage/upload",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:362",
+     "backend": "backend/src/modules/storage/storage.module.ts:370",
      "backendPath": "/storage/upload",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 377,
+     "line": 379,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1578,7 +1887,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/storage/storage.module.ts",
-     "routeLine": 362,
+     "routeLine": 370,
      "raw": false
     },
     {
@@ -1586,10 +1895,10 @@
      "path": "/storage/:param/signed-url",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:386",
+     "backend": "backend/src/modules/storage/storage.module.ts:394",
      "backendPath": "/storage/:param/signed-url",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 381,
+     "line": 383,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1599,7 +1908,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/storage/storage.module.ts",
-     "routeLine": 386,
+     "routeLine": 394,
      "raw": false
     },
     {
@@ -1607,10 +1916,10 @@
      "path": "/medicines/admin/catalog/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:235",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:239",
      "backendPath": "/medicines/admin/catalog/:param",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 405,
+     "line": 407,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1625,7 +1934,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 235,
+     "routeLine": 239,
      "raw": false
     },
     {
@@ -1633,10 +1942,10 @@
      "path": "/medicines/admin/catalog",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:261",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:265",
      "backendPath": "/medicines/admin/catalog",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 406,
+     "line": 408,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1650,7 +1959,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 261,
+     "routeLine": 265,
      "raw": false
     },
     {
@@ -1658,10 +1967,10 @@
      "path": "/medicines/admin/catalog/:param/delete",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:269",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:273",
      "backendPath": "/medicines/admin/catalog/:param/delete",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 419,
+     "line": 422,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1675,7 +1984,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 269,
+     "routeLine": 273,
      "raw": false
     },
     {
@@ -1683,10 +1992,10 @@
      "path": "/medicines/admin/catalog/:param/approve",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:277",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:281",
      "backendPath": "/medicines/admin/catalog/:param/approve",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 428,
+     "line": 432,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1700,7 +2009,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 277,
+     "routeLine": 281,
      "raw": false
     },
     {
@@ -1708,10 +2017,10 @@
      "path": "/medicines/admin/catalog/:param/price-history",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:305",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:309",
      "backendPath": "/medicines/admin/catalog/:param/price-history",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 438,
+     "line": 442,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1725,7 +2034,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 305,
+     "routeLine": 309,
      "raw": false
     },
     {
@@ -1736,7 +2045,7 @@
      "backend": "backend/src/modules/compat/admin-spa.module.ts:1080",
      "backendPath": "/bulk-upload",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 450,
+     "line": 454,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1759,7 +2068,7 @@
      "backend": "backend/src/modules/insurance/insurance.module.ts:556",
      "backendPath": "/insurance/companies/all",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 538,
+     "line": 542,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1783,7 +2092,7 @@
      "backend": "backend/src/modules/insurance/insurance.module.ts:571",
      "backendPath": "/insurance/companies/:param",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 549,
+     "line": 553,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1806,7 +2115,7 @@
      "backend": "backend/src/modules/insurance/insurance.module.ts:563",
      "backendPath": "/insurance/companies",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 550,
+     "line": 554,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1829,7 +2138,7 @@
      "backend": "backend/src/modules/insurance/insurance.module.ts:571",
      "backendPath": "/insurance/companies/:param",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 560,
+     "line": 564,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1852,7 +2161,7 @@
      "backend": "backend/src/modules/insurance/insurance.module.ts:610",
      "backendPath": "/insurance/companies/:param/networks",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 571,
+     "line": 575,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1875,7 +2184,7 @@
      "backend": "backend/src/modules/insurance/insurance.module.ts:597",
      "backendPath": "/insurance/companies/:param/networks/:param",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 585,
+     "line": 589,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1900,67 +2209,157 @@
      "path": "/insurance/companies",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
      "line": 87,
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:695"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:696"
     },
     {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /labs/admin/catalog/:param/approve is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"catalog.read\" but POST /labs/admin/catalog requires catalog.create; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "POST",
+     "path": "/labs/admin/catalog",
+     "file": "admin/src/pages/admin/catalog-manager.tsx",
+     "line": 125,
+     "backend": "backend/src/modules/labs/labs.controller.ts:175"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"catalog.read\" but POST /radiology/admin/catalog requires catalog.create; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "POST",
+     "path": "/radiology/admin/catalog",
+     "file": "admin/src/pages/admin/catalog-manager.tsx",
+     "line": 125,
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:195"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"catalog.read\" but POST /nursing/admin/catalog requires catalog.create; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "POST",
+     "path": "/nursing/admin/catalog",
+     "file": "admin/src/pages/admin/catalog-manager.tsx",
+     "line": 125,
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:115"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"catalog.read\" but PUT /labs/admin/catalog/:param requires catalog.update; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "PUT",
+     "path": "/labs/admin/catalog/:param",
+     "file": "admin/src/pages/admin/catalog-manager.tsx",
+     "line": 127,
+     "backend": "backend/src/modules/labs/labs.controller.ts:184"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"catalog.read\" but PUT /radiology/admin/catalog/:param requires catalog.update; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "PUT",
+     "path": "/radiology/admin/catalog/:param",
+     "file": "admin/src/pages/admin/catalog-manager.tsx",
+     "line": 127,
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:203"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"catalog.read\" but PUT /nursing/admin/catalog/:param requires catalog.update; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "PUT",
+     "path": "/nursing/admin/catalog/:param",
+     "file": "admin/src/pages/admin/catalog-manager.tsx",
+     "line": 127,
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:123"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"catalog.read\" but DELETE /labs/admin/catalog/:param requires catalog.delete_restore; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "DELETE",
+     "path": "/labs/admin/catalog/:param",
+     "file": "admin/src/pages/admin/catalog-manager.tsx",
+     "line": 142,
+     "backend": "backend/src/modules/labs/labs.controller.ts:193"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"catalog.read\" but DELETE /radiology/admin/catalog/:param requires catalog.delete_restore; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "DELETE",
+     "path": "/radiology/admin/catalog/:param",
+     "file": "admin/src/pages/admin/catalog-manager.tsx",
+     "line": 142,
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:211"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"catalog.read\" but DELETE /nursing/admin/catalog/:param requires catalog.delete_restore; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "DELETE",
+     "path": "/nursing/admin/catalog/:param",
+     "file": "admin/src/pages/admin/catalog-manager.tsx",
+     "line": 142,
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:131"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"catalog.read\" but POST /labs/admin/catalog/:param/approve requires catalog.update; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/labs/admin/catalog/:param/approve",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 153,
-     "backend": "backend/src/modules/labs/labs.controller.ts:198"
+     "line": 154,
+     "backend": "backend/src/modules/labs/labs.controller.ts:203"
     },
     {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /radiology/admin/catalog/:param/approve is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"catalog.read\" but POST /radiology/admin/catalog/:param/approve requires catalog.update; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/radiology/admin/catalog/:param/approve",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 153,
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:215"
+     "line": 154,
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:220"
     },
     {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /nursing/admin/catalog/:param/approve is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"catalog.read\" but POST /nursing/admin/catalog/:param/approve requires catalog.update; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/nursing/admin/catalog/:param/approve",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 153,
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:135"
+     "line": 154,
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:140"
     },
     {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /labs/admin/catalog/bulk-approve is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"catalog.read\" but POST /labs/admin/catalog/bulk-approve requires catalog.update; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/labs/admin/catalog/bulk-approve",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 165,
-     "backend": "backend/src/modules/labs/labs.controller.ts:206"
+     "line": 167,
+     "backend": "backend/src/modules/labs/labs.controller.ts:212"
     },
     {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /radiology/admin/catalog/bulk-approve is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"catalog.read\" but POST /radiology/admin/catalog/bulk-approve requires catalog.update; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/radiology/admin/catalog/bulk-approve",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 165,
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:222"
+     "line": 167,
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:228"
     },
     {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /nursing/admin/catalog/bulk-approve is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"catalog.read\" but POST /nursing/admin/catalog/bulk-approve requires catalog.update; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/nursing/admin/catalog/bulk-approve",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 165,
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:142"
+     "line": 167,
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:148"
     },
     {
      "code": "G-OPEN",
@@ -1969,8 +2368,8 @@
      "method": "POST",
      "path": "/storage/upload",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 377,
-     "backend": "backend/src/modules/storage/storage.module.ts:362"
+     "line": 379,
+     "backend": "backend/src/modules/storage/storage.module.ts:370"
     },
     {
      "code": "G-OPEN",
@@ -1979,8 +2378,8 @@
      "method": "GET",
      "path": "/storage/:param/signed-url",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 381,
-     "backend": "backend/src/modules/storage/storage.module.ts:386"
+     "line": 383,
+     "backend": "backend/src/modules/storage/storage.module.ts:394"
     },
     {
      "code": "G-PERM-MISMATCH",
@@ -1989,8 +2388,8 @@
      "method": "PATCH",
      "path": "/medicines/admin/catalog/:param",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 405,
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:235"
+     "line": 407,
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:239"
     },
     {
      "code": "G-PERM-MISMATCH",
@@ -1999,8 +2398,8 @@
      "method": "POST",
      "path": "/medicines/admin/catalog",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 406,
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:261"
+     "line": 408,
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:265"
     },
     {
      "code": "G-PERM-MISMATCH",
@@ -2009,8 +2408,8 @@
      "method": "POST",
      "path": "/medicines/admin/catalog/:param/delete",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 419,
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:269"
+     "line": 422,
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:273"
     },
     {
      "code": "G-PERM-MISMATCH",
@@ -2019,8 +2418,8 @@
      "method": "POST",
      "path": "/medicines/admin/catalog/:param/approve",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 428,
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:277"
+     "line": 432,
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:281"
     }
    ],
    "orphan": false
@@ -2032,7 +2431,8 @@
    "line": 1,
    "area": "ops-monitoring",
    "unit": [
-    "admin/src/pages/admin/command-center.tsx"
+    "admin/src/pages/admin/command-center.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "command.center.view",
    "navPermission": "command.center.view",
@@ -2048,7 +2448,7 @@
      "backend": "backend/src/modules/admin/enterprise/command-center-v2.controller.ts:70",
      "backendPath": "/admin/command-center-v2",
      "file": "admin/src/pages/admin/command-center.tsx",
-     "line": 30,
+     "line": 31,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -2073,7 +2473,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:28",
      "backendPath": "/admin/analytics-suite/online",
      "file": "admin/src/pages/admin/command-center.tsx",
-     "line": 30,
+     "line": 31,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -2098,7 +2498,7 @@
      "backend": "backend/src/modules/ops/ops.controller.ts:72",
      "backendPath": "/admin/ops/overview",
      "file": "admin/src/pages/admin/command-center.tsx",
-     "line": 30,
+     "line": 31,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -2122,7 +2522,7 @@
      "backend": "backend/src/modules/ops/ops.controller.ts:206",
      "backendPath": "/admin/ops/domain-metrics",
      "file": "admin/src/pages/admin/command-center.tsx",
-     "line": 30,
+     "line": 31,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -2146,7 +2546,7 @@
      "backend": "backend/src/modules/ops/ops.controller.ts:264",
      "backendPath": "/admin/ops/live-map",
      "file": "admin/src/pages/admin/command-center.tsx",
-     "line": 30,
+     "line": 31,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -2170,7 +2570,7 @@
      "backend": "backend/src/modules/ops/ops.controller.ts:40",
      "backendPath": "/admin/ops/alerts",
      "file": "admin/src/pages/admin/command-center.tsx",
-     "line": 30,
+     "line": 31,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -2195,7 +2595,7 @@
      "method": "GET",
      "path": "/api/admin/admin/analytics-suite/online",
      "file": "admin/src/pages/admin/command-center.tsx",
-     "line": 30,
+     "line": 31,
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:28"
     }
    ],
@@ -2208,7 +2608,8 @@
    "line": 1,
    "area": "finance",
    "unit": [
-    "admin/src/pages/admin/commissions.tsx"
+    "admin/src/pages/admin/commissions.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "finance.read",
    "navPermission": null,
@@ -2224,7 +2625,7 @@
      "backend": "backend/src/modules/finance-engine/finance-engine.module.ts:1045",
      "backendPath": "/admin/finance-engine/commission-rules/history",
      "file": "admin/src/pages/admin/commissions.tsx",
-     "line": 31,
+     "line": 32,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2247,7 +2648,7 @@
      "backend": "backend/src/modules/finance-engine/finance-engine.module.ts:1040",
      "backendPath": "/admin/finance-engine/commission-rules",
      "file": "admin/src/pages/admin/commissions.tsx",
-     "line": 41,
+     "line": 42,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2267,10 +2668,10 @@
      "path": "/api/admin/admin/finance/ledger/summary",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:884",
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:885",
      "backendPath": "/admin/finance/ledger/summary",
      "file": "admin/src/pages/admin/commissions.tsx",
-     "line": 60,
+     "line": 61,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2278,11 +2679,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "order.refund"
+      ],
       "useGuards": "JwtAuthGuard | JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/insurance-engine/insurance-engine.module.ts",
-     "routeLine": 884,
+     "routeLine": 885,
      "raw": false
     },
     {
@@ -2293,7 +2696,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:29",
      "backendPath": "/admin/finance/commissions",
      "file": "admin/src/pages/admin/commissions.tsx",
-     "line": 61,
+     "line": 62,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2311,7 +2714,18 @@
      "raw": false
     }
    ],
-   "guardFindings": [],
+   "guardFindings": [
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"finance.read\" but GET /admin/finance/ledger/summary requires order.refund; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "GET",
+     "path": "/api/admin/admin/finance/ledger/summary",
+     "file": "admin/src/pages/admin/commissions.tsx",
+     "line": 61,
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:885"
+    }
+   ],
    "orphan": true
   },
   {
@@ -2326,7 +2740,7 @@
    "clientPermission": "cms.edit",
    "navPermission": null,
    "inNav": true,
-   "navLine": 61,
+   "navLine": 63,
    "publicDirectory": false,
    "calls": [
     {
@@ -2386,7 +2800,8 @@
    "line": 1,
    "area": "system",
    "unit": [
-    "admin/src/pages/admin/config-portal.tsx"
+    "admin/src/pages/admin/config-portal.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "ops.queues.manage",
    "navPermission": null,
@@ -2402,7 +2817,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:127",
      "backendPath": "/admin/config/app-versions",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 19,
+     "line": 20,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -2425,7 +2840,7 @@
      "backend": "backend/src/modules/mental-health/mental-health-urgent-help.controller.ts:25",
      "backendPath": "/mental-health/urgent-help",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 35,
+     "line": 36,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -2446,7 +2861,7 @@
      "backend": "backend/src/modules/mental-health/mental-health-urgent-help.controller.ts:32",
      "backendPath": "/admin/mental-health/urgent-help",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 44,
+     "line": 45,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -2469,7 +2884,7 @@
      "backend": "backend/src/modules/medicines/rx-consult.controller.ts:72",
      "backendPath": "/admin/pharmacy/rx-consult-specialties",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 55,
+     "line": 56,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -2492,7 +2907,7 @@
      "backend": "backend/src/modules/medicines/rx-consult.controller.ts:91",
      "backendPath": "/admin/pharmacy/rx-consult-specialties",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 63,
+     "line": 64,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -2515,7 +2930,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:135",
      "backendPath": "/admin/config/app-versions",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 71,
+     "line": 72,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -2538,7 +2953,7 @@
      "backend": "backend/src/modules/business-rules/business-rules.module.ts:296",
      "backendPath": "/business-rules/config/pricing",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 85,
+     "line": 86,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -2561,7 +2976,7 @@
      "backend": "backend/src/modules/business-rules/business-rules.module.ts:291",
      "backendPath": "/business-rules/config/surge",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 103,
+     "line": 104,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -2584,7 +2999,7 @@
      "backend": "backend/src/modules/business-rules/business-rules.module.ts:300",
      "backendPath": "/business-rules/config/fees",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 106,
+     "line": 107,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -2607,7 +3022,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:225",
      "backendPath": "/admin/pharmacy/fulfillment-policies",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 120,
+     "line": 121,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -2630,7 +3045,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:226",
      "backendPath": "/admin/pharmacy/fulfillment-policies/cod",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 129,
+     "line": 130,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -2653,7 +3068,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:24",
      "backendPath": "/admin/config/sla",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 137,
+     "line": 138,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -2676,7 +3091,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:32",
      "backendPath": "/admin/config/sla",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 170,
+     "line": 171,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -2699,7 +3114,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-governance.controller.ts:26",
      "backendPath": "/admin/governance/trigger-emergency-maintenance",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 191,
+     "line": 192,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -2730,7 +3145,7 @@
    "clientPermission": "cms.edit",
    "navPermission": "cms.edit",
    "inNav": true,
-   "navLine": 54,
+   "navLine": 55,
    "publicDirectory": false,
    "calls": [
     {
@@ -2926,7 +3341,7 @@
      "path": "/api/admin/admin/cms/:param/schedule",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:107",
+     "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:108",
      "backendPath": "/admin/cms/:param/schedule",
      "file": "admin/src/pages/admin/content-growth.tsx",
      "line": 34,
@@ -2941,7 +3356,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/admin/enterprise/admin-cms.controller.ts",
-     "routeLine": 107,
+     "routeLine": 108,
      "raw": false
     },
     {
@@ -2949,7 +3364,7 @@
      "path": "/api/admin/admin/cms/:param/publish",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:88",
+     "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:89",
      "backendPath": "/admin/cms/:param/publish",
      "file": "admin/src/pages/admin/content-growth.tsx",
      "line": 34,
@@ -2960,11 +3375,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "cms.edit"
+      ],
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/admin/enterprise/admin-cms.controller.ts",
-     "routeLine": 88,
+     "routeLine": 89,
      "raw": false
     },
     {
@@ -3018,7 +3435,7 @@
      "path": "/api/admin/admin/cms/:param/publish",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:88",
+     "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:89",
      "backendPath": "/admin/cms/:param/publish",
      "file": "admin/src/pages/admin/content-growth.tsx",
      "line": 43,
@@ -3029,11 +3446,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "cms.edit"
+      ],
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/admin/enterprise/admin-cms.controller.ts",
-     "routeLine": 88,
+     "routeLine": 89,
      "raw": false
     },
     {
@@ -3041,7 +3460,7 @@
      "path": "/api/admin/admin/cms/:param/unpublish",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:123",
+     "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:125",
      "backendPath": "/admin/cms/:param/unpublish",
      "file": "admin/src/pages/admin/content-growth.tsx",
      "line": 44,
@@ -3052,11 +3471,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "cms.edit"
+      ],
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/admin/enterprise/admin-cms.controller.ts",
-     "routeLine": 123,
+     "routeLine": 125,
      "raw": false
     },
     {
@@ -3116,26 +3537,6 @@
      "file": "admin/src/pages/admin/content-growth.tsx",
      "line": 32,
      "backend": "backend/src/modules/admin/enterprise/admin-coupons.controller.ts:86"
-    },
-    {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /admin/cms/:param/publish is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
-     "severity": "medium",
-     "method": "POST",
-     "path": "/api/admin/admin/cms/:param/publish",
-     "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 34,
-     "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:88"
-    },
-    {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "PATCH /admin/cms/:param/unpublish is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
-     "severity": "medium",
-     "method": "PATCH",
-     "path": "/api/admin/admin/cms/:param/unpublish",
-     "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 44,
-     "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:123"
     }
    ],
    "orphan": false
@@ -3250,7 +3651,8 @@
    "line": 1,
    "area": "ops-monitoring",
    "unit": [
-    "admin/src/pages/admin/dashboard.tsx"
+    "admin/src/pages/admin/dashboard.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": null,
    "navPermission": null,
@@ -3266,7 +3668,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/system-health.controller.ts:6",
      "backendPath": "/system-health/liveness",
      "file": "admin/src/pages/admin/dashboard.tsx",
-     "line": 33,
+     "line": 37,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3287,7 +3689,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/system-health.controller.ts:19",
      "backendPath": "/system-health/readiness",
      "file": "admin/src/pages/admin/dashboard.tsx",
-     "line": 34,
+     "line": 38,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3308,7 +3710,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/analytics.controller.ts:39",
      "backendPath": "/nabd-extensions/admin/analytics/heatmaps",
      "file": "admin/src/pages/admin/dashboard.tsx",
-     "line": 58,
+     "line": 62,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3331,7 +3733,7 @@
      "backend": "backend/src/modules/admin/command-center/admin-command-center.module.ts:177",
      "backendPath": "/admin/command-center",
      "file": "admin/src/pages/admin/dashboard.tsx",
-     "line": 87,
+     "line": 91,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3355,7 +3757,7 @@
      "method": "GET",
      "path": "/api/admin/system-health/liveness",
      "file": "admin/src/pages/admin/dashboard.tsx",
-     "line": 33,
+     "line": 37,
      "backend": "backend/src/modules/admin/web-core/controllers/system-health.controller.ts:6"
     },
     {
@@ -3365,7 +3767,7 @@
      "method": "GET",
      "path": "/api/admin/system-health/readiness",
      "file": "admin/src/pages/admin/dashboard.tsx",
-     "line": 34,
+     "line": 38,
      "backend": "backend/src/modules/admin/web-core/controllers/system-health.controller.ts:19"
     }
    ],
@@ -3378,7 +3780,8 @@
    "line": 1,
    "area": "finance",
    "unit": [
-    "admin/src/pages/admin/disputes.tsx"
+    "admin/src/pages/admin/disputes.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "disputes.resolve",
    "navPermission": "disputes.resolve",
@@ -3394,7 +3797,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-disputes.controller.ts:42",
      "backendPath": "/admin/disputes",
      "file": "admin/src/pages/admin/disputes.tsx",
-     "line": 23,
+     "line": 24,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3417,7 +3820,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-disputes.controller.ts:132",
      "backendPath": "/admin/disputes/:param/resolve",
      "file": "admin/src/pages/admin/disputes.tsx",
-     "line": 37,
+     "line": 38,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -3445,7 +3848,8 @@
    "line": 1,
    "area": "finance",
    "unit": [
-    "admin/src/pages/admin/finance-suite.tsx"
+    "admin/src/pages/admin/finance-suite.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "finance.read",
    "navPermission": "finance.read",
@@ -3461,7 +3865,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:18",
      "backendPath": "/admin/finance/revenue",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 22,
+     "line": 23,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3486,7 +3890,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:29",
      "backendPath": "/admin/finance/commissions",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 22,
+     "line": 23,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3511,7 +3915,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:41",
      "backendPath": "/admin/finance/reconciliation",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 22,
+     "line": 23,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3536,7 +3940,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:47",
      "backendPath": "/admin/finance/payouts",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 22,
+     "line": 23,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3561,7 +3965,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:35",
      "backendPath": "/admin/finance/commissions/config",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 26,
+     "line": 27,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -3586,7 +3990,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:53",
      "backendPath": "/admin/finance/payouts/:param/:param",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 27,
+     "line": 28,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -3611,7 +4015,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:65",
      "backendPath": "/admin/finance/providers/:param/statement",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 28,
+     "line": 29,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3637,7 +4041,7 @@
      "method": "POST",
      "path": "/api/admin/admin/finance/commissions/config",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 26,
+     "line": 27,
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:35"
     },
     {
@@ -3647,7 +4051,7 @@
      "method": "POST",
      "path": "/api/admin/admin/finance/payouts/:param/:param",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 27,
+     "line": 28,
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:53"
     }
    ],
@@ -3660,7 +4064,8 @@
    "line": 1,
    "area": "finance",
    "unit": [
-    "admin/src/pages/admin/financial-ledger.tsx"
+    "admin/src/pages/admin/financial-ledger.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "finance.read",
    "navPermission": null,
@@ -3676,7 +4081,7 @@
      "backend": "backend/src/modules/finance-engine/finance-engine.module.ts:1033",
      "backendPath": "/admin/finance-engine/reports/summary",
      "file": "admin/src/pages/admin/financial-ledger.tsx",
-     "line": 53,
+     "line": 54,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3699,7 +4104,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:29",
      "backendPath": "/admin/finance/commissions",
      "file": "admin/src/pages/admin/financial-ledger.tsx",
-     "line": 61,
+     "line": 62,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3721,10 +4126,10 @@
      "path": "/api/admin/admin/finance/withdrawals/pending",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:41",
+     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:42",
      "backendPath": "/admin/finance/withdrawals/pending",
      "file": "admin/src/pages/admin/financial-ledger.tsx",
-     "line": 68,
+     "line": 69,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3736,7 +4141,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/admin/web-core/controllers/finance.controller.ts",
-     "routeLine": 41,
+     "routeLine": 42,
      "raw": false
     },
     {
@@ -3747,7 +4152,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-extended-operations.controller.ts:16",
      "backendPath": "/admin/extended-operations/procurement/pending",
      "file": "admin/src/pages/admin/financial-ledger.tsx",
-     "line": 79,
+     "line": 80,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3767,10 +4172,10 @@
      "path": "/api/admin/admin/finance/withdrawals/:param/execute",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:74",
+     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:76",
      "backendPath": "/admin/finance/withdrawals/:param/execute",
      "file": "admin/src/pages/admin/financial-ledger.tsx",
-     "line": 111,
+     "line": 112,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3778,11 +4183,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "finance.payout.approve"
+      ],
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/admin/web-core/controllers/finance.controller.ts",
-     "routeLine": 74,
+     "routeLine": 76,
      "raw": false
     },
     {
@@ -3793,7 +4200,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-extended-operations.controller.ts:26",
      "backendPath": "/admin/extended-operations/issue-quote/:param",
      "file": "admin/src/pages/admin/financial-ledger.tsx",
-     "line": 137,
+     "line": 138,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3811,14 +4218,14 @@
    ],
    "guardFindings": [
     {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /admin/finance/withdrawals/:param/execute is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"finance.read\" but POST /admin/finance/withdrawals/:param/execute requires finance.payout.approve; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/api/admin/admin/finance/withdrawals/:param/execute",
      "file": "admin/src/pages/admin/financial-ledger.tsx",
-     "line": 111,
-     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:74"
+     "line": 112,
+     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:76"
     }
    ],
    "orphan": false
@@ -3830,7 +4237,8 @@
    "line": 1,
    "area": "ops-monitoring",
    "unit": [
-    "admin/src/pages/admin/fraud-monitoring.tsx"
+    "admin/src/pages/admin/fraud-monitoring.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "command.center.view",
    "navPermission": null,
@@ -3846,7 +4254,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-governance.controller.ts:34",
      "backendPath": "/admin/governance/fraud-alerts",
      "file": "admin/src/pages/admin/fraud-monitoring.tsx",
-     "line": 47,
+     "line": 48,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3869,7 +4277,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-governance.controller.ts:82",
      "backendPath": "/admin/governance/audit-logs",
      "file": "admin/src/pages/admin/fraud-monitoring.tsx",
-     "line": 55,
+     "line": 56,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3895,7 +4303,8 @@
    "line": 1,
    "area": "customers-growth",
    "unit": [
-    "admin/src/pages/admin/gdpr.tsx"
+    "admin/src/pages/admin/gdpr.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "gdpr.manage",
    "navPermission": "gdpr.manage",
@@ -3911,7 +4320,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-crm.controller.ts:153",
      "backendPath": "/admin/gdpr/requests",
      "file": "admin/src/pages/admin/gdpr.tsx",
-     "line": 10,
+     "line": 11,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3936,7 +4345,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-crm.controller.ts:168",
      "backendPath": "/admin/gdpr/requests",
      "file": "admin/src/pages/admin/gdpr.tsx",
-     "line": 12,
+     "line": 13,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -3961,7 +4370,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-crm.controller.ts:198",
      "backendPath": "/admin/gdpr/:param/:param",
      "file": "admin/src/pages/admin/gdpr.tsx",
-     "line": 13,
+     "line": 14,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -3989,7 +4398,8 @@
    "line": 1,
    "area": "ops-monitoring",
    "unit": [
-    "admin/src/pages/admin/health-dashboard.tsx"
+    "admin/src/pages/admin/health-dashboard.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "command.center.view",
    "navPermission": null,
@@ -4005,7 +4415,7 @@
      "backend": "backend/src/modules/health/health-dashboard.controller.ts:32",
      "backendPath": "/admin/health-dashboard",
      "file": "admin/src/pages/admin/health-dashboard.tsx",
-     "line": 10,
+     "line": 11,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -4036,7 +4446,7 @@
    "clientPermission": "cms.edit",
    "navPermission": "cms.edit",
    "inNav": true,
-   "navLine": 55,
+   "navLine": 56,
    "publicDirectory": false,
    "calls": [
     {
@@ -4101,12 +4511,13 @@
    "area": "catalogue",
    "unit": [
     "admin/src/pages/admin/image-suggestions.tsx",
-    "admin/src/components/ProviderFullDetail.tsx"
+    "admin/src/components/ProviderFullDetail.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": null,
-   "navPermission": null,
-   "inNav": false,
-   "navLine": null,
+   "navPermission": "catalog.read",
+   "inNav": true,
+   "navLine": 60,
    "publicDirectory": false,
    "calls": [
     {
@@ -4137,7 +4548,7 @@
      "path": "/medicines/admin/image-suggestions/:param/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:186",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:187",
      "backendPath": "/medicines/admin/image-suggestions/:param/:param",
      "file": "admin/src/pages/admin/image-suggestions.tsx",
      "line": 41,
@@ -4148,11 +4559,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "catalog.update"
+      ],
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 186,
+     "routeLine": 187,
      "raw": false
     },
     {
@@ -4160,10 +4573,10 @@
      "path": "/api/admin/storage/:param/signed-url",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:386",
+     "backend": "backend/src/modules/storage/storage.module.ts:394",
      "backendPath": "/storage/:param/signed-url",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -4173,7 +4586,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/storage/storage.module.ts",
-     "routeLine": 386,
+     "routeLine": 394,
      "raw": false
     },
     {
@@ -4181,10 +4594,10 @@
      "path": "/api/admin/storage/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:376",
+     "backend": "backend/src/modules/storage/storage.module.ts:384",
      "backendPath": "/storage/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 23,
+     "line": 24,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -4194,7 +4607,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/storage/storage.module.ts",
-     "routeLine": 376,
+     "routeLine": 384,
      "raw": false
     },
     {
@@ -4205,12 +4618,14 @@
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513",
      "backendPath": "/provider-onboarding/admin/contracts/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 157,
+     "line": 175,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
       "public": false,
-      "roles": [],
+      "roles": [
+       "ADMIN"
+      ],
       "perms": [],
       "useGuards": "JwtAuthGuard"
      },
@@ -4223,10 +4638,10 @@
      "path": "/api/admin/provider-onboarding/admin/contracts/:param/visibility",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:521",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:522",
      "backendPath": "/provider-onboarding/admin/contracts/:param/visibility",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 556,
+     "line": 536,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -4238,11 +4653,21 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts",
-     "routeLine": 521,
+     "routeLine": 522,
      "raw": false
     }
    ],
    "guardFindings": [
+    {
+     "code": "G-PAGE-NOPERM",
+     "note": "Page has no client permission (any admin sees it) but POST /medicines/admin/image-suggestions/:param/:param requires catalog.update; roles without it get a 403 inside the page.",
+     "severity": "low",
+     "method": "POST",
+     "path": "/medicines/admin/image-suggestions/:param/:param",
+     "file": "admin/src/pages/admin/image-suggestions.tsx",
+     "line": 41,
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:187"
+    },
     {
      "code": "G-OPEN",
      "note": "GET /storage/:param/signed-url has no @Roles, @RequirePermissions or @Public: JwtAuthGuard lets ANY signed-in user (patient/provider) through; and the path is outside /admin, so there is no network gate either.",
@@ -4250,8 +4675,8 @@
      "method": "GET",
      "path": "/api/admin/storage/:param/signed-url",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 18,
-     "backend": "backend/src/modules/storage/storage.module.ts:386"
+     "line": 19,
+     "backend": "backend/src/modules/storage/storage.module.ts:394"
     },
     {
      "code": "G-OPEN",
@@ -4260,21 +4685,11 @@
      "method": "GET",
      "path": "/api/admin/storage/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 23,
-     "backend": "backend/src/modules/storage/storage.module.ts:376"
-    },
-    {
-     "code": "G-OPEN",
-     "note": "GET /provider-onboarding/admin/contracts/:param has no @Roles, @RequirePermissions or @Public: JwtAuthGuard lets ANY signed-in user (patient/provider) through; and the path is outside /admin, so there is no network gate either.",
-     "severity": "medium",
-     "method": "GET",
-     "path": "/api/admin/provider-onboarding/admin/contracts/:param",
-     "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 157,
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513"
+     "line": 24,
+     "backend": "backend/src/modules/storage/storage.module.ts:384"
     }
    ],
-   "orphan": true
+   "orphan": false
   },
   {
    "app": "admin",
@@ -4288,7 +4703,7 @@
    "clientPermission": "user.impersonate",
    "navPermission": "user.impersonate",
    "inNav": true,
-   "navLine": 68,
+   "navLine": 70,
    "publicDirectory": false,
    "calls": [
     {
@@ -4296,7 +4711,7 @@
      "path": "/api/admin/admin/users",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/admin.controller.ts:250",
+     "backend": "backend/src/modules/admin/admin.controller.ts:251",
      "backendPath": "/admin/users",
      "file": "admin/src/pages/admin/impersonation.tsx",
      "line": 12,
@@ -4311,7 +4726,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/admin/admin.controller.ts",
-     "routeLine": 250,
+     "routeLine": 251,
      "raw": false
     },
     {
@@ -4635,7 +5050,8 @@
    "area": "providers",
    "unit": [
     "admin/src/pages/admin/insurance-queue.tsx",
-    "admin/src/components/EmptyIcon.tsx"
+    "admin/src/components/EmptyIcon.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "order.read",
    "navPermission": null,
@@ -4648,31 +5064,8 @@
      "path": "/api/admin/admin/insurance/stats",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:897",
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:899",
      "backendPath": "/admin/insurance/stats",
-     "file": "admin/src/pages/admin/insurance-queue.tsx",
-     "line": 37,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
-      ],
-      "perms": [],
-      "useGuards": "JwtAuthGuard | JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/insurance-engine/insurance-engine.module.ts",
-     "routeLine": 897,
-     "raw": false
-    },
-    {
-     "method": "GET",
-     "path": "/api/admin/admin/insurance/requests",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:896",
-     "backendPath": "/admin/insurance/requests",
      "file": "admin/src/pages/admin/insurance-queue.tsx",
      "line": 38,
      "fn": "apiFetch",
@@ -4686,16 +5079,16 @@
       "useGuards": "JwtAuthGuard | JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/insurance-engine/insurance-engine.module.ts",
-     "routeLine": 896,
+     "routeLine": 899,
      "raw": false
     },
     {
      "method": "GET",
-     "path": "/api/admin/admin/finance/refunds/queue",
+     "path": "/api/admin/admin/insurance/requests",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:885",
-     "backendPath": "/admin/finance/refunds/queue",
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:898",
+     "backendPath": "/admin/insurance/requests",
      "file": "admin/src/pages/admin/insurance-queue.tsx",
      "line": 39,
      "fn": "apiFetch",
@@ -4709,18 +5102,18 @@
       "useGuards": "JwtAuthGuard | JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/insurance-engine/insurance-engine.module.ts",
-     "routeLine": 885,
+     "routeLine": 898,
      "raw": false
     },
     {
-     "method": "POST",
-     "path": "/api/admin/admin/finance/refunds/:param/decide",
+     "method": "GET",
+     "path": "/api/admin/admin/finance/refunds/queue",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:887",
-     "backendPath": "/admin/finance/refunds/:param/decide",
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:886",
+     "backendPath": "/admin/finance/refunds/queue",
      "file": "admin/src/pages/admin/insurance-queue.tsx",
-     "line": 55,
+     "line": 40,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -4728,24 +5121,61 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "order.refund"
+      ],
       "useGuards": "JwtAuthGuard | JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/insurance-engine/insurance-engine.module.ts",
-     "routeLine": 887,
+     "routeLine": 886,
+     "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/api/admin/admin/finance/refunds/:param/decide",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:889",
+     "backendPath": "/admin/finance/refunds/:param/decide",
+     "file": "admin/src/pages/admin/insurance-queue.tsx",
+     "line": 56,
+     "fn": "apiFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "order.refund"
+      ],
+      "useGuards": "JwtAuthGuard | JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/insurance-engine/insurance-engine.module.ts",
+     "routeLine": 889,
      "raw": false
     }
    ],
    "guardFindings": [
     {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /admin/finance/refunds/:param/decide is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"order.read\" but GET /admin/finance/refunds/queue requires order.refund; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "GET",
+     "path": "/api/admin/admin/finance/refunds/queue",
+     "file": "admin/src/pages/admin/insurance-queue.tsx",
+     "line": 40,
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:886"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"order.read\" but POST /admin/finance/refunds/:param/decide requires order.refund; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/api/admin/admin/finance/refunds/:param/decide",
      "file": "admin/src/pages/admin/insurance-queue.tsx",
-     "line": 55,
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:887"
+     "line": 56,
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:889"
     }
    ],
    "orphan": false
@@ -4760,9 +5190,9 @@
     "admin/src/pages/admin/legal-policies.tsx"
    ],
    "clientPermission": "gdpr.manage",
-   "navPermission": null,
-   "inNav": false,
-   "navLine": null,
+   "navPermission": "gdpr.manage",
+   "inNav": true,
+   "navLine": 54,
    "publicDirectory": false,
    "calls": [
     {
@@ -4918,7 +5348,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:29"
     }
    ],
-   "orphan": true
+   "orphan": false
   },
   {
    "app": "admin",
@@ -4932,7 +5362,7 @@
    "clientPermission": "crm.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 63,
+   "navLine": 65,
    "publicDirectory": false,
    "calls": [
     {
@@ -4940,7 +5370,7 @@
      "path": "/chat/admin/threads",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:147",
+     "backend": "backend/src/modules/chat/chat.module.ts:148",
      "backendPath": "/chat/admin/threads",
      "file": "admin/src/pages/admin/live-chat-console.tsx",
      "line": 11,
@@ -4955,7 +5385,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/chat/chat.module.ts",
-     "routeLine": 147,
+     "routeLine": 148,
      "raw": false
     }
    ],
@@ -4975,7 +5405,7 @@
    "clientPermission": null,
    "navPermission": null,
    "inNav": true,
-   "navLine": 67,
+   "navLine": 69,
    "publicDirectory": false,
    "calls": [
     {
@@ -5063,7 +5493,7 @@
    "clientPermission": "coupons.manage",
    "navPermission": null,
    "inNav": true,
-   "navLine": 62,
+   "navLine": 64,
    "publicDirectory": false,
    "calls": [
     {
@@ -5286,12 +5716,16 @@
    "line": 1,
    "area": "catalogue",
    "unit": [
-    "admin/src/pages/admin/medicines-catalog.tsx"
+    "admin/src/pages/admin/medicines-catalog.tsx",
+    "admin/src/components/DataTable.tsx",
+    "admin/src/components/BarcodeScanner.tsx",
+    "admin/src/components/ConfirmDialog.tsx",
+    "admin/src/components/MedicineQuickEdit.tsx"
    ],
    "clientPermission": "catalog.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 58,
+   "navLine": 59,
    "publicDirectory": false,
    "calls": [
     {
@@ -5299,29 +5733,8 @@
      "path": "/storage/upload",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:362",
+     "backend": "backend/src/modules/storage/storage.module.ts:370",
      "backendPath": "/storage/upload",
-     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 46,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/storage/storage.module.ts",
-     "routeLine": 362,
-     "raw": false
-    },
-    {
-     "method": "GET",
-     "path": "/storage/:param/signed-url",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:386",
-     "backendPath": "/storage/:param/signed-url",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
      "line": 50,
      "fn": "apiFetch",
@@ -5333,7 +5746,28 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/storage/storage.module.ts",
-     "routeLine": 386,
+     "routeLine": 370,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/storage/:param/signed-url",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/storage/storage.module.ts:394",
+     "backendPath": "/storage/:param/signed-url",
+     "file": "admin/src/pages/admin/medicines-catalog.tsx",
+     "line": 54,
+     "fn": "apiFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/storage/storage.module.ts",
+     "routeLine": 394,
      "raw": false
     },
     {
@@ -5341,10 +5775,10 @@
      "path": "/medicines/admin/catalog",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:243",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:247",
      "backendPath": "/medicines/admin/catalog",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 96,
+     "line": 106,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5358,7 +5792,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 243,
+     "routeLine": 247,
      "raw": false
     },
     {
@@ -5366,10 +5800,10 @@
      "path": "/medicines/admin/change-requests",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:214",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:216",
      "backendPath": "/medicines/admin/change-requests",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 109,
+     "line": 119,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5381,7 +5815,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 214,
+     "routeLine": 216,
      "raw": false
     },
     {
@@ -5389,10 +5823,10 @@
      "path": "/medicines/admin/reports",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:313",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:317",
      "backendPath": "/medicines/admin/reports",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 116,
+     "line": 126,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5404,7 +5838,55 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 313,
+     "routeLine": 317,
+     "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/medicines/lookup-barcode",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:56",
+     "backendPath": "/medicines/lookup-barcode",
+     "file": "admin/src/pages/admin/medicines-catalog.tsx",
+     "line": 143,
+     "fn": "apiFetch",
+     "via": null,
+     "guards": {
+      "public": true,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
+     "routeLine": 56,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/medicines/admin/catalog",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:247",
+     "backendPath": "/medicines/admin/catalog",
+     "file": "admin/src/pages/admin/medicines-catalog.tsx",
+     "line": 148,
+     "fn": "apiFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "catalog.read"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
+     "routeLine": 247,
      "raw": false
     },
     {
@@ -5412,10 +5894,10 @@
      "path": "/medicines/admin/catalog",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:261",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:265",
      "backendPath": "/medicines/admin/catalog",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 160,
+     "line": 192,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5429,7 +5911,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 261,
+     "routeLine": 265,
      "raw": false
     },
     {
@@ -5437,10 +5919,10 @@
      "path": "/medicines/admin/catalog/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:235",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:239",
      "backendPath": "/medicines/admin/catalog/:param",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 170,
+     "line": 194,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5455,7 +5937,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 235,
+     "routeLine": 239,
      "raw": false
     },
     {
@@ -5463,10 +5945,10 @@
      "path": "/medicines/admin/catalog/:param/delete",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:269",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:273",
      "backendPath": "/medicines/admin/catalog/:param/delete",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 183,
+     "line": 223,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5480,7 +5962,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 269,
+     "routeLine": 273,
      "raw": false
     },
     {
@@ -5488,10 +5970,10 @@
      "path": "/medicines/admin/catalog/:param/approve",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:277",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:281",
      "backendPath": "/medicines/admin/catalog/:param/approve",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 192,
+     "line": 232,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5505,7 +5987,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 277,
+     "routeLine": 281,
      "raw": false
     },
     {
@@ -5516,7 +5998,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:163",
      "backendPath": "/medicines/admin/catalog/:param/availability",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 200,
+     "line": 240,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5538,10 +6020,10 @@
      "path": "/medicines/admin/change-requests/:param/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:221",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:224",
      "backendPath": "/medicines/admin/change-requests/:param/:param",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 225,
+     "line": 265,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5549,11 +6031,89 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "catalog.update"
+      ],
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
-     "routeLine": 221,
+     "routeLine": 224,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/medicines/admin/catalog/:param/price-history",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:309",
+     "backendPath": "/medicines/admin/catalog/:param/price-history",
+     "file": "admin/src/components/MedicineQuickEdit.tsx",
+     "line": 70,
+     "fn": "apiFetch",
+     "via": "MedicineQuickEdit",
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "catalog.read"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
+     "routeLine": 309,
+     "raw": false
+    },
+    {
+     "method": "PATCH",
+     "path": "/medicines/admin/catalog/:param",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:239",
+     "backendPath": "/medicines/admin/catalog/:param",
+     "file": "admin/src/components/MedicineQuickEdit.tsx",
+     "line": 91,
+     "fn": "apiFetch",
+     "via": "MedicineQuickEdit",
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "catalog.update",
+       "catalog.price.write"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
+     "routeLine": 239,
+     "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/medicines/admin/catalog/:param/availability",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:163",
+     "backendPath": "/medicines/admin/catalog/:param/availability",
+     "file": "admin/src/components/MedicineQuickEdit.tsx",
+     "line": 94,
+     "fn": "apiFetch",
+     "via": "MedicineQuickEdit",
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "catalog.shortage.decide"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
+     "routeLine": 163,
      "raw": false
     }
    ],
@@ -5565,8 +6125,8 @@
      "method": "POST",
      "path": "/storage/upload",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 46,
-     "backend": "backend/src/modules/storage/storage.module.ts:362"
+     "line": 50,
+     "backend": "backend/src/modules/storage/storage.module.ts:370"
     },
     {
      "code": "G-OPEN",
@@ -5575,8 +6135,18 @@
      "method": "GET",
      "path": "/storage/:param/signed-url",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 50,
-     "backend": "backend/src/modules/storage/storage.module.ts:386"
+     "line": 54,
+     "backend": "backend/src/modules/storage/storage.module.ts:394"
+    },
+    {
+     "code": "G-PUBLIC",
+     "note": "POST /medicines/lookup-barcode is @Public (no auth at all) but the admin page uses it for a write.",
+     "severity": "high",
+     "method": "POST",
+     "path": "/medicines/lookup-barcode",
+     "file": "admin/src/pages/admin/medicines-catalog.tsx",
+     "line": 143,
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:56"
     },
     {
      "code": "G-PERM-MISMATCH",
@@ -5585,8 +6155,8 @@
      "method": "POST",
      "path": "/medicines/admin/catalog",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 160,
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:261"
+     "line": 192,
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:265"
     },
     {
      "code": "G-PERM-MISMATCH",
@@ -5595,8 +6165,8 @@
      "method": "PATCH",
      "path": "/medicines/admin/catalog/:param",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 170,
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:235"
+     "line": 194,
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:239"
     },
     {
      "code": "G-PERM-MISMATCH",
@@ -5605,8 +6175,8 @@
      "method": "POST",
      "path": "/medicines/admin/catalog/:param/delete",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 183,
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:269"
+     "line": 223,
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:273"
     },
     {
      "code": "G-PERM-MISMATCH",
@@ -5615,8 +6185,8 @@
      "method": "POST",
      "path": "/medicines/admin/catalog/:param/approve",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 192,
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:277"
+     "line": 232,
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:281"
     },
     {
      "code": "G-PERM-MISMATCH",
@@ -5625,8 +6195,18 @@
      "method": "POST",
      "path": "/medicines/admin/catalog/:param/availability",
      "file": "admin/src/pages/admin/medicines-catalog.tsx",
-     "line": 200,
+     "line": 240,
      "backend": "backend/src/modules/medicines/medicines.controller.ts:163"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"catalog.read\" but POST /medicines/admin/change-requests/:param/:param requires catalog.update; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "POST",
+     "path": "/medicines/admin/change-requests/:param/:param",
+     "file": "admin/src/pages/admin/medicines-catalog.tsx",
+     "line": 265,
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:224"
     }
    ],
    "orphan": false
@@ -5638,7 +6218,8 @@
    "line": 1,
    "area": "customers-growth",
    "unit": [
-    "admin/src/pages/admin/notification-center.tsx"
+    "admin/src/pages/admin/notification-center.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "ops.queues.manage",
    "navPermission": null,
@@ -5654,7 +6235,7 @@
      "backend": "backend/src/modules/notifications/notifications.controller.ts:74",
      "backendPath": "/notifications/admin/templates",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 49,
+     "line": 50,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5677,7 +6258,7 @@
      "backend": "backend/src/modules/notifications/notifications.controller.ts:80",
      "backendPath": "/notifications/admin/templates",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 57,
+     "line": 58,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5700,7 +6281,7 @@
      "backend": "backend/src/modules/notifications/notifications.controller.ts:86",
      "backendPath": "/notifications/admin/templates/:param/preview",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 69,
+     "line": 70,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5723,7 +6304,7 @@
      "backend": "backend/src/modules/notifications/notifications.controller.ts:92",
      "backendPath": "/notifications/admin/templates/:param/test-send",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 80,
+     "line": 81,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5746,7 +6327,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:412",
      "backendPath": "/admin/notification-center/stats/overview",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 91,
+     "line": 92,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5769,7 +6350,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:408",
      "backendPath": "/admin/notification-center/segments",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 92,
+     "line": 93,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5792,7 +6373,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:424",
      "backendPath": "/admin/notification-center/campaigns",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 93,
+     "line": 94,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5815,7 +6396,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:49",
      "backendPath": "/admin/analytics-suite/email-usage",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 94,
+     "line": 95,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5840,7 +6421,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:420",
      "backendPath": "/admin/notification-center/campaigns",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 129,
+     "line": 130,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5863,7 +6444,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:416",
      "backendPath": "/admin/notification-center/broadcasts",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 132,
+     "line": 133,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5886,7 +6467,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:434",
      "backendPath": "/admin/notification-center/campaigns/:param/send",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 146,
+     "line": 147,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5909,7 +6490,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:438",
      "backendPath": "/admin/notification-center/campaigns/:param",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 152,
+     "line": 153,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5932,7 +6513,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:442",
      "backendPath": "/admin/notification-center/retarget/run",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 157,
+     "line": 158,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5956,7 +6537,7 @@
      "method": "GET",
      "path": "/api/admin/admin/analytics-suite/email-usage",
      "file": "admin/src/pages/admin/notification-center.tsx",
-     "line": 94,
+     "line": 95,
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:49"
     }
    ],
@@ -6057,7 +6638,8 @@
    "line": 1,
    "area": "ops-monitoring",
    "unit": [
-    "admin/src/pages/admin/order-detail.tsx"
+    "admin/src/pages/admin/order-detail.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "order.read",
    "navPermission": null,
@@ -6073,7 +6655,7 @@
      "backend": "backend/src/modules/admin/command-center/admin-command-center.module.ts:178",
      "backendPath": "/admin/command-center/order/:param/:param",
      "file": "admin/src/pages/admin/order-detail.tsx",
-     "line": 19,
+     "line": 20,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6099,7 +6681,8 @@
    "line": 1,
    "area": "ops-monitoring",
    "unit": [
-    "admin/src/pages/admin/orders/[kind]/[id].tsx"
+    "admin/src/pages/admin/orders/[kind]/[id].tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "order.read",
    "navPermission": null,
@@ -6115,7 +6698,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-orders.controller.ts:56",
      "backendPath": "/admin/orders/:param/:param",
      "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
-     "line": 30,
+     "line": 31,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -6140,7 +6723,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-orders.controller.ts:62",
      "backendPath": "/admin/orders/:param/:param/:param",
      "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
-     "line": 50,
+     "line": 51,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -6166,7 +6749,7 @@
      "method": "POST",
      "path": "/api/admin/admin/orders/:param/:param/:param",
      "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
-     "line": 50,
+     "line": 51,
      "backend": "backend/src/modules/admin/enterprise/admin-orders.controller.ts:62"
     }
    ],
@@ -6179,7 +6762,8 @@
    "line": 1,
    "area": "ops-monitoring",
    "unit": [
-    "admin/src/pages/admin/orders/index.tsx"
+    "admin/src/pages/admin/orders/index.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "order.read",
    "navPermission": "order.read",
@@ -6195,7 +6779,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-orders.controller.ts:20",
      "backendPath": "/admin/orders",
      "file": "admin/src/pages/admin/orders/index.tsx",
-     "line": 29,
+     "line": 30,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -6224,7 +6808,8 @@
    "area": "finance",
    "unit": [
     "admin/src/pages/admin/payouts.tsx",
-    "admin/src/components/EmptyIcon.tsx"
+    "admin/src/components/EmptyIcon.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "finance.payout.approve",
    "navPermission": null,
@@ -6237,10 +6822,10 @@
      "path": "/api/admin/admin/finance/withdrawals/pending",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:41",
+     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:42",
      "backendPath": "/admin/finance/withdrawals/pending",
      "file": "admin/src/pages/admin/payouts.tsx",
-     "line": 35,
+     "line": 36,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6252,7 +6837,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/admin/web-core/controllers/finance.controller.ts",
-     "routeLine": 41,
+     "routeLine": 42,
      "raw": false
     },
     {
@@ -6260,10 +6845,10 @@
      "path": "/api/admin/admin/finance/withdrawals/:param/execute",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:74",
+     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:76",
      "backendPath": "/admin/finance/withdrawals/:param/execute",
      "file": "admin/src/pages/admin/payouts.tsx",
-     "line": 49,
+     "line": 50,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6271,11 +6856,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "finance.payout.approve"
+      ],
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/admin/web-core/controllers/finance.controller.ts",
-     "routeLine": 74,
+     "routeLine": 76,
      "raw": false
     },
     {
@@ -6283,10 +6870,10 @@
      "path": "/api/admin/admin/finance/withdrawals/:param/reject",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:137",
+     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:140",
      "backendPath": "/admin/finance/withdrawals/:param/reject",
      "file": "admin/src/pages/admin/payouts.tsx",
-     "line": 63,
+     "line": 64,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6294,36 +6881,17 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "finance.payout.approve"
+      ],
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/admin/web-core/controllers/finance.controller.ts",
-     "routeLine": 137,
+     "routeLine": 140,
      "raw": false
     }
    ],
-   "guardFindings": [
-    {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /admin/finance/withdrawals/:param/execute is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
-     "severity": "medium",
-     "method": "POST",
-     "path": "/api/admin/admin/finance/withdrawals/:param/execute",
-     "file": "admin/src/pages/admin/payouts.tsx",
-     "line": 49,
-     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:74"
-    },
-    {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /admin/finance/withdrawals/:param/reject is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
-     "severity": "medium",
-     "method": "POST",
-     "path": "/api/admin/admin/finance/withdrawals/:param/reject",
-     "file": "admin/src/pages/admin/payouts.tsx",
-     "line": 63,
-     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:137"
-    }
-   ],
+   "guardFindings": [],
    "orphan": false
   },
   {
@@ -6333,7 +6901,8 @@
    "line": 1,
    "area": "providers",
    "unit": [
-    "admin/src/pages/admin/pharmacy-procurement.tsx"
+    "admin/src/pages/admin/pharmacy-procurement.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "pharmacy.inventory.read",
    "navPermission": null,
@@ -6349,7 +6918,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-extended-operations.controller.ts:16",
      "backendPath": "/admin/extended-operations/procurement/pending",
      "file": "admin/src/pages/admin/pharmacy-procurement.tsx",
-     "line": 47,
+     "line": 48,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6372,7 +6941,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-extended-operations.controller.ts:26",
      "backendPath": "/admin/extended-operations/issue-quote/:param",
      "file": "admin/src/pages/admin/pharmacy-procurement.tsx",
-     "line": 77,
+     "line": 78,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6404,7 +6973,7 @@
    "clientPermission": "catalog.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 60,
+   "navLine": 62,
    "publicDirectory": false,
    "calls": [
     {
@@ -6456,7 +7025,7 @@
      "path": "/api/admin/admin/providers/provider-deltas",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:153",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:154",
      "backendPath": "/admin/providers/provider-deltas",
      "file": "admin/src/pages/admin/provider-audits.tsx",
      "line": 18,
@@ -6467,30 +7036,9 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
-      "useGuards": ""
-     },
-     "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 153,
-     "raw": false
-    },
-    {
-     "method": "POST",
-     "path": "/api/admin/admin/providers/provider-deltas/:param/approve",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:154",
-     "backendPath": "/admin/providers/provider-deltas/:param/approve",
-     "file": "admin/src/pages/admin/provider-audits.tsx",
-     "line": 30,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [
-       "ADMIN"
+      "perms": [
+       "facility.edit"
       ],
-      "perms": [],
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
@@ -6499,13 +7047,13 @@
     },
     {
      "method": "POST",
-     "path": "/api/admin/admin/providers/provider-deltas/:param/reject",
+     "path": "/api/admin/admin/providers/provider-deltas/:param/approve",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:155",
-     "backendPath": "/admin/providers/provider-deltas/:param/reject",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:156",
+     "backendPath": "/admin/providers/provider-deltas/:param/approve",
      "file": "admin/src/pages/admin/provider-audits.tsx",
-     "line": 45,
+     "line": 31,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6513,34 +7061,71 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "facility.edit"
+      ],
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 155,
+     "routeLine": 156,
+     "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/api/admin/admin/providers/provider-deltas/:param/reject",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:158",
+     "backendPath": "/admin/providers/provider-deltas/:param/reject",
+     "file": "admin/src/pages/admin/provider-audits.tsx",
+     "line": 46,
+     "fn": "apiFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "facility.edit"
+      ],
+      "useGuards": ""
+     },
+     "routeFile": "backend/src/modules/provider/provider.controllers.ts",
+     "routeLine": 158,
      "raw": false
     }
    ],
    "guardFindings": [
     {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /admin/providers/provider-deltas/:param/approve is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"doctor.read\" but GET /admin/providers/provider-deltas requires facility.edit; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "GET",
+     "path": "/api/admin/admin/providers/provider-deltas",
+     "file": "admin/src/pages/admin/provider-audits.tsx",
+     "line": 18,
+     "backend": "backend/src/modules/provider/provider.controllers.ts:154"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"doctor.read\" but POST /admin/providers/provider-deltas/:param/approve requires facility.edit; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/api/admin/admin/providers/provider-deltas/:param/approve",
      "file": "admin/src/pages/admin/provider-audits.tsx",
-     "line": 30,
-     "backend": "backend/src/modules/provider/provider.controllers.ts:154"
+     "line": 31,
+     "backend": "backend/src/modules/provider/provider.controllers.ts:156"
     },
     {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /admin/providers/provider-deltas/:param/reject is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"doctor.read\" but POST /admin/providers/provider-deltas/:param/reject requires facility.edit; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/api/admin/admin/providers/provider-deltas/:param/reject",
      "file": "admin/src/pages/admin/provider-audits.tsx",
-     "line": 45,
-     "backend": "backend/src/modules/provider/provider.controllers.ts:155"
+     "line": 46,
+     "backend": "backend/src/modules/provider/provider.controllers.ts:158"
     }
    ],
    "orphan": false
@@ -6554,7 +7139,8 @@
    "unit": [
     "admin/src/pages/admin/provider-moderation.tsx",
     "admin/src/components/ProviderFullDetail.tsx",
-    "admin/src/components/GeoPicker.tsx"
+    "admin/src/components/GeoPicker.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "doctor.read",
    "navPermission": null,
@@ -6567,7 +7153,7 @@
      "path": "/api/admin/admin/providers/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:156",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:159",
      "backendPath": "/admin/providers/:param",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
      "line": 44,
@@ -6578,11 +7164,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "facility.edit"
+      ],
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 156,
+     "routeLine": 159,
      "raw": false
     },
     {
@@ -6590,7 +7178,7 @@
      "path": "/api/admin/admin/providers",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:149",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:150",
      "backendPath": "/admin/providers",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
      "line": 65,
@@ -6601,11 +7189,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "facility.edit"
+      ],
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 149,
+     "routeLine": 150,
      "raw": false
     },
     {
@@ -6613,7 +7203,7 @@
      "path": "/api/admin/admin/providers/provider-deltas",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:153",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:154",
      "backendPath": "/admin/providers/provider-deltas",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
      "line": 81,
@@ -6624,11 +7214,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "facility.edit"
+      ],
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 153,
+     "routeLine": 154,
      "raw": false
     },
     {
@@ -6636,7 +7228,7 @@
      "path": "/api/admin/admin/providers/:param/approve",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:157",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:161",
      "backendPath": "/admin/providers/:param/approve",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
      "line": 117,
@@ -6647,11 +7239,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "facility.edit"
+      ],
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 157,
+     "routeLine": 161,
      "raw": false
     },
     {
@@ -6659,7 +7253,7 @@
      "path": "/api/admin/admin/providers/:param/reactivate",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:182",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:191",
      "backendPath": "/admin/providers/:param/reactivate",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
      "line": 137,
@@ -6670,11 +7264,38 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "facility.edit"
+      ],
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 182,
+     "routeLine": 191,
+     "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/api/admin/admin/providers/:param/:param",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:161",
+     "backendPath": "/admin/providers/:param/:param",
+     "file": "admin/src/pages/admin/provider-moderation.tsx",
+     "line": 160,
+     "fn": "fetchWithAdminGuard",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "facility.edit"
+      ],
+      "useGuards": ""
+     },
+     "routeFile": "backend/src/modules/provider/provider.controllers.ts",
+     "routeLine": 161,
      "raw": false
     },
     {
@@ -6682,10 +7303,10 @@
      "path": "/api/admin/admin/providers/:param/suspend",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:181",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:189",
      "backendPath": "/admin/providers/:param/suspend",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 150,
+     "line": 181,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -6693,11 +7314,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "facility.edit"
+      ],
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 181,
+     "routeLine": 189,
      "raw": false
     },
     {
@@ -6705,10 +7328,10 @@
      "path": "/api/admin/admin/providers/provider-deltas/:param/approve",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:154",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:156",
      "backendPath": "/admin/providers/provider-deltas/:param/approve",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 175,
+     "line": 206,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -6716,11 +7339,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "facility.edit"
+      ],
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 154,
+     "routeLine": 156,
      "raw": false
     },
     {
@@ -6728,10 +7353,10 @@
      "path": "/api/admin/admin/providers/provider-deltas/:param/reject",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:155",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:158",
      "backendPath": "/admin/providers/provider-deltas/:param/reject",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 195,
+     "line": 226,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -6739,11 +7364,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "facility.edit"
+      ],
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 155,
+     "routeLine": 158,
      "raw": false
     },
     {
@@ -6751,10 +7378,10 @@
      "path": "/api/admin/storage/:param/signed-url",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:386",
+     "backend": "backend/src/modules/storage/storage.module.ts:394",
      "backendPath": "/storage/:param/signed-url",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -6764,7 +7391,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/storage/storage.module.ts",
-     "routeLine": 386,
+     "routeLine": 394,
      "raw": false
     },
     {
@@ -6772,10 +7399,10 @@
      "path": "/api/admin/storage/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:376",
+     "backend": "backend/src/modules/storage/storage.module.ts:384",
      "backendPath": "/storage/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 23,
+     "line": 24,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -6785,7 +7412,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/storage/storage.module.ts",
-     "routeLine": 376,
+     "routeLine": 384,
      "raw": false
     },
     {
@@ -6796,12 +7423,14 @@
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513",
      "backendPath": "/provider-onboarding/admin/contracts/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 157,
+     "line": 175,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
       "public": false,
-      "roles": [],
+      "roles": [
+       "ADMIN"
+      ],
       "perms": [],
       "useGuards": "JwtAuthGuard"
      },
@@ -6814,10 +7443,10 @@
      "path": "/api/admin/provider-onboarding/admin/contracts/:param/visibility",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:521",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:522",
      "backendPath": "/provider-onboarding/admin/contracts/:param/visibility",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 556,
+     "line": 536,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -6829,7 +7458,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts",
-     "routeLine": 521,
+     "routeLine": 522,
      "raw": false
     },
     {
@@ -6898,54 +7527,94 @@
    ],
    "guardFindings": [
     {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /admin/providers/:param/approve is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"doctor.read\" but GET /admin/providers/:param requires facility.edit; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "GET",
+     "path": "/api/admin/admin/providers/:param",
+     "file": "admin/src/pages/admin/provider-moderation.tsx",
+     "line": 44,
+     "backend": "backend/src/modules/provider/provider.controllers.ts:159"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"doctor.read\" but GET /admin/providers requires facility.edit; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "GET",
+     "path": "/api/admin/admin/providers",
+     "file": "admin/src/pages/admin/provider-moderation.tsx",
+     "line": 65,
+     "backend": "backend/src/modules/provider/provider.controllers.ts:150"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"doctor.read\" but GET /admin/providers/provider-deltas requires facility.edit; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "GET",
+     "path": "/api/admin/admin/providers/provider-deltas",
+     "file": "admin/src/pages/admin/provider-moderation.tsx",
+     "line": 81,
+     "backend": "backend/src/modules/provider/provider.controllers.ts:154"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"doctor.read\" but POST /admin/providers/:param/approve requires facility.edit; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/api/admin/admin/providers/:param/approve",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
      "line": 117,
-     "backend": "backend/src/modules/provider/provider.controllers.ts:157"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:161"
     },
     {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /admin/providers/:param/reactivate is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"doctor.read\" but POST /admin/providers/:param/reactivate requires facility.edit; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/api/admin/admin/providers/:param/reactivate",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
      "line": 137,
-     "backend": "backend/src/modules/provider/provider.controllers.ts:182"
+     "backend": "backend/src/modules/provider/provider.controllers.ts:191"
     },
     {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /admin/providers/:param/suspend is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"doctor.read\" but POST /admin/providers/:param/:param requires facility.edit; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "POST",
+     "path": "/api/admin/admin/providers/:param/:param",
+     "file": "admin/src/pages/admin/provider-moderation.tsx",
+     "line": 160,
+     "backend": "backend/src/modules/provider/provider.controllers.ts:161"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"doctor.read\" but POST /admin/providers/:param/suspend requires facility.edit; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/api/admin/admin/providers/:param/suspend",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 150,
-     "backend": "backend/src/modules/provider/provider.controllers.ts:181"
+     "line": 181,
+     "backend": "backend/src/modules/provider/provider.controllers.ts:189"
     },
     {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /admin/providers/provider-deltas/:param/approve is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"doctor.read\" but POST /admin/providers/provider-deltas/:param/approve requires facility.edit; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/api/admin/admin/providers/provider-deltas/:param/approve",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 175,
-     "backend": "backend/src/modules/provider/provider.controllers.ts:154"
+     "line": 206,
+     "backend": "backend/src/modules/provider/provider.controllers.ts:156"
     },
     {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /admin/providers/provider-deltas/:param/reject is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"doctor.read\" but POST /admin/providers/provider-deltas/:param/reject requires facility.edit; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/api/admin/admin/providers/provider-deltas/:param/reject",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 195,
-     "backend": "backend/src/modules/provider/provider.controllers.ts:155"
+     "line": 226,
+     "backend": "backend/src/modules/provider/provider.controllers.ts:158"
     },
     {
      "code": "G-OPEN",
@@ -6954,8 +7623,8 @@
      "method": "GET",
      "path": "/api/admin/storage/:param/signed-url",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 18,
-     "backend": "backend/src/modules/storage/storage.module.ts:386"
+     "line": 19,
+     "backend": "backend/src/modules/storage/storage.module.ts:394"
     },
     {
      "code": "G-OPEN",
@@ -6964,18 +7633,8 @@
      "method": "GET",
      "path": "/api/admin/storage/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 23,
-     "backend": "backend/src/modules/storage/storage.module.ts:376"
-    },
-    {
-     "code": "G-OPEN",
-     "note": "GET /provider-onboarding/admin/contracts/:param has no @Roles, @RequirePermissions or @Public: JwtAuthGuard lets ANY signed-in user (patient/provider) through; and the path is outside /admin, so there is no network gate either.",
-     "severity": "medium",
-     "method": "GET",
-     "path": "/api/admin/provider-onboarding/admin/contracts/:param",
-     "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 157,
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513"
+     "line": 24,
+     "backend": "backend/src/modules/storage/storage.module.ts:384"
     }
    ],
    "orphan": false
@@ -6993,7 +7652,7 @@
    "clientPermission": "rbac.manage",
    "navPermission": "rbac.manage",
    "inNav": true,
-   "navLine": 74,
+   "navLine": 76,
    "publicDirectory": false,
    "calls": [
     {
@@ -7054,7 +7713,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:125",
      "backendPath": "/admin/rbac/roles",
      "file": "admin/src/pages/admin/rbac.tsx",
-     "line": 42,
+     "line": 43,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -7079,7 +7738,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:204",
      "backendPath": "/admin/rbac/users/:param/roles",
      "file": "admin/src/pages/admin/rbac.tsx",
-     "line": 54,
+     "line": 56,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -7108,7 +7767,8 @@
    "line": 1,
    "area": "customers-growth",
    "unit": [
-    "admin/src/pages/admin/reports.tsx"
+    "admin/src/pages/admin/reports.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": null,
    "navPermission": "analytics.read",
@@ -7124,7 +7784,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-reports.controller.ts:116",
      "backendPath": "/admin/reports/:param",
      "file": "admin/src/pages/admin/reports.tsx",
-     "line": 74,
+     "line": 75,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -7147,7 +7807,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-reports.controller.ts:116",
      "note": "download link",
      "file": "admin/src/pages/admin/reports.tsx",
-     "line": 100,
+     "line": 101,
      "fn": "href",
      "via": null,
      "guards": {
@@ -7167,7 +7827,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-reports.controller.ts:116",
      "note": "download link",
      "file": "admin/src/pages/admin/reports.tsx",
-     "line": 101,
+     "line": 102,
      "fn": "href",
      "via": null,
      "guards": {
@@ -7255,12 +7915,13 @@
    "line": 1,
    "area": "system",
    "unit": [
-    "admin/src/pages/admin/scheduled-reports.tsx"
+    "admin/src/pages/admin/scheduled-reports.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "reports.schedule.manage",
    "navPermission": "reports.schedule.manage",
    "inNav": true,
-   "navLine": 76,
+   "navLine": 78,
    "publicDirectory": false,
    "calls": [
     {
@@ -7271,7 +7932,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:131",
      "backendPath": "/admin/scheduled-reports",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 11,
+     "line": 12,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -7296,7 +7957,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:138",
      "backendPath": "/admin/scheduled-reports",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 13,
+     "line": 14,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -7321,7 +7982,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:166",
      "backendPath": "/admin/scheduled-reports/:param",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 14,
+     "line": 15,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -7346,7 +8007,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:182",
      "backendPath": "/admin/scheduled-reports/:param/run",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 15,
+     "line": 16,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -7371,7 +8032,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:194",
      "backendPath": "/admin/scheduled-reports/:param/runs",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 16,
+     "line": 17,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -7396,7 +8057,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:202",
      "backendPath": "/admin/scheduled-reports/:param",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 17,
+     "line": 18,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -7422,7 +8083,7 @@
      "method": "POST",
      "path": "/api/admin/admin/scheduled-reports/:param/run",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 15,
+     "line": 16,
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:182"
     }
    ],
@@ -7435,12 +8096,13 @@
    "line": 1,
    "area": "customers-growth",
    "unit": [
-    "admin/src/pages/admin/search-intelligence.tsx"
+    "admin/src/pages/admin/search-intelligence.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "analytics.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 56,
+   "navLine": 57,
    "publicDirectory": false,
    "calls": [
     {
@@ -7451,7 +8113,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:107",
      "backendPath": "/admin/governance-controls/search-intent-analytics",
      "file": "admin/src/pages/admin/search-intelligence.tsx",
-     "line": 40,
+     "line": 41,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -7476,7 +8138,7 @@
      "backend": "backend/src/modules/search-intent/search-intent.controller.ts:12",
      "backendPath": "/search/intent",
      "file": "admin/src/pages/admin/search-intelligence.tsx",
-     "line": 60,
+     "line": 61,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -7498,7 +8160,7 @@
      "method": "POST",
      "path": "/search/intent",
      "file": "admin/src/pages/admin/search-intelligence.tsx",
-     "line": 60,
+     "line": 61,
      "backend": "backend/src/modules/search-intent/search-intent.controller.ts:12"
     }
    ],
@@ -7565,7 +8227,7 @@
    "clientPermission": null,
    "navPermission": null,
    "inNav": true,
-   "navLine": 78,
+   "navLine": 80,
    "publicDirectory": false,
    "calls": [
     {
@@ -7952,7 +8614,8 @@
    "line": 1,
    "area": "catalogue",
    "unit": [
-    "admin/src/pages/admin/shortage-reports.tsx"
+    "admin/src/pages/admin/shortage-reports.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "catalog.read",
    "navPermission": null,
@@ -7968,7 +8631,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:131",
      "backendPath": "/medicines/admin/shortage-reports",
      "file": "admin/src/pages/admin/shortage-reports.tsx",
-     "line": 24,
+     "line": 25,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -7993,7 +8656,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:139",
      "backendPath": "/medicines/admin/shortage-reports/:param/:param",
      "file": "admin/src/pages/admin/shortage-reports.tsx",
-     "line": 41,
+     "line": 42,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -8018,7 +8681,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:155",
      "backendPath": "/medicines/admin/catalog/:param/clear-shortage-badge",
      "file": "admin/src/pages/admin/shortage-reports.tsx",
-     "line": 55,
+     "line": 56,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -8044,7 +8707,7 @@
      "method": "POST",
      "path": "/medicines/admin/shortage-reports/:param/:param",
      "file": "admin/src/pages/admin/shortage-reports.tsx",
-     "line": 41,
+     "line": 42,
      "backend": "backend/src/modules/medicines/medicines.controller.ts:139"
     },
     {
@@ -8054,7 +8717,7 @@
      "method": "POST",
      "path": "/medicines/admin/catalog/:param/clear-shortage-badge",
      "file": "admin/src/pages/admin/shortage-reports.tsx",
-     "line": 55,
+     "line": 56,
      "backend": "backend/src/modules/medicines/medicines.controller.ts:155"
     }
    ],
@@ -8156,12 +8819,13 @@
    "line": 1,
    "area": "system",
    "unit": [
-    "admin/src/pages/admin/system-ops.tsx"
+    "admin/src/pages/admin/system-ops.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "ops.queues.manage",
    "navPermission": "ops.queues.manage",
    "inNav": true,
-   "navLine": 75,
+   "navLine": 77,
    "publicDirectory": false,
    "calls": [
     {
@@ -8172,7 +8836,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:33",
      "backendPath": "/admin/ops/queues",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 12,
+     "line": 13,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -8197,7 +8861,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:102",
      "backendPath": "/admin/ops/translations",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 12,
+     "line": 13,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -8222,7 +8886,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:146",
      "backendPath": "/admin/ops/seo/controls",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 12,
+     "line": 13,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -8247,7 +8911,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:63",
      "backendPath": "/admin/governance-controls/feature-flags",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 12,
+     "line": 13,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -8272,7 +8936,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:48",
      "backendPath": "/admin/ops/queues/:param/jobs",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 12,
+     "line": 13,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -8295,7 +8959,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:81",
      "backendPath": "/admin/ops/queues/:param/retry-failed",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 14,
+     "line": 15,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -8318,7 +8982,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:67",
      "backendPath": "/admin/ops/queues/:param/jobs/:param/retry",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 15,
+     "line": 16,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -8341,7 +9005,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:120",
      "backendPath": "/admin/ops/translations",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 16,
+     "line": 17,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -8364,7 +9028,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:153",
      "backendPath": "/admin/ops/seo/controls",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 17,
+     "line": 18,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -8387,7 +9051,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:82",
      "backendPath": "/admin/governance-controls/feature-flags",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -8413,7 +9077,7 @@
      "method": "GET",
      "path": "/api/admin/admin/ops/translations",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 12,
+     "line": 13,
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:102"
     },
     {
@@ -8423,11 +9087,138 @@
      "method": "GET",
      "path": "/api/admin/admin/ops/seo/controls",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 12,
+     "line": 13,
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:146"
     }
    ],
    "orphan": false
+  },
+  {
+   "app": "admin",
+   "route": "/admin/today",
+   "file": "admin/src/pages/admin/today.tsx",
+   "line": 1,
+   "area": "ops-monitoring",
+   "unit": [
+    "admin/src/pages/admin/today.tsx"
+   ],
+   "clientPermission": null,
+   "navPermission": null,
+   "inNav": false,
+   "navLine": null,
+   "publicDirectory": false,
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/command-center-v2",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/enterprise/command-center-v2.controller.ts:70",
+     "backendPath": "/admin/command-center-v2",
+     "file": "admin/src/pages/admin/today.tsx",
+     "line": 49,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "command.center.view"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/admin/enterprise/command-center-v2.controller.ts",
+     "routeLine": 70,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/ops/alerts",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/ops/ops.controller.ts:40",
+     "backendPath": "/admin/ops/alerts",
+     "file": "admin/src/pages/admin/today.tsx",
+     "line": 50,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN",
+       "SUPER_ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/ops/ops.controller.ts",
+     "routeLine": 40,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/ops/overview",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/ops/ops.controller.ts:72",
+     "backendPath": "/admin/ops/overview",
+     "file": "admin/src/pages/admin/today.tsx",
+     "line": 51,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN",
+       "SUPER_ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/ops/ops.controller.ts",
+     "routeLine": 72,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/ops/domain-metrics",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/ops/ops.controller.ts:206",
+     "backendPath": "/admin/ops/domain-metrics",
+     "file": "admin/src/pages/admin/today.tsx",
+     "line": 52,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN",
+       "SUPER_ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/ops/ops.controller.ts",
+     "routeLine": 206,
+     "raw": false
+    }
+   ],
+   "guardFindings": [
+    {
+     "code": "G-PAGE-NOPERM",
+     "note": "Page has no client permission (any admin sees it) but GET /admin/command-center-v2 requires command.center.view; roles without it get a 403 inside the page.",
+     "severity": "low",
+     "method": "GET",
+     "path": "/api/admin/admin/command-center-v2",
+     "file": "admin/src/pages/admin/today.tsx",
+     "line": 49,
+     "backend": "backend/src/modules/admin/enterprise/command-center-v2.controller.ts:70"
+    }
+   ],
+   "orphan": true
   },
   {
    "app": "admin",
@@ -8438,12 +9229,13 @@
    "unit": [
     "admin/src/pages/admin/users-management.tsx",
     "admin/src/components/ProviderFullDetail.tsx",
-    "admin/src/components/GeoPicker.tsx"
+    "admin/src/components/GeoPicker.tsx",
+    "admin/src/components/DataTable.tsx"
    ],
    "clientPermission": "user.read",
    "navPermission": null,
    "inNav": true,
-   "navLine": 66,
+   "navLine": 68,
    "publicDirectory": false,
    "calls": [
     {
@@ -8451,10 +9243,10 @@
      "path": "/api/admin/admin/users/:param/overview",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/admin.controller.ts:141",
+     "backend": "backend/src/modules/admin/admin.controller.ts:142",
      "backendPath": "/admin/users/:param/overview",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 60,
+     "line": 61,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -8466,7 +9258,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/admin/admin.controller.ts",
-     "routeLine": 141,
+     "routeLine": 142,
      "raw": false
     },
     {
@@ -8474,10 +9266,10 @@
      "path": "/api/admin/admin/providers/by-user/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:152",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:153",
      "backendPath": "/admin/providers/by-user/:param",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 66,
+     "line": 67,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -8485,11 +9277,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "facility.edit"
+      ],
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 152,
+     "routeLine": 153,
      "raw": false
     },
     {
@@ -8497,10 +9291,10 @@
      "path": "/api/admin/admin/users/:param/overview",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/admin.controller.ts:141",
+     "backend": "backend/src/modules/admin/admin.controller.ts:142",
      "backendPath": "/admin/users/:param/overview",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 77,
+     "line": 78,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -8512,7 +9306,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/admin/admin.controller.ts",
-     "routeLine": 141,
+     "routeLine": 142,
      "raw": false
     },
     {
@@ -8520,10 +9314,10 @@
      "path": "/api/admin/admin/users",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/admin.controller.ts:250",
+     "backend": "backend/src/modules/admin/admin.controller.ts:251",
      "backendPath": "/admin/users",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 91,
+     "line": 92,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -8535,7 +9329,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/admin/admin.controller.ts",
-     "routeLine": 250,
+     "routeLine": 251,
      "raw": false
     },
     {
@@ -8543,10 +9337,10 @@
      "path": "/api/admin/admin/users/:param/ban",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/admin.controller.ts:460",
+     "backend": "backend/src/modules/admin/admin.controller.ts:462",
      "backendPath": "/admin/users/:param/ban",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 114,
+     "line": 115,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -8554,11 +9348,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "user.edit"
+      ],
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/admin/admin.controller.ts",
-     "routeLine": 460,
+     "routeLine": 462,
      "raw": false
     },
     {
@@ -8566,10 +9362,10 @@
      "path": "/api/admin/admin/users/:param/unban",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/admin.controller.ts:484",
+     "backend": "backend/src/modules/admin/admin.controller.ts:487",
      "backendPath": "/admin/users/:param/unban",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 128,
+     "line": 129,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -8577,11 +9373,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "user.edit"
+      ],
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/admin/admin.controller.ts",
-     "routeLine": 484,
+     "routeLine": 487,
      "raw": false
     },
     {
@@ -8589,10 +9387,10 @@
      "path": "/api/admin/admin/providers/by-user/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:152",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:153",
      "backendPath": "/admin/providers/by-user/:param",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 135,
+     "line": 136,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -8600,11 +9398,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "facility.edit"
+      ],
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 152,
+     "routeLine": 153,
      "raw": false
     },
     {
@@ -8612,10 +9412,10 @@
      "path": "/api/admin/admin/providers/:param/reactivate",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:182",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:191",
      "backendPath": "/admin/providers/:param/reactivate",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 137,
+     "line": 138,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -8623,11 +9423,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "facility.edit"
+      ],
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 182,
+     "routeLine": 191,
      "raw": false
     },
     {
@@ -8635,10 +9437,10 @@
      "path": "/api/admin/admin/providers/:param/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:157",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:161",
      "backendPath": "/admin/providers/:param/:param",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 166,
+     "line": 167,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -8646,11 +9448,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "facility.edit"
+      ],
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 157,
+     "routeLine": 161,
      "raw": false
     },
     {
@@ -8658,10 +9462,10 @@
      "path": "/api/admin/admin/users/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/admin.controller.ts:517",
+     "backend": "backend/src/modules/admin/admin.controller.ts:520",
      "backendPath": "/admin/users/:param",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 184,
+     "line": 185,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -8673,7 +9477,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/admin/admin.controller.ts",
-     "routeLine": 517,
+     "routeLine": 520,
      "raw": false
     },
     {
@@ -8681,10 +9485,10 @@
      "path": "/api/admin/storage/:param/signed-url",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:386",
+     "backend": "backend/src/modules/storage/storage.module.ts:394",
      "backendPath": "/storage/:param/signed-url",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -8694,7 +9498,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/storage/storage.module.ts",
-     "routeLine": 386,
+     "routeLine": 394,
      "raw": false
     },
     {
@@ -8702,10 +9506,10 @@
      "path": "/api/admin/storage/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:376",
+     "backend": "backend/src/modules/storage/storage.module.ts:384",
      "backendPath": "/storage/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 23,
+     "line": 24,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -8715,7 +9519,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/storage/storage.module.ts",
-     "routeLine": 376,
+     "routeLine": 384,
      "raw": false
     },
     {
@@ -8726,12 +9530,14 @@
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513",
      "backendPath": "/provider-onboarding/admin/contracts/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 157,
+     "line": 175,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
       "public": false,
-      "roles": [],
+      "roles": [
+       "ADMIN"
+      ],
       "perms": [],
       "useGuards": "JwtAuthGuard"
      },
@@ -8744,10 +9550,10 @@
      "path": "/api/admin/provider-onboarding/admin/contracts/:param/visibility",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:521",
+     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:522",
      "backendPath": "/provider-onboarding/admin/contracts/:param/visibility",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 556,
+     "line": 536,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -8759,7 +9565,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts",
-     "routeLine": 521,
+     "routeLine": 522,
      "raw": false
     },
     {
@@ -8828,34 +9634,54 @@
    ],
    "guardFindings": [
     {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /admin/users/:param/ban is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"user.read\" but GET /admin/providers/by-user/:param requires facility.edit; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "GET",
+     "path": "/api/admin/admin/providers/by-user/:param",
+     "file": "admin/src/pages/admin/users-management.tsx",
+     "line": 67,
+     "backend": "backend/src/modules/provider/provider.controllers.ts:153"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"user.read\" but POST /admin/users/:param/ban requires user.edit; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/api/admin/admin/users/:param/ban",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 114,
-     "backend": "backend/src/modules/admin/admin.controller.ts:460"
+     "line": 115,
+     "backend": "backend/src/modules/admin/admin.controller.ts:462"
     },
     {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /admin/users/:param/unban is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"user.read\" but POST /admin/users/:param/unban requires user.edit; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/api/admin/admin/users/:param/unban",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 128,
-     "backend": "backend/src/modules/admin/admin.controller.ts:484"
+     "line": 129,
+     "backend": "backend/src/modules/admin/admin.controller.ts:487"
     },
     {
-     "code": "G-ROLE-ONLY-WRITE",
-     "note": "POST /admin/providers/:param/reactivate is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.",
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"user.read\" but POST /admin/providers/:param/reactivate requires facility.edit; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/api/admin/admin/providers/:param/reactivate",
      "file": "admin/src/pages/admin/users-management.tsx",
-     "line": 137,
-     "backend": "backend/src/modules/provider/provider.controllers.ts:182"
+     "line": 138,
+     "backend": "backend/src/modules/provider/provider.controllers.ts:191"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"user.read\" but POST /admin/providers/:param/:param requires facility.edit; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "POST",
+     "path": "/api/admin/admin/providers/:param/:param",
+     "file": "admin/src/pages/admin/users-management.tsx",
+     "line": 167,
+     "backend": "backend/src/modules/provider/provider.controllers.ts:161"
     },
     {
      "code": "G-OPEN",
@@ -8864,8 +9690,8 @@
      "method": "GET",
      "path": "/api/admin/storage/:param/signed-url",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 18,
-     "backend": "backend/src/modules/storage/storage.module.ts:386"
+     "line": 19,
+     "backend": "backend/src/modules/storage/storage.module.ts:394"
     },
     {
      "code": "G-OPEN",
@@ -8874,18 +9700,8 @@
      "method": "GET",
      "path": "/api/admin/storage/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 23,
-     "backend": "backend/src/modules/storage/storage.module.ts:376"
-    },
-    {
-     "code": "G-OPEN",
-     "note": "GET /provider-onboarding/admin/contracts/:param has no @Roles, @RequirePermissions or @Public: JwtAuthGuard lets ANY signed-in user (patient/provider) through; and the path is outside /admin, so there is no network gate either.",
-     "severity": "medium",
-     "method": "GET",
-     "path": "/api/admin/provider-onboarding/admin/contracts/:param",
-     "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 157,
-     "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513"
+     "line": 24,
+     "backend": "backend/src/modules/storage/storage.module.ts:384"
     }
    ],
    "orphan": false
@@ -8929,6 +9745,18 @@
      "routeFile": "backend/src/modules/articles/articles.module.ts",
      "routeLine": 115,
      "raw": false
+    },
+    {
+     "method": "GET",
+     "path": ":param/api/v1:param",
+     "target": "backend",
+     "status": "NO_ROUTE",
+     "note": "path does not go through /api/admin (the BFF), so it hits Next, not the backend",
+     "file": "admin/src/components/PublicDirectory.tsx",
+     "line": 125,
+     "fn": "fetch",
+     "via": "PublicDirectory",
+     "raw": false
     }
    ],
    "guardFindings": [],
@@ -8970,6 +9798,18 @@
      },
      "routeFile": "backend/src/modules/care/care.controller.ts",
      "routeLine": 29,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": ":param/api/v1:param",
+     "target": "backend",
+     "status": "NO_ROUTE",
+     "note": "path does not go through /api/admin (the BFF), so it hits Next, not the backend",
+     "file": "admin/src/components/PublicDirectory.tsx",
+     "line": 125,
+     "fn": "fetch",
+     "via": "PublicDirectory",
      "raw": false
     }
    ],
@@ -9013,6 +9853,18 @@
      "routeFile": "backend/src/modules/care/care.controller.ts",
      "routeLine": 90,
      "raw": false
+    },
+    {
+     "method": "GET",
+     "path": ":param/api/v1:param",
+     "target": "backend",
+     "status": "NO_ROUTE",
+     "note": "path does not go through /api/admin (the BFF), so it hits Next, not the backend",
+     "file": "admin/src/components/PublicDirectory.tsx",
+     "line": 125,
+     "fn": "fetch",
+     "via": "PublicDirectory",
+     "raw": false
     }
    ],
    "guardFindings": [],
@@ -9054,6 +9906,18 @@
      },
      "routeFile": "backend/src/modules/home-care/home-care-compat.module.ts",
      "routeLine": 48,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": ":param/api/v1:param",
+     "target": "backend",
+     "status": "NO_ROUTE",
+     "note": "path does not go through /api/admin (the BFF), so it hits Next, not the backend",
+     "file": "admin/src/components/PublicDirectory.tsx",
+     "line": 125,
+     "fn": "fetch",
+     "via": "PublicDirectory",
      "raw": false
     }
    ],
@@ -9100,7 +9964,7 @@
      "path": "/labs/services",
      "target": "backend",
      "status": "BAD_URL",
-     "backend": "backend/src/modules/labs/labs.controller.ts:12",
+     "backend": "backend/src/modules/labs/labs.controller.ts:13",
      "backendPath": "/labs/services",
      "note": "fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/labs/services\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty",
      "file": "admin/src/pages/lab-services/index.tsx",
@@ -9114,7 +9978,19 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/labs/labs.controller.ts",
-     "routeLine": 12,
+     "routeLine": 13,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": ":param/api/v1:param",
+     "target": "backend",
+     "status": "NO_ROUTE",
+     "note": "path does not go through /api/admin (the BFF), so it hits Next, not the backend",
+     "file": "admin/src/components/PublicDirectory.tsx",
+     "line": 125,
+     "fn": "fetch",
+     "via": "PublicDirectory",
      "raw": false
     }
    ],
@@ -9271,6 +10147,18 @@
      },
      "routeFile": "backend/src/modules/medicines/medicines.controller.ts",
      "routeLine": 15,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": ":param/api/v1:param",
+     "target": "backend",
+     "status": "NO_ROUTE",
+     "note": "path does not go through /api/admin (the BFF), so it hits Next, not the backend",
+     "file": "admin/src/components/PublicDirectory.tsx",
+     "line": 125,
+     "fn": "fetch",
+     "via": "PublicDirectory",
      "raw": false
     }
    ],

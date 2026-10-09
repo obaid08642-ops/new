@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
 import EmptyIcon from '../../components/EmptyIcon';
 import { dateLocale } from '../../utils/dates';
+import { DataTable } from '@/components/DataTable';
 
 /**
  * M5: insurance supervision (BR-2) + refunds queue (BR: الاسترداد).
@@ -113,30 +114,26 @@ export default function InsuranceQueuePage() {
               <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 text-slate-500">لا توجد طلبات تأمين {stateFilter && 'بهذه الحالة'}</div>
             ) : (
               <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-                <table className="w-full text-right text-sm">
-                  <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600">
-                      <th className="p-3">المريض</th><th className="p-3">الخدمة / القناة</th><th className="p-3">المزود</th>
-                      <th className="p-3">السعر</th><th className="p-3">copay</th><th className="p-3">الحالة</th><th className="p-3">التاريخ</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {requests.map((r) => {
+                <DataTable
+                  bare
+                  dense
+                  rows={requests}
+                  getRowKey={(r) => String(r.id)}
+                  onRowClick={(r) => setSelectedReq(r)}
+                  rowClassName={() => 'hover:bg-teal-50'}
+                  columns={[
+                    { key: 'patient', header: 'المريض', className: 'font-medium', render: (r) => r.patient_name || r.patient_id },
+                    { key: 'service', header: 'الخدمة / القناة', className: 'text-xs', render: (r) => <>{r.service_type || '—'} · {r.channel || '—'}</> },
+                    { key: 'provider', header: 'المزود', className: 'text-xs font-mono', render: (r) => String(r.provider_id || '').slice(0, 10) },
+                    { key: 'price', header: 'السعر', className: 'font-bold', render: (r) => `${r.price} ر.س` },
+                    { key: 'copay', header: 'copay', className: 'text-xs', render: (r) => (r.copay_amount ? `${r.copay_amount} ر.س (${r.copay_percent}%)` : '—') },
+                    { key: 'state', header: 'الحالة', render: (r) => {
                       const meta = STATE_AR[r.state] || { ar: r.state, cls: 'bg-slate-100 text-slate-600' };
-                      return (
-                        <tr key={r.id} className="hover:bg-teal-50 cursor-pointer" onClick={() => setSelectedReq(r)}>
-                          <td className="p-3 font-medium">{r.patient_name || r.patient_id}</td>
-                          <td className="p-3 text-xs">{r.service_type || '—'} · {r.channel || '—'}</td>
-                          <td className="p-3 text-xs font-mono">{String(r.provider_id || '').slice(0, 10)}</td>
-                          <td className="p-3 font-bold">{r.price} ر.س</td>
-                          <td className="p-3 text-xs">{r.copay_amount ? `${r.copay_amount} ر.س (${r.copay_percent}%)` : '—'}</td>
-                          <td className="p-3"><span className={`px-2 py-1 rounded-full text-xs font-bold ${meta.cls}`}>{meta.ar}</span></td>
-                          <td className="p-3 text-xs text-slate-500">{new Date(r.createdAt).toLocaleDateString(dateLocale())}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                      return <span className={`px-2 py-1 rounded-full text-xs font-bold ${meta.cls}`}>{meta.ar}</span>;
+                    } },
+                    { key: 'date', header: 'التاريخ', className: 'text-xs text-slate-500', render: (r) => new Date(r.createdAt).toLocaleDateString(dateLocale()) },
+                  ]}
+                />
               </div>
             )
           ) : (

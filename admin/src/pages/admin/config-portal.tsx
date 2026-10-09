@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
+import { DataTable } from '@/components/DataTable';
 
 export default function ConfigPortal() {
   const [activeTab, setActiveTab] = useState<'sla' | 'maintenance' | 'pricing' | 'apps' | 'urgent' | 'rxconsult'>('sla');
@@ -448,23 +449,22 @@ export default function ConfigPortal() {
                       {rxConsult.specialties.map((sp) => <option key={sp.slug} value={sp.slug}>{sp.name_ar}</option>)}
                     </select>
                   </label>
-                  <table className="w-full text-sm">
-                    <thead><tr className="text-right text-gray-500"><th className="py-2">الفئة</th><th>عدد الأدوية</th><th>التخصص</th></tr></thead>
-                    <tbody>
-                      {rxConsult.categories.map((c) => (
-                        <tr key={c.key} className="border-t">
-                          <td className="py-2">{c.key}</td>
-                          <td>{c.count}</td>
-                          <td>
-                            <select value={rxConsult.map[c.key] || ''} onChange={(e) => setRxConsult({ ...rxConsult, map: { ...rxConsult.map, [c.key]: e.target.value } })} className="border rounded p-1">
-                              <option value="">الافتراضي</option>
-                              {rxConsult.specialties.map((sp) => <option key={sp.slug} value={sp.slug}>{sp.name_ar}</option>)}
-                            </select>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <DataTable
+                    bare
+                    dense
+                    rows={rxConsult.categories}
+                    getRowKey={(c) => c.key}
+                    columns={[
+                      { key: 'key', header: 'الفئة', render: (c) => c.key },
+                      { key: 'count', header: 'عدد الأدوية', render: (c) => c.count },
+                      { key: 'spec', header: 'التخصص', render: (c) => (
+                        <select value={rxConsult.map[c.key] || ''} onChange={(e) => setRxConsult({ ...rxConsult, map: { ...rxConsult.map, [c.key]: e.target.value } })} className="border rounded p-1">
+                          <option value="">الافتراضي</option>
+                          {rxConsult.specialties.map((sp) => <option key={sp.slug} value={sp.slug}>{sp.name_ar}</option>)}
+                        </select>
+                      ) },
+                    ]}
+                  />
                   <button onClick={() => void saveRxConsult()} className="mt-4 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">حفظ الربط</button>
                   {rxConsultMsg && <p className="mt-2 text-sm font-bold">{rxConsultMsg}</p>}
                 </>

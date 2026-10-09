@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
+import { DataTable } from '@/components/DataTable';
 
 type Medicine = { id: string; name_ar?: string; name_en?: string; price?: number; availability_status?: string; medical_review_status?: string; is_deleted?: boolean };
 type PriceRow = { id: string; before_price: number | null; after_price: number; reason: string; changed_by: string; createdAt: string };
@@ -179,36 +180,22 @@ export default function CatalogGovernancePage() {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="min-w-full text-right text-sm">
-                  <thead>
-                    <tr className="border-b text-slate-500">
-                      <th className="p-3">رقم الطلب / العرض</th>
-                      <th className="p-3">رمز الصنف (SKU)</th>
-                      <th className="p-3">معرف الصيدلية</th>
-                      <th className="p-3">سعر الكتالوج</th>
-                      <th className="p-3">السعر المعدل</th>
-                      <th className="p-3">سبب التعديل</th>
-                      <th className="p-3">التاريخ</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {overrides.map((row, idx) => (
-                      <tr key={row.id || idx} className="border-b hover:bg-slate-50">
-                        <td className="p-3 font-mono text-xs text-slate-600">
-                          {row.order_id ? `#${row.order_id.slice(-6)}` : '—'} / {row.offer_id ? row.offer_id.slice(-6) : '—'}
-                        </td>
-                        <td className="p-3 font-bold text-slate-800">{row.sku}</td>
-                        <td className="p-3 font-mono text-xs text-slate-500">{row.pharmacy_account_id ? row.pharmacy_account_id.slice(-8) : '—'}</td>
-                        <td className="p-3 text-slate-500">{row.catalog_price ?? 0} ر.س</td>
-                        <td className="p-3 font-bold text-rose-700">{row.override_price ?? 0} ر.س</td>
-                        <td className="p-3 text-xs bg-slate-50 rounded p-1.5">{row.reason || 'بدون سبب'}</td>
-                        <td className="p-3 text-xs text-slate-400">
-                          {row.changed_at ? new Date(row.changed_at).toLocaleString('ar-SA-u-ca-gregory') : '—'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <DataTable
+                  bare
+                  dense
+                  rows={overrides.map((row, idx) => ({ row, idx }))}
+                  getRowKey={({ row, idx }) => String(row.id || idx)}
+                  rowClassName={() => 'hover:bg-slate-50'}
+                  columns={[
+                    { key: 'order', header: 'رقم الطلب / العرض', className: 'font-mono text-xs text-slate-600', render: ({ row }) => <>{row.order_id ? `#${row.order_id.slice(-6)}` : '—'} / {row.offer_id ? row.offer_id.slice(-6) : '—'}</> },
+                    { key: 'sku', header: 'رمز الصنف (SKU)', className: 'font-bold text-slate-800', render: ({ row }) => row.sku },
+                    { key: 'pharmacy', header: 'معرف الصيدلية', className: 'font-mono text-xs text-slate-500', render: ({ row }) => (row.pharmacy_account_id ? row.pharmacy_account_id.slice(-8) : '—') },
+                    { key: 'catalog', header: 'سعر الكتالوج', className: 'text-slate-500', render: ({ row }) => `${row.catalog_price ?? 0} ر.س` },
+                    { key: 'override', header: 'السعر المعدل', className: 'font-bold text-rose-700', render: ({ row }) => `${row.override_price ?? 0} ر.س` },
+                    { key: 'reason', header: 'سبب التعديل', className: 'text-xs', render: ({ row }) => row.reason || 'بدون سبب' },
+                    { key: 'date', header: 'التاريخ', className: 'text-xs text-slate-400', render: ({ row }) => (row.changed_at ? new Date(row.changed_at).toLocaleString('ar-SA-u-ca-gregory') : '—') },
+                  ]}
+                />
               </div>
             )}
           </article>
@@ -248,46 +235,31 @@ export default function CatalogGovernancePage() {
                 <article className="rounded-2xl border bg-white p-5 shadow-sm xl:col-span-2">
                   <h2 className="text-xl font-bold mb-4">الأصناف والأسعار</h2>
                   <div className="overflow-x-auto">
-                    <table className="min-w-full text-right text-sm">
-                      <thead>
-                        <tr className="border-b text-slate-500">
-                          <th className="p-2">الصنف</th>
-                          <th className="p-2">السعر</th>
-                          <th className="p-2">الحالة</th>
-                          <th className="p-2">الإجراء</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {items.length ? (
-                          items.map((item) => (
-                            <tr key={item.id} className="border-b hover:bg-slate-50">
-                              <td className="p-2">
-                                <strong>{item.name_ar || item.name_en}</strong>
-                                <span className="block text-xs text-slate-400 font-mono">{item.id}</span>
-                              </td>
-                              <td className="p-2 font-bold">{item.price ?? 0} ر.س</td>
-                              <td className="p-2 text-xs">
-                                {item.availability_status || 'none'} · {item.medical_review_status || '—'}
-                              </td>
-                              <td className="p-2">
-                                <button
-                                  onClick={() => void openHistory(item)}
-                                  className="rounded border border-slate-300 hover:bg-slate-100 px-3 py-1 text-xs font-medium"
-                                >
-                                  السعر والتاريخ
-                                </button>
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={4} className="p-8 text-center text-slate-500">
-                              لا توجد أصناف مطابقة.
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
+                    <DataTable
+                      bare
+                      rows={items}
+                      getRowKey={(item) => String(item.id)}
+                      emptyText="لا توجد أصناف مطابقة."
+                      rowClassName={() => 'hover:bg-slate-50'}
+                      columns={[
+                        { key: 'name', header: 'الصنف', render: (item) => (
+                          <>
+                            <strong>{item.name_ar || item.name_en}</strong>
+                            <span className="block text-xs text-slate-400 font-mono">{item.id}</span>
+                          </>
+                        ) },
+                        { key: 'price', header: 'السعر', className: 'font-bold', render: (item) => `${item.price ?? 0} ر.س` },
+                        { key: 'state', header: 'الحالة', className: 'text-xs', render: (item) => `${item.availability_status || 'none'} · ${item.medical_review_status || '—'}` },
+                        { key: 'actions', header: 'الإجراء', actions: true, render: (item) => (
+                          <button
+                            onClick={() => void openHistory(item)}
+                            className="rounded border border-slate-300 hover:bg-slate-100 px-3 py-1 text-xs font-medium"
+                          >
+                            السعر والتاريخ
+                          </button>
+                        ) },
+                      ]}
+                    />
                   </div>
                 </article>
 

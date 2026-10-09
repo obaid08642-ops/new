@@ -15,7 +15,7 @@
     "screen": "/admin/config-portal",
     "element": "Trigger System Kill-Switch (معطّل — يتطلب إعداد الخادم)",
     "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 344,
+    "line": 345,
     "found": "[client] Button is disabled with no handler.",
     "suspect": "Client-side: later batch."
   },
@@ -65,7 +65,7 @@
     "screen": "/admin/scheduled-reports",
     "element": "Guard G-PERM-MISMATCH (1)",
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 15,
+    "line": 16,
     "found": "[backend] 1 call(s): Page requires \"reports.schedule.manage\" but POST /admin/scheduled-reports/:param/run requires ops.crons.run; an admin role with the page permission only gets a  (backend: backend/src/modules/admin/enterprise/admin-analytics.controller.ts:182)",
     "suspect": "Backend gap: reviewer session."
   },
@@ -85,7 +85,7 @@
     "screen": "/admin/system-ops",
     "element": "تعديل راية مفعلة نسبة rollout حفظ وتدقيق",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 19,
+    "line": 54,
     "found": "[client] Sensitive action (POST /api/admin/admin/governance-controls/feature-flags) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "suspect": "Client-side: later batch."
   },
@@ -95,49 +95,19 @@
     "screen": "/admin/system-ops",
     "element": "Guard G-PERM-MISMATCH (2)",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 12,
+    "line": 13,
     "found": "[backend] 2 call(s): Page requires \"ops.queues.manage\" but GET /admin/ops/translations requires translations.edit; an admin role with the page permission only gets a 403 on this cal (backend: backend/src/modules/admin/enterprise/admin-ops.controller.ts:102)",
     "suspect": "Backend gap: reviewer session."
   },
   {
     "batch": "admin",
     "app": "admin",
-    "screen": "/admin/theme-control",
-    "element": "fake delay",
-    "file": "admin/src/pages/admin/theme-control.tsx",
-    "line": 47,
-    "found": "[client] setTimeout stands in for a request and reports success.",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/theme-control",
-    "element": "API POST /api/admin/theme",
-    "file": "admin/src/pages/admin/theme-control.tsx",
-    "line": 41,
-    "found": "[backend] Endpoint is NO_ROUTE (no controller declares /theme): the call fails or hits nothing.",
+    "screen": "/admin/system-ops",
+    "element": "Feature switch effect",
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 54,
+    "found": "[backend] The switch writes and audits (reason required), but backend code reads only `sms_enabled` (sms.service.ts) and ConfigService hands the flags to clients; there is no per-module list and no kill-switch UI/route. Flipping any other flag changes nothing until a module checks it. (backend: backend/src/modules/sms/sms.service.ts:28)",
     "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/theme-control",
-    "element": "Guard G-RAW-WRITE (1)",
-    "file": "admin/src/pages/admin/theme-control.tsx",
-    "line": 41,
-    "found": "[backend] 1 call(s): POST /api/admin/theme uses raw fetch() instead of adminFetch/adminMutation, so no x-admin-csrf header is sent and the BFF will answer 403 csrf_validation_failed",
-    "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/theme-control",
-    "element": "No nav link",
-    "file": "admin/src/pages/admin/theme-control.tsx",
-    "line": 1,
-    "found": "[client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-    "suspect": "Client-side: later batch."
   },
   {
     "batch": "admin",

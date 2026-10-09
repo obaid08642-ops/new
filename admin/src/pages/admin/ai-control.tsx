@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../../utils/api';
+import { DataTable, type LooseRow } from '@/components/DataTable';
 
 const PROVIDER_META: Record<string, { label: string; color: string }> = {
   gemini: { label: 'Google Gemini', color: '#4285F4' },
@@ -146,32 +147,22 @@ export default function AiControlPage() {
         {usage.length === 0 ? (
           <div className="p-8 text-center text-gray-400">لا استخدام بعد في هذه الفترة</div>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="p-3 text-right">المزود</th>
-                <th className="p-3 text-right">النموذج</th>
-                <th className="p-3 text-right">الميزة</th>
-                <th className="p-3 text-right">النداءات</th>
-                <th className="p-3 text-right">الفشل</th>
-                <th className="p-3 text-right">Fallbacks</th>
-                <th className="p-3 text-right">الزمن</th>
-              </tr>
-            </thead>
-            <tbody>
-              {usage.map((u: any, i: number) => (
-                <tr key={i} className="border-t hover:bg-gray-50">
-                  <td className="p-3 font-bold">{u._id.provider}</td>
-                  <td className="p-3 text-xs" dir="ltr">{u._id.model}</td>
-                  <td className="p-3">{u._id.feature}</td>
-                  <td className="p-3">{u.calls}</td>
-                  <td className={`p-3 ${u.failures > 0 ? 'text-red-600 font-bold' : 'text-green-600'}`}>{u.failures}</td>
-                  <td className="p-3 text-purple-600 font-bold">{u.fallbacks || 0}</td>
-                  <td className="p-3">{Math.round(u.avg_ms)}ms</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+            bare
+            dense
+            rows={usage.map((u: LooseRow, i: number) => ({ u, i })) as { u: LooseRow; i: number }[]}
+            getRowKey={({ i }) => String(i)}
+            rowClassName={() => 'hover:bg-gray-50'}
+            columns={[
+              { key: 'provider', header: 'المزود', className: 'font-bold', render: ({ u }) => u._id.provider },
+              { key: 'model', header: 'النموذج', className: 'text-xs', render: ({ u }) => <span dir="ltr">{u._id.model}</span> },
+              { key: 'feature', header: 'الميزة', render: ({ u }) => u._id.feature },
+              { key: 'calls', header: 'النداءات', render: ({ u }) => u.calls },
+              { key: 'fail', header: 'الفشل', render: ({ u }) => <span className={u.failures > 0 ? 'text-red-600 font-bold' : 'text-green-600'}>{u.failures}</span> },
+              { key: 'fallbacks', header: 'Fallbacks', className: 'text-purple-600 font-bold', render: ({ u }) => u.fallbacks || 0 },
+              { key: 'ms', header: 'الزمن', render: ({ u }) => `${Math.round(u.avg_ms)}ms` },
+            ]}
+          />
         )}
       </div>
     </div>

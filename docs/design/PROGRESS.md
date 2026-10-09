@@ -10,7 +10,6 @@ _Updated 2026-10-06._
 | Item | State |
 |---|---|
 | Foundation, Batch 0 (+ fixes), Batches 1-3 (#293, #313, #318), Needs-review file:line rule (#502), F82-1/2, F68, #303 | Merged |
-| Batch 3 labs/radiology [#318](https://github.com/obaid08642-ops/new/pull/318) (+ client fixes [#347](https://github.com/obaid08642-ops/new/pull/347)), Batch 4 nursing [#350](https://github.com/obaid08642-ops/new/pull/350) (stacked on #318), Batch 2 client fixes [#319](https://github.com/obaid08642-ops/new/pull/319) | Open; reviewer's runtime-contrast and preview fixes pushed |
 | F82-3 static/ISR [#308](https://github.com/obaid08642-ops/new/pull/308) | Open; main merged in (one `session-identity`), `runtime-contrast` job starts the nonce server |
 | Merge map 1 (health, family, settings, AI, mental health) | **Approved and merged** (#345); answers in `MERGE_MAP.md` §7 |
 | Merge map 2, all sections (decision 27) [#359](https://github.com/obaid08642-ops/new/pull/359) | Proposed; merges of Batches 1-4 screens go in one "Batch 14" PR after they merge |
@@ -32,8 +31,6 @@ Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = we
 ## Next
 
 1. **Batch 7 insurance** (hub + request page, map 2 §6), then 8, 9, 10-13 in order, each in the batch that owns the screens.
-2. **After the patient batches - owner plan 2026-10-08:** (a) patient journey audit (#733); (b) provider app: inventory + merge map sent to the owner BEFORE building (pharmacy has 3 screens; ambulance role goes, D14); (c) admin: desktop full; mobile = daily essentials incl. medicine catalogue (search name/ingredient/barcode, quick edit, items-to-review queue, confirm price/requires_prescription/controlled changes, change log); flag public directory pages. Full text: `PROGRESS_ARCHIVE.md`.
-2. **Owner decisions 24-27** (`OWNER_DECISIONS_2026-10-06.md`): UI parts in the owning batch (map 2 §9): doctor thread only inside a booking (`/chat` list removed), no cash option for online services, cash on delivery only when the server allows it, cancel/refund text from the server. Pharmacy badges and "استشر طبيب" wait for the reviewer's backend part.
 3. Keep `EXPO_PUBLIC_CONSULT_NEARBY_FILTERS` off until Q-12/Q-13 are live.
 
 ## Process
@@ -46,7 +43,6 @@ Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = we
 | 1-4 pharmacy, consultations, labs, nursing | see `PROGRESS_ARCHIVE.md` | | |
 | 9 AI assistant | app 2, web 2 (absorbing ~8 / ~9 old routes) | 231k / 241k | `ai/AssistantKit`, `components-next/assistant` |
 | 8 care (maternity, nutrition, mental health, programs) | app 9, web 9 | 250k / 356k (**~28k / ~40k per screen**; web agent ~500k reported) | `care/` kits (app and web) |
-| 6 family (merge map) | app 5, web 5 (absorbing ~11 / ~6 old routes) | 323k / 335k (**~65k / ~67k per new screen**, over 40k: five old inline-styled screens read in full, a chat template built, no seeded family data, translations redone after the parity gate) | `family/` kit (app), `components-next/family` (web), 151 + 102 keys |
 | 5 health + records (merge map) | app 8, web 9 (absorbing ~26 / ~24 old routes) | 473k / 435k (**~50k / ~45k per new screen**, over 40k: each absorbs 3-6 old screens and the app migrated 104 medication words) | `HealthKit`, `components-next/health`, 330 + 134 keys |
 
 ## Open blockers (details in `PROGRESS_ARCHIVE.md` and the Needs-review JSON)
@@ -62,3 +58,4 @@ Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = we
 - **Fetal-week images (owner D):** converted to WebP in `cdn-source/`; upload to the CDN and the week endpoint are pending (archive).
 - **Owner questions open:** intro/language/permissions screens before Welcome? Which roles may hold a patient session? Chat entry points with no order; compare picker; camera barcode on web; where the insurance choice belongs; native review of ur/hi/bn/tl wording.
 - **Admin audit (design/admin-audit, read-only):** 65 pages, 338 calls (3 NO_ROUTE, 9 WRONG_METHOD), 102+20 Needs-review lines, `ADMIN_MOBILE_ESSENTIALS.md`. ~250k tokens.
+- **Admin build (#1204) / provider build (#1205), 2026-10-08:** 44 tables on DataTable + /admin/today, /admin/approvals, catalogue quick edit/scan/confirm (~400k); pharmacy, merges, missing screens, ambulance removal, M9 wizard (~1.05M). Gaps in needs-review. Owner plan and decisions 24-27: `PROGRESS_ARCHIVE.md`.

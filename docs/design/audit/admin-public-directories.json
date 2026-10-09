@@ -118,7 +118,7 @@
     ],
     [
      "API: GET /home-care/services",
-     "GET /home-care/services (BAD_URL, backend/src/modules/home-care/home-care-compat.module.ts:47)",
+     "GET /home-care/services (BAD_URL, backend/src/modules/home-care/home-care-compat.module.ts:48)",
      "broken"
     ]
    ]
@@ -281,7 +281,7 @@
    "note": "fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/home-care/services\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty",
    "file": "admin/src/pages/home-care-services/index.tsx",
    "line": 20,
-   "backend": "backend/src/modules/home-care/home-care-compat.module.ts:47"
+   "backend": "backend/src/modules/home-care/home-care-compat.module.ts:48"
   },
   {
    "route": "/home-care-services",

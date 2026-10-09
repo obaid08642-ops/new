@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../../utils/api';
+import { DataTable, type LooseRow } from '@/components/DataTable';
 
 const SECTIONS = [
-  { key: 'top-searched', title: 'أكثر الأدوية بحثاً', cols: ['البحث', 'المرات', 'متوسط النتائج'], map: (x: any) => [x.term, x.searches, x.avg_results] },
-  { key: 'top-medicines', title: 'أكثر الأدوية طلباً', cols: ['الدواء', 'الطلبات', 'الكمية', 'الإيراد'], map: (x: any) => [x.medicine, x.orders, x.qty, `${x.revenue} ر.س`] },
-  { key: 'top-doctors', title: 'أكثر الأطباء مواعيداً', cols: ['الطبيب', 'المواعيد', 'المكتملة'], map: (x: any) => [x.doctor, x.appointments, x.completed] },
-  { key: 'top-pharmacies', title: 'أكثر الصيدليات', cols: ['الصيدلية', 'الطلبات', 'الإيراد'], map: (x: any) => [x.pharmacy, x.orders, `${x.revenue} ر.س`] },
-  { key: 'top-services', title: 'أكثر الخدمات استخداماً', cols: ['الخدمة', 'العدد'], map: (x: any) => [x.service, x.count] },
+  { key: 'top-searched', title: 'أكثر الأدوية بحثاً', cols: ['البحث', 'المرات', 'متوسط النتائج'], map: (x: LooseRow) => [x.term, x.searches, x.avg_results] },
+  { key: 'top-medicines', title: 'أكثر الأدوية طلباً', cols: ['الدواء', 'الطلبات', 'الكمية', 'الإيراد'], map: (x: LooseRow) => [x.medicine, x.orders, x.qty, `${x.revenue} ر.س`] },
+  { key: 'top-doctors', title: 'أكثر الأطباء مواعيداً', cols: ['الطبيب', 'المواعيد', 'المكتملة'], map: (x: LooseRow) => [x.doctor, x.appointments, x.completed] },
+  { key: 'top-pharmacies', title: 'أكثر الصيدليات', cols: ['الصيدلية', 'الطلبات', 'الإيراد'], map: (x: LooseRow) => [x.pharmacy, x.orders, `${x.revenue} ر.س`] },
+  { key: 'top-services', title: 'أكثر الخدمات استخداماً', cols: ['الخدمة', 'العدد'], map: (x: LooseRow) => [x.service, x.count] },
 ];
 
 export default function AnalyticsPage() {
@@ -74,18 +75,18 @@ export default function AnalyticsPage() {
         ) : rows.length === 0 ? (
           <div className="p-8 text-center text-gray-400">لا بيانات بعد — تتراكم مع الاستخدام الفعلي</div>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50">
-              <tr>{active.cols.map(c => <th key={c} className="p-3 text-right">{c}</th>)}</tr>
-            </thead>
-            <tbody>
-              {rows.map((x: any, i: number) => (
-                <tr key={i} className="border-t hover:bg-gray-50">
-                  {active.map(x).map((v: any, j: number) => <td key={j} className="p-3">{v ?? '—'}</td>)}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+            bare
+            dense
+            rows={rows.map((x: LooseRow, i: number) => ({ i, cells: active.map(x) as React.ReactNode[] }))}
+            getRowKey={(r) => String(r.i)}
+            rowClassName={() => 'hover:bg-gray-50'}
+            columns={active.cols.map((c: string, j: number) => ({
+              key: `c${j}`,
+              header: c,
+              render: (r: { cells: React.ReactNode[] }) => r.cells[j] ?? '—',
+            }))}
+          />
         )}
       </div>
     </div>

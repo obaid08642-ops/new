@@ -1,5 +1,5 @@
 {
- "commit": "52ac7e95",
+ "commit": "4d2be0ba",
  "routes": [
   {
    "app": "patient-app",
@@ -167,7 +167,7 @@
      "path": "/ai/ocr-translate",
      "target": "backend",
      "query": "",
-     "line": 148,
+     "line": 149,
      "file": "patient-app/src/components/ai/AssistantView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/ai/ai.controller.ts:123"
@@ -177,13 +177,13 @@
      "path": "/ai/triage",
      "target": "backend",
      "query": "",
-     "line": 79,
+     "line": 80,
      "file": "patient-app/src/components/ai/AssistantView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/ai/ai.controller.ts:65"
     }
    ],
-   "files": 33,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -230,7 +230,7 @@
      "line": 31,
      "file": "patient-app/src/components/ai/MonthlyReportView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:20"
+     "backend": "backend/src/modules/care/appointments.controller.ts:21"
     },
     {
      "method": "GET",
@@ -263,7 +263,7 @@
      "backend": "backend/src/modules/health/health.controller.ts:33"
     }
    ],
-   "files": 35,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -506,7 +506,7 @@
      "line": 182,
      "file": "patient-app/app/(tabs)/consultations/index.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:695"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:696"
     },
     {
      "method": "GET",
@@ -550,7 +550,7 @@
      "line": 68,
      "file": "patient-app/app/consultations/appointment-detail.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:25"
+     "backend": "backend/src/modules/care/appointments.controller.ts:26"
     },
     {
      "method": "GET",
@@ -560,14 +560,14 @@
      "line": 125,
      "file": "patient-app/src/components/consult/AppointmentSections.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:76"
+     "backend": "backend/src/modules/care/appointments.controller.ts:77"
     },
     {
      "method": "POST",
      "path": "/health/reminders",
      "target": "backend",
      "query": "",
-     "line": 180,
+     "line": 181,
      "file": "patient-app/src/components/consult/AppointmentSections.tsx",
      "status": "OK",
      "backend": "backend/src/modules/health/health.controller.ts:61"
@@ -580,14 +580,14 @@
      "line": 96,
      "file": "patient-app/app/consultations/appointment-detail.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:719"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:720"
     },
     {
      "method": "GET",
      "path": "/prescriptions/active",
      "target": "backend",
      "query": "",
-     "line": 173,
+     "line": 174,
      "file": "patient-app/src/components/consult/AppointmentSections.tsx",
      "status": "OK",
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:57"
@@ -697,7 +697,7 @@
      "line": 123,
      "file": "patient-app/src/components/BookingConfirmForm.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:15"
+     "backend": "backend/src/modules/care/appointments.controller.ts:16"
     },
     {
      "method": "GET",
@@ -707,7 +707,7 @@
      "line": 103,
      "file": "patient-app/app/consultations/booking-status.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:25"
+     "backend": "backend/src/modules/care/appointments.controller.ts:26"
     },
     {
      "method": "PATCH",
@@ -717,7 +717,7 @@
      "line": 135,
      "file": "patient-app/app/consultations/booking-status.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:35"
+     "backend": "backend/src/modules/care/appointments.controller.ts:36"
     },
     {
      "method": "GET",
@@ -801,7 +801,7 @@
      "path": "/calls/history",
      "target": "backend",
      "query": "?page=:param&limit=20",
-     "line": 64,
+     "line": 62,
      "file": "patient-app/app/consultations/call-history.tsx",
      "status": "OK",
      "backend": "backend/src/modules/livekit/livekit.controller.ts:79"
@@ -828,7 +828,7 @@
      "line": 77,
      "file": "patient-app/app/consultations/cancel-reschedule.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:25"
+     "backend": "backend/src/modules/care/appointments.controller.ts:26"
     },
     {
      "method": "PATCH",
@@ -838,7 +838,7 @@
      "line": 160,
      "file": "patient-app/app/consultations/cancel-reschedule.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:35"
+     "backend": "backend/src/modules/care/appointments.controller.ts:36"
     },
     {
      "method": "PATCH",
@@ -848,7 +848,7 @@
      "line": 166,
      "file": "patient-app/app/consultations/cancel-reschedule.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:40"
+     "backend": "backend/src/modules/care/appointments.controller.ts:41"
     },
     {
      "method": "GET",
@@ -892,7 +892,7 @@
      "line": 114,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:25"
+     "backend": "backend/src/modules/care/appointments.controller.ts:26"
     },
     {
      "method": "GET",
@@ -912,7 +912,7 @@
      "line": 130,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:173"
+     "backend": "backend/src/modules/chat/chat.module.ts:174"
     },
     {
      "method": "POST",
@@ -922,7 +922,7 @@
      "line": 192,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:184"
+     "backend": "backend/src/modules/chat/chat.module.ts:185"
     },
     {
      "method": "POST",
@@ -932,7 +932,7 @@
      "line": 122,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:163"
+     "backend": "backend/src/modules/chat/chat.module.ts:164"
     },
     {
      "method": "GET",
@@ -942,7 +942,7 @@
      "line": 267,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/media/media.controller.ts:74"
+     "backend": "backend/src/modules/media/media.controller.ts:75"
     },
     {
      "method": "POST",
@@ -952,7 +952,7 @@
      "line": 248,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/media/media.controller.ts:21"
+     "backend": "backend/src/modules/media/media.controller.ts:22"
     }
    ],
    "files": 31,
@@ -1109,7 +1109,7 @@
      "line": 49,
      "file": "patient-app/app/consultations/home-visit-tracking.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:25"
+     "backend": "backend/src/modules/care/appointments.controller.ts:26"
     }
    ],
    "files": 31,
@@ -1342,7 +1342,7 @@
      "line": 49,
      "file": "patient-app/app/consultations/virtual-waiting-room.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:25"
+     "backend": "backend/src/modules/care/appointments.controller.ts:26"
     },
     {
      "method": "GET",
@@ -1399,27 +1399,27 @@
      "path": "/labs/packages",
      "target": "backend",
      "query": "",
-     "line": 96,
+     "line": 98,
      "file": "patient-app/app/(tabs)/diagnostics.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:32"
+     "backend": "backend/src/modules/labs/labs.controller.ts:33"
     },
     {
      "method": "GET",
      "path": "/labs/services",
      "target": "backend",
      "query": "",
-     "line": 97,
+     "line": 99,
      "file": "patient-app/app/(tabs)/diagnostics.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:12"
+     "backend": "backend/src/modules/labs/labs.controller.ts:13"
     },
     {
      "method": "GET",
      "path": "/providers",
      "target": "backend",
      "query": "?type=lab",
-     "line": 99,
+     "line": 101,
      "file": "patient-app/app/(tabs)/diagnostics.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/providers.controller.ts:22"
@@ -1429,10 +1429,10 @@
      "path": "/radiology/services",
      "target": "backend",
      "query": "",
-     "line": 98,
+     "line": 100,
      "file": "patient-app/app/(tabs)/diagnostics.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:13"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:14"
     },
     {
      "method": "GET",
@@ -1505,7 +1505,7 @@
      "line": 32,
      "file": "patient-app/app/diagnostics/cart.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:227"
+     "backend": "backend/src/modules/labs/labs.controller.ts:233"
     },
     {
      "method": "GET",
@@ -1515,7 +1515,7 @@
      "line": 33,
      "file": "patient-app/app/diagnostics/cart.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:35"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:36"
     }
    ],
    "files": 36,
@@ -1539,7 +1539,7 @@
      "line": 87,
      "file": "patient-app/app/diagnostics/checkout.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:42"
+     "backend": "backend/src/modules/labs/labs.controller.ts:43"
     },
     {
      "method": "POST",
@@ -1559,7 +1559,7 @@
      "line": 100,
      "file": "patient-app/app/diagnostics/checkout.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:45"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:46"
     }
    ],
    "files": 33,
@@ -1593,7 +1593,7 @@
      "line": 65,
      "file": "patient-app/src/components/diagnostics/InsuranceUploadForm.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:695"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:696"
     },
     {
      "method": "GET",
@@ -1613,17 +1613,17 @@
      "line": 185,
      "file": "patient-app/src/components/diagnostics/InsuranceUploadForm.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:42"
+     "backend": "backend/src/modules/labs/labs.controller.ts:43"
     },
     {
      "method": "GET",
      "path": "/labs/bookings/:param",
      "target": "backend",
      "query": "",
-     "line": 65,
+     "line": 64,
      "file": "patient-app/app/diagnostics/insurance-approval.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:48"
+     "backend": "backend/src/modules/labs/labs.controller.ts:49"
     },
     {
      "method": "POST",
@@ -1633,17 +1633,17 @@
      "line": 214,
      "file": "patient-app/src/components/diagnostics/InsuranceUploadForm.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:62"
+     "backend": "backend/src/modules/labs/labs.controller.ts:63"
     },
     {
      "method": "PATCH",
      "path": "/labs/bookings/:param/items/:param/opt-in-cash",
      "target": "backend",
      "query": "",
-     "line": 117,
+     "line": 116,
      "file": "patient-app/app/diagnostics/insurance-approval.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:74"
+     "backend": "backend/src/modules/labs/labs.controller.ts:75"
     },
     {
      "method": "GET",
@@ -1663,7 +1663,7 @@
      "line": 198,
      "file": "patient-app/src/components/diagnostics/InsuranceUploadForm.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:45"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:46"
     },
     {
      "method": "GET",
@@ -1710,7 +1710,7 @@
      "line": 36,
      "file": "patient-app/app/diagnostics/lab-comparison.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:227"
+     "backend": "backend/src/modules/labs/labs.controller.ts:233"
     },
     {
      "method": "GET",
@@ -1720,7 +1720,7 @@
      "line": 36,
      "file": "patient-app/app/diagnostics/lab-comparison.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:38"
+     "backend": "backend/src/modules/labs/labs.controller.ts:39"
     }
    ],
    "files": 34,
@@ -1744,7 +1744,7 @@
      "line": 30,
      "file": "patient-app/app/diagnostics/lab/[id].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:12"
+     "backend": "backend/src/modules/labs/labs.controller.ts:13"
     },
     {
      "method": "GET",
@@ -1778,7 +1778,7 @@
      "line": 62,
      "file": "patient-app/app/diagnostics/my-results.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:45"
+     "backend": "backend/src/modules/labs/labs.controller.ts:46"
     },
     {
      "method": "GET",
@@ -1788,7 +1788,7 @@
      "line": 62,
      "file": "patient-app/app/diagnostics/my-results.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:70"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:71"
     }
    ],
    "files": 35,
@@ -1812,7 +1812,7 @@
      "line": 69,
      "file": "patient-app/app/diagnostics/order/[id].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:48"
+     "backend": "backend/src/modules/labs/labs.controller.ts:49"
     },
     {
      "method": "POST",
@@ -1822,7 +1822,7 @@
      "line": 95,
      "file": "patient-app/app/diagnostics/order/[id].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:52"
+     "backend": "backend/src/modules/labs/labs.controller.ts:53"
     },
     {
      "method": "GET",
@@ -1832,7 +1832,7 @@
      "line": 63,
      "file": "patient-app/app/diagnostics/order/[id].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:51"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:52"
     },
     {
      "method": "POST",
@@ -1842,7 +1842,7 @@
      "line": 95,
      "file": "patient-app/app/diagnostics/order/[id].tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:55"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:56"
     }
    ],
    "files": 37,
@@ -1879,7 +1879,7 @@
      "line": 29,
      "file": "patient-app/app/diagnostics/package-detail.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:222"
+     "backend": "backend/src/modules/labs/labs.controller.ts:228"
     }
    ],
    "files": 34,
@@ -1903,7 +1903,7 @@
      "line": 32,
      "file": "patient-app/app/diagnostics/packages.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:35"
+     "backend": "backend/src/modules/labs/labs.controller.ts:36"
     },
     {
      "method": "GET",
@@ -1913,7 +1913,7 @@
      "line": 32,
      "file": "patient-app/app/diagnostics/packages.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:32"
+     "backend": "backend/src/modules/labs/labs.controller.ts:33"
     }
    ],
    "files": 34,
@@ -1950,7 +1950,7 @@
      "line": 33,
      "file": "patient-app/app/diagnostics/sample-tracking.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:48"
+     "backend": "backend/src/modules/labs/labs.controller.ts:49"
     },
     {
      "method": "GET",
@@ -1960,7 +1960,7 @@
      "line": 33,
      "file": "patient-app/app/diagnostics/sample-tracking.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:116"
+     "backend": "backend/src/modules/labs/labs.controller.ts:117"
     }
    ],
    "files": 35,
@@ -1984,7 +1984,7 @@
      "line": 23,
      "file": "patient-app/app/diagnostics/search.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:12"
+     "backend": "backend/src/modules/labs/labs.controller.ts:13"
     }
    ],
    "files": 33,
@@ -2021,7 +2021,7 @@
      "line": 32,
      "file": "patient-app/app/diagnostics/test-detail.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:38"
+     "backend": "backend/src/modules/labs/labs.controller.ts:39"
     },
     {
      "method": "GET",
@@ -2031,7 +2031,7 @@
      "line": 32,
      "file": "patient-app/app/diagnostics/test-detail.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:41"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:42"
     }
    ],
    "files": 34,
@@ -2263,7 +2263,7 @@
      "backend": "backend/src/modules/family/family.controller.ts:126"
     }
    ],
-   "files": 34,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -2297,7 +2297,7 @@
      "backend": "backend/src/modules/family/family.controller.ts:39"
     }
    ],
-   "files": 33,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -2351,7 +2351,7 @@
      "backend": "backend/src/modules/family/family.controller.ts:84"
     }
    ],
-   "files": 37,
+   "files": 38,
    "unresolved": 0
   },
   {
@@ -2518,7 +2518,7 @@
      "backend": "backend/src/modules/family/family.controller.ts:74"
     }
    ],
-   "files": 36,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -2648,7 +2648,7 @@
      "backend": "backend/src/modules/home/home.controller.ts:15"
     }
    ],
-   "files": 31,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -2924,7 +2924,7 @@
      "backend": "backend/src/modules/health/health.controller.ts:68"
     }
    ],
-   "files": 40,
+   "files": 41,
    "unresolved": 0
   },
   {
@@ -3008,7 +3008,7 @@
      "line": 86,
      "file": "patient-app/src/components/health/ProfileView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/media/media.controller.ts:21"
+     "backend": "backend/src/modules/media/media.controller.ts:22"
     },
     {
      "method": "GET",
@@ -3071,7 +3071,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:39"
     }
    ],
-   "files": 35,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -3125,7 +3125,7 @@
      "backend": "backend/src/modules/medical-reports/medical-reports.controller.ts:17"
     }
    ],
-   "files": 33,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -3198,7 +3198,7 @@
      "backend": "backend/src/modules/health/health.controller.ts:91"
     }
    ],
-   "files": 34,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -3304,7 +3304,7 @@
      "backend": "backend/src/modules/health/health.controller.ts:33"
     }
    ],
-   "files": 34,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -3361,7 +3361,7 @@
      "backend": "backend/src/modules/health/wearables-compat.controller.ts:23"
     }
    ],
-   "files": 34,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -3382,7 +3382,7 @@
      "line": 32,
      "file": "patient-app/src/components/insurance/InsuranceHubTabs.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:712"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:713"
     },
     {
      "method": "GET",
@@ -3402,7 +3402,7 @@
      "line": 189,
      "file": "patient-app/src/components/insurance/InsuranceHubView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:695"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:696"
     },
     {
      "method": "GET",
@@ -3422,7 +3422,7 @@
      "line": 73,
      "file": "patient-app/src/components/insurance/InsuranceHubView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:719"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:720"
     },
     {
      "method": "POST",
@@ -3432,7 +3432,7 @@
      "line": 108,
      "file": "patient-app/src/components/insurance/ChiLookup.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:697"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:698"
     },
     {
      "method": "GET",
@@ -3452,7 +3452,7 @@
      "line": 146,
      "file": "patient-app/src/components/insurance/InsuranceHubTabs.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:869"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:870"
     },
     {
      "method": "GET",
@@ -3485,7 +3485,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:34"
     }
    ],
-   "files": 40,
+   "files": 41,
    "unresolved": 0
   },
   {
@@ -3506,7 +3506,7 @@
      "line": 36,
      "file": "patient-app/app/insurance/add-policy.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:695"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:696"
     },
     {
      "method": "POST",
@@ -3526,7 +3526,7 @@
      "line": 87,
      "file": "patient-app/app/insurance/add-policy.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:697"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:698"
     }
    ],
    "files": 30,
@@ -3576,7 +3576,7 @@
      "line": 36,
      "file": "patient-app/app/insurance/copay.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:719"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:720"
     },
     {
      "method": "POST",
@@ -3610,7 +3610,7 @@
      "line": 56,
      "file": "patient-app/app/insurance/coverage-check.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:700"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:701"
     }
    ],
    "files": 29,
@@ -3686,7 +3686,7 @@
      "line": 114,
      "file": "patient-app/src/components/insurance/InsuranceRequestView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:25"
+     "backend": "backend/src/modules/care/appointments.controller.ts:26"
     },
     {
      "method": "GET",
@@ -3696,7 +3696,7 @@
      "line": 77,
      "file": "patient-app/src/components/insurance/InsuranceRequestView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:720"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:721"
     },
     {
      "method": "POST",
@@ -3706,7 +3706,7 @@
      "line": 134,
      "file": "patient-app/src/components/insurance/InsuranceRequestView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:724"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:725"
     },
     {
      "method": "GET",
@@ -3716,7 +3716,7 @@
      "line": 101,
      "file": "patient-app/src/components/insurance/InsuranceRequestView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:725"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:726"
     },
     {
      "method": "GET",
@@ -3726,7 +3726,7 @@
      "line": 101,
      "file": "patient-app/src/components/insurance/InsuranceRequestView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:726"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:727"
     },
     {
      "method": "GET",
@@ -3736,7 +3736,7 @@
      "line": 68,
      "file": "patient-app/src/components/insurance/InsuranceRequestView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:719"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:720"
     },
     {
      "method": "POST",
@@ -3780,7 +3780,7 @@
      "line": 38,
      "file": "patient-app/app/insurance/submit-claim.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:20"
+     "backend": "backend/src/modules/care/appointments.controller.ts:21"
     },
     {
      "method": "GET",
@@ -3810,7 +3810,7 @@
      "line": 41,
      "file": "patient-app/app/insurance/submit-claim.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:45"
+     "backend": "backend/src/modules/labs/labs.controller.ts:46"
     },
     {
      "method": "POST",
@@ -3820,7 +3820,7 @@
      "line": 71,
      "file": "patient-app/app/insurance/submit-claim.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/media/media.controller.ts:21"
+     "backend": "backend/src/modules/media/media.controller.ts:22"
     },
     {
      "method": "GET",
@@ -3850,7 +3850,7 @@
      "line": 42,
      "file": "patient-app/app/insurance/submit-claim.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:48"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:49"
     }
    ],
    "files": 30,
@@ -4017,7 +4017,7 @@
      "backend": "backend/src/modules/referral/referral.controller.ts:18"
     }
    ],
-   "files": 35,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -4140,7 +4140,7 @@
      "backend": "backend/src/modules/maternity/maternity.controller.ts:21"
     }
    ],
-   "files": 33,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -4255,7 +4255,7 @@
    "batch": 8,
    "status": "done (batch 8 merged)",
    "calls": [],
-   "files": 20,
+   "files": 21,
    "unresolved": 0
   },
   {
@@ -4302,7 +4302,7 @@
      "backend": "backend/src/modules/mental-health/mental-health.controller.ts:23"
     }
    ],
-   "files": 34,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -4427,7 +4427,7 @@
      "line": 33,
      "file": "patient-app/app/nursing/insurance-status.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:440"
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:446"
     },
     {
      "method": "GET",
@@ -4461,7 +4461,7 @@
      "line": 34,
      "file": "patient-app/app/nursing/live-tracking.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:179"
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:185"
     }
    ],
    "files": 31,
@@ -4495,7 +4495,7 @@
      "line": 77,
      "file": "patient-app/app/nursing/nurse-profile.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:700"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:701"
     },
     {
      "method": "POST",
@@ -4505,7 +4505,7 @@
      "line": 185,
      "file": "patient-app/app/nursing/nurse-profile.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:152"
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:158"
     },
     {
      "method": "POST",
@@ -4555,7 +4555,7 @@
      "method": "GET",
      "path": "/home-care/providers",
      "target": "backend",
-     "query": "?type=:param&sort=:param&gender=:param&availability=:param&nationality=:param&search=:param",
+     "query": "?:param",
      "line": 43,
      "file": "patient-app/app/nursing/service-details.tsx",
      "status": "OK",
@@ -4607,7 +4607,7 @@
      "line": 25,
      "file": "patient-app/app/nursing/visits.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:155"
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:161"
     }
    ],
    "files": 33,
@@ -4791,7 +4791,7 @@
      "backend": "backend/src/modules/nutrition/nutrition.controller.ts:57"
     }
    ],
-   "files": 34,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -4899,7 +4899,7 @@
      "backend": "backend/src/modules/pharmacy/promotions-offers.controller.ts:16"
     }
    ],
-   "files": 33,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -5619,7 +5619,7 @@
      "line": 210,
      "file": "patient-app/app/pharmacy/product-detail.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:394"
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:398"
     },
     {
      "method": "POST",
@@ -5629,7 +5629,7 @@
      "line": 269,
      "file": "patient-app/app/pharmacy/product-detail.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:201"
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:203"
     },
     {
      "method": "POST",
@@ -5984,7 +5984,7 @@
      "backend": "backend/src/modules/users/users.addresses.controller.ts:13"
     }
    ],
-   "files": 32,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -6065,7 +6065,7 @@
      "backend": "backend/src/modules/medical-programs/medical-programs.module.ts:85"
     }
    ],
-   "files": 33,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -6162,7 +6162,7 @@
      "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:15"
     }
    ],
-   "files": 31,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -6302,7 +6302,7 @@
      "line": 242,
      "file": "patient-app/src/components/account/ReturnsViews.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/media/media.controller.ts:21"
+     "backend": "backend/src/modules/media/media.controller.ts:22"
     },
     {
      "method": "POST",
@@ -6480,7 +6480,7 @@
    "batch": 12,
    "status": "done (batch 12 merged)",
    "calls": [],
-   "files": 26,
+   "files": 27,
    "unresolved": 0
   },
   {
@@ -6524,7 +6524,7 @@
      "backend": "backend/src/modules/admin/governance/system-config.controller.ts:51"
     }
    ],
-   "files": 33,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -6594,7 +6594,7 @@
      "backend": "backend/src/modules/support/support.controller.ts:40"
     }
    ],
-   "files": 33,
+   "files": 34,
    "unresolved": 0
   },
   {
@@ -6762,7 +6762,7 @@
      "backend": "backend/src/modules/users/users.controller.ts:125"
     }
    ],
-   "files": 35,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -6833,7 +6833,7 @@
      "line": 79,
      "file": "patient-app/src/components/account/SupportViews.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/media/media.controller.ts:21"
+     "backend": "backend/src/modules/media/media.controller.ts:22"
     },
     {
      "method": "GET",
@@ -7126,7 +7126,7 @@
      "line": 52,
      "file": "patient-web/app/[locale]/ai/monthly-report/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:20"
+     "backend": "backend/src/modules/care/appointments.controller.ts:21"
     },
     {
      "method": "GET",
@@ -7268,7 +7268,7 @@
      "line": 5,
      "file": "patient-web/lib/api/appointments-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:20"
+     "backend": "backend/src/modules/care/appointments.controller.ts:21"
     }
    ],
    "files": 43,
@@ -7372,7 +7372,7 @@
      "line": 9,
      "file": "patient-web/lib/api/appointments-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:25"
+     "backend": "backend/src/modules/care/appointments.controller.ts:26"
     },
     {
      "method": "GET",
@@ -7382,7 +7382,7 @@
      "line": 80,
      "file": "patient-web/app/[locale]/appointments/[appointmentId]/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:76"
+     "backend": "backend/src/modules/care/appointments.controller.ts:77"
     }
    ],
    "files": 50,
@@ -7416,7 +7416,7 @@
      "line": 26,
      "file": "patient-web/app/[locale]/appointments/[appointmentId]/chat/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:163"
+     "backend": "backend/src/modules/chat/chat.module.ts:164"
     }
    ],
    "files": 34,
@@ -7631,7 +7631,7 @@
      "query": "",
      "line": 83,
      "file": "patient-web/components-next/pharmacy-checkout/checkout-screen.tsx",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:698",
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:699",
      "status": "OK"
     },
     {
@@ -7723,7 +7723,7 @@
      "line": 57,
      "file": "patient-web/app/[locale]/chat/[threadId]/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:25"
+     "backend": "backend/src/modules/care/appointments.controller.ts:26"
     },
     {
      "method": "GET",
@@ -7733,7 +7733,7 @@
      "line": 6,
      "file": "patient-web/lib/api/chat-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:168"
+     "backend": "backend/src/modules/chat/chat.module.ts:169"
     },
     {
      "method": "GET",
@@ -7743,7 +7743,7 @@
      "line": 10,
      "file": "patient-web/lib/api/chat-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:173"
+     "backend": "backend/src/modules/chat/chat.module.ts:174"
     }
    ],
    "files": 38,
@@ -7850,7 +7850,7 @@
      "path": "/api/appointments/book",
      "target": "web-bff",
      "query": "",
-     "line": 129,
+     "line": 135,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/appointments/book/route.ts"
@@ -7870,7 +7870,7 @@
      "path": "/api/consultations/doctors/:param/slots",
      "target": "web-bff",
      "query": "?date=:param&service_type=:param",
-     "line": 84,
+     "line": 90,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/consultations/doctors/[doctorId]/slots/route.ts"
@@ -7880,7 +7880,7 @@
      "path": "/api/slot-locks/reserve",
      "target": "web-bff",
      "query": "",
-     "line": 116,
+     "line": 122,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/slot-locks/reserve/route.ts"
@@ -7927,7 +7927,7 @@
      "line": 32,
      "file": "patient-web/app/[locale]/consultations/booking-status/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:25"
+     "backend": "backend/src/modules/care/appointments.controller.ts:26"
     },
     {
      "method": "GET",
@@ -7981,7 +7981,7 @@
      "line": 5,
      "file": "patient-web/lib/api/appointments-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:20"
+     "backend": "backend/src/modules/care/appointments.controller.ts:21"
     }
    ],
    "files": 40,
@@ -8035,7 +8035,7 @@
      "line": 29,
      "file": "patient-web/app/[locale]/consultations/cancel-reschedule/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:25"
+     "backend": "backend/src/modules/care/appointments.controller.ts:26"
     },
     {
      "method": "GET",
@@ -8266,7 +8266,7 @@
      "line": 9,
      "file": "patient-web/lib/api/appointments-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:25"
+     "backend": "backend/src/modules/care/appointments.controller.ts:26"
     }
    ],
    "files": 32,
@@ -8472,7 +8472,7 @@
      "line": 26,
      "file": "patient-web/app/[locale]/consultations/virtual-waiting-room/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:25"
+     "backend": "backend/src/modules/care/appointments.controller.ts:26"
     }
    ],
    "files": 37,
@@ -8566,7 +8566,7 @@
      "line": 6,
      "file": "patient-web/lib/api/diagnostics-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:155"
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:161"
     },
     {
      "method": "POST",
@@ -8586,7 +8586,7 @@
      "line": 87,
      "file": "patient-web/app/[locale]/diagnostics/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:32"
+     "backend": "backend/src/modules/labs/labs.controller.ts:33"
     },
     {
      "method": "GET",
@@ -8596,7 +8596,7 @@
      "line": 60,
      "file": "patient-web/lib/api/labs-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:12"
+     "backend": "backend/src/modules/labs/labs.controller.ts:13"
     },
     {
      "method": "GET",
@@ -8606,7 +8606,7 @@
      "line": 19,
      "file": "patient-web/lib/api/radiology-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:13"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:14"
     }
    ],
    "files": 53,
@@ -8643,7 +8643,7 @@
      "line": 26,
      "file": "patient-web/app/[locale]/diagnostics/booking-success/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:440"
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:446"
     },
     {
      "method": "POST",
@@ -8677,7 +8677,7 @@
      "line": 6,
      "file": "patient-web/lib/api/diagnostics-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:155"
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:161"
     },
     {
      "method": "POST",
@@ -8711,7 +8711,7 @@
      "line": 10,
      "file": "patient-web/lib/api/diagnostics-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:440"
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:446"
     },
     {
      "method": "GET",
@@ -8721,7 +8721,7 @@
      "line": 14,
      "file": "patient-web/lib/api/diagnostics-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:153"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:154"
     },
     {
      "method": "POST",
@@ -8862,7 +8862,7 @@
      "query": "",
      "line": 70,
      "file": "patient-web/components-next/diagnostics-insurance-approval-client.tsx",
-     "backend": "backend/src/modules/labs/labs.controller.ts:48",
+     "backend": "backend/src/modules/labs/labs.controller.ts:49",
      "status": "OK"
     },
     {
@@ -8872,7 +8872,7 @@
      "query": "",
      "line": 92,
      "file": "patient-web/components-next/diagnostics-insurance-approval-client.tsx",
-     "backend": "backend/src/modules/labs/labs.controller.ts:74",
+     "backend": "backend/src/modules/labs/labs.controller.ts:75",
      "status": "OK"
     }
    ],
@@ -8920,7 +8920,7 @@
      "line": 26,
      "file": "patient-web/app/[locale]/diagnostics/lab-comparison/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:227"
+     "backend": "backend/src/modules/labs/labs.controller.ts:233"
     }
    ],
    "files": 39,
@@ -8954,7 +8954,7 @@
      "line": 60,
      "file": "patient-web/lib/api/labs-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:12"
+     "backend": "backend/src/modules/labs/labs.controller.ts:13"
     }
    ],
    "files": 40,
@@ -9021,7 +9021,7 @@
      "query": "",
      "line": 28,
      "file": "patient-web/components-next/lab-booking-form.tsx",
-     "backend": "backend/src/modules/labs/labs.controller.ts:42",
+     "backend": "backend/src/modules/labs/labs.controller.ts:43",
      "status": "OK"
     },
     {
@@ -9032,7 +9032,7 @@
      "line": 19,
      "file": "patient-web/lib/api/diagnostics-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:227"
+     "backend": "backend/src/modules/labs/labs.controller.ts:233"
     },
     {
      "method": "GET",
@@ -9042,7 +9042,7 @@
      "line": 26,
      "file": "patient-web/lib/api/labs-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:38"
+     "backend": "backend/src/modules/labs/labs.controller.ts:39"
     }
    ],
    "files": 38,
@@ -9076,7 +9076,7 @@
      "line": 60,
      "file": "patient-web/lib/api/labs-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:12"
+     "backend": "backend/src/modules/labs/labs.controller.ts:13"
     }
    ],
    "files": 35,
@@ -9110,7 +9110,7 @@
      "line": 14,
      "file": "patient-web/lib/api/labs-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:222"
+     "backend": "backend/src/modules/labs/labs.controller.ts:228"
     }
    ],
    "files": 37,
@@ -9144,7 +9144,7 @@
      "line": 6,
      "file": "patient-web/lib/api/radiology-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:38"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:39"
     },
     {
      "method": "GET",
@@ -9154,7 +9154,7 @@
      "line": 19,
      "file": "patient-web/lib/api/radiology-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:13"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:14"
     }
    ],
    "files": 39,
@@ -9188,7 +9188,7 @@
      "line": 10,
      "file": "patient-web/lib/api/radiology-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:41"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:42"
     }
    ],
    "files": 41,
@@ -9222,7 +9222,7 @@
      "line": 33,
      "file": "patient-web/app/[locale]/diagnostics/results/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:45"
+     "backend": "backend/src/modules/labs/labs.controller.ts:46"
     },
     {
      "method": "GET",
@@ -9232,7 +9232,7 @@
      "line": 33,
      "file": "patient-web/app/[locale]/diagnostics/results/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:70"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:71"
     }
    ],
    "files": 39,
@@ -9265,7 +9265,7 @@
      "query": "",
      "line": 73,
      "file": "patient-web/components-next/diagnostics-sample-tracking-client.tsx",
-     "backend": "backend/src/modules/labs/labs.controller.ts:48",
+     "backend": "backend/src/modules/labs/labs.controller.ts:49",
      "status": "OK"
     },
     {
@@ -9275,7 +9275,7 @@
      "query": "",
      "line": 74,
      "file": "patient-web/components-next/diagnostics-sample-tracking-client.tsx",
-     "backend": "backend/src/modules/labs/labs.controller.ts:116",
+     "backend": "backend/src/modules/labs/labs.controller.ts:117",
      "status": "OK"
     }
    ],
@@ -9310,7 +9310,7 @@
      "line": 41,
      "file": "patient-web/app/[locale]/diagnostics/search/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:12"
+     "backend": "backend/src/modules/labs/labs.controller.ts:13"
     }
    ],
    "files": 37,
@@ -9357,7 +9357,7 @@
      "line": 21,
      "file": "patient-web/app/[locale]/diagnostics/test-detail/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:12"
+     "backend": "backend/src/modules/labs/labs.controller.ts:13"
     }
    ],
    "files": 33,
@@ -10583,7 +10583,7 @@
      "line": 4,
      "file": "patient-web/lib/api/nursing-catalog-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:101"
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:102"
     }
    ],
    "files": 42,
@@ -10698,7 +10698,7 @@
      "line": 3,
      "file": "patient-web/lib/api/insurance-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:712"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:713"
     },
     {
      "method": "GET",
@@ -10718,7 +10718,7 @@
      "line": 2,
      "file": "patient-web/lib/api/insurance-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:698"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:699"
     },
     {
      "method": "GET",
@@ -10728,7 +10728,7 @@
      "line": 69,
      "file": "patient-web/app/[locale]/insurance/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:719"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:720"
     },
     {
      "method": "GET",
@@ -10748,7 +10748,7 @@
      "line": 127,
      "file": "patient-web/app/[locale]/insurance/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:869"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:870"
     },
     {
      "method": "GET",
@@ -10799,10 +10799,10 @@
      "path": "/insurance/companies",
      "target": "backend",
      "query": "",
-     "line": 23,
+     "line": 27,
      "file": "patient-web/app/[locale]/insurance/add-policy/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:695"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:696"
     }
    ],
    "files": 34,
@@ -10826,7 +10826,7 @@
      "line": 31,
      "file": "patient-web/app/[locale]/insurance/approval-pending/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:719"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:720"
     }
    ],
    "files": 8,
@@ -10876,7 +10876,7 @@
      "line": 23,
      "file": "patient-web/app/[locale]/insurance/copay/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:719"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:720"
     }
    ],
    "files": 8,
@@ -10910,7 +10910,7 @@
      "line": 34,
      "file": "patient-web/app/[locale]/insurance/coverage-check/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:700"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:701"
     }
    ],
    "files": 32,
@@ -11026,7 +11026,7 @@
      "line": 4,
      "file": "patient-web/lib/api/insurance-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:720"
+     "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:721"
     }
    ],
    "files": 42,
@@ -11104,7 +11104,7 @@
      "line": 60,
      "file": "patient-web/lib/api/labs-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/labs/labs.controller.ts:12"
+     "backend": "backend/src/modules/labs/labs.controller.ts:13"
     }
    ],
    "files": 40,
@@ -11622,7 +11622,7 @@
      "line": 34,
      "file": "patient-web/app/[locale]/medicines/compare/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:388"
+     "backend": "backend/src/modules/medicines/medicines.controller.ts:392"
     }
    ],
    "files": 30,
@@ -11916,7 +11916,7 @@
      "line": 4,
      "file": "patient-web/lib/api/nursing-catalog-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:101"
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:102"
     }
    ],
    "files": 41,
@@ -11950,7 +11950,7 @@
      "line": 35,
      "file": "patient-web/app/[locale]/nursing/insurance-status/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:440"
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:446"
     },
     {
      "method": "GET",
@@ -12051,10 +12051,10 @@
      "line": 4,
      "file": "patient-web/lib/api/nursing-visits-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:163"
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:169"
     }
    ],
-   "files": 37,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -12082,20 +12082,20 @@
      "path": "/nursing/visits/:param",
      "target": "backend",
      "query": "",
-     "line": 28,
+     "line": 36,
      "file": "patient-web/app/[locale]/nursing/visits/[visitId]/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:170"
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:176"
     },
     {
      "method": "GET",
      "path": "/nursing/visits/:param/tracking",
      "target": "backend",
      "query": "",
-     "line": 29,
+     "line": 37,
      "file": "patient-web/app/[locale]/nursing/visits/[visitId]/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care.controller.ts:179"
+     "backend": "backend/src/modules/home-care/home-care.controller.ts:185"
     }
    ],
    "files": 35,
@@ -12146,7 +12146,7 @@
      "path": "/nutrition/daily-summary",
      "target": "backend",
      "query": "?date=:param",
-     "line": 58,
+     "line": 59,
      "file": "patient-web/app/[locale]/nutrition/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/nutrition/nutrition.controller.ts:50"
@@ -12156,7 +12156,7 @@
      "path": "/nutrition/meals",
      "target": "backend",
      "query": "?date=:param",
-     "line": 59,
+     "line": 60,
      "file": "patient-web/app/[locale]/nutrition/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/nutrition/nutrition.controller.ts:43"
@@ -13682,6 +13682,36 @@
      "handler": "patient-web/app/api/auth/logout/route.ts"
     },
     {
+     "method": "GET",
+     "path": "/api/patient/locations/cities",
+     "target": "web-proxy",
+     "query": "",
+     "line": 40,
+     "file": "patient-web/components-next/account/geo-select.tsx",
+     "backend": "backend/src/modules/location/location.controller.ts:17",
+     "status": "OK"
+    },
+    {
+     "method": "GET",
+     "path": "/api/patient/locations/districts",
+     "target": "web-proxy",
+     "query": "?city=:param",
+     "line": 45,
+     "file": "patient-web/components-next/account/geo-select.tsx",
+     "backend": "backend/src/modules/location/location.controller.ts:23",
+     "status": "OK"
+    },
+    {
+     "method": "GET",
+     "path": "/api/patient/locations/regions",
+     "target": "web-proxy",
+     "query": "",
+     "line": 39,
+     "file": "patient-web/components-next/account/geo-select.tsx",
+     "backend": "backend/src/modules/location/location.controller.ts:11",
+     "status": "OK"
+    },
+    {
      "method": "POST",
      "path": "/api/patient/users/me/addresses",
      "target": "web-proxy",
@@ -13698,7 +13728,7 @@
      "query": "",
      "line": 42,
      "file": "patient-web/components-next/account/address-book.tsx",
-     "backend": "backend/src/modules/users/users.addresses.controller.ts:60",
+     "backend": "backend/src/modules/users/users.addresses.controller.ts:58",
      "status": "OK"
     },
     {
@@ -13710,36 +13740,6 @@
      "file": "patient-web/components-next/delivery-address/address-picker.tsx",
      "backend": "backend/src/modules/users/users.addresses.controller.ts:41",
      "status": "OK"
-    },
-    {
-     "method": "GET",
-     "path": "/locations/cities",
-     "target": "backend",
-     "query": "",
-     "line": 40,
-     "file": "patient-web/components-next/account/geo-select.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/location/location.controller.ts:17"
-    },
-    {
-     "method": "GET",
-     "path": "/locations/districts",
-     "target": "backend",
-     "query": "?city=:param",
-     "line": 45,
-     "file": "patient-web/components-next/account/geo-select.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/location/location.controller.ts:23"
-    },
-    {
-     "method": "GET",
-     "path": "/locations/regions",
-     "target": "backend",
-     "query": "",
-     "line": 39,
-     "file": "patient-web/components-next/account/geo-select.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/location/location.controller.ts:11"
     },
     {
      "method": "GET",
@@ -13903,7 +13903,7 @@
      "line": 21,
      "file": "patient-web/app/[locale]/radiology/[serviceSlug]/[citySlug]/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:13"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:14"
     }
    ],
    "files": 42,
@@ -14137,7 +14137,7 @@
      "path": "/api/returns",
      "target": "web-bff",
      "query": "",
-     "line": 35,
+     "line": 29,
      "file": "patient-web/components-next/return-request-form.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/returns/route.ts"
