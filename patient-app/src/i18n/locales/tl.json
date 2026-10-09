@@ -3125,8 +3125,9 @@
   "pharmacy.rx.viaType": "I-type ang pangalan",
   "pharmacy.rx.zonePhoto": "Kunan ng larawan ang reseta",
   "pharmacy.rx.zoneUpload": "Piliin ang reseta mula sa iyong mga larawan",
-  "consult.calls.videoCall": "Tawag na video",
-  "consult.calls.voiceCall": "Tawag na boses",
+  "insurance.claim.fileInvalid": "Pumili ng larawang 10 megabyte pababa.",
   "guest.loginRequiredTitle": "Kailangang mag-sign in",
-  "guest.loginRequiredBody": "Mag-sign in para magamit ang feature na ito."
+  "guest.loginRequiredBody": "Mag-sign in para magamit ang feature na ito.",
+  "consult.calls.videoCall": "Tawag na video",
+  "consult.calls.voiceCall": "Tawag na boses"
 }

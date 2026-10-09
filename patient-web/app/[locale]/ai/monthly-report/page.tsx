@@ -89,7 +89,7 @@ export default async function AiMonthlyReportPage({ params }: Props) {
     return frame(
       <>
         <CareHero tone="mint" icon="chart-line-up" label={t("title")} title={month} lines={[t("heroLine")]} />
-        <ConsultState kind="empty" icon="chart-line-up" tone="mint" title={t("emptyTitle")} body={t("emptyBody")} actionLabel={t("logReading")} actionHref={`/${locale}/health/vitals/log`} />
+        <ConsultState kind="empty" icon="chart-line-up" tone="mint" title={t("emptyTitle")} body={t("emptyBody")} actionLabel={t("logReading")} actionHref={`/${locale}/health/vitals?tab=today&add=1`} />
       </>,
     );
   }
@@ -106,7 +106,7 @@ export default async function AiMonthlyReportPage({ params }: Props) {
 
       {vitals.length > 0 ? (
         <section aria-labelledby="mr-vitals">
-          <SectionHead id="mr-vitals" title={t("vitals")} action={{ href: `/${locale}/health/vitals/log`, label: t("logReading") }} />
+          <SectionHead id="mr-vitals" title={t("vitals")} action={{ href: `/${locale}/health/vitals?tab=today&add=1`, label: t("logReading") }} />
           <RowsCard label={t("vitals")}>
             {vitals.slice(0, 8).map((v, index) => (
               <li key={index}>
@@ -124,7 +124,7 @@ export default async function AiMonthlyReportPage({ params }: Props) {
 
       {trends.length > 0 ? (
         <section aria-labelledby="mr-trends">
-          <SectionHead id="mr-trends" title={t("trends")} action={{ href: `/${locale}/health/trends`, label: t("viewTrends") }} />
+          <SectionHead id="mr-trends" title={t("trends")} action={{ href: `/${locale}/health/vitals?tab=trends`, label: t("viewTrends") }} />
           <RowsCard label={t("trends")}>
             {trends.map((row, index) => {
               const pts = (row.data as unknown[]).map((p) => asRecord(p)).filter((p): p is Record<string, unknown> => !!p);

@@ -18,10 +18,13 @@ import styles from "@/components-next/settings/settings.module.css";
 type Props = { params: Promise<{ locale: string }> };
 type Domain = { id: string; title: string; fields: ProfileField[]; state: ProfileDomainState };
 
+/** Server field names → the label keys the card knows (needs-review issue 770: /medical-profile sends blood_type, height_cm, weight_kg). */
+const SERVER_TO_LABEL: Record<string, string> = { full_name: "fullName", blood_type: "bloodType", height_cm: "height", weight_kg: "weight" };
+
 async function resolveDomain(response: Response, acceptedKeys: string[]): Promise<Pick<Domain, "fields" | "state">> {
   if (!response.ok) return { fields: [], state: profileDomainState(response.status, 0) };
   // the account record names the patient `full_name`; the field labels know it as `fullName`
-  const fields = readProfileFields(extractRecord(await response.json().catch(() => null)), acceptedKeys).map((field) => (field.key === "full_name" ? { ...field, key: "fullName" } : field));
+  const fields = readProfileFields(extractRecord(await response.json().catch(() => null)), acceptedKeys).map((field) => (SERVER_TO_LABEL[field.key] ? { ...field, key: SERVER_TO_LABEL[field.key] } : field));
   return { fields, state: profileDomainState(response.status, fields.length) };
 }
 
@@ -45,7 +48,7 @@ export default async function ProfilePage({ params }: Props) {
   if ([profileResponse, medicalResponse, insuranceResponse].some((response) => response.status === 401)) redirect(`/${locale}/login`);
   const [identity, medical, insurance] = await Promise.all([
     resolveDomain(profileResponse, ["fullName", "full_name", "name", "email", "phone", "mobile", "dateOfBirth"]),
-    resolveDomain(medicalResponse, ["bloodType", "height", "weight", "gender", "is_smoker", "drinks_alcohol", "is_pregnant", "is_breastfeeding"]),
+    resolveDomain(medicalResponse, ["blood_type", "height_cm", "weight_kg", "gender", "is_smoker", "drinks_alcohol", "is_pregnant", "is_breastfeeding"]),
     resolveDomain(insuranceResponse, ["providerName", "companyName", "status"]),
   ]);
   const domains: Domain[] = [
