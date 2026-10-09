@@ -21,6 +21,7 @@ import * as crypto from 'crypto';
 import { Request } from 'express';
 import { UserRole } from '../../common/enums';
 import { moyasarBase } from '../../common/moyasar-base';
+import { emitAudit } from '../audit-trail/audit-emitter';
 import {
   CreateIntentRequest,
   PaymentGateway,
@@ -474,6 +475,15 @@ export class PaymentsService {
     await t.save();
     await this.modelFor(t.booking_kind).updateOne({ id: t.booking_id }, { $set: { payment_status: 'refunded' } });
     this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: t.status });
+    // Phase 23.2 — payments/refunds in the audit trail (fire-and-forget).
+    emitAudit(this.events, {
+      action: full ? 'payment.refunded' : 'payment.partially_refunded',
+      actor: { id: user?.id, role: String(user?.role || 'unknown') },
+      entity: { type: 'payment', id: t.id },
+      diff: { before: { status: 'paid' }, after: { status: t.status, refunded_amount: t.refunded_amount } },
+      why: reason,
+      category: 'payment',
+    });
     return t.toObject();
   }
 

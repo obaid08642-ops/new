@@ -12,6 +12,7 @@ import { User, UserDocument } from '../../schemas/user.schema';
 import { PatientProfile, PatientProfileDocument } from '../../schemas/patient-profile.schema';
 import { UserRole } from '../../common/enums';
 import { EVENTS } from '../../common/events';
+import { emitAudit } from '../audit-trail/audit-emitter';
 import { UserRepository } from "./repositories/user.repository";
 import { PatientProfileRepository } from "./repositories/patientprofile.repository";
 import { RedisService } from '../redis/redis.service';
@@ -67,6 +68,23 @@ export class AuthService {
     );
     this.storeRefreshSession(user.id, jti, deviceId).catch(() => {});
     return { accessToken, refreshToken };
+  }
+
+  /** Phase 23.2 — fire-and-forget audit emission (never blocks, never throws). */
+  private auditAuth(
+    action: string,
+    actor: { id?: string; role?: string },
+    ctx?: { deviceToken?: string; ua?: string; ip?: string },
+    extra?: { entity?: { type: string; id?: string }; diff?: { before?: any; after?: any } },
+  ): void {
+    emitAudit(this.events, {
+      action,
+      actor: { id: actor.id, role: String(actor.role || 'unknown') },
+      entity: extra?.entity || (actor.id ? { type: 'user', id: String(actor.id) } : undefined),
+      diff: extra?.diff,
+      category: 'auth',
+      where: ctx ? { ip: ctx.ip, device_id: ctx.deviceToken, user_agent: ctx.ua } : undefined,
+    });
   }
 
   /** Persist the refresh session (14d TTL matches token life), device-bound. */
@@ -163,6 +181,7 @@ export class AuthService {
     // Real revocation: kill every refresh session for this user
     await this.revokeAllUserSessions(userId).catch(() => {});
     this.events.emit('USER_LOGGED_OUT_ALL', { user_id: userId });
+    this.auditAuth('auth.logout', { id: userId }, undefined, { entity: { type: 'user', id: String(userId) } });
     return { ok: true, message: 'Logged out from all devices' };
   }
 
@@ -575,6 +594,7 @@ export class AuthService {
     }
 
     this.events.emit(EVENTS.USER_REGISTERED, { user_id: u.id, role: u.role });
+    this.auditAuth('auth.signup', { id: u.id, role: u.role });
     return { user: this.publicUser(u), token: this.signToken(u) };
   }
 
@@ -619,12 +639,14 @@ export class AuthService {
 
     if (!u || !u.password_hash) {
       await recordFailure();
+      this.auditAuth('auth.login.failure', {}, ctx);
       throw new UnauthorizedException('Invalid credentials');
     }
     const ok = await bcrypt.compare(password, u.password_hash);
     if (!ok) {
       await recordFailure();
       await this.adminLoginAlert(u, false, ctx); // C5: failed admin login attempt
+      this.auditAuth('auth.login.failure', { id: u.id, role: u.role }, ctx);
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -643,6 +665,7 @@ export class AuthService {
           u.last_login_at = new Date();
           await u.save();
           this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role, method: 'trusted_device' });
+          this.auditAuth('auth.login.success', { id: u.id, role: u.role }, ctx);
           await this.adminSession?.touch(u.id); // C5: idle window starts at login
           await this.adminLoginAlert(u, true, { ...ctx, deviceName: trusted.name }); // C5
           return {
@@ -692,6 +715,7 @@ export class AuthService {
     u.last_login_at = new Date();
     await u.save();
     this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role });
+    this.auditAuth('auth.login.success', { id: u.id, role: u.role }, ctx);
     return { user: this.publicUser(u), token: this.signToken(u) };
   }
 
@@ -710,6 +734,7 @@ export class AuthService {
       await this.verifyOtp(this.otpContact(u, identifier), code); // Will throw if invalid
     } catch (e) {
       await this.adminLoginAlert(u, false, ctx); // C5: failed OTP (admin only alerts)
+      this.auditAuth('auth.otp.failure', { id: u.id, role: u.role }, ctx);
       throw e;
     }
     await this.adminSession?.touch(u.id); // C5
@@ -718,10 +743,9 @@ export class AuthService {
     u.last_login_at = new Date();
     await u.save();
     this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role });
+    this.auditAuth('auth.login.success', { id: u.id, role: u.role }, ctx);
 
-    const result: any = { user: this.publicUser(u), token: this.signToken(u) };
-
-    // Admin accounts: trust this device (default on — the owner asked for his
+    const result: any = { user: this.publicUser(u), token: this.signToken(u) };    // Admin accounts: trust this device (default on — the owner asked for his
     // iPhone + Mac to be approved) and alert by email about the new device.
     if (this.deviceTrust && (u.role === UserRole.SUPER_ADMIN || u.role === UserRole.ADMIN)) {
       const { token, device } = await this.deviceTrust.issue(u.id, ctx?.ua, ctx?.ip);
@@ -1066,6 +1090,7 @@ export class AuthService {
       if (!delivered.length) {
         throw new ServiceUnavailableException({ message: 'otp_channel_unavailable', code: 'otp_channel_unavailable' });
       }
+      this.auditAuth('auth.otp.requested', {}, ip ? { ip } : undefined, { entity: { type: 'otp' }, diff: { after: { channel: delivered[0], purpose: purpose || null } } });
       return { ok: true, channel: delivered[0] };
     } catch (err: any) {
       if (err instanceof ServiceUnavailableException) throw err;
@@ -1102,6 +1127,7 @@ export class AuthService {
       // increment attempts (keep remaining TTL by re-setting with same expiry window)
       const ttl = await this.redisService.ttl(key);
       await this.redisService.setJson(key, { ...entry, attempts: entry.attempts + 1 }, ttl > 0 ? ttl : this.OTP_TTL_SECONDS);
+      this.auditAuth('auth.otp.failure', {}, undefined, { entity: { type: 'otp' } });
       throw new BadRequestException('Invalid OTP code');
     }
 
@@ -1116,6 +1142,7 @@ export class AuthService {
       isEmail ? { email: normalized } : { phone: normalized },
       { active: true }
     );
+    this.auditAuth('auth.otp.verified', {}, undefined, { entity: { type: 'otp' } });
     return { ok: true };
   }
 
@@ -1144,6 +1171,7 @@ export class AuthService {
     await u.save();
     // P3.0a: a reset must not leave stolen access/refresh tokens alive.
     await this.revokeAfterCredentialChange(u.id);
+    this.auditAuth('auth.password.changed', { id: u.id, role: u.role });
     return { ok: true };
   }
 

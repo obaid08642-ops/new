@@ -8,6 +8,7 @@ import { Appointment, AppointmentDocument, APPT_STATES } from '../../schemas/app
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { PrescriptionState, PRESCRIPTION_TRANSITIONS, UserRole } from '../../common/enums';
 import { EVENTS } from '../../common/events';
+import { emitAudit } from '../audit-trail/audit-emitter';
 import { MedicinesService } from '../medicines/medicines.service';
 import { PrescriptionRepository } from "./repositories/prescription.repository";
 import { getEffectiveRoles } from '../../common/auth.guard';
@@ -152,6 +153,13 @@ export class PrescriptionsService {
       patient_id: patientId,
       doctor_id: doctorId,
       appointment_id: appointmentId,
+    });
+    // Phase 23.2 — prescriptions issued in the audit trail (fire-and-forget).
+    emitAudit(this.events, {
+      action: 'prescription.issued',
+      actor: { id: doctor?.id, role: String(doctor?.role || 'unknown') },
+      entity: { type: 'prescription', id: rx.id },
+      category: 'clinical',
     });
     return rx.toObject();
   }
@@ -395,6 +403,13 @@ export class PrescriptionsService {
     const hasPrivilegedAdminRole = roles.includes(UserRole.ADMIN) || roles.includes(UserRole.SUPER_ADMIN);
     const isParticipant = [rx.patient_id, rx.doctor_id, rx.pharmacy_id].filter(Boolean).includes(user?.id);
     if (!hasPrivilegedAdminRole && !isParticipant) throw new NotFoundException();
+    // Phase 23.2 — prescriptions viewed in the audit trail (16.9, fire-and-forget).
+    emitAudit(this.events, {
+      action: 'prescription.viewed',
+      actor: { id: user?.id, role: String(user?.role || 'unknown') },
+      entity: { type: 'prescription', id: rx.id },
+      category: 'clinical',
+    });
     return this.toPatientWebDto(rx);
   }
 

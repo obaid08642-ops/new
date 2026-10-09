@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { LabService, LabBooking, LabBookingState, LAB_BOOKING_TRANSITIONS, LabSample } from '../../schemas/lab.schema';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { emitAudit } from '../audit-trail/audit-emitter';
 import { EventBusService } from '../events/event-bus.service';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { LabPdfService } from './lab-pdf.service';
@@ -463,6 +464,14 @@ export class LabsService {
         b.state = to;
         await b.save();
         this.events.emit('lab.booking_state_changed', { booking_id: b.id, patient_id: b.patient_id, state: to, tracking_id: b.tracking_id });
+        // Phase 23.2 — lab booking lifecycle in the audit trail (fire-and-forget).
+        emitAudit(this.events, {
+          action: `booking.lab.${String(to).toLowerCase()}`,
+          actor: { id: user?.id, role: String(user?.role || 'unknown') },
+          entity: { type: 'booking', id: b.id },
+          diff: { before: null, after: { state: to } },
+          category: 'booking',
+        });
         return b.toObject();
       },
     });

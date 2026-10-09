@@ -13,6 +13,7 @@ import { SlotLocksService } from '../slot-locks/slot-locks.module';
 import { AppointmentRepository } from "./repositories/appointment.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 import { hasEffectiveRole } from '../../common/auth.guard';
+import { emitAudit } from '../audit-trail/audit-emitter';
 
 /** Platform fee schedule (SAR). Move to DB/config when admin dashboard supports it. */
 const PLATFORM_FEES = {
@@ -512,6 +513,14 @@ export class AppointmentsService {
         if (to === APPT_STATES.COMPLETED) appt.completed_at = new Date();
         await appt.save();
         this.events.emit(`appointment.${to.toLowerCase()}`, { id, actor: actor.id });
+        // Phase 23.2 — booking lifecycle in the audit trail (fire-and-forget).
+        emitAudit(this.events, {
+          action: `booking.${String(to).toLowerCase()}`,
+          actor: { id: actor?.id, role: String(actor?.role || 'unknown') },
+          entity: { type: 'booking', id: appt.id },
+          diff: { before: null, after: { status: to } },
+          category: 'booking',
+        });
         return appt.toObject();
       },
     });
