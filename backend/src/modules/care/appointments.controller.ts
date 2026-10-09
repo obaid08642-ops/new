@@ -23,6 +23,11 @@ export class AppointmentsController {
     return this.svc.listMine(user, status);
   }
 
+  @Get('calls/mine')
+  myCalls(@CurrentUser() user: any) {
+    return this.svc.callsFor(user);
+  }
+
   @Get(':id')
   one(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.one(user, id);
@@ -89,6 +94,11 @@ export class AppointmentsController {
   @Get(':id/summary')
   summary(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.getSummary(id, user);
+  }
+
+  @Get(':id/call')
+  call(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.callJoin(id, user);
   }
 
 }

@@ -298,6 +298,11 @@ export class AppointmentsService {
 
     const obj: any = appt.toObject();
     
+    // Q-16: video appointments carry what the call screen needs (room route).
+    if (obj.service_type === 'video') {
+      const joinable = [APPT_STATES.CONFIRMED, APPT_STATES.CHECKED_IN, APPT_STATES.IN_PROGRESS].includes(obj.status);
+      obj.call = { room: `appt_${obj.id}`, join_path: `/care/appointments/${obj.id}/call`, joinable };
+    }
     // Fetch doctor info to attach name and specialty
     const doctor: any = await this.providerModel.findOne({ id: obj.doctor_id, type: ProviderType.DOCTOR }, { name_ar: 1, specialty_ar: 1, specialty: 1, name: 1, _id: 0 });
     if (doctor) {
@@ -444,6 +449,34 @@ export class AppointmentsService {
     }
     const done = await this.transition(id, APPT_STATES.COMPLETED, user);
     return { success: true, appointment: done };
+  }
+
+  /** Q-16: the patient's call records — their video appointments, owner-checked. */
+  async callsFor(user: any) {
+    const q: any = { service_type: 'video' };
+    if (user?.role === UserRole.ADMIN || user?.role === UserRole.SUPER_ADMIN) {
+      // no additional filter
+    } else {
+      q.patient_id = user?.id;
+    }
+    const rows: any[] = await this.apptModel.find(q, { _id: 0, __v: 0 }).sort({ slot_start: -1 }).limit(100);
+    return rows.map((r: any) => {
+      const o = r?.toObject ? r.toObject() : r;
+      return {
+        appointment_id: o.id, doctor_id: o.doctor_id, slot_start: o.slot_start,
+        status: o.status, room: `appt_${o.id}`,
+      };
+    });
+  }
+
+  /** Q-16: join info for a video appointment's room — owner-checked, no invented tokens. */
+  async callJoin(id: string, user: any) {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    await this.assertAppointmentAccess(appt, user);
+    if (appt.service_type !== 'video') throw new BadRequestException('not_a_video_appointment');
+    const joinable = [APPT_STATES.CONFIRMED, APPT_STATES.CHECKED_IN, APPT_STATES.IN_PROGRESS].includes(appt.status);
+    return { appointment_id: appt.id, room: `appt_${appt.id}`, joinable, status: appt.status };
   }
 
   /** Patient (or the doctor/admin) reads the consultation summary. 404 → screen shows honest not-ready. */
