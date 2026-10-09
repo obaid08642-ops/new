@@ -142,6 +142,18 @@ export default function PharmacyCartScreen() {
           <Notice tone="warning" icon="prescription" title={k('pharmacy.cart.rxBannerTitle')} body={k('pharmacy.cart.rxBannerBody')} actionLabel={k('pharmacy.cart.rxBannerAction')} onAction={() => go('/pharmacy/rx-order?via=photo')} />
         ) : null}
 
+        {hasRxItems ? (
+          <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.cart.rxConsult')} onPress={() => go('/consultations/specialty-select')}>
+            <Card padding="sm" theme={theme}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <FIcon icon="stethoscope" tone="blue" size={40} theme={theme} />
+                <Text style={{ flex: 1, ...scale(t, 'small', 'medium'), color: c.text.primary, ...flow }}>{k('pharmacy.cart.rxConsult')}</Text>
+                <Icon name={dir === 'rtl' ? 'caret-left' : 'caret-right'} size={18} theme={theme} tone="secondary" />
+              </View>
+            </Card>
+          </Pressable>
+        ) : null}
+
         <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.cart.manual')} onPress={() => go('/pharmacy/rx-order?via=type')}>
           <Card padding="sm" theme={theme}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>

@@ -244,7 +244,7 @@ export default async function PublicProductPage({ params }: Props) {
         backHref={categoryPath || `/${locale}/c`}
         hideTabs
         topBarSearch={<CatalogSearch locale={locale} tools={false} />}
-        footer={canBuy ? <StickyFooter label={b("total")}><BuyBar locale={locale} /></StickyFooter> : undefined}
+        footer={canBuy ? <StickyFooter label={b("referencePrice")}><BuyBar locale={locale} /></StickyFooter> : undefined}
       >
         <div className={styles.page}>
           <JsonLd data={jsonLd} />
@@ -271,7 +271,7 @@ export default async function PublicProductPage({ params }: Props) {
           </nav>
 
           <section className={styles.hero}>
-            <ProductGallery name={name} images={images} badge={percent > 0 ? t("discount", { percent: formatNumber(locale, percent) }) : undefined} />
+            <ProductGallery name={name} images={images} itemId={product.id} locale={locale} badge={percent > 0 ? t("discount", { percent: formatNumber(locale, percent) }) : undefined} />
 
             <div className={styles.info}>
               <div className={styles.chipsRow}>

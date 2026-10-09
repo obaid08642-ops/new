@@ -47,7 +47,7 @@
     "file": "backend/src/modules/auth/auth.service.ts",
     "line": 876,
     "found": "For a guest with a phone-like identifier the form posts {full_name, phone, password} to /api/auth/convert-guest (strict schema, no consents; register-form.tsx:60-64). convertGuest sets full_name/phone/password and is_guest=false without any OTP proof of the phone and without recording legal consent, and does not update the patient profile full_name. The form still requires the terms checkbox.",
-    "suspect": "A guest can claim any unregistered phone number without verification; the terms acceptance is neither sent nor stored. After success the form shows the 'converted' text in the red error style and goes to /."
+    "suspect": "A guest can claim any unregistered phone number without verification; the terms acceptance is neither sent nor stored."
   },
   {
     "batch": 0,

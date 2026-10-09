@@ -98,6 +98,7 @@ export function BuyActions({ locale }: { locale: string }) {
           <>
             {t("addedToCart", { name: product.name })}{" "}
             <Link href={`/${locale}/cart`} className={styles.addedLink}>{t("viewCart")}</Link>
+            {product.rx ? <span className={styles.addedRx}>{t("addedRxNote")}</span> : null}
           </>
         ) : null}
       </p>
@@ -112,7 +113,7 @@ export function BuyBar({ locale }: { locale: string }) {
   return (
     <div className={styles.bar}>
       <div className={styles.barTotal}>
-        <span className={styles.barLabel}>{t("total")}</span>
+        <span className={styles.barLabel}>{t("referencePrice")}</span>
         <span className={styles.barAmount}>
           {formatPrice(locale, product.price * qty).text}
         </span>

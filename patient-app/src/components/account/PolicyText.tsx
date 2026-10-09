@@ -37,6 +37,17 @@ export function policyLines(config: PublicConfig | null, kind: 'cancellation' | 
   return lines;
 }
 
+/**
+ * The rules that apply to a pharmacy order, for its cancel confirmation (decision 26): whether preparation can still be
+ * cancelled, then the return and refund sentences. Only what the server sent is written; the appointment-time
+ * cancellation tiers belong to consultations and are not repeated here.
+ */
+export function pharmacyPolicyLines(config: PublicConfig | null, k: (key: string, vars?: Record<string, string | number>) => string): string[] {
+  const lines: string[] = [];
+  if (config?.cancellation_policy?.pharmacy_prep_cancellable === false) lines.push(k('set.legal.cancelPharmacy'));
+  return [...lines, ...policyLines(config, 'returns', k)];
+}
+
 /** Loads the public policy once; `null` data means it could not be read (the caller draws nothing then). */
 export function usePublicPolicy() {
   return useRemote(async () => bodyOf<PublicConfig>(await apiFetch('/system-config/public')), [], 'settings:policy');

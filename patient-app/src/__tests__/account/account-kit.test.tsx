@@ -4,7 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { StarRating, ToggleRow, useFlags } from '../../components/account/AccountKit';
 import { AddressBookView } from '../../components/account/AddressBookView';
-import { policyLines } from '../../components/account/PolicyText';
+import { pharmacyPolicyLines, policyLines } from '../../components/account/PolicyText';
 import { ChatThread } from '../../components/family/ChatThread';
 import { message } from '../../components/screen/ScreenKit';
 import { translations } from '../../i18n';
@@ -102,6 +102,18 @@ describe('policyLines', () => {
     expect(lines).toEqual([k('set.legal.cancelFull', { hours: 24 }), k('set.legal.cancelLate', { percent: 25 })]);
     expect(policyLines({ returns_policy: {} }, 'returns', k)).toEqual([]);
     expect(policyLines(null, 'cancellation', k)).toEqual([]);
+  });
+});
+
+describe('pharmacyPolicyLines', () => {
+  it('writes the pharmacy rules from the server numbers only', () => {
+    const lines = pharmacyPolicyLines(
+      { cancellation_policy: { full_hours: 24, pharmacy_prep_cancellable: false }, returns_policy: { unused_days: 7, wallet_refund_days_min: 2, wallet_refund_days_max: 5 } },
+      k,
+    );
+    expect(lines).toEqual([k('set.legal.cancelPharmacy'), k('set.legal.returnsDays', { days: 7 }), k('set.legal.refundDays', { min: 2, max: 5 })]);
+    expect(pharmacyPolicyLines({ cancellation_policy: { full_hours: 24 } }, k)).toEqual([]);
+    expect(pharmacyPolicyLines(null, k)).toEqual([]);
   });
 });
 

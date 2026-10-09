@@ -259,6 +259,26 @@ for (const width of [390, 1280]) {
     ok(!!rj && rj.method === 'POST' && JSON.parse(rj.body).reason === 'بيانات مخالفة للشروط', 'provider-moderation reject (final)', width, `reject call wrong: ${rj?.body}`);
   });
 
+  await scenario('provider-moderation approve form', browser, width, async (page, requests) => {
+    let prompts = 0;
+    page.on('dialog', async (d) => { prompts += 1; await d.dismiss(); });
+    await page.goto(`${BASE}/admin/provider-moderation`);
+    await page.getByText('عيادة تجريبية').first().click();
+    await page.getByRole('button', { name: /Approve Provider/ }).click();
+    const dialog = page.getByRole('dialog', { name: 'اعتماد المزود' });
+    await dialog.waitFor();
+    ok(await dialog.getByText('عيادة تجريبية').isVisible(), 'provider-moderation approve form', width, 'summary missing');
+    await dialog.getByRole('button', { name: 'تأكيد الاعتماد' }).click();
+    ok(await dialog.getByRole('alert').isVisible(), 'provider-moderation approve form', width, 'short reason not rejected inline');
+    await dialog.locator('textarea').fill('وثائق مكتملة ومطابقة');
+    await dialog.getByRole('button', { name: 'تأكيد الاعتماد' }).click();
+    await page.waitForTimeout(400);
+    const ap = requests.find((r) => /acc-1\/approve$/.test(r.url));
+    const body = ap ? JSON.parse(ap.body) : {};
+    ok(!!ap && ap.method === 'POST' && body.reason === 'وثائق مكتملة ومطابقة' && body.commission_cash === 10 && body.commission_insurance === 10, 'provider-moderation approve form', width, `approve call wrong: ${ap?.body}`);
+    ok(prompts === 0, 'provider-moderation approve form', width, 'a window dialog was used');
+  });
+
   await scenario('approvals', browser, width, async (page) => {
     await page.goto(`${BASE}/admin/approvals`);
     await page.getByRole('heading', { name: 'بانتظار موافقتي' }).waitFor();

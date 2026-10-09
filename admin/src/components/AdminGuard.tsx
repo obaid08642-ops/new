@@ -132,7 +132,7 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/payouts': 'finance.payout.approve',
   '/admin/returns': 'finance.payout.approve',
   '/admin/disputes': 'disputes.resolve',
-  '/admin/provider-moderation': 'doctor.read',
+  '/admin/provider-moderation': 'facility.edit',
   '/admin/provider-audits': 'doctor.read',
   '/admin/insurance-queue': 'order.read',
   '/admin/insurance-companies': 'order.read',

@@ -32,6 +32,8 @@
   background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg);
   font-size: var(--nabd-font-size-small); font-weight: 700;
 }
+.wishlist { position: absolute; inset-block-start: 8px; inset-inline-end: 8px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.wishlistError { margin: 0; padding: 4px 8px; border-radius: var(--nabd-radius-pill); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-small); }
 /* dots on a phone: a 44 hit area with the 8 px dot drawn inside */
 .thumbs { list-style: none; margin: 0; padding: 0; display: flex; justify-content: center; gap: 0; }
 .thumb { position: relative; inline-size: 44px; block-size: 44px; padding: 0; border: 0; background: transparent; cursor: pointer; }
@@ -86,6 +88,7 @@
 .added { margin: 0; min-block-size: 20px; font-size: var(--nabd-font-size-label); color: var(--nabd-color-status-success-fg); }
 .addedLink { color: var(--nabd-color-text-link); font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; min-block-size: 44px; }
 .addedLink:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-sm); }
+.addedRx { display: block; color: var(--nabd-color-status-warning-fg); }
 
 /* the phone's sticky bar */
 .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-inline: var(--nabd-shell-gutter, 16px); padding-block: var(--nabd-space-2xs); }

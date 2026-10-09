@@ -52,7 +52,7 @@ export function extractDoctors(payload: unknown): DoctorRow[] {
 export function doctorDisplayName(doctor: Pick<DoctorRow, "name" | "nameAr" | "nameEn">, locale: string): string | undefined {
   return (locale === "ar" ? doctor.nameAr ?? doctor.nameEn : doctor.nameEn ?? doctor.nameAr) ?? doctor.name;
 }
-export function doctorQuery(input: { search?: string; specialty?: string; sort?: "rating" | "price" | "wait" }) { const params=new URLSearchParams(); const search=(input.search ?? input.specialty ?? "").trim(); if(search) params.set("search", search.slice(0,100)); if(input.sort) params.set("sort", input.sort); const query=params.toString(); return `/care/doctors${query ? `?${query}` : ""}`; }
+export function doctorQuery(input: { search?: string; specialty?: string; sort?: "rating" | "price" | "wait" }) { const params=new URLSearchParams(); const search=(input.search ?? input.specialty ?? "").trim(); if(search) params.set("q", search.slice(0,100)); if(input.sort) params.set("sort", input.sort); const query=params.toString(); return `/care/doctors${query ? `?${query}` : ""}`; }
 export function extractDoctor(payload: unknown): DoctorRow | null { const rows = extractDoctors([payload && typeof payload === "object" && !Array.isArray(payload) && "data" in payload ? (payload as Record<string, unknown>).data : payload]); return rows[0] ?? null; }
 export type DoctorSlot = { start: string; end: string; label: string; available: boolean };
 export type DoctorSlots = { date: string; serviceType: "clinic" | "video" | "home"; slots: DoctorSlot[]; reason?: string };

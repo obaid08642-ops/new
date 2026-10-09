@@ -6,6 +6,7 @@ import { AppHeader, Button, EmptyState, ErrorState, OfflineState, Screen, Segmen
 import { Money, Notice, OfferHero, PharmacyOfferCard } from '../../src/components/pharmacy/OfferKit';
 import { PHARMACY_TONE } from '../../src/components/pharmacy/PharmacyKit';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { pharmacyPolicyLines, usePublicPolicy } from '../../src/components/account/PolicyText';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { apiFetch, newIdempotencyKey } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
@@ -61,6 +62,7 @@ export default function BroadcastStatusScreen() {
   const [confirming, setConfirming] = useState(false);
   const [pickError, setPickError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const policy = usePublicPolicy();
   const [cancelError, setCancelError] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
@@ -205,7 +207,8 @@ export default function BroadcastStatusScreen() {
 
   const askCancel = () => {
     if (cancelling) return;
-    showLocalizedAlert(k('pharmacy.offers.cancelTitle'), k('pharmacy.offers.cancelBody'), [
+    const rules = pharmacyPolicyLines(policy.data, k);
+    showLocalizedAlert(k('pharmacy.offers.cancelTitle'), [k('pharmacy.offers.cancelBody'), ...rules].join('\n\n'), [
       { text: k('pharmacy.offers.cancelKeep'), style: 'cancel' },
       { text: k('pharmacy.offers.cancelConfirm'), style: 'destructive', onPress: () => void doCancel() },
     ]);

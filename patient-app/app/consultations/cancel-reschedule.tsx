@@ -38,6 +38,7 @@ interface Appointment {
   doctor_id?: string;
   doctor_name?: string;
   doctor?: { name?: string };
+  service_type?: string;
   consultation_type?: string;
   scheduled_at?: string;
   price?: number;
@@ -97,7 +98,8 @@ export default function CancelRescheduleScreen() {
     const loadSlots = async () => {
       setSlotsLoading(true);
       const out: Record<string, Slot[]> = {};
-      const serviceType = appointment.consultation_type === 'home' ? 'home' : appointment.consultation_type === 'video' ? 'video' : 'clinic';
+      const kind = appointment.service_type || appointment.consultation_type;
+      const serviceType = kind === 'home' ? 'home' : kind === 'video' || kind === 'online' ? 'video' : 'clinic';
       const days: string[] = [];
       for (let i = 1; i <= 7; i++) days.push(new Date(Date.now() + i * DAY_MS).toISOString().slice(0, 10));
       const results = await Promise.all(
@@ -118,7 +120,7 @@ export default function CancelRescheduleScreen() {
       setSlotsLoading(false);
     };
     void loadSlots();
-  }, [mode, appointment?.doctor_id, appointment?.consultation_type]);
+  }, [mode, appointment?.doctor_id, appointment?.service_type, appointment?.consultation_type]);
 
   const price = Number(appointment?.price ?? appointment?.amount_total ?? 0);
   const scheduledAt = appointment?.scheduled_at ? new Date(appointment.scheduled_at) : null;

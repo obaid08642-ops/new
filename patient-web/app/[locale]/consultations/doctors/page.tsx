@@ -73,7 +73,14 @@ export default async function DoctorsPage({ params, searchParams }: Props) {
         ]}
       />
       {doctors.length === 0 ? (
-        <ConsultState kind="empty" title={t("emptyTitle")} body={t("emptyBody")} />
+        <ConsultState
+          kind="empty"
+          title={t("emptyTitle")}
+          body={t("emptyBody")}
+          // a way out of the empty list: clear the search when one is active, otherwise back to the consultations hub
+          actionLabel={sp.q || sp.specialty || sp.sort ? t("clearSearch") : t("backToConsultations")}
+          actionHref={sp.q || sp.specialty || sp.sort ? `/${locale}/consultations/doctors` : `/${locale}/consultations`}
+        />
       ) : (
         <ul className={`${styles.list} ${styles.grid}`} aria-label={t("title")}>
           {doctors.map((doctor) => {

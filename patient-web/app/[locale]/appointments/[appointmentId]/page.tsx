@@ -10,6 +10,8 @@ import { AppointmentActions } from "@/components-next/appointment-actions";
 import { PrescriptionClient } from "@/components-next/prescription-client";
 import { AppointmentRescheduleForm } from "@/components-next/appointment-reschedule-form";
 import { CallTokenLauncher } from "@/components-next/call-token-launcher";
+import { PolicyCard, policyLines } from "@/components-next/consult/policy-lines";
+import { getCancellationPolicy } from "@/lib/consult/cancellation-policy";
 import { ConsultationPaymentAction } from "@/components-next/consultation-payment-action";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
@@ -120,7 +122,12 @@ export default async function AppointmentDetailPage({ params }: Props) {
         </SectionCard>
       ) : null}
 
-      {appointment.status === "PENDING" && appointment.paymentMethod === "card" ? <ConsultationPaymentAction appointmentId={appointmentId} /> : null}
+      {appointment.status === "PENDING" && appointment.paymentMethod === "card" ? (
+        <>
+          <PolicyCard title={c("policyTitle")} lines={policyLines(c, await getCancellationPolicy(token))} />
+          <ConsultationPaymentAction appointmentId={appointmentId} />
+        </>
+      ) : null}
 
       {open ? (
         <ActionLinks actions={[{ href: `/${locale}/consultations/booking-status?appointmentId=${id}`, label: c("actionBookingStatus"), variant: "outline" }]} />

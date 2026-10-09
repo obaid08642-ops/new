@@ -16,7 +16,7 @@
       ["Author name and title (text), published date", "GET /articles/:slug author_name, author_title, published_at", "ok"],
       ["Author link to the doctor profile, Book button", "no doctor id on the article", "hidden"],
       ["Full article text", "not drawn: the body is HTML and the page never read it", "hidden"],
-      ["Bookmark button", "no web route for POST /articles/bookmarks/:slug/toggle", "hidden"],
+      ["Bookmark button", "GET /articles/bookmarks/:slug/status and POST /articles/bookmarks/:slug/toggle through /api/patient (read in the browser; the page stays public)", "fixed"],
       ["Cite this, structured data, back to the articles", "article fields; static link", "ok"],
       ["Disclaimer line (was a literal in the page)", "message key Articles.disclaimer, six languages", "fixed"],
       ["Comments", "removed (owner decision 1): no UI", "hidden"]
@@ -33,7 +33,7 @@
   ],
   "needsReview": [
     { "route": "/articles/[slug]", "element": "Author link and Book button", "kind": "backend", "note": "The article has author_name and author_title only, no doctor id, so the author cannot link to the doctor profile or to booking (decision 1). Add the doctor id to the article answer; the page draws the link then.", "file": "patient-web/app/[locale]/articles/[slug]/page.tsx", "line": 73, "backend": "backend/src/schemas/article.schema.ts:21" },
-    { "route": "/articles/[slug]", "element": "Bookmark button", "kind": "client", "note": "The web has no way to save or unsave an article (no BFF route for POST /articles/bookmarks/:slug/toggle, no button); the Saved tab only lists what the app saved. Add the route and the button (a feature, not done in this design batch).", "file": "patient-web/app/[locale]/articles/[slug]/page.tsx", "line": 112 },
+    { "route": "/articles/[slug]", "element": "Bookmark button", "kind": "client", "note": "Fixed on design/oc-patient-other-1: the article page has a Save / Remove from saved button (status from GET /articles/bookmarks/:slug/status, change by POST .../toggle through the /api/patient proxy); a signed-out reader gets a sign-in link.", "file": "patient-web/app/[locale]/articles/[slug]/page.tsx", "line": 112 },
     { "route": "/articles/[slug]", "element": "Article body", "kind": "client", "note": "The page shows the summary and a notice that the full text is not available here; the body is HTML and the parser drops it on purpose. Decide how to show it safely (sanitiser) before doctor-authored articles go live.", "file": "patient-web/app/[locale]/articles/[slug]/page.tsx", "line": 102 },
     { "route": "/search", "element": "Search results of type Community", "kind": "backend", "note": "The home search still returns community posts (typeEn Community); the web drops them since the pages are gone. Remove them from the search answer when the community module is deleted.", "file": "patient-web/lib/api/search.ts", "line": 61, "backend": "backend/src/modules/home/home.service.ts:249" }
   ]

@@ -15,6 +15,8 @@ import { OfferList, type OfferView } from "./offer-list";
 import { OffersLiveRefresh } from "./live-refresh";
 import { QuoteSection } from "./quote-section";
 import { statusKey } from "./status";
+import { extractRecord } from "@/lib/api/profile";
+import { pharmacyCancelRules } from "./cancel-rules";
 import { WaitingActions } from "./waiting-actions";
 import { OFFER_TONES } from "./tones";
 import styles from "./offers.module.css";
@@ -55,6 +57,12 @@ export async function OffersScreen({ locale, orderId, variant }: Props) {
       </CoreShell>
     );
   }
+
+  // the rules shown in the cancel confirmation come from the server's public config, only the numbers it sent (decision 26)
+  const settingsT = await getTranslations({ locale, namespace: "SettingsWeb" });
+  const configResponse = await callPatientApi("/system-config/public");
+  const config = configResponse.ok ? extractRecord(await configResponse.json().catch(() => null)) : null;
+  const cancelRules = pharmacyCancelRules(config, { prep: t("cancelRulePrep"), refundDays: (min, max) => settingsT("ruleRefundDays", { min, max }), returnDays: (days) => settingsT("ruleReturnDays", { days }) });
 
   const offers = extractPatientPharmacyOffers(await offersResponse.json().catch(() => null));
   const progress = extractPatientPharmacyOrderProgress(await orderResponse.json().catch(() => null)) ?? {};
@@ -107,7 +115,7 @@ export async function OffersScreen({ locale, orderId, variant }: Props) {
         {browsing && !views.length ? (
           <>
             {progress.status ? <p className={styles.lead}>{(progress.status ?? "").toLowerCase() === "draft" ? t("waitingDraft") : t("waitingLead")}</p> : null}
-            <WaitingActions orderId={orderId} canCancel={Boolean(progress.status)} />
+            <WaitingActions orderId={orderId} canCancel={Boolean(progress.status)} rules={cancelRules} />
           </>
         ) : null}
         {negotiating ? (

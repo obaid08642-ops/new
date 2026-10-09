@@ -201,7 +201,7 @@ export function RxUploadScreen({ locale, via = "photo", before, after }: { local
           <div className={rx.error} role="alert">
             {errorText[failure]}
             <div className={rx.errorActions}>
-              {failure === "unreadable" ? <Link className={rx.textLink} href={`/${locale}/pharmacy/rx-order?via=type`}>{t("addByName")}</Link> : null}
+              {failure === "unreadable" || failure === "ocr" ? <Link className={rx.textLink} href={`/${locale}/pharmacy/rx-order?via=type`}>{t("addByName")}</Link> : null}
               {failure === "session" ? <Link className={rx.textLink} href={`/${locale}/login`}>{flow("signIn")}</Link> : null}
             </div>
           </div>

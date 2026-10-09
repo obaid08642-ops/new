@@ -49,7 +49,11 @@
         ["Call button", "opens the existing virtual-waiting-room of the booking", "ok"],
         ["Voice note", "no recording flow exists in the app", "hidden"],
         ["Emergency line", "tel:997 link on every thread", "ok"],
-        ["Read-only with the follow-up button", "thread.is_active false, or the server's 403 on a send with its own reason; the screen never counts hours", "gap"]
+        ["Window rules: composer, photo and file, call, read-only", "GET /chat/threads/:id/permissions can_chat, can_upload, can_call, read_only (fetched when the thread opens and again after a 403); without an answer the booking type and is_active still apply", "ok"],
+        ["Window banner (state + time left)", "GET /chat/threads/:id/permissions status_code, remaining_hours", "ok"],
+        ["Emergency line link", "tel: from permissions emergency_line (digits only), else 997", "ok"],
+        ["Read-only note and follow-up button", "permissions read_only + book_follow_up.doctor_id (then the route doctor id, then doctor_user_id) into /consultations/book/[id]?followUp=<appointment id>; ids only", "ok"],
+        ["Voice-note control", "can_voice is read, but the app has no recording control to show or hide", "hidden"]
       ], "notes": [] },
     { "route": "/nursing/nurse-profile",
       "elements": [["Insurance strings (nur.book.insFetched, inReviewBody, insNote, sendInsurance, nur.status.rejected)", "rewritten in six languages: the provider asks the insurer, the patient sees the decision", "fixed"],
@@ -62,15 +66,12 @@
       "elements": [["Directions button for a clinic visit", "now opens booking-status?state=confirmed&view=location", "ok"]], "notes": [] }
   ],
   "needsReview": [
-    { "route": "/consultations/chat-with-doctor", "element": "Window, read-only flag and allowed composer parts", "kind": "backend",
-      "note": "The thread answer has no window, read-only flag or allowed-parts field (the server only refuses a send after consultation_followup_hours, 24 h by default, not 72 h); the screen follows is_active and the 403 and the booking type.",
-      "file": "patient-app/app/consultations/chat-with-doctor.tsx", "line": 127, "backend": "backend/src/modules/chat/chat.service.ts:234" },
     { "route": "/consultations/chat-with-doctor", "element": "Voice note", "kind": "owner",
       "note": "Online consultations should offer a voice note (decision 24) but the app has no recording flow; not built in a design batch.",
-      "file": "patient-app/app/consultations/chat-with-doctor.tsx", "line": 298 },
+      "file": "patient-app/app/consultations/chat-with-doctor.tsx", "line": 318 },
     { "route": "/consultations/chat-with-doctor", "element": "Call camera and microphone on/off", "kind": "owner",
       "note": "The camera and microphone switch belongs to the calls decision; the button only opens the existing waiting room.",
-      "file": "patient-app/app/consultations/chat-with-doctor.tsx", "line": 300 },
+      "file": "patient-app/app/consultations/chat-with-doctor.tsx", "line": 320 },
     { "route": "/consultations/prescription-from-doctor", "element": "Prescription notification without an appointment id", "kind": "backend",
       "note": "The prescription notification carries only prescriptionId, so it opens the bookings list; it should carry the appointment id.",
       "file": "patient-app/src/components/NotificationHandler.tsx", "line": 65 },
