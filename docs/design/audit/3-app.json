@@ -609,9 +609,9 @@
       "route": "/diagnostics/technician-tracking",
       "element": "Tips",
       "kind": "owner",
-      "note": "Static text; the old third tip (samples sent in cold containers) was dropped as an unverified claim.",
+      "note": "[screen is now a redirect; kept so issue indices stay stable] Static text; the old third tip (samples sent in cold containers) was dropped as an unverified claim.",
       "file": "patient-app/app/diagnostics/technician-tracking.tsx",
-      "line": 68
+      "line": 4
     },
     {
       "route": "/diagnostics/cart",

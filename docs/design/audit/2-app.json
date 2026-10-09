@@ -529,9 +529,9 @@
       "route": "/consultations/prescription-from-doctor",
       "element": "Prescription fields",
       "kind": "backend",
-      "note": "The seeded patient has no active prescription, so the doctor, spec, date, diagnosis, labs and notes fields were not seen at runtime.",
+      "note": "[screen is now a redirect (merge map 2 s.1); kept so issue indices stay stable] The seeded patient has no active prescription, so the doctor, spec, date, diagnosis, labs and notes fields were not seen at runtime.",
       "file": "patient-app/app/consultations/prescription-from-doctor.tsx",
-      "line": 110
+      "line": 4
     },
     {
       "route": "/consultations/chat-with-doctor",
@@ -601,9 +601,9 @@
       "route": "/consultations/clinic-confirm",
       "element": "Header",
       "kind": "owner",
-      "note": "The header has a close button next to the back button (two exits); the board has only back.",
+      "note": "[screen is now a redirect (merge map 2 s.1); kept so issue indices stay stable] The header has a close button next to the back button (two exits); the board has only back.",
       "file": "patient-app/app/consultations/clinic-confirm.tsx",
-      "line": 125
+      "line": 4
     },
     {
       "route": "/consultations/call-history",
