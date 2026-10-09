@@ -658,7 +658,7 @@
  {
   "scenario": 10,
   "step": "dashboard",
-  "problem": "The dashboard \"all services\" list repeats entries: AI twice, emergency twice, nutrition and maternity twice, diagnostics twice (two labels), health twice.",
+  "problem": "The dashboard \"all services\" list repeats entries: AI twice, emergency twice, nutrition and maternity twice, diagnostics twice (two labels), health twice. Fixed on design/oc-journeys-4: the list no longer repeats entries the service grid and AI card already show.",
   "kind": "duplicate",
   "file": "patient-web/components-next/home/home-parts.tsx",
   "line": 182
