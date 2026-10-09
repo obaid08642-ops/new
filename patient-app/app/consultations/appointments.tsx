@@ -38,7 +38,7 @@ export default function AppointmentsScreen() {
   const primary = (id: string, mode: VisitMode | null) => {
     if (mode === 'online') return { label: k('consult.appt.waitingRoom'), onPress: () => open(id, '/consultations/virtual-waiting-room'), flex: true };
     if (mode === 'home') return { label: k('consult.appt.trackVisit'), onPress: () => open(id, '/consultations/home-visit-tracking'), tone: 'ink' as const, flex: true };
-    if (mode === 'clinic') return { label: k('consult.appt.directions'), onPress: () => open(id, '/consultations/clinic-location'), tone: 'ink' as const, flex: true };
+    if (mode === 'clinic') return { label: k('consult.appt.directions'), onPress: () => router.push({ pathname: '/consultations/booking-status', params: { appointmentId: id, state: 'confirmed', view: 'location' } } as unknown as Href), tone: 'ink' as const, flex: true };
     return null;
   };
 

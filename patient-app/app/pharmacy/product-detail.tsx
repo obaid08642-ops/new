@@ -296,8 +296,9 @@ export default function ProductDetailScreen() {
     if (!med) return null;
     const name = medName(med);
     const price = medPrice(med);
-    const pct = discountPercent(med);
     const rx = needsRx(med);
+    // Decision 10: no discount on prescription-only items.
+    const pct = rx ? 0 : discountPercent(med);
     const lastReviewed = med.last_reviewed ? new Date(med.last_reviewed) : null;
     const stock = med.pharmacies_count ?? med.stock_status?.pharmacies_count ?? 0;
     const storage = textOf(medField(med, 'storage_conditions'));
@@ -611,7 +612,7 @@ export default function ProductDetailScreen() {
 
             {/* a prescription medicine: the upload sits above the buy buttons */}
             {view.rx && !view.discontinued ? (
-              <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.uploadRx')} onPress={() => go('/pharmacy/scan-prescription' as Href)}>
+              <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.uploadRx')} onPress={() => go('/pharmacy/rx-order?via=photo' as Href)}>
                 <Card padding="sm" elevation="flat" theme={theme}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                     <FIcon icon="prescription" tone={PHARMACY_TONE} size={40} theme={theme} />

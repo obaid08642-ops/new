@@ -1,0 +1,82 @@
+[
+  {
+    "batch": 6,
+    "app": "patient-web",
+    "screen": "/family/add",
+    "element": "Scan QR tab",
+    "file": "patient-web/components-next/family/add-family.tsx",
+    "line": 112,
+    "found": "[client] The web has no camera scanner (the code or link is pasted), as before; the app scans. Not added: it is a feature, and the camera permission handling stays as it was.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 6,
+    "app": "patient-web",
+    "screen": "/family",
+    "element": "Hero button 'دعوة برابط'",
+    "file": "patient-web/app/[locale]/family/page.tsx",
+    "line": 103,
+    "found": "[owner] The board says 'invite by link' but the product only has invite codes (POST /family/invite -> code, QR in the app); the second button reads 'Join with a code' (the old hub's own link). Owner to confirm the board copy.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 6,
+    "app": "patient-web",
+    "screen": "/family",
+    "element": "Board row 'الصلاحيات'",
+    "file": "patient-web/app/[locale]/family/page.tsx",
+    "line": 145,
+    "found": "[owner] Not drawn: permissions are per member (merge map B) and the badge on each member row shows how many of the four grants they have; confirm the board row can go.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 6,
+    "app": "patient-web",
+    "screen": "/family",
+    "element": "Emergency contacts count",
+    "file": "patient-web/app/[locale]/family/page.tsx",
+    "line": 147,
+    "found": "[client] The board row says '[N] جهات'; the hub does not call GET /family/emergency-contacts (a different list from the member's own), so no number is drawn.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 6,
+    "app": "patient-web",
+    "screen": "/family/[memberRef]",
+    "element": "Permission grants",
+    "file": "patient-web/components-next/family/member-permissions.tsx",
+    "line": 68,
+    "found": "[backend] The old SSR test fixtures carry grant names such as view_health and view_prescriptions while the screens (and the old permissions client) use vitals, meds, reports, appointments; unknown grants are kept on save but not shown. Reviewer to confirm the backend's real grant names.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 6,
+    "app": "patient-web",
+    "screen": "/family/add",
+    "element": "Invite and join errors",
+    "file": "patient-web/components-next/family/add-family.tsx",
+    "line": 82,
+    "found": "[backend] The backend's error text is English and was shown as is; the screen now shows a translated generic line, so a specific cause (code expired, already a member) is not told to the patient.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 6,
+    "app": "patient-web",
+    "screen": "/family",
+    "element": "Board frames",
+    "file": "patient-web/app/[locale]/family/page.tsx",
+    "line": 37,
+    "found": "[owner] Family.dc.html has one mobile frame (the hub) and no web frames; the other four screens follow the closest templates (list, detail with tabs, chat, form with tabs).",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 6,
+    "app": "patient-web",
+    "screen": "/family",
+    "element": "Member name",
+    "file": "patient-web/app/[locale]/family/page.tsx",
+    "line": 114,
+    "found": "[backend] GET /family/members returns no display_name for the seeded group owner (test data), so the row and the avatar fall back to 'Family member'; the backend should send the member's name.",
+    "suspect": "Backend gap: reviewer session."
+  }
+]

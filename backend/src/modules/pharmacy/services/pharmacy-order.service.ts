@@ -1,5 +1,7 @@
 import { Injectable, ForbiddenException, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Connection, Model } from 'mongoose';
+import { InjectConnection } from '@nestjs/mongoose';
+import { enforceRxRules } from './rx-rules';
 import { v4 as uuidv4 } from 'uuid';
 import { PharmacyOrder, PharmacyOrderState, ORDER_TRANSITIONS, OrderItemMatchStatus, PharmacyAllocation } from '../schemas/pharmacy.schema';
 import { SmartSplitService } from './smart-split.service';
@@ -24,6 +26,7 @@ export class PharmacyOrderService {
     private broadcast: PharmacyBroadcastService,
     private bus: EventBusService,
     private engine: WorkflowEngineService,
+    @InjectConnection() private readonly conn: Connection,
   ) {}
 
   async create(user: any, body: any) {
@@ -33,6 +36,7 @@ export class PharmacyOrderService {
       id: uuidv4(),
       raw_name: sanitize(it.raw_name || it.name || it.name_ar || 'unknown'),
       name_ar: it.name_ar, name_en: it.name_en, generic_name: it.generic_name,
+      medicine_id: typeof it.medicine_id === 'string' ? it.medicine_id : undefined,
       dosage: it.dosage, form: it.form, frequency: it.frequency, duration: it.duration,
       qty: Math.max(1, Number(it.qty) || 1),
       match_status: OrderItemMatchStatus.MANUAL,
@@ -248,6 +252,7 @@ export class PharmacyOrderService {
         id: it.id || uuidv4(),
         raw_name: sanitize(it.raw_name || it.name || it.name_ar || 'unknown'),
         name_ar: it.name_ar, name_en: it.name_en, generic_name: it.generic_name,
+        medicine_id: typeof it.medicine_id === 'string' ? it.medicine_id : undefined,
         dosage: it.dosage, form: it.form, frequency: it.frequency, duration: it.duration,
         qty: Math.max(1, Number(it.qty) || 1),
         match_status: it.match_status || OrderItemMatchStatus.MANUAL,
@@ -258,6 +263,9 @@ export class PharmacyOrderService {
     }
     if (body.delivery_address) order.delivery_address = body.delivery_address;
     if (body.patient_notes !== undefined) order.patient_notes = body.patient_notes;
+    // D-10: a prescription can be attached after the draft was created (the cart adds an Rx item later).
+    if (Array.isArray(body.prescription_attachments)) order.prescription_attachments = body.prescription_attachments;
+    if (typeof body.prescription_id === 'string') order.prescription_id = body.prescription_id;
     order.timeline.push({ ts: new Date(), event: 'edited' });
     await order.save();
     return order.toObject();
@@ -275,6 +283,11 @@ export class PharmacyOrderService {
         throw new BadRequestException(`cannot_submit_from_${order.status}`);
       }
     }
+    // D-10: Rx and controlled come from the catalogue; refused here, before any broadcast.
+    const checked: any = { items: order.items, prescription_attachments: order.prescription_attachments, prescription_id: order.prescription_id };
+    await enforceRxRules(this.conn, user.id, checked);
+    order.items = checked.items;
+    order.markModified('items');
     return await this.engine.transition({
       kind: 'pharmacy', entity_id: order.id, from_domain: order.status, to_domain: PharmacyOrderState.READY_FOR_SPLIT,
       actor_account_id: user.id, actor_role: 'patient', patient_account_id: order.patient_account_id, reason: 'patient_submitted',

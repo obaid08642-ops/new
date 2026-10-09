@@ -1,0 +1,29 @@
+/* The nursing (home care) screens (Batch 4, slice 4-web): the hub and its lists (canvas/ServiceHub rows and cards), the
+   nurse page (canvas/DoctorFull), the visits (canvas/Orders) and the tracking (canvas/OrderTracking). The shell (top bar, tab
+   bar) is components-next/core; page, card, note and state styles come from pharmacy/rx.module.css and the consultation
+   kit. Tokens only, logical properties only, no inline styles (the CSP refuses them). Everything drawn is a value the
+   server sent or a message of the message files. */
+
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; min-inline-size: 0; }
+.list > li { min-inline-size: 0; }
+@media (min-width: 768px) { .list.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; min-inline-size: 0; }
+.meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-inline-size: 0; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.price { font-size: var(--nabd-font-size-row); font-weight: 700; color: var(--nabd-color-text-primary); }
+
+.etaHead { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; min-inline-size: 0; }
+.etaLabel { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); }
+.etaValue { font-size: var(--nabd-font-size-h2); line-height: var(--nabd-font-size-h2-lineHeight); font-weight: 700; overflow-wrap: anywhere; }
+
+.avatar { inline-size: 88px; block-size: 88px; border-radius: var(--nabd-radius-pill); object-fit: cover; background: var(--nabd-color-bg-surface); }
+
+/* ---- the booking form (canvas/DoctorFull "choose the time" and BookingConfirm) ---- */
+.form { display: flex; flex-direction: column; gap: 16px; min-inline-size: 0; }
+.fieldset { border: 0; margin: 0; padding: 0; min-inline-size: 0; display: flex; flex-direction: column; gap: 8px; }
+.legend { padding: 0; font-size: var(--nabd-font-size-label); font-weight: 600; color: var(--nabd-color-text-secondary); }
+.strip { display: flex; flex-wrap: wrap; gap: 8px; }
+.slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr)); gap: 8px; }
+.alert { margin: 0; padding: 10px 12px; border-radius: var(--nabd-radius-lg); background: var(--nabd-color-status-danger-bg); color: var(--nabd-color-status-danger-fg); font-size: var(--nabd-font-size-control); line-height: 1.6; overflow-wrap: anywhere; }
+.addAddress { display: inline-flex; align-items: center; min-block-size: 44px; font-size: var(--nabd-font-size-control); font-weight: 600; color: var(--nabd-color-text-link); text-decoration: none; }
+.addAddress:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-sm); }

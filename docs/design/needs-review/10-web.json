@@ -1,0 +1,42 @@
+[
+  {
+    "batch": 10,
+    "app": "patient-web",
+    "screen": "/articles/[slug]",
+    "element": "Author link and Book button",
+    "file": "patient-web/app/[locale]/articles/[slug]/page.tsx",
+    "line": 73,
+    "found": "[backend] The article has author_name and author_title only, no doctor id, so the author cannot link to the doctor profile or to booking (decision 1). Add the doctor id to the article answer; the page draws the link then. (backend: backend/src/schemas/article.schema.ts:21)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 10,
+    "app": "patient-web",
+    "screen": "/articles/[slug]",
+    "element": "Bookmark button",
+    "file": "patient-web/app/[locale]/articles/[slug]/page.tsx",
+    "line": 112,
+    "found": "[client] The web has no way to save or unsave an article (no BFF route for POST /articles/bookmarks/:slug/toggle, no button); the Saved tab only lists what the app saved. Add the route and the button (a feature, not done in this design batch).",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 10,
+    "app": "patient-web",
+    "screen": "/articles/[slug]",
+    "element": "Article body",
+    "file": "patient-web/app/[locale]/articles/[slug]/page.tsx",
+    "line": 102,
+    "found": "[client] The page shows the summary and a notice that the full text is not available here; the body is HTML and the parser drops it on purpose. Decide how to show it safely (sanitiser) before doctor-authored articles go live.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 10,
+    "app": "patient-web",
+    "screen": "/search",
+    "element": "Search results of type Community",
+    "file": "patient-web/lib/api/search.ts",
+    "line": 61,
+    "found": "[backend] The home search still returns community posts (typeEn Community); the web drops them since the pages are gone. Remove them from the search answer when the community module is deleted. (backend: backend/src/modules/home/home.service.ts:249)",
+    "suspect": "Backend gap: reviewer session."
+  }
+]

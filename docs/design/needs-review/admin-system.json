@@ -1,0 +1,152 @@
+[
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/ai-control",
+    "element": "No nav link",
+    "file": "admin/src/pages/admin/ai-control.tsx",
+    "line": 1,
+    "found": "[client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/config-portal",
+    "element": "Trigger System Kill-Switch (معطّل — يتطلب إعداد الخادم)",
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 344,
+    "found": "[client] Button is disabled with no handler.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/legal-policies",
+    "element": "Guard G-PERM-MISMATCH (1)",
+    "file": "admin/src/pages/admin/legal-policies.tsx",
+    "line": 15,
+    "found": "[backend] 1 call(s): Page requires \"gdpr.manage\" but GET /admin/finance/commissions requires finance.read; an admin role with the page permission only gets a 403 on this call. (backend: backend/src/modules/admin/enterprise/admin-finance.controller.ts:29)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/legal-policies",
+    "element": "No nav link",
+    "file": "admin/src/pages/admin/legal-policies.tsx",
+    "line": 1,
+    "found": "[client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/rbac",
+    "element": "إنشاء دور مخصص سيُسجل الإنشاء في audit ولا تقبل مفاتيح الصلا",
+    "file": "admin/src/pages/admin/rbac.tsx",
+    "line": 79,
+    "found": "[client] Sensitive action (POST /api/admin/admin/rbac/roles) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/rbac",
+    "element": "إسناد أدوار لموظف للموظفين (admin/super_admin/support_agent)",
+    "file": "admin/src/pages/admin/rbac.tsx",
+    "line": 80,
+    "found": "[client] Sensitive action (POST /api/admin/admin/rbac/users/:param/roles) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/scheduled-reports",
+    "element": "Guard G-PERM-MISMATCH (1)",
+    "file": "admin/src/pages/admin/scheduled-reports.tsx",
+    "line": 15,
+    "found": "[backend] 1 call(s): Page requires \"reports.schedule.manage\" but POST /admin/scheduled-reports/:param/run requires ops.crons.run; an admin role with the page permission only gets a  (backend: backend/src/modules/admin/enterprise/admin-analytics.controller.ts:182)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/security",
+    "element": "Guard G-OPEN (6)",
+    "file": "admin/src/pages/admin/security.tsx",
+    "line": 35,
+    "found": "[backend] 6 call(s) hit backend routes with no role/permission guard (GET /auth/passkey/eligibility; GET /auth/passkey/devices; GET /auth/me; …): any signed-in user passes JwtAuthGuard. (backend: backend/src/modules/auth/passkey.controller.ts:21)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/system-ops",
+    "element": "تعديل راية مفعلة نسبة rollout حفظ وتدقيق",
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 19,
+    "found": "[client] Sensitive action (POST /api/admin/admin/governance-controls/feature-flags) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/system-ops",
+    "element": "Guard G-PERM-MISMATCH (2)",
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 12,
+    "found": "[backend] 2 call(s): Page requires \"ops.queues.manage\" but GET /admin/ops/translations requires translations.edit; an admin role with the page permission only gets a 403 on this cal (backend: backend/src/modules/admin/enterprise/admin-ops.controller.ts:102)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/theme-control",
+    "element": "fake delay",
+    "file": "admin/src/pages/admin/theme-control.tsx",
+    "line": 47,
+    "found": "[client] setTimeout stands in for a request and reports success.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/theme-control",
+    "element": "API POST /api/admin/theme",
+    "file": "admin/src/pages/admin/theme-control.tsx",
+    "line": 41,
+    "found": "[backend] Endpoint is NO_ROUTE (no controller declares /theme): the call fails or hits nothing.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/theme-control",
+    "element": "Guard G-RAW-WRITE (1)",
+    "file": "admin/src/pages/admin/theme-control.tsx",
+    "line": 41,
+    "found": "[backend] 1 call(s): POST /api/admin/theme uses raw fetch() instead of adminFetch/adminMutation, so no x-admin-csrf header is sent and the BFF will answer 403 csrf_validation_failed",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/theme-control",
+    "element": "No nav link",
+    "file": "admin/src/pages/admin/theme-control.tsx",
+    "line": 1,
+    "found": "[client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/login",
+    "element": "Guard G-RAW-WRITE (4)",
+    "file": "admin/src/pages/login.tsx",
+    "line": 10,
+    "found": "[backend] 4 call(s): POST /api/admin/auth/public/:param uses raw fetch() instead of adminFetch/adminMutation, so no x-admin-csrf header is sent and the BFF will answer 403 csrf_vali (backend: admin/src/pages/api/admin/auth/public/[action].ts)",
+    "suspect": "Backend gap: reviewer session."
+  }
+]

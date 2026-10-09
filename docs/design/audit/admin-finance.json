@@ -1,0 +1,358 @@
+{
+ "slice": "admin-finance",
+ "batch": "admin",
+ "app": "admin",
+ "screens": [
+  {
+   "route": "/admin/commissions",
+   "elements": [
+    [
+     "button: تحديث",
+     "load; GET /api/admin/admin/finance/ledger/summary; GET /api/admin/admin/finance/commissions",
+     "ok"
+    ],
+    [
+     "input: مزود خدمة فئة حملة",
+     "state rule used by logic/request",
+     "ok"
+    ],
+    [
+     "input: account/user id",
+     "state rule used by logic/request",
+     "ok"
+    ],
+    [
+     "input: pharmacy/lab/…",
+     "state rule used by logic/request",
+     "ok"
+    ],
+    [
+     "input: number",
+     "state rule used by logic/request",
+     "ok"
+    ],
+    [
+     "input: date",
+     "state rule used by logic/request",
+     "ok"
+    ],
+    [
+     "input: date",
+     "state rule used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ القاعدة",
+     "saveRule; POST /api/admin/admin/finance-engine/commission-rules; GET /api/admin/admin/finance-engine/commission-rules/hi",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/finance-engine/commission-rules/history",
+     "GET /api/admin/admin/finance-engine/commission-rules/history (OK, backend/src/modules/finance-engine/finance-engine.module.ts:1045)",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/disputes",
+   "elements": [
+    [
+     "input: بحث في العميل أو الموضوع",
+     "state query used by logic/request",
+     "ok"
+    ],
+    [
+     "button: تحديث",
+     "GET /api/admin/admin/disputes",
+     "ok"
+    ],
+    [
+     "button: مراجعة",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: السابق",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: التالي",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: رفض الاعتراض إغلاق بلا إجراء مالي استرداد كامل إلى المحفظة ا",
+     "state decision used by logic/request",
+     "ok"
+    ],
+    [
+     "input: number",
+     "state amount used by logic/request",
+     "ok"
+    ],
+    [
+     "input: textarea",
+     "state reason used by logic/request",
+     "ok"
+    ],
+    [
+     "button: إلغاء",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: جارٍ الحفظ… تأكيد القرار",
+     "POST /api/admin/admin/disputes/:param/resolve; GET /api/admin/admin/disputes; confirm()",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/finance-suite",
+   "elements": [
+    [
+     "input: date",
+     "state from used by logic/request",
+     "ok"
+    ],
+    [
+     "input: date",
+     "state to used by logic/request",
+     "ok"
+    ],
+    [
+     "input: يومي أسبوعي شهري",
+     "state granularity used by logic/request",
+     "ok"
+    ],
+    [
+     "button: تحديث",
+     "GET /api/admin/admin/finance/revenue; GET /api/admin/admin/finance/commissions; GET /api/admin/admin/finance/reconciliat",
+     "ok"
+    ],
+    [
+     "form: نسب العمولات (JSON) نسبة VAT سبب التغيير حفظ وتدقيق الإعدادا",
+     "saveConfig; POST /api/admin/admin/finance/commissions/config; GET /api/admin/admin/finance/revenue; GET /api/admin/admin",
+     "ok"
+    ],
+    [
+     "input: textarea",
+     "state ratesText used by logic/request",
+     "ok"
+    ],
+    [
+     "input: number",
+     "state vatRate used by logic/request",
+     "ok"
+    ],
+    [
+     "input: textarea",
+     "state reason used by logic/request",
+     "ok"
+    ],
+    [
+     "button: حفظ وتدقيق الإعدادات",
+     "submits the enclosing form",
+     "ok"
+    ],
+    [
+     "button: اعتماد",
+     "POST /api/admin/admin/finance/payouts/:param/:param; GET /api/admin/admin/finance/revenue; GET /api/admin/admin/finance/",
+     "ok"
+    ],
+    [
+     "button: رفض",
+     "POST /api/admin/admin/finance/payouts/:param/:param; GET /api/admin/admin/finance/revenue; GET /api/admin/admin/finance/",
+     "ok"
+    ],
+    [
+     "form: عرض الكشف",
+     "loadStatement; GET /api/admin/admin/finance/providers/:param/statement",
+     "ok"
+    ],
+    [
+     "input: معرّف المزوّد",
+     "state providerId used by logic/request",
+     "ok"
+    ],
+    [
+     "button: عرض الكشف",
+     "submits the enclosing form",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/finance/reconciliation",
+     "GET /api/admin/admin/finance/reconciliation (OK, backend/src/modules/admin/enterprise/admin-finance.controller.ts:41)",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/financial-ledger",
+   "elements": [
+    [
+     "button: السجل المالي والمدفوعات",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: تسعير المستودعات (B2B Warehouse)",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: Execute Payout",
+     "POST /api/admin/admin/finance/withdrawals/:param/execute",
+     "ok"
+    ],
+    [
+     "button: إرسال تسعيرة المشتريات للصيدلية",
+     "PATCH /api/admin/admin/extended-operations/issue-quote/:param",
+     "ok"
+    ],
+    [
+     "input: 0.00",
+     "value item",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/finance-engine/reports/summary",
+     "GET /api/admin/admin/finance-engine/reports/summary (OK, backend/src/modules/finance-engine/finance-engine.module.ts:1033)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/finance/commissions",
+     "GET /api/admin/admin/finance/commissions (OK, backend/src/modules/admin/enterprise/admin-finance.controller.ts:29)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/finance/withdrawals/pending",
+     "GET /api/admin/admin/finance/withdrawals/pending (OK, backend/src/modules/admin/web-core/controllers/finance.controller.ts:41)",
+     "ok"
+    ],
+    [
+     "API: GET /api/admin/admin/extended-operations/procurement/pending",
+     "GET /api/admin/admin/extended-operations/procurement/pending (OK, backend/src/modules/admin/web-core/controllers/admin-extended-operations.controller.ts:16)",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "1 handler(s) are passed as props (parent callbacks) and are not traced."
+   ]
+  },
+  {
+   "route": "/admin/payouts",
+   "elements": [
+    [
+     "button: تحديث الطلبات",
+     "fetchPayouts; GET /api/admin/admin/finance/withdrawals/pending",
+     "ok"
+    ],
+    [
+     "button: إعادة المحاولة",
+     "fetchPayouts; GET /api/admin/admin/finance/withdrawals/pending",
+     "ok"
+    ],
+    [
+     "button: تنفيذ التحويل",
+     "POST /api/admin/admin/finance/withdrawals/:param/execute; GET /api/admin/admin/finance/withdrawals/pending; confirm()",
+     "ok"
+    ],
+    [
+     "button: رفض",
+     "local state",
+     "ok"
+    ],
+    [
+     "input: سبب الرفض (يظهر للمزود)",
+     "state rejectReason used by logic/request",
+     "ok"
+    ],
+    [
+     "button: تأكيد الرفض",
+     "POST /api/admin/admin/finance/withdrawals/:param/reject; GET /api/admin/admin/finance/withdrawals/pending",
+     "ok"
+    ],
+    [
+     "button: تراجع",
+     "local state",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/admin/returns",
+   "elements": [
+    [
+     "button: <button> onClick",
+     "local state",
+     "ok"
+    ],
+    [
+     "button: اعتماد الاسترداد",
+     "POST /api/admin/admin/returns/:param/decide; GET /api/admin/admin/returns; prompt()",
+     "ok"
+    ],
+    [
+     "button: رفض الطلب",
+     "POST /api/admin/admin/returns/:param/decide; GET /api/admin/admin/returns; prompt()",
+     "ok"
+    ]
+   ]
+  }
+ ],
+ "needsReview": [
+  {
+   "route": "/admin/commissions",
+   "element": "No nav link",
+   "kind": "client",
+   "note": "Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
+   "file": "admin/src/pages/admin/commissions.tsx",
+   "line": 1
+  },
+  {
+   "route": "/admin/finance-suite",
+   "element": "Guard G-PERM-MISMATCH (2)",
+   "kind": "backend",
+   "note": "2 call(s): Page requires \"finance.read\" but POST /admin/finance/commissions/config requires finance.config.edit; an admin role with the page permission only gets a 403 on ",
+   "file": "admin/src/pages/admin/finance-suite.tsx",
+   "line": 26,
+   "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:35"
+  },
+  {
+   "route": "/admin/financial-ledger",
+   "element": "Execute Payout",
+   "kind": "client",
+   "note": "Sensitive action (POST /api/admin/admin/finance/withdrawals/:param/execute) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/financial-ledger.tsx",
+   "line": 254
+  },
+  {
+   "route": "/admin/financial-ledger",
+   "element": "Guard G-ROLE-ONLY-WRITE (1)",
+   "kind": "backend",
+   "note": "1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/finance/withdrawals/:param/execute): every admin role, including a custom restricted one, can run them.",
+   "file": "admin/src/pages/admin/financial-ledger.tsx",
+   "line": 111,
+   "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:74"
+  },
+  {
+   "route": "/admin/payouts",
+   "element": "تأكيد الرفض",
+   "kind": "client",
+   "note": "Sensitive action (POST /api/admin/admin/finance/withdrawals/:param/reject) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+   "file": "admin/src/pages/admin/payouts.tsx",
+   "line": 154
+  },
+  {
+   "route": "/admin/payouts",
+   "element": "Guard G-ROLE-ONLY-WRITE (2)",
+   "kind": "backend",
+   "note": "2 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/finance/withdrawals/:param/execute; POST /api/admin/admin/finance/withdrawals/:param/reject): every admin role, including a custom restricted one, can run them.",
+   "file": "admin/src/pages/admin/payouts.tsx",
+   "line": 49,
+   "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:74"
+  }
+ ]
+}

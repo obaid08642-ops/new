@@ -145,7 +145,7 @@ describe('Search screen (board Search)', () => {
     await waitFor(() => expect(screen.getByText('لا توجد نتائج')).toBeTruthy(), { timeout: 3000 });
     expect(screen.getByText('رفع الوصفة')).toBeTruthy();
     await fireEvent.press(screen.getByText('رفع الوصفة'));
-    expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/scan-prescription');
+    expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/rx-order?via=photo');
   });
 
   it('a failed search shows the error state with a retry that searches again', async () => {

@@ -1,0 +1,42 @@
+[
+  {
+    "batch": 14,
+    "app": "patient-web",
+    "screen": "/diagnostics/labs/book",
+    "element": "Book one lab test",
+    "file": "patient-web/components-next/lab-booking-form.tsx",
+    "line": 28,
+    "found": "[backend] Not merged into /diagnostics/checkout: it posts to POST /patient/labs/bookings (one test, one provider) while checkout posts to /diagnostics/orders; kept as a separate entry.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-web",
+    "screen": "/c/[[...category]]",
+    "element": "Sort on the catalogue",
+    "file": "patient-web/lib/catalogue-href.ts",
+    "line": 6,
+    "found": "[backend] The old filters page and medicines list offered a trending sort; the public catalogue endpoint has no ordering parameter, so the sort is dropped by the redirect.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-web",
+    "screen": "/pharmacy/barcode",
+    "element": "Interaction notes",
+    "file": "patient-web/components-next/drug-interaction-checker.tsx",
+    "line": 95,
+    "found": "[backend] POST /ai/drug-interactions returns the note only in Arabic (note_ar); other languages show the severity without a note, no Arabic fallback.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-web",
+    "screen": "/pharmacy/broadcast-status",
+    "element": "Cancel / returns text (decision 26)",
+    "file": "patient-web/components-next/pharmacy-offers/waiting-actions.tsx",
+    "line": 34,
+    "found": "[client] No hard-coded 12/24 h or 4/24 h copy exists in the lab or pharmacy screens; the order cancel confirmation shows no cancellation or returns rule. GET /system-config/public has cancellation_policy and returns_policy for it.",
+    "suspect": "Client-side: later batch."
+  }
+]

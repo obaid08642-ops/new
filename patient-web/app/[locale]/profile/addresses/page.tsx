@@ -1,17 +1,18 @@
 import { notFound, redirect } from "next/navigation";
-import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import type { Metadata } from "next";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { getPatientAddresses } from "@/lib/api/addresses-server";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
-import type { Metadata } from "next";
-import { AddressList, AddAddressForm } from "@/components-next/addresses";
-import { VectorMap } from "@/components-next/vector-illustrations";
-import { ChevronLeft, MapPin } from "lucide-react";
-import styles from "../profile.module.css";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { SectionCard } from "@/components-next/consult/consult-parts";
+import { AddressSelectScreen } from "@/components-next/delivery-address/address-select-screen";
+import forms from "@/components-next/consult/consult.module.css";
+import { AddAddressForm, AddressList, type PatientAddress } from "@/components-next/account/address-book";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ select?: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
@@ -28,54 +29,42 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function AddressesPage({ params }: Props) {
+/**
+ * `/profile/addresses`, the address book (merge map 2, section 8): the saved addresses with a remove on each and the form to
+ * add one. With `?select=1` it is the pick mode that replaced `/delivery/address-select`: choose which saved address pharmacy
+ * orders are delivered to. The app keeps its map picker as the pick-on-map step; the website has no map step.
+ */
+export default async function AddressesPage({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
+  const { select } = await searchParams;
+  if (select === "1") return <AddressSelectScreen locale={locale} />;
+
   const t = await getTranslations("Addresses");
+  const rs = await getTranslations("RouteState");
+  const a = await getTranslations("AccountWeb");
   const token = await requirePatientAccess(locale);
   const response = await getPatientAddresses(token);
   if (response.status === 401) redirect(`/${locale}/login`);
+  const back = `/${locale}/profile`;
+  if (!response.ok) {
+    return (
+      <ConsultPage locale={locale} title={t("title")} backHref={back}>
+        <ConsultState kind="error" title={a("addressesErrorTitle")} body={a("addressesErrorBody")} retryLabel={rs("retry")} />
+      </ConsultPage>
+    );
+  }
   // Q10: GET /users/me/addresses answers a plain array; reading `.addresses` showed an empty list to every patient.
-  const payload = response.ok ? await response.json().catch(() => null) : null;
-  const addresses = Array.isArray(payload) ? payload : (payload?.addresses ?? payload?.data ?? []);
-  const isAr = locale === "ar";
+  const payload = await response.json().catch(() => null);
+  const addresses: PatientAddress[] = Array.isArray(payload) ? payload : (payload?.addresses ?? payload?.data ?? []);
 
   return (
-    <main className={`main ${styles.page}`}>
-      <Link
-        href={`/${locale}/profile`}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          color: "var(--brand-deep)",
-          fontWeight: 750,
-          textDecoration: "none",
-        }}
-      >
-        <ChevronLeft size={17} aria-hidden="true" />
-        {isAr ? "العودة للملف الشخصي" : "Back to Profile"}
-      </Link>
-
-      <section className={styles.hero}>
-        <div>
-          <p className={styles.eyebrow}>
-            <MapPin size={15} aria-hidden="true" />
-            {isAr ? "العناوين ومواقع التوصيل" : "Delivery Locations"}
-          </p>
-          <h1>{t("title")}</h1>
-          <p>{t("subtitle")}</p>
-        </div>
-        <div className={styles.heroVector}>
-          <VectorMap size={75} />
-        </div>
-      </section>
-
-      <div style={{ display: "grid", gap: "1.5rem" }}>
-        <AddressList addresses={addresses} locale={locale} />
-        <AddAddressForm locale={locale} />
-      </div>
-    </main>
+    <ConsultPage locale={locale} title={t("title")} backHref={back}>
+      <SectionCard id="saved" title={t("listLabel")}>
+        {addresses.length === 0 ? <p className={`${forms.body} ${forms.muted}`}>{t("empty")}</p> : <AddressList addresses={addresses} />}
+      </SectionCard>
+      <SectionCard id="add"><AddAddressForm locale={locale} /></SectionCard>
+    </ConsultPage>
   );
 }

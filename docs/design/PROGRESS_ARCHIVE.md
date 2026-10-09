@@ -180,3 +180,9 @@ Same strictness as colours; full text in `QUALITY_STANDARDS.md` §8 and `AGENTS.
 | 2026-10-04 | `design/font-web` | Self-hosted Readex Pro and Noto on patient-web; found that the web had no font loading at all on main. | PR [#260](https://github.com/obaid08642-ops/new/pull/260), tip `f0a82b8` |
 | 2026-10-04 | `design/tokens` | Tokens step: service tones and service map, contrast pairs, regenerated outputs, before/after swatches. | PR [#259](https://github.com/obaid08642-ops/new/pull/259), tip `1a5a783` |
 | 2026-10-04 | `claude/progress-md-workflow-vqhj8x` | Recorded the owner decisions (branches, one call product, doctor fields, screens without a board, endpoints to hide). Imported the updated `DoctorFull` board. | PR [#256](https://github.com/obaid08642-ops/new/pull/256) |
+
+## Open owner questions (2026-10-08)
+- **Owner questions open:** intro/language/permissions screens before Welcome? Which roles may hold a patient session? Chat entry points with no order; compare picker; camera barcode on web; where the insurance choice belongs; native review of ur/hi/bn/tl wording.
+
+## Owner plan 2026-10-08 (full)
+Patient journey audit: docs/journeys/patient.md, walked on running app/web, needs-review/journeys.json (scenario, step, problem, file:line), no logic fixes. Provider app (~130 screens): inventory + merge map to owner BEFORE building; wait for provider boards for key screens. Admin: full on desktop; mobile = today's numbers, approvals queue, problem orders, feature switches, urgent alerts, medicine catalogue (search by name/ingredient/camera barcode, quick edit of key fields, add from items-to-review queue, confirmation before price/requires_prescription/controlled changes, change log); flag public directory pages inside admin.

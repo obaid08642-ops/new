@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { VideoCallRoom } from './VideoCallRoom';
 
 interface LiveKitRoomProviderProps {
@@ -20,12 +21,13 @@ interface LiveKitRoomProviderProps {
  * caller against the appointment before issuing a LiveKit token.
  */
 export const LiveKitRoomProvider = ({ route, navigation }: LiveKitRoomProviderProps) => {
+  const insets = useSafeAreaInsets();
   const params = route.params || {};
   const appointmentId = String(params.appointmentId || params.roomId || '');
 
   if (!appointmentId) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, paddingTop: 24 + insets.top, paddingBottom: 24 + insets.bottom }}>
         <Text style={{ textAlign: 'center' }}>Unable to start the call because its appointment identifier is missing.</Text>
       </View>
     );

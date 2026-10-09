@@ -4,10 +4,10 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import OrderCenterScreen from '../../../app/orders/index';
-import PharmacyOrderHistoryScreen from '../../../app/pharmacy/order-history';
+import PharmacyOrderHistoryScreen from '../../../app/orders/index';
 import OrderTrackingScreen from '../../../app/pharmacy/order-tracking';
 import PharmacyReorderScreen from '../../../app/pharmacy/reorder';
-import AddressSelectScreen from '../../../app/delivery/address-select';
+import { AddressBookView } from '../../components/account/AddressBookView';
 import { message } from '../../components/screen/ScreenKit';
 import { hashRef } from '../../utils/orderCenter';
 
@@ -85,7 +85,7 @@ beforeEach(() => {
   mockAddress.current = { id: 'a1', label: 'Test home', street: 'Test street', city: 'Test city', lat: 24.7, lng: 46.6 };
 });
 
-describe('pharmacy order history', () => {
+describe('pharmacy orders in the orders list (the old pharmacy order history is a redirect to /orders)', () => {
   it('opens the offers for an order still looking for them, and the order again screen for a delivered one', async () => {
     answer({
       '/patient/pharmacy/orders': [
@@ -107,7 +107,7 @@ describe('pharmacy order history', () => {
   it('says so when the list cannot be loaded, and loads it again on retry', async () => {
     answer({ '/patient/pharmacy/orders': new Error('server_error') });
     await render(wrap(<PharmacyOrderHistoryScreen />));
-    await screen.findByText(k('orders.loadError'));
+    await screen.findByText(k('orders.partial', { n: 1 }));
     answer({ '/patient/pharmacy/orders': [stored('ord-aaaaaa111111', 'confirmed', { selected_offer_id: 'o1' })] });
     await tap(screen.getByLabelText(k('pharmacy.retry')));
     await screen.findByLabelText(new RegExp(k('orders.status.confirmed')));
@@ -266,7 +266,10 @@ describe('order again', () => {
   });
 });
 
-describe('delivery address', () => {
+describe('delivery address (the address book in pick mode, ?select=1)', () => {
+  beforeEach(() => {
+    mockParams.current = { select: '1' };
+  });
   const list = [
     { id: 'a1', label: 'Test home', street: 'Test street', city: 'Test city', lat: 24.7, lng: 46.6, is_default: true },
     { id: 'a2', label: 'Test work', street: 'Work street', lat: 24.8, lng: 46.7 },
@@ -275,7 +278,7 @@ describe('delivery address', () => {
 
   it('starts on the default, shows which address has no map point, and keeps the one confirmed', async () => {
     answer({ '/users/me/addresses': list });
-    await render(wrap(<AddressSelectScreen />));
+    await render(wrap(<AddressBookView />));
     const home = await screen.findByLabelText(new RegExp('Test home'));
     expect(home.props.accessibilityState.checked).toBe(true);
     expect(screen.getByText(k('address.noPoint'))).toBeTruthy();
@@ -289,24 +292,24 @@ describe('delivery address', () => {
   it('starts on the address picked last when it is still saved', async () => {
     mockPicked.current = { id: 'a2' };
     answer({ '/users/me/addresses': list });
-    await render(wrap(<AddressSelectScreen />));
+    await render(wrap(<AddressBookView />));
     const work = await screen.findByLabelText(new RegExp('Test work'));
     expect(work.props.accessibilityState.checked).toBe(true);
   });
 
   it('says so when there are no saved addresses, with the way to add one on the map', async () => {
     answer({ '/users/me/addresses': [] });
-    await render(wrap(<AddressSelectScreen />));
+    await render(wrap(<AddressBookView />));
     await tap(await screen.findByLabelText(k('address.add')));
     expect(mockRouter.push).toHaveBeenCalledWith('/shared/location-picker');
   });
 
   it('says so when the addresses cannot be loaded and offers a retry', async () => {
     answer({ '/users/me/addresses': new Error('server_error') });
-    await render(wrap(<AddressSelectScreen />));
+    await render(wrap(<AddressBookView />));
     await screen.findByText(k('address.loadError'));
     answer({ '/users/me/addresses': list });
-    await tap(screen.getByLabelText(k('pharmacy.retry')));
+    await tap(screen.getByLabelText(k('consult.retry')));
     await screen.findByLabelText(new RegExp('Test home'));
   });
 });

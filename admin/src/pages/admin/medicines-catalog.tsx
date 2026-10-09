@@ -272,7 +272,7 @@ export default function MedicinesCatalogPage() {
               <label className="flex items-center gap-2 text-sm text-slate-600">
                 <input type="checkbox" checked={includeDeleted} onChange={e => setIncludeDeleted(e.target.checked)} /> إظهار المحذوفة
               </label>
-              <button onClick={openCreate} className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-5 py-2 rounded-lg mr-auto">+ إضافة صنف جديد</button>
+              <button onClick={openCreate} className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-5 py-2 rounded-lg ms-auto">+ إضافة صنف جديد</button>
             </div>
 
             {formMode !== 'closed' && (
@@ -305,7 +305,7 @@ export default function MedicinesCatalogPage() {
                         <div key={i} className="relative w-24 h-24 border rounded-lg overflow-hidden bg-slate-50">
                           <img src={u} alt="" className="w-full h-full object-contain" />
                           <button type="button" onClick={() => setImageUrls(imageUrls.filter((_, x) => x !== i))}
-                            className="absolute top-1 left-1 bg-red-600 text-white rounded-full w-5 h-5 text-xs font-bold">×</button>
+                            className="absolute top-1 end-1 bg-red-600 text-white rounded-full w-5 h-5 text-xs font-bold">×</button>
                         </div>
                       ))}
                       {imageUrls.length < MAX_IMAGES && (

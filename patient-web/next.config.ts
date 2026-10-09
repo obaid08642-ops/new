@@ -27,7 +27,7 @@ const nextConfig: NextConfig = {
       { source: "/:locale/nursing", destination: "/:locale/nursing/catalog", permanent: false },
       { source: "/:locale/nursing/booking", destination: "/:locale/nursing/catalog", permanent: false },
       { source: "/:locale/home-nursing", destination: "/:locale/nursing/catalog", permanent: false },
-      { source: "/:locale/medicine", destination: "/:locale/medicines", permanent: false },
+      { source: "/:locale/medicine", destination: "/:locale/c", permanent: true },
       { source: "/:locale/pharmacies", destination: "/:locale/c", permanent: false },
       { source: "/:locale/services", destination: "/:locale", permanent: false },
       { source: "/:locale/p", destination: "/:locale/c", permanent: false },
@@ -50,6 +50,15 @@ const nextConfig: NextConfig = {
       { source: "/:locale/reports", destination: "/:locale/health/records?tab=reports", permanent: false },
       { source: "/:locale/health/timeline", destination: "/:locale/health/records?tab=timeline", permanent: false },
       { source: "/:locale/reports/timeline", destination: "/:locale/health/records?tab=timeline", permanent: false },
+      // Batch 6 (merge map, section 2): the family screens. `/family` is the hub (members, group, Requests), the member screen holds the
+      // member's records and permissions, and invite, join and scan are the tabs of `/family/add`. The source query is forwarded,
+      // so a stale join link keeps its `code`.
+      { source: "/:locale/family/permissions", destination: "/:locale/family", permanent: false },
+      { source: "/:locale/family/permission-requests", destination: "/:locale/family#requests", permanent: false },
+      { source: "/:locale/family/invite", destination: "/:locale/family/add?tab=invite", permanent: false },
+      { source: "/:locale/family/join", destination: "/:locale/family/add?tab=join", permanent: false },
+      { source: "/:locale/family/scan", destination: "/:locale/family/add?tab=scan", permanent: false },
+      { source: "/:locale/health/add-family-member", destination: "/:locale/family/add?tab=invite", permanent: false },
     ];
   },
   async headers() {

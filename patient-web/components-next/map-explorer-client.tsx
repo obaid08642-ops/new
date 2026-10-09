@@ -2,26 +2,17 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
-import {
-  Building2,
-  Compass,
-  FlaskConical,
-  HeartPulse,
-  MapPin,
-  Navigation,
-  Pill,
-  Search,
-  Star,
-  Stethoscope,
-} from "lucide-react";
+import { useTranslations } from "next-intl";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, SERVICE_ICONS, type FillIconName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
+import { Spinner } from "@/components-next/ui-generated/components/Spinner";
 import { peekSwr, putSwr } from "@/lib/swr-lite";
+import forms from "@/components-next/consult/consult.module.css";
 import styles from "./map-explorer.module.css";
 
 const MAP_URL = "/api/patient/providers/map?radius=25";
 
 type Labels = {
-  title: string;
-  subtitle: string;
   searchPh: string;
   filterAll: string;
   filterDoctors: string;
@@ -31,15 +22,15 @@ type Labels = {
   filterNursing: string;
   directions: string;
   book: string;
-  rating: string;
-  distance: string;
   noProviders: string;
 };
+
+type ProviderType = "doctor" | "hospital" | "pharmacy" | "lab" | "nursing";
 
 type Provider = {
   id: string;
   name: string;
-  type: "doctor" | "hospital" | "pharmacy" | "lab" | "nursing";
+  type: ProviderType;
   rating?: number;
   distance_km?: number;
   lat?: number;
@@ -49,13 +40,21 @@ type Provider = {
   specialty?: string;
 };
 
-export function MapExplorerClient({
-  locale,
-  labels,
-}: {
-  locale: string;
-  labels: Labels;
-}) {
+/** The handoff service map's glyph and tone for each kind of provider (never written as colour names). */
+const TYPE_ICON: Record<ProviderType, { icon: FillIconName; tone: ServiceTone }> = {
+  doctor: SERVICE_ICONS.consult,
+  hospital: { icon: "hospital", tone: SERVICE_ICONS.consult.tone },
+  pharmacy: SERVICE_ICONS.pharmacy,
+  lab: SERVICE_ICONS.lab,
+  nursing: SERVICE_ICONS.nursing,
+};
+
+/**
+ * The facilities map (GET /providers/map?radius=25): a search field, the type filters, the list of providers with directions
+ * and booking, and the OpenStreetMap pane of the chosen one. The list is the server's; nothing is invented when it is empty.
+ */
+export function MapExplorerClient({ locale, labels }: { locale: string; labels: Labels }) {
+  const t = useTranslations("AccountWeb");
   // The list the last visit in this tab received shows at once; the request below replaces it (lib/swr-lite.ts).
   const [providers, setProviders] = useState<Provider[]>(() => peekSwr<Provider[]>(MAP_URL) ?? []);
   const [loading, setLoading] = useState(() => peekSwr<Provider[]>(MAP_URL) === undefined);
@@ -73,7 +72,7 @@ export function MapExplorerClient({
           const list = Array.isArray(data) ? data : data?.data ?? [];
           if (!cancelled && Array.isArray(list)) {
             const next: Provider[] =
-              list.map((p: any) => ({
+              list.map((p: Record<string, any>) => ({
                 id: String(p.id ?? p._id ?? ""),
                 name: String(p.name_ar ?? p.name ?? p.clinic_name ?? ""),
                 type: p.type || p.provider_type || "doctor",
@@ -89,7 +88,7 @@ export function MapExplorerClient({
           }
         }
       } catch {
-        // Fallback gracefully without fake data
+        // an empty list is shown, never made-up providers
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -111,138 +110,96 @@ export function MapExplorerClient({
   }, [providers, selectedType, searchQuery]);
 
   const typeFilters = [
-    { id: "all", label: labels.filterAll, icon: Compass },
-    { id: "doctor", label: labels.filterDoctors, icon: Stethoscope },
-    { id: "hospital", label: labels.filterHospitals, icon: Building2 },
-    { id: "pharmacy", label: labels.filterPharmacies, icon: Pill },
-    { id: "lab", label: labels.filterLabs, icon: FlaskConical },
-    { id: "nursing", label: labels.filterNursing, icon: HeartPulse },
+    { id: "all", label: labels.filterAll },
+    { id: "doctor", label: labels.filterDoctors },
+    { id: "hospital", label: labels.filterHospitals },
+    { id: "pharmacy", label: labels.filterPharmacies },
+    { id: "lab", label: labels.filterLabs },
+    { id: "nursing", label: labels.filterNursing },
   ];
 
+  const bookHref = (prov: Provider) =>
+    prov.type === "hospital"
+      ? `/${locale}/consultations/clinics/${prov.id}`
+      : prov.type === "lab"
+        ? `/${locale}/diagnostics/labs/${prov.id}`
+        : prov.type === "doctor"
+          ? `/${locale}/consultations/doctors/${prov.id}`
+          : `/${locale}/c`;
+
   return (
-    <div className={styles.container}>
-      {/* Sidebar Controls */}
-      <aside className={styles.sidebar}>
-        <div className={styles.header}>
-          <h1>{labels.title}</h1>
-          <p>{labels.subtitle}</p>
+    <div className={styles.layout}>
+      <div className={styles.side}>
+        <label className={forms.field}>
+          <span className={styles.srOnly}>{labels.searchPh}</span>
+          <input className={forms.control} type="search" value={searchQuery} placeholder={labels.searchPh} onChange={(e) => setSearchQuery(e.target.value)} />
+        </label>
+        <div className={forms.choices} role="group" aria-label={t("mapFilters")}>
+          {typeFilters.map((f) => (
+            <button key={f.id} type="button" className={forms.choice} aria-pressed={selectedType === f.id} onClick={() => setSelectedType(f.id)}>
+              {f.label}
+            </button>
+          ))}
         </div>
 
-        {/* Search */}
-        <div className={styles.searchBox}>
-          <Search size={18} aria-hidden="true" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={labels.searchPh}
-          />
-        </div>
-
-        {/* Filter Pills */}
-        <div className={styles.filterRow}>
-          {typeFilters.map((f) => {
-            const Icon = f.icon;
-            const active = selectedType === f.id;
-            return (
-              <button
-                key={f.id}
-                type="button"
-                className={`${styles.filterPill} ${active ? styles.activePill : ""}`}
-                onClick={() => setSelectedType(f.id)}
-              >
-                <Icon size={15} aria-hidden="true" />
-                <span>{f.label}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Providers List */}
-        <div className={styles.list}>
-          {loading ? (
-            <div className={styles.emptyState}>
-              <Compass size={48} className={styles.spin} />
-              <p>جارٍ البحث عن المنشآت القريبة...</p>
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className={styles.emptyState}>
-              <MapPin size={48} />
-              <p>{labels.noProviders}</p>
-            </div>
-          ) : (
-            filtered.map((prov) => {
-              const active = selectedProvider?.id === prov.id;
+        {loading ? (
+          <p className={styles.state} role="status"><Spinner />{t("mapLoading")}</p>
+        ) : filtered.length === 0 ? (
+          <p className={styles.state} role="status">{labels.noProviders}</p>
+        ) : (
+          <ul className={styles.list} aria-label={t("mapList")}>
+            {filtered.map((prov) => {
+              const glyph = TYPE_ICON[prov.type] ?? TYPE_ICON.doctor;
               return (
-                <div
-                  key={prov.id}
-                  className={`${styles.card} ${active ? styles.activeCard : ""}`}
-                  onClick={() => setSelectedProvider(prov)}
-                >
-                  <div className={styles.cardTop}>
-                    <strong>{prov.name}</strong>
+                <li key={prov.id} className={`${styles.card} ${selectedProvider?.id === prov.id ? styles.cardOn : ""}`}>
+                  <button type="button" className={styles.cardMain} aria-pressed={selectedProvider?.id === prov.id} onClick={() => setSelectedProvider(prov)}>
+                    <FIcon icon={glyph.icon} tone={glyph.tone} size={44} />
+                    <span className={styles.cardText}>
+                      <span className={styles.cardTitle}>{prov.name}</span>
+                      {prov.address ? <span className={styles.cardSub}>{prov.address}</span> : null}
+                    </span>
                     {prov.rating ? (
                       <span className={styles.rating}>
-                        <Star size={13} fill="#F59E0B" color="#F59E0B" />
-                        {prov.rating}
+                        <svg aria-hidden="true" width={14} height={14} viewBox={FILL_ICON_VIEWBOX}><path d={FILL_ICON_PATHS.star} fill="var(--nabd-color-icon-ratingStar)" /></svg>
+                        <bdi>{prov.rating}</bdi>
                       </span>
                     ) : null}
-                  </div>
-                  <p className={styles.address}>
-                    <MapPin size={13} />
-                    <span>{prov.address}</span>
-                  </p>
+                  </button>
                   <div className={styles.cardActions}>
                     <a
-                      href={prov.lat && prov.lng ? `https://www.openstreetmap.org/directions?to=${prov.lat}%2C${prov.lng}` : `https://www.openstreetmap.org/search?query=${encodeURIComponent(prov.name + ' ' + (prov.address || ''))}`}
+                      href={prov.lat && prov.lng ? `https://www.openstreetmap.org/directions?to=${prov.lat}%2C${prov.lng}` : `https://www.openstreetmap.org/search?query=${encodeURIComponent(prov.name + " " + (prov.address || ""))}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={styles.dirBtn}
-                      onClick={(e) => e.stopPropagation()}
+                      className={`nabd-button nabd-button--outline nabd-button--sm ${styles.action}`}
                     >
-                      <Navigation size={14} />
-                      <span>{labels.directions}</span>
+                      <span className="nabd-button__label">{labels.directions}</span>
                     </a>
-                    <Link
-                      href={
-                        prov.type === "hospital"
-                          ? `/${locale}/consultations/clinics/${prov.id}`
-                          : prov.type === "lab"
-                          ? `/${locale}/diagnostics/labs/${prov.id}`
-                          : prov.type === "doctor"
-                          ? `/${locale}/consultations/doctors/${prov.id}`
-                          : `/${locale}/medicines`
-                      }
-                      className={styles.bookBtn}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {labels.book}
+                    <Link href={bookHref(prov)} className={`nabd-button nabd-button--primary nabd-button--sm ${styles.action}`}>
+                      <span className="nabd-button__label">{labels.book}</span>
                     </Link>
                   </div>
-                </div>
+                </li>
               );
-            })
-          )}
-        </div>
-      </aside>
+            })}
+          </ul>
+        )}
+      </div>
 
-      {/* Visual Map Area - Powered by OpenStreetMap (Free, High Performance & Privacy Preserving) */}
-      <section className={styles.mapArea}>
+      {/* The map pane: OpenStreetMap (open data, no tracking). */}
+      <section className={styles.pane} aria-label={t("mapPane")}>
         {selectedProvider && selectedProvider.lat && selectedProvider.lng ? (
           <iframe
             title={selectedProvider.name}
-            style={{ width: "100%", height: "100%", border: 0 }}
+            className={styles.frame}
             loading="lazy"
             src={`https://www.openstreetmap.org/export/embed.html?bbox=${selectedProvider.lng - 0.015}%2C${selectedProvider.lat - 0.015}%2C${selectedProvider.lng + 0.015}%2C${selectedProvider.lat + 0.015}&layer=mapnik&marker=${selectedProvider.lat}%2C${selectedProvider.lng}`}
           />
         ) : (
-          <div className={styles.mapCanvas}>
-            <div className={styles.mapOverlayNotice}>
-              <Compass size={48} color="#1E332E" />
-              <h3>خريطة المنشآت التفاعلية</h3>
-              <p>تصفح المراكز الطبية والعيادات المعتمدة من القائمة لعرض موقعها المباشر على الخريطة والاتجاهات.</p>
-              <small style={{ color: "#94a3b8", display: "block", marginTop: "8px" }}>خرائط مفتوحة المصدر ومحمية الخصوصية</small>
-            </div>
+          <div className={styles.idle}>
+            <FIcon icon={SERVICE_ICONS.map.icon} tone={SERVICE_ICONS.map.tone} size={64} chip="solid" />
+            <h2 className={styles.idleTitle}>{t("mapIdleTitle")}</h2>
+            <p className={styles.idleBody}>{t("mapIdleBody")}</p>
+            <p className={styles.idleNote}>{t("mapIdleNote")}</p>
           </div>
         )}
       </section>

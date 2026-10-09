@@ -1,0 +1,1198 @@
+{
+ "slice": "provider-shared",
+ "batch": "provider",
+ "app": "provider-app",
+ "screens": [
+  {
+   "route": "CertificatesConfigScreen (shared)",
+   "elements": [
+    [
+     "data: Data pendingDocType",
+     "POST /provider/kyc/documents, GET /provider/kyc/documents → pendingDocType",
+     "ok"
+    ],
+    [
+     "button: Retry",
+     "GET /provider/kyc/documents",
+     "ok"
+    ],
+    [
+     "data: List docs",
+     "GET /provider/kyc/documents → docs",
+     "ok"
+    ],
+    [
+     "button: Re-upload Document",
+     "POST /provider/kyc/documents, GET /provider/kyc/documents",
+     "ok"
+    ],
+    [
+     "data: List missing",
+     "GET /provider/kyc/documents → missing",
+     "ok"
+    ],
+    [
+     "button: Uploading…",
+     "POST /provider/kyc/documents, GET /provider/kyc/documents",
+     "ok"
+    ],
+    [
+     "button: [upload] Upload New Certificate",
+     "POST /provider/kyc/documents, GET /provider/kyc/documents",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "ChatSystem",
+   "elements": [
+    [
+     "button: [back]",
+     "parent callback onBack",
+     "ok"
+    ],
+    [
+     "input: Search conversations...",
+     "user input → search (local)",
+     "ok"
+    ],
+    [
+     "button: [{conv.name}] {conv.name}",
+     "local state setActiveChat",
+     "ok"
+    ],
+    [
+     "button: [back]",
+     "parent callback onBack",
+     "ok"
+    ],
+    [
+     "data: List messages",
+     "GET /chats/:param/messages, POST /chats/:param/messages, POST /storage/upload → messages",
+     "ok"
+    ],
+    [
+     "button: [plus]",
+     "local state setShowAttach",
+     "ok"
+    ],
+    [
+     "input: Type a message...",
+     "user input → msg (local)",
+     "ok"
+    ],
+    [
+     "button: [forward]",
+     "POST /chats/:param/messages",
+     "ok"
+    ],
+    [
+     "button: [{att.name}] {att.ar}",
+     "POST /storage/upload, POST /chats/:param/messages",
+     "ok"
+    ],
+    [
+     "data: List filtered",
+     "from filtered (prop / derived; not traced)",
+     "ok"
+    ],
+    [
+     "API: GET /chats/threads",
+     "GET /chats/threads (OK, backend/src/modules/chat/chat.module.ts:141)",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "1 list(s) fed by a parent prop are not traced across components."
+   ]
+  },
+  {
+   "route": "ChronicDiseaseProgramScreen",
+   "elements": [
+    [
+     "data: List patients",
+     "GET /pharmacy/orders/refills → patients",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "DeliveryTrackingScreen",
+   "elements": [
+    [
+     "button: Call Driver",
+     "native action",
+     "ok"
+    ],
+    [
+     "API: GET /provider/pharmacy/allocations",
+     "GET /provider/pharmacy/allocations (OK, backend/src/modules/pharmacy/pharmacy.controllers.ts:74)",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "FleetScreen",
+   "elements": [
+    [
+     "button: Add Vehicle",
+     "local state setShowForm",
+     "ok"
+    ],
+    [
+     "button: Retry",
+     "GET /provider/ambulance/fleet",
+     "ok"
+    ],
+    [
+     "data: List vehicles",
+     "GET /provider/ambulance/fleet, PATCH /provider/ambulance/fleet/:param, DELETE /provider/ambulance/fleet/:param → vehicle",
+     "ok"
+    ],
+    [
+     "input: Available for missions",
+     "user input → PATCH /provider/ambulance/fleet/:param",
+     "ok"
+    ],
+    [
+     "button: Remove",
+     "DELETE /provider/ambulance/fleet/:param",
+     "ok"
+    ],
+    [
+     "data: Data f",
+     "f: set from user input / local logic",
+     "ok"
+    ],
+    [
+     "data: Data errs",
+     "POST /provider/ambulance/fleet → errs",
+     "ok"
+    ],
+    [
+     "input: Plate number",
+     "user input → f → request body",
+     "ok"
+    ],
+    [
+     "input: Model",
+     "user input → f → request body",
+     "ok"
+    ],
+    [
+     "input: Year",
+     "user input → f → request body",
+     "ok"
+    ],
+    [
+     "input: Paramedics",
+     "user input → f → request body",
+     "ok"
+    ],
+    [
+     "input: Base city",
+     "user input → f → request body",
+     "ok"
+    ],
+    [
+     "input: Equipment (comma separated)",
+     "user input → f → request body",
+     "ok"
+    ],
+    [
+     "input: Mobile ICU unit",
+     "user input → f → request body",
+     "ok"
+    ],
+    [
+     "button: Save",
+     "POST /provider/ambulance/fleet",
+     "ok"
+    ],
+    [
+     "button: Cancel",
+     "parent callback onCancel",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "InsuranceConfigScreen",
+   "elements": [
+    [
+     "data: List insurances",
+     "GET /provider-onboarding/my-profile, GET /provider/insurance-matrix → insurances",
+     "ok"
+    ],
+    [
+     "input: <Switch>",
+     "user input → parent callback prev.map",
+     "ok"
+    ],
+    [
+     "input: Copay %",
+     "user input → parent callback prev.map",
+     "ok"
+    ],
+    [
+     "button: {p}",
+     "parent callback prev.map",
+     "ok"
+    ],
+    [
+     "button: Save Settings",
+     "POST /provider/settings/delta, PUT /provider/insurance-matrix",
+     "ok"
+    ],
+    [
+     "data: List item.plans",
+     "from item (prop / derived; not traced)",
+     "ok"
+    ],
+    [
+     "API: GET /insurance/companies",
+     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:694)",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "1 list(s) fed by a parent prop are not traced across components."
+   ]
+  },
+  {
+   "route": "InsuranceRequestsScreen",
+   "elements": [
+    [
+     "data: Data target",
+     "POST /insurance/requests/:param/decide → target",
+     "ok"
+    ],
+    [
+     "data: List items",
+     "GET /insurance/requests/provider/queue, POST /insurance/requests/:param/decide → items",
+     "ok"
+    ],
+    [
+     "button: Make Decision",
+     "local state setTarget, setMode",
+     "ok"
+    ],
+    [
+     "button: {opt.ar}",
+     "local state setMode",
+     "ok"
+    ],
+    [
+     "input: 20",
+     "user input → copayPct (local)",
+     "ok"
+    ],
+    [
+     "input: e.g. Service not covered by your policy",
+     "user input → reason (local)",
+     "ok"
+    ],
+    [
+     "button: Submitting…",
+     "POST /insurance/requests/:param/decide",
+     "ok"
+    ],
+    [
+     "button: Cancel",
+     "local state setTarget",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "LabBundlesScreen",
+   "elements": [
+    [
+     "data: List tests",
+     "GET /provider/capabilities/lab → tests",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "LabHomeServiceScreen",
+   "elements": [
+    [
+     "data: List zones",
+     "GET /provider/zones → zones",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "MediaConfigScreen",
+   "elements": [
+    [
+     "data: List images",
+     "GET /provider-onboarding/my-profile, GET /storage/:param/signed-url, POST /provider/settings/delta +1 → images",
+     "ok"
+    ],
+    [
+     "button: [close]",
+     "POST /provider/settings/delta",
+     "ok"
+    ],
+    [
+     "button: [plus] Add Photo",
+     "POST /storage/upload, POST /provider/settings/delta, GET /storage/:param/signed-url",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "MedicalDrugIndexScreen",
+   "elements": [
+    [
+     "button: {item.name_ar} Active: {…} (in DrugIndexCard)",
+     "local state setSelectedDrug",
+     "ok"
+    ],
+    [
+     "button: [back] (in DrugIndexDetail)",
+     "local state setSelectedDrug",
+     "ok"
+    ],
+    [
+     "button: {alt.name_ar} {alt.price} (in DrugIndexDetail)",
+     "local state setSelectedDrug",
+     "ok"
+    ],
+    [
+     "button: {alt.name_ar} {alt.price} (in DrugIndexDetail)",
+     "local state setSelectedDrug",
+     "ok"
+    ],
+    [
+     "button: Suggest an edit for this drug (in DrugIndexDetail)",
+     "parent callback openSuggest",
+     "ok"
+    ],
+    [
+     "button: Edit data (in DrugIndexDetail)",
+     "local state setSuggestTab",
+     "ok"
+    ],
+    [
+     "button: Suggest image (in DrugIndexDetail)",
+     "local state setSuggestTab",
+     "ok"
+    ],
+    [
+     "input: {f.ar} (in DrugIndexDetail)",
+     "user input → suggestForm (local)",
+     "ok"
+    ],
+    [
+     "button: Pick another image (in DrugIndexDetail)",
+     "parent callback pickSuggestImage",
+     "ok"
+    ],
+    [
+     "button: Pick image from device (in DrugIndexDetail)",
+     "parent callback pickSuggestImage",
+     "ok"
+    ],
+    [
+     "input: Note for admin (optional) (in DrugIndexDetail)",
+     "user input → suggestNote (local)",
+     "ok"
+    ],
+    [
+     "button: Send suggestion to admin (in DrugIndexDetail)",
+     "parent callback submitSuggestFields, submitSuggestImage",
+     "ok"
+    ],
+    [
+     "button: [back] (in DrugIndexHeader)",
+     "parent callback onBack",
+     "ok"
+    ],
+    [
+     "data: Data drugs",
+     "GET /drugs → drugs",
+     "ok"
+    ],
+    [
+     "input: Search drug name or active ingredient...",
+     "user input → search (local)",
+     "ok"
+    ],
+    [
+     "data: List categories",
+     "GET /drugs/categories → categories",
+     "ok"
+    ],
+    [
+     "button: All ({…})",
+     "local state setSelectedCat",
+     "ok"
+    ],
+    [
+     "button: {title} − (in DrugSection)",
+     "local state setOpen",
+     "ok"
+    ],
+    [
+     "data: List gallery (in DrugIndexDetail)",
+     "from gallery (prop / derived; not traced)",
+     "ok"
+    ],
+    [
+     "data: List gallery (in DrugIndexDetail)",
+     "from gallery (prop / derived; not traced)",
+     "ok"
+    ],
+    [
+     "data: List d.alternatives (in DrugIndexDetail)",
+     "from d (prop / derived; not traced)",
+     "ok"
+    ],
+    [
+     "data: List d.similar (in DrugIndexDetail)",
+     "from d (prop / derived; not traced)",
+     "ok"
+    ],
+    [
+     "data: List SUGGEST_FIELD_DEFS (in DrugIndexDetail)",
+     "from SUGGEST_FIELD_DEFS (prop / derived; not traced)",
+     "ok"
+    ],
+    [
+     "API: GET /drugs/:param",
+     "GET /drugs/:param (OK, backend/src/modules/provider/provider-drug-index.controller.ts:70)",
+     "ok"
+    ],
+    [
+     "API: POST /medicines/:param/suggest-change",
+     "POST /medicines/:param/suggest-change (OK, backend/src/modules/medicines/medicines.controller.ts:201)",
+     "ok"
+    ],
+    [
+     "API: POST /medicines/:param/suggest-image",
+     "POST /medicines/:param/suggest-image (OK, backend/src/modules/medicines/medicines.controller.ts:173)",
+     "ok"
+    ],
+    [
+     "API: POST /storage/upload",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:358)",
+     "ok"
+    ],
+    [
+     "API: POST /storage/upload-suggestion-image",
+     "POST /storage/upload-suggestion-image (OK, backend/src/modules/storage/storage.module.ts:393)",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "5 list(s) fed by a parent prop are not traced across components."
+   ]
+  },
+  {
+   "route": "MedicalJobsScreen",
+   "elements": [
+    [
+     "button: [chevronRight] (in MedicalJobsApplicant)",
+     "local state setApplyVisible",
+     "ok"
+    ],
+    [
+     "input: Full Name (in MedicalJobsApplicant)",
+     "user input → applyName (local)",
+     "ok"
+    ],
+    [
+     "input: Contact Number (in MedicalJobsApplicant)",
+     "user input → applyPhone (local)",
+     "ok"
+    ],
+    [
+     "button: {c} (in MedicalJobsApplicant)",
+     "local state setApplyClass",
+     "ok"
+    ],
+    [
+     "input: Years of Experience (in MedicalJobsApplicant)",
+     "user input → applyExp (local)",
+     "ok"
+    ],
+    [
+     "input: Ready to Start (Notice Period) (in MedicalJobsApplicant)",
+     "user input → applyReady (local)",
+     "ok"
+    ],
+    [
+     "input: SCFHS license number (in MedicalJobsApplicant)",
+     "user input → applyScfhs → request body",
+     "ok"
+    ],
+    [
+     "input: License expiry (YYYY-MM-DD) (in MedicalJobsApplicant)",
+     "user input → applyScfhsExp → request body",
+     "ok"
+    ],
+    [
+     "button: [check] Uploading… (in MedicalJobsApplicant)",
+     "POST /storage/upload, POST /recruitment/candidate/profile",
+     "ok"
+    ],
+    [
+     "button: Submit Application (in MedicalJobsApplicant)",
+     "parent callback handleApply",
+     "ok"
+    ],
+    [
+     "button: Contact via WhatsApp (in MedicalJobsApplicant)",
+     "native action",
+     "ok"
+    ],
+    [
+     "input: Search profession, hospital... (in MedicalJobsBrowseTab)",
+     "user input → search (local)",
+     "ok"
+    ],
+    [
+     "button: Employer Ad {item.date} (in MedicalJobsBrowseTab)",
+     "local state setSelectedJob",
+     "ok"
+    ],
+    [
+     "button: [chevronRight] (in MedicalJobsDetail)",
+     "local state setSelectedJob",
+     "ok"
+    ],
+    [
+     "button: [phone] Direct WhatsApp (in MedicalJobsDetail)",
+     "local state setApplyVisible",
+     "ok"
+    ],
+    [
+     "button: {app.applicantName.charAt(0)} {app.applicantName (in MedicalJobsInboxTab)",
+     "local state setSelectedApp",
+     "ok"
+    ],
+    [
+     "button: [briefcase] Employer (Looking for staff) (in MedicalJobsPostTab)",
+     "local state setPostType",
+     "ok"
+    ],
+    [
+     "button: [user] Job Seeker (Looking for job) (in MedicalJobsPostTab)",
+     "local state setPostType",
+     "ok"
+    ],
+    [
+     "input: Job Title (in MedicalJobsPostTab)",
+     "user input → postTitle (local)",
+     "ok"
+    ],
+    [
+     "input: Facility Name (in MedicalJobsPostTab)",
+     "user input → postCompany (local)",
+     "ok"
+    ],
+    [
+     "button: {p.ar} (in MedicalJobsPostTab)",
+     "local state setPostProf",
+     "ok"
+    ],
+    [
+     "button: {c} (in MedicalJobsPostTab)",
+     "local state setPostClass",
+     "ok"
+    ],
+    [
+     "input: City (in MedicalJobsPostTab)",
+     "user input → postCity (local)",
+     "ok"
+    ],
+    [
+     "input: Nationality (in MedicalJobsPostTab)",
+     "user input → postNat (local)",
+     "ok"
+    ],
+    [
+     "input: Experience (in MedicalJobsPostTab)",
+     "user input → postExp (local)",
+     "ok"
+    ],
+    [
+     "button: Full Time (in MedicalJobsPostTab)",
+     "local state setPostContract",
+     "ok"
+    ],
+    [
+     "input: Salary (Optional) (in MedicalJobsPostTab)",
+     "user input → postSalary (local)",
+     "ok"
+    ],
+    [
+     "button: [inbox] ATS Inbox (in MedicalJobsPostTab)",
+     "local state setPostContact",
+     "ok"
+    ],
+    [
+     "button: [phone] WhatsApp (in MedicalJobsPostTab)",
+     "local state setPostContact",
+     "ok"
+    ],
+    [
+     "input: WhatsApp Number (in MedicalJobsPostTab)",
+     "user input → postPhone (local)",
+     "ok"
+    ],
+    [
+     "input: Details (in MedicalJobsPostTab)",
+     "user input → postDesc (local)",
+     "ok"
+    ],
+    [
+     "button: Publishing... (in MedicalJobsPostTab)",
+     "parent callback handlePost",
+     "ok"
+    ],
+    [
+     "number: Math.random()",
+     "client-generated random value",
+     "ok"
+    ],
+    [
+     "button: [chevronRight]",
+     "parent callback onBack",
+     "ok"
+    ],
+    [
+     "button: [filter]",
+     "local state setShowFilters",
+     "ok"
+    ],
+    [
+     "button: Browse",
+     "local state setTab",
+     "ok"
+    ],
+    [
+     "button: Post Ad",
+     "local state setTab",
+     "ok"
+    ],
+    [
+     "button: Inbox",
+     "local state setTab",
+     "ok"
+    ],
+    [
+     "button: {p.ar}",
+     "local state setFilterProf",
+     "ok"
+    ],
+    [
+     "button: {c}",
+     "local state setFilterCity",
+     "ok"
+    ],
+    [
+     "button: Apply Filter",
+     "local state setShowFilters",
+     "ok"
+    ],
+    [
+     "data: List filtered (in MedicalJobsBrowseTab)",
+     "from filtered (prop / derived; not traced)",
+     "ok"
+    ],
+    [
+     "data: List applications (in MedicalJobsInboxTab)",
+     "from applications (prop / derived; not traced)",
+     "ok"
+    ],
+    [
+     "API: GET /recruitment/guest/mine",
+     "GET /recruitment/guest/mine (OK, backend/src/modules/recruitment/recruitment.module.ts:357)",
+     "ok"
+    ],
+    [
+     "API: GET /recruitment/jobs",
+     "GET /recruitment/jobs (OK, backend/src/modules/recruitment/recruitment.module.ts:336)",
+     "ok"
+    ],
+    [
+     "API: POST /recruitment/jobs",
+     "POST /recruitment/jobs (OK, backend/src/modules/recruitment/recruitment.module.ts:319)",
+     "ok"
+    ],
+    [
+     "API: GET /recruitment/jobs/:param/applications",
+     "GET /recruitment/jobs/:param/applications (OK, backend/src/modules/recruitment/recruitment.module.ts:374)",
+     "ok"
+    ],
+    [
+     "API: POST /recruitment/jobs/:param/apply",
+     "POST /recruitment/jobs/:param/apply (OK, backend/src/modules/recruitment/recruitment.module.ts:369)",
+     "ok"
+    ],
+    [
+     "API: POST /recruitment/jobs/:param/guest-apply",
+     "POST /recruitment/jobs/:param/guest-apply (OK, backend/src/modules/recruitment/recruitment.module.ts:351)",
+     "ok"
+    ],
+    [
+     "API: POST /recruitment/jobs/guest",
+     "POST /recruitment/jobs/guest (OK, backend/src/modules/recruitment/recruitment.module.ts:344)",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "2 list(s) fed by a parent prop are not traced across components."
+   ]
+  },
+  {
+   "route": "NotificationsCenterScreen",
+   "elements": [
+    [
+     "data: Data unreadCount",
+     "GET /provider/notifications → unreadCount",
+     "ok"
+    ],
+    [
+     "data: List notifs",
+     "GET /provider/notifications → notifs",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "PharmacyQRMenuScreen",
+   "elements": [
+    [
+     "QR code",
+     "fixed qr icon and text; no QR value, link or request",
+     "placeholder"
+    ]
+   ],
+   "notes": [
+    "No API call at all (static screen or all data comes from a parent).",
+    "No tracked elements: thin wrapper or purely static layout."
+   ]
+  },
+  {
+   "route": "ProviderHome",
+   "elements": [
+    [
+     "fake-number: rating: 5.0",
+     "mock-scan fake-number",
+     "mock"
+    ],
+    [
+     "data: List sections (in HomeSections)",
+     "GET /content/home → sections",
+     "ok"
+    ],
+    [
+     "button: {item.title_en} (in HomeSections)",
+     "navigate (back / dynamic target)",
+     "ok"
+    ],
+    [
+     "data: Data stats",
+     "GET /provider/profile, GET /provider/dashboard/stats → stats",
+     "ok"
+    ],
+    [
+     "button: [log-out]",
+     "POST /provider/auth/logout",
+     "ok"
+    ],
+    [
+     "button: Online",
+     "POST /provider/ops/availability/toggle-instant",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "ProviderWalletScreen",
+   "elements": [
+    [
+     "button: Request Withdrawal",
+     "navigate → withdrawal_workflow",
+     "broken"
+    ],
+    [
+     "data: Data balance",
+     "GET /provider/wallet, GET /provider/wallet/transactions, GET /provider/me → balance",
+     "ok"
+    ],
+    [
+     "data: Data totalRevenue",
+     "GET /provider/wallet, GET /provider/wallet/transactions, GET /provider/me → totalRevenue",
+     "ok"
+    ],
+    [
+     "data: Data commissionCash",
+     "GET /provider/wallet, GET /provider/wallet/transactions, GET /provider/me → commissionCash",
+     "ok"
+    ],
+    [
+     "data: Data commissionIns",
+     "GET /provider/wallet, GET /provider/wallet/transactions, GET /provider/me → commissionIns",
+     "ok"
+    ],
+    [
+     "number: Stat: Total Revenue",
+     "value ← String(totalRevenue)",
+     "ok"
+    ],
+    [
+     "number: Stat: Pending (Escrow)",
+     "value ← String(pendingEscrow)",
+     "ok"
+    ],
+    [
+     "data: List transactions",
+     "GET /provider/wallet, GET /provider/wallet/transactions, GET /provider/me → transactions",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "ReviewsAndRatingsScreen",
+   "elements": [
+    [
+     "data: List reviews",
+     "GET /provider/reviews, POST /provider/reviews/:param/reply → reviews",
+     "ok"
+    ],
+    [
+     "input: Type your reply...",
+     "user input → replyText → request body",
+     "ok"
+    ],
+    [
+     "button: Send",
+     "POST /provider/reviews/:param/reply",
+     "ok"
+    ],
+    [
+     "button: Cancel",
+     "local state setSelectedId",
+     "ok"
+    ],
+    [
+     "button: Reply to review",
+     "local state setSelectedId, setReplyText",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "SecurityManagementScreen",
+   "elements": [
+    [
+     "input: Current Password",
+     "user input → oldPassword → request body",
+     "ok"
+    ],
+    [
+     "input: New Password",
+     "user input → newPassword → request body",
+     "ok"
+    ],
+    [
+     "button: Update Password",
+     "POST /provider/auth/change-password",
+     "ok"
+    ],
+    [
+     "API: POST /auth/login",
+     "POST /auth/login (OK, backend/src/modules/auth/auth.controller.ts:151)",
+     "ok"
+    ],
+    [
+     "API: POST /provider-onboarding/start",
+     "POST /provider-onboarding/start (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:491)",
+     "ok"
+    ],
+    [
+     "API: POST /provider-onboarding/step2",
+     "POST /provider-onboarding/step2 (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:497)",
+     "ok"
+    ],
+    [
+     "API: POST /provider-onboarding/step3",
+     "POST /provider-onboarding/step3 (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:501)",
+     "ok"
+    ],
+    [
+     "API: POST /provider-onboarding/submit",
+     "POST /provider-onboarding/submit (OK, backend/src/modules/provider-onboarding/provider-onboarding.module.ts:505)",
+     "ok"
+    ],
+    [
+     "API: POST /provider/auth/login",
+     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:34)",
+     "ok"
+    ],
+    [
+     "API: POST /storage/upload",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:358)",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "ShortageReportScreen",
+   "elements": [
+    [
+     "input: Shortage Drug Name",
+     "user input → drug → request body",
+     "ok"
+    ],
+    [
+     "input: Additional details (quantity needed, last availa",
+     "user input → details → request body",
+     "ok"
+    ],
+    [
+     "button: Send Shortage Report",
+     "POST /support/tickets",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "TechnicalSupportTicketsScreen",
+   "elements": [
+    [
+     "input: Subject",
+     "user input → subject → request body",
+     "ok"
+    ],
+    [
+     "input: Problem details...",
+     "user input → message → request body",
+     "ok"
+    ],
+    [
+     "button: Submit Ticket",
+     "POST /support/tickets",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "VideoCallRoom",
+   "elements": [
+    [
+     "data: Data remoteTrack",
+     "POST /calls/initiate, POST /calls/:param/join, POST /calls/:param/metrics → remoteTrack",
+     "ok"
+    ],
+    [
+     "data: Data localTrack",
+     "POST /calls/initiate, POST /calls/:param/join, POST /calls/:param/metrics → localTrack",
+     "ok"
+    ],
+    [
+     "button: Retry",
+     "POST /calls/initiate, POST /calls/:param/join, POST /calls/:param/metrics",
+     "ok"
+    ],
+    [
+     "button: Go back",
+     "parent callback onEnd",
+     "ok"
+    ],
+    [
+     "button: Mute",
+     "local state setMicOn",
+     "ok"
+    ],
+    [
+     "button: Camera",
+     "local state setCamOn",
+     "ok"
+    ],
+    [
+     "button: End call",
+     "POST /calls/:param/end",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "WithdrawalWorkflow",
+   "elements": [
+    [
+     "data: Data balance",
+     "GET /provider/payouts/balance, GET /provider/bank-account, GET /provider/payouts/mine +1 → balance",
+     "ok"
+    ],
+    [
+     "data: Data bank",
+     "GET /provider/payouts/balance, GET /provider/bank-account, GET /provider/payouts/mine +1 → bank",
+     "ok"
+    ],
+    [
+     "data: Data submittedReference",
+     "POST /provider/bank-account, GET /provider/payouts/balance, GET /provider/bank-account +3 → submittedReference",
+     "ok"
+    ],
+    [
+     "button: Back to Wallet",
+     "parent callback onBack",
+     "ok"
+    ],
+    [
+     "data: List banks",
+     "GET /provider/payouts/balance, GET /provider/bank-account, GET /provider/payouts/mine +1 → banks",
+     "ok"
+    ],
+    [
+     "button: [wallet] {b.name_ar}",
+     "local state setBankCode",
+     "ok"
+    ],
+    [
+     "input: Account holder name (as registered)",
+     "user input → holderName → request body",
+     "ok"
+    ],
+    [
+     "input: IBAN",
+     "user input → iban → request body",
+     "ok"
+    ],
+    [
+     "input: Withdrawal Amount (min 100 SAR)",
+     "user input → amount → request body",
+     "ok"
+    ],
+    [
+     "button: Submit Withdrawal Request",
+     "POST /provider/bank-account, GET /provider/payouts/balance, GET /provider/bank-account +3",
+     "ok"
+    ],
+    [
+     "data: List history",
+     "GET /provider/payouts/balance, GET /provider/bank-account, GET /provider/payouts/mine +1 → history",
+     "ok"
+    ],
+    [
+     "API: GET /provider/banks",
+     "GET /provider/banks (OK, backend/src/modules/provider/provider.controllers.ts:98)",
+     "ok"
+    ],
+    [
+     "API: POST /provider/payouts/request",
+     "POST /provider/payouts/request (OK, backend/src/modules/payouts/provider-payouts.controller.ts:48)",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "WorkingHoursEditorScreen",
+   "elements": [
+    [
+     "data: List hours",
+     "GET /provider/working-hours → hours",
+     "ok"
+    ],
+    [
+     "input: <Switch>",
+     "user input → state (local)",
+     "ok"
+    ],
+    [
+     "input: From (HH:MM)",
+     "user input → item (local)",
+     "ok"
+    ],
+    [
+     "input: To (HH:MM)",
+     "user input → item (local)",
+     "ok"
+    ],
+    [
+     "button: Save Working Hours",
+     "PUT /provider/working-hours",
+     "ok"
+    ]
+   ]
+  }
+ ],
+ "needsReview": [
+  {
+   "route": "FleetScreen",
+   "element": "Ambulance feature",
+   "kind": "owner",
+   "note": "Owner decision O-2 (2026-10-06) removes the ambulance system and provider type; this screen goes with it.",
+   "file": "provider-app/src/screens/shared/FleetScreen.tsx",
+   "line": 22
+  },
+  {
+   "route": "InsuranceConfigScreen",
+   "element": "API GET /provider/insurance-matrix",
+   "kind": "backend",
+   "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
+   "file": "provider-app/src/screens/shared/shared/InsuranceConfigScreen.tsx",
+   "line": 52,
+   "backend": "backend/src/modules/legal/legal-enterprise.controller.ts:109"
+  },
+  {
+   "route": "PharmacyQRMenuScreen",
+   "element": "QR code",
+   "kind": "client",
+   "note": "The QR catalog screen draws a fixed QR icon and text; there is no QR value, catalog link or request behind it.",
+   "file": "provider-app/src/screens/shared/RealScreensExtended.tsx",
+   "line": 17
+  },
+  {
+   "route": "ProviderHome",
+   "element": "fake-number: rating: 5.0",
+   "kind": "client",
+   "note": "fake-number (mock-scan): rating: 5.0",
+   "file": "provider-app/src/screens/shared/ProviderHome.tsx",
+   "line": 24
+  },
+  {
+   "route": "ProviderWalletScreen",
+   "element": "Request Withdrawal",
+   "kind": "client",
+   "note": "Button \"Request Withdrawal\" navigates to screen(s) its navigator does not register: withdrawal_workflow (facility/lab/nursing/radiology).",
+   "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
+   "line": 81
+  },
+  {
+   "route": "ReviewsAndRatingsScreen",
+   "element": "API GET /provider/reviews",
+   "kind": "backend",
+   "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
+   "file": "provider-app/src/screens/shared/RealScreens.tsx",
+   "line": 20,
+   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:838"
+  },
+  {
+   "route": "WithdrawalWorkflow",
+   "element": "API GET /provider/bank-account",
+   "kind": "backend",
+   "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
+   "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
+   "line": 51,
+   "backend": "backend/src/modules/provider/provider.controllers.ts:97"
+  },
+  {
+   "route": "WorkingHoursEditorScreen",
+   "element": "API GET /provider/working-hours",
+   "kind": "backend",
+   "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
+   "file": "provider-app/src/screens/shared/RealScreens.tsx",
+   "line": 123,
+   "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:848"
+  }
+ ]
+}

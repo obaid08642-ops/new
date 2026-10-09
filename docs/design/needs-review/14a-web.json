@@ -1,0 +1,62 @@
+[
+  {
+    "batch": 14,
+    "app": "patient-web",
+    "screen": "/chat/[threadId]",
+    "element": "Window, read-only flag and allowed composer parts",
+    "file": "patient-web/app/[locale]/chat/[threadId]/page.tsx",
+    "line": 52,
+    "found": "[backend] The thread answer has no window, read-only flag or allowed-parts field (the server only refuses a send after consultation_followup_hours, 24 h by default, not 72 h); the page follows is_active. (backend: backend/src/modules/chat/chat.service.ts:234)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-web",
+    "screen": "/chat/[threadId]",
+    "element": "No composer on the web thread",
+    "file": "patient-web/app/[locale]/chat/[threadId]/page.tsx",
+    "line": 67,
+    "found": "[owner] The web thread shows message activity only (no text, no sending) by an earlier privacy decision, so text, photo, file, voice note and the call of decision 24 cannot be offered here; the app has the composer.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 14,
+    "app": "patient-web",
+    "screen": "/appointments/[appointmentId]",
+    "element": "Follow-up link to the original appointment",
+    "file": "patient-web/app/[locale]/appointments/[appointmentId]/page.tsx",
+    "line": 94,
+    "found": "[backend] POST /care/appointments takes no field for the original appointment, so a follow-up is only a normal booking with the doctor pre-selected; the booking page ignores ?followUp=.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-web",
+    "screen": "/appointments/[appointmentId]",
+    "element": "Discounted follow-up text",
+    "file": "patient-web/app/[locale]/appointments/[appointmentId]/page.tsx",
+    "line": 146,
+    "found": "[owner] summaryFollowUpBody promises a discounted rate that no server field states.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 14,
+    "app": "patient-web",
+    "screen": "/consultations/cancel-reschedule",
+    "element": "Expected refund",
+    "file": "patient-web/app/[locale]/consultations/cancel-reschedule/page.tsx",
+    "line": 39,
+    "found": "[backend] The percentage is derived from the policy numbers and the slot time on the server render; no endpoint states the refund for this appointment now (decision 26).",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-web",
+    "screen": "/appointments/[appointmentId]",
+    "element": "Prescription order from the doctor's items",
+    "file": "patient-web/components-next/prescription-client.tsx",
+    "line": 86,
+    "found": "[backend] Decision 18 is wired for items that carry medicine_id; an item written by hand has no product, so a prescription of only such lines opens the pharmacy prescription order instead.",
+    "suspect": "Backend gap: reviewer session."
+  }
+]

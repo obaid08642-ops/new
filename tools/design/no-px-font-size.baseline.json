@@ -1,21 +1,11 @@
 {
   "$comment": "Recorded debt for tools/design/no-px-font-size.ts. Every entry is a hard-coded font size that predates the design system. 12.A11 removes entries as screens are rebuilt on the stamps. This file may only shrink.",
-  "total": 91,
+  "total": 23,
   "files": {
+    "admin/src/styles/globals.css": 2,
     "patient-web/app/[locale]/ai/triage.module.css": 10,
     "patient-web/app/[locale]/consultations/specialties/specialties.module.css": 1,
-    "patient-web/app/[locale]/doctors/[specialty]/[city]/[neighborhood]/doctors-neighborhood.module.css": 7,
-    "patient-web/app/[locale]/doctors/[specialty]/[city]/doctors-city.module.css": 8,
     "patient-web/app/[locale]/emergency/emergency.module.css": 9,
-    "patient-web/app/[locale]/home-care/services/services.module.css": 1,
-    "patient-web/app/[locale]/medicine-catalog/medicine-catalog.module.css": 4,
-    "patient-web/app/[locale]/nursing/catalog/catalog.module.css": 10,
-    "patient-web/app/[locale]/nursing/nurses/[nurseId]/nurse-detail.module.css": 13,
-    "patient-web/app/[locale]/nursing/visits/visits.module.css": 5,
-    "patient-web/app/[locale]/offers/[offerId]/offer-detail.module.css": 3,
-    "patient-web/app/[locale]/offers/offers.module.css": 4,
-    "patient-web/app/[locale]/voice/voice.module.css": 5,
-    "patient-web/components-next/header-cart-badge.module.css": 1,
-    "patient-web/components-next/map-explorer.module.css": 10
+    "patient-web/components-next/header-cart-badge.module.css": 1
   }
 }

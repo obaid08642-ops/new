@@ -1,7 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import { Segmented } from "@/components-next/ui-generated/components/Controls";
+import { Input, Select } from "@/components-next/ui-generated/components/Inputs";
+import { Chip } from "@/components-next/ui-generated/components/Surfaces";
+import styles from "@/components-next/nursing/nursing.module.css";
 
 export type BookingService = { id: string; name: string; price?: number };
 export type BookingAddress = { id: string; label: string };
@@ -14,21 +21,53 @@ function nextDays(count: number, locale: string): Array<{ iso: string; label: st
     const deviceCal = Intl.DateTimeFormat().resolvedOptions().calendar || "";
     if (/islamic|hijri/i.test(deviceCal)) calendar = "islamic-umalqura";
   } catch {}
-  const tag = `${locale === "ar" ? "ar-SA" : "en-US"}-u-ca-${calendar}`;
+  const tag = `${locale}-u-ca-${calendar}`;
   const now = new Date();
   for (let i = 0; i < count; i++) {
     const d = new Date(now);
     d.setDate(now.getDate() + i);
     out.push({
       iso: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
-      label: new Intl.DateTimeFormat(tag, { weekday: "long", day: "numeric", month: "numeric" }).format(d),
+      label: new Intl.DateTimeFormat(tag, { weekday: "short", day: "numeric", month: "short" }).format(d),
     });
   }
   return out;
 }
 
-const TIMES = ["09:00", "10:30", "12:00", "14:00", "15:30", "17:00"];
+export type NursingBookingInput = { serviceId: string; scheduledAt: string; addressId?: string; notes?: string; method: "card" | "insurance" };
+export type NursingBookingResult = { ok: true; bookingId?: string } | { ok: false; message?: string };
 
+/** The booking call, as it always was: one POST with an idempotency key; a booking exists only when the answer is a success. */
+export async function createNursingBooking(input: NursingBookingInput, send: typeof fetch = fetch): Promise<NursingBookingResult> {
+  const res = await send("/api/nursing/bookings", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "idempotency-key": `web-nursing-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+    },
+    body: JSON.stringify({
+      service_id: input.serviceId,
+      scheduled_at: input.scheduledAt,
+      address_id: input.addressId || undefined,
+      notes: input.notes?.trim() || undefined,
+      payment_method: input.method,
+    }),
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) return { ok: false, message: (data as { message?: string } | null)?.message };
+  const booking = (data as { data?: { id?: string }; id?: string } | null)?.data ?? data;
+  return { ok: true, bookingId: (booking as { id?: string } | null)?.id };
+}
+
+const TIMES = ["09:00", "10:30", "12:00", "14:00", "15:30", "17:00"];
+// Decision 25: a home nursing visit is paid online (card) or through insurance; there is no cash option.
+const METHODS = ["card", "insurance"] as const;
+
+/**
+ * The booking form of the nurse's page (canvas/DoctorFull, "choose the time"). HIGH care: the call, its body, the
+ * idempotency key and where each outcome goes are exactly what they were; only the look and the words changed. A booking
+ * is only shown as made after the call answered (the page it goes to is the visit).
+ */
 export function NursingBookingForm({
   locale,
   services,
@@ -38,6 +77,7 @@ export function NursingBookingForm({
   services: BookingService[];
   addresses: BookingAddress[];
 }) {
+  const t = useTranslations("NursingWeb");
   const router = useRouter();
   const days = useMemo(() => nextDays(7, locale), [locale]);
   const [serviceId, setServiceId] = useState(services[0]?.id || "");
@@ -45,50 +85,36 @@ export function NursingBookingForm({
   const [time, setTime] = useState<string | null>(null);
   const [addressId, setAddressId] = useState(addresses.find((a) => a)?.id || "");
   const [notes, setNotes] = useState("");
-  const [method, setMethod] = useState<"cash" | "card" | "insurance">("cash");
+  const [method, setMethod] = useState<"card" | "insurance">("card");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const ar = locale === "ar";
+  const money = useMemo(() => new Intl.NumberFormat(locale, { style: "currency", currency: "SAR" }), [locale]);
+  const clock = useMemo(() => new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }), [locale]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     if (!serviceId) {
-      setError(ar ? "اختر الخدمة" : "Select a service");
+      setError(t("formSelectService"));
       return;
     }
     if (!time) {
-      setError(ar ? "اختر اليوم والوقت" : "Select day and time");
+      setError(t("formSelectTime"));
       return;
     }
     const scheduled = new Date(`${day}T${time}:00`);
     if (Number.isNaN(scheduled.getTime()) || scheduled.getTime() < Date.now()) {
-      setError(ar ? "الموعد في الماضي — اختر وقتاً لاحقاً" : "Time is in the past — choose a later time");
+      setError(t("formPast"));
       return;
     }
     setSaving(true);
     try {
-      const res = await fetch("/api/nursing/bookings", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "idempotency-key": `web-nursing-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
-        },
-        body: JSON.stringify({
-          service_id: serviceId,
-          scheduled_at: scheduled.toISOString(),
-          address_id: addressId || undefined,
-          notes: notes.trim() || undefined,
-          payment_method: method,
-        }),
-      });
-      const data = await res.json().catch(() => null);
-      if (!res.ok) {
-        setError((data as { message?: string })?.message || (ar ? "تعذر إنشاء الحجز" : "Could not create booking"));
+      const result = await createNursingBooking({ serviceId, scheduledAt: scheduled.toISOString(), addressId, notes, method });
+      if (!result.ok) {
+        setError(result.message || t("formFailed"));
         return;
       }
-      const booking = (data as { data?: { id?: string }; id?: string })?.data ?? data;
-      const bookingId = (booking as { id?: string })?.id;
+      const bookingId = result.bookingId;
       if (method === "insurance") {
         router.push(`/${locale}/nursing/visits${bookingId ? `/${encodeURIComponent(bookingId)}` : ""}`);
       } else if (bookingId) {
@@ -98,7 +124,7 @@ export function NursingBookingForm({
       }
       router.refresh();
     } catch {
-      setError(ar ? "تعذر إنشاء الحجز" : "Could not create booking");
+      setError(t("formFailed"));
     } finally {
       setSaving(false);
     }
@@ -107,54 +133,49 @@ export function NursingBookingForm({
   if (!services.length) return null;
 
   return (
-    <form onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
-      <label style={{ display: "grid", gap: 6 }}>
-        <span>{ar ? "الخدمة" : "Service"}</span>
-        <select value={serviceId} onChange={(e) => setServiceId(e.target.value)} required>
-          {services.map((s) => (
-            <option key={s.id} value={s.id}>{s.name}{s.price !== undefined ? ` — ${s.price}` : ""}</option>
+    <form onSubmit={onSubmit} className={styles.form} noValidate>
+      <Select
+        label={t("formService")}
+        value={serviceId}
+        onChange={setServiceId}
+        options={services.map((s) => ({ value: s.id, label: s.price !== undefined ? `${s.name} — ${money.format(s.price)}` : s.name }))}
+      />
+      <fieldset className={styles.fieldset}>
+        <legend className={styles.legend}>{t("formDay")}</legend>
+        <div className={styles.strip}>
+          {days.map((d) => (
+            <Chip key={d.iso} label={d.label} selected={day === d.iso} onClick={() => setDay(d.iso)} />
           ))}
-        </select>
-      </label>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-        {days.map((d) => (
-          <button key={d.iso} type="button" onClick={() => setDay(d.iso)} style={{ fontWeight: day === d.iso ? 800 : 400 }}>
-            {d.label}
-          </button>
-        ))}
-      </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-        {TIMES.map((t) => (
-          <button key={t} type="button" onClick={() => setTime(t)} style={{ fontWeight: time === t ? 800 : 400 }}>
-            {t}
-          </button>
-        ))}
-      </div>
+        </div>
+      </fieldset>
+      <fieldset className={styles.fieldset}>
+        <legend className={styles.legend}>{t("formTime")}</legend>
+        <div className={styles.slots}>
+          {TIMES.map((slot) => (
+            <Chip key={slot} label={clock.format(new Date(`2000-01-01T${slot}:00`))} selected={time === slot} onClick={() => setTime(slot)} />
+          ))}
+        </div>
+      </fieldset>
       {addresses.length > 0 ? (
-        <label style={{ display: "grid", gap: 6 }}>
-          <span>{ar ? "العنوان" : "Address"}</span>
-          <select value={addressId} onChange={(e) => setAddressId(e.target.value)}>
-            {addresses.map((a) => (
-              <option key={a.id} value={a.id}>{a.label}</option>
-            ))}
-          </select>
-        </label>
+        <Select label={t("formAddress")} value={addressId} onChange={setAddressId} options={addresses.map((a) => ({ value: a.id, label: a.label }))} />
       ) : (
-        <p><a href={`/${locale}/profile/addresses`}>{ar ? "أضف عنواناً أولاً" : "Add an address first"}</a></p>
+        <Link href={`/${locale}/profile/addresses`} className={styles.addAddress}>
+          {t("formAddAddress")}
+        </Link>
       )}
-      <label style={{ display: "grid", gap: 6 }}>
-        <span>{ar ? "ملاحظات (اختياري)" : "Notes (optional)"}</span>
-        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={2000} rows={3} />
-      </label>
-      <div style={{ display: "flex", gap: 8 }}>
-        {(["cash", "card", "insurance"] as const).map((m) => (
-          <button key={m} type="button" onClick={() => setMethod(m)} style={{ fontWeight: method === m ? 800 : 400 }}>
-            {m === "cash" ? (ar ? "نقدي" : "Cash") : m === "card" ? (ar ? "بطاقة" : "Card") : (ar ? "تأمين" : "Insurance")}
-          </button>
-        ))}
-      </div>
-      {error ? <p role="alert">{error}</p> : null}
-      <button type="submit" disabled={saving}>{saving ? (ar ? "جارٍ الحجز…" : "Booking…") : (ar ? "تأكيد الحجز" : "Confirm booking")}</button>
+      <Input label={t("formNotes")} value={notes} onChange={(v) => setNotes(v.slice(0, 2000))} multiline rows={3} />
+      <Segmented
+        label={t("formMethod")}
+        options={METHODS.map((m) => ({ value: m, label: t(`method_${m}`) }))}
+        value={method}
+        onChange={(v) => setMethod(v as (typeof METHODS)[number])}
+      />
+      {error ? (
+        <p role="alert" className={styles.alert}>
+          {error}
+        </p>
+      ) : null}
+      <Button type="submit" size="lg" fullWidth loading={saving} label={saving ? t("formBooking") : t("formConfirm")} />
     </form>
   );
 }

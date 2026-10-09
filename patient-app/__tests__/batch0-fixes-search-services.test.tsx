@@ -141,6 +141,6 @@ describe('services rows lead where the label says', () => {
   });
 
   it('the AI assistant row opens the same assistant as the Home card', () => {
-    expect(SERVICE_GROUPS.flatMap((g) => g.items).find((r) => r.title === 'المساعد الطبي الذكي')?.route).toBe('/ai-assistant');
+    expect(SERVICE_GROUPS.flatMap((g) => g.items).find((r) => r.title === 'المساعد الطبي الذكي')?.route).toBe('/ai');
   });
 });

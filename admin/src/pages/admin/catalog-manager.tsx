@@ -35,17 +35,25 @@ const F = {
   active: { key: 'active', label: 'مفعّل', type: 'checkbox' },
 } satisfies Record<string, Field>;
 
-const TABS: { key: TabKey; label: string; adminBase: string; fields: Field[]; filter?: (i: any) => boolean }[] = [
-  { key: 'labs', label: 'التحاليل', adminBase: '/labs/admin/catalog', filter: (i) => !i.is_package,
+/** The reference specialties list: its own inline form (name only, no review flow). */
+const SPECIALTIES_BASE = '/catalogs/admin/specialties';
+
+/**
+ * `adminBase` lists the tab. `crudBase` is set only for the tabs drawn by the shared table and edit form
+ * (labs, packages, radiology, nursing): their backend serves PUT/DELETE /:id, POST /:id/approve and
+ * POST /bulk-approve. Specialties, medicines and insurance have their own panels and endpoints.
+ */
+const TABS: { key: TabKey; label: string; adminBase: string; crudBase?: string; fields: Field[]; filter?: (i: any) => boolean }[] = [
+  { key: 'labs', label: 'التحاليل', adminBase: '/labs/admin/catalog', crudBase: '/labs/admin/catalog', filter: (i) => !i.is_package,
     fields: [F.name_ar, F.name_en, F.short_code, F.category, F.sample_type, F.price, F.old_price, F.turnaround_hours, F.popularity, F.fasting_required, F.home_visit_supported, F.active, F.description_ar, F.description_en] },
-  { key: 'packages', label: 'الباقات', adminBase: '/labs/admin/catalog', filter: (i) => !!i.is_package,
+  { key: 'packages', label: 'الباقات', adminBase: '/labs/admin/catalog', crudBase: '/labs/admin/catalog', filter: (i) => !!i.is_package,
     fields: [F.name_ar, F.name_en, F.short_code, F.category, F.price, F.old_price, F.turnaround_hours, F.popularity, F.home_visit_supported, F.active, F.description_ar, F.description_en] },
-  { key: 'radiology', label: 'الأشعة', adminBase: '/radiology/admin/catalog',
+  { key: 'radiology', label: 'الأشعة', adminBase: '/radiology/admin/catalog', crudBase: '/radiology/admin/catalog',
     fields: [F.name_ar, F.name_en, F.short_code, F.modality, F.body_part, F.price, F.old_price, F.turnaround_hours, F.popularity, F.contrast_required, F.fasting_required, F.home_visit_supported, F.image_url, F.icon, F.active, F.description_ar, F.description_en] },
-  { key: 'nursing', label: 'التمريض المنزلي', adminBase: '/nursing/admin/catalog',
+  { key: 'nursing', label: 'التمريض المنزلي', adminBase: '/nursing/admin/catalog', crudBase: '/nursing/admin/catalog',
     fields: [F.name_ar, F.name_en, F.category, F.price, F.duration, F.popularity, F.image_url, F.icon, F.active, F.description_ar, F.description_en] },
   // P6.x-2: reference specialties have their own inline form (name only, no review flow).
-  { key: 'specialties', label: 'التخصصات', adminBase: '/catalogs/admin/specialties', fields: [] },
+  { key: 'specialties', label: 'التخصصات', adminBase: SPECIALTIES_BASE, fields: [] },
   // R6-6: medicines + insurance live in this page (custom panels below).
   { key: 'medicines', label: 'الأدوية', adminBase: '/medicines/admin/catalog', fields: [] },
   { key: 'insurance', label: 'التأمين والشبكات', adminBase: '/insurance/companies', fields: [] },
@@ -114,9 +122,9 @@ export default function CatalogManagerPage() {
       if (tab === 'nursing' && !body.duration) body.duration = 'hour';
       if (tab === 'packages') body.is_package = true;
       if (isNew) {
-        await apiFetch(tabCfg.adminBase, { method: 'POST', body: JSON.stringify(body) });
+        await apiFetch(`${tabCfg.crudBase}`, { method: 'POST', body: JSON.stringify(body) });
       } else {
-        await apiFetch(`${tabCfg.adminBase}/${editing.id}`, { method: 'PUT', body: JSON.stringify(body) });
+        await apiFetch(`${tabCfg.crudBase}/${editing.id}`, { method: 'PUT', body: JSON.stringify(body) });
       }
       setMsg(isNew ? 'تمت الإضافة بنجاح' : 'تم الحفظ بنجاح');
       setEditing(null);
@@ -131,7 +139,7 @@ export default function CatalogManagerPage() {
   const remove = async (item: any) => {
     if (!confirm(`حذف "${item.name_ar}"؟`)) return;
     try {
-      await apiFetch(`${tabCfg.adminBase}/${item.id}`, { method: 'DELETE' });
+      await apiFetch(`${tabCfg.crudBase}/${item.id}`, { method: 'DELETE' });
       setMsg('تم الحذف');
       await load();
     } catch (e: any) {
@@ -142,7 +150,7 @@ export default function CatalogManagerPage() {
   // P6.0: medical-review decision — approve surfaces the item publicly.
   const decide = async (id: string, approve: boolean) => {
     try {
-      await apiFetch(`${tabCfg.adminBase}/${id}/approve`, { method: 'POST', body: JSON.stringify({ approve }) });
+      await apiFetch(`${tabCfg.crudBase}/${id}/approve`, { method: 'POST', body: JSON.stringify({ approve }) });
       setMsg(approve ? 'تم الاعتماد — ظهر الصنف للمرضى' : 'تم الرفض');
       await load();
     } catch (e: any) {
@@ -154,7 +162,7 @@ export default function CatalogManagerPage() {
     if (selected.size === 0) return;
     setDeciding(true);
     try {
-      const r: any = await apiFetch(`${tabCfg.adminBase}/bulk-approve`, {
+      const r: any = await apiFetch(`${tabCfg.crudBase}/bulk-approve`, {
         method: 'POST', body: JSON.stringify({ ids: [...selected], approve }),
       });
       const failed = (r?.results || []).filter((x: any) => !x.ok).length;
@@ -184,7 +192,7 @@ export default function CatalogManagerPage() {
   const saveSpecialty = async () => {
     if (!specNameAr.trim()) return;
     try {
-      await apiFetch(tabCfg.adminBase, { method: 'POST', body: JSON.stringify({ name_ar: specNameAr.trim(), name_en: specNameEn.trim() || undefined }) });
+      await apiFetch('/catalogs/admin/specialties', { method: 'POST', body: JSON.stringify({ name_ar: specNameAr.trim(), name_en: specNameEn.trim() || undefined }) });
       setSpecNameAr(''); setSpecNameEn('');
       setMsg('تم حفظ التخصص');
       await load();
@@ -196,7 +204,7 @@ export default function CatalogManagerPage() {
   const removeSpecialty = async (code: string) => {
     if (!confirm('تعطيل هذا التخصص؟')) return;
     try {
-      await apiFetch(`${tabCfg.adminBase}/${encodeURIComponent(code)}`, { method: 'DELETE' });
+      await apiFetch(`/catalogs/admin/specialties/${encodeURIComponent(code)}`, { method: 'DELETE' });
       await load();
     } catch (e: any) {
       setMsg(`فشل التعطيل: ${e.message}`);
@@ -292,7 +300,7 @@ export default function CatalogManagerPage() {
       {editing && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}
           onClick={() => setEditing(null)}>
-          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(640px, 92vw)', maxHeight: '86vh', overflowY: 'auto' }}
+          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(640px, 92%)', maxHeight: '86dvh', overflowY: 'auto' }}
             onClick={(e) => e.stopPropagation()}>
             <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>{editing.id ? 'تعديل الصنف' : 'إضافة صنف جديد'} — {tabCfg.label}</h2>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -391,7 +399,7 @@ function MedicinesPanel() {
       const payload: any = {
         name_ar: form.name_ar, name_en: form.name_en || undefined, generic_name: form.generic_name || undefined,
         category: form.category || undefined, price: Number(form.price) || 0,
-        requires_prescription: !!form.requires_prescription, image: form.image || undefined,
+        requires_prescription: !!form.requires_prescription, controlled: !!form.controlled, online_exclusive: !!form.online_exclusive, image: form.image || undefined,
         reason: form.reason,
       };
       if (form.id) await apiFetch(`/medicines/admin/catalog/${form.id}`, { method: 'PATCH', body: JSON.stringify(payload) });
@@ -488,7 +496,7 @@ function MedicinesPanel() {
       </div>
       {form && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }} onClick={() => setForm(null)}>
-          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(560px, 92vw)', maxHeight: '86vh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(560px, 92%)', maxHeight: '86dvh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
             <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 12 }}>{form.id ? 'تعديل دواء' : 'دواء جديد'}</h2>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               <input value={form.name_ar || ''} onChange={(e) => set('name_ar', e.target.value)} placeholder="الاسم (عربي)" style={fld} />
@@ -498,6 +506,8 @@ function MedicinesPanel() {
               <input type="number" value={form.price ?? ''} onChange={(e) => set('price', e.target.value)} placeholder="السعر" style={fld} />
               <input value={form.reason || ''} onChange={(e) => set('reason', e.target.value)} placeholder="سبب الإنشاء/التغيير" style={fld} />
               <label style={{ fontSize: 13 }}><input type="checkbox" checked={!!form.requires_prescription} onChange={(e) => set('requires_prescription', e.target.checked)} /> يتطلب وصفة</label>
+              <label style={{ fontSize: 13 }}><input type="checkbox" checked={!!form.controlled} onChange={(e) => set('controlled', e.target.checked)} /> دواء خاضع للرقابة (لا يُطلب أونلاين)</label>
+              <label style={{ fontSize: 13 }}><input type="checkbox" checked={!!form.online_exclusive} onChange={(e) => set('online_exclusive', e.target.checked)} /> أونلاين فقط</label>
               <label style={{ fontSize: 13 }}>صورة: <input type="file" accept="image/*" onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; setImgBusy(true); try { set('image', await uploadImage(f)); } catch (err: any) { setMsg(`فشل الرفع: ${err.message}`); } finally { setImgBusy(false); } }} /></label>
             </div>
             {imgBusy && <p>جارٍ رفع الصورة…</p>}
@@ -611,7 +621,7 @@ function InsurancePanel() {
       </div>
       {form && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }} onClick={() => setForm(null)}>
-          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(480px, 92vw)' }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(480px, 92%)', maxHeight: '90dvh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
             <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 12 }}>{form.id || form._id ? 'تعديل شركة' : 'شركة جديدة'}</h2>
             <input value={form.name_ar || ''} onChange={(e) => setForm({ ...form, name_ar: e.target.value })} placeholder="الاسم (عربي)" style={{ width: '100%', padding: 10, borderRadius: 10, border: '1px solid #E2E8F0', marginBottom: 8, fontFamily: 'inherit' }} />
             <input value={form.name_en || ''} onChange={(e) => setForm({ ...form, name_en: e.target.value })} placeholder="Name (en)" style={{ width: '100%', padding: 10, borderRadius: 10, border: '1px solid #E2E8F0', marginBottom: 8, fontFamily: 'inherit' }} />
@@ -625,7 +635,7 @@ function InsurancePanel() {
       )}
       {netForm && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }} onClick={() => setNetForm(null)}>
-          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(480px, 92vw)' }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(480px, 92%)', maxHeight: '90dvh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
             <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 12 }}>شبكة/فئة جديدة</h2>
             <select value={netForm.companyId} onChange={(e) => setNetForm({ ...netForm, companyId: e.target.value })} style={{ width: '100%', padding: 10, borderRadius: 10, border: '1px solid #E2E8F0', marginBottom: 8, fontFamily: 'inherit' }}>
               <option value="">— الشركة —</option>

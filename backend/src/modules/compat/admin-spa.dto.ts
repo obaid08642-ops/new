@@ -96,15 +96,6 @@ export class ExpandDto {
   @IsArray()
   segments?: string[];
 }
-export class DispatchDto {
-  @IsOptional()
-  @IsString()
-  ambulance_id?: string;
-
-  @IsOptional()
-  @IsString()
-  note?: string;
-}
 export class ReassignDto {
   @IsOptional()
   @IsString()

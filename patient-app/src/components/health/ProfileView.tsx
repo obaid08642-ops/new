@@ -309,7 +309,7 @@ function EmergencyTab() {
         </Gate>
       </Section>
 
-      <Section title={k('health.emergency.family')} actionLabel={k('health.emergency.invite')} onAction={() => router.push('/family/invite' as Href)}>
+      <Section title={k('health.emergency.family')} actionLabel={k('health.emergency.invite')} onAction={() => router.push('/family/add?tab=invite' as Href)}>
         <Notice tone="info" text={k('health.emergency.familyNote')} />
         <Gate status={family.status} onRetry={() => void family.reload()}>
           {(family.data ?? []).length === 0 ? (

@@ -103,13 +103,13 @@ export default function OrderDetailPage() {
             {(!data.history || data.history.length === 0) ? (
               <p className="text-sm text-slate-400">لا توجد حركات مسجلة بعد.</p>
             ) : (
-              <ol className="relative border-r-2 border-teal-100 pr-4 space-y-4">
+              <ol className="relative border-s-2 border-teal-100 ps-4 space-y-4">
                 {data.history.map((h: any, i: number) => (
                   <li key={i} className="relative">
-                    <span className="absolute -right-[23px] top-1 w-3 h-3 rounded-full bg-teal-500"></span>
+                    <span className="absolute -start-[23px] top-1 w-3 h-3 rounded-full bg-teal-500"></span>
                     <div className="text-sm font-bold text-slate-800">{h.from ? `${h.from} ← ${h.to}` : h.to}</div>
                     {h.note && <div className="text-xs text-slate-500 mt-0.5">{h.note}</div>}
-                    <div className="text-xs text-slate-400 mt-0.5">{h.by && <span className="ml-2">{h.by}</span>}<span dir="ltr">{fmt(h.at)}</span></div>
+                    <div className="text-xs text-slate-400 mt-0.5">{h.by && <span className="me-2">{h.by}</span>}<span dir="ltr">{fmt(h.at)}</span></div>
                   </li>
                 ))}
               </ol>

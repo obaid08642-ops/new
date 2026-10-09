@@ -31,11 +31,10 @@ describe("patient web messages", () => {
       "Medicines",
       "Diagnostics",
       "HomeCare",
-      "Family",
+      "FamilyWeb",
       "Notifications",
       "Health",
       "Prescriptions",
-      "Chat",
       "Reminders",
       "Profile"
     ] as const;

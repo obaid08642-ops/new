@@ -22,10 +22,10 @@ function severityOf(value?: string): { key: "ixSeverityHigh" | "ixSeverityMedium
   return null;
 }
 
-export function DrugInteractionChecker({ locale }: { locale: string }) {
+export function DrugInteractionChecker({ locale, initialDrugs = [] }: { locale: string; initialDrugs?: string[] }) {
   const t = useTranslations("PharmacyBrowse");
   const [input, setInput] = useState("");
-  const [drugs, setDrugs] = useState<string[]>([]);
+  const [drugs, setDrugs] = useState<string[]>(initialDrugs.slice(0, 20));
   const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
@@ -92,7 +92,7 @@ export function DrugInteractionChecker({ locale }: { locale: string }) {
           <p className={styles.verdict}>{result.safe ? t("ixSafe") : t("ixAttention")}</p>
           {(result.interactions || []).map((h, i) => {
             const level = severityOf(h.severity);
-            const note = locale === "ar" ? h.note_ar || h.note : h.note || h.note_ar;
+            const note = locale === "ar" ? h.note_ar || h.note : h.note;
             return (
               <div key={i} className={styles.hit}>
                 {level ? <StatusChip label={t(level.key)} tone={level.tone} /> : null}
