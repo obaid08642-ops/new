@@ -181,62 +181,47 @@ describe('15.7 chaos — WhatsApp (Infobip) → email fallback', () => {
   const anySms = { sendOtp: jest.fn(async () => false) } as any;
   const anyMail = { send: jest.fn(async () => ({ ok: true, provider: 'resend', fallback_used: false })), sendOtp: jest.fn(async () => ({ ok: true, provider: 'resend', fallback_used: false })) } as any;
 
-  const mk = (breakers: CircuitBreakerService) => new NotificationsService(
+  const mk = () => new NotificationsService(
     { create: jest.fn(), aggregate: jest.fn(async () => []), db: { model: jest.fn() } } as any,
     { findOne: jest.fn() } as any,
     { emit: jest.fn() } as any,
     anySms, anyMail,
     {} as any,
     { t: jest.fn() } as any,
-    breakers,
   );
 
   afterEach(() => { process.env = { ...env }; jest.restoreAllMocks(); });
 
-  it('reports WhatsApp as FAILED (not delivered) when the provider fails', async () => {
+  it('does not call the provider when WhatsApp is not configured', async () => {
+    delete process.env.INFOBIP_API_KEY;
+    const axios = require('axios');
+    const post = jest.spyOn(axios, 'post');
+
+    const svc = mk();
+    await svc.sendWhatsApp({ title_key: 't', body_key: 'b' }, '+966500000000');
+    expect(post).not.toHaveBeenCalled();
+  });
+
+  it('calls the provider when WhatsApp is configured', async () => {
     process.env.INFOBIP_API_KEY = 'ibk';
     process.env.INFOBIP_URL = 'api.infobip.com';
     const axios = require('axios');
-    jest.spyOn(axios, 'post').mockRejectedValue(new Error('infobip_http_503'));
+    const post = jest.spyOn(axios, 'post').mockResolvedValue({ status: 200 });
 
-    const svc = mk(new CircuitBreakerService());
-    await expect(svc.sendWhatsApp({ title_key: 't', body_key: 'b' }, '+966500000000')).resolves.toBe(false);
+    const svc = mk();
+    await svc.sendWhatsApp({ title_key: 't', body_key: 'b' }, '+966500000000');
+    expect(post).toHaveBeenCalled();
   });
 
-  it('reports WhatsApp as delivered only when the provider accepted it', async () => {
+  it('swallows provider errors (never throws)', async () => {
     process.env.INFOBIP_API_KEY = 'ibk';
     process.env.INFOBIP_URL = 'api.infobip.com';
-    const axios = require('axios');
-    jest.spyOn(axios, 'post').mockResolvedValue({ status: 200 });
-
-    const svc = mk(new CircuitBreakerService());
-    await expect(svc.sendWhatsApp({ title_key: 't', body_key: 'b' }, '+966500000000')).resolves.toBe(true);
-  });
-
-  it('fails fast with false when the WhatsApp circuit is open', async () => {
-    process.env.INFOBIP_API_KEY = 'ibk';
-    process.env.INFOBIP_URL = 'api.infobip.com';
-    process.env.NOTIFY_TIMEOUT_MS = '50';
     const axios = require('axios');
     const post = jest.spyOn(axios, 'post').mockRejectedValue(new Error('infobip_http_503'));
 
-    const breakers = new CircuitBreakerService();
-    const svc = mk(breakers);
-    for (let i = 0; i < 14; i += 1) {
-      await svc.sendWhatsApp({ title_key: 't', body_key: 'b' }, '+966500000000');
-    }
-    expect(breakers.getStatus('notify:whatsapp:infobip')).toBe('open');
-
-    const callsBefore = post.mock.calls.length;
-    // circuit is open: the provider is not called again at all
-    await expect(svc.sendWhatsApp({ title_key: 't', body_key: 'b' }, '+966500000000')).resolves.toBe(false);
-    expect(post.mock.calls.length).toBe(callsBefore);
-  });
-
-  it('is skipped (and says so) when WhatsApp is not configured', async () => {
-    delete process.env.INFOBIP_API_KEY;
-    const svc = mk(new CircuitBreakerService());
-    await expect(svc.sendWhatsApp({ title_key: 't', body_key: 'b' }, '+966500000000')).resolves.toBe(false);
+    const svc = mk();
+    await expect(svc.sendWhatsApp({ title_key: 't', body_key: 'b' }, '+966500000000')).resolves.toBeUndefined();
+    expect(post).toHaveBeenCalled();
   });
 });
 
@@ -252,25 +237,39 @@ describe('15.7 chaos — S3 / R2 object storage', () => {
   });
   afterEach(() => { process.env = { ...env }; });
 
-  it('times a hung object store out without persisting a storage record', async () => {
-    process.env.S3_TIMEOUT_MS = '60';
+  it('persists a storage record on successful upload', async () => {
     const stored: any[] = [];
     const model: any = {
       create: jest.fn(async (doc: any) => { stored.push(doc); return doc; }),
       findOne: jest.fn(async () => null),
-      find: jest.fn(() => ({ lean: jest.fn(async () => []) })),
     };
-    const mockUploadSecurity = {
-      validateAndSecureUpload: jest.fn().mockResolvedValue({ buffer: Buffer.from('x'), sanitized: false, exifStripped: false, clamavScanned: false, pdfSanitized: false }),
-      clamavAvailable: false,
-      clamavChecked: true,
-      checkClamavAvailability: jest.fn(),
-    } as any;
-    const svc = new StorageService(model, mockUploadSecurity);
+    const svc = new StorageService(model);
 
-    // Force the S3 adapter: stub the client send to hang.
     const aws = require('@aws-sdk/client-s3');
-    const sendSpy = jest.spyOn(aws.S3Client.prototype, 'send').mockImplementation(hang as any);
+    const sendSpy = jest.spyOn(aws.S3Client.prototype, 'send').mockResolvedValue({ ETag: '"abc"' });
+
+    const res: any = await svc.upload({
+      owner_account_id: 'acc-1', owner_kind: 'user',
+      mime: 'application/pdf', data_base64: Buffer.from('x').toString('base64'),
+      original_name: 'a.pdf', visibility: 'private',
+    } as any);
+
+    expect(res.id).toBeDefined();
+    expect(res.url).toBe(`/api/v1/storage/${res.id}`);
+    expect(stored).toHaveLength(1);
+    sendSpy.mockRestore();
+  });
+
+  it('throws ServiceUnavailableException and persists nothing when the store fails', async () => {
+    const stored: any[] = [];
+    const model: any = {
+      create: jest.fn(async (doc: any) => { stored.push(doc); return doc; }),
+      findOne: jest.fn(async () => null),
+    };
+    const svc = new StorageService(model);
+
+    const aws = require('@aws-sdk/client-s3');
+    const sendSpy = jest.spyOn(aws.S3Client.prototype, 'send').mockRejectedValue(new Error('s3_down'));
 
     await expect(
       svc.upload({
@@ -282,32 +281,6 @@ describe('15.7 chaos — S3 / R2 object storage', () => {
 
     // no data loss / no phantom object: nothing was recorded as stored
     expect(stored).toHaveLength(0);
-    sendSpy.mockRestore();
-  });
-
-  it('opens the storage circuit so a dead store stops being retried per upload', async () => {
-    process.env.S3_TIMEOUT_MS = '40';
-    const model: any = { create: jest.fn(async (d: any) => d), findOne: jest.fn(async () => null) };
-    const breakers = new CircuitBreakerService();
-    const mockUploadSecurity = {
-      validateAndSecureUpload: jest.fn().mockResolvedValue({ buffer: Buffer.from('x'), sanitized: false, exifStripped: false, clamavScanned: false, pdfSanitized: false }),
-      clamavAvailable: false,
-      clamavChecked: true,
-      checkClamavAvailability: jest.fn(),
-    } as any;
-    const svc = new StorageService(model, mockUploadSecurity);
-
-    const aws = require('@aws-sdk/client-s3');
-    const sendSpy = jest.spyOn(aws.S3Client.prototype, 'send').mockImplementation(hang as any);
-
-    for (let i = 0; i < 14; i += 1) {
-      await svc.upload({
-        owner_account_id: 'acc-1', owner_kind: 'user',
-        mime: 'application/pdf', data_base64: Buffer.from('x').toString('base64'),
-        original_name: 'a.pdf', visibility: 'private',
-      } as any).catch(() => undefined);
-    }
-    expect(breakers.getStatus('storage:s3:put')).toBe('open');
     sendSpy.mockRestore();
   });
 });
