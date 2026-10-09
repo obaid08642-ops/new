@@ -59,4 +59,5 @@ Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = we
 - **Admin build (#1204) / provider build (#1205), 2026-10-08:** 44 tables on DataTable + /admin/today, /admin/approvals, catalogue quick edit/scan/confirm (~400k); pharmacy, merges, missing screens, ambulance removal, M9 wizard (~1.05M). Gaps in needs-review. Owner plan and decisions 24-27: `PROGRESS_ARCHIVE.md`.
 - **N1 nurse result upload (design/n1-nurse-upload):** files picked at visit end -> POST /storage/upload -> visit-report {complete, attachments}; without files the old complete route is kept. Backend gap: visit-report ignores the signature. ~60k tokens.
 - **N1 patient side (design/n1-patient-files):** nurse result files shown on the visit screen (app: live-tracking done state; web: /nursing/visits/[id]); open via signed URL (web BFF 302). 3 new keys x 6 locales. ~70k tokens.
+- **UI issues list (plan 2026-10-09 s.10), 169 issues, 6 areas, PRs #1244-#1252+:** ~45 fixed in the client, ~30 already fixed, rest owner decisions / waits for OC-A/B/C / new features. Per-chunk detail in `PROGRESS_ARCHIVE.md` and each PR. ~1.3M tokens.
 
