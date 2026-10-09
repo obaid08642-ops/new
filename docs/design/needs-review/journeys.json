@@ -26,10 +26,10 @@
  {
   "scenario": 1,
   "step": "offers (no answer yet)",
-  "problem": "Two screens show the same waiting state (/pharmacy/broadcast-status and /pharmacy/waiting-for-pharmacy) and only the second has a cancel button, but it is reached only for status \"draft\", so the real waiting order can never be cancelled on web (the app has cancel on broadcast-status).",
+  "problem": "Fixed on design/oc-journeys-1: /pharmacy/waiting-for-pharmacy is a redirect to broadcast-status (offers-screen.tsx), whose waiting state has the confirmed cancel for any status; the cancel is now one shared component (cancel-order.tsx) also used on order detail and tracking. Two screens show the same waiting state (/pharmacy/broadcast-status and /pharmacy/waiting-for-pharmacy) and only the second has a cancel button, but it is reached only for status \"draft\", so the real waiting order can never be cancelled on web (the app has cancel on broadcast-status).",
   "kind": "duplicate",
   "file": "patient-web/components-next/pharmacy-offers/waiting-actions.tsx",
-  "line": 30
+  "line": 18
  },
  {
   "scenario": 1,
@@ -42,7 +42,7 @@
  {
   "scenario": 1,
   "step": "select offer",
-  "problem": "Selecting an offer from broadcast-status sends the patient to /orders/:id/tracking?selectedOfferId=, but the tracking page ignores that parameter and has no \"continue to price/payment\" button (the app tracking has view.next), so the next step (accept the final price) is a detour through order detail.",
+  "problem": "Fixed on design/oc-journeys-1: tracking shows a \"Continue\" button to the order's next step (final price, payment, insurance) from the order router. Selecting an offer from broadcast-status sends the patient to /orders/:id/tracking?selectedOfferId=, but the tracking page ignores that parameter and has no \"continue to price/payment\" button (the app tracking has view.next), so the next step (accept the final price) is a detour through order detail.",
   "kind": "wrong-state",
   "file": "patient-web/components-next/pharmacy-offers/offer-list.tsx",
   "line": 104
@@ -50,7 +50,7 @@
  {
   "scenario": 1,
   "step": "select offer",
-  "problem": "Tracking has no next-step button after an offer is selected (accept price / pay), unlike the app.",
+  "problem": "Fixed on design/oc-journeys-1: tracking shows a \"Continue\" button to the order's next step from the order router. Tracking has no next-step button after an offer is selected (accept price / pay), unlike the app.",
   "kind": "missing-step",
   "file": "patient-web/components-next/orders/tracking-screen.tsx",
   "line": 80
@@ -66,7 +66,7 @@
  {
   "scenario": 1,
   "step": "order detail / tracking",
-  "problem": "No cancel button and no refund rule on the pharmacy order detail or tracking once offers exist (decision 26: cancel before dispatch = full refund incl. delivery); the server already says can_cancel in /unified-bookings/mine.",
+  "problem": "Fixed on design/oc-journeys-1 (cancel button on order detail and tracking until the order is dispatched; the refund rule text of decision 26 waits for the OC-A policy D-26). No cancel button and no refund rule on the pharmacy order detail or tracking once offers exist (decision 26: cancel before dispatch = full refund incl. delivery); the server already says can_cancel in /unified-bookings/mine.",
   "kind": "missing-step",
   "file": "patient-web/components-next/orders/order-detail-screen.tsx",
   "line": 120
@@ -90,7 +90,7 @@
  {
   "scenario": 1,
   "step": "browse / product",
-  "problem": "Three web catalogues: /c (canonical), /medicines (dashboard tile \"الأدوية\") and /medicine-catalog (wishlist \"start shopping\"); the dashboard also has \"صيدلية\" -> /c.",
+  "problem": "Already fixed: /medicines and /medicine-catalog are permanent redirects to /c (catalogueHref). Three web catalogues: /c (canonical), /medicines (dashboard tile \"الأدوية\") and /medicine-catalog (wishlist \"start shopping\"); the dashboard also has \"صيدلية\" -> /c.",
   "kind": "duplicate",
   "file": "patient-web/components-next/home/home-parts.tsx",
   "line": 162
@@ -114,7 +114,7 @@
  {
   "scenario": 1,
   "step": "browse / product",
-  "problem": "No \"أونلاين فقط\" (online_exclusive) badge on the web product page (decision 11); the app badge says \"حصري أونلاين\", a different wording.",
+  "problem": "Partly fixed on design/oc-journeys-1: the app badge now reads \"أونلاين فقط\" (six languages); the web badge waits for the public product answer to carry online_exclusive (backend/src/modules/medicines/med-i18n.ts:304 sends is_rx but not online_exclusive). No \"أونلاين فقط\" (online_exclusive) badge on the web product page (decision 11); the app badge says \"حصري أونلاين\", a different wording.",
   "kind": "missing-field",
   "file": "patient-app/app/pharmacy/product-detail.tsx",
   "line": 505
@@ -122,7 +122,7 @@
  {
   "scenario": 1,
   "step": "add to cart",
-  "problem": "Adding a prescription item to the cart shows no notice (decision 10); the confirmation line is the same for every item.",
+  "problem": "Fixed on design/oc-journeys-1: adding a prescription item shows a notice (addedRxNote, six languages). Adding a prescription item to the cart shows no notice (decision 10); the confirmation line is the same for every item.",
   "kind": "missing-state",
   "file": "patient-web/components-next/pharmacy/product-buy.tsx",
   "line": 99
@@ -130,7 +130,7 @@
  {
   "scenario": 1,
   "step": "browse / product",
-  "problem": "The product page buy bar shows a catalogue price total while the cart says the price comes only from the offers.",
+  "problem": "Fixed on design/oc-journeys-1: the buy bar label is now \"Reference price\" (referencePrice, six languages). The product page buy bar shows a catalogue price total while the cart says the price comes only from the offers.",
   "kind": "wrong-state",
   "file": "patient-web/components-next/pharmacy/product-buy.tsx",
   "line": 117
@@ -138,7 +138,7 @@
  {
   "scenario": 2,
   "step": "upload prescription",
-  "problem": "The prescription upload is gated by OCR: when /ai/prescription-ocr fails (503 here) the patient only sees \"could not analyse the image\" with no way to continue, skip OCR or enter the medicines by name (only the \"unreadable\" error links to the manual request).",
+  "problem": "Fixed on design/oc-journeys-1: the OCR failure also links to \"Request a medicine by name\". The prescription upload is gated by OCR: when /ai/prescription-ocr fails (503 here) the patient only sees \"could not analyse the image\" with no way to continue, skip OCR or enter the medicines by name (only the \"unreadable\" error links to the manual request).",
   "kind": "dead-end",
   "file": "patient-web/components-next/pharmacy/rx-upload-screen.tsx",
   "line": 86
@@ -154,7 +154,7 @@
  {
   "scenario": 2,
   "step": "cart with Rx item",
-  "problem": "Cart with an Rx item offers only \"upload\"; there is no \"استشر طبيب\" button (decision 10) on the web cart.",
+  "problem": "Fixed on design/oc-journeys-1: the web cart banner has \"Consult a doctor\" (opens the specialties list). Cart with an Rx item offers only \"upload\"; there is no \"استشر طبيب\" button (decision 10) on the web cart.",
   "kind": "missing-step",
   "file": "patient-web/components-next/pharmacy/cart-screen.tsx",
   "line": 180
@@ -162,7 +162,7 @@
  {
   "scenario": 2,
   "step": "cart with Rx item",
-  "problem": "No \"استشر طبيب\" button in the app cart either (only upload).",
+  "problem": "Fixed on design/oc-journeys-1: the app cart has a \"Consult a doctor\" row (opens the specialty list). No \"استشر طبيب\" button in the app cart either (only upload).",
   "kind": "missing-step",
   "file": "patient-app/app/pharmacy/cart.tsx",
   "line": 142
@@ -170,7 +170,7 @@
  {
   "scenario": 2,
   "step": "checkout with Rx item",
-  "problem": "The \"prescription missing\" banner at checkout links only to upload, no consult option.",
+  "problem": "Fixed on design/oc-journeys-1: the checkout banner has \"Consult a doctor\". The \"prescription missing\" banner at checkout links only to upload, no consult option.",
   "kind": "missing-step",
   "file": "patient-web/components-next/pharmacy-checkout/checkout-screen.tsx",
   "line": 258

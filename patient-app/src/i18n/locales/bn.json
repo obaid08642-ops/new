@@ -382,6 +382,7 @@
   "pharmacy.cart.rxBannerTitle": "আপনার কার্টে এমন ওষুধ আছে যার জন্য প্রেসক্রিপশন দরকার",
   "pharmacy.cart.rxBannerBody": "অনুরোধ পাঠানোর আগে প্রেসক্রিপশন আপলোড করুন",
   "pharmacy.cart.rxBannerAction": "আপলোড",
+  "pharmacy.cart.rxConsult": "ডাক্তারের পরামর্শ নিন",
   "pharmacy.cart.manual": "ওষুধ খুঁজে পাননি? নিজে অনুরোধ যোগ করুন",
   "pharmacy.cart.note": "দাম আসে ফার্মেসিগুলোর অফার থেকে। আমরা আপনার অনুরোধ কাছের ফার্মেসিতে পাঠাই, আপনি একটি অফার বেছে নেন, তারপর পেমেন্ট করেন।",
   "pharmacy.cart.ctaRequest": "ফার্মেসির অফার চান",

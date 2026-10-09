@@ -244,7 +244,7 @@ export default async function PublicProductPage({ params }: Props) {
         backHref={categoryPath || `/${locale}/c`}
         hideTabs
         topBarSearch={<CatalogSearch locale={locale} tools={false} />}
-        footer={canBuy ? <StickyFooter label={b("total")}><BuyBar locale={locale} /></StickyFooter> : undefined}
+        footer={canBuy ? <StickyFooter label={b("referencePrice")}><BuyBar locale={locale} /></StickyFooter> : undefined}
       >
         <div className={styles.page}>
           <JsonLd data={jsonLd} />

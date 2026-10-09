@@ -88,6 +88,7 @@
 .added { margin: 0; min-block-size: 20px; font-size: var(--nabd-font-size-label); color: var(--nabd-color-status-success-fg); }
 .addedLink { color: var(--nabd-color-text-link); font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; min-block-size: 44px; }
 .addedLink:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-sm); }
+.addedRx { display: block; color: var(--nabd-color-status-warning-fg); }
 
 /* the phone's sticky bar */
 .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-inline: var(--nabd-shell-gutter, 16px); padding-block: var(--nabd-space-2xs); }

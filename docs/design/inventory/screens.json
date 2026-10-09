@@ -1,5 +1,5 @@
 {
- "commit": "05db9226",
+ "commit": "398eec0e",
  "routes": [
   {
    "app": "patient-app",
@@ -9548,8 +9548,8 @@
      "method": "GET",
      "path": "/entity-graph/explore",
      "target": "backend",
-     "query": "?specialty=:param&city=:param&district=:param",
-     "line": 22,
+     "query": "?specialty=:param&city=:param",
+     "line": 20,
      "file": "patient-web/app/[locale]/doctors/[specialty]/[city]/[neighborhood]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/entity-graph/entity-graph.controller.ts:19"
@@ -12531,7 +12531,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
     }
    ],
-   "files": 46,
+   "files": 48,
    "unresolved": 0
   },
   {
@@ -12585,7 +12585,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:42"
     }
    ],
-   "files": 51,
+   "files": 52,
    "unresolved": 0
   },
   {
@@ -12707,7 +12707,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
     }
    ],
-   "files": 44,
+   "files": 48,
    "unresolved": 0
   },
   {
@@ -13110,7 +13110,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:42"
     }
    ],
-   "files": 51,
+   "files": 52,
    "unresolved": 0
   },
   {
