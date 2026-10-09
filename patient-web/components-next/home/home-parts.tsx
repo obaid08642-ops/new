@@ -160,9 +160,7 @@ export function AiCard({ locale, t }: { locale: Locale; t: T }) {
 const MORE: Array<{ key: string; href: string; icon: FillIconName; tone: ServiceTone }> = [
   { key: "appointments", href: "appointments", icon: "calendar-dots", tone: "blue" },
   { key: "medicines", href: "medicines", icon: "pill", tone: TONE.rx },
-  { key: "diagnostics", href: "diagnostics", icon: "test-tube", tone: "mint" },
   { key: "orders", href: "orders", icon: "package", tone: TONE.care },
-  { key: "health", href: "health", icon: "heartbeat", tone: TONE.rx },
   { key: "homeCare", href: "home-care", icon: "first-aid-kit", tone: TONE.care },
   { key: "reminders", href: "health/medications?tab=all", icon: "clock-counter-clockwise", tone: "violet" },
   { key: "prescriptions", href: "prescriptions", icon: "prescription", tone: TONE.rx },
@@ -173,19 +171,15 @@ const MORE: Array<{ key: string; href: string; icon: FillIconName; tone: Service
   { key: "offers", href: "offers", icon: "gift", tone: "pink" },
   { key: "programs", href: "programs", icon: "heart", tone: "mint" },
   { key: "returns", href: "returns", icon: "arrows-left-right", tone: "amber" },
-  { key: "nutrition", href: "nutrition", icon: "bowl-food", tone: TONE.food },
-  { key: "maternity", href: "maternity", icon: "baby", tone: "pink" },
-  { key: "aiTriage", href: "ai", icon: "sparkle", tone: "violet" },
   { key: "reports", href: "reports", icon: "file-text", tone: "blue" },
   { key: "loyalty", href: "loyalty", icon: "star", tone: "amber" },
   { key: "support", href: "support", icon: "headset", tone: TONE.care },
-  { key: "emergency", href: "emergency", icon: "ambulance", tone: "peach" },
   { key: "profile", href: "profile", icon: "user", tone: "blue" },
   { key: "settings", href: "settings", icon: "gear", tone: "ink" },
   { key: "articles", href: "articles", icon: "clipboard-text", tone: "mint" },
 ];
 
-/** Every other patient page, as the board's ListItem rows (the signed-in home; `labels` is the Dashboard namespace). */
+/** Every other patient page (the ones the service grid and the assistant card above do not already show), as the board's ListItem rows (the signed-in home; `labels` is the Dashboard namespace). */
 export function AllServices({ locale, t, labels }: { locale: Locale; t: T; labels: T }) {
   return (
     <section className={styles.section} aria-label={t("allServices")}>
