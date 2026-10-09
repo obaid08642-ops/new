@@ -79,7 +79,11 @@ export class HomeService {
       date: dateStr,
       doctorName: doctorName || null,
       type: typeAr,
-      time: timeStr
+      time: timeStr,
+      // Needs-review issue 442: the exact start (ISO, UTC) and state, so a client formats the time in the
+      // patient's own zone instead of reading `date` (midnight UTC) or the server-zone `time`.
+      scheduled_at: upcoming.slot_start.toISOString(),
+      status: upcoming.status,
     };
   }
 
