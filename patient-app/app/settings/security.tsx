@@ -277,7 +277,13 @@ export default function SecuritySettingsScreen() {
             { backgroundColor: isDark ? colors.surface : colors.white },
           ]}
         >
-          <AppText variant="h5">الجلسات النشطة</AppText>
+          <View style={{ flexDirection: "row-reverse", alignItems: "center", justifyContent: "space-between" }}>
+            <AppText variant="h5">الجلسات النشطة</AppText>
+            {/* 23.6: full login & device history (GET /api/v1/patient/security/sessions). */}
+            <TouchableOpacity onPress={() => router.push("/settings/sessions" as any)}>
+              <AppText variant="bodySM">عرض الكل</AppText>
+            </TouchableOpacity>
+          </View>
           {loading ? (
             <AppText variant="bodySM" style={{ textAlign: "center", marginTop: 20 }}>جاري تحميل الجلسات...</AppText>
           ) : sessions.length === 0 ? (
