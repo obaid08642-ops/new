@@ -299,22 +299,6 @@
     "scenario": 3,
     "scenario_name": "Home visit / nursing",
     "step": "result upload",
-    "status": "missing step",
-    "tag": "[client]",
-    "problem": "Nursing has no result or attachment upload (photos, wound images, signed report): the single visit flow ends with vitals, notes, recommendations and a signature only; the complete command has no attachment field.",
-    "file": "provider-app/src/screens/nursing/NursingFieldOps.tsx",
-    "line": 198,
-    "batch": "provider",
-    "app": "provider-app",
-    "screen": "NursingFieldOps",
-    "element": "result upload",
-    "found": "[client] Nursing has no result or attachment upload (photos, wound images, signed report): the single visit flow ends with vitals, notes, recommendations and a signature only; the complete command has no attachment field.",
-    "suspect": "missing step"
-  },
-  {
-    "scenario": 3,
-    "scenario_name": "Home visit / nursing",
-    "step": "result upload",
     "status": "works",
     "tag": "[client]",
     "problem": "Home lab: report upload sends structured rows only (no PDF or photo attach); the \"send_to\" value is in the DTO but not used by the service.",
@@ -606,5 +590,22 @@
     "element": "Bundle Builder",
     "found": "[client] The lab and radiology test menu has a \"Bundle Builder\" whose bundles are only part of `full_data`; neither step2 nor step3 sends them, so no bundle reaches the catalogue.",
     "suspect": "broken"
+  },
+  {
+    "scenario": 3,
+    "scenario_name": "Home visit / nursing",
+    "step": "result upload",
+    "status": "works",
+    "tag": "[backend]",
+    "problem": "With result files the visit is completed through POST /home-care/bookings/:id/visit-report (the only route that stores attachments); that handler does not store the patient signature (the DTO accepts `signature`, the handler ignores it) and sends no `patient.notify` like /nursing/visits/:id/complete does. Visits without files still complete through /nursing/visits/:id/complete.",
+    "file": "provider-app/src/screens/nursing/NursingFieldOps.tsx",
+    "line": 128,
+    "backend": "backend/src/modules/home-care/home-care-compat.module.ts:261",
+    "batch": "provider",
+    "app": "provider-app",
+    "screen": "NursingFieldOps",
+    "element": "result upload",
+    "found": "[backend] With result files the visit is completed through POST /home-care/bookings/:id/visit-report (the only route that stores attachments); that handler does not store the patient signature (the DTO accepts `signature`, the handler ignores it) and sends no `patient.notify` like /nursing/visits/:id/complete does. Visits without files still complete through /nursing/visits/:id/complete.",
+    "suspect": "backend gap"
   }
 ]

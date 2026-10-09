@@ -573,7 +573,7 @@
     ],
     [
      "API: GET /insurance/companies",
-     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:695)",
+     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:696)",
      "ok"
     ],
     [
@@ -593,17 +593,17 @@
     ],
     [
      "API: POST /provider/auth/change-password",
-     "POST /provider/auth/change-password (OK, backend/src/modules/provider/provider.controllers.ts:63)",
+     "POST /provider/auth/change-password (OK, backend/src/modules/provider/provider.controllers.ts:64)",
      "ok"
     ],
     [
      "API: POST /provider/auth/login",
-     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:35)",
+     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:36)",
      "ok"
     ],
     [
      "API: POST /storage/upload",
-     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:362)",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:370)",
      "ok"
     ]
    ],
@@ -1191,7 +1191,7 @@
     ],
     [
      "API: GET /insurance/companies",
-     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:695)",
+     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:696)",
      "ok"
     ],
     [
@@ -1216,17 +1216,17 @@
     ],
     [
      "API: POST /provider/auth/change-password",
-     "POST /provider/auth/change-password (OK, backend/src/modules/provider/provider.controllers.ts:63)",
+     "POST /provider/auth/change-password (OK, backend/src/modules/provider/provider.controllers.ts:64)",
      "ok"
     ],
     [
      "API: POST /provider/auth/login",
-     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:35)",
+     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:36)",
      "ok"
     ],
     [
      "API: POST /storage/upload",
-     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:362)",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:370)",
      "ok"
     ]
    ],
@@ -1269,7 +1269,7 @@
     ],
     [
      "API: POST /provider/auth/verify-reset-code",
-     "POST /provider/auth/verify-reset-code (OK, backend/src/modules/provider/provider.controllers.ts:58)",
+     "POST /provider/auth/verify-reset-code (OK, backend/src/modules/provider/provider.controllers.ts:59)",
      "ok"
     ]
    ]
@@ -1829,7 +1829,7 @@
     ],
     [
      "API: GET /insurance/companies",
-     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:695)",
+     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:696)",
      "ok"
     ],
     [
@@ -1849,17 +1849,17 @@
     ],
     [
      "API: POST /provider/auth/change-password",
-     "POST /provider/auth/change-password (OK, backend/src/modules/provider/provider.controllers.ts:63)",
+     "POST /provider/auth/change-password (OK, backend/src/modules/provider/provider.controllers.ts:64)",
      "ok"
     ],
     [
      "API: POST /provider/auth/login",
-     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:35)",
+     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:36)",
      "ok"
     ],
     [
      "API: POST /storage/upload",
-     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:362)",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:370)",
      "ok"
     ]
    ],
@@ -2412,7 +2412,7 @@
     ],
     [
      "API: GET /insurance/companies",
-     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:695)",
+     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:696)",
      "ok"
     ],
     [
@@ -2432,17 +2432,17 @@
     ],
     [
      "API: POST /provider/auth/change-password",
-     "POST /provider/auth/change-password (OK, backend/src/modules/provider/provider.controllers.ts:63)",
+     "POST /provider/auth/change-password (OK, backend/src/modules/provider/provider.controllers.ts:64)",
      "ok"
     ],
     [
      "API: POST /provider/auth/login",
-     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:35)",
+     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:36)",
      "ok"
     ],
     [
      "API: POST /storage/upload",
-     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:362)",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:370)",
      "ok"
     ]
    ],
@@ -3005,7 +3005,7 @@
     ],
     [
      "API: GET /insurance/companies",
-     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:695)",
+     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:696)",
      "ok"
     ],
     [
@@ -3025,17 +3025,17 @@
     ],
     [
      "API: POST /provider/auth/change-password",
-     "POST /provider/auth/change-password (OK, backend/src/modules/provider/provider.controllers.ts:63)",
+     "POST /provider/auth/change-password (OK, backend/src/modules/provider/provider.controllers.ts:64)",
      "ok"
     ],
     [
      "API: POST /provider/auth/login",
-     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:35)",
+     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:36)",
      "ok"
     ],
     [
      "API: POST /storage/upload",
-     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:362)",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:370)",
      "ok"
     ]
    ],
@@ -3598,7 +3598,7 @@
     ],
     [
      "API: GET /insurance/companies",
-     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:695)",
+     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:696)",
      "ok"
     ],
     [
@@ -3618,17 +3618,17 @@
     ],
     [
      "API: POST /provider/auth/change-password",
-     "POST /provider/auth/change-password (OK, backend/src/modules/provider/provider.controllers.ts:63)",
+     "POST /provider/auth/change-password (OK, backend/src/modules/provider/provider.controllers.ts:64)",
      "ok"
     ],
     [
      "API: POST /provider/auth/login",
-     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:35)",
+     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:36)",
      "ok"
     ],
     [
      "API: POST /storage/upload",
-     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:362)",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:370)",
      "ok"
     ]
    ],

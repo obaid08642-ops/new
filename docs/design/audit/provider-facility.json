@@ -759,7 +759,7 @@
     ],
     [
      "API: GET /insurance/requests/provider/queue",
-     "GET /insurance/requests/provider/queue (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:736)",
+     "GET /insurance/requests/provider/queue (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:737)",
      "ok"
     ]
    ],
@@ -1115,7 +1115,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx",
    "line": 54,
-   "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:736"
+   "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:737"
   },
   {
    "route": "ShiftManagementScreen",

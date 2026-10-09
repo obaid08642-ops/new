@@ -506,7 +506,7 @@
     ],
     [
      "API: GET /labs/provider/inbox",
-     "GET /labs/provider/inbox (OK, backend/src/modules/labs/labs.controller.ts:79)",
+     "GET /labs/provider/inbox (OK, backend/src/modules/labs/labs.controller.ts:80)",
      "ok"
     ]
    ],
