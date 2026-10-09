@@ -303,6 +303,8 @@ export class AppointmentsService {
       const joinable = [APPT_STATES.CONFIRMED, APPT_STATES.CHECKED_IN, APPT_STATES.IN_PROGRESS].includes(obj.status);
       obj.call = { room: `appt_${obj.id}`, join_path: `/care/appointments/${obj.id}/call`, joinable };
     }
+    // Q-17: clients read `consultation_type`; the stored field is `service_type`.
+    if (!obj.consultation_type && obj.service_type) obj.consultation_type = obj.service_type;
     // Fetch doctor info to attach name and specialty
     const doctor: any = await this.providerModel.findOne({ id: obj.doctor_id, type: ProviderType.DOCTOR }, { name_ar: 1, specialty_ar: 1, specialty: 1, name: 1, _id: 0 });
     if (doctor) {
