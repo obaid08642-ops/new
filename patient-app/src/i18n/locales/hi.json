@@ -3127,5 +3127,7 @@
   "pharmacy.rx.zoneUpload": "अपनी फ़ोटो में से पर्चा चुनें",
   "insurance.claim.fileInvalid": "10 मेगाबाइट या उससे कम की छवि चुनें।",
   "guest.loginRequiredTitle": "साइन इन ज़रूरी है",
-  "guest.loginRequiredBody": "इस सुविधा का उपयोग करने के लिए साइन इन करें।"
+  "guest.loginRequiredBody": "इस सुविधा का उपयोग करने के लिए साइन इन करें।",
+  "consult.calls.videoCall": "वीडियो कॉल",
+  "consult.calls.voiceCall": "वॉइस कॉल"
 }

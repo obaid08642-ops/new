@@ -9,7 +9,10 @@ import { Notice, SectionCard } from "@/components-next/consult/consult-parts";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ appointmentId?: string }> };
 
-const STEPS = ["PENDING", "CONFIRMED", "PROVIDER_EN_ROUTE", "PROVIDER_ARRIVED", "IN_PROGRESS", "COMPLETED"] as const;
+// Only steps the appointment states reach (PENDING, CONFIRMED, CHECKED_IN, IN_PROGRESS, COMPLETED): there is no
+// en-route state, and CHECKED_IN is the doctor at the door (needs-review issue 406).
+const STEPS = ["PENDING", "CONFIRMED", "PROVIDER_ARRIVED", "IN_PROGRESS", "COMPLETED"] as const;
+const STEP_OF: Record<string, (typeof STEPS)[number]> = { CHECKED_IN: "PROVIDER_ARRIVED" };
 
 /** Where a home visit is (canvas/OrderTracking): the steps of the visit, the one the server's status says it is at. */
 export default async function HomeVisitTrackingPage({ params, searchParams }: Props) {
@@ -25,8 +28,8 @@ export default async function HomeVisitTrackingPage({ params, searchParams }: Pr
   if (res.status === 403 || res.status === 404) notFound();
   const payload = res.ok ? await res.json().catch(() => null) : null;
   const appt = payload?.data ?? payload;
-  const status = String(appt?.status ?? "PENDING");
-  const idx = STEPS.findIndex((s) => s === status);
+  const status = String(appt?.status ?? "PENDING").toUpperCase();
+  const idx = STEPS.findIndex((s) => s === (STEP_OF[status] ?? status));
 
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/appointments/${encodeURIComponent(appointmentId)}`}>

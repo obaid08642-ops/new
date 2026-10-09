@@ -3163,5 +3163,7 @@
   "pharmacy.rx.zoneUpload": "Choose the prescription from your photos",
   "insurance.claim.fileInvalid": "Choose an image of 10 MB or less.",
   "guest.loginRequiredTitle": "Sign-in required",
-  "guest.loginRequiredBody": "Sign in to use this feature."
+  "guest.loginRequiredBody": "Sign in to use this feature.",
+  "consult.calls.videoCall": "Video call",
+  "consult.calls.voiceCall": "Voice call"
 }

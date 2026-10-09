@@ -3127,5 +3127,7 @@
   "pharmacy.rx.zoneUpload": "আপনার ছবি থেকে প্রেসক্রিপশন বেছে নিন",
   "insurance.claim.fileInvalid": "১০ মেগাবাইট বা তার কম আকারের ছবি বেছে নিন।",
   "guest.loginRequiredTitle": "সাইন ইন প্রয়োজন",
-  "guest.loginRequiredBody": "এই সুবিধা ব্যবহার করতে সাইন ইন করুন।"
+  "guest.loginRequiredBody": "এই সুবিধা ব্যবহার করতে সাইন ইন করুন।",
+  "consult.calls.videoCall": "ভিডিও কল",
+  "consult.calls.voiceCall": "ভয়েস কল"
 }

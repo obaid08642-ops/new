@@ -3163,5 +3163,7 @@
   "pharmacy.rx.zoneUpload": "اختر الوصفة من صورك",
   "insurance.claim.fileInvalid": "اختر صورة لا يزيد حجمها عن 10 ميجابايت.",
   "guest.loginRequiredTitle": "مطلوب تسجيل الدخول",
-  "guest.loginRequiredBody": "سجّل الدخول لاستخدام هذه الميزة."
+  "guest.loginRequiredBody": "سجّل الدخول لاستخدام هذه الميزة.",
+  "consult.calls.videoCall": "مكالمة فيديو",
+  "consult.calls.voiceCall": "مكالمة صوتية"
 }
