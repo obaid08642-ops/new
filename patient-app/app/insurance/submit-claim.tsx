@@ -19,6 +19,9 @@ type Row = Record<string, any>; // eslint-disable-line @typescript-eslint/no-exp
  * always read), add a note and the receipt (POST /media/upload), POST /insurance/claims/submit with the same body as before.
  * The review time and the claim state are the server's; nothing is promised here.
  */
+const CLAIM_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/heic', 'image/heif', 'image/webp'];
+const CLAIM_IMAGE_MAX_BYTES = 10 * 1024 * 1024;
+
 export default function SubmitClaimScreen() {
   const { k, theme, t, c, flow } = useScreenUi();
   const fmt = useConsultFormat();
@@ -64,6 +67,12 @@ export default function SubmitClaimScreen() {
       const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
       if (result.canceled || !result.assets?.[0]) return;
       const asset = result.assets[0];
+      // Check the file on the device before uploading it (needs-review issue 828).
+      const mime = (asset.mimeType || '').toLowerCase();
+      if ((mime && !CLAIM_IMAGE_TYPES.includes(mime)) || (typeof asset.fileSize === 'number' && asset.fileSize > CLAIM_IMAGE_MAX_BYTES)) {
+        setNotice({ tone: 'danger', text: k('insurance.claim.fileInvalid') });
+        return;
+      }
       setUploading(true);
       const formData = new FormData();
       formData.append('file', { uri: asset.uri, name: asset.fileName || 'receipt.jpg', type: asset.mimeType || 'image/jpeg' } as unknown as Blob);

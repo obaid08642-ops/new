@@ -21,7 +21,8 @@ import type { ServiceTone } from '../../../../packages/ui-native/src';
 
 export const MENTAL_HUB = '/mental-health/hub' as Href;
 const MOOD_JOURNAL = '/mental-health/mood-journal' as Href;
-const CONSULTATIONS = '/(tabs)/consultations' as Href;
+// Mental-health consultation opens the doctor search on psychiatry (needs-review issue 857), as the services catalogue does.
+const CONSULTATIONS = '/search?view=doctors&specialty=psychiatry' as Href;
 
 export function MentalHealthHubView() {
   const { k } = useScreenUi();

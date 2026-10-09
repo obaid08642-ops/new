@@ -3124,5 +3124,6 @@
   "pharmacy.rx.viaUpload": "अपलोड",
   "pharmacy.rx.viaType": "नाम लिखें",
   "pharmacy.rx.zonePhoto": "पर्चे की फ़ोटो लें",
-  "pharmacy.rx.zoneUpload": "अपनी फ़ोटो में से पर्चा चुनें"
+  "pharmacy.rx.zoneUpload": "अपनी फ़ोटो में से पर्चा चुनें",
+  "insurance.claim.fileInvalid": "10 MB या उससे कम की JPG, PNG, HEIC या WebP छवि चुनें।"
 }
