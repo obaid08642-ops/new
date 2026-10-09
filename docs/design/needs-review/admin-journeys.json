@@ -4,14 +4,14 @@
     "element": "Journey 1 / Suspend button as the only reject path",
     "file": "admin/src/pages/admin/provider-moderation.tsx", "line": 285,
     "found": "[client] The only way to turn a pending provider down is the 'Suspend' button and its modal (reject / reason codes). It calls POST /admin/providers/:id/suspend, but the backend state machine does not allow PENDING_ADMIN_APPROVAL -> SUSPENDED (only UNDER_REVIEW, APPROVED, REJECTED, NEEDS_CHANGES), so the call returns 400 'invalid transition' and the provider cannot be rejected from this screen. (backend: backend/src/modules/provider/provider.enums.ts:46, backend/src/modules/provider/services/provider-admin.service.ts:262)",
-    "suspect": "Client-side: later batch. Use POST /admin/providers/:id/reject."
+    "suspect": "Fixed on design/oc-admin: the Suspend button and modal are removed (the pending list cannot be suspended); rejection is the Reject button (POST /admin/providers/:id/reject)."
   },
   {
     "batch": "admin-journeys", "app": "admin", "screen": "/admin/provider-moderation",
     "element": "Journey 1 / Reject, request-changes and bank approval have no UI",
     "file": "admin/src/pages/admin/provider-moderation.tsx", "line": 117,
     "found": "[client] The screen calls only approve and suspend. The backend also has POST /admin/providers/:id/reject, /request-changes (status NEEDS_CHANGES, asks the provider to fix named documents) and /approve-bank; no admin page calls them, so 'send back for corrections' and payout bank approval cannot be done from admin. (backend: backend/src/modules/provider/provider.controllers.ts:156,157,178)",
-    "suspect": "Client-side: later batch."
+    "suspect": "Fixed on design/oc-admin: reject and request-changes were already wired; the payout bank approval button (POST /admin/providers/:id/approve-bank) is added, shown when the bank account is pending."
   },
   {
     "batch": "admin-journeys", "app": "admin", "screen": "/admin/provider-moderation",
@@ -32,7 +32,7 @@
     "element": "Journey 1 / Approve is three window.prompt dialogs",
     "file": "admin/src/pages/admin/provider-moderation.tsx", "line": 105,
     "found": "[client] Approval asks for the reason, the cash commission % and the insurance commission % with three window.prompt calls and reports with alert(); no summary/confirm step shows what will be approved, and prompts are unusable in a mobile web app. Approve and every other provider write are role-only on the backend (class-level @Roles(ADMIN), no @RequirePermissions) while the page asks for doctor.read. (backend: backend/src/modules/provider/provider.controllers.ts:155)",
-    "suspect": "Client-side: later batch."
+    "suspect": "Fixed on design/oc-admin: approve is a form dialog (summary, reason, cash and insurance commission, confirm, inline errors) and the page guard asks facility.edit like the backend writes."
   },
   {
     "batch": "admin-journeys", "app": "admin", "screen": "/admin/provider-moderation",
