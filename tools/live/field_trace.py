@@ -256,7 +256,7 @@ def ui_check(results):
 def main():
     admin, _ = j_admin.login()
     out, bad = [], 0
-    for ptype in (os.environ.get('TYPES') or 'pharmacy,doctor,lab,radiology,home_care,hospital,ambulance').split(','):
+    for ptype in (os.environ.get('TYPES') or 'pharmacy,doctor,lab,radiology,home_care,hospital').split(','):
         r = trace(admin, ptype)
         out.append(r)
         counts = {s: sum(1 for v in r['fields'].values() if v == s) for s in ('OK', 'HIDDEN_FROM_ADMIN', 'LOST', 'ADMIN_ONLY?')}

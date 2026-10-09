@@ -211,40 +211,53 @@ PART 2 - Queue items on main
 For each item: branch oc/<item-id> from origin/main, one PR into main titled "[OC <item-id>] <summary>". Never push to main.
 Before each item, read its row in docs/review/OPENCODE_QUEUE.md and its acceptance folder backend/acceptance/<id>/ on origin/main. The item is done when `node scripts/run-acceptance.mjs <id>` passes and the gate is green. Never edit acceptance files.
 Order:
- 1. Q-12 (existing branch oc/Q-12, PR #587: push new commits there). It fails 0/9 today. When a provider has no location, geoPoint must be ABSENT (not null, not [0,0]), and the 2dsphere index must be sparse.
- 2. D-17 (urgent: /providers leaks national id, phone, e-mail and IBAN today).
- 3. S-7, then S-5, then S-6.
- 4. D-14 (archive the data first), D-1, D-8, D-2, D-4, D-9.
- 5. D-12, D-13, D-19, D-24, D-25, D-26, Q-21, D-32 (erasure).
+ Already done by the lead reviewer (do NOT redo them): Q-12 (#587), Q-13 (#588), D-8 (#725), D-10 (#726), D-14 (#729).
+ 1. D-17 (urgent: /providers leaks national id, phone, e-mail and IBAN today).
+ 2. S-7, then S-5, then S-6.
+ 3. D-1, D-2, D-4, D-9.
+ 4. D-12, D-13, D-19, D-24, D-25, D-26, Q-21, D-32 (erasure).
  6. D-37 and D-38, once the reviewer has merged their acceptance specs.
 One item at a time. Push and send the owner "<item-id> done, PR #<n>, acceptance x/y, gate green" after each.
 ```
 
 ---
 
-## Message D: Claude design session (stopped)
+## Message D: Claude design session (updated 2026-10-08, after the patient batches)
 
 ```
-Lead reviewer, 2026-10-08. First push anything you have not pushed yet.
+Lead reviewer, 2026-10-08. First push anything you have not pushed yet, then `git fetch origin`.
 
-State:
-- Batch 9 (#711) is merged into main. I merged main into it and regenerated the no-raw-color baseline (3623 -> 3249).
-- Batch 7 (#580) cannot merge: 15 conflicting files with main (PROGRESS, SCREEN_INVENTORY, WIRING_REPORT, inventory/screens.json, the six patient-web/messages/*.json, and the baselines locale-parity, no-literal-ui-string, no-raw-color, render-native-screen fixtures and .mjs).
+Merged into main: Batches 7, 9, 10, 11 and 12 (#724 merged 7, 10, 11 and 12 together; their PRs show as merged).
+Fixes I made while merging (keep them): /map idle note on a surface card (contrast 4.15 -> 5.07); icon-glyphs floor 20 -> 10.
 
-Do now, in order:
-1. On design/batch-7, run `git merge origin/main` (no rebase, no force-push). Resolve as follows:
-   - locale JSON: keep the keys from both sides;
-   - generated files and baselines: regenerate with their tools (--update only lowers);
-   - PROGRESS: keep main's text and add Batch 7.
-   Run `npm run test` in packages/design-tokens, push, and tell the owner.
-2. Batch 7 insurance must follow owner decision 35 (docs/product/OWNER_DECISIONS_2026-10-06.md):
-   - Nabd+ never contacts the insurer.
-   - The text says that the facility requests the approval.
-   - The patient sees the provider's decision: approved, partial or rejected, with the approval number, the co-pay and the reason.
-   - No wording that suggests an automatic or NPHIES eligibility check.
-   - Each string in all six locales.
-3. Then Batches 10-13, as in PROGRESS "Next". Batch 7 + 8 + 9 Needs-review lines stay one line each.
-Same rules as before: your design/<batch> branch only, one PR per batch, never merge, tokens only, six locales, no mock data.
+The backend parts you were waiting for are on main (or merging now, check the PR):
+1. Rx and online-only badges (decisions 10, 11), PR #726:
+   - product list and detail already carry `requires_prescription` and `online_exclusive`;
+   - Rx items now come with no discount badge and no `old_price`;
+   - submit refuses an Rx order without a prescription (400 `prescription_required`) and any controlled item (400 `controlled_item_not_orderable`): show these as clear errors in the cart, from the locale files;
+   - PATCH /patient/pharmacy/orders/:id now accepts `prescription_attachments` / `prescription_id`, so the cart can attach the prescription to an existing draft.
+2. "استشر طبيب" (decision 10), PR #726:
+   - `GET /medicines/:id/consult-specialty` returns `{ specialty: {slug, name_ar, name_en} | null }`;
+   - open the doctors list with `?specialty=<slug>`, or unfiltered when null;
+   - never word it as "request a prescription".
+3. Emergency (decision 14, O-2), PR #729:
+   - the ambulance system is gone; rebuild Emergency as ONE screen on both clients: a 997 dial button (`tel:997`, client only) and "send my location to my emergency contacts";
+   - the endpoint is `POST /emergency/share-location { lat, lng }`;
+   - it returns `{ notified, sms_links: [{ name, phone, href }] }`: open each `href` (an `sms:` link) so the patient's phone sends it, and show how many contacts were notified in the app;
+   - 429 means "try again in a few minutes";
+   - remove the old SOS / SOS-active / tracking screens (web and app) with redirects to the new screen. They are the 9 NO_ROUTE rows in WIRING_REPORT.md; the wiring must be back to 0 NO_ROUTE.
+4. Mental-health urgent help (decision 8), PR #725:
+   - `GET /mental-health/urgent-help` returns `{ phone }`;
+   - draw the "Need urgent help?" button (tel: link) only when `phone` is not null;
+   - assessment and crisis contacts are gone (404).
+5. Nearest and Available now (Q-12, Q-13), PRs #587 and #588:
+   - live on main: `GET /care/doctors?sort=distance&lat=&lng=&type=clinic|home_visit`, and `?available_within=<minutes>&type=`;
+   - you may turn EXPO_PUBLIC_CONSULT_NEARBY_FILTERS on in the batch that owns the consult filters.
+
+Do next, in order:
+1. One slice for items 1-4 above (pharmacy templates, cart, emergency, mental health), app and web, six locales, tests for the cart and emergency.
+2. Then Batch 13 and the provider-app batch, as in PROGRESS "Next". The provider-app batch removes the facility/doctor "SOS dispatch" and "ambulance fleet" screens (their calls now get 404).
+Same rules as before: your design/<batch> branch only, one PR per batch, never merge, tokens only, six locales, no mock data, 0 NO_ROUTE.
 ```
 
 ---

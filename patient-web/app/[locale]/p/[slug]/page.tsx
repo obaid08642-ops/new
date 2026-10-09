@@ -191,7 +191,8 @@ export default async function PublicProductPage({ params }: Props) {
   const hasPrice = product.price > 0;
   const discontinued = product.availability_status === "discontinued";
   const canBuy = hasPrice && !discontinued;
-  const percent = discountPercent(product.price, product.old_price);
+  // Decision 10: no discount on prescription-only items.
+  const percent = product.is_rx ? 0 : discountPercent(product.price, product.old_price);
   const money = formatPrice(locale, product.price);
 
   const alternatives: GridProduct[] = (await getPublicAlternatives(locale, product)).map((alt) => ({
@@ -316,7 +317,7 @@ export default async function PublicProductPage({ params }: Props) {
                     <div className={styles.priceRow}>
                       <strong className={styles.price}>{money.amount}</strong>
                       <span className={styles.currency}>{money.currency}</span>
-                      {product.old_price && product.old_price > product.price ? (
+                      {!product.is_rx && product.old_price && product.old_price > product.price ? (
                         <s className={styles.oldPrice}>{formatPrice(locale, product.old_price).text}</s>
                       ) : null}
                     </div>
@@ -339,7 +340,7 @@ export default async function PublicProductPage({ params }: Props) {
                     <div className={styles.rxBody}>
                       <p className={styles.rxTitle}>{b("rxCardTitle")}</p>
                       <p className={styles.rxText}>{b("rxCardBody")}</p>
-                      <Link className={styles.rxLink} href={`/${locale}/pharmacy/scan-prescription`}>{b("rxCardAction")}</Link>
+                      <Link className={styles.rxLink} href={`/${locale}/pharmacy/rx-order?via=photo`}>{b("rxCardAction")}</Link>
                     </div>
                   </div>
                 ) : null}

@@ -399,10 +399,12 @@ export class MedicinesService {
   /** Compute list badges so catalog rows can render RX/discount/shortage chips. */
   private withBadges(m: any) {
     const price = m.price || 0;
-    const old = m.old_price || 0;
+    // D-10: no discount or offer is shown on prescription-only items.
+    const old = m.requires_prescription === true ? 0 : (m.old_price || 0);
     const discount_percent = old > price && price > 0 ? Math.round((1 - price / old) * 100) : 0;
+    const { old_price: _hiddenOldPrice, ...rest } = m;
     return {
-      ...m,
+      ...(m.requires_prescription === true ? rest : m),
       discount_percent,
       has_discount: discount_percent > 0,
       potentially_unavailable: m.availability_status === 'availability_may_be_limited' || m.availability_status === 'admin_flagged_shortage',
@@ -940,12 +942,22 @@ export class MedicinesService {
       raw.image,
     ].filter((u: any, i: number, arr: any[]) => typeof u === 'string' && u.length > 4 && arr.indexOf(u) === i);
 
-    // Dynamic discount — old_price is the pre-discount price
+    // Dynamic discount — old_price is the pre-discount price. D-10: never on prescription-only items.
+    const rx = raw.requires_prescription === true;
     const price = raw.price || 0;
-    const old = raw.old_price || 0;
+    const old = rx ? 0 : (raw.old_price || 0);
     const discount_percent = old > price && price > 0 ? Math.round((1 - price / old) * 100) : 0;
 
-    const localizedRaw = localizeMedicineStructured(raw, lang);
+    const localizedRaw: any = localizeMedicineStructured(raw, lang);
+    if (rx) delete localizedRaw.old_price;
+    // Alternatives follow the same rule (each one is checked on its own flag).
+    const altsOut = Array.isArray(alts)
+      ? alts.map((a: any) => {
+        if (a?.requires_prescription !== true) return a;
+        const { old_price: _hidden, ...rest } = a?.toObject ? a.toObject() : a;
+        return { ...rest, discount_percent: 0, has_discount: false };
+      })
+      : alts;
 
     return {
       ...localizedRaw,
@@ -957,7 +969,7 @@ export class MedicinesService {
       potentially_unavailable: raw.availability_status === 'availability_may_be_limited' || raw.availability_status === 'admin_flagged_shortage',
       discontinued: raw.availability_status === 'discontinued',
       available: raw.availability_status === 'none' || !raw.availability_status,
-      alternatives: alts,
+      alternatives: altsOut,
       stock_status: stock,
     };
   }
@@ -1434,11 +1446,19 @@ export class MedicinesService {
   private get changeRequests() { return this.conn.collection('catalog_change_requests'); }
 
   /** Fields a change-request (or admin direct edit) may touch — mass-assignment whitelist. */
+  /** Editable fields whose change needs a fresh medical review before the item is public again. */
+  static readonly REVIEW_FIELDS = new Set([
+    'name_ar', 'name_en', 'active_ingredient', 'generic_name', 'description_ar', 'description_en', 'dosage_ar', 'dosage_en',
+    'form', 'strength', 'usage_instructions_ar', 'usage_instructions_en', 'requires_prescription',
+    'indications_ar', 'indications_en', 'contraindications_ar', 'contraindications_en',
+    'warnings_ar', 'warnings_en', 'side_effects_ar', 'side_effects_en', 'precautions_ar', 'precautions_en', 'interactions',
+  ]);
+
   static readonly EDITABLE_FIELDS = [
     'name_ar', 'name_en', 'active_ingredient', 'generic_name', 'manufacturer',
     'category', 'sub_category', 'brand', 'description_ar', 'description_en', 'dosage_ar', 'dosage_en',
     'form', 'strength', 'usage_instructions_ar', 'usage_instructions_en',
-    'requires_prescription', 'barcode', 'price', 'images', 'image',
+    'requires_prescription', 'controlled', 'online_exclusive', 'barcode', 'price', 'images', 'image',
     'indications_ar', 'indications_en', 'contraindications_ar', 'contraindications_en',
     'warnings_ar', 'warnings_en', 'side_effects_ar', 'side_effects_en',
     'precautions_ar', 'precautions_en', 'interactions', 'package_size', 'storage_conditions',
@@ -1742,11 +1762,14 @@ export class MedicinesService {
     }
     const before: any = {};
     for (const f of Object.keys({ ...clean, ...extra })) before[f] = med[f] ?? null;
-    // Any public content change requires a fresh medical review. Availability-only
-    // changes still refresh the public projection but do not bypass this rule.
-    const requiresReapproval = med.public_eligibility === true
+    // A change to MEDICAL content (names, ingredients, form, strength, the clinical texts, the prescription flag)
+    // needs a fresh medical review and takes a published item down until then. Operational fields (price,
+    // availability, images, barcode, category, the 'controlled' and 'online only' flags) do not: a price
+    // correction must not unpublish an approved medicine (admin journey 2). Setting 'controlled' only restricts.
+    const wasPublished = med.public_eligibility === true
       || med.indexing_eligibility === true
       || med.medical_review_status === 'approved';
+    const requiresReapproval = wasPublished && Object.keys(clean).some((f) => MedicinesService.REVIEW_FIELDS.has(f));
     const governanceReset = requiresReapproval ? {
       verified: false,
       public_eligibility: false,
@@ -1774,8 +1797,9 @@ export class MedicinesService {
     const merged = { ...med, ...after };
     const removed = collectImgs(med).filter(u => !collectImgs(merged).includes(u));
     for (const url of removed) this.events.emit('storage.delete_by_url', { url });
-    if (requiresReapproval) {
-      await this.refreshPublicProjection({ ...med, ...after, ...governanceReset }, adminId, 'medicine_admin_edit_reapproval');
+    // A published item is refreshed either way: taken down for review, or re-published with the new price/image.
+    if (wasPublished) {
+      await this.refreshPublicProjection({ ...med, ...after, ...governanceReset }, adminId, requiresReapproval ? 'medicine_admin_edit_reapproval' : 'medicine_admin_edit');
     }
     this.audit('medicine.admin_direct_edit', medicineId, adminId, 'admin', { before, after, requires_reapproval: requiresReapproval, images_deleted: removed });
     await this.invalidateCache();

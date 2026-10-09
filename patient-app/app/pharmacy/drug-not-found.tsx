@@ -1,10 +1,8 @@
-import { Redirect, useLocalSearchParams } from "expo-router";
+import React from 'react';
 
-/** @deprecated merged into pharmacy/request (Phase 2.3) — deep-link-safe redirect. */
-export default function RedirectToPharmacyRequest() {
-  const params = useLocalSearchParams();
-  const q = Object.entries(params as Record<string, unknown>)
-    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
-    .join("&");
-  return <Redirect href={`/pharmacy/request${q ? `?${q}` : ""}`} />;
+import { RedirectKeepQuery } from '../../src/components/RedirectKeepQuery';
+
+/** @deprecated merged into the one "order with a prescription" screen (its "type the names" way in): deep-link-safe redirect. */
+export default function PharmacyDrugNotFoundRedirect() {
+  return <RedirectKeepQuery to="/pharmacy/rx-order" extra={{ via: 'type' }} />;
 }

@@ -36,7 +36,7 @@ export function ReorderPicker({ locale, orderId, lines, skipped, needsPrescripti
     return (
       <div className={rx.state} role="status">
         <EmptyState icon="pill" tone={PHARMACY_TONE} title={t("emptyTitle")} body={t("emptyBody")} actionLabel={t("backToOrder")} onAction={() => router.push(`/${locale}/orders/${encodeURIComponent(orderId)}`)} />
-        {skipped > 0 ? <div className={styles.skipped}><p className={rx.note}>{t("skipped", { count: skipped })}</p><Link className={rx.textLink} href={`/${locale}/pharmacy/request`}>{t("sendRequest")}</Link></div> : null}
+        {skipped > 0 ? <div className={styles.skipped}><p className={rx.note}>{t("skipped", { count: skipped })}</p><Link className={rx.textLink} href={`/${locale}/pharmacy/rx-order?via=type`}>{t("sendRequest")}</Link></div> : null}
       </div>
     );
   }
@@ -79,7 +79,7 @@ export function ReorderPicker({ locale, orderId, lines, skipped, needsPrescripti
         </ul>
       </section>
       {needsPrescription ? <p className={`${styles.notice} ${styles.noticeWarn}`}>{t("rxNote")}</p> : null}
-      {skipped > 0 ? <div className={styles.skipped}><p className={rx.note}>{t("skipped", { count: skipped })}</p><Link className={rx.textLink} href={`/${locale}/pharmacy/request`}>{t("sendRequest")}</Link></div> : null}
+      {skipped > 0 ? <div className={styles.skipped}><p className={rx.note}>{t("skipped", { count: skipped })}</p><Link className={rx.textLink} href={`/${locale}/pharmacy/rx-order?via=type`}>{t("sendRequest")}</Link></div> : null}
       {chosen.length === 0 ? <p className={rx.note} role="status">{t("pickOne")}</p> : null}
       <div className={styles.actions}>
         <Button label={t("addToCart")} fullWidth disabled={chosen.length === 0} loading={adding} onClick={add} />

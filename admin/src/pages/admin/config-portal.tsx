@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
 
 export default function ConfigPortal() {
-  const [activeTab, setActiveTab] = useState<'sla' | 'maintenance' | 'pricing' | 'apps'>('sla');
+  const [activeTab, setActiveTab] = useState<'sla' | 'maintenance' | 'pricing' | 'apps' | 'urgent' | 'rxconsult'>('sla');
 
   // SLA State
   const [consultationDuration, setConsultationDuration] = useState(15);
@@ -25,6 +25,44 @@ export default function ConfigPortal() {
 
   const setApp = (app: string, patch: Record<string, unknown>) => {
     setAppVersions((p) => ({ ...p, [app]: { ...(p[app] || {}), ...patch } }));
+  };
+
+  // D-8 (owner decision 8): the one "Need urgent help?" number the apps dial. Never hard-coded.
+  const [urgentPhone, setUrgentPhone] = useState('');
+  const [urgentMsg, setUrgentMsg] = useState('');
+  const loadUrgentHelp = async () => {
+    try {
+      const res = await fetchWithAdminGuard('/api/admin/mental-health/urgent-help');
+      if (!res.ok) return;
+      const data = await res.json();
+      setUrgentPhone(typeof data?.phone === 'string' ? data.phone : '');
+    } catch { /* optional */ }
+  };
+  const saveUrgentHelp = async () => {
+    setUrgentMsg('');
+    try {
+      const res = await fetchWithAdminGuard('/api/admin/admin/mental-health/urgent-help', { method: 'PUT', body: JSON.stringify({ phone: urgentPhone.trim() }) });
+      setUrgentMsg(res.ok ? 'تم حفظ رقم المساعدة العاجلة' : res.status === 400 ? 'الرقم غير صالح: أرقام فقط، ويمكن أن يبدأ بـ +' : 'فشل الحفظ');
+    } catch { setUrgentMsg('فشل الحفظ'); }
+  };
+
+  // D-10 (owner decision 10): which specialty "استشر طبيب" opens for a prescription-only item, per category.
+  type RxConsult = { map: Record<string, string>; default: string | null; categories: { key: string; count: number }[]; specialties: { slug: string; name_ar: string }[] };
+  const [rxConsult, setRxConsult] = useState<RxConsult | null>(null);
+  const [rxConsultMsg, setRxConsultMsg] = useState('');
+  const loadRxConsult = async () => {
+    try {
+      const res = await fetchWithAdminGuard('/api/admin/admin/pharmacy/rx-consult-specialties');
+      if (res.ok) setRxConsult(await res.json());
+    } catch { /* optional */ }
+  };
+  const saveRxConsult = async () => {
+    if (!rxConsult) return;
+    setRxConsultMsg('');
+    try {
+      const res = await fetchWithAdminGuard('/api/admin/admin/pharmacy/rx-consult-specialties', { method: 'PUT', body: JSON.stringify({ map: rxConsult.map, default: rxConsult.default }) });
+      setRxConsultMsg(res.ok ? 'تم حفظ ربط التخصصات' : 'فشل الحفظ');
+    } catch { setRxConsultMsg('فشل الحفظ'); }
   };
 
   const saveAppVersions = async () => {
@@ -212,6 +250,18 @@ export default function ConfigPortal() {
         >
           إصدارات التطبيقات
         </button>
+        <button
+          className={`py-3 px-6 font-medium text-lg ${activeTab === 'urgent' ? 'border-b-2 border-teal-500 text-teal-600' : 'text-gray-500'}`}
+          onClick={() => { setActiveTab('urgent'); void loadUrgentHelp(); }}
+        >
+          رقم المساعدة العاجلة
+        </button>
+        <button
+          className={`py-3 px-6 font-medium text-lg ${activeTab === 'rxconsult' ? 'border-b-2 border-teal-500 text-teal-600' : 'text-gray-500'}`}
+          onClick={() => { setActiveTab('rxconsult'); void loadRxConsult(); }}
+        >
+          استشر طبيب (أدوية الوصفة)
+        </button>
       </div>
 
       {/* Content */}
@@ -369,6 +419,56 @@ export default function ConfigPortal() {
               ))}
               <button onClick={() => void saveAppVersions()} className="mt-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">حفظ الإصدارات</button>
               {appsMsg && <p className="mt-2 text-sm font-bold">{appsMsg}</p>}
+            </div>
+          </div>
+        )}
+        {activeTab === 'urgent' && (
+          <div className="space-y-4">
+            <div className="bg-white p-6 rounded border border-gray-200">
+              <h2 className="text-xl font-bold mb-1">رقم &laquo;تحتاج مساعدة عاجلة؟&raquo; في الصحة النفسية</h2>
+              <p className="text-sm text-gray-500 mb-4">الرقم الرسمي الذي يفتحه زر المساعدة العاجلة في التطبيقات. لا يظهر الزر حتى يُحفظ رقم.</p>
+              <label className="text-sm block max-w-sm">رقم الهاتف
+                <input value={urgentPhone} onChange={(e) => setUrgentPhone(e.target.value)} dir="ltr" inputMode="tel" className="mt-1 w-full border rounded p-2" />
+              </label>
+              <button onClick={() => void saveUrgentHelp()} className="mt-4 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">حفظ الرقم</button>
+              {urgentMsg && <p className="mt-2 text-sm font-bold">{urgentMsg}</p>}
+            </div>
+          </div>
+        )}
+        {activeTab === 'rxconsult' && (
+          <div className="space-y-4">
+            <div className="bg-white p-6 rounded border border-gray-200">
+              <h2 className="text-xl font-bold mb-1">تخصص زر &laquo;استشر طبيب&raquo; لأدوية الوصفة</h2>
+              <p className="text-sm text-gray-500 mb-4">لكل فئة من أدوية الوصفة اختر التخصص الذي تُفتح عليه الاستشارات. الفئات بلا اختيار تستخدم التخصص الافتراضي، وإن لم يُحدَّد تُفتح الاستشارات بلا تصفية.</p>
+              {!rxConsult ? <p className="text-sm">جارٍ التحميل…</p> : (
+                <>
+                  <label className="text-sm block max-w-sm mb-4">التخصص الافتراضي
+                    <select value={rxConsult.default || ''} onChange={(e) => setRxConsult({ ...rxConsult, default: e.target.value || null })} className="mt-1 w-full border rounded p-2">
+                      <option value="">بدون تصفية</option>
+                      {rxConsult.specialties.map((sp) => <option key={sp.slug} value={sp.slug}>{sp.name_ar}</option>)}
+                    </select>
+                  </label>
+                  <table className="w-full text-sm">
+                    <thead><tr className="text-right text-gray-500"><th className="py-2">الفئة</th><th>عدد الأدوية</th><th>التخصص</th></tr></thead>
+                    <tbody>
+                      {rxConsult.categories.map((c) => (
+                        <tr key={c.key} className="border-t">
+                          <td className="py-2">{c.key}</td>
+                          <td>{c.count}</td>
+                          <td>
+                            <select value={rxConsult.map[c.key] || ''} onChange={(e) => setRxConsult({ ...rxConsult, map: { ...rxConsult.map, [c.key]: e.target.value } })} className="border rounded p-1">
+                              <option value="">الافتراضي</option>
+                              {rxConsult.specialties.map((sp) => <option key={sp.slug} value={sp.slug}>{sp.name_ar}</option>)}
+                            </select>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <button onClick={() => void saveRxConsult()} className="mt-4 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">حفظ الربط</button>
+                  {rxConsultMsg && <p className="mt-2 text-sm font-bold">{rxConsultMsg}</p>}
+                </>
+              )}
             </div>
           </div>
         )}

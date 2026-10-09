@@ -33,7 +33,7 @@ export function routeForOrder(view: OrderPaymentView, orderId: string, locale: s
       return tracking;
   }
   const status = (view.status ?? "").toLowerCase();
-  if (status === "draft") return `/${locale}/pharmacy/waiting-for-pharmacy?orderId=${id}`;
+  if (status === "draft") return `/${locale}/pharmacy/broadcast-status?orderId=${id}`;
   if (BROADCAST.has(status)) return `/${locale}/pharmacy/broadcast-status?orderId=${id}`;
   return tracking;
 }

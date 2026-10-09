@@ -35,7 +35,6 @@ describe("patient web messages", () => {
       "Notifications",
       "Health",
       "Prescriptions",
-      "Chat",
       "Reminders",
       "Profile"
     ] as const;

@@ -64,7 +64,7 @@ export default async function AppointmentsPage({ params, searchParams }: Props) 
               let primary: CardAction | undefined = detail;
               if (activeTab === "upcoming") {
                 if (mode === "video" && isJoinable(appointment.status)) primary = { href: `/${locale}/consultations/virtual-waiting-room?appointmentId=${id}`, label: c("actionWaitingRoom") };
-                else if (mode === "clinic") primary = { href: `/${locale}/consultations/clinic-confirm?appointmentId=${id}&view=location`, label: c("actionLocation") };
+                else if (mode === "clinic") primary = { href: `/${locale}/consultations/booking-status?appointmentId=${id}&view=location`, label: c("actionLocation") };
                 else if (mode === "home") primary = { href: `/${locale}/consultations/home-visit-tracking?appointmentId=${id}`, label: c("actionTrack") };
               }
               const secondary = activeTab === "upcoming" && isOpen(appointment.status) ? { href: `/${locale}/consultations/cancel-reschedule?appointmentId=${id}`, label: c("actionEdit") } : undefined;

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { User, UserDocument } from '../../schemas/user.schema';
@@ -87,7 +87,11 @@ export class CareService {
     accepts_insurance?: boolean;
     lat?: number;
     lng?: number;
-    sort?: 'rating' | 'price_asc' | 'price_desc' | 'experience' | 'distance_asc' | 'distance_desc';
+    sort?: 'rating' | 'price_asc' | 'price_desc' | 'experience' | 'distance' | 'distance_asc' | 'distance_desc';
+    nearest_type?: 'clinic' | 'video' | 'home_visit';
+    user?: any;
+    available_type?: 'clinic' | 'video' | 'home_visit';
+    available_within?: number;
     page?: number;
     limit?: number;
   } = {}) {
@@ -105,6 +109,13 @@ export class CareService {
         { name_ar: searchRegex }, { name_en: searchRegex }, { specialty: searchRegex }, { hospital: searchRegex },
       ];
     }
+    // Q-13 "Available now": built on the existing SlotService engine (schedules,
+    // approved leave, bookings) plus the 5-minute buffer and active slot holds.
+    // No second slot engine: candidate slots come from slotsForDate.
+    if (opts.available_within !== undefined) return this.listAvailable(q, opts);
+    // Q-12 "Nearest": sort=distance is answered by the DB (2dsphere $geoNear),
+    // clinic and home-visit only; video has no meaningful "near".
+    if (opts.sort === 'distance') return this.listNearest(q, opts);
     const sort: any = {};
     const needDistance = opts.sort === 'distance_asc' || opts.sort === 'distance_desc';
     if (opts.sort === 'price_asc') sort.price_clinic = 1;
@@ -163,6 +174,202 @@ export class CareService {
         : (totalIsExact ? page * limit < total : raw.length > offset + limit),
       items: out,
     };
+  }
+
+  /**
+   * Q-13 "Available now": doctors with a free slot STARTING within the window,
+   * nearest start first, each carrying next_slot_at. Video counts an online,
+   * accepting doctor (next_slot_at = now); the switch never counts for clinic/home.
+   */
+  private async listAvailable(baseFilter: any, opts: any) {
+    const minutes = opts.available_within;
+    if (typeof minutes !== 'number' || !Number.isInteger(minutes) || minutes <= 0) {
+      throw new BadRequestException('available_within must be a positive whole number of minutes');
+    }
+    const mode = opts.available_type === 'home_visit' ? 'home' : (opts.available_type as any) || opts.service_type;
+    if (!mode) throw new BadRequestException('type is required with available_within');
+    const q: any = { ...baseFilter };
+    if (mode === 'home') q.consultation_modes = { $in: ['home'] };
+    else if (mode === 'video') q.consultation_modes = { $in: ['video'] };
+    else q.consultation_modes = { $in: ['clinic'] };
+
+    const page = Math.max(1, opts.page || 1);
+    const limit = Math.min(50, Math.max(1, opts.limit || 20));
+    const offset = (page - 1) * limit;
+    const now = Date.now();
+    const end = now + minutes * 60_000;
+    const BUFFER_MS = 5 * 60_000;
+    const SLOT_MIN = 30;
+
+    const dayStr = (t: number) => new Date(t).toISOString().substring(0, 10);
+    const blockers = await this.availabilityBlockers(now, end);
+    const out: Array<{ doc: any; at: number }> = [];
+    // No capped batch: every mode-matching public doctor is scanned, otherwise
+    // doctors created later (or lower-rated) would never be found. The mode
+    // filter keeps the set small; the window scan is per-day, not per-doctor-history.
+    const candidates: any[] = await this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1 }).limit(2000);
+    for (const dRaw of candidates) {
+      const d: any = dRaw?.toObject ? dRaw.toObject() : dRaw;
+      const ids = [d.account_id, d.user_id, d.id].filter(Boolean).map(String);
+      if (mode === 'video' && await this.isOnlineAccepting(ids)) {
+        out.push({ doc: d, at: now });
+        continue;
+      }
+      let earliest: number | null = null;
+      const midnight = new Date(new Date(now).toISOString().substring(0, 10) + 'T24:00:00Z').getTime();
+      const days = end > midnight ? [dayStr(now), dayStr(now + 24 * 3600_000)] : [dayStr(now)];
+      for (const ds of days) {
+        let r: any;
+        try {
+          r = await this.slots.slotsForDate(d as any, ds, mode);
+        } catch { continue; }
+        for (const s of r.slots || []) {
+          const start = Date.parse(s.start);
+          if (!Number.isFinite(start) || start < now || start > end) continue;
+          if (s.available === false) continue;
+          if (this.slotBlocked(start, SLOT_MIN, d, ids, blockers, now)) continue;
+          if (earliest === null || start < earliest) earliest = start;
+        }
+        if (earliest !== null && ds === dayStr(now)) break;
+      }
+      if (earliest !== null) out.push({ doc: d, at: earliest });
+    }
+    out.sort((a, b) => a.at - b.at);
+    const slice = out.slice(offset, offset + limit);
+    const items: any[] = [];
+    for (const { doc, at } of slice) {
+      const pub: any = this.toPublicDoctor(doc, null);
+      pub.next_slot_at = new Date(at).toISOString();
+      items.push(pub);
+    }
+    return {
+      page, limit, total: null, total_is_exact: false,
+      has_more: out.length > offset + limit, items,
+    };
+  }
+
+  /** Bookings + active holds overlapping [start, start + dur), with the 5-minute post-booking buffer. */
+  private slotBlocked(start: number, durMin: number, doc: any, ids: string[], blockers: any, now: number): boolean {
+    const finish = start + durMin * 60_000;
+    for (const b of blockers.bookings) {
+      if (String(b.doctor_id) !== String(doc.id)) continue;
+      const bs = new Date(b.slot_start).getTime();
+      const be = new Date(b.slot_end).getTime();
+      if (!Number.isFinite(bs) || !Number.isFinite(be)) continue;
+      if (start < be + 5 * 60_000 && finish > bs) return true;
+    }
+    for (const h of blockers.holds) {
+      const hp = [h.provider_id, h.provider_account_id, h.account_id].filter(Boolean).map(String);
+      if (!hp.some((x: string) => ids.includes(x)) && String(h.provider_id) !== String(doc.id)) continue;
+      if (String(h.status) !== 'held' || new Date(h.expires_at).getTime() <= now) continue;
+      const hs = new Date(h.slot_start).getTime();
+      const he = new Date(h.slot_end).getTime();
+      if (!Number.isFinite(hs) || !Number.isFinite(he)) continue;
+      if (start < he && finish > hs) return true;
+    }
+    return false;
+  }
+
+  /** Only what can overlap the search window [from, to + one slot]: not every active booking on the platform. */
+  private async availabilityBlockers(from: number, to: number): Promise<{ bookings: any[]; holds: any[] }> {
+    const db = (this.providerModel as any).db;
+    const windowStart = new Date(from - 5 * 60_000);
+    const windowEnd = new Date(to + 2 * 60 * 60_000);
+    const [bookings, holds] = await Promise.all([
+      db.collection('appointments').find(
+        {
+          status: { $in: ['PENDING', 'CONFIRMED', 'RESCHEDULED', 'CHECKED_IN', 'IN_PROGRESS'] },
+          slot_end: { $gte: windowStart },
+          slot_start: { $lte: windowEnd },
+        },
+        { projection: { _id: 0, doctor_id: 1, slot_start: 1, slot_end: 1 } },
+      ).toArray().catch(() => []),
+      db.collection('slotlocks').find(
+        { status: 'held', expires_at: { $gt: new Date() }, slot_end: { $gte: windowStart }, slot_start: { $lte: windowEnd } },
+        { projection: { _id: 0, provider_id: 1, provider_account_id: 1, account_id: 1, slot_start: 1, slot_end: 1, status: 1, expires_at: 1 } },
+      ).toArray().catch(() => []),
+    ]);
+    return { bookings, holds };
+  }
+
+  /** Provider app online toggle: provider_availability accepting_orders OR provideravailability instant_available. */
+  private async isOnlineAccepting(ids: string[]): Promise<boolean> {
+    if (!ids.length) return false;
+    const db = (this.providerModel as any).db;
+    const [a, b] = await Promise.all([
+      db.collection('provider_availability').findOne({ provider_account_id: { $in: ids }, status: 'accepting_orders' }, { projection: { _id: 1 } }).catch(() => null),
+      db.collection('provideravailability').findOne({ provider_id: { $in: ids }, instant_available: true }, { projection: { _id: 1 } }).catch(() => null),
+    ]);
+    return !!(a || b);
+  }
+
+  /**
+   * Q-12 "Nearest": DB-answered nearest doctors (2dsphere $geoNear, never a
+   * capped in-memory sort). Clinic and home-visit only. Without a location the
+   * signed-in patient's city is the fallback (distance_km then null).
+   */
+  private async listNearest(baseFilter: any, opts: any) {
+    const mode = opts.nearest_type;
+    if (mode === 'video') throw new BadRequestException('nearest_not_for_video');
+    const q: any = { ...baseFilter };
+    if (mode === 'home_visit') q.consultation_modes = { $in: ['home'] };
+    else if (mode === 'clinic') q.consultation_modes = { $in: ['clinic'] };
+    const page = Math.max(1, opts.page || 1);
+    const limit = Math.min(50, Math.max(1, opts.limit || 20));
+    const offset = (page - 1) * limit;
+
+    const latOk = typeof opts.lat === 'number' && Number.isFinite(opts.lat) && Math.abs(opts.lat) <= 90;
+    const lngOk = typeof opts.lng === 'number' && Number.isFinite(opts.lng) && Math.abs(opts.lng) <= 180;
+    if (latOk && lngOk) {
+      const extra = opts.available_today ? 100 : 1;
+      const pipe: any[] = [
+        {
+          $geoNear: {
+            near: { type: 'Point', coordinates: [opts.lng, opts.lat] },
+            distanceField: '_dist_m',
+            spherical: true,
+            query: q,
+          },
+        },
+        { $skip: offset },
+        { $limit: limit + extra },
+      ];
+      let docs: any[] = await this.providerModel.aggregate(pipe);
+      if (opts.available_today) {
+        const filtered: any[] = [];
+        for (const d of docs) {
+          if (await this.slots.hasSlotsToday(d as any)) filtered.push(d);
+          if (filtered.length >= limit + 1) break;
+        }
+        docs = filtered;
+      }
+      const hasMore = docs.length > limit;
+      const slice = docs.slice(0, limit);
+      const out: any[] = [];
+      for (let i = 0; i < slice.length; i++) {
+        const d: any = slice[i];
+        let nextAvailableAt: string | null = null;
+        if (i < 10) nextAvailableAt = await this.slots.nextAvailable(d as any);
+        out.push(this.toPublicDoctor(d, nextAvailableAt, (d._dist_m ?? 0) / 1000));
+      }
+      return { page, limit, total: null, total_is_exact: false, has_more: hasMore, items: out };
+    }
+
+    // No usable location: fall back to the signed-in patient's city.
+    const me: any = opts.user?.id ? await this.userModel.findOne({ id: opts.user.id }) : null;
+    const city = (me?.toObject ? me.toObject() : me)?.city;
+    if (!city) throw new BadRequestException('location_required');
+    const cityDocs: any[] = await this.providerModel.find(
+      { ...q, city }, { _id: 0, __v: 0 },
+    ).sort({ rating: -1 }).skip(offset).limit(limit + 1);
+    const hasMore = cityDocs.length > limit;
+    const out: any[] = [];
+    for (let i = 0; i < Math.min(cityDocs.length, limit); i++) {
+      const dRaw: any = cityDocs[i];
+      const d: any = dRaw?.toObject ? dRaw.toObject() : dRaw;
+      out.push(this.toPublicDoctor(d, i < 10 ? await this.slots.nextAvailable(dRaw as any) : null));
+    }
+    return { page, limit, total: null, total_is_exact: false, has_more: hasMore, items: out };
   }
 
   /** ===== Doctor detail (with facility join) ===== */

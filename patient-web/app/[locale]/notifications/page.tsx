@@ -98,7 +98,7 @@ export default async function NotificationsPage({ params }: Props) {
   return <CoreShell locale={locale} title={t("title")} backHref={back} width="narrow">
     <div className={styles.head}>
       <h1 className={`${core.deskOnly} ${styles.deskTitle}`}>{t("title")}</h1>
-      <Link className={styles.settingsLink} href={`/${locale}/notifications/settings`}>{t("settings")}</Link>
+      <Link className={styles.settingsLink} href={`/${locale}/settings/notifications`}>{t("settings")}</Link>
     </div>
     {notifications.length === 0 ? (
       <EmptyState icon="bell" tone={toneOf("nursing")} title={t("emptyTitle")} body={t("empty")} />

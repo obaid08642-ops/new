@@ -78,12 +78,11 @@ export const SERVICE_GROUPS: ServiceGroupData[] = [
     ],
   },
   {
-    title: 'العائلة والمجتمع',
+    title: 'العائلة',
     items: [
       { title: 'التغذية', desc: 'خطط وجبات وإرشاد غذائي', icon: 'bowl-food', tone: tone('nutrition'), route: '/nutrition/hub' },
       { title: 'الأمومة', desc: 'متابعة الحمل والأمومة', icon: 'baby', tone: tone('maternity'), route: '/maternity/hub' },
       { title: 'الصحة النفسية', desc: 'دعم وموارد الصحة النفسية', icon: 'brain', tone: 'violet', route: '/mental-health' },
-      { title: 'مجتمع نبض', desc: 'تجارب ونقاشات صحية', icon: 'users', tone: 'blue', route: '/community/hub' },
       { title: 'عائلتي', desc: 'إدارة أفراد العائلة', icon: 'users-three', tone: tone('family'), route: '/family' },
     ],
   },

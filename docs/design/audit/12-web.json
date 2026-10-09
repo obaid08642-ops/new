@@ -1,0 +1,114 @@
+{
+ "slice": "12-web",
+ "batch": 12,
+ "app": "patient-web",
+ "screens": [
+  {"route": "/settings", "elements": [
+   ["Account summary (avatar, name, phone)", "GET /auth/me full_name, phone (server call)", "fixed"],
+   ["View profile button", "link /profile", "ok"],
+   ["Rows: notifications, privacy, security, language, help, about", "static links to the merged screens", "ok"],
+   ["Old cards: privacy state, security state, storage, sessions (4 reads)", "moved to /settings/privacy and /settings/security; the hub makes no such call", "ok"],
+   ["Old pill links (language, notifications, privacy, about, help, feedback)", "replaced by the rows", "ok"]
+  ]},
+  {"route": "/settings/notifications", "elements": [
+   ["Switches per category (6) and channel (3)", "GET/PATCH /users/me/notification-settings categories.*, channels.*", "ok"],
+   ["Failed save puts the switch back and says so", "PATCH result", "ok"],
+   ["Old 9-key toggle list (general, sound, vibration...)", "keys the endpoint does not return; replaced by the Batch 0 reading", "fixed"],
+   ["Theme and language blocks of the Batch 0 screen", "moved to /settings/language", "ok"]
+  ]},
+  {"route": "/settings/privacy", "elements": [
+   ["Tabs Privacy | My data | Delete account", "?tab= in the URL", "ok"],
+   ["Five privacy switches (location, analytics, share data, marketing, third party)", "GET /users/me/privacy-settings, PATCH /api/settings/privacy", "gap"],
+   ["Storage used and per-type rows", "GET /users/me/storage", "ok"],
+   ["Export all my data", "GET /api/privacy/data-export", "ok"],
+   ["Privacy policy link", "link /privacy (public legal page)", "ok"],
+   ["Delete account with password", "DELETE /api/privacy/data-export", "ok"],
+   ["Old data page: three 'request via support' cards (copy, delete, port) and the policy card", "replaced by the real export and delete; FHIR port card removed (no endpoint)", "hidden"]
+  ]},
+  {"route": "/settings/data", "elements": [["Redirect", "-> /settings/privacy?tab=data, query kept", "ok"]]},
+  {"route": "/settings/security", "elements": [
+   ["Biometric and two-factor state (read-only)", "GET /users/me/security-settings", "ok"],
+   ["Active sessions list (first 8, count of the rest)", "GET /users/me/sessions", "ok"],
+   ["End session button per session", "DELETE /api/settings/sessions/:jti (new BFF route adds the idempotency key) -> DELETE /users/me/sessions/:jti", "ok"]
+  ]},
+  {"route": "/settings/language", "elements": [
+   ["Appearance: automatic, light, dark", "device storage (theme key)", "ok"],
+   ["Language radio list (6)", "route locale", "ok"]
+  ]},
+  {"route": "/settings/help", "elements": [
+   ["Tabs FAQ | My requests | Feedback", "?tab= in the URL", "ok"],
+   ["FAQ list", "GET /support/faqs", "ok"],
+   ["Open support chat", "link /support/chat", "ok"],
+   ["My requests list with status", "GET /support/requests/mine", "gap"],
+   ["Send a new request form", "POST /api/patient/support/requests", "ok"],
+   ["Feedback form: rating, type, message", "POST /api/support/feedback", "ok"],
+   ["Old topic cards (bookings, pharmacy, insurance, returns)", "static links with no help content; removed", "hidden"]
+  ]},
+  {"route": "/settings/feedback", "elements": [["Redirect", "-> /settings/help?tab=feedback", "ok"]]},
+  {"route": "/support", "elements": [["Redirect", "-> /settings/help, query kept", "ok"]]},
+  {"route": "/settings/about", "elements": [
+   ["App name and one line", "static keys SettingsWeb.aboutName, aboutLead", "ok"],
+   ["Terms and privacy policy links", "links /terms, /privacy (stay public)", "ok"],
+   ["Cancellation and refund rules", "GET /system-config/public cancellation_policy, returns_policy (numbers only from the server)", "fixed"],
+   ["Four team cards (engineering, product, medical, 24/7 support)", "invented content, no source; removed", "hidden"]
+  ]},
+  {"route": "/profile", "elements": [
+   ["Account head: avatar, name, phone", "GET /auth/me full_name, phone", "fixed"],
+   ["Edit button", "link /health/profile (the Batch 5 medical profile)", "ok"],
+   ["Tiles orders, appointments, points", "links /orders, /appointments, /loyalty", "ok"],
+   ["Rows health profile, addresses, family, insurance (with insurer name), prescriptions", "links; insurer from GET /users/me/insurance", "ok"],
+   ["Rows settings, help, privacy", "links /settings, /settings/help, /settings/privacy", "ok"],
+   ["Identity, medical summary, insurance cards with their own states", "GET /auth/me, /medical-profile, /users/me/insurance", "gap"],
+   ["Sign out button", "POST /api/auth/logout", "ok"],
+   ["Quick links medicines, notifications, articles", "reachable from the main navigation and settings; removed", "hidden"],
+   ["Saved payment methods row (on the board)", "no web screen or endpoint", "hidden"]
+  ]},
+  {"route": "/profile/addresses", "elements": [
+   ["Saved addresses list with default chip", "GET /users/me/addresses", "ok"],
+   ["Remove address", "DELETE /api/patient/users/me/addresses/:id", "ok"],
+   ["Add address form (label, lines, region, city, district, notes)", "POST /api/patient/users/me/addresses; GET /locations/regions|cities|districts", "ok"],
+   ["Pick mode ?select=1 (delivery address for pharmacy orders)", "the Batch 1 picker: GET /users/me/addresses, PATCH /users/me/addresses/:id is_default", "ok"],
+   ["Pick on map step", "web has no map step (the app keeps /shared/location-picker)", "hidden"]
+  ]},
+  {"route": "/profile/edit", "elements": [["Redirect", "-> /health/profile", "ok"]]},
+  {"route": "/returns", "elements": [
+   ["New request button", "link /returns/new-request", "ok"],
+   ["Return rows: reason, amount, date, status chip", "GET /pharmacy/returns", "ok"],
+   ["Empty and error states", "states", "ok"]
+  ]},
+  {"route": "/returns/[returnId]", "elements": [
+   ["Reason, status, amount, date, details", "GET /pharmacy/returns/:id", "ok"]
+  ]},
+  {"route": "/returns/new-request", "elements": [
+   ["Service type, reason, order number, details, submit", "POST /api/returns (same payload)", "gap"]
+  ]},
+  {"route": "/reviews", "elements": [
+   ["Review cards: stars and comment", "GET /patient-ux/reviews (?target_id=)", "gap"]
+  ]},
+  {"route": "/map", "elements": [
+   ["Search, type filters, provider cards with directions and book", "GET /providers/map?radius=25", "ok"],
+   ["Map pane of the chosen provider", "OpenStreetMap embed", "gap"]
+  ]},
+  {"route": "/support/chat", "elements": [
+   ["History, message box, quick replies, image attach", "GET/POST /api/patient/support/chat, POST /api/support/upload", "gap"],
+   ["'Online now, replies within a minute' line", "claim with no source; removed", "hidden"]
+  ]},
+  {"route": "/support/ticket", "elements": [
+   ["Requests list: title, date, status", "GET /support/requests/mine", "gap"]
+  ]}
+ ],
+ "needsReview": [
+  {"route": "/profile", "element": "Identity and medical summary cards", "kind": "client", "note": "GET /users/me/profile was read for name/email/phone but holds none of them (patient record); identity now comes from GET /auth/me. The medical card still shows booleans as 'No' when the server only has defaults, and the blood type key does not match /medical-profile (blood_type).", "file": "patient-web/app/[locale]/profile/page.tsx", "line": 42},
+  {"route": "/profile", "element": "Saved payment methods row", "kind": "owner", "note": "the board has a 'saved cards' row; there is no web screen or endpoint for it, not drawn.", "file": "patient-web/app/[locale]/profile/page.tsx", "line": 89},
+  {"route": "/settings/privacy", "element": "Privacy switches", "kind": "backend", "note": "the server fields (profile_visible, share_data) do not match the five keys the BFF sends (shareData, analytics, location...); a missing field falls back to a made-up default.", "file": "patient-web/app/[locale]/settings/privacy/page.tsx", "line": 26},
+  {"route": "/settings/security", "element": "End session", "kind": "backend", "note": "the sessions list has no 'current session' flag, so ending the session in use signs the patient out at the next refresh; session ids now reach the client (parseOwnSessions), reviewer to confirm.", "file": "patient-web/app/[locale]/settings/security/page.tsx", "line": 69, "backend": "backend/src/modules/users/users.service.ts:355"},
+  {"route": "/settings/help", "element": "Request status", "kind": "backend", "note": "status codes of support requests are shown as the server sends them (untranslated); no list of codes to translate.", "file": "patient-web/app/[locale]/settings/help/page.tsx", "line": 93},
+  {"route": "/support/ticket", "element": "Request status", "kind": "backend", "note": "same: raw status string.", "file": "patient-web/app/[locale]/support/ticket/page.tsx", "line": 68},
+  {"route": "/returns/new-request", "element": "Amount sent with the request", "kind": "backend", "note": "the form sends a fixed amount per service type (250, 120, 80, 80) that no server data supports; the backend should price the return from the order.", "file": "patient-web/components-next/return-request-form.tsx", "line": 44},
+  {"route": "/map", "element": "Map pane", "kind": "owner", "note": "the OpenStreetMap embed is blocked by the CSP (frame-src has no openstreetmap.org); the pane only shows once the owner allows the host.", "file": "patient-web/components-next/map-explorer-client.tsx", "line": 191},
+  {"route": "/support/chat", "element": "Greeting bubble", "kind": "client", "note": "the first agent bubble is a local greeting, not a server message; the old 'online, replies within a minute' claim was removed.", "file": "patient-web/components-next/support-chat-client.tsx", "line": 55},
+  {"route": "/reviews", "element": "Reviews list", "kind": "backend", "note": "GET /patient-ux/reviews is a partial route with no reviewer name or target shown; only stars and comment exist.", "file": "patient-web/app/[locale]/reviews/page.tsx", "line": 40},
+  {"route": "/profile/addresses", "element": "Region, city, district selects", "kind": "client", "note": "the selects call the API origin from the browser (NEXT_PUBLIC_API_URL) instead of the web proxy; names exist in Arabic and English only. Runtime check: with NEXT_PUBLIC_API_URL unset the call goes to https://api.nabd.plus (ERR_CERT_AUTHORITY_INVALID in the sandbox, the only console error of the batch); the patient proxy allowlist has no /locations routes.", "file": "patient-web/components-next/account/geo-select.tsx", "line": 10},
+  {"route": "/settings/about", "element": "Cancellation rules", "kind": "owner", "note": "the server also publishes a half-refund tier (half_hours, half_refund_percent) that the app terms do not mention; only full_hours and late_fee_percent are written.", "file": "patient-web/app/[locale]/settings/about/page.tsx", "line": 29}
+ ]
+}

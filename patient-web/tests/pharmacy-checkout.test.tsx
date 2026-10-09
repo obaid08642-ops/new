@@ -265,7 +265,7 @@ describe("where an order belongs, from the states the backend really produces", 
     expect(to({ status: "broadcasting" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
     expect(to({ status: "offer_selection_pending" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
     expect(to({ status: "negotiating_substitutes" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
-    expect(to({ status: "draft" })).toBe(`/en/pharmacy/waiting-for-pharmacy?orderId=${ORDER}`);
+    expect(to({ status: "draft" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
     expect(to({ status: "delivered" })).toBe(`/en/orders/${ORDER}/tracking`);
     expect(to({})).toBe(`/en/orders/${ORDER}/tracking`);
   });
@@ -399,7 +399,7 @@ describe("the pay screen", () => {
     expect(html).toContain("Covered by insurance");
     expect(html).toContain("SAR 6.00");
     expect(html).toContain("Your share, to pay now");
-    expect(html).toContain("Your insurer covers its part");
+    expect(html).toContain("Once the insurer decides, you pay only your share");
   });
 
   it("keeps a card number, and anything else the patient could type, out of the module (no storage, no logging, no URL)", () => {

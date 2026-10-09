@@ -240,7 +240,7 @@ export default function NotificationCenterPage() {
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">
-              <input type="checkbox" checked={asCampaign} onChange={e => setAsCampaign(e.target.checked)} className="ml-1" />
+              <input type="checkbox" checked={asCampaign} onChange={e => setAsCampaign(e.target.checked)} className="me-1" />
               جدولة كحملة لاحقة
             </label>
             {asCampaign && (

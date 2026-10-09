@@ -62,8 +62,8 @@ function mapPath(path: string): string | null {
   if (parts[0] === 'family' && parts[1] === 'join') return `/family/add?tab=join`;
   // Diagnostics: /diagnostics
   if (parts[0] === 'diagnostics') return `/diagnostics`;
-  // Community: /community
-  if (parts[0] === 'community') return `/community`;
+  // Community is removed (owner decision 1): its links open the articles
+  if (parts[0] === 'community') return `/articles`;
 
   return null;
 }

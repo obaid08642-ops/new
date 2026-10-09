@@ -407,6 +407,10 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'notif.ai_triage_emergency.title': { ar: 'حالة طارئة محتملة!', en: 'Possible emergency!', ur: 'ایمرجنسی!' },
   'notif.ai_triage_emergency.body': { ar: 'التقييم الذكي يشير لحالة عاجلة — توجه للطوارئ أو اتصل بالإسعاف فوراً', en: 'The smart triage indicates an urgent condition — go to ER or call an ambulance now', ur: 'فوری امداد' },
 
+  // D-14: a patient shared their location with their emergency contacts (map link in params.map_url).
+  'notif.emergency_location.title': { ar: '{{name}} شارك موقعه معك', en: '{{name}} shared their location with you', ur: '{{name}} نے اپنا مقام آپ کے ساتھ شیئر کیا' },
+  'notif.emergency_location.body': { ar: 'قد يحتاج مساعدة. افتح الخريطة: {{map_url}}', en: 'They may need help. Open the map: {{map_url}}', ur: 'انہیں مدد کی ضرورت ہو سکتی ہے۔ نقشہ کھولیں: {{map_url}}' },
+
   // ============ LABS LIFECYCLE NOTIFICATIONS ============
   'notif.lab_booking_created.title': { ar: 'تم تسجيل حجز التحاليل', en: 'Lab Booking Created', ur: 'لیب بُکنگ بن گئی' },
   'notif.lab_booking_created.body': { ar: 'بانتظار التأكيد من المختبر #{tracking_id}', en: 'Awaiting confirmation #{tracking_id}', ur: 'تصدیق کا انتظار' },

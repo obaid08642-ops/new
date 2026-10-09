@@ -36,7 +36,7 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
 
 const ListAr = ({ items }: { items?: string[] }) =>
   items && items.length > 0 ? (
-    <ul className="list-disc pr-5 space-y-1 text-sm text-slate-700 leading-6">
+    <ul className="list-disc ps-5 space-y-1 text-sm text-slate-700 leading-6">
       {items.map((x, i) => <li key={i}>{x}</li>)}
     </ul>
   ) : <p className="text-sm text-slate-400">لا توجد بيانات بعد.</p>;
@@ -46,7 +46,7 @@ export default function EntityPage({ meta, type }: Props) {
     return (
       <>
         <Head><title>غير موجود | نبض</title><meta name="robots" content="noindex" /></Head>
-        <div dir="rtl" className="min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-4">
+        <div dir="rtl" className="min-h-dvh flex flex-col items-center justify-center bg-slate-50 gap-4">
           <EmptyIcon name="search" size={44} color="#94A3B8" />
           <h1 className="text-xl font-bold text-slate-800">العنصر غير موجود أو لم يعد متاحًا</h1>
           <Link href="/" className="text-teal-700 font-bold">العودة للرئيسية</Link>
@@ -81,7 +81,7 @@ export default function EntityPage({ meta, type }: Props) {
         )}
       </Head>
 
-      <div dir="rtl" className="min-h-screen bg-slate-50">
+      <div dir="rtl" className="min-h-dvh bg-slate-50">
         {/* Top bar + breadcrumb */}
         <header className="bg-white border-b border-slate-200">
           <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -220,7 +220,7 @@ export default function EntityPage({ meta, type }: Props) {
                 {(e.author_name || e.published_at) && (
                   <div className="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-400">
                     {e.author_name && <span> {e.author_name}{e.author_title?` — ${e.author_title}`:''}</span>}
-                    {e.published_at && <span className="mr-4">{new Date(e.published_at).toLocaleDateString(dateLocale())}</span>}
+                    {e.published_at && <span className="ms-4">{new Date(e.published_at).toLocaleDateString(dateLocale())}</span>}
                   </div>
                 )}
               </section>

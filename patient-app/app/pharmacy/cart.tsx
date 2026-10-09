@@ -139,10 +139,10 @@ export default function PharmacyCartScreen() {
         </Card>
 
         {hasRxItems ? (
-          <Notice tone="warning" icon="prescription" title={k('pharmacy.cart.rxBannerTitle')} body={k('pharmacy.cart.rxBannerBody')} actionLabel={k('pharmacy.cart.rxBannerAction')} onAction={() => go('/pharmacy/scan-prescription')} />
+          <Notice tone="warning" icon="prescription" title={k('pharmacy.cart.rxBannerTitle')} body={k('pharmacy.cart.rxBannerBody')} actionLabel={k('pharmacy.cart.rxBannerAction')} onAction={() => go('/pharmacy/rx-order?via=photo')} />
         ) : null}
 
-        <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.cart.manual')} onPress={() => go('/pharmacy/request')}>
+        <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.cart.manual')} onPress={() => go('/pharmacy/rx-order?via=type')}>
           <Card padding="sm" theme={theme}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <FIcon icon="pill" tone={PHARMACY_TONE} size={40} theme={theme} />

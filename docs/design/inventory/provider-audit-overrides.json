@@ -1,0 +1,10 @@
+{
+ "provider-app/src/screens/shared/shared/MedicalJobsScreen.tsx:83": { "status": "ok", "reason": "Math.random builds the guest device id stored in AsyncStorage, not a displayed value." },
+ "provider-app/src/screens/lab/LabDashboard.tsx:506": { "status": "ok", "reason": "'sample' is the lab specimen in the function name openSampleForResults, not sample data." },
+ "provider-app/src/screens/lab/LabDashboard.tsx:1614": { "status": "ok", "reason": "Text is a placeholder= hint of an input, not shown data." },
+ "provider-app/src/screens/lab/LabDashboard.tsx:1615": { "status": "ok", "reason": "Text is a placeholder= hint of an input, not shown data." },
+ "provider-app/src/screens/facility/facility/CredentialingScreen.tsx:82": { "status": "ok", "reason": "'expires soon' status label, not coming-soon text." },
+ "provider-app/src/screens/facility/facility/CredentialingScreen.tsx:93": { "status": "ok", "reason": "'expires soon' status label, not coming-soon text." },
+ "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:292": { "status": "ok", "reason": "'pharmacy closes soon' warning, not coming-soon text." },
+ "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx:313": { "status": "ok", "reason": "Loads a template fetched from GET /provider/ops/doctor/templates into local state; the toast follows a real local action." }
+}
