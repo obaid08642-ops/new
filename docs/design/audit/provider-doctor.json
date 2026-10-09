@@ -603,9 +603,9 @@
    "route": "EPrescriptionScreen",
    "elements": [
     [
-     "button: [{opt.icon}] {opt.ar}",
-     "no onPress handler",
-     "dead"
+     "button: {t.titleAr} {t.drugs.length}",
+     "fake success: toast / Alert after local state only, no request",
+     "not wired"
     ],
     [
      "button: Prescription Templates",
@@ -680,11 +680,6 @@
     [
      "data: List templates",
      "GET /provider/ops/doctor/templates, DELETE /provider/ops/doctor/templates/:param → templates",
-     "ok"
-    ],
-    [
-     "button: {t.titleAr} {t.drugs.length}",
-     "fake success: toast / Alert after local state only, no request",
      "ok"
     ],
     [
@@ -950,6 +945,26 @@
    "route": "PreVisitChatScreen",
    "elements": [
     [
+     "data: Data perm",
+     "GET /chat/threads/:param/permissions → perm",
+     "ok"
+    ],
+    [
+     "button: Emergency: call {perm.emergencyLine}",
+     "native action",
+     "ok"
+    ],
+    [
+     "button: Extend once",
+     "POST /chat/threads/:param/extend, GET /chat/threads/:param/permissions",
+     "ok"
+    ],
+    [
+     "button: Close consultation chat",
+     "local state setConfirmClose",
+     "ok"
+    ],
+    [
      "data: List messages",
      "GET /provider/chat/appointment/:param, POST /provider/chat/send → messages",
      "ok"
@@ -962,6 +977,11 @@
     [
      "button: Send",
      "POST /provider/chat/send",
+     "ok"
+    ],
+    [
+     "API: POST /chat/threads/:param/close",
+     "POST /chat/threads/:param/close (OK, backend/src/modules/chat/chat.module.ts:73)",
      "ok"
     ]
    ]
@@ -1110,7 +1130,7 @@
    "kind": "backend",
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
-   "line": 142,
+   "line": 144,
    "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:743"
   },
   {
@@ -1148,11 +1168,11 @@
   },
   {
    "route": "EPrescriptionScreen",
-   "element": "[{opt.icon}] {opt.ar}",
+   "element": "{t.titleAr} {t.drugs.length}",
    "kind": "client",
-   "note": "Touchable \"[{opt.icon}] {opt.ar}\" has no onPress handler.",
+   "note": "Button \"{t.titleAr} {t.drugs.length}\" shows a success message without sending a request.",
    "file": "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx",
-   "line": 267
+   "line": 295
   },
   {
    "route": "EPrescriptionScreen",

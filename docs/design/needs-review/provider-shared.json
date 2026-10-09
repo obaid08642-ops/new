@@ -22,16 +22,6 @@
   {
     "batch": "provider",
     "app": "provider-app",
-    "screen": "ProviderHome",
-    "element": "fake-number: rating: 5.0",
-    "file": "provider-app/src/screens/shared/ProviderHome.tsx",
-    "line": 24,
-    "found": "[client] fake-number (mock-scan): rating: 5.0",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": "provider",
-    "app": "provider-app",
     "screen": "ProviderWalletScreen",
     "element": "API GET /provider/wallet/transactions",
     "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
