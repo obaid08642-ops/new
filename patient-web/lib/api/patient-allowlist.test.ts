@@ -64,7 +64,9 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiRequest("/users/me/notification-settings", "POST")).toBe(false);
     expect(isAllowedPatientApiPath("/nursing/visits?limit=10")).toBe(false);
     expect(isAllowedPatientApiRequest("/users/me/wishlist", "GET")).toBe(true);
-    expect(isAllowedPatientApiRequest("/users/me/wishlist/med-1", "POST")).toBe(false);
+    expect(isAllowedPatientApiRequest("/users/me/wishlist/med-1", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/users/me/wishlist/med-1", "GET")).toBe(false);
+    expect(isAllowedPatientApiRequest("/users/me/wishlist/med-1", "DELETE")).toBe(false);
   });
 
   it("fails closed for malformed or nested order identifiers", () => {
