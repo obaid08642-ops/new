@@ -43,9 +43,14 @@ export class HomeService {
       return {
         id: (c as any).id || String((c as any)._id),
         t: c.title_ar,
+        // Needs-review issue 751: the English title too, and no discount when there is no real original price
+        // (a 0 original price gave "NaN%" or "-Infinity%").
+        t_en: c.title_en || null,
         price: c.discounted_price,
         old: c.original_price,
-        disc: Math.round(((c.original_price - c.discounted_price) / c.original_price) * 100) + '%',
+        disc: c.original_price > 0 && typeof c.discounted_price === 'number'
+          ? Math.round(((c.original_price - c.discounted_price) / c.original_price) * 100) + '%'
+          : null,
         rating: prov?.rating_avg ?? null,
         prov: providerDisplayName(prov) || 'شريك نبض',
         c: '#FF4B55',

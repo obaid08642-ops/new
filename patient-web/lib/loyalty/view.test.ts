@@ -49,5 +49,9 @@ describe("offer rows", () => {
     expect(a).toMatchObject({ title: "Test offer", provider: "Test clinic", discount: "20%", price: 80, oldPrice: 100, rating: 4.5, sponsored: true });
     expect(b.discount).toBeUndefined();
     expect(parseOffers([{ id: "x" }])).toEqual([]);
+    // needs-review issue 751: the English title outside Arabic, the Arabic one when there is no English
+    expect(parseOffers([{ id: "o3", t: "عرض تجريبي", t_en: "Test offer EN" }], "en")[0].title).toBe("Test offer EN");
+    expect(parseOffers([{ id: "o3", t: "عرض تجريبي", t_en: "Test offer EN" }], "ar")[0].title).toBe("عرض تجريبي");
+    expect(parseOffers([{ id: "o4", t: "عرض تجريبي" }], "en")[0].title).toBe("عرض تجريبي");
   });
 });

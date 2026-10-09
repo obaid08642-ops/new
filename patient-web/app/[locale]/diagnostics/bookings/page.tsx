@@ -50,7 +50,8 @@ export default async function DiagnosticsBookingsPage({ params }: Props) {
         <ul className={orders.list} aria-label={t("bookingsTitle")}>
           {rows.map(({ domain, booking }) => {
             const visual = domain === "labs" ? LAB : RADIOLOGY;
-            const title = domain === "labs" ? d("labs.label") : pickText(locale, booking.scanNameAr, booking.scanNameEn) ?? d("radiology.label");
+            // needs-review issue 636: a lab booking shows its first test name (the list sends items), the generic label only without one
+            const title = domain === "labs" ? pickText(locale, booking.testNameAr, booking.testNameEn) ?? d("labs.label") : pickText(locale, booking.scanNameAr, booking.scanNameEn) ?? d("radiology.label");
             const status = diagStatus(booking.state);
             return (
               <li className={orders.order} key={`${domain}-${booking.id}`}>

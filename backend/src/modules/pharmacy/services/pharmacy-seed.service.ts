@@ -12,6 +12,7 @@ import { ProviderAccountRepository } from "./repositories/provideraccount.reposi
 import { ProviderAccountProfileRepository } from "./repositories/provideraccountprofile.repository";
 import { ProviderAvailabilityRepository } from "./repositories/provideravailability.repository";
 import { ProviderType, ProviderAccountStatus } from '../../provider/provider.enums';
+import { UserRole } from '../../../common/enums';
 
 function assertAdmin(u: any) {
   if (!u || (u.role !== 'admin' && u.role !== 'super_admin')) {
@@ -78,6 +79,15 @@ export class PharmacySeedService {
           provider_type: ProviderType.PHARMACY,
           email_verified: true,
           status: ProviderAccountStatus.APPROVED,
+        });
+      }
+      // Needs-review issue 505: provider sign-in checks the linked users row (P3.0b), so the test pharmacy
+      // needs one, or every login answers 401.
+      const users = this.accounts.db.collection('users');
+      if (!(await users.findOne({ id: acc.id }))) {
+        await users.insertOne({
+          id: acc.id, email: p.email, phone: acc.phone_e164, role: UserRole.PHARMACY, active: true, is_guest: false,
+          password_hash: await bcrypt.hash('Pharm@123456', 12), createdAt: new Date(), updatedAt: new Date(),
         });
       }
       let prof = await this.profiles.findOne({ account_id: acc.id });

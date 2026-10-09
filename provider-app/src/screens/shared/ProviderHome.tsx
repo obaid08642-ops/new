@@ -21,7 +21,8 @@ export const ProviderHome = ({ onLogout }: { onLogout?: () => void }) => {
     active_orders: 0,
     completed_today: 0,
     wallet_balance: 0,
-    rating: 5.0,
+    // Needs-review issue 1199: no rating until the server sends one (was a made-up 5.0).
+    rating: null,
   });
 
   const loadData = async () => {
@@ -138,7 +139,7 @@ export const ProviderHome = ({ onLogout }: { onLogout?: () => void }) => {
           </NCard>
           <NCard style={styles.statBox}>
             <I name="star" size={24} color={tokens.warning} />
-            <Text style={[styles.statVal, { color: theme.text }]}>{stats.rating || 5.0}</Text>
+            <Text style={[styles.statVal, { color: theme.text }]}>{typeof stats.rating === 'number' ? stats.rating.toFixed(1) : '—'}</Text>
             <Text style={[styles.statLbl, { color: theme.textSub }]}>{AR ? 'التقييم العام' : 'Rating'}</Text>
           </NCard>
         </View>

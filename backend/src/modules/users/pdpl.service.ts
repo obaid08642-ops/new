@@ -234,6 +234,9 @@ export class PdplService {
           national_id: '',
           medical_record_number: '',
         },
+        // Needs-review issue 757: bump the token version so access tokens already issued 401 on their next
+        // request (auth.guard compares `tv`); `active: false` alone only stops the refresh.
+        $inc: { token_version: 1 },
       },
       { new: true },
     );

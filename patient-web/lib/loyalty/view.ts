@@ -109,12 +109,12 @@ export function pickLoyaltyTab(value: string | string[] | undefined): LoyaltyTab
 
 export type OfferRow = { id: string; title: string; provider?: string; discount?: string; price?: number; oldPrice?: number; rating?: number; sponsored: boolean };
 
-/** GET /home/offers rows: `t`, `prov`, `disc`, `price`, `old`, `rating`, `sponsored`. */
-export function parseOffers(payload: unknown): OfferRow[] {
+/** GET /home/offers rows: `t` (Arabic), `t_en`, `prov`, `disc`, `price`, `old`, `rating`, `sponsored`. Outside Arabic the English title is shown when the server has one. */
+export function parseOffers(payload: unknown, locale = "ar"): OfferRow[] {
   return listOf(payload, ["data", "offers", "items"]).flatMap((value): OfferRow[] => {
     const r = rec(value);
     const id = r?.id === undefined || r?.id === null ? undefined : String(r.id);
-    const title = str(r?.t);
+    const title = (locale !== "ar" ? str(r?.t_en) : undefined) ?? str(r?.t);
     if (!r || !id || !title) return [];
     const disc = r.disc;
     return [{ id, title, provider: str(r.prov), discount: (typeof disc === "string" || typeof disc === "number") && !/NaN|Infinity/.test(String(disc)) ? String(disc) : undefined, price: num(r.price), oldPrice: num(r.old), rating: num(r.rating), sponsored: r.sponsored === true }];

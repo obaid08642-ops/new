@@ -191,6 +191,8 @@ export class SeedService implements OnModuleInit {
         account_id: user.id,
         type: ProviderType.DOCTOR,
         status: ProviderStatus.ACTIVE,
+        // Needs-review issue 447: the public doctor list (GET /care/doctors) shows only reviewed, public profiles.
+        public_eligibility: true, medical_review_status: 'approved',
         name_ar: d.name_ar, name_en: d.name_en,
         specialty: d.specialty, title: d.title, license_number: d.license_number,
         years_experience: d.years_experience, city: d.city, district: d.district,
