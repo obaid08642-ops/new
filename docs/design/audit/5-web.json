@@ -139,8 +139,8 @@
         ],
         [
           "Add sleep",
-          "no web BFF route; the old page was read-only too",
-          "gap"
+          "form (hours 0-24, score 0-100) -> POST /health/sleep {duration_hours, sleep_score, source} through the /api/patient proxy",
+          "fixed"
         ],
         [
           "Error and empty states",
@@ -257,8 +257,8 @@
         ],
         [
           "Add and delete my contacts",
-          "no web BFF route; the old page was read-only",
-          "gap"
+          "form (name, mobile number, relationship) -> POST /health/emergency-contacts; Remove -> DELETE /health/emergency-contacts/:id, through the /api/patient proxy",
+          "fixed"
         ],
         [
           "My family on Nabd+ (name, relation, masked phone) read-only - old /family/emergency-contacts",
@@ -434,7 +434,7 @@
       "route": "/health/sleep",
       "element": "Add sleep",
       "kind": "client",
-      "note": "Web has no BFF route or form to add a night (the old page was read-only); the map and the app have it. Not added: new feature.",
+      "note": "Fixed on design/oc-patient-other-1: the sleep page has the form (hours, score) that posts to /api/patient/health/sleep (allowlisted) like the app.",
       "file": "patient-web/app/[locale]/health/sleep/page.tsx",
       "line": 60
     },
@@ -442,7 +442,7 @@
       "route": "/health/profile",
       "element": "Add and delete my emergency contacts",
       "kind": "client",
-      "note": "The map wants an editable list; the web has only GET /health/emergency-contacts (no BFF POST/DELETE), as before. Read-only here.",
+      "note": "Fixed on design/oc-patient-other-1: my contacts can be added (POST) and removed (DELETE) on the web through the /api/patient proxy (allowlisted), the same calls as the app.",
       "file": "patient-web/app/[locale]/health/profile/page.tsx",
       "line": 136
     },

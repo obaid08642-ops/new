@@ -72,6 +72,8 @@ const patientReadRoutes = [
   new RegExp("^/users/me/storage$"),
   new RegExp("^/users/me/sessions$"),
   new RegExp("^/articles/bookmarks/mine$"),
+  // the article page asks whether the signed-in patient saved the article (the Save button)
+  new RegExp("^/articles/bookmarks/[A-Za-z0-9_-]{1,160}/status$"),
   new RegExp("^/chat/threads$"),
   new RegExp(`^/chat/threads/${threadId}$`, "i"),
   new RegExp(`^/chat/threads/${threadId}/messages\\?limit=50$`, "i"),
@@ -105,6 +107,15 @@ const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp
   { method: "POST", route: new RegExp("^/medical/programs/complete-session$", "i") },
   { method: "PATCH", route: new RegExp("^/users/me/notification-settings$") },
   { method: "PATCH", route: new RegExp("^/users/me/profile$") },
+];
+
+// The health screens add a night of sleep and add or remove the patient's own emergency contacts (backend health.controller);
+// the article page saves or unsaves one article (backend articles.module: POST /articles/bookmarks/:slug/toggle).
+const healthMutationRoutes: Array<{ method: "POST" | "DELETE"; route: RegExp }> = [
+  { method: "POST", route: new RegExp("^/health/sleep$") },
+  { method: "POST", route: new RegExp("^/health/emergency-contacts$") },
+  { method: "DELETE", route: new RegExp("^/health/emergency-contacts/[A-Za-z0-9_-]{1,128}$") },
+  { method: "POST", route: new RegExp("^/articles/bookmarks/[A-Za-z0-9_-]{1,160}/toggle$") },
 ];
 
 const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }> = [
@@ -159,6 +170,7 @@ const notificationMutationRoutes: Array<{ method: "POST"; route: RegExp }> = [
 export function isAllowedPatientApiRequest(path: string, method: string) {
   return (method === "GET" && isAllowedPatientApiPath(path))
     || notificationMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
+    || healthMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || addressMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || diagnosticsMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path))
     || pharmacyMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path));

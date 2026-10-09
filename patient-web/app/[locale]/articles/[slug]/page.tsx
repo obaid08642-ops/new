@@ -13,6 +13,7 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { Actions, CONSULT, Facts, Notice, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { SaveArticleButton } from "@/components-next/articles/save-article-button";
 import { ARTICLE_TONE, CategoryPill, articleExcerpt, articleTitle } from "@/components-next/articles/article-kit";
 import styles from "@/components-next/articles/articles.module.css";
 
@@ -42,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 /**
  * One article (GET /articles/:slug): category, title, author and date, the summary, and the notice that the full text is not shown
  * here yet. The author is the name and title the article carries (it has no doctor id today, so no link to a profile or to booking).
- * No comments (owner decision 1).
+ * Save or unsave it (the button reads the session in the browser, the page itself stays public). No comments (owner decision 1).
  */
 export default async function ArticlePage({ params }: Props) {
   const { locale, slug } = await params;
@@ -110,6 +111,7 @@ export default async function ArticlePage({ params }: Props) {
         locale={locale}
       />
       <Actions>
+        <SaveArticleButton slug={slug} locale={locale} />
         <ButtonLink href={back} label={t("back")} variant="outline" size="lg" fullWidth />
       </Actions>
     </ConsultPage>

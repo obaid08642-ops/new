@@ -6,7 +6,7 @@
     "element": "Add sleep",
     "file": "patient-web/app/[locale]/health/sleep/page.tsx",
     "line": 60,
-    "found": "[client] Web has no BFF route or form to add a night (the old page was read-only); the map and the app have it. Not added: new feature.",
+    "found": "[client] Fixed on design/oc-patient-other-1: the sleep page has the form (hours, score) that posts to /api/patient/health/sleep (allowlisted) like the app.",
     "suspect": "Client-side: later batch."
   },
   {
@@ -16,7 +16,7 @@
     "element": "Add and delete my emergency contacts",
     "file": "patient-web/app/[locale]/health/profile/page.tsx",
     "line": 136,
-    "found": "[client] The map wants an editable list; the web has only GET /health/emergency-contacts (no BFF POST/DELETE), as before. Read-only here.",
+    "found": "[client] Fixed on design/oc-patient-other-1: my contacts can be added (POST) and removed (DELETE) on the web through the /api/patient proxy (allowlisted), the same calls as the app.",
     "suspect": "Client-side: later batch."
   },
   {
