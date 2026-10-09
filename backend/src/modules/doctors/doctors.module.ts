@@ -290,7 +290,7 @@ export class DoctorsController {
 @UseGuards(JwtAuthGuard)
 export class NotificationsController {
   constructor(private svc: DoctorsService) {}
-  @Get('') list(@CurrentUser() user: any) { return this.svc.listNotifications(user); }
+  // #444: GET /notifications is served by NotificationsModule (registered first); the copy here never answered.
   @Get('unread-count') unread(@CurrentUser() user: any) { return this.svc.unreadCount(user); }
   @Patch(':id/read') mr(@Param('id') id: string, @CurrentUser() user: any) { return this.svc.markRead(user, id); }
   @Post('mark-all-read') mar(@CurrentUser() user: any) { return this.svc.markAllRead(user); }

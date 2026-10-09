@@ -429,6 +429,8 @@ export class HealthService {
     if (duplicate) throw new ConflictException('dose already logged for this reminder time on this local day');
     r.log = [...(r.log || []), { at: eventAt, status, time_key: timeKey, source: occurred_at ? 'local_notification' : 'manual' }];
     await r.save();
+    // #1078: a missed dose reaches the patient and the family members allowed to see their medicines.
+    if (status === 'missed') this.events?.emit('medication.missed', { patient_id: user.id, reminder_id: r.id, time_key: timeKey });
     return r.toObject();
   }
 

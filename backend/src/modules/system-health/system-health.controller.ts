@@ -1,8 +1,15 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { UserRole } from '../../common/enums';
 import { HealthCheckService, MongooseHealthIndicator, HealthCheck } from '@nestjs/terminus';
 import { RedisService } from '../redis/redis.service';
 
+/**
+ * Health of the database and Redis for the admin dashboard (#959: admins only; infrastructure probes use /health).
+ */
 @Controller('system-health')
+@UseGuards(JwtAuthGuard)
+@Roles(UserRole.ADMIN)
 export class SystemHealthController {
   constructor(
     private health: HealthCheckService,

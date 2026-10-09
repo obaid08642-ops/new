@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { apiFetch } from '../../utils/api';
+import { useCan } from '@/components/AdminGuard';
 
 /**
  * Catalog Manager — الأدمن يضيف/يعدل/يحذف أصناف كتالوج الخدمات:
@@ -68,6 +69,9 @@ const REVIEW: Record<string, { label: string; color: string; bg: string }> = {
 };
 
 export default function CatalogManagerPage() {
+  // #907: a read-only catalogue role sees the catalogue without the write buttons (the server would answer 403).
+  const canEdit = useCan('catalog.update');
+  const canCreate = useCan('catalog.create');
   const [tab, setTab] = useState<TabKey>('labs');
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -229,7 +233,7 @@ export default function CatalogManagerPage() {
           </button>
         ))}
         <div style={{ flex: 1 }} />
-        {tab !== 'specialties' && !isCustomTab && (
+        {tab !== 'specialties' && !isCustomTab && canCreate && (
         <button onClick={() => setEditing({ active: true, medical_review_status: 'pending', ...(tab === 'nursing' ? { duration: 'hour', category: 'nursing' } : {}), ...(tab === 'radiology' ? { modality: '', body_part: '' } : {}) })} style={{ padding: '8px 18px', borderRadius: 12, border: 'none', cursor: 'pointer', fontWeight: 700, background: '#0F172A', color: '#fff' }}>
           + إضافة صنف جديد
         </button>
@@ -252,13 +256,13 @@ export default function CatalogManagerPage() {
           <div className="flex gap-2 flex-wrap mb-4">
             <input value={specNameAr} onChange={(e) => setSpecNameAr(e.target.value)} placeholder="الاسم (عربي)" className="border rounded px-3 py-2 text-sm flex-1 min-w-[200px]" />
             <input value={specNameEn} onChange={(e) => setSpecNameEn(e.target.value)} placeholder="Name (en)" dir="ltr" className="border rounded px-3 py-2 text-sm flex-1 min-w-[200px]" />
-            <button onClick={() => void saveSpecialty()} className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-bold">حفظ التخصص</button>
+            {canCreate ? <button onClick={() => void saveSpecialty()} className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-bold">حفظ التخصص</button> : null}
           </div>
           <div className="divide-y">
             {filtered.map((item: any) => (
               <div key={item.code || item.id} className="py-2 flex items-center justify-between gap-3">
                 <div><strong>{item.name_ar}</strong> <span className="text-xs text-slate-500" dir="ltr">{item.name_en} · {item.code}</span></div>
-                <button onClick={() => void removeSpecialty(item.code || item.id)} className="text-red-600 text-xs font-bold border border-red-200 rounded px-3 py-1">تعطيل</button>
+                {canEdit ? <button onClick={() => void removeSpecialty(item.code || item.id)} className="text-red-600 text-xs font-bold border border-red-200 rounded px-3 py-1">تعطيل</button> : null}
               </div>
             ))}
             {filtered.length === 0 && <p className="text-slate-400 text-sm py-4 text-center">لا توجد تخصصات.</p>}
@@ -267,7 +271,7 @@ export default function CatalogManagerPage() {
       ) : isCustomTab ? null : (
       <>
 
-      {selected.size > 0 && (
+      {canEdit && selected.size > 0 && (
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12, padding: 10, borderRadius: 12, background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#1E40AF' }}>محدد: {selected.size}</span>
           <button onClick={() => void bulkDecide(true)} disabled={deciding} style={{ padding: '6px 14px', borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>اعتماد المحدد</button>
@@ -287,12 +291,12 @@ export default function CatalogManagerPage() {
               <div style={{ fontSize: 13, fontWeight: 700, color: '#23B5CE', marginTop: 4 }}>{item.price} ر.س</div>
               {(() => { const r = REVIEW[item.medical_review_status || 'pending'] || REVIEW.pending; return <span style={{ display: 'inline-block', marginTop: 6, padding: '2px 8px', borderRadius: 8, fontSize: 11, fontWeight: 700, color: r.color, background: r.bg }}>{r.label}</span>; })()}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {canEdit ? <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <button onClick={() => void decide(item.id, true)} style={{ padding: '6px 12px', borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>اعتماد</button>
               <button onClick={() => void decide(item.id, false)} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #FED7AA', background: '#FFFBEB', color: '#B45309', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>رفض</button>
               <button onClick={() => setEditing({ ...item })} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #CBD5E1', background: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>تعديل</button>
               <button onClick={() => remove(item)} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #FECACA', background: '#FEF2F2', color: '#B91C1C', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>حذف</button>
-            </div>
+            </div> : null}
           </div>
         ))}
       </div>
@@ -346,6 +350,8 @@ export default function CatalogManagerPage() {
  * List + create/edit (core fields) + image upload + price history +
  * bulk CSV import + approve, on the medicines admin endpoints. */
 function MedicinesPanel() {
+  const canEdit = useCan('catalog.update');
+  const canCreate = useCan('catalog.create');
   const [items, setItems] = useState<any[]>([]);
   const [q, setQ] = useState('');
   const [loading, setLoading] = useState(true);
@@ -468,7 +474,7 @@ function MedicinesPanel() {
     <div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="بحث…" style={{ flex: 1, minWidth: 200, padding: '10px 14px', borderRadius: 12, border: '1px solid #E2E8F0', fontFamily: 'inherit' }} />
-        <button onClick={() => setForm({ name_ar: '', requires_prescription: false, reason: '' })} style={{ padding: '8px 18px', borderRadius: 12, border: 'none', background: '#0F172A', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>+ دواء جديد</button>
+        {canCreate ? <button onClick={() => setForm({ name_ar: '', requires_prescription: false, reason: '' })} style={{ padding: '8px 18px', borderRadius: 12, border: 'none', background: '#0F172A', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>+ دواء جديد</button> : null}
         <label style={{ padding: '8px 18px', borderRadius: 12, border: '1px solid #CBD5E1', background: '#fff', cursor: 'pointer', fontWeight: 700 }}>
           {csvBusy ? 'جارٍ الاستيراد…' : 'استيراد CSV'}
           <input type="file" accept=".csv" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void uploadCsv(f); e.target.value = ''; }} />
@@ -482,9 +488,11 @@ function MedicinesPanel() {
             <div style={{ fontWeight: 800 }}>{m.name_ar} <span style={{ fontWeight: 400, color: '#64748B' }}>{m.name_en}</span></div>
             <div style={{ fontSize: 12, color: '#64748B' }}>{m.category || ''} · {m.price} ر.س{m.requires_prescription ? ' · وصفة' : ''}</div>
             <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
+              {canEdit ? <>
               <button onClick={() => setForm({ ...m, reason: '' })} style={btn}>تعديل</button>
               <button onClick={() => void decide(m.id, true)} style={btnOk}>اعتماد</button>
               <button onClick={() => void toggleActive(m)} style={btn}>{m.deleted ? 'استرجاع' : 'تعطيل'}</button>
+              </> : null}
               <button onClick={() => void showHistory(m.id)} style={btn}>السجل السعري</button>
             </div>
             {history[m.id] && (

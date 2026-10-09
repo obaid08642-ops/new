@@ -24,6 +24,7 @@ export type OfferView = {
   currency?: string;
   preparationMinutes?: number;
   expiresAt?: string;
+  serverTime?: string;
   insuranceReady?: boolean;
   codAllowed?: boolean;
   distanceKm?: number;
@@ -70,11 +71,14 @@ export function OfferList({ orderId, offers, after }: Props & { offers: OfferVie
   const action = usePharmacyAction();
   const [failedOffer, setFailedOffer] = useState<string | null>(null);
 
-  // The countdown is the viewer's clock against the server's expiry; it only ever disables a button, the server decides.
+  // The countdown runs on the server's clock (issue 512: its `server_time` corrects a viewer clock that is off); it only ever
+  // disables a button, the server decides.
   useEffect(() => {
     if (!offers.some((offer) => offer.expiresAt)) return;
-    setNow(Date.now());
-    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    const serverAt = Date.parse(offers.find((offer) => offer.serverTime)?.serverTime ?? "");
+    const offset = Number.isNaN(serverAt) ? 0 : serverAt - Date.now();
+    setNow(Date.now() + offset);
+    const timer = window.setInterval(() => setNow(Date.now() + offset), 1000);
     return () => window.clearInterval(timer);
   }, [offers]);
 

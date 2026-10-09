@@ -70,7 +70,7 @@ describe('Notifications screen (board Notifications)', () => {
     (apiFetch as jest.Mock).mockResolvedValue(FEED);
     await render(ui);
     await waitFor(() => expect(screen.getByText('طلبك في الطريق')).toBeTruthy());
-    expect(apiFetch).toHaveBeenCalledWith('/notifications');
+    expect(apiFetch).toHaveBeenCalledWith('/notifications?lang=ar');
     expect(screen.getByRole('header', { name: 'اليوم' })).toBeTruthy();
     expect(screen.getByRole('header', { name: 'سابقًا' })).toBeTruthy();
     expect(screen.getByText('صيدلية النور · يصل خلال 12 دقيقة')).toBeTruthy();

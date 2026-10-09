@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Headers, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
@@ -11,8 +11,8 @@ export class NotificationsController {
   constructor(private svc: NotificationsService, private push: PushService) {}
 
   @Get()
-  list(@CurrentUser() user: any) {
-    return this.svc.listForUser(user);
+  list(@CurrentUser() user: any, @Query('lang') lang?: string, @Headers('accept-language') acceptLanguage?: string) {
+    return this.svc.listForUser(user, NotificationsService.listLang(lang, acceptLanguage));
   }
 
   /**

@@ -31,7 +31,7 @@ describe("notifications SSR boundary", () => {
 
     const html = renderToStaticMarkup(await NotificationsPage({ params: Promise.resolve({ locale: "en" }) }));
 
-    expect(state.getPatientNotifications).toHaveBeenCalledWith(serverToken);
+    expect(state.getPatientNotifications).toHaveBeenCalledWith(serverToken, "en");
     expect(html).toContain("Visible title");
     expect(html).toContain("Visible body");
     // the populated layout of canvas/Notifications: an "earlier" group (the fixture is old), the order icon, the unread dot

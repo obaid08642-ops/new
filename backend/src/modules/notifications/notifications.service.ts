@@ -398,20 +398,32 @@ export class NotificationsService {
     }
   }
 
-  async listForUser(user: any) {
+  /**
+   * #417/#443: the texts come in the language the app or web asked for (`?lang=`, else Accept-Language). The token
+   * carries no language, so the old `user.lang` was always Arabic. ar and ur have their own texts; every other
+   * language gets English.
+   */
+  static listLang(requested?: string, acceptLanguage?: string): 'ar' | 'en' | 'ur' {
+    const first = String(requested || acceptLanguage || '').split(',')[0].trim().toLowerCase().slice(0, 2);
+    if (first === 'ar' || first === 'ur') return first;
+    return first ? 'en' : 'ar';
+  }
+
+  async listForUser(user: any, lang: 'ar' | 'en' | 'ur' = 'ar') {
     const rows: any[] = await this.model.find(
       { $or: [{ user_id: user.id }, { role: user.role }, { role: 'all' }] },
       { _id: 0, __v: 0 },
     ).sort({ createdAt: -1 }).limit(200);
     // Resolve i18n keys to readable text; creators that stored plain Arabic pass through unchanged
-    const lang = (user?.lang as any) || 'ar';
     return rows.map((r: any) => {
       const o = typeof r.toObject === 'function' ? r.toObject() : r;
+      // read_by of a role-wide notice holds other accounts' ids: never sent back, only this user's `read`.
+      const { read_by, ...rest } = o;
       return {
-        ...o,
+        ...rest,
         title: this.i18n.t(o.title_key, lang, o.params),
         body: this.i18n.t(o.body_key, lang, o.params),
-        read: Array.isArray(o.read_by) ? o.read_by.includes(user.id) : false,
+        read: Array.isArray(read_by) ? read_by.includes(user.id) : false,
       };
     });
   }
@@ -674,17 +686,32 @@ export class NotificationsService {
   async onRefundDecided(p: any) {
     if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.refund_decided.title', body_key: 'notif.refund_decided.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH });
   }
+  /** #939: the provider app's bell reads provider_notifications, so the admin's decision is written there too. */
+  private async providerDecisionBell(providerAccountId: string, key: string) {
+    await this.notifyProviderAccount(providerAccountId, {
+      type: 'kyc_update',
+      title_ar: this.i18n.t(`notif.${key}.title`, 'ar'), title_en: this.i18n.t(`notif.${key}.title`, 'en'),
+      body_ar: this.i18n.t(`notif.${key}.body`, 'ar'), body_en: this.i18n.t(`notif.${key}.body`, 'en'),
+    }).catch(() => null);
+  }
   @OnEvent('provider.approved')
   async onProviderApproved(p: any) {
     if (p.provider_id) await this.create({ user_id: p.provider_id, title_key: 'notif.provider_approved.title', body_key: 'notif.provider_approved.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH });
+    if (p.provider_id) await this.providerDecisionBell(p.provider_id, 'provider_approved');
+  }
+  @OnEvent('provider.rejected')
+  async onProviderRejected(p: any) {
+    if (p.provider_id) await this.create({ user_id: p.provider_id, title_key: 'notif.provider_rejected.title', body_key: 'notif.provider_rejected.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH });
+    if (p.provider_id) await this.providerDecisionBell(p.provider_id, 'provider_rejected');
+  }
+  @OnEvent('provider.changes_requested')
+  async onProviderChangesRequested(p: any) {
+    if (p.provider_id) await this.create({ user_id: p.provider_id, title_key: 'notif.provider_changes_requested.title', body_key: 'notif.provider_changes_requested.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH });
+    if (p.provider_id) await this.providerDecisionBell(p.provider_id, 'provider_changes_requested');
   }
   @OnEvent('emergency.resolved')
   async onEmergencyResolved(p: any) {
     if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.emergency_resolved.title', body_key: 'notif.emergency_resolved.body', type: NotificationType.INFO });
-  }
-  @OnEvent('medication.missed')
-  async onMedicationMissed(p: any) {
-    if (p.user_id) await this.create({ user_id: p.user_id, title_key: 'notif.medication_missed.title', body_key: 'notif.medication_missed.body', type: NotificationType.MEDICATION, priority: NotificationPriority.HIGH });
   }
   // ============ APPOINTMENT Lifecycle (EventBus payload shape: patient_account_id) ============
   @OnEvent('doctor_appointment.created')
@@ -787,7 +814,24 @@ export class NotificationsService {
   }
   @OnEvent('medication.missed')
   async onMissed(p: any) {
-    if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.medication_missed.title', body_key: 'notif.medication_missed.body', type: NotificationType.MEDICATION, priority: NotificationPriority.HIGH });
+    if (!p.patient_id) return;
+    await this.create({ user_id: p.patient_id, title_key: 'notif.medication_missed.title', body_key: 'notif.medication_missed.body', type: NotificationType.MEDICATION, priority: NotificationPriority.HIGH });
+    // #1078: family members who may see this patient's medicines (the group owner, or a member granted meds / view_health).
+    const group: any = await this.model.db.collection('family_groups').findOne(
+      { is_deleted: { $ne: true }, $or: [{ owner_id: p.patient_id }, { 'members.user_id': p.patient_id }] },
+      { projection: { _id: 0, owner_id: 1, members: 1 } },
+    ).catch(() => null);
+    if (!group) return;
+    const members: any[] = Array.isArray(group.members) ? group.members : [];
+    const name = members.find((m) => m?.user_id === p.patient_id)?.display_name || '';
+    const recipients = new Set<string>();
+    if (group.owner_id && group.owner_id !== p.patient_id) recipients.add(group.owner_id);
+    for (const m of members) {
+      if (m?.user_id && m.user_id !== p.patient_id && Array.isArray(m.permissions) && (m.permissions.includes('meds') || m.permissions.includes('view_health'))) recipients.add(m.user_id);
+    }
+    for (const uid of recipients) {
+      await this.create({ user_id: uid, title_key: 'notif.family_medication_missed.title', body_key: 'notif.family_medication_missed.body', params: { name }, type: NotificationType.MEDICATION, priority: NotificationPriority.HIGH, action: { route: '/family' } }).catch(() => null);
+    }
   }
 
   // ============ LAB Lifecycle ============

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { AdminApiError, adminFetch, adminMutation, type AdminSession } from '@/lib/admin-client';
@@ -16,6 +16,8 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: '/admin/command-center', label: 'مركز القيادة الحي', permission: 'command.center.view' },
       { href: '/admin/health-dashboard', label: 'لوحة صحة النظام', permission: 'command.center.view' },
+      // #960: the telemetry board (health, demand heatmap, command centre) was reachable only by URL.
+      { href: '/admin/dashboard', label: 'لوحة القياس الحية', permission: 'command.center.view' },
       { href: '/admin/orders', label: 'دورة الطلبات', permission: 'order.read' },
       { href: '/admin/analytics-suite', label: 'التحليلات', permission: 'analytics.read' },
       { href: '/admin/analytics', label: 'التحليلات الداخلية', permission: 'analytics.read' },
@@ -80,12 +82,26 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/rbac', label: 'الأدوار والصلاحيات', permission: 'rbac.manage' },
       { href: '/admin/system-ops', label: 'تشغيل النظام', permission: 'ops.queues.manage' },
       { href: '/admin/notification-center', label: 'مركز الإشعارات والحملات', permission: 'ops.queues.manage' },
+      // #994: AI controls were reachable only by URL.
+      { href: '/admin/ai-control', label: 'التحكم في الذكاء الاصطناعي', permission: 'ops.queues.manage' },
       { href: '/admin/scheduled-reports', label: 'التقارير المجدولة', permission: 'reports.schedule.manage' },
       { href: '/admin/audit-logs', label: 'سجل التدقيق' },
       { href: '/admin/security', label: 'الأمان ومفاتيح الدخول' },
     ],
   },
 ];
+
+/**
+ * The signed-in admin's permissions, for pages that hide what the role cannot do (needs-review #907/#920/#922/#996):
+ * the server still refuses; this only stops a read-only role from seeing buttons and sections that answer 403.
+ */
+const AdminPermissionsContext = createContext<Set<string> | null>(null);
+
+/** True when the admin holds `permission`. Before the session loads (or outside the guard) nothing is granted. */
+export function useCan(permission: string): boolean {
+  const set = useContext(AdminPermissionsContext);
+  return !!set && set.has(permission);
+}
 
 function permitted(item: NavItem, permissions: Set<string>) {
   // Single source of truth: nav visibility derives from the same route map,
@@ -102,6 +118,7 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/command-center': 'command.center.view',
   '/admin/fraud-monitoring': 'command.center.view',
   '/admin/health-dashboard': 'command.center.view',
+  '/admin/dashboard': 'command.center.view',
   '/admin/orders': 'order.read',
   '/admin/order-detail': 'order.read',
   '/admin/broadcast-monitor': 'order.read',
@@ -328,7 +345,7 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
           </button>
         </div>
       </aside>
-      <main ref={mainRef} className="min-w-0 flex-1 bg-slate-50">{children}</main>
+      <main ref={mainRef} className="min-w-0 flex-1 bg-slate-50"><AdminPermissionsContext.Provider value={permissionSet}>{children}</AdminPermissionsContext.Provider></main>
     </div>
   );
 };
