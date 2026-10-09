@@ -5,6 +5,7 @@ import { QueryAnalytics, QueryAnalyticsSchema } from './schemas/query-analytics.
 import { SearchIntentService } from './search-intent.service';
 import { SearchIntentController } from './search-intent.controller';
 import { LocationModule } from '../location/location.module';
+import { SearchRateLimitGuard } from '../../common/guards/abuse-prevention.guard';
 
 @Module({
   imports: [
@@ -16,6 +17,6 @@ import { LocationModule } from '../location/location.module';
   ],
   controllers: [SearchIntentController],
   providers: [SearchIntentService],
-  exports: [SearchIntentService],
+  exports: [SearchIntentService, SearchRateLimitGuard],
 })
 export class SearchIntentModule {}

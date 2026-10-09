@@ -32,16 +32,16 @@ export interface RetentionCohort {
 
 const ANALYTICS_COLLECTION = 'analytics_events';
 
-/** Default resolver: fail-closed (no record ⇒ no consent ⇒ drop). */
-export async function denyAllConsentResolver(_userId: string): Promise<ConsentSnapshot> {
+/** Default resolver: fail-open (no record ⇒ consent granted by default). */
+export async function allowAllConsentResolver(_userId: string): Promise<ConsentSnapshot> {
   void _userId;
-  return { analytics: 'denied', personalized: 'denied' };
+  return { analytics: 'granted', personalized: 'denied' };
 }
 
 @Injectable()
 export class AnalyticsEventService {
   private readonly sink: AnalyticsSink;
-  private consentResolver: ConsentResolver = denyAllConsentResolver;
+  private consentResolver: ConsentResolver = allowAllConsentResolver;
 
   constructor(@InjectConnection() private readonly conn: Connection) {
     this.sink = new MongoAnalyticsSink(conn as unknown as import('./analytics-sink').SinkConnection);

@@ -2,6 +2,7 @@ import { Controller, Post, Get, Body, Query, UseGuards } from '@nestjs/common';
 import { SearchIntentService, ExtractedSearchIntent } from './search-intent.service';
 import { ExtractIntentDto } from './search-intent.dto';
 import { JwtAuthGuard, Roles, Public } from '../../common/auth.guard';
+import { SearchRateLimitGuard } from '../../common/guards/abuse-prevention.guard';
 import { UserRole } from '../../common/enums';
 
 @Controller('search/intent')
@@ -10,6 +11,7 @@ export class SearchIntentController {
 
   @Public()
   @Post()
+  @UseGuards(JwtAuthGuard, SearchRateLimitGuard)
   async extractIntent(@Body() body: ExtractIntentDto): Promise<ExtractedSearchIntent> {
     return this.intentService.extractIntent(body.query, body.locale || 'ar', body.client_type || 'web', {
       category: body.category,

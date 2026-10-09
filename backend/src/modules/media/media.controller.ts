@@ -10,6 +10,7 @@ import { MediaService } from './media.service';
 import { UploadMediaDto, PresignedUrlRequestDto } from './media.dto';
 import { MediaAsset, MediaAssetDocument, MEDIA_PURPOSES, MediaPurpose } from './media.schema';
 import { UploadRateLimitGuard } from '../../common/guards/abuse-prevention.guard';
+import { ChatThread, ChatThreadDocument } from '../chat/chat.schemas';
 
 @Controller('media')
 @SelfService()
@@ -19,6 +20,7 @@ export class MediaController {
     private readonly mediaService: MediaService,
     @InjectModel(MediaAsset.name) private readonly assets: Model<MediaAssetDocument>,
     @InjectConnection() private readonly connection: Connection,
+    @InjectModel('ChatThread') private readonly chatThreads: Model<ChatThreadDocument>,
   ) {}
 
   @Post('upload')
@@ -116,15 +118,19 @@ export class MediaController {
     if (asset.owner_id === user.id) return true;
     if (user.role === UserRole.ADMIN) return true;
     if (asset.purpose === 'chat' && asset.thread_id) {
-      // Chat media readable by thread participants
-      return true; // Verified by JwtAuthGuard + thread membership check in gateway
+      // Chat media readable by thread participants only
+      const thread = await this.chatThreads.findOne({ thread_id: asset.thread_id, is_active: true }).lean();
+      if (!thread) return false;
+      return thread.participant_ids?.includes(user.id) ?? false;
     }
     return false;
   }
 
   private async verifyChatUploadAllowed(threadId: string, userId: string) {
-    // Verified by chat gateway - user must be participant
-    return true;
+    // Verify user is a participant in the chat thread
+    const thread = await this.chatThreads.findOne({ thread_id: threadId, is_active: true }).lean();
+    if (!thread) return false;
+    return thread.participant_ids?.includes(userId) ?? false;
   }
 
   @Delete(':id')

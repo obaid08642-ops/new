@@ -191,7 +191,6 @@ export class ProviderAdminService {
           rejected_reason: null,
           public_eligibility: true,
           indexing_eligibility: true,
-          medical_review_status: 'approved',
           license_verified: true,
         },
       },
@@ -324,7 +323,7 @@ export class ProviderAdminService {
     }
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },
-      { $set: { status: 'active', public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved' } },
+      { $set: { status: 'active', public_eligibility: true, indexing_eligibility: true } },
     );
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_reactivated', after: { reason: body?.reason } });
     return a.toObject();

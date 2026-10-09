@@ -59,11 +59,13 @@ const STATUS_TO_CODE: Record<number, string> = {
   [HttpStatus.BAD_REQUEST]: ERROR_CODES.INVALID_INPUT,
   [HttpStatus.UNAUTHORIZED]: ERROR_CODES.AUTHENTICATION_REQUIRED,
   [HttpStatus.FORBIDDEN]: ERROR_CODES.INSUFFICIENT_PERMISSION,
+  [HttpStatus.NOT_FOUND]: ERROR_CODES.INVALID_INPUT,
   [HttpStatus.CONFLICT]: ERROR_CODES.DUPLICATE_TRANSACTION,
   [HttpStatus.TOO_MANY_REQUESTS]: ERROR_CODES.RATE_LIMITED,
   [HttpStatus.BAD_GATEWAY]: ERROR_CODES.SERVICE_UNAVAILABLE,
   [HttpStatus.SERVICE_UNAVAILABLE]: ERROR_CODES.SERVICE_UNAVAILABLE,
   [HttpStatus.GATEWAY_TIMEOUT]: ERROR_CODES.SERVICE_UNAVAILABLE,
+  [HttpStatus.INTERNAL_SERVER_ERROR]: ERROR_CODES.INTERNAL_ERROR,
 };
 
 /**
@@ -89,15 +91,18 @@ export function normalizeHttpExceptionBody(
     const rawMessage = Array.isArray(body.message)
       ? (body.message as unknown[]).map(String).join('; ')
       : body.message ?? body.error;
-    if (typeof body.code === 'string' && typeof rawMessage === 'string') return null;
+    const code = typeof body.code === 'string' ? body.code : undefined;
+    if (code && isErrorCode(code) && typeof rawMessage === 'string') {
+      // Body has a known catalog code and a message string.
+      // Normalize only when the message differs from the code (e.g. UNKNOWN_ERROR
+      // with a descriptive message like "order_not_found"), otherwise leave as-is.
+      if (rawMessage !== code) return { code: STATUS_TO_CODE[status] ?? 'UNKNOWN_ERROR', message: rawMessage };
+      return null; // already normalized (code && message match)
+    }
     const message = typeof rawMessage === 'string' ? rawMessage : 'Unknown error';
-    const code =
-      typeof body.code === 'string'
-        ? body.code
-        : isErrorCode(message)
-          ? message
-          : (STATUS_TO_CODE[status] ?? 'UNKNOWN_ERROR');
-    return { code, message };
+    const resolvedCode =
+      code && isErrorCode(code) ? code : (STATUS_TO_CODE[status] ?? 'UNKNOWN_ERROR');
+    return { code: resolvedCode, message };
   }
   return { code: STATUS_TO_CODE[status] ?? 'UNKNOWN_ERROR', message: 'Unknown error' };
 }
