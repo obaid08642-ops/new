@@ -3,7 +3,7 @@ import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Transaction, TransactionSchema } from '../../schemas/transaction.schema';
-import { RefundPaymentDto } from './payments.dto';
+import { DiagnosticsIntentDto, IntentMethodDto, RefundPaymentDto } from './payments.dto';
 import { OrderSchema } from '../../schemas/order.schema';
 import { LabBookingSchema } from '../../schemas/lab.schema';
 import { DiagnosticOrder, DiagnosticOrderSchema } from '../../schemas/diagnostic-order.schema';
@@ -301,9 +301,17 @@ export class PaymentsService {
     if (order.payment_status === 'paid' && order.transaction_id === t.id) {
       return true;
     }
+    // Q-21: payment also leaves the pending state — otherwise a paid order is
+    // stuck at cash_card_payment_pending / waiting_copay (and the governed view
+    // at FINAL_QUOTE_ACCEPTED) although only payment_status moved. Other states
+    // (e.g. already confirmed, cancelled) are left untouched.
+    const set: any = { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at };
+    if (['cash_card_payment_pending', 'waiting_copay'].includes(String(order.status))) {
+      set.status = 'confirmed';
+    }
     await this.txns.db.collection('pharmacy_orders').updateOne(
       { id: order.id },
-      { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } },
+      { $set: set },
     );
     this.events.emit('moyasar.payment.paid', {
       id: String(t.gateway_charge_id || t.gateway_intent_id || t.id),
@@ -321,7 +329,9 @@ export class PaymentsService {
     return true;
   }
 
-  async createPaymentIntent(user: any, type: string, id: string, idempotencyKey: string) {
+  async createPaymentIntent(user: any, type: string, id: string, idempotencyKey: string, method?: string) {
+    // The booking id reaches queries as a plain string ($eq below), never an operator object from a request body.
+    if (typeof id !== 'string' || !id.trim()) throw new BadRequestException('booking_id_required');
     const requestKey = String(idempotencyKey || '').trim();
     if (!requestKey || requestKey.length > 128) throw new BadRequestException('idempotency_key_required');
     // Fail fast when no gateway is configured: never create a transaction record.
@@ -336,7 +346,7 @@ export class PaymentsService {
     }
     if (!booking) {
       const M = this.modelFor(type);
-      booking = await M.findOne({ id }).lean();
+      booking = await M.findOne({ id: { $eq: id } }).lean();
     }
     if (!booking) throw new NotFoundException('booking_not_found');
     if (governedPharmacy) {
@@ -365,7 +375,14 @@ export class PaymentsService {
       amount = Math.max(0, Math.round((amount - Number(booking.wallet_applied)) * 100) / 100);
     }
     if (amount <= 0) throw new BadRequestException('invalid_amount');
-    const existing: any = await this.txns.findOne({ booking_kind: kind, booking_id: id, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
+    // Q-6: the patient's chosen method is read and checked against what this booking allows. A gateway intent charges a
+    // card (or a card wallet: apple-pay, google-pay, as the web checkout sends); an insurance booking's co-pay keeps its own method. Cash / COD never reach the gateway (owner decision 25).
+    const storedMethod = String(booking.payment_method || 'card').toLowerCase();
+    const CARD_METHODS = ['card', 'apple-pay', 'google-pay'];
+    const normalizedMethod = method ? String(method).toLowerCase() : storedMethod;
+    const allowedMethods = new Set([...CARD_METHODS, ...(storedMethod === 'insurance' ? ['insurance'] : [])]);
+    if (!allowedMethods.has(normalizedMethod)) throw new BadRequestException('invalid_payment_method');
+    const existing: any = await this.txns.findOne({ booking_kind: kind, booking_id: { $eq: id }, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
     if (existing) return this.publicTxn(existing);
 
     // Persist an active reservation before calling the PSP. The partial unique
@@ -373,10 +390,10 @@ export class PaymentsService {
     // live gateway intent for the same booking during an in-flight request.
     let txn: any;
     try {
-      txn = await this.txns.create({ booking_kind: kind, booking_id: id, patient_id: booking.patient_id || booking.patient_account_id, amount, gateway: this.adapter.name, method: booking.payment_method || 'card', status: 'initiating', idempotency_key: requestKey });
+      txn = await this.txns.create({ booking_kind: kind, booking_id: id, patient_id: booking.patient_id || booking.patient_account_id, amount, gateway: this.adapter.name, method: normalizedMethod, status: 'initiating', idempotency_key: requestKey });
     } catch (error: any) {
       if (error?.code === 11000) {
-        const active: any = await this.txns.findOne({ booking_kind: kind, booking_id: id, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
+        const active: any = await this.txns.findOne({ booking_kind: kind, booking_id: { $eq: id }, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
         if (active) return this.publicTxn(active);
       }
       throw error;
@@ -579,12 +596,12 @@ export class PaymentsController {
   @SelfService()
   @Post('intent/:type/:id')
   @UseInterceptors(IdempotencyInterceptor)
-  intent(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Headers('idempotency-key') key: string) { return this.svc.createPaymentIntent(u, t, id, key); }
+  intent(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: IntentMethodDto, @Headers('idempotency-key') key: string) { return this.svc.createPaymentIntent(u, t, id, key, b?.method); }
   @SelfService()
   @Post('intent/diagnostics')
   @UseInterceptors(IdempotencyInterceptor)
-  diagnosticsIntent(@CurrentUser() u: any, @Body() b: { order_id?: string; method?: string }, @Headers('idempotency-key') key: string) {
-    return this.svc.createPaymentIntent(u, 'diagnostics', b.order_id, key);
+  diagnosticsIntent(@CurrentUser() u: any, @Body() b: DiagnosticsIntentDto, @Headers('idempotency-key') key: string) {
+    return this.svc.createPaymentIntent(u, 'diagnostics', b.order_id, key, b.method);
   }
   @SelfService()
   @Post('verify/:txn') verify(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.verifyPayment(u, txn); }

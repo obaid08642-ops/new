@@ -21,6 +21,7 @@ import { PresenceModule } from './modules/presence/presence.module';
 import { OpsModule } from './modules/ops/ops.module';
 import { FeatureFlagsModule } from './modules/feature-flags/feature-flags.module';
 import { MediaModule } from './modules/media/media.module';
+import { ModuleSwitchesModule } from './modules/module-switches/module-switches.module';
 import { MoyasarModule } from './modules/moyasar/moyasar.module';
 import { FinanceEngineModule } from './modules/finance-engine/finance-engine.module';
 import { ConfigModule } from '@nestjs/config';
@@ -159,6 +160,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     OpsModule,
     FeatureFlagsModule,
     MediaModule,
+    ModuleSwitchesModule,
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnvironment }),
     MongooseModule.forRootAsync({
       useFactory: () => ({

@@ -1224,6 +1224,7 @@
   "consult.track.homeDoctor": "طبيب زيارات منزلية",
   "consult.track.minutes": "دقيقة",
   "consult.track.confirmed": "تم تأكيد الطلب",
+  "consult.track.enRoute": "الطبيب في الطريق إليك",
   "consult.track.arrived": "وصل الطبيب إلى موقعك",
   "consult.track.done": "اكتملت الزيارة",
   "consult.track.message": "مراسلة الطبيب",

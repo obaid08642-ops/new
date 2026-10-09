@@ -493,6 +493,9 @@ export class CareService {
       insurance_home: Boolean(d.insurance_home),
       accepted_insurance: Array.isArray(d.accepted_insurance) ? d.accepted_insurance : [],
       clinicPhotos: Array.isArray(d.clinic_images) ? d.clinic_images : [],
+      // Q-20 / D-17: verified only when the admin approved the doctor AND the licence was verified; plus the SCFHS number.
+      verified: d.medical_review_status === 'approved' && d.license_verified === true,
+      scfhs_license_no: d.scfhs_license_number || null,
       next_available_at: nextAvailableAt,
     };
     if (typeof distanceKm === 'number' && Number.isFinite(distanceKm)) publicDoctor.distance_km = Math.round(distanceKm * 10) / 10;

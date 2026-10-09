@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { governedStep } from "@/lib/pharmacy/governed-step";
 
 const record = z.record(z.string(), z.unknown());
 const offerId = z.string().uuid();
@@ -193,7 +194,7 @@ export function extractPatientPharmacyOrderProgress(payload: unknown): PatientPh
   return {
     status: stringValue(source, ["status"]),
     items: orderItems.length ? orderItems : undefined,
-    governedState: stringValue(source, ["governed_state", "governedState"]),
+    governedState: governedStep(stringValue(source, ["governed_state", "governedState"])),
     coverageMode: rawCoverageMode === "cash" || rawCoverageMode === "insurance" ? rawCoverageMode : undefined,
     selectedQuote: parseQuote(source.selected_offer_snapshot, source.selected_offer_hash, source.selected_offer_revision),
     pendingQuote: parseQuote(source.pending_final_quote_snapshot, source.pending_final_quote_hash, source.pending_final_quote_revision),

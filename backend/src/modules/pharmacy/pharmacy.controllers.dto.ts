@@ -118,6 +118,11 @@ export class PaymentIntentDto {
   @IsString()
   idempotency_key?: string;
 
+  @IsOptional()
+  @IsIn(['card', 'apple-pay', 'google-pay', 'insurance'])
+  @IsString()
+  method?: string;
+
 }
 
 export class CancelRejectedInsuranceDto {

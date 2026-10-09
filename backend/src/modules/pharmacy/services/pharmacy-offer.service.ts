@@ -317,6 +317,10 @@ export class PharmacyOfferService {
     const registeredName = profile?.business_name || profile?.legal_name || null;
     const pharmacyNameAr = profile?.display_name_ar || profile?.name_ar || registeredName;
     const pharmacyNameEn = profile?.display_name_en || profile?.name_en || registeredName;
+    // Q-4: no constants. Insurance readiness from the profile (flag, or its accepted insurers); no cash on delivery
+    // (owner decision 25); no delivery-time source exists, so the ETA is null and the clients hide it.
+    const profileInsuranceReady: boolean | null = typeof profile?.insurance_ready === 'boolean' ? profile.insurance_ready
+      : Array.isArray(profile?.accepted_insurance) ? profile.accepted_insurance.length > 0 : null;
     return {
       ...base,
       // Shared governed contract: patient-app reads `lines` + status 'open'.
@@ -339,8 +343,8 @@ export class PharmacyOfferService {
       expires_at: offer.quote_expires_at || null,
       // #512: the server's clock with the expiry, so a client with a wrong clock can still count down correctly.
       server_time: new Date().toISOString(),
-      insurance_ready: true,
-      cod_allowed: true,
+      insurance_ready: profileInsuranceReady,
+      cod_allowed: false,
       quote_revision: Number(offer.version || 1),
       // Deterministic quote hash — identical to the one stored in
       // pricing_snapshot.hash at selection time.
@@ -349,7 +353,7 @@ export class PharmacyOfferService {
         .update(JSON.stringify({ offer_id: offer.id, offer_version: offer.version, totals: offer.totals }))
         .digest('hex'),
       approx_distance_km: approx,
-      approx_delivery: { eta_minutes: 60, label_ar: 'خلال ساعة تقريباً', label_en: 'Approximately within 1 hour' },
+      approx_delivery: { eta_minutes: null, label_ar: null, label_en: null },
       provider_note: typeof offer.provider_note === 'string' ? offer.provider_note : null,
     };
   }

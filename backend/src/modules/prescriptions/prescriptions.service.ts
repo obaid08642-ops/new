@@ -321,22 +321,35 @@ export class PrescriptionsService {
     return this.model.find(query, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100);
   }
 
-  /** Active prescriptions for the patient — everything not dispensed/archived. */
+  /** Active prescriptions for the patient — everything not dispensed/archived.
+   * Q-10: lists never carry the base64 photo; the image comes from GET :id/image. */
   async activeForPatient(user: any) {
     return this.model.find(
       { patient_id: user.id, state: { $nin: [PrescriptionState.DISPENSED, PrescriptionState.ARCHIVED] } },
-      { _id: 0, __v: 0 },
+      { _id: 0, __v: 0, upload_image: 0 },
     ).sort({ createdAt: -1 }).limit(100);
   }
 
   async listMine(patient_id: string) {
-    return this.model.find({ patient_id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100);
+    return this.model.find({ patient_id }, { _id: 0, __v: 0, upload_image: 0 }).sort({ createdAt: -1 }).limit(100);
   }
   async listForDoctor(doctor_id: string) {
-    return this.model.find({ doctor_id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(200);
+    return this.model.find({ doctor_id }, { _id: 0, __v: 0, upload_image: 0 }).sort({ createdAt: -1 }).limit(200);
   }
   async listForPharmacy(pharmacy_id: string) {
-    return this.model.find({ pharmacy_id, state: { $in: [PrescriptionState.SENT_TO_PHARMACY, PrescriptionState.PARTIALLY_EDITED, PrescriptionState.APPROVED] } }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(200);
+    return this.model.find({ pharmacy_id, state: { $in: [PrescriptionState.SENT_TO_PHARMACY, PrescriptionState.PARTIALLY_EDITED, PrescriptionState.APPROVED] } }, { _id: 0, __v: 0, upload_image: 0 }).sort({ createdAt: -1 }).limit(200);
+  }
+
+  /** Q-10: owner-checked photo fetch — only a participant (or privileged admin) gets the bytes. */
+  async getImageForUser(id: string, user: any) {
+    const rx: any = await this.model.findOne({ id }, { _id: 0, __v: 0, id: 1, patient_id: 1, doctor_id: 1, pharmacy_id: 1, upload_image: 1 });
+    if (!rx) throw new NotFoundException();
+    const roles = getEffectiveRoles(user);
+    const hasPrivilegedAdminRole = roles.includes(UserRole.ADMIN) || roles.includes(UserRole.SUPER_ADMIN);
+    const isParticipant = [rx.patient_id, rx.doctor_id, rx.pharmacy_id].filter(Boolean).includes(user?.id);
+    if (!hasPrivilegedAdminRole && !isParticipant) throw new NotFoundException();
+    if (!rx.upload_image) throw new NotFoundException();
+    return { id: rx.id, upload_image: rx.upload_image };
   }
   private async toPatientWebDto(rx: any) {
     let doctor: any = null;

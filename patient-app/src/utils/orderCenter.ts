@@ -16,6 +16,7 @@
  */
 import { SERVICE_ICONS, type FillIconName, type ServiceTone } from '../../../packages/ui/icons/fill';
 import { orderNumber, orderRoute } from './pharmacyCheckout';
+import { governedStep } from './pharmacyOffers';
 import { num } from './pharmacyOffers';
 
 export type OrderKind = 'doctors' | 'pharmacy' | 'labs' | 'radiology' | 'nursing' | 'ambulance' | 'insurance' | 'returns';
@@ -237,7 +238,7 @@ function pharmacyRow(o: Record<string, unknown>): OrderRow | null {
   const snapshot = record(o.pricing_snapshot);
   const total = num(record(snapshot?.totals)?.total);
   const currency = text(record(snapshot?.totals)?.currency);
-  const next = orderRoute({ id, status, governed_state: text(o.governed_state), payment_status: text(o.payment_status), selected_offer_id: text(o.selected_offer_id), payment_method: text(o.payment_method) });
+  const next = orderRoute({ id, status, governed_state: governedStep(o.governed_state), payment_status: text(o.payment_status), selected_offer_id: text(o.selected_offer_id), payment_method: text(o.payment_method) });
   const lower = status.toLowerCase();
   const reorder = REORDERABLE.has(lower);
   return row('pharmacy', o, status, {
