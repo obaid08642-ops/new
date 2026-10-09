@@ -8,6 +8,33 @@ git fetch origin && git show origin/main:docs/review/OPENCODE_PLAN_2026-10-09.md
 
 Everything here overrides the older queue files where they differ.
 
+## Status update, 2026-10-09 evening (read first)
+
+- **Merged since this plan was written** (`main` moved, so start every chunk from a fresh `origin/main`):
+  - #1255, your Q PRs reviewed and merged: D-16, D-17, Q-3, Q-4, Q-6, Q-8, Q-10, Q-15 to Q-22. Your PRs #584–#603 are closed.
+  - #1256, all of §8.
+  - #1254, the design batch.
+- **Not merged:**
+  - Q-2, Q-7 and Q-9 were already fixed on `main`.
+  - **Q-11 was rejected**, and is now OC-A's first chunk (below).
+- **Every issue in §4, §5 and §6 is still open.** Work them as written.
+- **Acceptance specs missing for D-28, D-29, D-30, D-33, D-34, D-35 and D-36:** the lead reviewer writes them first. Until a spec is in `backend/acceptance/d-<n>/` on `main`, skip that D item and do your issue chunks.
+
+### OC-A first chunk: `oc/A-0`, prescription attachments (Q-11 done right)
+- **The problem:**
+  - The writers send prescription **ids** (strings): `patient-web/lib/pharmacy/broadcast.ts` and `patient-app/src/utils/pharmacy-draft.ts`.
+  - The ownership check reads them as strings too: `assertOwnPrescriptionRefs` in `pharmacy-order.service.ts`.
+  - The readers expect `{type, uri}`: `pharmacy-broadcast.service.ts` and the insurance check in `pharmacy-offer.service.ts`.
+  - So an insurance order always fails with `prescription_required_for_insurance_orders`.
+- **Do:**
+  - Keep the DTO accepting strings. Do not change the clients.
+  - When the order is created, after the ownership check, resolve each id to `{type, uri}`: a prescription id becomes its stored image, and a storage id becomes its file. Store that array on the order.
+  - The readers keep `{type, uri}`.
+- **Test, red first:**
+  - An insurance order with an own prescription id passes the insurance check.
+  - Another patient's id is a 404.
+  - The broadcast lists the image.
+
 ## 0. Who does what
 
 | Session | Works on | Base branch | Branch names |
