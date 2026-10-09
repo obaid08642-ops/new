@@ -96,7 +96,7 @@
     "svcHealth": "My health",
     "svcEmergency": "Emergency",
     "aiTitle": "Smart medical assistant",
-    "aiSub": "Describe your symptoms and we suggest the right specialty",
+    "aiSub": "Describe your symptoms and get first guidance",
     "aiStart": "Start chat",
     "aiSymptoms": "Symptom check",
     "aiTranslator": "Prescription translator",

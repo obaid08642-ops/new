@@ -7,7 +7,6 @@ import forms from "@/components-next/consult/consult.module.css";
 type Option = { code: string; name_ar: string; name_en: string; parent_code?: string };
 type Value = { region: string; city: string; district: string };
 
-const API = `${process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus"}/api/v1/locations`;
 
 function readOptions(payload: unknown): Option[] {
   const root = payload && typeof payload === "object" && !Array.isArray(payload) ? (payload as { data?: unknown }) : null;
@@ -36,13 +35,14 @@ export function GeoSelect({ value, onChange, locale }: { value: Value; onChange:
   const name = (option: Option) => (locale === "ar" ? option.name_ar : option.name_en);
 
   useEffect(() => {
-    fetch(`${API}/regions`).then((r) => r.json()).then((d) => setRegions(readOptions(d))).catch(() => undefined);
-    fetch(`${API}/cities`).then((r) => r.json()).then((d) => setAllCities(readOptions(d))).catch(() => undefined);
+    // Same-origin patient proxy, never the API origin from the browser (needs-review issue 780).
+    fetch("/api/patient/locations/regions").then((r) => r.json()).then((d) => setRegions(readOptions(d))).catch(() => undefined);
+    fetch("/api/patient/locations/cities").then((r) => r.json()).then((d) => setAllCities(readOptions(d))).catch(() => undefined);
   }, []);
 
   useEffect(() => {
     if (!value.city) { setDistricts([]); return; }
-    fetch(`${API}/districts?city=${encodeURIComponent(value.city)}`).then((r) => r.json()).then((d) => setDistricts(readOptions(d))).catch(() => undefined);
+    fetch(`/api/patient/locations/districts?city=${encodeURIComponent(value.city)}`).then((r) => r.json()).then((d) => setDistricts(readOptions(d))).catch(() => undefined);
   }, [value.city]);
 
   const cities = value.region ? allCities.filter((city) => city.parent_code === value.region) : [];

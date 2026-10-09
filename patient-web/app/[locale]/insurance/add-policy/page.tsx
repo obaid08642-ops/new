@@ -7,12 +7,16 @@ import { parseCompanies, type CompanyRow } from "@/lib/insurance/view";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { Notice } from "@/components-next/consult/consult-parts";
 import { AddPolicyForm } from "@/components-next/insurance/add-policy-form";
+import { safeNextPath } from "@/lib/auth/safe-next";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ next?: string | string[] }> };
 
 /** Add a policy (canvas/Insurance, the plus button): the insurer is chosen from GET /insurance/companies, then the policy is saved. */
-export default async function InsuranceAddPolicyPage({ params }: Props) {
+export default async function InsuranceAddPolicyPage({ params, searchParams }: Props) {
   const { locale } = await params;
+  // Back to where the policy was asked for (e.g. checkout), only a safe in-app path (needs-review issue 1019).
+  const nextRaw = (await searchParams).next;
+  const returnTo = safeNextPath(Array.isArray(nextRaw) ? nextRaw[0] : nextRaw) ?? undefined;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("InsuranceWeb");
@@ -34,7 +38,7 @@ export default async function InsuranceAddPolicyPage({ params }: Props) {
     <ConsultPage locale={locale} title={t("add.title")} backHref={`/${locale}/insurance`}>
       <Notice>{t("add.lead")}</Notice>
       {failed ? <div role="alert"><Notice warn>{t("add.companiesFailed")}</Notice></div> : null}
-      <AddPolicyForm companies={companies} locale={locale} />
+      <AddPolicyForm companies={companies} locale={locale} returnTo={returnTo} />
     </ConsultPage>
   );
 }
