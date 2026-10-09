@@ -36,6 +36,7 @@ export function RegisterForm({ locale }: { locale: Locale }) {
   const [show, setShow] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [messageOk, setMessageOk] = useState(false); // progress/success text is not drawn as an error
   const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
@@ -48,6 +49,7 @@ export function RegisterForm({ locale }: { locale: Locale }) {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage(null);
+    setMessageOk(false);
     const consents = [
       { policy_id: policyIds.terms, version: policyIds.termsVersion },
       { policy_id: policyIds.privacy, version: policyIds.privacyVersion },
@@ -62,6 +64,7 @@ export function RegisterForm({ locale }: { locale: Locale }) {
       // instead of opening a second account that orphans guest history.
       const looksPhone = /^[+\d][\d\s-]{6,19}$/.test(form.identifier.trim());
       if (isGuest && looksPhone) {
+        setMessageOk(true);
         setMessage(t("converting"));
         const response = await fetch("/api/auth/convert-guest", {
           method: "POST",
@@ -69,9 +72,11 @@ export function RegisterForm({ locale }: { locale: Locale }) {
           body: JSON.stringify({ full_name: form.name.trim(), phone: form.identifier.trim(), password: form.password }),
         });
         if (!response.ok) {
+          setMessageOk(false);
           setMessage(registerErrorMessage(t, response.status));
           return;
         }
+        setMessageOk(true);
         setMessage(t("converted"));
         announceSignedIn(); // the guest account is now a patient: the cart follows
         router.push(`/${locale}`);
@@ -83,12 +88,15 @@ export function RegisterForm({ locale }: { locale: Locale }) {
         body: JSON.stringify({ name: form.name.trim(), identifier: form.identifier.trim(), password: form.password, locale, consents }),
       });
       if (!response.ok) {
-        setMessage(registerErrorMessage(t, response.status));
+        setMessageOk(false);
+          setMessage(registerErrorMessage(t, response.status));
         return;
       }
-      setMessage(t("success"));
+      setMessageOk(true);
+        setMessage(t("success"));
       router.push(`/${locale}/otp`);
     } catch {
+      setMessageOk(false);
       setMessage(t("unavailable"));
     } finally {
       setBusy(false);
@@ -130,7 +138,7 @@ export function RegisterForm({ locale }: { locale: Locale }) {
             })}
           </span>
         </label>
-        {message ? <p className={styles.error} role="alert">{message}</p> : null}
+        {message ? <p className={messageOk ? styles.note : styles.error} role={messageOk ? "status" : "alert"}>{message}</p> : null}
         {isGuest ? <p className={styles.note} role="note">{t("guestNote")}</p> : null}
         <div className={styles.actions}>
           <Button type="submit" variant="primary" size="lg" fullWidth label={busy ? t("busy") : t("submit")} loading={busy} />
