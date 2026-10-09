@@ -4,7 +4,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Appointment, AppointmentDocument, APPT_STATES, APPT_TRANSITIONS, ApptState, ServiceType } from '../../schemas/appointment.schema';
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
-import { UserRole, ProviderType, ProviderStatus } from '../../common/enums';
+import { UserRole, ProviderType, ProviderStatus, SPECIALTY_MASTER } from '../../common/enums';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 import { SlotLocksService } from '../slot-locks/slot-locks.module';
@@ -305,11 +305,17 @@ export class AppointmentsService {
     }
     // Q-17: clients read `consultation_type`; the stored field is `service_type`.
     if (!obj.consultation_type && obj.service_type) obj.consultation_type = obj.service_type;
-    // Fetch doctor info to attach name and specialty
+    // Fetch doctor info to attach name and specialty (Q-19: id + every locale
+    // from SPECIALTY_MASTER, the single source — specialty_ar kept for compat).
     const doctor: any = await this.providerModel.findOne({ id: obj.doctor_id, type: ProviderType.DOCTOR }, { name_ar: 1, specialty_ar: 1, specialty: 1, name: 1, _id: 0 });
     if (doctor) {
       obj.doctor_name = doctor.name_ar || doctor.name;
-      obj.specialty_ar = doctor.specialty_ar || doctor.specialty;
+      const slug = doctor.specialty || doctor.specialty_ar;
+      const entry = SPECIALTY_MASTER.find((s) => s.slug === slug);
+      obj.specialty_id = slug || null;
+      obj.specialty_ar = (entry?.name_ar || doctor.specialty_ar || doctor.specialty) ?? null;
+      obj.specialty_name_ar = entry?.name_ar ?? obj.specialty_ar;
+      obj.specialty_name_en = entry?.name_en ?? null;
     }
 
     
