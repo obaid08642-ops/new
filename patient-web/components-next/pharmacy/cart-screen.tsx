@@ -177,7 +177,10 @@ export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boo
                 <span className={rx.bannerTitle}>{t("rxBannerTitle")}</span>
                 <span className={rx.bannerText}>{t("rxBannerBody")}</span>
               </div>
-              <Link className={rx.bannerAction} href={upload}>{t("rxBannerAction")}</Link>
+              <div className={rx.bannerActions}>
+                <Link className={rx.bannerAction} href={upload}>{t("rxBannerAction")}</Link>
+                <Link className={rx.bannerAction} href={`/${locale}/consultations/specialties`}>{t("rxConsultAction")}</Link>
+              </div>
             </div>
           ) : null}
         </div>

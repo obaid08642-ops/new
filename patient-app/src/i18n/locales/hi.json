@@ -382,6 +382,7 @@
   "pharmacy.cart.rxBannerTitle": "आपके कार्ट में ऐसी दवा है जिसके लिए नुस्खा आवश्यक है",
   "pharmacy.cart.rxBannerBody": "अनुरोध भेजने से पहले नुस्खा अपलोड करें",
   "pharmacy.cart.rxBannerAction": "अपलोड",
+  "pharmacy.cart.rxConsult": "डॉक्टर से सलाह लें",
   "pharmacy.cart.manual": "दवा नहीं मिली? मैन्युअल अनुरोध जोड़ें",
   "pharmacy.cart.note": "कीमतें फ़ार्मेसियों के ऑफ़र से आती हैं। हम आपका अनुरोध पास की फ़ार्मेसियों को भेजते हैं, आप ऑफ़र चुनते हैं, फिर भुगतान करते हैं।",
   "pharmacy.cart.ctaRequest": "फ़ार्मेसी के ऑफ़र मांगें",
