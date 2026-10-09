@@ -2,6 +2,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { Alert } from 'react-native';
 import { router } from 'expo-router';
 import { useSelector } from 'react-redux';
+import { i18nManager } from '../i18n/LanguageManager';
+import { message } from '../components/screen/ScreenKit';
 
 // ---------------------------------------------------------------------------
 // Guest Mode Guard
@@ -47,19 +49,19 @@ export function useGuestGuard(): GuestGuardReturn {
       if (feature && !GUEST_RESTRICTED_FEATURES.has(feature)) return false;
       if (!feature) return false;
 
+      // Copy from the locale files, never written here (needs-review issue 764).
+      const lang = i18nManager.currentLanguage;
       Alert.alert(
-        'مطلوب تسجيل الدخول',
-        feature
-          ? `يجب تسجيل الدخول للوصول إلى ${feature}`
-          : 'يجب تسجيل الدخول لاستخدام هذه الميزة',
+        message(lang, 'guest.loginRequiredTitle'),
+        message(lang, 'guest.loginRequiredBody'),
         [
-          { text: 'إلغاء', style: 'cancel' },
+          { text: message(lang, 'cancel'), style: 'cancel' },
           {
-            text: 'تسجيل الدخول',
+            text: message(lang, 'auth.login'),
             onPress: () => router.push('/(auth)/login'),
           },
           {
-            text: 'إنشاء حساب',
+            text: message(lang, 'auth.createAccount'),
             style: 'default',
             onPress: () => router.push('/(auth)/register'),
           },

@@ -138,8 +138,9 @@ export default function BookingStatusScreen() {
               body: JSON.stringify({ reason: 'patient_cancelled' }),
             });
             setAppointment(updated || { ...appointment, status: 'CANCELLED' });
-          } catch (reason) {
-            showLocalizedAlert(k('consult.status.cancelFailed'), (reason instanceof Error && reason.message) || k('consult.confirm.tryLater'));
+          } catch {
+            // Never the server's raw message (English/codes) (needs-review issue 1054).
+            showLocalizedAlert(k('consult.status.cancelFailed'), k('consult.confirm.tryLater'));
           } finally {
             setCancelling(false);
           }

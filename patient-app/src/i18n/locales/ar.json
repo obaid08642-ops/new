@@ -1209,7 +1209,7 @@
   "consult.summary.notReadyBody": "سيكتب الطبيب ملخص الاستشارة بعد انتهاء الموعد.",
   "consult.summary.loadError": "تعذّر تحميل الملخص",
   "consult.summary.window": "نافذة متابعة {n} يوم",
-  "consult.summary.followUpBody": "أوصى الطبيب بمتابعة خلال {n} أيام. احجز الآن بسعر مخفّض.",
+  "consult.summary.followUpBody": "أوصى الطبيب بمتابعة خلال {n} أيام.",
   "consult.summary.bookFollowUp": "احجز موعد المتابعة",
   "consult.summary.prescription": "الوصفة الطبية",
   "consult.summary.toPharmacy": "إرسال الوصفة لصيدلية",
@@ -3160,5 +3160,7 @@
   "pharmacy.rx.viaUpload": "رفع",
   "pharmacy.rx.viaType": "كتابة الأسماء",
   "pharmacy.rx.zonePhoto": "صوّر الوصفة",
-  "pharmacy.rx.zoneUpload": "اختر الوصفة من صورك"
+  "pharmacy.rx.zoneUpload": "اختر الوصفة من صورك",
+  "guest.loginRequiredTitle": "مطلوب تسجيل الدخول",
+  "guest.loginRequiredBody": "سجّل الدخول لاستخدام هذه الميزة."
 }
