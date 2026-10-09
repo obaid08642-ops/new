@@ -8,7 +8,7 @@ import { UserRole } from '../../common/enums';
 export class SearchIntentController {
   constructor(private readonly intentService: SearchIntentService) {}
 
-  @Public()
+  @UseGuards(JwtAuthGuard)
   @Post()
   async extractIntent(@Body() body: ExtractIntentDto): Promise<ExtractedSearchIntent> {
     return this.intentService.extractIntent(body.query, body.locale || 'ar', body.client_type || 'web', {
