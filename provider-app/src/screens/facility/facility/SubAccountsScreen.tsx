@@ -203,8 +203,8 @@ export function SubAccountsScreen({ onBack, onNavigate }: {
  </View>
 
  {/* Credential Card Preview */}
- <TouchableOpacity onPress={() => show(AR ? 'عرض بطاقة التوثيق' : 'Credential card', 'info')}
- style={[s.credCard, { backgroundColor: theme.surface2, borderColor: theme.border }]}>
+ {/* Needs-review issue 1130: a plain card, not a button; pressing it only showed a toast. */}
+ <View style={[s.credCard, { backgroundColor: theme.surface2, borderColor: theme.border }]}>
  <I name="document" size={16} color={theme.textSub} />
  <View style={{ flex: 1 }}>
  <Text style={{ fontSize: FS.xs, fontWeight: FW.semi, color: theme.text,
@@ -215,10 +215,7 @@ export function SubAccountsScreen({ onBack, onNavigate }: {
  {AR ? 'بيانات الاعتماد تُدار من الخادم' : 'Credentials are managed by the server'}
  </Text>
  </View>
- <Text style={{ color: theme.primary, fontSize: FS.xs }}>
- {AR ? 'عرض ←' : '→ View'}
- </Text>
- </TouchableOpacity>
+ </View>
  </NCard>
  );
  })}

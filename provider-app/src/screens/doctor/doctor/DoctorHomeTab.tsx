@@ -132,7 +132,9 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
   })));
 
  const resToday = await client.get('/provider/jobs/queue?status=active');
- setTodayApts((resToday.data || []).map((x: any) => ({
+ // Needs-review issue 1150: "Today's schedule" keeps only today's visits (and active ones with no time yet).
+ const todayKey = new Date().toDateString();
+ setTodayApts((resToday.data || []).filter((x: any) => !x.scheduled_at || new Date(x.scheduled_at).toDateString() === todayKey).map((x: any) => ({
  id: x.id, patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient'),
      type: x.service_type || 'video', time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (AR ? 'غير محدد' : 'Unscheduled'),
      status: x.status || 'confirmed', price: x.total ?? x.price ?? 0, insurance: x.insurance_provider || 'Cash',

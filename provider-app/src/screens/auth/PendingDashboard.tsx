@@ -47,9 +47,8 @@ export function PendingDashboard({ onExplore, onLogout, providerType, status = '
   const [resubmitting, setResubmitting] = useState(false);
 
   useEffect(() => {
-    // If we have user info, check if email is verified
-    // (Assuming user object has email_verified field)
-    if (user?.email) setEmailVerified(true);
+    // Needs-review issue 1175: only the server's email_verified hides the email OTP card.
+    if (user?.emailVerified) setEmailVerified(true);
   }, [user]);
 
   const sendOtp = async () => {

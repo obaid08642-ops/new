@@ -249,7 +249,8 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  </View>
  <View style={{flexDirection:'row',gap:SP.sm,alignItems:'center'}}>
  <NOnlineToggle value={user?.isOnline??true} onToggle={handleToggleOnline} />
- <TouchableOpacity style={[st.iconBtn,{backgroundColor:theme.surface2}]}><I name="bell" size={20} color={theme.text} /></TouchableOpacity>
+ {/* Needs-review issue 1190: the bell opens the notifications center */}
+ <TouchableOpacity onPress={()=>onNav('notifications')} accessibilityRole="button" accessibilityLabel={AR?'الإشعارات':'Notifications'} style={[st.iconBtn,{backgroundColor:theme.surface2}]}><I name="bell" size={20} color={theme.text} /></TouchableOpacity>
  </View>
  </View>
 
@@ -357,10 +358,14 @@ function NursingOrdersTab({ onNavigate }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
   const [tab, setTab] = useState<'pending'|'active'>('pending');
   const [jobs, setJobs] = useState<any[]>([]);
+  // Needs-review issue 1165: a failed load says so and offers a retry instead of an empty list.
+  const [failed, setFailed] = useState(false);
+  const load = () => {
+    setFailed(false);
+    client.get('/nursing/jobs/active').then(res => setJobs(res.data || [])).catch(() => setFailed(true));
+  };
 
-  useEffect(() => {
-    client.get('/nursing/jobs/active').then(res => setJobs(res.data || []));
-  }, []);
+  useEffect(load, []);
 
   const pending = jobs.filter(j => j.status === 'PENDING' || !j.status);
   const active = jobs.filter(j => j.status !== 'PENDING' && j.status);
@@ -379,6 +384,13 @@ function NursingOrdersTab({ onNavigate }: any) {
           <Text style={{ color: tab === 'active' ? theme.primary : theme.textSub, fontWeight: FW.bold }}>{AR ? 'مؤكدة' : 'Confirmed'}</Text>
         </TouchableOpacity>
       </View>
+
+      {failed && (
+        <NCard style={{ margin: SP.lg, alignItems: 'center', gap: SP.sm }}>
+          <Text style={{ color: theme.text, textAlign: 'center' }}>{AR ? 'تعذر تحميل الطلبات' : 'Could not load orders'}</Text>
+          <NBtn label={AR ? 'إعادة المحاولة' : 'Retry'} size="sm" variant="outline" full={false} onPress={load} />
+        </NCard>
+      )}
 
       {tab === 'pending' && (
         <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>

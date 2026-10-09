@@ -78,7 +78,8 @@ export function HospitalDispatchScreen({ onBack }: { onBack: () => void }) {
  await client.post(`/home-care/bookings/${selectedBooking.id}/assign`, {
  nurse_id: nurse.id,
  nurse_name: nurse.name || nurse.name_ar,
- nurse_phone: nurse.phone || '+966500000000'
+ // Needs-review issue 1126: no made-up phone; nurse_phone is optional on AssignDto
+ ...(nurse.phone ? { nurse_phone: nurse.phone } : {}),
  });
  show(AR ? 'تم تعيين الممرض بنجاح' : 'Nurse assigned successfully', 'success');
  setSelectedBooking(null);

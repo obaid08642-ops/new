@@ -544,7 +544,7 @@ function CatalogManagerTab() {
                   {s.requires_contrast_allergy_check && <View style={{ backgroundColor: withAlpha(tokens.error, 0.20), borderRadius: 4, padding: 2 }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}><I name="syringe" size={10} color={tokens.error} /><Text style={{ fontSize: 8, color: tokens.error }}>Contrast</Text></View></View>}
                 </View>
               </View>
-              <NBtn label={AR ? 'تعديل' : 'Edit'} size="xs" variant="outline" full={false} onPress={() => show(AR ? 'التعديلات تُرسل للمراجعة الإدارية' : 'Edits go through admin review', 'info')} />
+              {/* Needs-review issue 1194: "Edit" only showed a toast; changes go through the add/delta request above. */}
             </View>
           </NCard>
         ))}
