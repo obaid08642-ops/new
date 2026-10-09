@@ -12,36 +12,6 @@
   {
     "batch": "provider",
     "app": "provider-app",
-    "screen": "DoctorServiceManagementScreen",
-    "element": "Service Name (Arabic)",
-    "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-    "line": 276,
-    "found": "[client] Input \"Service Name (Arabic)\" value (newTitleAr) is never used by a request or any logic.",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": "provider",
-    "app": "provider-app",
-    "screen": "DoctorServiceManagementScreen",
-    "element": "Description (Arabic)",
-    "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-    "line": 280,
-    "found": "[client] Input \"Description (Arabic)\" value (newDescAr) is never used by a request or any logic.",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": "provider",
-    "app": "provider-app",
-    "screen": "DoctorServiceManagementScreen",
-    "element": "Description (English)",
-    "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-    "line": 281,
-    "found": "[client] Input \"Description (English)\" value (newDescEn) is never used by a request or any logic.",
-    "suspect": "Client-side: later batch."
-  },
-  {
-    "batch": "provider",
-    "app": "provider-app",
     "screen": "DoctorSettingsTab",
     "element": "API GET /provider/settings/pricing",
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",

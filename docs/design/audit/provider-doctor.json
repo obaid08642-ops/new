@@ -7,6 +7,21 @@
    "route": "AppointmentDetailScreen",
    "elements": [
     [
+     "data: Data newDate",
+     "PATCH /care/appointments/:param/:param → newDate",
+     "ok"
+    ],
+    [
+     "data: Data newTime",
+     "PATCH /care/appointments/:param/:param → newTime",
+     "ok"
+    ],
+    [
+     "data: Data picker",
+     "PATCH /care/appointments/:param/:param → picker",
+     "ok"
+    ],
+    [
      "button: Open consultation",
      "navigate → consultation",
      "ok"
@@ -37,13 +52,13 @@
      "ok"
     ],
     [
-     "input: YYYY-MM-DD",
-     "user input → newDate (local)",
+     "button: Date {newDate.toLocaleDateString(AR }",
+     "local state setPicker",
      "ok"
     ],
     [
-     "input: HH:mm",
-     "user input → newTime (local)",
+     "button: Time {newTime.toLocaleTimeString(AR }",
+     "local state setPicker",
      "ok"
     ],
     [
@@ -388,21 +403,6 @@
    "route": "DoctorServiceManagementScreen",
    "elements": [
     [
-     "input: Service Name (Arabic)",
-     "user input → newTitleAr, value never read",
-     "not wired"
-    ],
-    [
-     "input: Description (Arabic)",
-     "user input → newDescAr, value never read",
-     "not wired"
-    ],
-    [
-     "input: Description (English)",
-     "user input → newDescEn, value never read",
-     "not wired"
-    ],
-    [
      "data: Data newPrice",
      "POST /provider/capabilities/doctor-sessions, GET /provider/capabilities/doctor-sessions → newPrice",
      "ok"
@@ -453,8 +453,8 @@
      "ok"
     ],
     [
-     "input: Service Name (English)",
-     "user input → newTitleEn (local)",
+     "button: {MODE_MAP[k].nameAr}",
+     "local state setNewType",
      "ok"
     ],
     [
@@ -471,7 +471,15 @@
      "button: Add Service",
      "POST /provider/capabilities/doctor-sessions, GET /provider/capabilities/doctor-sessions",
      "ok"
+    ],
+    [
+     "data: List Object.keys(MODE_MAP)",
+     "from Object (prop / derived; not traced)",
+     "ok"
     ]
+   ],
+   "notes": [
+    "1 list(s) fed by a parent prop are not traced across components."
    ]
   },
   {
@@ -1132,30 +1140,6 @@
    "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
    "line": 144,
    "backend": "backend/src/modules/provider-ops/provider-ops.module.ts:743"
-  },
-  {
-   "route": "DoctorServiceManagementScreen",
-   "element": "Service Name (Arabic)",
-   "kind": "client",
-   "note": "Input \"Service Name (Arabic)\" value (newTitleAr) is never used by a request or any logic.",
-   "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-   "line": 276
-  },
-  {
-   "route": "DoctorServiceManagementScreen",
-   "element": "Description (Arabic)",
-   "kind": "client",
-   "note": "Input \"Description (Arabic)\" value (newDescAr) is never used by a request or any logic.",
-   "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-   "line": 280
-  },
-  {
-   "route": "DoctorServiceManagementScreen",
-   "element": "Description (English)",
-   "kind": "client",
-   "note": "Input \"Description (English)\" value (newDescEn) is never used by a request or any logic.",
-   "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
-   "line": 281
   },
   {
    "route": "DoctorSettingsTab",

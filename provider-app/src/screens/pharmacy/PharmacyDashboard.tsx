@@ -44,6 +44,7 @@ import { SP, R, FS, FW, PHARMA_CATS, LIMITS, C, API_BASE } from '../../constants
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
 import { PharmacyInsuranceQueueScreen } from './PharmacyInsuranceDecision';
 import { PharmacyMoreScreen, SetupChecklist } from './PharmacyMore';
+import { PharmacyPrescriptionReviewScreen } from './PharmacyPrescriptionReview';
 import { PharmacyMyOffers } from './PharmacyMyOffers';
 import { PharmacyReturnDetail } from './PharmacyReturnDetail';
 import { buildHeaders, Biometric, SK, Vault } from '../../security/Security';
@@ -144,6 +145,7 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
      <Stack.Screen name="order_history">{({ navigation }: any) => <DispatchWorkflowScreen initialSection="done" onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="pharmacy_settings">{({ navigation }: any) => <SettingsScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="my_offers">{({ navigation }: any) => <PharmacyMyOffers onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="prescription_review">{({ navigation }: any) => <PharmacyPrescriptionReviewScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="returns_rma">{({ navigation }: any) => <ReturnsRMAScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
     <Stack.Screen name="pharmacy_chat">{({ navigation, route }: any) => <PharmacyChatScreen onBack={() => navigation.goBack()} orderId={route.params?.param?.order_id || route.params?.param?.orderId} />}</Stack.Screen>
      <Stack.Screen name="qr_menu">{({ navigation }: any) => <PharmacyQRMenuScreen onBack={() => navigation.goBack()} />}</Stack.Screen>

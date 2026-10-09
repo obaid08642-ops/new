@@ -254,17 +254,29 @@
    "elements": [
     [
      "Screen content",
-     "one hard-coded English title and one button; no data",
-     "placeholder"
+     "GET /provider/jobs/queue?kind=nursing&status=active; row opens order_detail (field ops)",
+     "fixed"
     ],
     [
-     "button: Start Checklist",
+     "button: Retry",
+     "GET /provider/jobs/queue",
+     "ok"
+    ],
+    [
+     "data: List rows",
+     "GET /provider/jobs/queue → rows",
+     "ok"
+    ],
+    [
+     "button: Patient",
+     "navigate → order_detail",
+     "ok"
+    ],
+    [
+     "button: Checklist",
      "navigate → nurse_checklist",
      "ok"
     ]
-   ],
-   "notes": [
-    "No API call at all (static screen or all data comes from a parent)."
    ]
   },
   {
@@ -541,9 +553,9 @@
    "route": "NurseVisitConsole",
    "element": "Screen content",
    "kind": "client",
-   "note": "Stub screen: a hard-coded English title and a single button to the checklist, no visit data.",
+   "note": "Fixed on design/oc-provider: now lists the active visits and opens the field-ops screen (was a stub).",
    "file": "provider-app/src/screens/shared/blueprint/NurseVisitConsole.tsx",
-   "line": 26
+   "line": 35
   },
   {
    "route": "RevenueInsights",
