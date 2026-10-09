@@ -33,6 +33,37 @@ describe('DataTable', () => {
     const empty = new DOMParser().parseFromString(renderToStaticMarkup(<DataTable rows={[]} columns={columns} getRowKey={(r: Row) => r.id} emptyText="فارغ" />), 'text/html');
     expect(empty.querySelector('tr[data-cards-note] td')?.textContent).toBe('فارغ');
   });
+
+  it('supports an expanded row, a footer row, a click handler, bare/dense/ltr, and header classes', () => {
+    const html = renderToStaticMarkup(
+      <DataTable
+        rows={rows}
+        columns={[{ ...columns[0], headerClassName: 'bg-x' }, columns[1]]}
+        getRowKey={(r) => r.id}
+        bare
+        dense
+        dir="ltr"
+        onRowClick={() => undefined}
+        expandedRow={(r) => (r.id === '1' ? <span>extra</span> : null)}
+        footerRow={<b>total</b>}
+      />,
+    );
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    expect(doc.querySelector('table')?.getAttribute('dir')).toBe('ltr');
+    expect(doc.querySelector('div')?.className).not.toContain('shadow-sm');
+    expect(doc.querySelector('th')?.className).toContain('bg-x');
+    expect(doc.querySelector('tbody tr')?.className).toContain('cursor-pointer');
+    const notes = doc.querySelectorAll('tbody tr[data-cards-note]');
+    expect(notes).toHaveLength(2);
+    expect(notes[0].textContent).toBe('extra');
+    expect(notes[1].textContent).toBe('total');
+    expect(doc.querySelectorAll('tbody tr:not([data-cards-note])')).toHaveLength(2);
+  });
+
+  it('hides the footer while loading or empty', () => {
+    const doc = new DOMParser().parseFromString(renderToStaticMarkup(<DataTable rows={[]} columns={columns} getRowKey={(r: Row) => r.id} footerRow={<b>total</b>} />), 'text/html');
+    expect(doc.body.textContent).not.toContain('total');
+  });
 });
 
 describe('annotateTables (legacy tables to cards)', () => {

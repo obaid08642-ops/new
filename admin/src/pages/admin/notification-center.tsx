@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../../utils/api';
 import { dateLocale } from '../../utils/dates';
+import { DataTable, type LooseRow } from '@/components/DataTable';
 
 const SEGMENTS = [  { value: 'all', label: 'جميع المستخدمين' },
   { value: 'patients', label: 'المرضى فقط' },
@@ -318,45 +319,37 @@ export default function NotificationCenterPage() {
         ) : campaigns.length === 0 ? (
           <div className="p-8 text-center text-gray-400">لا توجد حملات بعد</div>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="p-3 text-right">الحملة</th>
-                <th className="p-3 text-right">الفئة</th>
-                <th className="p-3 text-right">الحالة</th>
-                <th className="p-3 text-right">استهدف</th>
-                <th className="p-3 text-right">أُرسل</th>
-                <th className="p-3 text-right">الجدولة</th>
-                <th className="p-3 text-right">إجراءات</th>
-              </tr>
-            </thead>
-            <tbody>
-              {campaigns.map((c: any) => (
-                <tr key={c.id} className="border-t hover:bg-gray-50">
-                  <td className="p-3">
-                    <div className="font-bold">{c.name}</div>
-                    <div className="text-xs text-gray-500">{c.body?.slice(0, 50)}...</div>
-                    {c.deep_link?.route && <div className="text-xs text-blue-500" dir="ltr">{c.deep_link.route}</div>}
-                  </td>
-                  <td className="p-3">{SEGMENTS.find(s => s.value === c.segment)?.label || c.segment}</td>
-                  <td className="p-3">{statusBadge(c.status)}</td>
-                  <td className="p-3">{c.stats?.targeted ?? '—'}</td>
-                  <td className="p-3">{c.stats?.sent ?? '—'}</td>
-                  <td className="p-3 text-xs">{c.scheduled_at ? new Date(c.scheduled_at).toLocaleString(dateLocale()) : '—'}</td>
-                  <td className="p-3">
-                    <div className="flex gap-2">
-                      {(c.status === 'draft' || c.status === 'scheduled') && (
-                        <>
-                          <button onClick={() => sendNow(c.id)} className="text-green-600 hover:underline text-xs">إرسال الآن</button>
-                          <button onClick={() => cancel(c.id)} className="text-red-600 hover:underline text-xs">إلغاء</button>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+            bare
+            dense
+            rows={campaigns as LooseRow[]}
+            getRowKey={(c: LooseRow) => String(c.id)}
+            rowClassName={() => 'hover:bg-gray-50'}
+            columns={[
+              { key: 'name', header: 'الحملة', render: (c: LooseRow) => (
+                <>
+                  <div className="font-bold">{c.name}</div>
+                  <div className="text-xs text-gray-500">{c.body?.slice(0, 50)}...</div>
+                  {c.deep_link?.route && <div className="text-xs text-blue-500" dir="ltr">{c.deep_link.route}</div>}
+                </>
+              ) },
+              { key: 'segment', header: 'الفئة', render: (c: LooseRow) => SEGMENTS.find(s => s.value === c.segment)?.label || c.segment },
+              { key: 'status', header: 'الحالة', render: (c: LooseRow) => statusBadge(c.status) },
+              { key: 'targeted', header: 'استهدف', render: (c: LooseRow) => c.stats?.targeted ?? '—' },
+              { key: 'sent', header: 'أُرسل', render: (c: LooseRow) => c.stats?.sent ?? '—' },
+              { key: 'sched', header: 'الجدولة', className: 'text-xs', render: (c: LooseRow) => (c.scheduled_at ? new Date(c.scheduled_at).toLocaleString(dateLocale()) : '—') },
+              { key: 'actions', header: 'إجراءات', actions: true, render: (c: LooseRow) => (
+                <div className="flex gap-2">
+                  {(c.status === 'draft' || c.status === 'scheduled') && (
+                    <>
+                      <button onClick={() => sendNow(c.id)} className="text-green-600 hover:underline text-xs">إرسال الآن</button>
+                      <button onClick={() => cancel(c.id)} className="text-red-600 hover:underline text-xs">إلغاء</button>
+                    </>
+                  )}
+                </div>
+              ) },
+            ]}
+          />
         )}
       </div>
     </div>

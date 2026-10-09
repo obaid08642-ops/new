@@ -47,6 +47,11 @@
      "ok"
     ],
     [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
+    ],
+    [
      "API: GET /api/admin/admin/finance-engine/commission-rules/history",
      "GET /api/admin/admin/finance-engine/commission-rules/history (OK, backend/src/modules/finance-engine/finance-engine.module.ts:1045)",
      "ok"
@@ -104,6 +109,11 @@
     [
      "button: جارٍ الحفظ… تأكيد القرار",
      "POST /api/admin/admin/disputes/:param/resolve; GET /api/admin/admin/disputes; confirm()",
+     "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
      "ok"
     ]
    ]
@@ -182,6 +192,11 @@
      "ok"
     ],
     [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
+    ],
+    [
      "API: GET /api/admin/admin/finance/reconciliation",
      "GET /api/admin/admin/finance/reconciliation (OK, backend/src/modules/admin/enterprise/admin-finance.controller.ts:41)",
      "ok"
@@ -214,6 +229,11 @@
     [
      "input: 0.00",
      "value item",
+     "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
      "ok"
     ],
     [
@@ -278,6 +298,11 @@
      "button: تراجع",
      "local state",
      "ok"
+    ],
+    [
+     "action: <tr> onClick (in DataTable)",
+     "",
+     "ok"
     ]
    ]
   },
@@ -317,7 +342,7 @@
    "kind": "backend",
    "note": "2 call(s): Page requires \"finance.read\" but POST /admin/finance/commissions/config requires finance.config.edit; an admin role with the page permission only gets a 403 on ",
    "file": "admin/src/pages/admin/finance-suite.tsx",
-   "line": 26,
+   "line": 27,
    "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:35"
   },
   {
@@ -326,7 +351,7 @@
    "kind": "client",
    "note": "Sensitive action (POST /api/admin/admin/finance/withdrawals/:param/execute) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/financial-ledger.tsx",
-   "line": 254
+   "line": 242
   },
   {
    "route": "/admin/financial-ledger",
@@ -334,7 +359,7 @@
    "kind": "backend",
    "note": "1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/finance/withdrawals/:param/execute): every admin role, including a custom restricted one, can run them.",
    "file": "admin/src/pages/admin/financial-ledger.tsx",
-   "line": 111,
+   "line": 112,
    "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:74"
   },
   {
@@ -343,7 +368,7 @@
    "kind": "client",
    "note": "Sensitive action (POST /api/admin/admin/finance/withdrawals/:param/reject) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
    "file": "admin/src/pages/admin/payouts.tsx",
-   "line": 154
+   "line": 144
   },
   {
    "route": "/admin/payouts",
@@ -351,7 +376,7 @@
    "kind": "backend",
    "note": "2 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/finance/withdrawals/:param/execute; POST /api/admin/admin/finance/withdrawals/:param/reject): every admin role, including a custom restricted one, can run them.",
    "file": "admin/src/pages/admin/payouts.tsx",
-   "line": 49,
+   "line": 50,
    "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:74"
   }
  ]

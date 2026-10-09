@@ -1,5 +1,5 @@
 {
- "commit": "5c2b4856",
+ "commit": "17f64b2a",
  "routes": [
   {
    "app": "patient-app",
@@ -3777,7 +3777,7 @@
      "path": "/care/appointments",
      "target": "backend",
      "query": "",
-     "line": 38,
+     "line": 41,
      "file": "patient-app/app/insurance/submit-claim.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:21"
@@ -3787,7 +3787,7 @@
      "path": "/home-care/bookings/my",
      "target": "backend",
      "query": "",
-     "line": 43,
+     "line": 46,
      "file": "patient-app/app/insurance/submit-claim.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:159"
@@ -3797,7 +3797,7 @@
      "path": "/insurance/claims/submit",
      "target": "backend",
      "query": "",
-     "line": 91,
+     "line": 100,
      "file": "patient-app/app/insurance/submit-claim.tsx",
      "status": "OK",
      "backend": "backend/src/modules/insurance/insurance.module.ts:671"
@@ -3807,7 +3807,7 @@
      "path": "/labs/bookings/mine",
      "target": "backend",
      "query": "",
-     "line": 41,
+     "line": 44,
      "file": "patient-app/app/insurance/submit-claim.tsx",
      "status": "OK",
      "backend": "backend/src/modules/labs/labs.controller.ts:46"
@@ -3817,7 +3817,7 @@
      "path": "/media/upload",
      "target": "backend",
      "query": "",
-     "line": 71,
+     "line": 80,
      "file": "patient-app/app/insurance/submit-claim.tsx",
      "status": "OK",
      "backend": "backend/src/modules/media/media.controller.ts:22"
@@ -3827,7 +3827,7 @@
      "path": "/orders/mine",
      "target": "backend",
      "query": "",
-     "line": 39,
+     "line": 42,
      "file": "patient-app/app/insurance/submit-claim.tsx",
      "status": "OK",
      "backend": "backend/src/modules/orders/orders.controller.ts:23"
@@ -3837,7 +3837,7 @@
      "path": "/patient/pharmacy/orders",
      "target": "backend",
      "query": "",
-     "line": 40,
+     "line": 43,
      "file": "patient-app/app/insurance/submit-claim.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:35"
@@ -3847,7 +3847,7 @@
      "path": "/radiology/bookings/mine",
      "target": "backend",
      "query": "",
-     "line": 42,
+     "line": 45,
      "file": "patient-app/app/insurance/submit-claim.tsx",
      "status": "OK",
      "backend": "backend/src/modules/radiology/radiology.controller.ts:49"
@@ -4286,7 +4286,7 @@
      "path": "/mental-health/mood",
      "target": "backend",
      "query": "?days=30",
-     "line": 60,
+     "line": 61,
      "file": "patient-app/src/components/care/MentalHealthViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/mental-health/mental-health.controller.ts:33"
@@ -4296,7 +4296,7 @@
      "path": "/mental-health/mood",
      "target": "backend",
      "query": "",
-     "line": 79,
+     "line": 80,
      "file": "patient-app/src/components/care/MentalHealthViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/mental-health/mental-health.controller.ts:23"
@@ -6078,7 +6078,7 @@
    "batch": 13,
    "status": "n/a",
    "calls": [],
-   "files": 17,
+   "files": 19,
    "unresolved": 0
   },
   {
@@ -13632,7 +13632,7 @@
      "path": "/auth/me",
      "target": "backend",
      "query": "",
-     "line": 41,
+     "line": 44,
      "file": "patient-web/app/[locale]/profile/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:211"
@@ -13642,7 +13642,7 @@
      "path": "/medical-profile",
      "target": "backend",
      "query": "",
-     "line": 42,
+     "line": 45,
      "file": "patient-web/app/[locale]/profile/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:14"
@@ -13652,7 +13652,7 @@
      "path": "/users/me/insurance",
      "target": "backend",
      "query": "",
-     "line": 43,
+     "line": 46,
      "file": "patient-web/app/[locale]/profile/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.insurance.controller.ts:42"

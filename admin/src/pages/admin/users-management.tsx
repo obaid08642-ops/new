@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { apiFetch } from '../../utils/api';
 import ProviderFullDetail from '../../components/ProviderFullDetail';
 import { GeoPicker } from "../../components/GeoPicker";
+import { DataTable, type LooseRow } from '@/components/DataTable';
 
 const ROLE_LABELS: Record<string, string> = {
   patient: 'مريض',
@@ -255,87 +256,71 @@ export default function UsersManagementPage() {
         <div className="p-8 text-center text-gray-500">جاري التحميل...</div>
       ) : (
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الاسم</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الهاتف / البريد</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الدور</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الحالة</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الإجراءات</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {visibleUsers.map((u) => {
-                const id = u.id || u._id;
+          <DataTable
+            bare
+            rows={visibleUsers}
+            getRowKey={(u) => String(u.id || u._id)}
+            emptyText="لا يوجد مستخدمين مطابقين."
+            columns={[
+              { key: 'name', header: 'الاسم', className: 'font-medium text-gray-900', render: (u) => (
+                <>
+                  {u.full_name || u.name || 'مستخدم'}
+                  {u.is_guest && <span className="ms-2 text-xs text-gray-400">(زائر)</span>}
+                </>
+              ) },
+              { key: 'contact', header: 'الهاتف / البريد', className: 'text-gray-500', render: (u) => <span dir="ltr">{u.phone || u.email || '-'}</span> },
+              { key: 'role', header: 'الدور', className: 'text-gray-500', render: (u) => ROLE_LABELS[String(u.role || 'patient').toLowerCase()] || u.role || 'مريض' },
+              { key: 'status', header: 'الحالة', render: (u) => {
                 const st = statusOf(u);
-                const suspended = st.key === 'suspended';
-                const isAdmin = u.role === 'admin' || u.role === 'super_admin';
                 return (
-                  <tr key={id}>
-                    <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                      {u.full_name || u.name || 'مستخدم'}
-                      {u.is_guest && <span className="ms-2 text-xs text-gray-400">(زائر)</span>}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-500" dir="ltr">
-                      {u.phone || u.email || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                      {ROLE_LABELS[String(u.role || 'patient').toLowerCase()] || u.role || 'مريض'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${st.cls}`}>
-                        {st.label}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      {isAdmin ? (
-                        <span className="text-gray-400 text-xs">محمي</span>
-                      ) : (
-                        <div className="flex gap-3">
-                          <button
-                            onClick={() => openUserFile(u)}
-                            className="text-teal-700 hover:text-teal-900 font-bold"
-                          >
-                            عرض الملف
-                          </button>
-                          {suspended ? (
-                            <button
-                              onClick={() => handleReactivate(u)}
-                              disabled={actionBusy === id}
-                              className="text-green-600 hover:text-green-900 font-bold disabled:opacity-50"
-                            >
-                              إعادة تفعيل
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => handleSuspend(u)}
-                              disabled={actionBusy === id}
-                              className="text-amber-600 hover:text-amber-900 font-bold disabled:opacity-50"
-                            >
-                              تعليق / إيقاف
-                            </button>
-                          )}
-                          <button
-                            onClick={() => handleDelete(u)}
-                            disabled={actionBusy === id}
-                            className="text-red-600 hover:text-red-900 font-bold disabled:opacity-50"
-                          >
-                            حذف نهائي
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${st.cls}`}>
+                    {st.label}
+                  </span>
                 );
-              })}
-              {visibleUsers.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">لا يوجد مستخدمين مطابقين.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+              } },
+              { key: 'actions', header: 'الإجراءات', actions: true, className: 'text-sm font-medium', render: (u) => {
+                const id = u.id || u._id;
+                const suspended = statusOf(u).key === 'suspended';
+                const isAdmin = u.role === 'admin' || u.role === 'super_admin';
+                return isAdmin ? (
+                  <span className="text-gray-400 text-xs">محمي</span>
+                ) : (
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      onClick={() => openUserFile(u)}
+                      className="text-teal-700 hover:text-teal-900 font-bold"
+                    >
+                      عرض الملف
+                    </button>
+                    {suspended ? (
+                      <button
+                        onClick={() => handleReactivate(u)}
+                        disabled={actionBusy === id}
+                        className="text-green-600 hover:text-green-900 font-bold disabled:opacity-50"
+                      >
+                        إعادة تفعيل
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleSuspend(u)}
+                        disabled={actionBusy === id}
+                        className="text-amber-600 hover:text-amber-900 font-bold disabled:opacity-50"
+                      >
+                        تعليق / إيقاف
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDelete(u)}
+                      disabled={actionBusy === id}
+                      className="text-red-600 hover:text-red-900 font-bold disabled:opacity-50"
+                    >
+                      حذف نهائي
+                    </button>
+                  </div>
+                );
+              } },
+            ]}
+          />
         </div>
       )}
 
@@ -422,19 +407,18 @@ export default function UsersManagementPage() {
                     <div className="px-4 pb-4">
                       <p className="text-sm font-bold text-gray-500 mb-2">أحدث المواعيد / الطلبات</p>
                       <div className="border border-gray-200 rounded-lg overflow-hidden">
-                        <table className="min-w-full text-xs">
-                          <thead className="bg-slate-50 text-slate-500"><tr><th className="px-2 py-1.5 text-right">النوع</th><th className="px-2 py-1.5 text-right">الحالة</th><th className="px-2 py-1.5 text-right">السعر</th><th className="px-2 py-1.5 text-right">التاريخ</th></tr></thead>
-                          <tbody className="divide-y divide-gray-100">
-                            {userOverview.activity.recent_appointments.slice(0, 10).map((a: any) => (
-                              <tr key={a.id}>
-                                <td className="px-2 py-1.5">{a.type || '—'}</td>
-                                <td className="px-2 py-1.5 font-bold">{a.status || a.state || '—'}</td>
-                                <td className="px-2 py-1.5" dir="ltr">{a.price ?? a.fee ?? '—'}</td>
-                                <td className="px-2 py-1.5 font-mono" dir="ltr">{String(a.createdAt || '').slice(0, 10)}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                        <DataTable
+                          bare
+                          dense
+                          rows={userOverview.activity.recent_appointments.slice(0, 10)}
+                          getRowKey={(a: LooseRow) => String(a.id)}
+                          columns={[
+                            { key: 'type', header: 'النوع', render: (a: LooseRow) => a.type || '—' },
+                            { key: 'status', header: 'الحالة', className: 'font-bold', render: (a: LooseRow) => a.status || a.state || '—' },
+                            { key: 'price', header: 'السعر', render: (a: LooseRow) => <span dir="ltr">{a.price ?? a.fee ?? '—'}</span> },
+                            { key: 'date', header: 'التاريخ', className: 'font-mono', render: (a: LooseRow) => <span dir="ltr">{String(a.createdAt || '').slice(0, 10)}</span> },
+                          ]}
+                        />
                       </div>
                     </div>
                   )}

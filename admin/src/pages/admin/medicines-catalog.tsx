@@ -2,6 +2,10 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
 import { dateLocale } from '../../utils/dates';
+import { DataTable, type LooseRow, type LooseValue } from '@/components/DataTable';
+import { BarcodeScanner, canScanWithCamera } from '@/components/BarcodeScanner';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { MedicineQuickEdit, SensitiveChangeList, isPublished, sensitiveChanges, type SensitiveChange } from '@/components/MedicineQuickEdit';
 
 /**
  * Unified medicines catalog manager:
@@ -75,6 +79,12 @@ export default function MedicinesCatalogPage() {
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [imgBusy, setImgBusy] = useState(false);
 
+  // quick edit sheet, barcode scan, confirmation of sensitive changes made in the full form
+  const [quickItem, setQuickItem] = useState<LooseRow | null>(null);
+  const [scanOpen, setScanOpen] = useState(false);
+  const [scanNote, setScanNote] = useState('');
+  const [formConfirm, setFormConfirm] = useState<{ changes: SensitiveChange[]; published: boolean; run: () => Promise<void> } | null>(null);
+
   // change requests
   const [requests, setRequests] = useState<any[]>([]);
   const [reqStatus, setReqStatus] = useState('pending');
@@ -123,6 +133,27 @@ export default function MedicinesCatalogPage() {
     if (tab === 'reports') loadReports();
   }, [tab, loadCatalog, loadRequests, loadReports]);
 
+  // Camera scan: the public lookup route normalises the scanned code (GS1 strings...); the admin catalogue search
+  // (name, ingredient, barcode...) then finds the item, published or not.
+  const handleScanned = useCallback(async (code: string) => {
+    setScanOpen(false);
+    setScanNote('');
+    let candidates = [code];
+    try {
+      const looked = await apiFetch('/medicines/lookup-barcode', { method: 'POST', body: JSON.stringify({ code }) });
+      if (Array.isArray(looked?.codes_tried)) candidates = [code, ...looked.codes_tried.filter((c: string) => c !== code)];
+    } catch { /* the typed code is still searched as it is */ }
+    for (const candidate of candidates) {
+      try {
+        const res = await apiFetch(`/medicines/admin/catalog?q=${encodeURIComponent(candidate)}&page=1&limit=1&include_deleted=1`);
+        if ((res?.data || []).length) { setQ(candidate); setPage(1); return; }
+      } catch { /* try the next candidate */ }
+    }
+    setQ(code);
+    setPage(1);
+    setScanNote(`لا يوجد صنف بالباركود ${code}.`);
+  }, []);
+
   const openCreate = () => { setForm(EMPTY_FORM); setImageUrls([]); setEditId(null); setFormMode('create'); };
   const openEdit = (m: any) => {
     setForm({
@@ -154,26 +185,35 @@ export default function MedicinesCatalogPage() {
     // Backend requires `reason` (>=5 chars) when price changes on PATCH; for POST it logs price history.
     if (form.reason && String(form.reason).trim()) payload.reason = String(form.reason).trim();
     else if (formMode === 'create') payload.reason = 'إنشاء صنف جديد عبر واجهة الإدارة';
-    setBusy('form');
-    try {
-      if (formMode === 'create') {
-        await apiFetch('/medicines/admin/catalog', { method: 'POST', body: JSON.stringify(payload) });
-      } else if (editId) {
-        // Enforce reason when price differs to avoid 400 price_change_reason_required
-        const original = items.find((x: any) => x.id === editId);
-        const priceChanged = original && Number(original.price || 0) !== Number(payload.price || 0);
-        if (priceChanged && (!payload.reason || String(payload.reason).trim().length < 5)) {
-          alert('سبب تغيير السعر مطلوب (5 أحرف على الأقل) — يلزم لتدقيق حوكمة الأسعار.');
-          setBusy(null);
-          return;
+    const commit = async () => {
+      setBusy('form');
+      try {
+        if (formMode === 'create') {
+          await apiFetch('/medicines/admin/catalog', { method: 'POST', body: JSON.stringify(payload) });
+        } else if (editId) {
+          await apiFetch(`/medicines/admin/catalog/${editId}`, { method: 'PATCH', body: JSON.stringify(payload) });
         }
-        await apiFetch(`/medicines/admin/catalog/${editId}`, { method: 'PATCH', body: JSON.stringify(payload) });
+        setFormMode('closed');
+        setFormConfirm(null);
+        await loadCatalog();
+      } catch (e: any) {
+        setFormConfirm(null);
+        alert(`فشل الحفظ: ${e?.message || ''}`);
+      } finally { setBusy(null); }
+    };
+    if (formMode === 'edit' && editId) {
+      const original = items.find((x: any) => x.id === editId);
+      // Enforce reason when price differs to avoid 400 price_change_reason_required
+      const priceChanged = original && Number(original.price || 0) !== Number(payload.price || 0);
+      if (priceChanged && (!payload.reason || String(payload.reason).trim().length < 5)) {
+        alert('سبب تغيير السعر مطلوب (5 أحرف على الأقل) — يلزم لتدقيق حوكمة الأسعار.');
+        return;
       }
-      setFormMode('closed');
-      await loadCatalog();
-    } catch (e: any) {
-      alert(`فشل الحفظ: ${e?.message || ''}`);
-    } finally { setBusy(null); }
+      // Price / prescription changes ask for confirmation (old -> new) before they are saved.
+      const changes = original ? sensitiveChanges(original, { price: payload.price, requires_prescription: !!payload.requires_prescription }) : [];
+      if (changes.length) { setFormConfirm({ changes, published: isPublished(original), run: commit }); return; }
+    }
+    await commit();
   };
 
   const softDelete = async (m: any, restore = false) => {
@@ -267,13 +307,18 @@ export default function MedicinesCatalogPage() {
         {tab === 'catalog' && (
           <>
             <div className="flex flex-wrap gap-3 items-center">
-              <input value={q} onChange={e => { setQ(e.target.value); setPage(1); }} placeholder="بحث بالاسم / المادة الفعالة / الباركود / الشركة..." className="border rounded px-4 py-2 w-80" />
+              <input value={q} onChange={e => { setQ(e.target.value); setPage(1); setScanNote(''); }} placeholder="بحث بالاسم / المادة الفعالة / الباركود / الشركة..." className="border rounded px-4 py-2 w-80 max-w-full" />
+              <button type="button" onClick={() => setScanOpen(true)} className="border border-slate-300 bg-white rounded-lg px-4 py-2 text-sm font-bold text-slate-700" aria-label={canScanWithCamera() ? 'مسح الباركود بالكاميرا' : 'إدخال الباركود'}>
+                {canScanWithCamera() ? 'مسح الباركود' : 'إدخال باركود'}
+              </button>
               <input value={category} onChange={e => { setCategory(e.target.value); setPage(1); }} placeholder="الفئة (اختياري)" className="border rounded px-3 py-2 w-48" />
               <label className="flex items-center gap-2 text-sm text-slate-600">
                 <input type="checkbox" checked={includeDeleted} onChange={e => setIncludeDeleted(e.target.checked)} /> إظهار المحذوفة
               </label>
               <button onClick={openCreate} className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-5 py-2 rounded-lg ms-auto">+ إضافة صنف جديد</button>
             </div>
+
+            {scanNote && <p role="status" className="text-sm text-amber-700">{scanNote}</p>}
 
             {formMode !== 'closed' && (
               <div className="bg-white rounded-xl border-2 border-teal-500 p-5 space-y-4">
@@ -361,57 +406,53 @@ export default function MedicinesCatalogPage() {
               <div className="p-8 text-center text-slate-500">جاري التحميل...</div>
             ) : (
               <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                <table className="w-full text-right text-sm">
-                  <thead className="bg-slate-50 text-xs text-slate-500">
-                    <tr>
-                      <th className="p-3">الصنف</th>
-                      <th className="p-3">الفئة</th>
-                      <th className="p-3">المادة الفعالة</th>
-                      <th className="p-3">السعر</th>
-                      <th className="p-3">الشعار</th>
-                      <th className="p-3">إجراءات</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {items.map((m: any) => {
+                <DataTable
+                  bare
+                  dense
+                  rows={items as LooseRow[]}
+                  getRowKey={(m: LooseRow) => String(m.id)}
+                  emptyText="لا توجد أصناف مطابقة."
+                  rowClassName={(m: LooseRow) => (m.is_deleted ? 'opacity-50 bg-red-50/40' : 'hover:bg-slate-50')}
+                  columns={[
+                    { key: 'name', header: 'الصنف', render: (m: LooseRow) => (
+                      <>
+                        <div className="font-bold">{m.name_ar || m.name_en}</div>
+                        <div className="text-xs text-slate-400" dir="ltr">{m.name_en} {m.requires_prescription ? '· Rx' : ''}</div>
+                      </>
+                    ) },
+                    { key: 'category', header: 'الفئة', className: 'text-xs', render: (m: LooseRow) => <>{m.category}{m.sub_category ? ` / ${m.sub_category}` : ''}</> },
+                    { key: 'ingredient', header: 'المادة الفعالة', className: 'text-xs', render: (m: LooseRow) => <span dir="ltr">{m.active_ingredient || '—'}</span> },
+                    { key: 'price', header: 'السعر', className: 'font-bold', render: (m: LooseRow) => <span dir="ltr">{m.price ?? '—'}</span> },
+                    { key: 'badge', header: 'الشعار', render: (m: LooseRow) => {
                       const flagged = m.availability_status === 'admin_flagged_shortage' || m.availability_status === 'availability_may_be_limited';
+                      return (
+                        <button onClick={() => toggleBadge(m)} disabled={busy === m.id}
+                          className={`text-xs font-bold px-2 py-1 rounded-full border ${flagged ? 'bg-amber-100 text-amber-700 border-amber-300' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+                          {flagged ? 'قد يكون غير متوفر ✓' : 'تفعيل شعار النقص'}
+                        </button>
+                      );
+                    } },
+                    { key: 'actions', header: 'إجراءات', actions: true, render: (m: LooseRow) => {
                       const deleted = !!m.is_deleted;
                       return (
-                        <tr key={m.id} className={deleted ? 'opacity-50 bg-red-50/40' : 'hover:bg-slate-50'}>
-                          <td className="p-3">
-                            <div className="font-bold">{m.name_ar || m.name_en}</div>
-                            <div className="text-xs text-slate-400" dir="ltr">{m.name_en} {m.requires_prescription ? '· Rx' : ''}</div>
-                          </td>
-                          <td className="p-3 text-xs">{m.category}{m.sub_category ? ` / ${m.sub_category}` : ''}</td>
-                          <td className="p-3 text-xs" dir="ltr">{m.active_ingredient || '—'}</td>
-                          <td className="p-3 font-bold" dir="ltr">{m.price ?? '—'}</td>
-                          <td className="p-3">
-                            <button onClick={() => toggleBadge(m)} disabled={busy === m.id}
-                              className={`text-xs font-bold px-2 py-1 rounded-full border ${flagged ? 'bg-amber-100 text-amber-700 border-amber-300' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
-                              {flagged ? 'قد يكون غير متوفر ✓' : 'تفعيل شعار النقص'}
-                            </button>
-                          </td>
-                          <td className="p-3">
-                            <div className="flex gap-2">
-                              <button onClick={() => openEdit(m)} className="text-teal-700 font-bold text-xs">تعديل</button>
-                              {m.medical_review_status === 'approved' ? (
-                                <button onClick={() => decideItem(m, false)} disabled={busy === m.id} className="text-amber-700 font-bold text-xs">رفض</button>
-                              ) : (
-                                <button onClick={() => decideItem(m, true)} disabled={busy === m.id} className="text-green-700 font-bold text-xs">اعتماد</button>
-                              )}
-                              {deleted ? (
-                                <button onClick={() => softDelete(m, true)} disabled={busy === m.id} className="text-green-700 font-bold text-xs">استرجاع</button>
-                              ) : (
-                                <button onClick={() => softDelete(m)} disabled={busy === m.id} className="text-red-600 font-bold text-xs">حذف</button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
+                        <div className="flex gap-2">
+                          <button onClick={() => setQuickItem(m)} className="text-teal-700 font-bold text-xs">تعديل سريع</button>
+                          <button onClick={() => openEdit(m)} className="text-teal-700 font-bold text-xs">تعديل</button>
+                          {m.medical_review_status === 'approved' ? (
+                            <button onClick={() => decideItem(m, false)} disabled={busy === m.id} className="text-amber-700 font-bold text-xs">رفض</button>
+                          ) : (
+                            <button onClick={() => decideItem(m, true)} disabled={busy === m.id} className="text-green-700 font-bold text-xs">اعتماد</button>
+                          )}
+                          {deleted ? (
+                            <button onClick={() => softDelete(m, true)} disabled={busy === m.id} className="text-green-700 font-bold text-xs">استرجاع</button>
+                          ) : (
+                            <button onClick={() => softDelete(m)} disabled={busy === m.id} className="text-red-600 font-bold text-xs">حذف</button>
+                          )}
+                        </div>
                       );
-                    })}
-                    {items.length === 0 && <tr><td colSpan={6} className="p-8 text-center text-slate-400">لا توجد أصناف مطابقة.</td></tr>}
-                  </tbody>
-                </table>
+                    } },
+                  ]}
+                />
                 <div className="flex justify-between items-center p-3 border-t border-slate-100 text-sm">
                   <span className="text-slate-500">صفحة {page} من {pages}</span>
                   <div className="flex gap-2">
@@ -453,40 +494,41 @@ export default function MedicinesCatalogPage() {
                             {reqStatus === 'pending' && (r.type === 'field_edit' || r.type === 'new_item') && (
                               <div className="bg-teal-50 text-teal-800 text-[11px] font-bold px-2 py-1">يمكنك تحديد حقول بعينها للاعتماد وتعديل القيمة المقترحة قبل الاعتماد</div>
                             )}
-                            <table className="min-w-full text-xs">
-                              <thead className="bg-slate-100 text-slate-500">
-                                <tr>{reqStatus === 'pending' && (r.type === 'field_edit' || r.type === 'new_item') && <th className="px-2 py-1">اعتماد؟</th>}<th className="px-2 py-1 text-right">الحقل</th><th className="px-2 py-1 text-right">الحالية</th><th className="px-2 py-1 text-right">المقترحة</th></tr>
-                              </thead>
-                              <tbody className="divide-y divide-slate-100">
-                                {Object.entries(r.changes || r.payload).map(([k, v]: [string, any]) => {
+                            <DataTable
+                              bare
+                              dense
+                              rows={Object.entries(r.changes || r.payload) as [string, LooseValue][]}
+                              getRowKey={([k]) => k}
+                              rowClassName={([k]) => {
+                                const editable = reqStatus === 'pending' && (r.type === 'field_edit' || r.type === 'new_item');
+                                return editable && fieldSel[r.id || r._id]?.[k] === false ? 'opacity-40' : '';
+                              }}
+                              columns={[
+                                ...(reqStatus === 'pending' && (r.type === 'field_edit' || r.type === 'new_item') ? [{
+                                  key: 'sel', header: 'اعتماد؟', className: 'text-center',
+                                  render: ([k]: [string, LooseValue]) => {
+                                    const rid = r.id || r._id;
+                                    const checked = fieldSel[rid]?.[k] !== false;
+                                    return <input type="checkbox" checked={checked} onChange={(e) => setFieldSel(prev => ({ ...prev, [rid]: { ...(prev[rid] || {}), [k]: e.target.checked } }))} />;
+                                  },
+                                }] : []),
+                                { key: 'field', header: 'الحقل', className: 'font-mono text-slate-500', render: ([k]: [string, LooseValue]) => <span dir="ltr">{k}</span> },
+                                { key: 'current', header: 'الحالية', className: 'text-slate-600 break-all max-w-[220px]', render: ([k]: [string, LooseValue]) => (r.current_values?.[k] !== null && r.current_values?.[k] !== undefined ? String(r.current_values[k]).slice(0, 160) : '—') },
+                                { key: 'proposed', header: 'المقترحة', className: 'font-bold text-emerald-700 break-all max-w-[220px]', render: ([k, v]: [string, LooseValue]) => {
                                   const rid = r.id || r._id;
                                   const editable = reqStatus === 'pending' && (r.type === 'field_edit' || r.type === 'new_item');
-                                  const checked = fieldSel[rid]?.[k] !== false;
                                   const ov = overrides[rid]?.[k];
-                                  return (
-                                  <tr key={k} className={editable && !checked ? 'opacity-40' : ''}>
-                                    {editable && (
-                                      <td className="px-2 py-1 text-center">
-                                        <input type="checkbox" checked={checked} onChange={(e) => setFieldSel(prev => ({ ...prev, [rid]: { ...(prev[rid] || {}), [k]: e.target.checked } }))} />
-                                      </td>
-                                    )}
-                                    <td className="px-2 py-1 font-mono text-slate-500" dir="ltr">{k}</td>
-                                    <td className="px-2 py-1 text-slate-600 break-all max-w-[220px]">{r.current_values?.[k] !== null && r.current_values?.[k] !== undefined ? String(r.current_values[k]).slice(0, 160) : '—'}</td>
-                                    <td className="px-2 py-1 font-bold text-emerald-700 break-all max-w-[220px]">
-                                      {editable ? (
-                                        <input
-                                          value={ov !== undefined ? String(ov) : (typeof v === 'object' ? JSON.stringify(v) : String(v))}
-                                          onChange={(e) => setOverrides(prev => ({ ...prev, [rid]: { ...(prev[rid] || {}), [k]: e.target.value } }))}
-                                          className="border border-emerald-200 rounded px-1.5 py-0.5 w-full text-xs font-bold text-emerald-700 bg-white"
-                                          dir="auto"
-                                        />
-                                      ) : (typeof v === 'object' ? JSON.stringify(v) : String(v).slice(0, 160))}
-                                    </td>
-                                  </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
+                                  return editable ? (
+                                    <input
+                                      value={ov !== undefined ? String(ov) : (typeof v === 'object' ? JSON.stringify(v) : String(v))}
+                                      onChange={(e) => setOverrides(prev => ({ ...prev, [rid]: { ...(prev[rid] || {}), [k]: e.target.value } }))}
+                                      className="border border-emerald-200 rounded px-1.5 py-0.5 w-full text-xs font-bold text-emerald-700 bg-white"
+                                      dir="auto"
+                                    />
+                                  ) : (typeof v === 'object' ? JSON.stringify(v) : String(v).slice(0, 160));
+                                } },
+                              ]}
+                            />
                           </div>
                         ) : (r.changes || r.payload) ? (
                           <pre className="mt-2 text-xs bg-slate-50 rounded p-2 overflow-x-auto" dir="ltr">{JSON.stringify(r.changes || r.payload, null, 2).slice(0, 600)}</pre>
@@ -546,6 +588,19 @@ export default function MedicinesCatalogPage() {
           )
         )}
       </div>
+
+      {scanOpen && <BarcodeScanner onCode={handleScanned} onClose={() => setScanOpen(false)} />}
+      {quickItem && <MedicineQuickEdit medicine={quickItem} onClose={() => setQuickItem(null)} onSaved={loadCatalog} />}
+      <ConfirmDialog
+        open={!!formConfirm}
+        title="تأكيد التغيير"
+        confirmLabel="نعم، احفظ"
+        busy={busy === 'form'}
+        onConfirm={() => void formConfirm?.run()}
+        onCancel={() => setFormConfirm(null)}
+      >
+        {formConfirm && <SensitiveChangeList changes={formConfirm.changes} published={formConfirm.published} />}
+      </ConfirmDialog>
     </>
   );
 }

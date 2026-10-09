@@ -5,7 +5,7 @@
     "screen": "/admin/catalog-governance",
     "element": "Guard G-PERM-MISMATCH (3)",
     "file": "admin/src/pages/admin/catalog-governance.tsx",
-    "line": 78,
+    "line": 79,
     "found": "[backend] 3 call(s): Page requires \"catalog.read\" but PATCH /medicines/admin/catalog/:param requires catalog.update + catalog.price.write; an admin role with the page permission onl (backend: backend/src/modules/medicines/medicines.controller.ts:235)",
     "suspect": "Backend gap: reviewer session."
   },
@@ -15,8 +15,8 @@
     "screen": "/admin/catalog-manager",
     "element": "اعتماد المحدد",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 263,
-    "found": "[client] Sensitive action (POST \u0001adminBase\u0001/bulk-approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "line": 271,
+    "found": "[client] Sensitive action (POST \u0001crudBase\u0001/bulk-approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "suspect": "Client-side: later batch."
   },
   {
@@ -25,8 +25,8 @@
     "screen": "/admin/catalog-manager",
     "element": "رفض المحدد",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 264,
-    "found": "[client] Sensitive action (POST \u0001adminBase\u0001/bulk-approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "line": 272,
+    "found": "[client] Sensitive action (POST \u0001crudBase\u0001/bulk-approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "suspect": "Client-side: later batch."
   },
   {
@@ -35,8 +35,8 @@
     "screen": "/admin/catalog-manager",
     "element": "اعتماد",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 281,
-    "found": "[client] Sensitive action (POST \u0001adminBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "line": 289,
+    "found": "[client] Sensitive action (POST \u0001crudBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "suspect": "Client-side: later batch."
   },
   {
@@ -45,8 +45,8 @@
     "screen": "/admin/catalog-manager",
     "element": "رفض",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 282,
-    "found": "[client] Sensitive action (POST \u0001adminBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "line": 290,
+    "found": "[client] Sensitive action (POST \u0001crudBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "suspect": "Client-side: later batch."
   },
   {
@@ -55,8 +55,8 @@
     "screen": "/admin/catalog-manager",
     "element": "اعتماد",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 474,
-    "found": "[client] Sensitive action (POST \u0001adminBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "line": 482,
+    "found": "[client] Sensitive action (POST \u0001crudBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "suspect": "Client-side: later batch."
   },
   {
@@ -65,7 +65,7 @@
     "screen": "/admin/catalog-manager",
     "element": "استرجاع تعطيل",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 475,
+    "line": 483,
     "found": "[client] Sensitive action (POST /medicines/admin/catalog/:param/delete) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "suspect": "Client-side: later batch."
   },
@@ -75,7 +75,7 @@
     "screen": "/admin/catalog-manager",
     "element": "تفعيل تعطيل",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 599,
+    "line": 609,
     "found": "[client] Sensitive action (POST /medicines/admin/catalog/:param/delete) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "suspect": "Client-side: later batch."
   },
@@ -83,140 +83,30 @@
     "batch": "admin",
     "app": "admin",
     "screen": "/admin/catalog-manager",
-    "element": "API PUT /catalogs/admin/specialties/:param",
-    "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 119,
-    "found": "[backend] Endpoint is WRONG_METHOD (backend has DELETE; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing. (backend: backend/src/modules/catalogs/catalogs.controller.ts:145)",
-    "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/catalog-manager",
-    "element": "API PUT /medicines/admin/catalog/:param",
-    "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 119,
-    "found": "[backend] Endpoint is WRONG_METHOD (backend has PATCH, POST; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing. (backend: backend/src/modules/medicines/medicines.controller.ts:235)",
-    "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/catalog-manager",
-    "element": "API PUT /insurance/companies/:param",
-    "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 119,
-    "found": "[backend] Endpoint is WRONG_METHOD (backend has PATCH, GET; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing. (backend: backend/src/modules/insurance/insurance.module.ts:571)",
-    "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/catalog-manager",
-    "element": "API DELETE /medicines/admin/catalog/:param",
-    "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 134,
-    "found": "[backend] Endpoint is WRONG_METHOD (backend has PATCH, POST; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing. (backend: backend/src/modules/medicines/medicines.controller.ts:235)",
-    "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/catalog-manager",
-    "element": "API DELETE /insurance/companies/:param",
-    "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 134,
-    "found": "[backend] Endpoint is WRONG_METHOD (backend has PATCH, GET; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing. (backend: backend/src/modules/insurance/insurance.module.ts:571)",
-    "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/catalog-manager",
-    "element": "API POST /catalogs/admin/specialties/:param/approve",
-    "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 145,
-    "found": "[backend] Endpoint is NO_ROUTE (no controller declares /catalogs/admin/specialties/:param/approve; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
-    "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/catalog-manager",
-    "element": "API POST /insurance/companies/:param/approve",
-    "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 145,
-    "found": "[backend] Endpoint is NO_ROUTE (no controller declares /insurance/companies/:param/approve; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing.",
-    "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/catalog-manager",
-    "element": "API POST /catalogs/admin/specialties/bulk-approve",
-    "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 157,
-    "found": "[backend] Endpoint is WRONG_METHOD (backend has DELETE; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing. (backend: backend/src/modules/catalogs/catalogs.controller.ts:145)",
-    "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/catalog-manager",
-    "element": "API POST /insurance/companies/bulk-approve",
-    "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 157,
-    "found": "[backend] Endpoint is WRONG_METHOD (backend has PATCH; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing. (backend: backend/src/modules/insurance/insurance.module.ts:571)",
-    "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/catalog-manager",
-    "element": "API DELETE /medicines/admin/catalog/:param",
-    "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 199,
-    "found": "[backend] Endpoint is WRONG_METHOD (backend has PATCH, POST; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing. (backend: backend/src/modules/medicines/medicines.controller.ts:235)",
-    "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/catalog-manager",
-    "element": "API DELETE /insurance/companies/:param",
-    "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 199,
-    "found": "[backend] Endpoint is WRONG_METHOD (backend has PATCH, GET; one of several endpoints chosen at runtime (tab config); the button may be hidden for this tab): the call fails or hits nothing. (backend: backend/src/modules/insurance/insurance.module.ts:571)",
-    "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": "admin",
-    "app": "admin",
-    "screen": "/admin/catalog-manager",
     "element": "Guard G-OPEN (3)",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 79,
-    "found": "[backend] 3 call(s) hit backend routes with no role/permission guard (GET /insurance/companies; POST /storage/upload; GET /storage/:param/signed-url): any signed-in user passes JwtAuthGuard. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:694)",
+    "line": 87,
+    "found": "[backend] 3 call(s) hit backend routes with no role/permission guard (GET /insurance/companies; POST /storage/upload; GET /storage/:param/signed-url): any signed-in user passes JwtAuthGuard. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:695)",
     "suspect": "Backend gap: reviewer session."
   },
   {
     "batch": "admin",
     "app": "admin",
     "screen": "/admin/catalog-manager",
-    "element": "Guard G-PERM-MISMATCH (7)",
+    "element": "Guard G-ROLE-ONLY-WRITE (6)",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 117,
-    "found": "[backend] 7 call(s): Page requires \"catalog.read\" but POST /medicines/admin/catalog requires catalog.create; an admin role with the page permission only gets a 403 on this call. | P (backend: backend/src/modules/medicines/medicines.controller.ts:261)",
+    "line": 153,
+    "found": "[backend] 6 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /labs/admin/catalog/:param/approve; POST /radiology/admin/catalog/:param/approve; POST /nursing/admin/catalog/:param/approve; …): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/labs/labs.controller.ts:198)",
     "suspect": "Backend gap: reviewer session."
   },
   {
     "batch": "admin",
     "app": "admin",
     "screen": "/admin/catalog-manager",
-    "element": "Guard G-ROLE-ONLY-WRITE (8)",
+    "element": "Guard G-PERM-MISMATCH (4)",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 145,
-    "found": "[backend] 8 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /labs/admin/catalog/:param/approve; POST /radiology/admin/catalog/:param/approve; POST /nursing/admin/catalog/:param/approve; …): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/labs/labs.controller.ts:198)",
+    "line": 405,
+    "found": "[backend] 4 call(s): Page requires \"catalog.read\" but PATCH /medicines/admin/catalog/:param requires catalog.update + catalog.price.write; an admin role with the page permission onl (backend: backend/src/modules/medicines/medicines.controller.ts:235)",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -225,8 +115,8 @@
     "screen": "/admin/image-suggestions",
     "element": "Guard G-OPEN (3)",
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 18,
-    "found": "[backend] 3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; GET /api/admin/provider-onboarding/admin/contracts/:param): any signed-in user passes JwtAuthGuard. (backend: backend/src/modules/storage/storage.module.ts:382)",
+    "line": 19,
+    "found": "[backend] 3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; GET /api/admin/provider-onboarding/admin/contracts/:param): any signed-in user passes JwtAuthGuard. (backend: backend/src/modules/storage/storage.module.ts:386)",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -245,7 +135,7 @@
     "screen": "/admin/medicines-catalog",
     "element": "رفض",
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 398,
+    "line": 442,
     "found": "[client] Sensitive action (POST /medicines/admin/catalog/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "suspect": "Client-side: later batch."
   },
@@ -255,7 +145,7 @@
     "screen": "/admin/medicines-catalog",
     "element": "اعتماد",
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 400,
+    "line": 444,
     "found": "[client] Sensitive action (POST /medicines/admin/catalog/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "suspect": "Client-side: later batch."
   },
@@ -263,10 +153,20 @@
     "batch": "admin",
     "app": "admin",
     "screen": "/admin/medicines-catalog",
+    "element": "Guard G-PUBLIC: POST /medicines/lookup-barcode",
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 143,
+    "found": "[backend] POST /medicines/lookup-barcode is @Public (no auth at all) but the admin page uses it for a write. (backend: backend/src/modules/medicines/medicines.controller.ts:56)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/medicines-catalog",
     "element": "Guard G-OPEN (2)",
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 46,
-    "found": "[backend] 2 call(s) hit backend routes with no role/permission guard (POST /storage/upload; GET /storage/:param/signed-url): any signed-in user passes JwtAuthGuard. (backend: backend/src/modules/storage/storage.module.ts:358)",
+    "line": 50,
+    "found": "[backend] 2 call(s) hit backend routes with no role/permission guard (POST /storage/upload; GET /storage/:param/signed-url): any signed-in user passes JwtAuthGuard. (backend: backend/src/modules/storage/storage.module.ts:362)",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -275,8 +175,38 @@
     "screen": "/admin/medicines-catalog",
     "element": "Guard G-PERM-MISMATCH (5)",
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 160,
+    "line": 192,
     "found": "[backend] 5 call(s): Page requires \"catalog.read\" but POST /medicines/admin/catalog requires catalog.create; an admin role with the page permission only gets a 403 on this call. | P (backend: backend/src/modules/medicines/medicines.controller.ts:261)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/medicines-catalog",
+    "element": "Controlled flag (quick edit)",
+    "file": "admin/src/components/MedicineQuickEdit.tsx",
+    "line": 135,
+    "found": "[backend] Owner decision 10 needs `controlled` editable by admin, but it is not in MedicinesService.EDITABLE_FIELDS nor in AdminUpdateCatalogDto, so a PATCH would drop it. The control is not drawn in the quick edit or the full form; add it to the whitelist and the DTO, then show it behind the same confirmation as price and prescription. (backend: backend/src/modules/medicines/medicines.service.ts:1439)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/medicines-catalog",
+    "element": "Add item from the items-to-review queue",
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 318,
+    "found": "[backend] Decision 12 queue (pharmacy lines with no catalogue match, price not verified) does not exist: no sfda_price fields, GET /medicines/admin/pending-review answers 410 Gone, and there is no create-from-line action. Not built; the existing queues (change requests, shortage reports, image suggestions, medical review) are in the approvals list. (backend: backend/src/modules/medicines/medicines.controller.ts:413)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/medicines-catalog",
+    "element": "Change log for prescription flag and availability",
+    "file": "admin/src/components/MedicineQuickEdit.tsx",
+    "line": 145,
+    "found": "[backend] Only price changes write a history row (medicine price history, shown in the quick edit); a prescription-flag or availability change goes to the generic audit log with no reason, so 'who made this Rx' has no per-item view. An edit of a published item also resets it to pending medical review (the confirm dialog says so). (backend: backend/src/modules/medicines/medicines.service.ts:1761)",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -285,7 +215,7 @@
     "screen": "/admin/shortage-reports",
     "element": "Guard G-PERM-MISMATCH (2)",
     "file": "admin/src/pages/admin/shortage-reports.tsx",
-    "line": 41,
+    "line": 42,
     "found": "[backend] 2 call(s): Page requires \"catalog.read\" but POST /medicines/admin/shortage-reports/:param/:param requires catalog.shortage.decide; an admin role with the page permission o (backend: backend/src/modules/medicines/medicines.controller.ts:139)",
     "suspect": "Backend gap: reviewer session."
   },

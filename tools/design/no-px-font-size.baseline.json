@@ -1,8 +1,7 @@
 {
   "$comment": "Recorded debt for tools/design/no-px-font-size.ts. Every entry is a hard-coded font size that predates the design system. 12.A11 removes entries as screens are rebuilt on the stamps. This file may only shrink.",
-  "total": 23,
+  "total": 21,
   "files": {
-    "admin/src/styles/globals.css": 2,
     "patient-web/app/[locale]/ai/triage.module.css": 10,
     "patient-web/app/[locale]/consultations/specialties/specialties.module.css": 1,
     "patient-web/app/[locale]/emergency/emergency.module.css": 9,

@@ -144,6 +144,37 @@ export default function ProviderModeration() {
     }
   };
 
+  // Reject (final: the provider's images are deleted server-side) and request-changes (the provider can fix and resubmit).
+  // Both use the routes POST /admin/providers/:id/reject and :id/request-changes; the body field differs (reason / note).
+  const handleDecision = async (id: string, kind: 'reject' | 'request-changes') => {
+    const reject = kind === 'reject';
+    const reason = window.prompt(
+      reject
+        ? 'سبب رفض المزود (نهائي — تُحذف صور الوثائق، ويُحفظ السبب في سجل التدقيق، 5 أحرف على الأقل):'
+        : 'ما المطلوب تعديله؟ (يصل للمزود ويُحفظ في سجل التدقيق — 5 أحرف على الأقل):',
+      '',
+    );
+    if (reason === null) return;
+    if (reason.trim().length < 5) { alert('يرجى إدخال سبب لا يقل عن 5 أحرف'); return; }
+    try {
+      const res = await fetchWithAdminGuard(`/api/admin/admin/providers/${id}/${kind}`, {
+        method: 'POST',
+        body: JSON.stringify(reject ? { reason: reason.trim() } : { note: reason.trim() }),
+      });
+      if (res.ok) {
+        alert(reject ? 'تم رفض المزود.' : 'تم إرجاع الطلب للمزود لإجراء التعديلات.');
+        setPendingProviders(prev => prev.filter(p => p.id !== id));
+        setSelectedProvider(null);
+      } else {
+        const err = await res.json().catch(() => null);
+        alert((reject ? 'فشل الرفض: ' : 'فشل طلب التعديلات: ') + (err?.message || res.status));
+      }
+    } catch (e) {
+      console.error(e);
+      alert(reject ? 'خطأ في الرفض' : 'خطأ في طلب التعديلات');
+    }
+  };
+
   const handleSuspend = async () => {
     if (!suspendReason) return alert('يرجى إدخال سبب الإيقاف');
     try {
@@ -275,9 +306,15 @@ export default function ProviderModeration() {
                 )}
               </div>
 
-              <div className="p-6 border-t border-gray-200 bg-slate-50 flex gap-4">
+              <div className="p-6 border-t border-gray-200 bg-slate-50 flex flex-wrap gap-4">
                 <button onClick={() => handleApprove(selectedProvider.id, selectedProvider.type)} className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg shadow transition text-lg">
                   Approve Provider (اعتماد)
+                </button>
+                <button onClick={() => handleDecision(selectedProvider.id, 'request-changes')} className="flex-1 bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold py-3 rounded-lg shadow-sm border border-amber-200 transition text-lg">
+                  Request changes (طلب تعديلات)
+                </button>
+                <button onClick={() => handleDecision(selectedProvider.id, 'reject')} className="flex-1 bg-white hover:bg-red-50 text-red-700 font-bold py-3 rounded-lg shadow-sm border border-red-300 transition text-lg">
+                  Reject (رفض)
                 </button>
                 <button onClick={() => handleReactivate(selectedProvider.id)} className="flex-1 bg-green-100 hover:bg-green-200 text-green-700 font-bold py-3 rounded-lg shadow-sm border border-green-200 transition text-lg">
                   Reactivate (إعادة تفعيل)

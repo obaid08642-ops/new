@@ -3125,8 +3125,9 @@
   "pharmacy.rx.viaType": "نام لکھیں",
   "pharmacy.rx.zonePhoto": "نسخے کی تصویر لیں",
   "pharmacy.rx.zoneUpload": "اپنی تصاویر میں سے نسخہ چنیں",
-  "consult.calls.videoCall": "ویڈیو کال",
-  "consult.calls.voiceCall": "وائس کال",
+  "insurance.claim.fileInvalid": "10 میگابائٹ یا اس سے کم کی تصویر منتخب کریں۔",
   "guest.loginRequiredTitle": "سائن اِن ضروری ہے",
-  "guest.loginRequiredBody": "یہ فیچر استعمال کرنے کے لیے سائن اِن کریں۔"
+  "guest.loginRequiredBody": "یہ فیچر استعمال کرنے کے لیے سائن اِن کریں۔",
+  "consult.calls.videoCall": "ویڈیو کال",
+  "consult.calls.voiceCall": "وائس کال"
 }

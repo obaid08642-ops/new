@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../../utils/api';
 import { dateLocale } from '../../utils/dates';
+import { DataTable, type LooseRow } from '@/components/DataTable';
 
 const TABS = [
   { key: 'pending', label: 'قيد الانتظار' },
@@ -88,65 +89,60 @@ export default function ShortageReportsPage() {
         ) : reports.length === 0 ? (
           <div className="p-8 text-center text-gray-400">لا توجد بلاغات {tab === 'pending' ? 'قيد الانتظار 🎉' : ''}</div>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="p-3 text-right">الصنف</th>
-                <th className="p-3 text-right">المبلِّغ</th>
-                <th className="p-3 text-right">ملاحظة</th>
-                <th className="p-3 text-right">التاريخ</th>
-                <th className="p-3 text-right">الحالة</th>
-                <th className="p-3 text-right">إجراءات</th>
-              </tr>
-            </thead>
-            <tbody>
-              {reports.map((r: any) => (
-                <tr key={r.id} className="border-t hover:bg-gray-50">
-                  <td className="p-3">
-                    <div className="font-bold">{r.medicine_name || r.product_name || '—'}</div>
-                    <div className="text-xs text-gray-400" dir="ltr">{r.medicine_id || ''}</div>
-                  </td>
-                  <td className="p-3 text-xs">
-                    <div>{r.reporter_role || 'pharmacy'}</div>
-                    <div className="text-gray-400" dir="ltr">{r.reporter_id || r.pharmacy_id || ''}</div>
-                  </td>
-                  <td className="p-3 text-xs max-w-[200px] truncate">{r.note || '—'}</td>
-                  <td className="p-3 text-xs">{r.createdAt ? new Date(r.createdAt).toLocaleString(dateLocale()) : '—'}</td>
-                  <td className="p-3">{badge(r.status)}</td>
-                  <td className="p-3">
-                    <div className="flex gap-2 flex-wrap">
-                      {r.status === 'pending' && (
-                        <>
-                          <button
-                            onClick={() => act(r.id, 'approve')}
-                            disabled={acting === r.id}
-                            className="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 disabled:opacity-50"
-                          >
-                            اعتماد (إظهار الشارة)
-                          </button>
-                          <button
-                            onClick={() => act(r.id, 'reject')}
-                            disabled={acting === r.id}
-                            className="bg-red-100 text-red-700 px-3 py-1 rounded text-xs hover:bg-red-200 disabled:opacity-50"
-                          >
-                            رفض
-                          </button>
-                        </>
-                      )}
-                      {r.status === 'approved' && r.medicine_id && (
-                        <button
-                          onClick={() => clearBadge(r.medicine_id)}
-                          className="bg-amber-100 text-amber-800 px-3 py-1 rounded text-xs hover:bg-amber-200"
-                        >
-                          إزالة الشارة (توفر المخزون)
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+            bare
+            dense
+            rows={reports}
+            getRowKey={(r: LooseRow) => String(r.id)}
+            rowClassName={() => 'hover:bg-gray-50'}
+            columns={[
+              { key: 'item', header: 'الصنف', render: (r: LooseRow) => (
+                <>
+                  <div className="font-bold">{r.medicine_name || r.product_name || '—'}</div>
+                  <div className="text-xs text-gray-400" dir="ltr">{r.medicine_id || ''}</div>
+                </>
+              ) },
+              { key: 'reporter', header: 'المبلِّغ', className: 'text-xs', render: (r: LooseRow) => (
+                <>
+                  <div>{r.reporter_role || 'pharmacy'}</div>
+                  <div className="text-gray-400" dir="ltr">{r.reporter_id || r.pharmacy_id || ''}</div>
+                </>
+              ) },
+              { key: 'note', header: 'ملاحظة', className: 'text-xs max-w-[200px] truncate', render: (r: LooseRow) => r.note || '—' },
+              { key: 'date', header: 'التاريخ', className: 'text-xs', render: (r: LooseRow) => (r.createdAt ? new Date(r.createdAt).toLocaleString(dateLocale()) : '—') },
+              { key: 'status', header: 'الحالة', render: (r: LooseRow) => badge(r.status) },
+              { key: 'actions', header: 'إجراءات', actions: true, render: (r: LooseRow) => (
+                <div className="flex gap-2 flex-wrap">
+                  {r.status === 'pending' && (
+                    <>
+                      <button
+                        onClick={() => act(r.id, 'approve')}
+                        disabled={acting === r.id}
+                        className="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 disabled:opacity-50"
+                      >
+                        اعتماد (إظهار الشارة)
+                      </button>
+                      <button
+                        onClick={() => act(r.id, 'reject')}
+                        disabled={acting === r.id}
+                        className="bg-red-100 text-red-700 px-3 py-1 rounded text-xs hover:bg-red-200 disabled:opacity-50"
+                      >
+                        رفض
+                      </button>
+                    </>
+                  )}
+                  {r.status === 'approved' && r.medicine_id && (
+                    <button
+                      onClick={() => clearBadge(r.medicine_id)}
+                      className="bg-amber-100 text-amber-800 px-3 py-1 rounded text-xs hover:bg-amber-200"
+                    >
+                      إزالة الشارة (توفر المخزون)
+                    </button>
+                  )}
+                </div>
+              ) },
+            ]}
+          />
         )}
         {total > 20 && (
           <div className="p-3 border-t flex justify-center gap-2">
