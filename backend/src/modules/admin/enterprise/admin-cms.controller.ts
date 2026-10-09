@@ -85,6 +85,7 @@ export class AdminCmsController {
     return this.conn.collection('articles').findOne({ id }, { projection: { _id: 0 } });
   }
 
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post(':id/publish')
   async publish(@Param('id') id: string, @Body() b: PublishDto, @CurrentUser() me: any) {
     let reason: string;
@@ -120,6 +121,7 @@ export class AdminCmsController {
     return { ok: true, id, scheduled_at: at.toISOString() };
   }
 
+  @RequirePermissions(Permission.CMS_EDIT)
   @Patch(':id/unpublish')
   async unpublish(@Param('id') id: string, @Body() b: UnpublishDto, @CurrentUser() me: any) {
     let reason: string;

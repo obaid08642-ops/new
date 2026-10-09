@@ -4,6 +4,7 @@ import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth
 import { UserRole } from '../../common/enums';import { ApptState } from '../../schemas/appointment.schema';
 import { CreateAppointmentDto, CancelAppointmentDto, RescheduleAppointmentDto, JoinWaitlistDto} from './appointments.dto';
 import { FinishAppointmentDto, CancelDto } from './appointments.generated.dto';
+import { Permission, RequirePermissions } from '../../common/permissions';
 
 @Controller('care/appointments')
 @SelfService()
@@ -95,6 +96,7 @@ export class AdminAppointmentsController {
     return this.svc.adminList(Math.min(Math.max(Number(limit) || 50, 1), 200), status);
   }
 
+  @RequirePermissions(Permission.ORDER_CANCEL)
   @Post(':id/cancel')
   cancel(@Param('id') id: string, @Body() body: CancelDto, @CurrentUser() user: any) {
     return this.svc.cancel(id, { ...user, role: UserRole.ADMIN }, body?.reason);

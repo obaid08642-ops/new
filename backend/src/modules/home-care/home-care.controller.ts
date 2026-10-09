@@ -12,6 +12,7 @@ import { UserRole } from '../../common/enums';
 import { CreateNoteDto, CreateBookingDto, ArriveAtPatientDto, TriggerEmergencyDto, CompleteVisitDto} from './home-care.dto';
 import { CreateHomeCareCatalogDto, UpdateHomeCareCatalogDto, ApproveCatalogDto, BulkApproveCatalogDto } from './home-care.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @UseGuards(JwtAuthGuard)
 @Controller('nursing')
 export class NursingController {
@@ -110,6 +111,7 @@ export class NursingController {
   adminCatalog(@CurrentUser() u: any) { return this.homeSvc.adminCatalog(u); }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_CREATE)
   @Post('admin/catalog')
   @UseGuards(JwtAuthGuard)
   async createCatalog(@CurrentUser() u: any, @Body() b: CreateHomeCareCatalogDto) {
@@ -117,6 +119,7 @@ export class NursingController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_UPDATE)
   @Put('admin/catalog/:id')
   @UseGuards(JwtAuthGuard)
   async updateCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateHomeCareCatalogDto) {
@@ -124,6 +127,7 @@ export class NursingController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_DELETE_RESTORE)
   @Delete('admin/catalog/:id')
   @UseGuards(JwtAuthGuard)
   async deleteCatalog(@CurrentUser() u: any, @Param('id') id: string) {
@@ -132,6 +136,7 @@ export class NursingController {
 
   // P6.0: medical-review decision (approve surfaces the item publicly).
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_UPDATE)
   @Post('admin/catalog/:id/approve')
   @UseGuards(JwtAuthGuard)
   async approveCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ApproveCatalogDto) {
@@ -139,6 +144,7 @@ export class NursingController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_UPDATE)
   @Post('admin/catalog/bulk-approve')
   @UseGuards(JwtAuthGuard)
   async bulkApproveCatalog(@CurrentUser() u: any, @Body() b: BulkApproveCatalogDto) {

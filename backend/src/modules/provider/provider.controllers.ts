@@ -23,6 +23,7 @@ import { AssignmentStrategyService } from './services/assignment-strategy.servic
 import { ProviderImageProcessorService } from './services/provider-image-processor.service';
 import { Public, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { Permission, RequirePermissions } from '../../common/permissions';
 import { OtpPurpose } from './schemas';
 
 function meta(req: any) { return { ip: req?.ip || req?.headers?.['x-forwarded-for'], ua: req?.headers?.['user-agent'] }; }
@@ -151,11 +152,16 @@ export class ProviderAdminController {
   // any provider user and must see every registration detail, same as moderation).
   @Get('by-user/:userId') byUser(@CurrentUser() u: any, @Param('userId') userId: string) { return this.svc.detailByUser(u, userId); }
   @Get('provider-deltas') getDeltas(@CurrentUser() u: any) { return this.svc.listDeltas(u); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post('provider-deltas/:id/approve') approveDelta(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.approveDelta(u, id); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post('provider-deltas/:id/reject') rejectDelta(@CurrentUser() u: any, @Param('id') id: string, @Body() body: RejectDeltaDto) { return this.svc.rejectDelta(u, id, body); }
   @Get(':id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.detail(u, id); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/approve') approve(@CurrentUser() u: any, @Param('id') id: string, @Body() body: ApproveDto) { return this.svc.approve(u, id, body); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() body: RejectDto) { return this.svc.reject(u, id, body); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/approve-bank') approveBank(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.approveBank(u, id); }
 
   @Post(':id/reprocess-image')
@@ -177,8 +183,11 @@ export class ProviderAdminController {
   async getImageLogs(@Param('id') id: string) {
     return this.processor.getImageLogs(id);
   }
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/request-changes') needsChanges(@CurrentUser() u: any, @Param('id') id: string, @Body() body: NeedsChangesDto) { return this.svc.requestChanges(u, id, body); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/suspend') suspend(@CurrentUser() u: any, @Param('id') id: string, @Body() body: SuspendDto) { return this.svc.suspend(u, id, body); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/reactivate') reactivate(@CurrentUser() u: any, @Param('id') id: string, @Body() body: ReactivateDto) { return this.svc.reactivate(u, id, body); }
 }
 
