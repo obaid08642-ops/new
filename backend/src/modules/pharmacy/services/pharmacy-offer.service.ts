@@ -128,6 +128,10 @@ export class PharmacyOfferService {
       const override = Number(input.unit_price_override);
       if (!Number.isFinite(override) || override <= 0 || override > 100000) throw new BadRequestException('invalid_price_override');
       const rounded = Math.round(override * 100) / 100;
+      // D-10: no discount on prescription-only lines (the flag is stamped from the catalogue at submit).
+      if (orderItem.requires_prescription === true && rounded < result.unit_price) {
+        throw new BadRequestException({ code: 'rx_discount_not_allowed', message: 'rx_discount_not_allowed' });
+      }
       if (rounded !== result.unit_price) {
         result.catalog_price = result.unit_price;
         result.unit_price = rounded;

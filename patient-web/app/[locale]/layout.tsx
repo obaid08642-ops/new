@@ -103,7 +103,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           <nav aria-label={t("brand")} className="site-footer__links">
             <Link href={`/${typedLocale}/terms`}>{t("footerTerms")}</Link>
             <Link href={`/${typedLocale}/privacy`}>{t("footerPrivacy")}</Link>
-            <Link href={`/${typedLocale}/support`}>{t("footerSupport")}</Link>
+            <Link href={`/${typedLocale}/settings/help`}>{t("footerSupport")}</Link>
             <Link href={`/${typedLocale}/articles`}>{t("footerArticles")}</Link>
             <Link href={`/${typedLocale}/map`}>{t("footerMap")}</Link>
           </nav>

@@ -55,8 +55,7 @@ export default async function DiagnosticDetailPage({ params }: Props) {
   const actions: LinkAction[] = domain === "labs"
     ? [
         { href: `/${locale}/diagnostics/sample-tracking?bookingId=${encodeURIComponent(booking.id)}`, label: w("trackSample") },
-        ...(home ? [{ href: `/${locale}/diagnostics/technician-tracking?bookingId=${encodeURIComponent(booking.id)}`, label: w("trackCollector"), variant: "outline" } as LinkAction] : []),
-        { href: `/${locale}/diagnostics/insurance-upload?bookingId=${encodeURIComponent(booking.id)}`, label: w("uploadInsurance"), variant: "outline" },
+        { href: `/${locale}/diagnostics/insurance-approval?orderId=${encodeURIComponent(booking.id)}`, label: w("uploadInsurance"), variant: "outline" },
       ]
     : [];
 

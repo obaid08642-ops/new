@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
     "login", "register", "forgot-password", "password-reset", "otp",
     "dashboard", "orders", "appointments", "chat", "notifications", "health",
     "prescriptions", "reminders", "profile", "wishlist", "wallet", "reports",
-    "programs", "returns", "support", "family", "community", "offers",
+    "programs", "returns", "support", "family", "offers",
     "emergency", "cart", "settings", "home-care", "insurance",
   ];
   // Private leaf paths under otherwise public trees (a prefix disallow would

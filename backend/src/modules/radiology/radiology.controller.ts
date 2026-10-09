@@ -1,3 +1,4 @@
+import { PROVIDER_ROLES } from '../../common/enums';
 import { Controller, Get, Post, Body, Param, Query, Patch, Put, Delete, UseGuards, ServiceUnavailableException } from '@nestjs/common';
 import { RadiologyOpsService } from './radiology.service';
 import { Public, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
@@ -81,6 +82,7 @@ export class RadiologyController {
     return this.svc.updateInsuranceStatus(id, user, body.status, body.reason);
   }
 
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('provider/inbox')
   providerInbox(@Query('status') st: string | undefined, @CurrentUser() user: any) {
     return this.svc.listForProvider(user, st);

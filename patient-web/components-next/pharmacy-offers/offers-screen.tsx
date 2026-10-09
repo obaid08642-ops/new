@@ -15,6 +15,7 @@ import { OfferList, type OfferView } from "./offer-list";
 import { OffersLiveRefresh } from "./live-refresh";
 import { QuoteSection } from "./quote-section";
 import { statusKey } from "./status";
+import { WaitingActions } from "./waiting-actions";
 import { OFFER_TONES } from "./tones";
 import styles from "./offers.module.css";
 
@@ -102,6 +103,12 @@ export async function OffersScreen({ locale, orderId, variant }: Props) {
         ) : null}
 
         {browsing ? <OffersLiveRefresh active={views.length === 0} /> : null}
+        {browsing && !views.length ? (
+          <>
+            {progress.status ? <p className={styles.lead}>{(progress.status ?? "").toLowerCase() === "draft" ? t("waitingDraft") : t("waitingLead")}</p> : null}
+            <WaitingActions orderId={orderId} canCancel={Boolean(progress.status)} />
+          </>
+        ) : null}
         {negotiating ? (
           <section className={styles.panel} aria-labelledby="negotiation-hint">
             <p className={styles.panelTitle} id="negotiation-hint">{t("negotiationHint")}</p>

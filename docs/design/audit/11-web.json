@@ -1,0 +1,40 @@
+{
+  "slice": "11-web", "batch": 11, "app": "patient-web",
+  "screens": [
+    { "route": "/loyalty", "elements": [
+      ["Points balance, tier, progress ring, points to the next tier", "GET /loyalty/account points, tier; GET /loyalty/config tiers (label, minPts)", "ok"],
+      ["No tiers in the config", "error state with retry (nothing invented)", "ok"],
+      ["Tabs Rewards / Challenges / Invite friends (?tab=)", "route query, link tabs", "ok"],
+      ["Rewards list, redeem with confirm, coupon code, not-enough state", "GET /loyalty/rewards; POST /loyalty/rewards/:id/claim (the NAB-FREE fallback code is gone)", "fixed"],
+      ["Ways to earn, current and next tier perks", "GET /loyalty/config earn_ways, tiers[].perks", "ok"],
+      ["Challenges: stats, rows, join, progress, status", "GET /loyalty/challenges; POST /loyalty/challenges/:id/join", "ok"],
+      ["Challenge default target 7 and end date 30 June", "invented in the old screen", "fixed"],
+      ["Invite: your code, copy, share", "GET /referrals/my code; clipboard and share sheet of the browser", "ok"],
+      ["Invite: apply a friend code", "POST /referrals/apply", "ok"],
+      ["Invite: earned points, total invited, invite list", "GET /referrals/my stats, invites", "ok"],
+      ["Referral amounts (50 / 100 points) in the copy and the +100 chips", "no endpoint sends them", "hidden"],
+      ["Points history", "GET /loyalty/transactions?page=1", "ok"],
+      ["Raw reason codes in the history", "reason translated through keys; the server description wins when sent", "fixed"]
+    ] },
+    { "route": "/loyalty/rewards", "elements": [["Redirect to /loyalty?tab=rewards, query kept", "redirectKeepingQuery; the hub reads GET /loyalty/rewards", "ok"]] },
+    { "route": "/loyalty/challenges", "elements": [["Redirect to /loyalty?tab=challenges, query kept", "redirectKeepingQuery; the hub reads GET /loyalty/challenges and POST /loyalty/challenges/:id/join", "ok"]] },
+    { "route": "/loyalty/referrals", "elements": [["Redirect to /loyalty?tab=invite, query kept", "redirectKeepingQuery; the hub reads GET /referrals/my and POST /referrals/apply", "ok"]] },
+    { "route": "/loyalty/leaderboard", "elements": [["Page deleted; redirect to /loyalty", "redirectKeepingQuery (decision 2); GET /loyalty/leaderboard is no longer called", "ok"]] },
+    { "route": "/offers", "elements": [
+      ["Offer cards: title, provider, discount, price, old price, rating, sponsored", "GET /home/offers t, prov, disc, price, old, rating, sponsored (the old page read fields the endpoint never sends and showed an empty list)", "fixed"],
+      ["Empty and error states with retry", "shared ConsultState", "ok"]
+    ] },
+    { "route": "/offers/[offerId]", "elements": [
+      ["Title, provider, sponsored", "GET /offers/:id title_ar/title_en, provider.name, target.sponsored", "ok"],
+      ["Price, old price, saving", "GET /offers/:id discounted_price, original_price (saving = their difference)", "ok"],
+      ["Validity, inclusions, terms", "GET /offers/:id start_date, end_date, target.inclusions, target.terms", "ok"],
+      ["Providers to book with", "GET /promotions/offers/:id/providers; links to /consultations/book/[id]", "ok"]
+    ] }
+  ],
+  "needsReview": [
+    { "route": "/loyalty", "element": "Purchase-typed challenges", "kind": "backend", "note": "the Challenges tab shows what GET /loyalty/challenges sends and filters nothing; a challenge that asks for buying medicines must be removed by the server (decision 9)", "file": "patient-web/app/[locale]/loyalty/page.tsx", "line": 121 },
+    { "route": "/loyalty", "element": "Referral amounts", "kind": "backend", "note": "the amounts a referral pays (the old copy said 50 and 100 points) are not sent by any endpoint, so the copy states no number; /referrals/my or /loyalty/config should send them", "file": "patient-web/app/[locale]/loyalty/page.tsx", "line": 165 },
+    { "route": "/offers", "element": "Offer discount and title language", "kind": "backend", "note": "GET /home/offers sends only the Arabic title (t = title_ar), and disc is computed as a percentage that is NaN% when original_price is 0 (the client hides such a value); the list also sends a raw colour (c) and icon (ic) the clients ignore", "file": "patient-web/lib/loyalty/view.ts", "line": 117, "backend": "backend/src/modules/home/home.service.ts:36" },
+    { "route": "/offers/[offerId]", "element": "Share offer", "kind": "owner", "note": "the app offer detail has a share action; the web page never had one and none was added (feature)", "file": "patient-web/app/[locale]/offers/[offerId]/page.tsx", "line": 99 }
+  ]
+}

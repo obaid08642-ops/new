@@ -1,0 +1,602 @@
+{
+ "slice": "provider-pharmacy",
+ "batch": "provider",
+ "app": "provider-app",
+ "screens": [
+  {
+   "route": "ActiveInventoryScreen",
+   "elements": [
+    [
+     "data: Data picked",
+     "POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy → picked",
+     "ok"
+    ],
+    [
+     "data: Data newPrice",
+     "POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy → newPrice",
+     "ok"
+    ],
+    [
+     "input: Search product...",
+     "user input → search (local)",
+     "ok"
+    ],
+    [
+     "input: Medicine name (2+ letters)",
+     "user input → catalogQuery → request body",
+     "ok"
+    ],
+    [
+     "button: Search",
+     "GET /medicines",
+     "ok"
+    ],
+    [
+     "data: List catalogResults",
+     "GET /medicines, POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy → catalogResults",
+     "ok"
+    ],
+    [
+     "button: {m.name_en}",
+     "local state setPicked",
+     "ok"
+    ],
+    [
+     "input: Price (SAR)",
+     "user input → newPrice (local)",
+     "ok"
+    ],
+    [
+     "input: Stock on hand",
+     "user input → newStock (local)",
+     "ok"
+    ],
+    [
+     "button: Send for approval",
+     "POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy",
+     "ok"
+    ],
+    [
+     "button: Cancel",
+     "local state setPicked",
+     "ok"
+    ],
+    [
+     "input: <Switch>",
+     "user input → POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy",
+     "ok"
+    ],
+    [
+     "button: Ins.",
+     "POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy",
+     "ok"
+    ],
+    [
+     "button: -",
+     "POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy",
+     "ok"
+    ],
+    [
+     "button: +",
+     "POST /provider/capabilities/pharmacy, GET /provider/capabilities/pharmacy",
+     "ok"
+    ],
+    [
+     "data: List filtered",
+     "from filtered (prop / derived; not traced)",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "1 list(s) fed by a parent prop are not traced across components."
+   ]
+  },
+  {
+   "route": "B2BSupplyRequestScreen",
+   "elements": [
+    [
+     "data: Data cart",
+     "POST /pharmacy/procurement/analyze-file, POST /pharmacy/procurement/submit-request, GET /pharmacy/procurement/my-request",
+     "ok"
+    ],
+    [
+     "button: Order Supply (B2B)",
+     "local state setMode",
+     "ok"
+    ],
+    [
+     "button: Returns Manager",
+     "local state setMode",
+     "ok"
+    ],
+    [
+     "button: Text",
+     "local state setB2bTab",
+     "ok"
+    ],
+    [
+     "button: Voice",
+     "local state setB2bTab",
+     "ok"
+    ],
+    [
+     "button: OCR",
+     "local state setB2bTab",
+     "ok"
+    ],
+    [
+     "input: Type medication names here...",
+     "user input → b2bText (local)",
+     "ok"
+    ],
+    [
+     "button: Submit Order",
+     "POST /pharmacy/procurement/analyze-file",
+     "ok"
+    ],
+    [
+     "button: Start Recording",
+     "local state setIsRecording",
+     "ok"
+    ],
+    [
+     "button: Cancel",
+     "local state setIsRecording",
+     "ok"
+    ],
+    [
+     "button: Send Audio",
+     "POST /pharmacy/procurement/analyze-file",
+     "ok"
+    ],
+    [
+     "button: Pick shelf/invoice photo & analyze",
+     "POST /pharmacy/procurement/analyze-file",
+     "ok"
+    ],
+    [
+     "button: −",
+     "parent callback c.map",
+     "ok"
+    ],
+    [
+     "button: +",
+     "parent callback c.map",
+     "ok"
+    ],
+    [
+     "button: 🗑",
+     "parent callback c.filter",
+     "ok"
+    ],
+    [
+     "button: Sending…",
+     "POST /pharmacy/procurement/submit-request, GET /pharmacy/procurement/my-requests",
+     "ok"
+    ],
+    [
+     "data: List myRequests.slice(0, 5)",
+     "GET /pharmacy/procurement/my-requests → myRequests",
+     "ok"
+    ],
+    [
+     "data: List returnsList",
+     "GET /pharmacy/returns/provider/list → returnsList",
+     "ok"
+    ],
+    [
+     "data: List items",
+     "from items (prop / derived; not traced)",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "1 list(s) fed by a parent prop are not traced across components."
+   ]
+  },
+  {
+   "route": "DispatchWorkflowScreen",
+   "elements": [
+    [
+     "data: Data allocations",
+     "GET /provider/pharmacy/allocations → allocations",
+     "ok"
+    ],
+    [
+     "data: Data actionId",
+     "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations → actionId",
+     "ok"
+    ],
+    [
+     "data: Data details",
+     "GET /provider/pharmacy/allocations/:param → details",
+     "ok"
+    ],
+    [
+     "data: Data courierFor",
+     "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations, GET /provider/pharmacy/allocation",
+     "ok"
+    ],
+    [
+     "data: Data collectFor",
+     "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations, GET /provider/pharmacy/allocation",
+     "ok"
+    ],
+    [
+     "data: Data collectAmount",
+     "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations, GET /provider/pharmacy/allocation",
+     "ok"
+    ],
+    [
+     "button: Phone: {d.patient_contact.phone}",
+     "native action",
+     "ok"
+    ],
+    [
+     "input: Courier name (optional)",
+     "user input → courierName (local)",
+     "ok"
+    ],
+    [
+     "input: Courier phone (optional)",
+     "user input → courierPhone (local)",
+     "ok"
+    ],
+    [
+     "button: Cancel",
+     "local state setCourierFor",
+     "ok"
+    ],
+    [
+     "button: Confirm dispatch",
+     "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
+     "ok"
+    ],
+    [
+     "button: Cash",
+     "local state setCollectMethod",
+     "ok"
+    ],
+    [
+     "input: Collected amount",
+     "user input → collectAmount (local)",
+     "ok"
+    ],
+    [
+     "button: Cancel",
+     "local state setCollectFor",
+     "ok"
+    ],
+    [
+     "button: Confirm delivery",
+     "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
+     "ok"
+    ],
+    [
+     "button: Confirm",
+     "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
+     "ok"
+    ],
+    [
+     "button: Order chat",
+     "navigate → pharmacy_chat",
+     "ok"
+    ],
+    [
+     "button: Start preparing",
+     "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
+     "ok"
+    ],
+    [
+     "button: Ready",
+     "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
+     "ok"
+    ],
+    [
+     "button: Dispatch",
+     "GET /provider/pharmacy/allocations/:param",
+     "ok"
+    ],
+    [
+     "button: Hand over (pickup)",
+     "POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/allocations",
+     "ok"
+    ],
+    [
+     "button: Mark delivered",
+     "GET /provider/pharmacy/allocations/:param, POST /provider/pharmacy/allocations/:param/:param, GET /provider/pharmacy/all",
+     "ok"
+    ],
+    [
+     "button: Details",
+     "GET /provider/pharmacy/allocations/:param",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "OrderHistoryScreen",
+   "elements": [
+    [
+     "data: List history",
+     "GET /provider/pharmacy/allocations → history",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "PharmacyChatScreen",
+   "elements": [
+    [
+     "data: Data threadId",
+     "GET /pharmacy/chat/threads, GET /pharmacy/chat/threads/:param/messages → threadId",
+     "ok"
+    ],
+    [
+     "data: List messages",
+     "GET /pharmacy/chat/threads, GET /pharmacy/chat/threads/:param/messages, POST /pharmacy/chat/threads/:param/messages → me",
+     "ok"
+    ],
+    [
+     "input: Type a message…",
+     "user input → msg (local)",
+     "ok"
+    ],
+    [
+     "button: Send",
+     "POST /pharmacy/chat/threads/:param/messages",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "PharmacyHomeTab",
+   "elements": [
+    [
+     "placeholder-text: الصيدلية ستغلق قريباً",
+     "mock-scan placeholder-text",
+     "ok"
+    ],
+    [
+     "input: <Switch>",
+     "user input → POST /provider/ops/availability/toggle-instant",
+     "ok"
+    ],
+    [
+     "data: List broadcasts",
+     "GET /provider/pharmacy/broadcasts, POST /provider/pharmacy/broadcasts/:param/reject → broadcasts",
+     "ok"
+    ],
+    [
+     "button: 📄 PDF {…}",
+     "native action",
+     "ok"
+    ],
+    [
+     "button: Reject",
+     "local state setRejectOrderId, setShowRejectModal",
+     "ok"
+    ],
+    [
+     "button: Create offer",
+     "navigate → pharmacy_broadcast",
+     "ok"
+    ],
+    [
+     "button: {r.label}",
+     "POST /provider/pharmacy/broadcasts/:param/reject",
+     "ok"
+    ],
+    [
+     "data: List b.attachments",
+     "from b (prop / derived; not traced)",
+     "ok"
+    ],
+    [
+     "data: List b.items",
+     "from b (prop / derived; not traced)",
+     "ok"
+    ],
+    [
+     "data: List REJECT_REASONS",
+     "from REJECT_REASONS (prop / derived; not traced)",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "3 list(s) fed by a parent prop are not traced across components."
+   ]
+  },
+  {
+   "route": "PharmacyInsuranceQueueScreen",
+   "elements": [
+    [
+     "data: List orders",
+     "GET /provider/pharmacy/allocations, GET /provider/pharmacy/allocations/:param → orders",
+     "ok"
+    ],
+    [
+     "button: # {String(d.order_id).slice(-6)}",
+     "local state setSelected",
+     "ok"
+    ],
+    [
+     "data: Data decisions",
+     "decisions: set from user input / local logic",
+     "ok"
+    ],
+    [
+     "input: <NRadio>",
+     "user input → d (local)",
+     "ok"
+    ],
+    [
+     "input: Approved qty",
+     "user input → d (local)",
+     "ok"
+    ],
+    [
+     "input: Reason (required)",
+     "user input → d (local)",
+     "ok"
+    ],
+    [
+     "input: Insurer reference",
+     "user input → approvalRef (local)",
+     "ok"
+    ],
+    [
+     "button: Record decision and notify patient",
+     "POST /provider/pharmacy/orders/:param/insurance-decision",
+     "ok"
+    ],
+    [
+     "data: List items",
+     "from items (prop / derived; not traced)",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "1 list(s) fed by a parent prop are not traced across components."
+   ]
+  },
+  {
+   "route": "PharmacyWalletScreen",
+   "elements": [
+    [
+     "API: GET /provider/me",
+     "GET /provider/me (OK, backend/src/modules/provider/provider.controllers.ts:462)",
+     "ok"
+    ],
+    [
+     "API: GET /provider/wallet",
+     "GET /provider/wallet (OK, backend/src/modules/provider-ops/provider-ops.module.ts:801)",
+     "ok"
+    ],
+    [
+     "API: GET /provider/wallet/transactions",
+     "GET /provider/wallet/transactions (OK, backend/src/modules/provider-ops/provider-ops.module.ts:806)",
+     "ok"
+    ]
+   ],
+   "notes": [
+    "No tracked elements: thin wrapper or purely static layout."
+   ]
+  },
+  {
+   "route": "ReturnsRMAScreen",
+   "elements": [
+    [
+     "data: List returns",
+     "GET /pharmacy/returns/provider/list → returns",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "SettingsScreen",
+   "elements": [
+    [
+     "input: Delivery Radius (KM)",
+     "user input → deliveryRadius → request body",
+     "ok"
+    ],
+    [
+     "input: Minimum Order",
+     "user input → minOrder → request body",
+     "ok"
+    ],
+    [
+     "input: Delivery Fee",
+     "user input → deliveryFee → request body",
+     "ok"
+    ],
+    [
+     "button: Inbound Insurance Requests",
+     "navigate → insurance_decisions",
+     "ok"
+    ],
+    [
+     "input: Accept Insurance",
+     "user input → acceptsInsurance → request body",
+     "ok"
+    ],
+    [
+     "input: Accept Installments (Tabby/Tamara)",
+     "user input → acceptsInstallments → request body",
+     "ok"
+    ],
+    [
+     "input: Track inventory balances (optional)",
+     "user input → PUT /provider/pharmacy/inventory-tracking",
+     "ok"
+    ],
+    [
+     "button: Save Pharmacy Settings",
+     "POST /provider/settings/delta",
+     "ok"
+    ],
+    [
+     "input: <Switch> (in GlobalSystemSettings)",
+     "user input → parent callback toggleTheme",
+     "ok"
+    ],
+    [
+     "input: <Switch> (in GlobalSystemSettings)",
+     "user input → parent callback toggleLang",
+     "ok"
+    ],
+    [
+     "input: <Switch> (in GlobalSystemSettings)",
+     "user input → bioEnabled (local)",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "SmartBarcodeScannerScreen",
+   "elements": [
+    [
+     "data: Data barcode",
+     "GET /provider/inventory/search → barcode",
+     "ok"
+    ],
+    [
+     "data: Data product",
+     "GET /provider/inventory/search → product",
+     "ok"
+    ],
+    [
+     "button: Grant permission",
+     "parent callback requestPermission",
+     "ok"
+    ],
+    [
+     "button: Scan another barcode",
+     "local state setScanned, setBarcode",
+     "ok"
+    ]
+   ]
+  }
+ ],
+ "needsReview": [
+  {
+   "route": "B2BSupplyRequestScreen",
+   "element": "API GET /pharmacy/returns/provider/list",
+   "kind": "backend",
+   "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
+   "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
+   "line": 555,
+   "backend": "backend/src/modules/returns/returns.controller.ts:23"
+  },
+  {
+   "route": "PharmacyChatScreen",
+   "element": "API GET /pharmacy/chat/threads",
+   "kind": "backend",
+   "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
+   "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
+   "line": 1683,
+   "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:270"
+  }
+ ]
+}

@@ -20,7 +20,6 @@ import { Validate, Vault } from '../../../security/Security';
 import client from '../../../api/client';
 import { InsuranceRequestsScreen } from '../../shared/InsuranceRequestsScreen';
 import { EPrescriptionScreen } from '../../doctor/DoctorDashboard';
-import { FleetScreen } from '../../shared/FleetScreen';
 import {
  PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,

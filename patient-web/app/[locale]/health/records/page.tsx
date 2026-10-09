@@ -93,7 +93,7 @@ export default async function RecordsPage({ params, searchParams }: Props) {
 
   if (tab === "prescriptions") {
     const prescriptions = extractPrescriptionSummaries(payload);
-    const upload = `/${locale}/pharmacy/scan-prescription`;
+    const upload = `/${locale}/pharmacy/rx-order?via=photo`;
     if (prescriptions.length === 0) return frame(<ConsultState kind="empty" icon="prescription" title={rxt("emptyTitle")} body={rxt("empty")} actionLabel={rxt("uploadCta")} actionHref={upload} />);
     const list = new Intl.ListFormat(locale, { type: "conjunction", style: "narrow" });
     return frame(

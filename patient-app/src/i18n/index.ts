@@ -14,7 +14,7 @@ type TranslationKeys = {
   available: string; online: string; clinic: string; homeVisit: string;
   nutrition: string; calories: string; exercise: string; dailyTracker: string; mealPlan: string;
   mentalHealth: string; breathing: string; meditation: string; moodJournal: string;
-  nursing: string; delivery: string; emergency: string; wallet: string; insurance: string; map: string; community: string;
+  nursing: string; delivery: string; emergency: string; wallet: string; insurance: string; map: string;
   notifications: string; support: string; terms: string; about: string; privacy: string; security: string; data: string;
   checkout: string; track: string; confirm: string; reject: string; accept: string; decline: string;
   chatWithDoctor: string; chatWithPharmacist: string; videoCall: string; audioCall: string;
@@ -37,7 +37,7 @@ export const translations: Record<LangCode, TranslationKeys> = {
     available: 'متاح', online: 'أونلاين', clinic: 'عيادة', homeVisit: 'زيارة منزلية',
     nutrition: 'التغذية', calories: 'السعرات', exercise: 'التمارين', dailyTracker: 'التتبع اليومي', mealPlan: 'خطة الوجبات',
     mentalHealth: 'الصحة النفسية', breathing: 'تمارين التنفس', meditation: 'تأمل', moodJournal: 'سجل المزاج',
-    nursing: 'تمريض منزلي', delivery: 'توصيل', emergency: 'طوارئ', wallet: 'المحفظة', insurance: 'التأمين', map: 'الخريطة', community: 'المجتمع',
+    nursing: 'تمريض منزلي', delivery: 'توصيل', emergency: 'طوارئ', wallet: 'المحفظة', insurance: 'التأمين', map: 'الخريطة',
     notifications: 'الإشعارات', support: 'الدعم الفني', terms: 'الشروط والأحكام', about: 'عن التطبيق', privacy: 'الخصوصية', security: 'الأمان', data: 'بياناتي',
     checkout: 'إتمام الشراء', track: 'تتبع', confirm: 'تأكيد', reject: 'رفض', accept: 'قبول', decline: 'رفض',
     chatWithDoctor: 'محادثة مع الطبيب', chatWithPharmacist: 'محادثة مع الصيدلي', videoCall: 'مكالمة فيديو', audioCall: 'مكالمة صوتية',
@@ -58,7 +58,7 @@ export const translations: Record<LangCode, TranslationKeys> = {
     available: 'Available', online: 'Online', clinic: 'Clinic', homeVisit: 'Home Visit',
     nutrition: 'Nutrition', calories: 'Calories', exercise: 'Exercise', dailyTracker: 'Daily Tracker', mealPlan: 'Meal Plan',
     mentalHealth: 'Mental Health', breathing: 'Breathing', meditation: 'Meditation', moodJournal: 'Mood Journal',
-    nursing: 'Home Nursing', delivery: 'Delivery', emergency: 'Emergency', wallet: 'Wallet', insurance: 'Insurance', map: 'Map', community: 'Community',
+    nursing: 'Home Nursing', delivery: 'Delivery', emergency: 'Emergency', wallet: 'Wallet', insurance: 'Insurance', map: 'Map',
     notifications: 'Notifications', support: 'Support', terms: 'Terms & Conditions', about: 'About', privacy: 'Privacy', security: 'Security', data: 'My Data',
     checkout: 'Checkout', track: 'Track', confirm: 'Confirm', reject: 'Reject', accept: 'Accept', decline: 'Decline',
     chatWithDoctor: 'Chat with Doctor', chatWithPharmacist: 'Chat with Pharmacist', videoCall: 'Video Call', audioCall: 'Audio Call',
@@ -79,7 +79,7 @@ export const translations: Record<LangCode, TranslationKeys> = {
     available: 'دستیاب', online: 'آن لائن', clinic: 'کلینک', homeVisit: 'گھر کا دورہ',
     nutrition: 'غذائیت', calories: 'کیلوریز', exercise: 'ورزش', dailyTracker: 'روزانہ ٹریکر', mealPlan: 'کھانے کا منصوبہ',
     mentalHealth: 'ذہنی صحت', breathing: 'سانس کی مشقیں', meditation: 'مراقبہ', moodJournal: 'موڈ جرنل',
-    nursing: 'گھریلو نرسنگ', delivery: 'ڈیلیوری', emergency: 'ایمرجنسی', wallet: 'والیٹ', insurance: 'انشورنس', map: 'نقشہ', community: 'کمیونٹی',
+    nursing: 'گھریلو نرسنگ', delivery: 'ڈیلیوری', emergency: 'ایمرجنسی', wallet: 'والیٹ', insurance: 'انشورنس', map: 'نقشہ',
     notifications: 'اطلاعات', support: 'تعاون', terms: 'شرائط و ضوابط', about: 'ایپ کے بارے میں', privacy: 'رازداری', security: 'سلامتی', data: 'میرا ڈیٹا',
     checkout: 'چیک آؤٹ', track: 'ٹریک', confirm: 'تصدیق', reject: 'مسترد', accept: 'قبول', decline: 'انکار',
     chatWithDoctor: 'ڈاکٹر سے چیٹ', chatWithPharmacist: 'فارماسسٹ سے چیٹ', videoCall: 'ویڈیو کال', audioCall: 'آڈیو کال',
@@ -100,7 +100,7 @@ export const translations: Record<LangCode, TranslationKeys> = {
     available: 'उपलब्ध', online: 'ऑनलाइन', clinic: 'क्लिनिक', homeVisit: 'घर पर विज़िट',
     nutrition: 'पोषण', calories: 'कैलोरी', exercise: 'व्यायाम', dailyTracker: 'दैनिक ट्रैकर', mealPlan: 'मील प्लान',
     mentalHealth: 'मानसिक स्वास्थ्य', breathing: 'साँस व्यायाम', meditation: 'ध्यान', moodJournal: 'मूड जर्नल',
-    nursing: 'होम नर्सिंग', delivery: 'डिलीवरी', emergency: 'आपातकाल', wallet: 'वॉलेट', insurance: 'बीमा', map: 'नक्शा', community: 'समुदाय',
+    nursing: 'होम नर्सिंग', delivery: 'डिलीवरी', emergency: 'आपातकाल', wallet: 'वॉलेट', insurance: 'बीमा', map: 'नक्शा',
     notifications: 'सूचनाएँ', support: 'सहायता', terms: 'नियम और शर्तें', about: 'ऐप के बारे में', privacy: 'गोपनीयता', security: 'सुरक्षा', data: 'मेरा डेटा',
     checkout: 'चेकआउट', track: 'ट्रैक', confirm: 'पुष्टि', reject: 'अस्वीकार', accept: 'स्वीकार', decline: 'अस्वीकार',
     chatWithDoctor: 'डॉक्टर से चैट', chatWithPharmacist: 'फार्मासिस्ट से चैट', videoCall: 'वीडियो कॉल', audioCall: 'ऑडियो कॉल',
@@ -121,7 +121,7 @@ export const translations: Record<LangCode, TranslationKeys> = {
     available: 'উপলব্ধ', online: 'অনলাইন', clinic: 'ক্লিনিক', homeVisit: 'হোম ভিজিট',
     nutrition: 'পুষ্টি', calories: 'ক্যালোরি', exercise: 'ব্যায়াম', dailyTracker: 'দৈনিক ট্র্যাকার', mealPlan: 'খাবার পরিকল্পনা',
     mentalHealth: 'মানসিক স্বাস্থ্য', breathing: 'শ্বাস ব্যায়াম', meditation: 'ধ্যান', moodJournal: 'মেজাজ জার্নাল',
-    nursing: 'হোম নার্সিং', delivery: 'ডেলিভারি', emergency: 'জরুরি', wallet: 'ওয়ালেট', insurance: 'বীমা', map: 'মানচিত্র', community: 'কমিউনিটি',
+    nursing: 'হোম নার্সিং', delivery: 'ডেলিভারি', emergency: 'জরুরি', wallet: 'ওয়ালেট', insurance: 'বীমা', map: 'মানচিত্র',
     notifications: 'বিজ্ঞপ্তি', support: 'সহায়তা', terms: 'শর্তাবলী', about: 'অ্যাপ সম্পর্কে', privacy: 'গোপনীয়তা', security: 'নিরাপত্তা', data: 'আমার ডেটা',
     checkout: 'চেকআউট', track: 'ট্র্যাক', confirm: 'নিশ্চিত', reject: 'প্রত্যাখ্যান', accept: 'গ্রহণ', decline: 'প্রত্যাখ্যান',
     chatWithDoctor: 'ডাক্তারের সাথে চ্যাট', chatWithPharmacist: 'ফার্মাসিস্টের সাথে চ্যাট', videoCall: 'ভিডিও কল', audioCall: 'অডিও কল',
@@ -142,7 +142,7 @@ export const translations: Record<LangCode, TranslationKeys> = {
     available: 'Available', online: 'Online', clinic: 'Clinic', homeVisit: 'Home Visit',
     nutrition: 'Nutrisyon', calories: 'Calories', exercise: 'Exercise', dailyTracker: 'Daily Tracker', mealPlan: 'Meal Plan',
     mentalHealth: 'Mental Health', breathing: 'Breathing', meditation: 'Meditation', moodJournal: 'Mood Journal',
-    nursing: 'Home Nursing', delivery: 'Delivery', emergency: 'Emergency', wallet: 'Wallet', insurance: 'Insurance', map: 'Mapa', community: 'Komunidad',
+    nursing: 'Home Nursing', delivery: 'Delivery', emergency: 'Emergency', wallet: 'Wallet', insurance: 'Insurance', map: 'Mapa',
     notifications: 'Mga Abiso', support: 'Suporta', terms: 'Mga Tuntunin', about: 'Tungkol sa App', privacy: 'Privacy', security: 'Seguridad', data: 'Aking Data',
     checkout: 'Checkout', track: 'I-track', confirm: 'Kumpirmahin', reject: 'Tanggihan', accept: 'Tanggapin', decline: 'Tumanggi',
     chatWithDoctor: 'Chat sa Doktor', chatWithPharmacist: 'Chat sa Pharmacist', videoCall: 'Video Call', audioCall: 'Audio Call',

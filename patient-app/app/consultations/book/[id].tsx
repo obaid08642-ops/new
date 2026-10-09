@@ -50,7 +50,7 @@ function priceFor(doc: Doctor | null, vt: string): number | null {
 export default function BookAppointmentScreen() {
   const { theme, t, c, flow, k, money } = useScreenUi();
   const { clock } = useConsultFormat();
-  const { id, visit_type } = useLocalSearchParams<{ id: string; visit_type?: string }>();
+  const { id, visit_type, followUp } = useLocalSearchParams<{ id: string; visit_type?: string; followUp?: string }>();
 
   const [doctor, setDoctor] = useState<Doctor | null>(null);
   const [status, setStatus] = useState<GateStatus>('loading');
@@ -150,6 +150,8 @@ export default function BookAppointmentScreen() {
         slot_start: selectedSlot,
         visitType,
         notes: notes.trim(),
+        // a follow-up is this booking with the original appointment attached to the URL; the booking request itself is unchanged
+        ...(followUp ? { followUp: String(followUp) } : {}),
         ...(visitType === 'home' && homeAddress ? { visit_lat: String(homeAddress.lat ?? ''), visit_lng: String(homeAddress.lng ?? ''), visit_address: formatAddressLine(homeAddress) } : {}),
       },
     } as unknown as Href);
@@ -201,12 +203,12 @@ export default function BookAppointmentScreen() {
                         <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{homeAddress.label || k('consult.book.addressSelected')}</Text>
                         <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{formatAddressLine(homeAddress)}</Text>
                       </View>
-                      <Pressable accessibilityRole="button" accessibilityLabel={k('consult.book.change')} onPress={() => router.push('/delivery/address-select' as Href)} style={{ minHeight: 44, minWidth: 44, justifyContent: 'center', alignItems: 'center' }}>
+                      <Pressable accessibilityRole="button" accessibilityLabel={k('consult.book.change')} onPress={() => router.push('/profile/addresses?select=1' as Href)} style={{ minHeight: 44, minWidth: 44, justifyContent: 'center', alignItems: 'center' }}>
                         <Text style={{ ...scale(t, 'small', 'medium'), color: c.text.link }}>{k('consult.book.change')}</Text>
                       </Pressable>
                     </View>
                   ) : (
-                    <Button label={k('consult.book.chooseAddress')} variant="outline" size="md" fullWidth startIcon="map-pin" onPress={() => router.push('/delivery/address-select' as Href)} theme={theme} />
+                    <Button label={k('consult.book.chooseAddress')} variant="outline" size="md" fullWidth startIcon="map-pin" onPress={() => router.push('/profile/addresses?select=1' as Href)} theme={theme} />
                   )}
                 </Card>
               </Section>

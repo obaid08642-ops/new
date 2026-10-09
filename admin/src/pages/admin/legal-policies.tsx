@@ -73,7 +73,7 @@ export default function LegalPoliciesPage() {
           </div>
           <div className="flex gap-6 items-center flex-wrap">
             <div>
-              <span className="text-sm text-gray-500 ml-2">الحد الأدنى للسحب:</span>
+              <span className="text-sm text-gray-500 me-2">الحد الأدنى للسحب:</span>
               <input
                 type="number" min="0" defaultValue={commissions.payout_schedule?.minimum_payout_sar}
                 onBlur={e => setMinimum(parseFloat(e.target.value))}
@@ -109,8 +109,8 @@ export default function LegalPoliciesPage() {
 
       {/* Editor modal */}
       {editing && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-8" onClick={() => setEditing(null)}>
-          <div className="bg-white rounded-xl p-6 w-full max-w-3xl max-h-[85vh] overflow-auto" onClick={e => e.stopPropagation()} dir="rtl">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-3 md:p-8" onClick={() => setEditing(null)}>
+          <div className="bg-white rounded-xl p-6 w-full max-w-3xl max-h-[85dvh] overflow-auto" onClick={e => e.stopPropagation()} dir="rtl">
             <h3 className="font-bold text-lg mb-2">تحرير: {editing}</h3>
             <p className="text-xs text-amber-600 mb-3">⚠️ الحفظ يرفع رقم الإصدار تلقائياً ويجبر المستخدمين على إعادة القبول.</p>
             <textarea

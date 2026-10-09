@@ -44,7 +44,6 @@ export class ProviderOnboardingService {
       [ProviderType.RADIOLOGY]: UserRole.RADIOLOGY,
       [ProviderType.HOME_CARE]: UserRole.HOME_CARE,
       [ProviderType.NURSING]: UserRole.NURSING,
-      [ProviderType.AMBULANCE]: UserRole.AMBULANCE,
     }[type];
   }
 
@@ -192,12 +191,6 @@ export class ProviderOnboardingService {
         'nursing_services', 'home_visit_radius_km', 'working_hours',
         'accepts_insurance', 'accepted_insurance', 'insurance_plans', 'accepts_cash',
         'gender', 'pricingModel', 'priceVisit', 'priceHour', 'priceDay', 'priceMonth', 'schedule_home', 'vacation_date'
-      ],
-      [ProviderType.AMBULANCE]: [
-        'vehicles_count', 'vehicle_plates', 'equipment_list', 'paramedic_count',
-        'coverage_radius_km', 'service_area_cities', 'working_hours',
-        'accepts_insurance', 'accepted_insurance', 'insurance_plans', 'accepts_cash',
-        'emergency_level', 'has_icu_units', 'base_location'
       ],
       [ProviderType.NURSING]: [
         'nursing_services', 'home_visit_radius_km', 'working_hours',

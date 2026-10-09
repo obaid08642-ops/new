@@ -26,6 +26,8 @@ const SIGNED_OUT_ONLY = new Set(["/diagnostics"]);
 export function isFullPrefetchRoute(href: string, opts: { signedIn?: boolean } = {}): boolean {
   if (!href.startsWith("/") || href.startsWith("//")) return false;
   const path = href.split(/[?#]/)[0].replace(LOCALE_PREFIX, "").replace(/(.)\/$/, "$1");
+  // the Saved tab of the articles reads the patient's bookmarks: only the public list (All) is the same for everyone
+  if (path === "/articles" && /[?&]tab=saved(?:&|#|$)/.test(href)) return false;
   if (PUBLIC_EXACT.has(path)) return true;
   if (SIGNED_OUT_ONLY.has(path)) return !opts.signedIn;
   return PUBLIC_PATTERNS.some((re) => re.test(path));

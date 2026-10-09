@@ -1,0 +1,508 @@
+{
+ "login": "no provider credentials given (the seeds create no provider_accounts row, see the header of this tool)",
+ "findings": [
+  {
+   "area": "admin-ish",
+   "path": "/pharmacy/inventory/expiry",
+   "screens": [
+    "InventoryExpiryMonitor"
+   ],
+   "patient": "200 {expiringSoon} expiringSoon[0]",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "admin-ish",
+   "path": "/provider/nursing/checklist",
+   "screens": [
+    "NurseChecklistConsole"
+   ],
+   "patient": "200 {category,items} items[6]",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "admin-ish",
+   "path": "/provider/profile",
+   "screens": [
+    "ProfileWebConfig"
+   ],
+   "patient": "404 {message,statusCode}",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "patient session gets 404: needs a provider / onboarding identity to judge"
+  },
+  {
+   "area": "admin-ish",
+   "path": "/provider/reviews",
+   "screens": [
+    "ReputationHub"
+   ],
+   "patient": "200 array(0)",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "admin-ish",
+   "path": "/provider/ops/wallet/ledger",
+   "screens": [
+    "RevenueInsights"
+   ],
+   "patient": "200 {transactions,summary} transactions[0]",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "admin-ish",
+   "path": "/provider-onboarding/my-profile",
+   "screens": [
+    "SubscriptionsAdsScreen"
+   ],
+   "patient": "404 {message,error,statusCode}",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "patient session gets 404: needs a provider / onboarding identity to judge"
+  },
+  {
+   "area": "ambulance",
+   "path": "/emergency/driver/missions",
+   "screens": [
+    "ActiveMissionLoader",
+    "AmbulanceHistoryScreen",
+    "AmbulanceHomeScreen"
+   ],
+   "patient": "200 {pool,mine,vehicles} pool[0] mine[0] vehicles[0]",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "ambulance",
+   "path": "/provider/profile",
+   "screens": [
+    "AmbulanceProfileScreen"
+   ],
+   "patient": "404 {message,statusCode}",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "patient session gets 404: needs a provider / onboarding identity to judge"
+  },
+  {
+   "area": "auth-onboarding",
+   "path": "/provider-onboarding/contract",
+   "screens": [
+    "AmbulanceRegistration",
+    "DoctorRegistration",
+    "FacilityRegistration",
+    "LabRegistration",
+    "NursingRegistration",
+    "PharmacyRegistration",
+    "RadiologyRegistration"
+   ],
+   "patient": "404 {message,error,statusCode}",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "patient session gets 404: needs a provider / onboarding identity to judge"
+  },
+  {
+   "area": "doctor",
+   "path": "/provider/kyc/documents",
+   "screens": [
+    "CertificatesConfigScreen (doctor)"
+   ],
+   "patient": "404 {message,error,statusCode}",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "patient session gets 404: needs a provider / onboarding identity to judge"
+  },
+  {
+   "area": "doctor",
+   "path": "/provider/stats/today",
+   "screens": [
+    "DoctorHomeTab"
+   ],
+   "patient": "200 {todayCount,revenue,pendingCount}",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "doctor",
+   "path": "/provider/profile",
+   "screens": [
+    "DoctorLocationScreen",
+    "DoctorProfileEditScreen"
+   ],
+   "patient": "404 {message,statusCode}",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "patient session gets 404: needs a provider / onboarding identity to judge"
+  },
+  {
+   "area": "doctor",
+   "path": "/provider/profile/image/status",
+   "screens": [
+    "DoctorProfileEditScreen"
+   ],
+   "patient": "404 {message,error,statusCode}",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "patient session gets 404: needs a provider / onboarding identity to judge"
+  },
+  {
+   "area": "doctor",
+   "path": "/provider/settings/pricing",
+   "screens": [
+    "DoctorSettingsTab"
+   ],
+   "patient": "200 {pricing}",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "doctor",
+   "path": "/provider/wallet",
+   "screens": [
+    "DoctorWalletTab"
+   ],
+   "patient": "200 {available,escrow,dues,earned}",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "doctor",
+   "path": "/provider/wallet/transactions",
+   "screens": [
+    "DoctorWalletTab"
+   ],
+   "patient": "200 array(0)",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "doctor",
+   "path": "/provider/ops/doctor/templates",
+   "screens": [
+    "EPrescriptionScreen"
+   ],
+   "patient": "200 array(0)",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "doctor",
+   "path": "/provider/ops/doctor/blacklist",
+   "screens": [
+    "PatientFileScreen"
+   ],
+   "patient": "200 array(0)",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "doctor",
+   "path": "/calls/provider/waiting-room",
+   "screens": [
+    "VirtualWaitingRoomScreen"
+   ],
+   "patient": "200 array(0)",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "facility",
+   "path": "/provider/facility/audit-logs",
+   "screens": [
+    "FacilityAuditLogScreen"
+   ],
+   "patient": "200 array(0)",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "facility",
+   "path": "/provider/ops/wallet/ledger",
+   "screens": [
+    "FacilityFinancialScreen"
+   ],
+   "patient": "200 {transactions,summary} transactions[0]",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "facility",
+   "path": "/provider/stats/today",
+   "screens": [
+    "FacilityHomeTab"
+   ],
+   "patient": "200 {todayCount,revenue,pendingCount}",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "facility",
+   "path": "/provider/leave-requests",
+   "screens": [
+    "FacilityLeaveRequestsScreen"
+   ],
+   "patient": "200 array(0)",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "facility",
+   "path": "/provider/facility/patients/active",
+   "screens": [
+    "FacilityPatientTrackerScreen",
+    "QRCheckinScreen"
+   ],
+   "patient": "200 array(0)",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "facility",
+   "path": "/provider/profile",
+   "screens": [
+    "FacilityProfileConfigScreen"
+   ],
+   "patient": "404 {message,statusCode}",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "patient session gets 404: needs a provider / onboarding identity to judge"
+  },
+  {
+   "area": "facility",
+   "path": "/provider/facility/calendar",
+   "screens": [
+    "FacilityUnifiedCalendarScreen"
+   ],
+   "patient": "200 array(0)",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "facility",
+   "path": "/insurance/requests/provider/queue",
+   "screens": [
+    "InsuranceClaimsHubScreen"
+   ],
+   "patient": "200 array(0)",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "facility",
+   "path": "/provider/facility/subaccounts",
+   "screens": [
+    "ShiftManagementScreen"
+   ],
+   "patient": "200 array(0)",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "lab",
+   "path": "/provider/capabilities/lab-services",
+   "screens": [
+    "LabTestMenuScreen"
+   ],
+   "patient": "200 array(101)",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "nursing",
+   "path": "/provider/nursing/supplies",
+   "screens": [
+    "MedicalSupplies"
+   ],
+   "patient": "200 {items} items[10]",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "nursing",
+   "path": "/provider/profile",
+   "screens": [
+    "NursingProfileEditScreen"
+   ],
+   "patient": "404 {message,statusCode}",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "patient session gets 404: needs a provider / onboarding identity to judge"
+  },
+  {
+   "area": "nursing",
+   "path": "/provider/profile/image/status",
+   "screens": [
+    "NursingProfileEditScreen"
+   ],
+   "patient": "404 {message,error,statusCode}",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "patient session gets 404: needs a provider / onboarding identity to judge"
+  },
+  {
+   "area": "nursing",
+   "path": "/provider/nursing/checklist",
+   "screens": [
+    "VisitChecklist"
+   ],
+   "patient": "200 {category,items} items[6]",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "pharmacy",
+   "path": "/pharmacy/returns/provider/list",
+   "screens": [
+    "B2BSupplyRequestScreen",
+    "ReturnsRMAScreen"
+   ],
+   "patient": "200 array(0)",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "pharmacy",
+   "path": "/pharmacy/chat/threads",
+   "screens": [
+    "PharmacyChatScreen"
+   ],
+   "patient": "200 array(0)",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "pharmacy",
+   "path": "/provider/wallet",
+   "screens": [
+    "PharmacyWalletScreen"
+   ],
+   "patient": "200 {available,escrow,dues,earned}",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "pharmacy",
+   "path": "/provider/wallet/transactions",
+   "screens": [
+    "PharmacyWalletScreen"
+   ],
+   "patient": "200 array(0)",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "radiology",
+   "path": "/radiology/provider/inbox",
+   "screens": [
+    "RadiologyHome",
+    "RadiologyOrdersTab"
+   ],
+   "patient": "200 array(0)",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "shared",
+   "path": "/provider/kyc/documents",
+   "screens": [
+    "CertificatesConfigScreen (shared)"
+   ],
+   "patient": "404 {message,error,statusCode}",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "patient session gets 404: needs a provider / onboarding identity to judge"
+  },
+  {
+   "area": "shared",
+   "path": "/provider-onboarding/my-profile",
+   "screens": [
+    "InsuranceConfigScreen",
+    "MediaConfigScreen"
+   ],
+   "patient": "404 {message,error,statusCode}",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "patient session gets 404: needs a provider / onboarding identity to judge"
+  },
+  {
+   "area": "shared",
+   "path": "/provider/insurance-matrix",
+   "screens": [
+    "InsuranceConfigScreen"
+   ],
+   "patient": "200 {provider_id,supported_companies,networks,tiers,updated_at} supported_companies[0]",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "shared",
+   "path": "/insurance/requests/provider/queue",
+   "screens": [
+    "InsuranceRequestsScreen"
+   ],
+   "patient": "200 array(0)",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "shared",
+   "path": "/recruitment/guest/mine",
+   "screens": [
+    "MedicalJobsScreen"
+   ],
+   "patient": "400 {message,error,statusCode}",
+   "none": "400 {message,error,statusCode}",
+   "verdict": "check"
+  },
+  {
+   "area": "shared",
+   "path": "/provider/profile",
+   "screens": [
+    "ProviderHome"
+   ],
+   "patient": "404 {message,statusCode}",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "patient session gets 404: needs a provider / onboarding identity to judge"
+  },
+  {
+   "area": "shared",
+   "path": "/provider/wallet",
+   "screens": [
+    "ProviderWalletScreen"
+   ],
+   "patient": "200 {available,escrow,dues,earned}",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "shared",
+   "path": "/provider/wallet/transactions",
+   "screens": [
+    "ProviderWalletScreen"
+   ],
+   "patient": "200 array(0)",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "shared",
+   "path": "/provider/reviews",
+   "screens": [
+    "ReviewsAndRatingsScreen"
+   ],
+   "patient": "200 array(0)",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "shared",
+   "path": "/provider/bank-account",
+   "screens": [
+    "WithdrawalWorkflow"
+   ],
+   "patient": "200 non-json",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  },
+  {
+   "area": "shared",
+   "path": "/provider/working-hours",
+   "screens": [
+    "WorkingHoursEditorScreen"
+   ],
+   "patient": "200 non-json",
+   "none": "401 {message,error,statusCode}",
+   "verdict": "REVIEW: provider endpoint answers a PATIENT session with 200 (role guard?)"
+  }
+ ]
+}
