@@ -25,6 +25,9 @@ const patientReadRoutes = [
   new RegExp("^/insurance/requests/my$", "i"),
   new RegExp(`^/insurance/requests/${orderId}$`, "i"),
   new RegExp("^/users/me/addresses$", "i"),
+  // components-next/account/geo-select: regions, cities and districts through the proxy (needs-review issue 780).
+  new RegExp("^/locations/(regions|cities)$", "i"),
+  new RegExp("^/locations/districts\\?city=[^&#]{1,120}$", "i"),
   new RegExp("^/nutrition/profile$", "i"),
   new RegExp("^/support/chat$", "i"),
   new RegExp(`^/orders/${orderId}/tracking$`, "i"),

@@ -9,7 +9,7 @@ import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
 
 /** Add a policy (POST /api/insurance/policy, the body and the idempotency key as before), then the hub. The insurer is chosen here. */
-export function AddPolicyForm({ companies, locale }: { companies: CompanyRow[]; locale: string }) {
+export function AddPolicyForm({ companies, locale, returnTo }: { companies: CompanyRow[]; locale: string; returnTo?: string }) {
   const t = useTranslations("InsuranceWeb");
   const router = useRouter();
   const [companyId, setCompanyId] = useState("");
@@ -42,7 +42,7 @@ export function AddPolicyForm({ companies, locale }: { companies: CompanyRow[]; 
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) { setError((data as { message?: string } | null)?.message || t("add.failed")); return; }
-      router.push(`/${locale}/insurance`);
+      router.push(returnTo ?? `/${locale}/insurance`);
       router.refresh();
     } catch {
       setError(t("add.failed"));

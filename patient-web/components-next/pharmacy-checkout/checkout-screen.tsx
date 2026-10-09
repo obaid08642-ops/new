@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { StickyFooter } from "@/components-next/ui-generated/shells";
@@ -262,6 +262,7 @@ function PrescriptionNotice({ state, locale }: { state: PrescriptionState; local
 
 /** The insurance row of canvas/CheckoutV2: who insures the patient, from the saved policy; no number is drawn. */
 function InsuranceCard({ state, locale }: { state: PolicyState; locale: Locale }) {
+  const pathname = usePathname();
   const t = useTranslations("PharmacyCheckout");
   if (state.status === "idle" || state.status === "loading") {
     return <section className={rx.card} aria-busy="true" aria-label={t("insuranceLoading")}><Skeleton variant="text" lines={2} /></section>;
@@ -276,7 +277,7 @@ function InsuranceCard({ state, locale }: { state: PolicyState; locale: Locale }
             <span className={rx.cardValue}>{t("insuranceNone")}</span>
             <span className={rx.cardLabel}>{t("insuranceNoneBody")}</span>
           </div>
-          <Link className={rx.cardLink} href={`/${locale}/insurance/add-policy`}>{t("insuranceAdd")}</Link>
+          <Link className={rx.cardLink} href={`/${locale}/insurance/add-policy?next=${encodeURIComponent(pathname)}`}>{t("insuranceAdd")}</Link>
         </div>
       </section>
     );

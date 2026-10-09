@@ -75,7 +75,8 @@ export default async function DiagnosticsResultsPage({ params }: Props) {
               const title = [r.title, r.service_name].find((v): v is string => typeof v === "string" && v.trim().length > 0);
               return (
                 <li key={typeof r.id === "string" ? r.id : i}>
-                  <RowCard icon={RADIOLOGY.icon} tone={RADIOLOGY.tone} title={title ?? t("radiologyReport")} />
+                  {/* A report row is its radiology booking: open the booking, where the report is (needs-review issue 1064). */}
+                  <RowCard href={typeof r.id === "string" ? diagnosticBookingHref(locale, "radiology", r.id) : undefined} icon={RADIOLOGY.icon} tone={RADIOLOGY.tone} title={title ?? t("radiologyReport")} caret={typeof r.id === "string" ? caret : undefined} />
                 </li>
               );
             })}
