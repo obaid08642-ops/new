@@ -9,6 +9,7 @@ import {
   offerName,
   offerPhase,
   orderIdParam,
+  parseOffer,
   parseOffers,
   parseOrder,
   postSelectionRoute,
@@ -275,5 +276,21 @@ describe('final quote', () => {
     ]);
     expect(allocationLines({ allocations_detail: [] }, 'al1')).toEqual([]);
     expect(allocationLines({}, null)).toEqual([]);
+  });
+});
+
+describe('#512: the countdown runs on the server clock', () => {
+  it('moves the expiry onto this phone clock using server_time', () => {
+    const realNow = Date.now;
+    Date.now = () => Date.parse('2026-10-09T10:00:00.000Z'); // the phone is 5 minutes behind the server
+    try {
+      const offer = parseOffer({ id: 'o1', status: 'open', lines: [], expires_at: '2026-10-09T10:15:00.000Z', server_time: '2026-10-09T10:05:00.000Z' });
+      // 10 minutes left on the server's clock, so 10 minutes from the phone's "now"
+      expect(offer?.expiresAt).toBe(Date.parse('2026-10-09T10:10:00.000Z'));
+      const noServerTime = parseOffer({ id: 'o2', status: 'open', lines: [], expires_at: '2026-10-09T10:15:00.000Z' });
+      expect(noServerTime?.expiresAt).toBe(Date.parse('2026-10-09T10:15:00.000Z'));
+    } finally {
+      Date.now = realNow;
+    }
   });
 });
