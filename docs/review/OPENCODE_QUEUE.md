@@ -1,5 +1,7 @@
 # OpenCode work queue (state on 2026-10-06)
 
+> **2026-10-09: the active task list is `docs/review/OPENCODE_PLAN_2026-10-09.md` (sessions OC-A, OC-B, OC-C, OC-D). Read it first; it overrides this file where they differ.**
+
 Read this file and `AGENTS.md` at the start of every OpenCode session. This file is the task list; `AGENTS.md` holds the rules. If they disagree, this file's **Git rules** win (they are newer, owner 2026-10-06).
 
 ## Where your instructions come from (owner, 2026-10-06)
