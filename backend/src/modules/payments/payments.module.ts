@@ -35,7 +35,7 @@ import {
  * PAYMENT_PROVIDER. The adapter classes below are the real HTTP
  * implementations; payment-gateway.ts owns the contract and the selection.
  */
-class StripeAdapter implements PaymentGateway {
+export class StripeAdapter implements PaymentGateway {
   readonly name = 'stripe' as const;
   private base = 'https://api.stripe.com/v1';
   private headers() { return { Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`, 'Content-Type': 'application/x-www-form-urlencoded' }; }
@@ -60,7 +60,7 @@ class StripeAdapter implements PaymentGateway {
   }
 }
 
-class TapAdapter implements PaymentGateway {
+export class TapAdapter implements PaymentGateway {
   readonly name = 'tap' as const;
   private base = 'https://api.tap.company/v2';
   private headers() { return { Authorization: `Bearer ${process.env.TAP_API_KEY}`, 'Content-Type': 'application/json' }; }
@@ -84,7 +84,7 @@ class TapAdapter implements PaymentGateway {
   }
 }
 
-class MoyasarAdapter implements PaymentGateway {
+export class MoyasarAdapter implements PaymentGateway {
   readonly name = 'moyasar' as const;
   private get base() { return moyasarBase(); }
   private headers() {
