@@ -887,6 +887,8 @@
   "consult.rx.tryAgain": "Subukan muli mamaya.",
   "consult.rx.someFailedTitle": "Hindi naidagdag ang ilang paalala",
   "consult.rx.someFailedBody": "{n} sa {total} ang hindi naidagdag. Subukan muli.",
+  "consult.rx.notInCartTitle": "Hindi naidagdag sa cart ang ilang gamot",
+  "consult.rx.notInCartBody": "{n} sa {total} gamot ay isinulat ng doktor nang mano-mano at wala sa catalogue, kaya hindi naidagdag sa cart.",
   "consult.share.title": "Magbahagi ng ulat sa doktor",
   "consult.share.intro": "Ibahagi ang iyong mga ulat sa doktor gamit ang anumang app. Ikaw ang pipili ng tatanggap.",
   "consult.share.empty": "Wala pang ulat na maibabahagi",

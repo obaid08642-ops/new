@@ -1,5 +1,5 @@
 {
- "commit": "398eec0e",
+ "commit": "a43ee0d0",
  "routes": [
   {
    "app": "patient-app",
@@ -7870,7 +7870,7 @@
      "path": "/api/appointments/book",
      "target": "web-bff",
      "query": "",
-     "line": 135,
+     "line": 136,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/appointments/book/route.ts"
@@ -7890,7 +7890,7 @@
      "path": "/api/consultations/doctors/:param/slots",
      "target": "web-bff",
      "query": "?date=:param&service_type=:param",
-     "line": 90,
+     "line": 91,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/consultations/doctors/[doctorId]/slots/route.ts"
@@ -7900,7 +7900,7 @@
      "path": "/api/slot-locks/reserve",
      "target": "web-bff",
      "query": "",
-     "line": 122,
+     "line": 123,
      "file": "patient-web/components-next/booking-flow.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/slot-locks/reserve/route.ts"
@@ -7914,9 +7914,19 @@
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:67"
+    },
+    {
+     "method": "GET",
+     "path": "/system-config/public",
+     "target": "backend",
+     "query": "",
+     "line": 30,
+     "file": "patient-web/lib/consult/cancellation-policy.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/governance/system-config.controller.ts:51"
     }
    ],
-   "files": 43,
+   "files": 47,
    "unresolved": 0
   },
   {
@@ -12531,7 +12541,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
     }
    ],
-   "files": 48,
+   "files": 46,
    "unresolved": 0
   },
   {
@@ -12585,7 +12595,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:42"
     }
    ],
-   "files": 52,
+   "files": 51,
    "unresolved": 0
   },
   {
@@ -12707,7 +12717,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
     }
    ],
-   "files": 48,
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -13110,7 +13120,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:42"
     }
    ],
-   "files": 52,
+   "files": 51,
    "unresolved": 0
   },
   {

@@ -887,6 +887,8 @@
   "consult.rx.tryAgain": "थोड़ी देर बाद फिर कोशिश करें।",
   "consult.rx.someFailedTitle": "कुछ रिमाइंडर नहीं जोड़े जा सके",
   "consult.rx.someFailedBody": "{total} में से {n} नहीं जुड़े। फिर कोशिश करें।",
+  "consult.rx.notInCartTitle": "कुछ दवाएँ कार्ट में नहीं जुड़ीं",
+  "consult.rx.notInCartBody": "{total} में से {n} दवाएँ डॉक्टर ने हाथ से लिखी हैं और कैटलॉग में नहीं हैं, इसलिए कार्ट में नहीं जुड़ीं।",
   "consult.share.title": "डॉक्टर के साथ रिपोर्ट साझा करें",
   "consult.share.intro": "अपनी रिपोर्ट किसी भी ऐप से अपने डॉक्टर के साथ साझा करें। पाने वाले को आप चुनते हैं।",
   "consult.share.empty": "अभी साझा करने के लिए कोई रिपोर्ट नहीं",
