@@ -149,6 +149,7 @@ export default function CatalogManagerPage() {
 
   // P6.0: medical-review decision — approve surfaces the item publicly.
   const decide = async (id: string, approve: boolean) => {
+    if (!confirm(approve ? 'اعتماد هذا الصنف وإظهاره للمرضى؟' : 'رفض هذا الصنف؟')) return;
     try {
       await apiFetch(`${tabCfg.crudBase}/${id}/approve`, { method: 'POST', body: JSON.stringify({ approve }) });
       setMsg(approve ? 'تم الاعتماد — ظهر الصنف للمرضى' : 'تم الرفض');
@@ -160,6 +161,7 @@ export default function CatalogManagerPage() {
 
   const bulkDecide = async (approve: boolean) => {
     if (selected.size === 0) return;
+    if (!confirm(approve ? `اعتماد ${selected.size} صنف وإظهارها للمرضى؟` : `رفض ${selected.size} صنف؟`)) return;
     setDeciding(true);
     try {
       const r: any = await apiFetch(`${tabCfg.crudBase}/bulk-approve`, {
@@ -415,6 +417,7 @@ function MedicinesPanel() {
   };
 
   const toggleActive = async (m: any) => {
+    if (!confirm(m.deleted === true ? `استعادة "${m.name_ar}"؟` : `حذف "${m.name_ar}" من الكتالوج؟`)) return;
     try {
       await apiFetch(`/medicines/admin/catalog/${m.id}/delete`, { method: 'POST', body: JSON.stringify({ restore: m.deleted === true }) });
       await load();
@@ -424,6 +427,7 @@ function MedicinesPanel() {
   };
 
   const decide = async (id: string, approve: boolean) => {
+    if (!confirm(approve ? 'اعتماد هذا الدواء وإظهاره للمرضى؟' : 'رفض هذا الدواء؟')) return;
     try {
       await apiFetch(`/medicines/admin/catalog/${id}/approve`, { method: 'POST', body: JSON.stringify({ approve }) });
       setMsg(approve ? 'تم الاعتماد' : 'تم الرفض');
