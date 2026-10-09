@@ -44,7 +44,7 @@ export default async function OffersPage({ params }: Props) {
   }
   if (response.status === 401) redirect(`/${locale}/login`);
   if (!response.ok) return failed();
-  const offers = parseOffers(await response.json().catch(() => null));
+  const offers = parseOffers(await response.json().catch(() => null), locale);
   if (offers.length === 0) return frame(<ConsultState kind="empty" icon={OFFER.icon} tone={OFFER.tone} title={t("emptyTitle")} body={t("empty")} />);
 
   const price = (n: number) => t("price", { amount: new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(n) });
