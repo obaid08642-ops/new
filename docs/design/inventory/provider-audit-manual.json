@@ -1,4 +1,4 @@
 [
  { "route": "PharmacyQRMenuScreen", "element": "QR code", "src": "fixed qr icon and text; no QR value, link or request", "status": "placeholder", "note": "The QR catalog screen draws a fixed QR icon and text; there is no QR value, catalog link or request behind it.", "file": "provider-app/src/screens/shared/RealScreensExtended.tsx", "line": 17 },
- { "route": "NurseVisitConsole", "element": "Screen content", "src": "one hard-coded English title and one button; no data", "status": "placeholder", "note": "Stub screen: a hard-coded English title and a single button to the checklist, no visit data.", "file": "provider-app/src/screens/shared/blueprint/NurseVisitConsole.tsx", "line": 26 }
+ { "route": "NurseVisitConsole", "element": "Screen content", "src": "GET /provider/jobs/queue?kind=nursing&status=active; row opens order_detail (field ops)", "status": "fixed", "note": "Fixed on design/oc-provider: now lists the active visits and opens the field-ops screen (was a stub).", "file": "provider-app/src/screens/shared/blueprint/NurseVisitConsole.tsx", "line": 35 }
 ]
