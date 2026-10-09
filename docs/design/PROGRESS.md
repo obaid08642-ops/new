@@ -60,4 +60,7 @@ Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = we
 - **N1 patient side (design/n1-patient-files):** nurse result files shown on the visit screen (app: live-tracking done state; web: /nursing/visits/[id]); open via signed URL (web BFF 302). 3 new keys x 6 locales. ~70k tokens.
 - **Provider D1 / My offers / Returns (design/d1-provider):** doctor chat window + 997 + close/extend once; pharmacy My offers (P3); returns detail + respond (P7). Gap: offers rows have no link to an allocation (no detail route). ~145k tokens.
 - **UI issues provider (19):** 6 fixed (#1096 #1109-#1111 #1147 #1151), 9 already fixed, #1181 #1179 wait for OC-A, #1198 backend link + QR lib, #1146 owner; #1139 = My offers in #1242. ~220k tokens.
+- **N1 nurse result upload (design/n1-nurse-upload):** files picked at visit end -> POST /storage/upload -> visit-report {complete, attachments}; without files the old complete route is kept. Backend gap: visit-report ignores the signature. ~60k tokens.
+- **N1 patient side (design/n1-patient-files):** nurse result files shown on the visit screen (app: live-tracking done state; web: /nursing/visits/[id]); open via signed URL (web BFF 302). 3 new keys x 6 locales. ~70k tokens.
+- **Patient D1 (design/d1-patient):** consultation thread: permissions (can_chat/upload/call), window banner, tel 997 from emergency_line, read-only + Book a follow-up (app + web); 6 keys x 6 locales per client. Voice-note control: none exists in the app. ~135k tokens.
 

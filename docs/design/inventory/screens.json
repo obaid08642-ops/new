@@ -1,5 +1,5 @@
 {
- "commit": "a3574bec",
+ "commit": "8662db4d",
  "routes": [
   {
    "app": "patient-app",
@@ -889,7 +889,7 @@
      "path": "/care/appointments/:param",
      "target": "backend",
      "query": "",
-     "line": 114,
+     "line": 118,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:26"
@@ -899,7 +899,7 @@
      "path": "/care/doctors/:param",
      "target": "backend",
      "query": "",
-     "line": 106,
+     "line": 110,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:67"
@@ -909,7 +909,7 @@
      "path": "/chat/threads/:param/messages",
      "target": "backend",
      "query": "",
-     "line": 130,
+     "line": 140,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:116"
@@ -919,17 +919,27 @@
      "path": "/chat/threads/:param/messages",
      "target": "backend",
      "query": "",
-     "line": 192,
+     "line": 207,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:127"
+    },
+    {
+     "method": "GET",
+     "path": "/chat/threads/:param/permissions",
+     "target": "backend",
+     "query": "",
+     "line": 134,
+     "file": "patient-app/app/consultations/chat-with-doctor.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/chat/chat.module.ts:30"
     },
     {
      "method": "POST",
      "path": "/chat/threads/booking",
      "target": "backend",
      "query": "",
-     "line": 122,
+     "line": 126,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:106"
@@ -939,7 +949,7 @@
      "path": "/media/:param/url",
      "target": "backend",
      "query": "",
-     "line": 267,
+     "line": 282,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/media/media.controller.ts:75"
@@ -949,13 +959,13 @@
      "path": "/media/upload",
      "target": "backend",
      "query": "",
-     "line": 248,
+     "line": 263,
      "file": "patient-app/app/consultations/chat-with-doctor.tsx",
      "status": "OK",
      "backend": "backend/src/modules/media/media.controller.ts:22"
     }
    ],
-   "files": 31,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -7740,7 +7750,7 @@
      "path": "/care/appointments/:param",
      "target": "backend",
      "query": "",
-     "line": 57,
+     "line": 63,
      "file": "patient-web/app/[locale]/chat/[threadId]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:26"
@@ -7760,13 +7770,23 @@
      "path": "/chat/threads/:param/messages",
      "target": "backend",
      "query": "?limit=50",
-     "line": 10,
+     "line": 15,
      "file": "patient-web/lib/api/chat-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/chat/chat.module.ts:116"
+    },
+    {
+     "method": "GET",
+     "path": "/chat/threads/:param/permissions",
+     "target": "backend",
+     "query": "",
+     "line": 11,
+     "file": "patient-web/lib/api/chat-server.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/chat/chat.module.ts:30"
     }
    ],
-   "files": 38,
+   "files": 39,
    "unresolved": 0
   },
   {

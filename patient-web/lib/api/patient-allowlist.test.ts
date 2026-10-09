@@ -30,6 +30,9 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiPath("/payments/pharmacy/91047ef2-ad36-422a-a184-629693e7c729/capabilities")).toBe(true);
     expect(isAllowedPatientApiPath("/pharmacy/chat/threads?order_id=91047ef2-ad36-422a-a184-629693e7c729")).toBe(true);
     expect(isAllowedPatientApiPath("/pharmacy/chat/threads/91047ef2-ad36-422a-a184-629693e7c729/messages")).toBe(true);
+    expect(isAllowedPatientApiPath("/chat/threads/91047ef2-ad36-422a-a184-629693e7c729/permissions")).toBe(true);
+    expect(isAllowedPatientApiPath("/chat/threads/not-a-uuid/permissions")).toBe(false);
+    expect(isAllowedPatientApiRequest("/chat/threads/91047ef2-ad36-422a-a184-629693e7c729/permissions", "POST")).toBe(false);
     expect(isAllowedPatientApiPath("/medical-profile")).toBe(false);
   });
 

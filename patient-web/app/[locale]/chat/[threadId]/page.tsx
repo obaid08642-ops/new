@@ -1,7 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractChatMessageSummaries, extractChatThreadSummaries } from "@/lib/api/chat";
-import { getPatientChatMessages, getPatientChatThread } from "@/lib/api/chat-server";
+import { getPatientChatMessages, getPatientChatPermissions, getPatientChatThread } from "@/lib/api/chat-server";
+import { parseThreadPermissions, followUpTarget, windowBanner } from "@/lib/chat/permissions";
 import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
@@ -49,11 +50,16 @@ export default async function ChatThreadPage({ params }: Props) {
   const threadRaw = await threadResponse.json().catch(() => null);
   const thread = extractChatThreadSummaries({ data: [threadRaw] })[0];
   const threadRecord = asRecord(asRecord(threadRaw)?.data) ?? asRecord(threadRaw);
-  const closed = threadRecord?.is_active === false;
+  // The server's rules (GET /chat/threads/:id/permissions). If that answer is missing the page keeps to is_active, as before.
+  const permissions = await getPatientChatPermissions(token, threadId).then(async (r) => (r.ok ? parseThreadPermissions(await r.json().catch(() => null)) : null), () => null);
+  const closed = permissions ? permissions.readOnly : threadRecord?.is_active === false;
   const bookingId = typeof threadRecord?.booking_id === "string" ? threadRecord.booking_id : "";
   const isConsultation = threadRecord?.booking_kind === "consultation" && bookingId.length > 0;
   let followUpHref: string | undefined;
-  if (closed && isConsultation) {
+  const target = closed && isConsultation ? followUpTarget(permissions, "", bookingId) : null;
+  if (target) {
+    followUpHref = `/${locale}/consultations/book/${encodeURIComponent(target.doctorId)}?followUp=${encodeURIComponent(target.appointmentId)}`;
+  } else if (closed && isConsultation) {
     const appt = await callPatientApi(`/care/appointments/${encodeURIComponent(bookingId)}`, {}, token);
     const araw = appt.ok ? asRecord(await appt.json().catch(() => null)) : null;
     const arec = asRecord(araw?.data) ?? araw;
@@ -61,10 +67,12 @@ export default async function ChatThreadPage({ params }: Props) {
     if (doctorId) followUpHref = `/${locale}/consultations/book/${encodeURIComponent(doctorId)}?followUp=${encodeURIComponent(bookingId)}`;
   }
   const messages = extractChatMessageSummaries(await messagesResponse.json().catch(() => null));
+  const banner = windowBanner(permissions);
   const title = thread ? t(`types.${thread.type}`) : t("thread");
   return (
     <ConsultPage locale={locale} title={title} backHref={isConsultation ? `${back}/${encodeURIComponent(bookingId)}` : back}>
-      <Notice>{t("emergency")} <a href="tel:997">{t("emergencyCall")}</a></Notice>
+      <Notice>{t("emergency")} <a href={`tel:${permissions?.emergencyLine ?? "997"}`}>{t("emergencyCall")}</a></Notice>
+      {banner ? <p className={styles.rowSub} data-testid="chat-window-banner">{t(`window.${banner.statusKey}`)}{banner.remaining ? ` · ${t(`window.${banner.remaining.key}`, { count: banner.remaining.count })}` : ""}</p> : null}
       {messages.length === 0 ? (
         <ConsultState kind="empty" icon="chat-circle-text" title={t("messagesTitle")} body={t("empty")} />
       ) : (

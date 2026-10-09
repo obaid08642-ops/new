@@ -901,7 +901,15 @@
     "emergency": "In an emergency, call 997 now. This chat is not for emergencies.",
     "emergencyCall": "Call 997",
     "closed": "This conversation is closed. You can read it but not reply.",
-    "bookFollowUp": "Book a follow-up"
+    "bookFollowUp": "Book a follow-up",
+    "window": {
+      "upcoming": "Consultation not started yet",
+      "active": "Consultation is active",
+      "follow_up": "Follow-up period",
+      "closed": "Read-only",
+      "hoursLeft": "{count} h left",
+      "minutesLeft": "{count} min left"
+    }
   },
   "Sleep": {
     "eyebrow": "Sleep history",

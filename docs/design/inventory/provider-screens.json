@@ -1,5 +1,5 @@
 {
- "commit": "a3574bec",
+ "commit": "8662db4d",
  "routes": [
   {
    "app": "provider-app",
@@ -31,7 +31,7 @@
      "role": "pharmacy",
      "name": "affiliate",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 158
+     "line": 153
     }
    ],
    "template": "n/a",
@@ -145,7 +145,7 @@
      "role": "pharmacy",
      "name": "create_promo",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 155
+     "line": 150
     }
    ],
    "template": "n/a",
@@ -204,7 +204,7 @@
      "role": "pharmacy",
      "name": "crm",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 160
+     "line": 155
     }
    ],
    "template": "n/a",
@@ -259,7 +259,7 @@
      "role": "pharmacy",
      "name": "expiry_monitor",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 163
+     "line": 158
     }
    ],
    "template": "n/a",
@@ -368,7 +368,7 @@
    "component": "NurseVisitConsole",
    "area": "admin-ish",
    "file": "provider-app/src/screens/shared/blueprint/NurseVisitConsole.tsx",
-   "line": 35,
+   "line": 21,
    "registrations": [
     {
      "role": "nursing",
@@ -381,19 +381,8 @@
    "board": "— (not redesigned)",
    "batch": "provider",
    "status": "not redesigned",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/provider/jobs/queue",
-     "target": "backend",
-     "query": "?kind=nursing&status=active",
-     "line": 45,
-     "file": "provider-app/src/screens/shared/blueprint/NurseVisitConsole.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:268"
-    }
-   ],
-   "files": 9,
+   "calls": [],
+   "files": 7,
    "unresolved": 0,
    "navIssues": []
   },
@@ -409,7 +398,7 @@
      "role": "pharmacy",
      "name": "pharmacy_broadcast",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 162
+     "line": 157
     }
    ],
    "template": "n/a",
@@ -498,7 +487,7 @@
      "role": "pharmacy",
      "name": "promotions",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 154
+     "line": 149
     }
    ],
    "template": "n/a",
@@ -557,7 +546,7 @@
      "role": "pharmacy",
      "name": "reputation",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 159
+     "line": 154
     }
    ],
    "template": "n/a",
@@ -628,7 +617,7 @@
      "role": "pharmacy",
      "name": "revenue_insights",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 161
+     "line": 156
     }
    ],
    "template": "n/a",
@@ -726,7 +715,7 @@
      "role": "pharmacy",
      "name": "subscriptions_ads",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 157
+     "line": 152
     }
    ],
    "template": "n/a",
@@ -2202,7 +2191,7 @@
    "component": "AppointmentDetailScreen",
    "area": "doctor",
    "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
-   "line": 54,
+   "line": 53,
    "registrations": [
     {
      "role": "doctor",
@@ -2221,13 +2210,13 @@
      "path": "/care/appointments/:param/:param",
      "target": "backend",
      "query": "",
-     "line": 73,
+     "line": 71,
      "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:36"
     }
    ],
-   "files": 10,
+   "files": 9,
    "unresolved": 0,
    "navIssues": []
   },
@@ -2462,7 +2451,7 @@
      "path": "/provider/capabilities/doctor-sessions",
      "target": "backend",
      "query": "",
-     "line": 60,
+     "line": 61,
      "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:516"
@@ -2472,7 +2461,7 @@
      "path": "/provider/capabilities/doctor-sessions",
      "target": "backend",
      "query": "",
-     "line": 109,
+     "line": 110,
      "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:517"
@@ -2482,7 +2471,7 @@
      "path": "/provider/capabilities/doctor-sessions/:param",
      "target": "backend",
      "query": "",
-     "line": 164,
+     "line": 172,
      "file": "provider-app/src/screens/doctor/doctor/DoctorServiceManagementScreen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:518"
@@ -2919,7 +2908,7 @@
    "component": "PreVisitChatScreen",
    "area": "doctor",
    "file": "provider-app/src/screens/doctor/doctor/PreVisitChatScreen.tsx",
-   "line": 9,
+   "line": 8,
    "registrations": [
     {
      "role": "doctor",
@@ -2934,41 +2923,11 @@
    "status": "not redesigned",
    "calls": [
     {
-     "method": "POST",
-     "path": "/chat/threads/:param/close",
-     "target": "backend",
-     "query": "",
-     "line": 59,
-     "file": "provider-app/src/screens/doctor/doctor/PreVisitChatScreen.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:73"
-    },
-    {
-     "method": "POST",
-     "path": "/chat/threads/:param/extend",
-     "target": "backend",
-     "query": "",
-     "line": 68,
-     "file": "provider-app/src/screens/doctor/doctor/PreVisitChatScreen.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:79"
-    },
-    {
-     "method": "GET",
-     "path": "/chat/threads/:param/permissions",
-     "target": "backend",
-     "query": "",
-     "line": 39,
-     "file": "provider-app/src/screens/doctor/doctor/PreVisitChatScreen.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/chat/chat.module.ts:30"
-    },
-    {
      "method": "GET",
      "path": "/provider/chat/appointment/:param",
      "target": "backend",
      "query": "",
-     "line": 27,
+     "line": 21,
      "file": "provider-app/src/screens/doctor/doctor/PreVisitChatScreen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:425"
@@ -2978,13 +2937,13 @@
      "path": "/provider/chat/send",
      "target": "backend",
      "query": "",
-     "line": 81,
+     "line": 32,
      "file": "provider-app/src/screens/doctor/doctor/PreVisitChatScreen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:413"
     }
    ],
-   "files": 10,
+   "files": 9,
    "unresolved": 0,
    "navIssues": []
   },
@@ -5711,13 +5670,13 @@
    "component": "ActiveInventoryScreen",
    "area": "pharmacy",
    "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-   "line": 1458,
+   "line": 1449,
    "registrations": [
     {
      "role": "pharmacy",
      "name": "product_catalog",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 171
+     "line": 166
     }
    ],
    "template": "n/a",
@@ -5730,7 +5689,7 @@
      "path": "/medicines",
      "target": "backend",
      "query": "",
-     "line": 1571,
+     "line": 1562,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medicines/medicines.controller.ts:15"
@@ -5740,7 +5699,7 @@
      "path": "/provider/capabilities/pharmacy",
      "target": "backend",
      "query": "",
-     "line": 1470,
+     "line": 1461,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:504"
@@ -5750,7 +5709,7 @@
      "path": "/provider/capabilities/pharmacy",
      "target": "backend",
      "query": "",
-     "line": 1524,
+     "line": 1515,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:505"
@@ -5760,7 +5719,7 @@
      "path": "/provider/inventory/:param/restock",
      "target": "backend",
      "query": "",
-     "line": 1508,
+     "line": 1499,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:138"
@@ -5770,7 +5729,7 @@
      "path": "/provider/inventory/low-stock-alerts",
      "target": "backend",
      "query": "",
-     "line": 1487,
+     "line": 1478,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:139"
@@ -5780,7 +5739,7 @@
      "path": "/provider/inventory/low-stock-alerts/:param/ack",
      "target": "backend",
      "query": "",
-     "line": 1497,
+     "line": 1488,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:140"
@@ -5796,19 +5755,19 @@
    "component": "B2BSupplyRequestScreen",
    "area": "pharmacy",
    "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-   "line": 546,
+   "line": 541,
    "registrations": [
     {
      "role": "pharmacy",
      "name": "tab:b2b",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 129
+     "line": 126
     },
     {
      "role": "pharmacy",
      "name": "b2b_supply",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 141
+     "line": 138
     }
    ],
    "template": "n/a",
@@ -5821,7 +5780,7 @@
      "path": "/pharmacy/procurement/analyze-file",
      "target": "backend",
      "query": "",
-     "line": 586,
+     "line": 581,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/controllers/procurement.controller.ts:78"
@@ -5831,7 +5790,7 @@
      "path": "/pharmacy/procurement/my-requests",
      "target": "backend",
      "query": "",
-     "line": 577,
+     "line": 572,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/controllers/procurement.controller.ts:56"
@@ -5841,7 +5800,7 @@
      "path": "/pharmacy/procurement/submit-request",
      "target": "backend",
      "query": "",
-     "line": 625,
+     "line": 620,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/controllers/procurement.controller.ts:31"
@@ -5851,7 +5810,7 @@
      "path": "/pharmacy/returns/provider/list",
      "target": "backend",
      "query": "",
-     "line": 560,
+     "line": 555,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/returns/returns.controller.ts:25"
@@ -5867,19 +5826,19 @@
    "component": "DispatchWorkflowScreen",
    "area": "pharmacy",
    "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-   "line": 882,
+   "line": 873,
    "registrations": [
     {
      "role": "pharmacy",
      "name": "tab:dispatch",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 130
+     "line": 127
     },
     {
      "role": "pharmacy",
      "name": "order_history",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 145
+     "line": 142
     }
    ],
    "template": "n/a",
@@ -5892,7 +5851,7 @@
      "path": "/provider/pharmacy/allocations",
      "target": "backend",
      "query": "",
-     "line": 907,
+     "line": 898,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:81"
@@ -5902,7 +5861,7 @@
      "path": "/provider/pharmacy/allocations/:param",
      "target": "backend",
      "query": "",
-     "line": 925,
+     "line": 916,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:85"
@@ -5912,7 +5871,7 @@
      "path": "/provider/pharmacy/allocations/:param/:param",
      "target": "backend",
      "query": "",
-     "line": 934,
+     "line": 925,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:92"
@@ -5928,13 +5887,13 @@
    "component": "PharmacyChatScreen",
    "area": "pharmacy",
    "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-   "line": 1712,
+   "line": 1703,
    "registrations": [
     {
      "role": "pharmacy",
      "name": "pharmacy_chat",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 150
+     "line": 145
     }
    ],
    "template": "n/a",
@@ -5947,7 +5906,7 @@
      "path": "/pharmacy/chat/threads",
      "target": "backend",
      "query": "",
-     "line": 1724,
+     "line": 1715,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:277"
@@ -5957,7 +5916,7 @@
      "path": "/pharmacy/chat/threads/:param/messages",
      "target": "backend",
      "query": "",
-     "line": 1729,
+     "line": 1720,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:278"
@@ -5967,7 +5926,7 @@
      "path": "/pharmacy/chat/threads/:param/messages",
      "target": "backend",
      "query": "",
-     "line": 1746,
+     "line": 1737,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:281"
@@ -5983,13 +5942,13 @@
    "component": "PharmacyHomeTab",
    "area": "pharmacy",
    "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-   "line": 192,
+   "line": 187,
    "registrations": [
     {
      "role": "pharmacy",
      "name": "tab:home|orders",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 128
+     "line": 125
     }
    ],
    "template": "n/a",
@@ -6013,7 +5972,7 @@
      "path": "/provider/pharmacy/broadcasts",
      "target": "backend",
      "query": "",
-     "line": 247,
+     "line": 242,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:214"
@@ -6023,7 +5982,7 @@
      "path": "/provider/pharmacy/broadcasts/:param/reject",
      "target": "backend",
      "query": "",
-     "line": 302,
+     "line": 297,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:222"
@@ -6045,7 +6004,7 @@
      "role": "pharmacy",
      "name": "insurance_decisions",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 170
+     "line": 165
     }
    ],
    "template": "n/a",
@@ -6094,13 +6053,13 @@
    "component": "PharmacyMoreScreen",
    "area": "pharmacy",
    "file": "provider-app/src/screens/pharmacy/PharmacyMore.tsx",
-   "line": 213,
+   "line": 211,
    "registrations": [
     {
      "role": "pharmacy",
      "name": "tab:settings",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 131
+     "line": 128
     }
    ],
    "template": "n/a",
@@ -6114,116 +6073,17 @@
   },
   {
    "app": "provider-app",
-   "route": "PharmacyMyOffers",
-   "component": "PharmacyMyOffers",
-   "area": "pharmacy",
-   "file": "provider-app/src/screens/pharmacy/PharmacyMyOffers.tsx",
-   "line": 13,
-   "registrations": [
-    {
-     "role": "pharmacy",
-     "name": "my_offers",
-     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 147
-    }
-   ],
-   "template": "n/a",
-   "board": "— (not redesigned)",
-   "batch": "provider",
-   "status": "not redesigned",
-   "calls": [],
-   "files": 10,
-   "unresolved": 0,
-   "navIssues": []
-  },
-  {
-   "app": "provider-app",
-   "route": "PharmacyPrescriptionReviewScreen",
-   "component": "PharmacyPrescriptionReviewScreen",
-   "area": "pharmacy",
-   "file": "provider-app/src/screens/pharmacy/PharmacyPrescriptionReview.tsx",
-   "line": 18,
-   "registrations": [
-    {
-     "role": "pharmacy",
-     "name": "prescription_review",
-     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 148
-    }
-   ],
-   "template": "n/a",
-   "board": "— (not redesigned)",
-   "batch": "provider",
-   "status": "not redesigned",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/medicines",
-     "target": "backend",
-     "query": "",
-     "line": 69,
-     "file": "provider-app/src/screens/pharmacy/PharmacyPrescriptionReview.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:15"
-    },
-    {
-     "method": "POST",
-     "path": "/prescriptions/:param/substitute",
-     "target": "backend",
-     "query": "",
-     "line": 87,
-     "file": "provider-app/src/screens/pharmacy/PharmacyPrescriptionReview.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:47"
-    },
-    {
-     "method": "POST",
-     "path": "/prescriptions/:param/verify",
-     "target": "backend",
-     "query": "",
-     "line": 57,
-     "file": "provider-app/src/screens/pharmacy/PharmacyPrescriptionReview.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:41"
-    },
-    {
-     "method": "GET",
-     "path": "/prescriptions/manual-review/queue",
-     "target": "backend",
-     "query": "",
-     "line": 37,
-     "file": "provider-app/src/screens/pharmacy/PharmacyPrescriptionReview.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:53"
-    },
-    {
-     "method": "GET",
-     "path": "/prescriptions/pharmacy/queue",
-     "target": "backend",
-     "query": "",
-     "line": 36,
-     "file": "provider-app/src/screens/pharmacy/PharmacyPrescriptionReview.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:71"
-    }
-   ],
-   "files": 10,
-   "unresolved": 0,
-   "navIssues": []
-  },
-  {
-   "app": "provider-app",
    "route": "ReturnsRMAScreen",
    "component": "ReturnsRMAScreen",
    "area": "pharmacy",
    "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-   "line": 803,
+   "line": 798,
    "registrations": [
     {
      "role": "pharmacy",
      "name": "returns_rma",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 149
+     "line": 144
     }
    ],
    "template": "n/a",
@@ -6233,36 +6093,16 @@
    "calls": [
     {
      "method": "GET",
-     "path": "/pharmacy/returns/provider/:param",
-     "target": "backend",
-     "query": "",
-     "line": 26,
-     "file": "provider-app/src/screens/pharmacy/PharmacyReturnDetail.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/returns/returns.controller.ts:31"
-    },
-    {
-     "method": "POST",
-     "path": "/pharmacy/returns/provider/:param/respond",
-     "target": "backend",
-     "query": "",
-     "line": 40,
-     "file": "provider-app/src/screens/pharmacy/PharmacyReturnDetail.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/returns/returns.controller.ts:37"
-    },
-    {
-     "method": "GET",
      "path": "/pharmacy/returns/provider/list",
      "target": "backend",
      "query": "",
-     "line": 821,
+     "line": 815,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/returns/returns.controller.ts:25"
     }
    ],
-   "files": 11,
+   "files": 9,
    "unresolved": 0,
    "navIssues": []
   },
@@ -6272,13 +6112,13 @@
    "component": "SettingsScreen",
    "area": "pharmacy",
    "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-   "line": 1779,
+   "line": 1770,
    "registrations": [
     {
      "role": "pharmacy",
      "name": "pharmacy_settings",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 146
+     "line": 143
     }
    ],
    "template": "n/a",
@@ -6291,7 +6131,7 @@
      "path": "/provider/pharmacy/inventory-tracking",
      "target": "backend",
      "query": "",
-     "line": 1790,
+     "line": 1781,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:102"
@@ -6301,7 +6141,7 @@
      "path": "/provider/pharmacy/inventory-tracking",
      "target": "backend",
      "query": "",
-     "line": 1829,
+     "line": 1820,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:103"
@@ -6311,7 +6151,7 @@
      "path": "/provider/settings/delta",
      "target": "backend",
      "query": "",
-     "line": 1799,
+     "line": 1790,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/provider/provider.controllers.ts:123"
@@ -6327,13 +6167,13 @@
    "component": "SmartBarcodeScannerScreen",
    "area": "pharmacy",
    "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-   "line": 1257,
+   "line": 1248,
    "registrations": [
     {
      "role": "pharmacy",
      "name": "scanner",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 142
+     "line": 139
     }
    ],
    "template": "n/a",
@@ -6346,7 +6186,7 @@
      "path": "/provider/inventory/search",
      "target": "backend",
      "query": "",
-     "line": 1274,
+     "line": 1265,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:137"
@@ -6792,7 +6632,7 @@
      "role": "pharmacy",
      "name": "certificates_config",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 167
+     "line": 162
     }
    ],
    "template": "n/a",
@@ -6908,7 +6748,7 @@
      "role": "pharmacy",
      "name": "chronic",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 153
+     "line": 148
     }
    ],
    "template": "n/a",
@@ -6967,7 +6807,7 @@
      "role": "pharmacy",
      "name": "insurance_config",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 166
+     "line": 161
     }
    ],
    "template": "n/a",
@@ -7066,7 +6906,7 @@
      "role": "pharmacy",
      "name": "insurance_requests",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 169
+     "line": 164
     },
     {
      "role": "radiology",
@@ -7211,7 +7051,7 @@
      "role": "pharmacy",
      "name": "media_config",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 168
+     "line": 163
     }
    ],
    "template": "n/a",
@@ -7336,7 +7176,7 @@
      "role": "pharmacy",
      "name": "drug_index",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 165
+     "line": 160
     },
     {
      "role": "radiology",
@@ -7497,7 +7337,7 @@
      "role": "pharmacy",
      "name": "medical_jobs",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 164
+     "line": 159
     }
    ],
    "template": "n/a",
@@ -7630,7 +7470,7 @@
      "role": "pharmacy",
      "name": "notifications",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 173
+     "line": 168
     }
    ],
    "template": "n/a",
@@ -7665,7 +7505,7 @@
      "role": "pharmacy",
      "name": "qr_menu",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 151
+     "line": 146
     }
    ],
    "template": "n/a",
@@ -7808,7 +7648,7 @@
      "role": "pharmacy",
      "name": "web_config",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 156
+     "line": 151
     }
    ],
    "template": "n/a",
@@ -7897,7 +7737,7 @@
      "role": "pharmacy",
      "name": "wallet",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 143
+     "line": 140
     },
     {
      "role": "radiology",
@@ -7958,7 +7798,7 @@
      "role": "pharmacy",
      "name": "reviews",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 152
+     "line": 147
     }
    ],
    "template": "n/a",
@@ -8144,7 +7984,7 @@
      "role": "pharmacy",
      "name": "shortage",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 140
+     "line": 137
     }
    ],
    "template": "n/a",
@@ -8195,7 +8035,7 @@
      "role": "pharmacy",
      "name": "support",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 174
+     "line": 169
     }
    ],
    "template": "n/a",
@@ -8319,7 +8159,7 @@
      "role": "pharmacy",
      "name": "withdrawal_workflow",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 144
+     "line": 141
     },
     {
      "role": "radiology",
@@ -8416,7 +8256,7 @@
      "role": "pharmacy",
      "name": "working_hours",
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
-     "line": 172
+     "line": 167
     }
    ],
    "template": "n/a",
