@@ -94,7 +94,11 @@ export function ProgramsActiveClient({ initial, locale }: { initial: Program[]; 
           }];
         }));
       }
-      if (String(sessionId) === "4") setMessage(t("congrats"));
+      // The server's answer says whether this session is now completed (needs-review issue 870).
+      const done = Array.isArray(list) && list.some((p) => p && typeof p === "object" && Array.isArray((p as Record<string, unknown>).sessions)
+        && ((p as Record<string, unknown>).sessions as unknown[]).some((s) => s && typeof s === "object"
+          && String((s as Record<string, unknown>).id) === String(sessionId) && (s as Record<string, unknown>).status === "completed"));
+      if (done) setMessage(t("congrats"));
     } catch {
       setError(t("connectionFailed"));
     } finally {

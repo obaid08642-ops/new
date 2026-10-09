@@ -49,7 +49,8 @@ export default function NursingVisitsScreen() {
       empty={{ icon: 'first-aid-kit', title: k('nur.visits.empty'), body: k('nur.visits.emptyBody'), actionLabel: k('nur.visits.browse'), onAction: () => router.replace('/(tabs)/nursing' as Href) }}
       keyExtractor={(v, i) => str(v.id) || String(i)}
       renderItem={(v) => {
-        const open = (row: Rec) => () => router.push({ pathname: '/nursing/live-tracking', params: { type: 'patient', bookingId: str(row.id) } } as unknown as Href);
+        // Home nursing: the nurse comes to the patient, as the booking flow opens it (needs-review issue 640).
+        const open = (row: Rec) => () => router.push({ pathname: '/nursing/live-tracking', params: { type: 'nurse', bookingId: str(row.id) } } as unknown as Href);
         const st = nursingStatus(v.state);
         const when = fmt.dateTime(v.scheduled_at);
         return (

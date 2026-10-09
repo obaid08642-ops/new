@@ -161,7 +161,8 @@ export class PrescriptionsService {
     let hasManual = false;
     for (const it of data.items || []) {
       // Normalize the name field — OCR may return any of these keys.
-      const medName = (it.name_ar || it.medicine_name_ar || it.name || it.name_en || '').toString().trim();
+      // POST /ai/prescription-ocr answers raw_name_string / requested_quantity (needs-review #497).
+      const medName = (it.name_ar || it.medicine_name_ar || it.name || it.name_en || it.raw_name_string || '').toString().trim();
       const medNameEn = (it.name_en || it.medicine_name_en || '').toString().trim() || undefined;
       if (!medName) continue; // skip blank items rather than crashing
       let medId = it.medicine_id;
@@ -189,7 +190,7 @@ export class PrescriptionsService {
         frequency_hours: it.frequency_hours,
         times_per_day: it.times_per_day,
         duration_days: it.duration_days,
-        quantity: it.quantity,
+        quantity: it.quantity ?? it.requested_quantity,
         instructions: it.frequency || it.instructions,
         is_manual_entry: !it.medicine_id,
       });
@@ -352,6 +353,9 @@ export class PrescriptionsService {
         dose: item.dose || null,
         frequency: item.frequency_hours != null ? { every_hours: item.frequency_hours } : (item.times_per_day != null ? { times_per_day: item.times_per_day } : null),
         duration: item.duration_days ?? null,
+        // Needs-review #483/#495/#542: an order from a prescription needs the prescribed quantity and catalogue id.
+        quantity: item.quantity ?? null,
+        medicine_id: item.medicine_id ?? null,
       })),
       issued_at: rx.createdAt ? new Date(rx.createdAt).toISOString() : null,
       doctor: {

@@ -12,6 +12,18 @@ import { Caret, NURSING, RowList, ServiceChips, serviceIcon } from "@/components
 import { money, pickText } from "@/components-next/diagnostics/diag-parts";
 import type { Metadata } from "next";
 
+/**
+ * The service length in the page's language (needs-review issue 1071): the server sends a value and an English unit
+ * ("1 hour", or 45 + "minutes"); only minute/hour/day are formatted, anything else is not printed raw.
+ */
+function localDuration(locale: string, value: number | undefined, raw: string | undefined): string | undefined {
+  const m = /^\s*(\d+(?:\.\d+)?)?\s*(minute|hour|day)s?\s*$/i.exec(raw ?? "");
+  const amount = value ?? (m?.[1] ? Number(m[1]) : undefined);
+  const unit = m?.[2]?.toLowerCase() as "minute" | "hour" | "day" | undefined;
+  if (!unit || amount === undefined || !Number.isFinite(amount)) return undefined;
+  return new Intl.NumberFormat(locale, { style: "unit", unit, unitDisplay: "long" }).format(amount);
+}
+
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -61,7 +73,7 @@ export default async function NursingCatalogPage({ params }: Props) {
           {items.map((item) => {
             const name = pickText(locale, item.nameAr, item.nameEn) ?? "";
             const description = pickText(locale, item.descriptionAr, item.descriptionEn);
-            const duration = [item.durationValue, item.duration].filter(Boolean).join(" ");
+            const duration = localDuration(locale, item.durationValue, item.duration);
             return (
               <li key={item.id}>
                 <RowCard

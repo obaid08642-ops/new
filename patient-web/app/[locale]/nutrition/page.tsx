@@ -50,7 +50,8 @@ export default async function NutritionPage({ params, searchParams }: Props) {
 
   if (tab === "target") return frame(<NutritionBodyTargetClient locale={locale} />);
 
-  const today = new Date().toISOString().slice(0, 10);
+  // The patient's day in Saudi time, not UTC (needs-review issue 868): en-CA formats as YYYY-MM-DD.
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Riyadh" }).format(new Date());
   let summaryRes: Response;
   let mealsRes: Response;
   try {

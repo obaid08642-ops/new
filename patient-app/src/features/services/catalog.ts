@@ -54,7 +54,7 @@ export const SERVICE_GROUPS: ServiceGroupData[] = [
     items: [
       { title: 'استشارات الأطباء', desc: 'عيادة، فيديو، أو زيارة منزلية', icon: 'stethoscope', tone: 'blue', route: '/(tabs)/consultations' },
       { title: 'التحاليل المخبرية', desc: 'سحب عينة منزلي أو زيارة المختبر', icon: 'test-tube', tone: 'mint', route: '/(tabs)/diagnostics' },
-      { title: 'الأشعة والتصوير', desc: 'حجز مواعيد الأشعة', icon: 'scan', tone: 'violet', route: '/(tabs)/diagnostics' },
+      { title: 'الأشعة والتصوير', desc: 'حجز مواعيد الأشعة', icon: 'scan', tone: 'violet', route: '/(tabs)/diagnostics?tab=radiology' },
       { title: 'التمريض المنزلي', desc: 'رعاية تمريضية في منزلك', icon: 'first-aid-kit', tone: tone('nursing'), route: '/(tabs)/nursing' },
       { title: 'الإسعاف', desc: 'طلب إسعاف طارئ فوري', icon: 'ambulance', tone: 'peach', route: '/emergency/sos' },
       { title: 'الصيدلية', desc: 'أدوية ومنتجات صحية بتوصيل سريع', icon: 'pill', tone: tone('pharmacy'), route: '/(tabs)/pharmacy' },

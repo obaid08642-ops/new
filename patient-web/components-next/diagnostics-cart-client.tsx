@@ -147,7 +147,8 @@ export function DiagnosticsCartClient({ locale }: { locale: string }) {
             </select>
           </label>
         ) : labsLoaded ? (
-          <p className={consult.notice} role="status">{t("cartNoLabs")}</p>
+          // One test: "remove a test" makes no sense, say no lab can run it (needs-review issue 1061).
+          <p className={consult.notice} role="status">{items.length === 1 ? t("noProviderBody") : t("cartNoLabs")}</p>
         ) : (
           <p className={styles.flowNote} role="status">{t("cartLoadingLabs")}</p>
         )}

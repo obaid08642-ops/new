@@ -129,6 +129,8 @@ export class HomeCareBooking extends Document {
   @Prop() consumables_used?: string;
   @Prop({ type: [String], default: undefined }) recommendations?: string[]; // CompleteVisitDto sends a list
   @Prop() follow_up_instructions?: string;
+  // N1: result files the nurse attaches to the visit report (storage ids shared with the patient).
+  @Prop({ type: [Object], default: undefined }) attachments?: { storage_id: string; name?: string; mime?: string; uploaded_by: string; at: Date }[];
   
   // Photos (Module 12)
   @Prop() before_procedure_image?: string;

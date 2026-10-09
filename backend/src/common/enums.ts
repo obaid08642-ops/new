@@ -173,6 +173,8 @@ export enum NotificationType {
   ORDER = 'order',
   APPOINTMENT = 'appointment',
   PRESCRIPTION = 'prescription',
+  /** Lab, radiology and medical reports (the client's medical 'labs' group). */
+  LABS = 'labs',
   EMERGENCY = 'emergency',
   MEDICATION = 'medication',
   PROMO = 'promo',

@@ -38,7 +38,7 @@ export class PatientPharmacyController {
   @Post('orders/:id/submit') @RequireIdempotency() submit(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.submit(u, id); }
   @Post('orders/:id/cancel') @RequireIdempotency() cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelDto) { return this.orders.cancel(u, id, b?.reason || ''); }
   @Post('orders/:id/payment-intent') paymentIntent(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PaymentIntentDto) { return this.payments.createPaymentIntent(u, id, b?.idempotency_key); }
-  @Post('orders/:id/insurance-rejection/cancel') cancelRejectedInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelRejectedInsuranceDto) { return this.insurance.cancelRejectedByPatient(u, id, b?.idempotency_key); }
+  @Post('orders/:id/insurance-rejection/cancel') cancelRejectedInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelRejectedInsuranceDto, @Headers('idempotency-key') idemHeader?: string) { return this.insurance.cancelRejectedByPatient(u, id, b?.idempotency_key || idemHeader); }
   @Get('orders/:id/offers') listOffers(@CurrentUser() u: any, @Param('id') id: string) { return this.offers.listForPatient(u, id); }
   @Post('orders/:id/offers/:offerId/select') selectOffer(@CurrentUser() u: any, @Param('id') id: string, @Param('offerId') offerId: string, @Body() b: SelectOfferDto, @Headers('idempotency-key') idemHeader?: string) {
     return this.offers.selectByPatient(u, id, offerId, b?.idempotency_key || idemHeader, b?.coverage_mode);
@@ -269,13 +269,15 @@ export class PharmacyChatController {
   constructor(private chat: PharmacyChatService) {}
   @Get('threads') list(@CurrentUser() u: any, @Query('order_id') oid?: string) { return this.chat.listThreads(u, oid); }
   @Get('threads/:id/messages') msgs(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.listMessages(u, id); }
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  // Both sides of the substitute negotiation write; the service checks the caller is the thread's patient or pharmacy (needs-review issue 517).
+  @Roles(UserRole.PHARMACY, UserRole.PATIENT, UserRole.ADMIN)
   @Post('threads/:id/messages') post(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PostDto) { return this.chat.postMessage(u, id, b); }
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  // The patient decides on a substitute (the service refuses anyone but the thread's patient).
+  @Roles(UserRole.PATIENT)
   @Post('threads/:id/accept-substitute/:msgId') accept(@CurrentUser() u: any, @Param('id') id: string, @Param('msgId') mid: string) { return this.chat.acceptSubstitute(u, id, mid); }
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  @Roles(UserRole.PATIENT)
   @Post('threads/:id/reject') reject(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.rejectOrRemove(u, id, 'rejected'); }
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  @Roles(UserRole.PATIENT)
   @Post('threads/:id/remove-item') remove(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.rejectOrRemove(u, id, 'removed'); }
 }
 

@@ -52,7 +52,6 @@ export async function LabsCatalog({ locale, search, homeOnly, backHref }: { loca
                 key={service.id}
                 href={`/${locale}/diagnostics/labs/book?serviceId=${encodeURIComponent(service.id)}`}
                 title={pickText(locale, service.nameAr, service.nameEn) ?? ""}
-                sub={[service.shortCode, service.sampleType].filter(Boolean).join(" · ") || undefined}
                 tags={tags}
                 imageUrl={service.imageUrl}
                 price={service.price !== undefined ? money(locale, service.price) : undefined}

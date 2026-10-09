@@ -511,6 +511,7 @@ export class ProviderOnboardingController {
 
   /** Admin: fetch the stored signed contract for a moderation account/profile. */
   @UseGuards(JwtAuthGuard) @Get('admin/contracts/:id')
+  @Roles(UserRole.ADMIN)
   async adminContract(@CurrentUser() u: any, @Param('id') id: string) {
     if (u.role !== 'admin' && u.role !== 'super_admin') throw new ForbiddenException('admin only');
     const c = await this.svc.getContractForAdmin(id);

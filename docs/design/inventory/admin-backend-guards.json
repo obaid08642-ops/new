@@ -74,7 +74,7 @@
   {
    "m": "GET",
    "p": "/medicines/admin/change-requests",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:214",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:216",
    "guards": {
     "public": false,
     "roles": [
@@ -115,7 +115,7 @@
   {
    "m": "GET",
    "p": "/medicines/admin/catalog",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:243",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:247",
    "guards": {
     "public": false,
     "roles": [
@@ -130,7 +130,7 @@
   {
    "m": "GET",
    "p": "/medicines/admin/catalog/:param/price-history",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:305",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:309",
    "guards": {
     "public": false,
     "roles": [
@@ -145,7 +145,7 @@
   {
    "m": "PATCH",
    "p": "/medicines/admin/catalog/:param",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:235",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:239",
    "guards": {
     "public": false,
     "roles": [
@@ -161,7 +161,7 @@
   {
    "m": "POST",
    "p": "/medicines/admin/import-csv",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:458",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:462",
    "guards": {
     "public": false,
     "roles": [
@@ -191,7 +191,7 @@
   {
    "m": "GET",
    "p": "/labs/admin/catalog",
-   "src": "backend/src/modules/labs/labs.controller.ts:170",
+   "src": "backend/src/modules/labs/labs.controller.ts:171",
    "guards": {
     "public": false,
     "roles": [
@@ -204,7 +204,7 @@
   {
    "m": "GET",
    "p": "/radiology/admin/catalog",
-   "src": "backend/src/modules/radiology/radiology.controller.ts:189",
+   "src": "backend/src/modules/radiology/radiology.controller.ts:190",
    "guards": {
     "public": false,
     "roles": [
@@ -217,7 +217,7 @@
   {
    "m": "GET",
    "p": "/nursing/admin/catalog",
-   "src": "backend/src/modules/home-care/home-care.controller.ts:108",
+   "src": "backend/src/modules/home-care/home-care.controller.ts:109",
    "guards": {
     "public": false,
     "roles": [
@@ -230,7 +230,7 @@
   {
    "m": "GET",
    "p": "/insurance/companies",
-   "src": "backend/src/modules/insurance-engine/insurance-engine.module.ts:695",
+   "src": "backend/src/modules/insurance-engine/insurance-engine.module.ts:696",
    "guards": {
     "public": false,
     "roles": [],
@@ -241,195 +241,225 @@
   {
    "m": "POST",
    "p": "/labs/admin/catalog",
-   "src": "backend/src/modules/labs/labs.controller.ts:173",
+   "src": "backend/src/modules/labs/labs.controller.ts:175",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
-    "perms": [],
+    "perms": [
+     "catalog.create"
+    ],
     "useGuards": "require('../../common/auth.guard'"
    }
   },
   {
    "m": "POST",
    "p": "/radiology/admin/catalog",
-   "src": "backend/src/modules/radiology/radiology.controller.ts:193",
+   "src": "backend/src/modules/radiology/radiology.controller.ts:195",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
-    "perms": [],
+    "perms": [
+     "catalog.create"
+    ],
     "useGuards": "require('../../common/auth.guard'"
    }
   },
   {
    "m": "POST",
    "p": "/nursing/admin/catalog",
-   "src": "backend/src/modules/home-care/home-care.controller.ts:113",
+   "src": "backend/src/modules/home-care/home-care.controller.ts:115",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
-    "perms": [],
+    "perms": [
+     "catalog.create"
+    ],
     "useGuards": "JwtAuthGuard | JwtAuthGuard"
    }
   },
   {
    "m": "PUT",
    "p": "/labs/admin/catalog/:param",
-   "src": "backend/src/modules/labs/labs.controller.ts:181",
+   "src": "backend/src/modules/labs/labs.controller.ts:184",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
-    "perms": [],
+    "perms": [
+     "catalog.update"
+    ],
     "useGuards": "require('../../common/auth.guard'"
    }
   },
   {
    "m": "PUT",
    "p": "/radiology/admin/catalog/:param",
-   "src": "backend/src/modules/radiology/radiology.controller.ts:200",
+   "src": "backend/src/modules/radiology/radiology.controller.ts:203",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
-    "perms": [],
+    "perms": [
+     "catalog.update"
+    ],
     "useGuards": "require('../../common/auth.guard'"
    }
   },
   {
    "m": "PUT",
    "p": "/nursing/admin/catalog/:param",
-   "src": "backend/src/modules/home-care/home-care.controller.ts:120",
+   "src": "backend/src/modules/home-care/home-care.controller.ts:123",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
-    "perms": [],
+    "perms": [
+     "catalog.update"
+    ],
     "useGuards": "JwtAuthGuard | JwtAuthGuard"
    }
   },
   {
    "m": "DELETE",
    "p": "/labs/admin/catalog/:param",
-   "src": "backend/src/modules/labs/labs.controller.ts:189",
+   "src": "backend/src/modules/labs/labs.controller.ts:193",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
-    "perms": [],
+    "perms": [
+     "catalog.delete_restore"
+    ],
     "useGuards": "require('../../common/auth.guard'"
    }
   },
   {
    "m": "DELETE",
    "p": "/radiology/admin/catalog/:param",
-   "src": "backend/src/modules/radiology/radiology.controller.ts:207",
+   "src": "backend/src/modules/radiology/radiology.controller.ts:211",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
-    "perms": [],
+    "perms": [
+     "catalog.delete_restore"
+    ],
     "useGuards": "require('../../common/auth.guard'"
    }
   },
   {
    "m": "DELETE",
    "p": "/nursing/admin/catalog/:param",
-   "src": "backend/src/modules/home-care/home-care.controller.ts:127",
+   "src": "backend/src/modules/home-care/home-care.controller.ts:131",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
-    "perms": [],
+    "perms": [
+     "catalog.delete_restore"
+    ],
     "useGuards": "JwtAuthGuard | JwtAuthGuard"
    }
   },
   {
    "m": "POST",
    "p": "/labs/admin/catalog/:param/approve",
-   "src": "backend/src/modules/labs/labs.controller.ts:198",
+   "src": "backend/src/modules/labs/labs.controller.ts:203",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
-    "perms": [],
+    "perms": [
+     "catalog.update"
+    ],
     "useGuards": "require('../../common/auth.guard'"
    }
   },
   {
    "m": "POST",
    "p": "/radiology/admin/catalog/:param/approve",
-   "src": "backend/src/modules/radiology/radiology.controller.ts:215",
+   "src": "backend/src/modules/radiology/radiology.controller.ts:220",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
-    "perms": [],
+    "perms": [
+     "catalog.update"
+    ],
     "useGuards": "require('../../common/auth.guard'"
    }
   },
   {
    "m": "POST",
    "p": "/nursing/admin/catalog/:param/approve",
-   "src": "backend/src/modules/home-care/home-care.controller.ts:135",
+   "src": "backend/src/modules/home-care/home-care.controller.ts:140",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
-    "perms": [],
+    "perms": [
+     "catalog.update"
+    ],
     "useGuards": "JwtAuthGuard | JwtAuthGuard"
    }
   },
   {
    "m": "POST",
    "p": "/labs/admin/catalog/bulk-approve",
-   "src": "backend/src/modules/labs/labs.controller.ts:206",
+   "src": "backend/src/modules/labs/labs.controller.ts:212",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
-    "perms": [],
+    "perms": [
+     "catalog.update"
+    ],
     "useGuards": "require('../../common/auth.guard'"
    }
   },
   {
    "m": "POST",
    "p": "/radiology/admin/catalog/bulk-approve",
-   "src": "backend/src/modules/radiology/radiology.controller.ts:222",
+   "src": "backend/src/modules/radiology/radiology.controller.ts:228",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
-    "perms": [],
+    "perms": [
+     "catalog.update"
+    ],
     "useGuards": "require('../../common/auth.guard'"
    }
   },
   {
    "m": "POST",
    "p": "/nursing/admin/catalog/bulk-approve",
-   "src": "backend/src/modules/home-care/home-care.controller.ts:142",
+   "src": "backend/src/modules/home-care/home-care.controller.ts:148",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
-    "perms": [],
+    "perms": [
+     "catalog.update"
+    ],
     "useGuards": "JwtAuthGuard | JwtAuthGuard"
    }
   },
@@ -462,7 +492,7 @@
   {
    "m": "POST",
    "p": "/storage/upload",
-   "src": "backend/src/modules/storage/storage.module.ts:362",
+   "src": "backend/src/modules/storage/storage.module.ts:370",
    "guards": {
     "public": false,
     "roles": [],
@@ -473,7 +503,7 @@
   {
    "m": "GET",
    "p": "/storage/:param/signed-url",
-   "src": "backend/src/modules/storage/storage.module.ts:386",
+   "src": "backend/src/modules/storage/storage.module.ts:394",
    "guards": {
     "public": false,
     "roles": [],
@@ -484,7 +514,7 @@
   {
    "m": "POST",
    "p": "/medicines/admin/catalog",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:261",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:265",
    "guards": {
     "public": false,
     "roles": [
@@ -499,7 +529,7 @@
   {
    "m": "POST",
    "p": "/medicines/admin/catalog/:param/delete",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:269",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:273",
    "guards": {
     "public": false,
     "roles": [
@@ -514,7 +544,7 @@
   {
    "m": "POST",
    "p": "/medicines/admin/catalog/:param/approve",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:277",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:281",
    "guards": {
     "public": false,
     "roles": [
@@ -758,20 +788,22 @@
   {
    "m": "POST",
    "p": "/medicines/admin/image-suggestions/:param/:param",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:186",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:187",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
-    "perms": [],
+    "perms": [
+     "catalog.update"
+    ],
     "useGuards": "JwtAuthGuard"
    }
   },
   {
    "m": "GET",
    "p": "/storage/:param",
-   "src": "backend/src/modules/storage/storage.module.ts:376",
+   "src": "backend/src/modules/storage/storage.module.ts:384",
    "guards": {
     "public": false,
     "roles": [],
@@ -785,7 +817,9 @@
    "src": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:513",
    "guards": {
     "public": false,
-    "roles": [],
+    "roles": [
+     "ADMIN"
+    ],
     "perms": [],
     "useGuards": "JwtAuthGuard"
    }
@@ -793,7 +827,7 @@
   {
    "m": "POST",
    "p": "/provider-onboarding/admin/contracts/:param/visibility",
-   "src": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:521",
+   "src": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:522",
    "guards": {
     "public": false,
     "roles": [
@@ -867,7 +901,7 @@
   {
    "m": "GET",
    "p": "/chat/admin/threads",
-   "src": "backend/src/modules/chat/chat.module.ts:147",
+   "src": "backend/src/modules/chat/chat.module.ts:148",
    "guards": {
     "public": false,
     "roles": [
@@ -913,7 +947,7 @@
   {
    "m": "GET",
    "p": "/medicines/admin/reports",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:313",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:317",
    "guards": {
     "public": false,
     "roles": [
@@ -954,13 +988,15 @@
   {
    "m": "POST",
    "p": "/medicines/admin/change-requests/:param/:param",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:221",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:224",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
-    "perms": [],
+    "perms": [
+     "catalog.update"
+    ],
     "useGuards": "JwtAuthGuard"
    }
   },
@@ -1229,7 +1265,7 @@
   {
    "m": "GET",
    "p": "/labs/services",
-   "src": "backend/src/modules/labs/labs.controller.ts:12",
+   "src": "backend/src/modules/labs/labs.controller.ts:13",
    "guards": {
     "public": true,
     "roles": [],

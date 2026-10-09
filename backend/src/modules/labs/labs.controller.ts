@@ -5,6 +5,7 @@ import { UserRole } from '../../common/enums';
 import { BookDto, TransitionDto, UploadDocDto, UpdateInsDto, OptInCashDto, AssignTechDto, UploadReportDto, RescheduleDto, UpdateGpsDto, DeclareEmergencyDto, RegisterSampleDto, ForceStateDto, UpdateStageDto} from './labs.dto';
 import { CreateLabCatalogDto, UpdateLabCatalogDto, ApproveCatalogDto, BulkApproveCatalogDto } from './labs.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller('labs')
 export class LabsController {
   constructor(private readonly svc: LabsService) {}
@@ -170,6 +171,7 @@ export class LabsController {
   @Get('admin/catalog')
   adminCatalog(@CurrentUser() u: any) { return this.svc.adminCatalog(u); }
 
+  @RequirePermissions(Permission.CATALOG_CREATE)
   @Post('admin/catalog')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   @Roles(UserRole.ADMIN)
@@ -178,6 +180,7 @@ export class LabsController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_UPDATE)
   @Put('admin/catalog/:id')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   @Roles(UserRole.ADMIN)
@@ -186,6 +189,7 @@ export class LabsController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_DELETE_RESTORE)
   @Delete('admin/catalog/:id')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   @Roles(UserRole.ADMIN)
@@ -195,6 +199,7 @@ export class LabsController {
 
   // P6.0: medical-review decision (approve surfaces the item publicly).
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_UPDATE)
   @Post('admin/catalog/:id/approve')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   @Roles(UserRole.ADMIN)
@@ -203,6 +208,7 @@ export class LabsController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_UPDATE)
   @Post('admin/catalog/bulk-approve')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   @Roles(UserRole.ADMIN)
