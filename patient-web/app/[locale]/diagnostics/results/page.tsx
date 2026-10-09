@@ -7,7 +7,7 @@ import { isLocale } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { RowCard } from "@/components-next/consult/consult-parts";
-import { LAB, RADIOLOGY } from "@/components-next/diagnostics/diag-parts";
+import { LAB, RADIOLOGY, pickText } from "@/components-next/diagnostics/diag-parts";
 import { diagStatus } from "@/components-next/diagnostics/status";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import consult from "@/components-next/consult/consult.module.css";
@@ -57,7 +57,7 @@ export default async function DiagnosticsResultsPage({ params }: Props) {
               const status = diagStatus(b.state);
               return (
                 <li key={b.id}>
-                  <RowCard href={diagnosticBookingHref(locale, "labs", b.id)} icon={LAB.icon} tone={LAB.tone} title={d("labs.label")} sub={b.hasReport ? d("reportReady") : status.key === "unknown" ? d("statusUnavailable") : t(`status_${status.key}`)} caret={caret} />
+                  <RowCard href={diagnosticBookingHref(locale, "labs", b.id)} icon={LAB.icon} tone={LAB.tone} title={pickText(locale, b.testNameAr, b.testNameEn) ?? d("labs.label")} sub={[b.scheduledAt && !Number.isNaN(Date.parse(b.scheduledAt)) ? new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(b.scheduledAt)) : null, b.hasReport ? d("reportReady") : status.key === "unknown" ? d("statusUnavailable") : t(`status_${status.key}`)].filter(Boolean).join(" · ")} caret={caret} />
                 </li>
               );
             })}

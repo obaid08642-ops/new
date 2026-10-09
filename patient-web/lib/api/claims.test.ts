@@ -7,7 +7,11 @@ describe("insurance claim response guards", () => {
   });
 
   it("drops malformed rows", () => {
-    expect(parseClaims([{ id: "", service: "Lab" }, { id: "claim-2", status: "unknown" }])).toEqual([]);
+    expect(parseClaims([{ id: "", service: "Lab" }, { id: 7, status: "pending" }])).toEqual([]);
+  });
+
+  it("keeps a claim whose status it does not know, without a status (shown as unavailable)", () => {
+    expect(parseClaims([{ id: "claim-2", status: "under_review" }])).toEqual([{ id: "claim-2", service: undefined, status: undefined, date: undefined }]);
   });
 
   it("reads the stored claim that GET /insurance/claims returns (service_type, createdAt)", () => {
