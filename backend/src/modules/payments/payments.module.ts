@@ -329,7 +329,7 @@ export class PaymentsService {
     return true;
   }
 
-  async createPaymentIntent(user: any, type: string, id: string, idempotencyKey: string) {
+  async createPaymentIntent(user: any, type: string, id: string, idempotencyKey: string, method?: string) {
     const requestKey = String(idempotencyKey || '').trim();
     if (!requestKey || requestKey.length > 128) throw new BadRequestException('idempotency_key_required');
     // Fail fast when no gateway is configured: never create a transaction record.
@@ -373,15 +373,19 @@ export class PaymentsService {
       amount = Math.max(0, Math.round((amount - Number(booking.wallet_applied)) * 100) / 100);
     }
     if (amount <= 0) throw new BadRequestException('invalid_amount');
+    const effectiveMethod = method || (booking.payment_method || 'card');
+    const normalizedMethod = effectiveMethod.toLowerCase();
+    // Validate the method against allowed values
+    if (!['cash', 'cod', 'card', 'insurance'].includes(normalizedMethod)) {
+      throw new BadRequestException('invalid_payment_method');
+    }
+    // Return existing active intent if already created (idempotency guard).
     const existing: any = await this.txns.findOne({ booking_kind: kind, booking_id: id, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
     if (existing) return this.publicTxn(existing);
-
-    // Persist an active reservation before calling the PSP. The partial unique
-    // index is the cross-process guard: a second request cannot create another
-    // live gateway intent for the same booking during an in-flight request.
+    // Persist the chosen method on the transaction for auditing/logging.
     let txn: any;
     try {
-      txn = await this.txns.create({ booking_kind: kind, booking_id: id, patient_id: booking.patient_id || booking.patient_account_id, amount, gateway: this.adapter.name, method: booking.payment_method || 'card', status: 'initiating', idempotency_key: requestKey });
+      txn = await this.txns.create({ booking_kind: kind, booking_id: id, patient_id: booking.patient_id || booking.patient_account_id, amount, gateway: this.adapter.name, method: normalizedMethod, status: 'initiating', idempotency_key: requestKey });
     } catch (error: any) {
       if (error?.code === 11000) {
         const active: any = await this.txns.findOne({ booking_kind: kind, booking_id: id, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
@@ -587,12 +591,12 @@ export class PaymentsController {
   @SelfService()
   @Post('intent/:type/:id')
   @UseInterceptors(IdempotencyInterceptor)
-  intent(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Headers('idempotency-key') key: string) { return this.svc.createPaymentIntent(u, t, id, key); }
+  intent(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: { method?: string }, @Headers('idempotency-key') key: string) { return this.svc.createPaymentIntent(u, t, id, key, b.method); }
   @SelfService()
   @Post('intent/diagnostics')
   @UseInterceptors(IdempotencyInterceptor)
   diagnosticsIntent(@CurrentUser() u: any, @Body() b: { order_id?: string; method?: string }, @Headers('idempotency-key') key: string) {
-    return this.svc.createPaymentIntent(u, 'diagnostics', b.order_id, key);
+    return this.svc.createPaymentIntent(u, 'diagnostics', b.order_id, key, b.method);
   }
   @SelfService()
   @Post('verify/:txn') verify(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.verifyPayment(u, txn); }
