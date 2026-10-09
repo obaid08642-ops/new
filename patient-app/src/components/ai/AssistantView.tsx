@@ -10,6 +10,7 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { pickLocalized } from '../../utils/localize';
+import { i18nManager } from '../../i18n/LanguageManager';
 import { AI_HOME, AnswerCard, CheckRow, MyBubble } from './AssistantKit';
 
 /**
@@ -145,7 +146,7 @@ function PrescriptionMode() {
     setBusy(true);
     setError(null);
     try {
-      const res = (await apiFetch('/ai/ocr-translate', { method: 'POST', body: JSON.stringify({ image_base64: base64, target_lang: 'ar' }) })) as { ok?: boolean; medications?: Record<string, any>[] } | null;
+      const res = (await apiFetch('/ai/ocr-translate', { method: 'POST', body: JSON.stringify({ image_base64: base64, target_lang: i18nManager.currentLanguage }) })) as { ok?: boolean; medications?: Record<string, any>[] } | null;
       if (!res || res.ok === false) throw new Error('ocr-translate failed');
       setMeds((res.medications || []).map((m) => ({
         originalText: m.originalText || m.name_en || m.name || '',

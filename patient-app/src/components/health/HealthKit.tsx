@@ -9,6 +9,7 @@ import { Glyph } from '../pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { isOffline } from '../../utils/isOffline';
 import { logError } from '../../utils/logger';
+import { isolateNumbers } from '../../utils/bidi';
 
 /**
  * What the Health screens share (Batch 5): the screen frame whose back button returns to the health hub, link tabs
@@ -134,8 +135,8 @@ export function Row({ icon, tone, title, subtitle, caption, trailing, onPress, l
       <FIcon icon={icon} tone={tone} size={40} chip="soft" theme={theme} />
       <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
         <Text style={{ ...scale(t, 'body', 'bold'), color: c.text.primary, ...flow }}>{title}</Text>
-        {subtitle ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{subtitle}</Text> : null}
-        {caption ? <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.tertiary, ...flow }}>{caption}</Text> : null}
+        {subtitle ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{isolateNumbers(subtitle)}</Text> : null}
+        {caption ? <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.tertiary, ...flow }}>{isolateNumbers(caption)}</Text> : null}
       </View>
       {trailing}
       {onPress && !trailing ? <Chevron /> : null}

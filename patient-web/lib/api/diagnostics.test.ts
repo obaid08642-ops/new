@@ -18,3 +18,10 @@ describe("diagnostic booking response guards", () => {
     expect(extractDiagnosticBooking({ id: "invalid" })).toBeNull();
   });
 });
+
+describe("lab booking test name (needs-review issue 1065)", () => {
+  it("reads the first test's names from the booking items", () => {
+    expect(extractDiagnosticBookings([{ id: bookingId, state: "CONFIRMED", items: [{ name_ar: "صورة دم كاملة", name_en: "CBC" }] }])[0])
+      .toMatchObject({ id: bookingId, testNameAr: "صورة دم كاملة", testNameEn: "CBC" });
+  });
+});

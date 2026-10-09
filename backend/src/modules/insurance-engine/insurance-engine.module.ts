@@ -30,6 +30,7 @@ import { HomeCareBookingSchema } from '../../schemas/home-care.schema';
 import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
 import { UserRole } from '../../common/enums';
 import { SavePolicyDto, CreateRequestDto, PayCopayDto, ResubmitDto, AppealDto, DecideDto, GatekeeperDto, PaymentConfirmDto, PayCopayDto2, RequestDto, DecideRefundDto, AccrueDto } from './insurance-engine.dto';
+import { Permission, RequirePermissions } from '../../common/permissions';
 
 // ============================================================================
 // Schemas
@@ -884,6 +885,7 @@ export class AdminFinanceCoreController {
   @Get('ledger/summary') summary() { return this.finance.platformSummary(); }
   @Get('refunds/queue') refundsQueue() { return this.refunds.adminQueue(); }
   @StepUp()
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post('refunds/:id/decide') decideRefund(@CurrentUser() u: any, @Param('id') id: string, @Body() b: DecideRefundDto) {
     return this.refunds.decide(u, id, b?.approve === true, b?.note);
   }

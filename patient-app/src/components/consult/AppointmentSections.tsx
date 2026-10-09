@@ -127,7 +127,8 @@ export function SummarySection({ appointmentId, doctorId, onSummary }: { appoint
   useEffect(() => {
     onSummary?.(summary);
   }, [summary, onSummary]);
-  const windowDays = summary?.follow_up_window_days ?? 7;
+  // Only the window the server sends; no invented 7 days or price promise (needs-review issue 803).
+  const windowDays = summary?.follow_up_window_days;
   return (
     <Section title={k('consult.summary.title')}>
       {load.state === 'loading' ? null : load.state === 'error' ? (
@@ -139,8 +140,8 @@ export function SummarySection({ appointmentId, doctorId, onSummary }: { appoint
           {summary.follow_up_recommended && (doctorId || summary.doctor_id) ? (
             <Card theme={theme}>
               <View style={{ gap: 8 }}>
-                <StatusTag label={k('consult.summary.window', { n: num(windowDays) })} tone="info" />
-                <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }}>{k('consult.summary.followUpBody', { n: num(windowDays) })}</Text>
+                {typeof windowDays === 'number' ? <StatusTag label={k('consult.summary.window', { n: num(windowDays) })} tone="info" /> : null}
+                {typeof windowDays === 'number' ? <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }}>{k('consult.summary.followUpBody', { n: num(windowDays) })}</Text> : null}
                 <Button label={k('consult.summary.bookFollowUp')} size="md" fullWidth onPress={() => openFollowUp(doctorId || summary.doctor_id || '', appointmentId)} theme={theme} testID="summary-follow-up" />
               </View>
             </Card>

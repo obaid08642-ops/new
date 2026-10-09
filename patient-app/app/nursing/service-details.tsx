@@ -40,7 +40,7 @@ export default function NursingServiceDetails() {
     async (sortType: Sort) => {
       setStatus('loading');
       try {
-        const res = await apiFetch<unknown>(`/home-care/providers?type=${serviceId}&sort=${sortType}&gender=${params.gender || 'any'}&availability=${params.availability || 'any'}&nationality=${params.nationality || 'any'}&search=${params.search || ''}`);
+        const res = await apiFetch<unknown>(`/home-care/providers?${new URLSearchParams({ type: serviceId || '', sort: sortType, gender: first(params.gender) || 'any', availability: first(params.availability) || 'any', nationality: first(params.nationality) || 'any', search: first(params.search) || '' }).toString()}`);
         setNurses(Array.isArray(res) ? (res as Rec[]) : []);
         setStatus('ready');
       } catch (err) {
