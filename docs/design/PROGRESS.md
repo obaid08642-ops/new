@@ -66,4 +66,5 @@ Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = we
 - **UI needs-review (plan 2026-10-09 s.10):** patient-core 29 issues walked: 1 partial fix (#433 client), 6 already fixed on main (#421 #422 #560 #566 #568 #569), rest owner decisions / waits for OC-C / not UI. Details in PR. ~170k tokens.
 - **UI issues patient-pharmacy (22):** 5 fixed (#812 #818 #362 #379 #469), 1 partial (#478), #559 half done, 5 already fixed, rest owner decisions / backend. ~140k tokens.
 - **UI issues patient-other chunk 1 (16):** 7 fixed (#382 part, #386, #630, #673, #674, #741, #697); #641 #643 wait for OC-B; rest owner/not UI. ~190k tokens.
+- **UI issues patient-other chunk 2 (17):** 4 fixed (#790 #867 #885 #856), #852 already fixed; rest owner decisions / new features / decision 35 wording. Found: web doctor search sent ?search= but the API reads q. ~135k tokens.
 

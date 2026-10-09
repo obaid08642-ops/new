@@ -8,7 +8,7 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { ActionLinks } from "@/components-next/consult/consult-parts";
 import { CareHero, RecordRow } from "@/components-next/care/care-kit";
-import { RowsCard, SectionHead, VitalTile } from "@/components-next/health/health-kit";
+import { PartUnavailable, RowsCard, SectionHead, VitalTile } from "@/components-next/health/health-kit";
 import health from "@/components-next/health/health.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -79,6 +79,14 @@ export default async function AiMonthlyReportPage({ params }: Props) {
   const vitals = await listOf(vitalsRes);
   const meds = await listOf(medsRes);
   const trends = (await listOf(trendsRes)).filter((row) => Array.isArray(row.data) && row.data.length > 0);
+  // A source that failed while the others answered is "unavailable", never an empty list.
+  const failed = [
+    ...(apptsRes.ok ? [] : [t("appointments")]),
+    ...(vitalsRes.ok ? [] : [t("vitals")]),
+    ...(medsRes.ok ? [] : [t("chronicMeds")]),
+    ...(trendsRes.ok ? [] : [t("trends")]),
+  ];
+  const partial = failed.length > 0 ? <PartUnavailable>{t("partial", { parts: new Intl.ListFormat(locale, { style: "long", type: "conjunction" }).format(failed) })}</PartUnavailable> : null;
   const hasAny = appts.length > 0 || vitals.length > 0 || meds.length > 0 || trends.length > 0;
   const month = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(now);
   const number = new Intl.NumberFormat(locale, { maximumFractionDigits: 2 });
@@ -89,6 +97,7 @@ export default async function AiMonthlyReportPage({ params }: Props) {
     return frame(
       <>
         <CareHero tone="mint" icon="chart-line-up" label={t("title")} title={month} lines={[t("heroLine")]} />
+        {partial}
         <ConsultState kind="empty" icon="chart-line-up" tone="mint" title={t("emptyTitle")} body={t("emptyBody")} actionLabel={t("logReading")} actionHref={`/${locale}/health/vitals?tab=today&add=1`} />
       </>,
     );
@@ -97,11 +106,12 @@ export default async function AiMonthlyReportPage({ params }: Props) {
   return frame(
     <>
       <CareHero tone="mint" icon="chart-line-up" label={t("title")} title={month} lines={[t("heroLine")]} />
+      {partial}
       <ul className={health.tiles} aria-label={t("glance")}>
-        <li><VitalTile label={t("appointments")} value={number.format(appts.length)} icon="stethoscope" tone="blue" /></li>
-        <li><VitalTile label={t("completed")} value={number.format(completed.length)} icon="check-circle" tone="mint" /></li>
-        <li><VitalTile label={t("upcoming")} value={number.format(upcoming.length)} icon="calendar-dots" tone="amber" /></li>
-        <li><VitalTile label={t("chronicMeds")} value={number.format(meds.length)} icon="pill" tone="coral" /></li>
+        <li><VitalTile label={t("appointments")} value={apptsRes.ok ? number.format(appts.length) : dash} icon="stethoscope" tone="blue" /></li>
+        <li><VitalTile label={t("completed")} value={apptsRes.ok ? number.format(completed.length) : dash} icon="check-circle" tone="mint" /></li>
+        <li><VitalTile label={t("upcoming")} value={apptsRes.ok ? number.format(upcoming.length) : dash} icon="calendar-dots" tone="amber" /></li>
+        <li><VitalTile label={t("chronicMeds")} value={medsRes.ok ? number.format(meds.length) : dash} icon="pill" tone="coral" /></li>
       </ul>
 
       {vitals.length > 0 ? (

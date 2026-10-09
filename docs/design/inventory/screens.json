@@ -1,5 +1,5 @@
 {
- "commit": "95a485b8",
+ "commit": "05db9226",
  "routes": [
   {
    "app": "patient-app",
@@ -825,7 +825,7 @@
      "path": "/care/appointments/:param",
      "target": "backend",
      "query": "",
-     "line": 78,
+     "line": 77,
      "file": "patient-app/app/consultations/cancel-reschedule.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:26"
@@ -835,7 +835,7 @@
      "path": "/care/appointments/:param/cancel",
      "target": "backend",
      "query": "",
-     "line": 162,
+     "line": 160,
      "file": "patient-app/app/consultations/cancel-reschedule.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:36"
@@ -845,7 +845,7 @@
      "path": "/care/appointments/:param/reschedule",
      "target": "backend",
      "query": "",
-     "line": 168,
+     "line": 166,
      "file": "patient-app/app/consultations/cancel-reschedule.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/appointments.controller.ts:41"
@@ -855,7 +855,7 @@
      "path": "/care/doctors/:param/slots",
      "target": "backend",
      "query": "?date=:param&service_type=:param",
-     "line": 108,
+     "line": 106,
      "file": "patient-app/app/consultations/cancel-reschedule.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:73"
@@ -865,7 +865,7 @@
      "path": "/system-config/public",
      "target": "backend",
      "query": "",
-     "line": 92,
+     "line": 91,
      "file": "patient-app/app/consultations/cancel-reschedule.tsx",
      "status": "OK",
      "backend": "backend/src/modules/admin/governance/system-config.controller.ts:51"
@@ -7531,26 +7531,6 @@
     },
     {
      "method": "GET",
-     "path": "/api/patient/articles/bookmarks/:param/status",
-     "target": "web-proxy",
-     "query": "",
-     "line": 28,
-     "file": "patient-web/components-next/articles/save-article-button.tsx",
-     "backend": "backend/src/modules/articles/articles.module.ts:184",
-     "status": "OK"
-    },
-    {
-     "method": "POST",
-     "path": "/api/patient/articles/bookmarks/:param/toggle",
-     "target": "web-proxy",
-     "query": "",
-     "line": 45,
-     "file": "patient-web/components-next/articles/save-article-button.tsx",
-     "backend": "backend/src/modules/articles/articles.module.ts:193",
-     "status": "OK"
-    },
-    {
-     "method": "GET",
      "path": "/articles/:param",
      "target": "backend",
      "query": "",
@@ -7560,7 +7540,7 @@
      "backend": "backend/src/modules/articles/articles.module.ts:117"
     }
    ],
-   "files": 41,
+   "files": 40,
    "unresolved": 0
   },
   {
@@ -9568,8 +9548,8 @@
      "method": "GET",
      "path": "/entity-graph/explore",
      "target": "backend",
-     "query": "?specialty=:param&city=:param",
-     "line": 20,
+     "query": "?specialty=:param&city=:param&district=:param",
+     "line": 22,
      "file": "patient-web/app/[locale]/doctors/[specialty]/[city]/[neighborhood]/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/entity-graph/entity-graph.controller.ts:19"
@@ -9786,16 +9766,6 @@
     },
     {
      "method": "GET",
-     "path": "/family/emergency-contacts",
-     "target": "backend",
-     "query": "",
-     "line": 20,
-     "file": "patient-web/lib/api/family-server.ts",
-     "status": "OK",
-     "backend": "backend/src/modules/family/family.controller.ts:94"
-    },
-    {
-     "method": "GET",
      "path": "/family/members",
      "target": "backend",
      "query": "",
@@ -9825,7 +9795,7 @@
      "backend": "backend/src/modules/family/family.controller.ts:121"
     }
    ],
-   "files": 47,
+   "files": 45,
    "unresolved": 0
   },
   {
@@ -10295,26 +10265,6 @@
      "handler": "patient-web/app/api/medical-profile/[list]/[itemId]/route.ts"
     },
     {
-     "method": "POST",
-     "path": "/api/patient/health/emergency-contacts",
-     "target": "web-proxy",
-     "query": "",
-     "line": 32,
-     "file": "patient-web/components-next/health/emergency-contacts-editor.tsx",
-     "backend": "backend/src/modules/health/health.controller.ts:117",
-     "status": "OK"
-    },
-    {
-     "method": "DELETE",
-     "path": "/api/patient/health/emergency-contacts/:param",
-     "target": "web-proxy",
-     "query": "",
-     "line": 53,
-     "file": "patient-web/components-next/health/emergency-contacts-editor.tsx",
-     "backend": "backend/src/modules/health/health.controller.ts:122",
-     "status": "OK"
-    },
-    {
      "method": "GET",
      "path": "/family/emergency-contacts",
      "target": "backend",
@@ -10349,13 +10299,13 @@
      "path": "/medical-profile",
      "target": "backend",
      "query": "",
-     "line": 52,
+     "line": 51,
      "file": "patient-web/app/[locale]/health/profile/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medical-profile/medical-profile.controller.ts:14"
     }
    ],
-   "files": 45,
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -10433,16 +10383,6 @@
      "handler": "patient-web/app/api/auth/logout/route.ts"
     },
     {
-     "method": "POST",
-     "path": "/api/patient/health/sleep",
-     "target": "web-proxy",
-     "query": "",
-     "line": 33,
-     "file": "patient-web/components-next/health/sleep-add-form.tsx",
-     "backend": "backend/src/modules/health/health.controller.ts:91",
-     "status": "OK"
-    },
-    {
      "method": "GET",
      "path": "/health/sleep",
      "target": "backend",
@@ -10453,7 +10393,7 @@
      "backend": "backend/src/modules/health/health.controller.ts:87"
     }
    ],
-   "files": 39,
+   "files": 38,
    "unresolved": 0
   },
   {

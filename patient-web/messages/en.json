@@ -3143,6 +3143,7 @@
     "heroLine": "Your appointments, readings and chronic medicines this month",
     "unavailableTitle": "The report could not be loaded",
     "unavailable": "Try again in a moment.",
+    "partial": "Part of the report could not be loaded: {parts}. These parts are shown as —.",
     "notAvailable": "—",
     "emptyTitle": "Not enough data yet",
     "emptyBody": "Log a reading and your report appears here.",

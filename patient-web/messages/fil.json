@@ -3143,6 +3143,7 @@
     "heroLine": "Iyong mga appointment, sukat at pangmatagalang gamot ngayong buwan",
     "unavailableTitle": "Hindi ma-load ang ulat",
     "unavailable": "Subukan muli mamaya.",
+    "partial": "Hindi ma-load ang bahagi ng ulat: {parts}. Ipinapakita ang mga ito bilang —.",
     "notAvailable": "—",
     "emptyTitle": "Wala pang sapat na datos",
     "emptyBody": "Magtala ng sukat at lalabas dito ang iyong ulat.",

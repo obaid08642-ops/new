@@ -17,22 +17,14 @@ type Props = { params: Promise<{ locale: string; specialty: string; city: string
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
 
 async function fetchDoctorsByNeighborhood(specialty: string, city: string, neighborhood: string) {
+  const district = readSegment(neighborhood);
+  // The explore endpoint filters the facilities by district on the server; no whole-city fallback.
   const json = await readPublicEntity<ExploreResult>(
-    `${API_BASE}/api/v1/entity-graph/explore?specialty=${encodeURIComponent(specialty)}&city=${encodeURIComponent(city)}`,
+    `${API_BASE}/api/v1/entity-graph/explore?specialty=${encodeURIComponent(specialty)}&city=${encodeURIComponent(city)}&district=${encodeURIComponent(district)}`,
     3600,
   );
   if (!json) return null;
-  // Filter facilities and doctors in or near the neighborhood
-  const normNeigh = readSegment(neighborhood).toLowerCase();
-  const all = json.facilities ?? [];
-  const filteredFacs = all.filter(
-    (f) => (f.district && f.district.toLowerCase().includes(normNeigh)) || (f.address && f.address.toLowerCase().includes(normNeigh)),
-  );
-  return {
-    ...json,
-    facilities: filteredFacs.length ? filteredFacs : all,
-    neighborhood: readSegment(neighborhood),
-  };
+  return { ...json, facilities: json.facilities ?? [], neighborhood: district };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
