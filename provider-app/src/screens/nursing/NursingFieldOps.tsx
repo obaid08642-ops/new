@@ -5,6 +5,7 @@ import { NHeader, NCard, NBtn, NScroll, NInput, NBadge, NSecHeader } from '../..
 import { SignatureCanvasModal } from '../../components/SignatureCanvasModal';
 import { useTheme, useLang, useToast } from '../../context';
 import { FS, FW, SP } from '../../constants';
+import { MAX_VISIT_FILES, PickedVisitFile, buildVisitReportBody, pickVisitFile, uploadVisitFiles } from './visitFiles';
 
 /**
  * THE single home-visit flow of the nursing app. Every entry point (home cards, quick actions, orders tab, checklist)
@@ -37,6 +38,7 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
   const [pulse, setPulse] = useState('');
   const [temp, setTemp] = useState('');
   const [followUp, setFollowUp] = useState('');
+  const [files, setFiles] = useState<PickedVisitFile[]>([]);
 
   const load = useCallback(async () => {
     if (!visitId) { setLoading(false); return; }
@@ -118,6 +120,23 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
     if (pulse.trim()) vitals.pulse = parseInt(pulse, 10);
     if (temp.trim()) vitals.temp = parseFloat(temp);
     if (glucose.trim()) vitals.glucose = parseInt(glucose, 10);
+    // N1: with result files, upload each one then complete through the visit report (the only route that stores attachments).
+    if (files.length) {
+      setBusy(true);
+      try {
+        const attachments = await uploadVisitFiles(files);
+        await client.post(`/home-care/bookings/${visitId}/visit-report`,
+          buildVisitReportBody({ attachments, vitals, notes, followUp, signature }));
+        show(AR ? 'تم إنهاء الزيارة وإرسال الملفات للمريض' : 'Visit completed and files sent to the patient', 'success');
+        setSignature(null); setNotes(''); setBp(''); setGlucose(''); setPulse(''); setTemp(''); setFollowUp(''); setFiles([]);
+        onRefresh(); void load();
+      } catch (error) {
+        show(errMsg(error, AR ? 'تعذر رفع الملفات أو إنهاء الزيارة' : 'Could not upload the files or complete the visit'), 'error');
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
     const ok = await act('complete',
       {
         clinical_notes: notes.trim() || undefined,
@@ -205,6 +224,24 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
                 {signature ? (
                   <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{AR ? 'تم التقاط التوقيع' : 'Signature captured'}</Text>
                 ) : null}
+                <NSecHeader title={AR ? 'ملفات النتائج (اختياري)' : 'Result files (optional)'} />
+                {files.map((f, i) => (
+                  <View key={`${f.uri}-${i}`} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', gap: SP.sm }}>
+                    <Text numberOfLines={1} style={{ color: theme.text, fontSize: FS.sm, flex: 1, textAlign: AR ? 'right' : 'left' }}>{f.name}</Text>
+                    <NBtn label={AR ? 'إزالة' : 'Remove'} variant="outline" disabled={busy} onPress={() => setFiles((cur) => cur.filter((_, j) => j !== i))} />
+                  </View>
+                ))}
+                {files.length < MAX_VISIT_FILES ? (
+                  <NBtn label={AR ? 'إرفاق ملف (PDF أو صورة)' : 'Attach a file (PDF or image)'} variant="outline" disabled={busy}
+                    onPress={async () => {
+                      try {
+                        const f = await pickVisitFile();
+                        if (f) setFiles((cur) => [...cur, f].slice(0, MAX_VISIT_FILES));
+                      } catch { show(AR ? 'تعذر اختيار الملف' : 'Could not pick the file', 'error'); }
+                    }} />
+                ) : (
+                  <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{AR ? 'الحد الأقصى 10 ملفات' : 'Maximum 10 files'}</Text>
+                )}
                 <NBtn label={AR ? 'إنهاء الزيارة' : 'Complete visit'} loading={busy} onPress={() => void doComplete()} />
               </NCard>
             )}

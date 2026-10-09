@@ -98,7 +98,7 @@
     ],
     [
      "API: GET /chats/threads",
-     "GET /chats/threads (OK, backend/src/modules/chat/chat.module.ts:141)",
+     "GET /chats/threads (OK, backend/src/modules/chat/chat.module.ts:142)",
      "ok"
     ]
    ],
@@ -151,7 +151,7 @@
     ],
     [
      "API: GET /insurance/companies",
-     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:695)",
+     "GET /insurance/companies (OK, backend/src/modules/insurance-engine/insurance-engine.module.ts:696)",
      "ok"
     ]
    ],
@@ -369,7 +369,7 @@
     ],
     [
      "API: POST /medicines/:param/suggest-change",
-     "POST /medicines/:param/suggest-change (OK, backend/src/modules/medicines/medicines.controller.ts:201)",
+     "POST /medicines/:param/suggest-change (OK, backend/src/modules/medicines/medicines.controller.ts:203)",
      "ok"
     ],
     [
@@ -379,12 +379,12 @@
     ],
     [
      "API: POST /storage/upload",
-     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:362)",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:370)",
      "ok"
     ],
     [
      "API: POST /storage/upload-suggestion-image",
-     "POST /storage/upload-suggestion-image (OK, backend/src/modules/storage/storage.module.ts:397)",
+     "POST /storage/upload-suggestion-image (OK, backend/src/modules/storage/storage.module.ts:405)",
      "ok"
     ]
    ],
@@ -824,12 +824,12 @@
     ],
     [
      "API: GET /provider/profile/image/status",
-     "GET /provider/profile/image/status (OK, backend/src/modules/provider/provider.controllers.ts:113)",
+     "GET /provider/profile/image/status (OK, backend/src/modules/provider/provider.controllers.ts:114)",
      "ok"
     ],
     [
      "API: POST /provider/profile/image/upload",
-     "POST /provider/profile/image/upload (OK, backend/src/modules/provider/provider.controllers.ts:102)",
+     "POST /provider/profile/image/upload (OK, backend/src/modules/provider/provider.controllers.ts:103)",
      "ok"
     ]
    ],
@@ -967,12 +967,12 @@
     ],
     [
      "API: POST /provider/auth/login",
-     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:35)",
+     "POST /provider/auth/login (OK, backend/src/modules/provider/provider.controllers.ts:36)",
      "ok"
     ],
     [
      "API: POST /storage/upload",
-     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:362)",
+     "POST /storage/upload (OK, backend/src/modules/storage/storage.module.ts:370)",
      "ok"
     ]
    ]
@@ -1122,7 +1122,7 @@
     ],
     [
      "API: GET /provider/banks",
-     "GET /provider/banks (OK, backend/src/modules/provider/provider.controllers.ts:100)",
+     "GET /provider/banks (OK, backend/src/modules/provider/provider.controllers.ts:101)",
      "ok"
     ],
     [
@@ -1214,7 +1214,7 @@
    "note": "Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts).",
    "file": "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx",
    "line": 54,
-   "backend": "backend/src/modules/provider/provider.controllers.ts:99"
+   "backend": "backend/src/modules/provider/provider.controllers.ts:100"
   },
   {
    "route": "WorkingHoursEditorScreen",

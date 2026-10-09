@@ -76,7 +76,7 @@
     "element": "API GET /insurance/requests/provider/queue",
     "file": "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx",
     "line": 54,
-    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:736)",
+    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:737)",
     "suspect": "Backend gap: reviewer session."
   },
   {

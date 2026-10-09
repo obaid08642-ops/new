@@ -23,7 +23,6 @@ _Updated 2026-10-06._
 | Gates (baselines only go down) | see `tools/design/*.baseline.json` |
 | **Provider app central layout** (no redesign), `design/provider-layout` | NHeader/NBottomNav/NScroll/NSheet/NConfirm safe areas, keyboard, RTL, minHeight; 2 non-ui screens; 34 layout tests; ~137k tokens of the 1.5M provider budget; PR open |
 | Batches 5-12 (health, family, insurance, care, AI, articles, loyalty, settings) | Rebuilt on merge maps 1-2; PRs #360, #572, #580, #708, #711, #721, #722, #723 (details in each PR) |
-| **Admin mobile central PR** (no redesign), `design/admin-mobile` | drawer sidebar < 1024 px, shared `DataTable` (cards on phones; 4 pages migrated, ~44 tables left: single-header tables get cards via a fallback, the rest scroll in their box), `FilterSheet`, dvh, logical properties; Playwright 280/280 on 15 pages at 6 widths with a STUBBED session; ~130k of the 1M admin budget |
 | Gates (baselines only go down) | see `tools/design/*.baseline.json` (regenerated after merging Batches 7, 10, 11 and 12) |
 
 Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = web-only static pages; 14 = second-pass merges of Batches 1-4 + Emergency.
@@ -59,3 +58,4 @@ Screens per batch: Batches 0-12 done (merge maps reshape 5-9 and 11-12); 13 = we
 - **Owner questions open:** intro/language/permissions screens before Welcome? Which roles may hold a patient session? Chat entry points with no order; compare picker; camera barcode on web; where the insurance choice belongs; native review of ur/hi/bn/tl wording.
 - **Admin audit (design/admin-audit, read-only):** 65 pages, 338 calls (3 NO_ROUTE, 9 WRONG_METHOD), 102+20 Needs-review lines, `ADMIN_MOBILE_ESSENTIALS.md`. ~250k tokens.
 - **Admin build (#1204) / provider build (#1205), 2026-10-08:** 44 tables on DataTable + /admin/today, /admin/approvals, catalogue quick edit/scan/confirm (~400k); pharmacy, merges, missing screens, ambulance removal, M9 wizard (~1.05M). Gaps in needs-review. Owner plan and decisions 24-27: `PROGRESS_ARCHIVE.md`.
+- **N1 nurse result upload (design/n1-nurse-upload):** files picked at visit end -> POST /storage/upload -> visit-report {complete, attachments}; without files the old complete route is kept. Backend gap: visit-report ignores the signature. ~60k tokens.
