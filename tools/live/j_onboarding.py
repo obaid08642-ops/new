@@ -156,6 +156,8 @@ def _value(key, kind):
             return 'SA0380000000608010167519'
         if k in ('specialty',):
             return 'cardiology'
+        if k == 'academic_degree':
+            return 'consultant'  # one of the DEGREES ids the wizard offers (provider-profile enum)
         if 'city' in k:
             return 'الرياض'
         return 'قيمة اختبار'
