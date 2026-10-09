@@ -22,7 +22,7 @@
  * `created` has length 2 → red.
  */
 import { ConflictException } from '@nestjs/common';
-import { AppointmentsService, paddedWindowKeys } from './appointments.service';
+import { AppointmentsService, slotPaddedEnd, slotCandidateConflictsWithBooking } from './appointments.service';
 
 const BLOCKING = new Set(['PENDING', 'CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS']);
 

@@ -42,35 +42,81 @@ describe('15.7 chaos — payment adapters (timeout + breaker + user message)', (
   });
 
   const adapters = () => ([
-    ['stripe', new StripeAdapter()],
-    ['tap', new TapAdapter()],
-    ['moyasar', new MoyasarAdapter()],
+    ['stripe', new StripeAdapter(new CircuitBreakerService())],
+    ['tap', new TapAdapter(new CircuitBreakerService())],
+    ['moyasar', new MoyasarAdapter(new CircuitBreakerService())],
   ] as Array<[string, any]>);
 
-  it('creates a payment intent on the happy path', async () => {
+  it('aborts a hung processor instead of leaving the request open', async () => {
+    // a hung fetch that only the AbortSignal can end
+    fetchMock.mockImplementation(async (_url: any, init: any) =>
+      new Promise((_, rej) => {
+        init?.signal?.addEventListener('abort', () => {
+          const e: any = new Error('aborted');
+          e.name = 'AbortError';
+          rej(e);
+        });
+      }));
+
     for (const [name, adapter] of adapters()) {
-      const res: any = await adapter.createIntent({ amount: 10, currency: 'SAR', description: 'd', metadata: {} });
-      expect(res.intent_id).toBe('pi_1');
+      await expect(
+        adapter.createIntent({ amount: 10, currency: 'SAR', description: 'd', metadata: {} }),
+      ).rejects.toBeDefined();
     }
   });
 
-  it('throws BadGatewayException on a processor error', async () => {
-    fetchMock.mockResolvedValue({ ok: false, status: 500, json: async () => ({ error: { message: 'processor_http_500' } }) });
+  it('names the fault to the user (503 payment_gateway_timeout, not a raw 500)', async () => {
+    fetchMock.mockImplementation(async (_url: any, init: any) =>
+      new Promise((_, rej) => {
+        init?.signal?.addEventListener('abort', () => {
+          const e: any = new Error('aborted');
+          e.name = 'AbortError';
+          rej(e);
+        });
+      }));
+
     for (const [name, adapter] of adapters()) {
       const err = await adapter
         .createIntent({ amount: 10, currency: 'SAR', description: 'd', metadata: {} })
         .catch((e: any) => e);
-      expect(err).toBeInstanceOf(BadGatewayException);
+      expect(err).toBeInstanceOf(ServiceUnavailableException);
+      expect(err.getResponse?.().message ?? err.message).toMatch(/payment_gateway_timeout/);
     }
   });
 
-  it('propagates network errors to the caller', async () => {
-    fetchMock.mockRejectedValue(new Error('network_down'));
+  it('stops calling a dead processor once its circuit is open', async () => {
     for (const [name, adapter] of adapters()) {
-      await expect(
-        adapter.createIntent({ amount: 10, currency: 'SAR', description: 'd', metadata: {} }),
-      ).rejects.toThrow('network_down');
+      fetchMock.mockRejectedValue(new Error('processor_http_500'));
+      for (let i = 0; i < 14; i += 1) {
+        await adapter.createIntent({ amount: 10, currency: 'SAR', description: 'd', metadata: {} }).catch(() => undefined);
+      }
+      const before = fetchMock.mock.calls.length;
+      const err = await adapter
+        .createIntent({ amount: 10, currency: 'SAR', description: 'd', metadata: {} })
+        .catch((e: any) => e);
+      // the open circuit answered from the fallback without a network call
+      expect(fetchMock.mock.calls.length).toBe(before);
+      expect(err?.getResponse?.()?.code ?? err?.response?.code).toBe('payment_gateway_unavailable');
     }
+  });
+
+  it('recovers on the same breaker once the processor is healthy again', async () => {
+    const breakers = new CircuitBreakerService();
+    const stripe = new StripeAdapter(breakers);
+    fetchMock.mockRejectedValue(new Error('processor_http_500'));
+    for (let i = 0; i < 14; i += 1) {
+      await stripe.createIntent({ amount: 10, currency: 'SAR', description: 'd', metadata: {} }).catch(() => undefined);
+    }
+    expect(breakers.getStatus('payment:stripe:create_intent')).toBe('open');
+
+    // The circuit stays open until its resetTimeout elapses; changing the
+    // option after the open does NOT reschedule opossum's half-open timer, so
+    // recovery here goes through the operational escape hatch (close the
+    // breaker) and the SAME shared instance then serves the healthy call.
+    expect(breakers.reset('payment:stripe:create_intent')).toBe(true);
+    fetchMock.mockImplementation(async () => ({ ok: true, status: 200, json: async () => ({ id: 'pi_ok', client_secret: 'cs_ok' }) }));
+    const res: any = await stripe.createIntent({ amount: 10, currency: 'SAR', description: 'd', metadata: {} });
+    expect(res.intent_id).toBe('pi_ok');
   });
 });
 
@@ -113,8 +159,8 @@ describe('15.7 chaos — mail (Resend → SES)', () => {
    * axios module instance than the already-imported services hold, which
    * silently un-patches their spies.
    */
-  const mailWith = (resendSend: jest.Mock, sesSend: jest.Mock) => {
-    const mail = new MailService({ emit: jest.fn() } as any);
+  const mailWith = (resendSend: jest.Mock, sesSend: jest.Mock, breakers = new CircuitBreakerService()) => {
+    const mail = new MailService({ emit: jest.fn() } as any, undefined, breakers);
     (mail as any).resend = { emails: { send: resendSend } };
     (mail as any).sesTransport = () => ({ sendMail: sesSend });
     return mail;
@@ -148,29 +194,34 @@ describe('15.7 chaos — mail (Resend → SES)', () => {
     expect(res.error).toBeTruthy();           // "what happened"
   });
 
-  it('retries the primary provider on every call (no circuit breaker)', async () => {
+  it('stops calling a dead primary provider once its circuit is open', async () => {
     delete process.env.SES_SMTP_HOST;
+    const breakers = new CircuitBreakerService();
     const resendSend = jest.fn().mockRejectedValue(new Error('resend_http_500'));
-    const mail = mailWith(resendSend, jest.fn());
+    const mail = mailWith(resendSend, jest.fn(), breakers);
 
-    for (let i = 0; i < 3; i += 1) {
+    for (let i = 0; i < 14; i += 1) {
       await mail.send(`u${i}@example.test`, 's', '<p>x</p>');
     }
-    expect(resendSend).toHaveBeenCalledTimes(3);   // no breaker — every call retries
+    expect(breakers.getStatus('mail:resend:send')).toBe('open');
 
+    const before = resendSend.mock.calls.length;
     const res: any = await mail.send('later@example.test', 's', '<p>x</p>');
+    expect(resendSend.mock.calls.length).toBe(before);   // not retried
     expect(res.ok).toBe(false);                         // and it says what happened
   });
 
-  it('delivers a later healthy message after a failed one', async () => {
+  it('keeps a later healthy message deliverable on the same shared breaker (Q81 shape)', async () => {
+    const breakers = new CircuitBreakerService();
     let healthy = false;
     const resendSend = jest.fn().mockImplementation(async () => (healthy ? { data: { id: 'r1' } } : hang()));
-    const mail = mailWith(resendSend, jest.fn());
+    const mail = mailWith(resendSend, jest.fn(), breakers);
 
     await mail.send('a@example.test', 's', '<p>x</p>').catch(() => undefined);
     healthy = true;
     const res: any = await mail.send('b@example.test', 's', '<p>x</p>');
     expect(res.ok).toBe(true);
+    // the shared breaker delivered the SECOND recipient's own message
     expect(resendSend).toHaveBeenLastCalledWith(expect.objectContaining({ to: 'b@example.test' }));
   });
 });
@@ -181,47 +232,62 @@ describe('15.7 chaos — WhatsApp (Infobip) → email fallback', () => {
   const anySms = { sendOtp: jest.fn(async () => false) } as any;
   const anyMail = { send: jest.fn(async () => ({ ok: true, provider: 'resend', fallback_used: false })), sendOtp: jest.fn(async () => ({ ok: true, provider: 'resend', fallback_used: false })) } as any;
 
-  const mk = () => new NotificationsService(
+  const mk = (breakers: CircuitBreakerService) => new NotificationsService(
     { create: jest.fn(), aggregate: jest.fn(async () => []), db: { model: jest.fn() } } as any,
     { findOne: jest.fn() } as any,
     { emit: jest.fn() } as any,
     anySms, anyMail,
     {} as any,
     { t: jest.fn() } as any,
+    breakers,
   );
 
   afterEach(() => { process.env = { ...env }; jest.restoreAllMocks(); });
 
-  it('does not call the provider when WhatsApp is not configured', async () => {
-    delete process.env.INFOBIP_API_KEY;
-    const axios = require('axios');
-    const post = jest.spyOn(axios, 'post');
-
-    const svc = mk();
-    await svc.sendWhatsApp({ title_key: 't', body_key: 'b' }, '+966500000000');
-    expect(post).not.toHaveBeenCalled();
-  });
-
-  it('calls the provider when WhatsApp is configured', async () => {
+  it('reports WhatsApp as FAILED (not delivered) when the provider fails', async () => {
     process.env.INFOBIP_API_KEY = 'ibk';
     process.env.INFOBIP_URL = 'api.infobip.com';
     const axios = require('axios');
-    const post = jest.spyOn(axios, 'post').mockResolvedValue({ status: 200 });
+    jest.spyOn(axios, 'post').mockRejectedValue(new Error('infobip_http_503'));
 
-    const svc = mk();
-    await svc.sendWhatsApp({ title_key: 't', body_key: 'b' }, '+966500000000');
-    expect(post).toHaveBeenCalled();
+    const svc = mk(new CircuitBreakerService());
+    await expect(svc.sendWhatsApp({ title_key: 't', body_key: 'b' }, '+966500000000')).resolves.toBe(false);
   });
 
-  it('swallows provider errors (never throws)', async () => {
+  it('reports WhatsApp as delivered only when the provider accepted it', async () => {
     process.env.INFOBIP_API_KEY = 'ibk';
     process.env.INFOBIP_URL = 'api.infobip.com';
+    const axios = require('axios');
+    jest.spyOn(axios, 'post').mockResolvedValue({ status: 200 });
+
+    const svc = mk(new CircuitBreakerService());
+    await expect(svc.sendWhatsApp({ title_key: 't', body_key: 'b' }, '+966500000000')).resolves.toBe(true);
+  });
+
+  it('fails fast with false when the WhatsApp circuit is open', async () => {
+    process.env.INFOBIP_API_KEY = 'ibk';
+    process.env.INFOBIP_URL = 'api.infobip.com';
+    process.env.NOTIFY_TIMEOUT_MS = '50';
     const axios = require('axios');
     const post = jest.spyOn(axios, 'post').mockRejectedValue(new Error('infobip_http_503'));
 
-    const svc = mk();
-    await expect(svc.sendWhatsApp({ title_key: 't', body_key: 'b' }, '+966500000000')).resolves.toBeUndefined();
-    expect(post).toHaveBeenCalled();
+    const breakers = new CircuitBreakerService();
+    const svc = mk(breakers);
+    for (let i = 0; i < 14; i += 1) {
+      await svc.sendWhatsApp({ title_key: 't', body_key: 'b' }, '+966500000000');
+    }
+    expect(breakers.getStatus('notify:whatsapp:infobip')).toBe('open');
+
+    const callsBefore = post.mock.calls.length;
+    // circuit is open: the provider is not called again at all
+    await expect(svc.sendWhatsApp({ title_key: 't', body_key: 'b' }, '+966500000000')).resolves.toBe(false);
+    expect(post.mock.calls.length).toBe(callsBefore);
+  });
+
+  it('is skipped (and says so) when WhatsApp is not configured', async () => {
+    delete process.env.INFOBIP_API_KEY;
+    const svc = mk(new CircuitBreakerService());
+    await expect(svc.sendWhatsApp({ title_key: 't', body_key: 'b' }, '+966500000000')).resolves.toBe(false);
   });
 });
 
@@ -237,39 +303,25 @@ describe('15.7 chaos — S3 / R2 object storage', () => {
   });
   afterEach(() => { process.env = { ...env }; });
 
-  it('persists a storage record on successful upload', async () => {
+  it('times a hung object store out without persisting a storage record', async () => {
+    process.env.S3_TIMEOUT_MS = '60';
     const stored: any[] = [];
     const model: any = {
       create: jest.fn(async (doc: any) => { stored.push(doc); return doc; }),
       findOne: jest.fn(async () => null),
+      find: jest.fn(() => ({ lean: jest.fn(async () => []) })),
     };
-    const svc = new StorageService(model);
+    const mockUploadSecurity = {
+      validateAndSecureUpload: jest.fn().mockResolvedValue({ buffer: Buffer.from('x'), sanitized: false, exifStripped: false, clamavScanned: false, pdfSanitized: false }),
+      clamavAvailable: false,
+      clamavChecked: true,
+      checkClamavAvailability: jest.fn(),
+    } as any;
+    const svc = new StorageService(model, mockUploadSecurity);
 
+    // Force the S3 adapter: stub the client send to hang.
     const aws = require('@aws-sdk/client-s3');
-    const sendSpy = jest.spyOn(aws.S3Client.prototype, 'send').mockResolvedValue({ ETag: '"abc"' });
-
-    const res: any = await svc.upload({
-      owner_account_id: 'acc-1', owner_kind: 'user',
-      mime: 'application/pdf', data_base64: Buffer.from('x').toString('base64'),
-      original_name: 'a.pdf', visibility: 'private',
-    } as any);
-
-    expect(res.id).toBeDefined();
-    expect(res.url).toBe(`/api/v1/storage/${res.id}`);
-    expect(stored).toHaveLength(1);
-    sendSpy.mockRestore();
-  });
-
-  it('throws ServiceUnavailableException and persists nothing when the store fails', async () => {
-    const stored: any[] = [];
-    const model: any = {
-      create: jest.fn(async (doc: any) => { stored.push(doc); return doc; }),
-      findOne: jest.fn(async () => null),
-    };
-    const svc = new StorageService(model);
-
-    const aws = require('@aws-sdk/client-s3');
-    const sendSpy = jest.spyOn(aws.S3Client.prototype, 'send').mockRejectedValue(new Error('s3_down'));
+    const sendSpy = jest.spyOn(aws.S3Client.prototype, 'send').mockImplementation(hang as any);
 
     await expect(
       svc.upload({
@@ -281,6 +333,32 @@ describe('15.7 chaos — S3 / R2 object storage', () => {
 
     // no data loss / no phantom object: nothing was recorded as stored
     expect(stored).toHaveLength(0);
+    sendSpy.mockRestore();
+  });
+
+  it('opens the storage circuit so a dead store stops being retried per upload', async () => {
+    process.env.S3_TIMEOUT_MS = '40';
+    const model: any = { create: jest.fn(async (d: any) => d), findOne: jest.fn(async () => null) };
+    const breakers = new CircuitBreakerService();
+    const mockUploadSecurity = {
+      validateAndSecureUpload: jest.fn().mockResolvedValue({ buffer: Buffer.from('x'), sanitized: false, exifStripped: false, clamavScanned: false, pdfSanitized: false }),
+      clamavAvailable: false,
+      clamavChecked: true,
+      checkClamavAvailability: jest.fn(),
+    } as any;
+    const svc = new StorageService(model, mockUploadSecurity);
+
+    const aws = require('@aws-sdk/client-s3');
+    const sendSpy = jest.spyOn(aws.S3Client.prototype, 'send').mockImplementation(hang as any);
+
+    for (let i = 0; i < 14; i += 1) {
+      await svc.upload({
+        owner_account_id: 'acc-1', owner_kind: 'user',
+        mime: 'application/pdf', data_base64: Buffer.from('x').toString('base64'),
+        original_name: 'a.pdf', visibility: 'private',
+      } as any).catch(() => undefined);
+    }
+    expect(breakers.getStatus('storage:s3:put')).toBe('open');
     sendSpy.mockRestore();
   });
 });

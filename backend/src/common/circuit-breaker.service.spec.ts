@@ -81,7 +81,7 @@ describe('CircuitBreakerService (Q81 per-call binding)', () => {
     // second call reaches the action instead of being short-circuited.
     const quick = breakers.create('opts', hang, { timeout: 20 });
     await expect(quick.fire()).rejects.toThrow(/timed out/i);
-    expect(breakers.getStats('opts')?.opens).toBe(0);
+    expect(breakers.getStatus('opts')).toBe('closed');
 
     // A later caller asking for a different timeout must not silently inherit
     // the first caller's policy (opossum v9 has no breaker.update()).
@@ -92,7 +92,7 @@ describe('CircuitBreakerService (Q81 per-call binding)', () => {
 
     // One shared instance: both calls were counted by the same breaker.
     expect(breakers.getStats('opts')?.timeouts).toBe(2);
-    expect(breakers.getStats('opts')?.opens).toBe(0);
+    expect(breakers.getStatus('opts')).toBe('closed');
   });
 
   it('serves the fallback with the caller arguments when the circuit is open', async () => {
@@ -108,7 +108,7 @@ describe('CircuitBreakerService (Q81 per-call binding)', () => {
 
     await expect(failing.fire('pay_a')).resolves.toBe('degraded:pay_a');
     await expect(failing.fire('pay_b')).resolves.toBe('degraded:pay_b');
-    expect(breakers.getStats('fb')?.opens).toBeGreaterThan(0);
+    expect(breakers.getStatus('fb')).toBe('open');
   });
 
   it('hands the fallback the caller args first and the failure last', async () => {
@@ -135,17 +135,26 @@ describe('CircuitBreakerService (Q81 per-call binding)', () => {
     expect(seen).toEqual([['pay_a', typed]]);
   });
 
-  it('fire() uses the default timeout when no options are supplied', async () => {
+  it('fire() applies the caller-supplied options instead of discarding them', async () => {
+    // F5: fire() passed `{}` to create(), so a per-call timeout policy was
+    // silently discarded. A hanging call fired with `{ timeout: 20 }` must
+    // fail in milliseconds, not after the 3000 ms default.
     const breakers = new CircuitBreakerService();
     const hang = () => new Promise<never>(() => { /* never settles */ });
 
     const started = Date.now();
     await expect(
-      breakers.fire('fire-opts', hang, []),
+      breakers.fire('fire-opts', hang, [], undefined, { timeout: 20, volumeThreshold: 100 }),
     ).rejects.toThrow(/timed out/i);
-    const elapsed = Date.now() - started;
-    expect(elapsed).toBeGreaterThanOrEqual(2500);
-    expect(elapsed).toBeLessThan(5000);
+    expect(Date.now() - started).toBeLessThan(2000);
+
+    // And a later fire() with a different policy updates the shared breaker
+    // instead of keeping the first caller's (same applyOptions path as create).
+    const started2 = Date.now();
+    await expect(
+      breakers.fire('fire-opts', hang, [], undefined, { timeout: 150, volumeThreshold: 100 }),
+    ).rejects.toThrow(/timed out/i);
+    expect(Date.now() - started2).toBeGreaterThanOrEqual(100);
   });
 
   it('fire() binds the per-call function instead of dropping it', async () => {    const breakers = new CircuitBreakerService();
