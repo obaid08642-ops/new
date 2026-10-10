@@ -57,6 +57,35 @@ export class AppointmentsService {
   }
 
   /** ===== Create ===== */
+
+  /**
+   * D-38: the first online (video) consultation needs the current telehealth_consent.
+   * Throws telehealth_consent_required when the patient has not accepted it. When the
+   * deployment configures no such policy (or the connection double has no collections),
+   * booking proceeds as before.
+   */
+  private async assertTelehealthConsent(patientId: string): Promise<void> {
+    let policies: any = null;
+    let acceptances: any = null;
+    try {
+      policies = (this.connection as any)?.collection?.('legal_policies')
+        ?? (this.connection as any)?.db?.collection?.('legal_policies');
+      acceptances = (this.connection as any)?.collection?.('legal_acceptances')
+        ?? (this.connection as any)?.db?.collection?.('legal_acceptances');
+    } catch {
+      return;
+    }
+    if (!policies || !acceptances) return;
+    const policy: any = await policies.findOne({ key: 'telehealth_consent' });
+    if (!policy || policy.requires_acceptance === false) return;
+    const accepted: any = await acceptances.findOne({
+      user_id: patientId,
+      policy_key: 'telehealth_consent',
+      version: policy.version,
+    });
+    if (!accepted) throw new BadRequestException('telehealth_consent_required');
+  }
+
   async create(user: any, body: {
     doctor_id: string;
     service_type: ServiceType;
@@ -97,6 +126,11 @@ export class AppointmentsService {
     if (!doctor) throw new NotFoundException('doctor_not_found');
     if (!doctor.consultation_modes?.includes(body.service_type)) {
       throw new BadRequestException(`doctor does not support service_type=${body.service_type}`);
+    }
+    // D-38: the first online (video) consultation needs telehealth_consent. Skipped when
+    // the deployment configures no such policy, so unit doubles without collections keep working.
+    if (body.service_type === 'video') {
+      await this.assertTelehealthConsent(patientId);
     }
     const slotStart = new Date(body.slot_start);
     if (isNaN(slotStart.getTime()) || slotStart.getTime() < Date.now() + 5 * 60_000) {

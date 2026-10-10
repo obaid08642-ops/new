@@ -1,5 +1,5 @@
 {
- "commit": "23757652",
+ "commit": "e768aa5c",
  "routes": [
   {
    "app": "patient-app",
@@ -157,7 +157,7 @@
      "line": 149,
      "file": "patient-app/src/components/ai/AssistantView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/ai/ai.controller.ts:123"
+     "backend": "backend/src/modules/ai/ai.controller.ts:134"
     },
     {
      "method": "POST",
@@ -167,7 +167,7 @@
      "line": 80,
      "file": "patient-app/src/components/ai/AssistantView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/ai/ai.controller.ts:65"
+     "backend": "backend/src/modules/ai/ai.controller.ts:67"
     }
    ],
    "files": 35,
@@ -1600,7 +1600,7 @@
      "line": 138,
      "file": "patient-app/src/components/diagnostics/InsuranceUploadForm.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/ai/ai.controller.ts:123"
+     "backend": "backend/src/modules/ai/ai.controller.ts:134"
     },
     {
      "method": "GET",
@@ -5059,7 +5059,7 @@
      "line": 122,
      "file": "patient-app/app/pharmacy/barcode-scanner.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/ai/ai.controller.ts:128"
+     "backend": "backend/src/modules/ai/ai.controller.ts:139"
     },
     {
      "method": "GET",
@@ -5732,7 +5732,7 @@
      "line": 66,
      "file": "patient-app/src/components/pharmacy/RxIntake.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/ai/ai.controller.ts:94"
+     "backend": "backend/src/modules/ai/ai.controller.ts:105"
     },
     {
      "method": "POST",
@@ -5876,7 +5876,7 @@
      "line": 66,
      "file": "patient-app/src/components/legal/LegalKit.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:170"
+     "backend": "backend/src/modules/legal/legal.module.ts:177"
     }
    ],
    "files": 27,
@@ -6447,7 +6447,7 @@
      "line": 52,
      "file": "patient-app/src/components/account/AboutView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:166"
+     "backend": "backend/src/modules/legal/legal.module.ts:173"
     },
     {
      "method": "GET",
@@ -6457,7 +6457,7 @@
      "line": 65,
      "file": "patient-app/src/components/account/AboutView.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:170"
+     "backend": "backend/src/modules/legal/legal.module.ts:177"
     },
     {
      "method": "GET",
@@ -6857,7 +6857,7 @@
      "line": 66,
      "file": "patient-app/src/components/legal/LegalKit.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:170"
+     "backend": "backend/src/modules/legal/legal.module.ts:177"
     }
    ],
    "files": 27,
@@ -7024,7 +7024,7 @@
      "query": "",
      "line": 53,
      "file": "patient-web/components-next/assistant/prescription-client.tsx",
-     "backend": "backend/src/modules/ai/ai.controller.ts:94",
+     "backend": "backend/src/modules/ai/ai.controller.ts:105",
      "status": "OK"
     },
     {
@@ -13531,7 +13531,7 @@
      "query": "",
      "line": 81,
      "file": "patient-web/components-next/pharmacy/rx-upload-screen.tsx",
-     "backend": "backend/src/modules/ai/ai.controller.ts:94",
+     "backend": "backend/src/modules/ai/ai.controller.ts:105",
      "status": "OK"
     },
     {
@@ -13680,7 +13680,7 @@
      "line": 14,
      "file": "patient-web/lib/api/legal-policy.ts",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:170"
+     "backend": "backend/src/modules/legal/legal.module.ts:177"
     }
    ],
    "files": 36,
@@ -14900,7 +14900,7 @@
      "line": 14,
      "file": "patient-web/lib/api/legal-policy.ts",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:170"
+     "backend": "backend/src/modules/legal/legal.module.ts:177"
     }
    ],
    "files": 36,

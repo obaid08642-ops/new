@@ -19,17 +19,18 @@ _Updated 2026-10-10._
 
 ## Next
 
-1. **Nearest / Available now** (backend Q-12/Q-13): app flag `EXPO_PUBLIC_CONSULT_NEARBY_FILTERS` on in the build config; web doctors page gets both filters (branch `design/nearby-filters`).
-2. **Prescription rules C10-C11** on app + web (badges, no promo on Rx, cart asks for a prescription or "consult a doctor" on the suggested specialty) (`design/rx-rules`). C12 (price ceiling in the offer composer) waits for backend D-12.
-3. **New backend fields (#1255, #1256):** `pharmacy_name_ar/en` on order detail + allocations (tracking, final-quote; #366 #375 #514); the 13 "Refs" screens of #1255; remove `HospitalDispatchScreen` from the provider facility navigator (#1127). Admin community-moderation (#918) waits for OpenCode D-1.
-4. Final pass on main with the existing tools (screen-inventory, provider-inventory, audit-table, runtime check): one short table per app.
-5. Emergency single screen (urgent-help `tel:` from admin config) after the patient SOS removal (decision 14; #852 #1088-#1090 #1094).
+Merged on main (batch 1010b, #1287): claims removal, owner UI items, Urdu Nastaliq font (ur only), legal texts from the backend, admin module switches (`modules.manage`, super admin only), single emergency screen (`UrgentHelpView`, number from `GET /mental-health/urgent-help`), `HospitalDispatchScreen` gone from provider-app, nearby filters, Rx rules C10-C11.
+
+1. **On hold:** D-12 price notice and C12 (price ceiling in the offer composer) wait for OpenCode D-12; admin community moderation (#918) waits for D-1 (`needs-review/final-pass-2.json`).
+2. **Reviewer:** close the 50 stale Needs-review lines (files deleted by the SOS removal, cart/orders merges, admin directory removal), then regenerate the needs-review and provider/admin audit files once (regenerating shifts `nr-key`). Real-device checks: Urdu font, voice notes, first launch.
+3. **Open for the design session:** `pharmacy_name_ar/en` fields and the 13 "Refs" screens of #1255/#1256 once the backend fields merge; web `/onboarding/permissions` (#436) after the owner decision.
+4. Final pass done on e768aa5c: `FINAL_PASS_2026-10-10.md` (one table per app, baselines unchanged).
 
 ## Process
 - Lean v2 (rules in `/AGENTS.md`): design only, templates first, audit via `audit-table.mjs`, Needs-review with file:line (never delete lines by hand: it shifts the `nr-key` the issues reference), no committed screenshots. Binding: identity, tokens-only colours, six languages (provider-app and admin: ar/en and ar), real data only.
 
 ## Open blockers
-- **Owner decisions:** flows 10/18/24/30, decision 35 wording, Urdu riyal symbol (#1093), `expo-clipboard` dependency (#686 #747), onboarding before Welcome (#408), "all services" destination (#409).
+- **Owner decisions:** none open (all answered 2026-10-10). Legal texts in `docs/legal` are approved as they are; the owner may revise them later.
 - **Backend (OC-A/B/C):** see the "waits for OC" lists in the PRs #1244-#1253 and `needs-review/*.json`; the reviewer owns them.
 - **Public product catalogue is empty** on the seeded backend (v14 import): product screens are checked with injected TEST data only.
 - **Provider/admin generated audits** are stale on main in places (regenerating shifts `nr-key`): regenerate once, by the reviewer.
