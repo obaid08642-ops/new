@@ -63,8 +63,9 @@ export function doctorDisplayName(doctor: Pick<DoctorRow, "name" | "nameAr" | "n
  */
 export function doctorQuery(input: { search?: string; specialty?: string; sort?: "rating" | "price" | "wait"; filters?: DoctorFilters }) {
   const params = new URLSearchParams();
-  const slug = !input.search?.trim() && isSpecialtySlug(input.specialty) ? (input.specialty as string).trim() : "";
-  const search = slug ? "" : (input.search ?? input.specialty ?? "").trim();
+  // a specialty slug is its own filter and combines with a text search; any other specialty text is the old free-text search
+  const slug = isSpecialtySlug(input.specialty) ? (input.specialty as string).trim() : "";
+  const search = (input.search ?? (slug ? "" : input.specialty) ?? "").trim();
   if (slug) params.set("specialty", slug);
   if (search) params.set("q", search.slice(0, 100));
   const serverOrder = input.filters ? serverOrdersList(input.filters) : false;

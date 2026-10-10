@@ -3,6 +3,8 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { useDisabledModules } from "@/components-next/modules/modules-provider";
+import { visibleItems } from "@/lib/modules";
 import { Chip, SectionHeader, ServiceTile } from "@/components-next/ui-generated/components/Surfaces";
 import { EmptyState, ErrorState } from "@/components-next/ui-generated/components/Feedback";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
@@ -90,6 +92,8 @@ export function ResultItem({ result, locale, query }: { result: SearchResult; lo
 }
 
 export function SearchClient({ locale, initialQuery = "" }: { locale: string; initialQuery?: string }) {
+  // browse shortcuts of a switched-off module are not drawn (#953)
+  const disabled = useDisabledModules();
   const t = useTranslations("Search");
   const routeState = useTranslations("RouteState");
   const shellLocale: Locale = isLocale(locale) ? locale : "ar";
@@ -161,7 +165,7 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
     content = <section className={styles.browse} aria-label={t("browseTitle")}>
       <SectionHeader title={t("browseTitle")} />
       <ul className={styles.tiles}>
-        {BROWSE.map((b) => (
+        {visibleItems(BROWSE, (b) => b.path, disabled).map((b) => (
           <li key={b.name}><Link href={`/${locale}${b.path}`} className={styles.tileLink}><ServiceTile name={b.name} label={t(b.label)} /></Link></li>
         ))}
       </ul>

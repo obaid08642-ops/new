@@ -46,7 +46,7 @@
     "element": "Kind filter chips",
     "file": "",
     "line": 0,
-    "found": "[owner] The old screen filtered by service; the Orders board has only current / previous. Owner to confirm the filter is not wanted.",
+    "found": "[owner] Owner approved the service filter on 2026-10-10 (item 371): chips per kind, All by default, client-side. The board shows no chips; add them to the board.",
     "suspect": "Owner decision."
   },
   {
@@ -56,7 +56,7 @@
     "element": "Earlier prescription and fulfilment",
     "file": "",
     "line": 0,
-    "found": "[owner] Order again sends a delivery request without the earlier prescription_id or pickup choice (as before). Owner to say if they should carry over.",
+    "found": "[owner] Owner approved on 2026-10-10 (item 372): the earlier prescription_id and delivery or pickup now carry over. The prescription record has no validity field (backend/src/schemas/prescription.schema.ts:41), so it is carried whenever the order had one and the server only checks ownership; a validity field is needed for the \"still valid\" rule (waits for OC).",
     "suspect": "Owner decision."
   }
 ]

@@ -73,7 +73,7 @@
       "elements": [
         [
           "Name, about, price, duration, insurance chip",
-          "GET /home-care/services/:param",
+          "signed in: GET /home-care/services/:param; signed out (issue 650): the same service out of the public GET /nursing/catalog; login is asked at booking only",
           "ok"
         ],
         [

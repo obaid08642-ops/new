@@ -98,7 +98,7 @@ export default async function PharmaciesCityPage({ params }: Props) {
           }),
           breadcrumbList([
             { name: "Nabd Plus", locale: locale as Locale, path: "/" },
-            { name: "Pharmacy", locale: locale as Locale, path: "/c" },
+            { name: t("ld.crumbPharmacy"), locale: locale as Locale, path: "/c" },
             { name: decCity, locale: locale as Locale, path: `/pharmacies/${citySlug}` },
           ]),
           pharmacy({

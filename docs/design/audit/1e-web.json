@@ -14,7 +14,8 @@
         ["Item count (when no price)", "items.length", "ok"],
         ["Action: track / continue / reorder / details", "by status; continue opens the order router (reads governed_state)", "ok"],
         ["Empty and error states", "States board; retry re-reads the server data", "ok"],
-        ["Orders of other services (labs, nursing, claims)", "no endpoint in this page's read; the app merges them", "hidden"],
+        ["Consultations, lab, radiology and nursing orders (issue 378)", "GET /care/appointments, /labs/bookings/mine, /radiology/bookings/mine, /nursing/visits (one server read per service; a failed service is named in a note and the rest still show); links to /appointments/[id], /diagnostics/bookings/[domain]/[id], /nursing/visits/[id]", "ok"],
+        ["Insurance claims and returns in the same list", "the app lists them; the web has /insurance and /returns pages of their own and they are not merged here", "hidden"],
         ["Old tabs all/pending/completed/cancelled, 4 hard-coded label tables", "replaced by 2 tabs and message keys", "fixed"]
       ],
       "notes": ["The board's second card (home lab test) is another service: this page lists pharmacy orders only."]
@@ -89,6 +90,7 @@
     { "route": "/orders", "element": "Orders of other services", "kind": "owner", "note": "The board lists any service (home lab test); the app merges appointments, labs, radiology, nursing, claims and returns. The web page lists pharmacy orders only: the owner decides whether the web order centre is unified (needs a unified endpoint or six reads)." },
     { "route": "/delivery/address-select", "element": "Entry points", "kind": "client", "note": "No web screen links here (the cart's address card and checkout go to /profile/addresses); the page is reachable by address only. Link it from the address card's Change, or retire it." },
     { "route": "/delivery/address-select", "element": "PATCH /users/me/addresses/:id", "kind": "backend", "note": "Answers 200 with null for an unknown id and has no ownership error; the client treats only a returned address with is_default true as saved." },
-    { "route": "/orders", "element": "List has no governed_state", "kind": "backend", "note": "GET /patient/pharmacy/orders returns raw documents without governed_state; list actions are chosen by status and the order router reads the detail." }
+    { "route": "/orders", "element": "List has no governed_state", "kind": "backend", "note": "GET /patient/pharmacy/orders returns raw documents without governed_state; list actions are chosen by status and the order router reads the detail." },
+    { "route": "/orders", "element": "Insurance claims and returns", "kind": "client", "note": "The app's order center also lists insurance claims and pharmacy returns; the web list has the five services of issue 378 only (claims and returns have their own pages). Needs an owner decision to merge them.", "file": "patient-web/components-next/orders/center-rows.ts", "line": 79 }
   ]
 }

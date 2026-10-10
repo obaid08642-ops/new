@@ -35,7 +35,7 @@
     "screen": "/insurance",
     "element": "Benefits note is Arabic only",
     "file": "patient-web/app/[locale]/insurance/page.tsx",
-    "line": 98,
+    "line": 92,
     "found": "[backend] GET /insurance/benefits-summary returns a single manual_review row with note_ar (Arabic text), shown as the server wrote it in every language; no amounts, limits or usage exist to show. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:711)",
     "suspect": "Backend gap: reviewer session."
   },
@@ -64,9 +64,9 @@
     "app": "patient-web",
     "screen": "/insurance",
     "element": "Claims with a status outside the four known are dropped",
-    "file": "patient-web/lib/api/claims.ts",
-    "line": 6,
-    "found": "[client] parseClaims uses a strict status enum, so a claim whose status is anything else disappears from the Claims tab instead of showing 'Status unavailable'.",
+    "file": "patient-web/app/[locale]/insurance/claims/page.tsx",
+    "line": 7,
+    "found": "[client] Removed 2026-10-10 (decision 35): the Claims tab and parseClaims are gone; the route redirects to the hub.",
     "suspect": "Client-side: later batch."
   },
   {
@@ -74,9 +74,9 @@
     "app": "patient-web",
     "screen": "/insurance",
     "element": "Refund status shown raw",
-    "file": "patient-web/app/[locale]/insurance/page.tsx",
-    "line": 137,
-    "found": "[backend] GET /refunds/my status is a free string; shown as the server sent it (not translated). The list has no hard-coded refund or cancellation copy. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:867)",
+    "file": "patient-web/app/[locale]/insurance/refunds/page.tsx",
+    "line": 7,
+    "found": "[backend] Removed 2026-10-10 (decision 35): the Refunds tab is gone; the route redirects to the hub. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:867)",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -85,7 +85,7 @@
     "screen": "/insurance",
     "element": "Provider type shown raw",
     "file": "patient-web/app/[locale]/insurance/page.tsx",
-    "line": 175,
+    "line": 132,
     "found": "[backend] GET /providers type is shown as the server sent it (not translated).",
     "suspect": "Backend gap: reviewer session."
   },
@@ -94,9 +94,9 @@
     "app": "patient-web",
     "screen": "/insurance/submit-claim",
     "element": "Claimable bookings are collected in the browser",
-    "file": "patient-web/components-next/insurance/submit-claim-form.tsx",
-    "line": 30,
-    "found": "[client] the form reads five list endpoints and keeps rows that look paid (status words) with amount above 0; eligibility is decided here before the server re-checks it. Logic left as is; a single server list of claimable bookings would be safer.",
+    "file": "patient-web/app/[locale]/insurance/submit-claim/page.tsx",
+    "line": 7,
+    "found": "[client] Removed 2026-10-10 (decision 35): the claim form is gone; the route redirects to the hub.",
     "suspect": "Client-side: later batch."
   },
   {
@@ -144,9 +144,9 @@
     "app": "patient-web",
     "screen": "/insurance/submit-claim",
     "element": "Claim flow under decision 35?",
-    "file": "patient-web/components-next/insurance/submit-claim-form.tsx",
-    "line": 1,
-    "found": "[owner] Decision 35 defines only the provider relay; the Nabd+ claim form and Claims tab are not covered. The invented review time was removed from the texts; keep, change or remove the flow?",
+    "file": "patient-web/app/[locale]/insurance/submit-claim/page.tsx",
+    "line": 7,
+    "found": "[owner] Removed 2026-10-10 (decision 35): the claim form and the Claims tab are removed (owner decision 35).",
     "suspect": "Owner decision."
   },
   {

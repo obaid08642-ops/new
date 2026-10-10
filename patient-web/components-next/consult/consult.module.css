@@ -70,7 +70,9 @@ a.rowCard:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--
 .grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--nabd-space-sm); }
 
 /* ---- the search field and the segmented controls of the lists (canvas/Consult) ---- */
-.search { display: flex; gap: 8px; align-items: stretch; }
+.search { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; }
+.searchSelect { flex: 1 1 100%; order: 3; }
+.searchSelect select { flex: 1; min-inline-size: 0; min-block-size: 44px; border: 0; background: transparent; color: var(--nabd-color-text-primary); font: inherit; font-size: var(--nabd-font-size-body); outline: 0; }
 .search > :first-child { flex: 1; min-inline-size: 0; }
 .activeFilter { display: flex; flex-wrap: wrap; align-items: center; gap: var(--nabd-space-sm); }
 .activeFilterClear { display: inline-flex; align-items: center; min-block-size: 44px; font-size: var(--nabd-font-size-control); font-weight: 600; color: var(--nabd-color-text-link); }

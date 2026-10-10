@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { readSessionHintFromDocument } from "@/lib/auth/session-hint";
 
 /**
  * Who is signed in, asked ONCE per page load from GET /api/auth/session (always 200: not being signed in is an answer).
@@ -24,7 +25,16 @@ let cached: Settled | null = null;
 let inflight: Promise<Settled> | null = null;
 let epoch = 0;
 
+/** The readable hint cookie (lib/auth/session-hint) answers without a request; null means "ask the server" (older session, cookies cleared). */
+function answerFromHint(): Settled | null {
+  const hint = readSessionHintFromDocument();
+  if (!hint) return null;
+  return hint.kind === "anonymous" ? { status: "anonymous" } : { status: "user", id: hint.id, isGuest: hint.isGuest };
+}
+
 async function probe(): Promise<Settled> {
+  const hinted = answerFromHint();
+  if (hinted) return hinted;
   try {
     const response = await fetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" });
     if (!response.ok) return { status: "unknown" };

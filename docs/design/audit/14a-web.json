@@ -50,7 +50,7 @@
         ["Window banner (state + time left)", "GET /chat/threads/:id/permissions status_code, remaining_hours (server-side, allowlisted)", "ok"],
         ["Emergency line link", "tel: from permissions emergency_line (digits only), else 997", "ok"],
         ["Read-only notice and follow-up button", "permissions read_only + book_follow_up.doctor_id into /consultations/book/[id]?followUp=<booking id>; ids only; falls back to is_active and GET /care/appointments/:id when permissions fails", "ok"],
-        ["Composer by booking type", "the web page shows activity only and has no composer", "hidden"],
+        ["Composer by booking type", "text composer added (issue 806, see 2-web); uploads and voice stay off on the web", "ok"],
         ["Back link", "to the booking (or the bookings list)", "ok"]
       ], "notes": [] },
     { "route": "/nursing/nurses/[nurseId]",

@@ -76,6 +76,8 @@ export enum Permission {
   OPS_CRONS_RUN = 'ops.crons.run',
   TRANSLATIONS_EDIT = 'translations.edit',
   SEO_CONTROL = 'seo.control',
+  // Owner 2026-10-10: turning whole services on/off is super-admin only.
+  MODULES_MANAGE = 'modules.manage',
 }
 
 /** Arabic labels for the permission catalog (RBAC editor UI). */
@@ -138,6 +140,7 @@ export const PERMISSION_LABELS_AR: Record<string, string> = {
   [Permission.OPS_CRONS_RUN]: 'تشغيل المهام الدورية يدويًا',
   [Permission.TRANSLATIONS_EDIT]: 'تحرير الترجمات',
   [Permission.SEO_CONTROL]: 'التحكم بنشر SEO',
+  [Permission.MODULES_MANAGE]: 'تشغيل وإيقاف الخدمات',
 };
 
 export interface OwnershipOptions {

@@ -25,6 +25,8 @@ import {
   type UpcomingAppointment,
 } from '../../src/components/home/HomeParts';
 import { HOME_SERVICES, HOME_TOOLS } from '../../src/features/home/homeItems';
+import { useModules } from '../../src/context/ModulesContext';
+import { visibleItems } from '../../src/utils/moduleSwitches';
 import { setUnreadCount } from '../../src/store/slices/notificationsSlice';
 
 /**
@@ -55,6 +57,10 @@ export default function HomeScreen() {
   const { lang } = useApp();
   const { theme, c, tr } = useScreenUi();
   const barHeight = useTabBarHeight();
+  // switched-off modules (#953): their tiles, cards and rows are not drawn
+  const { disabled, isHidden } = useModules();
+  const services = useMemo(() => visibleItems(HOME_SERVICES, (item) => item.route, disabled), [disabled]);
+  const tools = useMemo(() => visibleItems(HOME_TOOLS, (item) => item.route, disabled), [disabled]);
   const t = (key: Parameters<typeof healthDayT>[1], vars?: Record<string, string | number>) => healthDayT(lang, key, vars);
 
   const [loading, setLoading] = useState(true);
@@ -132,6 +138,7 @@ export default function HomeScreen() {
   if (moodEntries) records.push({ key: 'mood', service: 'mind', title: t('mood'), subtitle: moodLoggedToday ? t('moodLogged') : t('moodNotLogged'), route: '/mental-health/mood-journal' });
   if (maternity?.profile_ready) records.push({ key: 'maternity', service: 'maternity', title: t('maternity'), subtitle: maternity.is_pregnant ? t('maternityPregnancy') : t('maternityCycle'), route: '/maternity/hub' });
 
+  const shownRecords = visibleItems(records, (row) => row.route, disabled);
   const goAppointment = () => (appointment?.id ? router.push({ pathname: '/consultations/appointment-detail', params: { appointmentId: appointment.id } }) : router.push('/(tabs)/consultations'));
   const hasAppointment = Boolean(appointment && (appointment.doctorName || appointment.type || appointment.time || appointment.date));
 
@@ -148,19 +155,19 @@ export default function HomeScreen() {
         <GreetingCard name={patientName} />
         {failed > 0 && !loading ? <LoadBanner message={t('error')} retryLabel={t('retry')} onRetry={() => void load(true)} /> : null}
         {loading ? <Skeleton variant="block" theme={theme} /> : reminder ? <ReminderCard label={tr('home.reminder')} title={reminder.title} subtitle={reminder.subtitle} onPress={goReminders} /> : null}
-        <ServiceGrid items={HOME_SERVICES} />
-        <AiCard onPress={() => router.push('/ai')} />
-        <ToolsRow tools={HOME_TOOLS} />
+        <ServiceGrid items={services} />
+        {isHidden('/ai') ? null : <AiCard onPress={() => router.push('/ai')} />}
+        {tools.length ? <ToolsRow tools={tools} /> : null}
         <AllServicesRow onPress={() => router.push('/(tabs)/services')} />
-        {hasAppointment && appointment ? (
+        {hasAppointment && appointment && !isHidden('/consultations') ? (
           <View style={{ gap: 10 }}>
             <SectionHeader title={tr('home.nextAppointment')} actionLabel={tr('home.allAppointments')} onActionPress={() => router.push('/consultations/appointments')} theme={theme} />
             <AppointmentCard appointment={appointment} onDetails={goAppointment} detailsLabel={tr('home.details')} />
           </View>
         ) : null}
-        <DayRecords title={t('healthRecords')} rows={records} />
+        <DayRecords title={t('healthRecords')} rows={shownRecords} />
         <HomeSections />
-        <PointsCard points={points} onPress={() => router.push('/loyalty/hub')} />
+        {isHidden('/loyalty') ? null : <PointsCard points={points} onPress={() => router.push('/loyalty/hub')} />}
       </View>
     </Screen>
   );

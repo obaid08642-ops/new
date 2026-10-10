@@ -96,7 +96,7 @@ export default async function DoctorCanonicalPage({ params }: Props) {
           }),
           breadcrumbList([
             { name: "Nabd Plus", locale: locale as Locale, path: "/" }, // i18n-ok: brand name in structured data
-            { name: doctor.specialty || "Doctors", locale: locale as Locale, path: "/consultations/doctors" }, // i18n-ok: structured-data fallback label
+            { name: doctor.specialty || (await getTranslations("PublicLanding"))("ld.crumbDoctors"), locale: locale as Locale, path: "/consultations/doctors" },
             { name: doctorName, locale: locale as Locale, path: doctorPath },
           ]),
         ]}

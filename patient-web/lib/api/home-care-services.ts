@@ -54,6 +54,10 @@ function parseService(value: unknown): HomeCareService | null {
 
 export function parseHomeCareServiceId(value: string) { return serviceIdSchema.safeParse(value); }
 export function extractHomeCareServices(payload: unknown) { return rowsFrom(payload).flatMap((value) => { const service = parseService(value); return service ? [service] : []; }); }
+/** One service out of the public catalog (GET /nursing/catalog), by id: the public page reads it there because the per-service endpoint needs a session. */
+export function findHomeCareServiceInCatalog(payload: unknown, serviceId: string) {
+  return extractHomeCareServices(payload).find((service) => service.id === serviceId) ?? null;
+}
 export function extractHomeCareService(payload: unknown) {
   const root = payload && typeof payload === "object" && !Array.isArray(payload) ? payload as Record<string, unknown> : payload;
   const item = root && typeof root === "object" && !Array.isArray(root) && "data" in root ? (root as Record<string, unknown>).data : root;

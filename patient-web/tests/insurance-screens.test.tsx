@@ -40,7 +40,10 @@ import CopayRedirect from "@/app/[locale]/insurance/copay/page";
 import PaymentSplitRedirect from "@/app/[locale]/insurance/payment-split/page";
 import PolicyDetailRedirect from "@/app/[locale]/insurance/policy-detail/page";
 import NetworkRedirect from "@/app/[locale]/insurance/network-providers/page";
-import { parseBenefits, parseCoverage, parseRequestRows, requestTone } from "@/lib/insurance/view";
+import ClaimsRedirect from "@/app/[locale]/insurance/claims/page";
+import RefundsRedirect from "@/app/[locale]/insurance/refunds/page";
+import SubmitClaimRedirect from "@/app/[locale]/insurance/submit-claim/page";
+import { TABS, parseBenefits, parseCoverage, parseRequestRows, requestTone } from "@/lib/insurance/view";
 
 const TOKEN = "server-only-insurance-token-never-in-html";
 const ID = "11111111-1111-4111-8111-111111111111";
@@ -73,14 +76,16 @@ const requests = { data: [
 beforeEach(() => server.api.mockReset());
 
 describe("the insurance hub", () => {
-  it("shows the policy card, the shortcuts, the five tabs and the requests newest first, each linking to its request page", async () => {
+  it("shows the policy card, the shortcuts, the three tabs and the requests newest first, each linking to its request page", async () => {
     backend({ "/insurance/my-policy": policy, "/insurance/requests/my": requests });
     const html = render(await InsurancePage(hub()));
     expect(html).toContain("Bupa Arabia");
     expect(html).toContain("Class VIP");
     expect(html).toContain("Policy recorded");
-    for (const label of ["Policy", "Benefits", "Claims", "Refunds", "Network"]) expect(html).toContain(`>${label}</a>`);
-    for (const href of ["/en/insurance/add-policy", "/en/insurance/submit-claim", "/en/insurance/coverage-check"]) expect(html).toContain(`href="${href}"`);
+    for (const label of ["Policy", "Benefits", "Network"]) expect(html).toContain(`>${label}</a>`);
+    for (const label of ["Claims", "Refunds"]) expect(html).not.toContain(`>${label}</a>`);
+    expect(html).not.toMatch(/submit-claim|submit a claim|Submit claim/i);
+    for (const href of ["/en/insurance/add-policy", "/en/insurance?tab=network", "/en/insurance/coverage-check"]) expect(html).toContain(`href="${href}"`);
     expect(html.indexOf(`/en/insurance/requests/${ID2}`)).toBeGreaterThan(-1);
     expect(html.indexOf(`/en/insurance/requests/${ID2}`)).toBeLessThan(html.indexOf(`/en/insurance/requests/${ID}`));
     expect(html).toContain("Approved in part");
@@ -99,27 +104,23 @@ describe("the insurance hub", () => {
 
   it("keeps the page when only one tab cannot load", async () => {
     backend({ "/insurance/my-policy": policy });
-    const html = render(await InsurancePage(hub({ tab: "claims" })));
+    const html = render(await InsurancePage(hub({ tab: "benefits" })));
     expect(html).toContain("Bupa Arabia");
     expect(html).toContain("This part could not load right now");
   });
 
-  it("lists claims with the server's status and the benefits note as the server wrote it", async () => {
-    backend({ "/insurance/my-policy": policy, "/insurance/claims": [{ id: "c1", service_type: "Consultation", status: "approved", createdAt: "2026-09-01T10:00:00.000Z" }], "/insurance/benefits-summary": { has_policy: true, policy: {}, benefits: [{ key: "manual_review", note_ar: "تخضع الموافقة لمراجعة مزود الخدمة" }] } });
-    const claims = render(await InsurancePage(hub({ tab: "claims" })));
-    expect(claims).toContain("Consultation");
-    expect(claims).toContain("Approved");
-    expect(claims).toContain("/en/insurance/submit-claim");
+  it("shows the benefits note as the server wrote it, and an old ?tab=claims or ?tab=refunds link shows the policy tab without reading claims or refunds", async () => {
+    backend({ "/insurance/my-policy": policy, "/insurance/benefits-summary": { has_policy: true, policy: {}, benefits: [{ key: "manual_review", note_ar: "تخضع الموافقة لمراجعة مزود الخدمة" }] } });
     const benefits = render(await InsurancePage(hub({ tab: "benefits" })));
     expect(benefits).toContain("تخضع الموافقة لمراجعة مزود الخدمة");
-  });
-
-  it("lists refunds with the locale's money and no invented status", async () => {
-    backend({ "/insurance/my-policy": policy, "/refunds/my": { data: [{ id: "r1", amount: 40, status: "processed", createdAt: "2026-09-02T10:00:00.000Z" }, { id: "r2", amount: 15 }] } });
-    const html = render(await InsurancePage(hub({ tab: "refunds" })));
-    expect(html).toContain("SAR");
-    expect(html).toContain("processed");
-    expect(render(await (async () => { backend({ "/insurance/my-policy": policy, "/refunds/my": [] }); return InsurancePage(hub({ tab: "refunds" })); })())).toContain("No refunds.");
+    backend({ "/insurance/my-policy": policy, "/insurance/requests/my": requests });
+    for (const tab of ["claims", "refunds"]) {
+      const html = render(await InsurancePage(hub({ tab })));
+      expect(html).toContain("Bupa Arabia");
+      expect(html).toContain("Awaiting review");
+    }
+    const paths = server.api.mock.calls.map((call) => String(call[0]));
+    expect(paths.some((path) => path.includes("claims") || path.includes("refunds"))).toBe(false);
   });
 
   it("network: without a saved insurer it asks for a policy; with one it reads that insurer's providers and the search keeps the tab", async () => {
@@ -219,6 +220,13 @@ describe("old routes (merge map 2, section 6)", () => {
   it("tab pages redirect to the hub keeping the query", async () => {
     expect(await redirectTarget(async () => PolicyDetailRedirect(hub()))).toBe("redirect:/en/insurance?tab=policy");
     expect(await redirectTarget(async () => NetworkRedirect(hub({ q: "nur", type: "lab" })))).toBe("redirect:/en/insurance?tab=network&q=nur&type=lab");
+  });
+
+  it("the removed claims, refunds and submit-claim pages open the hub (owner decision 35)", async () => {
+    expect([...TABS]).toEqual(["policy", "benefits", "network"]);
+    expect(await redirectTarget(async () => ClaimsRedirect({ params }))).toBe("redirect:/en/insurance");
+    expect(await redirectTarget(async () => RefundsRedirect({ params }))).toBe("redirect:/en/insurance");
+    expect(await redirectTarget(async () => SubmitClaimRedirect({ params }))).toBe("redirect:/en/insurance");
   });
 
   it("approval-pending, payment-split and co-pay open the one request page", async () => {
