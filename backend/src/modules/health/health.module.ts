@@ -10,13 +10,14 @@ import { VitalReadingRepository } from "./repositories/vitalreading.repository";
 import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
 import { HealthMedsController } from './health-meds.controller';
 import { WearablesController } from './wearables-compat.controller';
+import { MedicalReportsModule } from '../medical-reports/medical-reports.module';
 
 @Module({
   imports: [MongooseModule.forFeature([
     { name: 'VitalReading', schema: VitalReadingSchema },
     { name: 'MedicationReminder', schema: MedicationReminderSchema },
     { name: 'SleepReading', schema: SleepReadingSchema },
-  ]), forwardRef(() => OrdersModule)],
+  ]), forwardRef(() => OrdersModule), MedicalReportsModule],
   controllers: [HealthModuleController, HealthMedsController, WearablesController],
   providers: [HealthService, IdempotencyInterceptor, { provide: 'MedicationReminderRepository', useClass: MedicationReminderRepository }, { provide: 'SleepReadingRepository', useClass: SleepReadingRepository }, { provide: 'VitalReadingRepository', useClass: VitalReadingRepository }],
   exports: [HealthService],
