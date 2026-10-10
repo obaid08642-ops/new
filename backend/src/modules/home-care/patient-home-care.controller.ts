@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Body, Query, ForbiddenException, BadRequestException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, ForbiddenException, BadRequestException, UseGuards, Param } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { CurrentUser, JwtAuthGuard, SelfService } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, SelfService, Public } from '../../common/auth.guard';
 import { BookDto } from '../compat/compat.dto';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { HomeCareSvc } from './home-care.service';
@@ -58,6 +58,17 @@ export class PatientHomeCareController {
     });
     const { _id, ...out } = booking as any;
     return { data: out };
+  }
+
+
+  @Public() @Get('providers/:providerAccountId/slots')
+  providerSlots(
+    @Param('providerAccountId') providerAccountId: string,
+    @Query('date') date: string,
+    @Query('duration') duration?: string
+  ) {
+    const dur = duration ? parseInt(duration, 10) : 30;
+    return this.homeSvc.slotsForProvider(providerAccountId, date, dur);
   }
 
   @Get('bookings/my')

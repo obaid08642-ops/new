@@ -235,4 +235,14 @@ export class LabsController {
     const ids = testIds ? testIds.split(',') : [];
     return this.svc.compatibleProviders(ids);
   }
+
+  @Public() @Get('providers/:providerAccountId/slots')
+  providerSlots(
+    @Param('providerAccountId') providerAccountId: string,
+    @Query('date') date: string,
+    @Query('duration') duration?: string
+  ) {
+    const dur = duration ? parseInt(duration, 10) : 30;
+    return this.svc.slotsForProvider(providerAccountId, date, dur);
+  }
 }

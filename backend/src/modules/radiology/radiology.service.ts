@@ -419,6 +419,80 @@ export class RadiologyOpsService {
     }));
   }
 
+  /** Get available slots for a radiology provider on a given date for home visits. */
+  async slotsForProvider(providerAccountId: string, dateStr: string, duration_minutes = 30) {
+    const profile = await this.profileModel.findOne({
+      account_id: providerAccountId,
+      type: { $in: ['radiology', 'hospital'] },
+      status: 'active',
+      public_eligibility: true,
+      medical_review_status: 'approved',
+    }).lean();
+    if (!profile) throw new NotFoundException('provider_not_found');
+    const p = profile as any;
+    if (!p.schedule_radiology || !p.schedule_radiology.length) {
+      return { date: dateStr, slots: [], reason: 'no_schedule' };
+    }
+
+    const date = new Date(dateStr + 'T00:00:00Z');
+    if (isNaN(date.getTime())) return { date: dateStr, slots: [], reason: 'invalid_date' };
+
+    const dow = date.getUTCDay();
+    const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    const fullDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+    const dayMatches = (d: any) => {
+      const v = String(d ?? '').toLowerCase();
+      return v === 'all' || v === String(dow) || v === dayKeys[dow] || v === fullDays[dow];
+    };
+
+    const windows = (p.schedule_radiology || []).filter((w) => w && !w.closed && dayMatches(w.day)).flatMap((w) => [
+      ...(w.open && w.close ? [{ open: w.open, close: w.close }] : []),
+      ...(w.open_evening && w.close_evening ? [{ open: w.open_evening, close: w.close_evening }] : []),
+    ]);
+
+    if (!windows.length) return { date: dateStr, slots: [], reason: 'closed' };
+
+    const baseDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+    const slots: { id: string; start: string; end: string; label: string; available: boolean }[] = [];
+    const seen = new Set<string>();
+    const now = Date.now();
+
+    for (const w of windows) {
+      const [oh, om] = w.open.split(':').map(Number);
+      const [ch, cm] = w.close.split(':').map(Number);
+      const openTs = new Date(baseDate.getTime() + oh * 3600_000 + om * 60_000);
+      let closeTs = new Date(baseDate.getTime() + ch * 3600_000 + cm * 60_000);
+      if (closeTs.getTime() <= openTs.getTime()) closeTs = new Date(closeTs.getTime() + 24 * 3600_000);
+      for (let t = openTs.getTime(); t + duration_minutes * 60_000 <= closeTs.getTime(); t += duration_minutes * 60_000) {
+        const start = new Date(t);
+        const end = new Date(t + duration_minutes * 60_000);
+        if (start.getTime() < now + 15 * 60_000) continue;
+        const slotId = start.toISOString();
+        if (seen.has(slotId)) continue;
+        seen.add(slotId);
+        slots.push({ id: slotId, start: slotId, end: end.toISOString(), label: slotId.substring(11, 16), available: true });
+      }
+    }
+    slots.sort((x, y) => x.start.localeCompare(y.start));
+    if (slots.length === 0) return { date: dateStr, slots: [], reason: 'no_slots' };
+
+    // Mark booked slots as unavailable
+    const startOfDay = new Date(baseDate.getTime());
+    const endOfDay = new Date(baseDate.getTime() + 24 * 3600_000);
+    const booked = await this.bkgModel.find({
+      provider_account_id: providerAccountId,
+      scheduled_at: { $gte: startOfDay, $lt: endOfDay },
+      state: { $nin: ['CANCELLED', 'REPORT_READY'] },
+    }).select({ scheduled_at: 1 }).lean();
+    const bookedSet = new Set(booked.map((b: any) => new Date(b.scheduled_at).toISOString()));
+    for (const s of slots) {
+      if (bookedSet.has(s.start)) s.available = false;
+    }
+    return { date: dateStr, slots };
+  }
+
+
   async book(user: any, body: any) {
     // Only the approved catalog decides what is booked and what it costs; the body names the scan and center.
     const serviceId = typeof body?.service_id === 'string' ? body.service_id : '';

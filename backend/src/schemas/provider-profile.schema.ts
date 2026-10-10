@@ -274,7 +274,9 @@ export class ProviderProfile {
   @Prop({ type: [Object], default: [] }) schedule_video?: any[];
   @Prop({ type: [Object], default: [] }) schedule_clinic?: Array<{ day: string; open?: string; close?: string; open_evening?: string; close_evening?: string; closed?: boolean }>;
   @Prop({ type: [Object], default: [] }) schedule_home?: any[];
-  /** Raw wizard snapshots per step (step2/step3/submit/full_data) — the admin
+  @Prop({ type: [Object], default: [] }) schedule_lab?: Array<{ day: string; open?: string; close?: string; open_evening?: string; close_evening?: string; closed?: boolean }>;
+  @Prop({ type: [Object], default: [] }) schedule_radiology?: Array<{ day: string; open?: string; close?: string; open_evening?: string; close_evening?: string; closed?: boolean }>;
+  @Prop({ type: [Object], default: [] }) schedule_nursing?: Array<{ day: string; open?: string; close?: string; open_evening?: string; close_evening?: string; closed?: boolean }>;  /** Raw wizard snapshots per step (step2/step3/submit/full_data) — the admin
    * review must show EVERY typed field, mapped or not. */
   @Prop({ type: Object, default: {} }) registration_steps?: Record<string, any[]>;
   // Meta
