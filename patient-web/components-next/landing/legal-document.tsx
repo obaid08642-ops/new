@@ -11,7 +11,7 @@ import styles from "./landing.module.css";
  * a white card of rows). The service holds Arabic and English; on a page in another language the text keeps its own language
  * and direction, so the reader and the screen reader are told which it is. The version and the date it applies from close the page.
  */
-export async function LegalDocument({ locale, kind, policy }: { locale: Locale; kind: "terms" | "privacy"; policy: LegalPolicy & { lang?: "ar" | "en" } }) {
+export async function LegalDocument({ locale, kind, policy }: { locale: Locale; kind: "terms" | "privacy"; policy: LegalPolicy & { lang?: "ar" | "en"; current?: boolean } }) {
   const t = await getTranslations("PublicLanding");
   const groups: Array<{ kind: "heading" | "paragraph"; text: string } | { kind: "bullets"; items: string[] }> = [];
   for (const block of parseLegal(policy.content ?? "")) {
@@ -41,6 +41,7 @@ export async function LegalDocument({ locale, kind, policy }: { locale: Locale; 
         )}
       </article>
       {version ? <p className={rx.note}>{date ? t("legal.version", { version, date }) : t("legal.versionOnly", { version })}</p> : null}
+      {policy.current ? <p className={rx.note}>{t("legal.currentVersion")}</p> : null}
     </LandingPage>
   );
 }

@@ -3320,6 +3320,7 @@
       "privacy": "Privacy policy",
       "version": "Version {version} · Effective {date}",
       "versionOnly": "Version {version}",
+      "currentVersion": "This is the current version of the text. It will be replaced by the legally approved version before launch.",
       "back": "Back"
     },
     "provider": {

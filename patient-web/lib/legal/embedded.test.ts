@@ -21,18 +21,22 @@ describe("the embedded copy of the official texts (issue 755/783)", () => {
     expect(parsePolicyFile("# t\n**الإصدار:** 1.0 (مسودة)\n**تاريخ السريان:** [يحدد عند النشر]\nx").draft).toBe(true);
   });
 
-  it("is used only when it is approved: a draft or a text with an unfilled [placeholder] is not", () => {
+  it("is used whenever it has text (owner decision 2026-10-10: the current published text, replaced by the lawyer-approved one before launch)", () => {
     expect(isPublishable(approved)).toBe(true);
-    expect(isPublishable({ ...approved, draft: true })).toBe(false);
-    expect(isPublishable({ ...approved, content: "تديرها [الاسم التجاري المسجل]" })).toBe(false);
+    expect(isPublishable({ ...approved, draft: true })).toBe(true);
+    expect(isPublishable({ ...approved, content: "تديرها [الاسم التجاري المسجل]" })).toBe(true);
     expect(isPublishable({ ...approved, content: "  " })).toBe(false);
   });
 
-  it("follows the state of docs/legal: off while a text is a draft or has a placeholder, on once it is approved and embedded", () => {
+  it("marks a draft-state text as the current version, and an approved one as plain", () => {
+    expect(embeddedLegalPolicy("patient_terms", "ar")?.current).toBe(EMBEDDED_POLICIES.patient_terms.ar?.draft);
+  });
+
+  it("is on for every page language (the Arabic text is used when a language has none)", () => {
     for (const key of ["patient_terms", "privacy_policy"] as const) {
       const ar = EMBEDDED_POLICIES[key].ar;
       expect(ar).toBeDefined();
-      for (const locale of ["ar", "en", "ur"]) expect(embeddedLegalPolicy(key, locale) !== null).toBe(isPublishable(ar as EmbeddedPolicy));
+      for (const locale of ["ar", "en", "ur"]) expect(embeddedLegalPolicy(key, locale) !== null).toBe(true);
     }
   });
 });
@@ -44,9 +48,12 @@ describe("reading a policy with the embedded fallback", () => {
     expect(await readLegalPolicyOrEmbedded("patient_terms", "en", vi.fn().mockResolvedValue(null))).toBeNull();
   });
 
-  it("when the service is down and nothing approved is embedded, the outage stays an outage (the unavailable page)", async () => {
+  it("when the service is down the embedded current text is shown, marked as the current version", async () => {
     const read = vi.fn().mockRejectedValue(new PublicDataUnavailableError("legal"));
-    await expect(readLegalPolicyOrEmbedded("patient_terms", "en", read)).rejects.toBeInstanceOf(PublicDataUnavailableError);
+    const policy = await readLegalPolicyOrEmbedded("patient_terms", "en", read);
+    expect(policy?.content?.length).toBeGreaterThan(100);
+    expect(policy?.lang).toBe("ar");
+    expect(policy?.current).toBe(true);
   });
 
   it("any other error is not hidden", async () => {

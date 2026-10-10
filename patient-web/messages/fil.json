@@ -3320,6 +3320,7 @@
       "privacy": "Patakaran sa privacy",
       "version": "Bersyon {version} · Epektibo mula {date}",
       "versionOnly": "Bersyon {version}",
+      "currentVersion": "Ito ang kasalukuyang bersyon ng teksto. Papalitan ito ng bersyong inaprubahan ng batas bago ang paglulunsad.",
       "back": "Bumalik"
     },
     "provider": {
