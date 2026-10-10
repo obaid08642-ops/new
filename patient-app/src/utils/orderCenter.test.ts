@@ -3,7 +3,7 @@ import { STATUS_LABELS, buildRows, inBucket, listOf, statusLook, type OrderSourc
 
 /**
  * The order list is built from each service's own answer. These are TEST payloads shaped like the backend's (stored order,
- * appointment, booking, claim, return and the SOS patient view); what is proved is where each row goes, which fields reach
+ * appointment, booking, claim and return); what is proved is where each row goes, which fields reach
  * the screen and which never do (a status the table does not know, an amount the server did not send).
  */
 
@@ -52,16 +52,13 @@ describe('the other services', () => {
       labs: [{ id: 'l1', state: 'SAMPLE_COLLECTED', service_name_en: 'CBC', visit_type: 'home', scheduled_at: '2026-10-04T09:00:00Z', total: 90 }],
       claims: [{ id: 'c1', status: 'pending', service: 'Test service', amount: 200, date: '2026-10-03' }],
       returns: [{ id: 'r1', status: 'processing', reason: 'Wrong item', order_id: 'ord-bbbbbb222222', amount: 25, createdAt: '2026-10-02T09:00:00Z' }],
-      emergency: { id: 'e1', state: 'DISPATCHED', location: { address: 'Test road' }, createdAt: '2026-10-06T09:00:00Z' },
     });
-    expect(all.map((r) => r.kind)).toEqual(['ambulance', 'doctors', 'labs', 'insurance', 'returns']);
+    expect(all.map((r) => r.kind)).toEqual(['doctors', 'labs', 'insurance', 'returns']);
     const byKind = Object.fromEntries(all.map((r) => [r.kind, r]));
     expect(byKind.doctors).toMatchObject({ title: 'Dr Test', amount: { value: 150, currency: null }, sub: { key: 'orders.sub.video' }, route: { pathname: '/consultations/appointment-detail', params: { appointmentId: 'a1' } } });
     expect(byKind.labs).toMatchObject({ title: 'CBC', amount: { value: 90 }, sub: { key: 'orders.sub.labHome' } });
     expect(byKind.insurance).toMatchObject({ title: 'Test service', amount: { value: 200 } });
     expect(byKind.returns).toMatchObject({ title: 'Wrong item', sub: { key: 'orders.sub.returnOf', ref: '222222' } });
-    // the SOS patient view has `location.address` (not `address`) and no status of its own: the endpoint lists the active one
-    expect(byKind.ambulance).toMatchObject({ sub: { text: 'Test road' }, status: 'active' });
   });
 
   it('a claim or a return that is "pending" or "processing" is under review, an appointment that is PENDING awaits confirmation', () => {

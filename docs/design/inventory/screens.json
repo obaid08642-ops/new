@@ -1,19 +1,6 @@
 {
- "commit": "d088cfac",
+ "commit": "add3fbe5",
  "routes": [
-  {
-   "app": "patient-app",
-   "route": "/",
-   "file": "patient-app/app/(onboarding)/index.tsx",
-   "redirect": null,
-   "template": "flow step",
-   "board": "Welcome",
-   "batch": 0,
-   "status": "done (#285)",
-   "calls": [],
-   "files": 22,
-   "unresolved": 0
-  },
   {
    "app": "patient-app",
    "route": "/",
@@ -149,7 +136,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:177"
     }
    ],
-   "files": 23,
+   "files": 24,
    "unresolved": 0
   },
   {
@@ -2121,7 +2108,31 @@
    "app": "patient-app",
    "route": "/emergency",
    "file": "patient-app/app/emergency/index.tsx",
-   "redirect": "/emergency/sos",
+   "redirect": null,
+   "template": "list",
+   "board": "none: emergency",
+   "batch": 5,
+   "status": "—",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/mental-health/urgent-help",
+     "target": "backend",
+     "query": "",
+     "line": 19,
+     "file": "patient-app/src/components/emergency/UrgentHelpView.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/mental-health/mental-health-urgent-help.controller.ts:25"
+    }
+   ],
+   "files": 31,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-app",
+   "route": "/emergency/sos",
+   "file": "patient-app/app/emergency/sos.tsx",
+   "redirect": "/emergency",
    "template": "redirect",
    "board": "— (redirect)",
    "batch": 5,
@@ -2132,80 +2143,28 @@
   },
   {
    "app": "patient-app",
-   "route": "/emergency/sos",
-   "file": "patient-app/app/emergency/sos.tsx",
-   "redirect": null,
-   "template": "flow step",
-   "board": "none: emergency",
-   "batch": 5,
-   "status": "done (batch 5 merged)",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/emergency/trigger",
-     "target": "backend",
-     "query": "",
-     "line": 61,
-     "file": "patient-app/app/emergency/sos.tsx",
-     "status": "NO_ROUTE"
-    }
-   ],
-   "files": 18,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-app",
    "route": "/emergency/sos-active",
    "file": "patient-app/app/emergency/sos-active.tsx",
-   "redirect": null,
-   "template": "tracking",
-   "board": "none: emergency",
+   "redirect": "/emergency",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 5,
-   "status": "done (batch 5 merged)",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/emergency/:param/cancel",
-     "target": "backend",
-     "query": "",
-     "line": 85,
-     "file": "patient-app/app/emergency/sos-active.tsx",
-     "status": "NO_ROUTE"
-    },
-    {
-     "method": "GET",
-     "path": "/emergency/my/active",
-     "target": "backend",
-     "query": "",
-     "line": 46,
-     "file": "patient-app/app/emergency/sos-active.tsx",
-     "status": "NO_ROUTE"
-    }
-   ],
-   "files": 19,
+   "status": "n/a",
+   "calls": [],
+   "files": 1,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/emergency/tracking",
    "file": "patient-app/app/emergency/tracking.tsx",
-   "redirect": null,
-   "template": "tracking",
-   "board": "none: emergency",
+   "redirect": "/emergency",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 5,
-   "status": "done (batch 5 merged)",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/emergency/tracking",
-     "target": "backend",
-     "query": "",
-     "line": 33,
-     "file": "patient-app/app/emergency/tracking.tsx",
-     "status": "NO_ROUTE"
-    }
-   ],
-   "files": 13,
+   "status": "n/a",
+   "calls": [],
+   "files": 1,
    "unresolved": 0
   },
   {
@@ -2311,7 +2270,7 @@
      "path": "/family/invite",
      "target": "backend",
      "query": "",
-     "line": 63,
+     "line": 65,
      "file": "patient-app/src/components/family/FamilyAddView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:34"
@@ -2321,13 +2280,13 @@
      "path": "/family/join",
      "target": "backend",
      "query": "",
-     "line": 155,
+     "line": 161,
      "file": "patient-app/src/components/family/FamilyAddView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:39"
     }
    ],
-   "files": 34,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -3888,6 +3847,19 @@
   },
   {
    "app": "patient-app",
+   "route": "/intro",
+   "file": "patient-app/app/(onboarding)/intro.tsx",
+   "redirect": null,
+   "template": "list",
+   "board": "Welcome",
+   "batch": 0,
+   "status": "done (#285)",
+   "calls": [],
+   "files": 23,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-app",
    "route": "/language",
    "file": "patient-app/app/(onboarding)/language.tsx",
    "redirect": null,
@@ -3961,7 +3933,7 @@
      "path": "/loyalty/account",
      "target": "backend",
      "query": "",
-     "line": 74,
+     "line": 75,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:22"
@@ -3971,7 +3943,7 @@
      "path": "/loyalty/challenges",
      "target": "backend",
      "query": "",
-     "line": 248,
+     "line": 249,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:40"
@@ -3981,7 +3953,7 @@
      "path": "/loyalty/challenges/:param/join",
      "target": "backend",
      "query": "",
-     "line": 255,
+     "line": 256,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:46"
@@ -3991,7 +3963,7 @@
      "path": "/loyalty/config",
      "target": "backend",
      "query": "",
-     "line": 76,
+     "line": 77,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:16"
@@ -4001,7 +3973,7 @@
      "path": "/loyalty/rewards",
      "target": "backend",
      "query": "",
-     "line": 141,
+     "line": 142,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:52"
@@ -4011,7 +3983,7 @@
      "path": "/loyalty/rewards/:param/claim",
      "target": "backend",
      "query": "",
-     "line": 153,
+     "line": 154,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:58"
@@ -4021,7 +3993,7 @@
      "path": "/loyalty/transactions",
      "target": "backend",
      "query": "?page=1",
-     "line": 75,
+     "line": 76,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:28"
@@ -4031,7 +4003,7 @@
      "path": "/referrals/apply",
      "target": "backend",
      "query": "",
-     "line": 347,
+     "line": 349,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/referral/referral.controller.ts:24"
@@ -4041,13 +4013,13 @@
      "path": "/referrals/my",
      "target": "backend",
      "query": "",
-     "line": 324,
+     "line": 325,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/referral/referral.controller.ts:18"
     }
    ],
-   "files": 36,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -5108,19 +5080,6 @@
   },
   {
    "app": "patient-app",
-   "route": "/permissions",
-   "file": "patient-app/app/(onboarding)/permissions.tsx",
-   "redirect": null,
-   "template": "settings",
-   "board": "Welcome",
-   "batch": 0,
-   "status": "done (#285)",
-   "calls": [],
-   "files": 26,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-app",
    "route": "/pharmacy",
    "file": "patient-app/app/(tabs)/pharmacy.tsx",
    "redirect": null,
@@ -5238,11 +5197,21 @@
    "status": "done (batch 1 merged)",
    "calls": [
     {
+     "method": "POST",
+     "path": "/notifications/register-token",
+     "target": "backend",
+     "query": "",
+     "line": 69,
+     "file": "patient-app/src/utils/notifications.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/notifications/notifications.controller.ts:24"
+    },
+    {
      "method": "GET",
      "path": "/patient/pharmacy/orders/:param",
      "target": "backend",
      "query": "",
-     "line": 81,
+     "line": 82,
      "file": "patient-app/app/pharmacy/broadcast-status.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
@@ -5252,7 +5221,7 @@
      "path": "/patient/pharmacy/orders/:param/cancel",
      "target": "backend",
      "query": "",
-     "line": 198,
+     "line": 199,
      "file": "patient-app/app/pharmacy/broadcast-status.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:39"
@@ -5262,7 +5231,7 @@
      "path": "/patient/pharmacy/orders/:param/offers",
      "target": "backend",
      "query": "",
-     "line": 81,
+     "line": 82,
      "file": "patient-app/app/pharmacy/broadcast-status.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:42"
@@ -5272,7 +5241,7 @@
      "path": "/patient/pharmacy/orders/:param/offers/:param/select",
      "target": "backend",
      "query": "",
-     "line": 170,
+     "line": 171,
      "file": "patient-app/app/pharmacy/broadcast-status.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:43"
@@ -5288,7 +5257,7 @@
      "backend": "backend/src/modules/admin/governance/system-config.controller.ts:51"
     }
    ],
-   "files": 35,
+   "files": 38,
    "unresolved": 0
   },
   {
@@ -6540,19 +6509,6 @@
   },
   {
    "app": "patient-app",
-   "route": "/services",
-   "file": "patient-app/app/services/index.tsx",
-   "redirect": null,
-   "template": "hub",
-   "board": "ServiceHub",
-   "batch": 0,
-   "status": "done (#285)",
-   "calls": [],
-   "files": 20,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-app",
    "route": "/settings",
    "file": "patient-app/app/settings/index.tsx",
    "redirect": null,
@@ -6702,17 +6658,27 @@
    "status": "done (batch 12 merged)",
    "calls": [
     {
+     "method": "POST",
+     "path": "/notifications/register-token",
+     "target": "backend",
+     "query": "",
+     "line": 69,
+     "file": "patient-app/src/utils/notifications.ts",
+     "status": "OK",
+     "backend": "backend/src/modules/notifications/notifications.controller.ts:24"
+    },
+    {
      "method": "GET",
      "path": "/users/me/notification-settings",
      "target": "backend",
      "query": "",
-     "line": 74,
+     "line": 75,
      "file": "patient-app/src/components/account/SettingsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:55"
     }
    ],
-   "files": 32,
+   "files": 36,
    "unresolved": 0
   },
   {
@@ -6807,7 +6773,7 @@
      "path": "/users/me/change-password",
      "target": "backend",
      "query": "",
-     "line": 172,
+     "line": 174,
      "file": "patient-app/src/components/account/SettingsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:91"
@@ -6817,7 +6783,7 @@
      "path": "/users/me/security-settings",
      "target": "backend",
      "query": "",
-     "line": 136,
+     "line": 138,
      "file": "patient-app/src/components/account/SettingsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:81"
@@ -6827,7 +6793,7 @@
      "path": "/users/me/sessions",
      "target": "backend",
      "query": "",
-     "line": 137,
+     "line": 139,
      "file": "patient-app/src/components/account/SettingsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:96"
@@ -6837,7 +6803,7 @@
      "path": "/users/me/sessions/:param",
      "target": "backend",
      "query": "",
-     "line": 187,
+     "line": 189,
      "file": "patient-app/src/components/account/SettingsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:125"
@@ -9714,111 +9680,65 @@
    "calls": [
     {
      "method": "POST",
-     "path": "/api/patient/emergency/:param/cancel",
-     "target": "web-proxy",
+     "path": "/api/auth/logout",
+     "target": "web-bff",
      "query": "",
-     "line": 47,
-     "file": "patient-web/app/[locale]/emergency/sos-actions.tsx",
-     "status": "NO_ROUTE"
-    },
-    {
-     "method": "POST",
-     "path": "/api/patient/emergency/trigger",
-     "target": "web-proxy",
-     "query": "",
-     "line": 30,
-     "file": "patient-web/app/[locale]/emergency/sos-actions.tsx",
-     "status": "NO_ROUTE"
+     "line": 24,
+     "file": "patient-web/components-next/sign-out-button.tsx",
+     "status": "OK",
+     "handler": "patient-web/app/api/auth/logout/route.ts"
     },
     {
      "method": "GET",
-     "path": "/emergency/my/active",
+     "path": "/mental-health/urgent-help",
      "target": "backend",
      "query": "",
-     "line": 30,
+     "line": 29,
      "file": "patient-web/app/[locale]/emergency/page.tsx",
-     "status": "NO_ROUTE"
+     "status": "OK",
+     "backend": "backend/src/modules/mental-health/mental-health-urgent-help.controller.ts:25"
     }
    ],
-   "files": 8,
+   "files": 36,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/emergency/sos",
    "file": "patient-web/app/[locale]/emergency/sos/page.tsx",
-   "redirect": null,
-   "template": "flow step",
-   "board": "none: emergency",
+   "redirect": "/emergency",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 5,
-   "status": "done (batch 5 merged)",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/patient/emergency/trigger",
-     "target": "web-proxy",
-     "query": "",
-     "line": 33,
-     "file": "patient-web/components-next/emergency-sos-client.tsx",
-     "status": "NO_ROUTE"
-    }
-   ],
-   "files": 7,
+   "status": "n/a",
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/emergency/sos-active",
    "file": "patient-web/app/[locale]/emergency/sos-active/page.tsx",
-   "redirect": null,
-   "template": "tracking",
-   "board": "none: emergency",
+   "redirect": "/emergency",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 5,
-   "status": "done (batch 5 merged)",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/api/patient/emergency/:param/cancel",
-     "target": "web-proxy",
-     "query": "",
-     "line": 55,
-     "file": "patient-web/components-next/emergency-sos-active-client.tsx",
-     "status": "NO_ROUTE"
-    },
-    {
-     "method": "GET",
-     "path": "/api/patient/emergency/my/active",
-     "target": "web-proxy",
-     "query": "",
-     "line": 36,
-     "file": "patient-web/components-next/emergency-sos-active-client.tsx",
-     "status": "NO_ROUTE"
-    }
-   ],
-   "files": 7,
+   "status": "n/a",
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/emergency/tracking",
    "file": "patient-web/app/[locale]/emergency/tracking/page.tsx",
-   "redirect": null,
-   "template": "tracking",
-   "board": "none: emergency",
+   "redirect": "/emergency",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 5,
-   "status": "done (batch 5 merged)",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/api/patient/emergency/tracking",
-     "target": "web-proxy",
-     "query": "",
-     "line": 46,
-     "file": "patient-web/components-next/emergency-tracking-client.tsx",
-     "status": "NO_ROUTE"
-    }
-   ],
-   "files": 7,
+   "status": "n/a",
+   "calls": [],
+   "files": 2,
    "unresolved": 0
   },
   {
@@ -10038,7 +9958,7 @@
      "path": "/api/family/invite",
      "target": "web-bff",
      "query": "",
-     "line": 24,
+     "line": 27,
      "file": "patient-web/components-next/family/add-family.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/family/invite/route.ts"
@@ -10048,13 +9968,13 @@
      "path": "/api/family/join",
      "target": "web-bff",
      "query": "",
-     "line": 77,
+     "line": 78,
      "file": "patient-web/components-next/family/add-family.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/family/join/route.ts"
     }
    ],
-   "files": 34,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -11414,7 +11334,7 @@
      "path": "/api/patient/loyalty/challenges/:param/join",
      "target": "web-proxy",
      "query": "",
-     "line": 66,
+     "line": 67,
      "file": "patient-web/components-next/loyalty/loyalty-actions.tsx",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:46",
      "status": "OK"
@@ -11424,7 +11344,7 @@
      "path": "/api/patient/loyalty/rewards/:param/claim",
      "target": "web-proxy",
      "query": "",
-     "line": 29,
+     "line": 30,
      "file": "patient-web/components-next/loyalty/loyalty-actions.tsx",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:58",
      "status": "OK"
@@ -11500,7 +11420,7 @@
      "backend": "backend/src/modules/referral/referral.controller.ts:18"
     }
    ],
-   "files": 42,
+   "files": 43,
    "unresolved": 0
   },
   {

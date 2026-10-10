@@ -1,17 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, FlatList, Pressable, View, useWindowDimensions, type ViewToken } from 'react-native';
 import { router, type Href } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Button, FIcon, Screen, SERVICE_ICONS, StickyFooter, type FillIconName, type ServiceTone } from '../../../packages/ui-native/src';
 import { AUTH_COLUMN, AuthFooter, useAuthUi } from '../../src/components/auth/AuthKit';
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { NabdLogo } from '../../src/components/NabdLogo';
 import { step as scale } from '../../src/components/screen/ScreenKit';
-import { STORAGE_KEYS } from '../../src/constants';
+import { markIntroDone } from '../../src/utils/onboardingGate';
 
 /**
- * Onboarding intro — the sign-in kit's look (canvas/Welcome.dc.html, AuthKit): the Noon Dot on top with "Skip",
+ * Onboarding intro, the second step of the first launch (language, intro, Welcome; once, owner decision 6) — the sign-in kit's look (canvas/Welcome.dc.html, AuthKit): the Noon Dot on top with "Skip",
  * one slide at a time (the service's filled icon on a white tile, a title and a line), the dots, and the CTA in the
  * sticky footer. No board is drawn for the intro itself; it follows Welcome.
  */
@@ -66,12 +65,8 @@ export default function OnboardingIntro() {
   );
 
   const finish = useCallback(async () => {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING_DONE, 'true');
-    } catch {
-      // storage failure is not worth stopping the user for
-    }
-    router.replace('/(onboarding)/language' as Href);
+    await markIntroDone(); // never throws: a storage failure only means the flag is kept for this session
+    router.replace('/(auth)/welcome' as Href);
   }, []);
 
   const next = () => (last ? void finish() : goTo(index + 1));

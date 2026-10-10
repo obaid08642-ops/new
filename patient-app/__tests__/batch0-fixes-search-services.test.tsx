@@ -8,7 +8,7 @@ import DoctorSearchView from '../src/components/views/DoctorSearchView';
 import PharmacyProductSearchView from '../src/components/views/PharmacyProductSearchView';
 import { apiFetch } from '../src/utils/api';
 import { routeFor } from '../src/utils/searchResults';
-import { MORE_SERVICES, SERVICE_GROUPS } from '../src/features/services/catalog';
+import { MORE_SERVICES } from '../src/features/services/catalog';
 import { Colors } from '../src/theme';
 
 /**
@@ -132,15 +132,11 @@ describe('search results lead to the item that was shown', () => {
 });
 
 describe('services rows lead where the label says', () => {
-  const rows = [...MORE_SERVICES, ...SERVICE_GROUPS.flatMap((g) => g.items)];
+  const rows = [...MORE_SERVICES];
   const route = (title: string) => rows.find((r) => r.title === title)?.route;
 
   it('eye exam and dentistry open the doctors search filtered to their specialty (they both opened the same unfiltered list)', () => {
     expect(route('فحص النظر')).toBe('/search?view=doctors&specialty=ophthalmology');
     expect(route('طب الأسنان')).toBe('/search?view=doctors&specialty=dentistry');
-  });
-
-  it('the AI assistant row opens the same assistant as the Home card', () => {
-    expect(SERVICE_GROUPS.flatMap((g) => g.items).find((r) => r.title === 'المساعد الطبي الذكي')?.route).toBe('/ai');
   });
 });
