@@ -85,3 +85,17 @@ export class InsuranceDto {
   @IsNumber()
   insuranceShare?: number;
 }
+
+export class ArrivedDto {
+  @IsOptional()
+  @IsString()
+  reason?: string;
+
+  @IsOptional()
+  @IsNumber()
+  lat?: number;
+
+  @IsOptional()
+  @IsNumber()
+  lng?: number;
+}

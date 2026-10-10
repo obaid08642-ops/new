@@ -109,6 +109,7 @@ export class BookingFlowService {
       [ServiceState.ASSIGNED]: 'تم التعيين',
       [ServiceState.CONFIRMED]: 'تم التأكيد',
       [ServiceState.IN_PROGRESS]: 'قيد التنفيذ',
+      [ServiceState.ARRIVED]: 'وصل المزوّد',
       [ServiceState.COMPLETED]: 'مكتمل',
       [ServiceState.CANCELLED]: 'ملغي',
     };
@@ -118,12 +119,13 @@ export class BookingFlowService {
       [ServiceState.ASSIGNED]: 'service.assigned',
       [ServiceState.CONFIRMED]: 'service.confirmed',
       [ServiceState.IN_PROGRESS]: 'service.started',
+      [ServiceState.ARRIVED]: 'service.arrived',
       [ServiceState.COMPLETED]: 'service.completed',
       [ServiceState.CANCELLED]: 'service.cancelled',
     };
     const ordered: ServiceState[] = [
       ServiceState.REQUESTED, ServiceState.MATCHING, ServiceState.ASSIGNED,
-      ServiceState.CONFIRMED, ServiceState.IN_PROGRESS, ServiceState.COMPLETED,
+      ServiceState.CONFIRMED, ServiceState.IN_PROGRESS, ServiceState.ARRIVED, ServiceState.COMPLETED,
     ];
     return ordered.map(s => ({ key: s, label: labels[s], reached: eventTypes.has(evMap[s]) }));
   }

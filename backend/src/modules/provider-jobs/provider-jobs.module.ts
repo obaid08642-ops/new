@@ -19,7 +19,7 @@ import { User, UserSchema } from '../../schemas/user.schema';
 import { BookingAttachmentSchema } from '../unified-bookings/booking-ops.module';
 import { ServiceState, ServiceDomain, UserRole } from '../../common/enums';
 import { toUniversal, domainStatesFor, WorkflowEngineService, WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
-import { AcceptDto, RejectDto, StartDto, CompleteDto, InsuranceDto } from './provider-jobs.dto';
+import { AcceptDto, RejectDto, StartDto, CompleteDto, InsuranceDto, ArrivedDto } from './provider-jobs.dto';
 
 type JobStatus = 'incoming' | 'active' | 'completed';
 
@@ -209,6 +209,7 @@ export class ProviderJobsService {
       [ServiceState.ASSIGNED]: { pharmacy: 'PHARMACY_RECEIVED', lab: 'CREATED', radiology: 'PENDING', nursing: 'PROVIDER_ASSIGNED', consultation: 'PENDING' },
       [ServiceState.CONFIRMED]: { pharmacy: 'ACCEPTED', lab: 'CONFIRMED', radiology: 'CONFIRMED', nursing: 'CONFIRMED', consultation: 'CONFIRMED' },
       [ServiceState.IN_PROGRESS]: { pharmacy: 'PREPARING', lab: 'SAMPLE_COLLECTED', radiology: 'IN_PROGRESS', nursing: 'IN_PROGRESS', consultation: 'IN_PROGRESS' },
+      [ServiceState.ARRIVED]: { pharmacy: 'IN_TRANSIT', lab: 'SAMPLE_COLLECTED', radiology: 'ARRIVED_CHECKIN', nursing: 'ARRIVED', consultation: 'CHECKED_IN' },
       [ServiceState.COMPLETED]: { pharmacy: 'DELIVERED', lab: 'REPORTED', radiology: 'REPORT_PUBLISHED', nursing: 'COMPLETED', consultation: 'COMPLETED' },
       [ServiceState.CANCELLED]: { pharmacy: 'CANCELLED', lab: 'CANCELLED', radiology: 'CANCELLED', nursing: 'CANCELLED', consultation: 'CANCELLED' },
     };
@@ -234,6 +235,8 @@ export class ProviderJobsService {
   reject(user: any, type: string, id: string, reason?: string) { return this.act(user, type, id, ServiceState.CANCELLED, reason || 'provider_rejected'); }
   start(user: any, type: string, id: string, reason?: string) { return this.act(user, type, id, ServiceState.IN_PROGRESS, reason || 'provider_started'); }
   complete(user: any, type: string, id: string, reason?: string) { return this.act(user, type, id, ServiceState.COMPLETED, reason || 'provider_completed'); }
+  /** Arrived at patient location (home visit) or patient arrived at center. */
+  arrived(user: any, type: string, id: string, reason?: string) { return this.act(user, type, id, ServiceState.ARRIVED, reason || 'provider_arrived'); }
   async updateInsurance(user: any, type: string, id: string, insuranceDetails: any) {
     if (!getEffectiveRoles(user).some((r) => PROVIDER_ROLES.includes(r))) {
       throw new ForbiddenException('provider_only');
@@ -274,6 +277,7 @@ export class ProviderJobsController {
   @Post(':type/:id/reject') reject(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: RejectDto) { return this.svc.reject(u, t, id, b?.reason); }
   @Post(':type/:id/start') start(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: StartDto) { return this.svc.start(u, t, id, b?.reason); }
   @Post(':type/:id/complete') complete(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: CompleteDto) { return this.svc.complete(u, t, id, b?.reason); }
+  @Post(':type/:id/arrived') arrived(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: ArrivedDto) { return this.svc.arrived(u, t, id, b?.reason); }
   @Post(':type/:id/insurance') insurance(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: InsuranceDto) { return this.svc.updateInsurance(u, t, id, b); }
 }
 

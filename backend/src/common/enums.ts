@@ -309,6 +309,7 @@ export enum ServiceState {
   ASSIGNED = 'ASSIGNED',
   CONFIRMED = 'CONFIRMED',
   IN_PROGRESS = 'IN_PROGRESS',
+  ARRIVED = 'ARRIVED',
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED',
 }
@@ -317,8 +318,9 @@ export const UNIFIED_TRANSITIONS: Record<ServiceState, ServiceState[]> = {
   [ServiceState.REQUESTED]: [ServiceState.MATCHING, ServiceState.ASSIGNED, ServiceState.CONFIRMED, ServiceState.CANCELLED],
   [ServiceState.MATCHING]:  [ServiceState.ASSIGNED, ServiceState.CONFIRMED, ServiceState.REQUESTED, ServiceState.CANCELLED],
   [ServiceState.ASSIGNED]:  [ServiceState.CONFIRMED, ServiceState.IN_PROGRESS, ServiceState.CANCELLED],
-  [ServiceState.CONFIRMED]: [ServiceState.IN_PROGRESS, ServiceState.CANCELLED],
+  [ServiceState.CONFIRMED]: [ServiceState.IN_PROGRESS, ServiceState.ARRIVED, ServiceState.CANCELLED],
   [ServiceState.IN_PROGRESS]: [ServiceState.COMPLETED, ServiceState.CANCELLED],
+  [ServiceState.ARRIVED]: [ServiceState.IN_PROGRESS, ServiceState.CANCELLED],
   [ServiceState.COMPLETED]: [],
   [ServiceState.CANCELLED]: [],
 };
