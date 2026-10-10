@@ -3179,5 +3179,8 @@
   "guest.loginRequiredTitle": "مطلوب تسجيل الدخول",
   "guest.loginRequiredBody": "سجّل الدخول لاستخدام هذه الميزة.",
   "consult.calls.videoCall": "مكالمة فيديو",
-  "consult.calls.voiceCall": "مكالمة صوتية"
+  "consult.calls.voiceCall": "مكالمة صوتية",
+  "common.copy": "نسخ",
+  "common.copied": "تم النسخ",
+  "common.copyFailed": "تعذر النسخ. حدّد النص وانسخه يدوياً."
 }

@@ -3143,5 +3143,8 @@
   "guest.loginRequiredTitle": "साइन इन ज़रूरी है",
   "guest.loginRequiredBody": "इस सुविधा का उपयोग करने के लिए साइन इन करें।",
   "consult.calls.videoCall": "वीडियो कॉल",
-  "consult.calls.voiceCall": "वॉइस कॉल"
+  "consult.calls.voiceCall": "वॉइस कॉल",
+  "common.copy": "कॉपी करें",
+  "common.copied": "कॉपी हो गया",
+  "common.copyFailed": "कॉपी नहीं हो सका। टेक्स्ट चुनकर खुद कॉपी करें।"
 }

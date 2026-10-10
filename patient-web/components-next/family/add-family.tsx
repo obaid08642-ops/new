@@ -7,6 +7,7 @@ import { Button } from "@/components-next/ui-generated/components/Button";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
 import styles from "./family.module.css";
+import { copyText } from "@/lib/copy-text";
 
 /** Invite: creates an invite code to share (POST /api/family/invite, as before) and copies it on request. */
 export function InviteTab() {
@@ -14,12 +15,14 @@ export function InviteTab() {
   const [code, setCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function generate() {
     setFailed(false);
     setLoading(true);
     setCopied(false);
+    setCopyFailed(false);
     try {
       const res = await fetch("/api/family/invite", { method: "POST" });
       const data = await res.json().catch(() => null);
@@ -34,13 +37,10 @@ export function InviteTab() {
 
   async function copy() {
     if (!code) return;
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
-    } catch {
-      setCopied(false);
-    }
+    const ok = await copyText(code);
+    setCopyFailed(!ok);
+    setCopied(ok);
+    if (ok) setTimeout(() => setCopied(false), 1800);
   }
 
   return (
@@ -52,6 +52,7 @@ export function InviteTab() {
           <span className={forms.label}>{t("inviteCode")}</span>
           <p className={styles.code} dir="ltr" role="status">{code}</p>
           <Button label={copied ? t("inviteCopied") : t("inviteCopy")} size="md" variant="outline" onClick={() => void copy()} />
+          {copyFailed ? <p className={forms.error} role="alert">{t("inviteCopyFailed")}</p> : null}
         </div>
       ) : null}
       {failed ? <p className={forms.error} role="alert">{t("inviteFailed")}</p> : null}

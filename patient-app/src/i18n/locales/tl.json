@@ -3143,5 +3143,8 @@
   "guest.loginRequiredTitle": "Kailangang mag-sign in",
   "guest.loginRequiredBody": "Mag-sign in para magamit ang feature na ito.",
   "consult.calls.videoCall": "Tawag na video",
-  "consult.calls.voiceCall": "Tawag na boses"
+  "consult.calls.voiceCall": "Tawag na boses",
+  "common.copy": "Kopyahin",
+  "common.copied": "Nakopya na",
+  "common.copyFailed": "Hindi nakopya. Piliin ang text at kopyahin nang mano-mano."
 }

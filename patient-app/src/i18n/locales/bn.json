@@ -3143,5 +3143,8 @@
   "guest.loginRequiredTitle": "সাইন ইন প্রয়োজন",
   "guest.loginRequiredBody": "এই সুবিধা ব্যবহার করতে সাইন ইন করুন।",
   "consult.calls.videoCall": "ভিডিও কল",
-  "consult.calls.voiceCall": "ভয়েস কল"
+  "consult.calls.voiceCall": "ভয়েস কল",
+  "common.copy": "কপি করুন",
+  "common.copied": "কপি হয়েছে",
+  "common.copyFailed": "কপি করা যায়নি। লেখাটি নির্বাচন করে নিজে কপি করুন।"
 }

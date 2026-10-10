@@ -2538,6 +2538,7 @@
     "inviteCode": "Invite code",
     "inviteCopy": "Copy code",
     "inviteCopied": "Copied",
+    "inviteCopyFailed": "Could not copy. Select the code and copy it by hand.",
     "inviteFailed": "Couldn't create the invite. Try again.",
     "joinCodeHint": "Paste the code here",
     "joinRelation": "Relation (optional)",

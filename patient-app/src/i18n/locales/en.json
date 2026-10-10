@@ -3179,5 +3179,8 @@
   "guest.loginRequiredTitle": "Sign-in required",
   "guest.loginRequiredBody": "Sign in to use this feature.",
   "consult.calls.videoCall": "Video call",
-  "consult.calls.voiceCall": "Voice call"
+  "consult.calls.voiceCall": "Voice call",
+  "common.copy": "Copy",
+  "common.copied": "Copied",
+  "common.copyFailed": "Could not copy. Select the text and copy it by hand."
 }

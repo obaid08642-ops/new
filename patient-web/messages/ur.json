@@ -2538,6 +2538,7 @@
     "inviteCode": "دعوتی کوڈ",
     "inviteCopy": "کوڈ کاپی کریں",
     "inviteCopied": "کاپی ہو گیا",
+    "inviteCopyFailed": "کاپی نہیں ہو سکا۔ کوڈ منتخب کر کے خود کاپی کریں۔",
     "inviteFailed": "دعوت نہیں بن سکی۔ دوبارہ کوشش کریں۔",
     "joinCodeHint": "کوڈ یہاں پیسٹ کریں",
     "joinRelation": "رشتہ (اختیاری)",

@@ -3143,5 +3143,8 @@
   "guest.loginRequiredTitle": "سائن اِن ضروری ہے",
   "guest.loginRequiredBody": "یہ فیچر استعمال کرنے کے لیے سائن اِن کریں۔",
   "consult.calls.videoCall": "ویڈیو کال",
-  "consult.calls.voiceCall": "وائس کال"
+  "consult.calls.voiceCall": "وائس کال",
+  "common.copy": "کاپی کریں",
+  "common.copied": "کاپی ہو گیا",
+  "common.copyFailed": "کاپی نہیں ہو سکا۔ متن منتخب کر کے خود کاپی کریں۔"
 }
