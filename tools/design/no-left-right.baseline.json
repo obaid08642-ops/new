@@ -1,6 +1,6 @@
 {
   "$comment": "Recorded debt for tools/design/no-left-right.ts: physical left/right style keys and CSS properties, per file, when the gate landed. They move to start/end (logical properties) as each screen is rebuilt on the shells and the shared components. This file may only shrink.",
-  "total": 126,
+  "total": 125,
   "files": {
     "admin/src/pages/admin/dashboard.tsx": 1,
     "patient-app/app/emergency/sos-active.tsx": 10,
@@ -26,7 +26,6 @@
     "provider-app/src/screens/doctor/DoctorRegistration.tsx": 2,
     "provider-app/src/screens/facility/facility/_shared.tsx": 1,
     "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx": 5,
-    "provider-app/src/screens/facility/facility/HospitalDispatchScreen.tsx": 1,
     "provider-app/src/screens/facility/FacilityAuditLogScreen.tsx": 2,
     "provider-app/src/screens/facility/FacilityPatientTrackerScreen.tsx": 2,
     "provider-app/src/screens/facility/FacilityRegistration.tsx": 2,

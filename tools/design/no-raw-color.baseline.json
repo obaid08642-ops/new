@@ -3,7 +3,7 @@
   "totals": {
     "patient-web": 608,
     "patient-app": 386,
-    "provider-app": 239,
+    "provider-app": 238,
     "admin": 185
   },
   "files": {
@@ -100,7 +100,6 @@
     "provider-app/src/screens/facility/FacilityResourcesScreen.tsx": 2,
     "provider-app/src/screens/facility/facility/AddSubAccountScreen.tsx": 2,
     "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx": 1,
-    "provider-app/src/screens/facility/facility/HospitalDispatchScreen.tsx": 1,
     "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx": 1,
     "provider-app/src/screens/facility/facility/QRCheckinScreen.tsx": 4,
     "provider-app/src/screens/facility/facility/ShiftManagementScreen.tsx": 2,
