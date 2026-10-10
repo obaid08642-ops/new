@@ -1213,7 +1213,8 @@
     "inStock": "دستیاب",
     "outOfStock": "دستیاب نہیں",
     "unavailableTitle": "خواہشات کی فہرست دستیاب نہیں",
-    "unavailableBody": "براہ کرم بعد میں دوبارہ کوشش کریں۔"
+    "unavailableBody": "براہ کرم بعد میں دوبارہ کوشش کریں۔",
+    "needsRx": "نسخہ درکار ہے"
   },
   "Search": {
     "title": "تلاش",
@@ -1461,7 +1462,11 @@
     "manufacturer": "صنعت کار",
     "emptyBody": "موازنے کے لیے کیٹلاگ سے کم از کم دو ادویات منتخب کریں۔",
     "browse": "ادویات دیکھیں",
-    "back": "ادویات"
+    "back": "ادویات",
+    "requires_prescription": "نسخہ درکار ہے",
+    "online_exclusive": "صرف آن لائن",
+    "yes": "ہاں",
+    "no": "نہیں"
   },
   "PharmacyRequest": {
     "title": "دوا نام سے منگوائیں",
@@ -1494,7 +1499,8 @@
     "viewProduct": "پروڈکٹ دیکھیں",
     "another": "دوسرا بار کوڈ تلاش کریں",
     "requestByName": "نام سے منگوائیں",
-    "errorLookup": "بار کوڈ کی تلاش ناکام رہی۔ دوبارہ کوشش کریں۔"
+    "errorLookup": "بار کوڈ کی تلاش ناکام رہی۔ دوبارہ کوشش کریں۔",
+    "onlineOnly": "صرف آن لائن"
   },
   "PharmacyChat": {
     "title": "فارمیسی سے بات چیت",

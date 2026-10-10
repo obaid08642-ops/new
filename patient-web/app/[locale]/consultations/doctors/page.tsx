@@ -1,4 +1,5 @@
 import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { specialtyLabel } from "@/lib/specialties";
@@ -9,6 +10,7 @@ import { localizedUrl } from "@/lib/seo";
 import type { Metadata } from "next";
 import type { ConsultMode } from "@/components-next/ui-generated/components/contract";
 import { Button } from "@/components-next/ui-generated/components/Button";
+import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
@@ -50,6 +52,9 @@ export default async function DoctorsPage({ params, searchParams }: Props) {
     }
   } catch {}
 
+  // a specialty slug (from the pharmacy cart "Consult a doctor") filters the list and shows by its name, never as raw text in the search field
+  const specialtyName = sp.q ? null : specialtyLabel(names, sp.specialty);
+
   const sortHref = (sort: string) => `/${locale}/consultations/doctors?${new URLSearchParams({ ...(sp.q ? { q: sp.q } : sp.specialty ? { specialty: sp.specialty } : {}), sort }).toString()}`;
 
   return (
@@ -59,10 +64,16 @@ export default async function DoctorsPage({ params, searchParams }: Props) {
         <label className={styles.searchField}>
           <Icon name="search" size={20} tone="secondary" />
           <span className="sr-only">{t("searchLabel")}</span>
-          <input id="doctor-search" name="q" defaultValue={sp.q ?? sp.specialty ?? ""} placeholder={t("searchPlaceholder")} className={styles.searchInput} />
+          <input id="doctor-search" name="q" defaultValue={sp.q ?? (specialtyName ? "" : sp.specialty ?? "")} placeholder={t("searchPlaceholder")} className={styles.searchInput} />
         </label>
         <Button type="submit" label={t("search")} size="lg" />
       </form>
+      {specialtyName ? (
+        <div className={styles.activeFilter}>
+          <StatusChip label={specialtyName} tone="blue" />
+          <Link className={styles.activeFilterClear} href={`/${locale}/consultations/doctors`}>{t("clearSearch")}</Link>
+        </div>
+      ) : null}
       <LinkSegmented
         label={t("sortLabel")}
         value={sp.sort ?? ""}

@@ -1213,7 +1213,8 @@
     "inStock": "उपलब्ध",
     "outOfStock": "स्टॉक में नहीं",
     "unavailableTitle": "विशलिस्ट उपलब्ध नहीं",
-    "unavailableBody": "कृपया बाद में फिर से कोशिश करें।"
+    "unavailableBody": "कृपया बाद में फिर से कोशिश करें।",
+    "needsRx": "पर्चा ज़रूरी है"
   },
   "Search": {
     "title": "खोज",
@@ -1461,7 +1462,11 @@
     "manufacturer": "निर्माता",
     "emptyBody": "तुलना के लिए कैटलॉग से कम से कम दो दवाएं चुनें।",
     "browse": "दवाएं देखें",
-    "back": "दवाएं"
+    "back": "दवाएं",
+    "requires_prescription": "नुस्खा आवश्यक",
+    "online_exclusive": "केवल ऑनलाइन",
+    "yes": "हाँ",
+    "no": "नहीं"
   },
   "PharmacyRequest": {
     "title": "दवा का नाम बताकर मँगवाएँ",
@@ -1494,7 +1499,8 @@
     "viewProduct": "उत्पाद देखें",
     "another": "दूसरा बारकोड खोजें",
     "requestByName": "नाम बताकर मँगवाएँ",
-    "errorLookup": "बारकोड खोज विफल रही। फिर कोशिश करें।"
+    "errorLookup": "बारकोड खोज विफल रही। फिर कोशिश करें।",
+    "onlineOnly": "केवल ऑनलाइन"
   },
   "PharmacyChat": {
     "title": "फ़ार्मेसी से बातचीत",

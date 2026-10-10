@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isSpecialtySlug } from "@/lib/specialties";
 
 const doctorId = z.string().regex(/^[A-Za-z0-9_-]{1,128}$/);
 const doctorSchema = z.object({
@@ -52,7 +53,11 @@ export function extractDoctors(payload: unknown): DoctorRow[] {
 export function doctorDisplayName(doctor: Pick<DoctorRow, "name" | "nameAr" | "nameEn">, locale: string): string | undefined {
   return (locale === "ar" ? doctor.nameAr ?? doctor.nameEn : doctor.nameEn ?? doctor.nameAr) ?? doctor.name;
 }
-export function doctorQuery(input: { search?: string; specialty?: string; sort?: "rating" | "price" | "wait" }) { const params=new URLSearchParams(); const search=(input.search ?? input.specialty ?? "").trim(); if(search) params.set("q", search.slice(0,100)); if(input.sort) params.set("sort", input.sort); const query=params.toString(); return `/care/doctors${query ? `?${query}` : ""}`; }
+/**
+ * The doctors list query. A known specialty slug (the pharmacy cart's "Consult a doctor" and the specialty master) is the backend's
+ * exact `specialty` filter; any other specialty text stays the free-text `q` search it has always been.
+ */
+export function doctorQuery(input: { search?: string; specialty?: string; sort?: "rating" | "price" | "wait" }) { const params=new URLSearchParams(); const slug=!input.search?.trim() && isSpecialtySlug(input.specialty) ? input.specialty.trim() : ""; const search=slug ? "" : (input.search ?? input.specialty ?? "").trim(); if(slug) params.set("specialty", slug); if(search) params.set("q", search.slice(0,100)); if(input.sort) params.set("sort", input.sort); const query=params.toString(); return `/care/doctors${query ? `?${query}` : ""}`; }
 export function extractDoctor(payload: unknown): DoctorRow | null { const rows = extractDoctors([payload && typeof payload === "object" && !Array.isArray(payload) && "data" in payload ? (payload as Record<string, unknown>).data : payload]); return rows[0] ?? null; }
 export type DoctorSlot = { start: string; end: string; label: string; available: boolean };
 export type DoctorSlots = { date: string; serviceType: "clinic" | "video" | "home"; slots: DoctorSlot[]; reason?: string };

@@ -20,6 +20,7 @@ import { AddressCard } from "./address-card";
 import { ButtonLink } from "./button-link";
 import { CatalogImage } from "./catalog-image";
 import { PHARMACY_TONE } from "./tones";
+import { RxConsultLink } from "./rx-consult-link";
 import { useDeliveryAddress } from "./use-delivery-address";
 import cs from "./cart-screen.module.css";
 import rx from "./rx.module.css";
@@ -179,7 +180,7 @@ export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boo
               </div>
               <div className={rx.bannerActions}>
                 <Link className={rx.bannerAction} href={upload}>{t("rxBannerAction")}</Link>
-                <Link className={rx.bannerAction} href={`/${locale}/consultations/specialties`}>{t("rxConsultAction")}</Link>
+                <RxConsultLink className={rx.bannerAction} locale={locale} lines={items} label={t("rxConsultAction")} />
               </div>
             </div>
           ) : null}

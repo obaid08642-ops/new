@@ -1213,7 +1213,8 @@
     "inStock": "May stock",
     "outOfStock": "Walang stock",
     "unavailableTitle": "Hindi available ang wishlist",
-    "unavailableBody": "Pakisubukang muli mamaya."
+    "unavailableBody": "Pakisubukang muli mamaya.",
+    "needsRx": "Kailangan ng reseta"
   },
   "Search": {
     "title": "Paghahanap",
@@ -1461,7 +1462,11 @@
     "manufacturer": "Tagagawa",
     "emptyBody": "Pumili ng dalawa o higit pang gamot mula sa katalogo.",
     "browse": "Mag-browse",
-    "back": "Mga gamot"
+    "back": "Mga gamot",
+    "requires_prescription": "Kailangan ng reseta",
+    "online_exclusive": "Online lang",
+    "yes": "Oo",
+    "no": "Hindi"
   },
   "PharmacyRequest": {
     "title": "Humingi ng gamot sa pangalan",
@@ -1494,7 +1499,8 @@
     "viewProduct": "Tingnan ang produkto",
     "another": "Maghanap ng ibang barcode",
     "requestByName": "Hilingin sa pangalan",
-    "errorLookup": "Nabigo ang paghahanap ng barcode. Subukan muli."
+    "errorLookup": "Nabigo ang paghahanap ng barcode. Subukan muli.",
+    "onlineOnly": "Online lang"
   },
   "PharmacyChat": {
     "title": "Negosasyon sa parmasya",
