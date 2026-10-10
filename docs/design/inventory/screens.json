@@ -1,5 +1,5 @@
 {
- "commit": "e4b2c568",
+ "commit": "d7ab9619",
  "routes": [
   {
    "app": "patient-app",
@@ -10843,7 +10843,7 @@
    "template": "list",
    "board": "Insurance",
    "batch": 7,
-   "status": "done (batch 7 merged)",
+   "status": "removed 2026-10-10 (decision 35); redirects to the hub",
    "calls": [],
    "files": 3,
    "unresolved": 0
@@ -11030,7 +11030,7 @@
    "template": "form",
    "board": "Insurance",
    "batch": 7,
-   "status": "done (batch 7 merged)",
+   "status": "removed 2026-10-10 (decision 35); redirects to the hub",
    "calls": [],
    "files": 3,
    "unresolved": 0
