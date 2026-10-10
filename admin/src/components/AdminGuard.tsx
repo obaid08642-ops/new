@@ -81,6 +81,8 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: '/admin/rbac', label: 'الأدوار والصلاحيات', permission: 'rbac.manage' },
       { href: '/admin/system-ops', label: 'تشغيل النظام', permission: 'ops.queues.manage' },
+      // D-16 / #953: the backend PUT /admin/modules/:key is ADMIN-role only; ops.queues.manage is held by the admin roles and not by support/finance.
+      { href: '/admin/module-switches', label: 'مفاتيح الخدمات', permission: 'ops.queues.manage' },
       { href: '/admin/notification-center', label: 'مركز الإشعارات والحملات', permission: 'ops.queues.manage' },
       // #994: AI controls were reachable only by URL.
       { href: '/admin/ai-control', label: 'التحكم في الذكاء الاصطناعي', permission: 'ops.queues.manage' },
@@ -156,6 +158,7 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/loyalty-config': 'coupons.manage',
   '/admin/notification-center': 'ops.queues.manage',
   '/admin/system-ops': 'ops.queues.manage',
+  '/admin/module-switches': 'ops.queues.manage',
   '/admin/config-portal': 'ops.queues.manage',
   '/admin/ai-control': 'ops.queues.manage',
   '/admin/audit-logs': 'data.export',
