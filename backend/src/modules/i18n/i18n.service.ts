@@ -428,6 +428,8 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'notif.lab_result_ready.body': { ar: 'اضغط لعرض النتيجة #{tracking_id}', en: 'Tap to view #{tracking_id}', ur: 'دیکھیں' },
   'notif.lab_result_critical.title': { ar: 'نتيجة حرجة! ', en: 'Critical Result! ', ur: 'اہم نتیجہ! ' },
   'notif.lab_result_critical.body': { ar: 'يرجى مراجعة طبيبك فوراً', en: 'Please consult your doctor immediately', ur: 'فوری ڈاکٹر سے رابطہ' },
+  'notif.pharmacy_price_above_catalogue.title': { ar: 'سعر دواء أعلى من السعر الرسمي', en: 'Drug Price Above Official Catalogue Price', ur: 'رسمی قیمت سے زیادہ' },
+  'notif.pharmacy_price_above_catalogue.body': { ar: 'صيدلية #{order_id} عرضت #{count} دواء بسعر أعلى من السعر الرسمي', en: 'Pharmacy #{order_id} offered #{count} drugs above official price', ur: 'فارمیسی' },
   'notif.lab_reported.title': { ar: 'تم نشر التقرير', en: 'Report Published', ur: 'رپورٹ شائع' },
   'notif.lab_reported.body': { ar: 'يمكنك تنزيله أو مشاركته', en: 'You can download or share it', ur: 'ڈاؤنلوڈ' },
   'notif.lab_cancelled.title': { ar: 'تم إلغاء الحجز', en: 'Booking Cancelled', ur: 'منسوخ' },

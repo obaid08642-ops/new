@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException, Optional } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException, Optional, BadRequestException, NotFoundException } from '@nestjs/common';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -180,6 +180,54 @@ export class AdminPharmacyController {
     return { items, total, page, limit };
   }
   @Post('expire-stale-allocations') expireStale() { return this.allocs.expireStale(); }
+
+  // D-12: Admin price-review list for items above catalogue price
+  @Get('price-review') async priceReview(@Query() q: any) {
+    const col = (this.allocs as any).orders.db.collection('pharmacy_price_review');
+    const filter: any = {};
+    if (q?.order_id) filter.order_id = String(q.order_id);
+    if (q?.offer_id) filter.offer_id = String(q.offer_id);
+    if (q?.pharmacy_account_id) filter.pharmacy_account_id = String(q.pharmacy_account_id);
+    if (q?.sku) filter.sku = String(q.sku);
+    if (q?.status) filter.status = String(q.status);
+    if (q?.from || q?.to) {
+      filter.created_at = {};
+      if (q.from) filter.created_at.$gte = new Date(String(q.from));
+      if (q.to) filter.created_at.$lte = new Date(String(q.to));
+    }
+    const page = Math.max(1, Number(q?.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(q?.limit) || 25));
+    const [items, total] = await Promise.all([
+      col.find(filter).sort({ created_at: -1 }).skip((page - 1) * limit).limit(limit).toArray(),
+      col.countDocuments(filter),
+    ]);
+    return { items, total, page, limit };
+  }
+
+  // D-12: Admin update catalogue price (sfda_price) - audit logged
+  @Patch('medicines/admin/catalog/:id') async updateCatalogPrice(@Param('id') id: string, @Body() body: { sfda_price?: number }, @CurrentUser() u: any) {
+    const newPrice = Number(body?.sfda_price);
+    if (!Number.isFinite(newPrice) || newPrice < 0) throw new BadRequestException('sfda_price_must_be_positive_number');
+    const col = (this.allocs as any).orders.db.collection('medicines');
+    const before: any = await col.findOne({ id }, { projection: { _id: 0, sfda_price: 1, sfda_price_source: 1 } });
+    if (!before) throw new NotFoundException('medicine_not_found');
+    const oldPrice = before.sfda_price;
+    const result = await col.updateOne({ id }, { $set: { sfda_price: newPrice, sfda_price_source: 'admin_override', sfda_price_updated_at: new Date() } });
+    if (result.matchedCount === 0) throw new NotFoundException('medicine_not_found');
+    // Audit log
+    await (this.allocs as any).orders.db.collection('audit_logs').insertOne({
+      id: uuidv4(),
+      action: 'medicine_sfda_price_updated',
+      actor_id: u?.id,
+      actor_role: 'admin',
+      target_type: 'medicine',
+      target_id: id,
+      before: { sfda_price: oldPrice },
+      after: { sfda_price: newPrice },
+      createdAt: new Date(),
+    });
+    return { ok: true, id, sfda_price: newPrice, previous_price: oldPrice };
+  }
 }
 
 /**

@@ -12,6 +12,7 @@ describe('NotificationsService ownership', () => {
       {} as any,
       {} as any,
       {} as any,
+      {} as any,
     );
     await expect(service.markRead('notification-foreign', { id: 'patient-2', role: 'patient' }))
       .rejects.toBeInstanceOf(NotFoundException);
@@ -23,7 +24,7 @@ describe('NotificationsService ownership', () => {
 
   it('accepts a matched notification and returns ok', async () => {
     const model: any = { updateOne: jest.fn().mockResolvedValue({ matchedCount: 1 }) };
-    const service = new NotificationsService(model, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any);
+    const service = new NotificationsService(model, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any);
     await expect(service.markRead('notification-owned', { id: 'patient-1', role: 'patient' })).resolves.toEqual({ ok: true });
   });
 });
@@ -35,7 +36,7 @@ describe('NotificationsService templates', () => {
       findOne: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(tpl) }),
       findOneAndUpdate: jest.fn().mockResolvedValue({ toObject: () => ({ key: 'k', title: {}, body: {} }) }),
     };
-    const svc = new NotificationsService({} as any, templateModel, {} as any, {} as any, {} as any, {} as any, {} as any);
+    const svc = new NotificationsService({} as any, templateModel, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any);
     (svc as any).create = jest.fn().mockResolvedValue({ id: 'n1' });
     return { svc, templateModel };
   };
@@ -61,7 +62,7 @@ describe('NotificationsService template resolution (R6-3)', () => {
   const svcFor = (tpl: any) => {
     const templateModel: any = { findOne: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(tpl) }) };
     const i18n: any = { t: jest.fn((key: string) => `built-in:${key}`) };
-    return new NotificationsService({} as any, templateModel, {} as any, {} as any, {} as any, {} as any, i18n);
+    return new NotificationsService({} as any, templateModel, {} as any, {} as any, {} as any, {} as any, i18n, {} as any);
   };
 
   it('uses the edited template text in the user language with param fill', async () => {
@@ -79,7 +80,7 @@ describe('NotificationsService template resolution (R6-3)', () => {
 
   it('falls back when the template store is unreachable', async () => {
     const templateModel: any = { findOne: jest.fn().mockImplementation(() => { throw new Error('down'); }) };
-    const svc = new NotificationsService({} as any, templateModel, {} as any, {} as any, {} as any, {} as any, {} as any);
+    const svc = new NotificationsService({} as any, templateModel, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any);
     await expect(svc.resolveNotificationText({ title_key: 'k.t', body_key: 'k.b' }, 'ar'))
       .resolves.toEqual({ title: 'k.t', body: 'k.b' });
   });
@@ -104,7 +105,7 @@ describe('NotificationsService delivery channels (N5)', () => {
     };
     const templateModel: any = { findOne: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(null) }) };
     const i18n: any = { t: jest.fn((key: string) => key) };
-    const svc = new NotificationsService(model, templateModel, {} as any, {} as any, {} as any, {} as any, i18n);
+    const svc = new NotificationsService(model, templateModel, {} as any, {} as any, {} as any, {} as any, i18n, {} as any);
     const sendPush = jest.spyOn(svc, 'sendPush').mockResolvedValue(true);
     const sendEmail = jest.spyOn(svc, 'sendEmail').mockResolvedValue(undefined);
     const sendWhatsApp = jest.spyOn(svc, 'sendWhatsApp').mockResolvedValue(undefined);
@@ -129,7 +130,7 @@ describe('NotificationsService delivery queue (F33)', () => {
       // Same validation BullMQ runs when a job is added: a bad custom id throws here.
       add: jest.fn(async (name: string, data: any, opts: any) => new Job(queueStub, name, data, opts).validateOptions({})),
     };
-    const svc = new NotificationsService({} as any, {} as any, {} as any, {} as any, {} as any, queue, {} as any);
+    const svc = new NotificationsService({} as any, {} as any, {} as any, {} as any, {} as any, queue, {} as any, {} as any);
     const direct = jest.spyOn(svc as any, 'deliverById').mockResolvedValue(undefined);
     await (svc as any).enqueueDelivery('0b9d5a2e-7f1c-4c55-9a0e-2f6b1c3d4e5f', 60000);
     expect(queue.add).toHaveBeenCalledWith('deliver', { id: '0b9d5a2e-7f1c-4c55-9a0e-2f6b1c3d4e5f' }, expect.objectContaining({ jobId: 'deliver-0b9d5a2e-7f1c-4c55-9a0e-2f6b1c3d4e5f', delay: 60000 }));

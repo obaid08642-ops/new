@@ -18,7 +18,7 @@ describe('NotificationsService provider bell (LJ-07)', () => {
       },
       create: jest.fn(),
     };
-    const service = new NotificationsService(model, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any);
+    const service = new NotificationsService(model, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any);
     jest.spyOn(service, 'sendPush').mockResolvedValue(false as any);
     (service as any).create = jest.fn().mockResolvedValue({ id: 'n1' });
     return { service, model, bell, collections };

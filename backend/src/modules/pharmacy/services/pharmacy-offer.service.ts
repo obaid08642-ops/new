@@ -175,6 +175,20 @@ export class PharmacyOfferService {
         result.price_override_reason = String(input.price_override_reason || '').slice(0, 500);
       }
     }
+
+    // D-12: check against sfda_price from medicine catalogue
+    // If the final unit_price (override or catalog) exceeds sfda_price, flag it
+    const finalPrice = result.unit_price;
+    if (inventoryItem.sku) {
+      const medicine: any = await this.connection.collection('medicines').findOne({ sku: Number(inventoryItem.sku) });
+      if (medicine && medicine.sfda_price && finalPrice > medicine.sfda_price) {
+        result.above_catalogue_price = true;
+        result.catalogue_price = medicine.sfda_price;
+        // Also add warning to the item for the draft response
+        result.price_warning = 'price_above_catalogue';
+      }
+    }
+
     return result;
   }
 
@@ -200,6 +214,17 @@ export class PharmacyOfferService {
       }
     } catch { /* quote never fails on pricing config */ }
     const estimatedPreparationMinutes = Math.max(15, Math.min(60, 10 + items.filter((item) => item.action !== 'unavailable').length * 5));
+    // D-12: collect price warnings from items
+    const priceWarnings = items.filter((item) => item.price_warning === 'price_above_catalogue').map((item) => ({
+      order_item_id: item.order_item_id,
+      sku: item.sku,
+      name_ar: item.name_ar,
+      name_en: item.name_en,
+      catalogue_price: item.catalogue_price,
+      offered_price: item.unit_price,
+      warning_code: 'price_above_catalogue',
+    }));
+
     return {
       items,
       totals: { subtotal: Math.round(subtotal * 100) / 100, delivery_fee: deliveryFee, total: Math.round((subtotal + deliveryFee) * 100) / 100, currency: 'SAR' },
@@ -210,6 +235,7 @@ export class PharmacyOfferService {
         eta_minutes: null,
         delivery_fee_source: feeSource,
       },
+      price_warnings: priceWarnings,
     };
   }
 
@@ -262,6 +288,41 @@ export class PharmacyOfferService {
       { new: true },
     );
     if (!offer) throw new BadRequestException('offer_not_submittable');
+
+    // D-12: check for price_above_catalogue items and add to admin price-review
+    const priceWarnings = (offer.items || []).filter((item: any) => item.above_catalogue_price === true);
+    if (priceWarnings.length) {
+      // Add to admin price-review list
+      await this.connection.collection('pharmacy_price_review').insertMany(priceWarnings.map((item: any) => ({
+        id: uuidv4(),
+        order_id: orderId,
+        offer_id: offer.id,
+        offer_version: offer.version,
+        pharmacy_account_id: user.id,
+        order_item_id: item.order_item_id,
+        sku: item.sku || null,
+        name_ar: item.name_ar || null,
+        name_en: item.name_en || null,
+        catalogue_price: item.catalogue_price,
+        offered_price: item.unit_price,
+        currency: item.currency || 'SAR',
+        status: 'pending',
+        created_at: now,
+      })));
+
+      // Send admin notification
+      await this.bus.emit({
+        type: 'admin.pharmacy.price_above_catalogue',
+        entity_type: 'pharmacy_offer',
+        entity_id: offer.id,
+        actor_account_id: user.id,
+        actor_role: 'pharmacy',
+        patient_account_id: offer.patient_account_id,
+        reason_code: 'price_above_catalogue',
+        meta: { order_id: orderId, offer_id: offer.id, warnings: priceWarnings.length },
+      });
+    }
+
     // Master spec: every provider price override lands in an admin-visible audit collection.
     const overridden = (offer.items || []).filter((item: any) => item.price_source === 'provider_override');
     if (overridden.length) {

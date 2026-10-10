@@ -1,11 +1,11 @@
 import { BadGatewayException, BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 import { I18nService } from '../i18n/i18n.service';
-import { Model } from 'mongoose';
+import { Model, Connection } from 'mongoose';
 import { NotFoundException } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Notification, NotificationDocument } from '../../schemas/notification.schema';
 import { NotificationTemplate, NotificationTemplateDocument, TEMPLATE_LANGS } from '../../schemas/notification-template.schema';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { NotificationPriority, NotificationType } from '../../common/enums';
 import { EVENTS } from '../../common/events';
 import { NotificationRepository } from "./repositories/notification.repository";
@@ -28,6 +28,7 @@ export class NotificationsService {
     private mail: MailService,
     @InjectQueue('notifications-delivery') private queue: Queue,
     private readonly i18n: I18nService,
+    @InjectConnection() private readonly connection: Connection,
   ) {}
 
   async create(data: {
@@ -1163,5 +1164,23 @@ export class NotificationsService {
       type: NotificationType.INFO,
       action: { route: '/wallet/hub' },
     });
+  }
+
+  // ============ D-12: Admin notification for price above catalogue ============
+  @OnEvent('admin.pharmacy.price_above_catalogue')
+  async onPharmacyPriceAboveCatalogue(p: any) {
+    // Notify all admins about pharmacy offer items priced above catalogue
+    const admins = await this.connection.db.collection('users').find({ role: { $in: ['admin', 'super_admin'] } }).toArray();
+    for (const admin of admins) {
+      await this.create({
+        user_id: admin.id,
+        title_key: 'notif.pharmacy_price_above_catalogue.title',
+        body_key: 'notif.pharmacy_price_above_catalogue.body',
+        params: { order_id: p.meta?.order_id, count: p.meta?.warnings },
+        type: NotificationType.ALERT,
+        priority: NotificationPriority.HIGH,
+        action: { route: '/admin/pharmacy/price-review' },
+      });
+    }
   }
 }
