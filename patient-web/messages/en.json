@@ -1109,7 +1109,9 @@
     "connectionFailed": "Connection unavailable. Try again.",
     "confirmedTitle": "Your appointment is booked",
     "confirmedBody": "Appointment time: {slot}",
-    "bookAnother": "Book another slot"
+    "bookAnother": "Book another slot",
+    "verifiedDoctor": "Verified doctor",
+    "licenseNumber": "Licence no. {number}"
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",
@@ -1529,7 +1531,18 @@
     "back": "My appointments",
     "emptyBody": "No past calls yet.",
     "findDoctor": "Find a doctor",
-    "unknownDoctor": "Doctor"
+    "unknownDoctor": "Doctor",
+    "unavailableTitle": "We can't load your calls right now",
+    "unavailableBody": "Check your connection and try again.",
+    "videoCall": "Video call",
+    "voiceCall": "Voice call",
+    "status": {
+      "ended": "Call completed",
+      "rejected": "Declined",
+      "missed": "Missed call",
+      "active": "Call in progress",
+      "pending": "Pending call"
+    }
   },
   "PostCallRating": {
     "title": "Rate your consultation",

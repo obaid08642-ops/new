@@ -6,7 +6,7 @@
     "element": "Pharmacy name",
     "file": "",
     "line": 0,
-    "found": "[backend] The order and its allocations carry only pharmacy_account_id; no name reaches the patient after the offer is chosen, so the tracking card cannot name the pharmacy.",
+    "found": "[backend] Fixed on design/backend-fields: GET /patient/pharmacy/orders/:id now carries pharmacy_name_ar / pharmacy_name_en (pharmacy-order.service.ts:147-150); the tracking card names the pharmacy by language and hides the line when absent.",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -26,7 +26,7 @@
     "element": "Legacy orders (GET /orders/mine)",
     "file": "",
     "line": 0,
-    "found": "[backend] These rows have no screen: order-tracking reads the governed endpoint, which answers order_not_found for a legacy id. They are listed without an action.",
+    "found": "[backend] Fixed on design/backend-fields: legacy rows open the tracking screen, which falls back to GET /orders/:id/tracking (orders.service.ts getTracking) for an id the governed endpoint does not know.",
     "suspect": "Backend gap: reviewer session."
   },
   {

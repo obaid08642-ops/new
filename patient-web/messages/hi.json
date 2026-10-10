@@ -1109,7 +1109,9 @@
     "connectionFailed": "कनेक्शन उपलब्ध नहीं। फिर कोशिश करें।",
     "confirmedTitle": "आपकी अपॉइंटमेंट बुक हो गई",
     "confirmedBody": "अपॉइंटमेंट का समय: {slot}",
-    "bookAnother": "एक और समय बुक करें"
+    "bookAnother": "एक और समय बुक करें",
+    "verifiedDoctor": "सत्यापित डॉक्टर",
+    "licenseNumber": "लाइसेंस नंबर {number}"
   },
   "LabsServices": {
     "eyebrow": "प्रयोगशाला देखभाल",
@@ -1529,7 +1531,18 @@
     "back": "मेरे अपॉइंटमेंट",
     "emptyBody": "अभी कोई पिछली कॉल नहीं।",
     "findDoctor": "डॉक्टर खोजें",
-    "unknownDoctor": "डॉक्टर"
+    "unknownDoctor": "डॉक्टर",
+    "unavailableTitle": "अभी आपकी कॉल लोड नहीं हो सकीं",
+    "unavailableBody": "अपना कनेक्शन जाँचें और फिर कोशिश करें।",
+    "videoCall": "वीडियो कॉल",
+    "voiceCall": "वॉइस कॉल",
+    "status": {
+      "ended": "कॉल पूरी हुई",
+      "rejected": "अस्वीकार की गई",
+      "missed": "छूटी हुई कॉल",
+      "active": "कॉल जारी है",
+      "pending": "लंबित कॉल"
+    }
   },
   "PostCallRating": {
     "title": "अपने परामर्श को रेट करें",

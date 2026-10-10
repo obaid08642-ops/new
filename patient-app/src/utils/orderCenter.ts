@@ -289,8 +289,8 @@ export function buildRows(src: OrderSources, pick: PickName): OrderRow[] {
   }
   for (const o of listOf(src.legacyOrders)) {
     const items = Array.isArray(o.items) ? o.items.length : 0;
-    // the legacy orders have no screen of their own: the governed order screens do not know their ids
-    push(row('pharmacy', o, text(o.state) ?? text(o.status) ?? 'PENDING', { sub: items > 0 ? { key: items === 1 ? 'pharmacy.hub.oneItem' : 'pharmacy.hub.items', n: items } : text(o.pharmacy_name) ? { text: text(o.pharmacy_name) as string } : null, number: idOf(o) ? orderNumber(idOf(o) as string) : null }));
+    // #368: a legacy order opens the tracking screen, which reads GET /orders/:id/tracking when the governed read does not know its id
+    push(row('pharmacy', o, text(o.state) ?? text(o.status) ?? 'PENDING', { sub: items > 0 ? { key: items === 1 ? 'pharmacy.hub.oneItem' : 'pharmacy.hub.items', n: items } : text(o.pharmacy_name) ? { text: text(o.pharmacy_name) as string } : null, number: idOf(o) ? orderNumber(idOf(o) as string) : null, route: idOf(o) ? { pathname: '/pharmacy/order-tracking', params: { orderId: idOf(o) as string } } : null, action: 'track' }));
   }
   for (const o of listOf(src.pharmacyOrders)) push(pharmacyRow(o));
   for (const b of listOf(src.labs)) {

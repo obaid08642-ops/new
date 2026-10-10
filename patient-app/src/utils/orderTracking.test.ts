@@ -1,4 +1,4 @@
-import { nextKey, readTracking } from './orderTracking';
+import { nextKey, readLegacyTracking, readTracking } from './orderTracking';
 
 /**
  * Tracking reads one pharmacy order the way GET /patient/pharmacy/orders/:id sends it (pharmacy-order.service.ts `detail`):
@@ -107,5 +107,14 @@ describe('where an order that still needs the patient goes', () => {
   it('is null for an answer that is not an order', () => {
     expect(readTracking(null)).toBeNull();
     expect(readTracking({ id: 'x' })).toBeNull();
+  });
+});
+
+describe('a legacy order (issue 368)', () => {
+  it('reads state, pharmacy, total, courier and the delivery estimate; nothing else is invented', () => {
+    const v = readLegacyTracking({ order_id: 'old-1', state: 'OUT_FOR_DELIVERY', pharmacy_name: 'Al Noor', total: 42, delivery: { eta_minutes: 18, courier_name: 'Sami', courier_phone: '+966 50 123 4567' } });
+    expect(v).toEqual({ id: 'old-1', state: 'OUT_FOR_DELIVERY', pharmacyName: 'Al Noor', total: 42, courier: { name: 'Sami', phone: '+966501234567' }, etaMinutes: 18 });
+    expect(readLegacyTracking({ order_id: 'old-2', state: 'PENDING', delivery: null })).toEqual({ id: 'old-2', state: 'PENDING', pharmacyName: null, total: null, courier: null, etaMinutes: null });
+    expect(readLegacyTracking({ state: 'PENDING' })).toBeNull();
   });
 });

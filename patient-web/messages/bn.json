@@ -1109,7 +1109,9 @@
     "connectionFailed": "সংযোগ পাওয়া যাচ্ছে না। আবার চেষ্টা করুন।",
     "confirmedTitle": "আপনার অ্যাপয়েন্টমেন্ট বুক হয়েছে",
     "confirmedBody": "অ্যাপয়েন্টমেন্টের সময়: {slot}",
-    "bookAnother": "আরেকটি সময় বুক করুন"
+    "bookAnother": "আরেকটি সময় বুক করুন",
+    "verifiedDoctor": "যাচাইকৃত ডাক্তার",
+    "licenseNumber": "লাইসেন্স নম্বর {number}"
   },
   "LabsServices": {
     "eyebrow": "ল্যাবরেটরি কেয়ার",
@@ -1529,7 +1531,18 @@
     "back": "আমার অ্যাপয়েন্টমেন্ট",
     "emptyBody": "এখনও কোনো পূর্ববর্তী কল নেই।",
     "findDoctor": "ডাক্তার খুঁজুন",
-    "unknownDoctor": "ডাক্তার"
+    "unknownDoctor": "ডাক্তার",
+    "unavailableTitle": "এখন আপনার কলগুলো লোড করা যাচ্ছে না",
+    "unavailableBody": "আপনার সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।",
+    "videoCall": "ভিডিও কল",
+    "voiceCall": "ভয়েস কল",
+    "status": {
+      "ended": "কল সম্পন্ন",
+      "rejected": "প্রত্যাখ্যাত",
+      "missed": "মিসড কল",
+      "active": "কল চলছে",
+      "pending": "অপেক্ষমাণ কল"
+    }
   },
   "PostCallRating": {
     "title": "আপনার কনসালটেশন রেট করুন",

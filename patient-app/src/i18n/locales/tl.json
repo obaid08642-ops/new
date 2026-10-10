@@ -3143,5 +3143,12 @@
   "guest.loginRequiredTitle": "Kailangang mag-sign in",
   "guest.loginRequiredBody": "Mag-sign in para magamit ang feature na ito.",
   "consult.calls.videoCall": "Tawag na video",
-  "consult.calls.voiceCall": "Tawag na boses"
+  "consult.calls.voiceCall": "Tawag na boses",
+  "pharmacy.pay.methodsLegend": "Paraan ng pagbabayad",
+  "pharmacy.pay.method.card": "Card sa bangko",
+  "pharmacy.pay.method.apple-pay": "Apple Pay",
+  "pharmacy.pay.method.google-pay": "Google Pay",
+  "pharmacy.scan.unreadable": "Walang nabasang gamot sa larawang ito. Subukan ang mas malinaw na larawan o hilingin ang gamot sa pangalan.",
+  "orders.track.legacyEta": "Darating sa mga {n} minuto",
+  "consult.doc.verified": "Beripikadong doktor"
 }

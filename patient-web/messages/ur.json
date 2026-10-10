@@ -1109,7 +1109,9 @@
     "connectionFailed": "کنکشن دستیاب نہیں۔ دوبارہ کوشش کریں۔",
     "confirmedTitle": "آپ کی اپوائنٹمنٹ بک ہو گئی",
     "confirmedBody": "اپوائنٹمنٹ کا وقت: {slot}",
-    "bookAnother": "ایک اور وقت بک کریں"
+    "bookAnother": "ایک اور وقت بک کریں",
+    "verifiedDoctor": "تصدیق شدہ ڈاکٹر",
+    "licenseNumber": "لائسنس نمبر {number}"
   },
   "LabsServices": {
     "eyebrow": "لیبارٹری کیئر",
@@ -1529,7 +1531,18 @@
     "back": "میری ملاقاتیں",
     "emptyBody": "ابھی کوئی سابقہ کال نہیں۔",
     "findDoctor": "ڈاکٹر تلاش کریں",
-    "unknownDoctor": "ڈاکٹر"
+    "unknownDoctor": "ڈاکٹر",
+    "unavailableTitle": "ابھی آپ کی کالز لوڈ نہیں ہو سکیں",
+    "unavailableBody": "اپنا کنکشن چیک کریں اور دوبارہ کوشش کریں۔",
+    "videoCall": "ویڈیو کال",
+    "voiceCall": "وائس کال",
+    "status": {
+      "ended": "کال مکمل",
+      "rejected": "مسترد کر دی گئی",
+      "missed": "چھوٹی ہوئی کال",
+      "active": "کال جاری ہے",
+      "pending": "زیر التوا کال"
+    }
   },
   "PostCallRating": {
     "title": "اپنے مشورے کی_rating",

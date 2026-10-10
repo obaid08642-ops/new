@@ -140,6 +140,38 @@ export function readTracking(response: unknown): TrackingView | null {
   };
 }
 
+/** A legacy order's tracking (`GET /orders/:id/tracking`: `state`, `pharmacy_name`, `total`, `delivery`), #368. */
+export interface LegacyTrackingView {
+  id: string;
+  /** The order's own `state` as sent (an OrderState such as `OUT_FOR_DELIVERY`); the screen words it through `statusLook`. */
+  state: string;
+  pharmacyName: string | null;
+  total: number | null;
+  courier: Courier | null;
+  /** The delivery's own estimate in minutes; null when the server sent none. */
+  etaMinutes: number | null;
+}
+
+export function readLegacyTracking(response: unknown): LegacyTrackingView | null {
+  const root = record(response);
+  const o = record(root?.data) ?? root;
+  const id = text(o?.order_id);
+  const state = text(o?.state);
+  if (!o || !id || !state) return null;
+  const delivery = record(o.delivery);
+  const name = text(delivery?.courier_name);
+  const rawEta = delivery?.eta_minutes;
+  const eta = typeof rawEta === 'number' && Number.isFinite(rawEta) && rawEta > 0 ? Math.round(rawEta) : null;
+  return {
+    id,
+    state,
+    pharmacyName: text(o.pharmacy_name),
+    total: typeof o.total === 'number' && Number.isFinite(o.total) ? o.total : null,
+    courier: name ? { name, phone: phone(delivery?.courier_phone) } : null,
+    etaMinutes: eta,
+  };
+}
+
 /** The translation key of the button that continues an order which still needs the patient. */
 export function nextKey(next: OrderRoute): string {
   if (next.pathname === '/pharmacy/final-quote') return 'orders.track.continueQuote';

@@ -3143,5 +3143,12 @@
   "guest.loginRequiredTitle": "সাইন ইন প্রয়োজন",
   "guest.loginRequiredBody": "এই সুবিধা ব্যবহার করতে সাইন ইন করুন।",
   "consult.calls.videoCall": "ভিডিও কল",
-  "consult.calls.voiceCall": "ভয়েস কল"
+  "consult.calls.voiceCall": "ভয়েস কল",
+  "pharmacy.pay.methodsLegend": "পরিশোধের উপায়",
+  "pharmacy.pay.method.card": "ব্যাংক কার্ড",
+  "pharmacy.pay.method.apple-pay": "Apple Pay",
+  "pharmacy.pay.method.google-pay": "Google Pay",
+  "pharmacy.scan.unreadable": "এই ছবি থেকে কোনো ওষুধ পড়া যায়নি। আরও স্পষ্ট ছবি চেষ্টা করুন বা নাম দিয়ে ওষুধ চান।",
+  "orders.track.legacyEta": "প্রায় {n} মিনিটে পৌঁছাবে",
+  "consult.doc.verified": "যাচাইকৃত ডাক্তার"
 }

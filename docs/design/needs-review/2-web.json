@@ -16,7 +16,7 @@
     "element": "List",
     "file": "patient-web/app/[locale]/consultations/call-history/page.tsx",
     "line": 28,
-    "found": "[backend] Shows finished appointments; there is no call-record endpoint behind the name.",
+    "found": "[backend] Fixed on design/backend-fields: the list reads the call records (GET /calls/history: call_type, status, started_at, duration_seconds, appointment_id), not the finished appointments.",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -36,7 +36,7 @@
     "element": "Photo and verified seal",
     "file": "patient-web/app/[locale]/consultations/doctors/page.tsx",
     "line": 86,
-    "found": "[client] extractDoctors reads no photo_url or verification field because GET /care/doctors (toPublicDoctor) sends none; the card shows the neutral mark until the backend adds them.",
+    "found": "[client] Fixed on design/backend-fields: the verified seal and the licence number are drawn from verified / scfhs_license_no; the photo is still not sent by toPublicDoctor.",
     "suspect": "Client-side: later batch."
   },
   {
@@ -76,7 +76,7 @@
     "element": "Specialty line",
     "file": "patient-web/app/[locale]/appointments/page.tsx",
     "line": 83,
-    "found": "[backend] The appointment row carries specialty_ar only, so the specialty reads in Arabic on every language page.",
+    "found": "[backend] Fixed on design/backend-fields: the specialty follows the page language (specialty_name_ar / specialty_name_en, Q-19). Backend: the list GET /care/appointments (appointments.service.ts listMine) is not enriched, so the row has no doctor_name or specialty yet; the detail has both.",
     "suspect": "Backend gap: reviewer session."
   },
   {

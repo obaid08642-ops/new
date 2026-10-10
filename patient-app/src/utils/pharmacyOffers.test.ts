@@ -86,9 +86,10 @@ describe('parseOffers', () => {
     expect(parseOffers([{ totals: { total: 5 } }, offer()])).toHaveLength(1);
   });
 
-  it('insurance is ready unless the server says otherwise', () => {
+  it('insurance is offered only when the server says the pharmacy takes it (issue 519: null = unknown = not offered)', () => {
     expect(parseOffers([offer({ insurance_ready: false })])[0].insuranceReady).toBe(false);
-    expect(parseOffers([offer({ insurance_ready: undefined })])[0].insuranceReady).toBe(true);
+    expect(parseOffers([offer({ insurance_ready: undefined })])[0].insuranceReady).toBe(false);
+    expect(parseOffers([offer({ insurance_ready: null })])[0].insuranceReady).toBe(false);
   });
 
   it('a submitted-looking status other than open is not selectable', () => {

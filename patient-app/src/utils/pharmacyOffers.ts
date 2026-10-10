@@ -105,7 +105,7 @@ export function parseOffer(raw: unknown): OfferView | null {
     lines,
     availableCount,
     allAvailable: lines.length > 0 && availableCount === lines.length,
-    insuranceReady: o.insurance_ready !== false,
+    insuranceReady: o.insurance_ready === true,
     note: text(o.provider_note),
   };
 }

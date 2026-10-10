@@ -1109,7 +1109,9 @@
     "connectionFailed": "Hindi available ang koneksyon. Subukan muli.",
     "confirmedTitle": "Na-book ang iyong appointment",
     "confirmedBody": "Oras ng appointment: {slot}",
-    "bookAnother": "Mag-book ng isa pang oras"
+    "bookAnother": "Mag-book ng isa pang oras",
+    "verifiedDoctor": "Beripikadong doktor",
+    "licenseNumber": "Lisensya blg. {number}"
   },
   "LabsServices": {
     "eyebrow": "Pangangalaga sa laboratoryo",
@@ -1529,7 +1531,18 @@
     "back": "Mga appointment ko",
     "emptyBody": "Wala pang nakaraang tawag.",
     "findDoctor": "Maghanap ng doktor",
-    "unknownDoctor": "Doktor"
+    "unknownDoctor": "Doktor",
+    "unavailableTitle": "Hindi ma-load ang iyong mga tawag ngayon",
+    "unavailableBody": "Suriin ang iyong koneksyon at subukan muli.",
+    "videoCall": "Tawag na video",
+    "voiceCall": "Tawag na boses",
+    "status": {
+      "ended": "Natapos ang tawag",
+      "rejected": "Tinanggihan",
+      "missed": "Hindi nasagot na tawag",
+      "active": "Kasalukuyang tawag",
+      "pending": "Nakabinbing tawag"
+    }
   },
   "PostCallRating": {
     "title": "I-rate ang konsultasyon",
