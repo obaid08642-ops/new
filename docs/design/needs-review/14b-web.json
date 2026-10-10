@@ -35,7 +35,7 @@
     "screen": "/pharmacy/broadcast-status",
     "element": "Cancel / returns text (decision 26)",
     "file": "patient-web/components-next/pharmacy-offers/waiting-actions.tsx",
-    "line": 34,
+    "line": 22,
     "found": "[client] No hard-coded 12/24 h or 4/24 h copy exists in the lab or pharmacy screens; the order cancel confirmation shows no cancellation or returns rule. GET /system-config/public has cancellation_policy and returns_policy for it.",
     "suspect": "Client-side: later batch."
   }

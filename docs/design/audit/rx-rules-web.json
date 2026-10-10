@@ -1,0 +1,161 @@
+{
+  "slice": "rx-rules-web",
+  "batch": 14,
+  "app": "patient-web",
+  "screens": [
+    {
+      "route": "/p/[slug]",
+      "elements": [
+        [
+          "Needs-a-prescription chip",
+          "is_rx of GET /public/product/:locale/:slug",
+          "ok"
+        ],
+        [
+          "Discount badge on the gallery and crossed-out price",
+          "old_price over price, drawn only when canShowPromo (promoPercent, promoOldPrice); the public answer still carries old_price for a prescription item",
+          "fixed"
+        ],
+        [
+          "Online-only badge",
+          "not drawn: the public product answer has no online_exclusive",
+          "gap"
+        ],
+        [
+          "Alternatives row (cards)",
+          "public search cards: Rx note, discount and cheaper tag follow canShowPromo",
+          "fixed"
+        ],
+        [
+          "Points or earn-points on a product",
+          "none: the site draws no points on any product",
+          "hidden"
+        ]
+      ],
+      "notes": []
+    },
+    {
+      "route": "/medicines/compare",
+      "elements": [
+        [
+          "Needs-a-prescription row",
+          "requires_prescription of GET /medicines/:id (shown yes / no)",
+          "fixed"
+        ],
+        [
+          "Online-only row",
+          "online_exclusive of GET /medicines/:id (shown yes / no)",
+          "fixed"
+        ]
+      ],
+      "notes": []
+    },
+    {
+      "route": "/wishlist",
+      "elements": [
+        [
+          "Needs-a-prescription chip",
+          "requires_prescription of GET /users/me/wishlist",
+          "fixed"
+        ],
+        [
+          "Online-only chip",
+          "GET /users/me/wishlist does not send online_exclusive",
+          "hidden"
+        ],
+        [
+          "Discount or old price",
+          "none drawn: the row has price only",
+          "hidden"
+        ]
+      ],
+      "notes": []
+    },
+    {
+      "route": "/search",
+      "elements": [
+        [
+          "Needs-a-prescription and online-only badges on a medicine result",
+          "GET /home/search medicine rows carry no such flag",
+          "hidden"
+        ]
+      ],
+      "notes": []
+    },
+    {
+      "route": "/consultations/doctors",
+      "elements": [
+        [
+          "Specialty filter from a slug (?specialty=cardiology) with its translated name and a clear link",
+          "GET /care/doctors?specialty=<slug> (exact filter) for a known slug; other text stays the q search; the name is SpecialtyNames.<slug>",
+          "fixed"
+        ]
+      ],
+      "notes": []
+    }
+  ],
+  "needsReview": [
+    {
+      "route": "/p/[slug]",
+      "element": "Online-only badge on the product page",
+      "kind": "backend",
+      "note": "The public product answer (GET /public/product/:locale/:slug) sends is_rx and available_online but not online_exclusive (available_online means shipped online, not online only), so the page cannot show the badge.",
+      "file": "patient-web/app/[locale]/p/[slug]/page.tsx",
+      "line": 279,
+      "backend": "backend/src/modules/medicines/med-i18n.ts:304"
+    },
+    {
+      "route": "/c/[[...category]]",
+      "element": "Online-only note on a card and in search results",
+      "kind": "backend",
+      "note": "The public card answers (category items and product search) send is_rx but no online_exclusive; add it next to is_rx in the card DTOs.",
+      "file": "patient-web/components-next/pharmacy/product-grid.tsx",
+      "line": 69,
+      "backend": "backend/src/modules/seo-search/seo-search.module.ts:652"
+    },
+    {
+      "route": "/c/[[...category]]",
+      "element": "Old price and discount sent for a prescription item",
+      "kind": "backend",
+      "note": "The public product DTO sends old_price, discount_percent and has_discount for an Rx item (the admin catalogue lists withhold them); the client hides them with canShowPromo, the DTO should too.",
+      "file": "patient-web/components-next/pharmacy/product-grid.tsx",
+      "line": 55,
+      "backend": "backend/src/modules/medicines/med-i18n.ts:301"
+    },
+    {
+      "route": "/wishlist",
+      "element": "Online-only chip on a wishlist row",
+      "kind": "backend",
+      "note": "GET /users/me/wishlist sends requires_prescription but not online_exclusive.",
+      "file": "patient-web/app/[locale]/wishlist/page.tsx",
+      "line": 61,
+      "backend": "backend/src/modules/users/users.service.ts:50"
+    },
+    {
+      "route": "/search",
+      "element": "Needs-a-prescription and online-only on a medicine result",
+      "kind": "backend",
+      "note": "GET /home/search medicine rows carry id, names, price only: no requires_prescription or online_exclusive.",
+      "file": "patient-web/app/[locale]/search/search-client.tsx",
+      "line": 73,
+      "backend": "backend/src/modules/home/home.service.ts:203"
+    },
+    {
+      "route": "/cart",
+      "element": "Online-only note on a cart line",
+      "kind": "owner",
+      "note": "The browser cart line stores name, pack, Rx flag and quantity; showing online-only needs a new stored flag (cart storage is not a design change): owner to decide.",
+      "file": "patient-web/components-next/pharmacy/cart-screen.tsx",
+      "line": 154
+    },
+    {
+      "route": "/cart",
+      "element": "Suggested specialty needs the admin mapping",
+      "kind": "owner",
+      "note": "Consult a doctor opens the mapped specialty only when the admin has filled system_configs rx_consult_specialties (category to specialty); until then the answer is null and the specialty list opens.",
+      "file": "patient-web/components-next/pharmacy/cart-screen.tsx",
+      "line": 183,
+      "backend": "backend/src/modules/medicines/rx-consult.controller.ts:44"
+    }
+  ]
+}

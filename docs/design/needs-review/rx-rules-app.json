@@ -1,0 +1,62 @@
+[
+  {
+    "batch": 14,
+    "app": "patient-app",
+    "screen": "/pharmacy/product-detail",
+    "element": "Online-only on alternatives and related",
+    "file": "patient-app/app/pharmacy/product-detail.tsx",
+    "line": 414,
+    "found": "[backend] The alternatives rows of /medicines/:id/details are projected without online_exclusive, so an alternative never shows the online-only note. (backend: backend/src/modules/medicines/medicines.service.ts:930)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-app",
+    "screen": "/pharmacy/wishlist",
+    "element": "Online-only note on a wishlist row",
+    "file": "patient-app/app/pharmacy/wishlist.tsx",
+    "line": 40,
+    "found": "[backend] GET /users/me/wishlist sends requires_prescription but not online_exclusive. (backend: backend/src/modules/users/users.service.ts:50)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-app",
+    "screen": "/search",
+    "element": "Needs-a-prescription and online-only on a medicine result",
+    "file": "patient-app/src/utils/searchResults.ts",
+    "line": 10,
+    "found": "[backend] GET /home/search medicine rows carry id, names, price only: no requires_prescription or online_exclusive, so the result row cannot show either badge. (backend: backend/src/modules/home/home.service.ts:203)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-app",
+    "screen": "/pharmacy/cart",
+    "element": "Online-only note on a cart line",
+    "file": "patient-app/app/pharmacy/cart.tsx",
+    "line": 40,
+    "found": "[owner] The local cart line stores name, picture, ingredient, Rx flag and quantity; showing online-only needs a new stored flag (cart storage is not a design change): owner to decide.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 14,
+    "app": "patient-app",
+    "screen": "/pharmacy/cart",
+    "element": "Suggested specialty needs the admin mapping",
+    "file": "patient-app/app/pharmacy/cart.tsx",
+    "line": 75,
+    "found": "[owner] Consult a doctor opens the mapped specialty only when the admin has filled system_configs rx_consult_specialties (category to specialty); until then the answer is null and the full specialty list opens. (backend: backend/src/modules/medicines/rx-consult.controller.ts:44)",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 14,
+    "app": "patient-app",
+    "screen": "/pharmacy",
+    "element": "Unused legacy ProductCard with hard-coded text and colours",
+    "file": "patient-app/src/components/ui.tsx",
+    "line": 223,
+    "found": "[client] src/components/ui.tsx ProductCard is imported nowhere (the hub uses the ui-native card) and holds \"يتطلب وصفة\" and raw colours: delete it.",
+    "suspect": "Client-side: later batch."
+  }
+]
