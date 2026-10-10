@@ -481,9 +481,9 @@
       "route": "/profile",
       "element": "Family row",
       "kind": "client",
-      "note": "app/profile/index.tsx still links /health/family-hub (works through the redirect); the file has 12 literal strings and belongs to the settings batch.",
+      "note": "[screen is now a redirect; kept so issue indices stay stable] app/profile/index.tsx still links /health/family-hub (works through the redirect); the file has 12 literal strings and belongs to the settings batch.",
       "file": "patient-app/app/profile/index.tsx",
-      "line": 25
+      "line": 4
     },
     {
       "route": "/family",

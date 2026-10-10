@@ -55,8 +55,8 @@
     "screen": "/profile",
     "element": "Family row",
     "file": "patient-app/app/profile/index.tsx",
-    "line": 25,
-    "found": "[client] app/profile/index.tsx still links /health/family-hub (works through the redirect); the file has 12 literal strings and belongs to the settings batch.",
+    "line": 4,
+    "found": "[client] [screen is now a redirect; kept so issue indices stay stable] app/profile/index.tsx still links /health/family-hub (works through the redirect); the file has 12 literal strings and belongs to the settings batch.",
     "suspect": "Client-side: later batch."
   },
   {
