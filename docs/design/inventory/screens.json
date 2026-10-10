@@ -1,5 +1,5 @@
 {
- "commit": "136c564c",
+ "commit": "e686977d",
  "routes": [
   {
    "app": "patient-app",
@@ -2291,7 +2291,7 @@
      "path": "/family/invite",
      "target": "backend",
      "query": "",
-     "line": 63,
+     "line": 65,
      "file": "patient-app/src/components/family/FamilyAddView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:34"
@@ -2301,13 +2301,13 @@
      "path": "/family/join",
      "target": "backend",
      "query": "",
-     "line": 155,
+     "line": 161,
      "file": "patient-app/src/components/family/FamilyAddView.tsx",
      "status": "OK",
      "backend": "backend/src/modules/family/family.controller.ts:39"
     }
    ],
-   "files": 34,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -3941,7 +3941,7 @@
      "path": "/loyalty/account",
      "target": "backend",
      "query": "",
-     "line": 74,
+     "line": 75,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:22"
@@ -3951,7 +3951,7 @@
      "path": "/loyalty/challenges",
      "target": "backend",
      "query": "",
-     "line": 248,
+     "line": 249,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:40"
@@ -3961,7 +3961,7 @@
      "path": "/loyalty/challenges/:param/join",
      "target": "backend",
      "query": "",
-     "line": 255,
+     "line": 256,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:46"
@@ -3971,7 +3971,7 @@
      "path": "/loyalty/config",
      "target": "backend",
      "query": "",
-     "line": 76,
+     "line": 77,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:16"
@@ -3981,7 +3981,7 @@
      "path": "/loyalty/rewards",
      "target": "backend",
      "query": "",
-     "line": 141,
+     "line": 142,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:52"
@@ -3991,7 +3991,7 @@
      "path": "/loyalty/rewards/:param/claim",
      "target": "backend",
      "query": "",
-     "line": 153,
+     "line": 154,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:58"
@@ -4001,7 +4001,7 @@
      "path": "/loyalty/transactions",
      "target": "backend",
      "query": "?page=1",
-     "line": 75,
+     "line": 76,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:28"
@@ -4011,7 +4011,7 @@
      "path": "/referrals/apply",
      "target": "backend",
      "query": "",
-     "line": 347,
+     "line": 349,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/referral/referral.controller.ts:24"
@@ -4021,13 +4021,13 @@
      "path": "/referrals/my",
      "target": "backend",
      "query": "",
-     "line": 324,
+     "line": 325,
      "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
      "status": "OK",
      "backend": "backend/src/modules/referral/referral.controller.ts:18"
     }
    ],
-   "files": 36,
+   "files": 37,
    "unresolved": 0
   },
   {
@@ -6495,6 +6495,19 @@
    "status": "done (#285)",
    "calls": [],
    "files": 21,
+   "unresolved": 0
+  },
+  {
+   "app": "patient-app",
+   "route": "/services",
+   "file": "patient-app/app/services/index.tsx",
+   "redirect": null,
+   "template": "hub",
+   "board": "ServiceHub",
+   "batch": 0,
+   "status": "done (#285)",
+   "calls": [],
+   "files": 20,
    "unresolved": 0
   },
   {
@@ -9964,7 +9977,7 @@
      "path": "/api/family/invite",
      "target": "web-bff",
      "query": "",
-     "line": 24,
+     "line": 27,
      "file": "patient-web/components-next/family/add-family.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/family/invite/route.ts"
@@ -9974,13 +9987,13 @@
      "path": "/api/family/join",
      "target": "web-bff",
      "query": "",
-     "line": 77,
+     "line": 78,
      "file": "patient-web/components-next/family/add-family.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/family/join/route.ts"
     }
    ],
-   "files": 34,
+   "files": 35,
    "unresolved": 0
   },
   {
@@ -11340,7 +11353,7 @@
      "path": "/api/patient/loyalty/challenges/:param/join",
      "target": "web-proxy",
      "query": "",
-     "line": 66,
+     "line": 67,
      "file": "patient-web/components-next/loyalty/loyalty-actions.tsx",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:46",
      "status": "OK"
@@ -11350,7 +11363,7 @@
      "path": "/api/patient/loyalty/rewards/:param/claim",
      "target": "web-proxy",
      "query": "",
-     "line": 29,
+     "line": 30,
      "file": "patient-web/components-next/loyalty/loyalty-actions.tsx",
      "backend": "backend/src/modules/loyalty/loyalty.controller.ts:58",
      "status": "OK"
@@ -11426,7 +11439,7 @@
      "backend": "backend/src/modules/referral/referral.controller.ts:18"
     }
    ],
-   "files": 42,
+   "files": 43,
    "unresolved": 0
   },
   {

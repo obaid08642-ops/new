@@ -3191,5 +3191,8 @@
   "emergency.intro": "If you need help right away, call the urgent-help number set up for Nabd Plus.",
   "emergency.call": "Call {number}",
   "emergency.unavailable": "No urgent-help number has been set up yet, so there is nothing to call from here. If you are in danger, contact your local emergency services.",
-  "emergency.note": "Nabd Plus is not an emergency service and cannot send help to your location."
+  "emergency.note": "Nabd Plus is not an emergency service and cannot send help to your location.",
+  "common.copy": "Copy",
+  "common.copied": "Copied",
+  "common.copyFailed": "Could not copy. Select the text and copy it by hand."
 }

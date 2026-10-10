@@ -2563,6 +2563,7 @@
     "inviteCode": "Code ng imbitasyon",
     "inviteCopy": "Kopyahin ang code",
     "inviteCopied": "Nakopya",
+    "inviteCopyFailed": "Hindi nakopya. Piliin ang code at kopyahin nang mano-mano.",
     "inviteFailed": "Hindi nagawa ang imbitasyon. Subukan muli.",
     "joinCodeHint": "I-paste ang code dito",
     "joinRelation": "Relasyon (opsyonal)",

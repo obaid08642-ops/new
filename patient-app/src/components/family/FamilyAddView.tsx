@@ -10,6 +10,7 @@ import { HealthTabs, Notice, Panel, Row, useTab } from '../health/HealthKit';
 import { message, step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
+import { useCopy } from '../screen/useCopy';
 import { FAMILY_HUB, FamilyScreen } from './FamilyKit';
 
 /**
@@ -55,6 +56,7 @@ function InviteTab({ cache }: { cache: React.MutableRefObject<string | null> }) 
   const [failed, setFailed] = useState(false);
   const [loading, setLoading] = useState(cache.current === null);
   const started = useRef(false);
+  const { copy, notice } = useCopy('invite');
 
   const create = React.useCallback(async () => {
     setLoading(true);
@@ -106,7 +108,9 @@ function InviteTab({ cache }: { cache: React.MutableRefObject<string | null> }) 
         {method === 'link' ? (
           <View style={{ gap: 10 }}>
             <Input label={k('family.invite.link')} value={url} readOnly theme={theme} testID="invite-link" />
+            <Button label={k('common.copy')} variant="outline" fullWidth onPress={() => void copy(url)} theme={theme} testID="invite-copy-link" />
             <Button label={k('family.invite.share')} fullWidth onPress={() => void share()} theme={theme} testID="invite-share" />
+            {notice}
           </View>
         ) : null}
         {method === 'qr' ? (
@@ -124,7 +128,9 @@ function InviteTab({ cache }: { cache: React.MutableRefObject<string | null> }) 
               <Text selectable accessibilityLabel={`${k('family.invite.code')} ${code}`} style={{ ...scale(t, 'h1', 'bold'), color: c.text.primary, letterSpacing: 4, textAlign: 'center' }} testID="invite-code">{code}</Text>
             </View>
             <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('family.invite.codeHint')}</Text>
-            <Button label={k('family.invite.share')} variant="outline" fullWidth onPress={() => void share()} theme={theme} />
+            <Button label={k('common.copy')} variant="outline" fullWidth onPress={() => void copy(code)} theme={theme} testID="invite-copy-code" />
+            <Button label={k('family.invite.share')} fullWidth onPress={() => void share()} theme={theme} testID="invite-share-code" />
+            {notice}
           </View>
         ) : null}
       </Section>

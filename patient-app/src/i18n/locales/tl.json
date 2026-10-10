@@ -3155,5 +3155,8 @@
   "emergency.intro": "Kung kailangan mo ng agarang tulong, tawagan ang numero ng agarang tulong na itinakda sa Nabd Plus.",
   "emergency.call": "Tawagan ang {number}",
   "emergency.unavailable": "Wala pang naitakdang numero ng agarang tulong, kaya walang matatawagan mula rito. Kung nasa panganib ka, makipag-ugnayan sa lokal na emergency services.",
-  "emergency.note": "Hindi emergency service ang Nabd Plus at hindi ito makapagpapadala ng tulong sa iyong lokasyon."
+  "emergency.note": "Hindi emergency service ang Nabd Plus at hindi ito makapagpapadala ng tulong sa iyong lokasyon.",
+  "common.copy": "Kopyahin",
+  "common.copied": "Nakopya na",
+  "common.copyFailed": "Hindi nakopya. Piliin ang text at kopyahin nang mano-mano."
 }

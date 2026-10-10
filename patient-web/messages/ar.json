@@ -2563,6 +2563,7 @@
     "inviteCode": "كود الدعوة",
     "inviteCopy": "نسخ الكود",
     "inviteCopied": "تم النسخ",
+    "inviteCopyFailed": "تعذر النسخ. حدّد الكود وانسخه يدوياً.",
     "inviteFailed": "تعذر إنشاء الدعوة. حاول مرة أخرى.",
     "joinCodeHint": "الصق الكود هنا",
     "joinRelation": "صلة القرابة (اختياري)",

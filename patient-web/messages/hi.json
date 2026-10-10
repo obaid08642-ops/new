@@ -2563,6 +2563,7 @@
     "inviteCode": "आमंत्रण कोड",
     "inviteCopy": "कोड कॉपी करें",
     "inviteCopied": "कॉपी हो गया",
+    "inviteCopyFailed": "कॉपी नहीं हो सका। कोड चुनकर खुद कॉपी करें।",
     "inviteFailed": "आमंत्रण नहीं बन सका। फिर से कोशिश करें।",
     "joinCodeHint": "कोड यहाँ पेस्ट करें",
     "joinRelation": "रिश्ता (वैकल्पिक)",
