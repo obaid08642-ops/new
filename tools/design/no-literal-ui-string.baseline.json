@@ -1,9 +1,8 @@
 {
   "note": "Literal UI strings per file (patient-web, patient-app). Ratcheted: --update only ever lowers it. Rule: owner 2026-10-06, see QUALITY_STANDARDS.md section 8.",
   "files": {
-    "patient-app/app/(onboarding)/index.tsx": 14,
+    "patient-app/app/(onboarding)/intro.tsx": 14,
     "patient-app/app/(onboarding)/language.tsx": 2,
-    "patient-app/app/(onboarding)/permissions.tsx": 10,
     "patient-app/app/(tabs)/services.tsx": 7,
     "patient-app/app/+not-found.tsx": 5,
     "patient-app/app/consultations/doctor-profile.tsx": 1,

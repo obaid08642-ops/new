@@ -3143,5 +3143,10 @@
   "guest.loginRequiredTitle": "سائن اِن ضروری ہے",
   "guest.loginRequiredBody": "یہ فیچر استعمال کرنے کے لیے سائن اِن کریں۔",
   "consult.calls.videoCall": "ویڈیو کال",
-  "consult.calls.voiceCall": "وائس کال"
+  "consult.calls.voiceCall": "وائس کال",
+  "notifAsk.turnOn": "اطلاعات آن کریں",
+  "notifAsk.openSettings": "فون کی سیٹنگز کھولیں",
+  "notifAsk.blocked": "اس فون پر اطلاعات بند ہیں۔ الرٹس حاصل کرنے کے لیے فون کی سیٹنگز میں انہیں آن کریں۔",
+  "notifAsk.offers": "اطلاعات آن کریں تاکہ فارمیسیوں کی پیشکشیں آتے ہی ہم آپ کو بتا سکیں۔",
+  "notifAsk.settings": "دوا اور اپائنٹمنٹ کی یاد دہانیاں اور آرڈر کی اپڈیٹس پانے کے لیے اس فون پر اطلاعات آن کریں۔"
 }

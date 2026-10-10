@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
@@ -9,24 +9,15 @@ import { LANGUAGES, useApp, type LangCode } from '../../src/context/AppContext';
 /**
  * Onboarding, language — the sign-in kit's look with the Settings board's language card (canvas/Settings.dc.html):
  * one white card, a Radio row per language (its own name, the English name beside it, the action-coloured ring
- * when chosen), "Continue" in the sticky footer. The chosen language is applied on Continue, as before.
+ * when chosen), "Continue" in the sticky footer. First screen of the first launch (no back button); the chosen language is applied at once, Continue opens the intro.
  */
 export default function OnboardingLanguage() {
   const { lang, setLang } = useApp();
   const { theme, tr, isRTL } = useAuthUi();
   const dir = isRTL ? 'rtl' : 'ltr';
-  // nothing chosen yet means the current language (read at render, so it is right once the app has loaded it)
-  const [picked, setPicked] = useState<LangCode | null>(null);
-  const selected = picked ?? lang;
-
-  const back = () => {
-    if (router.canGoBack()) router.back();
-    else router.replace('/(onboarding)' as Href);
-  };
-  const next = () => {
-    setLang(selected);
-    router.replace('/(onboarding)/permissions' as Href);
-  };
+  // the language is applied at once (the app context saves it and sets the layout direction)
+  const pick = (code: LangCode) => setLang(code);
+  const next = () => router.replace('/(onboarding)/intro' as Href);
 
   const footer = (
     <StickyFooter theme={theme}>
@@ -39,7 +30,7 @@ export default function OnboardingLanguage() {
   return (
     <Screen theme={theme} edges={['top', 'start', 'end']} scroll footer={footer} testID="onboarding-language">
       <AuthBody>
-        <AuthTopBar onBack={back} />
+        <AuthTopBar />
         <AuthTitle title="اختر لغتك" sub="يمكنك تغييرها لاحقًا من الإعدادات." />
         <View style={{ marginTop: 24 }}>
           <Card elevation="flat" padding="none" theme={theme}>
@@ -49,8 +40,8 @@ export default function OnboardingLanguage() {
                   key={l.code}
                   label={l.native}
                   meta={l.label}
-                  selected={selected === l.code}
-                  onChange={() => setPicked(l.code)}
+                  selected={lang === l.code}
+                  onChange={() => pick(l.code)}
                   divider={i < LANGUAGES.length - 1}
                   direction={dir}
                   theme={theme}

@@ -100,7 +100,8 @@ export default function NotificationHandler() {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    // Register token with backend and reconcile explicit local medication actions.
+    // Register the token with the backend (only if notifications are already allowed: the phone's dialog is never shown here,
+    // it comes from the in-context prompts) and reconcile explicit local medication actions.
     registerForPushNotificationsAsync();
     flushMedicationDoseActions().catch(() => { /* a later app launch will retry */ });
 

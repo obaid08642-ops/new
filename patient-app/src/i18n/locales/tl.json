@@ -3143,5 +3143,10 @@
   "guest.loginRequiredTitle": "Kailangang mag-sign in",
   "guest.loginRequiredBody": "Mag-sign in para magamit ang feature na ito.",
   "consult.calls.videoCall": "Tawag na video",
-  "consult.calls.voiceCall": "Tawag na boses"
+  "consult.calls.voiceCall": "Tawag na boses",
+  "notifAsk.turnOn": "I-on ang mga notification",
+  "notifAsk.openSettings": "Buksan ang settings ng telepono",
+  "notifAsk.blocked": "Naka-off ang mga notification sa teleponong ito. I-on ang mga ito sa settings ng telepono para makatanggap ng mga alerto.",
+  "notifAsk.offers": "I-on ang mga notification para masabihan ka namin agad kapag nagpadala na ng mga alok ang mga parmasya.",
+  "notifAsk.settings": "I-on ang mga notification sa teleponong ito para makatanggap ng paalala sa gamot at appointment at ng mga update sa order."
 }

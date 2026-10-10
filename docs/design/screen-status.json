@@ -190,7 +190,7 @@
   "patient-app /voice": "done (batch 9 merged)",
   "patient-app /wearables/hub": "done (batch 5 merged)",
   "patient-app /welcome": "done (#285)",
-  "patient-app patient-app/app/(onboarding)/index.tsx": "done (#285)",
+  "patient-app patient-app/app/(onboarding)/intro.tsx": "done (#285)",
   "patient-app patient-app/app/(tabs)/index.tsx": "done (#285)",
   "patient-app patient-app/app/(tabs)/pharmacy.tsx": "done (batch 1 merged)",
   "patient-app patient-app/app/(tabs)/services.tsx": "done (#285)",

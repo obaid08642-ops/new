@@ -18,6 +18,8 @@ export const STORAGE_KEYS = {
   THEME: '@nabdah_theme',
   LANGUAGE: '@nabdah_language',
   ONBOARDING_DONE: '@nabdah_onboarding_done',
+  // First-launch intro (language step, then the slides): set once when the user finishes or skips; the suffix is the version.
+  INTRO_DONE: '@nabdah_intro_done_v1',
   CART: '@nabdah_cart',
   SAVED_ADDRESSES: '@nabdah_addresses',
   HEALTH_PROFILE: '@nabdah_health_profile',

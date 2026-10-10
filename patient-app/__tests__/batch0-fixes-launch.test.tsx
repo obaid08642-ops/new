@@ -8,6 +8,7 @@ import Index from '../app/index';
 import Welcome from '../app/(auth)/welcome';
 import { ensureGuestSession } from '../src/utils/guestSession';
 import { makeStore, withStore } from '../src/__tests__/utils/testStore';
+import { markIntroDone, resetIntroGateForTests } from '../src/utils/onboardingGate';
 
 /**
  * Batch 0 fixes, launch: the owner's rule (first launch shows Welcome; every later launch opens Home as a guest).
@@ -42,9 +43,10 @@ jest.mock('../src/context/AppContext', () => {
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 47, bottom: 34, left: 0, right: 0 } };
 const jwt = (claims: object) => `h.${Buffer.from(JSON.stringify(claims)).toString('base64').replace(/=+$/, '')}.s`;
 
-const launch = async (opts: { token?: string | null; refresh?: string | null; welcomeSeen?: boolean }) => {
+const launch = async (opts: { token?: string | null; refresh?: string | null; welcomeSeen?: boolean; introDone?: boolean }) => {
   (SecureStore.getItemAsync as jest.Mock).mockImplementation(async (key: string) => (key === 'nabdah_auth_token' ? opts.token ?? null : key === 'nabdah_refresh_token' ? opts.refresh ?? null : null));
   if (opts.welcomeSeen) await AsyncStorage.setItem('@nabdah_onboarding_done', 'true');
+  if (opts.introDone) await AsyncStorage.setItem('@nabdah_intro_done_v1', 'true');
   const store = makeStore();
   await render(withStore(<SafeAreaProvider initialMetrics={metrics}><Index /></SafeAreaProvider>, store));
   await act(async () => {
@@ -58,14 +60,35 @@ describe('splash routing (owner rule)', () => {
     jest.useFakeTimers();
     jest.clearAllMocks();
     await AsyncStorage.clear();
+    resetIntroGateForTests();
     (ensureGuestSession as jest.Mock).mockResolvedValue({ user: { id: 'g1', role: 'guest' }, token: 'guest-token' });
   });
   afterEach(() => jest.useRealTimers());
 
-  it('first launch (no session, Welcome never shown): Welcome, and no guest session is opened behind it', async () => {
+  it('first launch (no session, nothing shown): the language step, and no guest session is opened behind it', async () => {
     await launch({});
+    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith('/(onboarding)/language'));
+    expect(ensureGuestSession).not.toHaveBeenCalled();
+  });
+
+  it('intro done but Welcome not yet shown (the app was closed on Welcome): Welcome, never the intro again', async () => {
+    await launch({ introDone: true });
     await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith('/(auth)/welcome'));
     expect(ensureGuestSession).not.toHaveBeenCalled();
+  });
+
+  it('the intro flag cannot be read (storage failure): the intro shows, the app is not blocked', async () => {
+    // both flags (Welcome shown, intro done) fail to read
+    (AsyncStorage.getItem as jest.Mock).mockRejectedValueOnce(new Error('storage')).mockRejectedValueOnce(new Error('storage'));
+    await launch({});
+    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith('/(onboarding)/language'));
+  });
+
+  it('the intro flag cannot be written (storage failure): it is remembered for the session, so it is not shown twice', async () => {
+    (AsyncStorage.setItem as jest.Mock).mockRejectedValueOnce(new Error('storage'));
+    await markIntroDone();
+    await launch({});
+    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith('/(auth)/welcome'));
   });
 
   it('a later launch with no session: Home, with the silent guest session in the slice', async () => {

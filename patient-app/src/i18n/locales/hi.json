@@ -3143,5 +3143,10 @@
   "guest.loginRequiredTitle": "साइन इन ज़रूरी है",
   "guest.loginRequiredBody": "इस सुविधा का उपयोग करने के लिए साइन इन करें।",
   "consult.calls.videoCall": "वीडियो कॉल",
-  "consult.calls.voiceCall": "वॉइस कॉल"
+  "consult.calls.voiceCall": "वॉइस कॉल",
+  "notifAsk.turnOn": "सूचनाएँ चालू करें",
+  "notifAsk.openSettings": "फ़ोन सेटिंग खोलें",
+  "notifAsk.blocked": "इस फ़ोन पर सूचनाएँ बंद हैं। अलर्ट पाने के लिए फ़ोन सेटिंग में उन्हें चालू करें।",
+  "notifAsk.offers": "सूचनाएँ चालू करें, ताकि फ़ार्मेसियों के ऑफ़र आते ही हम आपको बता सकें।",
+  "notifAsk.settings": "दवा और अपॉइंटमेंट की याद दिलाने वाले संदेश और ऑर्डर अपडेट पाने के लिए इस फ़ोन पर सूचनाएँ चालू करें।"
 }

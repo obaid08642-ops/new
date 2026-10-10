@@ -344,12 +344,8 @@
   "lines": 652
  },
  {
-  "file": "(onboarding)/index.tsx",
+  "file": "(onboarding)/intro.tsx",
   "lines": 320
- },
- {
-  "file": "(onboarding)/permissions.tsx",
-  "lines": 95
  },
  {
   "file": "(onboarding)/language.tsx",

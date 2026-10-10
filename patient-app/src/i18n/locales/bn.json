@@ -3143,5 +3143,10 @@
   "guest.loginRequiredTitle": "সাইন ইন প্রয়োজন",
   "guest.loginRequiredBody": "এই সুবিধা ব্যবহার করতে সাইন ইন করুন।",
   "consult.calls.videoCall": "ভিডিও কল",
-  "consult.calls.voiceCall": "ভয়েস কল"
+  "consult.calls.voiceCall": "ভয়েস কল",
+  "notifAsk.turnOn": "বিজ্ঞপ্তি চালু করুন",
+  "notifAsk.openSettings": "ফোনের সেটিংস খুলুন",
+  "notifAsk.blocked": "এই ফোনে বিজ্ঞপ্তি বন্ধ আছে। অ্যালার্ট পেতে ফোনের সেটিংসে সেগুলো চালু করুন।",
+  "notifAsk.offers": "বিজ্ঞপ্তি চালু করুন, যাতে ফার্মেসির অফার আসামাত্র আমরা আপনাকে জানাতে পারি।",
+  "notifAsk.settings": "ওষুধ ও অ্যাপয়েন্টমেন্টের রিমাইন্ডার এবং অর্ডারের আপডেট পেতে এই ফোনে বিজ্ঞপ্তি চালু করুন।"
 }

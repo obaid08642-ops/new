@@ -3179,5 +3179,10 @@
   "guest.loginRequiredTitle": "مطلوب تسجيل الدخول",
   "guest.loginRequiredBody": "سجّل الدخول لاستخدام هذه الميزة.",
   "consult.calls.videoCall": "مكالمة فيديو",
-  "consult.calls.voiceCall": "مكالمة صوتية"
+  "consult.calls.voiceCall": "مكالمة صوتية",
+  "notifAsk.turnOn": "تفعيل الإشعارات",
+  "notifAsk.openSettings": "فتح إعدادات الهاتف",
+  "notifAsk.blocked": "الإشعارات متوقفة على هذا الهاتف. فعّلها من إعدادات الهاتف لتصلك التنبيهات.",
+  "notifAsk.offers": "فعّل الإشعارات لنخبرك فور وصول عروض الصيدليات.",
+  "notifAsk.settings": "فعّل الإشعارات على هذا الهاتف لتصلك تذكيرات الأدوية والمواعيد وتحديثات الطلبات."
 }
