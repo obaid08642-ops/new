@@ -258,12 +258,12 @@
       "details": "Mga detalye"
     },
     "emptyTitle": "Wala pang order",
-    "emptyBody": "Dito lalabas ang mga order mo sa mga botika.",
+    "emptyBody": "Dito lumalabas ang iyong mga order sa botika, konsultasyon, lab, radiology at nursing.",
     "browse": "Tingnan ang mga gamot",
     "emptyCurrentTitle": "Walang kasalukuyang order",
-    "emptyCurrentBody": "Dito lalabas ang order na naghihintay sa mga botika o papunta na sa iyo.",
+    "emptyCurrentBody": "Dito lumalabas ang order na naghihintay o papunta na.",
     "emptyPreviousTitle": "Walang nakaraang order",
-    "emptyPreviousBody": "Dito lalabas ang mga naihatid at nakanselang order.",
+    "emptyPreviousBody": "Dito lumalabas ang mga natapos at kinanselang order.",
     "listErrorTitle": "Hindi ma-load ang mga order mo",
     "unavailableTitle": "Hindi ma-load ang order",
     "unavailableBody": "Tingnan ang koneksyon mo at subukan ulit.",
@@ -277,7 +277,15 @@
     "pickupTitle": "Pagkuha",
     "pickupNote": "Ikaw mismo ang kukuha ng order na ito sa botika.",
     "priceTitle": "Presyo",
-    "total": "Kabuuan"
+    "total": "Kabuuan",
+    "kind": {
+      "consultation": "Konsultasyon",
+      "labs": "Pagsusuri sa laboratoryo",
+      "radiology": "Radyolohiya (scan)",
+      "nursing": "Pagbisita ng nars"
+    },
+    "statusUnavailable": "Hindi available ang status",
+    "partialNote": "May mga order na hindi ma-load. Nasa ibaba ang iba; subukan muli sa ilang sandali."
   },
   "Cart": {
     "eyebrow": "Pribadong cart",
@@ -737,7 +745,9 @@
     "emergencyPhone": "Numero ng mobile",
     "emergencyRequired": "Ilagay ang pangalan at numero ng mobile.",
     "emergencySaveError": "Hindi na-save ang contact. Subukan muli.",
-    "emergencySave": "I-save"
+    "emergencySave": "I-save",
+    "nextAppointment": "Ang iyong susunod na appointment",
+    "nextAppointmentUnavailable": "Hindi ma-load ngayon ang iyong susunod na appointment."
   },
   "Prescriptions": {
     "title": "Mga reseta",
@@ -933,6 +943,20 @@
       "closed": "Pagbasa lamang",
       "hoursLeft": "{count} oras na natitira",
       "minutesLeft": "{count} minuto na natitira"
+    },
+    "composerTitle": "Mensahe sa doktor",
+    "composerLabel": "Isulat ang iyong mensahe",
+    "composerPlaceholder": "Sumulat ng mensahe para sa doktor",
+    "send": "Ipadala",
+    "sending": "Ipinapadala…",
+    "sent": "Naipadala ang iyong mensahe.",
+    "sendRetry": "Subukan muli",
+    "sendErrors": {
+      "invalid": "Sumulat ng mensaheng hanggang 2000 character.",
+      "signedOut": "Natapos ang iyong session. Mag-sign in at ipadala muli.",
+      "forbidden": "Hindi makapagpadala ng mensahe sa usapang ito ngayon.",
+      "network": "Hindi makakonekta. Hindi pa naipapadala ang iyong mensahe; subukan muli.",
+      "generic": "Hindi naipadala ang mensahe. Subukan muli."
     }
   },
   "Sleep": {
@@ -1120,7 +1144,12 @@
     "nearestCity": "Mga doktor sa {city}",
     "visitType": "Uri ng konsultasyon",
     "verifiedDoctor": "Beripikadong doktor",
-    "licenseNumber": "Lisensya blg. {number}"
+    "licenseNumber": "Lisensya blg. {number}",
+    "specialtyLabel": "Espesyalidad",
+    "allSpecialties": "Lahat ng espesyalidad",
+    "paymentLabel": "Bayad",
+    "payment_insurance": "Tumatanggap ng insurance",
+    "payment_cash": "Cash lang"
   },
   "LabsServices": {
     "eyebrow": "Pangangalaga sa laboratoryo",
@@ -1366,7 +1395,13 @@
     "empty": "Wala pang address",
     "listLabel": "Listahan ng mga address",
     "unnamed": "Walang pangalang address",
-    "default": "Default"
+    "default": "Default",
+    "edit": "I-edit",
+    "editTitle": "I-edit ang address",
+    "cancel": "Kanselahin",
+    "removeConfirmTitle": "Kumpirmahin ang pagtanggal ng address",
+    "removeConfirm": "Alisin ang address na “{name}”? Hindi na ito maibabalik.",
+    "removeConfirmYes": "Oo, alisin"
   },
   "ShareReport": {
     "title": "Ibahagi ang mga Ulat",
@@ -2387,7 +2422,7 @@
     "summaryPrescription": "Reseta",
     "summaryRecommendations": "Mga rekomendasyon",
     "summaryFollowUp": "Inirerekomenda ang follow-up sa loob ng {days} araw",
-    "summaryFollowUpBody": "I-book na ang follow-up sa may diskwentong halaga sa loob ng panahong ito.",
+    "summaryFollowUpBody": "I-book na ang follow-up sa loob ng panahong ito.",
     "actionBookFollowUp": "Mag-book ng follow-up",
     "actionOrderMedicines": "Umorder ng gamot sa botika",
     "actionBookTests": "Mag-book ng mga test",
@@ -3268,7 +3303,7 @@
       "insurance": "Seguro: {list}"
     },
     "pharmacies": {
-      "title": "Mga na-verify na botika sa {city}",
+      "title": "Mga botika sa {city}",
       "intro": "Mga botika at medical center na nakalista sa {city}.",
       "notice": "Ipinapadala ang order mo ng gamot sa mga kalapit na botika, at sumasagot sila ng mga alok.",
       "list": "Mga botika at medical center",
@@ -3285,6 +3320,7 @@
       "privacy": "Patakaran sa privacy",
       "version": "Bersyon {version} · Epektibo mula {date}",
       "versionOnly": "Bersyon {version}",
+      "currentVersion": "Ito ang kasalukuyang bersyon ng teksto. Papalitan ito ng bersyong inaprubahan ng batas bago ang paglulunsad.",
       "back": "Bumalik"
     },
     "provider": {
@@ -3306,20 +3342,20 @@
         "description": "Mga na-verify na doktor sa {specialty} sa {neighborhood}, {city}. Mag-book ng konsultasyon sa Nabd Plus."
       },
       "homeNursing": {
-        "title": "Mga serbisyo ng home nursing sa {city} | May lisensyang pangangalaga 24/7",
-        "description": "Na-verify at may lisensyang home nursing sa {city}. Pangangalaga sa nakatatanda, pagkatapos ng operasyon at pang-araw-araw na tulong sa Nabd Plus."
+        "title": "Home nursing sa {city} | Nabd Plus",
+        "description": "Mag-book ng home nursing sa {city}: pangangalaga sa nakatatanda, pangangalaga pagkatapos ng operasyon at pang-araw-araw na tulong sa Nabd Plus."
       },
       "labs": {
-        "title": "Lab test na {test} sa {city} | Koleksyon ng sample sa bahay",
-        "description": "Mag-book ng lab test na {test} sa {city} na may koleksyon sa bahay at mabilis na resulta sa Nabd Plus."
+        "title": "{test} lab test sa {city} | Pagkuha ng sample sa bahay",
+        "description": "Mag-book ng {test} lab test sa {city} na may pagkuha ng sample sa bahay sa Nabd Plus."
       },
       "labsEmpty": {
         "title": "{test} sa {city} — Maging unang provider | Nabd",
         "description": "{test} sa {city} — wala pang provider. Magparehistro bilang katuwang na lab."
       },
       "radiology": {
-        "title": "Radiology na {service} sa {city} | Mga diagnostic imaging center",
-        "description": "Mag-book ng imaging appointment na {service} sa {city} sa mga akreditadong center sa Nabd Plus."
+        "title": "{service} radiology sa {city} | Mga diagnostic imaging center",
+        "description": "Mag-book ng {service} imaging appointment sa {city} sa mga imaging center sa Nabd Plus."
       },
       "radiologyEmpty": {
         "title": "{service} sa {city} — Maging unang center | Nabd",
@@ -3330,8 +3366,8 @@
         "description": "Mga na-verify na serbisyong pangkalusugan na {service} sa {city}. Pangangalaga sa klinika at sa bahay sa Nabd Plus."
       },
       "pharmacies": {
-        "title": "Mga na-verify na botika sa {city} | Mabilis na paghahatid ng gamot",
-        "description": "Maghanap ng reseta at OTC na gamot sa {city} na may instant geo-broadcast na paghahatid sa Nabd Plus."
+        "title": "Mga botika sa {city} | Mag-order ng gamot at ikumpara ang mga alok",
+        "description": "Ipadala ang iyong reseta o order ng gamot sa mga botika sa {city} at ikumpara ang kanilang mga alok sa Nabd Plus."
       },
       "pharmaciesEmpty": {
         "title": "Mga botika sa {city} — Maging unang katuwang | Nabd",
@@ -3345,6 +3381,19 @@
         "description": "{name} sa {city}. Mga espesyalisadong serbisyong pangkalusugan, tinatanggap na insurance at mga na-verify na doktor.",
         "country": "Kaharian ng Arabyang Saudita"
       }
+    },
+    "ld": {
+      "labTest": "{test} lab test sa {city}",
+      "radiology": "{service} imaging sa {city}",
+      "homeNursing": "Mga serbisyo ng home nursing at medical visit sa {city}",
+      "crumbDiagnostics": "Diyagnostiko",
+      "crumbRadiology": "Radyolohiya",
+      "crumbHomeCare": "Pangangalaga sa bahay",
+      "crumbServices": "Mga serbisyo",
+      "crumbPharmacy": "Botika",
+      "crumbFacilities": "Mga ospital at klinika",
+      "crumbHealthGuide": "Gabay sa kalusugan",
+      "crumbDoctors": "Mga doktor"
     }
   },
   "InsuranceWeb": {
@@ -3553,7 +3602,11 @@
     "noProviders": "Walang available na provider para sa alok na ito ngayon",
     "errorTitle": "Hindi ma-load ang mga alok",
     "empty": "Bumalik ka agad, patuloy na nadaragdagan ang mga alok.",
-    "error": "Suriin ang koneksyon mo at subukan muli."
+    "error": "Suriin ang koneksyon mo at subukan muli.",
+    "share": "I-share ang alok",
+    "shareDone": "Naibahagi na.",
+    "shareCopied": "Nakopya ang link.",
+    "shareFailed": "Hindi naibahagi. Kopyahin ang link mula sa address bar."
   },
   "SettingsWeb": {
     "hubTitle": "Mga setting",
@@ -3672,7 +3725,6 @@
     "aboutRules": "Pagkansela at mga refund",
     "aboutRulesUnavailable": "Hindi ma-load ngayon ang patakaran sa pagkansela at refund.",
     "ruleCancelFull": "Maaaring kanselahin ang appointment hanggang {hours} oras bago ito para sa buong refund.",
-    "ruleCancelLate": "Ang pagkansela nang wala pang {hours} oras bago ay may singil na {fee}% ng booking.",
     "ruleRefundDays": "Darating ang refund sa loob ng {min} hanggang {max} araw ng trabaho.",
     "ruleReturnDays": "Maaaring ibalik ang mga hindi nagamit na produkto sa loob ng {days} araw mula sa pagtanggap."
   },

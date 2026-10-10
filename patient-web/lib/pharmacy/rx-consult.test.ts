@@ -45,6 +45,7 @@ describe("rxLineIds and consultHref", () => {
     expect(doctorQuery({ specialty: "cardiology" })).toBe("/care/doctors?specialty=cardiology");
     expect(doctorQuery({ specialty: "cardiology", sort: "rating" })).toBe("/care/doctors?specialty=cardiology&sort=rating");
     expect(doctorQuery({ specialty: "Cardiology" })).toBe("/care/doctors?q=Cardiology");
-    expect(doctorQuery({ search: "ali", specialty: "cardiology" })).toBe("/care/doctors?q=ali");
+    // issue 404: the specialty control and the text search combine (the server takes both)
+    expect(doctorQuery({ search: "ali", specialty: "cardiology" })).toBe("/care/doctors?specialty=cardiology&q=ali");
   });
 });

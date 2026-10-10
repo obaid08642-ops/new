@@ -2,7 +2,7 @@ import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalida
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { specialtyLabel } from "@/lib/specialties";
+import { SPECIALTY_SLUGS, isSpecialtySlug, specialtyLabel } from "@/lib/specialties";
 import { doctorDisplayName, extractDoctors } from "@/lib/api/doctors";
 import { getPublicDoctors } from "@/lib/api/doctors-server";
 import { isLocale, locales } from "@/lib/i18n";
@@ -16,11 +16,11 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { DoctorListCard } from "@/components-next/consult/doctor-list-card";
 import { DoctorQuickFilters } from "@/components-next/consult/doctor-quick-filters";
-import { effectiveType, filterPageParams, nearestApplies, parseDoctorFilters, serverOrdersList, VISIT_TYPES, type DoctorFilters, type VisitType } from "@/lib/consult/doctor-filters";
+import { effectiveType, filterPageParams, nearestApplies, parseDoctorFilters, PAYMENT_FILTERS, serverOrdersList, VISIT_TYPES, type DoctorFilters, type PaymentFilter, type VisitType } from "@/lib/consult/doctor-filters";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import styles from "@/components-next/consult/consult.module.css";
 
-type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; specialty?: string; sort?: "rating" | "price" | "wait"; type?: string; available?: string; nearest?: string; lat?: string; lng?: string; city?: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; specialty?: string; sort?: "rating" | "price" | "wait"; type?: string; payment?: string; available?: string; nearest?: string; lat?: string; lng?: string; city?: string }> };
 
 export async function generateMetadata({ params }: Pick<Props, "params">): Promise<Metadata> {
   const { locale } = await params;
@@ -58,7 +58,7 @@ export default async function DoctorsPage({ params, searchParams }: Props) {
   } catch { failed = true; }
 
   // a specialty slug (from the pharmacy cart "Consult a doctor") filters the list and shows by its name, never as raw text in the search field
-  const specialtyName = sp.q ? null : specialtyLabel(names, sp.specialty);
+  const specialtyName = specialtyLabel(names, sp.specialty);
 
   // every link keeps the text search and the chosen filters, so the URL is the whole state (shareable)
   const text = { q: sp.q, specialty: sp.specialty };
@@ -66,9 +66,10 @@ export default async function DoctorsPage({ params, searchParams }: Props) {
   const sortHref = (sort: string) => pageHref(filterPageParams(filters, { ...text, sort }));
   const withFilters = (next: Partial<DoctorFilters>, sort = sp.sort) => pageHref(filterPageParams({ ...filters, ...next }, { ...text, sort }));
   const typeHref = (type: VisitType) => withFilters({ type: filters.type === type ? undefined : type, nearest: filters.nearest && nearestApplies(type) });
+  const paymentHref = (payment: PaymentFilter) => withFilters({ payment: filters.payment === payment ? undefined : payment });
   const nearestBase = filterPageParams({ ...filters, nearest: false, place: null }, { ...text, sort: sp.sort });
   nearestBase.set("nearest", "1");
-  const filtered = Boolean(filters.type || filters.availableNow || filters.nearest);
+  const filtered = Boolean(filters.type || filters.payment || filters.availableNow || filters.nearest);
   const typeLabels: Record<VisitType, string> = { clinic: t("service_clinic"), video: t("service_video"), home_visit: t("service_home") };
 
   return (
@@ -81,6 +82,13 @@ export default async function DoctorsPage({ params, searchParams }: Props) {
           <input id="doctor-search" name="q" defaultValue={sp.q ?? (specialtyName ? "" : sp.specialty ?? "")} placeholder={t("searchPlaceholder")} className={styles.searchInput} />
         </label>
         {[...filterPageParams(filters)].map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)}
+        <label className={`${styles.searchField} ${styles.searchSelect}`}>
+          <span className="sr-only">{t("specialtyLabel")}</span>
+          <select name="specialty" defaultValue={isSpecialtySlug(sp.specialty) ? sp.specialty.trim() : ""}>
+            <option value="">{t("allSpecialties")}</option>
+            {SPECIALTY_SLUGS.map((slug) => <option key={slug} value={slug}>{names(slug)}</option>)}
+          </select>
+        </label>
         <Button type="submit" label={t("search")} size="lg" />
       </form>
       {specialtyName ? (
@@ -93,6 +101,11 @@ export default async function DoctorsPage({ params, searchParams }: Props) {
         label={t("visitType")}
         value={shownType ?? ""}
         options={VISIT_TYPES.map((type) => ({ value: type, label: typeLabels[type], href: typeHref(type) }))}
+      />
+      <LinkSegmented
+        label={t("paymentLabel")}
+        value={filters.payment ?? ""}
+        options={PAYMENT_FILTERS.map((payment) => ({ value: payment, label: t(`payment_${payment}`), href: paymentHref(payment) }))}
       />
       <DoctorQuickFilters
         availableHref={withFilters({ availableNow: !filters.availableNow })}

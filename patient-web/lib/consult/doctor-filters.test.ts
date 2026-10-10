@@ -55,6 +55,23 @@ describe("doctor filters: the GET /care/doctors query", () => {
   });
 });
 
+describe("doctor filters: specialty and cash / insurance (issue 404)", () => {
+  it("insurance and cash map to accepts_insurance; anything else is dropped", () => {
+    expect(doctorQuery({ filters: parseDoctorFilters({ payment: "insurance" }) })).toBe("/care/doctors?accepts_insurance=true");
+    expect(doctorQuery({ filters: parseDoctorFilters({ payment: "cash" }) })).toBe("/care/doctors?accepts_insurance=false");
+    expect(parseDoctorFilters({ payment: "gold" })).not.toHaveProperty("payment");
+  });
+  it("a specialty slug combines with a text search and the other filters", () => {
+    expect(doctorQuery({ search: "ali", specialty: "cardiology", filters: parseDoctorFilters({ type: "video", payment: "insurance" }) })).toBe("/care/doctors?specialty=cardiology&q=ali&type=video&accepts_insurance=true");
+  });
+  it("the page URL keeps the specialty, the text and the payment filter together", () => {
+    const filters = parseDoctorFilters({ payment: "cash", type: "clinic" });
+    const params = filterPageParams(filters, { q: "ali", specialty: "cardiology" });
+    expect(params.toString()).toBe("q=ali&specialty=cardiology&type=clinic&payment=cash");
+    expect(parseDoctorFilters(Object.fromEntries(params))).toEqual(filters);
+  });
+});
+
 describe("doctor filters: the page URL", () => {
   it("round-trips through the URL and keeps q", () => {
     const filters = parseDoctorFilters({ type: "home_visit", available: "1", nearest: "1", city: "Jeddah" });

@@ -1,8 +1,9 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { extractHomeCareService } from "@/lib/api/home-care-services";
+import { extractHomeCareService, findHomeCareServiceInCatalog, parseHomeCareServiceId } from "@/lib/api/home-care-services";
+import { getPublicNursingCatalog } from "@/lib/api/nursing-catalog-server";
 import { getPatientHomeCareService } from "@/lib/api/home-care-services-server";
-import { requirePatientAccess } from "@/lib/auth/session";
+import { getOptionalPatientAccessToken } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
@@ -19,19 +20,31 @@ export default async function HomeCareServicePage({ params }: Props) {
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("NursingWeb");
-  const token = await requirePatientAccess(locale);
-  const response = await getPatientHomeCareService(serviceId, token);
-  if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
+  // issue 650: the service page is public. A signed-in patient reads the service endpoint; everyone else (and a patient whose
+  // session has ended) reads the service out of the public catalog. Signing in is asked for at booking, not here.
+  if (!parseHomeCareServiceId(serviceId).success) notFound();
   const back = `/${locale}/home-care/services`;
-  if (!response.ok) {
+  const token = await getOptionalPatientAccessToken();
+  let service: ReturnType<typeof extractHomeCareService> = null;
+  let reachable = true;
+  if (token) {
+    const response = await getPatientHomeCareService(serviceId, token);
+    if (response.ok) service = extractHomeCareService(await response.json().catch(() => null));
+    else if (response.status === 403 || response.status === 404) notFound();
+    else if (response.status !== 401) reachable = false;
+  }
+  if (!service && reachable) {
+    const catalog = await getPublicNursingCatalog();
+    if (!catalog || !catalog.ok) reachable = false;
+    else service = findHomeCareServiceInCatalog(await catalog.json().catch(() => null), serviceId);
+  }
+  if (!service && !reachable) {
     return (
       <ConsultPage locale={locale} title={t("serviceTitle")} backHref={back}>
         <ConsultState kind="error" title={t("serviceUnavailableTitle")} body={t("serviceUnavailableBody")} retryLabel={t("retry")} actionLabel={t("back")} actionHref={back} />
       </ConsultPage>
     );
   }
-  const service = extractHomeCareService(await response.json().catch(() => null));
   if (!service) notFound();
   const name = pickText(locale, service.nameAr, service.nameEn) ?? "";
   const description = pickText(locale, service.descriptionAr, service.descriptionEn);
