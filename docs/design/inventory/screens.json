@@ -1,5 +1,5 @@
 {
- "commit": "3670697b",
+ "commit": "be082169",
  "routes": [
   {
    "app": "patient-app",
@@ -1059,7 +1059,7 @@
      "path": "/care/doctors/:param",
      "target": "backend",
      "query": "",
-     "line": 95,
+     "line": 101,
      "file": "patient-app/app/consultations/doctor/[id].tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:67"
@@ -1069,7 +1069,7 @@
      "path": "/care/doctors/:param/slots",
      "target": "backend",
      "query": "?date=:param&service_type=:param",
-     "line": 141,
+     "line": 147,
      "file": "patient-app/app/consultations/doctor/[id].tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:73"
@@ -1079,7 +1079,7 @@
      "path": "/system-config/public",
      "target": "backend",
      "query": "",
-     "line": 93,
+     "line": 99,
      "file": "patient-app/app/consultations/doctor/[id].tsx",
      "status": "OK",
      "backend": "backend/src/modules/admin/governance/system-config.controller.ts:51"
@@ -5114,7 +5114,7 @@
      "path": "/medicines",
      "target": "backend",
      "query": "?:param",
-     "line": 150,
+     "line": 149,
      "file": "patient-app/app/(tabs)/pharmacy.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medicines/medicines.controller.ts:15"
@@ -5124,7 +5124,7 @@
      "path": "/medicines/events",
      "target": "backend",
      "query": "",
-     "line": 204,
+     "line": 203,
      "file": "patient-app/app/(tabs)/pharmacy.tsx",
      "status": "OK",
      "backend": "backend/src/modules/product-ranking/product-ranking.controller.ts:58"
@@ -5144,7 +5144,7 @@
      "path": "/patient/pharmacy/orders",
      "target": "backend",
      "query": "",
-     "line": 174,
+     "line": 173,
      "file": "patient-app/app/(tabs)/pharmacy.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:35"
@@ -5280,19 +5280,8 @@
    "board": "Cart",
    "batch": 1,
    "status": "done (batch 1 merged)",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/medicines/:param/consult-specialty",
-     "target": "backend",
-     "query": "",
-     "line": 89,
-     "file": "patient-app/app/pharmacy/cart.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/medicines/rx-consult.controller.ts:46"
-    }
-   ],
-   "files": 35,
+   "calls": [],
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -5403,7 +5392,7 @@
      "path": "/patient/pharmacy/orders/:param",
      "target": "backend",
      "query": "",
-     "line": 47,
+     "line": 48,
      "file": "patient-app/app/pharmacy/final-quote.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
@@ -5413,7 +5402,7 @@
      "path": "/patient/pharmacy/orders/:param/:param",
      "target": "backend",
      "query": "",
-     "line": 90,
+     "line": 92,
      "file": "patient-app/app/pharmacy/final-quote.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:38"
@@ -5494,7 +5483,7 @@
      "path": "/medicines/compare",
      "target": "backend",
      "query": "",
-     "line": 74,
+     "line": 73,
      "file": "patient-app/app/pharmacy/medicine-compare.tsx",
      "status": "OK",
      "backend": "backend/src/modules/medicines/medicines.controller.ts:80"
@@ -5552,10 +5541,20 @@
    "calls": [
     {
      "method": "GET",
+     "path": "/orders/:param/tracking",
+     "target": "backend",
+     "query": "",
+     "line": 56,
+     "file": "patient-app/app/pharmacy/order-tracking.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/orders/orders.controller.ts:76"
+    },
+    {
+     "method": "GET",
      "path": "/patient/pharmacy/orders/:param",
      "target": "backend",
      "query": "",
-     "line": 44,
+     "line": 45,
      "file": "patient-app/app/pharmacy/order-tracking.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
@@ -5579,7 +5578,7 @@
      "path": "/patient/pharmacy/orders/:param",
      "target": "backend",
      "query": "",
-     "line": 52,
+     "line": 54,
      "file": "patient-app/app/pharmacy/payment.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
@@ -5589,7 +5588,7 @@
      "path": "/payments/intent/pharmacy/:param",
      "target": "backend",
      "query": "",
-     "line": 98,
+     "line": 101,
      "file": "patient-app/app/pharmacy/payment.tsx",
      "status": "OK",
      "backend": "backend/src/modules/payments/payments.module.ts:597"
@@ -5599,13 +5598,13 @@
      "path": "/payments/pharmacy/:param/capabilities",
      "target": "backend",
      "query": "",
-     "line": 52,
+     "line": 54,
      "file": "patient-app/app/pharmacy/payment.tsx",
      "status": "OK",
      "backend": "backend/src/modules/payments/payments.module.ts:616"
     }
    ],
-   "files": 31,
+   "files": 32,
    "unresolved": 0
   },
   {
@@ -5881,7 +5880,7 @@
      "path": "/prescriptions/upload",
      "target": "backend",
      "query": "",
-     "line": 68,
+     "line": 73,
      "file": "patient-app/src/components/pharmacy/RxIntake.tsx",
      "status": "OK",
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:19"
@@ -7680,19 +7679,9 @@
      "file": "patient-web/components-next/sign-out-button.tsx",
      "status": "OK",
      "handler": "patient-web/app/api/auth/logout/route.ts"
-    },
-    {
-     "method": "GET",
-     "path": "/api/rx-consult",
-     "target": "web-bff",
-     "query": "?ids=:param",
-     "line": 18,
-     "file": "patient-web/components-next/pharmacy/use-rx-consult-href.ts",
-     "status": "OK",
-     "handler": "patient-web/app/api/rx-consult/route.ts"
     }
    ],
-   "files": 46,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -7720,7 +7709,7 @@
      "path": "/api/patient/insurance/my-policy",
      "target": "web-proxy",
      "query": "",
-     "line": 84,
+     "line": 83,
      "file": "patient-web/components-next/pharmacy-checkout/checkout-screen.tsx",
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:699",
      "status": "OK"
@@ -7730,23 +7719,13 @@
      "path": "/api/patient/prescriptions/active",
      "target": "web-proxy",
      "query": "",
-     "line": 62,
+     "line": 61,
      "file": "patient-web/components-next/pharmacy-checkout/checkout-screen.tsx",
      "backend": "backend/src/modules/prescriptions/prescriptions.controller.ts:57",
      "status": "OK"
-    },
-    {
-     "method": "GET",
-     "path": "/api/rx-consult",
-     "target": "web-bff",
-     "query": "?ids=:param",
-     "line": 18,
-     "file": "patient-web/components-next/pharmacy/use-rx-consult-href.ts",
-     "status": "OK",
-     "handler": "patient-web/app/api/rx-consult/route.ts"
     }
    ],
-   "files": 46,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -8096,13 +8075,13 @@
     },
     {
      "method": "GET",
-     "path": "/care/appointments",
+     "path": "/calls/history",
      "target": "backend",
-     "query": "",
-     "line": 5,
-     "file": "patient-web/lib/api/appointments-server.ts",
+     "query": "?page=1&limit=50",
+     "line": 40,
+     "file": "patient-web/app/[locale]/consultations/call-history/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:21"
+     "backend": "backend/src/modules/livekit/livekit.controller.ts:79"
     }
    ],
    "files": 40,
@@ -8289,7 +8268,7 @@
      "backend": "backend/src/modules/care/care.controller.ts:29"
     }
    ],
-   "files": 42,
+   "files": 41,
    "unresolved": 0
   },
   {
@@ -12710,7 +12689,7 @@
      "path": "/patient/pharmacy/orders/:param",
      "target": "backend",
      "query": "",
-     "line": 47,
+     "line": 48,
      "file": "patient-web/components-next/pharmacy-offers/offers-screen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
@@ -12720,7 +12699,7 @@
      "path": "/patient/pharmacy/orders/:param/offers",
      "target": "backend",
      "query": "",
-     "line": 46,
+     "line": 47,
      "file": "patient-web/components-next/pharmacy-offers/offers-screen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:42"
@@ -12730,13 +12709,13 @@
      "path": "/system-config/public",
      "target": "backend",
      "query": "",
-     "line": 63,
+     "line": 64,
      "file": "patient-web/components-next/pharmacy-offers/offers-screen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/admin/governance/system-config.controller.ts:51"
     }
    ],
-   "files": 55,
+   "files": 56,
    "unresolved": 0
   },
   {
@@ -13265,7 +13244,7 @@
      "path": "/patient/pharmacy/orders/:param",
      "target": "backend",
      "query": "",
-     "line": 47,
+     "line": 48,
      "file": "patient-web/components-next/pharmacy-offers/offers-screen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
@@ -13275,7 +13254,7 @@
      "path": "/patient/pharmacy/orders/:param/offers",
      "target": "backend",
      "query": "",
-     "line": 46,
+     "line": 47,
      "file": "patient-web/components-next/pharmacy-offers/offers-screen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:42"
@@ -13285,13 +13264,13 @@
      "path": "/system-config/public",
      "target": "backend",
      "query": "",
-     "line": 63,
+     "line": 64,
      "file": "patient-web/components-next/pharmacy-offers/offers-screen.tsx",
      "status": "OK",
      "backend": "backend/src/modules/admin/governance/system-config.controller.ts:51"
     }
    ],
-   "files": 55,
+   "files": 56,
    "unresolved": 0
   },
   {
@@ -13428,7 +13407,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
     }
    ],
-   "files": 45,
+   "files": 46,
    "unresolved": 0
   },
   {
@@ -13610,7 +13589,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:36"
     }
    ],
-   "files": 43,
+   "files": 42,
    "unresolved": 0
   },
   {

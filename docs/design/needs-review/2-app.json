@@ -36,7 +36,7 @@
     "element": "Doctor on the way, map",
     "file": "patient-app/app/consultations/home-visit-tracking.tsx",
     "line": 71,
-    "found": "[backend] The backend has no en-route status or doctor position; the steps follow CONFIRMED, CHECKED_IN and COMPLETED only.",
+    "found": "[backend] Fixed on design/backend-fields: the step \"Doctor on the way\" follows EN_ROUTE / ARRIVED (Q-15); there is still no doctor position, so no map is drawn.",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -136,7 +136,7 @@
     "element": "Board elements without data",
     "file": "patient-app/app/consultations/doctor/[id].tsx",
     "line": 256,
-    "found": "[backend] The DoctorFull board's verified badge, rating-distribution bars and clinic photos with distance are not drawn: the doctor payload has no such fields.",
+    "found": "[backend] Fixed on design/backend-fields: the verified badge (verified, care.service.ts:497), the SCFHS number and the public rating / reviews_count are drawn; the rating-distribution bars and clinic photos with distance stay undrawn (no field). Backend: care.service.ts:399 rebuilds clinicPhotos from clinic_images, which toPublicDoctor does not copy, so the detail always sends an empty clinicPhotos.",
     "suspect": "Backend gap: reviewer session."
   },
   {

@@ -8,7 +8,10 @@ export type AppointmentRow = {
   serviceType?: string;
   slotStart?: string;
   doctorName?: string;
+  /** The doctor's specialty in Arabic (`specialty_name_ar`, else the older `specialty_ar`). */
   specialty?: string;
+  /** The same specialty in English (`specialty_name_en`, from the server's specialty master); absent when the server sent none. */
+  specialtyEn?: string;
   paymentMethod?: string;
   insuranceRequestId?: string;
   insuranceReviewState?: string;
@@ -48,11 +51,17 @@ function appointmentFrom(value: unknown): AppointmentRow | null {
     serviceType: firstText(record as Record<string, unknown>, ["service_type", "serviceType"]),
     slotStart: firstText(record as Record<string, unknown>, ["slot_start", "slotStart"]),
     doctorName: firstText(record as Record<string, unknown>, ["doctor_name", "doctorName"]),
-    specialty: firstText(record as Record<string, unknown>, ["specialty_ar", "specialty"]),
+    specialty: firstText(record as Record<string, unknown>, ["specialty_name_ar", "specialty_ar", "specialty"]),
+    specialtyEn: firstText(record as Record<string, unknown>, ["specialty_name_en"]),
     paymentMethod: firstText(record as Record<string, unknown>, ["payment_method", "paymentMethod"]),
     insuranceRequestId: firstUuid(record as Record<string, unknown>, ["insurance_request_id", "insuranceRequestId"]),
     insuranceReviewState: firstText(record as Record<string, unknown>, ["insurance_review_state", "insuranceReviewState"]),
   };
+}
+
+/** The specialty in the reader's language: Arabic for ar, English for every other language; the other one only when that one is missing. */
+export function specialtyFor(row: Pick<AppointmentRow, "specialty" | "specialtyEn">, locale: string): string | undefined {
+  return locale === "ar" ? row.specialty ?? row.specialtyEn : row.specialtyEn ?? row.specialty;
 }
 
 export function parseAppointmentId(value: string) {

@@ -16,7 +16,7 @@
     "element": "List",
     "file": "patient-web/app/[locale]/consultations/call-history/page.tsx",
     "line": 28,
-    "found": "[backend] Shows finished appointments; there is no call-record endpoint behind the name.",
+    "found": "[backend] Fixed on design/backend-fields: the list reads the call records (GET /calls/history: call_type, status, started_at, duration_seconds, appointment_id), not the finished appointments.",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -35,8 +35,8 @@
     "screen": "/consultations/doctors",
     "element": "Photo and verified seal",
     "file": "patient-web/app/[locale]/consultations/doctors/page.tsx",
-    "line": 126,
-    "found": "[client] extractDoctors reads no photo_url or verification field because GET /care/doctors (toPublicDoctor) sends none; the card shows the neutral mark until the backend adds them.",
+    "line": 86,
+    "found": "[client] Fixed on design/backend-fields: the verified seal and the licence number are drawn from verified / scfhs_license_no; the photo is still not sent by toPublicDoctor.",
     "suspect": "Client-side: later batch."
   },
   {
@@ -65,8 +65,8 @@
     "screen": "/consultations/doctors",
     "element": "Filters",
     "file": "patient-web/app/[locale]/consultations/doctors/page.tsx",
-    "line": 81,
-    "found": "[owner] Search, sort, visit type, Nearest and Available now are drawn; the Consult board's specialty rail and cash/insurance segmented filter are still not on the page (not added: feature).",
+    "line": 58,
+    "found": "[owner] The Consult board draws a specialty rail, visit-mode chips and a cash/insurance segmented filter; the page has search and sort only (not added: feature).",
     "suspect": "Owner decision."
   },
   {
@@ -76,7 +76,7 @@
     "element": "Specialty line",
     "file": "patient-web/app/[locale]/appointments/page.tsx",
     "line": 83,
-    "found": "[backend] The appointment row carries specialty_ar only, so the specialty reads in Arabic on every language page.",
+    "found": "[backend] Fixed on design/backend-fields: the specialty follows the page language (specialty_name_ar / specialty_name_en, Q-19). Backend: the list GET /care/appointments (appointments.service.ts listMine) is not enriched, so the row has no doctor_name or specialty yet; the detail has both.",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -97,26 +97,6 @@
     "file": "patient-web/app/[locale]/consultations/virtual-waiting-room/page.tsx",
     "line": 40,
     "found": "[owner] The video call, waiting room and room screens were only seen in their error and not-ready states here (no media backend in the check); the connected layout is not verified.",
-    "suspect": "Owner decision."
-  },
-  {
-    "batch": 2,
-    "app": "patient-web",
-    "screen": "/consultations/doctors",
-    "element": "Nearest with Available now",
-    "file": "patient-web/lib/consult/doctor-filters.ts",
-    "line": 72,
-    "found": "[backend] GET /care/doctors orders available_within results by next slot and ignores sort=distance, so with both on the position is not sent (the city filter still is); a combined 'nearest free doctor' needs the server to accept both. (backend: backend/src/modules/care/care.service.ts:115)",
-    "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": 2,
-    "app": "patient-web",
-    "screen": "/consultations/doctors",
-    "element": "Nearest by city wording",
-    "file": "patient-web/components-next/consult/doctor-quick-filters.tsx",
-    "line": 63,
-    "found": "[owner] Approved 2026-10-10: Doctors in {city}",
     "suspect": "Owner decision."
   }
 ]

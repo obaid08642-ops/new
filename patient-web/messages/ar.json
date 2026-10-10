@@ -1118,7 +1118,9 @@
     "locating": "جارٍ تحديد موقعك…",
     "nearestNoPlace": "لا يمكن الترتيب حسب الأقرب. اسمح بالوصول إلى موقعك أو احفظ عنواناً يتضمن المدينة.",
     "nearestCity": "الأطباء في {city}",
-    "visitType": "نوع الاستشارة"
+    "visitType": "نوع الاستشارة",
+    "verifiedDoctor": "طبيب موثّق",
+    "licenseNumber": "رقم الترخيص {number}"
   },
   "LabsServices": {
     "eyebrow": "الرعاية المخبرية",
@@ -1544,7 +1546,18 @@
     "back": "مواعيدي",
     "emptyBody": "لا توجد مكالمات سابقة بعد.",
     "findDoctor": "ابحث عن طبيب",
-    "unknownDoctor": "طبيب"
+    "unknownDoctor": "طبيب",
+    "unavailableTitle": "تعذّر تحميل مكالماتك الآن",
+    "unavailableBody": "تحقق من اتصالك ثم حاول مرة أخرى.",
+    "videoCall": "مكالمة فيديو",
+    "voiceCall": "مكالمة صوتية",
+    "status": {
+      "ended": "مكالمة مكتملة",
+      "rejected": "تم رفضها",
+      "missed": "مكالمة فائتة",
+      "active": "مكالمة نشطة حالياً",
+      "pending": "مكالمة معلّقة"
+    }
   },
   "PostCallRating": {
     "title": "قيّم استشارتك",

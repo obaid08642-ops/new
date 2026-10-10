@@ -1118,7 +1118,9 @@
     "locating": "آپ کا مقام تلاش کیا جا رہا ہے…",
     "nearestNoPlace": "فاصلے کے مطابق ترتیب ممکن نہیں۔ مقام تک رسائی کی اجازت دیں یا شہر کے ساتھ پتہ محفوظ کریں۔",
     "nearestCity": "{city} میں ڈاکٹر",
-    "visitType": "مشاورت کی قسم"
+    "visitType": "مشاورت کی قسم",
+    "verifiedDoctor": "تصدیق شدہ ڈاکٹر",
+    "licenseNumber": "لائسنس نمبر {number}"
   },
   "LabsServices": {
     "eyebrow": "لیبارٹری کیئر",
@@ -1544,7 +1546,18 @@
     "back": "میری ملاقاتیں",
     "emptyBody": "ابھی کوئی سابقہ کال نہیں۔",
     "findDoctor": "ڈاکٹر تلاش کریں",
-    "unknownDoctor": "ڈاکٹر"
+    "unknownDoctor": "ڈاکٹر",
+    "unavailableTitle": "ابھی آپ کی کالز لوڈ نہیں ہو سکیں",
+    "unavailableBody": "اپنا کنکشن چیک کریں اور دوبارہ کوشش کریں۔",
+    "videoCall": "ویڈیو کال",
+    "voiceCall": "وائس کال",
+    "status": {
+      "ended": "کال مکمل",
+      "rejected": "مسترد کر دی گئی",
+      "missed": "چھوٹی ہوئی کال",
+      "active": "کال جاری ہے",
+      "pending": "زیر التوا کال"
+    }
   },
   "PostCallRating": {
     "title": "اپنے مشورے کی_rating",

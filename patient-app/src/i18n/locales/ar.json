@@ -3179,5 +3179,12 @@
   "guest.loginRequiredTitle": "مطلوب تسجيل الدخول",
   "guest.loginRequiredBody": "سجّل الدخول لاستخدام هذه الميزة.",
   "consult.calls.videoCall": "مكالمة فيديو",
-  "consult.calls.voiceCall": "مكالمة صوتية"
+  "consult.calls.voiceCall": "مكالمة صوتية",
+  "pharmacy.pay.methodsLegend": "طريقة الدفع",
+  "pharmacy.pay.method.card": "بطاقة بنكية",
+  "pharmacy.pay.method.apple-pay": "Apple Pay",
+  "pharmacy.pay.method.google-pay": "Google Pay",
+  "pharmacy.scan.unreadable": "تعذّرت قراءة أي دواء من هذه الصورة. جرّب صورة أوضح أو اطلب الدواء بالاسم.",
+  "orders.track.legacyEta": "يصل خلال حوالي {n} دقيقة",
+  "consult.doc.verified": "طبيب موثّق"
 }

@@ -1118,7 +1118,9 @@
     "locating": "Finding your location…",
     "nearestNoPlace": "Sorting by distance is not possible. Allow location access or save an address with a city.",
     "nearestCity": "Doctors in {city}",
-    "visitType": "Consultation type"
+    "visitType": "Consultation type",
+    "verifiedDoctor": "Verified doctor",
+    "licenseNumber": "Licence no. {number}"
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",
@@ -1544,7 +1546,18 @@
     "back": "My appointments",
     "emptyBody": "No past calls yet.",
     "findDoctor": "Find a doctor",
-    "unknownDoctor": "Doctor"
+    "unknownDoctor": "Doctor",
+    "unavailableTitle": "We can't load your calls right now",
+    "unavailableBody": "Check your connection and try again.",
+    "videoCall": "Video call",
+    "voiceCall": "Voice call",
+    "status": {
+      "ended": "Call completed",
+      "rejected": "Declined",
+      "missed": "Missed call",
+      "active": "Call in progress",
+      "pending": "Pending call"
+    }
   },
   "PostCallRating": {
     "title": "Rate your consultation",

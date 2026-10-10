@@ -146,6 +146,7 @@ export default async function DoctorsPage({ params, searchParams }: Props) {
                   nextSlotIso={doctor.nextSlot}
                   price={doctor.price}
                   bookLabel={c("book")}
+                  verifiedLabel={doctor.verified ? t("verifiedDoctor") : undefined}
                 />
               </li>
             );

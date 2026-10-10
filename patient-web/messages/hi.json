@@ -1118,7 +1118,9 @@
     "locating": "आपका स्थान खोजा जा रहा है…",
     "nearestNoPlace": "दूरी के अनुसार क्रम संभव नहीं है। स्थान की अनुमति दें या शहर के साथ पता सहेजें।",
     "nearestCity": "{city} में डॉक्टर",
-    "visitType": "परामर्श का प्रकार"
+    "visitType": "परामर्श का प्रकार",
+    "verifiedDoctor": "सत्यापित डॉक्टर",
+    "licenseNumber": "लाइसेंस नंबर {number}"
   },
   "LabsServices": {
     "eyebrow": "प्रयोगशाला देखभाल",
@@ -1544,7 +1546,18 @@
     "back": "मेरे अपॉइंटमेंट",
     "emptyBody": "अभी कोई पिछली कॉल नहीं।",
     "findDoctor": "डॉक्टर खोजें",
-    "unknownDoctor": "डॉक्टर"
+    "unknownDoctor": "डॉक्टर",
+    "unavailableTitle": "अभी आपकी कॉल लोड नहीं हो सकीं",
+    "unavailableBody": "अपना कनेक्शन जाँचें और फिर कोशिश करें।",
+    "videoCall": "वीडियो कॉल",
+    "voiceCall": "वॉइस कॉल",
+    "status": {
+      "ended": "कॉल पूरी हुई",
+      "rejected": "अस्वीकार की गई",
+      "missed": "छूटी हुई कॉल",
+      "active": "कॉल जारी है",
+      "pending": "लंबित कॉल"
+    }
   },
   "PostCallRating": {
     "title": "अपने परामर्श को रेट करें",

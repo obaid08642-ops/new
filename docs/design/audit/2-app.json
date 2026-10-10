@@ -288,7 +288,7 @@
       "elements": [
         [
           "Hero, tags, stats, about, photos, info rows, reviews",
-          "GET /care/doctors/:param: name, photo_url, tags, years_experience, rating_*, biography, clinic_images, facility_images, education, languages, scfhs_license_number, reviews_data; each hidden when empty",
+          "GET /care/doctors/:param: name, photo_url, tags, years_experience, rating / reviews_count, verified, biography, clinicPhotos, facility_images, education, languages, scfhs_license_no, reviews_data; each hidden when empty",
           "ok"
         ],
         [
@@ -338,8 +338,8 @@
         ],
         [
           "Doctor on the way step",
-          "no such status exists",
-          "hidden"
+          "appointment status EN_ROUTE and state_history[].at (appointments.service.ts, Q-15)",
+          "ok"
         ]
       ]
     },
@@ -518,7 +518,7 @@
       "route": "/consultations/home-visit-tracking",
       "element": "Doctor on the way, map",
       "kind": "backend",
-      "note": "The backend has no en-route status or doctor position; the steps follow CONFIRMED, CHECKED_IN and COMPLETED only.",
+      "note": "Fixed on design/backend-fields: the step \"Doctor on the way\" follows EN_ROUTE / ARRIVED (Q-15); there is still no doctor position, so no map is drawn.",
       "file": "patient-app/app/consultations/home-visit-tracking.tsx",
       "line": 71
     },
@@ -598,7 +598,7 @@
       "route": "/consultations/doctor/[id]",
       "element": "Board elements without data",
       "kind": "backend",
-      "note": "The DoctorFull board's verified badge, rating-distribution bars and clinic photos with distance are not drawn: the doctor payload has no such fields.",
+      "note": "Fixed on design/backend-fields: the verified badge (verified, care.service.ts:497), the SCFHS number and the public rating / reviews_count are drawn; the rating-distribution bars and clinic photos with distance stay undrawn (no field). Backend: care.service.ts:399 rebuilds clinicPhotos from clinic_images, which toPublicDoctor does not copy, so the detail always sends an empty clinicPhotos.",
       "file": "patient-app/app/consultations/doctor/[id].tsx",
       "line": 256
     },
