@@ -128,7 +128,13 @@ export class LegalService {
     const applicable = await this.policies.find({ requires_acceptance: true }, { projection: { key: 1, version: 1, title_ar: 1, title_en: 1, applies_to: 1 } }).toArray();
     const accepted = await this.acceptances.find({ user_id: user.id }, { projection: { policy_key: 1, version: 1 } }).toArray();
     const accMap = new Map(accepted.map((a: any) => [`${a.policy_key}:${a.version}`, true]));
-    return applicable.filter((p: any) => !accMap.has(`${p.key}:${p.version}`) && ((p.applies_to || ['all']).includes('all') || (p.applies_to || []).includes(user.role) || (p.applies_to || []).includes('provider') || (p.applies_to || []).includes('patient')));
+    // D-38: a caller is only asked for their own side's texts ('patient' vs 'provider') plus shared ones.
+    const side = user?.role === 'patient' ? 'patient' : 'provider';
+    const applies = (p: any) => {
+      const list = Array.isArray(p?.applies_to) && p.applies_to.length ? p.applies_to : ['all'];
+      return list.includes('all') || list.includes(side);
+    };
+    return applicable.filter((p: any) => !accMap.has(`${p.key}:${p.version}`) && applies(p));
   }
 
   async getCommissions() {
