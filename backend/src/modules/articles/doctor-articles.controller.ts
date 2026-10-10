@@ -19,7 +19,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
-import { CurrentUser, JwtAuthGuard } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { buildSlug, escapeRegex } from '../../common/slug.util';
 
 export class SubmitDoctorArticleDto {
@@ -198,6 +198,8 @@ export class DoctorArticlesService {
 export class DoctorArticlesController {
   constructor(private readonly svc: DoctorArticlesService) {}
 
+  // The service admits only an admin-approved doctor profile of the caller (403 otherwise).
+  @SelfService()
   @Post()
   submit(@CurrentUser() user: any, @Body() body: SubmitDoctorArticleDto) {
     return this.svc.submit(user?.id, body);
