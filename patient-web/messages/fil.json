@@ -258,12 +258,12 @@
       "details": "Mga detalye"
     },
     "emptyTitle": "Wala pang order",
-    "emptyBody": "Dito lalabas ang mga order mo sa mga botika.",
+    "emptyBody": "Dito lumalabas ang iyong mga order sa botika, konsultasyon, lab, radiology at nursing.",
     "browse": "Tingnan ang mga gamot",
     "emptyCurrentTitle": "Walang kasalukuyang order",
-    "emptyCurrentBody": "Dito lalabas ang order na naghihintay sa mga botika o papunta na sa iyo.",
+    "emptyCurrentBody": "Dito lumalabas ang order na naghihintay o papunta na.",
     "emptyPreviousTitle": "Walang nakaraang order",
-    "emptyPreviousBody": "Dito lalabas ang mga naihatid at nakanselang order.",
+    "emptyPreviousBody": "Dito lumalabas ang mga natapos at kinanselang order.",
     "listErrorTitle": "Hindi ma-load ang mga order mo",
     "unavailableTitle": "Hindi ma-load ang order",
     "unavailableBody": "Tingnan ang koneksyon mo at subukan ulit.",
@@ -277,7 +277,15 @@
     "pickupTitle": "Pagkuha",
     "pickupNote": "Ikaw mismo ang kukuha ng order na ito sa botika.",
     "priceTitle": "Presyo",
-    "total": "Kabuuan"
+    "total": "Kabuuan",
+    "kind": {
+      "consultation": "Konsultasyon",
+      "labs": "Lab test",
+      "radiology": "Radiology scan",
+      "nursing": "Pagbisita ng nars"
+    },
+    "statusUnavailable": "Hindi available ang status",
+    "partialNote": "May mga order na hindi ma-load. Nasa ibaba ang iba; subukan muli sa ilang sandali."
   },
   "Cart": {
     "eyebrow": "Pribadong cart",
@@ -1120,7 +1128,12 @@
     "nearestCity": "Mga doktor sa {city}",
     "visitType": "Uri ng konsultasyon",
     "verifiedDoctor": "Beripikadong doktor",
-    "licenseNumber": "Lisensya blg. {number}"
+    "licenseNumber": "Lisensya blg. {number}",
+    "specialtyLabel": "Espesyalidad",
+    "allSpecialties": "Lahat ng espesyalidad",
+    "paymentLabel": "Bayad",
+    "payment_insurance": "Tumatanggap ng insurance",
+    "payment_cash": "Cash lang"
   },
   "LabsServices": {
     "eyebrow": "Pangangalaga sa laboratoryo",
@@ -3707,7 +3720,6 @@
     "aboutRules": "Pagkansela at mga refund",
     "aboutRulesUnavailable": "Hindi ma-load ngayon ang patakaran sa pagkansela at refund.",
     "ruleCancelFull": "Maaaring kanselahin ang appointment hanggang {hours} oras bago ito para sa buong refund.",
-    "ruleCancelLate": "Ang pagkansela nang wala pang {hours} oras bago ay may singil na {fee}% ng booking.",
     "ruleRefundDays": "Darating ang refund sa loob ng {min} hanggang {max} araw ng trabaho.",
     "ruleReturnDays": "Maaaring ibalik ang mga hindi nagamit na produkto sa loob ng {days} araw mula sa pagtanggap."
   },

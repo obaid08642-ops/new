@@ -220,12 +220,12 @@
       "details": "Details"
     },
     "emptyTitle": "No orders yet",
-    "emptyBody": "Orders you send to pharmacies appear here.",
+    "emptyBody": "Your pharmacy, consultation, lab, radiology and nursing orders appear here.",
     "browse": "Browse medicines",
     "emptyCurrentTitle": "No current orders",
-    "emptyCurrentBody": "An order that is waiting for pharmacies or on its way appears here.",
+    "emptyCurrentBody": "An order that is waiting or on its way appears here.",
     "emptyPreviousTitle": "No previous orders",
-    "emptyPreviousBody": "Delivered and cancelled orders appear here.",
+    "emptyPreviousBody": "Finished and cancelled orders appear here.",
     "listErrorTitle": "Your orders could not be loaded",
     "unavailableTitle": "The order could not be loaded",
     "unavailableBody": "Check your connection and try again.",
@@ -239,7 +239,15 @@
     "pickupTitle": "Pickup",
     "pickupNote": "You collect this order from the pharmacy.",
     "priceTitle": "Price",
-    "total": "Total"
+    "total": "Total",
+    "kind": {
+      "consultation": "Consultation",
+      "labs": "Lab test",
+      "radiology": "Radiology scan",
+      "nursing": "Nursing visit"
+    },
+    "statusUnavailable": "Status unavailable",
+    "partialNote": "Some orders could not be loaded. The rest are shown below; try again in a moment."
   },
   "Cart": {
     "eyebrow": "Private cart",
@@ -1120,7 +1128,12 @@
     "nearestCity": "Doctors in {city}",
     "visitType": "Consultation type",
     "verifiedDoctor": "Verified doctor",
-    "licenseNumber": "Licence no. {number}"
+    "licenseNumber": "Licence no. {number}",
+    "specialtyLabel": "Specialty",
+    "allSpecialties": "All specialties",
+    "paymentLabel": "Payment",
+    "payment_insurance": "Accepts insurance",
+    "payment_cash": "Cash only"
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",
@@ -3707,7 +3720,6 @@
     "aboutRules": "Cancellation and refunds",
     "aboutRulesUnavailable": "The cancellation and refund policy could not be loaded right now.",
     "ruleCancelFull": "An appointment can be cancelled up to {hours} hours before its time for a full refund.",
-    "ruleCancelLate": "Cancelling less than {hours} hours before costs {fee}% of the booking.",
     "ruleRefundDays": "Refunds arrive within {min} to {max} business days.",
     "ruleReturnDays": "Unused products can be returned within {days} days of receipt."
   },

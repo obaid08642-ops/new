@@ -208,12 +208,12 @@
       "details": "التفاصيل"
     },
     "emptyTitle": "لا توجد طلبات بعد",
-    "emptyBody": "الطلبات التي ترسلها إلى الصيدليات تظهر هنا.",
+    "emptyBody": "طلبات الصيدلية والاستشارات والتحاليل والأشعة والتمريض تظهر هنا.",
     "browse": "تصفح الأدوية",
     "emptyCurrentTitle": "لا توجد طلبات حالية",
-    "emptyCurrentBody": "الطلب الذي ينتظر الصيدليات أو في الطريق إليك يظهر هنا.",
+    "emptyCurrentBody": "الطلب الذي ينتظر ردًّا أو في الطريق يظهر هنا.",
     "emptyPreviousTitle": "لا توجد طلبات سابقة",
-    "emptyPreviousBody": "الطلبات المسلّمة والملغاة تظهر هنا.",
+    "emptyPreviousBody": "الطلبات المنتهية أو الملغاة تظهر هنا.",
     "listErrorTitle": "تعذّر تحميل طلباتك",
     "unavailableTitle": "تعذّر تحميل الطلب",
     "unavailableBody": "تحقق من اتصالك ثم حاول مرة أخرى.",
@@ -227,7 +227,15 @@
     "pickupTitle": "الاستلام",
     "pickupNote": "تستلم هذا الطلب من الصيدلية.",
     "priceTitle": "السعر",
-    "total": "الإجمالي"
+    "total": "الإجمالي",
+    "kind": {
+      "consultation": "استشارة طبية",
+      "labs": "تحاليل",
+      "radiology": "أشعة",
+      "nursing": "تمريض منزلي"
+    },
+    "statusUnavailable": "الحالة غير متاحة",
+    "partialNote": "تعذّر تحميل بعض الطلبات. الباقي ظاهر أدناه، حاول مرة أخرى بعد قليل."
   },
   "Cart": {
     "eyebrow": "سلة خاصة",
@@ -1120,7 +1128,12 @@
     "nearestCity": "الأطباء في {city}",
     "visitType": "نوع الاستشارة",
     "verifiedDoctor": "طبيب موثّق",
-    "licenseNumber": "رقم الترخيص {number}"
+    "licenseNumber": "رقم الترخيص {number}",
+    "specialtyLabel": "التخصص",
+    "allSpecialties": "كل التخصصات",
+    "paymentLabel": "الدفع",
+    "payment_insurance": "يقبل التأمين",
+    "payment_cash": "كاش فقط"
   },
   "LabsServices": {
     "eyebrow": "الرعاية المخبرية",
@@ -3707,7 +3720,6 @@
     "aboutRules": "الإلغاء والاسترداد",
     "aboutRulesUnavailable": "تعذر تحميل سياسة الإلغاء والاسترداد الآن.",
     "ruleCancelFull": "يمكن إلغاء الموعد قبل {hours} ساعة من وقته مع استرداد كامل المبلغ.",
-    "ruleCancelLate": "الإلغاء قبل أقل من {hours} ساعة تُخصم منه {fee}% من قيمة الحجز.",
     "ruleRefundDays": "يصل الاسترداد خلال {min} إلى {max} أيام عمل.",
     "ruleReturnDays": "يمكن إرجاع المنتجات غير المستخدمة خلال {days} أيام من الاستلام."
   },
