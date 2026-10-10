@@ -70,6 +70,7 @@ export class AppointmentsService {
     insurance_member_id?: string;
     for_member_id?: string; // family booking on behalf of a member
     slot_lock_id?: string; // optional 10-min hold from POST /slot-locks/reserve (consumed on success, released on failure)
+    follow_up_of?: string; // follow-up appointment link to original appointment (same patient and doctor)
   }) {
     if (!body?.doctor_id || !body?.service_type || !body?.slot_start) {
       throw new BadRequestException('doctor_id, service_type, slot_start required');
@@ -168,6 +169,19 @@ export class AppointmentsService {
         throw new BadRequestException('NO_INSURANCE_POLICY');
       }
     }
+
+    // Follow-up appointment: validate that the original appointment exists,
+    // belongs to the same patient and doctor, and is in a completed state.
+    let followUpOf: string | undefined;
+    if (body.follow_up_of) {
+      const original = await this.apptModel.findOne({ id: body.follow_up_of });
+      if (!original) throw new NotFoundException('original_appointment_not_found');
+      if (original.patient_id !== patientId) throw new ForbiddenException('follow_up_patient_mismatch');
+      if (original.doctor_id !== doctor.id) throw new ForbiddenException('follow_up_doctor_mismatch');
+      if (original.status !== APPT_STATES.COMPLETED) throw new BadRequestException('original_appointment_not_completed');
+      followUpOf = original.id;
+    }
+
     try {
       const appt = await this.apptModel.create({
         patient_id: patientId,
@@ -190,6 +204,7 @@ export class AppointmentsService {
         payment_method: pm,
         insurance_provider: body.insurance_provider,
         insurance_member_id: body.insurance_member_id,
+        follow_up_of: followUpOf,
         state_history: [
           { state: APPT_STATES.PENDING, at: new Date(), by_user_id: user.id, by_role: user.role || UserRole.PATIENT, note: 'created' },
         ],

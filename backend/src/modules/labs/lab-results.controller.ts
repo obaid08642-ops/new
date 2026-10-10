@@ -7,7 +7,7 @@ import { CreateDto } from './lab-results.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('lab-results')
-@Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN)
+@Roles(UserRole.LAB, UserRole.HOSPITAL, UserRole.ADMIN, UserRole.PATIENT)
 export class LabResultsController {
   constructor(private readonly svc: LabResultsService) {}
   @Post() create(@CurrentUser() u: any, @Body() b: CreateDto) { return this.svc.create(u, b); }
