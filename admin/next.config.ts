@@ -19,7 +19,11 @@ const nextConfig: NextConfig = {
   // Owner decision 2026-10-10 (#981-#993): the public directory pages live in patient-web, not here. `/` goes to the
   // console; src/proxy.ts sends a visitor without a session on to /login.
   async redirects() {
-    return [{ source: "/", destination: "/admin/dashboard", permanent: false }];
+    return [
+      { source: "/", destination: "/admin/dashboard", permanent: false },
+      // Owner decision 2026-10-10 (#949): one medicines editor. The old governance page is gone.
+      { source: "/admin/catalog-governance", destination: "/admin/medicines-catalog", permanent: true },
+    ];
   },
   async headers() {
     return [{ source: "/:path*", headers: [
