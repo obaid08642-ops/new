@@ -172,6 +172,128 @@
     "line": 88
    }
   ],
+  "/admin/article-review": [
+   {
+    "kind": "button",
+    "label": "عودة إلى القائمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/article-review.tsx",
+    "line": 96
+   },
+   {
+    "kind": "button",
+    "label": "اعتماد ونشر",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/article-review.tsx",
+    "line": 100
+   },
+   {
+    "kind": "button",
+    "label": "رفض",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/article-review.tsx",
+    "line": 101
+   },
+   {
+    "kind": "button",
+    "label": "فتح المقال",
+    "src": "GET /admin/articles/:param",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/article-review.tsx",
+    "line": 119
+   },
+   {
+    "kind": "action",
+    "label": "سيظهر المقال للمرضى فوراً بعد فحص النص من أسماء الأدوية التي",
+    "src": "POST /admin/articles/:param/:param",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/article-review.tsx",
+    "line": 126
+   },
+   {
+    "kind": "action",
+    "label": "سيظهر المقال للمرضى فوراً بعد فحص النص من أسماء الأدوية التي",
+    "src": "cancel; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/article-review.tsx",
+    "line": 126
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state reason used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/article-review.tsx",
+    "line": 139
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 41,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 42,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onConfirm",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 46,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 47,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
   "/admin/audit-logs": [
    {
     "kind": "input",
@@ -965,38 +1087,6 @@
     "via": "DataTable"
    }
   ],
-  "/admin/community-moderation": [
-   {
-    "kind": "button",
-    "label": "تحديث",
-    "src": "GET /community/admin/pending",
-    "status": "ok",
-    "mutation": false,
-    "confirm": false,
-    "file": "admin/src/pages/admin/community-moderation.tsx",
-    "line": 46
-   },
-   {
-    "kind": "button",
-    "label": "نشر",
-    "src": "PUT /community/admin/:param/moderate; GET /community/admin/pending; confirm()",
-    "status": "ok",
-    "mutation": true,
-    "confirm": true,
-    "file": "admin/src/pages/admin/community-moderation.tsx",
-    "line": 59
-   },
-   {
-    "kind": "button",
-    "label": "حذف",
-    "src": "PUT /community/admin/:param/moderate; GET /community/admin/pending; confirm()",
-    "status": "ok",
-    "mutation": true,
-    "confirm": true,
-    "file": "admin/src/pages/admin/community-moderation.tsx",
-    "line": 60
-   }
-  ],
   "/admin/config-portal": [
    {
     "kind": "button",
@@ -1103,31 +1193,6 @@
     "line": 312
    },
    {
-    "kind": "input",
-    "label": "checkbox",
-    "src": "state killSwitchChecked1 used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 333
-   },
-   {
-    "kind": "input",
-    "label": "checkbox",
-    "src": "state killSwitchChecked2 used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 339
-   },
-   {
-    "kind": "button",
-    "label": "Trigger System Kill-Switch (معطّل — يتطلب إعداد الخادم)",
-    "src": "disabled button, no handler",
-    "status": "dead",
-    "note": "Button is disabled with no handler.",
-    "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 345
-   },
-   {
     "kind": "button",
     "label": "إلغاء وضع الصيانة (Restore Systems)",
     "src": "PUT /api/admin/admin/governance/trigger-emergency-maintenance",
@@ -1135,7 +1200,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 357
+    "line": 327
    },
    {
     "kind": "input",
@@ -1143,7 +1208,7 @@
     "src": "state surgeStart used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 376
+    "line": 346
    },
    {
     "kind": "input",
@@ -1151,7 +1216,7 @@
     "src": "state surgeEnd used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 379
+    "line": 349
    },
    {
     "kind": "input",
@@ -1159,7 +1224,7 @@
     "src": "state surgeMult used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 382
+    "line": 352
    },
    {
     "kind": "input",
@@ -1167,7 +1232,7 @@
     "src": "state deliveryFee used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 385
+    "line": 355
    },
    {
     "kind": "input",
@@ -1175,7 +1240,7 @@
     "src": "state serviceFee used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 388
+    "line": 358
    },
    {
     "kind": "button",
@@ -1185,7 +1250,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 391
+    "line": 361
    },
    {
     "kind": "input",
@@ -1193,7 +1258,7 @@
     "src": "state appVersions used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 406
+    "line": 376
    },
    {
     "kind": "input",
@@ -1201,7 +1266,7 @@
     "src": "state appVersions used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 409
+    "line": 379
    },
    {
     "kind": "input",
@@ -1210,7 +1275,7 @@
     "status": "ok",
     "untraced": true,
     "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 412
+    "line": 382
    },
    {
     "kind": "input",
@@ -1218,7 +1283,7 @@
     "src": "state appVersions used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 416
+    "line": 386
    },
    {
     "kind": "input",
@@ -1226,7 +1291,7 @@
     "src": "state appVersions used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 417
+    "line": 387
    },
    {
     "kind": "button",
@@ -1236,7 +1301,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 421
+    "line": 391
    },
    {
     "kind": "input",
@@ -1244,7 +1309,7 @@
     "src": "state urgentPhone used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 432
+    "line": 402
    },
    {
     "kind": "button",
@@ -1254,7 +1319,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 434
+    "line": 404
    },
    {
     "kind": "input",
@@ -1262,7 +1327,7 @@
     "src": "state rxConsult used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 447
+    "line": 417
    },
    {
     "kind": "input",
@@ -1270,7 +1335,7 @@
     "src": "state rxConsult used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 461
+    "line": 431
    },
    {
     "kind": "button",
@@ -1280,7 +1345,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/config-portal.tsx",
-    "line": 468
+    "line": 438
    },
    {
     "kind": "action",

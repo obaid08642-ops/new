@@ -14,8 +14,8 @@ import { useCopy } from '../screen/useCopy';
 import { FAMILY_HUB, FamilyScreen } from './FamilyKit';
 
 /**
- * Add or join (merge map row F, `/family/add?tab=invite|join|scan`): Invite shows the group's invite as a link, a QR code
- * or a code; Join with code takes a code and the relation; Scan QR reads an invite QR with the camera (its permission
+ * Add or join (merge map row F, `/family/add?tab=invite|join|scan`): Invite shows the group's invite as a code (default) or a QR code;
+ * Join with code takes a code and the relation; Scan QR reads an invite QR with the camera (its permission
  * handling is the old screen's). POST /family/invite and POST /family/join. The old /family/invite, /family/join,
  * /family/scan and /health/add-family-member redirect here with their query (a `code` opens Join with the code filled).
  */
