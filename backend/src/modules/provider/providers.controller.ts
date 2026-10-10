@@ -77,8 +77,8 @@ export class ProvidersController {
 
   @Post(':id/approve')
   @Roles(UserRole.ADMIN)
-  approve(@Param('id') id: string, @CurrentUser() admin: any) {
-    return this.svc.approve(id, admin);
+  approve(@Param('id') id: string, @CurrentUser() admin: any, @Body() body: { commission_cash_pct?: number; commission_insurance_pct?: number; reason?: string }) {
+    return this.svc.approve(id, admin, { commission_cash_pct: body?.commission_cash_pct, commission_insurance_pct: body?.commission_insurance_pct, reason: body?.reason });
   }
 
   @Post(':id/reject')

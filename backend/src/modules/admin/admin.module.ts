@@ -4,6 +4,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { AdminController } from './admin.controller';
 import { User, UserSchema } from '../../schemas/user.schema';
 import { ProviderDelta, ProviderDeltaSchema } from '../provider/schemas/provider-delta.schema';
+import { ProviderModule } from '../provider/provider.module';
 import { AppointmentSchema } from '../../schemas/appointment.schema';
 import { EmergencyRequestSchema } from '../../schemas/emergency.schema';
 // P5.3: merged from AdminAuthorityModule (authority/ → admin/)
@@ -82,6 +83,7 @@ import { AuditIngestController } from './admin-audit-ingest.controller';
 
 @Module({
   imports: [
+    ProviderModule,
     ImpersonationSecurityModule,
     MailModule,
     SeoSearchModule,

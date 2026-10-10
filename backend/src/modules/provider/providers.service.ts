@@ -215,7 +215,7 @@ export class ProvidersService {
   }
 
   // ============ Admin Review ============
-  async approve(id: string, admin: any) {
+  async approve(id: string, admin: any, options?: { commission_cash_pct?: number; commission_insurance_pct?: number; reason?: string }) {
     const p = await this.providerModel.findOne({ id });
     if (!p) throw new NotFoundException();
     p.status = ProviderStatus.ACTIVE;
@@ -227,6 +227,15 @@ export class ProvidersService {
     p.medical_review_status = 'approved';
     p.last_reviewed = p.approved_at;
     p.provenance = 'admin_provider_review';
+    
+    // Set commission rates if provided
+    if (options?.commission_cash_pct !== undefined) {
+      p.commission_cash_pct = options.commission_cash_pct;
+    }
+    if (options?.commission_insurance_pct !== undefined) {
+      p.commission_insurance_pct = options.commission_insurance_pct;
+    }
+    
     await p.save();
     await this.userModel.updateOne({ id: p.user_id }, { $set: { active: true } });
     this.events.emit('provider.approved', { provider_id: p.id });

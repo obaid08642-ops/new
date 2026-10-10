@@ -9,6 +9,7 @@ import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { User, UserDocument } from '../../schemas/user.schema';
 import { ProviderDelta } from '../provider/schemas/provider-delta.schema';
+import { ProvidersService } from '../provider/providers.service';
 import { CreateSubAdminDto, UpdateSubAdminDto, CreateProviderDto, CleanupOrphansDto } from './admin.dto';
 import { Permission, RequirePermissions } from '../../common/permissions';
 
@@ -29,6 +30,7 @@ export class AdminController {
     @InjectModel('Appointment') private readonly appointmentModel: Model<any>,
     @InjectModel('EmergencyRequest') private readonly emergencyModel: Model<any>,
     @InjectConnection() private readonly connection: Connection,
+    private readonly providersService: ProvidersService,
     @Optional() private readonly events?: EventEmitter2,
   ) {}
 
@@ -454,6 +456,25 @@ export class AdminController {
     });
     try { this.events?.emit('admin.provider_created', { admin_id: by?.id, provider_id: doc.id, role }); } catch {}
     return { ok: true, id: doc.id, role, email, phone, initial_password: body?.password ? undefined : password };
+  }
+
+  /**
+   * Admin approves a provider with commission settings.
+   * Frontend calls: POST /admin/providers/:id/approve
+   * Body: { reason?: string, commission_cash_pct?: number, commission_insurance_pct?: number }
+   */
+  @StepUp()
+  @Post('providers/:id/approve')
+  async approveProviderWithCommission(
+    @Param('id') id: string,
+    @CurrentUser() admin: any,
+    @Body() body: { reason?: string; commission_cash_pct?: number; commission_insurance_pct?: number }
+  ) {
+    return this.providersService.approve(id, admin, {
+      commission_cash_pct: body?.commission_cash_pct,
+      commission_insurance_pct: body?.commission_insurance_pct,
+      reason: body?.reason,
+    });
   }
 
   /** Ban/deactivate a user account (blocks login via active=false). */
