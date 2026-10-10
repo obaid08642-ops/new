@@ -381,7 +381,16 @@ export class ProvidersService {
   async getPublicById(id: string, patientId?: string) {
     const p = await this.providerModel.findOne({ id, ...this.publicDiscoveryFilter() }, { _id: 0, __v: 0 });
     if (!p) throw new NotFoundException();
-    return this.toPublicProvider(p, patientId);
+    const out = this.toPublicProvider(p);
+    // Favourite status (patient CRM tag) only on the single-doctor view; lists stay synchronous.
+    const type = String(out.type || out.provider_type || '').toLowerCase();
+    out.is_favorite = false;
+    if (patientId && (type === 'doctor' || type === 'nurse')) {
+      const tag = await this.connection.db.collection('patient_crm_tags')
+        .findOne({ provider_id: { $eq: out.id }, patient_id: { $eq: String(patientId) } }, { projection: { _id: 0, is_favorite: 1 } });
+      out.is_favorite = tag?.is_favorite === true;
+    }
+    return out;
   }
 
   /**
@@ -390,7 +399,7 @@ export class ProvidersService {
    * (rule N7). Facilities keep their business contact and address. Adds the SCFHS licence number and `verified`
    * (admin approval plus a verified licence).
    */
-  private async toPublicProvider(raw: any, patientId?: string): Promise<any> {
+  private toPublicProvider(raw: any): any {
     const p = raw?.toObject ? raw.toObject() : { ...(raw || {}) };
     for (const k of PUBLIC_PROVIDER_HIDDEN) delete p[k];
     const type = String(p.type || p.provider_type || '').toLowerCase();
@@ -398,18 +407,6 @@ export class ProvidersService {
     if (type === 'nurse') { delete p.address; delete p.lat; delete p.lng; delete p.geo; delete p.location; }
     p.scfhs_license_no = p.scfhs_license_number || null;
     p.verified = p.medical_review_status === 'approved' && p.license_verified === true;
-    
-    // Add favourite status for doctors
-    if (patientId && (type === 'doctor' || type === 'nurse')) {
-      const crmTag = await this.connection.db.collection('patient_crm_tags').findOne(
-        { provider_id: p.id, patient_id: patientId },
-        { projection: { _id: 0, is_favorite: 1 } }
-      );
-      p.is_favorite = crmTag?.is_favorite === true;
-    } else {
-      p.is_favorite = false;
-    }
-    
     return p;
   }
   async myProfile(actor: any) {

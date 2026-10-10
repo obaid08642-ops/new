@@ -72,7 +72,7 @@ describe('REVIEW-P3: generated provider passwords are unguessable', () => {
     const created: any[] = [];
     const userRepository = { findOne: jest.fn(async () => null), create: jest.fn(async (u: any) => { created.push(u); return { ...u, id: 'u1', toObject: () => u }; }) };
     const providerRepository = { create: jest.fn(async (p: any) => ({ ...p, toObject: () => p })) };
-    const service = new ProvidersService(userRepository as any, providerRepository as any, {} as any, {} as any, {} as any, {} as any);
+    const service = new ProvidersService(userRepository as any, providerRepository as any, {} as any, { emit: jest.fn() } as any, { refresh: jest.fn() } as any, {} as any);
     const r: any = await service.adminCreate({ phone: '+966500000009', type: 'doctor', full_name: 'x', name_ar: 'x' }, {}).catch((e: any) => ({ err: e }));
     expect(r.err).toBeUndefined();
     expect(r.generated_password).toMatch(/^[A-Za-z0-9_-]{16,}$/);
