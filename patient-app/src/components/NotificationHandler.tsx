@@ -41,7 +41,7 @@ const ALLOWED_SCREENS = new Set([
   '/diagnostics/orders',
   '/diagnostics/my-results',
   '/nursing/insurance-status',
-  '/emergency/sos-active',
+  '/emergency',
   '/insurance',
   '/insurance/request',
   '/returns/hub',
@@ -86,7 +86,7 @@ function resolveLegacyRoute(data: any): { pathname: string; params: Record<strin
     case 'report_ready':
       return { pathname: '/diagnostics/my-results', params: {} };
     case 'emergency_update':
-      return { pathname: '/emergency/sos-active', params: {} };
+      return { pathname: '/emergency', params: {} };
     case 'refund_status':
       return { pathname: '/returns/hub', params: {} };
     default:

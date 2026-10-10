@@ -293,19 +293,19 @@
  },
  {
   "file": "emergency/index.tsx",
-  "lines": 2
+  "lines": 8
  },
  {
   "file": "emergency/sos-active.tsx",
-  "lines": 154
+  "lines": 6
  },
  {
   "file": "emergency/tracking.tsx",
-  "lines": 111
+  "lines": 6
  },
  {
   "file": "emergency/sos.tsx",
-  "lines": 197
+  "lines": 6
  },
  {
   "file": "loyalty/hub.tsx",

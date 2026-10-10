@@ -711,7 +711,6 @@
   "orders.kind.labs": "لیب ٹیسٹ",
   "orders.kind.radiology": "ریڈیالوجی",
   "orders.kind.nursing": "نرسنگ وزٹ",
-  "orders.kind.ambulance": "ایمبولینس کی درخواست",
   "orders.kind.insurance": "انشورنس کلیم",
   "orders.kind.returns": "واپسی کی درخواست",
   "orders.sub.video": "ویڈیو مشاورت",
@@ -1465,7 +1464,7 @@
   "health.emergency.tryAgain": "تھوڑی دیر بعد دوبارہ کوشش کریں۔",
   "health.emergency.family": "نبض پلس پر میرا خاندان",
   "health.emergency.invite": "دعوت دیں",
-  "health.emergency.familyNote": "ہنگامی بٹن دبانے پر آپ کا مقام آپ کے رابطوں اور خاندان کو بھیجا جاتا ہے۔",
+  "health.emergency.familyNote": "یہ وہ لوگ ہیں جنہیں آپ ہنگامی صورت میں کال کر سکتے ہیں۔",
   "health.emergency.familyEmpty": "آپ کے خاندانی گروپ میں ابھی کوئی نہیں۔ اپنے خاندان کو مدعو کریں تاکہ وہ ہنگامی رابطے بنیں۔",
   "health.emergency.member": "خاندان کا فرد",
   "health.emergency.noPhone": "کوئی فون نمبر محفوظ نہیں",
@@ -3143,5 +3142,11 @@
   "guest.loginRequiredTitle": "سائن اِن ضروری ہے",
   "guest.loginRequiredBody": "یہ فیچر استعمال کرنے کے لیے سائن اِن کریں۔",
   "consult.calls.videoCall": "ویڈیو کال",
-  "consult.calls.voiceCall": "وائس کال"
+  "consult.calls.voiceCall": "وائس کال",
+  "emergency.title": "فوری مدد",
+  "emergency.serviceDesc": "فوری مدد کے نمبر پر کال کریں",
+  "emergency.intro": "اگر آپ کو فوراً مدد چاہیے تو نبض پلس میں مقرر کردہ فوری مدد کے نمبر پر کال کریں۔",
+  "emergency.call": "{number} پر کال کریں",
+  "emergency.unavailable": "فوری مدد کا نمبر ابھی مقرر نہیں کیا گیا، اس لیے یہاں سے کال کرنے کے لیے کچھ نہیں ہے۔ اگر آپ خطرے میں ہیں تو اپنی مقامی ایمرجنسی سروسز سے رابطہ کریں۔",
+  "emergency.note": "نبض پلس ایمرجنسی سروس نہیں ہے اور آپ کے مقام پر مدد نہیں بھیج سکتا۔"
 }

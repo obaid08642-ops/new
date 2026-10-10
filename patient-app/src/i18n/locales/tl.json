@@ -711,7 +711,6 @@
   "orders.kind.labs": "Mga lab test",
   "orders.kind.radiology": "Radyolohiya",
   "orders.kind.nursing": "Pagbisita ng nars",
-  "orders.kind.ambulance": "Kahilingan ng ambulansya",
   "orders.kind.insurance": "Claim sa insurance",
   "orders.kind.returns": "Kahilingan sa pagbabalik",
   "orders.sub.video": "Konsultasyon sa video",
@@ -1465,7 +1464,7 @@
   "health.emergency.tryAgain": "Subukan muli pagkaraan ng ilang sandali.",
   "health.emergency.family": "Aking pamilya sa Nabd Plus",
   "health.emergency.invite": "Mag-imbita",
-  "health.emergency.familyNote": "Kapag pinindot mo ang emergency button, ipapadala ang iyong lokasyon sa iyong mga contact at pamilya.",
+  "health.emergency.familyNote": "Ito ang mga taong maaari mong tawagan sa oras ng emergency.",
   "health.emergency.familyEmpty": "Wala pang miyembro ang iyong family group. Imbitahan ang pamilya mo para maging emergency contact.",
   "health.emergency.member": "Miyembro ng pamilya",
   "health.emergency.noPhone": "Walang naka-save na numero ng telepono",
@@ -3143,5 +3142,11 @@
   "guest.loginRequiredTitle": "Kailangang mag-sign in",
   "guest.loginRequiredBody": "Mag-sign in para magamit ang feature na ito.",
   "consult.calls.videoCall": "Tawag na video",
-  "consult.calls.voiceCall": "Tawag na boses"
+  "consult.calls.voiceCall": "Tawag na boses",
+  "emergency.title": "Agarang tulong",
+  "emergency.serviceDesc": "Tawagan ang numero ng agarang tulong",
+  "emergency.intro": "Kung kailangan mo ng agarang tulong, tawagan ang numero ng agarang tulong na itinakda sa Nabd Plus.",
+  "emergency.call": "Tawagan ang {number}",
+  "emergency.unavailable": "Wala pang naitakdang numero ng agarang tulong, kaya walang matatawagan mula rito. Kung nasa panganib ka, makipag-ugnayan sa lokal na emergency services.",
+  "emergency.note": "Hindi emergency service ang Nabd Plus at hindi ito makapagpapadala ng tulong sa iyong lokasyon."
 }

@@ -711,7 +711,6 @@
   "orders.kind.labs": "ল্যাব পরীক্ষা",
   "orders.kind.radiology": "রেডিওলজি",
   "orders.kind.nursing": "নার্সিং ভিজিট",
-  "orders.kind.ambulance": "অ্যাম্বুলেন্সের অনুরোধ",
   "orders.kind.insurance": "বিমা দাবি",
   "orders.kind.returns": "ফেরতের অনুরোধ",
   "orders.sub.video": "ভিডিও পরামর্শ",
@@ -1465,7 +1464,7 @@
   "health.emergency.tryAgain": "একটু পরে আবার চেষ্টা করুন।",
   "health.emergency.family": "নাবদ প্লাসে আমার পরিবার",
   "health.emergency.invite": "আমন্ত্রণ",
-  "health.emergency.familyNote": "জরুরি বোতাম চাপলে আপনার অবস্থান আপনার যোগাযোগ ও পরিবারকে পাঠানো হয়।",
+  "health.emergency.familyNote": "জরুরি অবস্থায় আপনি এই মানুষদের কল করতে পারেন।",
   "health.emergency.familyEmpty": "আপনার পরিবার গ্রুপে এখনও কেউ নেই। পরিবারকে আমন্ত্রণ জানান, তারা জরুরি যোগাযোগ হবে।",
   "health.emergency.member": "পরিবারের সদস্য",
   "health.emergency.noPhone": "কোনো ফোন নম্বর সংরক্ষিত নেই",
@@ -3143,5 +3142,11 @@
   "guest.loginRequiredTitle": "সাইন ইন প্রয়োজন",
   "guest.loginRequiredBody": "এই সুবিধা ব্যবহার করতে সাইন ইন করুন।",
   "consult.calls.videoCall": "ভিডিও কল",
-  "consult.calls.voiceCall": "ভয়েস কল"
+  "consult.calls.voiceCall": "ভয়েস কল",
+  "emergency.title": "জরুরি সহায়তা",
+  "emergency.serviceDesc": "জরুরি সহায়তার নম্বরে কল করুন",
+  "emergency.intro": "আপনি যদি এখনই সাহায্য চান, Nabd Plus এ নির্ধারিত জরুরি সহায়তার নম্বরে কল করুন।",
+  "emergency.call": "{number} নম্বরে কল করুন",
+  "emergency.unavailable": "জরুরি সহায়তার নম্বর এখনও নির্ধারণ করা হয়নি, তাই এখান থেকে কল করার মতো কিছু নেই। আপনি বিপদে থাকলে স্থানীয় জরুরি সেবার সঙ্গে যোগাযোগ করুন।",
+  "emergency.note": "Nabd Plus জরুরি সেবা নয় এবং আপনার অবস্থানে সাহায্য পাঠাতে পারে না।"
 }

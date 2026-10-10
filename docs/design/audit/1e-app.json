@@ -14,9 +14,8 @@
         ["Row number and date", "pharmacy id tail; slot_start / scheduled_at / createdAt (Intl)", "ok"],
         ["Row amount", "pricing_snapshot.totals.total, appointment total_price/price, lab/radiology total, nursing total_price, claim/return amount; hidden when absent or 0", "ok"],
         ["Row action (track / details / order again)", "pharmacy status via orderRoute; other kinds their own screen", "ok"],
-        ["Partial-failure notice with retry", "count of failed endpoints (9 sources, each its own call)", "fixed"],
+        ["Partial-failure notice with retry", "count of failed endpoints (8 sources, each its own call)", "fixed"],
         ["All-failed state", "ErrorState or OfflineState with retry", "fixed"],
-        ["Emergency row", "GET /emergency/my/active: location.address, active by definition", "fixed"],
         ["Insurance claim title", "claim.service (the old code read title / claim_number, which the API does not send)", "fixed"],
         ["Pull to refresh, list virtualised", "FlatList", "ok"]
       ],
@@ -86,7 +85,6 @@
     { "route": "/pharmacy/order-tracking", "element": "Live map and courier", "kind": "backend", "note": "No courier position, vehicle or photo in the order; delivery has courier_name, courier_phone, courier_eta, dispatched_at only. The board's map and vehicle line are not drawn." },
     { "route": "/orders", "element": "Legacy orders (GET /orders/mine)", "kind": "backend", "note": "These rows have no screen: order-tracking reads the governed endpoint, which answers order_not_found for a legacy id. They are listed without an action." },
     { "route": "/orders", "element": "Amounts of appointments and bookings", "kind": "backend", "note": "total_price / price (appointments), total (labs, radiology), total_price (nursing) are used when positive; no currency field is sent, so SAR is assumed as in the rest of the app." },
-    { "route": "/orders", "element": "Emergency request status", "kind": "backend", "note": "GET /emergency/my/active answers 200 with an empty body when there is none and the patient view carries state, not status; the row says 'active' because the endpoint lists only the active one." },
     { "route": "/orders", "element": "Kind filter chips", "kind": "owner", "note": "The old screen filtered by service; the Orders board has only current / previous. Owner to confirm the filter is not wanted." },
     { "route": "/pharmacy/reorder", "element": "Earlier prescription and fulfilment", "kind": "owner", "note": "Order again sends a delivery request without the earlier prescription_id or pickup choice (as before). Owner to say if they should carry over." }
   ]

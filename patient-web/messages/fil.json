@@ -59,8 +59,8 @@
     "aiDesc": "Mabilisang pagsusuri ng sintomas gamit ang AI",
     "mapTitle": "Mapa ng mga Pasilidad",
     "mapDesc": "Tuklasin ang mga kalapit na klinika, ospital at botika",
-    "emergencyTitle": "Emergency at Ambulansya",
-    "emergencyDesc": "Agarang tulong sa emerhensya at kahilingan sa ambulansya",
+    "emergencyTitle": "Agarang tulong",
+    "emergencyDesc": "Kung kailangan mo ng agarang tulong, tawagan ang numero ng agarang tulong na itinakda sa Nabd Plus.",
     "trustLicensed": "Sertipikado at May Lisensya",
     "trustLicensedSub": "Mga beripikadong medikal na pasilidad at kawani",
     "trustGenuine": "100% Tunay na Gamot",
@@ -94,7 +94,7 @@
     "svcMaternity": "Pagbubuntis",
     "svcMap": "Mapa",
     "svcHealth": "Aking kalusugan",
-    "svcEmergency": "Emergency",
+    "svcEmergency": "Agarang tulong",
     "aiTitle": "Matalinong katulong na medikal",
     "aiSub": "Ilarawan ang iyong mga sintomas at kumuha ng paunang gabay",
     "aiStart": "Simulan ang chat",
@@ -1277,15 +1277,12 @@
     }
   },
   "Emergency": {
-    "title": "Emergency",
-    "subtitle": "Pindutin lamang ang SOS sa mga kritikal na sitwasyon.",
-    "trigger": "Magpadala ng SOS",
-    "triggering": "Ipinapadala…",
-    "activeLabel": "Aktibo ang SOS — paparating na ang response team",
-    "cancel": "Kanselahin ang SOS",
-    "cancelling": "Kinakansela…",
-    "error": "Hindi makumpleto ang aksyon ngayon",
-    "state": "Estado"
+    "title": "Agarang tulong",
+    "intro": "Kung kailangan mo ng agarang tulong, tawagan ang numero ng agarang tulong na itinakda sa Nabd Plus.",
+    "call": "Tawagan ang {number}",
+    "unavailable": "Wala pang naitakdang numero ng agarang tulong, kaya walang matatawagan mula rito. Kung nasa panganib ka, makipag-ugnayan sa lokal na emergency services.",
+    "note": "Hindi emergency service ang Nabd Plus at hindi ito makapagpapadala ng tulong sa iyong lokasyon.",
+    "loadError": "Hindi ma-load ang numero ng agarang tulong ngayon."
   },
   "Returns": {
     "title": "Mga return request",

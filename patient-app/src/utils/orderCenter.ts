@@ -10,7 +10,6 @@
  *   GET /home-care/bookings/my      nursing visits (`state`, `total_price`, `address`)
  *   GET /insurance/claims           claims (`service`, `amount`, `status`)
  *   GET /pharmacy/returns           returns (`reason`, `amount`, `status`)
- *   GET /emergency/my/active        the active SOS (`state`, `location.address`)
  *
  * A status the table below does not know is shown as "status not available", never as the server's raw code.
  */
@@ -19,7 +18,7 @@ import { orderNumber, orderRoute } from './pharmacyCheckout';
 import { governedStep } from './pharmacyOffers';
 import { num } from './pharmacyOffers';
 
-export type OrderKind = 'doctors' | 'pharmacy' | 'labs' | 'radiology' | 'nursing' | 'ambulance' | 'insurance' | 'returns';
+export type OrderKind = 'doctors' | 'pharmacy' | 'labs' | 'radiology' | 'nursing' | 'insurance' | 'returns';
 export type Bucket = 'current' | 'previous';
 export type PillTone = ServiceTone | 'danger' | 'neutral';
 
@@ -190,7 +189,6 @@ export const KIND_ICON: Record<OrderKind, { icon: FillIconName; tone: ServiceTon
   labs: SERVICE_ICONS.lab,
   radiology: SERVICE_ICONS.radiology,
   nursing: SERVICE_ICONS.nursing,
-  ambulance: SERVICE_ICONS.emergency,
   insurance: SERVICE_ICONS.insurance,
   returns: { icon: 'arrows-left-right', tone: SERVICE_ICONS.radiology.tone },
 };
@@ -261,7 +259,6 @@ export interface OrderSources {
   nursing?: unknown;
   claims?: unknown;
   returns?: unknown;
-  emergency?: unknown;
 }
 
 /** The server's own name of a service, in the language asked (`name_<lang>` falls back to the other of ar / en). */
@@ -355,11 +352,6 @@ export function buildRows(src: OrderSources, pick: PickName): OrderRow[] {
         action: 'details',
       }),
     );
-  }
-  const emergency = record(record(src.emergency)?.data) ?? record(src.emergency);
-  if (emergency && idOf(emergency)) {
-    const address = addressText(record(emergency.location)?.address ?? emergency.address);
-    push(row('ambulance', emergency, 'active', { sub: address ? { text: address } : null, route: { pathname: '/emergency/tracking' }, action: 'track' }));
   }
 
   return rows.sort((a, b) => (b.at ?? 0) - (a.at ?? 0));

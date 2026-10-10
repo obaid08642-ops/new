@@ -1,8 +1,8 @@
 {
   "note": "Hard-coded colours that predate the design system. Recorded once with --init. 12.A11 rebuilds the screens on tokens and each rebuilt file drops out. --update only ever LOWERS a count; it cannot raise one.",
   "totals": {
-    "patient-web": 608,
-    "patient-app": 386,
+    "patient-web": 517,
+    "patient-app": 349,
     "provider-app": 239,
     "admin": 185
   },
@@ -10,12 +10,6 @@
     "patient-web/app/[locale]/ai/monthly-report/page.tsx": 2,
     "patient-web/app/[locale]/ai/triage.module.css": 46,
     "patient-web/app/[locale]/consultations/specialties/specialties.module.css": 34,
-    "patient-web/app/[locale]/emergency/emergency.module.css": 34,
-    "patient-web/app/[locale]/emergency/page.tsx": 9,
-    "patient-web/app/[locale]/emergency/sos/page.tsx": 11,
-    "patient-web/app/[locale]/emergency/sos-actions.tsx": 15,
-    "patient-web/app/[locale]/emergency/sos-active/page.tsx": 11,
-    "patient-web/app/[locale]/emergency/tracking/page.tsx": 11,
     "patient-web/app/[locale]/family/calendar/page.tsx": 1,
     "patient-web/app/[locale]/family/page.tsx": 1,
     "patient-web/app/[locale]/insurance/page.tsx": 1,
@@ -34,9 +28,6 @@
     "patient-app/app/(tabs)/consultations/index.tsx": 1,
     "patient-app/app/+not-found.tsx": 5,
     "patient-app/app/doctor/[slug].tsx": 3,
-    "patient-app/app/emergency/sos-active.tsx": 14,
-    "patient-app/app/emergency/sos.tsx": 11,
-    "patient-app/app/emergency/tracking.tsx": 12,
     "patient-app/app/facility/[slug].tsx": 3,
     "patient-app/app/medicine/[slug].tsx": 3,
     "patient-app/app/p/[slug].tsx": 3,
