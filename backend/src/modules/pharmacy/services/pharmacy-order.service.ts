@@ -16,6 +16,7 @@ import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.
 
 function assertPatient(u: any) { if (!u || u.role !== 'patient') throw new ForbiddenException('patient_scope_required'); }
 
+@Injectable()
 export class PharmacyOrderService {
   constructor(
     @Inject('PharmacyOrderRepository') private orders: PharmacyOrderRepository,
@@ -52,9 +53,45 @@ export class PharmacyOrderService {
     const result: { type: 'image' | 'pdf' | 'voice' | 'text'; uri: string }[] = [];
     for (const id of attachments) {
       if (!id) continue;
-      const intake = await this.conn.model<PrescriptionIntake>('PrescriptionIntake').findOne({ _id: id, patient_account_id: patientId });
-      if (!intake) throw new NotFoundException('prescription_not_found');
-      result.push({ type: intake.type as 'image' | 'pdf' | 'voice' | 'text', uri: intake.source_uri });
+      let doc: any;
+      let sourceUri: string;
+      let type: 'image' | 'pdf' | 'voice' | 'text';
+
+      // Try prescriptions collection first (field `id`)
+      const prescriptionDocs = await this.conn.collection('prescriptions').find({ id, patient_id: patientId }).toArray();
+      if (prescriptionDocs.length > 0) {
+        const prescription = prescriptionDocs[0];
+        if (prescription.upload_image) {
+          type = 'image';
+          sourceUri = prescription.upload_image;
+        }
+      }
+
+      // If not found in prescriptions, try storage_objects collection (field `id`)
+      if (!sourceUri) {
+        const storageDocs = await this.conn.collection('storage_objects').find({ id, owner_account_id: patientId, deleted: { $ne: true } }).toArray();
+        if (storageDocs.length > 0) {
+          const storageObj = storageDocs[0];
+          if (storageObj.external_key) {
+            sourceUri = `https://${process.env.S3_BUCKET || 'storage'}.${process.env.S3_ENDPOINT || ''}/${storageObj.external_key}`;
+            type = 'image';
+          } else if (storageObj.data_base64) {
+            if (storageObj.data_base64?.substring(0, 20).toLowerCase().startsWith('data:image')) {
+              type = 'image';
+            } else if (storageObj.data_base64?.substring(0, 20).toLowerCase().startsWith('data:application/pdf')) {
+              type = 'pdf';
+            } else if (storageObj.data_base64?.substring(0, 20).toLowerCase().startsWith('data:audio')) {
+              type = 'voice';
+            } else {
+              type = 'text';
+            }
+            sourceUri = `data:${storageObj.mime_type || 'application/octet-stream'};base64,${storageObj.data_base64}`;
+          }
+        }
+      }
+
+      if (!sourceUri) throw new NotFoundException('prescription_not_found');
+      result.push({ type, uri: sourceUri });
     }
     return result;
   }

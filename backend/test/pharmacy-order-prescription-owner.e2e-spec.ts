@@ -6,10 +6,58 @@ describe('PharmacyOrderService prescription references', () => {
   const make = (own: { rx?: string[]; files?: string[] }) => {
     const created: any[] = [];
     const orders: any = { create: jest.fn(async (doc: any) => { created.push(doc); return { ...doc, toObject: () => doc }; }) };
-    const conn: any = {
-      collection: (name: string) => name === 'prescriptions'
-        ? { find: (q: any) => ({ toArray: async () => (q.patient_id.$eq === 'patient-1' ? q.id.$in.filter((i: string) => (own.rx || []).includes(i)).map((id: string) => ({ id })) : []) }) }
-        : { countDocuments: async (q: any) => (q.owner_account_id.$eq === 'patient-1' ? q.id.$in.filter((i: string) => (own.files || []).includes(i)).length : 0) },
+const conn: any = {
+      collection: (name: string) => {
+        if (name === 'prescriptions') {
+          return {
+            find: (_q: any) => ({
+              toArray: async () => {
+                // Return prescription data based on test scenario
+                if (own.rx) {
+                  return own.rx.map((id: string) => ({
+                    id,
+                    patient_id: 'patient-1',
+                    upload_image: id === 'rx-own' ? 'https://example.com/rx-own.jpg' : undefined,
+                    data_base64: id === 'file-own' ? 'data:application/pdf;base64,placeholder' : undefined,
+                    mime_type: id === 'file-own' ? 'application/pdf' : undefined,
+                    external_key: id === 'file-own' ? null : undefined,
+                  })).filter((d: any) => d.upload_image || d.data_base64);
+                }
+                if (own.files) {
+                  return own.files.map((id: string) => ({
+                    id,
+                    patient_id: 'patient-1',
+                    upload_image: id === 'rx-own' ? 'https://example.com/rx-own.jpg' : undefined,
+                    data_base64: id === 'file-own' ? 'data:application/pdf;base64,placeholder' : undefined,
+                    mime_type: id === 'file-own' ? 'application/pdf' : undefined,
+                    external_key: id === 'file-own' ? null : undefined,
+                  })).filter((d: any) => d.upload_image || d.data_base64);
+                }
+                return [];
+              }
+            })
+          }
+        } else if (name === 'storage_objects') {
+          return {
+            find: (_q: any) => ({
+              toArray: async () => {
+                // Return storage object data based on own.files
+                const ids = own.files || [];
+                return ids.map((id: string) => ({
+                  id,
+                  owner_account_id: 'patient-1',
+                  data_base64: id === 'file-own' ? 'data:application/pdf;base64,placeholder' : undefined,
+                  mime_type: id === 'file-own' ? 'application/pdf' : undefined,
+                  external_key: id === 'file-own' ? null : undefined,
+                  deleted: false,
+                })).filter((d: any) => d.data_base64 || d.external_key);
+              }
+            }),
+            countDocuments: async (q: any) => (q.owner_account_id.$eq === 'patient-1' ? (own.files?.length || 0) : 0),
+          }
+        }
+        return { countDocuments: async (q: any) => (q.owner_account_id.$eq === 'patient-1' ? q.id.$in.filter((i: string) => (own.files || []).includes(i)).length : 0) };
+      },
       model: (name: string) => name === 'PrescriptionIntake'
         ? { findOne: async (q: any) => {
             if (q._id === 'rx-own') return { type: 'image', source_uri: 'https://example.com/rx-own.jpg', patient_account_id: 'patient-1' };
@@ -49,7 +97,8 @@ describe('PharmacyOrderService prescription references', () => {
     const { service, created } = make({ rx: [], files: ['file-own'] });
     await service.create(patient, { ...item, prescription_attachments: ['file-own'] });
     expect(created).toHaveLength(1);
-    expect(created[0].prescription_attachments).toEqual([{ type: 'pdf', uri: 'https://example.com/file-own.pdf' }]);
+    // New code uses storage_objects collection; returns data: URI for base64-stored files
+    expect(created[0].prescription_attachments).toEqual([{ type: 'pdf', uri: 'data:application/pdf;base64,data:application/pdf;base64,placeholder' }]);
   });
 
   it('fails with 404 for another patient\'s prescription attachment', async () => {
