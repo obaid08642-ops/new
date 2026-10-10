@@ -368,7 +368,20 @@ export class AppointmentsService {
     }
 
     
-    // No queue or wait-time source exists: nothing is invented here (the waiting room shows the wait only when sent).
+    // D-391: calculate wait_time for video consultations in waiting room
+    // wait_time is minutes elapsed since appointment start time when appointment is CONFIRMED and past start time
+    if (obj.service_type === 'video' && obj.status === 'CONFIRMED') {
+      const now = new Date();
+      const slotStart = new Date(obj.slot_start);
+      if (now > slotStart) {
+        const diffMs = now.getTime() - slotStart.getTime();
+        obj.wait_time = Math.max(0, Math.floor(diffMs / 60000)); // minutes
+      } else {
+        obj.wait_time = 0;
+      }
+    } else {
+      obj.wait_time = undefined;
+    }
 
     return obj;
   }
