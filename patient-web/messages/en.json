@@ -1116,7 +1116,7 @@
     "nearestOnline": "\"Nearest\" applies to clinic and home visits only, not online consultations.",
     "locating": "Finding your location…",
     "nearestNoPlace": "Sorting by distance is not possible. Allow location access or save an address with a city.",
-    "nearestCity": "Sorted by distance from {city}",
+    "nearestCity": "Doctors in {city}",
     "visitType": "Consultation type"
   },
   "LabsServices": {

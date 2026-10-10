@@ -1151,7 +1151,7 @@
   "consult.hub.nearestOnline": "\"Nearest\" applies to clinic and home visits only, not online consultations.",
   "consult.hub.locating": "Finding your location…",
   "consult.hub.nearestNoPlace": "Sorting by distance is not possible. Allow location access or save an address with a city.",
-  "consult.hub.nearestCity": "Sorted by distance from {city}",
+  "consult.hub.nearestCity": "Doctors in {city}",
   "consult.spec.title": "Medical specialties",
   "consult.spec.searchLabel": "Search specialties",
   "consult.spec.search": "Search for a specialty",

@@ -116,7 +116,7 @@
     "element": "Nearest by city wording",
     "file": "patient-web/components-next/consult/doctor-quick-filters.tsx",
     "line": 63,
-    "found": "[owner] Doctors.nearestCity (same text as the app) says 'Sorted by distance from {city}' but a city fallback only filters to that city; owner to approve a more exact wording in six languages.",
+    "found": "[owner] Approved 2026-10-10: Doctors in {city}",
     "suspect": "Owner decision."
   }
 ]

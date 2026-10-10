@@ -166,7 +166,7 @@
     "element": "Nearest label with a city",
     "file": "patient-app/app/(tabs)/consultations/index.tsx",
     "line": 366,
-    "found": "[owner] consult.hub.nearestCity says 'Sorted by distance from {city}' but a city fallback only filters to that city (the server has no distance sort without coordinates); owner to approve a more exact wording in six languages.",
+    "found": "[owner] Approved 2026-10-10: Doctors in {city}",
     "suspect": "Owner decision."
   }
 ]

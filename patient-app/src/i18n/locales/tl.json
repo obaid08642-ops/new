@@ -1115,7 +1115,7 @@
   "consult.hub.nearestOnline": "Ang «Pinakamalapit» ay para lang sa klinika at home visit, hindi sa online na konsultasyon.",
   "consult.hub.locating": "Hinahanap ang iyong lokasyon…",
   "consult.hub.nearestNoPlace": "Hindi posibleng ayusin ayon sa distansya. Payagan ang access sa lokasyon o mag-save ng address na may lungsod.",
-  "consult.hub.nearestCity": "Inayos ayon sa distansya mula sa {city}",
+  "consult.hub.nearestCity": "Mga doktor sa {city}",
   "consult.spec.title": "Mga espesyalidad sa medisina",
   "consult.spec.searchLabel": "Maghanap ng espesyalidad",
   "consult.spec.search": "Maghanap ng espesyalidad",

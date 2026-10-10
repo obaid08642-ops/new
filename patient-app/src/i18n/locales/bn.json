@@ -1115,7 +1115,7 @@
   "consult.hub.nearestOnline": "«সবচেয়ে কাছের» শুধু ক্লিনিক ও বাড়িতে ভিজিটের জন্য, অনলাইন পরামর্শের জন্য নয়।",
   "consult.hub.locating": "আপনার অবস্থান খোঁজা হচ্ছে…",
   "consult.hub.nearestNoPlace": "দূরত্ব অনুযায়ী সাজানো সম্ভব নয়। অবস্থানের অনুমতি দিন অথবা শহরসহ একটি ঠিকানা সংরক্ষণ করুন।",
-  "consult.hub.nearestCity": "{city} থেকে দূরত্ব অনুযায়ী সাজানো",
+  "consult.hub.nearestCity": "{city}-এ ডাক্তার",
   "consult.spec.title": "চিকিৎসা বিশেষত্ব",
   "consult.spec.searchLabel": "বিশেষত্ব খুঁজুন",
   "consult.spec.search": "বিশেষত্ব খুঁজুন",

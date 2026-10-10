@@ -1116,7 +1116,7 @@
     "nearestOnline": "Ang «Pinakamalapit» ay para lang sa klinika at home visit, hindi sa online na konsultasyon.",
     "locating": "Hinahanap ang iyong lokasyon…",
     "nearestNoPlace": "Hindi posibleng ayusin ayon sa distansya. Payagan ang access sa lokasyon o mag-save ng address na may lungsod.",
-    "nearestCity": "Inayos ayon sa distansya mula sa {city}",
+    "nearestCity": "Mga doktor sa {city}",
     "visitType": "Uri ng konsultasyon"
   },
   "LabsServices": {
