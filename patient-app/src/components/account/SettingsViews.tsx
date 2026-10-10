@@ -15,6 +15,7 @@ import { getCalendarPref, onCalendarPrefChange, setCalendarPref, type CalendarPr
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { AccountScreen, ToggleRow, useFlags } from './AccountKit';
+import { NotificationAsk } from '../NotificationAsk';
 
 /**
  * Settings (merge map section 3): the hub, notifications, language with appearance, and security with the active sessions.
@@ -76,6 +77,7 @@ export function NotificationSettingsView() {
     <AccountScreen title={k('set.notifications')} testID="notification-settings-screen">
       <Gate status={status} onRetry={() => void reload()}>
         {failed ? <Notice tone="danger" text={k('set.saveFailed')} /> : null}
+        <NotificationAsk bodyKey="notifAsk.settings" />
         <Section title={k('set.notif.kinds')}>
           <Panel testID="notification-kinds">
             {NOTIFICATION_KEYS.map((key, i) => (

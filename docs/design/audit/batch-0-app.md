@@ -45,48 +45,39 @@ Shared pieces used by several screens (audited once here, referenced below):
 
 Conditional: the splash never reads `ONBOARDING_DONE` (set in 3 places, read nowhere) and never routes to `/(onboarding)`; no file in `app/` or `src/` outside the onboarding folder pushes to it (grep). See NR-1, NR-2.
 
-## 2. Onboarding intro `app/(onboarding)/index.tsx` (`/(onboarding)`)
+## 2. Onboarding intro `app/(onboarding)/intro.tsx` (`/(onboarding)/intro`)
 
-Reachability: no caller (NR-2).
+Reachability (owner decision 6, 2026-10-10, #408): second step of the first launch. The splash (`app/index.tsx`, `launchRoute`) sends a device with no session, no Welcome shown and no `INTRO_DONE` flag to `/(onboarding)/language`; Language continues here; finishing or skipping sets `INTRO_DONE` (`@nabdah_intro_done_v1`, `src/utils/onboardingGate.ts`) and opens Welcome. The file was `index.tsx` and resolved to `/` like the splash; it is now `intro.tsx`. No permission is asked on this screen.
 
 | Element | Kind | Source | Goes to | file:line |
 |---|---|---|---|---|
-| Noon Dot, 30 | image | static asset component | none | `index.tsx:104` |
-| "تخطي" | button | static copy | `finish()`: AsyncStorage `ONBOARDING_DONE='true'`, then `router.replace('/(onboarding)/language')` | `index.tsx:105-107,79-86` |
-| Slides list (5) | list | static copy: `SLIDES` array (no API) | none; paging by swipe updates `index` through `onViewableItemsChanged` | `index.tsx:38-44,111-135` |
-| Slide icon + tone (x5) | icon | static: `SERVICE_ICONS.consult/pharmacy/lab/nursing`, `sparkle`/`violet` | none | `index.tsx:39-43,125` |
-| Slide title (x5) | text | static copy | none | `index.tsx:128-130` |
-| Slide body (x5) | text | static copy | none | `index.tsx:131` |
-| Dots (5) | button | derived (`index`, `SLIDES.length`); a11y label `i / 5` | `goTo(i)` (scroll to slide) | `index.tsx:139-145` |
-| Primary button "التالي" / "ابدأ رحلتك الصحية" | button | derived (`last = index === 4`) | `goTo(index+1)` or `finish()` | `index.tsx:88,93` |
-| Reduce-motion flag | device | `AccessibilityInfo.isReduceMotionEnabled` | none | `index.tsx:59-63` |
+| Noon Dot, 30 | image | static asset component | none | `intro.tsx:104` |
+| "تخطي" | button | static copy | `finish()`: `markIntroDone()` (AsyncStorage `INTRO_DONE='true'`, kept in memory if the write fails), then `router.replace('/(auth)/welcome')` | `intro.tsx:67-71,89` |
+| Slides list (5) | list | static copy: `SLIDES` array (no API) | none; paging by swipe updates `index` through `onViewableItemsChanged` | `intro.tsx:38-44,111-135` |
+| Slide icon + tone (x5) | icon | static: `SERVICE_ICONS.consult/pharmacy/lab/nursing`, `sparkle`/`violet` | none | `intro.tsx:39-43,125` |
+| Slide title (x5) | text | static copy | none | `intro.tsx:128-130` |
+| Slide body (x5) | text | static copy | none | `intro.tsx:131` |
+| Dots (5) | button | derived (`index`, `SLIDES.length`); a11y label `i / 5` | `goTo(i)` (scroll to slide) | `intro.tsx:139-145` |
+| Primary button "التالي" / "ابدأ رحلتك الصحية" | button | derived (`last = index === 4`) | `goTo(index+1)` or `finish()` | `intro.tsx:88,93` |
+| Reduce-motion flag | device | `AccessibilityInfo.isReduceMotionEnabled` | none | `intro.tsx:59-63` |
 
 ## 3. Onboarding language `app/(onboarding)/language.tsx`
 
-| Element | Kind | Source | Goes to | file:line |
-|---|---|---|---|---|
-| Back, logo | button, image | shared (see top) | `router.back()` or `replace('/(onboarding)')` | `language.tsx:22-25,42` |
-| Title "اختر لغتك", subtitle | text | static copy | none | `language.tsx:43` |
-| Language list (6 rows) | list | static: `LANGUAGES` (`src/context/AppContext.tsx:22-35`) | none | `language.tsx:47-60` |
-| Row label (native name) | text | static (`l.native`) | none | `language.tsx:50` |
-| Row meta (English name) | text | static (`l.label`) | none | `language.tsx:51` |
-| Row selected state | icon | derived (`picked ?? lang`; `lang` = AsyncStorage `@nabdah_language`, else device language via `react-native-localize`, else `ar`: `AppContext.tsx:43-49,72,102-106`) | tap sets local `picked` only | `language.tsx:19-20,52-53` |
-| Continue "متابعة" | button | static copy | `setLang(selected)` (AsyncStorage `@nabdah_language` + `LanguageManager`), then `router.replace('/(onboarding)/permissions')` | `language.tsx:26-29,34` |
-
-## 4. Onboarding permissions `app/(onboarding)/permissions.tsx`
+Reachability: first screen of the first launch (splash `launchRoute` -> `/(onboarding)/language`). No back button (nothing to go back to).
 
 | Element | Kind | Source | Goes to | file:line |
 |---|---|---|---|---|
-| Back, logo | button, image | shared | `router.back()` or `replace('/(onboarding)/language')` | `permissions.tsx:70-73,89` |
-| Title, subtitle | text | static copy | none | `permissions.tsx:90` |
-| Permission cards (3: notifications, camera, location) | list | static: `PERMS` array | none | `permissions.tsx:24-28,92-112` |
-| Card icon/tone | icon | static (`BELL` from `notificationsFeed.ts:36`, `camera`/violet, `SERVICE_ICONS.map`) | none | `permissions.tsx:25-27,97` |
-| Card title, description | text | static copy | none | `permissions.tsx:99-100` |
-| Card state "تم السماح" chip | text | device: `permissions.check(key)` (`expo-notifications`/`expo-camera`/`expo-location` getters, `src/services/PermissionsManager.ts:86-119`); shown when `granted` | none | `permissions.tsx:37-50,102-103` |
-| Card button "فتح الإعدادات" | button | device (status `denied`/`restricted`) | `Linking.openSettings()` | `permissions.tsx:104-105` |
-| Card button "السماح" (default, also shown while status is `undetermined` or not yet read) | button | device; busy state `asking` | `permissions.request(key)` = the OS dialog (`PermissionsManager.ts:38-83`); the answer replaces the row state. No backend call, no push-token registration | `permissions.tsx:52-57,106-107` |
-| Continue "متابعة" | button | static copy; `leaving` spinner | `finish()`: AsyncStorage `ONBOARDING_DONE`, `router.replace('/(auth)/welcome')` | `permissions.tsx:59-68,78` |
-| Skip "تخطي الآن" | button | static copy | same `finish()` | `permissions.tsx:79-81` |
+| Logo (no back button) | image | shared (see top) | none | `language.tsx:33` |
+| Title "اختر لغتك", subtitle | text | static copy | none | `language.tsx:34` |
+| Language list (6 rows) | list | static: `LANGUAGES` (`src/context/AppContext.tsx:22-35`) | none | `language.tsx:38-50` |
+| Row label (native name) | text | static (`l.native`) | none | `language.tsx:40` |
+| Row meta (English name) | text | static (`l.label`) | none | `language.tsx:41` |
+| Row selected state | icon | derived (`lang` from the app context = AsyncStorage `@nabdah_language`, else device language, else `ar`: `AppContext.tsx:43-49,72,102-106`) | tap calls `setLang(code)` at once (saved, `LanguageManager` synced, RTL for ar/ur set by the context) | `language.tsx:19,43-44` |
+| Continue "متابعة" | button | static copy | `router.replace('/(onboarding)/intro')` (the language is already applied) | `language.tsx:20,25` |
+
+## 4. Onboarding permissions: removed (owner decision 6, 2026-10-10)
+
+`app/(onboarding)/permissions.tsx` is deleted. Nothing in `app/(onboarding)` asks for a permission (a test scans the folder). Each feature asks at the moment of use: camera (prescription photo, barcode, insurance card, family QR), photo library (attachments, profile photo, returns), location (nearby doctors, map, SOS, address picker) already did; notifications now ask from `NotificationAsk` on the pharmacy offers screen (`app/pharmacy/broadcast-status.tsx`) and on the notification settings (`SettingsViews.tsx`), and the app start (`NotificationHandler`) only registers the push token when notifications are already allowed.
 
 ## 5. Welcome `app/(auth)/welcome.tsx`
 
