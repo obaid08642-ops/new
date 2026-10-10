@@ -91,7 +91,7 @@ export default function ArticleReviewPage() {
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h2 className="text-2xl font-bold">{open.title}</h2>
-                <p className="mt-1 text-sm text-slate-500">الطبيب: <span dir="ltr">{open.doctorId || '—'}</span> · {open.createdAt.slice(0, 10)}</p>
+                <p className="mt-1 text-sm text-slate-500">الطبيب: {open.doctorName || <span dir="ltr">{open.doctorId || '—'}</span>} · {open.createdAt.slice(0, 10)}</p>
               </div>
               <button type="button" onClick={() => setOpen(null)} className="min-h-11 rounded-lg border px-4 text-sm font-bold text-slate-700">عودة إلى القائمة</button>
             </div>
@@ -109,7 +109,7 @@ export default function ArticleReviewPage() {
             emptyText="لا توجد مقالات بانتظار المراجعة."
             columns={[
               { key: 'title', header: 'العنوان', render: (row) => <strong>{row.title || '—'}</strong> },
-              { key: 'doctor', header: 'الطبيب', className: 'font-mono text-xs', render: (row) => <span dir="ltr">{row.doctorId || '—'}</span> },
+              { key: 'doctor', header: 'الطبيب', render: (row) => row.doctorName || <span dir="ltr" className="font-mono text-xs">{row.doctorId || '—'}</span> },
               { key: 'date', header: 'التاريخ', render: (row) => row.createdAt.slice(0, 10) },
               {
                 key: 'open',

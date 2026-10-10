@@ -983,7 +983,7 @@
      "path": "/admin/articles",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/articles/articles.module.ts:128",
+     "backend": "backend/src/modules/articles/articles.module.ts:154",
      "backendPath": "/admin/articles",
      "file": "admin/src/pages/admin/article-review.tsx",
      "line": 30,
@@ -998,17 +998,16 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/articles/articles.module.ts",
-     "routeLine": 128,
+     "routeLine": 154,
      "raw": false
     },
     {
      "method": "GET",
      "path": "/admin/articles/:param",
      "target": "backend",
-     "status": "WRONG_METHOD",
-     "backend": "backend/src/modules/articles/articles.module.ts:130",
+     "status": "OK",
+     "backend": "backend/src/modules/articles/articles.module.ts:155",
      "backendPath": "/admin/articles/:param",
-     "note": "backend has PATCH, DELETE",
      "file": "admin/src/pages/admin/article-review.tsx",
      "line": 44,
      "fn": "adminFetch",
@@ -1022,7 +1021,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/articles/articles.module.ts",
-     "routeLine": 130,
+     "routeLine": 155,
      "raw": false
     },
     {
@@ -1030,7 +1029,7 @@
      "path": "/admin/articles/:param/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/articles/articles.module.ts:131",
+     "backend": "backend/src/modules/articles/articles.module.ts:158",
      "backendPath": "/admin/articles/:param/:param",
      "file": "admin/src/pages/admin/article-review.tsx",
      "line": 66,
@@ -1045,7 +1044,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/articles/articles.module.ts",
-     "routeLine": 131,
+     "routeLine": 158,
      "raw": false
     },
     {
@@ -1053,7 +1052,7 @@
      "path": "/admin/articles/:param/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/articles/articles.module.ts:131",
+     "backend": "backend/src/modules/articles/articles.module.ts:158",
      "backendPath": "/admin/articles/:param/:param",
      "file": "admin/src/pages/admin/article-review.tsx",
      "line": 67,
@@ -1068,7 +1067,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/articles/articles.module.ts",
-     "routeLine": 131,
+     "routeLine": 158,
      "raw": false
     }
    ],

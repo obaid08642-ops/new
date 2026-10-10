@@ -4,6 +4,8 @@ export interface ReviewArticle {
   id: string;
   title: string;
   doctorId: string;
+  /** Public profile name from author.doctor_name; empty when the server has none. */
+  doctorName: string;
   createdAt: string;
   body: string;
 }
@@ -20,6 +22,7 @@ export function reviewArticle(raw: unknown): ReviewArticle | null {
     id: r.id,
     title: text(r.title_ar) || text(r.title_en),
     doctorId: text(author.doctor_id),
+    doctorName: text(author.doctor_name),
     createdAt: text(r.createdAt),
     body: text(r.body_ar) || text(r.body_en),
   };

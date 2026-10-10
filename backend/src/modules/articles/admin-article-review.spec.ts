@@ -5,7 +5,8 @@ import { ArticlesService } from './articles.module';
 function svcWith(found: any) {
   const lean = jest.fn().mockResolvedValue(found);
   const chain = { sort: jest.fn().mockReturnThis(), limit: jest.fn().mockReturnThis(), lean };
-  const model = { find: jest.fn().mockReturnValue(chain), findOne: jest.fn().mockReturnValue({ lean }) };
+  const profiles = { find: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue([{ id: 'doc-prof-1', name_ar: 'د. واحد' }]) }) };
+  const model = { find: jest.fn().mockReturnValue(chain), findOne: jest.fn().mockReturnValue({ lean }), db: { collection: jest.fn(() => profiles) } };
   const svc: any = Object.create(ArticlesService.prototype);
   svc.model = model;
   return { svc, model };
@@ -24,6 +25,8 @@ describe('admin article review', () => {
     const { svc, model } = svcWith({ id: 'a1', body_ar: 'نص' });
     await expect(svc.adminOne('a1')).resolves.toMatchObject({ body_ar: 'نص' });
     expect(model.findOne.mock.calls[0][1]).toEqual({ _id: 0, __v: 0 });
+    const withAuthor = svcWith({ id: 'a2', author: { doctor_id: 'doc-prof-1' } }).svc;
+    await expect(withAuthor.adminOne('a2')).resolves.toMatchObject({ author: { doctor_id: 'doc-prof-1', doctor_name: 'د. واحد' } });
     const missing = svcWith(null).svc;
     await expect(missing.adminOne('nope')).rejects.toBeInstanceOf(NotFoundException);
   });

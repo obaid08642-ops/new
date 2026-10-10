@@ -1,5 +1,5 @@
 {
- "commit": "77e80704",
+ "commit": "1e6da4f1",
  "routes": [
   {
    "app": "patient-app",
@@ -336,7 +336,7 @@
      "line": 107,
      "file": "patient-app/src/components/articles/ArticlesViews.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/articles/articles.module.ts:116"
+     "backend": "backend/src/modules/articles/articles.module.ts:142"
     },
     {
      "method": "GET",
@@ -346,7 +346,7 @@
      "line": 134,
      "file": "patient-app/src/components/articles/ArticlesViews.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/articles/articles.module.ts:183"
+     "backend": "backend/src/modules/articles/articles.module.ts:210"
     },
     {
      "method": "GET",
@@ -356,7 +356,7 @@
      "line": 100,
      "file": "patient-app/src/components/articles/ArticlesViews.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/articles/articles.module.ts:117"
+     "backend": "backend/src/modules/articles/articles.module.ts:143"
     }
    ],
    "files": 35,
@@ -380,7 +380,7 @@
      "line": 167,
      "file": "patient-app/src/components/articles/ArticlesViews.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/articles/articles.module.ts:116"
+     "backend": "backend/src/modules/articles/articles.module.ts:142"
     },
     {
      "method": "GET",
@@ -390,7 +390,7 @@
      "line": 166,
      "file": "patient-app/src/components/articles/ArticlesViews.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/articles/articles.module.ts:118"
+     "backend": "backend/src/modules/articles/articles.module.ts:144"
     },
     {
      "method": "GET",
@@ -400,7 +400,7 @@
      "line": 169,
      "file": "patient-app/src/components/articles/ArticlesViews.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/articles/articles.module.ts:193"
+     "backend": "backend/src/modules/articles/articles.module.ts:220"
     },
     {
      "method": "POST",
@@ -410,7 +410,7 @@
      "line": 182,
      "file": "patient-app/src/components/articles/ArticlesViews.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/articles/articles.module.ts:202"
+     "backend": "backend/src/modules/articles/articles.module.ts:229"
     }
    ],
    "files": 34,
@@ -7439,7 +7439,7 @@
      "line": 9,
      "file": "patient-web/lib/api/articles-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/articles/articles.module.ts:116"
+     "backend": "backend/src/modules/articles/articles.module.ts:142"
     },
     {
      "method": "GET",
@@ -7449,7 +7449,7 @@
      "line": 18,
      "file": "patient-web/lib/api/articles-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/articles/articles.module.ts:183"
+     "backend": "backend/src/modules/articles/articles.module.ts:210"
     },
     {
      "method": "GET",
@@ -7459,7 +7459,7 @@
      "line": 12,
      "file": "patient-web/lib/api/articles-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/articles/articles.module.ts:117"
+     "backend": "backend/src/modules/articles/articles.module.ts:143"
     }
    ],
    "files": 43,
@@ -7492,7 +7492,7 @@
      "query": "",
      "line": 28,
      "file": "patient-web/components-next/articles/save-article-button.tsx",
-     "backend": "backend/src/modules/articles/articles.module.ts:193",
+     "backend": "backend/src/modules/articles/articles.module.ts:220",
      "status": "OK"
     },
     {
@@ -7502,7 +7502,7 @@
      "query": "",
      "line": 45,
      "file": "patient-web/components-next/articles/save-article-button.tsx",
-     "backend": "backend/src/modules/articles/articles.module.ts:202",
+     "backend": "backend/src/modules/articles/articles.module.ts:229",
      "status": "OK"
     },
     {
@@ -7513,7 +7513,7 @@
      "line": 16,
      "file": "patient-web/lib/api/articles-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/articles/articles.module.ts:118"
+     "backend": "backend/src/modules/articles/articles.module.ts:144"
     }
    ],
    "files": 43,

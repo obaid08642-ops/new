@@ -7,6 +7,7 @@ describe('article review helpers', () => {
     expect(reviewList([{ id: 'a', title_ar: 'عنوان', author: { doctor_id: 'd1' }, createdAt: '2026-10-10T10:00:00Z' }, { nope: 1 }])).toHaveLength(1);
     expect(reviewArticle({ id: 'a', title_ar: 'ع', body_ar: 'نص' })?.body).toBe('نص');
     expect(reviewList(null)).toEqual([]);
+    expect(reviewArticle({ id: 'a', author: { doctor_id: 'd1', doctor_name: 'د. واحد' } })).toMatchObject({ doctorId: 'd1', doctorName: 'د. واحد' });
   });
   it('shows a clear message for prescription_brand_not_allowed', () => {
     const err = new AdminApiError(400, { message: 'prescription_brand_not_allowed' });
