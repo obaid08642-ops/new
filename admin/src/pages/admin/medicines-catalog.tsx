@@ -5,6 +5,7 @@ import { dateLocale } from '../../utils/dates';
 import { DataTable, type LooseRow, type LooseValue } from '@/components/DataTable';
 import { BarcodeScanner, canScanWithCamera } from '@/components/BarcodeScanner';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useCan } from '@/components/AdminGuard';
 import { MedicineQuickEdit, SensitiveChangeList, isPublished, sensitiveChanges, type SensitiveChange } from '@/components/MedicineQuickEdit';
 
 /**
@@ -83,6 +84,8 @@ export default function MedicinesCatalogPage() {
   const [quickItem, setQuickItem] = useState<LooseRow | null>(null);
   const [scanOpen, setScanOpen] = useState(false);
   const [scanNote, setScanNote] = useState('');
+  const canImport = useCan('catalog.import');
+  const [importNote, setImportNote] = useState('');
   const [formConfirm, setFormConfirm] = useState<{ changes: SensitiveChange[]; published: boolean; run: () => Promise<void> } | null>(null);
 
   // change requests
@@ -226,6 +229,24 @@ export default function MedicinesCatalogPage() {
   };
 
   // P6.0: direct medical-review decision on the catalog item.
+  // CSV import into the medical-review queue (moved here from the old catalog-governance page, owner decision #949).
+  const importCsv = async (file?: File) => {
+    if (!file) return;
+    setBusy('import'); setError(''); setImportNote('');
+    try {
+      const csv = await file.text();
+      if (csv.split(/\r?\n/).filter((line) => line.trim()).length < 2) throw new Error('ملف CSV فارغ أو بلا صفوف بيانات.');
+      const r = await apiFetch<{ imported?: number; failed?: number; needs_review?: number }>('/medicines/admin/import-csv', {
+        method: 'POST', body: JSON.stringify({ csv, auto_approve: false }),
+      });
+      const imported = Number(r.imported ?? 0);
+      setImportNote(`تم إدخال ${imported} صفاً؛ ${Number(r.needs_review ?? imported)} قيد المراجعة الطبية، وفشل ${Number(r.failed ?? 0)}.`);
+      await loadCatalog();
+    } catch (e: unknown) {
+      setError(e instanceof Error && e.message ? e.message : 'تعذر استيراد CSV.');
+    } finally { setBusy(null); }
+  };
+
   const decideItem = async (m: any, approve: boolean) => {
     if (!confirm(`${approve ? 'اعتماد' : 'رفض'} «${m.name_ar || m.name_en}»؟${approve ? ' سيظهر في الكتالوج العام.' : ''}`)) return;
     setBusy(m.id);
@@ -316,9 +337,17 @@ export default function MedicinesCatalogPage() {
               <label className="flex items-center gap-2 text-sm text-slate-600">
                 <input type="checkbox" checked={includeDeleted} onChange={e => setIncludeDeleted(e.target.checked)} /> إظهار المحذوفة
               </label>
+              {canImport && (
+                <label className="border border-slate-300 bg-white rounded-lg px-4 py-2 text-sm font-bold text-slate-700 cursor-pointer">
+                  استيراد CSV إلى طابور المراجعة
+                  <input type="file" accept=".csv,text/csv" className="hidden" disabled={busy === 'import'}
+                    onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; void importCsv(f); }} />
+                </label>
+              )}
               <button onClick={openCreate} className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-5 py-2 rounded-lg ms-auto">+ إضافة صنف جديد</button>
             </div>
 
+            {importNote && <p role="status" className="text-sm text-emerald-700">{importNote}</p>}
             {scanNote && <p role="status" className="text-sm text-amber-700">{scanNote}</p>}
 
             {formMode !== 'closed' && (

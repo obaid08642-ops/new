@@ -73,7 +73,7 @@ const PAGES = (arg('pages', '') ? arg('pages', '').split(',') : [
   'finance-suite', 'disputes', 'dashboard', 'legal-policies', 'orders', 'crm', 'provider-moderation',
   // migrated to DataTable in this step
   'search-intelligence', 'analytics', 'shortage-reports', 'gdpr', 'reports', 'financial-ledger', 'insurance-queue', 'pharmacy-procurement',
-  'system-ops', 'medicines-catalog', 'scheduled-reports', 'order-detail', 'catalog-governance', 'config-portal', 'fraud-monitoring',
+  'system-ops', 'medicines-catalog', 'scheduled-reports', 'order-detail', 'config-portal', 'fraud-monitoring',
   'commissions', 'notification-center', 'analytics-suite', 'ai-control', 'health-dashboard',
   // new mobile essentials
   'today', 'approvals',
