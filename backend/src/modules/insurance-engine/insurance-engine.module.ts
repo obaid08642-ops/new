@@ -21,7 +21,7 @@ import { StepUp } from '../../common/step-up.guard';
 import { JwtAuthGuard, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
 import { InsuranceCompanySchema, InsuranceCompanyDocument } from '../../schemas/insurance.schema';
 import { PatientProfileSchema } from '../../schemas/patient-profile.schema';
-import { FraudService } from '../finance-engine/finance-engine.module';
+import { FraudService, RefundExecutor } from '../finance-engine/finance-engine.module';
 import { TransactionSchema } from '../../schemas/transaction.schema';
 import { OrderSchema } from '../../schemas/order.schema';
 import { LabBookingSchema } from '../../schemas/lab.schema';
@@ -785,6 +785,7 @@ export class RefundService {
     private events: EventEmitter2,
     private readonly fraud: FraudService,
     @Optional() @InjectConnection() private readonly conn?: Connection,
+    @Optional() private readonly refundExec?: RefundExecutor,
   ) {}
 
   policyFor(scheduledAt?: Date) {
@@ -857,6 +858,31 @@ export class RefundService {
     r.state = approve ? 'APPROVED' : 'REJECTED';
     r.history.push({ state: r.state, at: new Date(), by: user.id, note });
     await r.save();
+
+    // Execute the refund (move money) when approved
+    if (approve && this.refundExec) {
+      try {
+        const execResult = await this.refundExec.execute({
+          refund_id: r.id,
+          booking_kind: r.booking_kind,
+          booking_id: r.booking_id,
+          patient_id: r.patient_id,
+          amount: r.refund_amount,
+          reason: `admin_refund_approved: ${note || 'no_reason'}`.slice(0, 180),
+          actor_id: user.id,
+        });
+        r.gateway_refund_id = execResult.gateway_refund_id;
+        r.executed_at = new Date();
+        r.payment_status = 'refunded';
+        await r.save();
+      } catch (err: any) {
+        // Log but don't fail the approval - the refund can be retried
+        r.state = 'APPROVED'; // keep approved
+        r.history.push({ state: 'EXECUTION_FAILED', at: new Date(), by: user.id, note: err?.message || 'execution_failed' });
+        await r.save();
+      }
+    }
+
     return r.toObject();
   }
 }
