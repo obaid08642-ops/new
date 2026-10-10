@@ -425,6 +425,63 @@ export class AuthService {
    * Contract V1 patient registration. This deliberately does not issue a
    * session token: the new account must complete the opaque OTP bridge first.
    */
+
+  /** Raw legal collections when the service is wired to a real connection (skipped in unit doubles). */
+  private get legalDb(): any | null {
+    try {
+      return (this.userModel as any)?.model?.db ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * D-38: sign-up needs the current patient texts. When the deployment configures
+   * legal_policies, patient_terms and privacy_policy must each be consented at their
+   * current version, and no consent may name an unknown policy. Otherwise 400 — and
+   * the caller creates no account. Deployments without configured policies keep the
+   * legacy behaviour.
+   */
+  private async enforceSignupConsents(consents: Array<{ policy_id: string; version: string }>): Promise<void> {
+    const db = this.legalDb;
+    if (!db) return;
+    const col = db.collection('legal_policies');
+    if (!col) return;
+    const required: any[] = await col.find({ key: { $in: ['patient_terms', 'privacy_policy'] } }).toArray();
+    const configured = required.filter((p: any) => p && p.requires_acceptance !== false);
+    const all: any[] = await col.find({}).toArray();
+    if (!configured.length && !all.length) return;
+    const byKey = new Map(configured.map((p: any) => [p.key, p]));
+    for (const key of ['patient_terms', 'privacy_policy']) {
+      const policy = byKey.get(key);
+      if (!policy) continue;
+      const given = consents.find((c) => c.policy_id === key);
+      if (!given || given.version !== policy.version) {
+        throw new BadRequestException({ message: 'consent_invalid', code: 'consent_invalid', statusCode: HttpStatus.BAD_REQUEST });
+      }
+    }
+    if (all.length) {
+      const known = new Set(all.map((p: any) => p.key));
+      for (const c of consents) {
+        if (!known.has(c.policy_id)) {
+          throw new BadRequestException({ message: 'consent_invalid', code: 'consent_invalid', statusCode: HttpStatus.BAD_REQUEST });
+        }
+      }
+    }
+  }
+
+  /** D-38: record the signup consents in legal_acceptances with version and time. */
+  private async recordSignupAcceptances(userId: string, consents: Array<{ policy_id: string; version: string }>): Promise<void> {
+    const db = this.legalDb;
+    if (!db) return;
+    const col = db.collection('legal_acceptances');
+    if (!col) return;
+    const now = new Date();
+    for (const c of consents) {
+      await col.insertOne({ user_id: userId, policy_key: c.policy_id, version: c.version, timestamp: now });
+    }
+  }
+
   async registerPatientContract(data: {
     name: string;
     identifier: string;
@@ -463,6 +520,10 @@ export class AuthService {
       throw new ConflictException({ message: 'identifier_already_registered', code: 'identifier_already_registered', statusCode: HttpStatus.CONFLICT });
     }
 
+    // D-38: sign-up records acceptance of the current patient texts. Refused before any
+    // account is created when a required text is missing, stale, or unknown.
+    await this.enforceSignupConsents(consents);
+
     const user = await this.userModel.create({
       full_name: data.name.trim(),
       ...(isEmail ? { email: identifier } : { phone: identifier }),
@@ -476,6 +537,8 @@ export class AuthService {
       full_name: user.full_name,
       ...(isEmail ? { email: identifier } : { phone: identifier }),
     });
+    // D-38: the signup acceptances land in legal_acceptances with version and time.
+    await this.recordSignupAcceptances(user.id, consents);
     this.events.emit(EVENTS.USER_REGISTERED, { user_id: user.id, role: user.role });
 
     // The response remains minimal; requestPatientOtp emits the opaque delivery DTO.
