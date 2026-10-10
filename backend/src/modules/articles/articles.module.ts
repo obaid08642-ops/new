@@ -103,10 +103,22 @@ export class ArticlesService {
     return this.model.findOneAndUpdate({ id }, { $set: { is_deleted: true } }, { new: true });
   }
 
-  adminList() {
-    return this.model.find({ is_deleted: { $ne: true } }, { _id: 0, __v: 0, body_ar: 0, body_en: 0 }).sort({ createdAt: -1 }).limit(200).lean();
+  /** Admin list; `status` (e.g. IN_REVIEW for doctor articles waiting for review) narrows it. */
+  adminList(status?: string) {
+    const filter: any = { is_deleted: { $ne: true } };
+    if (typeof status === 'string' && ADMIN_STATUSES.includes(status)) filter.status = { $eq: status };
+    return this.model.find(filter, { _id: 0, __v: 0, body_ar: 0, body_en: 0 }).sort({ createdAt: -1 }).limit(200).lean();
+  }
+
+  /** One article with its full text, so the admin reads a doctor's article before approving it. */
+  async adminOne(id: string) {
+    const doc = await this.model.findOne({ id: { $eq: String(id) }, is_deleted: { $ne: true } }, { _id: 0, __v: 0 }).lean();
+    if (!doc) throw new NotFoundException('article_not_found');
+    return doc;
   }
 }
+
+const ADMIN_STATUSES = ['DRAFT', 'IN_REVIEW', 'PUBLISHED', 'REJECTED'];
 
 // ── Public endpoints (crawlable content) ───────────────────────────────────
 @Controller('articles')
@@ -125,7 +137,8 @@ export class ArticlesPublicController {
 export class ArticlesAdminController {
   constructor(private svc: ArticlesService, private doctorSvc: DoctorArticlesService) {}
 
-  @Get() list() { return this.svc.adminList(); }
+  @Get() list(@Query('status') status?: string) { return this.svc.adminList(status); }
+  @Get(':id') one(@Param('id') id: string) { return this.svc.adminOne(id); }
   @Post() create(@Body() body: CreateDto) { return this.svc.create(body); }
   @Patch(':id') update(@Param('id') id: string, @Body() body: UpdateDto) { return this.svc.update(id, body); }
   @Post(':id/publish') publish(@Param('id') id: string) { return this.svc.publish(id); }
