@@ -281,6 +281,8 @@ The eye and dentistry rows both open the same unfiltered specialty list (NR-24).
 
 ## 14. All services `app/services/index.tsx`
 
+> Removed 2026-10-10 (owner, #409): "All services" now opens the Services tab (`app/(tabs)/services.tsx`); this screen, `SERVICE_GROUPS` and `ServiceGroup` are deleted, and the URL `/services` resolves to the tab only. The table below is the history of the deleted screen.
+
 | Element | Kind | Source | Goes to | file:line |
 |---|---|---|---|---|
 | Header "كل الخدمات" + back | text, button | static copy | `router.back()` | `services/index.tsx:97-99` |

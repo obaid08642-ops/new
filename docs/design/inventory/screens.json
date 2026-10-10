@@ -1,5 +1,5 @@
 {
- "commit": "c529711d",
+ "commit": "136c564c",
  "routes": [
   {
    "app": "patient-app",
@@ -2101,63 +2101,91 @@
    "app": "patient-app",
    "route": "/emergency",
    "file": "patient-app/app/emergency/index.tsx",
-   "redirect": null,
-   "template": "list",
-   "board": "none: emergency",
+   "redirect": "/emergency/sos",
+   "template": "redirect",
+   "board": "— (redirect)",
    "batch": 5,
-   "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/mental-health/urgent-help",
-     "target": "backend",
-     "query": "",
-     "line": 19,
-     "file": "patient-app/src/components/emergency/UrgentHelpView.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/mental-health/mental-health-urgent-help.controller.ts:25"
-    }
-   ],
-   "files": 31,
+   "status": "n/a",
+   "calls": [],
+   "files": 1,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/emergency/sos",
    "file": "patient-app/app/emergency/sos.tsx",
-   "redirect": "/emergency",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "flow step",
+   "board": "none: emergency",
    "batch": 5,
-   "status": "n/a",
-   "calls": [],
-   "files": 1,
+   "status": "done (batch 5 merged)",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/emergency/trigger",
+     "target": "backend",
+     "query": "",
+     "line": 61,
+     "file": "patient-app/app/emergency/sos.tsx",
+     "status": "NO_ROUTE"
+    }
+   ],
+   "files": 18,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/emergency/sos-active",
    "file": "patient-app/app/emergency/sos-active.tsx",
-   "redirect": "/emergency",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "tracking",
+   "board": "none: emergency",
    "batch": 5,
-   "status": "n/a",
-   "calls": [],
-   "files": 1,
+   "status": "done (batch 5 merged)",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/emergency/:param/cancel",
+     "target": "backend",
+     "query": "",
+     "line": 85,
+     "file": "patient-app/app/emergency/sos-active.tsx",
+     "status": "NO_ROUTE"
+    },
+    {
+     "method": "GET",
+     "path": "/emergency/my/active",
+     "target": "backend",
+     "query": "",
+     "line": 46,
+     "file": "patient-app/app/emergency/sos-active.tsx",
+     "status": "NO_ROUTE"
+    }
+   ],
+   "files": 19,
    "unresolved": 0
   },
   {
    "app": "patient-app",
    "route": "/emergency/tracking",
    "file": "patient-app/app/emergency/tracking.tsx",
-   "redirect": "/emergency",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "tracking",
+   "board": "none: emergency",
    "batch": 5,
-   "status": "n/a",
-   "calls": [],
-   "files": 1,
+   "status": "done (batch 5 merged)",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/emergency/tracking",
+     "target": "backend",
+     "query": "",
+     "line": 33,
+     "file": "patient-app/app/emergency/tracking.tsx",
+     "status": "NO_ROUTE"
+    }
+   ],
+   "files": 13,
    "unresolved": 0
   },
   {
@@ -6471,19 +6499,6 @@
   },
   {
    "app": "patient-app",
-   "route": "/services",
-   "file": "patient-app/app/services/index.tsx",
-   "redirect": null,
-   "template": "hub",
-   "board": "ServiceHub",
-   "batch": 0,
-   "status": "done (#285)",
-   "calls": [],
-   "files": 20,
-   "unresolved": 0
-  },
-  {
-   "app": "patient-app",
    "route": "/settings",
    "file": "patient-app/app/settings/index.tsx",
    "redirect": null,
@@ -9625,65 +9640,111 @@
    "calls": [
     {
      "method": "POST",
-     "path": "/api/auth/logout",
-     "target": "web-bff",
+     "path": "/api/patient/emergency/:param/cancel",
+     "target": "web-proxy",
      "query": "",
-     "line": 24,
-     "file": "patient-web/components-next/sign-out-button.tsx",
-     "status": "OK",
-     "handler": "patient-web/app/api/auth/logout/route.ts"
+     "line": 47,
+     "file": "patient-web/app/[locale]/emergency/sos-actions.tsx",
+     "status": "NO_ROUTE"
+    },
+    {
+     "method": "POST",
+     "path": "/api/patient/emergency/trigger",
+     "target": "web-proxy",
+     "query": "",
+     "line": 30,
+     "file": "patient-web/app/[locale]/emergency/sos-actions.tsx",
+     "status": "NO_ROUTE"
     },
     {
      "method": "GET",
-     "path": "/mental-health/urgent-help",
+     "path": "/emergency/my/active",
      "target": "backend",
      "query": "",
-     "line": 29,
+     "line": 30,
      "file": "patient-web/app/[locale]/emergency/page.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/mental-health/mental-health-urgent-help.controller.ts:25"
+     "status": "NO_ROUTE"
     }
    ],
-   "files": 36,
+   "files": 8,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/emergency/sos",
    "file": "patient-web/app/[locale]/emergency/sos/page.tsx",
-   "redirect": "/emergency",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "flow step",
+   "board": "none: emergency",
    "batch": 5,
-   "status": "n/a",
-   "calls": [],
-   "files": 2,
+   "status": "done (batch 5 merged)",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/patient/emergency/trigger",
+     "target": "web-proxy",
+     "query": "",
+     "line": 33,
+     "file": "patient-web/components-next/emergency-sos-client.tsx",
+     "status": "NO_ROUTE"
+    }
+   ],
+   "files": 7,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/emergency/sos-active",
    "file": "patient-web/app/[locale]/emergency/sos-active/page.tsx",
-   "redirect": "/emergency",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "tracking",
+   "board": "none: emergency",
    "batch": 5,
-   "status": "n/a",
-   "calls": [],
-   "files": 2,
+   "status": "done (batch 5 merged)",
+   "calls": [
+    {
+     "method": "POST",
+     "path": "/api/patient/emergency/:param/cancel",
+     "target": "web-proxy",
+     "query": "",
+     "line": 55,
+     "file": "patient-web/components-next/emergency-sos-active-client.tsx",
+     "status": "NO_ROUTE"
+    },
+    {
+     "method": "GET",
+     "path": "/api/patient/emergency/my/active",
+     "target": "web-proxy",
+     "query": "",
+     "line": 36,
+     "file": "patient-web/components-next/emergency-sos-active-client.tsx",
+     "status": "NO_ROUTE"
+    }
+   ],
+   "files": 7,
    "unresolved": 0
   },
   {
    "app": "patient-web",
    "route": "/emergency/tracking",
    "file": "patient-web/app/[locale]/emergency/tracking/page.tsx",
-   "redirect": "/emergency",
-   "template": "redirect",
-   "board": "— (redirect)",
+   "redirect": null,
+   "template": "tracking",
+   "board": "none: emergency",
    "batch": 5,
-   "status": "n/a",
-   "calls": [],
-   "files": 2,
+   "status": "done (batch 5 merged)",
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/api/patient/emergency/tracking",
+     "target": "web-proxy",
+     "query": "",
+     "line": 46,
+     "file": "patient-web/components-next/emergency-tracking-client.tsx",
+     "status": "NO_ROUTE"
+    }
+   ],
+   "files": 7,
    "unresolved": 0
   },
   {
