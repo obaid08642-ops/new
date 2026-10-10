@@ -22,7 +22,9 @@ export class EntityGraphController {
     @Query('city') city?: string,
     @Query('district') district?: string,
     @Query('insurance') insurance?: string,
+    @Query('type') type?: string,
+    @Query('service') service?: string,
   ) {
-    return this.graphService.explore({ specialty, city, district, insurance });
+    return this.graphService.explore({ specialty, city, district, insurance, type, service });
   }
 }
