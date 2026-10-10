@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Get, Param, Query, Req, UseGuards, UseInterceptors, UploadedFile, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
+import { Body, Controller, Post, Get, Param, Query, Req, UseGuards, UseInterceptors, UploadedFile, BadRequestException, ServiceUnavailableException, Optional } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AiService } from './ai.service';
@@ -6,13 +6,15 @@ import { AiGatewayService } from './ai-gateway.service';
 import { JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { TriageDto, SetModeDto, SetPurposeDto, VoiceDto, OcrDto, CopilotSuggestDto, OcrTranslateDto, MedicineImageSearchDto, BarcodeLookupDto, AnalyzeMealDto, GenerateExercisePlanDto, GenerateDietPlanDto, UpdateAiConfigDto, UpdateAiProviderDto} from './ai.dto';
+import { AssistantDto } from './assistant.service';
+import { AssistantService } from './assistant.service';
 import { AiProviderName } from './ai-gateway.service';
 
 @Controller('ai')
 @SelfService()
 @UseGuards(JwtAuthGuard)
 export class AiController {
-  constructor(private svc: AiService, private gateway: AiGatewayService) {}
+  constructor(private svc: AiService, private gateway: AiGatewayService, @Optional() private assistantSvc?: AssistantService) {}
 
   @Get('config')
   @Roles(UserRole.ADMIN)
@@ -65,6 +67,14 @@ export class AiController {
   @Post('triage')
   triage(@Req() req: any, @Body() body: TriageDto) {
     return this.svc.triage(body, req.user?.id);
+  }
+
+  /** D-15: limited assistant — red flags, specialty routing, catalogue leaflets. Never a diagnosis. */
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Post('assistant')
+  assistant(@Req() req: any, @Body() body: AssistantDto) {
+    if (!this.assistantSvc) throw new ServiceUnavailableException('ai_assistant_unavailable');
+    return this.assistantSvc.assist(req.user?.id, body);
   }
 
   @Get('triage/history')
