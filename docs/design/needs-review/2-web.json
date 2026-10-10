@@ -35,7 +35,7 @@
     "screen": "/consultations/doctors",
     "element": "Photo and verified seal",
     "file": "patient-web/app/[locale]/consultations/doctors/page.tsx",
-    "line": 86,
+    "line": 126,
     "found": "[client] Fixed on design/backend-fields: the verified seal and the licence number are drawn from verified / scfhs_license_no; the photo is still not sent by toPublicDoctor.",
     "suspect": "Client-side: later batch."
   },
@@ -65,8 +65,8 @@
     "screen": "/consultations/doctors",
     "element": "Filters",
     "file": "patient-web/app/[locale]/consultations/doctors/page.tsx",
-    "line": 58,
-    "found": "[owner] The Consult board draws a specialty rail, visit-mode chips and a cash/insurance segmented filter; the page has search and sort only (not added: feature).",
+    "line": 81,
+    "found": "[owner] Search, sort, visit type, Nearest and Available now are drawn, and since issue 404 (approved 2026-10-10) so are a specialty select (?specialty=, the slug filter) and an insurance / cash-only segmented filter (?payment=, accepts_insurance); the board's specialty rail is drawn as a select.",
     "suspect": "Owner decision."
   },
   {
@@ -97,6 +97,46 @@
     "file": "patient-web/app/[locale]/consultations/virtual-waiting-room/page.tsx",
     "line": 40,
     "found": "[owner] The video call, waiting room and room screens were only seen in their error and not-ready states here (no media backend in the check); the connected layout is not verified.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/consultations/doctors",
+    "element": "Nearest with Available now",
+    "file": "patient-web/lib/consult/doctor-filters.ts",
+    "line": 72,
+    "found": "[backend] GET /care/doctors orders available_within results by next slot and ignores sort=distance, so with both on the position is not sent (the city filter still is); a combined 'nearest free doctor' needs the server to accept both. (backend: backend/src/modules/care/care.service.ts:115)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/consultations/doctors",
+    "element": "Nearest by city wording",
+    "file": "patient-web/components-next/consult/doctor-quick-filters.tsx",
+    "line": 63,
+    "found": "[owner] Approved 2026-10-10: Doctors in {city}",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/consultations/doctors",
+    "element": "Cash-only filter",
+    "file": "patient-web/lib/consult/doctor-filters.ts",
+    "line": 76,
+    "found": "[owner] The server has accepts_insurance only: 'Cash only' means doctors who do NOT accept insurance (accepts_insurance=false), not 'any doctor, paid in cash'. A patient who pays cash can still book any doctor from the unfiltered list. (backend: backend/src/modules/care/care.controller.ts:54)",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/chat/[threadId]",
+    "element": "Sent text is not shown",
+    "file": "patient-web/components-next/consult/chat-composer.tsx",
+    "line": 16,
+    "found": "[owner] The thread page lists message activity only (type and time, never the text: the privacy rule of the page), so after the composer sends, the patient sees the new activity row but not what was written or what the doctor replied.",
     "suspect": "Owner decision."
   }
 ]

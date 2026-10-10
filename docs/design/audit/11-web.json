@@ -28,7 +28,8 @@
       ["Title, provider, sponsored", "GET /offers/:id title_ar/title_en, provider.name, target.sponsored", "ok"],
       ["Price, old price, saving", "GET /offers/:id discounted_price, original_price (saving = their difference)", "ok"],
       ["Validity, inclusions, terms", "GET /offers/:id start_date, end_date, target.inclusions, target.terms", "ok"],
-      ["Providers to book with", "GET /promotions/offers/:id/providers; links to /consultations/book/[id]", "ok"]
+      ["Providers to book with", "GET /promotions/offers/:id/providers; links to /consultations/book/[id]", "ok"],
+      ["Share button (issue 752)", "navigator.share with a copy-link fallback (lib/share.ts, lib/copy-text.ts); no request", "ok"]
     ] }
   ],
   "needsReview": [
