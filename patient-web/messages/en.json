@@ -1109,7 +1109,15 @@
     "connectionFailed": "Connection unavailable. Try again.",
     "confirmedTitle": "Your appointment is booked",
     "confirmedBody": "Appointment time: {slot}",
-    "bookAnother": "Book another slot"
+    "bookAnother": "Book another slot",
+    "quick": "Quick filters",
+    "nearest": "Nearest",
+    "availableNow": "Available now",
+    "nearestOnline": "\"Nearest\" applies to clinic and home visits only, not online consultations.",
+    "locating": "Finding your location…",
+    "nearestNoPlace": "Sorting by distance is not possible. Allow location access or save an address with a city.",
+    "nearestCity": "Sorted by distance from {city}",
+    "visitType": "Consultation type"
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",
