@@ -21,7 +21,7 @@ _Updated 2026-10-10._
 
 Merged on main (batch 1010b, #1287): claims removal, owner UI items, Urdu Nastaliq font (ur only), legal texts from the backend, admin module switches (`modules.manage`, super admin only), single emergency screen (`UrgentHelpView`, number from `GET /mental-health/urgent-help`), `HospitalDispatchScreen` gone from provider-app, nearby filters, Rx rules C10-C11.
 
-1. **On hold:** D-12 price notice and C12 (price ceiling in the offer composer) wait for OpenCode D-12; admin community moderation (#918) waits for D-1 (`needs-review/final-pass-2.json`).
+1. **On hold:** D-12 price notice and C12 (price ceiling in the offer composer) wait for OpenCode D-12. Design work is otherwise done; admin community moderation is replaced by `/admin/article-review` (doctor articles: list, open, approve, reject; old path redirects).
 2. **Reviewer:** close the 50 stale Needs-review lines (files deleted by the SOS removal, cart/orders merges, admin directory removal), then regenerate the needs-review and provider/admin audit files once (regenerating shifts `nr-key`). Real-device checks: Urdu font, voice notes, first launch.
 3. **Open for the design session:** `pharmacy_name_ar/en` fields and the 13 "Refs" screens of #1255/#1256 once the backend fields merge; web `/onboarding/permissions` (#436) after the owner decision.
 4. Final pass done on e768aa5c: `FINAL_PASS_2026-10-10.md` (one table per app, baselines unchanged).

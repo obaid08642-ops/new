@@ -161,8 +161,9 @@
    "label": "تدقيق أسعار الأدوية"
   },
   {
-   "href": "/admin/community-moderation",
-   "label": "إشراف المجتمع"
+   "href": "/admin/article-review",
+   "label": "مراجعة مقالات الأطباء",
+   "permission": "cms.edit"
   },
   {
    "href": "/admin/loyalty-config",
@@ -269,7 +270,7 @@
   "/admin/legal-policies": "gdpr.manage",
   "/admin/content-growth": "cms.edit",
   "/admin/home-curation": "cms.edit",
-  "/admin/community-moderation": "cms.edit",
+  "/admin/article-review": "cms.edit",
   "/admin/loyalty-config": "coupons.manage",
   "/admin/notification-center": "ops.queues.manage",
   "/admin/system-ops": "ops.queues.manage",
@@ -959,6 +960,119 @@
     }
    ],
    "orphan": true
+  },
+  {
+   "app": "admin",
+   "route": "/admin/article-review",
+   "file": "admin/src/pages/admin/article-review.tsx",
+   "line": 1,
+   "area": "system",
+   "unit": [
+    "admin/src/pages/admin/article-review.tsx",
+    "admin/src/components/ConfirmDialog.tsx",
+    "admin/src/components/DataTable.tsx"
+   ],
+   "clientPermission": "cms.edit",
+   "navPermission": "cms.edit",
+   "inNav": true,
+   "navLine": 68,
+   "publicDirectory": false,
+   "calls": [
+    {
+     "method": "GET",
+     "path": "/admin/articles",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/articles/articles.module.ts:154",
+     "backendPath": "/admin/articles",
+     "file": "admin/src/pages/admin/article-review.tsx",
+     "line": 30,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/articles/articles.module.ts",
+     "routeLine": 154,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/admin/articles/:param",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/articles/articles.module.ts:155",
+     "backendPath": "/admin/articles/:param",
+     "file": "admin/src/pages/admin/article-review.tsx",
+     "line": 44,
+     "fn": "adminFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/articles/articles.module.ts",
+     "routeLine": 155,
+     "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/admin/articles/:param/:param",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/articles/articles.module.ts:158",
+     "backendPath": "/admin/articles/:param/:param",
+     "file": "admin/src/pages/admin/article-review.tsx",
+     "line": 66,
+     "fn": "adminMutation",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/articles/articles.module.ts",
+     "routeLine": 158,
+     "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/admin/articles/:param/:param",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/articles/articles.module.ts:158",
+     "backendPath": "/admin/articles/:param/:param",
+     "file": "admin/src/pages/admin/article-review.tsx",
+     "line": 67,
+     "fn": "adminMutation",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/articles/articles.module.ts",
+     "routeLine": 158,
+     "raw": false
+    }
+   ],
+   "guardFindings": [],
+   "orphan": false
   },
   {
    "app": "admin",
@@ -2284,51 +2398,6 @@
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:885"
     }
    ],
-   "orphan": false
-  },
-  {
-   "app": "admin",
-   "route": "/admin/community-moderation",
-   "file": "admin/src/pages/admin/community-moderation.tsx",
-   "line": 1,
-   "area": "customers-growth",
-   "unit": [
-    "admin/src/pages/admin/community-moderation.tsx"
-   ],
-   "clientPermission": "cms.edit",
-   "navPermission": null,
-   "inNav": true,
-   "navLine": 68,
-   "publicDirectory": false,
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/community/admin/pending",
-     "target": "backend",
-     "status": "NO_ROUTE",
-     "backendPath": "/community/admin/pending",
-     "note": "no controller declares /community/admin/pending",
-     "file": "admin/src/pages/admin/community-moderation.tsx",
-     "line": 21,
-     "fn": "apiFetch",
-     "via": null,
-     "raw": false
-    },
-    {
-     "method": "PUT",
-     "path": "/community/admin/:param/moderate",
-     "target": "backend",
-     "status": "NO_ROUTE",
-     "backendPath": "/community/admin/:param/moderate",
-     "note": "no controller declares /community/admin/:param/moderate",
-     "file": "admin/src/pages/admin/community-moderation.tsx",
-     "line": 34,
-     "fn": "apiFetch",
-     "via": null,
-     "raw": false
-    }
-   ],
-   "guardFindings": [],
    "orphan": false
   },
   {

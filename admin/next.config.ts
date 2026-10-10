@@ -22,6 +22,8 @@ const nextConfig: NextConfig = {
     return [
       { source: "/", destination: "/admin/dashboard", permanent: false },
       // Owner decision 2026-10-10 (#949): one medicines editor. The old governance page is gone.
+      // Owner decision 2026-10-10 (D-1): community moderation is gone; the admin reviews doctor articles instead.
+      { source: "/admin/community-moderation", destination: "/admin/article-review", permanent: true },
       { source: "/admin/catalog-governance", destination: "/admin/medicines-catalog", permanent: true },
     ];
   },

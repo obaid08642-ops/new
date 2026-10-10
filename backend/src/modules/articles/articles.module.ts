@@ -104,17 +104,31 @@ export class ArticlesService {
   }
 
   /** Admin list; `status` (e.g. IN_REVIEW for doctor articles waiting for review) narrows it. */
-  adminList(status?: string) {
+  async adminList(status?: string) {
     const filter: any = { is_deleted: { $ne: true } };
     if (typeof status === 'string' && ADMIN_STATUSES.includes(status)) filter.status = { $eq: status };
-    return this.model.find(filter, { _id: 0, __v: 0, body_ar: 0, body_en: 0 }).sort({ createdAt: -1 }).limit(200).lean();
+    const rows = await this.model.find(filter, { _id: 0, __v: 0, body_ar: 0, body_en: 0 }).sort({ createdAt: -1 }).limit(200).lean();
+    return this.withDoctorNames(rows as any[]);
+  }
+
+  /** Adds author.doctor_name (the public profile name) next to author.doctor_id for the admin review. */
+  private async withDoctorNames<T extends { author?: { doctor_id?: unknown } }>(rows: T[]): Promise<T[]> {
+    const ids = [...new Set(rows.map((r) => r?.author?.doctor_id).filter((v): v is string => typeof v === 'string' && v !== ''))];
+    if (!ids.length) return rows;
+    const profiles: any[] = await this.model.db.collection('provider_profiles')
+      .find({ id: { $in: ids } }, { projection: { _id: 0, id: 1, name_ar: 1, name_en: 1 } }).toArray();
+    const names = new Map(profiles.map((p) => [p.id, p.name_ar || p.name_en || null]));
+    return rows.map((r) => {
+      const id = r?.author?.doctor_id;
+      return typeof id === 'string' && names.get(id) ? { ...r, author: { ...r.author, doctor_name: names.get(id) } } : r;
+    });
   }
 
   /** One article with its full text, so the admin reads a doctor's article before approving it. */
   async adminOne(id: string) {
     const doc = await this.model.findOne({ id: { $eq: String(id) }, is_deleted: { $ne: true } }, { _id: 0, __v: 0 }).lean();
     if (!doc) throw new NotFoundException('article_not_found');
-    return doc;
+    return (await this.withDoctorNames([doc as any]))[0];
   }
 }
 
