@@ -3183,5 +3183,14 @@
   "consult.price.unpaid": "ابھی ادائیگی نہیں ہوئی",
   "consult.chat.voiceRecord": "صوتی پیغام ریکارڈ کریں",
   "consult.chat.voiceStop": "روکیں اور بھیجیں",
-  "consult.chat.voicePermission": "صوتی پیغام ریکارڈ کرنے کے لیے فون کی سیٹنگز میں ایپ کو مائیکروفون کی اجازت دیں۔"
+  "consult.chat.voicePermission": "صوتی پیغام ریکارڈ کرنے کے لیے فون کی سیٹنگز میں ایپ کو مائیکروفون کی اجازت دیں۔",
+  "address.edit": "ترمیم",
+  "address.delete": "حذف کریں",
+  "address.deleteTitle": "یہ پتہ حذف کریں",
+  "address.deleteBody": "یہ پتہ آپ کے محفوظ پتوں سے ہٹا دیا جائے گا۔ پچھلے آرڈرز پر کوئی اثر نہیں پڑے گا۔",
+  "address.deleteCancel": "منسوخ کریں",
+  "address.deleteFailed": "پتہ حذف نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
+  "address.editTitle": "پتہ ترمیم کریں",
+  "address.editSave": "تبدیلیاں محفوظ کریں",
+  "address.editFailed": "تبدیلیاں محفوظ نہیں ہو سکیں۔ دوبارہ کوشش کریں۔"
 }

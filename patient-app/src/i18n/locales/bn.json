@@ -3183,5 +3183,14 @@
   "consult.price.unpaid": "এখনও পরিশোধ হয়নি",
   "consult.chat.voiceRecord": "ভয়েস নোট রেকর্ড করুন",
   "consult.chat.voiceStop": "থামান ও পাঠান",
-  "consult.chat.voicePermission": "ভয়েস নোট রেকর্ড করতে ফোনের সেটিংসে অ্যাপকে মাইক্রোফোন ব্যবহারের অনুমতি দিন।"
+  "consult.chat.voicePermission": "ভয়েস নোট রেকর্ড করতে ফোনের সেটিংসে অ্যাপকে মাইক্রোফোন ব্যবহারের অনুমতি দিন।",
+  "address.edit": "সম্পাদনা",
+  "address.delete": "মুছুন",
+  "address.deleteTitle": "এই ঠিকানা মুছুন",
+  "address.deleteBody": "এই ঠিকানা আপনার সংরক্ষিত ঠিকানা থেকে মুছে যাবে। আগের অর্ডারে কোনো প্রভাব পড়বে না।",
+  "address.deleteCancel": "বাতিল",
+  "address.deleteFailed": "ঠিকানা মোছা যায়নি। আবার চেষ্টা করুন।",
+  "address.editTitle": "ঠিকানা সম্পাদনা",
+  "address.editSave": "পরিবর্তন সংরক্ষণ",
+  "address.editFailed": "পরিবর্তন সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।"
 }

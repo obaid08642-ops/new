@@ -170,7 +170,8 @@
           "Fee, points discount and attach-reports rows of the board",
           "no points or attachment flow; the price is stated at the payment step",
           "hidden"
-        ]
+        ],
+        ["Price summary of the placed booking (item 390)", "GET /care/appointments/:id price, service_fee, home_visit_fee, transportation_fee, total_price, payment_status; nothing summed on the client, lines at 0 not drawn", "fixed"]
       ]
     },
     {
@@ -235,7 +236,8 @@
           "Microphone button",
           "no action existed (it sent nothing)",
           "hidden"
-        ]
+        ],
+        ["Voice note: record and send (items 388 / 799)", "shown only when GET /chat/threads/:id/permissions can_voice (online consultation); expo-audio recorder, POST /media/upload (purpose chat), POST /chat/threads/:id/messages type voice with duration_seconds", "fixed"]
       ]
     },
     {
@@ -265,7 +267,8 @@
           "Preparation list",
           "static advice, translated",
           "ok"
-        ]
+        ],
+        ["Header: back button only (item 396)", "the extra close action was removed; back leaves to home", "fixed"]
       ]
     },
     {

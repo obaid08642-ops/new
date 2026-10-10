@@ -3219,5 +3219,14 @@
   "consult.price.unpaid": "Not paid yet",
   "consult.chat.voiceRecord": "Record voice note",
   "consult.chat.voiceStop": "Stop and send",
-  "consult.chat.voicePermission": "Allow the app to use the microphone in the phone settings to record a voice note."
+  "consult.chat.voicePermission": "Allow the app to use the microphone in the phone settings to record a voice note.",
+  "address.edit": "Edit",
+  "address.delete": "Delete",
+  "address.deleteTitle": "Delete this address",
+  "address.deleteBody": "This address will be removed from your saved addresses. Earlier orders are not affected.",
+  "address.deleteCancel": "Cancel",
+  "address.deleteFailed": "We could not delete the address. Try again.",
+  "address.editTitle": "Edit address",
+  "address.editSave": "Save changes",
+  "address.editFailed": "We could not save the changes. Try again."
 }

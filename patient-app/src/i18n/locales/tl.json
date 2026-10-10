@@ -3183,5 +3183,14 @@
   "consult.price.unpaid": "Hindi pa bayad",
   "consult.chat.voiceRecord": "Mag-record ng voice note",
   "consult.chat.voiceStop": "Ihinto at ipadala",
-  "consult.chat.voicePermission": "Payagan ang app na gamitin ang mikropono sa settings ng telepono para mag-record ng voice note."
+  "consult.chat.voicePermission": "Payagan ang app na gamitin ang mikropono sa settings ng telepono para mag-record ng voice note.",
+  "address.edit": "I-edit",
+  "address.delete": "Burahin",
+  "address.deleteTitle": "Burahin ang address na ito",
+  "address.deleteBody": "Aalisin ang address na ito sa mga naka-save mong address. Hindi maaapektuhan ang mga nakaraang order.",
+  "address.deleteCancel": "Kanselahin",
+  "address.deleteFailed": "Hindi nabura ang address. Subukan muli.",
+  "address.editTitle": "I-edit ang address",
+  "address.editSave": "I-save ang mga pagbabago",
+  "address.editFailed": "Hindi nai-save ang mga pagbabago. Subukan muli."
 }

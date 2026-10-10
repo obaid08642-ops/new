@@ -3219,5 +3219,14 @@
   "consult.price.unpaid": "لم يتم الدفع بعد",
   "consult.chat.voiceRecord": "تسجيل رسالة صوتية",
   "consult.chat.voiceStop": "إيقاف وإرسال",
-  "consult.chat.voicePermission": "اسمح للتطبيق باستخدام الميكروفون من إعدادات الهاتف لتسجيل رسالة صوتية."
+  "consult.chat.voicePermission": "اسمح للتطبيق باستخدام الميكروفون من إعدادات الهاتف لتسجيل رسالة صوتية.",
+  "address.edit": "تعديل",
+  "address.delete": "حذف",
+  "address.deleteTitle": "حذف العنوان",
+  "address.deleteBody": "سيُحذف هذا العنوان من عناوينك المحفوظة. لا يؤثر ذلك على الطلبات السابقة.",
+  "address.deleteCancel": "إلغاء",
+  "address.deleteFailed": "تعذّر حذف العنوان. حاول مرة أخرى.",
+  "address.editTitle": "تعديل العنوان",
+  "address.editSave": "حفظ التعديل",
+  "address.editFailed": "تعذّر حفظ التعديل. حاول مرة أخرى."
 }
