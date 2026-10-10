@@ -23,7 +23,7 @@ describe("the readable session hint (issue 363)", () => {
     expect(hintFromAccessToken("not-a-token")).toBeNull();
   });
 
-  it("is set readable (not HttpOnly) next to the session cookies, holds no token, and is cleared with them", () => {
+  it("is set readable (not HttpOnly) next to the session cookies, holds no token, and says nobody once they are cleared", () => {
     const response = NextResponse.json({});
     const access = jwt({ sub: "u1", is_guest: false });
     setSessionCookies(response, { accessToken: access, refreshToken: "r" }, "dev");
@@ -33,7 +33,8 @@ describe("the readable session hint (issue 363)", () => {
     expect(response.cookies.get("nabd_access")?.httpOnly).toBe(true);
     expect(hint?.value).not.toContain(access);
     clearSessionCookies(response);
-    expect(response.cookies.get(SESSION_HINT_COOKIE)?.value).toBe("");
+    expect(response.cookies.get(SESSION_HINT_COOKIE)?.value).toBe("n");
+    expect(response.cookies.get("nabd_access")?.value).toBe("");
   });
 
   describe("in the browser", () => {

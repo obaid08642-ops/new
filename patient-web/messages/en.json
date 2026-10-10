@@ -695,7 +695,9 @@
     "emergencyPhone": "Mobile number",
     "emergencyRequired": "Enter the name and mobile number.",
     "emergencySaveError": "The contact could not be saved. Try again.",
-    "emergencySave": "Save"
+    "emergencySave": "Save",
+    "nextAppointment": "Your next appointment",
+    "nextAppointmentUnavailable": "Your next appointment could not be loaded right now."
   },
   "Prescriptions": {
     "title": "Prescriptions",
@@ -941,6 +943,20 @@
       "closed": "Read-only",
       "hoursLeft": "{count} h left",
       "minutesLeft": "{count} min left"
+    },
+    "composerTitle": "Message to the doctor",
+    "composerLabel": "Write your message",
+    "composerPlaceholder": "Write a message to the doctor",
+    "send": "Send",
+    "sending": "Sending…",
+    "sent": "Your message was sent.",
+    "sendRetry": "Try again",
+    "sendErrors": {
+      "invalid": "Write a message of up to 2000 characters.",
+      "signedOut": "Your session ended. Sign in and send again.",
+      "forbidden": "Messages can’t be sent in this conversation right now.",
+      "network": "Couldn’t connect. Your message hasn’t been sent yet; try again.",
+      "generic": "The message couldn’t be sent. Try again."
     }
   },
   "Sleep": {
@@ -1379,7 +1395,13 @@
     "empty": "No addresses yet",
     "listLabel": "Address list",
     "unnamed": "Unnamed address",
-    "default": "Default"
+    "default": "Default",
+    "edit": "Edit",
+    "editTitle": "Edit address",
+    "cancel": "Cancel",
+    "removeConfirmTitle": "Confirm removing the address",
+    "removeConfirm": "Remove the address “{name}”? This can’t be undone.",
+    "removeConfirmYes": "Yes, remove"
   },
   "ShareReport": {
     "title": "Share Reports",
@@ -2400,7 +2422,7 @@
     "summaryPrescription": "Prescription",
     "summaryRecommendations": "Recommendations",
     "summaryFollowUp": "Follow-up recommended within {days} days",
-    "summaryFollowUpBody": "Book the follow-up now at a discounted rate inside the window.",
+    "summaryFollowUpBody": "Book the follow-up now, inside this window.",
     "actionBookFollowUp": "Book follow-up",
     "actionOrderMedicines": "Order medicines from pharmacy",
     "actionBookTests": "Book tests",
@@ -3281,7 +3303,7 @@
       "insurance": "Insurance: {list}"
     },
     "pharmacies": {
-      "title": "Verified Pharmacies in {city}",
+      "title": "Pharmacies in {city}",
       "intro": "Pharmacies and medical centres listed in {city}.",
       "notice": "Your medicine order is sent to nearby pharmacies, and they answer with offers.",
       "list": "Pharmacies and medical centres",
@@ -3319,12 +3341,12 @@
         "description": "Verified {specialty} doctors in {neighborhood}, {city}. Book consultations via Nabd Plus."
       },
       "homeNursing": {
-        "title": "Home Nursing Services in {city} | Licensed Care 24/7",
-        "description": "Verified and licensed home nursing care in {city}. Senior care, post-op, and daily assistance via Nabd Plus."
+        "title": "Home Nursing Services in {city} | Nabd Plus",
+        "description": "Book home nursing care in {city}: senior care, post-op care and daily assistance via Nabd Plus."
       },
       "labs": {
         "title": "{test} Lab Test in {city} | Home Sample Collection",
-        "description": "Book verified {test} lab test in {city} with home collection and fast results via Nabd Plus."
+        "description": "Book a {test} lab test in {city} with home sample collection via Nabd Plus."
       },
       "labsEmpty": {
         "title": "{test} in {city} — Be first provider | Nabd",
@@ -3332,7 +3354,7 @@
       },
       "radiology": {
         "title": "{service} Radiology in {city} | Diagnostic Imaging Centers",
-        "description": "Book verified {service} imaging appointments in {city} with accredited medical centers via Nabd Plus."
+        "description": "Book {service} imaging appointments in {city} at imaging centres on Nabd Plus."
       },
       "radiologyEmpty": {
         "title": "{service} in {city} — Be first center | Nabd",
@@ -3343,8 +3365,8 @@
         "description": "Verified {service} healthcare services in {city}. In-clinic and home care via Nabd Plus."
       },
       "pharmacies": {
-        "title": "Verified Pharmacies in {city} | Fast Medicine Delivery",
-        "description": "Find prescription and OTC medicines in {city} with instant geo-broadcast delivery via Nabd Plus."
+        "title": "Pharmacies in {city} | Order Medicines and Compare Offers",
+        "description": "Send your prescription or medicine order to pharmacies in {city} and compare their offers on Nabd Plus."
       },
       "pharmaciesEmpty": {
         "title": "Pharmacies in {city} — Be first partner | Nabd",
@@ -3358,6 +3380,19 @@
         "description": "{name} in {city}. Specialized healthcare services, accepted insurances, and verified physicians.",
         "country": "Saudi Arabia"
       }
+    },
+    "ld": {
+      "labTest": "{test} lab test in {city}",
+      "radiology": "{service} imaging in {city}",
+      "homeNursing": "Home nursing and medical visit services in {city}",
+      "crumbDiagnostics": "Diagnostics",
+      "crumbRadiology": "Radiology",
+      "crumbHomeCare": "Home care",
+      "crumbServices": "Services",
+      "crumbPharmacy": "Pharmacy",
+      "crumbFacilities": "Hospitals and clinics",
+      "crumbHealthGuide": "Health guide",
+      "crumbDoctors": "Doctors"
     }
   },
   "InsuranceWeb": {
@@ -3601,7 +3636,11 @@
     "noProviders": "No providers are available for this offer right now",
     "errorTitle": "Offers could not be loaded",
     "empty": "Check back soon, new offers are added all the time.",
-    "error": "Check your connection and try again."
+    "error": "Check your connection and try again.",
+    "share": "Share offer",
+    "shareDone": "Shared.",
+    "shareCopied": "Link copied.",
+    "shareFailed": "Couldn’t share. Copy the link from the address bar."
   },
   "SettingsWeb": {
     "hubTitle": "Settings",

@@ -11,7 +11,7 @@ import styles from "./landing.module.css";
  * a white card of rows). The service holds Arabic and English; on a page in another language the text keeps its own language
  * and direction, so the reader and the screen reader are told which it is. The version and the date it applies from close the page.
  */
-export async function LegalDocument({ locale, kind, policy }: { locale: Locale; kind: "terms" | "privacy"; policy: LegalPolicy }) {
+export async function LegalDocument({ locale, kind, policy }: { locale: Locale; kind: "terms" | "privacy"; policy: LegalPolicy & { lang?: "ar" | "en" } }) {
   const t = await getTranslations("PublicLanding");
   const groups: Array<{ kind: "heading" | "paragraph"; text: string } | { kind: "bullets"; items: string[] }> = [];
   for (const block of parseLegal(policy.content ?? "")) {
@@ -20,7 +20,8 @@ export async function LegalDocument({ locale, kind, policy }: { locale: Locale; 
     else if (last && last.kind === "bullets") last.items.push(block.text);
     else groups.push({ kind: "bullets", items: [block.text] });
   }
-  const textLocale = locale === "ar" ? "ar" : "en";
+  // the text keeps its own language: the service's (ar for ar, else en), or the embedded copy's when the service was down
+  const textLocale = policy.lang ?? (locale === "ar" ? "ar" : "en");
   const effective = policy.effective_date ? new Date(policy.effective_date) : null;
   const date = effective && !Number.isNaN(effective.getTime()) ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "UTC" }).format(effective) : "";
   const version = policy.version !== undefined && policy.version !== null && policy.version !== "" ? String(policy.version) : "";

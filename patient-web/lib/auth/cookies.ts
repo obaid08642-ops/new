@@ -20,5 +20,6 @@ export function setSessionCookies(response: NextResponse, tokens: TokenPair, dev
 }
 export function clearSessionCookies(response: NextResponse) {
   for (const name of Object.values(authCookieNames)) response.cookies.set(name, "", { ...commonCookie, maxAge: 0 });
-  response.cookies.set(SESSION_HINT_COOKIE, "", { ...hintCookie, maxAge: 0 });
+  // nobody is signed in now: the hint says so, so the next page load does not ask the server
+  setSessionHint(response, { kind: "anonymous" });
 }
