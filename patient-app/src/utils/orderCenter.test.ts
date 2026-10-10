@@ -1,5 +1,5 @@
 import { translations } from '../i18n';
-import { STATUS_LABELS, buildRows, inBucket, listOf, statusLook, type OrderSources } from './orderCenter';
+import { STATUS_LABELS, buildRows, inBucket, kindsPresent, listOf, ofKind, statusLook, type OrderRow, type OrderSources } from './orderCenter';
 
 /**
  * The order list is built from each service's own answer. These are TEST payloads shaped like the backend's (stored order,
@@ -110,5 +110,14 @@ describe('listOf', () => {
     expect(listOf({ items: [{ id: 3 }] })).toEqual([{ id: 3 }]);
     expect(listOf('x')).toEqual([]);
     expect(listOf(null)).toEqual([]);
+  });
+});
+
+describe('service filter (371)', () => {
+  const rows = [{ kind: 'labs' }, { kind: 'doctors' }, { kind: 'labs' }, { kind: 'returns' }] as unknown as OrderRow[];
+  it('lists the kinds present in the chip order and filters by one', () => {
+    expect(kindsPresent(rows)).toEqual(['doctors', 'labs', 'returns']);
+    expect(ofKind(rows, 'labs')).toHaveLength(2);
+    expect(ofKind(rows, null)).toHaveLength(4);
   });
 });

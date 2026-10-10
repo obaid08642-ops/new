@@ -360,3 +360,15 @@ export function buildRows(src: OrderSources, pick: PickName): OrderRow[] {
 export function inBucket(rows: OrderRow[], bucket: Bucket): OrderRow[] {
   return rows.filter((r) => r.look.bucket === bucket);
 }
+
+/** The kinds the service filter offers, in the order of the chips. */
+export const KIND_ORDER: readonly OrderKind[] = ['doctors', 'pharmacy', 'labs', 'radiology', 'nursing', 'insurance', 'returns'];
+/** Only the kinds present in the loaded rows get a chip. */
+export function kindsPresent(rows: OrderRow[]): OrderKind[] {
+  const seen = new Set(rows.map((r) => r.kind));
+  return KIND_ORDER.filter((kind) => seen.has(kind));
+}
+/** The service filter (client-side over what is loaded): null = all services. */
+export function ofKind(rows: OrderRow[], kind: OrderKind | null): OrderRow[] {
+  return kind === null ? rows : rows.filter((r) => r.kind === kind);
+}
