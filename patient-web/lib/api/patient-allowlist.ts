@@ -58,7 +58,6 @@ const patientReadRoutes = [
   new RegExp("^/family/calendar$"),
   new RegExp("^/insurance/my-policy$"),
   new RegExp("^/insurance/benefits-summary$"),
-  new RegExp("^/insurance/claims$"),
   new RegExp(`^/payments/pharmacy/${orderId}/capabilities$`, "i"),
   new RegExp(`^/pharmacy/chat/threads\\?order_id=${orderId}$`, "i"),
   new RegExp(`^/pharmacy/chat/threads/${threadId}/messages$`, "i"),
@@ -133,6 +132,8 @@ const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }>
   { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/insurance-rejection/cancel$`, "i") },
   { method: "POST", route: new RegExp(`^/payments/intent/pharmacy/${orderId}$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/messages$`, "i") },
+  // issue 806: the doctor thread composer sends one text message (backend chat.module POST /chat/threads/:id/messages)
+  { method: "POST", route: new RegExp(`^/chat/threads/${threadId}/messages$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/accept-substitute/[A-Za-z0-9_-]{1,128}$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/reject$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/remove-item$`, "i") },

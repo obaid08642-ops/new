@@ -53,7 +53,7 @@ export function contentSecurityPolicy(nonce?: string): string {
     `connect-src ${connectSrc.join(" ")}`,
     // Payment, camera and geolocation are used by the checkout and the
     // pharmacy flows, so they are delegated to the same origin only.
-    "frame-src 'self' https://api.moyasar.com https://checkout.tap.company",
+    "frame-src 'self' https://api.moyasar.com https://checkout.tap.company https://www.openstreetmap.org", // issue 777: the map page embeds OpenStreetMap
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

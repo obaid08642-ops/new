@@ -87,10 +87,13 @@ describe("settings hub", () => {
 
 describe("about and legal", () => {
   it("writes the cancellation and refund rules from the server's numbers only (decision 26)", async () => {
-    server.api.mockResolvedValue(json({ cancellation_policy: { full_hours: 6, late_fee_percent: 15 }, returns_policy: { wallet_refund_days_min: 2, wallet_refund_days_max: 5, unused_days: 9 } }));
+    server.api.mockResolvedValue(json({ cancellation_policy: { full_hours: 24, half_hours: 12, half_refund_percent: 50, late_fee_percent: 25 }, returns_policy: { wallet_refund_days_min: 2, wallet_refund_days_max: 5, unused_days: 9 } }));
     const html = render(await SettingsAboutPage({ params }));
-    expect(html).toContain("up to 6 hours before");
-    expect(html).toContain("costs 15% of the booking");
+    // issue 781: the three tiers the server sends, including the 50% one; the unproven "late fee" is not written
+    expect(html).toContain("24 hours or more before: 100% refund");
+    expect(html).toContain("12 to 24 hours before: 50% refund");
+    expect(html).toContain("Less than 12 hours before: no refund");
+    expect(html).not.toContain("25%");
     expect(html).toContain("within 2 to 5 business days");
     expect(html).toContain("within 9 days of receipt");
     expect(html).toContain('href="/en/terms"');

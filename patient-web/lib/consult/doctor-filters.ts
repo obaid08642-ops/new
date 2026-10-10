@@ -19,8 +19,13 @@ export type VisitType = (typeof VISIT_TYPES)[number];
 
 export type NearbyPlace = { kind: "coords"; lat: number; lng: number } | { kind: "city"; city: string };
 
+/** Who pays: "insurance" = doctors who accept insurance (`accepts_insurance=true`); "cash" = doctors who do not, so the visit is paid in cash (`accepts_insurance=false`). */
+export const PAYMENT_FILTERS = ["insurance", "cash"] as const;
+export type PaymentFilter = (typeof PAYMENT_FILTERS)[number];
+
 export type DoctorFilters = {
   type?: VisitType;
+  payment?: PaymentFilter;
   availableNow: boolean;
   nearest: boolean;
   place: NearbyPlace | null;
@@ -44,6 +49,8 @@ function numberParam(value: string | undefined, limit: number): number | null {
 export function parseDoctorFilters(raw: Raw): DoctorFilters {
   const rawType = first(raw.type);
   const type = (VISIT_TYPES as readonly string[]).includes(rawType ?? "") ? (rawType as VisitType) : undefined;
+  const rawPayment = first(raw.payment);
+  const payment = (PAYMENT_FILTERS as readonly string[]).includes(rawPayment ?? "") ? (rawPayment as PaymentFilter) : undefined;
   const availableNow = first(raw.available) === "1";
   const nearest = first(raw.nearest) === "1" && nearestApplies(type ?? (availableNow ? "clinic" : undefined));
   let place: NearbyPlace | null = null;
@@ -54,7 +61,7 @@ export function parseDoctorFilters(raw: Raw): DoctorFilters {
     if (lat !== null && lng !== null) place = { kind: "coords", lat, lng };
     else if (city) place = { kind: "city", city };
   }
-  return { type, availableNow, nearest: nearest && place !== null, place };
+  return { type, ...(payment ? { payment } : {}), availableNow, nearest: nearest && place !== null, place };
 }
 
 /** "Available now" needs a visit type; without a chosen one the clinic is the default (and is shown as chosen). */
@@ -66,6 +73,7 @@ export function filterApiParams(filters: DoctorFilters): Array<[string, string]>
   const type = effectiveType(filters);
   const out: Array<[string, string]> = [];
   if (type) out.push(["type", type]);
+  if (filters.payment) out.push(["accepts_insurance", filters.payment === "insurance" ? "true" : "false"]);
   if (filters.availableNow) out.push(["available_within", String(AVAILABLE_WITHIN_MINUTES)]);
   if (filters.nearest && filters.place && nearestApplies(type)) {
     if (filters.place.kind === "coords") {
@@ -84,9 +92,10 @@ export const serverOrdersList = (filters: DoctorFilters): boolean => filters.ava
 export function filterPageParams(filters: DoctorFilters, extra: { q?: string; specialty?: string; sort?: string } = {}): URLSearchParams {
   const params = new URLSearchParams();
   if (extra.q) params.set("q", extra.q);
-  else if (extra.specialty) params.set("specialty", extra.specialty);
+  if (extra.specialty) params.set("specialty", extra.specialty);
   if (extra.sort) params.set("sort", extra.sort);
   if (filters.type) params.set("type", filters.type);
+  if (filters.payment) params.set("payment", filters.payment);
   if (filters.availableNow) params.set("available", "1");
   if (filters.nearest && filters.place) {
     params.set("nearest", "1");

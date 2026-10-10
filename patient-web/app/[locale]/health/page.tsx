@@ -6,6 +6,9 @@ import { getPatientHealthScore, getPatientVitalSummary } from "@/lib/api/vitals-
 import { parseHealthScore } from "@/lib/api/health-score";
 import { extractMedicationReminderSummaries } from "@/lib/api/reminders";
 import { getPatientMedicationReminders } from "@/lib/api/reminders-server";
+import { getPatientDashboardUpcomingAppointment } from "@/lib/api/dashboard-server";
+import { parseDashboardAppointment } from "@/lib/api/dashboard";
+import { statusKey as appointmentStatusKey } from "@/lib/consult/appointment-view";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { getDirection, isLocale } from "@/lib/i18n";
 import { todayDoses } from "@/lib/health/doses";
@@ -53,10 +56,16 @@ export default async function HealthPage({ params }: Props) {
   if (!summary.ok) return unavailable;
   const vitals = extractVitalSummary(await summary.json().catch(() => null));
 
-  const [scoreRes, remindersRes] = await Promise.all([
+  const [scoreRes, remindersRes, appointmentRes] = await Promise.all([
     getPatientHealthScore(token).catch(() => null),
     getPatientMedicationReminders(token).catch(() => null),
+    // issue 678: the same request as the home page's "next appointment" card (GET /home/upcoming-appointment)
+    getPatientDashboardUpcomingAppointment(token).catch(() => null),
   ]);
+  const nextAppointment = appointmentRes?.ok ? parseDashboardAppointment(await appointmentRes.json().catch(() => null)) : null;
+  const nextAppointmentFailed = appointmentRes === null || (!appointmentRes.ok && appointmentRes.status !== 404);
+  const consultStatus = await getTranslations("ConsultWeb");
+  const nextStatus = nextAppointment ? appointmentStatusKey(nextAppointment.status ?? undefined) : null;
   const score = scoreRes?.ok ? parseHealthScore(await scoreRes.json().catch(() => null)) : null;
   const reminders = remindersRes?.ok ? extractMedicationReminderSummaries(await remindersRes.json().catch(() => null)) : null;
   const doses = reminders ? todayDoses(reminders) : [];
@@ -78,6 +87,21 @@ export default async function HealthPage({ params }: Props) {
       </div>
 
       <RowCard href={`${base}/profile`} icon="identification-card" tone="blue" title={t("fileTitle")} sub={t("fileSub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
+
+      {nextAppointment ? (
+        <RowCard
+          href={`/${locale}/appointments/${encodeURIComponent(nextAppointment.id)}`}
+          title={nextAppointment.doctorName ?? t("nextAppointment")}
+          sub={nextAppointment.doctorName ? t("nextAppointment") : undefined}
+          extra={
+            <>
+              {nextAppointment.dateLabel ? <LocalTimeLine iso={nextAppointment.dateLabel} locale={locale} /> : null}
+              {nextStatus ? <span>{consultStatus(`status.${nextStatus}`)}</span> : null}
+            </>
+          }
+          caret={<Icon name={caret} size={16} tone="secondary" />}
+        />
+      ) : nextAppointmentFailed ? <PartUnavailable>{t("nextAppointmentUnavailable")}</PartUnavailable> : null}
 
       {score ? (
         <section className={rx.card} aria-labelledby="health-score">

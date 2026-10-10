@@ -409,7 +409,8 @@
           "Deep link /family/join (+native-intent)",
           "now /family/add?tab=join",
           "ok"
-        ]
+        ],
+        ["Invite methods: Code (default) and QR; the Link method was removed and the share text names the code (item 695)", "POST /family/invite invite_code; family.invite.shareMessage in six languages", "fixed"]
       ],
       "notes": []
     },

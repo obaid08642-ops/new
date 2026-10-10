@@ -71,6 +71,9 @@
       "file": "patient-app/app/diagnostics/insurance-approval.tsx", "line": 35 },
     { "route": "/diagnostics/sample-tracking", "element": "Home collection flag", "kind": "backend",
       "note": "Confirm that GET /labs/bookings/:id sends location_type; until then the technician block also shows when a technician is assigned.",
-      "file": "patient-app/app/diagnostics/sample-tracking.tsx", "line": 77 }
+      "file": "patient-app/app/diagnostics/sample-tracking.tsx", "line": 77 },
+    { "route": "/diagnostics/sample-tracking", "element": "Static preparation and visit tips (items 628 / 629)", "kind": "owner",
+      "note": "needs medical review before launch: diag.track.prep (fasting 8 to 12 hours) and diag.tech.tips are fixed texts for every package; owner approved them on condition of a medical review (or later per-test text from the catalogue). Content not changed.",
+      "file": "patient-app/app/diagnostics/sample-tracking.tsx", "line": 107 }
   ]
 }

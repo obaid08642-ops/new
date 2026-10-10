@@ -70,7 +70,9 @@
       ["Saved addresses, default marker, no-map-point marker", "GET /users/me/addresses", "ok"],
       ["Choose = make default (reverts on failure)", "PATCH /users/me/addresses/:id", "fixed"],
       ["Pick mode ?select=1: choose and confirm, kept on the phone", "utils/selectedAddress (as /delivery/address-select)", "ok"],
-      ["Add an address (button did nothing)", "route /shared/location-picker", "fixed"]
+      ["Add an address (button did nothing)", "route /shared/location-picker", "fixed"],
+      ["Edit an address (item 769)", "PATCH /users/me/addresses/:id with label, street, building, floor, notes (sheet)", "fixed"],
+      ["Delete an address with a confirm (item 769)", "DELETE /users/me/addresses/:id", "fixed"]
     ] },
     { "route": "/delivery/address-select", "elements": [["Redirect to /profile/addresses?select=1; in-code links point at the new route", "RedirectKeepingParams", "ok"]] },
     { "route": "/shared/location-picker", "elements": [
@@ -117,7 +119,8 @@
       ["Insurance accepted line", "GET /user/insurance", "ok"],
       ["Directions and book per kind", "device maps link, routes", "ok"],
       ["3D hologram markers", "shape not on a board", "hidden"],
-      ["Set-up insurance link (opened the medical profile)", "route /profile/insurance", "fixed"]
+      ["Set-up insurance link (opened the medical profile)", "route /profile/insurance", "fixed"],
+      ["Hospital marker opens the facility page (item 767)", "router.push /consultations/clinic/[id] (GET /care/facilities/:id), no longer the consultations tab", "fixed"]
     ] }
   ],
   "needsReview": [
@@ -135,8 +138,8 @@
     { "route": "/profile", "element": "Guest sign-in alert text", "kind": "client", "note": "useGuestGuard.requireAuth shows an alert with Arabic text written in the hook (outside this batch's screens).", "file": "patient-app/src/hooks/useGuestGuard.tsx", "line": 50 },
     { "route": "/reviews", "element": "Aspects sent as codes", "kind": "backend", "note": "aspects is free-form; old reviews hold Arabic sentences as keys, new ones hold codes.", "file": "patient-app/src/components/account/ReviewView.tsx", "line": 51 },
     { "route": "/map", "element": "Providers answer", "kind": "backend", "note": "Fields are read under several names (lat/latitude/location.lat, name_ar/name, ...) and the type filter is local; the answer should have one shape.", "file": "patient-app/src/components/account/ProvidersMapView.tsx", "line": 108 },
-    { "route": "/map", "element": "Hospital booking", "kind": "owner", "note": "A hospital opens the consultations tab and a nurse kind the nursing tab: there is no hospital booking screen.", "file": "patient-app/src/components/account/ProvidersMapView.tsx", "line": 205 },
+    { "route": "/map", "element": "Hospital booking", "kind": "owner", "note": "Owner approved on 2026-10-10 (item 767): a hospital now opens its facility page (/consultations/clinic/[id]). A nurse kind still opens the nursing tab.", "file": "patient-app/src/components/account/ProvidersMapView.tsx", "line": 205 },
     { "route": "/shared/location-picker", "element": "Saved address kept on the phone", "kind": "client", "note": "The old screen shadowed the import with its own state setter, so a saved or confirmed address was never kept; fixed here by using the util.", "file": "patient-app/src/components/account/LocationPickerView.tsx", "line": 81 },
-    { "route": "/profile/addresses", "element": "No delete or edit of an address", "kind": "owner", "note": "The book can add (map) and set the default only; there is no edit or delete in the old screen or the board.", "file": "patient-app/src/components/account/AddressBookView.tsx", "line": 105 }
+    { "route": "/profile/addresses", "element": "No delete or edit of an address", "kind": "owner", "note": "Owner approved on 2026-10-10 (item 769): edit and delete are added (PATCH and DELETE /users/me/addresses/:id). Old note: the book could add (map) and set the default only; there was no edit or delete in the old screen or the board.", "file": "patient-app/src/components/account/AddressBookView.tsx", "line": 105 }
   ]
 }

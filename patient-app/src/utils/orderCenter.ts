@@ -8,7 +8,6 @@
  *   GET /labs/bookings/mine         lab bookings (`state`, `total`, `scheduled_at`)
  *   GET /radiology/bookings/mine    radiology bookings (`state`, `total`)
  *   GET /home-care/bookings/my      nursing visits (`state`, `total_price`, `address`)
- *   GET /insurance/claims           claims (`service`, `amount`, `status`)
  *   GET /pharmacy/returns           returns (`reason`, `amount`, `status`)
  *
  * A status the table below does not know is shown as "status not available", never as the server's raw code.
@@ -18,7 +17,7 @@ import { orderNumber, orderRoute } from './pharmacyCheckout';
 import { governedStep } from './pharmacyOffers';
 import { num } from './pharmacyOffers';
 
-export type OrderKind = 'doctors' | 'pharmacy' | 'labs' | 'radiology' | 'nursing' | 'insurance' | 'returns';
+export type OrderKind = 'doctors' | 'pharmacy' | 'labs' | 'radiology' | 'nursing' | 'returns';
 export type Bucket = 'current' | 'previous';
 export type PillTone = ServiceTone | 'danger' | 'neutral';
 
@@ -121,7 +120,6 @@ const STATUS: Record<string, StatusLook> = {
   REPORTED: s('resultReady', 'mint', 'previous'),
   APPROVED: s('approved', 'mint', 'previous'),
   PARTIAL_APPROVAL: s('partialApproval', 'amber', 'previous'),
-  REIMBURSED: s('reimbursed', 'mint', 'previous'),
   RESOLVED: s('resolved', 'mint', 'previous'),
   // ended without service
   CANCELLED: s('cancelled', 'danger', 'previous'),
@@ -134,7 +132,7 @@ const STATUS: Record<string, StatusLook> = {
 };
 
 /**
- * Claims and returns say `pending` and `processing` in their own sense (under review), which the appointment and order
+ * Returns say `pending` and `processing` in their own sense (under review), which the appointment and order
  * tables read as "awaiting confirmation"; they get their own small table.
  */
 const REVIEWED: Record<string, StatusLook> = {
@@ -148,7 +146,7 @@ export const STATUS_LABELS: readonly string[] = [...new Set([...Object.values(ST
 
 export function statusLook(kind: OrderKind, status: string | null | undefined): StatusLook {
   const code = String(status ?? '').trim().toUpperCase();
-  if ((kind === 'insurance' || kind === 'returns') && REVIEWED[code]) return REVIEWED[code];
+  if (kind === 'returns' && REVIEWED[code]) return REVIEWED[code];
   return STATUS[code] ?? UNKNOWN;
 }
 
@@ -189,7 +187,6 @@ export const KIND_ICON: Record<OrderKind, { icon: FillIconName; tone: ServiceTon
   labs: SERVICE_ICONS.lab,
   radiology: SERVICE_ICONS.radiology,
   nursing: SERVICE_ICONS.nursing,
-  insurance: SERVICE_ICONS.insurance,
   returns: { icon: 'arrows-left-right', tone: SERVICE_ICONS.radiology.tone },
 };
 
@@ -257,7 +254,6 @@ export interface OrderSources {
   labs?: unknown;
   radiology?: unknown;
   nursing?: unknown;
-  claims?: unknown;
   returns?: unknown;
 }
 
@@ -329,17 +325,6 @@ export function buildRows(src: OrderSources, pick: PickName): OrderRow[] {
       }),
     );
   }
-  for (const c of listOf(src.claims)) {
-    push(
-      row('insurance', c, text(c.status) ?? 'pending', {
-        title: text(c.service),
-        at: time(c.date) ?? time(c.createdAt),
-        amount: firstAmount(c, ['amount']),
-        route: { pathname: '/insurance', params: { tab: 'claims' } },
-        action: 'details',
-      }),
-    );
-  }
   for (const r of listOf(src.returns)) {
     const id = idOf(r);
     const orderId = text(r.order_id);
@@ -359,4 +344,16 @@ export function buildRows(src: OrderSources, pick: PickName): OrderRow[] {
 
 export function inBucket(rows: OrderRow[], bucket: Bucket): OrderRow[] {
   return rows.filter((r) => r.look.bucket === bucket);
+}
+
+/** The kinds the service filter offers, in the order of the chips. */
+export const KIND_ORDER: readonly OrderKind[] = ['doctors', 'pharmacy', 'labs', 'radiology', 'nursing', 'returns'];
+/** Only the kinds present in the loaded rows get a chip. */
+export function kindsPresent(rows: OrderRow[]): OrderKind[] {
+  const seen = new Set(rows.map((r) => r.kind));
+  return KIND_ORDER.filter((kind) => seen.has(kind));
+}
+/** The service filter (client-side over what is loaded): null = all services. */
+export function ofKind(rows: OrderRow[], kind: OrderKind | null): OrderRow[] {
+  return kind === null ? rows : rows.filter((r) => r.kind === kind);
 }

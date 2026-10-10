@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { FlatList, RefreshControl, View } from 'react-native';
+import { FlatList, RefreshControl, ScrollView, View } from 'react-native';
 import { router, useFocusEffect, type Href } from 'expo-router';
 
-import { AppHeader, EmptyState, ErrorState, OfflineState, Screen, Segmented } from '../../../../packages/ui-native/src';
+import { AppHeader, Chip, EmptyState, ErrorState, OfflineState, Screen, Segmented } from '../../../../packages/ui-native/src';
 import { OrderCard } from './OrderKit';
 import { Notice } from '../pharmacy/OfferKit';
 import { goBackDiag } from '../diagnostics/DiagKit';
@@ -12,7 +12,7 @@ import { apiFetch } from '../../utils/api';
 import { isOffline } from '../../utils/isOffline';
 import { logError } from '../../utils/logger';
 import { pickLocalized } from '../../utils/localize';
-import { ORDERS_TONE, buildRows, inBucket, type Bucket, type OrderRow, type OrderSources } from '../../utils/orderCenter';
+import { ORDERS_TONE, buildRows, inBucket, kindsPresent, ofKind, type Bucket, type OrderKind, type OrderRow, type OrderSources } from '../../utils/orderCenter';
 
 /**
  * The list of the Orders board (canvas/Orders.dc.html): the segmented "current / previous" and one card per order. Each
@@ -35,7 +35,6 @@ export const ALL_ORDER_ENDPOINTS: OrderEndpoints = [
   ['labs', '/labs/bookings/mine'],
   ['radiology', '/radiology/bookings/mine'],
   ['nursing', '/home-care/bookings/my'],
-  ['claims', '/insurance/claims'],
   ['returns', '/pharmacy/returns'],
 ];
 
@@ -61,6 +60,7 @@ export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEnd
   const [failed, setFailed] = useState(0);
   const [offline, setOffline] = useState(false);
   const [bucket, setBucket] = useState<Bucket>('current');
+  const [kind, setKind] = useState<OrderKind | null>(null);
   const seq = useRef(0);
   const onBack = useMemo(() => backFor(endpoints), [endpoints]);
 
@@ -97,7 +97,10 @@ export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEnd
     }, [load]),
   );
 
-  const shown = useMemo(() => inBucket(rows, bucket), [rows, bucket]);
+  const kinds = useMemo(() => kindsPresent(rows), [rows]);
+  // a filter whose service has no rows after a reload falls back to All
+  const activeKind = kind !== null && kinds.includes(kind) ? kind : null;
+  const shown = useMemo(() => ofKind(inBucket(rows, bucket), activeKind), [rows, bucket, activeKind]);
 
   const header = (
     <View style={COLUMN}>
@@ -140,6 +143,14 @@ export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEnd
         theme={theme}
         testID={`${testID}-tabs`}
       />
+      {kinds.length > 1 ? (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityLabel={k('orders.filter.label')} contentContainerStyle={{ gap: 8 }} testID={`${testID}-filter`}>
+          <Chip label={k('orders.filter.all')} selected={activeKind === null} onPress={() => setKind(null)} theme={theme} testID={`${testID}-filter-all`} />
+          {kinds.map((value) => (
+            <Chip key={value} label={k(`orders.filterKind.${value}`)} selected={activeKind === value} onPress={() => setKind(value)} theme={theme} testID={`${testID}-filter-${value}`} />
+          ))}
+        </ScrollView>
+      ) : null}
       {failed > 0 ? <Notice tone="warning" text={k('orders.partial', { n: num(failed) })} actionLabel={k('pharmacy.retry')} onAction={() => void load('first')} /> : null}
     </View>
   );

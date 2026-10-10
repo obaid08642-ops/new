@@ -6,7 +6,7 @@
     "element": "اعتماد الاسترداد",
     "file": "admin/src/pages/admin/insurance-queue.tsx",
     "line": 166,
-    "found": "[client] Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "found": "Removed 2026-10-10 (owner decision): [client] Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "suspect": "Client-side: later batch."
   },
   {
@@ -16,7 +16,7 @@
     "element": "رفض",
     "file": "admin/src/pages/admin/insurance-queue.tsx",
     "line": 167,
-    "found": "[client] Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "found": "Removed 2026-10-10 (owner decision): [client] Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "suspect": "Client-side: later batch."
   },
   {
@@ -26,7 +26,7 @@
     "element": "Guard G-ROLE-ONLY-WRITE (1)",
     "file": "admin/src/pages/admin/insurance-queue.tsx",
     "line": 56,
-    "found": "[backend] 1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/finance/refunds/:param/decide): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:887)",
+    "found": "Removed 2026-10-10 (owner decision): [backend] 1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/finance/refunds/:param/decide): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:887)",
     "suspect": "Backend gap: reviewer session."
   },
   {

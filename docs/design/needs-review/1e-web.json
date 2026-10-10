@@ -88,5 +88,15 @@
     "line": 0,
     "found": "[backend] GET /patient/pharmacy/orders returns raw documents without governed_state; list actions are chosen by status and the order router reads the detail.",
     "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/orders",
+    "element": "Insurance claims and returns",
+    "file": "patient-web/components-next/orders/center-rows.ts",
+    "line": 79,
+    "found": "[client] The app's order center also lists insurance claims and pharmacy returns; the web list has the five services of issue 378 only (claims and returns have their own pages). Needs an owner decision to merge them.",
+    "suspect": "Client-side: later batch."
   }
 ]

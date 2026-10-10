@@ -60,7 +60,6 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/content-growth', label: 'المحتوى والنمو', permission: 'cms.edit' },
       { href: '/admin/home-curation', label: 'ترتيب الصفحة الرئيسية', permission: 'cms.edit' },
       { href: '/admin/search-intelligence', label: 'ذكاء وتحليلات البحث' },
-      { href: '/admin/catalog-governance', label: 'حوكمة الكتالوج' },
       { href: '/admin/medicines-catalog', label: 'كتالوج الأدوية' },
       { href: '/admin/shortage-reports', label: 'بلاغات نقص الأدوية', permission: 'catalog.read' },
       { href: '/admin/image-suggestions', label: 'اقتراحات صور الأدوية', permission: 'catalog.read' },
@@ -81,6 +80,8 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: '/admin/rbac', label: 'الأدوار والصلاحيات', permission: 'rbac.manage' },
       { href: '/admin/system-ops', label: 'تشغيل النظام', permission: 'ops.queues.manage' },
+      // D-16 / #953 (owner 2026-10-10): module switches are super-admin only: the new permission modules.manage (the reviewer adds it on the backend route).
+      { href: '/admin/module-switches', label: 'مفاتيح الخدمات', permission: 'modules.manage' },
       { href: '/admin/notification-center', label: 'مركز الإشعارات والحملات', permission: 'ops.queues.manage' },
       // #994: AI controls were reachable only by URL.
       { href: '/admin/ai-control', label: 'التحكم في الذكاء الاصطناعي', permission: 'ops.queues.manage' },
@@ -140,7 +141,6 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/pharmacy-procurement': 'pharmacy.inventory.read',
   '/admin/medicines-catalog': 'catalog.read',
   '/admin/catalog-manager': 'catalog.read',
-  '/admin/catalog-governance': 'catalog.read',
   '/admin/price-override-audit': 'catalog.read',
   '/admin/shortage-reports': 'catalog.read',
   '/admin/crm': 'crm.read',
@@ -156,6 +156,7 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/loyalty-config': 'coupons.manage',
   '/admin/notification-center': 'ops.queues.manage',
   '/admin/system-ops': 'ops.queues.manage',
+  '/admin/module-switches': 'modules.manage',
   '/admin/config-portal': 'ops.queues.manage',
   '/admin/ai-control': 'ops.queues.manage',
   '/admin/audit-logs': 'data.export',

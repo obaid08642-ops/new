@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Put, UseGuards } from '@nestjs/common';
 import { IsBoolean, IsDefined, IsString, MinLength } from 'class-validator';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { Permission, RequirePermissions } from '../../common/permissions';
 import { ModuleSwitchesService } from './module-switches.service';
 
 export class SetModuleDto {
@@ -27,6 +28,7 @@ export class ModuleSwitchesController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.MODULES_MANAGE)
   @Put('admin/modules/:key')
   async write(@Param('key') key: string, @Body() body: SetModuleDto, @CurrentUser() _u: any) {
     return this.switches.set(key, body.enabled, body.reason);

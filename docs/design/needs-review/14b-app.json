@@ -38,5 +38,15 @@
     "line": 77,
     "found": "[backend] Confirm that GET /labs/bookings/:id sends location_type; until then the technician block also shows when a technician is assigned.",
     "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-app",
+    "screen": "/diagnostics/sample-tracking",
+    "element": "Static preparation and visit tips (items 628 / 629)",
+    "file": "patient-app/app/diagnostics/sample-tracking.tsx",
+    "line": 107,
+    "found": "[owner] needs medical review before launch: diag.track.prep (fasting 8 to 12 hours) and diag.tech.tips are fixed texts for every package; owner approved them on condition of a medical review (or later per-test text from the catalogue). Content not changed.",
+    "suspect": "Owner decision."
   }
 ]

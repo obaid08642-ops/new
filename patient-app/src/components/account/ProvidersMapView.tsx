@@ -201,7 +201,8 @@ export function ProvidersMapView() {
     if (p.kind === 'doctor') router.push({ pathname: '/consultations/doctor-profile', params: { doctorId: p.id } } as unknown as Href);
     else if (p.kind === 'pharmacy') router.push('/(tabs)/pharmacy' as Href);
     else if (p.kind === 'lab') router.push('/diagnostics/book-sample' as Href);
-    else if (p.kind === 'hospital') router.push('/(tabs)/consultations' as Href);
+    // 767: a hospital opens its facility page (GET /care/facilities/:id), not the consultations tab
+    else if (p.kind === 'hospital') router.push({ pathname: '/consultations/clinic/[id]', params: { id: p.id } } as unknown as Href);
     else router.push('/(tabs)/nursing' as Href);
   };
 

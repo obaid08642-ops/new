@@ -10,6 +10,8 @@ import DoctorSearchView from '../../src/components/views/DoctorSearchView';
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { COLUMN, FONT, tint, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
+import { useModules } from '../../src/context/ModulesContext';
+import { visibleItems } from '../../src/utils/moduleSwitches';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import {
@@ -196,6 +198,8 @@ function Block({ block, term, filter, count, onOpen, onSeeAll }: { block: Result
 /** "Didn't find what you wanted? Upload the prescription": the board's dashed card, opening the real upload. */
 function UploadCard() {
   const { theme, t, c, flow } = useScreenUi();
+  const { isHidden } = useModules();
+  if (isHidden('/pharmacy')) return null;
   return (
     <Pressable
       accessibilityRole="link"
@@ -233,8 +237,10 @@ function ResultsSkeleton() {
 /** With no query: recent searches, then the browse grid. */
 function Discover({ recent, onPick, onClear }: { recent: string[]; onPick: (q: string) => void; onClear: () => void }) {
   const { theme, t, c, flow, tr } = useScreenUi();
+  const { disabled } = useModules();
+  const browse = visibleItems(BROWSE, (item) => item.route, disabled);
   const rows: (typeof BROWSE)[] = [];
-  for (let i = 0; i < BROWSE.length; i += 4) rows.push(BROWSE.slice(i, i + 4));
+  for (let i = 0; i < browse.length; i += 4) rows.push(browse.slice(i, i + 4));
   return (
     <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 40, gap: 24 }}>
       {recent.length ? (
@@ -280,6 +286,7 @@ function Discover({ recent, onPick, onClear }: { recent: string[]; onPick: (q: s
 
 function SearchScreen({ initialQuery }: { initialQuery: string }) {
   const { theme, t, c, dir, tr } = useScreenUi();
+  const modules = useModules();
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState(initialQuery);
   const [filter, setFilter] = useState('all');
@@ -374,7 +381,7 @@ function SearchScreen({ initialQuery }: { initialQuery: string }) {
             label={tr('بحث')}
             onClear={() => setQuery('')}
             clearLabel={tr('مسح')}
-            onScanPress={() => router.push('/pharmacy/barcode-scanner' as Href)}
+            onScanPress={modules.isHidden('/pharmacy') ? undefined : () => router.push('/pharmacy/barcode-scanner' as Href)}
             scanLabel={tr('ماسح الأدوية')}
             testID="search-field"
             theme={theme}

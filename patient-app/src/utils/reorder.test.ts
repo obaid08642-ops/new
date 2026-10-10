@@ -1,5 +1,5 @@
 import { buildPatientPharmacyDraft } from './pharmacy-draft';
-import { readReorderLines, reorderBody } from './reorder';
+import { readReorderLines, readReorderMeta, reorderBody } from './reorder';
 
 const address = { label: 'Test home', street: 'Test street', city: 'Test city', lat: 24.7, lng: 46.6 };
 
@@ -42,5 +42,22 @@ describe('reorderBody', () => {
     const lines = readReorderLines({ items: [{ id: 'a', raw_name: 'One' }, { id: 'b', raw_name: 'Two' }] });
     const kept = lines.filter((l) => l.key === 'b');
     expect(reorderBody(kept, address, buildPatientPharmacyDraft).items.map((i) => i.raw_name)).toEqual(['Two']);
+  });
+});
+
+describe('reorder meta (372)', () => {
+  it("reads the earlier order's prescription and receiving method, and nothing else", () => {
+    expect(readReorderMeta({ data: { prescription_id: 'rx-1', fulfillment: 'pickup' } })).toEqual({ prescriptionId: 'rx-1', fulfillment: 'pickup' });
+    expect(readReorderMeta({ fulfillment: 'courier' })).toEqual({ prescriptionId: null, fulfillment: null });
+    expect(readReorderMeta(null)).toEqual({ prescriptionId: null, fulfillment: null });
+  });
+
+  it('sends them with the new request', () => {
+    const lines = readReorderLines({ items: [{ id: 'i1', raw_name: 'Panadol', qty: 1 }] });
+    const body = reorderBody(lines, address, buildPatientPharmacyDraft, { prescriptionId: 'rx-1', fulfillment: 'pickup' });
+    expect(body).toMatchObject({ prescription_id: 'rx-1', fulfillment: 'pickup' });
+    const plain = reorderBody(lines, address, buildPatientPharmacyDraft);
+    expect(plain).toMatchObject({ fulfillment: 'delivery' });
+    expect(plain).not.toHaveProperty('prescription_id');
   });
 });

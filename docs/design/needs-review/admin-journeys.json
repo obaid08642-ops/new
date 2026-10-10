@@ -87,28 +87,28 @@
     "batch": "admin-journeys", "app": "admin", "screen": "/admin/catalog-governance",
     "element": "Journey 2 / Three overlapping medicine editors",
     "file": "admin/src/pages/admin/catalog-governance.tsx", "line": 78,
-    "found": "[owner] Medicines can be edited from medicines-catalog (full form), catalog-manager (tab 'medicines', broken methods) and catalog-governance (price only, reason always required). Same PATCH, three different validations and three nav entries; the mobile catalogue should be one screen. Merge map is the owner's call (decision 27).",
+    "found": "Removed 2026-10-10 (owner decision): [owner] Medicines can be edited from medicines-catalog (full form), catalog-manager (tab 'medicines', broken methods) and catalog-governance (price only, reason always required). Same PATCH, three different validations and three nav entries; the mobile catalogue should be one screen. Merge map is the owner's call (decision 27).",
     "suspect": "Owner decision."
   },
   {
     "batch": "admin-journeys", "app": "admin", "screen": "/admin/insurance-queue",
     "element": "Journey 3 / Refund approval moves no money and nothing executes it",
     "file": "admin/src/pages/admin/insurance-queue.tsx", "line": 55,
-    "found": "[backend] 'Approve refund' calls POST /admin/finance/refunds/:id/decide, which only sets the request to APPROVED/REJECTED (no ledger entry, no gateway refund, no patient notification). Execution is a separate POST /admin/finance-engine/refunds/:id/execute (maker-checker above the large-refund threshold) that no admin page calls, so an approved refund stays APPROVED. The buttons also have no confirm step. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:850, backend/src/modules/finance-engine/finance-engine.module.ts:1096)",
+    "found": "Removed 2026-10-10 (owner decision): [backend] 'Approve refund' calls POST /admin/finance/refunds/:id/decide, which only sets the request to APPROVED/REJECTED (no ledger entry, no gateway refund, no patient notification). Execution is a separate POST /admin/finance-engine/refunds/:id/execute (maker-checker above the large-refund threshold) that no admin page calls, so an approved refund stays APPROVED. The buttons also have no confirm step. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:850, backend/src/modules/finance-engine/finance-engine.module.ts:1096)",
     "suspect": "Backend gap: reviewer session."
   },
   {
     "batch": "admin-journeys", "app": "admin", "screen": "/admin/orders/[kind]/[id]",
     "element": "Journey 3 / Refund action is labelled 'to wallet' but refunds to the original method",
     "file": "admin/src/pages/admin/orders/[kind]/[id].tsx", "line": 10,
-    "found": "[client] The refund action is labelled 'استرداد إلى المحفظة' (refund to wallet), but RefundExecutor refunds through Moyasar to the original payment method ('There is no patient-wallet branch anymore'), cash is a ledger record only. The action itself is sound: reason >=10 chars, amount <= refundable_max, confirm dialog, audit, payment status mirrored, patient notified. (backend: backend/src/modules/finance-engine/finance-engine.module.ts:538)",
+    "found": "Fixed (the refund label now reads \"استرداد إلى وسيلة الدفع الأصلية\"; the compensation label was corrected the same way 2026-10-10, owner decision #952): [client] The refund action is labelled 'استرداد إلى المحفظة' (refund to wallet), but RefundExecutor refunds through Moyasar to the original payment method ('There is no patient-wallet branch anymore'), cash is a ledger record only. The action itself is sound: reason >=10 chars, amount <= refundable_max, confirm dialog, audit, payment status mirrored, patient notified. (backend: backend/src/modules/finance-engine/finance-engine.module.ts:538)",
     "suspect": "Client-side: later batch."
   },
   {
     "batch": "admin-journeys", "app": "admin", "screen": "/admin/returns",
     "element": "Journey 3 / Four refund paths, two with no admin screen",
     "file": "admin/src/pages/admin/returns.tsx", "line": 52,
-    "found": "[owner] Refunds can start in: admin returns (approve executes the refund, returns.service.ts:380), the refund queue on insurance-queue (decide only), order console (execute at once), and unused routes with no UI: POST /admin/refunds/:id/decide (patient-ux), POST /payments/refund/:txn and POST /moyasar/payments/:id/refund. One refund journey and one status vocabulary are needed before the mobile approvals queue. (backend: backend/src/modules/patient-ux/patient-ux.module.ts:184, backend/src/modules/payments/payments.module.ts:596)",
+    "found": "Removed 2026-10-10 (owner decision): [owner] Refunds can start in: admin returns (approve executes the refund, returns.service.ts:380), the refund queue on insurance-queue (decide only), order console (execute at once), and unused routes with no UI: POST /admin/refunds/:id/decide (patient-ux), POST /payments/refund/:txn and POST /moyasar/payments/:id/refund. One refund journey and one status vocabulary are needed before the mobile approvals queue. (backend: backend/src/modules/patient-ux/patient-ux.module.ts:184, backend/src/modules/payments/payments.module.ts:596)",
     "suspect": "Owner decision."
   },
   {
@@ -116,7 +116,7 @@
     "element": "Journey 4 / Feature switch has no effect on clients",
     "file": "admin/src/pages/admin/system-ops.tsx", "line": 18,
     "found": "[backend] The page writes feature_flags and featureflags (POST /admin/governance-controls/feature-flags, audited, reason required, rollout %). Nothing reads them: no backend module checks a flag (only the AI gateway reads the featureflags collection), and patient-app, patient-web and provider-app never call GET /feature-flags (patient-app FeatureFlags.ts has an update hook but no fetch, and its keys are not the module keys). Owner decision 16 (instant module switches) is not built. (backend: backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:82, backend/src/modules/feature-flags/feature-flags.controller.ts:15)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Fixed on design/module-switches (#953): the backend module switches (D-16) now have the admin page /admin/module-switches, and patient-app and patient-web hide a switched-off module. The feature-flag page points to it; its flags still change nothing in the clients."
   },
   {
     "batch": "admin-journeys", "app": "admin", "screen": "/admin/system-ops",

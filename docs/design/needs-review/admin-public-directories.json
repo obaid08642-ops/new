@@ -6,7 +6,7 @@
     "element": "API GET /articles",
     "file": "admin/src/pages/articles/index.tsx",
     "line": 20,
-    "found": "[client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/articles\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/articles/articles.module.ts:115)",
+    "found": "Removed 2026-10-10 (owner decision): [client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/articles\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/articles/articles.module.ts:115)",
     "suspect": "Client-side: later batch."
   },
   {
@@ -16,7 +16,7 @@
     "element": "Public page inside admin",
     "file": "admin/src/pages/articles/index.tsx",
     "line": 1,
-    "found": "[owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
+    "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision."
   },
   {
@@ -26,7 +26,7 @@
     "element": "API GET /care/doctors",
     "file": "admin/src/pages/doctors/index.tsx",
     "line": 20,
-    "found": "[client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/care/doctors\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/care/care.controller.ts:29)",
+    "found": "Removed 2026-10-10 (owner decision): [client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/care/doctors\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/care/care.controller.ts:29)",
     "suspect": "Client-side: later batch."
   },
   {
@@ -36,7 +36,7 @@
     "element": "Public page inside admin",
     "file": "admin/src/pages/doctors/index.tsx",
     "line": 1,
-    "found": "[owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
+    "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision."
   },
   {
@@ -46,7 +46,7 @@
     "element": "API GET /care/facilities",
     "file": "admin/src/pages/facilities/index.tsx",
     "line": 20,
-    "found": "[client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/care/facilities\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/care/care.controller.ts:90)",
+    "found": "Removed 2026-10-10 (owner decision): [client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/care/facilities\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/care/care.controller.ts:90)",
     "suspect": "Client-side: later batch."
   },
   {
@@ -56,7 +56,7 @@
     "element": "Public page inside admin",
     "file": "admin/src/pages/facilities/index.tsx",
     "line": 1,
-    "found": "[owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
+    "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision."
   },
   {
@@ -66,7 +66,7 @@
     "element": "API GET /home-care/services",
     "file": "admin/src/pages/home-care-services/index.tsx",
     "line": 20,
-    "found": "[client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/home-care/services\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/home-care/home-care-compat.module.ts:48)",
+    "found": "Removed 2026-10-10 (owner decision): [client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/home-care/services\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/home-care/home-care-compat.module.ts:48)",
     "suspect": "Client-side: later batch."
   },
   {
@@ -76,7 +76,7 @@
     "element": "Public page inside admin",
     "file": "admin/src/pages/home-care-services/index.tsx",
     "line": 1,
-    "found": "[owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
+    "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision."
   },
   {
@@ -86,7 +86,7 @@
     "element": "Public page inside admin",
     "file": "admin/src/pages/index.tsx",
     "line": 1,
-    "found": "[owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
+    "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision."
   },
   {
@@ -96,7 +96,7 @@
     "element": "API GET /labs/services",
     "file": "admin/src/pages/lab-services/index.tsx",
     "line": 20,
-    "found": "[client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/labs/services\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/labs/labs.controller.ts:12)",
+    "found": "Removed 2026-10-10 (owner decision): [client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/labs/services\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/labs/labs.controller.ts:12)",
     "suspect": "Client-side: later batch."
   },
   {
@@ -106,7 +106,7 @@
     "element": "Public page inside admin",
     "file": "admin/src/pages/lab-services/index.tsx",
     "line": 1,
-    "found": "[owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
+    "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision."
   },
   {
@@ -116,7 +116,7 @@
     "element": "API GET /medicines",
     "file": "admin/src/pages/medicines/index.tsx",
     "line": 20,
-    "found": "[client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/medicines\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/medicines/medicines.controller.ts:15)",
+    "found": "Removed 2026-10-10 (owner decision): [client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/medicines\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/medicines/medicines.controller.ts:15)",
     "suspect": "Client-side: later batch."
   },
   {
@@ -126,7 +126,7 @@
     "element": "Public page inside admin",
     "file": "admin/src/pages/medicines/index.tsx",
     "line": 1,
-    "found": "[owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
+    "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision."
   },
   {
@@ -136,7 +136,7 @@
     "element": "Public page inside admin",
     "file": "admin/src/pages/s/[type]/[slug].tsx",
     "line": 1,
-    "found": "[owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
+    "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision."
   }
 ]

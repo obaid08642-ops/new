@@ -4,6 +4,7 @@
  */
 import { SeoController } from './seo.controller';
 import { CreateDto, UpdateDto } from './articles.dto';
+import { DoctorArticlesController, DoctorArticlesService, RejectDoctorArticleDto } from './doctor-articles.controller';
 import {
   Body, Controller, Delete, Get, Injectable, Module,
   NotFoundException, Param, Patch, Post, Query, Req, UseGuards,
@@ -122,7 +123,7 @@ export class ArticlesPublicController {
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 export class ArticlesAdminController {
-  constructor(private svc: ArticlesService) {}
+  constructor(private svc: ArticlesService, private doctorSvc: DoctorArticlesService) {}
 
   @Get() list() { return this.svc.adminList(); }
   @Post() create(@Body() body: CreateDto) { return this.svc.create(body); }
@@ -130,6 +131,14 @@ export class ArticlesAdminController {
   @Post(':id/publish') publish(@Param('id') id: string) { return this.svc.publish(id); }
   @Post(':id/unpublish') unpublish(@Param('id') id: string) { return this.svc.unpublish(id); }
   @Delete(':id') remove(@Param('id') id: string) { return this.svc.remove(id); }
+
+  /** D-1: approve a doctor-submitted article (re-checks prescription brands first). */
+  @Post(':id/approve') approve(@Param('id') id: string) { return this.doctorSvc.approve(id); }
+
+  /** D-1: reject a doctor-submitted article with a reason. */
+  @Post(':id/reject') reject(@Param('id') id: string, @Body() body: RejectDoctorArticleDto) {
+    return this.doctorSvc.reject(id, body?.reason);
+  }
 }
 
 // ── Contract bookmarks (authenticated, owner-scoped and idempotent) ────────
@@ -206,8 +215,8 @@ export class ArticleBookmarksController {
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: Article.name, schema: ArticleSchema }])],
-  controllers: [ArticlesPublicController, ArticlesAdminController, SeoController, ArticleBookmarkContractController, ArticleBookmarksController],
-  providers: [ArticlesService],
+  controllers: [ArticlesPublicController, ArticlesAdminController, DoctorArticlesController, SeoController, ArticleBookmarkContractController, ArticleBookmarksController],
+  providers: [ArticlesService, DoctorArticlesService],
   exports: [ArticlesService],
 })
 export class ArticlesModule {}

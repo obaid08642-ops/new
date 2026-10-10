@@ -125,6 +125,11 @@
           "Message rows (type, time, attachment flag)",
           "GET /chat/threads/:param, GET /chat/threads/:param/messages",
           "ok"
+        ],
+        [
+          "Text composer (issue 806)",
+          "POST /chat/threads/:id/messages { body, client_message_id } through /api/patient (allowlisted, method-pinned), drawn only when permissions can_chat and not read_only; shown after the server answers; error + retry; no uploads or voice",
+          "ok"
         ]
       ]
     },
@@ -329,6 +334,16 @@
         [
           "Visit type (clinic, video, home visit)",
           "?type= -> GET /care/doctors type",
+          "ok"
+        ],
+        [
+          "Specialty select (issue 404)",
+          "?specialty=<slug> -> GET /care/doctors specialty (combines with ?q=); names from SpecialtyNames",
+          "ok"
+        ],
+        [
+          "Insurance / cash-only filter (issue 404)",
+          "?payment=insurance|cash -> accepts_insurance=true|false (care.controller.ts:39); \"cash\" = doctors who do not accept insurance",
           "ok"
         ],
         [
@@ -597,7 +612,7 @@
       "route": "/consultations/doctors",
       "element": "Filters",
       "kind": "owner",
-      "note": "Search, sort, visit type, Nearest and Available now are drawn; the Consult board's specialty rail and cash/insurance segmented filter are still not on the page (not added: feature).",
+      "note": "Search, sort, visit type, Nearest and Available now are drawn, and since issue 404 (approved 2026-10-10) so are a specialty select (?specialty=, the slug filter) and an insurance / cash-only segmented filter (?payment=, accepts_insurance); the board's specialty rail is drawn as a select.",
       "file": "patient-web/app/[locale]/consultations/doctors/page.tsx",
       "line": 81
     },
@@ -641,6 +656,8 @@
       "note": "Approved 2026-10-10: Doctors in {city}",
       "file": "patient-web/components-next/consult/doctor-quick-filters.tsx",
       "line": 63
-    }
+    },
+    { "route": "/consultations/doctors", "element": "Cash-only filter", "kind": "owner", "note": "The server has accepts_insurance only: 'Cash only' means doctors who do NOT accept insurance (accepts_insurance=false), not 'any doctor, paid in cash'. A patient who pays cash can still book any doctor from the unfiltered list.", "file": "patient-web/lib/consult/doctor-filters.ts", "line": 76, "backend": "backend/src/modules/care/care.controller.ts:54" },
+    { "route": "/chat/[threadId]", "element": "Sent text is not shown", "kind": "owner", "note": "The thread page lists message activity only (type and time, never the text: the privacy rule of the page), so after the composer sends, the patient sees the new activity row but not what was written or what the doctor replied.", "file": "patient-web/components-next/consult/chat-composer.tsx", "line": 16 }
   ]
 }

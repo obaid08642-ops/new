@@ -170,7 +170,8 @@
           "Fee, points discount and attach-reports rows of the board",
           "no points or attachment flow; the price is stated at the payment step",
           "hidden"
-        ]
+        ],
+        ["Price summary of the placed booking (item 390)", "GET /care/appointments/:id price, service_fee, home_visit_fee, transportation_fee, total_price, payment_status; nothing summed on the client, lines at 0 not drawn", "fixed"]
       ]
     },
     {
@@ -235,7 +236,8 @@
           "Microphone button",
           "no action existed (it sent nothing)",
           "hidden"
-        ]
+        ],
+        ["Voice note: record and send (items 388 / 799)", "shown only when GET /chat/threads/:id/permissions can_voice (online consultation); expo-audio recorder, POST /media/upload (purpose chat), POST /chat/threads/:id/messages type voice with duration_seconds", "fixed"]
       ]
     },
     {
@@ -265,7 +267,8 @@
           "Preparation list",
           "static advice, translated",
           "ok"
-        ]
+        ],
+        ["Header: back button only (item 396)", "the extra close action was removed; back leaves to home", "fixed"]
       ]
     },
     {
@@ -590,7 +593,7 @@
       "route": "/consultations/appointment-detail",
       "element": "Urdu text",
       "kind": "owner",
-      "note": "Readex Pro has no Urdu glyphs, so Urdu falls back to a system font and mixes two typefaces in one line (seen at 390 in ur on every consultation screen); needs an Urdu-capable face approved by the owner.",
+      "note": "Readex Pro has no Urdu glyphs, so Urdu falls back to a system font and mixes two typefaces in one line (seen at 390 in ur on every consultation screen); Approved 2026-10-10 and fixed on design/app-owner-ui: Noto Nastaliq Urdu for ur only.",
       "file": "patient-app/app/consultations/appointment-detail.tsx",
       "line": 122
     },

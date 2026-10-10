@@ -22,6 +22,13 @@ export async function redirectToInsuranceTab(params: Promise<{ locale: string }>
   redirect(`/${locale}/insurance?${new URLSearchParams([["tab", tab], ...qs]).toString()}`);
 }
 
+/** A removed insurance page (owner decision 35, 2026-10-10: no claims or refund requests for patients): old links open the hub, without the old query. */
+export async function redirectToInsuranceHub(params: Promise<{ locale: string }>): Promise<never> {
+  const { locale } = await params;
+  if (!isLocale(locale)) notFound();
+  redirect(`/${locale}/insurance`);
+}
+
 /** An old insurance page that is now the page of one request: `/insurance/requests/<id>`; the old amount in the URL is not carried (the server's amount is shown). */
 export function insuranceRequestHref(locale: string, requestId: string): string {
   return `/${locale}/insurance/requests/${requestId}`;
