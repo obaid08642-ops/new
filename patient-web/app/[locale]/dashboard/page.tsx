@@ -5,6 +5,8 @@ import { authCookieNames } from "@/lib/auth/cookies";
 import { getPatientDashboardProfile, getPatientDashboardUpcomingAppointment } from "@/lib/api/dashboard-server";
 import { parseDashboardAppointment, parseDashboardProfile } from "@/lib/api/dashboard";
 import { isOutage } from "@/lib/api/outage";
+import { getDisabledModules } from "@/lib/api/public-config-server";
+import { isPathHidden } from "@/lib/modules";
 import { isLocale } from "@/lib/i18n";
 import { RetryErrorState } from "@/components-next/core/core-states";
 import { HomeShell } from "@/components-next/home/home-shell";
@@ -25,6 +27,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "HomeWeb" });
   const dashboard = await getTranslations({ locale, namespace: "Dashboard" });
+  const disabled = await getDisabledModules();
   const [profileResult, appointmentResult] = await Promise.allSettled([
     getPatientDashboardProfile(token),
     getPatientDashboardUpcomingAppointment(token),
@@ -50,10 +53,11 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   const appointment = appointmentResult.status === "fulfilled" && appointmentResult.value.ok
     ? parseDashboardAppointment(await appointmentResult.value.json().catch(() => null))
     : null;
+  const showAppointment = Boolean(appointment) && !isPathHidden(`/${locale}/appointments`, disabled);
   return (
     <HomeShell locale={locale} signedIn name={profile.name} surface="dashboard">
       <div className={styles.page}>
-        <div className={styles.heroGrid} data-aside={appointment ? "true" : "false"}>
+        <div className={styles.heroGrid} data-aside={showAppointment ? "true" : "false"}>
           <HeroCard
             locale={locale}
             t={t}
@@ -61,15 +65,15 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
             title={profile.name ?? dashboard("title")}
             headingId="patient-dashboard-title"
           />
-          {appointment ? (
+          {appointment && showAppointment ? (
             <div className={styles.aside}>
               <AppointmentCard locale={locale} t={t} appointment={appointment} />
             </div>
           ) : null}
         </div>
-        <ServiceGrid locale={locale} t={t} signedIn />
-        <AiCard locale={locale} t={t} />
-        <AllServices locale={locale} t={t} labels={dashboard} />
+        <ServiceGrid locale={locale} t={t} signedIn disabled={disabled} />
+        <AiCard locale={locale} t={t} disabled={disabled} />
+        <AllServices locale={locale} t={t} labels={dashboard} disabled={disabled} />
       </div>
     </HomeShell>
   );

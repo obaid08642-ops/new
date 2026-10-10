@@ -3797,5 +3797,10 @@
     "message": "Type your message",
     "attach": "Attach an image",
     "send": "Send"
+  },
+  "Modules": {
+    "unavailableTitle": "This service is unavailable right now",
+    "unavailableBody": "We have paused this service for the moment. You can keep using the rest of the site.",
+    "unavailableHome": "Back to Home"
   }
 }

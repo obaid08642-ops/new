@@ -116,7 +116,7 @@
     "element": "Journey 4 / Feature switch has no effect on clients",
     "file": "admin/src/pages/admin/system-ops.tsx", "line": 18,
     "found": "[backend] The page writes feature_flags and featureflags (POST /admin/governance-controls/feature-flags, audited, reason required, rollout %). Nothing reads them: no backend module checks a flag (only the AI gateway reads the featureflags collection), and patient-app, patient-web and provider-app never call GET /feature-flags (patient-app FeatureFlags.ts has an update hook but no fetch, and its keys are not the module keys). Owner decision 16 (instant module switches) is not built. (backend: backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:82, backend/src/modules/feature-flags/feature-flags.controller.ts:15)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Fixed on design/module-switches (#953): the backend module switches (D-16) now have the admin page /admin/module-switches, and patient-app and patient-web hide a switched-off module. The feature-flag page points to it; its flags still change nothing in the clients."
   },
   {
     "batch": "admin-journeys", "app": "admin", "screen": "/admin/system-ops",
