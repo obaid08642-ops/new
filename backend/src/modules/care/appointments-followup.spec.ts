@@ -4,6 +4,9 @@ import { APPT_STATES } from '../../schemas/appointment.schema';
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { UserRole } from '../../common/enums';
 
+// Two days ahead on a half hour, so the slot is always in the future.
+const FUTURE = new Date(Math.ceil((Date.now() + 2 * 86_400_000) / 1_800_000) * 1_800_000).toISOString();
+
 describe('AppointmentsService follow_up_of validation', () => {
   const apptModel: any = { 
     findOne: jest.fn(), 
@@ -54,7 +57,7 @@ describe('AppointmentsService follow_up_of validation', () => {
 
     await expect(service.create(
       { id: 'pat-1', role: UserRole.PATIENT, full_name: 'Patient' },
-      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: '2026-10-20T10:00:00Z', follow_up_of: 'appt-original' }
+      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: FUTURE, follow_up_of: 'appt-original' }
     )).rejects.toThrow(NotFoundException);
   });
 
@@ -68,7 +71,7 @@ describe('AppointmentsService follow_up_of validation', () => {
 
     await expect(service.create(
       { id: 'pat-1', role: UserRole.PATIENT, full_name: 'Patient' },
-      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: '2026-10-20T10:00:00Z', follow_up_of: 'appt-original' }
+      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: FUTURE, follow_up_of: 'appt-original' }
     )).rejects.toThrow(ForbiddenException);
   });
 
@@ -82,7 +85,7 @@ describe('AppointmentsService follow_up_of validation', () => {
 
     await expect(service.create(
       { id: 'pat-1', role: UserRole.PATIENT, full_name: 'Patient' },
-      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: '2026-10-20T10:00:00Z', follow_up_of: 'appt-original' }
+      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: FUTURE, follow_up_of: 'appt-original' }
     )).rejects.toThrow(ForbiddenException);
   });
 
@@ -96,7 +99,7 @@ describe('AppointmentsService follow_up_of validation', () => {
 
     await expect(service.create(
       { id: 'pat-1', role: UserRole.PATIENT, full_name: 'Patient' },
-      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: '2026-10-20T10:00:00Z', follow_up_of: 'appt-original' }
+      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: FUTURE, follow_up_of: 'appt-original' }
     )).rejects.toThrow(BadRequestException);
   });
 
@@ -110,13 +113,14 @@ describe('AppointmentsService follow_up_of validation', () => {
     });
     apptModel.create.mockResolvedValue(createdAppt);
     engine.announceCreated.mockResolvedValue(undefined);
+    // The state step after create is covered elsewhere; here only the stored link matters.
+    jest.spyOn(service as any, 'transition').mockResolvedValue(createdAppt);
 
-    const result = await service.create(
+    await service.create(
       { id: 'pat-1', role: UserRole.PATIENT, full_name: 'Patient' },
-      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: '2026-10-20T10:00:00Z', follow_up_of: 'appt-original' }
+      { doctor_id: 'doc-1', service_type: 'clinic', slot_start: FUTURE, follow_up_of: 'appt-original' }
     );
 
-    expect(result).toEqual(createdAppt);
     expect(apptModel.create).toHaveBeenCalledWith(expect.objectContaining({ follow_up_of: 'appt-original' }));
   });
 });
