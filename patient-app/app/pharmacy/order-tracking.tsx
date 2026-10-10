@@ -11,9 +11,9 @@ import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { ORDERS_TONE, hashRef, statusLook } from '../../src/utils/orderCenter';
-import { nextKey, readTracking, type TrackingView } from '../../src/utils/orderTracking';
+import { nextKey, readLegacyTracking, readTracking, type LegacyTrackingView, type TrackingView } from '../../src/utils/orderTracking';
 import { orderNumber } from '../../src/utils/pharmacyCheckout';
-import { orderIdParam } from '../../src/utils/pharmacyOffers';
+import { orderIdParam, pharmacyDisplayName } from '../../src/utils/pharmacyOffers';
 
 /**
  * Order tracking — board OrderTracking (canvas/OrderTracking.dc.html) for a governed pharmacy order. Everything on it is
@@ -24,13 +24,14 @@ import { orderIdParam } from '../../src/utils/pharmacyOffers';
  */
 
 export default function OrderTrackingScreen() {
-  const { theme, t, c, dir, flow, k, num } = useScreenUi();
+  const { theme, t, c, dir, flow, k, num, lang } = useScreenUi();
   const params = useLocalSearchParams<{ orderId?: string | string[] }>();
   const id = orderIdParam({ orderId: params.orderId });
   const date = useOrderDate();
   const clock = useClock();
 
   const [view, setView] = useState<TrackingView | null>(null);
+  const [legacy, setLegacy] = useState<LegacyTrackingView | null>(null);
   const [loading, setLoading] = useState(Boolean(id));
   const [refreshing, setRefreshing] = useState(false);
   const [failed, setFailed] = useState<'error' | 'offline' | 'missing' | null>(null);
@@ -44,12 +45,25 @@ export default function OrderTrackingScreen() {
         const read = readTracking(await apiFetch(`/patient/pharmacy/orders/${id}`));
         if (!read) throw new Error('order_unreadable');
         setView(read);
+        setLegacy(null);
         setFailed(null);
         hasData.current = true;
       } catch (error) {
         logError('pharmacy:order-tracking', error);
-        if (/order_not_found|not_yours|AUTH_ERROR_403/i.test(error instanceof Error ? error.message : '')) setFailed('missing');
-        else if (!hasData.current) setFailed((await isOffline()) ? 'offline' : 'error');
+        if (/order_not_found|not_yours|AUTH_ERROR_403/i.test(error instanceof Error ? error.message : '')) {
+          // #368: an order of the old flow is not known to the governed endpoint; its own tracking answers for it
+          try {
+            const old = readLegacyTracking(await apiFetch(`/orders/${encodeURIComponent(id)}/tracking`));
+            if (!old) throw new Error('order_unreadable');
+            setLegacy(old);
+            setView(null);
+            setFailed(null);
+            hasData.current = true;
+          } catch (legacyError) {
+            logError('pharmacy:order-tracking:legacy', legacyError);
+            setFailed('missing');
+          }
+        } else if (!hasData.current) setFailed((await isOffline()) ? 'offline' : 'error');
       } finally {
         setLoading(false);
         setRefreshing(false);
@@ -89,6 +103,67 @@ export default function OrderTrackingScreen() {
       </Screen>
     );
   }
+  if (legacy) {
+    const look = statusLook('pharmacy', legacy.state);
+    const oldName = legacy.pharmacyName;
+    return (
+      <Screen
+        theme={theme}
+        direction={dir}
+        header={header}
+        scroll
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void load('manual'); }} tintColor={c.text.primary} />}
+        testID="order-tracking-screen"
+      >
+        <View style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 32, gap: 16 }}>
+          <Card theme={theme}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                <Text accessibilityRole="header" testID="legacy-tracking-status" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k(`orders.status.${look.label}`)}</Text>
+                {legacy.etaMinutes !== null ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('orders.track.legacyEta', { n: num(legacy.etaMinutes) })}</Text> : null}
+              </View>
+              <StatusPill label={k('orders.track.number', { n: hashRef(orderNumber(legacy.id)) })} tone="neutral" />
+            </View>
+          </Card>
+
+          {legacy.courier ? (
+            <Card theme={theme}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <FIcon icon="moped" tone={ORDERS_TONE} chip="soft" size={48} theme={theme} />
+                <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                  <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{legacy.courier.name}</Text>
+                  <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('orders.track.courier')}</Text>
+                </View>
+                {legacy.courier.phone ? (
+                  <Button
+                    label={k('orders.track.call')}
+                    variant="outline"
+                    size="sm"
+                    onPress={() => {
+                      Linking.openURL(`tel:${legacy.courier?.phone}`).catch((error) => logError('pharmacy:order-tracking:call', error));
+                    }}
+                    theme={theme}
+                  />
+                ) : null}
+              </View>
+            </Card>
+          ) : null}
+
+          {oldName || (legacy.total !== null && legacy.total > 0) ? (
+            <Card theme={theme}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <FIcon icon="storefront" tone={ORDERS_TONE} chip="soft" size={40} theme={theme} />
+                <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                  {oldName ? <Text testID="tracking-pharmacy-name" style={{ ...scale(t, 'row', 'medium'), color: c.text.primary, ...flow }}>{oldName}</Text> : null}
+                </View>
+                {legacy.total !== null && legacy.total > 0 ? <Money amount={legacy.total} currency={null} size="bodyStrong" unit="tag" /> : null}
+              </View>
+            </Card>
+          ) : null}
+        </View>
+      </Screen>
+    );
+  }
   if (failed === 'missing') {
     return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('orders.track.notFound')} body={k('orders.track.notFoundBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/orders' as Href)} theme={theme} />);
   }
@@ -104,6 +179,7 @@ export default function OrderTrackingScreen() {
   const phase = statusLook('pharmacy', view.status);
   const headline = view.cancelled ? k('orders.status.cancelled') : view.notStarted ? k(`orders.status.${phase.label}`) : view.done ? k(`orders.track.step.${view.steps[view.steps.length - 1].id}`) : current ? k(`orders.track.step.${current.id}`) : k(`orders.status.${phase.label}`);
   const { totals } = view;
+  const pharmacyName = pharmacyDisplayName(view.pharmacy, lang);
   const summary = [view.itemCount === 1 ? k('pharmacy.hub.oneItem') : view.itemCount > 1 ? k('pharmacy.hub.items', { n: num(view.itemCount) }) : ''].filter(Boolean).join(' · ');
 
   return (
@@ -172,7 +248,8 @@ export default function OrderTrackingScreen() {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <FIcon icon="storefront" tone={ORDERS_TONE} chip="soft" size={40} theme={theme} />
             <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-              <Text style={{ ...scale(t, 'row', 'medium'), color: c.text.primary, ...flow }}>{view.fulfillment === 'pickup' ? k('orders.track.pickup') : k('orders.track.delivery')}</Text>
+              {pharmacyName ? <Text testID="tracking-pharmacy-name" style={{ ...scale(t, 'row', 'medium'), color: c.text.primary, ...flow }}>{pharmacyName}</Text> : null}
+              <Text style={{ ...scale(t, 'row', pharmacyName ? 'regular' : 'medium'), color: pharmacyName ? c.text.secondary : c.text.primary, ...flow }}>{view.fulfillment === 'pickup' ? k('orders.track.pickup') : k('orders.track.delivery')}</Text>
               {summary ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{summary}</Text> : null}
             </View>
             {totals.total !== null && totals.total > 0 ? <Money amount={totals.total} currency={totals.currency} size="bodyStrong" unit="tag" /> : null}

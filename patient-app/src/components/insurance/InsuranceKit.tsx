@@ -11,14 +11,14 @@ import { apiFetch } from '../../utils/api';
 /**
  * What the insurance screens share (Batch 7, merge map 2 section 6): the frame whose back button returns to the
  * insurance hub, the one place the policy of the signed-in patient is read (GET /users/me/insurance) and the words and
- * tones of the claim, refund and request states. Amounts and states are only ever what the server sent.
+ * tones of the request states. Amounts and states are only ever what the server sent.
  */
 
 export const INSURANCE_HUB = '/insurance' as Href;
 export const INSURANCE_REQUEST = '/insurance/request';
 export const INSURANCE_TONE: ServiceTone = SERVICE_ICONS.insurance.tone;
 
-/** The glyph and the label key of each kind of booking an insurance request or claim can be for. */
+/** The glyph and the label key of each kind of booking an insurance request can be for. */
 export const KIND_LOOK: Record<string, { icon: FillIconName; key: string }> = {
   consultation: { icon: 'stethoscope', key: 'insurance.kind.consultation' },
   lab: { icon: 'test-tube', key: 'insurance.kind.lab' },
@@ -28,8 +28,8 @@ export const KIND_LOOK: Record<string, { icon: FillIconName; key: string }> = {
   pharmacy: { icon: 'pill', key: 'insurance.kind.pharmacy' },
 };
 
-export type InsuranceTab = 'policy' | 'benefits' | 'claims' | 'refunds' | 'network';
-export const INSURANCE_TABS: readonly InsuranceTab[] = ['policy', 'benefits', 'claims', 'refunds', 'network'];
+export type InsuranceTab = 'policy' | 'benefits' | 'network';
+export const INSURANCE_TABS: readonly InsuranceTab[] = ['policy', 'benefits', 'network'];
 
 /** The frame of an insurance screen: the board header, back to the hub when there is nothing to go back to. */
 export function InsuranceScreen(props: React.ComponentProps<typeof HealthScreen>) {
@@ -79,30 +79,6 @@ export function requestState(state: unknown): { key: string; tone: PillTone } {
     case 'EXPIRED': return { key: 'insurance.request.state.EXPIRED', tone: 'neutral' };
     case 'CANCELLED': return { key: 'insurance.request.state.CANCELLED', tone: 'neutral' };
     default: return { key: 'insurance.request.state.other', tone: 'neutral' };
-  }
-}
-
-/** The server state of a claim as the label key and tone of its pill. */
-export function claimStatus(raw: unknown): { key: string; tone: PillTone } {
-  switch (String(raw ?? '').toLowerCase()) {
-    case 'approved': return { key: 'insurance.claim.approved', tone: 'success' };
-    case 'reimbursed': return { key: 'insurance.claim.reimbursed', tone: 'info' };
-    case 'rejected': return { key: 'insurance.claim.rejected', tone: 'danger' };
-    case 'under_review': return { key: 'insurance.claim.underReview', tone: 'warning' };
-    case 'submitted': return { key: 'insurance.claim.submitted', tone: 'info' };
-    default: return { key: 'insurance.claim.other', tone: 'neutral' };
-  }
-}
-
-/** The server state of a refund as the label key and tone of its pill. */
-export function refundStatus(raw: unknown): { key: string; tone: PillTone } {
-  switch (String(raw ?? '')) {
-    case 'REQUESTED': return { key: 'insurance.refund.requested', tone: 'warning' };
-    case 'APPROVED': return { key: 'insurance.refund.approved', tone: 'info' };
-    case 'EXECUTED': return { key: 'insurance.refund.executed', tone: 'success' };
-    case 'REJECTED': return { key: 'insurance.refund.rejected', tone: 'danger' };
-    case 'FAILED': return { key: 'insurance.refund.failed', tone: 'danger' };
-    default: return { key: 'insurance.refund.other', tone: 'neutral' };
   }
 }
 

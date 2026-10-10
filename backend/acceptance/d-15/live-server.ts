@@ -59,6 +59,8 @@ export class LiveStack {
         REDIS_URL: `redis://127.0.0.1:${this.redisPort}`,
         JWT_SECRET, JWT_REFRESH_SECRET: `${JWT_SECRET}-refresh`,
         MONGO_MIN_POOL_SIZE: '1', MONGO_MAX_POOL_SIZE: '20',
+        // The spec sends ~130 prompts in a few minutes; production keeps the 10/min default.
+        AI_ASSISTANT_RATE_PER_MIN: '1000',
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     });

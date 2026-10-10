@@ -8,6 +8,7 @@ vi.mock("next/navigation", () => ({
   redirect: (to: string) => { throw new Error(`redirect:${to}`); },
   useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }),
 }));
+vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
 vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatientAccess }));
@@ -83,5 +84,35 @@ describe("the doctor thread of a booking (decision 24)", () => {
     expect(html).toContain("window.follow_up");
     expect(html).toContain("window.hoursLeft");
     expect(html).not.toContain("bookFollowUp");
+  });
+
+  describe("the text composer (issue 806)", () => {
+    const open = (over: Record<string, unknown> = {}) => state.permissions.mockResolvedValue(json({ status_code: "active", can_chat: true, can_call: true, can_upload: true, can_voice: true, online: true, read_only: false, ...over }));
+    beforeEach(() => {
+      state.api.mockResolvedValue(json({}));
+      state.thread.mockResolvedValue(json({ id: threadId, type: "booking", booking_kind: "consultation", booking_id: bookingId, is_active: true }));
+      state.messages.mockResolvedValue(json({ messages: [] }));
+    });
+    const page = async () => renderToStaticMarkup(await ChatThreadPage({ params: Promise.resolve({ locale: "en", threadId }) }));
+
+    it("is drawn when the server says the patient may chat, next to the emergency line and the window banner, and carries no token", async () => {
+      open();
+      const html = await page();
+      expect(html).toContain('id="chat-composer-text"');
+      expect(html).toContain("composerPlaceholder");
+      expect(html).toContain('href="tel:997"');
+      expect(html).toContain("window.active");
+      expect(html).not.toContain(serverToken);
+      expect(html).not.toContain("upload"); // text only: no attachment or voice control
+    });
+
+    it("is not drawn when the thread is read-only, chat is not allowed, or the rules could not be read", async () => {
+      open({ read_only: true, status_code: "closed" });
+      expect(await page()).not.toContain("chat-composer-text");
+      open({ can_chat: false, status_code: "upcoming" });
+      expect(await page()).not.toContain("chat-composer-text");
+      state.permissions.mockResolvedValue(json({}, 404));
+      expect(await page()).not.toContain("chat-composer-text");
+    });
   });
 });

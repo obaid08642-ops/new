@@ -14,6 +14,5 @@ export { StaffAttendanceScreen } from './facility/StaffAttendanceScreen';
 export { SurgeryScheduleScreen } from './facility/SurgeryScheduleScreen';
 export { CredentialingScreen } from './facility/CredentialingScreen';
 export { FacilitySettingsScreen } from './facility/FacilitySettingsScreen';
-export { HospitalDispatchScreen } from './facility/HospitalDispatchScreen';
 export { FacilityOrderDetail } from './facility/FacilityOrderDetail';
 export * from './facility/_shared';

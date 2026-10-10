@@ -1,5 +1,5 @@
 {
- "commit": "60544656",
+ "commit": "e768aa5c",
  "screens": {
   "PendingDashboard": [
    {
@@ -11505,7 +11505,7 @@
     "src": "navigate (back / dynamic target)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
-    "line": 223,
+    "line": 221,
     "via": null,
     "note": null
    },
@@ -11515,7 +11515,7 @@
     "src": "from wards (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
-    "line": 242,
+    "line": 240,
     "via": null,
     "note": null,
     "untraced": true
@@ -11526,7 +11526,7 @@
     "src": "GET /provider/jobs/queue, GET /hospital/staff, GET /provider/stats/today +1 → todayApts",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
-    "line": 273,
+    "line": 271,
     "via": null,
     "note": null
    },
@@ -11536,7 +11536,7 @@
     "src": "GET /provider/jobs/queue, GET /hospital/staff, GET /provider/stats/today +1 → subaccounts",
     "status": "ok",
     "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
-    "line": 307,
+    "line": 305,
     "via": null,
     "note": null
    }
@@ -13035,48 +13035,6 @@
     "via": null,
     "note": null,
     "reviewed": "'expires soon' status label, not coming-soon text."
-   }
-  ],
-  "HospitalDispatchScreen": [
-   {
-    "kind": "data",
-    "label": "List bookings",
-    "src": "GET /home-care/bookings/nursing/all, GET /home-care/providers → bookings",
-    "status": "ok",
-    "file": "provider-app/src/screens/facility/facility/HospitalDispatchScreen.tsx",
-    "line": 97,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "Assign Nurse",
-    "src": "local state setSelectedBooking",
-    "status": "ok",
-    "file": "provider-app/src/screens/facility/facility/HospitalDispatchScreen.tsx",
-    "line": 121,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "data",
-    "label": "List nurses",
-    "src": "GET /home-care/bookings/nursing/all, GET /home-care/providers → nurses",
-    "status": "ok",
-    "file": "provider-app/src/screens/facility/facility/HospitalDispatchScreen.tsx",
-    "line": 129,
-    "via": null,
-    "note": null
-   },
-   {
-    "kind": "button",
-    "label": "[{nurse.name_en}] {nurse.name_ar}",
-    "src": "POST /home-care/bookings/:param/assign, GET /home-care/bookings/nursing/all, GET /home-care/providers",
-    "status": "ok",
-    "file": "provider-app/src/screens/facility/facility/HospitalDispatchScreen.tsx",
-    "line": 130,
-    "via": null,
-    "note": null
    }
   ],
   "FacilityProfileConfigScreen": [

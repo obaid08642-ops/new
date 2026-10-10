@@ -1,0 +1,62 @@
+[
+  {
+    "batch": "final-2",
+    "app": "admin",
+    "screen": "/admin/community-moderation",
+    "element": "GET /community/admin/pending, PUT /community/admin/:id/moderate",
+    "file": "admin/src/pages/admin/community-moderation.tsx",
+    "line": 21,
+    "found": "[backend] Both calls have no backend route (NO_ROUTE x2); the page cannot load. Also line 34.",
+    "suspect": "Backend gap: waits for OpenCode D-1 (#918); the page is not rebuilt before that."
+  },
+  {
+    "batch": "final-2",
+    "app": "admin",
+    "screen": "/admin/approvals",
+    "element": "approvals list call",
+    "file": "admin/src/pages/admin/approvals.tsx",
+    "line": 35,
+    "found": "[client] The path is built from a variable, so the inventory cannot check it (UNRESOLVED x1).",
+    "suspect": "Client-side: write the path as a literal or add it to the wrapper table."
+  },
+  {
+    "batch": "final-2",
+    "app": "admin",
+    "screen": "/admin/config-portal",
+    "element": "Trigger System Kill-Switch button",
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 345,
+    "found": "[owner] The button is disabled with no handler (dead element, shown as disabled).",
+    "suspect": "Owner: remove it or confirm the kill-switch is not wanted."
+  },
+  {
+    "batch": "final-2",
+    "app": "provider-app",
+    "screen": "API catalogs",
+    "element": "service catalogue by type",
+    "file": "provider-app/src/api/catalogs.ts",
+    "line": 117,
+    "found": "[client] client.get(SVC_ENDPOINT[type]) is built from a map, so the call is not resolved by the inventory (1 site).",
+    "suspect": "Client-side: no defect seen; list the map in the inventory tool."
+  },
+  {
+    "batch": "final-2",
+    "app": "patient-app",
+    "screen": "order list, generic data sources",
+    "element": "apiFetch(path) and RemoteDataSource.get/post",
+    "file": "patient-app/src/components/orders/OrderList.tsx",
+    "line": 73,
+    "found": "[client] 4 call sites forward a variable path (also core/data/HttpRemoteDataSource.ts:80, data/repositories/sources/RemoteDataSource.ts:38 and :47); the runtime check passed for the seeded flows.",
+    "suspect": "Reviewer: confirm RemoteDataSource is used by no live screen."
+  },
+  {
+    "batch": "final-2",
+    "app": "docs",
+    "screen": "docs/design/needs-review/*.json",
+    "element": "stale lines",
+    "file": "docs/design/needs-review/final-pass.json",
+    "line": 1,
+    "found": "[client] 50 older lines have no file or point to files deleted by the SOS removal, the cart/orders merges and the admin directory removal (the first two lines of this file are the SOS ones, fixed in #1270). They are kept unchanged so no nr-key shifts.",
+    "suspect": "Reviewer: close the matching issues, then regenerate the needs-review files once."
+  }
+]

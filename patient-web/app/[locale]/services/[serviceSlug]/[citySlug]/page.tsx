@@ -104,7 +104,7 @@ export default async function ServiceCityPage({ params }: Props) {
           }),
           breadcrumbList([
             { name: "Nabd Plus", locale: locale as Locale, path: "/" },
-            { name: "Services", locale: locale as Locale, path: "/services" },
+            { name: t("ld.crumbServices"), locale: locale as Locale, path: "/services" },
             { name: decService, locale: locale as Locale, path: `/services/${serviceSlug}` },
             { name: decCity, locale: locale as Locale, path: `/services/${serviceSlug}/${citySlug}` },
           ]),

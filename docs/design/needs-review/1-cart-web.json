@@ -16,7 +16,7 @@
     "element": "Extra request per page load",
     "file": "",
     "line": 0,
-    "found": "[owner] The CartProvider is in the locale layout and asks GET /api/auth/session once per page load for every visitor; the F82 static/ISR work may read the cookie flag instead.",
+    "found": "[owner] The CartProvider is in the locale layout and asks GET /api/auth/session once per page load for every visitor; the F82 static/ISR work Resolved by issue 363: the answer now comes from the readable nabd_session_hint cookie (patient id and guest flag, no token) set next to the session cookies, so a signed-in or already-asked visitor makes no request; only a browser with no hint asks once, and the answer is stored in the hint.",
     "suspect": "Owner decision."
   },
   {
@@ -26,7 +26,7 @@
     "element": "Address card request",
     "file": "",
     "line": 0,
-    "found": "[owner] A signed-in cart still reads the saved address (read-only, not a cart call); confirm that 'opening the cart makes no call' excludes the address card, or drop it from the cart.",
+    "found": "[owner] A signed-in cart still reads the saved address (read-only, not a cart call); confirm that 'opening the cart makes no call' excludes the address card, or drop it from the cart. Confirmed by issue 364: the address card stays (use-delivery-address.ts, cart-screen.tsx:131).",
     "suspect": "Owner decision."
   },
   {

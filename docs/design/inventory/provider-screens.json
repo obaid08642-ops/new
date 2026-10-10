@@ -1,5 +1,5 @@
 {
- "commit": "60544656",
+ "commit": "e768aa5c",
  "routes": [
   {
    "app": "provider-app",
@@ -19,7 +19,7 @@
      "role": "facility",
      "name": "affiliate",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 169
+     "line": 167
     },
     {
      "role": "nursing",
@@ -82,7 +82,7 @@
      "line": 54,
      "file": "provider-app/src/screens/shared/blueprint/AiMedicalCopilot.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/ai/ai.controller.ts:116"
+     "backend": "backend/src/modules/ai/ai.controller.ts:127"
     },
     {
      "method": "POST",
@@ -127,7 +127,7 @@
      "role": "facility",
      "name": "create_promo",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 166
+     "line": 164
     },
     {
      "role": "lab",
@@ -186,7 +186,7 @@
      "role": "facility",
      "name": "crm",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 171
+     "line": 169
     },
     {
      "role": "lab",
@@ -480,7 +480,7 @@
      "role": "facility",
      "name": "promotions",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 165
+     "line": 163
     },
     {
      "role": "lab",
@@ -539,7 +539,7 @@
      "role": "facility",
      "name": "reputation",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 170
+     "line": 168
     },
     {
      "role": "lab",
@@ -598,19 +598,19 @@
      "role": "facility",
      "name": "financial",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 146
+     "line": 145
     },
     {
      "role": "facility",
      "name": "auto_reports",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 158
+     "line": 156
     },
     {
      "role": "facility",
      "name": "revenue_insights",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 172
+     "line": 170
     },
     {
      "role": "lab",
@@ -714,7 +714,7 @@
      "role": "facility",
      "name": "subscriptions_ads",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 168
+     "line": 166
     },
     {
      "role": "nursing",
@@ -817,7 +817,7 @@
      "line": 119,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:179"
+     "backend": "backend/src/modules/legal/legal.module.ts:187"
     },
     {
      "method": "GET",
@@ -827,7 +827,7 @@
      "line": 26,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:170"
+     "backend": "backend/src/modules/legal/legal.module.ts:177"
     },
     {
      "method": "GET",
@@ -1022,7 +1022,7 @@
      "line": 119,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:179"
+     "backend": "backend/src/modules/legal/legal.module.ts:187"
     },
     {
      "method": "GET",
@@ -1032,7 +1032,7 @@
      "line": 26,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:170"
+     "backend": "backend/src/modules/legal/legal.module.ts:177"
     },
     {
      "method": "GET",
@@ -1283,7 +1283,7 @@
      "line": 119,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:179"
+     "backend": "backend/src/modules/legal/legal.module.ts:187"
     },
     {
      "method": "GET",
@@ -1293,7 +1293,7 @@
      "line": 26,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:170"
+     "backend": "backend/src/modules/legal/legal.module.ts:177"
     },
     {
      "method": "GET",
@@ -1514,7 +1514,7 @@
      "line": 119,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:179"
+     "backend": "backend/src/modules/legal/legal.module.ts:187"
     },
     {
      "method": "GET",
@@ -1524,7 +1524,7 @@
      "line": 26,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:170"
+     "backend": "backend/src/modules/legal/legal.module.ts:177"
     },
     {
      "method": "GET",
@@ -1806,7 +1806,7 @@
      "line": 119,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:179"
+     "backend": "backend/src/modules/legal/legal.module.ts:187"
     },
     {
      "method": "GET",
@@ -1816,7 +1816,7 @@
      "line": 26,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:170"
+     "backend": "backend/src/modules/legal/legal.module.ts:177"
     },
     {
      "method": "GET",
@@ -2001,7 +2001,7 @@
      "line": 119,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:179"
+     "backend": "backend/src/modules/legal/legal.module.ts:187"
     },
     {
      "method": "GET",
@@ -2011,7 +2011,7 @@
      "line": 26,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:170"
+     "backend": "backend/src/modules/legal/legal.module.ts:177"
     },
     {
      "method": "GET",
@@ -2224,7 +2224,7 @@
      "line": 73,
      "file": "provider-app/src/screens/doctor/doctor/AppointmentDetailScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:36"
+     "backend": "backend/src/modules/care/appointments.controller.ts:41"
     }
    ],
    "files": 10,
@@ -2585,7 +2585,7 @@
      "role": "facility",
      "name": "prescription",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 151
+     "line": 150
     }
    ],
    "template": "n/a",
@@ -2766,7 +2766,7 @@
      "line": 72,
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:26"
+     "backend": "backend/src/modules/care/appointments.controller.ts:31"
     },
     {
      "method": "PATCH",
@@ -2776,7 +2776,7 @@
      "line": 87,
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:53"
+     "backend": "backend/src/modules/care/appointments.controller.ts:58"
     },
     {
      "method": "POST",
@@ -2786,7 +2786,7 @@
      "line": 91,
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:71"
+     "backend": "backend/src/modules/care/appointments.controller.ts:88"
     },
     {
      "method": "PATCH",
@@ -2796,7 +2796,7 @@
      "line": 88,
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:59"
+     "backend": "backend/src/modules/care/appointments.controller.ts:76"
     }
    ],
    "files": 9,
@@ -3180,7 +3180,7 @@
      "role": "facility",
      "name": "beds",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 143
+     "line": 142
     }
    ],
    "template": "n/a",
@@ -3245,7 +3245,7 @@
      "role": "facility",
      "name": "credentialing",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 155
+     "line": 154
     }
    ],
    "template": "n/a",
@@ -3280,7 +3280,7 @@
      "role": "facility",
      "name": "departments",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 138
+     "line": 137
     }
    ],
    "template": "n/a",
@@ -3315,7 +3315,7 @@
      "role": "facility",
      "name": "discharge_summary",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 152
+     "line": 151
     }
    ],
    "template": "n/a",
@@ -3360,7 +3360,7 @@
      "role": "facility",
      "name": "announcements",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 149
+     "line": 148
     }
    ],
    "template": "n/a",
@@ -3405,7 +3405,7 @@
      "role": "facility",
      "name": "audit_logs",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 148
+     "line": 147
     }
    ],
    "template": "n/a",
@@ -3440,7 +3440,7 @@
      "role": "facility",
      "name": "tab:home",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 120
+     "line": 119
     }
    ],
    "template": "n/a",
@@ -3505,7 +3505,7 @@
      "role": "facility",
      "name": "internal_chat",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 147
+     "line": 146
     }
    ],
    "template": "n/a",
@@ -3560,7 +3560,7 @@
      "role": "facility",
      "name": "add_subaccount",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 137
+     "line": 136
     }
    ],
    "template": "n/a",
@@ -3595,7 +3595,7 @@
      "role": "facility",
      "name": "leave_requests",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 141
+     "line": 140
     }
    ],
    "template": "n/a",
@@ -3640,7 +3640,7 @@
      "role": "facility",
      "name": "order_detail",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 162
+     "line": 160
     }
    ],
    "template": "n/a",
@@ -3675,7 +3675,7 @@
      "role": "facility",
      "name": "tab:orders",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 121
+     "line": 120
     }
    ],
    "template": "n/a",
@@ -3730,7 +3730,7 @@
      "role": "facility",
      "name": "patient_tracker",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 150
+     "line": 149
     }
    ],
    "template": "n/a",
@@ -3765,7 +3765,7 @@
      "role": "facility",
      "name": "facility_info",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 157
+     "line": 155
     }
    ],
    "template": "n/a",
@@ -3820,7 +3820,7 @@
      "role": "facility",
      "name": "resources",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 140
+     "line": 139
     }
    ],
    "template": "n/a",
@@ -3875,7 +3875,7 @@
      "role": "facility",
      "name": "tab:settings",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 124
+     "line": 123
     }
    ],
    "template": "n/a",
@@ -3910,7 +3910,7 @@
      "role": "facility",
      "name": "unified_sched",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 142
+     "line": 141
     }
    ],
    "template": "n/a",
@@ -3926,7 +3926,7 @@
      "line": 27,
      "file": "provider-app/src/screens/facility/FacilityUnifiedCalendarScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:36"
+     "backend": "backend/src/modules/care/appointments.controller.ts:41"
     },
     {
      "method": "GET",
@@ -3945,61 +3945,6 @@
   },
   {
    "app": "provider-app",
-   "route": "HospitalDispatchScreen",
-   "component": "HospitalDispatchScreen",
-   "area": "facility",
-   "file": "provider-app/src/screens/facility/facility/HospitalDispatchScreen.tsx",
-   "line": 43,
-   "registrations": [
-    {
-     "role": "facility",
-     "name": "hospital_dispatch",
-     "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 156
-    }
-   ],
-   "template": "n/a",
-   "board": "— (not redesigned)",
-   "batch": "provider",
-   "status": "not redesigned",
-   "calls": [
-    {
-     "method": "POST",
-     "path": "/home-care/bookings/:param/assign",
-     "target": "backend",
-     "query": "",
-     "line": 78,
-     "file": "provider-app/src/screens/facility/facility/HospitalDispatchScreen.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:236"
-    },
-    {
-     "method": "GET",
-     "path": "/home-care/bookings/nursing/all",
-     "target": "backend",
-     "query": "",
-     "line": 58,
-     "file": "provider-app/src/screens/facility/facility/HospitalDispatchScreen.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:165"
-    },
-    {
-     "method": "GET",
-     "path": "/home-care/providers",
-     "target": "backend",
-     "query": "?availability=now",
-     "line": 61,
-     "file": "provider-app/src/screens/facility/facility/HospitalDispatchScreen.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/home-care/home-care-compat.module.ts:68"
-    }
-   ],
-   "files": 9,
-   "unresolved": 0,
-   "navIssues": []
-  },
-  {
-   "app": "provider-app",
    "route": "InsuranceClaimsHubScreen",
    "component": "InsuranceClaimsHubScreen",
    "area": "facility",
@@ -4010,7 +3955,7 @@
      "role": "facility",
      "name": "insurance_hub",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 145
+     "line": 144
     }
    ],
    "template": "n/a",
@@ -4045,7 +3990,7 @@
      "role": "facility",
      "name": "qr_checkin",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 144
+     "line": 143
     }
    ],
    "template": "n/a",
@@ -4061,7 +4006,7 @@
      "line": 66,
      "file": "provider-app/src/screens/facility/facility/QRCheckinScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:53"
+     "backend": "backend/src/modules/care/appointments.controller.ts:58"
     },
     {
      "method": "GET",
@@ -4090,7 +4035,7 @@
      "role": "facility",
      "name": "shifts",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 139
+     "line": 138
     }
    ],
    "template": "n/a",
@@ -4165,7 +4110,7 @@
      "role": "facility",
      "name": "attendance",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 153
+     "line": 152
     }
    ],
    "template": "n/a",
@@ -4220,7 +4165,7 @@
      "role": "facility",
      "name": "subaccounts",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 136
+     "line": 135
     }
    ],
    "template": "n/a",
@@ -4265,7 +4210,7 @@
      "role": "facility",
      "name": "surgery_sched",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 154
+     "line": 153
     }
    ],
    "template": "n/a",
@@ -6774,7 +6719,7 @@
      "role": "facility",
      "name": "certificates_config",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 177
+     "line": 175
     },
     {
      "role": "lab",
@@ -6949,7 +6894,7 @@
      "role": "facility",
      "name": "insurance_config",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 176
+     "line": 174
     },
     {
      "role": "lab",
@@ -7048,7 +6993,7 @@
      "role": "facility",
      "name": "insurance_requests",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 175
+     "line": 173
     },
     {
      "role": "lab",
@@ -7193,7 +7138,7 @@
      "role": "facility",
      "name": "media_config",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 178
+     "line": 176
     },
     {
      "role": "lab",
@@ -7300,13 +7245,13 @@
      "role": "facility",
      "name": "tab:drugs",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 123
+     "line": 122
     },
     {
      "role": "facility",
      "name": "drug_index",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 174
+     "line": 172
     },
     {
      "role": "lab",
@@ -7461,13 +7406,13 @@
      "role": "facility",
      "name": "tab:jobs",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 122
+     "line": 121
     },
     {
      "role": "facility",
      "name": "medical_jobs",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 173
+     "line": 171
     },
     {
      "role": "lab",
@@ -7612,7 +7557,7 @@
      "role": "facility",
      "name": "notifications",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 159
+     "line": 157
     },
     {
      "role": "lab",
@@ -7784,7 +7729,7 @@
      "role": "facility",
      "name": "web_config",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 167
+     "line": 165
     },
     {
      "role": "lab",
@@ -7879,7 +7824,7 @@
      "role": "facility",
      "name": "wallet",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 163
+     "line": 161
     },
     {
      "role": "lab",
@@ -8003,7 +7948,7 @@
      "role": "facility",
      "name": "security",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 161
+     "line": 159
     },
     {
      "role": "lab",
@@ -8189,7 +8134,7 @@
      "role": "facility",
      "name": "support",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 160
+     "line": 158
     },
     {
      "role": "pharmacy",
@@ -8301,7 +8246,7 @@
      "role": "facility",
      "name": "withdrawal_workflow",
      "file": "provider-app/src/screens/facility/facility/FacilityDashboardNavigator.tsx",
-     "line": 164
+     "line": 162
     },
     {
      "role": "lab",

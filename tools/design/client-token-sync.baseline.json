@@ -33,7 +33,6 @@
     "provider-app/src/screens/facility/FacilityResourcesScreen.tsx": 2,
     "provider-app/src/screens/facility/facility/AddSubAccountScreen.tsx": 2,
     "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx": 1,
-    "provider-app/src/screens/facility/facility/HospitalDispatchScreen.tsx": 1,
     "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx": 1,
     "provider-app/src/screens/facility/facility/QRCheckinScreen.tsx": 3,
     "provider-app/src/screens/facility/facility/ShiftManagementScreen.tsx": 2,
@@ -96,14 +95,12 @@
     "admin/src/components/EmptyIcon.tsx": 1,
     "admin/src/pages/admin/ai-control.tsx": 9,
     "admin/src/pages/admin/analytics-suite.tsx": 4,
-    "admin/src/pages/admin/catalog-manager.tsx": 89,
+    "admin/src/pages/admin/catalog-manager.tsx": 78,
     "admin/src/pages/admin/command-center.tsx": 5,
     "admin/src/pages/admin/finance-suite.tsx": 7,
-    "admin/src/pages/admin/insurance-queue.tsx": 1,
     "admin/src/pages/admin/payouts.tsx": 1,
     "admin/src/pages/admin/reports.tsx": 1,
     "admin/src/pages/admin/security.tsx": 37,
-    "admin/src/pages/admin/support-tickets.tsx": 1,
-    "admin/src/pages/s/[type]/[slug].tsx": 1
+    "admin/src/pages/admin/support-tickets.tsx": 1
   }
 }

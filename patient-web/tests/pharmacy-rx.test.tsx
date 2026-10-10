@@ -79,6 +79,12 @@ describe("the cart screen (canvas/Cart)", () => {
     expect(html).not.toContain("style=");
   });
 
+  it("draws the online-only chip only on the line that carries the flag", () => {
+    cart.value = { ...cart.value, items: [item({ onlineOnly: true }), item({ id: "m2", name: "Amoxicillin", qty: 1 })], itemCount: 3 };
+    const html = renderToStaticMarkup(<CartScreen locale="en" signedIn={false} />);
+    expect(html.match(/Online only/g)).toHaveLength(1);
+  });
+
   it("names the quantity controls per item, and the minus at 1 says it removes", () => {
     cart.value = { ...cart.value, items: [item({ qty: 1 }), item({ id: "m2", name: "Amoxicillin", qty: 3 })], itemCount: 4 };
     const html = renderToStaticMarkup(<CartScreen locale="en" signedIn={false} />);
