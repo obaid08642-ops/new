@@ -1,5 +1,5 @@
 {
- "commit": "4c2318f2",
+ "commit": "0bc66290",
  "routes": [
   {
    "app": "patient-app",
@@ -480,10 +480,20 @@
    "calls": [
     {
      "method": "GET",
+     "path": "/care/doctors",
+     "target": "backend",
+     "query": "?:param",
+     "line": 157,
+     "file": "patient-app/app/(tabs)/consultations/index.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/care/care.controller.ts:29"
+    },
+    {
+     "method": "GET",
      "path": "/care/specialties",
      "target": "backend",
      "query": "",
-     "line": 170,
+     "line": 177,
      "file": "patient-app/app/(tabs)/consultations/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:11"
@@ -493,7 +503,7 @@
      "path": "/home/offers",
      "target": "backend",
      "query": "",
-     "line": 176,
+     "line": 183,
      "file": "patient-app/app/(tabs)/consultations/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home/home.controller.ts:10"
@@ -503,7 +513,7 @@
      "path": "/insurance/companies",
      "target": "backend",
      "query": "",
-     "line": 182,
+     "line": 189,
      "file": "patient-app/app/(tabs)/consultations/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/insurance-engine/insurance-engine.module.ts:696"
@@ -513,10 +523,20 @@
      "path": "/insurance/companies/:param/networks",
      "target": "backend",
      "query": "",
-     "line": 199,
+     "line": 206,
      "file": "patient-app/app/(tabs)/consultations/index.tsx",
      "status": "OK",
      "backend": "backend/src/modules/insurance/insurance.module.ts:604"
+    },
+    {
+     "method": "GET",
+     "path": "/providers",
+     "target": "backend",
+     "query": "?type=doctor",
+     "line": 157,
+     "file": "patient-app/app/(tabs)/consultations/index.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/provider/providers.controller.ts:22"
     },
     {
      "method": "GET",
@@ -530,7 +550,7 @@
     }
    ],
    "files": 36,
-   "unresolved": 1
+   "unresolved": 0
   },
   {
    "app": "patient-app",
@@ -7032,7 +7052,7 @@
      "path": "/care/doctors",
      "target": "backend",
      "query": "",
-     "line": 11,
+     "line": 13,
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:29"
@@ -7058,7 +7078,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:262"
     }
    ],
-   "files": 45,
+   "files": 46,
    "unresolved": 0
   },
   {
@@ -7970,7 +7990,7 @@
      "path": "/care/doctors/:param",
      "target": "backend",
      "query": "",
-     "line": 16,
+     "line": 18,
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:67"
@@ -8252,13 +8272,13 @@
      "path": "/care/doctors",
      "target": "backend",
      "query": "",
-     "line": 11,
+     "line": 13,
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:29"
     }
    ],
-   "files": 41,
+   "files": 44,
    "unresolved": 0
   },
   {
@@ -8296,7 +8316,7 @@
      "path": "/care/doctors/:param",
      "target": "backend",
      "query": "",
-     "line": 16,
+     "line": 18,
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:67"
@@ -8306,7 +8326,7 @@
      "path": "/care/doctors/:param/slots",
      "target": "backend",
      "query": "?date=:param&service_type=:param",
-     "line": 30,
+     "line": 32,
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/care/care.controller.ts:73"
@@ -9504,7 +9524,7 @@
      "path": "/entity-graph/related/doctor/:param",
      "target": "backend",
      "query": "",
-     "line": 25,
+     "line": 27,
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/entity-graph/entity-graph.controller.ts:10"
@@ -9538,7 +9558,7 @@
      "path": "/entity-graph/related/doctor/:param",
      "target": "backend",
      "query": "",
-     "line": 25,
+     "line": 27,
      "file": "patient-web/lib/api/doctors-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/entity-graph/entity-graph.controller.ts:10"

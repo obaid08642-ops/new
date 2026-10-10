@@ -1115,7 +1115,7 @@
   "consult.hub.nearestOnline": "«سب سے قریب» صرف کلینک اور گھر کے دورے کے لیے ہے، آن لائن مشاورت کے لیے نہیں۔",
   "consult.hub.locating": "آپ کا مقام تلاش کیا جا رہا ہے…",
   "consult.hub.nearestNoPlace": "فاصلے کے مطابق ترتیب ممکن نہیں۔ مقام تک رسائی کی اجازت دیں یا شہر کے ساتھ پتہ محفوظ کریں۔",
-  "consult.hub.nearestCity": "{city} سے فاصلے کے مطابق ترتیب",
+  "consult.hub.nearestCity": "{city} میں ڈاکٹر",
   "consult.spec.title": "طبی شعبے",
   "consult.spec.searchLabel": "شعبے تلاش کریں",
   "consult.spec.search": "شعبہ تلاش کریں",

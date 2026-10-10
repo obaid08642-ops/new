@@ -1109,7 +1109,15 @@
     "connectionFailed": "Hindi available ang koneksyon. Subukan muli.",
     "confirmedTitle": "Na-book ang iyong appointment",
     "confirmedBody": "Oras ng appointment: {slot}",
-    "bookAnother": "Mag-book ng isa pang oras"
+    "bookAnother": "Mag-book ng isa pang oras",
+    "quick": "Mabilis na filter",
+    "nearest": "Pinakamalapit",
+    "availableNow": "Available ngayon",
+    "nearestOnline": "Ang «Pinakamalapit» ay para lang sa klinika at home visit, hindi sa online na konsultasyon.",
+    "locating": "Hinahanap ang iyong lokasyon…",
+    "nearestNoPlace": "Hindi posibleng ayusin ayon sa distansya. Payagan ang access sa lokasyon o mag-save ng address na may lungsod.",
+    "nearestCity": "Mga doktor sa {city}",
+    "visitType": "Uri ng konsultasyon"
   },
   "LabsServices": {
     "eyebrow": "Pangangalaga sa laboratoryo",

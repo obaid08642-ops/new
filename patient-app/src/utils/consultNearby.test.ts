@@ -1,4 +1,4 @@
-import { DOCTORS_PATH, buildDoctorsPath, nearbyFiltersEnabled, resolveNearbyPlace, sortsByDistance, type NearbyDeps } from './consultNearby';
+import { AVAILABLE_WITHIN_MINUTES, DOCTORS_PATH, buildDoctorsPath, doctorRows, keepsServerOrder, nearbyFiltersEnabled, resolveNearbyPlace, sortsByDistance, type NearbyDeps } from './consultNearby';
 
 const coords = { kind: 'coords', lat: 24.7136, lng: 46.6753 } as const;
 const city = { kind: 'city', city: 'Test city' } as const;
@@ -30,37 +30,66 @@ describe('consult hub quick filters: the request', () => {
     expect(buildDoctorsPath({ enabled: true, ...base, place: coords })).toBe(DOCTORS_PATH);
   });
 
-  it('nearest with the device location: sort=distance with lat and lng, type kept', () => {
+  it('nearest with the device location: /care/doctors with type, sort=distance, lat and lng', () => {
     const path = buildDoctorsPath({ enabled: true, ...base, nearest: true, place: coords });
-    expect(path).toBe('/providers?type=doctor&sort=distance&lat=24.7136&lng=46.6753');
+    expect(path).toBe('/care/doctors?type=clinic&sort=distance&lat=24.7136&lng=46.6753');
     expect(sortsByDistance(path)).toBe(true);
+    expect(keepsServerOrder(path)).toBe(true);
   });
 
-  it('nearest for a home visit works too', () => {
-    expect(buildDoctorsPath({ enabled: true, ...base, mode: 'home', nearest: true, place: coords })).toContain('sort=distance');
+  it('nearest for a home visit sends type=home_visit', () => {
+    expect(buildDoctorsPath({ enabled: true, ...base, mode: 'home', nearest: true, place: coords })).toBe('/care/doctors?type=home_visit&sort=distance&lat=24.7136&lng=46.6753');
   });
 
-  it('nearest without the location: the saved city is sent (encoded), never coordinates', () => {
+  it('nearest without the location: the saved city is sent as the city filter (encoded), never coordinates', () => {
     const path = buildDoctorsPath({ enabled: true, ...base, nearest: true, place: { kind: 'city', city: 'الرياض' } });
-    expect(path).toBe('/providers?type=doctor&sort=distance&city=%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6');
+    expect(path).toBe('/care/doctors?type=clinic&city=%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6');
     expect(path).not.toContain('lat=');
+    expect(path).not.toContain('sort=');
   });
 
-  it('nearest with no place at all: no sort is sent', () => {
+  it('nearest with non-finite coordinates sends no lat/lng/sort', () => {
+    const path = buildDoctorsPath({ enabled: true, ...base, nearest: true, place: { kind: 'coords', lat: NaN, lng: 46.6 } });
+    expect(path).toBe('/care/doctors?type=clinic');
+  });
+
+  it('nearest with no place at all: the plain call, no sort', () => {
     const path = buildDoctorsPath({ enabled: true, ...base, nearest: true, place: null });
     expect(path).toBe(DOCTORS_PATH);
     expect(sortsByDistance(path)).toBe(false);
+    expect(keepsServerOrder(path)).toBe(false);
   });
 
-  it('nearest is never sent for an online consultation', () => {
+  it('nearest is never sent for an online consultation; available now maps online to type=video', () => {
     const path = buildDoctorsPath({ enabled: true, ...base, mode: 'online', nearest: true, availableNow: true, place: coords });
-    expect(path).toBe('/providers?type=doctor&available_within=15');
-    expect(path).not.toContain('sort=distance');
+    expect(path).toBe('/care/doctors?type=video&available_within=15');
+    expect(buildDoctorsPath({ enabled: true, ...base, mode: 'online', nearest: true, place: coords })).toBe(DOCTORS_PATH);
   });
 
-  it('available now: available_within=15, alone or with nearest', () => {
-    expect(buildDoctorsPath({ enabled: true, ...base, availableNow: true })).toBe('/providers?type=doctor&available_within=15');
-    expect(buildDoctorsPath({ enabled: true, ...base, nearest: true, availableNow: true, place: city })).toBe('/providers?type=doctor&sort=distance&city=Test%20city&available_within=15');
+  it('available now: available_within=15 whole minutes with the required type', () => {
+    const path = buildDoctorsPath({ enabled: true, ...base, availableNow: true });
+    expect(path).toBe('/care/doctors?type=clinic&available_within=15');
+    expect(AVAILABLE_WITHIN_MINUTES).toBeGreaterThan(0);
+    expect(Number.isInteger(AVAILABLE_WITHIN_MINUTES)).toBe(true);
+    expect(keepsServerOrder(path)).toBe(true);
+    expect(sortsByDistance(path)).toBe(false);
+  });
+
+  it('available now with nearest: the server cannot combine them, so no distance sort is sent (the city still is)', () => {
+    expect(buildDoctorsPath({ enabled: true, ...base, nearest: true, availableNow: true, place: coords })).toBe('/care/doctors?type=clinic&available_within=15');
+    expect(buildDoctorsPath({ enabled: true, ...base, nearest: true, availableNow: true, place: city })).toBe('/care/doctors?type=clinic&available_within=15&city=Test%20city');
+  });
+});
+
+describe('consult hub quick filters: the response', () => {
+  it('reads the plain array of /providers and the { items } of /care/doctors', () => {
+    expect(doctorRows([{ id: 'a' }])).toEqual([{ id: 'a' }]);
+    expect(doctorRows({ items: [{ id: 'b' }], has_more: false })).toEqual([{ id: 'b' }]);
+  });
+  it('an empty or malformed response is an empty list', () => {
+    expect(doctorRows({ items: [] })).toEqual([]);
+    expect(doctorRows(null)).toEqual([]);
+    expect(doctorRows({ items: 'x' })).toEqual([]);
   });
 });
 

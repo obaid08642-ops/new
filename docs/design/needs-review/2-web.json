@@ -35,7 +35,7 @@
     "screen": "/consultations/doctors",
     "element": "Photo and verified seal",
     "file": "patient-web/app/[locale]/consultations/doctors/page.tsx",
-    "line": 86,
+    "line": 126,
     "found": "[client] extractDoctors reads no photo_url or verification field because GET /care/doctors (toPublicDoctor) sends none; the card shows the neutral mark until the backend adds them.",
     "suspect": "Client-side: later batch."
   },
@@ -65,8 +65,8 @@
     "screen": "/consultations/doctors",
     "element": "Filters",
     "file": "patient-web/app/[locale]/consultations/doctors/page.tsx",
-    "line": 58,
-    "found": "[owner] The Consult board draws a specialty rail, visit-mode chips and a cash/insurance segmented filter; the page has search and sort only (not added: feature).",
+    "line": 81,
+    "found": "[owner] Search, sort, visit type, Nearest and Available now are drawn; the Consult board's specialty rail and cash/insurance segmented filter are still not on the page (not added: feature).",
     "suspect": "Owner decision."
   },
   {
@@ -97,6 +97,26 @@
     "file": "patient-web/app/[locale]/consultations/virtual-waiting-room/page.tsx",
     "line": 40,
     "found": "[owner] The video call, waiting room and room screens were only seen in their error and not-ready states here (no media backend in the check); the connected layout is not verified.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/consultations/doctors",
+    "element": "Nearest with Available now",
+    "file": "patient-web/lib/consult/doctor-filters.ts",
+    "line": 72,
+    "found": "[backend] GET /care/doctors orders available_within results by next slot and ignores sort=distance, so with both on the position is not sent (the city filter still is); a combined 'nearest free doctor' needs the server to accept both. (backend: backend/src/modules/care/care.service.ts:115)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/consultations/doctors",
+    "element": "Nearest by city wording",
+    "file": "patient-web/components-next/consult/doctor-quick-filters.tsx",
+    "line": 63,
+    "found": "[owner] Approved 2026-10-10: Doctors in {city}",
     "suspect": "Owner decision."
   }
 ]
