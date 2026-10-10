@@ -386,43 +386,16 @@ export class AppointmentsService {
   // High-level commands
 
   async cancel(id: string, user: any, reason?: string, isNoShow: boolean = false) {
-    const appt = await this.apptModel.findOne({ id });
+      const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
     await this.assertAppointmentAccess(appt, user);
 
-    // Cancellation & Refund Rules
-    let refundPercentage = 0;
-    let penaltyAmount = 0;
-    let refundDestination = 'source';
-
-    const now = new Date();
-    const slotStart = new Date(appt.slot_start);
-    const hoursUntilAppointment = (slotStart.getTime() - now.getTime()) / (1000 * 60 * 60);
-
-    if (isNoShow || reason === 'no_show') {
-      refundPercentage = 0; // Patient No-Show: 0% refund
-    } else if (user.role === UserRole.PATIENT || user.id === appt.patient_id) {
-      if (hoursUntilAppointment > 24) {
-        refundPercentage = 100;
-        refundDestination = 'source';
-      } else {
-        refundPercentage = 50;
-        refundDestination = 'wallet';
-      }
-    } else if (hasEffectiveRole(user, UserRole.DOCTOR) || user.id === appt.doctor_user_id) {
-      refundPercentage = 100;
-      refundDestination = 'source';
-      penaltyAmount = 50; // 50 SAR penalty applied to Doctor's wallet
-    } else if (hasEffectiveRole(user, UserRole.HOSPITAL) || hasEffectiveRole(user, UserRole.ADMIN)) {
-      // provider-side cancellation by the facility (or admin): the patient is refunded in full
-      refundPercentage = 100;
-      refundDestination = 'source';
-    }
+    const { refundPercentage, refundDestination, penaltyAmount } = this.calculateRefund(appt, user);
 
     appt.cancellation_reason = reason || '';
     appt.refund_percentage = refundPercentage;
     appt.refund_destination = refundDestination;
-    appt.doctor_penalty = penaltyAmount;
+    appt.doctor_penalty = 0;
     await appt.save();
 
     // Emit event for Billing/Refund processors to act upon
@@ -438,6 +411,51 @@ export class AppointmentsService {
 
     return this.transition(id, APPT_STATES.CANCELLED, user, reason);
   }
+
+
+
+  /**
+   * Preview the refund that would be issued if the appointment is cancelled.
+   * Does NOT modify the appointment - only calculates the refund.
+   */
+  async previewRefund(id: string, user: any): Promise<{ refund_percentage: number; refund_destination: string; penalty_amount: number; estimated_amount: number }> {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    await this.assertAppointmentAccess(appt, user);
+
+    const { refundPercentage, refundDestination, penaltyAmount } = this.calculateRefund(appt, user);
+    const estimatedAmount = Math.round((appt.total_price * refundPercentage) / 100);
+    return { refund_percentage: refundPercentage, refund_destination: refundDestination, penalty_amount: penaltyAmount, estimated_amount: estimatedAmount };
+  }
+
+  // Cancellation & Refund Rules (shared with previewRefund)
+  private calculateRefund(appt: any, user: any): { refundPercentage: number; refundDestination: string; penaltyAmount: number } {
+    let refundPercentage = 0;
+    let refundDestination = 'source';
+    let penaltyAmount = 0;
+
+    const slotStart = new Date(appt.slot_start);
+    const hoursUntilAppointment = (slotStart.getTime() - Date.now()) / (1000 * 60 * 60);
+
+    if (user.role === UserRole.PATIENT || user.id === appt.patient_id) {
+      if (appt.slot_start && new Date(appt.slot_start).getTime() - Date.now() > 24 * 60 * 60 * 1000) {
+        refundPercentage = 100;
+        refundDestination = 'source';
+      } else {
+        refundPercentage = 50;
+        refundDestination = 'wallet';
+      }
+    } else if (hasEffectiveRole(user, UserRole.DOCTOR) || user.id === appt.doctor_user_id) {
+      refundPercentage = 100;
+      refundDestination = 'source';
+      penaltyAmount = 50; // 50 SAR penalty applied to Doctor's wallet
+    } else if (hasEffectiveRole(user, UserRole.HOSPITAL) || hasEffectiveRole(user, UserRole.ADMIN)) {
+      refundPercentage = 100;
+      refundDestination = 'source';
+    }
+    return { refundPercentage, refundDestination, penaltyAmount: 0 };
+  }
+
 
   async confirm(id: string, user: any) {
     // doctor or admin
