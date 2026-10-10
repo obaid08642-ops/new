@@ -105,8 +105,8 @@
     "screen": "/consultations",
     "element": "Nearest and Available now filters",
     "file": "patient-app/app/(tabs)/consultations/index.tsx",
-    "line": 349,
-    "found": "[backend] GET /providers (the doctor search) must accept sort=distance with lat/lng (or city) and available_within (minutes) with the consultation type, and return distance and next-slot per doctor; until then the controls are hidden by the flag.",
+    "line": 356,
+    "found": "[backend] Done on the client: the filters call GET /care/doctors (Q-12/Q-13). Backend limits: sort=distance with only a city needs the signed-in user's city (the client sends city as a filter instead), and available_within does not combine with a distance order (the order is by next slot).",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -115,8 +115,8 @@
     "screen": "/consultations",
     "element": "EXPO_PUBLIC_CONSULT_NEARBY_FILTERS",
     "file": "patient-app/src/utils/consultNearby.ts",
-    "line": 21,
-    "found": "[owner] Set it to 1 in the app build once the backend supports the params; the hub still filters the visit type on the client and sends only type=doctor.",
+    "line": 26,
+    "found": "[owner] Set to 1 in patient-app/eas.json (preview and production env); the dev server and the render tool still need it exported locally.",
     "suspect": "Owner decision."
   },
   {
@@ -158,5 +158,15 @@
     "line": 32,
     "found": "[client] look() and isCaller read lowercase statuses and caller_id while the backend schema uses INITIATED/ACTIVE/ENDED/FAILED and patient_id/provider_id: rows may show the wrong state/direction.",
     "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/consultations",
+    "element": "Nearest label with a city",
+    "file": "patient-app/app/(tabs)/consultations/index.tsx",
+    "line": 366,
+    "found": "[owner] consult.hub.nearestCity says 'Sorted by distance from {city}' but a city fallback only filters to that city (the server has no distance sort without coordinates); owner to approve a more exact wording in six languages.",
+    "suspect": "Owner decision."
   }
 ]

@@ -303,7 +303,7 @@
       "elements": [
         [
           "Search, sort",
-          "?q=, ?sort= (links and a GET form)",
+          "?q=, ?sort= (links and a GET form); hidden when the server orders the list (distance, next slot)",
           "ok"
         ],
         [
@@ -324,6 +324,26 @@
         [
           "Specialty line and doctor name by language",
           "specialty slug via SpecialtyNames (never the slug); name_ar / name_en by page language",
+          "fixed"
+        ],
+        [
+          "Visit type (clinic, video, home visit)",
+          "?type= -> GET /care/doctors type",
+          "ok"
+        ],
+        [
+          "Quick filter 'Nearest'",
+          "?nearest=1&lat=&lng= -> sort=distance&lat=&lng=; no location: ?city= (saved address) -> city; browser location asked on tap only",
+          "ok"
+        ],
+        [
+          "Quick filter 'Available now'",
+          "?available=1 -> available_within=15 with the visit type (clinic by default)",
+          "ok"
+        ],
+        [
+          "Doctor list load failure",
+          "ConsultState error with retry (Doctors.unavailable*, Doctors.retry)",
           "fixed"
         ]
       ]
@@ -555,7 +575,7 @@
       "kind": "client",
       "note": "extractDoctors reads no photo_url or verification field because GET /care/doctors (toPublicDoctor) sends none; the card shows the neutral mark until the backend adds them.",
       "file": "patient-web/app/[locale]/consultations/doctors/page.tsx",
-      "line": 86
+      "line": 126
     },
     {
       "route": "/consultations/book/[doctorId]",
@@ -577,9 +597,9 @@
       "route": "/consultations/doctors",
       "element": "Filters",
       "kind": "owner",
-      "note": "The Consult board draws a specialty rail, visit-mode chips and a cash/insurance segmented filter; the page has search and sort only (not added: feature).",
+      "note": "Search, sort, visit type, Nearest and Available now are drawn; the Consult board's specialty rail and cash/insurance segmented filter are still not on the page (not added: feature).",
       "file": "patient-web/app/[locale]/consultations/doctors/page.tsx",
-      "line": 58
+      "line": 81
     },
     {
       "route": "/appointments",
@@ -604,6 +624,23 @@
       "note": "The video call, waiting room and room screens were only seen in their error and not-ready states here (no media backend in the check); the connected layout is not verified.",
       "file": "patient-web/app/[locale]/consultations/virtual-waiting-room/page.tsx",
       "line": 40
+    },
+    {
+      "route": "/consultations/doctors",
+      "element": "Nearest with Available now",
+      "kind": "backend",
+      "note": "GET /care/doctors orders available_within results by next slot and ignores sort=distance, so with both on the position is not sent (the city filter still is); a combined 'nearest free doctor' needs the server to accept both.",
+      "file": "patient-web/lib/consult/doctor-filters.ts",
+      "line": 72,
+      "backend": "backend/src/modules/care/care.service.ts:115"
+    },
+    {
+      "route": "/consultations/doctors",
+      "element": "Nearest by city wording",
+      "kind": "owner",
+      "note": "Doctors.nearestCity (same text as the app) says 'Sorted by distance from {city}' but a city fallback only filters to that city; owner to approve a more exact wording in six languages.",
+      "file": "patient-web/components-next/consult/doctor-quick-filters.tsx",
+      "line": 63
     }
   ]
 }
