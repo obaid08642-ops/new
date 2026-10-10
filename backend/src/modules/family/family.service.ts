@@ -25,7 +25,8 @@ const ALLOWED_MEMBER_PERMISSIONS = [
 
 /** Legacy grant aliases (698): expanded to canonical keys on write. */
 const PERMISSION_ALIASES: Record<string, string[]> = {
-  view_health: ['vitals', 'reports'],
+  // view_health covered medicines too (missed-dose alerts read 'meds'), so the alias keeps it.
+  view_health: ['vitals', 'meds', 'reports'],
   view_prescriptions: ['meds'],
 };
 

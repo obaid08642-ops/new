@@ -57,7 +57,7 @@ describe('OC C-8 family codes and names', () => {
     const { groupModel, get } = serviceFor({ id: 'grp-1', owner_id: 'user-1' });
     const service = await get();
     await expect(service.setMemberPermissions('user-1', 'user-2', ['view_prescriptions'])).resolves.toEqual({ ok: true, permissions: ['meds'] });
-    await expect(service.setMemberPermissions('user-1', 'user-2', ['view_health'])).resolves.toEqual({ ok: true, permissions: ['vitals', 'reports'] });
+    await expect(service.setMemberPermissions('user-1', 'user-2', ['view_health'])).resolves.toEqual({ ok: true, permissions: ['vitals', 'meds', 'reports'] });
   });
 
   it('backfills member display_name from the user profile', async () => {
