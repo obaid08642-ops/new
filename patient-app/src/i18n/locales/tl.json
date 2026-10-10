@@ -3163,5 +3163,8 @@
   "notifAsk.openSettings": "Buksan ang settings ng telepono",
   "notifAsk.blocked": "Naka-off ang mga notification sa teleponong ito. I-on ang mga ito sa settings ng telepono para makatanggap ng mga alerto.",
   "notifAsk.offers": "I-on ang mga notification para masabihan ka namin agad kapag nagpadala na ng mga alok ang mga parmasya.",
-  "notifAsk.settings": "I-on ang mga notification sa teleponong ito para makatanggap ng paalala sa gamot at appointment at ng mga update sa order."
+  "notifAsk.settings": "I-on ang mga notification sa teleponong ito para makatanggap ng paalala sa gamot at appointment at ng mga update sa order.",
+  "modules.unavailable.title": "Hindi available ang serbisyong ito ngayon",
+  "modules.unavailable.body": "Pansamantala naming inihinto ang serbisyong ito. Magagamit mo pa rin ang iba pang bahagi ng app.",
+  "modules.unavailable.home": "Bumalik sa Home"
 }
