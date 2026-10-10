@@ -1,16 +1,16 @@
-import { ForbiddenException, Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { Inject } from '@nestjs/common';
-import { InjectConnection } from '@nestjs/mongoose';
+import { Injectable, ForbiddenException, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
+import { InjectConnection } from '@nestjs/mongoose';
+import { enforceRxRules } from './rx-rules';
 import { v4 as uuidv4 } from 'uuid';
-import { PrescriptionIntake } from '../schemas/pharmacy.schema';
-import { PharmacyAllocationState, PharmacyOrderState, ORDER_TRANSITIONS, OrderItemMatchStatus } from '../schemas/pharmacy.schema';
+import { PharmacyOrder, PharmacyOrderState, ORDER_TRANSITIONS, OrderItemMatchStatus, PharmacyAllocation } from '../schemas/pharmacy.schema';
 import { SmartSplitService } from './smart-split.service';
 import { PharmacyNotificationService } from './pharmacy-notification.service';
 import { PharmacyBroadcastService } from './pharmacy-broadcast.service';
 import { EventBusService } from '../../events/event-bus.service';
 import { WorkflowEngineService } from '../../workflow-engine/workflow-engine.module';
-import { enforceRxRules } from './rx-rules';
+
+import { PharmacyAllocationState } from '../schemas/pharmacy.schema';
 import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
 import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.repository";
 
@@ -49,50 +49,82 @@ export class PharmacyOrderService {
     if (owned !== new Set(files).size) throw new NotFoundException('prescription_attachment_not_found');
   }
 
+  /**
+   * Resolves prescription attachment IDs to {type, uri} format.
+   * - For storage_objects: uri = /api/v1/storage/<id> (access-checked endpoint, no base64, no S3 URLs)
+   * - For prescription references: if the prescription has an upload image, add as storage file via same endpoint
+   * - One $in query per collection; no per-attachment loops.
+   * - Type determined from mime_type: image/* → image, application/pdf → pdf, audio/* → voice.
+   */
   private async resolvePrescriptionAttachments(attachments: string[], patientId: string): Promise<{ type: 'image' | 'pdf' | 'voice' | 'text'; uri: string }[]> {
     const result: { type: 'image' | 'pdf' | 'voice' | 'text'; uri: string }[] = [];
+
+    if (!attachments.length) return result;
+
+    // Collect prescription IDs and storage object IDs from attachments
+    const prescriptionIds: string[] = [];
+    const storageIds: string[] = [];
+
     for (const id of attachments) {
       if (!id) continue;
-      let doc: any;
-      let sourceUri: string;
-      let type: 'image' | 'pdf' | 'voice' | 'text';
-
-      // Try prescriptions collection first (field `id`)
-      const prescriptionDocs = await this.conn.collection('prescriptions').find({ id, patient_id: patientId }).toArray();
-      if (prescriptionDocs.length > 0) {
-        const prescription = prescriptionDocs[0];
-        if (prescription.upload_image) {
-          type = 'image';
-          sourceUri = prescription.upload_image;
-        }
-      }
-
-      // If not found in prescriptions, try storage_objects collection (field `id`)
-      if (!sourceUri) {
-        const storageDocs = await this.conn.collection('storage_objects').find({ id, owner_account_id: patientId, deleted: { $ne: true } }).toArray();
-        if (storageDocs.length > 0) {
-          const storageObj = storageDocs[0];
-          if (storageObj.external_key) {
-            sourceUri = `https://${process.env.S3_BUCKET || 'storage'}.${process.env.S3_ENDPOINT || ''}/${storageObj.external_key}`;
-            type = 'image';
-          } else if (storageObj.data_base64) {
-            if (storageObj.data_base64?.substring(0, 20).toLowerCase().startsWith('data:image')) {
-              type = 'image';
-            } else if (storageObj.data_base64?.substring(0, 20).toLowerCase().startsWith('data:application/pdf')) {
-              type = 'pdf';
-            } else if (storageObj.data_base64?.substring(0, 20).toLowerCase().startsWith('data:audio')) {
-              type = 'voice';
-            } else {
-              type = 'text';
-            }
-            sourceUri = `data:${storageObj.mime_type || 'application/octet-stream'};base64,${storageObj.data_base64}`;
-          }
-        }
-      }
-
-      if (!sourceUri) throw new NotFoundException('prescription_not_found');
-      result.push({ type, uri: sourceUri });
+      prescriptionIds.push(id);
+      storageIds.push(id);
     }
+
+    // Deduplicate for collection queries
+    const uniquePrescriptionIds = [...new Set(prescriptionIds.filter((id: string) => id))];
+    const uniqueStorageIds = [...new Set(storageIds.filter((id: string) => id))];
+
+    // Query prescriptions collection: find by id field + patient_id
+    if (uniquePrescriptionIds.length > 0) {
+      const prescriptionDocs = await this.conn.collection('prescriptions')
+        .find({ id: { $in: uniquePrescriptionIds }, patient_id: { $eq: patientId } }, { projection: { _id: 0, id: 1, upload_image: 1, mime_type: 1 } })
+        .toArray();
+
+      // Build a map from id to doc for quick lookup
+      const rxMap = new Map(prescriptionDocs.map((d: any) => [d.id, d]));
+
+      // For each attachment, check if it's a prescription ref
+      for (const id of attachments) {
+        if (!id) continue;
+        const doc = rxMap.get(id);
+        if (doc && doc.upload_image) {
+          // Prescription has an upload image - add as storage file via API endpoint
+          const mimeType = doc.mime_type || 'application/octet-stream';
+          let type: 'image' | 'pdf' | 'voice' | 'text';
+          if (mimeType.startsWith('image/')) type = 'image';
+          else if (mimeType === 'application/pdf') type = 'pdf';
+          else if (mimeType.startsWith('audio/')) type = 'voice';
+          else type = 'text';
+          result.push({ type, uri: `/api/v1/storage/${id}` });
+        }
+      }
+    }
+
+    // Query storage_objects collection: find by id + owner_account_id + not deleted
+    if (uniqueStorageIds.length > 0) {
+      const storageDocs = await this.conn.collection('storage_objects')
+        .find({ id: { $in: uniqueStorageIds }, owner_account_id: { $eq: patientId }, deleted: { $ne: true } }, { projection: { _id: 0, id: 1, mime_type: 1, data_base64: 1, external_key: 1 } })
+        .toArray();
+
+      const stMap = new Map(storageDocs.map((d: any) => [d.id, d]));
+
+      for (const id of attachments) {
+        if (!id) continue;
+        const doc = stMap.get(id);
+        if (!doc) continue;
+        // Determine type from mime_type
+        const mimeType = doc.mime_type || 'application/octet-stream';
+        let type: 'image' | 'pdf' | 'voice' | 'text';
+        if (mimeType.startsWith('image/')) type = 'image';
+        else if (mimeType === 'application/pdf') type = 'pdf';
+        else if (mimeType.startsWith('audio/')) type = 'voice';
+        else type = 'text';
+        // URI = endpoint that checks access (NOT base64, NOT S3 URL)
+        result.push({ type, uri: `/api/v1/storage/${id}` });
+      }
+    }
+
     return result;
   }
 
@@ -126,7 +158,6 @@ export class PharmacyOrderService {
     }
     if (!items.length && !body.prescription_id) throw new BadRequestException('items_required');
     await this.assertOwnPrescriptionRefs(user, body);
-    const resolvedAttachments = await this.resolvePrescriptionAttachments(body.prescription_attachments || [], user.id);
     const addr = body.delivery_address || {};
     const geo = addr.geo || (addr.lat && addr.lng ? { lat: Number(addr.lat), lng: Number(addr.lng) } : null);
     const normalizedAddress = { ...addr, ...(geo ? { geo } : {}) };
@@ -145,7 +176,7 @@ export class PharmacyOrderService {
       payment_mode: body.payment_mode === 'insurance' ? 'insurance' : 'cash',
       insurance_policy_id: typeof body.insurance_policy_id === 'string' ? body.insurance_policy_id : undefined,
       delivery_address_id: typeof body.delivery_address_id === 'string' ? body.delivery_address_id : undefined,
-      prescription_attachments: resolvedAttachments,
+      prescription_attachments: body.prescription_attachments || [],
       totals: { subtotal: 0, delivery_fee: 0, total: 0, currency: 'SAR' },
       timeline: [{ ts: new Date(), event: 'created' }],
     });
