@@ -35,7 +35,6 @@ export const ALL_ORDER_ENDPOINTS: OrderEndpoints = [
   ['labs', '/labs/bookings/mine'],
   ['radiology', '/radiology/bookings/mine'],
   ['nursing', '/home-care/bookings/my'],
-  ['claims', '/insurance/claims'],
   ['returns', '/pharmacy/returns'],
 ];
 

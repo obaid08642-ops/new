@@ -1,8 +1,8 @@
-import { redirectToInsuranceTab } from "@/lib/insurance/redirect";
+import { redirectToInsuranceHub } from "@/lib/insurance/redirect";
 
-type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
+type Props = { params: Promise<{ locale: string }> };
 
-/** Merge map 2, section 6: this page is now the claims tab of the insurance hub. */
-export default function InsuranceClaimsRedirect({ params, searchParams }: Props) {
-  return redirectToInsuranceTab(params, searchParams, "claims");
+/** Removed by owner decision 35 (2026-10-10): insurance claims are not a patient feature (the facility asks the insurer). Old links open the insurance hub. */
+export default function InsuranceClaimsRedirect({ params }: Props) {
+  return redirectToInsuranceHub(params);
 }
