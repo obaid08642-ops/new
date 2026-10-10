@@ -747,7 +747,6 @@
   "orders.kind.labs": "Lab tests",
   "orders.kind.radiology": "Radiology",
   "orders.kind.nursing": "Nursing visit",
-  "orders.kind.ambulance": "Ambulance request",
   "orders.kind.insurance": "Insurance claim",
   "orders.kind.returns": "Return request",
   "orders.sub.video": "Video consultation",
@@ -1501,7 +1500,7 @@
   "health.emergency.tryAgain": "Try again in a moment.",
   "health.emergency.family": "My family on Nabd Plus",
   "health.emergency.invite": "Invite",
-  "health.emergency.familyNote": "When you press the emergency button, your location is sent to your contacts and your family.",
+  "health.emergency.familyNote": "These are the people you can call in an emergency.",
   "health.emergency.familyEmpty": "No one is in your family group yet. Invite your family to make them emergency contacts.",
   "health.emergency.member": "Family member",
   "health.emergency.noPhone": "No phone number saved",
@@ -3186,5 +3185,11 @@
   "pharmacy.pay.method.google-pay": "Google Pay",
   "pharmacy.scan.unreadable": "No medicines could be read from this photo. Try a clearer photo, or request the medicine by name.",
   "orders.track.legacyEta": "Arrives in about {n} min",
-  "consult.doc.verified": "Verified doctor"
+  "consult.doc.verified": "Verified doctor",
+  "emergency.title": "Urgent help",
+  "emergency.serviceDesc": "Call the urgent-help number",
+  "emergency.intro": "If you need help right away, call the urgent-help number set up for Nabd Plus.",
+  "emergency.call": "Call {number}",
+  "emergency.unavailable": "No urgent-help number has been set up yet, so there is nothing to call from here. If you are in danger, contact your local emergency services.",
+  "emergency.note": "Nabd Plus is not an emergency service and cannot send help to your location."
 }

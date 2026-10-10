@@ -37,7 +37,6 @@ export const ALL_ORDER_ENDPOINTS: OrderEndpoints = [
   ['nursing', '/home-care/bookings/my'],
   ['claims', '/insurance/claims'],
   ['returns', '/pharmacy/returns'],
-  ['emergency', '/emergency/my/active'],
 ];
 
 /** The pharmacy order history: the governed pharmacy orders only. */

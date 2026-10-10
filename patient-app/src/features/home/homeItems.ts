@@ -11,7 +11,7 @@ export const HOME_SERVICES: HomeService[] = [
   { service: 'maternity', label: 'الأمومة', route: '/maternity/hub' },
   { service: 'map', label: 'الخريطة', route: '/map' },
   { service: 'health', label: 'صحتي', route: '/(tabs)/health' },
-  { service: 'emergency', label: 'إسعاف', route: '/emergency/sos' },
+  { service: 'emergency', label: 'emergency.title', route: '/emergency' },
 ];
 
 /** The AI tools row of the board. */

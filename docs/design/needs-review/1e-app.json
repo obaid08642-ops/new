@@ -43,16 +43,6 @@
     "batch": 1,
     "app": "patient-app",
     "screen": "/orders",
-    "element": "Emergency request status",
-    "file": "",
-    "line": 0,
-    "found": "[backend] GET /emergency/my/active answers 200 with an empty body when there is none and the patient view carries state, not status; the row says 'active' because the endpoint lists only the active one.",
-    "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": 1,
-    "app": "patient-app",
-    "screen": "/orders",
     "element": "Kind filter chips",
     "file": "",
     "line": 0,

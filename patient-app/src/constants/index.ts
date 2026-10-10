@@ -85,9 +85,3 @@ export const FAMILY_RELATIONS = [
   { id: 'grandmother', nameAr: 'جدة', icon: 'user' },
 ];
 
-export const EMERGENCY_NUMBERS = {
-  ambulance: '997',
-  police: '999',
-  fire: '998',
-  civilDefense: '911',
-};

@@ -39,7 +39,7 @@ export const MAIN_SERVICES: MainService[] = [
 
 /** The rest of the Services tab, as rows. */
 export const MORE_SERVICES: ServiceRow[] = [
-  { icon: 'ambulance', tone: tone('emergency'), title: 'الطوارئ والإسعاف', desc: 'طلب إسعاف أو استشارة طارئة', route: '/emergency/sos' },
+  { icon: 'ambulance', tone: tone('emergency'), title: 'emergency.title', desc: 'emergency.serviceDesc', route: '/emergency' },
   { icon: 'eye', tone: 'blue', title: 'فحص النظر', desc: 'حجز فحص عيون مع أخصائي', route: '/search?view=doctors&specialty=ophthalmology' },
   { icon: 'tooth', tone: 'mint', title: 'طب الأسنان', desc: 'تنظيف، حشو، تقويم، زراعة', route: '/search?view=doctors&specialty=dentistry' },
   { icon: 'brain', tone: tone('mind'), title: 'الصحة النفسية', desc: 'استشارات نفسية وجلسات علاجية', route: '/mental-health/hub' },
@@ -56,7 +56,7 @@ export const SERVICE_GROUPS: ServiceGroupData[] = [
       { title: 'التحاليل المخبرية', desc: 'سحب عينة منزلي أو زيارة المختبر', icon: 'test-tube', tone: 'mint', route: '/(tabs)/diagnostics' },
       { title: 'الأشعة والتصوير', desc: 'حجز مواعيد الأشعة', icon: 'scan', tone: 'violet', route: '/(tabs)/diagnostics?tab=radiology' },
       { title: 'التمريض المنزلي', desc: 'رعاية تمريضية في منزلك', icon: 'first-aid-kit', tone: tone('nursing'), route: '/(tabs)/nursing' },
-      { title: 'الإسعاف', desc: 'طلب إسعاف طارئ فوري', icon: 'ambulance', tone: 'peach', route: '/emergency/sos' },
+      { title: 'emergency.title', desc: 'emergency.serviceDesc', icon: 'ambulance', tone: 'peach', route: '/emergency' },
       { title: 'الصيدلية', desc: 'أدوية ومنتجات صحية بتوصيل سريع', icon: 'pill', tone: tone('pharmacy'), route: '/(tabs)/pharmacy' },
     ],
   },
