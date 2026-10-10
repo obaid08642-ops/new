@@ -347,7 +347,7 @@ export function inBucket(rows: OrderRow[], bucket: Bucket): OrderRow[] {
 }
 
 /** The kinds the service filter offers, in the order of the chips. */
-export const KIND_ORDER: readonly OrderKind[] = ['doctors', 'pharmacy', 'labs', 'radiology', 'nursing', 'insurance', 'returns'];
+export const KIND_ORDER: readonly OrderKind[] = ['doctors', 'pharmacy', 'labs', 'radiology', 'nursing', 'returns'];
 /** Only the kinds present in the loaded rows get a chip. */
 export function kindsPresent(rows: OrderRow[]): OrderKind[] {
   const seen = new Set(rows.map((r) => r.kind));
