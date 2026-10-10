@@ -1183,4 +1183,19 @@ export class NotificationsService {
       });
     }
   }
+
+  // ============ D-13: Patient notification for no pharmacy available ============
+  @OnEvent('pharmacy.no_pharmacy_available')
+  async onPharmacyNoPharmacyAvailable(p: any) {
+    if (!p?.patient_id) return;
+    await this.create({
+      user_id: p.patient_id,
+      title_key: 'notif.pharmacy_no_pharmacy_available.title',
+      body_key: 'notif.pharmacy_no_pharmacy_available.body',
+      params: { order_id: p.order_id },
+      type: NotificationType.ALERT,
+      priority: NotificationPriority.HIGH,
+      action: { route: '/pharmacy/orders/' + p.order_id },
+    });
+  }
 }

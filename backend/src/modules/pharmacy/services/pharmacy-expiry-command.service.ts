@@ -1,6 +1,7 @@
-import { Injectable, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable, BadRequestException, ServiceUnavailableException, Inject } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { v4 as uuidv4 } from 'uuid';
 import { PharmacyOrderState } from '../schemas/pharmacy.schema';
 import { PharmacyBroadcastService } from './pharmacy-broadcast.service';
@@ -35,6 +36,7 @@ export class PharmacyExpiryCommandService {
     @InjectModel('PharmacyBroadcast') private readonly broadcasts: Model<any>,
     @InjectModel('PharmacyOrder') private readonly orders: Model<any>,
     private readonly broadcastService: PharmacyBroadcastService,
+    @Inject() private readonly events: EventEmitter2,
   ) {}
 
   private limit(value?: number) {
@@ -110,6 +112,9 @@ export class PharmacyExpiryCommandService {
   }
 
   private async closeBroadcast(claimed: any, token: string, now: Date, reason: string) {
+    const orderId = claimed.order_id;
+    const patientId = await this.getPatientId(orderId);
+    
     await this.withTransaction(async (session) => {
       const result = await this.broadcasts.updateOne(
         { id: claimed.id, lock_state: 'open', 'expiry_claim.token': token, round_expires_at: { $lte: now } },
@@ -126,6 +131,16 @@ export class PharmacyExpiryCommandService {
         payload: { broadcast_id: claimed.id, order_id: claimed.order_id, current_round: claimed.current_round, selection_required: true, reason },
       }, now, session);
     });
+    
+    // D-13: Notify patient that no pharmacy is available
+    if (patientId) {
+      this.events.emit('pharmacy.no_pharmacy_available', { patient_id: patientId, order_id: orderId, broadcast_id: claimed.id, reason });
+    }
+  }
+  
+  private async getPatientId(orderId: string): Promise<string | null> {
+    const order = await this.orders.findOne({ id: orderId }, { projection: { _id: 0, patient_account_id: 1 } }).lean() as any;
+    return order?.patient_account_id || null;
   }
 
   private async expireBroadcast(candidate: any, now: Date): Promise<{ outcome: 'advanced' | 'closed' | 'claimed'; recipient_intents: number }> {

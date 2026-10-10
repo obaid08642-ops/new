@@ -25,7 +25,7 @@ describe('PharmacyExpiryCommandService', () => {
       getBroadcastStages: jest.fn().mockImplementation(async () => { if (options.stagesError) throw options.stagesError; return stages; }),
       findEligiblePharmaciesWithin: jest.fn().mockResolvedValue(options.eligible ?? [{ account_id: 'pharmacy-2' }]),
     };
-    return { service: new PharmacyExpiryCommandService(connection, offers, broadcasts, orders, broadcastService), connection, offers, broadcasts, orders, outbox, recipients, broadcastService, session };
+    return { service: new PharmacyExpiryCommandService(connection, offers, broadcasts, orders, broadcastService, {} as any), connection, offers, broadcasts, orders, outbox, recipients, broadcastService, session };
   }
 
   it('expires only due draft/submitted quotes using a lease claim and transactionally records the idempotent intent', async () => {

@@ -227,6 +227,38 @@ export class PharmacyOrderService {
       else governed_state = 'OFFER_SELECTED';
     }
 
+    // D-13: search state for patient pharmacy order detail
+    let search: any = undefined;
+    const status = String(order.status);
+    if (status === 'BROADCASTING') {
+      // Find the current broadcast to get round and radius
+      const broadcast = order.broadcasts && order.broadcasts.length > 0 
+        ? order.broadcasts[order.broadcasts.length - 1] 
+        : null;
+      const round = broadcast?.current_round || 1;
+      const radius_km = broadcast?.current_radius_km || 3;
+      const ends_at = broadcast?.round_expires_at || null;
+      search = {
+        state: 'expanding',
+        round,
+        radius_km,
+        ends_at,
+      };
+    } else if (status === 'MANUAL_REVIEW') {
+      // Check if broadcast expired without offer selected
+      const timeline = order.timeline || [];
+      const broadcastExpired = timeline.some((t: any) => t.event === 'broadcast_expired_manual_review');
+      if (broadcastExpired) {
+        search = { state: 'no_pharmacy_available' };
+        // Override governed_state for AUTO_CANCELLED
+      }
+    }
+
+    // If search state indicates no pharmacy available, override governed_state to AUTO_CANCELLED
+    if (search && search.state === 'no_pharmacy_available') {
+      governed_state = 'AUTO_CANCELLED';
+    }
+
     const view: any = {
       governed_state,
       coverage_mode: order.coverage_mode || (method === 'insurance' ? 'insurance' : selected ? 'cash' : undefined),
@@ -241,6 +273,7 @@ export class PharmacyOrderService {
         : undefined,
       accepted_quote_hash: quoteAccepted || codRegistered ? snapshot?.hash : undefined,
       accepted_quote_revision: quoteAccepted || codRegistered ? Number(order.selected_offer_version) : undefined,
+      search,
     };
 
     if (decision) {
