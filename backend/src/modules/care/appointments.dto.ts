@@ -64,6 +64,10 @@ export class CreateAppointmentDto {
   @IsString()
   @IsOptional()
   slot_lock_id?: string; // optional 10-min hold id from POST /slot-locks/reserve
+
+  @IsString()
+  @IsOptional()
+  follow_up_of?: string;
 }
 
 export class CancelAppointmentDto {
