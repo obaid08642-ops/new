@@ -1,22 +1,21 @@
-import { Injectable, ForbiddenException, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
-import { Connection, Model } from 'mongoose';
+import { ForbiddenException, Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
-import { enforceRxRules } from './rx-rules';
+import { Connection, Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { PharmacyOrder, PharmacyOrderState, ORDER_TRANSITIONS, OrderItemMatchStatus, PharmacyAllocation } from '../schemas/pharmacy.schema';
+import { PrescriptionIntake } from '../schemas/pharmacy.schema';
+import { PharmacyAllocationState, PharmacyOrderState, ORDER_TRANSITIONS, OrderItemMatchStatus } from '../schemas/pharmacy.schema';
 import { SmartSplitService } from './smart-split.service';
 import { PharmacyNotificationService } from './pharmacy-notification.service';
 import { PharmacyBroadcastService } from './pharmacy-broadcast.service';
 import { EventBusService } from '../../events/event-bus.service';
 import { WorkflowEngineService } from '../../workflow-engine/workflow-engine.module';
-
-import { PharmacyAllocationState } from '../schemas/pharmacy.schema';
+import { enforceRxRules } from './rx-rules';
 import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
 import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.repository";
 
 function assertPatient(u: any) { if (!u || u.role !== 'patient') throw new ForbiddenException('patient_scope_required'); }
 
-@Injectable()
 export class PharmacyOrderService {
   constructor(
     @Inject('PharmacyOrderRepository') private orders: PharmacyOrderRepository,
@@ -49,6 +48,17 @@ export class PharmacyOrderService {
     if (owned !== new Set(files).size) throw new NotFoundException('prescription_attachment_not_found');
   }
 
+  private async resolvePrescriptionAttachments(attachments: string[], patientId: string): Promise<{ type: 'image' | 'pdf' | 'voice' | 'text'; uri: string }[]> {
+    const result: { type: 'image' | 'pdf' | 'voice' | 'text'; uri: string }[] = [];
+    for (const id of attachments) {
+      if (!id) continue;
+      const intake = await this.conn.model<PrescriptionIntake>('PrescriptionIntake').findOne({ _id: id, patient_account_id: patientId });
+      if (!intake) throw new NotFoundException('prescription_not_found');
+      result.push({ type: intake.type as 'image' | 'pdf' | 'voice' | 'text', uri: intake.source_uri });
+    }
+    return result;
+  }
+
   async create(user: any, body: any) {
     assertPatient(user);
     const sanitize = (str: any) => String(str || '').replace(/[<>]/g, '').trim();
@@ -79,6 +89,7 @@ export class PharmacyOrderService {
     }
     if (!items.length && !body.prescription_id) throw new BadRequestException('items_required');
     await this.assertOwnPrescriptionRefs(user, body);
+    const resolvedAttachments = await this.resolvePrescriptionAttachments(body.prescription_attachments || [], user.id);
     const addr = body.delivery_address || {};
     const geo = addr.geo || (addr.lat && addr.lng ? { lat: Number(addr.lat), lng: Number(addr.lng) } : null);
     const normalizedAddress = { ...addr, ...(geo ? { geo } : {}) };
@@ -97,7 +108,7 @@ export class PharmacyOrderService {
       payment_mode: body.payment_mode === 'insurance' ? 'insurance' : 'cash',
       insurance_policy_id: typeof body.insurance_policy_id === 'string' ? body.insurance_policy_id : undefined,
       delivery_address_id: typeof body.delivery_address_id === 'string' ? body.delivery_address_id : undefined,
-      prescription_attachments: body.prescription_attachments || [],
+      prescription_attachments: resolvedAttachments,
       totals: { subtotal: 0, delivery_fee: 0, total: 0, currency: 'SAR' },
       timeline: [{ ts: new Date(), event: 'created' }],
     });
